@@ -602,10 +602,11 @@ func (action *APLActionAutocastOtherCooldowns) String() string {
 	return "Autocast Other Cooldowns"
 }
 func (action *APLActionAutocastOtherCooldowns) PostFinalize(rot *APLRotation) {
-	if len(action.character.initialMajorCooldowns) == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL.", action)
+	mcds := FilterSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) bool { return mcd.autocasts() })
+	if len(mcds) == 0 {
+		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.", action)
 	} else {
-		actionIDs := MapSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) ActionID {
+		actionIDs := MapSlice(mcds, func(mcd MajorCooldown) ActionID {
 			return mcd.Spell.ActionID
 		})
 
