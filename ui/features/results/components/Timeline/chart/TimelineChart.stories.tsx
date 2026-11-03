@@ -1,4 +1,4 @@
-import { AddWave, DesignDamageAmp, EncounterDesign, Target } from '@generated/proto/common';
+import { AddWave, DesignBossAbility, DesignBossAbility_Kind, DesignDamageAmp, EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { damageLog, dpsLog, HEROIC_STRIKE } from '@testing/storybook/fixtures/results-views';
 
@@ -47,6 +47,15 @@ const dpsSpec = (withDesign = false): TimelineChartSpec => {
 							],
 							damageAmps: [{ ...DesignDamageAmp.create(), percent: 20, start: { at: 0.6, jitter: 0 }, end: { at: 0.8, jitter: 0 } }],
 							moves: [{ name: '', at: { at: 0.5, jitter: 0 }, yards: 8, seconds: 0, repeat: { interval: 0, count: 0, jitter: 0 } }],
+							bossAbilities: [
+								{
+									...DesignBossAbility.create(),
+									kind: DesignBossAbility_Kind.Pulse,
+									start: { at: 0.15, jitter: 0 },
+									end: { at: 0.25, jitter: 0 },
+									repeat: { interval: 0.5, count: 1, jitter: 0 },
+								},
+							],
 						},
 						DURATION,
 					),

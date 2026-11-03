@@ -130,6 +130,21 @@ export const eventTooltip = (
 					if (ability.extraAttacks > 0) details.push(tip('extra_attacks', { count: ability.extraAttacks }));
 					if (ability.icd > 0) details.push(tip('icd', { time: formatSeconds(ability.icd) }));
 					break;
+				case DesignBossAbility_Kind.Pulse:
+				case DesignBossAbility_Kind.AreaHit: {
+					details.push(tip('school_damage', { school: translateSpellSchool(ability.school), min: ability.minDamage, max: ability.maxDamage }));
+					if (ability.kind === DesignBossAbility_Kind.Pulse) {
+						const interval = formatSeconds(ability.tickInterval);
+						details.push(
+							ability.tickJitter > 0 ? tip('ticks_jitter', { interval, jitter: formatSeconds(ability.tickJitter) }) : tip('ticks', { interval }),
+						);
+						// The first tick lands at the window's start, so a window shorter than one interval still ticks once.
+						if (ability.tickInterval > 0 && (shown.end - shown.start) * baseSeconds < ability.tickInterval) details.push(tip('ticks_once'));
+					}
+					details.push(tip('hits_all'), tip(ability.resistible ? 'resistible' : 'environmental'));
+					if (ability.avoidable) details.push(tip('avoidable'));
+					break;
+				}
 				default:
 					details.push(tip('swing_speed', { value: ability.swingSpeedMultiplier }));
 			}

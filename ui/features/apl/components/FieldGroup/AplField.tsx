@@ -9,6 +9,7 @@ import { useId } from 'react';
 
 import { ActionFieldList } from './fields/ActionFieldList';
 import { ActionIdField } from './fields/ActionIdField';
+import { BossAbilityNameField } from './fields/BossAbilityNameField';
 import { EnumField } from './fields/EnumField';
 import { GroupVariablesField } from './fields/GroupVariablesField';
 import { PlaceholderNameField } from './fields/PlaceholderNameField';
@@ -70,6 +71,8 @@ export const AplField = ({ player, spec, getParentValue }: AplFieldProps) => {
 			return <PlaceholderNameField player={player} config={config} getParentValue={getParentValue} />;
 		case 'groupVariables':
 			return <GroupVariablesField player={player} config={config} groupNameField={spec.groupNameField} getParentValue={getParentValue} />;
+		case 'bossAbilityName':
+			return <BossAbilityNameField player={player} config={config} />;
 		case 'value':
 			return <ValuePicker player={player} config={config} />;
 		case 'valueList':

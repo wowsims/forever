@@ -16,7 +16,7 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { Class, Encounter as EncounterProto, EncounterDesign, SpellSchool, Target as TargetProto } from '@generated/proto/common';
+import { Class, DesignBossAbility_Kind, Encounter as EncounterProto, EncounterDesign, SpellSchool, Target as TargetProto } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { SimRun } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -27,7 +27,7 @@ import { PlayerSpec } from '../player/player_spec';
 import { PlayerSpecs } from '../player/specs';
 import { bucket } from '../utils/collections';
 import { percentOf, sum } from '../utils/math';
-import { ActionId, defaultTargetIcon } from './action_id';
+import { ActionId, defaultTargetIcon, ENCOUNTER_DESIGN_ABILITY_TAG } from './action_id';
 import {
 	AuraUptimeLog,
 	buildAuraUptimes,
@@ -663,6 +663,23 @@ const designAddTarget = (design: EncounterDesign | undefined, add: DesignAdd): {
 		});
 	const addName = template.name || i18n.t('settings_tab.encounter.designer.adds.add_title', { number: add.addIndex + 1 });
 	return { template, name: `${waveName} · ${addName}` };
+};
+
+// The spell a design's spell hit, pulse tick and area hit report as (designSpellHitSpellID in sim/core/design_boss_abilities.go).
+const DESIGN_SPELL_HIT_SPELL_ID = 18282;
+
+// A pulse's ticks and an area hit report under the spell, tagged with the ability's index, and take the name the
+// designer gives the ability, "Boss ability N" when it has none, with the kind after it. Undefined for any other id.
+const designAreaName = (design: EncounterDesign | undefined, actionId: ActionId): string | undefined => {
+	if (actionId.spellId !== DESIGN_SPELL_HIT_SPELL_ID || actionId.tag < ENCOUNTER_DESIGN_ABILITY_TAG) return undefined;
+	const index = actionId.tag - ENCOUNTER_DESIGN_ABILITY_TAG;
+	const ability = design?.bossAbilities[index];
+	if (ability?.kind !== DesignBossAbility_Kind.Pulse && ability?.kind !== DesignBossAbility_Kind.AreaHit) return undefined;
+	const kind = i18n.t(`settings_tab.encounter.designer.ability_kinds.${ability.kind === DesignBossAbility_Kind.Pulse ? 'pulse' : 'area_hit'}`);
+	const name =
+		ability.name ||
+		i18n.t('settings_tab.encounter.designer.event_name', { event: i18n.t('settings_tab.encounter.designer.events.ability'), number: index + 1 });
+	return `${name} (${kind})`;
 };
 
 export class EncounterMetrics {
@@ -1492,7 +1509,8 @@ export class ActionMetrics {
 
 	static async makeNew(unit: UnitMetrics | null, resultData: SimResultData, actionMetrics: ActionMetricsProto, playerIndex?: number): Promise<ActionMetrics> {
 		const actionId = await ActionId.fromProto(actionMetrics.id!).fill(playerIndex);
-		return new ActionMetrics(unit, actionId, actionMetrics, resultData);
+		const areaName = designAreaName(resultData.request.encounter?.design, actionId);
+		return new ActionMetrics(unit, areaName ? actionId.withName(areaName) : actionId, actionMetrics, resultData);
 	}
 
 	// Merges an array of metrics into a single metric.

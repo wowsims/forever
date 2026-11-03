@@ -17,7 +17,7 @@ import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
 import type { DesignEvent, DesignEventKind, DesignEventRef } from '../../../model/lanes';
-import { getEvent } from '../../../model/lanes';
+import { getEvent, withAbilityKind } from '../../../model/lanes';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 
 export const designerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.designer.${name}`, options);
@@ -174,10 +174,11 @@ const repeatFields = <E extends { repeat?: DesignRepeat }>(): Array<DesignFieldC
 	];
 };
 
-const targetField = <E extends { targetIndex: number }>(): DesignFieldConfig<E> => ({
+const targetField = <E extends { targetIndex: number }>(extra: Partial<FieldBase<E>> = {}): DesignFieldConfig<E> => ({
 	type: 'choice',
 	id: 'target',
 	label: label('target'),
+	...extra,
 	options: context => context.targetNames.map((name, value) => ({ value, label: name })),
 	get: event => event.targetIndex,
 	set: (event, value) => {
@@ -212,6 +213,8 @@ export const ABILITY_KINDS: ReadonlyArray<[DesignBossAbility_Kind, string]> = [
 	[DesignBossAbility_Kind.Strike, 'strike'],
 	[DesignBossAbility_Kind.Thrash, 'thrash'],
 	[DesignBossAbility_Kind.SwingTiming, 'swing_timing'],
+	[DesignBossAbility_Kind.Pulse, 'pulse'],
+	[DesignBossAbility_Kind.AreaHit, 'area_hit'],
 ];
 
 const SCHOOLS: ReadonlyArray<SpellSchool> = [
@@ -346,15 +349,29 @@ const ofKind =
 const abilityFields = (): Array<DesignFieldConfig<DesignBossAbility>> => {
 	const spellHit = ofKind(DesignBossAbility_Kind.SpellHit);
 	const thrash = ofKind(DesignBossAbility_Kind.Thrash);
+	const pulse = ofKind(DesignBossAbility_Kind.Pulse);
+	const area = ofKind(DesignBossAbility_Kind.Pulse, DesignBossAbility_Kind.AreaHit);
+	const damage = ofKind(DesignBossAbility_Kind.SpellHit, DesignBossAbility_Kind.Pulse, DesignBossAbility_Kind.AreaHit);
+	const toggle = (name: 'resistible' | 'avoidable'): DesignFieldConfig<DesignBossAbility> => ({
+		type: 'boolean',
+		id: name,
+		label: label(name),
+		tooltip: tooltip(name),
+		show: area,
+		get: event => event[name],
+		set: (event, value) => {
+			event[name] = value;
+		},
+	});
 	return [
 		nameField(),
 		enumField<DesignBossAbility, DesignBossAbility_Kind>(
 			'ability_kind',
 			ABILITY_KINDS.map(([value, name]) => [value, designerText(`ability_kinds.${name}`)]),
 			event => event.kind,
-			(event, value) => (event.kind = value),
+			withAbilityKind,
 		),
-		targetField(),
+		targetField({ show: event => !area(event) }),
 		...spanFields<DesignBossAbility>(),
 		...repeatFields<DesignBossAbility>(),
 		enumField<DesignBossAbility, SpellSchool>(
@@ -362,10 +379,14 @@ const abilityFields = (): Array<DesignFieldConfig<DesignBossAbility>> => {
 			SCHOOLS.map(school => [school, translateSpellSchool(school)]),
 			event => event.school,
 			(event, value) => (event.school = value),
-			{ show: spellHit },
+			{ show: damage },
 		),
-		plain('min_damage', ...prop<DesignBossAbility>('minDamage'), { show: spellHit }),
-		plain('max_damage', ...prop<DesignBossAbility>('maxDamage'), { show: spellHit }),
+		plain('min_damage', ...prop<DesignBossAbility>('minDamage'), { show: damage }),
+		plain('max_damage', ...prop<DesignBossAbility>('maxDamage'), { show: damage }),
+		plain('tick_interval', ...prop<DesignBossAbility>('tickInterval'), { float: true, tooltip: tooltip('tick_interval'), show: pulse }),
+		plain('tick_jitter', ...prop<DesignBossAbility>('tickJitter'), { float: true, tooltip: tooltip('tick_jitter'), show: pulse }),
+		toggle('resistible'),
+		toggle('avoidable'),
 		plain('cast_time', ...prop<DesignBossAbility>('castTime'), { float: true, show: spellHit }),
 		plain('weapon_percent', ...prop<DesignBossAbility>('weaponPercent'), { float: true, show: ofKind(DesignBossAbility_Kind.Strike) }),
 		plain('proc_chance', ...prop<DesignBossAbility>('procChance'), { float: true, show: thrash }),

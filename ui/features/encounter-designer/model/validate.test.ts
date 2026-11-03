@@ -2,7 +2,7 @@ import { AddWave, DamageAmpType, DesignBossAbility_Kind, EncounterDesign, Health
 import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
-import { addEvent, removeEvent } from './lanes';
+import { addEvent, removeEvent, withAbilityKind } from './lanes';
 import { DESIGN_ISSUE_KEYS, validateDesign } from './validate';
 
 const keys = (design: EncounterDesign, targetCount = 1) =>
@@ -178,6 +178,43 @@ describe('validateDesign', () => {
 		ability.procChance = 20;
 		ability.extraAttacks = 0;
 		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.noExtraAttacks}`]);
+	});
+
+	it('accepts a new pulse and area hit, and flags the ones the sim skips or that roll min above max', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'ability');
+		addEvent(design, 'ability');
+		const [pulse, areaHit] = design.bossAbilities;
+		withAbilityKind(pulse, DesignBossAbility_Kind.Pulse);
+		withAbilityKind(areaHit, DesignBossAbility_Kind.AreaHit);
+		expect(keys(design)).toEqual([]);
+
+		pulse.tickInterval = 0;
+		areaHit.maxDamage = 0;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.noTickInterval}`, `ability1:error:${DESIGN_ISSUE_KEYS.noDamage}`]);
+
+		pulse.tickInterval = 1;
+		pulse.minDamage = 800;
+		areaHit.maxDamage = 2000;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.minAboveMax}`]);
+
+		pulse.minDamage = 500;
+		pulse.end!.at = pulse.start!.at;
+		expect(keys(design)).toEqual([`ability0:error:${DESIGN_ISSUE_KEYS.endBeforeStart}`]);
+	});
+
+	it('names no target for a pulse or an area hit, whose target index the sim ignores', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'ability');
+		addEvent(design, 'ability');
+		for (const [ability, kind] of [
+			[design.bossAbilities[0], DesignBossAbility_Kind.Pulse],
+			[design.bossAbilities[1], DesignBossAbility_Kind.SpellHit],
+		] as const) {
+			withAbilityKind(ability, kind);
+			ability.targetIndex = -1;
+		}
+		expect(keys(design)).toEqual([`ability1:error:${DESIGN_ISSUE_KEYS.targetOutOfRange}`]);
 	});
 
 	it('warns about a wave at the very end of the fight, which never spawns', () => {

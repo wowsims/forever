@@ -11,7 +11,7 @@ import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTo
 
 // The tag of an encounter design's boss ability is this plus its index in the design.
 // Mirrors designBossAbilityTag in sim/core/design_boss_abilities.go.
-const ENCOUNTER_DESIGN_ABILITY_TAG = 2_000_000;
+export const ENCOUNTER_DESIGN_ABILITY_TAG = 2_000_000;
 
 // Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
@@ -772,6 +772,21 @@ export class ActionId {
 			iconUrl: this.iconUrl,
 			randomSuffixId: this.randomSuffixId,
 			rank: this.rank,
+		});
+	}
+
+	withName(name: string): ActionId {
+		return new ActionId({
+			itemId: this.itemId,
+			spellId: this.spellId,
+			otherId: this.otherId,
+			tag: this.tag,
+			baseName: this.baseName,
+			name,
+			iconUrl: this.iconUrl,
+			randomSuffixId: this.randomSuffixId,
+			rank: this.rank,
+			definitionId: this.definitionId,
 		});
 	}
 

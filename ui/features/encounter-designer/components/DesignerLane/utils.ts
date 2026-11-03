@@ -1,5 +1,5 @@
 import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, DesignMove, EncounterDesign, HealthKeyframe } from '@generated/proto/common';
-import { DesignTime } from '@generated/proto/common';
+import { DesignBossAbility_Kind, DesignTime } from '@generated/proto/common';
 import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 
 import type { DesignEventRef, DesignLaneKind, HealthSegment } from '../../model/lanes';
@@ -13,6 +13,7 @@ import {
 	moveSeconds,
 	occurrences,
 	PLAYER_RUN_SPEED,
+	pulseTicks,
 } from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
 import { clamp, secondsToFraction } from '../../model/time';
@@ -27,9 +28,9 @@ export interface LaneEvent {
 	ref: DesignEventRef;
 	window: TimeWindow;
 	jitter: { start: number; end: number };
-	/** Every occurrence after the first, which the lane draws as ghosts. A spell hit or a strike has none: its occurrences are `ticks`. */
+	/** Every occurrence after the first, which the lane draws as ghosts. A spell hit, a strike or an area hit has none: its occurrences are `ticks`. */
 	repeats: ReadonlyArray<TimeWindow>;
-	/** The start of every occurrence of a spell hit or a strike, which the lane draws as tick marks inside its bar. */
+	/** The start of every occurrence of a spell hit, a strike or an area hit, or every tick of a pulse's windows, which the lane draws as tick marks. */
 	ticks: ReadonlyArray<number>;
 	row: number;
 	/** The window may run past the fight's end, as a wave's lifetime and a move's walk do. */
@@ -88,6 +89,16 @@ const windowOf = (design: EncounterDesign, ref: DesignEventRef, baseSeconds: num
 	return { start: found.at, end: found.at };
 };
 
+// A pulse's ticks over all its windows, cut at the fight's end, at most MAX_OCCURRENCES of them.
+const pulseLaneTicks = (windows: ReadonlyArray<TimeWindow>, intervalSeconds: number, baseSeconds: number): Array<number> => {
+	const ticks: Array<number> = [];
+	for (const { start, end } of windows) {
+		ticks.push(...pulseTicks({ start, end: Math.min(end, 1) }, intervalSeconds, baseSeconds, MAX_OCCURRENCES - ticks.length));
+		if (ticks.length >= MAX_OCCURRENCES) break;
+	}
+	return ticks;
+};
+
 // The lane's events in time order, each with the row that keeps it clear of the others, its repeats and jitter included.
 // The boss health segments share the lane's first row, which no downtime takes.
 export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSeconds: number): Array<LaneEvent> => {
@@ -99,12 +110,13 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSe
 			const all = occurrences(design, ref, MAX_OCCURRENCES);
 			const ability = kind === 'ability' ? (getEvent(design, ref) as DesignBossAbility) : undefined;
 			const instants = !!ability && firesAtInstants(ability);
+			const pulse = ability?.kind === DesignBossAbility_Kind.Pulse;
 			return {
 				ref,
 				window,
 				jitter: jitterOf(design, ref),
 				repeats: instants ? [] : all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
-				ticks: instants ? all.map(occurrence => occurrence.start) : [],
+				ticks: instants ? all.map(occurrence => occurrence.start) : pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
 				row: 0,
 				openEnd: kind === 'wave' || kind === 'move',
 				startFixed: kind === 'bossHealth' && segments.find(segment => segment.index === index)?.previous === undefined,

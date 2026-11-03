@@ -3985,6 +3985,15 @@
 										"no_extra_attacks": {
 											"type": "string"
 										},
+										"no_damage": {
+											"type": "string"
+										},
+										"min_above_max": {
+											"type": "string"
+										},
+										"no_tick_interval": {
+											"type": "string"
+										},
 										"wave_over_pool": {
 											"type": "string"
 										},
@@ -4010,6 +4019,9 @@
 										"no_adds",
 										"no_weapon_damage",
 										"no_extra_attacks",
+										"no_damage",
+										"min_above_max",
+										"no_tick_interval",
 										"wave_over_pool",
 										"health_stops_short"
 									]
@@ -4123,6 +4135,27 @@
 										"swing_speed": {
 											"type": "string"
 										},
+										"ticks": {
+											"type": "string"
+										},
+										"ticks_jitter": {
+											"type": "string"
+										},
+										"ticks_once": {
+											"type": "string"
+										},
+										"hits_all": {
+											"type": "string"
+										},
+										"resistible": {
+											"type": "string"
+										},
+										"environmental": {
+											"type": "string"
+										},
+										"avoidable": {
+											"type": "string"
+										},
 										"wave": {
 											"type": "string"
 										},
@@ -4189,6 +4222,13 @@
 										"extra_attacks",
 										"icd",
 										"swing_speed",
+										"ticks",
+										"ticks_jitter",
+										"ticks_once",
+										"hits_all",
+										"resistible",
+										"environmental",
+										"avoidable",
 										"wave",
 										"adds_one",
 										"adds_other",
@@ -4371,6 +4411,18 @@
 										},
 										"swing_speed_multiplier": {
 											"type": "string"
+										},
+										"tick_interval": {
+											"type": "string"
+										},
+										"tick_jitter": {
+											"type": "string"
+										},
+										"resistible": {
+											"type": "string"
+										},
+										"avoidable": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4410,7 +4462,11 @@
 										"proc_chance",
 										"extra_attacks",
 										"icd",
-										"swing_speed_multiplier"
+										"swing_speed_multiplier",
+										"tick_interval",
+										"tick_jitter",
+										"resistible",
+										"avoidable"
 									]
 								},
 								"tooltips": {
@@ -4454,6 +4510,18 @@
 										},
 										"swing_speed_multiplier": {
 											"type": "string"
+										},
+										"tick_interval": {
+											"type": "string"
+										},
+										"tick_jitter": {
+											"type": "string"
+										},
+										"resistible": {
+											"type": "string"
+										},
+										"avoidable": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4470,7 +4538,11 @@
 										"repeat_count",
 										"targets",
 										"waves",
-										"swing_speed_multiplier"
+										"swing_speed_multiplier",
+										"tick_interval",
+										"tick_jitter",
+										"resistible",
+										"avoidable"
 									]
 								},
 								"amp_types": {
@@ -4503,10 +4575,16 @@
 										},
 										"swing_timing": {
 											"type": "string"
+										},
+										"pulse": {
+											"type": "string"
+										},
+										"area_hit": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["spell_hit", "strike", "thrash", "swing_timing"]
+									"required": ["spell_hit", "strike", "thrash", "swing_timing", "pulse", "area_hit"]
 								},
 								"open": {
 									"type": "string"
@@ -7031,6 +7109,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"boss_ability_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_boss_ability": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -8476,6 +8580,8 @@
 								"next_move_duration",
 								"amp_is_active",
 								"time_until_amp",
+								"boss_ability_is_active",
+								"time_until_boss_ability",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",
@@ -9064,6 +9170,9 @@
 								"select_group": {
 									"type": "string"
 								},
+								"select_boss_ability": {
+									"type": "string"
+								},
 								"no_variables_defined": {
 									"type": "string"
 								},
@@ -9099,6 +9208,7 @@
 								"placeholder_tooltip",
 								"select_variable",
 								"select_group",
+								"select_boss_ability",
 								"no_variables_defined",
 								"no_groups_defined",
 								"buttons",
@@ -9905,10 +10015,13 @@
 										},
 										"move": {
 											"type": "string"
+										},
+										"pulse": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["title", "downtime", "wave", "amp", "move"]
+									"required": ["title", "downtime", "wave", "amp", "move", "pulse"]
 								},
 								"chart_options": {
 									"type": "object",

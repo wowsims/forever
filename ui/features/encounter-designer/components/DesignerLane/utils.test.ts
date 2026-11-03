@@ -80,6 +80,25 @@ describe('laneEvents', () => {
 		expect([thrash.ticks.length, thrash.repeats.length > 0]).toEqual([0, true]);
 		expect(laneEvents(design, 'waves', BASE).map(event => event.openEnd)).toEqual([true]);
 	});
+
+	it("draws an area hit's occurrences as ticks, and a pulse's ticks inside each of its windows, cut at the fight's end", () => {
+		const areaHit = { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.AreaHit, repeat: { interval: 0.04, jitter: 0, count: 0 } };
+		// A 7.2 s window ticking every 3 s ticks three times; its repeat at 0.99 has 1.8 s left in the fight, one tick's worth.
+		const pulse = {
+			...defaultEvent('ability'),
+			kind: DesignBossAbility_Kind.Pulse,
+			start: { at: 0.1, jitter: 0 },
+			end: { at: 0.14, jitter: 0 },
+			repeat: { interval: 0.89, jitter: 0, count: 0 },
+			tickInterval: 3,
+		};
+		const [hit, ticking] = laneEvents(EncounterDesign.create({ bossAbilities: [areaHit, pulse] }), 'abilities', BASE).sort(
+			(a, b) => a.ref.index - b.ref.index,
+		);
+		expect([hit.ticks.length, hit.repeats.length]).toEqual([3, 0]);
+		expect(ticking.repeats).toHaveLength(1);
+		expect(ticking.ticks).toEqual([0.1, expect.closeTo(0.1 + 3 / BASE), expect.closeTo(0.1 + 6 / BASE), expect.closeTo(0.99)]);
+	});
 });
 
 describe('withWindow', () => {

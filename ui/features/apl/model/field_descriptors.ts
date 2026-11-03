@@ -32,6 +32,7 @@ type FieldDescriptorPayloads = {
 	statType: { field: string };
 	itemSwapSet: { field: string };
 	potionSlot: { field: string };
+	bossAbilityName: { field: string };
 	minIcd: object;
 	reactionTime: object;
 	useDotBaseValue: object;
@@ -165,6 +166,10 @@ export function areaTypeFieldConfig(field: string): Descriptor<'areaType'> {
 
 export function damageAmpTypeFieldConfig(field: string): Descriptor<'damageAmpType'> {
 	return { type: 'damageAmpType', field };
+}
+
+export function bossAbilityNameFieldConfig(field: string): Descriptor<'bossAbilityName'> {
+	return { type: 'bossAbilityName', field };
 }
 
 export function valueFieldConfig(field: string, options?: FieldOptions): Descriptor<'value'> {

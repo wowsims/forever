@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
+	areaDamageDesign,
 	customBossDesign,
 	DESIGN_BASE_SECONDS,
 	designTargetNames,
@@ -52,6 +53,8 @@ export const OverlappingDowntimes: Story = {
 };
 
 export const Abilities: Story = { args: { lane: 'abilities' } };
+
+export const AreaDamage: Story = { args: { lane: 'abilities', design: areaDamageDesign() } };
 
 export const RepeatingWave: Story = { args: { lane: 'waves', design: dynamicAddsDesign() } };
 

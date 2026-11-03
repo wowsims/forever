@@ -3,6 +3,7 @@ import { JSON_IMPORTER } from '@features/import-export/importers/json';
 import { Player as PlayerProto } from '@generated/proto/api';
 import {
 	AddWave,
+	DesignBossAbility_Kind,
 	DesignDowntime,
 	Encounter as EncounterProto,
 	EncounterDesign,
@@ -474,6 +475,36 @@ describe('EncounterDesigner', () => {
 		expect(document.activeElement).toBe(bar);
 		await press(bar, 'Enter');
 		expect(document.activeElement).toBe(panel);
+	});
+
+	it('turns a new boss ability into a pulse with working defaults, its own fields and no target, and saves it', async () => {
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+		await add('Boss abilities', 'Boss ability');
+		expect(within(dialog).queryByLabelText('Target')).not.toBeNull();
+
+		await userEvent.click(within(dialog).getByLabelText('Kind'));
+		await userEvent.click(screen.getByRole('option', { name: 'Pulse' }));
+
+		expect(within(dialog).queryByLabelText('Target')).toBeNull();
+		expect(Number((within(dialog).getByLabelText('Tick every (s)') as HTMLInputElement).value)).toBe(1);
+		expect(Number((within(dialog).getByLabelText('Max damage') as HTMLInputElement).value)).toBe(700);
+		expect(within(dialog).getByRole('region', { name: 'Issues' }).textContent).toContain('No issues.');
+
+		await commit(within(dialog).getByLabelText('Tick every (s)'), '0');
+		expect(within(dialog).getByRole('region', { name: 'Issues' }).textContent).toContain(
+			english.settings_tab.encounter.designer.validation.no_tick_interval,
+		);
+		await commit(within(dialog).getByLabelText('Tick every (s)'), '2');
+		await clickButton('Save');
+		expect(encounter.getDesign().bossAbilities[0]).toMatchObject({
+			kind: DesignBossAbility_Kind.Pulse,
+			tickInterval: 2,
+			tickJitter: 0.2,
+			minDamage: 500,
+			resistible: true,
+			avoidable: false,
+		});
 	});
 
 	it('puts back the duration, the targets and the design on Cancel, and starts the next opening from the store', async () => {

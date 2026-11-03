@@ -61,6 +61,20 @@ describe('designFieldConfigs', () => {
 		expect(shown(DesignBossAbility_Kind.Thrash)).toEqual(expect.arrayContaining(['proc_chance', 'extra_attacks', 'icd']));
 		expect(shown(DesignBossAbility_Kind.SwingTiming)).toContain('swing_speed_multiplier');
 		expect(shown(DesignBossAbility_Kind.SwingTiming)).not.toContain('weapon_percent');
+		const area = ['school', 'min_damage', 'max_damage', 'resistible', 'avoidable'];
+		expect(shown(DesignBossAbility_Kind.Pulse)).toEqual(expect.arrayContaining([...area, 'tick_interval', 'tick_jitter']));
+		expect(shown(DesignBossAbility_Kind.AreaHit)).toEqual(expect.arrayContaining(area));
+		expect(shown(DesignBossAbility_Kind.AreaHit)).not.toContain('tick_interval');
+		for (const kind of [DesignBossAbility_Kind.Pulse, DesignBossAbility_Kind.AreaHit]) expect(shown(kind)).not.toContain('target');
+		expect(shown(DesignBossAbility_Kind.SpellHit)).not.toContain('resistible');
+	});
+
+	it('fills a working pulse when the kind field picks one', () => {
+		const ability = defaultEvent('ability');
+		const kind = field(designFieldConfigs('ability'), 'ability_kind');
+		if (kind.type !== 'choice') throw new Error('the kind is a choice field');
+		kind.set(ability, DesignBossAbility_Kind.Pulse);
+		expect([ability.kind, ability.maxDamage, ability.tickInterval, ability.resistible]).toEqual([DesignBossAbility_Kind.Pulse, 700, 1, true]);
 	});
 });
 

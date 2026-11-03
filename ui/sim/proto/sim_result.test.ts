@@ -5,12 +5,13 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { AddWave, EncounterDesign, Target } from '@generated/proto/common';
+import { ActionID, AddWave, DesignBossAbility, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@i18n/localization', async () => (await import('@testing/sim/localization')).localizationStub);
 
+import { ActionId } from './action_id';
 import { ActionMetrics, SimResult } from './sim_result';
 
 // makeSimRun()'s warrior and its target.
@@ -371,6 +372,35 @@ describe('miss percent of ticks that roll their own hit', () => {
 
 		expect(action.missPercent).toBe(10);
 		expect(action.landedRolls).toBe(0);
+	});
+});
+
+describe('the boss abilities of an encounter design', () => {
+	afterEach(() => vi.restoreAllMocks());
+
+	it("names a pulse's ticks and an area hit by the ability and its kind, and leaves a spell hit numbered", async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
+		const { request, result } = makeSimRun();
+		request.encounter!.design = EncounterDesign.create({
+			bossAbilities: [
+				DesignBossAbility.create({ kind: DesignBossAbility_Kind.Pulse, name: 'Lava Burst' }),
+				DesignBossAbility.create({ kind: DesignBossAbility_Kind.AreaHit }),
+				DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' }),
+			],
+		});
+		result.encounterMetrics!.targets[0].actions = [0, 1, 2].map(index =>
+			ActionMetricsProto.create({
+				id: ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 18282 }, tag: 2_000_000 + index }),
+				targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, hits: 1, damage: 500 })],
+			}),
+		);
+		const [boss] = (await SimResult.makeNew(request, result)).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual([
+			'Lava Burst (settings_tab.encounter.designer.ability_kinds.pulse)',
+			'settings_tab.encounter.designer.event_name (settings_tab.encounter.designer.ability_kinds.area_hit)',
+			'Dummy Spell 3',
+		]);
 	});
 });
 

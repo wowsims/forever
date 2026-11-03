@@ -77,6 +77,11 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K): DesignEvent<K>
 			extraAttacks: 1,
 			icd: 0,
 			swingSpeedMultiplier: 1,
+			// A pulse's and an area hit's own fields, which withAbilityKind fills.
+			tickInterval: 0,
+			tickJitter: 0,
+			resistible: false,
+			avoidable: false,
 		},
 		wave: {
 			name: '',
@@ -134,10 +139,49 @@ export const removeEvent = (design: EncounterDesign, ref: DesignEventRef): void 
 	}
 };
 
-// A spell hit or a strike fires at its start and at each repeat that begins by its end; a thrash or swing timing
-// window lasts from its start to its end.
+// A spell hit, a strike or an area hit fires at its start and at each repeat that begins by its end; a thrash, swing
+// timing or pulse window lasts from its start to its end.
 export const firesAtInstants = (ability: DesignBossAbility): boolean =>
-	ability.kind === DesignBossAbility_Kind.SpellHit || ability.kind === DesignBossAbility_Kind.Strike;
+	ability.kind === DesignBossAbility_Kind.SpellHit || ability.kind === DesignBossAbility_Kind.Strike || ability.kind === DesignBossAbility_Kind.AreaHit;
+
+// A pulse or an area hit: area damage from no target, which hits the player and every pet and ignores the target index.
+export const isAreaAbility = (ability: DesignBossAbility): boolean =>
+	ability.kind === DesignBossAbility_Kind.Pulse || ability.kind === DesignBossAbility_Kind.AreaHit;
+
+const AREA_DAMAGE_DEFAULTS: Partial<Record<DesignBossAbility_Kind, { min: number; max: number }>> = {
+	[DesignBossAbility_Kind.Pulse]: { min: 500, max: 700 },
+	[DesignBossAbility_Kind.AreaHit]: { min: 1500, max: 2000 },
+};
+
+// Sets the ability's kind. A switch to a pulse or an area hit fills the damage, as fire, and the tick interval and jitter
+// (1 s and 0.2 s) where they are 0, and turns Resistible on when it comes from a kind without that toggle. Mutates the
+// ability.
+export const withAbilityKind = (ability: DesignBossAbility, kind: DesignBossAbility_Kind): void => {
+	const wasArea = isAreaAbility(ability);
+	ability.kind = kind;
+	const damage = AREA_DAMAGE_DEFAULTS[kind];
+	if (!damage) return;
+	if (ability.maxDamage <= 0) {
+		ability.minDamage = damage.min;
+		ability.maxDamage = damage.max;
+		ability.school = SpellSchool.SpellSchoolFire;
+	}
+	if (kind === DesignBossAbility_Kind.Pulse && ability.tickInterval <= 0) {
+		ability.tickInterval = 1;
+		ability.tickJitter = 0.2;
+	}
+	if (!wasArea) ability.resistible = true;
+};
+
+// The tick times of one pulse window, in fractions of the fight: one at its start, then one every interval before its
+// end, so a window shorter than one interval ticks once. Jitter is ignored, as the timeline draws it.
+export const pulseTicks = (window: { start: number; end: number }, intervalSeconds: number, baseSeconds: number, maxCount: number): Array<number> => {
+	const interval = baseSeconds > 0 ? intervalSeconds / baseSeconds : 0;
+	if (interval <= 0 || window.end <= window.start) return [];
+	const ticks: Array<number> = [];
+	for (let at = window.start; at < window.end && ticks.length < maxCount; at = window.start + ticks.length * interval) ticks.push(at);
+	return ticks;
+};
 
 // The player run speed the sim walks a move's yards at (`GetMovementSpeed` in sim/core/movement.go), in yards per second.
 export const PLAYER_RUN_SPEED = 7;

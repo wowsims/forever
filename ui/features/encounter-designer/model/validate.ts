@@ -2,7 +2,7 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DamageAmpType, DesignBossAbility_Kind } from '@generated/proto/common';
 
 import type { DesignEventRef } from './lanes';
-import { firesAtInstants, healthKnots, occurrences } from './lanes';
+import { firesAtInstants, healthKnots, isAreaAbility, occurrences } from './lanes';
 import { clamp, type TimeWindow } from './time';
 
 type DesignIssueSeverity = 'error' | 'warning' | 'info';
@@ -28,6 +28,9 @@ export const DESIGN_ISSUE_KEYS = {
 	executeOrder: key('execute_order'),
 	noWeaponDamage: key('no_weapon_damage'),
 	noExtraAttacks: key('no_extra_attacks'),
+	noDamage: key('no_damage'),
+	minAboveMax: key('min_above_max'),
+	noTickInterval: key('no_tick_interval'),
 	waveOverPool: key('wave_over_pool'),
 	healthStopsShort: key('health_stops_short'),
 } as const;
@@ -97,10 +100,15 @@ export const validateDesign = (design: EncounterDesign, targetCount: number): De
 		} else {
 			checkSpan(ref, ability.start, ability.end);
 		}
-		if (badTarget(ability.targetIndex)) add(ref, 'error', DESIGN_ISSUE_KEYS.targetOutOfRange);
+		// A pulse or an area hit comes from no target, so its target index is never out of range.
+		const area = isAreaAbility(ability);
+		if (!area && badTarget(ability.targetIndex)) add(ref, 'error', DESIGN_ISSUE_KEYS.targetOutOfRange);
 		if (ability.kind === DesignBossAbility_Kind.Strike && ability.weaponPercent <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noWeaponDamage);
 		if (ability.kind === DesignBossAbility_Kind.Thrash && (ability.procChance <= 0 || ability.extraAttacks <= 0))
 			add(ref, 'error', DESIGN_ISSUE_KEYS.noExtraAttacks);
+		if (area && ability.maxDamage <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noDamage);
+		else if (area && ability.minDamage > ability.maxDamage) add(ref, 'error', DESIGN_ISSUE_KEYS.minAboveMax);
+		if (ability.kind === DesignBossAbility_Kind.Pulse && ability.tickInterval <= 0) add(ref, 'error', DESIGN_ISSUE_KEYS.noTickInterval);
 	});
 
 	design.damageAmps.forEach((amp: DesignDamageAmp, index) => {

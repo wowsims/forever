@@ -69,6 +69,42 @@ export const movementDesign = (): EncounterDesign =>
 		],
 	});
 
+/**
+ * Area damage: fire on the floor for 12 s every 50 s, a tick a second, the player stepping out of it with a move, and a
+ * raid-wide blast every 40 s.
+ */
+export const areaDamageDesign = (): EncounterDesign =>
+	EncounterDesign.create({
+		bossAbilities: [
+			{
+				name: 'Lava Burst',
+				kind: DesignBossAbility_Kind.Pulse,
+				start: at(20 / 180),
+				end: at(32 / 180),
+				repeat: { interval: 50 / 180, jitter: 0, count: 0 },
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 500,
+				maxDamage: 700,
+				tickInterval: 1,
+				tickJitter: 0.2,
+				resistible: true,
+				avoidable: true,
+			},
+			{
+				name: 'Wrath of Ragnaros',
+				kind: DesignBossAbility_Kind.AreaHit,
+				start: at(30 / 180),
+				end: at(1),
+				repeat: { interval: 40 / 180, jitter: 0, count: 0 },
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 1500,
+				maxDamage: 2000,
+				resistible: true,
+			},
+		],
+		moves: [{ at: at(26 / 180), yards: 10, seconds: 0, repeat: { interval: 50 / 180, jitter: 0, count: 0 } }],
+	});
+
 /** A tanking fight: a spell hit every 20 s, a strike, a thrash window and a swing pause, with health keyframes. */
 export const customBossDesign = (): EncounterDesign =>
 	EncounterDesign.create({

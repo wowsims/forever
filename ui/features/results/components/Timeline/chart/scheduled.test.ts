@@ -1,4 +1,13 @@
-import { AddWave, DamageAmpType, DesignDamageAmp, DesignRepeat, DesignTime, EncounterDesign } from '@generated/proto/common';
+import {
+	AddWave,
+	DamageAmpType,
+	DesignBossAbility,
+	DesignBossAbility_Kind,
+	DesignDamageAmp,
+	DesignRepeat,
+	DesignTime,
+	EncounterDesign,
+} from '@generated/proto/common';
 import { describe, expect, it } from 'vitest';
 
 import { scheduledMarkers } from './scheduled';
@@ -39,6 +48,18 @@ describe('scheduledMarkers', () => {
 	it('marks a move as a point', () => {
 		const markers = scheduledMarkers(design({ moves: [{ name: '', at: at(0.5), yards: 5, seconds: 0, repeat: repeat(0, 0) }] }), 60);
 		expect(markers).toEqual([{ kind: 'move', start: 30, end: 30 }]);
+	});
+
+	it("draws a pulse's windows on their own row and leaves the other boss abilities out", () => {
+		const ability = (kind: DesignBossAbility_Kind) => DesignBossAbility.create({ kind, start: at(0.1), end: at(0.2), repeat: repeat(0.5, 1) });
+		const markers = scheduledMarkers(
+			design({ bossAbilities: [ability(DesignBossAbility_Kind.Thrash), ability(DesignBossAbility_Kind.Pulse), ability(DesignBossAbility_Kind.AreaHit)] }),
+			100,
+		);
+		expect(markers).toEqual([
+			{ kind: 'pulse', start: 10, end: 20 },
+			{ kind: 'pulse', start: 60, end: 70 },
+		]);
 	});
 
 	it('skips an inverted window', () => {

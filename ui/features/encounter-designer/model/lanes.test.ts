@@ -1,4 +1,4 @@
-import { DesignBossAbility_Kind, DesignTargets, EncounterDesign } from '@generated/proto/common';
+import { DesignBossAbility_Kind, DesignTargets, EncounterDesign, SpellSchool } from '@generated/proto/common';
 import { addEventAt } from '@testing/encounter_design';
 import { describe, expect, it } from 'vitest';
 
@@ -20,7 +20,9 @@ import {
 	laneLabelKey,
 	moveSeconds,
 	occurrences,
+	pulseTicks,
 	removeEvent,
+	withAbilityKind,
 } from './lanes';
 
 const KINDS: DesignEventKind[] = ['downtime', 'bossHealth', 'ability', 'wave', 'move', 'amp'];
@@ -143,6 +145,25 @@ describe('lanes', () => {
 				[0.1, expect.closeTo(0.05)],
 				[expect.closeTo(0.5), expect.closeTo(0.05)],
 				[expect.closeTo(0.9), expect.closeTo(0.05)],
+			]);
+		});
+
+		it('fires an area hit as instants that stop at its end, and a pulse as windows of its length', () => {
+			const design = EncounterDesign.create();
+			const ref = addEventAt(design, 'ability', 0.1);
+			const ability = design.bossAbilities[0];
+			ability.end!.at = 0.25;
+			ability.repeat = { interval: 0.1, jitter: 0, count: 0 };
+			withAbilityKind(ability, DesignBossAbility_Kind.AreaHit);
+			expect(occurrences(design, ref, 10).map(o => [o.start, o.end])).toEqual([
+				[0.1, 0.1],
+				[expect.closeTo(0.2), expect.closeTo(0.2)],
+			]);
+			withAbilityKind(ability, DesignBossAbility_Kind.Pulse);
+			ability.repeat = { interval: 0.5, jitter: 0, count: 0 };
+			expect(occurrences(design, ref, 10).map(o => [o.start, o.end])).toEqual([
+				[0.1, 0.25],
+				[expect.closeTo(0.6), expect.closeTo(0.75)],
 			]);
 		});
 
@@ -293,6 +314,52 @@ describe('lanes', () => {
 			expect(holdDuringDowntime(fallsToEnd, 0)).toEqual([]);
 			const other = withDowntime(keyframes([0.9, 80]), 0.4, 0.5, 1);
 			expect(holdDuringDowntime(other, 0)).toEqual([]);
+		});
+	});
+
+	describe('area damage', () => {
+		const switched = (kind: DesignBossAbility_Kind) => {
+			const ability = defaultEvent('ability');
+			withAbilityKind(ability, kind);
+			return ability;
+		};
+
+		it('gives a new pulse and a new area hit fire damage, a pulse 1 s ticks ± 0.2 s, and both Resistible on and Avoidable off', () => {
+			expect(switched(DesignBossAbility_Kind.Pulse)).toMatchObject({
+				kind: DesignBossAbility_Kind.Pulse,
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 500,
+				maxDamage: 700,
+				tickInterval: 1,
+				tickJitter: 0.2,
+				resistible: true,
+				avoidable: false,
+			});
+			expect(switched(DesignBossAbility_Kind.AreaHit)).toMatchObject({
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 1500,
+				maxDamage: 2000,
+				resistible: true,
+				avoidable: false,
+			});
+		});
+
+		it('keeps damage and an interval already set, and Resistible off on a switch between the two area kinds', () => {
+			const ability = { ...defaultEvent('ability'), school: SpellSchool.SpellSchoolShadow, minDamage: 100, maxDamage: 200 };
+			withAbilityKind(ability, DesignBossAbility_Kind.Pulse);
+			expect([ability.school, ability.minDamage, ability.maxDamage]).toEqual([SpellSchool.SpellSchoolShadow, 100, 200]);
+			ability.tickInterval = 3;
+			ability.resistible = false;
+			withAbilityKind(ability, DesignBossAbility_Kind.AreaHit);
+			withAbilityKind(ability, DesignBossAbility_Kind.Pulse);
+			expect([ability.tickInterval, ability.resistible]).toEqual([3, false]);
+		});
+
+		it('ticks at a window start and every interval before its end, once for a window shorter than one interval', () => {
+			expect(pulseTicks({ start: 0.1, end: 0.2 }, 3, 100, 10)).toEqual([0.1, expect.closeTo(0.13), expect.closeTo(0.16), expect.closeTo(0.19)]);
+			expect(pulseTicks({ start: 0.1, end: 0.11 }, 3, 100, 10)).toEqual([0.1]);
+			expect(pulseTicks({ start: 0.1, end: 0.2 }, 1, 100, 3)).toHaveLength(3);
+			expect(pulseTicks({ start: 0.1, end: 0.2 }, 0, 100, 10)).toEqual([]);
 		});
 	});
 });

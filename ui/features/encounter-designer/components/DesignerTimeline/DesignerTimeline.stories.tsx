@@ -1,6 +1,7 @@
 import { EncounterDesign } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
+	areaDamageDesign,
 	customBossDesign,
 	DESIGN_BASE_SECONDS,
 	designTargetNames,
@@ -165,6 +166,18 @@ export const FocusTooltip: Story = {
 	play: async ({ canvasElement }) => {
 		abilityBar(canvasElement).focus();
 		await expectTip();
+	},
+};
+
+const PULSE_TIP = eventTooltip(areaDamageDesign(), { kind: 'ability', index: 0 }, DESIGN_BASE_SECONDS, designTargetNames);
+
+// A pulse's window with its ticks, a move that steps out of it, and an area hit every 40 s; hovering the pulse shows its rules.
+export const AreaDamage: Story = {
+	args: { design: areaDamageDesign() },
+	play: async ({ canvasElement }) => {
+		await userEvent.hover(within(canvasElement).getByRole('slider', { name: 'Lava Burst' }));
+		await expect(await within(document.body).findByText(PULSE_TIP.title)).toBeVisible();
+		for (const line of PULSE_TIP.lines) await expect(within(document.body).getByText(line)).toBeVisible();
 	},
 };
 

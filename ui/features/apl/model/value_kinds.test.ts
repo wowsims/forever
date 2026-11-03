@@ -16,6 +16,8 @@ const DESIGN_VALUES = [
 	['nextMoveDuration', 'next_move_duration', []],
 	['ampIsActive', 'amp_is_active', ['ampType']],
 	['timeUntilAmp', 'time_until_amp', ['ampType']],
+	['bossAbilityIsActive', 'boss_ability_is_active', ['abilityName']],
+	['timeUntilBossAbility', 'time_until_boss_ability', ['abilityName']],
 ] as const;
 
 describe('encounter design values', () => {

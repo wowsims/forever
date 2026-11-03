@@ -1,6 +1,7 @@
 import { DamageAmpType, DesignBossAbility_Kind, type EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import {
+	areaDamageDesign,
 	customBossDesign,
 	DESIGN_BASE_SECONDS,
 	designPresetTargets,
@@ -90,3 +91,7 @@ export const Strike: Story = { args: { design: withAbilityKind(DesignBossAbility
 export const Thrash: Story = { args: { design: withAbilityKind(DesignBossAbility_Kind.Thrash), selected: { kind: 'ability', index: 0 } } };
 
 export const SwingTiming: Story = { args: { design: withAbilityKind(DesignBossAbility_Kind.SwingTiming), selected: { kind: 'ability', index: 0 } } };
+
+export const Pulse: Story = { args: { design: areaDamageDesign(), selected: { kind: 'ability', index: 0 } } };
+
+export const AreaHit: Story = { args: { design: areaDamageDesign(), selected: { kind: 'ability', index: 1 } } };

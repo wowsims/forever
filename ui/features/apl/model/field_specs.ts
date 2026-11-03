@@ -51,7 +51,7 @@ interface FieldBase {
 /**
  * A field descriptor resolved to the picker shape the view has to build.
  *
- * The descriptor types collapse to thirteen kinds: the fixed-enum types are one
+ * The descriptor types collapse to fourteen kinds: the fixed-enum types are one
  * `enum`, the three alias descriptors (`minIcd`, `reactionTime`, `useDotBaseValue`) are a `number`
  * and two `boolean`s, and `variableName`/`groupName` are one `rotationName` over two sources.
  */
@@ -65,6 +65,7 @@ export type AplFieldSpec =
 	| (FieldBase & { kind: 'rotationName'; source: 'variables' | 'groups' })
 	| (FieldBase & { kind: 'placeholderName' })
 	| (FieldBase & { kind: 'groupVariables'; groupNameField: string })
+	| (FieldBase & { kind: 'bossAbilityName' })
 	| (FieldBase & { kind: 'value' })
 	| (FieldBase & { kind: 'valueList' })
 	| (FieldBase & { kind: 'action' })
@@ -258,6 +259,8 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return { ...base, kind: 'placeholderName', field: descriptor.field, newValue: () => '' };
 		case 'groupReferenceVariables':
 			return { ...base, kind: 'groupVariables', field: descriptor.field, newValue: () => [], groupNameField: descriptor.groupNameField };
+		case 'bossAbilityName':
+			return { ...base, kind: 'bossAbilityName', field: descriptor.field, newValue: () => '' };
 		case 'curseType':
 			return asEnum(descriptor.field, CURSE_TYPES, () => CurseOptions.Elements);
 		case 'summonType':

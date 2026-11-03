@@ -81,6 +81,33 @@ describe('eventTooltip', () => {
 		});
 	});
 
+	it('describes a pulse by its damage, its ticks and who it hits, and says a window shorter than one interval ticks once', () => {
+		const pulse = { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.Pulse, minDamage: 500, maxDamage: 700, tickInterval: 1, tickJitter: 0.2 };
+		pulse.resistible = true;
+		expect(tip(EncounterDesign.create({ bossAbilities: [pulse] }), 'ability')).toEqual({
+			title: 'pulse',
+			lines: ['school_damage(0,500,700)', 'ticks_jitter(seconds(1),seconds(0.2))', 'hits_all', 'resistible', 'range(seconds(36),seconds(54))'],
+		});
+		const short = { ...pulse, tickInterval: 30, tickJitter: 0, resistible: false, avoidable: true };
+		expect(tip(EncounterDesign.create({ bossAbilities: [short] }), 'ability').lines).toEqual([
+			'school_damage(0,500,700)',
+			'ticks(seconds(30))',
+			'ticks_once',
+			'hits_all',
+			'environmental',
+			'avoidable',
+			'range(seconds(36),seconds(54))',
+		]);
+	});
+
+	it('describes an area hit like a spell hit, with who it hits and no cast', () => {
+		const areaHit = { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.AreaHit, minDamage: 1500, maxDamage: 2000 };
+		expect(tip(EncounterDesign.create({ bossAbilities: [areaHit] }), 'ability')).toEqual({
+			title: 'area_hit',
+			lines: ['school_damage(0,1500,2000)', 'hits_all', 'environmental', 'at(seconds(36))'],
+		});
+	});
+
 	it('describes a window ability by its range', () => {
 		const thrash = { ...eventAt('ability', 0.2), kind: DesignBossAbility_Kind.Thrash, procChance: 20 };
 		expect(tip(EncounterDesign.create({ bossAbilities: [thrash] }), 'ability')).toEqual({

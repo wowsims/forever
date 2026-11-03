@@ -19,6 +19,7 @@ export const SCHEDULED_ROWS: ReadonlyArray<{ kind: ScheduledKind; token: string 
 	{ kind: 'wave', token: '--designer-lane-waves-bar' },
 	{ kind: 'amp', token: '--designer-lane-amps-bar' },
 	{ kind: 'move', token: '--designer-lane-moves-bar' },
+	{ kind: 'pulse', token: '--designer-lane-abilities-bar' },
 ];
 
 const iconCache = new Map<string, HTMLImageElement>();
