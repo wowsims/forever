@@ -86,3 +86,4 @@ shaman.aura.strength_of_earth: was spell 25362, now spell 10441
 shaman.aura.strength_of_earth_external: was spell 10441 tag -1, now nothing
 shaman.aura.grace_of_air: was spell 25360, now spell 10626
 shaman.aura.grace_of_air_external: was spell 10626 tag -1, now nothing
+warrior.spell.raging_blows: was spell 1310315, now nothing
