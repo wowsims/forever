@@ -23,26 +23,19 @@ const DESIGN_VALUES = [
 	['bossAbilityIsKnown', 'boss_ability_is_known', ['targetUnit', 'abilityName'], true],
 ] as const;
 
-const BOSS_ABILITY_VALUES = ['bossAbilityIsActive', 'timeUntilBossAbility', 'bossAbilityCastTimeRemaining', 'bossAbilityIsKnown'] as const;
-
 describe('encounter design values', () => {
 	it.each(DESIGN_VALUES)('offers %s under Encounter during the fight, and before it only when it reads no clock', (kind, key, fields, prepull) => {
 		const player = makePlayer(APLRotation.create()) as any;
 		const option = (isPrepull: boolean) => valueKindOptions(player, isPrepull, false).find(entry => entry.value === kind);
 		expect(option(false)).toMatchObject({ label: `rotation_tab.apl.values.${key}.label`, submenu: ['encounter'] });
-		if (prepull) {
-			expect(option(true)).toMatchObject({ label: `rotation_tab.apl.values.${key}.label`, submenu: ['encounter'] });
-		} else {
-			expect(option(true)).toBeUndefined();
-		}
+		expect(option(true)).toEqual(prepull ? expect.objectContaining({ label: `rotation_tab.apl.values.${key}.label`, submenu: ['encounter'] }) : undefined);
 		expect(valueKinds[kind].fields.map(field => ('field' in field ? field.field : field.type))).toEqual(fields);
+		if ((fields as readonly string[]).includes('abilityName')) {
+			expect(valueKinds[kind].fields[0]).toEqual({ type: 'unit', field: 'targetUnit', unitSet: 'any_target' });
+		}
 	});
 
 	it('gives the execute phase an optional target', () => {
 		expect(valueKinds.isExecutePhase.fields).toContainEqual({ type: 'unit', field: 'targetUnit', unitSet: 'targets' });
-	});
-
-	it.each(BOSS_ABILITY_VALUES)('gives %s a unit whose empty choice is any target', kind => {
-		expect(valueKinds[kind].fields[0]).toEqual({ type: 'unit', field: 'targetUnit', unitSet: 'any_target' });
 	});
 });

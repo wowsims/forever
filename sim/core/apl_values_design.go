@@ -43,10 +43,12 @@ func (rot *APLRotation) validAmpType(ampType proto.DamageAmpType, uuid *proto.UU
 // an ability construction skipped (its construct note says why): it is never active, never next, never casts and
 // is not known. Its name still counts as one the design has, so it draws no unknown-name warning.
 type designAbilityFilter struct {
-	abilities []*designBossAbility             // Every read's, with no unit or a fixed target.
-	byTarget  map[*Target][]*designBossAbility // With a current, previous or next target, the abilities on each target.
-	unit      UnitReference                    // The set unit; the zero reference for none.
-	named     bool                             // Whether the design has an ability of the name on the unit, skipped or not kept.
+	abilities []*designBossAbility   // Every read's, with no unit or a fixed target.
+	byTarget  [][]*designBossAbility // With a current, previous or next target, the abilities on each unit by unit index.
+	kept      bool                   // Whether any ability was kept.
+	unit      UnitReference          // The set unit; the zero reference for none.
+	named     bool                   // Whether the design has an ability of the name on the unit, skipped or not kept.
+	allArea   bool                   // Whether the design has an ability of the name and each one is a Pulse or an Area Hit.
 }
 
 // The filter of the name and unit with the abilities keep accepts, every one for a nil keep. Nil for a unit that
@@ -65,27 +67,37 @@ func (rot *APLRotation) designAbilityFilter(name string, targetRef *proto.UnitRe
 		if unit.fixedUnit != nil {
 			fixed = enemyTargetOf(unit.fixedUnit)
 		} else {
-			filter.byTarget = make(map[*Target][]*designBossAbility)
+			filter.byTarget = make([][]*designBossAbility, len(rot.unit.Env.AllUnits))
 		}
 	}
 	design := rot.unit.Env.Encounter.design
 	if design == nil || name == "" {
 		return filter
 	}
+	found, nonArea := false, false
 	for _, ability := range design.bossAbilities {
-		if ability.config.Name != name || (targeted && ability.isArea()) || (fixed != nil && ability.target != fixed) {
+		if ability.config.Name != name {
+			continue
+		}
+		found = true
+		if !ability.isArea() {
+			nonArea = true
+		}
+		if (targeted && ability.isArea()) || (fixed != nil && ability.target != fixed) {
 			continue
 		}
 		filter.named = true
 		if ability.skip || (keep != nil && !keep(ability)) {
 			continue
 		}
+		filter.kept = true
 		if filter.byTarget != nil {
-			filter.byTarget[ability.target] = append(filter.byTarget[ability.target], ability)
+			filter.byTarget[ability.target.UnitIndex] = append(filter.byTarget[ability.target.UnitIndex], ability)
 		} else {
 			filter.abilities = append(filter.abilities, ability)
 		}
 	}
+	filter.allArea = found && !nonArea
 	return filter
 }
 
@@ -96,32 +108,14 @@ func (rot *APLRotation) designBossAbilities(name string, targetRef *proto.UnitRe
 		return filter
 	}
 	switch {
-	case targetRef == nil || targetRef.Type == proto.UnitReference_Unknown:
+	case filter.unit == (UnitReference{}):
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q", name)
-	case rot.designAbilitiesAllArea(name):
+	case filter.allArea:
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q is only a Pulse or Area Hit, which comes from no target and never matches a set unit", name)
 	default:
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q on %s", name, designUnitName(filter.unit))
 	}
 	return nil
-}
-
-// Whether the design has an ability of the name and each one is a Pulse or an Area Hit.
-func (rot *APLRotation) designAbilitiesAllArea(name string) bool {
-	design := rot.unit.Env.Encounter.design
-	if design == nil {
-		return false
-	}
-	found := false
-	for _, ability := range design.bossAbilities {
-		if ability.config.Name == name {
-			if !ability.isArea() {
-				return false
-			}
-			found = true
-		}
-	}
-	return found
 }
 
 // The unit as a warning names it: the reference for a current, previous or next target, else its label.
@@ -139,7 +133,7 @@ func designUnitName(unit UnitReference) string {
 
 // Whether no read finds an ability.
 func (filter *designAbilityFilter) empty() bool {
-	return len(filter.abilities) == 0 && len(filter.byTarget) == 0
+	return !filter.kept
 }
 
 // The abilities one read takes: with a current, previous or next target, those on the target it resolves to now.
@@ -147,7 +141,11 @@ func (filter *designAbilityFilter) read() []*designBossAbility {
 	if filter.byTarget == nil {
 		return filter.abilities
 	}
-	return filter.byTarget[enemyTargetOf(filter.unit.Get())]
+	unit := filter.unit.Get()
+	if unit == nil {
+		return nil
+	}
+	return filter.byTarget[unit.UnitIndex]
 }
 
 type APLValueTargetIsActive struct {
@@ -328,10 +326,10 @@ type APLValueBossAbilityIsKnown struct {
 // the name. A name the design lacks reads false with no warning, since absence is what the value tests.
 func (rot *APLRotation) newValueBossAbilityIsKnown(config *proto.APLValueBossAbilityIsKnown, uuid *proto.UUID) APLValue {
 	filter := rot.designAbilityFilter(config.AbilityName, config.TargetUnit, nil, uuid)
-	if filter != nil && len(filter.byTarget) > 0 {
+	if filter != nil && filter.byTarget != nil && filter.kept {
 		return &APLValueBossAbilityIsKnown{name: config.AbilityName, filter: filter}
 	}
-	known := filter != nil && len(filter.abilities) > 0
+	known := filter != nil && filter.kept
 	return rot.newValueConst(&proto.APLValueConst{Val: Ternary(known, "true", "false")}, uuid)
 }
 func (value *APLValueBossAbilityIsKnown) Type() proto.APLValueType {
@@ -405,10 +403,9 @@ type APLValueBossAbilityCastTimeRemaining struct {
 	filter *designAbilityFilter
 }
 
-// Whether the ability is a Spell Hit with a hardcast. One with no cast time, a negative one clamped to it, casts
-// instantly.
+// Whether the ability is a Spell Hit with a hardcast. One with no cast time casts instantly.
 func designAbilityHardcasts(ability *designBossAbility) bool {
-	return ability.config.Kind == proto.DesignBossAbility_SpellHit && DurationFromSeconds(ability.config.CastTime) > 0
+	return ability.config.Kind == proto.DesignBossAbility_SpellHit && ability.spell.DefaultCast.CastTime > 0
 }
 
 // Reads the Spell Hits of the filter that hardcast. A name with none of them, only the other kinds, Spell Hits with no

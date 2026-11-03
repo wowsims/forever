@@ -9,6 +9,9 @@ const ownPetRefs = (player: Player<any>) =>
 		.asList()
 		.map((_petMetadata, i) => UnitReference.create({ type: UnitType.Pet, index: i, owner: UnitReference.create({ type: UnitType.Self }) }));
 
+const targetRefs = (player: Player<any>) =>
+	player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i }));
+
 export const unitSets: Record<
 	UNIT_SET,
 	{
@@ -31,19 +34,14 @@ export const unitSets: Record<
 					.getActivePlayers()
 					.filter(filter => filter != player)
 					.map(mapPlayer => UnitReference.create({ type: UnitType.Player, index: mapPlayer.getRaidIndex() })),
-				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				targetRefs(player),
 			].flat();
 		},
 	},
 	aura_sources_targets_first: {
 		targetUI: true,
 		getUnits: player => {
-			return [
-				undefined,
-				player.sim.encounter.targetsMetadata.asList().map((targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
-				UnitReference.create({ type: UnitType.Self }),
-				ownPetRefs(player),
-			].flat();
+			return [undefined, targetRefs(player), UnitReference.create({ type: UnitType.Self }), ownPetRefs(player)].flat();
 		},
 	},
 	// Lists every own pet. The sim drops a value read from a pet without that resource, so a bare action condition counts as always true and an And or Or loses that branch.
@@ -57,7 +55,7 @@ export const unitSets: Record<
 		getUnits: player => {
 			return [
 				undefined,
-				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				targetRefs(player),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
 			].flat();
@@ -70,7 +68,7 @@ export const unitSets: Record<
 			return [
 				undefined,
 				UnitReference.create({ type: UnitType.CurrentTarget }),
-				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				targetRefs(player),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),
 			].flat();

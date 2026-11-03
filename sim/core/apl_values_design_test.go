@@ -184,8 +184,8 @@ func TestValueDesignReadsDowntimesAndWaves(t *testing.T) {
 
 func designBossAbilityValues(t *testing.T, rot *APLRotation, name string) (APLValue, APLValue) {
 	t.Helper()
-	active := designValue(t, rot, name+" active", &proto.APLValue{Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: name}}})
-	until := designValue(t, rot, name+" until", &proto.APLValue{Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: name}}})
+	active := designValue(t, rot, name+" active", bossAbilityIsActiveConfig(name, nil))
+	until := designValue(t, rot, name+" until", timeUntilBossAbilityConfig(name, nil))
 	return active, until
 }
 
@@ -277,10 +277,14 @@ func TestValueDesignWarnsForAnUnknownBossAbility(t *testing.T) {
 		"no design":    {designTestRequest(1, nil), "Frost"},
 	} {
 		_, fw := setupDesignSim(c.request, nil)
+		withUuid := func(config *proto.APLValue, uuid string) *proto.APLValue {
+			config.Uuid = &proto.UUID{Value: uuid}
+			return config
+		}
 		configs := map[string]*proto.APLValue{
-			"Boss Ability Is Active":           {Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: c.name}}},
-			"Time Until Boss Ability":          {Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: c.name}}},
-			"Boss Ability Cast Time Remaining": {Uuid: &proto.UUID{Value: "c"}, Value: &proto.APLValue_BossAbilityCastTimeRemaining{BossAbilityCastTimeRemaining: &proto.APLValueBossAbilityCastTimeRemaining{AbilityName: c.name}}},
+			"Boss Ability Is Active":           withUuid(bossAbilityIsActiveConfig(c.name, nil), "a"),
+			"Time Until Boss Ability":          withUuid(timeUntilBossAbilityConfig(c.name, nil), "b"),
+			"Boss Ability Cast Time Remaining": withUuid(castTimeRemainingConfig(c.name, nil), "c"),
 		}
 		for name, config := range configs {
 			if value := fw.Rotation.newAPLValue(config); value != nil {
@@ -290,7 +294,7 @@ func TestValueDesignWarnsForAnUnknownBossAbility(t *testing.T) {
 				t.Errorf("%s, %s: validations = %v, want one warning", label, name, warnings)
 			}
 		}
-		known := &proto.APLValue{Uuid: &proto.UUID{Value: "d"}, Value: &proto.APLValue_BossAbilityIsKnown{BossAbilityIsKnown: &proto.APLValueBossAbilityIsKnown{AbilityName: c.name}}}
+		known := withUuid(bossAbilityIsKnownConfig(c.name, nil), "d")
 		if value, ok := fw.Rotation.newAPLValue(known).(*APLValueConst); !ok || value.boolVal {
 			t.Errorf("%s, Boss Ability Is Known: expected a constant false, got %v", label, value)
 		}
@@ -315,6 +319,10 @@ func castTimeRemainingConfig(name string, target *proto.UnitReference) *proto.AP
 
 func timeUntilBossAbilityConfig(name string, target *proto.UnitReference) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: name, TargetUnit: target}}}
+}
+
+func bossAbilityIsActiveConfig(name string, target *proto.UnitReference) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: name, TargetUnit: target}}}
 }
 
 func bossAbilityIsKnownConfig(name string, target *proto.UnitReference) *proto.APLValue {
@@ -404,7 +412,7 @@ func TestValueDesignBossAbilityIsKnownFolds(t *testing.T) {
 		}
 	}
 
-	slowConfig := &proto.APLValue{Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: "Slow"}}}
+	slowConfig := bossAbilityIsActiveConfig("Slow", nil)
 	slowActive := designValue(t, fw.Rotation, "Slow active", slowConfig)
 	if warnings := fw.Rotation.uuidValidations[slowConfig.Uuid]; len(warnings) != 0 {
 		t.Errorf("Boss Ability Is Active of a skipped ability: validations = %v, want none", warnings)
@@ -453,7 +461,7 @@ func TestValueDesignBossAbilityIsActiveOnASetTarget(t *testing.T) {
 	}
 	sim, fw := setupDesignSim(request, nil)
 	isActive := func(name string, target *proto.UnitReference) APLValue {
-		return designValue(t, fw.Rotation, name, &proto.APLValue{Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: "Slow", TargetUnit: target}}})
+		return designValue(t, fw.Rotation, name, bossAbilityIsActiveConfig("Slow", target))
 	}
 	onAdd := isActive("on the add", designTargetRef(1))
 	onCurrent := isActive("on the current target", &proto.UnitReference{Type: proto.UnitReference_CurrentTarget})
