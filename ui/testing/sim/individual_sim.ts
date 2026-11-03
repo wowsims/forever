@@ -1,3 +1,7 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { APLRotation } from '@generated/proto/apl';
 import { Spec } from '@generated/proto/common';
 import { UIDatabase } from '@generated/proto/ui';
@@ -17,6 +21,12 @@ import { memoryEnv } from './memory_env';
 // first Sim is built: the database loads once per test file.
 export const serveDatabase = (db: UIDatabase = UIDatabase.create()) => {
 	vi.stubGlobal('fetch', () => Promise.resolve({ json: () => Promise.resolve(UIDatabase.toJson(db)) }));
+};
+
+// serveDatabase with the committed assets/database/db.json, for a test that needs real items and consumables.
+export const serveRealDatabase = () => {
+	const dbPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../assets/database/db.json');
+	serveDatabase(UIDatabase.fromJson(JSON.parse(readFileSync(dbPath, 'utf8'))));
 };
 
 const BARE_CONFIG = {

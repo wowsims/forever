@@ -180,7 +180,8 @@ function rawIdKey(id: ActionIdProto | undefined): string | null {
  * A copy of the rotation with every spell id `ids` maps swapped for the id it maps to, wherever an action or
  * value names it: a cast, a queued cast (tag 1), a dot or an aura. An id with tag -1 is an external buff copy,
  * such as the raid's Battle Shout, which stands for the rank the raid applies, so it is never swapped.
- * A spec's simple rotation uses it to pick between a trainer rank and the rank a class book teaches.
+ * A spec's simple rotation uses it to pick between a trainer rank and the rank a class book teaches. A swapped id
+ * drops its rank, which belonged to the old id, and an id with no rank matches its spell at any rank.
  */
 export function withSpellIds(rotation: APLRotation, ids: Map<number, number>): APLRotation {
 	const copy = APLRotation.clone(rotation);
@@ -188,7 +189,11 @@ export function withSpellIds(rotation: APLRotation, ids: Map<number, number>): A
 		if (!node || typeof node !== 'object') return;
 		const id = node as Partial<ActionIdProto>;
 		if (id.rawId?.oneofKind === 'spellId') {
-			if (id.tag !== -1) id.rawId.spellId = ids.get(id.rawId.spellId) ?? id.rawId.spellId;
+			const swapped = id.tag === -1 ? undefined : ids.get(id.rawId.spellId);
+			if (swapped !== undefined) {
+				id.rawId.spellId = swapped;
+				id.rank = 0;
+			}
 			return;
 		}
 		for (const child of Object.values(node)) visit(child);

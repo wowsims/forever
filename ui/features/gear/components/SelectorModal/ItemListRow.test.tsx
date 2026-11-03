@@ -28,6 +28,7 @@ const store = vi.hoisted(() => {
 		},
 		getState: () => state,
 		getInitialState: () => state,
+		notify: () => listeners.forEach(listener => listener()),
 	};
 });
 
@@ -41,7 +42,11 @@ vi.mock('@features/bulk/model/gear/items', () => ({
 	removeBulkItem: (_player: unknown, spec: ItemSpec) => batch.removeItem(spec),
 }));
 vi.mock('../../../../tracking/utils', () => ({ trackEvent: vi.fn() }));
-vi.mock('./ItemSource', () => ({ ItemSource: () => <div data-testid="item-source-marker" /> }));
+vi.mock('./ItemSource', () => ({
+	ItemSource: ({ item, faction }: { item: Pick<Item, 'id' | 'sources'>; faction?: number }) => (
+		<div data-testid="item-source-marker" data-item-id={item.id} data-source-count={item.sources?.length} data-faction={faction} />
+	),
+}));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 	ItemNoticeIcon: ({ itemId, enchantId }: { itemId?: number; enchantId?: number }) => (
 		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} />
@@ -84,7 +89,7 @@ const renderRow = (
 		...overrides,
 	};
 
-	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store } });
+	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store }, player: {} });
 
 	return {
 		container,
@@ -107,7 +112,6 @@ describe('ItemListRow', () => {
 		const { container } = renderRow({
 			label: SelectorModalTabs.Enchants,
 			itemData: makeItemData({ ilvl: lvl, item: Enchant.create({ effectId: 1894, lvl }) as unknown as ItemListType }),
-			ep: undefined,
 		});
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
@@ -120,12 +124,32 @@ describe('ItemListRow', () => {
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
 
-	it('renders the item source cell only on the items tab', () => {
-		const items = renderRow({ label: SelectorModalTabs.Items });
-		expect(items.container.querySelector('[data-testid="selector-modal-list-item-source-container"]')).not.toBeNull();
+	it('renders the source cell on the items and enchants tabs alone', () => {
+		const sourceCell = '[data-testid="selector-modal-list-item-source-container"]';
+		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(sourceCell)).not.toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(sourceCell)).not.toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(sourceCell)).toBeNull();
+	});
 
-		const enchants = renderRow({ label: SelectorModalTabs.Enchants });
-		expect(enchants.container.querySelector('[data-testid="selector-modal-list-item-source-container"]')).toBeNull();
+	it.each([
+		['items', SelectorModalTabs.Items],
+		['enchants', SelectorModalTabs.Enchants],
+	])("hands the %s tab's source cell the faction it is given", (_tab, label) => {
+		const { container } = renderRow({ label, faction: 2, itemData: makeItemData({ item: Enchant.create({ effectId: 1 }) as unknown as ItemListType }) });
+		expect(container.querySelector('[data-testid="item-source-marker"]')?.getAttribute('data-faction')).toBe('2');
+	});
+
+	it('shows an enchant row the sources of the enchant, under its own item id', () => {
+		const enchant = Enchant.create({
+			effectId: 1900,
+			itemId: 16252,
+			sources: [{ source: { oneofKind: 'drop', drop: { zoneId: 28, npcId: 4494, difficulty: 0, otherName: '', category: '' } } }],
+		});
+		const { container } = renderRow({ label: SelectorModalTabs.Enchants, itemData: makeItemData({ id: 1900, item: enchant as unknown as ItemListType }) });
+		const marker = container.querySelector('[data-testid="item-source-marker"]');
+
+		expect(marker?.getAttribute('data-item-id')).toBe('16252');
+		expect(marker?.getAttribute('data-source-count')).toBe('1');
 	});
 
 	it('looks the notice up by enchant id on the enchants tab and by item id elsewhere', () => {

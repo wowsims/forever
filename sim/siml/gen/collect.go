@@ -77,7 +77,9 @@ func (c *Collection) specBuilds(root string) ([]*specBuild, error) {
 }
 
 // Builds each spec with no gear, every race with every talent at each rank and every option variant, records what
-// they register as their class's, and gives the specs that built, each with its source configuration.
+// they register as their class's, and gives the specs that built, each with its source configuration. A rank select
+// registers only the aura of the state it holds, so each source configuration runs again at state 2: selects have two
+// states, and Battle Shout's third is the same aura.
 func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 	var base []*build
 	for _, s := range specs {
@@ -91,18 +93,21 @@ func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 	}
 	run(base)
 	var built []*specBuild
+	var states []*build
 	for _, s := range specs {
 		if s.pickSource(base) {
 			built = append(built, s)
+			states = append(states, &build{spec: s, player: s.source, buffState: 2, source: "at state 2"})
 		}
 	}
+	run(states)
 	for _, s := range specs {
 		if !slices.ContainsFunc(base, func(b *build) bool { return b.spec == s && b.attempt >= 0 }) {
 			i := slices.IndexFunc(base, func(b *build) bool { return b.spec == s })
 			c.Skipped = append(c.Skipped, fmt.Sprintf("%s: %s", s.info.Field.Name(), base[i].errors[0]))
 		}
 	}
-	for _, b := range base {
+	for _, b := range slices.Concat(base, states) {
 		c.add(b)
 		for ns, ids := range b.found {
 			for id := range ids {
@@ -111,6 +116,7 @@ func (c *Collection) addClasses(specs []*specBuild) []*specBuild {
 		}
 	}
 	c.Skipped = append(c.Skipped, fallbacks(base)...)
+	c.Skipped = append(c.Skipped, failures(states)...)
 	return built
 }
 
@@ -185,10 +191,7 @@ func set(m map[proto.Class]map[siml.Namespace]map[Identity]bool, class proto.Cla
 func (c *Collection) add(b *build) {
 	spec := string(b.spec.info.Field.Name())
 	for _, id := range b.icd {
-		if !slices.Contains(c.ICDItems[id], spec) {
-			c.ICDItems[id] = append(c.ICDItems[id], spec)
-			slices.Sort(c.ICDItems[id])
-		}
+		c.ICDItems[id] = withSpec(c.ICDItems[id], spec)
 	}
 	for ns, ids := range b.found {
 		if c.Registered[ns] == nil {
@@ -196,19 +199,28 @@ func (c *Collection) add(b *build) {
 		}
 		for id, r := range ids {
 			reg := c.Registered[ns][id]
-			if r.ICDOnly && !slices.Contains(reg.ICDSpecs, spec) {
-				reg.ICDSpecs = append(reg.ICDSpecs, spec)
-				slices.Sort(reg.ICDSpecs)
+			if r.ICDOnly {
+				reg.ICDSpecs = withSpec(reg.ICDSpecs, spec)
+			}
+			if r.TalentOnly {
+				reg.TalentSpecs = withSpec(reg.TalentSpecs, spec)
+			} else {
+				reg.ListedSpecs = withSpec(reg.ListedSpecs, spec)
 			}
 			reg.Rank = max(reg.Rank, r.Rank)
 			reg.Castable = reg.Castable || r.Castable
-			if !slices.Contains(reg.Specs, spec) {
-				reg.Specs = append(reg.Specs, spec)
-				slices.Sort(reg.Specs)
-			}
+			reg.Specs = withSpec(reg.Specs, spec)
 			c.Registered[ns][id] = reg
 		}
 	}
+}
+
+// specs with spec, kept in byte order.
+func withSpec(specs []string, spec string) []string {
+	if i, found := slices.BinarySearch(specs, spec); !found {
+		specs = slices.Insert(specs, i, spec)
+	}
+	return specs
 }
 
 type specBuild struct {
@@ -348,9 +360,9 @@ func setAt(path []protoreflect.FieldDescriptor, v protoreflect.Value) optionVari
 	}
 }
 
-// Turns on everything in a buffs message: every flag, the last value of every enum, one of every count. The auras
+// Turns on everything in a buffs message: every flag, the last value of every enum, every int32 at state. The auras
 // external buffs and debuffs register then show.
-func enableAll(m protoreflect.Message) {
+func enableAll(m protoreflect.Message, state int32) {
 	fields := m.Descriptor().Fields()
 	for i := range fields.Len() {
 		fd := fields.Get(i)
@@ -364,9 +376,9 @@ func enableAll(m protoreflect.Message) {
 			values := fd.Enum().Values()
 			m.Set(fd, protoreflect.ValueOfEnum(values.Get(values.Len()-1).Number()))
 		case protoreflect.Int32Kind:
-			m.Set(fd, protoreflect.ValueOfInt32(1))
+			m.Set(fd, protoreflect.ValueOfInt32(state))
 		case protoreflect.MessageKind:
-			enableAll(m.Mutable(fd).Message())
+			enableAll(m.Mutable(fd).Message(), state)
 		}
 	}
 }
@@ -379,6 +391,7 @@ type build struct {
 	source    string           // What the build adds to its spec's source build, for the report; "" for a build with no gear.
 	fallback  bool             // Whether a failure with every buff is retried without the buffs, then without talents.
 	variant   int              // Which option variant a build with no gear has; 0 for the defaults.
+	buffState int32            // The state every rank select holds with every buff; 0 reads as 1.
 
 	found   map[siml.Namespace]map[Identity]Registration // What the build registered.
 	icd     []int32                                      // The items whose effect the build lists only as an internal cooldown trigger.
@@ -439,7 +452,7 @@ func (b *build) run() {
 	}
 	labels := []string{"with every buff", "without buffs", "without buffs or talents"}
 	for i, player := range attempts {
-		result, err := computeStats(player, i == 0, b.encounter)
+		result, err := computeStats(player, core.TernaryInt32(i == 0, cmp.Or(b.buffState, 1), 0), b.encounter)
 		if err != nil {
 			b.errors = append(b.errors, fmt.Sprintf("%s: %v", labels[i], err))
 			continue
@@ -450,7 +463,8 @@ func (b *build) run() {
 	b.attempt = -1
 }
 
-func computeStats(player *proto.Player, buffs bool, encounter *proto.Encounter) (result *proto.ComputeStatsResult, err error) {
+// With a buffState above 0, every buff is on, with each rank select at that state.
+func computeStats(player *proto.Player, buffState int32, encounter *proto.Encounter) (result *proto.ComputeStatsResult, err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = fmt.Errorf("%v", r)
@@ -458,12 +472,12 @@ func computeStats(player *proto.Player, buffs bool, encounter *proto.Encounter) 
 	}()
 	player = googleClone(player)
 	partyBuffs, raidBuffs, debuffs := &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}
-	if buffs {
-		enableAll(partyBuffs.ProtoReflect())
-		enableAll(raidBuffs.ProtoReflect())
-		enableAll(debuffs.ProtoReflect())
+	if buffState > 0 {
+		enableAll(partyBuffs.ProtoReflect(), buffState)
+		enableAll(raidBuffs.ProtoReflect(), buffState)
+		enableAll(debuffs.ProtoReflect(), buffState)
 		player.Buffs = &proto.IndividualBuffs{}
-		enableAll(player.Buffs.ProtoReflect())
+		enableAll(player.Buffs.ProtoReflect(), buffState)
 	}
 	if encounter == nil {
 		encounter = core.MakeSingleTargetEncounter(0)
@@ -509,9 +523,26 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 		r.Castable = r.Castable || castable
 		found[ns][key] = r
 	}
+	// add, marking an id the build had not listed before as known only through this list.
+	addOnly := func(ns siml.Namespace, id *proto.ActionID, mark func(*Registration)) {
+		key := Identity{id.GetSpellId(), id.GetTag()}
+		_, listed := found[ns][key]
+		add(ns, id, false)
+		if r, ok := found[ns][key]; ok && !listed {
+			mark(&r)
+			found[ns][key] = r
+		}
+	}
 	player := result.RaidStats.Parties[0].Players[0]
 	for _, spell := range player.Metadata.Spells {
 		add(siml.NamespaceSpell, spell.Id, spell.IsCastable)
+	}
+	// talent_is_known and talent_rank read a spell name, and most talents register no spell of their own id. A
+	// talent's rank is the points the build holds, so the entry takes none, and talent_is_known(x) holds at any rank.
+	// A talent the build lists as nothing else is marked, since only those two kinds find it.
+	for _, talent := range player.Metadata.Talents {
+		id := &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: talent.GetSpellId()}}
+		addOnly(siml.NamespaceSpell, id, func(r *Registration) { r.TalentOnly = true })
 	}
 	for _, aura := range player.Metadata.Auras {
 		add(siml.NamespaceAura, aura.Id, false)
@@ -519,13 +550,7 @@ func registrations(result *proto.ComputeStatsResult) map[siml.Namespace]map[Iden
 	// icd_is_ready and trigger_icd read an aura name too, so the internal cooldown triggers they find are aura names,
 	// marked as triggers when the build lists them as nothing else.
 	for _, aura := range player.Metadata.IcdAuras {
-		key := Identity{aura.Id.GetSpellId(), aura.Id.GetTag()}
-		_, listed := found[siml.NamespaceAura][key]
-		add(siml.NamespaceAura, aura.Id, false)
-		if r, ok := found[siml.NamespaceAura][key]; ok && !listed {
-			r.ICDOnly = true
-			found[siml.NamespaceAura][key] = r
-		}
+		addOnly(siml.NamespaceAura, aura.Id, func(r *Registration) { r.ICDOnly = true })
 	}
 	for _, pet := range player.Pets {
 		for _, aura := range pet.Metadata.Auras {

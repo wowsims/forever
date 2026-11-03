@@ -228,6 +228,15 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						showUpdateColumn={!editOnly}
 						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
+					<p className="mt-2 mb-0 text-muted">
+						{i18n.t('sidebar.buttons.stat_weights.modal.rating_weights_description')}
+						{!editOnly && (
+							<>
+								<br />
+								{i18n.t('sidebar.buttons.stat_weights.modal.simulated_step_description')}
+							</>
+						)}
+					</p>
 				</DialogColumns.Main>
 				<DialogColumns.Sidebar className="ui-ep-weights-sidebar">
 					<SavedEpWeights />
