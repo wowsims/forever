@@ -9332,7 +9332,8 @@
 {"id":1328570,"name":"Holy Binding","icon":"spell_holy_flashheal"},
 {"id":1328613,"name":"Predatory Discipline","icon":"spell_druid_savagery"},
 {"id":1328617,"name":"Lacerate","icon":"ability_druid_lacerate","rank":1,"hasBuff":true},
-{"id":1328621,"name":"Bloom","icon":"inv_misc_herb_felblossom"}
+{"id":1328621,"name":"Bloom","icon":"inv_misc_herb_felblossom"},
+{"id":1329555,"name":"Reckless Swings","icon":"ability_warrior_bloodfrenzy","hasBuff":true}
 ],
 "encounters":[
 {"path":"Default/Raid Target","targets":[{"path":"Default/Raid Target","target":{"id":31146,"name":"Raid Target","level":63,"mobType":7,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,0,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],"minBaseDamage":2601,"damageSpread":0.5,"swingSpeed":2,"parryHaste":true,"canCrush":true}}]},
