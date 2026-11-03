@@ -890,7 +890,7 @@
 			},
 			"warlock_soul_shards": {
 				"label": "Soul Shards",
-				"tooltip": "Soul Shards carried into the fight. Soul Fire and Shadowburn each take one, and cannot be cast without one."
+				"tooltip": "Soul Shards carried into the fight, up to 32. Soul Fire and Shadowburn each take one, and cannot be cast without one."
 			},
 			"warlock_pet": {
 				"label": "Pet",
