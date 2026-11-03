@@ -1,8 +1,6 @@
 package rogue
 
 import (
-	"time"
-
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -16,12 +14,12 @@ func (rogue *Rogue) registerAssassinationTalents() {
 
 	// Tier 2
 	// Ruthlessness modeled in rogue.go ApplyFinisher
-	rogue.registerMurder()
+	rogue.registerImprovedExposeArmor()
 	// Improved Slice modeled in Slice and Dice directly
 
 	// Tier 3
-	// Relentless Strikes modeled in rogue.go ApplyFinisher
-	rogue.registerImprovedExposeArmor()
+	// Vigor modeled in rogue.go during initialization
+	rogue.registerBloodSplatter()
 	rogue.registerLethality()
 
 	// Tier 4
@@ -30,24 +28,24 @@ func (rogue *Rogue) registerAssassinationTalents() {
 	rogue.registerImprovedPoisons()
 
 	// Tier 5
-	// Vigor modeled in rogue.go during initialization
-	rogue.registerMutilate()
+	// Relentless Strikes modeled in rogue.go ApplyFinisher
+	// Venom NYI: Shank, the ability that applies its buff, is not in the spell store
 	// Kidney Shot NYI
 
 	// Tier 6
 	rogue.registerSealFate()
 
 	// Tier 7
-	rogue.registerVenom()
+	rogue.registerMutilate()
 }
 
-func (rogue *Rogue) registerImprovedEviscerate() {
-	if rogue.Talents.ImprovedEviscerate == 0 {
+func (rogue *Rogue) registerCoupDeGrace() {
+	if rogue.Talents.CoupDeGrace == 0 {
 		return
 	}
 
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedEviscerate.Rank(rogue.Talents.ImprovedEviscerate))
+		spellData.CoupDeGrace.Rank(rogue.Talents.CoupDeGrace))
 }
 
 func (rogue *Rogue) registerMalice() {
@@ -59,13 +57,13 @@ func (rogue *Rogue) registerMalice() {
 		spellData.Malice.Rank(rogue.Talents.Malice))
 }
 
-func (rogue *Rogue) registerMurder() {
-	if rogue.Talents.Murder == 0 {
+func (rogue *Rogue) registerBloodSplatter() {
+	if !rogue.Talents.BloodSplatter {
 		return
 	}
 
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.Murder.Rank(rogue.Talents.Murder))
+		spellData.BloodSplatter.Rank(1))
 }
 
 func (rogue *Rogue) registerImprovedExposeArmor() {
@@ -228,26 +226,4 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	}
 
 	return rogue.RegisterSpell(config)
-}
-
-var venomRank = spellData.Venom.Highest()
-
-func (rogue *Rogue) registerVenom() {
-	if !rogue.Talents.Venom {
-		return
-	}
-
-	config := spelldata.SpellConfig(&rogue.Unit, venomRank, spelldata.Melee(core.ProcMaskEmpty))
-	venomAura := rogue.RegisterAura(spelldata.AuraConfig(venomRank))
-	spelldata.ParseEffects(&rogue.Character, venomAura, venomRank)
-	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
-
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		rogue.BreakStealth(sim) // As this finisher deals no damage, it may or may not break stealth. To be tested.
-		venomAura.Duration = venomRank.Duration() + time.Second*3*time.Duration(rogue.ComboPoints())
-		rogue.ApplyFinisher(sim, spell)
-		venomAura.Activate(sim)
-	}
-
-	rogue.RegisterSpell(config)
 }

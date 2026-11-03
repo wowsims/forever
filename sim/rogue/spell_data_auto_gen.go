@@ -6,9 +6,12 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+// Not generated:
+//   Shank: ambiguous rank 1 between spells 1329283, 1329549
+
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
+//   Boot Knife: effect 1 of spell 1329286 has no rank curve and is held at its base points
 //   Improved Expose Armor: effect 2 of spell 14168 has no rank curve and is held at its base points
-//   Quietus: effect 1 of spell 1310728 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
 	AdrenalineRush               spelldata.Ladder
@@ -18,14 +21,17 @@ type generatedSpellData struct {
 	Backstab                     spelldata.Ladder
 	BladeFlurry                  spelldata.Ladder
 	Blind                        spelldata.Ladder
+	BloodSplatter                spelldata.Ladder
+	BootKnife                    spelldata.Ladder
+	BootKnifeTriggered           spelldata.Ladder
 	Camouflage                   spelldata.Ladder
 	CheapShot                    spelldata.Ladder
 	ColdBlood                    spelldata.Ladder
+	Composure                    spelldata.Ladder
 	CoupDeGrace                  spelldata.Ladder
 	CripplingPoison              spelldata.Ladder
-	Cutthroat                    spelldata.Ladder
-	CutthroatTriggered           spelldata.Ladder
 	DeadlyPoison                 spelldata.Ladder
+	DeathMark                    spelldata.Ladder
 	DefensiveState               spelldata.Ladder
 	DefensiveStateTriggered      spelldata.Ladder
 	Deflection                   spelldata.Ladder
@@ -34,6 +40,7 @@ type generatedSpellData struct {
 	DisarmTrap                   spelldata.Ladder
 	Distract                     spelldata.Ladder
 	DualWieldSpecialization      spelldata.Ladder
+	EfficientStrikes             spelldata.Ladder
 	Elusiveness                  spelldata.Ladder
 	Endurance                    spelldata.Ladder
 	Evasion                      spelldata.Ladder
@@ -41,16 +48,16 @@ type generatedSpellData struct {
 	ExposeArmor                  spelldata.Ladder
 	Feint                        spelldata.Ladder
 	FistWeaponSpecialization     spelldata.Ladder
+	FlashOfSteel                 spelldata.Ladder
 	FlawlessExecution            spelldata.Ladder
 	Garrote                      spelldata.Ladder
 	GhostlyStrike                spelldata.Ladder
+	GhostlyStrikeTriggered       spelldata.Ladder
 	Gouge                        spelldata.Ladder
 	HackAndSlash                 spelldata.Ladder
 	HeightenedSenses             spelldata.Ladder
 	Hemorrhage                   spelldata.Ladder
 	ImprovedAmbush               spelldata.Ladder
-	ImprovedDistract             spelldata.Ladder
-	ImprovedEviscerate           spelldata.Ladder
 	ImprovedExposeArmor          spelldata.Ladder
 	ImprovedExposeArmorTriggered spelldata.Ladder
 	ImprovedGouge                spelldata.Ladder
@@ -60,7 +67,6 @@ type generatedSpellData struct {
 	ImprovedPoisons              spelldata.Ladder
 	ImprovedSap                  spelldata.Ladder
 	ImprovedSapTriggered         spelldata.Ladder
-	ImprovedSinisterStrike       spelldata.Ladder
 	ImprovedSliceAndDice         spelldata.Ladder
 	ImprovedSprint               spelldata.Ladder
 	ImprovedSprintTriggered      spelldata.Ladder
@@ -74,7 +80,6 @@ type generatedSpellData struct {
 	Malice                       spelldata.Ladder
 	MasterOfDeception            spelldata.Ladder
 	MindNumbingPoison            spelldata.Ladder
-	Murder                       spelldata.Ladder
 	Mutilate                     spelldata.Ladder
 	MutilateTriggered            spelldata.Ladder
 	NumbingPoison                spelldata.Ladder
@@ -86,7 +91,8 @@ type generatedSpellData struct {
 	Preparation                  spelldata.Ladder
 	PuncturingWounds             spelldata.Ladder
 	PuncturingWoundsTriggered    spelldata.Ladder
-	Quietus                      spelldata.Ladder
+	QuickGetaway                 spelldata.Ladder
+	QuickGetawayTriggered        spelldata.Ladder
 	Redirect                     spelldata.Ladder
 	RelentlessStrikes            spelldata.Ladder
 	RelentlessStrikesTriggered   spelldata.Ladder
@@ -107,12 +113,11 @@ type generatedSpellData struct {
 	SliceAndDice                 spelldata.Ladder
 	Sprint                       spelldata.Ladder
 	Stealth                      spelldata.Ladder
-	ThousandCuts                 spelldata.Ladder
-	ThousandCutsTriggered        spelldata.Ladder
 	Vanish                       spelldata.Ladder
 	VanishTriggered              spelldata.Ladder
 	Vanished                     spelldata.Ladder
 	Venom                        spelldata.Ladder
+	VenomTriggered               spelldata.Ladder
 	Vigor                        spelldata.Ladder
 	VilePoisons                  spelldata.Ladder
 	WeaponExpertise              spelldata.Ladder
@@ -127,14 +132,17 @@ var spellData = generatedSpellData{
 	Backstab:                     spelldata.Ranked(53, 2589, 2590, 2591, 8721, 11279, 11280, 11281, 25300),
 	BladeFlurry:                  spelldata.Ranked(13877),
 	Blind:                        spelldata.Ranked(2094),
-	Camouflage:                   spelldata.Talent(13975, 5),
+	BloodSplatter:                spelldata.Talent(1329256, 1),
+	BootKnife:                    spelldata.Talent(1329286, 5),
+	BootKnifeTriggered:           spelldata.Ranked(1329285),
+	Camouflage:                   spelldata.Talent(13975, 3),
 	CheapShot:                    spelldata.Ranked(1833),
 	ColdBlood:                    spelldata.Ranked(14177),
-	CoupDeGrace:                  spelldata.Ranked(1310709),
+	Composure:                    spelldata.Talent(1329265, 2),
+	CoupDeGrace:                  spelldata.Talent(14162, 3),
 	CripplingPoison:              spelldata.Ranked(3409, 11201),
-	Cutthroat:                    spelldata.Talent(462708, 5),
-	CutthroatTriggered:           spelldata.Ranked(462707),
 	DeadlyPoison:                 spelldata.Ranked(2818, 2819, 11353, 11354, 25349),
+	DeathMark:                    spelldata.Ranked(1316709, 1325756, 1325757, 1325758),
 	DefensiveState:               spelldata.Ranked(16092),
 	DefensiveStateTriggered:      spelldata.Ranked(5302),
 	Deflection:                   spelldata.Talent(13713, 3),
@@ -142,7 +150,8 @@ var spellData = generatedSpellData{
 	DirtyTricks:                  spelldata.Talent(1224782, 2),
 	DisarmTrap:                   spelldata.Ranked(1842),
 	Distract:                     spelldata.Ranked(1725),
-	DualWieldSpecialization:      spelldata.Talent(13715, 5),
+	DualWieldSpecialization:      spelldata.Talent(13715, 2),
+	EfficientStrikes:             spelldata.Talent(13732, 2),
 	Elusiveness:                  spelldata.Talent(13981, 2),
 	Endurance:                    spelldata.Talent(13742, 2),
 	Evasion:                      spelldata.Ranked(5277),
@@ -150,16 +159,16 @@ var spellData = generatedSpellData{
 	ExposeArmor:                  spelldata.Ranked(8647, 8649, 8650, 11197, 11198),
 	Feint:                        spelldata.Ranked(1966, 6768, 8637, 11303, 25302),
 	FistWeaponSpecialization:     spelldata.Ranked(13707, 13966, 13967, 13968, 13969),
+	FlashOfSteel:                 spelldata.Talent(1329284, 5),
 	FlawlessExecution:            spelldata.Ranked(1310711),
 	Garrote:                      spelldata.Ranked(703, 8631, 8632, 8633, 11289, 11290),
 	GhostlyStrike:                spelldata.Ranked(14278),
+	GhostlyStrikeTriggered:       spelldata.Ranked(1329326),
 	Gouge:                        spelldata.Ranked(1776, 1777, 8629, 11285, 11286),
 	HackAndSlash:                 spelldata.Talent(13960, 5),
 	HeightenedSenses:             spelldata.Talent(30894, 2),
 	Hemorrhage:                   spelldata.Ranked(16511),
 	ImprovedAmbush:               spelldata.Talent(14079, 3),
-	ImprovedDistract:             spelldata.Talent(14084, 2),
-	ImprovedEviscerate:           spelldata.Talent(14162, 3),
 	ImprovedExposeArmor:          spelldata.Talent(14168, 2),
 	ImprovedExposeArmorTriggered: spelldata.Ranked(1310697),
 	ImprovedGouge:                spelldata.Talent(13741, 3),
@@ -169,7 +178,6 @@ var spellData = generatedSpellData{
 	ImprovedPoisons:              spelldata.Talent(14113, 5),
 	ImprovedSap:                  spelldata.Ranked(14076, 14094, 14095),
 	ImprovedSapTriggered:         spelldata.Ranked(14093),
-	ImprovedSinisterStrike:       spelldata.Talent(13732, 2),
 	ImprovedSliceAndDice:         spelldata.Talent(14165, 3),
 	ImprovedSprint:               spelldata.Talent(13743, 2),
 	ImprovedSprintTriggered:      spelldata.Ranked(30918),
@@ -178,26 +186,26 @@ var spellData = generatedSpellData{
 	InstantPoison:                spelldata.Ranked(8680, 8685, 8689, 11335, 11336, 11337),
 	Kick:                         spelldata.Ranked(1766, 1767, 1768, 1769),
 	KidneyShot:                   spelldata.Ranked(408, 8643),
-	Lethality:                    spelldata.Talent(14128, 5),
+	Lethality:                    spelldata.Talent(14128, 2),
 	LightningReflexes:            spelldata.Talent(13712, 5),
 	Malice:                       spelldata.Talent(14138, 5),
 	MasterOfDeception:            spelldata.Talent(13958, 3),
 	MindNumbingPoison:            spelldata.Ranked(5760, 8692, 11398),
-	Murder:                       spelldata.Talent(14158, 2),
-	Mutilate:                     spelldata.Ranked(1310707, 399956, 1241582, 1241584),
-	MutilateTriggered:            spelldata.Ranked(399960, 399961, 1241585, 1241586, 1241588, 1241590, 1310705, 1310706),
+	Mutilate:                     spelldata.Ranked(399956, 1241582, 1241584),
+	MutilateTriggered:            spelldata.Ranked(399960, 399961, 1241585, 1241586, 1241588, 1241590),
 	NumbingPoison:                spelldata.Ranked(439472),
 	OccultPoison:                 spelldata.Ranked(458820, 1214170),
-	Opportunity:                  spelldata.Talent(14057, 2),
+	Opportunity:                  spelldata.Talent(14057, 5),
 	PickPocket:                   spelldata.Ranked(921),
 	Precision:                    spelldata.Talent(13705, 3),
 	Premeditation:                spelldata.Ranked(14183),
 	Preparation:                  spelldata.Ranked(14185),
 	PuncturingWounds:             spelldata.Talent(1224716, 3),
 	PuncturingWoundsTriggered:    spelldata.Ranked(1310710),
-	Quietus:                      spelldata.Talent(1310728, 5),
+	QuickGetaway:                 spelldata.Talent(1310728, 2),
+	QuickGetawayTriggered:        spelldata.Ranked(1329282),
 	Redirect:                     spelldata.Ranked(438040),
-	RelentlessStrikes:            spelldata.Ranked(14179),
+	RelentlessStrikes:            spelldata.Talent(14179, 5),
 	RelentlessStrikesTriggered:   spelldata.Ranked(14181),
 	RemorselessAttacks:           spelldata.Talent(14144, 2),
 	RemorselessAttacksTriggered:  spelldata.Ranked(14143),
@@ -207,7 +215,7 @@ var spellData = generatedSpellData{
 	Ruthlessness:                 spelldata.Talent(14156, 3),
 	RuthlessnessTriggered:        spelldata.Ranked(14157),
 	Sap:                          spelldata.Ranked(6770, 2070, 11297),
-	SealFate:                     spelldata.Talent(14186, 5),
+	SealFate:                     spelldata.Talent(14186, 3),
 	SebaciousPoison:              spelldata.Ranked(439471),
 	SerratedBlades:               spelldata.Talent(14171, 3),
 	Setup:                        spelldata.Talent(13983, 3),
@@ -216,12 +224,11 @@ var spellData = generatedSpellData{
 	SliceAndDice:                 spelldata.Ranked(5171, 6774),
 	Sprint:                       spelldata.Ranked(2983, 8696, 11305),
 	Stealth:                      spelldata.Ranked(1784, 1785, 1786, 1787),
-	ThousandCuts:                 spelldata.Talent(1310721, 1),
-	ThousandCutsTriggered:        spelldata.Ranked(1310723),
 	Vanish:                       spelldata.Ranked(1856, 1857),
 	VanishTriggered:              spelldata.Ranked(11327, 11329, 18461),
 	Vanished:                     spelldata.Ranked(14093),
-	Venom:                        spelldata.Ranked(1310703),
+	Venom:                        spelldata.Ranked(1329328),
+	VenomTriggered:               spelldata.Ranked(1310703),
 	Vigor:                        spelldata.Talent(14983, 2),
 	VilePoisons:                  spelldata.Talent(16513, 5),
 	WeaponExpertise:              spelldata.Talent(30919, 2),

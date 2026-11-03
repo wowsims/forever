@@ -158,21 +158,13 @@ export default defineSpec<Spec.SpecRogue>({
 	presets: {
 		epWeights: [Presets.EP_PRESET_ASSASSINATION, Presets.EP_PRESET_COMBAT_DAGS, Presets.EP_PRESET_COMBAT_SINISTER, Presets.EP_PRESET_SUBTLETY],
 		// Preset talents that the user can quickly select.
-		talents: [
-			Presets.TALENTS_MUTILATE_ASN,
-			Presets.TALENTS_MUTILATE_COM,
-			Presets.TALENTS_COMBAT_SS,
-			Presets.TALENTS_COMBAT_BS,
-			Presets.TALENTS_SUB_HEMO,
-			Presets.TALENTS_SUB_BS,
-		],
+		talents: [Presets.TALENTS_MUTILATE_ASN, Presets.TALENTS_COMBAT_SS, Presets.TALENTS_COMBAT_BS, Presets.TALENTS_SUB_HEMO, Presets.TALENTS_SUB_BS],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.SIMPLE_ROTATION, Presets.DEFAULT_APL],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.P1_BS_COMBAT_GEAR, Presets.P1_MUTI_GEAR, Presets.P1_SLOW_MH_GEAR, Presets.P1_BS_SUB_GEAR],
 		builds: [
 			Presets.PRESET_BUILD_MUTILATE_ASN,
-			Presets.PRESET_BUILD_MUTILATE_COM,
 			Presets.PRESET_BUILD_COMBAT_SS,
 			Presets.PRESET_BUILD_COMBAT_BS,
 			Presets.PRESET_BUILD_SUB_HEMO,

@@ -1,6 +1,7 @@
 package rogue
 
 import (
+	"math"
 	"testing"
 
 	"github.com/wowsims/forever/sim/common"
@@ -98,11 +99,11 @@ func TestRogue(t *testing.T) {
 			OtherTalentSets: []core.TalentsCombo{
 				{
 					Label:   "Subtlety BS",
-					Talents: "0053031-3203-4320203300013211051",
+					Talents: "005303202-3203-0352330313210011",
 				},
 				{
 					Label:   "Asn Muti",
-					Talents: "00532310151501031-302303202014",
+					Talents: "00530320251511031-30230322000103",
 				},
 			},
 			Consumables: DefaultConsumables,
@@ -139,7 +140,7 @@ var DefaultOptions = &proto.Player_Rogue{
 	},
 }
 
-var DefaultTalents = "005323101012-32030320201515231"
+var DefaultTalents = "005303202014-3203032201012321501"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	FlaskId:         274274, // Flask of Natural Aggression
@@ -151,7 +152,7 @@ var DefaultConsumables = &proto.ConsumesSpec{
 }
 
 // Lightning Reflexes 5/5, Deflection 3/3, Riposte, Setup 3/3 and Ghostly Strike.
-const tankTalents = "-00503001-000300001"
+const tankTalents = "-005030001-300000000001"
 
 // A rogue with the talents given, facing two targets.
 func newTankSim(t *testing.T, talents string) (*core.Simulation, *Rogue, []*core.Unit) {
@@ -254,15 +255,17 @@ func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 	}
 }
 
-// Setup hears the current target's attacks only, and at 3/3 every dodge of one adds the row's point.
+// Setup hears the current target's attacks only, and a dodge of one adds the row's point at the rank's chance.
 func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
-	want := int32(setupTriggered.ProcEnergizeEffect().BaseValue())
+	const dodges = 150
+	perProc := int32(setupTriggered.ProcEnergizeEffect().BaseValue())
+	chance := spellData.Setup.Rank(3).EffectN(1).Percent()
 	for _, c := range []struct {
 		name      string
 		fromIndex int
-		points    int32
+		rate      float64
 	}{
-		{"a dodge of the current target's swing adds a point", 0, want},
+		{"a dodge of the current target's swing adds a point at the rank's chance", 0, chance},
 		{"a dodge of another target's swing adds none", 1, 0},
 	} {
 		t.Run(c.name, func(t *testing.T) {
@@ -270,13 +273,25 @@ func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 			if rogue.CurrentTarget != targets[0] {
 				t.Fatal("the rogue's current target is not the first target")
 			}
-			before := rogue.ComboPoints()
+			icd := spellData.Setup.Rank(3).ICD()
 
-			swingAt(sim, rogue, targets[c.fromIndex], core.OutcomeDodge)
-			passBatchWindow(t, sim)
+			var gained int32
+			for range dodges {
+				rogue.ResetComboPoints(sim, 0)
+				swingAt(sim, rogue, targets[c.fromIndex], core.OutcomeDodge)
+				passBatchWindow(t, sim)
+				gained += rogue.ComboPoints()
 
-			if got := rogue.ComboPoints() - before; got != c.points {
-				t.Errorf("combo points gained = %d, want %d", got, c.points)
+				until := sim.CurrentTime + icd
+				for sim.CurrentTime <= until {
+					if sim.Step() {
+						t.Fatal("the sim ended between two dodges")
+					}
+				}
+			}
+
+			if got := float64(gained) / float64(perProc*dodges); math.Abs(got-c.rate) > 0.12 {
+				t.Errorf("a dodge adds a point %.2f of the time, want %.2f", got, c.rate)
 			}
 		})
 	}

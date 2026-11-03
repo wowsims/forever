@@ -18,37 +18,31 @@ import P1SlowMhGear from './gear_sets/p1_slowmh.gear.json';
 export const TALENTS_MUTILATE_ASN = {
 	name: 'Asn Muti',
 	data: SavedTalents.create({
-		talentsString: '00532310151501031-302303202014',
-	}),
-};
-export const TALENTS_MUTILATE_COM = {
-	name: 'Combat Muti',
-	data: SavedTalents.create({
-		talentsString: '00532310101401-302303202015152-001',
+		talentsString: '00530320251511031-30230322000103',
 	}),
 };
 export const TALENTS_COMBAT_SS = {
 	name: 'Combat SS',
 	data: SavedTalents.create({
-		talentsString: '005323101012-32030320201515231',
+		talentsString: '005303202014-3203032201012321501',
 	}),
 };
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '00532310101-32030320201515231-002',
+		talentsString: '005303202012-3203032201012321501-002',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
 	name: 'Subtlety Hemo',
 	data: SavedTalents.create({
-		talentsString: '005323101014--4323200300013211501',
+		talentsString: '005303202014--3352330313210011',
 	}),
 };
 export const TALENTS_SUB_BS = {
 	name: 'Subtlety BS',
 	data: SavedTalents.create({
-		talentsString: '0053031-3203-4320203300013211051',
+		talentsString: '005303202-3203-0352330313210011',
 	}),
 };
 
@@ -196,14 +190,6 @@ export const PRESET_BUILD_MUTILATE_ASN = PresetUtils.makePresetBuild('Asn Muti',
 	gear: P1_MUTI_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_ASSASSINATION,
-});
-
-export const PRESET_BUILD_MUTILATE_COM = PresetUtils.makePresetBuild('Combat Muti', {
-	talents: TALENTS_MUTILATE_COM,
-	rotation: SIMPLE_ROTATION,
-	gear: P1_MUTI_GEAR,
-	settings: IP_MH_Settings,
-	epWeights: EP_PRESET_COMBAT_DAGS,
 });
 
 export const PRESET_BUILD_COMBAT_SS = PresetUtils.makePresetBuild('Combat SS', {

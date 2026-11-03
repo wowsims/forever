@@ -9,8 +9,8 @@ import (
 
 func (rogue *Rogue) registerCombatTalents() {
 	// Tier 1
-	rogue.registerImprovedEviscerate()
-	rogue.registerImprovedSinisterStrike()
+	rogue.registerCoupDeGrace()
+	rogue.registerEfficientStrikes()
 	rogue.registerLightningReflexes()
 
 	// Tier 2
@@ -20,31 +20,33 @@ func (rogue *Rogue) registerCombatTalents() {
 
 	// Tier 3
 	rogue.registerRiposte()
+	// Composure modeled in poised.go
 
 	// Tier 4
 	// Improved Kick NYI
 	rogue.registerFlawlessExecution()
-	rogue.registerDualWieldSpecialization()
+	rogue.registerWeaponExpertise()
+	rogue.registerAggression()
 
 	// Tier 5
+	rogue.registerDualWieldSpecialization()
 	rogue.registerBladeFlurry()
 	rogue.registerHackAndSlash()
 
 	// Tier 6
-	rogue.registerWeaponExpertise()
-	rogue.registerAggression()
+	// Flash of Steel NYI: Shank, the ability it raises, is not in the spell store
 
 	// Tier 7
 	rogue.registerAdrenalineRush()
 }
 
-func (rogue *Rogue) registerImprovedSinisterStrike() {
-	if rogue.Talents.ImprovedSinisterStrike == 0 {
+func (rogue *Rogue) registerEfficientStrikes() {
+	if rogue.Talents.EfficientStrikes == 0 {
 		return
 	}
 
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedSinisterStrike.Rank(rogue.Talents.ImprovedSinisterStrike))
+		spellData.EfficientStrikes.Rank(rogue.Talents.EfficientStrikes))
 }
 
 func (rogue *Rogue) registerLightningReflexes() {
