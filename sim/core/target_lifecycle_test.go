@@ -286,6 +286,7 @@ func TestChannelEndsWhenItsTargetGoesDown(t *testing.T) {
 	}{
 		{"disabled keeping its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, false) }},
 		{"disabled clearing its debuffs", func(sim *Simulation, target *Target) { target.Disable(sim, true) }},
+		{"by dying", func(sim *Simulation, target *Target) { target.Die(sim, 0) }},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			sim, fw, spell, ticks := setupTickCounter(manaChannelConfig(5, false))
