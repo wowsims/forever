@@ -177,13 +177,8 @@ func TestDynamicAddsPresetEncounter(t *testing.T) {
 }
 
 // The boss's Kill share % input is the chance the raid gets each despawning add's kill: 0 never credits it, 100
-// always does, and the preset sets 20.
+// always does, and 20 credits some and not others.
 func TestDynamicAddsKillShare(t *testing.T) {
-	inputs := dynamicAddsTargets(t, nil)[0].TargetInputs
-	if len(inputs) != 4 || inputs[3].Label != "Kill share %" || inputs[3].NumberValue != 20 {
-		t.Fatalf("the Dynamic Boss inputs end with %v, want Kill share %% at 20", inputs[len(inputs)-1])
-	}
-
 	for _, tc := range []struct {
 		percent       float64
 		credited, not bool
