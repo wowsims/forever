@@ -34,21 +34,27 @@ func physicalMultiplier(character *core.Character) float64 {
 	return character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical]
 }
 
-// The warrior's Two-Handed Weapon Specialization 12163 and the paladin's 20111 at 3/3 give their
+// The warrior's Two-Handed Weapon Specialization 12163 at 3/3 names Physical alone: it gives its
 // percent on Physical and on the melee-defense Holy spells such as the Seal of Righteousness hit, and
-// nothing on a magic-defense Holy spell such as Consecration. A physical spell takes it through the
-// school multiplier alone.
+// nothing on a magic-defense Holy spell such as Consecration. The paladin's 20111 at 3/3 names
+// Physical and Holy, so Holy takes it through the school multiplier and no Holy spell takes the
+// melee-defense part. A physical spell takes it through the school multiplier alone.
 func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	defer generatedStore()()
 
 	for _, tc := range []struct {
-		row  *Spell
-		hand proto.HandType
+		row       *Spell
+		hand      proto.HandType
+		holyNamed bool
 	}{
-		{Talent(12163, 3).Rank(3), proto.HandType_HandTypeTwoHand},
-		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand},
+		{Talent(12163, 3).Rank(3), proto.HandType_HandTypeTwoHand, false},
+		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand, true},
 	} {
 		want := 1 + tc.row.EffectN(1).Percent()
+		wantHolyMelee, wantHolySchool := want, 1.0
+		if tc.holyNamed {
+			wantHolyMelee, wantHolySchool = 1, want
+		}
 		character := swordWarrior(tc.hand)
 		holyMelee := defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMelee)
 		holyMagic := defenseSpell(character, 2, core.SpellSchoolHoly, core.DefenseTypeMagic)
@@ -56,8 +62,11 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 
 		ParseStatic(character, tc.row)
 
-		if got := holyMelee.DamageMultiplier; math.Abs(got-want) > 1e-9 {
-			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, want)
+		if got := holyMelee.DamageMultiplier; math.Abs(got-wantHolyMelee) > 1e-9 {
+			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, wantHolyMelee)
+		}
+		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; math.Abs(got-wantHolySchool) > 1e-9 {
+			t.Errorf("%s: the holy school multiplier: %v, want %v", tc.row.Name, got, wantHolySchool)
 		}
 		if got := holyMagic.DamageMultiplier; got != 1 {
 			t.Errorf("%s: a magic-defense holy spell: %v, want 1", tc.row.Name, got)
