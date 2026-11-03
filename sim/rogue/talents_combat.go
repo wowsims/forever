@@ -11,15 +11,15 @@ func (rogue *Rogue) registerCombatTalents() {
 	// Tier 1
 	rogue.registerImprovedEviscerate()
 	rogue.registerImprovedSinisterStrike()
-	// Lightning Reflexes NYI
+	rogue.registerLightningReflexes()
 
 	// Tier 2
 	rogue.registerPuncturingWounds()
-	// Deflection NYI
+	rogue.registerDeflection()
 	rogue.registerPrecision()
 
 	// Tier 3
-	// None in this tier implemented
+	rogue.registerRiposte()
 
 	// Tier 4
 	// Improved Kick NYI
@@ -47,6 +47,15 @@ func (rogue *Rogue) registerImprovedSinisterStrike() {
 		spellData.ImprovedSinisterStrike.Rank(rogue.Talents.ImprovedSinisterStrike))
 }
 
+func (rogue *Rogue) registerLightningReflexes() {
+	if rogue.Talents.LightningReflexes == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.LightningReflexes.Rank(rogue.Talents.LightningReflexes))
+}
+
 func (rogue *Rogue) registerPuncturingWounds() {
 	if rogue.Talents.PuncturingWounds == 0 {
 		return
@@ -58,6 +67,15 @@ func (rogue *Rogue) registerPuncturingWounds() {
 	rogue.puncturingWoundsComboPointMetrics = rogue.NewComboPointMetrics(core.ActionID{SpellID: spellData.PuncturingWounds.Rank(rogue.Talents.PuncturingWounds).ID})
 }
 
+func (rogue *Rogue) registerDeflection() {
+	if rogue.Talents.Deflection == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.Deflection.Rank(rogue.Talents.Deflection))
+}
+
 func (rogue *Rogue) registerPrecision() {
 	if rogue.Talents.Precision == 0 {
 		return
@@ -65,6 +83,50 @@ func (rogue *Rogue) registerPrecision() {
 
 	spelldata.ParseStatic(&rogue.Character,
 		spellData.Precision.Rank(rogue.Talents.Precision))
+}
+
+var riposteRank = spellData.Riposte.Highest()
+
+// The window a parry opens. The row requires caster aura state 1 and names no aura, so this is the aura the
+// rogue's own passive (16092) fires, and Riposte's tooltip narrows it to a parry.
+var riposteWindow = spellData.DefensiveStateTriggered.Highest()
+
+func (rogue *Rogue) registerRiposte() {
+	if !rogue.Talents.Riposte {
+		return
+	}
+
+	// Only Riposte's cast spends the window. The row's one charge on any melee ability is not modelled: in game a
+	// Sinister Strike leaves Riposte usable.
+	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
+
+	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			window.Activate(sim)
+		})
+	trigger.Name = "Riposte - Trigger"
+	trigger.Outcome = core.OutcomeParry
+	trigger.RequireDamageDealt = false
+	rogue.MakeProcTriggerAura(trigger)
+
+	// Off the GCD: the row's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
+	// fires in the same instant as Sinister Strike.
+	config := spelldata.SpellConfig(&rogue.Unit, riposteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ClassSpellMask = RogueSpellRiposte
+
+	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
+		return window.IsActive()
+	}
+
+	// The disarm (A_MOD_DISARM) is not modelled: the target's swings are not cancelled.
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		rogue.BreakStealth(sim)
+		baseDamage := riposteRank.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		window.Deactivate(sim)
+	}
+
+	rogue.Riposte = rogue.RegisterSpell(config)
 }
 
 func (rogue *Rogue) registerFlawlessExecution() {
