@@ -25,7 +25,7 @@ import { downloadString } from '@ui-kit/utils/dom';
 import { type Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import { useStatSweep } from '../../hooks/useStatSweep';
-import { offeredSweepMetrics, shownSweepMetric, statSweepCsv, type StatSweepProgress, sweepRangeText, sweepStepPosition } from '../../model/stat_sweep';
+import { offeredSweepMetrics, shownSweepMetric, statSweepCsv, type StatSweepProgress, sweepStepPosition } from '../../model/stat_sweep';
 import { StatSweepChart } from '../StatSweepChart';
 import { StatSweepHistory } from '../StatSweepHistory';
 import { StatSweepPanel } from '../StatSweepPanel';
@@ -110,14 +110,14 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 					{
 						stats: selectedStats.map(unitStat => ({
 							unitStat,
-							label: t('run_label', { stat: labelOf(unitStat.getKey()), range: sweepRangeText([unitStat], range) }),
+							label: t('run_label', { stat: labelOf(unitStat.getKey()), range }),
 							baseStatValue: totals?.getUnitStat(unitStat) ?? 0,
 						})),
 						range,
 						step,
 						metric,
 						precision,
-						batchLabel: t('batch_label', { stats: selectedKeys.map(labelOf).join(', '), range: sweepRangeText(selectedStats, range) }),
+						batchLabel: t('batch_label', { stats: selectedKeys.map(labelOf).join(', '), range }),
 					},
 					progress => {
 						secondsRemaining.current = progress.secondsRemaining;

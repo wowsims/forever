@@ -57,8 +57,8 @@ export const StatSweepPanel = ({
 						disabled={running}
 						testId="stat-sweep-stats"
 					/>
-					<NumberField id="stat-sweep-range" label={t('range')} float positive disabled={running} value={range} onChange={onRangeChange} />
-					<NumberField id="stat-sweep-step" label={t('step')} float positive disabled={running} value={step} onChange={onStepChange} />
+					<NumberField id="stat-sweep-range" label={t('range')} positive disabled={running} value={range} onChange={onRangeChange} />
+					<NumberField id="stat-sweep-step" label={t('step')} positive disabled={running} value={step} onChange={onStepChange} />
 				</div>
 				{chart}
 			</DialogColumns.Main>

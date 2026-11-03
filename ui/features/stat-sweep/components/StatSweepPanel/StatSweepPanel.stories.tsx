@@ -22,9 +22,9 @@ const meta = {
 		],
 		stats: ['stat-hit', 'stat-crit'],
 		onStatsChange: fn(),
-		range: 10,
+		range: 100,
 		onRangeChange: fn(),
-		step: 1,
+		step: 10,
 		onStepChange: fn(),
 		precision: (
 			<PrecisionOptions

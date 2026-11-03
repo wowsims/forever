@@ -24,23 +24,17 @@ import {
 	type StatSweepSample,
 	type SweepBatch,
 	sweepBonus,
-	sweepRangeText,
 	sweepSteps,
 } from '../../../features/stat-sweep/model/stat_sweep';
 
 export const HIT_RATING = UnitStat.fromStat(Stat.StatHitRating);
 export const CRIT_RATING = UnitStat.fromStat(Stat.StatCritRating);
 export const DEFENSE_RATING = UnitStat.fromStat(Stat.StatDefenseRating);
-const HASTE_RATING = UnitStat.fromStat(Stat.StatHasteRating);
-const EXPERTISE_RATING = UnitStat.fromStat(Stat.StatExpertiseRating);
-const ARMOR_PENETRATION = UnitStat.fromStat(Stat.StatArmorPenetration);
-const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
-const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 
-// Every fixture sweep goes this far, in steps of 1%.
-const SWEEP_RANGE_PERCENT = 10;
+// Every fixture sweep goes this far, in steps of 10 points.
+const SWEEP_RANGE = 100;
 
-// In rating, as `dpsAt` reads a hit sweep's total.
+// In points, as `dpsAt` reads a hit sweep's total.
 const HIT_CAP = 150;
 const DPS_PER_POINT = 2.1;
 
@@ -50,7 +44,7 @@ const dpsAt = (value: number) => 1180 + DPS_PER_POINT * Math.min(value, HIT_CAP)
 type MetricsAt = (value: number, samples: number) => Record<StatSweepMetric, MetricSummary>;
 
 const pointsFrom = (unitStat: UnitStat, base: number, samples: number, metricsAt: MetricsAt): StatSweepPoint[] => {
-	const offsets = buildSweepOffsets(SWEEP_RANGE_PERCENT, 1);
+	const offsets = buildSweepOffsets(SWEEP_RANGE, 10);
 	return sweepSteps(
 		unitStat,
 		offsets,
@@ -78,10 +72,10 @@ const tankMetrics: MetricsAt = (value, n) => ({
 	tmi: { avg: 18 - 0.03 * value, stdev: 4.5, n },
 });
 
-/** A ±10% hit sweep in steps of 1% from `base`, against a hit cap at 150. */
+/** A ±100 hit sweep in steps of 10 from `base`, against a hit cap at 150. */
 export const makeHitSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(HIT_RATING, base, samples, dealerMetrics(dpsAt));
 
-/** A ±10% crit sweep in steps of 1% from `base`, with no cap in reach. */
+/** A ±100 crit sweep in steps of 10 from `base`, with no cap in reach. */
 export const makeCritSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] =>
 	pointsFrom(
 		CRIT_RATING,
@@ -93,7 +87,7 @@ export const makeCritSweepPoints = (base: number, samples = 20_000): StatSweepPo
 /** A ±100 defense sweep in steps of 10 from `base`, for a tank. */
 export const makeDefenseSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(DEFENSE_RATING, base, samples, tankMetrics);
 
-const rangeLabel = (statLabel: string, unitStat: UnitStat) => `${statLabel} ±${sweepRangeText([unitStat], SWEEP_RANGE_PERCENT)}`;
+const rangeLabel = (statLabel: string) => `${statLabel} ±${SWEEP_RANGE}`;
 
 export const sweepSeries = (
 	id: string,
@@ -102,36 +96,35 @@ export const sweepSeries = (
 	base: number,
 	points: StatSweepPoint[],
 	colorSlot = 0,
-	label = rangeLabel(statLabel, unitStat),
+	label = rangeLabel(statLabel),
 ): StatSweepSeries => ({ id, label, colorSlot, unitStat, statLabel, baseStatValue: base, points });
 
 const historyEntry = (
 	id: string,
-	unitStat: UnitStat,
 	statLabel: string,
 	createdAt: number,
 	overlaid: boolean,
 	colorSlot?: number,
 	metric: StatSweepMetric = 'dps',
-): StatSweepHistoryEntry => ({ id, label: rangeLabel(statLabel, unitStat), statLabel, createdAt, overlaid, colorSlot, metric });
+): StatSweepHistoryEntry => ({ id, label: rangeLabel(statLabel), statLabel, createdAt, overlaid, colorSlot, metric });
 
 /** Newest first: a four-stat sweep drawn whole, a one-stat sweep, and an older TPS sweep with one of its two runs drawn. */
 export const SWEEP_HISTORY_BATCHES: SweepBatch<StatSweepHistoryEntry>[] = [
 	{
 		id: 'melee',
 		runs: [
-			historyEntry('crit', CRIT_RATING, 'Crit', Date.UTC(2026, 9, 13, 14, 3), true, 0),
-			historyEntry('haste', HASTE_RATING, 'Haste', Date.UTC(2026, 9, 13, 14, 5), true, 1),
-			historyEntry('arp', ARMOR_PENETRATION, 'Armor Penetration', Date.UTC(2026, 9, 13, 14, 7), true, 2),
-			historyEntry('expertise', EXPERTISE_RATING, 'Expertise', Date.UTC(2026, 9, 13, 14, 9), true, 3),
+			historyEntry('crit', 'Crit', Date.UTC(2026, 9, 13, 14, 3), true, 0),
+			historyEntry('haste', 'Haste', Date.UTC(2026, 9, 13, 14, 5), true, 1),
+			historyEntry('arp', 'Armor Penetration', Date.UTC(2026, 9, 13, 14, 7), true, 2),
+			historyEntry('expertise', 'Expertise', Date.UTC(2026, 9, 13, 14, 9), true, 3),
 		],
 	},
-	{ id: 'hit', runs: [historyEntry('hit', HIT_RATING, 'Hit', Date.UTC(2026, 9, 12, 21, 40), false)] },
+	{ id: 'hit', runs: [historyEntry('hit', 'Hit', Date.UTC(2026, 9, 12, 21, 40), false)] },
 	{
 		id: 'threat',
 		runs: [
-			historyEntry('strength', STRENGTH, 'Strength', Date.UTC(2026, 9, 10, 18, 15), true, 4, 'tps'),
-			historyEntry('agility', AGILITY, 'Agility', Date.UTC(2026, 9, 10, 18, 17), false, undefined, 'tps'),
+			historyEntry('strength', 'Strength', Date.UTC(2026, 9, 10, 18, 15), true, 4, 'tps'),
+			historyEntry('agility', 'Agility', Date.UTC(2026, 9, 10, 18, 17), false, undefined, 'tps'),
 		],
 	},
 ];

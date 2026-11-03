@@ -13,8 +13,8 @@ export type StatSweepValues = Omit<StatSweepSlice, 'v'>;
 
 const DEFAULTS: StatSweepValues = {
 	stats: null,
-	range: 10,
-	step: 1,
+	range: 100,
+	step: 10,
 	metric: 'dps',
 	showSpread: true,
 	precisionMode: 'iterations',

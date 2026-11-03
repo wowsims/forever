@@ -76,7 +76,7 @@ export const Overlay: Story = {
 	args: {
 		series: [
 			sweepSeries('current', HIT_RATING, 'Hit', 120, makeHitSweepPoints(120)),
-			sweepSeries('older', HIT_RATING, 'Hit', 90, makeHitSweepPoints(90, 10_000), 1, 'Hit ±10% (old gear)'),
+			sweepSeries('older', HIT_RATING, 'Hit', 90, makeHitSweepPoints(90, 10_000), 1, 'Hit ±100 (old gear)'),
 		],
 	},
 	parameters: CANVAS,
@@ -94,7 +94,7 @@ export const OverlayOtherStat: Story = {
 
 export const TankDamageTaken: Story = {
 	args: {
-		series: [sweepSeries('defense', DEFENSE_RATING, 'Defense', 150, makeDefenseSweepPoints(150))],
+		series: [sweepSeries('defense', DEFENSE_RATING, 'Defense', 300, makeDefenseSweepPoints(300))],
 		metric: 'dtps',
 		metrics: ['dps', 'tps', 'dtps', 'tmi'],
 	},

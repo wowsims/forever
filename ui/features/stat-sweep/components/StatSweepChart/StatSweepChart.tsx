@@ -13,7 +13,7 @@ import type { ChartData, ChartDataset, ChartOptions, Plugin } from 'chart.js';
 import { Suspense, useMemo } from 'react';
 
 import { Line } from '../../../../shared/lazy_charts';
-import { sweepAddedAmount, sweepHasTotal, sweepReadsInPercent } from '../../model/stat_sweep';
+import { sweepHasTotal } from '../../model/stat_sweep';
 
 export interface StatSweepSeries {
 	id: string;
@@ -141,15 +141,14 @@ function xRange(series: ReadonlyArray<StatSweepSeries>) {
 
 const shown = (value: number) => formatToNumber(value, { useGrouping: false });
 
-const withUnit = (unitStat: UnitStat, amount: string) => (sweepReadsInPercent(unitStat) ? `${amount}%` : amount);
+const withUnit = (unitStat: UnitStat, amount: string) => (unitStat.convertDefaultUnitsToPercent(1) === null ? amount : `${amount}%`);
 
-// What a step added with its sign and unit, as in +2% or -20. The sign shows at 0 too, since a tooltip with no total would read a bare 0% as the total; the other texts share this format.
-const addedText = (unitStat: UnitStat, step: Pick<StatSweepPoint, 'offset' | 'bonus'>) =>
-	withUnit(unitStat, formatToNumber(sweepAddedAmount(unitStat, step), { signDisplay: 'always', useGrouping: false }));
+// The points a step added with their sign, as in +20 or -10. The sign shows at 0 too, since a tooltip with no total would read a bare 0 as the total; the other texts share this format.
+const addedText = (offset: number) => formatToNumber(offset, { signDisplay: 'always', useGrouping: false });
 
-/** The run's label, with the stat added at which more of the stat stopped changing any metric, in the unit the tooltip gives it. */
-export const runLabel = ({ label, capped, unitStat }: Pick<StatSweepSeries, 'label' | 'capped' | 'unitStat'>) =>
-	capped === undefined ? label : t('capped_label', { label, added: addedText(unitStat, capped) });
+/** The run's label, with the points added at which more of the stat stopped changing any metric. */
+export const runLabel = ({ label, capped }: Pick<StatSweepSeries, 'label' | 'capped'>) =>
+	capped === undefined ? label : t('capped_label', { label, added: addedText(capped.offset) });
 
 const markerPlugin: Plugin<'line'> = {
 	id: 'statSweepMarker',
@@ -220,7 +219,7 @@ function options(series: ReadonlyArray<StatSweepSeries>, metric: StatSweepMetric
 						distinct(
 							items.map(item => {
 								const { point, unitStat, statLabel } = item.raw as SweepDatum;
-								const added = addedText(unitStat, point);
+								const added = addedText(point.offset);
 								return sweepHasTotal(unitStat)
 									? t('tooltip_total', { stat: statLabel, total: withUnit(unitStat, shown(point.statValue)), added })
 									: t('tooltip_added', { stat: statLabel, added });

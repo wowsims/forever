@@ -185,7 +185,7 @@ describe('StatSweepDialog', () => {
 	});
 
 	it('runs one plain sim per step at one seed with the step as bonus stats, and saves every metric of each step', async () => {
-		settings.set({ range: 2, step: 1 });
+		settings.set({ range: 20, step: 10 });
 		settings.set({ iterations: 3000 });
 		await openDialog();
 
@@ -214,10 +214,10 @@ describe('StatSweepDialog', () => {
 		expect(saved().capped).toBeUndefined();
 	});
 
-	it('steps a percent stat by the percent, plotting the step at that percent', async () => {
+	it('steps a percent stat by the percent its points give, plotting the step as the points', async () => {
 		const shadowHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow);
 		host.individualConfig.epPseudoStats = [shadowHit.getPseudoStat()];
-		settings.set({ stats: [shadowHit], range: 2, step: 1 });
+		settings.set({ stats: [shadowHit], range: 20, step: 10 });
 		await openDialog();
 
 		await run();
@@ -225,15 +225,15 @@ describe('StatSweepDialog', () => {
 		expect(simulatePass.mock.calls.map(call => call[0].bonusStats.getUnitStat(shadowHit))).toEqual([0, 1, 2]);
 		expect(saved().points.map(point => [point.offset, point.bonus, point.statValue])).toEqual([
 			[0, 0, 0],
-			[1, 1, 1],
-			[2, 2, 2],
+			[10, 1, 1],
+			[20, 2, 2],
 		]);
-		expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 1, 2]);
+		expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 10, 20]);
 	});
 
-	it('steps a rating stat by the rating that buys the percent, and a stat with no percent by 10 points per 1%, both plotted at the percent', async () => {
+	it('steps a gear stat and a stat with no percent by the points entered, both plotted at the points', async () => {
 		host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
-		settings.set({ stats: [CRIT_RATING, STRENGTH], range: 2, step: 1 });
+		settings.set({ stats: [CRIT_RATING, STRENGTH], range: 20, step: 10 });
 		await openDialog();
 
 		await run();
@@ -243,20 +243,20 @@ describe('StatSweepDialog', () => {
 			[10, 0],
 			[20, 0],
 			[0, 0],
-			[0, 14],
-			[0, 28],
+			[0, 10],
+			[0, 20],
 		]);
 		const runs = history.saveRun.mock.calls.map(call => call[0]);
 		expect(runs.map(record => record.points.map(point => [point.offset, point.bonus]))).toEqual([
 			[
 				[0, 0],
-				[1, 10],
-				[2, 20],
+				[10, 10],
+				[20, 20],
 			],
 			[
 				[0, 0],
-				[1, 14],
-				[2, 28],
+				[10, 10],
+				[20, 20],
 			],
 		]);
 		expect(
@@ -264,8 +264,8 @@ describe('StatSweepDialog', () => {
 				.data.datasets.filter(dataset => dataset.role === 'line')
 				.map(dataset => dataset.data.map(datum => datum.x)),
 		).toEqual([
-			[0, 1, 2],
-			[0, 1, 2],
+			[0, 10, 20],
+			[0, 10, 20],
 		]);
 	});
 
@@ -285,80 +285,70 @@ describe('StatSweepDialog', () => {
 		const historyRows = () => [...rootElem.querySelectorAll('[data-testid="stat-sweep-history-batch"] ul li > span[title]')].map(row => row.textContent);
 		const sweepCritAndStrength = async () => {
 			host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
-			settings.set({ stats: [CRIT_RATING, STRENGTH] });
+			settings.set({ stats: [CRIT_RATING, STRENGTH], range: 20, step: 10 });
 			await openDialog();
 			await run();
 		};
 
-		it('labels each run of a mixed sweep in its own unit, and the batch in percent', async () => {
+		it('labels each run and the batch with the range in points', async () => {
 			await sweepCritAndStrength();
 
 			const runs = history.saveRun.mock.calls.map(call => call[0]);
-			expect(runs.map(record => record.label)).toEqual(['Strength ±100', 'Crit ±10%']);
-			expect(runs.map(record => record.batchLabel)).toEqual(['Strength, Crit ±10%', 'Strength, Crit ±10%']);
+			expect(runs.map(record => record.label)).toEqual(['Strength ±20', 'Crit ±20']);
+			expect(runs.map(record => record.batchLabel)).toEqual(['Strength, Crit ±20', 'Strength, Crit ±20']);
 		});
 
-		it('labels a sweep of only stats with no percent in points', async () => {
-			settings.set({ stats: [STRENGTH, AGILITY] });
-			await openDialog();
-			await run();
-
-			expect(saved().batchLabel).toBe('Strength, Agility ±100');
-		});
-
-		it('titles the percent axis with what other stats move by', async () => {
+		it('titles the axis with the points added', async () => {
 			await sweepCritAndStrength();
 
-			expect((lastChart().options.scales!.x as { title: { text: string } }).title.text).toBe(
-				'Added in % (a stat with no percent moves 10 points per 1%)',
-			);
+			expect((lastChart().options.scales!.x as { title: { text: string } }).title.text).toBe('Points added');
 		});
 
-		it('reads a rating stat in the tooltip as the percent added with no total, either side of the current value', async () => {
-			history.listRuns.mockResolvedValueOnce([{ ...storedRun('crit', 1, 0, undefined, CRIT_RATING), label: 'Crit ±10%' }]);
+		it('reads a gear stat in the tooltip as the points added with no total, either side of the current value', async () => {
+			history.listRuns.mockResolvedValueOnce([{ ...storedRun('crit', 1, 0, undefined, CRIT_RATING), label: 'Crit ±100' }]);
 			await openDialog();
 
-			expect(tooltipTitleAt(runDataset('Crit ±10%'), 2)).toEqual(['Crit +2%']);
-			expect(tooltipTitleAt(runDataset('Crit ±10%'), -2)).toEqual(['Crit -2%']);
-			expect(tooltipTitleAt(runDataset('Crit ±10%'), 0)).toEqual(['Crit +0%']);
+			expect(tooltipTitleAt(runDataset('Crit ±100'), 20)).toEqual(['Crit +20']);
+			expect(tooltipTitleAt(runDataset('Crit ±100'), -20)).toEqual(['Crit -20']);
+			expect(tooltipTitleAt(runDataset('Crit ±100'), 0)).toEqual(['Crit +0']);
 		});
 
-		it('keeps the total in the tooltip for a stat that has one, in its own unit', async () => {
+		it('keeps the total in the tooltip for a stat that has one, with the points added and the total in percent for a percent stat', async () => {
 			const rangedHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
 			host.individualConfig.epPseudoStats = [rangedHit.getPseudoStat()];
-			settings.set({ stats: [STRENGTH, rangedHit], range: 2, step: 1 });
+			settings.set({ stats: [STRENGTH, rangedHit], range: 20, step: 10 });
 			await openDialog();
 			await run();
 
-			expect(tooltipTitleAt(runDataset('Strength ±20'), 1)).toEqual(['Strength 10 (+10)']);
-			expect(tooltipTitleAt(runDataset('Ranged Hit ±2%'), 1)).toEqual(['Ranged Hit 1% (+1%)']);
+			expect(tooltipTitleAt(runDataset('Strength ±20'), 10)).toEqual(['Strength 10 (+10)']);
+			expect(tooltipTitleAt(runDataset('Ranged Hit ±20'), 10)).toEqual(['Ranged Hit 1% (+10)']);
 		});
 
-		it('reads defense in the tooltip as the points added with no total, since its own total is gear rating', async () => {
+		it('reads defense in the tooltip as the points added with no total, since its own total is gear points', async () => {
 			const defense = UnitStat.fromStat(Stat.StatDefenseRating);
 			host.individualConfig.epStats = [defense.getStat()];
-			settings.set({ stats: [defense], range: 1, step: 1 });
+			settings.set({ stats: [defense], range: 10, step: 10 });
 			await openDialog();
 			await run();
 
-			expect(tooltipTitleAt(runDataset('Defense ±10'), 1)).toEqual(['Defense +10']);
+			expect(tooltipTitleAt(runDataset('Defense ±10'), 10)).toEqual(['Defense +10']);
 		});
 
-		it('lists where a stat capped in its own unit', async () => {
+		it('lists where a stat capped in points', async () => {
 			history.listRuns.mockResolvedValueOnce([
-				{ ...storedRun('crit', 2, 1, 'sweep', CRIT_RATING), label: 'Crit ±10%', capped: { offset: 2, bonus: 28 } },
-				{ ...storedRun('strength', 1, 0, 'sweep'), label: 'Strength ±100', capped: { offset: 2, bonus: 20 } },
+				{ ...storedRun('crit', 2, 1, 'sweep', CRIT_RATING), label: 'Crit ±100', capped: { offset: 30, bonus: 30 } },
+				{ ...storedRun('strength', 1, 0, 'sweep'), label: 'Strength ±100', capped: { offset: 20, bonus: 20 } },
 			]);
 			await openDialog();
 
-			expect(historyRows()).toEqual(['Strength ±100 (capped at +20)', 'Crit ±10% (capped at +2%)']);
+			expect(historyRows()).toEqual(['Strength ±100 (capped at +20)', 'Crit ±100 (capped at +30)']);
 		});
 
-		it('names the range and step inputs in percent', async () => {
+		it('names the range and step inputs in points', async () => {
 			await openDialog();
 
-			expect(screen.getByLabelText('Range ± (%)')).toBeTruthy();
-			expect(screen.getByLabelText('Step (%)')).toBeTruthy();
+			expect(screen.getByLabelText('Range ± (points)')).toBeTruthy();
+			expect(screen.getByLabelText('Step (points)')).toBeTruthy();
 		});
 	});
 
@@ -380,21 +370,6 @@ describe('StatSweepDialog', () => {
 			.find(option => option.textContent?.includes(AGILITY.getFullName(Class.ClassWarrior)))!;
 		fireEvent.click(agility);
 		expect(settings.values.stats!.map(stat => stat.getKey())).toEqual([AGILITY.getKey()]);
-	});
-
-	it('takes a decimal range and step, and runs the steps they offer', async () => {
-		await openDialog();
-		const step = screen.getByLabelText<HTMLInputElement>('sidebar.buttons.stat_sweep.step');
-
-		fireEvent.change(screen.getByLabelText('sidebar.buttons.stat_sweep.range'), { target: { value: '2' } });
-		fireEvent.change(step, { target: { value: '0.5' } });
-		expect(settings.values).toMatchObject({ range: 2, step: 0.5 });
-		expect(step.value).toBe('0.50');
-
-		await run();
-
-		expect(strengthSteps()).toEqual([0, 5, 10, 15, 20]);
-		expect(saved().points.map(point => point.offset)).toEqual([0, 0.5, 1, 1.5, 2]);
 	});
 
 	it.each([
@@ -464,22 +439,22 @@ describe('StatSweepDialog', () => {
 	});
 
 	describe('the chart', () => {
-		it('plots each run over the percent added as a line in a band of ± one standard deviation, and the line alone with the spread off', async () => {
-			settings.set({ range: 1, step: 1 });
+		it('plots each run over the stat added as a line in a band of ± one standard deviation, and the line alone with the spread off', async () => {
+			settings.set({ range: 10, step: 10 });
 			await openDialog();
 			await run();
 
-			const atOnePercent = (datasets: Dataset[]) => datasets.map(dataset => dataset.data.find(datum => datum.x === 1)!.y);
-			expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 1]);
-			expect(atOnePercent(lastChart().data.datasets)).toEqual([1110, 910, 1010]);
+			const atTen = (datasets: Dataset[]) => datasets.map(dataset => dataset.data.find(datum => datum.x === 10)!.y);
+			expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 10]);
+			expect(atTen(lastChart().data.datasets)).toEqual([1110, 910, 1010]);
 			expect(lastChart().options.plugins!.legend!.display).toBe(false);
 
 			fireEvent.click(within(screen.getByTestId('stat-sweep-show-spread')).getByRole('checkbox'));
-			expect(atOnePercent(lastChart().data.datasets)).toEqual([1010]);
+			expect(atTen(lastChart().data.datasets)).toEqual([1010]);
 		});
 
 		it('marks the current value at 0', async () => {
-			settings.set({ range: 1, step: 1 });
+			settings.set({ range: 10, step: 10 });
 			await openDialog();
 			await run();
 			const marker = lastChart().plugins.find(plugin => plugin.id === 'statSweepMarker')!;
@@ -498,7 +473,7 @@ describe('StatSweepDialog', () => {
 		});
 
 		it('lists each run once in the legend from two runs on, and titles the tooltip with each stat total and the stat added', async () => {
-			settings.set({ stats: [STRENGTH, AGILITY], range: 1, step: 1 });
+			settings.set({ stats: [STRENGTH, AGILITY], range: 10, step: 10 });
 			await openDialog();
 			await run();
 
@@ -515,32 +490,32 @@ describe('StatSweepDialog', () => {
 			// The newest run is drawn first.
 			const expected = [AGILITY, STRENGTH].map(stat => `${stat.getFullName(Class.ClassWarrior)} 10 (+10)`);
 			const title = options.plugins!.tooltip!.callbacks!.title! as unknown as (items: object[]) => string[];
-			const at = (datasetIndex: number, percent: number) => ({ raw: data.datasets[datasetIndex].data.find(datum => datum.x === percent)! });
+			const at = (datasetIndex: number, added: number) => ({ raw: data.datasets[datasetIndex].data.find(datum => datum.x === added)! });
 			const t = vi
 				.spyOn(i18n, 't')
 				.mockImplementation(
 					((_key: string, values: { stat: string; total: number; added: string }) => `${values.stat} ${values.total} (${values.added})`) as never,
 				);
-			expect(title([at(2, 1), at(5, 1)])).toEqual(expected);
+			expect(title([at(2, 10), at(5, 10)])).toEqual(expected);
 			t.mockRestore();
 		});
 
 		it('reads the hovered value and its ± as the sim card does, and marks each point from the cap on as capped', async () => {
 			cappedAtTen();
-			settings.set({ range: 4, step: 1 });
+			settings.set({ range: 40, step: 10 });
 			await openDialog();
 			await run();
 
 			const { data, options } = lastChart();
 			const label = options.plugins!.tooltip!.callbacks!.label! as unknown as (item: object) => string;
 			const t = vi.spyOn(i18n, 't');
-			const valueAt = (percent: number) => {
+			const valueAt = (added: number) => {
 				t.mockClear();
-				label({ dataset: data.datasets[2], raw: data.datasets[2].data.find(datum => datum.x === percent) });
+				label({ dataset: data.datasets[2], raw: data.datasets[2].data.find(datum => datum.x === added) });
 				return t.mock.calls.find(([key]) => String(key).startsWith('sidebar.buttons.stat_sweep.tooltip_value'));
 			};
 			expect(valueAt(0)).toEqual(['sidebar.buttons.stat_sweep.tooltip_value', { value: (1000).toFixed(2), stdev: (100).toFixed(0) }]);
-			expect([1, 2, 3].map(percent => valueAt(percent)![0])).toEqual([
+			expect([10, 20, 30].map(added => valueAt(added)![0])).toEqual([
 				'sidebar.buttons.stat_sweep.tooltip_value_capped',
 				'sidebar.buttons.stat_sweep.tooltip_value_capped',
 				'sidebar.buttons.stat_sweep.tooltip_value_capped',
@@ -551,21 +526,21 @@ describe('StatSweepDialog', () => {
 
 	it('stops a stat going up after two steps in a row give every metric of the step below, and saves where it capped', async () => {
 		cappedAtTen();
-		settings.set({ range: 5, step: 1 });
+		settings.set({ range: 50, step: 10 });
 		await openDialog();
 
 		await run();
 
 		expect(strengthSteps()).toEqual([0, 10, 20, 30]);
 		expect(saved().points.map(point => point.statValue)).toEqual([0, 10, 20, 30]);
-		expect(saved().capped).toEqual({ offset: 1, bonus: 10 });
+		expect(saved().capped).toEqual({ offset: 10, bonus: 10 });
 		expect(screen.getByText('sidebar.buttons.stat_sweep.capped_label')).toBeTruthy();
 	});
 
 	it('keeps a stat going up while it changes only TMI, whatever metric the run follows, and records that metric on the run', async () => {
 		// Every metric but TMI stays put across the steps.
 		simulatePass.mockImplementation(async options => makeSweepSample(options.iterations, 1000, 10 + sweepStepDps(options) / 100));
-		settings.set({ range: 4, step: 1 });
+		settings.set({ range: 40, step: 10 });
 		settings.set({ metric: 'tps' });
 		await openDialog();
 
@@ -584,7 +559,7 @@ describe('StatSweepDialog', () => {
 			totalsBefore.push(totals.mock.calls.length);
 			return makeSweepSample(options.iterations, sweepStepDps(options));
 		});
-		settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+		settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 		await openDialog();
 
 		await run();
@@ -603,7 +578,7 @@ describe('StatSweepDialog', () => {
 
 	describe('the history', () => {
 		it('unticks the earlier runs when a run starts, keeping every run of the new batch ticked', async () => {
-			settings.set({ stats: [STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [STRENGTH], range: 10, step: 10 });
 			await openDialog();
 
 			await run();
@@ -615,7 +590,7 @@ describe('StatSweepDialog', () => {
 		});
 
 		it('saves the runs of one sweep as one batch, listed under one header naming its stats in run order, each on a line of its tooltip', async () => {
-			settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 
 			await run();
@@ -645,7 +620,7 @@ describe('StatSweepDialog', () => {
 		});
 
 		it("draws and hides every run of a batch with the batch's eye, which reads mixed while only some are drawn", async () => {
-			settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 			await run();
 
@@ -735,7 +710,7 @@ describe('StatSweepDialog', () => {
 				storedRun('old-b', 2, 5, 'old', AGILITY),
 				storedRun('old-a', 1, 4, 'old'),
 			]);
-			settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 			const opened = () => expanders().map(button => button.getAttribute('aria-expanded'));
 			fireEvent.click(expanders()[2]);
@@ -755,7 +730,7 @@ describe('StatSweepDialog', () => {
 				.mockResolvedValueOnce(makeSweepSample(1000))
 				.mockResolvedValueOnce(makeSweepSample(1000))
 				.mockImplementationOnce(() => new Promise(resolve => (settleThird = resolve)));
-			settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 			const deletes = (hidden: boolean) => screen.queryAllByRole('button', { name: 'sidebar.buttons.stat_sweep.history.delete_batch', hidden });
 
@@ -778,7 +753,7 @@ describe('StatSweepDialog', () => {
 			history.listRuns.mockResolvedValueOnce([storedRun('new', 2, 0), storedRun('old', 1, 1)]);
 			await openDialog();
 			expect(overlayTicks()).toEqual(['true', 'false']);
-			// A saved run's points sit at the percent added, not at its total, which starts at 120 here.
+			// A saved run's points sit at the stat added, not at its total, which starts at 120 here.
 			const stored = makeHitSweepPoints(120);
 			expect(stored[0].statValue).not.toBe(stored[0].offset);
 			expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual(stored.map(point => point.offset));
@@ -794,7 +769,7 @@ describe('StatSweepDialog', () => {
 		});
 
 		it('exports the drawn runs as CSV with every metric, and offers no export with nothing drawn', async () => {
-			settings.set({ range: 1, step: 1 });
+			settings.set({ range: 10, step: 10 });
 			await openDialog();
 			const exportButton = () => screen.getByRole<HTMLButtonElement>('button', { name: 'sidebar.buttons.stat_sweep.export_csv' });
 			expect(exportButton().disabled).toBe(true);
@@ -806,14 +781,14 @@ describe('StatSweepDialog', () => {
 			const [csv, fileName, mimeType] = download.mock.calls[0];
 			const lines = csv.trim().split('\n');
 			expect(lines).toHaveLength(3);
-			expect(lines[0]).toBe('run,batch,stat,base_total,added,unit,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples');
+			expect(lines[0]).toBe('run,batch,stat,base_total,added,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples');
 			expect(lines.slice(1).map((line: string) => line.split(',')[1])).toEqual([saved().batchLabel, saved().batchLabel]);
 			expect([fileName, mimeType]).toEqual(['wowsims-stat-sweep.csv', 'text/csv']);
 		});
 
-		it('exports a rating stat as the percent added with no totals, and a stat with no percent as its points and totals', async () => {
+		it('exports the points added for every stat, with no totals for a gear stat', async () => {
 			host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
-			settings.set({ stats: [CRIT_RATING, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [CRIT_RATING, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 			await run();
 
@@ -824,12 +799,12 @@ describe('StatSweepDialog', () => {
 				.split('\n')
 				.slice(1)
 				.map(line => line.split(','));
-			// The newest run is drawn first. The stat's name, then its base total, added, unit and total.
-			expect(rows.map(row => row.slice(2, 7))).toEqual([
-				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '0', 'percent', ''],
-				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '1', 'percent', ''],
-				[STRENGTH_NAME, '0', '0', 'points', '0'],
-				[STRENGTH_NAME, '0', '10', 'points', '10'],
+			// The newest run is drawn first. The stat's name, then its base total, added and total.
+			expect(rows.map(row => row.slice(2, 6))).toEqual([
+				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '0', ''],
+				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '10', ''],
+				[STRENGTH_NAME, '0', '0', '0'],
+				[STRENGTH_NAME, '0', '10', '10'],
 			]);
 		});
 	});
@@ -865,7 +840,7 @@ describe('StatSweepDialog', () => {
 
 		it('tops up the first step that repeats the step below, and runs only the probe of the step that confirms the cap', async () => {
 			cappedAtTen();
-			settings.set({ range: 4, step: 1 });
+			settings.set({ range: 40, step: 10 });
 			settings.set({ precisionMode: 'target', targetCi: 2 });
 			await openDialog();
 
@@ -873,7 +848,7 @@ describe('StatSweepDialog', () => {
 
 			const topUp = Math.ceil(((Z_90 * 100) / 2) ** 2) - PROBE;
 			expect(passesByStep()).toEqual({ 0: [PROBE, topUp], 10: [PROBE, topUp], 20: [PROBE, topUp], 30: [PROBE] });
-			expect(saved().capped).toEqual({ offset: 1, bonus: 10 });
+			expect(saved().capped).toEqual({ offset: 10, bonus: 10 });
 		});
 
 		it('disables Run while the target is empty, and enables it in iterations mode', async () => {
@@ -898,7 +873,7 @@ describe('StatSweepDialog', () => {
 				options.onProgress({ completedIterations: 250, totalIterations: 1000 } as never);
 				return new Promise(resolve => (settleSecond = resolve));
 			});
-			settings.set({ range: 2, step: 1 });
+			settings.set({ range: 20, step: 10 });
 			await openDialog();
 			// The progress dialog is modal, so the button is found before it opens.
 			const runAgain = runButton();
@@ -934,7 +909,7 @@ describe('StatSweepDialog', () => {
 				report = options.onProgress as never;
 				return new Promise(resolve => (settleFirst = resolve));
 			});
-			settings.set({ range: 2, step: 1 });
+			settings.set({ range: 20, step: 10 });
 			i18n.addResourceBundle('en', 'translation', english, true, true);
 			try {
 				await openDialog();
@@ -979,7 +954,7 @@ describe('StatSweepDialog', () => {
 					options.onProgress({ completedIterations: 250, totalIterations: 1000 } as never);
 					return new Promise(resolve => (settleThird = resolve));
 				});
-			settings.set({ stats: [AGILITY, STRENGTH], range: 1, step: 1 });
+			settings.set({ stats: [AGILITY, STRENGTH], range: 10, step: 10 });
 			await openDialog();
 
 			await run();
@@ -1004,7 +979,7 @@ describe('StatSweepDialog', () => {
 	it('tells the user when another run stops the sweep, keeping the finished steps', async () => {
 		const toast = vi.spyOn(toastManager, 'add');
 		simulatePass.mockResolvedValueOnce(makeSweepSample(1000)).mockResolvedValueOnce({ type: ErrorOutcomeType.ErrorOutcomeAborted, message: '' });
-		settings.set({ range: 2, step: 1 });
+		settings.set({ range: 20, step: 10 });
 		await openDialog();
 
 		await run();

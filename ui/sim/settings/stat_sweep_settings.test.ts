@@ -12,8 +12,8 @@ const KEY = 'stat-sweep-settings-test';
 
 const DEFAULTS = {
 	stats: null,
-	range: 10,
-	step: 1,
+	range: 100,
+	step: 10,
 	metric: 'dps',
 	showSpread: true,
 	precisionMode: 'iterations',
@@ -34,11 +34,11 @@ const settingsOn = (storage: Map<string, string>) => {
 };
 
 describe('StatSweepSettings', () => {
-	it('starts with no stats, a range of 10%, a step of 1%, DPS, the global iterations and a target of 1 with no cap', () => {
+	it('starts with no stats, a range of 100, a step of 10, DPS, the global iterations and a target of 1 with no cap', () => {
 		expect(settingsOn(new Map()).values).toEqual(DEFAULTS);
 	});
 
-	it('loads back the stored stats in order, range, step, metric and precision, the range and step in fractions of a percent', () => {
+	it('loads back the stored stats in order, range, step, metric and precision, a pseudo stat in fractions of a point', () => {
 		const storage = new Map<string, string>();
 		const stats = [UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHitPercent), UnitStat.fromStat(Stat.StatCritRating)];
 		const stored = {
@@ -60,13 +60,6 @@ describe('StatSweepSettings', () => {
 		expect(loaded.values).toMatchObject(stored);
 	});
 
-	it('loads a stored range and step as they are', () => {
-		const loaded = settingsOn(new Map([[KEY, SavedStatSweepSettings.toJsonString(SavedStatSweepSettings.create({ range: 100, step: 10 }))]]));
-		loaded.load();
-
-		expect(loaded.values).toMatchObject({ range: 100, step: 10 });
-	});
-
 	it('reads unset fields as the defaults', () => {
 		const loaded = settingsOn(new Map([[KEY, SavedStatSweepSettings.toJsonString(SavedStatSweepSettings.create())]]));
 		loaded.load();
@@ -82,7 +75,7 @@ describe('StatSweepSettings', () => {
 		none.load();
 
 		expect(kept.values.stats?.map(stat => stat.getKey())).toEqual([UnitStat.fromStat(Stat.StatHitRating).getKey()]);
-		expect(none.values).toMatchObject({ stats: null, range: 50, step: 1 });
+		expect(none.values).toMatchObject({ stats: null, range: 50, step: 10 });
 	});
 
 	it('does not rewrite storage for the same stats in a new list or unchanged values', () => {
@@ -90,7 +83,7 @@ describe('StatSweepSettings', () => {
 		const settings = settingsOn(storage);
 		settings.set({ stats: [UnitStat.fromStat(Stat.StatHitRating), UnitStat.fromStat(Stat.StatCritRating)] });
 		storage.clear();
-		settings.set({ stats: [UnitStat.fromStat(Stat.StatHitRating), UnitStat.fromStat(Stat.StatCritRating)], range: 10 });
+		settings.set({ stats: [UnitStat.fromStat(Stat.StatHitRating), UnitStat.fromStat(Stat.StatCritRating)], range: 100 });
 		settings.set({ metric: 'dps', showSpread: true, targetCi: 1 });
 
 		expect(storage.has(KEY)).toBe(false);

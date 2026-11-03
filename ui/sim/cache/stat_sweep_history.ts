@@ -6,7 +6,7 @@ import type { StatSweepMetric } from '../state/sim_store';
 
 const STAT_SWEEP_DB_NAME = `${LOCAL_STORAGE_PREFIX}_stat-sweep`;
 // Every upgrade drops the stored runs, so a change to the record shape never meets runs saved in the old one.
-const STAT_SWEEP_DB_VERSION = 4;
+const STAT_SWEEP_DB_VERSION = 5;
 const RUNS_STORE = 'runs';
 
 export interface MetricSummary {
@@ -17,9 +17,9 @@ export interface MetricSummary {
 }
 
 export interface StatSweepPoint {
-	/** The step's change in percent, the axis every stat shares; a stat with no percent moves `SWEEP_POINTS_PER_PERCENT` points per 1%. */
+	/** The step's change in points, the axis every stat shares. */
 	offset: number;
-	/** The bonus the step adds to the stat in the unit it stores: rating for a rating stat, percent for a percent pseudo stat, else points. */
+	/** The bonus the step adds to the stat in the unit it stores: `offset` points, or for a percent pseudo stat the percent they give. */
 	bonus: number;
 	/** The swept stat's final total with the step's bonus, as the sim computes it; a step whose total falls below 0 is dropped. Printed only for a stat `sweepHasTotal` holds for. */
 	statValue: number;

@@ -146,7 +146,7 @@ export const useStatSweep = () => {
 				id,
 				runs: runs.map(run => ({
 					id: run.id,
-					label: runLabel({ label: run.label, capped: run.capped, unitStat: UnitStat.fromJson(run.unitStat) }),
+					label: runLabel(run),
 					statLabel: statLabel(run),
 					createdAt: run.createdAt,
 					metric: run.metric,
