@@ -40,7 +40,7 @@ export interface StatWeightRowViewProps {
 	iterations: number;
 	/** The row's weighted EP minus its current EP weight, which colours the EP cells. */
 	epDelta: number;
-	/** The stored EP weight; the Current EP cell shows it per rating point. */
+	/** The stored EP weight; the Current EP cell shows it per percentage point for a rating with a percent, as stored otherwise. */
 	currentEp: number;
 	/** Called with the stored unit. */
 	onCurrentEpChange: (value: number) => void;
@@ -65,7 +65,6 @@ export const StatWeightRowView = ({
 	showUpdateColumn = true,
 }: StatWeightRowViewProps) => {
 	const cellClassName = clsx('ui-ep-weights-table-cell', showThreatMetrics && 'max-lg:pl-0');
-	const ratingScale = stat.epRatingScale();
 
 	return (
 		<TableRow>
@@ -109,8 +108,8 @@ export const StatWeightRowView = ({
 				<NumberField
 					id={`ep-weight-stat-${sanitizeId(shortName)}`}
 					float
-					value={currentEp / ratingScale}
-					onChange={value => onCurrentEpChange(roundFloat(value * ratingScale))}
+					value={stat.storedEpToShown(currentEp)}
+					onChange={value => onCurrentEpChange(roundFloat(stat.shownEpToStored(value)))}
 					inputClassName={showThreatMetrics ? 'ui-ep-weights-compact-input' : undefined}
 				/>
 			</TableCell>
@@ -167,7 +166,7 @@ export const StatWeightRow = ({
 	return (
 		<StatWeightRowView
 			stat={stat}
-			fullName={stat.getFullName(player.getClass())}
+			fullName={stat.getWeightName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
 			helpLines={statHelpLines(stat, rowResult)}
 			metrics={metrics}

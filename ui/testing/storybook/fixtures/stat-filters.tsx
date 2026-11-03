@@ -3,7 +3,7 @@ import { Class, PseudoStat, Stat } from '@generated/proto/common';
 import { UnitStat } from '@sim/proto/stats';
 import { fn } from 'storybook/test';
 
-// Every character stats group, Hit Rating and Main Hand DPS for Ratings, and Physical Damage, which no group holds and so lands under Other.
+// Every character stats group, Hit (the rating stat) and Main Hand DPS for Gear, and Physical Damage, which no group holds and so lands under Other.
 export const STAT_FILTER_UNIVERSE = [
 	...STAT_GROUPS.flatMap(group => group.stats),
 	UnitStat.fromStat(Stat.StatHitRating),

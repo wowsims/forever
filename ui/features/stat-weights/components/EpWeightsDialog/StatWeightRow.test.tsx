@@ -6,7 +6,6 @@ import type { Player } from '@sim/player/player';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { createSimStore } from '@sim/state/sim_store';
-import { formatToNumber } from '@sim/utils/format';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render } from '@testing-library/react';
 import { Table } from '@ui-kit/Table';
@@ -102,47 +101,34 @@ describe('StatWeightRow', () => {
 			return text;
 		};
 
-		it.each([
-			['Hit Rating', UnitStat.fromStat(Stat.StatHitRating), Mechanics.HIT_RATING_PER_HIT_PERCENT],
-			['Crit Rating', UnitStat.fromStat(Stat.StatCritRating), Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
-			['Haste Rating', UnitStat.fromStat(Stat.StatHasteRating), Mechanics.HASTE_RATING_PER_HASTE_PERCENT],
-			['Expertise Rating', UnitStat.fromStat(Stat.StatExpertiseRating), Mechanics.EXPERTISE_RATING_PER_EXPERTISE_PERCENT],
-			['Dodge Rating', UnitStat.fromStat(Stat.StatDodgeRating), Mechanics.DODGE_RATING_PER_DODGE_PERCENT],
-			['Melee Crit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent), Mechanics.CRIT_RATING_PER_CRIT_PERCENT],
-			['Fire Hit Percent', UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), Mechanics.HIT_RATING_PER_HIT_PERCENT],
-		])('states the rating conversion of %s before a run', (_name, stat, ratingPerPercent) => {
-			expect(helpText(stat)).toBe(`${ratingPerPercent} rating = 1%`);
-		});
-
-		it('has no help icon for a stat with no conversion and no step', () => {
+		it('has no help icon before a run', () => {
+			expect(helpText(UnitStat.fromStat(Stat.StatHitRating))).toBeUndefined();
 			expect(helpText(AGILITY)).toBeUndefined();
 			expect(helpText(UnitStat.fromStat(Stat.StatDefenseRating))).toBeUndefined();
 		});
 
-		it('adds how far the sim moved the stat after a run', () => {
-			const hit = Mechanics.HIT_RATING_PER_HIT_PERCENT;
+		it('gives only the step the sim moved the stat, in percent for a percent stat', () => {
 			const crit = Mechanics.CRIT_RATING_PER_CRIT_PERCENT;
+			const hit = Mechanics.HIT_RATING_PER_HIT_PERCENT;
+			expect(helpText(UnitStat.fromStat(Stat.StatCritRating), -crit, crit)).toBe('Simulated step: ±1%');
+			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, hit)).toBe('Simulated step: +1%');
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -1, 1)).toBe('Simulated step: ±1%');
+			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire), -1, 1)).toBe('Simulated step: ±1%');
 			expect(helpText(AGILITY, -10, 10)).toBe('Simulated step: ±10');
 			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), -5, 5)).toBe('Simulated step: ±5');
-			expect(helpText(UnitStat.fromStat(Stat.StatHitRating), 0, 10)).toBe(`${hit} rating = 1%, Simulated step: +10 rating`);
-			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent), 0, 1)).toBe(
-				`${hit} rating = 1%, Simulated step: +${hit} rating (+1%)`,
-			);
-			expect(helpText(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent), -10 / crit, 10 / crit)).toBe(
-				`${crit} rating = 1%, Simulated step: ±10 rating (±${formatToNumber(10 / crit)}%)`,
-			);
+			expect(helpText(UnitStat.fromStat(Stat.StatArmorPenetration), -100, 100)).toBe('Simulated step: ±100');
 		});
 
-		it('puts the conversion and the step on a tooltip line each', async () => {
+		it('puts the step on a tooltip line', async () => {
 			const stat = UnitStat.fromStat(Stat.StatCritRating);
+			const crit = Mechanics.CRIT_RATING_PER_CRIT_PERCENT;
 			const view = setup(result => {
-				result.stepBelow = new Stats().withUnitStat(stat, -10).toProto();
-				result.stepAbove = new Stats().withUnitStat(stat, 10).toProto();
+				result.stepBelow = new Stats().withUnitStat(stat, -crit).toProto();
+				result.stepAbove = new Stats().withUnitStat(stat, crit).toProto();
 			}, stat);
 
 			fireEvent.mouseEnter(view.getByRole('button'));
-			expect((await view.findByText(`${Mechanics.CRIT_RATING_PER_CRIT_PERCENT} rating = 1%`)).tagName).toBe('DIV');
-			expect(view.getByText('Simulated step: ±10 rating').tagName).toBe('DIV');
+			expect((await view.findByText('Simulated step: ±1%')).tagName).toBe('DIV');
 		});
 	});
 
@@ -201,6 +187,38 @@ describe('StatWeightRowView', () => {
 		input.value = '2.25';
 		fireEvent.change(input);
 		expect(onCurrentEpChange).toHaveBeenCalledWith(2.25);
+	});
+
+	it('reads back the value typed into the Current EP of a crit rating row', () => {
+		let stored = 0;
+		const crit = UnitStat.fromStat(Stat.StatCritRating);
+		const view = (currentEp: number) => (
+			<Table>
+				<tbody>
+					<StatWeightRowView
+						stat={crit}
+						fullName="Crit"
+						shortName="Crit"
+						metrics={[{ ratioIndex: 0, epRatio: 1 }]}
+						iterations={100}
+						epDelta={0}
+						currentEp={currentEp}
+						onCurrentEpChange={value => {
+							stored = value;
+						}}
+						showThreatMetrics={false}
+					/>
+				</tbody>
+			</Table>
+		);
+		const { container, rerender } = render(view(0));
+		const input = container.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!;
+		input.value = '1.23';
+		fireEvent.change(input);
+		expect(stored).toBeCloseTo(1.23 / Mechanics.CRIT_RATING_PER_CRIT_PERCENT, 6);
+
+		rerender(view(stored));
+		expect(container.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!.value).toBe('1.23');
 	});
 
 	it('leaves the Update cell empty without an include toggle, and drops it with the column', () => {

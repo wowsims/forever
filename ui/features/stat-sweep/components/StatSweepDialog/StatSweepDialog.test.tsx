@@ -10,6 +10,7 @@ import type { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { RequestTypes } from '@sim/sim_signal_manager';
 import { patchSlice, type SimStore } from '@sim/state/sim_store';
+import { formatDurationSeconds } from '@sim/utils/format';
 import { Z_90 } from '@sim/utils/math';
 import { fakeCharts } from '@testing/chart-js-mock';
 import { makeHitSweepPoints, makeStatSweepHost, makeSweepSample, type SweepPass, sweepStepDps } from '@testing/storybook/fixtures/stat-sweep';
@@ -17,8 +18,9 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { toastManager } from '@ui-kit/Toast';
 import type { ChartOptions, Plugin } from 'chart.js';
-import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, type Mock, vi } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { StatSweepAction } from '../StatSweepAction';
 
 // happy-dom has no IndexedDB.
@@ -37,6 +39,7 @@ vi.mock('../../../../tracking/utils', () => ({ trackPageView: vi.fn() }));
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
+const CRIT_RATING = UnitStat.fromStat(Stat.StatCritRating);
 // A Target ± step's first pass.
 const PROBE = 1000;
 
@@ -83,7 +86,7 @@ const openDialog = async () => {
 };
 
 const dialog = () => rootElem.querySelector('[data-testid="stat-sweep-dialog"]');
-const runButton = () => screen.getByRole<HTMLButtonElement>('button', { name: 'sidebar.buttons.stat_sweep.run' });
+const runButton = () => screen.getByRole<HTMLButtonElement>('button', { name: i18n.t('sidebar.buttons.stat_sweep.run') });
 const run = async () => {
 	await act(async () => {
 		fireEvent.click(runButton());
@@ -211,7 +214,7 @@ describe('StatSweepDialog', () => {
 		expect(saved().capped).toBeUndefined();
 	});
 
-	it('steps a % stat by the % its rating gives, plotting the step as the rating', async () => {
+	it('steps a percent stat by the percent its points give, plotting the step as the points', async () => {
 		const shadowHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow);
 		host.individualConfig.epPseudoStats = [shadowHit.getPseudoStat()];
 		settings.set({ stats: [shadowHit], range: 20, step: 10 });
@@ -226,13 +229,127 @@ describe('StatSweepDialog', () => {
 			[20, 2, 2],
 		]);
 		expect(lastChart().data.datasets[2].data.map(datum => datum.x)).toEqual([0, 10, 20]);
+	});
 
-		const { data, options } = lastChart();
-		const title = options.plugins!.tooltip!.callbacks!.title! as unknown as (items: object[]) => string[];
-		const t = vi.spyOn(i18n, 't');
-		title([{ raw: data.datasets[2].data.find(datum => datum.x === 10)! }]);
-		expect(t.mock.calls.find(([key]) => key === 'sidebar.buttons.stat_sweep.tooltip_total')![1]).toMatchObject({ total: '1', added: '+1' });
-		t.mockRestore();
+	it('steps a gear stat and a stat with no percent by the points entered, both plotted at the points', async () => {
+		host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
+		settings.set({ stats: [CRIT_RATING, STRENGTH], range: 20, step: 10 });
+		await openDialog();
+
+		await run();
+
+		expect(simulatePass.mock.calls.map(call => [bonusOf(call, Stat.StatStrength), bonusOf(call, Stat.StatCritRating)])).toEqual([
+			[0, 0],
+			[10, 0],
+			[20, 0],
+			[0, 0],
+			[0, 10],
+			[0, 20],
+		]);
+		const runs = history.saveRun.mock.calls.map(call => call[0]);
+		expect(runs.map(record => record.points.map(point => [point.offset, point.bonus]))).toEqual([
+			[
+				[0, 0],
+				[10, 10],
+				[20, 20],
+			],
+			[
+				[0, 0],
+				[10, 10],
+				[20, 20],
+			],
+		]);
+		expect(
+			lastChart()
+				.data.datasets.filter(dataset => dataset.role === 'line')
+				.map(dataset => dataset.data.map(datum => datum.x)),
+		).toEqual([
+			[0, 10, 20],
+			[0, 10, 20],
+		]);
+	});
+
+	describe('in the English text', () => {
+		beforeAll(() => {
+			i18n.addResourceBundle('en', 'translation', english, true, true);
+		});
+		afterAll(() => {
+			i18n.removeResourceBundle('en', 'translation');
+		});
+
+		const tooltipTitleAt = (dataset: Dataset, added: number) => {
+			const title = lastChart().options.plugins!.tooltip!.callbacks!.title! as unknown as (items: object[]) => string[];
+			return title([{ raw: dataset.data.find(datum => datum.x === added)! }]);
+		};
+		const runDataset = (label: string) => lastChart().data.datasets.find(dataset => dataset.role === 'line' && dataset.label === label)!;
+		const historyRows = () => [...rootElem.querySelectorAll('[data-testid="stat-sweep-history-batch"] ul li > span[title]')].map(row => row.textContent);
+		const sweepCritAndStrength = async () => {
+			host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
+			settings.set({ stats: [CRIT_RATING, STRENGTH], range: 20, step: 10 });
+			await openDialog();
+			await run();
+		};
+
+		it('labels each run and the batch with the range in points', async () => {
+			await sweepCritAndStrength();
+
+			const runs = history.saveRun.mock.calls.map(call => call[0]);
+			expect(runs.map(record => record.label)).toEqual(['Strength ±20', 'Crit ±20']);
+			expect(runs.map(record => record.batchLabel)).toEqual(['Strength, Crit ±20', 'Strength, Crit ±20']);
+		});
+
+		it('titles the axis with the points added', async () => {
+			await sweepCritAndStrength();
+
+			expect((lastChart().options.scales!.x as { title: { text: string } }).title.text).toBe('Points added');
+		});
+
+		it('reads a gear stat in the tooltip as the points added with no total, either side of the current value', async () => {
+			history.listRuns.mockResolvedValueOnce([{ ...storedRun('crit', 1, 0, undefined, CRIT_RATING), label: 'Crit ±100' }]);
+			await openDialog();
+
+			expect(tooltipTitleAt(runDataset('Crit ±100'), 20)).toEqual(['Crit +20']);
+			expect(tooltipTitleAt(runDataset('Crit ±100'), -20)).toEqual(['Crit -20']);
+			expect(tooltipTitleAt(runDataset('Crit ±100'), 0)).toEqual(['Crit +0']);
+		});
+
+		it('keeps the total in the tooltip for a stat that has one, with the points added and the total in percent for a percent stat', async () => {
+			const rangedHit = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
+			host.individualConfig.epPseudoStats = [rangedHit.getPseudoStat()];
+			settings.set({ stats: [STRENGTH, rangedHit], range: 20, step: 10 });
+			await openDialog();
+			await run();
+
+			expect(tooltipTitleAt(runDataset('Strength ±20'), 10)).toEqual(['Strength 10 (+10)']);
+			expect(tooltipTitleAt(runDataset('Ranged Hit ±20'), 10)).toEqual(['Ranged Hit 1% (+10)']);
+		});
+
+		it('reads defense in the tooltip as the points added with no total, since its own total is gear points', async () => {
+			const defense = UnitStat.fromStat(Stat.StatDefenseRating);
+			host.individualConfig.epStats = [defense.getStat()];
+			settings.set({ stats: [defense], range: 10, step: 10 });
+			await openDialog();
+			await run();
+
+			expect(tooltipTitleAt(runDataset('Defense ±10'), 10)).toEqual(['Defense +10']);
+		});
+
+		it('lists where a stat capped in points', async () => {
+			history.listRuns.mockResolvedValueOnce([
+				{ ...storedRun('crit', 2, 1, 'sweep', CRIT_RATING), label: 'Crit ±100', capped: { offset: 30, bonus: 30 } },
+				{ ...storedRun('strength', 1, 0, 'sweep'), label: 'Strength ±100', capped: { offset: 20, bonus: 20 } },
+			]);
+			await openDialog();
+
+			expect(historyRows()).toEqual(['Strength ±100 (capped at +20)', 'Crit ±100 (capped at +30)']);
+		});
+
+		it('names the range and step inputs in points', async () => {
+			await openDialog();
+
+			expect(screen.getByLabelText('Range ± (points)')).toBeTruthy();
+			expect(screen.getByLabelText('Step (points)')).toBeTruthy();
+		});
 	});
 
 	it('stores an entered range and step, and the stats picked and removed by key', async () => {
@@ -253,6 +370,23 @@ describe('StatSweepDialog', () => {
 			.find(option => option.textContent?.includes(AGILITY.getFullName(Class.ClassWarrior)))!;
 		fireEvent.click(agility);
 		expect(settings.values.stats!.map(stat => stat.getKey())).toEqual([AGILITY.getKey()]);
+	});
+
+	it.each([
+		['step', 'sidebar.buttons.stat_sweep.step'],
+		['range', 'sidebar.buttons.stat_sweep.range'],
+	])('disables Run while the %s is empty or 0, which would run only the current value', async (_field, label) => {
+		await openDialog();
+		expect(runButton().disabled).toBe(false);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '' } });
+		expect(runButton().disabled).toBe(true);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '1' } });
+		expect(runButton().disabled).toBe(false);
+
+		fireEvent.change(screen.getByLabelText(label), { target: { value: '0' } });
+		expect(runButton().disabled).toBe(true);
 	});
 
 	it('locks the setup and the precision options while a run goes', async () => {
@@ -647,11 +781,31 @@ describe('StatSweepDialog', () => {
 			const [csv, fileName, mimeType] = download.mock.calls[0];
 			const lines = csv.trim().split('\n');
 			expect(lines).toHaveLength(3);
-			expect(lines[0]).toBe(
-				'run,batch,stat,base_total,added,bonus,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
-			);
+			expect(lines[0]).toBe('run,batch,stat,base_total,added,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples');
 			expect(lines.slice(1).map((line: string) => line.split(',')[1])).toEqual([saved().batchLabel, saved().batchLabel]);
 			expect([fileName, mimeType]).toEqual(['wowsims-stat-sweep.csv', 'text/csv']);
+		});
+
+		it('exports the points added for every stat, with no totals for a gear stat', async () => {
+			host.individualConfig.epStats = [Stat.StatStrength, Stat.StatCritRating];
+			settings.set({ stats: [CRIT_RATING, STRENGTH], range: 10, step: 10 });
+			await openDialog();
+			await run();
+
+			fireEvent.click(screen.getByRole('button', { name: 'sidebar.buttons.stat_sweep.export_csv' }));
+
+			const rows = (download.mock.calls[0][0] as string)
+				.trim()
+				.split('\n')
+				.slice(1)
+				.map(line => line.split(','));
+			// The newest run is drawn first. The stat's name, then its base total, added and total.
+			expect(rows.map(row => row.slice(2, 6))).toEqual([
+				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '0', ''],
+				[CRIT_RATING.getFullName(Class.ClassWarrior), '', '10', ''],
+				[STRENGTH_NAME, '0', '0', '0'],
+				[STRENGTH_NAME, '0', '10', '10'],
+			]);
 		});
 	});
 
@@ -712,7 +866,7 @@ describe('StatSweepDialog', () => {
 	});
 
 	describe('the progress dialog', () => {
-		it('shows the run across every step with the time left, and cancels it there, keeping the finished steps', async () => {
+		it('shows the run across every step, and cancels it there, keeping the finished steps', async () => {
 			const toast = vi.spyOn(toastManager, 'add');
 			let settleSecond!: (result: object) => void;
 			simulatePass.mockResolvedValueOnce(makeSweepSample(1000)).mockImplementationOnce(options => {
@@ -728,7 +882,8 @@ describe('StatSweepDialog', () => {
 			// The second of three steps, a quarter done: the bar reads across the whole run.
 			expect(tracker()!.querySelector('[data-testid="progress-tracker-modal-progress-title"]')!.textContent).toBe('sidebar.buttons.stat_sweep.progress');
 			expect(tracker()!.querySelector('[data-testid="progress-tracker-modal-progress-text"]')!.textContent).toBe('1250/3000');
-			expect(tracker()!.querySelector('[data-testid="progress-tracker-time-remaining"]')!.textContent).toBe('sidebar.results.progress.time_remaining');
+			// The time left reads beside the elapsed time, so the bar has no line of its own for it.
+			expect(tracker()!.querySelector('[data-testid="progress-tracker-time-remaining"]')).toBeNull();
 			expect(runAgain.disabled).toBe(true);
 
 			abortType.mockClear();
@@ -745,6 +900,49 @@ describe('StatSweepDialog', () => {
 			expect(saved().points).toHaveLength(1);
 			expect(toast).not.toHaveBeenCalled();
 			toast.mockRestore();
+		});
+
+		it('shows the time left beside the elapsed time once an iteration is done, and counts it down each second', async () => {
+			let report!: (metrics: object) => void;
+			let settleFirst!: (result: object) => void;
+			simulatePass.mockImplementationOnce(options => {
+				report = options.onProgress as never;
+				return new Promise(resolve => (settleFirst = resolve));
+			});
+			settings.set({ range: 20, step: 10 });
+			i18n.addResourceBundle('en', 'translation', english, true, true);
+			try {
+				await openDialog();
+				vi.useFakeTimers();
+				await run();
+				const elapsedLine = () => tracker()!.querySelector('[data-testid="time-elapsed"]')!.parentElement!.textContent;
+				const shown = (elapsed: number, left?: number) =>
+					`${i18n.t('common.elapsed_time')}: ${formatDurationSeconds(elapsed)}${left === undefined ? '' : ` · ${i18n.t('common.time_left', { time: formatDurationSeconds(left) })}`}`;
+
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(1));
+				act(() => report({ completedIterations: 0, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(2));
+
+				// 2 s for a quarter of the first of three steps: 22 s for the other 2.75.
+				act(() => report({ completedIterations: 250, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(3, 22));
+				act(() => vi.advanceTimersByTime(2000));
+				expect(elapsedLine()).toBe(shown(5, 20));
+
+				await act(async () => {
+					fireEvent.click(tracker()!.querySelector('[data-testid="progress-tracker-modal-cancel-btn"]')!);
+				});
+				await act(async () => {
+					settleFirst({ type: ErrorOutcomeType.ErrorOutcomeAborted, message: '' });
+				});
+				expect(tracker()).toBeNull();
+			} finally {
+				vi.useRealTimers();
+				i18n.removeResourceBundle('en', 'translation');
+			}
 		});
 
 		it("lists the run's stats, done up to the running one, which holds the spinner", async () => {
