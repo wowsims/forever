@@ -168,7 +168,8 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 type Target struct {
 	Unit
 
-	AI TargetAI
+	AI       TargetAI
+	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {

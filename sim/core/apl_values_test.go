@@ -476,6 +476,10 @@ func TestValueBoss(t *testing.T) {
 	if isCasting.GetBool(sim) {
 		t.Fatalf("Boss Spell Is Casting before any cast = true, want false")
 	}
+	missingTarget := &proto.UnitReference{Type: proto.UnitReference_Target, Index: 5}
+	if rot.newValueBossSpellIsCasting(&proto.APLValueBossSpellIsCasting{TargetUnit: missingTarget, SpellId: id}, nil) != nil {
+		t.Fatalf("Boss Spell Is Casting on a target the encounter lacks resolved, want nil")
+	}
 	target.Hardcast = Hardcast{ActionID: bossSpellID, Expires: 3 * time.Second}
 	if !isCasting.GetBool(sim) {
 		t.Fatalf("Boss Spell Is Casting during its hardcast = false, want true")

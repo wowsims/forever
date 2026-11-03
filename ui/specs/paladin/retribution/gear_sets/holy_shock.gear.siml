@@ -1,0 +1,18 @@
+siml 1
+
+head       magisters_crown
+neck       archlight_talisman + necklace_spell_power
+shoulder   lightforge_spaulders
+back       hide_of_the_wild + cloak_lesser_agility
+chest      vest_of_elements + chest_greater_stats
+wrist      lightforge_bracers + bracer_healing_power
+hands      gauntlets_of_elements + gloves_healing_power
+waist      lightforge_belt
+legs       magisters_leggings + mystic_rugged_armor_kit
+feet       magisters_boots + mystic_rugged_armor_kit
+finger1    blessed_band_of_light
+finger2    channelers_ring
+trinket1   jewel_of_the_guard_captain
+trinket2   adaptive_combat_assistant
+main_hand  shin_blade of_holy_wrath + enchant_2h_weapon_mighty_spell_power
+ranged     libram_of_law

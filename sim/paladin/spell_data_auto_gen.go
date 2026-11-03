@@ -7,7 +7,6 @@ import (
 )
 
 // Not generated:
-//   Holy Shield: rank 4, spell 1239570, has no SpellMisc row
 //   Judgement of Fury: missing rank 1 of 7
 //   Judgement of the Crusader: missing rank 1 of 6
 
@@ -210,7 +209,7 @@ var spellData = generatedSpellData{
 	HolyConduit:                   spelldata.Talent(1237268, 2),
 	HolyLight:                     spelldata.Ranked(635, 639, 647, 1026, 1042, 3472, 10328, 10329, 25292),
 	HolyPower:                     spelldata.Talent(5923, 5),
-	HolyShield:                    spelldata.Ranked(20925, 20927, 20928),
+	HolyShield:                    spelldata.Ranked(20925, 20927, 20928, 1239570),
 	HolyShock:                     spelldata.Ranked(1311606, 20473, 20929, 20930),
 	HolyShockTriggered:            spelldata.Ranked(25902, 25903, 25911, 25912, 25913, 25914, 1311604, 1311605),
 	HolyStrike:                    spelldata.Ranked(679, 678, 1866, 680, 2495, 5569, 10332, 10333),

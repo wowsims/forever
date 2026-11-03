@@ -39,6 +39,10 @@ func (hc *Hardcast) pushBack(currentTime time.Duration) time.Duration {
 	return pushback
 }
 
+func (hc *Hardcast) timeLeft(currentTime time.Duration) time.Duration {
+	return max(0, hc.Expires-currentTime)
+}
+
 // Input for constructing the CastSpell function for a spell.
 type CastConfig struct {
 	// Default cast values with all static effects applied.

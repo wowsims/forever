@@ -1790,6 +1790,22 @@
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
 				},
+				"target_is_active": {
+					"label": "Target Is Active",
+					"tooltip": "True while the target is in the fight: not disabled"
+				},
+				"num_active_adds": {
+					"label": "Active Adds",
+					"tooltip": "The number of targets other than the boss that are in the fight"
+				},
+				"time_until_target_active": {
+					"label": "Time Until Target Active",
+					"tooltip": "Time until the target is next in the fight, 0 while it is. Never when that is unknown"
+				},
+				"time_until_target_dies": {
+					"label": "Time Until Target Dies",
+					"tooltip": "Time until the target leaves the fight or the fight ends, whichever is first. For a target that is down, the end of its next time in the fight. Never when that is unknown"
+				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
 					"tooltip": "True if the unit is moving"
@@ -1958,6 +1974,10 @@
 				"cpm": {
 					"label": "CPM",
 					"tooltip": "Casts Per Minute for the spell so far in the current iteration."
+				},
+				"remaining_cast_time": {
+					"label": "Remaining Cast Time",
+					"tooltip": "Time left on your running hardcast, or 0 when nothing is being cast. It reads 0 at the cast end, where the rotation picks its next spell, and through a channel."
 				},
 				"is_casting": {
 					"label": "Is Casting",

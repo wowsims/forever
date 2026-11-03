@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunter_shot if talent_is_known(deadly_aspects)
+  cast hunter_shot if talent_is_known(deadly_aspects)
+  cast hunter_shot if talent_is_known(`{"spellId":19552,"rank":3}`)
+  cast hunter_shot if talent_rank(deadly_aspects) >= 3

@@ -121,6 +121,9 @@ var (
 	valueMessage    = (&proto.APLValue{}).ProtoReflect().Descriptor()
 	actionIDMessage = (&proto.ActionID{}).ProtoReflect().Descriptor()
 	unitMessage     = (&proto.UnitReference{}).ProtoReflect().Descriptor()
+
+	talentIsKnownMessage = (&proto.APLValueTalentIsKnown{}).ProtoReflect().Descriptor().FullName()
+	talentRankMessage    = (&proto.APLValueTalentRank{}).ProtoReflect().Descriptor().FullName()
 )
 
 type builder struct {
@@ -605,4 +608,10 @@ func isNumber(k protoreflect.Kind) bool {
 		return false
 	}
 	return true
+}
+
+// Whether id, an ActionID field of a message named msg, keeps its rank: a talent_is_known talent above rank 1, whose
+// rank is the points the test needs. A name reads back with its entry's rank, so the printer writes such an id raw.
+func keepsTalentRank(msg protoreflect.FullName, id *proto.ActionID) bool {
+	return msg == talentIsKnownMessage && id.GetRank() > 1
 }

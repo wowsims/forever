@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 147
+// NextIndex: 148
 message APLValue {
 	UUID uuid = 85;
 
@@ -130,6 +130,10 @@ message APLValue {
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
         APLValueEncounterInArea encounter_in_area = 134;
+        APLValueTargetIsActive target_is_active = 31;
+        APLValueNumActiveAdds num_active_adds = 32;
+        APLValueTimeUntilTargetActive time_until_target_active = 33;
+        APLValueTimeUntilTargetDies time_until_target_dies = 34;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -180,6 +184,7 @@ message APLValue {
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
         APLValueSpellIsCasting spell_is_casting = 30;
+        APLValueRemainingCastTime remaining_cast_time = 147;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -506,6 +511,16 @@ message APLValueIsExecutePhase {
     }
     ExecutePhaseThreshold threshold = 1;
 }
+message APLValueTargetIsActive {
+    UnitReference target_unit = 1;
+}
+message APLValueNumActiveAdds {}
+message APLValueTimeUntilTargetActive {
+    UnitReference target_unit = 1;
+}
+message APLValueTimeUntilTargetDies {
+    UnitReference target_unit = 1;
+}
 
 message APLValueBossSpellTimeToReady {
     UnitReference target_unit = 1;
@@ -644,6 +659,7 @@ message APLValueSpellCPM {
 message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
+message APLValueRemainingCastTime {}
 message APLValueSpellIsChanneling {
     ActionID spell_id = 1;
 }
