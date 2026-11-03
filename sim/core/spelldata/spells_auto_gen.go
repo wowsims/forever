@@ -32426,36 +32426,6 @@ var generatedSpells = []Spell{
 			{ID: 1239275, SpellID: 1240736, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 50, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1239276, SpellID: 1240736, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_TRIGGER_SPELL, BaseLevel: 50, PvpMult: 1, PeriodMs: 1000, TriggerID: 1240730, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1240770, Name: "Binding Heal", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x80000, 2: 0x80100, 8: 0x1000000, 15: 0x2000, 16: 0x10}, SpellLevel: 32, BaseLevel: 32, MaxLevel: 37, CastTimeMs: 1500, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 4}}, InterruptFlags: 15, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18},
-		Effects: []Effect{
-			{ID: 1239333, SpellID: 1240770, Type: dbcenums.E_HEAL, BasePoints: 312, PPL: 2.5, Variance: 0.18333299458026886, BaseLevel: 32, MaxLevel: 37, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1239334, SpellID: 1240770, Index: 1, Type: dbcenums.E_HEAL, BasePoints: 312, PPL: 2.200000047683716, Variance: 0.18333299458026886, BaseLevel: 32, MaxLevel: 37, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		},
-		Powers: []Power{{Cost: 185}}},
-	{ID: 1240771, Name: "Binding Heal", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x80000, 2: 0x80100, 8: 0x1000000, 15: 0x2000, 16: 0x10}, SpellLevel: 38, BaseLevel: 38, MaxLevel: 43, CastTimeMs: 1500, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 4}}, InterruptFlags: 15, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18},
-		Effects: []Effect{
-			{ID: 1239335, SpellID: 1240771, Type: dbcenums.E_HEAL, BasePoints: 383, PPL: 2.799999952316284, Variance: 0.1776770055294037, BaseLevel: 38, MaxLevel: 43, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1239336, SpellID: 1240771, Index: 1, Type: dbcenums.E_HEAL, BasePoints: 383, PPL: 2.799999952316284, Variance: 0.1776770055294037, BaseLevel: 38, MaxLevel: 43, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		},
-		Powers: []Power{{Cost: 215}}},
-	{ID: 1240772, Name: "Binding Heal", Rank: "Rank 4", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x80000, 2: 0x80100, 8: 0x1000000, 15: 0x2000, 16: 0x10}, SpellLevel: 44, BaseLevel: 44, MaxLevel: 49, CastTimeMs: 1500, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 4}}, InterruptFlags: 15, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18},
-		Effects: []Effect{
-			{ID: 1239337, SpellID: 1240772, Type: dbcenums.E_HEAL, BasePoints: 507, PPL: 3.299999952316284, Variance: 0.17283999919891357, BaseLevel: 44, MaxLevel: 49, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1239338, SpellID: 1240772, Index: 1, Type: dbcenums.E_HEAL, BasePoints: 507, PPL: 3.299999952316284, Variance: 0.17283999919891357, BaseLevel: 44, MaxLevel: 49, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		},
-		Powers: []Power{{Cost: 265}}},
-	{ID: 1240773, Name: "Binding Heal", Rank: "Rank 5", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x80000, 2: 0x80100, 8: 0x1000000, 15: 0x2000, 16: 0x10}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 55, CastTimeMs: 1500, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 4}}, InterruptFlags: 15, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18},
-		Effects: []Effect{
-			{ID: 1239339, SpellID: 1240773, Type: dbcenums.E_HEAL, BasePoints: 644.0001220703125, PPL: 3.700000047683716, Variance: 0.17045481503009796, BaseLevel: 50, MaxLevel: 55, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1239340, SpellID: 1240773, Index: 1, Type: dbcenums.E_HEAL, BasePoints: 644, PPL: 3.700000047683716, Variance: 0.1704549938440323, BaseLevel: 50, MaxLevel: 55, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		},
-		Powers: []Power{{Cost: 315}}},
-	{ID: 1240774, Name: "Binding Heal", Rank: "Rank 6", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x80000, 2: 0x80100, 8: 0x1000000, 15: 0x2000, 16: 0x10}, SpellLevel: 56, BaseLevel: 56, MaxLevel: 61, CastTimeMs: 1500, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 4}}, InterruptFlags: 15, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18},
-		Effects: []Effect{
-			{ID: 1239341, SpellID: 1240774, Type: dbcenums.E_HEAL, BasePoints: 825, PPL: 4.199999809265137, Variance: 0.16497200727462769, BaseLevel: 56, MaxLevel: 61, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
-			{ID: 1239342, SpellID: 1240774, Index: 1, Type: dbcenums.E_HEAL, BasePoints: 825, PPL: 4.199999809265137, Variance: 0.16497200727462769, BaseLevel: 56, MaxLevel: 61, SPCoef: 0.42899999022483826, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		},
-		Powers: []Power{{Cost: 380}}},
 	{ID: 1240826, Name: "Prayer of Mending", Rank: "Rank 2", School: 2, Speed: 40, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x4000000, 4: 0x100000, 7: 0x40000000, 8: 0x1000, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxRange: 40, CategoryCooldownMs: 10000, GCDMs: 1500, Category: 1181, StartRecoveryCategory: 133, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 32, 2: 1024}}, StanceMask: 0x80000000, StanceExclude: 0x8000000, Labels: []int16{18}, RefIDs: []int32{401880, 401877}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1239406, SpellID: 1240826, Type: dbcenums.E_DUMMY, BasePoints: 298, BaseLevel: 50, SPCoef: 0.42899999022483826, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{57, 0}},
