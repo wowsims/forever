@@ -89,7 +89,7 @@ func (mage *Mage) registerMagicAbsorption() {
 
 // "Gives you a 10% chance of entering a Clearcasting state after any damage spell hits a target. The
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
-// and is spent by the next cast.
+// and is spent by the next cast. Each Arcane Missiles missile rolls it.
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -99,8 +99,13 @@ func (mage *Mage) registerArcaneConcentration() {
 	costEffect := clearcastingRank.EffectN(1)
 
 	config := spelldata.AuraConfig(clearcastingRank)
-	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+	// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up. This runs before the
+	// cast completes, while Missile Barrage is still up.
+	config.OnApplyEffects = func(aura *core.Aura, sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		if !spell.MatchesFlags(costEffect.ClassFlags) || spell.Cost == nil || spell.Cost.BaseCost == 0 {
+			return
+		}
+		if spell.Matches(MageSpellArcaneMissilesCast) && mage.MissileBarrageAura.IsActive() {
 			return
 		}
 		aura.Deactivate(sim)
@@ -123,11 +128,10 @@ func (mage *Mage) registerArcaneConcentration() {
 	mage.RegisterResetEffect(func(_ *core.Simulation) {
 		rolledSpell = nil
 	})
-	// Arcane Missiles never rolls: the channel lands an outcome with no damage, and its missiles do
-	// not roll either.
+	// The Arcane Missiles channel lands an outcome with no damage and does not roll; its missiles
+	// roll as they land, since their row's Not a Proc lets an aura proc hear them.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if spellData.ArcaneMissiles.Contains(spell) || spellData.ArcaneMissilesTriggered.Contains(spell) ||
-			(spell == rolledSpell && sim.CurrentTime == rolledAt) {
+		if spellData.ArcaneMissiles.Contains(spell) || (spell == rolledSpell && sim.CurrentTime == rolledAt) {
 			return false
 		}
 		rolledSpell, rolledAt = spell, sim.CurrentTime
@@ -241,6 +245,7 @@ func (mage *Mage) registerMissileBarrage() {
 		}
 	}
 	buffAura := mage.RegisterAura(config)
+	mage.MissileBarrageAura = buffAura
 
 	// Missiles every 0.5 sec (effect 2) and the mana cost (effect 3). The sim counts a DoT's
 	// duration as its ticks times their length, so the halved tick alone halves the channel and

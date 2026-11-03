@@ -1,7 +1,3 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { inputPicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from '@features/settings/components/ConsumesPicker/utils';
 import { applyIndividualDefaults, type DefaultsHost } from '@features/settings/model/apply_defaults';
@@ -12,12 +8,12 @@ import { shownStats, type StatFilterSlot } from '@features/stat-filters/model/st
 import { ConsumableType, type PseudoStat, Stat } from '@generated/proto/common';
 import type { Consumable } from '@generated/proto/db';
 import { ResourceType } from '@generated/proto/spell';
-import { DatabaseFilters, UIDatabase } from '@generated/proto/ui';
+import { DatabaseFilters } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { Database } from '@sim/proto/database';
 import { consumablePseudoStatsOf, consumableStatsOf } from '@sim/settings/consumables';
 import type { SpecDefinition } from '@sim/spec_config';
-import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { makeIndividualSim, serveRealDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
@@ -147,8 +143,7 @@ describe("a spec's default picks at the default stat filters", () => {
 	const players = new Map<SpecDefinition<any>, Player<any>>();
 
 	beforeAll(async () => {
-		const dbPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../assets/database/db.json');
-		serveDatabase(UIDatabase.fromJson(JSON.parse(readFileSync(dbPath, 'utf8'))));
+		serveRealDatabase();
 		for (const [, spec] of specs) players.set(spec, await presetPlayer(spec));
 	});
 
