@@ -46,7 +46,7 @@ func (unit *Unit) ExecuteResourceGain(sim *Simulation, resource proto.ResourceTy
 	case resource == proto.ResourceType_ResourceTypeHealth && amount > 0:
 		unit.GainHealth(sim, amount, metrics)
 	case resource == proto.ResourceType_ResourceTypeHealth && amount < 0:
-		unit.RemoveHealth(sim, -amount)
+		unit.SpendHealth(sim, -amount, metrics)
 	case resource == proto.ResourceType_ResourceTypeRage && amount < 0:
 		unit.SpendRage(sim, -amount/10, metrics)
 	case resource == proto.ResourceType_ResourceTypeRage && amount > 0:

@@ -1,12 +1,14 @@
 package warrior_test
 
 import (
+	"math"
 	"testing"
 	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -861,5 +863,35 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 	if !queueCleave.Cast(sim, war.CurrentTarget) {
 		t.Error("Cleave could not be queued again after the throw")
+	}
+}
+
+// Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
+// action and not as damage taken.
+func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
+	sim, war := orcWarriorSim(t, "p1_fury", "30303003-050530355122100031")
+
+	for _, id := range []int32{1329555, 2687} {
+		spell := war.GetSpell(core.ActionID{SpellID: id})
+		if spell == nil {
+			t.Fatalf("the warrior has no spell %d", id)
+		}
+		want := war.BaseHealth() * float64(spelldata.MustFind(id).Power(dbcenums.POWER_HEALTH).CostPct) / 100
+		if want <= 0 {
+			t.Fatalf("%s states no health cost", spell.ActionID)
+		}
+
+		before := war.CurrentHealth()
+		spell.SkipCastAndApplyEffects(sim, &war.Unit)
+		if got := before - war.CurrentHealth(); math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s took %v health, want %v", spell.ActionID, got, want)
+		}
+		if got := spell.HealthMetrics(&war.Unit).Gain; math.Abs(got+want) > 1e-9 {
+			t.Errorf("%s booked %v health under its own action, want %v", spell.ActionID, got, -want)
+		}
+	}
+
+	if events := war.DamageTakenHealthMetrics.Events; events != 0 {
+		t.Errorf("damage taken counted %d health events, want none", events)
 	}
 }
