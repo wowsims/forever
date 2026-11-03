@@ -43,7 +43,7 @@ const parsed = (overrides: Partial<Parameters<typeof finishIndividualImport>[1]>
 	charClass: Class.ClassWarrior,
 	race: Race.RaceHuman,
 	equipmentSpec: EquipmentSpec.create(),
-	talentsStr: '05002001-0550000502-05032',
+	talentsStr: '05002001-055000025-05032',
 	professions: [],
 	...overrides,
 });
@@ -82,7 +82,7 @@ describe('finishIndividualImport', () => {
 	it('applies a talent string built from these trees, without a warning', async () => {
 		await finishIndividualImport(host, parsed({ talentsMatchTrees: true }));
 
-		expect(player.setTalentsString).toHaveBeenCalledWith('05002001-0550000502-05032');
+		expect(player.setTalentsString).toHaveBeenCalledWith('05002001-055000025-05032');
 		expect(toasts).toEqual([{ variant: 'success', body: 'import.success' }]);
 	});
 
