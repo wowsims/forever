@@ -7865,6 +7865,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"aura_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_any_target": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"aura_inactive": {
 									"type": "object",
 									"properties": {
@@ -8108,6 +8134,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"druid_excess_energy": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -8637,6 +8676,8 @@
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
+								"aura_active_on_all_targets",
+								"aura_active_on_any_target",
 								"aura_inactive",
 								"aura_inactive_with_reaction_time",
 								"aura_remaining_time",
@@ -8656,6 +8697,7 @@
 								"druid_bleed_is_active",
 								"druid_excess_energy",
 								"dot_is_active_on_all_targets",
+								"dot_is_active_on_any_target",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
 								"dot_tick_frequency",

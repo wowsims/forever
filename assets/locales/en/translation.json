@@ -2230,6 +2230,14 @@
 					"label": "[DEPRECATED] Aura Active (with Reaction Time)",
 					"tooltip": "All Aura checks now contain Reaction Time logic, so this is no longer needed. Use <b Aura Active</b> instead."
 				},
+				"aura_active_on_all_targets": {
+					"label": "Aura Active On All Targets",
+					"tooltip": "<b>True</b> if the aura is active on every target that is up, each for at least as long as the player reaction time (configured in Settings) when <b>Include Reaction Time</b> is checked, otherwise <b>False</b>."
+				},
+				"aura_active_on_any_target": {
+					"label": "Aura Active On Any Target",
+					"tooltip": "<b>True</b> if the aura is active on at least one target that is up, for at least as long as the player reaction time (configured in Settings) when <b>Include Reaction Time</b> is checked, otherwise <b>False</b>."
+				},
 				"aura_inactive": {
 					"label": "Aura Inactive",
 					"tooltip": "<b>True</b> if the aura is not currently active AND it has been inactive for at least as long as the player reaction time (configured in Settings), otherwise <b>False</b>."
@@ -2312,6 +2320,10 @@
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
+				},
+				"dot_is_active_on_any_target": {
+					"label": "Dot Is Active On Any Target",
+					"tooltip": "<b>True</b> if the specified dot is currently ticking on at least one target that is up, otherwise <b>False</b>."
 				},
 				"dot_remaining_time": {
 					"label": "Dot Remaining Time",
