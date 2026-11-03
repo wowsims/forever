@@ -106,6 +106,12 @@ export class UnitStat {
 		return fullName.replace(' Percent', '');
 	}
 
+	// The name of a stat weight row: a weight shown per 1% says so, "1% Hit" beside Agility's plain name.
+	getWeightName(playerClass: Class): string {
+		const perPercent = (this.isStat() && this.isPercentRating()) || this.isRatingBackedPercent();
+		return perPercent ? `1% ${this.getShortName(playerClass)}` : this.getFullName(playerClass);
+	}
+
 	getKey(): string {
 		return this.isStat() ? Stat[this.stat!] : PseudoStat[this.getPseudoStat()];
 	}

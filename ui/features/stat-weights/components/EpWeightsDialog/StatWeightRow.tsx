@@ -166,7 +166,7 @@ export const StatWeightRow = ({
 	return (
 		<StatWeightRowView
 			stat={stat}
-			fullName={stat.getFullName(player.getClass())}
+			fullName={stat.getWeightName(player.getClass())}
 			shortName={stat.getShortName(player.playerClass.classID)}
 			helpLines={statHelpLines(stat, rowResult)}
 			metrics={metrics}
