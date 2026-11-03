@@ -15,7 +15,7 @@ type APLActionCastSpell struct {
 }
 
 func (rot *APLRotation) newActionCastSpell(config *proto.APLActionCastSpell) APLActionImpl {
-	spell := rot.GetAPLSpell(config.SpellId)
+	spell := rot.GetAPLCastSpell(config.SpellId)
 	if spell == nil {
 		return nil
 	}
@@ -134,7 +134,7 @@ type APLActionCastFriendlySpell struct {
 }
 
 func (rot *APLRotation) newActionCastFriendlySpell(config *proto.APLActionCastFriendlySpell) APLActionImpl {
-	spell := rot.GetAPLSpell(config.SpellId)
+	spell := rot.GetAPLCastSpell(config.SpellId)
 	if spell == nil {
 		return nil
 	}
@@ -174,7 +174,7 @@ func (rot *APLRotation) newActionChannelSpell(config *proto.APLActionChannelSpel
 		})
 	}
 
-	spell := rot.GetAPLSpell(config.SpellId)
+	spell := rot.GetAPLCastSpell(config.SpellId)
 	if spell == nil {
 		return nil
 	}
@@ -223,7 +223,7 @@ func (rot *APLRotation) newActionMultidot(config *proto.APLActionMultidot) APLAc
 	unit := rot.unit
 
 	spell := rot.GetAPLMultidotSpell(config.SpellId)
-	if spell == nil {
+	if spell == nil || !rot.rotationCasts(spell) {
 		return nil
 	}
 
@@ -304,7 +304,7 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 	unit := rot.unit
 
 	spell := rot.GetAPLMultidotSpell(config.SpellId)
-	if spell == nil {
+	if spell == nil || !rot.rotationCasts(spell) {
 		return nil
 	}
 
@@ -434,7 +434,7 @@ func (rot *APLRotation) newActionMultishield(config *proto.APLActionMultishield)
 	unit := rot.unit
 
 	spell := rot.GetAPLMultishieldSpell(config.SpellId)
-	if spell == nil {
+	if spell == nil || !rot.rotationCasts(spell) {
 		return nil
 	}
 

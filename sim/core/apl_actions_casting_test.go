@@ -247,3 +247,53 @@ func TestManualCastsCountTheMovesTheRotationStarts(t *testing.T) {
 		t.Errorf("a MoveDuration from standing: ManualCasts = %d, Casts = %d, want 2 and 3", got.ManualCasts, got.Casts)
 	}
 }
+
+// A cast of a spell without SpellFlagAPL, such as the swing's own attack behind a queued Heroic Strike, drops the
+// line with a warning. A value on the same spell still reads it.
+func TestCastOfASpellNoRotationCastsDropsTheLine(t *testing.T) {
+	const swing, press = 910107, 910108
+	spellID := func(id int32) *proto.ActionID { return &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}} }
+	sim := NewSim(fakeSwingCasterRequest(), simsignals.CreateSignals())
+	fc := sim.Raid.Parties[0].Players[0].(*FakeSwingCaster)
+	sim.Environment.State = Constructed
+	for _, s := range []struct {
+		id    int32
+		flags SpellFlag
+	}{{swing, SpellFlagNone}, {press, SpellFlagAPL}} {
+		fc.RegisterSpell(SpellConfig{
+			ActionID:     ActionID{SpellID: s.id},
+			Flags:        s.flags,
+			ApplyEffects: func(*Simulation, *Unit, *Spell) {},
+		})
+	}
+	sim.Environment.State = Finalized
+
+	castSwing := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spellID(swing)}}}}
+	pressIfSwingReady := &proto.APLListItem{Action: &proto.APLAction{
+		Condition: &proto.APLValue{Value: &proto.APLValue_SpellIsReady{SpellIsReady: &proto.APLValueSpellIsReady{SpellId: spellID(swing)}}},
+		Action:    &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spellID(press)}},
+	}}
+	rot := fc.newAPLRotation(&proto.APLRotation{
+		Type:         proto.APLRotation_TypeAPL,
+		PriorityList: []*proto.APLListItem{castSwing, pressIfSwingReady},
+	})
+
+	if len(rot.priorityList) != 1 || rot.priorityList[0].impl.(*APLActionCastSpell).spell.ActionID.SpellID != press {
+		t.Errorf("the rotation keeps %v, want only the press", rot.priorityList)
+	}
+	stats := rot.getStats().PriorityList
+	warned := func(i int) bool {
+		for _, v := range stats[i].Validations {
+			if v.LogLevel == proto.LogLevel_Warning && strings.Contains(v.Validation, "no rotation casts") {
+				return true
+			}
+		}
+		return false
+	}
+	if !warned(0) {
+		t.Errorf("the cast of the swing's spell: validations %v, want a warning that no rotation casts it", stats[0].Validations)
+	}
+	if warned(1) {
+		t.Errorf("the value on the swing's spell: validations %v, want no warning", stats[1].Validations)
+	}
+}

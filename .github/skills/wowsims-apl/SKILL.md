@@ -65,7 +65,11 @@ A value or action reaches the rotation and the kind picker in five places, all i
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
 - **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
-  `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls back to any spell with the id.
+  `sim/core/unit.go`). A value may still read an unflagged spell, since `GetAPLSpell` falls back to any spell with the
+  id, but a cast action goes through `GetAPLCastSpell`, which drops the line with a warning: Heroic Strike, Cleave,
+  Maul and Raptor Strike register the swing's own attack and the press the rotation casts as two spells of one id,
+  told apart by tag, and only the press carries the flag; a line that cast the attack would fire it off the swing and
+  the GCD.
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
   whose Information validation lists them; a rotation without it never casts them.
@@ -100,6 +104,9 @@ preset names:
 
 - **An unknown spell.** A Cast Spell, Multidot or value on a spell the unit lacks logs "does not know spell" and the line
   or value is dropped (`GetAPLSpell`). A `spellIsKnown` guard prunes the line, and the warning stays.
+- **A spell no rotation casts.** A Cast Spell, Cast Friendly Spell, Channel, Multidot or Multishield on a spell without
+  `SpellFlagAPL`, such as the attack behind a queued Heroic Strike or Maul, logs "is a spell no rotation casts" and the
+  line is dropped (`GetAPLCastSpell`). A value on the same spell still reads it.
 - **An aura under another ActionID.** An `auraIsActive` or `auraNumStacks` naming a spell id core registers under
   another ActionID logs "No aura found" and the value is dropped. An And drops that branch with a warning, an Or or a
   Not drops it silently, and a condition with nothing left reads true and the line runs every time it is ready,

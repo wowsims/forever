@@ -50,7 +50,7 @@ func (fc *FakeSwingCaster) Initialize() {
 			ApplyEffects: func(_ *Simulation, _ *Unit, _ *Spell) {},
 		})
 	}
-	fc.Resetting = register(1, 0)
+	fc.Resetting = register(1, SpellFlagAPL)
 	fc.Keeping = register(2, SpellFlagKeepsSwingTimer)
 }
 
