@@ -390,11 +390,11 @@ func TestValueEncounter(t *testing.T) {
 		{proto.APLValueIsExecutePhase_E20, 35, false},
 		{proto.APLValueIsExecutePhase_E35, 20, true},
 		{proto.APLValueIsExecutePhase_E35, 35, true},
-		{proto.APLValueIsExecutePhase_E35, 100, false},
+		{proto.APLValueIsExecutePhase_E35, 0, false},
 	}
 	for _, tt := range thresholds {
 		value := rot.newValueIsExecutePhase(&proto.APLValueIsExecutePhase{Threshold: tt.threshold}, nil)
-		sim.executePhase = tt.phase
+		rot.unit.CurrentTarget.executePhase = tt.phase
 		if got := value.GetBool(sim); got != tt.want {
 			t.Errorf("Is Execute Phase %v in the %d phase = %t, want %t", tt.threshold, tt.phase, got, tt.want)
 		}

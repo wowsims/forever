@@ -97,6 +97,7 @@ func (value *APLValueNumberTargets) String() string {
 
 type APLValueIsExecutePhase struct {
 	DefaultAPLValueImpl
+	target    UnitReference
 	threshold proto.APLValueIsExecutePhase_ExecutePhaseThreshold
 }
 
@@ -109,7 +110,12 @@ func (rot *APLRotation) newValueIsExecutePhase(config *proto.APLValueIsExecutePh
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Unknown execute phase threshold")
 		return nil
 	}
+	target := rot.GetTargetUnit(config.TargetUnit)
+	if target.Get() == nil {
+		return nil
+	}
 	return &APLValueIsExecutePhase{
+		target:    target,
 		threshold: config.Threshold,
 	}
 }
@@ -118,9 +124,9 @@ func (value *APLValueIsExecutePhase) Type() proto.APLValueType {
 }
 func (value *APLValueIsExecutePhase) GetBool(sim *Simulation) bool {
 	if value.threshold == proto.APLValueIsExecutePhase_E20 {
-		return sim.IsExecutePhase20()
+		return value.target.Get().IsExecutePhase20()
 	}
-	return sim.IsExecutePhase35()
+	return value.target.Get().IsExecutePhase35()
 }
 func (value *APLValueIsExecutePhase) String() string {
 	return "Is Execute Phase"

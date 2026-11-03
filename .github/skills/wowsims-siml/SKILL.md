@@ -181,7 +181,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `current_time_percent`
 - `remaining_time`
 - `remaining_time_percent`
-- `is_execute_phase(e20|e35)`
+- `is_execute_phase(e20|e35, target_unit: unit)`
 - `number_targets`
 - `encounter_in_area(forest_grassland|mountainous|snowy|desert|swamp|wasteland|haunted|cavernous|…)`
 - `[unit.]target_is_active`

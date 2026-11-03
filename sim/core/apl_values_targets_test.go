@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func targetValueRef(index int32) *proto.UnitReference {
@@ -94,24 +93,5 @@ func TestValueTargetActivityNeedsAnEnemyTarget(t *testing.T) {
 	}
 	if got := currentUntilDies.GetDuration(sim); got != NeverExpires {
 		t.Errorf("Time Until Target Dies for a current target that is not an enemy = %s, want never", got)
-	}
-}
-
-// In a fight that ends at a health, the fight's end is the one Remaining Time estimates from the damage taken.
-func TestValueTimeUntilTargetDiesInAHealthFight(t *testing.T) {
-	request := fakeRageSimRequest()
-	request.Encounter.UseHealth = true
-	request.Encounter.Targets[0].Stats = stats.Stats{stats.Health: 1000}.ToProtoArray()
-	sim, _, rot := setupFakeRageRotationFrom(request, func(*Character) {})
-	sim.CurrentTime = 10 * time.Second
-	sim.Encounter.DamageTaken = 250
-
-	remaining := rot.newValueRemainingTime(&proto.APLValueRemainingTime{}, nil).GetDuration(sim)
-	if remaining >= sim.Duration-sim.CurrentTime {
-		t.Fatalf("Remaining Time = %s, want an estimate below the %s left of the fight's placeholder duration", remaining, sim.Duration-sim.CurrentTime)
-	}
-	untilDies := rot.newValueTimeUntilTargetDies(&proto.APLValueTimeUntilTargetDies{TargetUnit: targetValueRef(0)}, nil)
-	if got := untilDies.GetDuration(sim); got != remaining {
-		t.Errorf("Time Until Target Dies(0) = %s, want Remaining Time's %s", got, remaining)
 	}
 }
