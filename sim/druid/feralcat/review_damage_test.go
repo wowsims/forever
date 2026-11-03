@@ -139,8 +139,9 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	before = metric.TotalDamage
 	dot.TickOnce(sim)
 	high := metric.TotalDamage - before
-	if math.Abs((high-low)-5.5) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want 5.5", high-low)
+	// The row's 0.055 per attack power, raised by the 25% placeholder for the November 2 development notes.
+	if math.Abs((high-low)-6.875) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want 6.875", high-low)
 	}
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
 }
@@ -190,7 +191,9 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 		before = metric.TotalDamage
 		dot.TickOnce(sim)
 		gain := metric.TotalDamage - before - low
-		if math.Abs(gain-float64(min(cp, 4))) > 1e-5 {
+		// The row's 0.01 per attack power and combo point, raised by the 25% placeholder for the November 2
+		// development notes.
+		if math.Abs(gain-1.25*float64(min(cp, 4))) > 1e-5 {
 			t.Fatalf("cp=%d tick gain=%g", cp, gain)
 		}
 		t.Logf("Rip %d CP: 100 AP gains %g per tick / %g total", cp, gain, gain*6)
@@ -316,8 +319,8 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	}
 	for _, rip := range []bool{false, true} {
 		plain, raised := tick("", rip), tick(rendAndTear5, rip)
-		if plain <= 0 || math.Abs(raised/plain-1.10) > 1e-6 {
-			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.10", rip, plain, raised)
+		if plain <= 0 || math.Abs(raised/plain-1.15) > 1e-6 {
+			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.15", rip, plain, raised)
 		}
 	}
 }

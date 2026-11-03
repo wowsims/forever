@@ -82,6 +82,7 @@ type Druid struct {
 	FaerieFireAuras          core.AuraArray
 	MoonkinFormAura          *core.Aura
 	ProwlAura                *core.Aura
+	PoisedAura               *core.Aura
 	ShadowmeldAura           *core.Aura
 
 	form DruidForm
@@ -199,6 +200,7 @@ func (druid *Druid) registerFeralKit() {
 	druid.registerGrowlSpell()
 	druid.registerChallengingRoarSpell()
 	druid.registerFeralChargeSpell()
+	druid.registerPoised()
 }
 
 func (druid *Druid) Reset(_ *core.Simulation) {
@@ -209,6 +211,7 @@ func (druid *Druid) Reset(_ *core.Simulation) {
 }
 
 func (druid *Druid) OnEncounterStart(sim *core.Simulation) {
+	druid.activatePoised(sim)
 }
 
 func New(char *core.Character, form DruidForm, selfBuffs SelfBuffs, talents string) *Druid {

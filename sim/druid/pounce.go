@@ -15,7 +15,7 @@ func (druid *Druid) registerPounceSpell() {
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)
 	bleedConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, bleedTick.Average()*druid.rendAndTearMultiplier(target), bleedRank.TickOutcome(dot))
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, bleedTick.Average()*notesBleedAndBiteScale*druid.rendAndTearMultiplier(target), bleedRank.TickOutcome(dot))
 	}
 	druid.PounceBleed = druid.RegisterSpell(bleedConfig)
 
