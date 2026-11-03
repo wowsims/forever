@@ -89,7 +89,6 @@ func (rogue *Rogue) registerRiposte() {
 	trigger.Name = "Riposte - Trigger"
 	trigger.Outcome = core.OutcomeParry
 	trigger.RequireDamageDealt = false
-	trigger.TriggerImmediately = true
 	rogue.MakeProcTriggerAura(trigger)
 
 	// Off the GCD: the row's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
@@ -104,12 +103,8 @@ func (rogue *Rogue) registerRiposte() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
 		baseDamage := riposteRank.WeaponStrike(sim, spell, spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		window.Deactivate(sim)
-
-		if !result.Landed() {
-			spell.IssueRefund(sim)
-		}
 	}
 
 	rogue.Riposte = rogue.RegisterSpell(config)
