@@ -45,7 +45,6 @@ type Rogue struct {
 	Hemorrhage     *core.Spell
 	GhostlyStrike  *core.Spell
 	Riposte        *core.Spell
-	RiposteAura    *core.Aura
 	WoundPoison    *core.Spell
 	Mutilate       *core.Spell
 	MutilateMH     *core.Spell
