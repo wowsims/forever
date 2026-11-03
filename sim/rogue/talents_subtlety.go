@@ -350,11 +350,14 @@ func (rogue *Rogue) registerSetup() {
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.AddComboPoints(sim, 1, setupMetrics)
+			rogue.AddComboPoints(sim, int32(spellData.SetupTriggered.Highest().ProcEnergizeEffect().Roll(sim)), setupMetrics)
 		})
 	// Only the dodge half is modelled. The fully resisted spell half is not.
 	trigger.Outcome = core.OutcomeDodge
 	trigger.RequireDamageDealt = false
-	trigger.TriggerImmediately = true
+	// The tooltip limits it to your target's attacks.
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.Unit == rogue.CurrentTarget
+	}
 	rogue.MakeProcTriggerAura(trigger)
 }
