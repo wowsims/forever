@@ -63,10 +63,10 @@
     },
     "bonusStats": {
       "apiVersion": 2,
-      "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1000000,0,0,0,0,0,0,0,0],
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     },
-    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
       "greaterBlessingOfWisdom": 1
@@ -103,8 +103,7 @@
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":16166}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20572}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20554}}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":1326047}}}},
+        {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"40%"}}}},{"not":{"val":{"auraIsActive":{"auraId":{"spellId":16166},"includeReactionTime":true}}}}]}},"castSpell":{"spellId":{"spellId":10605}}}},
         {"action":{"multidot":{"spellId":{"spellId":10448,"rank":5},"maxDots":3,"maxOverlap":{"const":{"val":"0ms"}}}}},
         {"action":{"condition":{"and":{"vals":[{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":10392,"rank":8}}}},
