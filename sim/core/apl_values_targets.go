@@ -35,17 +35,15 @@ func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 }
 
 // The schedule's despawn, at the latest the fight's end. Without one, the fight's end for a target that is or will be
-// active, else NeverExpires. The fight's end is the one Remaining Time reads, an estimate in a fight that ends at a
-// health.
+// active, else NeverExpires.
 func (target *Target) DiesAt(sim *Simulation) time.Duration {
-	fightEnd := sim.CurrentTime + sim.GetRemainingDuration()
 	if target.Schedule != nil {
 		if at := target.Schedule.DiesAt(sim); at != NeverExpires {
-			return min(at, fightEnd)
+			return min(at, sim.Duration)
 		}
 	}
 	if target.NextActiveAt(sim) != NeverExpires {
-		return fightEnd
+		return sim.Duration
 	}
 	return NeverExpires
 }

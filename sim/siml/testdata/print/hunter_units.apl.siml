@@ -10,6 +10,7 @@ priority:
   cast steady_shot on pet1
   cast steady_shot on `{"type":"Pet","index":1}`
   cast steady_shot on none
+  cast steady_shot if is_execute_phase(e20, target_unit=target2)
   change_target(new_target=all_players)
       if current_health(source_unit=`{"type":"Pet","owner":{"type":"Player"}}`)
   change_target(new_target=none) if previous_target.aura(steady_shot).is_active
