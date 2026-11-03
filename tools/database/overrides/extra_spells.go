@@ -31,6 +31,11 @@ var ExtraSpells = []Extra{
 	// Rockbiter Weapon Proc, the threat Rockbiter Weapon (Passive) adds to each melee hit: a script
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},
+	// Lava Burst Ranks 2-4: the talent names Rank 1 only and no skill line row teaches the ranks above
+	// it, which keep their learn levels 40, 50 and 60.
+	{SpellID: 1238299, Reason: "Lava Burst Rank 2; no skill line row teaches it", Source: "Spell 1238299"},
+	{SpellID: 1238300, Reason: "Lava Burst Rank 3; no skill line row teaches it", Source: "Spell 1238300"},
+	{SpellID: 1326047, Reason: "Lava Burst Rank 4; no skill line row teaches it", Source: "Spell 1326047"},
 	{SpellID: 1311703, Reason: "Seal of Command's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311703"},
 	{SpellID: 1311704, Reason: "Seal of Righteousness's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311704"},
 	{SpellID: 1311705, Reason: "Seal of Justice's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311705"},

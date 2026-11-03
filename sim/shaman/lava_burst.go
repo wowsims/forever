@@ -5,7 +5,9 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var lavaBurstRanks = castableRanks(spellData.LavaBurst)
+// The talent names Rank 1 only and no skill line row teaches Ranks 2-4, so the class file has no ladder
+// for them; the store carries them as extra spells.
+var lavaBurstRanks = castableRanks(spelldata.Ranked(408490, 1238299, 1238300, 1326047))
 
 func (shaman *Shaman) registerLavaBurstSpells() {
 	lavaBurstRanks.Each(func(_ int32, rank *spelldata.Spell) { shaman.registerLavaBurstSpell(rank) })

@@ -14,6 +14,7 @@ import (
 //   Earthbound: effect 0 of spell 1222988 has no rank curve and is held at its base points
 //   Improved Ghost Wolf: effect 1, 2 of spell 16262 has no rank curve and is held at its base points
 //   Improved Stormstrike: effect 2 of spell 1223031 has no rank curve and is held at its base points
+//   Lava Burst: effect 0, 1 of spell 408490 has no rank curve and is held at its base points
 //   Maelstrom Weapon: effect 1, 2 of spell 408498 has no rank curve and is held at its base points
 //   Mental Dexterity: effect 1 of spell 415140 has no rank curve and is held at its base points
 //   Shamanistic Focus: effect 0 of spell 1223030 has no rank curve and is held at its base points
@@ -238,7 +239,7 @@ var spellData = generatedSpellData{
 	ImprovedStormstrike:            spelldata.Talent(1223031, 2),
 	ImprovedStormstrikeTriggered:   spelldata.Ranked(1238931),
 	ImprovedWeaponTotems:           spelldata.Ranked(29192, 29193),
-	LavaBurst:                      spelldata.Ranked(408490, 1238299, 1238300, 1326047),
+	LavaBurst:                      spelldata.Talent(408490, 1),
 	LesserHealingWave:              spelldata.Ranked(8004, 8008, 8010, 10466, 10467, 10468),
 	LightningBolt:                  spelldata.Ranked(403, 529, 548, 915, 943, 6041, 10391, 10392, 15207, 15208),
 	LightningOverload:              spelldata.Talent(408438, 3),
