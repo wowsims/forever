@@ -3669,6 +3669,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"kill_share": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"fear_duration": {
 									"type": "object",
 									"properties": {
@@ -3696,6 +3709,7 @@
 								"adds_respawn_time",
 								"adds_lifetime",
 								"adds_spawn_delay",
+								"kill_share",
 								"fear_duration"
 							]
 						},

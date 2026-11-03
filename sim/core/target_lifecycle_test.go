@@ -386,6 +386,54 @@ func TestOnlyTargetDisabledAtStartIdlesTheRaidUntilItComes(t *testing.T) {
 	}
 }
 
+// A target AI that disables the second target at every reset, as the Dynamic Adds boss does with its add.
+type disableAtResetAI struct{}
+
+func (disableAtResetAI) Initialize(*Target, *proto.Target) {}
+func (disableAtResetAI) Reset(sim *Simulation) {
+	sim.DisableTargetUnit(sim.Encounter.AllTargetUnits[1], true)
+}
+func (disableAtResetAI) ExecuteCustomRotation(*Simulation) {}
+
+// A target disabled while the sim resets only starts the iteration disabled: a channel the raid had on it from
+// the last iteration is left to the raid's own reset, and the pull moves the raid off it.
+func TestTargetDisabledWhileResettingStartsTheIterationDisabled(t *testing.T) {
+	targets := lifecycleTargets(2)
+	targets[0].TankIndex = -1
+	targets[0].SecondTankIndex = -1
+	tanks := []*proto.UnitReference{{Type: proto.UnitReference_Player, Index: 0}}
+	var channel *Spell
+	sim, fw := setupLifecycleSimWith(targets, tanks, func(char *Character) {
+		char.Env.Encounter.AllTargets[0].AI = disableAtResetAI{}
+		channel = char.RegisterSpell(manaChannelConfig(5, false))
+	})
+	channel.finalize()
+	first, second := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
+
+	for iteration := range 3 {
+		runLifecycleUntil(sim, 3*time.Second)
+		if fw.CurrentTarget != &first.Unit || second.IsEnabled() {
+			t.Fatalf("iteration %d: expected the tank moved to the first target off the second, which starts disabled", iteration)
+		}
+		if got := mhSwingsOn(fw, first); got == 0 {
+			t.Fatalf("iteration %d: MH swings at the first target: expected some, got none", iteration)
+		}
+
+		second.Enable(sim)
+		fw.CurrentTarget = &second.Unit
+		if !channel.Cast(sim, &second.Unit) || !fw.IsChanneling() {
+			t.Fatalf("iteration %d: test setup: expected the channel running on the second target", iteration)
+		}
+		sim.Cleanup()
+		sim.Reset()
+		if fw.CurrentTarget != &second.Unit || fw.IsChanneling() {
+			t.Fatalf("iteration %d: after the reset, expected the tank back on the second target it tanks with no channel, got %s, channeling %t",
+				iteration, unitLabel(fw.CurrentTarget), fw.IsChanneling())
+		}
+		sim.PrePull()
+	}
+}
+
 func TestRaidStartsOnTheLowestTargetNotDisabledAtStart(t *testing.T) {
 	targets := lifecycleTargets(3)
 	targets[0].DisabledAtStart = true
