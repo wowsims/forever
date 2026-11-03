@@ -258,5 +258,5 @@ Written `[unit.]head(subject).property(arguments)`; each head with its propertie
 - `[unit.]spell(x)`: `is_known`, `can_cast`, `in_range`, `is_ready`, `time_to_ready`, `cast_time`, `travel_time`,
   `cpm`, `is_casting`, `is_channeling`, `channeled_ticks`, `current_cost`, `num_charges`, `time_to_charge`,
   `gcd_hasted_duration`, `full_cooldown`, `in_flight`, `expected_dpet`, `is_hit_capped`, `is_expertise_capped`
-- `[unit.]boss_spell(x)`: `time_to_ready`, `is_casting`, `is_known`, `cast_time_remaining`
+- `[unit.]boss_spell(x)`: `time_to_ready`, `is_casting`
 - `sequence(x)`: `is_complete`, `is_ready`, `time_to_ready`

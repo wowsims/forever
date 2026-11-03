@@ -1963,10 +1963,6 @@
 					"label": "Remaining Cast Time",
 					"tooltip": "Time left on your running hardcast, or 0 when nothing is being cast. It reads 0 at the cast end, where the rotation picks its next spell, and through a channel."
 				},
-				"spell_cast_time_remaining": {
-					"label": "Spell Cast Time Remaining",
-					"tooltip": "Time left on the unit's hardcast of this spell, or 0 while it is not casting it."
-				},
 				"is_casting": {
 					"label": "Is Casting",
 					"tooltip": "<b>True</b> if this spell is currently being cast, otherwise <b>False</b>. The rotation picks its next spell at the cast end, before this one lands, so this guards lines that read what the spell will do. A channel is <b>Is Channeling</b>."

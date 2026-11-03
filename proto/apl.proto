@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 150
+// NextIndex: 148
 message APLValue {
 	UUID uuid = 85;
 
@@ -134,8 +134,6 @@ message APLValue {
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
         APLValueBossSpellIsCasting boss_spell_is_casting = 65;
-        APLValueBossSpellIsKnown boss_spell_is_known = 147;
-        APLValueBossSpellCastTimeRemaining boss_spell_cast_time_remaining = 148;
         APLValueBossCurrentTarget boss_current_target = 120;
         APLValueTargetIsMobType target_is_mob_type = 133;
         APLValueTargetIsBleedImmune target_is_bleed_immune = 143;
@@ -182,7 +180,7 @@ message APLValue {
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
         APLValueSpellIsCasting spell_is_casting = 30;
-        APLValueRemainingCastTime remaining_cast_time = 149;
+        APLValueRemainingCastTime remaining_cast_time = 147;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -515,14 +513,6 @@ message APLValueBossSpellTimeToReady {
     ActionID spell_id = 2;
 }
 message APLValueBossSpellIsCasting {
-    UnitReference target_unit = 1;
-    ActionID spell_id = 2;
-}
-message APLValueBossSpellIsKnown {
-    UnitReference target_unit = 1;
-    ActionID spell_id = 2;
-}
-message APLValueBossSpellCastTimeRemaining {
     UnitReference target_unit = 1;
     ActionID spell_id = 2;
 }
