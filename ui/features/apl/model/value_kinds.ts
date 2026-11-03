@@ -343,6 +343,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.time_until_target_active.tooltip'),
 		newValue: APLValueTimeUntilTargetActive.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets')],
 	}),
 	timeUntilTargetDies: inputBuilder({
@@ -350,6 +351,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.time_until_target_dies.tooltip'),
 		newValue: APLValueTimeUntilTargetDies.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'targets')],
 	}),
 	timeUntilNextMove: inputBuilder({
@@ -357,6 +359,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.time_until_next_move.tooltip'),
 		newValue: APLValueTimeUntilNextMove.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [],
 	}),
 	nextMoveDuration: inputBuilder({
@@ -378,6 +381,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.time_until_amp.tooltip'),
 		newValue: APLValueTimeUntilAmp.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [damageAmpTypeFieldConfig('ampType')],
 	}),
 	bossAbilityIsActive: inputBuilder({
@@ -392,6 +396,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.time_until_boss_ability.tooltip'),
 		newValue: APLValueTimeUntilBossAbility.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'any_target'), bossAbilityNameFieldConfig('abilityName')],
 	}),
 	bossAbilityCastTimeRemaining: inputBuilder({
@@ -399,6 +404,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['encounter'],
 		shortDescription: i18n.t('rotation_tab.apl.values.boss_ability_cast_time_remaining.tooltip'),
 		newValue: APLValueBossAbilityCastTimeRemaining.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('targetUnit', 'any_target'), bossAbilityNameFieldConfig('abilityName')],
 	}),
 	bossAbilityIsKnown: inputBuilder({

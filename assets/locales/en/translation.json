@@ -2011,7 +2011,7 @@
 				},
 				"boss_ability_is_known": {
 					"label": "Boss Ability Is Known",
-					"tooltip": "True when the encounter design has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does"
+					"tooltip": "True when the encounter design has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does. A Current, Previous or Next Target is checked again each time the rotation reads it"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",

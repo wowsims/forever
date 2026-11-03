@@ -556,7 +556,9 @@ message APLValueBossAbilityCastTimeRemaining {
     string ability_name = 1; // The boss ability's name; with several of that name casting, the soonest to land.
     UnitReference target_unit = 2;
 }
-// True when the design has a boss ability of the name, read when the rotation is built.
+// True when the design has a boss ability of the name that construction kept. With no target_unit or a fixed one it
+// is read when the rotation is built; with a current, previous or next target it is read each time, on the target
+// the reference resolves to then.
 message APLValueBossAbilityIsKnown {
     string ability_name = 1;
     UnitReference target_unit = 2;
