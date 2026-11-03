@@ -144,6 +144,31 @@ func TestProcTriggerOnKillCallsTheHandlerWithTheDeadTarget(t *testing.T) {
 	}
 }
 
+func TestProcTriggerOnDeathAllocatesNothing(t *testing.T) {
+	deaths := 0
+	var trigger *Aura
+	sim, target := setupTargetDeathSim(func(char *Character) {
+		trigger = char.MakeProcTriggerAura(ProcTrigger{
+			Name:               "Death Trigger",
+			Callback:           CallbackOnTargetDies | CallbackOnKill,
+			TriggerImmediately: true,
+			Handler:            func(_ *Simulation, _ *Spell, _ *SpellResult) { deaths++ },
+		})
+	})
+	trigger.Activate(sim)
+
+	allocs := testing.AllocsPerRun(100, func() {
+		target.Die(sim, 1)
+		target.Enable(sim)
+	})
+	if allocs != 0 {
+		t.Errorf("a death through Die allocates %v times", allocs)
+	}
+	if deaths != 2*101 {
+		t.Errorf("the trigger ran %d times over 101 credited deaths, want twice for each", deaths)
+	}
+}
+
 func TestTargetDieOnADisabledTargetDoesNothing(t *testing.T) {
 	calls := 0
 	var listener *Aura
