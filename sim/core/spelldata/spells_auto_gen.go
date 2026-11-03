@@ -16572,7 +16572,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 696974, SpellID: 20049, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, BasePoints: 5, BaseLevel: 60, SPCoef: 1, PvpMult: 1, TriggerID: 20050, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 20050, Name: "Vengeance", School: 1, Attr: [17]uint32{8: 0x1000, 9: 0x8, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 30000, DispelType: 1, PreventionType: 2, MaxStack: 3, ProcChance: 101, Labels: []int16{26}, ProcChanceSource: ProcChanceAlways,
+	{ID: 20050, Name: "Vengeance", School: 1, Attr: [17]uint32{8: 0x1000, 9: 0x8, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 30000, DispelType: 1, PreventionType: 2, MaxStack: 5, ProcChance: 101, Labels: []int16{26}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 697251, SpellID: 20050, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 3, BaseLevel: 60, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
@@ -16603,7 +16603,7 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 20111, Name: "Two-Handed Weapon Specialization", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, EquipClass: 2, EquipSubclass: 136546, Labels: []int16{26},
 		Effects: []Effect{
-			{ID: 697263, SpellID: 20111, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 2, BaseLevel: 1, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 697263, SpellID: 20111, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 2, BaseLevel: 1, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1367246, SpellID: 20111, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: -20, BaseLevel: 1, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 20116, Name: "Consecration", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x10000088, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, DurationMs: 8000, CategoryCooldownMs: 8000, GCDMs: 1500, Category: 932, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{0: 32}}, Labels: []int16{26}, RefIDs: []int32{1280346},
