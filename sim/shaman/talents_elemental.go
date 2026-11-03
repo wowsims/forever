@@ -178,12 +178,17 @@ func (shaman *Shaman) applyElementalFury() {
 	spelldata.ParseStatic(&shaman.Character, spellData.ElementalFury.Rank(shaman.Talents.ElementalFury))
 }
 
-// The talent teaches Lava Burst.
+// TODO: patch preview: the patch notes replace Lava Burst with Call of Thunder, 5% more critical strike
+// chance on Lightning Bolt and Chain Lightning, which no row states yet. The talent's slot stands in.
 func (shaman *Shaman) applyLavaBurst() {
 	if !shaman.Talents.LavaBurst {
 		return
 	}
-	shaman.registerLavaBurstSpells()
+	shaman.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_BonusCrit_Percent,
+		FloatValue: 5,
+		ClassMask:  SpellMaskLightningBolt | SpellMaskChainLightning | SpellMaskOverload,
+	})
 }
 
 var elementalMasteryRank = spellData.ElementalMastery.Highest()

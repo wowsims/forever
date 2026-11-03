@@ -31,6 +31,10 @@ func (shaman *Shaman) stormstrikeDebuffAura(target *core.Unit) *core.Aura {
 	return aura
 }
 
+// TODO: patch preview: the patch notes raise the strike to 150% normalized weapon damage, which the
+// row's effect does not state.
+const stormstrikeWeaponPercent = 1.5
+
 // Effect 1 is a main-hand strike for normalized weapon damage.
 func (shaman *Shaman) registerStormstrikeSpell() {
 	shaman.StormstrikeDebuffAuras = shaman.NewEnemyAuraArray(shaman.stormstrikeDebuffAura)
@@ -39,6 +43,7 @@ func (shaman *Shaman) registerStormstrikeSpell() {
 	config.ClassSpellMask = SpellMaskStormstrike
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := stormstrikeRank.WeaponStrike(sim, spell, shaman.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		baseDamage *= stormstrikeWeaponPercent
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
 			aura := shaman.StormstrikeDebuffAuras.Get(target)
