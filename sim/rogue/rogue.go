@@ -50,6 +50,7 @@ type Rogue struct {
 	MutilateOH     *core.Spell
 	SinisterStrike *core.Spell
 	Shank          *core.Spell
+	DeathMark      *core.Spell
 	Shadowstep     *core.Spell
 	Preparation    *core.Spell
 	Premeditation  *core.Spell

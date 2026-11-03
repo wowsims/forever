@@ -44,8 +44,9 @@ func (rogue *Rogue) registerCoupDeGrace() {
 		return
 	}
 
+	// Effect 2, on Death Mark, is read in death_mark.go.
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.CoupDeGrace.Rank(rogue.Talents.CoupDeGrace))
+		spellData.CoupDeGrace.Rank(rogue.Talents.CoupDeGrace), spelldata.Effects(1))
 }
 
 func (rogue *Rogue) registerMalice() {

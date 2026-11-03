@@ -437,3 +437,77 @@ func TestShankFollowsItsTalents(t *testing.T) {
 		})
 	}
 }
+
+// Death Mark under 31 Subtlety points, with and without Coup de Grace 3/3.
+const deathMarkTalents = "--335223031321001101"
+const deathMarkCoupDeGraceTalents = "-3-335223031321001101"
+
+// Death Mark spends its combo points, stores its share of the rogue's damage per point, twice for Rupture and none of
+// another unit's, pays out what it stored up to the cap, and its payout never crits. Coup de Grace raises the stored
+// share below the cap and the cap itself, each on its own.
+func TestDeathMarkStoresAndPaysOut(t *testing.T) {
+	for _, c := range []struct {
+		name        string
+		talents     string
+		coupDeGrace int32
+	}{
+		{"without Coup de Grace", deathMarkTalents, 0},
+		{"Coup de Grace 3/3", deathMarkCoupDeGraceTalents, 3},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, rogue, targets := newTankSim(t, c.talents)
+			target := targets[0]
+			rogue.AutoAttacks.CancelAutoSwing(sim)
+			target.PseudoStats.BaseDodgeChance = 0
+			rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			rogue.AddStatDynamic(sim, stats.PhysicalCritPercent, 100)
+			coup := spellData.CoupDeGrace.EffectAt(2).MultiplierAt(c.coupDeGrace)
+			deathMark := rogue.DeathMark
+			dot := deathMark.Dot(target)
+
+			mark := func(points int32) {
+				t.Helper()
+				for !rogue.GCD.IsReady(sim) {
+					if sim.Step() {
+						t.Fatal("the sim ended while the GCD was running")
+					}
+				}
+				deathMark.CD.Reset()
+				rogue.AddComboPoints(sim, points, deathMark.ComboPointMetrics())
+				if !deathMark.Cast(sim, target) {
+					t.Fatal("Death Mark did not cast")
+				}
+				if rogue.ComboPoints() != 0 || !dot.IsActive() {
+					t.Fatalf("Death Mark leaves %d combo points and its mark up: %v; want 0 and up", rogue.ComboPoints(), dot.IsActive())
+				}
+			}
+			payout := func() float64 {
+				before := deathMark.SpellMetrics[target.UnitIndex].TotalDamage
+				dot.TickOnce(sim)
+				return deathMark.SpellMetrics[target.UnitIndex].TotalDamage - before
+			}
+
+			const hit = 100.0
+			mark(3)
+			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			target.OnPeriodicDamageTaken(sim, rogue.Rupture, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			target.OnSpellHitTaken(sim, &core.Spell{Unit: targets[1]}, &core.SpellResult{Target: target, Damage: hit, Outcome: core.OutcomeHit})
+			wantStored := 3 * deathMarkStoredPerPoint * coup * (hit + 2*hit)
+			if got := payout(); math.Abs(got-wantStored) > 1e-6 {
+				t.Errorf("Death Mark at 3 points pays out %.4f, want %.4f, the stored share with Coup de Grace on it", got, wantStored)
+			}
+
+			mark(5)
+			target.OnSpellHitTaken(sim, rogue.SinisterStrike, &core.SpellResult{Target: target, Damage: 1e7, Outcome: core.OutcomeHit})
+			wantCap := (deathMarkCapBase + 5*deathMarkCapPerPoint + 5*deathMarkCapAPPerPoint*deathMark.MeleeAttackPower(target)) *
+				(1 + rogue.GetStat(stats.PhysicalCritPercent)/100) * coup
+			if got := payout(); math.Abs(got-wantCap) > 1e-6 {
+				t.Errorf("Death Mark at 5 points pays out %.4f, want its cap %.4f, raised by Coup de Grace", got, wantCap)
+			}
+
+			if crits := deathMark.SpellMetrics[target.UnitIndex].Crits; crits > 0 {
+				t.Errorf("Death Mark's payout crit %d times at +100%% crit, want never", crits)
+			}
+		})
+	}
+}

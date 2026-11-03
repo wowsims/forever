@@ -9,11 +9,13 @@ var shankRank = spellData.Shank.Highest()
 var venomBuff = spellData.VenomTriggered.Highest()
 var bootKnifePoints = spellData.BootKnifeTriggered.Highest()
 
-// The row is Always Hit, so only the crit is rolled. It also suppresses the caster's and the target's
-// procs, which the sim gates only for weapon procs, through the row's Suppress Weapon Procs flag; Shank
-// is no builder, so Seal Fate does not hear it either.
+// The row is Always Hit, so only the crit is rolled. It suppresses the caster's, the target's and the
+// weapon procs, so Shank carries no proc mask: no trinket, talent or poison hears it, and the row's Suppress
+// Weapon Procs flag keeps the weapon procs off as well. With no hand in its mask, a modifier scoped to the
+// off hand does not reach it either. Shank is no builder, so Seal Fate does not hear it.
 func (rogue *Rogue) registerShank() {
-	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
+	// TODO: validate in game that Suppress Caster Procs and Suppress Target Procs leave Shank heard by no proc.
+	config := spelldata.SpellConfig(&rogue.Unit, shankRank, spelldata.Melee(core.ProcMaskEmpty))
 	config.DamageMultiplier = shankRank.DamageEffect().Percent()
 
 	// Flash of Steel's SPELLMOD_EFFECT2 raises the energy of the second effect; the parse would read it as

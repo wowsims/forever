@@ -37,7 +37,7 @@ func (rogue *Rogue) registerSubtletyTalents() {
 	// Boot Knife modeled in shank.go
 
 	// Tier 7
-	// Death Mark NYI: a script stores the damage, and its rate and cap are stated only in the tooltip
+	rogue.registerDeathMark()
 }
 
 func (rogue *Rogue) registerOpportunity() {
