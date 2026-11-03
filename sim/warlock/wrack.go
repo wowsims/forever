@@ -10,12 +10,7 @@ import (
 // Agony (0x2 | 0x400); Siphon Life, a leech rather than periodic damage, and the drains are not named.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
-	// A copy with the live tick, which the row does not state yet: 2.5 more damage a level from its level 40 base
-	// of 36, so 86 at level 60, and 0.286 spell power a second where the row has 0.143.
-	wrackTickRow := *rankedSpell.PeriodicEffect()
-	wrackTickRow.PPL = 2.5
-	wrackTickRow.SPCoef = 0.286
-	wrackTick := &wrackTickRow
+	wrackTick := rankedSpell.PeriodicEffect()
 	wrackAmplify := rankedSpell.Effect(dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, 0)
 
 	ampMult := 1 + wrackAmplify.Percent()

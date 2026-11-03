@@ -9,7 +9,7 @@ import (
 func (warlock *Warlock) registerShadowBolt() {
 	warlock.ShadowBolt = warlock.registerShadowBoltRank(spellData.ShadowBolt.ByID(11661))
 	warlock.registerShadowBoltRank(spellData.ShadowBolt.ByID(25307))
-warlock.registerShadowBoltRank(spellData.ShadowBolt.ByID(695)) // Rank 2
+	warlock.registerShadowBoltRank(spellData.ShadowBolt.ByID(695)) // Rank 2
 }
 
 // Nightfall's Shadow Trance makes it instant through the cast time modifier parsed onto that aura.
