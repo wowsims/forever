@@ -18,37 +18,37 @@ import P1SlowMhGear from './gear_sets/p1_slowmh.gear.json';
 export const TALENTS_MUTILATE_ASN = {
 	name: 'Asn Muti',
 	data: SavedTalents.create({
-		talentsString: '00532310151501031-302303202014',
+		talentsString: '00530301151551021-30230322000100001',
 	}),
 };
 export const TALENTS_MUTILATE_COM = {
 	name: 'Combat Muti',
 	data: SavedTalents.create({
-		talentsString: '00532310101401-302303202015152-001',
+		talentsString: '00530301101450001-30230322000120151-01',
 	}),
 };
 export const TALENTS_COMBAT_SS = {
 	name: 'Combat SS',
 	data: SavedTalents.create({
-		talentsString: '005323101012-32030320201515231',
+		talentsString: '0053030110125-3203032200012315101',
 	}),
 };
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '00532310101-32030320201515231-002',
+		talentsString: '0053030110105-3203032200012315101-02',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
 	name: 'Subtlety Hemo',
 	data: SavedTalents.create({
-		talentsString: '005323101014--4323200300013211501',
+		talentsString: '0053030110145--323200231320001151',
 	}),
 };
 export const TALENTS_SUB_BS = {
 	name: 'Subtlety BS',
 	data: SavedTalents.create({
-		talentsString: '0053031-3203-4320203300013211051',
+		talentsString: '0053030000005-3203-320203231320001101',
 	}),
 };
 

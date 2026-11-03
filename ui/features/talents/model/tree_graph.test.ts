@@ -1,6 +1,7 @@
 import type { TalentsConfig } from '@sim/talents/config';
 import { newTalentsConfig } from '@sim/talents/config';
 import { mageTalentsConfig } from '@sim/talents/mage';
+import { rogueTalentsConfig } from '@sim/talents/rogue';
 import { describe, expect, it } from 'vitest';
 
 import { buildTalentGraph } from './tree_graph';
@@ -59,6 +60,13 @@ describe('buildTalentGraph arrows', () => {
 });
 
 describe('buildTalentGraph dimensions', () => {
+	it('keeps the Rogue tree to four columns', () => {
+		const graph = buildTalentGraph(rogueTalentsConfig);
+
+		expect(graph.numCols).toBe(4);
+		expect(rogueTalentsConfig[2].talents.find(talent => talent.fieldName === 'setup')?.location).toEqual({ rowIdx: 0, colIdx: 0 });
+	});
+
 	it('sizes every tree of a class off the largest tree', () => {
 		const graph = buildTalentGraph(mageTalentsConfig);
 		const locations = mageTalentsConfig.flatMap(tree => tree.talents.map(t => t.location));

@@ -9,8 +9,8 @@ import (
 
 func (rogue *Rogue) registerCombatTalents() {
 	// Tier 1
-	rogue.registerImprovedEviscerate()
-	rogue.registerImprovedSinisterStrike()
+	rogue.registerCoupDeGrace()
+	rogue.registerEfficientStrikes()
 	// Lightning Reflexes NYI
 
 	// Tier 2
@@ -19,7 +19,7 @@ func (rogue *Rogue) registerCombatTalents() {
 	rogue.registerPrecision()
 
 	// Tier 3
-	// None in this tier implemented
+	rogue.registerComposure()
 
 	// Tier 4
 	// Improved Kick NYI
@@ -38,13 +38,51 @@ func (rogue *Rogue) registerCombatTalents() {
 	rogue.registerAdrenalineRush()
 }
 
-func (rogue *Rogue) registerImprovedSinisterStrike() {
-	if rogue.Talents.ImprovedSinisterStrike == 0 {
+func (rogue *Rogue) registerEfficientStrikes() {
+	rank := rogue.Talents.EfficientStrikes
+	if rank == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedSinisterStrike.Rank(rogue.Talents.ImprovedSinisterStrike))
+	costReduction := [...]int32{0, 3, 5}[rank]
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:         core.SpellMod_PowerCost_Flat,
+		ClassMask:    RogueSpellSinisterStrike | RogueSpellHemorrhage,
+		ResourceType: proto.ResourceType_ResourceTypeEnergy,
+		IntValue:     -costReduction,
+	})
+}
+
+func (rogue *Rogue) registerCoupDeGrace() {
+	rank := rogue.Talents.CoupDeGrace
+	if rank == 0 {
+		return
+	}
+
+	damageBonus := [...]float64{0, 0.07, 0.13, 0.20}[rank]
+	rogue.deathMarkDamageBonus = damageBonus
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DamageDone_Flat,
+		ClassMask:  RogueSpellEviscerate | RogueSpellDeathMark,
+		FloatValue: damageBonus,
+	})
+}
+
+func (rogue *Rogue) registerComposure() {
+	rogue.poisedEnergyReduction = 10 + 5*rogue.Talents.Composure
+}
+
+func (rogue *Rogue) registerFlawlessExecution() {
+	if !rogue.Talents.FlawlessExecution {
+		return
+	}
+
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:         core.SpellMod_PowerCost_Flat,
+		ClassMask:    RogueSpellEviscerate,
+		ResourceType: proto.ResourceType_ResourceTypeEnergy,
+		IntValue:     -15,
+	})
 }
 
 func (rogue *Rogue) registerPuncturingWounds() {
@@ -67,22 +105,17 @@ func (rogue *Rogue) registerPrecision() {
 		spellData.Precision.Rank(rogue.Talents.Precision))
 }
 
-func (rogue *Rogue) registerFlawlessExecution() {
-	if !rogue.Talents.FlawlessExecution {
-		return
-	}
-
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.FlawlessExecution.Rank(1))
-}
-
 func (rogue *Rogue) registerDualWieldSpecialization() {
-	if rogue.Talents.DualWieldSpecialization == 0 {
+	rank := rogue.Talents.DualWieldSpecialization
+	if rank == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.DualWieldSpecialization.Rank(rogue.Talents.DualWieldSpecialization))
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DamageDone_Pct,
+		ProcMask:   core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeOHSpecial,
+		FloatValue: 0.25 * float64(rank),
+	})
 }
 
 var bladeFlurryRank = spellData.BladeFlurry.Highest()
@@ -253,8 +286,11 @@ func (rogue *Rogue) registerAggression() {
 		return
 	}
 
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.Aggression.Rank(rogue.Talents.Aggression))
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DamageDone_Flat,
+		ClassMask:  RogueSpellSinisterStrike | RogueSpellEviscerate,
+		FloatValue: 0.05 * float64(rogue.Talents.Aggression),
+	})
 }
 
 var adrenalineRushRank = spellData.AdrenalineRush.Highest()

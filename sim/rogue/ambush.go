@@ -15,11 +15,15 @@ func (rogue *Rogue) registerAmbushSpell() {
 	config.ClassSpellMask = RogueSpellAmbush
 	config.DamageMultiplier = ambushRank.EffectN(2).Percent()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return rogue.HasDagger(core.MainHand) && !rogue.PseudoStats.InFrontOfTarget && (rogue.IsStealthed() || rogue.CutthroatAura.IsActive())
+		return rogue.HasDagger(core.MainHand) && !rogue.PseudoStats.InFrontOfTarget &&
+			(rogue.IsStealthed() || rogue.GhostlyStrikeAura != nil && rogue.GhostlyStrikeAura.IsActive())
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
+		if rogue.GhostlyStrikeAura != nil {
+			rogue.GhostlyStrikeAura.Deactivate(sim)
+		}
 		baseDamage := ambushBaseDamage +
 			spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 

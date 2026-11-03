@@ -17,11 +17,12 @@ const (
 // Damage Done By Caster setup
 const (
 	DDBC_Hemorrhage = iota
+	DDBC_Garrote
 
-	DDBC_Total
+	DDBC_Total = 2
 )
 
-var TalentTreeSizes = [3]int{17, 17, 19}
+var TalentTreeSizes = [3]int{17, 19, 18}
 
 const RogueBleedTag = "RogueBleed"
 
@@ -48,6 +49,7 @@ type Rogue struct {
 	MutilateMH     *core.Spell
 	MutilateOH     *core.Spell
 	SinisterStrike *core.Spell
+	Shank          *core.Spell
 	Shadowstep     *core.Spell
 	Preparation    *core.Spell
 	Premeditation  *core.Spell
@@ -67,7 +69,8 @@ type Rogue struct {
 	MasterOfSubtletyAura *core.Aura
 	ShadowstepAura       *core.Aura
 	StealthAura          *core.Aura
-	CutthroatAura        *core.Aura
+	GhostlyStrikeAura    *core.Aura
+	PoisedAura           *core.Aura
 
 	WoundPoisonDebuffAuras core.AuraArray
 
@@ -79,6 +82,9 @@ type Rogue struct {
 	HasPvpEnergy              bool
 	DeathmantleBonus          float64
 	SliceAndDiceBonusDuration time.Duration
+	poisedEnergyReduction     int32
+	camouflageMovementSpeed   float64
+	deathMarkDamageBonus      float64
 }
 
 // ApplyTalents implements core.Agent.
@@ -105,7 +111,8 @@ func (rogue *Rogue) ApplyFinisher(sim *core.Simulation, spell *core.Spell) {
 	rogue.SpendComboPoints(sim, spell.ComboPointMetrics())
 
 	// Relentless Strikes
-	if rogue.Talents.RelentlessStrikes && sim.Proc(0.2*float64(numPoints), "Relentless Strikes") {
+	if rogue.Talents.RelentlessStrikes > 0 &&
+		sim.Proc(0.04*float64(rogue.Talents.RelentlessStrikes)*float64(numPoints), "Relentless Strikes") {
 		rogue.AddEnergy(sim, 25, rogue.relentlessStrikesMetrics)
 	}
 
@@ -132,6 +139,8 @@ func (rogue *Rogue) Initialize() {
 	rogue.registerStealthAura()
 	rogue.registerKickSpell()
 	rogue.registerFeintSpell()
+	rogue.registerShankSpell()
+	rogue.registerPoised()
 
 	ruthRank := spellData.Ruthlessness.Rank(rogue.Talents.Ruthlessness)
 	if ruthRank != nil {
@@ -152,6 +161,30 @@ func (rogue *Rogue) ApplyAdditiveEnergyRegenBonus(sim *core.Simulation, incremen
 
 func (rogue *Rogue) Reset(sim *core.Simulation) {
 	rogue.MultiplyEnergyRegenSpeed(sim, 1.0+rogue.AdditiveEnergyRegenBonus)
+	if rogue.PoisedAura != nil {
+		rogue.PoisedAura.Activate(sim)
+	}
+}
+
+func (rogue *Rogue) registerPoised() {
+	reduction := rogue.poisedEnergyReduction
+	rogue.PoisedAura = rogue.RegisterAura(core.Aura{
+		Label:    "Poised",
+		ActionID: core.ActionID{SpellID: 1310733},
+		Duration: core.NeverExpires,
+	})
+	rogue.PoisedAura.AttachSpellMod(core.SpellModConfig{
+		Kind:         core.SpellMod_PowerCost_Flat,
+		ResourceType: proto.ResourceType_ResourceTypeEnergy,
+		IntValue:     -reduction,
+	})
+	rogue.PoisedAura.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+		if spell.Cost != nil {
+			if _, isEnergy := spell.Cost.ResourceCostImpl.(*core.EnergyCost); isEnergy {
+				aura.Deactivate(sim)
+			}
+		}
+	}
 }
 
 func (rogue *Rogue) OnEncounterStart(sim *core.Simulation) {
@@ -281,14 +314,15 @@ const (
 	RogueSpellInstantPoison
 	RogueSpellWoundPoison
 	RogueSpellDeadlyPoison
+	RogueSpellShank
+	RogueSpellDeathMark
 
 	RogueSpellLast
 	RogueSpellsAll    = RogueSpellLast<<1 - 1
-	RogueSpellActives = RogueSpellGhostlyStrike<<1 - 1
+	RogueSpellActives = (RogueSpellGhostlyStrike<<1 - 1) | RogueSpellShank | RogueSpellDeathMark
 
 	RogueSpellPoisons        = RogueSpellWoundPoison | RogueSpellDeadlyPoison | RogueSpellInstantPoison
 	RogueSpellLethality      = RogueSpellSinisterStrike | RogueSpellGouge | RogueSpellBackstab | RogueSpellGhostlyStrike | RogueSpellMutilateHit | RogueSpellHemorrhage
 	RogueSpellDirectFinisher = RogueSpellEviscerate
 	RogueSpellFinisher       = RogueSpellDirectFinisher | RogueSpellSliceAndDice | RogueSpellRupture | RogueSpellExposeArmor
-	RogueSpellQuietus        = RogueSpellSinisterStrike | RogueSpellHemorrhage | RogueSpellGhostlyStrike
 )

@@ -1,6 +1,8 @@
 package rogue
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -8,12 +10,12 @@ import (
 
 func (rogue *Rogue) registerSubtletyTalents() {
 	// Tier 1
-	// Camouflage NYI
+	rogue.registerCamouflage()
 	// Master of Deception NYI
 	rogue.registerOpportunity()
 
 	// Tier 2
-	// Setup NYI
+	rogue.registerSetup()
 	rogue.registerElusiveness()
 	// Dirty Tricks NYI
 	rogue.registerImprovedAmbush()
@@ -25,6 +27,7 @@ func (rogue *Rogue) registerSubtletyTalents() {
 
 	// Tier 4
 	// Heightened Senses NYI
+	rogue.registerQuickGetaway()
 	rogue.registerPremeditation()
 	rogue.registerSerratedBlades()
 
@@ -33,21 +36,111 @@ func (rogue *Rogue) registerSubtletyTalents() {
 	rogue.registerPreparation()
 	rogue.registerHemorrhage()
 
-	// Tier 6
-	rogue.registerQuietus()
-	rogue.registerCutthroat()
-
-	// Tier 7
-	rogue.registerThousandCuts()
+	rogue.registerBootKnife()
+	rogue.registerDeathMark()
 }
 
 func (rogue *Rogue) registerOpportunity() {
-	if rogue.Talents.Opportunity == 0 {
+	rank := rogue.Talents.Opportunity
+	if rank == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.Opportunity.Rank(rogue.Talents.Opportunity))
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DamageDone_Flat,
+		ClassMask:  RogueSpellBackstab | RogueSpellGarrote | RogueSpellAmbush | RogueSpellMutilateHit,
+		FloatValue: 0.04 * float64(rank),
+	})
+}
+
+func (rogue *Rogue) registerSetup() {
+	rank := rogue.Talents.Setup
+	if rank == 0 {
+		return
+	}
+
+	metrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: 13983})
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Setup",
+		ActionID:           core.ActionID{SpellID: 13983},
+		Callback:           core.CallbackOnSpellHitTaken,
+		Outcome:            core.OutcomeDodge | core.OutcomeMiss,
+		ProcChance:         0.15 * float64(rank),
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if result.Outcome.Matches(core.OutcomeMiss) && spell.DefenseType != core.DefenseTypeMagic {
+				return
+			}
+			rogue.AddComboPoints(sim, 1, metrics)
+		},
+	})
+}
+
+func (rogue *Rogue) registerCamouflage() {
+	rank := rogue.Talents.Camouflage
+	if rank == 0 {
+		return
+	}
+
+	rogue.camouflageMovementSpeed = 0.05 * float64(rank)
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:      core.SpellMod_Cooldown_Flat,
+		ClassMask: RogueSpellStealth,
+		TimeValue: -2 * time.Second * time.Duration(rank),
+	})
+}
+
+func (rogue *Rogue) registerQuickGetaway() {
+	rank := rogue.Talents.QuickGetaway
+	if rank == 0 {
+		return
+	}
+
+	speedAura := rogue.RegisterAura(core.Aura{
+		Label:    "Quick Getaway",
+		ActionID: core.ActionID{SpellID: 14084},
+		Duration: 3 * time.Second,
+		OnGain: func(_ *core.Aura, sim *core.Simulation) {
+			rogue.MultiplyMovementSpeed(sim, 1+0.15*float64(rank))
+		},
+		OnExpire: func(_ *core.Aura, sim *core.Simulation) {
+			rogue.MultiplyMovementSpeed(sim, 1/(1+0.15*float64(rank)))
+		},
+	})
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Quick Getaway - Sap",
+		ActionID:           core.ActionID{SpellID: 14084},
+		Callback:           core.CallbackOnCastComplete,
+		ProcChance:         1,
+		TriggerImmediately: true,
+		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spellData.Sap.Contains(spell)
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			speedAura.Activate(sim)
+		},
+	})
+}
+
+func (rogue *Rogue) registerBootKnife() {
+	rank := rogue.Talents.BootKnife
+	if rank == 0 {
+		return
+	}
+
+	metrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: 1310728})
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Boot Knife",
+		ActionID:           core.ActionID{SpellID: 1310728},
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     RogueSpellShank,
+		Outcome:            core.OutcomeLanded,
+		ProcChance:         0.2 * float64(rank),
+		TriggerImmediately: true,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			rogue.AddComboPoints(sim, 2, metrics)
+		},
+	})
 }
 
 func (rogue *Rogue) registerInitiative() {
@@ -80,6 +173,11 @@ func (rogue *Rogue) registerGhostlyStrike() {
 	config.Flags |= SpellFlagBuilder
 	config.ClassSpellMask = RogueSpellGhostlyStrike
 	config.DamageMultiplier = core.TernaryFloat64(rogue.HasDagger(core.MainHand), ghostlyStrikeRank.EffectN(4).Percent(), ghostlyStrikeRank.EffectN(1).Percent())
+	rogue.GhostlyStrikeAura = rogue.RegisterAura(core.Aura{
+		Label:    "Ghostly Strike",
+		ActionID: core.ActionID{SpellID: ghostlyStrikeRank.ID},
+		Duration: 7 * time.Second,
+	})
 
 	// Dodge aura not implemented; maybe if rogue tanking comes back
 
@@ -90,6 +188,7 @@ func (rogue *Rogue) registerGhostlyStrike() {
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
+			rogue.GhostlyStrikeAura.Activate(sim)
 			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
@@ -192,6 +291,12 @@ func (rogue *Rogue) registerHemorrhage() {
 		hemoAura := target.GetOrRegisterAura(spelldata.AuraConfig(hemorrhageRank))
 		spelldata.ParseEffects(nil, hemoAura, spellData.Hemorrhage.Highest(),
 			spelldata.FromCaster(&rogue.Unit, DDBC_Hemorrhage, DDBC_Total))
+		hemoAura.AttachDDBC(DDBC_Garrote, DDBC_Total, &rogue.AttackTables, func(_ *core.Simulation, spell *core.Spell, _ *core.AttackTable) float64 {
+			if spell.ClassSpellMask&RogueSpellGarrote != 0 {
+				return 1.15
+			}
+			return 1
+		})
 		return hemoAura
 	})
 
@@ -233,106 +338,5 @@ func (rogue *Rogue) registerPremeditation() {
 	rogue.AddMajorCooldown(core.MajorCooldown{
 		Spell: rogue.Premeditation,
 		Type:  core.CooldownTypeDPS,
-	})
-}
-
-func (rogue *Rogue) registerQuietus() {
-	if rogue.Talents.Quietus == 0 {
-		return
-	}
-
-	// The talent's effects are dummy auras: effect 1 is the damage bonus, effect 2 the health threshold.
-	rank := spellData.Quietus.Rank(rogue.Talents.Quietus)
-	threshold := int32(spellData.Quietus.EffectAt(2).ValueAt(rogue.Talents.Quietus))
-
-	executeBonus := rogue.RegisterAura(core.Aura{
-		Label:    "Quietus Damage Bonus",
-		ActionID: core.ActionID{SpellID: rank.ID},
-		Duration: core.NeverExpires,
-	}).AttachSpellMod(core.SpellModConfig{
-		Kind:       core.SpellMod_DamageDone_Flat,
-		ClassMask:  RogueSpellQuietus,
-		FloatValue: spellData.Quietus.EffectAt(1).FractionAt(rogue.Talents.Quietus),
-	})
-
-	rogue.RegisterResetEffect(func(sim *core.Simulation) {
-		executeBonus.Deactivate(sim)
-		sim.RegisterExecutePhaseCallback(func(sim *core.Simulation, isExecute int32) {
-			if isExecute <= threshold && !executeBonus.IsActive() {
-				executeBonus.Activate(sim)
-			}
-		})
-	})
-}
-
-func (rogue *Rogue) registerCutthroat() {
-	if rogue.Talents.Cutthroat == 0 {
-		return
-	}
-
-	cutthroatTrigger := spellData.CutthroatTriggered.Highest()
-	rogue.CutthroatAura = rogue.RegisterAura(spelldata.AuraConfig(cutthroatTrigger)).
-		ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
-			rogue.Ambush.CastRequirement.CasterForm = true
-		}).
-		ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
-			rogue.Ambush.CastRequirement.CasterForm = false
-		})
-
-	cutthroatRank := spellData.Cutthroat.Rank(rogue.Talents.Cutthroat)
-	trigger := spelldata.ProcTrigger(&rogue.Character, cutthroatRank, func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		rogue.CutthroatAura.Activate(sim)
-	})
-	trigger.Name = "Cutthroat Trigger"
-	trigger.TriggerImmediately = true
-	// trigger.RequireDamageDealt = true - Unknown
-	trigger.ClassSpellMask = RogueSpellBackstab
-	rogue.MakeProcTriggerAura(trigger)
-
-	rogue.MakeProcTriggerAura(core.ProcTrigger{
-		Name:               "Cutthroat - Cast Watcher",
-		ActionID:           core.ActionID{SpellID: cutthroatRank.ID},
-		Callback:           core.CallbackOnCastComplete,
-		ClassSpellMask:     RogueSpellAmbush,
-		TriggerImmediately: true,
-		ProcChance:         1,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.CutthroatAura.Deactivate(sim)
-		},
-	})
-}
-
-var thousandCutsRank = spellData.ThousandCuts.Highest()
-var thousandCutsTriggered = spellData.ThousandCutsTriggered.Highest()
-
-func (rogue *Rogue) registerThousandCuts() {
-	if !rogue.Talents.ThousandCuts {
-		return
-	}
-
-	aura := rogue.RegisterAura(spelldata.AuraConfig(thousandCutsTriggered))
-	spelldata.ParseEffects(&rogue.Character, aura, thousandCutsTriggered)
-
-	trigger := spelldata.ProcTrigger(&rogue.Character, thousandCutsRank,
-		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			aura.Activate(sim)
-			aura.AddStack(sim)
-		})
-	trigger.Name = "Thousand Cuts - Trigger"
-	trigger.ProcMask = core.ProcMaskUnknown
-	trigger.ClassSpellMask = RogueSpellRupture
-	trigger.TriggerImmediately = true
-	rogue.MakeProcTriggerAura(trigger)
-
-	rogue.MakeProcTriggerAura(core.ProcTrigger{
-		Name:               "Thousand Cuts - Cast Watcher",
-		ActionID:           core.ActionID{SpellID: thousandCutsRank.ID},
-		Callback:           core.CallbackOnCastComplete,
-		ClassSpellMask:     RogueSpellHemorrhage | RogueSpellBackstab,
-		TriggerImmediately: true,
-		ProcChance:         1,
-		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			aura.Deactivate(sim)
-		},
 	})
 }

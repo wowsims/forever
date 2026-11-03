@@ -28,6 +28,9 @@ var ExtraSpells = []Extra{
 	{SpellID: 1323419, Reason: "Revelation, the paladin buff of enchant 8217", Source: "owner decision"},
 	// Shoot, the wand's autorepeat: no class row names it, and the mage, priest and warlock reach it through the equipped wand.
 	{SpellID: 5019, Reason: "Shoot, the wand autorepeat of the mage, priest and warlock", Source: "owner decision"},
+	{SpellID: 15248, Reason: "Shank rank 1 is registered by the rogue sim", Source: "Blizzard beta development notes"},
+	{SpellID: 15617, Reason: "Shank rank 2 is registered by the rogue sim", Source: "Blizzard beta development notes"},
+	{SpellID: 1325758, Reason: "Death Mark rank 4 is registered by the rogue sim", Source: "Spell 1325758"},
 	// Rockbiter Weapon Proc, the threat Rockbiter Weapon (Passive) adds to each melee hit: a script
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},

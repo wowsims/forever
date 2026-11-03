@@ -16,7 +16,6 @@ func (rogue *Rogue) registerAssassinationTalents() {
 
 	// Tier 2
 	// Ruthlessness modeled in rogue.go ApplyFinisher
-	rogue.registerMurder()
 	// Improved Slice modeled in Slice and Dice directly
 
 	// Tier 3
@@ -32,22 +31,10 @@ func (rogue *Rogue) registerAssassinationTalents() {
 	// Tier 5
 	// Vigor modeled in rogue.go during initialization
 	rogue.registerMutilate()
-	// Kidney Shot NYI
-
-	// Tier 6
 	rogue.registerSealFate()
 
-	// Tier 7
+	// Tier 6
 	rogue.registerVenom()
-}
-
-func (rogue *Rogue) registerImprovedEviscerate() {
-	if rogue.Talents.ImprovedEviscerate == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedEviscerate.Rank(rogue.Talents.ImprovedEviscerate))
 }
 
 func (rogue *Rogue) registerMalice() {
@@ -59,13 +46,18 @@ func (rogue *Rogue) registerMalice() {
 		spellData.Malice.Rank(rogue.Talents.Malice))
 }
 
-func (rogue *Rogue) registerMurder() {
-	if rogue.Talents.Murder == 0 {
+func (rogue *Rogue) registerLethality() {
+	rank := rogue.Talents.Lethality
+	if rank == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.Murder.Rank(rogue.Talents.Murder))
+	values := [...]float64{0, 0.1, 0.2}
+	rogue.AddStaticMod(core.SpellModConfig{
+		Kind:       core.SpellMod_CritMultiplier_Flat,
+		ClassMask:  RogueSpellLethality,
+		FloatValue: values[rank],
+	})
 }
 
 func (rogue *Rogue) registerImprovedExposeArmor() {
@@ -75,15 +67,6 @@ func (rogue *Rogue) registerImprovedExposeArmor() {
 
 	spelldata.ParseStatic(&rogue.Character,
 		spellData.ImprovedExposeArmor.Rank(rogue.Talents.ImprovedExposeArmor))
-}
-
-func (rogue *Rogue) registerLethality() {
-	if rogue.Talents.Lethality == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&rogue.Character,
-		spellData.Lethality.Rank(rogue.Talents.Lethality))
 }
 
 func (rogue *Rogue) registerVilePoisons() {
@@ -151,6 +134,7 @@ func (rogue *Rogue) registerSealFate() {
 	trigger.Name = "Seal Fate - Trigger"
 	trigger.SpellFlags = SpellFlagBuilder
 	trigger.TriggerImmediately = true
+	trigger.ProcChance = float64(rogue.Talents.SealFate) / 3
 
 	rogue.MakeProcTriggerAura(trigger)
 }
@@ -207,7 +191,7 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	for i := range config.ClassFlags.Mask {
 		config.ClassFlags.Mask[i] |= mutilateCastRank.ClassFlags.Mask[i]
 	}
-	config.DamageMultiplier = hitRank.EffectN(2).Percent()
+	config.DamageMultiplier = 0.9
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := mutilateHitBaseDamage
@@ -230,24 +214,39 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	return rogue.RegisterSpell(config)
 }
 
-var venomRank = spellData.Venom.Highest()
-
 func (rogue *Rogue) registerVenom() {
 	if !rogue.Talents.Venom {
 		return
 	}
 
-	config := spelldata.SpellConfig(&rogue.Unit, venomRank, spelldata.Melee(core.ProcMaskEmpty))
-	venomAura := rogue.RegisterAura(spelldata.AuraConfig(venomRank))
-	spelldata.ParseEffects(&rogue.Character, venomAura, venomRank)
-	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
-
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		rogue.BreakStealth(sim) // As this finisher deals no damage, it may or may not break stealth. To be tested.
-		venomAura.Duration = venomRank.Duration() + time.Second*3*time.Duration(rogue.ComboPoints())
-		rogue.ApplyFinisher(sim, spell)
-		venomAura.Activate(sim)
+	venomAura := rogue.RegisterAura(core.Aura{
+		Label:    "Venom",
+		ActionID: core.ActionID{SpellID: 1310703},
+		Duration: 6 * time.Second,
+	})
+	venomAura.AttachSpellMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DamageDone_Pct,
+		ClassMask:  RogueSpellPoisons,
+		FloatValue: 0.3,
+	})
+	for _, poison := range []*spelldata.Spell{spellData.DeadlyPoison.Highest(), spellData.InstantPoison.Highest(), spellData.WoundPoison.Highest()} {
+		venomAura.AttachSpellMod(core.SpellModConfig{
+			Kind:       core.SpellMod_ProcChance_Flat,
+			ClassFlags: poison.ClassFlags,
+			FloatValue: 20,
+		})
 	}
 
-	rogue.RegisterSpell(config)
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Venom - Shank",
+		ActionID:           core.ActionID{SpellID: 1310703},
+		Callback:           core.CallbackOnSpellHitDealt,
+		ClassSpellMask:     RogueSpellShank,
+		Outcome:            core.OutcomeLanded,
+		TriggerImmediately: true,
+		ProcChance:         1,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			venomAura.Activate(sim)
+		},
+	})
 }

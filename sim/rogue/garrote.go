@@ -16,16 +16,23 @@ func (rogue *Rogue) registerGarrote() {
 	config.Flags |= SpellFlagBuilder
 	config.ClassSpellMask = RogueSpellGarrote
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) && rogue.IsStealthed()
+		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) &&
+			(rogue.IsStealthed() || rogue.GhostlyStrikeAura != nil && rogue.GhostlyStrikeAura.IsActive())
 	}
 
 	config.Dot = spelldata.DotConfig(garroteRank, tick)
+	if rogue.Talents.BloodSplatter > 0 {
+		config.Dot.NumberOfTicks += 3
+	}
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average()+dot.Spell.MeleeAttackPower(target)*apScaling, garroteRank.TickOutcome(dot))
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
+		if rogue.GhostlyStrikeAura != nil {
+			rogue.GhostlyStrikeAura.Deactivate(sim)
+		}
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)

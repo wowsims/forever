@@ -12470,6 +12470,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 693086, SpellID: 15239, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 450, Variance: 0.29777777194976807, PvpMult: 1, RadiusMax: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{16, 0}},
 		}},
+	{ID: 15248, Name: "Shank", School: 1, Attr: [17]uint32{0: 0x50014, 15: 0x2000}, SpellLevel: 4, MaxRange: 5, DefenseType: 2, PreventionType: 2, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 692875, SpellID: 15248, Type: dbcenums.E_WEAPON_DAMAGE, BasePoints: 10, PPL: 1.75, SPCoef: 1, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Type: 3}}},
 	{ID: 15250, Name: "Setup", School: 1, Attr: [17]uint32{1: 0x400, 5: 0x2000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 50000, Labels: []int16{20},
 		Effects: []Effect{
 			{ID: 693452, SpellID: 15250, Type: dbcenums.E_ENERGIZE, BasePoints: 1, BaseLevel: 60, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -12755,6 +12760,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 693067, SpellID: 15601, Type: dbcenums.E_ADD_EXTRA_ATTACKS, BasePoints: 1, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 15617, Name: "Shank", School: 1, Attr: [17]uint32{0: 0x50014, 15: 0x2000}, SpellLevel: 4, MaxRange: 5, DefenseType: 2, PreventionType: 2, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 692339, SpellID: 15617, Type: dbcenums.E_WEAPON_DAMAGE, BasePoints: 30, PPL: 5.25, SPCoef: 1, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Type: 3}}},
 	{ID: 15629, Name: "Distracting Shot", Rank: "Rank 3", School: 64, Speed: 40, Attr: [17]uint32{0: 0x10002, 1: 0x20000, 2: 0x20000, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 39, CastTimeMs: -1000000, MinRange: 8, MaxRange: 35, CategoryCooldownMs: 8000, GCDMs: 1500, Category: 911, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 65536, 1: 131072}}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23},
 		Effects: []Effect{
 			{ID: 690362, SpellID: 15629, Type: dbcenums.E_THREAT, BasePoints: 250, PPL: 2.5, BaseLevel: 30, MaxLevel: 39, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -37148,6 +37158,12 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1362475, SpellID: 1325257, Type: dbcenums.E_APPLY_AREA_AURA_PARTY, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 290, BaseLevel: 58, PvpMult: 1, PeriodMs: 3000, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1325758, Name: "Death Mark", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x250010, 1: 0x8100020, 2: 0x20400000, 3: 0x40000, 4: 0x800100, 5: 0x800000, 6: 0x20000000, 8: 0x1000, 10: 0x2, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 6000, MaxRange: 25, CooldownMs: 10000, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, DispelType: 2, PreventionType: 2, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800aaaa8}, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{2: 4}}, Labels: []int16{20}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1363288, SpellID: 1325758, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BaseLevel: 60, PvpMult: 1, PeriodMs: 6000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1363289, SpellID: 1325758, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Type: 3, Cost: 25}, {Type: 4, Cost: 1}}},
 	{ID: 1326047, Name: "Lava Burst", Rank: "Rank 4", School: 4, Speed: 20, Attr: [17]uint32{0: 0x10000, 2: 0x100, 6: 0x2000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 68, CastTimeMs: 2500, MaxRange: 30, CategoryCooldownMs: 10000, GCDMs: 1500, Category: 1224, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{1: 4096}}, InterruptFlags: 15, Labels: []int16{24},
 		Effects: []Effect{
 			{ID: 1363744, SpellID: 1326047, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 220, PPL: 1.2999999523162842, Variance: 0.2532588541507721, BaseLevel: 60, MaxLevel: 68, SPCoef: 0.7139999866485596, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
