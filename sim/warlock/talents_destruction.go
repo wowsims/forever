@@ -211,9 +211,11 @@ func (warlock *Warlock) applyShadowAndFlame() {
 
 	buffOnHit := func(buffRow *spelldata.Spell, hitBy spelldata.Ladder) {
 		buff := warlock.RegisterAura(spelldata.AuraConfig(buffRow))
-		// The buff rows state the 5/5 value; the talent's effects 3 and 4 price it at each rank.
+		// The buff rows and the talent's effects 3 and 4 state 10% at 5/5, while the live bonus is 4% a rank,
+		// 20% at 5/5: twice what the rows price.
+		// TODO: Take the doubling out when the rows state 20%.
 		spelldata.ParseEffects(&warlock.Character, buff, buffRow,
-			spelldata.ScaledByRanks(warlock.Talents.ShadowAndFlame, spellData.ShadowAndFlame.Len()))
+			spelldata.ScaledByRanks(2*warlock.Talents.ShadowAndFlame, spellData.ShadowAndFlame.Len()))
 
 		warlock.MakeProcTriggerAura(core.ProcTrigger{
 			Name:     buffRow.Name + " - Trigger",
