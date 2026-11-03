@@ -22,7 +22,7 @@ const settingsOn = (storage: Map<string, string>) => {
 
 describe('StatWeightActionSettings precision', () => {
 	it('starts on the fixed iteration count with the default target and no multiplier cap', () => {
-		expect(settingsOn(new Map()).precision).toEqual({ precisionMode: 'iterations', iterations: 0, targetCi: 0.01, maxIterationMultiplier: 0 });
+		expect(settingsOn(new Map()).precision).toEqual({ precisionMode: 'iterations', iterations: 0, targetCi: 0.05, maxIterationMultiplier: 0 });
 	});
 
 	it('loads back what it stored, next to the excluded stats', () => {
@@ -43,7 +43,7 @@ describe('StatWeightActionSettings precision', () => {
 		const loaded = settingsOn(storage);
 		loaded.load();
 
-		expect(loaded.precision).toEqual({ precisionMode: 'iterations', iterations: 0, targetCi: 0.01, maxIterationMultiplier: 0 });
+		expect(loaded.precision).toEqual({ precisionMode: 'iterations', iterations: 0, targetCi: 0.05, maxIterationMultiplier: 0 });
 		expect(loaded.excludedStats).toEqual([Stat.StatAgility]);
 	});
 
@@ -77,7 +77,7 @@ describe('StatWeightActionSettings precision', () => {
 	it('does not rewrite storage for a patch that changes nothing', () => {
 		const storage = new Map<string, string>();
 		const settings = settingsOn(storage);
-		settings.setPrecision({ targetCi: 0.01 });
+		settings.setPrecision({ targetCi: 0.05 });
 
 		expect(storage.has(KEY)).toBe(false);
 	});

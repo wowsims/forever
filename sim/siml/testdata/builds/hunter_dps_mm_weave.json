@@ -1078,32 +1078,6 @@
 						},
 						{
 							"action": {
-								"condition": {
-									"and": {
-										"vals": [
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"variableRef": {
-															"name": "Time to walk in"
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "0s"
-														}
-													}
-												}
-											},
-											{
-												"variableRef": {
-													"name": "Weave fits"
-												}
-											}
-										]
-									}
-								},
 								"wait": {
 									"duration": {
 										"min": {
