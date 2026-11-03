@@ -222,7 +222,7 @@ func TestConjuredRuneRestoresManaAtTheCostOfLife(t *testing.T) {
 	rune, other := consumableSpell(t, drinker, runeID), consumableSpell(t, drinker, otherID)
 
 	drinker.SpendMana(sim, drinker.CurrentMana()-100, drinker.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 99}))
-	if mcd := drinker.GetInitialMajorCooldown(rune.ActionID); mcd.ShouldActivate(sim, &drinker.Character) {
+	if mcd := drinker.GetInitialMajorCooldown(rune.ActionID); !mcd.DisableAutocast {
 		t.Errorf("the rune would be used while another conjured item is the spec's")
 	}
 	if !rune.Flags.Matches(core.SpellFlagConjured) {
@@ -446,7 +446,7 @@ func TestOnUseConsumableShieldsOnTheItemsCooldown(t *testing.T) {
 	if mcd.Spell != deflector || !mcd.Type.Matches(core.CooldownTypeSurvival) {
 		t.Fatalf("the deflector is not a survival major cooldown: %v", mcd.Type)
 	}
-	if mcd.ShouldActivate(sim, &user.Character) {
+	if !mcd.DisableAutocast {
 		t.Errorf("the manager uses the deflector for a player no tank slot lists")
 	}
 	if deflector.Flags.Matches(core.SpellFlagPotion) || deflector.Flags.Matches(core.SpellFlagConjured) {

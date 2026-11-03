@@ -129,9 +129,9 @@ func (warlock *Warlock) registerAmplifyCurse() {
 
 	// Never cast on its own: the APL decides which curse takes the amp.
 	warlock.AddMajorCooldown(core.MajorCooldown{
-		Spell:          warlock.AmplifyCurse,
-		Type:           core.CooldownTypeDPS,
-		ShouldActivate: func(*core.Simulation, *core.Character) bool { return false },
+		Spell:           warlock.AmplifyCurse,
+		Type:            core.CooldownTypeDPS,
+		DisableAutocast: true,
 	})
 }
 
