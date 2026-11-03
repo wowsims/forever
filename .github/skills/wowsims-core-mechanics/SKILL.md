@@ -1,6 +1,6 @@
 ---
 name: wowsims-core-mechanics
-description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, encounter designs, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
+description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, encounter designs, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
 ---
 
 # wowsims-core-mechanics
@@ -108,25 +108,28 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 ## Targets and encounter designs
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
-  target move to target 0 when it is enabled, else the enabled target with the lowest index; with none left they keep
-  the disabled target, their auto attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). A target
-  disabled at start strands the raid at the pull the same way (`moveRaidOffDisabledTargets`). Code that reads
-  the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so a boss that
-  goes down mid-cast does not land the spell once it is back, and ends every raid unit's channel on the target with no
-  further tick, for a downtime, cleared or not, and a death alike; a ground channel lives on its caster and runs on. A
-  dot keeps ticking on a target in a downtime that does not clear its debuffs.
-- **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on the design rand,
-  `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits the raid, `Disable` last. A death
-  listener gets a nil spell; an aura on the dying target is checked in `ExtraCondition`, which runs inside `Die`. The
-  proc side is `docs/spell_data/procs.md`, which also says why a rated trigger hears no death.
-- **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target`, never the
-  encounter's first target. A plain encounter's targets cross 35% and 20% at the encounter's execute proportions of the
-  fight (`resetExecutePhases`); a design's health curve sets the crossings of its boss and adds. A buff row a target's
-  phase grants sits on the caster and carries to the next target (Decimation's 440873); a bonus whose rows state no buff
-  counts per target (Quietus, Early Demise).
+  target move to the enabled target with the lowest index; with none left they keep the disabled target, their auto
+  attacks stop and `Target.Enable` resumes them (`returnStrandedRaid`). A target disabled at start strands the raid at
+  the pull the same way (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code
+  that reads the current target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it
+  does not land once the target is back, and ends every raid unit's channel on the target with no further tick, for a
+  disable, cleared or not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on
+  a target disabled without clearing its debuffs, as in a design downtime that keeps them.
+- **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
+  stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
+  the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
+  `ExtraCondition`, which runs inside `Die`. The proc side is `docs/spell_data/procs.md`, which also says why a rated
+  trigger hears no death. Only a design's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
+  Adds preset).
+- **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
+  target, never the encounter's first target. Each target of a plain encounter follows a health curve that crosses 35%
+  and 20% at the encounter's execute proportions of the fight (`resetExecutePhases`), and `Current Health` on an enemy
+  reads it; a design's health curve sets the crossings of its boss and adds. A buff row a target's phase grants sits on
+  the caster and carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target
+  (Quietus, Early Demise).
 - **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
   `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
-  sim's, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
+  combat and kill rolls, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
   overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
   add waves take targets from a pool allocated at construction. Design input never panics: what construction drops
   is logged at each reset (`constructNotes`).

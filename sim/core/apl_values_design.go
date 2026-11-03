@@ -7,14 +7,6 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// The enemy target behind a unit, or nil for a unit that is not one.
-func enemyTargetOf(unit *Unit) *Target {
-	if unit == nil || unit.Type != EnemyUnit {
-		return nil
-	}
-	return unit.Env.Encounter.AllTargets[unit.Index]
-}
-
 // The time left until an absolute time, NeverExpires for none and 0 for one that has passed.
 func timeUntil(sim *Simulation, at time.Duration) time.Duration {
 	if at == NeverExpires {

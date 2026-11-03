@@ -89,7 +89,7 @@ func TestTargetDieCreditsTheKillAtTheKillShare(t *testing.T) {
 		if killCount < tc.min || killCount > tc.max {
 			t.Errorf("kill share %v: OnKill ran %d times over %d deaths, want %d to %d", tc.killShare, killCount, deaths, tc.min, tc.max)
 		}
-		if drew := sim.designRand.Next() != NewSplitMix(uint64(designRandSeed(sim.rseed))).Next(); drew != tc.draws {
+		if drew := sim.deathRand.Next() != NewSplitMix(uint64(deathRandSeed(sim.rseed))).Next(); drew != tc.draws {
 			t.Errorf("kill share %v: the kill roll drew: %t, want %t", tc.killShare, drew, tc.draws)
 		}
 	}

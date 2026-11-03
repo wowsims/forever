@@ -27,6 +27,14 @@ func (rot *APLRotation) newValueCurrentHealth(config *proto.APLValueCurrentHealt
 	}
 }
 
+// The enemy target behind a unit, or nil for a unit that is not one.
+func enemyTargetOf(unit *Unit) *Target {
+	if unit == nil || unit.Type != EnemyUnit {
+		return nil
+	}
+	return unit.Env.Encounter.AllTargets[unit.Index]
+}
+
 // Whether the unit has health to read: an enemy has its target curve, others need a health bar. Warns when not,
 // and for an enemy without a Health stat, which reads 0.
 func (rot *APLRotation) unitHasHealth(unit *Unit, uuid *proto.UUID) bool {
