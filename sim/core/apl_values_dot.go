@@ -38,21 +38,19 @@ type APLValueDotIsActiveOnAllTargets struct {
 	spell *Spell
 }
 
-func (rot *APLRotation) newValueDotIsActiveOnAllTargets(config *proto.APLValueDotIsActiveOnAllTargets, _ *proto.UUID) APLValue {
-	unit := rot.unit
-	spell := rot.GetAPLMultidotSpell(config.SpellId)
-
+func (rot *APLRotation) dotsOnAllTargets(spellId *proto.ActionID) (*Spell, []*Dot) {
+	spell := rot.GetAPLMultidotSpell(spellId)
 	if spell == nil {
-		return nil
+		return nil, nil
 	}
 
-	units := unit.Env.Encounter.AllTargetUnits
+	units := rot.unit.Env.Encounter.AllTargetUnits
 	dots := make([]*Dot, 0, len(units))
 	for _, unit := range units {
 		dot := rot.GetAPLDot(rot.GetTargetUnit(&proto.UnitReference{
 			Type:  proto.UnitReference_Target,
 			Index: unit.Index,
-		}), config.SpellId)
+		}), spellId)
 
 		if dot != nil {
 			dots = append(dots, dot)
@@ -60,7 +58,15 @@ func (rot *APLRotation) newValueDotIsActiveOnAllTargets(config *proto.APLValueDo
 	}
 
 	if len(dots) == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "Could not find a DoT for %s on Target(s)", ProtoToActionID(config.SpellId))
+		rot.ValidationMessage(proto.LogLevel_Warning, "Could not find a DoT for %s on Target(s)", ProtoToActionID(spellId))
+		return nil, nil
+	}
+	return spell, dots
+}
+
+func (rot *APLRotation) newValueDotIsActiveOnAllTargets(config *proto.APLValueDotIsActiveOnAllTargets, _ *proto.UUID) APLValue {
+	spell, dots := rot.dotsOnAllTargets(config.SpellId)
+	if dots == nil {
 		return nil
 	}
 
@@ -82,6 +88,38 @@ func (value *APLValueDotIsActiveOnAllTargets) GetBool(sim *Simulation) bool {
 }
 func (value *APLValueDotIsActiveOnAllTargets) String() string {
 	return fmt.Sprintf("Dot Is Active On All Targets(%s)", value.spell.ActionID)
+}
+
+type APLValueDotIsActiveOnAnyTarget struct {
+	DefaultAPLValueImpl
+	dots  []*Dot
+	spell *Spell
+}
+
+func (rot *APLRotation) newValueDotIsActiveOnAnyTarget(config *proto.APLValueDotIsActiveOnAnyTarget, _ *proto.UUID) APLValue {
+	spell, dots := rot.dotsOnAllTargets(config.SpellId)
+	if dots == nil {
+		return nil
+	}
+
+	return &APLValueDotIsActiveOnAnyTarget{
+		spell: spell,
+		dots:  dots,
+	}
+}
+func (value *APLValueDotIsActiveOnAnyTarget) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueDotIsActiveOnAnyTarget) GetBool(sim *Simulation) bool {
+	for _, dot := range value.dots {
+		if dot.Unit.IsEnabled() && readDot(sim, dot).active {
+			return true
+		}
+	}
+	return false
+}
+func (value *APLValueDotIsActiveOnAnyTarget) String() string {
+	return fmt.Sprintf("Dot Is Active On Any Target(%s)", value.spell.ActionID)
 }
 
 type APLValueDotRemainingTime struct {
