@@ -112,6 +112,7 @@ func (rogue *Rogue) registerRiposte() {
 	// Off the GCD: the row's 1 s recovery on category 133 is a category cooldown, not a global one, and Riposte
 	// fires in the same instant as Sinister Strike.
 	config := spelldata.SpellConfig(&rogue.Unit, riposteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ClassSpellMask = RogueSpellRiposte
 
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return window.IsActive()

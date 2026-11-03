@@ -92,7 +92,7 @@ func (rogue *Rogue) registerGhostlyStrike() {
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
-		// A miss grants no buff, as it grants no combo point.
+		// An avoided strike grants no buff, as it grants no combo point.
 		if result.Landed() {
 			dodgeBuff.Activate(sim)
 			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
@@ -345,6 +345,8 @@ func (rogue *Rogue) registerThousandCuts() {
 	})
 }
 
+var setupTriggered = spellData.SetupTriggered.Highest()
+
 func (rogue *Rogue) registerSetup() {
 	if rogue.Talents.Setup == 0 {
 		return
@@ -355,7 +357,7 @@ func (rogue *Rogue) registerSetup() {
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.AddComboPoints(sim, int32(spellData.SetupTriggered.Highest().ProcEnergizeEffect().Roll(sim)), setupMetrics)
+			rogue.AddComboPoints(sim, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
 		})
 	// Only the dodge half is modelled. The fully resisted spell half is not.
 	trigger.Outcome = core.OutcomeDodge

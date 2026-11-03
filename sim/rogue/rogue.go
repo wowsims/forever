@@ -280,6 +280,7 @@ const (
 	RogueSpellColdBlood
 	RogueSpellMutilate
 	RogueSpellMutilateHit
+	RogueSpellRiposte
 	RogueSpellGhostlyStrike
 	RogueSpellInstantPoison
 	RogueSpellWoundPoison

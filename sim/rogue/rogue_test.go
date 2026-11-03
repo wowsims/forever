@@ -79,9 +79,10 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	OhWeaponImbueId: 8985, // Deadly Poison IV
 }
 
-// A rogue with Lightning Reflexes 5/5, Deflection 3/3, Riposte, Setup 3/3 and Ghostly Strike, facing two targets.
+// Lightning Reflexes 5/5, Deflection 3/3, Riposte, Setup 3/3 and Ghostly Strike.
 const tankTalents = "-00503001-000300001"
 
+// A rogue with the talents given, facing two targets.
 func newTankSim(t *testing.T, talents string) (*core.Simulation, *Rogue, []*core.Unit) {
 	t.Helper()
 
@@ -118,6 +119,15 @@ func passBatchWindow(t *testing.T, sim *core.Simulation) {
 	}
 }
 
+func auraOf(t *testing.T, rogue *Rogue, id int32) *core.Aura {
+	t.Helper()
+	aura := rogue.GetAuraByID(core.ActionID{SpellID: id})
+	if aura == nil {
+		t.Fatalf("the rogue has no aura %d", id)
+	}
+	return aura
+}
+
 func swingAt(sim *core.Simulation, rogue *Rogue, from *core.Unit, outcome core.HitOutcome) {
 	rogue.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: from},
 		&core.SpellResult{Target: &rogue.Unit, Outcome: outcome})
@@ -136,10 +146,7 @@ func TestRiposteWindowOpensOnParriedSwings(t *testing.T) {
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			sim, rogue, targets := newTankSim(t, tankTalents)
-			window := rogue.GetAuraByID(core.ActionID{SpellID: riposteWindow.ID})
-			if window == nil {
-				t.Fatal("the rogue has no Riposte window")
-			}
+			window := auraOf(t, rogue, riposteWindow.ID)
 
 			swingAt(sim, rogue, targets[0], c.outcome)
 			passBatchWindow(t, sim)
@@ -154,7 +161,7 @@ func TestRiposteWindowOpensOnParriedSwings(t *testing.T) {
 // Riposte is off the GCD, and only its own cast spends the window: a Sinister Strike leaves it up.
 func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, tankTalents)
-	window := rogue.GetAuraByID(core.ActionID{SpellID: riposteWindow.ID})
+	window := auraOf(t, rogue, riposteWindow.ID)
 
 	swingAt(sim, rogue, targets[0], core.OutcomeParry)
 	passBatchWindow(t, sim)
@@ -178,7 +185,7 @@ func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 
 // Setup hears the current target's attacks only, and at 3/3 every dodge of one adds the row's point.
 func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
-	want := int32(spellData.SetupTriggered.Highest().ProcEnergizeEffect().BaseValue())
+	want := int32(setupTriggered.ProcEnergizeEffect().BaseValue())
 	for _, c := range []struct {
 		name      string
 		fromIndex int
@@ -219,7 +226,7 @@ func TestAvoidanceTalentsAddTheirRowsAmounts(t *testing.T) {
 		t.Errorf("Deflection adds %.2f%% parry, want %.2f%%", got, wantParry)
 	}
 
-	buff := rogue.GetAuraByID(core.ActionID{SpellID: ghostlyStrikeRank.ID})
+	buff := auraOf(t, rogue, ghostlyStrikeRank.ID)
 	before := rogue.GetStat(stats.DodgePercent)
 	buff.Activate(sim)
 	if got, want := rogue.GetStat(stats.DodgePercent)-before, ghostlyStrikeRank.EffectN(2).BaseValue(); got != want {
@@ -231,7 +238,7 @@ func TestAvoidanceTalentsAddTheirRowsAmounts(t *testing.T) {
 func TestGhostlyStrikeBuffsOnlyWhenItLands(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, tankTalents)
 	target := targets[0]
-	buff := rogue.GetAuraByID(core.ActionID{SpellID: ghostlyStrikeRank.ID})
+	buff := auraOf(t, rogue, ghostlyStrikeRank.ID)
 	metrics := &rogue.GhostlyStrike.SpellMetrics[target.UnitIndex]
 	avoided := func() int32 { return metrics.Misses + metrics.Dodges + metrics.Parries }
 
