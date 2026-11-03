@@ -16,7 +16,15 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { Class, DesignBossAbility_Kind, Encounter as EncounterProto, EncounterDesign, SpellSchool, Target as TargetProto } from '@generated/proto/common';
+import {
+	Class,
+	DesignBossAbility_Kind,
+	Encounter as EncounterProto,
+	EncounterDesign,
+	OtherAction,
+	SpellSchool,
+	Target as TargetProto,
+} from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { SimRun } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -665,17 +673,38 @@ const designAddTarget = (design: EncounterDesign | undefined, add: DesignAdd): {
 	return { template, name: `${waveName} · ${addName}` };
 };
 
-// The spell a design's spell hit, pulse tick and area hit report as (designSpellHitSpellID in sim/core/design_boss_abilities.go).
+// The spells a design's boss abilities report as (designSpellHitSpellID and designStrikeSpellID in sim/core/design_boss_abilities.go).
 const DESIGN_SPELL_HIT_SPELL_ID = 18282;
+const DESIGN_STRIKE_SPELL_ID = 15284;
 
-// A pulse's ticks and an area hit report under the spell, tagged with the ability's index, and take the name the
-// designer gives the ability, "Boss ability N" when it has none, with the kind after it. Undefined for any other id.
-const designAreaName = (design: EncounterDesign | undefined, actionId: ActionId): string | undefined => {
-	if (actionId.spellId !== DESIGN_SPELL_HIT_SPELL_ID || actionId.tag < ENCOUNTER_DESIGN_ABILITY_TAG) return undefined;
+const DESIGN_ABILITY_KIND_KEYS: Partial<Record<DesignBossAbility_Kind, string>> = {
+	[DesignBossAbility_Kind.SpellHit]: 'spell_hit',
+	[DesignBossAbility_Kind.Strike]: 'strike',
+	[DesignBossAbility_Kind.Thrash]: 'thrash',
+	[DesignBossAbility_Kind.Pulse]: 'pulse',
+	[DesignBossAbility_Kind.AreaHit]: 'area_hit',
+};
+
+// The kinds that report under an action id: a spell hit, pulse tick or area hit under the Dummy Spell, a strike under
+// Cleave, a thrash's extra attacks under the boss's attack, each tagged with the ability's index. A player's Cleave
+// carries a small tag, so it never reaches the design's range. A swing timing reports no action.
+const designAbilityKinds = (actionId: ActionId): Array<DesignBossAbility_Kind> => {
+	if (actionId.tag < ENCOUNTER_DESIGN_ABILITY_TAG) return [];
+	if (actionId.otherId === OtherAction.OtherActionAttack) return [DesignBossAbility_Kind.Thrash];
+	if (actionId.spellId === DESIGN_STRIKE_SPELL_ID) return [DesignBossAbility_Kind.Strike];
+	if (actionId.spellId === DESIGN_SPELL_HIT_SPELL_ID) {
+		return [DesignBossAbility_Kind.SpellHit, DesignBossAbility_Kind.Pulse, DesignBossAbility_Kind.AreaHit];
+	}
+	return [];
+};
+
+// A boss ability's actions take the name the designer gives the ability, "Boss ability N" when it has none, with the
+// kind after it. Undefined for any other id, or when the ability at the tag's index is of another kind.
+const designAbilityName = (design: EncounterDesign | undefined, actionId: ActionId): string | undefined => {
 	const index = actionId.tag - ENCOUNTER_DESIGN_ABILITY_TAG;
 	const ability = design?.bossAbilities[index];
-	if (ability?.kind !== DesignBossAbility_Kind.Pulse && ability?.kind !== DesignBossAbility_Kind.AreaHit) return undefined;
-	const kind = i18n.t(`settings_tab.encounter.designer.ability_kinds.${ability.kind === DesignBossAbility_Kind.Pulse ? 'pulse' : 'area_hit'}`);
+	if (!ability || !designAbilityKinds(actionId).includes(ability.kind)) return undefined;
+	const kind = i18n.t(`settings_tab.encounter.designer.ability_kinds.${DESIGN_ABILITY_KIND_KEYS[ability.kind]}`);
 	const name =
 		ability.name ||
 		i18n.t('settings_tab.encounter.designer.event_name', { event: i18n.t('settings_tab.encounter.designer.events.ability'), number: index + 1 });
@@ -1509,8 +1538,8 @@ export class ActionMetrics {
 
 	static async makeNew(unit: UnitMetrics | null, resultData: SimResultData, actionMetrics: ActionMetricsProto, playerIndex?: number): Promise<ActionMetrics> {
 		const actionId = await ActionId.fromProto(actionMetrics.id!).fill(playerIndex);
-		const areaName = designAreaName(resultData.request.encounter?.design, actionId);
-		return new ActionMetrics(unit, areaName ? actionId.withName(areaName) : actionId, actionMetrics, resultData);
+		const abilityName = designAbilityName(resultData.request.encounter?.design, actionId);
+		return new ActionMetrics(unit, abilityName ? actionId.withName(abilityName) : actionId, actionMetrics, resultData);
 	}
 
 	// Merges an array of metrics into a single metric.

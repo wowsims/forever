@@ -5,7 +5,7 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { ActionID, AddWave, DesignBossAbility, DesignBossAbility_Kind, EncounterDesign, Target } from '@generated/proto/common';
+import { ActionID, AddWave, DesignBossAbility, DesignBossAbility_Kind, EncounterDesign, OtherAction, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -378,29 +378,53 @@ describe('miss percent of ticks that roll their own hit', () => {
 describe('the boss abilities of an encounter design', () => {
 	afterEach(() => vi.restoreAllMocks());
 
-	it("names a pulse's ticks and an area hit by the ability and its kind, and leaves a spell hit numbered", async () => {
-		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
+	const designRun = (abilities: Array<DesignBossAbility>, ids: Array<ActionID>) => {
 		const { request, result } = makeSimRun();
-		request.encounter!.design = EncounterDesign.create({
-			bossAbilities: [
-				DesignBossAbility.create({ kind: DesignBossAbility_Kind.Pulse, name: 'Lava Burst' }),
-				DesignBossAbility.create({ kind: DesignBossAbility_Kind.AreaHit }),
-				DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' }),
-			],
-		});
-		result.encounterMetrics!.targets[0].actions = [0, 1, 2].map(index =>
-			ActionMetricsProto.create({
-				id: ActionID.create({ rawId: { oneofKind: 'spellId', spellId: 18282 }, tag: 2_000_000 + index }),
-				targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, hits: 1, damage: 500 })],
-			}),
+		request.encounter!.design = EncounterDesign.create({ bossAbilities: abilities });
+		result.encounterMetrics!.targets[0].actions = ids.map(id =>
+			ActionMetricsProto.create({ id, targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, hits: 1, damage: 500 })] }),
 		);
-		const [boss] = (await SimResult.makeNew(request, result)).getTargets();
+		return SimResult.makeNew(request, result);
+	};
+	const spellId = (spellId: number, tag: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag });
+	const kinds = 'settings_tab.encounter.designer.ability_kinds';
+
+	it('names every spell, pulse, area and strike action by the ability and its kind', async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
+		const abilities = [
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Pulse, name: 'Lava Burst' }),
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.AreaHit }),
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' }),
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Strike, name: 'Hand of Ragnaros' }),
+		];
+		const ids = [18282, 18282, 18282, 15284].map((id, index) => spellId(id, 2_000_000 + index));
+		const [boss] = (await designRun(abilities, ids)).getTargets();
 
 		expect(boss.actions.map(action => action.actionId.name)).toEqual([
-			'Lava Burst (settings_tab.encounter.designer.ability_kinds.pulse)',
-			'settings_tab.encounter.designer.event_name (settings_tab.encounter.designer.ability_kinds.area_hit)',
-			'Dummy Spell 3',
+			`Lava Burst (${kinds}.pulse)`,
+			`settings_tab.encounter.designer.event_name (${kinds}.area_hit)`,
+			`Fireball (${kinds}.spell_hit)`,
+			`Hand of Ragnaros (${kinds}.strike)`,
 		]);
+	});
+
+	it('names the extra attacks of a thrash by the ability and leaves a swing timing no row', async () => {
+		const abilities = [
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Thrash, name: 'Frenzy' }),
+			DesignBossAbility.create({ kind: DesignBossAbility_Kind.SwingTiming, name: 'Slow' }),
+		];
+		const attack = ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: 2_000_000 });
+		const [boss] = (await designRun(abilities, [attack])).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual([`Frenzy (${kinds}.thrash)`]);
+	});
+
+	it("leaves a player's Cleave and an ability of another kind at the tag unnamed", async () => {
+		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Cleave', icon: '' }) as never);
+		const abilities = [DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' })];
+		const [boss] = (await designRun(abilities, [spellId(15284, 1), spellId(15284, 2_000_000)])).getTargets();
+
+		expect(boss.actions.map(action => action.actionId.name)).toEqual(['Cleave (common.action_tags.queue)', 'Cleave 1']);
 	});
 });
 
