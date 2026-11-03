@@ -181,6 +181,7 @@ func (druid *Druid) registerFeralKit() {
 	druid.registerRavageSpell()
 	druid.registerRakeSpell()
 	druid.registerProwlSpell()
+	druid.registerPoised()
 	druid.registerShadowmeld()
 	druid.registerPounceSpell()
 	druid.registerRipSpell()
