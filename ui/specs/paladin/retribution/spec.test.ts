@@ -4,16 +4,16 @@ import { PaladinAura, PaladinJudgement, RetributionPaladin_Rotation } from '@gen
 import type { Player } from '@sim/player/player';
 import { describe, expect, it } from 'vitest';
 
-import DefaultApl from './apls/default.apl.json';
-import HolyShockApl from './apls/holy_shock.apl.json';
-import { DefaultSimpleRotation } from './presets';
+import DefaultApl from './apls/default.apl.siml';
+import HolyShockApl from './apls/holy_shock.apl.siml';
+import { Defaults } from './presets';
 import spec from './spec';
 
 // The generator reads nothing from the player but the Holy Shock talent.
 const player = (holyShock: boolean) => ({ getTalents: () => ({ holyShock }) }) as unknown as Player<Spec.SpecRetributionPaladin>;
 
 const generate = (simple: Partial<RetributionPaladin_Rotation>, holyShock = false, cooldowns = Cooldowns.create()) =>
-	spec.simpleRotation!(player(holyShock), RetributionPaladin_Rotation.create({ ...DefaultSimpleRotation, ...simple }), cooldowns);
+	spec.simpleRotation!(player(holyShock), RetributionPaladin_Rotation.create({ ...Defaults.simpleRotation, ...simple }), cooldowns);
 
 const variable = (rotation: APLRotation, name: string) => {
 	const value = rotation.valueVariables.find(v => v.name === name)?.value?.value;
@@ -28,8 +28,8 @@ const aplGroup = (apl: any, name: string) => APLGroup.toJson(APLGroup.fromJson(a
 
 describe('Retribution simple rotation', () => {
 	it('builds on the Holy Shock APL with the talent and the Default APL without it', () => {
-		expect(generate({}, true).groups.map(g => g.name)).toEqual(HolyShockApl.groups.map(g => g.name));
-		expect(generate({}, false).groups.map(g => g.name)).toEqual(DefaultApl.groups.map(g => g.name));
+		expect(generate({}, true).groups.map(g => g.name)).toEqual(HolyShockApl.groups.map((g: { name: string }) => g.name));
+		expect(generate({}, false).groups.map(g => g.name)).toEqual(DefaultApl.groups.map((g: { name: string }) => g.name));
 	});
 
 	it.each([

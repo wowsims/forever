@@ -1,0 +1,31 @@
+siml 1
+spec retribution_paladin
+talents "05025210221021--0523330110130033"
+use "../gear_sets/holy_shock.gear.siml"
+use "../buffs.siml"
+
+settings:
+  race human
+  profession1 engineering
+  profession2 blacksmithing
+  reaction_time_ms 100
+  distance_from_target 25
+
+consumables:
+  offensive_pot major_spellblasting_potion
+  resource_pot major_mana_potion
+  flask flask_of_supreme_power
+  food lobster_stew
+  conjured demonic_rune
+  mh_imbue shadow_oil
+  swap_mh_imbue frost_oil
+  extra cerebral_cortex_compound, goblin_sapper_charge, dragonbreath_chili, gordok_green_grog
+  elixir elixir_of_holy_power,
+      elixir_of_sages,
+      elixir_of_the_mongoose,
+      elixir_of_the_owl,
+      elixir_of_the_grizzly,
+      elixir_of_the_phalanx,
+      greater_arcane_elixir,
+      greater_mageblood_elixir,
+      juju_might

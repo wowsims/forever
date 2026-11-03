@@ -2,12 +2,15 @@ package lsp
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/siml"
 )
 
@@ -271,6 +274,55 @@ func TestRegisteredMarksICDOnlyAuras(t *testing.T) {
 	}
 	if !icdOnly["arcane_concentration"] || icdOnly["arcane_power"] {
 		t.Errorf("arcane_concentration marked %v, arcane_power marked %v; want only the first", icdOnly["arcane_concentration"], icdOnly["arcane_power"])
+	}
+}
+
+// The spells come marked as their table entries say: known only as a talent for the spec, and a talent's own spell, so
+// the pickers offer each in the kinds that read it.
+func TestRegisteredMarksTalentSpells(t *testing.T) {
+	c := started(t)
+	uri := pathURI(filepath.Join(repository, "mage.apl.siml"))
+	c.open(uri, lines("siml 1", "spec mage", ""))
+	var answer struct {
+		Registered struct {
+			Spells []struct {
+				Name       string `json:"name"`
+				TalentOnly bool   `json:"talentOnly"`
+				Talent     bool   `json:"talent"`
+			} `json:"spells"`
+		} `json:"registered"`
+	}
+	c.request("siml/registered", map[string]any{"uri": uri}, &answer)
+	data, err := os.ReadFile(filepath.Join(repository, "sim", "siml", "names.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	names, err := siml.ParseNames(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+	entries := map[string]siml.SpellName{}
+	for _, n := range names.Registered(proto.Class_ClassMage, "mage", siml.NamespaceSpell) {
+		entries[n.Name] = n.Entry
+	}
+	talentOnly, talents := 0, 0
+	for _, n := range answer.Registered.Spells {
+		e := entries[n.Name]
+		if want := slices.Contains(e.TalentOnlyBy, "mage"); n.TalentOnly != want {
+			t.Errorf("%s marked talent only %v, want %v", n.Name, n.TalentOnly, want)
+		}
+		if want := siml.IsTalentSpell(e.SpellID); n.Talent != want {
+			t.Errorf("%s marked a talent %v, want %v", n.Name, n.Talent, want)
+		}
+		if n.TalentOnly {
+			talentOnly++
+		}
+		if n.Talent {
+			talents++
+		}
+	}
+	if talentOnly == 0 || talents == 0 {
+		t.Errorf("%d spells came marked talent only and %d a talent; want some of each", talentOnly, talents)
 	}
 }
 

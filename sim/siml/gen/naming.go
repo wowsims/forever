@@ -312,17 +312,20 @@ func (u *updater) registeredBy() {
 	}
 }
 
-// e with its spec lists written from what the builds register: registeredBy, and of its specs those whose builds
-// list the aura only as an internal cooldown trigger (icdOnlyBy); and for a spell no build registers castable,
-// uncastable.
+// e with its spec lists written from what the builds register: registeredBy, of its specs those whose builds list
+// the aura only as an internal cooldown trigger (icdOnlyBy) and those whose builds list the spell only as a talent
+// (talentOnlyBy); and for a spell no build registers castable, uncastable, which a talent no build casts is too.
 func (u *updater) withSpecs(class proto.Class, ns siml.Namespace, e siml.SpellName) siml.SpellName {
 	id := Identity{e.SpellID, e.Tag}
 	reg := u.c.Registered[ns][id]
-	e.RegisteredBy, e.ICDOnlyBy = u.specs(class, ns, id), nil
+	e.RegisteredBy, e.ICDOnlyBy, e.TalentOnlyBy = u.specs(class, ns, id), nil, nil
 	e.Uncastable = ns == siml.NamespaceSpell && len(e.RegisteredBy) > 0 && !reg.Castable
 	for _, s := range e.RegisteredBy {
 		if slices.Contains(reg.ICDSpecs, s) {
 			e.ICDOnlyBy = append(e.ICDOnlyBy, s)
+		}
+		if slices.Contains(reg.TalentSpecs, s) && !slices.Contains(reg.ListedSpecs, s) {
+			e.TalentOnlyBy = append(e.TalentOnlyBy, s)
 		}
 	}
 	return e

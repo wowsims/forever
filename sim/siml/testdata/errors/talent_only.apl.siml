@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+// A spell the spec knows only as a talent reads in talent_is_known and talent_rank, and nowhere else. Its cast is
+// talent-only, not also not-castable.
+priority:
+  cast aimed_shot if talent_is_known(talent_only)
+  cast aimed_shot if talent_rank(talent_only) >= 2
+  cast aimed_shot if spell(talent_only).is_ready
+  cast talent_only
