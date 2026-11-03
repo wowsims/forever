@@ -20,8 +20,11 @@ const spell = (id: ActionId, category = ActionCategory.ActionCategoryUnknown, ex
 	data: { isCastable: true, prepullOnly: false, encounterOnly: false, category, ...extra },
 });
 
-const metadata = (auras: Array<ReturnType<typeof aura>>, spells: Array<ReturnType<typeof spell>> = []) =>
-	({ getAuras: () => auras, getSpells: () => spells, getName: () => '' }) as unknown as UnitMetadata;
+const metadata = (auras: Array<ReturnType<typeof aura>>, spells: Array<ReturnType<typeof spell>> = [], menuGroupOrder: Array<string> = []) =>
+	({ getAuras: () => auras, getSpells: () => spells, getName: () => '', getMenuGroupOrder: () => menuGroupOrder }) as unknown as UnitMetadata;
+
+// The feral druid's order, as the sim sends it.
+const druidOrder = ['spell.forms', 'spell.cat', 'spell.cat.stealth', 'spell.bear', 'spell.utility', 'cooldowns', 'druid.forms', 'druid'];
 
 const menu = (options: Array<{ value: ActionId; submenu?: Array<unknown> }>) =>
 	options.map(option => [option.value.name, ...(option.submenu ?? []).map(segment => (segment instanceof ActionId ? segment.name : segment))].join(' > '));
@@ -127,6 +130,49 @@ describe('menu groups', () => {
 	it('files a cooldown with a group under the group, not cooldowns', async () => {
 		const grouped = [spell(named(72, 'Recklessness'), ActionCategory.ActionCategoryCooldown, { menuGroup: 'my_group' })];
 		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], grouped)))[0]).toBe('Recklessness > my_group');
+	});
+
+	it('files a dotted group as a path of submenus', async () => {
+		const nested = [spell(named(78, 'Ravage'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat.stealth' })];
+		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], nested)))[0]).toBe('Ravage > spell > cat > stealth');
+	});
+
+	it("lists the groups in the unit's order, a nested group after its parent and an unlisted one last", async () => {
+		// Sorted by name, as the metadata arrives.
+		const druid = [
+			spell(named(80, 'Bash'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.utility' }),
+			spell(named(81, 'Battle Stance'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'stances' }),
+			spell(named(82, 'Bear Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.forms' }),
+			spell(named(83, 'Claw'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat' }),
+			spell(named(84, 'Maul'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.bear' }),
+			spell(named(85, 'Prowl'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat.stealth' }),
+			spell(named(86, 'Shred'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'spell.cat' }),
+		];
+		expect(menu(await actionIdSets.castable_spells.getActionIDs(metadata([], druid, druidOrder))).slice(0, 7)).toEqual([
+			'Bear Form > spell > forms',
+			'Claw > spell > cat',
+			'Shred > spell > cat',
+			'Prowl > spell > cat > stealth',
+			'Maul > spell > bear',
+			'Bash > spell > utility',
+			'Battle Stance > stances',
+		]);
+	});
+
+	it('opens a parent group with a nested group listed before it', async () => {
+		// Sorted by name, as the metadata arrives.
+		const auras = [
+			aura(named(90, 'Cat Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid.forms' }),
+			aura(named(91, 'Clearcasting'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid' }),
+			aura(named(92, 'Dire Bear Form'), ActionCategory.ActionCategoryUnknown, { menuGroup: 'druid.forms' }),
+			aura(named(93, 'Moving')),
+		];
+		expect(menu(await actionIdSets.auras.getActionIDs(metadata(auras, [], druidOrder)))).toEqual([
+			'Cat Form > druid > forms',
+			'Dire Bear Form > druid > forms',
+			'Clearcasting > druid',
+			'Moving',
+		]);
 	});
 
 	it('files every rank of a grouped spell in the group, behind its highest rank', async () => {
