@@ -86,3 +86,7 @@ shaman.aura.strength_of_earth: was spell 25362, now spell 10441
 shaman.aura.strength_of_earth_external: was spell 10441 tag -1, now nothing
 shaman.aura.grace_of_air: was spell 25360, now spell 10626
 shaman.aura.grace_of_air_external: was spell 10626 tag -1, now nothing
+paladin.spell.holy_shield: was spell 20928 rank 3, now spell 1239570 rank 4
+paladin.aura.holy_shield: was spell 20925, now spell 1239570 rank 4
+paladin.aura.holy_shield_20927: was spell 20927, now nothing
+paladin.aura.holy_shield_20928: was spell 20928, now nothing
