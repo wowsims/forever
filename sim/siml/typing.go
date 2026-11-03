@@ -1073,8 +1073,13 @@ func (t *typer) actionID(n node, ns Namespace, cast bool) *proto.ActionID {
 		if slices.Contains(e.ICDOnlyBy, t.spec) && !t.kind.readsICD() {
 			t.report("icd-trigger", fmt.Sprintf("%s is an internal cooldown trigger, which only icd_is_ready, internal_cooldown and trigger_icd find", n.name.text), n.name.span)
 		}
-		if cast && e.Uncastable {
+		if slices.Contains(e.TalentOnlyBy, t.spec) && !t.kind.readsTalent() {
+			t.report("talent-only", fmt.Sprintf("%s is a talent the spec registers no spell of, which only talent_is_known and talent_rank read", n.name.text), n.name.span)
+		} else if cast && e.Uncastable {
 			t.warn("not-castable", t.notCastable(n.name.text), n.name.span)
+		}
+		if t.kind.readsTalent() && !IsTalentSpell(r.actionID.GetSpellId()) {
+			t.report("not-a-talent", fmt.Sprintf("%s is spell %d, which is no talent's; talent_is_known and talent_rank read a talent's own spell", n.name.text, r.actionID.GetSpellId()), n.name.span)
 		}
 		t.addRef(r)
 		t.mark(n.span)
