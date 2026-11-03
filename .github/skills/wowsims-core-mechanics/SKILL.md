@@ -125,12 +125,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   trigger hears no death. In a normal sim only the Dynamic Adds add dies, at the end of its lifetime, with the boss's
   Kill share % input as the share.
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
-  target, never the encounter's first target. Each target follows a health curve that crosses 35% and 20% at the
-  encounter's execute proportions of the fight (`resetExecutePhases`), and `Current Health` on an enemy reads it. A
-  buff row a target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus
-  whose rows state no buff counts per target (Quietus, Early Demise).
-- **Fights are time-based**: there is no health-based fight length, and a target's health is a curve over the fight,
-  not damage taken.
+  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
+  encounter's execute proportions of the fight (`resetExecutePhases`); an enemy has no health bar to read. A buff row a
+  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
+  state no buff counts per target (Quietus, Early Demise).
+- **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
+  phases.
 
 ## Protos
 

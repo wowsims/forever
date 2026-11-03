@@ -154,7 +154,8 @@ type Target struct {
 
 	AI TargetAI
 
-	health healthCurve
+	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
+	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {
