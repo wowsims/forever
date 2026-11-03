@@ -1,6 +1,6 @@
 siml 1
 spec hunter
-talents "53200005021-005003-5502000300500221"
+talents "53200005001-005005-5302002300500221"
 use "../gear_sets/p1_melee.gear.siml"
 use "../apls/melee.apl.siml"
 

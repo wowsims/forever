@@ -353,7 +353,7 @@ func TestSimLoadsAPresetBuildOverItsSpecDefaults(t *testing.T) {
 		t.Errorf("warnings %q", warnings)
 	}
 	player := request.Raid.Parties[0].Players[0]
-	if player.Race != proto.Race_RaceOrc || player.TalentsString != "1-00531500114-52225303000021005" || player.DistanceFromTarget != 12 ||
+	if player.Race != proto.Race_RaceOrc || player.TalentsString != "1-00530501114-52225303000021005" || player.DistanceFromTarget != 12 ||
 		player.Consumables.GetResourcePotId() == 0 || len(player.Rotation.GetPriorityList()) == 0 {
 		t.Errorf("race %v, talents %q, distance %v, consumables %v, %d priority rows, want the defaults' race and consumables under the build's talents, distance and rotation",
 			player.Race, player.TalentsString, player.DistanceFromTarget, player.Consumables, len(player.Rotation.GetPriorityList()))
@@ -379,7 +379,7 @@ func TestSimFindsTheSpecDefaultsFromAnyFolder(t *testing.T) {
 		if want := path + " is a preset build: simmed over " + filepath.Join(root, "ui/specs/hunter/dps/defaults.siml"); !slices.Contains(warnings, want) {
 			t.Errorf("%s: warnings %q, want %q", path, warnings, want)
 		}
-		if player := request.Raid.Parties[0].Players[0]; player.Race != proto.Race_RaceOrc || player.TalentsString != "1-00531500114-52225303000021005" {
+		if player := request.Raid.Parties[0].Players[0]; player.Race != proto.Race_RaceOrc || player.TalentsString != "1-00530501114-52225303000021005" {
 			t.Errorf("%s: race %v, talents %q, want the defaults' race under the build's talents", path, player.Race, player.TalentsString)
 		}
 	}
