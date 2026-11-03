@@ -252,6 +252,9 @@ func (rot *APLRotation) GetTargetAPLSpell(spellId *proto.ActionID, targetUnit Un
 	}
 	actionID := ProtoToActionID(spellId)
 	target := targetUnit.Get()
+	if target == nil {
+		return nil
+	}
 	spell := target.GetSpell(actionID)
 
 	if spell == nil {

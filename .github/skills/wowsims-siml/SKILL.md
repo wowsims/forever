@@ -184,6 +184,10 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `is_execute_phase(e20|e35, target_unit: unit)`
 - `number_targets`
 - `encounter_in_area(forest_grassland|mountainous|snowy|desert|swamp|wasteland|haunted|cavernous|…)`
+- `[unit.]target_is_active`
+- `num_active_adds`
+- `[unit.]time_until_target_active`
+- `[unit.]time_until_target_dies`
 - `[unit.]boss_current_target`
 - `target_is_mob_type(beast|demon|dragonkin|elemental|giant|humanoid|mechanical|undead, target_unit: unit)`
 - `[unit.]target_is_bleed_immune`
@@ -211,6 +215,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `auto_swing_time(main_hand|off_hand|ranged|wand)`
 - `auto_time_to_next(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
 - `auto_time_since_last(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
+- `remaining_cast_time`
 - `talent_is_known(name)`
 - `talent_rank(name)`
 - `all_item_stat_procs_active(stat, stat_type2: stat, stat_type3: stat, min_icd_seconds: number)`

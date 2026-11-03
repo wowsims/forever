@@ -151,7 +151,8 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 type Target struct {
 	Unit
 
-	AI TargetAI
+	AI       TargetAI
+	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
 
 	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
