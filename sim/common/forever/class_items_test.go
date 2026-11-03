@@ -206,7 +206,7 @@ func enhancementShamanWithTotem(t *testing.T, totemID int32) (*core.Simulation, 
 		Consumables:   &proto.ConsumesSpec{},
 		Buffs:         &proto.IndividualBuffs{},
 		Rotation:      &proto.APLRotation{},
-		TalentsString: "050533102-053030031005112251",
+		TalentsString: "050533102-053030310051012251",
 		Spec: &proto.Player_EnhancementShaman{EnhancementShaman: &proto.EnhancementShaman{
 			Options: &proto.EnhancementShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
 	}

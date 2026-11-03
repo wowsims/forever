@@ -17,6 +17,11 @@ _Source of truth:_ the rows themselves, which `go run ./tools/spelldata <id>` pr
 - **Class lines hold rows that are not class spells.** Poisons is skill line 40 in CategoryID 9 with the rank numeral
   in the name, and talent passives sit in class lines as trained rows with `BaseLevel` 1; a real trained passive is
   taught past level 1.
+- **"Rank N" rows with no rank 1 are a retired talent's leftover ranks.** A renamed talent can take the name of
+  an old one whose ranks 2 and up stay in the class line: Lightning Mastery 16166 (once Elemental Mastery) beside the
+  old Lightning Mastery's 16579-16582, whose rank 1 16578 is Elemental Alacrity now. Where a trained spell with no
+  subtext carries the name, `discoverLadders` makes it the family's one rank and drops the leftovers. Without such a
+  spell the family stays skipped as "missing rank 1" (Healing Grace, Judgement of the Crusader).
 - **The summons have ladders** because `discoverLadders` takes the "Summon" subtext, and the store carries
   `SpellReagents` (`Spell.Reagents`, `ReagentCount`). Pet stats and the Warlock Pet Scaling amounts are not in the
   game files and stay hand-kept (PR #331).
