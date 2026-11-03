@@ -48,7 +48,8 @@ func makePvPTrinketEffect(itemID int32) core.ApplyEffect {
 
 		character.AddMajorCooldown(core.MajorCooldown{
 			Spell: spell,
-			Type:  core.CooldownTypeSurvival,
+			// A stun break with no defensive type, so it goes for anyone at any health; it still goes off the GCD.
+			AllowSpellQueueing: true,
 			ShouldActivate: func(_ *core.Simulation, character *core.Character) bool {
 				return character.PseudoStats.Incapacitated
 			},
