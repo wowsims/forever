@@ -591,9 +591,9 @@ func plannedIterations(plan *proto.StatWeightsTopUpPlan) map[stats.UnitStat]int3
 	return planned
 }
 
-// A target applies to a percent's EP per rating point, the unit the stat weights dialog shows, so a
-// percent spread as widely per rating point as a rating runs as far as that rating.
-func TestStatWeightTopUpPlanSizesAPercentPerRatingPoint(t *testing.T) {
+// A stat with a percent is sized at the target times its rating per percent, so a percent and its rating plan
+// the same count, while agility, which has none, stays at the target per point.
+func TestStatWeightTopUpPlanSizesAPercentAtTheTargetTimesItsRatingPerPercent(t *testing.T) {
 	const perSide = 20
 	_, calc := syntheticStatWeightCalc(
 		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
@@ -609,7 +609,7 @@ func TestStatWeightTopUpPlanSizesAPercentPerRatingPoint(t *testing.T) {
 			return statWeightRun(values)
 		})
 
-	const target = 0.005
+	const target = 0.0001
 	plan := planStatWeightTopUp(&proto.StatWeightsTopUpRequest{Calc: calc, Target: &proto.StatWeightsTarget{EpCi: target}})
 	planned := plannedIterations(plan)
 	hitRating := planned[hitRatingUnitStat]
@@ -621,18 +621,22 @@ func TestStatWeightTopUpPlanSizesAPercentPerRatingPoint(t *testing.T) {
 	}
 	result := computeStatWeights(calc)
 	for _, c := range []struct {
-		pseudoStat       proto.PseudoStat
+		stat             stats.UnitStat
 		ratingPerPercent float64
+		stdevPerPercent  bool
 		sides            float64
 	}{
-		{proto.PseudoStat_PseudoStatRangedCritPercent, CritRatingPerCritPercent, 2},
-		{proto.PseudoStat_PseudoStatExpertisePercent, ExpertiseRatingPerExpertisePercent, 1},
+		{agilityUnitStat, 1, false, 2},
+		{stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedCritPercent), CritRatingPerCritPercent, true, 2},
+		{stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatExpertisePercent), ExpertiseRatingPerExpertisePercent, true, 1},
 	} {
-		stat := stats.UnitStatFromPseudoStat(c.pseudoStat)
-		stdevPerRating := protoUnitStat(result.Dps.EpValuesStdev, stat) / c.ratingPerPercent
-		want := int32(math.Ceil(math.Pow(StatWeightZ90*stdevPerRating/target, 2) / c.sides))
-		if got := planned[stat]; got != want {
-			t.Errorf("%s planned %d iterations, want %d", c.pseudoStat, got, want)
+		stdevPerPoint := protoUnitStat(result.Dps.EpValuesStdev, c.stat)
+		if c.stdevPerPercent {
+			stdevPerPoint /= c.ratingPerPercent
+		}
+		want := int32(math.Ceil(math.Pow(StatWeightZ90*stdevPerPoint/c.ratingPerPercent/target, 2) / c.sides))
+		if got := planned[c.stat]; got != want {
+			t.Errorf("stat %d planned %d iterations, want %d", c.stat, got, want)
 		}
 	}
 }
@@ -644,12 +648,16 @@ func TestStatWeightTopUpPlanSizesEachStatForTheTarget(t *testing.T) {
 	const perSide = 20
 	calc := noisyStatWeightCalc(perSide)
 	result := computeStatWeights(calc)
-	agilityCi, hitCi := shownEpCi(result, agilityUnitStat), shownEpCi(result, hitRatingUnitStat)
+	agilityCi, hitCi := shownEpCi(result, agilityUnitStat), shownEpCi(result, hitRatingUnitStat)/HitRatingPerHitPercent
 	if agilityCi == 0 || hitCi == 0 || agilityCi == hitCi {
-		t.Fatalf("shown ± agility %v, hit rating %v: want two different spreads", agilityCi, hitCi)
+		t.Fatalf("shown ± agility %v, hit rating per 1%% %v: want two different spreads", agilityCi, hitCi)
 	}
 	sized := func(stat stats.UnitStat, target, sides float64) int32 {
-		return int32(math.Ceil(math.Pow(StatWeightZ90*protoUnitStat(result.Dps.EpValuesStdev, stat)/target, 2) / sides))
+		stdev := protoUnitStat(result.Dps.EpValuesStdev, stat)
+		if stat == hitRatingUnitStat {
+			stdev /= HitRatingPerHitPercent
+		}
+		return int32(math.Ceil(math.Pow(StatWeightZ90*stdev/target, 2) / sides))
 	}
 	const uncapped = math.MaxInt32 / perSide
 	plan := func(target float64, multiplier int32) *proto.StatWeightsTopUpPlan {
@@ -877,11 +885,12 @@ func TestStatWeightsTargetModeRunsToTheTargetOrTheCap(t *testing.T) {
 		return runStatWeights(request, nil, simsignals.CreateSignals())
 	}
 	weighed := []stats.UnitStat{attackPowerUnitStat, hitRatingUnitStat}
+	scales := map[stats.UnitStat]float64{attackPowerUnitStat: 1, hitRatingUnitStat: HitRatingPerHitPercent}
 
 	probe := weigh(0)
 	target := math.Inf(1)
 	for _, stat := range weighed {
-		target = min(target, shownEpCi(probe, stat)/2)
+		target = min(target, shownEpCi(probe, stat)/scales[stat]/2)
 	}
 	if target == 0 {
 		t.Fatal("a stat has no spread, so there is nothing to top up")
@@ -897,7 +906,7 @@ func TestStatWeightsTargetModeRunsToTheTargetOrTheCap(t *testing.T) {
 		if samples <= protoUnitStat(probe.SampleCounts, stat) {
 			t.Errorf("stat %d kept its probe's %v samples", stat, samples)
 		}
-		if ci := shownEpCi(result, stat); ci > target && samples != sides*probePerSide*multiplier {
+		if ci := shownEpCi(result, stat) / scales[stat]; ci > target && samples != sides*probePerSide*multiplier {
 			t.Errorf("stat %d shows ± %v over the target %v with %v samples, under the cap", stat, ci, target, samples)
 		}
 	}
