@@ -192,8 +192,10 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `next_move_duration`
 - `amp_is_active(caster_buff|environment_buff|target_debuff)`
 - `time_until_amp(caster_buff|environment_buff|target_debuff)`
-- `boss_ability_is_active(string)`
-- `time_until_boss_ability(string)`
+- `boss_ability_is_active(string, target_unit: unit)`
+- `time_until_boss_ability(string, target_unit: unit)`
+- `boss_ability_cast_time_remaining(string, target_unit: unit)`
+- `boss_ability_is_known(string, target_unit: unit)`
 - `[unit.]boss_current_target`
 - `target_is_mob_type(beast|demon|dragonkin|elemental|giant|humanoid|mechanical|undead, target_unit: unit)`
 - `[unit.]target_is_bleed_immune`

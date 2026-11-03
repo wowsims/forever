@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 147
+// NextIndex: 150
 message APLValue {
 	UUID uuid = 85;
 
@@ -140,6 +140,8 @@ message APLValue {
         APLValueTimeUntilAmp time_until_amp = 52;
         APLValueBossAbilityIsActive boss_ability_is_active = 53;
         APLValueTimeUntilBossAbility time_until_boss_ability = 54;
+        APLValueBossAbilityCastTimeRemaining boss_ability_cast_time_remaining = 148;
+        APLValueBossAbilityIsKnown boss_ability_is_known = 149;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -535,14 +537,29 @@ message APLValueAmpIsActive {
 message APLValueTimeUntilAmp {
     DamageAmpType amp_type = 1;
 }
+// A boss ability value reads the abilities of its name on any unit, or with target_unit set only those whose target
+// is that unit. A Pulse and an Area Hit come from no target, so a set target_unit leaves them out.
+
 // True while a window of a Thrash, Swing Timing or Pulse is open on the timeline, its target active or not; always
 // false for Spell Hit, Strike and Area Hit, which have no window.
 message APLValueBossAbilityIsActive {
     string ability_name = 1; // The boss ability's name; with several of that name, any of them.
+    UnitReference target_unit = 2;
 }
 // 0 while a window of the ability is open, else the time until its next window or hit starts, or never with none left.
 message APLValueTimeUntilBossAbility {
     string ability_name = 1; // The boss ability's name; with several of that name, the soonest of them.
+    UnitReference target_unit = 2;
+}
+// The time left on the hardcast of a Spell Hit of the name, 0 while none of them is casting; no other kind casts.
+message APLValueBossAbilityCastTimeRemaining {
+    string ability_name = 1; // The boss ability's name; with several of that name casting, the soonest to land.
+    UnitReference target_unit = 2;
+}
+// True when the design has a boss ability of the name, read when the rotation is built.
+message APLValueBossAbilityIsKnown {
+    string ability_name = 1;
+    UnitReference target_unit = 2;
 }
 
 message APLValueBossSpellTimeToReady {

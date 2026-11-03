@@ -7135,6 +7135,32 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"boss_ability_cast_time_remaining": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"boss_ability_is_known": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -8621,6 +8647,8 @@
 								"time_until_amp",
 								"boss_ability_is_active",
 								"time_until_boss_ability",
+								"boss_ability_cast_time_remaining",
+								"boss_ability_is_known",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",
@@ -9184,6 +9212,9 @@
 										"current_target": {
 											"type": "string"
 										},
+										"any_target": {
+											"type": "string"
+										},
 										"previous_target": {
 											"type": "string"
 										},
@@ -9201,7 +9232,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["self", "current_target", "previous_target", "next_target", "player", "target", "pet"]
+									"required": ["self", "current_target", "any_target", "previous_target", "next_target", "player", "target", "pet"]
 								},
 								"placeholder_tooltip": {
 									"type": "string"

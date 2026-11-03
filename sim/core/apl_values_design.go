@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -37,20 +38,67 @@ func (rot *APLRotation) validAmpType(ampType proto.DamageAmpType, uuid *proto.UU
 	return true
 }
 
-// The design's boss abilities of the name, with a warning when it has none. No name names none of them.
-func (rot *APLRotation) designBossAbilities(name string, uuid *proto.UUID) []*designBossAbility {
-	var abilities []*designBossAbility
+// The boss abilities a name-based value reads: those of the name on any unit with no target set, else those whose
+// target is that enemy target. A pulse or an area hit comes from no target, so a set target leaves it out. A fixed
+// target filters when the value is built, a current, previous or next target at each read (onTarget).
+type designAbilityFilter struct {
+	abilities []*designBossAbility
+	target    UnitReference // The current, previous or next target each read filters on; Type Unknown for none.
+}
+
+// The filter of the name and target, or nil, with a warning, for a target that is not an enemy target. No name
+// names none of them.
+func (rot *APLRotation) designAbilityFilter(name string, targetRef *proto.UnitReference, uuid *proto.UUID) *designAbilityFilter {
+	filter := &designAbilityFilter{}
+	targeted := targetRef != nil && targetRef.Type != proto.UnitReference_Unknown
+	var fixed *Target
+	if targeted {
+		unit, ok := rot.getDesignTargetUnit(targetRef, uuid)
+		if !ok {
+			return nil
+		}
+		if unit.fixedUnit != nil {
+			fixed = enemyTargetOf(unit.fixedUnit)
+		} else {
+			filter.target = unit
+		}
+	}
 	if design := rot.unit.Env.Encounter.design; design != nil && name != "" {
 		for _, ability := range design.bossAbilities {
-			if ability.config.Name == name {
-				abilities = append(abilities, ability)
+			if ability.config.Name == name && !(targeted && ability.isArea()) && (fixed == nil || ability.target == fixed) {
+				filter.abilities = append(filter.abilities, ability)
 			}
 		}
 	}
-	if len(abilities) == 0 {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q", name)
+	return filter
+}
+
+// The filter of the name and target, or nil, with a warning, when no ability matches.
+func (rot *APLRotation) designBossAbilities(name string, targetRef *proto.UnitReference, uuid *proto.UUID) *designAbilityFilter {
+	filter := rot.designAbilityFilter(name, targetRef, uuid)
+	if filter == nil {
+		return nil
 	}
-	return abilities
+	if len(filter.abilities) == 0 {
+		if filter.target.Type != proto.UnitReference_Unknown {
+			rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q on a target", name)
+		} else if targetRef != nil && targetRef.Type != proto.UnitReference_Unknown {
+			rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q on %s", name, rot.GetTargetUnit(targetRef).Get().Label)
+		} else {
+			rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q", name)
+		}
+		return nil
+	}
+	return filter
+}
+
+// Whether the ability is on the filter's current, previous or next target, or the filter reads every unit.
+func (filter *designAbilityFilter) onTarget(ability *designBossAbility) bool {
+	if filter.target.Type == proto.UnitReference_Unknown {
+		return true
+	}
+	target := enemyTargetOf(filter.target.Get())
+	return target != nil && ability.target == target
 }
 
 type APLValueTargetIsActive struct {
@@ -220,25 +268,33 @@ func (value *APLValueTimeUntilAmp) String() string {
 	return fmt.Sprintf("Time Until Amp(%s)", value.ampType)
 }
 
+// Folds to a constant when the rotation is built, a current, previous or next target resolved then. A name the
+// design lacks reads false with no warning, since absence is what the value tests.
+func (rot *APLRotation) newValueBossAbilityIsKnown(config *proto.APLValueBossAbilityIsKnown, uuid *proto.UUID) APLValue {
+	filter := rot.designAbilityFilter(config.AbilityName, config.TargetUnit, uuid)
+	known := filter != nil && slices.ContainsFunc(filter.abilities, filter.onTarget)
+	return rot.newValueConst(&proto.APLValueConst{Val: Ternary(known, "true", "false")}, uuid)
+}
+
 type APLValueBossAbilityIsActive struct {
 	DefaultAPLValueImpl
-	name      string
-	abilities []*designBossAbility
+	name   string
+	filter *designAbilityFilter
 }
 
 func (rot *APLRotation) newValueBossAbilityIsActive(config *proto.APLValueBossAbilityIsActive, uuid *proto.UUID) APLValue {
-	abilities := rot.designBossAbilities(config.AbilityName, uuid)
-	if abilities == nil {
+	filter := rot.designBossAbilities(config.AbilityName, config.TargetUnit, uuid)
+	if filter == nil {
 		return nil
 	}
-	return &APLValueBossAbilityIsActive{name: config.AbilityName, abilities: abilities}
+	return &APLValueBossAbilityIsActive{name: config.AbilityName, filter: filter}
 }
 func (value *APLValueBossAbilityIsActive) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueBossAbilityIsActive) GetBool(_ *Simulation) bool {
-	for _, ability := range value.abilities {
-		if ability.open > 0 {
+	for _, ability := range value.filter.abilities {
+		if ability.open > 0 && value.filter.onTarget(ability) {
 			return true
 		}
 	}
@@ -250,27 +306,71 @@ func (value *APLValueBossAbilityIsActive) String() string {
 
 type APLValueTimeUntilBossAbility struct {
 	DefaultAPLValueImpl
-	name      string
-	abilities []*designBossAbility
+	name   string
+	filter *designAbilityFilter
 }
 
 func (rot *APLRotation) newValueTimeUntilBossAbility(config *proto.APLValueTimeUntilBossAbility, uuid *proto.UUID) APLValue {
-	abilities := rot.designBossAbilities(config.AbilityName, uuid)
-	if abilities == nil {
+	filter := rot.designBossAbilities(config.AbilityName, config.TargetUnit, uuid)
+	if filter == nil {
 		return nil
 	}
-	return &APLValueTimeUntilBossAbility{name: config.AbilityName, abilities: abilities}
+	return &APLValueTimeUntilBossAbility{name: config.AbilityName, filter: filter}
 }
 func (value *APLValueTimeUntilBossAbility) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeDuration
 }
 func (value *APLValueTimeUntilBossAbility) GetDuration(sim *Simulation) time.Duration {
 	next := NeverExpires
-	for _, ability := range value.abilities {
-		next = min(next, ability.nextAt(sim))
+	for _, ability := range value.filter.abilities {
+		if value.filter.onTarget(ability) {
+			next = min(next, ability.nextAt(sim))
+		}
 	}
 	return timeUntil(sim, next)
 }
 func (value *APLValueTimeUntilBossAbility) String() string {
 	return fmt.Sprintf("Time Until Boss Ability(%s)", value.name)
+}
+
+type APLValueBossAbilityCastTimeRemaining struct {
+	DefaultAPLValueImpl
+	name   string
+	filter *designAbilityFilter
+}
+
+// Reads the spell hits of the filter. A name of abilities that never cast, the other kinds or a spell hit construction
+// skipped, reads a constant 0ms with a warning, so a line on it folds instead of losing its condition.
+func (rot *APLRotation) newValueBossAbilityCastTimeRemaining(config *proto.APLValueBossAbilityCastTimeRemaining, uuid *proto.UUID) APLValue {
+	filter := rot.designBossAbilities(config.AbilityName, config.TargetUnit, uuid)
+	if filter == nil {
+		return nil
+	}
+	filter.abilities = slices.DeleteFunc(filter.abilities, func(ability *designBossAbility) bool {
+		return ability.config.Kind != proto.DesignBossAbility_SpellHit || ability.spell == nil
+	})
+	if len(filter.abilities) == 0 {
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q has no Spell Hit that casts, so its cast time remaining is always 0", config.AbilityName)
+		return rot.newValueConst(&proto.APLValueConst{Val: "0ms"}, uuid)
+	}
+	return &APLValueBossAbilityCastTimeRemaining{name: config.AbilityName, filter: filter}
+}
+func (value *APLValueBossAbilityCastTimeRemaining) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+func (value *APLValueBossAbilityCastTimeRemaining) GetDuration(sim *Simulation) time.Duration {
+	soonest := NeverExpires
+	for _, ability := range value.filter.abilities {
+		hc := &ability.spell.Unit.Hardcast
+		if hc.Expires > sim.CurrentTime && hc.ActionID.SameAction(ability.spell.ActionID) && value.filter.onTarget(ability) {
+			soonest = min(soonest, hc.Expires-sim.CurrentTime)
+		}
+	}
+	if soonest == NeverExpires {
+		return 0
+	}
+	return soonest
+}
+func (value *APLValueBossAbilityCastTimeRemaining) String() string {
+	return fmt.Sprintf("Boss Ability Cast Time Remaining(%s)", value.name)
 }

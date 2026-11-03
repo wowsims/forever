@@ -278,8 +278,9 @@ func TestValueDesignWarnsForAnUnknownBossAbility(t *testing.T) {
 	} {
 		_, fw := setupDesignSim(c.request, nil)
 		configs := map[string]*proto.APLValue{
-			"Boss Ability Is Active":  {Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: c.name}}},
-			"Time Until Boss Ability": {Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: c.name}}},
+			"Boss Ability Is Active":           {Uuid: &proto.UUID{Value: "a"}, Value: &proto.APLValue_BossAbilityIsActive{BossAbilityIsActive: &proto.APLValueBossAbilityIsActive{AbilityName: c.name}}},
+			"Time Until Boss Ability":          {Uuid: &proto.UUID{Value: "b"}, Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: c.name}}},
+			"Boss Ability Cast Time Remaining": {Uuid: &proto.UUID{Value: "c"}, Value: &proto.APLValue_BossAbilityCastTimeRemaining{BossAbilityCastTimeRemaining: &proto.APLValueBossAbilityCastTimeRemaining{AbilityName: c.name}}},
 		}
 		for name, config := range configs {
 			if value := fw.Rotation.newAPLValue(config); value != nil {
@@ -289,7 +290,160 @@ func TestValueDesignWarnsForAnUnknownBossAbility(t *testing.T) {
 				t.Errorf("%s, %s: validations = %v, want one warning", label, name, warnings)
 			}
 		}
+		known := &proto.APLValue{Uuid: &proto.UUID{Value: "d"}, Value: &proto.APLValue_BossAbilityIsKnown{BossAbilityIsKnown: &proto.APLValueBossAbilityIsKnown{AbilityName: c.name}}}
+		if value, ok := fw.Rotation.newAPLValue(known).(*APLValueConst); !ok || value.boolVal {
+			t.Errorf("%s, Boss Ability Is Known: expected a constant false, got %v", label, value)
+		}
+		if warnings := fw.Rotation.uuidValidations[known.Uuid]; len(warnings) != 0 {
+			t.Errorf("%s, Boss Ability Is Known: validations = %v, want none", label, warnings)
+		}
 	}
+}
+
+func designNamedSpellHit(name string, targetIndex int32, start float64, castTime time.Duration) *proto.DesignBossAbility {
+	ability := designBossWindow(proto.DesignBossAbility_SpellHit, start, 1)
+	ability.Name = name
+	ability.TargetIndex = targetIndex
+	ability.MinDamage, ability.MaxDamage = 100, 100
+	ability.CastTime = castTime.Seconds()
+	return ability
+}
+
+func castTimeRemainingConfig(name string, target *proto.UnitReference) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_BossAbilityCastTimeRemaining{BossAbilityCastTimeRemaining: &proto.APLValueBossAbilityCastTimeRemaining{AbilityName: name, TargetUnit: target}}}
+}
+
+func timeUntilBossAbilityConfig(name string, target *proto.UnitReference) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_TimeUntilBossAbility{TimeUntilBossAbility: &proto.APLValueTimeUntilBossAbility{AbilityName: name, TargetUnit: target}}}
+}
+
+func bossAbilityIsKnownConfig(name string, target *proto.UnitReference) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_BossAbilityIsKnown{BossAbilityIsKnown: &proto.APLValueBossAbilityIsKnown{AbilityName: name, TargetUnit: target}}}
+}
+
+// The time left on a spell hit's hardcast, 0 before it starts and once it lands. A name with no spell hit reads a
+// constant 0 with a warning.
+func TestValueDesignReadsBossAbilityCastTimeRemaining(t *testing.T) {
+	const castTime = 2 * time.Second
+	fire := designAreaHit(0.2)
+	fire.Name = "Fire"
+	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{designNamedSpellHit("Bolt", 0, 0.4, castTime), fire}}
+	sim, fw := setupDesignSim(designTestRequest(1, design), nil)
+	remaining := designValue(t, fw.Rotation, "Bolt", castTimeRemainingConfig("Bolt", nil))
+
+	for _, c := range []struct {
+		name string
+		at   time.Duration
+		want time.Duration
+	}{
+		{"before the cast", designAt(0.3), 0},
+		{"during the cast", designAt(0.4) + 500*time.Millisecond, castTime - 500*time.Millisecond},
+		{"as it lands", designAt(0.4) + castTime, 0},
+		{"after it lands", designAt(0.4) + castTime + time.Second, 0},
+	} {
+		runLifecycleUntil(sim, c.at)
+		if got := remaining.GetDuration(sim); got != c.want {
+			t.Errorf("%s: expected %s, got %s", c.name, c.want, got)
+		}
+	}
+
+	config := castTimeRemainingConfig("Fire", nil)
+	config.Uuid = &proto.UUID{Value: "Fire"}
+	value, ok := fw.Rotation.newAPLValue(config).(*APLValueConst)
+	if !ok || value.Type() != proto.APLValueType_ValueTypeDuration || value.GetDuration(sim) != 0 {
+		t.Errorf("an area hit: expected a constant 0ms, got %v", value)
+	}
+	if warnings := fw.Rotation.uuidValidations[config.Uuid]; len(warnings) != 1 || warnings[0].LogLevel != proto.LogLevel_Warning {
+		t.Errorf("an area hit: validations = %v, want one warning", warnings)
+	}
+}
+
+// Is Known folds to a constant: true for a name the design has, on the unit when one is set, a current target read
+// when the rotation is built; an area hit is on no unit.
+func TestValueDesignBossAbilityIsKnownFolds(t *testing.T) {
+	fire := designAreaHit(0.2)
+	fire.Name = "Fire"
+	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{designNamedSpellHit("Bolt", 1, 0.4, time.Second), fire}}
+	_, fw := setupDesignSim(designTestRequest(2, design), nil)
+	current := &proto.UnitReference{Type: proto.UnitReference_CurrentTarget}
+
+	for _, c := range []struct {
+		label  string
+		name   string
+		target *proto.UnitReference
+		want   bool
+	}{
+		{"a known name", "Bolt", nil, true},
+		{"an unknown name", "Frost", nil, false},
+		{"on the add, its target", "Bolt", designTargetRef(1), true},
+		{"on the boss", "Bolt", designTargetRef(0), false},
+		{"on the current target, the boss", "Bolt", current, false},
+		{"an area hit with no unit", "Fire", nil, true},
+		{"an area hit on the boss", "Fire", designTargetRef(0), false},
+	} {
+		config := bossAbilityIsKnownConfig(c.name, c.target)
+		config.Uuid = &proto.UUID{Value: c.label}
+		value, ok := fw.Rotation.newAPLValue(config).(*APLValueConst)
+		if !ok || value.boolVal != c.want {
+			t.Errorf("%s: expected a constant %v, got %v", c.label, c.want, value)
+		}
+		if warnings := fw.Rotation.uuidValidations[config.Uuid]; len(warnings) != 0 {
+			t.Errorf("%s: validations = %v, want none", c.label, warnings)
+		}
+	}
+}
+
+// With a unit the values read only that unit's copy of a shared name, a current target the one it is at each read;
+// with none, every copy.
+func TestValueDesignBossAbilityUnitFilter(t *testing.T) {
+	const castTime = 2 * time.Second
+	design := &proto.EncounterDesign{BossAbilities: []*proto.DesignBossAbility{
+		designNamedSpellHit("Bolt", 0, 0.3, castTime),
+		designNamedSpellHit("Bolt", 1, 0.5, castTime),
+	}}
+	sim, fw := setupDesignSim(designTestRequest(2, design), nil)
+	rot := fw.Rotation
+	current := &proto.UnitReference{Type: proto.UnitReference_CurrentTarget}
+	untilAny := designValue(t, rot, "until any", timeUntilBossAbilityConfig("Bolt", nil))
+	untilAdd := designValue(t, rot, "until add", timeUntilBossAbilityConfig("Bolt", designTargetRef(1)))
+	untilCurrent := designValue(t, rot, "until current", timeUntilBossAbilityConfig("Bolt", current))
+	castAny := designValue(t, rot, "cast any", castTimeRemainingConfig("Bolt", nil))
+	castAdd := designValue(t, rot, "cast add", castTimeRemainingConfig("Bolt", designTargetRef(1)))
+
+	until := func(next float64) time.Duration { return designAt(next) - sim.CurrentTime }
+	type check struct {
+		name string
+		got  time.Duration
+		want time.Duration
+	}
+	verify := func(checks ...check) {
+		t.Helper()
+		for _, c := range checks {
+			if c.got != c.want {
+				t.Errorf("at %s, %s: expected %s, got %s", sim.CurrentTime, c.name, c.want, c.got)
+			}
+		}
+	}
+
+	runLifecycleUntil(sim, designAt(0.1))
+	verify(
+		check{"until any, the boss's first", untilAny.GetDuration(sim), until(0.3)},
+		check{"until the add's", untilAdd.GetDuration(sim), until(0.5)},
+		check{"until the current target's, the boss's", untilCurrent.GetDuration(sim), until(0.3)},
+	)
+	fw.CurrentTarget = &sim.Encounter.AllTargets[1].Unit
+	verify(check{"until the current target's, the add's", untilCurrent.GetDuration(sim), until(0.5)})
+
+	runLifecycleUntil(sim, designAt(0.3)+time.Second)
+	verify(
+		check{"any cast, the boss casting", castAny.GetDuration(sim), castTime - time.Second},
+		check{"the add's cast, the boss casting", castAdd.GetDuration(sim), 0},
+	)
+	runLifecycleUntil(sim, designAt(0.5)+time.Second)
+	verify(
+		check{"any cast, the add casting", castAny.GetDuration(sim), castTime - time.Second},
+		check{"the add's cast", castAdd.GetDuration(sim), castTime - time.Second},
+	)
 }
 
 func TestValueDesignWarnsForUnitsThatAreNotEnemyTargets(t *testing.T) {

@@ -124,6 +124,10 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueBossAbilityIsActive(config.GetBossAbilityIsActive(), config.Uuid)
 	case *proto.APLValue_TimeUntilBossAbility:
 		value = rot.newValueTimeUntilBossAbility(config.GetTimeUntilBossAbility(), config.Uuid)
+	case *proto.APLValue_BossAbilityCastTimeRemaining:
+		value = rot.newValueBossAbilityCastTimeRemaining(config.GetBossAbilityCastTimeRemaining(), config.Uuid)
+	case *proto.APLValue_BossAbilityIsKnown:
+		value = rot.newValueBossAbilityIsKnown(config.GetBossAbilityIsKnown(), config.Uuid)
 
 	// Boss
 	case *proto.APLValue_BossSpellIsCasting:

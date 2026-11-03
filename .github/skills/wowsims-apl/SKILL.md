@@ -163,9 +163,14 @@ Health %` on an enemy read its health curve (`sim/core/target_health.go`). Fight
 The values that read an encounter design are in `sim/core/apl_values_design.go` and `apl_values_encounter.go`:
 `Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
 a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
-`Time Until Amp` (by damage amp type), `Boss Ability Is Active` and `Time Until Boss Ability` (by the ability's exact
-event name; active only for a window kind: Thrash, Swing Timing, Pulse; an unknown name warns). Without a design the
-times are never, and `Next Move Duration` is 0.
+`Time Until Amp` (by damage amp type), and four values by a boss ability's exact event name: `Boss Ability Is Active`
+(only a window kind: Thrash, Swing Timing, Pulse), `Time Until Boss Ability`, `Boss Ability Cast Time Remaining` (a
+Spell Hit's hardcast; a name with no Spell Hit reads a constant 0 with a warning) and `Boss Ability Is Known`, which
+folds to a constant like `Spell Is Known` and does not warn when false. The other three warn on an unknown name and are
+left out. Each takes an optional unit: empty reads the abilities of the name on every unit, a set unit only those whose
+target it is (a current target resolved at each read, or when the rotation is built for `Is Known`), and a Pulse or
+Area Hit, which comes from no target, never matches a set unit. Without a design the times are never, and `Next Move
+Duration` is 0.
 
 ## Traps
 

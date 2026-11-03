@@ -1,7 +1,7 @@
 import { UnitReference, UnitReference_Type as UnitType } from '@generated/proto/common';
 import { Player } from '@sim/player/player';
 
-export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'players';
+export type UNIT_SET = 'aura_sources' | 'aura_sources_targets_first' | 'self_and_pets' | 'targets' | 'any_target' | 'players';
 
 const ownPetRefs = (player: Player<any>) =>
 	player
@@ -14,6 +14,8 @@ export const unitSets: Record<
 	{
 		// Uses target icon by default instead of person icon. This should be set to true for inputs that default to CurrentTarget.
 		targetUI?: boolean;
+		// The empty choice reads every target, so it shows as Any Target and the current target is a choice of its own.
+		emptyIsAny?: boolean;
 		getUnits: (player: Player<any>) => Array<UnitReference | undefined>;
 	}
 > = {
@@ -55,6 +57,19 @@ export const unitSets: Record<
 		getUnits: player => {
 			return [
 				undefined,
+				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
+				UnitReference.create({ type: UnitType.PreviousTarget }),
+				UnitReference.create({ type: UnitType.NextTarget }),
+			].flat();
+		},
+	},
+	any_target: {
+		targetUI: true,
+		emptyIsAny: true,
+		getUnits: player => {
+			return [
+				undefined,
+				UnitReference.create({ type: UnitType.CurrentTarget }),
 				player.sim.encounter.targetsMetadata.asList().map((_targetMetadata, i) => UnitReference.create({ type: UnitType.Target, index: i })),
 				UnitReference.create({ type: UnitType.PreviousTarget }),
 				UnitReference.create({ type: UnitType.NextTarget }),

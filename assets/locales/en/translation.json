@@ -1999,11 +1999,19 @@
 				},
 				"boss_ability_is_active": {
 					"label": "Boss Ability Is Active",
-					"tooltip": "True while a window of the named boss ability is open: a Thrash, Swing timing or Pulse. Always false for an ability that lands at instants"
+					"tooltip": "True while a window of the named boss ability is open: a Thrash, Swing timing or Pulse. Always false for an ability that lands at instants. With a unit set, only that unit's abilities count, so a Pulse never does"
 				},
 				"time_until_boss_ability": {
 					"label": "Time Until Boss Ability",
-					"tooltip": "Seconds until the named boss ability's next window or hit starts, 0 while a window of it is open"
+					"tooltip": "Seconds until the named boss ability's next window or hit starts, 0 while a window of it is open. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does"
+				},
+				"boss_ability_cast_time_remaining": {
+					"label": "Boss Ability Cast Time Remaining",
+					"tooltip": "Seconds left on the hardcast of the named Spell Hit, 0 while none is casting. With several casting, the one that lands first. With a unit set, only that unit's Spell Hits count"
+				},
+				"boss_ability_is_known": {
+					"label": "Boss Ability Is Known",
+					"tooltip": "True when the encounter design has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
@@ -2571,6 +2579,7 @@
 				"unit_labels": {
 					"self": "Self",
 					"current_target": "Current Target",
+					"any_target": "Any Target",
 					"previous_target": "Previous Target",
 					"next_target": "Next Target",
 					"player": "Player",
