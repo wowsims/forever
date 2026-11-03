@@ -1215,6 +1215,7 @@
 {"id":11946,"name":"Fire Opal Necklace","icon":"inv_jewelry_necklace_02","type":2,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":47,"phase":1,"quality":2,"expansion":1,"sources":[{"drop":{"difficulty":1,"npcId":9438,"zoneId":1584,"category":"Relic Coffer"}}],"scalingOptions":{"0":{"randPropPoints":12,"ilvl":52}}},
 {"id":11970,"name":"Spinel Ring","icon":"inv_jewelry_ring_11","type":11,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":29,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":7,"ilvl":34}}},
 {"id":11986,"name":"Thallium Hoop","icon":"inv_jewelry_ring_06","type":11,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":34,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":9,"ilvl":39}}},
+{"id":11989,"name":"Vanadium Loop","icon":"inv_jewelry_ring_08","type":11,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":46,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":12,"ilvl":51}}},
 {"id":11990,"name":"Selenium Loop","icon":"inv_jewelry_ring_04","type":11,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":50,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":13,"ilvl":55}}},
 {"id":12008,"name":"Savannah Ring","icon":"inv_jewelry_ring_03","type":11,"randomSuffixOptions":[12718,12719,12720,12721,12722,12723,12724,12725,12726,12727,12728,12729,12730,12731,12732,12733,12737,12738,12739,12740,12741,12742,12743,12744,12745,12746,12747,12748,12749,12750,12751,12752,12753,12754,12755],"reqLvl":23,"phase":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":6,"ilvl":28}}},
 {"id":12018,"name":"Conservator Helm","icon":"inv_helmet_01","type":1,"armorType":3,"phase":1,"quality":3,"sources":[{"quest":{"id":4242,"name":"Abandoned Hope","faction":1}}],"scalingOptions":{"0":{"randPropPoints":31,"stats":{"2":22,"13":20,"27":262},"ilvl":54}}},
@@ -7714,7 +7715,7 @@
 {"id":16086,"name":"Trial by Fire","icon":"spell_fire_sealoffire"},
 {"id":16089,"name":"Elemental Fury","icon":"spell_fire_volcano"},
 {"id":16164,"name":"Elemental Focus","icon":"spell_shadow_manaburn"},
-{"id":16166,"name":"Elemental Mastery","icon":"spell_nature_wispheal","hasBuff":true},
+{"id":16166,"name":"Lightning Mastery","icon":"spell_nature_unrelentingstorm","hasBuff":true},
 {"id":16173,"name":"Totemic Focus","icon":"spell_nature_moonglow"},
 {"id":16176,"name":"Ancestral Healing","icon":"spell_nature_undyingstrength"},
 {"id":16178,"name":"Purification","icon":"spell_frost_wizardmark"},
@@ -9333,7 +9334,9 @@
 {"id":1328570,"name":"Holy Binding","icon":"spell_holy_flashheal"},
 {"id":1328613,"name":"Predatory Discipline","icon":"spell_druid_savagery"},
 {"id":1328617,"name":"Lacerate","icon":"ability_druid_lacerate","rank":1,"hasBuff":true},
-{"id":1328621,"name":"Bloom","icon":"inv_misc_herb_felblossom"}
+{"id":1328621,"name":"Bloom","icon":"inv_misc_herb_felblossom"},
+{"id":1328827,"name":"Poised","icon":"ability_racial_darkflight","hasBuff":true},
+{"id":1329555,"name":"Reckless Swings","icon":"ability_warrior_bloodfrenzy","hasBuff":true}
 ],
 "encounters":[
 {"path":"Default/Raid Target","targets":[{"path":"Default/Raid Target","target":{"id":31146,"name":"Raid Target","level":63,"mobType":7,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,0,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],"minBaseDamage":2601,"damageSpread":0.5,"swingSpeed":2,"parryHaste":true,"canCrush":true}}]},

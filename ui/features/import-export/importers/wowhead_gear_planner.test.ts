@@ -81,8 +81,8 @@ describe('the Wowhead gear planner link', () => {
 	});
 
 	it('round-trips the three-tree talent string', async () => {
-		const parsed = await roundTrip({ talents: '05002001-0550000502-05032' });
-		expect(parsed.talentsStr).toBe('05002001-0550000502-05032');
+		const parsed = await roundTrip({ talents: '05002001-055000025-05032' });
+		expect(parsed.talentsStr).toBe('05002001-055000025-05032');
 	});
 
 	// An empty talent string writes three separators and nothing else, and must not come back as '---'.
