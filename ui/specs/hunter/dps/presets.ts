@@ -55,13 +55,8 @@ export const DefaultRotation = WeaveAPLRotation;
 // The simple rotation of the spec's defaults.
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecHunter, Defaults.simpleRotation!);
 
-// A build from `json`, which leaves "in front of target" and item swap as the page has them: a .siml file has no
-// unset bool, so its settings: section turns both off.
-const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild => {
-	const preset = PresetUtils.makePresetBuildFromJSON(name, Spec.SpecHunter, json, { gear });
-	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings!.playerOptions!;
-	return { ...preset, settings: { ...preset.settings!, playerOptions } };
-};
+const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild =>
+	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecHunter, json, { gear });
 
 // Gear, talents, rotation, pet and distance together, one per tree and playstyle: the best build found for each on
 // the P1 gear over a three minute fight.

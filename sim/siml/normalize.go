@@ -58,9 +58,16 @@ func Normalize(m googleProto.Message, names *Names, spec proto.Spec) googleProto
 		}
 	}
 	pad(out.ProtoReflect())
+	// A talent_is_known talent with a rank above 1 prints raw (§7.3) and reads back with its own rank. walkMessages
+	// visits a message before its fields, so the talent is marked before its ActionID comes.
+	ranked := map[*proto.ActionID]bool{}
 	walkMessages(out.ProtoReflect(), func(m protoreflect.Message) {
+		if v, ok := m.Interface().(*proto.APLValueTalentIsKnown); ok && keepsTalentRank(m.Descriptor().FullName(), v.TalentId) {
+			ranked[v.TalentId] = true
+			return
+		}
 		id, ok := m.Interface().(*proto.ActionID)
-		if !ok {
+		if !ok || ranked[id] {
 			return
 		}
 		for _, ns := range AllNamespaces() {
