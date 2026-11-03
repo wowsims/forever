@@ -1,0 +1,145 @@
+{
+	"settings": {
+		"iterations": 25000
+	},
+	"raidBuffs": {
+		"arcaneIntellect": true,
+		"prayerOfSpirit": true,
+		"markOfTheWild": true,
+		"powerWordFortitude": true,
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1,
+		"windfuryTotem": true,
+		"battleShout": 1,
+		"leaderOfThePack": true
+	},
+	"debuffs": {
+		"judgementOfLight": true,
+		"judgementOfWisdom": true,
+		"curseOfElements": true,
+		"curseOfRecklessness": true,
+		"faerieFire": true,
+		"exposeArmor": true,
+		"sunderArmor": true
+	},
+	"partyBuffs": {
+		"manaSpringTotem": "TristateEffectRegular"
+	},
+	"player": {
+		"race": "RaceHuman",
+		"class": "ClassPaladin",
+		"equipment": {
+			"items": [
+				{
+					"id": 12640,
+					"enchant": 2543
+				},
+				{
+					"id": 22150,
+					"enchant": 904
+				},
+				{
+					"id": 22093
+				},
+				{
+					"id": 279269,
+					"enchant": 849
+				},
+				{
+					"id": 22089,
+					"enchant": 1891
+				},
+				{
+					"id": 22088,
+					"enchant": 2566
+				},
+				{
+					"id": 22090,
+					"enchant": 8206
+				},
+				{
+					"id": 22086
+				},
+				{
+					"id": 22385,
+					"enchant": 2543
+				},
+				{
+					"id": 22087,
+					"enchant": 1887
+				},
+				{
+					"id": 21182
+				},
+				{
+					"id": 19325
+				},
+				{
+					"id": 274759
+				},
+				{
+					"id": 272437
+				},
+				{
+					"id": 12784,
+					"enchant": 1900
+				},
+				{},
+				{
+					"id": 272435
+				}
+			]
+		},
+		"consumables": {
+			"flaskId": 13512,
+			"foodId": 13933,
+			"conjuredId": 12662,
+			"mhImbueId": 3824,
+			"extraIds": [8410, 10646, 12217, 18269],
+			"elixirIds": [21546, 250338, 13452, 250337, 250351, 250329, 13454, 250341, 12460],
+			"resourcePotId": 13444,
+			"offensivePotId": 250937
+		},
+		"buffs": {
+			"greaterBlessingOfKings": true,
+			"greaterBlessingOfMight": 1,
+			"greaterBlessingOfWisdom": 1
+		},
+		"retributionPaladin": {
+			"options": {
+				"classOptions": {}
+			}
+		},
+		"talentsString": "050250002-501-05233011201301351",
+		"profession1": "Engineering",
+		"profession2": "Blacksmithing",
+		"rotation": {
+			"type": "TypeSimple",
+			"simple": {
+				"specRotationJson": "{\"aura\":\"RetributionAura\",\"assignedJudgement\":\"JudgementOfTheCrusader\",\"pullRange\":25}"
+			}
+		},
+		"reactionTimeMs": 100,
+		"distanceFromTarget": 25
+	},
+	"encounter": {
+		"duration": 180,
+		"durationVariation": 5,
+		"executeProportion20": 0.2,
+		"executeProportion35": 0.35,
+		"targets": [
+			{
+				"id": 31146,
+				"name": "Raid Target",
+				"level": 63,
+				"mobType": "MobTypeMechanical",
+				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1428900, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				"minBaseDamage": 2601,
+				"damageSpread": 0.5,
+				"swingSpeed": 2,
+				"parryHaste": true,
+				"canCrush": true
+			}
+		]
+	}
+}
