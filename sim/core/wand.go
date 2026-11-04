@@ -136,30 +136,15 @@ func (wand *Wand) slotTaken(sim *Simulation) bool {
 	if !wand.interruptIf.GetBool(sim) {
 		return false
 	}
-	if len(rot.controllingActions) != 0 {
-		sequence, ok := rot.controllingActions[len(rot.controllingActions)-1].(*APLActionStrictSequence)
-		if !ok {
-			return true
-		}
-		next := sequence.current()
-		return next.IsReady(sim) && !wand.isShootAction(next)
+	if step, controlled := rot.controlledStep(); controlled {
+		return step == nil || (step.IsReady(sim) && !step.casts(wand.shoot))
 	}
 
 	var next *APLAction
 	rot.withChannelEnded(func() {
 		next = rot.getNextAction(sim)
 	})
-	return next != nil && !wand.isShootAction(next)
-}
-
-func (wand *Wand) isShootAction(action *APLAction) bool {
-	switch impl := action.impl.(type) {
-	case *APLActionCastSpell:
-		return impl.spell == wand.shoot
-	case *APLActionChannelSpell:
-		return impl.spell == wand.shoot
-	}
-	return false
+	return next != nil && !next.casts(wand.shoot)
 }
 
 // A completed cast by the rotation or a major cooldown of any spell but Shoot.

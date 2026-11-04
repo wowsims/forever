@@ -20,6 +20,7 @@ Re-derive a claim before repeating it:
 | a lookup's warning, condition resolution, a preset loader          | "What fails silently"                                                     |
 | the pick at the cast end, `readLanding`, `Spell Is Casting`        | `docs/rotation.md`, "Timing"                                              |
 | `APLActionCastSpell.IsReady`, the reaction-time reads              | "Timing"                                                                  |
+| `shouldInterruptChannel`, `firstActionRecasts`, `withChannelEnded` | "Timing"                                                                  |
 | a preset group name, a `simpleRotation` toggle, a suite's un-hide  | "Presets"                                                                 |
 | `proto/apl.proto` or the `.vscode/settings.json` schema mapping    | `tools/APL.md`                                                            |
 
