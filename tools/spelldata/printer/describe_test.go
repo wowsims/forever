@@ -414,7 +414,7 @@ func TestLadderRefs(t *testing.T) {
 			name: "an id two families carry",
 			id:   12295,
 			want: []string{
-				"warrior spellData.ImprovedTacticalMastery.Rank(n), n up to 5",
+				"warrior spellData.ImprovedTacticalMastery.Rank(n), n up to 3",
 				"warrior spellData.TacticalMasteryTriggered.Highest()",
 			},
 		},
