@@ -17645,6 +17645,10 @@ var generatedSpells = []Spell{
 			{ID: 697838, SpellID: 21169, Type: dbcenums.E_SELF_RESURRECT, BasePoints: 20, BaseLevel: 30, PvpMult: 1, Misc: 20, ChainAmp: 1},
 		},
 		Reagents: []Reagent{{Item: 17030, Count: 1}}},
+	{ID: 21178, Name: "Bear Form (Passive2)", Rank: "Passive", School: 8, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 10, BaseLevel: 10, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 33554432}}, Labels: []int16{21},
+		Effects: []Effect{
+			{ID: 700189, SpellID: 21178, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: 115, BaseLevel: 10, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 21179, Name: "Chain Lightning", School: 8, Speed: 20, Attr: [17]uint32{0: 0x50000, 15: 0x2000}, SpellLevel: 60, MaxRange: 30, GCDMs: 1500, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 698922, SpellID: 21179, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 200, Variance: 0.5, PvpMult: 1, ChainTargets: 3, ChainAmp: 0.7, Target: [2]dbcenums.ImplicitTarget{6, 0}},

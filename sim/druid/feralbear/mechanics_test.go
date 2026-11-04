@@ -318,19 +318,20 @@ func TestBearSwingRageTakesTheTwoHandFactor(t *testing.T) {
 	}
 }
 
-// Bear Form (Passive2) 21178 raises threat by 50% while a bear form is up.
-func TestBearFormsRaiseThreatByHalf(t *testing.T) {
+// Bear Form (Passive2) 21178 raises threat by its row's amount while a bear form is up, and only then.
+func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
+	want := 1 + spelldata.MustFind(21178).EffectN(1).Percent()
 	sim, bear := newBear(t)
-	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-2.15) > 1e-9 {
-		t.Errorf("threat multiplier in Dire Bear Form is %g, want 2.15", got)
+	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-want) > 1e-9 {
+		t.Errorf("threat multiplier in Dire Bear Form is %g, want %g", got, want)
 	}
 	bear.DireBearFormAura.Deactivate(sim)
 	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-1) > 1e-9 {
 		t.Errorf("threat multiplier out of form is %g, want 1", got)
 	}
 	bear.BearFormAura.Activate(sim)
-	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-2.15) > 1e-9 {
-		t.Errorf("threat multiplier in Bear Form is %g, want 2.15", got)
+	if got := bear.PseudoStats.ThreatMultiplier; math.Abs(got-want) > 1e-9 {
+		t.Errorf("threat multiplier in Bear Form is %g, want %g", got, want)
 	}
 }
 
