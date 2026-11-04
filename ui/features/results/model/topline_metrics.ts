@@ -120,10 +120,6 @@ export const toplineResultMetrics = (simResult: SimResult, filter?: SimResultFil
 		if (!isHealer && hpsColumn) resultColumns.push(hpsColumn);
 	}
 
-	if (simResult.request.encounter?.useHealth) {
-		resultColumns.push(column('dur', simResult.result.avgIterationDuration, { unit: 'seconds' }));
-	}
-
 	if (showOutOfMana) {
 		const secondsOOM = players[0].secondsOomAvg;
 		const percentOOM = secondsOOM / simResult.encounterMetrics.durationSeconds;

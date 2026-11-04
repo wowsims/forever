@@ -52,7 +52,6 @@ export interface EncounterSlice {
 	durationVariation: number;
 	executeProportion20: number;
 	executeProportion35: number;
-	useHealth: boolean;
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;
@@ -334,7 +333,6 @@ const initialState = (): SimState => ({
 	// Encounter constructor writes the default target on construction.
 	encounter: {
 		...ENCOUNTER_DEFAULTS,
-		useHealth: false,
 		areaTypes: [],
 		zoneId: 0,
 		targets: [],

@@ -56,7 +56,7 @@ const tableArgs = (columns: BulkCompareTableColumn[], currentDps: number[], rows
 	};
 };
 
-// Seven timed encounters by length, two of them 1:30 long, then a health-based one, which the table lists too.
+// Seven timed encounters by length, two of them 1:30 long, then a ten-minute one.
 const COLUMNS = [
 	{ label: 'Short fight', length: '0:45' },
 	{ label: 'Council', length: '1:30' },
@@ -65,7 +65,7 @@ const COLUMNS = [
 	{ label: 'Current', length: '3:00' },
 	{ label: 'Patchwerk', length: '5:00' },
 	{ label: 'Long fight', length: '8:00' },
-	{ label: 'Ragnaros', length: 'Health' },
+	{ label: 'Ragnaros', length: '10:00' },
 ];
 
 const CURRENT_DPS = [1203, 980, 1010, 870, 776, 769, 760, 1100];

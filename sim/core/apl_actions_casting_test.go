@@ -10,6 +10,41 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
+// A multidot counts active targets only: with the first target dotted and the second disabled, the second dot
+// goes to the third, and a limit of one dot stops at the first.
+func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
+	const dotID = 910105
+	var spell *Spell
+	sim, fw := setupLifecycleSimWith(lifecycleTargets(3), nil, func(char *Character) {
+		spell = char.RegisterSpell(fakeWarlockDot(dotID, "Multidot Test", ClassFlags{}, SpellFlagAPL))
+	})
+	spell.finalize()
+	runLifecycleUntil(sim, time.Second)
+	first, disabled, active := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1], sim.Encounter.AllTargets[2]
+	disabled.Disable(sim, false)
+	spell.Dot(&first.Unit).Apply(sim)
+	spellID := ActionID{SpellID: dotID}.ToProto()
+
+	multidot := fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionMultidot)
+	if !multidot.IsReady(sim) || multidot.nextTarget != &active.Unit {
+		t.Errorf("Multidot of 2: expected it ready on the third target, got %s", unitLabel(multidot.nextTarget))
+	}
+	strict := fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionStrictMultidot)
+	if !strict.IsReady(sim) || len(strict.readyActions) != 1 {
+		t.Fatalf("Strict Multidot of 2: expected one cast ready, got %d", len(strict.readyActions))
+	}
+	if got := strict.readyActions[0].impl.(*APLActionCastSpell).target.Get(); got != &active.Unit {
+		t.Errorf("Strict Multidot of 2: expected its cast on the third target, got %s", unitLabel(got))
+	}
+
+	if fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Multidot of 1: expected nothing to do with the first target dotted")
+	}
+	if fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Strict Multidot of 1: expected nothing to do with the first target dotted")
+	}
+}
+
 // A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
 // group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
 // condition only decides whether the sequence starts.

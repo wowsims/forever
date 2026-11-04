@@ -3692,6 +3692,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"kill_share": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"fear_duration": {
 									"type": "object",
 									"properties": {
@@ -3719,6 +3732,7 @@
 								"adds_respawn_time",
 								"adds_lifetime",
 								"adds_spawn_delay",
+								"kill_share",
 								"fear_duration"
 							]
 						},
@@ -4504,9 +4518,6 @@
 								"duplicate": {
 									"type": "string"
 								},
-								"health_summary": {
-									"type": "string"
-								},
 								"targets": {
 									"type": "string"
 								},
@@ -4518,7 +4529,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["current", "presets", "saved", "empty", "duplicate", "health_summary", "targets", "targets_one", "targets_other"]
+							"required": ["current", "presets", "saved", "empty", "duplicate", "targets", "targets_one", "targets_other"]
 						},
 						"talents": {
 							"type": "object",
@@ -12017,19 +12028,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"dur": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"tto": {
 									"type": "object",
 									"properties": {
@@ -12058,7 +12056,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "dur", "tto", "oom"]
+							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "tto", "oom"]
 						},
 						"stop": {
 							"type": "string"

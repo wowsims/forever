@@ -40,7 +40,6 @@ const simResult = (players: Array<ReturnType<typeof player>>, overrides: Record<
 		getRaidIndexedPlayers: () => players,
 		getRaidIndexedActionMetrics: () => [],
 		getTargets: () => [],
-		request: { encounter: { useHealth: false } },
 		result: { avgIterationDuration: 300 },
 		encounterMetrics: { durationSeconds: 300 },
 		...overrides,
@@ -115,13 +114,6 @@ describe('toplineResultMetrics', () => {
 
 	it('omits the merged columns a filtered encounter has no actions for', () => {
 		expect(keys(simResult([player({ getTargetIndex: () => 0 })]))).toEqual(['tto', 'hps']);
-	});
-
-	it('appends dur only when the encounter uses health', () => {
-		const result = simResult([player()], { request: { encounter: { useHealth: true } } });
-
-		expect(keys(result).at(-1)).toBe('dur');
-		expect(toplineResultMetrics(result).at(-1)).toMatchObject({ metric: 'dur', average: 300, unit: 'seconds' });
 	});
 
 	it.each([
