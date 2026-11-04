@@ -217,13 +217,6 @@ export const RotationInputs = {
 			labelTooltip: i18n.t('rotation_tab.options.hunter.pull_range.tooltip'),
 			positive: true,
 		}),
-		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
-			fieldName: 'timeToWeave',
-			label: i18n.t('rotation_tab.options.hunter.time_to_weave.label'),
-			labelTooltip: i18n.t('rotation_tab.options.hunter.time_to_weave.tooltip'),
-			positive: true,
-			showWhen: (player: Player<Spec.SpecHunter>) => player.getSimpleRotation().playstyle === Playstyle.Weave,
-		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
 			fieldName: 'useAimed',
 			label: i18n.t('rotation_tab.options.hunter.use_aimed.label'),

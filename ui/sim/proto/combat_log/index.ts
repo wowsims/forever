@@ -14,6 +14,7 @@ export {
 	isCastFailed,
 	isDamage,
 	isMajorCooldown,
+	isMovement,
 	isResource,
 } from './types';
 export type {
@@ -36,6 +37,7 @@ export type {
 	DpsLog,
 	LogKind,
 	MajorCooldownLog,
+	MovementLog,
 	Outcome,
 	ParsedKind,
 	ParsedLog,

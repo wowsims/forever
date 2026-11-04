@@ -23,6 +23,7 @@ export const settingsPresets = (presets: SpecPresets, host: IndividualSimHost<an
 					: undefined,
 			distanceFromTarget: settings.playerOptions?.distanceFromTarget,
 			reactionTimeMs: settings.playerOptions?.reactionTimeMs,
+			reactionTimeMaxMs: settings.playerOptions?.reactionTimeMaxMs,
 			channelClipDelayMs: settings.playerOptions?.channelClipDelayMs,
 			inFrontOfTarget: settings.playerOptions?.inFrontOfTarget,
 			enableItemSwap: settings.playerOptions?.enableItemSwap,

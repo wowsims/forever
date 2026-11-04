@@ -400,6 +400,9 @@ func TestSchemaDerivations(t *testing.T) {
 		{"proto.Cooldown", "id", "id", "", "action_id", ""},
 		{"proto.IndividualSimSettings", "tanks", "tanks", "", "unit", ""},
 		{"proto.Mage.Rotation", "conserveStart", "conserve_start", "", "number", ""},
+		{"proto.Player", "reaction_time_ms", "reaction_time", "reaction_time_ms", "duration", ""},
+		{"proto.Player", "reaction_time_max_ms", "reaction_time_max_ms", "", "number", ""},
+		{"proto.Player", "channel_clip_delay_ms", "channel_clip_delay", "channel_clip_delay_ms", "duration", ""},
 	} {
 		sf := field(c.message, c.name)
 		alias := strings.Join(sf.Aliases, ",")
@@ -407,6 +410,12 @@ func TestSchemaDerivations(t *testing.T) {
 			t.Errorf("%s.%s: siml %q, aliases %q, printed %q, ref %q; want %q, %q, %q, %q",
 				c.message, c.name, sf.Siml, alias, sf.Printed, sf.Ref, c.siml, c.alias, c.printed, c.ref)
 		}
+	}
+	if got := field("proto.Player", "reaction_time_ms").Max; got != "reaction_time_max_ms" {
+		t.Errorf("Player.reaction_time_ms takes its max from %q, want reaction_time_max_ms", got)
+	}
+	if got := field("proto.Player", "channel_clip_delay_ms").Max; got != "" {
+		t.Errorf("Player.channel_clip_delay_ms takes its max from %q, want none", got)
 	}
 	if sf := field("proto.UnitStats", "pseudo_stats"); sf.Printed != "indexed" || sf.Index != "proto.PseudoStat" {
 		t.Errorf("UnitStats.pseudo_stats: printed %q, index %q; want indexed by proto.PseudoStat", sf.Printed, sf.Index)

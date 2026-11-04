@@ -72,7 +72,15 @@ export interface PresetEncounterOptions extends PresetOptionsBase {}
 type PresetPlayerOptions = Partial<
 	Pick<
 		PlayerProto,
-		'reactionTimeMs' | 'channelClipDelayMs' | 'inFrontOfTarget' | 'distanceFromTarget' | 'profession1' | 'profession2' | 'enableItemSwap' | 'itemSwap'
+		| 'reactionTimeMs'
+		| 'reactionTimeMaxMs'
+		| 'channelClipDelayMs'
+		| 'inFrontOfTarget'
+		| 'distanceFromTarget'
+		| 'profession1'
+		| 'profession2'
+		| 'enableItemSwap'
+		| 'itemSwap'
 	>
 >;
 

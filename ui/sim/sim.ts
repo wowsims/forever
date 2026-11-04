@@ -436,6 +436,7 @@ export class Sim {
 			items: itemSwapGear.asArray().map(item => (item ? item.asSpec() : ItemSpec.create())),
 		});
 		player.reactionTimeMs = entry.reactionTimeMs;
+		player.reactionTimeMaxMs = entry.reactionTimeMaxMs;
 		player.channelClipDelayMs = entry.channelClipDelayMs;
 		player.inFrontOfTarget = entry.inFrontOfTarget;
 		player.distanceFromTarget = entry.distanceFromTarget;

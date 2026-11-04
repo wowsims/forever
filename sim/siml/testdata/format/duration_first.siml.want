@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+settings:
+  race orc
+  reaction_time 150ms 350ms

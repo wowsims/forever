@@ -18,6 +18,7 @@ const modifyAplRotation = vi.fn((modify: (rotation: APLRotation) => void) => mod
 const applyPresetSettings = vi.fn();
 const fromProto = vi.fn();
 const setReactionTime = vi.fn();
+const setReactionTimeMax = vi.fn();
 const setChannelClipDelay = vi.fn();
 
 let live: APLRotation;
@@ -29,12 +30,14 @@ const host = () => {
 	applyPresetSettings.mockClear();
 	fromProto.mockClear();
 	setReactionTime.mockClear();
+	setReactionTimeMax.mockClear();
 	setChannelClipDelay.mockClear();
 	return {
 		player: {
 			setAplRotation,
 			modifyAplRotation,
 			setReactionTime,
+			setReactionTimeMax,
 			setChannelClipDelay,
 			setRace: vi.fn(),
 			itemSwapSettings: { setEnableItemSwap: vi.fn() },
@@ -98,6 +101,13 @@ describe('applyBuild player timings', () => {
 		applyBuild({ name: 'x', settings: { name: 'x', playerOptions: { reactionTimeMs: 0 } } } as any, host());
 
 		expect(setReactionTime).toHaveBeenCalledWith(0);
+	});
+
+	// The TS builds state a reaction with no top; one left from an earlier build or the page would make it a range.
+	it('makes a reaction stated without a top a fixed one', () => {
+		applyBuild({ name: 'x', settings: { name: 'x', playerOptions: { reactionTimeMs: 100 } } } as any, host());
+
+		expect(setReactionTimeMax).toHaveBeenCalledWith(0);
 	});
 });
 

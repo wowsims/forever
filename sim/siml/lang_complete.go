@@ -607,10 +607,11 @@ func (b *completer) entries(sectionName string, flagsOnly bool) {
 	if def.Name == sectionAPL && !flagsOnly {
 		b.add("def", CompletionKeyword, offerAs{insert: "def ", detail: "def name(p, …) = <value>: a value each call reads as, its parameters replaced"})
 	}
-	for _, p := range ix.sectionFields(def, b.d.specInfo()) {
+	fields := ix.sectionFields(def, b.d.specInfo())
+	for _, p := range fields {
 		f := p.field
-		// A section of slot rows writes its items as rows.
-		if slots && f.Repeated && f.Type == itemSpecName {
+		// A section of slot rows writes its items as rows, and a duration's line its max (SPEC.md §5.2).
+		if slots && f.Repeated && f.Type == itemSpecName || minField(p, fields) != nil {
 			continue
 		}
 		if written[f.Siml] && !(f.Repeated && f.Printed == "message") {
@@ -671,6 +672,8 @@ func fieldType(f *field) string {
 		what = f.Ref
 	case f.Printed == "enum" || f.Printed == "message":
 		what = strings.TrimPrefix(f.Type, "proto.")
+	case f.Printed == "duration" && f.Max != "":
+		what = "duration [max duration]"
 	}
 	if f.isList() {
 		return what + " list"
