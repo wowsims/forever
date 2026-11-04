@@ -20,10 +20,6 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 
-// Rip, Rake and Ferocious Bite scale 25% more with attack power than their rows state; their base
-// points are the rows'.
-const attackPowerScale = 1.25
-
 // The row's weapon strike on the main-hand swing: the flat bonus and the swing, both scaled by the
 // weapon percent.
 func (druid *Druid) weaponSpecialDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit, rank *spelldata.Spell) float64 {
