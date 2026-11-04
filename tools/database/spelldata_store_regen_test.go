@@ -34,17 +34,16 @@ func TestStoreRegeneratesFromTheCommittedInputs(t *testing.T) {
 	assertRendersCommitted(t, "sim/core/spelldata/spells_auto_gen.go", rendered)
 }
 
-// The store the sim is built against carries the hand-kept overrides; an export of every class spell
-// carries none of them, so it states the game files' values.
-func TestEveryClassSpellExportRendersNoOverride(t *testing.T) {
+func TestEveryClassSpellExportRendersTheGameFilesValues(t *testing.T) {
 	inRepositoryRoot(t)
 
+	const noHandTrigger = "var generatedHandTriggers = map[int32][]int32{}\n"
 	sim, err := renderStore(committedInputs(t), newRankEnumNamer())
 	if err != nil {
 		t.Fatalf("rendering the store: %v", err)
 	}
-	if !bytes.Contains(sim, []byte("// override:")) {
-		t.Fatalf("the store the sim is built against renders no override, so this test checks nothing")
+	if !bytes.Contains(sim, []byte("// override:")) || bytes.Contains(sim, []byte(noHandTrigger)) {
+		t.Fatalf("the store the sim is built against renders no override or no hand trigger, so this test checks nothing")
 	}
 
 	EveryClassSpell = true
@@ -53,9 +52,14 @@ func TestEveryClassSpellExportRendersNoOverride(t *testing.T) {
 	if err != nil {
 		t.Fatalf("rendering the export: %v", err)
 	}
-	if bytes.Contains(export, []byte("// override:")) {
-		line, _, got := firstDifference(sim, export)
-		t.Errorf("the export renders an override; the renders part from line %d: %s", line, got)
+	for i, line := range lines(export) {
+		if strings.Contains(line, "// override:") {
+			t.Errorf("the export renders an override at line %d: %s", i+1, line)
+			break
+		}
+	}
+	if !bytes.Contains(export, []byte(noHandTrigger)) {
+		t.Errorf("the export renders a hand trigger")
 	}
 }
 

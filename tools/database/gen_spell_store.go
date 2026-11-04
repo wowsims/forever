@@ -281,16 +281,6 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 		inStore[id] = true
 	}
 
-	// An export of every class spell shows the game files' values alone, so the hand triggers,
-	// overrides and area bonuses the sim adds stay out of it.
-	var hand map[int32][]overrides.HandTrigger
-	if !EveryClassSpell {
-		hand, err = storeHandTriggers(tables, inStore)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	curves := storeCurves(tables, in.TraitNodes, in.TraitPoints, inStore)
 
 	effects := 0
@@ -307,7 +297,11 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 			return nil, err
 		}
 	}
+	var hand map[int32][]overrides.HandTrigger
 	if !EveryClassSpell {
+		if hand, err = storeHandTriggers(tables, inStore); err != nil {
+			return nil, err
+		}
 		if err := applyOverrides(rows, overrides.Spells); err != nil {
 			return nil, err
 		}
