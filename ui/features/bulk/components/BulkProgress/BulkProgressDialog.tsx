@@ -1,13 +1,13 @@
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import type { ProgressTrackerHandle } from '@ui-kit/ProgressTrackerDialog';
-import { ProgressTrackerDialog } from '@ui-kit/ProgressTrackerDialog';
+import { ProgressTrackerDialog, TimeLeft } from '@ui-kit/ProgressTrackerDialog';
 import { useEffect, useRef, useState } from 'react';
 
+import { batchSecondsRemaining } from '../../model/run/progress';
 import { bulkProgress, cancelBulkBatch, subscribeBulkProgress } from '../../model/run/run';
 import { BulkIterations } from './BulkIterations';
 import { type BulkProgressStepsHandle, HandleBulkProgressSteps } from './BulkProgressSteps';
-import { BulkTimeLeft } from './BulkTimeLeft';
 
 /** One element, so an iterations tick commits only the leaf. */
 const ITERATIONS = <BulkIterations />;
@@ -21,6 +21,10 @@ export const BulkProgressDialog = () => {
 	const [rows] = useState(() => bulkProgress(host.player)?.steps.rows ?? []);
 	const barRef = useRef<ProgressTrackerHandle>(null);
 	const stepsRef = useRef<BulkProgressStepsHandle>(null);
+	const secondsRemaining = () => {
+		const steps = bulkProgress(host.player)?.steps;
+		return steps && batchSecondsRemaining(steps);
+	};
 
 	useEffect(
 		() =>
@@ -50,7 +54,7 @@ export const BulkProgressDialog = () => {
 			state={{ stage: state.stage, message: state.hasIterations ? ITERATIONS : undefined }}
 			hasProgressBar
 			belowBar={rows.length > 1 && <HandleBulkProgressSteps ref={stepsRef} rows={rows} />}
-			afterElapsed={<BulkTimeLeft />}
+			afterElapsed={<TimeLeft secondsRemaining={secondsRemaining} />}
 			onCancel={() => void cancelBulkBatch(host)}
 			ref={barRef}
 		/>

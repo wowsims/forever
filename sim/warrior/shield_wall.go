@@ -2,7 +2,6 @@ package warrior
 
 import (
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -28,10 +27,6 @@ func (warrior *Warrior) registerShieldWall() {
 		Spell: spell,
 		Type:  core.CooldownTypeSurvival,
 		ShouldActivate: func(s *core.Simulation, c *core.Character) bool {
-			if warrior.Spec == proto.Spec_SpecDpsWarrior {
-				return false
-			}
-
 			return warrior.CurrentHealthPercent() < 0.4
 		},
 	})

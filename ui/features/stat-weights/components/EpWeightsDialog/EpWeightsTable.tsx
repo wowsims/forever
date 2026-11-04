@@ -124,7 +124,7 @@ export const EpWeightsTable = ({
 			statAction={statAction}>
 			{stats.map(stat => (
 				<StatWeightRow
-					key={stat.getFullName(player.getClass())}
+					key={stat.getKey()}
 					stat={stat}
 					result={result}
 					iterations={iterations}

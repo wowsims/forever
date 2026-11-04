@@ -1,4 +1,4 @@
-import { Spec } from '@generated/proto/common';
+import { Spec, type Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateStat } from '@i18n/localization';
 import {
@@ -11,6 +11,7 @@ import {
 	type UnvalidatedRate,
 } from '@sim/constants/missing_effects_auto_gen';
 import type { Database } from '@sim/proto/database';
+import { UnitStat } from '@sim/proto/stats';
 import { LocaleHtml } from '@ui-kit/Tooltip';
 import { Fragment, type ReactNode } from 'react';
 
@@ -225,6 +226,12 @@ export const registerSetBonusNotices = (db: Database) => {
 // Informational notices, shown behind an info icon rather than a warning.
 export const ITEM_INFO_NOTICES = new Map<number, ReactNode>();
 
+// A rating the game shows as a percent reads as that percent; any other stat reads as its number.
+const areaStatAmount = (stat: Stat, value: number): string => {
+	const unitStat = UnitStat.fromStat(stat);
+	return unitStat.isPercentRating() ? `+${Number(unitStat.convertRatingToPercent(value)!.toFixed(2))}%` : `+${value}`;
+};
+
 // Wowhead's tooltip shows the folded number; this names the area-only part.
 export const registerAreaStatsNotices = (db: Database) => {
 	for (const item of db.getAllItems()) {
@@ -240,7 +247,7 @@ export const registerAreaStatsNotices = (db: Database) => {
 						<li key={bonus.areaType}>
 							{translateAreaType(bonus.areaType)}:{' '}
 							{Object.entries(bonus.stats)
-								.map(([stat, value]) => `+${value} ${translateStat(Number(stat))}`)
+								.map(([stat, value]) => `${areaStatAmount(Number(stat), value)} ${translateStat(Number(stat))}`)
 								.join(', ')}
 						</li>
 					))}

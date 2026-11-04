@@ -378,6 +378,7 @@ export class ActionId {
 			case 'Rupture':
 			case 'Slice and Dice':
 			case 'Expose Armor':
+			case 'Death Mark':
 				if (tag) name += ` (${i18n.t('common.action_tags.combo_points', { points: tag })})`;
 				break;
 			case 'Crimson Tempest':

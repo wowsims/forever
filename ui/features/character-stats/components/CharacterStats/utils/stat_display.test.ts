@@ -29,16 +29,16 @@ describe('statDisplayString, defense rating', () => {
 
 	it('renders as a skill level with no percent suffix and no decimals', () => {
 		const stats = new Stats().withStat(Stat.StatDefenseRating, Mechanics.DEFENSE_RATING_PER_DEFENSE_LEVEL * 10);
-		expect(show(stats, defense)).toBe(`${Mechanics.DEFENSE_RATING_PER_DEFENSE_LEVEL * 10} (10)`);
+		expect(show(stats, defense)).toBe('10');
 	});
 
 	it('adds the base defense skill when the delta includes the base stage', () => {
 		const stats = new Stats().withStat(Stat.StatDefenseRating, Mechanics.DEFENSE_RATING_PER_DEFENSE_LEVEL * 10);
-		expect(show(stats, defense, true)).toBe(`${Mechanics.DEFENSE_RATING_PER_DEFENSE_LEVEL * 10} (310)`);
+		expect(show(stats, defense, true)).toBe('310');
 	});
 
-	it('shows the skill level at zero, which the percent-bearing stats hide', () => {
-		expect(show(new Stats(), defense)).toBe('0 (0)');
+	it('shows the skill level at zero, and a percent stat 0.00%', () => {
+		expect(show(new Stats(), defense)).toBe('0');
 		expect(show(new Stats(), UnitStat.fromPseudoStat(PseudoStat.PseudoStatDodgePercent))).toBe('0.00%');
 	});
 });
@@ -72,7 +72,7 @@ describe('statDisplayString, stats with a composite display', () => {
 		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent))).toBe('0.00%');
 	});
 
-	it("shows each attack's own rating in front of its percent", () => {
+	it("shows each attack's own percent, without its rating", () => {
 		const stats = new Stats()
 			.withStat(Stat.StatHitRating, 20)
 			.withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 3)
@@ -83,15 +83,35 @@ describe('statDisplayString, stats with a composite display', () => {
 			.withPseudoStat(PseudoStat.PseudoStatRangedHitRating, 50)
 			.withPseudoStat(PseudoStat.PseudoStatSpellHitPercent, 2);
 
-		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent))).toBe('30 (3.00%)');
-		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandHitPercent))).toBe('20 (2.00%)');
-		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent))).toBe('50 (5.00%)');
-		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHitPercent))).toBe('20 (2.00%)');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent))).toBe('3.00%');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandHitPercent))).toBe('2.00%');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent))).toBe('5.00%');
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellHitPercent))).toBe('2.00%');
 	});
 
-	it('falls back to the rating for bonus stats, which carry no per-attack value', () => {
+	it('reads 0.00% for a rating stat whose delta carries no percent', () => {
 		const bonus = new Stats().withStat(Stat.StatCritRating, 14);
-		expect(show(bonus, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('14 (0.00%)');
+		expect(show(bonus, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('0.00%');
+	});
+});
+
+describe('statDisplayString, percent stats', () => {
+	const crit = UnitStat.fromStat(Stat.StatCritRating);
+	const ratingPerPercent = crit.convertPercentToRating(1)!;
+
+	it('reads a zero delta as 0.00%', () => {
+		expect(show(new Stats(), crit)).toBe('0.00%');
+	});
+
+	it('reads a negative delta as a signed percent', () => {
+		expect(show(new Stats().withStat(Stat.StatCritRating, -1.5 * ratingPerPercent), crit)).toBe('-1.50%');
+	});
+});
+
+describe('statDisplayString, a percent pseudo stat as the sheet reads it', () => {
+	it('reads a negative delta as a signed percent', () => {
+		const stats = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeCritPercent, -1.5);
+		expect(show(stats, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent))).toBe('-1.50%');
 	});
 });
 

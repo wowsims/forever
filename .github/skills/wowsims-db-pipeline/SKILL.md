@@ -149,6 +149,11 @@ Reading another table once, what the tables hold and how a script reads them: `r
 - When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
 store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
   ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
+- A talent tree that gains or loses a talent needs the class's `TalentTreeSizes` changed by hand (`sim/warrior/warrior.go`
+  holds the warrior's). Nothing checks it against the tree file. With the old sizes the talents string fills the wrong
+  fields, and `gen_db`'s rotation agent panics on a talent given more points than its ladder holds. `gen_db` then skips
+  the spec with only a `[rotation] spec skipped` line, and `db.json` loses that class's rotation spell icons. After a
+  tree change, check that `gen_db` prints no such line.
 
 ## Keeping this skill true
 

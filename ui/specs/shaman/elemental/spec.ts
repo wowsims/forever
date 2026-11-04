@@ -94,7 +94,7 @@ export default defineSpec<Spec.SpecElementalShaman>({
 	presets: {
 		epWeights: [Presets.DefaultEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.StandardTalents],
+		talents: [Presets.StandardTalents, Presets.ManaTideTalents],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.ROTATION_PRESET_DEFAULT],
 		// Preset gear configurations that the user can quickly select.

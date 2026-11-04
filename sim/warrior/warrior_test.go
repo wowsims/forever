@@ -24,8 +24,8 @@ func init() {
 }
 
 // The fixtures mirror the spec suites' Default* fixtures.
-var furyTalents = "30305003-05053035052210501"
-var armsTalents = "30305213032315201-0505003004"
+var furyTalents = "30303003-050530355022100031"
+var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
 var dpsOptions = &proto.Player_DpsWarrior{

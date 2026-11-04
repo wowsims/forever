@@ -136,6 +136,9 @@
 				"elapsed_time": {
 					"type": "string"
 				},
+				"time_left": {
+					"type": "string"
+				},
 				"ok": {
 					"type": "string"
 				},
@@ -1643,6 +1646,7 @@
 				"search",
 				"filter",
 				"elapsed_time",
+				"time_left",
 				"melee",
 				"any",
 				"phases",
@@ -5485,9 +5489,6 @@
 						},
 						"step_progress": {
 							"type": "string"
-						},
-						"time_left": {
-							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -5507,8 +5508,7 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress",
-						"time_left"
+						"step_progress"
 					]
 				},
 				"notifications": {
@@ -9020,6 +9020,24 @@
 								},
 								"stances": {
 									"type": "string"
+								},
+								"forms": {
+									"type": "string"
+								},
+								"cat": {
+									"type": "string"
+								},
+								"stealth": {
+									"type": "string"
+								},
+								"bear": {
+									"type": "string"
+								},
+								"utility": {
+									"type": "string"
+								},
+								"druid": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -9065,7 +9083,13 @@
 								"external_debuffs",
 								"variables",
 								"groups",
-								"stances"
+								"stances",
+								"forms",
+								"cat",
+								"stealth",
+								"bear",
+								"utility",
+								"druid"
 							]
 						},
 						"item_swap_sets": {
@@ -9437,6 +9461,16 @@
 						"rogue": {
 							"type": "object",
 							"properties": {
+								"start_in_stealth": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label"]
+								},
 								"use_backstab": {
 									"type": "object",
 									"properties": {
@@ -9519,6 +9553,7 @@
 							},
 							"additionalProperties": false,
 							"required": [
+								"start_in_stealth",
 								"use_backstab",
 								"use_expose_armor",
 								"use_backstab_rank_9",
@@ -11966,10 +12001,7 @@
 										"reference_description": {
 											"type": "string"
 										},
-										"simulated_step_rating": {
-											"type": "string"
-										},
-										"simulated_step_rating_percent": {
+										"simulated_step_percent": {
 											"type": "string"
 										},
 										"simulated_step_description": {
@@ -11981,13 +12013,10 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
-										"rating_conversion": {
-											"type": "string"
-										},
 										"simulated_step": {
 											"type": "string"
 										},
-										"rating_weights_description": {
+										"percent_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -12256,14 +12285,12 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
-										"simulated_step_rating",
-										"simulated_step_rating_percent",
+										"simulated_step_percent",
 										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
-										"rating_conversion",
 										"simulated_step",
-										"rating_weights_description",
+										"percent_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",
@@ -12354,63 +12381,26 @@
 									"additionalProperties": false,
 									"required": ["label", "placeholder", "empty", "open", "remove"]
 								},
-								"range": {
-									"type": "string"
-								},
-								"step": {
-									"type": "string"
-								},
-								"run": {
-									"type": "string"
-								},
-								"progress": {
-									"type": "string"
-								},
-								"run_label": {
-									"type": "string"
-								},
-								"batch_label": {
-									"type": "string"
-								},
-								"capped_label": {
-									"type": "string"
-								},
-								"metric": {
-									"type": "string"
-								},
-								"show_spread": {
-									"type": "string"
-								},
-								"show_spread_tooltip": {
-									"type": "string"
-								},
-								"current_value": {
-									"type": "string"
-								},
-								"added_axis": {
-									"type": "string"
-								},
-								"tooltip_total": {
-									"type": "string"
-								},
-								"tooltip_value": {
-									"type": "string"
-								},
-								"tooltip_value_capped": {
-									"type": "string"
-								},
-								"band_key": {
-									"type": "string"
-								},
-								"empty": {
-									"type": "string"
-								},
-								"export_csv": {
-									"type": "string"
-								},
-								"stopped": {
-									"type": "string"
-								},
+								"range": { "type": "string" },
+								"step": { "type": "string" },
+								"run": { "type": "string" },
+								"progress": { "type": "string" },
+								"run_label": { "type": "string" },
+								"batch_label": { "type": "string" },
+								"capped_label": { "type": "string" },
+								"metric": { "type": "string" },
+								"show_spread": { "type": "string" },
+								"show_spread_tooltip": { "type": "string" },
+								"current_value": { "type": "string" },
+								"added_axis": { "type": "string" },
+								"tooltip_total": { "type": "string" },
+								"tooltip_added": { "type": "string" },
+								"tooltip_value": { "type": "string" },
+								"tooltip_value_capped": { "type": "string" },
+								"band_key": { "type": "string" },
+								"empty": { "type": "string" },
+								"export_csv": { "type": "string" },
+								"stopped": { "type": "string" },
 								"history": {
 									"type": "object",
 									"properties": {
@@ -12483,6 +12473,7 @@
 								"current_value",
 								"added_axis",
 								"tooltip_total",
+								"tooltip_added",
 								"tooltip_value",
 								"tooltip_value_capped",
 								"band_key",
@@ -13144,13 +13135,7 @@
 						"bonus_prefix": {
 							"type": "string"
 						},
-						"rating_suffix": {
-							"type": "string"
-						},
 						"points_suffix": {
-							"type": "string"
-						},
-						"percent_label": {
 							"type": "string"
 						},
 						"percent_suffix": {
@@ -13169,9 +13154,7 @@
 						"crit_cap",
 						"tank_caps",
 						"bonus_prefix",
-						"rating_suffix",
 						"points_suffix",
-						"percent_label",
 						"percent_suffix"
 					]
 				}
@@ -13216,7 +13199,7 @@
 						"primary": {
 							"type": "string"
 						},
-						"ratings": {
+						"gear": {
 							"type": "string"
 						},
 						"other": {
@@ -13224,23 +13207,17 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["primary", "ratings", "other"]
+					"required": ["primary", "gear", "other"]
 				},
 				"group_count": {
 					"type": "string"
 				},
 				"kept_tooltip": {
 					"type": "string"
-				},
-				"rating_label": {
-					"type": "string"
-				},
-				"percent_label": {
-					"type": "string"
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip", "rating_label", "percent_label"]
+			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip"]
 		}
 	},
 	"additionalProperties": false,

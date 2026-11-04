@@ -296,16 +296,16 @@ func TestGeneratedHandLink(t *testing.T) {
 	}
 }
 
-// Flurry is a trait talent: one spell, five ranks, and the per-rank numbers on a curve.
+// Flurry is a trait talent: one spell, three ranks, and the per-rank numbers on a curve.
 func TestGeneratedTalentCurve(t *testing.T) {
 	withGeneratedStore(t)
 
 	curve := curves[12319]
-	if len(curve) != 1 || len(curve[0]) != 5 {
-		t.Fatalf("Flurry's curve is %v, want one effect row of five ranks", curve)
+	if len(curve) != 1 || len(curve[0]) != 3 {
+		t.Fatalf("Flurry's curve is %v, want one effect row of three ranks", curve)
 	}
 
-	ladder := Talent(12319, 5)
+	ladder := Talent(12319, 3)
 	if got := ladder.Rank(3).EffectN(1).BaseValue(); got != curve[0][2] {
 		t.Errorf("Flurry rank 3 states %v, want the curve's third value %v", got, curve[0][2])
 	}
