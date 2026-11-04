@@ -3794,7 +3794,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 686473, SpellID: 7376, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, BasePoints: -10, BaseLevel: 10, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 686474, SpellID: 7376, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: -10, BaseLevel: 10, SPCoef: 1, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-			{ID: 686475, SpellID: 7376, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: 30, BaseLevel: 10, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 686475, SpellID: 7376, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: 80, BaseLevel: 10, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 7379, Name: "Revenge", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 4: 0x200, 14: 0x40, 15: 0x2000}, SpellLevel: 34, BaseLevel: 34, MaxRange: 5, CategoryCooldownMs: 5000, GCDMs: 1500, Category: 65, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 1024}}, StanceMask: 0x20000, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
@@ -37434,7 +37434,7 @@ var generatedCurves = map[int32][][]float64{
 	12320:   {{1, 2, 3, 4, 5}},
 	12321:   {{10, 20, 30, 40, 50}, {-5, -10, -15, -20, -25}},
 	12322:   {{12, 24, 36, 48, 60}},
-	12792:   {{5, 10, 15}},
+	12792:   {{7, 13, 20}},
 	12797:   {{20, 40, 60}},
 	12834:   {{20, 40, 60}},
 	12862:   {{-250, -500}, {-250, -500}, {-2500, -5000}},
