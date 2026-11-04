@@ -120,6 +120,10 @@ export default defineSpec<Spec.SpecRogue>({
 	rotationInputs: {
 		inputs: [
 			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'startInStealth',
+				label: i18n.t('rotation_tab.options.rogue.start_in_stealth.label'),
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
 				fieldName: 'useBackstab',
 				label: i18n.t('rotation_tab.options.rogue.use_backstab.label'),
 			}),
@@ -158,7 +162,7 @@ export default defineSpec<Spec.SpecRogue>({
 	presets: {
 		epWeights: [Presets.EP_PRESET_ASSASSINATION, Presets.EP_PRESET_COMBAT_DAGS, Presets.EP_PRESET_COMBAT_SINISTER, Presets.EP_PRESET_SUBTLETY],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.TALENTS_MUTILATE_ASN, Presets.TALENTS_COMBAT_SS, Presets.TALENTS_COMBAT_BS, Presets.TALENTS_SUB_HEMO, Presets.TALENTS_SUB_BS],
+		talents: [Presets.TALENTS_MUTILATE_ASN, Presets.TALENTS_COMBAT_SS, Presets.TALENTS_COMBAT_BS, Presets.TALENTS_SUB_HEMO, Presets.TALENTS_COMBAT_VENOM],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.SIMPLE_ROTATION, Presets.DEFAULT_APL],
 		// Preset gear configurations that the user can quickly select.
@@ -168,7 +172,7 @@ export default defineSpec<Spec.SpecRogue>({
 			Presets.PRESET_BUILD_COMBAT_SS,
 			Presets.PRESET_BUILD_COMBAT_BS,
 			Presets.PRESET_BUILD_SUB_HEMO,
-			Presets.PRESET_BUILD_SUB_BS,
+			Presets.PRESET_BUILD_COM_VEN,
 		],
 	},
 
@@ -184,6 +188,7 @@ export default defineSpec<Spec.SpecRogue>({
 		if (simple.useEviscerateRank9) bookRanks.set(11300, 31016);
 		const rotation = AplUtils.withSpellIds(Presets.DEFAULT_APL.rotation.rotation!, bookRanks);
 		const values: Record<string, string> = {
+			'Start In Stealth': String(simple.startInStealth),
 			'Use Backstab': String(simple.useBackstab),
 			'Use Expose Armor': String(simple.useExposeArmor),
 		};

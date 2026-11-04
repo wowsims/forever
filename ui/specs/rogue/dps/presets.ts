@@ -18,37 +18,37 @@ import P1SlowMhGear from './gear_sets/p1_slowmh.gear.json';
 export const TALENTS_MUTILATE_ASN = {
 	name: 'Asn Muti',
 	data: SavedTalents.create({
-		talentsString: '00530320251511031-30230322000103',
+		talentsString: '00530311231251031-32030302020103-001',
 	}),
 };
 export const TALENTS_COMBAT_SS = {
 	name: 'Combat SS',
 	data: SavedTalents.create({
-		talentsString: '005303202014-3203032201012321501',
+		talentsString: '00530320201-3200132202012321551',
 	}),
 };
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '005303202012-3203032201012321501-002',
+		talentsString: '005203002-3203130202012321351-005',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
 	name: 'Subtlety Hemo',
 	data: SavedTalents.create({
-		talentsString: '005303202014--335223031321001101',
+		talentsString: '00530301-320003-305230031321001151',
 	}),
 };
-export const TALENTS_SUB_BS = {
-	name: 'Subtlety BS',
+export const TALENTS_COMBAT_VENOM = {
+	name: 'Combat Venom',
 	data: SavedTalents.create({
-		talentsString: '005303202-3203-0352330313210011',
+		talentsString: '00530320241001-320013220201232115',
 	}),
 };
 
 export const DEFAULT_APL = PresetUtils.makePresetAPLRotation('Direct APL', DefaultAPL);
 
-export const DEFAULT_SIMPLE_ROTATION = RogueRotation.create({ useBackstab: false, useExposeArmor: false });
+export const DEFAULT_SIMPLE_ROTATION = RogueRotation.create({ useBackstab: false, useExposeArmor: false, startInStealth: false });
 export const SIMPLE_ROTATION = PresetUtils.makePresetSimpleRotation('Configurable', Spec.SpecRogue, DEFAULT_SIMPLE_ROTATION);
 const SIMPLE_BACKSTAB_BUILD_ROTATION = PresetUtils.makePresetSimpleRotation(
 	'Configurable',
@@ -216,12 +216,12 @@ export const PRESET_BUILD_SUB_HEMO = PresetUtils.makePresetBuild('Subtlety Hemo'
 	epWeights: EP_PRESET_SUBTLETY,
 });
 
-export const PRESET_BUILD_SUB_BS = PresetUtils.makePresetBuild('Subtlety BS', {
-	talents: TALENTS_SUB_BS,
-	rotation: SIMPLE_BACKSTAB_BUILD_ROTATION,
+export const PRESET_BUILD_COM_VEN = PresetUtils.makePresetBuild('Combat Venom', {
+	talents: TALENTS_COMBAT_VENOM,
+	rotation: SIMPLE_ROTATION,
 	gear: P1_BS_SUB_GEAR,
 	settings: IP_MH_Settings,
-	epWeights: EP_PRESET_SUBTLETY,
+	epWeights: EP_PRESET_COMBAT_SINISTER,
 });
 
 export const OtherDefaults = {
