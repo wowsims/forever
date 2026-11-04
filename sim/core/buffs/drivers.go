@@ -448,7 +448,8 @@ func driveJudgementOfWisdom(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) 
 // how long a warrior takes to stack it. The stacks build while a stronger armor
 // reduction holds the category, and the sunder applies once it outbids it or
 // that one ends. With a warrior in the raid the raid's copy is the player's
-// own, which the warrior's Sunder Armor stacks, so the target carries one.
+// own, which the warrior's Sunder Armor stacks, so the target carries one. A
+// target that holds the raid's debuffs takes no stack of the ramp.
 func driveSunderArmor(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 	aura := core.MakePermanent(NewSpellDataSunderArmorAura(target, raidHasClass(raid, proto.Class_ClassWarrior), 0))
 
@@ -458,6 +459,9 @@ func driveSunderArmor(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 		TickImmediately: true,
 		Priority:        core.ActionPriorityDOT,
 		OnAction: func(sim *core.Simulation) {
+			if target.RaidDebuffsHeld() {
+				return
+			}
 			aura.Activate(sim)
 			aura.AddStack(sim)
 		},

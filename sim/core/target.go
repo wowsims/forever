@@ -156,6 +156,8 @@ type Target struct {
 
 	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
+
+	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {
@@ -183,6 +185,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			enabled:               !options.DisabledAtStart,
 		},
 	}
+	target.raidDebuffsLanding = PendingAction{Priority: ActionPriorityDOT, OnAction: target.landRaidDebuffs}
 	defaultRaidBossLevel := int32(CharacterLevel + 3)
 	target.GCD = target.NewTimer()
 	target.RotationTimer = target.NewTimer()

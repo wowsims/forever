@@ -95,6 +95,8 @@ type Unit struct {
 
 	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
 
+	raidDebuffsHeld bool // A target's only: the raid's debuffs stay off it, its reset included, until Target.ApplyRaidDebuffsAt lands them.
+
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
 	// effects from items / abilities.
@@ -1051,6 +1053,10 @@ func (unit *Unit) doneIteration(sim *Simulation) {
 	for _, spell := range unit.Spellbook {
 		spell.doneIteration()
 	}
+
+	// Cleared here, not at the target's reset: a target AI that resets first holds another target's debuffs
+	// before that target's own reset.
+	unit.raidDebuffsHeld = false
 }
 
 func (unit *Unit) GetSpellsMatchingSchool(school SpellSchool) []*Spell {

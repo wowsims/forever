@@ -118,6 +118,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
   raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
+- **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
+  walks only the auras with a duration (`aura.go`). An AI that takes a target away holds the raid's debuffs
+  (`SourceExternalDebuff`) with `Target.HoldRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`
+  (`target_raid_debuffs.go`), which runs each one's `OnReset` again, so Sunder Armor ramps up anew. A held target's
+  reset skips those `OnReset`s, and the hold clears at the iteration's end, since the boss's reset runs before its
+  add's. A player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in

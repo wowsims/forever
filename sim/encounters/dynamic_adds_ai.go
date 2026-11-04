@@ -15,6 +15,7 @@ const (
 
 // A despawning add dies, and the raid gets the kill at this chance unless the boss's Kill share % input sets another.
 const dynamicAddKillSharePercent = 20
+const dynamicAddsApplyDebuffsLabel = "Apply debuffs"
 
 func addDynamicAddsAI() {
 	createDynamicAddsAIPreset()
@@ -109,6 +110,24 @@ func dynamicAddsTargetInputs() []*proto.TargetInput {
 			InputType:   proto.InputType_Number,
 			NumberValue: dynamicAddKillSharePercent,
 		},
+		{
+			Label:     dynamicAddsApplyDebuffsLabel,
+			Tooltip:   "Whether the add(s) get the debuffs from the Debuffs panel. Your own debuffs land as you cast them.",
+			InputType: proto.InputType_Bool,
+			BoolValue: true,
+		},
+		{
+			Label:     "Debuff delay",
+			Tooltip:   "Time after each spawn before the add(s) get the debuffs from the Debuffs panel (in seconds)",
+			InputType: proto.InputType_Number,
+			ShownBy:   dynamicAddsApplyDebuffsLabel,
+		},
+		{
+			Label:     "Debuff jitter",
+			Tooltip:   "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds)",
+			InputType: proto.InputType_Number,
+			ShownBy:   dynamicAddsApplyDebuffsLabel,
+		},
 	}
 }
 
@@ -131,6 +150,10 @@ type DynamicAddsAI struct {
 	addLifetime time.Duration
 	spawnDelay  time.Duration
 	killShare   float64 // 0..1, the chance the raid gets the kill of each despawning add.
+
+	applyDebuffs bool // Whether the adds get the raid's debuffs, debuffDelay ± debuffJitter after each spawn.
+	debuffDelay  time.Duration
+	debuffJitter time.Duration
 
 	lifeStartAt time.Duration // The start of the adds' current life, or of their next one while they are down.
 }
@@ -157,6 +180,13 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 		killSharePercent = config.TargetInputs[3].NumberValue
 	}
 	ai.killShare = core.Clamp(killSharePercent/100, 0, 1)
+
+	ai.applyDebuffs = true
+	if ai.isBoss && len(config.TargetInputs) >= 7 {
+		ai.applyDebuffs = config.TargetInputs[4].BoolValue
+		ai.debuffDelay = core.DurationFromSeconds(max(config.TargetInputs[5].NumberValue, 0))
+		ai.debuffJitter = core.DurationFromSeconds(max(config.TargetInputs[6].NumberValue, 0))
+	}
 }
 
 func (ai *DynamicAddsAI) NextActiveAt(_ *core.Simulation) time.Duration {
@@ -177,6 +207,7 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 
 	for _, addTarget := range ai.AddUnits {
 		sim.DisableTargetUnit(addTarget, true)
+		sim.Encounter.AllTargets[addTarget.Index].HoldRaidDebuffs(sim)
 	}
 
 	if ai.spawnDelay > 0 {
@@ -196,6 +227,9 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 	for _, addUnit := range ai.AddUnits {
 		sim.EnableTargetUnit(addUnit)
+		if ai.applyDebuffs {
+			sim.Encounter.AllTargets[addUnit.Index].ApplyRaidDebuffsAt(sim, sim.CurrentTime+ai.rollDebuffDelay(sim))
+		}
 	}
 
 	if sim.Log != nil {
@@ -212,9 +246,20 @@ func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 	sim.AddPendingAction(pa)
 }
 
+// The delay ± the jitter, never below 0. Only a jitter draws a roll.
+func (ai *DynamicAddsAI) rollDebuffDelay(sim *core.Simulation) time.Duration {
+	if ai.debuffJitter == 0 {
+		return ai.debuffDelay
+	}
+	offset := time.Duration((2*sim.RandomFloat("Dynamic Adds Debuff Jitter") - 1) * float64(ai.debuffJitter))
+	return max(ai.debuffDelay+offset, 0)
+}
+
 func (ai *DynamicAddsAI) despawnAdds(sim *core.Simulation) {
 	for _, addUnit := range ai.AddUnits {
-		sim.Encounter.AllTargets[addUnit.Index].Die(sim, ai.killShare)
+		addTarget := sim.Encounter.AllTargets[addUnit.Index]
+		addTarget.Die(sim, ai.killShare)
+		addTarget.HoldRaidDebuffs(sim)
 	}
 
 	if sim.Log != nil {

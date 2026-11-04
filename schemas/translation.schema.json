@@ -3729,6 +3729,45 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
+								},
+								"apply_debuffs": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"debuff_delay": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"debuff_jitter": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
@@ -3745,7 +3784,10 @@
 								"adds_lifetime",
 								"adds_spawn_delay",
 								"kill_share",
-								"fear_duration"
+								"fear_duration",
+								"apply_debuffs",
+								"debuff_delay",
+								"debuff_jitter"
 							]
 						},
 						"duration": {
