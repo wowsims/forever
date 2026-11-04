@@ -1278,8 +1278,9 @@ func TestValueAuraReactionTime(t *testing.T) {
 	}
 }
 
-// With a reaction range, each rotation pass reads its own reaction, evenly spread across the range; the next
-// iteration starts back in the middle of it. Without a range the reaction stays the setting.
+// With a reaction range, each rotation pass reads its own reaction, evenly spread across the range, and a second look
+// at the same instant reads the same one; the next iteration starts back in the middle of it. Without a range the
+// reaction stays the setting.
 func TestReactionRangeDrawsOnEachRotationPass(t *testing.T) {
 	const low, high = 150 * time.Millisecond, 350 * time.Millisecond
 	for _, top := range []time.Duration{0, high} {
@@ -1303,14 +1304,15 @@ func TestReactionRangeDrawsOnEachRotationPass(t *testing.T) {
 			if got < low || got > max(low, top) {
 				t.Fatalf("up to %v: pass %d reads %v, want %v to %v", top, i, got, low, max(low, top))
 			}
+			rot.DoNextAction(sim) // another event at the same instant, as an Auto Shot's swing follows its damage
+			if again := inputDelay.GetDuration(sim); again != got {
+				t.Fatalf("up to %v: pass %d reads %v, and a second look at the same instant %v", top, i, got, again)
+			}
 			sum += got
 			seen[got] = true
 		}
 		if mean := sum / passes; (mean - want).Abs() > 10*time.Millisecond {
 			t.Errorf("up to %v: the passes average %v, want about %v", top, mean, want)
-		}
-		if top == 0 && len(seen) != 1 {
-			t.Errorf("no range: the passes read %d reactions, want the setting alone", len(seen))
 		}
 		if top != 0 && len(seen) < passes/2 {
 			t.Errorf("up to %v: the passes read only %d different reactions", top, len(seen))

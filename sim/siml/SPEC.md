@@ -368,7 +368,8 @@ An entry line sets fields of the section's message. How each field type is writt
   number with no unit, `reaction_time_ms 250`. When the message also has a field `<x>_max_ms` beside `<x>_ms`, that
   field has no short name: the `<x>` line takes it as an optional second duration, `reaction_time 150ms 350ms`, and
   its full name with a number sets it alone, `reaction_time_max_ms 350`. Setting it both ways is `duplicate-field`.
-  A second duration that is not above the first sets no range and gives the warning `max-not-above-min`.
+  A max that is not above its duration, on the duration's line or a line of its own, sets no range and gives the
+  warning `max-not-above-min`.
 - **Errors.** Unknown names are `unknown-field`. A field set twice is `duplicate-field`: a list of messages takes
   a line per message, and any other list one line of all its values. A value that does not fit is `wrong-type`,
   and so is a duration below zero, past the field's range or holding a fraction of a millisecond. An unknown enum
@@ -1648,7 +1649,7 @@ are errors.
 | `misplaced-note`, `misplaced-var`, `bad-hidden-row`                                                           | error    | §10, §6.1, §6.3                                                                            |
 | `misplaced-when`, `misplaced-def`                                                                             | error    | §6.9, §6.10                                                                                |
 | `empty-when`                                                                                                  | warning  | §6.9                                                                                       |
-| `max-not-above-min`                                                                                           | warning  | §5.2; a duration's second value not above its first                                        |
+| `max-not-above-min`                                                                                           | warning  | §5.2; a duration's max not above the duration                                              |
 | `missing-time`, `unexpected-time`                                                                             | error    | a prepull row without a time, or another row with one                                      |
 | `spec-required`, `unknown-spec`, `spec-mismatch`                                                              | error    | §3.3, §9                                                                                   |
 | `use-not-found`, `use-cycle`, `use-refused`, `section-conflict`, `with-unknown-variable`, `with-not-rotation` | error    | §9                                                                                         |
@@ -2131,7 +2132,7 @@ encounter:
   targets(id=31146,
       name="Raid Target",
       level=63,
-      mob_type=mechanical,
+      mob_type=dragonkin,
       stats(attack_power=320, block_value=54, armor=3731, health=1428900),
       min_base_damage=2601,
       damage_spread=0.5,

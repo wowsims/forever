@@ -53,7 +53,7 @@ export interface FieldScene {
 	targetLabel: string;
 	meleeLabel: string;
 	rangedLabel: string;
-	/** The player's casts under way, each a bar under its circle: the share of the cast done, and its label. */
+	/** The player's casts under way, each filling up under its circle: the share of the cast done, and its label. */
 	casting: ReadonlyArray<{ readonly done: number; readonly label: string }>;
 	/** The icons of the player's casts that just went off, the latest first, each at the opacity it has faded to. */
 	goneOff: ReadonlyArray<{ readonly icon: CanvasImageSource; readonly alpha: number }>;
@@ -148,32 +148,32 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	});
 }
 
-// Under the player's circle a bar for each cast under way with its label below, and to the circle's left the icons of
-// the casts that just went off, the latest nearest.
+// Under the player's circle each cast under way fills up a track with its label below, and to the circle's left the
+// icons of the casts that just went off, the latest nearest.
 function paintPlayerCasts(ctx: CanvasRenderingContext2D, palette: Palette, scene: FieldScene, x: number, y: number, dot: number) {
 	const { em } = palette;
-	const barWidth = 6 * em;
-	const barHeight = 0.4 * em;
-	const left = x - barWidth / 2;
+	const trackWidth = 6 * em;
+	const trackHeight = 0.4 * em;
+	const left = x - trackWidth / 2;
 	let top = y + dot + em / 3;
 	ctx.save();
 	ctx.textAlign = 'center';
 	ctx.textBaseline = 'top';
 	for (const { done, label } of scene.casting) {
-		// A solid track and a label outlined in the background colour keep the bar readable over the rings and tether.
+		// A solid track and a label outlined in the background colour keep the cast readable over the rings and tether.
 		ctx.fillStyle = palette.background;
-		ctx.fillRect(left, top, barWidth, barHeight);
+		ctx.fillRect(left, top, trackWidth, trackHeight);
 		ctx.fillStyle = palette.cast;
-		ctx.fillRect(left, top, barWidth * Math.min(1, Math.max(0, done)), barHeight);
+		ctx.fillRect(left, top, trackWidth * done, trackHeight);
 		ctx.lineWidth = em / 10;
 		ctx.strokeStyle = palette.muted;
-		ctx.strokeRect(left, top, barWidth, barHeight);
+		ctx.strokeRect(left, top, trackWidth, trackHeight);
 		ctx.lineWidth = em / 4;
 		ctx.strokeStyle = palette.background;
-		ctx.strokeText(label, x, top + barHeight + em / 6);
+		ctx.strokeText(label, x, top + trackHeight + em / 6);
 		ctx.fillStyle = palette.text;
-		ctx.fillText(label, x, top + barHeight + em / 6);
-		top += barHeight + 1.5 * em;
+		ctx.fillText(label, x, top + trackHeight + em / 6);
+		top += trackHeight + 1.5 * em;
 	}
 	ctx.restore();
 

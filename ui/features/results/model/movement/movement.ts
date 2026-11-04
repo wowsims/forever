@@ -69,18 +69,13 @@ export interface MovementRunParams {
 	deadZone: boolean;
 }
 
-type MutableLeg = { -readonly [K in keyof Leg]: Leg[K] };
-
 function legsOf(logs: ReadonlyArray<CombatLog>): Array<Leg> {
-	const legs: Array<MutableLeg> = [];
+	const legs: Array<Leg> = [];
 	for (const log of logs) {
 		if (!isMovement(log)) continue;
 		const previous = legs[legs.length - 1];
 		// A line that lands while the walk before it is under way ends that walk where the line starts.
-		if (previous && previous.end > log.timestamp) {
-			previous.end = log.timestamp;
-			previous.to = log.fromYards;
-		}
+		if (previous && previous.end > log.timestamp) legs[legs.length - 1] = { ...previous, end: log.timestamp, to: log.fromYards };
 		legs.push({ start: log.timestamp, end: log.timestamp + log.duration, from: log.fromYards, to: log.toYards });
 	}
 	return legs;

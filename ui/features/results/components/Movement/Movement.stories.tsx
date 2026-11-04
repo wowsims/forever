@@ -1,3 +1,5 @@
+import { OtherAction } from '@generated/proto/common';
+import { ActionId } from '@sim/proto/action_id';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 
 import type { Leg, MovementRun } from '../../model/movement/movement';
@@ -36,3 +38,19 @@ type Story = StoryObj<typeof meta>;
 export const Weave: Story = {};
 
 export const NoWalks: Story = { args: { run: null } };
+
+const shoot = ActionId.fromOtherId(OtherAction.OtherActionShoot);
+
+// At the slider's start an Auto Shot windup is half done, and the one before it went off 0.6 s earlier.
+export const Casting: Story = {
+	args: {
+		run: {
+			...weave,
+			start: -1,
+			casts: [
+				{ actionId: shoot, start: -2.1, end: -1.6, castTime: 0.5, completed: true },
+				{ actionId: shoot, start: -1.25, end: -0.75, castTime: 0.5, completed: true },
+			],
+		},
+	},
+};

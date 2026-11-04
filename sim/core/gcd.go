@@ -130,13 +130,16 @@ func (unit *Unit) SetRotationTimer(sim *Simulation, rotationReadyAt time.Duratio
 	sim.AddPendingAction(unit.rotationAction)
 }
 
-// A person reacts a little faster or slower each time, so with a range set a rotation pass takes its own reaction
-// from it. Every reaction read until the next pass (input_delay, the next look, a swing's reaction) is this one.
+// A person reacts a little faster or slower each time, so with a range set each instant the rotation looks at draws
+// its own reaction from it. Every reaction read until the next draw (input_delay, the next look, a swing's reaction)
+// is this one. The events of one instant share a draw, as an Auto Shot's damage and its swing do: with one each, the
+// fastest would set the next look.
 func (unit *Unit) drawReactionTime(sim *Simulation) {
-	if unit.reactionTimeMax <= unit.reactionTimeMin {
+	if unit.reactionTimeMax <= unit.reactionTimeMin || sim.CurrentTime == unit.reactionDrawnAt {
 		return
 	}
-	unit.ReactionTime = unit.reactionTimeMin + time.Duration(sim.RollWithLabel(0, float64(unit.reactionTimeMax-unit.reactionTimeMin), "Reaction Time"))
+	unit.reactionDrawnAt = sim.CurrentTime
+	unit.ReactionTime = time.Duration(sim.RollWithLabel(float64(unit.reactionTimeMin), float64(unit.reactionTimeMax), "Reaction Time"))
 }
 
 // Call this when reacting to events that occur before the next scheduled rotation action

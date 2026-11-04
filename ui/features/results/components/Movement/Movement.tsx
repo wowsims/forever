@@ -92,7 +92,7 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 		() =>
 			castsUnderWay(run, time).map(cast => ({
 				done: (time - cast.start) / cast.castTime,
-				label: t('cast', { name: cast.actionId.name, time: (cast.end - time).toFixed(2) }),
+				label: t('cast', { name: cast.actionId.name, time: (cast.start + cast.castTime - time).toFixed(2) }),
 			})),
 		[run, time],
 	);

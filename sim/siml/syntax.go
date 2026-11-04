@@ -1283,7 +1283,7 @@ func (p *parser) entry() stmt {
 	}
 	s := &fieldEntryStmt{name: t.name(), values: []node{p.term(entryEnds)}}
 	if p.peekKind(0, tokNumber) {
-		s.max = p.term(entryEnds)
+		s.max = p.operand()
 	}
 	for p.acceptPunct(",") {
 		s.values = append(s.values, p.term(entryEnds))

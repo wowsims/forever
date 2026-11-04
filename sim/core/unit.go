@@ -66,8 +66,9 @@ type Unit struct {
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
 	ReactionTime    time.Duration
-	reactionTimeMax time.Duration // Above the reaction the settings give, each rotation pass draws ReactionTime evenly between the two.
+	reactionTimeMax time.Duration // Above the reaction the settings give, ReactionTime is drawn evenly between the two.
 	reactionTimeMin time.Duration // The reaction the settings give.
+	reactionDrawnAt time.Duration // The instant ReactionTime was drawn at.
 
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
@@ -981,6 +982,7 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
 	if unit.reactionTimeMax > unit.reactionTimeMin {
 		unit.ReactionTime = (unit.reactionTimeMin + unit.reactionTimeMax) / 2
+		unit.reactionDrawnAt = NeverExpires
 	}
 	unit.engagedBeforePull = false
 	unit.Metrics.reset()

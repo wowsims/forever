@@ -86,9 +86,9 @@ func simTablesTSData() tsSimTables {
 		MinRangedRange:         core.MinRangedRange,
 	}
 
-	for _, weaponType := range slices.Sorted(maps.Values(proto.RangedWeaponType_value)) {
+	for _, weaponType := range slices.Sorted(maps.Keys(proto.RangedWeaponType_name)) {
 		if core.RangedWeaponMinRange(proto.RangedWeaponType(weaponType)) > 0 {
-			data.MinRangeWeaponTypes = append(data.MinRangeWeaponTypes, protoEnumName(proto.RangedWeaponType_name, weaponType))
+			data.MinRangeWeaponTypes = append(data.MinRangeWeaponTypes, proto.RangedWeaponType_name[weaponType])
 		}
 	}
 

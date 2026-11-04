@@ -146,7 +146,9 @@ func (f *typedFile) format(u *uses) string {
 		indent += indentWidth * len(whenChain(in))
 		startsBlock := previous != nil && group != current
 		prev, afterHeader := previous.(*headerStmt)
-		startsSection := afterHeader && sectionOf[previous] == section
+		// A section's first body line, or the first after body lines that printed nothing: a max that joined its
+		// duration's line.
+		startsSection := sectionOf[previous] == section && (afterHeader || header != nil && items[len(items)-1] == header)
 		var onHeader *item
 		if afterHeader && prev.body == s {
 			onHeader = header

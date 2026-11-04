@@ -1678,9 +1678,6 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 				t.mark(s.max.pos())
 			}
 			pop()
-			if ok && len(written) > 0 && written[0].value.Int() >= v.Int() {
-				t.warn("max-not-above-min", fmt.Sprintf("the max of %s is not above its first value, so it sets no range", p.Siml), s.max.pos())
-			}
 			put(max, v, ok)
 		}
 	case *flagListStmt:

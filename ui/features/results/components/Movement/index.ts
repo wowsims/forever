@@ -1,2 +1,2 @@
-export { Movement, MovementView } from './Movement';
-export type { MovementProps, MovementViewProps } from './Movement';
+export { Movement } from './Movement';
+export type { MovementProps } from './Movement';
