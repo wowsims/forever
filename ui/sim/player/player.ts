@@ -137,6 +137,7 @@ export class UnitMetadata {
 	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
+	private menuGroupOrder: Array<string>;
 
 	constructor() {
 		this.name = '';
@@ -144,6 +145,7 @@ export class UnitMetadata {
 		this.icdAuras = [];
 		this.spells = [];
 		this.talents = [];
+		this.menuGroupOrder = [];
 	}
 
 	getName(): string {
@@ -165,6 +167,11 @@ export class UnitMetadata {
 	/** The talents the unit has points in, each at the rank it holds. */
 	getTalents(): Array<ActionId> {
 		return this.talents.slice();
+	}
+
+	/** The order of the unit's APL menu groups, by full path; a group not listed follows them. */
+	getMenuGroupOrder(): Array<string> {
+		return this.menuGroupOrder.slice();
 	}
 
 	// Returns whether any updates were made.
@@ -211,6 +218,10 @@ export class UnitMetadata {
 		}
 		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {
 			this.talents = newTalents;
+			anyUpdates = true;
+		}
+		if (metadata.menuGroupOrder.join() != this.menuGroupOrder.join()) {
+			this.menuGroupOrder = metadata.menuGroupOrder.slice();
 			anyUpdates = true;
 		}
 
@@ -402,6 +413,7 @@ export class Player<SpecType extends Spec> {
 			talentsString: '',
 			specOptions: this.specTypeFunctions.optionsCreate(),
 			reactionTime: 0,
+			reactionTimeMax: 0,
 			channelClipDelay: 0,
 			inFrontOfTarget: false,
 			distanceFromTarget: 0,
@@ -1092,6 +1104,16 @@ export class Player<SpecType extends Spec> {
 		this.patch('reactionTime', newReactionTime);
 	}
 
+	getReactionTimeMax(): number {
+		return this.slice().reactionTimeMax;
+	}
+
+	setReactionTimeMax(newReactionTimeMax: number) {
+		if (newReactionTimeMax == this.getReactionTimeMax()) return;
+
+		this.patch('reactionTimeMax', newReactionTimeMax);
+	}
+
 	getChannelClipDelay(): number {
 		return this.slice().channelClipDelay;
 	}
@@ -1467,6 +1489,7 @@ export class Player<SpecType extends Spec> {
 				prof1Rank: this.slice().prof1Rank,
 				prof2Rank: this.slice().prof2Rank,
 				reactionTimeMs: this.getReactionTime(),
+				reactionTimeMaxMs: this.getReactionTimeMax(),
 				channelClipDelayMs: this.getChannelClipDelay(),
 				inFrontOfTarget: this.getInFrontOfTarget(),
 				distanceFromTarget: this.getDistanceFromTarget(),
@@ -1519,6 +1542,7 @@ export class Player<SpecType extends Spec> {
 				this.setProfession2(proto.profession2);
 				this.setProfessionRanks(proto.prof1Rank, proto.prof2Rank);
 				this.setReactionTime(proto.reactionTimeMs);
+				this.setReactionTimeMax(proto.reactionTimeMaxMs);
 				this.setChannelClipDelay(proto.channelClipDelayMs);
 				this.setInFrontOfTarget(proto.inFrontOfTarget);
 				this.setDistanceFromTarget(proto.distanceFromTarget);
@@ -1540,6 +1564,7 @@ export class Player<SpecType extends Spec> {
 	applySharedDefaults() {
 		batch(() => {
 			this.setReactionTime(100);
+			this.setReactionTimeMax(0);
 			this.setInFrontOfTarget(this.playerSpec.isTankSpec);
 			this.setHealingModel(
 				HealingModel.create({

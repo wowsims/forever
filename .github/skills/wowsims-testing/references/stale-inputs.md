@@ -22,6 +22,7 @@ tests that read the database or the DBC inputs skip without them. The UI's gener
   `tools/database/unsupported_consumables.txt` are local baselines their tests write when missing. After master
   brings new effects or rows, rewrite them with `UPDATE_REGISTERED_EFFECTS=1` (`TestRegisteredEffects`),
   `UPDATE_UNSUPPORTED_PROCS=1` and `UPDATE_UNSUPPORTED_CONSUMABLES=1` before reading their diff as a regression;
-  each test's header line prints its exact command.
+  each test's header line prints its exact command. A change to proc support in your own branch (a trigger newly
+  built or refused) makes them stale the same way: the tests fail until you refresh the local copies.
 - **The test cache.** Rerun the tools tests with `-count=1` after any of the above, so a cached pass from before the
   merge cannot stand in for a run.

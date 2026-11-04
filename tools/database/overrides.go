@@ -971,6 +971,13 @@ var ItemDenyList = map[int32]struct{}{
 	241090: {}, // Scarlet Great Axe
 	// Forever test items the game files carry
 	280304: {}, // Invisible Dagger
+	// End of Beta event weapons: level 1 copies of raid weapons at item level 35 to 45
+	289292: {}, // Hammer of Bestial Fury
+	289294: {}, // Thunderfury, Blessed Blade of the Windseeker
+	289295: {}, // Sulfuras, Hand of Ragnaros
+	289296: {}, // Benediction
+	289297: {}, // Anathema
+	289303: {}, // Rhok'delar, Longbow of the Ancient Keepers
 }
 
 // Item Ids of consumables to allow
@@ -1017,6 +1024,17 @@ var ConsumableDenyList = []int32{
 	23794, // Permanent Sheen of Zanza
 	23795, // Permanent Spirit of Zanza
 	23796, // Permanent Swiftness of Zanza
+	// End of Beta event elixirs and scrolls
+	289082, // Elixir of Endless Intellect
+	289083, // Elixir of Endless Power
+	289084, // Elixir of Endless Healing
+	289086, // Elixir of Endless Rapidity
+	289087, // Elixir of Endless Opportunity
+	289088, // Scroll of Endless Fortitude
+	289321, // Elixir of Endless Mana
+	289329, // Elixir of Endless Growth
+	289330, // Scroll of Endless Speed
+	289334, // Elixir of Endless Experience
 	// Mage familiar summons, which the settings leave out
 	275069, // Scroll of Rat Familiar
 	277483, // Scroll of Frog Familiar
@@ -1178,7 +1196,10 @@ var SharedSpellsIcons = []int32{
 	8024,  // Flametongue Weapon
 	8033,  // Frostbrand Weapon
 	8232,  // Windfury Weapon
+	9885,  // Mark of the Wild
 	10538, // Fire Resistance Totem
+	10938, // Power Word: Fortitude
+	10958, // Shadow Protection
 	12470, // Fire Nova
 	13339, // Fire Blast
 	13376, // Fire Shield
@@ -1196,6 +1217,8 @@ var SharedSpellsIcons = []int32{
 	23563, // Enhanced Battle Shout
 	25076, // Cobra Reflexes
 	21564, // Prayer of Fortitude
+	25782, // Greater Blessing of Might
+	25894, // Greater Blessing of Wisdom
 	25895, // Mass Salvation
 	25916, // Greater Blessing of Might
 	25918, // Greater Blessing of Wisdom

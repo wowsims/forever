@@ -1,0 +1,21 @@
+siml 1
+spec retribution_paladin
+
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_might 1
+  greater_blessing_of_wisdom 1
+
+party_buffs: mana_spring_totem
+
+raid_buffs:
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild, power_word_fortitude
+  strength_of_earth_totem 1
+  grace_of_air_totem 1
+  windfury_totem
+  battle_shout 1
+  leader_of_the_pack
+
+debuffs:
+  judgement_of_light, judgement_of_wisdom, curse_of_elements, curse_of_recklessness, faerie_fire
+  expose_armor, sunder_armor

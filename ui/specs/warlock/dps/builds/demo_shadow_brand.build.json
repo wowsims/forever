@@ -106,7 +106,9 @@
         250335,
         13454,
         250337,
-        250347
+        250347,
+        9264,
+        6373
       ],
       "mhWeaponImbueId": 13603,
       "resourcePotId": 13444
@@ -570,21 +572,9 @@
               "cmp": {
                 "op": "OpGt",
                 "lhs": {
-                  "math": {
-                    "op": "OpAdd",
-                    "lhs": {
-                      "spellCastTime": {
-                        "spellId": {
-                          "spellId": 17923
-                        }
-                      }
-                    },
-                    "rhs": {
-                      "spellTravelTime": {
-                        "spellId": {
-                          "spellId": 17923
-                        }
-                      }
+                  "spellCastTime": {
+                    "spellId": {
+                      "spellId": 17923
                     }
                   }
                 },
@@ -667,10 +657,25 @@
             {
               "action": {
                 "condition": {
-                  "not": {
-                    "val": {
-                      "warlockAssignedCurseIsActive": {}
-                    }
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "warlockAssignedCurseIsActive": {}
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "warlockIsAssignedCurse": {
+                              "curseType": "NoCurse"
+                            }
+                          }
+                        }
+                      }
+                    ]
                   }
                 },
                 "castWarlockAssignedCurse": {}
@@ -1993,19 +1998,6 @@
           }
         },
         {
-          "name": "Improved Shadow Bolt Known",
-          "value": {
-            "auraIsKnown": {
-              "sourceUnit": {
-                "type": "CurrentTarget"
-              },
-              "auraId": {
-                "spellId": 17794
-              }
-            }
-          }
-        },
-        {
           "name": "Amount of Dooms left",
           "value": {
             "math": {
@@ -2029,6 +2021,19 @@
                     "spellId": 603
                   }
                 }
+              }
+            }
+          }
+        },
+        {
+          "name": "Improved Shadow Bolt Known",
+          "value": {
+            "auraIsKnown": {
+              "sourceUnit": {
+                "type": "CurrentTarget"
+              },
+              "auraId": {
+                "spellId": 17794
               }
             }
           }

@@ -1,0 +1,3 @@
+4:21 warning max-not-above-min
+5:1 error duplicate-field
+6:20 error wrong-type

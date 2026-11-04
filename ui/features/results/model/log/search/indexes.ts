@@ -44,9 +44,10 @@ export const TYPE_SUGGESTIONS: ReadonlyArray<TypeToken> = Object.keys(TYPE_FILTE
 //   'plain'       - the parser's fallback for a line it did not recognise; nothing to select on.
 //   'damage'      - reached through the effect rows above, never through the kind index.
 //   'aura-stacks' - no token offers it, and filter values are picked rather than typed.
+//   'movement'    - a walk or a stop, which the Movement tab draws; the log keeps it as plain text.
 // A new ParsedKind that is neither covered by a row above nor listed here stops compiling below,
 // which is the only direction `satisfies` cannot catch on its own.
-type UnfilterableKind = 'plain' | 'damage' | 'aura-stacks';
+type UnfilterableKind = 'plain' | 'damage' | 'aura-stacks' | 'movement';
 type FilteredKind = Extract<(typeof TYPE_FILTERS)[TypeToken], { kinds: ReadonlyArray<unknown> }>['kinds'][number];
 type AssertNever<T extends never> = T;
 type _UncoveredKinds = AssertNever<Exclude<ParsedKind, UnfilterableKind | FilteredKind>>;

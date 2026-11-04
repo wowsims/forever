@@ -30,7 +30,9 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 	config := spellDataProcListener(character, cfg, source, trigger)
 	callback := config.Callback
 	config.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		applyDebuff(sim, debuffs.Get(procDamageTarget(character, callback, spell, result)))
+		if target := procDamageTarget(character, callback, spell, result); target != nil {
+			applyDebuff(sim, debuffs.Get(target))
+		}
 	}
 	config.TriggerImmediately = true
 

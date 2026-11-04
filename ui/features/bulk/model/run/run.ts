@@ -18,7 +18,7 @@ import { trackEvent } from '../../../../tracking/utils';
 import { bulkBuildPlan, type BulkBuildStep, bulkBuildStep, bulkBundlePlans, bulkGearSetSetups, bulkPlanRuns } from '../builds/builds';
 import { bulkBundleRuns, pickableBulkBundleParts } from '../builds/bundles';
 import { bulkEnchantPickEntries, bulkEnchantPickRuns } from '../builds/enchant_picks';
-import { bulkEncounterRuns, encounterLength, pickableBulkEncounters } from '../builds/encounters';
+import { bulkEncounterRuns, pickableBulkEncounters } from '../builds/encounters';
 import { createBulkSettingsProto } from '../gear/settings';
 import { bulkRunsBuilds } from '../mode';
 import { type BulkFinishedRequest, rankEncounterResults } from '../results/results';
@@ -410,7 +410,8 @@ export const runBulkBatch = async (host: IndividualSimHost<any>) => {
 			entries.push({
 				name: encounterPlan.encounter.name,
 				isCurrent: encounterPlan.encounter.isCurrent,
-				...encounterLength(encounterPlan.encounter.encounter),
+				duration: encounterPlan.encounter.encounter.duration,
+				durationVariation: encounterPlan.encounter.encounter.durationVariation,
 				results: rankEncounterResults(finished, baseGear, topResults),
 			});
 		}

@@ -88,6 +88,8 @@ func (paladin *Paladin) Initialize() {
 	HolyLightRankMap.Each(paladin.registerHolyLight)
 	FlashOfLightRankMap.Each(paladin.registerFlashOfLight)
 	LayOnHandsRankMap.Each(paladin.registerLayOnHands)
+
+	paladin.registerMenuGroups()
 }
 
 func (paladin *Paladin) Reset(_ *core.Simulation) {

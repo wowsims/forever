@@ -1,6 +1,8 @@
 package warlock
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -188,8 +190,9 @@ func (warlock *Warlock) applyFireAndBrimstone() {
 // --- Tier 6 ---
 
 // Conflagrate hits leave more Shadow damage for 20 sec (1293816), Shadowburn hits more Fire damage
-// (426311), both parsed from their rows. Effect 2 is both the chance Conflagrate keeps Immolate burning and
-// the chance Shadowburn refunds its Soul Shard, 100% at 5/5. The row's effects are dummies the tooltip reads.
+// (426311), both parsed from their rows at the talent's amount. Effect 2 is both the chance Conflagrate keeps
+// Immolate burning and the chance Shadowburn refunds its Soul Shard, 100% at 5/5. The row's effects are dummies
+// the tooltip reads.
 func (warlock *Warlock) applyShadowAndFlame() {
 	if warlock.Talents.ShadowAndFlame == 0 {
 		return
@@ -209,11 +212,15 @@ func (warlock *Warlock) applyShadowAndFlame() {
 		},
 	})
 
-	buffOnHit := func(buffRow *spelldata.Spell, hitBy spelldata.Ladder) {
+	// The talent's effects 3 and 4 price the buffs at each rank: "increases all Shadow damage you deal by
+	// $m3%" and "all Fire damage you deal by $m4%". The buff rows' own 10% does not apply, so each buff
+	// parses a copy of its row with the talent's amount.
+	buffOnHit := func(buffRow *spelldata.Spell, amount *spelldata.Effect, hitBy spelldata.Ladder) {
 		buff := warlock.RegisterAura(spelldata.AuraConfig(buffRow))
-		// The buff rows state the 5/5 value; the talent's effects 3 and 4 price it at each rank.
-		spelldata.ParseEffects(&warlock.Character, buff, buffRow,
-			spelldata.ScaledByRanks(warlock.Talents.ShadowAndFlame, spellData.ShadowAndFlame.Len()))
+		priced := *buffRow
+		priced.Effects = slices.Clone(buffRow.Effects)
+		priced.Effects[0].BasePoints = amount.BasePoints
+		spelldata.ParseEffects(&warlock.Character, buff, &priced)
 
 		warlock.MakeProcTriggerAura(core.ProcTrigger{
 			Name:     buffRow.Name + " - Trigger",
@@ -227,8 +234,8 @@ func (warlock *Warlock) applyShadowAndFlame() {
 			},
 		})
 	}
-	buffOnHit(spellData.ShadowAndFlameTriggered.ByID(1293816), spellData.Conflagrate)
-	buffOnHit(spellData.ShadowAndFlameTriggered.ByID(426311), spellData.Shadowburn)
+	buffOnHit(spellData.ShadowAndFlameTriggered.ByID(1293816), rank.EffectN(3), spellData.Conflagrate)
+	buffOnHit(spellData.ShadowAndFlameTriggered.ByID(426311), rank.EffectN(4), spellData.Shadowburn)
 }
 
 // --- Tier 7 ---

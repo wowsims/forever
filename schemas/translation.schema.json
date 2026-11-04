@@ -136,6 +136,9 @@
 				"elapsed_time": {
 					"type": "string"
 				},
+				"time_left": {
+					"type": "string"
+				},
 				"ok": {
 					"type": "string"
 				},
@@ -1497,6 +1500,9 @@
 						"shield": {
 							"type": "string"
 						},
+						"shieldsworn": {
+							"type": "string"
+						},
 						"amplified": {
 							"type": "string"
 						},
@@ -1567,6 +1573,7 @@
 						"external",
 						"self",
 						"shield",
+						"shieldsworn",
 						"amplified",
 						"custom_boss",
 						"thrash",
@@ -1623,6 +1630,7 @@
 				"search",
 				"filter",
 				"elapsed_time",
+				"time_left",
 				"melee",
 				"any",
 				"phases",
@@ -1693,6 +1701,22 @@
 					},
 					"additionalProperties": false,
 					"required": ["title", "message", "download_button"]
+				},
+				"new_build": {
+					"type": "object",
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"message": {
+							"type": "string"
+						},
+						"reload_button": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["title", "message", "reload_button"]
 				},
 				"crash_modal": {
 					"type": "object",
@@ -1817,6 +1841,7 @@
 				"basic_bis_disclaimer",
 				"healing_sim_disclaimer",
 				"notice_native_download",
+				"new_build",
 				"crash_modal",
 				"unlaunched",
 				"notifications",
@@ -2550,6 +2575,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"input_delay_max": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"channel_clip_delay": {
 							"type": "object",
 							"properties": {
@@ -3259,6 +3297,7 @@
 					"required": [
 						"title",
 						"input_delay",
+						"input_delay_max",
 						"channel_clip_delay",
 						"in_front_of_target",
 						"distance_from_target",
@@ -3665,6 +3704,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"kill_share": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"fear_duration": {
 									"type": "object",
 									"properties": {
@@ -3692,6 +3744,7 @@
 								"adds_respawn_time",
 								"adds_lifetime",
 								"adds_spawn_delay",
+								"kill_share",
 								"fear_duration"
 							]
 						},
@@ -4475,9 +4528,6 @@
 								"duplicate": {
 									"type": "string"
 								},
-								"health_summary": {
-									"type": "string"
-								},
 								"targets": {
 									"type": "string"
 								},
@@ -4489,7 +4539,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["current", "presets", "saved", "empty", "duplicate", "health_summary", "targets", "targets_one", "targets_other"]
+							"required": ["current", "presets", "saved", "empty", "duplicate", "targets", "targets_one", "targets_other"]
 						},
 						"talents": {
 							"type": "object",
@@ -4786,9 +4836,6 @@
 						},
 						"step_progress": {
 							"type": "string"
-						},
-						"time_left": {
-							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -4808,8 +4855,7 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress",
-						"time_left"
+						"step_progress"
 					]
 				},
 				"notifications": {
@@ -6306,6 +6352,58 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"target_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"num_active_adds": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_dies": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -6854,6 +6952,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"remaining_cast_time": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"is_casting": {
 									"type": "object",
 									"properties": {
@@ -7024,6 +7135,32 @@
 									"required": ["label", "tooltip"]
 								},
 								"aura_active_with_reaction_time": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7279,6 +7416,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"druid_excess_energy": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7743,6 +7893,10 @@
 								"target_is_bleed_immune",
 								"target_is_mob_type",
 								"encounter_in_area",
+								"target_is_active",
+								"num_active_adds",
+								"time_until_target_active",
+								"time_until_target_dies",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",
@@ -7784,6 +7938,7 @@
 								"cast_time",
 								"travel_time",
 								"cpm",
+								"remaining_cast_time",
 								"is_casting",
 								"is_channeling",
 								"channeled_ticks",
@@ -7798,6 +7953,8 @@
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
+								"aura_active_on_all_targets",
+								"aura_active_on_any_target",
 								"aura_inactive",
 								"aura_inactive_with_reaction_time",
 								"aura_remaining_time",
@@ -7817,6 +7974,7 @@
 								"druid_bleed_is_active",
 								"druid_excess_energy",
 								"dot_is_active_on_all_targets",
+								"dot_is_active_on_any_target",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
 								"dot_tick_frequency",
@@ -8097,6 +8255,39 @@
 								},
 								"stances": {
 									"type": "string"
+								},
+								"forms": {
+									"type": "string"
+								},
+								"cat": {
+									"type": "string"
+								},
+								"stealth": {
+									"type": "string"
+								},
+								"bear": {
+									"type": "string"
+								},
+								"utility": {
+									"type": "string"
+								},
+								"druid": {
+									"type": "string"
+								},
+								"seals": {
+									"type": "string"
+								},
+								"damage": {
+									"type": "string"
+								},
+								"heals": {
+									"type": "string"
+								},
+								"paladin_auras": {
+									"type": "string"
+								},
+								"paladin": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -8142,7 +8333,18 @@
 								"external_debuffs",
 								"variables",
 								"groups",
-								"stances"
+								"stances",
+								"forms",
+								"cat",
+								"stealth",
+								"bear",
+								"utility",
+								"druid",
+								"seals",
+								"damage",
+								"heals",
+								"paladin_auras",
+								"paladin"
 							]
 						},
 						"item_swap_sets": {
@@ -8507,6 +8709,16 @@
 						"rogue": {
 							"type": "object",
 							"properties": {
+								"start_in_stealth": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label"]
+								},
 								"use_backstab": {
 									"type": "object",
 									"properties": {
@@ -8589,6 +8801,7 @@
 							},
 							"additionalProperties": false,
 							"required": [
+								"start_in_stealth",
 								"use_backstab",
 								"use_expose_armor",
 								"use_backstab_rank_9",
@@ -8738,19 +8951,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"time_to_weave": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"use_aimed": {
 									"type": "object",
 									"properties": {
@@ -8847,7 +9047,6 @@
 							"required": [
 								"playstyle",
 								"pull_range",
-								"time_to_weave",
 								"use_aimed",
 								"use_multi",
 								"use_arcane",
@@ -9358,6 +9557,89 @@
 								"gcd_tooltip"
 							]
 						},
+						"movement": {
+							"type": "object",
+							"properties": {
+								"note": {
+									"type": "string"
+								},
+								"no_walks": {
+									"type": "string"
+								},
+								"field_label": {
+									"type": "string"
+								},
+								"play": {
+									"type": "string"
+								},
+								"pause": {
+									"type": "string"
+								},
+								"speed_label": {
+									"type": "string"
+								},
+								"speed": {
+									"type": "string"
+								},
+								"time_label": {
+									"type": "string"
+								},
+								"time": {
+									"type": "string"
+								},
+								"unit": {
+									"type": "string"
+								},
+								"cast": {
+									"type": "string"
+								},
+								"zones": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"dead_zone": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "dead_zone", "ranged"]
+								},
+								"rings": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "ranged"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"note",
+								"no_walks",
+								"field_label",
+								"play",
+								"pause",
+								"speed_label",
+								"speed",
+								"time_label",
+								"time",
+								"unit",
+								"cast",
+								"zones",
+								"rings"
+							]
+						},
 						"logs": {
 							"type": "object",
 							"properties": {
@@ -9643,12 +9925,15 @@
 								"timeline": {
 									"type": "string"
 								},
+								"movement": {
+									"type": "string"
+								},
 								"log": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "log"]
+							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "movement", "log"]
 						},
 						"columns": {
 							"type": "object",
@@ -10103,6 +10388,7 @@
 						"pets",
 						"damage",
 						"timeline",
+						"movement",
 						"logs",
 						"tabs",
 						"columns",
@@ -11014,10 +11300,7 @@
 										"reference_description": {
 											"type": "string"
 										},
-										"simulated_step_rating": {
-											"type": "string"
-										},
-										"simulated_step_rating_percent": {
+										"simulated_step_percent": {
 											"type": "string"
 										},
 										"simulated_step_description": {
@@ -11029,13 +11312,10 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
-										"rating_conversion": {
-											"type": "string"
-										},
 										"simulated_step": {
 											"type": "string"
 										},
-										"rating_weights_description": {
+										"percent_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -11304,14 +11584,12 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
-										"simulated_step_rating",
-										"simulated_step_rating_percent",
+										"simulated_step_percent",
 										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
-										"rating_conversion",
 										"simulated_step",
-										"rating_weights_description",
+										"percent_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",
@@ -11393,6 +11671,7 @@
 								"current_value": { "type": "string" },
 								"added_axis": { "type": "string" },
 								"tooltip_total": { "type": "string" },
+								"tooltip_added": { "type": "string" },
 								"tooltip_value": { "type": "string" },
 								"tooltip_value_capped": { "type": "string" },
 								"band_key": { "type": "string" },
@@ -11445,6 +11724,7 @@
 								"current_value",
 								"added_axis",
 								"tooltip_total",
+								"tooltip_added",
 								"tooltip_value",
 								"tooltip_value_capped",
 								"band_key",
@@ -11826,19 +12106,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"dur": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"tto": {
 									"type": "object",
 									"properties": {
@@ -11867,7 +12134,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "dur", "tto", "oom"]
+							"required": ["dps", "hps", "tps", "apm", "dtps", "tmi", "cod", "tto", "oom"]
 						},
 						"stop": {
 							"type": "string"
@@ -12119,13 +12386,7 @@
 						"bonus_prefix": {
 							"type": "string"
 						},
-						"rating_suffix": {
-							"type": "string"
-						},
 						"points_suffix": {
-							"type": "string"
-						},
-						"percent_label": {
 							"type": "string"
 						},
 						"percent_suffix": {
@@ -12144,9 +12405,7 @@
 						"crit_cap",
 						"tank_caps",
 						"bonus_prefix",
-						"rating_suffix",
 						"points_suffix",
-						"percent_label",
 						"percent_suffix"
 					]
 				}
@@ -12313,7 +12572,7 @@
 						"primary": {
 							"type": "string"
 						},
-						"ratings": {
+						"gear": {
 							"type": "string"
 						},
 						"other": {
@@ -12321,23 +12580,17 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["primary", "ratings", "other"]
+					"required": ["primary", "gear", "other"]
 				},
 				"group_count": {
 					"type": "string"
 				},
 				"kept_tooltip": {
 					"type": "string"
-				},
-				"rating_label": {
-					"type": "string"
-				},
-				"percent_label": {
-					"type": "string"
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip", "rating_label", "percent_label"]
+			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip"]
 		}
 	},
 	"additionalProperties": false,

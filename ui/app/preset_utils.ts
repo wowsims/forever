@@ -253,8 +253,10 @@ const makePresetSettingsHelper = (name: string, spec: Spec, simSettings: Individ
 		// proto3 cannot tell an absent scalar from a zero one, so a JSON that never mentions these
 		// timings parses to 0 for both. Leaving the field out here is what lets `applyBuild` keep a
 		// `typeof === 'number'` guard and so still honour a hand-written preset that means 0.
+		// A build that states its reaction states its top with it, so a fixed reaction over a ranged default stays fixed.
 		if (simSettings.player.reactionTimeMs) {
 			settings.playerOptions.reactionTimeMs = simSettings.player.reactionTimeMs;
+			settings.playerOptions.reactionTimeMaxMs = simSettings.player.reactionTimeMaxMs;
 		}
 
 		if (simSettings.player.channelClipDelayMs) {
@@ -347,6 +349,17 @@ export const makePresetBuildFromJSON = (
 	return makePresetBuild(name, { ...buildConfig, ...customBuildOptions });
 };
 
+/**
+ * A build from a .siml file's JSON that leaves "in front of target" as the page has it: a .siml file has no unset bool,
+ * so its settings: section turns it off. Loading the build turns item swap on with its `itemSwap` and off without one.
+ */
+export const makePresetBuildFromSiml = (name: string, spec: Spec, json: any, buildOptions?: PresetBuildOptions): PresetBuild => {
+	const preset = makePresetBuildFromJSON(name, spec, json, buildOptions);
+	if (!preset.settings?.playerOptions) return preset;
+	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings.playerOptions;
+	return { ...preset, settings: { ...preset.settings, playerOptions } };
+};
+
 type SpecSettingsDefaults<SpecType extends Spec> = Pick<
 	IndividualSimUIConfig<SpecType>['defaults'],
 	| 'gear'
@@ -405,6 +418,7 @@ export const specDefaultsFromSettings = <SpecType extends Spec>(spec: SpecType, 
 			profession2: player.profession2,
 			distanceFromTarget: player.distanceFromTarget,
 			reactionTime: player.reactionTimeMs,
+			reactionTimeMax: player.reactionTimeMaxMs,
 			channelClipDelay: player.channelClipDelayMs,
 			healingModel: player.healingModel,
 			iterationCount: settings.settings?.iterations,

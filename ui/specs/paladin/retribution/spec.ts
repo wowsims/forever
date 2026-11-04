@@ -1,6 +1,6 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as OtherInputs from '@features/settings/model/other_inputs';
-import { APLGroup, APLListItem, APLRotation, APLRotation_Type, APLValueVariable } from '@generated/proto/apl';
+import { APLGroup, APLListItem, APLRotation, APLValueVariable } from '@generated/proto/apl';
 import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PaladinSeal } from '@generated/proto/paladin';
 import { PlayerClasses } from '@sim/player/classes';
@@ -77,8 +77,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	displayWeaponSkillGroups: [WeaponSkillGroup.Melee],
 
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.DefaultGearPreset.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.UnsealedWrathEpWeights.epWeights,
 		statCaps: (() => {
@@ -87,21 +86,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 
 			return hitCap.add(expCap);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.UnsealedWrathTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		other: Presets.OtherDefaults,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-		partyBuffs: Presets.DefaultPartyBuffs,
-		individualBuffs: Presets.DefaultIndividualBuffs,
-		debuffs: Presets.DefaultDebuffs,
-
-		rotationType: APLRotation_Type.TypeSimple,
-		simpleRotation: Presets.DefaultSimpleRotation,
+		// The rotation a switch to APL starts from, since the defaults run the simple one.
 		aplRotation: Presets.DefaultAplPreset.rotation.rotation!,
 	},
 

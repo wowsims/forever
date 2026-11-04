@@ -120,7 +120,7 @@
 				}
 			}
 		},
-		"talentsString": "53200005021-005003-5502000300500221",
+		"talentsString": "53200005001-005005-5302002300500221",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {
@@ -515,7 +515,8 @@
 				}
 			]
 		},
-		"reactionTimeMs": 250,
+		"reactionTimeMs": 150,
+		"reactionTimeMaxMs": 350,
 		"distanceFromTarget": 5
 	},
 	"encounter": {
@@ -528,7 +529,7 @@
 				"id": 31146,
 				"name": "Raid Target",
 				"level": 63,
-				"mobType": "MobTypeMechanical",
+				"mobType": "MobTypeDragonkin",
 				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1428900, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				"minBaseDamage": 2601,
 				"damageSpread": 0.5,

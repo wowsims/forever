@@ -25,6 +25,7 @@ import {
 	type StatSweepStepSample,
 	sweepBatches,
 	sweepBonus,
+	sweepHasTotal,
 	type SweepPassRunner,
 	sweepStepPosition,
 	sweepSteps,
@@ -99,6 +100,12 @@ describe('buildSweepOffsets', () => {
 });
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
+const CRIT_RATING = UnitStat.fromStat(Stat.StatCritRating);
+const HIT_RATING = UnitStat.fromStat(Stat.StatHitRating);
+const DEFENSE_RATING = UnitStat.fromStat(Stat.StatDefenseRating);
+const RANGED_CRIT_PERCENT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent);
+const SHADOW_HIT_PERCENT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow);
+const MAIN_HAND_DPS = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps);
 
 describe('sweepSteps', () => {
 	it('places each offset at its total and drops those whose total falls below 0, keeping one that lands on 0', () => {
@@ -114,8 +121,15 @@ describe('sweepSteps', () => {
 		expect(sweepSteps(STRENGTH, [10], [0.1 + 0.2])).toEqual([{ offset: 10, bonus: 10, statValue: 0.3 }]);
 	});
 
-	it('stores the % a rating gives as the bonus of a % stat', () => {
-		expect(sweepSteps(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), [10], [5])).toEqual([{ offset: 10, bonus: 10 / 14, statValue: 5 }]);
+	it('stores the percent the points give as the bonus of a percent stat', () => {
+		expect(sweepSteps(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), [14], [5])).toEqual([{ offset: 14, bonus: 1, statValue: 5 }]);
+	});
+
+	it("drops a gear stat's lower steps by its own total, so 56 points from gear plot down to -56", () => {
+		expect(sweepSteps(CRIT_RATING, [-70, -56, 0], [-14, 0, 56])).toEqual([
+			{ offset: -56, bonus: -56, statValue: 0 },
+			{ offset: 0, bonus: 0, statValue: 56 },
+		]);
 	});
 });
 
@@ -518,12 +532,13 @@ describe('statSweepCsv', () => {
 		tmi: { avg: 9.5, stdev: 0.25, n },
 	});
 
-	it('writes one row per point of every run, with its batch, the stat added, every metric and its spread, and a quoted label', () => {
+	it('writes one row per point of every run, with its batch, the points added, every metric and its spread, and a quoted label', () => {
 		const csv = statSweepCsv([
 			{
-				label: 'Hit, ±100',
-				batchLabel: 'Hit Rating, Crit Rating ±100',
-				statLabel: 'Hit Rating',
+				label: 'Strength, ±100',
+				unitStat: STRENGTH,
+				batchLabel: 'Crit, Strength ±100',
+				statLabel: 'Strength',
 				baseStatValue: 120,
 				points: [
 					{ offset: -20, bonus: -20, statValue: 100, metrics: metrics(1500.5, 100, 10000) },
@@ -532,39 +547,80 @@ describe('statSweepCsv', () => {
 			},
 			{
 				label: 'Crit',
+				unitStat: RANGED_CRIT_PERCENT,
 				batchLabel: '',
-				statLabel: 'Spell "Crit"',
+				statLabel: 'Ranged "Crit"',
 				baseStatValue: 5,
 				points: [{ offset: 14, bonus: 1, statValue: 6, metrics: metrics(1600, 200, 400) }],
 			},
 		]);
 
 		expect(csv.split('\n')).toEqual([
-			'run,batch,stat,base_total,added,bonus,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
-			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,-20,-20,100,1500.5,100,5,1,3001,200,300,30,9.5,0.25,10000',
-			'"Hit, ±100","Hit Rating, Crit Rating ±100",Hit Rating,120,0,0,120,1520,0,5,1,3040,0,300,30,9.5,0.25,10000',
-			'Crit,,"Spell ""Crit""",5,14,1,6,1600,200,5,1,3200,400,300,30,9.5,0.25,400',
+			'run,batch,stat,base_total,added,total,dps,dps_stdev,hps,hps_stdev,tps,tps_stdev,dtps,dtps_stdev,tmi,tmi_stdev,samples',
+			'"Strength, ±100","Crit, Strength ±100",Strength,120,-20,100,1500.5,100,5,1,3001,200,300,30,9.5,0.25,10000',
+			'"Strength, ±100","Crit, Strength ±100",Strength,120,0,120,1520,0,5,1,3040,0,300,30,9.5,0.25,10000',
+			'Crit,,"Ranged ""Crit""",5,14,6,1600,200,5,1,3200,400,300,30,9.5,0.25,400',
 			'',
 		]);
+	});
+
+	it('leaves the totals of a gear stat empty and writes its points added', () => {
+		const csv = statSweepCsv([
+			{
+				label: 'Crit ±100',
+				unitStat: CRIT_RATING,
+				batchLabel: 'Crit, Strength ±100',
+				statLabel: 'Crit',
+				baseStatValue: 70,
+				points: [{ offset: 28, bonus: 28, statValue: 98, metrics: metrics(1600, 200, 400) }],
+			},
+		]);
+
+		expect(csv.split('\n')[1]).toBe('Crit ±100,"Crit, Strength ±100",Crit,,28,,1600,200,5,1,3200,400,300,30,9.5,0.25,400');
+	});
+
+	it('leaves the totals of defense empty and writes its points added', () => {
+		const csv = statSweepCsv([
+			{
+				label: 'Defense ±100',
+				unitStat: DEFENSE_RATING,
+				batchLabel: '',
+				statLabel: 'Defense',
+				baseStatValue: 10,
+				points: [{ offset: 10, bonus: 10, statValue: 20, metrics: metrics(1600, 200, 400) }],
+			},
+		]);
+
+		expect(csv.split('\n')[1]).toBe('Defense ±100,,Defense,,10,,1600,200,5,1,3200,400,300,30,9.5,0.25,400');
 	});
 });
 
 describe('sweepBonus', () => {
-	it('turns the rating of a % stat into its %', () => {
-		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentShadow), 10)).toBe(1);
-		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatSpellCritPercent), 14)).toBe(1);
+	it('turns the points of a percent stat into the percent they give', () => {
+		expect(sweepBonus(SHADOW_HIT_PERCENT, 10)).toBe(1);
+		expect(sweepBonus(RANGED_CRIT_PERCENT, 14)).toBe(1);
 		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatExpertisePercent), 10)).toBe(1);
 	});
 
-	it('keeps the offset of a rating and of a stat with no % form', () => {
-		expect(sweepBonus(UnitStat.fromStat(Stat.StatHitRating), 10)).toBe(10);
-		expect(sweepBonus(UnitStat.fromStat(Stat.StatStrength), 10)).toBe(10);
-		expect(sweepBonus(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps), 10)).toBe(10);
+	it('keeps the points of a gear stat and of a stat with no percent form', () => {
+		expect(sweepBonus(HIT_RATING, 10)).toBe(10);
+		expect(sweepBonus(CRIT_RATING, -20)).toBe(-20);
+		expect(sweepBonus(STRENGTH, 10)).toBe(10);
+		expect(sweepBonus(DEFENSE_RATING, 10)).toBe(10);
+		expect(sweepBonus(MAIN_HAND_DPS, 10)).toBe(10);
 	});
 
-	it('scales every % stat the sweep offers', () => {
+	it('scales every percent stat the sweep offers', () => {
 		const percentStats = EP_UNIT_STATS.filter(stat => stat.isPseudoStat() && PseudoStat[stat.getPseudoStat()].includes('Percent'));
 		expect(percentStats.length).toBeGreaterThan(0);
 		for (const stat of percentStats) expect(sweepBonus(stat, 140), stat.getKey()).not.toBe(140);
+	});
+});
+
+describe('sweepHasTotal', () => {
+	it('holds for a stat whose total is what a player has, and not for a gear stat or defense, whose own total is its gear points', () => {
+		for (const stat of [CRIT_RATING, HIT_RATING, UnitStat.fromStat(Stat.StatDodgeRating), DEFENSE_RATING])
+			expect(sweepHasTotal(stat), stat.getKey()).toBe(false);
+		for (const stat of [STRENGTH, RANGED_CRIT_PERCENT, SHADOW_HIT_PERCENT, MAIN_HAND_DPS]) expect(sweepHasTotal(stat), stat.getKey()).toBe(true);
 	});
 });

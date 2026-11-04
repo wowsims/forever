@@ -1,13 +1,13 @@
 siml 1
 spec hunter
-talents "-00530501114-550200030050220151"
+talents "-00530501114-530200230050220151"
 use "gear_sets/p1.gear.siml"
 
 settings:
   race orc
   profession1 engineering
   profession2 blacksmithing
-  reaction_time_ms 250
+  reaction_time 150ms 350ms
   distance_from_target 12
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow
@@ -49,7 +49,6 @@ debuffs:
 sim: iterations 25000
 
 simple:
-  time_to_weave 250
   pull_range 25
   use_multi, use_arcane
   playstyle weave
@@ -62,7 +61,7 @@ encounter:
   targets(id=31146,
       name="Raid Target",
       level=63,
-      mob_type=mechanical,
+      mob_type=dragonkin,
       stats(attack_power=320, block_value=54, armor=3731, health=1428900),
       min_base_damage=2601,
       damage_spread=0.5,

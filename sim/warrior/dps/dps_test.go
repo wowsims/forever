@@ -95,8 +95,8 @@ var DefaultOptions = &proto.Player_DpsWarrior{
 	},
 }
 
-var DefaultFuryTalents = "30305213002-15053105102210501"
-var DefaultArmsTalents = "30325213132515201-0505-2"
+var DefaultFuryTalents = "30303213002-350530005122100231-1"
+var DefaultArmsTalents = "30303213132215201-55050000002-2"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	ResourcePotId: 13442,  // Mighty Rage Potion

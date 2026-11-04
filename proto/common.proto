@@ -330,7 +330,7 @@ enum PseudoStat {
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
 
-	// Character sheet values per attack; the sim never reads them back.
+	// Character sheet values per attack; the sim never reads them back, and the UI does not read the *Rating ones either.
 	PseudoStatOffHandHitPercent = 28;
 	PseudoStatOffHandCritPercent = 29;
 	PseudoStatMainHandHitRating = 30;
@@ -636,9 +636,6 @@ message Encounter {
 
 	reserved 7, 8, 10;
 	reserved "execute_proportion_25", "execute_proportion_45", "execute_proportion_90";
-
-	// If set, will use the targets health value instead of a duration for fight length.
-	bool use_health = 5;
 
 	// If type != Simple or Custom, then this may be empty.
 	repeated Target targets = 6;

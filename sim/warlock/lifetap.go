@@ -28,9 +28,9 @@ func (warlock *Warlock) registerLifeTap() {
 	config.ClassSpellMask = WarlockSpellLifeTap
 
 	// Pay the health and gain the mana, both base + Spirit read at the cast
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		amount := baseAmount + warlock.GetStat(stats.Spirit)
-		warlock.RemoveHealth(sim, amount)
+		warlock.SpendHealth(sim, amount, spell.HealthMetrics(&warlock.Unit))
 		warlock.AddMana(sim, amount*improvedLifeTapMult, manaMetrics)
 
 		if pet := warlock.ActivePet; pet != nil && petManaMetrics[pet] != nil && pet.IsEnabled() {

@@ -1,11 +1,11 @@
 siml 1
 spec hunter
-talents "5320001505101251-0053250001-4"
+talents "5320001505101251-0052050301-4"
 use "../gear_sets/p1.gear.siml"
-use "../apls/turret_hawk.apl.siml"
+use "../apls/turret.apl.siml"
 
 settings:
-  reaction_time_ms 250
+  reaction_time 150ms 350ms
   distance_from_target 12
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow
