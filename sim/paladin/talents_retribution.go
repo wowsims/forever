@@ -195,7 +195,7 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 		"Pursuit of Justice",
 		core.ActionID{SpellID: rank.ID},
 		spellData.PursuitOfJustice.Effect(dbcenums.A_MOD_INCREASE_SPEED, 0).FractionAt(paladin.Talents.PursuitOfJustice),
-	)
+	).MenuGroup = menuPaladin
 }
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
@@ -223,8 +223,8 @@ func (paladin *Paladin) applySacredArbiter() {
 	})
 }
 
-// Two-Handed Weapon Specialization - Increases the physical damage you deal by 2/4/6%, and reduces
-// all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
+// Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
+// reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
@@ -235,7 +235,7 @@ func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 }
 
 // Vengeance - Increases your Physical and Holy damage dealt by 1/2/3% for 30 sec after landing a
-// non-periodic critical strike. Stacks up to 3 times.
+// non-periodic critical strike. Stacks up to 5 times.
 func (paladin *Paladin) applyVengeance() {
 	if paladin.Talents.Vengeance == 0 {
 		return
@@ -255,6 +255,7 @@ func (paladin *Paladin) applyVengeance() {
 		ActionID:  core.ActionID{SpellID: rank.ID},
 		Duration:  rank.Duration(),
 		MaxStacks: int32(rank.MaxStack),
+		MenuGroup: menuPaladin,
 		OnGain: func(_ *core.Aura, _ *core.Simulation) {
 			damageMod.Activate()
 		},
@@ -307,6 +308,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 				ActionID:  core.ActionID{SpellID: id},
 				Duration:  row.Duration(),
 				MaxStacks: int32(row.MaxStack),
+				MenuGroup: menuPaladinSeals,
 			}),
 		})
 	}

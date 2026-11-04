@@ -9,8 +9,8 @@ var arcaneShotRank = spellData.ArcaneShot.Highest()
 var arcaneShotBaseDamage = arcaneShotRank.DamageEffect().Average()
 
 // TODO: In-game testing required. The row states no attack power share; the Forever notes say the
-// shot scales with 10% of ranged attack power.
-const arcaneShotAPShare = 0.1
+// shot scales with 15% of ranged attack power.
+const arcaneShotAPShare = 0.15
 
 func (hunter *Hunter) registerArcaneShot() {
 	config := spelldata.SpellConfig(&hunter.Unit, arcaneShotRank, spelldata.Melee(core.ProcMaskRangedSpecial))

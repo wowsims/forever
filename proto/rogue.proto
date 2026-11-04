@@ -14,57 +14,58 @@ message RogueTalents {
     int32 remorseless_attacks = 2 [(talent_spell_id) = 14144];
     int32 malice = 3 [(talent_spell_id) = 14138];
     int32 ruthlessness = 4 [(talent_spell_id) = 14156];
-    int32 murder = 5 [(talent_spell_id) = 14158];
+    int32 improved_expose_armor = 5 [(talent_spell_id) = 14168];
     int32 improved_slice_and_dice = 6 [(talent_spell_id) = 14165];
-    bool relentless_strikes = 7 [(talent_spell_id) = 14179];
-    int32 improved_expose_armor = 8 [(talent_spell_id) = 14168];
+    int32 vigor = 7 [(talent_spell_id) = 14983];
+    bool blood_splatter = 8 [(talent_spell_id) = 1329256];
     int32 lethality = 9 [(talent_spell_id) = 14128];
     int32 vile_poisons = 10 [(talent_spell_id) = 16513];
     bool cold_blood = 11 [(talent_spell_id) = 14177];
     int32 improved_poisons = 12 [(talent_spell_id) = 14113];
-    int32 vigor = 13 [(talent_spell_id) = 14983];
-    bool mutilate = 14 [(talent_spell_id) = 1310707];
+    int32 relentless_strikes = 13 [(talent_spell_id) = 14179];
+    bool venom = 14 [(talent_spell_id) = 1329328];
     int32 improved_kidney_shot = 15 [(talent_spell_id) = 14174];
     int32 seal_fate = 16 [(talent_spell_id) = 14186];
-    bool venom = 17 [(talent_spell_id) = 1310703];
+    bool mutilate = 17 [(talent_spell_id) = 399956];
     // Combat
-    int32 improved_eviscerate = 18 [(talent_spell_id) = 14162];
-    int32 improved_sinister_strike = 19 [(talent_spell_id) = 13732];
+    int32 coup_de_grace = 18 [(talent_spell_id) = 14162];
+    int32 efficient_strikes = 19 [(talent_spell_id) = 13732];
     int32 lightning_reflexes = 20 [(talent_spell_id) = 13712];
     int32 puncturing_wounds = 21 [(talent_spell_id) = 1224716];
     int32 deflection = 22 [(talent_spell_id) = 13713];
     int32 precision = 23 [(talent_spell_id) = 13705];
-    int32 endurance = 24 [(talent_spell_id) = 13742];
-    bool riposte = 25 [(talent_spell_id) = 14251];
-    int32 improved_sprint = 26 [(talent_spell_id) = 13743];
-    int32 improved_kick = 27 [(talent_spell_id) = 13754];
-    bool flawless_execution = 28 [(talent_spell_id) = 1310711];
-    int32 dual_wield_specialization = 29 [(talent_spell_id) = 13715];
-    bool blade_flurry = 30 [(talent_spell_id) = 13877];
-    int32 hack_and_slash = 31 [(talent_spell_id) = 13960];
-    int32 weapon_expertise = 32 [(talent_spell_id) = 30919];
-    int32 aggression = 33 [(talent_spell_id) = 18427];
-    bool adrenaline_rush = 34 [(talent_spell_id) = 13750];
+    int32 improved_sprint = 24 [(talent_spell_id) = 13743];
+    int32 endurance = 25 [(talent_spell_id) = 13742];
+    bool riposte = 26 [(talent_spell_id) = 14251];
+    int32 composure = 27 [(talent_spell_id) = 1329265];
+    int32 improved_kick = 28 [(talent_spell_id) = 13754];
+    bool flawless_execution = 29 [(talent_spell_id) = 1310711];
+    int32 weapon_expertise = 30 [(talent_spell_id) = 30919];
+    int32 aggression = 31 [(talent_spell_id) = 18427];
+    int32 dual_wield_specialization = 32 [(talent_spell_id) = 13715];
+    bool blade_flurry = 33 [(talent_spell_id) = 13877];
+    int32 hack_and_slash = 34 [(talent_spell_id) = 13960];
+    int32 flash_of_steel = 35 [(talent_spell_id) = 1329284];
+    bool adrenaline_rush = 36 [(talent_spell_id) = 13750];
     // Subtlety
-    int32 camouflage = 35 [(talent_spell_id) = 13975];
-    int32 master_of_deception = 36 [(talent_spell_id) = 13958];
-    int32 opportunity = 37 [(talent_spell_id) = 14057];
-    int32 setup = 38 [(talent_spell_id) = 13983];
-    int32 elusiveness = 39 [(talent_spell_id) = 13981];
-    int32 dirty_tricks = 40 [(talent_spell_id) = 1224782];
-    int32 improved_ambush = 41 [(talent_spell_id) = 14079];
-    int32 initiative = 42 [(talent_spell_id) = 13976];
-    bool ghostly_strike = 43 [(talent_spell_id) = 14278];
-    int32 improved_distract = 44 [(talent_spell_id) = 14084];
-    int32 heightened_senses = 45 [(talent_spell_id) = 30894];
-    bool premeditation = 46 [(talent_spell_id) = 14183];
-    int32 serrated_blades = 47 [(talent_spell_id) = 14171];
-    int32 dirty_deeds = 48 [(talent_spell_id) = 14082];
-    bool preparation = 49 [(talent_spell_id) = 14185];
-    bool hemorrhage = 50 [(talent_spell_id) = 16511];
-    int32 quietus = 51 [(talent_spell_id) = 1310728];
-    int32 cutthroat = 52 [(talent_spell_id) = 462708];
-    bool thousand_cuts = 53 [(talent_spell_id) = 1310721];
+    int32 setup = 37 [(talent_spell_id) = 13983];
+    int32 master_of_deception = 38 [(talent_spell_id) = 13958];
+    int32 opportunity = 39 [(talent_spell_id) = 14057];
+    int32 dirty_deeds = 40 [(talent_spell_id) = 14082];
+    int32 camouflage = 41 [(talent_spell_id) = 13975];
+    int32 improved_ambush = 42 [(talent_spell_id) = 14079];
+    int32 dirty_tricks = 43 [(talent_spell_id) = 1224782];
+    int32 initiative = 44 [(talent_spell_id) = 13976];
+    bool premeditation = 45 [(talent_spell_id) = 14183];
+    int32 serrated_blades = 46 [(talent_spell_id) = 14171];
+    int32 elusiveness = 47 [(talent_spell_id) = 13981];
+    bool ghostly_strike = 48 [(talent_spell_id) = 14278];
+    int32 quick_getaway = 49 [(talent_spell_id) = 1310728];
+    int32 heightened_senses = 50 [(talent_spell_id) = 30894];
+    bool preparation = 51 [(talent_spell_id) = 14185];
+    bool hemorrhage = 52 [(talent_spell_id) = 16511];
+    int32 boot_knife = 53 [(talent_spell_id) = 1329286];
+    bool death_mark = 54 [(talent_spell_id) = 1316709];
 }
 
 // END GENERATED
@@ -77,6 +78,7 @@ message Rogue {
 		bool use_expose_armor = 2;
 		bool use_backstab_rank_9 = 3;
 		bool use_eviscerate_rank_9 = 4;
+		bool start_in_stealth = 5;
 	}
 
 	message Options {

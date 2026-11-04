@@ -13,12 +13,19 @@ import { Stats } from '@sim/proto/stats';
 import { precisionRunnable } from '@sim/settings/precision';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import { subscribePlayerField, subscribeStatWeightsChange } from '@sim/state/subscriptions';
+import { timeRemainingAtRate } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
 import { Dialog } from '@ui-kit/Dialog';
 import { DialogColumns } from '@ui-kit/DialogColumns';
 import { Icon } from '@ui-kit/Icon';
-import { ProgressTrackerDialog, type ProgressTrackerHandle, type ProgressTrackerProgress, type ProgressTrackerState } from '@ui-kit/ProgressTrackerDialog';
+import {
+	ProgressTrackerDialog,
+	type ProgressTrackerHandle,
+	type ProgressTrackerProgress,
+	type ProgressTrackerState,
+	TimeLeft,
+} from '@ui-kit/ProgressTrackerDialog';
 import { toastManager } from '@ui-kit/Toast';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { useCallback, useMemo, useRef, useState } from 'react';
@@ -73,12 +80,24 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 	const [simResult, setSimResult] = useState<StatWeightsResult | null>(null);
 	const [progress, setProgress] = useState<ProgressTrackerState>({ stage: 'initializing' });
 	const progressRef = useRef<ProgressTrackerHandle>(null);
+	// When the run started and its iterations as last reported; Target ± raises the total as it plans each top-up pass.
+	const runCounts = useRef({ startedAt: 0, completed: 0, total: 0 });
 	const {
 		isRunning,
 		isAborting,
 		abort,
 		start: startStatWeights,
-	} = useStatWeights({ onProgress: metrics => progressRef.current?.setProgress(trackerProgress(metrics)) });
+	} = useStatWeights({
+		onProgress: metrics => {
+			progressRef.current?.setProgress(trackerProgress(metrics));
+			// The result and error reports carry no counts.
+			if (metrics.totalIterations) Object.assign(runCounts.current, { completed: metrics.completedIterations, total: metrics.totalIterations });
+		},
+	});
+	const secondsRemaining = () => {
+		const { startedAt, completed, total } = runCounts.current;
+		return timeRemainingAtRate((Date.now() - startedAt) / 1000, completed, total);
+	};
 
 	const simDisplayMetrics = useDisplayMetrics(sim);
 	// A gear planner never computes weights, so none of the computed columns apply: only the
@@ -149,6 +168,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		trackEvent({ action: 'sim', category: 'stat_weights', label: 'calculate' });
 		if (isRunning) return;
 		setProgress({ stage: 'initializing' });
+		runCounts.current = { startedAt: Date.now(), completed: 0, total: 0 };
 
 		let result: StatWeightsResult | null = null;
 		let runIterations = 0;
@@ -229,7 +249,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 						statAction={<StatFilterPopover {...statFilter} ariaLabel={i18n.t('stat_filters.triggers.ep')} testId="ep-stat-filter" />}
 					/>
 					<p className="mt-2 mb-0 text-muted">
-						{i18n.t('sidebar.buttons.stat_weights.modal.rating_weights_description')}
+						{i18n.t('sidebar.buttons.stat_weights.modal.percent_weights_description')}
 						{!editOnly && (
 							<>
 								<br />
@@ -275,6 +295,7 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 					title={i18n.t('sidebar.buttons.stat_weights.modal.title')}
 					state={progress}
 					hasProgressBar
+					afterElapsed={<TimeLeft secondsRemaining={secondsRemaining} />}
 					onCancel={onCancel}
 				/>
 			)}

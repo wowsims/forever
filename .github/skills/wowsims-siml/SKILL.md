@@ -7,9 +7,9 @@ argument-hint: 'Describe the rotation, gear set, setup, CLI or language server t
 # WoWSims Forever SIML
 
 SIML is the text format of the rotations (APLs), gear sets and whole sim setups. Each file reads as a proto
-(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's presets are SIML; the other specs
-keep JSON presets until each moves, and the Go suites and the site read either. `sim/siml/SPEC.md` is the full
-language and wins on any doubt.
+(`proto/apl.proto`, `proto/api.proto`) and prints back from it, 1:1. The hunter's, Retribution's and Protection
+paladin's presets are SIML; the other specs keep JSON presets until each moves, and the Go suites and the site read
+either. `sim/siml/SPEC.md` is the full language and wins on any doubt.
 
 `wowsimcli siml llm` writes this skill: the part above "Actions" from `sim/siml/llm_head.txt`, the rest from the
 protos, so a change to `proto/apl.proto` shows up here once `make siml` runs. Edit the head, never this file.
@@ -73,9 +73,10 @@ An `x.siml` has these sections: `settings:` `consumables:` `buffs:` `party_buffs
 `encounter:` `sim:` `gear:` `item_swap:` `apl:` `simple:` `cooldowns:` `prepull:` `priority:` `group "<name>":`.
 
 Entries are `field value` lines or comma lists of flags (`raid_buffs:` `prayer_of_spirit, windfury_totem`);
-`sim: iterations 25000` fits one line. Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head`
-`neck` `shoulder` `back` `chest` `wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2`
-`main_hand` `off_hand` `ranged`.
+`sim: iterations 25000` fits one line. A field named `<x>_ms` is written `<x>` with a duration, and its
+`<x>_max_ms` as a second duration on that line: `reaction_time 150ms 350ms` (the full names with plain numbers read
+too). Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head` `neck` `shoulder` `back` `chest`
+`wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2` `main_hand` `off_hand` `ranged`.
 
 ## Rotations
 
@@ -181,9 +182,13 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `current_time_percent`
 - `remaining_time`
 - `remaining_time_percent`
-- `is_execute_phase(e20|e35)`
+- `is_execute_phase(e20|e35, target_unit: unit)`
 - `number_targets`
 - `encounter_in_area(forest_grassland|mountainous|snowy|desert|swamp|wasteland|haunted|cavernous|…)`
+- `[unit.]target_is_active`
+- `num_active_adds`
+- `[unit.]time_until_target_active`
+- `[unit.]time_until_target_dies`
 - `[unit.]boss_current_target`
 - `target_is_mob_type(beast|demon|dragonkin|elemental|giant|humanoid|mechanical|undead, target_unit: unit)`
 - `[unit.]target_is_bleed_immune`
@@ -211,6 +216,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `auto_swing_time(main_hand|off_hand|ranged|wand)`
 - `auto_time_to_next(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
 - `auto_time_since_last(any_auto|melee_auto|main_hand_auto|off_hand_auto|ranged_auto|wand_auto)`
+- `remaining_cast_time`
 - `talent_is_known(name)`
 - `talent_rank(name)`
 - `all_item_stat_procs_active(stat, stat_type2: stat, stat_type3: stat, min_icd_seconds: number)`
@@ -247,11 +253,13 @@ Written from `proto/apl.proto`, but for the accessors below.
 Written `[unit.]head(subject).property(arguments)`; each head with its properties.
 
 - `[unit.]aura(x)`: `is_known`, `is_active(include_reaction_time: bool)`,
-  `is_inactive(include_reaction_time: bool)`, `remaining_time`, `num_stacks(include_reaction_time: bool)`,
-  `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`, `should_refresh(max_overlap: value)`, `duration`
-- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `remaining_time`, `lowest_remaining_time`,
-  `tick_frequency`, `time_to_next_tick`, `base_duration`, `percent_increase(use_base_value: bool)`,
-  `tick_rate_percent_increase(use_base_value: bool)`
+  `is_inactive(include_reaction_time: bool)`, `is_active_on_all_targets(include_reaction_time: bool)`,
+  `is_active_on_any_target(include_reaction_time: bool)`, `remaining_time`,
+  `num_stacks(include_reaction_time: bool)`, `internal_cooldown`, `icd_is_ready(include_reaction_time: bool)`,
+  `should_refresh(max_overlap: value)`, `duration`
+- `[unit.]dot(x)`: `is_active`, `is_active_on_all_targets`, `is_active_on_any_target`, `remaining_time`,
+  `lowest_remaining_time`, `tick_frequency`, `time_to_next_tick`, `base_duration`,
+  `percent_increase(use_base_value: bool)`, `tick_rate_percent_increase(use_base_value: bool)`
 - `[unit.]spell(x)`: `is_known`, `can_cast`, `in_range`, `is_ready`, `time_to_ready`, `cast_time`, `travel_time`,
   `cpm`, `is_casting`, `is_channeling`, `channeled_ticks`, `current_cost`, `num_charges`, `time_to_charge`,
   `gcd_hasted_duration`, `full_cooldown`, `in_flight`, `expected_dpet`, `is_hit_capped`, `is_expertise_capped`

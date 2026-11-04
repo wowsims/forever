@@ -58,16 +58,13 @@ func getWeaponMaxRange(item *Item) float64 {
 	return 35
 }
 
-func getWeaponMinRange(item *Item) float64 {
-	switch item.RangedWeaponType {
-	case proto.RangedWeaponType_RangedWeaponTypeThrown:
-	case proto.RangedWeaponType_RangedWeaponTypeUnknown:
-	case proto.RangedWeaponType_RangedWeaponTypeWand:
-		return 0.
-	default:
+// How close to its target a ranged weapon of the type fires from: a bow, crossbow or gun from MinRangedRange, a wand
+// or thrown weapon from anywhere. A relic never fires.
+func RangedWeaponMinRange(weaponType proto.RangedWeaponType) float64 {
+	switch weaponType {
+	case proto.RangedWeaponType_RangedWeaponTypeBow, proto.RangedWeaponType_RangedWeaponTypeCrossbow, proto.RangedWeaponType_RangedWeaponTypeGun:
 		return MinRangedRange
 	}
-
 	return 0
 }
 
@@ -89,7 +86,7 @@ func newWeaponFromItem(item *Item, bonusDps float64) Weapon {
 		SwingSpeed:           item.SwingSpeed,
 		NormalizedSwingSpeed: normalizedWeaponSpeed,
 		AttackPowerPerDPS:    DefaultAttackPowerPerDPS,
-		MinRange:             getWeaponMinRange(item),
+		MinRange:             RangedWeaponMinRange(item.RangedWeaponType),
 		MaxRange:             getWeaponMaxRange(item),
 		SpellSchool:          SpellSchoolFromProto(item.SpellSchool),
 	}

@@ -29,6 +29,7 @@ const defaultPlayerSlice = (): PlayerSlice => ({
 	talentsString: '',
 	specOptions: {},
 	reactionTime: 0,
+	reactionTimeMax: 0,
 	channelClipDelay: 0,
 	inFrontOfTarget: false,
 	distanceFromTarget: 0,

@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
+	"github.com/wowsims/forever/sim/druid"
 )
 
 // The caster stand-in's spells: a 2 s cast and an instant, both on the global cooldown.
@@ -375,6 +376,76 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 		t.Fatal("19019 registers no proc on a procs per minute rate")
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
+}
+
+// Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
+// mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
+// death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing
+// either.
+func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
+	const reaper = 288901
+	if core.GetItemByID(reaper) == nil {
+		t.Skip("item 288901 is not in the live game files; this runs again once they hold it")
+	}
+	cooldown := spelldata.MustFind(21185).ICD()
+	gain := spelldata.MustFind(21186)
+	for _, tc := range []struct {
+		name  string
+		class proto.Class
+		bear  bool
+		want  float64
+	}{
+		{"mana", proto.Class_ClassWarlock, false, gain.EffectN(1).BaseValue()},
+		{"rage", proto.Class_ClassWarrior, false, gain.EffectN(2).Tenths()},
+		{"rage in bear form", proto.Class_ClassDruid, true, gain.EffectN(2).Tenths()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var sim *core.Simulation
+			var character *core.Character
+			if tc.bear {
+				items := bearItemSlots()
+				items[proto.ItemSlot_ItemSlotMainHand].Id = reaper
+				var bear *druid.Druid
+				sim, bear = equippedBear(t, items)
+				bear.ClearForm(sim)
+				bear.BearFormAura.Activate(sim)
+				character = bear.GetCharacter()
+			} else {
+				sim, character = modWearer(t, tc.class, proto.ItemSlot_ItemSlotMainHand, reaper)
+			}
+			target := sim.Encounter.AllTargets[0]
+			spent := character.NewManaMetrics(core.ActionID{SpellID: 993105})
+			// The power the death gives. Mana is spent first, which leaves room for the gain and holds
+			// off the regen for the moment the gain is measured.
+			gainOn := func(killShare float64) float64 {
+				if character.HasManaBar() {
+					character.SpendMana(sim, character.CurrentMana(), spent)
+				}
+				target.Enable(sim)
+				before := character.CurrentMana() + character.CurrentRage()
+				target.Die(sim, killShare)
+				stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+				return character.CurrentMana() + character.CurrentRage() - before
+			}
+
+			if tc.want <= 0 || cooldown <= 0 {
+				t.Fatalf("the rows state a gain of %v and a cooldown of %v, want both", tc.want, cooldown)
+			}
+			if got := gainOn(0); got != 0 {
+				t.Errorf("a death with no kill credit gave %v, want nothing", got)
+			}
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow gave %v, want %v", got, tc.want)
+			}
+			if got := gainOn(1); got != 0 {
+				t.Errorf("a second killing blow inside the cooldown gave %v, want nothing", got)
+			}
+			stepTo(t, sim, sim.CurrentTime+cooldown)
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow after the cooldown gave %v, want %v", got, tc.want)
+			}
+		})
+	}
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing

@@ -19,28 +19,28 @@ func init() {
 }
 
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the preraid gear set.
+// its talents, demons, consumables and rotation, on the gear set named.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceOrc)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", "preraid", proto.Race_RaceOrc)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceOrc)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", "preraid", proto.Race_RaceOrc)
 }
 
 func TestDestruction(t *testing.T) {
-	runBuildSuite(t, "Destruction", "destro", proto.Race_RaceGnome)
+	runBuildSuite(t, "Destruction", "destro", "raid", proto.Race_RaceGnome)
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceOrc)
+	runBuildSuite(t, "Affliction", "sm_ruin", "preraid", proto.Race_RaceOrc)
 }
 
 func TestAfflictionWrack(t *testing.T) {
-	runBuildSuite(t, "Wrack", "aff_wrack", proto.Race_RaceHuman)
+	runBuildSuite(t, "Wrack", "aff_wrack", "raid", proto.Race_RaceHuman)
 }
 
-func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto.Race) {
+func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string, otherRace proto.Race) {
 	build := core.GetTestBuildFromJSON(proto.Class_ClassWarlock, "../../ui/specs/warlock/dps/builds", buildFile, core.ItemFilter{}, nil, nil)
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
@@ -48,7 +48,7 @@ func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto
 			Race:        build.Race,
 			OtherRaces:  []proto.Race{otherRace},
 			SpecOptions: core.SpecOptionsCombo{Label: label, SpecOptions: build.SpecOptions.SpecOptions},
-			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", "preraid"),
+			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", gearSet),
 			Talents:     build.Talents,
 			Consumables: build.Consumables,
 			Profession1: build.Profession1,
@@ -190,7 +190,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		encounter.Targets[0].Stats[stats.FireResistance] = resistance
 		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
 		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-		for !sim.IsExecutePhase35() && !sim.Step() {
+		for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
 		}
 		warlock.DistanceFromTarget = 30
 		return sim, warlock, sim.Encounter.AllTargetUnits[0]
@@ -248,10 +248,11 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 	}
 }
 
-// Bane of Agony's ticks are set at cast: the base ramps in thirds, the spell power share is the spell power at
-// cast on every tick alike, and Amplify Curse (talent 9) raises both. Each tick leaves its base and share in
-// the dot's snapshot base, which the last tick clears as the dot ends, so the test reads the first 11.
-func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
+// Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share
+// unramped, and Amplify Curse (talent 9) raises the whole tick for the whole of the Bane it landed with, spent or
+// not. Each tick leaves its base and share in the dot's snapshot base, which the last tick clears as the dot ends,
+// so the test reads the first 11.
+func TestBaneOfAgonyTicksFollowSpellPower(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Duration = 600
 	sim, warlock := newWarlockSim("000000001", &proto.WarlockOptions{}, encounter)
@@ -260,7 +261,7 @@ func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 	dot := agony.Dot(target)
 	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellDamage: 300, stats.SpellHitPercent: 100})
 
-	// The snapshot base of the first 11 ticks of one cast, with spellPower more spell power from the fifth on.
+	// The snapshot base of the first 11 ticks of one cast, with spellPower more spell power from the third on.
 	castTicks := func(amplified bool, spellPower float64) []float64 {
 		if amplified {
 			warlock.AmplifyCurseAura.Activate(sim)
@@ -269,13 +270,14 @@ func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 		if !dot.IsActive() {
 			t.Fatalf("Bane of Agony did not land")
 		}
+		warlock.AmplifyCurseAura.Deactivate(sim)
 		var ticks []float64
 		for len(ticks) < 11 {
 			before := dot.TickCount()
 			for dot.TickCount() == before && !sim.Step() {
 			}
 			ticks = append(ticks, dot.SnapshotBaseDamage)
-			if len(ticks) == 4 {
+			if len(ticks) == 2 {
 				warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellDamage: spellPower})
 			}
 		}
@@ -283,27 +285,22 @@ func TestBaneOfAgonyTicksSetAtCast(t *testing.T) {
 	}
 
 	plain := castTicks(false, 500)
-	for i, want := range []float64{plain[0], plain[4], plain[8]} {
-		for _, got := range plain[4*i : min(4*i+4, len(plain))] {
-			if math.Abs(got-want) > 1e-6 {
-				t.Fatalf("third %d ticks %v, want each the same with 500 spell power gained mid-dot", i+1, plain)
-			}
-		}
+	coefficient := dot.BonusCoefficient
+	if got, want := plain[2]-plain[1], 500*coefficient; math.Abs(got-want) > 1e-6 {
+		t.Fatalf("500 spell power gained mid-dot moved the next tick by %.3f, want %.3f", got, want)
 	}
-	base := 2 * (plain[4] - plain[0])
-	if step := plain[8] - plain[4]; base <= 0 || math.Abs(step-base/2) > 1e-6 {
-		t.Fatalf("thirds %.3f, %.3f, %.3f do not ramp at half, one and one and a half of a base", plain[0], plain[4], plain[8])
+	base := 2 * (plain[4] - plain[3])
+	if step := plain[8] - plain[7]; base <= 0 || math.Abs(step-base/2) > 1e-6 {
+		t.Fatalf("thirds %.3f, %.3f, %.3f do not ramp at half, one and one and a half of a base", plain[3], plain[4], plain[8])
 	}
-	share := plain[0] - base/2
+	share := plain[3] - base/2
 
 	amplified := castTicks(true, 0)
-	coefficient := dot.BonusCoefficient
-	ampShare := share + 500*coefficient
 	for i, ramp := range []float64{0.5, 1, 1.5} {
-		want := (base*ramp + ampShare) * warlock.AmplifyCurseMultiplier
+		want := (base*ramp + share) * warlock.AmplifyCurseMultiplier
 		if got := amplified[4*i]; math.Abs(got-want) > 1e-6 {
-			t.Errorf("amplified third %d tick %.3f, want %.3f: the base %.3f plus the share at cast %.3f, amplified",
-				i+1, got, want, base*ramp, ampShare)
+			t.Errorf("amplified third %d tick %.3f, want %.3f: the base %.3f plus the share of now %.3f, amplified",
+				i+1, got, want, base*ramp, share)
 		}
 	}
 }
@@ -482,6 +479,136 @@ func TestBaneAndAssignedCurseOnAllTargets(t *testing.T) {
 	}
 }
 
+// A reset sim of one warlock against two targets, so the first can die while the second stays up.
+func newTwoTargetWarlockSim(talents string, options *proto.WarlockOptions) (*core.Simulation, *Warlock, *core.Target, *core.Target) {
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig()}}
+	sim, warlock := newWarlockSim(talents, options, encounter)
+	return sim, warlock, sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
+}
+
+// A target that dies with Drain Soul's channel on it returns a Soul Shard, whoever gets the kill; a death
+// with the channel on another target returns none.
+func TestDrainSoulShardWhenTheChannelledTargetDies(t *testing.T) {
+	sim, warlock, first, _ := newTwoTargetWarlockSim("", &proto.WarlockOptions{})
+	warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after the channelled target died with no kill credit, want 1", got)
+	}
+
+	sim, warlock, first, second := newTwoTargetWarlockSim("", &proto.WarlockOptions{})
+	warlock.DrainSoul.Dot(&second.Unit).Apply(sim)
+	first.Die(sim, 1)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after a kill with the channel on the other target, want 0", got)
+	}
+}
+
+// A warlock carries at most 32 Soul Shards: more carried into the fight count as 32, and a shard returned
+// at 32 is lost.
+func TestSoulShardsCapAt32(t *testing.T) {
+	sim, warlock, first, _ := newTwoTargetWarlockSim("", &proto.WarlockOptions{SoulShards: 40})
+	if got := warlock.SoulShardsAura.GetStacks(); got != 32 {
+		t.Fatalf("%d Soul Shards carried in from 40, want 32", got)
+	}
+	warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 32 {
+		t.Errorf("%d Soul Shards after a shard returned at 32, want 32", got)
+	}
+}
+
+// A target that dies within Shadowburn's debuff window returns a Soul Shard, whoever gets the kill; once the
+// window has passed, or for the same target enabled again and dying with no Shadowburn of its own, its death
+// returns none. Shadowburn is the 8th destruction talent.
+func TestShadowburnShardWhenTheTargetDiesInTheWindow(t *testing.T) {
+	shadowburnOn := func() (*core.Simulation, *Warlock, *core.Target) {
+		sim, warlock, first, _ := newTwoTargetWarlockSim("--00000001", &proto.WarlockOptions{SoulShards: 1})
+		warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+		warlock.Shadowburn.SkipCastAndApplyEffects(sim, &first.Unit)
+		if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+			t.Fatalf("%d Soul Shards after Shadowburn, want its reagent spent", got)
+		}
+		return sim, warlock, first
+	}
+
+	sim, warlock, first := shadowburnOn()
+	stepFor(sim, time.Second)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after the target died 1 sec after Shadowburn with no kill credit, want 1", got)
+	}
+
+	// The target comes back inside the first window and dies with no Shadowburn of its own.
+	first.Enable(sim)
+	stepFor(sim, time.Second)
+	first.Die(sim, 0)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after the target enabled again died within the window of its first life's Shadowburn, want 1", got)
+	}
+
+	sim, warlock, first = shadowburnOn()
+	stepFor(sim, spellData.Shadowburn.ByID(18871).Duration()+time.Second)
+	first.Die(sim, 1)
+	stepFor(sim, 2*core.SpellBatchWindow)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after a kill past Shadowburn's window, want 0", got)
+	}
+}
+
+// A credited kill of a target with Drain Soul on it grants Soul Harvest (1242853) and its mana regen; a death
+// without the kill, or a kill without Drain Soul on the target, grants nothing. Soul Harvest 2/2 is the 5th
+// affliction talent.
+func TestSoulHarvestOnADrainSoulKill(t *testing.T) {
+	killWith := func(drainSoul bool, killShare float64) (*Warlock, *core.Aura) {
+		sim, warlock, first, _ := newTwoTargetWarlockSim("00002", &proto.WarlockOptions{})
+		if drainSoul {
+			warlock.DrainSoul.Dot(&first.Unit).Apply(sim)
+		}
+		first.Die(sim, killShare)
+		stepFor(sim, 2*core.SpellBatchWindow)
+		return warlock, warlock.GetAuraByID(core.ActionID{SpellID: 1242853})
+	}
+
+	if _, buff := killWith(true, 0); buff.IsActive() {
+		t.Errorf("Soul Harvest is up after the Drain Soul target died with no kill credit")
+	}
+	if _, buff := killWith(false, 1); buff.IsActive() {
+		t.Errorf("Soul Harvest is up after a kill with no Drain Soul on the target")
+	}
+
+	warlock, buff := killWith(true, 1)
+	if !buff.IsActive() {
+		t.Fatalf("Soul Harvest is not up after a credited kill of the Drain Soul target")
+	}
+	talent := spellData.SoulHarvest.Rank(2)
+	if got, want := warlock.PseudoStats.SpiritRegenMultiplier, 1+talent.EffectN(1).Percent(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("mana regen multiplier %.3f under Soul Harvest 2/2, want %.3f", got, want)
+	}
+	if got, want := warlock.PseudoStats.SpiritRegenRateCasting, talent.EffectN(2).Percent(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("mana regen while casting %.3f under Soul Harvest 2/2, want %.3f", got, want)
+	}
+}
+
+// Decimation's damage bonus counts against the target of each Shadow Bolt once that target is below 35% health,
+// and not while it is above.
+func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
+	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+	above := warlock.ShadowBolt.ExpectedInitialDamage(sim, target)
+	for !target.IsExecutePhase35() && !sim.Step() {
+	}
+	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
+	if got := warlock.ShadowBolt.ExpectedInitialDamage(sim, target) / above; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that while it was above, want %.4f", got, want)
+	}
+}
+
 // The trainer's top ranks of Shadow Bolt, Immolate and Corruption register beside the book ranks, and
 // Conflagrate consumes an Immolate of the trainer's rank.
 func TestTrainerRanksBesideBookRanks(t *testing.T) {
@@ -493,7 +620,7 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 		}
 	}
 
-	// The dot is applied directly and Conflagrate retried, since every hit roll keeps a 1% miss.
+	// The dot is applied directly and Conflagrate retried, since a warlock with no hit rating can miss.
 	warlock.conflagrateKeepsImmolate = 0
 	immolate := warlock.GetSpell(core.ActionID{SpellID: 11668}).Dot(target)
 	immolate.Apply(sim)

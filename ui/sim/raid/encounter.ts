@@ -109,13 +109,6 @@ export class Encounter {
 		if (newExecuteProportion35 == this.enc.executeProportion35) return;
 		this.set({ executeProportion35: newExecuteProportion35 });
 	}
-	getUseHealth(): boolean {
-		return this.enc.useHealth;
-	}
-	setUseHealth(newUseHealth: boolean) {
-		if (newUseHealth == this.enc.useHealth) return;
-		this.set({ useHealth: newUseHealth });
-	}
 
 	getAreaTypes(): Array<AreaType> {
 		return this.enc.areaTypes;
@@ -164,7 +157,6 @@ export class Encounter {
 			durationVariation: enc.durationVariation,
 			executeProportion20: enc.executeProportion20,
 			executeProportion35: enc.executeProportion35,
-			useHealth: enc.useHealth,
 			areaTypes: enc.areaTypes,
 			zoneId: enc.zoneId,
 			targets: enc.targets,
@@ -178,7 +170,6 @@ export class Encounter {
 			this.setDurationVariation(proto.durationVariation);
 			this.setExecuteProportion20(proto.executeProportion20);
 			this.setExecuteProportion35(proto.executeProportion35);
-			this.setUseHealth(proto.useHealth);
 			this.setAreaTypes(proto.areaTypes, proto.zoneId);
 			// Clone so edits in the Advanced Encounter picker cannot mutate the
 			// saved entry's (or the config default's) own target protos.

@@ -71,7 +71,7 @@ export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGe
 
 // The best build on the Pre-BiS Fury gear over fights of 60 to 240 s. Enrage takes no points: with no tank
 // assigned the boss attacks no one, so the sim gives it no value.
-export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30305213002-15053105102210501' }));
+export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
 
 // Measured on the Pre-BiS Fury gear with the Fury talents.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
@@ -101,7 +101,7 @@ export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGe
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
-export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30325213132515201-0505-2' }));
+export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
 // Measured on the Pre-BiS Arms gear with the Arcanite Reaper (12784) in the main hand and the Arms talents. Hit is
 // its value below the 8% cap.

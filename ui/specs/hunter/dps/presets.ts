@@ -44,9 +44,8 @@ export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (
 export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave', WeaveAPL);
 export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', WeaveHawkAPL);
 export const WeaveMmAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (MM)', WeaveMmAPL);
-// The weave with no toggles: every shot goes ahead of the weave, and a weave is a walk in for the next
-// swing that is back before the Auto Shot it delays is more than Max Auto Shot delay late (Max long weave
-// delay when one walk in and out outlasts an Auto Shot cycle). Walk times come from the run speed.
+// The weave with no toggles: every shot goes ahead of the weave, which walks in once Auto Shot has gone off and back
+// out once the hunter has swung.
 export const CleanWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Clean Weave', CleanWeaveAPL);
 export const MeleeAPLRotation = PresetUtils.makePresetAPLRotation('Melee', MeleeAPL);
 
@@ -55,13 +54,8 @@ export const DefaultRotation = WeaveAPLRotation;
 // The simple rotation of the spec's defaults.
 export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecHunter, Defaults.simpleRotation!);
 
-// A build from `json`, which leaves "in front of target" and item swap as the page has them: a .siml file has no
-// unset bool, so its settings: section turns both off.
-const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild => {
-	const preset = PresetUtils.makePresetBuildFromJSON(name, Spec.SpecHunter, json, { gear });
-	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings!.playerOptions!;
-	return { ...preset, settings: { ...preset.settings!, playerOptions } };
-};
+const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild =>
+	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecHunter, json, { gear });
 
 // Gear, talents, rotation, pet and distance together, one per tree and playstyle: the best build found for each on
 // the P1 gear over a three minute fight.

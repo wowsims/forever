@@ -2,6 +2,7 @@ package warrior
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -19,21 +20,22 @@ func (warrior *Warrior) registerFuryTalents() {
 	warrior.registerFuriousPrecision()
 	warrior.registerPiercingHowl()
 	warrior.registerBloodCraze()
+	warrior.registerEnrage()
 
 	// Tier 4
 	warrior.registerDualWieldSpecialization()
-	warrior.registerRagingBlows()
-	warrior.registerEnrage()
+	warrior.registerRecklessSwings()
 	warrior.registerImprovedExecute()
 
 	// Tier 5
 	// Improved Berserker Rage: berserker_rage.go
 	warrior.registerDeathWish()
+	warrior.registerGoreDrinker()
 	warrior.registerImprovedIntercept()
 
 	// Tier 6
+	warrior.registerImprovedWhirlwind()
 	warrior.registerFlurry()
-	warrior.registerGoreDrinker()
 
 	// Tier 7
 	warrior.registerBloodthirst()
@@ -44,7 +46,8 @@ func (warrior *Warrior) registerBoomingVoice() {
 		return
 	}
 
-	// The shout radius has no sim kind, so only the shouts' rage cost comes off the row.
+	// The shout radius has no sim kind, so only the rage cost of the shouts and Piercing Howl comes off
+	// the row.
 	spelldata.ParseStatic(&warrior.Character, spellData.BoomingVoice.Rank(warrior.Talents.BoomingVoice))
 }
 
@@ -145,7 +148,7 @@ func (warrior *Warrior) registerFlurry() {
 		return
 	}
 
-	// 12966 supplies the duration and the three charges. The haste is the talent's 5% per point,
+	// 12966 supplies the duration and the three charges. The haste is the talent's 10% per point,
 	// which 12319 reads as "Increases your melee attack speed by $m1% for your next $12966n swings";
 	// the buff row's flat 30% does not apply.
 	flurryAura := warrior.RegisterAura(spelldata.AuraConfig(flurryBuff)).
@@ -349,12 +352,49 @@ func (warrior *Warrior) registerBloodCraze() {
 	warrior.MakeProcTriggerAura(taken)
 }
 
-func (warrior *Warrior) registerRagingBlows() {
-	if !warrior.Talents.RagingBlows {
+var recklessSwingsRank = spellData.RecklessSwings.Highest()
+var recklessSwingsEnergize = recklessSwingsRank.EffectN(1).Trigger()
+
+func (warrior *Warrior) registerRecklessSwings() {
+	if !warrior.Talents.RecklessSwings {
 		return
 	}
 
-	spelldata.ParseStatic(&warrior.Character, spellData.RagingBlows.Rank(1))
+	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: recklessSwingsEnergize.ID})
+	rage := recklessSwingsEnergize.EnergizeEffect().Tenths()
+	// The row's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
+	healthCost := warrior.BaseHealth() * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
+
+	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
+
+	trigger := spelldata.ProcTrigger(&warrior.Character, recklessSwingsRank,
+		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			warrior.AddRage(sim, rage, rageMetrics)
+			aura.RemoveStack(sim)
+		})
+	trigger.Name = "Reckless Swings - Trigger"
+	aura.AttachProcTriggerCallback(&warrior.Unit, trigger)
+
+	config := spelldata.SpellConfig(&warrior.Unit, recklessSwingsRank, spelldata.Flags(core.SpellFlagAPL))
+
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		warrior.SpendHealth(sim, healthCost, spell.HealthMetrics(&warrior.Unit))
+		aura.Activate(sim)
+		aura.SetStacks(sim, aura.MaxStacks)
+	}
+
+	config.RelatedSelfBuff = aura
+
+	warrior.RegisterSpell(config)
+}
+
+func (warrior *Warrior) registerImprovedWhirlwind() {
+	if warrior.Talents.ImprovedWhirlwind == 0 {
+		return
+	}
+
+	// The cooldown comes off the row; the damage to the closest enemy is the dummy whirlwind.go reads.
+	spelldata.ParseStatic(&warrior.Character, spellData.ImprovedWhirlwind.Rank(warrior.Talents.ImprovedWhirlwind))
 }
 
 var deathWishRank = spellData.DeathWish.Highest()
