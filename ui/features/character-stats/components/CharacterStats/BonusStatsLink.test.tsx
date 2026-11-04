@@ -1,6 +1,6 @@
 import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
-import { createSimStore } from '@sim/state/sim_store';
+import { createSimStore, patchKeyed, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
 import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
@@ -9,24 +9,32 @@ import { BonusStatsLink } from './BonusStatsLink';
 
 const STRENGTH = UnitStat.fromStat(Stat.StatStrength);
 
+const makePlayer = (initialBonusStats: Stats) => {
+	let bonusStats = initialBonusStats;
+	const store = createSimStore();
+	seedKeyed(store, 'players', 0, { bonusStats, v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
+	const setBonusStats = vi.fn((next: Stats) => {
+		bonusStats = next;
+		patchKeyed(store, 'players', 0, { bonusStats }, ['bonusStats']);
+	});
+	const player = { storeKey: 0, sim: { store }, getBonusStats: () => bonusStats, setBonusStats };
+	return { player, setBonusStats, bonusStats: () => bonusStats };
+};
+
 const openPicker = async (stat: Stat, rating: number) => {
-	let bonusStats = new Stats().withStat(stat, rating);
-	const setBonusStats = vi.fn((next: Stats) => (bonusStats = next));
-	const player = { storeKey: 0, sim: { store: createSimStore() }, getBonusStats: () => bonusStats, setBonusStats };
-	renderWithHost(<BonusStatsLink unitStat={UnitStat.fromStat(stat)} />, { player });
+	const fake = makePlayer(new Stats().withStat(stat, rating));
+	renderWithHost(<BonusStatsLink unitStat={UnitStat.fromStat(stat)} />, { player: fake.player });
 	await act(async () => {
 		fireEvent.click(screen.getByTestId('add-bonus-stats'));
 	});
-	return { setBonusStats, bonusStats: () => bonusStats };
+	return fake;
 };
 const textbox = () => screen.getByRole('textbox') as HTMLInputElement;
 
 describe('BonusStatsLink', () => {
 	it('opens a picker labelled with its stat, showing the bonus on it, and writes the entry', async () => {
-		let bonusStats = new Stats().withStat(Stat.StatStrength, 5);
-		const setBonusStats = vi.fn((next: Stats) => (bonusStats = next));
-		const player = { storeKey: 0, sim: { store: createSimStore() }, getBonusStats: () => bonusStats, setBonusStats };
-		renderWithHost(<BonusStatsLink unitStat={STRENGTH} />, { player });
+		const fake = makePlayer(new Stats().withStat(Stat.StatStrength, 5));
+		renderWithHost(<BonusStatsLink unitStat={STRENGTH} />, { player: fake.player });
 
 		const button = screen.getByTestId('add-bonus-stats');
 		expect(button.getAttribute('aria-label')).toMatch(/^sidebar\.character_stats\.bonus_prefix /);
@@ -41,8 +49,8 @@ describe('BonusStatsLink', () => {
 			input.value = '20';
 			fireEvent.change(input);
 		});
-		expect(setBonusStats).toHaveBeenCalledTimes(1);
-		expect(setBonusStats.mock.calls[0][0].getStat(Stat.StatStrength)).toBe(20);
+		expect(fake.setBonusStats).toHaveBeenCalledTimes(1);
+		expect(fake.setBonusStats.mock.calls[0][0].getStat(Stat.StatStrength)).toBe(20);
 	});
 
 	it('marks a percent stat field with the percent sign and a points stat field without', async () => {
@@ -55,10 +63,9 @@ describe('BonusStatsLink', () => {
 	});
 
 	it('takes a school hit row as a percent, labelled with the percent sign and stored as typed', async () => {
-		let bonusStats = new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 2);
-		const setBonusStats = vi.fn((next: Stats) => (bonusStats = next));
-		const player = { storeKey: 0, sim: { store: createSimStore() }, getBonusStats: () => bonusStats, setBonusStats };
-		renderWithHost(<BonusStatsLink unitStat={UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)} />, { player });
+		const pseudoStat = PseudoStat.PseudoStatSchoolHitPercentFire;
+		const fake = makePlayer(new Stats().withPseudoStat(pseudoStat, 2));
+		renderWithHost(<BonusStatsLink unitStat={UnitStat.fromPseudoStat(pseudoStat)} />, { player: fake.player });
 		await act(async () => {
 			fireEvent.click(screen.getByTestId('add-bonus-stats'));
 		});
@@ -70,7 +77,7 @@ describe('BonusStatsLink', () => {
 			fireEvent.change(textbox());
 		});
 
-		expect(bonusStats.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(1.5);
+		expect(fake.bonusStats().getPseudoStat(pseudoStat)).toBe(1.5);
 	});
 
 	it('has no unit toggle', async () => {
