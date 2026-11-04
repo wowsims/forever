@@ -195,7 +195,7 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 		"Pursuit of Justice",
 		core.ActionID{SpellID: rank.ID},
 		spellData.PursuitOfJustice.Effect(dbcenums.A_MOD_INCREASE_SPEED, 0).FractionAt(paladin.Talents.PursuitOfJustice),
-	)
+	).MenuGroup = menuPaladin
 }
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
@@ -255,6 +255,7 @@ func (paladin *Paladin) applyVengeance() {
 		ActionID:  core.ActionID{SpellID: rank.ID},
 		Duration:  rank.Duration(),
 		MaxStacks: int32(rank.MaxStack),
+		MenuGroup: menuPaladin,
 		OnGain: func(_ *core.Aura, _ *core.Simulation) {
 			damageMod.Activate()
 		},
@@ -307,6 +308,7 @@ func (paladin *Paladin) applyUnsealedWrath() {
 				ActionID:  core.ActionID{SpellID: id},
 				Duration:  row.Duration(),
 				MaxStacks: int32(row.MaxStack),
+				MenuGroup: menuPaladinSeals,
 			}),
 		})
 	}

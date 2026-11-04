@@ -12,8 +12,9 @@ import (
 func (paladin *Paladin) registerForbearance() {
 	rank := spellData.TemplarsBulwarkTriggered.Highest()
 	paladin.Forbearance = paladin.RegisterAura(core.Aura{
-		Label:    "Forbearance",
-		ActionID: core.ActionID{SpellID: rank.ID},
-		Duration: rank.Duration() - paladin.forbearanceReduction,
+		Label:     "Forbearance",
+		ActionID:  core.ActionID{SpellID: rank.ID},
+		Duration:  rank.Duration() - paladin.forbearanceReduction,
+		MenuGroup: menuPaladin,
 	})
 }
