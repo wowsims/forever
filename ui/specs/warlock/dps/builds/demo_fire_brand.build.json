@@ -106,7 +106,9 @@
         250335,
         13454,
         250337,
-        250347
+        250347,
+        9264,
+        6373
       ],
       "mhWeaponImbueId": 13701,
       "resourcePotId": 13444
@@ -507,21 +509,9 @@
               "cmp": {
                 "op": "OpGt",
                 "lhs": {
-                  "math": {
-                    "op": "OpAdd",
-                    "lhs": {
-                      "spellCastTime": {
-                        "spellId": {
-                          "spellId": 17923
-                        }
-                      }
-                    },
-                    "rhs": {
-                      "spellTravelTime": {
-                        "spellId": {
-                          "spellId": 17923
-                        }
-                      }
+                  "spellCastTime": {
+                    "spellId": {
+                      "spellId": 17923
                     }
                   }
                 },
@@ -550,7 +540,7 @@
                       },
                       "rhs": {
                         "const": {
-                          "val": "30%"
+                          "val": "35%"
                         }
                       }
                     }
@@ -604,10 +594,25 @@
             {
               "action": {
                 "condition": {
-                  "not": {
-                    "val": {
-                      "warlockAssignedCurseIsActive": {}
-                    }
+                  "and": {
+                    "vals": [
+                      {
+                        "not": {
+                          "val": {
+                            "warlockAssignedCurseIsActive": {}
+                          }
+                        }
+                      },
+                      {
+                        "not": {
+                          "val": {
+                            "warlockIsAssignedCurse": {
+                              "curseType": "NoCurse"
+                            }
+                          }
+                        }
+                      }
+                    ]
                   }
                 },
                 "castWarlockAssignedCurse": {}
@@ -1760,7 +1765,7 @@
                           },
                           "rhs": {
                             "const": {
-                              "val": "22s"
+                              "val": "15s"
                             }
                           }
                         }
