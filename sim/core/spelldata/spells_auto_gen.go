@@ -36624,7 +36624,7 @@ var generatedSpells = []Spell{
 		Reagents: []Reagent{{Item: 14047, Count: 40}, {Item: 248698, Count: 1}}},
 	{ID: 1316697, Name: "Wrack", Rank: "Rank 1", School: 32, Attr: [17]uint32{0: 0x10000, 1: 0x4004, 8: 0x200, 13: 0x80, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 60, DurationMs: 6000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{1: 262144}}, InterruptFlags: 15, ChannelInterrupt: [2]uint32{0: 0x7c0c}, Labels: []int16{19},
 		Effects: []Effect{
-			{ID: 1349556, SpellID: 1316697, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 36, BaseLevel: 40, MaxLevel: 60, SPCoef: 0.14300000667572021, PvpMult: 1, Amplitude: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1349556, SpellID: 1316697, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 36, PPL: 2.5, BaseLevel: 40, MaxLevel: 60, SPCoef: 0.28600001335144043, PvpMult: 1, Amplitude: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1349557, SpellID: 1316697, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, BasePoints: 10, BaseLevel: 40, MaxLevel: 60, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 1026}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 200}}},
@@ -37672,7 +37672,7 @@ var generatedCurves = map[int32][][]float64{
 	417051:  {{1, 2, 3, 4, 5}, {20, 40, 60, 80, 100}},
 	425280:  {{2, 4, 6, 8, 10}, {-1000, -2000, -3000, -4000, -5000}},
 	426065:  {{-500, -1000}},
-	426316:  {{4, 8, 12, 16, 20}, {20, 40, 60, 80, 100}, {2, 4, 6, 8, 10}, {2, 4, 6, 8, 10}},
+	426316:  {{4, 8, 12, 16, 20}, {20, 40, 60, 80, 100}, {4, 8, 12, 16, 20}, {4, 8, 12, 16, 20}},
 	427712:  {{33, 67, 100}},
 	429144:  {{-10, -20}, {-17, -33}},
 	431622:  {{5, 10, 15}},

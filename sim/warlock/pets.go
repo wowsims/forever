@@ -145,9 +145,10 @@ func meleeDemonStats(baseHealth float64) stats.Stats {
 // attack power, spell damage, resistances, armor, hit, crit, haste, mana regen - but states no amounts,
 // which the server supplies, so the shares are hand-kept. The pet model sheet gives Stamina and Intellect
 // a share of 0, yet its totals give every demon more health and ~10,870 more mana than its own stats, all
-// from the warlock. Health is 7.5 a point of the warlock's Stamina, on top of the demon's own. Regen is each
-// demon's share of the warlock's Intellect as MP5: at level 30 with 110 Intellect, the pet panes read 33 for
-// the Imp and 11 for the Voidwalker and Sayaad.
+// from the warlock. Health is 2 a point of the warlock's Stamina, on top of the demon's own, from the Nov 3 patch
+// notes. Regen is each demon's share of the warlock's Intellect as MP5: at level 30 with 110 Intellect, the pet
+// panes read 33 for the Imp and 11 for the Voidwalker and Sayaad.
+// TODO: Ingame test needed: confirm on live that demons gain 2 health a point of the warlock's Stamina.
 // TODO: The regen shares are read at level 30 only, and the Felhunter's not at all. The warlock's share of
 // mana; resistances and haste.
 func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.PetStatInheritance {
@@ -156,7 +157,7 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 		spellDamage := ownerStats[stats.SpellDamage] + max(ownerStats[stats.ShadowDamage], ownerStats[stats.FireDamage])
 
 		return stats.Stats{
-			stats.Health: ownerStats[stats.Stamina] * 7.5,
+			stats.Health: ownerStats[stats.Stamina] * 2,
 			stats.MP5:    ownerStats[stats.Intellect] * mp5PerOwnerIntellect,
 			// Demon Armor included: a level 30 Imp's own armor is the level 20 share only with it.
 			// TODO: In game a demon's armor is fixed at the summon (it held when Demon Armor fell off),
