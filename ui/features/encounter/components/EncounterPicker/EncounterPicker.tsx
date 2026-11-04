@@ -7,6 +7,7 @@ import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { Button } from '@ui-kit/Button';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo, useState } from 'react';
+import { useStore } from 'zustand';
 
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
 import { TargetInputsPicker } from '../TargetsPicker';
@@ -25,7 +26,7 @@ import {
 export interface EncounterPickerViewProps {
 	duration: ReactNode;
 	execute?: ReactNode;
-	addDebuffs: ReactNode;
+	addDebuffs?: ReactNode;
 	zone: ReactNode;
 	areaTypes: ReactNode;
 	preset?: ReactNode;
@@ -50,7 +51,7 @@ export const EncounterPickerView = ({
 	<div className="flex flex-wrap gap-2" data-testid="encounter-picker-root">
 		<FieldGrid>{duration}</FieldGrid>
 		{execute && <FieldGrid className="w-full">{execute}</FieldGrid>}
-		<FieldGrid className="w-full">{addDebuffs}</FieldGrid>
+		{addDebuffs && <FieldGrid className="w-full">{addDebuffs}</FieldGrid>}
 		{zone}
 		{areaTypes}
 		{preset}
@@ -72,6 +73,7 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const encounter = host.sim.encounter;
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
+	const hasAdds = useStore(host.sim.store, s => s.encounter.targets.length > 1);
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
@@ -92,12 +94,14 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				))}
 				execute={showExecuteProportion && execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)}
 				addDebuffs={
-					<>
-						<ConnectedBooleanPicker modObject={encounter} config={applyAddDebuffs} />
-						{addDebuffTiming.map(config => (
-							<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
-						))}
-					</>
+					hasAdds && (
+						<>
+							<ConnectedBooleanPicker modObject={encounter} config={applyAddDebuffs} />
+							{addDebuffTiming.map(config => (
+								<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
+							))}
+						</>
+					)
 				}
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
 				areaTypes={<AreaTypesPicker encounter={encounter} />}

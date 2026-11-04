@@ -1,3 +1,4 @@
+import { Encounter } from '@sim/raid/encounter';
 import { renderWithHost } from '@testing/react';
 import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -47,11 +48,17 @@ describe('EncounterPickerView', () => {
 describe('EncounterPicker', () => {
 	beforeAll(() => serveDatabase());
 
-	it('ticks Apply debuffs while the encounter holds no add debuffs, and shows the debuff delay and jitter only then', async () => {
+	it('shows Apply debuffs only with adds, ticked while the encounter holds no add debuffs, and the debuff delay and jitter only then', async () => {
 		const { sim, player } = await makeIndividualSim();
 		renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player });
 		const apply = () => screen.getByRole('checkbox');
 		const timingShown = () => [document.getElementById('encounter-add-debuff-delay'), document.getElementById('encounter-add-debuff-jitter')].map(Boolean);
+
+		expect(sim.encounter.getTargets()).toHaveLength(1);
+		expect(screen.queryByRole('checkbox')).toBeNull();
+		expect(timingShown()).toEqual([false, false]);
+
+		act(() => sim.encounter.setTargets([Encounter.defaultTargetProto(), Encounter.defaultTargetProto()]));
 
 		expect(apply().getAttribute('aria-checked')).toBe('true');
 		expect(timingShown()).toEqual([true, true]);

@@ -85,11 +85,16 @@ func dynamicAddsEncounter(setBoss func(boss *proto.Target)) *proto.Encounter {
 
 // A sim of the encounter with a warrior and the raid's debuffs.
 func newWarriorSim(debuffs *proto.Debuffs, encounter *proto.Encounter) *core.Simulation {
+	return newWarriorSimWithGear(debuffs, encounter, &proto.EquipmentSpec{})
+}
+
+// A sim of the encounter with a warrior wearing the gear and the raid's debuffs.
+func newWarriorSimWithGear(debuffs *proto.Debuffs, encounter *proto.Encounter, gear *proto.EquipmentSpec) *core.Simulation {
 	player := &proto.Player{
 		Name:          "Warrior",
 		Race:          proto.Race_RaceOrc,
 		Class:         proto.Class_ClassWarrior,
-		Equipment:     &proto.EquipmentSpec{},
+		Equipment:     gear,
 		TalentsString: "30303103-050530355022100031",
 		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
 			ClassOptions: &proto.WarriorOptions{DefaultStance: proto.WarriorStance_WarriorStanceBerserker},
@@ -199,6 +204,45 @@ func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 	}
 }
 
+// The Debuff jitter rolls apart from the combat rolls: a warrior who swings a weapon rolls more in combat than one who
+// fights unarmed, and with the same seed the add's debuffs land at the same times for both.
+func TestDynamicAddsRaidDebuffsJitterApartFromCombatRolls(t *testing.T) {
+	newSim := func(gear *proto.EquipmentSpec) *core.Simulation {
+		encounter := dynamicAddsEncounter(nil)
+		encounter.AddDebuffDelay = 3
+		encounter.AddDebuffJitter = 2
+		return newWarriorSimWithGear(raidCurseAndSunder, encounter, gear)
+	}
+	items := make([]*proto.ItemSpec, 17)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 9449}
+	coeLandings := func(sim *core.Simulation) []time.Duration {
+		sim.Reset()
+		sim.PrePull()
+		coe := sim.Encounter.AllTargets[1].GetAura("Curse of the Elements (External)")
+		var landings []time.Duration
+		for wasOn := false; !sim.Step(); {
+			if on := coe.IsActive(); on != wasOn {
+				wasOn = on
+				if on {
+					landings = append(landings, sim.CurrentTime)
+				}
+			}
+		}
+		sim.Cleanup()
+		return landings
+	}
+	unarmed, armed := newSim(&proto.EquipmentSpec{}), newSim(&proto.EquipmentSpec{Items: items})
+	for iteration := range 2 {
+		unarmedCoe, armedCoe := coeLandings(unarmed), coeLandings(armed)
+		if len(unarmedCoe) != len(dynamicAddsSpawns) || !slices.Equal(unarmedCoe, armedCoe) {
+			t.Errorf("iteration %d: Curse of the Elements landed at %v unarmed and at %v with a weapon, want once each life at the same times", iteration, unarmedCoe, armedCoe)
+		}
+	}
+}
+
 // With Apply debuffs off the add never gets the raid's debuffs, and a delay longer than the add's life never lands
 // either: each despawn cancels its landing and each respawn starts over.
 func TestDynamicAddsRaidDebuffsNeverLand(t *testing.T) {
@@ -291,6 +335,24 @@ func TestRaidDebuffsOnAnAddUpFromThePull(t *testing.T) {
 			addCoe, addSunder, _ := raidDebuffFlips(t, sim, 1, 0)
 			if !slices.Equal(addCoe, tc.wantAdd) || !slices.Equal(addSunder, tc.wantAdd) {
 				t.Errorf("%s, iteration %d: on the add Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", tc.name, iteration, addCoe, addSunder, tc.wantAdd)
+			}
+		}
+	}
+}
+
+// A second target disabled at the pull with no AI never comes in, so it holds the raid's debuffs from the reset to the
+// fight's end, Apply debuffs on or off.
+func TestRaidDebuffsHeldOnAnAddDisabledAtThePull(t *testing.T) {
+	for name, hold := range map[string]bool{"Apply debuffs on": false, "Apply debuffs off": true} {
+		sim := newWarriorSim(raidCurseAndSunder, &proto.Encounter{
+			Duration:       60,
+			Targets:        []*proto.Target{{}, {DisabledAtStart: true}},
+			HoldAddDebuffs: hold,
+		})
+		for iteration := range 2 {
+			coe, sunder, _ := raidDebuffFlips(t, sim, 1, 0)
+			if len(coe) != 0 || len(sunder) != 0 {
+				t.Errorf("%s, iteration %d: on the disabled add Curse of the Elements on and off at %v and Sunder Armor at %v, want never on", name, iteration, coe, sunder)
 			}
 		}
 	}

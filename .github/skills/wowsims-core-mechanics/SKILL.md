@@ -120,9 +120,12 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
 - **The encounter decides when the adds get the raid's debuffs** (`SourceExternalDebuff`): every target after the
   first gets them `add_debuff_delay` ± `add_debuff_jitter` after it enters the fight, and never with
-  `hold_add_debuffs` (`proto/common.proto`); the first target, the boss, gets them at the pull. The sim's reset holds
-  or lands them on each add up at the pull that no AI spawns, before the targets reset; an AI that spawns an add calls
-  `Encounter.LandAddRaidDebuffs` at each spawn (`target_raid_debuffs.go`).
+  `hold_add_debuffs` (`proto/common.proto`); the first target, the boss, gets them at the pull. The jitter rolls on
+  `sim.addDebuffRand`, a stream apart from the combat rolls like `sim.deathRand`, so gear does not move a landing. The
+  sim's reset, before the targets reset, handles every add with no `Schedule`: one up at the pull gets them by those
+  settings, and one disabled at the pull holds them for the fight, since only an AI brings a target in later. An AI
+  that spawns adds sets their `Schedule` and calls `Encounter.LandAddRaidDebuffs` at each spawn
+  (`target_raid_debuffs.go`).
 - **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
   walks only the auras with a duration (`aura.go`). An AI that takes a target away holds the raid's debuffs with
   `Target.HoldRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through

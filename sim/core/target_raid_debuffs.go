@@ -8,11 +8,18 @@ import "time"
 // and at each spawn for one an AI spawns, which holds them while the add is down. A player's own cast of one of those
 // debuffs is untouched by the hold.
 
-// Holds or lands the raid's debuffs on each add up at the pull that no AI spawns.
+// Holds or lands the raid's debuffs on each add with no Schedule. One up at the pull gets them by the encounter's
+// settings. One disabled at the pull holds them for the fight, since only an AI brings a target in later. An AI that
+// spawns adds sets their Schedule and lands their debuffs itself through LandAddRaidDebuffs.
 func (encounter *Encounter) resetAddRaidDebuffs(sim *Simulation) {
 	for _, target := range encounter.AllTargets[1:] {
-		if target.Schedule == nil && target.IsEnabled() {
+		if target.Schedule != nil {
+			continue
+		}
+		if target.IsEnabled() {
 			encounter.LandAddRaidDebuffs(sim, target)
+		} else {
+			target.HoldRaidDebuffs(sim)
 		}
 	}
 }
@@ -27,12 +34,12 @@ func (encounter *Encounter) LandAddRaidDebuffs(sim *Simulation, target *Target) 
 	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime+encounter.rollAddDebuffDelay(sim))
 }
 
-// The delay ± the jitter, never below 0. Only a jitter draws a roll.
+// The delay ± the jitter, never below 0. Only a jitter draws a roll, on a stream apart from the combat rolls.
 func (encounter *Encounter) rollAddDebuffDelay(sim *Simulation) time.Duration {
 	if encounter.addDebuffJitter == 0 {
 		return encounter.addDebuffDelay
 	}
-	offset := time.Duration((2*sim.RandomFloat("Add Debuff Jitter") - 1) * float64(encounter.addDebuffJitter))
+	offset := time.Duration((2*sim.addDebuffRand.NextFloat64() - 1) * float64(encounter.addDebuffJitter))
 	return max(encounter.addDebuffDelay+offset, 0)
 }
 

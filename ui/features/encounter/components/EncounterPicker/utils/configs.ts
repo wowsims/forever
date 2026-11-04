@@ -11,7 +11,7 @@ interface Field {
 	id: string;
 	key: string;
 	label: string;
-	category: 'duration' | 'execute' | 'debuffs';
+	category: 'duration' | 'execute' | 'encounter';
 	get: (encounter: Encounter) => number;
 	set: (encounter: Encounter, value: number) => void;
 }
@@ -73,7 +73,7 @@ export const applyAddDebuffsConfig = (): BooleanPickerConfig<Encounter> => ({
 	storeField: 'encounter:holdAddDebuffs',
 	getValue: encounter => !encounter.getHoldAddDebuffs(),
 	setValue: (encounter, newValue) => {
-		trackEvent({ action: 'settings', category: 'debuffs', label: 'apply_add_debuffs', value: newValue });
+		trackEvent({ action: 'settings', category: 'encounter', label: 'apply_add_debuffs', value: newValue });
 		encounter.setHoldAddDebuffs(!newValue);
 	},
 });
@@ -92,7 +92,7 @@ export const addDebuffTimingConfigs = (): Array<NumberFieldConfig<Encounter>> =>
 			id: 'encounter-add-debuff-delay',
 			key: 'add_debuff_delay',
 			label: 'add_debuff_delay',
-			category: 'debuffs',
+			category: 'encounter',
 			get: e => e.getAddDebuffDelay(),
 			set: (e, v) => e.setAddDebuffDelay(v),
 		},
@@ -103,7 +103,7 @@ export const addDebuffTimingConfigs = (): Array<NumberFieldConfig<Encounter>> =>
 			id: 'encounter-add-debuff-jitter',
 			key: 'add_debuff_jitter',
 			label: 'add_debuff_jitter',
-			category: 'debuffs',
+			category: 'encounter',
 			get: e => e.getAddDebuffJitter(),
 			set: (e, v) => e.setAddDebuffJitter(v),
 		},
