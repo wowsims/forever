@@ -70,6 +70,7 @@ type schemaField struct {
 	Ref      string
 	Index    string
 	Max      string // For a duration, the proto name of the <x>_max_ms field its entry line sets with a second duration (§5.2).
+	Min      string // For that <x>_max_ms field, the proto name of the duration whose line sets it.
 }
 
 type schemaEnum struct {
@@ -388,7 +389,7 @@ func nameFields(fields []schemaField) {
 	for i := range fields {
 		if s, ok := strings.CutSuffix(fields[i].Siml, "_max"); ok && fields[i].Printed == "duration" {
 			if min, ok := byShort[s]; ok {
-				fields[min].Max = fields[i].Name
+				fields[min].Max, fields[i].Min = fields[i].Name, fields[min].Name
 				fields[i].Siml, fields[i].Aliases, fields[i].Printed = base[i], []string{}, "number"
 			}
 		}

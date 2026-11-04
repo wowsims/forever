@@ -1812,6 +1812,8 @@ var ${Use Arcane Shot} = true
 var ${Use Summon Hawk} = false
 var ${Rapid Fire at the pull} = false
 var ${Walk to my spot first} = true
+// How long the walk in takes from where the hunter stands, which Aimed Shot's cast weighs itself against.
+var ${Time to melee} = 1s * ((self.unit_distance - $melee_spot) / self.unit_movement_speed)
 
 priority:
   /// Rapid Fire at range: from the pull, or like the other cooldowns after the first 5 s.

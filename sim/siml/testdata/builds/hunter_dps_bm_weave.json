@@ -1083,41 +1083,6 @@
 					}
 				},
 				{
-					"name": "Ranged range",
-					"value": {
-						"const": {
-							"val": "13.19"
-						}
-					}
-				},
-				{
-					"name": "Walk-in range",
-					"value": {
-						"const": {
-							"val": "4.99"
-						}
-					}
-				},
-				{
-					"name": "Melee spot",
-					"value": {
-						"min": {
-							"vals": [
-								{
-									"variableRef": {
-										"name": "Walk-in range"
-									}
-								},
-								{
-									"const": {
-										"val": "4.99"
-									}
-								}
-							]
-						}
-					}
-				},
-				{
 					"name": "Time to melee",
 					"value": {
 						"math": {
@@ -1156,6 +1121,41 @@
 									}
 								}
 							}
+						}
+					}
+				},
+				{
+					"name": "Ranged range",
+					"value": {
+						"const": {
+							"val": "13.19"
+						}
+					}
+				},
+				{
+					"name": "Walk-in range",
+					"value": {
+						"const": {
+							"val": "4.99"
+						}
+					}
+				},
+				{
+					"name": "Melee spot",
+					"value": {
+						"min": {
+							"vals": [
+								{
+									"variableRef": {
+										"name": "Walk-in range"
+									}
+								},
+								{
+									"const": {
+										"val": "4.99"
+									}
+								}
+							]
 						}
 					}
 				},

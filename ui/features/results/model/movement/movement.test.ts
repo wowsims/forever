@@ -125,8 +125,8 @@ describe('pathOf', () => {
 describe('rangeZone', () => {
 	it('puts a unit in melee range up to the melee breakpoint, at range from the ranged one, and in the dead zone between', () => {
 		expect(rangeZone(MAX_MELEE_RANGE, true)).toBe('melee');
-		expect(rangeZone(MAX_MELEE_RANGE + 0.01, true)).toBe('dead-zone');
-		expect(rangeZone(MIN_RANGED_RANGE - 0.01, true)).toBe('dead-zone');
+		expect(rangeZone(MAX_MELEE_RANGE + 0.01, true)).toBe('dead_zone');
+		expect(rangeZone(MIN_RANGED_RANGE - 0.01, true)).toBe('dead_zone');
 		expect(rangeZone(MIN_RANGED_RANGE, true)).toBe('ranged');
 	});
 

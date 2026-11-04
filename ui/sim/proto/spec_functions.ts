@@ -98,7 +98,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => BalanceDruid_Rotation.equals(a as BalanceDruid_Rotation, b as BalanceDruid_Rotation),
 		rotationCopy: a => BalanceDruid_Rotation.clone(a as BalanceDruid_Rotation),
 		rotationToJson: a => BalanceDruid_Rotation.toJson(a as BalanceDruid_Rotation),
-		rotationFromJson: obj => BalanceDruid_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(BalanceDruid_Rotation, obj),
 
 		talentsCreate: () => DruidTalents.create(),
 		talentsEquals: (a, b) => DruidTalents.equals(a as DruidTalents, b as DruidTalents),
@@ -121,7 +121,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => FeralCatDruid_Rotation.equals(a as FeralCatDruid_Rotation, b as FeralCatDruid_Rotation),
 		rotationCopy: a => FeralCatDruid_Rotation.clone(a as FeralCatDruid_Rotation),
 		rotationToJson: a => FeralCatDruid_Rotation.toJson(a as FeralCatDruid_Rotation),
-		rotationFromJson: obj => FeralCatDruid_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(FeralCatDruid_Rotation, obj),
 
 		talentsCreate: () => DruidTalents.create(),
 		talentsEquals: (a, b) => DruidTalents.equals(a as DruidTalents, b as DruidTalents),
@@ -144,7 +144,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => FeralBearDruid_Rotation.equals(a as FeralBearDruid_Rotation, b as FeralBearDruid_Rotation),
 		rotationCopy: a => FeralBearDruid_Rotation.clone(a as FeralBearDruid_Rotation),
 		rotationToJson: a => FeralBearDruid_Rotation.toJson(a as FeralBearDruid_Rotation),
-		rotationFromJson: obj => FeralBearDruid_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(FeralBearDruid_Rotation, obj),
 
 		talentsCreate: () => DruidTalents.create(),
 		talentsEquals: (a, b) => DruidTalents.equals(a as DruidTalents, b as DruidTalents),
@@ -167,7 +167,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => RestorationDruid_Rotation.equals(a as RestorationDruid_Rotation, b as RestorationDruid_Rotation),
 		rotationCopy: a => RestorationDruid_Rotation.clone(a as RestorationDruid_Rotation),
 		rotationToJson: a => RestorationDruid_Rotation.toJson(a as RestorationDruid_Rotation),
-		rotationFromJson: obj => RestorationDruid_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(RestorationDruid_Rotation, obj),
 
 		talentsCreate: () => DruidTalents.create(),
 		talentsEquals: (a, b) => DruidTalents.equals(a as DruidTalents, b as DruidTalents),
@@ -191,7 +191,6 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => Hunter_Rotation.equals(a as Hunter_Rotation, b as Hunter_Rotation),
 		rotationCopy: a => Hunter_Rotation.clone(a as Hunter_Rotation),
 		rotationToJson: a => Hunter_Rotation.toJson(a as Hunter_Rotation),
-		// A saved rotation can still hold the reserved time_to_weave, which is skipped.
 		rotationFromJson: obj => fromJsonLenient(Hunter_Rotation, obj),
 
 		talentsCreate: () => HunterTalents.create(),
@@ -214,7 +213,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => Mage_Rotation.equals(a as Mage_Rotation, b as Mage_Rotation),
 		rotationCopy: a => Mage_Rotation.clone(a as Mage_Rotation),
 		rotationToJson: a => Mage_Rotation.toJson(a as Mage_Rotation),
-		rotationFromJson: obj => Mage_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(Mage_Rotation, obj),
 
 		talentsCreate: () => MageTalents.create(),
 		talentsEquals: (a, b) => MageTalents.equals(a as MageTalents, b as MageTalents),
@@ -236,7 +235,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => HolyPaladin_Rotation.equals(a as HolyPaladin_Rotation, b as HolyPaladin_Rotation),
 		rotationCopy: a => HolyPaladin_Rotation.clone(a as HolyPaladin_Rotation),
 		rotationToJson: a => HolyPaladin_Rotation.toJson(a as HolyPaladin_Rotation),
-		rotationFromJson: obj => HolyPaladin_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(HolyPaladin_Rotation, obj),
 
 		talentsCreate: () => PaladinTalents.create(),
 		talentsEquals: (a, b) => PaladinTalents.equals(a as PaladinTalents, b as PaladinTalents),
@@ -259,7 +258,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => ProtectionPaladin_Rotation.equals(a as ProtectionPaladin_Rotation, b as ProtectionPaladin_Rotation),
 		rotationCopy: a => ProtectionPaladin_Rotation.clone(a as ProtectionPaladin_Rotation),
 		rotationToJson: a => ProtectionPaladin_Rotation.toJson(a as ProtectionPaladin_Rotation),
-		rotationFromJson: obj => ProtectionPaladin_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(ProtectionPaladin_Rotation, obj),
 
 		talentsCreate: () => PaladinTalents.create(),
 		talentsEquals: (a, b) => PaladinTalents.equals(a as PaladinTalents, b as PaladinTalents),
@@ -282,7 +281,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => RetributionPaladin_Rotation.equals(a as RetributionPaladin_Rotation, b as RetributionPaladin_Rotation),
 		rotationCopy: a => RetributionPaladin_Rotation.clone(a as RetributionPaladin_Rotation),
 		rotationToJson: a => RetributionPaladin_Rotation.toJson(a as RetributionPaladin_Rotation),
-		rotationFromJson: obj => RetributionPaladin_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(RetributionPaladin_Rotation, obj),
 
 		talentsCreate: () => PaladinTalents.create(),
 		talentsEquals: (a, b) => PaladinTalents.equals(a as PaladinTalents, b as PaladinTalents),
@@ -306,7 +305,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => DpsPriest_Rotation.equals(a as DpsPriest_Rotation, b as DpsPriest_Rotation),
 		rotationCopy: a => DpsPriest_Rotation.clone(a as DpsPriest_Rotation),
 		rotationToJson: a => DpsPriest_Rotation.toJson(a as DpsPriest_Rotation),
-		rotationFromJson: obj => DpsPriest_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(DpsPriest_Rotation, obj),
 
 		talentsCreate: () => PriestTalents.create(),
 		talentsEquals: (a, b) => PriestTalents.equals(a as PriestTalents, b as PriestTalents),
@@ -327,7 +326,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => HealerPriest_Rotation.equals(a as HealerPriest_Rotation, b as HealerPriest_Rotation),
 		rotationCopy: a => HealerPriest_Rotation.clone(a as HealerPriest_Rotation),
 		rotationToJson: a => HealerPriest_Rotation.toJson(a as HealerPriest_Rotation),
-		rotationFromJson: obj => HealerPriest_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(HealerPriest_Rotation, obj),
 
 		talentsCreate: () => PriestTalents.create(),
 		talentsEquals: (a, b) => PriestTalents.equals(a as PriestTalents, b as PriestTalents),
@@ -351,7 +350,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => Rogue_Rotation.equals(a as Rogue_Rotation, b as Rogue_Rotation),
 		rotationCopy: a => Rogue_Rotation.clone(a as Rogue_Rotation),
 		rotationToJson: a => Rogue_Rotation.toJson(a as Rogue_Rotation),
-		rotationFromJson: obj => Rogue_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(Rogue_Rotation, obj),
 
 		talentsCreate: () => RogueTalents.create(),
 		talentsEquals: (a, b) => RogueTalents.equals(a as RogueTalents, b as RogueTalents),
@@ -373,7 +372,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => ElementalShaman_Rotation.equals(a as ElementalShaman_Rotation, b as ElementalShaman_Rotation),
 		rotationCopy: a => ElementalShaman_Rotation.clone(a as ElementalShaman_Rotation),
 		rotationToJson: a => ElementalShaman_Rotation.toJson(a as ElementalShaman_Rotation),
-		rotationFromJson: obj => ElementalShaman_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(ElementalShaman_Rotation, obj),
 
 		talentsCreate: () => ShamanTalents.create(),
 		talentsEquals: (a, b) => ShamanTalents.equals(a as ShamanTalents, b as ShamanTalents),
@@ -396,7 +395,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => EnhancementShaman_Rotation.equals(a as EnhancementShaman_Rotation, b as EnhancementShaman_Rotation),
 		rotationCopy: a => EnhancementShaman_Rotation.clone(a as EnhancementShaman_Rotation),
 		rotationToJson: a => EnhancementShaman_Rotation.toJson(a as EnhancementShaman_Rotation),
-		rotationFromJson: obj => EnhancementShaman_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(EnhancementShaman_Rotation, obj),
 
 		talentsCreate: () => ShamanTalents.create(),
 		talentsEquals: (a, b) => ShamanTalents.equals(a as ShamanTalents, b as ShamanTalents),
@@ -419,7 +418,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => RestorationShaman_Rotation.equals(a as RestorationShaman_Rotation, b as RestorationShaman_Rotation),
 		rotationCopy: a => RestorationShaman_Rotation.clone(a as RestorationShaman_Rotation),
 		rotationToJson: a => RestorationShaman_Rotation.toJson(a as RestorationShaman_Rotation),
-		rotationFromJson: obj => RestorationShaman_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(RestorationShaman_Rotation, obj),
 
 		talentsCreate: () => ShamanTalents.create(),
 		talentsEquals: (a, b) => ShamanTalents.equals(a as ShamanTalents, b as ShamanTalents),
@@ -443,7 +442,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => Warlock_Rotation.equals(a as Warlock_Rotation, b as Warlock_Rotation),
 		rotationCopy: a => Warlock_Rotation.clone(a as Warlock_Rotation),
 		rotationToJson: a => Warlock_Rotation.toJson(a as Warlock_Rotation),
-		rotationFromJson: obj => Warlock_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(Warlock_Rotation, obj),
 
 		talentsCreate: () => WarlockTalents.create(),
 		talentsEquals: (a, b) => WarlockTalents.equals(a as WarlockTalents, b as WarlockTalents),
@@ -465,7 +464,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => DpsWarrior_Rotation.equals(a as DpsWarrior_Rotation, b as DpsWarrior_Rotation),
 		rotationCopy: a => DpsWarrior_Rotation.clone(a as DpsWarrior_Rotation),
 		rotationToJson: a => DpsWarrior_Rotation.toJson(a as DpsWarrior_Rotation),
-		rotationFromJson: obj => DpsWarrior_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(DpsWarrior_Rotation, obj),
 
 		talentsCreate: () => WarriorTalents.create(),
 		talentsEquals: (a, b) => WarriorTalents.equals(a as WarriorTalents, b as WarriorTalents),
@@ -488,7 +487,7 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => ProtectionWarrior_Rotation.equals(a as ProtectionWarrior_Rotation, b as ProtectionWarrior_Rotation),
 		rotationCopy: a => ProtectionWarrior_Rotation.clone(a as ProtectionWarrior_Rotation),
 		rotationToJson: a => ProtectionWarrior_Rotation.toJson(a as ProtectionWarrior_Rotation),
-		rotationFromJson: obj => ProtectionWarrior_Rotation.fromJson(obj),
+		rotationFromJson: obj => fromJsonLenient(ProtectionWarrior_Rotation, obj),
 
 		talentsCreate: () => WarriorTalents.create(),
 		talentsEquals: (a, b) => WarriorTalents.equals(a as WarriorTalents, b as WarriorTalents),
@@ -680,7 +679,8 @@ export function withSpec<SpecType extends Spec>(spec: Spec, player: Player, spec
 
 /**
  * The spec rotation a Simple rotation's json stores. An empty json is the spec's default rotation: a Simple
- * rotation gets its json only once a rotation option is set, so picking a cooldown first leaves it empty.
+ * rotation gets its json only once a rotation option is set, so picking a cooldown first leaves it empty. Each
+ * spec reads it leniently, so a saved field its Rotation has since reserved is skipped and the rest kept.
  */
 export function simpleSpecRotationFromJson<SpecType extends Spec>(functions: SpecTypeFunctions<SpecType>, jsonStr: string): SpecRotation<SpecType> {
 	if (!jsonStr) {

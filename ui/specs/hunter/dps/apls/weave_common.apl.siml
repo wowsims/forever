@@ -4,12 +4,10 @@ use "walk_in.apl.siml" with $shoot_spot = max($ranged_range, 11.67)
 use "pull.apl.siml"
 
 // The melee weave as a player plays it: once Auto Shot has gone off, walk in and swing; once I've swung, hit or not,
-// walk back out to the spot and shoot. The player's reactions set the timing. Time to melee is how long the walk in
-// takes from where the hunter stands, for a rotation that weighs a hardcast against it.
+// walk back out to the spot and shoot. The player's reactions set the timing.
 var ${Ranged range} = 13.19
 var ${Walk-in range} = 4.99
 var ${Melee spot} = min($walk_in_range, 4.99)
-var ${Time to melee} = 1s * ((self.unit_distance - $melee_spot) / self.unit_movement_speed)
 var ${Not weaving yet} = auto_time_since_last(main_hand_auto) > current_time
 
 def kick_wait = max(spell(strider_kick).time_to_ready, gcd_time_to_ready)

@@ -51,6 +51,9 @@ export interface FieldScene {
 	rangedLabel: string;
 }
 
+// The rings worth drawing: melee range, and the ranged minimum only for a weapon that cannot fire inside it.
+const breakpoints = (run: MovementRun): Array<number> => (run.deadZone ? [MAX_MELEE_RANGE, MIN_RANGED_RANGE] : [MAX_MELEE_RANGE]);
+
 // The player points straight up and the pets fan out to either side of it, a fifth of a half turn apart.
 const bearing = (index: number): number => -Math.PI / 2 + (index % 2 === 1 ? 1 : -1) * Math.ceil(index / 2) * (Math.PI / 5);
 
@@ -64,9 +67,8 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	const melee = MAX_MELEE_RANGE * scale;
 	const ranged = MIN_RANGED_RANGE * scale;
 
-	// The ranged ring and the dead zone inside it only mean something to a weapon that cannot fire inside it.
-	const rings: Array<[number, string]> = [[melee, scene.meleeLabel]];
-	if (scene.run.deadZone) rings.push([ranged, scene.rangedLabel]);
+	const labels = [scene.meleeLabel, scene.rangedLabel];
+	const rings = breakpoints(scene.run).map((yards, index): [number, string] => [yards * scale, labels[index]]);
 
 	ctx.font = palette.font;
 	ctx.lineWidth = em / 10;
@@ -136,8 +138,8 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	});
 }
 
-/** Each track's distance over the whole run, with any dead zone banded, the pull marked and a line at `time`. */
-export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height: number, palette: Palette, run: MovementRun, time: number) {
+/** Each track's distance over the whole run, with any dead zone banded and the pull marked. */
+export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height: number, palette: Palette, run: MovementRun) {
 	const { em } = palette;
 	const inset = em / 4;
 	const x = (t: number) => ((t - run.start) / (run.end - run.start)) * width;
@@ -155,7 +157,7 @@ export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height:
 	ctx.save();
 	ctx.setLineDash([em / 2, em / 3]);
 	ctx.strokeStyle = palette.ring;
-	for (const yards of run.deadZone ? [MAX_MELEE_RANGE, MIN_RANGED_RANGE] : [MAX_MELEE_RANGE]) {
+	for (const yards of breakpoints(run)) {
 		ctx.beginPath();
 		ctx.moveTo(0, y(yards));
 		ctx.lineTo(width, y(yards));
@@ -183,10 +185,4 @@ export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height:
 		ctx.stroke();
 		ctx.restore();
 	});
-
-	ctx.strokeStyle = palette.text;
-	ctx.beginPath();
-	ctx.moveTo(x(time), 0);
-	ctx.lineTo(x(time), height);
-	ctx.stroke();
 }

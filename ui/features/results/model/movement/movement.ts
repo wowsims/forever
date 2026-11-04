@@ -131,8 +131,8 @@ export function pathOf(track: MovementTrack, start: number, end: number): Array<
 	return points;
 }
 
-export type RangeZone = 'melee' | 'dead-zone' | 'ranged';
+export type RangeZone = 'melee' | 'dead_zone' | 'ranged';
 
 /** In melee range out to the melee breakpoint, and at range past it, but for a weapon with a dead zone only from the ranged breakpoint out. */
 export const rangeZone = (yards: number, deadZone: boolean): RangeZone =>
-	yards <= MAX_MELEE_RANGE ? 'melee' : deadZone && yards < MIN_RANGED_RANGE ? 'dead-zone' : 'ranged';
+	yards <= MAX_MELEE_RANGE ? 'melee' : deadZone && yards < MIN_RANGED_RANGE ? 'dead_zone' : 'ranged';

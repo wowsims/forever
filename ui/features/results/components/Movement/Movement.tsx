@@ -3,30 +3,26 @@ import { requestPlayer } from '@features/apl/model/apl_entry';
 import { ItemSlot } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { MAX_MELEE_RANGE, MIN_RANGE_WEAPON_TYPES, MIN_RANGED_RANGE } from '@sim/proto/sim_tables_auto_gen';
+import { formatToNumber } from '@sim/utils/format';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
-import { type PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { type PointerEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { type CanvasPaint, useCanvasPainter } from '../../hooks/useCanvasPainter';
 import { useHeldSimResult } from '../../hooks/useHeldSimResult';
-import { buildMovementRun, type MovementRun, positionAt, type RangeZone, rangeZone } from '../../model/movement/movement';
+import { buildMovementRun, type MovementRun, positionAt, rangeZone } from '../../model/movement/movement';
 import type { SimResultData } from '../../model/result_data';
-import { paintField, paintStrip, readPalette } from './paint';
+import { paintField, paintStrip, type Palette, readPalette } from './paint';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`results_tab.details.movement.${key}`, options);
 
 const SPEEDS = ['0.5', '1', '2', '4'] as const;
 type Speed = (typeof SPEEDS)[number];
 
-const ZONE_KEYS: Record<RangeZone, string> = { melee: 'melee', 'dead-zone': 'dead_zone', ranged: 'ranged' };
-
 // Seconds per slider step, and per step with Shift or Page Up and Down.
 const SLIDER_STEP = 0.1;
 const SLIDER_LARGE_STEP = 1;
-
-// A ring's label drops a trailing zero: 5, not 5.0.
-const ringYards = (yards: number) => String(Number(yards.toFixed(1)));
 
 interface MovementPlaybackProps {
 	run: MovementRun;
@@ -71,19 +67,26 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 	const player = run.tracks[0];
 	const zone = rangeZone(yards[0], run.deadZone);
 
+	// The theme does not change while the view is up, so both canvases read it once.
+	const palette = useRef<Palette | null>(null);
+
 	const fieldPaint = useCallback<CanvasPaint>(
 		(ctx, width, height) =>
-			paintField(ctx, width, height, readPalette(ctx.canvas), {
+			paintField(ctx, width, height, (palette.current ??= readPalette(ctx.canvas)), {
 				run,
 				yards,
 				unitLabels: run.tracks.map((track, index) => t('unit', { name: track.name, yards: yards[index].toFixed(1) })),
 				targetLabel: targetName,
-				meleeLabel: t('rings.melee', { yards: ringYards(MAX_MELEE_RANGE) }),
-				rangedLabel: t('rings.ranged', { yards: ringYards(MIN_RANGED_RANGE) }),
+				meleeLabel: t('rings.melee', { yards: formatToNumber(MAX_MELEE_RANGE, { maximumFractionDigits: 1 }) }),
+				rangedLabel: t('rings.ranged', { yards: formatToNumber(MIN_RANGED_RANGE, { maximumFractionDigits: 1 }) }),
 			}),
 		[run, yards, targetName],
 	);
-	const stripPaint = useCallback<CanvasPaint>((ctx, width, height) => paintStrip(ctx, width, height, readPalette(ctx.canvas), run, time), [run, time]);
+	// The strip changes only with the run; the time is a line drawn over it.
+	const stripPaint = useCallback<CanvasPaint>(
+		(ctx, width, height) => paintStrip(ctx, width, height, (palette.current ??= readPalette(ctx.canvas)), run),
+		[run],
+	);
 	const fieldRef = useCanvasPainter(fieldPaint);
 	const stripRef = useCanvasPainter(stripPaint);
 
@@ -116,8 +119,8 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 				<p className="ml-2 flex flex-wrap items-center gap-x-4 tabular-nums">
 					<span>{timeText}</span>
 					<span>{t('unit', { name: player.name, yards: yards[0].toFixed(2) })}</span>
-					<span data-zone={zone} className="data-[zone=dead-zone]:text-danger">
-						{t(`zones.${ZONE_KEYS[zone]}`)}
+					<span data-zone={zone} className="data-[zone=dead_zone]:text-danger">
+						{t(`zones.${zone}`)}
 					</span>
 				</p>
 			</div>
@@ -152,6 +155,11 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 					onPointerMove={event => {
 						if (event.currentTarget.hasPointerCapture(event.pointerId)) scrub(event);
 					}}
+				/>
+				<div
+					aria-hidden
+					className="pointer-events-none absolute inset-y-0 w-px bg-foreground"
+					style={{ left: `${((time - run.start) / (run.end - run.start)) * 100}%` }}
 				/>
 			</div>
 		</div>

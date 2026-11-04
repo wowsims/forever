@@ -345,9 +345,7 @@ func (f *typedFile) joinedMaxes() (map[stmt][]entryWrite, map[*section][]*placed
 				}
 				kept = append(kept, e)
 			}
-			if len(kept) < len(entries[b]) {
-				entries[b] = kept
-			}
+			entries[b] = kept
 		}
 	}
 	return entries, sectionFields

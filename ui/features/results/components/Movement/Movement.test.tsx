@@ -85,7 +85,7 @@ describe('Movement', () => {
 		expect(screen.getByText('p: 14.50 yd')).toBeTruthy();
 
 		fireEvent.change(slider(), { target: { value: '2.5' } });
-		expect(zone(container)?.getAttribute('data-zone')).toBe('dead-zone');
+		expect(zone(container)?.getAttribute('data-zone')).toBe('dead_zone');
 
 		fireEvent.change(slider(), { target: { value: '30' } });
 		expect(screen.getByText('p: 4.00 yd')).toBeTruthy();

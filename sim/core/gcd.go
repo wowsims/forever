@@ -133,10 +133,10 @@ func (unit *Unit) SetRotationTimer(sim *Simulation, rotationReadyAt time.Duratio
 // A person reacts a little faster or slower each time, so with a range set a rotation pass takes its own reaction
 // from it. Every reaction read until the next pass (input_delay, the next look, a swing's reaction) is this one.
 func (unit *Unit) drawReactionTime(sim *Simulation) {
-	if unit.ReactionTimeMax <= unit.reactionTimeMin {
+	if unit.reactionTimeMax <= unit.reactionTimeMin {
 		return
 	}
-	unit.ReactionTime = unit.reactionTimeMin + time.Duration(sim.RandomFloat("Reaction Time")*float64(unit.ReactionTimeMax-unit.reactionTimeMin))
+	unit.ReactionTime = unit.reactionTimeMin + time.Duration(sim.RollWithLabel(0, float64(unit.reactionTimeMax-unit.reactionTimeMin), "Reaction Time"))
 }
 
 // Call this when reacting to events that occur before the next scheduled rotation action

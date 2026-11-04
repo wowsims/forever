@@ -1646,10 +1646,6 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 	switch s := s.(type) {
 	case *fieldEntryStmt:
 		p := find(s.name.text, s.name.span, false)
-		var max *placed
-		if p != nil && s.name.text == p.Siml {
-			max = maxField(p, fields)
-		}
 		switch {
 		case p == nil:
 		case !p.isList() && len(s.values) > 1:
@@ -1661,6 +1657,10 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 				pop()
 				put(p, v, ok)
 			}
+		}
+		var max *placed
+		if p != nil && s.name.text == p.Siml {
+			max = maxField(p, fields)
 		}
 		switch {
 		case p == nil || s.max == nil:

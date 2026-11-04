@@ -44,9 +44,8 @@ export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (
 export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave', WeaveAPL);
 export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', WeaveHawkAPL);
 export const WeaveMmAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (MM)', WeaveMmAPL);
-// The weave with no toggles: every shot goes ahead of the weave, and a weave is a walk in for the next
-// swing that is back before the Auto Shot it delays is more than Max Auto Shot delay late (Max long weave
-// delay when one walk in and out outlasts an Auto Shot cycle). Walk times come from the run speed.
+// The weave with no toggles: every shot goes ahead of the weave, which walks in once Auto Shot has gone off and back
+// out once the hunter has swung.
 export const CleanWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Clean Weave', CleanWeaveAPL);
 export const MeleeAPLRotation = PresetUtils.makePresetAPLRotation('Melee', MeleeAPL);
 
