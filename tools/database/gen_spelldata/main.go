@@ -29,7 +29,7 @@ import (
 
 var dbPath = flag.String("dbPath", "./tools/database/wowsims.db", "Location of the wowsims.db file produced by tools/db2tool")
 var check = flag.Bool("check", false, "Name the generated files that are not what this generator writes, and write nothing")
-var everyClassSpell = flag.Bool("everyClassSpell", false, "Root the store at every class spell the game files have, not only what the sim reaches - for an export with tools/spelldata -dump, not to commit")
+var everyClassSpell = flag.Bool("everyClassSpell", false, "Root the store at every class spell the game files have, not only what the sim reaches, with the game files' values and none of the overrides - for an export with tools/spelldata -dump, not to commit")
 var unchecked = flag.Bool("unchecked", false, "Write the rendered files without type-checking them first, for a class file whose call sites cannot compile until they move onto what it will state")
 var classes = flag.String("classes", "", "Take only these classes from the database (comma-separated package names, all or none), keeping the others as the committed inputs state them; items are always taken")
 var racials = flag.Bool("racials", false, "Take the racials from the database; with no -classes, take no class")
