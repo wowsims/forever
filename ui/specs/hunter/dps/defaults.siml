@@ -61,7 +61,7 @@ encounter:
   targets(id=31146,
       name="Raid Target",
       level=63,
-      mob_type=mechanical,
+      mob_type=dragonkin,
       stats(attack_power=320, block_value=54, armor=3731, health=1428900),
       min_base_damage=2601,
       damage_spread=0.5,
