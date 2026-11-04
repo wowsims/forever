@@ -13,7 +13,7 @@ func (rogue *Rogue) registerSubtletyTalents() {
 	rogue.registerOpportunity()
 
 	// Tier 2
-	// Setup NYI
+	rogue.registerSetup()
 	rogue.registerElusiveness()
 	// Dirty Tricks NYI
 	rogue.registerImprovedAmbush()
@@ -81,7 +81,10 @@ func (rogue *Rogue) registerGhostlyStrike() {
 	config.ClassSpellMask = RogueSpellGhostlyStrike
 	config.DamageMultiplier = core.TernaryFloat64(rogue.HasDagger(core.MainHand), ghostlyStrikeRank.EffectN(4).Percent(), ghostlyStrikeRank.EffectN(1).Percent())
 
-	// Dodge aura not implemented; maybe if rogue tanking comes back
+	// The dodge buff is the row's own aura: its duration and the dodge its second effect adds.
+	dodgeBuff := rogue.RegisterAura(spelldata.AuraConfig(ghostlyStrikeRank))
+	spelldata.ParseEffects(&rogue.Character, dodgeBuff, ghostlyStrikeRank, spelldata.Effects(2))
+	config.RelatedSelfBuff = dodgeBuff
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
@@ -89,7 +92,9 @@ func (rogue *Rogue) registerGhostlyStrike() {
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
+		// An avoided strike grants no buff, as it grants no combo point.
 		if result.Landed() {
+			dodgeBuff.Activate(sim)
 			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
@@ -156,6 +161,9 @@ func (rogue *Rogue) registerPreparation() {
 		}
 		if rogue.AdrenalineRush != nil {
 			rogue.AdrenalineRush.CD.Set(0)
+		}
+		if rogue.Riposte != nil {
+			rogue.Riposte.CD.Set(0)
 		}
 	}
 
@@ -335,4 +343,28 @@ func (rogue *Rogue) registerThousandCuts() {
 			aura.Deactivate(sim)
 		},
 	})
+}
+
+var setupTriggered = spellData.SetupTriggered.Highest()
+
+func (rogue *Rogue) registerSetup() {
+	if rogue.Talents.Setup == 0 {
+		return
+	}
+
+	setupRank := spellData.Setup.Rank(rogue.Talents.Setup)
+	setupMetrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: setupRank.ID})
+
+	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			rogue.AddComboPoints(sim, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
+		})
+	// Only the dodge half is modelled. The fully resisted spell half is not.
+	trigger.Outcome = core.OutcomeDodge
+	trigger.RequireDamageDealt = false
+	// The tooltip limits it to your target's attacks.
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.Unit == rogue.CurrentTarget
+	}
+	rogue.MakeProcTriggerAura(trigger)
 }

@@ -136,6 +136,9 @@
 				"elapsed_time": {
 					"type": "string"
 				},
+				"time_left": {
+					"type": "string"
+				},
 				"ok": {
 					"type": "string"
 				},
@@ -1627,6 +1630,7 @@
 				"search",
 				"filter",
 				"elapsed_time",
+				"time_left",
 				"melee",
 				"any",
 				"phases",
@@ -4811,9 +4815,6 @@
 						},
 						"step_progress": {
 							"type": "string"
-						},
-						"time_left": {
-							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -4833,8 +4834,7 @@
 						"done",
 						"running",
 						"pending",
-						"step_progress",
-						"time_left"
+						"step_progress"
 					]
 				},
 				"notifications": {
@@ -6331,6 +6331,58 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"target_is_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"num_active_adds": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_active": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"time_until_target_dies": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"unit_is_moving": {
 									"type": "object",
 									"properties": {
@@ -6879,6 +6931,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"remaining_cast_time": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"is_casting": {
 									"type": "object",
 									"properties": {
@@ -7049,6 +7114,32 @@
 									"required": ["label", "tooltip"]
 								},
 								"aura_active_with_reaction_time": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_all_targets": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"aura_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7304,6 +7395,19 @@
 									"required": ["label", "tooltip"]
 								},
 								"druid_excess_energy": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
+								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
 										"label": {
@@ -7768,6 +7872,10 @@
 								"target_is_bleed_immune",
 								"target_is_mob_type",
 								"encounter_in_area",
+								"target_is_active",
+								"num_active_adds",
+								"time_until_target_active",
+								"time_until_target_dies",
 								"unit_is_moving",
 								"distance_to_unit",
 								"unit_movement_speed",
@@ -7809,6 +7917,7 @@
 								"cast_time",
 								"travel_time",
 								"cpm",
+								"remaining_cast_time",
 								"is_casting",
 								"is_channeling",
 								"channeled_ticks",
@@ -7823,6 +7932,8 @@
 								"aura_known",
 								"aura_active",
 								"aura_active_with_reaction_time",
+								"aura_active_on_all_targets",
+								"aura_active_on_any_target",
 								"aura_inactive",
 								"aura_inactive_with_reaction_time",
 								"aura_remaining_time",
@@ -7842,6 +7953,7 @@
 								"druid_bleed_is_active",
 								"druid_excess_energy",
 								"dot_is_active_on_all_targets",
+								"dot_is_active_on_any_target",
 								"dot_remaining_time",
 								"dot_lowest_remaining_time",
 								"dot_tick_frequency",
@@ -8128,6 +8240,24 @@
 								},
 								"stances": {
 									"type": "string"
+								},
+								"forms": {
+									"type": "string"
+								},
+								"cat": {
+									"type": "string"
+								},
+								"stealth": {
+									"type": "string"
+								},
+								"bear": {
+									"type": "string"
+								},
+								"utility": {
+									"type": "string"
+								},
+								"druid": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -8175,7 +8305,13 @@
 								"groups",
 								"heal_target",
 								"group",
-								"stances"
+								"stances",
+								"forms",
+								"cat",
+								"stealth",
+								"bear",
+								"utility",
+								"druid"
 							]
 						},
 						"item_swap_sets": {
@@ -11075,10 +11211,7 @@
 										"reference_description": {
 											"type": "string"
 										},
-										"simulated_step_rating": {
-											"type": "string"
-										},
-										"simulated_step_rating_percent": {
+										"simulated_step_percent": {
 											"type": "string"
 										},
 										"simulated_step_description": {
@@ -11090,13 +11223,10 @@
 										"copy_icon_description": {
 											"type": "string"
 										},
-										"rating_conversion": {
-											"type": "string"
-										},
 										"simulated_step": {
 											"type": "string"
 										},
-										"rating_weights_description": {
+										"percent_weights_description": {
 											"type": "string"
 										},
 										"stat": {
@@ -11365,14 +11495,12 @@
 										"healing_reference",
 										"mitigation_reference",
 										"reference_description",
-										"simulated_step_rating",
-										"simulated_step_rating_percent",
+										"simulated_step_percent",
 										"simulated_step_description",
 										"current_ep_description",
 										"copy_icon_description",
-										"rating_conversion",
 										"simulated_step",
-										"rating_weights_description",
+										"percent_weights_description",
 										"stat",
 										"update",
 										"ep_ratio",
@@ -11454,6 +11582,7 @@
 								"current_value": { "type": "string" },
 								"added_axis": { "type": "string" },
 								"tooltip_total": { "type": "string" },
+								"tooltip_added": { "type": "string" },
 								"tooltip_value": { "type": "string" },
 								"tooltip_value_capped": { "type": "string" },
 								"band_key": { "type": "string" },
@@ -11506,6 +11635,7 @@
 								"current_value",
 								"added_axis",
 								"tooltip_total",
+								"tooltip_added",
 								"tooltip_value",
 								"tooltip_value_capped",
 								"band_key",
@@ -12180,13 +12310,7 @@
 						"bonus_prefix": {
 							"type": "string"
 						},
-						"rating_suffix": {
-							"type": "string"
-						},
 						"points_suffix": {
-							"type": "string"
-						},
-						"percent_label": {
 							"type": "string"
 						},
 						"percent_suffix": {
@@ -12205,9 +12329,7 @@
 						"crit_cap",
 						"tank_caps",
 						"bonus_prefix",
-						"rating_suffix",
 						"points_suffix",
-						"percent_label",
 						"percent_suffix"
 					]
 				}
@@ -12252,7 +12374,7 @@
 						"primary": {
 							"type": "string"
 						},
-						"ratings": {
+						"gear": {
 							"type": "string"
 						},
 						"other": {
@@ -12260,23 +12382,17 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["primary", "ratings", "other"]
+					"required": ["primary", "gear", "other"]
 				},
 				"group_count": {
 					"type": "string"
 				},
 				"kept_tooltip": {
 					"type": "string"
-				},
-				"rating_label": {
-					"type": "string"
-				},
-				"percent_label": {
-					"type": "string"
 				}
 			},
 			"additionalProperties": false,
-			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip", "rating_label", "percent_label"]
+			"required": ["title", "triggers", "spec_defaults", "all", "groups", "group_count", "kept_tooltip"]
 		}
 	},
 	"additionalProperties": false,

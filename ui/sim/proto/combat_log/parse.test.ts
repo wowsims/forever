@@ -23,7 +23,7 @@ vi.mock('../action_id', () => {
 });
 
 import { parseAll } from './parse';
-import type { CastBeganLog, CastFailedLog, CastPushbackLog, DamageLog, ParsedLog, SpellQueuedLog } from './types';
+import type { CastBeganLog, CastFailedLog, CastPushbackLog, DamageLog, ParsedLog, SpellQueuedLog, StatChangeLog } from './types';
 
 const parseLine = async (line: string): Promise<ParsedLog> => (await parseAll(RaidSimResult.create({ logs: line })))[0];
 
@@ -92,5 +92,27 @@ describe('parseAll on sim log lines', () => {
 		expect(log.kind).toBe('cast-pushback');
 		expect(log.pushback).toBe(0.5);
 		expect(log.isChanneling).toBe(false);
+	});
+
+	it.each([
+		// aura_helpers.go, with the stats from Stats.FlatString().
+		['[1.00] [Player (#1)] Gained {"Strength": 20.000,"CritRating": 14.000,} from {SpellID: 1234}.', true, '{SpellID: 1234}.'],
+		['[1.00] [Player (#1)] Lost {"Strength": 20.000,"CritRating": 14.000,} from fading {ItemID: 5678}.', false, '{ItemID: 5678}.'],
+	])('reads a temporary stat line: %s', async (line, isGain, actionId) => {
+		const log = (await parseLine(line)) as StatChangeLog;
+		expect(log.kind).toBe('stat-change');
+		expect(log.isGain).toBe(isGain);
+		expect(log.stats).toBe('{"Strength": 20.000,"CritRating": 14.000,}');
+		expect(log.actionIdAsString).toBe(actionId);
+	});
+
+	it.each([
+		// unit.go, with the parenthesis from StatDependency.String() and the stats from Stats.FlatString().
+		'[1.00] [Player (#1)] Dynamic stat change: {"DodgeRating": 12.000,"DodgePercent": 1.000,}',
+		'[1.00] [Player (#1)] Dynamic dep enabled (DodgeRating += Intellect * 0.50): {"DodgeRating": 12.000,"DodgePercent": 1.000,}',
+	])('keeps a stat line as the sim wrote it for the exporter and search: %s', async line => {
+		const log = await parseLine(line);
+		expect(log.kind).toBe('plain');
+		expect(log.raw).toBe(line);
 	});
 });

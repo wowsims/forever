@@ -64,11 +64,17 @@ A value or action reaches the rotation and the kind picker in five places, all i
   or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
-- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
-  `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls back to any spell with the id.
+- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID that does not set
+  `HideFromAPL` (`metadata` in `sim/core/unit.go`). A hand-written row names only a spell the picker lists, with the tag
+  the picker gives: `GetAPLSpell` falls back to the unflagged spell with that id and tag and the sim casts it. Heroic
+  Strike, Cleave, Maul and Raptor Strike register the swing's own attack and the press the rotation casts as two spells
+  of one id told apart by tag, and a row naming the attack (`spellId: 20569` with no tag, where the press is tag 1)
+  fires it on the spot, off the swing and the GCD, for +57 % Fury DPS on three targets. SIML refuses such a name as "a
+  spell no build lets a rotation cast".
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
-  whose Information validation lists them; a rotation without it never casts them.
+  whose Information validation lists them; a rotation without it never casts them. One with `DisableAutocast` set
+  (Innervate, a non-tank's defensive cooldown) goes only at a cooldown timing and is listed only when it has one.
 - **With the combat log on, a `Casting` line of a rotation cast ends with ` APL: <path>`.** The path joins segments with
   a spaced `>`, and every number is a 1-based config position that counts hidden rows: `prepull N`, `priority N`,
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
@@ -79,8 +85,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 ## Presets
 
-- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` is imported by the
-  spec's `presets.ts` and loaded by `core.GetAplRotation` (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
+- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` (`.apl.siml` for
+  the specs on SIML) is imported by the spec's `presets.ts` and loaded by `core.GetAplRotation`
+  (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
   holds it in `player.rotation`, passed to `makePresetAPLRotation` and loaded by `core.GetTestBuildFromJSON`
   (`sim/warlock/warlock_test.go`). Priest, elemental shaman and warlock use builds only, enhancement shaman both.
 - **An option is a hidden group.** The priority list holds a Group Reference with `hide: true`, and the spec's

@@ -42,3 +42,31 @@ func TestCastPositionsTakeCastableSpells(t *testing.T) {
 		t.Errorf("quick fixes %v, want Change to strike", fixes)
 	}
 }
+
+// A talent kind takes a talent's own spell, and a spell the spec knows only as a talent reads nowhere else: completion
+// and did-you-mean offer each name only where it fits.
+func TestTalentPositionsTakeTalents(t *testing.T) {
+	names := &Names{Classes: map[proto.Class]SpellNames{proto.Class_ClassHunter: {NamespaceSpell: {
+		"aimed_strike":   {SpellID: 900001, RegisteredBy: []string{"hunter"}},
+		"deadly_aspects": {SpellID: 19552, RegisteredBy: []string{"hunter"}, TalentOnlyBy: []string{"hunter"}, Uncastable: true},
+	}}}}
+	offers := func(text string) []string {
+		return labelsOf(completionsIn(t, names, nil, hunterPath, plainPreface+text))
+	}
+	if got := offers("priority:\n  cast aimed_strike if talent_is_known(|\n"); !slices.Contains(got, "deadly_aspects") || slices.Contains(got, "aimed_strike") {
+		t.Errorf("talent_is_known( offers %v, want deadly_aspects and not aimed_strike", got)
+	}
+	if got := offers("priority:\n  cast aimed_strike if spell(|\n"); !slices.Contains(got, "aimed_strike") || slices.Contains(got, "deadly_aspects") {
+		t.Errorf("spell( offers %v, want aimed_strike and not deadly_aspects", got)
+	}
+
+	text := plainPreface + "priority:\n  cast aimed_strike if talent_is_known(deadly_aspect)\n  cast aimed_strike if spell(deadly_aspect).is_ready\n"
+	var got []string
+	for _, x := range Analyze(hunterPath, []byte(text), names, langOpen).Diagnostics() {
+		got = append(got, x.Message)
+	}
+	want := []string{"no spell is named deadly_aspect; did you mean deadly_aspects?", "no spell is named deadly_aspect"}
+	if !slices.Equal(got, want) {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+}

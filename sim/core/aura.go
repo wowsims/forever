@@ -49,7 +49,8 @@ type Aura struct {
 	ActionIDForProc ActionID     // If set, indicates that this aura is a trigger aura for the specified proc.
 	Source          ActionSource // Left unset, registration fills in the phase it runs in.
 
-	MenuGroup string // A manual APL menu group, a rotation_tab.apl.submenus key.
+	MenuGroup   string // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth).
+	HideFromAPL bool   // Left out of the APL's aura pickers and the SIML names; the aura still runs.
 
 	Icd *Cooldown           // The internal cooldown if any
 	Dpm *DynamicProcManager // Dynamic Proc manager for proc trigger auras if any

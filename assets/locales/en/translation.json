@@ -42,6 +42,7 @@
 		"search": "Search",
 		"filter": "Filter",
 		"elapsed_time": "Elapsed Time",
+		"time_left": "About {{time}} left",
 		"ok": "OK",
 		"cancel": "Cancel",
 		"confirm": "Confirm",
@@ -262,12 +263,12 @@
 			"ranged_haste": "Ranged Haste",
 			"off_hand_hit": "Off Hand Hit",
 			"off_hand_crit": "Off Hand Crit",
-			"main_hand_hit_rating": "Main Hand Hit Rating",
-			"main_hand_crit_rating": "Main Hand Crit Rating",
-			"off_hand_hit_rating": "Off Hand Hit Rating",
-			"off_hand_crit_rating": "Off Hand Crit Rating",
-			"ranged_hit_rating": "Ranged Hit Rating",
-			"ranged_crit_rating": "Ranged Crit Rating",
+			"main_hand_hit_rating": "Main Hand Hit",
+			"main_hand_crit_rating": "Main Hand Crit",
+			"off_hand_hit_rating": "Off Hand Hit",
+			"off_hand_crit_rating": "Off Hand Crit",
+			"ranged_hit_rating": "Ranged Hit",
+			"ranged_crit_rating": "Ranged Crit",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
@@ -279,13 +280,13 @@
 			"shadow_damage": "Shadow Spell Damage",
 			"spell_penetration": "Spell Piercing",
 			"feral_attack_power": "Feral Attack Power",
-			"expertise_rating": "Expertise Rating",
+			"expertise_rating": "Expertise",
 			"armor_penetration": "Armor Penetration",
-			"hit_rating": "Hit Rating",
-			"crit_rating": "Crit Rating",
-			"haste_rating": "Haste Rating",
-			"defense_rating": "Defense Rating",
-			"block_rating": "Block Rating",
+			"hit_rating": "Hit",
+			"crit_rating": "Crit",
+			"haste_rating": "Haste",
+			"defense_rating": "Defense",
+			"block_rating": "Block",
 			"block_value": "Block Value",
 			"arcane_resistance": "Arcane Resistance",
 			"frost_resistance": "Frost Resistance",
@@ -1351,8 +1352,7 @@
 			"done": "Done",
 			"running": "Running",
 			"pending": "Pending",
-			"step_progress": "Run progress: {{encounter}}, {{talents}}",
-			"time_left": "About {{time}} left"
+			"step_progress": "Run progress: {{encounter}}, {{talents}}"
 		},
 		"notifications": {
 			"bulk_sim_cancelled": "Bulk sim cancelled.",
@@ -1802,6 +1802,22 @@
 					"label": "In Area",
 					"tooltip": "True if the encounter's areas include the chosen area type"
 				},
+				"target_is_active": {
+					"label": "Target Is Active",
+					"tooltip": "True while the target is in the fight: not disabled"
+				},
+				"num_active_adds": {
+					"label": "Active Adds",
+					"tooltip": "The number of targets other than the boss that are in the fight"
+				},
+				"time_until_target_active": {
+					"label": "Time Until Target Active",
+					"tooltip": "Time until the target is next in the fight, 0 while it is. Never when that is unknown"
+				},
+				"time_until_target_dies": {
+					"label": "Time Until Target Dies",
+					"tooltip": "Time until the target leaves the fight or the fight ends, whichever is first. For a target that is down, the end of its next time in the fight. Never when that is unknown"
+				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
 					"tooltip": "True if the unit is moving"
@@ -1971,6 +1987,10 @@
 					"label": "CPM",
 					"tooltip": "Casts Per Minute for the spell so far in the current iteration."
 				},
+				"remaining_cast_time": {
+					"label": "Remaining Cast Time",
+					"tooltip": "Time left on your running hardcast, or 0 when nothing is being cast. It reads 0 at the cast end, where the rotation picks its next spell, and through a channel."
+				},
 				"is_casting": {
 					"label": "Is Casting",
 					"tooltip": "<b>True</b> if this spell is currently being cast, otherwise <b>False</b>. The rotation picks its next spell at the cast end, before this one lands, so this guards lines that read what the spell will do. A channel is <b>Is Channeling</b>."
@@ -2026,6 +2046,14 @@
 				"aura_active_with_reaction_time": {
 					"label": "[DEPRECATED] Aura Active (with Reaction Time)",
 					"tooltip": "All Aura checks now contain Reaction Time logic, so this is no longer needed. Use <b Aura Active</b> instead."
+				},
+				"aura_active_on_all_targets": {
+					"label": "Aura Active On All Targets",
+					"tooltip": "<b>True</b> if the aura is active on every target that is up, each for at least as long as the player reaction time (configured in Settings) when <b>Include Reaction Time</b> is checked, otherwise <b>False</b>."
+				},
+				"aura_active_on_any_target": {
+					"label": "Aura Active On Any Target",
+					"tooltip": "<b>True</b> if the aura is active on at least one target that is up, for at least as long as the player reaction time (configured in Settings) when <b>Include Reaction Time</b> is checked, otherwise <b>False</b>."
 				},
 				"aura_inactive": {
 					"label": "Aura Inactive",
@@ -2109,6 +2137,10 @@
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
+				},
+				"dot_is_active_on_any_target": {
+					"label": "Dot Is Active On Any Target",
+					"tooltip": "<b>True</b> if the specified dot is currently ticking on at least one target that is up, otherwise <b>False</b>."
 				},
 				"dot_remaining_time": {
 					"label": "Dot Remaining Time",
@@ -2314,7 +2346,13 @@
 				"groups": "Groups",
 				"heal_target": "Heal Target",
 				"group": "Group {{group}}",
-				"stances": "Stances"
+				"stances": "Stances",
+				"forms": "Forms",
+				"cat": "Cat",
+				"stealth": "Stealth",
+				"bear": "Bear",
+				"utility": "Utility",
+				"druid": "Druid"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -3253,14 +3291,12 @@
 					"healing_reference": "Healing reference:",
 					"mitigation_reference": "Mitigation reference:",
 					"reference_description": "The above stat selectors control which reference stat is used for EP normalisation for the different EP columns.",
-					"simulated_step_rating": "{{sign}}{{rating}} rating",
-					"simulated_step_rating_percent": "{{sign}}{{rating}} rating ({{sign}}{{percent}}%)",
+					"simulated_step_percent": "{{sign}}{{percent}}%",
 					"simulated_step": "Simulated step: {{step}}",
 					"simulated_step_description": "After a calculation, the help icon next to each stat name gives the simulated step, how far the sim moved that stat to measure it. ± ran it both lower and higher, + only higher.",
 					"current_ep_description": "The 'Current EP' column displays the values currently used by the item pickers to sort items.",
 					"copy_icon_description": "Use the copy icon above the EPs to use newly calculated EPs.",
-					"rating_conversion": "{{rating}} rating = 1%",
-					"rating_weights_description": "Hit, crit, haste, expertise, dodge, parry and block show their weights per point of rating, because gear gives them as rating, which the game converts to a percentage. The help icon next to the stat name gives the conversion.",
+					"percent_weights_description": "Hit, crit, haste, expertise, dodge, parry and block show their weights per 1%.",
 					"stat": "Stat",
 					"update": "Update",
 					"ep_ratio": "EP Ratio",
@@ -3269,7 +3305,7 @@
 					"compute_weighted_ep": "Compute Weighted EP",
 					"dps_weight": {
 						"label": "DPS Weight",
-						"tooltip": "Per-point increase in DPS (Damage Per Second) for each stat."
+						"tooltip": "Increase in DPS (Damage Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"dps_ep": {
 						"label": "DPS EP",
@@ -3277,7 +3313,7 @@
 					},
 					"hps_weight": {
 						"label": "HPS Weight",
-						"tooltip": "Per-point increase in HPS (Healing Per Second) for each stat."
+						"tooltip": "Increase in HPS (Healing Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"hps_ep": {
 						"label": "HPS EP",
@@ -3285,7 +3321,7 @@
 					},
 					"tps_weight": {
 						"label": "TPS Weight",
-						"tooltip": "Per-point increase in TPS (Threat Per Second) for each stat."
+						"tooltip": "Increase in TPS (Threat Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"tps_ep": {
 						"label": "TPS EP",
@@ -3293,7 +3329,7 @@
 					},
 					"dtps_weight": {
 						"label": "DTPS Weight",
-						"tooltip": "Per-point increase in DTPS (Damage Taken Per Second) for each stat."
+						"tooltip": "Increase in DTPS (Damage Taken Per Second) per point of each stat, or per 1% for a percent stat."
 					},
 					"dtps_ep": {
 						"label": "DTPS EP",
@@ -3301,7 +3337,7 @@
 					},
 					"tmi_weight": {
 						"label": "TMI Weight",
-						"tooltip": "Per-point decrease in TMI (Theck-Meloree Index) for each stat."
+						"tooltip": "Decrease in TMI (Theck-Meloree Index) per point of each stat, or per 1% for a percent stat."
 					},
 					"tmi_ep": {
 						"label": "TMI EP",
@@ -3309,7 +3345,7 @@
 					},
 					"death_weight": {
 						"label": "Death Weight",
-						"tooltip": "Per-point decrease in p(death) for each stat."
+						"tooltip": "Decrease in p(death) per point of each stat, or per 1% for a percent stat."
 					},
 					"death_ep": {
 						"label": "Death EP",
@@ -3347,7 +3383,7 @@
 				"precision": {
 					"iterations_tooltip": "Iterations per simulation. Empty uses the sim's iteration setting.",
 					"target_ci": "Target ±",
-					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value.",
+					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value per point. A stat shown per 1% stops at this value times the points in 1%: 10 times for hit, haste and expertise, 14 times for crit.",
 					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
 			},
@@ -3361,8 +3397,8 @@
 					"open": "Show all stats",
 					"remove": "Remove stat"
 				},
-				"range": "Range ±",
-				"step": "Step",
+				"range": "Range ± (points)",
+				"step": "Step (points)",
 				"run": "Run stat sweep",
 				"progress": "Step {{current}} / {{total}}",
 				"run_label": "{{stat}} ±{{range}}",
@@ -3372,8 +3408,9 @@
 				"show_spread": "Show spread",
 				"show_spread_tooltip": "Shades ± 1 standard deviation of a fight's value around each line.",
 				"current_value": "Current value",
-				"added_axis": "Stat added (% stats as rating)",
+				"added_axis": "Points added",
 				"tooltip_total": "{{stat}} {{total}} ({{added}})",
+				"tooltip_added": "{{stat}} {{added}}",
 				"tooltip_value": "{{value}} ± {{stdev}}",
 				"tooltip_value_capped": "{{value}} ± {{stdev}} (capped)",
 				"band_key": "Shaded: ± 1 standard deviation of a fight's {{metric}}",
@@ -3585,9 +3622,7 @@
 				"with_holy_shield": " (with HS)"
 			},
 			"bonus_prefix": "Bonus",
-			"rating_suffix": "Rating",
 			"points_suffix": "Points",
-			"percent_label": "Percent",
 			"percent_suffix": "%"
 		}
 	},
@@ -3603,12 +3638,10 @@
 		"all": "All",
 		"groups": {
 			"primary": "Primary",
-			"ratings": "Ratings",
+			"gear": "Gear",
 			"other": "Other"
 		},
 		"group_count": "{{group}} ({{shown}}/{{total}})",
-		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it.",
-		"rating_label": "{{stat}} Rating",
-		"percent_label": "{{stat}} %"
+		"kept_tooltip": "This item is showing because you have it selected. Use the filters to permanently show it."
 	}
 }

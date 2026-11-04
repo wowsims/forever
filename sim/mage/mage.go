@@ -22,6 +22,7 @@ type Mage struct {
 
 	ArcaneChargesAura  *core.Aura
 	ClearCasting       *core.Aura
+	MissileBarrageAura *core.Aura
 	PresenceOfMindAura *core.Aura
 	ArcanePowerAura    *core.Aura
 	FingersOfFrostAura *core.Aura

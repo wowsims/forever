@@ -776,12 +776,6 @@
       }
     },
     {
-      "notes": "Use grenades and other available cooldowns",
-      "action": {
-        "autocastOtherCooldowns": {}
-      }
-    },
-    {
       "notes": "Use Frenzied Regeneration at the low-health threshold",
       "action": {
         "condition": {

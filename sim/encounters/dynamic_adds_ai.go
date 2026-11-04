@@ -121,6 +121,8 @@ type DynamicAddsAI struct {
 	respawnTime time.Duration
 	addLifetime time.Duration
 	spawnDelay  time.Duration
+
+	lifeStartAt time.Duration // The start of the adds' current life, or of their next one while they are down.
 }
 
 func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
@@ -129,11 +131,25 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 
 	ai.AddUnits = target.Env.Encounter.AllTargetUnits[1:]
 
+	if ai.isBoss {
+		for _, addTarget := range target.Env.Encounter.AllTargets[1:] {
+			addTarget.Schedule = ai
+		}
+	}
+
 	if ai.isBoss && len(config.TargetInputs) >= 3 {
 		ai.addLifetime = core.DurationFromSeconds(config.TargetInputs[1].NumberValue)
 		ai.respawnTime = core.DurationFromSeconds(config.TargetInputs[0].NumberValue)
 		ai.spawnDelay = core.DurationFromSeconds(config.TargetInputs[2].NumberValue)
 	}
+}
+
+func (ai *DynamicAddsAI) NextActiveAt(_ *core.Simulation) time.Duration {
+	return ai.lifeStartAt
+}
+
+func (ai *DynamicAddsAI) DiesAt(_ *core.Simulation) time.Duration {
+	return ai.lifeStartAt + ai.addLifetime
 }
 
 func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
@@ -149,6 +165,7 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 	}
 
 	if ai.spawnDelay > 0 {
+		ai.lifeStartAt = ai.spawnDelay
 		pa := sim.GetConsumedPendingActionFromPool()
 		pa.NextActionAt = ai.spawnDelay
 		pa.Priority = core.ActionPriorityDOT
@@ -170,8 +187,9 @@ func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 		sim.Log("Spawned %d adds at %s.", len(ai.AddUnits), sim.CurrentTime)
 	}
 
+	ai.lifeStartAt = sim.CurrentTime
 	pa := sim.GetConsumedPendingActionFromPool()
-	pa.NextActionAt = sim.CurrentTime + ai.addLifetime
+	pa.NextActionAt = ai.lifeStartAt + ai.addLifetime
 	pa.Priority = core.ActionPriorityDOT
 	pa.OnAction = func(sim *core.Simulation) {
 		ai.despawnAdds(sim)
@@ -190,8 +208,9 @@ func (ai *DynamicAddsAI) despawnAdds(sim *core.Simulation) {
 
 	// Only schedule next spawn if there is a respawn time
 	if ai.respawnTime > 0 {
+		ai.lifeStartAt = sim.CurrentTime + ai.respawnTime
 		pa := sim.GetConsumedPendingActionFromPool()
-		pa.NextActionAt = sim.CurrentTime + ai.respawnTime
+		pa.NextActionAt = ai.lifeStartAt
 		pa.Priority = core.ActionPriorityDOT
 		pa.OnAction = func(sim *core.Simulation) {
 			ai.spawnAdds(sim)

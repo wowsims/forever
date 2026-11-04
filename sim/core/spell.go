@@ -38,7 +38,7 @@ type SpellConfig struct {
 	Cast               CastConfig
 	ExtraCastCondition CanCastCondition
 	CastRequirement    CastRequirement
-	MenuGroup          string // A manual APL menu group, a rotation_tab.apl.submenus key.
+	MenuGroup          string // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth).
 
 	// Optional range constraints. If supplied, these are used to modify the ExtraCastCondition above to additionally check for DistanceFromTarget.
 	MinRange     float64
@@ -132,7 +132,7 @@ type Spell struct {
 	ExtraCastCondition CanCastCondition
 
 	CastRequirement    CastRequirement
-	MenuGroup          string // A manual APL menu group, a rotation_tab.apl.submenus key.
+	MenuGroup          string // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth).
 	hasCastRequirement bool
 	casterAuras        []*Aura
 	excludeCasterAuras []*Aura

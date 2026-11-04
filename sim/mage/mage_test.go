@@ -2,6 +2,7 @@ package mage
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/common" // imported to get item effects included.
@@ -54,20 +55,7 @@ func TestFingersOfFrostGivesBlizzardTicksNoShatterBonus(t *testing.T) {
 // Each book rank registers beside the trainer's top rank, Arcane Missiles with its own missile. Both ranks of Frost
 // Ward run Fire Ward's one category cooldown and keep a shield each, and the higher rank's Fireball burn holds a target.
 func TestBookRanksBesideTrainerRanks(t *testing.T) {
-	suite := arcaneSuite()
-	player := core.WithSpec(&proto.Player{
-		Class:     suite.Class,
-		Race:      suite.Race,
-		Equipment: &proto.EquipmentSpec{},
-		Rotation:  &proto.APLRotation{},
-	}, suite.SpecOptions.SpecOptions)
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  core.MakeSingleTargetEncounter(0),
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	mage := sim.Raid.Parties[0].Players[0].(*Mage)
+	sim, mage := newMageSim("")
 	target := mage.CurrentTarget
 
 	spellOf := func(id int32, tag int32) *core.Spell {
@@ -109,26 +97,42 @@ func TestBookRanksBesideTrainerRanks(t *testing.T) {
 	}
 }
 
+// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up; one it does not pay for spends it.
+func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
+	for _, withBarrage := range []bool{true, false} {
+		sim, mage := newMageSim(ArcaneTalents)
+		mage.ClearCasting.Activate(sim)
+		if withBarrage {
+			mage.MissileBarrageAura.Activate(sim)
+		}
+		if !mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID}).Cast(sim, mage.CurrentTarget) {
+			t.Fatalf("Arcane Missiles did not cast, Missile Barrage up = %v", withBarrage)
+		}
+		if mage.MissileBarrageAura.IsActive() {
+			t.Error("Arcane Missiles left Missile Barrage up")
+		}
+		if mage.ClearCasting.IsActive() != withBarrage {
+			t.Errorf("Clearcasting up after Arcane Missiles = %v with Missile Barrage up = %v, want them equal",
+				mage.ClearCasting.IsActive(), withBarrage)
+		}
+	}
+}
+
+// A rotation of only Arcane Missiles still procs Clearcasting: the channel never rolls, its missiles do.
+func TestArcaneMissilesMissilesProcClearcasting(t *testing.T) {
+	metrics := runMageRotation(arcaneSuite(), ArcaneTalents, 60, arcaneMissilesBookRank.ID)
+	for _, aura := range metrics.Auras {
+		if aura.Id.GetSpellId() == spellData.Clearcasting.Highest().ID && aura.ProcsAvg > 0 {
+			return
+		}
+	}
+	t.Fatal("Clearcasting never procced from Arcane Missiles' missiles")
+}
+
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {
 	tickID := spellData.BlizzardTriggered.Highest().ID
 	directID := spellData.FireBlast.Highest().ID
-	suite := frostSuite()
-	rotation := fmt.Sprintf(`{"type":"TypeAPL","priorityList":[{"action":{"castSpell":{"spellId":{"spellId":%d}}}},{"action":{"castSpell":{"spellId":{"spellId":%d}}}}]}`,
-		directID, spellData.Blizzard.Highest().ID)
-	player := core.WithSpec(&proto.Player{
-		Class:         suite.Class,
-		Race:          suite.Race,
-		Equipment:     suite.GearSet.GearSet,
-		TalentsString: talents,
-		Rotation:      core.APLRotationFromJsonString(rotation),
-	}, suite.SpecOptions.SpecOptions)
-	result := core.RunRaidSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter:  &proto.Encounter{Duration: 40, Targets: []*proto.Target{core.NewDefaultTarget()}},
-		SimOptions: core.DefaultSimTestOptions,
-	})
-
-	metrics := result.RaidMetrics.Parties[0].Players[0]
+	metrics := runMageRotation(frostSuite(), talents, 40, directID, spellData.Blizzard.Highest().ID)
 	for _, action := range metrics.Actions {
 		for _, target := range action.Targets {
 			switch action.Id.GetSpellId() {
@@ -145,6 +149,47 @@ func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostU
 		}
 	}
 	return tickCrits, directCrits, fingersOfFrostUptime
+}
+
+// A mage with no gear and no rotation, ready to cast by hand.
+func newMageSim(talents string) (*core.Simulation, *Mage) {
+	suite := arcaneSuite()
+	player := core.WithSpec(&proto.Player{
+		Class:         suite.Class,
+		Race:          suite.Race,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: talents,
+		Rotation:      &proto.APLRotation{},
+	}, suite.SpecOptions.SpecOptions)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	return sim, sim.Raid.Parties[0].Players[0].(*Mage)
+}
+
+// The suite's mage in its gear, casting the spells in priority order against one target.
+func runMageRotation(suite core.CharacterSuiteConfig, talents string, duration float64, spellIDs ...int32) *proto.UnitMetrics {
+	actions := make([]string, len(spellIDs))
+	for i, id := range spellIDs {
+		actions[i] = fmt.Sprintf(`{"action":{"castSpell":{"spellId":{"spellId":%d}}}}`, id)
+	}
+	rotation := fmt.Sprintf(`{"type":"TypeAPL","priorityList":[%s]}`, strings.Join(actions, ","))
+	player := core.WithSpec(&proto.Player{
+		Class:         suite.Class,
+		Race:          suite.Race,
+		Equipment:     suite.GearSet.GearSet,
+		TalentsString: talents,
+		Rotation:      core.APLRotationFromJsonString(rotation),
+	}, suite.SpecOptions.SpecOptions)
+	result := core.RunRaidSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  &proto.Encounter{Duration: duration, Targets: []*proto.Target{core.NewDefaultTarget()}},
+		SimOptions: core.DefaultSimTestOptions,
+	})
+	return result.RaidMetrics.Parties[0].Players[0]
 }
 
 func BenchmarkMage(b *testing.B) {

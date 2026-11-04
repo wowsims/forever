@@ -12,7 +12,7 @@ import { StatWeightRowView } from './StatWeightRow';
 import { StatsType } from './types';
 import { EP_TOOLTIP_ID } from './utils';
 
-const NAMES = ['Strength', 'Agility', 'Attack Power', 'Crit Rating'];
+const NAMES = ['Strength', 'Agility', 'Attack Power', 'Crit'];
 const EP_RATIOS = [1, 0, 0, 0, 0, 0];
 const DAMAGE: DisplayMetrics = { damage: true, healing: false, threat: false };
 const ALL: DisplayMetrics = { damage: true, healing: true, threat: true };

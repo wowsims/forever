@@ -1,4 +1,4 @@
-import { Class, ConsumableType, Stat } from '@generated/proto/common';
+import { Class, ConsumableType, PseudoStat, Stat } from '@generated/proto/common';
 import { Consumable } from '@generated/proto/db';
 import { DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
@@ -6,10 +6,16 @@ import { UnitStat } from '@sim/proto/stats';
 import { createSimStore, patchSlice, type SimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+
+import english from '../../../../../assets/locales/en/translation.json';
 
 const agility = Object.assign(new Array<number>(42).fill(0), { [Stat.StatAgility]: 25 });
-const CONSUMABLES = [Consumable.create({ id: 9187, name: 'Elixir of Greater Agility', type: ConsumableType.ConsumableTypeElixir, lvl: 38, stats: agility })];
+const expertise = Object.assign(new Array<number>(42).fill(0), { [Stat.StatExpertiseRating]: 20 });
+const CONSUMABLES = [
+	Consumable.create({ id: 9187, name: 'Elixir of Greater Agility', type: ConsumableType.ConsumableTypeElixir, lvl: 38, stats: agility }),
+	Consumable.create({ id: 9188, name: 'Elixir of Expertise', type: ConsumableType.ConsumableTypeElixir, lvl: 38, stats: expertise }),
+];
 
 vi.mock('@sim/proto/database', () => ({ Database: { getSync: () => ({ getConsumables: () => CONSUMABLES, getSpellEffect: () => undefined }) } }));
 
@@ -25,7 +31,10 @@ let sim: {
 
 const player = {
 	getClass: () => Class.ClassWarrior,
-	getSpecConfig: () => ({ epStats: [Stat.StatStrength, Stat.StatAttackPower], displayStats: [] }),
+	getSpecConfig: () => ({
+		epStats: [Stat.StatStrength, Stat.StatAttackPower, Stat.StatExpertiseRating],
+		displayStats: UnitStat.createDisplayStatArray([], [PseudoStat.PseudoStatExpertisePercent]),
+	}),
 };
 
 const open = () => {
@@ -48,7 +57,15 @@ beforeEach(() => {
 	};
 });
 
+// The test setup loads no locale, so every stat reads as its own key; the rating and percent only share a name in English.
 describe('ConsumesFilters', () => {
+	beforeAll(() => {
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+	});
+	afterAll(() => {
+		i18n.removeResourceBundle('en', 'translation');
+	});
+
 	it('opens under its title on the stats tab, with the level fields on the other tab', () => {
 		open();
 
@@ -88,6 +105,18 @@ describe('ConsumesFilters', () => {
 
 		expect(shownInSlot()).toContain('StatAgility');
 		expect(sim.getFilters().minConsumableLvl).toEqual({ [ConsumableType.ConsumableTypeElixir]: 50 });
+	});
+
+	it('unticks the Expertise row for the expertise rating the spec weighs along with its percent', () => {
+		open();
+		const expertiseRow = () => screen.getByRole('checkbox', { name: 'Expertise' });
+		expect(expertiseRow().getAttribute('aria-checked')).toBe('true');
+
+		fireEvent.click(expertiseRow());
+
+		expect(expertiseRow().getAttribute('aria-checked')).toBe('false');
+		expect(shownInSlot()).not.toContain('StatExpertiseRating');
+		expect(shownInSlot()).not.toContain('PseudoStatExpertisePercent');
 	});
 
 	it('offers the level reset only while a minimum level is set', () => {

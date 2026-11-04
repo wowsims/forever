@@ -16,7 +16,7 @@ character_stats_results: {
   final_stats: 3
   final_stats: 238
   final_stats: 663
-  final_stats: 50
+  final_stats: 100
   final_stats: 140
   final_stats: 60
   final_stats: 42
@@ -74,7 +74,7 @@ stat_weights_results: {
   weights: 0
   weights: 0
   weights: 1.29555
-  weights: 0.66048
+  weights: 0.76669
   weights: 0.96096
   weights: 0
   weights: 0

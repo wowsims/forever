@@ -1,0 +1,46 @@
+// The Retribution builds load what their .siml files state: the Holy Shock build turns item swap on with its swap set,
+// the Unsealed Wrath build turns it off, and neither moves "in front of target".
+import { isBuildActive } from '@app/preset_build_state';
+import { applyBuild } from '@features/settings/model/apply_build';
+import { ItemSlot, Spec } from '@generated/proto/common';
+import { makeIndividualSim, serveRealDatabase } from '@testing/sim/individual_sim';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { DefaultBuild, HolyShockBuild, HolyShockItemSwap } from './presets';
+
+vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+
+// The real database, so the gear sets and the swap set find their items.
+beforeAll(serveRealDatabase);
+
+describe('a Retribution build', () => {
+	it('turns item swap on with its swap set for Holy Shock and off for Unsealed Wrath', async () => {
+		const { player, host } = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
+
+		applyBuild(HolyShockBuild, host);
+		expect(player.itemSwapSettings.getEnableItemSwap()).toBe(true);
+		expect(player.itemSwapSettings.getItem(ItemSlot.ItemSlotMainHand)?.item.id).toBe(HolyShockItemSwap.itemSwap.items[ItemSlot.ItemSlotMainHand].id);
+
+		applyBuild(DefaultBuild, host);
+		expect(player.itemSwapSettings.getEnableItemSwap()).toBe(false);
+	});
+
+	it.each([DefaultBuild, HolyShockBuild])('leaves "in front of target" on and is active once $name loads', async build => {
+		const { player, host } = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
+		player.setInFrontOfTarget(true);
+
+		applyBuild(build, host);
+
+		expect(player.getInFrontOfTarget()).toBe(true);
+		expect(isBuildActive(build, host)).toBe(true);
+	});
+
+	it('is no longer active once item swap is turned off after Holy Shock loads', async () => {
+		const { player, host } = await makeIndividualSim({ spec: Spec.SpecRetributionPaladin });
+
+		applyBuild(HolyShockBuild, host);
+		player.itemSwapSettings.setEnableItemSwap(false);
+
+		expect(isBuildActive(HolyShockBuild, host)).toBe(false);
+	});
+});

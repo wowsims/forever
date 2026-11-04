@@ -1,10 +1,8 @@
-import { Stat } from '@generated/proto/common';
-import i18n from '@i18n/config';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { createSimStore } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { BonusStatsLink } from './BonusStatsLink';
@@ -21,7 +19,6 @@ const openPicker = async (stat: Stat, rating: number) => {
 	});
 	return { setBonusStats, bonusStats: () => bonusStats };
 };
-const unitButton = (key: 'rating_suffix' | 'percent_label') => screen.getByRole('button', { name: i18n.t(`sidebar.character_stats.${key}`) });
 const textbox = () => screen.getByRole('textbox') as HTMLInputElement;
 
 describe('BonusStatsLink', () => {
@@ -48,61 +45,65 @@ describe('BonusStatsLink', () => {
 		expect(setBonusStats.mock.calls[0][0].getStat(Stat.StatStrength)).toBe(20);
 	});
 
-	it.each([
-		[Stat.StatHitRating, 20, 2, 2.5, 25],
-		[Stat.StatCritRating, 14, 1, 1.071, 15],
-		[Stat.StatHasteRating, 10, 1, 2.5, 25],
-		[Stat.StatExpertiseRating, 10, 1, 0.64, 6],
-		[Stat.StatDodgeRating, 24, 2, 1.5, 18],
-	] as const)('accepts a percent bonus for rating stat %s, rounded to whole rating', async (stat, initialRating, initialPercent, percent, expectedRating) => {
-		const { setBonusStats } = await openPicker(stat, initialRating);
-		const percentButton = unitButton('percent_label');
-		const ratingButton = unitButton('rating_suffix');
-		expect(percentButton.getAttribute('aria-pressed')).toBe('true');
-		expect(Number(textbox().value)).toBeCloseTo(initialPercent);
+	it('marks a percent stat field with the percent sign and a points stat field without', async () => {
+		await openPicker(Stat.StatCritRating, 14);
+		expect(textbox().labels![0].textContent).toMatch(/ \(sidebar\.character_stats\.percent_suffix\)$/);
+		cleanup();
 
-		await act(async () => {
-			fireEvent.click(ratingButton);
-		});
-		expect(ratingButton.getAttribute('aria-pressed')).toBe('true');
-		expect(textbox().value).toBe(String(initialRating));
+		await openPicker(Stat.StatAgility, 14);
+		expect(textbox().labels![0].textContent).not.toContain('percent_suffix');
+	});
 
+	it('takes a school hit row as a percent, labelled with the percent sign and stored as typed', async () => {
+		let bonusStats = new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire, 2);
+		const setBonusStats = vi.fn((next: Stats) => (bonusStats = next));
+		const player = { storeKey: 0, sim: { store: createSimStore() }, getBonusStats: () => bonusStats, setBonusStats };
+		renderWithHost(<BonusStatsLink unitStat={UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)} />, { player });
 		await act(async () => {
-			fireEvent.click(percentButton);
+			fireEvent.click(screen.getByTestId('add-bonus-stats'));
 		});
-		textbox().value = String(percent);
+		expect(textbox().labels![0].textContent).toMatch(/ \(sidebar\.character_stats\.percent_suffix\)$/);
+		expect(Number(textbox().value)).toBe(2);
+
+		textbox().value = '1.5';
+		await act(async () => {
+			fireEvent.change(textbox());
+		});
+
+		expect(bonusStats.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(1.5);
+	});
+
+	it('has no unit toggle', async () => {
+		await openPicker(Stat.StatCritRating, 14);
+		expect(screen.queryByTestId('bonus-stats-unit-toggle')).toBeNull();
+	});
+
+	it('shows a percent stat as its percent and stores a typed percent as a fractional rating', async () => {
+		const { setBonusStats, bonusStats } = await openPicker(Stat.StatCritRating, 14);
+		expect(Number(textbox().value)).toBeCloseTo(1);
+
+		textbox().value = '0.33';
 		await act(async () => {
 			fireEvent.change(textbox());
 		});
 
 		expect(setBonusStats).toHaveBeenCalledTimes(1);
-		expect(setBonusStats.mock.calls[0][0].getStat(stat)).toBeCloseTo(expectedRating);
+		expect(bonusStats().getStat(Stat.StatCritRating)).toBe(0.33 * 14);
+		expect(Number(textbox().value)).toBeCloseTo(0.33);
 	});
 
-	it('keeps the picker open and commits the edited value when switching units', async () => {
-		const { setBonusStats, bonusStats } = await openPicker(Stat.StatHitRating, 20);
+	it.each([
+		['defense', Stat.StatDefenseRating],
+		['agility', Stat.StatAgility],
+	])('takes points for %s', async (_name, stat) => {
+		const { setBonusStats } = await openPicker(stat, 7);
+		expect(textbox().value).toBe('7');
 
-		await userEvent.clear(textbox());
-		await userEvent.type(textbox(), '2.5');
-		await userEvent.click(unitButton('rating_suffix'));
+		textbox().value = '12';
+		await act(async () => {
+			fireEvent.change(textbox());
+		});
 
-		await waitFor(() => expect(textbox().value).toBe('25'));
-		expect(setBonusStats).toHaveBeenCalledTimes(1);
-		expect(bonusStats().getStat(Stat.StatHitRating)).toBeCloseTo(25);
-	});
-
-	it('keeps the picker open when the pressed unit button never takes focus', async () => {
-		await openPicker(Stat.StatHitRating, 20);
-		const ratingButton = unitButton('rating_suffix');
-
-		fireEvent.pointerDown(ratingButton);
-		textbox().value = '2.5';
-		fireEvent.change(textbox());
-		await new Promise(resolve => requestAnimationFrame(resolve));
-		fireEvent.click(ratingButton);
-
-		await waitFor(() => expect(textbox().value).toBe('25'));
-		await new Promise(resolve => setTimeout(resolve, 50));
-		expect(document.querySelector('.bonus-stats-popover')?.classList.contains('react-tooltip__show')).toBe(true);
+		expect(setBonusStats.mock.calls[0][0].getStat(stat)).toBe(12);
 	});
 });

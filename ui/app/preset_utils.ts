@@ -350,6 +350,17 @@ export const makePresetBuildFromJSON = (
 	return makePresetBuild(name, { ...buildConfig, ...customBuildOptions });
 };
 
+/**
+ * A build from a .siml file's JSON that leaves "in front of target" as the page has it: a .siml file has no unset bool,
+ * so its settings: section turns it off. Loading the build turns item swap on with its `itemSwap` and off without one.
+ */
+export const makePresetBuildFromSiml = (name: string, spec: Spec, json: any, buildOptions?: PresetBuildOptions): PresetBuild => {
+	const preset = makePresetBuildFromJSON(name, spec, json, buildOptions);
+	if (!preset.settings?.playerOptions) return preset;
+	const { inFrontOfTarget: _inFrontOfTarget, enableItemSwap: _enableItemSwap, ...playerOptions } = preset.settings.playerOptions;
+	return { ...preset, settings: { ...preset.settings, playerOptions } };
+};
+
 type SpecSettingsDefaults<SpecType extends Spec> = Pick<
 	IndividualSimUIConfig<SpecType>['defaults'],
 	| 'gear'

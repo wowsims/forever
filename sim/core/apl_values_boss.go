@@ -25,7 +25,8 @@ func (value *APLValueBossSpellIsCasting) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueBossSpellIsCasting) GetBool(sim *Simulation) bool {
-	return value.spell.Unit.Hardcast.ActionID == value.spell.ActionID && value.spell.Unit.Hardcast.Expires > sim.CurrentTime
+	hc := &value.spell.Unit.Hardcast
+	return hc.ActionID.SameAction(value.spell.ActionID) && hc.timeLeft(sim.CurrentTime) > 0
 }
 func (value *APLValueBossSpellIsCasting) String() string {
 	return fmt.Sprintf("Boss is Casting(%s)", value.spell.ActionID)

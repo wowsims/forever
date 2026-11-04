@@ -116,34 +116,6 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 	}
 }
 
-// The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
-// percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
-// A percent's cost matches UnitStat.epRatingScale in the UI; the two are kept in sync by hand.
-func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
-	if stat.IsStat() {
-		return stats.Stat(stat.StatIdx()), 1, true
-	}
-	switch proto.PseudoStat(stat.PseudoStatIdx()) {
-	case proto.PseudoStat_PseudoStatMeleeHitPercent,
-		proto.PseudoStat_PseudoStatRangedHitPercent,
-		proto.PseudoStat_PseudoStatSpellHitPercent,
-		proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
-		proto.PseudoStat_PseudoStatSchoolHitPercentFire,
-		proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
-		proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
-		proto.PseudoStat_PseudoStatSchoolHitPercentNature,
-		proto.PseudoStat_PseudoStatSchoolHitPercentShadow:
-		return stats.HitRating, HitRatingPerHitPercent, true
-	case proto.PseudoStat_PseudoStatExpertisePercent:
-		return stats.ExpertiseRating, ExpertiseRatingPerExpertisePercent, true
-	case proto.PseudoStat_PseudoStatMeleeCritPercent,
-		proto.PseudoStat_PseudoStatRangedCritPercent,
-		proto.PseudoStat_PseudoStatSpellCritPercent:
-		return stats.CritRating, CritRatingPerCritPercent, true
-	}
-	return 0, 1, false
-}
-
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
@@ -219,6 +191,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		statMod := defaultStatMod
 		if stat.EqualsStat(stats.Armor) || stat.EqualsStat(stats.BonusArmor) || stat.EqualsStat(stats.ArmorNoMods) || stat.EqualsStat(stats.ArmorPenetration) {
 			statMod = defaultStatMod * 10
+		} else if perPercent, ok := ratingPerPercent(s); ok {
+			statMod = perPercent
 		}
 		statMods[stat] = statMod
 	}
@@ -230,8 +204,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if _, ratingPerUnit, hasRating := ratingBehindStat(stat); hasRating {
-			statMod /= ratingPerUnit
+		if _, _, hasRating := ratingBehindStat(stat); hasRating {
+			statMod = 1
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {
@@ -495,7 +469,8 @@ func planStatWeightTopUp(request *proto.StatWeightsTopUpRequest) *proto.StatWeig
 			if values.Weights.Get(stat) == 0 || refWeight == 0 {
 				continue
 			}
-			// A percent pseudo stat's target applies per rating point, the unit the stat weights dialog shows.
+			// Every stat meets the target per rating point, a percent pseudo stat included, so the ± the dialog
+			// shows per 1% is the target times the stat's rating per percent.
 			_, ratingPerUnit, _ := ratingBehindStat(stat)
 			metricEpStdev := values.WeightsStdev.Get(stat) / math.Abs(refWeight) / ratingPerUnit
 			if StatWeightZ90*metricEpStdev/math.Sqrt(samples) > target.EpCi {

@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 143
+// NextIndex: 148
 message APLValue {
 	UUID uuid = 85;
 
@@ -130,6 +130,10 @@ message APLValue {
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
         APLValueEncounterInArea encounter_in_area = 134;
+        APLValueTargetIsActive target_is_active = 31;
+        APLValueNumActiveAdds num_active_adds = 32;
+        APLValueTimeUntilTargetActive time_until_target_active = 33;
+        APLValueTimeUntilTargetDies time_until_target_dies = 34;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -180,6 +184,7 @@ message APLValue {
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
         APLValueSpellIsCasting spell_is_casting = 30;
+        APLValueRemainingCastTime remaining_cast_time = 147;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -200,6 +205,8 @@ message APLValue {
         APLValueAuraIsKnown aura_is_known = 73;
         APLValueAuraIsActive aura_is_active = 22;
         APLValueAuraIsInactive aura_is_inactive = 107;
+        APLValueAuraIsActiveOnAllTargets aura_is_active_on_all_targets = 144;
+        APLValueAuraIsActiveOnAnyTarget aura_is_active_on_any_target = 145;
         APLValueAuraRemainingTime aura_remaining_time = 23;
         APLValueAuraNumStacks aura_num_stacks = 24;
         APLValueAuraInternalCooldown aura_internal_cooldown = 39;
@@ -221,6 +228,7 @@ message APLValue {
         // Dot values
         APLValueDotIsActive dot_is_active = 6;
         APLValueDotIsActiveOnAllTargets dot_is_active_on_all_targets = 103;
+        APLValueDotIsActiveOnAnyTarget dot_is_active_on_any_target = 146;
         APLValueDotRemainingTime dot_remaining_time = 13;
         APLValueDotLowestRemainingTime dot_lowest_remaining_time = 104;
         APLValueDotTickFrequency dot_tick_frequency = 67;
@@ -503,6 +511,16 @@ message APLValueIsExecutePhase {
     }
     ExecutePhaseThreshold threshold = 1;
 }
+message APLValueTargetIsActive {
+    UnitReference target_unit = 1;
+}
+message APLValueNumActiveAdds {}
+message APLValueTimeUntilTargetActive {
+    UnitReference target_unit = 1;
+}
+message APLValueTimeUntilTargetDies {
+    UnitReference target_unit = 1;
+}
 
 message APLValueBossSpellTimeToReady {
     UnitReference target_unit = 1;
@@ -641,6 +659,7 @@ message APLValueSpellCPM {
 message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
+message APLValueRemainingCastTime {}
 message APLValueSpellIsChanneling {
     ActionID spell_id = 1;
 }
@@ -689,6 +708,14 @@ message APLValueAuraIsInactive {
     UnitReference source_unit = 2;
     ActionID aura_id = 1;
 	bool include_reaction_time = 3;
+}
+message APLValueAuraIsActiveOnAllTargets {
+    ActionID aura_id = 1;
+	bool include_reaction_time = 2;
+}
+message APLValueAuraIsActiveOnAnyTarget {
+    ActionID aura_id = 1;
+	bool include_reaction_time = 2;
 }
 message APLValueAuraRemainingTime {
     UnitReference source_unit = 2;
@@ -775,6 +802,9 @@ message APLValueDotIsActive {
     ActionID spell_id = 1;
 }
 message APLValueDotIsActiveOnAllTargets {
+    ActionID spell_id = 1;
+}
+message APLValueDotIsActiveOnAnyTarget {
     ActionID spell_id = 1;
 }
 message APLValueDotRemainingTime {
