@@ -1081,9 +1081,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2646.84082
-  tps: 2572.85354
-  dtps: 8.3725
+  dps: 2324.67829
+  tps: 2248.53383
+  dtps: 8.6389
  }
 }
 dps_results: {
@@ -1105,8 +1105,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Dwarf-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 647.21939
-  tps: 620.3856
+  dps: 531.21623
+  tps: 503.37619
  }
 }
 dps_results: {
@@ -1126,9 +1126,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2632.20966
-  tps: 2559.24619
-  dtps: 8.92802
+  dps: 2327.96453
+  tps: 2253.94963
+  dtps: 8.09337
  }
 }
 dps_results: {
@@ -1150,8 +1150,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Orc-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 639.56886
-  tps: 612.69364
+  dps: 540.50459
+  tps: 511.58523
  }
 }
 dps_results: {
@@ -1171,9 +1171,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2633.67462
-  tps: 2559.76014
-  dtps: 8.64887
+  dps: 2243.04121
+  tps: 2168.1071
+  dtps: 9.0045
  }
 }
 dps_results: {
@@ -1195,8 +1195,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-Troll-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 626.54982
-  tps: 600.27218
+  dps: 509.84333
+  tps: 482.70756
  }
 }
 dps_results: {
@@ -1216,9 +1216,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-WindshaperSkyborne-testing-Standard-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 2584.37609
-  tps: 2510.02036
-  dtps: 8.6042
+  dps: 2244.27081
+  tps: 2168.94204
+  dtps: 8.11706
  }
 }
 dps_results: {
@@ -1240,8 +1240,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-Settings-WindshaperSkyborne-testing-Standard-default-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 636.143
-  tps: 608.91464
+  dps: 509.83257
+  tps: 483.1433
  }
 }
 dps_results: {
