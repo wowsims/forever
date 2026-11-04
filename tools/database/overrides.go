@@ -1017,6 +1017,17 @@ var ConsumableDenyList = []int32{
 	23794, // Permanent Sheen of Zanza
 	23795, // Permanent Spirit of Zanza
 	23796, // Permanent Swiftness of Zanza
+	// End of Beta event elixirs and scrolls
+	289082, // Elixir of Endless Intellect
+	289083, // Elixir of Endless Power
+	289084, // Elixir of Endless Healing
+	289086, // Elixir of Endless Rapidity
+	289087, // Elixir of Endless Opportunity
+	289088, // Scroll of Endless Fortitude
+	289321, // Elixir of Endless Mana
+	289329, // Elixir of Endless Growth
+	289330, // Scroll of Endless Speed
+	289334, // Elixir of Endless Experience
 	// Mage familiar summons, which the settings leave out
 	275069, // Scroll of Rat Familiar
 	277483, // Scroll of Frog Familiar
