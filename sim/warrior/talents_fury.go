@@ -363,7 +363,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: recklessSwingsEnergize.ID})
 	rage := recklessSwingsEnergize.EnergizeEffect().Tenths()
 	// The row's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
-	healthCost := warrior.GetBaseStats()[stats.Health] * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
+	healthCost := warrior.BaseHealth() * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
@@ -378,7 +378,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 	config := spelldata.SpellConfig(&warrior.Unit, recklessSwingsRank, spelldata.Flags(core.SpellFlagAPL))
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		warrior.RemoveHealth(sim, healthCost)
+		warrior.SpendHealth(sim, healthCost, spell.HealthMetrics(&warrior.Unit))
 		aura.Activate(sim)
 		aura.SetStacks(sim, aura.MaxStacks)
 	}

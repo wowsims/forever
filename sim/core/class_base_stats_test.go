@@ -111,6 +111,24 @@ func TestNakedWarriorHealth(t *testing.T) {
 	}
 }
 
+// Base health is the class base plus the base Stamina's health, the first 20 points at 1 each and the
+// rest at 10, which is also a naked character's maximum health.
+func TestBaseHealthCountsTheBaseStamina(t *testing.T) {
+	for _, race := range []proto.Race{proto.Race_RaceOrc, proto.Race_RaceHuman} {
+		t.Run(race.String(), func(t *testing.T) {
+			character, sheet := nakedSheet(t, proto.Class_ClassWarrior, race)
+			base := core.BaseStats[core.BaseStatsKey{Race: race, Class: proto.Class_ClassWarrior}]
+			want := base[stats.Health] + 20 + (base[stats.Stamina]-20)*10
+			if got := character.BaseHealth(); got != want {
+				t.Errorf("base health %v, want %v", got, want)
+			}
+			if got := character.BaseHealth(); got != sheet[stats.Health] {
+				t.Errorf("base health %v, want the naked sheet's %v", got, sheet[stats.Health])
+			}
+		})
+	}
+}
+
 func TestNakedAttackPowerPerClass(t *testing.T) {
 	for _, tc := range []struct {
 		class       proto.Class

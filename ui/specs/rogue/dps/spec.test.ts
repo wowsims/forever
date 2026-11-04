@@ -6,8 +6,9 @@ import { describe, expect, it } from 'vitest';
 
 import spec from './spec';
 
-const generate = (simple: Partial<Rogue_Rotation>) =>
-	APLRotation.toJson(spec.simpleRotation!({} as Player<Spec.SpecRogue>, Rogue_Rotation.create(simple), Cooldowns.create()));
+const generateRotation = (simple: Partial<Rogue_Rotation>) =>
+	spec.simpleRotation!({} as Player<Spec.SpecRogue>, Rogue_Rotation.create(simple), Cooldowns.create());
+const generate = (simple: Partial<Rogue_Rotation>) => APLRotation.toJson(generateRotation(simple));
 
 // Every spell id the rotation names.
 const spellIds = (json: unknown): Array<number> => {
@@ -38,6 +39,14 @@ describe('Rogue simple rotation', () => {
 		expect(count(book, backstabBook)).toBeGreaterThan(0);
 		expect(count(book, eviscerateBook)).toBeGreaterThan(0);
 		expect(count(book, backstabTrainer) + count(book, eviscerateTrainer)).toBe(0);
+	});
+
+	it('sets the Start In Stealth variable from the configurable input', () => {
+		const rotation = generateRotation({ startInStealth: true });
+		expect(rotation.valueVariables.find(variable => variable.name === 'Start In Stealth')?.value?.value).toEqual({
+			oneofKind: 'const',
+			const: { val: 'true' },
+		});
 	});
 
 	it.each([

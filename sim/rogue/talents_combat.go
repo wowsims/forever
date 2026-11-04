@@ -9,8 +9,8 @@ import (
 
 func (rogue *Rogue) registerCombatTalents() {
 	// Tier 1
-	rogue.registerImprovedEviscerate()
-	rogue.registerImprovedSinisterStrike()
+	rogue.registerCoupDeGrace()
+	rogue.registerEfficientStrikes()
 	rogue.registerLightningReflexes()
 
 	// Tier 2
@@ -20,31 +20,33 @@ func (rogue *Rogue) registerCombatTalents() {
 
 	// Tier 3
 	rogue.registerRiposte()
+	// Composure modeled in poised.go
 
 	// Tier 4
 	// Improved Kick NYI
 	rogue.registerFlawlessExecution()
-	rogue.registerDualWieldSpecialization()
+	rogue.registerWeaponExpertise()
+	rogue.registerAggression()
 
 	// Tier 5
+	rogue.registerDualWieldSpecialization()
 	rogue.registerBladeFlurry()
 	rogue.registerHackAndSlash()
 
 	// Tier 6
-	rogue.registerWeaponExpertise()
-	rogue.registerAggression()
+	rogue.registerFlashOfSteel()
 
 	// Tier 7
 	rogue.registerAdrenalineRush()
 }
 
-func (rogue *Rogue) registerImprovedSinisterStrike() {
-	if rogue.Talents.ImprovedSinisterStrike == 0 {
+func (rogue *Rogue) registerEfficientStrikes() {
+	if rogue.Talents.EfficientStrikes == 0 {
 		return
 	}
 
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedSinisterStrike.Rank(rogue.Talents.ImprovedSinisterStrike))
+		spellData.EfficientStrikes.Rank(rogue.Talents.EfficientStrikes))
 }
 
 func (rogue *Rogue) registerLightningReflexes() {
@@ -136,6 +138,16 @@ func (rogue *Rogue) registerFlawlessExecution() {
 
 	spelldata.ParseStatic(&rogue.Character,
 		spellData.FlawlessExecution.Rank(1))
+}
+
+// The cooldown only: the energy is Shank's second effect, which shank.go raises.
+func (rogue *Rogue) registerFlashOfSteel() {
+	if rogue.Talents.FlashOfSteel == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&rogue.Character,
+		spellData.FlashOfSteel.Rank(rogue.Talents.FlashOfSteel), spelldata.Effects(2))
 }
 
 func (rogue *Rogue) registerDualWieldSpecialization() {

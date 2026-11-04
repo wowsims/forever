@@ -8658,6 +8658,16 @@
 						"rogue": {
 							"type": "object",
 							"properties": {
+								"start_in_stealth": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label"]
+								},
 								"use_backstab": {
 									"type": "object",
 									"properties": {
@@ -8740,6 +8750,7 @@
 							},
 							"additionalProperties": false,
 							"required": [
+								"start_in_stealth",
 								"use_backstab",
 								"use_expose_armor",
 								"use_backstab_rank_9",
