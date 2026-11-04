@@ -12,8 +12,8 @@ func (shaman *Shaman) registerLightningBoltSpell() {
 }
 
 // The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
-func (shaman *Shaman) newLightningBoltSpellConfig(row, rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
-	config, damage := shaman.newElectricSpellConfig(row, rank)
+func (shaman *Shaman) newLightningBoltSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {
+	config, damage := shaman.newElectricSpellConfig(row, overload == nil)
 	config.ClassSpellMask = SpellMaskLightningBolt
 	if overload == nil {
 		config.ClassSpellMask = SpellMaskLightningBoltOverload
