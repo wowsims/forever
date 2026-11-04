@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+reaction_time 250 1.5ms
+channel_clip_delay -5ms 10ms
+tanks player1 2

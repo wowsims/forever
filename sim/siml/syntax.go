@@ -287,6 +287,7 @@ type fieldEntryStmt struct {
 	stmtBase
 	name   name
 	values []node
+	max    node // A literal right after the first value, with no comma between: a duration's max (SPEC.md §5.2).
 }
 
 type messageEntryStmt struct {
@@ -1281,6 +1282,9 @@ func (p *parser) entry() stmt {
 		return &messageEntryStmt{name: t.name(), args: args}
 	}
 	s := &fieldEntryStmt{name: t.name(), values: []node{p.term(entryEnds)}}
+	if p.peekKind(0, tokNumber) {
+		s.max = p.operand()
+	}
 	for p.acceptPunct(",") {
 		s.values = append(s.values, p.term(entryEnds))
 	}

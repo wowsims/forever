@@ -298,6 +298,7 @@ const LINE_BY_KIND: { [K in CombatLog['kind']]: ComponentType<{ log: LogOfKind<K
 	'cast-failed': CastFailedLine,
 	'cast-pushback': CastPushbackLine,
 	'stat-change': StatChangeLine,
+	movement: DefaultLine,
 	'resource-group': ResourceGroupLine,
 	cast: CastLine,
 	plain: DefaultLine,

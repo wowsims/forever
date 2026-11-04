@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+reaction_time 350ms 150ms
+reaction_time_max_ms 150
+channel_clip_delay none

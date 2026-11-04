@@ -9,14 +9,13 @@ import { Icon } from '@ui-kit/Icon';
 import { NOTICE_COLOR } from '@ui-kit/Notice';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSimResult } from '../../hooks/useSimResult';
+import { useHeldSimResult } from '../../hooks/useHeldSimResult';
 import { buildRotationModel } from '../../model/timeline/rotation';
 import { chartSpec } from './chart/build';
 import { TimelineChart } from './chart/TimelineChart';
 import { ChartViewPicker } from './ChartViewPicker';
 import { RotationTrack } from './rotation/RotationTrack';
 import type { ChartView } from './utils';
-import { resultKey } from './utils';
 
 export interface TimelineProps {
 	/** The timeline tab is open. While it is not, a finished run is held rather than drawn. */
@@ -24,19 +23,11 @@ export interface TimelineProps {
 }
 
 export const Timeline = ({ active }: TimelineProps) => {
-	const live = useSimResult();
-	const [shown, setShown] = useState<ReturnType<typeof useSimResult>>(null);
+	const shown = useHeldSimResult(active);
 	const [view, setView] = useState<ChartView>('rotation');
 	// GCD spans are model rows and model items, not a CSS overlay: a row hidden with display still
 	// owns its height in the windower's prefix sums. So the toggle rebuilds the model.
 	const [showGcd, setShowGcd] = useState(false);
-
-	// Two emits carrying the same run under the same filter draw the same timeline, so the result the
-	// view holds only changes when its key does — which is what keeps a re-emit from rebuilding the model.
-	useEffect(() => {
-		if (!active || !live) return;
-		setShown(prev => (resultKey(prev) === resultKey(live) ? prev : live));
-	}, [active, live]);
 
 	// A cleared result still emits, with an empty raid.
 	const player = useMemo(() => (shown ? (shown.result.getRaidIndexedPlayers(shown.filter)[0] ?? null) : null), [shown]);

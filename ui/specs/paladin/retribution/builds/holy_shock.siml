@@ -8,7 +8,7 @@ settings:
   race human
   profession1 engineering
   profession2 blacksmithing
-  reaction_time_ms 100
+  reaction_time 100ms
   distance_from_target 25
 
 consumables:

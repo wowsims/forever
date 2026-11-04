@@ -110,6 +110,21 @@ func TestDocSpansInWhenBlock(t *testing.T) {
 	}
 }
 
+// The second value of a duration line spans the max it sets, under the max's path.
+func TestDocSpansTheMaxOfADuration(t *testing.T) {
+	text := textLines("siml 1", "spec hunter", "", "settings:", "  reaction_time 150ms 350ms")
+	d := Analyze("x.siml", []byte(text), corpusNames(t), nil)
+	if _, err := d.File(); err != nil {
+		t.Fatal(err)
+	}
+	if got := spanText(d, text, "player/reactionTimeMaxMs"); got != "350ms" {
+		t.Errorf("the max's span covers %q, want 350ms", got)
+	}
+	if got := spanText(d, text, ""); got != "" {
+		t.Errorf("a span with no path covers %q", got)
+	}
+}
+
 func TestDocWithErrors(t *testing.T) {
 	d := Analyze(splicePath, []byte(strings.Replace(docText, "rapid_fire", "rapid_fir", 1)), corpusNames(t), nil)
 	if _, err := d.File(); err == nil {

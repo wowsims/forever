@@ -29,4 +29,4 @@ gear:
 
   bonus_stats(stats(agility=5))
 
-simple: time_to_weave 400
+simple: pull_range 30
