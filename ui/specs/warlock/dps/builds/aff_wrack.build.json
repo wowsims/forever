@@ -106,7 +106,8 @@
         250335,
         13454,
         250337,
-        250347
+        250347,
+        9264
       ],
       "mhWeaponImbueId": 13603,
       "resourcePotId": 13444
@@ -118,14 +119,13 @@
     "warlock": {
       "options": {
         "classOptions": {
-          "summon": "Succubus",
           "armor": "DemonArmor",
-          "curseOptions": "Elements",
+          "sacrificedDemon": "Imp",
           "soulShards": 32
         }
       }
     },
-    "talentsString": "25300020135201351--0550005003",
+    "talentsString": "25500020135201351-0050203001-05",
     "profession1": "Engineering",
     "profession2": "Tailoring",
     "rotation": {
