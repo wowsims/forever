@@ -73,6 +73,7 @@ func (paladin *Paladin) applyRedoubt() {
 		ActionID:  core.ActionID{SpellID: rank.ID},
 		Duration:  rank.Duration(),
 		MaxStacks: int32(rank.ProcCharges),
+		MenuGroup: menuPaladinTank,
 	}).AttachStatBuff(
 		stats.BlockPercent, spellData.Redoubt.ValueAt(paladin.Talents.Redoubt),
 	).AttachProcTrigger(core.ProcTrigger{
@@ -200,6 +201,7 @@ func (paladin *Paladin) applyReckoning() {
 	critChance := blockChance * 2.5
 
 	stored := paladin.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label("Reckoning"+paladin.Label)))
+	stored.MenuGroup = menuPaladinTank
 	gain := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		stored.Activate(sim)
 		stored.AddStack(sim)
@@ -272,9 +274,10 @@ func (paladin *Paladin) applyIronCreed() {
 	multiplier := spellData.IronCreed.Effect(dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, 0).MultiplierAt(paladin.Talents.IronCreed)
 
 	ironCreed := paladin.RegisterAura(core.Aura{
-		Label:    "Iron Creed" + paladin.Label,
-		ActionID: core.ActionID{SpellID: rank.ID},
-		Duration: rank.Duration(),
+		Label:     "Iron Creed" + paladin.Label,
+		ActionID:  core.ActionID{SpellID: rank.ID},
+		Duration:  rank.Duration(),
+		MenuGroup: menuPaladinTank,
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
 	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
@@ -311,6 +314,7 @@ func (paladin *Paladin) applyShieldsworn() {
 	spelldata.ParseStatic(&paladin.Character, spellData.Shieldsworn.Rank(1))
 
 	spellBlock := paladin.RegisterAura(spelldata.AuraConfig(spellData.ShieldswornTriggered.Highest()))
+	spellBlock.MenuGroup = menuPaladinTank
 	spellBlock.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		paladin.PseudoStats.CanBlockSpells = true
 	})

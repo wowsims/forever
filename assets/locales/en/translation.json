@@ -2350,7 +2350,12 @@
 				"stealth": "Stealth",
 				"bear": "Bear",
 				"utility": "Utility",
-				"druid": "Druid"
+				"druid": "Druid",
+				"seals": "Seals",
+				"damage": "Damage",
+				"heals": "Heals",
+				"paladin_auras": "Auras",
+				"paladin": "Paladin"
 			},
 			"item_swap_sets": {
 				"main": "Main",

@@ -8273,6 +8273,21 @@
 								},
 								"druid": {
 									"type": "string"
+								},
+								"seals": {
+									"type": "string"
+								},
+								"damage": {
+									"type": "string"
+								},
+								"heals": {
+									"type": "string"
+								},
+								"paladin_auras": {
+									"type": "string"
+								},
+								"paladin": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -8324,7 +8339,12 @@
 								"stealth",
 								"bear",
 								"utility",
-								"druid"
+								"druid",
+								"seals",
+								"damage",
+								"heals",
+								"paladin_auras",
+								"paladin"
 							]
 						},
 						"item_swap_sets": {

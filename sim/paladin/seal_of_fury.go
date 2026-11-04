@@ -58,9 +58,10 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	var pendingShield float64
 	shield := paladin.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
 		Aura: core.Aura{
-			Label:    fmt.Sprintf("Seal of Fury Shield%s Rank %d", paladin.Label, rank.RankNumber()),
-			ActionID: core.ActionID{SpellID: rank.ID}.WithTag(1),
-			Duration: sealDuration,
+			Label:     fmt.Sprintf("Seal of Fury Shield%s Rank %d", paladin.Label, rank.RankNumber()),
+			ActionID:  core.ActionID{SpellID: rank.ID}.WithTag(1),
+			Duration:  sealDuration,
+			MenuGroup: menuPaladinSeals,
 		},
 		ShieldStrengthCalculator: func(_ *core.Unit) float64 {
 			return pendingShield
