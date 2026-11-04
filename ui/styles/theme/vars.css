@@ -47,4 +47,9 @@
 	/* Table */
 	--table-row-even-bg: var(--color-table-even);
 	--table-row-odd-bg: var(--color-table-odd);
+
+	/* Movement view: its canvases read these off their own computed style */
+	--movement-dead-zone-opacity: 0.12;
+	--movement-tether-opacity: 0.35;
+	--movement-pet-path-opacity: 0.8;
 }

@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+// The full names take numbers with no unit, and the max goes on a line of its own.
+reaction_time_ms 150
+reaction_time_max_ms 350
+in_front_of_target, channel_clip_delay_ms=20

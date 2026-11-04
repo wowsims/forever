@@ -21,6 +21,7 @@ export const useCurrentSettings = () => {
 			subscribePlayerField(host.player, 'profession2'),
 			subscribePlayerField(host.player, 'itemSwap'),
 			subscribePlayerField(host.player, 'reactionTime'),
+			subscribePlayerField(host.player, 'reactionTimeMax'),
 			subscribePlayerField(host.player, 'channelClipDelay'),
 			subscribePlayerField(host.player, 'inFrontOfTarget'),
 			subscribePlayerField(host.player, 'distanceFromTarget'),

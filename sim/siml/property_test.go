@@ -83,7 +83,7 @@ func setSample(t *testing.T, ix *schemaIndex, m protoreflect.Message, f *field, 
 		switch f.Printed {
 		case "bool":
 			return protoreflect.ValueOfBool(true)
-		case "number", "map":
+		case "number", "duration", "map":
 			return sampleNumber(f.desc)
 		case "string":
 			return protoreflect.ValueOfString("Sample")
@@ -263,10 +263,15 @@ func TestEveryValueKind(t *testing.T) {
 	}
 }
 
-// The entry form SPEC.md §12.2 gives a field set alone in its section, as the line or lines it prints.
-func entryForm(f *field) *regexp.Regexp {
+// The entry form SPEC.md §12.2 gives a field set alone in its section, as the line or lines it prints; a duration's
+// max is the second value of a line of its duration, min, which is then 0ms.
+func entryForm(f *field, min *field) *regexp.Regexp {
 	n := regexp.QuoteMeta(f.Siml)
 	switch {
+	case min != nil:
+		return regexp.MustCompile(`^` + regexp.QuoteMeta(min.Siml) + ` 0ms \d+ms$`)
+	case f.Printed == "duration":
+		return regexp.MustCompile(`^` + n + ` \d+ms$`)
 	case f.Type == itemSpecName:
 		return regexp.MustCompile(`^head +\w+ \w+ \+ \w+\nneck +\w+ \w+ \+ \w+$`)
 	case topWords[f.Siml]:
@@ -356,7 +361,8 @@ func TestEverySectionField(t *testing.T) {
 		for _, spec := range specs {
 			t.Run(def.Name+"/"+string(spec.Field.Name()), func(t *testing.T) {
 				names := corpusNames(t)
-				for _, p := range ix.sectionFields(def, &spec) {
+				fields := ix.sectionFields(def, &spec)
+				for _, p := range fields {
 					settings := sectionSample(t, ix, def, &spec, p)
 					text := Print(Kind{}, spec.Spec, settings, nil, names)
 					f, err := Parse("", text, names, nil)
@@ -366,7 +372,11 @@ func TestEverySectionField(t *testing.T) {
 					if got, want := Normalize(f.Settings, names, spec.Spec), Normalize(settings, names, spec.Spec); !googleProto.Equal(got, want) {
 						t.Errorf("%s reads back differently\n%s\ngot:  %s\nwant: %s", p.Siml, text, protojson.Format(got), protojson.Format(want))
 					}
-					if body, form := sectionBody(string(text), def.Name), entryForm(p.field); !form.MatchString(body) {
+					var min *field
+					if m := minField(p, fields); m != nil {
+						min = m.field
+					}
+					if body, form := sectionBody(string(text), def.Name), entryForm(p.field, min); !form.MatchString(body) {
 						t.Errorf("%s prints as %q, which is not of the form %s", p.Siml, body, form)
 					}
 				}

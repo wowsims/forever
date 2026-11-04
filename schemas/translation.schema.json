@@ -1718,6 +1718,22 @@
 					"additionalProperties": false,
 					"required": ["title", "message", "download_button"]
 				},
+				"new_build": {
+					"type": "object",
+					"properties": {
+						"title": {
+							"type": "string"
+						},
+						"message": {
+							"type": "string"
+						},
+						"reload_button": {
+							"type": "string"
+						}
+					},
+					"additionalProperties": false,
+					"required": ["title", "message", "reload_button"]
+				},
 				"crash_modal": {
 					"type": "object",
 					"properties": {
@@ -1841,6 +1857,7 @@
 				"basic_bis_disclaimer",
 				"healing_sim_disclaimer",
 				"notice_native_download",
+				"new_build",
 				"crash_modal",
 				"unlaunched",
 				"notifications",
@@ -2574,6 +2591,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"input_delay_max": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"channel_clip_delay": {
 							"type": "object",
 							"properties": {
@@ -3291,6 +3321,7 @@
 					"required": [
 						"title",
 						"input_delay",
+						"input_delay_max",
 						"channel_clip_delay",
 						"in_front_of_target",
 						"distance_from_target",
@@ -9038,6 +9069,21 @@
 								},
 								"druid": {
 									"type": "string"
+								},
+								"seals": {
+									"type": "string"
+								},
+								"damage": {
+									"type": "string"
+								},
+								"heals": {
+									"type": "string"
+								},
+								"paladin_auras": {
+									"type": "string"
+								},
+								"paladin": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
@@ -9089,7 +9135,12 @@
 								"stealth",
 								"bear",
 								"utility",
-								"druid"
+								"druid",
+								"seals",
+								"damage",
+								"heals",
+								"paladin_auras",
+								"paladin"
 							]
 						},
 						"item_swap_sets": {
@@ -9703,19 +9754,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"time_to_weave": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"use_aimed": {
 									"type": "object",
 									"properties": {
@@ -9812,7 +9850,6 @@
 							"required": [
 								"playstyle",
 								"pull_range",
-								"time_to_weave",
 								"use_aimed",
 								"use_multi",
 								"use_arcane",
@@ -10349,6 +10386,89 @@
 								"gcd_tooltip"
 							]
 						},
+						"movement": {
+							"type": "object",
+							"properties": {
+								"note": {
+									"type": "string"
+								},
+								"no_walks": {
+									"type": "string"
+								},
+								"field_label": {
+									"type": "string"
+								},
+								"play": {
+									"type": "string"
+								},
+								"pause": {
+									"type": "string"
+								},
+								"speed_label": {
+									"type": "string"
+								},
+								"speed": {
+									"type": "string"
+								},
+								"time_label": {
+									"type": "string"
+								},
+								"time": {
+									"type": "string"
+								},
+								"unit": {
+									"type": "string"
+								},
+								"cast": {
+									"type": "string"
+								},
+								"zones": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"dead_zone": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "dead_zone", "ranged"]
+								},
+								"rings": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "ranged"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"note",
+								"no_walks",
+								"field_label",
+								"play",
+								"pause",
+								"speed_label",
+								"speed",
+								"time_label",
+								"time",
+								"unit",
+								"cast",
+								"zones",
+								"rings"
+							]
+						},
 						"logs": {
 							"type": "object",
 							"properties": {
@@ -10634,12 +10754,15 @@
 								"timeline": {
 									"type": "string"
 								},
+								"movement": {
+									"type": "string"
+								},
 								"log": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "log"]
+							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "movement", "log"]
 						},
 						"columns": {
 							"type": "object",
@@ -11094,6 +11217,7 @@
 						"pets",
 						"damage",
 						"timeline",
+						"movement",
 						"logs",
 						"tabs",
 						"columns",

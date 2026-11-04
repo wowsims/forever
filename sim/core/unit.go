@@ -65,7 +65,10 @@ type Unit struct {
 
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
-	ReactionTime time.Duration
+	ReactionTime    time.Duration
+	reactionTimeMax time.Duration // Above the reaction the settings give, ReactionTime is drawn evenly between the two.
+	reactionTimeMin time.Duration // The reaction the settings give.
+	reactionDrawnAt time.Duration // The instant ReactionTime was drawn at.
 
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
@@ -215,6 +218,7 @@ type Unit struct {
 
 	// The currently-channeled DOT spell, otherwise nil.
 	ChanneledDot       *Dot
+	endedChannel       *Dot // The channel a lookahead reads the rotation without; its aura reads as down meanwhile.
 	channelEndHandlers []func(sim *Simulation, dot *Dot)
 
 	// Data about the most recently queued spell, otherwise nil.
@@ -927,6 +931,7 @@ func (unit *Unit) finalize() {
 	if unit.ReactionTime == 0 {
 		panic("Unset unit.ReactionTime")
 	}
+	unit.reactionTimeMin = unit.ReactionTime
 
 	unit.defaultTarget = unit.CurrentTarget
 	unit.applyParryHaste()
@@ -976,6 +981,10 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	if unit.reactionTimeMax > unit.reactionTimeMin {
+		unit.ReactionTime = (unit.reactionTimeMin + unit.reactionTimeMax) / 2
+		unit.reactionDrawnAt = NeverExpires
+	}
 	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()

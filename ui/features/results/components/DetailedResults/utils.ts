@@ -18,6 +18,7 @@ export const DETAILED_RESULTS_TABS: ReadonlyArray<DetailedResultsTabConfig> = [
 	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', groupsRanks: true, breaksDownApm: true },
 	{ id: 'resourcesTab', labelKey: 'results_tab.details.tabs.resources' },
 	{ id: 'timelineTab', labelKey: 'results_tab.details.tabs.timeline' },
+	{ id: 'movementTab', labelKey: 'results_tab.details.tabs.movement' },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 

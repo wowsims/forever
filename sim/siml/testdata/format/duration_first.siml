@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+settings:
+  reaction_time_max_ms 350
+
+  race orc
+  reaction_time 150ms

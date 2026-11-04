@@ -295,8 +295,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 707.05929
-  tps: 570.57427
+  dps: 707.64397
+  tps: 571.04201
   dtps: 8.41762
   hps: 7.27415
  }
@@ -376,8 +376,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 684.2102
-  tps: 552.61985
+  dps: 684.48998
+  tps: 552.84367
   dtps: 8.41762
   hps: 7.27415
  }
@@ -448,8 +448,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EyeofMoam-21473"
  value: {
-  dps: 667.01115
-  tps: 539.25332
+  dps: 667.03992
+  tps: 539.27634
   dtps: 8.59798
   hps: 7.32839
  }
@@ -510,8 +510,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 658.74294
-  tps: 532.17704
+  dps: 658.73524
+  tps: 532.17088
   dtps: 8.30436
   hps: 7.33233
  }
@@ -803,8 +803,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 688.29943
-  tps: 556.08181
+  dps: 688.83589
+  tps: 556.51097
   dtps: 8.31601
   hps: 7.23525
  }
@@ -812,8 +812,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 684.379
-  tps: 553.07756
+  dps: 681.51275
+  tps: 550.78456
   dtps: 8.31601
   hps: 7.19695
  }
@@ -848,8 +848,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 704.21365
-  tps: 568.55726
+  dps: 704.13681
+  tps: 568.49579
   dtps: 8.31601
   hps: 7.19695
  }
@@ -909,8 +909,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 670.85898
-  tps: 542.48286
+  dps: 670.33017
+  tps: 542.05981
   dtps: 8.4479
   hps: 7.27415
  }
@@ -927,8 +927,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 678.60769
-  tps: 548.47828
+  dps: 678.22338
+  tps: 548.17082
   dtps: 8.31601
   hps: 7.19695
  }
@@ -1005,8 +1005,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 853.68609
-  tps: 706.40869
+  dps: 853.03344
+  tps: 705.88658
   dtps: 8.38536
   hps: 9.58808
  }
@@ -1014,8 +1014,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 665.40788
-  tps: 536.35408
+  dps: 664.92052
+  tps: 535.96419
   dtps: 8.5065
   hps: 7.19695
  }
@@ -1023,8 +1023,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 686.00343
-  tps: 533.78377
+  dps: 684.13192
+  tps: 532.28656
   dtps: 13.63388
   hps: 7.34267
  }
@@ -1032,24 +1032,24 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 483.573
-  tps: 429.09191
+  dps: 483.35254
+  tps: 428.91554
   hps: 7.2004
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 379.14595
-  tps: 332.7033
+  dps: 378.93433
+  tps: 332.534
   hps: 5.93508
  }
 }
 dps_results: {
  key: "TestAffliction-Settings-Orc-preraid-Affliction-sm_ruin-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 380.63594
-  tps: 315.50297
+  dps: 379.73456
+  tps: 314.78187
   hps: 5.3201
  }
 }

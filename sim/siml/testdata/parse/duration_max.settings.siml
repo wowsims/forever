@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+// A max with no duration; the printer writes it reaction_time 0ms 350ms.
+reaction_time_max_ms 350
+channel_clip_delay 1m30s

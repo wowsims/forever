@@ -990,10 +990,15 @@ func (r *contextReader) entry(def *sectionDef) {
 		r.flags(def, f)
 		return
 	}
-	for {
+	for first := true; ; first = false {
 		r.need(r.fieldWants(f, nil, nil)...)
 		r.single(f, nil, nil)
 		r.need()
+		// A literal right after the first value is a duration's max (SPEC.md §5.2).
+		if first && r.tok().kind == tokNumber {
+			r.skipTerm()
+			r.need()
+		}
 		r.take(",")
 	}
 }

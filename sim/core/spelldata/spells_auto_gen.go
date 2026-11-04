@@ -32137,11 +32137,6 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1231980, SpellID: 1236217, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1236676, Name: "Ensemble: Stillwater Fisher Attire", School: 32, Attr: [17]uint32{0: 0x100, 13: 0x2000000}, SpellLevel: 60, BaseLevel: 60,
-		Effects: []Effect{
-			{ID: 1363692, SpellID: 1236676, Type: dbcenums.E_LEARN_TRANSMOG_SET, BaseLevel: 60, PvpMult: 1, Misc: 4558, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-			{ID: 1363693, SpellID: 1236676, Index: 1, Type: dbcenums.E_QUEST_COMPLETE, BaseLevel: 60, PvpMult: 1, Misc: 90930, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
 	{ID: 1237152, Name: "Spellstone", Rank: "Rank 1", School: 4, Attr: [17]uint32{0: 0x40000, 2: 0x2000, 15: 0x2000}, SpellLevel: 28, CastTimeMs: 3000, InterruptFlags: 15, EquipClass: 2, EquipInvType: 2236416, RefIDs: []int32{1237162}, ProcHint: core.ProcHintNamedAbility,
 		Effects: []Effect{
 			{ID: 1233755, SpellID: 1237152, Type: dbcenums.E_360, BasePoints: 100, SPCoef: 1, PvpMult: 1, Misc: 8059, ChainAmp: 1},
@@ -36629,7 +36624,7 @@ var generatedSpells = []Spell{
 		Reagents: []Reagent{{Item: 14047, Count: 40}, {Item: 248698, Count: 1}}},
 	{ID: 1316697, Name: "Wrack", Rank: "Rank 1", School: 32, Attr: [17]uint32{0: 0x10000, 1: 0x4004, 8: 0x200, 13: 0x80, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 60, DurationMs: 6000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{1: 262144}}, InterruptFlags: 15, ChannelInterrupt: [2]uint32{0: 0x7c0c}, Labels: []int16{19},
 		Effects: []Effect{
-			{ID: 1349556, SpellID: 1316697, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 36, BaseLevel: 40, MaxLevel: 60, SPCoef: 0.14300000667572021, PvpMult: 1, Amplitude: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1349556, SpellID: 1316697, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 36, PPL: 2.5, BaseLevel: 40, MaxLevel: 60, SPCoef: 0.28600001335144043, PvpMult: 1, Amplitude: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1349557, SpellID: 1316697, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, BasePoints: 10, BaseLevel: 40, MaxLevel: 60, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 1026}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 200}}},
@@ -37147,6 +37142,55 @@ var generatedSpells = []Spell{
 			{ID: 1365007, SpellID: 1326891, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 15, BaseLevel: 40, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 131808, 1: 4096}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1365008, SpellID: 1326891, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 15, BaseLevel: 40, SPCoef: 1, PvpMult: 1, Misc: 22, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 128, 1: 4096}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1327736, Name: "Elixir of Endless Intellect", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DurationMs: 3600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1366382, SpellID: 1327736, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 2, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1327737, Name: "Elixir of Endless Power", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DurationMs: 3600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1366383, SpellID: 1327737, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, BasePoints: 3, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1327738, Name: "Elixir of Endless Healing", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DurationMs: 3600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
+		Effects: []Effect{
+			{ID: 1366384, SpellID: 1327738, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_HEALING_DONE_PERCENT, BasePoints: 2, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1327751, Name: "Elixir of Endless Rapidity", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DurationMs: 3600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1366399, SpellID: 1327751, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MELEE_SLOW, BasePoints: 4, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1327753, Name: "Elixir of Endless Opportunity", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DurationMs: 3600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1366402, SpellID: 1327753, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CRIT_PCT, BasePoints: 4, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1327754, Name: "Scroll of Endless Fortitude", School: 1, Attr: [17]uint32{0: 0x28000000, 1: 0x800, 15: 0x2000}, DurationMs: 3600000, ExcludeCasterAura: 17,
+		Effects: []Effect{
+			{ID: 1366404, SpellID: 1327754, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_PERCENT_STAT, BasePoints: 10, PvpMult: 1, RadiusMax: 40, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 30}},
+		}},
+	{ID: 1327991, Name: "Call Anathema", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 1000, CategoryCooldownMs: 60000, Category: 1160, InterruptFlags: 15,
+		Effects: []Effect{
+			{ID: 1366762, SpellID: 1327991, Type: dbcenums.E_SUMMON_CHANGE_ITEM, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1},
+		}},
+	{ID: 1327993, Name: "Call Benediction", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 1000, CategoryCooldownMs: 60000, Category: 1160, InterruptFlags: 15,
+		Effects: []Effect{
+			{ID: 1366764, SpellID: 1327993, Type: dbcenums.E_SUMMON_CHANGE_ITEM, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1},
+		}},
+	{ID: 1328032, Name: "Elixir of Endless Mana", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, SpellLevel: 30, DurationMs: 3600000,
+		Effects: []Effect{
+			{ID: 1366821, SpellID: 1328032, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_POWER_REGEN_PERCENT, BasePoints: 30, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1328118, Name: "Elixir of Endless Growth", School: 1, Attr: [17]uint32{15: 0x2000}, DurationMs: 600000, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1366962, SpellID: 1328118, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SCALE, BasePoints: 30, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1328119, Name: "Scroll of Endless Speed", School: 1, Attr: [17]uint32{0: 0x28000000, 1: 0x800, 15: 0x2000}, DurationMs: 30000,
+		Effects: []Effect{
+			{ID: 1366963, SpellID: 1328119, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_SPEED, BasePoints: 50, PvpMult: 1, RadiusMax: 40, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 30}},
+		}},
+	{ID: 1328127, Name: "Elixir of Endless Experience", School: 1, Attr: [17]uint32{15: 0x2000}, DurationMs: 3600000,
+		Effects: []Effect{
+			{ID: 1366971, SpellID: 1328127, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_XP_PCT, BasePoints: 200, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1366972, SpellID: 1328127, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_XP_QUEST_PCT, BasePoints: 200, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 1328198, Name: "Echo of Light", School: 1, Attr: [17]uint32{0: 0x10, 14: 0x100, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 15000, MaxStack: 3, ProcChance: 101, AuraInterrupt: [2]uint32{0: 0x4a0000}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1367072, SpellID: 1328198, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 40, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -37628,7 +37672,7 @@ var generatedCurves = map[int32][][]float64{
 	417051:  {{1, 2, 3, 4, 5}, {20, 40, 60, 80, 100}},
 	425280:  {{2, 4, 6, 8, 10}, {-1000, -2000, -3000, -4000, -5000}},
 	426065:  {{-500, -1000}},
-	426316:  {{4, 8, 12, 16, 20}, {20, 40, 60, 80, 100}, {2, 4, 6, 8, 10}, {2, 4, 6, 8, 10}},
+	426316:  {{4, 8, 12, 16, 20}, {20, 40, 60, 80, 100}, {4, 8, 12, 16, 20}, {4, 8, 12, 16, 20}},
 	427712:  {{33, 67, 100}},
 	429144:  {{-10, -20}, {-17, -33}},
 	431622:  {{5, 10, 15}},

@@ -69,6 +69,7 @@
 						"prof1_rank",
 						"prof2_rank",
 						"reaction_time_ms",
+						"reaction_time_max_ms",
 						"channel_clip_delay_ms",
 						"in_front_of_target",
 						"distance_from_target",

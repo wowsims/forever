@@ -467,6 +467,11 @@
 			"message": "You can download our local sim to speed up your simulations significantly?",
 			"download_button": "Download"
 		},
+		"new_build": {
+			"title": "New version",
+			"message": "A new version of the sim is out. Reload the page to use it.",
+			"reload_button": "Reload"
+		},
 		"crash_modal": {
 			"title": "Extra Crash Information",
 			"header": "Please append the following complete link to the issue you just created. This will simplify debugging the issue."
@@ -702,6 +707,10 @@
 			"input_delay": {
 				"label": "Input Delay",
 				"tooltip": "Player input delay, in milliseconds. Specifies the maximum delay on actions that cannot be spell queued, such as spell casts that are waiting on resource gains or waiting for a cooldown to expire. Also used with certain APL values (such as 'Aura Is Active With Reaction Time'). Roughly models the sum of reaction time + server latency."
+			},
+			"input_delay_max": {
+				"label": "Slowest Input Delay",
+				"tooltip": "The slowest the player reacts, in milliseconds. Above the Input Delay, each reaction is drawn evenly between the two, since a player is a little faster or slower every time. 0 keeps every reaction at the Input Delay."
 			},
 			"channel_clip_delay": {
 				"label": "Channel Clip Delay",
@@ -2545,7 +2554,12 @@
 				"stealth": "Stealth",
 				"bear": "Bear",
 				"utility": "Utility",
-				"druid": "Druid"
+				"druid": "Druid",
+				"seals": "Seals",
+				"damage": "Damage",
+				"heals": "Heals",
+				"paladin_auras": "Auras",
+				"paladin": "Paladin"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -2714,10 +2728,6 @@
 				"pull_range": {
 					"label": "Pull range (yd)",
 					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, 13.2 yd when weaving, melee range in melee), stopping for each Auto Shot you can fire on the way."
-				},
-				"time_to_weave": {
-					"label": "Time to weave (ms)",
-					"tooltip": "How long, in milliseconds, you stay in melee after the weave swing before walking back out. Never shorter than your input delay."
 				},
 				"use_aimed": {
 					"label": "Use Aimed Shot",
@@ -2902,6 +2912,28 @@
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
 			},
+			"movement": {
+				"note": "Shows the same single iteration as the timeline. Distances are to the target, and each unit has a bearing of its own so the circles stay apart.",
+				"no_walks": "No unit walked in this run.",
+				"field_label": "The player and pets around the target",
+				"play": "Play",
+				"pause": "Pause",
+				"speed_label": "Playback speed",
+				"speed": "{{speed}}×",
+				"time_label": "Time",
+				"time": "{{time}} s",
+				"unit": "{{name}}: {{yards}} yd",
+				"cast": "{{name}} {{time}} s",
+				"zones": {
+					"melee": "In melee range",
+					"dead_zone": "In the dead zone",
+					"ranged": "At range"
+				},
+				"rings": {
+					"melee": "melee {{yards}} yd",
+					"ranged": "ranged {{yards}} yd"
+				}
+			},
 			"logs": {
 				"top_button": "Top",
 				"export_button": "Export Log",
@@ -2979,6 +3011,7 @@
 				"casts": "Casts",
 				"resources": "Resources",
 				"timeline": "Timeline",
+				"movement": "Movement",
 				"log": "Log"
 			},
 			"columns": {
@@ -3448,6 +3481,10 @@
 			"results_timeline": {
 				"title": "Timeline",
 				"body": "One fight laid out over time: casts, buffs and resources."
+			},
+			"results_movement": {
+				"title": "Movement",
+				"body": "Where you and your pets stood around the target over one fight, with a slider to scrub through it."
 			},
 			"results_log": {
 				"title": "Log",

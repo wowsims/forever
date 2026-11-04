@@ -1278,6 +1278,54 @@ func TestValueAuraReactionTime(t *testing.T) {
 	}
 }
 
+// With a reaction range, each rotation pass reads its own reaction, evenly spread across the range, and a second look
+// at the same instant reads the same one; the next iteration starts back in the middle of it. Without a range the
+// reaction stays the setting.
+func TestReactionRangeDrawsOnEachRotationPass(t *testing.T) {
+	const low, high = 150 * time.Millisecond, 350 * time.Millisecond
+	for _, top := range []time.Duration{0, high} {
+		request := fakeRageSimRequest()
+		request.Raid.Parties[0].Players[0].ReactionTimeMs = int32(low.Milliseconds())
+		request.Raid.Parties[0].Players[0].ReactionTimeMaxMs = int32(top.Milliseconds())
+		sim, fw, rot := setupFakeRageRotationFrom(request, func(*Character) {})
+		inputDelay := rot.newValueInputDelay(&proto.APLValueInputDelay{}, nil)
+		want := low
+		if top != 0 {
+			want = (low + high) / 2
+		}
+
+		const passes = 2000
+		var sum time.Duration
+		seen := map[time.Duration]bool{}
+		for i := range passes {
+			sim.CurrentTime = time.Duration(i+1) * 10 * time.Second
+			rot.DoNextAction(sim)
+			got := inputDelay.GetDuration(sim)
+			if got < low || got > max(low, top) {
+				t.Fatalf("up to %v: pass %d reads %v, want %v to %v", top, i, got, low, max(low, top))
+			}
+			rot.DoNextAction(sim) // another event at the same instant, as an Auto Shot's swing follows its damage
+			if again := inputDelay.GetDuration(sim); again != got {
+				t.Fatalf("up to %v: pass %d reads %v, and a second look at the same instant %v", top, i, got, again)
+			}
+			sum += got
+			seen[got] = true
+		}
+		if mean := sum / passes; (mean - want).Abs() > 10*time.Millisecond {
+			t.Errorf("up to %v: the passes average %v, want about %v", top, mean, want)
+		}
+		if top != 0 && len(seen) < passes/2 {
+			t.Errorf("up to %v: the passes read only %d different reactions", top, len(seen))
+		}
+
+		sim.Cleanup()
+		sim.Reset()
+		if fw.ReactionTime != want {
+			t.Errorf("up to %v: the next iteration starts on %v, want %v", top, fw.ReactionTime, want)
+		}
+	}
+}
+
 func TestValueAuraNumStacksFollowsCurrentTarget(t *testing.T) {
 	request := fakeRageSimRequest()
 	request.Encounter.Targets = append(request.Encounter.Targets, &proto.Target{Name: "second target", Level: 63, MobType: proto.MobType_MobTypeHumanoid, SwingSpeed: 2})

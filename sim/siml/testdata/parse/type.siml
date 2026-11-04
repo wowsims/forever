@@ -4,4 +4,4 @@ spec hunter
 apl: type auto
 
 simple:
-  time_to_weave 400
+  pull_range 30

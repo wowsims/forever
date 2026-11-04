@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+reaction_time_ms   150 // both values on this line
+// stays where the max was
+reaction_time_max_ms 350 // and this one on a line of its own
+channel_clip_delay_ms 1000
+distance_from_target 12

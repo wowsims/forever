@@ -21,6 +21,7 @@ export const readSavedSettings = (host: IndividualSimHost<any>): SavedSettings =
 		enableItemSwap: host.player.itemSwapSettings.getEnableItemSwap(),
 		itemSwap: host.player.itemSwapSettings.toProto(),
 		reactionTimeMs: host.player.getReactionTime(),
+		reactionTimeMaxMs: host.player.getReactionTimeMax(),
 		channelClipDelayMs: host.player.getChannelClipDelay(),
 		inFrontOfTarget: host.player.getInFrontOfTarget(),
 		distanceFromTarget: host.player.getDistanceFromTarget(),
@@ -43,6 +44,7 @@ export const applySavedSettings = (host: IndividualSimHost<any>, settings: Saved
 		host.player.setRace(settings.race);
 		host.player.setProfessions(settings.professions);
 		host.player.setReactionTime(settings.reactionTimeMs);
+		host.player.setReactionTimeMax(settings.reactionTimeMaxMs);
 		host.player.setChannelClipDelay(settings.channelClipDelayMs);
 		host.player.setInFrontOfTarget(settings.inFrontOfTarget);
 		host.player.setDistanceFromTarget(settings.distanceFromTarget);
