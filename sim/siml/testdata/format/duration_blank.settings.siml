@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+reaction_time 150ms
+
+reaction_time_max_ms 350
+
+distance_from_target 12

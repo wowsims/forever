@@ -9,6 +9,9 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   and the lines that need `Spell Is Casting` are `docs/rotation.md`.** `sim/core/apl_values_aura.go`, PR #640.
 - **Include Reaction Time delays every aura change the same way, the unit's own casts included; during a hardcast the
   cast's own aura reads as landed instead.** `sim/core/apl_values_aura.go`, PR #638, PR #640.
+- **An APL value reads `unit.ReactionTime` when it runs, never a copy taken when the rotation is built: with a reaction
+  range (`reaction_time_max_ms`) each rotation pass draws a new one.** `sim/core/gcd.go` `drawReactionTime`,
+  `sim/core/apl_values_aura.go`, PR #848.
 - **`Is Hit Capped` and `Is Expertise Capped` are per spell, current target only and yes or no: melee caps at the
   special-attack soft cap without the dual-wield penalty, the table follows the spell's `DefenseType` (proc mask for
   none), auto shots roll the ranged table, and the 1e-9 tolerance stays in the APL values.**

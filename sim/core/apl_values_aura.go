@@ -65,7 +65,6 @@ type APLValueAuraIsActive struct {
 	DefaultAPLValueImpl
 	unit                *Unit
 	aura                AuraReference
-	reactionTime        time.Duration
 	includeReactionTime bool
 }
 
@@ -80,7 +79,6 @@ func (rot *APLRotation) newValueAuraIsActive(config *proto.APLValueAuraIsActive,
 	return &APLValueAuraIsActive{
 		unit:                rot.unit,
 		aura:                aura,
-		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
 	}
 }
@@ -88,18 +86,18 @@ func (value *APLValueAuraIsActive) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueAuraIsActive) GetBool(sim *Simulation) bool {
-	return value.unit.auraReadsActive(sim, value.aura.Get(), value.reactionTime, value.includeReactionTime)
+	return value.unit.auraReadsActive(sim, value.aura.Get(), value.includeReactionTime)
 }
 func (value *APLValueAuraIsActive) String() string {
 	return fmt.Sprintf("Aura Active(%s)", value.aura.String())
 }
 
-func (unit *Unit) auraReadsActive(sim *Simulation, aura *Aura, reactionTime time.Duration, includeReactionTime bool) bool {
+func (unit *Unit) auraReadsActive(sim *Simulation, aura *Aura, includeReactionTime bool) bool {
 	reading := unit.readAura(sim, aura)
 	if reading.landing || !includeReactionTime {
 		return reading.active
 	}
-	return reading.active && aura.TimeActive(sim) >= reactionTime
+	return reading.active && aura.TimeActive(sim) >= unit.ReactionTime
 }
 
 // The aura with one id on each target, read on the targets that are up, each copy as Aura Is Active reads it.
@@ -133,7 +131,7 @@ func (rot *APLRotation) newTargetAuras(auraId *proto.ActionID, includeReactionTi
 }
 func (value *targetAuras) isActiveOn(sim *Simulation, target *Unit) bool {
 	aura := value.auras.Get(target)
-	return aura != nil && value.unit.auraReadsActive(sim, aura, value.unit.ReactionTime, value.includeReactionTime)
+	return aura != nil && value.unit.auraReadsActive(sim, aura, value.includeReactionTime)
 }
 
 type APLValueAuraIsActiveOnAllTargets struct {
@@ -194,7 +192,6 @@ type APLValueAuraIsInactive struct {
 	DefaultAPLValueImpl
 	unit                *Unit
 	aura                AuraReference
-	reactionTime        time.Duration
 	includeReactionTime bool
 }
 
@@ -210,7 +207,6 @@ func (rot *APLRotation) newValueAuraIsInactive(config *proto.APLValueAuraIsInact
 	return &APLValueAuraIsInactive{
 		unit:                rot.unit,
 		aura:                aura,
-		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
 	}
 }
@@ -223,7 +219,7 @@ func (value *APLValueAuraIsInactive) GetBool(sim *Simulation) bool {
 		return !reading.active
 	}
 	if value.includeReactionTime {
-		return !aura.IsActive() && aura.TimeInactive(sim) >= value.reactionTime
+		return !aura.IsActive() && aura.TimeInactive(sim) >= value.unit.ReactionTime
 	}
 	return !aura.IsActive()
 }
@@ -264,7 +260,6 @@ type APLValueAuraNumStacks struct {
 	DefaultAPLValueImpl
 	unit                *Unit
 	aura                AuraReference
-	reactionTime        time.Duration
 	includeReactionTime bool
 
 	stackHistories []auraStackHistory // Indexed by UnitIndex, one per unit the aura reference can resolve to.
@@ -293,7 +288,6 @@ func (rot *APLRotation) newValueAuraNumStacks(config *proto.APLValueAuraNumStack
 	value := &APLValueAuraNumStacks{
 		unit:                rot.unit,
 		aura:                aura,
-		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
 		stackHistories:      make([]auraStackHistory, len(rot.unit.Env.AllUnits)),
 	}
@@ -305,7 +299,7 @@ func (rot *APLRotation) newValueAuraNumStacks(config *proto.APLValueAuraNumStack
 	for _, unitAura := range auras {
 		unitAura.ApplyOnStacksChange(func(aura *Aura, sim *Simulation, oldStacks int32, newStacks int32) {
 			history := &value.stackHistories[aura.Unit.UnitIndex]
-			if sim.CurrentTime-history.stackUpdateTime >= value.reactionTime {
+			if sim.CurrentTime-history.stackUpdateTime >= value.unit.ReactionTime {
 				history.previousStacks = oldStacks
 			}
 			history.stackUpdateTime = sim.CurrentTime
@@ -333,7 +327,7 @@ func (value *APLValueAuraNumStacks) GetInt(sim *Simulation) int32 {
 	}
 	history := &value.stackHistories[aura.Unit.UnitIndex]
 	if value.includeReactionTime {
-		return TernaryInt32(sim.CurrentTime-history.stackUpdateTime >= value.reactionTime, history.stacks, history.previousStacks)
+		return TernaryInt32(sim.CurrentTime-history.stackUpdateTime >= value.unit.ReactionTime, history.stacks, history.previousStacks)
 	}
 	return history.stacks
 }
@@ -370,8 +364,8 @@ func (value *APLValueAuraInternalCooldown) String() string {
 
 type APLValueAuraICDIsReady struct {
 	DefaultAPLValueImpl
+	unit                *Unit
 	aura                AuraReference
-	reactionTime        time.Duration
 	includeReactionTime bool
 }
 
@@ -384,8 +378,8 @@ func (rot *APLRotation) newValueAuraICDIsReady(config *proto.APLValueAuraICDIsRe
 		return nil
 	}
 	return &APLValueAuraICDIsReady{
+		unit:                rot.unit,
 		aura:                aura,
-		reactionTime:        rot.unit.ReactionTime,
 		includeReactionTime: config.IncludeReactionTime,
 	}
 }
@@ -395,7 +389,7 @@ func (value *APLValueAuraICDIsReady) Type() proto.APLValueType {
 func (value *APLValueAuraICDIsReady) GetBool(sim *Simulation) bool {
 	aura := value.aura.Get()
 	if value.includeReactionTime {
-		return aura.Icd.IsReady(sim) || (aura.IsActive() && aura.TimeActive(sim) < value.reactionTime)
+		return aura.Icd.IsReady(sim) || (aura.IsActive() && aura.TimeActive(sim) < value.unit.ReactionTime)
 	}
 	return aura.Icd.IsReady(sim)
 }

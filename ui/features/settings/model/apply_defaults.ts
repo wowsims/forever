@@ -96,6 +96,7 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.setDistanceFromTarget(config.defaults.other?.distanceFromTarget || 0);
 		player.setChannelClipDelay(config.defaults.other?.channelClipDelay || 0);
 		player.setReactionTime(config.defaults.other?.reactionTime || 100);
+		player.setReactionTimeMax(config.defaults.other?.reactionTimeMax || 0);
 		// A spec whose defaults come from defaults.siml states where it stands, its dummies and its tanks there.
 		const fromFile = !!config.defaults.settings;
 		if (fromFile) player.setInFrontOfTarget(!!config.defaults.other?.inFrontOfTarget);

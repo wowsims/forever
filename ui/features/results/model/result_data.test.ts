@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import type { SimResultData } from '../../model/result_data';
-import { resultKey } from './utils';
+import { resultKey, type SimResultData } from './result_data';
 
 const result = (requestId: string, filter: unknown) => ({ result: { request: { requestId } }, filter }) as SimResultData;
 

@@ -55,6 +55,6 @@ debuffs:
 sim: iterations 25000
 
 simple:
-  time_to_weave 400
+  pull_range 30
   use_multi, use_arcane
   playstyle weave

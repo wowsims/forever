@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+// A duration field drops its _ms and takes whole milliseconds; its _max_ms is the line's second duration.
+reaction_time 150ms 350ms
+channel_clip_delay 1.5s
