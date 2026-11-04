@@ -12,7 +12,7 @@ type auraReading struct {
 	active    bool
 	remaining time.Duration
 	stacks    int32
-	landing   bool // Read as the unit's running hardcast leaves it when it lands.
+	landing   bool // Read as the unit's own cast leaves it: its running hardcast landed, or the channel the clip guard ends.
 }
 
 func (unit *Unit) readAura(sim *Simulation, aura *Aura) auraReading {
@@ -32,8 +32,13 @@ func readDot(sim *Simulation, dot *Dot) auraReading {
 
 // While the unit hardcasts the aura's own spell on the aura's unit, the rotation reads the aura as if the
 // cast had landed at the cast end: up for duration from then and, for a stacking aura, with one more
-// stack up to its maximum, or one. Any other aura, a proc the cast triggers among them, reads as it is.
+// stack up to its maximum, or one. While the clip guard reads the rotation with the running channel
+// ended, the channel's aura reads as down. Any other aura, a proc the cast triggers among them, reads as
+// it is.
 func (unit *Unit) readLanding(sim *Simulation, aura *Aura, duration func() time.Duration) auraReading {
+	if rot := unit.Rotation; rot != nil && rot.endedChannel != nil && aura == rot.endedChannel.Aura {
+		return auraReading{landing: true}
+	}
 	hc := &unit.Hardcast
 	if !unit.hardcastRuns(sim) || hc.IsChanneled || hc.Target != aura.Unit || hc.ActionID.IsEmptyAction() ||
 		!hc.ActionID.SameActionIgnoreTag(aura.ActionID) {

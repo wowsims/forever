@@ -55,6 +55,9 @@ type APLRotation struct {
 	// If true, can recast channel when interrupted.
 	allowChannelRecastOnInterrupt bool
 
+	// The running channel the clip guard reads the rotation without; its aura reads as down meanwhile.
+	endedChannel *Dot
+
 	// Used inside of actions/value to determine whether they will occur during the prepull or regular rotation.
 	parsingPrepull bool
 
@@ -726,59 +729,58 @@ func (apl *APLRotation) popControllingAction(ca APLActionImpl) {
 	apl.controllingActions = apl.controllingActions[:len(apl.controllingActions)-1]
 }
 
-// nextActionWouldRecastChannel reports whether the same channeled spell would be
-// the first action cast if the channel ended right now. Run inside withChannelEnded,
-// so it evaluates the APL in the post-channel state (ChanneledDot = nil) and
-// channel-state-dependent conditions don't produce stale results.
-//
-// Uses CanCast rather than CanCastOrQueue so that a proc-queued spell in the
-// same timestep does not incorrectly block a same-spell re-cast from being
-// detected.
+// Whether the channel's own spell would be the first action cast if the channel ended right now. Run
+// inside withChannelEnded, so the conditions read the channel as ended.
 func (apl *APLRotation) nextActionWouldRecastChannel(sim *Simulation, channeledDot *Dot) bool {
-	channeledSpell := channeledDot.Spell
+	_, recasts := apl.firstActionRecasts(sim, apl.priorityList, channeledDot.Spell)
+	return recasts
+}
 
-	for _, action := range apl.priorityList {
+// Walks actions as the rotation would, a referenced group's actions in the reference's place, to the
+// first one that would run: found says there is one, recasts that it casts the channel's spell. A cast
+// is read with CanCast rather than CanCastOrQueue, so a spell queued for the GCD's end does not end the
+// channel before then; it fires after the channel's next tick. Autocast Other Cooldowns fires its
+// cooldowns beside the rotation and is passed over.
+func (apl *APLRotation) firstActionRecasts(sim *Simulation, actions []*APLAction, channeled *Spell) (found, recasts bool) {
+	for _, action := range actions {
 		if action.condition != nil && !action.condition.GetBool(sim) {
 			continue
 		}
 
-		if castAction, ok := action.impl.(*APLActionCastSpell); ok {
-			canCast := castAction.spell.CanCast(sim, castAction.target.Get())
-			if castAction.spell == channeledSpell || castAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
+		var spell *Spell
+		var target UnitReference
+		switch impl := action.impl.(type) {
+		case *APLActionCastSpell:
+			spell, target = impl.spell, impl.target
+		case *APLActionChannelSpell:
+			spell, target = impl.spell, impl.target
+		case *APLActionAutocastOtherCooldowns:
+			continue
+		case *APLActionGroupReference:
+			if impl.group == nil {
+				continue
 			}
-			// Use CanCast (not CanCastOrQueue) so SQW-queued spells don't
-			// prematurely interrupt — they'll fire after the channel's next tick.
-			if canCast {
-				return false
+			if found, recasts = apl.firstActionRecasts(sim, impl.group.actions, channeled); found {
+				return found, recasts
+			}
+			continue
+		default:
+			if action.impl.IsReady(sim) {
+				return true, false
 			}
 			continue
 		}
 
-		if channelAction, ok := action.impl.(*APLActionChannelSpell); ok {
-			canCast := channelAction.spell.CanCast(sim, channelAction.target.Get())
-			if channelAction.spell == channeledSpell || channelAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
-			}
-			if canCast {
-				return false
-			}
-			continue
+		canCast := spell.CanCast(sim, target.Get())
+		if spell == channeled || spell.Matches(channeled.ClassSpellMask) {
+			return true, canCast
 		}
-
-		// autocast_other_cooldowns fires off-GCD MCDs alongside the main rotation —
-		// never blocks same-spell detection.
-		if _, ok := action.impl.(*APLActionAutocastOtherCooldowns); ok {
-			continue
-		}
-
-		// A different non-spell action is fully ready — it would be cast first.
-		if action.impl.IsReady(sim) {
-			return false
+		if canCast {
+			return true, false
 		}
 	}
 
-	return false
+	return false, false
 }
 
 func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
@@ -801,11 +803,14 @@ func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
 	return true
 }
 
-// Runs evaluate as if the channel had ended, with no ChanneledDot, which it restores after.
+// Runs evaluate as if the channel had ended, with no ChanneledDot and the channel's aura read as down,
+// which it restores after.
 func (apl *APLRotation) withChannelEnded(evaluate func()) {
 	dot := apl.unit.ChanneledDot
 	apl.unit.ChanneledDot = nil
+	apl.endedChannel = dot
 	evaluate()
+	apl.endedChannel = nil
 	apl.unit.ChanneledDot = dot
 }
 
