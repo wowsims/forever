@@ -61,12 +61,20 @@ type MajorCooldown struct {
 	// automatic timing.
 	ShouldActivate CooldownActivationCondition
 
+	// Autocast Other Cooldowns uses it only at a timing set in the cooldown settings; otherwise only the APL casts it.
+	DisableAutocast bool
+
 	// Fixed timings at which to use this cooldown. If these are specified, they
 	// are used instead of ShouldActivate.
 	timings []time.Duration
 
 	// Number of times this MCD was used so far in the current iteration.
 	numUsages int
+}
+
+// Whether Autocast Other Cooldowns can still cast it: at a timing not yet used, or on its own.
+func (mcd *MajorCooldown) autocasts() bool {
+	return mcd.numUsages < len(mcd.timings) || !mcd.DisableAutocast
 }
 
 func (mcd *MajorCooldown) ReadyAt() time.Duration {
@@ -229,6 +237,10 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 	if mcdm.character.Env.IsFinalized() {
 		panic("Major cooldowns may not be added once finalized!")
 	}
+	// The tank rule below reads the raid's tank slots, which the environment fills during construction.
+	if mcdm.character.Env.State < Constructed {
+		panic("Major cooldowns may not be added before the environment is constructed!")
+	}
 	if mcd.Spell == nil {
 		panic("Major cooldown must have a Spell!")
 	}
@@ -243,18 +255,14 @@ func (mcdm *majorCooldownManager) AddMajorCooldown(mcd MajorCooldown) {
 		mcd.Spell.Flags |= SpellFlagReactive
 	}
 
-	// A defensive cooldown that adds no damage or mana fires on its own only for a tank; a timing or
-	// an APL action still uses it for anyone.
+	// A defensive cooldown that adds no damage or mana goes on its own only for a tank; a timing or an APL
+	// action still uses it for anyone.
+	defensiveOnly := mcd.Type.Matches(CooldownTypeSurvival) && !mcd.Type.Matches(CooldownTypeDPS|CooldownTypeMana)
+	if defensiveOnly && !mcdm.character.isTank {
+		mcd.DisableAutocast = true
+	}
 	if mcd.ShouldActivate == nil {
-		if mcd.Type.Matches(CooldownTypeSurvival) && !mcd.Type.Matches(CooldownTypeDPS|CooldownTypeMana) {
-			mcd.ShouldActivate = func(_ *Simulation, character *Character) bool {
-				return character.isTank
-			}
-		} else {
-			mcd.ShouldActivate = func(sim *Simulation, character *Character) bool {
-				return true
-			}
-		}
+		mcd.ShouldActivate = func(_ *Simulation, _ *Character) bool { return true }
 	}
 
 	mcdm.initialMajorCooldowns = append(mcdm.initialMajorCooldowns, mcd)
@@ -365,7 +373,7 @@ func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldo
 
 	gcdLeft := mcdm.character.GCD.TimeToReady(sim)
 	for _, mcd := range mcdm.majorCooldowns {
-		if !mcd.IsReady(sim) {
+		if !mcd.autocasts() || !mcd.IsReady(sim) {
 			continue
 		}
 		// Explicitly check for GCD because MCDs are usually desired to be cast immediately
@@ -393,15 +401,14 @@ func (mcdm *majorCooldownManager) getFirstReadyMCD(sim *Simulation) *MajorCooldo
 	return nil
 }
 
-// Re-sorts the cooldowns and caches the earliest ready time. Autocast calls it after each use, and
-// anything else that changes a major cooldown's ready time must call it too.
+// Re-sorts the cooldowns and caches the earliest time autocast can use one. Autocast calls it after each
+// use, and anything else that changes a major cooldown's ready time must call it too.
 func (mcdm *majorCooldownManager) UpdateMajorCooldowns() {
-	if len(mcdm.majorCooldowns) == 0 {
-		mcdm.minReady = NeverExpires
-		return
-	}
 	mcdm.sort()
-	mcdm.minReady = mcdm.majorCooldowns[0].ReadyAt()
+	mcdm.minReady = NeverExpires
+	if i := slices.IndexFunc(mcdm.majorCooldowns, (*MajorCooldown).autocasts); i >= 0 {
+		mcdm.minReady = mcdm.majorCooldowns[i].ReadyAt()
+	}
 }
 
 func (mcdm *majorCooldownManager) sort() {

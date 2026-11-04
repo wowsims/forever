@@ -271,7 +271,7 @@ func TestAdaptiveBearPotionSelection(t *testing.T) {
 			rot.PrepullActions = nil
 			rot.PriorityList = slices.DeleteFunc(rot.PriorityList, func(row *proto.APLListItem) bool {
 				id := row.Action.GetCastSpell().GetSpellId().GetOtherId()
-				return id != proto.OtherAction_OtherActionDefensivePotion && id != proto.OtherAction_OtherActionOffensivePotion && row.Action.GetAutocastOtherCooldowns() == nil
+				return id != proto.OtherAction_OtherActionDefensivePotion && id != proto.OtherAction_OtherActionOffensivePotion
 			})
 			req := bearRequest(rot, 1)
 			player := req.Raid.Parties[0].Players[0]

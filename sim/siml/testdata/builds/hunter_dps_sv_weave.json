@@ -115,7 +115,7 @@
 				}
 			}
 		},
-		"talentsString": "-00530501114-550200030050220151",
+		"talentsString": "-00530501114-530200230050220151",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {
@@ -1078,32 +1078,6 @@
 						},
 						{
 							"action": {
-								"condition": {
-									"and": {
-										"vals": [
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"variableRef": {
-															"name": "Time to walk in"
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "0s"
-														}
-													}
-												}
-											},
-											{
-												"variableRef": {
-													"name": "Weave fits"
-												}
-											}
-										]
-									}
-								},
 								"wait": {
 									"duration": {
 										"min": {

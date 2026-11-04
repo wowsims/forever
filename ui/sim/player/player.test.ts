@@ -156,7 +156,7 @@ describe('Player.getRandomSuffixes', () => {
 
 describe('Player.getResolvedAplRotationForBuild', () => {
 	const SPEC = PlayerSpecs.DpsWarrior;
-	const LIVE = '30305001102';
+	const LIVE = '30303001102';
 	const LIVE_TALENTS = playerTalentStringToProto(SPEC, LIVE);
 	const LIVE_GEAR = new Gear({});
 	const OTHER_GEAR = new Gear({ [ItemSlot.ItemSlotBack]: new EquippedItem({ item: Item.create({ id: 30 }) }) });

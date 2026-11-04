@@ -31,7 +31,7 @@ func (shaman *Shaman) stormstrikeDebuffAura(target *core.Unit) *core.Aura {
 	return aura
 }
 
-// Effect 1 is a main-hand strike for normalized weapon damage.
+// Effect 1 is a main-hand strike for normalized weapon damage, which effect 3's weapon percent scales.
 func (shaman *Shaman) registerStormstrikeSpell() {
 	shaman.StormstrikeDebuffAuras = shaman.NewEnemyAuraArray(shaman.stormstrikeDebuffAura)
 

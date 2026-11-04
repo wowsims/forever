@@ -380,17 +380,13 @@ describe('CharacterStats tank rows', () => {
 
 const MELEE_HIT_DISPLAY_STATS = [UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent), UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeCritPercent)];
 
-const MELEE_HIT_STATS = new Stats()
-	.withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 3)
-	.withPseudoStat(PseudoStat.PseudoStatMainHandHitRating, 30)
-	.withPseudoStat(PseudoStat.PseudoStatOffHandHitPercent, 2)
-	.withPseudoStat(PseudoStat.PseudoStatOffHandHitRating, 20);
+const MELEE_HIT_STATS = new Stats().withPseudoStat(PseudoStat.PseudoStatMeleeHitPercent, 3).withPseudoStat(PseudoStat.PseudoStatOffHandHitPercent, 2);
 
 // i18next is stubbed empty under vitest, so `statDisplayString` is used to compute these rather than hardcoding its output.
 const MAIN_HAND_VALUE = statDisplayString({} as never, MELEE_HIT_STATS, UnitStat.fromPseudoStat(PseudoStat.PseudoStatMeleeHitPercent), true);
 const OFF_HAND_VALUE = statDisplayString({} as never, MELEE_HIT_STATS, UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandHitPercent), true);
 
-const EVEN_HANDS_STATS = MELEE_HIT_STATS.withPseudoStat(PseudoStat.PseudoStatOffHandHitPercent, 3).withPseudoStat(PseudoStat.PseudoStatOffHandHitRating, 30);
+const EVEN_HANDS_STATS = MELEE_HIT_STATS.withPseudoStat(PseudoStat.PseudoStatOffHandHitPercent, 3);
 
 const renderMeleeHitRow = (dualWielding: boolean, stats = MELEE_HIT_STATS) => {
 	const { rows } = renderSheet({

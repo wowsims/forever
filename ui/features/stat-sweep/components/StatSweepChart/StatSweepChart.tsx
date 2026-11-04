@@ -3,6 +3,7 @@ import { AXIS_GRID_COLOR, cssVarColor } from '@features/results/components/Timel
 import type { ResultMetric } from '@features/results/model/topline_metrics';
 import i18n from '@i18n/config';
 import type { StatSweepPoint } from '@sim/cache/stat_sweep_history';
+import type { UnitStat } from '@sim/proto/stats';
 import type { StatSweepMetric } from '@sim/state/sim_store';
 import { distinct } from '@sim/utils/collections';
 import { formatToNumber } from '@sim/utils/format';
@@ -12,11 +13,13 @@ import type { ChartData, ChartDataset, ChartOptions, Plugin } from 'chart.js';
 import { Suspense, useMemo } from 'react';
 
 import { Line } from '../../../../shared/lazy_charts';
+import { sweepHasTotal } from '../../model/stat_sweep';
 
 export interface StatSweepSeries {
 	id: string;
 	label: string;
 	colorSlot: number;
+	unitStat: UnitStat;
 	statLabel: string;
 	/** The swept stat's total when the run started. */
 	baseStatValue: number;
@@ -36,7 +39,7 @@ export interface StatSweepChartProps {
 	onShowSpreadChange: (showSpread: boolean) => void;
 }
 
-type SweepDatum = { x: number; y: number; stdev: number; point: StatSweepPoint; statLabel: string; capped: boolean };
+type SweepDatum = { x: number; y: number; stdev: number; point: StatSweepPoint; unitStat: UnitStat; statLabel: string; capped: boolean };
 
 // `id` is `${run.id}:${role}`, by which the chart keeps each dataset's state across updates.
 type SweepDataset = ChartDataset<'line', SweepDatum[]> & { id: string; role: 'upper' | 'lower' | 'line'; runId: string };
@@ -79,7 +82,15 @@ function datasets(series: ReadonlyArray<StatSweepSeries>, metric: StatSweepMetri
 			run.points.map(point => {
 				const x = point.offset;
 				const { avg, stdev } = point.metrics[metric];
-				return { x, y: avg + sign * stdev, stdev, point, statLabel: run.statLabel, capped: run.capped !== undefined && x >= run.capped.offset };
+				return {
+					x,
+					y: avg + sign * stdev,
+					stdev,
+					point,
+					unitStat: run.unitStat,
+					statLabel: run.statLabel,
+					capped: run.capped !== undefined && x >= run.capped.offset,
+				};
 			});
 		const edge = {
 			pointRadius: 0,
@@ -130,11 +141,14 @@ function xRange(series: ReadonlyArray<StatSweepSeries>) {
 
 const shown = (value: number) => formatToNumber(value, { useGrouping: false });
 
-const signed = (added: number) => formatToNumber(added, { signDisplay: 'exceptZero', useGrouping: false });
+const withUnit = (unitStat: UnitStat, amount: string) => (unitStat.convertDefaultUnitsToPercent(1) === null ? amount : `${amount}%`);
 
-/** The run's label, with the stat added at which more of the stat stopped changing any metric, in the stat's own units as the tooltip gives it. */
+// The points a step added with their sign, as in +20 or -10. The sign shows at 0 too, since a tooltip with no total would read a bare 0 as the total; the other texts share this format.
+const addedText = (offset: number) => formatToNumber(offset, { signDisplay: 'always', useGrouping: false });
+
+/** The run's label, with the points added at which more of the stat stopped changing any metric. */
 export const runLabel = ({ label, capped }: Pick<StatSweepSeries, 'label' | 'capped'>) =>
-	capped === undefined ? label : t('capped_label', { label, added: signed(capped.bonus) });
+	capped === undefined ? label : t('capped_label', { label, added: addedText(capped.offset) });
 
 const markerPlugin: Plugin<'line'> = {
 	id: 'statSweepMarker',
@@ -200,12 +214,15 @@ function options(series: ReadonlyArray<StatSweepSeries>, metric: StatSweepMetric
 			tooltip: {
 				filter: item => isLine(item.dataset),
 				callbacks: {
-					// One line per distinct stat total, so runs of one stat from one base value share a line.
+					// One line per distinct text, so runs of one stat that read the same share a line.
 					title: items =>
 						distinct(
 							items.map(item => {
-								const { point, statLabel } = item.raw as SweepDatum;
-								return t('tooltip_total', { stat: statLabel, total: shown(point.statValue), added: signed(point.bonus) });
+								const { point, unitStat, statLabel } = item.raw as SweepDatum;
+								const added = addedText(point.offset);
+								return sweepHasTotal(unitStat)
+									? t('tooltip_total', { stat: statLabel, total: withUnit(unitStat, shown(point.statValue)), added })
+									: t('tooltip_added', { stat: statLabel, added });
 							}),
 						),
 					label: item => {

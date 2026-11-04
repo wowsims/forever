@@ -17,7 +17,6 @@ import (
 type generatedSpellData struct {
 	AbolishDisease              spelldata.Ladder
 	AbolishDiseaseTriggered     spelldata.Ladder
-	BindingHeal                 spelldata.Ladder
 	Blackout                    spelldata.Ladder
 	BlackoutTriggered           spelldata.Ladder
 	BlessedRecovery             spelldata.Ladder
@@ -147,7 +146,6 @@ type generatedSpellData struct {
 var spellData = generatedSpellData{
 	AbolishDisease:              spelldata.Ranked(552),
 	AbolishDiseaseTriggered:     spelldata.Ranked(10872),
-	BindingHeal:                 spelldata.Ranked(401937, 1240770, 1240771, 1240772, 1240773, 1240774),
 	Blackout:                    spelldata.Ranked(15268, 15323, 15324, 15325, 15326),
 	BlackoutTriggered:           spelldata.Ranked(15269),
 	BlessedRecovery:             spelldata.Talent(27811, 3),

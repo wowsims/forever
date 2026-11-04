@@ -13,6 +13,9 @@ const (
 	dynamicAddID  int32 = 99998
 )
 
+// A despawning add dies, and the raid gets the kill at this chance unless the boss's Kill share % input sets another.
+const dynamicAddKillSharePercent = 20
+
 func addDynamicAddsAI() {
 	createDynamicAddsAIPreset()
 }
@@ -100,6 +103,12 @@ func dynamicAddsTargetInputs() []*proto.TargetInput {
 			InputType:   proto.InputType_Number,
 			NumberValue: 10,
 		},
+		{
+			Label:       "Kill share %",
+			Tooltip:     "Chance that a despawning add counts as your kill (on-kill effects).",
+			InputType:   proto.InputType_Number,
+			NumberValue: dynamicAddKillSharePercent,
+		},
 	}
 }
 
@@ -121,6 +130,7 @@ type DynamicAddsAI struct {
 	respawnTime time.Duration
 	addLifetime time.Duration
 	spawnDelay  time.Duration
+	killShare   float64 // 0..1, the chance the raid gets the kill of each despawning add.
 
 	lifeStartAt time.Duration // The start of the adds' current life, or of their next one while they are down.
 }
@@ -137,11 +147,16 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 		}
 	}
 
+	killSharePercent := float64(dynamicAddKillSharePercent)
 	if ai.isBoss && len(config.TargetInputs) >= 3 {
 		ai.addLifetime = core.DurationFromSeconds(config.TargetInputs[1].NumberValue)
 		ai.respawnTime = core.DurationFromSeconds(config.TargetInputs[0].NumberValue)
 		ai.spawnDelay = core.DurationFromSeconds(config.TargetInputs[2].NumberValue)
 	}
+	if ai.isBoss && len(config.TargetInputs) >= 4 {
+		killSharePercent = config.TargetInputs[3].NumberValue
+	}
+	ai.killShare = core.Clamp(killSharePercent/100, 0, 1)
 }
 
 func (ai *DynamicAddsAI) NextActiveAt(_ *core.Simulation) time.Duration {
@@ -199,7 +214,7 @@ func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 
 func (ai *DynamicAddsAI) despawnAdds(sim *core.Simulation) {
 	for _, addUnit := range ai.AddUnits {
-		sim.DisableTargetUnit(addUnit, true)
+		sim.Encounter.AllTargets[addUnit.Index].Die(sim, ai.killShare)
 	}
 
 	if sim.Log != nil {

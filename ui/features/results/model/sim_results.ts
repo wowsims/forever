@@ -16,7 +16,6 @@ export interface ResultMetrics {
 	dps: string;
 	dtps: string;
 	tmi: string;
-	dur: string;
 	hps: string;
 	tps: string;
 	apm: string;

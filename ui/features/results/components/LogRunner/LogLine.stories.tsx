@@ -52,7 +52,15 @@ export const CastFailed: Story = {
 };
 
 export const StatGained: Story = {
-	args: { log: { ...base, actionId: BATTLE_SHOUT, kind: 'stat-change', isGain: true, stats: '{Attack Power: 232}' } satisfies StatChangeLog as CombatLog },
+	args: {
+		log: {
+			...base,
+			actionId: BATTLE_SHOUT,
+			kind: 'stat-change',
+			isGain: true,
+			stats: '{"AttackPower": 232.000,"CritRating": 14.000,}',
+		} satisfies StatChangeLog as CombatLog,
+	},
 };
 
 export const Plain: Story = {

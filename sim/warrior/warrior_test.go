@@ -24,8 +24,8 @@ func init() {
 }
 
 // The fixtures mirror the spec suites' Default* fixtures.
-var furyTalents = "30305003-05053035052210501"
-var armsTalents = "30305213032315201-0505003004"
+var furyTalents = "30303003-050530355022100031"
+var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
 var dpsOptions = &proto.Player_DpsWarrior{
@@ -733,6 +733,47 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 		return
 	}
 	t.Fatal("the result has no Heroic Strike action")
+}
+
+// Runs the sim strictly past one spell batch, so every deferred proc due in it has fired whatever the
+// order of actions at the same time.
+func stepPastBatch(t *testing.T, sim *core.Simulation) {
+	t.Helper()
+	at := sim.CurrentTime + core.SpellBatchWindow
+	for steps := 0; sim.CurrentTime <= at; steps++ {
+		if steps > 10000 {
+			t.Fatalf("the sim did not pass %v", at)
+		}
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+		sim.Step()
+	}
+}
+
+// Victorious State hears the killing blow: a credited kill lets Victory Rush be cast, a death the
+// raid gets no kill for does not, and Victory Rush spends the buff.
+func TestAKillingBlowEnablesVictoryRush(t *testing.T) {
+	sim, war, unit := newWindowSim(t)
+	target := sim.Encounter.AllTargets[0]
+	victorious := war.VictoryRush.RelatedSelfBuff
+
+	target.Die(sim, 0)
+	stepPastBatch(t, sim)
+	if victorious.IsActive() {
+		t.Error("a death with no kill credit put up Victorious")
+	}
+
+	target.Enable(sim)
+	target.Die(sim, 1)
+	stepPastBatch(t, sim)
+	target.Enable(sim)
+	if castable := war.VictoryRush.CanCast(sim, unit); !victorious.IsActive() || !castable {
+		t.Fatalf("after a killing blow Victorious is up %v and Victory Rush castable %v, want both", victorious.IsActive(), castable)
+	}
+
+	war.VictoryRush.Cast(sim, unit)
+	if victorious.IsActive() {
+		t.Error("Victory Rush left Victorious up")
+	}
 }
 
 // An engineer warrior at 100 rage with no swing running, its Cleave queue spell and aura, and the
