@@ -113,6 +113,7 @@ func newWarriorSimWithGear(debuffs *proto.Debuffs, encounter *proto.Encounter, g
 func raidDebuffFlips(t *testing.T, sim *core.Simulation, targetIndex int, sunderStacksAt time.Duration) (coe, sunder []time.Duration, stacks int32) {
 	t.Helper()
 	sim.Reset()
+	sim.PrePull()
 	target := sim.Encounter.AllTargets[targetIndex]
 	coeAura, sunderAura := target.GetAura("Curse of the Elements (External)"), target.GetAura("Sunder Armor (Player)")
 	if coeAura == nil || sunderAura == nil {
@@ -219,19 +220,11 @@ func TestDynamicAddsRaidDebuffsJitterApartFromCombatRolls(t *testing.T) {
 	}
 	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: 9449}
 	coeLandings := func(sim *core.Simulation) []time.Duration {
-		sim.Reset()
-		sim.PrePull()
-		coe := sim.Encounter.AllTargets[1].GetAura("Curse of the Elements (External)")
+		coe, _, _ := raidDebuffFlips(t, sim, 1, 0)
 		var landings []time.Duration
-		for wasOn := false; !sim.Step(); {
-			if on := coe.IsActive(); on != wasOn {
-				wasOn = on
-				if on {
-					landings = append(landings, sim.CurrentTime)
-				}
-			}
+		for i := 0; i < len(coe); i += 2 {
+			landings = append(landings, coe[i])
 		}
-		sim.Cleanup()
 		return landings
 	}
 	unarmed, armed := newSim(&proto.EquipmentSpec{}), newSim(&proto.EquipmentSpec{Items: items})
@@ -342,7 +335,7 @@ func TestRaidDebuffsOnAnAddUpFromThePull(t *testing.T) {
 
 // A second target disabled at the pull with no AI never comes in, so it holds the raid's debuffs from the reset to the
 // fight's end, Apply debuffs on or off.
-func TestRaidDebuffsHeldOnAnAddDisabledAtThePull(t *testing.T) {
+func TestRaidDebuffsDisabledOnAnAddDisabledAtThePull(t *testing.T) {
 	for name, hold := range map[string]bool{"Apply debuffs on": false, "Apply debuffs off": true} {
 		sim := newWarriorSim(raidCurseAndSunder, &proto.Encounter{
 			Duration:       60,

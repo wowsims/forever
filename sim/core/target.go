@@ -139,11 +139,6 @@ func (encounter *Encounter) removeInactiveTarget(target *Target) {
 func (encounter *Encounter) doneIteration(sim *Simulation) {
 	for _, target := range encounter.AllTargets {
 		target.doneIteration(sim)
-		target.aurasReset = false
-		// Cleared here, not at the target's reset: a target AI that resets first holds another target's debuffs
-		// before that target's own reset.
-		target.raidDebuffsHeld = false
-		target.raidDebuffsQueued = false
 	}
 }
 
@@ -170,7 +165,6 @@ type Target struct {
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
 
 	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
-	raidDebuffsQueued  bool          // Whether raidDebuffsLanding is in the pending queue.
 	raidDebuffs        []*Aura       // The target's auras with SourceExternalDebuff, gathered at their first hold or landing.
 	aurasReset         bool          // Whether the target's reset has run in this iteration.
 }
@@ -200,7 +194,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			enabled:               !options.DisabledAtStart,
 		},
 	}
-	target.raidDebuffsLanding = PendingAction{Priority: ActionPriorityDOT, OnAction: target.landRaidDebuffs}
+	target.raidDebuffsLanding = PendingAction{Priority: ActionPriorityDOT, OnAction: target.landRaidDebuffs, consumed: true}
 	defaultRaidBossLevel := int32(CharacterLevel + 3)
 	target.GCD = target.NewTimer()
 	target.RotationTimer = target.NewTimer()

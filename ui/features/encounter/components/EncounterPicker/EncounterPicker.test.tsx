@@ -48,7 +48,7 @@ describe('EncounterPickerView', () => {
 describe('EncounterPicker', () => {
 	beforeAll(() => serveDatabase());
 
-	it('shows Apply debuffs only with adds, ticked while the encounter holds no add debuffs, and the debuff delay and jitter only then', async () => {
+	it('shows Apply debuffs to adds only with adds, ticked while the encounter holds no add debuffs, and the debuff delay and jitter only then', async () => {
 		const { sim, player } = await makeIndividualSim();
 		renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player });
 		const apply = () => screen.getByRole('checkbox');

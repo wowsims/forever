@@ -10,25 +10,25 @@ import "time"
 
 // Holds or lands the raid's debuffs on each add with no Schedule. One up at the pull gets them by the encounter's
 // settings. One disabled at the pull holds them for the fight, since only an AI brings a target in later. An AI that
-// spawns adds sets their Schedule and lands their debuffs itself through LandAddRaidDebuffs.
+// spawns adds sets their Schedule and schedules their debuffs itself through ScheduleAddRaidDebuffs.
 func (encounter *Encounter) resetAddRaidDebuffs(sim *Simulation) {
 	for _, target := range encounter.AllTargets[1:] {
 		if target.Schedule != nil {
 			continue
 		}
 		if target.IsEnabled() {
-			encounter.LandAddRaidDebuffs(sim, target)
+			encounter.ScheduleAddRaidDebuffs(sim, target)
 		} else {
-			target.HoldRaidDebuffs(sim)
+			target.DisableRaidDebuffs(sim)
 		}
 	}
 }
 
-// Lands the raid's debuffs on an add entering the fight now, the encounter's delay ± its jitter later, or holds them
-// for the fight when the encounter keeps them off the adds. An AI that spawns an add calls it at each spawn.
-func (encounter *Encounter) LandAddRaidDebuffs(sim *Simulation, target *Target) {
+// Schedules the raid's debuffs on an add entering the fight now, the encounter's delay ± its jitter later, or disables
+// them for the fight when the encounter keeps them off the adds. An AI that spawns an add calls it at each spawn.
+func (encounter *Encounter) ScheduleAddRaidDebuffs(sim *Simulation, target *Target) {
 	if encounter.holdAddDebuffs {
-		target.HoldRaidDebuffs(sim)
+		target.DisableRaidDebuffs(sim)
 		return
 	}
 	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime+encounter.rollAddDebuffDelay(sim))
@@ -47,18 +47,17 @@ func (aura *Aura) isHeldRaidDebuff() bool {
 	return aura.Source == SourceExternalDebuff && aura.Unit.raidDebuffsHeld
 }
 
-// Whether the unit holds the raid's debuffs off. A raid debuff on a timer of its own checks it at each tick.
-func (unit *Unit) RaidDebuffsHeld() bool {
+// Whether the raid's debuffs are disabled on the unit. A raid debuff on a timer of its own checks it at each tick.
+func (unit *Unit) RaidDebuffsDisabled() bool {
 	return unit.raidDebuffsHeld
 }
 
 // Takes the raid's debuffs off the target and keeps them off until ApplyRaidDebuffsAt lands them, through the
-// target's reset when the hold comes during the sim's reset. A landing still to come is cancelled. Disable leaves a
-// permanent aura on, so a target AI holds the debuffs of a target it takes away.
-func (target *Target) HoldRaidDebuffs(sim *Simulation) {
-	if target.raidDebuffsQueued {
+// target's reset when the disable comes during the sim's reset. A landing still to come is cancelled. Disable leaves a
+// permanent aura on, so a target AI disables the debuffs of a target it takes away.
+func (target *Target) DisableRaidDebuffs(sim *Simulation) {
+	if !target.raidDebuffsLanding.consumed {
 		target.raidDebuffsLanding.Cancel(sim)
-		target.raidDebuffsQueued = false
 	}
 	target.raidDebuffsHeld = true
 	for _, aura := range target.raidDebuffAuras() {
@@ -71,11 +70,15 @@ func (target *Target) HoldRaidDebuffs(sim *Simulation) {
 // the sim's reset, before the target's own reset has run, it only releases the hold, and that reset puts them on, so
 // a player's Reset handler and the prepull see them.
 func (target *Target) ApplyRaidDebuffsAt(sim *Simulation, at time.Duration) {
-	target.HoldRaidDebuffs(sim)
+	// Nothing is on or queued yet, so there is nothing to hold or release.
+	if sim.isResetting && !target.aurasReset && at <= sim.CurrentTime {
+		target.raidDebuffsHeld = false
+		return
+	}
+	target.DisableRaidDebuffs(sim)
 	if at > sim.CurrentTime {
 		target.raidDebuffsLanding.NextActionAt = at
 		sim.AddPendingAction(&target.raidDebuffsLanding)
-		target.raidDebuffsQueued = true
 		return
 	}
 	if sim.isResetting && !target.aurasReset {
@@ -86,7 +89,6 @@ func (target *Target) ApplyRaidDebuffsAt(sim *Simulation, at time.Duration) {
 }
 
 func (target *Target) landRaidDebuffs(sim *Simulation) {
-	target.raidDebuffsQueued = false
 	target.raidDebuffsHeld = false
 	for _, aura := range target.raidDebuffAuras() {
 		if aura.OnReset != nil {

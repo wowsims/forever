@@ -177,7 +177,7 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 
 	for _, addTarget := range ai.AddTargets {
 		addTarget.Disable(sim, true)
-		addTarget.HoldRaidDebuffs(sim)
+		addTarget.DisableRaidDebuffs(sim)
 	}
 
 	if ai.spawnDelay > 0 {
@@ -197,7 +197,7 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 	for _, addTarget := range ai.AddTargets {
 		addTarget.Enable(sim)
-		sim.Encounter.LandAddRaidDebuffs(sim, addTarget)
+		sim.Encounter.ScheduleAddRaidDebuffs(sim, addTarget)
 	}
 
 	if sim.Log != nil {
@@ -217,7 +217,7 @@ func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 func (ai *DynamicAddsAI) despawnAdds(sim *core.Simulation) {
 	for _, addTarget := range ai.AddTargets {
 		addTarget.Die(sim, ai.killShare)
-		addTarget.HoldRaidDebuffs(sim)
+		addTarget.DisableRaidDebuffs(sim)
 	}
 
 	if sim.Log != nil {

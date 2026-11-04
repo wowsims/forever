@@ -1060,7 +1060,7 @@
 				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 35% HP)."
 			},
 			"apply_add_debuffs": {
-				"label": "Apply debuffs",
+				"label": "Apply debuffs to adds",
 				"tooltip": "Whether the adds, every target after the first, get the debuffs from the Debuffs panel. The first target always gets them. Your own debuffs land as you cast them."
 			},
 			"add_debuff_delay": {

@@ -71,12 +71,12 @@ func applyFixedShoutAura(char *core.Character, aura *core.Aura, category string)
 }
 
 // A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) runs the OnReset again, and the schedule it starts
-// replaces the one still running. A tick on a target that holds the raid's debuffs does nothing.
+// replaces the one still running. A tick on a target with the raid's debuffs disabled does nothing.
 func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
 	var schedule *core.PendingAction
 	onAction := options.OnAction
 	options.OnAction = func(sim *core.Simulation) {
-		if !aura.Unit.RaidDebuffsHeld() {
+		if !aura.Unit.RaidDebuffsDisabled() {
 			onAction(sim)
 		}
 	}

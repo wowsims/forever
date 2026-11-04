@@ -30,7 +30,7 @@ const meta = {
 		),
 		addDebuffs: (
 			<>
-				<BooleanPicker id="story-apply-add-debuffs" label="Apply debuffs" value={true} onChange={fn()} />
+				<BooleanPicker id="story-apply-add-debuffs" label="Apply debuffs to adds" value={true} onChange={fn()} />
 				{number('story-add-debuff-delay', 'Debuff delay', 0)}
 				{number('story-add-debuff-jitter', 'Debuff jitter', 0)}
 			</>

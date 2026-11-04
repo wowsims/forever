@@ -65,7 +65,7 @@ const EXECUTE_BANDS: Array<Field> = [
 
 export const executeConfigs = (): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(field);
 
-// The checkbox shows Apply debuffs, the negation of the hold the encounter stores.
+// The checkbox shows Apply debuffs to adds, the negation of the hold the encounter stores.
 export const applyAddDebuffsConfig = (): BooleanPickerConfig<Encounter> => ({
 	id: 'encounter-apply-add-debuffs',
 	label: i18n.t('settings_tab.encounter.apply_add_debuffs.label'),
