@@ -18,43 +18,37 @@ import P1SlowMhGear from './gear_sets/p1_slowmh.gear.json';
 export const TALENTS_MUTILATE_ASN = {
 	name: 'Asn Muti',
 	data: SavedTalents.create({
-		talentsString: '00532310151501031-302303202014',
-	}),
-};
-export const TALENTS_MUTILATE_COM = {
-	name: 'Combat Muti',
-	data: SavedTalents.create({
-		talentsString: '00532310101401-302303202015152-001',
+		talentsString: '00530311231251031-32030302020103-001',
 	}),
 };
 export const TALENTS_COMBAT_SS = {
 	name: 'Combat SS',
 	data: SavedTalents.create({
-		talentsString: '005323101012-32030320201515231',
+		talentsString: '00530320201-3200132202012321551',
 	}),
 };
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '00532310101-32030320201515231-002',
+		talentsString: '005203002-3203130202012321351-005',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
 	name: 'Subtlety Hemo',
 	data: SavedTalents.create({
-		talentsString: '005323101014--4323200300013211501',
+		talentsString: '00530301-320003-305230031321001151',
 	}),
 };
-export const TALENTS_SUB_BS = {
-	name: 'Subtlety BS',
+export const TALENTS_COMBAT_VENOM = {
+	name: 'Combat Venom',
 	data: SavedTalents.create({
-		talentsString: '0053031-3203-4320203300013211051',
+		talentsString: '00530320241001-320013220201232115',
 	}),
 };
 
 export const DEFAULT_APL = PresetUtils.makePresetAPLRotation('Direct APL', DefaultAPL);
 
-export const DEFAULT_SIMPLE_ROTATION = RogueRotation.create({ useBackstab: false, useExposeArmor: false });
+export const DEFAULT_SIMPLE_ROTATION = RogueRotation.create({ useBackstab: false, useExposeArmor: false, startInStealth: false });
 export const SIMPLE_ROTATION = PresetUtils.makePresetSimpleRotation('Configurable', Spec.SpecRogue, DEFAULT_SIMPLE_ROTATION);
 const SIMPLE_BACKSTAB_BUILD_ROTATION = PresetUtils.makePresetSimpleRotation(
 	'Configurable',
@@ -198,14 +192,6 @@ export const PRESET_BUILD_MUTILATE_ASN = PresetUtils.makePresetBuild('Asn Muti',
 	epWeights: EP_PRESET_ASSASSINATION,
 });
 
-export const PRESET_BUILD_MUTILATE_COM = PresetUtils.makePresetBuild('Combat Muti', {
-	talents: TALENTS_MUTILATE_COM,
-	rotation: SIMPLE_ROTATION,
-	gear: P1_MUTI_GEAR,
-	settings: IP_MH_Settings,
-	epWeights: EP_PRESET_COMBAT_DAGS,
-});
-
 export const PRESET_BUILD_COMBAT_SS = PresetUtils.makePresetBuild('Combat SS', {
 	talents: TALENTS_COMBAT_SS,
 	rotation: SIMPLE_ROTATION,
@@ -230,12 +216,12 @@ export const PRESET_BUILD_SUB_HEMO = PresetUtils.makePresetBuild('Subtlety Hemo'
 	epWeights: EP_PRESET_SUBTLETY,
 });
 
-export const PRESET_BUILD_SUB_BS = PresetUtils.makePresetBuild('Subtlety BS', {
-	talents: TALENTS_SUB_BS,
-	rotation: SIMPLE_BACKSTAB_BUILD_ROTATION,
+export const PRESET_BUILD_COM_VEN = PresetUtils.makePresetBuild('Combat Venom', {
+	talents: TALENTS_COMBAT_VENOM,
+	rotation: SIMPLE_ROTATION,
 	gear: P1_BS_SUB_GEAR,
 	settings: IP_MH_Settings,
-	epWeights: EP_PRESET_SUBTLETY,
+	epWeights: EP_PRESET_COMBAT_SINISTER,
 });
 
 export const OtherDefaults = {
