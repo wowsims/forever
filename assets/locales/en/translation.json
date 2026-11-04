@@ -1038,18 +1038,6 @@
 					"label": "Kill share %",
 					"tooltip": "Chance that a despawning add counts as your kill (on-kill effects)."
 				},
-				"apply_debuffs": {
-					"label": "Apply debuffs",
-					"tooltip": "Whether the add(s) get the debuffs from the Debuffs panel. Your own debuffs land as you cast them."
-				},
-				"debuff_delay": {
-					"label": "Debuff delay",
-					"tooltip": "Time after each spawn before the add(s) get the debuffs from the Debuffs panel (in seconds)"
-				},
-				"debuff_jitter": {
-					"label": "Debuff jitter",
-					"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds). The debuffs never land before the spawn."
-				},
 				"fear_duration": {
 					"label": "Fear Duration",
 					"tooltip": "Time (in seconds) that Fear keeps players from acting. Fear lasts 8s, but is usually broken after ~3s. Set to 0 to disable."
@@ -1070,6 +1058,18 @@
 			"execute_duration_35": {
 				"label": "Execute Duration 35 (%)",
 				"tooltip": "Percentage of the total encounter duration, for which the targets will be considered to be in execute range (< 35% HP)."
+			},
+			"apply_add_debuffs": {
+				"label": "Apply debuffs",
+				"tooltip": "Whether the adds, every target after the first, get the debuffs from the Debuffs panel. The first target always gets them. Your own debuffs land as you cast them."
+			},
+			"add_debuff_delay": {
+				"label": "Debuff delay",
+				"tooltip": "Time after an add enters the fight before it gets the debuffs from the Debuffs panel (in seconds)"
+			},
+			"add_debuff_jitter": {
+				"label": "Debuff jitter",
+				"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add each time it enters the fight (in seconds). The debuffs never land before it enters the fight."
 			},
 			"encounter_preset": {
 				"label": "Encounter",

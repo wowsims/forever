@@ -52,6 +52,9 @@ export interface EncounterSlice {
 	durationVariation: number;
 	executeProportion20: number;
 	executeProportion35: number;
+	holdAddDebuffs: boolean;
+	addDebuffDelay: number;
+	addDebuffJitter: number;
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;

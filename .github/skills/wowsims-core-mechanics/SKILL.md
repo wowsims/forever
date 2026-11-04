@@ -118,13 +118,18 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
   raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
+- **The encounter decides when the adds get the raid's debuffs** (`SourceExternalDebuff`): every target after the
+  first gets them `add_debuff_delay` ± `add_debuff_jitter` after it enters the fight, and never with
+  `hold_add_debuffs` (`proto/common.proto`); the first target, the boss, gets them at the pull. The sim's reset holds
+  or lands them on each add up at the pull that no AI spawns, before the targets reset; an AI that spawns an add calls
+  `Encounter.LandAddRaidDebuffs` at each spawn (`target_raid_debuffs.go`).
 - **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
-  walks only the auras with a duration (`aura.go`). An AI that takes a target away holds the raid's debuffs
-  (`SourceExternalDebuff`) with `Target.HoldRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`
-  (`target_raid_debuffs.go`), which runs each one's `OnReset` again, so Sunder Armor ramps up anew. A held target's
-  reset skips those `OnReset`s, and the hold clears at the iteration's end, since the boss's reset runs before its
-  add's. A landing due while the sim resets, before the target's own reset, only releases the hold, so that reset puts
-  the debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
+  walks only the auras with a duration (`aura.go`). An AI that takes a target away holds the raid's debuffs with
+  `Target.HoldRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through
+  `Encounter.LandAddRaidDebuffs` or at times of its own, which runs each one's `OnReset` again, so Sunder Armor ramps
+  up anew. A held target's reset skips those `OnReset`s, and the hold clears at the iteration's end, since the boss's
+  reset runs before its add's. A landing due while the sim resets, before the target's own reset, only releases the
+  hold, so that reset puts the debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
   `sim/core/buffs/drivers.go`) ticks nothing on a held target, and each landing replaces the schedule still running.
   A player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a

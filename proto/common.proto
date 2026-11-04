@@ -576,9 +576,6 @@ message TargetInput {
 
 	int32 enum_value = 6;
 	repeated string enum_options = 7;
-
-	// The label of the target's Bool input that shows this one while it is on; empty shows it always.
-	string shown_by = 8;
 }
 
 message Target {
@@ -648,6 +645,15 @@ message Encounter {
 
 	// The zone the area set came from, for the UI only; 0 once edited by hand.
 	int32 zone_id = 12;
+
+	// Whether every target after the first keeps the Debuffs panel's debuffs off for the whole fight. False, the zero
+	// value, puts them on each add as it enters the fight, add_debuff_delay ± add_debuff_jitter later.
+	bool hold_add_debuffs = 13;
+	// Seconds from an add entering the fight until it gets the Debuffs panel's debuffs.
+	double add_debuff_delay = 14;
+	// Seconds the delay moves at random, earlier or later, for each add each time it enters the fight. The debuffs never
+	// land before the add enters the fight.
+	double add_debuff_jitter = 15;
 }
 
 message PresetTarget {

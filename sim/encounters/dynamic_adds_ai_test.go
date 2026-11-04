@@ -21,7 +21,7 @@ func init() {
 // The add's readings follow the boss's schedule at the preset's inputs: spawn after 10 s, despawn 20 s later, respawn
 // 10 s after that. The boss stays to the fight's end.
 func TestDynamicAddsSchedule(t *testing.T) {
-	sim := newDynamicAddsSim(&proto.Debuffs{}, nil)
+	sim := newWarriorSim(&proto.Debuffs{}, dynamicAddsEncounter(nil))
 	sim.Reset()
 	boss, add := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
 
@@ -58,23 +58,33 @@ func TestDynamicAddsSchedule(t *testing.T) {
 	check("down awaiting the respawn", boss, true, 0, 150*time.Second)
 }
 
-// A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the boss's debuff
-// inputs set, and the boss's other inputs changed by setBoss when it is not nil. The warrior in the raid makes the raid's
-// Sunder the player's own aura.
+// The raid's debuffs the debuff tests tick. The warrior in the raid makes the raid's Sunder the player's own aura.
+var raidCurseAndSunder = &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
+
+// A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the encounter's
+// add debuff settings set, and the boss's inputs changed by setBoss when it is not nil.
 func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64, setBoss func(boss *proto.Target)) *core.Simulation {
-	return newDynamicAddsSim(&proto.Debuffs{CurseOfElements: true, SunderArmor: true}, func(boss *proto.Target) {
-		boss.TargetInputs[4].BoolValue = applyDebuffs
-		boss.TargetInputs[5].NumberValue = delay
-		boss.TargetInputs[6].NumberValue = jitter
-		if setBoss != nil {
-			setBoss(boss)
-		}
-	})
+	encounter := dynamicAddsEncounter(setBoss)
+	encounter.HoldAddDebuffs = !applyDebuffs
+	encounter.AddDebuffDelay = delay
+	encounter.AddDebuffJitter = jitter
+	return newWarriorSim(raidCurseAndSunder, encounter)
 }
 
-// A sim of the Dynamic Adds preset with a warrior and the raid's debuffs, and the boss changed by setBoss when it is
-// not nil.
-func newDynamicAddsSim(debuffs *proto.Debuffs, setBoss func(boss *proto.Target)) *core.Simulation {
+// The Dynamic Adds preset in a 180 s fight, the boss changed by setBoss when it is not nil.
+func dynamicAddsEncounter(setBoss func(boss *proto.Target)) *proto.Encounter {
+	boss := googleproto.Clone(core.GetPresetTargetWithID(dynamicBossID).Config).(*proto.Target)
+	if setBoss != nil {
+		setBoss(boss)
+	}
+	return &proto.Encounter{
+		Duration: 180,
+		Targets:  []*proto.Target{boss, googleproto.Clone(core.GetPresetTargetWithID(dynamicAddID).Config).(*proto.Target)},
+	}
+}
+
+// A sim of the encounter with a warrior and the raid's debuffs.
+func newWarriorSim(debuffs *proto.Debuffs, encounter *proto.Encounter) *core.Simulation {
 	player := &proto.Player{
 		Name:          "Warrior",
 		Race:          proto.Race_RaceOrc,
@@ -86,29 +96,22 @@ func newDynamicAddsSim(debuffs *proto.Debuffs, setBoss func(boss *proto.Target))
 		}}},
 		Rotation: &proto.APLRotation{},
 	}
-	boss := googleproto.Clone(core.GetPresetTargetWithID(dynamicBossID).Config).(*proto.Target)
-	if setBoss != nil {
-		setBoss(boss)
-	}
 	return core.NewSim(&proto.RaidSimRequest{
-		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuffs),
-		Encounter: &proto.Encounter{
-			Duration: 180,
-			Targets:  []*proto.Target{boss, googleproto.Clone(core.GetPresetTargetWithID(dynamicAddID).Config).(*proto.Target)},
-		},
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuffs),
+		Encounter:  encounter,
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 }
 
-// The times in one iteration at which each aura comes on and goes off, read after every step, starting off at the
-// reset. With sunderStacksAt set, it also returns the Sunder Armor stacks at that time.
-func dynamicAddsDebuffFlips(t *testing.T, sim *core.Simulation, sunderStacksAt time.Duration) (coe, sunder []time.Duration, stacks int32) {
+// The times in one iteration at which each raid debuff on the target comes on and goes off, read after every step,
+// starting off at the reset. With sunderStacksAt set, it also returns the Sunder Armor stacks at that time.
+func raidDebuffFlips(t *testing.T, sim *core.Simulation, targetIndex int, sunderStacksAt time.Duration) (coe, sunder []time.Duration, stacks int32) {
 	t.Helper()
 	sim.Reset()
-	add := sim.Encounter.AllTargets[1]
-	coeAura, sunderAura := add.GetAura("Curse of the Elements (External)"), add.GetAura("Sunder Armor (Player)")
+	target := sim.Encounter.AllTargets[targetIndex]
+	coeAura, sunderAura := target.GetAura("Curse of the Elements (External)"), target.GetAura("Sunder Armor (Player)")
 	if coeAura == nil || sunderAura == nil {
-		t.Fatal("test setup: the add carries no raid Curse of the Elements or Sunder Armor")
+		t.Fatalf("test setup: %s carries no raid Curse of the Elements or Sunder Armor", target.Label)
 	}
 	coeOn, sunderOn := false, false
 	stacks = -1
@@ -144,7 +147,7 @@ func dynamicAddsLives(landAfter time.Duration) []time.Duration {
 	return flips
 }
 
-// The raid's debuffs land on the add the Debuff delay after each spawn, respawns included, and are off while it is
+// The raid's debuffs land on the add the encounter's Debuff delay after each spawn, respawns included, and are off while it is
 // down, before the first spawn too, where Sunder Armor's ramp at the pull gives the add no stack. A despawn while the
 // ramp runs (delay 15 s, the ramp from 25 s to 31 s) leaves Sunder off. A second iteration starts the same.
 func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
@@ -155,7 +158,7 @@ func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
 		sim := newDynamicAddsDebuffSim(true, tc.delay, 0, nil)
 		want := dynamicAddsLives(core.DurationFromSeconds(tc.delay))
 		for iteration := range 2 {
-			coe, sunder, stacks := dynamicAddsDebuffFlips(t, sim, 29*time.Second)
+			coe, sunder, stacks := raidDebuffFlips(t, sim, 1, 29*time.Second)
 			if !slices.Equal(coe, want) {
 				t.Errorf("delay %v s, iteration %d: Curse of the Elements on and off at %v, want %v", tc.delay, iteration, coe, want)
 			}
@@ -178,7 +181,7 @@ func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 		high := core.DurationFromSeconds(tc.delay + tc.jitter)
 		seen := map[time.Duration]bool{}
 		for iteration := range 2 {
-			coe, _, _ := dynamicAddsDebuffFlips(t, sim, 0)
+			coe, _, _ := raidDebuffFlips(t, sim, 1, 0)
 			if len(coe) != 2*len(dynamicAddsSpawns) {
 				t.Fatalf("delay %v s, jitter %v s, iteration %d: Curse of the Elements on and off at %v, want once each life", tc.delay, tc.jitter, iteration, coe)
 			}
@@ -203,7 +206,7 @@ func TestDynamicAddsRaidDebuffsNeverLand(t *testing.T) {
 		"Apply debuffs off":        newDynamicAddsDebuffSim(false, 0, 0, nil),
 		"delay longer than a life": newDynamicAddsDebuffSim(true, 25, 0, nil),
 	} {
-		coe, sunder, _ := dynamicAddsDebuffFlips(t, sim, 0)
+		coe, sunder, _ := raidDebuffFlips(t, sim, 1, 0)
 		if len(coe) != 0 || len(sunder) != 0 {
 			t.Errorf("%s: Curse of the Elements on and off at %v and Sunder Armor at %v, want never on", name, coe, sunder)
 		}
@@ -261,5 +264,34 @@ func TestDynamicAddsRaidDebuffsOnAtTheReset(t *testing.T) {
 			t.Errorf("iteration %d: Curse of the Elements is off on the add right after the reset, want on", iteration)
 		}
 		sim.Cleanup()
+	}
+}
+
+// In an encounter of two targets with no AI, the second is an add up from the pull: the boss gets the raid's debuffs at
+// the pull and the add the encounter's Debuff delay later. With Apply debuffs off the add never gets them, and the boss
+// still gets them at the pull.
+func TestRaidDebuffsOnAnAddUpFromThePull(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		hold    bool
+		wantAdd []time.Duration
+	}{{"Apply debuffs on", false, []time.Duration{3 * time.Second}}, {"Apply debuffs off", true, nil}} {
+		sim := newWarriorSim(raidCurseAndSunder, &proto.Encounter{
+			Duration:       60,
+			Targets:        []*proto.Target{{}, {}},
+			HoldAddDebuffs: tc.hold,
+			AddDebuffDelay: 3,
+		})
+		wantBoss := []time.Duration{0}
+		for iteration := range 2 {
+			bossCoe, bossSunder, _ := raidDebuffFlips(t, sim, 0, 0)
+			if !slices.Equal(bossCoe, wantBoss) || !slices.Equal(bossSunder, wantBoss) {
+				t.Errorf("%s, iteration %d: on the boss Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", tc.name, iteration, bossCoe, bossSunder, wantBoss)
+			}
+			addCoe, addSunder, _ := raidDebuffFlips(t, sim, 1, 0)
+			if !slices.Equal(addCoe, tc.wantAdd) || !slices.Equal(addSunder, tc.wantAdd) {
+				t.Errorf("%s, iteration %d: on the add Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", tc.name, iteration, addCoe, addSunder, tc.wantAdd)
+			}
+		}
 	}
 }

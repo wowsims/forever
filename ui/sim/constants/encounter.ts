@@ -7,4 +7,7 @@ export const ENCOUNTER_DEFAULTS = {
 	durationVariation: 5,
 	executeProportion20: 0.2,
 	executeProportion35: 0.35,
+	holdAddDebuffs: false,
+	addDebuffDelay: 0,
+	addDebuffJitter: 0,
 } as const;

@@ -1,8 +1,5 @@
-import { InputType, TargetInput } from '@generated/proto/common';
+import { TargetInput } from '@generated/proto/common';
 import type { Encounter } from '@sim/raid/encounter';
-
-export const isTargetInputShown = (inputs: ReadonlyArray<TargetInput>, input: TargetInput): boolean =>
-	!input.shownBy || inputs.some(other => other.label === input.shownBy && other.inputType === InputType.Bool && other.boolValue);
 
 export const repairTargetInputs = (encounter: Encounter): void => {
 	const presets = encounter.sim.db.getAllPresetTargets();

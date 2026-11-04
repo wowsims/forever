@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { MultiComboBox } from '@ui-kit/MultiComboBox';
 import { NumberField } from '@ui-kit/TextField';
@@ -25,6 +26,13 @@ const meta = {
 			<>
 				{number('story-duration', 'Duration', 180)}
 				{number('story-duration-variation', 'Duration +/-', 5)}
+			</>
+		),
+		addDebuffs: (
+			<>
+				<BooleanPicker id="story-apply-add-debuffs" label="Apply debuffs" value={true} onChange={fn()} />
+				{number('story-add-debuff-delay', 'Debuff delay', 0)}
+				{number('story-add-debuff-jitter', 'Debuff jitter', 0)}
 			</>
 		),
 		zone: (
@@ -70,6 +78,7 @@ const meta = {
 	argTypes: {
 		duration: { control: false },
 		execute: { control: false },
+		addDebuffs: { control: false },
 		zone: { control: false },
 		areaTypes: { control: false },
 		preset: { control: false },

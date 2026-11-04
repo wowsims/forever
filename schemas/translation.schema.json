@@ -3729,45 +3729,6 @@
 									},
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
-								},
-								"apply_debuffs": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"debuff_delay": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
-								"debuff_jitter": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
 								}
 							},
 							"additionalProperties": false,
@@ -3784,10 +3745,7 @@
 								"adds_lifetime",
 								"adds_spawn_delay",
 								"kill_share",
-								"fear_duration",
-								"apply_debuffs",
-								"debuff_delay",
-								"debuff_jitter"
+								"fear_duration"
 							]
 						},
 						"duration": {
@@ -3830,6 +3788,45 @@
 							"required": ["label", "tooltip"]
 						},
 						"execute_duration_35": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"apply_add_debuffs": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"add_debuff_delay": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
+						"add_debuff_jitter": {
 							"type": "object",
 							"properties": {
 								"label": {
@@ -4105,6 +4102,9 @@
 						"duration_variation",
 						"execute_duration_20",
 						"execute_duration_35",
+						"apply_add_debuffs",
+						"add_debuff_delay",
+						"add_debuff_jitter",
 						"encounter_preset",
 						"zone",
 						"area_types",

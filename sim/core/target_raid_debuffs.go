@@ -3,8 +3,38 @@ package core
 import "time"
 
 // The raid's debuffs on a target are the auras the Debuffs panel registers on every target, those with
-// SourceExternalDebuff, which the target's reset puts on. An AI that spawns a target holds them while the target is
-// down and lands them after each spawn. A player's own cast of one of those debuffs is untouched by the hold.
+// SourceExternalDebuff, which the target's reset puts on. The boss, the first target, gets them at the pull. Every
+// add gets them by the encounter's settings each time it enters the fight: at the pull for an add up from the start,
+// and at each spawn for one an AI spawns, which holds them while the add is down. A player's own cast of one of those
+// debuffs is untouched by the hold.
+
+// Holds or lands the raid's debuffs on each add up at the pull that no AI spawns.
+func (encounter *Encounter) resetAddRaidDebuffs(sim *Simulation) {
+	for _, target := range encounter.AllTargets[1:] {
+		if target.Schedule == nil && target.IsEnabled() {
+			encounter.LandAddRaidDebuffs(sim, target)
+		}
+	}
+}
+
+// Lands the raid's debuffs on an add entering the fight now, the encounter's delay ± its jitter later, or holds them
+// for the fight when the encounter keeps them off the adds. An AI that spawns an add calls it at each spawn.
+func (encounter *Encounter) LandAddRaidDebuffs(sim *Simulation, target *Target) {
+	if encounter.holdAddDebuffs {
+		target.HoldRaidDebuffs(sim)
+		return
+	}
+	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime+encounter.rollAddDebuffDelay(sim))
+}
+
+// The delay ± the jitter, never below 0. Only a jitter draws a roll.
+func (encounter *Encounter) rollAddDebuffDelay(sim *Simulation) time.Duration {
+	if encounter.addDebuffJitter == 0 {
+		return encounter.addDebuffDelay
+	}
+	offset := time.Duration((2*sim.RandomFloat("Add Debuff Jitter") - 1) * float64(encounter.addDebuffJitter))
+	return max(encounter.addDebuffDelay+offset, 0)
+}
 
 func (aura *Aura) isHeldRaidDebuff() bool {
 	return aura.Source == SourceExternalDebuff && aura.Unit.raidDebuffsHeld
