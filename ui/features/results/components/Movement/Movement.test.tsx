@@ -1,7 +1,7 @@
 import { RaidSimRequest, RaidSimResult } from '@generated/proto/api';
 import { ItemSlot, RangedWeaponType } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { type CombatLog, parseAll } from '@sim/proto/combat_log';
+import { buildCastLogs, type CombatLog, parseAll } from '@sim/proto/combat_log';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -41,7 +41,9 @@ const runOf = async (text: string, ranged = RangedWeaponType.RangedWeaponTypeBow
 			}),
 			logs,
 			firstIterationDuration: 30,
-			getRaidIndexedPlayers: () => [{ name: 'p', index: 0, logs: of(false), pets: [{ name: 'Cat', logs: of(true) }] }],
+			getRaidIndexedPlayers: () => [
+				{ name: 'p', index: 0, logs: of(false), castLogs: buildCastLogs(of(false)), pets: [{ name: 'Cat', logs: of(true) }] },
+			],
 			getTargets: () => [{ name: 'Target 1' }],
 		},
 		filter: {},

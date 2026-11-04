@@ -9542,6 +9542,9 @@
 								"unit": {
 									"type": "string"
 								},
+								"cast": {
+									"type": "string"
+								},
 								"zones": {
 									"type": "object",
 									"properties": {
@@ -9584,6 +9587,7 @@
 								"time_label",
 								"time",
 								"unit",
+								"cast",
 								"zones",
 								"rings"
 							]

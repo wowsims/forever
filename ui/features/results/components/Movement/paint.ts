@@ -10,6 +10,8 @@ export interface Palette {
 	deadZone: string;
 	text: string;
 	muted: string;
+	background: string;
+	cast: string;
 	deadZoneAlpha: number;
 	tetherAlpha: number;
 	petPathAlpha: number;
@@ -32,6 +34,8 @@ export function readPalette(canvas: HTMLCanvasElement): Palette {
 		deadZone: color('--color-danger'),
 		text: color('--color-foreground'),
 		muted: color('--color-muted'),
+		background: color('--color-background'),
+		cast: color('--color-timeline-cast'),
 		deadZoneAlpha: alpha('--movement-dead-zone-opacity'),
 		tetherAlpha: alpha('--movement-tether-opacity'),
 		petPathAlpha: alpha('--movement-pet-path-opacity'),
@@ -49,6 +53,10 @@ export interface FieldScene {
 	targetLabel: string;
 	meleeLabel: string;
 	rangedLabel: string;
+	/** The player's casts under way, each a bar under its circle: the share of the cast done, and its label. */
+	casting: ReadonlyArray<{ readonly done: number; readonly label: string }>;
+	/** The icons of the player's casts that just went off, the latest first, each at the opacity it has faded to. */
+	goneOff: ReadonlyArray<{ readonly icon: CanvasImageSource; readonly alpha: number }>;
 }
 
 // The rings worth drawing: melee range, and the ranged minimum only for a weapon that cannot fire inside it.
@@ -135,6 +143,47 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 		ctx.textAlign = 'left';
 		ctx.textBaseline = 'middle';
 		ctx.fillText(scene.unitLabels[index], x + dot + em / 3, y);
+
+		if (index === 0) paintPlayerCasts(ctx, palette, scene, x, y, dot);
+	});
+}
+
+// Under the player's circle a bar for each cast under way with its label below, and to the circle's left the icons of
+// the casts that just went off, the latest nearest.
+function paintPlayerCasts(ctx: CanvasRenderingContext2D, palette: Palette, scene: FieldScene, x: number, y: number, dot: number) {
+	const { em } = palette;
+	const barWidth = 6 * em;
+	const barHeight = 0.4 * em;
+	const left = x - barWidth / 2;
+	let top = y + dot + em / 3;
+	ctx.save();
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'top';
+	for (const { done, label } of scene.casting) {
+		// A solid track and a label outlined in the background colour keep the bar readable over the rings and tether.
+		ctx.fillStyle = palette.background;
+		ctx.fillRect(left, top, barWidth, barHeight);
+		ctx.fillStyle = palette.cast;
+		ctx.fillRect(left, top, barWidth * Math.min(1, Math.max(0, done)), barHeight);
+		ctx.lineWidth = em / 10;
+		ctx.strokeStyle = palette.muted;
+		ctx.strokeRect(left, top, barWidth, barHeight);
+		ctx.lineWidth = em / 4;
+		ctx.strokeStyle = palette.background;
+		ctx.strokeText(label, x, top + barHeight + em / 6);
+		ctx.fillStyle = palette.text;
+		ctx.fillText(label, x, top + barHeight + em / 6);
+		top += barHeight + 1.5 * em;
+	}
+	ctx.restore();
+
+	const size = 1.6 * em;
+	const gap = em / 4;
+	scene.goneOff.forEach(({ icon, alpha }, index) => {
+		ctx.save();
+		ctx.globalAlpha = alpha;
+		ctx.drawImage(icon, x - dot - em / 2 - (index + 1) * size - index * gap, y - size / 2, size, size);
+		ctx.restore();
 	});
 }
 

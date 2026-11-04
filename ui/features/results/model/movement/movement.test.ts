@@ -1,17 +1,20 @@
 import { RaidSimResult } from '@generated/proto/api';
-import { parseAll } from '@sim/proto/combat_log';
+import { OtherAction } from '@generated/proto/common';
+import { buildCastLogs, parseAll } from '@sim/proto/combat_log';
 import { MAX_MELEE_RANGE, MIN_RANGED_RANGE } from '@sim/proto/sim_tables_auto_gen';
 import { describe, expect, it } from 'vitest';
 
-import { buildMovementRun, type MovementRun, type MovementTrack, pathOf, positionAt, rangeZone } from './movement';
+import { buildMovementRun, castsGoneOff, castsUnderWay, type MovementRun, type MovementTrack, pathOf, positionAt, rangeZone } from './movement';
 
 // Lines as sim/core/movement.go prints them, for the player `p` and its pets.
 const runOf = async (text: string, playerStartYards = 20, duration = 30): Promise<MovementRun | null> => {
 	const logs = await parseAll(RaidSimResult.create({ logs: text.trim().replace(/^\s+/gm, '') }));
 	const petNames = [...new Set(logs.filter(log => log.source?.isPet).map(log => log.source!.name))];
+	const playerLogs = logs.filter(log => log.source && !log.source.isPet);
 	const player = {
 		name: 'p',
-		logs: logs.filter(log => log.source && !log.source.isPet),
+		logs: playerLogs,
+		castLogs: buildCastLogs(playerLogs),
 		pets: [...petNames, 'Idle'].map(name => ({ name, logs: logs.filter(log => log.source?.isPet && log.source.name === name) })),
 	};
 	return buildMovementRun({ player, playerStartYards, logs, duration, deadZone: true });
@@ -133,5 +136,47 @@ describe('rangeZone', () => {
 	it('has no dead zone for a player whose weapon fires from anywhere', () => {
 		expect(rangeZone(MAX_MELEE_RANGE, false)).toBe('melee');
 		expect(rangeZone(MAX_MELEE_RANGE + 0.01, false)).toBe('ranged');
+	});
+});
+
+describe('the casts', () => {
+	// A walk so the run builds, the walk's own Move cast, which is no cast the player sees, an Auto Shot windup that goes
+	// off, one a move cancels, and an instant melee swing.
+	const CASTS = `
+		[0.00] [p (#1)] Walking from 20.00 to 13.00 yards over 1.000s
+		[0.00] [p (#1)] Casting {OtherID: 20} (Cost = 0.000, Cast Time = 0s, GCD = 0s, Effective Time = 0s)
+		[0.00] [p (#1)] Completed cast {OtherID: 20}
+		[1.00] [p (#1)] Stopped walking at 13.00 yards
+		[2.00] [p (#1)] Casting {OtherID: 4} (Cost = 0.000, Cast Time = 500ms, GCD = 0s, Effective Time = 500ms)
+		[2.50] [p (#1)] Completed cast {OtherID: 4}
+		[3.00] [p (#1)] Casting {OtherID: 4} (Cost = 0.000, Cast Time = 434ms, GCD = 0s, Effective Time = 434ms)
+		[3.20] [p (#1)] Cancelled {OtherID: 4} after 200ms
+		[4.00] [p (#1)] Casting {OtherID: 3, Tag: 1} (Cost = 0.000, Cast Time = 0s, GCD = 0s, Effective Time = 0s)
+		[4.00] [p (#1)] Completed cast {OtherID: 3, Tag: 1}
+	`;
+
+	it('keeps the player casts but its walks, a cancelled one ending where it stopped', async () => {
+		const run = (await runOf(CASTS))!;
+		expect(run.casts.map(cast => [cast.actionId.otherId, cast.start, cast.end, cast.completed])).toEqual([
+			[OtherAction.OtherActionShoot, 2, 2.5, true],
+			[OtherAction.OtherActionShoot, 3, 3.2, false],
+			[OtherAction.OtherActionAttack, 4, 4, true],
+		]);
+	});
+
+	it('shows a cast under way from its start until it goes off or stops, and never an instant', async () => {
+		const run = (await runOf(CASTS))!;
+		expect(castsUnderWay(run, 2.25).map(cast => cast.start)).toEqual([2]);
+		expect(castsUnderWay(run, 2.5)).toEqual([]);
+		expect(castsUnderWay(run, 3.1).map(cast => cast.start)).toEqual([3]);
+		expect(castsUnderWay(run, 3.2)).toEqual([]);
+		expect(castsUnderWay(run, 4)).toEqual([]);
+	});
+
+	it('lists the casts that went off within the span, the latest first, and never a cancelled one', async () => {
+		const run = (await runOf(CASTS))!;
+		expect(castsGoneOff(run, 4.5, 3).map(cast => cast.end)).toEqual([4, 2.5]);
+		expect(castsGoneOff(run, 4.5, 1).map(cast => cast.end)).toEqual([4]);
+		expect(castsGoneOff(run, 1.5, 3)).toEqual([]);
 	});
 });

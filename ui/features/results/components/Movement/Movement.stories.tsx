@@ -15,6 +15,7 @@ const weave: MovementRun = {
 	end: 60,
 	reach: 25,
 	deadZone: true,
+	casts: [],
 	tracks: [
 		{ name: 'Player', isPet: false, startYards: 12, legs: weaveLegs },
 		{ name: 'Cat', isPet: true, startYards: 12, legs: [walk(0, 12, 4)] },

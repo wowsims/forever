@@ -1,4 +1,6 @@
-import type { CombatLog } from '@sim/proto/combat_log';
+import { OtherAction } from '@generated/proto/common';
+import type { ActionId } from '@sim/proto/action_id';
+import type { CastLog, CombatLog } from '@sim/proto/combat_log';
 import { isMovement } from '@sim/proto/combat_log';
 import { MAX_MELEE_RANGE, MIN_RANGED_RANGE } from '@sim/proto/sim_tables_auto_gen';
 
@@ -19,6 +21,17 @@ export interface MovementTrack {
 	readonly legs: ReadonlyArray<Leg>;
 }
 
+/** One of the player's casts: when it began, when it went off or was cancelled, and the spell it shows. */
+export interface MovementCast {
+	readonly actionId: ActionId;
+	readonly start: number;
+	readonly end: number;
+	/** Seconds the cast takes to go off, a hardcast's or Auto Shot's windup; 0 for an instant. */
+	readonly castTime: number;
+	/** It went off at `end`; a cancelled cast stopped there instead. */
+	readonly completed: boolean;
+}
+
 export interface MovementRun {
 	/** The first line of the run, in seconds from the pull: the prepull's start, or 0 without one. */
 	readonly start: number;
@@ -30,6 +43,8 @@ export interface MovementRun {
 	readonly reach: number;
 	/** The player's ranged weapon fires only from MIN_RANGED_RANGE out, so the yards between the breakpoints are a dead zone. */
 	readonly deadZone: boolean;
+	/** The player's casts but its walks, in the order they began. */
+	readonly casts: ReadonlyArray<MovementCast>;
 }
 
 export interface MovementUnit {
@@ -38,6 +53,7 @@ export interface MovementUnit {
 }
 
 export interface MovementPlayer extends MovementUnit {
+	readonly castLogs: ReadonlyArray<CastLog>;
 	readonly pets: ReadonlyArray<MovementUnit>;
 }
 
@@ -90,7 +106,14 @@ export function buildMovementRun({ player, playerStartYards, logs, duration, dea
 		for (const leg of track.legs) reach = Math.max(reach, leg.from, leg.to);
 	}
 
-	return { start, end: duration, tracks, reach, deadZone };
+	const casts = player.castLogs.flatMap((log): Array<MovementCast> => {
+		if (!log.actionId || log.actionId.otherId === OtherAction.OtherActionMove) return [];
+		const completed = !log.castCancelledLog;
+		const end = log.timestamp + (completed ? log.castTime : log.cancelTime);
+		return [{ actionId: log.actionId, start: log.timestamp, end, castTime: log.castTime, completed }];
+	});
+
+	return { start, end: duration, tracks, reach, deadZone, casts };
 }
 
 /** Yards from the target at `time`: along a walk under way, else where the last walk ended. */
@@ -136,3 +159,11 @@ export type RangeZone = 'melee' | 'dead_zone' | 'ranged';
 /** In melee range out to the melee breakpoint, and at range past it, but for a weapon with a dead zone only from the ranged breakpoint out. */
 export const rangeZone = (yards: number, deadZone: boolean): RangeZone =>
 	yards <= MAX_MELEE_RANGE ? 'melee' : deadZone && yards < MIN_RANGED_RANGE ? 'dead_zone' : 'ranged';
+
+/** The casts under way at `time`, hardcasts and Auto Shot's windup alike, in the order they began. */
+export const castsUnderWay = (run: MovementRun, time: number): Array<MovementCast> =>
+	run.casts.filter(cast => cast.castTime > 0 && cast.start <= time && time < cast.end);
+
+/** The casts that went off in the `span` seconds up to `time`, the latest first. */
+export const castsGoneOff = (run: MovementRun, time: number, span: number): Array<MovementCast> =>
+	run.casts.filter(cast => cast.completed && cast.end <= time && time - cast.end < span).sort((a, b) => b.end - a.end);

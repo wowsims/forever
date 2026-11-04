@@ -11,7 +11,7 @@ import { type PointerEvent, useCallback, useEffect, useMemo, useRef, useState } 
 
 import { type CanvasPaint, useCanvasPainter } from '../../hooks/useCanvasPainter';
 import { useHeldSimResult } from '../../hooks/useHeldSimResult';
-import { buildMovementRun, type MovementRun, positionAt, rangeZone } from '../../model/movement/movement';
+import { buildMovementRun, castsGoneOff, castsUnderWay, type MovementRun, positionAt, rangeZone } from '../../model/movement/movement';
 import type { SimResultData } from '../../model/result_data';
 import { paintField, paintStrip, type Palette, readPalette } from './paint';
 
@@ -23,6 +23,10 @@ type Speed = (typeof SPEEDS)[number];
 // Seconds per slider step, and per step with Shift or Page Up and Down.
 const SLIDER_STEP = 0.1;
 const SLIDER_LARGE_STEP = 1;
+
+// Seconds a cast's icon stays beside the player after it went off, fading out, and the most icons shown at once.
+const ICON_FADE = 1.5;
+const MAX_ICONS = 6;
 
 interface MovementPlaybackProps {
 	run: MovementRun;
@@ -70,6 +74,39 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 	// The theme does not change while the view is up, so both canvases read it once.
 	const palette = useRef<Palette | null>(null);
 
+	// Each spell's icon, requested once; one that finishes loading joins the map and paints the field again.
+	const requested = useRef(new Set<string>());
+	const [icons, setIcons] = useState<ReadonlyMap<string, HTMLImageElement>>(new Map());
+	useEffect(() => {
+		for (const { actionId } of run.casts) {
+			const url = actionId.iconUrl;
+			if (!url || requested.current.has(url)) continue;
+			requested.current.add(url);
+			const image = new Image();
+			image.onload = () => setIcons(loaded => new Map(loaded).set(url, image));
+			image.src = url;
+		}
+	}, [run]);
+
+	const casting = useMemo(
+		() =>
+			castsUnderWay(run, time).map(cast => ({
+				done: (time - cast.start) / cast.castTime,
+				label: t('cast', { name: cast.actionId.name, time: (cast.end - time).toFixed(2) }),
+			})),
+		[run, time],
+	);
+	const goneOff = useMemo(
+		() =>
+			castsGoneOff(run, time, ICON_FADE)
+				.slice(0, MAX_ICONS)
+				.flatMap(cast => {
+					const icon = icons.get(cast.actionId.iconUrl);
+					return icon ? [{ icon, alpha: 1 - (time - cast.end) / ICON_FADE }] : [];
+				}),
+		[run, time, icons],
+	);
+
 	const fieldPaint = useCallback<CanvasPaint>(
 		(ctx, width, height) =>
 			paintField(ctx, width, height, (palette.current ??= readPalette(ctx.canvas)), {
@@ -79,8 +116,10 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 				targetLabel: targetName,
 				meleeLabel: t('rings.melee', { yards: formatToNumber(MAX_MELEE_RANGE, { maximumFractionDigits: 1 }) }),
 				rangedLabel: t('rings.ranged', { yards: formatToNumber(MIN_RANGED_RANGE, { maximumFractionDigits: 1 }) }),
+				casting,
+				goneOff,
 			}),
-		[run, yards, targetName],
+		[run, yards, targetName, casting, goneOff],
 	);
 	// The strip changes only with the run; the time is a line drawn over it.
 	const stripPaint = useCallback<CanvasPaint>(

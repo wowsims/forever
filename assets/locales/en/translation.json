@@ -2696,6 +2696,7 @@
 				"time_label": "Time",
 				"time": "{{time}} s",
 				"unit": "{{name}}: {{yards}} yd",
+				"cast": "{{name}} {{time}} s",
 				"zones": {
 					"melee": "In melee range",
 					"dead_zone": "In the dead zone",
