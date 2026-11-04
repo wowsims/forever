@@ -426,7 +426,6 @@ func newDot(config Dot) *Dot {
 		dot.tickAction.Cancel(sim)
 		dot.tickAction = nil
 		if dot.isChanneled {
-			// Compute clip delay before clearing ChanneledDot (used by nextActionWouldRecastChannel).
 			channelDelay := dot.getChannelClipDelay()
 			if dot.Spell.Unit.channelPaidMana() {
 				dot.Spell.Unit.creditManaRegen(sim)

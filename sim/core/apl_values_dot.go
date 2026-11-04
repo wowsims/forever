@@ -221,8 +221,11 @@ func (value *APLValueDotTimeToNextTick) Type() proto.APLValueType {
 }
 func (value *APLValueDotTimeToNextTick) GetDuration(sim *Simulation) time.Duration {
 	dot := value.dot.Get()
-	if reading := readDot(sim, dot); reading.landing && dot.Spell.Unit.hardcastRuns(sim) {
-		return dot.Spell.Unit.Hardcast.Expires + dot.CalcTickPeriod() - sim.CurrentTime
+	if reading := readDot(sim, dot); reading.landing {
+		if dot.Spell.Unit.hardcastRuns(sim) {
+			return dot.Spell.Unit.Hardcast.Expires + dot.CalcTickPeriod() - sim.CurrentTime
+		}
+		return dot.CalcTickPeriod()
 	}
 	return dot.TimeUntilNextTick(sim)
 }

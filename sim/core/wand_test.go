@@ -896,3 +896,27 @@ func TestValueWand(t *testing.T) {
 		}
 	})
 }
+
+// With Shoot ended for the wand's look at its slot, Shoot's own aura reads as down too, so a cast gated
+// on that aura takes the slot.
+func TestWandSlotReadsShootAuraAsDown(t *testing.T) {
+	var castAt []time.Duration
+	ct, nuke := newSpellShootTest(nukeConfig(&castAt))
+	shootDown := ct.rot.newAPLValue(&proto.APLValue{Value: &proto.APLValue_Not{Not: &proto.APLValueNot{Val: &proto.APLValue{Value: &proto.APLValue_AuraIsActive{AuraIsActive: &proto.APLValueAuraIsActive{
+		SourceUnit: &proto.UnitReference{Type: proto.UnitReference_CurrentTarget},
+		AuraId:     ct.spell.ActionID.ToProto(),
+	}}}}}})
+	ct.rot.priorityList = nil
+	for _, action := range []*APLAction{newAPLActionEntry(shootDown, ct.castOf(nuke)), newAPLActionEntry(nil, ct.channelOf(ct.spell, "true", false))} {
+		action.Finalize(ct.rot)
+		ct.rot.priorityList = append(ct.rot.priorityList, action)
+	}
+	ct.sim.PrePull()
+	ct.sim.Step()
+	ct.fw.AutoAttacks.CancelAutoSwing(ct.sim)
+
+	ct.runUntil(6 * time.Second)
+	if !slices.Equal(castAt, seconds(0, 2, 4, 6)) || len(ct.shots) != 0 {
+		t.Fatalf("the cast gated on Shoot's aura should take every slot, cast at %v, shots at %v", castAt, ct.shots)
+	}
+}

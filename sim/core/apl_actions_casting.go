@@ -29,11 +29,15 @@ func (rot *APLRotation) newActionCastSpell(config *proto.APLActionCastSpell) APL
 	}
 }
 func (action *APLActionCastSpell) IsReady(sim *Simulation) bool {
-	return action.spell.CanCastOrQueue(sim, action.target.Get()) &&
-		(!action.spell.Flags.Matches(SpellFlagMCD) ||
-			action.spell.Flags.Matches(SpellFlagReactive) ||
-			action.spell.Unit.GCD.IsReady(sim) ||
-			action.spell.Unit.Rotation.inSequence)
+	return action.spell.CanCastOrQueue(sim, action.target.Get()) && !action.majorCooldownWaits(sim)
+}
+
+// A major cooldown that is not reactive goes only at a GCD-ready look, unless a sequence runs it.
+func (action *APLActionCastSpell) majorCooldownWaits(sim *Simulation) bool {
+	return action.spell.Flags.Matches(SpellFlagMCD) &&
+		!action.spell.Flags.Matches(SpellFlagReactive) &&
+		!action.spell.Unit.GCD.IsReady(sim) &&
+		!action.spell.Unit.Rotation.inSequence
 }
 func (action *APLActionCastSpell) Execute(sim *Simulation) {
 	action.spell.CastOrQueue(sim, action.target.Get())
