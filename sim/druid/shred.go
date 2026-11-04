@@ -11,10 +11,9 @@ func (druid *Druid) registerShredSpell() {
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		return druid.BehindTarget()
 	}
-	scale := weaponPercentScale(rank, 2.0)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// The flat bonus is the row's $s1.
-		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank)*scale, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank), spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
 			druid.awardComboPoints(sim, spell, rank)
 		}
