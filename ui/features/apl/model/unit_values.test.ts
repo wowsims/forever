@@ -6,9 +6,12 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { refToValue, unitOptionModels, withIconUrl } from './unit_values';
 
-vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
+vi.mock('@i18n/config', () => ({
+	default: { t: (key: string, options?: Record<string, unknown>) => (options ? `${key} ${Object.values(options).join(' ')}` : key) },
+}));
 
 const label = (key: string) => `rotation_tab.apl.helpers.unit_labels.${key}`;
+const groupLabel = (group: number) => `rotation_tab.apl.submenus.group ${group}`;
 const nineDummySlots = () => [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 describe('refToValue', () => {
@@ -108,7 +111,7 @@ describe('unitOptionModels', () => {
 
 		const options = unitOptionModels('players', player).filter(model => model.unit.value?.type === UnitType.Player);
 		expect(options.map(model => [model.unit.text, model.submenu])).toEqual(
-			nineDummySlots().map((slot, i) => [`${label('heal_target')} ${i + 1}`, ['heal_target', `group_${slot < 5 ? 1 : 2}`]]),
+			nineDummySlots().map((slot, i) => [`${label('heal_target')} ${i + 1}`, ['heal_target', groupLabel(slot < 5 ? 1 : 2)]]),
 		);
 	});
 	it.each([

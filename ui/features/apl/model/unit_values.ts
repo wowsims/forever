@@ -90,7 +90,7 @@ export const unitOptionModels = (unitSet: UNIT_SET, player: Player<any>): Array<
 		if (ref?.type === UnitType.Player && healingTargets.includes(ref.index)) {
 			if (!raidHealing) return { unit, submenu: ['heal_target'] };
 			const group = Math.floor(ref.index / MAX_PARTY_SIZE) + 1;
-			return { unit, submenu: ['heal_target', `group_${group}`] };
+			return { unit, submenu: ['heal_target', i18n.t('rotation_tab.apl.submenus.group', { group })] };
 		}
 		if (ref?.type != UnitType.Pet) return { unit };
 		return { unit, submenu: [refToValue(set.targetUI ? ref.owner! : undefined, player, set.targetUI, healingTargets)] };
