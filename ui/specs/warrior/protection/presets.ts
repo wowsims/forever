@@ -31,10 +31,10 @@ export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', P
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
 
-// Measured on each gear set with the talents 35301003002-03-050530120301011351: 0.6 x the threat weights
-// (Strength = 1) plus 1.15 x the TMI weights (Stamina = 1). On the defense cap gear, defense is its value past the
-// cap; on the threat gear, hit is its value past the 8% cap. ArmorNoMods weighs as Armor, since nothing in the build
-// scales armor.
+// TODO: Measured with the talents 35300003-05-050531120300021351 and an earlier default rotation; remeasure with the
+// preset talents and rotation. On each gear set: 0.6 x the threat weights (Strength = 1) plus 1.15 x the TMI weights
+// (Stamina = 1). On the defense cap gear, defense is its value past the cap; on the threat gear, hit is its value past
+// the 8% cap. ArmorNoMods weighs as Armor, since nothing in the build scales armor.
 export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS (Defense Cap)',
 	Stats.fromMap(
