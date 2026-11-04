@@ -156,7 +156,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 	// The tooltip's "your blocks" counts a block that stops the whole hit.
 	trigger.RequireDamageDealt = false
 	trigger.TriggerImmediately = true
-	paladin.MakeProcTriggerAura(trigger)
+	paladin.MakeProcTriggerAura(trigger).MenuGroup = menuPaladinTank
 
 	// The mana a Shieldsworn Holy Strike restores reports apart, tagged with the talent.
 	if paladin.Talents.Shieldsworn {

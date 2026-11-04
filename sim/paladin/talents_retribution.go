@@ -191,12 +191,11 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 	}
 
 	rank := spellData.PursuitOfJustice.Highest()
-	aura := paladin.NewPassiveMovementSpeedAura(
+	paladin.NewPassiveMovementSpeedAura(
 		"Pursuit of Justice",
 		core.ActionID{SpellID: rank.ID},
 		spellData.PursuitOfJustice.Effect(dbcenums.A_MOD_INCREASE_SPEED, 0).FractionAt(paladin.Talents.PursuitOfJustice),
-	)
-	aura.MenuGroup = menuPaladin
+	).MenuGroup = menuPaladin
 }
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
