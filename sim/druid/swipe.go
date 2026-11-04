@@ -16,6 +16,7 @@ func (druid *Druid) registerSwipeBearSpell() {
 	}
 	var results core.SpellResultSlice
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = 1.75
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		cleave(sim, target, spell, targets, &results, func(target *core.Unit) *core.SpellResult {
 			damage := base + damageEffect.APCoeff()*spell.MeleeAttackPower(target)

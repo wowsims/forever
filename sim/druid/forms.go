@@ -138,10 +138,9 @@ func (druid *Druid) RegisterCatFormAura() {
 	})
 }
 
-// Bear Form (Passive2) 21178 is the bear forms' threat: A_MOD_THREAT on every school, 50 in the hotfixed
-// game files. The spell store does not carry the row, as neither form's row names it.
-// TODO: Read 21178 from the spell store once tools/database takes it for the druid.
-const bearFormThreatMultiplier = 1.5
+// Bear Form (Passive2) 21178 holds the bear forms' threat, an A_MOD_THREAT on every school. Neither
+// form's row names it, so the store carries it as an extra spell.
+const bearFormThreatSpellID = 21178
 
 func (druid *Druid) RegisterBearFormAura() {
 	druid.BearFormAura = druid.registerBearAura(spellData.BearForm.Highest(), spellData.BearFormTriggered.Highest(), Bear, druid.StartingForm == Bear)
@@ -157,6 +156,7 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
+	spelldata.ParseEffects(&druid.Character, aura, spelldata.MustFind(bearFormThreatSpellID))
 	aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
 		druid.pauseCatEnergy(sim)
 		druid.setForm(kind)
@@ -168,10 +168,8 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 			// Only Bear forms can queue Maul.
 			druid.AutoAttacks.SetReplaceMHSwing(druid.TryMaul)
 		}
-		druid.PseudoStats.ThreatMultiplier *= bearFormThreatMultiplier
 	})
 	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		druid.PseudoStats.ThreatMultiplier /= bearFormThreatMultiplier
 		druid.AutoAttacks.SetReplaceMHSwing(nil)
 		druid.cancelMaulQueue(sim)
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
