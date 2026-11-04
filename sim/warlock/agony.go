@@ -8,7 +8,9 @@ import (
 // Bane of Agony's base ramps in thirds: the first third of the ticks at half, the second at the base, the last
 // at one and a half. The spell power share and the damage multipliers are read as each tick lands, and the
 // share does not ramp. Amplify Curse, which the cast spends, raises the whole tick, base and share, for the
-// whole of the Bane it landed with.
+// whole of the Bane it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files
+// do not state it.
+// TODO: Ingame test needed: confirm on live that each tick reads the spell power of the moment.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
 	agonyTick := rankedSpell.PeriodicEffect()
