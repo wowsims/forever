@@ -10,37 +10,36 @@ import (
 
 func (rogue *Rogue) registerSubtletyTalents() {
 	// Tier 1
-	// Camouflage NYI
+	rogue.registerSetup()
 	// Master of Deception NYI
 	rogue.registerOpportunity()
 
 	// Tier 2
-	rogue.registerSetup()
-	rogue.registerElusiveness()
-	// Dirty Tricks NYI
+	rogue.registerDirtyDeeds()
+	// Camouflage NYI
 	rogue.registerImprovedAmbush()
+	// Dirty Tricks NYI
 
 	// Tier 3
 	rogue.registerInitiative()
-	rogue.registerGhostlyStrike()
-	// Improved Distract NYI
-
-	// Tier 4
-	// Heightened Senses NYI
 	rogue.registerPremeditation()
 	rogue.registerSerratedBlades()
 
+	// Tier 4
+	rogue.registerElusiveness()
+	rogue.registerGhostlyStrike()
+	// Quick Getaway NYI
+
 	// Tier 5
-	rogue.registerDirtyDeeds()
+	// Heightened Senses NYI
 	rogue.registerPreparation()
 	rogue.registerHemorrhage()
 
 	// Tier 6
-	rogue.registerQuietus()
-	rogue.registerCutthroat()
+	// Boot Knife modeled in shank.go
 
 	// Tier 7
-	rogue.registerThousandCuts()
+	rogue.registerDeathMark()
 }
 
 func (rogue *Rogue) registerOpportunity() {
@@ -72,6 +71,7 @@ func (rogue *Rogue) registerInitiative() {
 }
 
 var ghostlyStrikeRank = spellData.GhostlyStrike.Highest()
+var ghostlyStrikeTriggered = spellData.GhostlyStrikeTriggered.Highest()
 
 func (rogue *Rogue) registerGhostlyStrike() {
 	if !rogue.Talents.GhostlyStrike {
@@ -88,15 +88,39 @@ func (rogue *Rogue) registerGhostlyStrike() {
 	spelldata.ParseEffects(&rogue.Character, dodgeBuff, ghostlyStrikeRank, spelldata.Effects(2))
 	config.RelatedSelfBuff = dodgeBuff
 
+	// The strike's last effect triggers a buff that lets the next Ambush or Garrote skip Stealth.
+	rogue.GhostlyStrikeAura = rogue.RegisterAura(spelldata.AuraConfig(ghostlyStrikeTriggered, spelldata.Label("Ghostly Strike - Next Ambush or Garrote"))).
+		ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+			rogue.Ambush.CastRequirement.CasterForm = true
+			rogue.Garrote.CastRequirement.CasterForm = true
+		}).
+		ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+			rogue.Ambush.CastRequirement.CasterForm = false
+			rogue.Garrote.CastRequirement.CasterForm = false
+		})
+	rogue.MakeProcTriggerAura(core.ProcTrigger{
+		Name:               "Ghostly Strike - Cast Watcher",
+		ActionID:           core.ActionID{SpellID: ghostlyStrikeTriggered.ID},
+		Callback:           core.CallbackOnCastComplete,
+		ClassSpellMask:     RogueSpellAmbush | RogueSpellGarrote,
+		TriggerImmediately: true,
+		ProcChance:         1,
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			rogue.GhostlyStrikeAura.Deactivate(sim)
+		},
+	})
+
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
-		baseDamage := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target)) // Data suggests un-normalized
+		// The row's E_NORMALIZED_WEAPON_DMG effect normalizes the weapon damage, as on Hemorrhage.
+		baseDamage := spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		// An avoided strike grants no buff, as it grants no combo point.
 		if result.Landed() {
 			dodgeBuff.Activate(sim)
+			rogue.GhostlyStrikeAura.Activate(sim)
 			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
