@@ -2558,6 +2558,19 @@
 							"additionalProperties": false,
 							"required": ["label", "tooltip"]
 						},
+						"input_delay_max": {
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
+						},
 						"channel_clip_delay": {
 							"type": "object",
 							"properties": {
@@ -3267,6 +3280,7 @@
 					"required": [
 						"title",
 						"input_delay",
+						"input_delay_max",
 						"channel_clip_delay",
 						"in_front_of_target",
 						"distance_from_target",
@@ -8889,19 +8903,6 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
-								"time_to_weave": {
-									"type": "object",
-									"properties": {
-										"label": {
-											"type": "string"
-										},
-										"tooltip": {
-											"type": "string"
-										}
-									},
-									"additionalProperties": false,
-									"required": ["label", "tooltip"]
-								},
 								"use_aimed": {
 									"type": "object",
 									"properties": {
@@ -8998,7 +8999,6 @@
 							"required": [
 								"playstyle",
 								"pull_range",
-								"time_to_weave",
 								"use_aimed",
 								"use_multi",
 								"use_arcane",

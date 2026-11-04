@@ -257,6 +257,10 @@ const makePresetSettingsHelper = (name: string, spec: Spec, simSettings: Individ
 			settings.playerOptions.reactionTimeMs = simSettings.player.reactionTimeMs;
 		}
 
+		if (simSettings.player.reactionTimeMaxMs) {
+			settings.playerOptions.reactionTimeMaxMs = simSettings.player.reactionTimeMaxMs;
+		}
+
 		if (simSettings.player.channelClipDelayMs) {
 			settings.playerOptions.channelClipDelayMs = simSettings.player.channelClipDelayMs;
 		}
@@ -416,6 +420,7 @@ export const specDefaultsFromSettings = <SpecType extends Spec>(spec: SpecType, 
 			profession2: player.profession2,
 			distanceFromTarget: player.distanceFromTarget,
 			reactionTime: player.reactionTimeMs,
+			reactionTimeMax: player.reactionTimeMaxMs,
 			channelClipDelay: player.channelClipDelayMs,
 			healingModel: player.healingModel,
 			iterationCount: settings.settings?.iterations,

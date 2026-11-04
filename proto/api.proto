@@ -87,6 +87,8 @@ message Player {
 	// This will remove a lot of the boilerplate code in the UI for each new field.
 
 	int32 reaction_time_ms = 45;
+	// Above reaction_time_ms, each reaction the player makes is drawn evenly between the two.
+	int32 reaction_time_max_ms = 62;
 	int32 channel_clip_delay_ms = 46;
 	bool in_front_of_target = 47;
 	double distance_from_target = 48;

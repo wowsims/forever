@@ -65,7 +65,9 @@ type Unit struct {
 
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
-	ReactionTime time.Duration
+	ReactionTime    time.Duration
+	ReactionTimeMax time.Duration // Above the reaction the settings give, each rotation pass draws ReactionTime evenly between the two.
+	reactionTimeMin time.Duration // The reaction the settings give.
 
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
@@ -927,6 +929,7 @@ func (unit *Unit) finalize() {
 	if unit.ReactionTime == 0 {
 		panic("Unset unit.ReactionTime")
 	}
+	unit.reactionTimeMin = unit.ReactionTime
 
 	unit.defaultTarget = unit.CurrentTarget
 	unit.applyParryHaste()
@@ -976,6 +979,9 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	if unit.ReactionTimeMax > unit.reactionTimeMin {
+		unit.ReactionTime = (unit.reactionTimeMin + unit.ReactionTimeMax) / 2
+	}
 	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()

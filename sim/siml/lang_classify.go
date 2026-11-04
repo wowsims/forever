@@ -293,6 +293,9 @@ func (d *Doc) readWords() []wordRole {
 			for _, v := range x.values {
 				term(v, f, nil)
 			}
+			if x.max != nil {
+				term(x.max, f, nil)
+			}
 		case *flagListStmt:
 			for _, fl := range x.flags {
 				f := entry(def, fl.name.text)

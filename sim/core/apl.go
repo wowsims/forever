@@ -505,6 +505,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.inLoop {
 		return
 	}
+	apl.unit.drawReactionTime(sim)
 
 	// An event at a cast's last instant, such as a rage tick, wakes the rotation before the cast's
 	// own completion runs; the cast completes first.

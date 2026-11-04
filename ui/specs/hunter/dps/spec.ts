@@ -107,7 +107,7 @@ export default defineSpec<Spec.SpecHunter>({
 	rotationInputs: HunterInputs.RotationInputs,
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [other_inputs.InputDelay, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
+		inputs: [other_inputs.InputDelay, other_inputs.InputDelayMax, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
 	},
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
@@ -155,7 +155,6 @@ export default defineSpec<Spec.SpecHunter>({
 		);
 
 		const values: Record<string, string> = {
-			'Time to weave': `${simple.timeToWeave || 250}ms`,
 			'Pull range': String(simple.pullRange || 25),
 			'Use Aimed Shot': String(simple.useAimed),
 			'Use Multi-Shot': String(simple.useMulti),

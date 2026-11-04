@@ -109,6 +109,8 @@ export interface PlayerSlice {
 	// Per-spec proto; the generic is only known on Player<SpecType>.
 	specOptions: unknown;
 	reactionTime: number;
+	// Above reactionTime, each reaction the sim draws lies between the two; 0 keeps every one at reactionTime.
+	reactionTimeMax: number;
 	channelClipDelay: number;
 	inFrontOfTarget: boolean;
 	distanceFromTarget: number;
@@ -143,6 +145,7 @@ export const PLAYER_FIELDS = [
 	'talentsString',
 	'specOptions',
 	'reactionTime',
+	'reactionTimeMax',
 	'channelClipDelay',
 	'inFrontOfTarget',
 	'distanceFromTarget',

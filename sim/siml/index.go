@@ -314,6 +314,31 @@ func jsonPath(at []protoreflect.FieldDescriptor, last ...protoreflect.FieldDescr
 	return strings.Join(names, ".")
 }
 
+// The field of fields that p's entry line sets with a second duration (SPEC.md §5.2): its Max beside it in the same
+// message; nil for none.
+func maxField(p *placed, fields []*placed) *placed {
+	if p.Max == "" {
+		return nil
+	}
+	holder := strings.TrimSuffix(p.path, p.JSON)
+	for _, x := range fields {
+		if x.Name == p.Max && x.path == holder+x.JSON {
+			return x
+		}
+	}
+	return nil
+}
+
+// The duration of fields whose entry line sets p as its second value, nil for none.
+func minField(p *placed, fields []*placed) *placed {
+	for _, x := range fields {
+		if m := maxField(x, fields); m != nil && m.path == p.path {
+			return x
+		}
+	}
+	return nil
+}
+
 // The field a section's slot rows fill: its list of ItemSpecs.
 func slotField(fields []*placed) *placed {
 	for _, p := range fields {

@@ -515,7 +515,8 @@
 				}
 			]
 		},
-		"reactionTimeMs": 250,
+		"reactionTimeMs": 150,
+		"reactionTimeMaxMs": 350,
 		"distanceFromTarget": 5
 	},
 	"encounter": {

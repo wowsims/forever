@@ -702,6 +702,10 @@
 				"label": "Input Delay",
 				"tooltip": "Player input delay, in milliseconds. Specifies the maximum delay on actions that cannot be spell queued, such as spell casts that are waiting on resource gains or waiting for a cooldown to expire. Also used with certain APL values (such as 'Aura Is Active With Reaction Time'). Roughly models the sum of reaction time + server latency."
 			},
+			"input_delay_max": {
+				"label": "Slowest Input Delay",
+				"tooltip": "The slowest the player reacts, in milliseconds. Above the Input Delay, each reaction is drawn evenly between the two, since a player is a little faster or slower every time. 0 keeps every reaction at the Input Delay."
+			},
 			"channel_clip_delay": {
 				"label": "Channel Clip Delay",
 				"tooltip": "Clip delay following channeled spells, in milliseconds. This delay occurs following any full or partial channel ending after the GCD becomes available, due to the player not being able to queue the next spell."
@@ -2505,10 +2509,6 @@
 				"pull_range": {
 					"label": "Pull range (yd)",
 					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, 13.2 yd when weaving, melee range in melee), stopping for each Auto Shot you can fire on the way."
-				},
-				"time_to_weave": {
-					"label": "Time to weave (ms)",
-					"tooltip": "How long, in milliseconds, you stay in melee after the weave swing before walking back out. Never shorter than your input delay."
 				},
 				"use_aimed": {
 					"label": "Use Aimed Shot",

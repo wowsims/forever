@@ -130,6 +130,15 @@ func (unit *Unit) SetRotationTimer(sim *Simulation, rotationReadyAt time.Duratio
 	sim.AddPendingAction(unit.rotationAction)
 }
 
+// A person reacts a little faster or slower each time, so with a range set a rotation pass takes its own reaction
+// from it. Every reaction read until the next pass (input_delay, the next look, a swing's reaction) is this one.
+func (unit *Unit) drawReactionTime(sim *Simulation) {
+	if unit.ReactionTimeMax <= unit.reactionTimeMin {
+		return
+	}
+	unit.ReactionTime = unit.reactionTimeMin + time.Duration(sim.RandomFloat("Reaction Time")*float64(unit.ReactionTimeMax-unit.reactionTimeMin))
+}
+
 // Call this when reacting to events that occur before the next scheduled rotation action
 func (unit *Unit) ReactToEvent(sim *Simulation, randomizeReactionTime bool, addReactionTime bool) {
 	// A stat computation runs no rotation, and an aura gained on reset can still add rage (Furor).

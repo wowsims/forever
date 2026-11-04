@@ -57,6 +57,7 @@ export const applyBuild = (
 			// The three tank specs' default build is exactly that, and it was wiping their reaction
 			// time to 0 ms.
 			if (typeof settings.playerOptions?.reactionTimeMs === 'number') simUI.player.setReactionTime(settings.playerOptions.reactionTimeMs);
+			if (typeof settings.playerOptions?.reactionTimeMaxMs === 'number') simUI.player.setReactionTimeMax(settings.playerOptions.reactionTimeMaxMs);
 			if (typeof settings.playerOptions?.channelClipDelayMs === 'number') simUI.player.setChannelClipDelay(settings.playerOptions.channelClipDelayMs);
 			if (typeof settings.playerOptions?.inFrontOfTarget === 'boolean') simUI.player.setInFrontOfTarget(settings.playerOptions.inFrontOfTarget);
 			if (settings.specOptions) {

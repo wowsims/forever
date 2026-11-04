@@ -89,14 +89,15 @@ entry, and a build that uses its gear set's file cannot write `gear:` again.
 - `builds/<name>.siml` holds a whole setup, or a preset build the
   site offers, which states only what it changes over `defaults.siml`. A `use` line takes a gear set or a rotation
   from its own file, by a path from the build's folder: `use "../gear_sets/p1.gear.siml"`.
-- Rotations that share variables and defs `use` one file that holds only those, as the hunter's weave rotations use
+- Rotations that share variables, defs or a group `use` one file that holds them, as the hunter's weave rotations use
   `apls/weave_common.apl.siml` (SPEC.md §9): its defs and variables read in each rotation, which adds its own and
-  sets a shared variable's value with `use … with`. A used file's prepull rows and groups join the rotation's too, as
-  `apls/walk_in.apl.siml` brings the walk in to the turret and weave rotations. A rotation and a file it uses cannot
+  can set a shared variable's value with `use … with`. A used file's prepull rows and groups join the rotation's too:
+  `weave_common` brings the `"Weave"` group to both weave rotations, and `apls/walk_in.apl.siml` brings the walk in
+  to the turret and weave rotations. A rotation and a file it uses cannot
   both hold `prepull:` (`section-conflict`), so the pull sits in `apls/pull.apl.siml`, and the turret rotation, which
   opens with Sniper Shot, writes its own.
 - `defaults.siml` holds the setup the spec's page starts with, a whole setup in the same form, with what the page
-  sets on top of it stated: the race, `reaction_time_ms 100`, the rotation type (`apl: type auto` when the spec has
+  sets on top of it stated: the race, `reaction_time 100ms`, the rotation type (`apl: type auto` when the spec has
   no default rotation), for a tank `in_front_of_target` and `tanks player1`, and for a healer `target_dummies 9`.
   `spec.ts` reads it through `PresetUtils.specDefaultsFromSettings`, and `wowsimcli siml sim` sims a rotation on it,
   with the preset build that uses the rotation loaded over it; `wowsimcli sim --infile` loads a preset build over it

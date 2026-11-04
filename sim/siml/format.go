@@ -1,6 +1,7 @@
 package siml
 
 import (
+	"maps"
 	"slices"
 	"strings"
 	"unicode"
@@ -68,6 +69,7 @@ func (f *typedFile) format(u *uses) string {
 			sectionOf[b] = s
 		}
 	}
+	entries, sectionFields := f.joinedMaxes()
 	var implied *section
 	if f.kind.Section != "" {
 		implied = tree.sections[0]
@@ -225,9 +227,12 @@ func (f *typedFile) format(u *uses) string {
 			if !isEntry(s) || section == nil {
 				break
 			}
-			stmts := p.entries(statementWrites(f.entries[s]), indent)
+			stmts := p.entries(foldMaxes(statementWrites(entries[s]), sectionFields[section]), indent)
 			if len(stmts) > 0 {
 				stmts[len(stmts)-1].trailing = trailing
+			} else if trailing != "" {
+				// A line whose writes all joined another line keeps its comment on a line of its own.
+				items = append(items, &item{line: strings.Repeat(" ", indent) + trailing})
 			}
 			// A section's one entry stays on its header line when it is written there.
 			if onHeader != nil && len(stmts) == 1 && len(section.body) == 1 {
@@ -302,6 +307,44 @@ func defLine(s *defStmt, src string, indent int) *printedStmt {
 		parts = append(parts, word(t))
 	}
 	return &printedStmt{indent: indent, parts: parts}
+}
+
+// What each entry line writes, with a duration's max (SPEC.md §5.2) moved from a line of its own to its duration's
+// line, which prints it as the second value; and the fields of each section.
+func (f *typedFile) joinedMaxes() (map[stmt][]entryWrite, map[*section][]*placed) {
+	ix := f.typer.ix
+	entries := maps.Clone(f.entries)
+	sectionFields := map[*section][]*placed{}
+	for _, sec := range f.tree.sections {
+		def := ix.sections[sec.name]
+		if def == nil {
+			continue
+		}
+		fields := ix.sectionFields(def, f.spec)
+		sectionFields[sec] = fields
+		lineOf := map[string]stmt{} // The line that writes each field, by its path.
+		for _, b := range sec.body {
+			for _, e := range entries[b] {
+				lineOf[e.placed.path] = b
+			}
+		}
+		for _, b := range sec.body {
+			var kept []entryWrite
+			for _, e := range entries[b] {
+				if min := minField(e.placed, fields); min != nil {
+					if to, ok := lineOf[min.path]; ok && to != b {
+						entries[to] = append(slices.Clone(entries[to]), e)
+						continue
+					}
+				}
+				kept = append(kept, e)
+			}
+			if len(kept) < len(entries[b]) {
+				entries[b] = kept
+			}
+		}
+	}
+	return entries, sectionFields
 }
 
 // The writes of an entry line: the values one line gives a list, together.

@@ -11,6 +11,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -595,7 +596,7 @@ func (t *typer) namedArg(k *aplKind, n name, value node, body protoreflect.Messa
 	}
 	given[f] = true
 	pop := t.in(f.JSON)
-	v, ok := t.term(f, value)
+	v, ok := t.term(f.writtenAs(n.text), value)
 	pop()
 	if ok {
 		body.Set(f.desc, v)
@@ -642,6 +643,17 @@ func messageValue(m googleProto.Message) (protoreflect.Value, bool) {
 
 // Whether f holds a list whose items are written one by one; an indexed array is written whole, as one value.
 func (f *field) isList() bool { return f.Repeated && f.Printed != "indexed" }
+
+// f as a value written after name reads it: a duration written by its full name takes a number with no unit (SPEC.md
+// §5.2).
+func (f *field) writtenAs(name string) *field {
+	if f.Printed != "duration" || name == f.Siml {
+		return f
+	}
+	alias := *f.schemaField
+	alias.Siml, alias.Printed = name, "number"
+	return &field{schemaField: &alias, desc: f.desc}
+}
 
 // A new list for the repeated field f.
 func newList(f *field) protoreflect.List {
@@ -714,6 +726,8 @@ func (t *typer) singleOf(f *field, n node) (protoreflect.Value, bool) {
 		return t.wrongType(f, "a string in quotes", n)
 	case "number":
 		return t.number(f, n)
+	case "duration":
+		return t.milliseconds(f, f.Siml, n)
 	case "enum", "flag_enum":
 		return t.enumValue(f.Type, n, f, false)
 	case "stat":
@@ -777,6 +791,31 @@ func (t *typer) number(f *field, n node) (protoreflect.Value, bool) {
 		return protoreflect.ValueOfUint64(v.Uint64()), true
 	}
 	return intValue(f.desc, v.Int64()), true
+}
+
+// A duration as the whole milliseconds the int32 field f holds (SPEC.md §5.2); what names the value in a diagnostic.
+func (t *typer) milliseconds(f *field, what string, n node) (protoreflect.Value, bool) {
+	l, ok := n.(*literalNode)
+	if !ok {
+		t.report("wrong-type", what+" takes a duration such as 250ms", n.pos())
+		return protoreflect.Value{}, false
+	}
+	if strings.HasSuffix(l.text, "%") || isDecimal(l.text) {
+		t.report("bad-literal", what+" takes a duration such as 250ms", l.span)
+		return protoreflect.Value{}, false
+	}
+	d, err := time.ParseDuration(l.text)
+	switch {
+	case err != nil || d/time.Millisecond > math.MaxInt32:
+		t.report("wrong-type", what+" takes a duration that fits "+f.Scalar+" in milliseconds", l.span)
+	case d < 0:
+		t.report("wrong-type", what+" takes a duration of 0ms or more", l.span)
+	case d%time.Millisecond != 0:
+		t.report("wrong-type", what+" takes whole milliseconds", l.span)
+	default:
+		return protoreflect.ValueOfInt32(int32(d / time.Millisecond)), true
+	}
+	return protoreflect.Value{}, false
 }
 
 // A decimal as the double nearest it; false past the range of a double. -0 reads as 0, as a JSON number has no
@@ -934,7 +973,7 @@ func (t *typer) messageArgs(m *message, args *argList) protoreflect.Message {
 			continue
 		case a.name != nil || call.args != nil:
 			pop := t.in(f.JSON)
-			v, good = t.term(f, a.value)
+			v, good = t.term(f.writtenAs(n.text), a.value)
 			pop()
 		default:
 			v, good = t.bareFlag(f, a.value.pos())
@@ -1607,6 +1646,10 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 	switch s := s.(type) {
 	case *fieldEntryStmt:
 		p := find(s.name.text, s.name.span, false)
+		var max *placed
+		if p != nil && s.name.text == p.Siml {
+			max = maxField(p, fields)
+		}
 		switch {
 		case p == nil:
 		case !p.isList() && len(s.values) > 1:
@@ -1614,10 +1657,31 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 		default:
 			for _, value := range s.values {
 				pop := at(p)
-				v, ok := t.single(p.field, value)
+				v, ok := t.single(p.field.writtenAs(s.name.text), value)
 				pop()
 				put(p, v, ok)
 			}
+		}
+		switch {
+		case p == nil || s.max == nil:
+		case max == nil && p.isList():
+			t.report("wrong-type", p.Siml+" takes its values separated by commas", s.max.pos())
+		case max == nil:
+			t.report("wrong-type", s.name.text+" takes one value", s.max.pos())
+		case set[max.field]:
+			t.report("duplicate-field", max.Siml+" is written twice", s.max.pos())
+		default:
+			set[max.field] = true
+			pop := at(max)
+			v, ok := t.milliseconds(max.field, "the max of "+p.Siml, s.max)
+			pop()
+			if ok {
+				t.mark(s.max.pos())
+				if len(written) > 0 && written[0].value.Int() >= v.Int() {
+					t.warn("max-not-above-min", fmt.Sprintf("the max of %s is not above its first value, so it sets no range", p.Siml), s.max.pos())
+				}
+			}
+			put(max, v, ok)
 		}
 	case *flagListStmt:
 		for _, fl := range s.flags {
@@ -1626,7 +1690,7 @@ func (t *typer) entry(s stmt, fields []*placed, holder func(*placed) protoreflec
 			case p == nil:
 			case fl.value != nil:
 				pop := at(p)
-				v, ok := t.single(p.field, fl.value)
+				v, ok := t.single(p.field.writtenAs(fl.name.text), fl.value)
 				pop()
 				put(p, v, ok)
 			default:

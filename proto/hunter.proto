@@ -153,8 +153,8 @@ message Hunter {
 			Weave  = 1;
 			Melee  = 2;
 		}
-		reserved 1;
-		int32 time_to_weave = 2;
+		reserved 1, 2;
+		reserved "time_to_weave";
 		bool use_multi = 3;
 		bool use_arcane = 4;
 		Playstyle playstyle = 5;

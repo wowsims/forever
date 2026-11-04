@@ -1,0 +1,5 @@
+4:15 error bad-literal
+4:19 error wrong-type
+5:20 error wrong-type
+5:25 error wrong-type
+6:15 error wrong-type
