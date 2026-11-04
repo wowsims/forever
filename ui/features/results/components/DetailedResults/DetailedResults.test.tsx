@@ -31,7 +31,7 @@ vi.mock('@sim/proto/sim_result', async importOriginal => ({
 
 // Every pane below is React now, so they are prop readers rather than islands: what this pane owes
 // each is `active`, which is what their own deferral is built on.
-const panes = vi.hoisted(() => ({ log: [] as Array<boolean>, timeline: [] as Array<boolean> }));
+const panes = vi.hoisted(() => ({ log: [] as Array<boolean>, timeline: [] as Array<boolean>, movement: [] as Array<boolean> }));
 vi.mock('../LogRunner', () => ({
 	LogRunner: ({ active }: { active: boolean }) => {
 		panes.log.push(active);
@@ -42,6 +42,12 @@ vi.mock('../Timeline', () => ({
 	Timeline: ({ active }: { active: boolean }) => {
 		panes.timeline.push(active);
 		return <div className="timeline-root" />;
+	},
+}));
+vi.mock('../Movement', () => ({
+	Movement: ({ active }: { active: boolean }) => {
+		panes.movement.push(active);
+		return <div className="movement-root" />;
 	},
 }));
 
@@ -89,6 +95,7 @@ const tabButton = (container: HTMLElement, tabId: string) =>
 beforeEach(() => {
 	panes.log.length = 0;
 	panes.timeline.length = 0;
+	panes.movement.length = 0;
 	resultChannel = new ResultChannel();
 	currentChangeEmitter = new Emitter<void>();
 	runData = null;
@@ -103,7 +110,7 @@ describe('DetailedResults', () => {
 	it('renders only the tabs whose metrics toggle is on, opens the damage pane and fades the rest out, and keeps each pane in the container its island was built into', () => {
 		const { container } = renderPane();
 		const buttons = [...container.querySelectorAll<HTMLButtonElement>('[data-testid="dr-toolbar"] [role="tab"]')];
-		expect(buttons).toHaveLength(7);
+		expect(buttons).toHaveLength(8);
 		expect(buttons.map(button => button.getAttribute('aria-controls'))).toEqual([
 			'damageTab',
 			'buffsTab',
@@ -111,6 +118,7 @@ describe('DetailedResults', () => {
 			'castsTab',
 			'resourcesTab',
 			'timelineTab',
+			'movementTab',
 			'logTab',
 		]);
 		expect(buttons.filter(button => button.getAttribute('aria-selected') === 'true')).toHaveLength(1);
@@ -123,6 +131,7 @@ describe('DetailedResults', () => {
 
 		expect(container.querySelectorAll('#logTab .log-runner-root')).toHaveLength(1);
 		expect(container.querySelectorAll('#timelineTab .timeline-root')).toHaveLength(1);
+		expect(container.querySelectorAll('#movementTab .movement-root')).toHaveLength(1);
 	});
 
 	it('holds every metrics table in its own tab, under its own root', () => {
@@ -152,6 +161,7 @@ describe('DetailedResults', () => {
 	it.each([
 		['log', 'logTab'],
 		['timeline', 'timelineTab'],
+		['movement', 'movementTab'],
 	] as const)('tells the %s pane whether its tab is the open one', (pane, tabId) => {
 		const { container } = renderPane();
 		expect(panes[pane].at(-1)).toBe(false);

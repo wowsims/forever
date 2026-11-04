@@ -9509,6 +9509,85 @@
 								"gcd_tooltip"
 							]
 						},
+						"movement": {
+							"type": "object",
+							"properties": {
+								"note": {
+									"type": "string"
+								},
+								"no_walks": {
+									"type": "string"
+								},
+								"field_label": {
+									"type": "string"
+								},
+								"play": {
+									"type": "string"
+								},
+								"pause": {
+									"type": "string"
+								},
+								"speed_label": {
+									"type": "string"
+								},
+								"speed": {
+									"type": "string"
+								},
+								"time_label": {
+									"type": "string"
+								},
+								"time": {
+									"type": "string"
+								},
+								"unit": {
+									"type": "string"
+								},
+								"zones": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"dead_zone": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "dead_zone", "ranged"]
+								},
+								"rings": {
+									"type": "object",
+									"properties": {
+										"melee": {
+											"type": "string"
+										},
+										"ranged": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["melee", "ranged"]
+								}
+							},
+							"additionalProperties": false,
+							"required": [
+								"note",
+								"no_walks",
+								"field_label",
+								"play",
+								"pause",
+								"speed_label",
+								"speed",
+								"time_label",
+								"time",
+								"unit",
+								"zones",
+								"rings"
+							]
+						},
 						"logs": {
 							"type": "object",
 							"properties": {
@@ -9794,12 +9873,15 @@
 								"timeline": {
 									"type": "string"
 								},
+								"movement": {
+									"type": "string"
+								},
 								"log": {
 									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "log"]
+							"required": ["damage", "healing", "threat", "damage_taken", "buffs", "debuffs", "casts", "resources", "timeline", "movement", "log"]
 						},
 						"columns": {
 							"type": "object",
@@ -10254,6 +10336,7 @@
 						"pets",
 						"damage",
 						"timeline",
+						"movement",
 						"logs",
 						"tabs",
 						"columns",

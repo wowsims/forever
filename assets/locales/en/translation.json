@@ -2685,6 +2685,27 @@
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
 			},
+			"movement": {
+				"note": "Shows the same single iteration as the timeline. Distances are to the target, and each unit has a bearing of its own so the circles stay apart.",
+				"no_walks": "No unit walked in this run.",
+				"field_label": "The player and pets around the target",
+				"play": "Play",
+				"pause": "Pause",
+				"speed_label": "Playback speed",
+				"speed": "{{speed}}×",
+				"time_label": "Time",
+				"time": "{{time}} s",
+				"unit": "{{name}}: {{yards}} yd",
+				"zones": {
+					"melee": "In melee range",
+					"dead_zone": "In the dead zone",
+					"ranged": "At range"
+				},
+				"rings": {
+					"melee": "melee {{yards}} yd",
+					"ranged": "ranged {{yards}} yd"
+				}
+			},
 			"logs": {
 				"top_button": "Top",
 				"export_button": "Export Log",
@@ -2762,6 +2783,7 @@
 				"casts": "Casts",
 				"resources": "Resources",
 				"timeline": "Timeline",
+				"movement": "Movement",
 				"log": "Log"
 			},
 			"columns": {
@@ -3231,6 +3253,10 @@
 				"results_timeline": {
 					"title": "Timeline",
 					"body": "One fight laid out over time: casts, buffs and resources."
+				},
+				"results_movement": {
+					"title": "Movement",
+					"body": "Where you and your pets stood around the target over one fight, with a slider to scrub through it."
 				},
 				"results_log": {
 					"title": "Log",
