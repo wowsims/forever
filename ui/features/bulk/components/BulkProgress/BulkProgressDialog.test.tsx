@@ -147,7 +147,7 @@ describe('BulkProgressDialog', () => {
 
 			// The first encounter took 30 seconds, and the second, with the same plan, is a fifth through: 24 s left.
 			run.progress = progressAt(rows, 1, 0.2, [30]);
-			const timeLeft = (seconds: number) => ` · ${i18n.t('bulk_tab.progress.time_left', { time: formatDurationSeconds(seconds) })}`;
+			const timeLeft = (seconds: number) => ` · ${i18n.t('common.time_left', { time: formatDurationSeconds(seconds) })}`;
 			act(() => vi.advanceTimersByTime(1000));
 			expect(elapsedLine()).toBe(`${i18n.t('common.elapsed_time')}: ${formatDurationSeconds(2)}${timeLeft(24)}`);
 

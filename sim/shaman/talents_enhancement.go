@@ -233,7 +233,9 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 
 var maelstromWeaponBuff = spellData.MaelstromWeaponTriggered.Highest()
 
-const maelstromWeaponPPM = 10.0
+// TODO: the patch notes double the chance to trigger, and no row states a chance as of hotfix push
+// 113596, so the rate is twice the measured 10.
+const maelstromWeaponPPM = 20.0
 
 func (shaman *Shaman) applyMaelstromWeapon() {
 	if shaman.Talents.MaelstromWeapon == 0 {
@@ -280,7 +282,8 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	// chance". In game the chance per hit rises with the main hand's speed, so it is a rate per
 	// minute; a proc at five stacks refreshes the buff.
 	//
-	// TODO: 10 fits the 3.6 s weapon; a 2.4 s weapon measured about 6.6.
+	// TODO: the measured 10 fits the 3.6 s weapon and a 2.4 s weapon measured about 6.6, both
+	// before the patch notes doubled the chance.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)

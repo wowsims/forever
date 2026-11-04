@@ -20,7 +20,7 @@ func init() {
 }
 
 // The Enhancement suite's talents, which take Elemental Devastation.
-const enhancementTalents = "053503102-053030031005112251"
+const enhancementTalents = "053503102-053030310051012251"
 
 // The raid of one Enhancement shaman with the given talents.
 func enhancementRaid(talents string) *proto.Raid {
@@ -119,7 +119,7 @@ func TestMeleeCritCapCountsElementalDevastation(t *testing.T) {
 	if want := 100*critWithBuff - 100*room; !core.WithinToleranceFloat64(want, with.Delta, 1e-9) {
 		t.Errorf("delta %v, want the crit the auto rolls with the buff up less the white-hit table's room for it, %v", with.Delta, want)
 	}
-	if without := critCap("-053030031005112251"); without.SpecOffset != 0 {
+	if without := critCap("-053030310051012251"); without.SpecOffset != 0 {
 		t.Errorf("without the talent the spec offset is %v, want 0", without.SpecOffset)
 	}
 

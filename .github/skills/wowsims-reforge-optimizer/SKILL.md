@@ -81,6 +81,10 @@ change.
   or haste channels share counted once and a rating's fallbacks counted once, as the largest; flat weapon damage as
   main-hand, off-hand or ranged DPS at the weapon's speed. The cap coefficients push the raw stat delta through
   the baseline's stat dependency manager (`resolveStatDelta`), so Agility counts toward Crit% and Dodge%.
+- A rating stat's EP is stored per rating point, and the model, presets and `Stats.computeEP` read it in that unit. The
+  UI shows and takes it per 1%, through `UnitStat.storedEpToShown` and `shownEpToStored` (`ui/sim/proto/stats.ts`).
+  Defense rating buys skill and has no percent, so its EP stays per point. A percent pseudo-stat's EP is stored and
+  shown per percentage point.
 - `enchantTieBreak` (twice for the slot's input enchant, none where the input enchant stays in the baseline) keeps
   the input enchant on an EP tie and fills a slot whose candidates are all worth 0. The solve passes an explicit
   `mipRelGap` far below HiGHS's default, which would otherwise swamp the tie-break.

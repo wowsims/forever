@@ -96,7 +96,7 @@ const FURY = '-0505000540501';
 const FURY_EDITED = '-0505000530501';
 
 const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
-const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, useHealth: true, targets: [Target.create()] });
+const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
 const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets: [Target.create()] });
 
 const HEALER = SavedSettings.create({ race: Race.RaceTroll, professions: [Profession.Alchemy, Profession.Herbalism] });
@@ -265,11 +265,11 @@ const sentBuilds = () =>
 
 const steps = (host: IndividualSimHost<any>) => bulkProgress(host.player)!.steps;
 
-// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL and the health-based PATCHWERK.
+// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL and PATCHWERK.
 const ENCOUNTER_SUMMARIES: Record<string, string> = {
 	'bulk_tab.settings.encounters.current': '3:00 ±5s · bulk_tab.settings.encounters.targets',
 	Council: '1:30 ±10s · bulk_tab.settings.encounters.targets',
-	Patchwerk: 'bulk_tab.settings.encounters.health_summary · bulk_tab.settings.encounters.targets',
+	Patchwerk: '5:00 ±30s · bulk_tab.settings.encounters.targets',
 };
 
 const step = (

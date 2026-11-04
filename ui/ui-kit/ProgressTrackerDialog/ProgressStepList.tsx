@@ -23,7 +23,8 @@ export const ProgressStepList = ({ labels, running }: ProgressStepListProps) => 
 					{/* Balances the status slot, so the label sits on the dialog's centre line. */}
 					<span className="w-4" aria-hidden />
 					{label}
-					<span className="flex w-4 items-center justify-center">
+					{/* Clipped: a spinning box's corners reach past it and would flicker a scrollbar onto the dialog's scroll area. */}
+					<span className="flex w-4 items-center justify-center overflow-clip">
 						{state === 'done' && <Icon name="circle-check" className="text-success" />}
 						{state === 'running' && <Spinner size="xs" testId="progress-step-spinner" />}
 					</span>

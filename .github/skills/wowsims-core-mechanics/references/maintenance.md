@@ -22,6 +22,7 @@ Re-derive a claim before repeating it:
 | the `CastRequirement` checks in `cast.go` or `spell.go`      | "What the row forbids", `docs/spell_data/auras-and-dots.md`                       |
 | a tick outcome, `exclusive_effect.go`, tags, `MakePermanent` | "Whose state", "Auras and exclusive effects", `docs/spell_data/auras-and-dots.md` |
 | `ProtoVersion`, the proto toolchain, the field-number rule   | "Protos"                                                                          |
+| the target lifecycle, `target_death.go`, `target_health.go`  | "Targets"                                                                         |
 | a trap's code, a ruling's code or its measured number        | `references/traps.md`, `references/rulings.md`                                    |
 
 Then run the shared path check:

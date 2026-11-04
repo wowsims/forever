@@ -9,9 +9,8 @@ import (
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
 //   Blood Craze: effect 1 of spell 16487 has no rank curve and is held at its base points
 //   Gore Drinker: effect 0 of spell 1323967 has no rank curve and is held at its base points
-//   Improved Slam: effect 2, 3, 4, 5, 6, 7 of spell 12862 has no rank curve and is held at its base points
+//   Improved Slam: effect 3, 4, 5, 6, 7 of spell 12862 has no rank curve and is held at its base points
 //   Iron Will: effect 1 of spell 12962 has no rank curve and is held at its base points
-//   Raging Blows: effect 0, 1 of spell 1310315 has no rank curve and is held at its base points
 //   Vanguard: effect 0, 1, 2 of spell 1310317 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
@@ -94,6 +93,7 @@ type generatedSpellData struct {
 	ImprovedTacticalMastery         spelldata.Ladder
 	ImprovedTaunt                   spelldata.Ladder
 	ImprovedThunderClap             spelldata.Ladder
+	ImprovedWhirlwind               spelldata.Ladder
 	Intercept                       spelldata.Ladder
 	InterceptTriggered              spelldata.Ladder
 	IntimidatingShout               spelldata.Ladder
@@ -113,7 +113,8 @@ type generatedSpellData struct {
 	Overpower                       spelldata.Ladder
 	PiercingHowl                    spelldata.Ladder
 	Pummel                          spelldata.Ladder
-	RagingBlows                     spelldata.Ladder
+	RecklessSwings                  spelldata.Ladder
+	RecklessSwingsTriggered         spelldata.Ladder
 	Recklessness                    spelldata.Ladder
 	Rend                            spelldata.Ladder
 	Retaliation                     spelldata.Ladder
@@ -161,7 +162,7 @@ var spellData = generatedSpellData{
 	Bloodrage:                       spelldata.Ranked(2687),
 	BloodrageTriggered:              spelldata.Ranked(29131),
 	Bloodthirst:                     spelldata.Ranked(23881, 23892, 23893, 23894),
-	Bloodthrill:                     spelldata.Talent(1289682, 5),
+	Bloodthrill:                     spelldata.Talent(1289682, 2),
 	BloodthrillTriggered:            spelldata.Ranked(1282733),
 	BoomingVoice:                    spelldata.Talent(12321, 5),
 	ChallengingShout:                spelldata.Ranked(1161),
@@ -189,7 +190,7 @@ var spellData = generatedSpellData{
 	EnrageTriggered:                 spelldata.Ranked(12880),
 	Execute:                         spelldata.Ranked(5308, 20658, 20660, 20661, 20662),
 	ExecuteTriggered:                spelldata.Ranked(26651),
-	Flurry:                          spelldata.Talent(12319, 5),
+	Flurry:                          spelldata.Talent(12319, 3),
 	FlurryTriggered:                 spelldata.Ranked(12966),
 	FocusedRage:                     spelldata.Talent(29787, 3),
 	FuriousPrecision:                spelldata.Talent(1323963, 3),
@@ -222,9 +223,10 @@ var spellData = generatedSpellData{
 	ImprovedShieldWall:              spelldata.Talent(12312, 2),
 	ImprovedSlam:                    spelldata.Talent(12862, 2),
 	ImprovedSunderArmor:             spelldata.Talent(12308, 3),
-	ImprovedTacticalMastery:         spelldata.Talent(12295, 5),
+	ImprovedTacticalMastery:         spelldata.Talent(12295, 3),
 	ImprovedTaunt:                   spelldata.Ranked(12302, 12765),
 	ImprovedThunderClap:             spelldata.Talent(12287, 3),
+	ImprovedWhirlwind:               spelldata.Talent(1310315, 2),
 	Intercept:                       spelldata.Ranked(20252, 20616, 20617),
 	InterceptTriggered:              spelldata.Ranked(20253, 20614, 20615),
 	IntimidatingShout:               spelldata.Ranked(5246),
@@ -244,7 +246,8 @@ var spellData = generatedSpellData{
 	Overpower:                       spelldata.Ranked(7384, 7887, 11584, 11585),
 	PiercingHowl:                    spelldata.Ranked(12323),
 	Pummel:                          spelldata.Ranked(6552, 6554),
-	RagingBlows:                     spelldata.Talent(1310315, 1),
+	RecklessSwings:                  spelldata.Ranked(1329555),
+	RecklessSwingsTriggered:         spelldata.Ranked(1329554),
 	Recklessness:                    spelldata.Ranked(1719),
 	Rend:                            spelldata.Ranked(772, 6546, 6547, 6548, 11572, 11573, 11574),
 	Retaliation:                     spelldata.Ranked(20230),
