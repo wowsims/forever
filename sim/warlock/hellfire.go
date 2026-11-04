@@ -41,7 +41,7 @@ func (warlock *Warlock) registerHellfire() {
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		hellfireEffect.Cast(sim, target)
 		spellPower := warlock.GetStat(stats.SpellDamage) + warlock.GetStat(stats.FireDamage)
-		warlock.RemoveHealth(sim, selfBurn.Average()+selfBurn.Coeff()*spellPower)
+		warlock.SpendHealth(sim, selfBurn.Average()+selfBurn.Coeff()*spellPower, dot.Spell.HealthMetrics(&warlock.Unit))
 	}
 
 	// Channel on the caster
