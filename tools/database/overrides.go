@@ -971,6 +971,13 @@ var ItemDenyList = map[int32]struct{}{
 	241090: {}, // Scarlet Great Axe
 	// Forever test items the game files carry
 	280304: {}, // Invisible Dagger
+	// End of Beta event weapons: level 1 copies of raid weapons at item level 35 to 45
+	289292: {}, // Hammer of Bestial Fury
+	289294: {}, // Thunderfury, Blessed Blade of the Windseeker
+	289295: {}, // Sulfuras, Hand of Ragnaros
+	289296: {}, // Benediction
+	289297: {}, // Anathema
+	289303: {}, // Rhok'delar, Longbow of the Ancient Keepers
 }
 
 // Item Ids of consumables to allow
