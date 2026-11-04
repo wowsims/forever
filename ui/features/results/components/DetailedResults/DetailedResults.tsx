@@ -168,7 +168,7 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 		[showDamage, showThreat, showHealing],
 	);
 
-	const [activeId, setActiveId] = useState<string>(DEFAULT_DETAILED_RESULTS_TAB);
+	const [activeId, setActiveId] = useState<string>(() => (host.player.getPlayerSpec().isHealingSpec ? 'healingTab' : DEFAULT_DETAILED_RESULTS_TAB));
 	const [deathDisabled, setDeathDisabled] = useState(true);
 	const [target, setTarget] = useState(ALL_UNITS);
 	const [groupRanks, setGroupRanks] = useLocalStorageState(GROUP_RANKS_STORAGE_KEY, parseFlag, () => true);

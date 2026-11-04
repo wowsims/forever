@@ -265,26 +265,74 @@ func (priest *Priest) applyDivineAegis() {
 			ShieldStrengthCalculator: func(_ *core.Unit) float64 { return 0 },
 		})
 	})
-	priest.MakeProcTriggerAura(core.ProcTrigger{
-		Name:     "Divine Aegis",
-		Callback: core.CallbackOnHealDealt,
-		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if !result.DidCrit() {
+	aegisSpells := make(map[*core.Spell]*core.Spell)
+	var pendingStrength float64
+	priest.OnSpellRegistered(func(sourceSpell *core.Spell) {
+		if !sourceSpell.ProcMask.Matches(core.ProcMaskSpellHealing) {
+			return
+		}
+		// Penance's channel shares the heal bolt's spell id, but only the bolt lands a critical heal.
+		if sourceSpell.Matches(PriestSpellPenance) && sourceSpell.Flags.Matches(core.SpellFlagChanneled) {
+			return
+		}
+		// Item effects without a spell id can still land direct critical heals.
+		if sourceSpell.ActionID.SpellID != 0 {
+			row := spelldata.Find(sourceSpell.ActionID.SpellID)
+			if row == spelldata.Nil || row.CannotCrit() {
 				return
 			}
-			shield := shields.Get(result.Target)
-			strength := result.Damage * shieldFraction
+			healEffect := row.ProcHealEffect()
+			if healEffect == spelldata.NilEffect || healEffect.Aura == dbcenums.A_PERIODIC_HEAL {
+				return
+			}
+		}
+
+		config := spelldata.SpellConfig(
+			&priest.Unit,
+			spellData.DivineAegisTriggered.Highest(),
+			spelldata.Magic(core.ProcMaskEmpty),
+			spelldata.RemoveFlags(core.SpellFlagAPL),
+			spelldata.Flags(core.SpellFlagNoOnCastComplete),
+		)
+		sourceTag := sourceSpell.ActionID.SpellID
+		if sourceTag == 0 && sourceSpell.ActionID.ItemID != 0 {
+			sourceTag = -sourceSpell.ActionID.ItemID
+		}
+		config.ActionID.Tag = sourceTag
+		config.SourceActionID = sourceSpell.ActionID
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			shield := shields.Get(target)
 			if shield.IsActive() {
 				shield.Aura.Activate(sim)
 			} else {
 				shield.Activate(sim)
 			}
-			before := shield.ShieldStrength
-			shield.ShieldStrength = min(before+strength, maxShield)
-			if gained := shield.ShieldStrength - before; gained > 0 {
-				spell.RecordCustomMetric(result.Target, "divine_aegis", gained)
-			}
+			previousStrength := shield.ShieldStrength
+			shield.ShieldStrength = min(previousStrength+pendingStrength, maxShield)
+			gained := shield.ShieldStrength - previousStrength
 			shield.SetStacks(sim, max(1, int32(shield.ShieldStrength)))
+			spell.RecordShielding(target, gained)
+			spell.SpellMetrics[target.UnitIndex].Hits++
+			if gained > 0 {
+				sourceSpell.RecordCustomMetric(target, "divine_aegis", gained)
+			}
+		}
+		aegisSpells[sourceSpell] = priest.RegisterSpell(config)
+	})
+	priest.MakeProcTriggerAura(core.ProcTrigger{
+		Name:             "Divine Aegis",
+		Callback:         core.CallbackOnHealDealt,
+		CanProcFromProcs: spellData.DivineAegis.Highest().CanProcFromProcs(),
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if !result.DidCrit() {
+				return
+			}
+			aegisSpell := aegisSpells[spell]
+			if aegisSpell == nil {
+				return
+			}
+			pendingStrength = result.Damage * shieldFraction
+			aegisSpell.Proc(sim, result.Target)
 		},
 	})
 }

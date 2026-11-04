@@ -19,7 +19,7 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkBuildBundle, type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkBuildBundle, type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters, HealingSimSettings } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -65,6 +65,7 @@ export interface RaidSlice {
 	debuffs: Debuffs;
 	tanks: Array<UnitReference>;
 	targetDummies: number;
+	healingSettings: HealingSimSettings;
 	numActiveParties: number;
 	// One entry per party; length equals MAX_NUM_PARTIES (5).
 	partyBuffs: Array<PartyBuffs>;
@@ -322,6 +323,7 @@ const initialState = (): SimState => ({
 		debuffs: Debuffs.create(),
 		tanks: [],
 		targetDummies: 0,
+		healingSettings: HealingSimSettings.create({ groupSize: 10 }),
 		numActiveParties: 5,
 		// 5 = MAX_NUM_PARTIES (raid.ts); not imported to avoid a module cycle.
 		partyBuffs: Array.from({ length: 5 }, () => PartyBuffs.create()),

@@ -876,6 +876,11 @@ export class ActionMetrics {
 		return this.data.isPassive;
 	}
 
+	// For a proc spell registered once per source, that source's spell or item. Ids only, with no name or icon.
+	get sourceActionId(): ActionId | null {
+		return this.data.sourceId ? ActionId.fromProto(this.data.sourceId) : null;
+	}
+
 	get totalDamagePercent() {
 		const totalAvgDps = this.resultData.result.raidMetrics?.dps?.avg;
 		if (!totalAvgDps) return undefined;
@@ -1471,6 +1476,8 @@ export class ActionMetrics {
 		const maxTargets = Math.max(...actions.map(action => action.targets.length));
 		const mergedTargets = [...Array(maxTargets).keys()].map(i => TargetedActionMetrics.merge(actions.map(action => action.targets[i])));
 		const isAllPassiveSpells = actions.every(action => action.isPassiveAction);
+		const sourceKey = (action: ActionMetrics) => action.sourceActionId?.equalityKey();
+		const sharesSource = actions.every(action => sourceKey(action) === sourceKey(firstAction));
 
 		return new ActionMetrics(
 			unit,
@@ -1480,6 +1487,7 @@ export class ActionMetrics {
 				isPassive: isAllPassiveSpells,
 				targets: mergedTargets.map(t => t.data),
 				spellSchool: firstAction.spellSchool || undefined,
+				sourceId: sharesSource ? firstAction.data.sourceId : undefined,
 			}),
 			firstAction.resultData,
 		);

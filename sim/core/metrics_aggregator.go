@@ -123,7 +123,8 @@ type ActionMetrics struct {
 	IsMelee     bool // True if melee action, false if spell action.
 	IsPassive   bool // True if action is applied/cast as a result of another action
 	SpellSchool SpellSchool
-	Rank        int32 // The spell's rank, which the UI names the action with; 0 for an unranked spell.
+	Rank        int32    // The spell's rank, which the UI names the action with; 0 for an unranked spell.
+	SourceID    ActionID // The spell's SourceActionID, empty when it has none.
 
 	// Metrics for this action, for each possible target.
 	Targets []TargetedActionMetrics
@@ -202,12 +203,17 @@ func (actionMetrics *ActionMetrics) ToProto(actionID ActionID) *proto.ActionMetr
 
 	id := actionID.ToProto()
 	id.Rank = actionMetrics.Rank
+	var sourceID *proto.ActionID
+	if !actionMetrics.SourceID.IsEmptyAction() {
+		sourceID = actionMetrics.SourceID.ToProto()
+	}
 	return &proto.ActionMetrics{
 		Id:          id,
 		IsMelee:     actionMetrics.IsMelee,
 		IsPassive:   actionMetrics.IsPassive,
 		Targets:     targetMetrics,
 		SpellSchool: int32(actionMetrics.SpellSchool),
+		SourceId:    sourceID,
 	}
 }
 
@@ -435,6 +441,7 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 			IsPassive:   spell.Flags.Matches(SpellFlagPassiveSpell),
 			SpellSchool: spell.SpellSchool,
 			Rank:        spell.Rank,
+			SourceID:    spell.SourceActionID,
 		}
 		unitMetrics.actions[actionID] = actionMetrics
 	}

@@ -26,7 +26,13 @@ vi.mock('../ResultsFilter', async importOriginal => ({
 const run = vi.hoisted(() => ({ targets: 3 }));
 vi.mock('@sim/proto/sim_result', async importOriginal => ({
 	...(await importOriginal<typeof import('@sim/proto/sim_result')>()),
-	SimResult: { fromProto: () => Promise.resolve({ getTargets: () => Array.from({ length: run.targets }, (_, index) => ({ index })) }) },
+	SimResult: {
+		fromProto: () =>
+			Promise.resolve({
+				getTargets: () => Array.from({ length: run.targets }, (_, index) => ({ index })),
+				getRaidIndexedPlayers: () => [],
+			}),
+	},
 }));
 
 // Every pane below is React now, so they are prop readers rather than islands: what this pane owes
@@ -65,8 +71,9 @@ let currentChangeEmitter: Emitter<void>;
 
 let runData: unknown = null;
 
-const renderPane = () =>
+const renderPane = (isHealingSpec = false) =>
 	renderWithHost(<DetailedResults resultsManager={{ currentChangeEmitter, getRunData: () => runData } as never} />, {
+		player: { getPlayerSpec: () => ({ isHealingSpec }) },
 		sim: {
 			store: createSimStore(),
 			getShowDamageMetrics: () => metrics.damage,
@@ -123,6 +130,15 @@ describe('DetailedResults', () => {
 
 		expect(container.querySelectorAll('#logTab .log-runner-root')).toHaveLength(1);
 		expect(container.querySelectorAll('#timelineTab .timeline-root')).toHaveLength(1);
+	});
+
+	it('opens the healing pane for a healer, even while the damage tab shows', () => {
+		metrics.healing = true;
+		const { container } = renderPane(true);
+		expect(tabButton(container, 'damageTab')).toBeTruthy();
+		expect(tabButton(container, 'healingTab').getAttribute('aria-selected')).toBe('true');
+		expect(container.querySelector<HTMLElement>('#healingTab')!.hidden).toBe(false);
+		expect(container.querySelector<HTMLElement>('#damageTab')!.hidden).toBe(true);
 	});
 
 	it('holds every metrics table in its own tab, under its own root', () => {

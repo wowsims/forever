@@ -1,3 +1,4 @@
+import { HealingSimSettings, HealingSimSettings_Assignment as HealingAssignment } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import type { Sim } from '@sim/sim';
 import { createSimStore, patchKeyed, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
@@ -25,6 +26,7 @@ const makePlayer = (overrides: Partial<Record<string, unknown>> = {}) =>
 		sim,
 		canEnableTargetDummies: () => true,
 		shouldEnableTargetDummies: () => false,
+		getPlayerSpec: () => ({ isHealingSpec: false }),
 		...overrides,
 	}) as unknown as Player<any>;
 
@@ -33,12 +35,40 @@ beforeEach(() => {
 	dummies = 3;
 	sim = {
 		store,
-		raid: { getTargetDummies: () => dummies, setTargetDummies: (value: number) => (dummies = value) },
+		raid: {
+			getTargetDummies: () => dummies,
+			setTargetDummies: (value: number) => (dummies = value),
+			getHealingSettings: () => store.getState().raid.healingSettings,
+		},
 	} as unknown as Sim;
+	Object.assign(sim.raid, { sim });
 	seedPlayerSlice();
 });
 
 describe('watchTargetDummies', () => {
+	it.each([
+		[HealingAssignment.TankHealing, 5, 4],
+		[HealingAssignment.TankHealing, 10, 1],
+		[HealingAssignment.TankHealing, 20, 2],
+		[HealingAssignment.RaidHealing, 10, 9],
+		[HealingAssignment.RaidHealing, 20, 19],
+	] as const)('derives %i / %i targets without mounting settings', (assignment, groupSize, expected) => {
+		store.setState(state => ({ raid: { ...state.raid, healingSettings: HealingSimSettings.create({ assignment, groupSize }) } }));
+		watchTargetDummies(makePlayer({ getPlayerSpec: () => ({ isHealingSpec: true }) }), sim);
+		expect(dummies).toBe(expected);
+	});
+
+	it('updates a healer count when an assignment is imported after initialization', () => {
+		watchTargetDummies(makePlayer({ getPlayerSpec: () => ({ isHealingSpec: true }) }), sim);
+		store.setState(state => ({
+			raid: { ...state.raid, healingSettings: HealingSimSettings.create({ assignment: HealingAssignment.RaidHealing, groupSize: 20 }) },
+		}));
+		expect(dummies).toBe(19);
+		store.setState(state => ({
+			raid: { ...state.raid, healingSettings: HealingSimSettings.create({ assignment: HealingAssignment.TankHealing, groupSize: 20 }) },
+		}));
+		expect(dummies).toBe(2);
+	});
 	// The one that matters. A count restored from localStorage or pasted in from another spec's
 	// link is stale on arrival; nothing changes the player afterwards, so only the apply at arm
 	// time zeroes it, and every sim until then ships the extra allies.

@@ -204,6 +204,30 @@ func NewRaid(raidConfig *proto.Raid, areaTypes []proto.AreaType) *Raid {
 	return raid
 }
 
+// A random raid player or target dummy other than exclude, or nil when no candidate remains.
+func (raid *Raid) GetRandomPlayer(sim *Simulation, label string, exclude *Unit) *Unit {
+	count := 0
+	for _, unit := range raid.AllPlayerUnits {
+		if unit != exclude {
+			count++
+		}
+	}
+	if count == 0 {
+		return nil
+	}
+	pick := int(sim.RandomFloat(label) * float64(count))
+	for _, unit := range raid.AllPlayerUnits {
+		if unit == exclude {
+			continue
+		}
+		if pick == 0 {
+			return unit
+		}
+		pick--
+	}
+	return nil
+}
+
 func (raid *Raid) Size() int {
 	totalPlayers := 0
 	for _, party := range raid.Parties {
@@ -327,18 +351,18 @@ func (raid *Raid) applyCharacterEffects(raidConfig *proto.Raid) *proto.RaidStats
 		}
 
 		// Apply all buffs to the players in this party.
-		for playerIdx, player := range party.Players {
-			if playerIdx >= len(partyConfig.Players) {
-				// This happens for target dummies.
+		for _, player := range party.Players {
+			if _, isTargetDummy := player.(*TargetDummy); isTargetDummy {
 				continue
 			}
-			playerConfig := partyConfig.Players[playerIdx]
+			char := player.GetCharacter()
+			// NewParty skips empty slots, so the config sits at the player's own slot.
+			playerConfig := partyConfig.Players[char.PartyIndex]
 			individualBuffs := &proto.IndividualBuffs{}
 			if playerConfig.Buffs != nil {
 				individualBuffs = playerConfig.Buffs
 			}
 
-			char := player.GetCharacter()
 			char.EnableHealthBar()
 			char.trackChanceOfDeath(playerConfig.HealingModel)
 			partyStats.Players[char.PartyIndex] = char.applyAllEffects(player, raidBuffs, partyBuffs, individualBuffs)
@@ -456,6 +480,17 @@ func SinglePlayerRaidProto(player *proto.Player, partyBuffs *proto.PartyBuffs, r
 		Buffs:   raidBuffs,
 		Debuffs: debuffs,
 	}
+}
+
+// The request's raid with the weighted player in its first slot, or a single-player raid when none is supplied.
+func StatWeightsRaidProto(swr *proto.StatWeightsRequest) *proto.Raid {
+	raid := SinglePlayerRaidProto(swr.Player, swr.PartyBuffs, swr.RaidBuffs, swr.Debuffs)
+	if len(swr.GetRaid().GetParties()) > 0 && len(swr.Raid.Parties[0].GetPlayers()) > 0 {
+		raid = googleProto.Clone(swr.Raid).(*proto.Raid)
+		raid.Parties[0].Players[0] = swr.Player
+	}
+	raid.Tanks = swr.Tanks
+	return raid
 }
 
 func RaidPlayersWithClass(raid *proto.Raid, class proto.Class) []*proto.Player {

@@ -1,8 +1,10 @@
 import i18n from '@i18n/config';
+import type { ActionId } from '@sim/proto/action_id';
 import type { ActionMetrics } from '@sim/proto/sim_result';
 import { formatToCompactNumber, formatToNumber, formatToPercent } from '@sim/utils/format';
 import type { RefObject } from 'react';
 
+import type { MetricRow } from '../../model/grouping';
 import { createMetricsColumnHelper, MetricsActionCell, type MetricsColumnMeta } from '../MetricsTable';
 import { MetricsTotalBar } from '../MetricsTotalBar';
 
@@ -64,19 +66,24 @@ export interface RateColumnConfig {
  * dropped into the same array — adding an entry, never forking the markup.
  */
 export const attackMetricsColumns = {
-	name: () =>
+	/** `shownAction` names a row after an action other than its own, e.g. a proc row after its source. */
+	name: (shownAction?: (row: MetricRow<ActionMetrics>) => ActionId | undefined) =>
 		helper.accessor(row => row.metric.name, {
 			id: 'name',
 			header: i18n.t('results_tab.details.columns.name'),
-			cell: info => (
-				<MetricsActionCell
-					name={info.row.original.metric.name}
-					actionId={info.row.original.metric.actionId}
-					expandable={info.row.getCanExpand()}
-					expanded={info.row.getIsExpanded()}
-					onToggle={info.row.getToggleExpandedHandler()}
-				/>
-			),
+			cell: info => {
+				const { metric } = info.row.original;
+				const shown = shownAction?.(info.row.original);
+				return (
+					<MetricsActionCell
+						name={shown?.name ?? metric.name}
+						actionId={shown ?? metric.actionId}
+						expandable={info.row.getCanExpand()}
+						expanded={info.row.getIsExpanded()}
+						onToggle={info.row.getToggleExpandedHandler()}
+					/>
+				);
+			},
 		}),
 
 	primary: ({ id, header, total, value, percentage, max, overlay, tooltipId }: PrimaryMetricColumnConfig) =>

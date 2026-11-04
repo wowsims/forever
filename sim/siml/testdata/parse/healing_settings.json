@@ -1,0 +1,14 @@
+{
+	"player": {
+		"class": "ClassPriest",
+		"healerPriest": {
+			"options": {
+				"classOptions": {}
+			}
+		}
+	},
+	"healingSettings": {
+		"assignment": "RaidHealing",
+		"groupSize": 10
+	}
+}

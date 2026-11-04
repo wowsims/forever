@@ -1,6 +1,7 @@
 import i18n from '@i18n/config';
 import { useSim } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
+import type { ActionId } from '@sim/proto/action_id';
 import { ActionMetrics } from '@sim/proto/sim_result';
 import { formatToNumber } from '@sim/utils/format';
 import { percentOf } from '@sim/utils/math';
@@ -8,7 +9,7 @@ import { Tooltip } from '@ui-kit/Tooltip';
 import { useMemo } from 'react';
 
 import { useActionRows } from '../../hooks/useActionRows';
-import { filterMetricRows, indexMetricRows } from '../../model/grouping';
+import { filterMetricRows, indexMetricRows, type MetricRow } from '../../model/grouping';
 import type { SimResultData } from '../../model/result_data';
 import { amountHeader, attackFormat, attackMetricsColumns, customMetricsGroups, threatTooltip, useMetricMax } from '../AttackMetricsColumns';
 import { MetricsCombinedTooltip, type MetricsCombinedTooltipGroup } from '../MetricsCombinedTooltip';
@@ -27,11 +28,27 @@ const TOOLTIP = {
 	hps: 'healing-metrics-hps',
 };
 
+// A proc spell registered once per source spell shares one spell id across its sources, so its sources
+// land in one group, as rows under the proc spell's row.
 const healingGroups = (resultData: SimResultData): Array<Array<ActionMetrics>> => {
-	const players = resultData.result.getRaidIndexedPlayers(resultData.filter);
-	if (!players.length) return [];
+	const player = resultData.result.getRaidIndexedPlayers(resultData.filter)[0];
+	if (!player) return [];
+	return ActionMetrics.groupById(
+		player
+			.getHealingActions()
+			.map(action => action.forTarget(resultData.filter))
+			.filter(action => action.hps > 0),
+	);
+};
 
-	return ActionMetrics.groupById(players[0].getHealingActions().filter(action => action.hps > 0));
+// A source row stays under its proc spell's row even when it is the only one, since it is named after its source.
+const collapsesAlone = (metric: ActionMetrics) => !metric.unit?.isPet && !metric.sourceActionId;
+
+// A source row shows its source's name and icon, which the unfilled `sourceActionId` lacks, so it reads them off the unit's own action.
+const sourceActionOf = ({ metric, subRows }: MetricRow<ActionMetrics>): ActionId | undefined => {
+	const source = metric.sourceActionId;
+	if (subRows || !source) return undefined;
+	return metric.unit?.actions.find(action => action.actionId.equals(source))?.actionId;
 };
 
 const healingGroup = (metric: ActionMetrics): MetricsCombinedTooltipGroup => {
@@ -86,7 +103,7 @@ const isThreatOnly = (metric: ActionMetrics) => metric.hitAttempts == 0 && metri
 export const HealingMetricsTable = () => {
 	const sim = useSim();
 	const { threat: showThreatMetrics } = useDisplayMetrics(sim);
-	const { resultData, rows: built } = useActionRows(healingGroups);
+	const { resultData, rows: built } = useActionRows(healingGroups, collapsesAlone);
 
 	const rows = useMemo(() => (showThreatMetrics ? built : filterMetricRows(built, isThreatOnly)), [built, showThreatMetrics]);
 	const metricsByRowId = useMemo(() => indexMetricRows(rows), [rows]);
@@ -95,7 +112,7 @@ export const HealingMetricsTable = () => {
 	const columns = useMemo(
 		() =>
 			helper.columns([
-				attackMetricsColumns.name(),
+				attackMetricsColumns.name(sourceActionOf),
 				attackMetricsColumns.primary({
 					id: 'healing-done',
 					header: i18n.t('results_tab.details.columns.healing_done'),

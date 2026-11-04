@@ -1,0 +1,5 @@
+siml 1
+spec healer_priest
+
+settings:
+  healing_settings(assignment=raid_healing, group_size=10)

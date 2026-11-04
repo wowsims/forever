@@ -145,7 +145,7 @@ func (spell *Spell) OutcomeHealingCritNoHitCounter(sim *Simulation, result *Spel
 	spell.outcomeHealingCrit(sim, result, nil, false)
 }
 func (spell *Spell) outcomeHealingCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable, countHits bool) {
-	if spell.HealingCritCheck(sim) {
+	if spell.HealingCritCheck(sim, result.Target) {
 		result.Outcome = OutcomeCrit
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
 		if countHits {
@@ -200,7 +200,7 @@ func (spell *Spell) OutcomeTickMagicCrit(sim *Simulation, result *SpellResult, a
 
 // A heal tick rolls no hit, only the healing crit.
 func (spell *Spell) OutcomeTickHealingCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
-	if spell.HealingCritCheck(sim) {
+	if spell.HealingCritCheck(sim, result.Target) {
 		result.Outcome = OutcomeCrit
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
 		spell.SpellMetrics[result.Target.UnitIndex].CritTicks++

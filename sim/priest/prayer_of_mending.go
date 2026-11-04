@@ -1,6 +1,8 @@
 package priest
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -10,21 +12,15 @@ func (priest *Priest) registerPrayerOfMending(_ int32, rank *spelldata.Spell) {
 	triggerAura := spellData.PrayerOfMendingTriggered.ByID(401877)
 
 	config := spelldata.SpellConfig(&priest.Unit, rank, spelldata.Magic(core.ProcMaskSpellHealing))
+	// The cast row omits DefenseType, but its healing crits use the magic critical multiplier.
+	config.DefenseType = core.DefenseTypeMagic
 	config.ClassSpellMask = PriestSpellPrayerOfMending
 	config.BonusCoefficient = heal.Coeff()
 	var spell *core.Spell
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
-		isPartyMember := false
-		if priest.Party != nil {
-			for _, member := range priest.Party.Players {
-				if target == &member.GetCharacter().Unit {
-					isPartyMember = true
-					break
-				}
-			}
-		}
-		if !isPartyMember {
+		raid := priest.Env.Raid
+		if !slices.Contains(raid.AllPlayerUnits, target) {
 			target = &priest.Unit
 		}
 
@@ -44,23 +40,13 @@ func (priest *Priest) registerPrayerOfMending(_ int32, rank *spelldata.Spell) {
 			pa.NextActionAt = sim.CurrentTime + core.DurationFromSeconds(delay)
 			pa.OnAction = func(sim *core.Simulation) {
 				spell.CalcAndDealHealing(sim, healTarget, heal.Average(), spell.OutcomeHealingCrit)
-				if remainingJumps <= 0 || priest.Party == nil {
+				if remainingJumps <= 0 {
 					return
 				}
 
-				candidates := make([]*core.Unit, 0, len(priest.Party.Players))
-				for _, member := range priest.Party.Players {
-					candidate := &member.GetCharacter().Unit
-					if candidate != healTarget {
-						candidates = append(candidates, candidate)
-					}
+				if nextTarget := raid.GetRandomPlayer(sim, "Prayer of Mending jump target", healTarget); nextTarget != nil {
+					scheduleHeal(sim, nextTarget, remainingJumps-1)
 				}
-				if len(candidates) == 0 {
-					return
-				}
-
-				nextTarget := candidates[int(sim.RandomFloat("Prayer of Mending jump target")*float64(len(candidates)))]
-				scheduleHeal(sim, nextTarget, remainingJumps-1)
 			}
 			sim.AddPendingAction(pa)
 		}

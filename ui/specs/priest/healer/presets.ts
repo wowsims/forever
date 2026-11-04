@@ -1,10 +1,12 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { ConsumesSpec, Profession, Stat } from '@generated/proto/common';
+import { ConsumesSpec, Profession, Spec, Stat } from '@generated/proto/common';
 import { HealerPriest_Options as HealerPriestOptions, PriestOptions_Armor } from '@generated/proto/priest';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
+import DiscTestingBuildJson from './builds/disc_testing.build.json';
+import HolyTestingBuildJson from './builds/holy_testing.build.json';
 import PreraidGearJson from './gear_sets/preraid.gear.json';
 
 export const DefaultOptions = HealerPriestOptions.create({
@@ -37,8 +39,14 @@ export const OtherDefaults = {
 	profession2: Profession.Enchanting,
 };
 
-export const DiscTalents = PresetUtils.makePresetTalents('Disc', SavedTalents.create({ talentsString: '005025021330011531-335001030301' }));
-export const HolyTalents = PresetUtils.makePresetTalents('Holy', SavedTalents.create({ talentsString: '00520101133-33505003030121531' }));
+export const ROTATION_DISC_DEFAULT = PresetUtils.makePresetAPLRotation('Disc Testing', DiscTestingBuildJson.player.rotation);
+export const ROTATION_HOLY_DEFAULT = PresetUtils.makePresetAPLRotation('Holy Testing', HolyTestingBuildJson.player.rotation);
+
+export const DiscTestingBuild = PresetUtils.makePresetBuildFromJSON('Disc Testing', Spec.SpecHealerPriest, DiscTestingBuildJson);
+export const HolyTestingBuild = PresetUtils.makePresetBuildFromJSON('Holy Testing', Spec.SpecHealerPriest, HolyTestingBuildJson);
+
+export const DiscTalents = PresetUtils.makePresetTalents('Disc', SavedTalents.create({ talentsString: '005005031330011531-335020030301' }));
+export const HolyTalents = PresetUtils.makePresetTalents('Holy', SavedTalents.create({ talentsString: '00500502103-33505003030121531' }));
 
 export const PreRaidGear = PresetUtils.makePresetGear('Pre-raid', PreraidGearJson, { devOnly: true });
 
