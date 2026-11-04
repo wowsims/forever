@@ -6923,6 +6923,7 @@
 {"id":680,"name":"Holy Strike","icon":"classicon_paladin","rank":4},
 {"id":688,"name":"Summon Imp","icon":"spell_shadow_summonimp"},
 {"id":691,"name":"Summon Felhunter","icon":"spell_shadow_summonfelhunter"},
+{"id":695,"name":"Shadow Bolt","icon":"spell_shadow_shadowbolt","rank":2},
 {"id":697,"name":"Summon Voidwalker","icon":"spell_shadow_summonvoidwalker"},
 {"id":702,"name":"Curse of Weakness","icon":"spell_shadow_curseofmannoroth","rank":1,"hasBuff":true},
 {"id":704,"name":"Curse of Recklessness","icon":"spell_shadow_unholystrength","rank":1,"hasBuff":true},
