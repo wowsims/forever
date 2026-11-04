@@ -726,59 +726,85 @@ func (apl *APLRotation) popControllingAction(ca APLActionImpl) {
 	apl.controllingActions = apl.controllingActions[:len(apl.controllingActions)-1]
 }
 
-// nextActionWouldRecastChannel reports whether the same channeled spell would be
-// the first action cast if the channel ended right now. Run inside withChannelEnded,
-// so it evaluates the APL in the post-channel state (ChanneledDot = nil) and
-// channel-state-dependent conditions don't produce stale results.
-//
-// Uses CanCast rather than CanCastOrQueue so that a proc-queued spell in the
-// same timestep does not incorrectly block a same-spell re-cast from being
-// detected.
-func (apl *APLRotation) nextActionWouldRecastChannel(sim *Simulation, channeledDot *Dot) bool {
-	channeledSpell := channeledDot.Spell
+// Whether the first action the rotation would run casts the channel's spell. Read inside withChannelEnded.
+func (apl *APLRotation) firstActionRecasts(sim *Simulation, channeled *Spell) bool {
+	if step, controlled := apl.controlledStep(); controlled {
+		return step != nil && step.IsReady(sim) && step.casts(channeled)
+	}
+	_, recasts := apl.firstActionIn(sim, apl.priorityList, channeled)
+	return recasts
+}
 
-	for _, action := range apl.priorityList {
+// The current step of the strict sequence that controls the rotation, read without moving the sequence
+// on; nil under any other controlling action, which runs on its own. controlled says one controls it.
+func (apl *APLRotation) controlledStep() (step *APLAction, controlled bool) {
+	n := len(apl.controllingActions)
+	if n == 0 {
+		return nil, false
+	}
+	if sequence, ok := apl.controllingActions[n-1].(*APLActionStrictSequence); ok {
+		return sequence.current(), true
+	}
+	return nil, true
+}
+
+// Walks actions as the rotation would, a referenced group's actions in the reference's place and a
+// sequence's current step in the sequence's, to the first one that would run: found says there is one,
+// recasts that it casts the channel's spell. A cast or channel is read with CanCast rather than
+// CanCastOrQueue, so a spell queued for the GCD's end does not end the channel before then; it fires
+// after the channel's next tick. Autocast Other Cooldowns fires its cooldowns beside the rotation and is
+// passed over.
+func (apl *APLRotation) firstActionIn(sim *Simulation, actions []*APLAction, channeled *Spell) (found, recasts bool) {
+	for _, action := range actions {
 		if action.condition != nil && !action.condition.GetBool(sim) {
 			continue
 		}
 
-		if castAction, ok := action.impl.(*APLActionCastSpell); ok {
-			canCast := castAction.spell.CanCast(sim, castAction.target.Get())
-			if castAction.spell == channeledSpell || castAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
+		var inner []*APLAction
+		var canCast bool
+		switch impl := action.impl.(type) {
+		case *APLActionAutocastOtherCooldowns:
+			continue
+		case *APLActionGroupReference:
+			if impl.group == nil {
+				continue
 			}
-			// Use CanCast (not CanCastOrQueue) so SQW-queued spells don't
-			// prematurely interrupt — they'll fire after the channel's next tick.
-			if canCast {
-				return false
+			inner = impl.group.actions
+		case *APLActionSequence:
+			if impl.curIdx == len(impl.subactions) {
+				continue
+			}
+			inner = impl.subactions[impl.curIdx : impl.curIdx+1]
+		case *APLActionStrictSequence:
+			if !impl.IsReady(sim) {
+				continue
+			}
+			inner = impl.subactions[impl.curIdx : impl.curIdx+1]
+		case *APLActionCastSpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get()) && !impl.spell.majorCooldownWaits(sim)
+		case *APLActionCastFriendlySpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get()) && !impl.spell.majorCooldownWaits(sim)
+		case *APLActionChannelSpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get())
+		default:
+			canCast = action.impl.IsReady(sim)
+		}
+
+		if inner != nil {
+			if found, recasts := apl.firstActionIn(sim, inner, channeled); found {
+				return true, recasts
 			}
 			continue
 		}
-
-		if channelAction, ok := action.impl.(*APLActionChannelSpell); ok {
-			canCast := channelAction.spell.CanCast(sim, channelAction.target.Get())
-			if channelAction.spell == channeledSpell || channelAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
-			}
-			if canCast {
-				return false
-			}
-			continue
+		if action.casts(channeled) {
+			return true, canCast
 		}
-
-		// autocast_other_cooldowns fires off-GCD MCDs alongside the main rotation —
-		// never blocks same-spell detection.
-		if _, ok := action.impl.(*APLActionAutocastOtherCooldowns); ok {
-			continue
-		}
-
-		// A different non-spell action is fully ready — it would be cast first.
-		if action.impl.IsReady(sim) {
-			return false
+		if canCast {
+			return true, false
 		}
 	}
 
-	return false
+	return false, false
 }
 
 func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
@@ -788,25 +814,31 @@ func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
 		return false
 	}
 
-	// Check whether the same channel would be re-cast in post-channel state.
-	var wouldRecast bool
+	var recasts bool
 	apl.withChannelEnded(func() {
-		wouldRecast = apl.nextActionWouldRecastChannel(sim, channeledDot)
+		recasts = apl.firstActionRecasts(sim, channeledDot.Spell)
 	})
 
-	if wouldRecast {
+	if recasts {
 		return apl.allowChannelRecastOnInterrupt
 	}
 
 	return true
 }
 
-// Runs evaluate as if the channel had ended, with no ChanneledDot, which it restores after.
+// Runs evaluate as if the channel had ended, with no ChanneledDot and the channel's aura read as down,
+// which it restores after. A variable read while the channel was up reads again. A sequence asked
+// whether it is ready marks the rotation as in a sequence; nothing asked here runs, so the mark is put
+// back.
 func (apl *APLRotation) withChannelEnded(evaluate func()) {
-	dot := apl.unit.ChanneledDot
+	dot, inSequence := apl.unit.ChanneledDot, apl.inSequence
 	apl.unit.ChanneledDot = nil
+	apl.unit.endedChannel = dot
+	apl.evalGeneration++
 	evaluate()
+	apl.unit.endedChannel = nil
 	apl.unit.ChanneledDot = dot
+	apl.inSequence = inSequence
 }
 
 // A starting channel takes the condition of the channel action that cast it. It takes the action's
