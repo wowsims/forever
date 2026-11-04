@@ -14,15 +14,15 @@ func (shaman *Shaman) registerChainLightningSpell() {
 // The cast, with the overload it may trigger; the overload itself, from its own row, where overload is
 // nil. Both jump alike, so an overload reaches as many targets as the cast, starting on the target that
 // triggered it.
-func (shaman *Shaman) newChainLightningSpellConfig(row, rank *spelldata.Spell, overload *core.Spell) core.SpellConfig {
-	config, damage := shaman.newElectricSpellConfig(row, rank)
+func (shaman *Shaman) newChainLightningSpellConfig(row *spelldata.Spell, overload *core.Spell) core.SpellConfig {
+	config, damage := shaman.newElectricSpellConfig(row, overload == nil)
 	config.ClassSpellMask = SpellMaskChainLightning
 	if overload == nil {
 		config.ClassSpellMask = SpellMaskChainLightningOverload
 	}
 
 	// The effect states the targets the bolt reaches and what each jump keeps.
-	effect := rank.DamageEffect()
+	effect := row.DamageEffect()
 	maxHits := int32(effect.ChainTargets)
 	bounce := float64(effect.ChainAmp)
 
