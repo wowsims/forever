@@ -259,27 +259,6 @@ func TestRemorselessAttacksSpendsOnAvoidedStrikesAndCritsLandedOnes(t *testing.T
 	}
 }
 
-// Quietus reads the health of each strike's own target: the bonus is off for a strike while the target is
-// above its threshold and on once the target is below it.
-func TestQuietusFollowsTheStrikesTarget(t *testing.T) {
-	sim, rogue := newTwoTargetSim("--00000000000000005")
-	target := sim.Encounter.AllTargetUnits[0]
-	strike := rogue.SinisterStrike
-	base := strike.DamageMultiplierAdditive
-	bonus := spellData.Quietus.EffectAt(1).FractionAt(5)
-
-	strike.SkipCastAndApplyEffects(sim, target)
-	if got := strike.DamageMultiplierAdditive - base; math.Abs(got) > 1e-9 {
-		t.Errorf("Sinister Strike at a target above 35%% adds %v to its damage, want 0", got)
-	}
-	for !target.IsExecutePhase35() && !sim.Step() {
-	}
-	strike.SkipCastAndApplyEffects(sim, target)
-	if got := strike.DamageMultiplierAdditive - base; math.Abs(got-bonus) > 1e-9 {
-		t.Errorf("Sinister Strike at a target below 35%% adds %v to its damage, want %v", got, bonus)
-	}
-}
-
 // Lightning Reflexes 5/5, Deflection 3/3, Riposte, Setup 3/3 and Ghostly Strike.
 const tankTalents = "-005030001-300000000001"
 

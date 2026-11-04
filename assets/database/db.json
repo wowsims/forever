@@ -9314,7 +9314,6 @@
 {"id":1325256,"name":"Mana Tide Totem","icon":"spell_frost_summonwaterelemental","rank":4},
 {"id":1325257,"name":"Mana Tide","icon":"spell_frost_summonwaterelemental","rank":4,"hasBuff":true},
 {"id":1325758,"name":"Death Mark","icon":"ability_creature_cursed_02","rank":4,"hasBuff":true},
-{"id":1326047,"name":"Lava Burst","icon":"spell_shaman_lavaburst","rank":4},
 {"id":1326079,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":1},
 {"id":1326082,"name":"Arcane Wrath","icon":"ability_mage_netherwindpresence","rank":4},
 {"id":1326084,"name":"Reckoning","icon":"spell_holy_blessingofstrength","hasBuff":true},
@@ -9342,7 +9341,8 @@
 {"id":1329286,"name":"Boot Knife","icon":"inv_sword_32"},
 {"id":1329326,"name":"Ghostly Strike","icon":"spell_holy_removecurse","hasBuff":true},
 {"id":1329328,"name":"Venom","icon":"inv_sword_31"},
-{"id":1329549,"name":"Shank","icon":"ability_theblackarrow"}
+{"id":1329549,"name":"Shank","icon":"ability_theblackarrow"},
+{"id":1329555,"name":"Reckless Swings","icon":"ability_warrior_bloodfrenzy","hasBuff":true}
 ],
 "encounters":[
 {"path":"Default/Raid Target","targets":[{"path":"Default/Raid Target","target":{"id":31146,"name":"Raid Target","level":63,"mobType":7,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,0,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],"minBaseDamage":2601,"damageSpread":0.5,"swingSpeed":2,"parryHaste":true,"canCrush":true}}]},
