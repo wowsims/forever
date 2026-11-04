@@ -1,4 +1,5 @@
 import { RaidSimRequest, RaidSimResult } from '@generated/proto/api';
+import { ItemSlot, RangedWeaponType } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { type CombatLog, parseAll } from '@sim/proto/combat_log';
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -11,13 +12,33 @@ import { Movement } from './Movement';
 const state = vi.hoisted(() => ({ result: null as SimResultData | null }));
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => state.result }));
 
-// One player `p` at raid index 0, 12 yd out at the start, with a cat; `logs` is the run's log as the sim prints it.
-const runOf = async (text: string): Promise<SimResultData> => {
+// One player `p` at raid index 0, 12 yd out at the start, with a cat and a ranged weapon of the given type; `logs` is
+// the run's log as the sim prints it.
+const runOf = async (text: string, ranged = RangedWeaponType.RangedWeaponTypeBow): Promise<SimResultData> => {
 	const logs = await parseAll(RaidSimResult.create({ logs: text.trim().replace(/^\s+/gm, '') }));
 	const of = (pet: boolean) => logs.filter((log: CombatLog) => log.source && log.source.isPet === pet);
 	return {
 		result: {
-			request: RaidSimRequest.create({ requestId: 'a', raid: { parties: [{ players: [{ distanceFromTarget: 12 }] }] } }),
+			request: RaidSimRequest.create({
+				requestId: 'a',
+				raid: {
+					parties: [
+						{
+							players: [
+								{
+									distanceFromTarget: 12,
+									equipment: {
+										items: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, (_, slot) => ({
+											id: slot === ItemSlot.ItemSlotRanged ? 1 : 0,
+										})),
+									},
+									database: { items: [{ id: 1, rangedWeaponType: ranged }] },
+								},
+							],
+						},
+					],
+				},
+			}),
 			logs,
 			firstIterationDuration: 30,
 			getRaidIndexedPlayers: () => [{ name: 'p', index: 0, logs: of(false), pets: [{ name: 'Cat', logs: of(true) }] }],
@@ -69,6 +90,13 @@ describe('Movement', () => {
 		fireEvent.change(slider(), { target: { value: '30' } });
 		expect(screen.getByText('p: 4.00 yd')).toBeTruthy();
 		expect(zone(container)?.textContent).toBe('In melee range');
+	});
+
+	it('has no dead zone for a weapon that fires from anywhere', async () => {
+		state.result = await runOf(WEAVE, RangedWeaponType.RangedWeaponTypeThrown);
+		const { container } = render(<Movement active />);
+		fireEvent.change(slider(), { target: { value: '2.5' } });
+		expect(zone(container)?.getAttribute('data-zone')).toBe('ranged');
 	});
 
 	it('says so instead of drawing when no unit walked', async () => {

@@ -777,10 +777,16 @@ func (p *printer) entryStmt(lineWrites []write, parts []text, indent int) *print
 	fallback := func() *printedStmt {
 		var b strings.Builder
 		b.WriteByte('{')
-		for i, w := range writes {
-			if i > 0 {
+		first := true
+		for _, w := range writes {
+			// A duration foldMaxes writes only to carry its max holds no value.
+			if !w.placed.isList() && !w.values[0].IsValid() {
+				continue
+			}
+			if !first {
 				b.WriteByte(',')
 			}
+			first = false
 			writeString(&b, w.placed.JSON)
 			b.WriteByte(':')
 			if !w.placed.isList() {

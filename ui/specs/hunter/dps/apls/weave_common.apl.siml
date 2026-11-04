@@ -3,7 +3,7 @@ spec hunter
 use "walk_in.apl.siml" with $shoot_spot = max($ranged_range, 11.67)
 use "pull.apl.siml"
 
-// The melee weave as a player plays it: once Auto Shot has gone off, walk in and swing; once the swing has landed,
+// The melee weave as a player plays it: once Auto Shot has gone off, walk in and swing; once I've swung, hit or not,
 // walk back out to the spot and shoot. The player's reactions set the timing. Time to melee is how long the walk in
 // takes from where the hunter stands, for a rotation that weighs a hardcast against it.
 var ${Ranged range} = 13.19
@@ -21,7 +21,8 @@ def kick_soon =
     and kick_wait <= 400ms
 def shot_since_swing = auto_time_since_last(ranged_auto) <= auto_time_since_last(main_hand_auto)
 
-// A move row whose walk is already under way passes on to the next row, so each walk names its own case.
+// A move row passes on to the next row while a walk is under way or when I already stand at its range, so each walk
+// names its own case.
 group "Weave":
   start_attack if in_melee
   /// In melee with the GCD about to come up: wait for it, so the melee key goes out before I leave.

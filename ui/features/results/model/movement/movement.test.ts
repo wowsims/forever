@@ -14,7 +14,7 @@ const runOf = async (text: string, playerStartYards = 20, duration = 30): Promis
 		logs: logs.filter(log => log.source && !log.source.isPet),
 		pets: [...petNames, 'Idle'].map(name => ({ name, logs: logs.filter(log => log.source?.isPet && log.source.name === name) })),
 	};
-	return buildMovementRun({ player, playerStartYards, logs, duration });
+	return buildMovementRun({ player, playerStartYards, logs, duration, deadZone: true });
 };
 
 const trackOf = async (text: string): Promise<MovementTrack> => (await runOf(text))!.tracks[0];
@@ -124,9 +124,14 @@ describe('pathOf', () => {
 
 describe('rangeZone', () => {
 	it('puts a unit in melee range up to the melee breakpoint, at range from the ranged one, and in the dead zone between', () => {
-		expect(rangeZone(MAX_MELEE_RANGE)).toBe('melee');
-		expect(rangeZone(MAX_MELEE_RANGE + 0.01)).toBe('dead-zone');
-		expect(rangeZone(MIN_RANGED_RANGE - 0.01)).toBe('dead-zone');
-		expect(rangeZone(MIN_RANGED_RANGE)).toBe('ranged');
+		expect(rangeZone(MAX_MELEE_RANGE, true)).toBe('melee');
+		expect(rangeZone(MAX_MELEE_RANGE + 0.01, true)).toBe('dead-zone');
+		expect(rangeZone(MIN_RANGED_RANGE - 0.01, true)).toBe('dead-zone');
+		expect(rangeZone(MIN_RANGED_RANGE, true)).toBe('ranged');
+	});
+
+	it('has no dead zone for a player whose weapon fires from anywhere', () => {
+		expect(rangeZone(MAX_MELEE_RANGE, false)).toBe('melee');
+		expect(rangeZone(MAX_MELEE_RANGE + 0.01, false)).toBe('ranged');
 	});
 });

@@ -10,6 +10,9 @@ export interface Palette {
 	deadZone: string;
 	text: string;
 	muted: string;
+	deadZoneAlpha: number;
+	tetherAlpha: number;
+	petPathAlpha: number;
 	font: string;
 	/** The canvas's font size in pixels, which every size below is a multiple of. */
 	em: number;
@@ -20,6 +23,7 @@ export interface Palette {
 export function readPalette(canvas: HTMLCanvasElement): Palette {
 	const style = getComputedStyle(canvas);
 	const color = (name: string) => style.getPropertyValue(name).trim();
+	const alpha = (name: string) => parseFloat(style.getPropertyValue(name));
 	return {
 		target: color('--color-danger'),
 		player: color('--color-primary'),
@@ -28,14 +32,13 @@ export function readPalette(canvas: HTMLCanvasElement): Palette {
 		deadZone: color('--color-danger'),
 		text: color('--color-foreground'),
 		muted: color('--color-muted'),
+		deadZoneAlpha: alpha('--movement-dead-zone-opacity'),
+		tetherAlpha: alpha('--movement-tether-opacity'),
+		petPathAlpha: alpha('--movement-pet-path-opacity'),
 		font: `${style.fontSize} ${style.fontFamily}`,
 		em: parseFloat(style.fontSize),
 	};
 }
-
-const DEAD_ZONE_ALPHA = 0.12;
-const TETHER_ALPHA = 0.35;
-const PET_PATH_ALPHA = 0.8;
 
 export interface FieldScene {
 	run: MovementRun;
@@ -51,7 +54,7 @@ export interface FieldScene {
 // The player points straight up and the pets fan out to either side of it, a fifth of a half turn apart.
 const bearing = (index: number): number => -Math.PI / 2 + (index % 2 === 1 ? 1 : -1) * Math.ceil(index / 2) * (Math.PI / 5);
 
-/** The target in the middle, the melee and ranged breakpoints as rings around it, and each unit at its distance on its own bearing. */
+/** The target in the middle, the melee breakpoint and any ranged one as rings around it, and each unit at its distance on its own bearing. */
 export function paintField(ctx: CanvasRenderingContext2D, width: number, height: number, palette: Palette, scene: FieldScene) {
 	const { em } = palette;
 	const cx = width / 2;
@@ -61,22 +64,28 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	const melee = MAX_MELEE_RANGE * scale;
 	const ranged = MIN_RANGED_RANGE * scale;
 
+	// The ranged ring and the dead zone inside it only mean something to a weapon that cannot fire inside it.
+	const rings: Array<[number, string]> = [[melee, scene.meleeLabel]];
+	if (scene.run.deadZone) rings.push([ranged, scene.rangedLabel]);
+
 	ctx.font = palette.font;
 	ctx.lineWidth = em / 10;
 
-	ctx.save();
-	ctx.globalAlpha = DEAD_ZONE_ALPHA;
-	ctx.fillStyle = palette.deadZone;
-	ctx.beginPath();
-	ctx.arc(cx, cy, ranged, 0, 2 * Math.PI);
-	ctx.arc(cx, cy, melee, 0, 2 * Math.PI, true);
-	ctx.fill();
-	ctx.restore();
+	if (scene.run.deadZone) {
+		ctx.save();
+		ctx.globalAlpha = palette.deadZoneAlpha;
+		ctx.fillStyle = palette.deadZone;
+		ctx.beginPath();
+		ctx.arc(cx, cy, ranged, 0, 2 * Math.PI);
+		ctx.arc(cx, cy, melee, 0, 2 * Math.PI, true);
+		ctx.fill();
+		ctx.restore();
+	}
 
 	ctx.save();
 	ctx.setLineDash([em / 2, em / 3]);
 	ctx.strokeStyle = palette.ring;
-	for (const ring of [melee, ranged]) {
+	for (const [ring] of rings) {
 		ctx.beginPath();
 		ctx.arc(cx, cy, ring, 0, 2 * Math.PI);
 		ctx.stroke();
@@ -86,10 +95,7 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	ctx.fillStyle = palette.muted;
 	ctx.textAlign = 'left';
 	ctx.textBaseline = 'top';
-	for (const [ring, label] of [
-		[melee, scene.meleeLabel],
-		[ranged, scene.rangedLabel],
-	] as const) {
+	for (const [ring, label] of rings) {
 		const offset = (ring + em / 4) * Math.SQRT1_2;
 		ctx.fillText(label, cx + offset, cy + offset);
 	}
@@ -110,7 +116,7 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 		const dot = (track.isPet ? 0.45 : 0.6) * em;
 
 		ctx.save();
-		ctx.globalAlpha = TETHER_ALPHA;
+		ctx.globalAlpha = palette.tetherAlpha;
 		ctx.strokeStyle = palette.muted;
 		ctx.beginPath();
 		ctx.moveTo(cx, cy);
@@ -130,7 +136,7 @@ export function paintField(ctx: CanvasRenderingContext2D, width: number, height:
 	});
 }
 
-/** Each track's distance over the whole run, with the dead zone banded, the pull marked and a line at `time`. */
+/** Each track's distance over the whole run, with any dead zone banded, the pull marked and a line at `time`. */
 export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height: number, palette: Palette, run: MovementRun, time: number) {
 	const { em } = palette;
 	const inset = em / 4;
@@ -138,16 +144,18 @@ export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height:
 	const y = (yards: number) => inset + (1 - yards / run.reach) * (height - 2 * inset);
 	ctx.lineWidth = em / 10;
 
-	ctx.save();
-	ctx.globalAlpha = DEAD_ZONE_ALPHA;
-	ctx.fillStyle = palette.deadZone;
-	ctx.fillRect(0, y(MIN_RANGED_RANGE), width, y(MAX_MELEE_RANGE) - y(MIN_RANGED_RANGE));
-	ctx.restore();
+	if (run.deadZone) {
+		ctx.save();
+		ctx.globalAlpha = palette.deadZoneAlpha;
+		ctx.fillStyle = palette.deadZone;
+		ctx.fillRect(0, y(MIN_RANGED_RANGE), width, y(MAX_MELEE_RANGE) - y(MIN_RANGED_RANGE));
+		ctx.restore();
+	}
 
 	ctx.save();
 	ctx.setLineDash([em / 2, em / 3]);
 	ctx.strokeStyle = palette.ring;
-	for (const yards of [MAX_MELEE_RANGE, MIN_RANGED_RANGE]) {
+	for (const yards of run.deadZone ? [MAX_MELEE_RANGE, MIN_RANGED_RANGE] : [MAX_MELEE_RANGE]) {
 		ctx.beginPath();
 		ctx.moveTo(0, y(yards));
 		ctx.lineTo(width, y(yards));
@@ -165,7 +173,7 @@ export function paintStrip(ctx: CanvasRenderingContext2D, width: number, height:
 	[...run.tracks].reverse().forEach(track => {
 		ctx.save();
 		ctx.strokeStyle = track.isPet ? palette.pet : palette.player;
-		if (track.isPet) ctx.globalAlpha = PET_PATH_ALPHA;
+		if (track.isPet) ctx.globalAlpha = palette.petPathAlpha;
 		ctx.lineWidth = (track.isPet ? 1 : 1.5) * (em / 10);
 		ctx.beginPath();
 		pathOf(track, run.start, run.end).forEach((point, index) => {

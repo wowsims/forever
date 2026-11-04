@@ -66,6 +66,7 @@ import {
 	WarriorTalents,
 } from '@generated/proto/warrior';
 
+import { fromJsonLenient } from './lenient_json';
 import type { SpecOptions, SpecRotation, SpecTypeFunctions } from './spec_types';
 import { UnknownRotation, UnknownSpecOptions, UnknownTalents } from './spec_types';
 
@@ -190,7 +191,8 @@ export const specTypeFunctions: Record<Spec, SpecTypeFunctions<any>> = {
 		rotationEquals: (a, b) => Hunter_Rotation.equals(a as Hunter_Rotation, b as Hunter_Rotation),
 		rotationCopy: a => Hunter_Rotation.clone(a as Hunter_Rotation),
 		rotationToJson: a => Hunter_Rotation.toJson(a as Hunter_Rotation),
-		rotationFromJson: obj => Hunter_Rotation.fromJson(obj),
+		// A saved rotation can still hold the reserved time_to_weave, which is skipped.
+		rotationFromJson: obj => fromJsonLenient(Hunter_Rotation, obj),
 
 		talentsCreate: () => HunterTalents.create(),
 		talentsEquals: (a, b) => HunterTalents.equals(a as HunterTalents, b as HunterTalents),

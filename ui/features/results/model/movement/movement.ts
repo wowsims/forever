@@ -28,6 +28,8 @@ export interface MovementRun {
 	readonly tracks: ReadonlyArray<MovementTrack>;
 	/** The distance a view has to fit: the farthest any unit stands, and at least the ranged breakpoint. */
 	readonly reach: number;
+	/** The player's ranged weapon fires only from MIN_RANGED_RANGE out, so the yards between the breakpoints are a dead zone. */
+	readonly deadZone: boolean;
 }
 
 export interface MovementUnit {
@@ -47,6 +49,8 @@ export interface MovementRunParams {
 	logs: ReadonlyArray<CombatLog>;
 	/** Seconds from the pull to the end of the fight. */
 	duration: number;
+	/** The player's ranged weapon fires only from MIN_RANGED_RANGE out. */
+	deadZone: boolean;
 }
 
 type MutableLeg = { -readonly [K in keyof Leg]: Leg[K] };
@@ -67,7 +71,7 @@ function legsOf(logs: ReadonlyArray<CombatLog>): Array<Leg> {
 }
 
 /** The run's movement, or null when no unit walked in it. */
-export function buildMovementRun({ player, playerStartYards, logs, duration }: MovementRunParams): MovementRun | null {
+export function buildMovementRun({ player, playerStartYards, logs, duration, deadZone }: MovementRunParams): MovementRun | null {
 	const playerLegs = legsOf(player.logs);
 	const pets = player.pets.map(pet => ({ name: pet.name, legs: legsOf(pet.logs) })).filter(pet => pet.legs.length > 0);
 	if (playerLegs.length === 0 && pets.length === 0) return null;
@@ -86,7 +90,7 @@ export function buildMovementRun({ player, playerStartYards, logs, duration }: M
 		for (const leg of track.legs) reach = Math.max(reach, leg.from, leg.to);
 	}
 
-	return { start, end: duration, tracks, reach };
+	return { start, end: duration, tracks, reach, deadZone };
 }
 
 /** Yards from the target at `time`: along a walk under way, else where the last walk ended. */
@@ -129,5 +133,6 @@ export function pathOf(track: MovementTrack, start: number, end: number): Array<
 
 export type RangeZone = 'melee' | 'dead-zone' | 'ranged';
 
-/** In melee range out to the melee breakpoint, at range from the ranged one out, and in the dead zone between them. */
-export const rangeZone = (yards: number): RangeZone => (yards <= MAX_MELEE_RANGE ? 'melee' : yards < MIN_RANGED_RANGE ? 'dead-zone' : 'ranged');
+/** In melee range out to the melee breakpoint, and at range past it, but for a weapon with a dead zone only from the ranged breakpoint out. */
+export const rangeZone = (yards: number, deadZone: boolean): RangeZone =>
+	yards <= MAX_MELEE_RANGE ? 'melee' : deadZone && yards < MIN_RANGED_RANGE ? 'dead-zone' : 'ranged';

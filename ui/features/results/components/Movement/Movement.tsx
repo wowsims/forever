@@ -1,17 +1,17 @@
 import { Slider } from '@base-ui/react/slider';
+import { requestPlayer } from '@features/apl/model/apl_entry';
+import { ItemSlot } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { MAX_MELEE_RANGE, MIN_RANGED_RANGE } from '@sim/proto/sim_tables_auto_gen';
-import { MAX_PARTY_SIZE } from '@sim/raid/party';
+import { MAX_MELEE_RANGE, MIN_RANGE_WEAPON_TYPES, MIN_RANGED_RANGE } from '@sim/proto/sim_tables_auto_gen';
 import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { ToggleGroup } from '@ui-kit/ToggleGroup';
 import { type PointerEvent, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { type CanvasPaint, useCanvasPainter } from '../../hooks/useCanvasPainter';
-import { useSimResult } from '../../hooks/useSimResult';
+import { useHeldSimResult } from '../../hooks/useHeldSimResult';
 import { buildMovementRun, type MovementRun, positionAt, type RangeZone, rangeZone } from '../../model/movement/movement';
 import type { SimResultData } from '../../model/result_data';
-import { resultKey } from '../Timeline/utils';
 import { paintField, paintStrip, readPalette } from './paint';
 
 const t = (key: string, options?: Record<string, unknown>) => i18n.t(`results_tab.details.movement.${key}`, options);
@@ -69,7 +69,7 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 
 	const yards = useMemo(() => run.tracks.map(track => positionAt(track, time)), [run, time]);
 	const player = run.tracks[0];
-	const zone = rangeZone(yards[0]);
+	const zone = rangeZone(yards[0], run.deadZone);
 
 	const fieldPaint = useCallback<CanvasPaint>(
 		(ctx, width, height) =>
@@ -135,7 +135,7 @@ const MovementPlayback = ({ run, targetName, active }: MovementPlaybackProps) =>
 						<Slider.Thumb
 							getAriaLabel={() => t('time_label')}
 							getAriaValueText={() => timeText}
-							className="size-4 rounded-full bg-foreground focus-ring"
+							className="size-4 rounded-full bg-foreground has-focus-visible:focus-ring"
 						/>
 					</Slider.Track>
 				</Slider.Control>
@@ -173,8 +173,16 @@ export const MovementView = ({ run, targetName, active }: MovementViewProps) =>
 const movementOf = ({ result, filter }: SimResultData): { run: MovementRun; targetName: string } | null => {
 	const player = result.getRaidIndexedPlayers(filter)[0];
 	if (!player) return null;
-	const settings = result.request.raid?.parties[Math.floor(player.index / MAX_PARTY_SIZE)]?.players[player.index % MAX_PARTY_SIZE];
-	const run = buildMovementRun({ player, playerStartYards: settings?.distanceFromTarget ?? 0, logs: result.logs, duration: result.firstIterationDuration });
+	const settings = requestPlayer(result, player);
+	const rangedId = settings?.equipment?.items[ItemSlot.ItemSlotRanged]?.id;
+	const rangedType = rangedId ? settings?.database?.items.find(item => item.id === rangedId)?.rangedWeaponType : undefined;
+	const run = buildMovementRun({
+		player,
+		playerStartYards: settings?.distanceFromTarget ?? 0,
+		logs: result.logs,
+		duration: result.firstIterationDuration,
+		deadZone: rangedType !== undefined && MIN_RANGE_WEAPON_TYPES.includes(rangedType),
+	});
 	return run && { run, targetName: result.getTargets()[0]?.name ?? '' };
 };
 
@@ -185,16 +193,9 @@ export interface MovementProps {
 
 /** Where the player and its pets stand around the target over the run the timeline shows, with a slider and playback. */
 export const Movement = ({ active }: MovementProps) => {
-	const live = useSimResult();
-	const [shown, setShown] = useState<SimResultData | null>(null);
-
-	useEffect(() => {
-		if (!active || !live) return;
-		setShown(prev => (resultKey(prev) === resultKey(live) ? prev : live));
-	}, [active, live]);
-
+	const shown = useHeldSimResult(active);
 	const movement = useMemo(() => (shown ? movementOf(shown) : null), [shown]);
 	if (!shown) return null;
-	// A new run starts its playback over from the prepull.
-	return <MovementView key={resultKey(shown)} run={movement?.run ?? null} targetName={movement?.targetName ?? ''} active={active} />;
+	// A new run starts its playback over from the prepull; another filter on the same run keeps the time.
+	return <MovementView key={shown.result.request.requestId} run={movement?.run ?? null} targetName={movement?.targetName ?? ''} active={active} />;
 };

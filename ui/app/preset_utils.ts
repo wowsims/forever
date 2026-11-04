@@ -253,11 +253,9 @@ const makePresetSettingsHelper = (name: string, spec: Spec, simSettings: Individ
 		// proto3 cannot tell an absent scalar from a zero one, so a JSON that never mentions these
 		// timings parses to 0 for both. Leaving the field out here is what lets `applyBuild` keep a
 		// `typeof === 'number'` guard and so still honour a hand-written preset that means 0.
+		// A build that states its reaction states its top with it, so a fixed reaction over a ranged default stays fixed.
 		if (simSettings.player.reactionTimeMs) {
 			settings.playerOptions.reactionTimeMs = simSettings.player.reactionTimeMs;
-		}
-
-		if (simSettings.player.reactionTimeMaxMs) {
 			settings.playerOptions.reactionTimeMaxMs = simSettings.player.reactionTimeMaxMs;
 		}
 

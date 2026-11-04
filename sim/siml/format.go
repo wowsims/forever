@@ -95,12 +95,18 @@ func (f *typedFile) format(u *uses) string {
 		if blankFirst {
 			lines = lines[1:]
 		}
+		// A line whose writes all joined another line prints nothing, so its blank line and the next one's meet.
+		blank := func() {
+			if n := len(items); n == 0 || !items[n-1].blank {
+				items = append(items, blankLine())
+			}
+		}
 		if startsBlock || blankFirst && !startsSection && len(items) > 0 {
-			items = append(items, blankLine())
+			blank()
 		}
 		for _, l := range lines {
 			if l == nil {
-				items = append(items, blankLine())
+				blank()
 			} else {
 				items = append(items, commentLine(*l, indent))
 			}
