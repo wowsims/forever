@@ -106,7 +106,9 @@
         250335,
         13454,
         250337,
-        250347
+        250347,
+        9264,
+        6373
       ],
       "mhWeaponImbueId": 13701,
       "resourcePotId": 13444
@@ -329,6 +331,26 @@
               "target": {
                 "type": "Target",
                 "index": 1
+              }
+            }
+          }
+        },
+        {
+          "action": {
+            "condition": {
+              "auraIsActive": {
+                "sourceUnit": {
+                  "type": "CurrentTarget"
+                },
+                "auraId": {
+                  "spellId": 1225228
+                },
+                "includeReactionTime": true
+              }
+            },
+            "changeTarget": {
+              "newTarget": {
+                "type": "NextTarget"
               }
             }
           }
