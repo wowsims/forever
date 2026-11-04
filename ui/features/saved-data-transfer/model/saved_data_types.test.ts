@@ -72,7 +72,7 @@ describe('the talents check', () => {
 	const check = (talentsString: string) => SAVED_DATA_TYPE_RULES.talents.check!(SavedTalents.create({ talentsString }), WARRIOR);
 
 	// The Fury and Arms presets, and shapes a talents string takes once its zeroes are trimmed.
-	it.each(['', '30305213002-15053105102210501', '30325213132515201-0505-2', '-0505', '3--2'])('takes %s', talentsString => {
+	it.each(['', '30303213002-350530005122100231-1', '30303213132215201-55050000002-2', '-0505', '3--2'])('takes %s', talentsString => {
 		expect(() => check(talentsString)).not.toThrow();
 	});
 
