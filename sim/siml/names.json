@@ -2215,6 +2215,7 @@
         "searing_pain": {"spellId": 17923, "rank": 6, "registeredBy": ["warlock"]},
         "shadow_and_flame": {"spellId": 426316, "registeredBy": ["warlock"], "talentOnlyBy": ["warlock"], "uncastable": true},
         "shadow_bolt_rank10": {"spellId": 25307, "rank": 10, "registeredBy": ["warlock"]},
+        "shadow_bolt_rank2": {"spellId": 695, "rank": 2, "registeredBy": ["warlock"]},
         "shadow_bolt_rank9": {"spellId": 11661, "rank": 9, "registeredBy": ["warlock"]},
         "shadow_mastery": {"spellId": 18271, "registeredBy": ["warlock"], "talentOnlyBy": ["warlock"], "uncastable": true},
         "shadowburn": {"spellId": 18871, "rank": 6, "registeredBy": ["warlock"]},
