@@ -35,6 +35,11 @@ func (action *APLAction) heldByQueuedSpell(sim *Simulation) bool {
 	return action.spell != nil && action.spell.heldByQueuedSpell(sim)
 }
 
+// Whether the action casts spell, itself or one its class spell mask names.
+func (action *APLAction) casts(spell *Spell) bool {
+	return action.spell != nil && (action.spell == spell || action.spell.Matches(spell.ClassSpellMask))
+}
+
 func (action *APLAction) Execute(sim *Simulation) {
 	if sim.aplActionExecuted != nil {
 		sim.aplActionExecuted(sim, action)

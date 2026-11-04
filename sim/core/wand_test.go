@@ -106,11 +106,14 @@ func (ct *channelTest) autocastAction() APLActionImpl {
 	return ct.rot.newActionAutocastOtherCooldowns(&proto.APLActionAutocastOtherCooldowns{})
 }
 
-// The pull's rotation action stays pending at 0; the melee swings are turned off.
 func (ct *channelTest) start(actions ...APLActionImpl) {
+	ct.startEntries(MapSlice(actions, func(impl APLActionImpl) *APLAction { return newAPLActionEntry(nil, impl) })...)
+}
+
+// The pull's rotation action stays pending at 0; the melee swings are turned off.
+func (ct *channelTest) startEntries(actions ...*APLAction) {
 	ct.rot.priorityList = nil
-	for _, impl := range actions {
-		action := newAPLActionEntry(nil, impl)
+	for _, action := range actions {
 		action.Finalize(ct.rot)
 		ct.rot.priorityList = append(ct.rot.priorityList, action)
 	}
@@ -895,4 +898,18 @@ func TestValueWand(t *testing.T) {
 			t.Fatalf("a unit without a wand reads %+v, want all zero", got)
 		}
 	})
+}
+
+// With Shoot ended for the wand's look at its slot, Shoot's own aura reads as down too, so a cast gated
+// on that aura takes the slot.
+func TestWandSlotReadsShootAuraAsDown(t *testing.T) {
+	var castAt []time.Duration
+	ct, nuke := newSpellShootTest(nukeConfig(&castAt))
+	shootDown := ct.rot.newAPLValue(notAuraActive(ct.spell.ActionID.ToProto()))
+	ct.startEntries(newAPLActionEntry(shootDown, ct.castOf(nuke)), newAPLActionEntry(nil, ct.channelOf(ct.spell, "true", false)))
+
+	ct.runUntil(6 * time.Second)
+	if !slices.Equal(castAt, seconds(0, 2, 4, 6)) || len(ct.shots) != 0 {
+		t.Fatalf("the cast gated on Shoot's aura should take every slot, cast at %v, shots at %v", castAt, ct.shots)
+	}
 }
