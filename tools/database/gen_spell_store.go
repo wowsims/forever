@@ -281,11 +281,6 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 		inStore[id] = true
 	}
 
-	hand, err := storeHandTriggers(tables, inStore)
-	if err != nil {
-		return nil, err
-	}
-
 	curves := storeCurves(tables, in.TraitNodes, in.TraitPoints, inStore)
 
 	effects := 0
@@ -302,11 +297,17 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 			return nil, err
 		}
 	}
-	if err := applyOverrides(rows, overrides.Spells); err != nil {
-		return nil, err
-	}
-	if err := applyAreaBonuses(rows, overrides.AreaBonuses); err != nil {
-		return nil, err
+	var hand map[int32][]overrides.HandTrigger
+	if !EveryClassSpell {
+		if hand, err = storeHandTriggers(tables, inStore); err != nil {
+			return nil, err
+		}
+		if err := applyOverrides(rows, overrides.Spells); err != nil {
+			return nil, err
+		}
+		if err := applyAreaBonuses(rows, overrides.AreaBonuses); err != nil {
+			return nil, err
+		}
 	}
 
 	return renderStoreFile(rows, curves, hand, namer)
