@@ -2442,6 +2442,9 @@
 		},
 		"options": {
 			"rogue": {
+				"start_in_stealth": {
+					"label": "Start In Stealth"
+				},
 				"use_backstab": {
 					"label": "Use Backstab"
 				},

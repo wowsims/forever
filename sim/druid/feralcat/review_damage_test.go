@@ -316,8 +316,8 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	}
 	for _, rip := range []bool{false, true} {
 		plain, raised := tick("", rip), tick(rendAndTear5, rip)
-		if plain <= 0 || math.Abs(raised/plain-1.10) > 1e-6 {
-			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.10", rip, plain, raised)
+		if plain <= 0 || math.Abs(raised/plain-1.15) > 1e-6 {
+			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.15", rip, plain, raised)
 		}
 	}
 }

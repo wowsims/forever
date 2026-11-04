@@ -16,7 +16,7 @@ func (rogue *Rogue) registerGarrote() {
 	config.Flags |= SpellFlagBuilder
 	config.ClassSpellMask = RogueSpellGarrote
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) && rogue.IsStealthed()
+		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) && (rogue.IsStealthed() || rogue.GhostlyStrikeAura.IsActive())
 	}
 
 	config.Dot = spelldata.DotConfig(garroteRank, tick)

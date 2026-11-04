@@ -1096,6 +1096,21 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 			ladder[rank] = pinned
 			continue
 		}
+		if castable == 0 && len(byRank) == 1 {
+			// Shank is two trainer rows with no rank subtext, 1329283 at level 24 and 1329549 at 44,
+			// both castable. The later one's SkillLineAbility row supersedes the earlier, which
+			// orders them into the family's ranks.
+			chain, err := supersedeChain(db, ids)
+			if err != nil {
+				return nil, err
+			}
+			if chain != nil {
+				for i, id := range chain {
+					ladder[int32(i+1)] = id
+				}
+				continue
+			}
+		}
 		if castable == 0 {
 			// Every ambiguous rank is collected rather than returning on the first, so the skipped
 			// list in the class file names all of them. Judgement of Command is ambiguous on all six.
@@ -1192,6 +1207,64 @@ func teacherOf(db *sql.DB, ids map[int32]bool) (int32, error) {
 		found = id
 	}
 	return found, nil
+}
+
+// These spells in the order SkillLineAbility.SupercedesSpell learns them, first to last, or nil
+// unless the rows link every one into a single line: one spell supersedes none of the others, and
+// each of the rest supersedes exactly the one before it.
+func supersedeChain(db *sql.DB, ids map[int32]bool) ([]int32, error) {
+	supersedes := map[int32]int32{}
+	for id := range ids {
+		rows, err := db.Query(`SELECT DISTINCT SupercedesSpell FROM SkillLineAbility WHERE Spell = ? AND SupercedesSpell != 0`, id)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var prev int32
+			if err := rows.Scan(&prev); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			if !ids[prev] {
+				continue
+			}
+			if _, seen := supersedes[id]; seen {
+				rows.Close()
+				return nil, nil
+			}
+			supersedes[id] = prev
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		rows.Close()
+	}
+	if len(supersedes) != len(ids)-1 {
+		return nil, nil
+	}
+
+	next := map[int32]int32{}
+	var first int32
+	for id := range ids {
+		prev, ok := supersedes[id]
+		if !ok {
+			first = id
+			continue
+		}
+		if _, taken := next[prev]; taken {
+			return nil, nil
+		}
+		next[prev] = id
+	}
+	chain := []int32{first}
+	for id, ok := next[first]; ok; id, ok = next[id] {
+		chain = append(chain, id)
+	}
+	if len(chain) != len(ids) {
+		return nil, nil
+	}
+	return chain, nil
 }
 
 // The one spell among these that has a mana cost, or 0 when that does not single one out.
