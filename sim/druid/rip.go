@@ -21,8 +21,8 @@ func (druid *Druid) registerRipSpell() {
 		comboPoints[target.UnitIndex] = cp
 	}
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		apScale := min(comboPoints[target.UnitIndex], 4)
-		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*apScale*attackPowerScale*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
+		apComboPoints := min(comboPoints[target.UnitIndex], 4)
+		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*apComboPoints*attackPowerScale*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
