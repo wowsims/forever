@@ -139,8 +139,9 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	before = metric.TotalDamage
 	dot.TickOnce(sim)
 	high := metric.TotalDamage - before
-	if math.Abs((high-low)-5.5) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want 5.5", high-low)
+	// The override's 0.055 per attack power (the row states none), raised by 25%.
+	if math.Abs((high-low)-6.875) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want 6.875", high-low)
 	}
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
 }
@@ -190,7 +191,8 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 		before = metric.TotalDamage
 		dot.TickOnce(sim)
 		gain := metric.TotalDamage - before - low
-		if math.Abs(gain-float64(min(cp, 4))) > 1e-5 {
+		// The override's 0.01 per attack power and combo point (the row states none), raised by 25%.
+		if math.Abs(gain-1.25*float64(min(cp, 4))) > 1e-5 {
 			t.Fatalf("cp=%d tick gain=%g", cp, gain)
 		}
 		t.Logf("Rip %d CP: 100 AP gains %g per tick / %g total", cp, gain, gain*6)
