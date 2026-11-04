@@ -34,6 +34,31 @@ func TestStoreRegeneratesFromTheCommittedInputs(t *testing.T) {
 	assertRendersCommitted(t, "sim/core/spelldata/spells_auto_gen.go", rendered)
 }
 
+// The store the sim is built against carries the hand-kept overrides; an export of every class spell
+// carries none of them, so it states the game files' values.
+func TestEveryClassSpellExportRendersNoOverride(t *testing.T) {
+	inRepositoryRoot(t)
+
+	sim, err := renderStore(committedInputs(t), newRankEnumNamer())
+	if err != nil {
+		t.Fatalf("rendering the store: %v", err)
+	}
+	if !bytes.Contains(sim, []byte("// override:")) {
+		t.Fatalf("the store the sim is built against renders no override, so this test checks nothing")
+	}
+
+	EveryClassSpell = true
+	t.Cleanup(func() { EveryClassSpell = false })
+	export, err := renderStore(committedInputs(t), newRankEnumNamer())
+	if err != nil {
+		t.Fatalf("rendering the export: %v", err)
+	}
+	if bytes.Contains(export, []byte("// override:")) {
+		line, _, got := firstDifference(sim, export)
+		t.Errorf("the export renders an override; the renders part from line %d: %s", line, got)
+	}
+}
+
 // The committed inputs, read once for every test that renders from them: nothing a rendering does
 // writes through them. The first caller has to be in the repository root.
 func committedInputs(t *testing.T) *storeInputs {
