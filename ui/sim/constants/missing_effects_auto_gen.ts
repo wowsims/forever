@@ -1415,24 +1415,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 			"Knocks down all nearby enemies for 3s.", // 21152 - https://www.wowhead.com/forever/spell=21152
 		]
 	],
-	[
-		289294, // Thunderfury, Blessed Blade of the Windseeker
-		[
-			"Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies. Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also consumed by a cyclone, slowing its attack speed by 20% for 12s.", // 21992 - https://www.wowhead.com/forever/spell=21992
-		]
-	],
-	[
-		289295, // Sulfuras, Hand of Ragnaros
-		[
-			"Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over 10s.", // 21162 - https://www.wowhead.com/forever/spell=21162
-		]
-	],
-	[
-		289296, // Benediction
-		[
-			"Increases the critical effect chance of your Holy spells by 2%.", // 23236 - https://www.wowhead.com/forever/spell=23236
-		]
-	],
 ])
 
 export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([

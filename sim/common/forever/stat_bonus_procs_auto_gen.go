@@ -111,14 +111,6 @@ func RegisterAllProcs() {
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
 		})
 
-	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
-	// https://www.wowhead.com/forever/spell=21142
-	// equip: 21142 (A_DAMAGE_SHIELD)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 21142},
-		[]shared.ItemVariant{
-			{ItemID: 289295, ItemName: "Sulfuras, Hand of Ragnaros"},
-		})
-
 	// Procs
 
 	// TODO: Manual implementation required
@@ -2035,49 +2027,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 285281, ItemName: "Arcanite Blacksmith Hammer"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Blasts your enemy with lightning, dealing 300 Nature damage and then jumping to additional nearby enemies.
-	// Each jump reduces that victim's Nature resistance by 25. Affects 5 targets. Your primary target is also
-	// consumed by a cyclone, slowing its attack speed by 20% for 12s.
-	// https://www.wowhead.com/forever/spell=21992
-	// unsupported: states no rate
-	// trigger 21992 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21992, BuffSpellID: 21992, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 289294, ItemName: "Thunderfury, Blessed Blade of the Windseeker"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over 10s.
-	// https://www.wowhead.com/forever/spell=21162
-	// unsupported: states no rate
-	// trigger 21162 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21162, BuffSpellID: 21162, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 289295, ItemName: "Sulfuras, Hand of Ragnaros"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases the critical effect chance of your Holy spells by 2%.
-	// https://www.wowhead.com/forever/spell=23236
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 289296, ItemName: "Benediction"},
 	// })
 
 	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.

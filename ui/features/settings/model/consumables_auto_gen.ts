@@ -430,4 +430,3 @@ export const ScrollOfImbueSpellbreak = { id: 277503 };
 export const RestoredHealingPotion = { id: 282011 };
 export const RestoredManaPotion = { id: 282013 };
 export const HolyHandGrenadeOfAlterac = { id: 284868 };
-export const ElixirOfEndlessMana = { id: 289321 };

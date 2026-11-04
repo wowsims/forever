@@ -5230,13 +5230,7 @@
 {"id":288928,"name":"Heavy Dark Iron Ring","icon":"inv_jewelry_ring_14","type":11,"reqLvl":1,"phase":1,"quality":4,"unique":true,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"2":10,"22":2,"28":110},"ilvl":30}}},
 {"id":288929,"name":"Band of Sulfuras","icon":"inv_jewelry_ring_36","type":11,"reqLvl":1,"phase":1,"quality":4,"unique":true,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"2":6,"3":10,"13":4},"ilvl":30}}},
 {"id":288930,"name":"Cauterizing Band","icon":"inv_jewelry_ring_39","type":11,"reqLvl":1,"phase":1,"quality":4,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"2":4,"3":5,"4":21,"5":7},"ilvl":30}}},
-{"id":288931,"name":"Ring of Spell Power","icon":"inv_jewelry_ring_38","type":11,"reqLvl":1,"phase":1,"quality":4,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"4":16,"5":16},"ilvl":30}}},
-{"id":289292,"name":"Hammer of Bestial Fury","icon":"inv_mace_20","type":13,"weaponType":4,"handType":1,"weaponSpeed":1.9,"reqLvl":1,"phase":1,"quality":4,"unique":true,"scalingOptions":{"0":{"randPropPoints":11,"weaponDamageMin":37,"weaponDamageMax":69,"unroundedDps":28.12945,"stats":{"0":7,"2":6,"28":47},"ilvl":35}}},
-{"id":289294,"name":"Thunderfury, Blessed Blade of the Windseeker","icon":"inv_sword_39","type":13,"weaponType":9,"handType":2,"weaponSpeed":1.9,"reqLvl":1,"phase":1,"quality":5,"unique":true,"scalingOptions":{"0":{"randPropPoints":14,"weaponDamageMin":45,"weaponDamageMax":84,"unroundedDps":34.066883,"stats":{"1":3,"2":5,"33":5,"35":5},"ilvl":45}},"itemEffects":[{"buffId":21992,"buffName":"Thunderfury (21992)","effectDurationMs":12000,"proc":{}}]},
-{"id":289295,"name":"Sulfuras, Hand of Ragnaros","icon":"inv_hammer_unique_sulfuras","type":13,"weaponType":4,"handType":4,"weaponSpeed":3.7,"reqLvl":1,"phase":1,"quality":5,"unique":true,"scalingOptions":{"0":{"randPropPoints":34,"weaponDamageMin":122,"weaponDamageMax":205,"unroundedDps":44.286945,"stats":{"0":8,"2":8,"33":19},"ilvl":45}},"itemEffects":[{"buffId":21162,"buffName":"Fireball (21162)","effectDurationMs":10000,"proc":{}},{"buffId":21142,"buffName":"Immolation (21142)"}]},
-{"id":289296,"name":"Benediction","icon":"inv_staff_30","type":13,"weaponType":8,"handType":4,"weaponSpeed":3,"reqLvl":1,"phase":1,"quality":4,"unique":true,"classAllowlist":[5],"scalingOptions":{"0":{"randPropPoints":30,"weaponDamageMin":72,"weaponDamageMax":108,"unroundedDps":30.064423,"stats":{"2":6,"3":18,"4":112,"5":37,"13":7,"36":12},"ilvl":40}},"itemEffects":[{"buffId":23236,"buffName":"Benediction (23236)","effectDurationMs":-1}]},
-{"id":289297,"name":"Anathema","icon":"inv_staff_12","type":13,"weaponType":8,"handType":4,"weaponSpeed":3,"reqLvl":1,"phase":1,"quality":4,"unique":true,"classAllowlist":[5],"scalingOptions":{"0":{"randPropPoints":30,"weaponDamageMin":97,"weaponDamageMax":146,"unroundedDps":40.431465,"stats":{"2":13,"3":18,"11":40,"31":4,"36":12},"ilvl":40}}},
-{"id":289303,"name":"Rhok'delar, Longbow of the Ancient Keepers","icon":"inv_weapon_bow_01","type":14,"rangedWeaponType":1,"weaponSpeed":2.9,"reqLvl":1,"phase":1,"quality":4,"unique":true,"classAllowlist":[3],"scalingOptions":{"0":{"randPropPoints":9,"weaponDamageMin":49,"weaponDamageMax":91,"unroundedDps":24.258879,"stats":{"15":10,"18":8},"ilvl":40}}}
+{"id":288931,"name":"Ring of Spell Power","icon":"inv_jewelry_ring_38","type":11,"reqLvl":1,"phase":1,"quality":4,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"4":16,"5":16},"ilvl":30}}}
 ],
 "randomSuffixes":[
 {"id":12718,"name":"of the Eagle","stats":[0,0,6666,6666,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]},
@@ -6900,8 +6894,7 @@
 {"id":277503,"name":"Scroll of Imbue Spellbreak","icon":"inv_10_inscription2_repcontracts_scroll_02_uprez_color2"},
 {"id":282011,"name":"Restored Healing Potion","icon":"inv_potion_14"},
 {"id":282013,"name":"Restored Mana Potion","icon":"inv_potion_17"},
-{"id":284868,"name":"Holy Hand Grenade of Alterac","icon":"spell_shadow_mindbomb"},
-{"id":289321,"name":"Elixir of Endless Mana","icon":"inv_potion_71"}
+{"id":284868,"name":"Holy Hand Grenade of Alterac","icon":"spell_shadow_mindbomb"}
 ],
 "spellIcons":[
 {"id":17,"name":"Power Word: Shield","icon":"spell_holy_powerwordshield","rank":1,"hasBuff":true},
@@ -9789,8 +9782,7 @@
 {"id":277503,"type":13,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Scroll of Imbue Spellbreak","lvl":46,"itemEffects":[{"buffId":1295720,"onUse":{"cooldownMs":-1,"categoryCooldownMs":-1}}],"classAllowlist":[8],"weaponSubclassMask":1024,"temporaryEnchant":{"effectId":8700,"stats":[0,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
 {"id":282011,"type":1,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Restored Healing Potion","lvl":60,"categoryId":4,"effectIds":[1343653],"itemEffects":[{"buffId":1312698,"onUse":{"categoryId":4,"categoryCooldownMs":120000}}],"potionClasses":[2]},
 {"id":282013,"type":1,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Restored Mana Potion","lvl":60,"categoryId":4,"effectIds":[1343657],"itemEffects":[{"buffId":1312702,"onUse":{"categoryId":4,"categoryCooldownMs":120000}}],"potionClasses":[1]},
-{"id":284868,"type":5,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Holy Hand Grenade of Alterac","lvl":52,"categoryId":24,"itemEffects":[{"buffId":1317268,"onUse":{"categoryId":24,"categoryCooldownMs":60000}}]},
-{"id":289321,"type":11,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Elixir of Endless Mana","lvl":30,"categoryId":2593,"itemEffects":[{"buffId":1328032,"onUse":{"categoryId":2593,"categoryCooldownMs":3000}}],"groupKey":"110/0","groupName":"Other"}
+{"id":284868,"type":5,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"name":"Holy Hand Grenade of Alterac","lvl":52,"categoryId":24,"itemEffects":[{"buffId":1317268,"onUse":{"categoryId":24,"categoryCooldownMs":60000}}]}
 ],
 "spellEffects":[
 {"id":679151,"spellId":437,"type":30,"resourceType":1},
