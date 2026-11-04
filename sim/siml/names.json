@@ -1678,7 +1678,7 @@
         "prayer_of_fortitude": {"spellId": 21564, "tag": -1, "registeredBy": []},
         "prayer_of_shadow_protection": {"spellId": 27683, "tag": -1, "registeredBy": []},
         "prayer_of_spirit": {"spellId": 27681, "tag": -1, "registeredBy": ["rogue"]},
-        "quietus": {"spellId": 1310728, "registeredBy": ["rogue"]},
+        "quietus": {"spellId": 1310728, "registeredBy": []},
         "remorseless": {"spellId": 14143, "registeredBy": ["rogue"]},
         "retribution_aura": {"spellId": 10301, "tag": -1, "registeredBy": ["rogue"]},
         "seal_fate": {"spellId": 14186, "registeredBy": ["rogue"], "icdOnlyBy": ["rogue"]},
