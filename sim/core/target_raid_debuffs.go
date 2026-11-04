@@ -10,8 +10,7 @@ func (aura *Aura) isHeldRaidDebuff() bool {
 	return aura.Source == SourceExternalDebuff && aura.Unit.raidDebuffsHeld
 }
 
-// Whether the unit holds the raid's debuffs off. A driver that puts a raid debuff on with a timer of its own checks it
-// before each application.
+// Whether the unit holds the raid's debuffs off. A raid debuff on a timer of its own checks it at each tick.
 func (unit *Unit) RaidDebuffsHeld() bool {
 	return unit.raidDebuffsHeld
 }
@@ -22,31 +21,47 @@ func (unit *Unit) RaidDebuffsHeld() bool {
 func (target *Target) HoldRaidDebuffs(sim *Simulation) {
 	target.raidDebuffsLanding.Cancel(sim)
 	target.raidDebuffsHeld = true
-	for _, aura := range target.auras {
-		if aura.Source == SourceExternalDebuff {
-			aura.Deactivate(sim)
-		}
+	for _, aura := range target.raidDebuffAuras() {
+		aura.Deactivate(sim)
 	}
 }
 
 // Holds the raid's debuffs until at, then puts them on as the target's reset does, each through its OnReset: a
-// permanent debuff comes back, and Sunder Armor ramps up again. A time at or before now lands them at once; during
-// the sim's reset the landing waits for 0, since the target's own aura reset may not have run yet.
+// permanent debuff comes back, and Sunder Armor ramps up again. A time at or before now lands them at once. During
+// the sim's reset, before the target's own reset has run, it only releases the hold, and that reset puts them on, so
+// a player's Reset handler and the prepull see them.
 func (target *Target) ApplyRaidDebuffsAt(sim *Simulation, at time.Duration) {
 	target.HoldRaidDebuffs(sim)
-	if at <= sim.CurrentTime && !sim.isResetting {
-		target.landRaidDebuffs(sim)
+	if at > sim.CurrentTime {
+		target.raidDebuffsLanding.NextActionAt = at
+		sim.AddPendingAction(&target.raidDebuffsLanding)
 		return
 	}
-	target.raidDebuffsLanding.NextActionAt = max(at, sim.CurrentTime)
-	sim.AddPendingAction(&target.raidDebuffsLanding)
+	if sim.isResetting && !target.aurasReset {
+		target.raidDebuffsHeld = false
+		return
+	}
+	target.landRaidDebuffs(sim)
 }
 
 func (target *Target) landRaidDebuffs(sim *Simulation) {
 	target.raidDebuffsHeld = false
-	for _, aura := range target.auras {
-		if aura.Source == SourceExternalDebuff && aura.OnReset != nil {
+	for _, aura := range target.raidDebuffAuras() {
+		if aura.OnReset != nil {
 			aura.OnReset(aura, sim)
 		}
 	}
+}
+
+// Every raid debuff registers while the environment is built, so the list gathered at the first call holds them all.
+func (target *Target) raidDebuffAuras() []*Aura {
+	if target.raidDebuffs == nil {
+		target.raidDebuffs = []*Aura{}
+		for _, aura := range target.auras {
+			if aura.Source == SourceExternalDebuff {
+				target.raidDebuffs = append(target.raidDebuffs, aura)
+			}
+		}
+	}
+	return target.raidDebuffs
 }

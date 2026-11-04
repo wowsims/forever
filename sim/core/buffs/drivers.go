@@ -70,10 +70,22 @@ func applyFixedShoutAura(char *core.Character, aura *core.Aura, category string)
 	applyFixedUptimeAura(aura, 1, aura.Duration+1, -1)
 }
 
+// A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) runs the OnReset again, and the schedule it starts
+// replaces the one still running. A tick on a target that holds the raid's debuffs does nothing.
 func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
+	var schedule *core.PendingAction
+	onAction := options.OnAction
+	options.OnAction = func(sim *core.Simulation) {
+		if !aura.Unit.RaidDebuffsHeld() {
+			onAction(sim)
+		}
+	}
 	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
 		aura.Duration = core.NeverExpires
-		core.StartPeriodicAction(sim, options)
+		if schedule != nil {
+			schedule.Cancel(sim)
+		}
+		schedule = core.StartPeriodicAction(sim, options)
 	}
 }
 
@@ -448,8 +460,7 @@ func driveJudgementOfWisdom(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) 
 // how long a warrior takes to stack it. The stacks build while a stronger armor
 // reduction holds the category, and the sunder applies once it outbids it or
 // that one ends. With a warrior in the raid the raid's copy is the player's
-// own, which the warrior's Sunder Armor stacks, so the target carries one. A
-// target that holds the raid's debuffs takes no stack of the ramp.
+// own, which the warrior's Sunder Armor stacks, so the target carries one.
 func driveSunderArmor(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 	aura := core.MakePermanent(NewSpellDataSunderArmorAura(target, raidHasClass(raid, proto.Class_ClassWarrior), 0))
 
@@ -459,9 +470,6 @@ func driveSunderArmor(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 		TickImmediately: true,
 		Priority:        core.ActionPriorityDOT,
 		OnAction: func(sim *core.Simulation) {
-			if target.RaidDebuffsHeld() {
-				return
-			}
 			aura.Activate(sim)
 			aura.AddStack(sim)
 		},

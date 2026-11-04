@@ -80,8 +80,9 @@ func TestDynamicAddsSchedule(t *testing.T) {
 }
 
 // A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the boss's debuff
-// inputs set. The warrior in the raid makes the raid's Sunder the player's own aura.
-func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64) *core.Simulation {
+// inputs set, and the boss's other inputs changed by setBoss when it is not nil. The warrior in the raid makes the raid's
+// Sunder the player's own aura.
+func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64, setBoss func(boss *proto.Target)) *core.Simulation {
 	player := &proto.Player{
 		Name:          "Warrior",
 		Race:          proto.Race_RaceOrc,
@@ -97,6 +98,9 @@ func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64) *core.Sim
 	boss.TargetInputs[4].BoolValue = applyDebuffs
 	boss.TargetInputs[5].NumberValue = delay
 	boss.TargetInputs[6].NumberValue = jitter
+	if setBoss != nil {
+		setBoss(boss)
+	}
 	debuffs := &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
 	return core.NewSim(&proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuffs),
@@ -160,7 +164,7 @@ func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
 		delay      float64
 		stacksAt29 int32
 	}{{0, 5}, {3, 5}, {15, 3}} {
-		sim := newDynamicAddsDebuffSim(true, tc.delay, 0)
+		sim := newDynamicAddsDebuffSim(true, tc.delay, 0, nil)
 		want := dynamicAddsLives(core.DurationFromSeconds(tc.delay))
 		for iteration := range 2 {
 			coe, sunder, stacks := dynamicAddsDebuffFlips(t, sim, 29*time.Second)
@@ -181,7 +185,7 @@ func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
 // spawn.
 func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 	for _, tc := range []struct{ delay, jitter float64 }{{3, 2}, {1, 3}} {
-		sim := newDynamicAddsDebuffSim(true, tc.delay, tc.jitter)
+		sim := newDynamicAddsDebuffSim(true, tc.delay, tc.jitter, nil)
 		low := core.DurationFromSeconds(max(tc.delay-tc.jitter, 0))
 		high := core.DurationFromSeconds(tc.delay + tc.jitter)
 		seen := map[time.Duration]bool{}
@@ -208,12 +212,66 @@ func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 // either: each despawn cancels its landing and each respawn starts over.
 func TestDynamicAddsRaidDebuffsNeverLand(t *testing.T) {
 	for name, sim := range map[string]*core.Simulation{
-		"Apply debuffs off":        newDynamicAddsDebuffSim(false, 0, 0),
-		"delay longer than a life": newDynamicAddsDebuffSim(true, 25, 0),
+		"Apply debuffs off":        newDynamicAddsDebuffSim(false, 0, 0, nil),
+		"delay longer than a life": newDynamicAddsDebuffSim(true, 25, 0, nil),
 	} {
 		coe, sunder, _ := dynamicAddsDebuffFlips(t, sim, 0)
 		if len(coe) != 0 || len(sunder) != 0 {
 			t.Errorf("%s: Curse of the Elements on and off at %v and Sunder Armor at %v, want never on", name, coe, sunder)
 		}
+	}
+}
+
+type sunderStacksAt struct {
+	at     time.Duration
+	stacks int32
+}
+
+// With a life and a respawn shorter than Sunder Armor's ramp (4 s up, 2 s down), each spawn starts one ramp, a stack
+// each global cooldown from the spawn, and the ramp of the life before adds none.
+func TestDynamicAddsRaidSunderRampsOncePerLife(t *testing.T) {
+	sim := newDynamicAddsDebuffSim(true, 0, 0, func(boss *proto.Target) {
+		boss.TargetInputs[0].NumberValue = 2
+		boss.TargetInputs[1].NumberValue = 4
+	})
+	var want []sunderStacksAt
+	for spawn := 10 * time.Second; spawn < 40*time.Second; spawn += 6 * time.Second {
+		want = append(want,
+			sunderStacksAt{spawn, 1},
+			sunderStacksAt{spawn + core.GCDDefault, 2},
+			sunderStacksAt{spawn + 2*core.GCDDefault, 3},
+			sunderStacksAt{spawn + 4*time.Second, 0})
+	}
+	for iteration := range 2 {
+		sim.Reset()
+		sunder := sim.Encounter.AllTargets[1].GetAura("Sunder Armor (Player)")
+		var got []sunderStacksAt
+		stacks := int32(0)
+		for !sim.Step() && sim.CurrentTime < 40*time.Second {
+			if sunder.GetStacks() != stacks {
+				stacks = sunder.GetStacks()
+				got = append(got, sunderStacksAt{sim.CurrentTime, stacks})
+			}
+		}
+		sim.Cleanup()
+		if !slices.Equal(got, want) {
+			t.Errorf("iteration %d: Sunder Armor stacks %v, want %v", iteration, got, want)
+		}
+	}
+}
+
+// With no spawn delay the add spawns inside the sim's reset, and a debuff delay of 0 puts the raid's debuffs on in that
+// reset, before the raid's own reset and the prepull read them.
+func TestDynamicAddsRaidDebuffsOnAtTheReset(t *testing.T) {
+	sim := newDynamicAddsDebuffSim(true, 0, 0, func(boss *proto.Target) {
+		boss.TargetInputs[2].NumberValue = 0
+	})
+	coe := sim.Encounter.AllTargets[1].GetAura("Curse of the Elements (External)")
+	for iteration := range 2 {
+		sim.Reset()
+		if !coe.IsActive() {
+			t.Errorf("iteration %d: Curse of the Elements is off on the add right after the reset, want on", iteration)
+		}
+		sim.Cleanup()
 	}
 }

@@ -1048,7 +1048,7 @@
 				},
 				"debuff_jitter": {
 					"label": "Debuff jitter",
-					"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds)"
+					"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds). The debuffs never land before the spawn."
 				},
 				"fear_duration": {
 					"label": "Fear Duration",

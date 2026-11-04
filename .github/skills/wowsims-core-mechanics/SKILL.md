@@ -123,7 +123,10 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`SourceExternalDebuff`) with `Target.HoldRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`
   (`target_raid_debuffs.go`), which runs each one's `OnReset` again, so Sunder Armor ramps up anew. A held target's
   reset skips those `OnReset`s, and the hold clears at the iteration's end, since the boss's reset runs before its
-  add's. A player's own cast of the same debuff is untouched.
+  add's. A landing due while the sim resets, before the target's own reset, only releases the hold, so that reset puts
+  the debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
+  `sim/core/buffs/drivers.go`) ticks nothing on a held target, and each landing replaces the schedule still running.
+  A player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
