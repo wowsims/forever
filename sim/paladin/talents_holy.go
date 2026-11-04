@@ -115,9 +115,10 @@ func (paladin *Paladin) applyInfusionOfLight() {
 
 	var infusion *core.Aura
 	infusion = paladin.RegisterAura(core.Aura{
-		Label:    "Infusion of Light" + paladin.Label,
-		ActionID: core.ActionID{SpellID: rank.ID},
-		Duration: rank.Duration(),
+		Label:     "Infusion of Light" + paladin.Label,
+		ActionID:  core.ActionID{SpellID: rank.ID},
+		Duration:  rank.Duration(),
+		MenuGroup: menuPaladinHeals,
 	}).AttachSpellMod(core.SpellModConfig{
 		ClassMask: SpellMaskHolyLight,
 		Kind:      core.SpellMod_CastTime_Flat,
