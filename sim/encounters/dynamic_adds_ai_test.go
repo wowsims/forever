@@ -21,28 +21,7 @@ func init() {
 // The add's readings follow the boss's schedule at the preset's inputs: spawn after 10 s, despawn 20 s later, respawn
 // 10 s after that. The boss stays to the fight's end.
 func TestDynamicAddsSchedule(t *testing.T) {
-	player := &proto.Player{
-		Name:          "Warrior",
-		Race:          proto.Race_RaceOrc,
-		Class:         proto.Class_ClassWarrior,
-		Equipment:     &proto.EquipmentSpec{},
-		TalentsString: "30303103-050530355022100031",
-		Spec: &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{Options: &proto.DpsWarrior_Options{
-			ClassOptions: &proto.WarriorOptions{DefaultStance: proto.WarriorStance_WarriorStanceBerserker},
-		}}},
-		Rotation: &proto.APLRotation{},
-	}
-	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
-		Encounter: &proto.Encounter{
-			Duration: 180,
-			Targets: []*proto.Target{
-				googleproto.Clone(core.GetPresetTargetWithID(dynamicBossID).Config).(*proto.Target),
-				googleproto.Clone(core.GetPresetTargetWithID(dynamicAddID).Config).(*proto.Target),
-			},
-		},
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-	}, simsignals.CreateSignals())
+	sim := newDynamicAddsSim(&proto.Debuffs{}, nil)
 	sim.Reset()
 	boss, add := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1]
 
@@ -83,6 +62,19 @@ func TestDynamicAddsSchedule(t *testing.T) {
 // inputs set, and the boss's other inputs changed by setBoss when it is not nil. The warrior in the raid makes the raid's
 // Sunder the player's own aura.
 func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64, setBoss func(boss *proto.Target)) *core.Simulation {
+	return newDynamicAddsSim(&proto.Debuffs{CurseOfElements: true, SunderArmor: true}, func(boss *proto.Target) {
+		boss.TargetInputs[4].BoolValue = applyDebuffs
+		boss.TargetInputs[5].NumberValue = delay
+		boss.TargetInputs[6].NumberValue = jitter
+		if setBoss != nil {
+			setBoss(boss)
+		}
+	})
+}
+
+// A sim of the Dynamic Adds preset with a warrior and the raid's debuffs, and the boss changed by setBoss when it is
+// not nil.
+func newDynamicAddsSim(debuffs *proto.Debuffs, setBoss func(boss *proto.Target)) *core.Simulation {
 	player := &proto.Player{
 		Name:          "Warrior",
 		Race:          proto.Race_RaceOrc,
@@ -95,13 +87,9 @@ func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64, setBoss f
 		Rotation: &proto.APLRotation{},
 	}
 	boss := googleproto.Clone(core.GetPresetTargetWithID(dynamicBossID).Config).(*proto.Target)
-	boss.TargetInputs[4].BoolValue = applyDebuffs
-	boss.TargetInputs[5].NumberValue = delay
-	boss.TargetInputs[6].NumberValue = jitter
 	if setBoss != nil {
 		setBoss(boss)
 	}
-	debuffs := &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
 	return core.NewSim(&proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuffs),
 		Encounter: &proto.Encounter{

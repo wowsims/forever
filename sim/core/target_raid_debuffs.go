@@ -19,7 +19,10 @@ func (unit *Unit) RaidDebuffsHeld() bool {
 // target's reset when the hold comes during the sim's reset. A landing still to come is cancelled. Disable leaves a
 // permanent aura on, so a target AI holds the debuffs of a target it takes away.
 func (target *Target) HoldRaidDebuffs(sim *Simulation) {
-	target.raidDebuffsLanding.Cancel(sim)
+	if target.raidDebuffsQueued {
+		target.raidDebuffsLanding.Cancel(sim)
+		target.raidDebuffsQueued = false
+	}
 	target.raidDebuffsHeld = true
 	for _, aura := range target.raidDebuffAuras() {
 		aura.Deactivate(sim)
@@ -35,6 +38,7 @@ func (target *Target) ApplyRaidDebuffsAt(sim *Simulation, at time.Duration) {
 	if at > sim.CurrentTime {
 		target.raidDebuffsLanding.NextActionAt = at
 		sim.AddPendingAction(&target.raidDebuffsLanding)
+		target.raidDebuffsQueued = true
 		return
 	}
 	if sim.isResetting && !target.aurasReset {
@@ -45,6 +49,7 @@ func (target *Target) ApplyRaidDebuffsAt(sim *Simulation, at time.Duration) {
 }
 
 func (target *Target) landRaidDebuffs(sim *Simulation) {
+	target.raidDebuffsQueued = false
 	target.raidDebuffsHeld = false
 	for _, aura := range target.raidDebuffAuras() {
 		if aura.OnReset != nil {

@@ -1053,10 +1053,6 @@ func (unit *Unit) doneIteration(sim *Simulation) {
 	for _, spell := range unit.Spellbook {
 		spell.doneIteration()
 	}
-
-	// Cleared here, not at the target's reset: a target AI that resets first holds another target's debuffs
-	// before that target's own reset.
-	unit.raidDebuffsHeld = false
 }
 
 func (unit *Unit) GetSpellsMatchingSchool(school SpellSchool) []*Spell {
