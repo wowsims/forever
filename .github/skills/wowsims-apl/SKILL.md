@@ -137,9 +137,9 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 - **A channel's `until` clip is held when the next action would start the same channel again**, unless the channel
   line says `recast` (`shouldInterruptChannel` in `sim/core/apl.go`). The guard reads the rotation with the channel
   ended and its aura down, and walks into group references, so a line gated on `not target.aura(x).is_active` or
-  sitting in a group counts as that recast, as do the next step of the strict sequence the channel runs in and a
-  multidot of the spell. A `Spell Is Channeling` check on a cast line is always false when the line is read: the
-  rotation reads no cast line while a channel runs, and the guard reads the channel as ended.
+  sitting in a group counts as that recast, as do a sequence's current step, the next step of the strict sequence the
+  channel runs in and a multidot of the spell. A `Spell Is Channeling` check on a cast line is always false when the
+  line is read: the rotation reads no cast line while a channel runs, and the guard reads the channel as ended.
 - **`Aura Is Inactive` with reaction time is the refresh check** for an aura the rotation keeps up:
   `not(Aura Is Active)` with reaction time reads a fresh landing as inactive and recasts (`APLValueAuraIsInactive`).
 - **`Aura Num Stacks` with reaction time returns the previous stacks for a full reaction time after any change**, the

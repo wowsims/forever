@@ -215,6 +215,7 @@ type Unit struct {
 
 	// The currently-channeled DOT spell, otherwise nil.
 	ChanneledDot       *Dot
+	endedChannel       *Dot // The channel a lookahead reads the rotation without; its aura reads as down meanwhile.
 	channelEndHandlers []func(sim *Simulation, dot *Dot)
 
 	// Data about the most recently queued spell, otherwise nil.

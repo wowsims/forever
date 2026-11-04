@@ -106,11 +106,14 @@ func (ct *channelTest) autocastAction() APLActionImpl {
 	return ct.rot.newActionAutocastOtherCooldowns(&proto.APLActionAutocastOtherCooldowns{})
 }
 
-// The pull's rotation action stays pending at 0; the melee swings are turned off.
 func (ct *channelTest) start(actions ...APLActionImpl) {
+	ct.startEntries(MapSlice(actions, func(impl APLActionImpl) *APLAction { return newAPLActionEntry(nil, impl) })...)
+}
+
+// The pull's rotation action stays pending at 0; the melee swings are turned off.
+func (ct *channelTest) startEntries(actions ...*APLAction) {
 	ct.rot.priorityList = nil
-	for _, impl := range actions {
-		action := newAPLActionEntry(nil, impl)
+	for _, action := range actions {
 		action.Finalize(ct.rot)
 		ct.rot.priorityList = append(ct.rot.priorityList, action)
 	}
@@ -902,18 +905,8 @@ func TestValueWand(t *testing.T) {
 func TestWandSlotReadsShootAuraAsDown(t *testing.T) {
 	var castAt []time.Duration
 	ct, nuke := newSpellShootTest(nukeConfig(&castAt))
-	shootDown := ct.rot.newAPLValue(&proto.APLValue{Value: &proto.APLValue_Not{Not: &proto.APLValueNot{Val: &proto.APLValue{Value: &proto.APLValue_AuraIsActive{AuraIsActive: &proto.APLValueAuraIsActive{
-		SourceUnit: &proto.UnitReference{Type: proto.UnitReference_CurrentTarget},
-		AuraId:     ct.spell.ActionID.ToProto(),
-	}}}}}})
-	ct.rot.priorityList = nil
-	for _, action := range []*APLAction{newAPLActionEntry(shootDown, ct.castOf(nuke)), newAPLActionEntry(nil, ct.channelOf(ct.spell, "true", false))} {
-		action.Finalize(ct.rot)
-		ct.rot.priorityList = append(ct.rot.priorityList, action)
-	}
-	ct.sim.PrePull()
-	ct.sim.Step()
-	ct.fw.AutoAttacks.CancelAutoSwing(ct.sim)
+	shootDown := ct.rot.newAPLValue(notAuraActive(ct.spell.ActionID.ToProto()))
+	ct.startEntries(newAPLActionEntry(shootDown, ct.castOf(nuke)), newAPLActionEntry(nil, ct.channelOf(ct.spell, "true", false)))
 
 	ct.runUntil(6 * time.Second)
 	if !slices.Equal(castAt, seconds(0, 2, 4, 6)) || len(ct.shots) != 0 {
