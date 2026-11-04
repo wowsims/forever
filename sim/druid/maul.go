@@ -21,6 +21,7 @@ func (druid *Druid) registerMaulSpell() {
 		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank), spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		druid.refundOnMiss(sim, spell, result)
 	}
+	config.ThreatMultiplier = 1.75
 	damage := druid.RegisterSpell(config)
 	druid.Maul = druid.makeMaulQueueSpellAndAura(damage)
 	druid.AutoAttacks.SetQueuedSwingCanceler(druid.cancelMaulQueue)
