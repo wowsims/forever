@@ -37,7 +37,19 @@ import {
 	occurrenceTip,
 	serializeTip,
 } from '../EncounterDesigner/utils/tips';
-import { adjustHealth, followed, healthLabel, isHold, LANE_CLASSES, LANE_GRID_CLASSES, LANE_LABEL_CLASSES, laneEvents, refKey, withWindow } from './utils';
+import {
+	adjustHealth,
+	followed,
+	healthLabel,
+	isHold,
+	LANE_CLASSES,
+	LANE_GRID_CLASSES,
+	LANE_LABEL_CLASSES,
+	laneEvents,
+	refKey,
+	rowKinds,
+	withWindow,
+} from './utils';
 
 export interface DesignerLaneProps {
 	lane: DesignLaneKind;
@@ -55,12 +67,12 @@ export interface DesignerLaneProps {
 	/** Enter on a bar, after `onSelect`. */
 	onActivate: (ref: DesignEventRef) => void;
 	onChange: (design: EncounterDesign) => void;
-	onAdd: (kind: DesignEventKind) => void;
-	/** Makes the 'boss' lane the row of one encounter target, under a label of its name that selects it. */
+	onAdd: (kind: DesignEventKind, targetIndex?: number) => void;
+	/** Only for the 'boss' lane, where it makes the lane the row of one encounter target, under a label of its name that selects it. */
 	target?: DesignerLaneTarget;
 }
 
-export interface DesignerLaneTarget {
+interface DesignerLaneTarget {
 	index: number;
 	selected: boolean;
 	onSelect: () => void;
@@ -96,12 +108,11 @@ export const DesignerLane = ({
 		() => laneEvents(design, lane, baseSeconds, targetIndex === undefined ? undefined : { index: targetIndex, count: targetCount }),
 		[design, lane, baseSeconds, targetIndex, targetCount],
 	);
-	// The boss health shapes the first target alone.
-	const kinds = targetIndex !== undefined && targetIndex > 0 ? LANE_EVENT_KINDS[lane].filter(kind => kind !== 'bossHealth') : LANE_EVENT_KINDS[lane];
+	const kinds = rowKinds(lane, targetIndex);
 	// The DOM keeps kind-then-index order whatever the times are: reordering keyed nodes moves the focused one, and the browser blurs it.
 	const domOrder = useMemo(() => {
-		const kinds = LANE_EVENT_KINDS[lane];
-		return [...events].sort((a, b) => kinds.indexOf(a.ref.kind) - kinds.indexOf(b.ref.kind) || a.ref.index - b.ref.index);
+		const order = LANE_EVENT_KINDS[lane];
+		return [...events].sort((a, b) => order.indexOf(a.ref.kind) - order.indexOf(b.ref.kind) || a.ref.index - b.ref.index);
 	}, [events, lane]);
 	const rowCount = Math.max(1, ...events.map(event => event.row + 1));
 	const bars = useRef(new Map<string, HTMLDivElement>());
@@ -227,7 +238,7 @@ export const DesignerLane = ({
 	const tip = (ref: DesignEventRef, window?: TimeWindow) => serializeTip(eventTooltip(design, ref, baseSeconds, targetNames, window));
 
 	return (
-		<div role="group" aria-label={label} data-lane={lane} className={LANE_CLASSES} style={cssVars({ '--bar': `var(--designer-lane-${lane}-bar)` })}>
+		<div role="group" aria-label={label} className={LANE_CLASSES} style={cssVars({ '--bar': `var(--designer-lane-${lane}-bar)` })}>
 			<div className={LANE_LABEL_CLASSES}>
 				{target ? (
 					<Button
@@ -257,7 +268,7 @@ export const DesignerLane = ({
 								variant="outline-secondary"
 								size="xs"
 								aria-label={designerText('add', { event: eventLabel })}
-								onClick={() => onAdd(kind)}>
+								onClick={() => onAdd(kind, target?.index)}>
 								<Icon name="plus" /> {eventLabel}
 							</Button>
 						);

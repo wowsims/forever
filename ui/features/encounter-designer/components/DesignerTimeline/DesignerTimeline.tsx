@@ -231,7 +231,6 @@ export const DesignerTimeline = ({
 											onSelect: () => onSelect({ kind: 'target', index }),
 											onActivate: () => onActivate({ kind: 'target', index }),
 										}}
-										onAdd={kind => onAdd(kind, index)}
 									/>
 								))}
 								<div className={LANE_CLASSES}>

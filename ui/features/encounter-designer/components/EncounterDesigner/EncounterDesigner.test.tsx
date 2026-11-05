@@ -499,7 +499,7 @@ describe('EncounterDesigner', () => {
 	it('turns a new boss ability into a pulse with working defaults, its own fields and no target, and saves it', async () => {
 		const { encounter } = await setup();
 		const dialog = await openDesigner();
-		await add('Abilities', 'Boss ability');
+		await add('Abilities', 'Ability');
 		expect(within(dialog).queryByLabelText('Target')).not.toBeNull();
 
 		await userEvent.click(within(dialog).getByLabelText('Kind'));
@@ -617,7 +617,7 @@ describe('EncounterDesigner', () => {
 		const onTarget = (targetIndex: number, start: number) =>
 			DesignDowntime.create({ targetIndex, start: { at: start, jitter: 0 }, end: { at: start + 0.1, jitter: 0 } });
 
-		it('puts each downtime on its target row and the boss health on the first, and names the abilities lane Abilities', async () => {
+		it('puts each downtime on its target row and the boss health on the first', async () => {
 			await setup({
 				targets: 2,
 				design: EncounterDesign.create({
@@ -628,13 +628,40 @@ describe('EncounterDesigner', () => {
 			await openDesigner();
 
 			expect(rows()).toEqual(['Target 1', 'Target 2']);
-			expect(barsOn(lane('Target 1')).sort()).toEqual(['Boss health 1', 'Downtime 1']);
+			expect(barsOn(lane('Target 1'))).toEqual(['Downtime 1', 'Boss health 1']);
 			expect(barsOn(lane('Target 2'))).toEqual(['Downtime 2']);
 			expect(within(lane('Target 1')).queryByRole('button', { name: 'Add Boss health' })).not.toBeNull();
 			expect(within(lane('Target 2')).queryByRole('button', { name: 'Add Boss health' })).toBeNull();
+		});
+
+		it('names the abilities lane Abilities', async () => {
+			await setup({ targets: 2 });
+			await openDesigner();
+
 			expect(lane('Abilities')).toBeTruthy();
 			expect(screen.queryByRole('group', { name: 'Boss abilities' })).toBeNull();
 			expect(screen.queryByRole('group', { name: 'Boss' })).toBeNull();
+		});
+
+		it("moves focus with ArrowDown and ArrowUp among the bars of the pressed bar's row only", async () => {
+			await setup({
+				targets: 2,
+				design: EncounterDesign.create({ downtimes: [onTarget(0, 0.2), onTarget(0, 0.4), onTarget(1, 0.6)] }),
+			});
+			await openDesigner();
+			const [first, second] = within(lane('Target 1')).getAllByRole('slider');
+			const other = within(lane('Target 2')).getByRole('slider');
+
+			act(() => first.focus());
+			press(first, 'ArrowDown');
+			expect(document.activeElement).toBe(second);
+			press(second, 'ArrowDown');
+			expect(document.activeElement).toBe(second);
+			press(second, 'ArrowUp');
+			expect(document.activeElement).toBe(first);
+			press(first, 'ArrowUp');
+			expect(document.activeElement).toBe(first);
+			expect(document.activeElement).not.toBe(other);
 		});
 
 		it('adds a downtime on the target of the row whose + Downtime was pressed', async () => {

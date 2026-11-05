@@ -2,7 +2,7 @@ import type { AddWave, DesignBossAbility, DesignDamageAmp, DesignDowntime, Desig
 import { DesignBossAbility_Kind, DesignTime } from '@generated/proto/common';
 import type { AxisDragMode } from '@ui-kit/hooks/usePointerAxisDrag';
 
-import type { DesignEventRef, DesignLaneKind, HealthSegment } from '../../model/lanes';
+import type { DesignEventKind, DesignEventRef, DesignLaneKind, HealthSegment } from '../../model/lanes';
 import {
 	eventsOf,
 	eventWindow,
@@ -104,40 +104,45 @@ const pulseLaneTicks = (windows: ReadonlyArray<TimeWindow>, intervalSeconds: num
 	return ticks;
 };
 
-// The events of one target's row in the 'boss' lane: its downtimes, and on the first target the boss health and every
-// downtime that names no target of the `count` the encounter has, which validation flags.
-const onTargetRow = (design: EncounterDesign, ref: DesignEventRef, target: { index: number; count: number }): boolean => {
-	if (ref.kind === 'bossHealth') return target.index === 0;
-	const named = design.downtimes[ref.index].targetIndex;
+// Whether a downtime sits on one target's row: its own, and on the first target every downtime that names no target of the
+// `count` the encounter has, which validation flags.
+const onTargetRow = (design: EncounterDesign, index: number, target: { index: number; count: number }): boolean => {
+	const named = design.downtimes[index].targetIndex;
 	return named === target.index || (target.index === 0 && (named < 0 || named >= target.count));
 };
 
+// The event kinds a row can add; the boss health shapes the first target alone.
+export const rowKinds = (lane: DesignLaneKind, targetIndex?: number): ReadonlyArray<DesignEventKind> =>
+	targetIndex ? LANE_EVENT_KINDS[lane].filter(kind => kind !== 'bossHealth') : LANE_EVENT_KINDS[lane];
+
 // The lane's events in time order, each with the row that keeps it clear of the others, its repeats and jitter included.
 // The boss health segments share the lane's first row, which no downtime takes. With a target, the 'boss' lane holds only
-// that target's row.
+// that target's row; `target` means nothing in the other lanes.
 export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSeconds: number, target?: { index: number; count: number }): Array<LaneEvent> => {
 	const segments = healthSegments(design);
-	const every = LANE_EVENT_KINDS[lane].flatMap(kind =>
-		eventsOf(design, kind).map((_, index) => {
+	const events = rowKinds(lane, target?.index).flatMap(kind =>
+		eventsOf(design, kind).flatMap((_, index) => {
+			if (target && kind === 'downtime' && !onTargetRow(design, index, target)) return [];
 			const ref: DesignEventRef = { kind, index };
 			const window = windowOf(design, ref, baseSeconds);
 			const all = occurrences(design, ref, MAX_OCCURRENCES);
 			const ability = kind === 'ability' ? (getEvent(design, ref) as DesignBossAbility) : undefined;
 			const instants = !!ability && firesAtInstants(ability);
 			const pulse = ability?.kind === DesignBossAbility_Kind.Pulse;
-			return {
-				ref,
-				window,
-				jitter: jitterOf(design, ref),
-				repeats: instants ? [] : all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
-				ticks: instants ? all.map(occurrence => occurrence.start) : pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
-				row: 0,
-				openEnd: kind === 'wave' || kind === 'move',
-				startFixed: kind === 'bossHealth' && segments.find(segment => segment.index === index)?.previous === undefined,
-			};
+			return [
+				{
+					ref,
+					window,
+					jitter: jitterOf(design, ref),
+					repeats: instants ? [] : all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
+					ticks: instants ? all.map(occurrence => occurrence.start) : pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
+					row: 0,
+					openEnd: kind === 'wave' || kind === 'move',
+					startFixed: kind === 'bossHealth' && segments.find(segment => segment.index === index)?.previous === undefined,
+				},
+			];
 		}),
 	);
-	const events = target ? every.filter(event => onTargetRow(design, event.ref, target)) : every;
 	const packed = events.filter(event => event.ref.kind !== 'bossHealth');
 	const rows = packRows(
 		packed.map(event => ({

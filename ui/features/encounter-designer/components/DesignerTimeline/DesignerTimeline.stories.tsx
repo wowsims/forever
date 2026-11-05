@@ -99,8 +99,14 @@ export const TargetSelected: Story = {
 };
 
 // Downtime 2 changes row, then passes Downtime 3 in time, and keeps focus through both; Enter then activates it.
+const sameRowDowntimes = () => {
+	const design = overlappingDowntimesDesign();
+	design.downtimes[2].targetIndex = 0;
+	return design;
+};
+
 export const KeyboardMoveKeepsFocus: Story = {
-	args: { design: overlappingDowntimesDesign() },
+	args: { design: sameRowDowntimes() },
 	play: async ({ args, canvasElement }) => {
 		const bar = within(canvasElement).getAllByRole('slider')[1];
 		await expect(bar.style.getPropertyValue('--row')).toBe('2 / span 1');

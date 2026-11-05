@@ -1104,7 +1104,7 @@
 				"events": {
 					"downtime": "Downtime",
 					"boss_health": "Boss health",
-					"ability": "Boss ability",
+					"ability": "Ability",
 					"wave": "Wave",
 					"move": "Move",
 					"amp": "Damage amp"

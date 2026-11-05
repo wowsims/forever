@@ -698,7 +698,7 @@ const designAbilityKinds = (actionId: ActionId): Array<DesignBossAbility_Kind> =
 	return [];
 };
 
-// A boss ability's actions take the name the designer gives the ability, "Boss ability N" when it has none, with the
+// A boss ability's actions take the name the designer gives the ability, "Ability N" when it has none, with the
 // kind after it. Undefined for any other id, or when the ability at the tag's index is of another kind.
 const designAbilityName = (design: EncounterDesign | undefined, actionId: ActionId): string | undefined => {
 	const index = actionId.tag - ENCOUNTER_DESIGN_ABILITY_TAG;
