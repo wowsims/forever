@@ -15119,6 +15119,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 696941, SpellID: 18196, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL, BasePoints: 15, BaseLevel: 60, PvpMult: 1, Misc: 95, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 18202, Name: "Rend", School: 1, Attr: [17]uint32{0: 0x40000, 8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 14000, MaxRange: 100, DefenseType: 2, Mechanic: 15, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 695162, SpellID: 18202, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 14, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 18211, Name: "Shadow Bolt", School: 32, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 30, MaxRange: 50000, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 694767, SpellID: 18211, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 231, Variance: 0.6086956262588501, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -36525,6 +36529,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1345888, SpellID: 1314143, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 16939, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1314330, Name: "Arcanum of Binding", School: 8, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
+		Effects: []Effect{
+			{ID: 1346127, SpellID: 1314330, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 1314795, Name: "Increased Critical 1 - All - Gladiator Set", School: 1, Attr: [17]uint32{0: 0xc0, 1: 0x400, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1346737, SpellID: 1314795, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CRIT_PCT, BasePoints: 1, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36540,6 +36548,10 @@ var generatedSpells = []Spell{
 	{ID: 1315080, Name: "Mount Speed", School: 1, Attr: [17]uint32{0: 0x9800100, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, DurationMs: -1, RequiredAreas: 9317,
 		Effects: []Effect{
 			{ID: 1347167, SpellID: 1315080, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MOUNTED_SPEED_ALWAYS, BasePoints: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1315226, Name: "Update Interactions", School: 1, Attr: [17]uint32{0: 0x29800180, 1: 0x420, 2: 0x10484005, 3: 0x10130200, 4: 0xa00080, 5: 0x60008, 6: 0x3200, 9: 0x100000, 10: 0x1, 12: 0x100000}, SpellLevel: 60, BaseLevel: 60,
+		Effects: []Effect{
+			{ID: 1347402, SpellID: 1315226, Type: dbcenums.E_UPDATE_INTERACTIONS, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 1315969, Name: "Rune of Perfection", School: 1, Attr: [17]uint32{0: 0x9800140, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, RefIDs: []int32{1315971},
 		Effects: []Effect{
@@ -36909,6 +36921,14 @@ var generatedSpells = []Spell{
 			{ID: 1355870, SpellID: 1320922, Type: dbcenums.E_LOOT, BasePoints: 1, BaseLevel: 60, PvpMult: 1, Misc: 134614, Misc2: 562, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Reagents: []Reagent{{Item: 10558, Count: 45}, {Item: 248707, Count: 1}}},
+	{ID: 1321320, Name: "Shiny Silver Coin", School: 1, Speed: 10, MinDuration: 1, Attr: [17]uint32{0: 0x100, 10: 0x800000, 13: 0x10000000}, SpellLevel: 60, BaseLevel: 60, MinRange: 10, MaxRange: 20,
+		Effects: []Effect{
+			{ID: 1356521, SpellID: 1321320, Type: dbcenums.E_TRIGGER_MISSILE, BaseLevel: 60, PvpMult: 1, TriggerID: 1321323, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{39, 0}},
+		}},
+	{ID: 1321323, Name: "Shiny Silver Coin", School: 1, Attr: [17]uint32{0: 0x100, 4: 0x1000, 8: 0x1000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 1800000,
+		Effects: []Effect{
+			{ID: 1356524, SpellID: 1321323, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 356, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 1321558, Name: "Siphon the Grave", School: 1, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, DurationMs: 10000, DefenseType: 1, DispelType: 1,
 		Effects: []Effect{
 			{ID: 1356873, SpellID: 1321558, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 20, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36929,6 +36949,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1357910, SpellID: 1322218, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 49, Variance: 0.41999998688697815, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1357911, SpellID: 1322218, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1322295, Name: "Firebolt", School: 4, Speed: 19, Attr: [17]uint32{15: 0x2000}, MaxRange: 100, DefenseType: 1,
+		Effects: []Effect{
+			{ID: 1357998, SpellID: 1322295, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 42, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1322587, Name: "Yay", School: 1, SpellLevel: 60, BaseLevel: 60, DurationMs: 1200000,
 		Effects: []Effect{
