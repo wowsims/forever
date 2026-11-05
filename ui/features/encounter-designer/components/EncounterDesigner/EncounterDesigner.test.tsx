@@ -897,20 +897,21 @@ describe('My encounters', () => {
 		expect(await listedOwn()).toEqual([]);
 	});
 
-	it('keeps a preset out of My encounters on Save, and adds a named encounter from an import', async () => {
+	it('adds a preset with a wave to My encounters as New encounter on Save, and a named encounter from an import', async () => {
 		const { encounter } = await setup();
 		await pick('Default/Dynamic Adds');
 		await openDesigner();
 		await clickButton('Save');
-		expect(stored()).toEqual({});
+		expect(Object.keys(stored())).toEqual(['New encounter']);
+		expect(choice().textContent).toBe('New encounter');
 
 		act(() => encounter.fromProto(own('Shared with me', 150)));
 		expect(choice().textContent).toBe('Shared with me');
-		expect(await listedOwn()).toEqual([]);
+		expect(await listedOwn()).toEqual(['New encounter']);
 		const dialog = await openDesigner();
 		expect(nameField(dialog).value).toBe('Shared with me');
 		await clickButton('Save');
-		expect(Object.keys(stored())).toEqual(['Shared with me']);
+		expect(Object.keys(stored())).toEqual(['New encounter', 'Shared with me']);
 	});
 
 	it("lists only the spec's own entries", async () => {
@@ -985,7 +986,7 @@ describe('My encounters', () => {
 		expect(choice().textContent).toBe('Second');
 	});
 
-	it('puts a preset picked in the header into the sim on Save, and leaves the entry the designer opened on in the list', async () => {
+	it('stores a preset with a wave picked in the header as New encounter on Save, and leaves the entry the designer opened on as it was', async () => {
 		storeEncounters([own('First', 200)]);
 		const { encounter } = await setup();
 		await pick('First');
@@ -994,11 +995,11 @@ describe('My encounters', () => {
 		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
 		await clickButton('Save');
 
-		expect(Object.keys(stored())).toEqual(['First']);
+		expect(Object.keys(stored())).toEqual(['First', 'New encounter']);
 		expect(EncounterProto.fromJson(stored()['First'] as never).duration).toBe(200);
-		expect(encounter.isMyEncounter()).toBe(false);
+		expect(encounter.isMyEncounter()).toBe(true);
 		expect(encounter.getDesign().addWaves.map(wave => wave.name)).toEqual(['Add']);
-		expect(choice().textContent).toBe('Default/Dynamic Adds');
+		expect(choice().textContent).toBe('New encounter');
 	});
 
 	it('deletes the entry picked in the header, and leaves the one the designer opened on', async () => {
@@ -1028,7 +1029,7 @@ describe('My encounters', () => {
 		expect(encounter.getDesign().downtimes.map(downtime => downtime.targetIndex)).toEqual([2]);
 	});
 
-	it('saves the design of a preset picked in the header', async () => {
+	it('saves the design of a preset picked in the header as New encounter', async () => {
 		const { encounter } = await setup();
 		const dialog = await openDesigner();
 		await userEvent.click(within(dialog).getByLabelText('Encounter'));
@@ -1036,7 +1037,60 @@ describe('My encounters', () => {
 		await clickButton('Save');
 
 		expect(encounter.getDesign().addWaves.map(wave => wave.name)).toEqual(['Add']);
-		expect(choice().textContent).toBe('Default/Dynamic Adds');
+		expect(choice().textContent).toBe('New encounter');
+	});
+
+	it('stores a preset opened in the designer under the name typed once a downtime is added, lists it and selects it', async () => {
+		const { encounter } = await setup();
+		await pick('Default/Dynamic Adds');
+		const dialog = await openDesigner();
+		await commit(nameField(dialog), 'Adds practice');
+		await add('Boss', 'Downtime');
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['Adds practice']);
+		expect(EncounterProto.fromJson(stored()['Adds practice'] as never).design!.downtimes).toHaveLength(1);
+		expect(encounter.getName()).toBe('Adds practice');
+		expect(await listedOwn()).toEqual(['Adds practice']);
+		expect(choice().textContent).toBe('Adds practice');
+		expect(await checked()).toEqual(['Adds practice']);
+	});
+
+	it('stores the default fight as New encounter once a downtime is added to it', async () => {
+		await setup();
+		await openDesigner();
+		await add('Boss', 'Downtime');
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['New encounter']);
+		expect(await listedOwn()).toEqual(['New encounter']);
+		expect(choice().textContent).toBe('New encounter');
+	});
+
+	it('keeps the default fight out of My encounters when only a target field changes, and puts the change into the sim', async () => {
+		const { encounter } = await setup();
+		act(() => encounter.sim.setShowThreatMetrics(true));
+		await openDesigner();
+		await selectTarget('Target 1');
+		await commit(within(targetPanel('Target 1')).getByLabelText('Swing Speed'), '1.4');
+		await clickButton('Save');
+
+		expect(stored()).toEqual({});
+		expect(encounter.getDesign()).toEqual(EncounterDesign.create());
+		expect(encounter.getTargets()[0].swingSpeed).toBe(1.4);
+		expect(await listedOwn()).toEqual([]);
+	});
+
+	it('stores the default fight under the name typed even with no event added', async () => {
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+		await commit(nameField(dialog), 'Just a name');
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['Just a name']);
+		expect(encounter.hasDesign()).toBe(false);
+		expect(await listedOwn()).toEqual(['Just a name']);
+		expect(choice().textContent).toBe('Just a name');
 	});
 
 	it('reads an import under the name of an entry as imported, and Save adds it under a free name and leaves the entry as it was', async () => {

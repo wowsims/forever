@@ -362,12 +362,12 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 		onOpenChange(false);
 	};
 
-	// Save updates the entry the designer edits, and adds a new or imported named encounter, under a free name when an
-	// entry has it already; an encounter that opened or was picked without a name (a preset, or one edited by hand)
-	// only goes to the sim.
+	// Save updates the entry the designer edits and adds the fight to My encounters when it was started from the +, has a
+	// name (a typed one counts) or holds an event in any lane, under a free name when an entry has it already. A simple
+	// fight without a name (a preset, or one edited by hand) only goes to the sim.
 	const save = () => {
-		if (entry || replaced || origin?.name) return store(entry?.name);
 		encounter.setDesign(draft.design);
+		if (entry || replaced || encounter.getName() || encounter.hasDesign()) return store(entry?.name);
 		onOpenChange(false);
 	};
 
