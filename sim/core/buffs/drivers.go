@@ -70,10 +70,22 @@ func applyFixedShoutAura(char *core.Character, aura *core.Aura, category string)
 	applyFixedUptimeAura(aura, 1, aura.Duration+1, -1)
 }
 
+// A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) runs the OnReset again, and the schedule it starts
+// replaces the one still running. A tick on a target with the raid's debuffs disabled does nothing.
 func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
+	var schedule *core.PendingAction
+	onAction := options.OnAction
+	options.OnAction = func(sim *core.Simulation) {
+		if !aura.Unit.RaidDebuffsDisabled() {
+			onAction(sim)
+		}
+	}
 	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
 		aura.Duration = core.NeverExpires
-		core.StartPeriodicAction(sim, options)
+		if schedule != nil {
+			schedule.Cancel(sim)
+		}
+		schedule = core.StartPeriodicAction(sim, options)
 	}
 }
 

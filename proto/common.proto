@@ -576,6 +576,9 @@ message TargetInput {
 
 	int32 enum_value = 6;
 	repeated string enum_options = 7;
+
+	// The label of the target's Bool input that shows this one while it is on; empty shows it always.
+	string shown_by = 8;
 }
 
 message Target {
