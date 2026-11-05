@@ -74,7 +74,7 @@ export const DesignerEventPanel = ({ design, selected, baseSeconds, targetNames,
 					/>
 				);
 			case 'boolean':
-				return <BooleanPicker key={id} {...frame} value={field.get(event)} onChange={value => commit(e => field.set(e, value))} />;
+				return <BooleanPicker key={id} {...frame} className="self-end" value={field.get(event)} onChange={value => commit(e => field.set(e, value))} />;
 			case 'text':
 				return <StringField key={id} {...frame} value={field.get(event)} onChange={value => commit(e => field.set(e, value))} />;
 			case 'choice':
