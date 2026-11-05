@@ -1,6 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { memoLast } from './misc';
+import { freeName, memoLast } from './misc';
+
+describe('freeName', () => {
+	it('keeps a free name and otherwise takes the first free number', () => {
+		expect(freeName('Cooldowns', ['Opener'])).toBe('Cooldowns');
+		expect(freeName('Cooldowns', ['Cooldowns', 'Cooldowns (2)'])).toBe('Cooldowns (3)');
+		expect(freeName('Cooldowns', ['Cooldowns', 'Cooldowns (3)'])).toBe('Cooldowns (2)');
+	});
+
+	it('numbers a numbered name from its base, never nesting the suffix', () => {
+		expect(freeName('Berserk (2)', ['Berserk', 'Berserk (2)'])).toBe('Berserk (3)');
+	});
+
+	it('takes the names as a set too', () => {
+		expect(freeName('Cooldowns', new Set(['Cooldowns']))).toBe('Cooldowns (2)');
+	});
+});
 
 describe('memoLast', () => {
 	it('computes once while the deps keep their identities, and again when one changes', () => {

@@ -45,7 +45,8 @@ const CheckRow = ({ id, label, summary, checked, duplicate = false, duplicateTex
 			id={id}
 			className="wrap-anywhere"
 			label={label}
-			labelTooltip={disabledReason ?? summary}
+			// An element, since a string tooltip is read as markup and the reason quotes a saved name.
+			labelTooltip={<>{disabledReason ?? summary}</>}
 			labelTooltipPlace={disabledReason ? 'right' : undefined}
 			layout="inline"
 			size="xs"
