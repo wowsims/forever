@@ -8,11 +8,12 @@ import { findScrollParent } from '@ui-kit/utils/dom';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
-import type { DesignEventKind, DesignEventRef } from '../../model/lanes';
-import { DESIGN_LANES } from '../../model/lanes';
+import type { DesignerSelection, DesignEventKind } from '../../model/lanes';
+import { DESIGN_LANES, isEventRef } from '../../model/lanes';
 import type { DesignIssue } from '../../model/validate';
 import { DesignerLane } from '../DesignerLane';
 import { refKey } from '../DesignerLane/utils';
+import { DesignerTargetLane } from '../DesignerTargetLane';
 import { DesignerTip } from '../DesignerTip';
 import { DesignerToolbar } from '../DesignerToolbar';
 import { designerText } from '../EncounterDesigner/utils/configs';
@@ -35,22 +36,34 @@ export interface DesignerTimelineProps {
 	design: EncounterDesign;
 	/** The fight length the fractions in the design are drawn against. */
 	baseSeconds: number;
-	selected?: DesignEventRef;
+	selected?: DesignerSelection;
 	issues: ReadonlyArray<DesignIssue>;
-	/** The encounter's target names, which a downtime's tooltip reads. */
+	/** The encounter's target names: the targets lane's bars, and what a downtime's tooltip reads. */
 	targetNames: ReadonlyArray<string>;
 	/** `undefined` clears the selection, as removing an event does. */
-	onSelect: (ref: DesignEventRef | undefined) => void;
+	onSelect: (selection: DesignerSelection | undefined) => void;
 	/** Enter on a bar, after `onSelect`; a click or a drag only selects, so this is where focus may move to the panel. */
-	onActivate: (ref: DesignEventRef) => void;
+	onActivate: (selection: DesignerSelection) => void;
 	/** Called once per finished drag or key press, with a new design. */
 	onChange: (design: EncounterDesign) => void;
 	onAdd: (kind: DesignEventKind) => void;
+	onAddTarget: () => void;
 }
 
 const LABEL_WIDTH = '12rem';
 
-export const DesignerTimeline = ({ design, baseSeconds, selected, issues, targetNames, onSelect, onActivate, onChange, onAdd }: DesignerTimelineProps) => {
+export const DesignerTimeline = ({
+	design,
+	baseSeconds,
+	selected,
+	issues,
+	targetNames,
+	onSelect,
+	onActivate,
+	onChange,
+	onAdd,
+	onAddTarget,
+}: DesignerTimelineProps) => {
 	const rootRef = useRef<HTMLDivElement>(null);
 	const cornerRef = useRef<HTMLDivElement>(null);
 	const rulerViewportRef = useRef<HTMLDivElement>(null);
@@ -180,6 +193,14 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 				className={clsx('relative min-w-0 cursor-grab overflow-x-auto overflow-y-hidden', panning && 'cursor-grabbing select-none')}
 				{...pan}>
 				<div className="w-designer-content-w min-w-full">
+					<DesignerTargetLane
+						targetNames={targetNames}
+						baseSeconds={baseSeconds}
+						selected={selected?.kind === 'target' ? selected.index : undefined}
+						onSelect={index => onSelect({ kind: 'target', index })}
+						onActivate={index => onActivate({ kind: 'target', index })}
+						onAdd={onAddTarget}
+					/>
 					{DESIGN_LANES.map(lane => (
 						<DesignerLane
 							key={lane}
@@ -190,7 +211,7 @@ export const DesignerTimeline = ({ design, baseSeconds, selected, issues, target
 							targetNames={targetNames}
 							tooltipId={tooltipId}
 							pixelsPerSecond={pixelsPerSecond}
-							selected={selected}
+							selected={isEventRef(selected) ? selected : undefined}
 							invalid={invalid}
 							onSelect={onSelect}
 							onActivate={onActivate}

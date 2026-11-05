@@ -114,7 +114,10 @@ player's designed encounters in a per-spec `useSavedData` slot keyed by name
 encounter proto, so the autosave keeps it through a reload, and `withoutMyEncounter`
 (`ui/sim/state/my_encounter_sharing.ts`) drops it from every export and import, so an imported encounter under an entry's
 name reads as imported, and its Save adds a new entry under a free name. Both encounter choices, the picker's and the
-Advanced dialog's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`).
+designer's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`). The designer's draft
+takes up the design a choice made there writes. A designer fight (`isDesignerFight` in `ui/sim/raid/encounter.ts`: an
+event in any lane) has its execute proportions in the designer's header only, and the Encounter panel shows them for a
+simple fight.
 
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the
 slice. Use one only when nothing narrower works, and keep their number from growing:

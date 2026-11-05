@@ -11,7 +11,7 @@ import { useMyEncounters } from './useMyEncounters';
 
 type EncounterChoiceProps = Pick<ConnectedChoiceFieldProps<Encounter, string>, 'modObject' | 'config' | 'options' | 'placeholder' | 'renderValue'>;
 
-// The encounter choice the picker and the Advanced dialog share: Custom, the presets and My encounters. An entry
+// The encounter choice the picker and the designer share: Custom, the presets and My encounters. An entry
 // reads as edited while the encounter differs from what the list holds for it, and an import that carries the
 // name of an entry reads as imported.
 export const useEncounterChoice = (encounter: Encounter, field: Parameters<typeof encounterChoiceConfig>[2]): EncounterChoiceProps => {

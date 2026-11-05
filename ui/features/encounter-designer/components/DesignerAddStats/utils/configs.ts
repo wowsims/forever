@@ -1,10 +1,11 @@
 import type { BooleanPickerConfig, ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
+import type { ListItemsConfig } from '@features/inputs/hooks/useListItems';
 import { CreatureFamily, MobType, SpellSchool, Stat, Target as TargetProto } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateCreatureFamily, translateMobType, translateSpellSchool, translateStat } from '@i18n/localization';
 import { CREATURE_ARMOR_BY_LEVEL } from '@sim/proto/sim_tables_auto_gen';
-import type { Encounter } from '@sim/raid/encounter';
-import { type StoreSubscribe, subscribeEncounterField } from '@sim/state/subscriptions';
+import { Encounter } from '@sim/raid/encounter';
+import { subscribeEncounterField } from '@sim/state/subscriptions';
 import { distinct } from '@sim/utils/collections';
 
 import { trackEvent } from '../../../../../tracking/utils';
@@ -62,7 +63,6 @@ export interface TargetFieldContext {
 	idPrefix: string;
 	getTarget: () => TargetProto;
 	modifyTarget: (edit: (target: TargetProto) => void) => void;
-	storeSubscribe: () => StoreSubscribe;
 }
 
 /** An encounter's target, which the NPC and preset fields also need the encounter for. */
@@ -77,17 +77,31 @@ export const encounterTargetContext = (encounter: Encounter, targetIndex: number
 	idPrefix: `target-${targetIndex}`,
 	getTarget: () => encounter.getTarget(targetIndex) || TargetProto.create(),
 	modifyTarget: edit => encounter.modifyTarget(targetIndex, edit),
-	storeSubscribe: () => subscribeEncounterField(encounter, 'targets'),
 });
 
-export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget, storeSubscribe }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
+// The encounter's target list. The first target is never removed, so the list never runs empty.
+export const targetsListConfig = (): ListItemsConfig<Encounter, TargetProto> => ({
+	storeSubscribe: (subject: Encounter) => subscribeEncounterField(subject, 'targets'),
+	getValue: (subject: Encounter) => subject.getTargets().slice(),
+	setValue: (subject: Encounter, newValue: Array<TargetProto>) => {
+		trackEvent({
+			action: 'settings',
+			category: 'encounter',
+			label: newValue.length > subject.getTargets().length ? 'add-target' : 'remove-target',
+		});
+		subject.setTargets(newValue);
+	},
+	newItem: () => Encounter.defaultTargetProto(),
+	minimumItems: 1,
+});
+
+export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
 	const presetTargets = encounter.sim.db.getAllPresetTargets();
 	return {
 		id: targetId(idPrefix, 'npc'),
 		label: i18n.t('settings_tab.encounter.npc.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.npc.tooltip'),
 		values: [{ name: i18n.t('common.custom'), value: -1 }].concat(presetTargets.map((preset, index) => ({ name: preset.path, value: index }))),
-		storeSubscribe,
 		getValue: () => presetTargets.findIndex(preset => TargetProto.equals(getTarget(), preset.target)),
 		setValue: (_: null, newValue: number) => {
 			if (newValue === -1) return;
@@ -98,7 +112,7 @@ export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget, storeSu
 	};
 };
 
-export const presetTargetConfig = ({ encounter, idPrefix, getTarget, storeSubscribe, modifyTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
+export const presetTargetConfig = ({ encounter, idPrefix, getTarget, modifyTarget }: EncounterTargetFieldContext): ChoiceFieldConfig<null> => {
 	const presetTargets = encounter.sim.db.getAllPresetTargets();
 	const byNpcId = distinct(presetTargets, (a, b) => a.target?.id === b.target?.id);
 	return {
@@ -106,7 +120,6 @@ export const presetTargetConfig = ({ encounter, idPrefix, getTarget, storeSubscr
 		label: i18n.t('settings_tab.encounter.preset_target.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.preset_target.tooltip'),
 		values: [{ name: i18n.t('common.none'), value: 0 }].concat(byNpcId.map(preset => ({ name: preset.path, value: preset.target!.id }))),
-		storeSubscribe,
 		getValue: () => getTarget().id,
 		setValue: (_: null, newValue: number) => {
 			modifyTarget(target => {
@@ -117,11 +130,10 @@ export const presetTargetConfig = ({ encounter, idPrefix, getTarget, storeSubscr
 	};
 };
 
-export const levelConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+export const levelConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'level'),
 	label: i18n.t('settings_tab.encounter.level'),
 	values: [63, 62, 61, 60].map(value => ({ name: String(value), value })),
-	storeSubscribe,
 	getValue: () => getTarget().level,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'level', value: newValue });
@@ -133,11 +145,10 @@ export const levelConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget 
 	},
 });
 
-export const mobTypeConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+export const mobTypeConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'mob-type'),
 	label: i18n.t('settings_tab.encounter.mob_type'),
 	values: mobTypeEnumValues,
-	storeSubscribe,
 	getValue: () => getTarget().mobType,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'mob_type', value: newValue });
@@ -150,12 +161,11 @@ export const mobTypeConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarge
 	},
 });
 
-export const creatureFamilyConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, mobType: MobType): ChoiceFieldConfig<null> => ({
+export const creatureFamilyConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext, mobType: MobType): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'creature-family'),
 	label: i18n.t('settings_tab.encounter.creature_family.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.creature_family.tooltip'),
 	values: [CreatureFamily.CreatureFamilyUnknown, ...creatureFamiliesOf(mobType)].map(value => ({ name: translateCreatureFamily(value), value })),
-	storeSubscribe,
 	getValue: () => getTarget().creatureFamily,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'creature_family', value: newValue });
@@ -165,7 +175,7 @@ export const creatureFamilyConfig = ({ idPrefix, getTarget, storeSubscribe, modi
 	},
 });
 
-export const tankIndexConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+export const tankIndexConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'tanked-by'),
 	label: i18n.t('settings_tab.encounter.tanked_by.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.tanked_by.tooltip'),
@@ -176,7 +186,6 @@ export const tankIndexConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTar
 		{ name: i18n.t('common.tanks.tank_3'), value: 2 },
 		{ name: i18n.t('common.tanks.tank_4'), value: 3 },
 	],
-	storeSubscribe,
 	getValue: () => getTarget().tankIndex,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'tank_index', value: newValue });
@@ -186,12 +195,11 @@ export const tankIndexConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTar
 	},
 });
 
-export const statConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, stat: Stat, tooltip: string) =>
+export const statConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext, stat: Stat, tooltip: string) =>
 	({
 		id: `${idPrefix}-picker-stats-${stat}`,
 		label: translateStat(stat),
 		labelTooltip: tooltip,
-		storeSubscribe,
 		getValue: () => getTarget().stats[stat],
 		setValue: (_: null, newValue: number) => {
 			modifyTarget(target => {
@@ -241,13 +249,12 @@ const NUMBER_FIELDS: Array<NumberField> = [
 	},
 ];
 
-export const numberConfigs = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): Array<NumberFieldConfig<null>> =>
+export const numberConfigs = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): Array<NumberFieldConfig<null>> =>
 	NUMBER_FIELDS.map(field => ({
 		id: targetId(idPrefix, field.name),
 		label: i18n.t(`settings_tab.encounter.${field.key}.label`),
 		labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
 		float: field.float,
-		storeSubscribe,
 		getValue: () => field.get(getTarget()),
 		setValue: (_: null, newValue: number) => {
 			trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
@@ -304,13 +311,12 @@ const BOOLEAN_FIELDS: Array<BooleanField> = [
 	},
 ];
 
-const booleanConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext, field: BooleanField): BooleanPickerConfig<null> => ({
+const booleanConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext, field: BooleanField): BooleanPickerConfig<null> => ({
 	id: targetId(idPrefix, field.name),
 	label: i18n.t(`settings_tab.encounter.${field.key}.label`),
 	labelTooltip: i18n.t(`settings_tab.encounter.${field.key}.tooltip`),
 	layout: 'inline',
 	reverse: true,
-	storeSubscribe,
 	getValue: () => field.get(getTarget()),
 	setValue: (_: null, newValue: boolean) => {
 		trackEvent({ action: 'settings', category: 'targets', label: field.label, value: newValue });
@@ -332,12 +338,11 @@ export const bleedImmuneConfig = (context: TargetFieldContext): BooleanPickerCon
 		},
 	});
 
-export const spellSchoolConfig = ({ idPrefix, getTarget, storeSubscribe, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
+export const spellSchoolConfig = ({ idPrefix, getTarget, modifyTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(idPrefix, 'spell-school'),
 	label: i18n.t('settings_tab.encounter.spell_school.label'),
 	labelTooltip: i18n.t('settings_tab.encounter.spell_school.tooltip'),
 	values: spellSchoolValues,
-	storeSubscribe,
 	getValue: () => getTarget().spellSchool,
 	setValue: (_: null, newValue: number) => {
 		trackEvent({ action: 'settings', category: 'targets', label: 'spell_school', value: newValue });

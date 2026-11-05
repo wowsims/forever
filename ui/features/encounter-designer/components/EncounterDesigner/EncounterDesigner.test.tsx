@@ -70,15 +70,15 @@ const stored = (spec?: string): Record<string, unknown> => JSON.parse(window.loc
 const storeEncounters = (encounters: Array<EncounterProto>, spec?: string) =>
 	window.localStorage.setItem(myEncountersKey(spec), JSON.stringify(Object.fromEntries(encounters.map(proto => [proto.name, EncounterProto.toJson(proto)]))));
 
-const renderPicker = ({ sim, player }: Awaited<ReturnType<typeof makeIndividualSim>>, spec = 'warrior') =>
-	renderWithHost(<EncounterPicker showExecuteProportion={false} />, { sim, player, getStorageKey: specKey(spec), individualConfig: { defaults: {} } });
+const renderPicker = ({ sim, player }: Awaited<ReturnType<typeof makeIndividualSim>>, spec = 'warrior', execute = false) =>
+	renderWithHost(<EncounterPicker showExecuteProportion={execute} />, { sim, player, getStorageKey: specKey(spec), individualConfig: { defaults: {} } });
 
-const setup = async ({ targets = 1, design = EncounterDesign.create(), spec = 'warrior' } = {}) => {
+const setup = async ({ targets = 1, design = EncounterDesign.create(), spec = 'warrior', execute = false } = {}) => {
 	const built = await makeIndividualSim();
 	const { sim } = built;
 	sim.encounter.setTargets(Array.from({ length: targets }, (_, index) => Target.create({ id: index + 1, name: `Target ${index + 1}` })));
 	sim.encounter.setDesign(design);
-	const view = renderPicker(built, spec);
+	const view = renderPicker(built, spec, execute);
 	return { encounter: sim.encounter, baseSeconds: sim.encounter.getDuration(), host: built.host, view };
 };
 
@@ -99,15 +99,14 @@ const clickFirst = (name: string) => act(async () => fireEvent.click(screen.getA
 
 const commit = (input: HTMLElement, value: string) => act(() => void fireEvent.change(input, { target: { value } }));
 
-// The first target is the one the picker never removes.
+const selectTarget = (name: string) => act(async () => fireEvent.click(within(lane('Targets')).getByRole('button', { name })));
+
+const targetPanel = (name: string) => screen.getByRole('region', { name });
+
+// The first target is the one the designer never removes.
 const removeSecondTarget = async () => {
-	await clickButton('Targets');
-	const menu = screen.getAllByRole('button', { name: 'Target menu' })[1];
-	await act(async () => {
-		menu.focus();
-		fireEvent.click(menu);
-	});
-	await clickButton('Delete Target');
+	await selectTarget('Target 2');
+	await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Remove' })));
 };
 
 const downtimeOn = (targetIndex: number) =>
@@ -553,8 +552,163 @@ describe('EncounterDesigner', () => {
 		await openDesigner();
 
 		await removeSecondTarget();
+		expect(
+			within(lane('Targets'))
+				.getAllByRole('button', { name: /^Target \d$/ })
+				.map(bar => bar.textContent),
+		).toEqual(['Target 1', 'Target 3']);
+		expect(screen.queryByRole('region', { name: 'Target 2' })).toBeNull();
 		await clickButton('Save');
 		expect(encounter.getDesign().downtimes.map(downtime => downtime.targetIndex)).toEqual([1]);
+	});
+
+	describe('execute proportions', () => {
+		const panel = () => screen.getByTestId('encounter-picker-root');
+
+		it("shows a simple fight's execute fields on the Encounter panel until a saved design makes it a designer fight", async () => {
+			const { encounter } = await setup({ execute: true });
+			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
+
+			const dialog = await openDesigner();
+			const field = within(dialog).getByLabelText('Execute Duration 20 (%)');
+			await commit(field, '25');
+			expect(encounter.getExecuteProportion20()).toBe(0.25);
+
+			await add('Boss', 'Downtime');
+			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
+			await clickButton('Save');
+			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).toBeNull();
+			expect(encounter.getExecuteProportion20()).toBe(0.25);
+
+			const reopened = await openDesigner();
+			expect(within(reopened).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
+		});
+
+		it('keeps the execute fields on the Encounter panel after Cancel, and puts back the proportions changed in the header', async () => {
+			const { encounter } = await setup({ execute: true });
+			const proportion = encounter.getExecuteProportion20();
+			const dialog = await openDesigner();
+			await commit(within(dialog).getByLabelText('Execute Duration 20 (%)'), '25');
+			await add('Boss', 'Downtime');
+			await clickButton('Cancel');
+
+			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
+			expect(encounter.getExecuteProportion20()).toBe(proportion);
+		});
+
+		it('leaves the execute fields out for a spec that does not read them', async () => {
+			await setup();
+			const dialog = await openDesigner();
+			expect(within(dialog).queryByLabelText('Execute Duration 20 (%)')).toBeNull();
+		});
+	});
+
+	describe('targets lane', () => {
+		const swingSpeed = (panel: HTMLElement) => within(panel).getByLabelText('Swing Speed') as HTMLInputElement;
+
+		it("edits a target's swing speed in the store as it changes, and Cancel puts it back", async () => {
+			const { encounter } = await setup({ targets: 2 });
+			act(() => encounter.sim.setShowThreatMetrics(true));
+			const before = encounter.getTargets();
+			await openDesigner();
+
+			await selectTarget('Target 2');
+			const panel = targetPanel('Target 2');
+			expect(within(lane('Targets')).getByRole('button', { name: 'Target 2' }).getAttribute('aria-pressed')).toBe('true');
+			await commit(swingSpeed(panel), '1.4');
+			expect(encounter.getTargets()[1].swingSpeed).toBe(1.4);
+			expect(Number(swingSpeed(panel).value)).toBe(1.4);
+
+			await clickButton('Cancel');
+			expect(encounter.getTargets()).toBe(before);
+			expect(encounter.getTargets()[1].swingSpeed).toBe(0);
+		});
+
+		it("shows a target's swing speed only while threat metrics are on, and an add's either way", async () => {
+			const { encounter } = await setup();
+			act(() => encounter.sim.setShowThreatMetrics(false));
+			await openDesigner();
+			await add('Add waves', 'Wave');
+			await clickButton('Edit add');
+			expect(within(screen.getByTestId('encounter-designer-add-dialog')).queryByLabelText('Swing Speed')).not.toBeNull();
+			await clickButton('Done');
+
+			await selectTarget('Target 1');
+			expect(within(targetPanel('Target 1')).queryByLabelText('Swing Speed')).toBeNull();
+
+			act(() => encounter.sim.setShowThreatMetrics(true));
+			expect(within(targetPanel('Target 1')).queryByLabelText('Swing Speed')).not.toBeNull();
+		});
+
+		it('offers no Remove and no Move up for the first target', async () => {
+			await setup({ targets: 2 });
+			await openDesigner();
+
+			await selectTarget('Target 1');
+			const panel = targetPanel('Target 1');
+			expect(within(panel).queryByRole('button', { name: 'Remove' })).toBeNull();
+			expect((within(panel).getByRole('button', { name: 'Move up' }) as HTMLButtonElement).disabled).toBe(true);
+			expect((within(panel).getByRole('button', { name: 'Move down' }) as HTMLButtonElement).disabled).toBe(false);
+		});
+
+		it("adds a target from the lane's +, moves it up and copies it, and the design keeps naming the target it named", async () => {
+			const { encounter } = await setup({ targets: 2, design: downtimeOn(1) });
+			await openDesigner();
+
+			await act(async () => fireEvent.click(within(lane('Targets')).getByRole('button', { name: 'Add Target' })));
+			expect(encounter.getTargets()).toHaveLength(3);
+			expect(encounter.getTargets()[2]).toEqual(Encounter.defaultTargetProto());
+			const added = targetPanel('Raid Target');
+
+			await act(async () => fireEvent.click(within(added).getByRole('button', { name: 'Move up' })));
+			expect(encounter.getTargets().map(target => target.name)).toEqual(['Target 1', 'Raid Target', 'Target 2']);
+			expect(targetPanel('Raid Target')).toBeTruthy();
+
+			await act(async () => fireEvent.click(within(targetPanel('Raid Target')).getByRole('button', { name: 'Duplicate' })));
+			expect(encounter.getTargets().map(target => target.name)).toEqual(['Target 1', 'Raid Target', 'Target 2', 'Raid Target']);
+			expect(encounter.getTargets()[3]).not.toBe(encounter.getTargets()[1]);
+			expect(within(lane('Targets')).getAllByRole('button', { name: 'Raid Target' })[1].getAttribute('aria-pressed')).toBe('true');
+
+			await clickButton('Save');
+			expect(encounter.getDesign().downtimes.map(downtime => downtime.targetIndex)).toEqual([2]);
+		});
+
+		// The fields read the target the panel shows, so a new selection or a move with no store write between shows the right one.
+		it('shows the NPC and the stats of the target selected, after a switch and after a move', async () => {
+			const { encounter } = await setup({ targets: 2 });
+			act(() => encounter.applyPresetTarget(encounter.sim.db.getPresetTarget('Molten Core/Son of Flame')!, 0));
+			await openDesigner();
+			const npc = (panel: HTMLElement) => within(panel).getByLabelText('NPC').textContent;
+			const level = (panel: HTMLElement) => within(panel).getByLabelText('Level').textContent;
+
+			await selectTarget('Son of Flame');
+			expect(npc(targetPanel('Son of Flame'))).toContain('Molten Core/Son of Flame');
+			expect(level(targetPanel('Son of Flame'))).toContain('62');
+
+			await selectTarget('Target 2');
+			expect(npc(targetPanel('Target 2'))).toContain('Custom');
+			expect(level(targetPanel('Target 2'))).not.toContain('62');
+
+			await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Move up' })));
+			expect(encounter.getTargets().map(target => target.name)).toEqual(['Target 2', 'Son of Flame']);
+			expect(npc(targetPanel('Target 2'))).toContain('Custom');
+
+			await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Move down' })));
+			await selectTarget('Son of Flame');
+			expect(npc(targetPanel('Son of Flame'))).toContain('Molten Core/Son of Flame');
+		});
+
+		it("loads a preset NPC into the target picked from the panel's NPC field", async () => {
+			const { encounter } = await setup({ targets: 2 });
+			await openDesigner();
+
+			await selectTarget('Target 2');
+			await userEvent.click(within(targetPanel('Target 2')).getByLabelText('NPC'));
+			await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Boss' }));
+
+			expect(encounter.getTargets()[1]).toEqual(encounter.sim.db.getPresetTarget('Default/Dynamic Boss')!.target);
+			expect(within(targetPanel('Dynamic Boss')).getByLabelText('NPC').textContent).toContain('Default/Dynamic Boss');
+		});
 	});
 
 	it('lists an issue and marks its bar, and still saves the design', async () => {
@@ -765,12 +919,12 @@ describe('My encounters', () => {
 		expect(await listedOwn()).toEqual([]);
 	});
 
-	it('lists My encounters in the Advanced dialog too, loads the entry picked there, and marks it edited the same way', async () => {
+	it("lists My encounters in the designer's header too, loads the entry picked there into the timeline, and Cancel puts the encounter back", async () => {
 		storeEncounters([own('Two adds', 200)]);
-		const { encounter } = await setup();
+		const { encounter, baseSeconds } = await setup();
+		const before = encounter.toProto();
 
-		await clickButton('Advanced');
-		const dialog = screen.getByTestId('advanced-encounter-picker-modal');
+		const dialog = await openDesigner();
 		const field = () => within(dialog).getByLabelText('Encounter');
 		expect(await listedOwn(field())).toEqual(['Two adds']);
 		await userEvent.click(field());
@@ -778,8 +932,111 @@ describe('My encounters', () => {
 
 		expect(encounter.getDuration()).toBe(200);
 		expect(field().textContent).toBe('Two adds');
+		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
 		await commit(within(dialog).getByLabelText('Duration'), '230');
 		expect(field().textContent).toBe('Two adds (edited)');
+
+		await clickButton('Cancel');
+		expect(EncounterProto.equals(encounter.toProto(), before)).toBe(true);
+		expect(encounter.getDuration()).toBe(baseSeconds);
+		expect(encounter.isMyEncounter()).toBe(false);
+	});
+
+	it("replaces the draft's lanes with the design of a preset picked in the header, and Cancel puts back the design from before", async () => {
+		const { encounter } = await setup({ targets: 2 });
+		const before = encounter.toProto();
+		const dialog = await openDesigner();
+		await add('Boss', 'Downtime');
+
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
+		expect(within(lane('Boss')).queryAllByRole('slider')).toEqual([]);
+		expect(within(lane('Add waves')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Targets')).getAllByRole('button', { name: 'Dynamic Boss' })).toHaveLength(1);
+
+		await clickButton('Cancel');
+		expect(EncounterProto.equals(encounter.toProto(), before)).toBe(true);
+		expect(encounter.getDesign().addWaves).toEqual([]);
+	});
+
+	it('keeps the draft when Custom is picked in the header, which loads nothing', async () => {
+		await setup();
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
+		await add('Boss', 'Downtime');
+
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Custom' }));
+		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Add waves')).getAllByRole('slider')).toHaveLength(1);
+	});
+
+	it('updates the entry picked in the header on Save, and leaves the one the designer opened on', async () => {
+		storeEncounters([own('First', 200), own('Second', 230)]);
+		await setup();
+		await pick('First');
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Second' }));
+		await clickButton('Save');
+
+		expect(Object.keys(stored()).sort()).toEqual(['First', 'Second']);
+		expect(choice().textContent).toBe('Second');
+	});
+
+	it('puts a preset picked in the header into the sim on Save, and leaves the entry the designer opened on in the list', async () => {
+		storeEncounters([own('First', 200)]);
+		const { encounter } = await setup();
+		await pick('First');
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
+		await clickButton('Save');
+
+		expect(Object.keys(stored())).toEqual(['First']);
+		expect(EncounterProto.fromJson(stored()['First'] as never).duration).toBe(200);
+		expect(encounter.isMyEncounter()).toBe(false);
+		expect(encounter.getDesign().addWaves.map(wave => wave.name)).toEqual(['Add']);
+		expect(choice().textContent).toBe('Default/Dynamic Adds');
+	});
+
+	it('deletes the entry picked in the header, and leaves the one the designer opened on', async () => {
+		storeEncounters([own('First', 200), own('Second', 230)]);
+		await setup();
+		await pick('First');
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Second' }));
+		await clickButton('Delete');
+		const confirm = screen.getByTestId('encounter-designer-delete-confirm');
+		expect(confirm.textContent).toContain('Delete Second from My encounters?');
+		await act(async () => fireEvent.click(within(confirm).getByRole('button', { name: 'Delete' })));
+
+		expect(Object.keys(stored())).toEqual(['First']);
+		expect(screen.queryByTestId('encounter-designer')).toBeNull();
+	});
+
+	it('keeps the target a downtime names when an entry with more targets is picked in the header', async () => {
+		storeEncounters([EncounterProto.create({ ...Encounter.defaultEncounterProto(3), name: 'Three targets', design: downtimeOn(2) })]);
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Three targets' }));
+		await clickButton('Save');
+
+		expect(encounter.getDesign().downtimes.map(downtime => downtime.targetIndex)).toEqual([2]);
+	});
+
+	it('saves the design of a preset picked in the header', async () => {
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+		await userEvent.click(within(dialog).getByLabelText('Encounter'));
+		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
+		await clickButton('Save');
+
+		expect(encounter.getDesign().addWaves.map(wave => wave.name)).toEqual(['Add']);
+		expect(choice().textContent).toBe('Default/Dynamic Adds');
 	});
 
 	it('reads an import under the name of an entry as imported, and Save adds it under a free name and leaves the entry as it was', async () => {

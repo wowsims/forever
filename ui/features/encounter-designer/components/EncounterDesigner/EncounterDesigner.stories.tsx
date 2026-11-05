@@ -9,11 +9,12 @@ import {
 	emptyDesign,
 	overlappingDowntimesDesign,
 } from '@testing/storybook/fixtures/encounter_design';
+import { ChoiceField } from '@ui-kit/ChoiceField';
 import { NumberField, StringField } from '@ui-kit/TextField';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
-import type { DesignEventRef } from '../../model/lanes';
+import type { DesignerSelection } from '../../model/lanes';
 import { addEvent } from '../../model/lanes';
 import { validateDesign } from '../../model/validate';
 import { EncounterDesignerView, type EncounterDesignerViewProps } from './EncounterDesigner';
@@ -21,7 +22,7 @@ import { EncounterDesignerView, type EncounterDesignerViewProps } from './Encoun
 // Holds the draft and the selection the way the container does, so a drag, an edit or an add lands in the story.
 const EditableDesigner = ({ design: initial, selected: initialSelected, onChange, onSelect, onAdd, ...props }: EncounterDesignerViewProps) => {
 	const [design, setDesign] = useState<EncounterDesign>(initial);
-	const [selected, setSelected] = useState<DesignEventRef | undefined>(initialSelected);
+	const [selected, setSelected] = useState<DesignerSelection | undefined>(initialSelected);
 	return (
 		<EncounterDesignerView
 			{...props}
@@ -60,7 +61,18 @@ const meta = {
 				<NumberField id="story-designer-duration-variation" label="Duration +/-" value={5} onChange={fn()} />
 			</>
 		),
-		targets: <span className="text-sm">{designTargetNames.join(', ')}</span>,
+		preset: (
+			<ChoiceField
+				id="story-designer-preset"
+				label="Encounter"
+				options={[
+					{ value: 'custom', label: 'Custom' },
+					{ label: 'Presets', options: [{ value: 'preset:0', label: 'Default/Dynamic Adds' }] },
+				]}
+				value="preset:0"
+				onChange={fn()}
+			/>
+		),
 		design: emptyDesign(),
 		baseSeconds: DESIGN_BASE_SECONDS,
 		issues: [],
@@ -71,12 +83,15 @@ const meta = {
 		onActivate: fn(),
 		onChange: fn(),
 		onAdd: fn(),
+		onAddTarget: fn(),
 		onSave: fn(),
 	},
 	argTypes: {
 		name: { control: false },
 		duration: { control: false },
-		targets: { control: false },
+		preset: { control: false },
+		execute: { control: false },
+		targetEditor: { control: false },
 		design: { control: false },
 		issues: { control: false },
 		presetTargets: { control: false },
@@ -94,6 +109,37 @@ export const DynamicAdds: Story = { args: { design: dynamicAddsDesign(), selecte
 export const CustomBoss: Story = { args: { design: customBossDesign(), selected: { kind: 'ability', index: 0 } } };
 
 export const WithIssues: Story = { args: { design: overlappingDowntimesDesign(), selected: { kind: 'downtime', index: 1 } } };
+
+// A spec that reads the execute proportions gets them in the header.
+export const WithExecuteBands: Story = {
+	args: {
+		execute: (
+			<>
+				<NumberField id="story-designer-execute-20" label="Execute Duration (20%)" value={20} onChange={fn()} />
+				<NumberField id="story-designer-execute-35" label="Execute Duration (35%)" value={35} onChange={fn()} />
+			</>
+		),
+	},
+};
+
+// The second target picked on the targets lane, with its fields in the panel.
+export const TargetSelected: Story = {
+	args: {
+		design: customBossDesign(),
+		selected: { kind: 'target', index: 1 },
+		targetEditor: {
+			target: Target.clone(designPresetTargets[0].target!),
+			idPrefix: 'encounter-designer-target-1',
+			identity: [],
+			threatMetrics: true,
+			canRemove: true,
+			onModify: fn(),
+			onMove: fn(),
+			onCopy: fn(),
+			onRemove: fn(),
+		},
+	},
+};
 
 // Opened on an entry of My encounters: Save as copy and Delete join Save, and Delete asks first.
 export const OwnEncounter: Story = {

@@ -65,7 +65,6 @@ const meta = {
 				onChange={fn()}
 			/>
 		),
-		onAdvancedClick: fn(),
 		onDesignClick: fn(),
 		onNewClick: fn(),
 	},
@@ -85,7 +84,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const WithExecuteBands: Story = { args: { execute: EXECUTE } };
+// A simple fight, with no events in its design, shows the execute bands of a spec that reads them.
+export const SimpleFight: Story = { args: { execute: EXECUTE } };
+
+// A designer fight sets its execute bands in the designer, so the panel shows none.
+export const DesignerFight: Story = { args: { execute: undefined } };
 
 export const Tank: Story = { args: { minBaseDamage: number('story-min-base-damage', 'Min Base Damage', 4192) } };
 

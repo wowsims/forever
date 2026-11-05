@@ -35,6 +35,7 @@
 
 	/* Encounter designer */
 	--designer-lane-height: --spacing(8);
+	--designer-lane-targets-bar: var(--color-chart-series-7);
 	--designer-lane-boss-bar: var(--color-chart-series-2);
 	--designer-lane-abilities-bar: var(--color-chart-series-4);
 	--designer-lane-waves-bar: var(--color-chart-series-3);

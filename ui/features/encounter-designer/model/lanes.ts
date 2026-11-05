@@ -24,6 +24,12 @@ export type DesignEventKind = 'downtime' | 'bossHealth' | 'ability' | 'wave' | '
 // Events have no ids; a list and an index identify one.
 export type DesignEventRef = { kind: DesignEventKind; index: number };
 
+// What the timeline and the panel have selected: an event of the design, or an encounter target, which lives on the
+// encounter rather than in the design.
+export type DesignerSelection = DesignEventRef | { kind: 'target'; index: number };
+
+export const isEventRef = (selection: DesignerSelection | undefined): selection is DesignEventRef => !!selection && selection.kind !== 'target';
+
 type DesignEventMap = {
 	downtime: DesignDowntime;
 	bossHealth: HealthKeyframe;

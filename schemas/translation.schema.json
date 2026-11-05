@@ -3713,9 +3713,6 @@
 							"additionalProperties": false,
 							"required": ["label", "placeholder", "empty", "open", "remove", "tooltip"]
 						},
-						"advanced": {
-							"type": "string"
-						},
 						"target": {
 							"type": "string"
 						},
@@ -4318,10 +4315,16 @@
 										},
 										"remove": {
 											"type": "string"
+										},
+										"move_up": {
+											"type": "string"
+										},
+										"move_down": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
-									"required": ["empty", "remove"]
+									"required": ["empty", "remove", "move_up", "move_down"]
 								},
 								"issues": {
 									"type": "object",
@@ -4657,6 +4660,9 @@
 								"target_name": {
 									"type": "string"
 								},
+								"execute_boss_health": {
+									"type": "string"
+								},
 								"save": {
 									"type": "string"
 								},
@@ -4746,6 +4752,7 @@
 								"title",
 								"targets",
 								"target_name",
+								"execute_boss_health",
 								"save",
 								"save_copy",
 								"name",
@@ -4770,7 +4777,6 @@
 						"unique_name",
 						"zone",
 						"area_types",
-						"advanced",
 						"target",
 						"num_allies",
 						"min_base_damage",

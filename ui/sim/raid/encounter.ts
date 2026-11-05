@@ -53,6 +53,12 @@ export const remapDesignTargets = (
 	return next;
 };
 
+// A designer fight: the design holds an event in any lane, the test `newEncounterDesign` (sim/core/design_runner.go)
+// runs before it builds one. A simple fight has none, and the encounter's execute proportions shape it alone.
+export const isDesignerFight = (design: EncounterDesign): boolean =>
+	design.downtimes.length + design.bossHealth.length + design.addWaves.length + design.moves.length + design.damageAmps.length + design.bossAbilities.length >
+	0;
+
 // Manages all the settings for an Encounter. State lives in the Zustand
 // store's `encounter` slice.
 export class Encounter {
@@ -106,12 +112,11 @@ export class Encounter {
 		this.set({ design: EncounterDesign.clone(design) });
 	}
 	hasDesign(): boolean {
-		const d = this.enc.design;
-		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
+		return isDesignerFight(this.enc.design);
 	}
 
-	// Target mutation with a single change event — the write path for the
-	// encounter picker's per-field edits. Replace-on-write: the callback gets a
+	// Target mutation with a single change event, which the designer's target
+	// panel writes each field edit through. Replace-on-write: the callback gets a
 	// clone, which then replaces the original in a new targets array.
 	modifyTarget(index: number, modify: (target: TargetProto) => void) {
 		const targets = this.enc.targets.slice();
@@ -253,7 +258,7 @@ export class Encounter {
 			this.setExecuteProportion20(proto.executeProportion20);
 			this.setExecuteProportion35(proto.executeProportion35);
 			this.setAreaTypes(proto.areaTypes, proto.zoneId);
-			// Clone so edits in the Advanced Encounter picker cannot mutate the
+			// Clone so the designer's target edits cannot mutate the
 			// saved entry's (or the config default's) own target protos.
 			this.setTargets(proto.targets.map(t => TargetProto.clone(t)));
 			// After the targets, whose reindexing would otherwise rewrite the loaded design.

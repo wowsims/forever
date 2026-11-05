@@ -13,7 +13,7 @@ import {
 import { useState } from 'react';
 import { expect, fireEvent, fn, userEvent, waitFor, within } from 'storybook/test';
 
-import type { DesignEventRef } from '../../model/lanes';
+import type { DesignerSelection } from '../../model/lanes';
 import { addEvent } from '../../model/lanes';
 import { validateDesign } from '../../model/validate';
 import { designerText } from '../EncounterDesigner/utils/configs';
@@ -23,7 +23,7 @@ import { DesignerTimeline, type DesignerTimelineProps } from './DesignerTimeline
 // Holds the design the way the dialog does, so a drag, a key press or an add lands in the story.
 const EditableTimeline = ({ design: initial, selected: initialSelected, onChange, onSelect, onAdd, ...props }: DesignerTimelineProps) => {
 	const [design, setDesign] = useState<EncounterDesign>(initial);
-	const [selected, setSelected] = useState<DesignEventRef | undefined>(initialSelected);
+	const [selected, setSelected] = useState<DesignerSelection | undefined>(initialSelected);
 	return (
 		<DesignerTimeline
 			{...props}
@@ -61,6 +61,7 @@ const meta = {
 		onSelect: fn(),
 		onActivate: fn(),
 		onAdd: fn(),
+		onAddTarget: fn(),
 	},
 	argTypes: { design: { control: false }, issues: { control: false } },
 	render: args => <EditableTimeline {...args} />,
@@ -80,6 +81,22 @@ export const CustomBoss: Story = { args: { design: customBossDesign(), selected:
 export const OverlappingDowntimes: Story = { args: { design: overlappingDowntimesDesign() } };
 
 export const LongFight: Story = { args: { design: dynamicAddsDesign(), baseSeconds: 600 } };
+
+// A target's bar spans the fight: a click selects it, Enter selects it and activates it, and an arrow key moves nothing.
+export const TargetSelected: Story = {
+	args: { design: customBossDesign(), selected: { kind: 'target', index: 0 } },
+	play: async ({ args, canvasElement }) => {
+		const lane = within(within(canvasElement).getByRole('group', { name: designerText('targets') }));
+		const second = lane.getByRole('button', { name: designTargetNames[1] });
+		await userEvent.click(second);
+		await expect(args.onSelect).toHaveBeenCalledWith({ kind: 'target', index: 1 });
+		await expect(args.onActivate).not.toHaveBeenCalled();
+		await expect(second).toHaveAttribute('aria-pressed', 'true');
+		await userEvent.keyboard('{ArrowRight}{Enter}');
+		await expect(args.onChange).not.toHaveBeenCalled();
+		await expect(args.onActivate).toHaveBeenCalledWith({ kind: 'target', index: 1 });
+	},
+};
 
 // Downtime 2 changes row, then passes Downtime 3 in time, and keeps focus through both; Enter then activates it.
 export const KeyboardMoveKeepsFocus: Story = {

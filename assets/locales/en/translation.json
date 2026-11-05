@@ -1031,7 +1031,6 @@
 				"remove": "Remove area",
 				"tooltip": "Every kind of area the fight's zone counts as. Effects that only work in certain areas, such as Rune of the Guard Captain's extra attack power in Forest and Grassland areas, apply when their area is picked. A zone can count as several: Redridge Mountains is Forest and Mountainous, Deadwind Pass is Mountainous, Wasteland and Haunted."
 			},
-			"advanced": "Advanced",
 			"target": "Target",
 			"num_allies": {
 				"label": "Num Allies",
@@ -1204,8 +1203,10 @@
 					"add_event": "Add event"
 				},
 				"panel": {
-					"empty": "Select an event on the timeline to edit it.",
-					"remove": "Remove"
+					"empty": "Select an event or a target on the timeline to edit it.",
+					"remove": "Remove",
+					"move_up": "Move up",
+					"move_down": "Move down"
 				},
 				"issues": {
 					"title": "Issues",
@@ -1295,6 +1296,7 @@
 				"title": "Encounter designer",
 				"targets": "Targets",
 				"target_name": "Target {{number}}",
+				"execute_boss_health": "With Boss health keyframes, the boss follows the Boss health lane, and only the other targets follow this.",
 				"save": "Save",
 				"save_copy": "Save as copy",
 				"name": "Name",

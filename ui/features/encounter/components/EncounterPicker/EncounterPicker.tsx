@@ -5,6 +5,9 @@ import type { Encounter as EncounterProto } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
+import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
+import { isDesignerFight } from '@sim/raid/encounter';
+import { subscribeEncounterField } from '@sim/state/subscriptions';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
 import { FieldGrid } from '@ui-kit/FieldGrid';
@@ -13,7 +16,6 @@ import { type ReactNode, useMemo, useState } from 'react';
 
 import { useEncounterChoice } from '../../hooks/useEncounterChoice';
 import { newEncounterProto } from '../../model/my_encounters';
-import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
 import { AreaTypesPicker } from './AreaTypesPicker';
 import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, zoneConfig } from './utils/configs';
 
@@ -25,7 +27,6 @@ export interface EncounterPickerViewProps {
 	preset?: ReactNode;
 	allies?: ReactNode;
 	minBaseDamage?: ReactNode;
-	onAdvancedClick: () => void;
 	onDesignClick: () => void;
 	/** Shows the + beside the title, which starts a new encounter of the player's own. */
 	onNewClick?: () => void;
@@ -39,7 +40,6 @@ export const EncounterPickerView = ({
 	preset,
 	allies,
 	minBaseDamage,
-	onAdvancedClick,
 	onDesignClick,
 	onNewClick,
 }: EncounterPickerViewProps) => (
@@ -55,14 +55,9 @@ export const EncounterPickerView = ({
 		}>
 		<div className="flex flex-wrap gap-2" data-testid="encounter-picker-root">
 			{preset}
-			<div className="flex w-full gap-2">
-				<Button className="flex-1" data-testid="design-encounter-button" onClick={onDesignClick}>
-					{i18n.t('settings_tab.encounter.designer.open')}
-				</Button>
-				<Button className="flex-1" data-testid="advanced-button" onClick={onAdvancedClick}>
-					{i18n.t('settings_tab.encounter.advanced')}
-				</Button>
-			</div>
+			<Button className="w-full" data-testid="design-encounter-button" onClick={onDesignClick}>
+				{i18n.t('settings_tab.encounter.designer.open')}
+			</Button>
 			<FieldGrid>{duration}</FieldGrid>
 			{execute && <FieldGrid className="w-full">{execute}</FieldGrid>}
 			{zone}
@@ -85,6 +80,8 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const choice = useEncounterChoice(encounter, CHOICE_FIELD);
+	// A designer fight's execute proportions are set in the designer.
+	const designerFight = useStoreSubscribe(subscribeEncounterField(encounter, 'design'), () => isDesignerFight(encounter.getDesign()));
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
@@ -92,7 +89,6 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const minBaseDamage = useMemo(() => minBaseDamageConfig(), []);
 	const zone = useMemo(() => zoneConfig(encounter), [encounter]);
 
-	const [advancedOpen, setAdvancedOpen] = useState(false);
 	const [designerOpen, setDesignerOpen] = useState(false);
 	const [replaced, setReplaced] = useState<EncounterProto>();
 
@@ -112,18 +108,20 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				duration={duration.map(config => (
 					<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 				))}
-				execute={showExecuteProportion && execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)}
+				execute={
+					showExecuteProportion &&
+					!designerFight &&
+					execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)
+				}
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
 				areaTypes={<AreaTypesPicker encounter={encounter} />}
 				preset={showDamage && <ConnectedChoiceField {...choice} />}
 				allies={player.canEnableTargetDummies() && <ConnectedNumberField modObject={host.sim.raid} config={allies} />}
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
-				onAdvancedClick={() => setAdvancedOpen(true)}
 				onDesignClick={() => setDesignerOpen(true)}
 				onNewClick={showDamage ? startNew : undefined}
 			/>
-			<AdvancedEncounterModal open={advancedOpen} onOpenChange={setAdvancedOpen} />
-			<EncounterDesigner open={designerOpen} onOpenChange={onDesignerOpenChange} replaced={replaced} />
+			<EncounterDesigner open={designerOpen} onOpenChange={onDesignerOpenChange} replaced={replaced} showExecuteProportion={showExecuteProportion} />
 		</>
 	);
 };

@@ -1,5 +1,6 @@
 import { DamageAmpType, DesignBossAbility_Kind, type EncounterDesign, Target } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { makeStoryEncounter } from '@testing/storybook/fixtures/encounter';
 import {
 	areaDamageDesign,
 	customBossDesign,
@@ -14,18 +15,33 @@ import {
 import { useState } from 'react';
 import { fn } from 'storybook/test';
 
-import type { DesignEventRef } from '../../model/lanes';
-import { DesignerEventPanel, type DesignerEventPanelProps } from './DesignerEventPanel';
+import type { DesignerSelection } from '../../model/lanes';
+import { encounterTargetContext, npcConfig, presetTargetConfig } from '../DesignerAddStats/utils/configs';
+import { DesignerEventPanel, type DesignerEventPanelProps, type DesignerTargetEditor } from './DesignerEventPanel';
 
-// Holds the design so an edit shows in the fields it came from.
-const EditablePanel = ({ design: initial, selected: initialSelected, onChange, onSelect, ...props }: DesignerEventPanelProps) => {
+// Holds the design and the target so an edit shows in the fields it came from.
+const EditablePanel = ({ design: initial, selected: initialSelected, targetEditor, onChange, onSelect, ...props }: DesignerEventPanelProps) => {
 	const [design, setDesign] = useState<EncounterDesign>(initial);
-	const [selected, setSelected] = useState<DesignEventRef | undefined>(initialSelected);
+	const [selected, setSelected] = useState<DesignerSelection | undefined>(initialSelected);
+	const [target, setTarget] = useState(targetEditor?.target);
 	return (
 		<DesignerEventPanel
 			{...props}
 			design={design}
 			selected={selected}
+			targetEditor={
+				targetEditor &&
+				target && {
+					...targetEditor,
+					target,
+					onModify: edit => {
+						targetEditor.onModify(edit);
+						const next = Target.clone(target);
+						edit(next);
+						setTarget(next);
+					},
+				}
+			}
 			onChange={next => {
 				onChange(next);
 				setDesign(next);
@@ -95,3 +111,35 @@ export const SwingTiming: Story = { args: { design: withAbilityKind(DesignBossAb
 export const Pulse: Story = { args: { design: areaDamageDesign(), selected: { kind: 'ability', index: 0 } } };
 
 export const AreaHit: Story = { args: { design: areaDamageDesign(), selected: { kind: 'ability', index: 1 } } };
+
+const storyTarget = Target.clone(designPresetTargets[0].target!);
+const storyTargetContext = encounterTargetContext(makeStoryEncounter([Target.create({ name: 'Ragnaros' }), storyTarget]), 1);
+const targetEditor: DesignerTargetEditor = {
+	target: storyTarget,
+	idPrefix: storyTargetContext.idPrefix,
+	identity: [npcConfig(storyTargetContext), presetTargetConfig(storyTargetContext)],
+	threatMetrics: true,
+	canRemove: true,
+	onModify: fn(),
+	onMove: fn(),
+	onCopy: fn(),
+	onRemove: fn(),
+};
+
+// The second encounter target: its NPC, defences and swing, Move up, Move down, Duplicate and Remove.
+export const EncounterTarget: Story = {
+	args: { selected: { kind: 'target', index: 1 }, targetEditor },
+	argTypes: { targetEditor: { control: false } },
+};
+
+// With threat metrics off, the panel leaves out attack power, block value, the tank, the swing and the spell school.
+export const EncounterTargetWithoutThreatMetrics: Story = {
+	args: { selected: { kind: 'target', index: 1 }, targetEditor: { ...targetEditor, threatMetrics: false } },
+	argTypes: { targetEditor: { control: false } },
+};
+
+// The first target has no Remove and no Move up.
+export const FirstEncounterTarget: Story = {
+	args: { selected: { kind: 'target', index: 0 }, targetEditor: { ...targetEditor, canRemove: false } },
+	argTypes: { targetEditor: { control: false } },
+};
