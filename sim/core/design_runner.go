@@ -53,15 +53,16 @@ type designAmpLookahead struct {
 // A target's downtimes are a union: it is down while any of them runs, and comes back when the last one ends,
 // only if it was active when the first one took it down.
 type designTargetState struct {
-	wave            *designWave   // The wave whose pool holds the target, nil for the encounter's own targets.
-	addIndex        int32         // The index in the wave's adds of the add the target spawns as.
-	nextActiveAt    time.Duration // While downtimes hold the target: the latest end among them, or NeverExpires when it does not come back.
-	activeDowntimes int
-	latestEnd       time.Duration // The latest end among the running downtimes, NeverExpires for one that lasts the fight.
-	backAfterDown   bool          // Whether the last downtime's end brings the target back.
-	diesAt          time.Duration // The despawn of the add's current life.
-	deathAction     PendingAction
-	deathQueued     bool
+	wave              *designWave   // The wave whose pool holds the target, nil for the encounter's own targets.
+	addIndex          int32         // The index in the wave's adds of the add the target spawns as.
+	nextActiveAt      time.Duration // While downtimes hold the target: the latest end among them, or NeverExpires when it does not come back.
+	activeDowntimes   int
+	clearingDowntimes int           // The running downtimes that clear the target's debuffs; the raid's come back as the last one ends.
+	latestEnd         time.Duration // The latest end among the running downtimes, NeverExpires for one that lasts the fight.
+	backAfterDown     bool          // Whether the last downtime's end brings the target back.
+	diesAt            time.Duration // The despawn of the add's current life.
+	deathAction       PendingAction
+	deathQueued       bool
 }
 
 type designDowntime struct {
@@ -356,6 +357,19 @@ func (design *encounterDesign) rollOccurrences(sim *Simulation, start *proto.Des
 	return dst
 }
 
+// Holds the raid's debuffs off every wave's pool before the targets reset, so each pool target's reset leaves them
+// off until a spawn lands them.
+func (design *encounterDesign) holdAddRaidDebuffs(sim *Simulation) {
+	if design == nil {
+		return
+	}
+	for _, wave := range design.waves {
+		for _, target := range wave.pool {
+			target.DisableRaidDebuffs(sim)
+		}
+	}
+}
+
 // Sets the encounter back to the design's start, after the targets reset and before the raid does: every
 // encounter target enabled unless it starts disabled, every wave's pool disabled at full health, the boss on
 // its health curve, and each lane's events rolled and scheduled. Events at the pull run once the pull has
@@ -375,6 +389,7 @@ func (design *encounterDesign) reset(sim *Simulation) {
 		state := &design.targets[target.Index]
 		state.nextActiveAt = NeverExpires
 		state.activeDowntimes = 0
+		state.clearingDowntimes = 0
 		state.latestEnd = 0
 		state.backAfterDown = false
 		state.diesAt = NeverExpires
@@ -430,7 +445,8 @@ func (design *encounterDesign) scheduleWaves(sim *Simulation) {
 
 // Takes the downtime's target away at its start, clearing its debuffs when the downtime says so even with the
 // target already down, and at its end, once no other downtime holds the target, brings it back if it was active
-// when the first of them started. An end at or after the fight's end never comes.
+// when the first of them started. The raid's debuffs a downtime cleared land again as the last running one that
+// clears ends, whether or not the target is back. An end at or after the fight's end never comes.
 func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDowntime) {
 	target := downtime.target
 	state := &design.targets[target.Index]
@@ -440,6 +456,12 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 		back := state.activeDowntimes == 0 && state.backAfterDown
 		if sim.Log != nil {
 			target.Log(sim, "Downtime ends (target back: %t).", back)
+		}
+		if downtime.config.ClearDebuffs {
+			state.clearingDowntimes--
+			if state.clearingDowntimes == 0 {
+				target.ApplyRaidDebuffsAt(sim, sim.CurrentTime)
+			}
 		}
 		if state.activeDowntimes > 0 {
 			return
@@ -479,6 +501,10 @@ func (design *encounterDesign) runDowntime(sim *Simulation, downtime *designDown
 	} else if downtime.config.ClearDebuffs {
 		target.auraTracker.expireAll(sim)
 	}
+	if downtime.config.ClearDebuffs {
+		state.clearingDowntimes++
+		target.DisableRaidDebuffs(sim)
+	}
 }
 
 // Why the wave spawns nothing, or "" when it spawns.
@@ -506,7 +532,8 @@ func (wave *designWave) lifetime(sim *Simulation) time.Duration {
 }
 
 // Brings one free slot of each add in, each on the wave's health curve over its lifetime and dying at its end
-// when that comes before the fight ends. With an add that has no free slot, the spawn is skipped.
+// when that comes before the fight ends, with the raid's debuffs at the wave's delay and its jitter rolled for each
+// add unless the wave holds them. With an add that has no free slot, the spawn is skipped.
 func (wave *designWave) spawn(sim *Simulation) {
 	wave.occurrences.advance(sim)
 
@@ -526,6 +553,8 @@ func (wave *designWave) spawn(sim *Simulation) {
 
 	lifetime := wave.lifetime(sim)
 	diesAt := sim.CurrentTime + lifetime
+	delay := DurationFromSeconds(max(wave.config.DebuffDelay, 0))
+	jitter := DurationFromSeconds(max(wave.config.DebuffJitter, 0))
 	for _, target := range free {
 		state := &wave.design.targets[target.Index]
 		state.diesAt = diesAt
@@ -540,6 +569,7 @@ func (wave *designWave) spawn(sim *Simulation) {
 		}
 
 		target.SetHealthCurve(sim, sim.CurrentTime, lifetime, wave.knots[:]...)
+		sim.Encounter.ScheduleAddRaidDebuffs(sim, target, !wave.config.HoldDebuffs, delay, jitter)
 		target.Enable(sim)
 	}
 	if sim.Log != nil {
@@ -547,7 +577,8 @@ func (wave *designWave) spawn(sim *Simulation) {
 	}
 }
 
-// Kills the add at the end of its life, with the wave's kill share, and leaves it idle at full health.
+// Kills the add at the end of its life, with the wave's kill share, and leaves it idle at full health without the
+// raid's debuffs.
 func (wave *designWave) despawn(sim *Simulation, target *Target) {
 	state := &wave.design.targets[target.Index]
 	state.deathQueued = false
@@ -556,6 +587,7 @@ func (wave *designWave) despawn(sim *Simulation, target *Target) {
 		target.Log(sim, "Encounter design: despawns from wave %s.", wave.name())
 	}
 	target.Die(sim, wave.config.KillShare)
+	target.DisableRaidDebuffs(sim)
 	target.SetHealthCurve(sim, 0, 0, HealthKnot{At: 0, Percent: 100})
 }
 

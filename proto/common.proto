@@ -702,6 +702,9 @@ message AddWave {
 	double execute_proportion_20 = 7; // Fraction of the add's lifetime spent at or below 20% health.
 	double execute_proportion_35 = 8; // Same for 35%.
 	double kill_share = 9; // 0..1 chance the player lands the killing blow.
+	bool hold_debuffs = 10; // Whether the adds go without the raid's debuffs; off applies them at each spawn.
+	double debuff_delay = 11; // Seconds after each spawn before an add gets the raid's debuffs.
+	double debuff_jitter = 12; // Seconds, plus or minus, rolled for each add at each spawn; the debuffs never land before the spawn.
 }
 
 message DesignMove {

@@ -292,11 +292,12 @@ func (env *Environment) reset(sim *Simulation) {
 	// the presence of permanent target auras in their Reset handlers.
 	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
 	// Cleared before any landing of the raid's debuffs reads them: a landing before the target's own reset only releases
-	// the hold, and a target AI that resets first holds another target's debuffs before that target's own reset.
+	// the hold. The design's add waves then hold their pool targets' debuffs, before those targets' own resets.
 	for _, target := range env.Encounter.AllTargets {
 		target.aurasReset = false
 		target.raidDebuffsHeld = false
 	}
+	env.Encounter.design.holdAddRaidDebuffs(sim)
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}

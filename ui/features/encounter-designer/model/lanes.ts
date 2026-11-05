@@ -92,6 +92,9 @@ export const defaultEvent = <K extends DesignEventKind>(kind: K): DesignEvent<K>
 			executeProportion20: 0.2,
 			executeProportion35: 0.35,
 			killShare: 0.25,
+			holdDebuffs: false,
+			debuffDelay: 0,
+			debuffJitter: 0,
 		},
 		move: { name: '', at: time(start), yards: 5, seconds: 0, repeat: noRepeat() },
 		amp: {

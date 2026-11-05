@@ -4390,6 +4390,15 @@
 										"kill_share": {
 											"type": "string"
 										},
+										"apply_debuffs": {
+											"type": "string"
+										},
+										"debuff_delay": {
+											"type": "string"
+										},
+										"debuff_jitter": {
+											"type": "string"
+										},
 										"yards": {
 											"type": "string"
 										},
@@ -4479,6 +4488,9 @@
 										"execute_20",
 										"execute_35",
 										"kill_share",
+										"apply_debuffs",
+										"debuff_delay",
+										"debuff_jitter",
 										"yards",
 										"seconds",
 										"repeat_interval",
@@ -4528,6 +4540,15 @@
 										"kill_share": {
 											"type": "string"
 										},
+										"apply_debuffs": {
+											"type": "string"
+										},
+										"debuff_delay": {
+											"type": "string"
+										},
+										"debuff_jitter": {
+											"type": "string"
+										},
 										"seconds": {
 											"type": "string"
 										},
@@ -4568,6 +4589,9 @@
 										"execute_20",
 										"execute_35",
 										"kill_share",
+										"apply_debuffs",
+										"debuff_delay",
+										"debuff_jitter",
 										"seconds",
 										"repeat_interval",
 										"repeat_count",

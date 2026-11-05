@@ -283,6 +283,8 @@ export const defaultWaveTemplate = (presetTargets: ReadonlyArray<PresetTarget>, 
 	return preset?.target;
 };
 
+const appliesDebuffs = (event: AddWave) => !event.holdDebuffs;
+
 // The wave's adds are not fields: the panel lists them in `DesignerAdds`, each with its template and stats.
 const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
 	nameField(),
@@ -292,6 +294,18 @@ const waveFields = (): Array<DesignFieldConfig<AddWave>> => [
 	percent('execute_20', ...prop<AddWave>('executeProportion20'), { tooltip: tooltip('execute_20') }),
 	percent('execute_35', ...prop<AddWave>('executeProportion35'), { tooltip: tooltip('execute_35') }),
 	percent('kill_share', ...prop<AddWave>('killShare'), { tooltip: tooltip('kill_share') }),
+	{
+		type: 'boolean',
+		id: 'apply_debuffs',
+		label: label('apply_debuffs'),
+		tooltip: tooltip('apply_debuffs'),
+		get: appliesDebuffs,
+		set: (event, value) => {
+			event.holdDebuffs = !value;
+		},
+	},
+	plain('debuff_delay', ...prop<AddWave>('debuffDelay'), { float: true, tooltip: tooltip('debuff_delay'), show: appliesDebuffs }),
+	plain('debuff_jitter', ...prop<AddWave>('debuffJitter'), { float: true, tooltip: tooltip('debuff_jitter'), show: appliesDebuffs }),
 ];
 
 const moveFields = (): Array<DesignFieldConfig<DesignMove>> => [

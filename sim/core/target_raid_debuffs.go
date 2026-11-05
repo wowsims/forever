@@ -3,12 +3,12 @@ package core
 import "time"
 
 // The raid's debuffs on a target are the auras the Debuffs panel registers on every target, those with
-// SourceExternalDebuff, which the target's reset puts on, at the pull for every target up from the start. An AI that
-// spawns an add holds them while the add is down and schedules them at each spawn by its own settings. A player's own
-// cast of one of those debuffs is untouched by the hold.
+// SourceExternalDebuff, which the target's reset puts on, at the pull for every target up from the start. A design's
+// add wave (design_runner.go) holds them on its adds while they are down and schedules them at each spawn by the
+// wave's settings. A player's own cast of one of those debuffs is untouched by the hold.
 
 // Schedules the raid's debuffs on an add entering the fight now, delay ± jitter later, or disables them when apply is
-// off. An AI that spawns an add calls it at each spawn with its own settings.
+// off. A design's add wave calls it for each add at each spawn with the wave's settings.
 func (encounter *Encounter) ScheduleAddRaidDebuffs(sim *Simulation, target *Target, apply bool, delay, jitter time.Duration) {
 	if !apply {
 		target.DisableRaidDebuffs(sim)
@@ -37,7 +37,8 @@ func (unit *Unit) RaidDebuffsDisabled() bool {
 
 // Takes the raid's debuffs off the target and keeps them off until ApplyRaidDebuffsAt lands them, through the
 // target's reset when the disable comes during the sim's reset. A landing still to come is cancelled. Disable leaves a
-// permanent aura on, so a target AI disables the debuffs of a target it takes away.
+// permanent aura on, so a design disables the debuffs of an add it despawns and of a target a clear-debuffs downtime
+// takes away.
 func (target *Target) DisableRaidDebuffs(sim *Simulation) {
 	if !target.raidDebuffsLanding.consumed {
 		target.raidDebuffsLanding.Cancel(sim)

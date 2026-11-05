@@ -224,6 +224,25 @@ describe('EncounterDesigner', () => {
 		expect(wave.adds).toEqual([DYNAMIC_ADD, DYNAMIC_ADD]);
 	});
 
+	it("applies the raid's debuffs to a new wave's adds, edits their delay in seconds, and hides delay and jitter once unticked", async () => {
+		const { encounter } = await setup();
+		const dialog = await openDesigner();
+		await add('Add waves', 'Wave');
+
+		const apply = within(dialog).getByRole('checkbox', { name: 'Raid debuffs' });
+		expect(apply.getAttribute('aria-checked')).toBe('true');
+		await commit(within(dialog).getByLabelText('Debuff delay (s)'), '3');
+		expect(within(dialog).getByLabelText('Debuff jitter (s)')).toBeTruthy();
+
+		await act(async () => fireEvent.click(apply));
+		expect(within(dialog).queryByLabelText('Debuff delay (s)')).toBeNull();
+		expect(within(dialog).queryByLabelText('Debuff jitter (s)')).toBeNull();
+
+		await clickButton('Save');
+		const [wave] = encounter.getDesign().addWaves;
+		expect([wave.holdDebuffs, wave.debuffDelay, wave.debuffJitter]).toEqual([true, 3, 0]);
+	});
+
 	describe('event bars', () => {
 		// happy-dom has no pointer capture, which a drag needs to start.
 		beforeEach(() => {
