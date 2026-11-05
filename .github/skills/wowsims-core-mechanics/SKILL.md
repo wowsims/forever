@@ -120,8 +120,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
 - **The AI that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
   reset puts them on, so a target up from the pull, the boss or an add with no AI, gets them at the pull. An AI that
-  spawns adds sets their `Schedule` and calls `Encounter.ScheduleAddRaidDebuffs` at each spawn with the add's own
-  apply, delay and jitter: the debuffs land delay ± jitter later, or stay off with apply off
+  spawns adds sets their `Schedule` and calls `Encounter.ScheduleAddRaidDebuffs` at each spawn with its own apply,
+  delay and jitter: the debuffs land delay ± jitter later, or stay off with apply off
   (`target_raid_debuffs.go`). The Dynamic Adds boss reads them from its Apply debuffs to adds, Debuff delay and Debuff
   jitter inputs, after Kill share %; a boss saved without them applies with no delay
   (`sim/encounters/dynamic_adds_ai.go`). The jitter rolls on `sim.addDebuffRand`, a stream apart from the combat rolls

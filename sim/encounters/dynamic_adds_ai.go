@@ -181,13 +181,9 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 	ai.killShare = core.Clamp(killSharePercent/100, 0, 1)
 
 	ai.applyDebuffs = true
-	if ai.isBoss && len(config.TargetInputs) >= 5 {
-		ai.applyDebuffs = config.TargetInputs[4].BoolValue
-	}
-	if ai.isBoss && len(config.TargetInputs) >= 6 {
-		ai.debuffDelay = core.DurationFromSeconds(max(config.TargetInputs[5].NumberValue, 0))
-	}
 	if ai.isBoss && len(config.TargetInputs) >= 7 {
+		ai.applyDebuffs = config.TargetInputs[4].BoolValue
+		ai.debuffDelay = core.DurationFromSeconds(max(config.TargetInputs[5].NumberValue, 0))
 		ai.debuffJitter = core.DurationFromSeconds(max(config.TargetInputs[6].NumberValue, 0))
 	}
 }

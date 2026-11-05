@@ -8,7 +8,7 @@ import "time"
 // cast of one of those debuffs is untouched by the hold.
 
 // Schedules the raid's debuffs on an add entering the fight now, delay ± jitter later, or disables them when apply is
-// off. An AI that spawns an add calls it at each spawn with that add's settings.
+// off. An AI that spawns an add calls it at each spawn with its own settings.
 func (encounter *Encounter) ScheduleAddRaidDebuffs(sim *Simulation, target *Target, apply bool, delay, jitter time.Duration) {
 	if !apply {
 		target.DisableRaidDebuffs(sim)
