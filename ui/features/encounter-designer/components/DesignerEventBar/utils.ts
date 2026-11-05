@@ -4,6 +4,9 @@ import { cssVars } from '@ui-kit/utils/css';
 import type { TimeWindow } from '../../model/time';
 import { moveWindow, resizeEnd, resizeStart } from '../../model/time';
 
+export const BAR_CLASSES =
+	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) data-selected:border-white';
+
 // An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
 export const barVars = (row: number, start: number, duration: number) =>
 	cssVars({ '--row': `${row + 1} / span 1`, '--t': String(start), '--dur': String(duration) });

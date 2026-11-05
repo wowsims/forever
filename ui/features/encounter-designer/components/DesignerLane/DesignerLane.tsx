@@ -37,7 +37,7 @@ import {
 	occurrenceTip,
 	serializeTip,
 } from '../EncounterDesigner/utils/tips';
-import { adjustHealth, followed, healthLabel, isHold, laneEvents, refKey, withWindow } from './utils';
+import { adjustHealth, followed, healthLabel, isHold, LANE_CLASSES, LANE_GRID_CLASSES, LANE_LABEL_CLASSES, laneEvents, refKey, withWindow } from './utils';
 
 export interface DesignerLaneProps {
 	lane: DesignLaneKind;
@@ -209,13 +209,8 @@ export const DesignerLane = ({
 	const tip = (ref: DesignEventRef, window?: TimeWindow) => serializeTip(eventTooltip(design, ref, baseSeconds, targetNames, window));
 
 	return (
-		<div
-			role="group"
-			aria-label={label}
-			data-lane={lane}
-			className="flex min-w-full border-b border-gray-700"
-			style={cssVars({ '--bar': `var(--designer-lane-${lane}-bar)` })}>
-			<div className="sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col justify-center gap-1 border-r border-gray-700 bg-background px-2 py-1">
+		<div role="group" aria-label={label} data-lane={lane} className={LANE_CLASSES} style={cssVars({ '--bar': `var(--designer-lane-${lane}-bar)` })}>
+			<div className={LANE_LABEL_CLASSES}>
 				<span className="text-sm font-bold text-white">{label}</span>
 				<div className="flex flex-wrap gap-1">
 					{LANE_EVENT_KINDS[lane].map((kind, index) => {
@@ -236,7 +231,7 @@ export const DesignerLane = ({
 			</div>
 			{/* One flat list placed on grid rows, so an edit that moves a bar to another row keeps the same element and its focus. */}
 			<ContextMenu
-				className="relative grid shrink-0 grow basis-designer-total auto-rows-(--designer-lane-height) grid-cols-1"
+				className={LANE_GRID_CLASSES}
 				open={menuOpen}
 				onOpenChange={next => {
 					if (next && !menuKeyAt.current) return;

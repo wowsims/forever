@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 import type { TimeWindow } from '../../model/time';
 import { fractionToSeconds, keyStep, secondsToFraction, snap } from '../../model/time';
 import { designerText } from '../EncounterDesigner/utils/configs';
-import { barKeyAction, barVars, editWindow } from './utils';
+import { BAR_CLASSES, barKeyAction, barVars, editWindow } from './utils';
 
 export interface DesignerEventBarProps {
 	name: string;
@@ -64,8 +64,7 @@ export interface DesignerEventBarProps {
 
 const MIN_WIDTH_SECONDS = 1;
 
-const BAR_CLASSES =
-	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) data-selected:border-white data-invalid:border-dashed data-invalid:not-data-selected:border-danger';
+const EVENT_BAR_CLASSES = `${BAR_CLASSES} data-invalid:border-dashed data-invalid:not-data-selected:border-danger`;
 
 const Whisker = ({ seconds, at }: { seconds: number; at: 'start' | 'end' }) =>
 	seconds > 0 ? (
@@ -267,7 +266,7 @@ export const DesignerEventBar = ({
 				data-tip={tooltipText?.(shown)}
 				data-dragging={preview ? '' : undefined}
 				{...state}
-				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--designer-hold-opacity) data-selected:z-2 ${BAR_CLASSES}`}
+				className={`absolute left-designer-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--designer-hold-opacity) data-selected:z-2 ${EVENT_BAR_CLASSES}`}
 				style={barVars(row, start, duration)}
 				onKeyDown={onKeyDown}
 				onClick={onSelect}

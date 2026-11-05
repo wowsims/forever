@@ -53,12 +53,6 @@ export const remapDesignTargets = (
 	return next;
 };
 
-// A designer fight: the design holds an event in any lane, the test `newEncounterDesign` (sim/core/design_runner.go)
-// runs before it builds one. A simple fight has none, and the encounter's execute proportions shape it alone.
-export const isDesignerFight = (design: EncounterDesign): boolean =>
-	design.downtimes.length + design.bossHealth.length + design.addWaves.length + design.moves.length + design.damageAmps.length + design.bossAbilities.length >
-	0;
-
 // Manages all the settings for an Encounter. State lives in the Zustand
 // store's `encounter` slice.
 export class Encounter {
@@ -111,8 +105,11 @@ export class Encounter {
 		if (EncounterDesign.equals(design, this.enc.design)) return;
 		this.set({ design: EncounterDesign.clone(design) });
 	}
+	// A designer fight: the design holds an event in any lane, the test `newEncounterDesign` (sim/core/design_runner.go)
+	// runs before it builds one. A simple fight has none, and the encounter's execute proportions shape it alone.
 	hasDesign(): boolean {
-		return isDesignerFight(this.enc.design);
+		const d = this.enc.design;
+		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
 	}
 
 	// Target mutation with a single change event, which the designer's target

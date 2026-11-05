@@ -20,7 +20,7 @@ import { SimSettingCategories } from '../constants/sim_settings';
 import type { Sim } from '../sim';
 import { applyIndividualSimSettings, individualSimSettingsToProto } from '../state/serialization';
 import { createSimStore } from '../state/sim_store';
-import { Encounter, isDesignerFight, remapDesignTargets } from './encounter';
+import { Encounter, remapDesignTargets } from './encounter';
 
 const ZONES: Record<number, { id: number; name: string; areaTypes: Array<AreaType> }> = {
 	2677: { id: 2677, name: 'Blackwing Lair', areaTypes: [AreaType.AreaTypeCavernous, AreaType.AreaTypeVolcanic] },
@@ -215,12 +215,6 @@ describe('Encounter', () => {
 			const encounter = makeEncounter();
 			expect(encounter.hasDesign()).toBe(false);
 
-			encounter.setDesign(EncounterDesign.create({ bossHealth: [HealthKeyframe.create()] }));
-			expect(encounter.hasDesign()).toBe(true);
-		});
-
-		it('reads a design with an event in any lane as a designer fight, and an empty one as a simple fight', () => {
-			expect(isDesignerFight(EncounterDesign.create())).toBe(false);
 			const lanes: Array<Partial<EncounterDesign>> = [
 				{ downtimes: [DesignDowntime.create()] },
 				{ bossHealth: [HealthKeyframe.create()] },
@@ -229,7 +223,14 @@ describe('Encounter', () => {
 				{ damageAmps: [DesignDamageAmp.create()] },
 				{ bossAbilities: [DesignBossAbility.create()] },
 			];
-			expect(lanes.map(lane => isDesignerFight(EncounterDesign.create(lane)))).toEqual([true, true, true, true, true, true]);
+			const read = lanes.map(lane => {
+				encounter.setDesign(EncounterDesign.create(lane));
+				return encounter.hasDesign();
+			});
+			expect(read).toEqual([true, true, true, true, true, true]);
+
+			encounter.setDesign(EncounterDesign.create());
+			expect(encounter.hasDesign()).toBe(false);
 		});
 
 		it('survives the proto round trip and the binary form links use, and clears on a proto without one', () => {

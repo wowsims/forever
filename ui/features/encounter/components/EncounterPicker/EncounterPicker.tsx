@@ -6,7 +6,6 @@ import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
-import { isDesignerFight } from '@sim/raid/encounter';
 import { subscribeEncounterField } from '@sim/state/subscriptions';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
@@ -81,7 +80,7 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const choice = useEncounterChoice(encounter, CHOICE_FIELD);
 	// A designer fight's execute proportions are set in the designer.
-	const designerFight = useStoreSubscribe(subscribeEncounterField(encounter, 'design'), () => isDesignerFight(encounter.getDesign()));
+	const designerFight = useStoreSubscribe(subscribeEncounterField(encounter, 'design'), () => encounter.hasDesign());
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);

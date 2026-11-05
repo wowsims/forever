@@ -20,6 +20,11 @@ import { clamp, secondsToFraction } from '../../model/time';
 import { designerText, editEvent } from '../EncounterDesigner/utils/configs';
 import { formatPercent } from '../EncounterDesigner/utils/tips';
 
+export const LANE_CLASSES = 'flex min-w-full border-b border-gray-700';
+export const LANE_LABEL_CLASSES =
+	'sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col justify-center gap-1 border-r border-gray-700 bg-background px-2 py-1';
+export const LANE_GRID_CLASSES = 'relative grid shrink-0 grow basis-designer-total auto-rows-(--designer-lane-height) grid-cols-1';
+
 export const refKey = (ref: DesignEventRef): string => `${ref.kind}:${ref.index}`;
 
 const MAX_OCCURRENCES = 500;

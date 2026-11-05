@@ -27,7 +27,7 @@ export interface DesignerAddStatsProps {
 	onModify: (edit: (target: Target) => void) => void;
 	/** Starts the field ids, so two waves never share one. */
 	idPrefix: string;
-	/** The NPC and preset target fields of an encounter target, shown first; an add's template field picks its preset instead. */
+	/** The NPC and preset target fields of an encounter target, shown first on a row each; an add's template field picks its preset instead. */
 	identity?: ReadonlyArray<ChoiceFieldConfig<null>>;
 	/** Shows the fields only a threat sim reads: attack power, block value, the tank, the swing, the melee toggles and the spell school. */
 	threatMetrics?: boolean;
@@ -41,10 +41,11 @@ export interface DesignerAddStatsProps {
 export const DesignerAddStats = ({ target, onModify, idPrefix, identity = [], threatMetrics = true }: DesignerAddStatsProps) => {
 	const context: TargetFieldContext = { idPrefix, getTarget: () => target, modifyTarget: onModify };
 
-	const choice = (config: ChoiceFieldConfig<null>) => (
+	const choice = (config: ChoiceFieldConfig<null>, className?: string) => (
 		<ChoiceField
 			key={config.id}
 			id={config.id}
+			className={className}
 			label={config.label}
 			labelTooltip={config.labelTooltip}
 			options={config.values.map(entry => ({ value: entry.value, label: entry.name, tooltip: entry.tooltip }))}
@@ -55,7 +56,7 @@ export const DesignerAddStats = ({ target, onModify, idPrefix, identity = [], th
 
 	return (
 		<FieldGrid>
-			{identity.map(choice)}
+			{identity.map(config => choice(config, 'col-span-full'))}
 			{choice(mobTypeConfig(context))}
 			{creatureFamiliesOf(target.mobType).length > 0 && choice(creatureFamilyConfig(context, target.mobType))}
 			{choice(levelConfig(context))}

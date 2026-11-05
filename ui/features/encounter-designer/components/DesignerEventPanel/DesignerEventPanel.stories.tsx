@@ -113,7 +113,7 @@ export const Pulse: Story = { args: { design: areaDamageDesign(), selected: { ki
 export const AreaHit: Story = { args: { design: areaDamageDesign(), selected: { kind: 'ability', index: 1 } } };
 
 const storyTarget = Target.clone(designPresetTargets[0].target!);
-const storyTargetContext = encounterTargetContext(makeStoryEncounter([Target.create({ name: 'Ragnaros' }), storyTarget]), 1);
+const storyTargetContext = encounterTargetContext(makeStoryEncounter([Target.create({ name: 'Ragnaros' }), storyTarget]), 1, 'target-1');
 const targetEditor: DesignerTargetEditor = {
 	target: storyTarget,
 	idPrefix: storyTargetContext.idPrefix,

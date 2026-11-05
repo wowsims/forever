@@ -3,7 +3,8 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { cssVars } from '@ui-kit/utils/css';
 
-import { barVars } from '../DesignerEventBar/utils';
+import { BAR_CLASSES, barVars } from '../DesignerEventBar/utils';
+import { LANE_CLASSES, LANE_GRID_CLASSES, LANE_LABEL_CLASSES } from '../DesignerLane/utils';
 import { designerText } from '../EncounterDesigner/utils/configs';
 
 export interface DesignerTargetLaneProps {
@@ -22,12 +23,8 @@ export const DesignerTargetLane = ({ targetNames, baseSeconds, selected, onSelec
 	const label = designerText('targets');
 	const targetLabel = i18n.t('settings_tab.encounter.target');
 	return (
-		<div
-			role="group"
-			aria-label={label}
-			className="flex min-w-full border-b border-gray-700"
-			style={cssVars({ '--bar': 'var(--designer-lane-targets-bar)' })}>
-			<div className="sticky left-0 z-3 box-border flex w-(--label-w) shrink-0 grow-0 basis-(--label-w) flex-col justify-center gap-1 border-r border-gray-700 bg-background px-2 py-1">
+		<div role="group" aria-label={label} className={LANE_CLASSES} style={cssVars({ '--bar': 'var(--designer-lane-targets-bar)' })}>
+			<div className={LANE_LABEL_CLASSES}>
 				<span className="text-sm font-bold text-white">{label}</span>
 				<div className="flex flex-wrap gap-1">
 					<Button variant="outline-secondary" size="xs" aria-label={designerText('add', { event: targetLabel })} onClick={onAdd}>
@@ -35,7 +32,7 @@ export const DesignerTargetLane = ({ targetNames, baseSeconds, selected, onSelec
 					</Button>
 				</div>
 			</div>
-			<div className="relative grid shrink-0 grow basis-designer-total auto-rows-(--designer-lane-height) grid-cols-1">
+			<div className={LANE_GRID_CLASSES}>
 				{targetNames.map((_, index) => (
 					<div key={index} aria-hidden="true" />
 				))}
@@ -45,7 +42,7 @@ export const DesignerTargetLane = ({ targetNames, baseSeconds, selected, onSelec
 						variant="unstyled"
 						aria-pressed={index === selected}
 						data-selected={index === selected ? '' : undefined}
-						className="absolute top-1 bottom-1 left-designer-pos z-1 col-start-1 row-(--row) flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) text-xs font-bold text-white outline-none focus-visible:focus-ring data-selected:z-2 data-selected:border-white"
+						className={`absolute left-designer-pos z-1 col-start-1 row-(--row) text-xs font-bold text-white outline-none focus-visible:focus-ring data-selected:z-2 ${BAR_CLASSES}`}
 						style={barVars(index, 0, baseSeconds)}
 						onClick={() => onSelect(index)}
 						onKeyDown={event => {

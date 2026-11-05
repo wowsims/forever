@@ -105,11 +105,12 @@ export const EncounterDesignerView = ({
 			title={designerText('title')}
 			headerChildren={
 				<div className="mx-4 flex w-full max-w-2xl flex-col gap-2">
+					{/* The encounter choice shares its row with the name only, so a preset path such as Default/Dynamic Adds fits. */}
 					<FieldGrid>
 						{preset}
 						{name}
-						{duration}
 					</FieldGrid>
+					<FieldGrid>{duration}</FieldGrid>
 					{execute && <FieldGrid>{execute}</FieldGrid>}
 				</div>
 			}
@@ -204,6 +205,7 @@ interface EncounterSnapshot {
 }
 
 const CHOICE_FIELD = { id: 'encounter-designer-preset' };
+const TARGET_LIST = targetsListConfig();
 
 export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecuteProportion }: EncounterDesignerProps) => {
 	const host = useSimHost();
@@ -226,25 +228,20 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 	const presetTargets = useMemo(() => designerPresetTargets(encounter.sim.db.getAllPresetEncounters(), encounter.sim.db.getAllPresetTargets()), [encounter]);
 	const duration = useMemo(() => durationConfigs().map(config => ({ ...config, id: `encounter-designer-${config.id}` })), []);
 	const nameField = useMemo(() => nameConfig(), []);
-	const targetList = useListItems(
-		encounter,
-		useMemo(() => targetsListConfig(), []),
-	);
+	const targetList = useListItems(encounter, TARGET_LIST);
 	const { threat: threatMetrics } = useDisplayMetrics(encounter.sim);
 	const panelRef = useRef<HTMLElement>(null);
 
 	// Design edits stay in the draft until Save. The header's fields and the target fields write to the store as they
 	// change, so each opening snapshots them, and every close but Save puts them back.
-	const [draft, setDraft] = useState(() => encounter.getDesign());
+	const [draft, setDraft] = useState(() => ({ design: encounter.getDesign(), targets }));
 	const [selected, setSelected] = useState<DesignerSelection>();
 	const [snapshot, setSnapshot] = useState<EncounterSnapshot>();
 	// What the designer edits: the encounter it opened on, or the one picked last in the header.
 	const [origin, setOrigin] = useState<{ name: string; myEncounter: boolean }>();
 	const [openedWith, setOpenedWith] = useState(false);
-	const [seenTargets, setSeenTargets] = useState(targets);
 	if (open !== openedWith) {
 		setOpenedWith(open);
-		setSeenTargets(targets);
 		if (open) {
 			setSnapshot({
 				name: encounter.getName(),
@@ -259,15 +256,14 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 				design: encounter.getDesign(),
 			});
 			setOrigin({ name: encounter.getName(), myEncounter: encounter.isMyEncounter() });
-			setDraft(encounter.getDesign());
+			setDraft({ design: encounter.getDesign(), targets: encounter.getTargets() });
 			setSelected(undefined);
 		}
-	} else if (targets !== seenTargets) {
+	} else if (draft.targets !== targets) {
 		// The store remaps its own design when targets move; the draft follows the same way.
-		setSeenTargets(targets);
-		setDraft(current => remapDesignTargets(current, seenTargets, targets));
+		setDraft({ design: remapDesignTargets(draft.design, draft.targets, targets), targets });
 	}
-	const issues = useMemo(() => validateDesign(draft, targets.length), [draft, targets.length]);
+	const issues = useMemo(() => validateDesign(draft.design, targets.length), [draft.design, targets.length]);
 
 	// A preset or an entry picked here writes its own targets and design to the store, and the draft takes up that
 	// design in place of its own, against the new targets. The pick is what Save and Delete act on from then. Custom
@@ -280,8 +276,7 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 				const [design, targets] = [encounter.getDesign(), encounter.getTargets()];
 				choice.config.setValue(subject, value);
 				if (encounter.getDesign() === design && encounter.getTargets() === targets) return;
-				setDraft(encounter.getDesign());
-				setSeenTargets(encounter.getTargets());
+				setDraft({ design: encounter.getDesign(), targets: encounter.getTargets() });
 				setOrigin({ name: encounter.getName(), myEncounter: encounter.isMyEncounter() });
 				setSelected(undefined);
 			},
@@ -310,11 +305,11 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 	const newAdd = () => Target.clone(defaultWaveTemplate(presetTargets, encounter.sim.raid.getTanks().length) ?? Encounter.defaultTargetProto());
 
 	const add = (kind: DesignEventKind) => {
-		const next = EncounterDesign.clone(draft);
+		const next = EncounterDesign.clone(draft.design);
 		const ref = addEvent(next, kind);
 		// The sim spawns a wave's adds from their templates, so a new wave starts with one add from the default template.
 		if (kind === 'wave') next.addWaves[ref.index].adds = [newAdd()];
-		setDraft(next);
+		setDraft(d => ({ ...d, design: next }));
 		setSelected(ref);
 	};
 
@@ -323,32 +318,33 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 		targetList.create();
 		selectTarget(targets.length);
 	};
-	const editTarget = (index: number, target: Target): DesignerTargetEditor => {
-		const idPrefix = `encounter-designer-target-${index}`;
-		const context = { ...encounterTargetContext(encounter, index), idPrefix };
-		return {
-			target,
-			idPrefix,
-			identity: [npcConfig(context), presetTargetConfig(context)],
-			threatMetrics,
-			canRemove: targetList.canRemove(index),
-			onModify: edit => encounter.modifyTarget(index, edit),
-			onMove: direction => {
-				targetList.move(index, direction < 0 ? index - 1 : index + 2);
-				selectTarget(index + direction);
-			},
-			onCopy: () => {
-				targetList.append(Target.clone(target));
-				selectTarget(targets.length);
-			},
-			onRemove: () => {
-				targetList.remove(index);
-				setSelected(undefined);
-			},
-		};
-	};
-	const selectedTarget = selected?.kind === 'target' ? targets[selected.index] : undefined;
-	const selection = selected?.kind === 'target' && !selectedTarget ? undefined : selected;
+	const selectedIndex = selected?.kind === 'target' ? selected.index : undefined;
+	const targetFields = useMemo(() => {
+		if (selectedIndex === undefined) return undefined;
+		const context = encounterTargetContext(encounter, selectedIndex, `encounter-designer-target-${selectedIndex}`);
+		return { context, identity: [npcConfig(context), presetTargetConfig(context)] };
+	}, [encounter, selectedIndex]);
+	const editTarget = (index: number, target: Target, { context, identity }: NonNullable<typeof targetFields>): DesignerTargetEditor => ({
+		target,
+		idPrefix: context.idPrefix,
+		identity,
+		threatMetrics,
+		canRemove: targetList.canRemove(index),
+		onModify: context.modifyTarget,
+		onMove: direction => {
+			targetList.move(index, direction < 0 ? index - 1 : index + 2);
+			selectTarget(index + direction);
+		},
+		onCopy: () => {
+			targetList.append(Target.clone(target));
+			selectTarget(targets.length);
+		},
+		onRemove: () => {
+			targetList.remove(index);
+			setSelected(undefined);
+		},
+	});
+	const selectedTarget = selectedIndex === undefined ? undefined : targets[selectedIndex];
 
 	// The entry the designer edits: the encounter was marked as one when it opened or was picked in the header, under
 	// the name it had then.
@@ -357,7 +353,7 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 	// The list holds an entry without the mark, which the encounter takes once it is stored.
 	const store = (replacing?: string) => {
 		batch(() => {
-			encounter.setDesign(draft);
+			encounter.setDesign(draft.design);
 			const taken = myEncounters.entries.map(entry => entry.name).filter(name => name !== replacing);
 			encounter.setName(uniqueEncounterName(encounter.getName() || i18n.t('settings_tab.encounter.new_encounter'), taken));
 			encounter.setMyEncounter(true);
@@ -371,7 +367,7 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 	// only goes to the sim.
 	const save = () => {
 		if (entry || replaced || origin?.name) return store(entry?.name);
-		encounter.setDesign(draft);
+		encounter.setDesign(draft.design);
 		onOpenChange(false);
 	};
 
@@ -392,17 +388,17 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 			preset={<ConnectedChoiceField {...presetField} />}
 			execute={showExecuteProportion && execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)}
 			newAdd={newAdd}
-			design={draft}
+			design={draft.design}
 			baseSeconds={baseSeconds}
-			selected={selection}
+			selected={selected}
 			issues={issues}
 			targetNames={targetNames}
 			presetTargets={presetTargets}
-			targetEditor={selection?.kind === 'target' && selectedTarget ? editTarget(selection.index, selectedTarget) : undefined}
+			targetEditor={selected?.kind === 'target' && selectedTarget && targetFields ? editTarget(selected.index, selectedTarget, targetFields) : undefined}
 			panelRef={panelRef}
 			onSelect={setSelected}
 			onActivate={() => panelRef.current?.focus()}
-			onChange={setDraft}
+			onChange={design => setDraft(d => ({ ...d, design }))}
 			onAdd={add}
 			onAddTarget={addTarget}
 			onSave={save}

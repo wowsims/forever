@@ -71,10 +71,10 @@ export interface EncounterTargetFieldContext extends TargetFieldContext {
 	targetIndex: number;
 }
 
-export const encounterTargetContext = (encounter: Encounter, targetIndex: number): EncounterTargetFieldContext => ({
+export const encounterTargetContext = (encounter: Encounter, targetIndex: number, idPrefix: string): EncounterTargetFieldContext => ({
 	encounter,
 	targetIndex,
-	idPrefix: `target-${targetIndex}`,
+	idPrefix,
 	getTarget: () => encounter.getTarget(targetIndex) || TargetProto.create(),
 	modifyTarget: edit => encounter.modifyTarget(targetIndex, edit),
 });
