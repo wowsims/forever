@@ -14,4 +14,6 @@ export interface PresetGroupSection {
 	items: ReadonlyArray<PresetGroupItem>;
 	/** Rendered under the section's chips, outside the phase filter (the user's own saved sets). */
 	footer?: ReactNode;
+	/** Rendered at the right of the section's heading. */
+	headerChildren?: ReactNode;
 }

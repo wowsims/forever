@@ -9,15 +9,20 @@ import { TextArea } from '@ui-kit/FormControl';
 import { Icon } from '@ui-kit/Icon';
 import { toastManager } from '@ui-kit/Toast';
 import { downloadString } from '@ui-kit/utils/dom';
+import clsx from 'clsx';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { trackPageView } from '../../../../tracking/utils';
-import { defaultExportCategories, type ExporterDefinition } from '../../exporters';
+import { defaultExportCategories } from '../../exporters/categories';
+import type { ExporterDefinition } from '../../exporters/types';
 import { ExporterCategoryPickers } from './ExporterCategoryPickers';
 
 export interface ExporterProps extends ExporterDefinition {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
+	/** A picker above the text. A `getData` of a new identity prints the text again, so the pick reaches it through a new callback. */
+	children?: ReactNode;
 }
 
 export const Exporter = ({
@@ -30,6 +35,7 @@ export const Exporter = ({
 	selectCategories = false,
 	holdsLink = false,
 	getData,
+	children,
 }: ExporterProps) => {
 	const host = useSimHost();
 	const categories = useRef(defaultExportCategories());
@@ -72,6 +78,8 @@ export const Exporter = ({
 		trackPageView(title, `/export/${kebabCase(title)}`);
 	}, [open, title]);
 
+	const textHeight = children ? 'h-[30vh]' : 'h-[60vh]';
+
 	return (
 		<Dialog
 			open={open}
@@ -98,10 +106,11 @@ export const Exporter = ({
 				</>
 			}>
 			{selectCategories && <ExporterCategoryPickers categories={categories.current} onChange={onCategoryChange} />}
+			{children}
 			{holdsLink ? (
-				<TextArea spellCheck={false} className="h-[60vh] w-full resize-none" data-testid="exporter-textarea" value={data} readOnly />
+				<TextArea spellCheck={false} className={clsx(textHeight, 'w-full resize-none')} data-testid="exporter-textarea" value={data} readOnly />
 			) : (
-				<CodeTextArea className="h-[60vh]" testId="exporter-textarea" value={data} readOnly />
+				<CodeTextArea className={textHeight} testId="exporter-textarea" value={data} readOnly />
 			)}
 		</Dialog>
 	);

@@ -1,5 +1,6 @@
 import { Encounter as EncounterProto } from '@generated/proto/common';
 import { SavedEncounter as SavedEncounterProto } from '@generated/proto/ui';
+import { createSimStore } from '@sim/state/sim_store';
 import { chipNamed, chips, nameInput, readStored, renderReady, saveButton, source } from '@testing/saved_panel';
 import { fireEvent } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -52,7 +53,7 @@ const setup = () => {
 	encounter = new FakeEncounter();
 	presets = [];
 	host = {
-		sim: { waitForInit: () => Promise.resolve(), encounter },
+		sim: { store: createSimStore(), waitForInit: () => Promise.resolve(), encounter },
 		get individualConfig() {
 			return { presets: { encounters: presets } };
 		},
