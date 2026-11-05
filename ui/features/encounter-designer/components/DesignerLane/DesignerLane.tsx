@@ -56,6 +56,16 @@ export interface DesignerLaneProps {
 	onActivate: (ref: DesignEventRef) => void;
 	onChange: (design: EncounterDesign) => void;
 	onAdd: (kind: DesignEventKind) => void;
+	/** Makes the 'boss' lane the row of one encounter target, under a label of its name that selects it. */
+	target?: DesignerLaneTarget;
+}
+
+export interface DesignerLaneTarget {
+	index: number;
+	selected: boolean;
+	onSelect: () => void;
+	/** Enter on the label, after `onSelect`; a click only selects. */
+	onActivate: () => void;
 }
 
 const GHOST_CLASSES = 'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center overflow-hidden rounded-xs text-xs font-bold text-white';
@@ -78,8 +88,16 @@ export const DesignerLane = ({
 	onActivate,
 	onChange,
 	onAdd,
+	target,
 }: DesignerLaneProps) => {
-	const events = useMemo(() => laneEvents(design, lane, baseSeconds), [design, lane, baseSeconds]);
+	const targetIndex = target?.index;
+	const targetCount = targetNames.length;
+	const events = useMemo(
+		() => laneEvents(design, lane, baseSeconds, targetIndex === undefined ? undefined : { index: targetIndex, count: targetCount }),
+		[design, lane, baseSeconds, targetIndex, targetCount],
+	);
+	// The boss health shapes the first target alone.
+	const kinds = targetIndex !== undefined && targetIndex > 0 ? LANE_EVENT_KINDS[lane].filter(kind => kind !== 'bossHealth') : LANE_EVENT_KINDS[lane];
 	// The DOM keeps kind-then-index order whatever the times are: reordering keyed nodes moves the focused one, and the browser blurs it.
 	const domOrder = useMemo(() => {
 		const kinds = LANE_EVENT_KINDS[lane];
@@ -106,7 +124,7 @@ export const DesignerLane = ({
 	const keys = events.map(event => refKey(event.ref));
 	const selectedKey = selected && keys.includes(refKey(selected)) ? refKey(selected) : undefined;
 	const tabbable = selectedKey ?? (active && keys.includes(active) ? active : keys[0]);
-	const label = i18n.t(laneLabelKey(lane));
+	const label = target ? targetNames[target.index] : i18n.t(laneLabelKey(lane));
 
 	// The first render after a removal settles it: focus moves only when that render shows the event gone.
 	useEffect(() => {
@@ -197,7 +215,7 @@ export const DesignerLane = ({
 		: undefined;
 	const snapFraction = secondsToFraction(keyStep(snapSeconds), baseSeconds);
 	const segments = healthSegments(design);
-	const endSegment = lane === 'boss' ? healthEndSegment(design) : undefined;
+	const endSegment = kinds.includes('bossHealth') ? healthEndSegment(design) : undefined;
 	const endTip = endSegment
 		? {
 				from: formatPercent(endSegment.fromPercent),
@@ -211,9 +229,26 @@ export const DesignerLane = ({
 	return (
 		<div role="group" aria-label={label} data-lane={lane} className={LANE_CLASSES} style={cssVars({ '--bar': `var(--designer-lane-${lane}-bar)` })}>
 			<div className={LANE_LABEL_CLASSES}>
-				<span className="text-sm font-bold text-white">{label}</span>
-				<div className="flex flex-wrap gap-1">
-					{LANE_EVENT_KINDS[lane].map((kind, index) => {
+				{target ? (
+					<Button
+						variant="unstyled"
+						aria-pressed={target.selected}
+						data-selected={target.selected ? '' : undefined}
+						className="-mx-1 max-w-full cursor-pointer self-start truncate rounded-xs border border-transparent px-1 text-left text-sm font-bold text-white outline-none hover:bg-white/10 focus-visible:focus-ring data-selected:border-white data-selected:bg-(--bar)"
+						onClick={target.onSelect}
+						onKeyDown={event => {
+							if (event.key !== 'Enter') return;
+							event.preventDefault();
+							target.onSelect();
+							target.onActivate();
+						}}>
+						{label}
+					</Button>
+				) : (
+					<span className="text-sm font-bold text-white">{label}</span>
+				)}
+				<div data-lane-add="" className="flex flex-wrap gap-1">
+					{kinds.map((kind, index) => {
 						const eventLabel = i18n.t(eventLabelKey(kind));
 						return (
 							<Button

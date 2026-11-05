@@ -50,7 +50,7 @@ export interface EncounterDesignerViewProps {
 	onSelect: (selection: DesignerSelection | undefined) => void;
 	onActivate: (selection: DesignerSelection) => void;
 	onChange: (design: EncounterDesign) => void;
-	onAdd: (kind: DesignEventKind) => void;
+	onAdd: (kind: DesignEventKind, targetIndex?: number) => void;
 	onAddTarget: () => void;
 	onSave: () => void;
 	name: ReactNode;
@@ -89,10 +89,10 @@ export const EncounterDesignerView = ({
 }: EncounterDesignerViewProps) => {
 	const [deleteButton, setDeleteButton] = useState<HTMLButtonElement | null>(null);
 	const [confirmingDelete, setConfirmingDelete] = useState(false);
-	// Opening focuses the first event lane's add button: the first tabbable element would be a field in the header.
+	// Opening focuses the first add button, the first target's + Downtime: the first tabbable element would be a field in the header.
 	const initialFocus = useRef<HTMLElement | null>(null);
 	const findInitialFocus = (timeline: HTMLElement | null) => {
-		initialFocus.current = timeline?.querySelector<HTMLElement>('[data-lane] button') ?? null;
+		initialFocus.current = timeline?.querySelector<HTMLElement>('[data-lane-add] button') ?? null;
 	};
 	return (
 		<Dialog
@@ -212,7 +212,7 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 	const encounter = host.sim.encounter;
 	const myEncounters = useMyEncounters();
 	const choice = useEncounterChoice(encounter, CHOICE_FIELD);
-	// The boss follows its Boss health lane when that has keyframes; every other target follows these.
+	// The first target follows the boss health keyframes on its row when it has some; every other target follows these.
 	const execute = useMemo(
 		() =>
 			executeConfigs().map(config => ({
@@ -304,9 +304,9 @@ export const EncounterDesigner = ({ open, onOpenChange, replaced, showExecutePro
 
 	const newAdd = () => Target.clone(defaultWaveTemplate(presetTargets, encounter.sim.raid.getTanks().length) ?? Encounter.defaultTargetProto());
 
-	const add = (kind: DesignEventKind) => {
+	const add = (kind: DesignEventKind, targetIndex?: number) => {
 		const next = EncounterDesign.clone(draft.design);
-		const ref = addEvent(next, kind);
+		const ref = addEvent(next, kind, targetIndex);
 		// The sim spawns a wave's adds from their templates, so a new wave starts with one add from the default template.
 		if (kind === 'wave') next.addWaves[ref.index].adds = [newAdd()];
 		setDraft(d => ({ ...d, design: next }));

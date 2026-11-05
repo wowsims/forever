@@ -46,6 +46,22 @@ describe('laneEvents', () => {
 		]);
 	});
 
+	it("puts a target's downtimes on its row, and the boss health and the downtimes of no target on the first target's", () => {
+		const on = (targetIndex: number, start: number) => ({ ...downtime(start, start + 0.1), targetIndex });
+		const design = EncounterDesign.create({
+			downtimes: [on(1, 0.1), on(0, 0.3), on(2, 0.5), on(-1, 0.7)],
+			bossHealth: [{ ...eventAt('bossHealth', 0.5), healthPercent: 50 }],
+		});
+		const row = (index: number) => laneEvents(design, 'boss', BASE, { index, count: 2 }).map(event => [event.ref.kind, event.ref.index, event.row]);
+		expect(row(0)).toEqual([
+			['bossHealth', 0, 0],
+			['downtime', 1, 1],
+			['downtime', 2, 1],
+			['downtime', 3, 1],
+		]);
+		expect(row(1)).toEqual([['downtime', 0, 0]]);
+	});
+
 	it('draws a move from its start to the end of its walk, in seconds or in yards at the run speed', () => {
 		const seconds = { ...eventAt('move', 0.1), yards: 0, seconds: 18 };
 		const yards = { ...eventAt('move', 0.5), yards: 70 };

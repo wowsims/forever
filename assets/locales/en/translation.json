@@ -1096,8 +1096,7 @@
 			"designer": {
 				"timeline": "Encounter timeline",
 				"lanes": {
-					"boss": "Boss",
-					"abilities": "Boss abilities",
+					"abilities": "Abilities",
 					"waves": "Add waves",
 					"moves": "Movement",
 					"amps": "Damage amps"
@@ -1296,7 +1295,7 @@
 				"title": "Encounter designer",
 				"targets": "Targets",
 				"target_name": "Target {{number}}",
-				"execute_boss_health": "With Boss health keyframes, the boss follows the Boss health lane, and only the other targets follow this.",
+				"execute_boss_health": "With Boss health keyframes, the first target follows them, and only the other targets follow this.",
 				"save": "Save",
 				"save_copy": "Save as copy",
 				"name": "Name",

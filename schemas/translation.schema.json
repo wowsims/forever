@@ -3922,9 +3922,6 @@
 								"lanes": {
 									"type": "object",
 									"properties": {
-										"boss": {
-											"type": "string"
-										},
 										"abilities": {
 											"type": "string"
 										},
@@ -3939,7 +3936,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["boss", "abilities", "waves", "moves", "amps"]
+									"required": ["abilities", "waves", "moves", "amps"]
 								},
 								"events": {
 									"type": "object",

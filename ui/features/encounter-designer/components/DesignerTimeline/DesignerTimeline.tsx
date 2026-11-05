@@ -1,7 +1,10 @@
 import { Ruler } from '@features/results/components/Timeline/rotation/ruler';
 import { DEFAULT_PPS, fitWidth, ZoomController } from '@features/results/components/Timeline/rotation/zoom';
 import type { EncounterDesign } from '@generated/proto/common';
+import i18n from '@i18n/config';
+import { Button } from '@ui-kit/Button';
 import { usePointerPan } from '@ui-kit/hooks/usePointerPan';
+import { Icon } from '@ui-kit/Icon';
 import { Tooltip } from '@ui-kit/Tooltip';
 import { cssVars } from '@ui-kit/utils/css';
 import { findScrollParent } from '@ui-kit/utils/dom';
@@ -12,8 +15,7 @@ import type { DesignerSelection, DesignEventKind } from '../../model/lanes';
 import { DESIGN_LANES, isEventRef } from '../../model/lanes';
 import type { DesignIssue } from '../../model/validate';
 import { DesignerLane } from '../DesignerLane';
-import { refKey } from '../DesignerLane/utils';
-import { DesignerTargetLane } from '../DesignerTargetLane';
+import { LANE_CLASSES, LANE_LABEL_CLASSES, refKey } from '../DesignerLane/utils';
 import { DesignerTip } from '../DesignerTip';
 import { DesignerToolbar } from '../DesignerToolbar';
 import { designerText } from '../EncounterDesigner/utils/configs';
@@ -38,7 +40,7 @@ export interface DesignerTimelineProps {
 	baseSeconds: number;
 	selected?: DesignerSelection;
 	issues: ReadonlyArray<DesignIssue>;
-	/** The encounter's target names: the targets lane's bars, and what a downtime's tooltip reads. */
+	/** The encounter's target names: one row each, and what a downtime's tooltip reads. */
 	targetNames: ReadonlyArray<string>;
 	/** `undefined` clears the selection, as removing an event does. */
 	onSelect: (selection: DesignerSelection | undefined) => void;
@@ -46,7 +48,8 @@ export interface DesignerTimelineProps {
 	onActivate: (selection: DesignerSelection) => void;
 	/** Called once per finished drag or key press, with a new design. */
 	onChange: (design: EncounterDesign) => void;
-	onAdd: (kind: DesignEventKind) => void;
+	/** A downtime added on a target's row takes that target; one added elsewhere takes the first. */
+	onAdd: (kind: DesignEventKind, targetIndex?: number) => void;
 	onAddTarget: () => void;
 }
 
@@ -165,6 +168,22 @@ export const DesignerTimeline = ({
 	const { panning, handlers: pan } = usePointerPan({ verticalScroller: () => (rootRef.current ? findScrollParent(rootRef.current) : null) });
 	const pixelsPerSecond = useCallback(() => zoomRef.current?.pps ?? DEFAULT_PPS, []);
 	const invalid = useMemo(() => new Set(issues.filter(issue => issue.severity !== 'info').map(issue => refKey(issue.ref))), [issues]);
+	const laneProps = {
+		design,
+		baseSeconds,
+		snapSeconds,
+		targetNames,
+		tooltipId,
+		pixelsPerSecond,
+		selected: isEventRef(selected) ? selected : undefined,
+		invalid,
+		onSelect,
+		onActivate,
+		onChange,
+		onAdd,
+	};
+	const targetsLabel = designerText('targets');
+	const targetLabel = i18n.t('settings_tab.encounter.target');
 
 	return (
 		<div
@@ -193,32 +212,45 @@ export const DesignerTimeline = ({
 				className={clsx('relative min-w-0 cursor-grab overflow-x-auto overflow-y-hidden', panning && 'cursor-grabbing select-none')}
 				{...pan}>
 				<div className="w-designer-content-w min-w-full">
-					<DesignerTargetLane
-						targetNames={targetNames}
-						baseSeconds={baseSeconds}
-						selected={selected?.kind === 'target' ? selected.index : undefined}
-						onSelect={index => onSelect({ kind: 'target', index })}
-						onActivate={index => onActivate({ kind: 'target', index })}
-						onAdd={onAddTarget}
-					/>
-					{DESIGN_LANES.map(lane => (
-						<DesignerLane
-							key={lane}
-							lane={lane}
-							design={design}
-							baseSeconds={baseSeconds}
-							snapSeconds={snapSeconds}
-							targetNames={targetNames}
-							tooltipId={tooltipId}
-							pixelsPerSecond={pixelsPerSecond}
-							selected={isEventRef(selected) ? selected : undefined}
-							invalid={invalid}
-							onSelect={onSelect}
-							onActivate={onActivate}
-							onChange={onChange}
-							onAdd={onAdd}
-						/>
-					))}
+					{DESIGN_LANES.map(lane =>
+						lane === 'boss' ? (
+							<div key={lane} role="group" aria-label={targetsLabel}>
+								<div className={LANE_CLASSES}>
+									<div className={LANE_LABEL_CLASSES}>
+										<span className="text-sm font-bold text-white">{targetsLabel}</span>
+									</div>
+								</div>
+								{targetNames.map((_, index) => (
+									<DesignerLane
+										key={index}
+										{...laneProps}
+										lane={lane}
+										target={{
+											index,
+											selected: selected?.kind === 'target' && selected.index === index,
+											onSelect: () => onSelect({ kind: 'target', index }),
+											onActivate: () => onActivate({ kind: 'target', index }),
+										}}
+										onAdd={kind => onAdd(kind, index)}
+									/>
+								))}
+								<div className={LANE_CLASSES}>
+									<div className={LANE_LABEL_CLASSES}>
+										<Button
+											variant="outline-secondary"
+											size="xs"
+											className="self-start"
+											aria-label={designerText('add', { event: targetLabel })}
+											onClick={onAddTarget}>
+											<Icon name="plus" /> {targetLabel}
+										</Button>
+									</div>
+								</div>
+							</div>
+						) : (
+							<DesignerLane key={lane} {...laneProps} lane={lane} />
+						),
+					)}
 				</div>
 			</div>
 			<Tooltip id={tooltipId} render={({ activeAnchor }) => <AnchorTip anchor={activeAnchor} />} />

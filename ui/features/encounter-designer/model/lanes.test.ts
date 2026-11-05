@@ -58,6 +58,13 @@ describe('lanes', () => {
 		expect(downtime.end!.at - downtime.start!.at).toBeCloseTo(0.1);
 	});
 
+	it('adds a downtime on the target given, and the first one by default', () => {
+		const design = EncounterDesign.create();
+		addEvent(design, 'downtime', 1);
+		addEvent(design, 'downtime');
+		expect(design.downtimes.map(downtime => downtime.targetIndex)).toEqual([1, 0]);
+	});
+
 	it('adds, reads and removes events by list and index', () => {
 		const design = EncounterDesign.create();
 		addEventAt(design, 'move', 0.1);

@@ -38,10 +38,10 @@ const EditableTimeline = ({ design: initial, selected: initialSelected, onChange
 				onSelect(ref);
 				setSelected(ref);
 			}}
-			onAdd={kind => {
-				onAdd(kind);
+			onAdd={(kind, targetIndex) => {
+				onAdd(kind, targetIndex);
 				const next = EncounterDesign.clone(design);
-				setSelected(addEvent(next, kind));
+				setSelected(addEvent(next, kind, targetIndex));
 				setDesign(next);
 			}}
 		/>
@@ -82,7 +82,7 @@ export const OverlappingDowntimes: Story = { args: { design: overlappingDowntime
 
 export const LongFight: Story = { args: { design: dynamicAddsDesign(), baseSeconds: 600 } };
 
-// A target's bar spans the fight: a click selects it, Enter selects it and activates it, and an arrow key moves nothing.
+// A target's row label selects it on a click, and on Enter selects it and activates it; an arrow key moves nothing.
 export const TargetSelected: Story = {
 	args: { design: customBossDesign(), selected: { kind: 'target', index: 0 } },
 	play: async ({ args, canvasElement }) => {
@@ -151,7 +151,7 @@ export const AxisEndsVisible: Story = {
 		// scrollWidth and clientWidth round alike, so only the boxes show a fraction of a pixel of overflow.
 		await expect(scroller.firstElementChild!.getBoundingClientRect().right).toBeLessThanOrEqual(bounds.right);
 
-		const lane = canvas.getByRole('group', { name: designerText('lanes.boss') });
+		const lane = canvas.getByRole('group', { name: designTargetNames[0] });
 		const health = within(lane).getAllByRole('slider');
 		const labelColumn = lane.firstElementChild!.getBoundingClientRect();
 		await expect(health[0].getBoundingClientRect().left).toBeGreaterThanOrEqual(labelColumn.right - 0.5);

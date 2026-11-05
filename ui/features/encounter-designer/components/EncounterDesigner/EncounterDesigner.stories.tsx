@@ -37,10 +37,10 @@ const EditableDesigner = ({ design: initial, selected: initialSelected, onChange
 				onSelect(ref);
 				setSelected(ref);
 			}}
-			onAdd={kind => {
-				onAdd(kind);
+			onAdd={(kind, targetIndex) => {
+				onAdd(kind, targetIndex);
 				const next = EncounterDesign.clone(design);
-				setSelected(addEvent(next, kind));
+				setSelected(addEvent(next, kind, targetIndex));
 				setDesign(next);
 			}}
 		/>

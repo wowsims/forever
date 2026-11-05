@@ -46,11 +46,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const BossHealthKeyframes: Story = {};
+const target = (index: number, selected = false) => ({ index, selected, onSelect: fn(), onActivate: fn() });
+
+export const BossHealthKeyframes: Story = { args: { target: target(0) } };
 
 export const OverlappingDowntimes: Story = {
-	args: { design: overlappingDowntimesDesign(), invalid: new Set(['downtime:1']), selected: { kind: 'downtime', index: 0 } },
+	args: { design: overlappingDowntimesDesign(), target: target(0), invalid: new Set(['downtime:1']), selected: { kind: 'downtime', index: 0 } },
 };
+
+// The second target's row: its own downtime, and no boss health to add.
+export const SecondTarget: Story = { args: { design: overlappingDowntimesDesign(), target: target(1) } };
+
+export const TargetSelected: Story = { args: { target: target(0, true) } };
 
 export const Abilities: Story = { args: { lane: 'abilities' } };
 

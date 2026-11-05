@@ -104,11 +104,20 @@ const pulseLaneTicks = (windows: ReadonlyArray<TimeWindow>, intervalSeconds: num
 	return ticks;
 };
 
+// The events of one target's row in the 'boss' lane: its downtimes, and on the first target the boss health and every
+// downtime that names no target of the `count` the encounter has, which validation flags.
+const onTargetRow = (design: EncounterDesign, ref: DesignEventRef, target: { index: number; count: number }): boolean => {
+	if (ref.kind === 'bossHealth') return target.index === 0;
+	const named = design.downtimes[ref.index].targetIndex;
+	return named === target.index || (target.index === 0 && (named < 0 || named >= target.count));
+};
+
 // The lane's events in time order, each with the row that keeps it clear of the others, its repeats and jitter included.
-// The boss health segments share the lane's first row, which no downtime takes.
-export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSeconds: number): Array<LaneEvent> => {
+// The boss health segments share the lane's first row, which no downtime takes. With a target, the 'boss' lane holds only
+// that target's row.
+export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSeconds: number, target?: { index: number; count: number }): Array<LaneEvent> => {
 	const segments = healthSegments(design);
-	const events = LANE_EVENT_KINDS[lane].flatMap(kind =>
+	const every = LANE_EVENT_KINDS[lane].flatMap(kind =>
 		eventsOf(design, kind).map((_, index) => {
 			const ref: DesignEventRef = { kind, index };
 			const window = windowOf(design, ref, baseSeconds);
@@ -128,6 +137,7 @@ export const laneEvents = (design: EncounterDesign, lane: DesignLaneKind, baseSe
 			};
 		}),
 	);
+	const events = target ? every.filter(event => onTargetRow(design, event.ref, target)) : every;
 	const packed = events.filter(event => event.ref.kind !== 'bossHealth');
 	const rows = packRows(
 		packed.map(event => ({

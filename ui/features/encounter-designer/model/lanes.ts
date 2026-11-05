@@ -43,6 +43,7 @@ export type DesignEvent<K extends DesignEventKind = DesignEventKind> = DesignEve
 // A span, or a point for events that have no duration.
 type DesignEventWindow = { start: number; end: number } | { at: number };
 
+// The 'boss' lane is one row per encounter target, which holds that target's downtimes, and on the first target the boss health.
 export const DESIGN_LANES: readonly DesignLaneKind[] = ['boss', 'abilities', 'waves', 'moves', 'amps'];
 
 export const LANE_EVENT_KINDS: Record<DesignLaneKind, ReadonlyArray<DesignEventKind>> = {
@@ -130,10 +131,12 @@ export const eventsOf = <K extends DesignEventKind>(design: EncounterDesign, kin
 
 export const getEvent = (design: EncounterDesign, ref: DesignEventRef): DesignEvent | undefined => eventsOf(design, ref.kind)[ref.index];
 
-// Mutates the design.
-export const addEvent = (design: EncounterDesign, kind: DesignEventKind): DesignEventRef => {
+// A downtime takes the target at targetIndex. Mutates the design.
+export const addEvent = (design: EncounterDesign, kind: DesignEventKind, targetIndex = 0): DesignEventRef => {
 	const list: DesignEvent[] = eventsOf(design, kind);
-	list.push(defaultEvent(kind));
+	const event = defaultEvent(kind);
+	if (kind === 'downtime') (event as DesignDowntime).targetIndex = targetIndex;
+	list.push(event);
 	return { kind, index: list.length - 1 };
 };
 

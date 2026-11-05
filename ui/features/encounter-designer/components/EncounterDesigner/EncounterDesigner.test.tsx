@@ -249,7 +249,7 @@ describe('EncounterDesigner', () => {
 			vi.spyOn(Element.prototype, 'hasPointerCapture').mockReturnValue(false);
 		});
 
-		const bars = () => within(lane('Boss')).getAllByRole('slider');
+		const bars = () => within(lane('Target 1')).getAllByRole('slider');
 		const startOf = (bar: HTMLElement) => Number(bar.getAttribute('aria-valuenow'));
 
 		// At the default zoom a pixel is a hundredth of a second.
@@ -264,7 +264,7 @@ describe('EncounterDesigner', () => {
 		const withDowntime = async () => {
 			const { encounter } = await setup();
 			const dialog = await openDesigner();
-			await add('Boss', 'Downtime');
+			await add('Target 1', 'Downtime');
 			return { encounter, dialog, first: startOf(bars()[0]) };
 		};
 
@@ -295,7 +295,7 @@ describe('EncounterDesigner', () => {
 			const { dialog, first } = await withDowntime();
 			const timeline = within(dialog).getByRole('region', { name: 'Encounter timeline' });
 			timeline.scrollLeft = 500;
-			drag(lane('Boss'), -200);
+			drag(lane('Target 1'), -200);
 			expect(timeline.scrollLeft).toBe(700);
 			expect(bars().map(startOf)).toEqual([first]);
 			expect(bars()[0].hasAttribute('data-selected')).toBe(true);
@@ -308,7 +308,7 @@ describe('EncounterDesigner', () => {
 		it('moves only the keyframe at the end of a boss health segment, and leaves the implied start alone', async () => {
 			await setup();
 			await openDesigner();
-			await add('Boss', 'Boss health');
+			await add('Target 1', 'Boss health');
 			const text = () => bars()[0].getAttribute('aria-valuetext') ?? '';
 			expect(text()).toContain('from 0s to 72s');
 
@@ -381,13 +381,13 @@ describe('EncounterDesigner', () => {
 			expect(document.activeElement).toBe(bars()[0]);
 
 			await press(bars()[0], 'F2');
-			input = within(lane('Boss')).getByRole('textbox', { name: 'Event name' });
+			input = within(lane('Target 1')).getByRole('textbox', { name: 'Event name' });
 			await commit(input, 'Dropped');
 			await act(() => void fireEvent.keyDown(input, { key: 'Escape' }));
 			expect(bars()[0].getAttribute('aria-label')).toBe('Phase 2');
 
 			await press(bars()[0], 'F2');
-			input = within(lane('Boss')).getByRole('textbox', { name: 'Event name' });
+			input = within(lane('Target 1')).getByRole('textbox', { name: 'Event name' });
 			await commit(input, 'Phase 3');
 			const panelName = within(screen.getByRole('region', { name: 'Phase 2' })).getByLabelText('Name');
 			await act(async () => {
@@ -411,7 +411,7 @@ describe('EncounterDesigner', () => {
 
 			await act(async () => void fireEvent.contextMenu(bar, { clientX: 10, clientY: 10 }));
 			await act(async () => fireEvent.click(await screen.findByRole('menuitem', { name: 'Rename' })));
-			const input = within(lane('Boss')).getByRole('textbox', { name: 'Event name' });
+			const input = within(lane('Target 1')).getByRole('textbox', { name: 'Event name' });
 			await commit(input, 'From the menu');
 			await act(() => void fireEvent.keyDown(input, { key: 'Enter' }));
 			await clickButton('Save');
@@ -429,7 +429,7 @@ describe('EncounterDesigner', () => {
 			const downtime = bars().find(bar => bar.getAttribute('aria-label') === 'Downtime 1')!;
 			await openMenu(downtime);
 			await act(async () => fireEvent.click(await screen.findByRole('menuitem', { name: 'Hold boss health here' })));
-			expect(within(lane('Boss')).getByText('Hold 80 %')).toBeTruthy();
+			expect(within(lane('Target 1')).getByText('Hold 80 %')).toBeTruthy();
 			await clickButton('Save');
 			expect(encounter.getDesign().bossHealth.map(entry => [entry.at, entry.healthPercent])).toEqual([
 				[0.8, 60],
@@ -455,7 +455,7 @@ describe('EncounterDesigner', () => {
 				}),
 			});
 			await openDesigner();
-			await openMenu(bars()[0]);
+			await openMenu(within(lane('Target 2')).getByRole('slider'));
 			await screen.findByRole('menuitem', { name: 'Duplicate' });
 			expect(screen.queryByRole('menuitem', { name: 'Hold boss health here' })).toBeNull();
 		});
@@ -466,13 +466,14 @@ describe('EncounterDesigner', () => {
 			await openMenu(bars()[0]);
 			await act(async () => fireEvent.click(await screen.findByRole('menuitem', { name: 'Hold health' })));
 			expect(bars()).toHaveLength(2);
-			expect(within(lane('Boss')).getByText('Hold 100 %')).toBeTruthy();
+			expect(within(lane('Target 1')).getByText('Hold 100 %')).toBeTruthy();
 		});
 
 		it('opens no menu on empty lane space', async () => {
 			await withDowntime();
 			await act(
-				async () => void fireEvent.contextMenu(within(lane('Boss')).getByRole('slider').parentElement!.firstElementChild!, { clientX: 5, clientY: 5 }),
+				async () =>
+					void fireEvent.contextMenu(within(lane('Target 1')).getByRole('slider').parentElement!.firstElementChild!, { clientX: 5, clientY: 5 }),
 			);
 			expect(screen.queryByRole('menuitem')).toBeNull();
 		});
@@ -481,10 +482,10 @@ describe('EncounterDesigner', () => {
 	it('focuses the first add button on open, and moves focus into the event panel on Enter, not on a click', async () => {
 		await setup();
 		await openDesigner();
-		expect(document.activeElement).toBe(within(lane('Boss')).getByRole('button', { name: 'Add Downtime' }));
+		expect(document.activeElement).toBe(within(lane('Target 1')).getByRole('button', { name: 'Add Downtime' }));
 
-		await add('Boss', 'Downtime');
-		const bar = within(lane('Boss')).getByRole('slider');
+		await add('Target 1', 'Downtime');
+		const bar = within(lane('Target 1')).getByRole('slider');
 		const panel = screen.getByRole('region', { name: 'Downtime 1' });
 		act(() => {
 			bar.focus();
@@ -498,7 +499,7 @@ describe('EncounterDesigner', () => {
 	it('turns a new boss ability into a pulse with working defaults, its own fields and no target, and saves it', async () => {
 		const { encounter } = await setup();
 		const dialog = await openDesigner();
-		await add('Boss abilities', 'Boss ability');
+		await add('Abilities', 'Boss ability');
 		expect(within(dialog).queryByLabelText('Target')).not.toBeNull();
 
 		await userEvent.click(within(dialog).getByLabelText('Kind'));
@@ -533,7 +534,7 @@ describe('EncounterDesigner', () => {
 
 		await commit(within(dialog).getByLabelText('Duration'), String(baseSeconds + 60));
 		await removeSecondTarget();
-		await add('Boss', 'Downtime');
+		await add('Target 1', 'Downtime');
 		expect(encounter.getDuration()).toBe(baseSeconds + 60);
 		expect(encounter.getTargets()).toHaveLength(2);
 
@@ -544,7 +545,7 @@ describe('EncounterDesigner', () => {
 		expect(EncounterDesign.equals(encounter.getDesign(), design)).toBe(true);
 
 		await openDesigner();
-		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Target 3')).getAllByRole('slider')).toHaveLength(1);
 	});
 
 	it('follows a removed target in the draft the way the store does', async () => {
@@ -574,7 +575,7 @@ describe('EncounterDesigner', () => {
 			await commit(field, '25');
 			expect(encounter.getExecuteProportion20()).toBe(0.25);
 
-			await add('Boss', 'Downtime');
+			await add('Target 1', 'Downtime');
 			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
 			await clickButton('Save');
 			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).toBeNull();
@@ -589,7 +590,7 @@ describe('EncounterDesigner', () => {
 			const proportion = encounter.getExecuteProportion20();
 			const dialog = await openDesigner();
 			await commit(within(dialog).getByLabelText('Execute Duration 20 (%)'), '25');
-			await add('Boss', 'Downtime');
+			await add('Target 1', 'Downtime');
 			await clickButton('Cancel');
 
 			expect(within(panel()).queryByLabelText('Execute Duration 20 (%)')).not.toBeNull();
@@ -603,8 +604,93 @@ describe('EncounterDesigner', () => {
 		});
 	});
 
-	describe('targets lane', () => {
+	describe('target rows', () => {
 		const swingSpeed = (panel: HTMLElement) => within(panel).getByLabelText('Swing Speed') as HTMLInputElement;
+		const rows = () =>
+			within(lane('Targets'))
+				.getAllByRole('group')
+				.map(row => row.getAttribute('aria-label'));
+		const barsOn = (row: HTMLElement) =>
+			within(row)
+				.queryAllByRole('slider')
+				.map(bar => bar.getAttribute('aria-label'));
+		const onTarget = (targetIndex: number, start: number) =>
+			DesignDowntime.create({ targetIndex, start: { at: start, jitter: 0 }, end: { at: start + 0.1, jitter: 0 } });
+
+		it('puts each downtime on its target row and the boss health on the first, and names the abilities lane Abilities', async () => {
+			await setup({
+				targets: 2,
+				design: EncounterDesign.create({
+					downtimes: [onTarget(0, 0.2), onTarget(1, 0.4)],
+					bossHealth: [HealthKeyframe.create({ at: 0.5, healthPercent: 50 })],
+				}),
+			});
+			await openDesigner();
+
+			expect(rows()).toEqual(['Target 1', 'Target 2']);
+			expect(barsOn(lane('Target 1')).sort()).toEqual(['Boss health 1', 'Downtime 1']);
+			expect(barsOn(lane('Target 2'))).toEqual(['Downtime 2']);
+			expect(within(lane('Target 1')).queryByRole('button', { name: 'Add Boss health' })).not.toBeNull();
+			expect(within(lane('Target 2')).queryByRole('button', { name: 'Add Boss health' })).toBeNull();
+			expect(lane('Abilities')).toBeTruthy();
+			expect(screen.queryByRole('group', { name: 'Boss abilities' })).toBeNull();
+			expect(screen.queryByRole('group', { name: 'Boss' })).toBeNull();
+		});
+
+		it('adds a downtime on the target of the row whose + Downtime was pressed', async () => {
+			const { encounter } = await setup({ targets: 2 });
+			await openDesigner();
+
+			await add('Target 2', 'Downtime');
+			expect(barsOn(lane('Target 2'))).toEqual(['Downtime 1']);
+			expect(barsOn(lane('Target 1'))).toEqual([]);
+			await clickButton('Save');
+			expect(encounter.getDesign().downtimes.map(downtime => downtime.targetIndex)).toEqual([1]);
+		});
+
+		it("opens a target's settings from its row label, and moves focus into them on Enter", async () => {
+			await setup({ targets: 2 });
+			await openDesigner();
+			const label = within(lane('Target 2')).getByRole('button', { name: 'Target 2' });
+
+			await act(async () => fireEvent.click(label));
+			expect(label.getAttribute('aria-pressed')).toBe('true');
+			const panel = targetPanel('Target 2');
+			expect(document.activeElement).not.toBe(panel);
+
+			await press(label, 'Enter');
+			expect(document.activeElement).toBe(panel);
+		});
+
+		it("keeps a downtime on its target's row as the target moves up and is copied", async () => {
+			await setup({ targets: 2, design: downtimeOn(1) });
+			await openDesigner();
+
+			await selectTarget('Target 2');
+			await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Move up' })));
+			expect(rows()).toEqual(['Target 2', 'Target 1']);
+			expect(barsOn(within(lane('Targets')).getAllByRole('group')[0])).toEqual(['Downtime 1']);
+
+			await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Duplicate' })));
+			expect(rows()).toEqual(['Target 2', 'Target 1', 'Target 2']);
+			expect(
+				within(lane('Targets'))
+					.getAllByRole('group')
+					.map(row => barsOn(row).length),
+			).toEqual([1, 0, 0]);
+		});
+
+		it("keeps the downtime of a removed target on the first target's row, marked, and selectable", async () => {
+			await setup({ targets: 2, design: downtimeOn(1) });
+			await openDesigner();
+			await removeSecondTarget();
+
+			const bar = within(lane('Target 1')).getByRole('slider', { name: 'Downtime 1' });
+			expect(bar.hasAttribute('data-invalid')).toBe(true);
+			await act(async () => fireEvent.click(bar));
+			expect(bar.hasAttribute('data-selected')).toBe(true);
+			expect(screen.getByRole('region', { name: 'Downtime 1' })).toBeTruthy();
+		});
 
 		it("edits a target's swing speed in the store as it changes, and Cancel puts it back", async () => {
 			const { encounter } = await setup({ targets: 2 });
@@ -793,7 +879,7 @@ describe('My encounters', () => {
 		expect(within(dialog).queryByRole('button', { name: 'Save as copy' })).toBeNull();
 
 		await commit(nameField(dialog), 'Ragnaros practice');
-		await add('Boss', 'Downtime');
+		await add('Raid Target', 'Downtime');
 		await clickButton('Save');
 
 		expect(Object.keys(stored())).toEqual(['Ragnaros practice']);
@@ -826,7 +912,7 @@ describe('My encounters', () => {
 
 		const dialog = await openDesigner();
 		expect(nameField(dialog).value).toBe('Two adds');
-		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Raid Target')).getAllByRole('slider')).toHaveLength(1);
 		expect(within(dialog).getByRole('button', { name: 'Save as copy' })).toBeTruthy();
 		expect(within(dialog).getByRole('button', { name: 'Delete' })).toBeTruthy();
 	});
@@ -933,7 +1019,7 @@ describe('My encounters', () => {
 
 		expect(encounter.getDuration()).toBe(200);
 		expect(field().textContent).toBe('Two adds');
-		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Raid Target')).getAllByRole('slider')).toHaveLength(1);
 		await commit(within(dialog).getByLabelText('Duration'), '230');
 		expect(field().textContent).toBe('Two adds (edited)');
 
@@ -947,11 +1033,11 @@ describe('My encounters', () => {
 		const { encounter } = await setup({ targets: 2 });
 		const before = encounter.toProto();
 		const dialog = await openDesigner();
-		await add('Boss', 'Downtime');
+		await add('Target 1', 'Downtime');
 
 		await userEvent.click(within(dialog).getByLabelText('Encounter'));
 		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
-		expect(within(lane('Boss')).queryAllByRole('slider')).toEqual([]);
+		expect(within(lane('Dynamic Boss')).queryAllByRole('slider')).toEqual([]);
 		expect(within(lane('Add waves')).getAllByRole('slider')).toHaveLength(1);
 		expect(within(lane('Targets')).getAllByRole('button', { name: 'Dynamic Boss' })).toHaveLength(1);
 
@@ -965,11 +1051,11 @@ describe('My encounters', () => {
 		const dialog = await openDesigner();
 		await userEvent.click(within(dialog).getByLabelText('Encounter'));
 		await userEvent.click(screen.getByRole('option', { name: 'Default/Dynamic Adds' }));
-		await add('Boss', 'Downtime');
+		await add('Dynamic Boss', 'Downtime');
 
 		await userEvent.click(within(dialog).getByLabelText('Encounter'));
 		await userEvent.click(screen.getByRole('option', { name: 'Custom' }));
-		expect(within(lane('Boss')).getAllByRole('slider')).toHaveLength(1);
+		expect(within(lane('Dynamic Boss')).getAllByRole('slider')).toHaveLength(1);
 		expect(within(lane('Add waves')).getAllByRole('slider')).toHaveLength(1);
 	});
 
@@ -1045,7 +1131,7 @@ describe('My encounters', () => {
 		await pick('Default/Dynamic Adds');
 		const dialog = await openDesigner();
 		await commit(nameField(dialog), 'Adds practice');
-		await add('Boss', 'Downtime');
+		await add('Dynamic Boss', 'Downtime');
 		await clickButton('Save');
 
 		expect(Object.keys(stored())).toEqual(['Adds practice']);
@@ -1059,7 +1145,7 @@ describe('My encounters', () => {
 	it('stores the default fight as New encounter once a downtime is added to it', async () => {
 		await setup();
 		await openDesigner();
-		await add('Boss', 'Downtime');
+		await add('Target 1', 'Downtime');
 		await clickButton('Save');
 
 		expect(Object.keys(stored())).toEqual(['New encounter']);
