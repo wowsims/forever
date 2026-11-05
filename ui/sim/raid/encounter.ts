@@ -110,29 +110,6 @@ export class Encounter {
 		this.set({ executeProportion35: newExecuteProportion35 });
 	}
 
-	// Stored inverted: false, what a saved encounter without the field reads, keeps the debuffs on the adds.
-	getHoldAddDebuffs(): boolean {
-		return this.enc.holdAddDebuffs;
-	}
-	setHoldAddDebuffs(newHoldAddDebuffs: boolean) {
-		if (newHoldAddDebuffs == this.enc.holdAddDebuffs) return;
-		this.set({ holdAddDebuffs: newHoldAddDebuffs });
-	}
-	getAddDebuffDelay(): number {
-		return this.enc.addDebuffDelay;
-	}
-	setAddDebuffDelay(newAddDebuffDelay: number) {
-		if (newAddDebuffDelay == this.enc.addDebuffDelay) return;
-		this.set({ addDebuffDelay: newAddDebuffDelay });
-	}
-	getAddDebuffJitter(): number {
-		return this.enc.addDebuffJitter;
-	}
-	setAddDebuffJitter(newAddDebuffJitter: number) {
-		if (newAddDebuffJitter == this.enc.addDebuffJitter) return;
-		this.set({ addDebuffJitter: newAddDebuffJitter });
-	}
-
 	getAreaTypes(): Array<AreaType> {
 		return this.enc.areaTypes;
 	}
@@ -180,9 +157,6 @@ export class Encounter {
 			durationVariation: enc.durationVariation,
 			executeProportion20: enc.executeProportion20,
 			executeProportion35: enc.executeProportion35,
-			holdAddDebuffs: enc.holdAddDebuffs,
-			addDebuffDelay: enc.addDebuffDelay,
-			addDebuffJitter: enc.addDebuffJitter,
 			areaTypes: enc.areaTypes,
 			zoneId: enc.zoneId,
 			targets: enc.targets,
@@ -196,9 +170,6 @@ export class Encounter {
 			this.setDurationVariation(proto.durationVariation);
 			this.setExecuteProportion20(proto.executeProportion20);
 			this.setExecuteProportion35(proto.executeProportion35);
-			this.setHoldAddDebuffs(proto.holdAddDebuffs);
-			this.setAddDebuffDelay(proto.addDebuffDelay);
-			this.setAddDebuffJitter(proto.addDebuffJitter);
 			this.setAreaTypes(proto.areaTypes, proto.zoneId);
 			// Clone so edits in the Advanced Encounter picker cannot mutate the
 			// saved entry's (or the config default's) own target protos.

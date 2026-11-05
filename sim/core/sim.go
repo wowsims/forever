@@ -27,7 +27,7 @@ type Simulation struct {
 
 	rand          Rand
 	deathRand     Rand // The kill rolls of target deaths, apart from the combat rolls, so gear does not move them.
-	addDebuffRand Rand // The rolls of the encounter's add debuff jitter, apart from the combat rolls, so gear does not move them.
+	addDebuffRand Rand // The rolls of the add debuff jitter, apart from the combat rolls, so gear does not move them.
 	rseed         int64
 	currentSeed   int64
 

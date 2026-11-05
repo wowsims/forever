@@ -1,6 +1,5 @@
-import type { BooleanPickerConfig, ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
+import type { ChoiceFieldConfig, NumberFieldConfig } from '@features/inputs/configs';
 import i18n from '@i18n/config';
-import type { StoreField } from '@sim/hooks/useStoreField';
 import type { Player } from '@sim/player/player';
 import type { Encounter } from '@sim/raid/encounter';
 import type { Raid } from '@sim/raid/raid';
@@ -11,7 +10,7 @@ interface Field {
 	id: string;
 	key: string;
 	label: string;
-	category: 'duration' | 'execute' | 'encounter';
+	category: 'duration' | 'execute';
 	get: (encounter: Encounter) => number;
 	set: (encounter: Encounter, value: number) => void;
 }
@@ -64,52 +63,6 @@ const EXECUTE_BANDS: Array<Field> = [
 ];
 
 export const executeConfigs = (): Array<NumberFieldConfig<Encounter>> => EXECUTE_BANDS.map(field);
-
-// The checkbox shows Apply debuffs to adds, the negation of the hold the encounter stores.
-export const applyAddDebuffsConfig = (): BooleanPickerConfig<Encounter> => ({
-	id: 'encounter-apply-add-debuffs',
-	label: i18n.t('settings_tab.encounter.apply_add_debuffs.label'),
-	labelTooltip: i18n.t('settings_tab.encounter.apply_add_debuffs.tooltip'),
-	storeField: 'encounter:holdAddDebuffs',
-	getValue: encounter => !encounter.getHoldAddDebuffs(),
-	setValue: (encounter, newValue) => {
-		trackEvent({ action: 'settings', category: 'encounter', label: 'apply_add_debuffs', value: newValue });
-		encounter.setHoldAddDebuffs(!newValue);
-	},
-});
-
-const addDebuffTiming = (spec: Field, storeField: StoreField): NumberFieldConfig<Encounter> => ({
-	...field(spec),
-	storeField: ['encounter:holdAddDebuffs', storeField],
-	showWhen: encounter => !encounter.getHoldAddDebuffs(),
-	float: true,
-	positive: true,
-});
-
-export const addDebuffTimingConfigs = (): Array<NumberFieldConfig<Encounter>> => [
-	addDebuffTiming(
-		{
-			id: 'encounter-add-debuff-delay',
-			key: 'add_debuff_delay',
-			label: 'add_debuff_delay',
-			category: 'encounter',
-			get: e => e.getAddDebuffDelay(),
-			set: (e, v) => e.setAddDebuffDelay(v),
-		},
-		'encounter:addDebuffDelay',
-	),
-	addDebuffTiming(
-		{
-			id: 'encounter-add-debuff-jitter',
-			key: 'add_debuff_jitter',
-			label: 'add_debuff_jitter',
-			category: 'encounter',
-			get: e => e.getAddDebuffJitter(),
-			set: (e, v) => e.setAddDebuffJitter(v),
-		},
-		'encounter:addDebuffJitter',
-	),
-];
 
 export const numAlliesConfig = (player: Player<any>): NumberFieldConfig<Raid> => ({
 	id: 'encounter-num-allies',

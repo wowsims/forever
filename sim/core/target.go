@@ -25,10 +25,6 @@ type Encounter struct {
 	// Every kind of area the fight is in, deduplicated.
 	AreaTypes []proto.AreaType
 
-	holdAddDebuffs  bool          // Whether the adds, every target after the first, keep the raid's debuffs off.
-	addDebuffDelay  time.Duration // From an add entering the fight until its raid debuffs land.
-	addDebuffJitter time.Duration // How far the delay moves at random, either way, for each add each time.
-
 	// Value to multiply by, for damage spells which are subject to the aoe cap.
 	aoeCapMultiplier float64
 }
@@ -57,9 +53,6 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		ExecuteProportion_20: max(options.ExecuteProportion_20, 0),
 		ExecuteProportion_35: max(options.ExecuteProportion_35, 0),
 		AreaTypes:            areaTypeSet(options.AreaTypes),
-		holdAddDebuffs:       options.HoldAddDebuffs,
-		addDebuffDelay:       DurationFromSeconds(max(options.AddDebuffDelay, 0)),
-		addDebuffJitter:      DurationFromSeconds(max(options.AddDebuffJitter, 0)),
 		AllTargets:           make([]*Target, 0, totalTargetCount),
 		ActiveTargets:        make([]*Target, 0, totalTargetCount),
 		AllTargetUnits:       make([]*Unit, 0, totalTargetCount),

@@ -304,8 +304,6 @@ func (env *Environment) reset(sim *Simulation) {
 		target.aurasReset = false
 		target.raidDebuffsHeld = false
 	}
-	// Before the targets' resets, so a held add's reset leaves its raid debuffs off.
-	env.Encounter.resetAddRaidDebuffs(sim)
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}

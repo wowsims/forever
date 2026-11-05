@@ -61,14 +61,22 @@ func TestDynamicAddsSchedule(t *testing.T) {
 // The raid's debuffs the debuff tests tick. The warrior in the raid makes the raid's Sunder the player's own aura.
 var raidCurseAndSunder = &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
 
-// A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the encounter's
-// add debuff settings set, and the boss's inputs changed by setBoss when it is not nil.
+// A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the boss's add
+// debuff inputs set, and its other inputs changed by setBoss when it is not nil.
 func newDynamicAddsDebuffSim(applyDebuffs bool, delay, jitter float64, setBoss func(boss *proto.Target)) *core.Simulation {
-	encounter := dynamicAddsEncounter(setBoss)
-	encounter.HoldAddDebuffs = !applyDebuffs
-	encounter.AddDebuffDelay = delay
-	encounter.AddDebuffJitter = jitter
-	return newWarriorSim(raidCurseAndSunder, encounter)
+	return newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(func(boss *proto.Target) {
+		setAddDebuffInputs(boss, applyDebuffs, delay, jitter)
+		if setBoss != nil {
+			setBoss(boss)
+		}
+	}))
+}
+
+// Sets the boss's Apply debuffs to adds, Debuff delay and Debuff jitter inputs.
+func setAddDebuffInputs(boss *proto.Target, applyDebuffs bool, delay, jitter float64) {
+	boss.TargetInputs[4].BoolValue = applyDebuffs
+	boss.TargetInputs[5].NumberValue = delay
+	boss.TargetInputs[6].NumberValue = jitter
 }
 
 // The Dynamic Adds preset in a 180 s fight, the boss changed by setBoss when it is not nil.
@@ -153,7 +161,7 @@ func dynamicAddsLives(landAfter time.Duration) []time.Duration {
 	return flips
 }
 
-// The raid's debuffs land on the add the encounter's Debuff delay after each spawn, respawns included, and are off while it is
+// The raid's debuffs land on the add the boss's Debuff delay after each spawn, respawns included, and are off while it is
 // down, before the first spawn too, where Sunder Armor's ramp at the pull gives the add no stack. A despawn while the
 // ramp runs (delay 15 s, the ramp from 25 s to 31 s) leaves Sunder off. A second iteration starts the same.
 func TestDynamicAddsRaidDebuffsLandAfterTheDelay(t *testing.T) {
@@ -209,9 +217,9 @@ func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 // fights unarmed, and with the same seed the add's debuffs land at the same times for both.
 func TestDynamicAddsRaidDebuffsJitterApartFromCombatRolls(t *testing.T) {
 	newSim := func(gear *proto.EquipmentSpec) *core.Simulation {
-		encounter := dynamicAddsEncounter(nil)
-		encounter.AddDebuffDelay = 3
-		encounter.AddDebuffJitter = 2
+		encounter := dynamicAddsEncounter(func(boss *proto.Target) {
+			setAddDebuffInputs(boss, true, 3, 2)
+		})
 		return newWarriorSimWithGear(raidCurseAndSunder, encounter, gear)
 	}
 	items := make([]*proto.ItemSpec, 17)
@@ -304,49 +312,17 @@ func TestDynamicAddsRaidDebuffsOnAtTheReset(t *testing.T) {
 	}
 }
 
-// In an encounter of two targets with no AI, the second is an add up from the pull: the boss gets the raid's debuffs at
-// the pull and the add the encounter's Debuff delay later. With Apply debuffs off the add never gets them, and the boss
-// still gets them at the pull.
-func TestRaidDebuffsOnAnAddUpFromThePull(t *testing.T) {
-	for _, tc := range []struct {
-		name    string
-		hold    bool
-		wantAdd []time.Duration
-	}{{"Apply debuffs on", false, []time.Duration{3 * time.Second}}, {"Apply debuffs off", true, nil}} {
-		sim := newWarriorSim(raidCurseAndSunder, &proto.Encounter{
-			Duration:       60,
-			Targets:        []*proto.Target{{}, {}},
-			HoldAddDebuffs: tc.hold,
-			AddDebuffDelay: 3,
-		})
-		wantBoss := []time.Duration{0}
-		for iteration := range 2 {
-			bossCoe, bossSunder, _ := raidDebuffFlips(t, sim, 0, 0)
-			if !slices.Equal(bossCoe, wantBoss) || !slices.Equal(bossSunder, wantBoss) {
-				t.Errorf("%s, iteration %d: on the boss Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", tc.name, iteration, bossCoe, bossSunder, wantBoss)
-			}
-			addCoe, addSunder, _ := raidDebuffFlips(t, sim, 1, 0)
-			if !slices.Equal(addCoe, tc.wantAdd) || !slices.Equal(addSunder, tc.wantAdd) {
-				t.Errorf("%s, iteration %d: on the add Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", tc.name, iteration, addCoe, addSunder, tc.wantAdd)
-			}
-		}
-	}
-}
-
-// A second target disabled at the pull with no AI never comes in, so it holds the raid's debuffs from the reset to the
-// fight's end, Apply debuffs on or off.
-func TestRaidDebuffsDisabledOnAnAddDisabledAtThePull(t *testing.T) {
-	for name, hold := range map[string]bool{"Apply debuffs on": false, "Apply debuffs off": true} {
-		sim := newWarriorSim(raidCurseAndSunder, &proto.Encounter{
-			Duration:       60,
-			Targets:        []*proto.Target{{}, {DisabledAtStart: true}},
-			HoldAddDebuffs: hold,
-		})
-		for iteration := range 2 {
-			coe, sunder, _ := raidDebuffFlips(t, sim, 1, 0)
-			if len(coe) != 0 || len(sunder) != 0 {
-				t.Errorf("%s, iteration %d: on the disabled add Curse of the Elements on and off at %v and Sunder Armor at %v, want never on", name, iteration, coe, sunder)
-			}
+// A boss saved with only the respawn, lifetime, spawn delay and Kill share % inputs applies the raid's debuffs to the
+// add at each spawn with no delay.
+func TestDynamicAddsRaidDebuffsWithoutTheDebuffInputs(t *testing.T) {
+	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(func(boss *proto.Target) {
+		boss.TargetInputs = boss.TargetInputs[:4]
+	}))
+	want := dynamicAddsLives(0)
+	for iteration := range 2 {
+		coe, sunder, _ := raidDebuffFlips(t, sim, 1, 0)
+		if !slices.Equal(coe, want) || !slices.Equal(sunder, want) {
+			t.Errorf("iteration %d: Curse of the Elements on and off at %v and Sunder Armor at %v, want %v", iteration, coe, sunder, want)
 		}
 	}
 }

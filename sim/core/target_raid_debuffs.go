@@ -3,44 +3,27 @@ package core
 import "time"
 
 // The raid's debuffs on a target are the auras the Debuffs panel registers on every target, those with
-// SourceExternalDebuff, which the target's reset puts on. The boss, the first target, gets them at the pull. Every
-// add gets them by the encounter's settings each time it enters the fight: at the pull for an add up from the start,
-// and at each spawn for one an AI spawns, which holds them while the add is down. A player's own cast of one of those
-// debuffs is untouched by the hold.
+// SourceExternalDebuff, which the target's reset puts on, at the pull for every target up from the start. An AI that
+// spawns an add holds them while the add is down and schedules them at each spawn by its own settings. A player's own
+// cast of one of those debuffs is untouched by the hold.
 
-// Holds or lands the raid's debuffs on each add with no Schedule. One up at the pull gets them by the encounter's
-// settings. One disabled at the pull holds them for the fight, since only an AI brings a target in later. An AI that
-// spawns adds sets their Schedule and schedules their debuffs itself through ScheduleAddRaidDebuffs.
-func (encounter *Encounter) resetAddRaidDebuffs(sim *Simulation) {
-	for _, target := range encounter.AllTargets[1:] {
-		if target.Schedule != nil {
-			continue
-		}
-		if target.IsEnabled() {
-			encounter.ScheduleAddRaidDebuffs(sim, target)
-		} else {
-			target.DisableRaidDebuffs(sim)
-		}
-	}
-}
-
-// Schedules the raid's debuffs on an add entering the fight now, the encounter's delay ± its jitter later, or disables
-// them for the fight when the encounter keeps them off the adds. An AI that spawns an add calls it at each spawn.
-func (encounter *Encounter) ScheduleAddRaidDebuffs(sim *Simulation, target *Target) {
-	if encounter.holdAddDebuffs {
+// Schedules the raid's debuffs on an add entering the fight now, delay ± jitter later, or disables them when apply is
+// off. An AI that spawns an add calls it at each spawn with that add's settings.
+func (encounter *Encounter) ScheduleAddRaidDebuffs(sim *Simulation, target *Target, apply bool, delay, jitter time.Duration) {
+	if !apply {
 		target.DisableRaidDebuffs(sim)
 		return
 	}
-	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime+encounter.rollAddDebuffDelay(sim))
+	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime+rollAddDebuffDelay(sim, delay, jitter))
 }
 
 // The delay ± the jitter, never below 0. Only a jitter draws a roll, on a stream apart from the combat rolls.
-func (encounter *Encounter) rollAddDebuffDelay(sim *Simulation) time.Duration {
-	if encounter.addDebuffJitter == 0 {
-		return encounter.addDebuffDelay
+func rollAddDebuffDelay(sim *Simulation, delay, jitter time.Duration) time.Duration {
+	if jitter == 0 {
+		return delay
 	}
-	offset := time.Duration((2*sim.addDebuffRand.NextFloat64() - 1) * float64(encounter.addDebuffJitter))
-	return max(encounter.addDebuffDelay+offset, 0)
+	offset := time.Duration((2*sim.addDebuffRand.NextFloat64() - 1) * float64(jitter))
+	return max(delay+offset, 0)
 }
 
 func (aura *Aura) isHeldRaidDebuff() bool {

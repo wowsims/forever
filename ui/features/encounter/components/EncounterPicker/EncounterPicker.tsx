@@ -1,4 +1,3 @@
-import { ConnectedBooleanPicker } from '@features/inputs/components/ConnectedBooleanPicker';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import i18n from '@i18n/config';
@@ -7,26 +6,15 @@ import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
 import { Button } from '@ui-kit/Button';
 import { FieldGrid } from '@ui-kit/FieldGrid';
 import { type ReactNode, useMemo, useState } from 'react';
-import { useStore } from 'zustand';
 
 import { AdvancedEncounterModal } from '../AdvancedEncounterModal';
 import { TargetInputsPicker } from '../TargetsPicker';
 import { AreaTypesPicker } from './AreaTypesPicker';
-import {
-	addDebuffTimingConfigs,
-	applyAddDebuffsConfig,
-	durationConfigs,
-	executeConfigs,
-	minBaseDamageConfig,
-	numAlliesConfig,
-	presetEncounterConfig,
-	zoneConfig,
-} from './utils/configs';
+import { durationConfigs, executeConfigs, minBaseDamageConfig, numAlliesConfig, presetEncounterConfig, zoneConfig } from './utils/configs';
 
 export interface EncounterPickerViewProps {
 	duration: ReactNode;
 	execute?: ReactNode;
-	addDebuffs?: ReactNode;
 	zone: ReactNode;
 	areaTypes: ReactNode;
 	preset?: ReactNode;
@@ -39,7 +27,6 @@ export interface EncounterPickerViewProps {
 export const EncounterPickerView = ({
 	duration,
 	execute,
-	addDebuffs,
 	zone,
 	areaTypes,
 	preset,
@@ -57,7 +44,6 @@ export const EncounterPickerView = ({
 		{allies}
 		{minBaseDamage}
 		{targetInputs}
-		{addDebuffs && <FieldGrid className="w-full">{addDebuffs}</FieldGrid>}
 		<Button className="w-full" data-testid="advanced-button" onClick={onAdvancedClick}>
 			{i18n.t('settings_tab.encounter.advanced')}
 		</Button>
@@ -73,12 +59,9 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const encounter = host.sim.encounter;
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
-	const hasAdds = useStore(host.sim.store, s => s.encounter.targets.length > 1);
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
-	const applyAddDebuffs = useMemo(() => applyAddDebuffsConfig(), []);
-	const addDebuffTiming = useMemo(() => addDebuffTimingConfigs(), []);
 	const preset = useMemo(() => presetEncounterConfig(encounter), [encounter]);
 	const allies = useMemo(() => numAlliesConfig(player), [player]);
 	const minBaseDamage = useMemo(() => minBaseDamageConfig(), []);
@@ -93,16 +76,6 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 					<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
 				))}
 				execute={showExecuteProportion && execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)}
-				addDebuffs={
-					hasAdds && (
-						<>
-							<ConnectedBooleanPicker modObject={encounter} config={applyAddDebuffs} />
-							{addDebuffTiming.map(config => (
-								<ConnectedNumberField key={config.id} modObject={encounter} config={config} />
-							))}
-						</>
-					)
-				}
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
 				areaTypes={<AreaTypesPicker encounter={encounter} />}
 				preset={showDamage && <ConnectedChoiceField modObject={encounter} config={preset} />}
