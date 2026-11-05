@@ -11,6 +11,7 @@ func (druid *Druid) registerPrimalBiteSpell() {
 	}
 	rank := spellData.PrimalBite.Highest()
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = 3
 	// TODO: Ingame research needed -- the tooltip's "generating a high amount of threat"; the row states no
 	// threat effect, so the cast threatens only for its damage.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

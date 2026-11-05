@@ -147,7 +147,7 @@ func (aura *Aura) reset(sim *Simulation) {
 	aura.metrics.reset()
 	aura.fadeTime = -NeverExpires
 
-	if aura.OnReset != nil {
+	if aura.OnReset != nil && !aura.isHeldRaidDebuff() {
 		aura.OnReset(aura, sim)
 	}
 

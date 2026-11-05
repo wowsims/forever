@@ -116,6 +116,21 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   target is back, and ends every raid unit's channel on the target with no further tick, for a disable, cleared or
   not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on a target disabled
   without clearing its debuffs, as in a design downtime that keeps them.
+- **The code that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
+  reset puts them on, so a target up from the pull gets them at the pull. `Encounter.ScheduleAddRaidDebuffs` takes an
+  apply, a delay and a jitter at each spawn: the debuffs land delay ± jitter later, or stay off with apply off
+  (`target_raid_debuffs.go`). No design add wave calls it yet, so a design's adds keep them from the pull. The jitter
+  rolls on `sim.addDebuffRand`, a stream apart from the combat rolls like `sim.deathRand`, so gear does not move a
+  landing.
+- **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
+  walks only the auras with a duration (`aura.go`). Code that takes a target away disables the raid's debuffs with
+  `Target.DisableRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through
+  `Encounter.ScheduleAddRaidDebuffs` or at times of its own, which runs each one's `OnReset` again, so Sunder Armor ramps
+  up anew. A held target's reset skips those `OnReset`s. Every target's hold clears as the sim's reset starts. A
+  landing due while the sim resets, before the target's own reset, only releases the hold, so that reset puts the
+  debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
+  `sim/core/buffs/drivers.go`) ticks nothing on a held target, and each landing replaces the schedule still running. A
+  player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in

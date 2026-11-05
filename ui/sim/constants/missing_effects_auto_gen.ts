@@ -268,6 +268,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13016, // Killmaim
+		[
+			"Wounds the target causing them to bleed for 100 damage over 30s.", // 13318 - https://www.wowhead.com/forever/spell=13318
+		]
+	],
+	[
+		13057, // Bloodpike
+		[
+			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
+		]
+	],
+	[
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
@@ -1389,6 +1401,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		277950, // Wastewanderer Rations
 		[
 			"Your Well Fed buffs metabolize 50% slower. This effect is increased by an additional 50% in Wasteland areas.", // 1302968 - https://www.wowhead.com/forever/spell=1302968
+		]
+	],
+	[
+		279895, // Ironforge Greathammer
+		[
+			"Blasts a target for 42 Fire damage.", // 1322295 - https://www.wowhead.com/forever/spell=1322295
 		]
 	],
 	[
