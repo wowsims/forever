@@ -51,13 +51,13 @@ export const EncounterPickerView = ({
 	<div className="flex flex-wrap gap-2" data-testid="encounter-picker-root">
 		<FieldGrid>{duration}</FieldGrid>
 		{execute && <FieldGrid className="w-full">{execute}</FieldGrid>}
-		{addDebuffs && <FieldGrid className="w-full">{addDebuffs}</FieldGrid>}
 		{zone}
 		{areaTypes}
 		{preset}
 		{allies}
 		{minBaseDamage}
 		{targetInputs}
+		{addDebuffs && <FieldGrid className="w-full">{addDebuffs}</FieldGrid>}
 		<Button className="w-full" data-testid="advanced-button" onClick={onAdvancedClick}>
 			{i18n.t('settings_tab.encounter.advanced')}
 		</Button>

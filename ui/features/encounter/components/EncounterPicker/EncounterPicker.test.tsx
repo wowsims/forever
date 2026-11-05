@@ -28,11 +28,11 @@ describe('EncounterPickerView', () => {
 		expect([...root.children].map(child => child.textContent)).toEqual([
 			'duration',
 			'execute',
-			'add debuffs',
 			'zone',
 			'area types',
 			'allies',
 			'target inputs',
+			'add debuffs',
 			'settings_tab.encounter.advanced',
 		]);
 	});
