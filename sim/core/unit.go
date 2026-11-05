@@ -95,6 +95,8 @@ type Unit struct {
 
 	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
 
+	raidDebuffsHeld bool // A target's only: the raid's debuffs stay off it, its reset included, until Target.ApplyRaidDebuffsAt lands them.
+
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
 	// effects from items / abilities.

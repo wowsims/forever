@@ -118,6 +118,23 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
   raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
   the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
+- **The AI that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
+  reset puts them on, so a target up from the pull, the boss or an add with no AI, gets them at the pull. An AI that
+  spawns adds sets their `Schedule` and calls `Encounter.ScheduleAddRaidDebuffs` at each spawn with its own apply,
+  delay and jitter: the debuffs land delay ± jitter later, or stay off with apply off
+  (`target_raid_debuffs.go`). The Dynamic Adds boss reads them from its Apply debuffs to adds, Debuff delay and Debuff
+  jitter inputs, after Kill share %; a boss saved without them applies with no delay
+  (`sim/encounters/dynamic_adds_ai.go`). The jitter rolls on `sim.addDebuffRand`, a stream apart from the combat rolls
+  like `sim.deathRand`, so gear does not move a landing.
+- **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
+  walks only the auras with a duration (`aura.go`). An AI that takes a target away disables the raid's debuffs with
+  `Target.DisableRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through
+  `Encounter.ScheduleAddRaidDebuffs` or at times of its own, which runs each one's `OnReset` again, so Sunder Armor ramps
+  up anew. A held target's reset skips those `OnReset`s. Every target's hold clears as the sim's reset starts, and the
+  boss's reset, which runs before its add's, holds the add again. A landing due while the sim resets, before the
+  target's own reset, only releases the hold, so that reset puts the debuffs on before the raid's reset reads them. A
+  raid debuff on a timer of its own (`scheduledAura` in `sim/core/buffs/drivers.go`) ticks nothing on a held target,
+  and each landing replaces the schedule still running. A player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in

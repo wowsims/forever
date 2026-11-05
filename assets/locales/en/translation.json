@@ -1038,6 +1038,18 @@
 					"label": "Kill share %",
 					"tooltip": "Chance that a despawning add counts as your kill (on-kill effects)."
 				},
+				"apply_debuffs_to_adds": {
+					"label": "Apply debuffs to adds",
+					"tooltip": "Whether the add(s) get the debuffs from the Debuffs panel. Your own debuffs land as you cast them."
+				},
+				"debuff_delay": {
+					"label": "Debuff delay",
+					"tooltip": "Time after each spawn before the add(s) get the debuffs from the Debuffs panel (in seconds)"
+				},
+				"debuff_jitter": {
+					"label": "Debuff jitter",
+					"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds). The debuffs never land before the spawn."
+				},
 				"fear_duration": {
 					"label": "Fear Duration",
 					"tooltip": "Time (in seconds) that Fear keeps players from acting. Fear lasts 8s, but is usually broken after ~3s. Set to 0 to disable."

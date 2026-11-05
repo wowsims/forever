@@ -156,6 +156,10 @@ type Target struct {
 
 	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
+
+	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
+	raidDebuffs        []*Aura       // The target's auras with SourceExternalDebuff, gathered at their first hold or landing.
+	aurasReset         bool          // Whether the target's reset has run in this iteration.
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {
@@ -183,6 +187,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			enabled:               !options.DisabledAtStart,
 		},
 	}
+	target.raidDebuffsLanding = PendingAction{Priority: ActionPriorityDOT, OnAction: target.landRaidDebuffs, consumed: true}
 	defaultRaidBossLevel := int32(CharacterLevel + 3)
 	target.GCD = target.NewTimer()
 	target.RotationTimer = target.NewTimer()
@@ -224,6 +229,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 
 func (target *Target) Reset(sim *Simulation) {
 	target.Unit.reset(sim, nil)
+	target.aurasReset = true
 	target.CurrentTarget = target.defaultTarget
 
 	if !target.IsEnabled() && (target.CurrentTarget != nil) {

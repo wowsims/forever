@@ -109,6 +109,24 @@ func dynamicAddsTargetInputs() []*proto.TargetInput {
 			InputType:   proto.InputType_Number,
 			NumberValue: dynamicAddKillSharePercent,
 		},
+		{
+			Label:     "Apply debuffs to adds",
+			Tooltip:   "Whether the add(s) get the debuffs from the Debuffs panel. Your own debuffs land as you cast them.",
+			InputType: proto.InputType_Bool,
+			BoolValue: true,
+		},
+		{
+			Label:     "Debuff delay",
+			Tooltip:   "Time after each spawn before the add(s) get the debuffs from the Debuffs panel (in seconds)",
+			InputType: proto.InputType_Number,
+			ShownBy:   "Apply debuffs to adds",
+		},
+		{
+			Label:     "Debuff jitter",
+			Tooltip:   "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds). The debuffs never land before the spawn.",
+			InputType: proto.InputType_Number,
+			ShownBy:   "Apply debuffs to adds",
+		},
 	}
 }
 
@@ -121,8 +139,8 @@ func makeDynamicAddsAI(isBoss bool) core.AIFactory {
 }
 
 type DynamicAddsAI struct {
-	Target   *core.Target
-	AddUnits []*core.Unit // Every target after the first; the boss spawns and despawns them.
+	Target     *core.Target
+	AddTargets []*core.Target // Every target after the first; the boss spawns and despawns them.
 
 	// Static parameters associated with a given preset
 	isBoss bool
@@ -132,6 +150,10 @@ type DynamicAddsAI struct {
 	spawnDelay  time.Duration
 	killShare   float64 // 0..1, the chance the raid gets the kill of each despawning add.
 
+	applyDebuffs bool // Whether the adds get the raid's debuffs, debuffDelay ± debuffJitter after each spawn; on for a boss saved without the input.
+	debuffDelay  time.Duration
+	debuffJitter time.Duration
+
 	lifeStartAt time.Duration // The start of the adds' current life, or of their next one while they are down.
 }
 
@@ -139,10 +161,10 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 	ai.Target = target
 	ai.Target.AutoAttacks.MHConfig().ActionID.Tag = core.TernaryInt32(ai.isBoss, dynamicBossID, dynamicAddID)
 
-	ai.AddUnits = target.Env.Encounter.AllTargetUnits[1:]
+	ai.AddTargets = target.Env.Encounter.AllTargets[1:]
 
 	if ai.isBoss {
-		for _, addTarget := range target.Env.Encounter.AllTargets[1:] {
+		for _, addTarget := range ai.AddTargets {
 			addTarget.Schedule = ai
 		}
 	}
@@ -157,6 +179,13 @@ func (ai *DynamicAddsAI) Initialize(target *core.Target, config *proto.Target) {
 		killSharePercent = config.TargetInputs[3].NumberValue
 	}
 	ai.killShare = core.Clamp(killSharePercent/100, 0, 1)
+
+	ai.applyDebuffs = true
+	if ai.isBoss && len(config.TargetInputs) >= 7 {
+		ai.applyDebuffs = config.TargetInputs[4].BoolValue
+		ai.debuffDelay = core.DurationFromSeconds(max(config.TargetInputs[5].NumberValue, 0))
+		ai.debuffJitter = core.DurationFromSeconds(max(config.TargetInputs[6].NumberValue, 0))
+	}
 }
 
 func (ai *DynamicAddsAI) NextActiveAt(_ *core.Simulation) time.Duration {
@@ -171,12 +200,13 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 	ai.Target.AutoAttacks.RandomizeMeleeTiming(sim)
 
 	// An encounter can hold the add without the boss, or the boss without an add: then there is nothing to spawn.
-	if !ai.isBoss || len(ai.AddUnits) == 0 {
+	if !ai.isBoss || len(ai.AddTargets) == 0 {
 		return
 	}
 
-	for _, addTarget := range ai.AddUnits {
-		sim.DisableTargetUnit(addTarget, true)
+	for _, addTarget := range ai.AddTargets {
+		addTarget.Disable(sim, true)
+		addTarget.DisableRaidDebuffs(sim)
 	}
 
 	if ai.spawnDelay > 0 {
@@ -194,12 +224,13 @@ func (ai *DynamicAddsAI) Reset(sim *core.Simulation) {
 }
 
 func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
-	for _, addUnit := range ai.AddUnits {
-		sim.EnableTargetUnit(addUnit)
+	for _, addTarget := range ai.AddTargets {
+		addTarget.Enable(sim)
+		sim.Encounter.ScheduleAddRaidDebuffs(sim, addTarget, ai.applyDebuffs, ai.debuffDelay, ai.debuffJitter)
 	}
 
 	if sim.Log != nil {
-		sim.Log("Spawned %d adds at %s.", len(ai.AddUnits), sim.CurrentTime)
+		sim.Log("Spawned %d adds at %s.", len(ai.AddTargets), sim.CurrentTime)
 	}
 
 	ai.lifeStartAt = sim.CurrentTime
@@ -213,12 +244,13 @@ func (ai *DynamicAddsAI) spawnAdds(sim *core.Simulation) {
 }
 
 func (ai *DynamicAddsAI) despawnAdds(sim *core.Simulation) {
-	for _, addUnit := range ai.AddUnits {
-		sim.Encounter.AllTargets[addUnit.Index].Die(sim, ai.killShare)
+	for _, addTarget := range ai.AddTargets {
+		addTarget.Die(sim, ai.killShare)
+		addTarget.DisableRaidDebuffs(sim)
 	}
 
 	if sim.Log != nil {
-		sim.Log("Despawned %d adds at %s.", len(ai.AddUnits), sim.CurrentTime)
+		sim.Log("Despawned %d adds at %s.", len(ai.AddTargets), sim.CurrentTime)
 	}
 
 	// Only schedule next spawn if there is a respawn time
