@@ -3648,8 +3648,8 @@
 	},
 	"saved_data_transfer": {
 		"menu_label": "Import or export",
-		"export": "Export",
-		"import": "Import",
+		"export": "Export {{type}}",
+		"import": "Import {{type}}",
 		"export_title": "Export saved {{type}}",
 		"import_title": "Import saved {{type}}",
 		"export_empty": "No saved {{type}} to export",

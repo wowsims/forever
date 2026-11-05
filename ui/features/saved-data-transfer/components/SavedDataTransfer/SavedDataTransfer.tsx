@@ -34,9 +34,10 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 
 	const close = () => setOpen(null);
 	const menuLabel = i18n.t('saved_data_transfer.menu_label');
+	const typeName = i18n.t(`saved_data_transfer.types.${type}`);
 	const nothingSaved = storage.entries.length === 0;
 	// The item stays, off, and says why on hover and to a screen reader; a disabled menu item keeps its pointer events.
-	const exportEmpty = i18n.t('saved_data_transfer.export_empty', { type: i18n.t(`saved_data_transfer.types.${type}`) });
+	const exportEmpty = i18n.t('saved_data_transfer.export_empty', { type: typeName });
 
 	return (
 		<>
@@ -48,7 +49,7 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 				side="bottom"
 				align="end">
 				<MenuItem layout="block" testId="saved-data-transfer-import" onClick={() => setOpen('import')}>
-					{i18n.t('saved_data_transfer.import')}
+					{i18n.t('saved_data_transfer.import', { type: typeName })}
 				</MenuItem>
 				<MenuItem
 					layout="block"
@@ -60,7 +61,7 @@ export const SavedDataTransfer = <T,>({ type, label, storage, presets }: SavedDa
 						setOpen('export');
 						trackEvent({ action: 'settings', category: 'export', label });
 					}}>
-					{i18n.t('saved_data_transfer.export')}
+					{i18n.t('saved_data_transfer.export', { type: typeName })}
 				</MenuItem>
 			</Menu>
 			<Tooltip id={tooltipId} content={menuLabel} />

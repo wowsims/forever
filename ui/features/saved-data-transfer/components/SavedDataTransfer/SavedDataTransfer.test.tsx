@@ -205,7 +205,7 @@ describe('SavedDataTransfer', () => {
 			fireEvent.click(screen.getByTestId('saved-data-transfer-button'));
 			const item = await screen.findByTestId('saved-data-transfer-export');
 
-			expect(item.textContent).toBe('Export');
+			expect(item.textContent).toBe('Export gear sets');
 			expect(item.hasAttribute('data-disabled')).toBe(true);
 			expect(item.getAttribute('data-tooltip-content')).toBe('No saved gear sets to export');
 			expect(document.getElementById(item.getAttribute('aria-describedby')!)?.textContent).toBe('No saved gear sets to export');
