@@ -8,11 +8,8 @@ import (
 var shieldBashRank = spellData.ShieldBash.Highest()
 
 func (warrior *Warrior) registerShieldBash() {
-	// TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
+	// TODO: Ingame test needed -- Rank 1's logs fit 1.5 times the damage as well as the store's flat bonus.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
-
-	// TODO: In-game test required
-	config.FlatThreatBonus = 0
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := shieldBashRank.DamageEffect().Roll(sim)
