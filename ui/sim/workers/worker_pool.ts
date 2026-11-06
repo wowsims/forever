@@ -371,7 +371,7 @@ class SimWorker {
 		this.worker = new Worker(SIM_WORKER_URL);
 
 		this.worker.addEventListener('message', ({ data }: MessageEvent<WorkerSendMessage>) => {
-			const { id, msg, outputData, error } = data;
+			const { id, msg, outputData, error, stopped } = data;
 			switch (msg) {
 				case 'ready':
 					this.wasmWorker = !!outputData && !!outputData[0];
@@ -410,11 +410,34 @@ class SimWorker {
 					delete this.taskIdsToPromiseFuncs[id];
 					if (error) {
 						promiseFuncs[1](new Error(error));
+					} else if (!(outputData instanceof Uint8Array)) {
+						promiseFuncs[1](new Error(`Worker ${this.workerId} answered ${msg} with no result`));
+					} else {
+						promiseFuncs[0](outputData);
 						return;
 					}
-					promiseFuncs[0](outputData);
+					if (stopped || !(outputData instanceof Uint8Array)) {
+						this.restart(error || `no result for ${msg}`);
+					}
 			}
 		});
+	}
+
+	// Terminates the worker and starts a fresh one in its slot, failing every request still waiting on it: a sim
+	// runtime that has stopped answers none of them.
+	private restart(reason: string) {
+		const waiting = Object.entries(this.taskIdsToPromiseFuncs);
+		this.taskIdsToPromiseFuncs = {};
+		for (const id of Object.keys(this.simTasksRunning)) delete this.simTasksRunning[id];
+		this.worker?.terminate();
+		delete this.worker;
+		delete this.onReady;
+		delete this.resolveReady;
+		this.log(`Restarted: ${reason}`);
+		if (!this.shouldDestroy) this.setupWorker();
+		for (const [id, [, reject]] of waiting) {
+			reject(new Error(`Worker ${this.workerId} stopped before answering ${id}: ${reason}`));
+		}
 	}
 
 	/** Add sim work amount (iterations) used for load balancing. */

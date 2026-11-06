@@ -45,11 +45,21 @@ export class WorkerInterface {
 
 			try {
 				const outputData = await handlerFunc(inputData, progressCallback, id, msg);
+				// A Go runtime that has exited, after a panic no handler recovers, answers every call with
+				// undefined: this request is lost and so is every later one on this worker.
+				if (!(outputData instanceof Uint8Array)) {
+					const error = `The sim worker answered ${msg} with no result; its sim runtime has stopped.`;
+					console.error(error);
+					this.postMessage({ msg, id, outputData: new Uint8Array(), error, stopped: true });
+					return;
+				}
 				this.postMessage({ msg, id, outputData });
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
 				console.error(errorMessage);
-				this.postMessage({ msg, id, outputData: new Uint8Array(), error: errorMessage });
+				// wasm_exec.js throws this for every call after the Go runtime has exited.
+				const stopped = errorMessage.includes('Go program has already exited');
+				this.postMessage({ msg, id, outputData: new Uint8Array(), error: errorMessage, stopped });
 			}
 		});
 	}
