@@ -1073,14 +1073,18 @@ var ConsumableDenyList = []int32{
 }
 
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
-// table, and these items share no aura with their group and no category whose cooldown outlasts
-// their buffs. A consumable named here takes this group instead of the one its rows give it.
+// table, the rows group by aura only elixirs and scrolls, and these items share no category whose
+// cooldown outlasts their buffs. A consumable named here takes this group instead of the one its
+// rows give it.
 var ConsumableExclusiveGroups = []ConsumableGroup{
 	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
 		12451, // Juju Power
 	}},
 	{Group: ElixirGroup(dbcenums.A_MOD_ATTACK_POWER, 0), Items: []int32{
 		12460, // Juju Might
+	}},
+	{Group: ElixirGroup(dbcenums.A_MOD_DAMAGE_DONE, 1), Items: []int32{
+		5206, // Bogling Root
 	}},
 	{Group: ConsumableGroupKey{Key: "Zanza", Name: "Zanza"}, Items: []int32{
 		8410,  // R.O.I.D.S.
