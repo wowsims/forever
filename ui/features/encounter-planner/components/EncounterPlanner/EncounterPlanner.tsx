@@ -314,10 +314,17 @@ export const EncounterPlanner = ({ open, onOpenChange, replaced, showExecuteProp
 	};
 
 	const selectTarget = (index: number) => setSelected({ kind: 'target', index });
-	const addTarget = () => {
-		targetList.create();
+	const appendTarget = (target: Target) => {
+		targetList.append({
+			...target,
+			name: uniqueEncounterName(
+				target.name,
+				targets.map(({ name }) => name),
+			),
+		});
 		selectTarget(targets.length);
 	};
+	const addTarget = () => appendTarget(TARGET_LIST.newItem());
 	const selectedIndex = selected?.kind === 'target' ? selected.index : undefined;
 	const targetFields = useMemo(() => {
 		if (selectedIndex === undefined) return undefined;
@@ -335,10 +342,7 @@ export const EncounterPlanner = ({ open, onOpenChange, replaced, showExecuteProp
 			targetList.move(index, direction < 0 ? index - 1 : index + 2);
 			selectTarget(index + direction);
 		},
-		onCopy: () => {
-			targetList.append(Target.clone(target));
-			selectTarget(targets.length);
-		},
+		onCopy: () => appendTarget(Target.clone(target)),
 		onRemove: () => {
 			targetList.remove(index);
 			setSelected(undefined);

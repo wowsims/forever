@@ -102,7 +102,8 @@ export const npcConfig = ({ encounter, targetIndex, idPrefix, getTarget }: Encou
 		label: i18n.t('settings_tab.encounter.npc.label'),
 		labelTooltip: i18n.t('settings_tab.encounter.npc.tooltip'),
 		values: [{ name: i18n.t('common.custom'), value: -1 }].concat(presetTargets.map((preset, index) => ({ name: preset.path, value: index }))),
-		getValue: () => presetTargets.findIndex(preset => TargetProto.equals(getTarget(), preset.target)),
+		// A target keeps its NPC under a name of its own, as the planner's "Raid Target (2)".
+		getValue: () => presetTargets.findIndex(preset => !!preset.target && TargetProto.equals({ ...getTarget(), name: preset.target.name }, preset.target)),
 		setValue: (_: null, newValue: number) => {
 			if (newValue === -1) return;
 			const preset = presetTargets[newValue];

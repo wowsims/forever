@@ -699,7 +699,7 @@ describe('EncounterPlanner', () => {
 			expect(barsOn(within(lane('Targets')).getAllByRole('group')[0])).toEqual(['Downtime 1']);
 
 			await act(async () => fireEvent.click(within(targetPanel('Target 2')).getByRole('button', { name: 'Duplicate' })));
-			expect(rows()).toEqual(['Target 2', 'Target 1', 'Target 2']);
+			expect(rows()).toEqual(['Target 2', 'Target 1', 'Target 2 (2)']);
 			expect(
 				within(lane('Targets'))
 					.getAllByRole('group')
@@ -764,7 +764,7 @@ describe('EncounterPlanner', () => {
 			expect((within(panel).getByRole('button', { name: 'Move down' }) as HTMLButtonElement).disabled).toBe(false);
 		});
 
-		it("adds a target from the lane's +, moves it up and copies it, and the plan keeps naming the target it named", async () => {
+		it("adds a target from the lane's +, moves it up and copies it under a free name, and the plan keeps naming the target it named", async () => {
 			const { encounter } = await setup({ targets: 2, plan: downtimeOn(1) });
 			await openPlanner();
 
@@ -778,12 +778,29 @@ describe('EncounterPlanner', () => {
 			expect(targetPanel('Raid Target')).toBeTruthy();
 
 			await act(async () => fireEvent.click(within(targetPanel('Raid Target')).getByRole('button', { name: 'Duplicate' })));
-			expect(encounter.getTargets().map(target => target.name)).toEqual(['Target 1', 'Raid Target', 'Target 2', 'Raid Target']);
+			expect(encounter.getTargets().map(target => target.name)).toEqual(['Target 1', 'Raid Target', 'Target 2', 'Raid Target (2)']);
 			expect(encounter.getTargets()[3]).not.toBe(encounter.getTargets()[1]);
-			expect(within(lane('Targets')).getAllByRole('button', { name: 'Raid Target' })[1].getAttribute('aria-pressed')).toBe('true');
+			expect(within(lane('Targets')).getByRole('button', { name: 'Raid Target (2)' }).getAttribute('aria-pressed')).toBe('true');
+
+			await act(async () => fireEvent.click(within(lane('Targets')).getByRole('button', { name: 'Add Target' })));
+			expect(encounter.getTargets()[4].name).toBe('Raid Target (3)');
 
 			await clickButton('Save');
 			expect(encounter.getPlan().downtimes.map(downtime => downtime.targetIndex)).toEqual([2]);
+		});
+
+		it("renames a target from its Name field, and its row follows while its NPC stays the preset's", async () => {
+			const { encounter } = await setup();
+			act(() => encounter.setTargets([Target.clone(ADD.target!)]));
+			await openPlanner();
+			await selectTarget('Son of Flame');
+			await act(async () => fireEvent.click(within(targetPanel('Son of Flame')).getByRole('button', { name: 'Duplicate' })));
+			expect(within(targetPanel('Son of Flame (2)')).getByLabelText('NPC').textContent).toContain('Molten Core/Son of Flame');
+
+			await commit(within(targetPanel('Son of Flame (2)')).getByLabelText('Name') as HTMLInputElement, 'Second flame');
+			expect(encounter.getTargets()[1].name).toBe('Second flame');
+			expect(within(lane('Targets')).getByRole('button', { name: 'Second flame' }).getAttribute('aria-pressed')).toBe('true');
+			expect(within(targetPanel('Second flame')).getByLabelText('NPC').textContent).toContain('Molten Core/Son of Flame');
 		});
 
 		// The fields read the target the panel shows, so a new selection or a move with no store write between shows the right one.

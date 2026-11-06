@@ -90,6 +90,16 @@ export const PlannerEventPanel = ({
 						{plannerText('menu.duplicate')}
 					</Button>
 				</div>
+				<StringField
+					id={`${targetEditor.idPrefix}-name`}
+					label={plannerText('fields.name')}
+					value={targetEditor.target.name}
+					onChange={value =>
+						targetEditor.onModify(target => {
+							target.name = value;
+						})
+					}
+				/>
 				<PlannerAddStats
 					target={targetEditor.target}
 					identity={targetEditor.identity}
