@@ -772,6 +772,10 @@ func (character *Character) GetMatchingItemProcAuras(statTypesToMatch []stats.St
 // Uses proto reflection to set fields in a talents proto (e.g. MageTalents,
 // WarriorTalents) based on a talentsStr. The character keeps every talent with points in it, which
 // TalentRank and the unit metadata read.
+//
+// A digit above the talent's talent_max_rank is capped there, and any digit above 0 takes a
+// one-point talent: a string saved before a tree was reworked can put five points where the talent
+// now takes three, and the class reads the field as a rank of the talent's ladder.
 func (character *Character) FillTalentsProto(data protoreflect.Message, talentsStr string, treeSizes [3]int) {
 	treeStrs := strings.Split(talentsStr, "-")
 	fieldDescriptors := data.Descriptor().Fields()
@@ -788,9 +792,12 @@ func (character *Character) FillTalentsProto(data protoreflect.Message, talentsS
 			}
 			rank := int32(talentVal)
 			if fd.Kind() == protoreflect.BoolKind {
-				rank = TernaryInt32(talentVal == 1, 1, 0)
+				rank = TernaryInt32(talentVal >= 1, 1, 0)
 				data.Set(fd, protoreflect.ValueOfBool(rank == 1))
 			} else { // Int32Kind
+				if maxRank := googleproto.GetExtension(fd.Options(), proto.E_TalentMaxRank).(int32); maxRank > 0 {
+					rank = min(rank, maxRank)
+				}
 				data.Set(fd, protoreflect.ValueOfInt32(rank))
 			}
 			if spellID := googleproto.GetExtension(fd.Options(), proto.E_TalentSpellId).(int32); spellID != 0 && rank > 0 {

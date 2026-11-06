@@ -69,3 +69,9 @@ func TestSanctifiedJudgementReturnsSealMana(t *testing.T) {
 		t.Errorf("Judgement returned %.3f mana, want %.3f (seal base cost %.0f)", refund, want, baseCost)
 	}
 }
+
+// A talents string with more points in Sanctified Judgement than it takes builds the talent at its
+// top rank instead of panicking on a rank its ladder does not have.
+func TestSanctifiedJudgementOverItsRanksBuildsAtTheTopRank(t *testing.T) {
+	judgeSealOfRighteousness(t, "050250002-501-05235011201301351")
+}
