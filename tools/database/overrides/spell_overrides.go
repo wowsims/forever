@@ -54,8 +54,8 @@ const (
 	// Fails when the game files state a BonusCoefficientFromAP there.
 	APCoefThreat
 
-	// A flat threat bonus of Value times the spell's level, onto Spell.FlatThreat, for a family whose
-	// ranks scale their threat with their level. Fails like FlatThreat, and beside a FlatThreat
+	// A flat threat bonus of Value times the spell's level, onto Spell.FlatThreat, for a rank that
+	// carries a measured rank's share per spell level. Fails like FlatThreat, and beside a FlatThreat
 	// override on the same spell.
 	ThreatPerSpellLevel
 
@@ -589,108 +589,132 @@ var Spells = []Override{
 		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
 	},
 
-	// Heroic Strike and Cleave add threat beyond their damage in proportion to the rank's spell level,
-	// as Sunder Armor's game files threat does (34 to 206, 3.4 to 3.55 per level), and none with
-	// Attack Power: Heroic Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is
-	// multiplied by the stance with the damage, and Cleave splits it between the targets it hits.
-	// Ranks not measured carry the measured share.
+	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power: Heroic
+	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
+	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
+	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's share per level.
+	// Each rank's bonus is a whole number: a measured bonus and a share times the spell level round to
+	// the nearest one.
 	{
 		SpellID: 78,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 1 in game.
-		Reason:  "Heroic Strike Rank 1: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   17,
+		Reason:  "Heroic Strike Rank 1: threat is the damage + 16.6, times the stance",
+		Source:  "threat capture, Heroic Strike Rank 1, 2026-11-06",
 	},
 	{
 		SpellID: 284,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 2 in game.
-		Reason:  "Heroic Strike Rank 2: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   28,
+		Reason:  "Heroic Strike Rank 2: threat is the damage + 27.6, times the stance",
+		Source:  "threat capture, Heroic Strike Rank 2, 2026-11-06",
 	},
 	{
 		SpellID: 285,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54,
-		Reason:  "Heroic Strike Rank 3: threat is the damage + 40 to 40.6 at spell level 16, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 3, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   40,
+		Reason:  "Heroic Strike Rank 3: threat is the damage + 40, times the stance",
+		Source:  "threat capture, Heroic Strike Rank 3, 2026-11-06",
 	},
 	{
 		SpellID: 1608,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54,
-		Reason:  "Heroic Strike Rank 4: threat is the damage + 61 at spell level 24, times the stance",
+		Field:   FlatThreat,
+		Value:   61,
+		Reason:  "Heroic Strike Rank 4: threat is the damage + 61, times the stance",
 		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 11564,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 5 in game.
-		Reason:  "Heroic Strike Rank 5: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   81, // TODO: Measure Heroic Strike Rank 5 in game.
+		Reason:  "Heroic Strike Rank 5: Rank 4's measured share per spell level",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 11565,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 6 in game.
-		Reason:  "Heroic Strike Rank 6: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   102, // TODO: Measure Heroic Strike Rank 6 in game.
+		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 11566,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 7 in game.
-		Reason:  "Heroic Strike Rank 7: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   122, // TODO: Measure Heroic Strike Rank 7 in game.
+		Reason:  "Heroic Strike Rank 7: Rank 4's measured share per spell level",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 11567,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 8 in game.
-		Reason:  "Heroic Strike Rank 8: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   142, // TODO: Measure Heroic Strike Rank 8 in game.
+		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 25286,
-		Field:   ThreatPerSpellLevel,
-		Value:   2.54, // TODO: Measure Heroic Strike Rank 9 in game.
-		Reason:  "Heroic Strike Rank 9: Ranks 3 and 4's measured share",
-		Source:  "threat capture, Heroic Strike Ranks 3 and 4, 2026-10-07",
+		Field:   FlatThreat,
+		Value:   152, // TODO: Measure Heroic Strike Rank 9 in game.
+		Reason:  "Heroic Strike Rank 9: Rank 4's measured share per spell level",
+		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
 	},
 	{
 		SpellID: 845,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.53, // TODO: Measure Cleave Rank 1 in game.
+		Field:   FlatThreat,
+		Value:   31, // TODO: Measure Cleave Rank 1 in game.
 		Reason:  "Cleave Rank 1: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 	{
 		SpellID: 7369,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.53,
+		Field:   FlatThreat,
+		Value:   46,
 		Reason:  "Cleave Rank 2: adds ~46 beyond its damage at spell level 30 on one target, ~23 on each of two, times the stance",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 	{
 		SpellID: 11608,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.53, // TODO: Measure Cleave Rank 3 in game.
+		Field:   FlatThreat,
+		Value:   61, // TODO: Measure Cleave Rank 3 in game.
 		Reason:  "Cleave Rank 3: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 	{
 		SpellID: 11609,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.53, // TODO: Measure Cleave Rank 4 in game.
+		Field:   FlatThreat,
+		Value:   77, // TODO: Measure Cleave Rank 4 in game.
 		Reason:  "Cleave Rank 4: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 	{
 		SpellID: 20569,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.53, // TODO: Measure Cleave Rank 5 in game.
+		Field:   FlatThreat,
+		Value:   92, // TODO: Measure Cleave Rank 5 in game.
 		Reason:  "Cleave Rank 5: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+
+	// Shield Bash adds flat threat beyond its damage, times the stance.
+	{
+		SpellID: 72,
+		Field:   FlatThreat,
+		Value:   2,
+		Reason:  "Shield Bash Rank 1: threat is the damage + 2, times the stance",
+		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
+	},
+	{
+		SpellID: 1671,
+		Field:   FlatThreat,
+		Value:   2, // TODO: Measure Shield Bash Rank 2 in game.
+		Reason:  "Shield Bash Rank 2: Rank 1's measured bonus",
+		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
+	},
+	{
+		SpellID: 1672,
+		Field:   FlatThreat,
+		Value:   2, // TODO: Measure Shield Bash Rank 3 in game.
+		Reason:  "Shield Bash Rank 3: Rank 1's measured bonus",
+		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
 	},
 }
 
