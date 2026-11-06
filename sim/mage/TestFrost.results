@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 705.73426
+  tps: 651.51603
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 770.14465
@@ -100,6 +107,13 @@ dps_results: {
  value: {
   dps: 748.32654
   tps: 690.0479
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 705.20199
+  tps: 651.25754
  }
 }
 dps_results: {
@@ -447,6 +461,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-HanzoSword-8190"
+ value: {
+  dps: 770.14465
+  tps: 709.69407
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Hazza'rah'sCharmofMagic-19959"
  value: {
   dps: 705.20199
@@ -482,10 +503,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 770.14465
+  tps: 709.69407
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-KissoftheSpider-22954"
  value: {
   dps: 731.33776
   tps: 674.64269
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 766.24792
+  tps: 705.44129
  }
 }
 dps_results: {
@@ -594,6 +629,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 770.14465
+  tps: 709.69407
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 705.20199
@@ -678,6 +720,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 708.81161
+  tps: 654.5062
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-VestmentsoftheDevout"
  value: {
   dps: 749.22916
@@ -696,6 +745,13 @@ dps_results: {
  value: {
   dps: 718.82328
   tps: 663.5167
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-Witchfury-13051"
+ value: {
+  dps: 770.14465
+  tps: 709.69407
  }
 }
 dps_results: {

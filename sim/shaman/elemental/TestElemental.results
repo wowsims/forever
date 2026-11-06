@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 729.35795
+  tps: 686.49519
+  dtps: 9.35171
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Annihilator-12798"
  value: {
   dps: 736.56311
@@ -155,6 +163,14 @@ dps_results: {
   dps: 719.69215
   tps: 678.47328
   dtps: 9.15345
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 728.7452
+  tps: 685.92461
+  dtps: 9.18278
  }
 }
 dps_results: {
@@ -559,6 +575,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 736.56311
+  tps: 693.48227
+  dtps: 9.15345
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-GryphonRider'sStormhammer-9651"
  value: {
   dps: 652.8797
@@ -612,6 +636,14 @@ dps_results: {
   dps: 728.7452
   tps: 685.92461
   dtps: 9.18278
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 736.56311
+  tps: 693.48227
+  dtps: 9.15345
  }
 }
 dps_results: {
@@ -911,6 +943,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TheGreenTower-1204"
+ value: {
+  dps: 733.16073
+  tps: 689.35434
+  dtps: 8.48762
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 693.00196
@@ -999,11 +1039,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 732.34988
+  tps: 689.12854
+  dtps: 9.18278
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-VestmentsoftheDevout"
  value: {
   dps: 650.85969
   tps: 622.89559
   dtps: 6.64827
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-VileProtector-7747"
+ value: {
+  dps: 733.16073
+  tps: 689.35434
+  dtps: 8.48762
  }
 }
 dps_results: {

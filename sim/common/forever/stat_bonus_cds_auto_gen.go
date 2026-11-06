@@ -10,6 +10,8 @@ import (
 func RegisterAllOnUseCds() {
 
 	//
+	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
+	// shared.NewSimpleStatActive(1404) // Tidal Charm - https://www.wowhead.com/forever/spell=835
 	// unsupported: 14530 deals no damage and heals no one (A_MOD_INCREASE_SPEED)
 	// shared.NewSimpleStatActive(2820) // Nifty Stopwatch - https://www.wowhead.com/forever/spell=14530
 	// unsupported: 1317740 deals no damage and heals no one (E_DUMMY)
@@ -21,6 +23,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(7189) // Goblin Rocket Boots - https://www.wowhead.com/forever/spell=8892
 	// unsupported: 9175 deals no damage and heals no one (A_MOD_INCREASE_SPEED)
 	// shared.NewSimpleStatActive(7391) // Swift Boots - https://www.wowhead.com/forever/spell=9175
+	// unsupported: 14537 deals no damage and heals no one (E_DUMMY)
+	// shared.NewSimpleStatActive(7734) // Six Demon Bag - https://www.wowhead.com/forever/spell=14537
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
 	// shared.NewSimpleStatActive(10518) // Parachute Cloak - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
@@ -69,6 +73,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(277844) // Mirage Mirror - https://www.wowhead.com/forever/spell=1302833
 
 	// Absorbs
+	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
+	shared.NewSpellDataAbsorbOnUse(2802) // Blazing Emblem - https://www.wowhead.com/forever/spell=13744
 	// on use: 10618 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(8367) // Dragonscale Breastplate - https://www.wowhead.com/forever/spell=10618
 	// on use: 12561 (A_SCHOOL_ABSORB)
@@ -203,6 +209,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(23046) // The Restrained Essence of Sapphiron - https://www.wowhead.com/forever/spell=28779
 
 	// Heals
+	// on use: 1317424 (E_HEAL)
+	shared.NewSpellDataHealOnUse(1713) // Ankh of Life - https://www.wowhead.com/forever/spell=1317424
 	// on use: 10577 (E_HEAL)
 	shared.NewSpellDataHealOnUse(8346) // Gauntlets of the Sea - https://www.wowhead.com/forever/spell=10577
 	// on use: 18957 (A_PERIODIC_HEAL)
@@ -213,6 +221,9 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataHealOnUse(16768) // Furbolg Medicine Pouch - https://www.wowhead.com/forever/spell=20631
 	// on use: 23064 (E_HEAL); not simulated: E_DISPEL_MECHANIC, E_ENERGIZE
 	shared.NewSpellDataHealOnUse(18637) // Major Recombobulator - https://www.wowhead.com/forever/spell=23064
+
+	// MP5
+	shared.NewSimpleStatActive(4696) // Lapidis Tankard of Tidesippe - https://www.wowhead.com/forever/spell=1135
 
 	// Resources
 	// on use: 9174 (E_ENERGIZE)
@@ -231,10 +242,14 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(23027) // Warmth of Forgiveness - https://www.wowhead.com/forever/spell=28760
 
 	// Skipped
+	// Not simulated: Staff of Conjuring: "Conjure Food" (8736) - ignored effect type 24
+	// https://www.wowhead.com/forever/spell=8736
 	// Not simulated: Orb of Deception: "Orb of Deception" (16739) - ignored aura type 56
 	// https://www.wowhead.com/forever/spell=16739
 	// Not simulated: Spider Belt: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
+	// Not simulated: Enchanted Moonstalker Cloak: "Form of the Moonstalker" (6298) - ignored aura type 56
+	// https://www.wowhead.com/forever/spell=6298
 	// Not simulated: Ornate Mithril Boots: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
@@ -313,6 +328,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=23442
 	// Not simulated: Defender of the Barkskin: "Defender of the Barkskin" (1294063) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=1294063
+	// Not simulated: Graverobber's Shovel: "Dig" (1292560) - ignored effect type 24
+	// https://www.wowhead.com/forever/spell=1292560
 	// Not simulated: Greater Insignia of the Horde: "PvP Trinket" (438273) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=438273
 	// Not simulated: Greater Insignia of the Alliance: "PvP Trinket" (438273) - ignored aura type 77
