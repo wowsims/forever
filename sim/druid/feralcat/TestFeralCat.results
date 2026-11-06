@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 781.49547
+  tps: 579.21416
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 780.33933
@@ -99,6 +107,14 @@ dps_results: {
   dps: 778.23433
   tps: 577.00572
   hps: 46.39389
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
  }
 }
 dps_results: {
@@ -502,6 +518,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 783.28883
+  tps: 580.53484
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-GrovekeeperEclipse"
  value: {
   dps: 686.57233
@@ -602,6 +626,14 @@ dps_results: {
  value: {
   dps: 799.41359
   tps: 591.99027
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
   hps: 46.5125
  }
 }
@@ -919,6 +951,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralCat-AllItems-ToySoldier-274386"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Uther'sStrength-11302"
  value: {
   dps: 780.33933
   tps: 578.4399

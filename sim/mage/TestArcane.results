@@ -68,6 +68,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 728.34484
+  tps: 628.02282
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 769.08951
@@ -100,6 +107,13 @@ dps_results: {
  value: {
   dps: 740.5828
   tps: 635.87378
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 723.58221
+  tps: 623.08457
  }
 }
 dps_results: {
@@ -447,6 +461,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-HanzoSword-8190"
+ value: {
+  dps: 769.08951
+  tps: 661.35817
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Hazza'rah'sCharmofMagic-19959"
  value: {
   dps: 726.01724
@@ -482,10 +503,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 769.08951
+  tps: 661.35817
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-KissoftheSpider-22954"
  value: {
   dps: 740.27182
   tps: 638.37206
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 759.96433
+  tps: 651.64805
  }
 }
 dps_results: {
@@ -594,6 +629,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 769.08951
+  tps: 661.35817
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 723.58221
@@ -678,6 +720,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 726.57918
+  tps: 625.51788
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-VestmentsoftheDevout"
  value: {
   dps: 750.25051
@@ -696,6 +745,13 @@ dps_results: {
  value: {
   dps: 737.40265
   tps: 634.55787
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-Witchfury-13051"
+ value: {
+  dps: 769.08951
+  tps: 661.35817
  }
 }
 dps_results: {

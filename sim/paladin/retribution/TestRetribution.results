@@ -63,6 +63,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 909.25097
+  tps: 740.76005
+  dtps: 3.96713
+  hps: 25.97583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 934.99769
@@ -159,6 +168,15 @@ dps_results: {
   tps: 751.35312
   dtps: 3.90034
   hps: 26.34454
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 909.25298
+  tps: 740.97621
+  dtps: 4.11491
+  hps: 25.97583
  }
 }
 dps_results: {
@@ -576,12 +594,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 937.74155
+  tps: 764.06003
+  dtps: 4.34794
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Gri'lek'sCharmofValor-19952"
  value: {
   dps: 909.80244
   tps: 741.43785
   dtps: 4.2114
   hps: 25.97838
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-GrimReaper-13054"
+ value: {
+  dps: 934.99769
+  tps: 761.87106
+  dtps: 4.34794
+  hps: 26.72868
  }
 }
 dps_results: {
@@ -1152,6 +1188,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 911.6864
+  tps: 742.94502
+  dtps: 4.2114
+  hps: 25.97583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-VestmentsoftheDevout"
  value: {
   dps: 786.36736
@@ -1185,6 +1230,15 @@ dps_results: {
   tps: 650.69345
   dtps: 3.1149
   hps: 24.80921
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Witchfury-13051"
+ value: {
+  dps: 934.99769
+  tps: 761.87106
+  dtps: 4.34794
+  hps: 26.72868
  }
 }
 dps_results: {

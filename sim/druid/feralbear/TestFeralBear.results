@@ -127,6 +127,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 499.31039
+  tps: 1907.90552
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 496.51547
@@ -160,6 +169,15 @@ dps_results: {
   tps: 1918.36699
   dtps: 397.21882
   hps: 84.23653
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 499.31039
+  tps: 1907.87552
+  dtps: 394.67386
+  hps: 84.38378
  }
 }
 dps_results: {
@@ -613,6 +631,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 513.12304
+  tps: 1951.04117
+  dtps: 393.14306
+  hps: 84.20807
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperEclipse"
  value: {
   dps: 470.74963
@@ -736,6 +763,15 @@ dps_results: {
   tps: 1907.90552
   dtps: 394.78517
   hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 510.78402
+  tps: 1942.06691
+  dtps: 393.14306
+  hps: 83.62305
  }
 }
 dps_results: {
@@ -1095,6 +1131,15 @@ dps_results: {
   dps: 499.31039
   tps: 1907.90552
   dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 499.31039
+  tps: 1907.90552
+  dtps: 392.86517
   hps: 84.38378
  }
 }
