@@ -1162,6 +1162,7 @@
 					"clears_debuffs": "Clears debuffs",
 					"school_damage": "{{school}} {{min}}–{{max}}",
 					"cast": "{{time}} cast",
+					"cast_by": "Cast by {{target}}",
 					"weapon": "{{percent}} % weapon damage",
 					"proc": "{{chance}} % proc chance",
 					"extra_attacks": "{{count}} extra attacks",
@@ -1170,6 +1171,7 @@
 					"ticks": "A tick every {{interval}}",
 					"ticks_jitter": "A tick every {{interval}} ± {{jitter}}",
 					"ticks_once": "Ticks once: the window is shorter than one interval",
+					"ticks_none": "Never ticks: the cast ends after the window",
 					"hits_all": "Hits you and every pet",
 					"resistible": "Rolls hit and resists as a spell",
 					"environmental": "Environmental: no hit or resist roll",
@@ -1253,7 +1255,9 @@
 					"tick_interval": "Tick every (s)",
 					"tick_jitter": "Tick jitter (s)",
 					"resistible": "Resistible",
-					"avoidable": "Avoidable"
+					"avoidable": "Avoidable",
+					"source": "Source",
+					"stops_swing": "Stops swing"
 				},
 				"tooltips": {
 					"jitter": "Moves the time by up to this much either way, rolled again every iteration.",
@@ -1272,10 +1276,12 @@
 					"targets": "The encounter targets the debuff lands on.",
 					"waves": "The waves whose adds the debuff lands on.",
 					"swing_speed_multiplier": "0 pauses the boss's swing for the window, above 1 hastes it.",
-					"tick_interval": "Time between ticks. The first lands at the window's start, so a window shorter than this ticks once.",
+					"tick_interval": "Time between ticks. The first lands at the window's start, or when the boss's cast ends, so a window with less than this left after that ticks once.",
 					"tick_jitter": "Moves each tick after the first by up to this much either way.",
 					"resistible": "Rolls resistances like a spell of its school; off, it's environmental damage with no roll.",
-					"avoidable": "Skips you while one of the plan's moves walks you; pets still take it."
+					"avoidable": "Skips you while one of the plan's moves walks you; pets still take it.",
+					"source": "Environment comes from no target and lands even while every target is down. Boss is cast by the chosen target, and does nothing while that target is down.",
+					"stops_swing": "The boss stops swinging while it casts and starts a full swing when the cast ends. Off, its swings go on through the cast."
 				},
 				"amp_types": {
 					"caster_buff": "Caster buff",
@@ -1289,6 +1295,10 @@
 					"swing_timing": "Swing timing",
 					"pulse": "Pulse",
 					"area_hit": "Area hit"
+				},
+				"ability_sources": {
+					"environment": "Environment",
+					"boss": "Boss"
 				},
 				"open": "Encounter planner",
 				"title": "Encounter planner",
@@ -2015,19 +2025,19 @@
 				},
 				"boss_ability_is_active": {
 					"label": "Boss Ability Is Active",
-					"tooltip": "True while a window of the named boss ability is open: a Thrash, Swing timing or Pulse. Always false for an ability that lands at instants. With a unit set, only that unit's abilities count, so a Pulse never does"
+					"tooltip": "True while a window of the named boss ability is open: a Thrash, Swing timing or Pulse. Always false for an ability that lands at instants. With a unit set, only that unit's abilities count, so an Environment Pulse never does"
 				},
 				"time_until_boss_ability": {
 					"label": "Time Until Boss Ability",
-					"tooltip": "Seconds until the named boss ability's next window or hit starts, 0 while a window of it is open. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does"
+					"tooltip": "Seconds until the named boss ability's next window or hit starts, 0 while a window of it is open. With a unit set, only that unit's abilities count, so an Environment Pulse or Area Hit never does"
 				},
 				"boss_ability_cast_time_remaining": {
 					"label": "Boss Ability Cast Time Remaining",
-					"tooltip": "Seconds left on the hardcast of the named Spell Hit, 0 while none is casting. With several casting, the one that lands first. With a unit set, only that unit's Spell Hits count"
+					"tooltip": "Seconds left on the hardcast of the named Spell Hit, or Pulse or Area Hit from the Boss, 0 while none is casting. With several casting, the one that lands first. With a unit set, only that unit's casts count"
 				},
 				"boss_ability_is_known": {
 					"label": "Boss Ability Is Known",
-					"tooltip": "True when the encounter plan has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does. A Current, Previous or Next Target is checked again each time the rotation reads it"
+					"tooltip": "True when the encounter plan has a boss ability of that name. With a unit set, only that unit's abilities count, so an Environment Pulse or Area Hit never does. A Current, Previous or Next Target is checked again each time the rotation reads it"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",

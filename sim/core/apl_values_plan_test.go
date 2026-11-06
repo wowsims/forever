@@ -289,37 +289,51 @@ func bossAbilityIsKnownConfig(name string, target *proto.UnitReference) *proto.A
 	return &proto.APLValue{Value: &proto.APLValue_BossAbilityIsKnown{BossAbilityIsKnown: &proto.APLValueBossAbilityIsKnown{AbilityName: name, TargetUnit: target}}}
 }
 
-// The time left on a spell hit's hardcast, 0 before it starts and once it lands. A name with no spell hit that
-// hardcasts reads a constant 0 with a warning.
+// The time left on the hardcast of a spell hit or a Boss area hit, 0 before it starts and once it lands. A name with
+// neither that hardcasts reads a constant 0 with a warning.
 func TestValuePlanReadsBossAbilityCastTimeRemaining(t *testing.T) {
 	const castTime = 2 * time.Second
 	fire := planAreaHit(0.2)
 	fire.Name = "Fire"
+	fire.CastTime = castTime.Seconds()
+	blaze := planBossCast(planAreaHit(0.6), castTime)
+	blaze.Name = "Blaze"
+	pyre := planBossCast(planPulse(0.8, 0.9, 1), castTime)
+	pyre.Name = "Pyre"
 	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{
 		planNamedSpellHit("Bolt", 0, 0.4, castTime),
 		fire,
 		planNamedSpellHit("Instant", 0, 0.5, 0),
+		blaze,
+		pyre,
 	}}
 	sim, fw := setupPlanSim(planTestRequest(1, plan), nil)
-	remaining := planValue(t, fw.Rotation, "Bolt", castTimeRemainingConfig("Bolt", nil))
+	bolt := planValue(t, fw.Rotation, "Bolt", castTimeRemainingConfig("Bolt", nil))
+	blazeRemaining := planValue(t, fw.Rotation, "Blaze", castTimeRemainingConfig("Blaze", nil))
+	pyreRemaining := planValue(t, fw.Rotation, "Pyre", castTimeRemainingConfig("Pyre", nil))
 
 	for _, c := range []struct {
-		name string
-		at   time.Duration
-		want time.Duration
+		name      string
+		remaining APLValue
+		at        time.Duration
+		want      time.Duration
 	}{
-		{"before the cast", planAt(0.3), 0},
-		{"during the cast", planAt(0.4) + 500*time.Millisecond, castTime - 500*time.Millisecond},
-		{"as it lands", planAt(0.4) + castTime, 0},
-		{"after it lands", planAt(0.4) + castTime + time.Second, 0},
+		{"before the cast", bolt, planAt(0.3), 0},
+		{"during the cast", bolt, planAt(0.4) + 500*time.Millisecond, castTime - 500*time.Millisecond},
+		{"as it lands", bolt, planAt(0.4) + castTime, 0},
+		{"after it lands", bolt, planAt(0.4) + castTime + time.Second, 0},
+		{"during the Boss area hit's cast", blazeRemaining, planAt(0.6) + 500*time.Millisecond, castTime - 500*time.Millisecond},
+		{"after the Boss area hit lands", blazeRemaining, planAt(0.6) + castTime, 0},
+		{"during the Boss pulse's cast", pyreRemaining, planAt(0.8) + 500*time.Millisecond, castTime - 500*time.Millisecond},
+		{"while the Boss pulse ticks", pyreRemaining, planAt(0.8) + castTime + time.Second, 0},
 	} {
 		runLifecycleUntil(sim, c.at)
-		if got := remaining.GetDuration(sim); got != c.want {
+		if got := c.remaining.GetDuration(sim); got != c.want {
 			t.Errorf("%s: expected %s, got %s", c.name, c.want, got)
 		}
 	}
 
-	for label, name := range map[string]string{"an area hit": "Fire", "a spell hit with no cast time": "Instant"} {
+	for label, name := range map[string]string{"an Environment area hit with a cast time": "Fire", "a spell hit with no cast time": "Instant"} {
 		config := castTimeRemainingConfig(name, nil)
 		config.Uuid = &proto.UUID{Value: name}
 		value, ok := fw.Rotation.newAPLValue(config).(*APLValueConst)
@@ -333,15 +347,18 @@ func TestValuePlanReadsBossAbilityCastTimeRemaining(t *testing.T) {
 }
 
 // Is Known folds to a constant with no unit or a fixed target: true for a name the plan has, on the unit when one
-// is set. An area hit is on no unit, and an ability construction skipped is not known. A current target folds to
-// false when no target has an ability of the name.
+// is set. An Environment area hit is on no unit, a Boss one on its target, and an ability construction skipped is
+// not known. A current target folds to false when no target has an ability of the name.
 func TestValuePlanBossAbilityIsKnownFolds(t *testing.T) {
 	fire := planAreaHit(0.2)
 	fire.Name = "Fire"
+	blaze := planBossCast(planAreaHit(0.2), 0)
+	blaze.Name = "Blaze"
+	blaze.TargetIndex = 1
 	// The targets do not swing, so construction skips a swing timing.
 	slow := planSwingTiming(0.2, 0.4, 2)
 	slow.Name = "Slow"
-	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{planNamedSpellHit("Bolt", 1, 0.4, time.Second), fire, slow}}
+	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{planNamedSpellHit("Bolt", 1, 0.4, time.Second), fire, slow, blaze}}
 	sim, fw := setupPlanSim(planTestRequest(2, plan), nil)
 	current := &proto.UnitReference{Type: proto.UnitReference_CurrentTarget}
 
@@ -360,6 +377,8 @@ func TestValuePlanBossAbilityIsKnownFolds(t *testing.T) {
 		{"a skipped ability", "Slow", nil, false},
 		{"an unknown name on the current target", "Frost", current, false},
 		{"an area hit on the current target", "Fire", current, false},
+		{"a Boss area hit on the add, its target", "Blaze", planTargetRef(1), true},
+		{"a Boss area hit on the boss", "Blaze", planTargetRef(0), false},
 	} {
 		config := bossAbilityIsKnownConfig(c.name, c.target)
 		config.Uuid = &proto.UUID{Value: c.label}

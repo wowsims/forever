@@ -5,20 +5,22 @@ import type { TimeWindow } from '../../model/time';
 import { moveWindow, resizeEnd, resizeStart } from '../../model/time';
 
 export const BAR_CLASSES =
-	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) bg-(image:--planner-ticks) data-selected:border-white';
+	'top-1 bottom-1 flex w-timeline-segment min-w-2 items-center rounded-xs border border-transparent bg-(--bar) bg-(image:--planner-ticks) bg-position-(--planner-ticks-at) bg-size-(--planner-ticks-size) bg-no-repeat data-selected:border-white';
 
 // An absolutely placed grid item with an auto end line reaches the grid's edge, so the span is spelled out.
 export const barVars = (row: number, start: number, duration: number) =>
 	cssVars({ '--row': `${row + 1} / span 1`, '--t': String(start), '--dur': String(duration) });
 
 // A pulse's ticks as a faded line every interval across the bar's background, under its text. The first tick, at the
-// window's start, is the bar's own edge, so the pattern draws from the second.
-export const tickVars = (seconds: number) =>
-	seconds > 0
-		? cssVars({
-				'--planner-ticks': `repeating-linear-gradient(to right, transparent 0 calc(var(--pps) * ${seconds} - 1px), var(--planner-pulse-tick) 0 calc(var(--pps) * ${seconds}))`,
-			})
-		: undefined;
+// window's start, is the bar's own edge, so the pattern draws from the second. A boss pulse's first tick lands at its
+// cast's end, so its pattern starts one interval before that and leaves the cast clear.
+export const tickVars = (seconds: number, castSeconds = 0) => {
+	if (seconds <= 0) return undefined;
+	const ticks = `repeating-linear-gradient(to right, transparent 0 calc(var(--pps) * ${seconds} - 1px), var(--planner-pulse-tick) 0 calc(var(--pps) * ${seconds}))`;
+	if (castSeconds <= 0) return cssVars({ '--planner-ticks': ticks });
+	const from = `var(--pps) * ${castSeconds - seconds}`;
+	return cssVars({ '--planner-ticks': ticks, '--planner-ticks-at': `calc(${from}) 0`, '--planner-ticks-size': `calc(100% - ${from}) 100%` });
+};
 
 type BarKeyAction =
 	| { type: 'edit'; mode: AxisDragMode; steps: number }

@@ -1,4 +1,4 @@
-import { EncounterPlan, MobType, PlanBossAbility_Kind, Target } from '@generated/proto/common';
+import { EncounterPlan, MobType, PlanBossAbility_Kind, PlanBossAbility_Source, Target } from '@generated/proto/common';
 import { eventAt } from '@testing/encounter_plan';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -108,6 +108,34 @@ describe('eventTooltip', () => {
 			title: 'area_hit',
 			lines: ['school_damage(0,1500,2000)', 'hits_all', 'environmental', 'at(seconds(36))'],
 		});
+	});
+
+	it('names the caster and the cast time of a Boss area hit or pulse, and says a pulse its cast outlasts never ticks', () => {
+		const boss = { source: PlanBossAbility_Source.Boss, castTime: 2, minDamage: 500, maxDamage: 700 };
+		const areaHit = { ...eventAt('ability', 0.2), ...boss, kind: PlanBossAbility_Kind.AreaHit };
+		expect(tip(EncounterPlan.create({ bossAbilities: [areaHit] }), 'ability').lines).toEqual([
+			'school_damage(0,500,700)',
+			'cast_by(Boss)',
+			'cast(seconds(2))',
+			'hits_all',
+			'environmental',
+			'at(seconds(36))',
+		]);
+
+		const pulse = { ...eventAt('ability', 0.2), ...boss, kind: PlanBossAbility_Kind.Pulse, tickInterval: 1 };
+		expect(tip(EncounterPlan.create({ bossAbilities: [pulse] }), 'ability').lines).toEqual([
+			'school_damage(0,500,700)',
+			'cast_by(Boss)',
+			'cast(seconds(2))',
+			'ticks(seconds(1))',
+			'hits_all',
+			'environmental',
+			'range(seconds(36),seconds(54))',
+		]);
+		// The window is 18 s long; a 2 s cast leaves 16 s for ticks.
+		const lines = (ability: typeof pulse) => tip(EncounterPlan.create({ bossAbilities: [ability] }), 'ability').lines;
+		expect(lines({ ...pulse, targetIndex: 1, tickInterval: 17 })).toEqual(expect.arrayContaining(['cast_by(target_name(2))', 'ticks_once']));
+		expect(lines({ ...pulse, castTime: 20 })).toContain('ticks_none');
 	});
 
 	it('describes a window ability by its range', () => {

@@ -539,7 +539,8 @@ message APLValueTimeUntilAmp {
     DamageAmpType amp_type = 1;
 }
 // A boss ability value reads the abilities of its name on any unit, or with target_unit set only those whose target
-// is that unit. A Pulse and an Area Hit come from no target, so a set target_unit leaves them out.
+// is that unit. An Environment Pulse or Area Hit comes from no target, so a set target_unit leaves it out; a Boss
+// one is its target's.
 
 // True while a window of a Thrash, Swing Timing or Pulse is open on the timeline, its target active or not; always
 // false for Spell Hit, Strike and Area Hit, which have no window.
@@ -552,7 +553,8 @@ message APLValueTimeUntilBossAbility {
     string ability_name = 1; // The boss ability's name; with several of that name, the soonest of them.
     UnitReference target_unit = 2;
 }
-// The time left on the hardcast of a Spell Hit of the name, 0 while none of them is casting; no other kind casts.
+// The time left on the hardcast of a Spell Hit, or a Boss Pulse or Area Hit, of the name, 0 while none of them is
+// casting; no other kind casts.
 message APLValueBossAbilityCastTimeRemaining {
     string ability_name = 1; // The boss ability's name; with several of that name casting, the soonest to land.
     UnitReference target_unit = 2;

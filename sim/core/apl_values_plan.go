@@ -17,16 +17,17 @@ func (rot *APLRotation) validAmpType(ampType proto.DamageAmpType, uuid *proto.UU
 
 // The boss abilities of a name that the four boss ability values read. With no unit set, those on any unit; with
 // one set, those whose target it is, a fixed target picked when the value is built and a current, previous or next
-// target at each read. A Pulse or an Area Hit comes from no target, so a set unit never matches one. No value reads
-// an ability construction skipped (its construct note says why): it is never active, never next, never casts and
-// is not known. Its name still counts as one the plan has, so it draws no unknown-name warning.
+// target at each read. An Environment Pulse or Area Hit comes from no target, so a set unit never matches one; a
+// Boss one is its target's. No value reads an ability construction skipped (its construct note says why): it is
+// never active, never next, never casts and is not known. Its name still counts as one the plan has, so it draws no
+// unknown-name warning.
 type planAbilityFilter struct {
-	abilities []*planBossAbility   // Every read's, with no unit or a fixed target.
-	byTarget  [][]*planBossAbility // With a current, previous or next target, the abilities on each unit by unit index.
-	kept      bool                 // Whether any ability was kept.
-	unit      UnitReference        // The set unit; the zero reference for none.
-	named     bool                 // Whether the plan has an ability of the name on the unit, skipped or not kept.
-	allArea   bool                 // Whether the plan has an ability of the name and each one is a Pulse or an Area Hit.
+	abilities  []*planBossAbility   // Every read's, with no unit or a fixed target.
+	byTarget   [][]*planBossAbility // With a current, previous or next target, the abilities on each unit by unit index.
+	kept       bool                 // Whether any ability was kept.
+	unit       UnitReference        // The set unit; the zero reference for none.
+	named      bool                 // Whether the plan has an ability of the name on the unit, skipped or not kept.
+	targetless bool                 // Whether the plan has an ability of the name and each one is an Environment Pulse or Area Hit.
 }
 
 // The filter of the name and unit with the abilities keep accepts, every one for a nil keep. Nil for a unit that
@@ -52,16 +53,16 @@ func (rot *APLRotation) planAbilityFilter(name string, targetRef *proto.UnitRefe
 	if plan == nil || name == "" {
 		return filter
 	}
-	found, nonArea := false, false
+	found, onTarget := false, false
 	for _, ability := range plan.bossAbilities {
 		if ability.config.Name != name {
 			continue
 		}
 		found = true
-		if !ability.isArea() {
-			nonArea = true
+		if !ability.targetless() {
+			onTarget = true
 		}
-		if (targeted && ability.isArea()) || (fixed != nil && ability.target != fixed) {
+		if (targeted && ability.targetless()) || (fixed != nil && ability.target != fixed) {
 			continue
 		}
 		filter.named = true
@@ -75,7 +76,7 @@ func (rot *APLRotation) planAbilityFilter(name string, targetRef *proto.UnitRefe
 			filter.abilities = append(filter.abilities, ability)
 		}
 	}
-	filter.allArea = found && !nonArea
+	filter.targetless = found && !onTarget
 	return filter
 }
 
@@ -88,8 +89,8 @@ func (rot *APLRotation) planBossAbilities(name string, targetRef *proto.UnitRefe
 	switch {
 	case filter.unit == (UnitReference{}):
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q", name)
-	case filter.allArea:
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q is only a Pulse or Area Hit, which comes from no target and never matches a set unit", name)
+	case filter.targetless:
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q is only an Environment Pulse or Area Hit, which comes from no target and never matches a set unit", name)
 	default:
 		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "No boss ability named %q on %s", name, planUnitName(filter.unit))
 	}
@@ -290,21 +291,23 @@ type APLValueBossAbilityCastTimeRemaining struct {
 	filter *planAbilityFilter
 }
 
-// Whether the ability is a Spell Hit with a hardcast. One with no cast time casts instantly.
+// Whether the ability is a Spell Hit, or a Boss Pulse or Area Hit, with a hardcast. One with no cast time casts
+// instantly.
 func planAbilityHardcasts(ability *planBossAbility) bool {
-	return ability.config.Kind == proto.PlanBossAbility_SpellHit && ability.spell.DefaultCast.CastTime > 0
+	casts := ability.config.Kind == proto.PlanBossAbility_SpellHit || (ability.isArea() && !ability.targetless())
+	return casts && ability.spell.DefaultCast.CastTime > 0
 }
 
-// Reads the Spell Hits of the filter that hardcast. A name with none of them, only the other kinds, Spell Hits with no
-// cast time or ones construction skipped, reads a constant 0ms with a warning, so a line on it folds instead of losing
-// its condition.
+// Reads the abilities of the filter that hardcast. A name with none of them, only the other kinds, ones with no cast
+// time or ones construction skipped, reads a constant 0ms with a warning, so a line on it folds instead of losing its
+// condition.
 func (rot *APLRotation) newValueBossAbilityCastTimeRemaining(config *proto.APLValueBossAbilityCastTimeRemaining, uuid *proto.UUID) APLValue {
 	filter := rot.planBossAbilities(config.AbilityName, config.TargetUnit, planAbilityHardcasts, uuid)
 	if filter == nil {
 		return nil
 	}
 	if filter.empty() {
-		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q has no Spell Hit with a cast time, so its cast time remaining is always 0", config.AbilityName)
+		rot.ValidationMessageByUUID(uuid, proto.LogLevel_Warning, "Boss ability %q has no Spell Hit or Boss Pulse or Area Hit with a cast time, so its cast time remaining is always 0", config.AbilityName)
 		return rot.newValueConst(&proto.APLValueConst{Val: "0ms"}, uuid)
 	}
 	return &APLValueBossAbilityCastTimeRemaining{name: config.AbilityName, filter: filter}

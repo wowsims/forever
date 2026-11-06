@@ -5,6 +5,7 @@ import {
 	HealthKeyframe,
 	PlanBossAbility,
 	PlanBossAbility_Kind,
+	PlanBossAbility_Source,
 	PlanDamageAmp,
 	PlanDowntime,
 	PlanMove,
@@ -89,6 +90,8 @@ export const defaultEvent = <K extends PlanEventKind>(kind: K): PlanEvent<K> => 
 			tickJitter: 0,
 			resistible: false,
 			avoidable: false,
+			source: PlanBossAbility_Source.Environment,
+			keepsSwingTimer: false,
 		},
 		wave: {
 			name: '',
@@ -156,9 +159,13 @@ export const removeEvent = (plan: EncounterPlan, ref: PlanEventRef): void => {
 export const firesAtInstants = (ability: PlanBossAbility): boolean =>
 	ability.kind === PlanBossAbility_Kind.SpellHit || ability.kind === PlanBossAbility_Kind.Strike || ability.kind === PlanBossAbility_Kind.AreaHit;
 
-// A pulse or an area hit: area damage from no target, which hits the player and every pet and ignores the target index.
+// A pulse or an area hit: area damage, which hits the player and every pet.
 export const isAreaAbility = (ability: PlanBossAbility): boolean =>
 	ability.kind === PlanBossAbility_Kind.Pulse || ability.kind === PlanBossAbility_Kind.AreaHit;
+
+// An area ability its target casts, as `targetless` in sim/core/plan_boss_abilities.go reads it: its target index,
+// cast time and Stops swing count. An Environment one comes from no target and ignores all three.
+export const isBossCastArea = (ability: PlanBossAbility): boolean => isAreaAbility(ability) && ability.source === PlanBossAbility_Source.Boss;
 
 const AREA_DAMAGE_DEFAULTS: Partial<Record<PlanBossAbility_Kind, { min: number; max: number }>> = {
 	[PlanBossAbility_Kind.Pulse]: { min: 500, max: 700 },
@@ -166,16 +173,20 @@ const AREA_DAMAGE_DEFAULTS: Partial<Record<PlanBossAbility_Kind, { min: number; 
 };
 
 // Sets the ability's kind. A switch to a window kind whose end is not after its start ends the window DEFAULT_WIDTH
-// after the start. A switch to a pulse or an area hit fills the damage, as fire, and the tick interval and jitter (1 s
-// and 0.2 s) where they are 0, and turns Resistible on when it comes from a kind without that toggle. Mutates the
-// ability.
+// after the start. A switch to a kind other than a pulse or an area hit sets the source back to Environment, which
+// only those two read; a switch between the two keeps it. A switch to a pulse or an area hit fills the damage, as
+// fire, and the tick interval and jitter (1 s and 0.2 s) where they are 0, and turns Resistible on when it comes from
+// a kind without that toggle. Mutates the ability.
 export const withAbilityKind = (ability: PlanBossAbility, kind: PlanBossAbility_Kind): void => {
 	const wasArea = isAreaAbility(ability);
 	ability.kind = kind;
 	const start = ability.start?.at ?? 0;
 	if (!firesAtInstants(ability) && (ability.end?.at ?? 0) <= start) (ability.end ??= time(0)).at = start + DEFAULT_WIDTH;
 	const damage = AREA_DAMAGE_DEFAULTS[kind];
-	if (!damage) return;
+	if (!damage) {
+		ability.source = PlanBossAbility_Source.Environment;
+		return;
+	}
 	if (ability.maxDamage <= 0) {
 		ability.minDamage = damage.min;
 		ability.maxDamage = damage.max;

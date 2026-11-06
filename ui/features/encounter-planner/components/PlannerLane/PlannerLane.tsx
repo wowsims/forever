@@ -364,7 +364,7 @@ export const PlannerLane = ({
 										fractionToSeconds(repeat.start, baseSeconds),
 										fractionToSeconds(repeat.end - repeat.start, baseSeconds),
 									),
-									...tickVars(event.tickSeconds),
+									...tickVars(event.tickSeconds, event.castSeconds),
 								}}>
 								<span className="min-w-0 truncate pl-1">{name}</span>
 								<span className="shrink-0 px-1">{plannerText('occurrence_number', { number: index + 2 })}</span>
@@ -405,6 +405,7 @@ export const PlannerLane = ({
 							openEnd={event.openEnd}
 							fixedWidth={event.fixedWidth}
 							tickSeconds={event.tickSeconds}
+							castSeconds={event.castSeconds}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}

@@ -733,21 +733,30 @@ message PlanBossAbility {
 		Strike = 1;
 		Thrash = 2;
 		SwingTiming = 3;
-		Pulse = 4; // Area damage: a window, as Thrash has, with a tick every tick_interval from its start to its end.
-		AreaHit = 5; // Area damage: one hit at each occurrence, as Spell Hit has.
+		Pulse = 4; // Area damage: a window, as Thrash has, with a tick every tick_interval from its start, or a Boss one's cast end, to its end.
+		AreaHit = 5; // Area damage: one hit at each occurrence, as Spell Hit has, or at its cast end for a Boss one.
 	}
 
-	// Pulse and AreaHit come from no target, so they ignore target_index: they land on every player and every active
-	// pet at target 0's level while the boss is down or dead too, with no hardcast and nothing to interrupt.
+	// Where a Pulse or an AreaHit comes from. The other kinds ignore it.
+	enum Source {
+		// No target: the ability ignores target_index, cast_time and keeps_swing_timer, and lands on every player and
+		// every active pet at target 0's level while the boss is down or dead too, with nothing to interrupt.
+		Environment = 0;
+		// The target_index target casts it at each occurrence or window start, at its level: an AreaHit lands when
+		// the hardcast of cast_time completes, and so does a Pulse window's first tick. Nothing happens while the
+		// target is not active, and a pulse tick due then does not land.
+		Boss = 1;
+	}
+
 	Kind kind = 1;
-	int32 target_index = 2;
+	int32 target_index = 2; // Every kind but an Environment Pulse or AreaHit.
 	PlanTime start = 3;
 	PlanTime end = 4; // Thrash, SwingTiming and Pulse: the window's end, which gives every repeat's window its length. The other kinds ignore it.
 	PlanRepeat repeat = 5;
 	SpellSchool school = 6;
 	double min_damage = 7;
 	double max_damage = 8;
-	double cast_time = 9; // Seconds.
+	double cast_time = 9; // Seconds. SpellHit, and a Boss Pulse or AreaHit; 0 casts it instantly.
 	double weapon_percent = 10; // Percent, 20 is 20%.
 	double proc_chance = 11; // Percent, 20 is 20%.
 	int32 extra_attacks = 12;
@@ -755,9 +764,13 @@ message PlanBossAbility {
 	double swing_speed_multiplier = 14; // SwingTiming: 0 pauses the swing, above 1 hastes it.
 	string name = 15;
 	double tick_interval = 16; // Pulse: seconds between ticks, above 0. Each tick deals min_damage to max_damage.
-	double tick_jitter = 17; // Pulse: seconds, plus or minus, rolled for each tick after the first, which lands at the window's start.
+	double tick_jitter = 17; // Pulse: seconds, plus or minus, rolled for each tick after the first, which lands at the window's start, or a Boss one's when its cast completes.
 	bool resistible = 18; // Pulse and AreaHit: on, rolls spell hit and partial resists as a spell of its school; off, deals its damage with no roll.
 	bool avoidable = 19; // Pulse and AreaHit: skips the player while a plan's move walks them; pets still take it.
+	Source source = 20;
+	// SpellHit, and a Boss Pulse or AreaHit: whether the target's swing timer runs through the hardcast. Off, the
+	// swing waits out the cast and starts a full swing when it completes.
+	bool keeps_swing_timer = 21;
 }
 
 message ItemRandomSuffix {

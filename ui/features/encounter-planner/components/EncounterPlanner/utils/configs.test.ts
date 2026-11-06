@@ -1,4 +1,4 @@
-import { EncounterPlan, PlanBossAbility_Kind, PresetTarget, Target } from '@generated/proto/common';
+import { EncounterPlan, PlanBossAbility_Kind, PlanBossAbility_Source, PresetTarget, Target } from '@generated/proto/common';
 import { eventAt } from '@testing/encounter_plan';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -75,6 +75,38 @@ describe('planFieldConfigs', () => {
 		for (const kind of [PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming, PlanBossAbility_Kind.Pulse]) {
 			expect(shown(kind)).toEqual(expect.arrayContaining(['end', 'end_jitter']));
 		}
+	});
+
+	it('shows Source for a pulse or an area hit, and Target, Cast time and Stops swing only where a target casts', () => {
+		const shown = (kind: PlanBossAbility_Kind, source = PlanBossAbility_Source.Environment) => {
+			const ability = { ...defaultEvent('ability'), kind, source };
+			return planFieldConfigs('ability')
+				.filter(entry => entry.show?.(ability) ?? true)
+				.map(entry => entry.id);
+		};
+		const casting = ['target', 'cast_time', 'stops_swing'];
+		for (const kind of [PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit]) {
+			expect(shown(kind)).toContain('source');
+			for (const id of casting) expect(shown(kind)).not.toContain(id);
+			expect(shown(kind, PlanBossAbility_Source.Boss)).toEqual(expect.arrayContaining(['source', ...casting]));
+		}
+		expect(shown(PlanBossAbility_Kind.SpellHit)).toEqual(expect.arrayContaining(casting));
+		for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming]) {
+			expect(shown(kind, PlanBossAbility_Source.Boss)).not.toContain('source');
+		}
+		for (const kind of [PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming]) {
+			expect(shown(kind)).not.toContain('stops_swing');
+		}
+	});
+
+	it('checks Stops swing while the cast does not keep the swing timer', () => {
+		const ability = defaultEvent('ability');
+		const stops = field(planFieldConfigs('ability'), 'stops_swing');
+		if (stops.type !== 'boolean') throw new Error('Stops swing is a boolean field');
+		expect(stops.get(ability)).toBe(true);
+		stops.set(ability, false);
+		expect(ability.keepsSwingTimer).toBe(true);
+		expect(stops.get(ability)).toBe(false);
 	});
 
 	it('fills a working pulse when the kind field picks one', () => {

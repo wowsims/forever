@@ -1,4 +1,4 @@
-import { AddWave, DamageAmpType, EncounterPlan, HealthKeyframe, PlanBossAbility_Kind, Target } from '@generated/proto/common';
+import { AddWave, DamageAmpType, EncounterPlan, HealthKeyframe, PlanBossAbility_Kind, PlanBossAbility_Source, Target } from '@generated/proto/common';
 import { addEventAt } from '@testing/encounter_plan';
 import { describe, expect, it } from 'vitest';
 
@@ -201,18 +201,23 @@ describe('validatePlan', () => {
 		expect(keys(plan)).toEqual([`ability0:error:${PLAN_ISSUE_KEYS.endBeforeStart}`]);
 	});
 
-	it('names no target for a pulse or an area hit, whose target index the sim ignores', () => {
+	it('names no target for an Environment pulse or area hit, whose target index the sim ignores, and flags a Boss one like a spell hit', () => {
 		const plan = EncounterPlan.create();
-		addEvent(plan, 'ability');
-		addEvent(plan, 'ability');
-		for (const [ability, kind] of [
-			[plan.bossAbilities[0], PlanBossAbility_Kind.Pulse],
-			[plan.bossAbilities[1], PlanBossAbility_Kind.SpellHit],
+		for (const [kind, source] of [
+			[PlanBossAbility_Kind.Pulse, PlanBossAbility_Source.Environment],
+			[PlanBossAbility_Kind.SpellHit, PlanBossAbility_Source.Environment],
+			[PlanBossAbility_Kind.Pulse, PlanBossAbility_Source.Boss],
+			[PlanBossAbility_Kind.AreaHit, PlanBossAbility_Source.Boss],
 		] as const) {
+			addEvent(plan, 'ability');
+			const ability = plan.bossAbilities[plan.bossAbilities.length - 1];
 			withAbilityKind(ability, kind);
+			ability.source = source;
 			ability.targetIndex = -1;
 		}
-		expect(keys(plan)).toEqual([`ability1:error:${PLAN_ISSUE_KEYS.targetOutOfRange}`]);
+		expect(keys(plan)).toEqual([1, 2, 3].map(index => `ability${index}:error:${PLAN_ISSUE_KEYS.targetOutOfRange}`));
+		for (const ability of plan.bossAbilities) ability.targetIndex = 0;
+		expect(keys(plan)).toEqual([]);
 	});
 
 	it('warns about a wave at the very end of the fight, which never spawns', () => {

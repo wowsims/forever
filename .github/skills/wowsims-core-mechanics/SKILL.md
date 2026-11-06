@@ -157,11 +157,18 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   `ui/features/encounter-planner/model/lanes.ts`); overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
   add waves take targets from a pool allocated at construction. A malformed plan never panics: what construction drops
   is logged at each reset (`constructNotes`).
-- **A plan's area damage has no caster in the fight** (`registerArea` in `plan_boss_abilities.go`). Pulse ticks and
-  area hits are target 0's spells, for its level and its metrics, applied with `SkipCastAndApplyEffects`, so they land
-  with every target down or dead and nothing interrupts them. They hit every player and every enabled pet and skip
-  target 0's damage dealt modifiers; only a resistible one rolls spell hit and partial resists. An avoidable one skips
-  a player from the walk start of a plan's move to its end (`walkEnds`), not an APL move.
+- **A plan's area damage comes from the environment or from a boss** (`registerArea`, `targetless` in
+  `plan_boss_abilities.go`). An Environment Pulse's ticks and Area Hit are target 0's spells, for its level and its
+  metrics, applied with `SkipCastAndApplyEffects`, so they land with every target down or dead and nothing interrupts
+  them. A Boss one is its `target_index` target's spell, a hardcast of `cast_time` (0 casts instantly): the Area Hit
+  lands when the cast completes, and so does a Pulse window's first tick, the rolled ticks starting one interval after
+  it. A target that is not active at the occurrence or window start casts nothing, a downtime or death mid-cast stops
+  the cast and with it that window's ticks, and a tick due while the target is down does not land. A cast that fails,
+  as one does while the target is mid hardcast of another ability, does the same. Both sources hit every player and
+  every enabled pet and skip the caster's damage dealt modifiers; only a resistible one rolls spell hit and partial
+  resists. An avoidable one skips a player from the walk start of a plan's move to its end (`walkEnds`), not an APL
+  move. A Spell Hit's or a Boss area ability's hardcast holds the caster's swing and starts a full swing at its end
+  unless `keeps_swing_timer` sets `SpellFlagKeepsSwingTimer`.
 - **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
   and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.plan_add`, copied
   by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from

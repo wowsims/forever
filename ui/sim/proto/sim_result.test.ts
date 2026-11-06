@@ -5,7 +5,7 @@ import {
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { ActionID, AddWave, EncounterPlan, OtherAction, PlanBossAbility, PlanBossAbility_Kind, Target } from '@generated/proto/common';
+import { ActionID, AddWave, EncounterPlan, OtherAction, PlanBossAbility, PlanBossAbility_Kind, PlanBossAbility_Source, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -389,15 +389,16 @@ describe('the boss abilities of an encounter plan', () => {
 	const spellId = (spellId: number, tag: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag });
 	const kinds = 'settings_tab.encounter.planner.ability_kinds';
 
-	it('names every spell, pulse, area and strike action by the ability and its kind', async () => {
+	it('names every spell, pulse, area and strike action by the ability and its kind, a Boss area ability too', async () => {
 		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
 		const abilities = [
 			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Pulse, name: 'Lava Burst' }),
 			PlanBossAbility.create({ kind: PlanBossAbility_Kind.AreaHit }),
 			PlanBossAbility.create({ kind: PlanBossAbility_Kind.SpellHit, name: 'Fireball' }),
 			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Strike, name: 'Hand of Ragnaros' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.AreaHit, source: PlanBossAbility_Source.Boss, name: 'Flame Wave' }),
 		];
-		const ids = [18282, 18282, 18282, 15284].map((id, index) => spellId(id, 2_000_000 + index));
+		const ids = [18282, 18282, 18282, 15284, 18282].map((id, index) => spellId(id, 2_000_000 + index));
 		const [boss] = (await planRun(abilities, ids)).getTargets();
 
 		expect(boss.actions.map(action => action.actionId.name)).toEqual([
@@ -405,6 +406,7 @@ describe('the boss abilities of an encounter plan', () => {
 			`settings_tab.encounter.planner.event_name (${kinds}.area_hit)`,
 			`Fireball (${kinds}.spell_hit)`,
 			`Hand of Ragnaros (${kinds}.strike)`,
+			`Flame Wave (${kinds}.area_hit)`,
 		]);
 	});
 

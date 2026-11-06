@@ -1,4 +1,4 @@
-import { EncounterPlan, PlanBossAbility_Kind, PlanTargets, SpellSchool } from '@generated/proto/common';
+import { EncounterPlan, PlanBossAbility_Kind, PlanBossAbility_Source, PlanTargets, SpellSchool } from '@generated/proto/common';
 import { addEventAt } from '@testing/encounter_plan';
 import { describe, expect, it } from 'vitest';
 
@@ -338,6 +338,15 @@ describe('lanes', () => {
 				resistible: true,
 				avoidable: false,
 			});
+		});
+
+		it('keeps the source on a switch between the two area kinds and sets it back to Environment on a switch to any other', () => {
+			const ability = { ...defaultEvent('ability'), source: PlanBossAbility_Source.Boss };
+			withAbilityKind(ability, PlanBossAbility_Kind.Pulse);
+			withAbilityKind(ability, PlanBossAbility_Kind.AreaHit);
+			expect(ability.source).toBe(PlanBossAbility_Source.Boss);
+			withAbilityKind(ability, PlanBossAbility_Kind.SpellHit);
+			expect(ability.source).toBe(PlanBossAbility_Source.Environment);
 		});
 
 		it('keeps damage and an interval already set, and Resistible off on a switch between the two area kinds', () => {

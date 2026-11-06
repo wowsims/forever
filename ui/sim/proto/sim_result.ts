@@ -685,9 +685,9 @@ const PLAN_ABILITY_KIND_KEYS: Partial<Record<PlanBossAbility_Kind, string>> = {
 	[PlanBossAbility_Kind.AreaHit]: 'area_hit',
 };
 
-// The kinds that report under an action id: a spell hit, pulse tick or area hit under the Dummy Spell, a strike under
-// Cleave, a thrash's extra attacks under the boss's attack, each tagged with the ability's index. A player's Cleave
-// carries a small tag, so it never reaches the plan's range. A swing timing reports no action.
+// The kinds that report under an action id: a spell hit, or a pulse tick or area hit of either source, under the Dummy
+// Spell, a strike under Cleave, a thrash's extra attacks under the boss's attack, each tagged with the ability's index.
+// A player's Cleave carries a small tag, so it never reaches the plan's range. A swing timing reports no action.
 const planAbilityKinds = (actionId: ActionId): Array<PlanBossAbility_Kind> => {
 	if (actionId.tag < ENCOUNTER_PLAN_ABILITY_TAG) return [];
 	if (actionId.otherId === OtherAction.OtherActionAttack) return [PlanBossAbility_Kind.Thrash];

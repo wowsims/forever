@@ -1,6 +1,16 @@
 import type { StringFieldConfig } from '@features/inputs/configs';
 import type { AddWave, HealthKeyframe, PlanBossAbility, PlanDamageAmp, PlanDowntime, PlanMove, PresetEncounter, Target } from '@generated/proto/common';
-import { DamageAmpType, EncounterPlan, PlanBossAbility_Kind, PlanRepeat, PlanTargets, PlanTime, PresetTarget, SpellSchool } from '@generated/proto/common';
+import {
+	DamageAmpType,
+	EncounterPlan,
+	PlanBossAbility_Kind,
+	PlanBossAbility_Source,
+	PlanRepeat,
+	PlanTargets,
+	PlanTime,
+	PresetTarget,
+	SpellSchool,
+} from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateSpellSchool } from '@i18n/localization';
 import type { Encounter } from '@sim/raid/encounter';
@@ -8,7 +18,7 @@ import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
 import type { PlanEvent, PlanEventKind, PlanEventRef } from '../../../model/lanes';
-import { firesAtInstants, getEvent, withAbilityKind } from '../../../model/lanes';
+import { firesAtInstants, getEvent, isBossCastArea, withAbilityKind } from '../../../model/lanes';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 
 export const plannerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.planner.${name}`, options);
@@ -213,6 +223,11 @@ export const ABILITY_KINDS: ReadonlyArray<[PlanBossAbility_Kind, string]> = [
 	[PlanBossAbility_Kind.AreaHit, 'area_hit'],
 ];
 
+const ABILITY_SOURCES: ReadonlyArray<[PlanBossAbility_Source, string]> = [
+	[PlanBossAbility_Source.Environment, 'environment'],
+	[PlanBossAbility_Source.Boss, 'boss'],
+];
+
 const SCHOOLS: ReadonlyArray<SpellSchool> = [
 	SpellSchool.SpellSchoolPhysical,
 	SpellSchool.SpellSchoolArcane,
@@ -361,6 +376,7 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 	const thrash = ofKind(PlanBossAbility_Kind.Thrash);
 	const pulse = ofKind(PlanBossAbility_Kind.Pulse);
 	const area = ofKind(PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit);
+	const casts = (event: PlanBossAbility) => spellHit(event) || isBossCastArea(event);
 	const damage = ofKind(PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit);
 	const toggle = (name: 'resistible' | 'avoidable'): PlanFieldConfig<PlanBossAbility> => ({
 		type: 'boolean',
@@ -381,7 +397,14 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 			event => event.kind,
 			withAbilityKind,
 		),
-		targetField({ show: event => !area(event) }),
+		enumField<PlanBossAbility, PlanBossAbility_Source>(
+			'source',
+			ABILITY_SOURCES.map(([value, name]) => [value, plannerText(`ability_sources.${name}`)]),
+			event => event.source,
+			(event, value) => (event.source = value),
+			{ tooltip: tooltip('source'), show: area },
+		),
+		targetField({ show: event => !area(event) || isBossCastArea(event) }),
 		...timeFields<'start', PlanBossAbility>('start', { at: 'start', jitter: 'start_jitter' }),
 		...timeFields<'end', PlanBossAbility>('end', { at: 'end', jitter: 'end_jitter' }, { show: event => !firesAtInstants(event) }),
 		...repeatFields<PlanBossAbility>(),
@@ -398,7 +421,18 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 		plain('tick_jitter', ...prop<PlanBossAbility>('tickJitter'), { float: true, tooltip: tooltip('tick_jitter'), show: pulse }),
 		toggle('resistible'),
 		toggle('avoidable'),
-		plain('cast_time', ...prop<PlanBossAbility>('castTime'), { float: true, show: spellHit }),
+		plain('cast_time', ...prop<PlanBossAbility>('castTime'), { float: true, show: casts }),
+		{
+			type: 'boolean',
+			id: 'stops_swing',
+			label: label('stops_swing'),
+			tooltip: tooltip('stops_swing'),
+			show: casts,
+			get: event => !event.keepsSwingTimer,
+			set: (event, value) => {
+				event.keepsSwingTimer = !value;
+			},
+		},
 		plain('weapon_percent', ...prop<PlanBossAbility>('weaponPercent'), { float: true, show: ofKind(PlanBossAbility_Kind.Strike) }),
 		plain('proc_chance', ...prop<PlanBossAbility>('procChance'), { float: true, show: thrash }),
 		plain(

@@ -606,7 +606,7 @@ func TestPlanPulseTicksFromItsWindowStartUntilItsEnd(t *testing.T) {
 	expectPlanHitTimes(t, "short pulse", planAreaHitsOf(hits, 1), []time.Duration{planAt(0.3)})
 }
 
-// Area damage comes from no target: it lands while the boss is in a downtime.
+// Environment area damage comes from no target: it lands while the boss is in a downtime.
 func TestPlanAreaDamageLandsWhileTheBossIsDown(t *testing.T) {
 	areaHit := planAreaHit(0.2)
 	areaHit.Repeat = &proto.PlanRepeat{Interval: 0.1, Count: 2}
@@ -841,26 +841,134 @@ func TestPlanPulseTickJitterIsDeterministicAndIndependentOfGear(t *testing.T) {
 	}
 }
 
-// Area damage needs damage and a pulse an interval; the target index plays no part in either kind.
+// Area damage needs damage and a pulse an interval; the target index plays no part in an Environment one, and a
+// Boss one naming a target the encounter lacks is skipped.
 func TestPlanAreaDamageSkipsWithoutDamageOrInterval(t *testing.T) {
 	noInterval := planPulse(0.1, 0.2, 0)
 	noDamage := planAreaHit(0.1)
 	noDamage.MaxDamage = 0
 	anyTarget := planAreaHit(0.1)
 	anyTarget.TargetIndex = 3
-	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{noInterval, noDamage, anyTarget}}
+	missingCaster := planBossCast(planAreaHit(0.1), 0)
+	missingCaster.TargetIndex = 3
+	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{noInterval, noDamage, anyTarget, missingCaster}}
 	sim, hits := setupPlanHitsTaken(planTestRequest(1, plan), nil)
 	runLifecycleUntil(sim, sim.Duration)
 
 	abilities := sim.Encounter.plan.bossAbilities
-	if !abilities[0].skip || !abilities[1].skip || abilities[2].skip {
-		t.Errorf("skipped: expected true, true, false; got %t, %t, %t", abilities[0].skip, abilities[1].skip, abilities[2].skip)
+	if !abilities[0].skip || !abilities[1].skip || abilities[2].skip || !abilities[3].skip {
+		t.Errorf("skipped: expected true, true, false, true; got %t, %t, %t, %t", abilities[0].skip, abilities[1].skip, abilities[2].skip, abilities[3].skip)
 	}
 	notes := strings.Join(sim.Encounter.plan.constructNotes, " ")
-	for _, want := range []string{"boss ability 1 ticks at no interval", "boss ability 2 deals no damage"} {
+	for _, want := range []string{"boss ability 1 ticks at no interval", "boss ability 2 deals no damage", "boss ability 4 names target 3"} {
 		if !strings.Contains(notes, want) {
 			t.Errorf("construct notes %q: expected %q", notes, want)
 		}
 	}
 	expectPlanHitTimes(t, "area hit naming target 3", planAreaHitsOf(*hits, 2), []time.Duration{planAt(0.1)})
+}
+
+// The ability cast by its target, the boss, with the cast time.
+func planBossCast(ability *proto.PlanBossAbility, castTime time.Duration) *proto.PlanBossAbility {
+	ability.Source = proto.PlanBossAbility_Boss
+	ability.CastTime = castTime.Seconds()
+	return ability
+}
+
+// A spell hit and a Boss area hit land when the boss's hardcast completes. The boss does not swing during the cast
+// and starts a full swing when it completes, unless the ability keeps the swing timer, when it swings through it.
+func TestPlanBossHardcastHoldsTheSwingUnlessItKeepsTheTimer(t *testing.T) {
+	const castTime = 5 * time.Second
+	castEnd := planAt(0.2) + castTime
+	for _, c := range []struct {
+		name    string
+		ability func() *proto.PlanBossAbility
+	}{
+		{"spell hit", func() *proto.PlanBossAbility { return planNamedSpellHit("", 0, 0.2, castTime) }},
+		{"Boss area hit", func() *proto.PlanBossAbility { return planBossCast(planAreaHit(0.2), castTime) }},
+	} {
+		for _, keeps := range []bool{false, true} {
+			name := fmt.Sprintf("%s, keeps the swing timer %t", c.name, keeps)
+			ability := c.ability()
+			ability.KeepsSwingTimer = keeps
+			_, hits := runPlanHitsTaken(t, planTankRequest(&proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{ability}}))
+
+			expectPlanHitTimes(t, name, planAreaHitsOf(hits, 0), []time.Duration{castEnd})
+			during := bossSwingsBetween(hits, planAt(0.2), castEnd)
+			if keeps {
+				if during < 2 {
+					t.Errorf("%s: expected the boss to swing through the cast, got %d swings", name, during)
+				}
+				continue
+			}
+			if during != 0 {
+				t.Errorf("%s: expected no swing during the cast, got %d", name, during)
+			}
+			swings := planHitsOf(hits, isBossMeleeSwing)
+			next := slices.IndexFunc(swings, func(hit planHitTaken) bool { return hit.at >= castEnd })
+			if next < 0 || swings[next].at != castEnd+planBossSwingSpeed {
+				t.Errorf("%s: expected the first swing after the cast one full swing after it, at %s; got %v", name, castEnd+planBossSwingSpeed, swings)
+			}
+		}
+	}
+}
+
+// A Boss pulse's first tick lands when its cast completes, the others every interval after it to the window's end,
+// and the boss swings again once the cast is done. A cast that would end past the window's end ticks nothing, and a
+// window opening while the boss still casts the one before ticks nothing while the one before ticks on.
+func TestPlanBossPulseTicksFromItsCastsEnd(t *testing.T) {
+	const castTime = 2 * time.Second
+	repeating := planBossCast(planPulse(0.1, 0.2, 3), castTime)
+	repeating.Repeat = &proto.PlanRepeat{Interval: 0.5, Count: 1}
+	pastEnd := planBossCast(planPulse(0.3, 0.315, 1), castTime)
+	overlapping := planBossCast(planPulse(0.4, 0.6, 3), castTime)
+	overlapping.Repeat = &proto.PlanRepeat{Interval: 0.01, Count: 1}
+	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{repeating, pastEnd, overlapping}}
+	_, hits := runPlanHitsTaken(t, planTankRequest(plan))
+
+	expectPlanHitTimes(t, "repeating pulse", planAreaHitsOf(hits, 0),
+		append(planTicks(planAt(0.1)+castTime, 3*time.Second, 3), planTicks(planAt(0.6)+castTime, 3*time.Second, 3)...))
+	expectPlanHitTimes(t, "pulse whose cast ends past its window", planAreaHitsOf(hits, 1), nil)
+	expectPlanHitTimes(t, "pulse whose second window opens mid-cast", planAreaHitsOf(hits, 2), planTicks(planAt(0.4)+castTime, 3*time.Second, 6))
+	if got := bossSwingsBetween(hits, planAt(0.1), planAt(0.1)+castTime); got != 0 {
+		t.Errorf("expected no swing during the cast, got %d", got)
+	}
+	if got := bossSwingsBetween(hits, planAt(0.1)+castTime, planAt(0.2)); got == 0 {
+		t.Error("expected the boss to swing in the window after its cast")
+	}
+}
+
+// A Boss area hit or pulse window does nothing while its target is down, where an Environment one lands. A downtime
+// that starts mid-cast stops the cast, so its hit, or its window's ticks, never land, and a Boss pulse's tick due
+// while its target is down does not land.
+func TestPlanBossAreaDamageNeedsItsTargetUp(t *testing.T) {
+	const castTime = 2 * time.Second
+	repeat := &proto.PlanRepeat{Interval: 0.2, Count: 2}
+	environment := planAreaHit(0.2)
+	environment.Repeat = repeat
+	boss := planBossCast(planAreaHit(0.2), 0)
+	boss.Repeat = repeat
+	plan := &proto.EncounterPlan{
+		Downtimes: []*proto.PlanDowntime{
+			{TargetIndex: 0, Start: &proto.PlanTime{At: 0.05}, End: &proto.PlanTime{At: 0.5}},
+			{TargetIndex: 0, Start: &proto.PlanTime{At: 0.705}, End: &proto.PlanTime{At: 0.71}},
+			{TargetIndex: 0, Start: &proto.PlanTime{At: 0.805}, End: &proto.PlanTime{At: 0.81}},
+		},
+		BossAbilities: []*proto.PlanBossAbility{
+			environment,
+			boss,
+			planBossCast(planPulse(0.1, 0.15, 1), 0),
+			planBossCast(planPulse(0.02, 0.08, 0.7), 0),
+			planBossCast(planAreaHit(0.7), castTime),
+			planBossCast(planPulse(0.8, 0.9, 1), castTime),
+		},
+	}
+	_, hits := runPlanHitsTaken(t, planTestRequest(1, plan))
+
+	expectPlanHitTimes(t, "Environment area hit", planAreaHitsOf(hits, 0), []time.Duration{planAt(0.2), planAt(0.4), planAt(0.6)})
+	expectPlanHitTimes(t, "Boss area hit", planAreaHitsOf(hits, 1), []time.Duration{planAt(0.6)})
+	expectPlanHitTimes(t, "Boss pulse starting in the downtime", planAreaHitsOf(hits, 2), nil)
+	expectPlanHitTimes(t, "Boss pulse running into the downtime", planAreaHitsOf(hits, 3), planTicks(planAt(0.02), 700*time.Millisecond, 5))
+	expectPlanHitTimes(t, "Boss area hit whose cast a downtime stops", planAreaHitsOf(hits, 4), nil)
+	expectPlanHitTimes(t, "Boss pulse whose cast a downtime stops", planAreaHitsOf(hits, 5), nil)
 }

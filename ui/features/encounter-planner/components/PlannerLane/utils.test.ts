@@ -1,4 +1,4 @@
-import { EncounterPlan, PlanBossAbility_Kind } from '@generated/proto/common';
+import { EncounterPlan, PlanBossAbility_Kind, PlanBossAbility_Source } from '@generated/proto/common';
 import { eventAt } from '@testing/encounter_plan';
 import { describe, expect, it } from 'vitest';
 
@@ -124,7 +124,25 @@ describe('laneEvents', () => {
 		};
 		const [ticking] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse] }), 'abilities', BASE);
 		expect(ticking.repeats).toHaveLength(1);
-		expect(ticking.tickSeconds).toBe(3);
+		expect([ticking.tickSeconds, ticking.castSeconds]).toEqual([3, 0]);
+	});
+
+	it("starts a boss pulse's ticks at its cast's end, and draws none when the cast outlasts the window", () => {
+		// The window is 0.04 of a 180 s fight, 7.2 s long.
+		const pulse = (castTime: number) => ({
+			...defaultEvent('ability'),
+			kind: PlanBossAbility_Kind.Pulse,
+			source: PlanBossAbility_Source.Boss,
+			castTime,
+			start: { at: 0.1, jitter: 0 },
+			end: { at: 0.14, jitter: 0 },
+			tickInterval: 3,
+		});
+		const [casting, outlasting] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse(2), pulse(8)] }), 'abilities', BASE).sort(
+			(a, b) => a.ref.index - b.ref.index,
+		);
+		expect([casting.tickSeconds, casting.castSeconds]).toEqual([3, 2]);
+		expect([outlasting.tickSeconds, outlasting.castSeconds]).toEqual([0, 0]);
 	});
 });
 

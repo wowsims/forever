@@ -4146,6 +4146,9 @@
 										"cast": {
 											"type": "string"
 										},
+										"cast_by": {
+											"type": "string"
+										},
 										"weapon": {
 											"type": "string"
 										},
@@ -4168,6 +4171,9 @@
 											"type": "string"
 										},
 										"ticks_once": {
+											"type": "string"
+										},
+										"ticks_none": {
 											"type": "string"
 										},
 										"hits_all": {
@@ -4242,6 +4248,7 @@
 										"clears_debuffs",
 										"school_damage",
 										"cast",
+										"cast_by",
 										"weapon",
 										"proc",
 										"extra_attacks",
@@ -4250,6 +4257,7 @@
 										"ticks",
 										"ticks_jitter",
 										"ticks_once",
+										"ticks_none",
 										"hits_all",
 										"resistible",
 										"environmental",
@@ -4463,6 +4471,12 @@
 										},
 										"avoidable": {
 											"type": "string"
+										},
+										"source": {
+											"type": "string"
+										},
+										"stops_swing": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4509,7 +4523,9 @@
 										"tick_interval",
 										"tick_jitter",
 										"resistible",
-										"avoidable"
+										"avoidable",
+										"source",
+										"stops_swing"
 									]
 								},
 								"tooltips": {
@@ -4574,6 +4590,12 @@
 										},
 										"avoidable": {
 											"type": "string"
+										},
+										"source": {
+											"type": "string"
+										},
+										"stops_swing": {
+											"type": "string"
 										}
 									},
 									"additionalProperties": false,
@@ -4597,7 +4619,9 @@
 										"tick_interval",
 										"tick_jitter",
 										"resistible",
-										"avoidable"
+										"avoidable",
+										"source",
+										"stops_swing"
 									]
 								},
 								"amp_types": {
@@ -4640,6 +4664,19 @@
 									},
 									"additionalProperties": false,
 									"required": ["spell_hit", "strike", "thrash", "swing_timing", "pulse", "area_hit"]
+								},
+								"ability_sources": {
+									"type": "object",
+									"properties": {
+										"environment": {
+											"type": "string"
+										},
+										"boss": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["environment", "boss"]
 								},
 								"open": {
 									"type": "string"
@@ -4744,6 +4781,7 @@
 								"tooltips",
 								"amp_types",
 								"ability_kinds",
+								"ability_sources",
 								"open",
 								"title",
 								"targets",

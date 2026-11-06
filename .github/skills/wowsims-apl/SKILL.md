@@ -172,12 +172,13 @@ The values that read an encounter plan are in `sim/core/apl_values_targets.go`, 
 `apl_values_encounter.go`: `Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
 a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
 `Time Until Amp` (by damage amp type), and four values by a boss ability's exact event name: `Boss Ability Is Active`
-(only a window kind: Thrash, Swing Timing, Pulse), `Time Until Boss Ability`, `Boss Ability Cast Time Remaining` (a
-Spell Hit's hardcast; a name with no Spell Hit whose cast time is above 0 reads a constant 0 with a warning) and
-`Boss Ability Is Known`, which does not warn when false. The other three warn on an unknown name and are left out.
-Each takes an optional unit: empty reads the abilities of the name on every unit, a set unit only those whose target
-it is (a fixed target picked when the rotation is built, a current, previous or next target resolved at each read),
-and a Pulse or Area Hit, which comes from no target, never matches a set unit. With no unit or a fixed target,
+(only a window kind: Thrash, Swing Timing, Pulse), `Time Until Boss Ability`, `Boss Ability Cast Time Remaining` (the
+hardcast of a Spell Hit or a Boss Pulse or Area Hit; a name with none of them whose cast time is above 0 reads a
+constant 0 with a warning) and `Boss Ability Is Known`, which does not warn when false. The other three warn on an
+unknown name and are left out. Each takes an optional unit: empty reads the abilities of the name on every unit, a
+set unit only those whose target it is (a fixed target picked when the rotation is built, a current, previous or next
+target resolved at each read), and an Environment Pulse or Area Hit, which comes from no target, never matches a set
+unit, while a Boss one matches its target. With no unit or a fixed target,
 `Is Known` folds to a constant like `Spell Is Known`; with a current, previous or next target it reads at each
 evaluation, and folds to false when no target has an ability of the name. An ability construction skipped (its
 construct note says why) is never active, never next, never casts and is not known, though its name draws no

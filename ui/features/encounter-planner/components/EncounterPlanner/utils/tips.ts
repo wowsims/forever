@@ -4,7 +4,7 @@ import i18n from '@i18n/config';
 import { translateMobType, translateSpellSchool } from '@i18n/localization';
 
 import type { PlanEventRef } from '../../../model/lanes';
-import { eventLabelKey, eventWindow, firesAtInstants, getEvent, healthSegments, moveSeconds } from '../../../model/lanes';
+import { eventLabelKey, eventWindow, firesAtInstants, getEvent, healthSegments, isBossCastArea, moveSeconds } from '../../../model/lanes';
 import type { TimeWindow } from '../../../model/time';
 import { fractionToSeconds } from '../../../model/time';
 import { ABILITY_KINDS, AMP_TYPES, plannerText } from './configs';
@@ -133,13 +133,21 @@ export const eventTooltip = (
 				case PlanBossAbility_Kind.Pulse:
 				case PlanBossAbility_Kind.AreaHit: {
 					details.push(tip('school_damage', { school: translateSpellSchool(ability.school), min: ability.minDamage, max: ability.maxDamage }));
+					const bossCast = isBossCastArea(ability);
+					if (bossCast) {
+						const target = targetNames[ability.targetIndex] ?? plannerText('target_name', { number: ability.targetIndex + 1 });
+						details.push(tip('cast_by', { target }), tip('cast', { time: formatSeconds(ability.castTime) }));
+					}
 					if (ability.kind === PlanBossAbility_Kind.Pulse) {
 						const interval = formatSeconds(ability.tickInterval);
 						details.push(
 							ability.tickJitter > 0 ? tip('ticks_jitter', { interval, jitter: formatSeconds(ability.tickJitter) }) : tip('ticks', { interval }),
 						);
-						// The first tick lands at the window's start, so a window shorter than one interval still ticks once.
-						if (ability.tickInterval > 0 && (shown.end - shown.start) * baseSeconds < ability.tickInterval) details.push(tip('ticks_once'));
+						// The first tick lands at the window's start, or as a boss's cast ends, so a window with less than one
+						// interval left after that still ticks once, and one the cast outlasts never does.
+						const ticking = (shown.end - shown.start) * baseSeconds - (bossCast ? Math.max(ability.castTime, 0) : 0);
+						if (bossCast && ticking <= 0) details.push(tip('ticks_none'));
+						else if (ability.tickInterval > 0 && ticking < ability.tickInterval) details.push(tip('ticks_once'));
 					}
 					details.push(tip('hits_all'), tip(ability.resistible ? 'resistible' : 'environmental'));
 					if (ability.avoidable) details.push(tip('avoidable'));

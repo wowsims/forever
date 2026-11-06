@@ -9,13 +9,14 @@ import {
 	firesAtInstants,
 	getEvent,
 	healthSegments,
+	isBossCastArea,
 	LANE_EVENT_KINDS,
 	moveSeconds,
 	occurrences,
 	PLAYER_RUN_SPEED,
 } from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
-import { clamp, secondsToFraction } from '../../model/time';
+import { clamp, fractionToSeconds, secondsToFraction } from '../../model/time';
 import { editEvent, plannerText } from '../EncounterPlanner/utils/configs';
 import { formatPercent } from '../EncounterPlanner/utils/tips';
 
@@ -36,6 +37,8 @@ export interface LaneEvent {
 	repeats: ReadonlyArray<TimeWindow>;
 	/** A pulse's tick interval in seconds, which its bar and ghosts draw as faded lines; 0 for every other event. */
 	tickSeconds: number;
+	/** A boss pulse's cast time in seconds, after which its first tick lands; 0 for every other event. */
+	castSeconds: number;
 	row: number;
 	/** The window may run past the fight's end, as a wave's lifetime, a move's walk and an instant's bar do. */
 	openEnd: boolean;
@@ -130,13 +133,17 @@ export const laneEvents = (plan: EncounterPlan, lane: PlanLaneKind, baseSeconds:
 			const ability = kind === 'ability' ? (getEvent(plan, ref) as PlanBossAbility) : undefined;
 			const instants = !!ability && firesAtInstants(ability);
 			const pulse = ability?.kind === PlanBossAbility_Kind.Pulse;
+			// A boss pulse ticks from its cast's end, and not at all when the cast outlasts the window.
+			const castSeconds = pulse && isBossCastArea(ability) ? Math.max(ability.castTime, 0) : 0;
+			const ticks = pulse && castSeconds < fractionToSeconds(window.end - window.start, baseSeconds);
 			return [
 				{
 					ref,
 					window,
 					jitter: jitterOf(plan, ref),
 					repeats: all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
-					tickSeconds: pulse ? ability.tickInterval : 0,
+					tickSeconds: ticks ? ability.tickInterval : 0,
+					castSeconds: ticks ? castSeconds : 0,
 					row: 0,
 					openEnd: kind === 'wave' || kind === 'move' || instants,
 					fixedWidth: instants,

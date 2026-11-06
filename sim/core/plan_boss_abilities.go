@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cmp"
 	"fmt"
 	"slices"
 	"time"
@@ -25,7 +26,7 @@ const planMaxTicks = 10_000 // Ticks of one pulse per iteration; past it the pul
 type planBossAbility struct {
 	index  int
 	config *proto.PlanBossAbility
-	target *Target // nil when the index is not one of the encounter's own targets; target 0 for a pulse or an area hit.
+	target *Target // nil when the index is not one of the encounter's own targets; target 0 for an Environment pulse or area hit.
 	skip   bool    // Set when construction dropped the ability, with a construct note saying why.
 
 	spell   *Spell // The spell hit's, the strike's, the pulse's or the area hit's.
@@ -40,8 +41,17 @@ type planBossAbility struct {
 	open        int // The windows open on the timeline, the target active or not.
 	armed       bool
 	ticks       planOccurrences // A pulse's ticks this iteration, over all its windows in time order.
+	tickWindows []planPulseTick // The ticks again, in the same order, each with its window.
+	cast        []bool          // Whether each window of a Boss pulse had its cast complete, which its later ticks need.
+	casting     int             // The Boss pulse window of the last cast begun.
+	ticking     bool            // Set while a tick, not a cast's completion, applies a pulse's spell.
 
 	endAction PendingAction
+}
+
+type planPulseTick struct {
+	at     time.Duration
+	window int
 }
 
 // The strikes of one target, which replace its next main-hand swing in index order while any is armed.
@@ -58,7 +68,7 @@ func (plan *encounterPlan) registerBossAbilities(encounter *Encounter) {
 	strikers := make(map[*Target]*planStriker)
 	for index, config := range plan.config.BossAbilities {
 		ability := &planBossAbility{index: index, config: config}
-		if ability.isArea() {
+		if ability.targetless() {
 			ability.target = encounter.AllTargets[0]
 		} else if targetIndex := int(config.TargetIndex); targetIndex >= 0 && targetIndex < plan.numEncounterTargets {
 			ability.target = encounter.AllTargets[targetIndex]
@@ -104,6 +114,8 @@ func (plan *encounterPlan) registerBossAbilities(encounter *Encounter) {
 				times:  make([]time.Duration, 0, ticks),
 				action: PendingAction{Priority: planEndPriority, OnAction: ability.tick},
 			}
+			ability.tickWindows = make([]planPulseTick, 0, ticks)
+			ability.cast = make([]bool, 0, occurrences)
 		case proto.PlanBossAbility_AreaHit:
 			ability.registerArea(plan)
 			// After a move that starts at the same time, as a pulse's tick is, so an avoidable hit misses its walk.
@@ -172,21 +184,37 @@ func (ability *planBossAbility) isArea() bool {
 	return ability.config.Kind == proto.PlanBossAbility_Pulse || ability.config.Kind == proto.PlanBossAbility_AreaHit
 }
 
+// A pulse or an area hit from the environment, which no target casts.
+func (ability *planBossAbility) targetless() bool {
+	return ability.isArea() && ability.config.Source != proto.PlanBossAbility_Boss
+}
+
+// The hardcast of a spell hit or a Boss pulse or area hit: the ability's cast time, not hasted, which holds the
+// caster's swing unless the ability keeps the swing timer.
+func (ability *planBossAbility) hardcast() (CastConfig, SpellFlag) {
+	var flags SpellFlag
+	if ability.config.KeepsSwingTimer {
+		flags = SpellFlagKeepsSwingTimer
+	}
+	return CastConfig{
+		DefaultCast: Cast{CastTime: DurationFromSeconds(max(ability.config.CastTime, 0))},
+		IgnoreHaste: true,
+	}, flags
+}
+
 // A hardcast magic spell, binary, whose damage is rolled between the ability's minimum and maximum.
 func (ability *planBossAbility) registerSpellHit() {
 	config := ability.config
 	label := fmt.Sprintf("Encounter Plan Spell Hit %d", ability.index+1)
+	cast, castFlags := ability.hardcast()
 	ability.spell = ability.target.RegisterSpell(SpellConfig{
 		ActionID:    ActionID{SpellID: planSpellHitSpellID, Tag: ability.tag()},
 		SpellSchool: SpellSchoolFromProto(config.School),
 		DefenseType: DefenseTypeMagic,
 		ProcMask:    ProcMaskEmpty,
-		Flags:       SpellFlagBinary,
+		Flags:       SpellFlagBinary | castFlags,
 
-		Cast: CastConfig{
-			DefaultCast: Cast{CastTime: DurationFromSeconds(max(config.CastTime, 0))},
-			IgnoreHaste: true,
-		},
+		Cast: cast,
 
 		DamageMultiplier: 1,
 
@@ -217,17 +245,25 @@ func (ability *planBossAbility) registerStrike() {
 }
 
 // A pulse's tick or an area hit: damage rolled between the ability's minimum and maximum for every player and
-// every active pet, skipping a player one of the plan's moves walks when the ability is avoidable. It belongs to target 0,
-// for its level and its metrics, and is applied with no cast, so it lands while target 0 is down or dead; the
-// boss's own damage modifiers leave it alone. A resistible one rolls the spell hit and the partial resist of a
-// spell of its school, armor for a physical one; any other lands in full. Damage taken modifiers and absorbs
-// apply to both, and the damage taken callbacks hear it as a boss spell's.
+// every active pet, skipping a player one of the plan's moves walks when the ability is avoidable. An Environment
+// one belongs to target 0, for its level and its metrics, and is applied with no cast, so it lands while target 0
+// is down or dead. A Boss one belongs to its target, which hardcasts it: an area hit lands when the cast completes,
+// and so does a pulse window's first tick. The boss's own damage modifiers leave either alone. A resistible one
+// rolls the spell hit and the partial resist of a spell of its school, armor for a physical one; any other lands
+// in full. Damage taken modifiers and absorbs apply to both, and the damage taken callbacks hear it as a boss
+// spell's.
 func (ability *planBossAbility) registerArea(plan *encounterPlan) {
 	config := ability.config
 	label := fmt.Sprintf("Encounter Plan Area Damage %d", ability.index+1)
 	flags := SpellFlagIgnoreAttackerModifiers | SpellFlagNoOnCastComplete
 	if !config.Resistible {
 		flags |= SpellFlagIgnoreResists
+	}
+	var cast CastConfig
+	if !ability.targetless() {
+		var castFlags SpellFlag
+		cast, castFlags = ability.hardcast()
+		flags |= castFlags
 	}
 
 	ability.spell = ability.target.RegisterSpell(SpellConfig{
@@ -237,9 +273,14 @@ func (ability *planBossAbility) registerArea(plan *encounterPlan) {
 		ProcMask:    ProcMaskEmpty,
 		Flags:       flags,
 
+		Cast: cast,
+
 		DamageMultiplier: 1,
 
 		ApplyEffects: func(sim *Simulation, _ *Unit, spell *Spell) {
+			if config.Kind == proto.PlanBossAbility_Pulse && !ability.ticking {
+				ability.cast[ability.casting] = true
+			}
 			outcome := spell.OutcomeAlwaysHit
 			if config.Resistible {
 				outcome = spell.OutcomeMagicHit
@@ -387,6 +428,8 @@ func (plan *encounterPlan) scheduleBossAbilities(sim *Simulation) {
 		ability.applied = ability.applied[:0]
 		ability.ticks.next = 0
 		ability.ticks.times = ability.ticks.times[:0]
+		ability.tickWindows = ability.tickWindows[:0]
+		ability.cast = ability.cast[:0]
 		if ability.striker != nil {
 			ability.striker.uninstall()
 		}
@@ -427,35 +470,55 @@ func (plan *encounterPlan) scheduleBossAbilities(sim *Simulation) {
 }
 
 // Rolls the pulse's ticks window by window in occurrence order and queues the first: one at the window's
-// start, then tick k at k intervals after it, moved by its own jitter from the plan rand. A tick moved out of
-// its window is dropped.
+// start, then tick k at k intervals after it, moved by its own jitter from the plan rand. A Boss pulse's cast
+// completing lands its first tick, so its rolled ticks start one interval after the cast's end, and one moved
+// to the cast's end or before it is dropped. A tick moved out of its window is dropped.
 func (ability *planBossAbility) rollTicks(sim *Simulation) {
 	ticks := &ability.ticks
 	interval := DurationFromSeconds(ability.config.TickInterval)
 	jitter := ability.config.TickJitter
+	castFirst := !ability.targetless()
+	var castTime, first time.Duration
+	if castFirst {
+		castTime, first = ability.spell.DefaultCast.CastTime, 1
+	}
 	for i, start := range ability.occurrences.times {
 		end := ability.ends[i]
-		for k := time.Duration(0); start+k*interval < end && len(ticks.times) < cap(ticks.times); k++ {
-			at := start + k*interval
+		origin := start + castTime
+		for k := first; origin+k*interval < end && len(ability.tickWindows) < cap(ability.tickWindows); k++ {
+			at := origin + k*interval
 			if k > 0 && jitter > 0 {
 				at += DurationFromSeconds(jitter * (2*sim.planRand.NextFloat64() - 1))
 			}
-			if at >= start && at < end {
-				ticks.times = append(ticks.times, at)
+			if at < end && (at > origin || (at == origin && !castFirst)) {
+				ability.tickWindows = append(ability.tickWindows, planPulseTick{at: at, window: i})
 			}
 		}
 	}
-	slices.Sort(ticks.times)
+	slices.SortFunc(ability.tickWindows, func(a, b planPulseTick) int {
+		return cmp.Or(cmp.Compare(a.at, b.at), cmp.Compare(a.window, b.window))
+	})
+	for _, tick := range ability.tickWindows {
+		ticks.times = append(ticks.times, tick.at)
+	}
 	ticks.queueFirst(sim)
 }
 
+// Lands the pulse's next tick, which for a Boss pulse needs its window's cast to have completed and its target
+// to be active.
 func (ability *planBossAbility) tick(sim *Simulation) {
+	window := ability.tickWindows[ability.ticks.next].window
 	ability.ticks.advance(sim)
+	if !ability.targetless() && (!ability.cast[window] || !ability.target.IsEnabled()) {
+		return
+	}
+	ability.ticking = true
 	ability.spell.SkipCastAndApplyEffects(sim, sim.Raid.AllPlayerUnits[0])
+	ability.ticking = false
 }
 
-// Runs the ability's next occurrence, which does nothing while its target is not active, except for a pulse's
-// window and an area hit, which come from no target.
+// Runs the ability's next occurrence, which does nothing while its target is not active, except for an
+// Environment pulse's window and area hit, which come from no target.
 func (ability *planBossAbility) start(sim *Simulation) {
 	occurrence := ability.occurrences.next
 	ability.occurrences.advance(sim)
@@ -470,6 +533,9 @@ func (ability *planBossAbility) start(sim *Simulation) {
 			ability.endAction.NextActionAt = end
 			sim.AddPendingAction(&ability.endAction)
 		}
+		if ability.config.Kind == proto.PlanBossAbility_Pulse && !ability.targetless() {
+			ability.startPulseCast(sim, occurrence, enabled)
+		}
 		if !applied {
 			return
 		}
@@ -480,7 +546,7 @@ func (ability *planBossAbility) start(sim *Simulation) {
 		return
 	}
 
-	if ability.config.Kind == proto.PlanBossAbility_AreaHit {
+	if ability.config.Kind == proto.PlanBossAbility_AreaHit && ability.targetless() {
 		ability.spell.SkipCastAndApplyEffects(sim, sim.Raid.AllPlayerUnits[0])
 		return
 	}
@@ -495,11 +561,30 @@ func (ability *planBossAbility) start(sim *Simulation) {
 			victim = sim.Raid.AllPlayerUnits[0]
 		}
 		ability.spell.Cast(sim, victim)
+	case proto.PlanBossAbility_AreaHit:
+		// The area damage hits every player and pet whatever unit the cast names.
+		ability.spell.Cast(sim, sim.Raid.AllPlayerUnits[0])
 	case proto.PlanBossAbility_Strike:
 		if sim.Log != nil {
 			target.Log(sim, "Encounter plan: boss ability %d replaces the next swing.", ability.index+1)
 		}
 		ability.striker.arm(ability)
+	}
+}
+
+// Starts the cast of a Boss pulse's window, whose completion lands the window's first tick. The target casts only
+// while active and when the cast ends inside the window; a cast that fails, as one does while the target is mid
+// hardcast, or that a downtime or death stops, leaves the window with no tick.
+func (ability *planBossAbility) startPulseCast(sim *Simulation, window int, enabled bool) {
+	ability.cast = append(ability.cast, false)
+	if !enabled || sim.CurrentTime+ability.spell.DefaultCast.CastTime >= ability.ends[window] {
+		return
+	}
+	// A cast that fails leaves the window of a cast still running to the completion that marks it.
+	previous := ability.casting
+	ability.casting = window
+	if !ability.spell.Cast(sim, sim.Raid.AllPlayerUnits[0]) {
+		ability.casting = previous
 	}
 }
 

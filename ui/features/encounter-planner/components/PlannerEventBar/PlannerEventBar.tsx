@@ -33,6 +33,8 @@ export interface PlannerEventBarProps {
 	fixedWidth?: boolean;
 	/** A pulse's tick interval in seconds, drawn as faded lines across the bar under its text. */
 	tickSeconds?: number;
+	/** A boss pulse's cast time in seconds: the lines start at its end. */
+	castSeconds?: number;
 	/** The jitter around the start and the end, as fractions of the fight. */
 	jitter?: { start: number; end: number };
 	baseSeconds: number;
@@ -131,6 +133,7 @@ export const PlannerEventBar = ({
 	openEnd = false,
 	fixedWidth = false,
 	tickSeconds = 0,
+	castSeconds = 0,
 	jitter,
 	baseSeconds,
 	snapSeconds,
@@ -273,7 +276,7 @@ export const PlannerEventBar = ({
 				data-dragging={preview ? '' : undefined}
 				{...state}
 				className={`absolute left-planner-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--planner-hold-opacity) data-selected:z-2 ${EVENT_BAR_CLASSES}`}
-				style={{ ...barVars(row, start, duration), ...tickVars(tickSeconds) }}
+				style={{ ...barVars(row, start, duration), ...tickVars(tickSeconds, castSeconds) }}
 				onKeyDown={onKeyDown}
 				onClick={onSelect}
 				onFocus={onFocus}
