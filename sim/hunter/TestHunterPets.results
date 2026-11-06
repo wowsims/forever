@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 657.43256
+  tps: 432.60973
+  dtps: 0.46695
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Annihilator-12798"
  value: {
   dps: 661.43752
@@ -162,6 +170,14 @@ dps_results: {
   dps: 656.46452
   tps: 432.88128
   dtps: 0.69516
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 657.43256
+  tps: 432.79059
+  dtps: 0.75638
  }
 }
 dps_results: {
@@ -644,6 +660,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 663.58296
+  tps: 438.75399
+  dtps: 0.69516
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-GrimReaper-13054"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-GryphonRider'sStormhammer-9651"
  value: {
   dps: 637.6296
@@ -665,6 +697,14 @@ dps_results: {
   dps: 637.6296
   tps: 418.86553
   dtps: 0.66687
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-HanzoSword-8190"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
  }
 }
 dps_results: {
@@ -708,6 +748,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-KissoftheSpider-22954"
  value: {
   dps: 675.57253
@@ -729,6 +777,14 @@ dps_results: {
   dps: 655.97006
   tps: 433.47571
   dtps: 1.03334
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 662.33556
+  tps: 436.67158
+  dtps: 0.48693
  }
 }
 dps_results: {
@@ -954,6 +1010,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 669.19236
@@ -1058,6 +1122,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheGreenTower-1204"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 661.18556
@@ -1114,11 +1186,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 657.43256
+  tps: 432.79059
+  dtps: 0.75638
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-VestmentsoftheDevout"
  value: {
   dps: 578.88162
   tps: 371.41188
   dtps: 0.15701
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-VileProtector-7747"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
  }
 }
 dps_results: {
@@ -1151,6 +1239,14 @@ dps_results: {
   dps: 582.16594
   tps: 374.31798
   dtps: 0.3531
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Witchfury-13051"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
  }
 }
 dps_results: {

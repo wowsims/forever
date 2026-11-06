@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 754.35661
+  tps: 539.09557
+  dtps: 5.19884
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 753.99958
@@ -106,6 +114,14 @@ dps_results: {
  value: {
   dps: 751.24439
   tps: 536.83064
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 753.99958
+  tps: 538.74643
   dtps: 5.41108
  }
 }
@@ -511,6 +527,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 761.88957
+  tps: 544.28226
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-GryphonRider'sStormhammer-9651"
  value: {
   dps: 712.37882
@@ -559,11 +583,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 761.88957
+  tps: 544.28226
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-KissoftheSpider-22954"
  value: {
   dps: 771.22393
   tps: 550.96321
   dtps: 5.20645
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 750.85825
+  tps: 536.44384
+  dtps: 4.96971
  }
 }
 dps_results: {
@@ -811,6 +851,14 @@ dps_results: {
  value: {
   dps: 753.99958
   tps: 538.74643
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 756.88773
+  tps: 540.76814
   dtps: 5.41108
  }
 }

@@ -81,6 +81,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 434.79413
+  tps: 1406.51178
+  dtps: 291.0831
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 432.99167
@@ -186,6 +195,15 @@ dps_results: {
   tps: 1364.37919
   dtps: 280.41007
   hps: 36.44528
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 434.79413
+  tps: 1406.51178
+  dtps: 291.00726
+  hps: 36.59778
  }
 }
 dps_results: {
@@ -738,6 +756,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
+ value: {
+  dps: 432.87871
+  tps: 1389.26986
+  dtps: 287.0103
+  hps: 36.69944
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-HeartoftheScale-13164"
  value: {
   dps: 434.79413
@@ -1071,6 +1098,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 432.87871
+  tps: 1389.26986
+  dtps: 287.0103
+  hps: 36.69944
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 453.47128
@@ -1170,6 +1206,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheGreenTower-1204"
+ value: {
+  dps: 438.03317
+  tps: 1414.07612
+  dtps: 308.96105
+  hps: 36.73333
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 449.04766
@@ -1233,12 +1278,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 434.79413
+  tps: 1406.51178
+  dtps: 289.4031
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-VestmentsoftheDevout"
  value: {
   dps: 399.76371
   tps: 1288.88168
   dtps: 443.12282
   hps: 35.88611
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VileProtector-7747"
+ value: {
+  dps: 438.65824
+  tps: 1412.99686
+  dtps: 317.44447
+  hps: 36.75028
  }
 }
 dps_results: {
