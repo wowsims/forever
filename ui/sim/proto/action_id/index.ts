@@ -9,9 +9,9 @@ import { CHARACTER_LEVEL } from '../../constants/mechanics';
 import { Database } from '../database';
 import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTooltipItemParams, WowheadTooltipSpellParams } from '../wowhead';
 
-// The tag of an encounter design's boss ability is this plus its index in the design.
-// Mirrors designBossAbilityTag in sim/core/design_boss_abilities.go.
-export const ENCOUNTER_DESIGN_ABILITY_TAG = 2_000_000;
+// The tag of an encounter plan's boss ability is this plus its index in the plan.
+// Mirrors planBossAbilityTag in sim/core/plan_boss_abilities.go.
+export const ENCOUNTER_PLAN_ABILITY_TAG = 2_000_000;
 
 // Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
@@ -124,9 +124,9 @@ export class ActionId {
 				} else if (this.tag == 10610) {
 					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
 					name += ` (${i18n.t('common.action_tags.windfury')})`;
-				} else if (this.tag >= ENCOUNTER_DESIGN_ABILITY_TAG) {
-					// A boss ability of the encounter design: the extra swings of its Thrash.
-					name += ` (${i18n.t('common.action_tags.thrash')} ${this.tag - ENCOUNTER_DESIGN_ABILITY_TAG + 1})`;
+				} else if (this.tag >= ENCOUNTER_PLAN_ABILITY_TAG) {
+					// A boss ability of the encounter plan: the extra swings of its Thrash.
+					name += ` (${i18n.t('common.action_tags.thrash')} ${this.tag - ENCOUNTER_PLAN_ABILITY_TAG + 1})`;
 				}
 				break;
 			}
@@ -292,7 +292,7 @@ export class ActionId {
 			this.otherId == OtherAction.OtherActionAttack &&
 			this.name == i18n.t('common.action_names.attack') &&
 			this.tag != 0 &&
-			this.tag < ENCOUNTER_DESIGN_ABILITY_TAG
+			this.tag < ENCOUNTER_PLAN_ABILITY_TAG
 		) {
 			return this.fillExtraAttack();
 		}
@@ -474,9 +474,9 @@ export class ActionId {
 			case 'Maul':
 				if (tag == 1) {
 					name += ` (${i18n.t('common.action_tags.queue')})`;
-				} else if (tag >= ENCOUNTER_DESIGN_ABILITY_TAG) {
-					// An encounter design's strike, numbered by its place among the boss abilities.
-					name += ` ${tag - ENCOUNTER_DESIGN_ABILITY_TAG + 1}`;
+				} else if (tag >= ENCOUNTER_PLAN_ABILITY_TAG) {
+					// An encounter plan's strike, numbered by its place among the boss abilities.
+					name += ` ${tag - ENCOUNTER_PLAN_ABILITY_TAG + 1}`;
 				}
 				break;
 			case 'Sweeping Strikes':
@@ -611,8 +611,8 @@ export class ActionId {
 				}
 				break;
 			case 'Dummy Spell':
-				// An encounter design's spell hit, numbered by its place among the boss abilities.
-				if (tag >= ENCOUNTER_DESIGN_ABILITY_TAG) name += ` ${tag - ENCOUNTER_DESIGN_ABILITY_TAG + 1}`;
+				// An encounter plan's spell hit, numbered by its place among the boss abilities.
+				if (tag >= ENCOUNTER_PLAN_ABILITY_TAG) name += ` ${tag - ENCOUNTER_PLAN_ABILITY_TAG + 1}`;
 				break;
 			case 'Penance':
 				if (tag === 1) {

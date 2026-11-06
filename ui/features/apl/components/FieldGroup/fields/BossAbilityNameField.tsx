@@ -13,15 +13,15 @@ export interface BossAbilityNameFieldProps {
 }
 
 /**
- * A dropdown over the names of the encounter design's boss abilities, each once.
+ * A dropdown over the names of the encounter plan's boss abilities, each once.
  *
- * The sim finds an ability by its exact name and an unnamed one by none, so a design without a named ability gets a
- * text field instead, for a name the design is still to give.
+ * The sim finds an ability by its exact name and an unnamed one by none, so a plan without a named ability gets a
+ * text field instead, for a name the plan is still to give.
  */
 export const BossAbilityNameField = ({ player, config }: BossAbilityNameFieldProps) => {
 	const encounter = player.sim.encounter;
-	const names = useStoreSubscribe(subscribeEncounterField(encounter, 'design'), () => [
-		...new Set(encounter.getDesign().bossAbilities.flatMap(ability => (ability.name ? [ability.name] : []))),
+	const names = useStoreSubscribe(subscribeEncounterField(encounter, 'plan'), () => [
+		...new Set(encounter.getPlan().bossAbilities.flatMap(ability => (ability.name ? [ability.name] : []))),
 	]);
 	const options = useMemo(() => names.map(name => ({ value: name, label: name })), [names]);
 

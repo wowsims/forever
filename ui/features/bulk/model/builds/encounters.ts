@@ -1,4 +1,4 @@
-import { Encounter, EncounterDesign } from '@generated/proto/common';
+import { Encounter, EncounterPlan } from '@generated/proto/common';
 import { BulkEncounterRef, BulkEncounterSelection, SavedEncounter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import type { BulkEncounterResults, BulkEncounterSetup } from '@sim/bulk/types';
@@ -59,8 +59,9 @@ export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncoun
 		storedSavedData(host, host.getSavedEncounterStorageKey(), SavedEncounter),
 	);
 
-// The proto version, the designer's name and My encounters mark, the zone the areas came from and the target names
-// change nothing the sim reads. Neither does an empty design, which the live encounter holds where a saved one has none.
+// The proto version, the name given in the encounter planner and the My encounters mark, the zone the areas came from
+// and the target names change nothing the sim reads. Neither does an empty encounter plan, which
+// the live encounter holds where a saved one has none.
 const encounterContentKey = keyedOnce((encounter: Encounter) =>
 	Encounter.toJsonString({
 		...encounter,
@@ -68,7 +69,7 @@ const encounterContentKey = keyedOnce((encounter: Encounter) =>
 		name: '',
 		myEncounter: false,
 		zoneId: 0,
-		design: EncounterDesign.equals(encounter.design, EncounterDesign.create()) ? undefined : encounter.design,
+		plan: EncounterPlan.equals(encounter.plan, EncounterPlan.create()) ? undefined : encounter.plan,
 		targets: encounter.targets.map(target => ({ ...target, name: '' })),
 	}),
 );

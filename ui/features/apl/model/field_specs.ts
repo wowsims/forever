@@ -205,9 +205,9 @@ const AREA_TYPES: EnumTable = {
 const DAMAGE_AMP_TYPES: EnumTable = {
 	defaultLabel: none(),
 	options: [
-		{ value: DamageAmpType.DamageAmpTypeCasterBuff, label: i18n.t('settings_tab.encounter.designer.amp_types.caster_buff') },
-		{ value: DamageAmpType.DamageAmpTypeEnvironmentBuff, label: i18n.t('settings_tab.encounter.designer.amp_types.environment_buff') },
-		{ value: DamageAmpType.DamageAmpTypeTargetDebuff, label: i18n.t('settings_tab.encounter.designer.amp_types.target_debuff') },
+		{ value: DamageAmpType.DamageAmpTypeCasterBuff, label: i18n.t('settings_tab.encounter.planner.amp_types.caster_buff') },
+		{ value: DamageAmpType.DamageAmpTypeEnvironmentBuff, label: i18n.t('settings_tab.encounter.planner.amp_types.environment_buff') },
+		{ value: DamageAmpType.DamageAmpTypeTargetDebuff, label: i18n.t('settings_tab.encounter.planner.amp_types.target_debuff') },
 	],
 };
 

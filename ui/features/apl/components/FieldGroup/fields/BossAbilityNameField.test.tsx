@@ -1,5 +1,5 @@
 import { APLRotation } from '@generated/proto/apl';
-import { DesignBossAbility, DesignBossAbility_Kind, EncounterDesign } from '@generated/proto/common';
+import { EncounterPlan, PlanBossAbility, PlanBossAbility_Kind } from '@generated/proto/common';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { Player } from '@sim/player/player';
 import { Encounter } from '@sim/raid/encounter';
@@ -15,8 +15,8 @@ vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 let player: ReturnType<typeof makePlayer>;
 let picked: string;
 
-const ability = (name: string, kind = DesignBossAbility_Kind.Pulse) => DesignBossAbility.create({ name, kind });
-const design = (...names: Array<string>) => EncounterDesign.create({ bossAbilities: names.map(name => ability(name)) });
+const ability = (name: string, kind = PlanBossAbility_Kind.Pulse) => PlanBossAbility.create({ name, kind });
+const plan = (...names: Array<string>) => EncounterPlan.create({ bossAbilities: names.map(name => ability(name)) });
 
 const mount = () =>
 	render(
@@ -45,8 +45,8 @@ beforeEach(() => {
 });
 
 describe('BossAbilityNameField', () => {
-	it("lists the design's named boss abilities once each and writes the one picked", async () => {
-		player.sim.encounter.setDesign(design('Lava Burst', '', 'Wrath of Ragnaros', 'Lava Burst'));
+	it("lists the plan's named boss abilities once each and writes the one picked", async () => {
+		player.sim.encounter.setPlan(plan('Lava Burst', '', 'Wrath of Ragnaros', 'Lava Burst'));
 		mount();
 
 		await userEvent.click(trigger());
@@ -55,17 +55,17 @@ describe('BossAbilityNameField', () => {
 		expect(picked).toBe('Wrath of Ragnaros');
 	});
 
-	it('follows the design as its abilities change', async () => {
-		player.sim.encounter.setDesign(design('Lava Burst'));
+	it('follows the plan as its abilities change', async () => {
+		player.sim.encounter.setPlan(plan('Lava Burst'));
 		mount();
 
-		act(() => player.sim.encounter.setDesign(design('Lava Burst', 'Magma Blast')));
+		act(() => player.sim.encounter.setPlan(plan('Lava Burst', 'Magma Blast')));
 		await userEvent.click(trigger());
 		expect(items()).toEqual(['Lava Burst', 'Magma Blast']);
 	});
 
-	it('takes a typed name when the design names no ability, since the sim finds an unnamed one by no name', () => {
-		player.sim.encounter.setDesign(design(''));
+	it('takes a typed name when the plan names no ability, since the sim finds an unnamed one by no name', () => {
+		player.sim.encounter.setPlan(plan(''));
 		mount();
 
 		expect(trigger().tagName).toBe('INPUT');

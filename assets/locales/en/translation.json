@@ -1093,7 +1093,7 @@
 			"suppress_dodge": "Suppress Dodge",
 			"second_tank_index": "Second Tank Index",
 			"disabled_at_start": "Disabled at Start",
-			"designer": {
+			"planner": {
 				"timeline": "Encounter timeline",
 				"lanes": {
 					"abilities": "Abilities",
@@ -1116,7 +1116,7 @@
 					"downtime_overlap": "Overlaps another downtime of its target, which stays down until the last of them ends.",
 					"health_increases": "Boss health rises after an earlier keyframe.",
 					"target_out_of_range": "Names a target the encounter does not have.",
-					"wave_out_of_range": "Names a wave the design does not have.",
+					"wave_out_of_range": "Names a wave the plan does not have.",
 					"all_targets_down": "Every target is down from {{from}} to {{to}}, so the player idles.",
 					"too_many_keyframes": "The sim's boss health curve holds 16 points, its own start point included, so it drops this keyframe.",
 					"amp_not_positive": "Adds no damage, so the sim skips it.",
@@ -1276,7 +1276,7 @@
 					"tick_interval": "Time between ticks. The first lands at the window's start, so a window shorter than this ticks once.",
 					"tick_jitter": "Moves each tick after the first by up to this much either way.",
 					"resistible": "Rolls resistances like a spell of its school; off, it's environmental damage with no roll.",
-					"avoidable": "Skips you while a design move walks you; pets still take it."
+					"avoidable": "Skips you while one of the plan's moves walks you; pets still take it."
 				},
 				"amp_types": {
 					"caster_buff": "Caster buff",
@@ -1291,8 +1291,8 @@
 					"pulse": "Pulse",
 					"area_hit": "Area hit"
 				},
-				"open": "Designer",
-				"title": "Encounter designer",
+				"open": "Encounter planner",
+				"title": "Encounter planner",
 				"targets": "Targets",
 				"event_lanes": "Events",
 				"target_name": "Target {{number}}",
@@ -2000,11 +2000,11 @@
 				},
 				"time_until_next_move": {
 					"label": "Time Until Next Move",
-					"tooltip": "Seconds until the next move in the encounter design starts"
+					"tooltip": "Seconds until the next move in the encounter plan starts"
 				},
 				"next_move_duration": {
 					"label": "Next Move Duration",
-					"tooltip": "How long the next move in the encounter design takes, in seconds"
+					"tooltip": "How long the next move in the encounter plan takes, in seconds"
 				},
 				"amp_is_active": {
 					"label": "Damage Amp Is Active",
@@ -2028,7 +2028,7 @@
 				},
 				"boss_ability_is_known": {
 					"label": "Boss Ability Is Known",
-					"tooltip": "True when the encounter design has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does. A Current, Previous or Next Target is checked again each time the rotation reads it"
+					"tooltip": "True when the encounter plan has a boss ability of that name. With a unit set, only that unit's abilities count, so a Pulse or Area Hit never does. A Current, Previous or Next Target is checked again each time the rotation reads it"
 				},
 				"unit_is_moving": {
 					"label": "Unit Is Moving",
@@ -2856,7 +2856,7 @@
 				},
 				"show_gcd": "Show GCD",
 				"scheduled": {
-					"title": "Scheduled by the encounter design (jitter not shown):",
+					"title": "Scheduled by the encounter plan (jitter not shown):",
 					"downtime": "Target downtime",
 					"wave": "Add wave",
 					"amp": "Damage amp",

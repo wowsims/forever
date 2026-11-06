@@ -13,5 +13,5 @@ const myEncounterCodec: SavedDataCodec<Encounter> = {
 	fromJson: json => ({ ...fromJsonLenient(Encounter, json), apiVersion: CURRENT_API_VERSION }),
 };
 
-// The encounters the player built and named in the designer, one list per spec, each under its name.
+// The encounters the player built and named in the planner, one list per spec, each under its name.
 export const useMyEncounters = () => useSavedData(useSimHost().getStorageKey(MY_ENCOUNTERS_STORAGE_KEY), myEncounterCodec);

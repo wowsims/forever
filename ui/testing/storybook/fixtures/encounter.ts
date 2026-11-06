@@ -3,7 +3,7 @@ import type { Encounter } from '@sim/raid/encounter';
 import { createSimStore, patchSlice } from '@sim/state/sim_store';
 
 /**
- * The `Encounter` members the designer's target fields read, on a real store: a write patches the
+ * The `Encounter` members the planner's target fields read, on a real store: a write patches the
  * `encounter` slice. No preset targets, so the NPC and Preset menus offer only their custom entries.
  */
 export const makeStoryEncounter = (targets: Array<TargetProto>): Encounter => {

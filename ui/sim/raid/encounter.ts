@@ -1,7 +1,7 @@
 import {
 	AreaType,
 	Encounter as EncounterProto,
-	EncounterDesign,
+	EncounterPlan,
 	MobType,
 	PresetEncounter,
 	PresetTarget,
@@ -19,14 +19,10 @@ import { Sim } from '../sim';
 import { batch } from '../state/batch';
 import { EncounterSlice, SimStore } from '../state/sim_store';
 
-// The design points at targets by index. Following each old target object to its new position keeps a reorder
+// The plan points at targets by index. Following each old target object to its new position keeps a reorder
 // intact, and a target replaced by a new object at the same index (a field edit, a preset) keeps its place; a
-// target that is gone becomes -1 so validation flags it. Returns `design` itself when no index changes.
-export const remapDesignTargets = (
-	design: EncounterDesign,
-	oldTargets: ReadonlyArray<TargetProto>,
-	newTargets: ReadonlyArray<TargetProto>,
-): EncounterDesign => {
+// target that is gone becomes -1 so validation flags it. Returns `plan` itself when no index changes.
+export const remapPlanTargets = (plan: EncounterPlan, oldTargets: ReadonlyArray<TargetProto>, newTargets: ReadonlyArray<TargetProto>): EncounterPlan => {
 	const before = new Set(oldTargets);
 	const after = new Set(newTargets);
 	const remap = (index: number) => {
@@ -38,13 +34,13 @@ export const remapDesignTargets = (
 	};
 	const moved = (index: number) => remap(index) !== index;
 	const touched =
-		design.downtimes.some(d => moved(d.targetIndex)) ||
-		design.bossAbilities.some(a => moved(a.targetIndex)) ||
-		design.damageAmps.some(a => a.targets?.targetIndices.some(moved));
-	// An empty DesignTargets means target 0, a position rather than an identity, so it stays as is.
-	if (!touched) return design;
+		plan.downtimes.some(d => moved(d.targetIndex)) ||
+		plan.bossAbilities.some(a => moved(a.targetIndex)) ||
+		plan.damageAmps.some(a => a.targets?.targetIndices.some(moved));
+	// An empty PlanTargets means target 0, a position rather than an identity, so it stays as is.
+	if (!touched) return plan;
 
-	const next = EncounterDesign.clone(design);
+	const next = EncounterPlan.clone(plan);
 	next.downtimes.forEach(d => (d.targetIndex = remap(d.targetIndex)));
 	next.bossAbilities.forEach(a => (a.targetIndex = remap(a.targetIndex)));
 	next.damageAmps.forEach(a => {
@@ -95,24 +91,24 @@ export class Encounter {
 		// Always notifies: a same-reference write is stored as a fresh array so
 		// subscribers still see a change.
 		const targets = newTargets === this.enc.targets ? newTargets.slice() : newTargets;
-		this.set({ targets, design: remapDesignTargets(this.enc.design, this.enc.targets, targets) });
+		this.set({ targets, plan: remapPlanTargets(this.enc.plan, this.enc.targets, targets) });
 	}
 
-	getDesign(): EncounterDesign {
-		return this.enc.design;
+	getPlan(): EncounterPlan {
+		return this.enc.plan;
 	}
-	setDesign(design: EncounterDesign) {
-		if (EncounterDesign.equals(design, this.enc.design)) return;
-		this.set({ design: EncounterDesign.clone(design) });
+	setPlan(plan: EncounterPlan) {
+		if (EncounterPlan.equals(plan, this.enc.plan)) return;
+		this.set({ plan: EncounterPlan.clone(plan) });
 	}
-	// A designer fight: the design holds an event in any lane, the test `newEncounterDesign` (sim/core/design_runner.go)
+	// A fight with a plan: the plan holds an event in any lane, the test `newEncounterPlan` (sim/core/plan_runner.go)
 	// runs before it builds one. A simple fight has none, and the encounter's execute proportions shape it alone.
-	hasDesign(): boolean {
-		const d = this.enc.design;
+	hasPlan(): boolean {
+		const d = this.enc.plan;
 		return d.downtimes.length + d.bossHealth.length + d.addWaves.length + d.moves.length + d.damageAmps.length + d.bossAbilities.length > 0;
 	}
 
-	// Target mutation with a single change event, which the designer's target
+	// Target mutation with a single change event, which the planner's target
 	// panel writes each field edit through. Replace-on-write: the callback gets a
 	// clone, which then replaces the original in a new targets array.
 	modifyTarget(index: number, modify: (target: TargetProto) => void) {
@@ -199,24 +195,24 @@ export class Encounter {
 
 	matchesPreset(preset: PresetEncounter): boolean {
 		const targets = this.enc.targets;
-		// A preset has no name, and one without a design matches an empty one.
+		// A preset has no name, and one without a plan matches an empty one.
 		return (
 			!this.enc.name &&
 			preset.targets.length == targets.length &&
 			targets.every((t, i) => TargetProto.equals(t, preset.targets[i].target)) &&
-			EncounterDesign.equals(this.enc.design, preset.design ?? EncounterDesign.create())
+			EncounterPlan.equals(this.enc.plan, preset.plan ?? EncounterPlan.create())
 		);
 	}
 
 	// A preset's target proto is owned by `sim.db` and shared by every encounter naming that preset,
 	// so the store gets a clone: what it holds, it owns.
 	applyPreset(preset: PresetEncounter) {
-		// The preset's design replaces the current one together with the targets.
+		// The preset's plan replaces the current one together with the targets.
 		this.set({
 			name: '',
 			myEncounter: false,
 			targets: preset.targets.map(presetTarget => (presetTarget.target ? TargetProto.clone(presetTarget.target) : TargetProto.create())),
-			design: preset.design ? EncounterDesign.clone(preset.design) : EncounterDesign.create(),
+			plan: preset.plan ? EncounterPlan.clone(preset.plan) : EncounterPlan.create(),
 		});
 
 		const zoneId = this.sim.db?.getNpc(preset.targets[0]?.target?.id ?? 0)?.zoneId ?? 0;
@@ -241,7 +237,7 @@ export class Encounter {
 			areaTypes: enc.areaTypes,
 			zoneId: enc.zoneId,
 			targets: enc.targets,
-			design: this.hasDesign() ? enc.design : undefined,
+			plan: this.hasPlan() ? enc.plan : undefined,
 			apiVersion: CURRENT_API_VERSION,
 		});
 	}
@@ -255,11 +251,11 @@ export class Encounter {
 			this.setExecuteProportion20(proto.executeProportion20);
 			this.setExecuteProportion35(proto.executeProportion35);
 			this.setAreaTypes(proto.areaTypes, proto.zoneId);
-			// Clone so the designer's target edits cannot mutate the
+			// Clone so the planner's target edits cannot mutate the
 			// saved entry's (or the config default's) own target protos.
 			this.setTargets(proto.targets.map(t => TargetProto.clone(t)));
-			// After the targets, whose reindexing would otherwise rewrite the loaded design.
-			this.setDesign(proto.design ?? EncounterDesign.create());
+			// After the targets, whose reindexing would otherwise rewrite the loaded plan.
+			this.setPlan(proto.plan ?? EncounterPlan.create());
 		});
 	}
 

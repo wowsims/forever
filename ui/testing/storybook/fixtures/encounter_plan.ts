@@ -1,0 +1,192 @@
+import {
+	DamageAmpType,
+	EncounterPlan,
+	MobType,
+	PlanBossAbility_Kind,
+	PlanTargets,
+	type PresetTarget,
+	SpellSchool,
+	Stat,
+	Target,
+} from '@generated/proto/common';
+
+export const PLAN_BASE_SECONDS = 180;
+
+export const planTargetNames: ReadonlyArray<string> = ['Ragnaros', 'Son of Flame'];
+
+// A target from the database carries a value for every stat.
+const fullStats = () => Array.from({ length: Math.max(...Object.values(Stat).filter(value => typeof value === 'number')) + 1 }, () => 0);
+
+export const planPresetTargets: ReadonlyArray<PresetTarget> = [
+	{
+		path: 'Molten Core/Son of Flame',
+		target: Target.create({ id: 12143, name: 'Son of Flame', level: 62, mobType: MobType.MobTypeElemental, stats: fullStats() }),
+	},
+	{
+		path: 'Blackwing Lair/Death Talon Wyrmguard',
+		target: Target.create({ id: 12460, name: 'Death Talon Wyrmguard', level: 62, mobType: MobType.MobTypeDragonkin, stats: fullStats() }),
+	},
+];
+
+const at = (fraction: number, jitter = 0) => ({ at: fraction, jitter });
+const noRepeat = { interval: 0, jitter: 0, count: 0 };
+
+export const emptyPlan = (): EncounterPlan => EncounterPlan.create();
+
+/** One wave of two adds every 45 s, alive for 20 s each time, with a debuff amp on the adds. */
+export const dynamicAddsPlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		addWaves: [
+			{
+				name: 'Sons of Flame',
+				adds: [Target.clone(planPresetTargets[0].target!), Target.clone(planPresetTargets[0].target!)],
+				spawn: at(15 / 180, 2 / 180),
+				lifetime: 20 / 180,
+				repeat: { interval: 45 / 180, jitter: 3 / 180, count: 0 },
+				executeProportion20: 0.2,
+				executeProportion35: 0.35,
+				killShare: 0.25,
+			},
+		],
+		damageAmps: [
+			{
+				type: DamageAmpType.DamageAmpTypeTargetDebuff,
+				percent: 10,
+				start: at(15 / 180),
+				end: at(35 / 180),
+				repeat: { interval: 45 / 180, jitter: 0, count: 0 },
+				targets: PlanTargets.create({ waveIndices: [0] }),
+			},
+		],
+	});
+
+/** A 10-yard move every 30 s, a few seconds either way. */
+export const movementPlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		moves: [
+			{ at: at(20 / 180, 3 / 180), yards: 10, seconds: 0, repeat: { interval: 30 / 180, jitter: 0, count: 0 } },
+			{ at: at(150 / 180), yards: 0, seconds: 4, repeat: noRepeat },
+		],
+	});
+
+/**
+ * Area damage: fire on the floor for 12 s every 50 s, a tick a second, the player stepping out of it with a move, and a
+ * raid-wide blast every 40 s.
+ */
+export const areaDamagePlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		bossAbilities: [
+			{
+				name: 'Lava Burst',
+				kind: PlanBossAbility_Kind.Pulse,
+				start: at(20 / 180),
+				end: at(32 / 180),
+				repeat: { interval: 50 / 180, jitter: 0, count: 0 },
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 500,
+				maxDamage: 700,
+				tickInterval: 1,
+				tickJitter: 0.2,
+				resistible: true,
+				avoidable: true,
+			},
+			{
+				name: 'Wrath of Ragnaros',
+				kind: PlanBossAbility_Kind.AreaHit,
+				start: at(30 / 180),
+				end: at(1),
+				repeat: { interval: 40 / 180, jitter: 0, count: 0 },
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 1500,
+				maxDamage: 2000,
+				resistible: true,
+			},
+		],
+		moves: [{ at: at(26 / 180), yards: 10, seconds: 0, repeat: { interval: 50 / 180, jitter: 0, count: 0 } }],
+	});
+
+/** A tanking fight: a spell hit every 20 s, a strike, a thrash window and a swing pause, with health keyframes. */
+export const customBossPlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		bossHealth: [
+			{ at: 0, healthPercent: 100 },
+			{ at: 0.5, healthPercent: 40 },
+			{ at: 1, healthPercent: 0 },
+		],
+		bossAbilities: [
+			{
+				kind: PlanBossAbility_Kind.SpellHit,
+				targetIndex: 0,
+				start: at(10 / 180),
+				end: at(1),
+				repeat: { interval: 20 / 180, jitter: 0, count: 0 },
+				school: SpellSchool.SpellSchoolFire,
+				minDamage: 1800,
+				maxDamage: 2200,
+				castTime: 2,
+				weaponPercent: 0,
+				procChance: 0,
+				extraAttacks: 0,
+				icd: 0,
+				swingSpeedMultiplier: 1,
+			},
+			{
+				kind: PlanBossAbility_Kind.Strike,
+				targetIndex: 0,
+				start: at(30 / 180),
+				end: at(1),
+				repeat: { interval: 30 / 180, jitter: 0, count: 3 },
+				school: SpellSchool.SpellSchoolPhysical,
+				minDamage: 0,
+				maxDamage: 0,
+				castTime: 0,
+				weaponPercent: 150,
+				procChance: 0,
+				extraAttacks: 0,
+				icd: 0,
+				swingSpeedMultiplier: 1,
+			},
+			{
+				kind: PlanBossAbility_Kind.Thrash,
+				targetIndex: 0,
+				start: at(60 / 180),
+				end: at(100 / 180),
+				repeat: noRepeat,
+				school: SpellSchool.SpellSchoolPhysical,
+				minDamage: 0,
+				maxDamage: 0,
+				castTime: 0,
+				weaponPercent: 0,
+				procChance: 20,
+				extraAttacks: 2,
+				icd: 2,
+				swingSpeedMultiplier: 1,
+			},
+			{
+				kind: PlanBossAbility_Kind.SwingTiming,
+				targetIndex: 0,
+				start: at(120 / 180, 2 / 180),
+				end: at(128 / 180, 2 / 180),
+				repeat: noRepeat,
+				school: SpellSchool.SpellSchoolPhysical,
+				minDamage: 0,
+				maxDamage: 0,
+				castTime: 0,
+				weaponPercent: 0,
+				procChance: 0,
+				extraAttacks: 0,
+				icd: 0,
+				swingSpeedMultiplier: 0,
+			},
+		],
+	});
+
+/** Two downtimes on the boss that overlap, which validation reports as an error. */
+export const overlappingDowntimesPlan = (): EncounterPlan =>
+	EncounterPlan.create({
+		downtimes: [
+			{ targetIndex: 0, start: at(40 / 180), end: at(70 / 180), clearDebuffs: true },
+			{ targetIndex: 0, start: at(60 / 180), end: at(90 / 180), clearDebuffs: false },
+			{ targetIndex: 1, start: at(100 / 180), end: at(120 / 180), clearDebuffs: false },
+		],
+	});

@@ -20,7 +20,7 @@ type Encounter struct {
 	targetConfigs   []*proto.Target // The config of each target in AllTargets, nil for the stand-in target of an encounter without any.
 	strandedSwings  []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
 	strandedScratch []strandedSwing // The stranded swings being brought back, kept so bringing them back allocates nothing.
-	design          *encounterDesign
+	plan            *encounterPlan
 
 	ExecuteProportion_20 float64
 	ExecuteProportion_35 float64
@@ -86,7 +86,7 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		encounter.targetConfigs = append(encounter.targetConfigs, nil)
 	}
 
-	encounter.design = newEncounterDesign(&encounter, options.Design)
+	encounter.plan = newEncounterPlan(&encounter, options.Plan)
 	encounter.updateAOECapMultiplier()
 
 	return encounter
@@ -177,7 +177,7 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 
 	for idx, target := range encounter.AllTargets {
 		metrics.Targets[idx] = target.GetMetricsProto()
-		metrics.Targets[idx].DesignAdd = encounter.designAdd(target)
+		metrics.Targets[idx].PlanAdd = encounter.planAdd(target)
 	}
 
 	return metrics

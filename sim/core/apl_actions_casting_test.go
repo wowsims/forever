@@ -14,13 +14,13 @@ import (
 // the idle pool slot of a wave still to come, and a limit of one dot stops at the boss.
 func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
 	const dotID = 910105
-	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{testAddWave(1, 0.8, 0.1, nil), testAddWave(1, 0.1, 0.5, nil)}}
+	plan := &proto.EncounterPlan{AddWaves: []*proto.AddWave{testAddWave(1, 0.8, 0.1, nil), testAddWave(1, 0.1, 0.5, nil)}}
 	var spell *Spell
-	sim, fw := setupDesignSim(designTestRequest(1, design), func(char *Character) {
+	sim, fw := setupPlanSim(planTestRequest(1, plan), func(char *Character) {
 		spell = char.RegisterSpell(fakeWarlockDot(dotID, "Multidot Test", ClassFlags{}, SpellFlagAPL))
 	})
 	spell.finalize()
-	runLifecycleUntil(sim, designAt(0.2))
+	runLifecycleUntil(sim, planAt(0.2))
 	boss, idle, active := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1], sim.Encounter.AllTargets[2]
 	if idle.IsEnabled() || !active.IsEnabled() {
 		t.Fatal("test setup: expected the first wave's slot idle and the second wave's add up")

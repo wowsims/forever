@@ -1,4 +1,4 @@
-import { EncounterDesigner } from '@features/encounter-designer';
+import { EncounterPlanner } from '@features/encounter-planner';
 import { ConnectedChoiceField } from '@features/inputs/components/ConnectedChoiceField';
 import { ConnectedNumberField } from '@features/inputs/components/ConnectedTextField';
 import type { Encounter as EncounterProto } from '@generated/proto/common';
@@ -26,7 +26,7 @@ export interface EncounterPickerViewProps {
 	preset?: ReactNode;
 	allies?: ReactNode;
 	minBaseDamage?: ReactNode;
-	onDesignClick: () => void;
+	onPlannerClick: () => void;
 	/** Shows the + beside the title, which starts a new encounter of the player's own. */
 	onNewClick?: () => void;
 }
@@ -39,7 +39,7 @@ export const EncounterPickerView = ({
 	preset,
 	allies,
 	minBaseDamage,
-	onDesignClick,
+	onPlannerClick,
 	onNewClick,
 }: EncounterPickerViewProps) => (
 	<ContentBlock
@@ -54,8 +54,8 @@ export const EncounterPickerView = ({
 		}>
 		<div className="flex flex-wrap gap-2" data-testid="encounter-picker-root">
 			{preset}
-			<Button className="w-full" data-testid="design-encounter-button" onClick={onDesignClick}>
-				{i18n.t('settings_tab.encounter.designer.open')}
+			<Button className="w-full" data-testid="encounter-planner-button" onClick={onPlannerClick}>
+				{i18n.t('settings_tab.encounter.planner.open')}
 			</Button>
 			<FieldGrid>{duration}</FieldGrid>
 			{execute && <FieldGrid className="w-full">{execute}</FieldGrid>}
@@ -79,8 +79,8 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const player = host.player;
 	const { damage: showDamage } = useDisplayMetrics(host.sim);
 	const choice = useEncounterChoice(encounter, CHOICE_FIELD);
-	// A designer fight's execute proportions are set in the designer.
-	const designerFight = useStoreSubscribe(subscribeEncounterField(encounter, 'design'), () => encounter.hasDesign());
+	// A fight with a plan has its execute proportions set in the planner.
+	const plannerFight = useStoreSubscribe(subscribeEncounterField(encounter, 'plan'), () => encounter.hasPlan());
 
 	const duration = useMemo(() => durationConfigs(), []);
 	const execute = useMemo(() => (showExecuteProportion ? executeConfigs() : []), [showExecuteProportion]);
@@ -88,16 +88,16 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 	const minBaseDamage = useMemo(() => minBaseDamageConfig(), []);
 	const zone = useMemo(() => zoneConfig(encounter), [encounter]);
 
-	const [designerOpen, setDesignerOpen] = useState(false);
+	const [plannerOpen, setPlannerOpen] = useState(false);
 	const [replaced, setReplaced] = useState<EncounterProto>();
 
 	const startNew = () => {
 		setReplaced(encounter.toProto());
 		encounter.fromProto(newEncounterProto());
-		setDesignerOpen(true);
+		setPlannerOpen(true);
 	};
-	const onDesignerOpenChange = (open: boolean) => {
-		setDesignerOpen(open);
+	const onPlannerOpenChange = (open: boolean) => {
+		setPlannerOpen(open);
 		if (!open) setReplaced(undefined);
 	};
 
@@ -109,7 +109,7 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				))}
 				execute={
 					showExecuteProportion &&
-					!designerFight &&
+					!plannerFight &&
 					execute.map(config => <ConnectedNumberField key={config.id} modObject={encounter} config={config} />)
 				}
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
@@ -117,10 +117,10 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				preset={showDamage && <ConnectedChoiceField {...choice} />}
 				allies={player.canEnableTargetDummies() && <ConnectedNumberField modObject={host.sim.raid} config={allies} />}
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
-				onDesignClick={() => setDesignerOpen(true)}
+				onPlannerClick={() => setPlannerOpen(true)}
 				onNewClick={showDamage ? startNew : undefined}
 			/>
-			<EncounterDesigner open={designerOpen} onOpenChange={onDesignerOpenChange} replaced={replaced} showExecuteProportion={showExecuteProportion} />
+			<EncounterPlanner open={plannerOpen} onOpenChange={onPlannerOpenChange} replaced={replaced} showExecuteProportion={showExecuteProportion} />
 		</>
 	);
 };

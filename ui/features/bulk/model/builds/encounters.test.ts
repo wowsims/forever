@@ -1,4 +1,4 @@
-import { DesignDowntime, Encounter, EncounterDesign, Target } from '@generated/proto/common';
+import { Encounter, EncounterPlan, PlanDowntime, Target } from '@generated/proto/common';
 import { BulkEncounterRef, SavedEncounter } from '@generated/proto/ui';
 import { bulkState, loadStoredBulkEncounters } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -178,7 +178,7 @@ describe('bulkEncounterList', () => {
 		expect(bulkEncounterRuns(CURRENT, entries, unticked)).toEqual([{ name: 'Three minutes', isCurrent: false, encounter: entries[0].encounter }]);
 	});
 
-	it('compares encounters without their proto version, name, My encounters mark, zone, target names or an empty design', () => {
+	it('compares encounters without their proto version, name, My encounters mark, zone, target names or an empty plan', () => {
 		const entries = [
 			entryOf('Raid', Encounter.create({ duration: 300, targets: [Target.create()] })),
 			entryOf(
@@ -189,14 +189,14 @@ describe('bulkEncounterList', () => {
 					name: 'Mine',
 					myEncounter: true,
 					zoneId: 5,
-					design: EncounterDesign.create(),
+					plan: EncounterPlan.create(),
 					targets: [Target.create({ name: 'Boss' })],
 				}),
 			),
 			entryOf('Longer raid', Encounter.create({ duration: 301, targets: [Target.create()] })),
 			entryOf(
 				'Raid with a downtime',
-				Encounter.create({ duration: 300, design: EncounterDesign.create({ downtimes: [DesignDowntime.create()] }), targets: [Target.create()] }),
+				Encounter.create({ duration: 300, plan: EncounterPlan.create({ downtimes: [PlanDowntime.create()] }), targets: [Target.create()] }),
 			),
 		];
 

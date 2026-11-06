@@ -1,6 +1,6 @@
 ---
 name: wowsims-core-mechanics
-description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, encounter designs, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
+description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, encounter plans, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
 ---
 
 # wowsims-core-mechanics
@@ -105,7 +105,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.
 
-## Targets and encounter designs
+## Targets and encounter plans
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
   target, its tank among them, move to the enabled target with the lowest index and look at their rotation again; with
@@ -115,11 +115,11 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it does not land once the
   target is back, and ends every raid unit's channel on the target with no further tick, for a disable, cleared or
   not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on a target disabled
-  without clearing its debuffs, as in a design downtime that keeps them.
+  without clearing its debuffs, as in a plan's downtime that keeps them.
 - **The code that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
   reset puts them on, so a target up from the pull gets them at the pull. `Encounter.ScheduleAddRaidDebuffs` takes an
   apply, a delay and a jitter at each spawn: the debuffs land delay ± jitter later, or stay off with apply off
-  (`target_raid_debuffs.go`). A design's add wave (`design_runner.go`) holds them on its pool targets as the sim's
+  (`target_raid_debuffs.go`). A plan's add wave (`plan_runner.go`) holds them on its pool targets as the sim's
   reset starts, before those targets' own resets, calls it for each add at each spawn with the wave's Raid debuffs,
   Debuff delay and Debuff jitter (seconds; zero values apply at once), and disables them after each despawn's
   death. The jitter rolls on `sim.addDebuffRand`, a stream apart from the combat rolls like `sim.deathRand`, so gear
@@ -128,9 +128,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   walks only the auras with a duration (`aura.go`). Code that takes a target away disables the raid's debuffs with
   `Target.DisableRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through
   `Encounter.ScheduleAddRaidDebuffs` or at times of its own, which runs each one's `OnReset` again, so Sunder Armor ramps
-  up anew. A design downtime that clears debuffs disables them at its start and lands them at its end, once no other
+  up anew. A plan's downtime that clears debuffs disables them at its start and lands them at its end, once no other
   clearing downtime on the target runs, whether or not the target comes back then. A held target's reset skips those
-  `OnReset`s. Every target's hold clears as the sim's reset starts, and a design's add wave then holds its pool targets'
+  `OnReset`s. Every target's hold clears as the sim's reset starts, and a plan's add wave then holds its pool targets'
   again. A landing due while the sim resets, before the target's own reset, only releases the hold, so that reset puts
   the debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
   `sim/core/buffs/drivers.go`) ticks nothing on a held target, and each landing replaces the schedule still running. A
@@ -139,29 +139,29 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
   `ExtraCondition`, which runs inside `Die`. The proc side is `docs/spell_data/procs.md`, which also says why a rated
-  trigger hears no death. Only a design's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
+  trigger hears no death. Only a plan's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
   Adds preset).
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
   target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%: at the
-  encounter's execute proportions of the fight (`resetExecutePhases`), or where a design's health curve for its boss or
+  encounter's execute proportions of the fight (`resetExecutePhases`), or where a plan's health curve for its boss or
   add crosses them; an enemy has no health bar to read. A buff row a target's phase grants sits on the caster and
   carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target (Quietus, Early
   Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
   phases.
-- **An encounter design is a timeline of fractions of the rolled fight duration** (`design_runner.go` and the
-  `design_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.designRand`, a stream apart from the
-  combat and kill rolls, so it does not move with gear. `DesignRepeat.count` is repeats after the first, 0 until the fight ends;
+- **An encounter plan is a timeline of fractions of the rolled fight duration** (`plan_runner.go` and the
+  `plan_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.planRand`, a stream apart from the
+  combat and kill rolls, so it does not move with gear. `PlanRepeat.count` is repeats after the first, 0 until the fight ends;
   overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
-  add waves take targets from a pool allocated at construction. Design input never panics: what construction drops
+  add waves take targets from a pool allocated at construction. A malformed plan never panics: what construction drops
   is logged at each reset (`constructNotes`).
-- **A design's area damage has no caster in the fight** (`registerArea` in `design_boss_abilities.go`). Pulse ticks and
+- **A plan's area damage has no caster in the fight** (`registerArea` in `plan_boss_abilities.go`). Pulse ticks and
   area hits are target 0's spells, for its level and its metrics, applied with `SkipCastAndApplyEffects`, so they land
   with every target down or dead and nothing interrupts them. They hit every player and every enabled pet and skip
   target 0's damage dealt modifiers; only a resistible one rolls spell hit and partial resists. An avoidable one skips
-  a player from a design move's walk start to its end (`walkEnds`), not an APL move.
+  a player from the walk start of a plan's move to its end (`walkEnds`), not an APL move.
 - **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
-  and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.design_add`, copied
+  and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.plan_add`, copied
   by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from
   them. Every slot is listed, whether or not it spawned in an iteration.
 

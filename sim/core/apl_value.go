@@ -111,7 +111,7 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 	case *proto.APLValue_TimeUntilTargetDies:
 		value = rot.newValueTimeUntilTargetDies(config.GetTimeUntilTargetDies(), config.Uuid)
 
-	// Encounter design
+	// Encounter plan
 	case *proto.APLValue_TimeUntilNextMove:
 		value = rot.newValueTimeUntilNextMove(config.GetTimeUntilNextMove(), config.Uuid)
 	case *proto.APLValue_NextMoveDuration:

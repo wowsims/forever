@@ -1,12 +1,12 @@
 import {
 	ActionMetrics as ActionMetricsProto,
 	AuraMetrics as AuraMetricsProto,
-	DesignAdd,
 	DistributionMetrics as DistributionMetricsProto,
 	EncounterMetrics as EncounterMetricsProto,
 	HitKind,
 	Party as PartyProto,
 	PartyMetrics as PartyMetricsProto,
+	PlanAdd,
 	Player as PlayerProto,
 	Raid as RaidProto,
 	RaidMetrics as RaidMetricsProto,
@@ -18,10 +18,10 @@ import {
 } from '@generated/proto/api';
 import {
 	Class,
-	DesignBossAbility_Kind,
 	Encounter as EncounterProto,
-	EncounterDesign,
+	EncounterPlan,
 	OtherAction,
+	PlanBossAbility_Kind,
 	SpellSchool,
 	Target as TargetProto,
 } from '@generated/proto/common';
@@ -35,7 +35,7 @@ import { PlayerSpec } from '../player/player_spec';
 import { PlayerSpecs } from '../player/specs';
 import { bucket } from '../utils/collections';
 import { percentOf, sum } from '../utils/math';
-import { ActionId, defaultTargetIcon, ENCOUNTER_DESIGN_ABILITY_TAG } from './action_id';
+import { ActionId, defaultTargetIcon, ENCOUNTER_PLAN_ABILITY_TAG } from './action_id';
 import {
 	AuraUptimeLog,
 	buildAuraUptimes,
@@ -351,8 +351,8 @@ export class UnitMetrics {
 	readonly index: number;
 	readonly unitIndex: number;
 	readonly name: string;
-	// For a target an add wave of the encounter design spawns, the wave and the add it spawns as; null otherwise.
-	readonly designAddName: string | null;
+	// For a target an add wave of the encounter plan spawns, the wave and the add it spawns as; null otherwise.
+	readonly planAddName: string | null;
 	readonly spec: PlayerSpec<any> | null;
 	readonly petActionId: ActionId | null;
 	readonly iconUrl: string;
@@ -444,7 +444,7 @@ export class UnitMetrics {
 		pets: Array<UnitMetrics>,
 		logs: Array<CombatLog>,
 		resultData: SimResultData,
-		designAddName: string | null = null,
+		planAddName: string | null = null,
 	) {
 		this.player = player;
 		this.target = target;
@@ -453,7 +453,7 @@ export class UnitMetrics {
 		this.index = index;
 		this.unitIndex = metrics.unitIndex;
 		this.name = metrics.name;
-		this.designAddName = designAddName;
+		this.planAddName = planAddName;
 		this.spec = this.player ? getPlayerSpecFromPlayer(this.player) : null;
 		this.petActionId = petActionId;
 		this.iconUrl = this.isPlayer ? (this.spec?.getIcon('medium') ?? '') : this.isTarget ? defaultTargetIcon : '';
@@ -478,7 +478,7 @@ export class UnitMetrics {
 		if (this.target == null) {
 			return `${this.name} (#${this.index + 1})`;
 		} else {
-			return `${this.name} (${this.designAddName ?? this.target.name})`;
+			return `${this.name} (${this.planAddName ?? this.target.name})`;
 		}
 	}
 
@@ -641,7 +641,7 @@ export class UnitMetrics {
 		metrics: UnitMetricsProto,
 		index: number,
 		logIndex: UnitLogIndex,
-		designAddName: string | null = null,
+		planAddName: string | null = null,
 	): Promise<UnitMetrics> {
 		const targetLogs = logIndex.target(index);
 
@@ -651,63 +651,63 @@ export class UnitMetrics {
 		const actions = await actionsPromise;
 		const auras = await aurasPromise;
 
-		const targetMetrics = new UnitMetrics(null, target, null, metrics, index, actions, auras, [], [], targetLogs, resultData, designAddName);
+		const targetMetrics = new UnitMetrics(null, target, null, metrics, index, actions, auras, [], [], targetLogs, resultData, planAddName);
 		actions.forEach(action => (action.unit = targetMetrics));
 		auras.forEach(aura => (aura.unit = targetMetrics));
 		return targetMetrics;
 	}
 }
 
-// The add's template and its name as the encounter designer shows them: the wave's name, else "Wave N", then the
+// The add's template and its name as the encounter planner shows them: the wave's name, else "Wave N", then the
 // add's, else "Add N".
-const designAddTarget = (design: EncounterDesign | undefined, add: DesignAdd): { template: TargetProto; name: string } => {
-	const wave = design?.addWaves[add.waveIndex];
+const planAddTarget = (plan: EncounterPlan | undefined, add: PlanAdd): { template: TargetProto; name: string } => {
+	const wave = plan?.addWaves[add.waveIndex];
 	const template = wave?.adds[add.addIndex] ?? TargetProto.create();
 	const waveName =
 		wave?.name ||
-		i18n.t('settings_tab.encounter.designer.event_name', {
-			event: i18n.t('settings_tab.encounter.designer.events.wave'),
+		i18n.t('settings_tab.encounter.planner.event_name', {
+			event: i18n.t('settings_tab.encounter.planner.events.wave'),
 			number: add.waveIndex + 1,
 		});
-	const addName = template.name || i18n.t('settings_tab.encounter.designer.adds.add_title', { number: add.addIndex + 1 });
+	const addName = template.name || i18n.t('settings_tab.encounter.planner.adds.add_title', { number: add.addIndex + 1 });
 	return { template, name: `${waveName} · ${addName}` };
 };
 
-// The spells a design's boss abilities report as (designSpellHitSpellID and designStrikeSpellID in sim/core/design_boss_abilities.go).
-const DESIGN_SPELL_HIT_SPELL_ID = 18282;
-const DESIGN_STRIKE_SPELL_ID = 15284;
+// The spells a plan's boss abilities report as (planSpellHitSpellID and planStrikeSpellID in sim/core/plan_boss_abilities.go).
+const PLAN_SPELL_HIT_SPELL_ID = 18282;
+const PLAN_STRIKE_SPELL_ID = 15284;
 
-const DESIGN_ABILITY_KIND_KEYS: Partial<Record<DesignBossAbility_Kind, string>> = {
-	[DesignBossAbility_Kind.SpellHit]: 'spell_hit',
-	[DesignBossAbility_Kind.Strike]: 'strike',
-	[DesignBossAbility_Kind.Thrash]: 'thrash',
-	[DesignBossAbility_Kind.Pulse]: 'pulse',
-	[DesignBossAbility_Kind.AreaHit]: 'area_hit',
+const PLAN_ABILITY_KIND_KEYS: Partial<Record<PlanBossAbility_Kind, string>> = {
+	[PlanBossAbility_Kind.SpellHit]: 'spell_hit',
+	[PlanBossAbility_Kind.Strike]: 'strike',
+	[PlanBossAbility_Kind.Thrash]: 'thrash',
+	[PlanBossAbility_Kind.Pulse]: 'pulse',
+	[PlanBossAbility_Kind.AreaHit]: 'area_hit',
 };
 
 // The kinds that report under an action id: a spell hit, pulse tick or area hit under the Dummy Spell, a strike under
 // Cleave, a thrash's extra attacks under the boss's attack, each tagged with the ability's index. A player's Cleave
-// carries a small tag, so it never reaches the design's range. A swing timing reports no action.
-const designAbilityKinds = (actionId: ActionId): Array<DesignBossAbility_Kind> => {
-	if (actionId.tag < ENCOUNTER_DESIGN_ABILITY_TAG) return [];
-	if (actionId.otherId === OtherAction.OtherActionAttack) return [DesignBossAbility_Kind.Thrash];
-	if (actionId.spellId === DESIGN_STRIKE_SPELL_ID) return [DesignBossAbility_Kind.Strike];
-	if (actionId.spellId === DESIGN_SPELL_HIT_SPELL_ID) {
-		return [DesignBossAbility_Kind.SpellHit, DesignBossAbility_Kind.Pulse, DesignBossAbility_Kind.AreaHit];
+// carries a small tag, so it never reaches the plan's range. A swing timing reports no action.
+const planAbilityKinds = (actionId: ActionId): Array<PlanBossAbility_Kind> => {
+	if (actionId.tag < ENCOUNTER_PLAN_ABILITY_TAG) return [];
+	if (actionId.otherId === OtherAction.OtherActionAttack) return [PlanBossAbility_Kind.Thrash];
+	if (actionId.spellId === PLAN_STRIKE_SPELL_ID) return [PlanBossAbility_Kind.Strike];
+	if (actionId.spellId === PLAN_SPELL_HIT_SPELL_ID) {
+		return [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit];
 	}
 	return [];
 };
 
-// A boss ability's actions take the name the designer gives the ability, "Ability N" when it has none, with the
+// A boss ability's actions take the name the planner gives the ability, "Ability N" when it has none, with the
 // kind after it. Undefined for any other id, or when the ability at the tag's index is of another kind.
-const designAbilityName = (design: EncounterDesign | undefined, actionId: ActionId): string | undefined => {
-	const index = actionId.tag - ENCOUNTER_DESIGN_ABILITY_TAG;
-	const ability = design?.bossAbilities[index];
-	if (!ability || !designAbilityKinds(actionId).includes(ability.kind)) return undefined;
-	const kind = i18n.t(`settings_tab.encounter.designer.ability_kinds.${DESIGN_ABILITY_KIND_KEYS[ability.kind]}`);
+const planAbilityName = (plan: EncounterPlan | undefined, actionId: ActionId): string | undefined => {
+	const index = actionId.tag - ENCOUNTER_PLAN_ABILITY_TAG;
+	const ability = plan?.bossAbilities[index];
+	if (!ability || !planAbilityKinds(actionId).includes(ability.kind)) return undefined;
+	const kind = i18n.t(`settings_tab.encounter.planner.ability_kinds.${PLAN_ABILITY_KIND_KEYS[ability.kind]}`);
 	const name =
 		ability.name ||
-		i18n.t('settings_tab.encounter.designer.event_name', { event: i18n.t('settings_tab.encounter.designer.events.ability'), number: index + 1 });
+		i18n.t('settings_tab.encounter.planner.event_name', { event: i18n.t('settings_tab.encounter.planner.events.ability'), number: index + 1 });
 	return `${name} (${kind})`;
 };
 
@@ -729,17 +729,17 @@ export class EncounterMetrics {
 		metrics: EncounterMetricsProto,
 		logIndex: UnitLogIndex,
 	): Promise<EncounterMetrics> {
-		// The sim lists the encounter's own targets, then every add slot of the design's waves. A target past the
-		// encounter's own without a design add is the stand-in of an encounter without targets.
+		// The sim lists the encounter's own targets, then every add slot of the plan's waves. A target past the
+		// encounter's own that is no add of the plan is the stand-in of an encounter without targets.
 		const namesSeen = new Map<string, number>();
 		const targets = await Promise.all(
 			metrics.targets.map((targetMetrics, i) => {
 				if (i < encounter.targets.length) return UnitMetrics.makeNewTarget(resultData, encounter.targets[i], targetMetrics, i, logIndex);
-				if (!targetMetrics.designAdd) return null;
-				const { template, name } = designAddTarget(encounter.design, targetMetrics.designAdd);
+				if (!targetMetrics.planAdd) return null;
+				const { template, name } = planAddTarget(encounter.plan, targetMetrics.planAdd);
 				const seen = (namesSeen.get(name) ?? 0) + 1;
 				namesSeen.set(name, seen);
-				const uniqueName = seen > 1 ? i18n.t('settings_tab.encounter.designer.occurrence_name', { name, number: seen }) : name;
+				const uniqueName = seen > 1 ? i18n.t('settings_tab.encounter.planner.occurrence_name', { name, number: seen }) : name;
 				return UnitMetrics.makeNewTarget(resultData, template, targetMetrics, i, logIndex, uniqueName);
 			}),
 		);
@@ -1538,7 +1538,7 @@ export class ActionMetrics {
 
 	static async makeNew(unit: UnitMetrics | null, resultData: SimResultData, actionMetrics: ActionMetricsProto, playerIndex?: number): Promise<ActionMetrics> {
 		const actionId = await ActionId.fromProto(actionMetrics.id!).fill(playerIndex);
-		const abilityName = designAbilityName(resultData.request.encounter?.design, actionId);
+		const abilityName = planAbilityName(resultData.request.encounter?.plan, actionId);
 		return new ActionMetrics(unit, abilityName ? actionId.withName(abilityName) : actionId, actionMetrics, resultData);
 	}
 

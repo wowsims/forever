@@ -24,7 +24,7 @@ ui/
   features/<name>/   one folder per capability: model/ (DOM-free, lint-enforced) +
                      components/ (React, one folder per component) + hooks/ + utils/ (feature
                      helpers that are neither a component nor DOM-free). The capabilities are
-                     apl, bulk, character-stats, enchant-presets, encounter, encounter-designer,
+                     apl, bulk, character-stats, enchant-presets, encounter, encounter-planner,
                      gear, import-export, item-swap, onboarding, reforge, results,
                      saved-data-transfer, settings,
                      stat-filters, stat-sweep, stat-weights, talents.

@@ -148,7 +148,7 @@ func (env *Environment) initialize(raidProto *proto.Raid) *proto.RaidStats {
 			playerOrPet.Initialize()
 		}
 	}
-	env.Encounter.design.registerLanes(env)
+	env.Encounter.plan.registerLanes(env)
 
 	env.State = Initialized
 	return raidStats
@@ -292,16 +292,16 @@ func (env *Environment) reset(sim *Simulation) {
 	// the presence of permanent target auras in their Reset handlers.
 	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
 	// Cleared before any landing of the raid's debuffs reads them: a landing before the target's own reset only releases
-	// the hold. The design's add waves then hold their pool targets' debuffs, before those targets' own resets.
+	// the hold. The plan's add waves then hold their pool targets' debuffs, before those targets' own resets.
 	for _, target := range env.Encounter.AllTargets {
 		target.aurasReset = false
 		target.raidDebuffsHeld = false
 	}
-	env.Encounter.design.holdAddRaidDebuffs(sim)
+	env.Encounter.plan.holdAddRaidDebuffs(sim)
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}
-	env.Encounter.design.reset(sim)
+	env.Encounter.plan.reset(sim)
 
 	env.Raid.reset(sim)
 }

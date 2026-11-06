@@ -77,8 +77,8 @@ func GetPresetTargetWithPath(path string) *PresetTarget {
 	return nil
 }
 
-// The design, when not nil, becomes the preset encounter's design.
-func AddPresetEncounter(name string, targetPaths []string, design *proto.EncounterDesign) {
+// The plan, when not nil, becomes the preset encounter's plan.
+func AddPresetEncounter(name string, targetPaths []string, plan *proto.EncounterPlan) {
 	if len(targetPaths) == 0 {
 		log.Fatalf("Encounter must have targets!")
 	}
@@ -107,6 +107,6 @@ func AddPresetEncounter(name string, targetPaths []string, design *proto.Encount
 	PresetEncounters = append(PresetEncounters, &proto.PresetEncounter{
 		Path:    path,
 		Targets: targetProtos,
-		Design:  design,
+		Plan:    plan,
 	})
 }

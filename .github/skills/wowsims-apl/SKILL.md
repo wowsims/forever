@@ -162,13 +162,13 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 - **`Is Execute Phase` takes a target**, the current target when none is set (`sim/core/apl_values_encounter.go`). An
   enemy has no health bar, so `Current Health` and `Current Health %` on one warn and do not resolve. Fights are
   time-based: a fight lasts its rolled duration, and every target of a plain encounter crosses 35% and 20% at the
-  encounter's execute proportions; a design's boss and adds each cross them at their own times.
+  encounter's execute proportions; a plan's boss and adds each cross them at their own times.
 - **Multidot and Strict Multidot count active targets**: a disabled or dead target is skipped, so `max_dots` dots the
   first targets still up (`sim/core/apl_actions_casting.go`).
 
 ## Encounter values
 
-The values that read an encounter design are in `sim/core/apl_values_targets.go`, `apl_values_design.go` and
+The values that read an encounter plan are in `sim/core/apl_values_targets.go`, `apl_values_plan.go` and
 `apl_values_encounter.go`: `Target Is Active`, `Time Until Target Active` and `Time Until Target Dies` (each takes an enemy target and warns on
 a unit that is not one), `Num Active Adds`, `Time Until Next Move`, `Next Move Duration`, `Amp Is Active` and
 `Time Until Amp` (by damage amp type), and four values by a boss ability's exact event name: `Boss Ability Is Active`
@@ -181,7 +181,7 @@ and a Pulse or Area Hit, which comes from no target, never matches a set unit. W
 `Is Known` folds to a constant like `Spell Is Known`; with a current, previous or next target it reads at each
 evaluation, and folds to false when no target has an ability of the name. An ability construction skipped (its
 construct note says why) is never active, never next, never casts and is not known, though its name draws no
-unknown-name warning. Without a design the times are never, and `Next Move Duration` is 0.
+unknown-name warning. Without a plan the times are never, and `Next Move Duration` is 0.
 
 ## Traps
 

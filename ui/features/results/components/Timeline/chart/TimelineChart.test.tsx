@@ -159,10 +159,10 @@ describe('TimelineChart', () => {
 		expect(charts[0].updates).toBe(2);
 	});
 
-	it('lists only the scheduled kinds present, and nothing without a design', () => {
-		const withoutDesign = render(<TimelineChart spec={spec(dataset('dps', 'DPS'))} />);
-		expect(legend(withoutDesign.container)).toBeNull();
-		withoutDesign.unmount();
+	it('lists only the scheduled kinds present, and nothing without a plan', () => {
+		const withoutPlan = render(<TimelineChart spec={spec(dataset('dps', 'DPS'))} />);
+		expect(legend(withoutPlan.container)).toBeNull();
+		withoutPlan.unmount();
 
 		const { container } = render(<TimelineChart spec={withScheduled('wave', 'move')} />);
 		const entries = Array.from(legend(container)!.querySelectorAll('button')).map(button => button.textContent);

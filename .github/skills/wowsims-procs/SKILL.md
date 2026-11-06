@@ -67,7 +67,7 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
   death; both are in `procs.md` (the two death bits), the order of a death in `wowsims-core-mechanics`
-  `## Targets and encounter designs`.
+  `## Targets and encounter plans`.
 
 ## Item and enchant procs
 

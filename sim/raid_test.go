@@ -108,7 +108,7 @@ func TestFixedRaid(t *testing.T) {
 }
 */
 
-// Every preset target simulates on its own as a plain target, with no design.
+// Every preset target simulates on its own as a plain target, with no plan.
 func TestPresetTargetsAlone(t *testing.T) {
 	for _, path := range []string{"Default/Raid Target", "Default/Movement", "Default/Dynamic Boss", "Default/Dynamic Add", "Default/Boss"} {
 		preset := core.GetPresetTargetWithPath(path)
@@ -128,12 +128,12 @@ func TestPresetTargetsAlone(t *testing.T) {
 	}
 }
 
-// The Dynamic Adds preset encounter, run with its targets and its design, spawns an add wave and despawns it:
+// The Dynamic Adds preset encounter, run with its targets and its plan, spawns an add wave and despawns it:
 // a 180 s fight spawns at 10 s, 40 s, ... and each add lives 20 s.
 func TestDynamicAddsPresetEncounter(t *testing.T) {
 	preset := dynamicAddsPreset(t)
-	if len(preset.Targets) != 1 || preset.Design == nil || len(preset.Design.AddWaves) != 1 {
-		t.Fatalf("the preset encounter has %d targets and design %v, want one target and one add wave", len(preset.Targets), preset.Design)
+	if len(preset.Targets) != 1 || preset.Plan == nil || len(preset.Plan.AddWaves) != 1 {
+		t.Fatalf("the preset encounter has %d targets and plan %v, want one target and one add wave", len(preset.Targets), preset.Plan)
 	}
 	targets := make([]*proto.Target, len(preset.Targets))
 	for i, target := range preset.Targets {
@@ -141,7 +141,7 @@ func TestDynamicAddsPresetEncounter(t *testing.T) {
 	}
 	result := core.RunRaidSim(&proto.RaidSimRequest{
 		Raid:       BasicRaid,
-		Encounter:  &proto.Encounter{Duration: 180, Targets: targets, Design: preset.Design},
+		Encounter:  &proto.Encounter{Duration: 180, Targets: targets, Plan: preset.Plan},
 		SimOptions: &proto.SimOptions{Iterations: 1, IsTest: true, Debug: true},
 	})
 	if result.Error != nil {
@@ -173,26 +173,26 @@ func dynamicAddsPreset(t *testing.T) *proto.PresetEncounter {
 // The raid's debuffs the debuff tests tick. The warrior in the raid makes the raid's Sunder the player's own aura.
 var raidCurseAndSunder = &proto.Debuffs{CurseOfElements: true, SunderArmor: true}
 
-// The Dynamic Adds preset in a 180 s fight, its design changed by setDesign when it is not nil.
-func dynamicAddsEncounter(t *testing.T, setDesign func(design *proto.EncounterDesign)) *proto.Encounter {
+// The Dynamic Adds preset in a 180 s fight, its plan changed by setPlan when it is not nil.
+func dynamicAddsEncounter(t *testing.T, setPlan func(plan *proto.EncounterPlan)) *proto.Encounter {
 	t.Helper()
 	preset := dynamicAddsPreset(t)
 	targets := make([]*proto.Target, len(preset.Targets))
 	for i, target := range preset.Targets {
 		targets[i] = target.Target
 	}
-	design := googleproto.Clone(preset.Design).(*proto.EncounterDesign)
-	if setDesign != nil {
-		setDesign(design)
+	plan := googleproto.Clone(preset.Plan).(*proto.EncounterPlan)
+	if setPlan != nil {
+		setPlan(plan)
 	}
-	return &proto.Encounter{Duration: 180, Targets: targets, Design: design}
+	return &proto.Encounter{Duration: 180, Targets: targets, Plan: plan}
 }
 
 // A sim of the Dynamic Adds preset with the raid's Curse of the Elements and Sunder Armor ticked and the add wave's
 // debuff settings set.
 func newDynamicAddsDebuffSim(t *testing.T, apply bool, delay, jitter float64) *core.Simulation {
-	return newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-		setWaveDebuffs(design.AddWaves[0], apply, delay, jitter)
+	return newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+		setWaveDebuffs(plan.AddWaves[0], apply, delay, jitter)
 	}))
 }
 
@@ -228,7 +228,7 @@ func newWarriorSimWithGear(debuffs *proto.Debuffs, encounter *proto.Encounter, g
 }
 
 // The times in one iteration at which each raid debuff on the target comes on and goes off, read after every step,
-// starting off at the reset and rounded to the millisecond, since a design's times are fractions of the fight. With
+// starting off at the reset and rounded to the millisecond, since a plan's times are fractions of the fight. With
 // stacksAt set, it also returns the Sunder Armor stacks at that time.
 func raidDebuffFlips(t *testing.T, sim *core.Simulation, targetIndex int, stacksAt time.Duration) (coe, sunder []time.Duration, stacks int32) {
 	t.Helper()
@@ -330,8 +330,8 @@ func TestDynamicAddsRaidDebuffsJitter(t *testing.T) {
 // fights unarmed, and with the same seed the add's debuffs land at the same times for both.
 func TestDynamicAddsRaidDebuffsJitterApartFromCombatRolls(t *testing.T) {
 	newSim := func(gear *proto.EquipmentSpec) *core.Simulation {
-		encounter := dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-			setWaveDebuffs(design.AddWaves[0], true, 3, 2)
+		encounter := dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+			setWaveDebuffs(plan.AddWaves[0], true, 3, 2)
 		})
 		return newWarriorSimWithGear(raidCurseAndSunder, encounter, gear)
 	}
@@ -379,9 +379,9 @@ type sunderStacksAt struct {
 // With a life and a respawn shorter than Sunder Armor's ramp (4 s up, 2 s down), each spawn starts one ramp, a stack
 // each global cooldown from the spawn, and the ramp of the life before adds none.
 func TestDynamicAddsRaidSunderRampsOncePerLife(t *testing.T) {
-	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-		design.AddWaves[0].Lifetime = 4.0 / 180
-		design.AddWaves[0].Repeat.Interval = 6.0 / 180
+	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+		plan.AddWaves[0].Lifetime = 4.0 / 180
+		plan.AddWaves[0].Repeat.Interval = 6.0 / 180
 	}))
 	var want []sunderStacksAt
 	for spawn := 10 * time.Second; spawn < 40*time.Second; spawn += 6 * time.Second {
@@ -412,8 +412,8 @@ func TestDynamicAddsRaidSunderRampsOncePerLife(t *testing.T) {
 // The wave holds the raid's debuffs before the add's own reset, so that reset puts none on, and a spawn at the pull
 // with no debuff delay puts them on at the spawn.
 func TestDynamicAddsRaidDebuffsOnAtThePullSpawn(t *testing.T) {
-	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-		design.AddWaves[0].Spawn.At = 0
+	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+		plan.AddWaves[0].Spawn.At = 0
 	}))
 	add := sim.Encounter.AllTargets[1]
 	coe := add.GetAura("Curse of the Elements (External)")
@@ -436,16 +436,16 @@ func TestDynamicAddsRaidDebuffsOnAtThePullSpawn(t *testing.T) {
 }
 
 // A downtime of the boss from start to end, fractions of the fight.
-func bossDowntime(start, end float64, clear bool) *proto.DesignDowntime {
-	return &proto.DesignDowntime{Start: &proto.DesignTime{At: start}, End: &proto.DesignTime{At: end}, ClearDebuffs: clear}
+func bossDowntime(start, end float64, clear bool) *proto.PlanDowntime {
+	return &proto.PlanDowntime{Start: &proto.PlanTime{At: start}, End: &proto.PlanTime{At: end}, ClearDebuffs: clear}
 }
 
 // A downtime that clears debuffs takes the raid's permanent debuffs off the boss at its start and puts them back at
 // its end, where Sunder Armor ramps up anew; one that keeps them leaves them on.
-func TestDesignClearDebuffsDowntimeRemovesAndRestoresTheRaidDebuffs(t *testing.T) {
+func TestPlanClearDebuffsDowntimeRemovesAndRestoresTheRaidDebuffs(t *testing.T) {
 	for _, clear := range []bool{true, false} {
-		sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-			design.Downtimes = []*proto.DesignDowntime{bossDowntime(0.25, 0.5, clear)}
+		sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+			plan.Downtimes = []*proto.PlanDowntime{bossDowntime(0.25, 0.5, clear)}
 		}))
 		want, wantStacks := []time.Duration{0}, int32(5)
 		if clear {
@@ -465,16 +465,16 @@ func TestDesignClearDebuffsDowntimeRemovesAndRestoresTheRaidDebuffs(t *testing.T
 
 // Overlapping downtimes that clear debuffs put the raid's back on the boss as the last of them ends, one that keeps
 // them leaves them on the boss while it is still down, and one that never ends leaves them off until the next reset.
-func TestDesignOverlappingClearDebuffsDowntimes(t *testing.T) {
+func TestPlanOverlappingClearDebuffsDowntimes(t *testing.T) {
 	for name, tc := range map[string]struct {
-		downtimes []*proto.DesignDowntime
+		downtimes []*proto.PlanDowntime
 		want      []time.Duration
 	}{
-		"both clear":            {[]*proto.DesignDowntime{bossDowntime(0.25, 0.5, true), bossDowntime(1.0/3, 2.0/3, true)}, []time.Duration{0, 45 * time.Second, 120 * time.Second}},
-		"the second keeps them": {[]*proto.DesignDowntime{bossDowntime(0.25, 0.5, true), bossDowntime(1.0/3, 2.0/3, false)}, []time.Duration{0, 45 * time.Second, 90 * time.Second}},
-		"never ends":            {[]*proto.DesignDowntime{bossDowntime(0.25, 1, true)}, []time.Duration{0, 45 * time.Second}},
+		"both clear":            {[]*proto.PlanDowntime{bossDowntime(0.25, 0.5, true), bossDowntime(1.0/3, 2.0/3, true)}, []time.Duration{0, 45 * time.Second, 120 * time.Second}},
+		"the second keeps them": {[]*proto.PlanDowntime{bossDowntime(0.25, 0.5, true), bossDowntime(1.0/3, 2.0/3, false)}, []time.Duration{0, 45 * time.Second, 90 * time.Second}},
+		"never ends":            {[]*proto.PlanDowntime{bossDowntime(0.25, 1, true)}, []time.Duration{0, 45 * time.Second}},
 	} {
-		sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) { design.Downtimes = tc.downtimes }))
+		sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) { plan.Downtimes = tc.downtimes }))
 		for iteration := range 2 {
 			coe, sunder, _ := raidDebuffFlips(t, sim, 0, 0)
 			if !slices.Equal(coe, tc.want) || !slices.Equal(sunder, tc.want) {
@@ -487,9 +487,9 @@ func TestDesignOverlappingClearDebuffsDowntimes(t *testing.T) {
 // With the boss down from the pull, the add's raid debuffs land while the add is still disabled, so no player's
 // rotation woken by the add's enabling acts on it before they are on.
 func TestDynamicAddsRaidDebuffsLandBeforeTheAddIsEnabled(t *testing.T) {
-	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(design *proto.EncounterDesign) {
-		design.AddWaves[0].Spawn.At = 0
-		design.Downtimes = []*proto.DesignDowntime{bossDowntime(0, 1, false)}
+	sim := newWarriorSim(raidCurseAndSunder, dynamicAddsEncounter(t, func(plan *proto.EncounterPlan) {
+		plan.AddWaves[0].Spawn.At = 0
+		plan.Downtimes = []*proto.PlanDowntime{bossDowntime(0, 1, false)}
 	}))
 	add := sim.Encounter.AllTargets[1]
 	var enabledAtGain []bool
@@ -513,11 +513,11 @@ func TestDynamicAddsRaidDebuffsLandBeforeTheAddIsEnabled(t *testing.T) {
 
 // The encounter's metrics list the boss and then every add of every wave, each naming the wave and add it spawns
 // as, and an area spell cast while the adds are up damages each of them.
-func TestDesignAddsReachTheEncounterMetrics(t *testing.T) {
+func TestPlanAddsReachTheEncounterMetrics(t *testing.T) {
 	add := &proto.Target{Name: "Son of Flame", Level: 60, MobType: proto.MobType_MobTypeElemental}
-	design := &proto.EncounterDesign{AddWaves: []*proto.AddWave{
-		{Name: "Adds 1", Adds: []*proto.Target{add, add, add}, Spawn: &proto.DesignTime{}, Lifetime: 0.5},
-		{Name: "Adds 2", Adds: []*proto.Target{add}, Spawn: &proto.DesignTime{At: 0.5}, Lifetime: 0.5},
+	plan := &proto.EncounterPlan{AddWaves: []*proto.AddWave{
+		{Name: "Adds 1", Adds: []*proto.Target{add, add, add}, Spawn: &proto.PlanTime{}, Lifetime: 0.5},
+		{Name: "Adds 2", Adds: []*proto.Target{add}, Spawn: &proto.PlanTime{At: 0.5}, Lifetime: 0.5},
 	}}
 	arcaneExplosion := &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{
 		SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: 10202}},
@@ -532,7 +532,7 @@ func TestDesignAddsReachTheEncounterMetrics(t *testing.T) {
 			Spec:      &proto.Player_Mage{Mage: &proto.Mage{Options: &proto.Mage_Options{ClassOptions: &proto.MageOptions{}}}},
 			Rotation:  &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PriorityList: []*proto.APLListItem{arcaneExplosion}},
 		}}, Buffs: &proto.PartyBuffs{}}}, Buffs: &proto.RaidBuffs{}},
-		Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{StandardTarget}, Design: design},
+		Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{StandardTarget}, Plan: plan},
 		SimOptions: &proto.SimOptions{Iterations: 8, IsTest: true},
 	})
 	if result.Error != nil {
@@ -543,12 +543,12 @@ func TestDesignAddsReachTheEncounterMetrics(t *testing.T) {
 	if len(targets) != 5 {
 		t.Fatalf("encounter metrics: expected the boss and 4 adds, got %d targets", len(targets))
 	}
-	if targets[0].DesignAdd != nil {
-		t.Errorf("the boss: expected no design add, got %v", targets[0].DesignAdd)
+	if targets[0].PlanAdd != nil {
+		t.Errorf("the boss: expected no add of the plan, got %v", targets[0].PlanAdd)
 	}
 	wantAdds := [][2]int32{{0, 0}, {0, 1}, {0, 2}, {1, 0}}
 	for i, want := range wantAdds {
-		got := targets[i+1].DesignAdd
+		got := targets[i+1].PlanAdd
 		if got == nil || got.WaveIndex != want[0] || got.AddIndex != want[1] {
 			t.Errorf("target %d: expected wave %d add %d, got %v", i+2, want[0], want[1], got)
 		}

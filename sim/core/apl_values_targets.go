@@ -29,11 +29,11 @@ func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 	if target.IsEnabled() {
 		return sim.CurrentTime
 	}
-	design := sim.Encounter.design
-	if design == nil {
+	plan := sim.Encounter.plan
+	if plan == nil {
 		return NeverExpires
 	}
-	state := &design.targets[target.Index]
+	state := &plan.targets[target.Index]
 	if state.wave != nil {
 		return state.wave.occurrences.nextAt()
 	}
@@ -44,8 +44,8 @@ func (target *Target) NextActiveAt(sim *Simulation) time.Duration {
 // for an add that outlives it. A target that is not active dies after the life its next activation starts,
 // or at NeverExpires with none.
 func (target *Target) DiesAt(sim *Simulation) time.Duration {
-	if design := sim.Encounter.design; design != nil {
-		if state := &design.targets[target.Index]; state.wave != nil {
+	if plan := sim.Encounter.plan; plan != nil {
+		if state := &plan.targets[target.Index]; state.wave != nil {
 			if target.IsEnabled() {
 				return min(state.diesAt, sim.Duration)
 			}
@@ -70,7 +70,7 @@ func (encounter *Encounter) NumActiveAdds() int {
 }
 
 // Resolves the reference to an enemy target of the encounter, with a warning for a unit that is not one.
-func (rot *APLRotation) getDesignTargetUnit(ref *proto.UnitReference, uuid *proto.UUID) (UnitReference, bool) {
+func (rot *APLRotation) getPlanTargetUnit(ref *proto.UnitReference, uuid *proto.UUID) (UnitReference, bool) {
 	unit := rot.GetTargetUnit(ref)
 	resolvedUnit := unit.Get()
 	if resolvedUnit == nil {
@@ -89,7 +89,7 @@ type APLValueTargetIsActive struct {
 }
 
 func (rot *APLRotation) newValueTargetIsActive(config *proto.APLValueTargetIsActive, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}
@@ -129,7 +129,7 @@ type APLValueTimeUntilTargetActive struct {
 }
 
 func (rot *APLRotation) newValueTimeUntilTargetActive(config *proto.APLValueTimeUntilTargetActive, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}
@@ -155,7 +155,7 @@ type APLValueTimeUntilTargetDies struct {
 }
 
 func (rot *APLRotation) newValueTimeUntilTargetDies(config *proto.APLValueTimeUntilTargetDies, uuid *proto.UUID) APLValue {
-	unit, ok := rot.getDesignTargetUnit(config.TargetUnit, uuid)
+	unit, ok := rot.getPlanTargetUnit(config.TargetUnit, uuid)
 	if !ok {
 		return nil
 	}

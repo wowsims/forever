@@ -9,7 +9,7 @@ import { ALL_UNITS, hasTarget, simResultFilter } from './utils';
 let resultData: SimResultData | null = null;
 vi.mock('../../hooks/useSimResult', () => ({ useSimResult: () => resultData }));
 
-const resultWith = (...targets: Array<{ index: number; iconUrl?: string; classColor?: string; designAddName?: string }>) =>
+const resultWith = (...targets: Array<{ index: number; iconUrl?: string; classColor?: string; planAddName?: string }>) =>
 	({
 		result: {
 			getTargets: () => targets,
@@ -51,8 +51,8 @@ describe('ResultsFilter', () => {
 		expect(items()[0].getAttribute('aria-selected')).toBe('true');
 	});
 
-	it('names an add of the design by its wave and add, after the targets of the encounter', async () => {
-		resultData = resultWith({ index: 0 }, { index: 1, designAddName: 'Adds 1 · Son of Flame' });
+	it('names an add of the plan by its wave and add, after the targets of the encounter', async () => {
+		resultData = resultWith({ index: 0 }, { index: 1, planAddName: 'Adds 1 · Son of Flame' });
 		mount(ALL_UNITS);
 
 		await open();

@@ -30,7 +30,7 @@ export interface CooldownIcon {
 
 export type ScheduledKind = 'downtime' | 'wave' | 'amp' | 'move' | 'pulse';
 
-/** A window of the encounter design at the logged iteration's duration; a move has `end === start`. */
+/** A window of the encounter plan at the logged iteration's duration; a move has `end === start`. */
 export interface ScheduledMarker {
 	kind: ScheduledKind;
 	start: number;

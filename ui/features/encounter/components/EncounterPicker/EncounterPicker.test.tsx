@@ -9,18 +9,18 @@ const renderView = (props: Partial<EncounterPickerViewProps> = {}) =>
 			duration={<span>duration</span>}
 			zone={<span>zone</span>}
 			areaTypes={<span>area types</span>}
-			onDesignClick={() => {}}
+			onPlannerClick={() => {}}
 			{...props}
 		/>,
 	);
 
 describe('EncounterPickerView', () => {
-	it('lays out the encounter choice first, then the designer button and the fields, and leaves out the ones not given', () => {
+	it('lays out the encounter choice first, then the planner button and the fields, and leaves out the ones not given', () => {
 		const { getByTestId } = renderView({ preset: <span>preset</span>, execute: <span>execute</span>, allies: <span>allies</span> });
 		const root = getByTestId('encounter-picker-root');
 		expect([...root.children].map(child => child.textContent)).toEqual([
 			'preset',
-			'settings_tab.encounter.designer.open',
+			'settings_tab.encounter.planner.open',
 			'duration',
 			'execute',
 			'zone',
@@ -29,10 +29,10 @@ describe('EncounterPickerView', () => {
 		]);
 	});
 
-	it('reports the Design encounter press', () => {
-		const onDesignClick = vi.fn();
-		const { getByTestId } = renderView({ onDesignClick });
-		fireEvent.click(getByTestId('design-encounter-button'));
-		expect(onDesignClick).toHaveBeenCalledTimes(1);
+	it('reports the Encounter planner press', () => {
+		const onPlannerClick = vi.fn();
+		const { getByTestId } = renderView({ onPlannerClick });
+		fireEvent.click(getByTestId('encounter-planner-button'));
+		expect(onPlannerClick).toHaveBeenCalledTimes(1);
 	});
 });

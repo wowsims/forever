@@ -1,11 +1,11 @@
 import {
 	ActionMetrics as ActionMetricsProto,
-	DesignAdd,
 	HitKind,
+	PlanAdd,
 	TargetedActionMetrics as TargetedActionMetricsProto,
 	UnitMetrics as UnitMetricsProto,
 } from '@generated/proto/api';
-import { ActionID, AddWave, DesignBossAbility, DesignBossAbility_Kind, EncounterDesign, OtherAction, Target } from '@generated/proto/common';
+import { ActionID, AddWave, EncounterPlan, OtherAction, PlanBossAbility, PlanBossAbility_Kind, Target } from '@generated/proto/common';
 import { makeSimRun, valueRange as range } from '@testing/storybook/fixtures/results';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -375,34 +375,34 @@ describe('miss percent of ticks that roll their own hit', () => {
 	});
 });
 
-describe('the boss abilities of an encounter design', () => {
+describe('the boss abilities of an encounter plan', () => {
 	afterEach(() => vi.restoreAllMocks());
 
-	const designRun = (abilities: Array<DesignBossAbility>, ids: Array<ActionID>) => {
+	const planRun = (abilities: Array<PlanBossAbility>, ids: Array<ActionID>) => {
 		const { request, result } = makeSimRun();
-		request.encounter!.design = EncounterDesign.create({ bossAbilities: abilities });
+		request.encounter!.plan = EncounterPlan.create({ bossAbilities: abilities });
 		result.encounterMetrics!.targets[0].actions = ids.map(id =>
 			ActionMetricsProto.create({ id, targets: [TargetedActionMetricsProto.create({ unitIndex: PLAYER, hits: 1, damage: 500 })] }),
 		);
 		return SimResult.makeNew(request, result);
 	};
 	const spellId = (spellId: number, tag: number) => ActionID.create({ rawId: { oneofKind: 'spellId', spellId }, tag });
-	const kinds = 'settings_tab.encounter.designer.ability_kinds';
+	const kinds = 'settings_tab.encounter.planner.ability_kinds';
 
 	it('names every spell, pulse, area and strike action by the ability and its kind', async () => {
 		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Dummy Spell', icon: '' }) as never);
 		const abilities = [
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Pulse, name: 'Lava Burst' }),
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.AreaHit }),
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' }),
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Strike, name: 'Hand of Ragnaros' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Pulse, name: 'Lava Burst' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.AreaHit }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.SpellHit, name: 'Fireball' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Strike, name: 'Hand of Ragnaros' }),
 		];
 		const ids = [18282, 18282, 18282, 15284].map((id, index) => spellId(id, 2_000_000 + index));
-		const [boss] = (await designRun(abilities, ids)).getTargets();
+		const [boss] = (await planRun(abilities, ids)).getTargets();
 
 		expect(boss.actions.map(action => action.actionId.name)).toEqual([
 			`Lava Burst (${kinds}.pulse)`,
-			`settings_tab.encounter.designer.event_name (${kinds}.area_hit)`,
+			`settings_tab.encounter.planner.event_name (${kinds}.area_hit)`,
 			`Fireball (${kinds}.spell_hit)`,
 			`Hand of Ragnaros (${kinds}.strike)`,
 		]);
@@ -410,19 +410,19 @@ describe('the boss abilities of an encounter design', () => {
 
 	it('names the extra attacks of a thrash by the ability and leaves a swing timing no row', async () => {
 		const abilities = [
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.Thrash, name: 'Frenzy' }),
-			DesignBossAbility.create({ kind: DesignBossAbility_Kind.SwingTiming, name: 'Slow' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.Thrash, name: 'Frenzy' }),
+			PlanBossAbility.create({ kind: PlanBossAbility_Kind.SwingTiming, name: 'Slow' }),
 		];
 		const attack = ActionID.create({ rawId: { oneofKind: 'otherId', otherId: OtherAction.OtherActionAttack }, tag: 2_000_000 });
-		const [boss] = (await designRun(abilities, [attack])).getTargets();
+		const [boss] = (await planRun(abilities, [attack])).getTargets();
 
 		expect(boss.actions.map(action => action.actionId.name)).toEqual([`Frenzy (${kinds}.thrash)`]);
 	});
 
 	it("leaves a player's Cleave and an ability of another kind at the tag unnamed", async () => {
 		vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Cleave', icon: '' }) as never);
-		const abilities = [DesignBossAbility.create({ kind: DesignBossAbility_Kind.SpellHit, name: 'Fireball' })];
-		const [boss] = (await designRun(abilities, [spellId(15284, 1), spellId(15284, 2_000_000)])).getTargets();
+		const abilities = [PlanBossAbility.create({ kind: PlanBossAbility_Kind.SpellHit, name: 'Fireball' })];
+		const [boss] = (await planRun(abilities, [spellId(15284, 1), spellId(15284, 2_000_000)])).getTargets();
 
 		expect(boss.actions.map(action => action.actionId.name)).toEqual(['Cleave (common.action_tags.queue)', 'Cleave 1']);
 	});
@@ -434,7 +434,7 @@ describe('the targets of a run with add waves', () => {
 	const runWithWaves = async () => {
 		const { request, result } = makeSimRun();
 		const son = Target.create({ name: 'Son of Flame', level: 60 });
-		request.encounter!.design = EncounterDesign.create({
+		request.encounter!.plan = EncounterPlan.create({
 			addWaves: [AddWave.create({ name: 'Adds 1', adds: [son] }), AddWave.create({ adds: [Target.create()] })],
 		});
 		const pool = [
@@ -444,7 +444,7 @@ describe('the targets of a run with add waves', () => {
 			{ waveIndex: 1, addIndex: 0 },
 		];
 		result.encounterMetrics!.targets.push(
-			...pool.map((add, i) => UnitMetricsProto.create({ name: `Target ${i + 2}`, unitIndex: i + 2, designAdd: DesignAdd.create(add) })),
+			...pool.map((add, i) => UnitMetricsProto.create({ name: `Target ${i + 2}`, unitIndex: i + 2, planAdd: PlanAdd.create(add) })),
 			UnitMetricsProto.create({ name: 'Target 6', unitIndex: 6 }),
 		);
 		return (await SimResult.makeNew(request, result)).getTargets();
@@ -460,19 +460,19 @@ describe('the targets of a run with add waves', () => {
 	it('names an add by its wave and add, and the boss by neither', async () => {
 		const [boss, add] = await runWithWaves();
 
-		expect(boss.designAddName).toBeNull();
-		expect(add.designAddName).toBe('Adds 1 · Son of Flame');
+		expect(boss.planAddName).toBeNull();
+		expect(add.planAddName).toBe('Adds 1 · Son of Flame');
 		expect(add.label).toBe('Target 2 (Adds 1 · Son of Flame)');
 	});
 
-	it('tells the slots of one add apart and names an unnamed wave and add as the designer does', async () => {
-		const names = (await runWithWaves()).slice(1).map(target => target.designAddName);
+	it('tells the slots of one add apart and names an unnamed wave and add as the planner does', async () => {
+		const names = (await runWithWaves()).slice(1).map(target => target.planAddName);
 
 		expect(names).toEqual([
 			'Adds 1 · Son of Flame',
-			'settings_tab.encounter.designer.occurrence_name',
-			'settings_tab.encounter.designer.occurrence_name',
-			'settings_tab.encounter.designer.event_name · settings_tab.encounter.designer.adds.add_title',
+			'settings_tab.encounter.planner.occurrence_name',
+			'settings_tab.encounter.planner.occurrence_name',
+			'settings_tab.encounter.planner.event_name · settings_tab.encounter.planner.adds.add_title',
 		]);
 	});
 });

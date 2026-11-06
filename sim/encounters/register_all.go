@@ -6,8 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The fight length the designs' second-based numbers are fractions of; the UI's default duration.
-const designBaseSeconds = 180.0
+// The fight length the plans' second-based numbers are fractions of; the UI's default duration.
+const planBaseSeconds = 180.0
 
 const (
 	movementTargetID   int32 = 31147
@@ -24,7 +24,7 @@ func init() {
 }
 
 func fractionOfFight(seconds float64) float64 {
-	return seconds / designBaseSeconds
+	return seconds / planBaseSeconds
 }
 
 // A level-63 boss with a level-63 creature's armor and health from ExpectedStat, the health times 300 for a boss
@@ -59,11 +59,11 @@ func addMovementEncounter() {
 	})
 	core.AddPresetEncounter("Movement", []string{
 		"Default/Movement",
-	}, &proto.EncounterDesign{
-		Moves: []*proto.DesignMove{{
-			At:     &proto.DesignTime{},
+	}, &proto.EncounterPlan{
+		Moves: []*proto.PlanMove{{
+			At:     &proto.PlanTime{},
 			Yards:  5,
-			Repeat: &proto.DesignRepeat{Interval: fractionOfFight(10)},
+			Repeat: &proto.PlanRepeat{Interval: fractionOfFight(10)},
 		}},
 	})
 }
@@ -100,13 +100,13 @@ func addDynamicAddsEncounter() {
 	})
 	core.AddPresetEncounter("Dynamic Adds", []string{
 		"Default/Dynamic Boss",
-	}, &proto.EncounterDesign{
+	}, &proto.EncounterPlan{
 		AddWaves: []*proto.AddWave{{
 			Name:                 "Add",
 			Adds:                 []*proto.Target{dynamicAddTarget()},
-			Spawn:                &proto.DesignTime{At: fractionOfFight(10)},
+			Spawn:                &proto.PlanTime{At: fractionOfFight(10)},
 			Lifetime:             fractionOfFight(20),
-			Repeat:               &proto.DesignRepeat{Interval: fractionOfFight(30)},
+			Repeat:               &proto.PlanRepeat{Interval: fractionOfFight(30)},
 			ExecuteProportion_20: 0.2,
 			ExecuteProportion_35: 0.35,
 			KillShare:            0.2,
@@ -114,7 +114,7 @@ func addDynamicAddsEncounter() {
 	})
 }
 
-// A tank example target. It ships with no boss abilities; the player adds them in the encounter designer.
+// A tank example target. It ships with no boss abilities; the player adds them in the encounter planner.
 func addCustomBossEncounter() {
 	core.AddPresetTarget(&core.PresetTarget{
 		PathPrefix: "Default",

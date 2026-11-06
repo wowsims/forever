@@ -34,7 +34,7 @@ export const encounterListProps = (overrides: Partial<EncounterListViewProps> = 
 	...overrides,
 });
 
-/** Two designed encounters, the first named as a saved encounter of `encounterListProps`. */
+/** Two encounters with plans, the first named as a saved encounter of `encounterListProps`. */
 export const myEncounterRows = (): BulkCheckRow[] =>
 	[checkRow('Long fight', '6:00 ±5s · 2 targets', false, true), checkRow('Add waves', '4:00 ±5s · 1 target', false, false)].map(row => ({
 		...row,

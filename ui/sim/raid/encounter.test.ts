@@ -2,14 +2,14 @@ import { Player as PlayerProto } from '@generated/proto/api';
 import {
 	AddWave,
 	AreaType,
-	DesignBossAbility,
-	DesignDamageAmp,
-	DesignDowntime,
-	DesignMove,
-	DesignTargets,
 	Encounter as EncounterProto,
-	EncounterDesign,
+	EncounterPlan,
 	HealthKeyframe,
+	PlanBossAbility,
+	PlanDamageAmp,
+	PlanDowntime,
+	PlanMove,
+	PlanTargets,
 	PresetEncounter,
 	PresetTarget,
 	Target as TargetProto,
@@ -20,7 +20,7 @@ import { SimSettingCategories } from '../constants/sim_settings';
 import type { Sim } from '../sim';
 import { applyIndividualSimSettings, individualSimSettingsToProto } from '../state/serialization';
 import { createSimStore } from '../state/sim_store';
-import { Encounter, remapDesignTargets } from './encounter';
+import { Encounter, remapPlanTargets } from './encounter';
 
 const ZONES: Record<number, { id: number; name: string; areaTypes: Array<AreaType> }> = {
 	2677: { id: 2677, name: 'Blackwing Lair', areaTypes: [AreaType.AreaTypeCavernous, AreaType.AreaTypeVolcanic] },
@@ -189,48 +189,48 @@ describe('Encounter', () => {
 		});
 	});
 
-	describe('design', () => {
+	describe('plan', () => {
 		const withThreeTargets = () => {
 			const encounter = makeEncounter();
 			encounter.setTargets([1, 2, 3].map(id => TargetProto.create({ id })));
-			encounter.setDesign(
-				EncounterDesign.create({
-					downtimes: [DesignDowntime.create({ targetIndex: 0 }), DesignDowntime.create({ targetIndex: 2 })],
-					bossAbilities: [DesignBossAbility.create({ targetIndex: 1 })],
-					damageAmps: [DesignDamageAmp.create({ targets: DesignTargets.create({ targetIndices: [1, 2] }) })],
+			encounter.setPlan(
+				EncounterPlan.create({
+					downtimes: [PlanDowntime.create({ targetIndex: 0 }), PlanDowntime.create({ targetIndex: 2 })],
+					bossAbilities: [PlanBossAbility.create({ targetIndex: 1 })],
+					damageAmps: [PlanDamageAmp.create({ targets: PlanTargets.create({ targetIndices: [1, 2] }) })],
 				}),
 			);
 			return encounter;
 		};
 		const indices = (encounter: Encounter) => {
-			const design = encounter.getDesign();
+			const plan = encounter.getPlan();
 			return {
-				downtimes: design.downtimes.map(d => d.targetIndex),
-				abilities: design.bossAbilities.map(a => a.targetIndex),
-				amps: design.damageAmps.map(a => a.targets?.targetIndices),
+				downtimes: plan.downtimes.map(d => d.targetIndex),
+				abilities: plan.bossAbilities.map(a => a.targetIndex),
+				amps: plan.damageAmps.map(a => a.targets?.targetIndices),
 			};
 		};
 
-		it('starts plain and counts any non-empty list as a design', () => {
+		it('starts plain and counts any non-empty list as a plan', () => {
 			const encounter = makeEncounter();
-			expect(encounter.hasDesign()).toBe(false);
+			expect(encounter.hasPlan()).toBe(false);
 
-			const lanes: Array<Partial<EncounterDesign>> = [
-				{ downtimes: [DesignDowntime.create()] },
+			const lanes: Array<Partial<EncounterPlan>> = [
+				{ downtimes: [PlanDowntime.create()] },
 				{ bossHealth: [HealthKeyframe.create()] },
 				{ addWaves: [AddWave.create()] },
-				{ moves: [DesignMove.create()] },
-				{ damageAmps: [DesignDamageAmp.create()] },
-				{ bossAbilities: [DesignBossAbility.create()] },
+				{ moves: [PlanMove.create()] },
+				{ damageAmps: [PlanDamageAmp.create()] },
+				{ bossAbilities: [PlanBossAbility.create()] },
 			];
 			const read = lanes.map(lane => {
-				encounter.setDesign(EncounterDesign.create(lane));
-				return encounter.hasDesign();
+				encounter.setPlan(EncounterPlan.create(lane));
+				return encounter.hasPlan();
 			});
 			expect(read).toEqual([true, true, true, true, true, true]);
 
-			encounter.setDesign(EncounterDesign.create());
-			expect(encounter.hasDesign()).toBe(false);
+			encounter.setPlan(EncounterPlan.create());
+			expect(encounter.hasPlan()).toBe(false);
 		});
 
 		it('survives the proto round trip and the binary form links use, and clears on a proto without one', () => {
@@ -238,73 +238,73 @@ describe('Encounter', () => {
 			const other = makeEncounter();
 
 			other.fromProto(encounter.toProto());
-			expect(EncounterDesign.equals(other.getDesign(), encounter.getDesign())).toBe(true);
-			expect(other.getDesign()).not.toBe(encounter.getDesign());
+			expect(EncounterPlan.equals(other.getPlan(), encounter.getPlan())).toBe(true);
+			expect(other.getPlan()).not.toBe(encounter.getPlan());
 
 			// Links and saved entries carry the encounter as binary.
 			const third = makeEncounter();
 			third.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
-			expect(EncounterDesign.equals(third.getDesign(), encounter.getDesign())).toBe(true);
+			expect(EncounterPlan.equals(third.getPlan(), encounter.getPlan())).toBe(true);
 
 			other.fromProto(EncounterProto.create({ targets: [Encounter.defaultTargetProto()] }));
-			expect(other.hasDesign()).toBe(false);
+			expect(other.hasPlan()).toBe(false);
 		});
 
 		it('keeps the name of every event kind through the proto and binary round trip', () => {
 			const encounter = makeEncounter();
-			encounter.setDesign(
-				EncounterDesign.create({
-					downtimes: [DesignDowntime.create({ name: 'Phase 2' })],
+			encounter.setPlan(
+				EncounterPlan.create({
+					downtimes: [PlanDowntime.create({ name: 'Phase 2' })],
 					bossHealth: [HealthKeyframe.create({ name: 'Enrage' })],
-					bossAbilities: [DesignBossAbility.create({ name: 'Cleave' })],
-					damageAmps: [DesignDamageAmp.create({ name: 'Buff' })],
-					moves: [DesignMove.create({ name: 'Run' })],
+					bossAbilities: [PlanBossAbility.create({ name: 'Cleave' })],
+					damageAmps: [PlanDamageAmp.create({ name: 'Buff' })],
+					moves: [PlanMove.create({ name: 'Run' })],
 				}),
 			);
 			const other = makeEncounter();
 			other.fromProto(EncounterProto.fromBinary(EncounterProto.toBinary(encounter.toProto())));
-			const design = other.getDesign();
-			expect([
-				design.downtimes[0].name,
-				design.bossHealth[0].name,
-				design.bossAbilities[0].name,
-				design.damageAmps[0].name,
-				design.moves[0].name,
-			]).toEqual(['Phase 2', 'Enrage', 'Cleave', 'Buff', 'Run']);
+			const plan = other.getPlan();
+			expect([plan.downtimes[0].name, plan.bossHealth[0].name, plan.bossAbilities[0].name, plan.damageAmps[0].name, plan.moves[0].name]).toEqual([
+				'Phase 2',
+				'Enrage',
+				'Cleave',
+				'Buff',
+				'Run',
+			]);
 		});
 
-		it('leaves a plain encounter without a design message, so it equals a preset proto that has none', () => {
+		it('leaves a plain encounter without a plan message, so it equals a preset proto that has none', () => {
 			const plain = makeEncounter().toProto();
-			expect(plain.design).toBeUndefined();
-			expect(EncounterProto.equals(plain, EncounterProto.create({ ...plain, design: undefined }))).toBe(true);
+			expect(plain.plan).toBeUndefined();
+			expect(EncounterProto.equals(plain, EncounterProto.create({ ...plain, plan: undefined }))).toBe(true);
 		});
 
-		it('stores a copy of the design it is given', () => {
+		it('stores a copy of the plan it is given', () => {
 			const encounter = makeEncounter();
-			const design = EncounterDesign.create({ bossHealth: [HealthKeyframe.create()] });
-			encounter.setDesign(design);
-			design.bossHealth.length = 0;
-			expect(encounter.getDesign().bossHealth).toHaveLength(1);
+			const plan = EncounterPlan.create({ bossHealth: [HealthKeyframe.create()] });
+			encounter.setPlan(plan);
+			plan.bossHealth.length = 0;
+			expect(encounter.getPlan().bossHealth).toHaveLength(1);
 		});
 
 		it('leaves an empty damage amp target list alone on reorder', () => {
 			const encounter = withThreeTargets();
-			encounter.setDesign(EncounterDesign.create({ damageAmps: [DesignDamageAmp.create({ targets: DesignTargets.create() })] }));
+			encounter.setPlan(EncounterPlan.create({ damageAmps: [PlanDamageAmp.create({ targets: PlanTargets.create() })] }));
 			const [a, b, c] = encounter.getTargets();
 			encounter.setTargets([c, b, a]);
-			expect(encounter.getDesign().damageAmps[0].targets?.targetIndices).toEqual([]);
+			expect(encounter.getPlan().damageAmps[0].targets?.targetIndices).toEqual([]);
 		});
 
-		it('replaces the design with the preset design on applyPreset, and clears it for a preset without one', () => {
+		it('replaces the plan with the preset plan on applyPreset, and clears it for a preset without one', () => {
 			const encounter = withThreeTargets();
-			const design = EncounterDesign.create({ bossHealth: [HealthKeyframe.create({ healthPercent: 0.5 })] });
+			const plan = EncounterPlan.create({ bossHealth: [HealthKeyframe.create({ healthPercent: 0.5 })] });
 
-			encounter.applyPreset(PresetEncounter.create({ targets: [PresetTarget.create({ target: TargetProto.create({ id: 5 }) })], design }));
-			expect(EncounterDesign.equals(encounter.getDesign(), design)).toBe(true);
-			expect(encounter.getDesign()).not.toBe(design);
+			encounter.applyPreset(PresetEncounter.create({ targets: [PresetTarget.create({ target: TargetProto.create({ id: 5 }) })], plan }));
+			expect(EncounterPlan.equals(encounter.getPlan(), plan)).toBe(true);
+			expect(encounter.getPlan()).not.toBe(plan);
 
 			encounter.applyPreset(presetEncounter());
-			expect(encounter.hasDesign()).toBe(false);
+			expect(encounter.hasPlan()).toBe(false);
 		});
 
 		it('round-trips through the settings serialization of the Encounter category', () => {
@@ -316,18 +316,18 @@ describe('Encounter', () => {
 			const loaded = makeEncounter();
 			applyIndividualSimSettings({ player, sim: { raid: {}, encounter: loaded } } as never, settings, categories);
 
-			expect(EncounterDesign.equals(loaded.getDesign(), encounter.getDesign())).toBe(true);
+			expect(EncounterPlan.equals(loaded.getPlan(), encounter.getPlan())).toBe(true);
 		});
 
-		it('setDesign writes nothing for an equal design', () => {
+		it('setPlan writes nothing for an equal plan', () => {
 			const encounter = withThreeTargets();
 			let writes = 0;
 			encounter.sim.store.subscribe(() => writes++);
 
-			encounter.setDesign(EncounterDesign.clone(encounter.getDesign()));
+			encounter.setPlan(EncounterPlan.clone(encounter.getPlan()));
 			expect(writes).toBe(0);
 
-			encounter.setDesign(EncounterDesign.create());
+			encounter.setPlan(EncounterPlan.create());
 			expect(writes).toBe(1);
 		});
 
@@ -349,13 +349,13 @@ describe('Encounter', () => {
 			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [-1], amps: [[-1, 1]] });
 		});
 
-		it('keeps the index of a target replaced by a new object in place, and the design itself when nothing moves', () => {
+		it('keeps the index of a target replaced by a new object in place, and the plan itself when nothing moves', () => {
 			const encounter = withThreeTargets();
-			const design = encounter.getDesign();
+			const plan = encounter.getPlan();
 			const [a, b, c] = encounter.getTargets();
 
-			expect(remapDesignTargets(design, [a, b, c], [a, b, c, TargetProto.create()])).toBe(design);
-			expect(remapDesignTargets(design, [a, b, c], [a, TargetProto.clone(b), c])).toBe(design);
+			expect(remapPlanTargets(plan, [a, b, c], [a, b, c, TargetProto.create()])).toBe(plan);
+			expect(remapPlanTargets(plan, [a, b, c], [a, TargetProto.clone(b), c])).toBe(plan);
 
 			encounter.setTargets([TargetProto.clone(a), c, b]);
 			expect(indices(encounter)).toEqual({ downtimes: [0, 1], abilities: [2], amps: [[2, 1]] });

@@ -590,7 +590,7 @@ message Target {
         // A second player in Raid.tanks who tanks this mob alongside tank_index.
         int32 second_tank_index = 100;
 
-        // The target starts the pull disabled; a design's downtime never turns it on.
+        // The target starts the pull disabled; a plan's downtime never turns it on.
         bool disabled_at_start = 101;
 }
 
@@ -601,7 +601,7 @@ message Encounter {
 	// option within the ProtoVersion message at the top of this file.
 	int32 api_version = 9;
 
-	// The name the player gave the encounter in the designer, for the UI only; empty for a preset.
+	// The name the player gave the encounter in the planner, for the UI only; empty for a preset.
 	string name = 5;
 
 	// The encounter is the My encounters entry of its name, for the UI only. Exports and imports clear it, so an
@@ -620,11 +620,11 @@ message Encounter {
 	// Same as execute_proportion_20 but for 35%, e.g. for Quietus and Decimation.
 	double execute_proportion_35 = 4;
 
-	// When set, the design's timeline drives the fight (the targets' windows, health and add waves). The execute
+	// When set, the plan's timeline drives the fight (the targets' windows, health and add waves). The execute
 	// proportions still shape the health of every target without its own curve: non-boss targets, and the boss
-	// when the design has no boss health keyframes. Add waves use their own proportions, and boss health
+	// when the plan has no boss health keyframes. Add waves use their own proportions, and boss health
 	// keyframes replace these for target 0.
-	EncounterDesign design = 7;
+	EncounterPlan plan = 7;
 
 	// If type != Simple or Custom, then this may be empty.
 	repeated Target targets = 6;
@@ -643,7 +643,7 @@ message PresetTarget {
 message PresetEncounter {
 	string path = 1;
 	repeated PresetTarget targets = 2;
-	EncounterDesign design = 3;
+	EncounterPlan plan = 3;
 }
 
 enum DamageAmpType {
@@ -652,37 +652,37 @@ enum DamageAmpType {
 	DamageAmpTypeTargetDebuff = 2;
 }
 
-// Times in an encounter design are fractions 0..1 of the rolled fight duration, unless a field says seconds.
-message DesignTime {
+// Times in an encounter plan are fractions 0..1 of the rolled fight duration, unless a field says seconds.
+message PlanTime {
 	double at = 1;
 	double jitter = 2; // Plus or minus this fraction, rerolled each iteration; a damage amp's end rerolls it per window.
 }
 
-message DesignRepeat {
+message PlanRepeat {
 	double interval = 1; // 0 is no repeat.
 	double jitter = 2;
 	int32 count = 3; // 0 repeats until the fight ends.
 }
 
 // Both lists empty is target 0, the boss.
-message DesignTargets {
+message PlanTargets {
 	repeated int32 target_indices = 1;
 	repeated int32 wave_indices = 2;
 }
 
-message EncounterDesign {
-	repeated DesignDowntime downtimes = 1;
+message EncounterPlan {
+	repeated PlanDowntime downtimes = 1;
 	repeated HealthKeyframe boss_health = 2;
 	repeated AddWave add_waves = 3;
-	repeated DesignMove moves = 4;
-	repeated DesignDamageAmp damage_amps = 5;
-	repeated DesignBossAbility boss_abilities = 6;
+	repeated PlanMove moves = 4;
+	repeated PlanDamageAmp damage_amps = 5;
+	repeated PlanBossAbility boss_abilities = 6;
 }
 
-message DesignDowntime {
+message PlanDowntime {
 	int32 target_index = 1;
-	DesignTime start = 2;
-	DesignTime end = 3;
+	PlanTime start = 2;
+	PlanTime end = 3;
 	bool clear_debuffs = 4;
 	string name = 5;
 }
@@ -696,9 +696,9 @@ message HealthKeyframe {
 message AddWave {
 	string name = 1;
 	repeated Target adds = 2; // One template per add the wave spawns each time, copied from a preset target; their stats and level come from the template.
-	DesignTime spawn = 4;
+	PlanTime spawn = 4;
 	double lifetime = 5; // Fraction of the fight.
-	DesignRepeat repeat = 6;
+	PlanRepeat repeat = 6;
 	double execute_proportion_20 = 7; // Fraction of the add's lifetime spent at or below 20% health.
 	double execute_proportion_35 = 8; // Same for 35%.
 	double kill_share = 9; // 0..1 chance the player lands the killing blow.
@@ -707,25 +707,25 @@ message AddWave {
 	double debuff_jitter = 12; // Seconds, plus or minus, rolled for each add at each spawn; the debuffs never land before the spawn.
 }
 
-message DesignMove {
-	DesignTime at = 1;
+message PlanMove {
+	PlanTime at = 1;
 	double yards = 2;
 	double seconds = 3; // Used when yards is 0.
-	DesignRepeat repeat = 4;
+	PlanRepeat repeat = 4;
 	string name = 5;
 }
 
-message DesignDamageAmp {
+message PlanDamageAmp {
 	DamageAmpType type = 1;
 	double percent = 2;
-	DesignTime start = 3;
-	DesignTime end = 4;
-	DesignRepeat repeat = 5;
-	DesignTargets targets = 6; // Read only for DamageAmpTypeTargetDebuff.
+	PlanTime start = 3;
+	PlanTime end = 4;
+	PlanRepeat repeat = 5;
+	PlanTargets targets = 6; // Read only for DamageAmpTypeTargetDebuff.
 	string name = 7;
 }
 
-message DesignBossAbility {
+message PlanBossAbility {
 	enum Kind {
 		SpellHit = 0;
 		Strike = 1;
@@ -739,9 +739,9 @@ message DesignBossAbility {
 	// pet at target 0's level while the boss is down or dead too, with no hardcast and nothing to interrupt.
 	Kind kind = 1;
 	int32 target_index = 2;
-	DesignTime start = 3;
-	DesignTime end = 4;
-	DesignRepeat repeat = 5;
+	PlanTime start = 3;
+	PlanTime end = 4;
+	PlanRepeat repeat = 5;
 	SpellSchool school = 6;
 	double min_damage = 7;
 	double max_damage = 8;
@@ -755,7 +755,7 @@ message DesignBossAbility {
 	double tick_interval = 16; // Pulse: seconds between ticks, above 0. Each tick deals min_damage to max_damage.
 	double tick_jitter = 17; // Pulse: seconds, plus or minus, rolled for each tick after the first, which lands at the window's start.
 	bool resistible = 18; // Pulse and AreaHit: on, rolls spell hit and partial resists as a spell of its school; off, deals its damage with no roll.
-	bool avoidable = 19; // Pulse and AreaHit: skips the player while a design move walks them; pets still take it.
+	bool avoidable = 19; // Pulse and AreaHit: skips the player while a plan's move walks them; pets still take it.
 }
 
 message ItemRandomSuffix {
@@ -871,7 +871,7 @@ enum OtherAction {
 	OtherActionRefund = 8; // Refund of a resource like Energy or Rage, when the ability didn't land.
 	OtherActionDamageTaken = 9; // Indicates damage taken; used for rage gen.
 	OtherActionHealingModel = 12; // Indicates healing received from healing model.
-	OtherActionDamageAmplifier = 13; // A damage amplifier window of an encounter design.
+	OtherActionDamageAmplifier = 13; // A damage amplifier window of an encounter plan.
 	reserved 17;
 	reserved "OtherActionPotion";
 	OtherActionMove = 20; // Used by movement to be able to show it in timeline

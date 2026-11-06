@@ -8,7 +8,7 @@ import { valueKinds } from './value_kinds';
 vi.mock('@i18n/config', () => ({ default: { t: (key: string) => key } }));
 
 // The last column is whether the value is offered before the fight too; one that reads the clock is not.
-const DESIGN_VALUES = [
+const PLAN_VALUES = [
 	['targetIsActive', 'target_is_active', ['targetUnit'], true],
 	['numActiveAdds', 'num_active_adds', [], true],
 	['timeUntilTargetActive', 'time_until_target_active', ['targetUnit'], false],
@@ -23,8 +23,8 @@ const DESIGN_VALUES = [
 	['bossAbilityIsKnown', 'boss_ability_is_known', ['targetUnit', 'abilityName'], true],
 ] as const;
 
-describe('encounter design values', () => {
-	it.each(DESIGN_VALUES)('offers %s under Encounter during the fight, and before it only when it reads no clock', (kind, key, fields, prepull) => {
+describe('encounter plan values', () => {
+	it.each(PLAN_VALUES)('offers %s under Encounter during the fight, and before it only when it reads no clock', (kind, key, fields, prepull) => {
 		const player = makePlayer(APLRotation.create()) as any;
 		const option = (isPrepull: boolean) => valueKindOptions(player, isPrepull, false).find(entry => entry.value === kind);
 		expect(option(false)).toMatchObject({ label: `rotation_tab.apl.values.${key}.label`, submenu: ['encounter'] });

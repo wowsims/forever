@@ -27,7 +27,7 @@ type Simulation struct {
 
 	rand          Rand
 	deathRand     Rand // The kill rolls of target deaths, apart from the combat rolls, so gear does not move them.
-	designRand    Rand // The encounter design's jitter, apart from the combat rolls.
+	planRand      Rand // The encounter plan's jitter, apart from the combat rolls.
 	addDebuffRand Rand // The rolls of the add debuff jitter, apart from the combat rolls, so gear does not move them.
 	rseed         int64
 	currentSeed   int64
@@ -206,7 +206,7 @@ func newSimWithEnv(env *Environment, simOptions *proto.SimOptions, signals simsi
 
 		rand:          NewSplitMix(uint64(rseed)),
 		deathRand:     NewSplitMix(uint64(deathRandSeed(rseed))),
-		designRand:    NewSplitMix(uint64(designRandSeed(rseed))),
+		planRand:      NewSplitMix(uint64(planRandSeed(rseed))),
 		addDebuffRand: NewSplitMix(uint64(addDebuffRandSeed(rseed))),
 		rseed:         rseed,
 		currentSeed:   rseed,
@@ -255,7 +255,7 @@ func (sim *Simulation) reseedRands(i int64) {
 	sim.currentSeed = rseed
 	sim.rand.Seed(rseed)
 	sim.deathRand.Seed(deathRandSeed(rseed))
-	sim.designRand.Seed(designRandSeed(rseed))
+	sim.planRand.Seed(planRandSeed(rseed))
 	sim.addDebuffRand.Seed(addDebuffRandSeed(rseed))
 
 	if sim.isTest {

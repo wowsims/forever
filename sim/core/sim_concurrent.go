@@ -110,7 +110,7 @@ func (rsrc *raidSimResultCombiner) newUnitMetrics(baseUnit *proto.UnitMetrics) *
 	newUm := &proto.UnitMetrics{
 		Name:      baseUnit.Name,
 		UnitIndex: baseUnit.UnitIndex,
-		DesignAdd: baseUnit.DesignAdd,
+		PlanAdd:   baseUnit.PlanAdd,
 		Dps:       rsrc.newDistMetrics(),
 		Threat:    rsrc.newDistMetrics(),
 		Dtps:      rsrc.newDistMetrics(),

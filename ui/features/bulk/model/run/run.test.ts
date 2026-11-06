@@ -2,13 +2,13 @@ import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-pr
 import { BulkEnchantSlotOptions, BulkSettings, BulkSimStage, ProgressMetrics } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import {
-	DesignDowntime,
 	Encounter,
-	EncounterDesign,
+	EncounterPlan,
 	type EquipmentSpec,
 	ItemSlot,
 	ItemSpec,
 	ItemType,
+	PlanDowntime,
 	Profession,
 	Race,
 	Stat,
@@ -112,11 +112,11 @@ const FURY_EDITED = '-0505000530501';
 const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
 const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
 const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets: [Target.create()] });
-const DESIGNED = Encounter.create({
+const WITH_PLAN = Encounter.create({
 	duration: 240,
 	durationVariation: 5,
 	targets: [Target.create()],
-	design: EncounterDesign.create({ downtimes: [DesignDowntime.create({ name: 'Phase two' })] }),
+	plan: EncounterPlan.create({ downtimes: [PlanDowntime.create({ name: 'Phase two' })] }),
 });
 
 const HEALER = SavedSettings.create({ race: Race.RaceTroll, professions: [Profession.Alchemy, Profession.Herbalism] });
@@ -287,7 +287,7 @@ const sentBuilds = () =>
 
 const steps = (host: IndividualSimHost<any>) => bulkProgress(host.player)!.steps;
 
-// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL, its twin, PATCHWERK and DESIGNED.
+// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL, its twin, PATCHWERK and WITH_PLAN.
 const ENCOUNTER_SUMMARIES: Record<string, string> = {
 	'bulk_tab.settings.encounters.current': '3:00 ±5s · bulk_tab.settings.encounters.targets',
 	Council: '1:30 ±10s · bulk_tab.settings.encounters.targets',
@@ -509,22 +509,22 @@ describe('runBulkBatch', () => {
 			return host;
 		};
 
-		it('runs a ticked entry with its design under its name', async () => {
-			const host = await runWith([myRef('Add waves')], { 'Add waves': DESIGNED });
+		it('runs a ticked entry with its plan under its name', async () => {
+			const host = await runWith([myRef('Add waves')], { 'Add waves': WITH_PLAN });
 
-			expect(sentEncounters()).toEqual([CURRENT, DESIGNED]);
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN]);
 			expect(steps(host).rows).toEqual([step(), step('Add waves')]);
 		});
 
 		it('keeps an entry and a saved encounter of one name apart', async () => {
-			await runWith([myRef('Council')], { Council: DESIGNED });
-			expect(sentEncounters()).toEqual([CURRENT, DESIGNED]);
+			await runWith([myRef('Council')], { Council: WITH_PLAN });
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN]);
 
-			await runWith([COUNCIL_REF], { Council: DESIGNED });
+			await runWith([COUNCIL_REF], { Council: WITH_PLAN });
 			expect(sentEncounters()).toEqual([CURRENT, COUNCIL]);
 
-			await runWith([myRef('Council'), COUNCIL_REF], { Council: DESIGNED });
-			expect(sentEncounters()).toEqual([CURRENT, DESIGNED, COUNCIL]);
+			await runWith([myRef('Council'), COUNCIL_REF], { Council: WITH_PLAN });
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN, COUNCIL]);
 		});
 
 		it('drops a deleted entry from the batch, leaving the saved encounter of its name unticked', async () => {

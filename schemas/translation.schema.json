@@ -3913,7 +3913,7 @@
 						"disabled_at_start": {
 							"type": "string"
 						},
-						"designer": {
+						"planner": {
 							"type": "object",
 							"properties": {
 								"timeline": {
@@ -4798,7 +4798,7 @@
 						"suppress_dodge",
 						"second_tank_index",
 						"disabled_at_start",
-						"designer"
+						"planner"
 					]
 				},
 				"player": {

@@ -99,24 +99,24 @@ with `CONSUMABLE_ORDER_FIELDS`. Prefer it to a hand-built `subscribeAll([...])` 
 source each render, and `useStoreSubscribe` re-subscribes whenever the source identity changes. A named field is also
 greppable and cannot capture the wrong object.
 
-**The encounter design** is the store field `encounter:design` (`ui/sim/raid/encounter.ts`: `getDesign`, `setDesign`,
-`hasDesign`), saved in the encounter proto only when it holds an event. The design points at targets by index, so
-`setTargets` runs `remapDesignTargets`, which follows each old target object to its new position and sends a removed
-target's events to -1, where `validateDesign` flags them (a Pulse or an Area hit ignores its target index, so its -1 goes
+**The encounter plan** is the store field `encounter:plan` (`ui/sim/raid/encounter.ts`: `getPlan`, `setPlan`,
+`hasPlan`), saved in the encounter proto only when it holds an event. The plan points at targets by index, so
+`setTargets` runs `remapPlanTargets`, which follows each old target object to its new position and sends a removed
+target's events to -1, where `validatePlan` flags them (a Pulse or an Area hit ignores its target index, so its -1 goes
 unflagged); `removeEvent` does the same for the waves an amp names; a
-preset matches the encounter by targets and design together. The designer dialog is `ui/features/encounter-designer/components/EncounterDesigner/` over the model in
-`ui/features/encounter-designer/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
+preset matches the encounter by targets and plan together. The planner dialog is `ui/features/encounter-planner/components/EncounterPlanner/` over the model in
+`ui/features/encounter-planner/model/` (`lanes.ts`, `time.ts`, `validate.ts`), which has no DOM and no React.
 
 **The encounter name** (`encounter:name`) and the mark `encounter:myEncounter` tie the encounter to My encounters, the
-player's designed encounters in a per-spec `useSavedData` slot keyed by name
-(`ui/features/encounter/hooks/useMyEncounters.ts`). Picking an entry, or storing one from the designer, sets the mark;
+encounters the player built in the planner, in a per-spec `useSavedData` slot keyed by name
+(`ui/features/encounter/hooks/useMyEncounters.ts`). Picking an entry, or storing one from the planner, sets the mark;
 `applyPreset` clears the name and the mark, and `matchesPreset` never matches a named encounter. The mark is in the
 encounter proto, so the autosave keeps it through a reload, and `withoutMyEncounter`
 (`ui/sim/state/my_encounter_sharing.ts`) drops it from every export and import, so an imported encounter under an entry's
 name reads as imported, and its Save adds a new entry under a free name. Both encounter choices, the picker's and the
-designer's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`). The designer's draft
-takes up the design a choice made there writes. A designer fight (`hasDesign()` in `ui/sim/raid/encounter.ts`: an event
-in any lane) has its execute proportions in the designer's header only, and the Encounter panel shows them for a
+planner's, come from `useEncounterChoice` (`ui/features/encounter/hooks/useEncounterChoice.ts`). The planner's draft
+takes up the plan a choice made there writes. A fight with a plan (`hasPlan()` in `ui/sim/raid/encounter.ts`: an event
+in any lane) has its execute proportions in the planner's header only, and the Encounter panel shows them for a
 simple fight.
 
 `StoreField` has two aggregates, `'player:*'` and `'encounter:*'`, which re-render a component on every write to the

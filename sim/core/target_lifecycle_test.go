@@ -287,7 +287,7 @@ func setupTickCounter(config SpellConfig) (*Simulation, *FakeFearWarrior, *Spell
 	ticks := new(int)
 	config.Dot.OnTick = func(*Simulation, *Unit, *Dot) { *ticks++ }
 	var spell *Spell
-	sim, fw := setupDesignSim(designTestRequest(2, nil), func(char *Character) {
+	sim, fw := setupPlanSim(planTestRequest(2, nil), func(char *Character) {
 		spell = char.RegisterSpell(config)
 	})
 	spell.finalize()

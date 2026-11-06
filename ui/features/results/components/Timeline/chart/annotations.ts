@@ -15,11 +15,11 @@ const SCHEDULED_ROW_HEIGHT = 9;
 
 // One row of strips along the top edge per kind, so they never cover the cooldown bands or each other.
 export const SCHEDULED_ROWS: ReadonlyArray<{ kind: ScheduledKind; token: string }> = [
-	{ kind: 'downtime', token: '--designer-lane-boss-bar' },
-	{ kind: 'wave', token: '--designer-lane-waves-bar' },
-	{ kind: 'amp', token: '--designer-lane-amps-bar' },
-	{ kind: 'move', token: '--designer-lane-moves-bar' },
-	{ kind: 'pulse', token: '--designer-lane-abilities-bar' },
+	{ kind: 'downtime', token: '--planner-lane-boss-bar' },
+	{ kind: 'wave', token: '--planner-lane-waves-bar' },
+	{ kind: 'amp', token: '--planner-lane-amps-bar' },
+	{ kind: 'move', token: '--planner-lane-moves-bar' },
+	{ kind: 'pulse', token: '--planner-lane-abilities-bar' },
 ];
 
 const iconCache = new Map<string, HTMLImageElement>();

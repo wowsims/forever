@@ -355,7 +355,7 @@ An entry line sets fields of the section's message. How each field type is writt
 - **Messages in arguments.** A message field in a kind's or a message's arguments is written as in an entry,
   `field(...)` with the field's own name, or as raw JSON, or as `none` for the empty message. Each message of a
   list of messages is a `field(...)` argument of its own, as it is an entry line of its own in a section
-  (`design(…, add_waves(…), add_waves(…))`). The list may instead be written whole,
+  (`plan(…, add_waves(…), add_waves(…))`). The list may instead be written whole,
   `field=[field(…), …]`, but not both ways (`duplicate-field`). An array indexed by an enum is the argument
   `field(<short name>=<number>, …)`.
 - **Field names.** A field is written by its proto name. A proto name that is not lower snake case is written
