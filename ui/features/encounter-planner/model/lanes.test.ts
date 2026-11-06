@@ -20,7 +20,6 @@ import {
 	laneLabelKey,
 	moveSeconds,
 	occurrences,
-	pulseTicks,
 	removeEvent,
 	withAbilityKind,
 } from './lanes';
@@ -362,13 +361,6 @@ describe('lanes', () => {
 				withAbilityKind(ability, kind);
 				expect(ability.end.at).toBe(0.9);
 			}
-		});
-
-		it('ticks at a window start and every interval before its end, once for a window shorter than one interval', () => {
-			expect(pulseTicks({ start: 0.1, end: 0.2 }, 3, 100, 10)).toEqual([0.1, expect.closeTo(0.13), expect.closeTo(0.16), expect.closeTo(0.19)]);
-			expect(pulseTicks({ start: 0.1, end: 0.11 }, 3, 100, 10)).toEqual([0.1]);
-			expect(pulseTicks({ start: 0.1, end: 0.2 }, 1, 100, 3)).toHaveLength(3);
-			expect(pulseTicks({ start: 0.1, end: 0.2 }, 0, 100, 10)).toEqual([]);
 		});
 	});
 });

@@ -13,7 +13,6 @@ import {
 	moveSeconds,
 	occurrences,
 	PLAYER_RUN_SPEED,
-	pulseTicks,
 } from '../../model/lanes';
 import type { TimeWindow } from '../../model/time';
 import { clamp, secondsToFraction } from '../../model/time';
@@ -35,8 +34,8 @@ export interface LaneEvent {
 	jitter: { start: number; end: number };
 	/** Every occurrence after the first, which the lane draws as ghosts. */
 	repeats: ReadonlyArray<TimeWindow>;
-	/** Every tick of a pulse's windows, which the lane draws as tick marks. */
-	ticks: ReadonlyArray<number>;
+	/** A pulse's tick interval in seconds, which its bar and ghosts draw as faded lines; 0 for every other event. */
+	tickSeconds: number;
 	row: number;
 	/** The window may run past the fight's end, as a wave's lifetime, a move's walk and an instant's bar do. */
 	openEnd: boolean;
@@ -106,18 +105,6 @@ const windowOf = (plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): 
 	return { start: found.at, end: found.at };
 };
 
-// A pulse's ticks over all its windows, cut at the fight's end, at most MAX_OCCURRENCES of them. The tick at each window's
-// start is left out: it would sit on the bar's rounded edge, and the bar's start already marks it.
-const pulseLaneTicks = (windows: ReadonlyArray<TimeWindow>, intervalSeconds: number, baseSeconds: number): Array<number> => {
-	const ticks: Array<number> = [];
-	for (const { start, end } of windows) {
-		const inWindow = pulseTicks({ start, end: Math.min(end, 1) }, intervalSeconds, baseSeconds, MAX_OCCURRENCES - ticks.length);
-		ticks.push(...inWindow.filter(at => at > start));
-		if (ticks.length >= MAX_OCCURRENCES) break;
-	}
-	return ticks;
-};
-
 // Whether a downtime sits on one target's row: its own, and on the first target every downtime that names no target of the
 // `count` the encounter has, which validation flags.
 const onTargetRow = (plan: EncounterPlan, index: number, target: { index: number; count: number }): boolean => {
@@ -149,7 +136,7 @@ export const laneEvents = (plan: EncounterPlan, lane: PlanLaneKind, baseSeconds:
 					window,
 					jitter: jitterOf(plan, ref),
 					repeats: all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
-					ticks: pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
+					tickSeconds: pulse ? ability.tickInterval : 0,
 					row: 0,
 					openEnd: kind === 'wave' || kind === 'move' || instants,
 					fixedWidth: instants,

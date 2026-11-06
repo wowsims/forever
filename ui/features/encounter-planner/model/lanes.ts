@@ -188,16 +188,6 @@ export const withAbilityKind = (ability: PlanBossAbility, kind: PlanBossAbility_
 	if (!wasArea) ability.resistible = true;
 };
 
-// The tick times of one pulse window, in fractions of the fight: one at its start, then one every interval before its
-// end, so a window shorter than one interval ticks once. Jitter is ignored, as the timeline draws it.
-export const pulseTicks = (window: { start: number; end: number }, intervalSeconds: number, baseSeconds: number, maxCount: number): Array<number> => {
-	const interval = baseSeconds > 0 ? intervalSeconds / baseSeconds : 0;
-	if (interval <= 0 || window.end <= window.start) return [];
-	const ticks: Array<number> = [];
-	for (let at = window.start; at < window.end && ticks.length < maxCount; at = window.start + ticks.length * interval) ticks.push(at);
-	return ticks;
-};
-
 // The player run speed the sim walks a move's yards at (`GetMovementSpeed` in sim/core/movement.go), in yards per second.
 export const PLAYER_RUN_SPEED = 7;
 

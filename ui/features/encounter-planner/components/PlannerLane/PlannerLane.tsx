@@ -36,7 +36,7 @@ import {
 	serializeTip,
 } from '../EncounterPlanner/utils/tips';
 import { PlannerEventBar } from '../PlannerEventBar';
-import { barVars } from '../PlannerEventBar/utils';
+import { barVars, tickVars } from '../PlannerEventBar/utils';
 import {
 	adjustHealth,
 	followed,
@@ -357,12 +357,15 @@ export const PlannerLane = ({
 								aria-hidden="true"
 								data-tooltip-id={tooltipId}
 								data-tip={serializeTip(occurrenceTip(eventTooltip(plan, event.ref, baseSeconds, targetNames, repeat), label))}
-								className={`absolute left-planner-pos col-start-1 row-(--row) bg-(--bar)/40 ${GHOST_CLASSES}`}
-								style={barVars(
-									event.row,
-									fractionToSeconds(repeat.start, baseSeconds),
-									fractionToSeconds(repeat.end - repeat.start, baseSeconds),
-								)}>
+								className={`absolute left-planner-pos col-start-1 row-(--row) bg-(--bar)/40 bg-(image:--planner-ticks) ${GHOST_CLASSES}`}
+								style={{
+									...barVars(
+										event.row,
+										fractionToSeconds(repeat.start, baseSeconds),
+										fractionToSeconds(repeat.end - repeat.start, baseSeconds),
+									),
+									...tickVars(event.tickSeconds),
+								}}>
 								<span className="min-w-0 truncate pl-1">{name}</span>
 								<span className="shrink-0 px-1">{plannerText('occurrence_number', { number: index + 2 })}</span>
 							</div>
@@ -401,6 +404,7 @@ export const PlannerLane = ({
 							startFixed={event.startFixed}
 							openEnd={event.openEnd}
 							fixedWidth={event.fixedWidth}
+							tickSeconds={event.tickSeconds}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}
@@ -426,18 +430,6 @@ export const PlannerLane = ({
 						/>
 					);
 				})}
-				{/* The ticks share a selected bar's z-index and come after the bars, so they show over it and under the rename field
-				    and the sticky lane label. They take no pointer, so the bar's own grab and tooltip reach through them. */}
-				{domOrder.flatMap(event =>
-					event.ticks.map((at, index) => (
-						<div
-							key={`${refKey(event.ref)}:tick:${index}`}
-							aria-hidden="true"
-							className="pointer-events-none absolute top-1 bottom-1 left-planner-pos z-2 col-start-1 row-(--row) w-px bg-white"
-							style={cssVars({ '--row': `${event.row + 1} / span 1`, '--t': String(fractionToSeconds(at, baseSeconds)) })}
-						/>
-					)),
-				)}
 			</ContextMenu>
 		</div>
 	);

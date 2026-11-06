@@ -97,7 +97,7 @@ describe('laneEvents', () => {
 		const events = laneEvents(plan, 'abilities', BASE).sort((a, b) => a.ref.index - b.ref.index);
 		const width = 10 / BASE;
 		for (const instant of events.slice(0, 3)) {
-			expect([instant.window.start, instant.window.end, instant.ticks.length, instant.openEnd, instant.fixedWidth]).toEqual([
+			expect([instant.window.start, instant.window.end, instant.tickSeconds, instant.openEnd, instant.fixedWidth]).toEqual([
 				0.2,
 				expect.closeTo(0.2 + width),
 				0,
@@ -109,13 +109,11 @@ describe('laneEvents', () => {
 			);
 		}
 		const thrash = events[3];
-		expect([thrash.window.end, thrash.repeats.length, thrash.ticks.length, thrash.fixedWidth]).toEqual([expect.closeTo(0.3), 3, 0, false]);
+		expect([thrash.window.end, thrash.repeats.length, thrash.tickSeconds, thrash.fixedWidth]).toEqual([expect.closeTo(0.3), 3, 0, false]);
 		expect(laneEvents(plan, 'waves', BASE).map(event => event.openEnd)).toEqual([true]);
 	});
 
-	it("draws a pulse's ticks inside each of its windows after its start, cut at the fight's end", () => {
-		// A 7.2 s window ticking every 3 s ticks at 0 s, 3 s and 6 s; the tick at a window's start is not drawn, and the
-		// repeat at 0.99 has 1.8 s left in the fight, only its start tick.
+	it("gives a pulse's window and each of its repeats the pulse's tick interval", () => {
 		const pulse = {
 			...defaultEvent('ability'),
 			kind: PlanBossAbility_Kind.Pulse,
@@ -126,7 +124,7 @@ describe('laneEvents', () => {
 		};
 		const [ticking] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse] }), 'abilities', BASE);
 		expect(ticking.repeats).toHaveLength(1);
-		expect(ticking.ticks).toEqual([expect.closeTo(0.1 + 3 / BASE), expect.closeTo(0.1 + 6 / BASE)]);
+		expect(ticking.tickSeconds).toBe(3);
 	});
 });
 

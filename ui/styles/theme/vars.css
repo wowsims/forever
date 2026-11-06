@@ -43,6 +43,7 @@
 	--planner-axis-gutter: --spacing(6);
 	--planner-hold-opacity: 0.6;
 	--planner-jitter-whisker: var(--color-foreground-disabled);
+	--planner-pulse-tick: rgb(255 255 255 / 35%);
 
 	/* Table */
 	--table-row-even-bg: var(--color-table-even);

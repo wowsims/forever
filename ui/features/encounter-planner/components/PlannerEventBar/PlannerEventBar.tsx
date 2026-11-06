@@ -9,7 +9,7 @@ import { useRef, useState } from 'react';
 import type { TimeWindow } from '../../model/time';
 import { fractionToSeconds, keyStep, secondsToFraction, snap } from '../../model/time';
 import { plannerText } from '../EncounterPlanner/utils/configs';
-import { BAR_CLASSES, barKeyAction, barVars, editWindow } from './utils';
+import { BAR_CLASSES, barKeyAction, barVars, editWindow, tickVars } from './utils';
 
 export interface PlannerEventBarProps {
 	name: string;
@@ -31,6 +31,8 @@ export interface PlannerEventBarProps {
 	openEnd?: boolean;
 	/** The width is only drawn: the bar has no edge handles, and a drag or a key moves it whole. */
 	fixedWidth?: boolean;
+	/** A pulse's tick interval in seconds, drawn as faded lines across the bar under its text. */
+	tickSeconds?: number;
 	/** The jitter around the start and the end, as fractions of the fight. */
 	jitter?: { start: number; end: number };
 	baseSeconds: number;
@@ -128,6 +130,7 @@ export const PlannerEventBar = ({
 	startFixed = false,
 	openEnd = false,
 	fixedWidth = false,
+	tickSeconds = 0,
 	jitter,
 	baseSeconds,
 	snapSeconds,
@@ -270,7 +273,7 @@ export const PlannerEventBar = ({
 				data-dragging={preview ? '' : undefined}
 				{...state}
 				className={`absolute left-planner-pos z-1 col-start-1 row-(--row) cursor-grab text-xs font-bold text-white outline-none select-none focus-visible:focus-ring data-dragging:z-2 data-dragging:cursor-grabbing data-flat:opacity-(--planner-hold-opacity) data-selected:z-2 ${EVENT_BAR_CLASSES}`}
-				style={barVars(row, start, duration)}
+				style={{ ...barVars(row, start, duration), ...tickVars(tickSeconds) }}
 				onKeyDown={onKeyDown}
 				onClick={onSelect}
 				onFocus={onFocus}
