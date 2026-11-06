@@ -1075,6 +1075,11 @@ var ConsumableDenyList = []int32{
 // table, the rows group by aura only elixirs and scrolls, and by category only the stat consumables
 // whose category cooldown lasts as long as their buffs. A consumable named here takes this group
 // instead of the one its rows give it.
+//
+// TODO: check in game whether these stack with the elixir group of the aura they open on, and add
+// each one that does not: Oil of Olaf 1177 (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546
+// (A_MOD_STAT Agility), Very Berry Cream 22238 and Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every
+// school).
 var ConsumableExclusiveGroups = []ConsumableGroup{
 	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
 		12451, // Juju Power
