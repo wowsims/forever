@@ -151,8 +151,8 @@ export const removeEvent = (plan: EncounterPlan, ref: PlanEventRef): void => {
 	}
 };
 
-// A spell hit, a strike or an area hit fires at its start and at each repeat that begins by its end; a thrash, swing
-// timing or pulse window lasts from its start to its end.
+// A spell hit, a strike or an area hit fires at its start and at each repeat, and has no end; a thrash, swing timing or
+// pulse window lasts from its start to its end.
 export const firesAtInstants = (ability: PlanBossAbility): boolean =>
 	ability.kind === PlanBossAbility_Kind.SpellHit || ability.kind === PlanBossAbility_Kind.Strike || ability.kind === PlanBossAbility_Kind.AreaHit;
 
@@ -165,12 +165,15 @@ const AREA_DAMAGE_DEFAULTS: Partial<Record<PlanBossAbility_Kind, { min: number; 
 	[PlanBossAbility_Kind.AreaHit]: { min: 1500, max: 2000 },
 };
 
-// Sets the ability's kind. A switch to a pulse or an area hit fills the damage, as fire, and the tick interval and jitter
-// (1 s and 0.2 s) where they are 0, and turns Resistible on when it comes from a kind without that toggle. Mutates the
+// Sets the ability's kind. A switch to a window kind whose end is not after its start ends the window DEFAULT_WIDTH
+// after the start. A switch to a pulse or an area hit fills the damage, as fire, and the tick interval and jitter (1 s
+// and 0.2 s) where they are 0, and turns Resistible on when it comes from a kind without that toggle. Mutates the
 // ability.
 export const withAbilityKind = (ability: PlanBossAbility, kind: PlanBossAbility_Kind): void => {
 	const wasArea = isAreaAbility(ability);
 	ability.kind = kind;
+	const start = ability.start?.at ?? 0;
+	if (!firesAtInstants(ability) && (ability.end?.at ?? 0) <= start) (ability.end ??= time(0)).at = start + DEFAULT_WIDTH;
 	const damage = AREA_DAMAGE_DEFAULTS[kind];
 	if (!damage) return;
 	if (ability.maxDamage <= 0) {
@@ -204,6 +207,7 @@ export const moveSeconds = (move: PlanMove): number => (move.yards > 0 ? move.ya
 export const eventWindow = (plan: EncounterPlan, ref: PlanEventRef): PlanEventWindow | undefined => {
 	const event = getEvent(plan, ref);
 	if (!event) return undefined;
+	if (ref.kind === 'ability' && firesAtInstants(event as PlanBossAbility)) return { at: (event as PlanBossAbility).start?.at ?? 0 };
 	switch (ref.kind) {
 		case 'bossHealth':
 			return { at: (event as HealthKeyframe).at };
@@ -224,23 +228,20 @@ export const eventWindow = (plan: EncounterPlan, ref: PlanEventRef): PlanEventWi
 
 // Every occurrence a repeat produces, the first included, spaced by the interval with jitter ignored. The count is the
 // number of repeats after the first and 0 runs to the end of the fight; the result holds at most maxCount entries. A
-// spell hit or a strike is an instant per occurrence and stops at its end, as the sim fires only the occurrences that
-// begin by it.
+// point event (a move, or a spell hit, a strike or an area hit) gives occurrences with no length.
 export const occurrences = (plan: EncounterPlan, ref: PlanEventRef, maxCount: number): { start: number; end: number }[] => {
 	const event = getEvent(plan, ref);
 	const window = eventWindow(plan, ref);
 	if (!event || !window || maxCount <= 0) return [];
 	const start = 'at' in window ? window.at : window.start;
-	const instants = ref.kind === 'ability' && firesAtInstants(event as PlanBossAbility);
-	const width = 'at' in window || instants ? 0 : window.end - window.start;
-	const last = instants ? ((event as PlanBossAbility).end?.at ?? start) : Infinity;
+	const width = 'at' in window ? 0 : window.end - window.start;
 	const repeat = 'repeat' in event ? event.repeat : undefined;
 	const interval = repeat?.interval ?? 0;
 	const total = interval > 0 ? (repeat!.count > 0 ? repeat!.count + 1 : Infinity) : 1;
 	const result: { start: number; end: number }[] = [];
 	for (let i = 0; i < total && result.length < maxCount; i++) {
 		const from = start + i * interval;
-		if ((i > 0 && from > 1) || from > last) break;
+		if (i > 0 && from > 1) break;
 		result.push({ start: from, end: from + width });
 	}
 	return result;

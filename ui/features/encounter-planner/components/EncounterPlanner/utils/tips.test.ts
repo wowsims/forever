@@ -66,7 +66,7 @@ describe('eventTooltip', () => {
 		);
 	});
 
-	it('describes a spell hit by what it deals, when it fires and how often', () => {
+	it('describes a spell hit by what it deals, when it first fires and how often it repeats, with no end', () => {
 		const ability = {
 			...eventAt('ability', 0.25),
 			minDamage: 3000,
@@ -74,11 +74,13 @@ describe('eventTooltip', () => {
 			castTime: 2,
 			repeat: { interval: 25 / 180, jitter: 0, count: 0 },
 		};
-		ability.end!.at = 1;
 		expect(tip(EncounterPlan.create({ bossAbilities: [ability] }), 'ability')).toEqual({
 			title: 'spell_hit',
-			lines: ['school_damage(0,3000,5000)', 'cast(seconds(2))', 'every_from(seconds(25),seconds(45),seconds(180))'],
+			lines: ['school_damage(0,3000,5000)', 'cast(seconds(2))', 'at(seconds(45))', 'every(seconds(25))'],
 		});
+		expect(eventValueText(EncounterPlan.create({ bossAbilities: [ability] }), { kind: 'ability', index: 0 }, 180)).toBe(
+			'point_value(event_name(ability,1),seconds(45))',
+		);
 	});
 
 	it('describes a pulse by its damage, its ticks and who it hits, and says a window shorter than one interval ticks once', () => {

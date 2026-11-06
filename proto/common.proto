@@ -726,6 +726,8 @@ message PlanDamageAmp {
 }
 
 message PlanBossAbility {
+	// SpellHit, Strike and AreaHit happen at the start and at each repeat inside the fight. Thrash, SwingTiming and
+	// Pulse open a window there that lasts from start to end.
 	enum Kind {
 		SpellHit = 0;
 		Strike = 1;
@@ -740,7 +742,7 @@ message PlanBossAbility {
 	Kind kind = 1;
 	int32 target_index = 2;
 	PlanTime start = 3;
-	PlanTime end = 4;
+	PlanTime end = 4; // Thrash, SwingTiming and Pulse: the window's end, which gives every repeat's window its length. The other kinds ignore it.
 	PlanRepeat repeat = 5;
 	SpellSchool school = 6;
 	double min_damage = 7;

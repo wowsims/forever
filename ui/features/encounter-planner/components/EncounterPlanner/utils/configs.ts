@@ -8,7 +8,7 @@ import type { ChoiceOption } from '@ui-kit/ChoiceField';
 import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 
 import type { PlanEvent, PlanEventKind, PlanEventRef } from '../../../model/lanes';
-import { getEvent, withAbilityKind } from '../../../model/lanes';
+import { firesAtInstants, getEvent, withAbilityKind } from '../../../model/lanes';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 
 export const plannerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.planner.${name}`, options);
@@ -115,19 +115,24 @@ const percent = <E>(
 type TimeSlot = 'start' | 'end' | 'spawn' | 'at';
 type Timed<S extends TimeSlot> = { [P in S]?: PlanTime };
 
-const timeFields = <S extends TimeSlot, E extends Timed<S>>(slot: S, names: { at: string; jitter: string }): Array<PlanFieldConfig<E>> => {
+const timeFields = <S extends TimeSlot, E extends Timed<S>>(
+	slot: S,
+	names: { at: string; jitter: string },
+	extra: Partial<FieldBase<E>> = {},
+): Array<PlanFieldConfig<E>> => {
 	const time = (event: Timed<S>): PlanTime => (event[slot] ??= PlanTime.create());
 	return [
 		seconds<E>(
 			names.at,
 			event => event[slot]?.at ?? 0,
 			(event, value) => (time(event).at = value),
+			extra,
 		),
 		seconds<E>(
 			names.jitter,
 			event => event[slot]?.jitter ?? 0,
 			(event, value) => (time(event).jitter = value),
-			{ tooltip: tooltip('jitter') },
+			{ ...extra, tooltip: tooltip('jitter') },
 		),
 	];
 };
@@ -377,7 +382,8 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 			withAbilityKind,
 		),
 		targetField({ show: event => !area(event) }),
-		...spanFields<PlanBossAbility>(),
+		...timeFields<'start', PlanBossAbility>('start', { at: 'start', jitter: 'start_jitter' }),
+		...timeFields<'end', PlanBossAbility>('end', { at: 'end', jitter: 'end_jitter' }, { show: event => !firesAtInstants(event) }),
 		...repeatFields<PlanBossAbility>(),
 		enumField<PlanBossAbility, SpellSchool>(
 			'school',

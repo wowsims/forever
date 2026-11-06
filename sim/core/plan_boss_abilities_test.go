@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"slices"
 	"strings"
 	"testing"
@@ -104,7 +105,7 @@ func TestPlanSpellHitLandsAtEachOccurrenceAfterItsHardcast(t *testing.T) {
 		}
 	}
 	plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{
-		spellHit(0.1, 0.35, &proto.PlanRepeat{Interval: 0.1}),
+		spellHit(0.1, 0.35, &proto.PlanRepeat{Interval: 0.1, Count: 2}),
 		spellHit(0.55, 1, &proto.PlanRepeat{Interval: 0.1, Count: 1}),
 	}}
 	_, hits := runPlanHitsTaken(t, planTestRequest(1, plan))
@@ -137,7 +138,7 @@ func TestPlanBossAbilityOfADisabledTargetDoesNothing(t *testing.T) {
 			Kind:      proto.PlanBossAbility_SpellHit,
 			Start:     startAt,
 			End:       endAt,
-			Repeat:    &proto.PlanRepeat{Interval: 0.1},
+			Repeat:    &proto.PlanRepeat{Interval: 0.1, Count: 2},
 			MinDamage: 100,
 			MaxDamage: 100,
 		}},
@@ -168,7 +169,7 @@ func TestPlanSpellHitStopsWhenItsTargetGoesAway(t *testing.T) {
 				Kind:      proto.PlanBossAbility_SpellHit,
 				Start:     startAt,
 				End:       endAt,
-				Repeat:    &proto.PlanRepeat{Interval: 0.1},
+				Repeat:    &proto.PlanRepeat{Interval: 0.1, Count: 1},
 				MinDamage: 100,
 				MaxDamage: 100,
 				CastTime:  castTime.Seconds(),
@@ -212,7 +213,7 @@ func TestPlanStrikeReplacesOneSwingPerOccurrence(t *testing.T) {
 		Kind:          proto.PlanBossAbility_Strike,
 		Start:         startAt,
 		End:           endAt,
-		Repeat:        &proto.PlanRepeat{Interval: 0.1},
+		Repeat:        &proto.PlanRepeat{Interval: 0.1, Count: 2},
 		WeaponPercent: 150,
 	}}}
 	_, hits := runPlanHitsTaken(t, planTankRequest(plan))
@@ -553,9 +554,8 @@ func planPulse(start, end, interval float64) *proto.PlanBossAbility {
 	return ability
 }
 
-// An area hit whose repeats run until the fight ends.
 func planAreaHit(start float64) *proto.PlanBossAbility {
-	ability := planBossWindow(proto.PlanBossAbility_AreaHit, start, 1)
+	ability := &proto.PlanBossAbility{Kind: proto.PlanBossAbility_AreaHit, Start: &proto.PlanTime{At: start}}
 	ability.School = proto.SpellSchool_SpellSchoolFire
 	ability.MinDamage = 500
 	ability.MaxDamage = 700
@@ -606,12 +606,10 @@ func TestPlanPulseTicksFromItsWindowStartUntilItsEnd(t *testing.T) {
 	expectPlanHitTimes(t, "short pulse", planAreaHitsOf(hits, 1), []time.Duration{planAt(0.3)})
 }
 
-// Area damage comes from no target: it lands while the boss is in a downtime, and an area hit's end bounds its
-// repeats as a spell hit's does.
+// Area damage comes from no target: it lands while the boss is in a downtime.
 func TestPlanAreaDamageLandsWhileTheBossIsDown(t *testing.T) {
 	areaHit := planAreaHit(0.2)
-	areaHit.End = &proto.PlanTime{At: 0.45}
-	areaHit.Repeat = &proto.PlanRepeat{Interval: 0.1}
+	areaHit.Repeat = &proto.PlanRepeat{Interval: 0.1, Count: 2}
 	plan := &proto.EncounterPlan{
 		Downtimes:     []*proto.PlanDowntime{{TargetIndex: 0, Start: &proto.PlanTime{At: 0.05}, End: &proto.PlanTime{At: 0.5}}},
 		BossAbilities: []*proto.PlanBossAbility{planPulse(0.1, 0.15, 1), areaHit},
@@ -625,6 +623,45 @@ func TestPlanAreaDamageLandsWhileTheBossIsDown(t *testing.T) {
 
 	expectPlanHitTimes(t, "pulse", planAreaHitsOf(*hits, 0), planTicks(planAt(0.1), time.Second, 5))
 	expectPlanHitTimes(t, "area hit", planAreaHitsOf(*hits, 1), []time.Duration{planAt(0.2), planAt(0.3), planAt(0.4)})
+}
+
+// A spell hit, a strike and an area hit whose end comes before their first repeat still repeat: count times, or
+// with a count of 0 until the fight ends.
+func TestPlanInstantAbilitiesRepeatPastTheirEnd(t *testing.T) {
+	for _, c := range []struct {
+		count int32
+		want  int
+	}{{count: 2, want: 3}, {count: 0, want: 5}} {
+		instant := func(kind proto.PlanBossAbility_Kind) *proto.PlanBossAbility {
+			startAt, endAt := planWindow(0.1, 0.15)
+			return &proto.PlanBossAbility{
+				Kind:          kind,
+				Start:         startAt,
+				End:           endAt,
+				Repeat:        &proto.PlanRepeat{Interval: 0.2, Count: c.count},
+				School:        proto.SpellSchool_SpellSchoolFire,
+				MinDamage:     100,
+				MaxDamage:     100,
+				WeaponPercent: 150,
+			}
+		}
+		plan := &proto.EncounterPlan{BossAbilities: []*proto.PlanBossAbility{
+			instant(proto.PlanBossAbility_SpellHit),
+			instant(proto.PlanBossAbility_AreaHit),
+			instant(proto.PlanBossAbility_Strike),
+		}}
+		_, hits := runPlanHitsTaken(t, planTankRequest(plan))
+
+		want := make([]time.Duration, c.want)
+		for k := range want {
+			want[k] = planAt(0.1 + float64(k)*0.2)
+		}
+		expectPlanHitTimes(t, fmt.Sprintf("count %d, spell hit", c.count), planAreaHitsOf(hits, 0), want)
+		expectPlanHitTimes(t, fmt.Sprintf("count %d, area hit", c.count), planAreaHitsOf(hits, 1), want)
+		if strikes := planHitsOf(hits, func(id ActionID) bool { return id.SpellID == planStrikeSpellID }); len(strikes) != c.want {
+			t.Errorf("count %d: expected %d strikes, got %d", c.count, c.want, len(strikes))
+		}
+	}
 }
 
 // A tick is damage taken from an enemy spell: a warrior gains rage from it with no target to swing at, and it

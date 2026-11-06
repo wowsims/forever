@@ -33,13 +33,15 @@ export interface LaneEvent {
 	ref: PlanEventRef;
 	window: TimeWindow;
 	jitter: { start: number; end: number };
-	/** Every occurrence after the first, which the lane draws as ghosts. A spell hit, a strike or an area hit has none: its occurrences are `ticks`. */
+	/** Every occurrence after the first, which the lane draws as ghosts. */
 	repeats: ReadonlyArray<TimeWindow>;
-	/** The start of every occurrence of a spell hit, a strike or an area hit, or every tick of a pulse's windows, which the lane draws as tick marks. */
+	/** Every tick of a pulse's windows, which the lane draws as tick marks. */
 	ticks: ReadonlyArray<number>;
 	row: number;
-	/** The window may run past the fight's end, as a wave's lifetime and a move's walk do. */
+	/** The window may run past the fight's end, as a wave's lifetime, a move's walk and an instant's bar do. */
 	openEnd: boolean;
+	/** A spell hit, a strike or an area hit, whose width is only drawn: a drag moves its start alone. */
+	fixedWidth: boolean;
 	/** The start edge is the implied 0 s point of the boss health curve, which no drag moves. */
 	startFixed: boolean;
 }
@@ -52,6 +54,11 @@ const jitterOf = (plan: EncounterPlan, ref: PlanEventRef): { start: number; end:
 		case 'move': {
 			const jitter = (event as PlanMove).at?.jitter ?? 0;
 			return { start: jitter, end: jitter };
+		}
+		case 'ability': {
+			const ability = event as PlanBossAbility;
+			const start = ability.start?.jitter ?? 0;
+			return { start, end: firesAtInstants(ability) ? start : (ability.end?.jitter ?? 0) };
 		}
 		case 'wave': {
 			const jitter = (event as AddWave).spawn?.jitter ?? 0;
@@ -80,8 +87,12 @@ const packRows = (extents: ReadonlyArray<TimeWindow>): Array<number> => {
 	return rows;
 };
 
+// The seconds a spell hit's, a strike's or an area hit's bar and each of its ghosts are drawn wide, enough for a short
+// name at the fit-to-width zoom of a three-minute fight.
+const INSTANT_SECONDS = 10;
+
 // The window an event covers on the axis. A boss health keyframe covers the segment that ends at it; a move covers
-// its walk, which takes the seconds the sim gives it.
+// its walk, which takes the seconds the sim gives it; a spell hit, a strike or an area hit covers INSTANT_SECONDS.
 const windowOf = (plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): TimeWindow => {
 	if (ref.kind === 'bossHealth') {
 		const segment = healthSegments(plan).find(found => found.index === ref.index);
@@ -91,14 +102,17 @@ const windowOf = (plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): 
 	if (!found) return { start: 0, end: 0 };
 	if (!('at' in found)) return found;
 	if (ref.kind === 'move') return { start: found.at, end: found.at + secondsToFraction(moveSeconds(getEvent(plan, ref) as PlanMove), baseSeconds) };
+	if (ref.kind === 'ability') return { start: found.at, end: found.at + secondsToFraction(INSTANT_SECONDS, baseSeconds) };
 	return { start: found.at, end: found.at };
 };
 
-// A pulse's ticks over all its windows, cut at the fight's end, at most MAX_OCCURRENCES of them.
+// A pulse's ticks over all its windows, cut at the fight's end, at most MAX_OCCURRENCES of them. The tick at each window's
+// start is left out: it would sit on the bar's rounded edge, and the bar's start already marks it.
 const pulseLaneTicks = (windows: ReadonlyArray<TimeWindow>, intervalSeconds: number, baseSeconds: number): Array<number> => {
 	const ticks: Array<number> = [];
 	for (const { start, end } of windows) {
-		ticks.push(...pulseTicks({ start, end: Math.min(end, 1) }, intervalSeconds, baseSeconds, MAX_OCCURRENCES - ticks.length));
+		const inWindow = pulseTicks({ start, end: Math.min(end, 1) }, intervalSeconds, baseSeconds, MAX_OCCURRENCES - ticks.length);
+		ticks.push(...inWindow.filter(at => at > start));
 		if (ticks.length >= MAX_OCCURRENCES) break;
 	}
 	return ticks;
@@ -134,10 +148,11 @@ export const laneEvents = (plan: EncounterPlan, lane: PlanLaneKind, baseSeconds:
 					ref,
 					window,
 					jitter: jitterOf(plan, ref),
-					repeats: instants ? [] : all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
-					ticks: instants ? all.map(occurrence => occurrence.start) : pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
+					repeats: all.slice(1).map(repeat => ({ start: repeat.start, end: repeat.start + window.end - window.start })),
+					ticks: pulse ? pulseLaneTicks(all, ability.tickInterval, baseSeconds) : [],
 					row: 0,
-					openEnd: kind === 'wave' || kind === 'move',
+					openEnd: kind === 'wave' || kind === 'move' || instants,
+					fixedWidth: instants,
 					startFixed: kind === 'bossHealth' && segments.find(segment => segment.index === index)?.previous === undefined,
 				},
 			];
@@ -242,7 +257,8 @@ export const withWindow = (plan: EncounterPlan, ref: PlanEventRef, window: TimeW
 			default: {
 				const timed = event as PlanDowntime | PlanDamageAmp | PlanBossAbility;
 				(timed.start ??= PlanTime.create()).at = window.start;
-				(timed.end ??= PlanTime.create()).at = window.end;
+				// A spell hit's, a strike's or an area hit's width is only drawn, so its end stays as stored.
+				if (ref.kind !== 'ability' || !firesAtInstants(timed as PlanBossAbility)) (timed.end ??= PlanTime.create()).at = window.end;
 			}
 		}
 	});

@@ -67,6 +67,14 @@ describe('planFieldConfigs', () => {
 		expect(shown(PlanBossAbility_Kind.AreaHit)).not.toContain('tick_interval');
 		for (const kind of [PlanBossAbility_Kind.Pulse, PlanBossAbility_Kind.AreaHit]) expect(shown(kind)).not.toContain('target');
 		expect(shown(PlanBossAbility_Kind.SpellHit)).not.toContain('resistible');
+		for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.AreaHit]) {
+			expect(shown(kind)).toEqual(expect.arrayContaining(['start', 'start_jitter', 'repeat_interval']));
+			expect(shown(kind)).not.toContain('end');
+			expect(shown(kind)).not.toContain('end_jitter');
+		}
+		for (const kind of [PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming, PlanBossAbility_Kind.Pulse]) {
+			expect(shown(kind)).toEqual(expect.arrayContaining(['end', 'end_jitter']));
+		}
 	});
 
 	it('fills a working pulse when the kind field picks one', () => {

@@ -29,6 +29,8 @@ export interface PlannerEventBarProps {
 	startFixed?: boolean;
 	/** The end may be dragged past the fight's end, and a move stops only the start there. */
 	openEnd?: boolean;
+	/** The width is only drawn: the bar has no edge handles, and a drag or a key moves it whole. */
+	fixedWidth?: boolean;
 	/** The jitter around the start and the end, as fractions of the fight. */
 	jitter?: { start: number; end: number };
 	baseSeconds: number;
@@ -125,6 +127,7 @@ export const PlannerEventBar = ({
 	row,
 	startFixed = false,
 	openEnd = false,
+	fixedWidth = false,
 	jitter,
 	baseSeconds,
 	snapSeconds,
@@ -158,7 +161,7 @@ export const PlannerEventBar = ({
 
 	// The window an edit gives, bounded as the commit will bound it.
 	const edit = (from: TimeWindow, mode: AxisDragMode, deltaFraction: number): TimeWindow => {
-		if (startFixed && mode === 'start') return from;
+		if ((startFixed && mode === 'start') || (fixedWidth && mode !== 'move')) return from;
 		// A bar with `adjust` stores only an edge, so its body drags that edge and no fight edge stops the whole bar short.
 		const next = editWindow(from, adjust && mode === 'move' ? 'end' : mode, deltaFraction, minWidth, openEnd);
 		return adjust ? adjust(next, mode, from) : next;
@@ -285,8 +288,10 @@ export const PlannerEventBar = ({
 					</span>
 				)}
 				{/* At most a quarter of the bar each, so a short bar keeps a middle that moves it. */}
-				{!startFixed && <span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />}
-				<span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />
+				{!startFixed && !fixedWidth && (
+					<span aria-hidden="true" data-handle="start" className="absolute inset-y-0 left-0 w-1 max-w-1/4 cursor-ew-resize" />
+				)}
+				{!fixedWidth && <span aria-hidden="true" data-handle="end" className="absolute inset-y-0 right-0 w-1 max-w-1/4 cursor-ew-resize" />}
 				{copy && (
 					<span
 						aria-hidden="true"

@@ -89,14 +89,17 @@ describe('validatePlan', () => {
 		expect(keys(plan)).toEqual([`wave0:warning:${PLAN_ISSUE_KEYS.executeOrder}`]);
 	});
 
-	it('lets a spell hit or a strike end at its start, while a window must end after it', () => {
+	it('reads no end on a spell hit, a strike or an area hit, while a window must end after its start', () => {
 		const plan = EncounterPlan.create();
 		addEvent(plan, 'ability');
 		const ability = plan.bossAbilities[0];
-		ability.end!.at = ability.start!.at;
-		expect(keys(plan)).toEqual([]);
-		ability.end!.at = ability.start!.at - 0.1;
-		expect(keys(plan)).toEqual([`ability0:error:${PLAN_ISSUE_KEYS.endBeforeStart}`]);
+		withAbilityKind(ability, PlanBossAbility_Kind.AreaHit);
+		ability.end!.at = ability.start!.at - 0.2;
+		ability.end!.jitter = 0.5;
+		for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.AreaHit]) {
+			ability.kind = kind;
+			expect(keys(plan)).toEqual([]);
+		}
 		ability.kind = PlanBossAbility_Kind.Thrash;
 		ability.end!.at = ability.start!.at;
 		expect(keys(plan)).toEqual([`ability0:error:${PLAN_ISSUE_KEYS.endBeforeStart}`]);

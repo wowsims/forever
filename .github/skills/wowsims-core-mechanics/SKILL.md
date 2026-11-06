@@ -152,7 +152,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **An encounter plan is a timeline of fractions of the rolled fight duration** (`plan_runner.go` and the
   `plan_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.planRand`, a stream apart from the
   combat and kill rolls, so it does not move with gear. `PlanRepeat.count` is repeats after the first, 0 until the fight ends;
-  overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
+  a boss ability's end is a Thrash, Swing Timing or Pulse window's end, while a Spell Hit, Strike or Area Hit ignores it
+  and repeats as an add wave does (`plan_boss_abilities.go`, `occurrences` in
+  `ui/features/encounter-planner/model/lanes.ts`); overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
   add waves take targets from a pool allocated at construction. A malformed plan never panics: what construction drops
   is logged at each reset (`constructNotes`).
 - **A plan's area damage has no caster in the fight** (`registerArea` in `plan_boss_abilities.go`). Pulse ticks and

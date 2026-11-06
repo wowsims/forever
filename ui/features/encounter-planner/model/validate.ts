@@ -88,12 +88,11 @@ export const validatePlan = (plan: EncounterPlan, targetCount: number): PlanIssu
 		if (clash) add(ref, 'warning', PLAN_ISSUE_KEYS.downtimeOverlap);
 	});
 
-	// A spell hit or a strike fires at its start when its end is not before it, so only its start must be in the fight.
+	// A spell hit, a strike or an area hit has no end, so only its start must be in the fight.
 	plan.bossAbilities.forEach((ability: PlanBossAbility, index) => {
 		const ref: PlanEventRef = { kind: 'ability', index };
 		if (firesAtInstants(ability)) {
 			const from = ability.start?.at ?? 0;
-			if ((ability.end?.at ?? 0) < from) add(ref, 'error', PLAN_ISSUE_KEYS.endBeforeStart);
 			if (outside(from, from, ability.start?.jitter ?? 0)) add(ref, 'warning', PLAN_ISSUE_KEYS.outsideFight);
 		} else {
 			checkSpan(ref, ability.start, ability.end);

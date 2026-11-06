@@ -82,23 +82,40 @@ describe('laneEvents', () => {
 		expect(second.row).toBe(1);
 	});
 
-	it('draws every ability from its start to its end, with the occurrences of a spell hit or a strike as ticks and a thrash repeating as ghosts', () => {
-		const repeat = { interval: 0.1, jitter: 0, count: 0 };
-		const ability = (kind: PlanBossAbility_Kind) => ({ ...eventAt('ability', 0.2), kind, repeat });
+	it('draws a spell hit, a strike or an area hit 10 s wide at its start whatever its end, a thrash from its start to its end, and every repeat as a ghost', () => {
+		const repeat = { interval: 0.25, jitter: 0, count: 0 };
+		const ability = (kind: PlanBossAbility_Kind) => ({ ...eventAt('ability', 0.2), kind, repeat, end: { at: 0.21, jitter: 0 } });
 		const plan = EncounterPlan.create({
-			bossAbilities: [ability(PlanBossAbility_Kind.SpellHit), ability(PlanBossAbility_Kind.Strike), ability(PlanBossAbility_Kind.Thrash)],
+			bossAbilities: [
+				ability(PlanBossAbility_Kind.SpellHit),
+				ability(PlanBossAbility_Kind.Strike),
+				ability(PlanBossAbility_Kind.AreaHit),
+				{ ...eventAt('ability', 0.2), kind: PlanBossAbility_Kind.Thrash, repeat },
+			],
 			addWaves: [eventAt('wave', 0.2)],
 		});
-		const [hit, strike, thrash] = laneEvents(plan, 'abilities', BASE);
-		expect([hit.window.end - hit.window.start, hit.repeats.length, hit.ticks.length]).toEqual([expect.closeTo(0.1), 0, 2]);
-		expect(strike.ticks).toHaveLength(2);
-		expect([thrash.ticks.length, thrash.repeats.length > 0]).toEqual([0, true]);
+		const events = laneEvents(plan, 'abilities', BASE).sort((a, b) => a.ref.index - b.ref.index);
+		const width = 10 / BASE;
+		for (const instant of events.slice(0, 3)) {
+			expect([instant.window.start, instant.window.end, instant.ticks.length, instant.openEnd, instant.fixedWidth]).toEqual([
+				0.2,
+				expect.closeTo(0.2 + width),
+				0,
+				true,
+				true,
+			]);
+			expect(instant.repeats.map(ghost => [ghost.start, ghost.end])).toEqual(
+				[0.45, 0.7, 0.95].map(at => [expect.closeTo(at), expect.closeTo(at + width)]),
+			);
+		}
+		const thrash = events[3];
+		expect([thrash.window.end, thrash.repeats.length, thrash.ticks.length, thrash.fixedWidth]).toEqual([expect.closeTo(0.3), 3, 0, false]);
 		expect(laneEvents(plan, 'waves', BASE).map(event => event.openEnd)).toEqual([true]);
 	});
 
-	it("draws an area hit's occurrences as ticks, and a pulse's ticks inside each of its windows, cut at the fight's end", () => {
-		const areaHit = { ...eventAt('ability', 0.2), kind: PlanBossAbility_Kind.AreaHit, repeat: { interval: 0.04, jitter: 0, count: 0 } };
-		// A 7.2 s window ticking every 3 s ticks three times; its repeat at 0.99 has 1.8 s left in the fight, one tick's worth.
+	it("draws a pulse's ticks inside each of its windows after its start, cut at the fight's end", () => {
+		// A 7.2 s window ticking every 3 s ticks at 0 s, 3 s and 6 s; the tick at a window's start is not drawn, and the
+		// repeat at 0.99 has 1.8 s left in the fight, only its start tick.
 		const pulse = {
 			...defaultEvent('ability'),
 			kind: PlanBossAbility_Kind.Pulse,
@@ -107,12 +124,9 @@ describe('laneEvents', () => {
 			repeat: { interval: 0.89, jitter: 0, count: 0 },
 			tickInterval: 3,
 		};
-		const [hit, ticking] = laneEvents(EncounterPlan.create({ bossAbilities: [areaHit, pulse] }), 'abilities', BASE).sort(
-			(a, b) => a.ref.index - b.ref.index,
-		);
-		expect([hit.ticks.length, hit.repeats.length]).toEqual([3, 0]);
+		const [ticking] = laneEvents(EncounterPlan.create({ bossAbilities: [pulse] }), 'abilities', BASE);
 		expect(ticking.repeats).toHaveLength(1);
-		expect(ticking.ticks).toEqual([0.1, expect.closeTo(0.1 + 3 / BASE), expect.closeTo(0.1 + 6 / BASE), expect.closeTo(0.99)]);
+		expect(ticking.ticks).toEqual([expect.closeTo(0.1 + 3 / BASE), expect.closeTo(0.1 + 6 / BASE)]);
 	});
 });
 
@@ -126,14 +140,13 @@ describe('withWindow', () => {
 		expect(plan.addWaves[0].spawn?.at).toBe(0.2);
 	});
 
-	it('sets an ability from the window, a spell hit as well as a thrash', () => {
+	it("sets a window ability's start and end from the window, and only a spell hit's start", () => {
 		const plan = EncounterPlan.create({
 			bossAbilities: [eventAt('ability', 0.2), { ...eventAt('ability', 0.2), kind: PlanBossAbility_Kind.SwingTiming }],
 		});
-		for (const index of [0, 1]) {
-			const moved = withWindow(plan, { kind: 'ability', index }, { start: 0.5, end: 0.7 }, BASE).bossAbilities[index];
-			expect([moved.start?.at, moved.end?.at]).toEqual([0.5, 0.7]);
-		}
+		const moved = (index: number) => withWindow(plan, { kind: 'ability', index }, { start: 0.5, end: 0.7 }, BASE).bossAbilities[index];
+		expect([moved(0).start?.at, moved(0).end?.at]).toEqual([0.5, expect.closeTo(0.3)]);
+		expect([moved(1).start?.at, moved(1).end?.at]).toEqual([0.5, 0.7]);
 	});
 
 	it('stretches the walk of a move through the unit it holds and leaves it alone on a plain move', () => {

@@ -4128,9 +4128,6 @@
 										"every": {
 											"type": "string"
 										},
-										"every_from": {
-											"type": "string"
-										},
 										"at": {
 											"type": "string"
 										},
@@ -4239,7 +4236,6 @@
 										"occurrence_title",
 										"range",
 										"every",
-										"every_from",
 										"at",
 										"health",
 										"downtime",

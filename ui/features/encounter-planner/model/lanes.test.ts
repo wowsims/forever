@@ -126,23 +126,19 @@ describe('lanes', () => {
 			expect(occurrences(plan, ref, 10).map(o => o.start)).toEqual([0.1, 0.30000000000000004, 0.5]);
 		});
 
-		it('fires a spell hit or a strike as instants that stop at its end, and a window as spans of its length', () => {
+		it('fires a spell hit, a strike or an area hit as instants that repeat past its end, and a window as spans of its length', () => {
 			const plan = EncounterPlan.create();
 			const ref = addEventAt(plan, 'ability', 0.1);
 			const ability = plan.bossAbilities[0];
-			ability.end!.at = 0.35;
-			ability.repeat = { interval: 0.1, jitter: 0, count: 0 };
-			for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike]) {
+			ability.end!.at = 0.15;
+			for (const kind of [PlanBossAbility_Kind.SpellHit, PlanBossAbility_Kind.Strike, PlanBossAbility_Kind.AreaHit]) {
 				ability.kind = kind;
-				expect(eventWindow(plan, ref)).toEqual({ start: 0.1, end: 0.35 });
-				expect(occurrences(plan, ref, 10).map(o => [o.start, o.end])).toEqual([
-					[0.1, 0.1],
-					[expect.closeTo(0.2), expect.closeTo(0.2)],
-					[expect.closeTo(0.3), expect.closeTo(0.3)],
-				]);
+				ability.repeat = { interval: 0.2, jitter: 0, count: 0 };
+				expect(eventWindow(plan, ref)).toEqual({ at: 0.1 });
+				expect(occurrences(plan, ref, 10).map(o => [o.start, o.end - o.start])).toEqual([0.1, 0.3, 0.5, 0.7, 0.9].map(at => [expect.closeTo(at), 0]));
+				ability.repeat.count = 2;
+				expect(occurrences(plan, ref, 10).map(o => o.start)).toEqual([0.1, 0.3, 0.5].map(at => expect.closeTo(at)));
 			}
-			ability.end!.at = 0.05;
-			expect(occurrences(plan, ref, 10)).toEqual([]);
 
 			ability.kind = PlanBossAbility_Kind.Thrash;
 			ability.end!.at = 0.15;
@@ -155,17 +151,11 @@ describe('lanes', () => {
 			]);
 		});
 
-		it('fires an area hit as instants that stop at its end, and a pulse as windows of its length', () => {
+		it('fires a pulse as windows of its length', () => {
 			const plan = EncounterPlan.create();
 			const ref = addEventAt(plan, 'ability', 0.1);
 			const ability = plan.bossAbilities[0];
 			ability.end!.at = 0.25;
-			ability.repeat = { interval: 0.1, jitter: 0, count: 0 };
-			withAbilityKind(ability, PlanBossAbility_Kind.AreaHit);
-			expect(occurrences(plan, ref, 10).map(o => [o.start, o.end])).toEqual([
-				[0.1, 0.1],
-				[expect.closeTo(0.2), expect.closeTo(0.2)],
-			]);
 			withAbilityKind(ability, PlanBossAbility_Kind.Pulse);
 			ability.repeat = { interval: 0.5, jitter: 0, count: 0 };
 			expect(occurrences(plan, ref, 10).map(o => [o.start, o.end])).toEqual([
@@ -360,6 +350,18 @@ describe('lanes', () => {
 			withAbilityKind(ability, PlanBossAbility_Kind.AreaHit);
 			withAbilityKind(ability, PlanBossAbility_Kind.Pulse);
 			expect([ability.tickInterval, ability.resistible]).toEqual([3, false]);
+		});
+
+		it('ends a window kind a default width after its start when the end it is switched with is not after the start', () => {
+			for (const kind of [PlanBossAbility_Kind.Thrash, PlanBossAbility_Kind.SwingTiming, PlanBossAbility_Kind.Pulse]) {
+				const ability = { ...defaultEvent('ability'), start: { at: 0.6, jitter: 0 }, end: { at: 0.5, jitter: 0 } };
+				withAbilityKind(ability, kind);
+				expect(ability.end.at).toBeCloseTo(0.7);
+				ability.end.at = 0.9;
+				withAbilityKind(ability, PlanBossAbility_Kind.SpellHit);
+				withAbilityKind(ability, kind);
+				expect(ability.end.at).toBe(0.9);
+			}
 		});
 
 		it('ticks at a window start and every interval before its end, once for a window shorter than one interval', () => {

@@ -1156,7 +1156,6 @@
 					"occurrence_title": "{{label}} — {{title}}",
 					"range": "{{start}}–{{end}}",
 					"every": "Every {{interval}}",
-					"every_from": "Every {{interval}} from {{start}} to {{end}}",
 					"at": "At {{at}}",
 					"health": "{{from}} % → {{to}} %",
 					"downtime": "Downtime",

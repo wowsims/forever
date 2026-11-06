@@ -19,9 +19,9 @@ const (
 
 const planMaxTicks = 10_000 // Ticks of one pulse per iteration; past it the pulse ticks no more.
 
-// A boss ability of the plan. A spell hit, a strike or an area hit happens at each occurrence that begins by
-// the end, so the end cuts its repeats. For a thrash, swing timing or pulse window the end gives only the
-// window's length, from the start to the end, and each repeat opens a window of that length wherever it falls.
+// A boss ability of the plan. A spell hit, a strike or an area hit happens at its start and at each repeat inside
+// the fight, and its end plays no part. For a thrash, swing timing or pulse window the end gives only the window's
+// length, from the start to the end, and each repeat opens a window of that length wherever it falls.
 type planBossAbility struct {
 	index  int
 	config *proto.PlanBossAbility
@@ -397,8 +397,8 @@ func (plan *encounterPlan) scheduleBossAbilities(sim *Simulation) {
 		config := ability.config
 		occurrences := &ability.occurrences
 		occurrences.roll(sim, plan, config.GetStart(), config.Repeat)
-		end := plan.roll(sim, config.GetEnd().GetAt(), config.GetEnd().GetJitter())
 		if ability.isWindow() {
+			end := plan.roll(sim, config.GetEnd().GetAt(), config.GetEnd().GetJitter())
 			length := end - occurrences.fractions[0]
 			if length <= 0 {
 				if sim.Log != nil {
@@ -414,7 +414,7 @@ func (plan *encounterPlan) scheduleBossAbilities(sim *Simulation) {
 			}
 		} else {
 			for _, fraction := range occurrences.fractions {
-				if at := planTime(sim, fraction); fraction <= end && at < sim.Duration {
+				if at := planTime(sim, fraction); at < sim.Duration {
 					occurrences.times = append(occurrences.times, at)
 				}
 			}

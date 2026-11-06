@@ -349,7 +349,7 @@ export const PlannerLane = ({
 				))}
 				{domOrder.flatMap(event => {
 					const name = eventName(plan, event.ref);
-					const ghosts = event.repeats.map((repeat, index) => {
+					return event.repeats.map((repeat, index) => {
 						const label = occurrenceName(name, index + 2);
 						return (
 							<div
@@ -368,16 +368,6 @@ export const PlannerLane = ({
 							</div>
 						);
 					});
-					// The ticks sit over their bar and take no pointer, so the bar's own grab and tooltip reach through them.
-					const ticks = event.ticks.map((at, index) => (
-						<div
-							key={`${refKey(event.ref)}:tick:${index}`}
-							aria-hidden="true"
-							className="pointer-events-none absolute top-1 bottom-1 left-planner-pos z-2 col-start-1 row-(--row) w-px bg-white"
-							style={cssVars({ '--row': `${event.row + 1} / span 1`, '--t': String(fractionToSeconds(at, baseSeconds)) })}
-						/>
-					));
-					return [...ghosts, ...ticks];
 				})}
 				{endSegment && endTip && (
 					<div
@@ -410,6 +400,7 @@ export const PlannerLane = ({
 							row={event.row}
 							startFixed={event.startFixed}
 							openEnd={event.openEnd}
+							fixedWidth={event.fixedWidth}
 							jitter={event.jitter}
 							baseSeconds={baseSeconds}
 							snapSeconds={snapSeconds}
@@ -435,6 +426,18 @@ export const PlannerLane = ({
 						/>
 					);
 				})}
+				{/* The ticks share a selected bar's z-index and come after the bars, so they show over it and under the rename field
+				    and the sticky lane label. They take no pointer, so the bar's own grab and tooltip reach through them. */}
+				{domOrder.flatMap(event =>
+					event.ticks.map((at, index) => (
+						<div
+							key={`${refKey(event.ref)}:tick:${index}`}
+							aria-hidden="true"
+							className="pointer-events-none absolute top-1 bottom-1 left-planner-pos z-2 col-start-1 row-(--row) w-px bg-white"
+							style={cssVars({ '--row': `${event.row + 1} / span 1`, '--t': String(fractionToSeconds(at, baseSeconds)) })}
+						/>
+					)),
+				)}
 			</ContextMenu>
 		</div>
 	);

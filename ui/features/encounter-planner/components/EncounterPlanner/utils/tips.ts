@@ -148,9 +148,7 @@ export const eventTooltip = (
 				default:
 					details.push(tip('swing_speed', { value: ability.swingSpeedMultiplier }));
 			}
-			const when = firesAtInstants(ability)
-				? [repeat ? tip('every_from', { interval: repeat, start: sec(shown.start), end: sec(shown.end) }) : tip('at', { at: sec(shown.start) })]
-				: [range, ...every];
+			const when = firesAtInstants(ability) ? [tip('at', { at: sec(shown.start) }), ...every] : [range, ...every];
 			return built(kind, [...details, ...when]);
 		}
 		case 'wave': {

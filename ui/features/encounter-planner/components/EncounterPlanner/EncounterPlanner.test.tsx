@@ -526,6 +526,20 @@ describe('EncounterPlanner', () => {
 		});
 	});
 
+	it("draws every repeat of a new spell hit set to repeat every 30 s as a numbered ghost to the fight's end, and asks for no end", async () => {
+		const { encounter } = await setup();
+		encounter.setDuration(180);
+		const dialog = await openPlanner();
+		await add('Abilities', 'Ability');
+		expect(within(dialog).queryByLabelText('End (s)')).toBeNull();
+
+		await commit(within(dialog).getByLabelText('Repeat every (s)'), '30');
+		// The new ability starts at 72 s, so it repeats at 102, 132 and 162 s.
+		const text = lane('Abilities').textContent;
+		for (const number of [2, 3, 4]) expect(text).toContain(`Ability 1#${number}`);
+		expect(text).not.toContain('#5');
+	});
+
 	it('puts back the duration, the targets and the plan on Cancel, and starts the next opening from the store', async () => {
 		const plan = downtimeOn(2);
 		const { encounter, baseSeconds } = await setup({ targets: 3, plan });
