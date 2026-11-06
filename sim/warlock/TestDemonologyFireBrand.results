@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 758.37393
+  tps: 619.23214
+  dtps: 8.48034
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 764.44383
@@ -104,6 +113,15 @@ dps_results: {
   dps: 751.67236
   tps: 612.57049
   dtps: 8.38673
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 756.67788
+  tps: 616.76451
+  dtps: 8.5315
   hps: 10.00951
  }
 }
@@ -562,6 +580,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-HanzoSword-8190"
+ value: {
+  dps: 764.44383
+  tps: 623.13268
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Hazza'rah'sCharmofDestruction-19957"
  value: {
   dps: 761.60661
@@ -602,6 +629,15 @@ dps_results: {
  value: {
   dps: 756.67788
   tps: 616.76451
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 764.44383
+  tps: 623.13268
   dtps: 8.5315
   hps: 10.00951
  }
@@ -756,6 +792,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 764.44383
+  tps: 623.13268
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 756.67788
@@ -882,6 +927,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 760.83363
+  tps: 620.25492
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-VestmentsoftheDevout"
  value: {
   dps: 723.98416
@@ -903,6 +957,15 @@ dps_results: {
   dps: 760.14531
   tps: 619.33747
   dtps: 8.33042
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Witchfury-13051"
+ value: {
+  dps: 764.44383
+  tps: 623.13268
+  dtps: 8.5315
   hps: 10.00951
  }
 }

@@ -3,7 +3,7 @@ character_stats_results: {
  value: {
   final_stats: 194
   final_stats: 537
-  final_stats: 430
+  final_stats: 397
   final_stats: 94
   final_stats: 95
   final_stats: 33
@@ -30,7 +30,7 @@ character_stats_results: {
   final_stats: 0
   final_stats: 3293
   final_stats: 0
-  final_stats: 5643
+  final_stats: 5313
   final_stats: 0
   final_stats: 77
   final_stats: 27
@@ -42,8 +42,8 @@ character_stats_results: {
   final_stats: 1120
   final_stats: 13.7
   final_stats: 13.7
-  final_stats: 40.5265
-  final_stats: 19
+  final_stats: 38.5265
+  final_stats: 17
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -56,849 +56,897 @@ character_stats_results: {
 dps_results: {
  key: "TestRogue-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 603.29906
-  tps: 428.34234
+  dps: 592.25748
+  tps: 420.50281
   hps: 53.03611
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Annihilator-12798"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 637.28238
-  tps: 452.47049
+  dps: 626.5891
+  tps: 444.87826
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BarbaricBelt-4264"
  value: {
-  dps: 609.44401
-  tps: 432.70525
+  dps: 598.75524
+  tps: 425.11622
   hps: 51.62972
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 625.13671
-  tps: 443.84707
+  dps: 614.76481
+  tps: 436.48301
   hps: 52.25667
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BlazingRapier-12777"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BloodTalon-12795"
  value: {
-  dps: 635.26783
-  tps: 451.04016
+  dps: 624.75819
+  tps: 443.57831
   hps: 61.59306
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 611.62625
-  tps: 434.25464
+  dps: 601.49373
+  tps: 427.06055
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-CloakofFire-14134"
  value: {
-  dps: 612.83658
-  tps: 435.11397
+  dps: 602.61442
+  tps: 427.85624
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ColdBasiliskEye-5079"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 619.05413
-  tps: 439.52843
-  hps: 68.92894
+  dps: 608.67846
+  tps: 432.16171
+  hps: 68.74239
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 633.96206
-  tps: 450.11306
+  dps: 623.43142
+  tps: 442.63631
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Defender'sGripStabilizer-272440"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-DormantHeartoftheMountain-249473"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-DreadmistRaiment"
  value: {
-  dps: 497.44412
-  tps: 353.18532
+  dps: 488.20855
+  tps: 346.62807
   hps: 50.86722
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EarthenSigil-20525"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Earthstrike-21180"
  value: {
-  dps: 637.08144
-  tps: 452.32782
+  dps: 626.3372
+  tps: 444.69941
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EbonHand-19170"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 618.36063
-  tps: 439.03605
+  dps: 607.53946
+  tps: 431.35301
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 620.03905
-  tps: 440.22773
+  dps: 609.2629
+  tps: 432.57666
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantChest-Absorption-8220"
  value: {
-  dps: 624.39815
-  tps: 443.32268
+  dps: 613.96912
+  tps: 435.91808
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
-  dps: 624.39815
-  tps: 443.32268
+  dps: 613.96912
+  tps: 435.91808
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
-  dps: 624.39815
-  tps: 443.32268
+  dps: 613.96912
+  tps: 435.91808
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantCloak-Subtlety-2621"
  value: {
-  dps: 624.8138
-  tps: 434.74544
+  dps: 614.47914
+  tps: 427.55458
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantGloves-Threat-2613"
  value: {
-  dps: 622.33869
-  tps: 450.69768
+  dps: 612.0571
+  tps: 443.25175
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 618.36063
-  tps: 439.03605
+  dps: 607.53946
+  tps: 431.35301
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 618.36063
-  tps: 439.03605
+  dps: 607.53946
+  tps: 431.35301
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Recovery-8721"
  value: {
-  dps: 618.36063
-  tps: 439.03605
-  hps: 64.20455
+  dps: 607.53946
+  tps: 431.35301
+  hps: 63.47763
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 618.36063
-  tps: 439.03605
+  dps: 607.53946
+  tps: 431.35301
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EverlookDeliveryBot-274760"
  value: {
-  dps: 621.14411
-  tps: 441.01232
+  dps: 610.76573
+  tps: 433.64367
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 621.63748
-  tps: 441.36261
+  dps: 611.17188
+  tps: 433.93204
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EyeofDiminution-23001"
  value: {
-  dps: 629.35455
-  tps: 446.84173
+  dps: 619.05413
+  tps: 439.52843
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EyeofMoam-21473"
  value: {
-  dps: 620.50741
-  tps: 440.56026
+  dps: 610.1289
+  tps: 433.19152
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-FetishofChitinousSpikes-21488"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-FetishoftheSandReaver-21647"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 611.2295
-  tps: 433.97295
+  dps: 600.59766
+  tps: 426.42434
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Frostguard-12797"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 624.27908
-  tps: 443.23815
+  dps: 613.71486
+  tps: 435.73755
   hps: 53.23944
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GauntletsoftheSea-8346"
  value: {
-  dps: 614.26665
-  tps: 436.12932
+  dps: 603.76802
+  tps: 428.67529
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GlacialBlade-19099"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GlyphofDeflection-23040"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GnomishHarmPreventionBelt-10721"
  value: {
-  dps: 606.61163
-  tps: 430.69426
+  dps: 595.97711
+  tps: 423.14375
   hps: 51.62972
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 603.29906
-  tps: 428.34234
+  dps: 592.25748
+  tps: 420.50281
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GoldenBanana-270226"
  value: {
-  dps: 620.53253
-  tps: 440.91337
+  dps: 609.98216
+  tps: 433.42261
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 612.98229
-  tps: 435.21743
+  dps: 603.03154
+  tps: 428.1524
   hps: 46.25833
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 629.04005
-  tps: 446.61844
+  dps: 618.7387
+  tps: 439.30448
   hps: 50.25722
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-HanzoSword-8190"
+ value: {
+  dps: 616.1613
+  tps: 437.47452
+  hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-HelmofFire-8348"
  value: {
-  dps: 612.96241
-  tps: 435.20331
+  dps: 602.67904
+  tps: 427.90212
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-JomGabbar-23570"
  value: {
-  dps: 641.30699
-  tps: 455.32796
+  dps: 630.44067
+  tps: 447.61287
   hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 616.1613
+  tps: 437.47452
+  hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 642.06873
-  tps: 455.8688
+  dps: 630.23016
+  tps: 447.46341
   hps: 54.66278
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Magister'sRegalia"
  value: {
-  dps: 496.51953
-  tps: 352.52886
+  dps: 487.3747
+  tps: 346.03604
   hps: 50.81639
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MarkofResolution-17759"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 625.58959
-  tps: 444.16861
+  dps: 615.09395
+  tps: 436.7167
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-OrbofFire-12805"
  value: {
-  dps: 619.94933
-  tps: 440.16403
+  dps: 609.50776
+  tps: 432.75051
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-PetrifiedScarab-21685"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-PhantomBlade-7961"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Renataki'sCharmofTrickery-19954"
  value: {
-  dps: 620.14492
-  tps: 440.3029
+  dps: 609.16267
+  tps: 432.5055
   hps: 52.73111
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-SatchelofDarkIronBombs-285278"
  value: {
-  dps: 618.56518
-  tps: 439.18128
+  dps: 608.76975
+  tps: 432.22652
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-SatchelofIronBombs-285277"
  value: {
-  dps: 618.56518
-  tps: 439.18128
+  dps: 608.76975
+  tps: 432.22652
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-SerenityField-272439"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ShadowcraftArmor"
  value: {
-  dps: 589.2568
-  tps: 418.37233
+  dps: 580.08835
+  tps: 411.86273
   hps: 51.78222
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 621.36716
-  tps: 441.17068
+  dps: 610.9068
+  tps: 433.74383
   hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 616.1613
+  tps: 437.47452
+  hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 651.19177
-  tps: 462.34616
+  dps: 640.19493
+  tps: 454.5384
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TheDefiler'sPurpose"
  value: {
-  dps: 621.43682
-  tps: 441.22014
+  dps: 610.67806
+  tps: 433.58142
   hps: 51.62972
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TheHighlander'sPurpose"
  value: {
-  dps: 621.43682
-  tps: 441.22014
+  dps: 610.67806
+  tps: 433.58142
   hps: 51.62972
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 621.48954
-  tps: 441.25757
+  dps: 610.98184
+  tps: 433.79711
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ToySoldier-274386"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-VenomousTotem-19342"
  value: {
-  dps: 625.83671
-  tps: 444.34406
+  dps: 615.32993
+  tps: 436.88425
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 492.17471
-  tps: 349.44404
+  dps: 483.31784
+  tps: 343.15566
   hps: 50.22333
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 619.3023
-  tps: 439.70463
+  dps: 608.9861
+  tps: 432.38013
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-WildheartRaiment"
  value: {
-  dps: 503.90147
-  tps: 357.77004
+  dps: 494.80354
+  tps: 351.31051
   hps: 50.22333
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 611.2295
-  tps: 433.97295
+  dps: 600.59766
+  tps: 426.42434
   hps: 52.25667
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 619.05413
-  tps: 439.52843
+  dps: 608.67846
+  tps: 432.16171
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 625.42348
-  tps: 444.05067
+  dps: 614.94889
+  tps: 436.61371
   hps: 52.49389
  }
 }
 dps_results: {
  key: "TestRogue-Average-Default"
  value: {
-  dps: 627.03283
-  tps: 445.19331
+  dps: 616.78313
+  tps: 437.91602
   hps: 54.42505
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 697.2679
-  tps: 495.06021
-  hps: 53.25639
+  dps: 684.11771
+  tps: 485.72357
+  hps: 53.375
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 697.2679
-  tps: 495.06021
-  hps: 53.25639
+  dps: 684.11771
+  tps: 485.72357
+  hps: 53.375
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 762.63583
-  tps: 541.47144
-  hps: 56.12
+  dps: 743.40075
+  tps: 527.81453
+  hps: 56.06917
  }
 }
 dps_results: {
@@ -925,25 +973,25 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 711.53176
-  tps: 505.18755
-  hps: 53.25639
+  dps: 697.97575
+  tps: 495.56278
+  hps: 53.375
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 711.53176
-  tps: 505.18755
-  hps: 53.25639
+  dps: 697.97575
+  tps: 495.56278
+  hps: 53.375
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 780.25748
-  tps: 553.98281
-  hps: 56.12
+  dps: 760.15777
+  tps: 539.71202
+  hps: 56.06917
  }
 }
 dps_results: {
@@ -970,24 +1018,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 718.49328
-  tps: 510.13023
+  dps: 705.17052
+  tps: 500.67107
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 627.04499
-  tps: 445.20194
+  dps: 616.1613
+  tps: 437.47452
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 708.13055
-  tps: 502.77269
+  dps: 694.70211
+  tps: 493.2385
   hps: 57.54333
  }
 }
@@ -1015,24 +1063,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 728.51433
-  tps: 517.24517
+  dps: 714.98255
+  tps: 507.63761
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 635.88178
-  tps: 451.47607
+  dps: 624.85207
+  tps: 443.64497
   hps: 53.03611
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 719.90487
-  tps: 511.13246
+  dps: 706.30186
+  tps: 501.47432
   hps: 57.54333
  }
 }
@@ -1060,24 +1108,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 597.73669
-  tps: 424.39305
+  dps: 587.08715
+  tps: 416.83187
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 597.73669
-  tps: 424.39305
+  dps: 587.08715
+  tps: 416.83187
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 635.70844
-  tps: 451.35299
+  dps: 622.50062
+  tps: 441.97544
   hps: 51.03667
  }
 }
@@ -1105,24 +1153,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 601.55362
-  tps: 427.10307
+  dps: 590.845
+  tps: 419.49995
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 601.55362
-  tps: 427.10307
+  dps: 590.845
+  tps: 419.49995
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Human-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 641.76974
-  tps: 455.65651
+  dps: 628.40978
+  tps: 446.17094
   hps: 51.03667
  }
 }
@@ -1150,25 +1198,25 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 692.81667
-  tps: 491.89983
-  hps: 53.23944
+  dps: 678.02136
+  tps: 481.39517
+  hps: 53.30722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 692.81667
-  tps: 491.89983
-  hps: 53.23944
+  dps: 678.02136
+  tps: 481.39517
+  hps: 53.30722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 764.66911
-  tps: 542.91507
-  hps: 56.17083
+  dps: 743.14639
+  tps: 527.63394
+  hps: 56.06917
  }
 }
 dps_results: {
@@ -1195,25 +1243,25 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 706.75516
-  tps: 501.79616
-  hps: 53.23944
+  dps: 691.42283
+  tps: 490.91021
+  hps: 53.30722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 706.75516
-  tps: 501.79616
-  hps: 53.23944
+  dps: 691.42283
+  tps: 490.91021
+  hps: 53.30722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Asn Muti-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 782.01886
-  tps: 555.23339
-  hps: 56.17083
+  dps: 759.57601
+  tps: 539.29897
+  hps: 56.06917
  }
 }
 dps_results: {
@@ -1240,24 +1288,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 688.64908
-  tps: 488.94084
+  dps: 677.24677
+  tps: 480.84521
   hps: 52.69722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 622.79181
-  tps: 442.18218
+  dps: 612.20838
+  tps: 434.66795
   hps: 52.69722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 711.09429
-  tps: 504.87695
+  dps: 698.61399
+  tps: 496.01593
   hps: 57.54333
  }
 }
@@ -1285,24 +1333,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 698.24844
-  tps: 495.75639
+  dps: 686.68134
+  tps: 487.54375
   hps: 52.69722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 631.49128
-  tps: 448.35881
+  dps: 620.74306
+  tps: 440.72757
   hps: 52.69722
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-DefaultTalents-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 722.77788
-  tps: 513.1723
+  dps: 710.05116
+  tps: 504.13633
   hps: 57.54333
  }
 }
@@ -1330,24 +1378,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 596.86584
-  tps: 423.77474
+  dps: 586.12869
+  tps: 416.15137
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 596.86584
-  tps: 423.77474
+  dps: 586.12869
+  tps: 416.15137
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 636.85527
-  tps: 452.16724
+  dps: 625.49412
+  tps: 444.10083
   hps: 51.03667
  }
 }
@@ -1375,24 +1423,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 600.65584
-  tps: 426.46565
+  dps: 589.84026
+  tps: 418.78658
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 600.65584
-  tps: 426.46565
+  dps: 589.84026
+  tps: 418.78658
   hps: 47.25806
  }
 }
 dps_results: {
  key: "TestRogue-Settings-Orc-p1_muti-Subtlety BS-Rogue-default_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 642.86087
-  tps: 456.43122
+  dps: 631.32513
+  tps: 448.24084
   hps: 51.03667
  }
 }
@@ -1420,8 +1468,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 553.10998
-  tps: 392.70809
+  dps: 548.61471
+  tps: 389.51645
   hps: 47.34278
  }
 }

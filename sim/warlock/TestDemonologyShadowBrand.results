@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 767.67993
+  tps: 655.56347
+  dtps: 10.51496
+  hps: 7.8687
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 773.86993
@@ -105,6 +114,15 @@ dps_results: {
   tps: 647.37392
   dtps: 10.78347
   hps: 7.70343
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 763.56924
+  tps: 650.30181
+  dtps: 10.46408
+  hps: 7.8687
  }
 }
 dps_results: {
@@ -562,6 +580,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HanzoSword-8190"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Hazza'rah'sCharmofDestruction-19957"
  value: {
   dps: 769.53683
@@ -604,6 +631,15 @@ dps_results: {
   tps: 650.30181
   dtps: 10.46408
   hps: 7.8687
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {
@@ -756,6 +792,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 763.56924
@@ -882,6 +927,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 767.67651
+  tps: 653.90678
+  dtps: 10.46408
+  hps: 7.8687
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-VestmentsoftheDevout"
  value: {
   dps: 722.20174
@@ -904,6 +958,15 @@ dps_results: {
   tps: 655.6747
   dtps: 11.16141
   hps: 7.74339
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Witchfury-13051"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {
