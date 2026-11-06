@@ -12,6 +12,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// When struck in combat, inflicts 3 Physical damage to the attacker.
+	// https://www.wowhead.com/forever/spell=1325228
+	// unsupported: another effect of the item registers
+	// equip: 1325228 (A_DAMAGE_SHIELD)
+	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1325228},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 1204, ItemName: "The Green Tower"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces your damage taken by 5% in the Battle Ring and The Maul.
 	// https://www.wowhead.com/forever/spell=1317285
 	// unsupported: the row applies only in area group 9337, which names no area type
@@ -124,6 +137,19 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13439, BuffSpellID: 13439, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 3854, ItemName: "Frost Tiger Blade"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Sends a shadowy bolt at the enemy causing 77 Shadow damage.
+	// https://www.wowhead.com/forever/spell=1293407
+	// unsupported: states no rate
+	// trigger 1293407 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293407, BuffSpellID: 1293407, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 6831, ItemName: "Black Menace"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2018,6 +2044,32 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Blast the target with the fires of a forge, inflicting 51 Fire damage.
+	// https://www.wowhead.com/forever/spell=1312176
+	// unsupported: states no rate
+	// trigger 1312176 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeMHSpecial)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1312176, BuffSpellID: 1312176, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 281665, ItemName: "Twilight Forgehammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.
+	// https://www.wowhead.com/forever/spell=1314040
+	// unsupported: states no rate
+	// trigger 1314040 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1314040, BuffSpellID: 1314040, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 282561, ItemName: "Siegebreaker's Blaster"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Stun the target for 1s.
 	// https://www.wowhead.com/forever/spell=1318178
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2029,12 +2081,46 @@ func RegisterAllProcs() {
 	//	{ItemID: 285281, ItemName: "Arcanite Blacksmith Hammer"},
 	// })
 
+	// Smites an enemy for 30 Holy damage.
+	// https://www.wowhead.com/forever/spell=13519
+	// trigger 13519 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13519, BuffSpellID: 13519, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 754, ItemName: "Shortsword of Vengeance"},
+		})
+
 	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=13439
 	// trigger 13439 (3.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13439, BuffSpellID: 13439, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 810, ItemName: "Hammer of the Northern Wind"},
+		})
+
+	// When struck in combat has a 1% chance of raising a thorny shield that inflicts 5 Nature damage to attackers
+	// when hit and increases Nature resistance by 50 for 30s.
+	//
+	// https://www.wowhead.com/forever/spell=17154
+	// trigger 18097 (1%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 17154
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 18097, BuffSpellID: 17154},
+		[]shared.ItemVariant{
+			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
+	// Heals wielder of 78 damage over 12s.
+	// https://www.wowhead.com/forever/spell=8348
+	// trigger 8348 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataHealProc(shared.SpellDataProc{TriggerSpellID: 8348, BuffSpellID: 8348, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 6660, ItemName: "Julie's Dagger"},
+		})
+
+	// When struck in combat has a 5% chance of inflicting 140 Shadow damage to the attacker.
+	// https://www.wowhead.com/forever/spell=1293421
+	// trigger 7619 (5%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 1293421
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7619, BuffSpellID: 1293421},
+		[]shared.ItemVariant{
+			{ItemID: 7747, ItemName: "Vile Protector"},
 		})
 
 	// When struck in combat has a 3% chance to heal you for 80.
@@ -2053,12 +2139,29 @@ func RegisterAllProcs() {
 			{ItemID: 7961, ItemName: "Phantom Blade"},
 		})
 
+	// Wounds the target for 75 damage.
+	// https://www.wowhead.com/forever/spell=16405
+	// trigger 16405 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16405, BuffSpellID: 16405, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 8190, ItemName: "Hanzo Sword"},
+		})
+
 	// Blasts a target for 91 Nature damage.
 	// https://www.wowhead.com/forever/spell=18081
 	// trigger 18081 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18081, BuffSpellID: 18081, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9651, ItemName: "Gryphon Rider's Stormhammer"},
+		})
+
+	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
+	// in Wasteland and Haunted areas.
+	// https://www.wowhead.com/forever/spell=10368
+	// trigger 8397 (4%, the column over effect 1's 2%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 10368
+	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368},
+		[]shared.ItemVariant{
+			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
 
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
@@ -2147,6 +2250,22 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16982, BuffSpellID: 13441},
 		[]shared.ItemVariant{
 			{ItemID: 12805, ItemName: "Orb of Fire"},
+		})
+
+	// Sends a shadowy bolt at the enemy causing 150 Shadow damage.
+	// https://www.wowhead.com/forever/spell=18214
+	// trigger 18214 (1.25 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18214, BuffSpellID: 18214, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13051, ItemName: "Witchfury"},
+		})
+
+	// Wounds the target for 130 damage.
+	// https://www.wowhead.com/forever/spell=14126
+	// trigger 14126 (0.87 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 14126, BuffSpellID: 14126, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13054, ItemName: "Grim Reaper"},
 		})
 
 	// Wounds the target causing them to bleed for 80 damage over 30s.
@@ -2295,12 +2414,20 @@ func RegisterAllProcs() {
 		})
 
 	// Skipped
+	// Not simulated: Rod of the Sleepwalker: "Resist Sleep 05" (1292652) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1292652
+	// Not simulated: Mug O' Hurt: "Dazed" (13496) - ignored aura type 33
+	// https://www.wowhead.com/forever/spell=13496
+	// Not simulated: Girdle of the Blindwatcher: "Stealth Detection 05" (1292149) - ignored aura type 17
+	// https://www.wowhead.com/forever/spell=1292149
 	// Not simulated: Mask of Thero-shan: "Stealth 06" (17746) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=17746
 	// Not simulated: Nightscape Boots: "Stealth 06" (17746) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=17746
 	// Not simulated: Catseye Ultra Goggles: "Stealth Detection 15" (12418) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=12418
+	// Not simulated: Carrot on a Stick: "Mount Speed" (13587) - ignored aura type 130
+	// https://www.wowhead.com/forever/spell=13587
 	// Not simulated: Stronghold Gauntlets: "Immune to Disarm" (7219) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Voice Amplification Modulator: "Resist Silence 07" (19786) - ignored aura type 117
@@ -2342,6 +2469,8 @@ func RegisterAllProcs() {
 	// Not simulated: Premier Lieutenant Commander's Beasthide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type
 	// Not simulated: 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Cloak of Hermitic Bliss: "-25% Movement Speed" (1291748) - ignored aura type 33
+	// https://www.wowhead.com/forever/spell=1291748
 	// Not simulated: Premier Lunarhide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Premier Dreamhide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17
@@ -2358,6 +2487,14 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Premier Champion's Kodohide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Sorcerer Collar: "Resist Silence 04" (1292222) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1292222
+	// Not simulated: Blindwatcher's Sight: "Resist Disorient 07" (1292268) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1292268
+	// Not simulated: Nightskulker Ring: "Resist Fear 04" (1292574) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1292574
+	// Not simulated: Skullduggery Belt: "Stealth 05" (1293068) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=1293068
 	// Not simulated: Field Agent Beverage: "Resist Charm 06" (1297455) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1297455
 	// Not simulated: Mithril Blacksmith Hammer: "Concussed" (1318163) - ignored aura type 33

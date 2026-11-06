@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 867.62288
+  tps: 903.74238
+  dtps: 7.46443
+  hps: 32.7875
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 867.40594
@@ -150,6 +159,15 @@ dps_results: {
   tps: 897.23583
   dtps: 8.05655
   hps: 33.12639
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 867.40594
+  tps: 903.54852
+  dtps: 7.40237
+  hps: 32.7875
  }
 }
 dps_results: {
@@ -549,6 +567,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 881.5651
+  tps: 917.91437
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 867.40594
@@ -942,6 +969,15 @@ dps_results: {
   tps: 911.81352
   dtps: 7.17323
   hps: 33.07556
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 869.11487
+  tps: 905.30028
+  dtps: 7.48802
+  hps: 32.7875
  }
 }
 dps_results: {

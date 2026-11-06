@@ -81,6 +81,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 409.61586
+  tps: 977.17863
+  dtps: 347.51979
+  hps: 26.93093
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Annihilator-12798"
  value: {
   dps: 413.84276
@@ -168,6 +177,15 @@ dps_results: {
   tps: 968.67798
   dtps: 344.63315
   hps: 22.34972
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 409.61263
+  tps: 977.22901
+  dtps: 347.55337
+  hps: 22.80722
  }
 }
 dps_results: {
@@ -666,6 +684,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-HanzoSword-8190"
+ value: {
+  dps: 413.84276
+  tps: 985.29282
+  dtps: 343.95818
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-HeartoftheScale-13164"
  value: {
   dps: 415.47144
@@ -1062,6 +1089,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 413.84276
+  tps: 985.29282
+  dtps: 343.95818
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 419.06273
@@ -1179,6 +1215,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-TheGreenTower-1204"
+ value: {
+  dps: 410.77954
+  tps: 984.69605
+  dtps: 387.27635
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 413.55674
@@ -1242,12 +1287,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 411.14948
+  tps: 981.31834
+  dtps: 345.53154
+  hps: 22.80722
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-VestmentsoftheDevout"
  value: {
   dps: 372.91045
   tps: 898.96821
   dtps: 500.73966
   hps: 22.23111
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-VileProtector-7747"
+ value: {
+  dps: 409.65845
+  tps: 978.815
+  dtps: 397.42861
+  hps: 22.90889
  }
 }
 dps_results: {
