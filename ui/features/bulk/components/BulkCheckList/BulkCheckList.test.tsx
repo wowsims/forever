@@ -17,6 +17,9 @@ const row = (name: string, summary: string, preset: boolean, extra: Partial<Bulk
 
 const descriptions = (element: Element) => (element.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
 const box = (name: string) => screen.getByRole('checkbox', { name });
+// react-tooltip mounts a tooltip a tick before it shows it, and unmounts it only when its fade-out transition ends or a
+// timer standing in for it fires, which test DOMs run in no fixed order. Open and closed are its show class.
+const shownTooltips = () => screen.queryAllByRole('tooltip').filter(tooltip => tooltip.classList.contains('react-tooltip__show'));
 
 describe('the bulk check lists', () => {
 	it('describe each row by its summary, its duplicate note and the reason it is disabled, a bundle row’s buttons too', () => {
@@ -135,11 +138,12 @@ describe('the bulk check lists', () => {
 
 		for (const name of ['Encounter copy', 'Bundle copy']) {
 			act(() => box(name).focus());
-			const tooltip = await screen.findByRole('tooltip');
-			expect(tooltip.textContent).toBe(reason);
-			expect(tooltip.querySelector('img')).toBeNull();
+			await waitFor(() => expect(shownTooltips()).toHaveLength(1));
+			const [tooltip] = shownTooltips();
+			expect(tooltip!.textContent).toBe(reason);
+			expect(tooltip!.querySelector('img')).toBeNull();
 			act(() => box(name).blur());
-			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+			await waitFor(() => expect(shownTooltips()).toHaveLength(0));
 		}
 	});
 });
