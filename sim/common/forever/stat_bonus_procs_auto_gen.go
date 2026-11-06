@@ -130,6 +130,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
+	// https://www.wowhead.com/forever/spell=13752
+	// unsupported: states no rate
+	// trigger 13752 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 13752, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 869, ItemName: "Dazzling Longsword"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=13439
 	// unsupported: states no rate
@@ -2153,6 +2166,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18081, BuffSpellID: 18081, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9651, ItemName: "Gryphon Rider's Stormhammer"},
+		})
+
+	// Spells and attacks against Swine deal 2 Nature damage.
+	// https://www.wowhead.com/forever/spell=1293782
+	// trigger 1293783 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 1293782
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293783, BuffSpellID: 1293782},
+		[]shared.ItemVariant{
+			{ItemID: 10760, ItemName: "Swine Fists"},
 		})
 
 	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled

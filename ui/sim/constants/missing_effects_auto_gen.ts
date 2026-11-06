@@ -4,6 +4,12 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		869, // Dazzling Longsword
+		[
+			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
+		]
+	],
+	[
 		880, // Staff of Horrors
 		[
 			"Damage caused by the target is reduced by 5 for 2min.", // 8552 - https://www.wowhead.com/forever/spell=8552
@@ -565,6 +571,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9492, // Electromagnetic Gigaflux Reactivator
 		[
 			"Channels a bolt of lightning and hurls it towards all enemies in front of the caster causing 162 Nature damage. The caster is then surrounded by a barrier of electricity for 5min.", // 11826 - https://www.wowhead.com/forever/spell=11826
+		]
+	],
+	[
+		9509, // Petrolspill Leggings
+		[
+			"Fire damage taken increased by 10%.", // 1293003 - https://www.wowhead.com/forever/spell=1293003
 		]
 	],
 	[
@@ -2007,6 +2019,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		284386, // Whipfang's Skinsearer
 		[
 			"Sear your target's flesh, dealing 84 Fire damage.", // 1316039 - https://www.wowhead.com/forever/spell=1316039
+		]
+	],
+	[
+		285089, // Swamp Roamer's Band
+		[
+			"Increases movement speed by 3% in Dustwallow Marsh and Swamp of Sorrows.", // 1317486 - https://www.wowhead.com/forever/spell=1317486
 		]
 	],
 	[
