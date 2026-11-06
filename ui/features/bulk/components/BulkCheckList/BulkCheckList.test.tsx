@@ -17,8 +17,8 @@ const row = (name: string, summary: string, preset: boolean, extra: Partial<Bulk
 
 const descriptions = (element: Element) => (element.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
 const box = (name: string) => screen.getByRole('checkbox', { name });
-// react-tooltip mounts a tooltip a tick before it shows it, and unmounts it only when its fade-out transition ends or a
-// timer standing in for it fires, which test DOMs run in no fixed order. Open and closed are its show class.
+// react-tooltip mounts a tooltip 10 ms before it shows it, and one closed inside that window stays mounted, so a test waits
+// for the show class before it blurs.
 const shownTooltips = () => screen.queryAllByRole('tooltip').filter(tooltip => tooltip.classList.contains('react-tooltip__show'));
 
 describe('the bulk check lists', () => {
@@ -143,7 +143,7 @@ describe('the bulk check lists', () => {
 			expect(tooltip!.textContent).toBe(reason);
 			expect(tooltip!.querySelector('img')).toBeNull();
 			act(() => box(name).blur());
-			await waitFor(() => expect(shownTooltips()).toHaveLength(0));
+			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
 		}
 	});
 });
