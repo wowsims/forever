@@ -283,8 +283,11 @@ func registerSkyborneCasts(character *Character, spellID int32, castTime time.Du
 	return aura
 }
 
-// Command 20576 raises the damage of hunter and warlock pets by 5%. The game build has no row for it.
-// The pets exist from construction, and a pet's PseudoStats set after finalize do not survive a reset.
+// Command raises the damage of hunter and warlock pets by 5%. Its rows, 20576 for the hunter and 20575 for
+// the warlock, add a flat 5 to every effect of Tamed Pet Passive (8875 hunter, 18727 to 18730 warlock),
+// whose one effect is A_MOD_DAMAGE_PERCENT_DONE 0 on every school. The spell store carries neither the
+// rows nor the passives, so the 5% is applied here. The pets exist from construction, and a pet's
+// PseudoStats set after finalize do not survive a reset.
 func applyCommand(character *Character) {
 	if character.Class != proto.Class_ClassHunter && character.Class != proto.Class_ClassWarlock {
 		return

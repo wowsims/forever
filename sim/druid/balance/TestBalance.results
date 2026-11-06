@@ -918,6 +918,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-SwineFists-10760"
+ value: {
+  dps: 885.39746
+  tps: 896.49585
+  dtps: 5.29483
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-TalismanofArathor-20071"
  value: {
   dps: 869.82454
