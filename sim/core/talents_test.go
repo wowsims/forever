@@ -9,36 +9,32 @@ import (
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
-// A digit above a talent's talent_max_rank fills the field at that rank, and the rank the APL reads
-// is the capped one.
+// A digit above a talent's talent_max_rank fills the field at that rank, any digit above 0 takes a
+// one-point talent, and the rank the APL reads is the capped one, for every talent of every class.
 func TestFillTalentsProtoCapsADigitAtTheTalentsMaxRank(t *testing.T) {
-	talents := &proto.WarriorTalents{}
-	fields := talents.ProtoReflect().Descriptor().Fields()
-	digits := []byte(strings.Repeat("0", fields.Len()))
-
-	var ranked protoreflect.FieldDescriptor
-	for i := range fields.Len() {
-		if fd := fields.Get(i); fd.Kind() == protoreflect.Int32Kind {
-			ranked = fd
-			break
+	for _, msg := range []googleproto.Message{
+		&proto.DruidTalents{}, &proto.HunterTalents{}, &proto.MageTalents{}, &proto.PaladinTalents{}, &proto.PriestTalents{},
+		&proto.RogueTalents{}, &proto.ShamanTalents{}, &proto.WarlockTalents{}, &proto.WarriorTalents{},
+	} {
+		talents := msg.ProtoReflect()
+		fields := talents.Descriptor().Fields()
+		char := &Character{}
+		char.FillTalentsProto(talents, strings.Repeat("9", fields.Len()), [3]int{fields.Len(), 0, 0})
+		for i := range fields.Len() {
+			fd := fields.Get(i)
+			want := int32(1)
+			if fd.Kind() == protoreflect.Int32Kind {
+				want = googleproto.GetExtension(fd.Options(), proto.E_TalentMaxRank).(int32)
+				if got := talents.Get(fd).Int(); want == 0 || got != int64(want) {
+					t.Errorf("a digit of 9 fills %s at rank %d, want its talent_max_rank %d", fd.FullName(), got, want)
+				}
+			} else if !talents.Get(fd).Bool() {
+				t.Errorf("a digit of 9 leaves %s untaken", fd.FullName())
+			}
+			spellID := googleproto.GetExtension(fd.Options(), proto.E_TalentSpellId).(int32)
+			if got := char.TalentRank(spellID); got != want {
+				t.Errorf("a digit of 9 records rank %d for %s, want %d", got, fd.FullName(), want)
+			}
 		}
-	}
-	if ranked == nil {
-		t.Fatal("WarriorTalents has no ranked talent")
-	}
-	spellID := googleproto.GetExtension(ranked.Options(), proto.E_TalentSpellId).(int32)
-	maxRank := googleproto.GetExtension(ranked.Options(), proto.E_TalentMaxRank).(int32)
-	if spellID == 0 || maxRank == 0 {
-		t.Fatalf("%s states no talent_spell_id or no talent_max_rank", ranked.Name())
-	}
-	digits[ranked.Number()-1] = '9'
-
-	char := &Character{}
-	char.FillTalentsProto(talents.ProtoReflect(), string(digits), [3]int{fields.Len(), 0, 0})
-	if got := talents.ProtoReflect().Get(ranked).Int(); got != int64(maxRank) {
-		t.Errorf("a digit of 9 fills %s at rank %d, want the talent's %d", ranked.Name(), got, maxRank)
-	}
-	if got := char.TalentRank(spellID); got != maxRank {
-		t.Errorf("a digit of 9 records rank %d for the APL, want the talent's %d", got, maxRank)
 	}
 }
