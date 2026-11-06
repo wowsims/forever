@@ -103,7 +103,8 @@
 			"aquatic": "Aquatic",
 			"earth_elemental": "Earth Elemental",
 			"fire_elemental": "Fire Elemental",
-			"mountain_giant": "Mountain Giant"
+			"mountain_giant": "Mountain Giant",
+			"swine": "Swine"
 		},
 		"area_types": {
 			"unknown": "None",

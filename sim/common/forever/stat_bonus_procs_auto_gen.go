@@ -2235,14 +2235,6 @@ func RegisterAllProcs() {
 			{ItemID: 9651, ItemName: "Gryphon Rider's Stormhammer"},
 		})
 
-	// Spells and attacks against Swine deal 2 Nature damage.
-	// https://www.wowhead.com/forever/spell=1293782
-	// trigger 1293783 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 1293782
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293783, BuffSpellID: 1293782},
-		[]shared.ItemVariant{
-			{ItemID: 10760, ItemName: "Swine Fists"},
-		})
-
 	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
 	// in Wasteland and Haunted areas.
 	// https://www.wowhead.com/forever/spell=10368
