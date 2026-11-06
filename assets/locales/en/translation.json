@@ -1294,6 +1294,7 @@
 				"open": "Designer",
 				"title": "Encounter designer",
 				"targets": "Targets",
+				"event_lanes": "Events",
 				"target_name": "Target {{number}}",
 				"execute_boss_health": "With Boss health keyframes, the first target follows them, and only the other targets follow this.",
 				"save": "Save",

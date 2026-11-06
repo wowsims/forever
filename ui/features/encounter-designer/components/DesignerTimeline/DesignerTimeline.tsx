@@ -54,6 +54,14 @@ export interface DesignerTimelineProps {
 }
 
 const LABEL_WIDTH = '12rem';
+// The boss lane is the targets' rows.
+const EVENT_LANES = DESIGN_LANES.filter(lane => lane !== 'boss');
+
+const SectionHeader = ({ label }: { label: string }) => (
+	<div className="flex min-w-full border-b border-gray-700 bg-white/10">
+		<span className="sticky left-0 px-2 py-1 text-xs font-bold tracking-wide text-white uppercase">{label}</span>
+	</div>
+);
 
 export const DesignerTimeline = ({
 	design,
@@ -183,6 +191,7 @@ export const DesignerTimeline = ({
 		onAdd,
 	};
 	const targetsLabel = designerText('targets');
+	const eventLanesLabel = designerText('event_lanes');
 	const targetLabel = i18n.t('settings_tab.encounter.target');
 
 	return (
@@ -212,44 +221,40 @@ export const DesignerTimeline = ({
 				className={clsx('relative min-w-0 cursor-grab overflow-x-auto overflow-y-hidden', panning && 'cursor-grabbing select-none')}
 				{...pan}>
 				<div className="w-designer-content-w min-w-full">
-					{DESIGN_LANES.map(lane =>
-						lane === 'boss' ? (
-							<div key={lane} role="group" aria-label={targetsLabel}>
-								<div className={LANE_CLASSES}>
-									<div className={LANE_LABEL_CLASSES}>
-										<span className="text-sm font-bold text-white">{targetsLabel}</span>
-									</div>
-								</div>
-								{targetNames.map((_, index) => (
-									<DesignerLane
-										key={index}
-										{...laneProps}
-										lane={lane}
-										target={{
-											index,
-											selected: selected?.kind === 'target' && selected.index === index,
-											onSelect: () => onSelect({ kind: 'target', index }),
-											onActivate: () => onActivate({ kind: 'target', index }),
-										}}
-									/>
-								))}
-								<div className={LANE_CLASSES}>
-									<div className={LANE_LABEL_CLASSES}>
-										<Button
-											variant="outline-secondary"
-											size="xs"
-											className="self-start"
-											aria-label={designerText('add', { event: targetLabel })}
-											onClick={onAddTarget}>
-											<Icon name="plus" /> {targetLabel}
-										</Button>
-									</div>
-								</div>
+					<div role="group" aria-label={targetsLabel}>
+						<SectionHeader label={targetsLabel} />
+						{targetNames.map((_, index) => (
+							<DesignerLane
+								key={index}
+								{...laneProps}
+								lane="boss"
+								target={{
+									index,
+									selected: selected?.kind === 'target' && selected.index === index,
+									onSelect: () => onSelect({ kind: 'target', index }),
+									onActivate: () => onActivate({ kind: 'target', index }),
+								}}
+							/>
+						))}
+						<div className={LANE_CLASSES}>
+							<div className={LANE_LABEL_CLASSES}>
+								<Button
+									variant="outline-secondary"
+									size="xs"
+									className="self-start"
+									aria-label={designerText('add', { event: targetLabel })}
+									onClick={onAddTarget}>
+									<Icon name="plus" /> {targetLabel}
+								</Button>
 							</div>
-						) : (
+						</div>
+					</div>
+					<div role="group" aria-label={eventLanesLabel}>
+						<SectionHeader label={eventLanesLabel} />
+						{EVENT_LANES.map(lane => (
 							<DesignerLane key={lane} {...laneProps} lane={lane} />
-						),
-					)}
+						))}
+					</div>
 				</div>
 			</div>
 			<Tooltip id={tooltipId} render={({ activeAnchor }) => <AnchorTip anchor={activeAnchor} />} />

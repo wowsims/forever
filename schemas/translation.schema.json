@@ -4654,6 +4654,9 @@
 								"targets": {
 									"type": "string"
 								},
+								"event_lanes": {
+									"type": "string"
+								},
 								"target_name": {
 									"type": "string"
 								},
@@ -4748,6 +4751,7 @@
 								"open",
 								"title",
 								"targets",
+								"event_lanes",
 								"target_name",
 								"execute_boss_health",
 								"save",
