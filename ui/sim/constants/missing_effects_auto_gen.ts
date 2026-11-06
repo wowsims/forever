@@ -874,6 +874,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		17774, // Mark of the Chosen
+		[
+			"Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.", // 21970 - https://www.wowhead.com/forever/spell=21970
+		]
+	],
+	[
 		18406, // Onyxia Blood Talisman
 		[
 			"Reduces your magic damage taken from Dragon Breath spells by 33% for 15s.", // 1287808 - https://www.wowhead.com/forever/spell=1287808
@@ -2001,6 +2007,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		277950, // Wastewanderer Rations
 		[
 			"Your Well Fed buffs metabolize 50% slower. This effect is increased by an additional 50% in Wasteland areas.", // 1302968 - https://www.wowhead.com/forever/spell=1302968
+		]
+	],
+	[
+		279480, // Bigger Rock on Bigger Stick
+		[
+			"Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.", // 1306816 - https://www.wowhead.com/forever/spell=1306816
+		]
+	],
+	[
+		279852, // Rock on Stick
+		[
+			"Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.", // 1309967 - https://www.wowhead.com/forever/spell=1309967
 		]
 	],
 	[
@@ -5335,6 +5353,35 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Chance on damaging spell to summon an Arcane elemental to aid you in combat.", // 1324323 - https://www.wowhead.com/forever/spell=1324323
+				],
+			],
+		]),
+	],
+	[
+		2135, // Krol'dok Battlegear
+		new Map([
+			[
+				2,
+				[
+					"+100 Armor.", // 1324287 - https://www.wowhead.com/forever/spell=1324287
+				],
+			],
+			[
+				3,
+				[
+					"Increased Defense +5.", // 1324288 - https://www.wowhead.com/forever/spell=1324288
+				],
+			],
+			[
+				4,
+				[
+					"Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.", // 1324298 - https://www.wowhead.com/forever/spell=1324298
+				],
+			],
+			[
+				5,
+				[
+					"Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.", // 1324309 - https://www.wowhead.com/forever/spell=1324309
 				],
 			],
 		]),
