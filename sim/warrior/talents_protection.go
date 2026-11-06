@@ -68,7 +68,11 @@ func (warrior *Warrior) registerShieldSpecialization() {
 	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
 	spelldata.ParseStatic(&warrior.Character, talent)
 
-	warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
+	// The rage makes ThreatPerRageGained threat per rage without the warrior's threat multiplier. In
+	// game it reads the same in Battle and Defensive Stance, while Bloodrage's rage takes the stance's.
+	// TODO: Ingame test needed -- whether Defiance or a threat buff scales it.
+	rageMetrics := warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
+	rageMetrics.UnscaledThreat = true
 }
 
 // A chance to gain rage when an incoming attack is blocked, dodged or parried. The rate is the
@@ -77,7 +81,7 @@ func (warrior *Warrior) registerShieldSpecialization() {
 //
 // No proc mask states an outcome, so which of the three it is stays the caller's; that the hit
 // carries no damage is the row's, off its outcome hint.
-func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) {
+func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) *core.ResourceMetrics {
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})
 
@@ -90,6 +94,7 @@ func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *s
 	trigger.ExtraCondition = extra
 
 	warrior.MakeProcTriggerAura(trigger)
+	return rageMetrics
 }
 
 var lastStandRank = spellData.LastStand.Highest()

@@ -866,6 +866,70 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
+// In Defensive Stance, the rage a block grants through Shield Specialization makes ThreatPerRageGained
+// threat per rage without the warrior's threat multiplier, and Bloodrage's rage makes it times the
+// multiplier.
+func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Rage Threat",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/protection/gear_sets", "preraid").GearSet,
+		TalentsString: protectionTalents,
+		Spec:          protectionOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	war, target := sim.Raid.Parties[0].Players[0].GetCharacter(), sim.Encounter.AllTargetUnits[0]
+
+	rageThreat := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain})
+	bloodrage := war.GetSpell(core.ActionID{SpellID: 2687})
+	if rageThreat == nil || bloodrage == nil {
+		t.Fatal("the warrior has no rage gain threat or no Bloodrage")
+	}
+	if len(sim.Encounter.ActiveTargetUnits) != 1 {
+		t.Fatalf("%d targets are in combat, want 1", len(sim.Encounter.ActiveTargetUnits))
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexPhysical]
+	if multiplier == 1 {
+		t.Fatal("Defensive Stance sets no threat multiplier, so the checks below prove nothing")
+	}
+
+	threatPerRage := func(gainRage func()) float64 {
+		t.Helper()
+		war.SpendRage(sim, war.CurrentRage(), war.RageRefundMetrics)
+		threatBefore := rageThreat.SpellMetrics[target.UnitIndex].TotalThreat
+		gainRage()
+		if war.CurrentRage() == 0 {
+			t.Fatal("no rage was gained")
+		}
+		return (rageThreat.SpellMetrics[target.UnitIndex].TotalThreat - threatBefore) / war.CurrentRage()
+	}
+
+	block := func() {
+		for range 1000 {
+			war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
+				&core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
+			if war.CurrentRage() > 0 {
+				return
+			}
+		}
+	}
+	if got := threatPerRage(block); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+
+	bloodrageRage := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
+	if got, want := threatPerRage(bloodrageRage), core.ThreatPerRageGained*multiplier; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Bloodrage's rage made %v threat per rage, want %v", got, want)
+	}
+}
+
 // Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
