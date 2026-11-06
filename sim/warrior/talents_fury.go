@@ -250,14 +250,16 @@ func (warrior *Warrior) registerGoreDrinker() {
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
 	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,
-	// Bloodrage and Death Wish when cast, Bloodthirst when it lands, and Enrage from its own trigger.
+	// Bloodrage, Death Wish and Reckless Swings when cast, Bloodthirst when it lands, and Enrage from
+	// its own trigger.
 	warrior.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Gore Drinker - Trigger",
 		Callback: core.CallbackOnCastComplete | core.CallbackOnSpellHitDealt,
 		Outcome:  core.OutcomeLanded,
 		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			if result == nil {
-				return spellData.BerserkerRage.Contains(spell) || spellData.Bloodrage.Contains(spell) || spellData.DeathWish.Contains(spell)
+				return spellData.BerserkerRage.Contains(spell) || spellData.Bloodrage.Contains(spell) ||
+					spellData.DeathWish.Contains(spell) || spellData.RecklessSwings.Contains(spell)
 			}
 			return spell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial) && spellData.Bloodthirst.Contains(spell)
 		},

@@ -1134,6 +1134,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-SwineFists-10760"
+ value: {
+  dps: 437.17573
+  tps: 1404.2369
+  dtps: 301.8698
+  hps: 36.58083
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-TalismanofArathor-20071"
  value: {
   dps: 435.34222

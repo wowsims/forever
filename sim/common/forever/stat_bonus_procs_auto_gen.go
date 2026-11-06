@@ -130,6 +130,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
+	// https://www.wowhead.com/forever/spell=13752
+	// unsupported: states no rate
+	// trigger 13752 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 13752, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 869, ItemName: "Dazzling Longsword"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=13439
 	// unsupported: states no rate
@@ -211,6 +224,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Chance on harmful spell cast to blast a target for 77 Fire damage.
+	// https://www.wowhead.com/forever/spell=18083
+	// unsupported: states no rate
+	// trigger 1293980 (no stated rate, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 18083
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293980, BuffSpellID: 18083},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 9419, ItemName: "Galgann's Firehammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Water breathing lasts 100% longer than normal.
 	// https://www.wowhead.com/forever/spell=1320643
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -220,6 +246,34 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 10506, ItemName: "Deepdive Helmet"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.
+	// https://www.wowhead.com/forever/spell=1293790
+	// unsupported: states no rate
+	// trigger 1293790 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293790, BuffSpellID: 1293790, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 10761, ItemName: "Coldrage Dagger"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Reduces the duration of all movement impairing effects on you by 7%.
+	// https://www.wowhead.com/forever/spell=1293819
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 10776, ItemName: "Silky Spider Cape"},
 	// })
 
 	// TODO: Manual implementation required
@@ -308,6 +362,19 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 12796, ItemName: "Hammer of the Titans"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Poisons target for 8 Nature damage every 2.0 sec for 20s.
+	// https://www.wowhead.com/forever/spell=17511
+	// unsupported: states no rate
+	// trigger 17511 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17511, BuffSpellID: 17511, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 13035, ItemName: "Serpent Slicer"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2070,6 +2137,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.
+	// https://www.wowhead.com/forever/spell=1317583
+	// unsupported: states no rate
+	// trigger 1317583 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1317583, BuffSpellID: 1317583, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 285102, ItemName: "Darkmist Dirk"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Stun the target for 1s.
 	// https://www.wowhead.com/forever/spell=1318178
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2153,6 +2233,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18081, BuffSpellID: 18081, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9651, ItemName: "Gryphon Rider's Stormhammer"},
+		})
+
+	// Spells and attacks against Swine deal 2 Nature damage.
+	// https://www.wowhead.com/forever/spell=1293782
+	// trigger 1293783 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 1293782
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293783, BuffSpellID: 1293782},
+		[]shared.ItemVariant{
+			{ItemID: 10760, ItemName: "Swine Fists"},
 		})
 
 	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
@@ -2420,6 +2508,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=13496
 	// Not simulated: Girdle of the Blindwatcher: "Stealth Detection 05" (1292149) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=1292149
+	// Not simulated: Medal of Courage: "Resist Fear 02" (1324578) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1324578
 	// Not simulated: Mask of Thero-shan: "Stealth 06" (17746) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=17746
 	// Not simulated: Nightscape Boots: "Stealth 06" (17746) - ignored aura type 154
@@ -2458,6 +2548,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Medal of Valor: "Resist Fear 02" (1324578) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=1324578
 	// Not simulated: Premier Kodohide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Premier Champion's Dragonhide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17

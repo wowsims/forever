@@ -734,6 +734,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-SwineFists-10760"
+ value: {
+  dps: 614.22767
+  tps: 436.10165
+  hps: 52.25667
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-TalismanofArathor-20071"
  value: {
   dps: 608.67846

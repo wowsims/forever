@@ -854,6 +854,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-SwineFists-10760"
+ value: {
+  dps: 776.32233
+  tps: 575.59026
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-TalismanofArathor-20071"
  value: {
   dps: 780.33933
