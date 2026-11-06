@@ -543,6 +543,7 @@ enum CreatureFamily {
 	CreatureFamilyEarthElemental = 4;
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
+	CreatureFamilySwine = 7;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).
