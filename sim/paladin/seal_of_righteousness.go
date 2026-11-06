@@ -8,8 +8,9 @@ import (
 )
 
 // The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them,
-// and the store carries no row for them, so the proc is built by hand.
-var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
+// and the store carries no row for them, so the proc is built by hand. Rank 1 is 21084, which fires
+// 25741; 25742 belongs to the level 1 starter seal 20154, which is not on the ladder.
+var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293
