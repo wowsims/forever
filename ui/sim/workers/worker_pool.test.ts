@@ -1,4 +1,13 @@
-import { ProgressMetrics, RaidSimRequest, RaidSimRequestSplitRequest, RaidSimRequestSplitResult, RaidSimResult, SimOptions } from '@generated/proto/api';
+import {
+	ComputeStatsRequest,
+	ComputeStatsResult,
+	ProgressMetrics,
+	RaidSimRequest,
+	RaidSimRequestSplitRequest,
+	RaidSimRequestSplitResult,
+	RaidSimResult,
+	SimOptions,
+} from '@generated/proto/api';
 import type { WorkerReceiveMessage, WorkerSendMessage } from '@worker/types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -6,10 +15,14 @@ import type { SimSignals } from '../sim_signal_manager';
 import { noop } from '../utils/misc';
 import { WorkerPool } from './worker_pool';
 
-// A sim worker that is ready at once and answers every raid sim with its final result.
+// A sim worker that is ready at once and answers every raid sim with its final result, or every request the
+// way `answer` says.
 class FakeWorker {
 	static instances: FakeWorker[] = [];
+	static answerRaidSims = true;
+	static answer: (message: WorkerReceiveMessage) => WorkerSendMessage | undefined = () => undefined;
 	readonly posted: WorkerReceiveMessage[] = [];
+	terminated = false;
 	private listener: (event: { data: WorkerSendMessage }) => void = noop;
 
 	constructor() {
@@ -23,12 +36,19 @@ class FakeWorker {
 
 	postMessage(message: WorkerReceiveMessage) {
 		this.posted.push(message);
-		if (message.msg !== 'raidSimAsync') return;
+		const answer = FakeWorker.answer(message);
+		if (answer) {
+			queueMicrotask(() => this.listener({ data: answer }));
+			return;
+		}
+		if (message.msg !== 'raidSimAsync' || !FakeWorker.answerRaidSims) return;
 		const outputData = ProgressMetrics.toBinary(ProgressMetrics.create({ finalRaidResult: RaidSimResult.create({ iterationsDone: 1 }) }));
 		queueMicrotask(() => this.listener({ data: { msg: 'raidSimAsync', id: message.id, outputData } as WorkerSendMessage }));
 	}
 
-	terminate() {}
+	terminate() {
+		this.terminated = true;
+	}
 }
 
 const signals = { abort: { onTrigger: () => noop } } as unknown as SimSignals;
@@ -39,6 +59,8 @@ const request = (requestId: string) => RaidSimRequest.create({ requestId, simOpt
 
 beforeEach(() => {
 	FakeWorker.instances = [];
+	FakeWorker.answerRaidSims = true;
+	FakeWorker.answer = () => undefined;
 	vi.stubGlobal('Worker', FakeWorker);
 });
 
@@ -83,5 +105,47 @@ describe('WorkerPool.raidSimRequestSplit', () => {
 
 	it('leaves the splits of a request with no id without one', async () => {
 		expect(await splitOf('')).toEqual(['', '']);
+	});
+});
+
+describe('WorkerPool on a worker whose sim runtime has stopped', () => {
+	// The worker answers one computeStats the way WorkerInterface reports a stopped runtime, and the
+	// raid sim it was handed before that stays unanswered.
+	const stoppedAnswer = (message: WorkerReceiveMessage): WorkerSendMessage | undefined =>
+		message.msg === 'computeStats'
+			? ({ msg: 'computeStats', id: message.id, outputData: new Uint8Array(), error: 'stopped', stopped: true } as WorkerSendMessage)
+			: undefined;
+
+	it('fails the request and every request waiting on the worker, then runs the next one on a fresh worker', async () => {
+		FakeWorker.answer = stoppedAnswer;
+		const pool = new WorkerPool(1);
+		const [first] = FakeWorker.instances;
+		const raidSim = pool.raidSimAsync(request('waiting'), noop, signals);
+		FakeWorker.answerRaidSims = false;
+
+		await expect(pool.computeStats(ComputeStatsRequest.create())).rejects.toThrow('stopped');
+		await expect(raidSim).rejects.toThrow('stopped before answering');
+		expect(first.terminated).toBe(true);
+		expect(FakeWorker.instances).toHaveLength(2);
+
+		FakeWorker.answer = message =>
+			message.msg === 'computeStats'
+				? ({ msg: 'computeStats', id: message.id, outputData: ComputeStatsResult.toBinary(ComputeStatsResult.create()) } as WorkerSendMessage)
+				: undefined;
+		await expect(pool.computeStats(ComputeStatsRequest.create())).resolves.toBeDefined();
+		expect(FakeWorker.instances[1].posted.filter(message => message.msg === 'computeStats')).toHaveLength(1);
+	});
+
+	it('fails a raid sim waiting on its final progress, as the wasm worker sends it, when its worker restarts', async () => {
+		FakeWorker.answer = message =>
+			message.msg === 'raidSimAsync'
+				? ({ msg: 'raidSimAsync', id: message.id, outputData: new Uint8Array() } as WorkerSendMessage)
+				: stoppedAnswer(message);
+		const pool = new WorkerPool(1);
+		const raidSim = pool.raidSimAsync(request('running'), noop, signals);
+		await vi.waitFor(() => expect(FakeWorker.instances[0].posted.some(message => message.msg === 'raidSimAsync')).toBe(true));
+
+		await expect(pool.computeStats(ComputeStatsRequest.create())).rejects.toThrow('stopped');
+		await expect(raidSim).rejects.toThrow('stopped before answering');
 	});
 });
