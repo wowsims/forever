@@ -242,10 +242,11 @@ export const DesignerLane = ({
 			<div className={LANE_LABEL_CLASSES}>
 				{target ? (
 					<Button
-						variant="unstyled"
+						variant="outline-secondary"
+						size="xs"
 						aria-pressed={target.selected}
 						data-selected={target.selected ? '' : undefined}
-						className="flex max-w-full cursor-pointer items-center gap-2 self-start rounded-xs border border-white/25 px-1 text-left text-sm font-bold text-white outline-none hover:border-white/60 hover:bg-white/10 focus-visible:focus-ring data-selected:border-white data-selected:bg-(--bar)"
+						className="max-w-full self-start data-selected:border-white data-selected:bg-(--bar) data-selected:text-white"
 						onClick={target.onSelect}
 						onKeyDown={event => {
 							if (event.key !== 'Enter') return;
@@ -253,8 +254,8 @@ export const DesignerLane = ({
 							target.onSelect();
 							target.onActivate();
 						}}>
+						<Icon name="gear" />
 						<span className="min-w-0 truncate">{label}</span>
-						<Icon name="gear" className="shrink-0 text-xs opacity-70" />
 					</Button>
 				) : (
 					<span className="text-sm font-bold text-white">{label}</span>
