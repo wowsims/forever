@@ -23,10 +23,52 @@ var WeaponProcs = []WeaponProc{
 		Source:  "tbc-carryover",
 	},
 	{
+		ItemID:  754,
+		SpellID: 13519,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Shortsword of Vengeance: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  810,
 		SpellID: 13439,
 		PPM:     3.5, // TODO: Vanilla value - verify in-game
 		Reason:  "Hammer of the Northern Wind: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  880,
+		SpellID: 8552,
+		PPM:     1.4, // TODO: Vanilla value - verify in-game
+		Reason:  "Staff of Horrors: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  899,
+		SpellID: 18077,
+		PPM:     2, // TODO: Vanilla value - verify in-game
+		Reason:  "Venom Web Fang: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  937,
+		SpellID: 18138,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Black Duskwood Staff: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  1481,
+		SpellID: 1292158,
+		PPM:     1.25, // TODO: Vanilla value - verify in-game
+		Reason:  "Grimclaw: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  1726,
+		SpellID: 16401,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Poison-Tipped Bone Spear: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -37,6 +79,76 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  2256,
+		SpellID: 13440,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Skeletal Club: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2912,
+		SpellID: 16409,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Claw of the Shadowmancer: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2942,
+		SpellID: 13491,
+		PPM:     2, // TODO: Vanilla value - verify in-game
+		Reason:  "Iron Knuckles: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  3336,
+		SpellID: 18078,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Flesh Piercer: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  4090,
+		SpellID: 13496,
+		PPM:     2, // TODO: Vanilla value - verify in-game
+		Reason:  "Mug O' Hurt: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  5182,
+		SpellID: 18092,
+		PPM:     0.5, // TODO: Vanilla value - verify in-game
+		Reason:  "Shiver Blade: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  6220,
+		SpellID: 1292152,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Meteor Shard: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  6472,
+		SpellID: 1291663,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Stinging Viper: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  6660,
+		SpellID: 8348,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Julie's Dagger: column reads 100",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  6904,
+		SpellID: 8313,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Bite of Serra'kis: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  7961,
 		SpellID: 9806,
 		PPM:     1, // TODO: Vanilla value - verify in-game
@@ -44,10 +156,66 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  8190,
+		SpellID: 16405,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  9453,
+		SpellID: 11790,
+		PPM:     0.8, // TODO: Vanilla value - verify in-game
+		Reason:  "Toxic Revenger: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  12794,
 		SpellID: 16921,
 		PPM:     0.5, // TODO: Vanilla value - verify in-game
 		Reason:  "Masterwork Stormhammer: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  12974,
+		SpellID: 14106,
+		PPM:     0.65, // TODO: Vanilla value - verify in-game
+		Reason:  "The Black Knight: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  12992,
+		SpellID: 1299850,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Searing Blade: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13016,
+		SpellID: 13318,
+		PPM:     0.85, // TODO: Vanilla value - verify in-game
+		Reason:  "Killmaim: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13032,
+		SpellID: 17510,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Sword of Corruption: column reads 100",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13051,
+		SpellID: 18214,
+		PPM:     1.25, // TODO: Vanilla value - verify in-game
+		Reason:  "Witchfury: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13054,
+		SpellID: 14126,
+		PPM:     0.87, // TODO: Vanilla value - verify in-game
+		Reason:  "Grim Reaper: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{

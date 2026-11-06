@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 924.84761
+  tps: 729.98361
+  dtps: 10.43267
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-ArcaniteChampion-12790"
  value: {
   dps: 922.25197
@@ -99,6 +107,14 @@ dps_results: {
   dps: 900.30952
   tps: 709.81978
   dtps: 10.51298
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
  }
 }
 dps_results: {
@@ -479,6 +495,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-HanzoSword-8190"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Hazza'rah'sCharmofDestruction-19957"
  value: {
   dps: 919.96871
@@ -516,6 +540,14 @@ dps_results: {
   dps: 917.60389
   tps: 723.71915
   dtps: 10.10641
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
  }
 }
 dps_results: {
@@ -655,6 +687,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 917.60389
@@ -767,6 +807,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 922.28226
+  tps: 727.3368
+  dtps: 10.10641
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-VestmentsoftheDevout"
  value: {
   dps: 794.00146
@@ -796,6 +844,14 @@ dps_results: {
   dps: 936.37513
   tps: 737.93574
   dtps: 10.21928
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Witchfury-13051"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
  }
 }
 dps_results: {
