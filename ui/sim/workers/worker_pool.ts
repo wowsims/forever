@@ -278,13 +278,9 @@ export class WorkerPool {
 		});
 		try {
 			worker.addSimTaskRunning(id, totalIterations);
-			const finalProgress: Promise<ProgressMetrics> = new Promise(resolve => {
+			const finalProgress: Promise<ProgressMetrics> = new Promise((resolve, reject) => {
 				// Add handler for the progress events
-				worker.addPromiseFunc(
-					this.getProgressName(id),
-					this.newProgressHandler(id, worker, onProgress, pm => resolve(pm)),
-					noop,
-				);
+				worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, resolve, reject), reject);
 			});
 			const apiCallResult = worker.doApiCall(requestName, request, id).then(outputData => {
 				// WASM async handlers deliver their final result via the progress channel and may return no payload
@@ -320,6 +316,7 @@ export class WorkerPool {
 		worker: SimWorker,
 		onProgress: WorkerProgressCallback,
 		onFinal: (pm: ProgressMetrics) => void,
+		onError: (error: Error) => void,
 	): (progressData: Uint8Array) => void {
 		return (progressData: any) => {
 			const progress = ProgressMetrics.fromBinary(progressData);
@@ -331,7 +328,7 @@ export class WorkerPool {
 				return;
 			}
 
-			worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, onFinal), noop);
+			worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, onFinal, onError), onError);
 		};
 	}
 }
@@ -371,7 +368,7 @@ class SimWorker {
 		this.worker = new Worker(SIM_WORKER_URL);
 
 		this.worker.addEventListener('message', ({ data }: MessageEvent<WorkerSendMessage>) => {
-			const { id, msg, outputData, error } = data;
+			const { id, msg, outputData, error, stopped } = data;
 			switch (msg) {
 				case 'ready':
 					this.wasmWorker = !!outputData && !!outputData[0];
@@ -410,11 +407,26 @@ class SimWorker {
 					delete this.taskIdsToPromiseFuncs[id];
 					if (error) {
 						promiseFuncs[1](new Error(error));
+						if (stopped) this.restart(error);
 						return;
 					}
 					promiseFuncs[0](outputData);
 			}
 		});
+	}
+
+	// Terminates the worker and starts a fresh one in its slot, failing every request still waiting on it: a sim
+	// runtime that has stopped answers none of them.
+	private restart(reason: string) {
+		const waiting = Object.entries(this.taskIdsToPromiseFuncs);
+		this.taskIdsToPromiseFuncs = {};
+		for (const id of Object.keys(this.simTasksRunning)) delete this.simTasksRunning[id];
+		this.terminateWorker();
+		this.log(`Restarted: ${reason}`);
+		if (!this.shouldDestroy) this.setupWorker();
+		for (const [id, [, reject]] of waiting) {
+			reject(new Error(`Worker ${this.workerId} stopped before answering ${id}: ${reason}`));
+		}
 	}
 
 	/** Add sim work amount (iterations) used for load balancing. */
@@ -503,11 +515,15 @@ class SimWorker {
 	disable(force = false) {
 		this.shouldDestroy = true;
 		if (!this.worker || (!force && this.getSimTaskWorkAmount())) return;
-		this.worker.terminate();
+		this.terminateWorker();
+		this.log('Disabled.');
+	}
+
+	private terminateWorker() {
+		this.worker?.terminate();
 		delete this.worker;
 		delete this.onReady;
 		delete this.resolveReady;
-		this.log('Disabled.');
 	}
 
 	enable() {
