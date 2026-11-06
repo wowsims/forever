@@ -49,3 +49,24 @@ func TestTakenSchoolBonusLandsAfterDoneMultipliers(t *testing.T) {
 		t.Errorf("a tick at dot coefficient %v takes %v of the bonus, want %v", fa.Dot.BonusCoefficient, got, want)
 	}
 }
+
+// A spell that ignores the target's flat school bonus, as a damage shield does, takes none of it at
+// its coefficient.
+func TestIgnoreTargetSchoolBonusTakesNoneOfTheBonus(t *testing.T) {
+	sim := SetupFakeSim()
+	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)
+	spell := fa.Spell
+	target := sim.Encounter.ActiveTargetUnits[0]
+	spell.BonusCoefficient = 0.5
+	spell.Flags |= SpellFlagIgnoreTargetSchoolBonus
+
+	hit := func(bonus float64) float64 {
+		target.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex] = bonus
+		result := spell.CalcDamage(sim, target, 100, spell.OutcomeAlwaysHit)
+		result.inUse = false
+		return result.Damage
+	}
+	if without, with := hit(0), hit(100); with != without {
+		t.Errorf("a hit deals %v under the bonus, want the %v it deals without", with, without)
+	}
+}

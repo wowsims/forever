@@ -1473,6 +1473,9 @@ func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 	if shield.BonusCoefficient != buffs.DamageShieldSpellPowerCoefficient {
 		t.Errorf("the shield scales with %v of spell power, want %v", shield.BonusCoefficient, buffs.DamageShieldSpellPowerCoefficient)
 	}
+	if !shield.Flags.Matches(core.SpellFlagIgnoreTargetSchoolBonus) {
+		t.Error("the shield takes the target's flat school bonus, want none")
+	}
 	category := char.ExclusiveEffectManager.GetExclusiveEffectCategory(buffs.ThornsCategory)
 	if want := rowAmount(t, 9910, dbcenums.A_DAMAGE_SHIELD); len(category.Effects()) != 1 || category.Effects()[0].Priority != want {
 		t.Errorf("the category has %d effects; want one bidding %v", len(category.Effects()), want)
