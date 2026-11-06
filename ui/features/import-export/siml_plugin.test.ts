@@ -91,7 +91,10 @@ describe('the transform', () => {
 		const file = path.join(TESTDATA, 'hawks.apl.siml');
 		const { result, watched } = await transform(readFileSync(file, 'utf8'), file);
 		expect(result?.moduleType).toBe('js');
-		expect(watched).toEqual(expect.arrayContaining([path.join(ROOT, 'sim/siml/names.json'), path.join(TESTDATA, 'rotation.apl.siml')]));
+		// wowsimcli names a used file with forward slashes on every system, and Vite takes either separator.
+		expect(watched.map(watchedFile => path.normalize(watchedFile))).toEqual(
+			expect.arrayContaining([path.join(ROOT, 'sim/siml/names.json'), path.join(TESTDATA, 'rotation.apl.siml')]),
+		);
 	});
 
 	it('leaves an id with a query to the plugin that owns it', async () => {
