@@ -19,6 +19,9 @@ extend google.protobuf.MessageOptions {
 // names a talent by this id, so it outlives a rename of the field.
 extend google.protobuf.FieldOptions {
 	int32 talent_spell_id = 50001;
+	// The most points the talent takes. A talents string saved before a tree was reworked can carry
+	// more, and the sim caps the field at this many.
+	int32 talent_max_rank = 50002;
 }
 
 message ProtoVersion {
