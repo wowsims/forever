@@ -108,17 +108,32 @@ func TestFixedRaid(t *testing.T) {
 }
 */
 
-// Every preset target simulates on its own as a plain target, with no plan.
+// Every target of a preset encounter, the adds of its plan's waves included, simulates on its own as a plain
+// target, with no plan.
 func TestPresetTargetsAlone(t *testing.T) {
-	for _, path := range []string{"Default/Raid Target", "Default/Movement", "Default/Dynamic Boss", "Default/Dynamic Add", "Default/Boss"} {
-		preset := core.GetPresetTargetWithPath(path)
-		if preset == nil {
-			t.Fatalf("the preset target %s is not registered", path)
+	var targets []*proto.Target
+	seen := map[int32]bool{}
+	add := func(target *proto.Target) {
+		if !seen[target.Id] {
+			seen[target.Id] = true
+			targets = append(targets, target)
 		}
-		t.Run(preset.Config.Name, func(t *testing.T) {
+	}
+	for _, preset := range core.PresetEncounters {
+		for _, target := range preset.Targets {
+			add(target.Target)
+		}
+		for _, wave := range preset.GetPlan().GetAddWaves() {
+			for _, target := range wave.Adds {
+				add(target)
+			}
+		}
+	}
+	for _, target := range targets {
+		t.Run(target.Name, func(t *testing.T) {
 			result := core.RunRaidSim(&proto.RaidSimRequest{
 				Raid:       BasicRaid,
-				Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{preset.Config}},
+				Encounter:  &proto.Encounter{Duration: 60, Targets: []*proto.Target{target}},
 				SimOptions: SimOptions,
 			})
 			if result.Error != nil {

@@ -9,18 +9,13 @@ import (
 // The fight length the plans' second-based numbers are fractions of; the UI's default duration.
 const planBaseSeconds = 180.0
 
-const (
-	movementTargetID   int32 = 31147
-	dynamicBossID      int32 = 99999
-	dynamicAddID       int32 = 99998
-	customBossTargetID int32 = 100000
-)
+const dynamicAddID int32 = 99998
 
+// Every preset encounter fights the Raid Target; what sets them apart is their plan.
 func init() {
 	AddDefaultPresetEncounter()
 	addMovementEncounter()
 	addDynamicAddsEncounter()
-	addCustomBossEncounter()
 }
 
 func fractionOfFight(seconds float64) float64 {
@@ -53,12 +48,8 @@ func bossTarget(id int32, name string, damageSpread float64) *proto.Target {
 }
 
 func addMovementEncounter() {
-	core.AddPresetTarget(&core.PresetTarget{
-		PathPrefix: "Default",
-		Config:     bossTarget(movementTargetID, "Movement", 0.5),
-	})
 	core.AddPresetEncounter("Movement", []string{
-		"Default/Movement",
+		"Default/Raid Target",
 	}, &proto.EncounterPlan{
 		Moves: []*proto.PlanMove{{
 			At:     &proto.PlanTime{},
@@ -90,16 +81,8 @@ func dynamicAddTarget() *proto.Target {
 }
 
 func addDynamicAddsEncounter() {
-	core.AddPresetTarget(&core.PresetTarget{
-		PathPrefix: "Default",
-		Config:     bossTarget(dynamicBossID, "Dynamic Boss", 0.5),
-	})
-	core.AddPresetTarget(&core.PresetTarget{
-		PathPrefix: "Default",
-		Config:     dynamicAddTarget(),
-	})
 	core.AddPresetEncounter("Dynamic Adds", []string{
-		"Default/Dynamic Boss",
+		"Default/Raid Target",
 	}, &proto.EncounterPlan{
 		AddWaves: []*proto.AddWave{{
 			Name:                 "Add",
@@ -112,17 +95,6 @@ func addDynamicAddsEncounter() {
 			KillShare:            0.2,
 		}},
 	})
-}
-
-// A tank example target. It ships with no boss abilities; the player adds them in the encounter planner.
-func addCustomBossEncounter() {
-	core.AddPresetTarget(&core.PresetTarget{
-		PathPrefix: "Default",
-		Config:     bossTarget(customBossTargetID, "Boss", 0.413),
-	})
-	core.AddPresetEncounter("Custom Boss", []string{
-		"Default/Boss",
-	}, nil)
 }
 
 func AddDefaultPresetEncounter() {
