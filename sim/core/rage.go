@@ -9,7 +9,7 @@ import (
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
 // A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Bloodrage's instant rage)
-// makes it without the unit's threat multiplier. Rage gained before the pull makes none.
+// makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
 // Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
@@ -271,11 +271,7 @@ func (rb *rageBar) reset(_ *Simulation) {
 
 // Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, or
 // without it from a source marked UnscaledThreat, split between the targets in combat at the time.
-// Rage gained before the pull makes none, since no target is in combat yet.
 func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64, metrics *ResourceMetrics) {
-	if sim.CurrentTime < 0 {
-		return
-	}
 	threat := gain * ThreatPerRageGained
 	if !metrics.UnscaledThreat {
 		threat *= rb.rageGainSpell.unitThreatMultiplier()

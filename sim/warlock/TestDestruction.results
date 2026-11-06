@@ -818,7 +818,7 @@ dps_results: {
  key: "TestDestruction-AllItems-VestmentsoftheDevout"
  value: {
   dps: 794.00146
-  tps: 627.66729
+  tps: 627.61173
   dtps: 9.88503
  }
 }
