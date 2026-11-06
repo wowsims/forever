@@ -589,7 +589,7 @@ var Spells = []Override{
 		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
 	},
 
-	// Heroic Strike and Cleave add threat beyond their damage in proportion to the rank's spell level,
+	// Heroic Strike and Cleave add threat beyond their damage that grows with the rank's spell level,
 	// as Sunder Armor's game files threat does (34 to 206, 3.4 to 3.55 per level), and none with
 	// Attack Power: Heroic Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is
 	// multiplied by the stance with the damage, and Cleave splits it between the targets it hits.
@@ -683,7 +683,7 @@ var Spells = []Override{
 		SpellID: 11609,
 		Field:   FlatThreat,
 		Value:   77, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: Rank 2's measured share at spell level 50, 76.5 rounded up",
+		Reason:  "Cleave Rank 4: Rank 2's measured share at spell level 50",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
 	{
