@@ -278,13 +278,9 @@ export class WorkerPool {
 		});
 		try {
 			worker.addSimTaskRunning(id, totalIterations);
-			const finalProgress: Promise<ProgressMetrics> = new Promise(resolve => {
+			const finalProgress: Promise<ProgressMetrics> = new Promise((resolve, reject) => {
 				// Add handler for the progress events
-				worker.addPromiseFunc(
-					this.getProgressName(id),
-					this.newProgressHandler(id, worker, onProgress, pm => resolve(pm)),
-					noop,
-				);
+				worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, resolve, reject), reject);
 			});
 			const apiCallResult = worker.doApiCall(requestName, request, id).then(outputData => {
 				// WASM async handlers deliver their final result via the progress channel and may return no payload
@@ -320,6 +316,7 @@ export class WorkerPool {
 		worker: SimWorker,
 		onProgress: WorkerProgressCallback,
 		onFinal: (pm: ProgressMetrics) => void,
+		onError: (error: Error) => void,
 	): (progressData: Uint8Array) => void {
 		return (progressData: any) => {
 			const progress = ProgressMetrics.fromBinary(progressData);
@@ -331,7 +328,7 @@ export class WorkerPool {
 				return;
 			}
 
-			worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, onFinal), noop);
+			worker.addPromiseFunc(this.getProgressName(id), this.newProgressHandler(id, worker, onProgress, onFinal, onError), onError);
 		};
 	}
 }
@@ -410,15 +407,10 @@ class SimWorker {
 					delete this.taskIdsToPromiseFuncs[id];
 					if (error) {
 						promiseFuncs[1](new Error(error));
-					} else if (!(outputData instanceof Uint8Array)) {
-						promiseFuncs[1](new Error(`Worker ${this.workerId} answered ${msg} with no result`));
-					} else {
-						promiseFuncs[0](outputData);
+						if (stopped) this.restart(error);
 						return;
 					}
-					if (stopped || !(outputData instanceof Uint8Array)) {
-						this.restart(error || `no result for ${msg}`);
-					}
+					promiseFuncs[0](outputData);
 			}
 		});
 	}
@@ -429,10 +421,7 @@ class SimWorker {
 		const waiting = Object.entries(this.taskIdsToPromiseFuncs);
 		this.taskIdsToPromiseFuncs = {};
 		for (const id of Object.keys(this.simTasksRunning)) delete this.simTasksRunning[id];
-		this.worker?.terminate();
-		delete this.worker;
-		delete this.onReady;
-		delete this.resolveReady;
+		this.terminateWorker();
 		this.log(`Restarted: ${reason}`);
 		if (!this.shouldDestroy) this.setupWorker();
 		for (const [id, [, reject]] of waiting) {
@@ -526,11 +515,15 @@ class SimWorker {
 	disable(force = false) {
 		this.shouldDestroy = true;
 		if (!this.worker || (!force && this.getSimTaskWorkAmount())) return;
-		this.worker.terminate();
+		this.terminateWorker();
+		this.log('Disabled.');
+	}
+
+	private terminateWorker() {
+		this.worker?.terminate();
 		delete this.worker;
 		delete this.onReady;
 		delete this.resolveReady;
-		this.log('Disabled.');
 	}
 
 	enable() {

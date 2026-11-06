@@ -1,61 +1,60 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { WorkerReceiveMessage, WorkerSendMessage } from './types';
-import { WorkerInterface } from './worker_interface';
+import { type Handlers, WorkerInterface } from './worker_interface';
 
-// The worker's global message listener and postMessage, captured so a request can be sent in and its
-// answer read back.
-const setupWorkerGlobals = () => {
-	let listener: ((event: { data: WorkerReceiveMessage }) => void) | undefined;
+// Starts a WorkerInterface whose computeStats is `computeStats`, sends it one request and gives back what it posts.
+const answerTo = async (computeStats: () => unknown, runtimeStopped?: () => boolean) => {
+	let listener: ((event: { data: WorkerReceiveMessage }) => Promise<void>) | undefined;
 	const posted: WorkerSendMessage[] = [];
 	vi.stubGlobal('addEventListener', (_type: string, l: typeof listener) => (listener = l));
 	vi.stubGlobal('postMessage', (message: WorkerSendMessage) => posted.push(message));
-	return { send: (message: WorkerReceiveMessage) => listener?.({ data: message }), posted };
+	new WorkerInterface({ computeStats } as unknown as Handlers, runtimeStopped);
+	await listener?.({ data: { msg: 'computeStats', id: 'computeStats-1', inputData: new Uint8Array() } as WorkerReceiveMessage });
+	return posted;
 };
-
-const flush = () => new Promise(resolve => setTimeout(resolve, 0));
 
 afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
 describe('WorkerInterface', () => {
-	it('reports a handler that answers with no result as a stopped runtime', async () => {
-		const { send, posted } = setupWorkerGlobals();
-		vi.spyOn(console, 'error').mockImplementation(() => {});
-		new WorkerInterface({ computeStats: () => undefined as unknown as Uint8Array } as unknown as ConstructorParameters<typeof WorkerInterface>[0]);
-
-		send({ msg: 'computeStats', id: 'computeStats-1', inputData: new Uint8Array() } as WorkerReceiveMessage);
-		await flush();
-
-		expect(posted).toHaveLength(1);
-		expect(posted[0]).toMatchObject({ msg: 'computeStats', id: 'computeStats-1', stopped: true });
-		expect(posted[0].error).toContain('no result');
-	});
-
-	it('reports a handler that throws because the Go runtime has exited as a stopped runtime', async () => {
-		const { send, posted } = setupWorkerGlobals();
-		vi.spyOn(console, 'error').mockImplementation(() => {});
-		const handlers = {
-			computeStats: () => {
-				throw new Error('Go program has already exited');
-			},
-		} as unknown as ConstructorParameters<typeof WorkerInterface>[0];
-		new WorkerInterface(handlers);
-
-		send({ msg: 'computeStats', id: 'computeStats-3', inputData: new Uint8Array() } as WorkerReceiveMessage);
-		await flush();
-
-		expect(posted[0]).toMatchObject({ id: 'computeStats-3', error: 'Go program has already exited', stopped: true });
-	});
-
 	it('answers a handler result as it is', async () => {
-		const { send, posted } = setupWorkerGlobals();
-		new WorkerInterface({ computeStats: () => new Uint8Array([7]) } as unknown as ConstructorParameters<typeof WorkerInterface>[0]);
+		expect(await answerTo(() => new Uint8Array([7]))).toEqual([{ msg: 'computeStats', id: 'computeStats-1', outputData: new Uint8Array([7]) }]);
+	});
 
-		send({ msg: 'computeStats', id: 'computeStats-2', inputData: new Uint8Array() } as WorkerReceiveMessage);
-		await flush();
+	it('answers an async handler that sends its result as progress as it is, on a runtime that runs', async () => {
+		expect(
+			await answerTo(
+				() => undefined,
+				() => false,
+			),
+		).toEqual([{ msg: 'computeStats', id: 'computeStats-1', outputData: undefined }]);
+	});
 
-		expect(posted).toEqual([{ msg: 'computeStats', id: 'computeStats-2', outputData: new Uint8Array([7]) }]);
+	it('reports a call during which the runtime stopped as an error from a stopped runtime', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const [answer] = await answerTo(
+			() => undefined,
+			() => true,
+		);
+		expect(answer).toMatchObject({ id: 'computeStats-1', stopped: true });
+		expect(answer.error).toContain('stopped');
+	});
+
+	it('reports a throw from a stopped runtime as an error from a stopped runtime', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const thrown = () => {
+			throw new Error('Go program has already exited');
+		};
+		expect(await answerTo(thrown, () => true)).toMatchObject([{ id: 'computeStats-1', error: 'Go program has already exited', stopped: true }]);
+	});
+
+	it('reports a throw from a runtime that runs as an error only', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const thrown = () => {
+			throw new Error('bad request');
+		};
+		expect(await answerTo(thrown, () => false)).toMatchObject([{ id: 'computeStats-1', error: 'bad request', stopped: false }]);
 	});
 });

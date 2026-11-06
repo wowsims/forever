@@ -136,11 +136,16 @@ describe('WorkerPool on a worker whose sim runtime has stopped', () => {
 		expect(FakeWorker.instances[1].posted.filter(message => message.msg === 'computeStats')).toHaveLength(1);
 	});
 
-	it('treats an answer with no result as a stopped runtime', async () => {
-		FakeWorker.answer = message => (message.msg === 'computeStats' ? ({ msg: 'computeStats', id: message.id } as WorkerSendMessage) : undefined);
+	it('fails a raid sim waiting on its final progress, as the wasm worker sends it, when its worker restarts', async () => {
+		FakeWorker.answer = message =>
+			message.msg === 'raidSimAsync'
+				? ({ msg: 'raidSimAsync', id: message.id, outputData: new Uint8Array() } as WorkerSendMessage)
+				: stoppedAnswer(message);
 		const pool = new WorkerPool(1);
+		const raidSim = pool.raidSimAsync(request('running'), noop, signals);
+		await vi.waitFor(() => expect(FakeWorker.instances[0].posted.some(message => message.msg === 'raidSimAsync')).toBe(true));
 
-		await expect(pool.computeStats(ComputeStatsRequest.create())).rejects.toThrow('no result');
-		expect(FakeWorker.instances).toHaveLength(2);
+		await expect(pool.computeStats(ComputeStatsRequest.create())).rejects.toThrow('stopped');
+		await expect(raidSim).rejects.toThrow('stopped before answering');
 	});
 });
