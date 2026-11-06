@@ -18,10 +18,10 @@ func init() {
 	common.RegisterAllEffects()
 }
 
-// The ladder's first Seal of Righteousness, 21084, deals its hits as 25741. In game the level 1
-// starter seal 20154, which is not on the ladder, deals them as 25742: a log from levels 1 to 10
-// shows 145 hits of 25742 while 20154 was up and 641 of 25741 while 21084 was.
-func TestSealOfRighteousnessRankOneHitsAs25741(t *testing.T) {
+// The ladder's first Seal of Righteousness deals its hits as its own spell, not as the level 1
+// starter seal's.
+func TestSealOfRighteousnessRankOneHitsAsItsOwnSpell(t *testing.T) {
+	const want = 25741 // 21084's damage spell, "Rank 1.5" in the game files
 	player := &proto.Player{
 		Name:      "Seal of Righteousness",
 		Race:      proto.Race_RaceDwarf,
@@ -63,7 +63,7 @@ func TestSealOfRighteousnessRankOneHitsAs25741(t *testing.T) {
 			}
 		}
 	}
-	if len(hitsBy) != 1 || hitsBy[25741] == 0 {
-		t.Errorf("seal %d hits as %v (spell id: hits), want spell 25741 alone", rank.ID, hitsBy)
+	if len(hitsBy) != 1 || hitsBy[want] == 0 {
+		t.Errorf("seal %d hits as %v (spell id: hits), want spell %d alone", rank.ID, hitsBy, want)
 	}
 }
