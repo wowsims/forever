@@ -8,8 +8,7 @@ import (
 var shieldBashRank = spellData.ShieldBash.Highest()
 
 func (warrior *Warrior) registerShieldBash() {
-	// The threat is the damage plus the store's flat bonus, times the stance.
-	// TODO: Ingame test needed -- Rank 1's logs fit 1.5 times the damage as well as the flat bonus.
+	// TODO: Ingame test needed -- Rank 1's logs fit 1.5 times the damage as well as the store's flat bonus.
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

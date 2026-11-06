@@ -68,8 +68,8 @@ func (warrior *Warrior) registerShieldSpecialization() {
 	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
 	spelldata.ParseStatic(&warrior.Character, talent)
 
-	// The rage makes ThreatPerRageGained threat per rage without the warrior's threat multiplier. In
-	// game it reads the same in Battle and Defensive Stance, while Bloodrage's rage takes the stance's.
+	// In game this rage's threat reads the same in Battle and Defensive Stance, while Bloodrage's takes
+	// the stance's.
 	// TODO: Ingame test needed -- whether Defiance or a threat buff scales it.
 	rageMetrics := warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
 	rageMetrics.UnscaledThreat = true

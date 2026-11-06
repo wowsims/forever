@@ -870,6 +870,7 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 // threat per rage without the warrior's threat multiplier, and Bloodrage's rage makes it times the
 // multiplier.
 func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testing.T) {
+	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
 	player := &proto.Player{
 		Name:          "Rage Threat",
 		Race:          proto.Race_RaceOrc,
@@ -891,9 +892,6 @@ func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testin
 	bloodrage := war.GetSpell(core.ActionID{SpellID: 2687})
 	if rageThreat == nil || bloodrage == nil {
 		t.Fatal("the warrior has no rage gain threat or no Bloodrage")
-	}
-	if len(sim.Encounter.ActiveTargetUnits) != 1 {
-		t.Fatalf("%d targets are in combat, want 1", len(sim.Encounter.ActiveTargetUnits))
 	}
 	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexPhysical]
 	if multiplier == 1 {

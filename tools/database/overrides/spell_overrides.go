@@ -54,8 +54,8 @@ const (
 	// Fails when the game files state a BonusCoefficientFromAP there.
 	APCoefThreat
 
-	// A flat threat bonus of Value times the spell's level, onto Spell.FlatThreat, for a family whose
-	// ranks scale their threat with their level. Fails like FlatThreat, and beside a FlatThreat
+	// A flat threat bonus of Value times the spell's level, onto Spell.FlatThreat, for a rank that
+	// carries a measured rank's share per spell level. Fails like FlatThreat, and beside a FlatThreat
 	// override on the same spell.
 	ThreatPerSpellLevel
 
@@ -591,10 +591,8 @@ var Spells = []Override{
 
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power: Heroic
 	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
-	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike's measured
-	// bonuses, 16.6, 27.6, 40 and 61 at spell levels 1, 8, 16 and 24, fit no single share per spell
-	// level, so Ranks 1 to 4 each carry their own. Ranks 5 to 9 carry Rank 4's share per spell level,
-	// from the measured rank nearest them, and Cleave's ranks carry Rank 2's.
+	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
+	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's share per level.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -693,6 +691,8 @@ var Spells = []Override{
 		Reason:  "Cleave Rank 5: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
+
+	// Shield Bash adds flat threat beyond its damage, times the stance.
 	{
 		SpellID: 72,
 		Field:   FlatThreat,
