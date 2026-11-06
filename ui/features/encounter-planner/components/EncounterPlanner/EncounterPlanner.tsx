@@ -167,6 +167,7 @@ export const EncounterPlannerView = ({
 						ref={panelRef}
 						plan={plan}
 						selected={selected}
+						issues={issues}
 						baseSeconds={baseSeconds}
 						targetNames={targetNames}
 						presetTargets={presetTargets}

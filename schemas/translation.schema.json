@@ -4322,10 +4322,62 @@
 										},
 										"move_down": {
 											"type": "string"
+										},
+										"sections": {
+											"type": "object",
+											"properties": {
+												"basics": { "type": "string" },
+												"resistances": { "type": "string" },
+												"melee": { "type": "string" },
+												"timing": { "type": "string" },
+												"repeat": { "type": "string" },
+												"damage": { "type": "string" },
+												"effect": { "type": "string" },
+												"execute": { "type": "string" },
+												"debuffs": { "type": "string" },
+												"adds": { "type": "string" }
+											},
+											"additionalProperties": false,
+											"required": ["basics", "resistances", "melee", "timing", "repeat", "damage", "effect", "execute", "debuffs", "adds"]
+										},
+										"section_summary": {
+											"type": "string"
+										},
+										"summary": {
+											"type": "object",
+											"properties": {
+												"none": { "type": "string" },
+												"repeat": { "type": "string" },
+												"repeat_count": { "type": "string" },
+												"percent": { "type": "string" },
+												"execute": { "type": "string" },
+												"debuffs_on": { "type": "string" },
+												"debuffs_off": { "type": "string" },
+												"adds_one": { "type": "string" },
+												"adds_other": { "type": "string" },
+												"all_zero": { "type": "string" },
+												"resistance": { "type": "string" },
+												"melee": { "type": "string" }
+											},
+											"additionalProperties": false,
+											"required": [
+												"none",
+												"repeat",
+												"repeat_count",
+												"percent",
+												"execute",
+												"debuffs_on",
+												"debuffs_off",
+												"adds_one",
+												"adds_other",
+												"all_zero",
+												"resistance",
+												"melee"
+											]
 										}
 									},
 									"additionalProperties": false,
-									"required": ["empty", "remove", "move_up", "move_down"]
+									"required": ["empty", "remove", "move_up", "move_down", "sections", "section_summary", "summary"]
 								},
 								"issues": {
 									"type": "object",
@@ -4720,9 +4772,6 @@
 								"adds": {
 									"type": "object",
 									"properties": {
-										"title": {
-											"type": "string"
-										},
 										"add": {
 											"type": "string"
 										},
@@ -4749,7 +4798,7 @@
 										}
 									},
 									"additionalProperties": false,
-									"required": ["title", "add", "duplicate", "remove", "add_title", "add_row", "add_short", "edit", "done"]
+									"required": ["add", "duplicate", "remove", "add_title", "add_row", "add_short", "edit", "done"]
 								},
 								"health_hold": {
 									"type": "string"

@@ -3,7 +3,8 @@ import { eventAt } from '@testing/encounter_plan';
 import { describe, expect, it, vi } from 'vitest';
 
 import { defaultEvent } from '../../../model/lanes';
-import { defaultWaveTemplate, editEvent, type PlanFieldConfig, planFieldConfigs, type PlanFieldContext } from './configs';
+import { PLAN_ISSUE_KEYS } from '../../../model/validate';
+import { defaultWaveTemplate, editEvent, issueSection, type PlanFieldConfig, planFieldConfigs, type PlanFieldContext } from './configs';
 
 // Renders a string as its last key segment and its options, so a test reads which string and values were picked.
 vi.mock('@i18n/config', () => ({
@@ -109,12 +110,24 @@ describe('planFieldConfigs', () => {
 		expect(stops.get(ability)).toBe(false);
 	});
 
+	it('keeps the downtime, move and boss health fields out of sections', () => {
+		for (const kind of ['downtime', 'move', 'bossHealth'] as const) expect(planFieldConfigs(kind).filter(entry => entry.section)).toEqual([]);
+	});
+
 	it('fills a working pulse when the kind field picks one', () => {
 		const ability = defaultEvent('ability');
 		const kind = field(planFieldConfigs('ability'), 'ability_kind');
 		if (kind.type !== 'choice') throw new Error('the kind is a choice field');
 		kind.set(ability, PlanBossAbility_Kind.Pulse);
 		expect([ability.kind, ability.maxDamage, ability.tickInterval, ability.resistible]).toEqual([PlanBossAbility_Kind.Pulse, 700, 1, true]);
+	});
+});
+
+describe('issueSection', () => {
+	it("opens an amp's Effect for a target out of range, where its target picker is, and no section for an ability's target at the top", () => {
+		expect(issueSection('amp', PLAN_ISSUE_KEYS.targetOutOfRange)).toBe('effect');
+		expect(issueSection('ability', PLAN_ISSUE_KEYS.targetOutOfRange)).toBeUndefined();
+		expect(issueSection('ability', PLAN_ISSUE_KEYS.noTickInterval)).toBe('damage');
 	});
 });
 

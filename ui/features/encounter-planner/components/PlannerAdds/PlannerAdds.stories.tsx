@@ -4,6 +4,7 @@ import { planPresetTargets } from '@testing/storybook/fixtures/encounter_plan';
 import { useState } from 'react';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 
+import { usePlannerSectionState } from '../PlannerSections';
 import { PlannerAdds, type PlannerAddsProps } from './PlannerAdds';
 
 // Holds the adds the way the panel does, so an add, a copy or a removal shows in the list.
@@ -13,6 +14,7 @@ const EditableAdds = ({ adds: initial, onEdit, ...props }: PlannerAddsProps) => 
 		<div className="w-96">
 			<PlannerAdds
 				{...props}
+				sections={usePlannerSectionState()}
 				adds={adds}
 				onEdit={edit => {
 					onEdit(edit);
@@ -31,8 +33,15 @@ const meta = {
 	title: 'Features/EncounterPlanner/PlannerAdds',
 	component: PlannerAdds,
 	tags: ['autodocs'],
-	args: { adds: [template()], presetTargets: planPresetTargets, newAdd: template, idPrefix: 'story-adds', onEdit: fn() },
-	argTypes: { adds: { control: false }, presetTargets: { control: false } },
+	args: {
+		adds: [template()],
+		presetTargets: planPresetTargets,
+		newAdd: template,
+		idPrefix: 'story-adds',
+		sections: { toggles: {}, onToggle: fn() },
+		onEdit: fn(),
+	},
+	argTypes: { adds: { control: false }, presetTargets: { control: false }, sections: { control: false } },
 	render: args => <EditableAdds {...args} />,
 } satisfies Meta<typeof PlannerAdds>;
 

@@ -7,6 +7,7 @@ import {
 	EncounterPlan,
 	HealthKeyframe,
 	MobType,
+	PlanBossAbility,
 	PlanBossAbility_Kind,
 	PlanDowntime,
 	PresetEncounter,
@@ -102,6 +103,9 @@ const commit = (input: HTMLElement, value: string) => act(() => void fireEvent.c
 const selectTarget = (name: string) => act(async () => fireEvent.click(within(lane('Targets')).getByRole('button', { name })));
 
 const targetPanel = (name: string) => screen.getByRole('region', { name });
+
+// A section's trigger is named by its title, and by its summary too while it is closed.
+const openSection = (name: string) => act(async () => fireEvent.click(screen.getByRole('button', { name })));
 
 // The first target is the one the planner never removes.
 const removeSecondTarget = async () => {
@@ -533,6 +537,7 @@ describe('EncounterPlanner', () => {
 		await add('Abilities', 'Ability');
 		expect(within(dialog).queryByLabelText('End (s)')).toBeNull();
 
+		await openSection('Repeat · none');
 		await commit(within(dialog).getByLabelText('Repeat every (s)'), '30');
 		// The new ability starts at 72 s, so it repeats at 102, 132 and 162 s.
 		const text = lane('Abilities').textContent;
@@ -852,6 +857,96 @@ describe('EncounterPlanner', () => {
 
 			expect(encounter.getTargets()[1]).toEqual(encounter.sim.db.getPresetTarget('Default/Dynamic Boss')!.target);
 			expect(within(targetPanel('Dynamic Boss')).getByLabelText('NPC').textContent).toContain('Default/Dynamic Boss');
+		});
+	});
+
+	describe('panel sections', () => {
+		const pickKind = async (dialog: HTMLElement, kind: string) => {
+			await userEvent.click(within(dialog).getByLabelText('Kind'));
+			await userEvent.click(screen.getByRole('option', { name: kind }));
+		};
+
+		it("groups a pulse's fields under Timing, a closed Repeat and Damage, and names a closed section's values in its title", async () => {
+			const { encounter } = await setup();
+			encounter.setDuration(180);
+			const dialog = await openPlanner();
+			await add('Abilities', 'Ability');
+			await pickKind(dialog, 'Pulse');
+			const panel = screen.getByRole('region', { name: 'Ability 1' });
+
+			expect(within(panel).getByLabelText('Kind')).toBeTruthy();
+			expect(within(panel).getByRole('button', { name: 'Timing' })).toBeTruthy();
+			expect(within(panel).getByLabelText('End (s)')).toBeTruthy();
+			expect(within(panel).getByRole('button', { name: 'Damage' })).toBeTruthy();
+			expect(within(panel).getByLabelText('Tick every (s)')).toBeTruthy();
+			expect(within(panel).queryByLabelText('Repeat every (s)')).toBeNull();
+
+			await openSection('Repeat · none');
+			await commit(within(panel).getByLabelText('Repeat every (s)'), '30');
+			await commit(within(panel).getByLabelText('Repeats'), '3');
+			await openSection('Repeat');
+			await waitFor(() => expect(within(panel).queryByLabelText('Repeat every (s)')).toBeNull());
+			expect(within(panel).getByRole('button', { name: 'Repeat · every 30s ×3' })).toBeTruthy();
+		});
+
+		it('opens Repeat on an event that repeats', async () => {
+			const { encounter } = await setup({
+				plan: EncounterPlan.create({
+					bossAbilities: [PlanBossAbility.create({ start: { at: 0.4, jitter: 0 }, repeat: { interval: 0.25, jitter: 0, count: 2 } })],
+				}),
+			});
+			encounter.setDuration(180);
+			await openPlanner();
+			await act(async () => fireEvent.click(within(lane('Abilities')).getAllByRole('slider')[0]));
+
+			expect(screen.getByRole('button', { name: 'Repeat' })).toBeTruthy();
+			expect(Number((screen.getByLabelText('Repeat every (s)') as HTMLInputElement).value)).toBe(45);
+		});
+
+		it('keeps a section with an issue open while the issue lasts, and closes it once the issue is fixed', async () => {
+			await setup();
+			const dialog = await openPlanner();
+			await add('Abilities', 'Ability');
+			await pickKind(dialog, 'Pulse');
+			const panel = screen.getByRole('region', { name: 'Ability 1' });
+
+			await commit(within(panel).getByLabelText('Tick every (s)'), '0');
+			await openSection('Damage');
+			expect(within(panel).getByRole('button', { name: 'Damage' }).getAttribute('aria-expanded')).toBe('true');
+			expect(within(panel).getByLabelText('Tick every (s)')).toBeTruthy();
+
+			await commit(within(panel).getByLabelText('Tick every (s)'), '2');
+			await waitFor(() => expect(within(panel).queryByLabelText('Tick every (s)')).toBeNull());
+			expect(within(panel).getByRole('button', { name: /^Damage · / })).toBeTruthy();
+		});
+
+		it('keeps a section closed on the next event once the player has closed it', async () => {
+			await setup();
+			await openPlanner();
+			await add('Abilities', 'Ability');
+			await openSection('Timing');
+			await waitFor(() => expect(screen.queryByLabelText('Start (s)')).toBeNull());
+
+			await add('Abilities', 'Ability');
+			const panel = screen.getByRole('region', { name: 'Ability 2' });
+			expect(within(panel).queryByLabelText('Start (s)')).toBeNull();
+			expect(within(panel).getByRole('button', { name: /^Timing · / })).toBeTruthy();
+			expect(within(panel).getByRole('button', { name: 'Damage' })).toBeTruthy();
+		});
+
+		it("closes a target's resistances while all are 0, and names the one set once it is", async () => {
+			const { encounter } = await setup();
+			act(() => encounter.setTargets([Target.clone(DYNAMIC_ADD)]));
+			await openPlanner();
+			await selectTarget('Dynamic Add');
+			const panel = targetPanel('Dynamic Add');
+			expect(within(panel).queryByLabelText('Fire Resistance')).toBeNull();
+
+			await openSection('Resistances · all 0');
+			await commit(within(panel).getByLabelText('Fire Resistance'), '50');
+			expect(encounter.getTargets()[0].stats[Stat.StatFireResistance]).toBe(50);
+			await openSection('Resistances');
+			await waitFor(() => expect(within(panel).getByRole('button', { name: 'Resistances · Fire 50' })).toBeTruthy());
 		});
 	});
 

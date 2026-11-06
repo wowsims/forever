@@ -7,7 +7,7 @@ import type { PlanEventRef } from '../../../model/lanes';
 import { eventLabelKey, eventWindow, firesAtInstants, getEvent, healthSegments, isBossCastArea, moveSeconds } from '../../../model/lanes';
 import type { TimeWindow } from '../../../model/time';
 import { fractionToSeconds } from '../../../model/time';
-import { ABILITY_KINDS, AMP_TYPES, plannerText } from './configs';
+import { ABILITY_KINDS, AMP_TYPES, plannerText, type PlanSection } from './configs';
 
 // A health percent as read, to a tenth: a hold across a downtime can start at a third of the way down a line.
 export const formatPercent = (percent: number): number => Number(percent.toFixed(1));
@@ -77,6 +77,49 @@ const addsSummary = (adds: ReadonlyArray<Target>): string => {
 		plannerText(group.count > 1 ? 'tip.add_group_count' : 'tip.add_group', { level: group.level, type: group.type, count: group.count }),
 	);
 	return plannerText('tip.adds', { count: adds.length, groups: listed.join(', ') });
+};
+
+const percentOf = (share: number): number => Number((share * 100).toFixed(1));
+
+// The values of a closed section of the event panel, shown beside its title.
+export const sectionSummary = (section: PlanSection, plan: EncounterPlan, ref: PlanEventRef, baseSeconds: number): string => {
+	const event = getEvent(plan, ref);
+	const window = eventWindow(plan, ref);
+	if (!event || !window) return '';
+	const summary = (key: string, options?: Record<string, string | number>) => plannerText(`panel.summary.${key}`, options);
+	const tip = (key: string, options?: Record<string, string | number>) => plannerText(`tip.${key}`, options);
+	const sec = (fraction: number) => formatSeconds(fractionToSeconds(fraction, baseSeconds));
+	const ability = event as PlanBossAbility;
+	const wave = event as AddWave;
+	switch (section) {
+		case 'timing':
+			return 'at' in window ? sec(window.at) : tip('range', { start: sec(window.start), end: sec(window.end) });
+		case 'repeat': {
+			const repeat = 'repeat' in event ? event.repeat : undefined;
+			if (!repeat || repeat.interval <= 0) return summary('none');
+			const interval = sec(repeat.interval);
+			return repeat.count > 0 ? summary('repeat_count', { interval, count: repeat.count }) : summary('repeat', { interval });
+		}
+		case 'damage':
+			return ability.kind === PlanBossAbility_Kind.Strike
+				? tip('weapon', { percent: ability.weaponPercent })
+				: tip('school_damage', { school: translateSpellSchool(ability.school), min: ability.minDamage, max: ability.maxDamage });
+		case 'effect':
+			if (ref.kind === 'amp') return summary('percent', { percent: (event as PlanDamageAmp).percent });
+			return ability.kind === PlanBossAbility_Kind.Thrash
+				? tip('proc', { chance: ability.procChance })
+				: tip('swing_speed', { value: ability.swingSpeedMultiplier });
+		case 'execute':
+			return summary('execute', {
+				below20: percentOf(wave.executeProportion20),
+				below35: percentOf(wave.executeProportion35),
+				kill: percentOf(wave.killShare),
+			});
+		case 'debuffs':
+			return wave.holdDebuffs ? summary('debuffs_off') : summary('debuffs_on', { delay: formatSeconds(wave.debuffDelay) });
+		case 'adds':
+			return summary('adds', { count: wave.adds.length });
+	}
 };
 
 export const eventTooltip = (

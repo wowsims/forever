@@ -4,6 +4,7 @@ import { planPresetTargets } from '@testing/storybook/fixtures/encounter_plan';
 import { useState } from 'react';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
+import { usePlannerSectionState } from '../PlannerSections';
 import { PlannerAddStats, type PlannerAddStatsProps } from './PlannerAddStats';
 
 // Holds the add the way the panel does, so an edit shows in the field it came from.
@@ -13,6 +14,7 @@ const EditableAddStats = ({ target: initial, onModify, ...props }: PlannerAddSta
 		<div className="w-80">
 			<PlannerAddStats
 				{...props}
+				sections={usePlannerSectionState()}
 				target={target}
 				onModify={edit => {
 					onModify(edit);
@@ -29,8 +31,8 @@ const meta = {
 	title: 'Features/EncounterPlanner/PlannerAddStats',
 	component: PlannerAddStats,
 	tags: ['autodocs'],
-	args: { target: Target.clone(planPresetTargets[0].target!), idPrefix: 'story-add', onModify: fn() },
-	argTypes: { target: { control: false } },
+	args: { target: Target.clone(planPresetTargets[0].target!), idPrefix: 'story-add', sections: { toggles: {}, onToggle: fn() }, onModify: fn() },
+	argTypes: { target: { control: false }, sections: { control: false } },
 	render: args => <EditableAddStats {...args} />,
 } satisfies Meta<typeof PlannerAddStats>;
 

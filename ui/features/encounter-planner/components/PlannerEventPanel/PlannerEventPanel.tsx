@@ -12,11 +12,13 @@ import type { Ref } from 'react';
 
 import type { PlanEvent, PlannerSelection } from '../../model/lanes';
 import { getEvent, isEventRef, removeEvent } from '../../model/lanes';
-import type { PlanFieldConfig, PlanFieldContext } from '../EncounterPlanner/utils/configs';
-import { editEvent, planFieldConfigs, plannerText } from '../EncounterPlanner/utils/configs';
-import { eventName } from '../EncounterPlanner/utils/tips';
+import type { PlanIssue } from '../../model/validate';
+import type { PlanFieldConfig, PlanFieldContext, PlanSection } from '../EncounterPlanner/utils/configs';
+import { editEvent, issueSection, PLAN_SECTIONS, planFieldConfigs, plannerText } from '../EncounterPlanner/utils/configs';
+import { eventName, sectionSummary } from '../EncounterPlanner/utils/tips';
 import { PlannerAdds } from '../PlannerAdds';
 import { PlannerAddStats } from '../PlannerAddStats';
+import { type PlannerSection, PlannerSections, usePlannerSectionState } from '../PlannerSections';
 
 /** The selected encounter target, whose edits go to the encounter as they happen rather than into the plan. */
 export interface PlannerTargetEditor {
@@ -39,6 +41,8 @@ export interface PlannerTargetEditor {
 export interface PlannerEventPanelProps {
 	plan: EncounterPlan;
 	selected?: PlannerSelection;
+	/** The plan's issues; a section holding a field one is about stays open. */
+	issues: ReadonlyArray<PlanIssue>;
 	baseSeconds: number;
 	/** The encounter's targets by index, for the target pickers. */
 	targetNames: ReadonlyArray<string>;
@@ -57,6 +61,7 @@ export interface PlannerEventPanelProps {
 export const PlannerEventPanel = ({
 	plan,
 	selected,
+	issues,
 	baseSeconds,
 	targetNames,
 	presetTargets,
@@ -66,6 +71,9 @@ export const PlannerEventPanel = ({
 	onSelect,
 	ref,
 }: PlannerEventPanelProps) => {
+	// The player's opens and closes carry from one selection to the next while the planner is open.
+	const sections = usePlannerSectionState();
+
 	if (selected?.kind === 'target' && targetEditor) {
 		const name = targetNames[selected.index];
 		return (
@@ -105,6 +113,7 @@ export const PlannerEventPanel = ({
 					identity={targetEditor.identity}
 					idPrefix={targetEditor.idPrefix}
 					threatMetrics={targetEditor.threatMetrics}
+					sections={sections}
 					onModify={targetEditor.onModify}
 				/>
 			</section>
@@ -181,8 +190,44 @@ export const PlannerEventPanel = ({
 
 	const fields = planFieldConfigs(selected.kind) as Array<PlanFieldConfig<PlanEvent>>;
 	const shown = fields.filter(field => field.show?.(event) ?? true);
-	// A wave's adds follow its name; every other kind is one grid.
-	const templateEnd = selected.kind === 'wave' ? shown.findIndex(field => field.id === 'name') + 1 : shown.length;
+	const forced = new Set(
+		issues.filter(issue => issue.ref.kind === selected.kind && issue.ref.index === selected.index).map(issue => issueSection(selected.kind, issue.key)),
+	);
+	const repeats = 'repeat' in event && (event.repeat?.interval ?? 0) > 0;
+
+	// A wave's adds are its last section; every other section holds the fields its configs name.
+	const content = (section: PlanSection) => {
+		if (section === 'adds')
+			return (
+				selected.kind === 'wave' && (
+					<PlannerAdds
+						key={prefix}
+						idPrefix={`${prefix}-add`}
+						adds={(event as AddWave).adds}
+						presetTargets={presetTargets}
+						newAdd={newAdd}
+						sections={sections}
+						onEdit={edit => commit(e => edit((e as AddWave).adds))}
+					/>
+				)
+			);
+		const inSection = shown.filter(field => field.section === section);
+		return inSection.length > 0 && <FieldGrid>{inSection.map(renderField)}</FieldGrid>;
+	};
+	const list = PLAN_SECTIONS.flatMap((id): Array<PlannerSection> => {
+		const children = content(id);
+		if (!children) return [];
+		return [
+			{
+				id,
+				title: plannerText(`panel.sections.${id}`),
+				summary: sectionSummary(id, plan, selected, baseSeconds),
+				startsClosed: id === 'repeat' && !repeats,
+				forcedOpen: forced.has(id),
+				children,
+			},
+		];
+	});
 
 	return (
 		<section ref={ref} tabIndex={-1} aria-label={name} className="flex flex-col gap-2 outline-none">
@@ -193,18 +238,8 @@ export const PlannerEventPanel = ({
 					<Icon name="xmark" />
 				</Button>
 			</div>
-			<FieldGrid>{shown.slice(0, templateEnd).map(renderField)}</FieldGrid>
-			{selected.kind === 'wave' && (
-				<PlannerAdds
-					key={prefix}
-					idPrefix={`${prefix}-add`}
-					adds={(event as AddWave).adds}
-					presetTargets={presetTargets}
-					newAdd={newAdd}
-					onEdit={edit => commit(e => edit((e as AddWave).adds))}
-				/>
-			)}
-			<FieldGrid>{shown.slice(templateEnd).map(renderField)}</FieldGrid>
+			<FieldGrid>{shown.filter(field => !field.section).map(renderField)}</FieldGrid>
+			{list.length > 0 && <PlannerSections sections={list} state={sections} testId={`${prefix}-sections`} />}
 		</section>
 	);
 };

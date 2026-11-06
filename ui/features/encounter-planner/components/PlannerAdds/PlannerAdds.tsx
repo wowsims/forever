@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 import { plannerText } from '../EncounterPlanner/utils/configs';
 import { PlannerAddStats } from '../PlannerAddStats';
+import type { PlannerSectionState } from '../PlannerSections';
 
 export interface PlannerAddsProps {
 	adds: ReadonlyArray<Target>;
@@ -20,12 +21,14 @@ export interface PlannerAddsProps {
 	onEdit: (edit: (adds: Array<Target>) => void) => void;
 	/** Starts the field ids, so two waves never share one. */
 	idPrefix: string;
+	/** The sections of an add's fields the player opened or closed. */
+	sections: PlannerSectionState;
 }
 
 const CUSTOM = -1;
 
 /** The adds one occurrence of a wave spawns: one row each, whose template and stats open in a dialog over the planner. */
-export const PlannerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: PlannerAddsProps) => {
+export const PlannerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix, sections }: PlannerAddsProps) => {
 	// The add stays picked while the dialog closes, so its fields fade out with it.
 	const [picked, setPicked] = useState(0);
 	const [open, setOpen] = useState(false);
@@ -40,8 +43,7 @@ export const PlannerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: P
 
 	return (
 		<div className="flex flex-col gap-2" data-testid="encounter-planner-adds">
-			<div className="flex items-center justify-between gap-2">
-				<span className="text-sm font-bold text-white">{plannerText('adds.title')}</span>
+			<div className="flex justify-end">
 				<Button
 					variant="outline-secondary"
 					size="xs"
@@ -108,7 +110,7 @@ export const PlannerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: P
 								if (preset) onEdit(list => void (list[picked] = Target.clone(preset)));
 							}}
 						/>
-						<PlannerAddStats idPrefix={key} target={edited} onModify={change => onEdit(list => change(list[picked]))} />
+						<PlannerAddStats idPrefix={key} target={edited} sections={sections} onModify={change => onEdit(list => change(list[picked]))} />
 					</div>
 				)}
 			</Dialog>

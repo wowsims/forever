@@ -10,16 +10,18 @@ import { distinct } from '@sim/utils/collections';
 
 import { trackEvent } from '../../../../../tracking/utils';
 
-export const ALL_TARGET_STATS: Array<{ stat: Stat; tooltip: string; threatMetrics?: boolean }> = [
-	{ stat: Stat.StatHealth, tooltip: '' },
-	{ stat: Stat.StatArmor, tooltip: '' },
-	{ stat: Stat.StatArcaneResistance, tooltip: '' },
-	{ stat: Stat.StatFireResistance, tooltip: '' },
-	{ stat: Stat.StatFrostResistance, tooltip: '' },
-	{ stat: Stat.StatNatureResistance, tooltip: '' },
-	{ stat: Stat.StatShadowResistance, tooltip: '' },
-	{ stat: Stat.StatAttackPower, tooltip: '', threatMetrics: true },
-	{ stat: Stat.StatBlockValue, tooltip: '', threatMetrics: true },
+export type TargetSection = 'basics' | 'resistances' | 'melee';
+
+export const ALL_TARGET_STATS: Array<{ stat: Stat; tooltip: string; section: TargetSection; school?: SpellSchool }> = [
+	{ stat: Stat.StatHealth, tooltip: '', section: 'basics' },
+	{ stat: Stat.StatArmor, tooltip: '', section: 'basics' },
+	{ stat: Stat.StatArcaneResistance, tooltip: '', section: 'resistances', school: SpellSchool.SpellSchoolArcane },
+	{ stat: Stat.StatFireResistance, tooltip: '', section: 'resistances', school: SpellSchool.SpellSchoolFire },
+	{ stat: Stat.StatFrostResistance, tooltip: '', section: 'resistances', school: SpellSchool.SpellSchoolFrost },
+	{ stat: Stat.StatNatureResistance, tooltip: '', section: 'resistances', school: SpellSchool.SpellSchoolNature },
+	{ stat: Stat.StatShadowResistance, tooltip: '', section: 'resistances', school: SpellSchool.SpellSchoolShadow },
+	{ stat: Stat.StatAttackPower, tooltip: '', section: 'melee' },
+	{ stat: Stat.StatBlockValue, tooltip: '', section: 'melee' },
 ];
 
 const mobTypeEnumValues = [

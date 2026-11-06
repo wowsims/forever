@@ -1206,7 +1206,34 @@
 					"empty": "Select an event or a target on the timeline to edit it.",
 					"remove": "Remove",
 					"move_up": "Move up",
-					"move_down": "Move down"
+					"move_down": "Move down",
+					"sections": {
+						"basics": "Basics",
+						"resistances": "Resistances",
+						"melee": "Melee",
+						"timing": "Timing",
+						"repeat": "Repeat",
+						"damage": "Damage",
+						"effect": "Effect",
+						"execute": "Execute & kill",
+						"debuffs": "Raid debuffs",
+						"adds": "Adds"
+					},
+					"section_summary": "{{title}} · {{summary}}",
+					"summary": {
+						"none": "none",
+						"repeat": "every {{interval}}",
+						"repeat_count": "every {{interval}} ×{{count}}",
+						"percent": "+{{percent}} %",
+						"execute": "{{below20}} % / {{below35}} %, kill share {{kill}} %",
+						"debuffs_on": "after {{delay}}",
+						"debuffs_off": "off",
+						"adds_one": "{{count}} add",
+						"adds_other": "{{count}} adds",
+						"all_zero": "all 0",
+						"resistance": "{{school}} {{value}}",
+						"melee": "{{damage}} every {{speed}}"
+					}
 				},
 				"issues": {
 					"title": "Issues",
@@ -1314,7 +1341,6 @@
 				"health_label": "{{from}} % → {{to}} %",
 				"health_end": "→ 0 %",
 				"adds": {
-					"title": "Adds",
 					"add": "Add an add",
 					"duplicate": "Duplicate add",
 					"remove": "Remove add",

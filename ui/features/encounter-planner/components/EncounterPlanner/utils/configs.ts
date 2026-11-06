@@ -20,6 +20,7 @@ import type { EnumValueConfig } from '@ui-kit/MultiComboBox';
 import type { PlanEvent, PlanEventKind, PlanEventRef } from '../../../model/lanes';
 import { firesAtInstants, getEvent, isBossCastArea, withAbilityKind } from '../../../model/lanes';
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
+import { PLAN_ISSUE_KEYS } from '../../../model/validate';
 
 export const plannerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.planner.${name}`, options);
 
@@ -44,10 +45,16 @@ export interface PlanFieldContext {
 	waveNames: ReadonlyArray<string>;
 }
 
+// The event panel's sections, in the order it shows them. A field with no section sits at the top, with the fields that
+// say what the event is.
+export const PLAN_SECTIONS = ['timing', 'repeat', 'damage', 'effect', 'execute', 'debuffs', 'adds'] as const;
+export type PlanSection = (typeof PLAN_SECTIONS)[number];
+
 interface FieldBase<E> {
 	id: string;
 	label: string;
 	tooltip?: string;
+	section?: PlanSection;
 	show?(event: E): boolean;
 }
 
@@ -147,12 +154,12 @@ const timeFields = <S extends TimeSlot, E extends Timed<S>>(
 	];
 };
 
-const spanFields = <E extends Timed<'start' | 'end'>>(): Array<PlanFieldConfig<E>> => [
-	...timeFields<'start', E>('start', { at: 'start', jitter: 'start_jitter' }),
-	...timeFields<'end', E>('end', { at: 'end', jitter: 'end_jitter' }),
+const spanFields = <E extends Timed<'start' | 'end'>>(extra: Partial<FieldBase<E>> = {}): Array<PlanFieldConfig<E>> => [
+	...timeFields<'start', E>('start', { at: 'start', jitter: 'start_jitter' }, extra),
+	...timeFields<'end', E>('end', { at: 'end', jitter: 'end_jitter' }, extra),
 ];
 
-const repeatFields = <E extends { repeat?: PlanRepeat }>(): Array<PlanFieldConfig<E>> => {
+const repeatFields = <E extends { repeat?: PlanRepeat }>(extra: Partial<FieldBase<E>> = {}): Array<PlanFieldConfig<E>> => {
 	const repeat = (event: E): PlanRepeat => (event.repeat ??= PlanRepeat.create());
 	const repeats = (event: E) => (event.repeat?.interval ?? 0) > 0;
 	return [
@@ -160,19 +167,20 @@ const repeatFields = <E extends { repeat?: PlanRepeat }>(): Array<PlanFieldConfi
 			'repeat_interval',
 			event => event.repeat?.interval ?? 0,
 			(event, value) => (repeat(event).interval = value),
-			{ tooltip: tooltip('repeat_interval') },
+			{ ...extra, tooltip: tooltip('repeat_interval') },
 		),
 		seconds<E>(
 			'repeat_jitter',
 			event => event.repeat?.jitter ?? 0,
 			(event, value) => (repeat(event).jitter = value),
-			{ tooltip: tooltip('jitter'), show: repeats },
+			{ ...extra, tooltip: tooltip('jitter'), show: repeats },
 		),
 		plain<E>(
 			'repeat_count',
 			event => event.repeat?.count ?? 0,
 			(event, value) => (repeat(event).count = Math.max(0, Math.round(value))),
 			{
+				...extra,
 				tooltip: tooltip('repeat_count'),
 				show: repeats,
 			},
@@ -299,24 +307,25 @@ const appliesDebuffs = (event: AddWave) => !event.holdDebuffs;
 // The wave's adds are not fields: the panel lists them in `PlannerAdds`, each with its template and stats.
 const waveFields = (): Array<PlanFieldConfig<AddWave>> => [
 	nameField(),
-	...timeFields<'spawn', AddWave>('spawn', { at: 'spawn', jitter: 'spawn_jitter' }),
-	seconds('lifetime', ...prop<AddWave>('lifetime'), { tooltip: tooltip('lifetime') }),
-	...repeatFields<AddWave>(),
-	percent('execute_20', ...prop<AddWave>('executeProportion20'), { tooltip: tooltip('execute_20') }),
-	percent('execute_35', ...prop<AddWave>('executeProportion35'), { tooltip: tooltip('execute_35') }),
-	percent('kill_share', ...prop<AddWave>('killShare'), { tooltip: tooltip('kill_share') }),
+	...timeFields<'spawn', AddWave>('spawn', { at: 'spawn', jitter: 'spawn_jitter' }, { section: 'timing' }),
+	seconds('lifetime', ...prop<AddWave>('lifetime'), { tooltip: tooltip('lifetime'), section: 'timing' }),
+	...repeatFields<AddWave>({ section: 'repeat' }),
+	percent('execute_20', ...prop<AddWave>('executeProportion20'), { tooltip: tooltip('execute_20'), section: 'execute' }),
+	percent('execute_35', ...prop<AddWave>('executeProportion35'), { tooltip: tooltip('execute_35'), section: 'execute' }),
+	percent('kill_share', ...prop<AddWave>('killShare'), { tooltip: tooltip('kill_share'), section: 'execute' }),
 	{
 		type: 'boolean',
 		id: 'apply_debuffs',
 		label: label('apply_debuffs'),
 		tooltip: tooltip('apply_debuffs'),
+		section: 'debuffs',
 		get: appliesDebuffs,
 		set: (event, value) => {
 			event.holdDebuffs = !value;
 		},
 	},
-	plain('debuff_delay', ...prop<AddWave>('debuffDelay'), { float: true, tooltip: tooltip('debuff_delay'), show: appliesDebuffs }),
-	plain('debuff_jitter', ...prop<AddWave>('debuffJitter'), { float: true, tooltip: tooltip('debuff_jitter'), show: appliesDebuffs }),
+	plain('debuff_delay', ...prop<AddWave>('debuffDelay'), { float: true, tooltip: tooltip('debuff_delay'), section: 'debuffs', show: appliesDebuffs }),
+	plain('debuff_jitter', ...prop<AddWave>('debuffJitter'), { float: true, tooltip: tooltip('debuff_jitter'), section: 'debuffs', show: appliesDebuffs }),
 ];
 
 const moveFields = (): Array<PlanFieldConfig<PlanMove>> => [
@@ -337,14 +346,15 @@ const ampFields = (): Array<PlanFieldConfig<PlanDamageAmp>> => [
 		event => event.type,
 		(event, value) => (event.type = value),
 	),
-	plain('percent', ...prop<PlanDamageAmp>('percent'), { float: true }),
-	...spanFields<PlanDamageAmp>(),
-	...repeatFields<PlanDamageAmp>(),
+	plain('percent', ...prop<PlanDamageAmp>('percent'), { float: true, section: 'effect' }),
+	...spanFields<PlanDamageAmp>({ section: 'timing' }),
+	...repeatFields<PlanDamageAmp>({ section: 'repeat' }),
 	{
 		type: 'list',
 		id: 'targets',
 		label: label('targets'),
 		tooltip: tooltip('targets'),
+		section: 'effect',
 		show: isTargetDebuff,
 		options: context => context.targetNames.map((name, value) => ({ name, value })),
 		get: event => event.targets?.targetIndices ?? [],
@@ -357,6 +367,7 @@ const ampFields = (): Array<PlanFieldConfig<PlanDamageAmp>> => [
 		id: 'waves',
 		label: label('waves'),
 		tooltip: tooltip('waves'),
+		section: 'effect',
 		show: isTargetDebuff,
 		options: context => context.waveNames.map((name, value) => ({ name, value })),
 		get: event => event.targets?.waveIndices ?? [],
@@ -383,6 +394,7 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 		id: name,
 		label: label(name),
 		tooltip: tooltip(name),
+		section: 'damage',
 		show: area,
 		get: event => event[name],
 		set: (event, value) => {
@@ -405,49 +417,86 @@ const abilityFields = (): Array<PlanFieldConfig<PlanBossAbility>> => {
 			{ tooltip: tooltip('source'), show: area },
 		),
 		targetField({ show: event => !area(event) || isBossCastArea(event) }),
-		...timeFields<'start', PlanBossAbility>('start', { at: 'start', jitter: 'start_jitter' }),
-		...timeFields<'end', PlanBossAbility>('end', { at: 'end', jitter: 'end_jitter' }, { show: event => !firesAtInstants(event) }),
-		...repeatFields<PlanBossAbility>(),
+		...timeFields<'start', PlanBossAbility>('start', { at: 'start', jitter: 'start_jitter' }, { section: 'timing' }),
+		...timeFields<'end', PlanBossAbility>('end', { at: 'end', jitter: 'end_jitter' }, { section: 'timing', show: event => !firesAtInstants(event) }),
+		...repeatFields<PlanBossAbility>({ section: 'repeat' }),
 		enumField<PlanBossAbility, SpellSchool>(
 			'school',
 			SCHOOLS.map(school => [school, translateSpellSchool(school)]),
 			event => event.school,
 			(event, value) => (event.school = value),
-			{ show: damage },
+			{ section: 'damage', show: damage },
 		),
-		plain('min_damage', ...prop<PlanBossAbility>('minDamage'), { show: damage }),
-		plain('max_damage', ...prop<PlanBossAbility>('maxDamage'), { show: damage }),
-		plain('tick_interval', ...prop<PlanBossAbility>('tickInterval'), { float: true, tooltip: tooltip('tick_interval'), show: pulse }),
-		plain('tick_jitter', ...prop<PlanBossAbility>('tickJitter'), { float: true, tooltip: tooltip('tick_jitter'), show: pulse }),
+		plain('min_damage', ...prop<PlanBossAbility>('minDamage'), { section: 'damage', show: damage }),
+		plain('max_damage', ...prop<PlanBossAbility>('maxDamage'), { section: 'damage', show: damage }),
+		plain('tick_interval', ...prop<PlanBossAbility>('tickInterval'), { float: true, tooltip: tooltip('tick_interval'), section: 'damage', show: pulse }),
+		plain('tick_jitter', ...prop<PlanBossAbility>('tickJitter'), { float: true, tooltip: tooltip('tick_jitter'), section: 'damage', show: pulse }),
 		toggle('resistible'),
 		toggle('avoidable'),
-		plain('cast_time', ...prop<PlanBossAbility>('castTime'), { float: true, show: casts }),
+		plain('cast_time', ...prop<PlanBossAbility>('castTime'), { float: true, section: 'timing', show: casts }),
 		{
 			type: 'boolean',
 			id: 'stops_swing',
 			label: label('stops_swing'),
 			tooltip: tooltip('stops_swing'),
+			section: 'timing',
 			show: casts,
 			get: event => !event.keepsSwingTimer,
 			set: (event, value) => {
 				event.keepsSwingTimer = !value;
 			},
 		},
-		plain('weapon_percent', ...prop<PlanBossAbility>('weaponPercent'), { float: true, show: ofKind(PlanBossAbility_Kind.Strike) }),
-		plain('proc_chance', ...prop<PlanBossAbility>('procChance'), { float: true, show: thrash }),
+		plain('weapon_percent', ...prop<PlanBossAbility>('weaponPercent'), { float: true, section: 'damage', show: ofKind(PlanBossAbility_Kind.Strike) }),
+		plain('proc_chance', ...prop<PlanBossAbility>('procChance'), { float: true, section: 'effect', show: thrash }),
 		plain(
 			'extra_attacks',
 			event => event.extraAttacks,
 			(event, value) => (event.extraAttacks = Math.max(0, Math.round(value))),
-			{ show: thrash },
+			{ section: 'effect', show: thrash },
 		),
-		plain('icd', ...prop<PlanBossAbility>('icd'), { float: true, show: thrash }),
+		plain('icd', ...prop<PlanBossAbility>('icd'), { float: true, section: 'effect', show: thrash }),
 		plain('swing_speed_multiplier', ...prop<PlanBossAbility>('swingSpeedMultiplier'), {
 			float: true,
 			tooltip: tooltip('swing_speed_multiplier'),
+			section: 'effect',
 			show: ofKind(PlanBossAbility_Kind.SwingTiming),
 		}),
 	];
+};
+
+// The section of the field each issue is about. An issue about a field at the top, or on a kind the panel shows
+// without sections, opens none.
+const ISSUE_SECTIONS: Record<keyof typeof PLAN_ISSUE_KEYS, PlanSection | undefined> = {
+	endBeforeStart: 'timing',
+	outsideFight: 'timing',
+	overlap: undefined,
+	downtimeOverlap: undefined,
+	healthIncreases: undefined,
+	targetOutOfRange: undefined,
+	waveOutOfRange: 'effect',
+	allTargetsDown: undefined,
+	tooManyKeyframes: undefined,
+	ampNotPositive: 'effect',
+	tooManyAdds: 'adds',
+	noAdds: 'adds',
+	moveGoesNowhere: undefined,
+	executeOrder: 'execute',
+	noWeaponDamage: 'damage',
+	noExtraAttacks: 'effect',
+	noDamage: 'damage',
+	minAboveMax: 'damage',
+	noTickInterval: 'damage',
+	// It only fires on a wave that repeats: one occurrence over the slots is too many adds.
+	waveOverPool: 'repeat',
+	healthStopsShort: undefined,
+};
+
+export const issueSection = (kind: PlanEventKind, issueKey: string): PlanSection | undefined => {
+	const name = (Object.keys(PLAN_ISSUE_KEYS) as Array<keyof typeof PLAN_ISSUE_KEYS>).find(entry => PLAN_ISSUE_KEYS[entry] === issueKey);
+	if (!name) return undefined;
+	// A damage amp's target picker sits in its Effect section; every other target field sits at the top.
+	if (name === 'targetOutOfRange' && kind === 'amp') return 'effect';
+	return ISSUE_SECTIONS[name];
 };
 
 const FIELDS: { [K in PlanEventKind]: () => Array<PlanFieldConfig<PlanEvent<K>>> } = {

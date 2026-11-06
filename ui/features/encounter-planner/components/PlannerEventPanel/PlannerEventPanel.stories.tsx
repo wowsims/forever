@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import type { PlannerSelection } from '../../model/lanes';
+import { validatePlan } from '../../model/validate';
 import { encounterTargetContext, npcConfig, presetTargetConfig } from '../PlannerAddStats/utils/configs';
 import { PlannerEventPanel, type PlannerEventPanelProps, type PlannerTargetEditor } from './PlannerEventPanel';
 
@@ -29,6 +30,7 @@ const EditablePanel = ({ plan: initial, selected: initialSelected, targetEditor,
 			{...props}
 			plan={plan}
 			selected={selected}
+			issues={validatePlan(plan, props.targetNames.length)}
 			targetEditor={
 				targetEditor &&
 				target && {
@@ -60,6 +62,7 @@ const meta = {
 	tags: ['autodocs'],
 	args: {
 		plan: emptyPlan(),
+		issues: [],
 		baseSeconds: PLAN_BASE_SECONDS,
 		targetNames: planTargetNames,
 		presetTargets: planPresetTargets,
@@ -67,7 +70,7 @@ const meta = {
 		onChange: fn(),
 		onSelect: fn(),
 	},
-	argTypes: { plan: { control: false }, presetTargets: { control: false } },
+	argTypes: { plan: { control: false }, issues: { control: false }, presetTargets: { control: false } },
 	render: args => <EditablePanel {...args} />,
 } satisfies Meta<typeof PlannerEventPanel>;
 
