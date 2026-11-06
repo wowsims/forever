@@ -27,8 +27,11 @@ with the VS Code version.
 
 1. **See what is behind.** `npm outdated`, and `go list -m -u all` for the modules.
 2. **Go toolchain and modules.** `make sim/core/proto/api.pb.go binary_dist/dist.go`, then `go get -u ./...` and
-   `go mod tidy`. A new Go runs a stricter `go vet` inside `go test`, so a test package can stop building. Every class
-   suite has to match its `.results` unchanged, and a changed result is a behaviour change to explain.
+   `go mod tidy`. `go get -u` also raises `modernc.org/libc`, which `modernc.org/sqlite` needs at the exact version its
+   own `go.mod` names (its package doc, "Fragile modernc.org/libc dependency"), so set it back to that version with
+   `go get modernc.org/libc@<version>`: `go mod graph | grep '^modernc.org/sqlite@.* modernc.org/libc@'` prints it. A
+   new Go runs a stricter `go vet` inside `go test`, so a test package can stop building. Every class suite has to match
+   its `.results` unchanged, and a changed result is a behaviour change to explain.
 3. **Node.** Node 25 and later have a global `localStorage` that hides happy-dom's, and Vitest 5 keeps the test
    environment's: under Vitest 4 tests fail with `Cannot read properties of undefined (reading 'getItem')`. Vitest 5 also
    turns `clearMocks` on, so a stub's calls from module load are gone by the time a test runs.
@@ -62,11 +65,12 @@ a new page without a parse warning, and each page with a sim runs one and takes 
 
 ## Held back
 
-| Package                   | Held at | What a newer version does                                                                                     |
-| ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| `pako`, `@types/pako`     | 2.x     | 3.x has no default export, so `sim_links.ts` and `link.ts` throw when a link is made.                         |
-| `@protobuf-ts/*`          | 2.9.x   | 2.11 builds a message on `this.messagePrototype`, so a `create` passed as a callback (`useListItems`) throws. |
-| `@tanstack/react-virtual` | 3.14.10 | 3.14.24 renders no rows in `VirtualList` under happy-dom, and the real page's behaviour is not yet proved.    |
-| `highs`                   | 1.15.2  | A new version needs a new `ui/worker/highs.wasm`, so it goes through `make update-highs` on its own.          |
+| Package                   | Held at | What a newer version does                                                                                                                                                                                            |
+| ------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pako`, `@types/pako`     | 2.x     | 3.x has no default export, so `sim_links.ts` and `link.ts` throw when a link is made.                                                                                                                                |
+| `@protobuf-ts/*`          | 2.9.x   | 2.11 builds a message on `this.messagePrototype`, so a `create` passed as a callback (`useListItems`) throws.                                                                                                        |
+| `@tanstack/react-virtual` | 3.14.10 | 3.14.24 renders no rows in `VirtualList` under happy-dom, and the real page's behaviour is not yet proved.                                                                                                           |
+| `highs`                   | 1.15.2  | A new version needs a new `ui/worker/highs.wasm`, so it goes through `make update-highs` on its own.                                                                                                                 |
+| `react-tooltip`           | 6.0.9   | 6.0.10 opens a tooltip on visible focus only, so `TooltipAnchor` and `CombinationsCount` tests fail, and it reads `navigator.userAgent`, which the `navigator` stubs in `CopyButton` and `TalentsPicker` tests lack. |
 
 A package leaves this table in a change of its own, with its code adapted and the proof above repeated.
