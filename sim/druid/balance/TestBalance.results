@@ -125,6 +125,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-AnkhofLife-1713"
+ value: {
+  dps: 871.19587
+  tps: 882.20818
+  dtps: 5.13281
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 869.82454
@@ -154,6 +162,14 @@ dps_results: {
   dps: 892.01932
   tps: 903.15736
   dtps: 5.57247
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-BlazingEmblem-2802"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
  }
 }
 dps_results: {
@@ -558,6 +574,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Graverobber'sShovel-273817"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-GrovekeeperEclipse"
  value: {
   dps: 824.81936
@@ -662,11 +686,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Julie'sDagger-6660"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-KissoftheSpider-22954"
  value: {
   dps: 885.61249
   tps: 896.73257
   dtps: 5.54643
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-LapidisTankardofTidesippe-4696"
+ value: {
+  dps: 897.49542
+  tps: 907.81692
+  dtps: 4.70455
  }
 }
 dps_results: {
@@ -970,6 +1010,14 @@ dps_results: {
  value: {
   dps: 869.82454
   tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Uther'sStrength-11302"
+ value: {
+  dps: 874.13223
+  tps: 885.27295
   dtps: 5.71906
  }
 }
