@@ -245,7 +245,7 @@ export const DesignerLane = ({
 						variant="unstyled"
 						aria-pressed={target.selected}
 						data-selected={target.selected ? '' : undefined}
-						className="-mx-1 max-w-full cursor-pointer self-start truncate rounded-xs border border-transparent px-1 text-left text-sm font-bold text-white outline-none hover:bg-white/10 focus-visible:focus-ring data-selected:border-white data-selected:bg-(--bar)"
+						className="flex max-w-full cursor-pointer items-center gap-2 self-start rounded-xs border border-white/25 px-1 text-left text-sm font-bold text-white outline-none hover:border-white/60 hover:bg-white/10 focus-visible:focus-ring data-selected:border-white data-selected:bg-(--bar)"
 						onClick={target.onSelect}
 						onKeyDown={event => {
 							if (event.key !== 'Enter') return;
@@ -253,7 +253,8 @@ export const DesignerLane = ({
 							target.onSelect();
 							target.onActivate();
 						}}>
-						{label}
+						<span className="min-w-0 truncate">{label}</span>
+						<Icon name="gear" className="shrink-0 text-xs opacity-70" />
 					</Button>
 				) : (
 					<span className="text-sm font-bold text-white">{label}</span>
