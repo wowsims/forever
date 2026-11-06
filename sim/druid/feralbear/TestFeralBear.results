@@ -1020,8 +1020,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-SwineFists-10760"
  value: {
-  dps: 505.47394
-  tps: 1919.39471
+  dps: 501.02248
+  tps: 1909.82408
   dtps: 400.67166
   hps: 82.81307
  }

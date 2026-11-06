@@ -1060,9 +1060,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-SwineFists-10760"
  value: {
-  dps: 650.39912
-  tps: 429.18165
-  dtps: 0.82367
+  dps: 647.98211
+  tps: 426.76464
+  dtps: 1.03334
  }
 }
 dps_results: {

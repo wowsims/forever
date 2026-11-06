@@ -821,10 +821,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-SwineFists-10760"
  value: {
-  dps: 865.87235
-  tps: 902.52719
-  dtps: 7.62099
-  hps: 32.77056
+  dps: 861.07887
+  tps: 897.3726
+  dtps: 7.27909
+  hps: 32.71972
  }
 }
 dps_results: {

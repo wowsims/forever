@@ -856,8 +856,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SwineFists-10760"
  value: {
-  dps: 776.32233
-  tps: 575.59026
+  dps: 768.13803
+  tps: 569.77862
   hps: 46.5125
  }
 }

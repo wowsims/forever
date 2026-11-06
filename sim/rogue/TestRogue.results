@@ -736,8 +736,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SwineFists-10760"
  value: {
-  dps: 614.22767
-  tps: 436.10165
+  dps: 606.09865
+  tps: 430.33004
   hps: 52.25667
  }
 }

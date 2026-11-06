@@ -1136,9 +1136,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SwineFists-10760"
  value: {
-  dps: 415.20545
-  tps: 986.86216
-  dtps: 361.32274
+  dps: 412.94788
+  tps: 986.42441
+  dtps: 361.2826
   hps: 22.92583
  }
 }

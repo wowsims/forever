@@ -881,9 +881,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-SwineFists-10760"
  value: {
-  dps: 702.23994
-  tps: 666.05856
-  dtps: 9.05503
+  dps: 699.88992
+  tps: 661.16959
+  dtps: 9.16354
  }
 }
 dps_results: {
