@@ -74,7 +74,8 @@ export const PlannerEventPanel = ({
 					<span className="text-base font-bold text-white">{name}</span>
 					{targetEditor.canRemove && (
 						<Button variant="link-danger" size="sm" onClick={targetEditor.onRemove}>
-							<Icon name="xmark" /> {plannerText('panel.remove')}
+							{plannerText('panel.remove')}
+							<Icon name="xmark" />
 						</Button>
 					)}
 				</div>
@@ -178,7 +179,8 @@ export const PlannerEventPanel = ({
 			<div className="flex items-center justify-between gap-2">
 				<span className="text-base font-bold text-white">{name}</span>
 				<Button variant="link-danger" size="sm" onClick={remove}>
-					<Icon name="xmark" /> {plannerText('panel.remove')}
+					{plannerText('panel.remove')}
+					<Icon name="xmark" />
 				</Button>
 			</div>
 			<FieldGrid>{shown.slice(0, templateEnd).map(renderField)}</FieldGrid>

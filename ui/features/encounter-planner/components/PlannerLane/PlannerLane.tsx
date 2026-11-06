@@ -254,8 +254,8 @@ export const PlannerLane = ({
 							target.onSelect();
 							target.onActivate();
 						}}>
-						<Icon name="gear" />
 						<span className="min-w-0 truncate">{label}</span>
+						<Icon name="gear" />
 					</Button>
 				) : (
 					<span className="text-sm font-bold text-white">{label}</span>
@@ -271,7 +271,8 @@ export const PlannerLane = ({
 								size="xs"
 								aria-label={plannerText('add', { event: eventLabel })}
 								onClick={() => onAdd(kind, target?.index)}>
-								<Icon name="plus" /> {eventLabel}
+								{eventLabel}
+								<Icon name="plus" />
 							</Button>
 						);
 					})}

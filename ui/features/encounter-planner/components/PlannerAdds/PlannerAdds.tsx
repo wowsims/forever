@@ -50,7 +50,8 @@ export const PlannerAdds = ({ adds, presetTargets, newAdd, onEdit, idPrefix }: P
 						onEdit(list => void list.push(newAdd()));
 						edit(adds.length);
 					}}>
-					<Icon name="plus" /> {plannerText('adds.add_short')}
+					{plannerText('adds.add_short')}
+					<Icon name="plus" />
 				</Button>
 			</div>
 			{adds.map((add, index) => (

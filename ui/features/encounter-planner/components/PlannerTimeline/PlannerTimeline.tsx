@@ -59,7 +59,7 @@ const EVENT_LANES = PLAN_LANES.filter(lane => lane !== 'boss');
 
 const SectionHeader = ({ label }: { label: string }) => (
 	<div className="flex min-w-full border-b border-gray-700 bg-white/10">
-		<span className="sticky left-0 px-2 py-1 text-xs font-bold tracking-wide text-white uppercase">{label}</span>
+		<span className="sticky left-0 px-2 py-2 text-xs font-bold tracking-wide text-white uppercase [text-box:trim-both_cap_alphabetic]">{label}</span>
 	</div>
 );
 
@@ -244,7 +244,8 @@ export const PlannerTimeline = ({
 									className="self-start"
 									aria-label={plannerText('add', { event: targetLabel })}
 									onClick={onAddTarget}>
-									<Icon name="plus" /> {targetLabel}
+									{targetLabel}
+									<Icon name="plus" />
 								</Button>
 							</div>
 						</div>

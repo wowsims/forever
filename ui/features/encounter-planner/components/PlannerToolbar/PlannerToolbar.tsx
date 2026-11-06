@@ -56,7 +56,8 @@ export const PlannerToolbar = ({ snapSeconds, onSnapChange, onZoomIn, onZoomOut,
 				align="start"
 				trigger={
 					<>
-						<Icon name="plus" /> {plannerText('toolbar.add_event')}
+						{plannerText('toolbar.add_event')}
+						<Icon name="plus" />
 					</>
 				}
 				triggerRender={<Button variant="primary" size="sm" />}>
