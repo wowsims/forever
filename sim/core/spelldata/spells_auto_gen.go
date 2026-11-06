@@ -2016,7 +2016,7 @@ var generatedSpells = []Spell{
 			{ID: 1359527, SpellID: 3025, Index: 6, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MECHANIC_IMMUNITY, BaseLevel: 6, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1359783, SpellID: 3025, Index: 7, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_IGNORE_MELEE_RESET, BaseLevel: 6, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 1024}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 3026, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 2: 0x1, 15: 0x2000}, SpellLevel: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 3026, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 2: 0x1, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 681556, SpellID: 3026, Type: dbcenums.E_SELF_RESURRECT, BasePoints: -400, SPCoef: 1, PvpMult: 1, Misc: 700, ChainAmp: 1},
 		}},
@@ -17561,19 +17561,19 @@ var generatedSpells = []Spell{
 		},
 		Powers:   []Power{{CostPct: 85}},
 		Reagents: []Reagent{{Item: 6265, Count: 1}}},
-	{ID: 20758, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 20758, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 698978, SpellID: 20758, Type: dbcenums.E_SELF_RESURRECT, BasePoints: -750, SPCoef: 1, PvpMult: 1, Misc: 1200, ChainAmp: 1},
 		}},
-	{ID: 20759, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 20759, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 698611, SpellID: 20759, Type: dbcenums.E_SELF_RESURRECT, BasePoints: -1100, SPCoef: 1, PvpMult: 1, Misc: 1700, ChainAmp: 1},
 		}},
-	{ID: 20760, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 20760, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 698852, SpellID: 20760, Type: dbcenums.E_SELF_RESURRECT, BasePoints: -1600, SPCoef: 1, PvpMult: 1, Misc: 2200, ChainAmp: 1},
 		}},
-	{ID: 20761, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 20761, Name: "Use Soulstone", School: 1, Attr: [17]uint32{0: 0x800000, 1: 0x400, 15: 0x2000}, SpellLevel: 1,
 		Effects: []Effect{
 			{ID: 696628, SpellID: 20761, Type: dbcenums.E_SELF_RESURRECT, BasePoints: -2200, SPCoef: 1, PvpMult: 1, Misc: 2800, ChainAmp: 1},
 		}},
@@ -18763,6 +18763,14 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 699680, SpellID: 21958, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MECHANIC_RESISTANCE, BasePoints: 1, PvpMult: 1, Misc: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 699681, SpellID: 21958, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MECHANIC_RESISTANCE, BasePoints: 1, PvpMult: 1, Misc: 12, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 21969, Name: "Mark of the Chosen", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 2, ProcFlags: [2]uint32{0: 0x2a2a8}, ICDMs: 120000, RefIDs: []int32{21970},
+		Effects: []Effect{
+			{ID: 699476, SpellID: 21969, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 21970, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 21970, Name: "Mark of the Chosen", School: 64, Attr: [17]uint32{0: 0x40000, 15: 0x2000}, SpellLevel: 1, DurationMs: 60000, DefenseType: 1, DispelType: 1,
+		Effects: []Effect{
+			{ID: 699071, SpellID: 21970, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 21, PvpMult: 1, Misc: -1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 21973, Name: "Prophecy Flash Heal Bonus", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintNamedAbility,
 		Effects: []Effect{
@@ -36282,6 +36290,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1334282, SpellID: 1306749, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_BLOCK_VALUE_PCT, BasePoints: 30, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1306816, Name: "Bigger Rock to the Face", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 20000, MaxRange: 10, DefenseType: 2, Mechanic: 15,
+		Effects: []Effect{
+			{ID: 1334382, SpellID: 1306816, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 14, BaseLevel: 60, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 1307050, Name: "SAF-T Ultra Precision Scope", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 36, CastTimeMs: 3000, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 262156,
 		Effects: []Effect{
 			{ID: 1334725, SpellID: 1307050, Type: dbcenums.E_ENCHANT_ITEM, PvpMult: 1, Misc: 8720, ChainAmp: 1},
@@ -36668,6 +36680,10 @@ var generatedSpells = []Spell{
 	{ID: 1309957, Name: "Holy Precision", School: 2, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, ClassFlags: core.ClassFlags{Family: 6}, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 1339139, SpellID: 1309957, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 18, BaseLevel: 1, PvpMult: 1, Misc: 16, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 3360686208, 1: 32769}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1309967, Name: "Rock to the Face", School: 1, Attr: [17]uint32{8: 0x1000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 20000, MaxRange: 10, DefenseType: 2, Mechanic: 15,
+		Effects: []Effect{
+			{ID: 1339152, SpellID: 1309967, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 7, BaseLevel: 60, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1309969, Name: "Power in Light", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 6}, Labels: []int16{18},
 		Effects: []Effect{

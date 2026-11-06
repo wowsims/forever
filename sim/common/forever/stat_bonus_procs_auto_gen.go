@@ -704,6 +704,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
+	// https://www.wowhead.com/forever/spell=21970
+	// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL
+	// trigger 21969 (2%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 21970
+	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 17774, ItemName: "Mark of the Chosen"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// While equipped, the wearer suffers less damage from falls.
 	// https://www.wowhead.com/forever/spell=23409
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2105,6 +2118,32 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 277950, ItemName: "Wastewanderer Rations"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.
+	// https://www.wowhead.com/forever/spell=1306816
+	// unsupported: states no rate
+	// trigger 1306816 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
+	// https://www.wowhead.com/forever/spell=1309967
+	// unsupported: states no rate
+	// trigger 1309967 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1309967, BuffSpellID: 1309967, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 279852, ItemName: "Rock on Stick"},
 	// })
 
 	// TODO: Manual implementation required
