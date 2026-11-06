@@ -268,6 +268,7 @@ export const creatureFamilyI18nKeys: Record<CreatureFamily, string> = {
 	[CreatureFamily.CreatureFamilyEarthElemental]: 'earth_elemental',
 	[CreatureFamily.CreatureFamilyFireElemental]: 'fire_elemental',
 	[CreatureFamily.CreatureFamilyMountainGiant]: 'mountain_giant',
+	[CreatureFamily.CreatureFamilySwine]: 'swine',
 };
 
 export const areaTypeI18nKeys: Record<AreaType, string> = {
