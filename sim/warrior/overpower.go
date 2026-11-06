@@ -7,6 +7,10 @@ import (
 
 var overpowerRank = spellData.Overpower.ByID(11585)
 
+// Overpower's threat is 0.75 times its damage, times the stance, measured in game on Rank 1.
+// TODO: Ingame test needed -- confirm the multiplier on the top rank.
+const overpowerThreatMultiplier = 0.75
+
 // The window a dodge opens: the aura Offensive State (DND) fires on the hit.
 var overpowerWindow = spellData.OffensiveStateTriggered.Highest()
 
@@ -23,6 +27,7 @@ func (warrior *Warrior) registerOverpower() {
 	warrior.MakeProcTriggerAura(trigger)
 
 	config := spelldata.SpellConfig(&warrior.Unit, overpowerRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = overpowerThreatMultiplier
 
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return warrior.OverpowerAura.IsActive()
