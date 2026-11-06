@@ -1,4 +1,4 @@
-import { Class, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
+import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
@@ -33,9 +33,10 @@ vi.mock('@ui-kit/VirtualList', () => ({
 }));
 
 vi.mock('./ItemListRow', () => ({
-	ItemListRow: ({ itemData, active, ep, favourited, onToggleFavourite }: any) => (
+	ItemListRow: ({ itemData, active, ep, favourited, faction, onToggleFavourite }: any) => (
 		<span
 			data-row={itemData.name}
+			data-faction={faction}
 			data-active={active ? '' : undefined}
 			data-ep={ep?.ep}
 			data-equipped-ep={String(ep?.equippedEP)}
@@ -156,6 +157,7 @@ describe('ItemList', () => {
 				getClass: () => Class.ClassWarrior,
 				filterItemData: (idxs: number[]) => idxs,
 				filterEnchantData: (idxs: number[]) => idxs,
+				getFaction: () => (realStore.getState().players[0]?.race == Race.RaceOrc ? Faction.Horde : Faction.Alliance),
 			},
 		});
 	});
@@ -185,43 +187,77 @@ describe('ItemList', () => {
 	it('withholds the EP option and the EP column from a trinket slot, which it computes no EP for', () => {
 		const { container, unmount } = setup({ slot: ItemSlot.ItemSlotTrinket1 });
 		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).toBeNull();
-		expect(container.querySelector('#show-ep-values-selector')).toBeNull();
+		expect(container.querySelector('#show-ep-values-selector-items')).toBeNull();
 		unmount();
 
 		const head = setup();
 		expect(head.container.querySelector('[data-testid="selector-modal-show-ep-values"]')).not.toBeNull();
-		expect(head.container.querySelector('#show-ep-values-selector')).not.toBeNull();
+		expect(head.container.querySelector('#show-ep-values-selector-items')).not.toBeNull();
 		expect(head.container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
 	});
 
-	it('lists enchants by lvl, highest first with ties in the order given, and offers no EP on the enchants tab', () => {
+	it('lists enchants by EP, highest first, with the EP column and toggle, and sorts by level from its header', () => {
 		const enchants = [
-			Enchant.create({ effectId: 1, name: 'Low', lvl: 20 }),
-			Enchant.create({ effectId: 2, name: 'HighFirst', lvl: 60 }),
-			Enchant.create({ effectId: 3, name: 'Mid', lvl: 40 }),
-			Enchant.create({ effectId: 4, name: 'HighSecond', lvl: 60 }),
+			Enchant.create({ effectId: 1, name: 'Low', lvl: 60 }),
+			Enchant.create({ effectId: 2, name: 'High', lvl: 20 }),
+			Enchant.create({ effectId: 3, name: 'TieFirst', lvl: 40 }),
+			Enchant.create({ effectId: 4, name: 'TieSecond', lvl: 40 }),
 		];
-		const computeEP = vi.fn((candidate: any) => (candidate.effectId === 1 ? 100 : 0));
+		const eps: Record<number, number> = { 1: 5, 2: 90, 3: 30, 4: 30 };
 		const { container } = setup({
 			label: SelectorModalTabs.Enchants,
 			slot: ItemSlot.ItemSlotMainHand,
-			over: { itemData: enchants.map(enchantRow), computeEP },
+			over: { itemData: enchants.map(enchantRow), computeEP: (candidate: any) => eps[candidate.effectId] },
 		});
-		expect(names(container)).toEqual(['HighFirst', 'HighSecond', 'Mid', 'Low']);
-		expect(computeEP).not.toHaveBeenCalled();
-		expect(container.querySelector('[data-testid="ep-label"]')).toBeNull();
-		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).toBeNull();
+		expect(names(container)).toEqual(['High', 'TieFirst', 'TieSecond', 'Low']);
+		expect(container.querySelector('[data-testid="ep-label"]')).not.toBeNull();
+		expect(Array.from(container.querySelectorAll<HTMLElement>('[data-row]')).map(node => node.dataset.ep)).toEqual(['90', '30', '30', '5']);
+		expect(container.querySelector('[data-testid="selector-modal-show-ep-values"]')).not.toBeNull();
 		expect(container.querySelector('[data-testid="selector-modal-show-all-enchants"]')).not.toBeNull();
 
 		act(() => container.querySelector<HTMLElement>('[data-testid="ilvl-label"] button')!.click());
-		expect(names(container)).toEqual(['Low', 'Mid', 'HighFirst', 'HighSecond']);
+		expect(names(container)).toEqual(['Low', 'TieFirst', 'TieSecond', 'High']);
+	});
+
+	it('gives the toggles of the items and enchants panes ids of their own, each label pointing into its pane', () => {
+		const items = setup({ slot: ItemSlot.ItemSlotMainHand });
+		const enchants = setup({ label: SelectorModalTabs.Enchants, slot: ItemSlot.ItemSlotMainHand });
+		const ids = Array.from(document.querySelectorAll('[id]')).map(node => node.id);
+		expect(new Set(ids).size).toBe(ids.length);
+
+		for (const [pane, { container }] of [
+			['items', items],
+			['enchants', enchants],
+		] as const) {
+			const toggle = container.querySelector('[data-testid="selector-modal-show-ep-values"]')!;
+			expect(toggle.querySelector('input')!.id).toBe(`show-ep-values-selector-${pane}`);
+			expect(toggle.querySelector('label')!.getAttribute('for')).toBe(`show-ep-values-selector-${pane}`);
+		}
+	});
+
+	it('shows an EP difference only between two rows whose EP is their whole worth', () => {
+		const first = Enchant.create({ effectId: 1, name: 'Static', lvl: 60 });
+		const second = Enchant.create({ effectId: 2, name: 'Proc', lvl: 60 });
+		const comparable = (candidate: any) => candidate.effectId === 1;
+		const equippedEps = (equipped: Enchant) =>
+			Array.from(
+				setup({
+					label: SelectorModalTabs.Enchants,
+					slot: ItemSlot.ItemSlotMainHand,
+					equipped: { enchant: equipped } as unknown as EquippedItem,
+					over: { itemData: [first, second].map(enchantRow), computeEP: () => 10, equippedToItem: (e: any) => e?.enchant, epComparable: comparable },
+				}).container.querySelectorAll<HTMLElement>('[data-row]'),
+			).map(node => node.dataset.equippedEp);
+
+		expect(equippedEps(first)).toEqual(['10', 'null']);
+		expect(equippedEps(second)).toEqual(['null', 'null']);
 	});
 
 	it('offers the weapon options in a main hand and, for a warrior, an off hand — never in another slot', () => {
 		const shown = (slot: ItemSlot, label = SelectorModalTabs.Items) => {
 			const { container, unmount } = setup({ slot, label });
 			const box = !!container.querySelector('[data-testid="selector-modal-show-1h-weapons"]');
-			expect(!!container.querySelector('#show-1h-weapons-selector')).toBe(box);
+			expect(!!container.querySelector('#show-1h-weapons-selector-items')).toBe(box);
 			unmount();
 			return box;
 		};
@@ -288,6 +324,18 @@ describe('ItemList', () => {
 		expect(names(container)).toEqual(['Beta', 'Gamma', 'Alpha']);
 	});
 
+	it("hands every row the character's faction, and follows a race change", () => {
+		const STORE_KEY = 0;
+		seedKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceOrc, v: zeroVersions(PLAYER_FIELDS) } as never);
+		Object.assign(host.player, { storeKey: STORE_KEY });
+		const { container } = setup();
+		const factions = () => Array.from(container.querySelectorAll('[data-row]')).map(node => (node as HTMLElement).dataset.faction);
+		expect(factions()).toEqual([String(Faction.Horde), String(Faction.Horde), String(Faction.Horde)]);
+
+		act(() => patchKeyed(realStore, 'players', STORE_KEY, { race: Race.RaceHuman }, ['race']));
+		expect(factions()).toEqual([String(Faction.Alliance), String(Faction.Alliance), String(Faction.Alliance)]);
+	});
+
 	it('marks the equipped row active and hands the row its EP against the equipped one', () => {
 		const equipped = { item: item(2, 'Beta', 520) } as unknown as EquippedItem;
 		const { container } = setup({ equipped });
@@ -333,7 +381,7 @@ describe('ItemList', () => {
 		const { container } = setup({ label: SelectorModalTabs.Enchants, over: { itemData: [relevant, worthless, proc, equipped].map(enchantRow) } });
 		expect(names(container).sort()).toEqual(['Equipped', 'Proc', 'Relevant']);
 
-		act(() => container.querySelector<HTMLElement>('#show-all-enchants-selector')!.click());
+		act(() => container.querySelector<HTMLElement>('#show-all-enchants-selector-enchants')!.click());
 		expect(setFilters.mock.calls[0][0].showAllEnchants).toBe(true);
 		act(() => store.notify());
 		expect(names(container).sort()).toEqual(['Equipped', 'Proc', 'Relevant', 'Worthless']);

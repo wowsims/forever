@@ -85,6 +85,7 @@ func walkTree(n any, parent any, visit func(n, parent any)) {
 		for _, v := range x.values {
 			each(v)
 		}
+		each(x.max)
 	case *messageEntryStmt:
 		each(x.args)
 	case *rawEntryStmt:

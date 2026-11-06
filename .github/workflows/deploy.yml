@@ -23,6 +23,10 @@ jobs:
 
     build-and-deploy:
         needs: tests
+        # One deploy at a time, so no other run deploys between the newer-deploy check below and this run's push.
+        concurrency:
+            group: pages-deploy
+            cancel-in-progress: false
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -69,7 +73,21 @@ jobs:
               run: |
                   cp sim/core/TestProtoVersioning.results .deployedprotoversion
 
+            # Runs finish out of order when their tests take different times. A run whose commit is older than the
+            # deployed one would put the older build back live, so it deploys nothing.
+            - name: Check for a newer deploy
+              id: newer
+              run: |
+                  deployed=$(gh api repos/wowsims/pages-deploy/contents/forever/version.json -H 'Accept: application/vnd.github.raw' --jq .commit 2>/dev/null) || deployed=""
+                  if [ -n "$deployed" ] && [ "$deployed" != "$GITHUB_SHA" ] && git merge-base --is-ancestor "$GITHUB_SHA" "$deployed"; then
+                      echo "::notice::$deployed is newer than $GITHUB_SHA and already deployed; skipping the deploy."
+                      echo "deployed=true" >> "$GITHUB_OUTPUT"
+                  fi
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
             - name: Commit updated version file
+              if: steps.newer.outputs.deployed != 'true'
               run: |
                   git config --local user.name "github-actions[bot]"
                   git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -86,6 +104,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
             - name: Deploy 🚀
+              if: steps.newer.outputs.deployed != 'true'
               uses: JamesIves/github-pages-deploy-action@v4
               with:
                   repository-name: wowsims/pages-deploy

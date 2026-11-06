@@ -52,7 +52,6 @@ export interface EncounterSlice {
 	durationVariation: number;
 	executeProportion20: number;
 	executeProportion35: number;
-	useHealth: boolean;
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;
@@ -110,6 +109,8 @@ export interface PlayerSlice {
 	// Per-spec proto; the generic is only known on Player<SpecType>.
 	specOptions: unknown;
 	reactionTime: number;
+	// Above reactionTime, each reaction the sim draws lies between the two; 0 keeps every one at reactionTime.
+	reactionTimeMax: number;
 	channelClipDelay: number;
 	inFrontOfTarget: boolean;
 	distanceFromTarget: number;
@@ -144,6 +145,7 @@ export const PLAYER_FIELDS = [
 	'talentsString',
 	'specOptions',
 	'reactionTime',
+	'reactionTimeMax',
 	'channelClipDelay',
 	'inFrontOfTarget',
 	'distanceFromTarget',
@@ -209,8 +211,8 @@ export type StatSweepMetric = 'dps' | 'hps' | 'tps' | 'dtps' | 'tmi';
 // Stat sweep settings, one slice per player (keyed by storeKey).
 export interface StatSweepSlice {
 	stats: UnitStat[] | null; // null, or only ones the spec does not offer, means the first one offered, and [] means none.
-	range: number;
-	step: number;
+	range: number; // In percent.
+	step: number; // In percent.
 	metric: StatSweepMetric; // Plotted when offered, else DPS; a run's Target ± follows the one plotted when it starts.
 	showSpread: boolean; // Shades ± 1 standard deviation around each line.
 	precisionMode: PrecisionMode;
@@ -332,7 +334,6 @@ const initialState = (): SimState => ({
 	// Encounter constructor writes the default target on construction.
 	encounter: {
 		...ENCOUNTER_DEFAULTS,
-		useHealth: false,
 		areaTypes: [],
 		zoneId: 0,
 		targets: [],

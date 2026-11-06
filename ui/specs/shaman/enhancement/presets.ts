@@ -48,7 +48,7 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfMight: true,
+	greaterBlessingOfMight: 1,
 });
 
 // Windfury Weapon on the main hand outbids the party's Windfury Totem, so the default is Rockbiter Weapon.
@@ -89,10 +89,10 @@ export const DefaultConsumables = ConsumesSpec.create({
 export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfFortitude: true,
-	giftOfTheWild: true,
-	arcaneBrilliance: true,
-	strengthOfEarthTotem: true,
+	powerWordFortitude: true,
+	markOfTheWild: true,
+	arcaneIntellect: true,
+	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
 	battleShout: 1, // Rank 6
 	leaderOfThePack: true,

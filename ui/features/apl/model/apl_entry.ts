@@ -1,3 +1,4 @@
+import type { Player } from '@generated/proto/api';
 import type { APLAction, APLListItem, APLPrepullAction, APLRotation } from '@generated/proto/apl';
 import type { AplEntryPath, AplEntrySegment } from '@sim/proto/combat_log';
 import type { SimResult, UnitMetrics } from '@sim/proto/sim_result';
@@ -13,9 +14,14 @@ export interface AplRun {
 	readonly changedSinceRun: () => boolean;
 }
 
+/** The settings the run's request carried for `player`. */
+export function requestPlayer(result: SimResult, player: UnitMetrics): Player | undefined {
+	return result.request.raid?.parties[Math.floor(player.index / MAX_PARTY_SIZE)]?.players[player.index % MAX_PARTY_SIZE];
+}
+
 /** The rotation the run's request carried for `player`. An Auto or Simple run carries one too, but its casts name no entry path. */
 export function runRotation(result: SimResult, player: UnitMetrics): APLRotation | undefined {
-	return result.request.raid?.parties[Math.floor(player.index / MAX_PARTY_SIZE)]?.players[player.index % MAX_PARTY_SIZE]?.rotation;
+	return requestPlayer(result, player)?.rotation;
 }
 
 export interface ResolvedAplEntry {

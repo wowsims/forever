@@ -86,7 +86,7 @@ func TestTableKeepsItsEntries(t *testing.T) {
 		for _, ns := range slices.Sorted(maps.Keys(old)) {
 			for _, name := range slices.Sorted(maps.Keys(old[ns])) {
 				if e, g := old[ns][name], now[ns][name]; e.SpellID != g.SpellID || e.Tag != g.Tag || e.Rank != g.Rank || !slices.Equal(e.RegisteredBy, g.RegisteredBy) ||
-					!slices.Equal(e.ICDOnlyBy, g.ICDOnlyBy) || e.Uncastable != g.Uncastable {
+					!slices.Equal(e.ICDOnlyBy, g.ICDOnlyBy) || !slices.Equal(e.TalentOnlyBy, g.TalentOnlyBy) || e.Uncastable != g.Uncastable {
 					changed = append(changed, fmt.Sprintf("%s.%s.%s is %+v, want %+v", scope, ns, name, g, e))
 				}
 			}

@@ -41,14 +41,31 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   `spelldata.RankLabel(rank, &owner.Unit)` so ranks never share one aura; category cooldowns already share one timer
   across ranks, so no hand `NewTimer()`.** `sim/core/spelldata/resolve_aura.go`, PR #246.
 - **A rank that only a class book teaches registers beside the trainer's top rank, and the rotation picks the rank by
-  spell id. The presets cast the book rank. Each simple rotation rank toggle defaults off, and a toggle left off swaps
-  the book id for the trainer's top rank through `withSpellIds`, which never swaps a tag -1 id (the raid's copy of a
-  buff); in the rotation editor the spell dropdown lists both ranks. Warrior: Heroic Strike 11567 and 25286 (each with
-  its own queue), Battle Shout 11551 and 25289, Revenge 11601 and 25288 (one window, read by 5302); warlock: Shadow
-  Bolt, Immolate and Corruption. The raid's `battle_shout` has four states (off, Rank 6, Rank 7, Rank 7 with the tier 2
-  set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.** `ui/sim/proto/apl_utils.ts`,
-  `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`,
-  `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, PR #736, PR #746.
+  spell id. Each simple rotation rank toggle defaults off, which casts the trainer's top rank, and the ids swap through
+  `withSpellIds`, which never swaps a tag -1 id (the raid's copy of a buff); in the rotation editor the spell dropdown
+  lists both ranks. The warrior and warlock presets cast the book rank: Heroic Strike 11567 and 25286 (each with its own
+  queue), Battle Shout 11551 and 25289, Revenge 11601 and 25288 (one window, read by 5302), Shadow Bolt, Immolate and
+  Corruption. The hunter and shaman presets cast the trainer's top rank, because the books may not be there at launch:
+  Serpent Sting 13555 and 25295 (one sting to a hunter), Aspect of the Hawk 14322 and 25296, Strength of Earth Totem
+  10442 and 25361, Grace of Air Totem 10627 and 25359 (one totem to a slot), and shaman has no simple rotation. The
+  mage, rogue and druid presets do the same: Frostbolt 10181 and 25304, Fireball 10151 and 25306, Arcane Missiles 10212
+  and 25345, Frost Ward 10177 and 28609, Backstab 11281 and 25300, Feint 11303 and 25302, Eviscerate 11300 and 31016,
+  Ferocious Bite 22829 and 31018. A plain SIML name is the trainer's rank and a book rank takes a suffix, which
+  `sim/core/spelldata/book_ranks.go` decides, since a book rank's game files row states it like a trained one.
+  Multi-Shot has the one rank, 2643, so its Guide teaches nothing here. The raid's `battle_shout` has four states (off,
+  Rank 6, Rank 7, Rank 7 with the tier 2 set; no Rank 6 with the set), and the warrior's own copies are labelled by rank.**
+  `ui/sim/proto/apl_utils.ts`, `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`,
+  `sim/warrior/revenge.go`, `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, `sim/hunter/serpent_sting.go`,
+  `sim/hunter/aspects.go`, `sim/shaman/totems.go`, PR #736, PR #746, PR #794.
+- **A raid or individual buff that a class book raises is a rank select: an int32 where 0 is off and 1 the trainer's top
+  rank, listed in the manifest row's `Ranks`, from which the generators render the proto field, the apply block and the
+  settings input. The totems and greater blessings take a select. A shaman's own totem reads the row of the rank it casts.
+  The four group inputs, `mark_of_the_wild`, `power_word_fortitude`, `arcane_intellect` and `shadow_protection`, are bools that read the single-target spell's top rank, since its amounts match the group spell's top rank (Mark of the
+  Wild +16 stats and 385 armor; Power Word: Fortitude 70; Arcane Intellect 31; Shadow Protection 60). A mage in the raid
+  sets `arcane_intellect`. A priest's Prayer of Fortitude and Prayer of Shadow Protection read their own rows and bid
+  against the raid's input of the same stat, so the two count once. Prayer of Spirit stays a bool, since no item teaches it.**
+  `tools/database/buffmanifest/buffs.go`, `sim/core/buffs/meta.go`, `sim/core/buffs/priest.go`,
+  `ui/features/inputs/icon_inputs.ts`, PR #794.
 - **Devouring Plague is learnable by every race, and Inner Focus restarts its cooldown when the buff is spent
   (`OnExpire` calls `CD.Use`) though the row has no cooldown-on-event bit.** `sim/priest/devouring_plague.go`,
   `sim/priest/talents_discipline.go`, PR #246.

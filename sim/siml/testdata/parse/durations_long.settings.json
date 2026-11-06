@@ -1,0 +1,14 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {
+			"options": {
+				"classOptions": {}
+			}
+		},
+		"reactionTimeMs": 150,
+		"reactionTimeMaxMs": 350,
+		"channelClipDelayMs": 20,
+		"inFrontOfTarget": true
+	}
+}

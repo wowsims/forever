@@ -189,7 +189,7 @@ func (b *completer) offer(w want) {
 			b.add(word, CompletionKeyword, ranked(1).with(insert, ""))
 		}
 	case "ref":
-		b.refs(w.ns, w.cast)
+		b.refs(w.ns, w.cast, w.talent)
 	case "usable":
 		b.usable()
 	case "other":
@@ -473,14 +473,15 @@ func (b *completer) members() {
 
 // --- Names.
 
-// The names of a spell-like namespace the file's spec registers, castable ones only where an action casts (cast): the
-// class's first, then the shared ones.
-func (b *completer) refs(ns Namespace, cast bool) {
+// The names of a spell-like namespace the file's spec registers, castable ones only where an action casts (cast), and
+// talents' own spells only where a talent kind reads one (talent), where no other spell is: the class's first, then the
+// shared ones.
+func (b *completer) refs(ns Namespace, cast, talent bool) {
 	for _, p := range b.ctx.params {
 		b.add(p, CompletionTypeParameter, ranked(0).with("", "parameter"))
 	}
 	for _, n := range b.d.names.Registered(b.d.class(), b.d.specName(), ns) {
-		if cast && n.Entry.Uncastable {
+		if cast && n.Entry.Uncastable || !fitsTalentPosition(n.Entry, talent, b.d.specName()) {
 			continue
 		}
 		game := ""
@@ -606,10 +607,11 @@ func (b *completer) entries(sectionName string, flagsOnly bool) {
 	if def.Name == sectionAPL && !flagsOnly {
 		b.add("def", CompletionKeyword, offerAs{insert: "def ", detail: "def name(p, …) = <value>: a value each call reads as, its parameters replaced"})
 	}
-	for _, p := range ix.sectionFields(def, b.d.specInfo()) {
+	fields := ix.sectionFields(def, b.d.specInfo())
+	for _, p := range fields {
 		f := p.field
-		// A section of slot rows writes its items as rows.
-		if slots && f.Repeated && f.Type == itemSpecName {
+		// A section of slot rows writes its items as rows, and a duration's line its max (SPEC.md §5.2).
+		if slots && f.Repeated && f.Type == itemSpecName || minField(p, fields) != nil {
 			continue
 		}
 		if written[f.Siml] && !(f.Repeated && f.Printed == "message") {
@@ -670,6 +672,8 @@ func fieldType(f *field) string {
 		what = f.Ref
 	case f.Printed == "enum" || f.Printed == "message":
 		what = strings.TrimPrefix(f.Type, "proto.")
+	case f.Printed == "duration" && f.Max != "":
+		what = "duration [max duration]"
 	}
 	if f.isList() {
 		return what + " list"

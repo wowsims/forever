@@ -21,7 +21,7 @@ const (
 	DDBC_Total
 )
 
-var TalentTreeSizes = [3]int{17, 17, 19}
+var TalentTreeSizes = [3]int{17, 19, 18}
 
 const RogueBleedTag = "RogueBleed"
 
@@ -36,7 +36,6 @@ type Rogue struct {
 
 	AdditiveEnergyRegenBonus float64
 
-	Backstab       *core.Spell
 	BladeFlurry    *core.Spell
 	DeadlyPoison   *core.Spell
 	Feint          *core.Spell
@@ -44,11 +43,14 @@ type Rogue struct {
 	Ambush         *core.Spell
 	Hemorrhage     *core.Spell
 	GhostlyStrike  *core.Spell
+	Riposte        *core.Spell
 	WoundPoison    *core.Spell
 	Mutilate       *core.Spell
 	MutilateMH     *core.Spell
 	MutilateOH     *core.Spell
 	SinisterStrike *core.Spell
+	Shank          *core.Spell
+	DeathMark      *core.Spell
 	Shadowstep     *core.Spell
 	Preparation    *core.Spell
 	Premeditation  *core.Spell
@@ -57,7 +59,6 @@ type Rogue struct {
 	AdrenalineRush *core.Spell
 	InstantPoison  *core.Spell
 
-	Eviscerate   *core.Spell
 	ExposeArmor  *core.Spell
 	Rupture      *core.Spell
 	SliceAndDice *core.Spell
@@ -69,12 +70,13 @@ type Rogue struct {
 	MasterOfSubtletyAura *core.Aura
 	ShadowstepAura       *core.Aura
 	StealthAura          *core.Aura
-	CutthroatAura        *core.Aura
+	GhostlyStrikeAura    *core.Aura
 
 	WoundPoisonDebuffAuras core.AuraArray
 
 	ruthlessnessMetrics               *core.ResourceMetrics
 	ruthlessnessChance                float64
+	relentlessStrikesChance           float64 // Per combo point spent.
 	relentlessStrikesMetrics          *core.ResourceMetrics
 	puncturingWoundsComboPointMetrics *core.ResourceMetrics
 
@@ -107,8 +109,8 @@ func (rogue *Rogue) ApplyFinisher(sim *core.Simulation, spell *core.Spell) {
 	rogue.SpendComboPoints(sim, spell.ComboPointMetrics())
 
 	// Relentless Strikes
-	if rogue.Talents.RelentlessStrikes && sim.Proc(0.2*float64(numPoints), "Relentless Strikes") {
-		rogue.AddEnergy(sim, 25, rogue.relentlessStrikesMetrics)
+	if rogue.Talents.RelentlessStrikes > 0 && sim.Proc(rogue.relentlessStrikesChance*float64(numPoints), "Relentless Strikes") {
+		rogue.AddEnergy(sim, relentlessStrikesEnergy, rogue.relentlessStrikesMetrics)
 	}
 
 	// Ruthlessness
@@ -129,11 +131,13 @@ func (rogue *Rogue) Initialize() {
 	rogue.registerGarrote()
 	rogue.registerRupture()
 	rogue.registerSinisterStrikeSpell()
+	rogue.registerShank()
 	rogue.registerSliceAndDice()
 	rogue.registerVanishSpell()
 	rogue.registerStealthAura()
 	rogue.registerKickSpell()
 	rogue.registerFeintSpell()
+	rogue.registerPoised()
 
 	ruthRank := spellData.Ruthlessness.Rank(rogue.Talents.Ruthlessness)
 	if ruthRank != nil {
@@ -142,8 +146,12 @@ func (rogue *Rogue) Initialize() {
 	// Forever states a flat SpellAuraOptions.ProcChance of 100 on the talent spell and puts the
 	// real per-rank chance on the effect, so ProcChanceAt would read 100% at every rank.
 	rogue.ruthlessnessChance = spellData.Ruthlessness.FractionAt(rogue.Talents.Ruthlessness)
-	rogue.relentlessStrikesMetrics = rogue.NewEnergyMetrics(core.ActionID{SpellID: 14179})
+	rogue.relentlessStrikesChance = spellData.RelentlessStrikes.FractionAt(rogue.Talents.RelentlessStrikes)
+	rogue.relentlessStrikesMetrics = rogue.NewEnergyMetrics(core.ActionID{SpellID: spellData.RelentlessStrikes.Highest().ID})
 }
+
+// The restored energy is a dummy effect of the triggered spell, which the talent's tooltip quotes.
+var relentlessStrikesEnergy = spellData.RelentlessStrikesTriggered.Highest().EffectN(1).Average()
 
 func (rogue *Rogue) ApplyAdditiveEnergyRegenBonus(sim *core.Simulation, increment float64) {
 	oldBonus := rogue.AdditiveEnergyRegenBonus
@@ -279,6 +287,7 @@ const (
 	RogueSpellColdBlood
 	RogueSpellMutilate
 	RogueSpellMutilateHit
+	RogueSpellRiposte
 	RogueSpellGhostlyStrike
 	RogueSpellInstantPoison
 	RogueSpellWoundPoison
@@ -292,5 +301,4 @@ const (
 	RogueSpellLethality      = RogueSpellSinisterStrike | RogueSpellGouge | RogueSpellBackstab | RogueSpellGhostlyStrike | RogueSpellMutilateHit | RogueSpellHemorrhage
 	RogueSpellDirectFinisher = RogueSpellEviscerate
 	RogueSpellFinisher       = RogueSpellDirectFinisher | RogueSpellSliceAndDice | RogueSpellRupture | RogueSpellExposeArmor
-	RogueSpellQuietus        = RogueSpellSinisterStrike | RogueSpellHemorrhage | RogueSpellGhostlyStrike
 )

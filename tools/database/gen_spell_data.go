@@ -273,7 +273,8 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 
 	byName := map[string]map[int32][]rankCandidate{}
 	// A spell with no subtext is a single-rank family of its own only where no "Rank N" row carries
-	// its name - Execute's granted 20647 is a sub-spell of the ranked Execute, not a rank - and only
+	// its name, or those rows have no rank 1 (see the loop over unranked below) - Execute's granted
+	// 20647 is a sub-spell of the ranked Execute, not a rank - and only
 	// when a trainer teaches it (Death Wish, Sweeping Strikes and the stance passives all have a
 	// trainer row) or a talent the tree could not describe shares its name. A grant-only one is a
 	// Season of Discovery rune ability or an internal (Quick Strike, Meathook). Skill lines 2851 and
@@ -306,7 +307,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		rank, _ := strconv.Atoi(m[1])
 		c.Rank = int32(rank)
 		// A "Rank N" spell with no SpellMisc row states no school, cost, level or range, so it cannot
-		// be cast and is no ladder rank (Holy Shield Rank 4 1239570). The class file names it.
+		// be cast and is no ladder rank. The class file names it.
 		if !hasMisc {
 			noMisc[name] = append(noMisc[name], fmt.Sprintf("%s: rank %d, spell %d, has no SpellMisc row", name, c.Rank, c.SpellID))
 			continue
@@ -336,7 +337,10 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		return nil, nil, nil, err
 	}
 	for name, cands := range unranked {
-		if byName[name] != nil {
+		// "Rank N" rows with no rank 1 are a retired talent's leftover ranks, and they give way to the
+		// spell with no subtext: Lightning Mastery 16166 is the talent, beside the old Lightning Mastery's
+		// ranks 2 to 5 (16579-16582), whose rank 1 16578 is Elemental Alacrity now.
+		if byRank := byName[name]; byRank != nil && byRank[1] != nil {
 			continue
 		}
 		if _, talent := traits[name]; talent {
@@ -1092,6 +1096,21 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 			ladder[rank] = pinned
 			continue
 		}
+		if castable == 0 && len(byRank) == 1 {
+			// Shank is two trainer rows with no rank subtext, 1329283 at level 24 and 1329549 at 44,
+			// both castable. The later one's SkillLineAbility row supersedes the earlier, which
+			// orders them into the family's ranks.
+			chain, err := supersedeChain(db, ids)
+			if err != nil {
+				return nil, err
+			}
+			if chain != nil {
+				for i, id := range chain {
+					ladder[int32(i+1)] = id
+				}
+				continue
+			}
+		}
 		if castable == 0 {
 			// Every ambiguous rank is collected rather than returning on the first, so the skipped
 			// list in the class file names all of them. Judgement of Command is ambiguous on all six.
@@ -1188,6 +1207,64 @@ func teacherOf(db *sql.DB, ids map[int32]bool) (int32, error) {
 		found = id
 	}
 	return found, nil
+}
+
+// These spells in the order SkillLineAbility.SupercedesSpell learns them, first to last, or nil
+// unless the rows link every one into a single line: one spell supersedes none of the others, and
+// each of the rest supersedes exactly the one before it.
+func supersedeChain(db *sql.DB, ids map[int32]bool) ([]int32, error) {
+	supersedes := map[int32]int32{}
+	for id := range ids {
+		rows, err := db.Query(`SELECT DISTINCT SupercedesSpell FROM SkillLineAbility WHERE Spell = ? AND SupercedesSpell != 0`, id)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var prev int32
+			if err := rows.Scan(&prev); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			if !ids[prev] {
+				continue
+			}
+			if _, seen := supersedes[id]; seen {
+				rows.Close()
+				return nil, nil
+			}
+			supersedes[id] = prev
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		rows.Close()
+	}
+	if len(supersedes) != len(ids)-1 {
+		return nil, nil
+	}
+
+	next := map[int32]int32{}
+	var first int32
+	for id := range ids {
+		prev, ok := supersedes[id]
+		if !ok {
+			first = id
+			continue
+		}
+		if _, taken := next[prev]; taken {
+			return nil, nil
+		}
+		next[prev] = id
+	}
+	chain := []int32{first}
+	for id, ok := next[first]; ok; id, ok = next[id] {
+		chain = append(chain, id)
+	}
+	if len(chain) != len(ids) {
+		return nil, nil
+	}
+	return chain, nil
 }
 
 // The one spell among these that has a mana cost, or 0 when that does not single one out.

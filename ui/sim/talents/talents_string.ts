@@ -23,6 +23,22 @@ export const parseTalentsString = <TalentsProto>(config: TalentsConfig<TalentsPr
 	});
 };
 
+/**
+ * No more trees than the config has, no tree longer than its talents and no digit above its talent's maximum. A shorter
+ * tree is fine, since trailing zeroes are trimmed.
+ */
+export const talentsStringFits = <TalentsProto>(config: TalentsConfig<TalentsProto>, talentsString: string): boolean => {
+	const treeStrings = talentsString.split('-');
+	return (
+		treeStrings.length <= config.length &&
+		treeStrings.every(
+			(treeString, treeIdx) =>
+				treeString.length <= config[treeIdx].talents.length &&
+				[...treeString].every((digit, talentIdx) => /^\d$/.test(digit) && Number(digit) <= config[treeIdx].talents[talentIdx].maxPoints),
+		)
+	);
+};
+
 export const serializeTalentsString = (points: TalentPoints): string =>
 	points
 		.map(tree => tree.join('').replace(/0+$/g, ''))

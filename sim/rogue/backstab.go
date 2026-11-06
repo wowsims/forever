@@ -5,16 +5,22 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Rank 8 is the highest trainable. Rank 9 exists from a AQ book; acquisition TBD
-var backstabRank = spellData.Backstab.Rank(8)
+// Rank 8 is the last rank the trainer teaches; rank 9 comes from the Handbook of Backstab IX book.
+var backstabTrainerRank = spellData.Backstab.ByID(11281)
+var backstabBookRank = spellData.Backstab.ByID(25300)
 
 func (rogue *Rogue) registerBackstabSpell() {
-	backstabBaseDamage := backstabRank.DamageEffect().Average()
-	comboPointGen := backstabRank.EnergizeEffect().Average()
-	config := spelldata.SpellConfig(&rogue.Unit, backstabRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	rogue.registerBackstabRank(backstabTrainerRank)
+	rogue.registerBackstabRank(backstabBookRank)
+}
+
+func (rogue *Rogue) registerBackstabRank(rank *spelldata.Spell) {
+	backstabBaseDamage := rank.DamageEffect().Average()
+	comboPointGen := rank.EnergizeEffect().Average()
+	config := spelldata.SpellConfig(&rogue.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.Flags |= SpellFlagBuilder | SpellFlagColdBlooded
 	config.ClassSpellMask = RogueSpellBackstab
-	config.DamageMultiplier = backstabRank.EffectN(2).Percent()
+	config.DamageMultiplier = rank.EffectN(2).Percent()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return !rogue.PseudoStats.InFrontOfTarget && rogue.HasDagger(core.MainHand)
 	}
@@ -38,5 +44,5 @@ func (rogue *Rogue) registerBackstabSpell() {
 		}
 	}
 
-	rogue.Backstab = rogue.RegisterSpell(config)
+	rogue.RegisterSpell(config)
 }

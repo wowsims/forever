@@ -11,7 +11,7 @@ export class WorkerInterface {
 	private _workerId = '';
 	private readonly handlers: Handlers;
 
-	constructor(handlers: Handlers) {
+	constructor(handlers: Handlers, runtimeStopped: () => boolean = () => false) {
 		this.handlers = handlers;
 
 		addEventListener('message', async ({ data }: MessageEvent<WorkerReceiveMessage>) => {
@@ -45,11 +45,14 @@ export class WorkerInterface {
 
 			try {
 				const outputData = await handlerFunc(inputData, progressCallback, id, msg);
+				// A panic no handler recovers exits the Go runtime during the call, which then answers undefined;
+				// every later call throws.
+				if (runtimeStopped()) throw new Error(`The sim runtime stopped while answering ${msg}.`);
 				this.postMessage({ msg, id, outputData });
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
 				console.error(errorMessage);
-				this.postMessage({ msg, id, outputData: new Uint8Array(), error: errorMessage });
+				this.postMessage({ msg, id, outputData: new Uint8Array(), error: errorMessage, stopped: runtimeStopped() });
 			}
 		});
 	}

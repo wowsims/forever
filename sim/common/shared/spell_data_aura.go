@@ -62,7 +62,7 @@ func (auras *spellDataAuras) activate(sim *core.Simulation, target *core.Unit) {
 			aura.Activate(sim)
 		}
 	}
-	if auras.enemies != nil {
+	if auras.enemies != nil && target != nil {
 		applyDebuff(sim, auras.enemies.Get(target))
 	}
 }
@@ -165,10 +165,7 @@ func NewSpellDataAuraOnUse(itemID int32) {
 		auras := newSpellDataAuras(character, row, spelldata.AuraConfig(row))
 		cooldown := core.MajorCooldown{Type: onUseAuraCooldownType(row, auras)}
 		if lowersThreat(row) {
-			cooldown = core.MajorCooldown{
-				Type:           core.CooldownTypeUnknown,
-				ShouldActivate: func(_ *core.Simulation, _ *core.Character) bool { return false },
-			}
+			cooldown = core.MajorCooldown{Type: core.CooldownTypeUnknown, DisableAutocast: true}
 		}
 		return spellDataOnUseAuraSpell(character, row, auras), cooldown, true
 	})

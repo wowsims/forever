@@ -6,6 +6,7 @@ import { subscribeEncounterField } from '@sim/state/subscriptions';
 import { Tree } from '@ui-kit/Tree';
 import { useMemo } from 'react';
 
+import { isTargetInputShown } from '../../model/target_inputs';
 import { TargetInputPicker } from './TargetInputPicker';
 
 export interface TargetInputsPickerProps {
@@ -15,7 +16,8 @@ export interface TargetInputsPickerProps {
 
 /**
  * The inputs a target preset declares, one picker per input. The preset fixes the set, so the list
- * offers no add, remove, copy or drag, and renders nothing while the target declares no input.
+ * offers no add, remove, copy or drag, and renders nothing while the target declares no input. An
+ * input with `shownBy` shows only while the Bool input of that label is on.
  */
 export const TargetInputsPicker = ({ encounter, targetIndex }: TargetInputsPickerProps) => {
 	const config = useMemo(
@@ -38,6 +40,7 @@ export const TargetInputsPicker = ({ encounter, targetIndex }: TargetInputsPicke
 		<Tree.Root group="target-inputs" density="compact" disabled={disabled} testId="target-inputs-picker">
 			<Tree.Items>
 				{items.map((input, inputIndex) => {
+					if (!isTargetInputShown(items, input)) return null;
 					const key = String(keyFor(input, inputIndex));
 					return (
 						<Tree.Item key={key} id={key} testId="target-inputs-picker-item">

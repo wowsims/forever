@@ -23,7 +23,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides/`                                                 | spell, weapon and enchant rate overrides, hand triggers, extra spells, and the numbered `.sql`                                                                                                                                                                                                        |
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
-| `assets/db_inputs/questie_db.json`                                          | quest and vendor sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`, with QuestieDB's Forever corrections applied; `-gen=db` adds them after an item's drop, craft and reputation sources and before its PvP source |
+| `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
 
@@ -70,6 +70,30 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
 - **`gen_db` sets every item source; the UI infers none.** The gear picker shows and filters the sources in the
   database and never derives one from an item's name or random suffixes, so a new rule (the PvP name list in
   `InferPvpSource`) goes into the generator. An item with no source shows none; it is not a world drop.
+- **An enchant's sources are its own item's and its recipes'.** `LoadAndWriteRawEnchants` collects the recipes for each
+  enchant row: the shipped items whose `ItemEffect` on the row's spell has `TriggerType` 6, Season of Discovery items
+  left out. Joining through the effect id alone crosses slots, since effect 66 is a bracer, a boots and a shield enchant
+  and only the boots has a recipe. The game files hold no trainers, so an enchant a trainer teaches has no source.
+- **QuestieDB's NPC drops reach items and recipes no vendor sells.** Its drop lists hold an item's vendors (Grunnda
+  Wolfheart is both on 19083), so `parseQuestieData` drops the list of a sold item before counting it. An NPC with no
+  zone counts for neither list. An item with an AtlasLoot drop keeps it and skips QuestieDB's, which list every mob where
+  AtlasLoot names the boss or the trash. One to five NPCs are listed, each with its zone. More than five take one source:
+  `Multiple NPCs` in their zone when they share one, else `World Drop` with no zone or NPC, since the lists run to 629
+  mobs. Only QuestieDB's list makes either: an item with no drop data has no drop source. `PruneQuestieSources` removes a
+  drop in a zone with no `AreaTable` row after that decision, so two items (16673, 16713) read World Drop on a row it then
+  prunes, and sets a drop's difficulty from its zone, which stays unknown in the open world.
+- **AtlasLoot repeats the game files' crafting spells.** `AtlasLootSourcesBeside` removes them on both the item and the
+  enchant path, since `MergeItem` concatenates lists.
+- **A drop source moves the picker.** A drop outranks a quest, a rep source and a vendor in `ItemSource`'s kind order,
+  so an item that gains one leads with it and shows the rest behind `+N`. A `pvp` source shows only on an item with
+  nothing else; the filter reads it either way. The World Drop toggle governs a drop of unknown difficulty, a world drop
+  or an open-world NPC's, and Dungeon and Raid the rest. It is the bool `hide_world_drops`, since a saved partial
+  `sources` list would read a new `SourceFilterOption` as off. `questie_db.json` holds every item QuestieDB lists, most of
+  them never shipped, and `-gen=db` picks the ones it has.
+- **Quests and vendors carry a side.** `parseQuestieData` reads a quest's `requiredRaces`, which holds the game's race
+  bits, and a vendor's `friendlyToFaction`; both sides, none or no data is `Unknown`. `ItemSource` leaves the other side's
+  out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
+  source.
 
 ## Overrides
 
@@ -125,6 +149,11 @@ Reading another table once, what the tables hold and how a script reads them: `r
 - When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
   store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
   ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
+- A talent tree that gains or loses a talent needs the class's `TalentTreeSizes` changed by hand (`sim/warrior/warrior.go`
+  holds the warrior's). Nothing checks it against the tree file. With the old sizes the talents string fills the wrong
+  fields, and `gen_db`'s rotation agent panics on a talent given more points than its ladder holds. `gen_db` then skips
+  the spec with only a `[rotation] spec skipped` line, and `db.json` loses that class's rotation spell icons. After a
+  tree change, check that `gen_db` prints no such line.
 
 ## Keeping this skill true
 

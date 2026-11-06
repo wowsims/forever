@@ -70,15 +70,11 @@ func (hb *healthBar) GainHealth(sim *Simulation, amount float64, metrics *Resour
 	hb.currentHealth = newHealth
 }
 
+// Health lost to damage taken, booked under Damage Taken and counted in TMI on a tanking unit.
 func (hb *healthBar) RemoveHealth(sim *Simulation, amount float64) {
 	if amount < 0 {
 		panic("Trying to remove negative health!")
 	}
-
-	oldHealth := hb.currentHealth
-	newHealth := max(oldHealth-amount, 0)
-	metrics := hb.DamageTakenHealthMetrics
-	metrics.AddEvent(-amount, newHealth-oldHealth)
 
 	// TMI calculations need timestamps and Max HP information for each damage taken event
 	if hb.unit.Metrics.isTanking {
@@ -89,11 +85,33 @@ func (hb *healthBar) RemoveHealth(sim *Simulation, amount float64) {
 		hb.unit.Metrics.tmiList = append(hb.unit.Metrics.tmiList, entry)
 	}
 
+	hb.SpendHealth(sim, amount, hb.DamageTakenHealthMetrics)
+}
+
+// Health a spell takes from its own caster as a cost, booked under the spell's metrics. A self cost is
+// not damage taken, so it adds no TMI entry.
+func (hb *healthBar) SpendHealth(sim *Simulation, amount float64, metrics *ResourceMetrics) {
+	if amount < 0 {
+		panic("Trying to spend negative health!")
+	}
+
+	oldHealth := hb.currentHealth
+	newHealth := max(oldHealth-amount, 0)
+	metrics.AddEvent(-amount, newHealth-oldHealth)
+
 	if sim.Log != nil {
 		hb.unit.Log(sim, "Spent %0.3f health from %s (%0.3f --> %0.3f) of %0.0f total.", amount, metrics.ActionID, oldHealth, newHealth, hb.MaxHealth())
 	}
 
 	hb.currentHealth = newHealth
+}
+
+// The base health a "% of base health" cost reads: the class base plus the health of the base Stamina,
+// whose first 20 points give 1 health each and every point after that 10. Gear, buffs and talents add
+// nothing to it.
+func (character *Character) BaseHealth() float64 {
+	stamina := character.baseStats[stats.Stamina]
+	return character.baseStats[stats.Health] + 20 + (stamina-20)*10
 }
 
 // Used for dynamic updates to maximum health from "Last Stand" effects

@@ -28,6 +28,15 @@ export const FireTalents = PresetUtils.makePresetTalents('Fire', SavedTalents.cr
 export const FrostIncinTalents = PresetUtils.makePresetTalents('Frost Incin', SavedTalents.create({ talentsString: '203205-5-053500011121331251' }));
 export const FrostMedTalents = PresetUtils.makePresetTalents('Frost Med', SavedTalents.create({ talentsString: '2032250100003--053500001121331251' }));
 
+export const SkyborneFireLT180Talents = PresetUtils.makePresetTalents(
+	'Fire Skyborne LT 180',
+	SavedTalents.create({ talentsString: '0502052011001-54500001230133031-003' }),
+);
+export const SkyborneFireGT180Talents = PresetUtils.makePresetTalents(
+	'Fire Skyborne GT 180',
+	SavedTalents.create({ talentsString: '0502052001002-54500001230133031-003' }),
+);
+
 /* export const ArcaneMageSimpleRotation = Mage_Rotation.create({
 	conserveStart: 20,
 	conserveEnd: 30,
@@ -60,9 +69,9 @@ export const DefaultConsumables = ConsumesSpec.create({
 
 export const DefaultRaidBuffs = RaidBuffs.create({
 	prayerOfSpirit: true,
-	arcaneBrilliance: true,
-	giftOfTheWild: true,
-	prayerOfFortitude: true,
+	arcaneIntellect: true,
+	markOfTheWild: true,
+	powerWordFortitude: true,
 	moonkinAura: true,
 });
 
@@ -74,7 +83,7 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: true,
+	greaterBlessingOfWisdom: 1,
 	innervates: 1,
 });
 

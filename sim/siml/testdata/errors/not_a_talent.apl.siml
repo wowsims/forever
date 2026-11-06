@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+// talent_is_known and talent_rank read a talent's own spell, so a name of another spell there is never known.
+priority:
+  cast aimed_shot if talent_is_known(deadly_aspects)
+  cast aimed_shot if talent_is_known(hunter_shot)
+  cast aimed_shot if talent_rank(hunter_shot) >= 2

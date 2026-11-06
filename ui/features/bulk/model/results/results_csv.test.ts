@@ -46,22 +46,15 @@ const ASHKANDI = equipped(19364, 'Ashkandi');
 const CURRENT_GEAR = gear(LIONHEART, THUNDERFURY);
 const UPGRADE = gear(BEAR_HELM, ASHKANDI);
 
-// A timed encounter of 180 ±5 seconds, or a health-based one when `timed` is false, whose rows ran under `settings`.
-const entry = (
-	name: string,
-	isCurrent: boolean,
-	best: number,
-	timed = true,
-	upgrade = UPGRADE,
-	settings: BulkPlayerSettingsSetup | null = null,
-): BulkEncounterResults => {
+// An encounter of 180 ±5 seconds whose rows ran under `settings`.
+const entry = (name: string, isCurrent: boolean, best: number, upgrade = UPGRADE, settings: BulkPlayerSettingsSetup | null = null): BulkEncounterResults => {
 	const build = { ...GEAR_MODE, settings };
 	const base = result(CURRENT_GEAR, 1000, 10, CURRENT_TALENT_SETUP, build);
 	return {
 		name,
 		isCurrent,
-		duration: timed ? 180 : null,
-		durationVariation: timed ? 5 : null,
+		duration: 180,
+		durationVariation: 5,
 		results: {
 			chains: [[result(upgrade, best, 10, CURRENT_TALENT_SETUP, build)], [base]],
 			originalGearResults: base,
@@ -86,13 +79,13 @@ describe('bulkResultsCsv', () => {
 	});
 
 	it('writes one row per ranked set of every encounter, in ranked order, with the length in seconds', () => {
-		const rows = lines(bulkResultsCsv([entry('', true, 1100), entry('Patchwerk', false, 1050, false)])).slice(1);
+		const rows = lines(bulkResultsCsv([entry('', true, 1100), entry('Patchwerk', false, 1050)])).slice(1);
 
 		expect(rows.map(row => row.split(',').slice(0, 5))).toEqual([
 			['bulk_tab.results.current', '180', '5', '1', ''],
 			['bulk_tab.results.current', '180', '5', '2', 'yes'],
-			['Patchwerk', '', '', '1', ''],
-			['Patchwerk', '', '', '2', 'yes'],
+			['Patchwerk', '180', '5', '1', ''],
+			['Patchwerk', '180', '5', '2', 'yes'],
 		]);
 	});
 
@@ -168,8 +161,52 @@ describe('bulkResultsCsv', () => {
 		]);
 	});
 
+	it('makes a saved name a spreadsheet would run as a formula read as text, in every name column', () => {
+		const formula = '=HYPERLINK("x")';
+		const quoted = `"'=HYPERLINK(""x"")"`;
+		const talents = { name: formula, talentsString: ARMS, isCurrent: false };
+		const build = {
+			rotation: { name: formula, isCurrent: false, rotation: APLRotation.create() },
+			gearSetup: { gearSet: formula, gear: UPGRADE, gearSetGear: UPGRADE, bonusStats: new Stats() },
+			settings: { name: formula, isCurrent: false, settings: SavedSettings.create() },
+		};
+		const named: BulkEncounterResults = {
+			...entry(formula, false, 1100),
+			results: {
+				chains: [[result(UPGRADE, 1100, 10, talents, build)]],
+				originalGearResults: result(CURRENT_GEAR, 1000, 10),
+				referenceIsCurrent: true,
+				currentGear: CURRENT_GEAR,
+				iterations: 100,
+			},
+		};
+
+		const [, row] = lines(bulkResultsCsv([named]));
+
+		expect(row.startsWith(`${quoted},180,5,1,`)).toBe(true);
+		expect(row).toContain(`,${quoted},${ARMS},${quoted},,${quoted},${quoted},`);
+	});
+
+	it('keeps negative numbers and a talents string that opens with a dash as they are', () => {
+		const talents = { name: 'Fury', talentsString: '-2305', isCurrent: false };
+		const below: BulkEncounterResults = {
+			...entry('Patchwerk', false, 900),
+			results: {
+				chains: [[result(UPGRADE, 900, 10, talents)]],
+				originalGearResults: result(CURRENT_GEAR, 1000, 10),
+				referenceIsCurrent: true,
+				currentGear: CURRENT_GEAR,
+				iterations: 100,
+			},
+		};
+
+		const cells = lines(bulkResultsCsv([below]))[1].split(',');
+
+		expect(cells.slice(7, 11)).toEqual(['-100', '-10', 'Fury', '-2305']);
+	});
+
 	it('leaves all four cells of an empty slot empty', () => {
-		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100, true, gear(null, ASHKANDI))]));
+		const [, upgrade] = lines(bulkResultsCsv([entry('', true, 1100, gear(null, ASHKANDI))]));
 
 		expect(upgrade).toContain(`,,,,,Ashkandi,${ActionId.makeItemUrl(19364)},19364,`);
 	});

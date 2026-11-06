@@ -64,11 +64,17 @@ A value or action reaches the rotation and the kind picker in five places, all i
   or inside a sequence (`reResolveVariableRefs`).
 - **`Spell Is Known`, `Aura Is Known` and `Talent Is Known` fold to a constant at parse.** A constant false condition
   prunes the line, a constant true one is no condition (`newAPLAction`).
-- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID (`metadata` in
-  `sim/core/unit.go`). A preset can still name an unflagged spell: `GetAPLSpell` falls back to any spell with the id.
+- **The kind picker lists the spells flagged `SpellFlagAPL`** and every aura with an ActionID that does not set
+  `HideFromAPL` (`metadata` in `sim/core/unit.go`). A hand-written row names only a spell the picker lists, with the tag
+  the picker gives: `GetAPLSpell` falls back to the unflagged spell with that id and tag and the sim casts it. Heroic
+  Strike, Cleave, Maul and Raptor Strike register the swing's own attack and the press the rotation casts as two spells
+  of one id told apart by tag, and a row naming the attack (`spellId: 20569` with no tag, where the press is tag 1)
+  fires it on the spot, off the swing and the GCD, for +57 % Fury DPS on three targets. SIML refuses such a name as "a
+  spell no build lets a rotation cast".
 - **A major cooldown a Cast Spell names leaves Autocast Other Cooldowns** (`removeFromMajorCooldowns`, `apl.go`),
   pruned lines included. Every other major cooldown, racials included, fires only through Autocast Other Cooldowns,
-  whose Information validation lists them; a rotation without it never casts them.
+  whose Information validation lists them; a rotation without it never casts them. One with `DisableAutocast` set
+  (Innervate, a non-tank's defensive cooldown) goes only at a cooldown timing and is listed only when it has one.
 - **With the combat log on, a `Casting` line of a rotation cast ends with ` APL: <path>`.** The path joins segments with
   a spaced `>`, and every number is a 1-based config position that counts hidden rows: `prepull N`, `priority N`,
   `group G.N` (G the group's index in the rotation's groups, N the action's index in it) and `step N` (inside a
@@ -79,8 +85,9 @@ A value or action reaches the rotation and the kind picker in five places, all i
 
 ## Presets
 
-- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` is imported by the
-  spec's `presets.ts` and loaded by `core.GetAplRotation` (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
+- **One file serves the UI and the suite, in one of two layouts.** `<spec>/apls/<name>.apl.json` (`.apl.siml` for
+  the specs on SIML) is imported by the spec's `presets.ts` and loaded by `core.GetAplRotation`
+  (`sim/warrior/dps/dps_test.go`); `<spec>/builds/<name>.build.json`
   holds it in `player.rotation`, passed to `makePresetAPLRotation` and loaded by `core.GetTestBuildFromJSON`
   (`sim/warlock/warlock_test.go`). Priest, elemental shaman and warlock use builds only, enhancement shaman both.
 - **An option is a hidden group.** The priority list holds a Group Reference with `hide: true`, and the spec's
@@ -90,6 +97,8 @@ A value or action reaches the rotation and the kind picker in five places, all i
   `sim/warrior/dps/dps_test.go`; a group no suite un-hides never reaches the `.results`.
 - **A line is written against the pick at the cast end** (`docs/rotation.md`). After an edit, dump the validations
   (below) and judge the preset's cast counts from a debug log, not from the line as written.
+- **A rotation the owner hands over goes in as exported.** A review that finds a branch dead reports it and leaves it
+  in, even when dropping it leaves the `.results` unchanged; the preset changes only when the owner agrees.
 
 ## What fails silently
 
@@ -125,6 +134,12 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   rotation until its cast goes or its queued cast fires. If the cast can neither go nor be queued once the GCD is within
   400 ms, the sequence ends and the pick goes on down the list. A spender above it that is ready first keeps it from
   starting.
+- **A channel's `until` clip is held when the next action would start the same channel again**, unless the channel
+  line says `recast` (`shouldInterruptChannel` in `sim/core/apl.go`). The guard reads the rotation with the channel
+  ended and its aura down, and walks into group references, so a line gated on `not target.aura(x).is_active` or
+  sitting in a group counts as that recast, as do a sequence's current step, the next step of the strict sequence the
+  channel runs in and a multidot of the spell. A `Spell Is Channeling` check on a cast line is always false when the
+  line is read: the rotation reads no cast line while a channel runs, and the guard reads the channel as ended.
 - **`Aura Is Inactive` with reaction time is the refresh check** for an aura the rotation keeps up:
   `not(Aura Is Active)` with reaction time reads a fresh landing as inactive and recasts (`APLValueAuraIsInactive`).
 - **`Aura Num Stacks` with reaction time returns the previous stacks for a full reaction time after any change**, the
@@ -144,6 +159,12 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   A Change Target to the current target is not ready (`APLActionChangeTarget.IsReady`).
 - **`GCD Is Ready` is true from 400 ms before the GCD ends** (`MaxSpellQueueWindow`, `APLValueGCDIsReady`), so a
   line gated on it fires on every look in that window. `GCD Time To Ready` ≤ `0ms` holds only at the GCD's end.
+- **`Is Execute Phase` takes a target**, the current target when none is set (`sim/core/apl_values_encounter.go`). An
+  enemy has no health bar, so `Current Health` and `Current Health %` on one warn and do not resolve. Fights are
+  time-based: a fight lasts its rolled duration, and every target of a plain encounter crosses 35% and 20% at the
+  encounter's execute proportions.
+- **Multidot and Strict Multidot count active targets**: a disabled or dead target is skipped, so `max_dots` dots the
+  first targets still up (`sim/core/apl_actions_casting.go`).
 
 ## Traps
 

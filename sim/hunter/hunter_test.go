@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	googleProto "google.golang.org/protobuf/proto"
 
@@ -49,8 +50,11 @@ func TestHunter(t *testing.T) {
 			Profession1:      proto.Profession_Engineering,
 			Profession2:      proto.Profession_Blacksmithing,
 
-			Rotation:       core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"),
-			OtherRotations: []core.RotationCombo{core.GetAplRotation("../../ui/specs/hunter/dps/apls", "clean_weave")},
+			Rotation: core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"),
+			OtherRotations: []core.RotationCombo{
+				core.GetAplRotation("../../ui/specs/hunter/dps/apls", "clean_weave"),
+				core.RotationWithSpellIds("default_book_ranks", weaveRotation, map[int32]int32{13555: 25295, 14322: 25296}),
+			},
 
 			ItemFilter: core.ItemFilter{
 				ArmorType: proto.ArmorType_ArmorTypeMail,
@@ -240,7 +244,7 @@ func TestEachHunterKeepsOneStingPerTarget(t *testing.T) {
 	other := sim.Raid.Parties[0].Players[1].(*Hunter)
 	target := sim.Encounter.AllTargetUnits[0]
 
-	serpent := hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID}).Dot(target)
+	serpent := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(target)
 	scorpid := target.GetAura("Scorpid Sting-" + hunter.Label)
 	otherScorpid := target.GetAura("Scorpid Sting-" + other.Label)
 
@@ -654,6 +658,49 @@ func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 	}
 	if got := hunter.GetMovementSpeed(); math.Abs(got-7*1.08) > 1e-9 {
 		t.Errorf("after Strider Kick runs out the hunter runs %v yd/s, want the boots' %v", got, 7*1.08)
+	}
+}
+
+// The trainer's top rank of Aspect of the Hawk takes the book rank's place and procs Quick Shots under Deadly
+// Aspects. The book rank of Serpent Sting replaces the trainer's, and the trainer's does not land under it.
+func TestTrainerRanksBesideBookRanks(t *testing.T) {
+	sim, hunter := newTalentSim("5", proto.HunterOptions_PetNone)
+	target := hunter.CurrentTarget
+
+	hawkAura := func(rank *spelldata.Spell) *core.Aura {
+		return hunter.GetAuraByID(core.ActionID{SpellID: rank.ID})
+	}
+	castHawk := func(rank *spelldata.Spell) {
+		hunter.GetSpell(core.ActionID{SpellID: rank.ID}).SkipCastAndApplyEffects(sim, target)
+	}
+	castHawk(aspectOfTheHawkBookRank)
+	castHawk(aspectOfTheHawkTrainerRank)
+	if !hawkAura(aspectOfTheHawkTrainerRank).IsActive() || hawkAura(aspectOfTheHawkBookRank).IsActive() {
+		t.Error("the trainer's Aspect of the Hawk left the book rank up, want one aspect at a time")
+	}
+
+	quickShotsAura := hunter.GetAuraByID(core.ActionID{SpellID: quickShots.ID})
+	for range 500 {
+		if quickShotsAura.IsActive() {
+			break
+		}
+		hunter.AutoAttacks.RangedAuto().SkipCastAndApplyEffects(sim, target)
+	}
+	if !quickShotsAura.IsActive() {
+		t.Error("500 Auto Shots under the trainer's Aspect of the Hawk procced no Quick Shots")
+	}
+
+	trainerSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingTrainerRank.ID}).Dot(target)
+	bookSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(target)
+	trainerSting.Apply(sim)
+	bookSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the book rank's Serpent Sting left the trainer's up, want it to replace the trainer's")
+	}
+	dropOtherSting(sim, trainerSting.Aura)
+	trainerSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the trainer's Serpent Sting landed under the book rank, want it refused")
 	}
 }
 

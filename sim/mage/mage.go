@@ -22,6 +22,7 @@ type Mage struct {
 
 	ArcaneChargesAura  *core.Aura
 	ClearCasting       *core.Aura
+	MissileBarrageAura *core.Aura
 	PresenceOfMindAura *core.Aura
 	ArcanePowerAura    *core.Aura
 	FingersOfFrostAura *core.Aura
@@ -58,7 +59,7 @@ func RegisterMage() {
 }
 
 func (mage *Mage) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
-	raidBuffs.ArcaneBrilliance = true
+	raidBuffs.ArcaneIntellect = true
 }
 
 func (mage *Mage) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {

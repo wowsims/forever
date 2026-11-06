@@ -146,6 +146,7 @@ type write struct {
 	placed  *placed
 	values  []protoreflect.Value // An invalid value writes the field's default.
 	indices []int                // Each value's place in the field's list, or -1.
+	max     *write               // A duration's max, which its line writes as a second duration (SPEC.md §5.2).
 }
 
 type printer struct {
@@ -465,6 +466,11 @@ func (p *printer) single(f *field, v protoreflect.Value, sc scope) text {
 	case "action":
 		return p.inlineAction(v.Message(), sc)
 	case "action_id":
+		// talent_is_known reads its talent's rank as the points it needs, and a name reads back with its entry's
+		// rank, which a talent's entry leaves out. A rank above 1 stays raw, to be written talent_rank(x) >= N.
+		if keepsTalentRank(f.desc.ContainingMessage().FullName(), v.Message().Interface().(*proto.ActionID)) {
+			return rawWord(p.ix.jsonText(v.Message()))
+		}
 		return p.ref(v.Message(), p.kind.namespace(f), sc)
 	case "unit":
 		return word(p.unitText(v.Message()))
@@ -474,6 +480,8 @@ func (p *printer) single(f *field, v protoreflect.Value, sc scope) text {
 		if s := numberValue(f.desc, v); s != "" {
 			return word(s)
 		}
+	case "duration":
+		return word(durationText(v))
 	case "string":
 		return word(jsonString(v.String()))
 	case "enum", "flag_enum":
@@ -516,6 +524,14 @@ func numberValue(fd protoreflect.FieldDescriptor, v protoreflect.Value) string {
 	return strconv.FormatInt(v.Int(), 10)
 }
 
+// The milliseconds a duration field holds, as a duration; 0ms for an invalid value.
+func durationText(v protoreflect.Value) string {
+	if !v.IsValid() {
+		return "0ms"
+	}
+	return strconv.FormatInt(v.Int(), 10) + "ms"
+}
+
 // An integer field's value.
 func intOf(fd protoreflect.FieldDescriptor, v protoreflect.Value) int64 {
 	switch fd.Kind() {
@@ -538,6 +554,8 @@ func (p *printer) zero(f *field) string {
 		return "false"
 	case "number":
 		return "0"
+	case "duration":
+		return "0ms"
 	case "string":
 		return `""`
 	case "enum", "flag_enum":
@@ -730,6 +748,9 @@ func (p *printer) entryParts(w write) []text {
 		if i == 0 {
 			t = cat(word(f.Siml+" "), t)
 		}
+		if i == 0 && w.max != nil {
+			t = cat(t, word(" "+durationText(w.max.values[0])))
+		}
 		if i < len(w.values)-1 {
 			t = cat(t, word(","))
 		}
@@ -739,7 +760,14 @@ func (p *printer) entryParts(w write) []text {
 }
 
 // An entry line, which must read back as its writes, else is written as a raw entry of the fields they set.
-func (p *printer) entryStmt(writes []write, parts []text, indent int) *printedStmt {
+func (p *printer) entryStmt(lineWrites []write, parts []text, indent int) *printedStmt {
+	var writes []write
+	for _, w := range lineWrites {
+		writes = append(writes, w)
+		if w.max != nil {
+			writes = append(writes, *w.max)
+		}
+	}
 	var values []entryWrite
 	for _, w := range writes {
 		for i, v := range w.values {
@@ -749,10 +777,16 @@ func (p *printer) entryStmt(writes []write, parts []text, indent int) *printedSt
 	fallback := func() *printedStmt {
 		var b strings.Builder
 		b.WriteByte('{')
-		for i, w := range writes {
-			if i > 0 {
+		first := true
+		for _, w := range writes {
+			// A duration foldMaxes writes only to carry its max holds no value.
+			if !w.placed.isList() && !w.values[0].IsValid() {
+				continue
+			}
+			if !first {
 				b.WriteByte(',')
 			}
+			first = false
 			writeString(&b, w.placed.JSON)
 			b.WriteByte(':')
 			if !w.placed.isList() {
@@ -1520,7 +1554,7 @@ func printFile(ix *schemaIndex, names *Names, kind Kind, spec *SpecInfo, s *prot
 			}
 		}
 		if own != sectionGear {
-			for _, e := range p.entries(writes, indent(def)) {
+			for _, e := range p.entries(foldMaxes(writes, fields), indent(def)) {
 				out.body = append(out.body, &item{stmt: e})
 			}
 		}
@@ -1600,6 +1634,37 @@ func printFile(ix *schemaIndex, names *Names, kind Kind, spec *SpecInfo, s *prot
 		}
 	}
 	return verified(p, kind, items)
+}
+
+// The writes, with each duration's max (SPEC.md §5.2) joined to its duration's write, whose line prints both. A max
+// whose duration has no write joins a new write of the duration's default, in the max's place. fields are the
+// section's.
+func foldMaxes(writes []write, fields []*placed) []write {
+	written := map[string]bool{}
+	for _, w := range writes {
+		written[w.placed.path] = true
+	}
+	maxes := map[string]write{} // By the path of their duration.
+	for _, w := range writes {
+		if min := minField(w.placed, fields); min != nil && written[min.path] {
+			maxes[min.path] = w
+		}
+	}
+	var out []write
+	for _, w := range writes {
+		min := minField(w.placed, fields)
+		switch {
+		case min != nil && written[min.path]:
+		case min != nil:
+			out = append(out, write{placed: min, values: []protoreflect.Value{{}}, indices: []int{-1}, max: &w})
+		default:
+			if m, ok := maxes[w.placed.path]; ok {
+				w.max = &m
+			}
+			out = append(out, w)
+		}
+	}
+	return out
 }
 
 // A field's value as writes: one value, a list's values, or each message of a list as a write of its own.

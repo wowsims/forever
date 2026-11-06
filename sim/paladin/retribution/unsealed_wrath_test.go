@@ -10,8 +10,8 @@ import (
 )
 
 // A paladin with Unsealed Wrath and no rotation or auto attacks, a swing that always lands, and a
-// count of the Seal of Righteousness hits cast so far.
-func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func() int32) {
+// count of the Seal of Righteousness hits cast so far under one tag.
+func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
 	t.Helper()
 	player := &proto.Player{
 		Name:          "Unsealed Wrath",
@@ -36,10 +36,10 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 		t.Fatal("the talents do not take Unsealed Wrath")
 	}
 
-	righteousnessHits = func() int32 {
+	righteousnessHits = func(tag int32) int32 {
 		var casts int32
 		for _, spell := range pal.Spellbook {
-			if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) {
+			if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) && spell.ActionID.Tag == tag {
 				casts += spell.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts
 			}
 		}
@@ -92,8 +92,8 @@ func TestUnsealedWrathStoresUpToThreeCopies(t *testing.T) {
 	}
 }
 
-// A hit that lands under another seal spends every stored copy, each one a Seal of Righteousness hit,
-// and stores a copy of the new seal.
+// A hit that lands under another seal spends every stored copy, each one a Seal of Righteousness hit
+// tagged with Echo of Righteousness, and stores a copy of the new seal.
 func TestUnsealedWrathSpendsTheStoredCopiesUnderAnotherSeal(t *testing.T) {
 	sim, pal, swing, righteousnessHits := unsealedWrathPaladin(t)
 	castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
@@ -102,11 +102,14 @@ func TestUnsealedWrathSpendsTheStoredCopiesUnderAnotherSeal(t *testing.T) {
 	}
 
 	castSeal(t, sim, pal, paladin.SealOfFuryRankMap.Highest().ID)
-	before := righteousnessHits()
+	before, beforeUntagged := righteousnessHits(1311704), righteousnessHits(0)
 	swing()
 
-	if got := righteousnessHits() - before; got != 3 {
-		t.Errorf("the hit under Seal of Fury replayed %d Seal of Righteousness hits, want 3", got)
+	if got := righteousnessHits(1311704) - before; got != 3 {
+		t.Errorf("the hit under Seal of Fury replayed %d Seal of Righteousness hits tagged with Echo of Righteousness, want 3", got)
+	}
+	if got := righteousnessHits(0) - beforeUntagged; got != 0 {
+		t.Errorf("the hit under Seal of Fury cast %d untagged Seal of Righteousness hits, want 0", got)
 	}
 	if pal.GetAuraByID(core.ActionID{SpellID: 1311704}).IsActive() {
 		t.Error("Echo of Righteousness stays up after its copies are spent")

@@ -56,7 +56,7 @@ message {{$class}}Talents {
     {{- if eq $talent.MaxPoints 1 }}
     bool {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }} [(talent_spell_id) = {{ $talent.SpellID }}];
     {{- else }}
-    int32 {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }} [(talent_spell_id) = {{ $talent.SpellID }}];
+    int32 {{ final $talent.FancyName $class }} = {{ $talent.ProtoFieldNumber }} [(talent_spell_id) = {{ $talent.SpellID }}, (talent_max_rank) = {{ $talent.MaxPoints }}];
     {{- end }}
 {{- end }}
 {{- end }}

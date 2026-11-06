@@ -73,7 +73,7 @@ export const EpReferenceOptions = ({ epStats, epReferenceStat, displayMetrics }:
 					/>
 				))}
 			</div>
-			<p className="mt-1 mb-0 text-xs text-muted">{i18n.t('sidebar.buttons.stat_weights.modal.reference_description')}</p>
+			<p className="mt-1 mb-0 text-muted">{i18n.t('sidebar.buttons.stat_weights.modal.reference_description')}</p>
 		</div>
 	);
 };

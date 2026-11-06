@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/siml"
 )
 
@@ -46,7 +47,7 @@ func (p Pin) String() string {
 
 // What a run changed and could not do.
 type Report struct {
-	Added        []string // One line per new entry, such as warrior.spell.heroic_strike = spell 25286 tag 1.
+	Added        []string // One line per new entry, such as warrior.spell.heroic_strike = spell 11567 tag 1.
 	Qualified    []string // New class entries whose plain name a shared entry holds, which the class's files mean by it.
 	Repinned     []Repin  // The names a repin handed back to the new-name rules, by name.
 	Dropped      []string // Names HEAD's table does not hold whose entries nothing gives now, such as hunter.spell.x = spell 1.
@@ -311,17 +312,20 @@ func (u *updater) registeredBy() {
 	}
 }
 
-// e with its spec lists written from what the builds register: registeredBy, and of its specs those whose builds
-// list the aura only as an internal cooldown trigger (icdOnlyBy); and for a spell no build registers castable,
-// uncastable.
+// e with its spec lists written from what the builds register: registeredBy, of its specs those whose builds list
+// the aura only as an internal cooldown trigger (icdOnlyBy) and those whose builds list the spell only as a talent
+// (talentOnlyBy); and for a spell no build registers castable, uncastable, which a talent no build casts is too.
 func (u *updater) withSpecs(class proto.Class, ns siml.Namespace, e siml.SpellName) siml.SpellName {
 	id := Identity{e.SpellID, e.Tag}
 	reg := u.c.Registered[ns][id]
-	e.RegisteredBy, e.ICDOnlyBy = u.specs(class, ns, id), nil
+	e.RegisteredBy, e.ICDOnlyBy, e.TalentOnlyBy = u.specs(class, ns, id), nil, nil
 	e.Uncastable = ns == siml.NamespaceSpell && len(e.RegisteredBy) > 0 && !reg.Castable
 	for _, s := range e.RegisteredBy {
 		if slices.Contains(reg.ICDSpecs, s) {
 			e.ICDOnlyBy = append(e.ICDOnlyBy, s)
+		}
+		if slices.Contains(reg.TalentSpecs, s) && !slices.Contains(reg.ListedSpecs, s) {
+			e.TalentOnlyBy = append(e.TalentOnlyBy, s)
 		}
 	}
 	return e
@@ -459,8 +463,8 @@ func (u *updater) spellCandidate(id Identity, rank int32) candidate {
 	}
 }
 
-// Preference among new spell-like entries for one name: castable first in the spell namespace, then tag 0, the
-// highest rank and the lowest spell id; the lowest tag last, so the order is total.
+// Preference among new spell-like entries for one name: castable first in the spell namespace, then tag 0, a rank
+// that is no class book rank, the highest rank and the lowest spell id; the lowest tag last, so the order is total.
 func (u *updater) preferSpells(ns siml.Namespace, ids []Identity) {
 	reg := u.c.Registered[ns]
 	slices.SortFunc(ids, func(a, b Identity) int {
@@ -476,6 +480,12 @@ func (u *updater) preferSpells(ns siml.Namespace, ids []Identity) {
 				return -1
 			}
 			return 1
+		}
+		if bookA := spelldata.IsBookRank(a.SpellID); bookA != spelldata.IsBookRank(b.SpellID) {
+			if bookA {
+				return 1
+			}
+			return -1
 		}
 		return cmp.Or(cmp.Compare(rb.Rank, ra.Rank), cmp.Compare(a.SpellID, b.SpellID), cmp.Compare(a.Tag, b.Tag))
 	})

@@ -75,9 +75,9 @@ describe('specDefaultsFromSettings', () => {
 			hunter: { options: { classOptions: { petUptime: 1 } } },
 			equipment: { items: [{ id: 28275, enchant: 2724 }] },
 			talentsString: '-005-55',
-			rotation: { type: 'TypeSimple', simple: { specRotationJson: '{"timeToWeave":400,"playstyle":"Weave"}' } },
+			rotation: { type: 'TypeSimple', simple: { specRotationJson: '{"pullRange":30,"playstyle":"Weave"}' } },
 		},
-		raidBuffs: { giftOfTheWild: true },
+		raidBuffs: { markOfTheWild: true },
 		settings: { iterations: 25000 },
 	};
 
@@ -92,9 +92,9 @@ describe('specDefaultsFromSettings', () => {
 		expect(defaults.gear).toEqual(EquipmentSpec.fromJson({ items: [{ id: 28275, enchant: 2724 }] }));
 		expect(defaults.talents.talentsString).toBe('-005-55');
 		expect(defaults.specOptions.classOptions?.petUptime).toBe(1);
-		expect(defaults.raidBuffs.giftOfTheWild).toBe(true);
+		expect(defaults.raidBuffs.markOfTheWild).toBe(true);
 		expect(defaults.rotationType).toBe(APLRotation_Type.TypeSimple);
-		expect(defaults.simpleRotation).toMatchObject({ timeToWeave: 400, playstyle: Hunter_Rotation_Playstyle.Weave });
+		expect(defaults.simpleRotation).toMatchObject({ pullRange: 30, playstyle: Hunter_Rotation_Playstyle.Weave });
 		expect(defaults).not.toHaveProperty('aplRotation');
 		expect(defaults.other).toMatchObject({ race: Race.RaceOrc, profession1: Profession.Engineering, distanceFromTarget: 11, iterationCount: 25000 });
 	});

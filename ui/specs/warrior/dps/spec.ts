@@ -202,7 +202,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		if (rendWeaveAction) rendWeaveAction.hide = !useRend;
 
 		// Hamstring is woven for Windfury procs only while Windfury Totem is known: Fury below Overpower weaving, Arms above
-		// Execute while the Windfury buff is down.
+		// Execute while the Windfury buff is down. It runs on a single target only, since on more targets the rage goes to
+		// Cleave and Whirlwind instead; Arms with Stance Dance on, which has no Whirlwind stance weave, keeps it on two.
 		const hamstringWeaveAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);

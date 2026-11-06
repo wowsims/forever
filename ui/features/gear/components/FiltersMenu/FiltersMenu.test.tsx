@@ -4,7 +4,7 @@ import { SimHostProvider } from '@sim/context/SimHostContext';
 import { storeSource as store } from '@testing/gear';
 import { renderWithHost } from '@testing/react';
 import { fakeHost } from '@testing/sim/fake_host';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -225,6 +225,19 @@ describe('FiltersMenuView', () => {
 		expect(input('filters-max-ilvl').value).toBe('528');
 		await userEvent.click(document.getElementById('filters-faction-restriction')!);
 		expect(factionOptions().map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);
+	});
+
+	it('shows the World Drop toggle as on unless the filters hide world drops, and writes it back', () => {
+		const { lastEdit } = renderView({ filters: DatabaseFilters.create() });
+		const toggle = () => input('filters-source-world-drop');
+		expect(toggle().checked).toBe(true);
+
+		fireEvent.click(toggle());
+		expect(lastEdit().hideWorldDrops).toBe(true);
+
+		cleanup();
+		renderView({ filters: DatabaseFilters.create({ hideWorldDrops: true }) });
+		expect(toggle().checked).toBe(false);
 	});
 
 	it('adds a ticked list entry and removes an unticked one', () => {

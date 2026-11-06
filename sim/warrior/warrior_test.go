@@ -1,12 +1,14 @@
 package warrior_test
 
 import (
+	"math"
 	"testing"
 	"time"
 
 	"github.com/wowsims/forever/sim/common"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -24,8 +26,8 @@ func init() {
 }
 
 // The fixtures mirror the spec suites' Default* fixtures.
-var furyTalents = "30305003-05053035052210501"
-var armsTalents = "30305213032315201-0505003004"
+var furyTalents = "30303003-050530355022100031"
+var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
 var dpsOptions = &proto.Player_DpsWarrior{
@@ -735,6 +737,47 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 	t.Fatal("the result has no Heroic Strike action")
 }
 
+// Runs the sim strictly past one spell batch, so every deferred proc due in it has fired whatever the
+// order of actions at the same time.
+func stepPastBatch(t *testing.T, sim *core.Simulation) {
+	t.Helper()
+	at := sim.CurrentTime + core.SpellBatchWindow
+	for steps := 0; sim.CurrentTime <= at; steps++ {
+		if steps > 10000 {
+			t.Fatalf("the sim did not pass %v", at)
+		}
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+		sim.Step()
+	}
+}
+
+// Victorious State hears the killing blow: a credited kill lets Victory Rush be cast, a death the
+// raid gets no kill for does not, and Victory Rush spends the buff.
+func TestAKillingBlowEnablesVictoryRush(t *testing.T) {
+	sim, war, unit := newWindowSim(t)
+	target := sim.Encounter.AllTargets[0]
+	victorious := war.VictoryRush.RelatedSelfBuff
+
+	target.Die(sim, 0)
+	stepPastBatch(t, sim)
+	if victorious.IsActive() {
+		t.Error("a death with no kill credit put up Victorious")
+	}
+
+	target.Enable(sim)
+	target.Die(sim, 1)
+	stepPastBatch(t, sim)
+	target.Enable(sim)
+	if castable := war.VictoryRush.CanCast(sim, unit); !victorious.IsActive() || !castable {
+		t.Fatalf("after a killing blow Victorious is up %v and Victory Rush castable %v, want both", victorious.IsActive(), castable)
+	}
+
+	war.VictoryRush.Cast(sim, unit)
+	if victorious.IsActive() {
+		t.Error("Victory Rush left Victorious up")
+	}
+}
+
 // An engineer warrior at 100 rage with no swing running, its Cleave queue spell and aura, and the
 // explosive the consumables register.
 func newThrowerSim(t *testing.T, consumes *proto.ConsumesSpec, explosiveID int32, queueDelay int32) (sim *core.Simulation, war *dps.DpsWarrior, queueCleave *core.Spell, queue *core.Aura, explosive *core.Spell) {
@@ -820,5 +863,97 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 	if !queueCleave.Cast(sim, war.CurrentTarget) {
 		t.Error("Cleave could not be queued again after the throw")
+	}
+}
+
+// In Defensive Stance, the rage a block grants through Shield Specialization makes ThreatPerRageGained
+// threat per rage without the warrior's threat multiplier, and Bloodrage's rage makes it times the
+// multiplier.
+func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testing.T) {
+	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
+	player := &proto.Player{
+		Name:          "Rage Threat",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/protection/gear_sets", "preraid").GearSet,
+		TalentsString: protectionTalents,
+		Spec:          protectionOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	war, target := sim.Raid.Parties[0].Players[0].GetCharacter(), sim.Encounter.AllTargetUnits[0]
+
+	rageThreat := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain})
+	bloodrage := war.GetSpell(core.ActionID{SpellID: 2687})
+	if rageThreat == nil || bloodrage == nil {
+		t.Fatal("the warrior has no rage gain threat or no Bloodrage")
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexPhysical]
+	if multiplier == 1 {
+		t.Fatal("Defensive Stance sets no threat multiplier, so the checks below prove nothing")
+	}
+
+	threatPerRage := func(gainRage func()) float64 {
+		t.Helper()
+		war.SpendRage(sim, war.CurrentRage(), war.RageRefundMetrics)
+		threatBefore := rageThreat.SpellMetrics[target.UnitIndex].TotalThreat
+		gainRage()
+		if war.CurrentRage() == 0 {
+			t.Fatal("no rage was gained")
+		}
+		return (rageThreat.SpellMetrics[target.UnitIndex].TotalThreat - threatBefore) / war.CurrentRage()
+	}
+
+	block := func() {
+		for range 1000 {
+			war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
+				&core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
+			if war.CurrentRage() > 0 {
+				return
+			}
+		}
+	}
+	if got := threatPerRage(block); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+
+	bloodrageRage := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
+	if got, want := threatPerRage(bloodrageRage), core.ThreatPerRageGained*multiplier; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Bloodrage's rage made %v threat per rage, want %v", got, want)
+	}
+}
+
+// Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
+// action and not as damage taken.
+func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
+	sim, war := orcWarriorSim(t, "p1_fury", "30303003-050530355122100031")
+
+	for _, id := range []int32{1329555, 2687} {
+		spell := war.GetSpell(core.ActionID{SpellID: id})
+		if spell == nil {
+			t.Fatalf("the warrior has no spell %d", id)
+		}
+		want := war.BaseHealth() * float64(spelldata.MustFind(id).Power(dbcenums.POWER_HEALTH).CostPct) / 100
+		if want <= 0 {
+			t.Fatalf("%s states no health cost", spell.ActionID)
+		}
+
+		before := war.CurrentHealth()
+		spell.SkipCastAndApplyEffects(sim, &war.Unit)
+		if got := before - war.CurrentHealth(); math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s took %v health, want %v", spell.ActionID, got, want)
+		}
+		if got := spell.HealthMetrics(&war.Unit).Gain; math.Abs(got+want) > 1e-9 {
+			t.Errorf("%s booked %v health under its own action, want %v", spell.ActionID, got, -want)
+		}
+	}
+
+	if events := war.DamageTakenHealthMetrics.Events; events != 0 {
+		t.Errorf("damage taken counted %d health events, want none", events)
 	}
 }

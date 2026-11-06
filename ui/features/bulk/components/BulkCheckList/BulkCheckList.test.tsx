@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -17,6 +17,9 @@ const row = (name: string, summary: string, preset: boolean, extra: Partial<Bulk
 
 const descriptions = (element: Element) => (element.getAttribute('aria-describedby') ?? '').split(' ').map(id => document.getElementById(id)?.textContent);
 const box = (name: string) => screen.getByRole('checkbox', { name });
+// react-tooltip mounts a tooltip 10 ms before it shows it, and one closed inside that window stays mounted, so a test waits
+// for the show class before it blurs.
+const shownTooltips = () => screen.queryAllByRole('tooltip').filter(tooltip => tooltip.classList.contains('react-tooltip__show'));
 
 describe('the bulk check lists', () => {
 	it('describe each row by its summary, its duplicate note and the reason it is disabled, a bundle row’s buttons too', () => {
@@ -110,5 +113,37 @@ describe('the bulk check lists', () => {
 		const tooltip = await screen.findByRole('tooltip');
 		expect(tooltip.textContent).toBe('Same as Current bundle');
 		expect(tooltip.className).toContain('react-tooltip__place-bottom');
+	});
+
+	it('show a reason quoting a saved name as text', async () => {
+		const reason = 'Same as <img src=x onerror=alert(1)>';
+		render(
+			<>
+				<EncounterListView
+					current={{ label: 'Current encounter', summary: '3:00 ±5s · 1 target', checked: true, onCheckedChange: vi.fn() }}
+					presets={[]}
+					saved={[row('Encounter copy', '5:00 ±5s · 1 target', false, { disabledReason: reason })]}
+					onCheckedChange={vi.fn()}
+				/>
+				<BulkBundleList
+					current={{ label: 'Current bundle', checked: true, onCheckedChange: vi.fn() }}
+					rows={[{ key: '0', label: 'Bundle copy', checked: true, disabledReason: reason }]}
+					onCheckedChange={vi.fn()}
+					onEdit={vi.fn()}
+					onDelete={vi.fn()}
+					testIds={{ list: 'bulk-bundles', row: 'bulk-bundle', current: 'bulk-bundle-current' }}
+				/>
+			</>,
+		);
+
+		for (const name of ['Encounter copy', 'Bundle copy']) {
+			act(() => box(name).focus());
+			await waitFor(() => expect(shownTooltips()).toHaveLength(1));
+			const [tooltip] = shownTooltips();
+			expect(tooltip!.textContent).toBe(reason);
+			expect(tooltip!.querySelector('img')).toBeNull();
+			act(() => box(name).blur());
+			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+		}
 	});
 });

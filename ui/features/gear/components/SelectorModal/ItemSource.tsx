@@ -1,22 +1,37 @@
-import { UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
+import { Faction } from '@generated/proto/common';
+import { type DropSource, DungeonDifficulty, UIItem as Item, UIItem_FactionRestriction, UIItemSource as ItemSourceEntry } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
 import { difficultyNames, professionNames, REP_LEVEL_NAMES } from '@sim/proto/names';
 import type { Sim } from '@sim/sim';
+import { Button } from '@ui-kit/Button';
+import { Popover } from '@ui-kit/Popover';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 
 export interface ItemSourceProps {
-	item: Item;
+	/** An enchant passes its own item's id and its sources, and has no faction restriction. */
+	item: Pick<Item, 'id' | 'sources'> & Partial<Pick<Item, 'factionRestriction'>>;
 	sim: Sim;
+	/** The character's side, whose quests and vendors show; omit it to show both sides'. */
+	faction?: Faction;
 }
 
-const FactionIcon = ({ restriction }: { restriction: UIItem_FactionRestriction }) => {
+// What the source helpers read: the character's faction only picks which sources show.
+type SourceContext = Pick<ItemSourceProps, 'item' | 'sim'>;
+
+// The cell shows the first source by kind, whatever order the sources come in, and the list behind `+N` the rest in this order.
+const KIND_ORDER = ['crafted', 'drop', 'quest', 'rep', 'pvp', 'soldBy'] as const;
+
+const FactionIcon = ({ restriction }: { restriction?: UIItem_FactionRestriction }) => {
 	if (restriction === UIItem_FactionRestriction.ALLIANCE_ONLY)
 		return <img src="/forever/assets/img/alliance.png" className="ml-1" width="15" height="15" alt="" />;
 	if (restriction === UIItem_FactionRestriction.HORDE_ONLY) return <img src="/forever/assets/img/horde.png" className="ml-1" width="15" height="15" alt="" />;
 	return null;
 };
+
+// A world drop has a name and no zone.
+const isWorldDrop = ({ zoneId, otherName }: DropSource): boolean => !zoneId && !!otherName;
 
 const SourceLink = ({ href, children }: { href: string; children: ReactNode }) => (
 	<WowheadAnchor href={href} target="_blank" className="relative z-1">
@@ -24,102 +39,181 @@ const SourceLink = ({ href, children }: { href: string; children: ReactNode }) =
 	</WowheadAnchor>
 );
 
-export const ItemSource = ({ item, sim }: ItemSourceProps): ReactNode => {
-	if (!item.sources?.length) return null;
+// False for a source it cannot name: a quest with no name, or a drop in a zone the database lacks.
+const canShowSource = ({ source }: ItemSourceEntry, { item, sim }: SourceContext): boolean => {
+	if (source.oneofKind === 'quest') return !!source.quest.name;
+	if (source.oneofKind !== 'drop' || isWorldDrop(source.drop) || sim.db.getZone(source.drop.zoneId)) return true;
+	console.error('No zone found for item:', item);
+	return false;
+};
 
-	// One source shows, by kind: crafted, drop, rep, quest, pvp, then vendor, whatever order the sources come in.
-	const first = <K extends NonNullable<ItemSourceEntry['source']['oneofKind']>>(kind: K) =>
-		item.sources.find(entry => entry.source.oneofKind === kind)?.source as Extract<ItemSourceEntry['source'], { oneofKind: K }> | undefined;
-
-	const crafted = first('crafted');
-	if (crafted) {
-		const src = crafted.crafted;
-		const href = src.spellId ? ActionId.makeSpellUrl(src.spellId) : ActionId.makeItemUrl(item.id);
-		return <SourceLink href={href}>{professionNames.get(src.profession) ?? i18n.t('common.sources.unknown')}</SourceLink>;
-	}
-
-	const drop = first('drop');
-	if (drop) {
-		const src = drop.drop;
-		const zone = sim.db.getZone(src.zoneId);
-		const npc = sim.db.getNpc(src.npcId);
-		if (!zone) {
-			console.error('No zone found for item:', item);
-			return null;
+const renderSource = ({ source }: ItemSourceEntry, { item, sim }: SourceContext): ReactNode => {
+	switch (source.oneofKind) {
+		case 'crafted': {
+			const src = source.crafted;
+			const href = src.spellId ? ActionId.makeSpellUrl(src.spellId) : ActionId.makeItemUrl(item.id);
+			return <SourceLink href={href}>{professionNames.get(src.profession) ?? i18n.t('common.sources.unknown')}</SourceLink>;
 		}
+		case 'drop': {
+			const src = source.drop;
+			if (isWorldDrop(src)) return <SourceLink href={ActionId.makeItemUrl(item.id)}>{src.otherName}</SourceLink>;
 
-		const category = src.category ? ` - ${src.category}` : '';
-		if (npc) {
-			return (
-				<SourceLink href={ActionId.makeNpcUrl(npc.id)}>
-					<span>
-						{zone.name} ({difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})
-						<br />
-						{npc.name + category}
-					</span>
-				</SourceLink>
+			const zone = sim.db.getZone(src.zoneId)!;
+			const npc = sim.db.getNpc(src.npcId);
+			const zoneText = (
+				<>
+					{zone.name}
+					{src.difficulty !== DungeonDifficulty.DifficultyUnknown && ` (${difficultyNames.get(src.difficulty) ?? i18n.t('common.sources.unknown')})`}
+				</>
 			);
+
+			const category = src.category ? ` - ${src.category}` : '';
+			if (npc) {
+				return (
+					<SourceLink href={ActionId.makeNpcUrl(npc.id)}>
+						<span>
+							{zoneText}
+							<br />
+							{npc.name + category}
+						</span>
+					</SourceLink>
+				);
+			}
+			if (src.otherName) {
+				return (
+					<SourceLink href={ActionId.makeZoneUrl(zone.id)}>
+						<span>
+							{zoneText}
+							<br />
+							{src.otherName}
+						</span>
+					</SourceLink>
+				);
+			}
+			return <SourceLink href={ActionId.makeZoneUrl(zone.id)}>{zone.name}</SourceLink>;
 		}
-		if (src.otherName) {
+		case 'quest': {
+			const src = source.quest;
 			return (
-				<SourceLink href={ActionId.makeZoneUrl(zone.id)}>
+				<SourceLink href={ActionId.makeQuestUrl(src.id)}>
 					<span>
-						{zone.name}
-						<br />
-						{src.otherName}
-					</span>
-				</SourceLink>
-			);
-		}
-		return <SourceLink href={ActionId.makeZoneUrl(zone.id)}>{zone.name}</SourceLink>;
-	}
-
-	const quest = item.sources.find(entry => entry.source.oneofKind === 'quest' && entry.source.quest.name)?.source;
-	if (quest?.oneofKind === 'quest') {
-		const src = quest.quest;
-		return (
-			<SourceLink href={ActionId.makeQuestUrl(src.id)}>
-				<span>
-					{i18n.t('common.sources.quest')}
-					<FactionIcon restriction={item.factionRestriction} />
-					<br />
-					{src.name}
-				</span>
-			</SourceLink>
-		);
-	}
-
-	const reps = item.sources.flatMap(entry => (entry.source.oneofKind === 'rep' ? [entry.source.rep] : []));
-	if (reps.length) {
-		return (
-			<SourceLink href={ActionId.makeFactionUrl(reps[0].repFactionId)}>
-				{reps.map((rep, index) => (
-					<span key={`${rep.repFactionId}-${index}`}>
-						{sim.db.getRepFaction(rep.repFactionId)?.name || i18n.t('common.sources.unknown')} - {REP_LEVEL_NAMES[rep.repLevel]}
+						{i18n.t('common.sources.quest')}
 						<FactionIcon restriction={item.factionRestriction} />
 						<br />
+						{src.name}
 					</span>
-				))}
-			</SourceLink>
-		);
+				</SourceLink>
+			);
+		}
+		case 'rep': {
+			const src = source.rep;
+			return (
+				<SourceLink href={ActionId.makeFactionUrl(src.repFactionId)}>
+					<span>
+						{sim.db.getRepFaction(src.repFactionId)?.name || i18n.t('common.sources.unknown')} - {REP_LEVEL_NAMES[src.repLevel]}
+						<FactionIcon restriction={item.factionRestriction} />
+					</span>
+				</SourceLink>
+			);
+		}
+		case 'pvp':
+			return <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
+		case 'soldBy': {
+			const src = source.soldBy;
+			return (
+				<SourceLink href={ActionId.makeNpcUrl(src.npcId)}>
+					<span>
+						{i18n.t('common.sources.sold_by')}
+						<br />
+						{src.npcName}
+					</span>
+				</SourceLink>
+			);
+		}
+		default:
+			return null;
 	}
+};
 
-	if (item.sources.some(entry => entry.source.oneofKind === 'pvp'))
-		return <SourceLink href={ActionId.makeItemUrl(item.id)}>{i18n.t('common.sources.pvp')}</SourceLink>;
+const OtherSources = ({ entries, ...props }: SourceContext & { entries: ItemSourceEntry[] }) => (
+	<ul className="m-0 flex list-none flex-col gap-2 p-0">
+		{entries.map((entry, index) => (
+			<li key={index}>{renderSource(entry, props)}</li>
+		))}
+	</ul>
+);
 
-	const soldBy = first('soldBy');
-	if (soldBy) {
-		const src = soldBy.soldBy;
-		return (
-			<SourceLink href={ActionId.makeNpcUrl(src.npcId)}>
-				<span>
-					{i18n.t('common.sources.sold_by')}
-					<br />
-					{src.npcName}
-				</span>
-			</SourceLink>
-		);
-	}
+// A popover, because a react-tooltip in hover mode opens on touchstart and closes on the click that follows, so a tap
+// shows nothing. The list is its child, built only when shown: a row with over a hundred vendors re-renders without it.
+// The button sits above the row's click layer, as the link beside it does, so a press equips nothing.
+const MoreSources = ({ entries, ...props }: SourceContext & { entries: ItemSourceEntry[] }) => {
+	const [open, setOpen] = useState(false);
+	// The picker takes Escape first when focus is elsewhere in it and the list is open under the pointer.
+	useEffect(() => {
+		if (!open) return;
+		const closeList = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape') return;
+			event.stopPropagation();
+			setOpen(false);
+		};
+		window.addEventListener('keydown', closeList, true);
+		return () => window.removeEventListener('keydown', closeList, true);
+	}, [open]);
+	return (
+		<Popover
+			open={open}
+			onOpenChange={setOpen}
+			align="start"
+			trigger={`+${entries.length}`}
+			triggerRender={<Button variant="outline-secondary" size="none" className="relative z-1 shrink-0 px-1 text-xs" />}
+			triggerTestId="item-source-more"
+			triggerProps={{
+				'aria-label': i18n.t('gear_tab.gear_picker.more_sources', { count: entries.length }),
+				openOnHover: true,
+				delay: 0,
+				// Tab's release lands here when Tab brought the focus. A focus handler would also fire on a tap, whose click then
+				// closes what it opened, and when Escape hands the focus back from a link in the list.
+				onKeyUp: event => {
+					if (event.key === 'Tab') setOpen(true);
+				},
+				// The pointer already holds the list open. Base UI would close it under the pointer, or within 500 ms of the
+				// hover keep it open after the pointer leaves.
+				onClick: event => {
+					if (open && (event.nativeEvent as PointerEvent).pointerType === 'mouse') event.preventBaseUIHandler();
+				},
+			}}>
+			<OtherSources entries={entries} {...props} />
+		</Popover>
+	);
+};
 
-	return null;
+const isForOtherFaction = ({ source }: ItemSourceEntry, faction: Faction): boolean => {
+	const sourceFaction = source.oneofKind === 'quest' ? source.quest.faction : source.oneofKind === 'soldBy' ? source.soldBy.faction : Faction.Unknown;
+	return faction !== Faction.Unknown && sourceFaction !== Faction.Unknown && sourceFaction !== faction;
+};
+
+// The entries that pass keep, or all of them when none does: an empty cell would say the item comes from nowhere.
+const preferring = (entries: ItemSourceEntry[], keep: (entry: ItemSourceEntry) => boolean): ItemSourceEntry[] => {
+	const kept = entries.filter(keep);
+	return kept.length ? kept : entries;
+};
+
+export const ItemSource = ({ item, sim, faction = Faction.Unknown }: ItemSourceProps): ReactNode => {
+	const context = { item, sim };
+	const named = KIND_ORDER.flatMap(kind => item.sources.filter(entry => entry.source.oneofKind === kind)).filter(entry => canShowSource(entry, context));
+	// PvP is for the filter, so it shows only when the item has nothing else. Then the other side's quests and vendors
+	// stay out, unless they are all that is left. PvP goes first, so a PvP source for the other side cannot be the one left.
+	const [first, ...others] = preferring(
+		preferring(named, entry => entry.source.oneofKind !== 'pvp'),
+		entry => !isForOtherFaction(entry, faction),
+	);
+	if (!first) return null;
+	if (!others.length) return renderSource(first, context);
+
+	return (
+		<div className="flex items-start gap-2">
+			{renderSource(first, context)}
+			<MoreSources entries={others} {...context} />
+		</div>
+	);
 };

@@ -9,6 +9,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
 )
@@ -45,6 +46,34 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	}
 	if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
 		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints())
+	}
+}
+
+// The trainer's top rank and the book rank of Ferocious Bite each register, and either spends the extra energy and
+// the combo points when it lands.
+func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
+	for _, id := range []int32{22829, 31018} {
+		sim, cat := newCat(t, "", nil)
+		target := cat.CurrentTarget
+		target.PseudoStats.BaseDodgeChance = 0
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		bite := cat.GetSpell(core.ActionID{SpellID: id})
+		if bite == nil {
+			t.Fatalf("spell %d is not registered", id)
+		}
+		if coef := spelldata.MustFind(id).DamageEffect().APCoef; coef <= 0 {
+			t.Errorf("spell %d states an attack power share of %v, want both ranks to scale", id, coef)
+		}
+		if !bite.Cast(sim, target) {
+			t.Fatalf("spell %d did not cast", id)
+		}
+		if metrics := bite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
+			t.Fatalf("spell %d did not land", id)
+		}
+		if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
+			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints())
+		}
 	}
 }
 
@@ -110,8 +139,9 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	before = metric.TotalDamage
 	dot.TickOnce(sim)
 	high := metric.TotalDamage - before
-	if math.Abs((high-low)-5.5) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want 5.5", high-low)
+	// The override's 0.055 per attack power (the row states none), raised by 25%.
+	if math.Abs((high-low)-6.875) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want 6.875", high-low)
 	}
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
 }
@@ -161,7 +191,8 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 		before = metric.TotalDamage
 		dot.TickOnce(sim)
 		gain := metric.TotalDamage - before - low
-		if math.Abs(gain-float64(min(cp, 4))) > 1e-5 {
+		// The override's 0.01 per attack power and combo point (the row states none), raised by 25%.
+		if math.Abs(gain-1.25*float64(min(cp, 4))) > 1e-5 {
 			t.Fatalf("cp=%d tick gain=%g", cp, gain)
 		}
 		t.Logf("Rip %d CP: 100 AP gains %g per tick / %g total", cp, gain, gain*6)
@@ -287,8 +318,8 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	}
 	for _, rip := range []bool{false, true} {
 		plain, raised := tick("", rip), tick(rendAndTear5, rip)
-		if plain <= 0 || math.Abs(raised/plain-1.10) > 1e-6 {
-			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.10", rip, plain, raised)
+		if plain <= 0 || math.Abs(raised/plain-1.15) > 1e-6 {
+			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.15", rip, plain, raised)
 		}
 	}
 }

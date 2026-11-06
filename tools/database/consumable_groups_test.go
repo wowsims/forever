@@ -43,6 +43,7 @@ func TestAConsumableTakesItsExclusiveGroup(t *testing.T) {
 		{"Intellect: Elixir of the Sages (Intellect then Spirit), Scroll of Intellect IV", []int{13447, 10308}},
 		{"Armor: Elixir of Greater Defense, Scroll of Protection IV", []int{13445, 10305}},
 		{"Attack Power: Winterfall Firewater, Juju Might", []int{12820, 12460}},
+		{"Physical Damage: Elixir of Minor Force, Bogling Root", []int{247755, 5206}},
 		{"Arcane Elixir, every school", []int{9155}},
 		{"Elixir of Fire Power, fire alone", []int{6373}},
 		{"Gift of Arthas, shadow resistance", []int{9088}},

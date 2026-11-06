@@ -121,6 +121,18 @@ export const FiltersMenuView = ({
 					const label = translateSourceFilter(source);
 					return label ? listToggle('sources', source, `filters-source-${source}`, label) : null;
 				})}
+				<BooleanPicker
+					id="filters-source-world-drop"
+					label={i18n.t('common.sources.world_drop')}
+					layout="inline"
+					size="xs"
+					value={!filters.hideWorldDrops}
+					onChange={checked =>
+						onFiltersChange(next => {
+							next.hideWorldDrops = !checked;
+						})
+					}
+				/>
 			</MenuSection>
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}

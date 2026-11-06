@@ -40,7 +40,8 @@ func (warrior *Warrior) registerBerserkerRage() {
 
 	warrior.AddMajorCooldown(core.MajorCooldown{
 		Spell: spell,
-		Type:  core.CooldownTypeSurvival,
+		// It goes on its own for the rage it gains, which a DPS warrior wants too.
+		Type: core.CooldownTypeSurvival | core.CooldownTypeDPS,
 		ShouldActivate: func(s *core.Simulation, c *core.Character) bool {
 			return rageGain > 0 && warrior.CurrentRage()+rageGain <= warrior.MaximumRage()
 		},
