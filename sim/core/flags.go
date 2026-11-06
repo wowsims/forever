@@ -220,6 +220,7 @@ const (
 	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
 	SpellFlagRequiresMainHand                               // The row requires a main-hand weapon (Attributes[3] 0x400), e.g. Mortal Strike or Sinister Strike.
 	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
+	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
