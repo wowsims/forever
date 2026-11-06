@@ -1,6 +1,6 @@
 # Local Dev Installation
 
-This project has dependencies on Go >=1.25, protobuf-compiler and the corresponding Go plugins, and node >= 22.
+This project has dependencies on Go >=1.27, protobuf-compiler and the corresponding Go plugins, and node >= 26. `go.mod` and `.nvmrc` name the exact versions.
 
 ## Ubuntu
 
@@ -9,9 +9,9 @@ Script below will curl latest versions and install them.
 
 ```sh
 # Standard Go installation script
-curl -O https://dl.google.com/go/go1.25.4.linux-amd64.tar.gz
+curl -O https://dl.google.com/go/go1.27.3.linux-amd64.tar.gz
 sudo rm -rf /usr/local/go
-sudo tar -C /usr/local -xzf go1.25.4.linux-amd64.tar.gz
+sudo tar -C /usr/local -xzf go1.27.3.linux-amd64.tar.gz
 echo 'export PATH=$PATH:/usr/local/go/bin' >> $HOME/.bashrc
 echo 'export GOPATH=$HOME/go' >> $HOME/.bashrc
 echo 'export PATH=$PATH:$GOPATH/bin' >> $HOME/.bashrc
@@ -27,7 +27,7 @@ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 
 # Install node
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-nvm install 22
+nvm install 26
 
 # Install the npm package dependencies using node
 npm install
@@ -102,7 +102,7 @@ If you want to develop on Windows, we recommend setting up a Ubuntu virtual mach
 If you prefer working natively:
 
 - Install [Go](https://go.dev/dl/s), [NVM Windows](https://github.com/coreybutler/nvm-windows), and [make](https://gnuwin32.sourceforge.net/packages/make.htm) (you can also install it through Chocolate).
-- Install and use Node 22+ from NVM, for example `nvm install 22 && nvm use 22`
+- Install and use Node 26+ from NVM, for example `nvm install 26 && nvm use 26`
 - Setup GO workspace following [this guide](https://www.freecodecamp.org/news/setting-up-go-programming-language-on-windows-f02c8c14e2f/)
 - Download GO dependencies [protobuf](https://github.com/protocolbuffers/protobuf/releases), [gopls](https://github.com/golang/tools/releases), [air-verse](https://github.com/air-verse/air/releases), [protobuf-go](https://github.com/protocolbuffers/protobuf-go/releases), and [staticcheck](https://github.com/dominikh/go-tools/releases). Unzip them into your GO workspace directory.
 
@@ -112,6 +112,6 @@ With all the dependencies setup, you should be able to run the `make` commands a
 
 - Docker is available in OS X as well, so in theory similar instructions should work for the Docker method
 - You can also use the Ubuntu setup instructions as above to run natively, with a few modifications:
-    - You may need a different Go installer if `go1.18.3.linux-amd64.tar.gz` is not compatible with your system's architecture; you can do the Go install manually from `https://go.dev/doc/install`.
+    - You may need a different Go installer if `go1.27.3.linux-amd64.tar.gz` is not compatible with your system's architecture; you can do the Go install manually from `https://go.dev/doc/install`.
     - OS X uses Homebrew instead of apt, so in order to install protobuf-compiler you'll instead need to run `brew install protobuf-c` (note the package name is also a little different than in apt). You might need to first update or upgrade brew.
     - The provided install script for Node will not included a precompiled binary for OS X, but it's smart enough to compile one. Be ready for your CPU to melt on running `curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash`.
