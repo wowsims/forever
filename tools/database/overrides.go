@@ -990,7 +990,6 @@ var ConsumableAllowList = []int32{
 	13452, // Elixir of the Mongoose
 	13454, // Greater Arcane Elixir
 	12662, // Demonic Rune
-	5206,  // Bogling Root
 	12217, // Dragonbreath Chili, whose proc sim/common/forever registers by hand
 	// The Natural flasks, whose zone bonus sim/common/forever registers by hand
 	274273, // Flask of Natural Accuracy
@@ -1073,9 +1072,9 @@ var ConsumableDenyList = []int32{
 }
 
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
-// table, the rows group by aura only elixirs and scrolls, and these items share no category whose
-// cooldown outlasts their buffs. A consumable named here takes this group instead of the one its
-// rows give it.
+// table, the rows group by aura only elixirs and scrolls, and by category only the stat consumables
+// whose category cooldown lasts as long as their buffs. A consumable named here takes this group
+// instead of the one its rows give it.
 var ConsumableExclusiveGroups = []ConsumableGroup{
 	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
 		12451, // Juju Power

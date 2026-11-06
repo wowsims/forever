@@ -235,7 +235,8 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 The Jujus are Quest-class items the catalogue filter leaves out; naming them here brings them into
 the catalogue as well. Bogling Root 5206 opens on `A_MOD_DAMAGE_DONE` Physical (13/1) like Elixir
 of Minor Force 247755, but the rows group only elixirs and scrolls by their aura, so the entry puts
-it beside the elixir: the server does not stack the two. The Blasted Lands buffs leave their category group for Zanza. The permanent
+it beside the elixir: the server does not stack the two. The Blasted Lands buffs leave their
+category group for Zanza. The permanent
 Zanza items (23794, 23795, 23796) are not obtainable and `ConsumableDenyList` keeps them out. The rums
 stack with the food and not with each other; the three the game files type as food leave the food pick
 for the Rum group. The two
