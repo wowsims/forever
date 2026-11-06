@@ -63,7 +63,7 @@ import { ItemSwapSettings } from '../settings/item_swap_settings';
 import { Sim, type StatWeightsOptions } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
-import { playerBrokenTalentNames, playerTalentStringToProto } from '../talents/factory';
+import { playerBrokenTalentNames, playerNormalizedTalentsString, playerTalentStringToProto } from '../talents/factory';
 import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
@@ -124,7 +124,10 @@ const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined =>
 const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRaidZones: Set<number | undefined>): boolean => {
 	const option = sourceOption(itemSrc);
 	if (option !== undefined && !filters.sources.includes(option)) return false;
-	return itemSrc.source.oneofKind != 'drop' || !untickedRaidZones.has(itemSrc.source.drop.zoneId);
+	if (itemSrc.source.oneofKind != 'drop') return true;
+	// A drop with no difficulty is a world drop or an open-world NPC's, which the World Drop toggle governs.
+	if (option === undefined && filters.hideWorldDrops) return false;
+	return !untickedRaidZones.has(itemSrc.source.drop.zoneId);
 };
 
 export class UnitMetadata {
@@ -134,6 +137,7 @@ export class UnitMetadata {
 	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
 	private talents: Array<ActionId>;
+	private menuGroupOrder: Array<string>;
 
 	constructor() {
 		this.name = '';
@@ -141,6 +145,7 @@ export class UnitMetadata {
 		this.icdAuras = [];
 		this.spells = [];
 		this.talents = [];
+		this.menuGroupOrder = [];
 	}
 
 	getName(): string {
@@ -162,6 +167,11 @@ export class UnitMetadata {
 	/** The talents the unit has points in, each at the rank it holds. */
 	getTalents(): Array<ActionId> {
 		return this.talents.slice();
+	}
+
+	/** The order of the unit's APL menu groups, by full path; a group not listed follows them. */
+	getMenuGroupOrder(): Array<string> {
+		return this.menuGroupOrder.slice();
 	}
 
 	// Returns whether any updates were made.
@@ -208,6 +218,10 @@ export class UnitMetadata {
 		}
 		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {
 			this.talents = newTalents;
+			anyUpdates = true;
+		}
+		if (metadata.menuGroupOrder.join() != this.menuGroupOrder.join()) {
+			this.menuGroupOrder = metadata.menuGroupOrder.slice();
 			anyUpdates = true;
 		}
 
@@ -399,6 +413,7 @@ export class Player<SpecType extends Spec> {
 			talentsString: '',
 			specOptions: this.specTypeFunctions.optionsCreate(),
 			reactionTime: 0,
+			reactionTimeMax: 0,
 			channelClipDelay: 0,
 			inFrontOfTarget: false,
 			distanceFromTarget: 0,
@@ -1035,6 +1050,8 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setTalentsString(newTalentsString: string) {
+		// Capped to the trees, so a build saved before a rework cannot send a rank the talent does not have.
+		newTalentsString = playerNormalizedTalentsString(this.playerSpec, newTalentsString);
 		if (newTalentsString == this.getTalentsString()) return;
 
 		// Invalidate the parsed-talents cache before the emit fires.
@@ -1085,6 +1102,16 @@ export class Player<SpecType extends Spec> {
 		if (newReactionTime == this.getReactionTime()) return;
 
 		this.patch('reactionTime', newReactionTime);
+	}
+
+	getReactionTimeMax(): number {
+		return this.slice().reactionTimeMax;
+	}
+
+	setReactionTimeMax(newReactionTimeMax: number) {
+		if (newReactionTimeMax == this.getReactionTimeMax()) return;
+
+		this.patch('reactionTimeMax', newReactionTimeMax);
 	}
 
 	getChannelClipDelay(): number {
@@ -1315,7 +1342,7 @@ export class Player<SpecType extends Spec> {
 
 		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
 		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
-		// An item with no sources, or with a source no toggle covers, always shows.
+		// An item with no sources always shows.
 		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
 		const untickedRaidZones = new Set(
 			Object.entries(Player.RAID_IDS)
@@ -1462,6 +1489,7 @@ export class Player<SpecType extends Spec> {
 				prof1Rank: this.slice().prof1Rank,
 				prof2Rank: this.slice().prof2Rank,
 				reactionTimeMs: this.getReactionTime(),
+				reactionTimeMaxMs: this.getReactionTimeMax(),
 				channelClipDelayMs: this.getChannelClipDelay(),
 				inFrontOfTarget: this.getInFrontOfTarget(),
 				distanceFromTarget: this.getDistanceFromTarget(),
@@ -1514,6 +1542,7 @@ export class Player<SpecType extends Spec> {
 				this.setProfession2(proto.profession2);
 				this.setProfessionRanks(proto.prof1Rank, proto.prof2Rank);
 				this.setReactionTime(proto.reactionTimeMs);
+				this.setReactionTimeMax(proto.reactionTimeMaxMs);
 				this.setChannelClipDelay(proto.channelClipDelayMs);
 				this.setInFrontOfTarget(proto.inFrontOfTarget);
 				this.setDistanceFromTarget(proto.distanceFromTarget);
@@ -1535,6 +1564,7 @@ export class Player<SpecType extends Spec> {
 	applySharedDefaults() {
 		batch(() => {
 			this.setReactionTime(100);
+			this.setReactionTimeMax(0);
 			this.setInFrontOfTarget(this.playerSpec.isTankSpec);
 			this.setHealingModel(
 				HealingModel.create({

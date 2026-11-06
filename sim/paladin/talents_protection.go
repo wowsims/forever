@@ -73,6 +73,7 @@ func (paladin *Paladin) applyRedoubt() {
 		ActionID:  core.ActionID{SpellID: rank.ID},
 		Duration:  rank.Duration(),
 		MaxStacks: int32(rank.ProcCharges),
+		MenuGroup: menuPaladinTank,
 	}).AttachStatBuff(
 		stats.BlockPercent, spellData.Redoubt.ValueAt(paladin.Talents.Redoubt),
 	).AttachProcTrigger(core.ProcTrigger{
@@ -142,20 +143,22 @@ func (paladin *Paladin) applyShieldSpecialization() {
 
 	rank := spellData.ShieldSpecializationTriggered.Highest()
 	manaShare := rank.EffectN(1).Percent()
-	manaMetrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID})
-	manaMetrics.NoThreat = rank.GeneratesNoThreat()
-
-	restoreMana := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		paladin.AddMana(sim, paladin.MaxMana()*manaShare, manaMetrics)
+	restoreMana := func(tag int32) core.ProcHandler {
+		metrics := paladin.NewManaMetrics(core.ActionID{SpellID: rank.ID, Tag: tag})
+		metrics.NoThreat = rank.GeneratesNoThreat()
+		return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			paladin.AddMana(sim, paladin.MaxMana()*manaShare, metrics)
+		}
 	}
-	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), restoreMana)
+	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.ShieldSpecialization.Rank(paladin.Talents.ShieldSpecialization), restoreMana(0))
 	trigger.Name = "Shield Specialization" + paladin.Label
 	trigger.Outcome = core.OutcomeBlock
 	// The tooltip's "your blocks" counts a block that stops the whole hit.
 	trigger.RequireDamageDealt = false
 	trigger.TriggerImmediately = true
-	paladin.MakeProcTriggerAura(trigger)
+	paladin.MakeProcTriggerAura(trigger).MenuGroup = menuPaladinTank
 
+	// The mana a Shieldsworn Holy Strike restores reports apart, tagged with the talent.
 	if paladin.Talents.Shieldsworn {
 		paladin.MakeProcTriggerAura(core.ProcTrigger{
 			Name:               "Shield Specialization - Shieldsworn" + paladin.Label,
@@ -165,7 +168,7 @@ func (paladin *Paladin) applyShieldSpecialization() {
 			ProcChance:         trigger.ProcChance,
 			ExtraCondition:     paladin.strikesWithShield,
 			TriggerImmediately: true,
-			Handler:            restoreMana,
+			Handler:            restoreMana(shieldswornTag()),
 		})
 	}
 }
@@ -198,6 +201,7 @@ func (paladin *Paladin) applyReckoning() {
 	critChance := blockChance * 2.5
 
 	stored := paladin.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label("Reckoning"+paladin.Label)))
+	stored.MenuGroup = menuPaladinTank
 	gain := func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		stored.Activate(sim)
 		stored.AddStack(sim)
@@ -270,9 +274,10 @@ func (paladin *Paladin) applyIronCreed() {
 	multiplier := spellData.IronCreed.Effect(dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE, 0).MultiplierAt(paladin.Talents.IronCreed)
 
 	ironCreed := paladin.RegisterAura(core.Aura{
-		Label:    "Iron Creed" + paladin.Label,
-		ActionID: core.ActionID{SpellID: rank.ID},
-		Duration: rank.Duration(),
+		Label:     "Iron Creed" + paladin.Label,
+		ActionID:  core.ActionID{SpellID: rank.ID},
+		Duration:  rank.Duration(),
+		MenuGroup: menuPaladinTank,
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
 	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
@@ -309,6 +314,7 @@ func (paladin *Paladin) applyShieldsworn() {
 	spelldata.ParseStatic(&paladin.Character, spellData.Shieldsworn.Rank(1))
 
 	spellBlock := paladin.RegisterAura(spelldata.AuraConfig(spellData.ShieldswornTriggered.Highest()))
+	spellBlock.MenuGroup = menuPaladinTank
 	spellBlock.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		paladin.PseudoStats.CanBlockSpells = true
 	})
@@ -332,4 +338,10 @@ func (paladin *Paladin) applyShieldsworn() {
 // Whether a Shieldsworn Holy Strike strikes with a shield, which is what lets it trigger anything.
 func (paladin *Paladin) strikesWithShield(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 	return paladin.PseudoStats.CanBlock
+}
+
+// The tag on the Holy Shield damage and Shield Specialization mana a Shieldsworn Holy Strike causes,
+// which the results name apart from a block's.
+func shieldswornTag() int32 {
+	return spellData.Shieldsworn.Rank(1).ID
 }

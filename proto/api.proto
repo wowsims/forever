@@ -87,6 +87,8 @@ message Player {
 	// This will remove a lot of the boilerplate code in the UI for each new field.
 
 	int32 reaction_time_ms = 45;
+	// Above reaction_time_ms, each reaction the player makes is drawn evenly between the two.
+	int32 reaction_time_max_ms = 62;
 	int32 channel_clip_delay_ms = 46;
 	bool in_front_of_target = 47;
 	double distance_from_target = 48;
@@ -624,7 +626,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
-	string menu_group = 6; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
+	string menu_group = 6; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -645,7 +647,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
-	string menu_group = 18; // A manual APL menu group, a rotation_tab.apl.submenus key; empty for none.
+	string menu_group = 18; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -676,6 +678,8 @@ message UnitMetadata {
 	// Proc triggers with an internal cooldown and no action of their own, by the action they proc from:
 	// the id icd_is_ready finds them by, which no other aura value does.
 	repeated AuraStats icd_auras = 5;
+	// The order of the unit's APL menu groups, by full path; a group not listed follows them.
+	repeated string menu_group_order = 6;
 }
 message PetStats {
 	UnitMetadata metadata = 1;
@@ -755,7 +759,7 @@ message StatWeightsRequest {
 
 // The ± each targeted EP runs extra iterations to reach.
 message StatWeightsTarget {
-	double ep_ci = 1; // The 90% ± of each EP to reach.
+	double ep_ci = 1; // The 90% ± of each EP to reach; a percent pseudo stat's ± is per rating point.
 	int32 max_iteration_multiplier = 2; // Caps each run at this multiple of its first pass's iterations; 0 means no cap.
 	repeated StatWeightsTargetMetric metrics = 3; // The metrics whose EP ± the target applies to; empty means DPS only.
 }
@@ -843,6 +847,8 @@ message StatWeightsResult {
 	StatWeightValues p_death = 6;
 	ErrorOutcome error = 7;
 	UnitStats sample_counts = 8; // Paired samples behind each stat's weight.
+	UnitStats step_below = 9; // How far each stat's run below the baseline moved it, as a negative; 0 without such a run.
+	UnitStats step_above = 10; // How far each stat's run above the baseline moved it, in the stat's own unit; 0 for a stat without runs.
 }
 message StatWeightValues {
 	UnitStats weights = 1;

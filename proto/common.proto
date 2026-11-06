@@ -15,10 +15,13 @@ extend google.protobuf.MessageOptions {
 	int32 current_version_number = 50000;
 }
 
-// The spell a talent field stands for, which every rank of the talent shares. An APL condition
-// names a talent by this id, so it outlives a rename of the field.
 extend google.protobuf.FieldOptions {
+	// The spell a talent field stands for, which every rank of the talent shares. An APL condition
+	// names a talent by this id, so it outlives a rename of the field.
 	int32 talent_spell_id = 50001;
+	// The most points the talent takes. A talents string saved before a tree was reworked can carry
+	// more, and the sim caps the field at this many.
+	int32 talent_max_rank = 50002;
 }
 
 message ProtoVersion {
@@ -330,7 +333,7 @@ enum PseudoStat {
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
 
-	// Character sheet values per attack; the sim never reads them back.
+	// Character sheet values per attack; the sim never reads them back, and the UI does not read the *Rating ones either.
 	PseudoStatOffHandHitPercent = 28;
 	PseudoStatOffHandCritPercent = 29;
 	PseudoStatMainHandHitRating = 30;
@@ -543,6 +546,7 @@ enum CreatureFamily {
 	CreatureFamilyEarthElemental = 4;
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
+	CreatureFamilySwine = 7;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).
@@ -576,6 +580,9 @@ message TargetInput {
 
 	int32 enum_value = 6;
 	repeated string enum_options = 7;
+
+	// The label of the target's Bool input that shows this one while it is on; empty shows it always.
+	string shown_by = 8;
 }
 
 message Target {
@@ -636,9 +643,6 @@ message Encounter {
 
 	reserved 7, 8, 10;
 	reserved "execute_proportion_25", "execute_proportion_45", "execute_proportion_90";
-
-	// If set, will use the targets health value instead of a duration for fight length.
-	bool use_health = 5;
 
 	// If type != Simple or Custom, then this may be empty.
 	repeated Target targets = 6;

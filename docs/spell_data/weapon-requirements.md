@@ -117,8 +117,9 @@ holding it.
 - A pet never matches, and neither does a shield or a held item in the off hand.
 - An item swap re-filters every weapon-bound mod.
 - The character sheet reads the mods through `ScopedPercents(probe)` for its main-hand, off-hand and ranged
-  hit and crit rows, and shows the part tagged `FromRating` (`HitFromRating`, `CritFromRating`) as rating. A
-  mod counts there only when it names no `ClassMask`, `ClassFlags`, school or spell flag.
+  hit and crit rows. The part tagged `FromRating` (`HitFromRating`, `CritFromRating`) feeds the per-attack rating
+  pseudo stats, which the UI does not read. A mod counts there only when it names no `ClassMask`, `ClassFlags`,
+  school or spell flag.
 
 `-config` reads a `core.SpellModConfig` literal the same way and reports the weapons its Equip fields
 name and the rule they get. A hover on `SpellModConfig` in a class file shows the same.

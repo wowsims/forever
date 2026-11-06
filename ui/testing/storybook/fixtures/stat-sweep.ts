@@ -18,8 +18,23 @@ import { createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, ty
 
 import type { StatSweepSeries } from '../../../features/stat-sweep/components/StatSweepChart';
 import type { StatSweepHistoryEntry } from '../../../features/stat-sweep/components/StatSweepHistory';
-import { buildSweepOffsets, type MetricSample, type StatSweepSample, type SweepBatch, sweepSteps } from '../../../features/stat-sweep/model/stat_sweep';
+import {
+	buildSweepOffsets,
+	type MetricSample,
+	type StatSweepSample,
+	type SweepBatch,
+	sweepBonus,
+	sweepSteps,
+} from '../../../features/stat-sweep/model/stat_sweep';
 
+export const HIT_RATING = UnitStat.fromStat(Stat.StatHitRating);
+export const CRIT_RATING = UnitStat.fromStat(Stat.StatCritRating);
+export const DEFENSE_RATING = UnitStat.fromStat(Stat.StatDefenseRating);
+
+// Every fixture sweep goes this far, in steps of 10 points.
+const SWEEP_RANGE = 100;
+
+// In points, as `dpsAt` reads a hit sweep's total.
 const HIT_CAP = 150;
 const DPS_PER_POINT = 2.1;
 
@@ -28,12 +43,12 @@ const dpsAt = (value: number) => 1180 + DPS_PER_POINT * Math.min(value, HIT_CAP)
 
 type MetricsAt = (value: number, samples: number) => Record<StatSweepMetric, MetricSummary>;
 
-const pointsFrom = (base: number, samples: number, metricsAt: MetricsAt): StatSweepPoint[] => {
-	const offsets = buildSweepOffsets(100, 10);
+const pointsFrom = (unitStat: UnitStat, base: number, samples: number, metricsAt: MetricsAt): StatSweepPoint[] => {
+	const offsets = buildSweepOffsets(SWEEP_RANGE, 10);
 	return sweepSteps(
-		UnitStat.fromStat(Stat.StatHitRating),
+		unitStat,
 		offsets,
-		offsets.map(offset => base + offset),
+		offsets.map(offset => base + sweepBonus(unitStat, offset)),
 	).map(step => ({ ...step, metrics: metricsAt(step.statValue, samples) }));
 };
 
@@ -58,27 +73,31 @@ const tankMetrics: MetricsAt = (value, n) => ({
 });
 
 /** A ±100 hit sweep in steps of 10 from `base`, against a hit cap at 150. */
-export const makeHitSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(base, samples, dealerMetrics(dpsAt));
+export const makeHitSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(HIT_RATING, base, samples, dealerMetrics(dpsAt));
 
 /** A ±100 crit sweep in steps of 10 from `base`, with no cap in reach. */
 export const makeCritSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] =>
 	pointsFrom(
+		CRIT_RATING,
 		base,
 		samples,
 		dealerMetrics(value => 1300 + 1.1 * value),
 	);
 
 /** A ±100 defense sweep in steps of 10 from `base`, for a tank. */
-export const makeDefenseSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(base, samples, tankMetrics);
+export const makeDefenseSweepPoints = (base: number, samples = 20_000): StatSweepPoint[] => pointsFrom(DEFENSE_RATING, base, samples, tankMetrics);
+
+const rangeLabel = (statLabel: string) => `${statLabel} ±${SWEEP_RANGE}`;
 
 export const sweepSeries = (
 	id: string,
+	unitStat: UnitStat,
 	statLabel: string,
 	base: number,
 	points: StatSweepPoint[],
 	colorSlot = 0,
-	label = `${statLabel} ±100`,
-): StatSweepSeries => ({ id, label, colorSlot, statLabel, baseStatValue: base, points });
+	label = rangeLabel(statLabel),
+): StatSweepSeries => ({ id, label, colorSlot, unitStat, statLabel, baseStatValue: base, points });
 
 const historyEntry = (
 	id: string,
@@ -87,20 +106,20 @@ const historyEntry = (
 	overlaid: boolean,
 	colorSlot?: number,
 	metric: StatSweepMetric = 'dps',
-): StatSweepHistoryEntry => ({ id, label: `${statLabel} ±40`, statLabel, createdAt, overlaid, colorSlot, metric });
+): StatSweepHistoryEntry => ({ id, label: rangeLabel(statLabel), statLabel, createdAt, overlaid, colorSlot, metric });
 
 /** Newest first: a four-stat sweep drawn whole, a one-stat sweep, and an older TPS sweep with one of its two runs drawn. */
 export const SWEEP_HISTORY_BATCHES: SweepBatch<StatSweepHistoryEntry>[] = [
 	{
 		id: 'melee',
 		runs: [
-			historyEntry('crit', 'Crit Rating', Date.UTC(2026, 9, 13, 14, 3), true, 0),
-			historyEntry('haste', 'Haste Rating', Date.UTC(2026, 9, 13, 14, 5), true, 1),
+			historyEntry('crit', 'Crit', Date.UTC(2026, 9, 13, 14, 3), true, 0),
+			historyEntry('haste', 'Haste', Date.UTC(2026, 9, 13, 14, 5), true, 1),
 			historyEntry('arp', 'Armor Penetration', Date.UTC(2026, 9, 13, 14, 7), true, 2),
-			historyEntry('expertise', 'Expertise Rating', Date.UTC(2026, 9, 13, 14, 9), true, 3),
+			historyEntry('expertise', 'Expertise', Date.UTC(2026, 9, 13, 14, 9), true, 3),
 		],
 	},
-	{ id: 'hit', runs: [historyEntry('hit', 'Hit Rating', Date.UTC(2026, 9, 12, 21, 40), false)] },
+	{ id: 'hit', runs: [historyEntry('hit', 'Hit', Date.UTC(2026, 9, 12, 21, 40), false)] },
 	{
 		id: 'threat',
 		runs: [

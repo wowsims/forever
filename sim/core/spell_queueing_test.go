@@ -545,7 +545,7 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 
 // Never ready; each time the rotation looks at it at the end of the hardcast of unit, before the hardcast
 // lands, notes what read says.
-func readAtPick(unit *Unit, read func(sim *Simulation) bool, reads *[]bool) APLActionImpl {
+func readAtPick[T any](unit *Unit, read func(sim *Simulation) T, reads *[]T) APLActionImpl {
 	return &gatedAction{APLActionImpl: &timedStubAction{readyAt: time.Minute}, ready: func(sim *Simulation) bool {
 		if unit.Hardcast.Expires == sim.CurrentTime {
 			*reads = append(*reads, read(sim))
@@ -566,6 +566,9 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		remaining := cb.rot.newValueDotRemainingTime(&proto.APLValueDotRemainingTime{SpellId: spellID}, nil)
 		multidot := cb.rot.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 1})
 		onAllTargets := cb.rot.newValueDotIsActiveOnAllTargets(&proto.APLValueDotIsActiveOnAllTargets{SpellId: spellID}, nil)
+		onAnyTarget := cb.rot.newValueDotIsActiveOnAnyTarget(&proto.APLValueDotIsActiveOnAnyTarget{SpellId: spellID}, nil)
+		auraOnAllTargets := cb.rot.newValueAuraIsActiveOnAllTargets(&proto.APLValueAuraIsActiveOnAllTargets{AuraId: spellID, IncludeReactionTime: true}, nil)
+		auraOnAnyTarget := cb.rot.newValueAuraIsActiveOnAnyTarget(&proto.APLValueAuraIsActiveOnAnyTarget{AuraId: spellID, IncludeReactionTime: true}, nil)
 		lowestRemaining := cb.rot.newValueDotLowestRemainingTime(&proto.APLValueDotLowestRemainingTime{SpellId: spellID}, nil)
 		tickFrequency := cb.rot.newValueDotTickFrequency(&proto.APLValueDotTickFrequency{SpellId: spellID}, nil)
 		timeToNextTick := cb.rot.newValueDotTimeToNextTick(&proto.APLValueDotTimeToNextTick{SpellId: spellID}, nil)
@@ -585,6 +588,10 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 			}
 			if !onAllTargets.GetBool(cb.sim) || lowestRemaining.GetDuration(cb.sim) != castEnd+5*time.Second-at {
 				t.Fatalf("at %v the dot should read as up on the one target until 7 s, read %t with %v lowest left", at, onAllTargets.GetBool(cb.sim), lowestRemaining.GetDuration(cb.sim))
+			}
+			if !onAnyTarget.GetBool(cb.sim) || !auraOnAllTargets.GetBool(cb.sim) || !auraOnAnyTarget.GetBool(cb.sim) {
+				t.Fatalf("at %v the dot and its aura should read as up on the one target, read dot on any %t, aura on all %t, aura on any %t",
+					at, onAnyTarget.GetBool(cb.sim), auraOnAllTargets.GetBool(cb.sim), auraOnAnyTarget.GetBool(cb.sim))
 			}
 			if tickFrequency.GetDuration(cb.sim) != time.Second || timeToNextTick.GetDuration(cb.sim) != castEnd+time.Second-at {
 				t.Fatalf("at %v the dot should read as ticking every 1 s from the cast end, read %v with the next tick in %v", at, tickFrequency.GetDuration(cb.sim), timeToNextTick.GetDuration(cb.sim))
@@ -706,6 +713,40 @@ func TestRotationReadsOwnCastAsLanded(t *testing.T) {
 		ct.runUntil(time.Second + time.Millisecond)
 		if ct.fw.ChanneledDot == nil || drainCasting.GetBool(ct.sim) {
 			t.Fatalf("a running channel should not read as casting")
+		}
+	})
+
+	t.Run("Remaining Cast Time counts down the hardcast and reads 0 at its pick and through a channel", func(t *testing.T) {
+		cb := newHardcastTest()
+		remaining := cb.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil)
+		var atPick []time.Duration
+		cb.start(readAtPick(&cb.fw.Unit, func(sim *Simulation) time.Duration { return remaining.GetDuration(sim) }, &atPick))
+		if got := remaining.GetDuration(cb.sim); got != 0 {
+			t.Fatalf("before any cast Remaining Cast Time should read 0, read %v", got)
+		}
+		cb.runUntil(0)
+		cb.castOf(cb.slow).Execute(cb.sim)
+
+		cb.runUntil(lateInCast)
+		if got := remaining.GetDuration(cb.sim); got != beforeEnd {
+			t.Fatalf("late in the 2 s cast Remaining Cast Time should read %v, read %v", beforeEnd, got)
+		}
+		cb.runUntil(castEnd)
+		if !slices.Equal(atPick, []time.Duration{0}) {
+			t.Fatalf("the pick at the 2 s cast end should read no cast time left, read %v", atPick)
+		}
+
+		var drainTicks []time.Duration
+		ct, drain := newSpellShootTest(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+		ct.channelOf(drain, "false", false).Execute(ct.sim)
+		ct.runUntil(time.Second + time.Millisecond)
+		if ct.fw.ChanneledDot == nil {
+			t.Fatalf("the drain should be channeling at 1 s")
+		}
+		if got := ct.rot.newValueRemainingCastTime(&proto.APLValueRemainingCastTime{}, nil).GetDuration(ct.sim); got != 0 {
+			t.Fatalf("a running channel should read no cast time left, read %v", got)
 		}
 	})
 

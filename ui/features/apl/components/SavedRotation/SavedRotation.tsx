@@ -1,4 +1,5 @@
 import { useSavedPanel } from '@features/hooks/useSavedPanel';
+import { SavedDataTransfer } from '@features/saved-data-transfer/components/SavedDataTransfer';
 import { SavedRotation as SavedRotationProto } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { usePlayer } from '@sim/context/SimHostContext';
@@ -25,9 +26,10 @@ export const SavedRotation = () => {
 		[player, current],
 	);
 
+	const storage = useSavedRotation();
 	const panel = useSavedPanel({
 		label: i18n.t('rotation_tab.saved_rotations.label'),
-		storage: useSavedRotation(),
+		storage,
 		current,
 		serialize: serializeRotation,
 		load: loadRotation,
@@ -44,6 +46,7 @@ export const SavedRotation = () => {
 			chooseNameAlert={i18n.t('rotation_tab.saved_rotations.alerts.choose_name')}
 			nameExistsAlert={i18n.t('rotation_tab.saved_rotations.alerts.name_exists')}
 			isActive={isActive}
+			headerChildren={<SavedDataTransfer type="rotation" label={panel.label} storage={storage} presets={panel.presets} />}
 			{...panel}
 		/>
 	);

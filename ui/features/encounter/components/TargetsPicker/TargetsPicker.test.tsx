@@ -312,6 +312,31 @@ describe('TargetsPicker', () => {
 			expect(encounter.targets[0].targetInputs.map(input => input.numberValue)).toEqual([7, 0, 0]);
 		});
 
+		it('shows an input with shownBy only while the Bool input it names is on, and writes it back to its own index', () => {
+			const encounter = new FakeEncounter([
+				TargetProto.create({
+					targetInputs: [
+						TargetInput.create({ label: 'Apply', inputType: InputType.Bool, boolValue: false }),
+						TargetInput.create({ label: 'Delay', inputType: InputType.Number, numberValue: 2, shownBy: 'Apply' }),
+						TargetInput.create({ label: 'Stacks', inputType: InputType.Number, numberValue: 3 }),
+					],
+				}),
+			]);
+			mount(encounter);
+			const numberInputs = () => [
+				...document.querySelectorAll<HTMLInputElement>('[data-testid="target-input-picker-root"] input:not([type="checkbox"])'),
+			];
+
+			expect(numberInputs().map(input => input.value)).toEqual(['3.00']);
+
+			act(() => void fireEvent.click(document.querySelector('[data-testid="target-input-picker-root"] input[type="checkbox"]')!));
+
+			expect(encounter.targets[0].targetInputs[0].boolValue).toBe(true);
+			expect(numberInputs().map(input => input.value)).toEqual(['2.00', '3.00']);
+			act(() => void fireEvent.change(numberInputs()[0], { target: { value: '5' } }));
+			expect(encounter.targets[0].targetInputs.map(input => input.numberValue)).toEqual([0, 5, 3]);
+		});
+
 		it('renders no list for a target that declares no input', () => {
 			mount(new FakeEncounter());
 

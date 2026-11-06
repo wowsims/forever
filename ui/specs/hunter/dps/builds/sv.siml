@@ -1,12 +1,12 @@
 siml 1
 spec hunter
-talents "1-00531500114-52225303000021005"
+talents "1-00530501114-52225303000021005"
 use "../gear_sets/p1.gear.siml"
 use "../apls/turret.apl.siml"
 
 // No pet: Lone Wolf wants none out.
 settings:
-  reaction_time_ms 250
+  reaction_time 150ms 350ms
   distance_from_target 12
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow

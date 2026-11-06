@@ -17,18 +17,13 @@ type Encounter struct {
 	AllTargetUnits    []*Unit
 	ActiveTargetUnits []*Unit
 
+	strandedSwings []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
+
 	ExecuteProportion_20 float64
 	ExecuteProportion_35 float64
 
 	// Every kind of area the fight is in, deduplicated.
 	AreaTypes []proto.AreaType
-
-	EndFightAtHealth float64
-	// DamageTaken is used to track health fights instead of duration fights.
-	//  Once primary target has taken its health worth of damage, fight ends.
-	DamageTaken float64
-	// In health fight: set to true until we get something to base on
-	DurationIsEstimate bool
 
 	// Value to multiply by, for damage spells which are subject to the aoe cap.
 	aoeCapMultiplier float64
@@ -85,34 +80,26 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		encounter.ActiveTargetUnits = append(encounter.ActiveTargetUnits, &target.Unit)
 	}
 
-	if len(encounter.ActiveTargets) == 0 {
-		panic("At least one target must be active at the start of the simulation!")
-	}
-
-	// If UseHealth is set, we use the sum of targets health. After creating the targets to make sure stat modifications are done
-	if options.UseHealth {
-		for _, t := range options.Targets {
-			encounter.EndFightAtHealth += t.Stats[stats.Health]
-		}
-		if encounter.EndFightAtHealth == 0 {
-			encounter.EndFightAtHealth = 1 // default to something so we don't instantly end without anything.
-		}
-	}
-
-	if encounter.EndFightAtHealth > 0 {
-		// Until we pre-sim set duration to 10m
-		encounter.Duration = time.Minute * 10
-		encounter.DurationIsEstimate = true
-	}
-
 	encounter.updateAOECapMultiplier()
 
 	return encounter
 }
 
+// The enabled target with the lowest index, or nil.
+func (encounter *Encounter) preferredActiveTarget() *Target {
+	for _, target := range encounter.AllTargets {
+		if target.IsEnabled() {
+			return target
+		}
+	}
+	return nil
+}
+
 func (encounter *Encounter) AOECapMultiplier() float64 {
 	return encounter.aoeCapMultiplier
 }
+
+// With no active target the division gives +Inf, which the min keeps at 1.
 func (encounter *Encounter) updateAOECapMultiplier() {
 	encounter.aoeCapMultiplier = min(20/float64(len(encounter.ActiveTargets)), 1)
 }
@@ -132,10 +119,6 @@ func (encounter *Encounter) addActiveTarget(target *Target) {
 }
 
 func (encounter *Encounter) removeInactiveTarget(target *Target) {
-	if len(encounter.ActiveTargets) == 1 {
-		panic("Cannot remove the only active target in the simulation!")
-	}
-
 	if idx := slices.Index(encounter.ActiveTargets, target); idx != -1 {
 		encounter.ActiveTargets = removeBySwappingToBack(encounter.ActiveTargets, idx)
 		encounter.ActiveTargetUnits = removeBySwappingToBack(encounter.ActiveTargetUnits, idx)
@@ -168,7 +151,15 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 type Target struct {
 	Unit
 
-	AI TargetAI
+	AI       TargetAI
+	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
+
+	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
+	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
+
+	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
+	raidDebuffs        []*Aura       // The target's auras with SourceExternalDebuff, gathered at their first hold or landing.
+	aurasReset         bool          // Whether the target's reset has run in this iteration.
 }
 
 func NewTarget(options *proto.Target, targetIndex int32) *Target {
@@ -196,6 +187,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 			enabled:               !options.DisabledAtStart,
 		},
 	}
+	target.raidDebuffsLanding = PendingAction{Priority: ActionPriorityDOT, OnAction: target.landRaidDebuffs, consumed: true}
 	defaultRaidBossLevel := int32(CharacterLevel + 3)
 	target.GCD = target.NewTimer()
 	target.RotationTimer = target.NewTimer()
@@ -237,11 +229,11 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 
 func (target *Target) Reset(sim *Simulation) {
 	target.Unit.reset(sim, nil)
+	target.aurasReset = true
 	target.CurrentTarget = target.defaultTarget
 
 	if !target.IsEnabled() && (target.CurrentTarget != nil) {
-		target.CurrentTarget.CurrentTarget = &target.NextActiveTarget().Unit
-		target.CurrentTarget = nil
+		target.retargetOwnTarget()
 	}
 
 	target.SetGCDTimer(sim, 0)
@@ -266,6 +258,7 @@ func (target *Target) Enable(sim *Simulation) {
 	if !target.IsEnabled() {
 		target.enabled = true
 		sim.Encounter.addActiveTarget(target)
+		sim.Encounter.returnStrandedRaid(sim)
 	}
 }
 
@@ -282,8 +275,24 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 		return
 	}
 
+	// A hardcast still running would land at its end, after the target has gone. The interrupt comes
+	// before the GCD stops, since it sets the GCD again.
+	target.Interrupt(sim)
 	target.CancelGCDTimer(sim)
 	target.AutoAttacks.CancelAutoSwing(sim)
+
+	// A channel on the target ends with no further tick, before the expiry below could land one. A ground
+	// channel lives on its caster and runs on. While the sim resets, the raid still holds the last
+	// iteration's state and has not reset yet: the target only starts the iteration disabled, and the pull
+	// moves the raid off it.
+	if !sim.isResetting {
+		for _, unit := range sim.Raid.AllUnits {
+			if channel := unit.ChanneledDot; channel != nil && channel.Unit == &target.Unit {
+				channel.stopTicking(sim)
+				channel.Deactivate(sim)
+			}
+		}
+	}
 
 	target.enabled = false
 	sim.Encounter.removeInactiveTarget(target)
@@ -293,8 +302,15 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	}
 
 	if target.CurrentTarget != nil {
-		target.CurrentTarget.CurrentTarget = &target.NextActiveTarget().Unit
-		target.CurrentTarget = nil
+		if sim.isResetting {
+			target.retargetOwnTarget()
+		} else {
+			target.CurrentTarget = nil
+		}
+	}
+
+	if !sim.isResetting {
+		sim.Encounter.moveRaidOffTarget(sim, target)
 	}
 }
 
@@ -306,34 +322,112 @@ func (sim *Simulation) DisableTargetUnit(targetUnit *Unit, expireAuras bool) {
 	sim.Encounter.AllTargets[targetUnit.Index].Disable(sim, expireAuras)
 }
 
-func (target *Target) NextActiveTarget() *Target {
-	nextIndex := target.Index + 1
-	if nextIndex >= target.Env.TotalTargetCount() {
-		nextIndex = 0
+// Points the unit this target attacks at the next active target, or leaves it on this one when none
+// is left, and clears this target's own target.
+func (target *Target) retargetOwnTarget() {
+	if next := target.NextActiveTarget(); next != nil {
+		target.CurrentTarget.CurrentTarget = &next.Unit
 	}
+	target.CurrentTarget = nil
+}
 
-	nextTarget := target.Env.GetTargetByIndex(nextIndex)
+// A swing a raid unit had running when its last target went away.
+type strandedSwing struct {
+	unit   *Unit
+	melee  bool
+	ranged bool
+}
 
-	if nextTarget.IsEnabled() {
-		return nextTarget
-	} else {
-		return nextTarget.NextActiveTarget()
+// Moves every raid unit on the disabled target to the preferred active target and has its rotation look
+// again, since what it waited on is gone. With none left, the unit keeps the disabled target, so its target
+// is never nil, and its auto attacks stop until a target comes.
+func (encounter *Encounter) moveRaidOffTarget(sim *Simulation, target *Target) {
+	preferred := encounter.preferredActiveTarget()
+	for _, unit := range sim.Raid.AllUnits {
+		if unit.CurrentTarget != &target.Unit {
+			continue
+		}
+		if preferred != nil {
+			unit.CurrentTarget = &preferred.Unit
+			wakeRotation(sim, unit)
+			continue
+		}
+		aa := &unit.AutoAttacks
+		swing := strandedSwing{unit: unit, melee: aa.mh.enabled || aa.oh.enabled, ranged: aa.ranged.enabled}
+		if swing.melee || swing.ranged {
+			encounter.strandedSwings = append(encounter.strandedSwings, swing)
+			aa.CancelAutoSwing(sim)
+		}
 	}
 }
 
+// Runs at the pull, once the auto attacks have started: a raid unit on a target that starts disabled leaves
+// it as from a Disable at 0, since a target that is never enabled is never disabled either.
+func (encounter *Encounter) moveRaidOffDisabledTargets(sim *Simulation) {
+	for _, target := range encounter.AllTargets {
+		if !target.IsEnabled() {
+			encounter.moveRaidOffTarget(sim, target)
+		}
+	}
+}
+
+// Brings back the raid units a disabled target stranded once a target is active again: a unit on a
+// disabled enemy moves to the preferred active target, the auto attacks moveRaidOffTarget stopped start
+// again, and each of these units looks at its rotation again.
+func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
+	preferred := encounter.preferredActiveTarget()
+	for _, unit := range sim.Raid.AllUnits {
+		if unit.CurrentTarget == nil || unit.CurrentTarget.Type != EnemyUnit || unit.CurrentTarget.IsEnabled() {
+			continue
+		}
+		unit.CurrentTarget = &preferred.Unit
+		if !slices.ContainsFunc(encounter.strandedSwings, func(swing strandedSwing) bool { return swing.unit == unit }) {
+			wakeRotation(sim, unit)
+		}
+	}
+	for _, swing := range encounter.strandedSwings {
+		if !swing.unit.IsEnabled() {
+			continue
+		}
+		if swing.melee {
+			swing.unit.AutoAttacks.EnableMeleeSwing(sim)
+		}
+		if swing.ranged {
+			swing.unit.AutoAttacks.EnableRangedSwing(sim)
+		}
+		wakeRotation(sim, swing.unit)
+	}
+	encounter.strandedSwings = encounter.strandedSwings[:0]
+}
+
+func wakeRotation(sim *Simulation, unit *Unit) {
+	if unit.IsEnabled() && !sim.Options.Interactive {
+		unit.ReactToEvent(sim, false, true)
+	}
+}
+
+// The first enabled target after this one in index order, wrapping around and ending on this one; nil
+// when no target is enabled.
+func (target *Target) NextActiveTarget() *Target {
+	count := target.Env.TotalTargetCount()
+	for step := int32(1); step <= count; step++ {
+		if next := target.Env.GetTargetByIndex((target.Index + step) % count); next.IsEnabled() {
+			return next
+		}
+	}
+	return nil
+}
+
+// The first enabled target before this one in index order, wrapping around and ending on this one; nil
+// when no target is enabled.
 func (target *Target) PreviousActiveTarget() *Target {
-	prevIndex := target.Index - 1
-	if prevIndex < 0 {
-		prevIndex = target.Env.TotalTargetCount() - 1
+	count := target.Env.TotalTargetCount()
+	for step := int32(1); step <= count; step++ {
+		if prev := target.Env.GetTargetByIndex((target.Index - step + count) % count); prev.IsEnabled() {
+			return prev
+		}
 	}
-
-	prevTarget := target.Env.GetTargetByIndex(prevIndex)
-
-	if prevTarget.IsEnabled() {
-		return prevTarget
-	} else {
-		return prevTarget.PreviousActiveTarget()
-	}
+	return nil
 }
 
 func (target *Target) GetMetricsProto() *proto.UnitMetrics {

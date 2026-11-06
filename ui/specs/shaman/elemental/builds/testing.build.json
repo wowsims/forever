@@ -1,10 +1,10 @@
 {
   "apiVersion": 2,
   "raidBuffs": {
-    "arcaneBrilliance": true,
+    "arcaneIntellect": true,
     "prayerOfSpirit": true,
-    "giftOfTheWild": true,
-    "prayerOfFortitude": true,
+    "markOfTheWild": true,
+    "powerWordFortitude": true,
     "moonkinAura": true
   },
   "debuffs": {
@@ -64,12 +64,12 @@
     "bonusStats": {
       "apiVersion": 2,
       "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     },
-    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
-      "greaterBlessingOfWisdom": true
+      "greaterBlessingOfWisdom": 1
     },
     "elementalShaman": {
       "options": {
@@ -77,7 +77,7 @@
         }
       }
     },
-    "talentsString": "5500331023001351-053002001-053",
+    "talentsString": "5500331023001351-05500001-053",
     "profession1": "Leatherworking",
     "profession2": "Enchanting",
     "cooldowns": {
@@ -86,39 +86,43 @@
       "type": "TypeAPL",
       "prepullActions": [
         {"action":{"castSpell":{"spellId":{"spellId":408510}}},"doAtValue":{"const":{"val":"-5.5s"}}},
-        {"action":{"castSpell":{"spellId":{"spellId":25361}}},"doAtValue":{"const":{"val":"-4s"}}},
+        {"action":{"castSpell":{"spellId":{"spellId":10442,"rank":4}}},"doAtValue":{"const":{"val":"-4s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10614}}},"doAtValue":{"const":{"val":"-3s"}}},
         {"action":{"castSpell":{"spellId":{"spellId":10497}}},"doAtValue":{"const":{"val":"-2s"}}},
-        {"action":{"condition":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10438}}},"doAtValue":{"const":{"val":"-1s"}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10587}}},"doAtValue":{"const":{"val":"-1s"}}}
+        {"action":{"condition":{"variableRef":{"name":"Single Target"}},"castSpell":{"spellId":{"spellId":10438}}},"doAtValue":{"const":{"val":"-1s"}}},
+        {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":10587}}},"doAtValue":{"const":{"val":"-1s"}}}
       ],
       "priorityList": [
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"80%"}}}},"castSpell":{"spellId":{"otherId":"OtherActionResourcePotion"}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"70%"}}}},"castSpell":{"spellId":{"itemId":12662}}}},
-        {"action":{"autocastOtherCooldowns":{}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"50%"}}}},"castSpell":{"spellId":{"spellId":1325256}}}},
-        {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10438}}}},
-        {"action":{"condition":{"and":{"vals":[{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10587}}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":408345}}}},
+        {"action":{"condition":{"not":{"val":{"auraIsActive":{"auraId":{"spellId":408510},"includeReactionTime":true}}}},"castSpell":{"spellId":{"spellId":408510}}}},
+        {"action":{"autocastOtherCooldowns":{}}},
+        {"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Single Target"}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10438}}}},
+        {"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Multi Target"}},{"cmp":{"op":"OpLe","lhs":{"totemRemainingTime":{"totemType":"Fire"}},"rhs":{"const":{"val":"0s"}}}}]}},"castSpell":{"spellId":{"spellId":10587}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":16166}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20572}}}},
         {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":20554}}}},
-        {"action":{"condition":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}},"castSpell":{"spellId":{"spellId":10605}}}},
-        {"action":{"condition":{"dotIsActive":{"spellId":{"spellId":10448,"rank":5}}},"castSpell":{"spellId":{"spellId":1326047}}}},
+        {"action":{"condition":{"or":{"vals":[{"variableRef":{"name":"Multi Target"}},{"and":{"vals":[{"cmp":{"op":"OpGe","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"40%"}}}},{"not":{"val":{"auraIsActive":{"auraId":{"spellId":16166},"includeReactionTime":true}}}}]}}]}},"castSpell":{"spellId":{"spellId":10605}}}},
+        {"action":{"condition":{"variableRef":{"name":"Multi Target"}},"castSpell":{"spellId":{"spellId":408345}}}},
         {"action":{"multidot":{"spellId":{"spellId":10448,"rank":5},"maxDots":3,"maxOverlap":{"const":{"val":"0ms"}}}}},
-        {"action":{"condition":{"and":{"vals":[{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
+        {"action":{"condition":{"and":{"vals":[{"variableRef":{"name":"Single Target"}},{"auraIsKnown":{"auraId":{"spellId":1323418}}},{"auraIsActive":{"auraId":{"spellId":1323418},"includeReactionTime":true}}]}},"castSpell":{"spellId":{"spellId":10414,"rank":7}}}},
         {"action":{"condition":{"cmp":{"op":"OpLt","lhs":{"currentManaPercent":{}},"rhs":{"const":{"val":"20%"}}}},"castSpell":{"spellId":{"spellId":10392,"rank":8}}}},
         {"action":{"castSpell":{"spellId":{"spellId":15208}}}}
+      ],
+      "valueVariables": [
+        {"name":"Single Target","value":{"cmp":{"op":"OpEq","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}},
+        {"name":"Multi Target","value":{"cmp":{"op":"OpGt","lhs":{"numberTargets":{}},"rhs":{"const":{"val":"1"}}}}}
       ]
     },
     "reactionTimeMs": 100,
-    "distanceFromTarget": 20,
+    "distanceFromTarget": 5,
     "healingModel": {
     }
   },
   "encounter": {
     "apiVersion": 2,
-    "duration": 180,
+    "duration": 60,
     "durationVariation": 5,
     "executeProportion20": 0.2,
     "executeProportion35": 0.35,
@@ -130,6 +134,30 @@
         "mobType": "MobTypeMechanical",
         "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0],
         "minBaseDamage": 15113,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      },
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 2601,
+        "damageSpread": 0.5,
+        "swingSpeed": 2,
+        "parryHaste": true,
+        "canCrush": true
+      },
+      {
+        "id": 31146,
+        "name": "Raid Target",
+        "level": 63,
+        "mobType": "MobTypeMechanical",
+        "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,320,0,0,0,0,0,0,0,0,0,54,0,0,3731,0,1428900,0,0,0,0,0,0,0,0,0],
+        "minBaseDamage": 2601,
         "damageSpread": 0.5,
         "swingSpeed": 2,
         "parryHaste": true,

@@ -204,7 +204,7 @@ func applyRaceEffects(agent Agent) {
 		// takes its place: Read Leyline cannot be cast under it, and an Innervate that lands ends Energized.
 		// TODO: 15 s at +50% (+100% Attuned) is from the 26 October development notes; the game build
 		// states 30 s at +100% for 1270842.
-		energizedAura := registerSkyborneCasts(character, 1259705, time.Second*2, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
+		energizedAura := registerSkyborneCasts(character, 1259705, time.Millisecond*500, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
 			if character.HasManaBar() {
 				character.MultiplyManaRegenSpeed(sim, multiplier)
 			}
@@ -283,8 +283,11 @@ func registerSkyborneCasts(character *Character, spellID int32, castTime time.Du
 	return aura
 }
 
-// Command 20576 raises the damage of hunter and warlock pets by 5%. The game build has no row for it.
-// The pets exist from construction, and a pet's PseudoStats set after finalize do not survive a reset.
+// Command raises the damage of hunter and warlock pets by 5%. Its rows, 20576 for the hunter and 20575 for
+// the warlock, add a flat 5 to every effect of Tamed Pet Passive (8875 hunter, 18727 to 18730 warlock),
+// whose one effect is A_MOD_DAMAGE_PERCENT_DONE 0 on every school. The spell store carries neither the
+// rows nor the passives, so the 5% is applied here. The pets exist from construction, and a pet's
+// PseudoStats set after finalize do not survive a reset.
 func applyCommand(character *Character) {
 	if character.Class != proto.Class_ClassHunter && character.Class != proto.Class_ClassWarlock {
 		return

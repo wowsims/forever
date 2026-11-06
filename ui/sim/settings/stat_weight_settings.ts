@@ -10,7 +10,7 @@ import { subscribeStatWeightsChange } from '../state/subscriptions';
 import { isUnchangedPatch } from '../utils/collections';
 import { precisionModeFromProto, precisionModeToProto, type PrecisionSettings } from './precision';
 
-const PRECISION_DEFAULTS: PrecisionSettings = { precisionMode: 'iterations', iterations: 0, targetCi: 0.01, maxIterationMultiplier: 0 };
+const PRECISION_DEFAULTS: PrecisionSettings = { precisionMode: 'iterations', iterations: 0, targetCi: 0.05, maxIterationMultiplier: 0 };
 
 // Proto3 cannot tell an unset field from 0, so a zero target reads as the default.
 const precisionFromProto = (saved: SavedStatWeightSettings): PrecisionSettings => ({

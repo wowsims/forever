@@ -29,13 +29,15 @@ const RATING_PER_PERCENT = new Map<Stat, number>([
 	[Stat.StatBlockRating, Mechanics.BLOCK_RATING_PER_BLOCK_PERCENT],
 ]);
 
+// Rows the back end reads 0 for while the character cannot block or parry, whatever rating it has.
+const GATED_PERCENT_PSEUDO_STATS = [PseudoStat.PseudoStatBlockPercent, PseudoStat.PseudoStatParryPercent];
+
 export class UnitStat {
 	private readonly stat: Stat | null;
 	private readonly pseudoStat: PseudoStat | null;
 
-	// Used to link a "child" PseudoStat like PhysicalHitPercent to a
-	// "parent" Stat like HitRating, so that both values can be displayed
-	// together in the character sheet.
+	// Links a "child" PseudoStat like MeleeHitPercent to its "parent" Stat like HitRating:
+	// the bonus stats store the rating, and the percent follows from it.
 	private readonly rootStat: Stat | null;
 
 	private constructor(stat: Stat | null, pseudoStat: PseudoStat | null, rootStat: Stat | null) {
@@ -101,7 +103,13 @@ export class UnitStat {
 
 	getShortName(playerClass: Class): string {
 		const fullName = this.getFullName(playerClass);
-		return fullName.replace(' Rating', '').replace(' Percent', '');
+		return fullName.replace(' Percent', '');
+	}
+
+	// The name of a stat weight row: a weight shown per 1% says so, "1% Hit" beside Agility's plain name.
+	getWeightName(playerClass: Class): string {
+		const perPercent = (this.isStat() && this.isPercentRating()) || this.isRatingBackedPercent();
+		return perPercent ? `1% ${this.getShortName(playerClass)}` : this.getFullName(playerClass);
 	}
 
 	getKey(): string {
@@ -124,6 +132,11 @@ export class UnitStat {
 	// its rating buys defense skill.
 	isPercentRating(): boolean {
 		return this.rootStat !== null && RATING_PER_PERCENT.has(this.rootStat);
+	}
+
+	// Whether the stat is a percent pseudo-stat that a rating buys, so its EP is stored per percentage point.
+	isRatingBackedPercent(): boolean {
+		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent());
 	}
 
 	// Convert a UnitStat value from its Rating representation to a percentage representation
@@ -185,15 +198,19 @@ export class UnitStat {
 		}
 	}
 
-	// The rating points one stored EP weight unit of this stat covers. A percent pseudo-stat rooted at a rating
-	// (hit, crit, haste, expertise, dodge, parry, block, in every hand) or a school hit percent is weighted per
-	// percentage point.
-	epRatingScale(): number {
-		return this.isPseudoStat() && (this.isPercentRating() || this.isSchoolHitPercent()) ? this.convertPercentToRating(1)! : 1;
+	// The stored weight of a rating is per rating point and of a percent pseudo-stat per percentage point; a rating
+	// with a percent (hit, crit, haste, expertise, dodge, parry, block) shows per percentage point, so its shown
+	// weight is the stored one times the rating points one percent takes. Every other stat shows as stored.
+	private epShownScale(): number {
+		return this.isStat() && this.isPercentRating() ? this.convertPercentToRating(1)! : 1;
 	}
 
-	convertEpToRatingScale(epValue: number): number {
-		return epValue / this.epRatingScale();
+	storedEpToShown(storedEp: number): number {
+		return storedEp * this.epShownScale();
+	}
+
+	shownEpToStored(shownEp: number): number {
+		return shownEp / this.epShownScale();
 	}
 
 	getProtoValue(proto: UnitStats): number {
@@ -278,8 +295,7 @@ export class UnitStat {
 		const pseudoStatName = PseudoStat[pseudoStat];
 
 		if (pseudoStatName.endsWith('Rating')) {
-			// The per-attack hit and crit ratings are already in rating units; the character sheet
-			// pairs each with its percent row.
+			// The per-attack hit and crit ratings are already in rating units.
 			return null;
 		} else if (pseudoStatName.includes('Expertise')) {
 			return Stat.StatExpertiseRating;
@@ -819,6 +835,17 @@ export function computeStatAttribution(
 		.subtract(baseStats)
 		.subtract(bonusStats)
 		.add(statMods.gear || new Stats());
+	// The back end's gear stage holds the bonus rating's percent in each percent pseudo stat, which the bonus stats do not
+	// carry, so Gear is the measured delta minus that percent and the stage lines still sum to the total. A block or parry row
+	// whose cumulative gear stage reads 0 is gated (no shield, cannot parry) and keeps Gear at 0. Haste is multiplicative, so
+	// its Gear line is approximate. A residue under 1e-9 is a float error and reads as 0.
+	for (const pseudoStat of UnitStat.getAllPseudoStats()) {
+		const root = UnitStat.getRootStat(pseudoStat.getPseudoStat());
+		if (root === null || !pseudoStat.isPercentRating()) continue;
+		const gated = GATED_PERCENT_PSEUDO_STATS.includes(pseudoStat.getPseudoStat()) && gearStats.getPseudoStat(pseudoStat.getPseudoStat()) === 0;
+		const gearPercent = gated ? 0 : gearDelta.getPseudoStat(pseudoStat.getPseudoStat()) - pseudoStat.convertRatingToPercent(bonusStats.getStat(root))!;
+		gearDelta = gearDelta.withPseudoStat(pseudoStat.getPseudoStat(), Math.abs(gearPercent) < 1e-9 ? 0 : gearPercent);
+	}
 	let talentsDelta = talentsStats.subtract(gearStats).add(statMods.talents || new Stats());
 	let buffsDelta = buffsStats.subtract(talentsStats).add(statMods.buffs || new Stats());
 	let consumesDelta = consumesStats.subtract(buffsStats).add(statMods.consumes || new Stats());

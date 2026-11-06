@@ -225,12 +225,15 @@ func fillProcChance(s *Spell, trigger *core.ProcTrigger) {
 //
 // A trigger left with neither a chance nor a manager fires on every qualifying hit, which is never
 // what a row with no stated rate means.
+//
+// A rated trigger hears no death. In game a death rolls the row's plain chance, which a rated row
+// leaves at 0, and a death has no proc mask a manager could measure.
 func settleProcRate(character *core.Character, s *Spell, trigger *core.ProcTrigger) {
-	if trigger.ProcChance != 0 || trigger.DPM != nil {
-		return
-	}
+	if trigger.ProcChance == 0 && trigger.DPM == nil {
+		if s.RPPM <= 0 {
+			panic(fmt.Sprintf("spelldata: spell %d (%s) states no proc chance; pass PPM()", s.ID, s.Name))
+		}
 
-	if s.RPPM > 0 {
 		// A mask of nothing is the weapon-proc shape, where which hits count is the weapon's to say
 		// and the manager has to be bound to it by whoever knows which weapon that is.
 		if trigger.ProcMask == core.ProcMaskUnknown {
@@ -239,8 +242,9 @@ func settleProcRate(character *core.Character, s *Spell, trigger *core.ProcTrigg
 		}
 
 		trigger.DPM = character.NewLegacyPPMManager(float64(s.RPPM), trigger.ProcMask)
-		return
 	}
 
-	panic(fmt.Sprintf("spelldata: spell %d (%s) states no proc chance; pass PPM()", s.ID, s.Name))
+	if trigger.DPM != nil {
+		trigger.Callback &^= core.CallbackOnKill | core.CallbackOnTargetDies
+	}
 }

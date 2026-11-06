@@ -25,8 +25,8 @@ ui/
                      components/ (React, one folder per component) + hooks/ + utils/ (feature
                      helpers that are neither a component nor DOM-free). The capabilities are
                      apl, bulk, character-stats, enchant-presets, encounter, gear, import-export,
-                     item-swap, onboarding, reforge, results, settings, stat-filters, stat-sweep,
-                     stat-weights, talents.
+                     item-swap, onboarding, reforge, results, saved-data-transfer, settings,
+                     stat-filters, stat-sweep, stat-weights, talents.
                      alias @features
   features/hooks/    React hooks several features share and none owns (useSavedPanel,
                      useActivateTab), one per file, beside the capability folders
@@ -189,9 +189,10 @@ convenience. The preset shapes
 (`PresetGear`, `PresetEpWeights`, …) live in `ui/sim/presets/types.ts`; `app/preset_utils.ts`
 holds the `make*` builders and re-exports the types.
 
-Gear, APLs and builds live in files under `ui/specs/<class>/<spec>/`, never as TS literals. The hunter writes them,
-and its defaults (`defaults.siml`), in SIML (`sim/siml/SPEC.md`), which `tools/vite/siml.mts` imports as each message's
-JSON; the other specs keep JSON files (`*.gear.json`, `*.apl.json`, `*.build.json`) until they move. EP weights and talents are TS presets in `presets.ts`:
+Gear, APLs and builds live in files under `ui/specs/<class>/<spec>/`, never as TS literals. The hunter and the
+Retribution and Protection paladins write them, and their defaults (`defaults.siml`), in SIML (`sim/siml/SPEC.md`),
+which `tools/vite/siml.mts` imports as each message's JSON; the other specs keep JSON files (`*.gear.json`,
+`*.apl.json`, `*.build.json`) until they move. EP weights and talents are TS presets in `presets.ts`:
 `PresetUtils.makePresetEpWeights` over a `Stats` map, and a talent preset is a `SavedTalents`, whose one field is the
 `talentsString`. An `onLoad` handler goes in a preset's options.
 

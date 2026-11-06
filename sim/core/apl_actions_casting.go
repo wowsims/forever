@@ -29,11 +29,15 @@ func (rot *APLRotation) newActionCastSpell(config *proto.APLActionCastSpell) APL
 	}
 }
 func (action *APLActionCastSpell) IsReady(sim *Simulation) bool {
-	return action.spell.CanCastOrQueue(sim, action.target.Get()) &&
-		(!action.spell.Flags.Matches(SpellFlagMCD) ||
-			action.spell.Flags.Matches(SpellFlagReactive) ||
-			action.spell.Unit.GCD.IsReady(sim) ||
-			action.spell.Unit.Rotation.inSequence)
+	return action.spell.CanCastOrQueue(sim, action.target.Get()) && !action.spell.majorCooldownWaits(sim)
+}
+
+// A major cooldown that is not reactive goes only at a GCD-ready look, unless a sequence runs it.
+func (spell *Spell) majorCooldownWaits(sim *Simulation) bool {
+	return spell.Flags.Matches(SpellFlagMCD) &&
+		!spell.Flags.Matches(SpellFlagReactive) &&
+		!spell.Unit.GCD.IsReady(sim) &&
+		!spell.Unit.Rotation.inSequence
 }
 func (action *APLActionCastSpell) Execute(sim *Simulation) {
 	action.spell.CastOrQueue(sim, action.target.Get())
@@ -148,7 +152,7 @@ func (rot *APLRotation) newActionCastFriendlySpell(config *proto.APLActionCastFr
 	}
 }
 func (action *APLActionCastFriendlySpell) IsReady(sim *Simulation) bool {
-	return action.spell.CanCastOrQueue(sim, action.target.Get()) && (!action.spell.Flags.Matches(SpellFlagMCD) || action.spell.Flags.Matches(SpellFlagReactive) || action.spell.Unit.GCD.IsReady(sim) || action.spell.Unit.Rotation.inSequence)
+	return action.spell.CanCastOrQueue(sim, action.target.Get()) && !action.spell.majorCooldownWaits(sim)
 }
 func (action *APLActionCastFriendlySpell) Execute(sim *Simulation) {
 	action.spell.CastOrQueue(sim, action.target.Get())
@@ -269,8 +273,16 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 			}
 		}
 	} else {
-		for i := int32(0); i < action.maxDots; i++ {
-			target := sim.Encounter.AllTargetUnits[i]
+		// The first maxDots active targets, since a target can be disabled or dead.
+		dots := int32(0)
+		for _, target := range sim.Encounter.AllTargetUnits {
+			if !target.IsEnabled() {
+				continue
+			}
+			if dots == action.maxDots {
+				break
+			}
+			dots++
 			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
@@ -330,7 +342,7 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 	}
 
 	actions := []*APLAction{}
-	for i := int32(0); i < maxDots; i++ {
+	for i := int32(0); i < numTargets; i++ {
 		if isHeal {
 			actions = append(actions, &APLAction{
 				impl: rot.newActionCastSpell(&proto.APLActionCastSpell{
@@ -378,8 +390,15 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	action.readyActions = []*APLAction{}
 
 	var previousTarget *Unit
-	for i := int32(0); i < action.maxDots; i++ {
-		target := action.targets[i]
+	dots := int32(0)
+	for i, target := range action.targets {
+		if !target.IsEnabled() {
+			continue
+		}
+		if dots == action.maxDots {
+			break
+		}
+		dots++
 		dot := readDot(sim, action.spell.Dot(target))
 		if (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 			action.readyActions = append(action.readyActions, action.actions[i])
@@ -602,10 +621,11 @@ func (action *APLActionAutocastOtherCooldowns) String() string {
 	return "Autocast Other Cooldowns"
 }
 func (action *APLActionAutocastOtherCooldowns) PostFinalize(rot *APLRotation) {
-	if len(action.character.initialMajorCooldowns) == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL.", action)
+	mcds := FilterSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) bool { return mcd.autocasts() })
+	if len(mcds) == 0 {
+		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.", action)
 	} else {
-		actionIDs := MapSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) ActionID {
+		actionIDs := MapSlice(mcds, func(mcd MajorCooldown) ActionID {
 			return mcd.Spell.ActionID
 		})
 

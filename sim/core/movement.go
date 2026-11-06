@@ -151,6 +151,7 @@ func (unit *Unit) StopMoving(sim *Simulation) {
 		unit.movementAction.meleeEdge.Cancel(sim)
 	}
 	unit.moveAura.Deactivate(sim)
+	unit.logStop(sim)
 
 	unit.OnMovement(sim, unit.DistanceFromTarget, MovementEnd)
 }
@@ -162,8 +163,15 @@ func (unit *Unit) FinalizeMovement(sim *Simulation) {
 
 	unit.UpdatePosition(sim, true)
 	unit.moveAura.Deactivate(sim)
+	unit.logStop(sim)
 
 	unit.OnMovement(sim, unit.DistanceFromTarget, MovementEnd)
+}
+
+func (unit *Unit) logStop(sim *Simulation) {
+	if sim.Log != nil {
+		unit.Log(sim, "Stopped walking at %.2f yards", unit.DistanceFromTarget)
+	}
 }
 
 func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime time.Duration, moveDistance float64, byHand bool) {
@@ -194,6 +202,10 @@ func registerMovementAction(unit *Unit, sim *Simulation, speed float64, endTime 
 		unit.FinalizeMovement(sim)
 	}
 
+	// The results page's movement view draws each walk from this line and the stop that ends it.
+	if sim.Log != nil {
+		unit.Log(sim, "Walking from %.2f to %.2f yards over %.3fs", movementAction.srcPosition, movementAction.srcPosition+moveDistance, (endTime - sim.CurrentTime).Seconds())
+	}
 	unit.OnMovement(sim, unit.DistanceFromTarget, MovementStart)
 	unit.movementAction = &movementAction
 	sim.AddPendingAction(&movementAction.PendingAction)

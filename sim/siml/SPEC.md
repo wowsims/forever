@@ -215,7 +215,7 @@ slot_row      = ident , ( ident , [ ident ] , [ "+" , ident ] | raw ) ;    (* ge
 entry         = flag_list | field_entry | message_entry | raw ;
 flag_list     = flag , { "," , flag } ;                           (* every item a field name *)
 flag          = ident , [ "=" , value ] ;                         (* mana_spring_totem=improved *)
-field_entry   = ident , value , { "," , value } ;                 (* one field; several values only when repeated *)
+field_entry   = ident , value , [ literal ] , { "," , value } ;   (* one field; several values only when repeated *)
 message_entry = ident , args ;                                    (* a message value: targets(id=1, ...) *)
 value         = literal | int | [ "-" ] , int | string | "true" | "false" | ident | unit | raw
               | ident , args ;                                    (* a nested message or indexed array *)
@@ -230,7 +230,8 @@ value         = literal | int | [ "-" ] , int | string | "true" | "false" | iden
 3. A row's tokens after a complete action that are not `if` give `expected-if`.
 4. In operand position `sequence(` begins an accessor and `group` never does. In step position `sequence "` is
    the action.
-5. The terms of a `field_entry` are values of one field. A line whose first item has no value, or is followed
+5. The terms of a `field_entry` are values of one field, and a literal right after its first value, with no comma
+   between, is a duration's max (§5.2). A line whose first item has no value, or is followed
    by `=`, is a `flag_list`; a flag with a value sets a flag-value enum to another of its values (§5.2), and
    is typed by its field as any entry value is. An entry's values, a flag's value and every argument are read
    as `term`s, and typing gives `wrong-type` for a term that does not fit its field. `siml`, `spec`, `talents`,
@@ -271,24 +272,24 @@ The table is data in `sim/siml/forms.json`, and the schema carries it (§8). Fie
 the order given here, and within each source in proto declaration order. The category letters are the site's
 import categories (`SIM_CATEGORY_KEYS`).
 
-| Section          | Fields, in order                                                                                                                                                                                                                                                                                                                                                                                    | Category | Body                  |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------- |
-| `settings`       | `Player`: `name`, `race`, `profession1`, `profession2`, `prof1_rank`, `prof2_rank`, `reaction_time_ms`, `channel_clip_delay_ms`, `in_front_of_target`, `distance_from_target`, `dark_intent_uptime`, `challenge_mode`, `weapon_skills`, `healing_model`; then the fields of the spec's `Options` other than `class_options`; then the fields of `class_options`; then `IndividualSimSettings.tanks` | m        | entries               |
-| `gear`           | `Player.equipment` as slot rows; `Player.bonus_stats`; `Player.enable_item_swap`                                                                                                                                                                                                                                                                                                                    | g        | slot rows and entries |
-| `item_swap`      | `Player.item_swap.items` as slot rows; `Player.item_swap.prepull_bonus_stats`                                                                                                                                                                                                                                                                                                                       | g        | slot rows and entries |
-| `consumables`    | `Player.consumables`                                                                                                                                                                                                                                                                                                                                                                                | c        | entries               |
-| `buffs`          | `Player.buffs`                                                                                                                                                                                                                                                                                                                                                                                      | x        | entries               |
-| `party_buffs`    | `IndividualSimSettings.party_buffs`                                                                                                                                                                                                                                                                                                                                                                 | x        | entries               |
-| `raid_buffs`     | `IndividualSimSettings.raid_buffs`; `IndividualSimSettings.target_dummies`                                                                                                                                                                                                                                                                                                                          | x        | entries               |
-| `debuffs`        | `IndividualSimSettings.debuffs`                                                                                                                                                                                                                                                                                                                                                                     | x        | entries               |
-| `encounter`      | `IndividualSimSettings.encounter`                                                                                                                                                                                                                                                                                                                                                                   | e        | entries               |
-| `sim`            | `IndividualSimSettings.settings` (`SimSettings`); then `ep_weights_stats`, `ep_ratios`, `dps_ref_stat`, `heal_ref_stat`, `tank_ref_stat`, `reforge_settings`, `stat_caps`, `breakpoint_limits`                                                                                                                                                                                                      | u        | entries               |
-| `apl`            | `Player.rotation.type`; `var` lines                                                                                                                                                                                                                                                                                                                                                                 | r        | entries and `var`     |
-| `simple`         | the spec's `Rotation` message, stored as `Player.rotation.simple.spec_rotation_json`; `Player.rotation.simple.cooldowns` as the entry `cooldowns(...)`                                                                                                                                                                                                                                              | r        | entries               |
-| `cooldowns`      | `Player.cooldowns`                                                                                                                                                                                                                                                                                                                                                                                  | r        | entries               |
-| `prepull`        | `Player.rotation.prepull_actions`                                                                                                                                                                                                                                                                                                                                                                   | r        | rows                  |
-| `priority`       | `Player.rotation.priority_list`                                                                                                                                                                                                                                                                                                                                                                     | r        | rows                  |
-| `group "<name>"` | one `Player.rotation.groups` element                                                                                                                                                                                                                                                                                                                                                                | r        | `var` and rows        |
+| Section          | Fields, in order                                                                                                                                                                                                                                                                                                                                                                                                            | Category | Body                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| `settings`       | `Player`: `name`, `race`, `profession1`, `profession2`, `prof1_rank`, `prof2_rank`, `reaction_time_ms`, `reaction_time_max_ms`, `channel_clip_delay_ms`, `in_front_of_target`, `distance_from_target`, `dark_intent_uptime`, `challenge_mode`, `weapon_skills`, `healing_model`; then the fields of the spec's `Options` other than `class_options`; then the fields of `class_options`; then `IndividualSimSettings.tanks` | m        | entries               |
+| `gear`           | `Player.equipment` as slot rows; `Player.bonus_stats`; `Player.enable_item_swap`                                                                                                                                                                                                                                                                                                                                            | g        | slot rows and entries |
+| `item_swap`      | `Player.item_swap.items` as slot rows; `Player.item_swap.prepull_bonus_stats`                                                                                                                                                                                                                                                                                                                                               | g        | slot rows and entries |
+| `consumables`    | `Player.consumables`                                                                                                                                                                                                                                                                                                                                                                                                        | c        | entries               |
+| `buffs`          | `Player.buffs`                                                                                                                                                                                                                                                                                                                                                                                                              | x        | entries               |
+| `party_buffs`    | `IndividualSimSettings.party_buffs`                                                                                                                                                                                                                                                                                                                                                                                         | x        | entries               |
+| `raid_buffs`     | `IndividualSimSettings.raid_buffs`; `IndividualSimSettings.target_dummies`                                                                                                                                                                                                                                                                                                                                                  | x        | entries               |
+| `debuffs`        | `IndividualSimSettings.debuffs`                                                                                                                                                                                                                                                                                                                                                                                             | x        | entries               |
+| `encounter`      | `IndividualSimSettings.encounter`                                                                                                                                                                                                                                                                                                                                                                                           | e        | entries               |
+| `sim`            | `IndividualSimSettings.settings` (`SimSettings`); then `ep_weights_stats`, `ep_ratios`, `dps_ref_stat`, `heal_ref_stat`, `tank_ref_stat`, `reforge_settings`, `stat_caps`, `breakpoint_limits`                                                                                                                                                                                                                              | u        | entries               |
+| `apl`            | `Player.rotation.type`; `var` lines                                                                                                                                                                                                                                                                                                                                                                                         | r        | entries and `var`     |
+| `simple`         | the spec's `Rotation` message, stored as `Player.rotation.simple.spec_rotation_json`; `Player.rotation.simple.cooldowns` as the entry `cooldowns(...)`                                                                                                                                                                                                                                                                      | r        | entries               |
+| `cooldowns`      | `Player.cooldowns`                                                                                                                                                                                                                                                                                                                                                                                                          | r        | entries               |
+| `prepull`        | `Player.rotation.prepull_actions`                                                                                                                                                                                                                                                                                                                                                                                           | r        | rows                  |
+| `priority`       | `Player.rotation.priority_list`                                                                                                                                                                                                                                                                                                                                                                                             | r        | rows                  |
+| `group "<name>"` | one `Player.rotation.groups` element                                                                                                                                                                                                                                                                                                                                                                                        | r        | `var` and rows        |
 
 **Skipped fields.** These are never written or read: `Player.database`, every `api_version`, and every field of
 type `UUID`. `Player.class` comes from `spec`
@@ -321,23 +322,24 @@ the section file uses (§9) brings that section. So `x.apl.siml` holding only `u
 
 An entry line sets fields of the section's message. How each field type is written:
 
-| Field type                                                                  | Written                                                                                        | Example                                                   | JSON                                            |
-| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------- |
-| `bool`                                                                      | the bare field name means true; `true` and `false` are also accepted                           | `cobra_reflexes`                                          | `"cobraReflexes": true`                         |
-| enum                                                                        | the value's short name (§8.2), or the proto value name                                         | `race orc`                                                | `"race": "RaceOrc"`                             |
-| an enum with a bare-flag value (`TristateEffect` → `TristateEffectRegular`) | bare means that value; otherwise its short name                                                | `mana_spring_totem`, `mana_spring_totem=improved`         | `"manaSpringTotem": "TristateEffectRegular"`    |
-| `int32`, `uint32`, `int64`, `double`, `float`                               | a number with no unit                                                                          | `distance_from_target 11`                                 | `"distanceFromTarget": 11`                      |
-| `string`                                                                    | a JSON string                                                                                  | `name "Pre-BiS - Arms"`                                   | `"name": "Pre-BiS - Arms"`                      |
-| item, enchant or suffix ref field (§8.1)                                    | a name of that namespace (§7.2)                                                                | `offensive_pot major_frenzy_potion`                       | `"offensivePotId": 250943`                      |
-| stat field (§8.1)                                                           | a `Stat` short name, or an integer that is no `Stat` value                                     | `stat_type2=attack_power`                                 | `"statType2": 14`                               |
-| repeated scalar                                                             | values separated by commas                                                                     | `elixir elixir_of_the_mongoose, greater_mageblood_elixir` | `"elixirIds": [13452, 250341]`                  |
-| message                                                                     | `field(arg, …)` with named arguments, bare bool flags, or both; `field()` is present but empty | `healing_model(hps=1200)`                                 | `"healingModel": {"hps": 1200}`                 |
-| repeated message                                                            | one `field(...)` line per element                                                              | `targets(id=31146, …)`                                    | `"targets": [{…}]`                              |
-| array indexed by an enum (§8.1)                                             | `field(<short name>=<number>, …)`                                                              | `stats(armor=3731, health=1299000)`                       | `"stats": [0, …, 3731, …]`, full length (§12.4) |
-| `UnitReference`                                                             | a unit word (§6.6)                                                                             | `tanks player1`                                           | `"tanks": [{"type": "Player"}]`                 |
-| `ActionID`                                                                  | a ref (§7)                                                                                     | `cooldowns(id=death_wish, timings=[30, 90])`              | `"id": {"spellId": 12328}`                      |
-| map                                                                         | raw JSON for the whole map; a map has no other form                                            | ``min_consumable_lvl `{"6": 50}` ``                       | `"minConsumableLvl": {"6": 50}`                 |
-| any                                                                         | raw JSON for the field's value                                                                 |                                                           | as written                                      |
+| Field type                                                                  | Written                                                                                        | Example                                                   | JSON                                              |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------- |
+| `bool`                                                                      | the bare field name means true; `true` and `false` are also accepted                           | `cobra_reflexes`                                          | `"cobraReflexes": true`                           |
+| enum                                                                        | the value's short name (§8.2), or the proto value name                                         | `race orc`                                                | `"race": "RaceOrc"`                               |
+| an enum with a bare-flag value (`TristateEffect` → `TristateEffectRegular`) | bare means that value; otherwise its short name                                                | `mana_spring_totem`, `mana_spring_totem=improved`         | `"manaSpringTotem": "TristateEffectRegular"`      |
+| `int32`, `uint32`, `int64`, `double`, `float`                               | a number with no unit                                                                          | `distance_from_target 11`                                 | `"distanceFromTarget": 11`                        |
+| duration: a singular `int32` named `<x>_ms`                                 | `<x>` and a duration of whole milliseconds; with `<x>_max_ms` beside it, a second duration     | `reaction_time 150ms 350ms`                               | `"reactionTimeMs": 150, "reactionTimeMaxMs": 350` |
+| `string`                                                                    | a JSON string                                                                                  | `name "Pre-BiS - Arms"`                                   | `"name": "Pre-BiS - Arms"`                        |
+| item, enchant or suffix ref field (§8.1)                                    | a name of that namespace (§7.2)                                                                | `offensive_pot major_frenzy_potion`                       | `"offensivePotId": 250943`                        |
+| stat field (§8.1)                                                           | a `Stat` short name, or an integer that is no `Stat` value                                     | `stat_type2=attack_power`                                 | `"statType2": 14`                                 |
+| repeated scalar                                                             | values separated by commas                                                                     | `elixir elixir_of_the_mongoose, greater_mageblood_elixir` | `"elixirIds": [13452, 250341]`                    |
+| message                                                                     | `field(arg, …)` with named arguments, bare bool flags, or both; `field()` is present but empty | `healing_model(hps=1200)`                                 | `"healingModel": {"hps": 1200}`                   |
+| repeated message                                                            | one `field(...)` line per element                                                              | `targets(id=31146, …)`                                    | `"targets": [{…}]`                                |
+| array indexed by an enum (§8.1)                                             | `field(<short name>=<number>, …)`                                                              | `stats(armor=3731, health=1299000)`                       | `"stats": [0, …, 3731, …]`, full length (§12.4)   |
+| `UnitReference`                                                             | a unit word (§6.6)                                                                             | `tanks player1`                                           | `"tanks": [{"type": "Player"}]`                   |
+| `ActionID`                                                                  | a ref (§7)                                                                                     | `cooldowns(id=death_wish, timings=[30, 90])`              | `"id": {"spellId": 12328}`                        |
+| map                                                                         | raw JSON for the whole map; a map has no other form                                            | ``min_consumable_lvl `{"6": 50}` ``                       | `"minConsumableLvl": {"6": 50}`                   |
+| any                                                                         | raw JSON for the field's value                                                                 |                                                           | as written                                        |
 
 - **Flag lists.** A flag list (`use_multi, use_arcane`) sets each named bool field to true, or each bare-flag
   enum to its flag value. A flag may carry a value (`mana_spring_totem=improved`, `pet_uptime=1`), which sets its
@@ -358,12 +360,21 @@ An entry line sets fields of the section's message. How each field type is writt
   `field(<short name>=<number>, …)`.
 - **Field names.** A field is written by its proto name. A proto name that is not lower snake case is written
   as the snake case of its JSON name (`mhImbue_id` → `mh_imbue_id`). An item ref field whose name ends in
-  `_id` or `_ids` drops that suffix when the shorter name names no other field of the message
-  (`offensive_pot_id` → `offensive_pot`, `extra_ids` → `extra`). Both the short name and the full name are accepted, and the
-  printer writes the short one.
+  `_id` or `_ids` drops that suffix, and a duration its `_ms`, when the shorter name names no other field of the
+  message (`offensive_pot_id` → `offensive_pot`, `extra_ids` → `extra`, `reaction_time_ms` → `reaction_time`). Both
+  the short name and the full name are accepted, and the printer writes the short one.
+- **Durations.** A singular `int32` field whose name ends in `_ms` is a duration, held in milliseconds. Its short
+  name takes a duration (§2) of whole milliseconds, `reaction_time 250ms` or `reaction_time 1s`, and its full name a
+  number with no unit, `reaction_time_ms 250`. When the message also has a field `<x>_max_ms` beside `<x>_ms`, that
+  field has no short name: the `<x>` line takes it as an optional second duration, `reaction_time 150ms 350ms`, and
+  its full name with a number sets it alone, `reaction_time_max_ms 350`. Setting it both ways is `duplicate-field`.
+  A max that is not above its duration, on the duration's line or a line of its own, sets no range and gives the
+  warning `max-not-above-min`.
 - **Errors.** Unknown names are `unknown-field`. A field set twice is `duplicate-field`: a list of messages takes
-  a line per message, and any other list one line of all its values. A value that does not fit is `wrong-type`.
-  An unknown enum value is `unknown-enum`. A number with a unit is `bad-literal`.
+  a line per message, and any other list one line of all its values. A value that does not fit is `wrong-type`,
+  and so is a duration below zero, past the field's range or holding a fraction of a millisecond. An unknown enum
+  value is `unknown-enum`. A number with a unit where a number goes, and a number with no unit or a percentage where
+  a duration goes, are `bad-literal`.
 
 ### 5.3 Slot rows (`gear:`, `item_swap:`, `x.gear.siml`)
 
@@ -387,15 +398,15 @@ line whose first word is a slot word is a slot row, and any other line an entry.
 
 ### 5.4 The setup sections in short
 
-| Section                                         | What it reads like                                                                                                                                                                    |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `settings`                                      | `race orc`, `profession1 engineering`, `distance_from_target 11`, the spec options flattened (`quiver_bonus ancient_sinew_wrapped_lamina`, `cobra_reflexes`), `tanks player1`         |
-| `consumables`                                   | `offensive_pot major_frenzy_potion`, `food swiftstrike_steak`, `extra goblin_sapper_charge, scroll_of_strength_iv`                                                                    |
-| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `target_dummies 2` in `raid_buffs`                                                                        |
-| `encounter`                                     | `duration 180`, `duration_variation 5`, `execute_proportion_20 0.2`, one `targets(id=…, name="…", level=63, mob_type=mechanical, stats(…), …)` per target, written out field by field |
-| `sim`                                           | `iterations 25000`, `ep_weights_stats(stats(agility=2.1))`, `dps_ref_stat attack_power`                                                                                               |
-| `simple`                                        | the spec's `Rotation` fields (`time_to_weave 400`, `use_multi, use_arcane`, `playstyle weave`) and `cooldowns(hp_percent_for_defensives=0.4)`                                         |
-| `cooldowns`                                     | `hp_percent_for_defensives 0.4`, `cooldowns(id=death_wish, timings=[30, 90])`                                                                                                         |
+| Section                                         | What it reads like                                                                                                                                                                                         |
+| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `settings`                                      | `race orc`, `profession1 engineering`, `reaction_time 150ms 350ms`, `distance_from_target 11`, the spec options flattened (`quiver_bonus ancient_sinew_wrapped_lamina`, `cobra_reflexes`), `tanks player1` |
+| `consumables`                                   | `offensive_pot major_frenzy_potion`, `food swiftstrike_steak`, `extra goblin_sapper_charge, scroll_of_strength_iv`                                                                                         |
+| `buffs`, `party_buffs`, `raid_buffs`, `debuffs` | flag lists of the buff fields, `mana_spring_totem=improved` for a tristate, `strength_of_earth_totem 1` for a rank select, `target_dummies 2` in `raid_buffs`                                              |
+| `encounter`                                     | `duration 180`, `duration_variation 5`, `execute_proportion_20 0.2`, one `targets(id=…, name="…", level=63, mob_type=mechanical, stats(…), …)` per target, written out field by field                      |
+| `sim`                                           | `iterations 25000`, `ep_weights_stats(stats(agility=2.1))`, `dps_ref_stat attack_power`                                                                                                                    |
+| `simple`                                        | the spec's `Rotation` fields (`pull_range 30`, `use_multi, use_arcane`, `playstyle weave`) and `cooldowns(hp_percent_for_defensives=0.4)`                                                                  |
+| `cooldowns`                                     | `hp_percent_for_defensives 0.4`, `cooldowns(id=death_wish, timings=[30, 90])`                                                                                                                              |
 
 **Encoding `simple:`.** The `simple:` body is encoded into `spec_rotation_json` as **canonical rotation JSON**:
 
@@ -721,8 +732,8 @@ it uses, and those of the files these use in turn. `use … with` cannot set one
 like any other, so the variables and names in its value are read in the calling file, and a diagnostic in its value
 names the used file: `(in def far, at shared.apl.siml:4:5)`. A def named as one of this file's, or that two used files
 declare, is `duplicate-def`, at the `use` line that brings the second. A file that holds such shared defs and
-variables needs no row: `apls/weave_common.apl.siml` of the hunter holds the walk times and conditions both weave
-rotations read.
+variables needs no row of its own: `apls/weave_common.apl.siml` of the hunter holds the weave group and the defs both
+weave rotations read.
 
 **Calls.**
 
@@ -861,10 +872,13 @@ meaning among the shared entries.
   `rank` when they are not 0.
 - **The rank.** The sim finds a spell or an aura by its spell id and tag, whatever the rank; the rank rides on the
   proto only for the site's labels. So an `ActionID` with a `spellId` prints by the name of its spell id and tag
-  whatever its rank, and reads back with the rank of the name's entry. §12.4 compares ranks that way.
+  whatever its rank, and reads back with the rank of the name's entry. §12.4 compares ranks that way. The one
+  exception is the talent of `talent_is_known`, whose rank is the points the player must hold: one with a rank above
+  1 prints as a raw ref and keeps its rank. A committed file writes that test `talent_rank(x) >= N` instead.
 - **Raw refs.** An `ActionID`, item, enchant or suffix that the table does not name prints as raw JSON for its node:
-  the ref itself (``cast `{"spellId":123}` ``), or the slot and a raw `ItemSpec` for a slot row (§12.2). It can only
-  come from a site export of something the generator never saw, and it reads back exactly.
+  the ref itself (``cast `{"spellId":123}` ``), or the slot and a raw `ItemSpec` for a slot row (§12.2). It comes
+  from a site export of something the generator never saw, or from a `talent_is_known` talent with a rank above 1,
+  and it reads back exactly.
 - **`raw-ref`.** A committed file under `ui/specs` holds no raw ref. The repository check (§7.4) reports `raw-ref`
   at each raw token whose JSON holds a spell id, an item id, an enchant effect id or a random suffix id. The parser
   never reports it.
@@ -878,7 +892,7 @@ meaning among the shared entries.
   "classes": {
     "<class>": {
       "<namespace>": {
-        "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "uncastable": true},
+        "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "talentOnlyBy": ["<spec>", …], "uncastable": true},
         …
       },
       …
@@ -899,7 +913,7 @@ meaning among the shared entries.
   },
   "shared": {
     "<namespace>": {
-      "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "uncastable": true},
+      "<name>": {"spellId": <id>, "tag": <tag>, "rank": <rank>, "registeredBy": ["<spec>", …], "icdOnlyBy": ["<spec>", …], "talentOnlyBy": ["<spec>", …], "uncastable": true},
       …
     },
     …
@@ -932,6 +946,14 @@ meaning among the shared entries.
   the aura only as an internal cooldown trigger, in byte order. For a file of one of those specs the sim finds it in
   `icd_is_ready`, `internal_cooldown` and `trigger_icd` and in no other aura position, where a name of it is
   `icd-trigger` (§13).
+- `talentOnlyBy`, only on a `spell` entry and left out when empty, lists the specs of `registeredBy` whose builds
+  list the spell only as a talent they hold (step 2 of the generator), in byte order. For a file of one of those
+  specs the sim finds it in `talent_is_known` and `talent_rank` and in no other spell position, where a name of it is
+  `talent-only` (§13); a cast of it is `talent-only` and not also `not-castable`. Those two kinds read a talent's own
+  spell, the `talent_spell_id` option of its field in the class's talents message, which can differ from the spell
+  the talent teaches (`holy_shock` is rank 4 of the spell; the talent is `holy_shock_1311606`), and a name of any
+  other spell there is `not-a-talent` (§13). Editors offer and suggest a talent's own spell only in those two kinds,
+  and a `talentOnlyBy` spell nowhere else.
 - `icdOnlyItems` names the items whose effect the listed specs' builds list only as an internal cooldown trigger, by
   an item name of `items`, with the specs in byte order. It is written again from the builds on each regeneration. For
   a file of one of those specs, `item.<name>` in an aura position outside `icd_is_ready`, `internal_cooldown` and
@@ -947,7 +969,8 @@ meaning among the shared entries.
   It refuses a table that breaks any of these:
     - the table, each of its sections, each class and namespace, and each spell-like or enchant entry is an
       object; the table and the entries hold only the keys the form shows; `registeredBy` and `slots` are lists of
-      strings; `icdOnlyBy` is a list of strings on an `aura` entry, each a spec of its `registeredBy`; `uncastable`
+      strings; `icdOnlyBy` is a list of strings on an `aura` entry, each a spec of its `registeredBy`; `talentOnlyBy` is
+      the same on a `spell` entry; `uncastable`
       is `true` on a `spell` entry; each `icdOnlyItems` entry names an item of `items` and is a non-empty list of field
       names of `Player`'s `spec` oneof;
     - every spell id, tag and rank, item id, effect id and random suffix id is a whole number in the range of
@@ -1002,8 +1025,11 @@ up-to-date check (below) is what catches a table not committed. The generator:
 2. **Collects** a build's player spells into `spell`, its player auras into `aura`, its pets' auras into
    `pet_aura`, and its targets' auras and spells into `target_aura` and `target_spell`. Each is collected by spell
    id and tag, with the highest rank any build registers it with, and whether a build registers it castable
-   (`SpellStats.is_castable`). Item and other ids are no spell-like names. What these builds register is the
-   class's.
+   (`SpellStats.is_castable`). The talents a build holds (`UnitMetadata.talents`) go into `spell` too, since
+   `talent_is_known` and `talent_rank` read a spell name and most talents register no spell; one the build registers
+   as no spell is uncastable and has no rank, so `talent_is_known(unsealed_wrath)` holds at any rank. A talent a
+   spec's builds list as no spell of theirs goes into its `talentOnlyBy`. Item and other ids are no spell-like names.
+   What these builds register is the class's.
 3. **Adds the shared entries.** Each spec is built with its first race, every talent at its highest rank, its
    default options and every buff (or, when that fails, as its first build that succeeded with every buff), and
    one of:
@@ -1053,14 +1079,18 @@ up-to-date check (below) is what catches a table not committed. The generator:
       when another thing of the base has the same spell id.
     - While that name is taken, `_2`, `_3`, … follow it.
 
-    **Preference.** In `spell`, castable first. Then, in every spell-like namespace, tag 0 first, the highest rank, the lowest spell id and
-    the lowest tag. Items: the highest item level, then the lowest id. Enchants: the lowest effect id, then the slots
+    **Preference.** In `spell`, castable first. Then, in every spell-like namespace, tag 0 first, a rank that is no
+    class book rank (`spelldata.IsBookRank`, the hand-kept list in `sim/core/spelldata/book_ranks.go`, since the game
+    files state a book rank like a trained one), the highest rank, the lowest spell id and the lowest tag. So a plain
+    name means the trainer's top rank and a book rank takes a qualifier, unless being castable or tag 0 puts the book
+    rank first or the builds register no trained rank of its base. Items: the highest item level, then the lowest id. Enchants: the lowest effect id, then the slots
     in `ItemSlot` order. Suffixes: the lowest id. The classes are named before the shared entries, so what a class
     casts takes its game name before what gear adds.
 
 9. **Keeps every pinned entry.** An entry keeps its name, id, tag, rank and slots whatever the inputs; only
-   `registeredBy`, `icdOnlyBy` and `uncastable` are regenerated. An id that no build registers keeps its entry,
-   with an empty `registeredBy`. A spell, item, enchant row or suffix that the game files rename keeps its old name;
+   `registeredBy`, `icdOnlyBy`, `talentOnlyBy` and `uncastable` are regenerated. An id that no build registers
+   keeps its entry, with an empty `registeredBy`. A spell, item, enchant row or suffix that the game files rename
+   keeps its old name;
    the generator adds no alias. The one exception is work in progress: in a git checkout, an entry whose name the table at `HEAD`
    (`git show HEAD:sim/siml/names.json`) does not hold is dropped before step 7 when no build registers it, or, for
    an item, enchant or suffix, the database no longer holds it. So a name added for a spell registered only for a while, or
@@ -1204,7 +1234,8 @@ grammar`).
 ### 8.2 Names
 
 **Field names.** A field is written by its proto name. A name containing an upper-case letter is written as
-the snake case of its JSON name. An item ref field may drop a trailing `_id` or `_ids` (§5.2).
+the snake case of its JSON name. An item ref field may drop a trailing `_id` or `_ids`, and a duration a trailing
+`_ms` (§5.2).
 
 **`snake(s)`.** Insert `_` before an upper-case letter that follows a lower-case letter or a digit, and before
 an upper-case letter that follows an upper-case letter and precedes a lower-case one, then lowercase:
@@ -1355,7 +1386,7 @@ use "default.apl.siml" with $use_summon_hawk = true
 
 | Literal                                              | Where                    | Meaning                                                              |
 | ---------------------------------------------------- | ------------------------ | -------------------------------------------------------------------- |
-| number with a unit (`1.5s`, `400ms`, `30%`, `1m30s`) | values                   | `const` with the text exactly                                        |
+| number with a unit (`1.5s`, `400ms`, `30%`, `1m30s`) | values; duration entries | `const` with the text exactly, or a duration field's milliseconds    |
 | number (`5.00`, `7`, `-1`)                           | values; entries          | `const` text exactly, or the field's number                          |
 | `true` / `false`                                     | values; entries          | `const "true"` / `"false"`, or a bool field                          |
 | `"…"`                                                | values; entries          | `const` with the string, or a string field                           |
@@ -1470,6 +1501,9 @@ section only, with no header but a group's; an `x.gear.siml` writes its slot row
 - Fields follow the section's order (§5.1). Zero values are left out, and so are absent messages.
 - A run of consecutive present fields that are all true bools or flag-value enums becomes one flag list, in
   declaration order. A flag-value enum at its flag value is written bare, and at another value `name=value`.
+- A duration is written in milliseconds by its short name, `reaction_time 1500ms`. Its `<x>_max_ms`, when set, is
+  the line's second duration, and `format` moves a max written on a line of its own there. With the duration not
+  set, the line is `reaction_time 0ms 350ms`.
 - Repeated values are joined with `, `, and a message is written `field(...)` with its fields in declaration
   order: a true bool, or a flag-value enum at its flag value, by its name alone, each message of a list as a
   `field(...)` of its own, and every other field `name=value`.
@@ -1571,7 +1605,8 @@ normalisations:
 - indexed arrays are padded with zeros to their enum's length, an absent one included;
 - `spec_rotation_json` is compared as the protojson of the spec's `Rotation` it holds, an empty string as `{}`, in
   an `APLRotation` too, whose spec is the one its file's `spec` line names;
-- an `ActionID` with a `spellId` that a spell-like name prints takes the rank of the name's entry (§7.3).
+- an `ActionID` with a `spellId` that a spell-like name prints takes the rank of the name's entry (§7.3), which the
+  printer never does for a `talent_is_known` talent with a rank above 1 (§7.3).
 
 The protos are then compared with `proto.Equal`.
 
@@ -1614,6 +1649,7 @@ are errors.
 | `misplaced-note`, `misplaced-var`, `bad-hidden-row`                                                           | error    | §10, §6.1, §6.3                                                                            |
 | `misplaced-when`, `misplaced-def`                                                                             | error    | §6.9, §6.10                                                                                |
 | `empty-when`                                                                                                  | warning  | §6.9                                                                                       |
+| `max-not-above-min`                                                                                           | warning  | §5.2; a duration's max not above the duration                                              |
 | `missing-time`, `unexpected-time`                                                                             | error    | a prepull row without a time, or another row with one                                      |
 | `spec-required`, `unknown-spec`, `spec-mismatch`                                                              | error    | §3.3, §9                                                                                   |
 | `use-not-found`, `use-cycle`, `use-refused`, `section-conflict`, `with-unknown-variable`, `with-not-rotation` | error    | §9                                                                                         |
@@ -1630,6 +1666,8 @@ are errors.
 | `unknown-name`                                                                                                | error    | §7.2; the message names where the name is, or a did-you-mean                               |
 | `spell-variable`                                                                                              | error    | §7.2; a variable where an `ActionID` goes                                                  |
 | `icd-trigger`                                                                                                 | error    | §7.4; an `icdOnlyBy` aura or an `icdOnlyItems` item outside ICD kinds                      |
+| `talent-only`                                                                                                 | error    | §7.4; a `talentOnlyBy` spell outside `talent_is_known` and `talent_rank`                   |
+| `not-a-talent`                                                                                                | error    | §7.4; a name in `talent_is_known` or `talent_rank` whose spell is no talent's              |
 | `not-castable`                                                                                                | warning  | §7.4; an `uncastable` spell where an action casts it                                       |
 | `ambiguous-variable`                                                                                          | error    | §7.5                                                                                       |
 | `duplicate-group`, `duplicate-variable`, `reference-cycle`                                                    | error    | §6.1, §7.5, §6.10; a variable two files declare, or a `with` list that sets one twice (§9) |
@@ -1766,16 +1804,21 @@ to the proto it prints (§12.4).
 ```
 siml 1
 spec hunter
-use "weave_common.apl.siml" with $wait_at_melee = max(input_delay, $time_to_weave)
+use "weave_common.apl.siml"
 
 var ${Melee weave} = true
-var ${Time to weave} = 250ms
 var ${Use Aimed Shot} = false
 var ${Use Multi-Shot} = true
 var ${Use Arcane Shot} = true
 var ${Use Summon Hawk} = false
+var ${Rapid Fire at the pull} = false
+var ${Walk to my spot first} = true
+// How long the walk in takes from where the hunter stands, which Aimed Shot's cast weighs itself against.
+var ${Time to melee} = 1s * ((self.unit_distance - $melee_spot) / self.unit_movement_speed)
 
 priority:
+  /// Rapid Fire at range: from the pull, or like the other cooldowns after the first 5 s.
+  cast rapid_fire if at_range and ($rapid_fire_at_the_pull or current_time >= 5s)
   autocast_other_cooldowns if current_time >= 5s and at_range
   cast hunters_mark if not target.aura(hunters_mark).is_active
   cast raptor_strike
@@ -1793,38 +1836,25 @@ priority:
       if $use_aimed_shot
       and (spell(aimed_shot).cast_time + $time_to_melee <= auto_time_to_next(main_hand_auto) or not $melee_weave)
   /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.
-  group "Walk in" if self.unit_distance != $shoot_spot and $not_weaving_yet
+  group "Walk in"
+      if $walk_to_my_spot_first
+      and self.unit_distance != $shoot_spot
+      and $not_weaving_yet
   group "Weave" if $melee_weave
-
-group "Weave":
-  start_attack if in_melee
-  wait gcd_time_to_ready if gcd_time_to_ready > 0s and gcd_time_to_ready <= 400ms
-  wait kick_wait if kick_soon
-  wait min($wait_at_melee - auto_time_since_last(main_hand_auto), max(gcd_time_to_ready, input_delay))
-  wait min(auto_time_to_next(main_hand_auto) + input_delay, max(gcd_time_to_ready, input_delay))
-      if in_melee
-      and auto_time_since_last(main_hand_auto) > $time_to_range
-  move $melee_spot if walk_in_now
-  move $shoot_spot
-  wait min($time_to_walk_in, max(gcd_time_to_ready, input_delay))
-      if $time_to_walk_in > 0s
-      and $weave_fits
 ```
 
 Some notes on this file:
 
 - The JSON's `"type": "TypeAPL"` is inferred from the file kind (§6.2).
 - `"true"` and `"false"` consts print bare.
-- The walk times and the weave's conditions come from `apls/weave_common.apl.siml`, which `apls/clean_weave.apl.siml`
-  uses too (§9). It uses `apls/pull.apl.siml`, the prepull rows, and `apls/walk_in.apl.siml`, which the turret
-  rotations use as well: the group `"Walk in"` that the row above `"Weave"` calls, and `Shoot spot`, which
-  `weave_common` sets with `use … with`.
+- The weave itself is the group `"Weave"` in `apls/weave_common.apl.siml`, which `apls/clean_weave.apl.siml` calls
+  too (§9): a group a used file holds is called like the file's own. `weave_common` uses `apls/pull.apl.siml`, the
+  prepull rows, and `apls/walk_in.apl.siml`, which the turret rotations use as well: the group `"Walk in"` that the
+  row above `"Weave"` calls, and `Shoot spot`, which `weave_common` sets with `use … with`.
   `walk_in` in turn takes `in_melee`, `at_range` and `hawk_and_arcane` from `apls/common.apl.siml`. Their variables
-  follow this file's in the proto, and `with` sets `Wait at melee` from this file's `$time_to_weave`.
+  follow this file's in the proto.
 - `$shoot_spot` folds to `Shoot spot`, which a used file declares, while the proto keeps the exact names that
   `ui/specs/hunter/dps/spec.ts` sets.
-- `move $melee_spot if walk_in_now` reads the used file's def as its condition, so `print` writes the def's four
-  conditions on the row.
 
 The two variable presets are one-line files:
 
@@ -1961,7 +1991,7 @@ Some notes on this file:
   `aura(overpower)` is 1282733.
 - **The tagged spells.** `heroic_strike`, `cleave` and `whirlwind` are the tag-1 spells, the queued or main-hand
   versions the sim casts from the APL, since those are castable (§7.4). A bare `cast heroic_strike` therefore
-  queues, and the tag-0 Heroic Strike is `heroic_strike_tag0`.
+  queues the trainer's rank, and the tag-0 Heroic Strikes are `heroic_strike_rank8` and `heroic_strike_rank9`.
 - **The Windfury Totem auras** the warrior reads are all external (tag −1) and share a game name, so the
   generator would tell them apart only by id. Their pinned names say what each does instead:
   `windfury_totem_proc` is 10612, the party aura that rolls the proc; `windfury_totem_buff` is 10610, the attack
@@ -2029,7 +2059,7 @@ settings:
   race orc
   profession1 engineering
   profession2 blacksmithing
-  reaction_time_ms 250
+  reaction_time 150ms 350ms
   distance_from_target 12
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow
@@ -2070,10 +2100,15 @@ consumables:
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion
 
-buffs: greater_blessing_of_kings, greater_blessing_of_might, greater_blessing_of_wisdom
+buffs:
+  greater_blessing_of_kings
+  greater_blessing_of_might 1
+  greater_blessing_of_wisdom 1
 
 raid_buffs:
-  arcane_brilliance, prayer_of_spirit, gift_of_the_wild, strength_of_earth_totem, grace_of_air_totem
+  arcane_intellect, prayer_of_spirit, mark_of_the_wild
+  strength_of_earth_totem 1
+  grace_of_air_totem 1
   windfury_totem
   battle_shout 1
   leader_of_the_pack
@@ -2085,7 +2120,6 @@ debuffs:
 sim: iterations 25000
 
 simple:
-  time_to_weave 250
   pull_range 25
   use_multi, use_arcane
   playstyle weave
@@ -2098,7 +2132,7 @@ encounter:
   targets(id=31146,
       name="Raid Target",
       level=63,
-      mob_type=mechanical,
+      mob_type=dragonkin,
       stats(attack_power=320, block_value=54, armor=3731, health=1428900),
       min_base_damage=2601,
       damage_spread=0.5,
@@ -2109,11 +2143,14 @@ encounter:
 
 Some notes on this file:
 
-- **Size.** It is 85 lines and 2.4 KB.
+- **Size.** It is 88 lines and 2.4 KB.
 - **The rotation** is `TypeSimple`, inferred from `simple:`. The section encodes
-  `{"timeToWeave":250,"useMulti":true,"useArcane":true,"playstyle":"Weave","pullRange":25}` into
+  `{"useMulti":true,"useArcane":true,"playstyle":"Weave","pullRange":25}` into
   `spec_rotation_json` (§5.4).
 - **Left-out fields.** `pet_type pet_none` is the zero value and is not printed. `class` comes from
   `spec hunter`.
 - **Buff order.** The fields of `raid_buffs` follow declaration order in `proto/buffs.proto`. `battle_shout` is
-  a number, the raid's rank (1 is Rank 6), so it takes a line of its own.
+  a number, the raid's rank (1 is Rank 6), so it takes a line of its own. So does each rank select, whose number is 0 for
+  off, 1 for the rank no class book teaches and 2 for the rank above it: `strength_of_earth_totem` and
+  `grace_of_air_totem` here, and `greater_blessing_of_might` and `greater_blessing_of_wisdom` in `buffs`. A higher
+  number reads as 2. A bare name is an error for these.

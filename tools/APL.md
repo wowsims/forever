@@ -18,7 +18,8 @@ priority:
   cast hunters_mark if not target.aura(hunters_mark).is_active
 ```
 
-The other specs keep their rotations as `.apl.json` until they move to SIML. A JSON rotation gets completion from
+The specs other than the hunter and the Retribution and Protection paladins keep their rotations as `.apl.json` until
+they move to SIML. A JSON rotation gets completion from
 a schema generated from `proto/apl.proto`:
 
 1. Install protoc-gen-jsonschema

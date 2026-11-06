@@ -32,7 +32,13 @@ go build -o /tmp/wowsimcli ./cmd/wowsimcli && export WOWSIMCLI=/tmp/wowsimcli
 ```
 
 The plugin needs no `with_db` tag: the server reads the name table from `sim/siml/names.json`, again when it changes. A
-change to the Go reader itself takes effect on the next vite start, once the binary it runs is rebuilt.
+change to the Go reader itself takes effect on the next vite start, once the binary it runs is rebuilt, or sooner: stop
+the running `wowsimcli siml serve` child and the next `.siml` read starts one from the rebuilt binary. Until then a
+preset written in a form the old reader lacks fails to import, and its spec page does not load.
+
+New locale keys reach a running dev server only when vite restarts: `vite-plugin-i18next-loader` bundles
+`assets/locales` once, so a key added since shows as its own name on the page. Touching `vite.config.mts` restarts
+vite in place. `vitest` and the site build read the files each run.
 
 ## Two things a plain vite dev server cannot do
 
@@ -82,6 +88,11 @@ Then open `http://localhost:<port>/forever/<class>/<spec>/`. `make rundevserver`
 Start the server with stdin held open (`tail -f /dev/null |`, run in the background): with stdin closed it answers once
 and then waits on its command prompt. Pick a free port, since other sessions may run their own server, and stop yours by
 its PID. `pkill -f` or `pkill -x wowsimforever` would also kill other sessions' servers and their stdin holders.
+
+The Go host serves the production bundle, so a spec's `devOnly` gear sets are hidden and a fresh profile sims with no
+gear, as on the live site: a hunter reads 1.73 DPS and 0 EP, and other specs read plausible but gearless numbers. The
+vite dev server and pull request previews keep the gear. For real numbers on the Go host, load a build as §Screenshots
+says.
 
 Without `dist/forever/assets` the page half-renders with JSON parse errors from the database fetch: that is a missing
 asset copy (`make` does it; a plain `vite build` does not), not a broken database. Do not `rm -rf dist`: `vite build`

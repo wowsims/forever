@@ -31,7 +31,14 @@ beforeEach(() => {
 
 const options = (overrides: Partial<SavedPanelOptions<Data>> = {}): SavedPanelOptions<Data> => ({
 	label: 'Things',
-	storage: { entries: [ENTRY], save: vi.fn(), remove: vi.fn() },
+	storage: {
+		entries: [ENTRY],
+		storedNames: [ENTRY.name],
+		save: vi.fn(),
+		saveMany: vi.fn(),
+		remove: vi.fn(),
+		codec: { toJson: data => ({ ...data }), fromJson: json => json },
+	},
 	current: { value: 1 },
 	serialize: data => JSON.stringify(data),
 	load: vi.fn(),

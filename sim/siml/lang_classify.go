@@ -288,16 +288,19 @@ func (d *Doc) readWords() []wordRole {
 		case *fieldEntryStmt:
 			f := entry(def, x.name.text)
 			if f != nil {
-				push(x.name.span, wordRole{role: "field", field: f})
+				push(x.name.span, wordRole{role: "field", field: f.writtenAs(x.name.text)})
 			}
 			for _, v := range x.values {
 				term(v, f, nil)
+			}
+			if x.max != nil {
+				term(x.max, f, nil)
 			}
 		case *flagListStmt:
 			for _, fl := range x.flags {
 				f := entry(def, fl.name.text)
 				if f != nil {
-					push(fl.name.span, wordRole{role: "field", field: f})
+					push(fl.name.span, wordRole{role: "field", field: f.writtenAs(fl.name.text)})
 				}
 				if fl.value != nil {
 					term(fl.value, f, nil)

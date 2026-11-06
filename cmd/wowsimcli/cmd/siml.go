@@ -276,7 +276,7 @@ func simlPrint(out, errOut io.Writer, args []string) error {
 			path, strings.Join(diffs, "\n  "))
 	}
 	for _, r := range f.RawRefs {
-		fmt.Fprintf(errOut, "%s: the print writes raw JSON at %d:%d, where the name table has no name\n", path, r.Start.Line, r.Start.Col)
+		fmt.Fprintf(errOut, "%s: the print writes raw JSON at %d:%d, where the name table has no name or a name would lose the rank\n", path, r.Start.Line, r.Start.Col)
 	}
 	_, err = out.Write(text)
 	return err

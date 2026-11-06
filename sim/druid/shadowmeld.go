@@ -10,8 +10,8 @@ import (
 // Shadowmeld 20580, the Night Elf racial. The spell store does not carry racial rows, so the
 // values are read off 20580 by hand: no GCD, a 10s category cooldown that the tooltip raises to
 // 2 min in combat ("Using this ability in combat ... increases the cooldown to 2 min"), A_MOD_STEALTH,
-// and the auto attack cancel bit (Attributes[0] 0x100000). It does not enable Prowl attacks.
-// The next cast that breaks Prowl breaks it too. The threat drop (A_MOD_TOTAL_THREAT) is not modelled.
+// and the auto attack cancel bit (Attributes[0] 0x100000). It does not enable Prowl attacks, and Ravage
+// and Pounce state it as an excluded caster aura. The next cast that breaks Prowl breaks it too. The threat drop (A_MOD_TOTAL_THREAT) is not modelled.
 const shadowmeldSpellID = 20580
 
 func (druid *Druid) registerShadowmeld() {
@@ -19,9 +19,10 @@ func (druid *Druid) registerShadowmeld() {
 		return
 	}
 	druid.ShadowmeldAura = druid.RegisterAura(core.Aura{
-		Label:    "Shadowmeld",
-		ActionID: core.ActionID{SpellID: shadowmeldSpellID},
-		Duration: core.NeverExpires,
+		Label:       "Shadowmeld",
+		ActionID:    core.ActionID{SpellID: shadowmeldSpellID},
+		Duration:    core.NeverExpires,
+		HideFromAPL: true, // Out of the APL with its spell.
 		OnGain: func(_ *core.Aura, sim *core.Simulation) {
 			druid.AutoAttacks.PauseMeleeBy(sim, core.NeverExpires)
 		},

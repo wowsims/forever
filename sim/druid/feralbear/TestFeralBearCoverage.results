@@ -66,6 +66,10 @@ casts_results: {
    value: 0
   }
   casts: {
+   key: "spell_id:31018 rank:6"
+   value: 0
+  }
+  casts: {
    key: "spell_id:414924"
    value: 0
   }
@@ -148,14 +152,6 @@ casts_results: {
   casts: {
    key: "spell_id:9908 rank:5"
    value: 27
-  }
-  casts: {
-   key: "spell_id:9910 rank:6"
-   value: 0
-  }
-  casts: {
-   key: "spell_id:9910 tag:2"
-   value: 0
   }
   casts: {
    key: "spell_id:9913 rank:3"

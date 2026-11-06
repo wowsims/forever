@@ -7,8 +7,10 @@ Try to match master's database first; splice only when it cannot match.
 The Update Items pull request names the cache it applied (`Hotfixes: … (from <url>)`). Take the run behind the latest
 `db.json` commit, not the push id, since several runs can record one push and still change `db.json`. Extract with
 `db2tool --cdn --dbcache <that DBCache.bin>`, then prove it on a clean checkout of `origin/master`: a regeneration
-there leaves `git status` clean. A matching push stamp alone proves nothing. A class branch carries its own `Builds`
-and `Hotfixes` in `spell_store_inputs.json`, so read them on the branch you regenerate.
+there leaves `git status` clean. `spell_store_inputs.json` can still show as modified with only its gzip bytes changed:
+compare it with `zcat`, and restore the file when the content is equal. A matching push stamp alone proves nothing. A
+class branch carries its own `Builds` and `Hotfixes` in `spell_store_inputs.json`, so read them on the branch you
+regenerate.
 
 ## Splicing
 

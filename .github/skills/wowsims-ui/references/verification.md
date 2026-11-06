@@ -141,6 +141,12 @@ happy-dom applies the `inert` attribute to focus only. A click inside an inert s
 unit test, so such a test asserts `inert` and the refused focus, and a real browser checks that clicks are blocked.
 `AplEntryView` (`ui/features/apl/components/AplEntryView/`) is the case that hit it.
 
+The wasm worker. The pool's unit tests stub `Worker`, and a stub that answers with `outputData` on the request channel
+answers the way the HTTP worker does. The wasm worker's `raidSimAsync` and `statWeightsAsync` answer `undefined` there
+and send their result as progress, and a panic no handler recovers exits its Go runtime in the middle of a call. A
+change to how `ui/worker/` or `ui/sim/workers/` reads an answer gives the stub the wasm worker's shape in a test, and is
+run on a `lib.wasm` built from the tree: a raid sim and stat weights on a spec page, and the PR says what came back.
+
 ## A fresh checkout needs generated files first
 
 `type-check` and every build need files that Go tooling generates and a fresh checkout lacks: `ui/generated/proto/*`
@@ -159,3 +165,7 @@ unit test, so such a test asserts `inert` and the refused focus, and a real brow
 The tracked ones that `go-to-ts` does not write come from the full database generation, which needs the game files
 database that CI does not have, so they are committed. Never hand-edit any of them, and never run two `gen_db`
 processes at once.
+
+`bin/wowsimcli` goes stale without a word. The SIML plugin runs it whenever the file exists and never checks its age, so
+after a change to Go or `sim/siml/names.json`, vitest fails on `.siml` imports with wrong-type and unknown-field errors
+that point at no real fault. Run `make bin/wowsimcli` before vitest (`running-locally.md`).

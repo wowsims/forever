@@ -3,11 +3,11 @@
 		"iterations": 25000
 	},
 	"raidBuffs": {
-		"arcaneBrilliance": true,
+		"arcaneIntellect": true,
 		"prayerOfSpirit": true,
-		"giftOfTheWild": true,
-		"strengthOfEarthTotem": true,
-		"graceOfAirTotem": true,
+		"markOfTheWild": true,
+		"strengthOfEarthTotem": 1,
+		"graceOfAirTotem": 1,
 		"windfuryTotem": true,
 		"battleShout": 1,
 		"leaderOfThePack": true
@@ -102,8 +102,8 @@
 		},
 		"buffs": {
 			"greaterBlessingOfKings": true,
-			"greaterBlessingOfMight": true,
-			"greaterBlessingOfWisdom": true
+			"greaterBlessingOfMight": 1,
+			"greaterBlessingOfWisdom": 1
 		},
 		"hunter": {
 			"options": {
@@ -115,7 +115,7 @@
 				}
 			}
 		},
-		"talentsString": "-00530501114-550200030050220151",
+		"talentsString": "-00530501114-530200230050220151",
 		"profession1": "Engineering",
 		"profession2": "Blacksmithing",
 		"rotation": {
@@ -140,8 +140,8 @@
 					"action": {
 						"castSpell": {
 							"spellId": {
-								"spellId": 25296,
-								"rank": 7
+								"spellId": 14322,
+								"rank": 6
 							}
 						}
 					},
@@ -401,8 +401,8 @@
 								"val": {
 									"dotIsActive": {
 										"spellId": {
-											"spellId": 25295,
-											"rank": 9
+											"spellId": 13555,
+											"rank": 8
 										}
 									}
 								}
@@ -410,8 +410,8 @@
 						},
 						"castSpell": {
 							"spellId": {
-								"spellId": 25295,
-								"rank": 9
+								"spellId": 13555,
+								"rank": 8
 							}
 						}
 					}
@@ -718,10 +718,28 @@
 							}
 						},
 						{
+							"notes": "In melee with the GCD about to come up: wait for it, so the melee key goes out before I leave.",
 							"action": {
 								"condition": {
 									"and": {
 										"vals": [
+											{
+												"cmp": {
+													"op": "OpLe",
+													"lhs": {
+														"unitDistance": {
+															"sourceUnit": {
+																"type": "Self"
+															}
+														}
+													},
+													"rhs": {
+														"const": {
+															"val": "5"
+														}
+													}
+												}
+											},
 											{
 												"cmp": {
 													"op": "OpGt",
@@ -759,6 +777,7 @@
 							}
 						},
 						{
+							"notes": "In melee with Strider Kick about to come up: wait for it.",
 							"action": {
 								"condition": {
 									"and": {
@@ -883,190 +902,27 @@
 							}
 						},
 						{
-							"action": {
-								"wait": {
-									"duration": {
-										"min": {
-											"vals": [
-												{
-													"math": {
-														"op": "OpSub",
-														"lhs": {
-															"variableRef": {
-																"name": "Wait at melee"
-															}
-														},
-														"rhs": {
-															"autoTimeSinceLast": {
-																"autoType": "MainHandAuto"
-															}
-														}
-													}
-												},
-												{
-													"max": {
-														"vals": [
-															{
-																"gcdTimeToReady": {}
-															},
-															{
-																"inputDelay": {}
-															}
-														]
-													}
-												}
-											]
-										}
-									}
-								}
-							}
-						},
-						{
+							"notes": "I swung since my last Auto Shot: walk out to my spot and shoot.",
 							"action": {
 								"condition": {
-									"and": {
-										"vals": [
-											{
-												"cmp": {
-													"op": "OpLe",
-													"lhs": {
-														"unitDistance": {
-															"sourceUnit": {
-																"type": "Self"
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "5"
-														}
+									"not": {
+										"val": {
+											"cmp": {
+												"op": "OpLe",
+												"lhs": {
+													"autoTimeSinceLast": {
+														"autoType": "RangedAuto"
 													}
-												}
-											},
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"autoTimeSinceLast": {
-															"autoType": "MainHandAuto"
-														}
-													},
-													"rhs": {
-														"variableRef": {
-															"name": "Time to range"
-														}
+												},
+												"rhs": {
+													"autoTimeSinceLast": {
+														"autoType": "MainHandAuto"
 													}
 												}
 											}
-										]
-									}
-								},
-								"wait": {
-									"duration": {
-										"min": {
-											"vals": [
-												{
-													"math": {
-														"op": "OpAdd",
-														"lhs": {
-															"autoTimeToNext": {
-																"autoType": "MainHandAuto"
-															}
-														},
-														"rhs": {
-															"inputDelay": {}
-														}
-													}
-												},
-												{
-													"max": {
-														"vals": [
-															{
-																"gcdTimeToReady": {}
-															},
-															{
-																"inputDelay": {}
-															}
-														]
-													}
-												}
-											]
 										}
 									}
-								}
-							}
-						},
-						{
-							"action": {
-								"condition": {
-									"and": {
-										"vals": [
-											{
-												"cmp": {
-													"op": "OpLe",
-													"lhs": {
-														"variableRef": {
-															"name": "Time to walk in"
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "0s"
-														}
-													}
-												}
-											},
-											{
-												"variableRef": {
-													"name": "Weave fits"
-												}
-											},
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"autoTimeToNext": {
-															"autoType": "RangedAuto"
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "500ms"
-														}
-													}
-												}
-											},
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"unitDistance": {
-															"sourceUnit": {
-																"type": "Self"
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "5"
-														}
-													}
-												}
-											}
-										]
-									}
 								},
-								"move": {
-									"rangeFromTarget": {
-										"variableRef": {
-											"name": "Melee spot"
-										}
-									}
-								}
-							}
-						},
-						{
-							"action": {
 								"move": {
 									"rangeFromTarget": {
 										"variableRef": {
@@ -1077,55 +933,27 @@
 							}
 						},
 						{
+							"notes": "Auto Shot went off since my last swing: walk in and swing.",
 							"action": {
 								"condition": {
-									"and": {
-										"vals": [
-											{
-												"cmp": {
-													"op": "OpGt",
-													"lhs": {
-														"variableRef": {
-															"name": "Time to walk in"
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "0s"
-														}
-													}
-												}
-											},
-											{
-												"variableRef": {
-													"name": "Weave fits"
-												}
+									"cmp": {
+										"op": "OpLe",
+										"lhs": {
+											"autoTimeSinceLast": {
+												"autoType": "RangedAuto"
 											}
-										]
+										},
+										"rhs": {
+											"autoTimeSinceLast": {
+												"autoType": "MainHandAuto"
+											}
+										}
 									}
 								},
-								"wait": {
-									"duration": {
-										"min": {
-											"vals": [
-												{
-													"variableRef": {
-														"name": "Time to walk in"
-													}
-												},
-												{
-													"max": {
-														"vals": [
-															{
-																"gcdTimeToReady": {}
-															},
-															{
-																"inputDelay": {}
-															}
-														]
-													}
-												}
-											]
+								"move": {
+									"rangeFromTarget": {
+										"variableRef": {
+											"name": "Melee spot"
 										}
 									}
 								}
@@ -1206,14 +1034,6 @@
 					}
 				},
 				{
-					"name": "Time to weave",
-					"value": {
-						"const": {
-							"val": "250ms"
-						}
-					}
-				},
-				{
 					"name": "Use Aimed Shot",
 					"value": {
 						"const": {
@@ -1262,84 +1082,6 @@
 					}
 				},
 				{
-					"name": "Ranged range",
-					"value": {
-						"const": {
-							"val": "13.19"
-						}
-					}
-				},
-				{
-					"name": "Walk-in range",
-					"value": {
-						"const": {
-							"val": "4.99"
-						}
-					}
-				},
-				{
-					"name": "Wait at melee",
-					"value": {
-						"max": {
-							"vals": [
-								{
-									"inputDelay": {}
-								},
-								{
-									"variableRef": {
-										"name": "Time to weave"
-									}
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Max Auto Shot delay",
-					"value": {
-						"const": {
-							"val": "2.4s"
-						}
-					}
-				},
-				{
-					"name": "Max long weave delay",
-					"value": {
-						"const": {
-							"val": "4s"
-						}
-					}
-				},
-				{
-					"name": "Melee spot",
-					"value": {
-						"min": {
-							"vals": [
-								{
-									"variableRef": {
-										"name": "Walk-in range"
-									}
-								},
-								{
-									"const": {
-										"val": "4.99"
-									}
-								}
-							]
-						}
-					}
-				},
-				{
-					"name": "Run speed",
-					"value": {
-						"unitMovementSpeed": {
-							"sourceUnit": {
-								"type": "Self"
-							}
-						}
-					}
-				},
-				{
 					"name": "Time to melee",
 					"value": {
 						"math": {
@@ -1370,47 +1112,11 @@
 										}
 									},
 									"rhs": {
-										"variableRef": {
-											"name": "Run speed"
-										}
-									}
-								}
-							}
-						}
-					}
-				},
-				{
-					"name": "Time to range",
-					"value": {
-						"math": {
-							"op": "OpMul",
-							"lhs": {
-								"const": {
-									"val": "1s"
-								}
-							},
-							"rhs": {
-								"math": {
-									"op": "OpDiv",
-									"lhs": {
-										"math": {
-											"op": "OpSub",
-											"lhs": {
-												"variableRef": {
-													"name": "Shoot spot"
-												}
-											},
-											"rhs": {
-												"variableRef": {
-													"name": "Melee spot"
-												}
+										"unitMovementSpeed": {
+											"sourceUnit": {
+												"type": "Self"
 											}
 										}
-									},
-									"rhs": {
-										"variableRef": {
-											"name": "Run speed"
-										}
 									}
 								}
 							}
@@ -1418,153 +1124,37 @@
 					}
 				},
 				{
-					"name": "Time to walk in",
+					"name": "Ranged range",
 					"value": {
-						"math": {
-							"op": "OpSub",
-							"lhs": {
-								"math": {
-									"op": "OpSub",
-									"lhs": {
-										"autoTimeToNext": {
-											"autoType": "MainHandAuto"
-										}
-									},
-									"rhs": {
-										"variableRef": {
-											"name": "Time to melee"
-										}
-									}
-								}
-							},
-							"rhs": {
-								"inputDelay": {}
-							}
+						"const": {
+							"val": "13.19"
 						}
 					}
 				},
 				{
-					"name": "Weave done",
+					"name": "Walk-in range",
 					"value": {
-						"math": {
-							"op": "OpAdd",
-							"lhs": {
-								"math": {
-									"op": "OpAdd",
-									"lhs": {
-										"max": {
-											"vals": [
-												{
-													"autoTimeToNext": {
-														"autoType": "MainHandAuto"
-													}
-												},
-												{
-													"variableRef": {
-														"name": "Time to melee"
-													}
-												}
-											]
-										}
-									},
-									"rhs": {
-										"variableRef": {
-											"name": "Time to range"
-										}
-									}
-								}
-							},
-							"rhs": {
-								"math": {
-									"op": "OpAdd",
-									"lhs": {
-										"variableRef": {
-											"name": "Wait at melee"
-										}
-									},
-									"rhs": {
-										"inputDelay": {}
-									}
-								}
-							}
+						"const": {
+							"val": "4.99"
 						}
 					}
 				},
 				{
-					"name": "Allowed delay",
+					"name": "Melee spot",
 					"value": {
-						"max": {
+						"min": {
 							"vals": [
 								{
 									"variableRef": {
-										"name": "Max Auto Shot delay"
+										"name": "Walk-in range"
 									}
 								},
 								{
-									"min": {
-										"vals": [
-											{
-												"variableRef": {
-													"name": "Max long weave delay"
-												}
-											},
-											{
-												"math": {
-													"op": "OpAdd",
-													"lhs": {
-														"math": {
-															"op": "OpSub",
-															"lhs": {
-																"variableRef": {
-																	"name": "Weave done"
-																}
-															},
-															"rhs": {
-																"autoSwingTime": {
-																	"autoType": "Ranged"
-																}
-															}
-														}
-													},
-													"rhs": {
-														"const": {
-															"val": "1s"
-														}
-													}
-												}
-											}
-										]
+									"const": {
+										"val": "4.99"
 									}
 								}
 							]
-						}
-					}
-				},
-				{
-					"name": "Weave fits",
-					"value": {
-						"cmp": {
-							"op": "OpGe",
-							"lhs": {
-								"math": {
-									"op": "OpAdd",
-									"lhs": {
-										"autoTimeToNext": {
-											"autoType": "RangedAuto"
-										}
-									},
-									"rhs": {
-										"variableRef": {
-											"name": "Allowed delay"
-										}
-									}
-								}
-							},
-							"rhs": {
-								"variableRef": {
-									"name": "Weave done"
-								}
-							}
 						}
 					}
 				},
@@ -1676,7 +1266,8 @@
 				}
 			]
 		},
-		"reactionTimeMs": 250,
+		"reactionTimeMs": 150,
+		"reactionTimeMaxMs": 350,
 		"distanceFromTarget": 12
 	},
 	"encounter": {
@@ -1689,7 +1280,7 @@
 				"id": 31146,
 				"name": "Raid Target",
 				"level": 63,
-				"mobType": "MobTypeMechanical",
+				"mobType": "MobTypeDragonkin",
 				"stats": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 320, 0, 0, 0, 0, 0, 0, 0, 0, 0, 54, 0, 0, 3731, 0, 1428900, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				"minBaseDamage": 2601,
 				"damageSpread": 0.5,

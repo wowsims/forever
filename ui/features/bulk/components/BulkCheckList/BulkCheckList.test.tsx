@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -110,5 +110,36 @@ describe('the bulk check lists', () => {
 		const tooltip = await screen.findByRole('tooltip');
 		expect(tooltip.textContent).toBe('Same as Current bundle');
 		expect(tooltip.className).toContain('react-tooltip__place-bottom');
+	});
+
+	it('show a reason quoting a saved name as text', async () => {
+		const reason = 'Same as <img src=x onerror=alert(1)>';
+		render(
+			<>
+				<EncounterListView
+					current={{ label: 'Current encounter', summary: '3:00 ±5s · 1 target', checked: true, onCheckedChange: vi.fn() }}
+					presets={[]}
+					saved={[row('Encounter copy', '5:00 ±5s · 1 target', false, { disabledReason: reason })]}
+					onCheckedChange={vi.fn()}
+				/>
+				<BulkBundleList
+					current={{ label: 'Current bundle', checked: true, onCheckedChange: vi.fn() }}
+					rows={[{ key: '0', label: 'Bundle copy', checked: true, disabledReason: reason }]}
+					onCheckedChange={vi.fn()}
+					onEdit={vi.fn()}
+					onDelete={vi.fn()}
+					testIds={{ list: 'bulk-bundles', row: 'bulk-bundle', current: 'bulk-bundle-current' }}
+				/>
+			</>,
+		);
+
+		for (const name of ['Encounter copy', 'Bundle copy']) {
+			act(() => box(name).focus());
+			const tooltip = await screen.findByRole('tooltip');
+			expect(tooltip.textContent).toBe(reason);
+			expect(tooltip.querySelector('img')).toBeNull();
+			act(() => box(name).blur());
+			await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+		}
 	});
 });

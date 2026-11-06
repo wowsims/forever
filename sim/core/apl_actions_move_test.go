@@ -3,6 +3,8 @@ package core
 import (
 	"fmt"
 	"math"
+	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -81,6 +83,58 @@ func TestMoveRecheckWhileMoving(t *testing.T) {
 			t.Errorf("without the re-check, at %.3f yd at 2s, want it still on the way out to 20 yd", d)
 		}
 	})
+}
+
+// A walk logs where it starts, where it is headed and how long it takes, a stop logs where the unit ended up, and
+// a speed change on the way logs the rest of the walk from where the unit is, so the log alone places a walking
+// unit at every moment.
+func TestWalksLogWhereTheUnitIs(t *testing.T) {
+	sim := setupFakeRageSimFrom(fakeRageSimRequest())
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	sim.Cleanup()
+	sim.Reset()
+	sim.PrePull()
+	sim.Step()
+	fw.AutoAttacks.CancelAutoSwing(sim)
+	ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
+
+	var logs []string
+	sim.Log = func(message string, vals ...interface{}) { logs = append(logs, fmt.Sprintf(message, vals...)) }
+	// The walk's time is whole milliseconds, so the logged seconds sit within one of the exact time.
+	walked := func(from, to float64, over time.Duration) {
+		t.Helper()
+		prefix := fmt.Sprintf("Walking from %.2f to %.2f yards over ", from, to)
+		for _, line := range logs {
+			if _, rest, ok := strings.Cut(line, prefix); ok {
+				var seconds float64
+				if _, err := fmt.Sscanf(rest, "%fs", &seconds); err == nil && (DurationFromSeconds(seconds)-over).Abs() <= time.Millisecond {
+					return
+				}
+			}
+		}
+		t.Errorf("no log line walks from %.2f to %.2f yards over %v; the walks logged: %q", from, to, over, FilterSlice(logs, func(line string) bool { return strings.Contains(line, "walking") || strings.Contains(line, "Walking") }))
+	}
+	stopped := func(at float64) {
+		t.Helper()
+		want := fmt.Sprintf("Stopped walking at %.2f yards", at)
+		if !slices.ContainsFunc(logs, func(line string) bool { return strings.Contains(line, want) }) {
+			t.Errorf("no log line holds %q", want)
+		}
+	}
+
+	start, speed := fw.DistanceFromTarget, fw.GetMovementSpeed()
+	fw.MoveTo(start+20, sim)
+	walked(start, start+20, DurationFromSeconds(20/speed))
+	ct.runUntil(sim.CurrentTime + 4*time.Second)
+	stopped(start + 20)
+
+	fw.MoveTo(start, sim)
+	ct.runUntil(sim.CurrentTime + time.Second)
+	fw.MultiplyMovementSpeed(sim, 2)
+	walked(start+20-speed, start, DurationFromSeconds((20-speed)/(2*speed)))
+	ct.runUntil(sim.CurrentTime + 500*time.Millisecond)
+	fw.StopMoving(sim)
+	stopped(start + 20 - 2*speed)
 }
 
 // A spell is in range from its minimum range to its maximum after the range mods.

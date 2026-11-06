@@ -217,13 +217,6 @@ export const RotationInputs = {
 			labelTooltip: i18n.t('rotation_tab.options.hunter.pull_range.tooltip'),
 			positive: true,
 		}),
-		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
-			fieldName: 'timeToWeave',
-			label: i18n.t('rotation_tab.options.hunter.time_to_weave.label'),
-			labelTooltip: i18n.t('rotation_tab.options.hunter.time_to_weave.tooltip'),
-			positive: true,
-			showWhen: (player: Player<Spec.SpecHunter>) => player.getSimpleRotation().playstyle === Playstyle.Weave,
-		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
 			fieldName: 'useAimed',
 			label: i18n.t('rotation_tab.options.hunter.use_aimed.label'),
@@ -252,6 +245,17 @@ export const RotationInputs = {
 			fieldName: 'useHawk',
 			label: i18n.t('rotation_tab.options.hunter.use_hawk.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_hawk.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useSerpentStingRank9',
+			label: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useAspectOfTheHawkRank7',
+			label: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.tooltip'),
+			showWhen: isRanged,
 		}),
 	],
 };

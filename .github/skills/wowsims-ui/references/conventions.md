@@ -11,9 +11,9 @@ including the markdown in `.github/skills/`, the workflows and the JSON schemas,
 It skips `ignorePatterns` in `.oxfmtrc.json` (generated files, `assets/**`, the SIML name table `sim/siml/names.json`,
 the per-spec preset JSON (`*.apl.json`, `*.build.json`, `*.gear.json` and `presets/**/*.json`) and the talent JSON,
 whose reformatting would be a diff nobody can review) and anything `.gitignore` hides. A new preset JSON directory
-needs its own ignore entry. The hunter's rotations, gear sets, builds and defaults are SIML (`*.siml`), which oxfmt
-does not read: their form is the one `go run --tags=with_db ./cmd/wowsimcli siml fmt -w <files>` writes, and
-`siml fmt -check ui/specs` fails on a committed file in any other. Print the config:
+needs its own ignore entry. The hunter's and the Retribution and Protection paladins' rotations, gear sets, builds and
+defaults are SIML (`*.siml`), which oxfmt does not read: their form is the one `go run --tags=with_db ./cmd/wowsimcli
+siml fmt -w <files>` writes, and `siml fmt -check ui/specs` fails on a committed file in any other. Print the config:
 
 ```
 node -e "console.log(require('./.oxfmtrc.json'))"
@@ -58,16 +58,16 @@ Adding a spec is three edits:
 build-config edit and no HTML file.
 
 Preset data: gear sets, APLs, builds and the spec's defaults are files under the spec folder, never TS literals. The
-hunter writes them in SIML (`gear_sets/*.gear.siml`, `apls/*.apl.siml`, `builds/*.siml`, `defaults.siml`); every other
-spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its defaults in `spec.ts`, until it moves. On SIML,
-`spec.ts` takes the proto-backed `defaults` from `defaults.siml` through `PresetUtils.specDefaultsFromSettings` and
-keeps only the UI-only ones (EP weights, stat caps, soft caps) in TypeScript. `presets.ts` imports a SIML file as its
-message's JSON (`import DefaultApl from './apls/default.apl.siml'`), which `tools/vite/siml.mts` reads at build time
-and fails the build on, with the file, line and column of each problem, and builds presets from it with the `make*`
-helpers in `ui/app/preset_utils.ts`. A build's rotation or gear set that a file it uses gives unchanged is that file's
-module, so it ships once. EP weights, talents (one `talentsString`, since there are no glyphs and no per-talent enum)
-and anything that needs a callback such as `onLoad` stay TS in `presets.ts`. Rules that several specs of one class
-share live in `ui/specs/<class>/shared/`; only the classes that need it have one.
+hunter and the Retribution and Protection paladins write them in SIML (`gear_sets/*.gear.siml`, `apls/*.apl.siml`,
+`builds/*.siml`, `defaults.siml`); every other spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its
+defaults in `spec.ts`, until it moves. On SIML, `spec.ts` takes the proto-backed `defaults` from `defaults.siml` through
+`PresetUtils.specDefaultsFromSettings` and keeps only the UI-only ones (EP weights, stat caps, soft caps) in TypeScript.
+`presets.ts` imports a SIML file as its message's JSON (`import DefaultApl from './apls/default.apl.siml'`), which
+`tools/vite/siml.mts` reads at build time and fails the build on, with the file, line and column of each problem, and
+builds presets from it with the `make*` helpers in `ui/app/preset_utils.ts`. A build's rotation or gear set that a file
+it uses gives unchanged is that file's module, so it ships once. EP weights, talents (one `talentsString`, since there
+are no glyphs and no per-talent enum) and anything that needs a callback such as `onLoad` stay TS in `presets.ts`. Rules
+that several specs of one class share live in `ui/specs/<class>/shared/`; only the classes that need it have one.
 
 **Every new gearset passes `devOnly: true`** to `makePresetGear`, and a `makePresetBuildFromJSON` build takes that
 gearset as its `gear`, until the gearset is released. Without the flag it shows on wowsims.com: `spec_entry.tsx` drops
@@ -89,6 +89,13 @@ Two traps:
 `en` is the only locale. A new user-facing string goes into `assets/locales/en/`, and its key needs a matching property
 in `schemas/<name>.schema.json` (`verification.md`, "Locales"). With no second locale, that is the whole change.
 
+## Stats read as percents
+
+The game never shows a rating, so the UI never does either: no rating value and no word "rating" where a user reads or
+enters a stat. A new stat display goes through the percent conversion on `UnitStat` (`ui/sim/proto/stats.ts`),
+`convertRatingToPercent` for a value and `storedEpToShown` for a weight. Defense rating buys skill, so it shows as a
+skill number with no percent sign.
+
 ## Code that looks dead but is not
 
 - There is no raid sim UI. The individual sim models a one-party raid, which is why `Raid` and `Party` exist in
@@ -98,6 +105,9 @@ in `schemas/<name>.schema.json` (`verification.md`, "Locales"). With no second l
   such options and ask before removing kit API.
 - A container's exported view, the exports the design-system pages use and Popover `container` are settled exceptions
   to the rule that tests and stories add no production code (PR #187).
+- A hover Popover inside a Dialog needs its own Escape handling: the Dialog closes on Escape before the popover hears
+  it, so a consumer that wants Escape to close only the list listens in the capture phase (`MoreSources` in
+  `ui/features/gear/components/SelectorModal/ItemSource.tsx`).
 
 ## Decisions already made
 

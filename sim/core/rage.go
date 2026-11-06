@@ -8,6 +8,8 @@ import (
 
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
+// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization) makes it without the unit's
+// threat multiplier.
 const ThreatPerRageGained = 5
 
 // Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
@@ -222,7 +224,7 @@ func (rb *rageBar) AddRage(sim *Simulation, amount float64, metrics *ResourceMet
 	metrics.AddEvent(amount, gain)
 
 	if gain > 0 && !metrics.NoThreat {
-		rb.addRageGainThreat(sim, gain)
+		rb.addRageGainThreat(sim, gain, metrics)
 	}
 
 	if sim.Log != nil {
@@ -267,10 +269,14 @@ func (rb *rageBar) reset(_ *Simulation) {
 	rb.damageTakenRageMultiplier = 1
 }
 
-// Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, split
-// between the targets in combat at the time.
-func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64) {
-	rb.rageGainSpell.applySplitThreat(sim, gain*ThreatPerRageGained*rb.rageGainSpell.unitThreatMultiplier())
+// Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, or
+// without it from a source marked UnscaledThreat, split between the targets in combat at the time.
+func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64, metrics *ResourceMetrics) {
+	threat := gain * ThreatPerRageGained
+	if !metrics.UnscaledThreat {
+		threat *= rb.rageGainSpell.unitThreatMultiplier()
+	}
+	rb.rageGainSpell.applySplitThreat(sim, threat)
 	rb.rageGainSpell.SpellMetrics[0].Casts++
 }
 

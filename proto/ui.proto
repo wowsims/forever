@@ -166,17 +166,19 @@ message DropSource {
 	DungeonDifficulty difficulty = 1;
 	int32 npc_id = 2;
 	int32 zone_id = 3;
-	string other_name = 4; // For drops in zones from things other than NPCs, e.g. "Trash"
+	string other_name = 4; // For drops from things other than NPCs, e.g. "Trash" in a zone or "World Drop" in none
 	string category = 5;   // For conditions/categories of drops, e.g. 'Hard Mode' or 'Titan Rune'
 }
 message QuestSource {
 	int32 id = 1;
 	string name = 2;
+	Faction faction = 3; // The side that may take it; Unknown is both.
 }
 message SoldBySource {
 	int32 npc_id = 1;
 	string npc_name = 2;
 	int32 zone_id = 3;
+	Faction faction = 4; // The side the vendor sells to; Unknown is both.
 }
 message RepSource {
 	int32 rep_faction_id = 1; // Faction.ID in the game files; UIDatabase.factions carries its name.
@@ -215,6 +217,7 @@ message UIEnchant {
 	Profession required_profession = 12;
 	repeated ItemEffect enchant_effects = 14;
 	EnchantProcKind proc_kind = 18;
+	repeated UIItemSource sources = 19; // Of the enchant's own item and the items that teach it.
 }
 
 
@@ -276,6 +279,8 @@ message DatabaseFilters {
 	repeated WeaponType weapon_types = 2;
 	repeated RangedWeaponType ranged_weapon_types = 16;
 	repeated SourceFilterOption sources = 17;
+	// Hides world drops and open-world NPC drops. A bool and not a SourceFilterOption, so a saved partial sources list leaves them shown.
+	bool hide_world_drops = 28;
 	repeated RaidFilterOption raids = 18;
 	FactionFilter faction_filter = 19;
 	int32 min_ilvl = 20;
@@ -411,6 +416,7 @@ message SavedSettings {
 	ItemSwap item_swap = 17;
 
 	int32 reaction_time_ms = 10;
+	int32 reaction_time_max_ms = 35;
 	int32 channel_clip_delay_ms = 14;
 	bool in_front_of_target = 11;
 	double distance_from_target = 12;

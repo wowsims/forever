@@ -74,11 +74,14 @@ call site. A preset rotation follows `wowsims-apl` `## Timing`, and its cast cou
 
 ## Rotations, gear sets and builds
 
-A spec's presets are files under `ui/specs/<class>/<spec>/`. The hunter writes them in SIML, which
-`sim/siml/SPEC.md` describes, and the other specs keep JSON until their developers move them; `core.GetAplRotation`
-and `core.GetGearSet` read an `.apl.siml` or `.gear.siml` when one is there and the JSON otherwise. To move a spec,
-print each JSON file with `go run --tags=with_db ./cmd/wowsimcli siml print -kind apl|gear|siml -spec <field>`,
-check it with `siml verify`, and write the spec's `defaults.siml` as the hunter's is written.
+A spec's presets are files under `ui/specs/<class>/<spec>/`. The hunter and the Retribution and Protection paladins
+write them in SIML, which `sim/siml/SPEC.md` describes, and the other specs keep JSON until their developers move them;
+`core.GetAplRotation` and `core.GetGearSet` read an `.apl.siml` or `.gear.siml` when one is there and the JSON
+otherwise. To move a spec, print each JSON file with `go run --tags=with_db ./cmd/wowsimcli siml print -kind
+apl|gear|siml -spec <field>`, check it with `siml verify`, and write the spec's `defaults.siml` as the hunter's is
+written. A build that turns item swap on takes its swap set as the `itemSwap` option of
+`PresetUtils.makePresetBuildFromSiml` (`ui/specs/paladin/retribution/presets.ts`): `enable_item_swap` is a `gear:`
+entry, and a build that uses its gear set's file cannot write `gear:` again.
 
 - `apls/<name>.apl.siml` holds a rotation. It opens with `siml 1` and `spec <field>`, the spec's field in the `spec`
   oneof of `Player` in `proto/api.proto`: `hunter`, `dps_warrior`, `enhancement_shaman`.
@@ -86,14 +89,15 @@ check it with `siml verify`, and write the spec's `defaults.siml` as the hunter'
 - `builds/<name>.siml` holds a whole setup, or a preset build the
   site offers, which states only what it changes over `defaults.siml`. A `use` line takes a gear set or a rotation
   from its own file, by a path from the build's folder: `use "../gear_sets/p1.gear.siml"`.
-- Rotations that share variables and defs `use` one file that holds only those, as the hunter's weave rotations use
+- Rotations that share variables, defs or a group `use` one file that holds them, as the hunter's weave rotations use
   `apls/weave_common.apl.siml` (SPEC.md §9): its defs and variables read in each rotation, which adds its own and
-  sets a shared variable's value with `use … with`. A used file's prepull rows and groups join the rotation's too, as
-  `apls/walk_in.apl.siml` brings the walk in to the turret and weave rotations. A rotation and a file it uses cannot
+  can set a shared variable's value with `use … with`. A used file's prepull rows and groups join the rotation's too:
+  `weave_common` brings the `"Weave"` group to both weave rotations, and `apls/walk_in.apl.siml` brings the walk in
+  to the turret and weave rotations. A rotation and a file it uses cannot
   both hold `prepull:` (`section-conflict`), so the pull sits in `apls/pull.apl.siml`, and the turret rotation, which
   opens with Sniper Shot, writes its own.
 - `defaults.siml` holds the setup the spec's page starts with, a whole setup in the same form, with what the page
-  sets on top of it stated: the race, `reaction_time_ms 100`, the rotation type (`apl: type auto` when the spec has
+  sets on top of it stated: the race, `reaction_time 100ms`, the rotation type (`apl: type auto` when the spec has
   no default rotation), for a tank `in_front_of_target` and `tanks player1`, and for a healer `target_dummies 9`.
   `spec.ts` reads it through `PresetUtils.specDefaultsFromSettings`, and `wowsimcli siml sim` sims a rotation on it,
   with the preset build that uses the rotation loaded over it; `wowsimcli sim --infile` loads a preset build over it

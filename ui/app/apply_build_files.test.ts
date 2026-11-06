@@ -35,6 +35,7 @@ const hostOver = (s: IndividualSimSettings, spec: number) => {
 		setProfession2: (x: any) => (p.profession2 = x),
 		setDistanceFromTarget: (x: number) => (p.distanceFromTarget = x),
 		setReactionTime: (x: number) => (p.reactionTimeMs = x),
+		setReactionTimeMax: (x: number) => (p.reactionTimeMaxMs = x),
 		setChannelClipDelay: (x: number) => (p.channelClipDelayMs = x),
 		setInFrontOfTarget: (x: boolean) => (p.inFrontOfTarget = x),
 		getSpecOptions: () => options,
