@@ -141,6 +141,54 @@ func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {
 	}
 }
 
+// Swine Fists 10760's 1293783 casts 1293782's Nature damage on a hit against a Swine, and nothing on
+// a hit against a creature of another family.
+func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
+	if spelldata.MustFind(1293782).DamageEffect().Average() <= 0 {
+		t.Fatal("1293782 states no damage")
+	}
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotHands].Id = 10760
+	player := &proto.Player{
+		Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceHuman,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{},
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+	core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter: &proto.Encounter{Duration: 180, Targets: []*proto.Target{
+			{Name: "swine", Level: 60, MobType: proto.MobType_MobTypeBeast, CreatureFamily: proto.CreatureFamily_CreatureFamilySwine},
+			{Name: "aquatic", Level: 60, MobType: proto.MobType_MobTypeBeast, CreatureFamily: proto.CreatureFamily_CreatureFamilyAquatic},
+		}},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	swine, aquatic := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	damage := character.GetSpell(core.ActionID{SpellID: 1293782})
+	if damage == nil {
+		t.Fatal("10760 registers no damage spell")
+	}
+
+	for _, target := range []*core.Unit{swine, aquatic} {
+		character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	}
+	if got := damage.SpellMetrics[swine.UnitIndex]; got.Casts != 1 || got.TotalDamage <= 0 {
+		t.Errorf("a hit on the Swine cast the damage %d times for %v, want once for some damage", got.Casts, got.TotalDamage)
+	}
+	if got := damage.SpellMetrics[aquatic.UnitIndex]; got.Casts != 0 || got.TotalDamage != 0 {
+		t.Errorf("a hit on the Aquatic target cast the damage %d times for %v, want none", got.Casts, got.TotalDamage)
+	}
+}
+
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
 // against that spell's school with the Fire row 27533's absorb roll for its duration. The chance has
 // 27539's internal cooldown, and a Physical spell, which has no shield, does not spend it.

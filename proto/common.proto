@@ -15,10 +15,13 @@ extend google.protobuf.MessageOptions {
 	int32 current_version_number = 50000;
 }
 
-// The spell a talent field stands for, which every rank of the talent shares. An APL condition
-// names a talent by this id, so it outlives a rename of the field.
 extend google.protobuf.FieldOptions {
+	// The spell a talent field stands for, which every rank of the talent shares. An APL condition
+	// names a talent by this id, so it outlives a rename of the field.
 	int32 talent_spell_id = 50001;
+	// The most points the talent takes. A talents string saved before a tree was reworked can carry
+	// more, and the sim caps the field at this many.
+	int32 talent_max_rank = 50002;
 }
 
 message ProtoVersion {
@@ -543,6 +546,7 @@ enum CreatureFamily {
 	CreatureFamilyEarthElemental = 4;
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
+	CreatureFamilySwine = 7;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).

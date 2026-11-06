@@ -38,7 +38,7 @@ const mobTypeEnumValues = [
 
 // The families each mob type holds; Aquatic spans beasts, elementals and humanoids.
 const creatureFamiliesByMobType: Partial<Record<MobType, ReadonlyArray<CreatureFamily>>> = {
-	[MobType.MobTypeBeast]: [CreatureFamily.CreatureFamilyAquatic],
+	[MobType.MobTypeBeast]: [CreatureFamily.CreatureFamilyAquatic, CreatureFamily.CreatureFamilySwine],
 	[MobType.MobTypeDemon]: [CreatureFamily.CreatureFamilySatyr],
 	[MobType.MobTypeElemental]: [CreatureFamily.CreatureFamilyEarthElemental, CreatureFamily.CreatureFamilyFireElemental, CreatureFamily.CreatureFamilyAquatic],
 	[MobType.MobTypeGiant]: [CreatureFamily.CreatureFamilyMountainGiant],

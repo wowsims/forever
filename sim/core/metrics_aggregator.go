@@ -347,9 +347,10 @@ func NewUnitMetrics() UnitMetrics {
 }
 
 type ResourceMetrics struct {
-	ActionID ActionID
-	Type     proto.ResourceType
-	NoThreat bool // Gains from this source generate no threat.
+	ActionID       ActionID
+	Type           proto.ResourceType
+	NoThreat       bool // Gains from this source generate no threat.
+	UnscaledThreat bool // Rage gained from this source makes its threat without the unit's threat multiplier.
 
 	Events     int32
 	Gain       float64

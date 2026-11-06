@@ -85,7 +85,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "d6aa43ed8bd9e599c3581426302baf3cd7f3f734ea8437caf82c4e33c41256a9"
+      "computedHash": "47cfa0a0b352ab628cf248a8210999da4e3d5fc4a5b401a05e84c8ee7ce9d5ca"
     }
   }
 }

@@ -819,6 +819,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-SwineFists-10760"
+ value: {
+  dps: 861.07887
+  tps: 897.3726
+  dtps: 7.27909
+  hps: 32.71972
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TalismanofArathor-20071"
  value: {
   dps: 867.40594

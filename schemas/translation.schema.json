@@ -327,10 +327,13 @@
 						},
 						"mountain_giant": {
 							"type": "string"
+						},
+						"swine": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "naga", "satyr", "aquatic", "earth_elemental", "fire_elemental", "mountain_giant"]
+					"required": ["unknown", "naga", "satyr", "aquatic", "earth_elemental", "fire_elemental", "mountain_giant", "swine"]
 				},
 				"area_types": {
 					"type": "object",

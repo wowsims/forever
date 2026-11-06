@@ -4,6 +4,12 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		869, // Dazzling Longsword
+		[
+			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
+		]
+	],
+	[
 		880, // Staff of Horrors
 		[
 			"Damage caused by the target is reduced by 5 for 2min.", // 8552 - https://www.wowhead.com/forever/spell=8552
@@ -526,6 +532,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9419, // Galgann's Firehammer
+		[
+			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
+		]
+	],
+	[
 		9446, // Electrocutioner Leg
 		[
 			"Blasts a target for 28 Nature damage. Mechanical targets take 2 x damage.", // 1292851 - https://www.wowhead.com/forever/spell=1292851
@@ -568,6 +580,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9509, // Petrolspill Leggings
+		[
+			"Fire damage taken increased by 10%.", // 1293003 - https://www.wowhead.com/forever/spell=1293003
+		]
+	],
+	[
 		9608, // Shoni's Disarming Tool
 		[
 			"Disarm target's weapon for 5s.", // 11879 - https://www.wowhead.com/forever/spell=11879
@@ -601,6 +619,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10726, // Gnomish Mind Control Cap
 		[
 			"Engage in mental combat with a humanoid target to try and control their mind. If all works well, you will control the mind of the target for 20s.....", // 13180 - https://www.wowhead.com/forever/spell=13180
+		]
+	],
+	[
+		10761, // Coldrage Dagger
+		[
+			"Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.", // 1293790 - https://www.wowhead.com/forever/spell=1293790
+		]
+	],
+	[
+		10776, // Silky Spider Cape
+		[
+			"Reduces the duration of all movement impairing effects on you by 7%.", // 1293819 - https://www.wowhead.com/forever/spell=1293819
 		]
 	],
 	[
@@ -673,6 +703,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13032, // Sword of Corruption
 		[
 			"Corrupts the target, causing 30 damage over 3s.", // 17510 - https://www.wowhead.com/forever/spell=17510
+		]
+	],
+	[
+		13035, // Serpent Slicer
+		[
+			"Poisons target for 8 Nature damage every 2.0 sec for 20s.", // 17511 - https://www.wowhead.com/forever/spell=17511
 		]
 	],
 	[
@@ -835,6 +871,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17704, // Edge of Winter
 		[
 			"Blasts a target for 30 Frost damage.", // 16407 - https://www.wowhead.com/forever/spell=16407
+		]
+	],
+	[
+		17774, // Mark of the Chosen
+		[
+			"Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.", // 21970 - https://www.wowhead.com/forever/spell=21970
 		]
 	],
 	[
@@ -1968,6 +2010,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		279480, // Bigger Rock on Bigger Stick
+		[
+			"Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.", // 1306816 - https://www.wowhead.com/forever/spell=1306816
+		]
+	],
+	[
+		279852, // Rock on Stick
+		[
+			"Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.", // 1309967 - https://www.wowhead.com/forever/spell=1309967
+		]
+	],
+	[
 		279876, // Plaguefang
 		[
 			"Poisons target for 2 Nature damage every 1.0 sec for 10s.", // 1309315 - https://www.wowhead.com/forever/spell=1309315
@@ -2007,6 +2061,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		284386, // Whipfang's Skinsearer
 		[
 			"Sear your target's flesh, dealing 84 Fire damage.", // 1316039 - https://www.wowhead.com/forever/spell=1316039
+		]
+	],
+	[
+		285089, // Swamp Roamer's Band
+		[
+			"Increases movement speed by 3% in Dustwallow Marsh and Swamp of Sorrows.", // 1317486 - https://www.wowhead.com/forever/spell=1317486
+		]
+	],
+	[
+		285102, // Darkmist Dirk
+		[
+			"Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.", // 1317583 - https://www.wowhead.com/forever/spell=1317583
 		]
 	],
 	[
@@ -5287,6 +5353,35 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Chance on damaging spell to summon an Arcane elemental to aid you in combat.", // 1324323 - https://www.wowhead.com/forever/spell=1324323
+				],
+			],
+		]),
+	],
+	[
+		2135, // Krol'dok Battlegear
+		new Map([
+			[
+				2,
+				[
+					"+100 Armor.", // 1324287 - https://www.wowhead.com/forever/spell=1324287
+				],
+			],
+			[
+				3,
+				[
+					"Increased Defense +5.", // 1324288 - https://www.wowhead.com/forever/spell=1324288
+				],
+			],
+			[
+				4,
+				[
+					"Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.", // 1324298 - https://www.wowhead.com/forever/spell=1324298
+				],
+			],
+			[
+				5,
+				[
+					"Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.", // 1324309 - https://www.wowhead.com/forever/spell=1324309
 				],
 			],
 		]),

@@ -1058,6 +1058,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SwineFists-10760"
+ value: {
+  dps: 647.98211
+  tps: 426.76464
+  dtps: 1.03334
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TalismanofArathor-20071"
  value: {
   dps: 657.43256

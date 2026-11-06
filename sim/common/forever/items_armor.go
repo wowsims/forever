@@ -3,6 +3,7 @@ package forever
 import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -90,6 +91,36 @@ func init() {
 		trigger.Name = "Black Grasp of the Destroyer"
 		trigger.ActionID = core.ActionID{ItemID: 22194}
 		character.ItemSwap.RegisterProc(22194, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Swine Fists
+	// https://www.wowhead.com/forever/item=10760/swine-fists
+	//
+	// Spells and attacks against Swine deal 2 Nature damage.
+	//
+	// 1293783 casts 1293782 on every hit, and the rows deal its Nature damage to any target. The
+	// tooltip limits it to Swine, so the trigger fires only on a hit against one. The tooltip reads
+	// its amount from Cursed Murloc Eye's 1292675; the damage dealt is 1293782's own.
+	core.NewItemEffect(10760, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1293782)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+		}
+		swineFists := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1293783), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			if result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilySwine {
+				swineFists.Cast(sim, result.Target)
+			}
+		})
+		trigger.Name = "Swine Fists"
+		trigger.ActionID = core.ActionID{ItemID: 10760}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(10760, character.MakeProcTriggerAura(trigger))
 	})
 
 	// Thick Obsidian Breastplate

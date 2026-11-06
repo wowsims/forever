@@ -121,31 +121,34 @@ globalThis.wasmready = function () {
 };
 
 function setupWorkerInterface() {
-	new WorkerInterface({
-		computeStats: computeStats,
-		computeStatsJson: computeStatsJson,
-		reforgeOptimizeAsync: async (inputData, progress, id) => {
-			await initHiGHS();
-			reforgeOptimizeAsync(inputData, progress, id);
-			return new Uint8Array();
+	new WorkerInterface(
+		{
+			computeStats: computeStats,
+			computeStatsJson: computeStatsJson,
+			reforgeOptimizeAsync: async (inputData, progress, id) => {
+				await initHiGHS();
+				reforgeOptimizeAsync(inputData, progress, id);
+				return new Uint8Array();
+			},
+			raidSim: raidSim,
+			raidSimJson: raidSimJson,
+			raidSimAsync: raidSimAsync,
+			bulkSimAsync: unsupportedBulkSimAsync,
+			bulkCombinationCount: bulkCombinationCount,
+			bulkCandidates: bulkCandidates,
+			statWeights: statWeights,
+			statWeightsAsync: statWeightsAsync,
+			statWeightRequests: statWeightRequests,
+			statWeightCompute: statWeightCompute,
+			statWeightTopUpPlan: statWeightTopUpPlan,
+			raidSimRequestSplit: raidSimRequestSplit,
+			raidSimResultCombination: raidSimResultCombination,
+			abortById: abortById,
+			simlParse: withSimlNames(simlParse),
+			simlPrint: withSimlNames(simlPrint),
 		},
-		raidSim: raidSim,
-		raidSimJson: raidSimJson,
-		raidSimAsync: raidSimAsync,
-		bulkSimAsync: unsupportedBulkSimAsync,
-		bulkCombinationCount: bulkCombinationCount,
-		bulkCandidates: bulkCandidates,
-		statWeights: statWeights,
-		statWeightsAsync: statWeightsAsync,
-		statWeightRequests: statWeightRequests,
-		statWeightCompute: statWeightCompute,
-		statWeightTopUpPlan: statWeightTopUpPlan,
-		raidSimRequestSplit: raidSimRequestSplit,
-		raidSimResultCombination: raidSimResultCombination,
-		abortById: abortById,
-		simlParse: withSimlNames(simlParse),
-		simlPrint: withSimlNames(simlPrint),
-	}).ready(true);
+		() => go.exited,
+	).ready(true);
 }
 
 const go = new Go();
