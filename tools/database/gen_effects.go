@@ -26,14 +26,11 @@ import (
 	"github.com/wowsims/forever/tools/tooltip"
 )
 
-// Sets the minimum itemlevel that should be considered for this expansions
-const MIN_EFFECT_ILVL = 40
-
-// Whether the item's effects are generated: it is at or above MIN_EFFECT_ILVL, or EffectFloorExemptions
-// names it.
+// Whether the item's effects are generated: it is at or above core.MinEffectItemLevel, or
+// EffectFloorExemptions names it.
 func aboveEffectFloor(parsed *proto.UIItem) bool {
 	_, exempt := EffectFloorExemptions[parsed.Id]
-	return exempt || parsed.ScalingOptions[0].Ilvl >= MIN_EFFECT_ILVL
+	return exempt || parsed.ScalingOptions[0].Ilvl >= core.MinEffectItemLevel
 }
 
 // Whether the item's effect is written by hand: registered as an item effect, or applied by core where

@@ -1215,15 +1215,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-TenetsoftheSilverHand-249397"
- value: {
-  dps: 404.98878
-  tps: 961.04884
-  dtps: 344.42907
-  hps: 22.90889
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 409.83962

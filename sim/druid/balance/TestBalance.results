@@ -574,14 +574,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
- }
-}
-dps_results: {
  key: "TestBalance-AllItems-GrovekeeperEclipse"
  value: {
   dps: 824.81936
@@ -758,26 +750,10 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
- }
-}
-dps_results: {
  key: "TestBalance-AllItems-MarkofResolution-17759"
  value: {
   dps: 869.82454
   tps: 880.96527
-  dtps: 5.71906
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-MarkofUrs'endris-263435"
- value: {
-  dps: 914.68176
-  tps: 925.82248
   dtps: 5.71906
  }
 }
@@ -811,14 +787,6 @@ dps_results: {
   dps: 869.82454
   tps: 880.96527
   dtps: 5.69982
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-MysticMushroom-249396"
- value: {
-  dps: 916.17276
-  tps: 927.18548
-  dtps: 5.28321
  }
 }
 dps_results: {

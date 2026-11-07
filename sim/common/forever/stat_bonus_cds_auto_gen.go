@@ -250,16 +250,10 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(23027) // Warmth of Forgiveness - https://www.wowhead.com/forever/spell=28760
 
 	// Skipped
-	// Not simulated: Staff of Conjuring: "Conjure Food" (8736) - ignored effect type 24
-	// https://www.wowhead.com/forever/spell=8736
 	// Not simulated: Orb of Deception: "Orb of Deception" (16739) - ignored aura type 56
 	// https://www.wowhead.com/forever/spell=16739
 	// Not simulated: Dog Whistle: "Summon Tracking Hound" (9515) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=9515
-	// Not simulated: Spider Belt: "Immune Root" (9774) - ignored aura type 77
-	// https://www.wowhead.com/forever/spell=9774
-	// Not simulated: Enchanted Moonstalker Cloak: "Form of the Moonstalker" (6298) - ignored aura type 56
-	// https://www.wowhead.com/forever/spell=6298
 	// Not simulated: Ornate Mithril Boots: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77

@@ -67,7 +67,7 @@ var UnsupportedAbsorbBySpellID = map[int32]string{
 	1287808: "the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list",
 }
 
-// Items below MIN_EFFECT_ILVL whose effects are generated anyway, keyed by item ID with the reason a
+// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
 // level 60 character still uses them.
 var EffectFloorExemptions = map[int32]string{
 	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",

@@ -631,15 +631,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 514.7796
-  tps: 1952.93055
-  dtps: 393.14306
-  hps: 84.20807
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-GrovekeeperEclipse"
  value: {
   dps: 472.32959
@@ -838,30 +829,12 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 535.49207
-  tps: 2027.36638
-  dtps: 399.3769
-  hps: 86.89809
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-MarkofResolution-17759"
  value: {
   dps: 500.95286
   tps: 1909.76461
   dtps: 394.78517
   hps: 84.38378
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-MarkofUrs'endris-263435"
- value: {
-  dps: 512.43023
-  tps: 1943.85164
-  dtps: 387.76892
-  hps: 83.62305
  }
 }
 dps_results: {
@@ -898,15 +871,6 @@ dps_results: {
   tps: 1917.62817
   dtps: 394.73693
   hps: 84.38378
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-MysticMushroom-249396"
- value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
  }
 }
 dps_results: {
