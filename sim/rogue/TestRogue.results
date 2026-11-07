@@ -566,6 +566,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 607.53946
+  tps: 431.35301
+  hps: 53.03611
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-JomGabbar-23570"
  value: {
   dps: 630.44067
@@ -650,6 +658,14 @@ dps_results: {
  value: {
   dps: 616.1613
   tps: 437.47452
+  hps: 53.03611
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 607.53946
+  tps: 431.35301
   hps: 53.03611
  }
 }
@@ -859,6 +875,14 @@ dps_results: {
   dps: 608.67846
   tps: 432.16171
   hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 607.53946
+  tps: 431.35301
+  hps: 53.03611
  }
 }
 dps_results: {

@@ -1975,12 +1975,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		276742, // Girdle of Extracted Answers
-		[
-			"Deals 25 Physical damage every time you block.", // 1308777 - https://www.wowhead.com/forever/spell=1308777
-		]
-	],
-	[
 		277844, // Mirage Mirror
 		[
 			"Increases movement speed by 25% for 10s. While out of combat in Desert areas, gain an additional 25% movement speed and become invisible.", // 1302833 - https://www.wowhead.com/forever/spell=1302833
@@ -2086,18 +2080,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 
 export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 	[
-		43, // Iron Shield Spike
-		[
-			"Attaches an Iron Spike to your shield that deals damage every time you block with it.", // 9784 - https://www.wowhead.com/forever/spell=9784
-		]
-	],
-	[
-		463, // Mithril Shield Spike
-		[
-			"Attaches a Mithril Spike to your shield that deals damage every time you block with it.", // 9782 - https://www.wowhead.com/forever/spell=9782
-		]
-	],
-	[
 		803, // Enchant Weapon - Fiery Weapon
 		[
 			"Permanently enchant a melee weapon to often strike for 40 additional fire damage.", // 13897 - https://www.wowhead.com/forever/spell=13897
@@ -2107,12 +2089,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		912, // Enchant Weapon - Demonslaying
 		[
 			"Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.", // 13907 - https://www.wowhead.com/forever/spell=13907
-		]
-	],
-	[
-		1704, // Thorium Shield Spike
-		[
-			"Attaches a Thorium Spike to your shield that deals damage every time you block with it.", // 16624 - https://www.wowhead.com/forever/spell=16624
 		]
 	],
 	[

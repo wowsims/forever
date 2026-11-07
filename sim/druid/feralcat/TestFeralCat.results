@@ -622,6 +622,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-JomGabbar-23570"
  value: {
   dps: 799.41359
@@ -719,6 +727,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralCat-AllItems-MasterworkStormhammer-12794"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 780.33933
   tps: 578.4399
@@ -935,6 +951,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralCat-AllItems-TheRestrainedEssenceofSapphiron-23046"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-ThoriumShieldSpike-1704"
  value: {
   dps: 780.33933
   tps: 578.4399

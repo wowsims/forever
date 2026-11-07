@@ -510,6 +510,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 782.81619
+  tps: 807.92598
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
   dps: 721.23233
@@ -598,6 +605,13 @@ dps_results: {
  value: {
   dps: 759.56368
   tps: 784.54128
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 782.81619
+  tps: 807.92598
  }
 }
 dps_results: {
@@ -745,6 +759,13 @@ dps_results: {
  value: {
   dps: 765.72624
   tps: 790.20205
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 782.81619
+  tps: 807.92598
  }
 }
 dps_results: {

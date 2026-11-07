@@ -612,6 +612,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-JomGabbar-23570"
  value: {
   dps: 882.81114
@@ -690,6 +699,15 @@ dps_results: {
   tps: 903.59134
   dtps: 7.48802
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
  }
 }
 dps_results: {
@@ -951,6 +969,15 @@ dps_results: {
   tps: 923.56189
   dtps: 7.48802
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
  }
 }
 dps_results: {

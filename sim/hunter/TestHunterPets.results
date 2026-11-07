@@ -764,6 +764,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 648.08638
+  tps: 426.8424
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-JomGabbar-23570"
  value: {
   dps: 673.19876
@@ -888,6 +896,14 @@ dps_results: {
  value: {
   dps: 661.43752
   tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 648.08638
+  tps: 426.8424
   dtps: 0.69516
  }
 }
@@ -1231,6 +1247,14 @@ dps_results: {
   dps: 657.43256
   tps: 432.79059
   dtps: 0.75638
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 648.08638
+  tps: 426.8424
+  dtps: 0.69516
  }
 }
 dps_results: {

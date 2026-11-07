@@ -656,10 +656,15 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 	})
 }
 
-// The effect on one character: the spell the proc casts, and the listener that casts it.
+// The effect on one character: the spell the proc casts, and the listener that casts it. A proc that
+// deals its own damage, with no spell below its trigger, keeps its cooldown on the row's RecoveryTime
+// rather than on a proc category: the shield spikes' 5 s between two blocks.
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
+	if damage == trigger && config.ICD == 0 {
+		config.ICD = trigger.Cooldown()
+	}
 	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
 	source.registerTrigger(character, config)
 }

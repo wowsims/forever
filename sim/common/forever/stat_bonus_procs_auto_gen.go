@@ -2375,21 +2375,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Deals 25 Physical damage every time you block.
-	// https://www.wowhead.com/forever/spell=1308777
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 276742, ItemName: "Girdle of Extracted Answers"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// https://www.wowhead.com/forever/spell=1317283
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
@@ -2588,6 +2573,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataHealProc(shared.SpellDataProc{TriggerSpellID: 8348, BuffSpellID: 8348, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 6660, ItemName: "Julie's Dagger"},
+		})
+
+	// Deals 14 Holy damage every time you block.
+	// https://www.wowhead.com/forever/spell=1293539
+	// trigger 1293539 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293539, BuffSpellID: 1293539},
+		[]shared.ItemVariant{
+			{ItemID: 7726, ItemName: "Aegis of the Scarlet Commander"},
 		})
 
 	// When struck in combat has a 5% chance of inflicting 140 Shadow damage to the attacker.
@@ -2903,6 +2896,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1294939, BuffSpellID: 1294940},
 		[]shared.ItemVariant{
 			{ItemID: 274603, ItemName: "Dreadfrost Saber"},
+		})
+
+	// Deals 25 Physical damage every time you block.
+	// https://www.wowhead.com/forever/spell=1308777
+	// trigger 1308777 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1308777, BuffSpellID: 1308777},
+		[]shared.ItemVariant{
+			{ItemID: 276742, ItemName: "Girdle of Extracted Answers"},
 		})
 
 	// Thrown attacks explode on impact, causing 17 Fire damage to nearby enemies.

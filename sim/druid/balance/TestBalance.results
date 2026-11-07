@@ -678,6 +678,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-JomGabbar-23570"
  value: {
   dps: 869.82454
@@ -791,6 +799,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-MasterworkStormhammer-12794"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 918.0712
   tps: 929.21193
@@ -999,6 +1015,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-TheLobotomizer-19324"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-ThoriumShieldSpike-1704"
  value: {
   dps: 918.0712
   tps: 929.21193

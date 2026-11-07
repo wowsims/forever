@@ -684,6 +684,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-GirdleofExtractedAnswers-276742"
+ value: {
+  dps: 435.26889
+  tps: 1393.56468
+  dtps: 299.54549
+  hps: 36.44528
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 434.91766
@@ -837,6 +846,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 424.88353
+  tps: 1357.69443
+  dtps: 289.97814
+  hps: 36.63167
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-JomGabbar-23570"
  value: {
   dps: 434.79413
@@ -969,6 +987,15 @@ dps_results: {
   tps: 1380.60116
   dtps: 287.0103
   hps: 36.69944
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 425.60659
+  tps: 1359.25623
+  dtps: 289.97814
+  hps: 36.63167
  }
 }
 dps_results: {
@@ -1311,6 +1338,15 @@ dps_results: {
   tps: 1354.16362
   dtps: 286.28917
   hps: 36.36056
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 426.24895
+  tps: 1360.64375
+  dtps: 289.97814
+  hps: 36.63167
  }
 }
 dps_results: {

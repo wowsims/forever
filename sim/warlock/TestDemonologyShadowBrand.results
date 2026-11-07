@@ -643,6 +643,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
  value: {
   dps: 763.56924
@@ -745,6 +754,15 @@ dps_results: {
   tps: 650.30181
   dtps: 10.46408
   hps: 7.8687
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {
@@ -951,6 +969,15 @@ dps_results: {
   tps: 690.55425
   dtps: 10.46408
   hps: 7.8687
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {

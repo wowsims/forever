@@ -558,6 +558,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-GirdleofExtractedAnswers-276742"
+ value: {
+  dps: 927.71325
+  tps: 756.30241
+  dtps: 4.74017
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 927.35103
@@ -663,6 +672,15 @@ dps_results: {
   tps: 655.56955
   dtps: 6.38873
   hps: 25.366
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
  }
 }
 dps_results: {
@@ -861,6 +879,15 @@ dps_results: {
   tps: 766.48346
   dtps: 4.34794
   hps: 26.72817
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
  }
 }
 dps_results: {
@@ -1194,6 +1221,15 @@ dps_results: {
   tps: 753.36086
   dtps: 4.59652
   hps: 26.72003
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
  }
 }
 dps_results: {

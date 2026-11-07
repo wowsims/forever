@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -18,6 +19,8 @@ import (
 )
 
 func init() {
+	forever.RegisterAllProcs()
+	forever.RegisterAllEnchants()
 	testagent.Register(proto.Player_HolyPaladin{}, proto.Spec_SpecHolyPaladin, func(player *proto.Player, spec any) {
 		player.Spec = spec.(*proto.Player_HolyPaladin)
 	}, func(agent *testagent.Agent) {
@@ -343,5 +346,67 @@ func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
 				}
 			}
 		}
+	}
+}
+
+// A row that deals its damage off its own trigger, read from the generated registrations: the
+// A_PROC_TRIGGER_DAMAGE roll lands on the attacker of a melee hit the wearer blocks, once per the
+// row's RecoveryTime, and a hit not blocked deals nothing. Girdle of Extracted Answers 276742 carries
+// 1308777 on an item, Thorium Shield Spike 1704 carries 16624 on an enchant.
+func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		equip   *proto.ItemSpec
+		slot    proto.ItemSlot
+		spellID int32
+	}{
+		{"Girdle of Extracted Answers", &proto.ItemSpec{Id: 276742}, proto.ItemSlot_ItemSlotWaist, 1308777},
+		{"Thorium Shield Spike on Shard of the Splithooves", &proto.ItemSpec{Id: 10659, Enchant: 1704}, proto.ItemSlot_ItemSlotOffHand, 16624},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+			for i := range items {
+				items[i] = &proto.ItemSpec{}
+			}
+			items[tc.slot] = tc.equip
+			sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items})
+			character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			spike := character.GetSpell(core.ActionID{SpellID: tc.spellID})
+			if spike == nil {
+				t.Fatalf("%s registers no damage spell", tc.name)
+			}
+			row := spelldata.MustFind(tc.spellID)
+			damage := row.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
+			lockout := row.Cooldown()
+			if lockout <= 0 {
+				t.Fatalf("%d states no RecoveryTime", tc.spellID)
+			}
+
+			takeHit(t, sim, character, meleeSwing(enemy))
+			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+				t.Errorf("a hit not blocked cast the damage %d times, want none", got)
+			}
+
+			block := func() {
+				character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit | core.OutcomeBlock, Damage: 50})
+				stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+			}
+			firstBlock := sim.CurrentTime
+			block()
+			metrics := spike.SpellMetrics[enemy.UnitIndex]
+			if metrics.Casts != 1 || !damageInRange(metrics, damage) {
+				t.Errorf("a block cast the damage %d times for %v, want once for %v to %v", metrics.Casts, metrics.TotalDamage, damage.Min(), damage.Max())
+			}
+			block()
+			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+				t.Errorf("a second block inside the row's %v cast the damage %d times in all, want once still", lockout, got)
+			}
+			stepTo(t, sim, firstBlock+lockout)
+			block()
+			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+				t.Errorf("a block the row's %v after the first cast the damage %d times in all, want 2", lockout, got)
+			}
+		})
 	}
 }

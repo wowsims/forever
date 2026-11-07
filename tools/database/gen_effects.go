@@ -2091,6 +2091,21 @@ var hasGenericMatcher = regexp.MustCompile(`a spell`)
 // proc. A miss is not in here either: the one row naming one, 456394, means its own attack missing
 // rather than an attack on it.
 var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (block|dodge|parry)|after a (block|dodge|parry)`)
+var blockConditionMatcher = regexp.MustCompile(`(?i)block`)
+
+// The outcome a trigger clause states. A block is an outcome the listener can be given, so it is
+// named on its own; a resist, a dodge or a parry taken is not.
+func outcomeConditionHints(tooltip string) core.ProcHint {
+	var hints core.ProcHint
+	for _, clause := range outcomeConditionMatcher.FindAllString(tooltip, -1) {
+		if blockConditionMatcher.MatchString(clause) {
+			hints |= core.ProcHintBlocked
+		} else {
+			hints |= core.ProcHintOutcomeTaken
+		}
+	}
+	return hints
+}
 
 // The wearer's own attack dodged or parried, named as the trigger: Recovery's "when you are Parried
 // or Dodged". The same words also state a magnitude - "reduces the chance for your attacks to be
@@ -2203,10 +2218,7 @@ func procTooltipHints(tooltip string) core.ProcHint {
 		hints |= core.ProcHintNamedAbility
 	}
 
-	if outcomeConditionMatcher.MatchString(tooltip) {
-		hints |= core.ProcHintOutcomeTaken
-	}
-
+	hints |= outcomeConditionHints(tooltip)
 	hints |= attackAvoidedHints(tooltip)
 
 	return hints

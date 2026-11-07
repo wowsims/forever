@@ -575,6 +575,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 749.30425
+  tps: 535.47254
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-JomGabbar-23570"
  value: {
   dps: 753.99958
@@ -691,6 +699,14 @@ dps_results: {
  value: {
   dps: 761.88957
   tps: 544.28226
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 749.30425
+  tps: 535.47254
   dtps: 5.41108
  }
 }
@@ -851,6 +867,14 @@ dps_results: {
  value: {
   dps: 786.60408
   tps: 561.56958
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 749.30425
+  tps: 535.47254
   dtps: 5.41108
  }
 }

@@ -35,6 +35,7 @@ func TestItemProcUnsupported(t *testing.T) {
 			"an item worn by every class cannot carry one class's filter"},
 		{2800, false, []string{"the trigger carries a class mask"},
 			"a family no class owns still names a set of spells the listener cannot be narrowed to"},
+		{2950, false, nil, "a block is an outcome the listener can be given, and the mask hears the melee hits it resolves from"},
 	} {
 		got := ItemProcUnsupportedWithRate(Find(tc.spellID), tc.isWeaponProc, 0)
 		if !slices.Equal(got, tc.want) {
@@ -45,6 +46,24 @@ func TestItemProcUnsupported(t *testing.T) {
 
 	if got := ItemProcUnsupportedWithRate(Find(999999), false, 0); len(got) != 1 || got[0] != "no row in the store" {
 		t.Errorf("unsupported = %v, want the missing row named", got)
+	}
+}
+
+// A proc that deals its amount off its own trigger carries it on the A_PROC_TRIGGER_DAMAGE aura: that
+// aura is the row's damage effect, rolled by half its variance either side, 20 to 30 on 25 ± 0.4.
+func TestProcTriggerDamageAuraIsTheDamageEffect(t *testing.T) {
+	withRows(t, procRows())
+
+	row := Find(2950)
+	damage := row.DamageEffect()
+	if damage == NilEffect || damage.Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
+		t.Fatalf("the damage effect is %+v, want the A_PROC_TRIGGER_DAMAGE aura", damage)
+	}
+	if low, high := damage.Min(), damage.Max(); low != 20 || high != 30 {
+		t.Errorf("the roll is %v to %v, want 20 to 30", low, high)
+	}
+	if got := damage.DirectVariance(); got != 0 {
+		t.Errorf("DirectVariance = %v, want 0: the aura rolls its own base points", got)
 	}
 }
 
