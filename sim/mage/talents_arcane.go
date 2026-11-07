@@ -89,7 +89,9 @@ func (mage *Mage) registerMagicAbsorption() {
 
 // "Gives you a 10% chance of entering a Clearcasting state after any damage spell hits a target. The
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
-// and is spent by the next cast. Each Arcane Missiles missile rolls it.
+// and is spent by the next cast. Arcane Missiles rolls it once as the channel starts and again as each
+// missile lands (the missile's row carries Not a Proc, so the listener hears it), all under the row's
+// 1 sec cooldown.
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -100,7 +102,8 @@ func (mage *Mage) registerArcaneConcentration() {
 
 	config := spelldata.AuraConfig(clearcastingRank)
 	// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up. This runs before the
-	// cast completes, while Missile Barrage is still up.
+	// cast completes, while Missile Barrage is still up, and before the channel's own roll, so a plain
+	// channel spends Clearcasting and a proc from its start brings up a fresh one.
 	config.OnApplyEffects = func(aura *core.Aura, sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		if !spell.MatchesFlags(costEffect.ClassFlags) || spell.Cost == nil || spell.Cost.BaseCost == 0 {
 			return
@@ -121,24 +124,33 @@ func (mage *Mage) registerArcaneConcentration() {
 		})
 	trigger.Name = "Arcane Concentration - Trigger"
 	trigger.ProcMask = core.ProcMaskSpellDamage
-	// An area spell, or one Blizzard tick, rolls once however many targets it lands on. The condition
-	// runs just before the roll, so the first target to reach it takes the roll.
+	// An area spell, or one Blizzard or Flamestrike tick, rolls once however many targets it lands on.
+	// The condition runs just before the roll, so the first target to reach it takes the roll.
 	var rolledSpell *core.Spell
 	var rolledAt time.Duration
 	mage.RegisterResetEffect(func(_ *core.Simulation) {
 		rolledSpell = nil
 	})
-	// The Arcane Missiles channel lands an outcome with no damage and does not roll; its missiles
-	// roll as they land, since their row's Not a Proc lets an aura proc hear them.
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if spellData.ArcaneMissiles.Contains(spell) || (spell == rolledSpell && sim.CurrentTime == rolledAt) {
+		if spell == rolledSpell && sim.CurrentTime == rolledAt {
 			return false
 		}
 		rolledSpell, rolledAt = spell, sim.CurrentTime
 		return true
 	}
 
-	mage.MakeProcTriggerAura(trigger)
+	triggerAura := mage.MakeProcTriggerAura(trigger)
+	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
+	// registerFlamestrikeSpell) reach the hit listener here.
+	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
+	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if onPeriodic != nil {
+			onPeriodic(aura, sim, spell, result)
+		}
+		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
+			onHit(aura, sim, spell, result)
+		}
+	}
 }
 
 // "Increases your Armor by an amount equal to 25/50/75% of your Intellect."
