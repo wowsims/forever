@@ -21,20 +21,20 @@ measurement on Forever; a carry-over or an `estimate` is listed as unvalidated o
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:
 
-|                                   |                                                                                  | stale when                               |
-| --------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------- |
-| `PPM`                             | procs per minute, onto `Spell.RPPM`                                              | the row states a `SpellProcsPerMinuteID` |
-| `FlatThreat`                      | threat the tooltip states without a number                                       | the spell gains a threat effect          |
-| `ThreatPerSpellLevel`             | flat threat of the value times the rank's spell level, onto `Spell.FlatThreat`   | the spell gains a threat effect          |
-| `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script                        | the game files state one on that effect  |
-| `APCoefThreat`                    | the attack power share of the threat effect                                      | the game files state one on it           |
-| `SPCoefDirect`                    | a spell power coefficient the direct effect does not state                       | the game files state one on that effect  |
-| `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                       | the tooltip states a chance of its own   |
-| `DurationMs`                      | an aura duration                                                                 | the game files state a `SpellDuration`   |
-| `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                      | the row states a `ProcCategoryRecovery`  |
-| `StatMask`                        | the stats of an `A_MOD_TOTAL_STAT_PERCENTAGE` effect, onto its second misc value | the effect states either misc value      |
-| `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                          | -                                        |
-| `ProcClassMask`                   | the proc effect's class mask word, where the game files' names no spell of the family | the effect states the same word     |
+|                                   |                                                                                       | stale when                               |
+| --------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------- |
+| `PPM`                             | procs per minute, onto `Spell.RPPM`                                                   | the row states a `SpellProcsPerMinuteID` |
+| `FlatThreat`                      | threat the tooltip states without a number                                            | the spell gains a threat effect          |
+| `ThreatPerSpellLevel`             | flat threat of the value times the rank's spell level, onto `Spell.FlatThreat`        | the spell gains a threat effect          |
+| `APCoefDirect` / `APCoefPeriodic` | an attack power coefficient the game files keep in script                             | the game files state one on that effect  |
+| `APCoefThreat`                    | the attack power share of the threat effect                                           | the game files state one on it           |
+| `SPCoefDirect`                    | a spell power coefficient the direct effect does not state                            | the game files state one on that effect  |
+| `ProcChancePct`                   | a whole percentage onto `Spell.ProcChance`                                            | the tooltip states a chance of its own   |
+| `DurationMs`                      | an aura duration                                                                      | the game files state a `SpellDuration`   |
+| `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                           | the row states a `ProcCategoryRecovery`  |
+| `StatMask`                        | the stats of an `A_MOD_TOTAL_STAT_PERCENTAGE` effect, onto its second misc value      | the effect states either misc value      |
+| `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                               | -                                        |
+| `ProcClassMask`                   | the proc effect's class mask word, where the game files' names no spell of the family | the effect states the same word          |
 
 The generator also refuses two cases that have nothing to do with the field: an override naming a spell
 the store does not carry, and two overrides of the same field on one spell. Every applied override
