@@ -121,8 +121,10 @@ printed before it is made; reading the call order is not enough, and the orders 
 the helpers in `sim/core/test_utils.go` or the shared harness, `t.Logf` the value, run it as §The gates shows, and
 delete the file before committing. Name the printed value in the claim ("`maxEnergy=110` at rank 2").
 
-- **A proc rate never moves the class `.results`**: the `AllItems` rows do not proc chance-on-hit weapons. Prove a
-  rate in `sim/common/shared` by building the listener and reading the chance or counting casts
+- **A weapon's `AllItems` row wears it in the main hand** (`equipTestItem` in `sim/core/test_generators.go`): a
+  two-hander empties the off hand, a shield or an off-hand item replaces the off hand. A proc rate or a weapon effect
+  moves that row in every suite whose filter admits the weapon, so a rate change comes with those `.results`. Prove
+  the rate itself in `sim/common/shared` by building the listener and reading the chance or counting casts
   (`TestWeaponProcRateComesFromTheItemEffect` in `sim/common/shared/spell_data_weapon_rate_test.go`).
 
 ## Keeping this skill true
