@@ -1182,7 +1182,7 @@ func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldat
 	if len(CarriedProcUnsupported(row)) > 0 {
 		return
 	}
-	heal := character.RegisterSpell(spellDataProcHealSpell(character, carriedSpell(row), true))
+	heal := character.RegisterSpell(spellDataProcHealSpell(character, row.FiredSpell(), true))
 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		heal.Cast(sim, &character.Unit)
 	}, spelldata.ItemProcChance(row))
@@ -1193,16 +1193,11 @@ func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldat
 	buff.AttachProcTrigger(trigger)
 }
 
-// The spell a buff row's A_PROC_TRIGGER_SPELL fires, which the generator reads the same way.
-func carriedSpell(row *spelldata.Spell) *spelldata.Spell {
-	return row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
-}
-
 // Why the proc a stat buff carries cannot be built, or nil where it can: the buff's row fires a spell
-// that heals the wearer, a heal over time among them only with a period and a duration to tick
-// over, on a buff that spends no charges and a trigger the listener can hear.
+// (FiredSpell) that heals the wearer, a heal over time among them only with a period and a duration
+// to tick over, on a buff that spends no charges and a trigger the listener can hear.
 func CarriedProcUnsupported(row *spelldata.Spell) []string {
-	fired := carriedSpell(row)
+	fired := row.FiredSpell()
 	heal := fired.ProcHealEffect()
 	switch {
 	case fired == spelldata.Nil:

@@ -1562,9 +1562,9 @@ func TryParseOnUseEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, ins
 func statOnUseLeftOut(buffID int32, instance *dbc.DBC) string {
 	buff := spelldata.Find(buffID)
 	var left []string
-	if trigger := buff.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).TriggerID; trigger != 0 {
+	if fired := buff.FiredSpell(); fired != spelldata.Nil {
 		if reasons := shared.CarriedProcUnsupported(buff); len(reasons) > 0 {
-			left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s): %s", trigger, spellEffectKinds(instance, int(trigger)), strings.Join(reasons, "; ")))
+			left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s): %s", fired.ID, spellEffectKinds(instance, int(fired.ID)), strings.Join(reasons, "; ")))
 		}
 	}
 	for _, aura := range []dbcenums.EffectAuraType{dbcenums.A_SCHOOL_ABSORB, dbcenums.A_DAMAGE_SHIELD} {
