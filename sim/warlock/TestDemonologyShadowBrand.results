@@ -939,7 +939,7 @@ dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-VestmentsoftheDevout"
  value: {
   dps: 722.20174
-  tps: 610.80114
+  tps: 610.74558
   dtps: 10.70622
  }
 }
