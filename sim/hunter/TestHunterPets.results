@@ -684,14 +684,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 663.58296
-  tps: 438.75399
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-GrimReaper-13054"
  value: {
   dps: 661.43752
@@ -841,14 +833,6 @@ dps_results: {
   dps: 657.43256
   tps: 432.79059
   dtps: 0.75638
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 664.3038
-  tps: 439.22341
-  dtps: 0.69516
  }
 }
 dps_results: {

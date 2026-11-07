@@ -576,15 +576,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 881.5651
-  tps: 917.91437
-  dtps: 7.36706
-  hps: 33.07556
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 867.40594
@@ -744,15 +735,6 @@ dps_results: {
   tps: 903.59134
   dtps: 7.48802
   hps: 32.7875
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-PolishedDriftwoodIcon-249398"
- value: {
-  dps: 873.09446
-  tps: 909.17571
-  dtps: 7.55643
-  hps: 33.05861
  }
 }
 dps_results: {
@@ -958,15 +940,6 @@ dps_results: {
  value: {
   dps: 875.29107
   tps: 911.64033
-  dtps: 7.36706
-  hps: 33.07556
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-TotemofChargedFlames-263412"
- value: {
-  dps: 875.29107
-  tps: 911.62658
   dtps: 7.36706
   hps: 33.07556
  }
