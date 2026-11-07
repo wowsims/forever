@@ -164,12 +164,13 @@ var procShapes = [...]struct {
 	unsupported      func(*spelldata.Spell) []string
 	alwaysNamesBuff  bool
 }{
-	ShapeStats:          {"NewSpellDataProc", "NewSimpleStatActive", "", nil, false},
-	ShapeDamage:         {"NewSpellDataDamageProc", "NewSpellDataDamageOnUse", "Damage", damageUnsupported, true},
-	ShapeHeal:           {"NewSpellDataHealProc", "NewSpellDataHealOnUse", "Heals", healUnsupported, true},
-	ShapeAbsorb:         {"NewSpellDataAbsorbProc", "NewSpellDataAbsorbOnUse", "Absorbs", absorbUnsupported, true},
-	ShapeSpeed:          {"NewSpellDataProc", "NewSpellDataSpeedOnUse", "Speed", nil, false},
-	ShapeEnergize:       {"NewSpellDataEnergizeProc", "NewSpellDataEnergizeOnUse", "Resources", firedGainUnsupported, true},
+	ShapeStats:  {"NewSpellDataProc", "NewSimpleStatActive", "", nil, false},
+	ShapeDamage: {"NewSpellDataDamageProc", "NewSpellDataDamageOnUse", "Damage", damageUnsupported, true},
+	ShapeHeal:   {"NewSpellDataHealProc", "NewSpellDataHealOnUse", "Heals", healUnsupported, true},
+	ShapeAbsorb: {"NewSpellDataAbsorbProc", "NewSpellDataAbsorbOnUse", "Absorbs", absorbUnsupported, true},
+	ShapeSpeed:  {"NewSpellDataProc", "NewSpellDataSpeedOnUse", "Speed", nil, false},
+	ShapeEnergize: {"NewSpellDataEnergizeProc", "NewSpellDataEnergizeOnUse", "Resources",
+		func(fired *spelldata.Spell) []string { return energizeUnsupported(fired, fired.EnergizeEffect()) }, true},
 	ShapeDebuff:         {"NewSpellDataDebuffProc", "NewSimpleStatActive", "", debuffUnsupported, false},
 	ShapeAura:           {"NewSpellDataAuraProc", "NewSpellDataAuraOnUse", "Auras", procAuraUnsupported, false},
 	ShapeEquip:          {"NewSpellDataEquipAura", "NewSimpleStatActive", "", nil, false},
@@ -188,15 +189,16 @@ func (r *ProcRouting) Reason() string {
 
 // The rows behind an item effect, by the two ids the sim will look up: the spell carrying the proc
 // and the spell it applies. A weapon's own procs-per-minute rate, stated on its item effect, answers
-// a trigger whose row states none.
-func routeProc(triggerSpellID int, buffSpellID int, isWeaponProc bool, itemPPM float64) *ProcRouting {
+// a trigger whose row states none; lockedFamily is the class family a relic locks its trigger to, 0
+// on any other item.
+func routeProc(triggerSpellID int, buffSpellID int, isWeaponProc bool, itemPPM float64, lockedFamily int32) *ProcRouting {
 	routing := &ProcRouting{TriggerSpellID: triggerSpellID, IsWeaponProc: isWeaponProc, ItemPPM: itemPPM}
 	if buffSpellID != triggerSpellID {
 		routing.BuffSpellID = buffSpellID
 	}
 
 	trigger := spelldata.Find(int32(triggerSpellID))
-	routing.Unsupported = spelldata.ItemProcUnsupportedWithRate(trigger, isWeaponProc, itemPPM)
+	routing.Unsupported = spelldata.ItemProcUnsupportedWithRate(trigger, isWeaponProc, itemPPM, lockedFamily)
 	routing.Summary = routing.summarize(buffSpellID)
 
 	return routing
@@ -231,29 +233,17 @@ func pickNoStatShape(spellID int, debuffID int32) (ProcShape, int32) {
 	if absorb := dbc.ResolveTriggered(spellID, absorbs); absorb != 0 {
 		return ShapeAbsorb, absorb
 	}
-	if fired := spelldata.Find(int32(spellID)).FiredSpell(); fired.EnergizeEffect() != spelldata.NilEffect {
+	row := spelldata.Find(int32(spellID))
+	if fired := row.FiredSpell(); fired.EnergizeEffect() != spelldata.NilEffect {
 		return ShapeEnergize, fired.ID
 	}
-	if spelldata.Find(int32(spellID)).ExtraAttacksEffect() != spelldata.NilEffect {
+	if row.ExtraAttacksEffect() != spelldata.NilEffect {
 		return ShapeExtraAttack, int32(spellID)
 	}
 	if spelldata.Find(debuffID).DebuffsTheTarget() {
 		return ShapeDebuff, debuffID
 	}
 	return ShapeStats, 0
-}
-
-// A proc's resource gain lands on the wearer, into a bar the sim keeps.
-func firedGainUnsupported(fired *spelldata.Spell) []string {
-	var unsupported []string
-	gain := fired.EnergizeEffect()
-	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
-		unsupported = append(unsupported, fmt.Sprintf("the gain lands on implicit target %d, not the wearer", gain.Target[0]))
-	}
-	if !shared.EnergizesABar(dbcenums.PowerType(gain.Misc)) {
-		unsupported = append(unsupported, fmt.Sprintf("fills power type %d, not mana, rage or energy", gain.Misc))
-	}
-	return unsupported
 }
 
 func extraAttackUnsupported(row *spelldata.Spell) []string {
@@ -1453,16 +1443,12 @@ func routeItemProc(parsed *proto.UIItem, itemEffect *proto.ItemEffect) *ProcRout
 		return nil
 	}
 
-	routing := routeProc(effect.SpellID, int(itemEffect.BuffId), effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT,
-		itemEffect.GetProc().GetPpm())
-	if family, relic := relicFamilies[parsed.RangedWeaponType]; relic {
-		routing.Unsupported = spelldata.RelicProcUnsupportedWithRate(spelldata.Find(int32(effect.SpellID)), family, itemEffect.GetProc().GetPpm())
-	}
-	return routing
+	return routeProc(effect.SpellID, int(itemEffect.BuffId), effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT,
+		itemEffect.GetProc().GetPpm(), relicFamilies[parsed.RangedWeaponType])
 }
 
 // A relic is wielded by one class, so a class mask under that class's family on its trigger is the
-// relic's own lock rather than a filter the item cannot reproduce.
+// relic's own lock rather than a filter the item cannot reproduce. Any other ranged type locks nothing.
 var relicFamilies = map[proto.RangedWeaponType]int32{
 	proto.RangedWeaponType_RangedWeaponTypeIdol:   core.ClassSpellFamilies[proto.Class_ClassDruid],
 	proto.RangedWeaponType_RangedWeaponTypeLibram: core.ClassSpellFamilies[proto.Class_ClassPaladin],
@@ -1981,7 +1967,7 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 		buffSpellID = int(effect.BuffId)
 	}
 
-	routing := routeProc(slot.SpellID, buffSpellID, slot.IsCombatSpell, 0)
+	routing := routeProc(slot.SpellID, buffSpellID, slot.IsCombatSpell, 0, 0)
 	if !slot.IsCombatSpell {
 		routing.Unsupported = spelldata.EnchantAuraUnsupported(trigger)
 	}

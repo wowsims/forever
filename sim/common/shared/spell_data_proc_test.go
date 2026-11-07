@@ -476,7 +476,7 @@ func TestSpellDataProcTakesAPPMOverride(t *testing.T) {
 			row.ProcChanceSource, row.ProcChanceEffect = spelldata.ProcChancePPM, 0
 			unsupported := func() []string {
 				if tc.isWeaponProc {
-					return spelldata.ItemProcUnsupportedWithRate(&row, true, 0)
+					return spelldata.ItemProcUnsupportedWithRate(&row, true, 0, 0)
 				}
 				return spelldata.EnchantAuraUnsupported(&row)
 			}

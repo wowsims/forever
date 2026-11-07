@@ -34,6 +34,7 @@ until the next regeneration at most:
 | `ICDMs`                           | the internal cooldown between two procs, onto `Spell.ICDMs`                      | the row states a `ProcCategoryRecovery`  |
 | `StatMask`                        | the stats of an `A_MOD_TOTAL_STAT_PERCENTAGE` effect, onto its second misc value | the effect states either misc value      |
 | `Hint`                            | the `ProcHint` bits the tooltip's wording did not yield                          | -                                        |
+| `ProcClassMask`                   | the proc effect's class mask word, where the game files' names no spell of the family | the effect states the same word     |
 
 The generator also refuses two cases that have nothing to do with the field: an override naming a spell
 the store does not carry, and two overrides of the same field on one spell. Every applied override

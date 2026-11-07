@@ -11,13 +11,14 @@ import (
 	"github.com/wowsims/forever/sim/core/testagent"
 )
 
-// The relic stand-ins' heals, under the class flags the relics' triggers name: Healing Touch is the
-// druid family's bit 5, which Idol of Longevity's 28847 names, and Regrowth bit 6, which it does not;
-// Lesser Healing Wave is the shaman family's bit 5, which Totem of Flowing Water's 28849 names.
+// The relic stand-ins' heals, under the class flags the store files the real heals under: Healing
+// Touch 5185, which Idol of Longevity's 28847 names, and Regrowth 8936, which it does not; Lesser
+// Healing Wave 8004, which Totem of Flowing Water's 28849 names, and Healing Wave 331.
 var (
 	stubHealingTouch      = core.ActionID{SpellID: 993105}
 	stubRegrowth          = core.ActionID{SpellID: 993106}
 	stubLesserHealingWave = core.ActionID{SpellID: 993107}
+	stubHealingWave       = core.ActionID{SpellID: 993108}
 )
 
 func init() {
@@ -25,25 +26,27 @@ func init() {
 		player.Spec = spec.(*proto.Player_RestorationDruid)
 	}, func(agent *testagent.Agent) {
 		agent.EnableManaBar()
-		agent.RegisterSpell(flatHeal(stubHealingTouch, 7, 5))
-		agent.RegisterSpell(flatHeal(stubRegrowth, 7, 6))
+		agent.RegisterSpell(flatHeal(stubHealingTouch, 5185))
+		agent.RegisterSpell(flatHeal(stubRegrowth, 8936))
 	})
 	testagent.Register(proto.Player_RestorationShaman{}, proto.Spec_SpecRestorationShaman, func(player *proto.Player, spec any) {
 		player.Spec = spec.(*proto.Player_RestorationShaman)
 	}, func(agent *testagent.Agent) {
 		agent.EnableManaBar()
-		agent.RegisterSpell(flatHeal(stubLesserHealingWave, 11, 5))
+		agent.RegisterSpell(flatHeal(stubLesserHealingWave, 8004))
+		agent.RegisterSpell(flatHeal(stubHealingWave, 331))
 	})
 }
 
-// A heal of 100 under the family's bit, costing nothing so the refund alone moves the mana.
-func flatHeal(id core.ActionID, family int32, bit uint) core.SpellConfig {
+// A heal of 100 under the class flags of the row it stands in for, costing nothing so the refund
+// alone moves the mana.
+func flatHeal(id core.ActionID, rowID int32) core.SpellConfig {
 	return core.SpellConfig{
 		ActionID:         id,
 		SpellSchool:      core.SpellSchoolNature,
 		ProcMask:         core.ProcMaskSpellHealing,
 		Flags:            core.SpellFlagHelpful,
-		ClassFlags:       core.ClassFlags{Family: family, Mask: [4]uint32{1 << bit}},
+		ClassFlags:       spelldata.MustFind(rowID).ClassFlags,
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -52,9 +55,10 @@ func flatHeal(id core.ActionID, family int32, bit uint) core.SpellConfig {
 	}
 }
 
-// Idol of Longevity 23004 refunds 28848's mana on each Healing Touch cast and nothing on another heal;
-// Totem of Flowing Water 23005 refunds 28850's on each Lesser Healing Wave cast. Each trigger carries
-// its class's mask, read as the relic's lock on the spell it names.
+// Idol of Longevity 23004 refunds 28848's mana on each Healing Touch cast and nothing on a Regrowth;
+// Totem of Flowing Water 23005 refunds 28850's on each Lesser Healing Wave cast and nothing on a
+// Healing Wave. Each trigger carries its class's mask, read as the relic's lock on the spell it
+// names, the totem's through the override that moves it onto Lesser Healing Wave's bit.
 func TestRelicsRefundManaOnTheCastTheyName(t *testing.T) {
 	for _, tc := range []struct {
 		name           string
@@ -63,7 +67,7 @@ func TestRelicsRefundManaOnTheCastTheyName(t *testing.T) {
 		named, other   core.ActionID
 	}{
 		{"Idol of Longevity", proto.Class_ClassDruid, 23004, 28848, stubHealingTouch, stubRegrowth},
-		{"Totem of Flowing Water", proto.Class_ClassShaman, 23005, 28850, stubLesserHealingWave, core.ActionID{}},
+		{"Totem of Flowing Water", proto.Class_ClassShaman, 23005, 28850, stubLesserHealingWave, stubHealingWave},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			gain := spelldata.MustFind(tc.gainID).EnergizeEffect().Average()
@@ -78,9 +82,6 @@ func TestRelicsRefundManaOnTheCastTheyName(t *testing.T) {
 			castHeal(t, sim, character, character.GetSpell(tc.named))
 			if got := character.CurrentMana() - before; got != 2*gain {
 				t.Errorf("a second cast left the mana restored at %v, want %v", got, 2*gain)
-			}
-			if tc.other.IsEmptyAction() {
-				return
 			}
 			castHeal(t, sim, character, character.GetSpell(tc.other))
 			if got := character.CurrentMana() - before; got != 2*gain {

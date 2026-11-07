@@ -135,14 +135,17 @@ func (s *Spell) ProcDamageEffect() *Effect {
 }
 
 // The spell a proc row fires: what its A_PROC_TRIGGER_SPELL triggers, or, on a dummy proc the server
-// scripts, the one spell its tooltip names. Idol of Longevity's 28847 names 28848, the mana it
-// refunds. Nil where the row fires nothing the store carries, or names more than one spell.
+// scripts, the one spell its tooltip names where that spell restores a resource. Idol of Longevity's
+// 28847 names 28848, the mana it refunds; most dummy procs name the spell they listen for instead,
+// which fires nothing. Nil where the row fires nothing the store carries.
 func (s *Spell) FiredSpell() *Spell {
 	if e := s.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL); e != NilEffect {
 		return e.Trigger()
 	}
 	if s.FirstAura(dbcenums.A_DUMMY) != NilEffect && len(s.RefIDs) == 1 {
-		return Find(s.RefIDs[0])
+		if ref := Find(s.RefIDs[0]); ref.EnergizeEffect() != NilEffect {
+			return ref
+		}
 	}
 	return Nil
 }

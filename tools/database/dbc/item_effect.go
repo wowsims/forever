@@ -239,18 +239,18 @@ func resolveTriggerType(topType, spellID int) int {
 	}
 
 	for _, se := range dbcInstance.SpellEffectsInOrder(spellID) {
-		if se.IsProcTrigger() || (se.EffectAura == dbcenums.A_DUMMY && firesAResourceGain(spellID)) {
+		if se.IsProcTrigger() {
 			return ITEM_SPELLTRIGGER_CHANCE_ON_HIT
 		}
 	}
 
-	return topType
-}
+	// A dummy proc the server scripts states no trigger aura; the one that fires the resource gain
+	// its tooltip names is a proc all the same. Idol of Longevity's 28847 names 28848.
+	if spelldata.Find(int32(spellID)).FiredSpell() != spelldata.Nil {
+		return ITEM_SPELLTRIGGER_CHANCE_ON_HIT
+	}
 
-// A dummy proc the server scripts fires nothing its row states; one whose tooltip names the single
-// spell restoring a resource is read as firing it. Idol of Longevity's 28847 names 28848.
-func firesAResourceGain(spellID int) bool {
-	return spelldata.Find(int32(spellID)).FiredSpell().EnergizeEffect() != spelldata.NilEffect
+	return topType
 }
 
 func buildItemEffectScalingProps(spellID int, itemLevel int) *proto.ScalingItemEffectProperties {
