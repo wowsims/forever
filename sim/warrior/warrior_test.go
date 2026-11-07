@@ -1052,10 +1052,11 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 	}
 }
 
-// Sweeping Strikes' hits never roll Sword Specialization, and a Windfury Totem swing rolls it but
-// its proc brings no extra swing. The warrior's own main-hand swing does bring them.
+// Neither Sweeping Strikes' hits nor a Windfury Totem swing bring a Sword Specialization swing. The
+// warrior's own main-hand swing does bring them.
 func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
+	const sweepingStrikesHit = 12723  // The strike both of Sweeping Strikes' hits report under.
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true})
 
 	hits := func(spell *core.Spell) int32 {
@@ -1069,8 +1070,8 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	}
 
 	for _, id := range []core.ActionID{
-		{SpellID: 12723},
-		{SpellID: 12723, Tag: 1},
+		{SpellID: sweepingStrikesHit},
+		{SpellID: sweepingStrikesHit, Tag: 1},
 		{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttack},
 	} {
 		spell := war.GetSpell(id)
