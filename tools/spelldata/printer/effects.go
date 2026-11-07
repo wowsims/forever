@@ -165,9 +165,23 @@ func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		if scope.ProcMask.Matches(core.ProcMaskMelee) && core.SpellSchool(e.Misc) != allSchools {
 			phrase += " and on the melee-defense spells of the other schools"
 		}
-		return join(phrase+",", "while", weaponsPhrase(scope.EquipSubclass, scope.EquipInvType, scope.EquipHand), "is equipped")
+		return whileEquippedPhrase(phrase, scope)
 	}
 	return phrase
+}
+
+// A spell hit or threat aura under the rule spelldata.WeaponScope names for its row: the phrase alone,
+// or with the weapon it holds with.
+func scopedPhrase(s *spelldata.Spell, e *spelldata.Effect, phrase string) string {
+	if rule, scope := spelldata.WeaponScope(s, e); rule == spelldata.WeaponRuleWhileEquipped {
+		return whileEquippedPhrase(phrase, scope)
+	}
+	return phrase
+}
+
+// The phrase of an aura held while the scope's weapon is equipped.
+func whileEquippedPhrase(phrase string, scope core.SpellModConfig) string {
+	return join(phrase+",", "while", weaponsPhrase(scope.EquipSubclass, scope.EquipInvType, scope.EquipHand), "is equipped")
 }
 
 func perWeapon(scope core.SpellModConfig) string {
@@ -178,8 +192,8 @@ func perWeapon(scope core.SpellModConfig) string {
 	return "per weapon: only attacks made with " + weapons
 }
 
-// A hit, crit or rating aura on a row whose weapon requirement binds nothing the effect gives, since
-// the aura reaches another unit.
+// A weapon-bindable aura on a row whose weapon requirement binds nothing the effect gives, since the
+// aura reaches another unit.
 func castOnly(s *spelldata.Spell, e *spelldata.Effect) string {
 	if !spelldata.WeaponBindable(e.Aura) {
 		return ""
@@ -360,7 +374,7 @@ func auraPhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		return join(signed(value(e)), schoolName(core.SpellSchool(e.Misc)), "damage taken")
 
 	case dbcenums.A_MOD_THREAT:
-		return join(signedPercent(e), "threat")
+		return scopedPhrase(s, e, join(signedPercent(e), "threat"))
 	case dbcenums.A_MOD_POWER_COST_SCHOOL_PCT:
 		return join(signedPercent(e), schoolName(core.SpellSchool(e.Misc)), "power cost")
 	case dbcenums.A_MOD_ADDITIONAL_POWER_COST:
@@ -369,7 +383,7 @@ func auraPhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 	case dbcenums.A_MOD_HIT_CHANCE:
 		return weaponBound(s, e, "physical hit")
 	case dbcenums.A_MOD_SPELL_HIT_CHANCE:
-		return join(signedPercent(e), "spell hit")
+		return scopedPhrase(s, e, join(signedPercent(e), "spell hit"))
 	case dbcenums.A_MOD_WEAPON_CRIT_PERCENT:
 		return weaponBound(s, e, "physical crit")
 	case dbcenums.A_MOD_SPELL_CRIT_CHANCE:
