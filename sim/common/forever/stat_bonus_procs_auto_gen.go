@@ -2938,16 +2938,16 @@ func RegisterAllProcs() {
 
 	// Gain up to 25 mana each time you cast Healing Touch.
 	// https://www.wowhead.com/forever/spell=28847
-	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing) -> buff 28848
-	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28847, BuffSpellID: 28848},
+	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28847},
 		[]shared.ItemVariant{
 			{ItemID: 23004, ItemName: "Idol of Longevity"},
 		})
 
 	// Regain up to 10 mana each time you cast Lesser Healing Wave.
 	// https://www.wowhead.com/forever/spell=28849
-	// trigger 28849 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing) -> buff 28850
-	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28849, BuffSpellID: 28850},
+	// trigger 28849 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28849},
 		[]shared.ItemVariant{
 			{ItemID: 23005, ItemName: "Totem of Flowing Water"},
 		})

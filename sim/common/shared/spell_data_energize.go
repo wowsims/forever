@@ -100,14 +100,16 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 }
 
 // An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
-// energy: Idol of Longevity 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer
-// without that bar registers no listener.
+// energy, read off the trigger alone the way FiredSpellUnsupported reads it: Idol of Longevity
+// 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer without that bar registers
+// no listener.
 func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
 }
 
 func registerSpellDataEnergizeProc(cfg SpellDataProc) {
-	registerSpellDataRowProc(cfg, nil, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
+	refuses := func(trigger *spelldata.Spell) bool { return len(FiredSpellUnsupported(trigger)) > 0 }
+	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
 		character := agent.GetCharacter()
 		handler := FiredSpellHandler(character, source.actionID(), trigger)
 		if handler == nil {
