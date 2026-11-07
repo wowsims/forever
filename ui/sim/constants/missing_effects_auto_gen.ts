@@ -460,6 +460,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9418, // Stoneslayer
+		[
+			"Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 12731 - https://www.wowhead.com/forever/spell=12731
+		]
+	],
+	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -688,9 +694,28 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13213, // Smolderweb's Eye
+		[
+			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
+		]
+	],
+	[
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
+		]
+	],
+	[
+		13965, // Blackhand's Breadth
+		[
+			"Marks your target, increasing your Critical Strike chance against them by 5% for 20s. This effect is doubled against Orcs and Ogres.", // 1318944 - https://www.wowhead.com/forever/spell=1318944
+			"", // 1318945 - https://www.wowhead.com/forever/spell=1318945
+		]
+	],
+	[
+		13968, // Eye of the Beast
+		[
+			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
 		]
 	],
 	[
@@ -2023,6 +2048,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		284040, // Cliff Jumpers
+		[
+			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150
+		]
+	],
+	[
 		284386, // Whipfang's Skinsearer
 		[
 			"Sear your target's flesh, dealing 84 Fire damage.", // 1316039 - https://www.wowhead.com/forever/spell=1316039
@@ -2068,6 +2099,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286998, // Deep Flora Bindings
 		[
 			"Underwater Breath lasts 25% longer than normal.", // 1324752 - https://www.wowhead.com/forever/spell=1324752
+		]
+	],
+	[
+		287005, // Sword of Dismemberment
+		[
+			"Dismember the target, inflicting 670 Physical damage.", // 1324687 - https://www.wowhead.com/forever/spell=1324687
 		]
 	],
 	[
@@ -2143,6 +2180,35 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 
 // Keyed by set id, then by the bonus's piece count; the tooltips of the spells the sim leaves out.
 export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
+	[
+		122, // Necropile Raiment
+		new Map([
+			[
+				2,
+				[
+					"Improves your chance to hit by 0.5%.", // 1299734 - https://www.wowhead.com/forever/spell=1299734
+				],
+			],
+			[
+				3,
+				[
+					"Harmful spell casts have a chance to steal 28 life from the target enemy.", // 1299737 - https://www.wowhead.com/forever/spell=1299737
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
+				],
+			],
+		]),
+	],
 	[
 		141, // Volcanic Armor
 		new Map([
@@ -3878,6 +3944,41 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
+		520, // Ironweave Battlesuit
+		new Map([
+			[
+				2,
+				[
+					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
+				],
+			],
+			[
+				3,
+				[
+					"Decreases the magical resistances of your spell targets by 5.", // 26283 - https://www.wowhead.com/forever/spell=26283
+				],
+			],
+			[
+				4,
+				[
+					"Reduces the hit chance of Silence and Interrupt effects against you by 10%.", // 27733 - https://www.wowhead.com/forever/spell=27733
+				],
+			],
+			[
+				5,
+				[
+					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
+				],
+			],
+			[
+				6,
+				[
+					"The Ironweave hardens under duress, reducing damage taken while Stunned by 15%.", // 1302374 - https://www.wowhead.com/forever/spell=1302374
+				],
+			],
+		]),
+	],
+	[
 		521, // Dreamwalker Raiment
 		new Map([
 			[
@@ -5207,6 +5308,23 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Reduces the cooldown of your Shifting Power ability by 1.0 sec.", // 1301247 - https://www.wowhead.com/forever/spell=1301247
+				],
+			],
+		]),
+	],
+	[
+		2130, // Rider of the Plaguelands
+		new Map([
+			[
+				2,
+				[
+					"Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.", // 1315080 - https://www.wowhead.com/forever/spell=1315080
+				],
+			],
+			[
+				3,
+				[
+					"Chance on melee attack to lash the target, inflicting 140 Shadow damage.", // 1315077 - https://www.wowhead.com/forever/spell=1315077
 				],
 			],
 		]),
