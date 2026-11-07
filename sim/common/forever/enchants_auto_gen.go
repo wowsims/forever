@@ -122,22 +122,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker
-	// when the bearer is struck in Melee.
-	//
-	// https://www.wowhead.com/forever/spell=435903
-	// unsupported: the enchant's effect entry resolves no stats from 435901 (A_DAMAGE_SHIELD)
-	// trigger 435901 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
-	// shared.NewSpellDataProc(shared.SpellDataProc{
-	//	Name:           "Enchant Chest - Retricutioner",
-	//	EnchantID:      7223,
-	//	TriggerSpellID: 435901,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon so that often when attacking in melee it heals for 400 and increases
 	// Strength by 120 for 20s.
 	// https://www.wowhead.com/forever/spell=1231128
@@ -242,6 +226,17 @@ func RegisterAllEnchants() {
 		EnchantID:      1704,
 		TriggerSpellID: 16624,
 		BuffSpellID:    16624,
+	}, nil)
+
+	// Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker
+	// when the bearer is struck in Melee.
+	//
+	// https://www.wowhead.com/forever/spell=435903
+	// equip: 435901 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Chest - Retricutioner",
+		EnchantID:      7223,
+		TriggerSpellID: 435901,
 	}, nil)
 
 	// Permanently enchant a two-handed melee weapon so that often when striking with a spell it restores 400

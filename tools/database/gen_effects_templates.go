@@ -14,6 +14,7 @@ import (
 )
 
 func RegisterAllOnUseCds() {
+	defer shared.Generated()()
 {{- range .Groups }}
 
 	// {{ .Name }}
@@ -82,16 +83,16 @@ func RegisterAllOnUseCds() {
 {{- end }}
 }`
 const TmplStrProc = `package forever
-{{ if .HasLive }}
+
 import (
 {{- if .UsesCore }}
 	"github.com/wowsims/forever/sim/core"
 {{- end }}
- 	"github.com/wowsims/forever/sim/common/shared"
+	"github.com/wowsims/forever/sim/common/shared"
 )
-{{- end }}
 
 func RegisterAllProcs() {
+	defer shared.Generated()()
 {{- range .Groups }}
 
 	// {{ .Name }}

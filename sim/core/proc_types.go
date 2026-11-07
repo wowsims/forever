@@ -147,18 +147,18 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// the same shape as 0x10000, which is what unsupportedProcFlags says of that bit too.
 	castWord := word &^ dbcenums.PROC_FLAG_DEAL_HARMFUL_ABILITY
 
-	// A mask made of nothing but the spell-cast bits. The harmful one has to be present: a
-	// helpful-only mask carries no evidence that casting is the trigger at all, and the helpful
-	// branch below already demands tooltip evidence before it believes one.
-	spellCastMask := castWord&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 &&
+	// A mask made of nothing but the spell-cast bits, one of them at least.
+	spellCastMask := castWord != 0 &&
 		castWord&^(dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL|dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL) == 0
 
 	// Whether the cast itself is the trigger. A mask of only the harmful-spell bit does not care
-	// whether the spell landed. Adding the helpful bit settles nothing either way, and the two
-	// items that pin it down disagree despite carrying the identical mask: Memento of Tyrande
+	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. The
+	// two items that pin that down disagree despite carrying the identical mask: Memento of Tyrande
 	// procs off resists in logs, while Band of the Eternal Restorer does not proc on a miss or a
 	// full resist. What separates them is that the first names the cast as the trigger and the
-	// second does not, so for that pair the tooltip decides.
+	// second does not, so for that pair the tooltip decides. The helpful bit alone is the same
+	// shape: Idol of Longevity's 28847 refunds mana "each time you cast Healing Touch", while Holy
+	// Power 28789 carries the bit with no cast tooltip and states no trigger at all.
 	castOnly := spellCastMask && (castWord == dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL || hint.Matches(ProcHintCastTrigger))
 
 	// A tooltip naming an outcome is the exception to all of it: a crit is only known once the
@@ -180,9 +180,9 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// The helpful-spell bit beside the harmful one is the game files' "any spell", heals included,
 	// which the mask states on its own. A helpful bit without the harmful one needs the tooltip's
-	// evidence that it is a trigger at all.
+	// evidence that it is a trigger at all: a heal, or the cast read above.
 	helpfulSpells := word&dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL != 0 &&
-		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals))
+		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals) || castOnly)
 
 	if helpfulSpells {
 		info.RequireDamageDealt = false
