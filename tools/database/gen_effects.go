@@ -1942,7 +1942,7 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 	hasStats := effect != nil
 
 	trigger := spelldata.Find(int32(slot.SpellID))
-	if !slot.IsCombatSpell && !hasStats {
+	if !slot.IsCombatSpell && !hasStats && !SpellHasTriggerEffect(slot.SpellID, instance) {
 		if row := spelldata.EquipAuraRow(trigger); keepsAnEquipAura(row) {
 			return equipAuraRouting(instance, trigger, row)
 		}

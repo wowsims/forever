@@ -94,6 +94,26 @@ func TestEnchantProcRouting(t *testing.T) {
 	}
 }
 
+// An equip slot whose row states a proc trigger beside an equip aura kind stays a proc, the way an
+// item's does: a trigger is added to Retricutioner's 435901 in the game files for the test, and the
+// slot leaves the equip aura branch.
+func TestEnchantEquipSlotWithATriggerStaysAProc(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	slot := dbc.EnchantProcSlot{SpellID: 435901}
+	if r := routeEnchantSlot(slot, instance); r.Shape != ShapeEquip {
+		t.Fatalf("Retricutioner's slot took shape %v, want the equip aura", r.Shape)
+	}
+
+	effects := instance.SpellEffects[435901]
+	effects[9] = dbc.SpellEffect{EffectType: dbcenums.E_APPLY_AURA, EffectAura: dbcenums.A_PROC_TRIGGER_SPELL, EffectTriggerSpell: 23781}
+	t.Cleanup(func() { delete(effects, 9) })
+	if r := routeEnchantSlot(slot, instance); r.Shape == ShapeEquip {
+		t.Errorf("a slot whose row states a trigger took the equip aura shape, want it read as a proc")
+	}
+}
+
 // A PPM override answers "states no rate" on the spell the slot is routed through - the combat spell
 // of an Effect 1 slot, the equip aura of an Effect 3 one - and leaves every other refusal in place.
 // On an equip aura that hears only spells the rate is refused in turn: it would never roll.
