@@ -470,8 +470,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-HandofJustice-11815"
  value: {
-  dps: 724.42309
-  tps: 623.95297
+  dps: 722.56431
+  tps: 623.04483
  }
 }
 dps_results: {
@@ -512,8 +512,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-IronShieldSpike-43"
  value: {
-  dps: 769.29015
-  tps: 661.49904
+  dps: 768.54665
+  tps: 660.04771
  }
 }
 dps_results: {
@@ -561,8 +561,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-LordSakrasis'Scepter-5028"
  value: {
-  dps: 801.42297
-  tps: 697.17296
+  dps: 803.36102
+  tps: 699.64409
  }
 }
 dps_results: {
@@ -610,8 +610,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-MithrilShieldSpike-463"
  value: {
-  dps: 769.29015
-  tps: 661.49904
+  dps: 768.54665
+  tps: 660.04771
  }
 }
 dps_results: {
@@ -652,8 +652,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
-  dps: 724.42309
-  tps: 623.95297
+  dps: 722.56431
+  tps: 623.04483
  }
 }
 dps_results: {
@@ -666,8 +666,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-SecondWind-11819"
  value: {
-  dps: 734.20927
-  tps: 633.36775
+  dps: 731.64069
+  tps: 632.04483
  }
 }
 dps_results: {
@@ -764,8 +764,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-ThoriumShieldSpike-1704"
  value: {
-  dps: 769.29015
-  tps: 661.49904
+  dps: 768.54665
+  tps: 660.04771
  }
 }
 dps_results: {
