@@ -31,9 +31,10 @@ func (druid *Druid) registerLacerateSpell() {
 		if maxStacks := dot.MaxStacks; maxStacks == 0 || stacks < maxStacks {
 			stacks++
 		}
-		// The tooltip's "$s2% weapon damage per existing application": a first Lacerate hits for nothing.
+		// The tooltip's "$s2% weapon damage per existing application" counts the application this cast adds:
+		// in game the hits grow 1:2:3:4:5 with the stacks after the cast, so a first Lacerate hits for $s2%.
 		weapon := spell.Unit.MHWeaponDamage(sim, spell.MeleeAttackPower(target))
-		damage := weapon * perStack * float64(existing) * druid.rendAndTearMultiplier(target)
+		damage := weapon * perStack * float64(stacks) * druid.rendAndTearMultiplier(target)
 		result := spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
 			dot.Apply(sim)
