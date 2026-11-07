@@ -6,8 +6,8 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// How the parse binds a hit, crit or rating aura to the weapon its row requires in
-// SpellEquippedItems.
+// How the parse binds a hit, crit, rating, damage done, spell hit or threat aura to the weapon its
+// row requires in SpellEquippedItems.
 type WeaponRule uint8
 
 const (

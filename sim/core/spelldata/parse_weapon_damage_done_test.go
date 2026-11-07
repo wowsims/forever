@@ -80,30 +80,31 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	}
 }
 
-// 20111's threat goes with the two-hander as its damage does: the full cut with one, nothing with a
-// one-hander, and the every-school damage multiplier stays at 1 either way.
+// 20111's threat goes with the two-hander as its damage does: both in full with one, neither with a
+// one-hander.
 func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
 	defer generatedStore()()
 
 	row := Talent(20111, 3).Rank(3)
-	cut := 1 + row.EffectN(2).Percent()
+	damage, cut := 1+row.EffectN(1).Percent(), 1+row.EffectN(2).Percent()
 	for _, tc := range []struct {
 		name       string
 		hand       proto.HandType
+		wantDamage float64
 		wantThreat float64
 	}{
-		{"two-hander", proto.HandType_HandTypeTwoHand, cut},
-		{"one-hander", proto.HandType_HandTypeMainHand, 1},
+		{"two-hander", proto.HandType_HandTypeTwoHand, damage, cut},
+		{"one-hander", proto.HandType_HandTypeMainHand, 1, 1},
 	} {
 		character := swordWarrior(tc.hand)
 
 		ParseStatic(character, row)
 
+		if got := physicalMultiplier(character); math.Abs(got-tc.wantDamage) > 1e-9 {
+			t.Errorf("%s: the physical school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
+		}
 		if got := character.PseudoStats.ThreatMultiplier; math.Abs(got-tc.wantThreat) > 1e-9 {
 			t.Errorf("%s: the threat multiplier: %v, want %v", tc.name, got, tc.wantThreat)
-		}
-		if got := character.PseudoStats.DamageDealtMultiplier; got != 1 {
-			t.Errorf("%s: the every-school damage multiplier: %v, want 1", tc.name, got)
 		}
 	}
 }

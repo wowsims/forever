@@ -165,12 +165,12 @@ func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		if scope.ProcMask.Matches(core.ProcMaskMelee) && core.SpellSchool(e.Misc) != allSchools {
 			phrase += " and on the melee-defense spells of the other schools"
 		}
-		return join(phrase+",", "while", weaponsPhrase(scope.EquipSubclass, scope.EquipInvType, scope.EquipHand), "is equipped")
 	}
-	return phrase
+	return whileEquippedPhrase(s, e, phrase)
 }
 
-// A spell hit or threat aura, which holds while the row's weapon is equipped and binds to no attack.
+// An aura that holds while the row's weapon is equipped and binds to no attack: damage done, spell
+// hit or threat.
 func whileEquippedPhrase(s *spelldata.Spell, e *spelldata.Effect, phrase string) string {
 	rule, scope := spelldata.WeaponScope(s, e)
 	if rule != spelldata.WeaponRuleWhileEquipped {
@@ -187,8 +187,8 @@ func perWeapon(scope core.SpellModConfig) string {
 	return "per weapon: only attacks made with " + weapons
 }
 
-// A hit, crit or rating aura on a row whose weapon requirement binds nothing the effect gives, since
-// the aura reaches another unit.
+// A weapon-bindable aura on a row whose weapon requirement binds nothing the effect gives, since the
+// aura reaches another unit.
 func castOnly(s *spelldata.Spell, e *spelldata.Effect) string {
 	if !spelldata.WeaponBindable(e.Aura) {
 		return ""

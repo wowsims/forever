@@ -149,7 +149,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
-		case !ok, rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry:
+		case !ok:
 			return nil
 		case rule == WeaponRulePerWeapon:
 			scope.School = core.SpellSchool(e.Misc)
@@ -234,7 +234,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	// equipped, as its damage done does.
 	dbcenums.A_MOD_THREAT: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
-		if !ok || rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry {
+		if !ok {
 			return nil
 		}
 		a := p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
@@ -1347,11 +1347,14 @@ func multiplier(kind string, mult float64, apply func(sim *core.Simulation, fact
 }
 
 // The attachment, or each of its parts, holds only while a weapon meeting the requirement is equipped,
-// as well as while the parse is on, and follows item swaps. The row's caller checks that there is a
-// character to wear the weapon.
+// as well as while the parse is on, and follows item swaps. A unit with no character wears no weapon,
+// so the row is skipped there.
 func (p *parser) whileEquipped(req core.EquipRequirement, a *attachment) *attachment {
 	if p.dry {
 		return a
+	}
+	if p.character == nil {
+		return nil
 	}
 
 	gated := a.parts
