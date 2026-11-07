@@ -156,32 +156,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.
-	// https://www.wowhead.com/forever/spell=18796
-	// unsupported: states no rate
-	// trigger 18796 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18796, BuffSpellID: 18796, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 870, ItemName: "Fiery War Axe"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Sends a shadowy bolt at the enemy causing 231 Shadow damage.
-	// https://www.wowhead.com/forever/spell=18211
-	// unsupported: states no rate
-	// trigger 18211 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18211, BuffSpellID: 18211, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 1982, ItemName: "Nightblade"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Wounds the target for 102 damage.
 	// https://www.wowhead.com/forever/spell=18090
 	// unsupported: states no rate
@@ -189,19 +163,6 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18090, BuffSpellID: 18090, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 1986, ItemName: "Gutrender"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Fires a Searing Arrow at the target for 28 Fire damage.
-	// https://www.wowhead.com/forever/spell=29638
-	// unsupported: states no rate
-	// trigger 29638 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29638, BuffSpellID: 29638, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 2825, ItemName: "Bow of Searing Arrows"},
 	// })
 
 	// TODO: Manual implementation required
@@ -494,19 +455,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 12796, ItemName: "Hammer of the Titans"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Poisons target for 8 Nature damage every 2.0 sec for 20s.
-	// https://www.wowhead.com/forever/spell=17511
-	// unsupported: states no rate
-	// trigger 17511 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17511, BuffSpellID: 17511, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13035, ItemName: "Serpent Slicer"},
 	// })
 
 	// TODO: Manual implementation required
@@ -843,19 +791,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 17620, ItemName: "General's Satin Gloves"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Grants an extra attack on your next swing.
-	// https://www.wowhead.com/forever/spell=21919
-	// unsupported: states no rate
-	// trigger 21919 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 21919, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 17705, ItemName: "Thrash Blade"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2513,6 +2448,14 @@ func RegisterAllProcs() {
 			{ItemID: 810, ItemName: "Hammer of the Northern Wind"},
 		})
 
+	// Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.
+	// https://www.wowhead.com/forever/spell=18796
+	// trigger 18796 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18796, BuffSpellID: 18796, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 870, ItemName: "Fiery War Axe"},
+		})
+
 	// When struck in combat has a 1% chance of raising a thorny shield that inflicts 5 Nature damage to attackers
 	// when hit and increases Nature resistance by 50 for 30s.
 	//
@@ -2521,6 +2464,22 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 18097, BuffSpellID: 17154},
 		[]shared.ItemVariant{
 			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
+	// Sends a shadowy bolt at the enemy causing 231 Shadow damage.
+	// https://www.wowhead.com/forever/spell=18211
+	// trigger 18211 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18211, BuffSpellID: 18211, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 1982, ItemName: "Nightblade"},
+		})
+
+	// Fires a Searing Arrow at the target for 28 Fire damage.
+	// https://www.wowhead.com/forever/spell=29638
+	// trigger 29638 (3.35 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29638, BuffSpellID: 29638, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 2825, ItemName: "Bow of Searing Arrows"},
 		})
 
 	// Heals wielder of 78 damage over 12s.
@@ -2668,6 +2627,14 @@ func RegisterAllProcs() {
 			{ItemID: 12805, ItemName: "Orb of Fire"},
 		})
 
+	// Poisons target for 8 Nature damage every 2.0 sec for 20s.
+	// https://www.wowhead.com/forever/spell=17511
+	// trigger 17511 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17511, BuffSpellID: 17511, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13035, ItemName: "Serpent Slicer"},
+		})
+
 	// Sends a shadowy bolt at the enemy causing 150 Shadow damage.
 	// https://www.wowhead.com/forever/spell=18214
 	// trigger 18214 (1.25 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -2714,6 +2681,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21179, BuffSpellID: 21179, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 17223, ItemName: "Thunderstrike"},
+		})
+
+	// Grants an extra attack on your next swing.
+	// https://www.wowhead.com/forever/spell=21919
+	// trigger 21919 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 21919, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 17705, ItemName: "Thrash Blade"},
 		})
 
 	// When struck in combat has a 5% chance of inflicting 50 Nature damage to the attacker.

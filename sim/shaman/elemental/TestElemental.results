@@ -487,6 +487,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FieryWarAxe-870"
+ value: {
+  dps: 729.83975
+  tps: 687.60615
+  dtps: 9.16354
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 713.81923
@@ -815,11 +823,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Ravager-7717"
+ value: {
+  dps: 729.83975
+  tps: 687.60615
+  dtps: 9.16354
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-SerenityField-272439"
  value: {
   dps: 732.25474
   tps: 688.4306
   dtps: 9.16497
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 706.55224
+  tps: 665.64526
+  dtps: 8.82835
  }
 }
 dps_results: {

@@ -10,12 +10,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		870, // Fiery War Axe
-		[
-			"Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.", // 18796 - https://www.wowhead.com/forever/spell=18796
-		]
-	],
-	[
 		880, // Staff of Horrors
 		[
 			"Damage caused by the target is reduced by 5 for 2min.", // 8552 - https://www.wowhead.com/forever/spell=8552
@@ -112,12 +106,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		1982, // Nightblade
-		[
-			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
-		]
-	],
-	[
 		1986, // Gutrender
 		[
 			"Wounds the target for 102 damage.", // 18090 - https://www.wowhead.com/forever/spell=18090
@@ -169,12 +157,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		2820, // Nifty Stopwatch
 		[
 			"Increases run speed by 40% for 10s.", // 14530 - https://www.wowhead.com/forever/spell=14530
-		]
-	],
-	[
-		2825, // Bow of Searing Arrows
-		[
-			"Fires a Searing Arrow at the target for 28 Fire damage.", // 29638 - https://www.wowhead.com/forever/spell=29638
 		]
 	],
 	[
@@ -796,12 +778,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13035, // Serpent Slicer
-		[
-			"Poisons target for 8 Nature damage every 2.0 sec for 20s.", // 17511 - https://www.wowhead.com/forever/spell=17511
-		]
-	],
-	[
 		13057, // Bloodpike
 		[
 			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
@@ -967,12 +943,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17704, // Edge of Winter
 		[
 			"Blasts a target for 30 Frost damage.", // 16407 - https://www.wowhead.com/forever/spell=16407
-		]
-	],
-	[
-		17705, // Thrash Blade
-		[
-			"Grants an extra attack on your next swing.", // 21919 - https://www.wowhead.com/forever/spell=21919
 		]
 	],
 	[
@@ -5598,13 +5568,16 @@ export type UnvalidatedRate = { kind: 'ppm' | 'chance'; origin: 'vanilla' | 'tbc
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
+	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
 	[880, { kind: 'ppm', origin: 'vanilla' }], // Staff of Horrors
 	[899, { kind: 'ppm', origin: 'vanilla' }], // Venom Web Fang
 	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
 	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear
+	[1982, { kind: 'ppm', origin: 'vanilla' }], // Nightblade
 	[2000, { kind: 'ppm', origin: 'vanilla' }], // Archeus
 	[2256, { kind: 'ppm', origin: 'vanilla' }], // Skeletal Club
+	[2825, { kind: 'ppm', origin: 'vanilla' }], // Bow of Searing Arrows
 	[2912, { kind: 'ppm', origin: 'vanilla' }], // Claw of the Shadowmancer
 	[2942, { kind: 'ppm', origin: 'vanilla' }], // Iron Knuckles
 	[3336, { kind: 'ppm', origin: 'vanilla' }], // Flesh Piercer
@@ -5614,6 +5587,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[6472, { kind: 'ppm', origin: 'vanilla' }], // Stinging Viper
 	[6660, { kind: 'ppm', origin: 'vanilla' }], // Julie's Dagger
 	[6904, { kind: 'ppm', origin: 'vanilla' }], // Bite of Serra'kis
+	[7717, { kind: 'ppm', origin: 'vanilla' }], // Ravager
 	[7961, { kind: 'ppm', origin: 'vanilla' }], // Phantom Blade
 	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
 	[9453, { kind: 'ppm', origin: 'vanilla' }], // Toxic Revenger
@@ -5629,6 +5603,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12992, { kind: 'ppm', origin: 'vanilla' }], // Searing Blade
 	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
 	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
+	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
 	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
 	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper
 	[15814, { kind: 'ppm', origin: 'vanilla' }], // Hameya's Slayer
@@ -5637,6 +5612,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[17193, { kind: 'ppm', origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', origin: 'vanilla' }], // Thunderstrike
 	[17704, { kind: 'ppm', origin: 'vanilla' }], // Edge of Winter
+	[17705, { kind: 'ppm', origin: 'vanilla' }], // Thrash Blade
 	[19019, { kind: 'ppm', origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', origin: 'vanilla' }], // Glacial Blade
 	[19100, { kind: 'ppm', origin: 'vanilla' }], // Electrified Dagger
