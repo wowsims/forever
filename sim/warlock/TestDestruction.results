@@ -415,6 +415,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 937.73359
+  tps: 738.42398
+  dtps: 10.26297
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-EyeoftheDead-23047"
  value: {
   dps: 917.60389
@@ -639,6 +647,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 917.60389
@@ -760,6 +776,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestDestruction-AllItems-Slayer'sCrest-23041"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Smokey'sLighter-13171"
  value: {
   dps: 917.60389
   tps: 723.71915

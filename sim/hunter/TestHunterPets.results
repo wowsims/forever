@@ -532,6 +532,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 657.68427
+  tps: 433.0423
+  dtps: 0.84444
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-EyeoftheDead-23047"
  value: {
   dps: 657.43256
@@ -868,6 +876,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 657.43256
+  tps: 432.79059
+  dtps: 0.75638
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 657.43256
@@ -1111,6 +1127,14 @@ dps_results: {
   dps: 669.19236
   tps: 442.26031
   dtps: 0.75638
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 659.97534
+  tps: 435.33337
+  dtps: 0.65991
  }
 }
 dps_results: {

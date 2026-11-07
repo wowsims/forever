@@ -486,6 +486,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 910.49727
+  tps: 742.00191
+  dtps: 4.23342
+  hps: 25.97482
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-EyeoftheDead-23047"
  value: {
   dps: 909.25298
@@ -855,6 +864,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 909.25298
+  tps: 740.99828
+  dtps: 4.2114
+  hps: 25.97583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 909.25298
@@ -924,6 +942,15 @@ dps_results: {
   tps: 755.51616
   dtps: 4.64989
   hps: 26.72868
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Omokk'sGirthRestrainer-13959"
+ value: {
+  dps: 936.29586
+  tps: 755.67431
+  dtps: 4.74017
+  hps: 26.73173
  }
 }
 dps_results: {
@@ -1068,6 +1095,15 @@ dps_results: {
   tps: 760.50868
   dtps: 4.2114
   hps: 25.97583
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 913.54264
+  tps: 744.41732
+  dtps: 4.13257
+  hps: 25.97736
  }
 }
 dps_results: {

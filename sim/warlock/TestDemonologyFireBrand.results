@@ -482,6 +482,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 775.59409
+  tps: 631.84282
+  dtps: 8.57563
+  hps: 10.04926
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EyeoftheDead-23047"
  value: {
   dps: 756.67788
@@ -739,6 +748,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 756.67788
+  tps: 616.76451
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 756.67788
@@ -874,6 +892,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Slayer'sCrest-23041"
+ value: {
+  dps: 756.67788
+  tps: 616.76451
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Smokey'sLighter-13171"
  value: {
   dps: 756.67788
   tps: 616.76451
