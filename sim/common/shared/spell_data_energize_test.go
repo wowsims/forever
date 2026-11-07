@@ -20,16 +20,16 @@ func sigilOnUse() *proto.ItemEffect     { return testOnUse(24884, 180000, 0, 0) 
 func init() {
 	registerBarTester(proto.Player_Rogue{}, proto.Spec_SpecRogue, func(c *testCaster) {
 		c.EnableEnergyBar(core.EnergyBarOptions{MaxEnergy: 100, MaxComboPoints: 5, UnitClass: proto.Class_ClassRogue})
-	}, func(player *proto.Player, spec interface{}) { player.Spec = spec.(*proto.Player_Rogue) })
+	}, func(player *proto.Player, spec any) { player.Spec = spec.(*proto.Player_Rogue) })
 	registerBarTester(proto.Player_DpsWarrior{}, proto.Spec_SpecDpsWarrior, func(c *testCaster) {
 		c.EnableRageBar(core.RageBarOptions{MaxRage: 100, BaseRageMultiplier: 1})
-	}, func(player *proto.Player, spec interface{}) { player.Spec = spec.(*proto.Player_DpsWarrior) })
+	}, func(player *proto.Player, spec any) { player.Spec = spec.(*proto.Player_DpsWarrior) })
 	registerBarTester(proto.Player_Mage{}, proto.Spec_SpecMage, func(c *testCaster) {
 		c.EnableManaBar()
-	}, func(player *proto.Player, spec interface{}) { player.Spec = spec.(*proto.Player_Mage) })
+	}, func(player *proto.Player, spec any) { player.Spec = spec.(*proto.Player_Mage) })
 }
 
-func registerBarTester(options interface{}, spec proto.Spec, enable func(*testCaster), setSpec func(*proto.Player, interface{})) {
+func registerBarTester(options any, spec proto.Spec, enable func(*testCaster), setSpec func(*proto.Player, any)) {
 	core.RegisterAgentFactory(options, spec, func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 		c := &testCaster{Character: *character}
 		enable(c)

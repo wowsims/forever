@@ -25,7 +25,7 @@ func serveRequests(t *testing.T, names string, reqs ...simlServeRequest) []simlS
 		t.Fatal(err)
 	}
 	var responses []simlServeResponse
-	for _, line := range strings.Split(strings.TrimSpace(out.String()), "\n") {
+	for line := range strings.SplitSeq(strings.TrimSpace(out.String()), "\n") {
 		var res simlServeResponse
 		if err := json.Unmarshal([]byte(line), &res); err != nil {
 			t.Fatalf("%v: %s", err, line)

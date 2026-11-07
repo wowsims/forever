@@ -28,7 +28,7 @@ func (priest *Priest) registerMindFlaySpell(_ int32, rank *spelldata.Spell) {
 		config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, useSnapshot bool) *core.SpellResult {
 			result := expectedTick(sim, target, spell, useSnapshot)
 			sum := 0.0
-			for n := int32(0); n < ticks; n++ {
+			for n := range ticks {
 				sum += math.Pow(ramp, float64(n))
 			}
 			result.Damage *= sum / float64(ticks)

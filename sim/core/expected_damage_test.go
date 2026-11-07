@@ -14,14 +14,14 @@ func TestExpectedDamageSkipsDirectVariance(t *testing.T) {
 	}
 
 	expected := spell.ExpectedInitialDamage(sim, target)
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		if again := spell.ExpectedInitialDamage(sim, target); again != expected {
 			t.Fatalf("expected damage rolled: %.4f then %.4f", expected, again)
 		}
 	}
 
 	rolled := map[float64]bool{}
-	for i := 0; i < 20; i++ {
+	for range 20 {
 		result := spell.CalcDamage(sim, target, 100, spell.OutcomeAlwaysHit)
 		rolled[result.Damage] = true
 		result.inUse = false

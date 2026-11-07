@@ -626,7 +626,7 @@ func init() {
 		proto.Player_Warlock{},
 		proto.Spec_SpecWarlock,
 		newFakeDotWarlock,
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Warlock)
 			if !ok {
 				panic("Invalid spec value for Warlock!")
