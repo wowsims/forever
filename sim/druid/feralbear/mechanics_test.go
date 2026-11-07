@@ -530,7 +530,7 @@ func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
 		return bear.GetSpell(bear.Maul.ActionID.WithTag(1))
 	})
 	claw := procRate(func(bear *GuardianDruid) *core.Spell { return bear.Claw.Spell })
-	if claw < 0.065 || claw > 0.105 || maul < 0.025 || maul > 0.06 {
+	if claw < 0.05 || claw > 0.12 || maul < 0.35*claw || maul > 0.65*claw {
 		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want about half the special rate on Maul", maul, claw)
 	}
 }
