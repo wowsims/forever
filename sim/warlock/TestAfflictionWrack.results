@@ -818,7 +818,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-VestmentsoftheDevout"
  value: {
   dps: 755.57266
-  tps: 609.25027
+  tps: 609.19472
   dtps: 8.77238
  }
 }

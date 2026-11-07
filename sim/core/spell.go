@@ -905,8 +905,12 @@ func (spell *Spell) ApplyAOEThreatIgnoreMultipliers(threatAmount float64) {
 }
 
 // Threat no single enemy draws, such as a heal's or a resource gain's, split between the targets in
-// combat at the time.
+// combat at the time. Before the pull no target is in combat, so it makes none, as damage before the
+// pull does: rage gained before the pull makes no threat in game.
 func (spell *Spell) applySplitThreat(sim *Simulation, threat float64) {
+	if sim.CurrentTime < 0 {
+		return
+	}
 	if targets := len(sim.Encounter.ActiveTargetUnits); targets > 0 {
 		spell.ApplyAOEThreatIgnoreMultipliers(threat / float64(targets))
 	}

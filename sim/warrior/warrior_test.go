@@ -866,10 +866,10 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
-// In Defensive Stance, the rage a block grants through Shield Specialization makes ThreatPerRageGained
-// threat per rage without the warrior's threat multiplier, and Bloodrage's rage makes it times the
-// multiplier.
-func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testing.T) {
+// In Defensive Stance, the rage a block grants through Shield Specialization and Bloodrage's instant
+// rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
+// rage over time makes it times the multiplier, and rage gained before the pull makes none.
+func TestRageThreatFollowsItsSource(t *testing.T) {
 	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
 	player := &proto.Player{
 		Name:          "Rage Threat",
@@ -922,9 +922,19 @@ func TestShieldSpecializationRageMakesThreatWithoutTheThreatMultiplier(t *testin
 		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
 	}
 
-	bloodrageRage := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
-	if got, want := threatPerRage(bloodrageRage), core.ThreatPerRageGained*multiplier; math.Abs(got-want) > 1e-9 {
-		t.Errorf("Bloodrage's rage made %v threat per rage, want %v", got, want)
+	bloodrageInstant := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
+	if got := threatPerRage(bloodrageInstant); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Bloodrage's instant rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+
+	bloodrageTick := func() { bloodrage.SelfHot().TickOnce(sim) }
+	if got, want := threatPerRage(bloodrageTick), core.ThreatPerRageGained*multiplier; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Bloodrage's rage over time made %v threat per rage, want %v", got, want)
+	}
+
+	sim.CurrentTime = -time.Second
+	if got := threatPerRage(bloodrageTick); got != 0 {
+		t.Errorf("rage gained before the pull made %v threat per rage, want 0", got)
 	}
 }
 
