@@ -10,6 +10,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		870, // Fiery War Axe
+		[
+			"Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.", // 18796 - https://www.wowhead.com/forever/spell=18796
+		]
+	],
+	[
 		880, // Staff of Horrors
 		[
 			"Damage caused by the target is reduced by 5 for 2min.", // 8552 - https://www.wowhead.com/forever/spell=8552
@@ -88,6 +94,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1490, // Guardian Talisman
+		[
+			"Reduces the range enemies detect you by 10 yds for 15s.", // 1300364 - https://www.wowhead.com/forever/spell=1300364
+		]
+	],
+	[
 		1726, // Poison-tipped Bone Spear
 		[
 			"Poisons target for 30 Nature damage every 6.0 sec for 30s.", // 16401 - https://www.wowhead.com/forever/spell=16401
@@ -97,6 +109,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		1727, // Sword of Decay
 		[
 			"Reduces target enemy's attack power by 84 for 30s.", // 13528 - https://www.wowhead.com/forever/spell=13528
+		]
+	],
+	[
+		1982, // Nightblade
+		[
+			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
+		]
+	],
+	[
+		1986, // Gutrender
+		[
+			"Wounds the target for 102 damage.", // 18090 - https://www.wowhead.com/forever/spell=18090
 		]
 	],
 	[
@@ -148,6 +172,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		2825, // Bow of Searing Arrows
+		[
+			"Fires a Searing Arrow at the target for 28 Fire damage.", // 29638 - https://www.wowhead.com/forever/spell=29638
+		]
+	],
+	[
 		2912, // Claw of the Shadowmancer
 		[
 			"Sends a shadowy bolt at the enemy causing 35 Shadow damage.", // 16409 - https://www.wowhead.com/forever/spell=16409
@@ -181,6 +211,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		3416, // Martyr's Chain
 		[
 			"Dying inflicts 420 Holy damage to all enemies within 15 yds.", // 1292746 - https://www.wowhead.com/forever/spell=1292746
+		]
+	],
+	[
+		3456, // Dog Whistle
+		[
+			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
 		]
 	],
 	[
@@ -307,6 +343,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		5752, // Wyvern Tailspike
 		[
 			"Poisons target for 6 Nature damage every 3.0 sec for 15s.", // 16400 - https://www.wowhead.com/forever/spell=16400
+		]
+	],
+	[
+		5756, // Sliverblade
+		[
+			"Blasts a target for 63 Frost damage.", // 1293653 - https://www.wowhead.com/forever/spell=1293653
 		]
 	],
 	[
@@ -484,9 +526,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		7720, // Whitemane's Chapeau
+		[
+			"Reduces the cast time of spells and effects that revive targets by 20%.", // 1293540 - https://www.wowhead.com/forever/spell=1293540
+		]
+	],
+	[
 		7734, // Six Demon Bag
 		[
 			"Blasts enemies in front of you with the power of wind, fire, all that kind of thing!", // 14537 - https://www.wowhead.com/forever/spell=14537
+		]
+	],
+	[
+		7753, // Bloodspiller
+		[
+			"Wounds the target causing them to bleed for 250 damage over 10s.", // 18200 - https://www.wowhead.com/forever/spell=18200
 		]
 	],
 	[
@@ -526,9 +580,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		8225, // Tainted Pierce
+		[
+			"Corrupts the target, causing 63 damage over 3s.", // 13530 - https://www.wowhead.com/forever/spell=13530
+		]
+	],
+	[
 		8708, // Hammer of Expertise
 		[
 			"Deal 112 Fire damage. Deals 3 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants.", // 1317432 - https://www.wowhead.com/forever/spell=1317432
+		]
+	],
+	[
+		9414, // Oilskin Leggings
+		[
+			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
@@ -559,6 +625,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9458, // Thermaplugg's Central Core
 		[
 			"When struck in combat has a 5% chance of inflicting 93 Nature damage to the attacker.", // 1292879 - https://www.wowhead.com/forever/spell=1292879
+		]
+	],
+	[
+		9477, // The Chief's Enforcer
+		[
+			"Deal 294 Physical damage and stun for 1s. Trolls take 2 times as much damage and stun duration.", // 1294339 - https://www.wowhead.com/forever/spell=1294339
 		]
 	],
 	[
@@ -622,9 +694,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10750, // Lifeforce Dirk
+		[
+			"Heals wielder of 42 damage.", // 1300356 - https://www.wowhead.com/forever/spell=1300356
+		]
+	],
+	[
+		10758, // X'caliboar
+		[
+			"Unleash a mighty swing, dealing 42 Holy damage. Deals 3 times as much damage to Undead and Swine.", // 1293787 - https://www.wowhead.com/forever/spell=1293787
+		]
+	],
+	[
 		10761, // Coldrage Dagger
 		[
 			"Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.", // 1293790 - https://www.wowhead.com/forever/spell=1293790
+		]
+	],
+	[
+		10772, // Glutton's Cleaver
+		[
+			"Wounds the target causing them to bleed for 70 damage over 7s.", // 18075 - https://www.wowhead.com/forever/spell=18075
 		]
 	],
 	[
@@ -715,6 +805,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13057, // Bloodpike
 		[
 			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
+		]
+	],
+	[
+		13146, // Shell Launcher Shotgun
+		[
+			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
 		]
 	],
 	[
@@ -871,6 +967,37 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17704, // Edge of Winter
 		[
 			"Blasts a target for 30 Frost damage.", // 16407 - https://www.wowhead.com/forever/spell=16407
+		]
+	],
+	[
+		17705, // Thrash Blade
+		[
+			"Grants an extra attack on your next swing.", // 21919 - https://www.wowhead.com/forever/spell=21919
+		]
+	],
+	[
+		17730, // Gatorbite Axe
+		[
+			"Wounds the target causing them to bleed for 210 damage over 7s.", // 21949 - https://www.wowhead.com/forever/spell=21949
+		]
+	],
+	[
+		17738, // Claw of Celebras
+		[
+			"Poisons target for 13 Nature damage every 1.0 sec for 7s.", // 21952 - https://www.wowhead.com/forever/spell=21952
+		]
+	],
+	[
+		17744, // Heart of Noxxion
+		[
+			"Reduces the duration of all poison effects applied to you by 10%.", // 1294777 - https://www.wowhead.com/forever/spell=1294777
+			"Removes 1 poison effect.", // 21954 - https://www.wowhead.com/forever/spell=21954
+		]
+	],
+	[
+		17753, // Verdant Keeper's Aim
+		[
+			"Strike your target with Keeper's Sting for 28 Nature damage.", // 29655 - https://www.wowhead.com/forever/spell=29655
 		]
 	],
 	[
@@ -1553,6 +1680,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		271718, // Linken's Boots of Iron
+		[
+			"", // 1289404 - https://www.wowhead.com/forever/spell=1289404
+		]
+	],
+	[
 		272428, // Enraged Idol
 		[
 			"Your Enrage ability generates an additional 10 Rage over its duration.", // 1291060 - https://www.wowhead.com/forever/spell=1291060
@@ -1913,6 +2046,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274608, // Maw of Min'loth
+		[
+			"When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.", // 1295065 - https://www.wowhead.com/forever/spell=1295065
+		]
+	],
+	[
+		274651, // Zealot Plate
+		[
+			"When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once every 15 sec.", // 1294666 - https://www.wowhead.com/forever/spell=1294666
+		]
+	],
+	[
 		274747, // Soggy Boots
 		[
 			"", // 1295267 - https://www.wowhead.com/forever/spell=1295267
@@ -1926,9 +2071,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274952, // Jom-jom's Gabbar
+		[
+			"Launch a boulder, dealing 98 Physical damage.", // 1295736 - https://www.wowhead.com/forever/spell=1295736
+		]
+	],
+	[
 		274963, // Rot-Covered Harpoon
 		[
 			"Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.", // 1295744 - https://www.wowhead.com/forever/spell=1295744
+		]
+	],
+	[
+		275009, // Emblem of Slamming
+		[
+			"Stuns target and yourself for 3s. Ogres are Stunned for 5s and refund 50% of the cooldown.", // 1315972 - https://www.wowhead.com/forever/spell=1315972
 		]
 	],
 	[
@@ -1983,6 +2140,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		276631, // Coldflame Saber
 		[
 			"Melee attacks deal 98 additional Fire damage against Frozen targets.", // 1300130 - https://www.wowhead.com/forever/spell=1300130
+		]
+	],
+	[
+		276742, // Girdle of Extracted Answers
+		[
+			"Deals 25 Physical damage every time you block.", // 1308777 - https://www.wowhead.com/forever/spell=1308777
 		]
 	],
 	[
@@ -2109,6 +2272,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286541, // Bael'dun Tankard
 		[
 			"Restores 1345 mana over 27s. Must remain seated while drinking.", // 1133 - https://www.wowhead.com/forever/spell=1133
+		]
+	],
+	[
+		286646, // Gill's Gills
+		[
+			"Underwater Breath lasts 50% longer than normal.", // 11789 - https://www.wowhead.com/forever/spell=11789
+		]
+	],
+	[
+		286650, // Pyromancer's Baton
+		[
+			"Burns the target for 30 Fire damage every 3.0 sec for 9s.", // 1320925 - https://www.wowhead.com/forever/spell=1320925
 		]
 	],
 	[
@@ -5382,6 +5557,35 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.", // 1324309 - https://www.wowhead.com/forever/spell=1324309
+				],
+			],
+		]),
+	],
+	[
+		2136, // Defias Enforcer's Garb
+		new Map([
+			[
+				2,
+				[
+					"+10 Fire Resistance.", // 1324673 - https://www.wowhead.com/forever/spell=1324673
+				],
+			],
+			[
+				3,
+				[
+					"+15 Stamina.", // 1324674 - https://www.wowhead.com/forever/spell=1324674
+				],
+			],
+			[
+				4,
+				[
+					"Increased Swords +1.", // 1324675 - https://www.wowhead.com/forever/spell=1324675
+				],
+			],
+			[
+				5,
+				[
+					"Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled in swamps.", // 1324684 - https://www.wowhead.com/forever/spell=1324684
 				],
 			],
 		]),
