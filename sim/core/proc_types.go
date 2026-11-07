@@ -42,8 +42,8 @@ const (
 	ProcHintPureHeal
 	// The trigger clause names one ability: "Your Shock spells", "Your Moonfire ability".
 	ProcHintNamedAbility
-	// The trigger clause states an attack outcome the mask has no bit for: a resist, a block, a
-	// dodge or a parry.
+	// The trigger clause states an attack outcome the mask has no bit for: a resist, a dodge or a
+	// parry.
 	ProcHintOutcomeTaken
 	// The trigger clause names the wearer's own attack being dodged: "when you are Parried or
 	// Dodged".
@@ -53,6 +53,9 @@ const (
 	// The trigger clause restricts the proc to spells with a damage component: "your damaging
 	// spells", "your next 5 damage or healing spells".
 	ProcHintDamage
+	// The trigger clause names the wearer blocking: "every time you block", "after a block". A
+	// blocked hit is an outcome the listener can be given, so the decoder names it.
+	ProcHintBlocked
 )
 
 // The wearer's own attack landing on nothing, which the decoder turns into the outcome it names.
@@ -222,27 +225,30 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// An avoidance outcome - a dodge, a parry, a miss, a full block or a resist - is a hit that
 	// landed on nothing, so a listener whose trigger is one hears a hit that dealt no damage.
-	// Which of them it is stays the caller's: no ProcTypeMask has a bit for any of them.
-	if hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided) {
+	// Which of them it is stays the caller's, except a block, which the hint below names: no
+	// ProcTypeMask has a bit for any of them.
+	avoided := hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided | ProcHintBlocked)
+	if avoided {
 		info.RequireDamageDealt = false
 	}
 
 	// A trigger restricted to spells with a damage component hears a dealt hit that deals damage,
 	// and the landed application of a DoT, which deals none. A cast has no hit to read that from,
 	// and an avoided attack deals nothing by definition, so neither takes the rule.
-	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) &&
-		!hint.Matches(ProcHintOutcomeTaken|ProcHintAttackAvoided) {
+	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) && !avoided {
 		info.RequireDamageDealt = false
 		info.RequireDamageComponent = true
 	}
 
-	// An outcome the listener can be given. The crit hint names one, and so do the two naming the
-	// wearer's own attack dodged or parried: the mask itself states which hits arrive, never how
-	// they resolved, so everything else listens to a landed hit. A cast has not resolved into a
-	// hit at all and takes no outcome.
+	// An outcome the listener can be given. The crit hint names one, the block hint names the hit
+	// taken that the wearer blocked, and so do the two naming the wearer's own attack dodged or
+	// parried: the mask itself states which hits arrive, never how they resolved, so everything else
+	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome.
 	switch {
 	case info.Callback.Matches(CallbackOnCastComplete):
 		info.Outcome = OutcomeEmpty
+	case hint.Matches(ProcHintBlocked):
+		info.Outcome = OutcomeBlock
 	case hint.Matches(ProcHintAttackAvoided):
 		if hint.Matches(ProcHintAttackDodged) {
 			info.Outcome |= OutcomeDodge

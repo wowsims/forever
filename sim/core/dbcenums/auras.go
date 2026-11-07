@@ -3,9 +3,10 @@ package dbcenums
 // EffectAuraType defines the custom type for aura effects.
 type EffectAuraType int
 
-// The two auras that cast their trigger spell when the proc fires.
+// The auras that fire when the proc does: the two that cast their trigger spell, and the one that
+// deals its own amount to the attacker.
 func (a EffectAuraType) IsProcTrigger() bool {
-	return a == A_PROC_TRIGGER_SPELL || a == A_PROC_TRIGGER_SPELL_WITH_VALUE
+	return a == A_PROC_TRIGGER_SPELL || a == A_PROC_TRIGGER_SPELL_WITH_VALUE || a == A_PROC_TRIGGER_DAMAGE
 }
 
 // Enum constants defined using the A_ naming convention. Every id is listed: one with no known name

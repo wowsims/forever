@@ -603,6 +603,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-GirdleofExtractedAnswers-276742"
+ value: {
+  dps: 415.5525
+  tps: 985.94073
+  dtps: 349.23797
+  hps: 22.99361
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 411.35496
@@ -693,6 +702,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-HandofJustice-11815"
+ value: {
+  dps: 420.79935
+  tps: 997.52055
+  dtps: 349.59132
+  hps: 23.67139
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
   dps: 413.84276
@@ -744,6 +762,15 @@ dps_results: {
   tps: 924.02446
   dtps: 384.95086
   hps: 22.51917
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 417.07065
+  tps: 991.90419
+  dtps: 347.23363
+  hps: 22.99361
  }
 }
 dps_results: {
@@ -954,6 +981,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 417.67082
+  tps: 992.70241
+  dtps: 347.23363
+  hps: 22.99361
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 410.75173
@@ -1053,12 +1089,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 411.18681
+  tps: 984.03237
+  dtps: 352.81948
+  hps: 22.80722
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ScrollsofBlindingLight-19343"
  value: {
   dps: 413.00831
   tps: 981.78237
   dtps: 351.15471
   hps: 23.01056
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-SecondWind-11819"
+ value: {
+  dps: 410.89334
+  tps: 981.95226
+  dtps: 347.46851
+  hps: 22.80722
  }
 }
 dps_results: {
@@ -1275,6 +1329,15 @@ dps_results: {
   tps: 985.27435
   dtps: 345.35304
   hps: 22.90889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 418.20219
+  tps: 993.40913
+  dtps: 347.23363
+  hps: 22.99361
  }
 }
 dps_results: {

@@ -75,9 +75,9 @@ hits count.
 `Callback`, a `ProcMask`, an `Outcome` and `RequireDamageDealt`, and names the bits it does not model
 in `Unsupported`. `RequireDamageDealt` defaults to **true**, and a listener that fires on a dodge, a
 parry, a miss or a block needs it false. Where the tooltip named that outcome, the row carries
-`ProcHintOutcomeTaken` and the decoder has already cleared the flag. A row whose wording yielded no
-hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which outcome it is
-stays the caller's either way, since no `ProcTypeMask` has a bit for any of them.
+`ProcHintOutcomeTaken` or `ProcHintBlocked` and the decoder has already cleared the flag. A row whose
+wording yielded no hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which
+outcome it is stays the caller's, except the block, since no `ProcTypeMask` has a bit for any of them.
 
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
@@ -88,8 +88,9 @@ generator reads that off the tooltip into `core.ProcHint`:
 | `ProcHintCrit`         | the tooltip names a critical strike, which sets `Outcome = OutcomeCrit` and keeps the listener on the hit rather than the cast                          |
 | `ProcHintHeals`        | the trigger clause names healing or an unrestricted spell, which is the evidence that a helpful-spell bit carries a real trigger rather than a leftover |
 | `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off                                                                                           |
+| `ProcHintBlocked`      | the clause names the wearer blocking ("every time you block"), which clears `RequireDamageDealt` and sets `Outcome = OutcomeBlock`                      |
 | `ProcHintNamedAbility` | the clause names one ability ("your Shock spells"), which no proc mask can state                                                                        |
-| `ProcHintOutcomeTaken` | the clause names an outcome the mask has no bit for, which clears `RequireDamageDealt`                                                                  |
+| `ProcHintOutcomeTaken` | the clause names a resist, a dodge or a parry taken, an outcome the mask has no bit for, which clears `RequireDamageDealt`                              |
 
 The decode does not model the last two shapes; it reads past them. A trigger is still built for them,
 and for the bits the decoder names as unsupported. Such a listener hears fewer hits than the game files
@@ -123,9 +124,8 @@ for no class, carry no evidence and are left alone.
   the column is a real roll on damage taken. Only the trigger's name is the caller's, because the
   driver and the buff share one.
 - **Shield Specialization** (`sim/warrior/talents_protection.go`) is the effect ladder: the column
-  reads 100 and the roll is effect 2. Its tooltip names an outcome, which the row carries as
-  `ProcHintOutcomeTaken`, so the decoder already clears `RequireDamageDealt`, since a block deals no damage.
-  Which outcome it is stays the caller's: `Outcome = OutcomeBlock`.
+  reads 100 and the roll is effect 2. Its tooltip names the block, which the row carries as
+  `ProcHintBlocked`.
 - **Flurry** (`sim/warrior/talents_fury.go`) is the no-roll shape: the row states "always" and the
   crit is the condition. The buff row supplies the duration and the three charges through
   `AuraConfig`, the haste comes off the talent's ladder, and the mask stays the caller's because the

@@ -681,7 +681,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
 	application := damageOutcome(defenseType, true, OutcomeDefault)
 	alwaysHits := !asProc && damage.AlwaysHits()
-	effect := damage.DamageEffect()
+	effect := damage.ProcDamageEffect()
 	config.DirectVariance = effect.DirectVariance()
 	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
 	if damage.SplitsDamage {

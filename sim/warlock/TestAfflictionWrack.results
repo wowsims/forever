@@ -503,6 +503,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-HandofJustice-11815"
+ value: {
+  dps: 911.27469
+  tps: 730.30304
+  dtps: 9.19099
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-HanzoSword-8190"
  value: {
   dps: 913.99357
@@ -540,6 +548,14 @@ dps_results: {
   dps: 930.21623
   tps: 759.97536
   dtps: 9.34267
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 910.40643
+  tps: 729.46312
+  dtps: 9.10145
  }
 }
 dps_results: {
@@ -639,6 +655,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 910.40643
+  tps: 729.46312
+  dtps: 9.10145
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 911.27469
@@ -684,6 +708,22 @@ dps_results: {
   dps: 1034.66169
   tps: 774.63288
   dtps: 9.14671
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 911.27469
+  tps: 730.30304
+  dtps: 9.19099
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-SecondWind-11819"
+ value: {
+  dps: 908.3237
+  tps: 729.2784
+  dtps: 8.57783
  }
 }
 dps_results: {
@@ -804,6 +844,14 @@ dps_results: {
   dps: 968.40657
   tps: 775.09444
   dtps: 9.19099
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 910.40643
+  tps: 729.46312
+  dtps: 9.10145
  }
 }
 dps_results: {

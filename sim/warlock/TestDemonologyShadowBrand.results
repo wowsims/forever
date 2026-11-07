@@ -589,6 +589,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HandofJustice-11815"
+ value: {
+  dps: 763.56924
+  tps: 650.30181
+  dtps: 10.46408
+  hps: 7.8687
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-HanzoSword-8190"
  value: {
   dps: 773.86993
@@ -631,6 +640,15 @@ dps_results: {
   tps: 682.2281
   dtps: 11.06312
   hps: 7.82416
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {
@@ -739,6 +757,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 763.56924
@@ -789,6 +816,24 @@ dps_results: {
   dps: 989.0622
   tps: 776.98136
   dtps: 11.55098
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 763.56924
+  tps: 650.30181
+  dtps: 10.46408
+  hps: 7.8687
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SecondWind-11819"
+ value: {
+  dps: 770.35098
+  tps: 656.2226
+  dtps: 10.74029
+  hps: 7.8687
  }
 }
 dps_results: {
@@ -924,6 +969,15 @@ dps_results: {
   tps: 690.55425
   dtps: 10.46408
   hps: 7.8687
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {

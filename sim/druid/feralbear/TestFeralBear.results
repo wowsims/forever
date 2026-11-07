@@ -658,6 +658,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-HandofJustice-11815"
+ value: {
+  dps: 517.11462
+  tps: 1965.00407
+  dtps: 393.71571
+  hps: 85.54158
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Haruspex'sGarb"
  value: {
   dps: 466.09662
@@ -745,6 +754,15 @@ dps_results: {
   tps: 1934.26504
   dtps: 394.75396
   hps: 84.23915
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 512.43023
+  tps: 1943.93403
+  dtps: 393.14306
+  hps: 83.62305
  }
 }
 dps_results: {
@@ -865,6 +883,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 512.43023
+  tps: 1943.93403
+  dtps: 393.14306
+  hps: 83.62305
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 503.34177
@@ -901,7 +928,25 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 500.95286
+  tps: 1909.76461
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-RuneofMetamorphosis-19340"
+ value: {
+  dps: 500.95286
+  tps: 1909.76461
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SecondWind-11819"
  value: {
   dps: 500.95286
   tps: 1909.76461
@@ -1087,6 +1132,15 @@ dps_results: {
   tps: 1909.76461
   dtps: 394.78517
   hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 512.43023
+  tps: 1943.93403
+  dtps: 393.14306
+  hps: 83.62305
  }
 }
 dps_results: {
