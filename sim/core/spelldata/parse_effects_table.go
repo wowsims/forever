@@ -230,9 +230,19 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			[]*float64{&p.unit.PseudoStats.BonusRangedDamageTaken}, v)
 	},
 
+	// The threat the unit generates, by school mask. A row that names a weapon holds while one is
+	// equipped, as its damage done does.
 	dbcenums.A_MOD_THREAT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
+		rule, scope, ok := p.weaponScope(e)
+		if !ok || rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry {
+			return nil
+		}
+		a := p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
 			&p.unit.PseudoStats.ThreatMultiplier, &p.unit.PseudoStats.SchoolThreatMultiplier)
+		if a == nil || rule != WeaponRuleWhileEquipped {
+			return a
+		}
+		return p.whileEquipped(scope.Equip(), a)
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER: func(p *parser, e *Effect, v float64) *attachment {
@@ -290,6 +300,13 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.PhysicalHitPercent, v)
 	},
 	dbcenums.A_MOD_SPELL_HIT_CHANCE: func(p *parser, e *Effect, v float64) *attachment {
+		rule, scope, ok := p.weaponScope(e)
+		if !ok {
+			return nil
+		}
+		if rule == WeaponRuleWhileEquipped {
+			return p.statsWhileEquipped([]stats.Stat{stats.SpellHitPercent}, v, scope.Equip())
+		}
 		return p.statBuff(stats.SpellHitPercent, v)
 	},
 	dbcenums.A_MOD_WEAPON_CRIT_PERCENT: func(p *parser, e *Effect, v float64) *attachment {

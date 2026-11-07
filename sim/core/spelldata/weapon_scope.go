@@ -12,7 +12,7 @@ type WeaponRule uint8
 
 const (
 	// The effect gives its stat: the row names no weapon, names a shield, the aura reaches another unit,
-	// or the effect is not a hit, crit, rating or damage done aura.
+	// or the effect is not a hit, crit, rating, damage done, spell hit or threat aura.
 	WeaponRuleNone WeaponRule = iota
 	// A mod on the attacks made with a matching weapon.
 	WeaponRulePerWeapon
@@ -26,14 +26,17 @@ const (
 
 const rangedInvTypes int32 = dbcenums.INVTYPE_BIT_RANGED | dbcenums.INVTYPE_BIT_THROWN | dbcenums.INVTYPE_BIT_RANGEDRIGHT
 
-// The rule the parse applies to a hit, crit, rating or damage done effect, and the scope a mod under it
-// takes: the proc mask and the Equip fields, with no class flags, so the mod reaches auto attacks
-// whatever family the spell belongs to. The scope is zero under WeaponRuleNone.
+// The rule the parse applies to a hit, crit, rating, damage done, spell hit or threat effect, and the
+// scope a mod under it takes: the proc mask and the Equip fields, with no class flags, so the mod
+// reaches auto attacks whatever family the spell belongs to. The scope is zero under WeaponRuleNone.
 //
 // A_MOD_HIT_CHANCE and A_MOD_WEAPON_CRIT_PERCENT are per weapon. A_MOD_CRIT_PCT and
 // A_MOD_DAMAGE_PERCENT_DONE are per weapon where their weapons are ranged weapons alone, named by
 // subclass only, and hold while equipped otherwise. A_MOD_RATING is per weapon where the row names
-// one, and on ranged attacks where its mask holds ranged bits alone.
+// one, and on ranged attacks where its mask holds ranged bits alone. A_MOD_SPELL_HIT_CHANCE and
+// A_MOD_THREAT reach no attack in particular, so they hold while equipped wherever the row names a
+// weapon: Precision 13705's spell hit and Two-Handed Weapon Specialization 20111's threat go with the
+// weapon the same way their melee hit and damage do.
 func WeaponScope(s *Spell, e *Effect) (WeaponRule, core.SpellModConfig) {
 	if !WeaponBindable(e.Aura) {
 		return WeaponRuleNone, core.SpellModConfig{}
@@ -41,6 +44,8 @@ func WeaponScope(s *Spell, e *Effect) (WeaponRule, core.SpellModConfig) {
 
 	scope, scoped := weaponScope(s, e)
 	switch {
+	case scoped && (e.Aura == dbcenums.A_MOD_SPELL_HIT_CHANCE || e.Aura == dbcenums.A_MOD_THREAT):
+		return WeaponRuleWhileEquipped, scope
 	case scoped && (e.Aura == dbcenums.A_MOD_CRIT_PCT || e.Aura == dbcenums.A_MOD_DAMAGE_PERCENT_DONE) &&
 		(s.EquipSubclass == 0 || s.EquipSubclass&^dbcenums.ITEM_SUBCLASS_MASK_WEAPON_RANGED != 0 || scope.EquipInvType != 0 || scope.EquipHand != 0):
 		return WeaponRuleWhileEquipped, scope
@@ -52,12 +57,12 @@ func WeaponScope(s *Spell, e *Effect) (WeaponRule, core.SpellModConfig) {
 	return WeaponRuleNone, core.SpellModConfig{}
 }
 
-// Whether the aura is a hit, crit, rating or damage done aura, the ones WeaponScope can bind to a
-// weapon.
+// Whether the aura is a hit, crit, rating, damage done, spell hit or threat aura, the ones WeaponScope
+// can bind to a weapon.
 func WeaponBindable(aura dbcenums.EffectAuraType) bool {
 	switch aura {
 	case dbcenums.A_MOD_HIT_CHANCE, dbcenums.A_MOD_WEAPON_CRIT_PERCENT, dbcenums.A_MOD_CRIT_PCT, dbcenums.A_MOD_RATING,
-		dbcenums.A_MOD_DAMAGE_PERCENT_DONE:
+		dbcenums.A_MOD_DAMAGE_PERCENT_DONE, dbcenums.A_MOD_SPELL_HIT_CHANCE, dbcenums.A_MOD_THREAT:
 		return true
 	}
 	return false

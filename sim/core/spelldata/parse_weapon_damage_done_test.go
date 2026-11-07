@@ -80,6 +80,34 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	}
 }
 
+// 20111's threat goes with the two-hander as its damage does: the full cut with one, nothing with a
+// one-hander, and the every-school damage multiplier stays at 1 either way.
+func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
+	defer generatedStore()()
+
+	row := Talent(20111, 3).Rank(3)
+	cut := 1 + row.EffectN(2).Percent()
+	for _, tc := range []struct {
+		name       string
+		hand       proto.HandType
+		wantThreat float64
+	}{
+		{"two-hander", proto.HandType_HandTypeTwoHand, cut},
+		{"one-hander", proto.HandType_HandTypeMainHand, 1},
+	} {
+		character := swordWarrior(tc.hand)
+
+		ParseStatic(character, row)
+
+		if got := character.PseudoStats.ThreatMultiplier; math.Abs(got-tc.wantThreat) > 1e-9 {
+			t.Errorf("%s: the threat multiplier: %v, want %v", tc.name, got, tc.wantThreat)
+		}
+		if got := character.PseudoStats.DamageDealtMultiplier; got != 1 {
+			t.Errorf("%s: the every-school damage multiplier: %v, want 1", tc.name, got)
+		}
+	}
+}
+
 // A row that names every school adds nothing past its school multiplier, and a row that names no
 // weapon holds whatever the character wears.
 func TestOtherDamageDoneRowsStayOnTheirSchools(t *testing.T) {

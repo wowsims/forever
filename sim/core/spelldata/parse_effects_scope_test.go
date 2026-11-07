@@ -179,7 +179,8 @@ func TestParseScopedOffHandInventoryType(t *testing.T) {
 	r.check(t, bonusHit, 0, 2, 0, 0)
 }
 
-// 13705: the row's melee weapons bind its melee hit, and its spell hit is every spell's.
+// 13705: the row's melee weapons bind its melee hit, and its spell hit is every spell's while one is
+// equipped.
 func TestParseScopedPrecision(t *testing.T) {
 	r := parseScoped(t, &Spell{ID: 13705, Name: "Precision", EquipClass: 2, EquipSubclass: 173555,
 		Effects: []Effect{
@@ -187,13 +188,37 @@ func TestParseScopedPrecision(t *testing.T) {
 			casterAura(dbcenums.A_MOD_SPELL_HIT_CHANCE, 1),
 		}})
 
-	if kinds := appliedKinds(r.parsed); !slices.Equal(kinds, []string{"SpellMod_BonusHit_Percent", "stat SpellHitPercent"}) {
+	if kinds := appliedKinds(r.parsed); !slices.Equal(kinds, []string{"SpellMod_BonusHit_Percent", "stat-while-equipped SpellHitPercent"}) {
 		t.Errorf("attached %v", kinds)
 	}
 	r.check(t, bonusHit, 1, 1, 0, 0)
 	r.checkNoStats(t, stats.PhysicalHitPercent)
 	if got := r.statChange(stats.SpellHitPercent); got != 1 {
 		t.Errorf("spell hit moved by %v, want 1", got)
+	}
+}
+
+// Precision's spell hit goes with its melee weapons: nothing with a bow alone, and the hit once a sword
+// is swapped in.
+func TestParseScopedPrecisionSpellHitFollowsTheWeapon(t *testing.T) {
+	row := &Spell{ID: 13705, Name: "Precision", EquipClass: 2, EquipSubclass: 173555,
+		Effects: []Effect{casterAura(dbcenums.A_MOD_SPELL_HIT_CHANCE, 1)}}
+	r := parseScopedWith(t, row, core.WeaponTestSlots(0, 0, core.WeaponTestBowID),
+		core.WeaponTestSlots(core.WeaponTestSwordID, 0, core.WeaponTestBowID), false)
+
+	for _, step := range []struct {
+		when string
+		swap proto.APLActionItemSwap_SwapSet
+		want float64
+	}{
+		{"bow alone", proto.APLActionItemSwap_Main, 0},
+		{"sword swapped in", proto.APLActionItemSwap_Swap1, 1},
+		{"sword swapped out", proto.APLActionItemSwap_Main, 0},
+	} {
+		r.character.ItemSwap.SwapItems(r.sim, step.swap, false)
+		if got := r.character.GetStat(stats.SpellHitPercent) - r.before[stats.SpellHitPercent]; got != step.want {
+			t.Errorf("%s: spell hit moved by %v, want %v", step.when, got, step.want)
+		}
 	}
 }
 
