@@ -403,6 +403,48 @@ func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	}
 }
 
+// Enrage takes its share of the item armor after the form's multiplier and of the 2 armor per Agility, and
+// gives it back when it ends.
+func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
+	for _, c := range []struct {
+		form         druid.DruidForm
+		multiplier   float64
+		armorPenalty float64
+	}{
+		{druid.Bear, 2.8, 0.27},
+		{druid.DireBear, 4.6, 0.16},
+	} {
+		t.Run(fmt.Sprint(c.form), func(t *testing.T) {
+			sim := core.NewSim(bearRequest(&proto.APLRotation{}, 1), simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.ClearForm(sim)
+			itemArmor := bear.EquipStats()[stats.Armor]
+			if c.form == druid.Bear {
+				bear.BearFormAura.Activate(sim)
+			} else {
+				bear.DireBearFormAura.Activate(sim)
+			}
+			agility := math.Floor(bear.GetStat(stats.Agility))
+			if itemArmor == 0 || agility == 0 {
+				t.Fatal("the bear has no item armor or Agility")
+			}
+			before := bear.GetStat(stats.Armor)
+			if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
+				t.Fatal("Enrage did not cast")
+			}
+			want := c.armorPenalty * (c.multiplier*itemArmor + 2*agility)
+			if got := before - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-6 {
+				t.Errorf("Enrage takes %g armor, want %g", got, want)
+			}
+			bear.EnrageAura.Deactivate(sim)
+			if got := bear.GetStat(stats.Armor); math.Abs(got-before) > 1e-6 {
+				t.Errorf("armor after Enrage ends is %g, want %g", got, before)
+			}
+		})
+	}
+}
+
 // Thick Hide's level part is the level times the rank: a level 30 druid measured 30, 60 and 90 armor from
 // ranks 1 to 3 in Cat Form and 84, 168 and 252 in Bear Form. The game files' per-level formula (178 and 179
 // at level 60) is not what the game does. Dire Bear Form scales it by 360%, 4.6 times in all.
@@ -461,6 +503,35 @@ func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
 	bear.SpendRage(sim, bear.CurrentRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
 	if bear.TryMaul(sim, nil) != nil {
 		t.Fatal("unaffordable Maul replaced the swing")
+	}
+}
+
+// Maul procs Omen of Clarity at half the rate of the other specials.
+func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
+	const hits = 1000
+	procRate := func(spellOf func(bear *GuardianDruid) *core.Spell) float64 {
+		sim, bear := newBear(t)
+		spell := spellOf(bear)
+		procs := 0
+		bear.AutoAttacks.CancelAutoSwing(sim)
+		bear.ClearcastingAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { procs++ })
+		for i := range hits {
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: time.Duration(i+1) * 50 * time.Millisecond, OnAction: func(sim *core.Simulation) {
+				bear.ClearcastingAura.Deactivate(sim)
+				bear.OmenOfClarityAura.Icd.Set(0)
+				spell.CalcAndDealOutcome(sim, bear.CurrentTarget, spell.OutcomeAlwaysHit)
+			}})
+		}
+		for !sim.Step() {
+		}
+		return float64(procs) / hits
+	}
+	maul := procRate(func(bear *GuardianDruid) *core.Spell {
+		return bear.GetSpell(bear.Maul.ActionID.WithTag(1))
+	})
+	claw := procRate(func(bear *GuardianDruid) *core.Spell { return bear.Claw.Spell })
+	if claw < 0.065 || claw > 0.105 || maul < 0.025 || maul > 0.06 {
+		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want about half the special rate on Maul", maul, claw)
 	}
 }
 
