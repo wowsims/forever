@@ -83,6 +83,9 @@ func TestEnchantProcRouting(t *testing.T) {
 				if w.reason == "" && !r.Supported() {
 					t.Errorf("routing %d is refused (%s), want it registered", i, r.Reason())
 				}
+				if tc.effectID == 7223 && r.Shape != ShapeEquip {
+					t.Errorf("routing %d took shape %v, want the equip aura", i, r.Shape)
+				}
 				if w.reason != "" && !strings.Contains(r.Reason(), w.reason) {
 					t.Errorf("routing %d: reason %q, want it to name %q", i, r.Reason(), w.reason)
 				}

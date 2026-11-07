@@ -18,7 +18,7 @@ import (
 // second copy of the shield can sit next to it.
 func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, duration time.Duration, category string, singleAura bool,
 	school core.SpellSchool, damage float64, bonusCoefficient float64) *core.Aura {
-	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient)
+	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown)
 
 	aura := unit.GetOrRegisterAura(core.Aura{
 		Label:      label,
@@ -37,13 +37,14 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 
 // The same damage shield on an aura that already exists, live while the aura is up: an item's buff
 // whose row states a damage shield beside its other effects. The spell that deals the damage takes
-// the aura's action id with its tag raised by 2.
-func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64) {
-	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient))
+// the aura's action id with its tag raised by 2. hits narrows the physical hits the shield answers to
+// the ones the row's proc flags name; ProcMaskUnknown answers every one.
+func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask) {
+	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits))
 }
 
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
-	bonusCoefficient float64) core.ProcTrigger {
+	bonusCoefficient float64, hits core.ProcMask) core.ProcTrigger {
 	procSpell := unit.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID.WithTag(actionID.Tag + 2),
 		SpellSchool: school,
@@ -62,6 +63,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 	return core.ProcTrigger{
 		Name:     label + " Damage",
 		Callback: core.CallbackOnSpellHitTaken,
+		ProcMask: hits,
 		Outcome:  core.OutcomeLanded,
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.SpellSchool.Matches(core.SpellSchoolPhysical) {

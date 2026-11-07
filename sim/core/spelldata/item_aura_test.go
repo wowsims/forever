@@ -4,6 +4,7 @@ import (
 	"slices"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
@@ -75,6 +76,17 @@ func TestItemAuraParsedOnLeavesOutShieldsAndMovement(t *testing.T) {
 	}
 	if got := ItemAuraDamageShields(Find(7900)); len(got) != 0 {
 		t.Errorf("damage shields on the wearer of 7900: %v, want none", got)
+	}
+}
+
+// A shield row stating proc flags answers the hits they name; one stating none answers every hit.
+func TestDamageShieldHitsFollowTheRowsProcFlags(t *testing.T) {
+	melee := Spell{ID: 7801, ProcFlags: [2]uint32{dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY}}
+	if got := DamageShieldHits(&melee); got != core.ProcMaskMeleeWhiteHit|core.ProcMaskMeleeSpecial {
+		t.Errorf("hits of a melee-flagged shield: %v, want the melee swings and abilities", got)
+	}
+	if got := DamageShieldHits(&Spell{ID: 7802}); got != core.ProcMaskUnknown {
+		t.Errorf("hits of a shield stating no flags: %v, want every hit", got)
 	}
 }
 

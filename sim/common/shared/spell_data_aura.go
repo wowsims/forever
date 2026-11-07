@@ -33,7 +33,7 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 				append([]spelldata.ParseOpt{spelldata.Effects(effects...)}, wearerOpts...)...).Stats()
 		}
 		for _, shield := range spelldata.ItemAuraDamageShields(row) {
-			buffs.AttachDamageShield(auras.wearer, row.SpellSchool(), shield.Average(), shield.Coeff())
+			buffs.AttachDamageShield(auras.wearer, row.SpellSchool(), shield.Average(), shield.Coeff(), spelldata.DamageShieldHits(row))
 		}
 	}
 

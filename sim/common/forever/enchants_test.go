@@ -382,7 +382,8 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
 // from the generated registrations: the row's amount lands on the attacker of each melee hit taken,
-// and nothing on a spell.
+// the next one included, and nothing on a ranged shot or a spell. The row's proc flags name the
+// melee hits; its 5 s cooldown is the aura spell's own and no lockout on the shield.
 func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
@@ -400,8 +401,13 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
 	}
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+		t.Errorf("a second melee hit taken within 5 s left the shield at %d casts, want 2", got)
+	}
+	takeHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: enemy})
 	takeHit(t, sim, character, fireSpell(enemy))
-	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("after a spell hit taken the shield cast %d times, want once still", got)
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+		t.Errorf("after a ranged shot and a spell hit taken the shield cast %d times, want 2 still", got)
 	}
 }

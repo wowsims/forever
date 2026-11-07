@@ -90,6 +90,17 @@ func ItemAuraDamageShields(s *Spell) []*Effect {
 	return shields
 }
 
+// The physical hits a row's damage shield answers: the ones its proc flags name, or every one where
+// it states none. Retricutioner's 435901 names the melee swings and abilities taken, so a ranged shot
+// is not reflected; Immolation 21142 and the other passive shields state no flags. The flags say which
+// hits reach the shield and nothing about a roll: a shield answers each of them.
+func DamageShieldHits(s *Spell) core.ProcMask {
+	if s.ProcFlags == [2]uint32{} {
+		return core.ProcMaskUnknown
+	}
+	return core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).ProcMask
+}
+
 // What an item's aura shape leaves out of a row, one reason per effect: an effect that is not an
 // aura, one landing on a unit the shape does not reach, and one the parser skips on the unit it lands
 // on; and a row restricted to an area group that names no area type. Empty means every effect of the

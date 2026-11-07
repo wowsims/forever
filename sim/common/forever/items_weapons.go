@@ -39,7 +39,7 @@ func init() {
 		immolation := spelldata.MustFind(21142)
 		shieldAura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(immolation, spelldata.Label("Sulfuras, Hand of Ragnaros Immolation"))))
 		for _, shield := range spelldata.ItemAuraDamageShields(immolation) {
-			buffs.AttachDamageShield(shieldAura, immolation.SpellSchool(), shield.Average(), shield.Coeff())
+			buffs.AttachDamageShield(shieldAura, immolation.SpellSchool(), shield.Average(), shield.Coeff(), spelldata.DamageShieldHits(immolation))
 		}
 		character.ItemSwap.RegisterProc(17182, shieldAura)
 
