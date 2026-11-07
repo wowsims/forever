@@ -140,11 +140,15 @@ func (mage *Mage) registerArcaneConcentration() {
 	}
 
 	triggerAura := mage.MakeProcTriggerAura(trigger)
-	// Flamestrike's ground ticks are periodic damage here, and the row's proc flags hear no periodic
-	// damage. In game each tick is a hit of its own spell and rolls, so the ticks reach the hit listener.
+	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
+	// registerFlamestrikeSpell) reach the hit listener here.
+	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
 	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.Matches(MageSpellFlamestrikeDot) {
-			aura.OnSpellHitDealt(aura, sim, spell, result)
+		if onPeriodic != nil {
+			onPeriodic(aura, sim, spell, result)
+		}
+		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
+			onHit(aura, sim, spell, result)
 		}
 	}
 }

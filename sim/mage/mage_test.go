@@ -138,7 +138,8 @@ func TestArcaneMissilesMissilesProcClearcasting(t *testing.T) {
 			procs = aura.ProcsAvg
 		}
 	}
-	if channels == 0 || procs <= 2*chance*channels {
+	// The start roll gives one chance a channel; the five missiles under the 1 sec cooldown give about 4.5 more.
+	if channels == 0 || procs <= 3.5*chance*channels {
 		t.Fatalf("Clearcasting procced %.2f times over %.2f channels, want more than the channel starts alone give", procs, channels)
 	}
 }
@@ -183,6 +184,9 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 		if spell.Matches(MageSpellFlamestrikeDot) {
 			burn = spell
 		}
+	}
+	if burn == nil {
+		t.Fatal("the mage has no Flamestrike burn spell")
 	}
 	gains := 0
 	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { gains++ })
