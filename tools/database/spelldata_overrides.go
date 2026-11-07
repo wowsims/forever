@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
@@ -131,7 +132,7 @@ func applyOverride(s *storeSpell, o overrides.Override) error {
 		e.Misc2 = int32(o.Value)
 
 	case overrides.ProcClassMask:
-		i := slices.IndexFunc(s.Effects, func(e storeEffect) bool { return e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_DUMMY })
+		i := slices.IndexFunc(s.Effects, func(e storeEffect) bool { return spelldata.CarriesProcClassMask(e.Aura) })
 		if i < 0 {
 			return fmt.Errorf("spell %d has no proc effect to carry a class mask", s.ID)
 		}
