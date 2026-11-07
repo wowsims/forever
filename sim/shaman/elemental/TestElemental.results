@@ -583,14 +583,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 731.25869
-  tps: 688.53496
-  dtps: 9.04212
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-GryphonRider'sStormhammer-9651"
  value: {
   dps: 644.14966
@@ -703,14 +695,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 731.25869
-  tps: 688.53496
-  dtps: 9.04212
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-MarkofResolution-17759"
  value: {
   dps: 724.36575
@@ -788,14 +772,6 @@ dps_results: {
   dps: 724.36575
   tps: 683.60714
   dtps: 9.14347
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-PolishedDriftwoodIcon-249398"
- value: {
-  dps: 713.2363
-  tps: 672.49402
-  dtps: 8.89655
  }
 }
 dps_results: {
@@ -1028,14 +1004,6 @@ dps_results: {
   dps: 660.03571
   tps: 623.96927
   dtps: 8.93593
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-TotemofChargedFlames-263412"
- value: {
-  dps: 718.9356
-  tps: 678.47823
-  dtps: 8.89417
  }
 }
 dps_results: {

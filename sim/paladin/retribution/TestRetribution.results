@@ -603,15 +603,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 937.74155
-  tps: 764.06003
-  dtps: 4.34794
-  hps: 26.72868
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-Gri'lek'sCharmofValor-19952"
  value: {
   dps: 909.80244
@@ -825,15 +816,6 @@ dps_results: {
   tps: 740.99828
   dtps: 4.2114
   hps: 25.97583
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 986.71866
-  tps: 804.92731
-  dtps: 5.65431
-  hps: 28.10134
  }
 }
 dps_results: {
@@ -1131,15 +1113,6 @@ dps_results: {
   tps: 749.56031
   dtps: 4.2114
   hps: 25.97583
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-TenetsoftheSilverHand-249397"
- value: {
-  dps: 933.88218
-  tps: 760.97864
-  dtps: 4.34794
-  hps: 26.72868
  }
 }
 dps_results: {

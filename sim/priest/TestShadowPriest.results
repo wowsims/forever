@@ -527,14 +527,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 761.88957
-  tps: 544.28226
-  dtps: 5.41108
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-GryphonRider'sStormhammer-9651"
  value: {
   dps: 712.37882
@@ -651,14 +643,6 @@ dps_results: {
  value: {
   dps: 753.99958
   tps: 538.74643
-  dtps: 5.41108
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 761.88957
-  tps: 544.28226
   dtps: 5.41108
  }
 }

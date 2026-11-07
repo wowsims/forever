@@ -274,7 +274,7 @@ func (filter *ItemFilter) Matches(item Item, equipChecksOnly bool) bool {
 	}
 
 	if !equipChecksOnly {
-		if !HasItemEffect(item.ID) {
+		if !HasItemEffect(item.ID) || item.ScalingOptions[0].GetIlvl() < MinEffectItemLevel {
 			return false
 		}
 

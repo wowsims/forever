@@ -585,15 +585,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 531.49205
-  tps: 458.14223
-  dtps: 2.96131
-  hps: 41.9375
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-Gri'lek'sCharmofMight-19951"
  value: {
   dps: 531.49205
@@ -721,15 +712,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-MajorRecombobulator-18637"
- value: {
-  dps: 531.49205
-  tps: 458.14223
-  dtps: 2.96131
-  hps: 41.9375
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-ManualCrowdPummeler-9449"
  value: {
   dps: 531.49205
   tps: 458.14223
