@@ -3645,6 +3645,7 @@
 {"id":284323,"name":"Geolord's Mitts","icon":"inv_gauntlets_16","type":7,"armorType":1,"reqLvl":6,"quality":2,"sources":[{"drop":{"npcId":5826,"zoneId":14}}],"scalingOptions":{"0":{"randPropPoints":1,"stats":{"3":1,"27":13},"ilvl":11}}},
 {"id":284361,"name":"Venture Company Legguards","icon":"inv_pants_03","type":9,"armorType":3,"reqLvl":8,"quality":2,"sources":[{"drop":{"npcId":5787,"zoneId":215}}],"scalingOptions":{"0":{"randPropPoints":3,"stats":{"0":3,"27":113},"ilvl":13}}},
 {"id":284382,"name":"Budding Leaf Belt","icon":"inv_belt_03","type":8,"armorType":2,"reqLvl":27,"quality":2,"sources":[{"drop":{"npcId":4030,"zoneId":406}}],"scalingOptions":{"0":{"randPropPoints":9,"stats":{"2":6,"4":13,"5":6,"27":54},"ilvl":32}}},
+{"id":284573,"name":"Ursol'lok's Paws","type":7,"armorType":2,"reqLvl":28,"quality":2,"scalingOptions":{"0":{"randPropPoints":9,"stats":{"2":6,"27":61},"ilvl":33}}},
 {"id":284668,"name":"Apothecary's Concoction","icon":"inv_potion_80","type":13,"weaponType":5,"handType":3,"reqLvl":19,"quality":2,"scalingOptions":{"0":{"randPropPoints":5,"stats":{"31":2},"ilvl":24}}},
 {"id":284696,"name":"Carved Furbolg Tooth","icon":"inv_misc_bone_06","type":14,"rangedWeaponType":4,"weaponSpeed":1.9,"reqLvl":24,"quality":2,"scalingOptions":{"0":{"randPropPoints":3,"weaponDamageMin":18,"weaponDamageMax":34,"unroundedDps":13.713553,"stats":{"0":2,"1":2},"ilvl":29}}},
 {"id":284697,"name":"Arcane Charged Robes","type":5,"armorType":1,"reqLvl":29,"quality":2,"scalingOptions":{"0":{"randPropPoints":13,"stats":{"3":9,"6":12,"27":46},"ilvl":34}}},

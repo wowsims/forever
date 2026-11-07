@@ -14423,6 +14423,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 696098, SpellID: 17619, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 20, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 17623, Name: "Visions of the Past", School: 1, Attr: [17]uint32{0: 0x9000100, 1: 0x20, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1, RequiredAreas: 6585,
+		Effects: []Effect{
+			{ID: 696040, SpellID: 17623, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INVISIBILITY_DETECT, BasePoints: 1000, BaseLevel: 60, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 904476, SpellID: 17623, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INVISIBILITY_DETECT, BasePoints: 1000, BaseLevel: 60, PvpMult: 1, Misc: 28, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 17624, Name: "Petrification", School: 8, Attr: [17]uint32{0: 0x40000, 1: 0x8000, 2: 0x80000000, 15: 0x2000}, DurationMs: 60000, GCDMs: 1500, Category: 37, StartRecoveryCategory: 133, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 13}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 696041, SpellID: 17624, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -15425,6 +15430,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 695823, SpellID: 18288, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 50, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 8, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 32768}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1365363, SpellID: 18288, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -20, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 8, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{2: 262144}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 18308, Name: "Death by Peasant", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, DurationMs: 20000,
+		Effects: []Effect{
+			{ID: 695331, SpellID: 18308, Type: dbcenums.E_SUMMON, BasePoints: 3, PvpMult: 1, Amplitude: 99999, RadiusMax: 3, Misc: 11636, Misc2: 6853, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},
 		}},
 	{ID: 18310, Name: "Improved Curse of Exhaustion", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 5}, Labels: []int16{19},
 		Effects: []Effect{
@@ -35754,9 +35763,21 @@ var generatedSpells = []Spell{
 			{ID: 1322153, SpellID: 1298478, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, BasePoints: 30, BaseLevel: 60, PvpMult: 1, Misc: 64, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1322154, SpellID: 1298478, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS, BasePoints: 30, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 64, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1298497, Name: "Restore Essence", School: 1, Attr: [17]uint32{0: 0x10, 1: 0x20000, 2: 0x1, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 10, CooldownMs: 300000, GCDMs: 1500, StartRecoveryCategory: 133, MaxTargets: 1, TargetCreatureType: 32, RefIDs: []int32{1298498},
+		Effects: []Effect{
+			{ID: 1322192, SpellID: 1298497, Type: dbcenums.E_DUMMY, BaseLevel: 60, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
+		}},
+	{ID: 1298498, Name: "Restore Essence", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, RefIDs: []int32{1298497},
+		Effects: []Effect{
+			{ID: 1322193, SpellID: 1298498, Type: dbcenums.E_HEAL, BasePoints: 933, Variance: 0.11800000071525574, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 1298501, Name: "Decrease Threat All 01", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1322196, SpellID: 1298501, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: -1, BaseLevel: 60, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1298508, Name: "Barov Peasant Caller", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 50000,
+		Effects: []Effect{
+			{ID: 1322205, SpellID: 1298508, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 1298707, Name: "Explosive Runeshard", School: 4, Speed: 60, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 3000, MinRange: 45, MaxRange: 175, DefenseType: 1, PreventionType: 2, InterruptFlags: 1,
 		Effects: []Effect{

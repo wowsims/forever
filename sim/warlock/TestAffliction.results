@@ -482,6 +482,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 682.91002
+  tps: 551.29168
+  dtps: 8.90899
+  hps: 7.35945
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-EyeoftheDead-23047"
  value: {
   dps: 659.87527
@@ -739,6 +748,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 659.87527
+  tps: 533.78017
+  dtps: 8.31601
+  hps: 7.19695
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 659.87527
@@ -874,6 +892,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestAffliction-AllItems-Slayer'sCrest-23041"
+ value: {
+  dps: 659.87527
+  tps: 533.78017
+  dtps: 8.31601
+  hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-Smokey'sLighter-13171"
  value: {
   dps: 659.87527
   tps: 533.78017

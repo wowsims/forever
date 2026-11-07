@@ -414,6 +414,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EyeoftheDead-23047"
  value: {
   dps: 780.33933
@@ -710,6 +718,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 780.33933
@@ -826,6 +842,14 @@ dps_results: {
  value: {
   dps: 810.03966
   tps: 599.54106
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 783.30383
+  tps: 580.5447
   hps: 46.5125
  }
 }

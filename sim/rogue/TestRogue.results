@@ -406,6 +406,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 609.09148
+  tps: 432.45495
+  hps: 52.49389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EyeoftheDead-23047"
  value: {
   dps: 608.67846
@@ -638,6 +646,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 608.67846
@@ -786,6 +802,14 @@ dps_results: {
  value: {
   dps: 640.19493
   tps: 454.5384
+  hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 611.14237
+  tps: 433.91108
   hps: 52.49389
  }
 }

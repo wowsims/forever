@@ -616,6 +616,20 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// https://www.wowhead.com/forever/spell=1298508
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 14023, ItemName: "Barov Peasant Caller"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces the cooldown of your Fade ability by 2.0 sec.
 	// https://www.wowhead.com/forever/spell=18388
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -3021,6 +3035,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Tome of Knowledge: "Stealth 05" (1293068) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=1293068
+	// Not simulated: Spectral Essence: "Visions of the Past" (17623) - ignored aura type 19
+	// https://www.wowhead.com/forever/spell=17623
 	// Not simulated: Voice Amplification Modulator: "Resist Silence 07" (19786) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=19786
 	// Not simulated: Knight-Lieutenant's Dragonhide Gloves: "Stealth Detection 10" (23217) - ignored aura type 17

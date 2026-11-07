@@ -514,6 +514,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 499.90603
+  tps: 1904.43319
+  dtps: 394.11795
+  hps: 84.06428
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EyeoftheDead-23047"
  value: {
   dps: 500.95286
@@ -856,6 +865,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 498.15899
+  tps: 1900.39127
+  dtps: 387.45517
+  hps: 83.45434
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 500.95286
@@ -986,6 +1004,15 @@ dps_results: {
  value: {
   dps: 513.26648
   tps: 1954.21968
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 500.95286
+  tps: 1909.76461
   dtps: 394.78517
   hps: 84.38378
  }

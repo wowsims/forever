@@ -41,6 +41,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
 	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
+	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
+	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
 	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
 	// shared.NewSimpleStatActive(13965) // Blackhand's Breadth - https://www.wowhead.com/forever/spell=1318944
 	// on use: 18386 (E_HEAL)
@@ -278,6 +280,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=12733
+	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=19804
 	// Not simulated: Insignia of the Horde: "Immune Root/Snare/Stun" (5579) - ignored aura type 77

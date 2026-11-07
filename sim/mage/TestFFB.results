@@ -377,6 +377,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 756.38441
+  tps: 781.06803
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-EyeoftheDead-23047"
  value: {
   dps: 721.23233
@@ -587,6 +594,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 721.23233
+  tps: 745.70815
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 721.23233
@@ -703,6 +717,13 @@ dps_results: {
  value: {
   dps: 721.23233
   tps: 745.70815
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 723.55464
+  tps: 748.21161
  }
 }
 dps_results: {

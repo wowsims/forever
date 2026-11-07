@@ -477,6 +477,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-EyeoftheDead-23047"
  value: {
   dps: 531.49205
@@ -747,6 +756,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 531.49205
@@ -949,6 +967,15 @@ dps_results: {
  value: {
   dps: 562.29949
   tps: 482.43563
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
   dtps: 2.96131
   hps: 41.9375
  }

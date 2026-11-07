@@ -706,6 +706,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13544, // Spectral Essence
+		[
+			"Releases the spirit from an Undead corpse within 10 yds, laying it to rest and restoring 933 Health.", // 1298497 - https://www.wowhead.com/forever/spell=1298497
+		]
+	],
+	[
 		13965, // Blackhand's Breadth
 		[
 			"Marks your target, increasing your Critical Strike chance against them by 5% for 20s. This effect is doubled against Orcs and Ogres.", // 1318944 - https://www.wowhead.com/forever/spell=1318944
@@ -716,6 +722,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13968, // Eye of the Beast
 		[
 			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
+		]
+	],
+	[
+		14023, // Barov Peasant Caller
+		[
+			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
 		]
 	],
 	[
