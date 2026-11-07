@@ -26,6 +26,11 @@ func (unit *Unit) ExtraAttackProc(trigger *ProcTrigger, tagSpellID int32, count 
 			target = spell.Unit
 		}
 		sim.RunAfterCurrentEvent(func(sim *Simulation) {
+			// An extra attack whose target died before it swings is lost, as Sword Specialization's is
+			// in game. The swing's cast checks no target, so the check is here.
+			if !target.IsEnabled() {
+				return
+			}
 			mainHand := unit.AutoAttacks.MHAuto()
 			extraAttack.SetSpellSchool(mainHand.SpellSchool)
 			extraAttack.BonusCoefficient = mainHand.BonusCoefficient

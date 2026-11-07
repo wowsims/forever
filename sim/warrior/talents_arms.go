@@ -327,7 +327,11 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
-	// the shape, the mask and the rate's effect are all the caller's.
+	// the shape, the mask and the rate's effect are all the caller's. Measured in game, Sweeping
+	// Strikes' hits never roll it, and Whirlwind and Cleave roll it once a cast however many targets
+	// they land on. Which target's hit takes that roll is not measured; here the first landed one
+	// does, since a hit that is avoided never reaches the condition.
+	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
 		Name:            "Weaponmaster (Sword)",
 		ActionID:        actionID.WithTag(3),
@@ -337,13 +341,29 @@ func (warrior *Warrior) registerWeaponmaster() {
 		Outcome:         core.OutcomeLanded,
 		ProcChance:      spellData.Weaponmaster.EffectAt(3).FractionAt(rank),
 		Duration:        core.NeverExpires,
-		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			return spell.ProcMask.Matches(swordMask)
+		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
+				return false
+			}
+			if spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell) {
+				return firstAoeHit(sim, spell)
+			}
+			return true
 		},
 	}
 	onInit := warrior.ExtraAttackProc(&swordTrigger, actionID.SpellID, 1)
+	// In game a Windfury Totem swing rolls it, but the proc brings no extra swing. Every swing another
+	// proc grants is held to that rule; each is a copy of the main-hand swing tagged with its own spell.
+	grantSwing := swordTrigger.Handler
+	swordTrigger.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) && spell != warrior.AutoAttacks.MHAuto() {
+			return
+		}
+		grantSwing(sim, spell, result)
+	}
 	swordAura := warrior.MakeProcTriggerAura(swordTrigger).ApplyOnInit(onInit).ApplyOnInit(func(aura *core.Aura, _ *core.Simulation) {
 		aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
+			resetFirstAoeHit()
 			if swordMask == core.ProcMaskUnknown {
 				aura.Deactivate(sim)
 			} else {
@@ -405,12 +425,15 @@ func (warrior *Warrior) registerImprovedSlam() {
 
 var sweepingStrikesRank = spellData.SweepingStrikes.Highest()
 
+// The strike both of Sweeping Strikes' hits report under.
+const sweepingStrikesHitID = 12723
+
 func (warrior *Warrior) registerSweepingStrikes() {
 	if !warrior.Talents.SweepingStrikes {
 		return
 	}
 
-	actionID := core.ActionID{SpellID: 12723}
+	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{

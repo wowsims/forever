@@ -967,3 +967,148 @@ func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 		t.Errorf("damage taken counted %d health events, want none", events)
 	}
 }
+
+// An Arms warrior with a two-handed sword, Nightblade, against the given number of targets, with
+// its auto attacks stopped so every swing the test counts comes from the hits it deals. The returned
+// func counts the Sword Specialization swings so far.
+func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+	t.Helper()
+
+	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982}
+	encounter := core.MakeSingleTargetEncounter(0)
+	for len(encounter.Targets) < targets {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	player := &proto.Player{
+		Name:          "Sword",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     gear,
+		TalentsString: armsTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	stepPastBatch(t, sim)
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+
+	swordSpec := war.GetAura("Weaponmaster (Sword)")
+	if swordSpec == nil || !swordSpec.IsActive() {
+		t.Fatal("Weaponmaster's sword proc is not up")
+	}
+	swing := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: swordSpec.ActionID.SpellID})
+	if swing == nil {
+		t.Fatal("Weaponmaster registered no extra swing")
+	}
+	swings := func() int32 {
+		var casts int32
+		for _, metrics := range swing.SpellMetrics {
+			casts += metrics.Casts
+		}
+		return casts
+	}
+	return sim, war, swings
+}
+
+// Whirlwind and Cleave roll Sword Specialization once a cast, however many targets they land on, so
+// no cast brings more than one extra swing.
+func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		spell core.ActionID
+	}{
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)},
+		{"Cleave", core.ActionID{SpellID: 20569}},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{})
+			spell := war.GetSpell(c.spell)
+			if spell == nil {
+				t.Fatalf("the warrior has no %s", c.name)
+			}
+
+			var total int32
+			for range 1000 {
+				before := swings()
+				spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+				stepPastBatch(t, sim)
+				got := swings() - before
+				if got > 1 {
+					t.Fatalf("one %s brought %d extra swings, want at most 1", c.name, got)
+				}
+				total += got
+			}
+			if total == 0 {
+				t.Fatalf("1000 casts of %s brought no extra swing, so the check above proves nothing", c.name)
+			}
+		})
+	}
+}
+
+// Sweeping Strikes' hits never roll Sword Specialization, and a Windfury Totem swing rolls it but
+// its proc brings no extra swing. The warrior's own main-hand swing does bring them.
+func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
+	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
+	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true})
+
+	hits := func(spell *core.Spell) int32 {
+		t.Helper()
+		before := swings()
+		for range 2000 {
+			war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}
+		stepPastBatch(t, sim)
+		return swings() - before
+	}
+
+	for _, id := range []core.ActionID{
+		{SpellID: 12723},
+		{SpellID: 12723, Tag: 1},
+		{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttack},
+	} {
+		spell := war.GetSpell(id)
+		if spell == nil {
+			t.Fatalf("the warrior has no %v", id)
+		}
+		if got := hits(spell); got != 0 {
+			t.Errorf("2000 landed hits of %v brought %d Sword Specialization swings, want 0", id, got)
+		}
+	}
+
+	if got := hits(war.AutoAttacks.MHAuto()); got == 0 {
+		t.Error("2000 landed main-hand swings brought no Sword Specialization swing, so the checks above prove nothing")
+	}
+}
+
+// A Sword Specialization swing is lost when its target dies before it swings.
+func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
+	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{})
+	target := sim.Encounter.AllTargets[0]
+	hits := func() {
+		for range 2000 {
+			war.OnSpellHitDealt(sim, war.AutoAttacks.MHAuto(), &core.SpellResult{Target: &target.Unit, Outcome: core.OutcomeHit, Damage: 100})
+		}
+	}
+
+	before := swings()
+	hits()
+	stepPastBatch(t, sim)
+	if swings() == before {
+		t.Fatal("2000 landed main-hand swings brought no Sword Specialization swing, so the check below proves nothing")
+	}
+
+	before = swings()
+	hits()
+	target.Die(sim, 1)
+	stepPastBatch(t, sim)
+	if got := swings() - before; got != 0 {
+		t.Errorf("%d Sword Specialization swings went off after their target died, want 0", got)
+	}
+}
