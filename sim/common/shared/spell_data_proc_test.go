@@ -380,14 +380,13 @@ func TestGeneratedItemEffectsCompose(t *testing.T) {
 	core.NewItemEffect(handID, func(core.Agent) {})
 	effectSource{id: classFileID}.registerEffect(func(core.Agent) {})
 
-	done := Generated()
+	defer Generated()()
 	source := effectSource{id: generatedID}
 	source.registerEffect(func(core.Agent) {})
 	if source.isAlreadyImplemented() {
 		t.Error("an id the generated effects hold reads as implemented by hand")
 	}
 	source.registerEffect(func(core.Agent) {})
-	done()
 	if got := len(generatedItemEffects[generatedID]); got != 2 || !core.HasItemEffect(generatedID) {
 		t.Errorf("%d generated effects on one item, core registration %v; want 2 under one registration", got, core.HasItemEffect(generatedID))
 	}

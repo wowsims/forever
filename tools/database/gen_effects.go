@@ -1299,7 +1299,10 @@ func refuseFoldingProcs(groupMapProc map[string]Group) {
 			kept[variant.ID] = true
 			continue
 		}
-		entry.Proc.Unsupported = append(entry.Proc.Unsupported, "a second proc of the item would fold under the first's listener")
+		// A stacking-aura proc carries no routing to state the reason on.
+		if entry.Proc != nil {
+			entry.Proc.Unsupported = append(entry.Proc.Unsupported, "a second proc of the item would fold under the first's listener")
+		}
 		entry.Supported = false
 		StoreMissingEffect("ItemEffects", variant.Name, Variant{ID: variant.ID, Name: strings.Join(entry.Tooltip, "\n"), SpellID: variant.SpellID})
 	}
