@@ -369,6 +369,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 874.42486
+  tps: 910.72351
+  dtps: 7.47157
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 878.57602
@@ -477,6 +486,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-EyeoftheBeast-13968"
+ value: {
+  dps: 881.10134
+  tps: 917.69458
+  dtps: 7.55563
+  hps: 32.83833
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-EyeoftheDead-23047"
  value: {
   dps: 867.40594
@@ -506,10 +524,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 885.52405
-  tps: 921.87332
-  dtps: 7.36706
-  hps: 33.07556
+  dps: 920.18197
+  tps: 952.59858
+  dtps: 9.35756
+  hps: 20.33333
  }
 }
 dps_results: {
@@ -684,6 +702,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-MarkofTyranny-13966"
+ value: {
+  dps: 867.40594
+  tps: 903.59134
+  dtps: 7.48802
+  hps: 32.7875
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-MarkoftheChampion-23206"
  value: {
   dps: 867.40594
@@ -731,10 +758,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Nightfall-19169"
  value: {
-  dps: 879.18973
-  tps: 915.53899
-  dtps: 7.36706
-  hps: 33.07556
+  dps: 991.07734
+  tps: 1022.50748
+  dtps: 8.40468
+  hps: 20.70611
  }
 }
 dps_results: {
@@ -767,10 +794,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 885.17326
-  tps: 921.50883
-  dtps: 7.15502
-  hps: 33.0925
+  dps: 894.46344
+  tps: 925.95593
+  dtps: 7.27566
+  hps: 21.77361
  }
 }
 dps_results: {
@@ -785,10 +812,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Ravager-7717"
  value: {
-  dps: 879.18973
-  tps: 915.53899
-  dtps: 7.36706
-  hps: 33.07556
+  dps: 763.67164
+  tps: 790.59966
+  dtps: 7.32847
+  hps: 17.11389
  }
 }
 dps_results: {
@@ -846,6 +873,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Smokey'sLighter-13171"
+ value: {
+  dps: 873.17298
+  tps: 909.93634
+  dtps: 7.34791
+  hps: 32.7875
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-SmokingHeartoftheMountain-11811"
  value: {
   dps: 867.40594
@@ -857,19 +893,19 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 884.33637
-  tps: 920.61381
-  dtps: 7.22342
-  hps: 33.07556
+  dps: 1028.46497
+  tps: 1060.28731
+  dtps: 8.68696
+  hps: 19.94361
  }
 }
 dps_results: {
  key: "TestEnhancement-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 879.18973
-  tps: 915.53899
-  dtps: 7.36706
-  hps: 33.07556
+  dps: 970.85989
+  tps: 1002.47275
+  dtps: 8.65249
+  hps: 19.94361
  }
 }
 dps_results: {
@@ -991,6 +1027,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestEnhancement-AllItems-TidalTotem-272431"
+ value: {
+  dps: 875.29107
+  tps: 911.64033
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TotemofFlowingWater-23005"
  value: {
   dps: 875.29107
   tps: 911.64033

@@ -244,6 +244,12 @@ func resolveTriggerType(topType, spellID int) int {
 		}
 	}
 
+	// A dummy proc the server scripts states no trigger aura; the one that fires the resource gain
+	// its tooltip names is a proc all the same. Idol of Longevity's 28847 names 28848.
+	if spelldata.Find(int32(spellID)).FiredSpell() != spelldata.Nil {
+		return ITEM_SPELLTRIGGER_CHANCE_ON_HIT
+	}
+
 	return topType
 }
 
