@@ -157,10 +157,10 @@ func TestDecodeProcTypeMask(t *testing.T) {
 		{
 			name:     "Battlegear of Wrath 23548, whose trigger is a block",
 			mask:     [2]uint32{0x2A8, 0},
-			hint:     ProcHintOutcomeTaken,
+			hint:     ProcHintBlocked,
 			callback: CallbackOnSpellHitTaken,
 			procMask: ProcMaskMeleeWhiteHit | ProcMaskMeleeSpecial | ProcMaskRangedAuto | ProcMaskRangedSpecial,
-			outcome:  OutcomeLanded,
+			outcome:  OutcomeBlock,
 		},
 		{
 			name:     "Recovery 1248761, whose trigger is the wearer's melee attack dodged or parried",

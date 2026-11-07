@@ -576,6 +576,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-HandofJustice-11815"
+ value: {
+  dps: 873.38584
+  tps: 909.92862
+  dtps: 7.43245
+  hps: 33.65167
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 867.40594
@@ -600,6 +609,15 @@ dps_results: {
   tps: 903.59134
   dtps: 7.48802
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
  }
 }
 dps_results: {
@@ -684,6 +702,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 870.5492
@@ -747,12 +774,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 867.40594
+  tps: 903.59134
+  dtps: 7.48802
+  hps: 32.7875
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Ravager-7717"
  value: {
   dps: 879.18973
   tps: 915.53899
   dtps: 7.36706
   hps: 33.07556
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SecondWind-11819"
+ value: {
+  dps: 868.45001
+  tps: 905.19692
+  dtps: 7.31545
+  hps: 32.82139
  }
 }
 dps_results: {
@@ -924,6 +969,15 @@ dps_results: {
   tps: 923.56189
   dtps: 7.48802
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 863.24321
+  tps: 899.59248
+  dtps: 7.36706
+  hps: 33.07556
  }
 }
 dps_results: {

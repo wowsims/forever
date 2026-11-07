@@ -125,14 +125,13 @@ var ItemSetBattlegearOfWrath = core.NewItemSet(core.ItemSet{
 			parry.AttachProcTrigger(consume)
 
 			// The rate is the proc chance column, which the tooltip's $h% says is a real roll; the
-			// block it fires on is an outcome no proc mask states, so the row states only that the
-			// hit it hears carries no damage.
+			// block it fires on is the row's, off its block hint, which the decoder reads as the
+			// outcome and as a hit that carries no damage.
 			trigger := spelldata.ProcTrigger(&warrior.Character, wrathParryProc,
 				func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 					parry.Activate(sim)
 				})
 			trigger.Name = "Battlegear of Wrath - 8PC"
-			trigger.Outcome = core.OutcomeBlock
 
 			setBonusAura.AttachProcTrigger(trigger)
 		},

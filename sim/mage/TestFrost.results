@@ -468,6 +468,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-HandofJustice-11815"
+ value: {
+  dps: 706.8142
+  tps: 652.73625
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-HanzoSword-8190"
  value: {
   dps: 770.82316
@@ -500,6 +507,13 @@ dps_results: {
  value: {
   dps: 727.30019
   tps: 671.2199
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 770.82316
+  tps: 710.33245
  }
 }
 dps_results: {
@@ -545,6 +559,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 779.39371
+  tps: 720.26944
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Magister'sRegalia"
  value: {
   dps: 770.95093
@@ -587,6 +608,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 770.82316
+  tps: 710.33245
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 706.8142
@@ -622,10 +650,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 706.8142
+  tps: 652.73625
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-RobeoftheArchmage-14152"
  value: {
   dps: 789.82324
   tps: 727.81499
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-SecondWind-11819"
+ value: {
+  dps: 716.47843
+  tps: 662.46709
  }
 }
 dps_results: {
@@ -717,6 +759,13 @@ dps_results: {
  value: {
   dps: 742.10752
   tps: 684.50024
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 770.82316
+  tps: 710.33245
  }
 }
 dps_results: {

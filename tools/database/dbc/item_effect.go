@@ -210,9 +210,10 @@ func (w *chainWalker) resolveStatsSpell(spellID int) int {
 		}
 	}
 
-	// If we cant resolve the spell in the first loop, we follow proc triggers downwards
+	// If we cant resolve the spell in the first loop, we follow proc triggers downwards. A proc that
+	// deals its own damage names no spell below it, so it is its own.
 	for _, se := range effects {
-		if se.IsProcTrigger() {
+		if se.IsProcTrigger() && se.CastsItsTrigger() {
 			return w.resolveStatsSpell(se.EffectTriggerSpell)
 		}
 	}

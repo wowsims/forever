@@ -684,6 +684,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-GirdleofExtractedAnswers-276742"
+ value: {
+  dps: 435.26889
+  tps: 1393.56468
+  dtps: 299.54549
+  hps: 36.44528
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 434.91766
@@ -774,6 +783,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-HandofJustice-11815"
+ value: {
+  dps: 445.39381
+  tps: 1412.18322
+  dtps: 291.94081
+  hps: 37.27556
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
   dps: 432.87871
@@ -825,6 +843,15 @@ dps_results: {
   tps: 1445.92579
   dtps: 354.15672
   hps: 36.225
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 424.88353
+  tps: 1357.69443
+  dtps: 289.97814
+  hps: 36.63167
  }
 }
 dps_results: {
@@ -963,6 +990,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 425.60659
+  tps: 1359.25623
+  dtps: 289.97814
+  hps: 36.63167
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 436.50799
@@ -1071,6 +1107,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 434.79413
+  tps: 1397.78007
+  dtps: 291.0831
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 434.38089
@@ -1086,6 +1131,15 @@ dps_results: {
   tps: 1404.41492
   dtps: 290.09935
   hps: 36.61472
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-SecondWind-11819"
+ value: {
+  dps: 434.79413
+  tps: 1397.78007
+  dtps: 291.0831
+  hps: 36.59778
  }
 }
 dps_results: {
@@ -1284,6 +1338,15 @@ dps_results: {
   tps: 1354.16362
   dtps: 286.28917
   hps: 36.36056
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 426.24895
+  tps: 1360.64375
+  dtps: 289.97814
+  hps: 36.63167
  }
 }
 dps_results: {
