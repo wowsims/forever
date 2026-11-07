@@ -5,21 +5,9 @@ import (
 )
 
 func RegisterAllProcs() {
+	defer shared.Generated()()
 
 	// Equip
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// When struck in combat, inflicts 3 Physical damage to the attacker.
-	// https://www.wowhead.com/forever/spell=1325228
-	// unsupported: another effect of the item registers
-	// equip: 1325228 (A_DAMAGE_SHIELD)
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1325228},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 1204, ItemName: "The Green Tower"},
-	// })
 
 	// TODO: Manual implementation required
 	//       This can be ignored if the effect has already been implemented.
@@ -73,6 +61,14 @@ func RegisterAllProcs() {
 	//	{ItemID: 22060, ItemName: "Beastmaster's Tunic"},
 	// })
 
+	// When struck in combat, inflicts 3 Physical damage to the attacker.
+	// https://www.wowhead.com/forever/spell=1325228
+	// equip: 1325228 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1325228},
+		[]shared.ItemVariant{
+			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
 	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike
 	// you are 2 times as likely to activate this effect.
 	// https://www.wowhead.com/forever/spell=17351
@@ -88,6 +84,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1298501},
 		[]shared.ItemVariant{
 			{ItemID: 13959, ItemName: "Omokk's Girth Restrainer"},
+		})
+
+	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
+	// https://www.wowhead.com/forever/spell=21142
+	// equip: 21142 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 21142},
+		[]shared.ItemVariant{
+			{ItemID: 17182, ItemName: "Sulfuras, Hand of Ragnaros"},
 		})
 
 	// When struck in combat inflicts 13 Fire damage to the attacker.
@@ -1595,36 +1599,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Gain up to 25 mana each time you cast Healing Touch.
-	// https://www.wowhead.com/forever/spell=28847
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 23004, ItemName: "Idol of Longevity"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Regain up to 10 mana each time you cast Lesser Healing Wave.
-	// https://www.wowhead.com/forever/spell=28849
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 23005, ItemName: "Totem of Flowing Water"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Gives you a 50% chance to avoid interruption caused by damage while casting Searing Pain.
 	// https://www.wowhead.com/forever/spell=23046
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2943,6 +2917,14 @@ func RegisterAllProcs() {
 			{ItemID: 17111, ItemName: "Blazefury Medallion"},
 		})
 
+	// Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over 10s.
+	// https://www.wowhead.com/forever/spell=21162
+	// trigger 21162 (0.7 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21162, BuffSpellID: 21162, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 17182, ItemName: "Sulfuras, Hand of Ragnaros"},
+		})
+
 	// Hurls a fiery ball that causes 92 Fire damage and an additional 16 damage over 8s.
 	// https://www.wowhead.com/forever/spell=21159
 	// trigger 21159 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -3046,6 +3028,22 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 25906, BuffSpellID: 25907},
 		[]shared.ItemVariant{
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
+		})
+
+	// Gain up to 25 mana each time you cast Healing Touch.
+	// https://www.wowhead.com/forever/spell=28847
+	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28847},
+		[]shared.ItemVariant{
+			{ItemID: 23004, ItemName: "Idol of Longevity"},
+		})
+
+	// Regain up to 10 mana each time you cast Lesser Healing Wave.
+	// https://www.wowhead.com/forever/spell=28849
+	// trigger 28849 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28849},
+		[]shared.ItemVariant{
+			{ItemID: 23005, ItemName: "Totem of Flowing Water"},
 		})
 
 	// When struck in combat has a 5% chance of inflicting 50 Nature damage to the attacker.

@@ -28,12 +28,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		1204, // The Green Tower
-		[
-			"When struck in combat, inflicts 3 Physical damage to the attacker.", // 1325228 - https://www.wowhead.com/forever/spell=1325228
-		]
-	],
-	[
 		1265, // Scorpion Sting
 		[
 			"Poisons target for 13 Nature damage every 5.0 sec for 25s.", // 18208 - https://www.wowhead.com/forever/spell=18208
@@ -985,12 +979,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		19345, // Aegis of Preservation
-		[
-			"Increases armor by 500, and heals 35 damage every time you take ranged or melee damage for 20s.", // 23780 - https://www.wowhead.com/forever/spell=23780
-		]
-	],
-	[
 		19588, // Hero's Brand
 		[
 			"Increases the duration of Hammer of Justice by 0.5 sec.", // 24188 - https://www.wowhead.com/forever/spell=24188
@@ -1450,18 +1438,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22870, // Blood Guard's Silk Handwraps
 		[
 			"Increases the damage absorbed by your Mana Shield by 285.", // 23037 - https://www.wowhead.com/forever/spell=23037
-		]
-	],
-	[
-		23004, // Idol of Longevity
-		[
-			"Gain up to 25 mana each time you cast Healing Touch.", // 28847 - https://www.wowhead.com/forever/spell=28847
-		]
-	],
-	[
-		23005, // Totem of Flowing Water
-		[
-			"Regain up to 10 mana each time you cast Lesser Healing Wave.", // 28849 - https://www.wowhead.com/forever/spell=28849
 		]
 	],
 	[
@@ -2193,12 +2169,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		7210, // Enchant Weapon - Dismantle
 		[
 			"Permanently enchant a Weapon to cause all spells and attacks to sometimes deal 75 additional damage to mechanical creatures.", // 435467 - https://www.wowhead.com/forever/spell=435467
-		]
-	],
-	[
-		7223, // Enchant Chest - Retricutioner
-		[
-			"Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker when the bearer is struck in Melee. ", // 435901 - https://www.wowhead.com/forever/spell=435901
 		]
 	],
 	[

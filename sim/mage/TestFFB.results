@@ -75,13 +75,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-ArcaniteChampion-12790"
- value: {
-  dps: 782.81619
-  tps: 807.92598
- }
-}
-dps_results: {
  key: "TestFFB-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 721.23233
@@ -91,8 +84,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 834.67928
+  tps: 859.97093
  }
 }
 dps_results: {
@@ -119,8 +112,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BlazingRapier-12777"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -239,8 +232,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -280,6 +273,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFFB-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 782.81619
+  tps: 807.92598
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-EnchantChest-Retricutioner-7223"
  value: {
   dps: 782.81619
   tps: 807.92598
@@ -421,8 +421,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Frostguard-12797"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -442,8 +442,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-GlacialBlade-19099"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -470,8 +470,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -484,8 +484,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-HanzoSword-8190"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -533,8 +533,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -636,13 +636,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-Nightblade-1982"
- value: {
-  dps: 782.81619
-  tps: 807.92598
- }
-}
-dps_results: {
  key: "TestFFB-AllItems-OrbofFire-12805"
  value: {
   dps: 721.23233
@@ -659,8 +652,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-PhantomBlade-7961"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -694,8 +687,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -708,8 +701,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -771,8 +764,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -792,8 +785,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-ThrashBlade-17705"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -806,8 +799,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 782.81619
-  tps: 807.92598
+  dps: 705.2951
+  tps: 730.04841
  }
 }
 dps_results: {
@@ -843,13 +836,6 @@ dps_results: {
  value: {
   dps: 738.02953
   tps: 762.51096
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-Witchfury-13051"
- value: {
-  dps: 782.81619
-  tps: 807.92598
  }
 }
 dps_results: {

@@ -74,10 +74,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 936.56356
+  tps: 764.21433
+  dtps: 5.0084
+  hps: 28.16692
  }
 }
 dps_results: {
@@ -245,10 +245,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Darkspear-12802"
  value: {
-  dps: 943.97812
-  tps: 769.0554
-  dtps: 4.34794
-  hps: 26.73325
+  dps: 876.98321
+  tps: 718.62053
+  dtps: 6.39805
+  hps: 28.58951
  }
 }
 dps_results: {
@@ -396,6 +396,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 930.36015
+  tps: 758.13915
+  dtps: 4.36616
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 933.72814
@@ -533,10 +542,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FieryWarAxe-870"
  value: {
-  dps: 942.48219
-  tps: 767.85866
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 901.78712
+  tps: 735.61455
+  dtps: 4.93378
+  hps: 27.29665
  }
 }
 dps_results: {
@@ -632,10 +641,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GrimReaper-13054"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 845.60192
+  tps: 693.56721
+  dtps: 6.52437
+  hps: 29.35405
  }
 }
 dps_results: {
@@ -920,19 +929,19 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 874.34789
+  tps: 713.9511
+  dtps: 4.68676
+  hps: 27.39459
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-Nightfall-19169"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 963.6845
+  tps: 785.26132
+  dtps: 4.5042
+  hps: 27.389
  }
 }
 dps_results: {
@@ -1019,10 +1028,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Ravager-7717"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 724.06034
+  tps: 588.42066
+  dtps: 3.51656
+  hps: 21.5169
  }
 }
 dps_results: {
@@ -1136,19 +1145,19 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 941.52908
-  tps: 767.05981
-  dtps: 4.22024
-  hps: 26.72868
+  dps: 1013.10646
+  tps: 824.31077
+  dtps: 4.08146
+  hps: 26.87931
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 948.06517
+  tps: 772.57331
+  dtps: 4.66238
+  hps: 26.8849
  }
 }
 dps_results: {
@@ -1280,10 +1289,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Thunderstrike-17223"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 912.08834
+  tps: 746.12491
+  dtps: 6.36512
+  hps: 29.18731
  }
 }
 dps_results: {
@@ -1352,10 +1361,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Witchfury-13051"
  value: {
-  dps: 934.99769
-  tps: 761.87106
-  dtps: 4.34794
-  hps: 26.72868
+  dps: 837.08794
+  tps: 688.61133
+  dtps: 7.42807
+  hps: 30.38478
  }
 }
 dps_results: {

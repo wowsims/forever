@@ -22454,8 +22454,8 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 28849, Name: "Lesser Healing Wave", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4000}, ClassFlags: core.ClassFlags{Family: 11}, Labels: []int16{24}, RefIDs: []int32{28850}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCastTrigger,
 		Effects: []Effect{
-			{ID: 705320, SpellID: 28849, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 32}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+			{ID: 705320, SpellID: 28849, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 128}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}}, // override: ProcClassMask 128 -- Totem of Flowing Water: the dummy's mask is bit 5 of the shaman family, under which no spell is filed; Lesser Healing Wave, which the tooltip names, is bit 7
 	{ID: 28850, Name: "Lesser Healing Wave", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 1, DispelType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 705321, SpellID: 28850, Type: dbcenums.E_ENERGIZE, BasePoints: 10, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
