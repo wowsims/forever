@@ -50,13 +50,14 @@ func _() {
 	_ = x[SpellFlagBleed-549755813888]
 	_ = x[SpellFlagStun-1099511627776]
 	_ = x[SpellFlagMovesToTarget-2199023255552]
-	_ = x[SpellFlagAgentReserved1-4398046511104]
-	_ = x[SpellFlagAgentReserved2-8796093022208]
-	_ = x[SpellFlagAgentReserved3-17592186044416]
-	_ = x[SpellFlagAgentReserved4-35184372088832]
+	_ = x[SpellFlagIgnoreTargetSchoolBonus-4398046511104]
+	_ = x[SpellFlagAgentReserved1-8796093022208]
+	_ = x[SpellFlagAgentReserved2-17592186044416]
+	_ = x[SpellFlagAgentReserved3-35184372088832]
+	_ = x[SpellFlagAgentReserved4-70368744177664]
 }
 
-const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagNoActiveDefenseSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagDropsQueuedSwingSpellFlagBleedSpellFlagStunSpellFlagMovesToTargetSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
+const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagNoActiveDefenseSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagDropsQueuedSwingSpellFlagBleedSpellFlagStunSpellFlagMovesToTargetSpellFlagIgnoreTargetSchoolBonusSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
 
 var _SpellFlag_map = map[SpellFlag]string{
 	0:              _SpellFlag_name[0:13],
@@ -101,10 +102,11 @@ var _SpellFlag_map = map[SpellFlag]string{
 	549755813888:   _SpellFlag_name[812:826],
 	1099511627776:  _SpellFlag_name[826:839],
 	2199023255552:  _SpellFlag_name[839:861],
-	4398046511104:  _SpellFlag_name[861:884],
-	8796093022208:  _SpellFlag_name[884:907],
-	17592186044416: _SpellFlag_name[907:930],
-	35184372088832: _SpellFlag_name[930:953],
+	4398046511104:  _SpellFlag_name[861:893],
+	8796093022208:  _SpellFlag_name[893:916],
+	17592186044416: _SpellFlag_name[916:939],
+	35184372088832: _SpellFlag_name[939:962],
+	70368744177664: _SpellFlag_name[962:985],
 }
 
 func (i SpellFlag) String() string {

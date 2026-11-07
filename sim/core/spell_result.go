@@ -924,7 +924,9 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 		// The target's flat school bonus, Judgement of the Crusader, lands after the caster's done
 		// multipliers and before the target's and the outcome roll: a crit doubles it and a damage done
 		// talent never scales it.
-		result.Damage += spell.takenBonusCoefficient(attackTable.Defender, isPeriodic) * attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
+			result.Damage += spell.takenBonusCoefficient(attackTable.Defender, isPeriodic) * attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
+		}
 	}
 
 	targetMultiplier := spell.TargetDamageMultiplier(sim, attackTable, isPeriodic)

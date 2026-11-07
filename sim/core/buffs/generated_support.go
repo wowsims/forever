@@ -42,13 +42,18 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient))
 }
 
+// A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
+// multipliers, a Dwarf's 5% against beasts among them. The flat school bonus on the unit it strikes
+// adds nothing: in game a rank 1 Retribution Aura hits a beast under the paladin's own Judgement of
+// the Crusader for 5 or 6, its flat 5 at the racial's 5%.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64) core.ProcTrigger {
 	procSpell := unit.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID.WithTag(actionID.Tag + 2),
 		SpellSchool: school,
 		ProcMask:    core.ProcMaskEmpty,
-		Flags:       core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell,
+		Flags: core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell |
+			core.SpellFlagIgnoreTargetSchoolBonus,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
