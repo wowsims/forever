@@ -6,13 +6,13 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// How the parse binds a hit, crit, rating, damage done, spell hit or threat aura to the weapon its
-// row requires in SpellEquippedItems.
+// How the parse binds an aura WeaponBindable names to the weapon its row requires in
+// SpellEquippedItems.
 type WeaponRule uint8
 
 const (
 	// The effect gives its stat: the row names no weapon, names a shield, the aura reaches another unit,
-	// or the effect is not a hit, crit, rating, damage done, spell hit or threat aura.
+	// or the effect is not an aura WeaponBindable names.
 	WeaponRuleNone WeaponRule = iota
 	// A mod on the attacks made with a matching weapon.
 	WeaponRulePerWeapon
@@ -26,9 +26,9 @@ const (
 
 const rangedInvTypes int32 = dbcenums.INVTYPE_BIT_RANGED | dbcenums.INVTYPE_BIT_THROWN | dbcenums.INVTYPE_BIT_RANGEDRIGHT
 
-// The rule the parse applies to a hit, crit, rating, damage done, spell hit or threat effect, and the
-// scope a mod under it takes: the proc mask and the Equip fields, with no class flags, so the mod
-// reaches auto attacks whatever family the spell belongs to. The scope is zero under WeaponRuleNone.
+// The rule the parse applies to an effect whose aura WeaponBindable names, and the scope a mod under
+// it takes: the proc mask and the Equip fields, with no class flags, so the mod reaches auto attacks
+// whatever family the spell belongs to. The scope is zero under WeaponRuleNone.
 //
 // A_MOD_HIT_CHANCE and A_MOD_WEAPON_CRIT_PERCENT are per weapon. A_MOD_CRIT_PCT and
 // A_MOD_DAMAGE_PERCENT_DONE are per weapon where their weapons are ranged weapons alone, named by

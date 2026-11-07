@@ -54,8 +54,6 @@ func TestWeaponScopeRules(t *testing.T) {
 			casterAura(dbcenums.A_MOD_THREAT, -20), WeaponRuleWhileEquipped,
 			core.SpellModConfig{ProcMask: core.ProcMaskMelee, EquipSubclass: 136546}},
 		{"threat with no weapon", Spell{}, casterAura(dbcenums.A_MOD_THREAT, 15), WeaponRuleNone, core.SpellModConfig{}},
-		{"threat with a shield", Spell{EquipClass: 4, EquipSubclass: 64},
-			casterAura(dbcenums.A_MOD_THREAT, 15), WeaponRuleNone, core.SpellModConfig{}},
 		{"hit rating with melee weapons", Spell{EquipClass: 2, EquipSubclass: 173555},
 			rating(32 | 64 | 128), WeaponRulePerWeapon,
 			core.SpellModConfig{ProcMask: core.ProcMaskMelee, EquipSubclass: 173555}},

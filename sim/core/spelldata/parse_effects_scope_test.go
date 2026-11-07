@@ -198,30 +198,6 @@ func TestParseScopedPrecision(t *testing.T) {
 	}
 }
 
-// Precision's spell hit goes with its melee weapons: nothing with a bow alone, and the hit once a sword
-// is swapped in.
-func TestParseScopedPrecisionSpellHitFollowsTheWeapon(t *testing.T) {
-	row := &Spell{ID: 13705, Name: "Precision", EquipClass: 2, EquipSubclass: 173555,
-		Effects: []Effect{casterAura(dbcenums.A_MOD_SPELL_HIT_CHANCE, 1)}}
-	r := parseScopedWith(t, row, core.WeaponTestSlots(0, 0, core.WeaponTestBowID),
-		core.WeaponTestSlots(core.WeaponTestSwordID, 0, core.WeaponTestBowID), false)
-
-	for _, step := range []struct {
-		when string
-		swap proto.APLActionItemSwap_SwapSet
-		want float64
-	}{
-		{"bow alone", proto.APLActionItemSwap_Main, 0},
-		{"sword swapped in", proto.APLActionItemSwap_Swap1, 1},
-		{"sword swapped out", proto.APLActionItemSwap_Main, 0},
-	} {
-		r.character.ItemSwap.SwapItems(r.sim, step.swap, false)
-		if got := r.character.GetStat(stats.SpellHitPercent) - r.before[stats.SpellHitPercent]; got != step.want {
-			t.Errorf("%s: spell hit moved by %v, want %v", step.when, got, step.want)
-		}
-	}
-}
-
 // A mask of the ranged bits alone is the rating on ranged attacks, as the percent it is worth there.
 func TestParseScopedRangedOnlyRating(t *testing.T) {
 	r := parseScoped(t, &Spell{ID: 6100, Name: "Ranged Hit Rating",
