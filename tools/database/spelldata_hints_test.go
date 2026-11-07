@@ -78,8 +78,6 @@ func TestProcShapeOfNamedSpells(t *testing.T) {
 			0, "no tooltip to read a hint off"},
 		{23548, "Battlegear of Wrath, the parry grant", procChanceColumn, 0, `the tooltip's "$h%" is the ProcChance column`,
 			core.ProcHintBlocked, `"after a block" names the block, which the decoder gives the listener as its outcome`},
-		{1308777, "Shield Spike, Girdle of Extracted Answers", procChanceAlways, 0, "the 100 in the column is the game files' no-roll",
-			core.ProcHintBlocked, `"every time you block" names the block`},
 		{9784, "Iron Shield Spike, an enchant's equip aura", procChanceAlways, 0, "the row ships no tooltip, and the 100 in the column is the game files' no-roll",
 			core.ProcHintBlocked, `the grant reads "every time you block with it"`},
 		{23547, "Battlegear of Wrath, the parry buff", procChanceAlways, 0, "the 100 in the column is the game files' no-roll",

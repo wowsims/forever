@@ -123,13 +123,12 @@ func reachableProcs(roots []int32) []*spelldata.Spell {
 	return procs
 }
 
-// The three auras that fire a spell off a hit. A_PROC_TRIGGER_DAMAGE is in as well: the shield
-// spikes state their retaliation that way rather than through a spell of their own.
+// The auras that fire off a hit: the proc triggers, among them the shield spikes' retaliation on the
+// aura itself, and the copy.
 func triggersAProcEffect(row *spelldata.Spell) bool {
 	for i := range row.Effects {
 		aura := row.Effects[i].Aura
-		if aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY ||
-			aura == dbcenums.A_PROC_TRIGGER_DAMAGE {
+		if aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY {
 			return true
 		}
 	}

@@ -656,16 +656,10 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 	})
 }
 
-// The effect on one character: the spell the proc casts, and the listener that casts it. A proc that
-// deals its own damage on an A_PROC_TRIGGER_DAMAGE aura, with no spell below its trigger, keeps its
-// cooldown on the row's RecoveryTime rather than on a proc category: the shield spikes' 5 s between
-// two blocks. A trigger that casts a damage spell keeps that spell's cooldown out of the listener.
+// The effect on one character: the spell the proc casts, and the listener that casts it.
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	if damage.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE) != spelldata.NilEffect && config.ICD == 0 {
-		config.ICD = damage.Cooldown()
-	}
 	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
 	source.registerTrigger(character, config)
 }
@@ -687,7 +681,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
 	application := damageOutcome(defenseType, true, OutcomeDefault)
 	alwaysHits := !asProc && damage.AlwaysHits()
-	effect := damage.DamageEffect()
+	effect := damage.ProcDamageEffect()
 	config.DirectVariance = effect.DirectVariance()
 	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
 	if damage.SplitsDamage {

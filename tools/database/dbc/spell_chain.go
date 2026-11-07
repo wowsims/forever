@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/overrides"
@@ -228,7 +227,7 @@ func (w *chainWalker) resolveTriggered(spellID int, matches func(*spelldata.Spel
 }
 
 func isProcTriggerAura(aura EffectAuraType) bool {
-	return aura == dbcenums.A_PROC_TRIGGER_SPELL || aura == dbcenums.A_PROC_TRIGGER_SPELL_WITH_VALUE
+	return aura.IsProcTrigger()
 }
 
 // Attaches an accumulating aura to the effect that bounds it.

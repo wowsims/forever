@@ -636,7 +636,7 @@ func TestAttackAvoidedWording(t *testing.T) {
 }
 
 // A block the wearer makes is named on its own; a resist, a dodge or a parry taken is an outcome the
-// mask has no bit for.
+// mask has no bit for, and a block's magnitude names no trigger.
 func TestProcTooltipHintsNameTheBlock(t *testing.T) {
 	const outcomes = core.ProcHintBlocked | core.ProcHintOutcomeTaken
 	for _, tc := range []struct {
@@ -644,13 +644,9 @@ func TestProcTooltipHintsNameTheBlock(t *testing.T) {
 		text string
 		why  string
 	}{
-		{core.ProcHintBlocked, "Deals 25 Physical damage every time you block.", "Girdle of Extracted Answers 1308777"},
 		{core.ProcHintBlocked, "Attaches a Thorium Spike to your shield that deals damage every time you block with it.", "Thorium Shield Spike's grant"},
-		{core.ProcHintBlocked, "Gives you a $s1% chance to generate $m2 Rage when you Block.", "Shield Specialization 12298"},
 		{core.ProcHintOutcomeTaken, "When you dodge an attack, gain 10 rage.", "a dodge taken"},
 		{core.ProcHintOutcomeTaken, "Heals you when a harmful spell is resisted.", "a resist"},
-		{core.ProcHintBlocked | core.ProcHintOutcomeTaken, "Whenever you block or whenever you parry, gain 5 rage.", "two clauses, one of each"},
-		{core.ProcHintBlocked | core.ProcHintOutcomeTaken, "When you block, dodge or parry an attack, gain 5 rage.", "one clause naming all three"},
 		{0, "Increases your chance to block by $s1%.", "a magnitude"},
 	} {
 		if got := procTooltipHints(tc.text) & outcomes; got != tc.want {

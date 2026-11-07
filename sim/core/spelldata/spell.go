@@ -117,12 +117,18 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 
 // The effect carrying the spell's direct damage, whether it states an amount or a weapon multiplier.
 // It sits on any of the weapon effects as readily as on school damage: a weapon effect states a
-// multiplier or a flat bonus rather than an amount. A proc that deals its amount off its own trigger
-// carries it on an A_PROC_TRIGGER_DAMAGE aura with no spell below it: the shield spikes' 20 to 30.
+// multiplier or a flat bonus rather than an amount.
 func (s *Spell) DamageEffect() *Effect {
-	if e := s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
+	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
 		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL); e != NilEffect {
+		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
+}
+
+// The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
+// aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
+// spikes' 20 to 30.
+func (s *Spell) ProcDamageEffect() *Effect {
+	if e := s.DamageEffect(); e != NilEffect {
 		return e
 	}
 	return s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)

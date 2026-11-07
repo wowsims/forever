@@ -227,15 +227,15 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// landed on nothing, so a listener whose trigger is one hears a hit that dealt no damage.
 	// Which of them it is stays the caller's, except a block, which the hint below names: no
 	// ProcTypeMask has a bit for any of them.
-	if hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided | ProcHintBlocked) {
+	avoided := hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided | ProcHintBlocked)
+	if avoided {
 		info.RequireDamageDealt = false
 	}
 
 	// A trigger restricted to spells with a damage component hears a dealt hit that deals damage,
 	// and the landed application of a DoT, which deals none. A cast has no hit to read that from,
 	// and an avoided attack deals nothing by definition, so neither takes the rule.
-	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) &&
-		!hint.Matches(ProcHintOutcomeTaken|ProcHintAttackAvoided|ProcHintBlocked) {
+	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) && !avoided {
 		info.RequireDamageDealt = false
 		info.RequireDamageComponent = true
 	}
@@ -243,9 +243,7 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// An outcome the listener can be given. The crit hint names one, the block hint names the hit
 	// taken that the wearer blocked, and so do the two naming the wearer's own attack dodged or
 	// parried: the mask itself states which hits arrive, never how they resolved, so everything else
-	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome. A
-	// clause naming a dodge or a parry beside the block carries ProcHintOutcomeTaken too, and that
-	// wider outcome stays the caller's.
+	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome.
 	switch {
 	case info.Callback.Matches(CallbackOnCastComplete):
 		info.Outcome = OutcomeEmpty

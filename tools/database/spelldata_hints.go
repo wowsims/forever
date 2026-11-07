@@ -126,8 +126,8 @@ func procChanceSource(description string, ownChance bool, s *storeSpell) (storeP
 	return procChanceColumn, 0
 }
 
-// An effect a tooltip can state a chance for: the two trigger auras, and the dummy the server hangs
-// a hand-written proc off - Furor's and Unbridled Wrath's chances both sit on one.
+// An effect a tooltip can state a chance for: the trigger auras, and the dummy the server hangs a
+// hand-written proc off - Furor's and Unbridled Wrath's chances both sit on one.
 func isProcEffect(e *storeEffect) bool {
 	return e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_DUMMY
 }

@@ -3,6 +3,7 @@ package spelldata
 import (
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -50,20 +51,27 @@ func TestItemProcUnsupported(t *testing.T) {
 }
 
 // A proc that deals its amount off its own trigger carries it on the A_PROC_TRIGGER_DAMAGE aura: that
-// aura is the row's damage effect, rolled by half its variance either side, 20 to 30 on 25 ± 0.4.
-func TestProcTriggerDamageAuraIsTheDamageEffect(t *testing.T) {
+// aura is the proc's damage effect, rolled by half its variance either side, 20 to 30 on 25 ± 0.4,
+// and the row's RecoveryTime is the listener's cooldown. The row's own damage effect stays empty.
+func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	withRows(t, procRows())
 
 	row := Find(2950)
-	damage := row.DamageEffect()
+	damage := row.ProcDamageEffect()
 	if damage == NilEffect || damage.Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
-		t.Fatalf("the damage effect is %+v, want the A_PROC_TRIGGER_DAMAGE aura", damage)
+		t.Fatalf("the proc's damage effect is %+v, want the A_PROC_TRIGGER_DAMAGE aura", damage)
 	}
 	if low, high := damage.Min(), damage.Max(); low != 20 || high != 30 {
 		t.Errorf("the roll is %v to %v, want 20 to 30", low, high)
 	}
-	if got := damage.DirectVariance(); got != 0 {
-		t.Errorf("DirectVariance = %v, want 0: the aura rolls its own base points", got)
+	if row.DamageEffect() != NilEffect {
+		t.Errorf("the row's damage effect is %+v, want none", row.DamageEffect())
+	}
+
+	trigger := ProcTrigger(testCharacter(), row, noopHandler)
+	if trigger.ICD != 5*time.Second || trigger.Outcome != core.OutcomeBlock || trigger.RequireDamageDealt {
+		t.Errorf("ICD %v, outcome %v, requires damage %v; want 5s, a block, and no damage required",
+			trigger.ICD, trigger.Outcome, trigger.RequireDamageDealt)
 	}
 }
 

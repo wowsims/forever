@@ -33,11 +33,16 @@ func init() {
 // registered as the rogue, which shoots its ranged weapon.
 func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return itemSpecWearer(t, class, slot, &proto.ItemSpec{Id: itemID})
+}
+
+func itemSpecWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, item *proto.ItemSpec) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[slot].Id = itemID
+	items[slot] = item
 	return itemWearerWithEquipment(t, class, &proto.EquipmentSpec{Items: items})
 }
 
@@ -308,27 +313,21 @@ func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
 // of the Scarlet Commander 7726's 1293539 is Holy and rolls on the spell table.
 func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 	for _, tc := range []struct {
-		name      string
-		equip     *proto.ItemSpec
-		slot      proto.ItemSlot
-		spellID   int32
-		hit, crit stats.Stat
+		name    string
+		equip   *proto.ItemSpec
+		slot    proto.ItemSlot
+		spellID int32
 	}{
-		{"Girdle of Extracted Answers", &proto.ItemSpec{Id: 276742}, proto.ItemSlot_ItemSlotWaist, 1308777, stats.PhysicalHitPercent, stats.PhysicalCritPercent},
-		{"Thorium Shield Spike on Shard of the Splithooves", &proto.ItemSpec{Id: 10659, Enchant: 1704}, proto.ItemSlot_ItemSlotOffHand, 16624, stats.PhysicalHitPercent, stats.PhysicalCritPercent},
-		{"Aegis of the Scarlet Commander", &proto.ItemSpec{Id: 7726}, proto.ItemSlot_ItemSlotOffHand, 1293539, stats.SpellHitPercent, stats.SpellCritPercent},
+		{"Girdle of Extracted Answers", &proto.ItemSpec{Id: 276742}, proto.ItemSlot_ItemSlotWaist, 1308777},
+		{"Thorium Shield Spike on Shard of the Splithooves", &proto.ItemSpec{Id: 10659, Enchant: 1704}, proto.ItemSlot_ItemSlotOffHand, 16624},
+		{"Aegis of the Scarlet Commander", &proto.ItemSpec{Id: 7726}, proto.ItemSlot_ItemSlotOffHand, 1293539},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
-			for i := range items {
-				items[i] = &proto.ItemSpec{}
-			}
-			items[tc.slot] = tc.equip
-			sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items})
-			bonus := stats.Stats{}
-			bonus[tc.hit] = 100
-			bonus[tc.crit] = -character.GetStat(tc.crit)
-			character.AddStatsDynamic(sim, bonus)
+			sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, tc.slot, tc.equip)
+			character.AddStatsDynamic(sim, stats.Stats{
+				stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent),
+				stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent),
+			})
 			enemy := sim.Encounter.ActiveTargetUnits[0]
 			spike := character.GetSpell(core.ActionID{SpellID: tc.spellID})
 			if spike == nil {
