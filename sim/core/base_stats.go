@@ -46,7 +46,6 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 // `octbasempbyclass.txt`, `combatratings.txt`, `chancetospellcritbase.txt`, etc.
 
 // Each race's offset on the class base attributes, Spirit included.
-// TODO: the Skyborne rows keep their sheet values until fresh level 1 naked sheets show their own offsets.
 var RaceOffsets = map[proto.Race]stats.Stats{
 	proto.Race_RaceUnknown: stats.Stats{},
 	proto.Race_RaceHuman:   stats.Stats{},
@@ -99,22 +98,21 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Spirit:    1,
 		stats.Stamina:   1,
 	},
-	// Read from level 1 naked character sheets (2026-09-22): four Human/High
-	// Order pairs (warrior, hunter, mage, rogue) give the same delta, and a
-	// Windshaper warrior matches the High Order one, so both variants share it.
+	// The two Skyborne variants carry their own offsets, read from level 1 naked character
+	// sheets (2026-11-06).
 	proto.Race_RaceHighOrderSkyborne: {
-		stats.Agility:   1,
-		stats.Strength:  -1,
-		stats.Intellect: 1,
-		stats.Spirit:    0,
+		stats.Agility:   4,
+		stats.Strength:  -3,
+		stats.Intellect: 4,
+		stats.Spirit:    -3,
 		stats.Stamina:   -1,
 	},
 	proto.Race_RaceWindshaperSkyborne: {
-		stats.Agility:   1,
-		stats.Strength:  -1,
-		stats.Intellect: 1,
-		stats.Spirit:    0,
-		stats.Stamina:   -1,
+		stats.Agility:   3,
+		stats.Strength:  -4,
+		stats.Intellect: -1,
+		stats.Spirit:    3,
+		stats.Stamina:   0,
 	},
 }
 
