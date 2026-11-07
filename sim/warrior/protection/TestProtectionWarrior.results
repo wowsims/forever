@@ -252,6 +252,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-BowofSearingArrows-2825"
+ value: {
+  dps: 434.52087
+  tps: 1402.77906
+  dtps: 290.51473
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 437.66115
@@ -375,6 +384,15 @@ dps_results: {
   tps: 1330.49985
   dtps: 297.56063
   hps: 36.39444
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 393.85007
+  tps: 1268.50889
+  dtps: 287.67228
+  hps: 36.54694
  }
 }
 dps_results: {
@@ -1080,6 +1098,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 432.87871
+  tps: 1380.60116
+  dtps: 287.0103
+  hps: 36.69944
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 434.38893
+  tps: 1390.09517
+  dtps: 306.31937
+  hps: 36.58083
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-ShadowcraftArmor"
  value: {
   dps: 440.55129
@@ -1248,6 +1284,15 @@ dps_results: {
   tps: 1354.16362
   dtps: 286.28917
   hps: 36.36056
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 432.87871
+  tps: 1380.60116
+  dtps: 287.0103
+  hps: 36.69944
  }
 }
 dps_results: {

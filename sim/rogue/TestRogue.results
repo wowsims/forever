@@ -134,6 +134,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BowofSearingArrows-2825"
+ value: {
+  dps: 608.76975
+  tps: 432.22652
+  hps: 52.25667
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BristleconeCloak-275833"
  value: {
   dps: 601.49373
@@ -219,6 +227,14 @@ dps_results: {
   dps: 608.67846
   tps: 432.16171
   hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 592.53318
+  tps: 420.69856
+  hps: 49.52861
  }
 }
 dps_results: {
@@ -694,6 +710,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 616.1613
+  tps: 437.47452
+  hps: 53.03611
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-ShadowcraftArmor"
  value: {
   dps: 580.08835
@@ -811,6 +835,14 @@ dps_results: {
   dps: 608.67846
   tps: 432.16171
   hps: 52.49389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 616.1613
+  tps: 437.47452
+  hps: 53.03611
  }
 }
 dps_results: {
