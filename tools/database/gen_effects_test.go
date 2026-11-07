@@ -568,11 +568,13 @@ func TestOnUseStatBuffCarriesItsHealProc(t *testing.T) {
 		t.Errorf("19345 is listed as missing an effect, want it off the list")
 	}
 
-	row := spelldata.MustFind(23780)
-	i := slices.IndexFunc(row.Effects, func(e spelldata.Effect) bool { return e.Aura == dbcenums.A_PROC_TRIGGER_SPELL })
-	fired := row.Effects[i].TriggerID
-	row.Effects[i].TriggerID = 21162
-	t.Cleanup(func() { row.Effects[i].TriggerID = fired })
+	proc := spelldata.MustFind(23780).FirstAura(dbcenums.A_PROC_TRIGGER_SPELL)
+	fired := proc.TriggerID
+	proc.TriggerID = 21162
+	t.Cleanup(func() {
+		proc.TriggerID = fired
+		delete(missingEffectsMap["ItemEffects"], 19345)
+	})
 	if entry := parse(); !entry.Supported || !strings.Contains(entry.NotSimulated, "heals no one") {
 		t.Errorf("firing damage: supported %v, not simulated %q; want registered with the proc left out for healing no one", entry.Supported, entry.NotSimulated)
 	}

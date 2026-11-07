@@ -1182,18 +1182,27 @@ func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldat
 	if len(CarriedProcUnsupported(row)) > 0 {
 		return
 	}
-	heal := character.RegisterSpell(spellDataProcHealSpell(character, row.FiredSpell(), true))
+	heal := character.RegisterSpell(spellDataProcHealSpell(character, carriedSpell(row), true))
 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		heal.Cast(sim, &character.Unit)
-	})
+	}, spelldata.ItemProcChance(row))
 	trigger.Name = buff.Label + " Proc"
+	// Cast with the hit, the way every generated proc that casts a spell on the wearer is, rather
+	// than a batch window later.
+	trigger.TriggerImmediately = true
 	buff.AttachProcTrigger(trigger)
 }
 
+// The spell a buff row's A_PROC_TRIGGER_SPELL fires, which the generator reads the same way.
+func carriedSpell(row *spelldata.Spell) *spelldata.Spell {
+	return row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+}
+
 // Why the proc a stat buff carries cannot be built, or nil where it can: the buff's row fires a spell
-// that heals the wearer, on a trigger the listener can hear.
+// that heals the wearer, a heal over time among them only with a period and a duration to tick
+// over, on a buff that spends no charges and a trigger the listener can hear.
 func CarriedProcUnsupported(row *spelldata.Spell) []string {
-	fired := row.FiredSpell()
+	fired := carriedSpell(row)
 	heal := fired.ProcHealEffect()
 	switch {
 	case fired == spelldata.Nil:
@@ -1202,6 +1211,10 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 		return []string{fmt.Sprintf("%d fires %d, which heals no one", row.ID, fired.ID)}
 	case heal.Target[0] != dbcenums.TARGET_UNIT_CASTER:
 		return []string{fmt.Sprintf("%d's heal lands on implicit target %d, not the wearer", fired.ID, heal.Target[0])}
+	case heal.Aura == dbcenums.A_PERIODIC_HEAL && (heal.PeriodMs <= 0 || fired.DurationMs <= 0):
+		return []string{fmt.Sprintf("%d's heal over time states no period or no duration to tick over", fired.ID)}
+	case row.ProcCharges > 0:
+		return []string{fmt.Sprintf("%d states %d charges, which the stat aura does not spend", row.ID, row.ProcCharges)}
 	}
 	return spelldata.ItemProcUnsupportedWithRate(row, false, 0, 0)
 }

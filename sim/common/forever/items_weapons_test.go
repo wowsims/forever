@@ -300,7 +300,7 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
 
 	damage := spelldata.MustFind(29640).DamageEffect()
-	shot := &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	shot := rangedShot(&character.Unit)
 	dealHit(t, sim, character, shot)
 	metrics := shadowbolt.SpellMetrics[enemy.UnitIndex]
 	if metrics.Casts != 1 || metrics.Hits != 1 || metrics.TotalDamage < damage.Min() || metrics.TotalDamage > damage.Max() {

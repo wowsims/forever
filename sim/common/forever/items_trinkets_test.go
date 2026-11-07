@@ -118,30 +118,24 @@ func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core
 func TestAegisOfPreservationHealsOnHitsTakenWhileItRuns(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassPriest, proto.ItemSlot_ItemSlotTrinket1, 19345)
 	character.RemoveHealth(sim, character.MaxHealth()/2)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
-	row := spelldata.MustFind(23780)
 	amount := spelldata.MustFind(23781).ProcHealEffect().Average()
 
-	use := character.GetSpell(core.ActionID{ItemID: 19345})
-	if use == nil {
-		t.Fatal("19345 registers no on-use")
-	}
-	if !use.Cast(sim, character.CurrentTarget) {
-		t.Fatal("19345 could not be used")
-	}
+	use := useTrinketAsEntryStates(t, sim, character, 19345, core.CooldownTypeSurvival)
 	heal := character.GetSpell(core.ActionID{SpellID: 23781})
 	if heal == nil {
 		t.Fatal("19345's buff carries no heal proc")
 	}
 
 	takeHit(t, sim, character, meleeSwing(enemy))
-	takeHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: enemy})
+	takeHit(t, sim, character, rangedShot(enemy))
 	takeHit(t, sim, character, fireSpell(enemy))
 	if got := heal.SpellMetrics[character.UnitIndex]; got.Casts != 2 || amount <= 0 || got.TotalHealing != 2*amount {
 		t.Errorf("a melee, a ranged and a spell hit taken cast the heal %d times for %v, want twice for the row's %v", got.Casts, got.TotalHealing, amount)
 	}
 
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	stepTo(t, sim, use.RelatedSelfBuff.ExpiresAt()+time.Millisecond)
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := heal.SpellMetrics[character.UnitIndex].Casts; got != 2 {
 		t.Errorf("a melee hit taken after the buff ran out left the heal at %d casts, want 2 still", got)
@@ -158,6 +152,10 @@ func statNear(a, b float64) bool {
 
 func meleeSwing(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
+}
+
+func rangedShot(unit *core.Unit) *core.Spell {
+	return &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
 }
 
 func fireSpell(unit *core.Unit) *core.Spell {

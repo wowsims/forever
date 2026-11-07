@@ -54,9 +54,10 @@ func swingHealed(sim *core.Simulation, caster *testCaster, outcome core.HitOutco
 }
 
 // A stat buff carrying a proc is built where the proc fires a heal on the wearer, and refused where it
-// fires nothing the store carries, a spell that heals no one, or a heal on someone else. Aegis Heal
-// 23781 is the heal on the wearer, Sulfuras's Fireball 21162 the damage, and Recovery's 1248759 is
-// reshaped into a heal on an ally.
+// fires nothing the store carries, a spell that heals no one, a heal on someone else, a heal over time
+// with no period, or where the buff spends charges. Aegis Heal 23781 is the heal on the wearer,
+// Sulfuras's Fireball 21162 the damage, Recovery's 1248759 is reshaped into a heal on an ally, and
+// the proc heal over time 1297357 loses its period.
 func TestCarriedProcUnsupported(t *testing.T) {
 	const healID, damageID, allyHealID int32 = 23781, 21162, 1248759
 	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
@@ -64,6 +65,7 @@ func TestCarriedProcUnsupported(t *testing.T) {
 		s.Effects = []spelldata.Effect{{SpellID: allyHealID, Type: dbcenums.E_HEAL, BasePoints: 35,
 			Target: [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ALLY}}}
 	})
+	editRow(t, procHot, func(s *spelldata.Spell) { s.FirstAura(dbcenums.A_PERIODIC_HEAL).PeriodMs = 0 })
 	carrying := func(fired int32) *spelldata.Spell {
 		const buffID int32 = 991529
 		return &spelldata.Spell{ID: buffID, Name: "Test Buff", DurationMs: 20000, ProcChance: 100, ProcChanceSource: spelldata.ProcChanceAlways,
@@ -81,14 +83,21 @@ func TestCarriedProcUnsupported(t *testing.T) {
 		fired int32
 		want  string
 	}{
-		"nothing the store carries": {0, "fires no spell"},
-		"a spell that heals no one": {damageID, "heals no one"},
-		"a heal on someone else":    {allyHealID, "not the wearer"},
+		"nothing the store carries":       {0, "fires no spell"},
+		"a spell that heals no one":       {damageID, "heals no one"},
+		"a heal on someone else":          {allyHealID, "not the wearer"},
+		"a heal over time with no period": {procHot, "no period"},
 	} {
 		got := CarriedProcUnsupported(carrying(tc.fired))
 		if !slices.ContainsFunc(got, func(reason string) bool { return strings.Contains(reason, tc.want) }) {
 			t.Errorf("a buff firing %s is refused for %v, want %q named", name, got, tc.want)
 		}
+	}
+
+	charged := carrying(healID)
+	charged.ProcCharges = 3
+	if got := CarriedProcUnsupported(charged); !slices.ContainsFunc(got, func(reason string) bool { return strings.Contains(reason, "does not spend") }) {
+		t.Errorf("a charged buff is refused for %v, want its charges named", got)
 	}
 }
 
