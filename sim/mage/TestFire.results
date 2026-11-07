@@ -288,8 +288,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-EnchantChest-Retricutioner-7223"
  value: {
-  dps: 852.51673
-  tps: 849.86875
+  dps: 851.84735
+  tps: 849.13933
  }
 }
 dps_results: {
@@ -386,8 +386,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-EyeoftheBeast-13968"
  value: {
-  dps: 812.56423
-  tps: 811.5925
+  dps: 811.58708
+  tps: 810.5391
  }
 }
 dps_results: {
@@ -603,8 +603,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 803.60762
-  tps: 803.18061
+  dps: 804.69323
+  tps: 804.26704
  }
 }
 dps_results: {
@@ -729,8 +729,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Smokey'sLighter-13171"
  value: {
-  dps: 795.19404
-  tps: 793.53497
+  dps: 794.85609
+  tps: 793.05731
  }
 }
 dps_results: {
