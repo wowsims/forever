@@ -77,6 +77,14 @@ func RegisterAllProcs() {
 			{ItemID: 13959, ItemName: "Omokk's Girth Restrainer"},
 		})
 
+	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
+	// https://www.wowhead.com/forever/spell=21142
+	// equip: 21142 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 21142},
+		[]shared.ItemVariant{
+			{ItemID: 17182, ItemName: "Sulfuras, Hand of Ragnaros"},
+		})
+
 	// When struck in combat inflicts 13 Fire damage to the attacker.
 	// https://www.wowhead.com/forever/spell=23266
 	// equip: 23266 (A_DAMAGE_SHIELD)
@@ -2825,6 +2833,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7711, BuffSpellID: 7712},
 		[]shared.ItemVariant{
 			{ItemID: 17111, ItemName: "Blazefury Medallion"},
+		})
+
+	// Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over 10s.
+	// https://www.wowhead.com/forever/spell=21162
+	// trigger 21162 (0.7 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21162, BuffSpellID: 21162, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 17182, ItemName: "Sulfuras, Hand of Ragnaros"},
 		})
 
 	// Hurls a fiery ball that causes 92 Fire damage and an additional 16 damage over 8s.
