@@ -990,7 +990,7 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 		rendered := renderSpellTooltip(instance, grant.SpellID)
 		equip := spelldata.Find(int32(spellID))
 		row := spelldata.EquipAuraRow(equip)
-		if !appliesAnItemAura(row) {
+		if !keepsAnEquipAura(row) {
 			StoreMissingEffect("EnchantEffects", parsed.Name, Variant{
 				ID:      int(parsed.EffectId),
 				Name:    rendered + " (a weapon-scoped equip spell whose auras no equip aura builds)",
@@ -1455,7 +1455,7 @@ func TryParseEquipAuraEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect,
 
 	equip := spelldata.Find(itemEffect.BuffId)
 	row := spelldata.EquipAuraRow(equip)
-	if row.FirstAura(equipAuraKinds...) == spelldata.NilEffect {
+	if !keepsAnEquipAura(row) {
 		return EffectParseResultInvalid
 	}
 
@@ -1799,10 +1799,14 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_SKILL,
 }
 
-// The auras an item's equip spell is emitted as an aura for, beside itemAuraKinds: a damage shield kept
-// up while the item is worn. A proc's or an enchant's damage shield row is left out: its proc flags state
+// The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
+// damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
+
+func keepsAnEquipAura(row *spelldata.Spell) bool {
+	return row.FirstAura(equipAuraKinds...) != spelldata.NilEffect
+}
 
 // The auras an on-use alone is emitted as an aura for, beside equipAuraKinds: the spell modifiers, which
 // many equip spells state too (class necks, relics, PvP gloves) where the item aura shape is not wanted,
@@ -1924,10 +1928,10 @@ func statesNoRate(routing *ProcRouting) bool {
 	return slices.Contains(routing.Unsupported, spelldata.ReasonStatesNoRate)
 }
 
-// One slot's proc. The trigger is the slot's spell; the buff is what the shipped entry says it
-// applies, where it resolves stats, and otherwise the spell it deals damage through or the auras the
-// slot applies. An equip spell with no stats that keeps an aura up is an equip aura the way an
-// item's is, before it is read as a proc: Retricutioner's 435901 damage shield.
+// One slot's routing. An equip spell with no stats that keeps an aura up is an equip aura the way an
+// item's is: Retricutioner's 435901 damage shield. Otherwise the slot is a proc: the trigger is the
+// slot's spell; the buff is what the shipped entry says it applies, where it resolves stats, and
+// otherwise the spell it deals damage through or the auras the slot applies.
 func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting {
 	applied := slot.AppliesSpellID
 	if applied == 0 {
@@ -1939,7 +1943,7 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 
 	trigger := spelldata.Find(int32(slot.SpellID))
 	if !slot.IsCombatSpell && !hasStats {
-		if row := spelldata.EquipAuraRow(trigger); row.FirstAura(equipAuraKinds...) != spelldata.NilEffect {
+		if row := spelldata.EquipAuraRow(trigger); keepsAnEquipAura(row) {
 			return equipAuraRouting(instance, trigger, row)
 		}
 	}

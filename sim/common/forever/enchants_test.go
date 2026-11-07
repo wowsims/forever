@@ -392,12 +392,7 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(435901)) {
 		shieldDamage += effect.Average()
 	}
-	var shield *core.Spell
-	for _, spell := range character.Spellbook {
-		if spell.ActionID.Tag == 2 && spell.ActionID.SpellID != 0 {
-			shield = spell
-		}
-	}
+	shield := character.GetSpell(core.ActionID{SpellID: 435901, Tag: 2})
 	if shield == nil || shieldDamage <= 0 {
 		t.Fatal("7223 registers no damage shield")
 	}
