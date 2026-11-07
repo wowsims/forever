@@ -3,7 +3,7 @@ package core
 // Adds an extra attack to a proc's handler: a copy of the main-hand swing tagged with the granting
 // spell, cast count times on the hit's target, or on the attacker when the hit was one the unit
 // took. The proc rolls off the triggering hit, but the extra attack swings once that hit has been
-// dealt, in the same instant. The returned OnInit registers the copy, so it goes on the proc's aura:
+// dealt, in the same instant, and is lost if its target died before it swings. The returned OnInit registers the copy, so it goes on the proc's aura:
 // the main-hand swing is configured after procs register, and a unit that never swings has none to
 // copy, in which case the proc casts nothing. The swing it grants is not a hit the proc hears, or one
 // proc would swing forever.

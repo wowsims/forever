@@ -345,18 +345,19 @@ func (warrior *Warrior) registerWeaponmaster() {
 			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
 				return false
 			}
-			if spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell) {
+			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && (spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell)) {
 				return firstAoeHit(sim, spell)
 			}
 			return true
 		},
 	}
 	onInit := warrior.ExtraAttackProc(&swordTrigger, actionID.SpellID, 1)
-	// In game a Windfury Totem swing rolls it, but the proc brings no extra swing. Every swing another
-	// proc grants is held to that rule; each is a copy of the main-hand swing tagged with its own spell.
+	// In game a Windfury Totem swing rolls it, but the proc brings no extra swing. Only the totem's
+	// swing is measured; swings other procs grant (Hand of Justice, Thrash Blade) still bring one.
+	windfuryTotemSwing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttackSpellID}
 	grantSwing := swordTrigger.Handler
 	swordTrigger.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) && spell != warrior.AutoAttacks.MHAuto() {
+		if spell.ActionID == windfuryTotemSwing {
 			return
 		}
 		grantSwing(sim, spell, result)
@@ -427,6 +428,10 @@ var sweepingStrikesRank = spellData.SweepingStrikes.Highest()
 
 // The strike both of Sweeping Strikes' hits report under.
 const sweepingStrikesHitID = 12723
+
+// The spell Windfury Totem's extra swing is tagged with: the proc the totem's raid aura 10612 names
+// (core/buffs/drivers.go).
+const windfuryTotemAttackSpellID = 10610
 
 func (warrior *Warrior) registerSweepingStrikes() {
 	if !warrior.Talents.SweepingStrikes {
