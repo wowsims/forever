@@ -20,7 +20,7 @@ func (warlock *Warlock) registerShadowBurn() {
 	warlock.RegisterResetEffect(func(_ *core.Simulation) {
 		clear(deathItemEnds)
 	})
-	// The window goes with the target that dies, so the same target enabled again starts without it.
+	// The window goes with the target that dies, so a later spawn in the same pool slot starts without it.
 	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Shadowburn - Soul Shard",
 		OnTargetDies: func(_ *core.Aura, sim *core.Simulation, target *core.Unit) {

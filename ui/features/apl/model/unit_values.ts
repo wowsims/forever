@@ -29,9 +29,10 @@ export const withIconUrl = (unit: UnitModel, resolved?: ResolvedIcon): UnitValue
 	iconUrl: typeof unit.iconUrl === 'string' ? unit.iconUrl : resolved?.iconUrl,
 });
 
-/** The icon, text and reference one unit shows as. */
-export const refToValue = (ref: UnitReference | undefined, player: Player<any>, targetUI: boolean | undefined): UnitModel => {
+/** The icon, text and reference one unit shows as. An empty reference that reads every target has no icon. */
+export const refToValue = (ref: UnitReference | undefined, player: Player<any>, targetUI: boolean | undefined, emptyIsAny?: boolean): UnitModel => {
 	if (!ref || ref.type == UnitType.Unknown) {
+		if (emptyIsAny) return { value: ref, text: label('any_target') };
 		return { value: ref, icon: targetUI ? 'bullseye' : 'user', text: targetUI ? label('current_target') : label('self') };
 	}
 	switch (ref.type) {
@@ -77,7 +78,7 @@ export interface UnitOptionModel {
 export const unitOptionModels = (unitSet: UNIT_SET, player: Player<any>): Array<UnitOptionModel> => {
 	const set = unitSets[unitSet];
 	return set.getUnits(player).map(ref => {
-		const unit = refToValue(ref, player, set.targetUI);
+		const unit = refToValue(ref, player, set.targetUI, set.emptyIsAny);
 		if (ref?.type != UnitType.Pet) return { unit };
 		return { unit, submenu: [refToValue(set.targetUI ? ref.owner! : undefined, player, set.targetUI)] };
 	});

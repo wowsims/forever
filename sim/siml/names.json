@@ -13579,8 +13579,8 @@
       "thunderfury_27648_tag0": {"spellId": 27648, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]}
     },
     "target_spell": {
-      "spell_18282": {"spellId": 18282, "tag": 100000, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
-      "spell_30619": {"spellId": 30619, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]}
+      "spell_18282": {"spellId": 18282, "tag": 100000, "registeredBy": []},
+      "spell_30619": {"spellId": 30619, "registeredBy": []}
     }
   },
   "suffixes": {

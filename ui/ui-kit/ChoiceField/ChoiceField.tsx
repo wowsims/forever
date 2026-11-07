@@ -9,7 +9,7 @@ import { useId, useMemo, useState } from 'react';
 import { ChoiceMenu } from './ChoiceMenu';
 import { OptionContent } from './OptionContent';
 import type { ChoiceFieldProps, ChoiceOption } from './types';
-import { flattenChoices, hasSubmenus } from './utils';
+import { flattenChoices, hasSubmenus, isChoiceOption, isChoiceSection } from './utils';
 
 /**
  * One choice among options, on Base UI's `Select`; options filed under submenus open as a menu.
@@ -43,6 +43,7 @@ export const ChoiceField = <V,>({
 	const size = useControlSize(frameProps.size);
 
 	const flat = useMemo(() => flattenChoices(options), [options]);
+	const indexOf = useMemo(() => new Map<ChoiceOption<V>, number>(flat.map((option, index) => [option, index])), [flat]);
 	const selectedIndex = flat.findIndex(option => equals(option.value, value));
 	const selected: ChoiceOption<V> | undefined = flat[selectedIndex];
 	const select = (index: number) => onChange(flat[index].value);
@@ -62,6 +63,16 @@ export const ChoiceField = <V,>({
 		'aria-invalid': invalid || undefined,
 		disabled,
 	};
+
+	const selectItem = (option: ChoiceOption<V>) => (
+		<Select.Item
+			key={indexOf.get(option)}
+			value={indexOf.get(option)}
+			className={clsx('ui-menu-item', 'ui-menu-item-row', 'ui-choice-field-option', option.className)}
+			{...tooltipAnchorProps(option.tooltip === undefined ? undefined : tooltipId, option.tooltip)}>
+			<OptionContent option={option} />
+		</Select.Item>
+	);
 
 	const control =
 		optionTree || hasSubmenus(options) ? (
@@ -102,15 +113,16 @@ export const ChoiceField = <V,>({
 							data-testid="choice-field-positioner">
 							<Select.Popup className="ui-popup-surface ui-menu">
 								<Select.List className="ui-choice-field-list">
-									{flat.map((option, index) => (
-										<Select.Item
-											key={index}
-											value={index}
-											className={clsx('ui-menu-item', 'ui-menu-item-row', 'ui-choice-field-option', option.className)}
-											{...tooltipAnchorProps(option.tooltip === undefined ? undefined : tooltipId, option.tooltip)}>
-											<OptionContent option={option} />
-										</Select.Item>
-									))}
+									{options.map((entry, position) =>
+										isChoiceSection(entry) ? (
+											<Select.Group key={`section-${position}`}>
+												<Select.GroupLabel className="ui-choice-field-section">{entry.label}</Select.GroupLabel>
+												{entry.options.map(selectItem)}
+											</Select.Group>
+										) : (
+											isChoiceOption(entry) && selectItem(entry)
+										),
+									)}
 								</Select.List>
 							</Select.Popup>
 						</Select.Positioner>

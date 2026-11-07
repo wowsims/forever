@@ -32,6 +32,7 @@ type FieldDescriptorPayloads = {
 	statType: { field: string };
 	itemSwapSet: { field: string };
 	potionSlot: { field: string };
+	bossAbilityName: { field: string };
 	minIcd: object;
 	reactionTime: object;
 	useDotBaseValue: object;
@@ -42,6 +43,7 @@ type FieldDescriptorPayloads = {
 	totemType: { field: string };
 	mobType: { field: string };
 	areaType: { field: string };
+	damageAmpType: { field: string };
 	value: { field: string; options?: FieldOptions };
 	valueList: { field: string };
 	// Rendered by ActionPicker (they nest an APL action).
@@ -160,6 +162,14 @@ export function mobTypeFieldConfig(field: string): Descriptor<'mobType'> {
 
 export function areaTypeFieldConfig(field: string): Descriptor<'areaType'> {
 	return { type: 'areaType', field };
+}
+
+export function damageAmpTypeFieldConfig(field: string): Descriptor<'damageAmpType'> {
+	return { type: 'damageAmpType', field };
+}
+
+export function bossAbilityNameFieldConfig(field: string): Descriptor<'bossAbilityName'> {
+	return { type: 'bossAbilityName', field };
 }
 
 export function valueFieldConfig(field: string, options?: FieldOptions): Descriptor<'value'> {

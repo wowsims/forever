@@ -15,12 +15,12 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "bf1c3657827d580ec9348673681c22fd822c50f26615cef84122579bfe0ec870"
+      "computedHash": "5a80308caf991cd49d6d2fa417de70833344ee0f049cd971483fc34f2c9c84e4"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "c2314aa2d9764fb414373163a8c8ee22872dfd67f5ad172208272330cb320da8"
+      "computedHash": "a8bd1426080b5d18b31623cd534f48d04393589289bf0d2abc6c8793f30aa837"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "f53641dfa6b528c4a14608fef9c095b031b1166c6b7c528360eff570264ea233"
+      "computedHash": "62ae0d2b97f728eb6f52753a5c07908eb8dca0b4ad68d1b96e7fd4d314c79b30"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -45,7 +45,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "4bbbcc7ead5fd1c2b060b45156e09ed7ec983d24d4fbadfc48de38ffc56a2c04"
+      "computedHash": "976bd246869a6c6d0b192921448b53180bb6c207f7366de9a4607e69156852ff"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -60,7 +60,7 @@
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0a4322a507acec70080a42896b8c82f0599adc18c5de1aa1e5d9c64b52971a72"
+      "computedHash": "3cbfe86cad5885f021eecab6b66755f5e4d78c8d2b0347d87fd7ddb4a5cc8336"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
@@ -85,7 +85,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "3d8156d344dc8b6fbbb2c90ee29d920c0cabb00b3e17e0fb74e02bcdb086f518"
+      "computedHash": "47cfa0a0b352ab628cf248a8210999da4e3d5fc4a5b401a05e84c8ee7ce9d5ca"
     }
   }
 }

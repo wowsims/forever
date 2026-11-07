@@ -1,6 +1,6 @@
 ---
 name: wowsims-core-mechanics
-description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
+description: "Use when WoWSims Forever Go code depends on what sim/core does around a spell that its row cannot show: the order of applyEffects, OnCastComplete and proc handlers (TriggerImmediately, SpellBatchWindow), costs, miss refunds, combo points and charges, how damage scales, how many targets an area hits, what CastRequirement refuses, registration hooks, whose auras a tag reads, the ActionID tag of a weapon hand's copy, aura lifetimes, exclusive categories, hit tables, resists, dot tick outcomes, pets, rage and threat, target death and the target lifecycle, per-target execute phases, encounter plans, and proto field rules. Use it too when asked whether the sim models something (a racial, crit damage, resists, rage, stat scaling), when a handler sees or misses the cast that procced it, a refund goes wrong, another caster's dot counts, a registration panics, or a new proto bool reads false in saved settings. Reading a row is wowsims-spell-store; building an ability or aura is wowsims-abilities-auras; proc triggers are wowsims-procs; the pick at a cast end is wowsims-apl; runtime proofs are wowsims-testing; the map is wowsims-spells."
 ---
 
 # wowsims-core-mechanics
@@ -105,7 +105,7 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.
 
-## Targets
+## Targets and encounter plans
 
 - **Zero active targets is a legal state** (`Target.Disable`, `moveRaidOffTarget` in `target.go`). Units on a disabled
   target, its tank among them, move to the enabled target with the lowest index and look at their rotation again; with
@@ -113,41 +113,66 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (`returnStrandedRaid`). A target disabled at start strands the raid at the pull the same way
   (`moveRaidOffDisabledTargets`), and a tank starts on the first enabled target it tanks. Code that reads the current
   target may meet a disabled one. `Target.Disable` interrupts the target's own hardcast, so it does not land once the
-  target is back, and ends every raid unit's channel on the target with no further tick; a ground channel lives on its
-  caster and runs on. A dot keeps ticking on a target disabled without clearing its debuffs.
-- **A target disabled while the sim resets only starts the iteration disabled.** A target AI's `Reset` runs before the
-  raid resets, so `Disable` then skips the raid side (channels, moving the raid, waking rotations), and the pull moves
-  the raid off it. The Dynamic Adds boss disables its add this way (`sim/encounters/dynamic_adds_ai.go`).
-- **The AI that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
-  reset puts them on, so a target up from the pull, the boss or an add with no AI, gets them at the pull. An AI that
-  spawns adds sets their `Schedule` and calls `Encounter.ScheduleAddRaidDebuffs` at each spawn with its own apply,
-  delay and jitter: the debuffs land delay ± jitter later, or stay off with apply off
-  (`target_raid_debuffs.go`). The Dynamic Adds boss reads them from its Apply debuffs to adds, Debuff delay and Debuff
-  jitter inputs, after Kill share %; a boss saved without them applies with no delay
-  (`sim/encounters/dynamic_adds_ai.go`). The jitter rolls on `sim.addDebuffRand`, a stream apart from the combat rolls
-  like `sim.deathRand`, so gear does not move a landing.
+  target is back, and ends every raid unit's channel on the target with no further tick, for a disable, cleared or
+  not, and a death alike; a ground channel lives on its caster and runs on. A dot keeps ticking on a target disabled
+  without clearing its debuffs, as in a plan's downtime that keeps them.
+- **The code that spawns an add decides when it gets the raid's debuffs** (`SourceExternalDebuff`). Every target's
+  reset puts them on, so a target up from the pull gets them at the pull. `Encounter.ScheduleAddRaidDebuffs` takes an
+  apply, a delay and a jitter at each spawn: the debuffs land delay ± jitter later, or stay off with apply off
+  (`target_raid_debuffs.go`). A plan's add wave (`plan_runner.go`) holds them on its pool targets as the sim's
+  reset starts, before those targets' own resets, calls it for each add at each spawn with the wave's Raid debuffs,
+  Debuff delay and Debuff jitter (seconds; zero values apply at once), and disables them after each despawn's
+  death. The jitter rolls on `sim.addDebuffRand`, a stream apart from the combat rolls like `sim.deathRand`, so gear
+  does not move a landing.
 - **`Disable` with its auras expired leaves every permanent aura on**, the raid's debuffs among them: `expireAll`
-  walks only the auras with a duration (`aura.go`). An AI that takes a target away disables the raid's debuffs with
+  walks only the auras with a duration (`aura.go`). Code that takes a target away disables the raid's debuffs with
   `Target.DisableRaidDebuffs` and lands them after a spawn with `ApplyRaidDebuffsAt`, through
   `Encounter.ScheduleAddRaidDebuffs` or at times of its own, which runs each one's `OnReset` again, so Sunder Armor ramps
-  up anew. A held target's reset skips those `OnReset`s. Every target's hold clears as the sim's reset starts, and the
-  boss's reset, which runs before its add's, holds the add again. A landing due while the sim resets, before the
-  target's own reset, only releases the hold, so that reset puts the debuffs on before the raid's reset reads them. A
-  raid debuff on a timer of its own (`scheduledAura` in `sim/core/buffs/drivers.go`) ticks nothing on a held target,
-  and each landing replaces the schedule still running. A player's own cast of the same debuff is untouched.
+  up anew. A plan's downtime that clears debuffs disables them at its start and lands them at its end, once no other
+  clearing downtime on the target runs, whether or not the target comes back then. A held target's reset skips those
+  `OnReset`s. Every target's hold clears as the sim's reset starts, and a plan's add wave then holds its pool targets'
+  again. A landing due while the sim resets, before the target's own reset, only releases the hold, so that reset puts
+  the debuffs on before the raid's reset reads them. A raid debuff on a timer of its own (`scheduledAura` in
+  `sim/core/buffs/drivers.go`) ticks nothing on a held target, and each landing replaces the schedule still running. A
+  player's own cast of the same debuff is untouched.
 - **A death runs in one order** (`Target.Die`, `target_death.go`): the kill share is rolled once on `sim.deathRand`, a
   stream apart from the combat rolls, `OnTargetDies` runs for every raid unit, `OnKill` after it when the roll credits
   the raid, `Disable` last. A death listener gets a nil spell; an aura on the dying target is checked in
   `ExtraCondition`, which runs inside `Die`. The proc side is `docs/spell_data/procs.md`, which also says why a rated
-  trigger hears no death. In a normal sim only the Dynamic Adds add dies, at the end of its lifetime, with the boss's
-  Kill share % input as the share.
+  trigger hears no death. Only a plan's add dies, at its despawn, with its wave's kill share (0.2 in the Dynamic
+  Adds preset).
 - **Execute phases are per target** (`target_health.go`): an Execute-type check reads `result.Target` or the cast's
-  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%, at the
-  encounter's execute proportions of the fight (`resetExecutePhases`); an enemy has no health bar to read. A buff row a
-  target's phase grants sits on the caster and carries to another target (Decimation's 440873); a bonus whose rows
-  state no buff counts per target (Quietus, Early Demise).
+  target, never the encounter's first target. Each target keeps only the times it reaches 35% and 20%: at the
+  encounter's execute proportions of the fight (`resetExecutePhases`), or where a plan's health curve for its boss or
+  add crosses them; an enemy has no health bar to read. A buff row a target's phase grants sits on the caster and
+  carries to another target (Decimation's 440873); a bonus whose rows state no buff counts per target (Quietus, Early
+  Demise).
 - **Fights are time-based**: there is no health-based fight length, and no damage taken moves a target's execute
   phases.
+- **An encounter plan is a timeline of fractions of the rolled fight duration** (`plan_runner.go` and the
+  `plan_*.go` lanes). Jitter is rolled per occurrence at reset from `sim.planRand`, a stream apart from the
+  combat and kill rolls, so it does not move with gear. `PlanRepeat.count` is repeats after the first, 0 until the fight ends;
+  a boss ability's end is a Thrash, Swing Timing or Pulse window's end, while a Spell Hit, Strike or Area Hit ignores it
+  and repeats as an add wave does (`plan_boss_abilities.go`, `occurrences` in
+  `ui/features/encounter-planner/model/lanes.ts`); overlapping downtimes on a target are a union; boss health keyframes get (0, 100) and (1, 0) added and are clamped;
+  add waves take targets from a pool allocated at construction. A malformed plan never panics: what construction drops
+  is logged at each reset (`constructNotes`).
+- **A plan's area damage comes from the environment or from a boss** (`registerArea`, `targetless` in
+  `plan_boss_abilities.go`). An Environment Pulse's ticks and Area Hit are target 0's spells, for its level and its
+  metrics, applied with `SkipCastAndApplyEffects`, so they land with every target down or dead and nothing interrupts
+  them. A Boss one is its `target_index` target's spell, a hardcast of `cast_time` (0 casts instantly): the Area Hit
+  lands when the cast completes, and so does a Pulse window's first tick, the rolled ticks starting one interval after
+  it. A target that is not active at the occurrence or window start casts nothing, a downtime or death mid-cast stops
+  the cast and with it that window's ticks, and a tick due while the target is down does not land. A cast that fails,
+  as one does while the target is mid hardcast of another ability, does the same. Both sources hit every player and
+  every enabled pet and skip the caster's damage dealt modifiers; only a resistible one rolls spell hit and partial
+  resists. An avoidable one skips a player from the walk start of a plan's move to its end (`walkEnds`), not an APL
+  move. A Spell Hit's or a Boss area ability's hardcast holds the caster's swing and starts a full swing at its end
+  unless `keeps_swing_timer` sets `SpellFlagKeepsSwingTimer`.
+- **A pool target is a target of the results, after the encounter's own.** Its label stays `Target N`, which the log
+  and the UI's log parser key on; its metrics carry the wave and add it spawns as (`UnitMetrics.plan_add`, copied
+  by the concurrent combiner too), and `EncounterMetrics.makeNew` in `ui/sim/proto/sim_result.ts` names it from
+  them. Every slot is listed, whether or not it spawned in an iteration.
 
 ## Protos
 

@@ -364,6 +364,8 @@ message DistributionMetrics {
 message UnitMetrics {
 	string name = 9;
 	int32 unit_index = 13;
+	// Set on a target an add wave of the encounter's plan spawns, whose name stays "Target N" for the log.
+	PlanAdd plan_add = 4;
 
 	DistributionMetrics dps = 1;
 	DistributionMetrics threat = 8;
@@ -384,6 +386,13 @@ message UnitMetrics {
 	repeated ResourceMetrics resources = 10;
 
 	repeated UnitMetrics pets = 7;
+}
+
+// The add of an encounter plan a pool target is spawned as: indices into EncounterPlan.add_waves and that
+// wave's adds.
+message PlanAdd {
+	int32 wave_index = 1;
+	int32 add_index = 2;
 }
 
 // Results for a whole raid.

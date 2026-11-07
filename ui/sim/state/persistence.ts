@@ -15,6 +15,7 @@ import { fromJsonStringLenient } from '../proto/lenient_json';
 import type { StatSweepSettings } from '../settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '../settings/stat_weight_settings';
 import { batch } from './batch';
+import { withoutMyEncounter } from './my_encounter_sharing';
 import { tryParseUrlLocation } from './sim_links';
 import { withViewerStatFilters } from './stat_filter_sharing';
 import type { StoreSubscribe } from './subscriptions';
@@ -67,7 +68,7 @@ export function loadIndividualSettings(
 			try {
 				const urlParseResults = tryParseUrlLocation(env.location);
 				if (urlParseResults) {
-					host.fromProto(withViewerStatFilters(urlParseResults.settings, opts.player.sim), urlParseResults.categories);
+					host.fromProto(withoutMyEncounter(withViewerStatFilters(urlParseResults.settings, opts.player.sim)), urlParseResults.categories);
 				}
 			} catch (e) {
 				console.warn('Failed to parse link settings: ' + e);

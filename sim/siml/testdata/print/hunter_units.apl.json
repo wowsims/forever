@@ -11,12 +11,6 @@
 		{ "action": { "castSpell": { "spellId": { "spellId": 900001 }, "target": { "type": "Unknown" } } } },
 		{
 			"action": {
-				"condition": { "isExecutePhase": { "threshold": "E20", "targetUnit": { "type": "Target", "index": 1 } } },
-				"castSpell": { "spellId": { "spellId": 900001 } }
-			}
-		},
-		{
-			"action": {
 				"condition": { "currentHealth": { "sourceUnit": { "type": "Pet", "owner": { "type": "Player" } } } },
 				"changeTarget": { "newTarget": { "type": "AllPlayers" } }
 			}

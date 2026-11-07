@@ -23,6 +23,15 @@ const CreatureHealthMaxLevel = 4365.0
 const CreatureArmorMaxLevel = 3566.0
 const CreatureAutoAttackDpsMaxLevel = 60.45291519165039
 
+// ExpectedStat's creature armor at each level
+var CreatureArmorByLevel = map[int32]float64{
+	58: 3457.0,
+	59: 3512.0,
+	60: 3566.0,
+	61: 3622.0,
+	62: 3677.0,
+	63: 3731.0,
+}
 var CritPerAgiMaxLevel = map[proto.Class]float64{
 	proto.Class_ClassUnknown: 0.0,
 	proto.Class_ClassWarrior: 0.05000000,

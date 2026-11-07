@@ -19,6 +19,7 @@ import {
 	booleanFieldConfig,
 	comparisonOperatorFieldConfig,
 	curseTypeFieldConfig,
+	damageAmpTypeFieldConfig,
 	executePhaseThresholdFieldConfig,
 	groupNameFieldConfig,
 	groupReferenceVariablesFieldConfig,
@@ -64,6 +65,7 @@ describe('resolveField kinds', () => {
 			totemTypeFieldConfig('f'),
 			mobTypeFieldConfig('f'),
 			areaTypeFieldConfig('f'),
+			damageAmpTypeFieldConfig('f'),
 		];
 		for (const descriptor of descriptors) {
 			expect(resolveField(descriptor).kind).toBe('enum');

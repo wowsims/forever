@@ -32,6 +32,7 @@ import {
 	seedBulkSettings,
 } from '@sim/settings/bulk_settings';
 import { type BulkMode, createSimStore, patchSlice, PLAYER_FIELDS, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { memoryEnv } from '@testing/sim/memory_env';
 import { compareGearSet } from '@testing/storybook/fixtures/bulk-compare';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
@@ -171,7 +172,12 @@ interface MountOptions {
 	buildEnchantPresets?: string[];
 	encounters?: BulkEncounterRef[];
 	currentEncounter?: Encounter;
+	myEncounters?: Record<string, Encounter>;
 }
+
+const MY_ENCOUNTERS_KEY = `test-${MY_ENCOUNTERS_STORAGE_KEY}`;
+const myEncountersRecord = (entries: Record<string, Encounter>) =>
+	JSON.stringify(Object.fromEntries(Object.entries(entries).map(([name, proto]) => [name, Encounter.toJson(proto)])));
 
 const mount = ({
 	powerTools = true,
@@ -184,8 +190,10 @@ const mount = ({
 	buildEnchantPresets = [],
 	encounters = [],
 	currentEncounter,
+	myEncounters = {},
 }: MountOptions = {}) => {
 	for (const [kind, key] of Object.entries(KEYS)) localStorage.setItem(key, JSON.stringify(saved[kind as keyof typeof KEYS] ?? {}));
+	localStorage.setItem(MY_ENCOUNTERS_KEY, myEncountersRecord(myEncounters));
 	const store = createSimStore();
 	patchSlice(store, 'ui', { showPowerTools: powerTools });
 	if (currentEncounter) patchSlice(store, 'encounter', currentEncounter);
@@ -696,6 +704,34 @@ describe('BulkTabBody in Builds mode', () => {
 
 		expect(state('Patchwerk')).toEqual(['true', null]);
 		expect(descriptions('Patchwerk')).toEqual(['5:00 ±0s · 1 target']);
+	});
+
+	it('lists My encounters under their own heading, apart from a saved encounter of one name, and drops a deleted one from the stored refs', () => {
+		const player = mount({ myEncounters: { Council: encounter(240), 'Add waves': encounter(200) } });
+		const inGroup = (group: string, name: string) =>
+			within(within(screen.getByTestId('bulk-encounters')).getByRole('group', { name: group })).getByRole('checkbox', { name });
+		const checked = (element: HTMLElement) => element.getAttribute('aria-checked');
+		const mine = (name: string) => BulkEncounterRef.create({ name, myEncounter: true });
+
+		expect(texts(within(screen.getByTestId('bulk-encounters')).getAllByRole('heading', { level: 6 }))).toEqual(['Presets', 'My encounters', 'Saved']);
+		expect(listRows('bulk-encounters', 'bulk-encounter')).toEqual(['Current encounter', 'Patchwerk', 'Council', 'Add waves', 'Council']);
+
+		fireEvent.click(inGroup('My encounters', 'Council'));
+
+		expect(checked(inGroup('My encounters', 'Council'))).toBe('true');
+		expect(checked(inGroup('Saved', 'Council'))).toBe('false');
+		expect(loadStoredBulkEncounters(player)?.encounters).toEqual([CURRENT_ENCOUNTER_REF, mine('Council')]);
+
+		act(() => {
+			localStorage.setItem(MY_ENCOUNTERS_KEY, myEncountersRecord({ 'Add waves': encounter(200) }));
+			window.dispatchEvent(new StorageEvent('storage', { key: MY_ENCOUNTERS_KEY }));
+		});
+
+		expect(listRows('bulk-encounters', 'bulk-encounter')).toEqual(['Current encounter', 'Patchwerk', 'Add waves', 'Council']);
+
+		fireEvent.click(inGroup('My encounters', 'Add waves'));
+
+		expect(loadStoredBulkEncounters(player)?.encounters).toEqual([CURRENT_ENCOUNTER_REF, mine('Add waves')]);
 	});
 
 	it('points to where encounters are saved when there is none to pick', () => {

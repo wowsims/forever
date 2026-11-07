@@ -1,5 +1,5 @@
 import { APLActionItemSwap_SwapSet } from '@generated/proto/apl';
-import { ActionID as ActionIdProto, ItemRandomSuffix, ItemSlot, OtherAction } from '@generated/proto/common';
+import { ActionID as ActionIdProto, DamageAmpType, ItemRandomSuffix, ItemSlot, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { IconData, UIItem as Item } from '@generated/proto/ui';
 import { WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
@@ -8,6 +8,10 @@ import i18n from '@i18n/config';
 import { CHARACTER_LEVEL } from '../../constants/mechanics';
 import { Database } from '../database';
 import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTooltipItemParams, WowheadTooltipSpellParams } from '../wowhead';
+
+// The tag of an encounter plan's boss ability is this plus its index in the plan.
+// Mirrors planBossAbilityTag in sim/core/plan_boss_abilities.go.
+export const ENCOUNTER_PLAN_ABILITY_TAG = 2_000_000;
 
 // Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
 const SHIELDSWORN_TAG = 1328544;
@@ -120,17 +124,23 @@ export class ActionId {
 				} else if (this.tag == 10610) {
 					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
 					name += ` (${i18n.t('common.action_tags.windfury')})`;
-				} else if (this.tag == 99999) {
-					name += ` (${i18n.t('common.action_tags.boss')})`;
-				} else if (this.tag == 99998) {
-					name += ` (${i18n.t('common.action_tags.add')})`;
-				} else if (this.tag == 100000) {
-					name += ` (${i18n.t('common.action_tags.custom_boss')})`;
-				} else if (this.tag == 100000 + 1) {
-					name += ` (${i18n.t('common.action_tags.custom_boss')}) - ${i18n.t('common.action_tags.thrash')}`;
+				} else if (this.tag >= ENCOUNTER_PLAN_ABILITY_TAG) {
+					// A boss ability of the encounter plan: the extra swings of its Thrash.
+					name += ` (${i18n.t('common.action_tags.thrash')} ${this.tag - ENCOUNTER_PLAN_ABILITY_TAG + 1})`;
 				}
 				break;
 			}
+			case OtherAction.OtherActionDamageAmplifier:
+				baseName = i18n.t('common.action_names.damage_amplifier');
+				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/spell_shadow_shadowwordpain.jpg';
+				if (this.tag == DamageAmpType.DamageAmpTypeCasterBuff) {
+					name = `${baseName} (${i18n.t('common.action_tags.caster_buff')})`;
+				} else if (this.tag == DamageAmpType.DamageAmpTypeEnvironmentBuff) {
+					name = `${baseName} (${i18n.t('common.action_tags.environment_buff')})`;
+				} else if (this.tag == DamageAmpType.DamageAmpTypeTargetDebuff) {
+					name = `${baseName} (${i18n.t('common.action_tags.target_debuff')})`;
+				}
+				break;
 			case OtherAction.OtherActionShoot:
 				name = i18n.t('common.action_names.shoot');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/ability_marksmanship.jpg';
@@ -278,7 +288,12 @@ export class ActionId {
 	async fill(playerIndex?: number): Promise<ActionId> {
 		// The constructor names a hand's swing and a unit's attack by their tags, so a tagged attack
 		// it left bare is an extra attack.
-		if (this.otherId == OtherAction.OtherActionAttack && this.name == i18n.t('common.action_names.attack') && this.tag != 0) {
+		if (
+			this.otherId == OtherAction.OtherActionAttack &&
+			this.name == i18n.t('common.action_names.attack') &&
+			this.tag != 0 &&
+			this.tag < ENCOUNTER_PLAN_ABILITY_TAG
+		) {
 			return this.fillExtraAttack();
 		}
 		if (this.name || this.iconUrl) {
@@ -459,6 +474,9 @@ export class ActionId {
 			case 'Maul':
 				if (tag == 1) {
 					name += ` (${i18n.t('common.action_tags.queue')})`;
+				} else if (tag >= ENCOUNTER_PLAN_ABILITY_TAG) {
+					// An encounter plan's strike, numbered by its place among the boss abilities.
+					name += ` ${tag - ENCOUNTER_PLAN_ABILITY_TAG + 1}`;
 				}
 				break;
 			case 'Sweeping Strikes':
@@ -593,20 +611,8 @@ export class ActionId {
 				}
 				break;
 			case 'Dummy Spell':
-				if (tag === 100000) {
-					[
-						i18n.t('common.spell_schools.arcane'),
-						i18n.t('common.spell_schools.fire'),
-						i18n.t('common.spell_schools.frost'),
-						i18n.t('common.spell_schools.holy'),
-						i18n.t('common.spell_schools.shadow'),
-						i18n.t('common.spell_schools.nature'),
-					].forEach((school, index) => {
-						if (tag === 100000 + index) {
-							name += ` (${school})`;
-						}
-					});
-				}
+				// An encounter plan's spell hit, numbered by its place among the boss abilities.
+				if (tag >= ENCOUNTER_PLAN_ABILITY_TAG) name += ` ${tag - ENCOUNTER_PLAN_ABILITY_TAG + 1}`;
 				break;
 			case 'Penance':
 				if (tag === 1) {
@@ -802,6 +808,21 @@ export class ActionId {
 			iconUrl: this.iconUrl,
 			randomSuffixId: this.randomSuffixId,
 			rank: this.rank,
+		});
+	}
+
+	withName(name: string): ActionId {
+		return new ActionId({
+			itemId: this.itemId,
+			spellId: this.spellId,
+			otherId: this.otherId,
+			tag: this.tag,
+			baseName: this.baseName,
+			name,
+			iconUrl: this.iconUrl,
+			randomSuffixId: this.randomSuffixId,
+			rank: this.rank,
+			definitionId: this.definitionId,
 		});
 	}
 
