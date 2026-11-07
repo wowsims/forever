@@ -305,7 +305,7 @@ func (filter *ItemFilter) FindAllSets() []*ItemSet {
 
 	for _, set := range sets {
 		if setItems := set.Items(); len(setItems) > 0 {
-			if filter.Matches(setItems[0], true) {
+			if filter.Matches(setItems[0], true) && setItems[0].ScalingOptions[0].GetIlvl() >= MinEffectItemLevel {
 				filteredSets = append(filteredSets, set)
 			}
 		}
