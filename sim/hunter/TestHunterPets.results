@@ -412,6 +412,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 658.84972
+  tps: 434.82593
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 660.04439

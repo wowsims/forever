@@ -495,6 +495,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 432.54125
+  tps: 1373.88325
+  dtps: 289.22029
+  hps: 36.66556
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 434.06118
@@ -1343,10 +1352,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-TheGreenTower-1204"
  value: {
-  dps: 438.30528
-  tps: 1404.57502
-  dtps: 308.28644
-  hps: 36.69944
+  dps: 437.2592
+  tps: 1392.90928
+  dtps: 307.78118
+  hps: 36.66556
  }
 }
 dps_results: {

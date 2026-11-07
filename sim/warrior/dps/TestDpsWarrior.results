@@ -684,15 +684,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-IdolofLongevity-23004"
- value: {
-  dps: 532.1269
-  tps: 458.79239
-  dtps: 2.96131
-  hps: 41.98833
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-IronShieldSpike-43"
  value: {
   dps: 531.49205
@@ -1149,15 +1140,6 @@ dps_results: {
   tps: 489.66361
   dtps: 2.92781
   hps: 43.27611
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-TotemofFlowingWater-23005"
- value: {
-  dps: 532.1269
-  tps: 458.79239
-  dtps: 2.96131
-  hps: 41.98833
  }
 }
 dps_results: {

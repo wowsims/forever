@@ -582,14 +582,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-IdolofLongevity-23004"
- value: {
-  dps: 608.76975
-  tps: 432.22652
-  hps: 52.25667
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-IronShieldSpike-43"
  value: {
   dps: 607.53946
@@ -947,14 +939,6 @@ dps_results: {
   dps: 700.98154
   tps: 480.82937
   hps: 53.42583
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-TotemofFlowingWater-23005"
- value: {
-  dps: 608.76975
-  tps: 432.22652
-  hps: 52.25667
  }
 }
 dps_results: {
