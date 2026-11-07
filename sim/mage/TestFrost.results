@@ -730,7 +730,7 @@ dps_results: {
  key: "TestFrost-AllItems-VestmentsoftheDevout"
  value: {
   dps: 749.22916
-  tps: 692.80254
+  tps: 692.74698
  }
 }
 dps_results: {
