@@ -208,6 +208,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 774.95529
+  tps: 774.5793
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-DreadmistRaiment"
  value: {
   dps: 831.40838
@@ -587,6 +594,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Nightblade-1982"
+ value: {
+  dps: 852.51673
+  tps: 849.86875
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-OrbofFire-12805"
  value: {
   dps: 803.60762
@@ -619,6 +633,13 @@ dps_results: {
  value: {
   dps: 813.59299
   tps: 812.62923
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 852.51673
+  tps: 849.86875
  }
 }
 dps_results: {
@@ -696,6 +717,13 @@ dps_results: {
  value: {
   dps: 847.08517
   tps: 845.03407
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 852.51673
+  tps: 849.86875
  }
 }
 dps_results: {

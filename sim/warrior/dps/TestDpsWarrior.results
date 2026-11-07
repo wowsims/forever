@@ -162,6 +162,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-BowofSearingArrows-2825"
+ value: {
+  dps: 532.1269
+  tps: 458.79239
+  dtps: 2.96131
+  hps: 41.98833
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BristleconeCloak-275833"
  value: {
   dps: 531.49205
@@ -258,6 +267,15 @@ dps_results: {
   tps: 458.14223
   dtps: 2.92781
   hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 519.3701
+  tps: 448.12714
+  dtps: 2.96131
+  hps: 40.15833
  }
 }
 dps_results: {
@@ -478,6 +496,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-FetishoftheSandReaver-21647"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-FieryWarAxe-870"
  value: {
   dps: 531.49205
   tps: 458.14223
@@ -756,6 +783,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Nightblade-1982"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Nightfall-19169"
  value: {
   dps: 531.49205
@@ -810,6 +846,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Ravager-7717"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 532.1269
@@ -829,6 +874,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-SerenityField-272439"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-SerpentSlicer-13035"
  value: {
   dps: 531.49205
   tps: 458.14223
@@ -982,6 +1036,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheRestrainedEssenceofSapphiron-23046"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-ThrashBlade-17705"
  value: {
   dps: 531.49205
   tps: 458.14223

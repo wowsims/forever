@@ -37,6 +37,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  870,
+		SpellID: 18796,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Fiery War Axe: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  880,
 		SpellID: 8552,
 		PPM:     1.4, // TODO: Vanilla value - verify in-game
@@ -240,6 +247,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  17705,
+		SpellID: 21919,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Thrash Blade: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  17733,
 		SpellID: 21951,
 		PPM:     1, // TODO: Vanilla value - verify in-game
@@ -295,6 +309,27 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Dark Edge of Insanity: column reads 101",
 		Source:  "vanilla-carryover",
 	},
+	{
+		ItemID:  1982,
+		SpellID: 18211,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Nightblade: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2825,
+		SpellID: 29638,
+		PPM:     3.35, // TODO: Vanilla value - verify in-game
+		Reason:  "Bow of Searing Arrows: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  7717,
+		SpellID: 9632,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Ravager: no proc row",
+		Source:  "vanilla-carryover",
+	},
 	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
 	// has been measured on this server. Replace each with a measured rate (Source wcl:<report>/<fight> or
 	// issue #N) when logs exist.
@@ -338,6 +373,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16927,
 		PPM:     1, // TODO: Vanilla value - verify in-game
 		Reason:  "Frostguard: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13035,
+		SpellID: 17511,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Serpent Slicer: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{

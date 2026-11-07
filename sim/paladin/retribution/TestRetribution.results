@@ -522,6 +522,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-FieryWarAxe-870"
+ value: {
+  dps: 942.48219
+  tps: 767.85866
+  dtps: 4.34794
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 911.50656
@@ -873,6 +882,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Nightblade-1982"
+ value: {
+  dps: 934.99769
+  tps: 761.87106
+  dtps: 4.34794
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Nightfall-19169"
  value: {
   dps: 934.99769
@@ -945,6 +963,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Ravager-7717"
+ value: {
+  dps: 934.99769
+  tps: 761.87106
+  dtps: 4.34794
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-ScrollsofBlindingLight-19343"
  value: {
   dps: 921.76141
@@ -969,6 +996,15 @@ dps_results: {
   tps: 745.30705
   dtps: 3.96713
   hps: 25.97583
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 869.27103
+  tps: 709.40777
+  dtps: 4.55074
+  hps: 25.58882
  }
 }
 dps_results: {
