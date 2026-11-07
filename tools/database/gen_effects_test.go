@@ -543,26 +543,41 @@ func TestEquipAuraBesideAnotherEffectIsRefused(t *testing.T) {
 	}
 }
 
-// Aegis of Preservation 19345 registers its 500 armor and lists the heal on every hit taken, 23781,
-// that its buff 23780 procs.
-func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
+// Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that
+// its buff 23780 carries, and lists nothing as not simulated. The same buff firing a spell that heals
+// no one, Sulfuras's Fireball 21162 for the test, lists the proc with the reason and the item as
+// missing an effect.
+func TestOnUseStatBuffCarriesItsHealProc(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
-	item := instance.Items[19345]
-	parsed := item.ToUIItem()
-	parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-	groups := map[string]Group{}
-	if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[0], instance, groups); got != EffectParseResultSuccess {
-		t.Fatalf("parsed as %v, want the stat on-use registered", got)
+	parse := func() *Entry {
+		t.Helper()
+		parsed, effect := parsedItem(t, instance, 19345, 23780)
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
+			t.Fatalf("parsed as %v, want the stat on-use registered", got)
+		}
+		return groups["ArmorNoMods"].Entries[0]
 	}
 
-	entry := groups["ArmorNoMods"].Entries[0]
-	if want := "the proc the buff carries, 23781 (E_HEAL)"; !entry.Supported || entry.NotSimulated != want {
-		t.Errorf("supported %v, not simulated %q; want registered with %q", entry.Supported, entry.NotSimulated, want)
+	if entry := parse(); !entry.Supported || entry.NotSimulated != "" {
+		t.Errorf("supported %v, not simulated %q; want registered with nothing left out", entry.Supported, entry.NotSimulated)
+	}
+	if _, listed := missingEffectsMap["ItemEffects"][19345]; listed {
+		t.Errorf("19345 is listed as missing an effect, want it off the list")
+	}
+
+	row := spelldata.MustFind(23780)
+	i := slices.IndexFunc(row.Effects, func(e spelldata.Effect) bool { return e.Aura == dbcenums.A_PROC_TRIGGER_SPELL })
+	fired := row.Effects[i].TriggerID
+	row.Effects[i].TriggerID = 21162
+	t.Cleanup(func() { row.Effects[i].TriggerID = fired })
+	if entry := parse(); !entry.Supported || !strings.Contains(entry.NotSimulated, "heals no one") {
+		t.Errorf("firing damage: supported %v, not simulated %q; want registered with the proc left out for healing no one", entry.Supported, entry.NotSimulated)
 	}
 	if _, listed := missingEffectsMap["ItemEffects"][19345]; !listed {
-		t.Errorf("19345 is not listed as missing an effect")
+		t.Errorf("firing damage: 19345 is not listed as missing an effect")
 	}
 }
 

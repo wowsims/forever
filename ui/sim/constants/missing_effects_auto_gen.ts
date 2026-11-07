@@ -966,12 +966,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		19345, // Aegis of Preservation
-		[
-			"Increases armor by 500, and heals 35 damage every time you take ranged or melee damage for 20s.", // 23780 - https://www.wowhead.com/forever/spell=23780
-		]
-	],
-	[
 		19588, // Hero's Brand
 		[
 			"Increases the duration of Hammer of Justice by 0.5 sec.", // 24188 - https://www.wowhead.com/forever/spell=24188

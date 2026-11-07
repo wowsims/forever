@@ -112,6 +112,42 @@ func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core
 	return nil
 }
 
+// Aegis of Preservation 19345's on-use 23780 grants its armor and, while it runs, heals the wearer
+// 23781's amount on each melee or ranged hit taken, read from the generated stat on-use: nothing on a
+// spell hit, and nothing once the 20 s buff has run out.
+func TestAegisOfPreservationHealsOnHitsTakenWhileItRuns(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassPriest, proto.ItemSlot_ItemSlotTrinket1, 19345)
+	character.RemoveHealth(sim, character.MaxHealth()/2)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	row := spelldata.MustFind(23780)
+	amount := spelldata.MustFind(23781).ProcHealEffect().Average()
+
+	use := character.GetSpell(core.ActionID{ItemID: 19345})
+	if use == nil {
+		t.Fatal("19345 registers no on-use")
+	}
+	if !use.Cast(sim, character.CurrentTarget) {
+		t.Fatal("19345 could not be used")
+	}
+	heal := character.GetSpell(core.ActionID{SpellID: 23781})
+	if heal == nil {
+		t.Fatal("19345's buff carries no heal proc")
+	}
+
+	takeHit(t, sim, character, meleeSwing(enemy))
+	takeHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: enemy})
+	takeHit(t, sim, character, fireSpell(enemy))
+	if got := heal.SpellMetrics[character.UnitIndex]; got.Casts != 2 || amount <= 0 || got.TotalHealing != 2*amount {
+		t.Errorf("a melee, a ranged and a spell hit taken cast the heal %d times for %v, want twice for the row's %v", got.Casts, got.TotalHealing, amount)
+	}
+
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := heal.SpellMetrics[character.UnitIndex].Casts; got != 2 {
+		t.Errorf("a melee hit taken after the buff ran out left the heal at %d casts, want 2 still", got)
+	}
+}
+
 func gained(character *core.Character, before stats.Stats, stat stats.Stat) float64 {
 	return character.GetStat(stat) - before[stat]
 }
