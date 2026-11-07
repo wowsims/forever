@@ -489,9 +489,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-FieryWarAxe-870"
  value: {
-  dps: 729.83975
-  tps: 687.60615
-  dtps: 9.16354
+  dps: 731.25869
+  tps: 688.53496
+  dtps: 9.04212
  }
 }
 dps_results: {
@@ -825,9 +825,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Ravager-7717"
  value: {
-  dps: 729.83975
-  tps: 687.60615
-  dtps: 9.16354
+  dps: 731.25869
+  tps: 688.53496
+  dtps: 9.04212
  }
 }
 dps_results: {
@@ -841,9 +841,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-SerpentbaneCrown-274609"
  value: {
-  dps: 706.55224
-  tps: 665.64526
-  dtps: 8.82835
+  dps: 708.09794
+  tps: 666.70552
+  dtps: 8.67967
  }
 }
 dps_results: {
