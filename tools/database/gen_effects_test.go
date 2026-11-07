@@ -514,33 +514,36 @@ func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	})
 }
 
-// An item registers one effect, so an equip aura beside another effect of the item that registers is
-// refused and listed, and the other kept: Sulfuras 17182's damage shield beside its Fireball proc. An
-// equip aura alone, Cloak of Flames 3475's, stays.
-func TestEquipAuraBesideAnotherEffectIsRefused(t *testing.T) {
-	equip := func(itemID int) *Entry {
-		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: 21142}}, Supported: true,
-			Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
+// A second proc of one item is refused and listed, the one on the lower spell kept, while an equip aura
+// beside a proc stays: core would fold two listeners named for the item into one aura.
+func TestSecondProcOfAnItemIsRefused(t *testing.T) {
+	proc := func(itemID int, spellID int) *Entry {
+		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: spellID}}, Supported: true,
+			Proc: &ProcRouting{TriggerSpellID: spellID, Shape: ShapeStats}}
 	}
-	sulfurasShield, cloakShield := equip(17182), equip(3475)
-	fireball := &Entry{Variants: []*Variant{{ID: 17182, Name: "Test", SpellID: 21162}}, Supported: true,
-		Proc: &ProcRouting{TriggerSpellID: 21162, Shape: ShapeDamage}}
+	first, second, other := proc(991600, 21162), proc(991600, 21170), proc(991601, 21162)
+	stacking := &Entry{Variants: []*Variant{{ID: 991600, Name: "Test", SpellID: 21180}}, Supported: true}
+	equip := &Entry{Variants: []*Variant{{ID: 991600, Name: "Test", SpellID: 21142}}, Supported: true,
+		Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
 
-	refuseEquipBesideAnotherEffect(map[string]Group{}, map[string]Group{
-		"Equip": {Name: "Equip", Entries: []*Entry{sulfurasShield, cloakShield}},
-		"Procs": {Name: "Procs", Entries: []*Entry{fireball}},
+	refuseFoldingProcs(map[string]Group{
+		"Procs": {Name: "Procs", Entries: []*Entry{second, first, other, stacking}},
+		"Equip": {Name: "Equip", Entries: []*Entry{equip}},
 	})
 
-	if sulfurasShield.Supported || !slices.Equal(sulfurasShield.Proc.Unsupported, []string{"another effect of the item registers"}) {
-		t.Errorf("Sulfuras' damage shield supported %v, refused for %q; want refused beside its proc",
-			sulfurasShield.Supported, sulfurasShield.Proc.Unsupported)
+	if second.Supported || !slices.Equal(second.Proc.Unsupported, []string{"a second proc of the item would fold under the first's listener"}) {
+		t.Errorf("the second proc supported %v, refused for %q; want refused for folding", second.Supported, second.Proc.Unsupported)
 	}
-	if !fireball.Supported || !cloakShield.Supported {
-		t.Errorf("Sulfuras' proc supported %v, Cloak of Flames' shield supported %v; want both kept", fireball.Supported, cloakShield.Supported)
+	if stacking.Supported {
+		t.Error("a stacking proc beside the first, with no routing to carry a reason, stayed supported")
 	}
-	if _, listed := missingEffectsMap["ItemEffects"][17182]; !listed {
-		t.Errorf("17182 is not listed as missing an effect")
+	if !first.Supported || !other.Supported || !equip.Supported {
+		t.Errorf("first proc %v, another item's proc %v, the equip aura %v; want all three kept", first.Supported, other.Supported, equip.Supported)
 	}
+	if _, listed := missingEffectsMap["ItemEffects"][991600]; !listed {
+		t.Errorf("991600 is not listed as missing an effect")
+	}
+	delete(missingEffectsMap["ItemEffects"], 991600)
 }
 
 // Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that

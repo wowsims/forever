@@ -1192,7 +1192,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		}
 	}
 
-	refuseEquipBesideAnotherEffect(groupMapOnUse, groupMapProc)
+	refuseFoldingProcs(groupMapProc)
 
 	// Sorting done in GenerateEffectsFile
 	var onUseGroups []*Group
@@ -1274,27 +1274,35 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	GenerateEffectsFile(procGroups, "sim/common/forever/stat_bonus_procs_auto_gen.go", TmplStrProc)
 }
 
-// An item registers one effect, and the sim drops every registration after the first, so an equip aura
-// beside another of the item's effects that registers would drop it or be dropped: Sulfuras' damage
-// shield beside its Fireball proc. The equip aura is refused and listed as missing; the other stays.
-func refuseEquipBesideAnotherEffect(groupMapOnUse map[string]Group, groupMapProc map[string]Group) {
-	registered := map[int]int{}
-	for _, groupMap := range []map[string]Group{groupMapOnUse, groupMapProc} {
-		for _, grp := range groupMap {
-			for _, entry := range grp.Entries {
-				if entry.Supported && !entry.Skipped {
-					registered[entry.Variants[0].ID]++
-				}
+// An item's generated effects compose, but every proc's listener is named for the item, and core folds
+// a second aura registered under a label into the first: a second proc of one item would vanish
+// under the first with nothing to say so. The one on the lower spell stays; the others are refused and
+// listed as missing. An equip aura beside a proc takes a label of its own and is no such case.
+func refuseFoldingProcs(groupMapProc map[string]Group) {
+	var procs []*Entry
+	for name, grp := range groupMapProc {
+		if name == "Equip" {
+			continue
+		}
+		for _, entry := range grp.Entries {
+			if entry.Supported && !entry.Skipped {
+				procs = append(procs, entry)
 			}
 		}
 	}
+	sort.Slice(procs, func(i, j int) bool { return procs[i].Variants[0].SpellID < procs[j].Variants[0].SpellID })
 
-	for _, entry := range groupMapProc["Equip"].Entries {
+	kept := map[int]bool{}
+	for _, entry := range procs {
 		variant := entry.Variants[0]
-		if !entry.Supported || registered[variant.ID] < 2 {
+		if !kept[variant.ID] {
+			kept[variant.ID] = true
 			continue
 		}
-		entry.Proc.Unsupported = append(entry.Proc.Unsupported, "another effect of the item registers")
+		// A stacking-aura proc carries no routing to state the reason on.
+		if entry.Proc != nil {
+			entry.Proc.Unsupported = append(entry.Proc.Unsupported, "a second proc of the item would fold under the first's listener")
+		}
 		entry.Supported = false
 		StoreMissingEffect("ItemEffects", variant.Name, Variant{ID: variant.ID, Name: strings.Join(entry.Tooltip, "\n"), SpellID: variant.SpellID})
 	}

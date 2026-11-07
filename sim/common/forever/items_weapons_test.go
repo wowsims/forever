@@ -136,6 +136,24 @@ func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
 	}
 }
 
+// The Green Tower 1204 carries both its generated effects, composed into the one registration core
+// takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
+// while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.
+func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 1204)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+
+	shield, shieldDamage := damageShield(t, character, 1325228)
+	if character.GetAura("The Green Tower Proc") == nil {
+		t.Fatal("1204 registers no stat proc beside its shield")
+	}
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
+		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
+	}
+}
+
 // Sulfuras, Hand of Ragnaros 17182 carries both its effects. Immolation 21142's damage shield deals
 // its amount to the attacker of each melee hit taken, and nothing for a spell. Fireball 21162 procs
 // at the procs per minute of the item's chance-on-hit entry, deals its row's direct roll, and ticks
@@ -145,14 +163,7 @@ func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(21142)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 21142, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("17182 registers no damage shield")
-	}
+	shield, shieldDamage := damageShield(t, character, 21142)
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
