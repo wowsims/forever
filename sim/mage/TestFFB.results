@@ -286,6 +286,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 782.81619
+  tps: 807.92598
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 782.81619

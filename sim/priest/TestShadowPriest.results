@@ -327,6 +327,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 758.98634
+  tps: 542.25
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 761.88957

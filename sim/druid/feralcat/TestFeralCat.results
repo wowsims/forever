@@ -318,6 +318,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 780.33933

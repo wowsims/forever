@@ -318,6 +318,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 613.96912
+  tps: 435.91808
+  hps: 53.03611
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 614.47914

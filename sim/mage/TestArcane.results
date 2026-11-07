@@ -286,6 +286,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 768.54665
+  tps: 660.04771
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 768.54665
@@ -379,8 +386,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EyeoftheBeast-13968"
  value: {
-  dps: 729.40685
-  tps: 627.2385
+  dps: 736.09253
+  tps: 633.20919
  }
 }
 dps_results: {
@@ -596,8 +603,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 724.42309
-  tps: 623.95297
+  dps: 722.56431
+  tps: 623.04483
  }
 }
 dps_results: {
@@ -722,8 +729,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Smokey'sLighter-13171"
  value: {
-  dps: 725.22388
-  tps: 623.74533
+  dps: 722.95809
+  tps: 620.91781
  }
 }
 dps_results: {

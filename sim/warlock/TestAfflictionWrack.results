@@ -335,6 +335,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 908.93187
+  tps: 728.08859
+  dtps: 9.34267
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantGloves-Threat-2613"
  value: {
   dps: 908.93187

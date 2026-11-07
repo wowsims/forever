@@ -2165,12 +2165,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		7223, // Enchant Chest - Retricutioner
-		[
-			"Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker when the bearer is struck in Melee. ", // 435901 - https://www.wowhead.com/forever/spell=435901
-		]
-	],
-	[
 		7940, // Enchant Weapon - Grand Crusader
 		[
 			"Permanently enchant a melee weapon so that often when attacking in melee it heals for 400 and increases Strength by 120 for 20s.", // 1231124 - https://www.wowhead.com/forever/spell=1231124

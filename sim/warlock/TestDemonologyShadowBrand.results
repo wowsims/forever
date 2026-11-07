@@ -374,6 +374,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 773.86993
+  tps: 659.17991
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 773.86993
