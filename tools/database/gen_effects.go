@@ -1192,8 +1192,6 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		}
 	}
 
-	refuseEquipBesideAnotherEffect(groupMapOnUse, groupMapProc)
-
 	// Sorting done in GenerateEffectsFile
 	var onUseGroups []*Group
 	for _, grp := range groupMapOnUse {
@@ -1272,32 +1270,6 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 
 	GenerateEffectsFile(onUseGroups, "sim/common/forever/stat_bonus_cds_auto_gen.go", TmplStrOnUse)
 	GenerateEffectsFile(procGroups, "sim/common/forever/stat_bonus_procs_auto_gen.go", TmplStrProc)
-}
-
-// An item registers one effect, and the sim drops every registration after the first, so an equip aura
-// beside another of the item's effects that registers would drop it or be dropped: Sulfuras' damage
-// shield beside its Fireball proc. The equip aura is refused and listed as missing; the other stays.
-func refuseEquipBesideAnotherEffect(groupMapOnUse map[string]Group, groupMapProc map[string]Group) {
-	registered := map[int]int{}
-	for _, groupMap := range []map[string]Group{groupMapOnUse, groupMapProc} {
-		for _, grp := range groupMap {
-			for _, entry := range grp.Entries {
-				if entry.Supported && !entry.Skipped {
-					registered[entry.Variants[0].ID]++
-				}
-			}
-		}
-	}
-
-	for _, entry := range groupMapProc["Equip"].Entries {
-		variant := entry.Variants[0]
-		if !entry.Supported || registered[variant.ID] < 2 {
-			continue
-		}
-		entry.Proc.Unsupported = append(entry.Proc.Unsupported, "another effect of the item registers")
-		entry.Supported = false
-		StoreMissingEffect("ItemEffects", variant.Name, Variant{ID: variant.ID, Name: strings.Join(entry.Tooltip, "\n"), SpellID: variant.SpellID})
-	}
 }
 
 func GenerateItemEffectRandomPropPoints(instance *dbc.DBC, db *WowDatabase) {

@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -131,9 +133,13 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 		character := agent.GetCharacter()
 		slots := source.eligibleSlots(character)
 
+		label := cfg.Name
+		if source.composed() {
+			label = fmt.Sprintf("%s (%d)", cfg.Name, row.ID)
+		}
 		// Checked on reset rather than made permanent: a pet resets after its owner's item swap has
 		// settled, and would otherwise put the aura back on for an item only in the swap set.
-		config := spelldata.AuraConfig(row, spelldata.Label(cfg.Name))
+		config := spelldata.AuraConfig(row, spelldata.Label(label))
 		config.Duration = core.NeverExpires
 		// Worn from the start, the aura is part of the gear the character sheet shows.
 		config.BuildPhase = core.Ternary(source.isEquipped(character, slots), core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)

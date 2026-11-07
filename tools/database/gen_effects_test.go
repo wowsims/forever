@@ -514,35 +514,6 @@ func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	})
 }
 
-// An item registers one effect, so an equip aura beside another effect of the item that registers is
-// refused and listed, and the other kept: Sulfuras 17182's damage shield beside its Fireball proc. An
-// equip aura alone, Cloak of Flames 3475's, stays.
-func TestEquipAuraBesideAnotherEffectIsRefused(t *testing.T) {
-	equip := func(itemID int) *Entry {
-		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: 21142}}, Supported: true,
-			Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
-	}
-	sulfurasShield, cloakShield := equip(17182), equip(3475)
-	fireball := &Entry{Variants: []*Variant{{ID: 17182, Name: "Test", SpellID: 21162}}, Supported: true,
-		Proc: &ProcRouting{TriggerSpellID: 21162, Shape: ShapeDamage}}
-
-	refuseEquipBesideAnotherEffect(map[string]Group{}, map[string]Group{
-		"Equip": {Name: "Equip", Entries: []*Entry{sulfurasShield, cloakShield}},
-		"Procs": {Name: "Procs", Entries: []*Entry{fireball}},
-	})
-
-	if sulfurasShield.Supported || !slices.Equal(sulfurasShield.Proc.Unsupported, []string{"another effect of the item registers"}) {
-		t.Errorf("Sulfuras' damage shield supported %v, refused for %q; want refused beside its proc",
-			sulfurasShield.Supported, sulfurasShield.Proc.Unsupported)
-	}
-	if !fireball.Supported || !cloakShield.Supported {
-		t.Errorf("Sulfuras' proc supported %v, Cloak of Flames' shield supported %v; want both kept", fireball.Supported, cloakShield.Supported)
-	}
-	if _, listed := missingEffectsMap["ItemEffects"][17182]; !listed {
-		t.Errorf("17182 is not listed as missing an effect")
-	}
-}
-
 // Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that
 // its buff 23780 carries, and lists nothing as not simulated. The same buff firing a spell that heals
 // no one, Sulfuras's Fireball 21162 for the test, lists the proc with the reason and the item as

@@ -1343,9 +1343,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheGreenTower-1204"
  value: {
-  dps: 410.77954
-  tps: 984.69605
-  dtps: 387.27635
+  dps: 410.76582
+  tps: 983.99439
+  dtps: 387.2393
   hps: 22.90889
  }
 }

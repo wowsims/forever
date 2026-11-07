@@ -1866,22 +1866,46 @@ func (config ProcStatBonusEffect) effectSource() effectSource {
 	return effectSource{id: config.ItemID}
 }
 
+// The generated effects each item carries, composed into the one registration core takes per item:
+// The Green Tower 1204 keeps 1325228's damage shield up beside the stat proc 17154 its hits trigger.
+var generatedItemEffects = map[int32][]core.ApplyEffect{}
+
 func (s effectSource) registerEffect(apply core.ApplyEffect) {
 	if s.isEnchant {
 		core.NewEnchantEffect(s.id, apply)
-	} else {
-		core.NewItemEffect(s.id, apply)
+		return
 	}
+	if _, composed := generatedItemEffects[s.id]; composed {
+		generatedItemEffects[s.id] = append(generatedItemEffects[s.id], apply)
+		return
+	}
+	generatedItemEffects[s.id] = []core.ApplyEffect{apply}
+	id := s.id
+	core.NewItemEffect(id, func(agent core.Agent) {
+		for _, apply := range generatedItemEffects[id] {
+			apply(agent)
+		}
+	})
+}
+
+// Whether the item carries more than one generated effect. Core keeps one aura per label and folds a
+// second registration under a label into the first, so each aura of a composed item takes a label of
+// its own: The Green Tower's equip shield beside its proc listener, both named for the item.
+func (s effectSource) composed() bool {
+	return !s.isEnchant && len(generatedItemEffects[s.id]) > 1
 }
 
 // Whether a hand-written effect already covers this. That is the soft fail letting an override win
-// over the generated registration, and it is why deleting one hands the generated version back.
+// over the generated registration, and it is why deleting one hands the generated version back. A
+// hand-written effect registers on import, before any generated one, so an id the generated effects
+// hold is not one.
 func (s effectSource) isAlreadyImplemented() bool {
 	if s.isEnchant {
 		return core.HasEnchantEffect(s.id)
 	}
 
-	return core.HasItemEffect(s.id)
+	_, generated := generatedItemEffects[s.id]
+	return core.HasItemEffect(s.id) && !generated
 }
 
 func (s effectSource) actionID() core.ActionID {
