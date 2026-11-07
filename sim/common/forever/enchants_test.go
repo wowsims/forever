@@ -381,16 +381,18 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 }
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
-// from the generated registrations: the row's amount lands on the attacker of each melee hit taken,
-// the next one included, and nothing on a ranged shot or a spell. The row's proc flags name the
-// melee hits; its 5 s cooldown is the aura spell's own and no lockout on the shield.
+// from the generated registrations: the row's amount lands whole on the attacker of a melee hit taken,
+// through the target's armor and with no roll to miss, once per the row's 5 s, and nothing on a ranged
+// shot or a spell. The row's proc flags name the melee hits and its cooldown the lockout.
 func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
+	enemy.AddStatDynamic(sim, stats.Armor, 5000)
+	row := spelldata.MustFind(435901)
 
 	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(435901)) {
+	for _, effect := range spelldata.ItemAuraDamageShields(row) {
 		shieldDamage += effect.Average()
 	}
 	shield := character.GetSpell(core.ActionID{SpellID: 435901, Tag: 2})
@@ -398,12 +400,17 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 		t.Fatal("7223 registers no damage shield")
 	}
 	takeHit(t, sim, character, meleeSwing(enemy))
-	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
-		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
+	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.Misses != 0 || got.TotalDamage != shieldDamage {
+		t.Errorf("a melee hit taken cast the shield %d times, %d missed, for %v; want once, landing the row's %v through the armor", got.Casts, got.Misses, got.TotalDamage, shieldDamage)
 	}
 	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+		t.Errorf("a second melee hit taken inside the row's %v left the shield at %d casts, want 1", row.Cooldown(), got)
+	}
+	stepTo(t, sim, sim.CurrentTime+row.Cooldown())
+	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
-		t.Errorf("a second melee hit taken within 5 s left the shield at %d casts, want 2", got)
+		t.Errorf("a melee hit taken after the lockout left the shield at %d casts, want 2", got)
 	}
 	takeHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: enemy})
 	takeHit(t, sim, character, fireSpell(enemy))

@@ -3,6 +3,7 @@ package spelldata
 import (
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -87,6 +88,23 @@ func TestDamageShieldHitsFollowTheRowsProcFlags(t *testing.T) {
 	}
 	if got := DamageShieldHits(&Spell{ID: 7802}); got != core.ProcMaskUnknown {
 		t.Errorf("hits of a shield stating no flags: %v, want every hit", got)
+	}
+}
+
+// A shield row's lockout is its internal cooldown, the cooldown it states where it has none, and
+// nothing where it states neither.
+func TestDamageShieldLockoutFollowsTheRowsCooldowns(t *testing.T) {
+	for name, tc := range map[string]struct {
+		row  Spell
+		want time.Duration
+	}{
+		"an internal cooldown":           {Spell{ID: 7803, ICDMs: 3000, CooldownMs: 5000}, 3 * time.Second},
+		"a cooldown and no internal one": {Spell{ID: 7804, CooldownMs: 5000}, 5 * time.Second},
+		"neither":                        {Spell{ID: 7805}, 0},
+	} {
+		if got := DamageShieldLockout(&tc.row); got != tc.want {
+			t.Errorf("lockout of a shield stating %s: %v, want %v", name, got, tc.want)
+		}
 	}
 }
 

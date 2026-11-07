@@ -3,6 +3,7 @@ package spelldata
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -99,6 +100,16 @@ func DamageShieldHits(s *Spell) core.ProcMask {
 		return core.ProcMaskUnknown
 	}
 	return core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).ProcMask
+}
+
+// The time a row's damage shield waits between two reflections: its internal cooldown, or the cooldown
+// the row states where it has none. Retricutioner's 435901 states 5 s, so a second melee hit inside
+// them is not reflected; the passive shields state none and answer every hit.
+func DamageShieldLockout(s *Spell) time.Duration {
+	if s.ICDMs > 0 {
+		return s.ICD()
+	}
+	return s.Cooldown()
 }
 
 // What an item's aura shape leaves out of a row, one reason per effect: an effect that is not an

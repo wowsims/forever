@@ -18,7 +18,7 @@ import (
 // second copy of the shield can sit next to it.
 func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, duration time.Duration, category string, singleAura bool,
 	school core.SpellSchool, damage float64, bonusCoefficient float64) *core.Aura {
-	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown)
+	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown, 0)
 
 	aura := unit.GetOrRegisterAura(core.Aura{
 		Label:      label,
@@ -38,25 +38,37 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 // The same damage shield on an aura that already exists, live while the aura is up: an item's buff
 // whose row states a damage shield beside its other effects. The spell that deals the damage takes
 // the aura's action id with its tag raised by 2. hits narrows the physical hits the shield answers to
-// the ones the row's proc flags name; ProcMaskUnknown answers every one.
-func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask) {
-	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits))
+// the ones the row's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
+// shield waits between two reflections; 0 answers every hit.
+func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) {
+	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout))
 }
 
+// A Physical shield's reflection is no attack: it lands whole, with no armor reducing it and no roll
+// missing it. A magic shield keeps the spell hit roll and the target's resistance.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
-	bonusCoefficient float64, hits core.ProcMask) core.ProcTrigger {
+	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
+	physical := school.Matches(core.SpellSchoolPhysical)
+	flags := core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell
+	if physical {
+		flags |= core.SpellFlagIgnoreResists
+	}
 	procSpell := unit.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID.WithTag(actionID.Tag + 2),
 		SpellSchool: school,
 		ProcMask:    core.ProcMaskEmpty,
-		Flags:       core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell,
+		Flags:       flags,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
 		BonusCoefficient: bonusCoefficient,
 
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, damage, spell.OutcomeMagicHit)
+			outcome := spell.OutcomeMagicHit
+			if physical {
+				outcome = spell.OutcomeAlwaysHit
+			}
+			spell.CalcAndDealDamage(sim, target, damage, outcome)
 		},
 	})
 
@@ -65,6 +77,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 		Callback: core.CallbackOnSpellHitTaken,
 		ProcMask: hits,
 		Outcome:  core.OutcomeLanded,
+		ICD:      lockout,
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.SpellSchool.Matches(core.SpellSchoolPhysical) {
 				procSpell.Cast(sim, spell.Unit)
