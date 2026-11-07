@@ -693,29 +693,6 @@ var Spells = []Override{
 		Reason:  "Cleave Rank 5: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
 	},
-
-	// Shield Bash adds flat threat beyond its damage, times the stance.
-	{
-		SpellID: 72,
-		Field:   FlatThreat,
-		Value:   2,
-		Reason:  "Shield Bash Rank 1: threat is the damage + 2, times the stance",
-		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
-	},
-	{
-		SpellID: 1671,
-		Field:   FlatThreat,
-		Value:   2, // TODO: Measure Shield Bash Rank 2 in game.
-		Reason:  "Shield Bash Rank 2: Rank 1's measured bonus",
-		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
-	},
-	{
-		SpellID: 1672,
-		Field:   FlatThreat,
-		Value:   2, // TODO: Measure Shield Bash Rank 3 in game.
-		Reason:  "Shield Bash Rank 3: Rank 1's measured bonus",
-		Source:  "threat capture, Shield Bash Rank 1, 2026-11-06",
-	},
 }
 
 // The procs-per-minute rate stated for a spell, or zero where none is. The item database reads it

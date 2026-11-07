@@ -11,7 +11,12 @@ var bloodrageOverTime = bloodrageRank.EffectN(2).Trigger()
 var bloodrageOverTimeTick = bloodrageOverTime.PeriodicEffect()
 
 func (warrior *Warrior) registerBloodrage() {
-	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageRank.ID})
+	// In game the instant rage makes 5 threat per rage in Battle and Defensive Stance alike, while the
+	// rage over time takes the stance's multiplier.
+	// TODO: Ingame test needed -- whether Defiance or a threat buff scales the instant rage's threat.
+	instantRageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageRank.ID})
+	instantRageMetrics.UnscaledThreat = true
+	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: bloodrageOverTime.ID})
 	healthCost := warrior.BaseHealth() * float64(bloodrageRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 	improvedBloodrage := spellData.ImprovedBloodrage.MultiplierAt(warrior.Talents.ImprovedBloodrage)
 	instantRage := bloodrageRank.EnergizeEffect().Tenths() * improvedBloodrage
@@ -26,7 +31,7 @@ func (warrior *Warrior) registerBloodrage() {
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		warrior.AddRage(sim, instantRage, rageMetrics)
+		warrior.AddRage(sim, instantRage, instantRageMetrics)
 		warrior.SpendHealth(sim, healthCost, spell.HealthMetrics(&warrior.Unit))
 		spell.SelfHot().Apply(sim)
 	}

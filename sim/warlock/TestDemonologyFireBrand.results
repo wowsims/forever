@@ -939,7 +939,7 @@ dps_results: {
  key: "TestDemonologyFireBrand-AllItems-VestmentsoftheDevout"
  value: {
   dps: 723.98416
-  tps: 587.46835
+  tps: 587.41279
   dtps: 8.61855
  }
 }
