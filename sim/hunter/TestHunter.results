@@ -225,6 +225,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BowofSearingArrows-2825"
+ value: {
+  dps: 699.63075
+  tps: 722.66012
+  dtps: 6.12709
+  hps: 15.79222
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BristleconeCloak-275833"
  value: {
   dps: 757.47916
@@ -348,6 +357,15 @@ dps_results: {
   tps: 772.94778
   dtps: 7.96855
   hps: 15.14833
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 672.34711
+  tps: 695.9261
+  dtps: 7.6583
+  hps: 14.86028
  }
 }
 dps_results: {
@@ -582,6 +600,15 @@ dps_results: {
   tps: 781.47537
   dtps: 7.45809
   hps: 14.99583
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-FieryWarAxe-870"
+ value: {
+  dps: 748.60159
+  tps: 772.30093
+  dtps: 8.08988
+  hps: 13.99611
  }
 }
 dps_results: {
@@ -864,6 +891,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Nightblade-1982"
+ value: {
+  dps: 747.4774
+  tps: 771.14207
+  dtps: 8.0698
+  hps: 13.99611
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Nightfall-19169"
  value: {
   dps: 747.4774
@@ -945,6 +981,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Ravager-7717"
+ value: {
+  dps: 747.4774
+  tps: 771.14207
+  dtps: 8.0698
+  hps: 13.99611
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Renataki'sCharmofBeasts-19953"
  value: {
   dps: 759.01393
@@ -960,6 +1005,24 @@ dps_results: {
   tps: 781.1778
   dtps: 7.34939
   hps: 14.99583
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 747.4774
+  tps: 771.14207
+  dtps: 8.0698
+  hps: 13.99611
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 753.53077
+  tps: 777.03735
+  dtps: 7.85112
+  hps: 14.72472
  }
 }
 dps_results: {
@@ -1122,6 +1185,15 @@ dps_results: {
   tps: 781.47537
   dtps: 7.45809
   hps: 14.99583
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 747.4774
+  tps: 771.14207
+  dtps: 8.0698
+  hps: 13.99611
  }
 }
 dps_results: {
