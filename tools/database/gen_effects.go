@@ -169,7 +169,7 @@ var procShapes = [...]struct {
 	ShapeHeal:           {"NewSpellDataHealProc", "NewSpellDataHealOnUse", "Heals", healUnsupported, true},
 	ShapeAbsorb:         {"NewSpellDataAbsorbProc", "NewSpellDataAbsorbOnUse", "Absorbs", absorbUnsupported, true},
 	ShapeSpeed:          {"NewSpellDataProc", "NewSpellDataSpeedOnUse", "Speed", nil, false},
-	ShapeEnergize:       {"NewSpellDataProc", "NewSpellDataEnergizeOnUse", "Resources", nil, false},
+	ShapeEnergize:       {"NewSpellDataEnergizeProc", "NewSpellDataEnergizeOnUse", "Resources", shared.FiredSpellUnsupported, false},
 	ShapeDebuff:         {"NewSpellDataDebuffProc", "NewSimpleStatActive", "", debuffUnsupported, false},
 	ShapeAura:           {"NewSpellDataAuraProc", "NewSpellDataAuraOnUse", "Auras", procAuraUnsupported, false},
 	ShapeEquip:          {"NewSpellDataEquipAura", "NewSimpleStatActive", "", nil, false},
@@ -188,15 +188,16 @@ func (r *ProcRouting) Reason() string {
 
 // The rows behind an item effect, by the two ids the sim will look up: the spell carrying the proc
 // and the spell it applies. A weapon's own procs-per-minute rate, stated on its item effect, answers
-// a trigger whose row states none.
-func routeProc(triggerSpellID int, buffSpellID int, isWeaponProc bool, itemPPM float64) *ProcRouting {
+// a trigger whose row states none; lockedFamily is the class family a relic locks its trigger to, 0
+// on any other item.
+func routeProc(triggerSpellID int, buffSpellID int, isWeaponProc bool, itemPPM float64, lockedFamily int32) *ProcRouting {
 	routing := &ProcRouting{TriggerSpellID: triggerSpellID, IsWeaponProc: isWeaponProc, ItemPPM: itemPPM}
 	if buffSpellID != triggerSpellID {
 		routing.BuffSpellID = buffSpellID
 	}
 
 	trigger := spelldata.Find(int32(triggerSpellID))
-	routing.Unsupported = spelldata.ItemProcUnsupportedWithRate(trigger, isWeaponProc, itemPPM)
+	routing.Unsupported = spelldata.ItemProcUnsupportedWithRate(trigger, isWeaponProc, itemPPM, lockedFamily)
 	routing.Summary = routing.summarize(buffSpellID)
 
 	return routing
@@ -231,7 +232,11 @@ func pickNoStatShape(spellID int, debuffID int32) (ProcShape, int32) {
 	if absorb := dbc.ResolveTriggered(spellID, absorbs); absorb != 0 {
 		return ShapeAbsorb, absorb
 	}
-	if spelldata.Find(int32(spellID)).ExtraAttacksEffect() != spelldata.NilEffect {
+	row := spelldata.Find(int32(spellID))
+	if row.FiredSpell().EnergizeEffect() != spelldata.NilEffect {
+		return ShapeEnergize, row.ID
+	}
+	if row.ExtraAttacksEffect() != spelldata.NilEffect {
 		return ShapeExtraAttack, int32(spellID)
 	}
 	if spelldata.Find(debuffID).DebuffsTheTarget() {
@@ -990,7 +995,7 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 		rendered := renderSpellTooltip(instance, grant.SpellID)
 		equip := spelldata.Find(int32(spellID))
 		row := spelldata.EquipAuraRow(equip)
-		if !appliesAnItemAura(row) {
+		if !keepsAnEquipAura(row) {
 			StoreMissingEffect("EnchantEffects", parsed.Name, Variant{
 				ID:      int(parsed.EffectId),
 				Name:    rendered + " (a weapon-scoped equip spell whose auras no equip aura builds)",
@@ -1187,7 +1192,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		}
 	}
 
-	refuseEquipBesideAnotherEffect(groupMapOnUse, groupMapProc)
+	refuseFoldingProcs(groupMapProc)
 
 	// Sorting done in GenerateEffectsFile
 	var onUseGroups []*Group
@@ -1269,27 +1274,35 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	GenerateEffectsFile(procGroups, "sim/common/forever/stat_bonus_procs_auto_gen.go", TmplStrProc)
 }
 
-// An item registers one effect, and the sim drops every registration after the first, so an equip aura
-// beside another of the item's effects that registers would drop it or be dropped: Sulfuras' damage
-// shield beside its Fireball proc. The equip aura is refused and listed as missing; the other stays.
-func refuseEquipBesideAnotherEffect(groupMapOnUse map[string]Group, groupMapProc map[string]Group) {
-	registered := map[int]int{}
-	for _, groupMap := range []map[string]Group{groupMapOnUse, groupMapProc} {
-		for _, grp := range groupMap {
-			for _, entry := range grp.Entries {
-				if entry.Supported && !entry.Skipped {
-					registered[entry.Variants[0].ID]++
-				}
+// An item's generated effects compose, but every proc's listener is named for the item, and core folds
+// a second aura registered under a label into the first: a second proc of one item would vanish
+// under the first with nothing to say so. The one on the lower spell stays; the others are refused and
+// listed as missing. An equip aura beside a proc takes a label of its own and is no such case.
+func refuseFoldingProcs(groupMapProc map[string]Group) {
+	var procs []*Entry
+	for name, grp := range groupMapProc {
+		if name == "Equip" {
+			continue
+		}
+		for _, entry := range grp.Entries {
+			if entry.Supported && !entry.Skipped {
+				procs = append(procs, entry)
 			}
 		}
 	}
+	sort.Slice(procs, func(i, j int) bool { return procs[i].Variants[0].SpellID < procs[j].Variants[0].SpellID })
 
-	for _, entry := range groupMapProc["Equip"].Entries {
+	kept := map[int]bool{}
+	for _, entry := range procs {
 		variant := entry.Variants[0]
-		if !entry.Supported || registered[variant.ID] < 2 {
+		if !kept[variant.ID] {
+			kept[variant.ID] = true
 			continue
 		}
-		entry.Proc.Unsupported = append(entry.Proc.Unsupported, "another effect of the item registers")
+		// A stacking-aura proc carries no routing to state the reason on.
+		if entry.Proc != nil {
+			entry.Proc.Unsupported = append(entry.Proc.Unsupported, "a second proc of the item would fold under the first's listener")
+		}
 		entry.Supported = false
 		StoreMissingEffect("ItemEffects", variant.Name, Variant{ID: variant.ID, Name: strings.Join(entry.Tooltip, "\n"), SpellID: variant.SpellID})
 	}
@@ -1438,7 +1451,15 @@ func routeItemProc(parsed *proto.UIItem, itemEffect *proto.ItemEffect) *ProcRout
 	}
 
 	return routeProc(effect.SpellID, int(itemEffect.BuffId), effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT,
-		itemEffect.GetProc().GetPpm())
+		itemEffect.GetProc().GetPpm(), relicFamilies[parsed.RangedWeaponType])
+}
+
+// A relic is wielded by one class, so a class mask under that class's family on its trigger is the
+// relic's own lock rather than a filter the item cannot reproduce. Any other ranged type locks nothing.
+var relicFamilies = map[proto.RangedWeaponType]int32{
+	proto.RangedWeaponType_RangedWeaponTypeIdol:   core.ClassSpellFamilies[proto.Class_ClassDruid],
+	proto.RangedWeaponType_RangedWeaponTypeLibram: core.ClassSpellFamilies[proto.Class_ClassPaladin],
+	proto.RangedWeaponType_RangedWeaponTypeTotem:  core.ClassSpellFamilies[proto.Class_ClassShaman],
 }
 
 // An equip spell with no stats that applies an aura the stat path cannot state, read from the row it
@@ -1455,7 +1476,7 @@ func TryParseEquipAuraEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect,
 
 	equip := spelldata.Find(itemEffect.BuffId)
 	row := spelldata.EquipAuraRow(equip)
-	if row.FirstAura(equipAuraKinds...) == spelldata.NilEffect {
+	if !keepsAnEquipAura(row) {
 		return EffectParseResultInvalid
 	}
 
@@ -1542,14 +1563,17 @@ func TryParseOnUseEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, ins
 	return EffectParseResultInvalid
 }
 
-// What the flat on-use leaves out of its buff, which grants the buff's stats and nothing else: the proc
-// an A_PROC_TRIGGER_SPELL casts (Aegis of Preservation 23780's heal on every hit taken, 23781), and an
-// absorb or a damage shield that no shape carries with the stats.
+// What the flat on-use leaves out of its buff, which grants the buff's stats and the proc the row
+// carries where that heals the wearer (Aegis of Preservation 23780's 23781 on every hit taken): a
+// carried proc the sim cannot build, and an absorb or a damage shield that no shape carries with the
+// stats.
 func statOnUseLeftOut(buffID int32, instance *dbc.DBC) string {
 	buff := spelldata.Find(buffID)
 	var left []string
-	if trigger := buff.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).TriggerID; trigger != 0 {
-		left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s)", trigger, spellEffectKinds(instance, int(trigger))))
+	if fired := buff.FiredSpell(); fired != spelldata.Nil {
+		if reasons := shared.CarriedProcUnsupported(buff); len(reasons) > 0 {
+			left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s): %s", fired.ID, spellEffectKinds(instance, int(fired.ID)), strings.Join(reasons, "; ")))
+		}
 	}
 	for _, aura := range []dbcenums.EffectAuraType{dbcenums.A_SCHOOL_ABSORB, dbcenums.A_DAMAGE_SHIELD} {
 		if e := buff.FirstAura(aura); e != spelldata.NilEffect {
@@ -1799,10 +1823,14 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_SKILL,
 }
 
-// The auras an item's equip spell is emitted as an aura for, beside itemAuraKinds: a damage shield kept
-// up while the item is worn. A proc's or an enchant's damage shield row is left out: its proc flags state
+// The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
+// damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
+
+func keepsAnEquipAura(row *spelldata.Spell) bool {
+	return row.FirstAura(equipAuraKinds...) != spelldata.NilEffect
+}
 
 // The auras an on-use alone is emitted as an aura for, beside equipAuraKinds: the spell modifiers, which
 // many equip spells state too (class necks, relics, PvP gloves) where the item aura shape is not wanted,
@@ -1924,9 +1952,10 @@ func statesNoRate(routing *ProcRouting) bool {
 	return slices.Contains(routing.Unsupported, spelldata.ReasonStatesNoRate)
 }
 
-// One slot's proc. The trigger is the slot's spell; the buff is what the shipped entry says it
-// applies, where it resolves stats, and otherwise the spell it deals damage through or the auras the
-// slot applies.
+// One slot's routing. An equip spell with no stats that keeps an aura up is an equip aura the way an
+// item's is: Retricutioner's 435901 damage shield. Otherwise the slot is a proc: the trigger is the
+// slot's spell; the buff is what the shipped entry says it applies, where it resolves stats, and
+// otherwise the spell it deals damage through or the auras the slot applies.
 func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting {
 	applied := slot.AppliesSpellID
 	if applied == 0 {
@@ -1936,13 +1965,19 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 	effect := slot.Effect
 	hasStats := effect != nil
 
+	trigger := spelldata.Find(int32(slot.SpellID))
+	if !slot.IsCombatSpell && !hasStats && !SpellHasTriggerEffect(slot.SpellID, instance) {
+		if row := spelldata.EquipAuraRow(trigger); keepsAnEquipAura(row) {
+			return equipAuraRouting(instance, trigger, row)
+		}
+	}
+
 	buffSpellID := slot.SpellID
 	if hasStats {
 		buffSpellID = int(effect.BuffId)
 	}
 
-	routing := routeProc(slot.SpellID, buffSpellID, slot.IsCombatSpell, 0)
-	trigger := spelldata.Find(int32(slot.SpellID))
+	routing := routeProc(slot.SpellID, buffSpellID, slot.IsCombatSpell, 0, 0)
 	if !slot.IsCombatSpell {
 		routing.Unsupported = spelldata.EnchantAuraUnsupported(trigger)
 	}

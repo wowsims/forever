@@ -62,6 +62,11 @@ const (
 	// The internal cooldown between two procs in milliseconds, onto Spell.ICDMs. Fails when the game
 	// files state a SpellAuraOptions.ProcCategoryRecovery.
 	ICDMs
+
+	// The first word of the proc effect's class mask, onto its Effect.ClassFlags, for a mask the game
+	// files state under a bit no spell of the family is filed under. Fails when the effect states
+	// the same word itself.
+	ProcClassMask
 )
 
 func (f Field) String() string {
@@ -90,6 +95,8 @@ func (f Field) String() string {
 		return "ThreatPerSpellLevel"
 	case ICDMs:
 		return "ICDMs"
+	case ProcClassMask:
+		return "ProcClassMask"
 	}
 	return "unknown field"
 }
@@ -183,6 +190,15 @@ var Spells = []Override{
 		Value:   9, // TODO: Vanilla value - verify in-game
 		Reason:  "Frostbrand Weapon: enchant 1668 casts 16353 with 0 in its amount, and 16353 has no proc row",
 		Source:  "vanilla-carryover",
+	},
+
+	// A relic's lock stated under a bit no spell of its class is filed under.
+	{
+		SpellID: 28849,
+		Field:   ProcClassMask,
+		Value:   128,
+		Reason:  "Totem of Flowing Water: the dummy's mask is bit 5 of the shaman family, under which no spell is filed; Lesser Healing Wave, which the tooltip names, is bit 7",
+		Source:  "tooltip",
 	},
 
 	// Melee procs whose tooltips name no trigger condition, ruled to hear only hits with a damage

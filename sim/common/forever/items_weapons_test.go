@@ -136,53 +136,21 @@ func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
 	}
 }
 
-// Sulfuras, Hand of Ragnaros 17182 carries both its effects. Immolation 21142's damage shield deals
-// its amount to the attacker of each melee hit taken, and nothing for a spell. Fireball 21162 procs
-// at the procs per minute of the item's chance-on-hit entry, deals its row's direct roll, and ticks
-// its periodic amount over the row's duration.
-func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
-	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 17182)
+// The Green Tower 1204 carries both its generated effects, composed into the one registration core
+// takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
+// while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.
+func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 1204)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(21142)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 21142, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("17182 registers no damage shield")
+	shield, shieldDamage := damageShield(t, character, 1325228)
+	if character.GetAura("The Green Tower Proc") == nil {
+		t.Fatal("1204 registers no stat proc beside its shield")
 	}
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
-	}
-	takeHit(t, sim, character, fireSpell(enemy))
-	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("after a spell hit taken the shield cast %d times, want once still", got)
-	}
-
-	proc := character.GetAura("Sulfuras, Hand of Ragnaros")
-	if proc == nil || proc.Dpm == nil {
-		t.Fatal("17182 registers no Fireball proc on a procs per minute rate")
-	}
-	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 17182, 21162)
-
-	row := spelldata.MustFind(21162)
-	hit, tick := row.DamageEffect(), row.PeriodicDamageEffect()
-	ticks := rowTickCount(row, tick)
-	fireball := character.GetSpell(core.ActionID{SpellID: 21162})
-	fireball.Cast(sim, enemy)
-	dot := fireball.Dot(enemy)
-	if dot.BaseTickCount != ticks || dot.BaseTickLength != tick.Period() {
-		t.Errorf("the Fireball ticks %d times every %v, want the row's %d every %v", dot.BaseTickCount, dot.BaseTickLength, ticks, tick.Period())
-	}
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
-	metrics := fireball.SpellMetrics[enemy.UnitIndex]
-	metrics.TotalDamage -= float64(ticks) * tick.Average()
-	if metrics.Casts != 1 || metrics.Ticks != ticks || !damageInRange(metrics, hit) {
-		t.Errorf("the Fireball cast %d times and ticked %d times for %v besides its ticks, want once, %d ticks and %v to %v",
-			metrics.Casts, metrics.Ticks, metrics.TotalDamage, ticks, hit.Min(), hit.Max())
 	}
 }
 
@@ -300,7 +268,7 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
 
 	damage := spelldata.MustFind(29640).DamageEffect()
-	shot := &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	shot := rangedShot(&character.Unit)
 	dealHit(t, sim, character, shot)
 	metrics := shadowbolt.SpellMetrics[enemy.UnitIndex]
 	if metrics.Casts != 1 || metrics.Hits != 1 || metrics.TotalDamage < damage.Min() || metrics.TotalDamage > damage.Max() {

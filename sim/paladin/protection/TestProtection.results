@@ -92,9 +92,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Annihilator-12798"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
+  dps: 417.9687
+  tps: 990.0832
+  dtps: 344.06668
   hps: 22.90889
  }
 }
@@ -191,9 +191,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BlazingRapier-12777"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
+  dps: 410.49759
+  tps: 979.31785
+  dtps: 344.06668
   hps: 22.90889
  }
 }
@@ -362,10 +362,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EbonHand-19170"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 424.1632
+  tps: 994.07044
+  dtps: 345.18571
+  hps: 22.36667
  }
 }
 dps_results: {
@@ -419,6 +419,15 @@ dps_results: {
   dps: 413.84276
   tps: 985.29282
   dtps: 343.89429
+  hps: 22.90889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 415.97249
+  tps: 988.12535
+  dtps: 343.95818
   hps: 22.90889
  }
 }
@@ -587,10 +596,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Frostguard-12797"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 409.40234
+  tps: 972.13628
+  dtps: 342.93845
+  hps: 21.28222
  }
 }
 dps_results: {
@@ -695,10 +704,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 412.74788
+  tps: 995.3226
+  dtps: 351.63717
+  hps: 25.56917
  }
 }
 dps_results: {
@@ -722,10 +731,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 421.6264
+  tps: 1029.04677
+  dtps: 359.05567
+  hps: 29.87306
  }
 }
 dps_results: {
@@ -992,10 +1001,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 419.72422
+  tps: 1014.57112
+  dtps: 356.65861
+  hps: 28.73778
  }
 }
 dps_results: {
@@ -1055,10 +1064,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 409.69365
+  tps: 999.15888
+  dtps: 356.65861
+  hps: 28.73778
  }
 }
 dps_results: {
@@ -1163,10 +1172,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 400.30203
+  tps: 956.76588
+  dtps: 345.01537
+  hps: 22.34972
  }
 }
 dps_results: {
@@ -1199,9 +1208,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
+  dps: 401.00298
+  tps: 964.89935
+  dtps: 344.06668
   hps: 22.90889
  }
 }
@@ -1334,9 +1343,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheGreenTower-1204"
  value: {
-  dps: 410.77954
-  tps: 984.69605
-  dtps: 387.27635
+  dps: 410.76582
+  tps: 983.99439
+  dtps: 387.2393
   hps: 22.90889
  }
 }
@@ -1379,10 +1388,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-ThrashBlade-17705"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 420.48445
+  tps: 996.4201
+  dtps: 349.88481
+  hps: 23.07833
  }
 }
 dps_results: {
@@ -1397,10 +1406,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 500.49797
+  tps: 1078.46516
+  dtps: 348.82113
+  hps: 26.19611
  }
 }
 dps_results: {
@@ -1451,10 +1460,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 413.84276
-  tps: 985.29282
-  dtps: 343.95818
-  hps: 22.90889
+  dps: 413.04993
+  tps: 977.23293
+  dtps: 345.17619
+  hps: 22.34972
  }
 }
 dps_results: {

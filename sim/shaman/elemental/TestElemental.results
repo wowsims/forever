@@ -88,9 +88,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Annihilator-12798"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -176,9 +176,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-BloodTalon-12795"
  value: {
-  dps: 643.22808
-  tps: 609.16313
-  dtps: 8.71119
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -321,17 +321,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EbonHand-19170"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -376,6 +376,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 727.27599
+  tps: 684.97455
+  dtps: 9.04212
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-EnchantChest-Retricutioner-7223"
  value: {
   dps: 727.27599
   tps: 684.97455
@@ -497,9 +505,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-FieryWarAxe-870"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 678.41018
+  tps: 641.52298
+  dtps: 8.96375
  }
 }
 dps_results: {
@@ -545,9 +553,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-GlacialBlade-19099"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -593,17 +601,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 643.22808
-  tps: 609.16313
-  dtps: 8.71119
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 643.22808
-  tps: 609.16313
-  dtps: 8.71119
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -665,9 +673,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -681,9 +689,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Lightning'sGrasp-280607"
  value: {
-  dps: 676.45586
-  tps: 639.39506
-  dtps: 9.17091
+  dps: 719.91639
+  tps: 679.36089
+  dtps: 9.23732
  }
 }
 dps_results: {
@@ -753,9 +761,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -785,9 +793,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Nightfall-19169"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 678.41018
+  tps: 641.52298
+  dtps: 8.96375
  }
 }
 dps_results: {
@@ -833,9 +841,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 683.27386
+  tps: 645.87375
+  dtps: 9.04212
  }
 }
 dps_results: {
@@ -849,9 +857,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Ravager-7717"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 678.41018
+  tps: 641.52298
+  dtps: 8.96375
  }
 }
 dps_results: {
@@ -929,17 +937,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 678.41018
+  tps: 641.52298
+  dtps: 8.96375
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 678.41018
+  tps: 641.52298
+  dtps: 8.96375
  }
 }
 dps_results: {
@@ -1033,9 +1041,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {
@@ -1073,9 +1081,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Tidebringer'sClaw-280605"
  value: {
-  dps: 659.12201
-  tps: 623.31509
-  dtps: 8.71119
+  dps: 701.0843
+  tps: 662.09934
+  dtps: 9.03286
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TotemofFlowingWater-23005"
+ value: {
+  dps: 714.17619
+  tps: 674.32764
+  dtps: 8.94964
  }
 }
 dps_results: {
@@ -1137,9 +1153,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 684.4249
+  tps: 647.28784
+  dtps: 9.03286
  }
 }
 dps_results: {

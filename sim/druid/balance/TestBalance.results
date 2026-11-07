@@ -304,17 +304,17 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-EbonHand-19170"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
@@ -359,6 +359,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-EnchantChest-MinorAbsorption-44"
+ value: {
+  dps: 918.0712
+  tps: 929.21193
+  dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-EnchantChest-Retricutioner-7223"
  value: {
   dps: 918.0712
   tps: 929.21193
@@ -544,9 +552,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-GlacialBlade-19099"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
@@ -662,6 +670,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 914.68176
+  tps: 925.82248
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-IdolofSwiftness-279250"
  value: {
   dps: 914.68176
@@ -704,9 +720,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
@@ -816,9 +832,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
@@ -936,17 +952,17 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 827.70299
+  tps: 838.82394
+  dtps: 5.43869
  }
 }
 dps_results: {
  key: "TestBalance-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 827.70299
+  tps: 838.82394
+  dtps: 5.43869
  }
 }
 dps_results: {
@@ -1040,9 +1056,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {
@@ -1088,9 +1104,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 918.0712
-  tps: 929.21193
-  dtps: 5.71906
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
  }
 }
 dps_results: {

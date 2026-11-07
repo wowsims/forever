@@ -37,10 +37,10 @@ func TestSlowProcRowsStateNoRate(t *testing.T) {
 		{ID: 991410, Name: "Test Always Slow", ProcChance: 101, ProcChanceSource: spelldata.ProcChanceAlways},
 		{ID: 991411, Name: "Test Rate-less Slow", ProcChance: 100, ProcChanceSource: spelldata.ProcChancePPM},
 	} {
-		if got := spelldata.ItemProcUnsupportedWithRate(row, true, 0); !slices.Equal(got, []string{spelldata.ReasonStatesNoRate}) {
+		if got := spelldata.ItemProcUnsupportedWithRate(row, true, 0, 0); !slices.Equal(got, []string{spelldata.ReasonStatesNoRate}) {
 			t.Errorf("%s: unsupported = %v, want only the missing rate", row.Name, got)
 		}
-		if got := spelldata.ItemProcUnsupportedWithRate(row, true, 0.4); len(got) != 0 {
+		if got := spelldata.ItemProcUnsupportedWithRate(row, true, 0.4, 0); len(got) != 0 {
 			t.Errorf("%s with its item's rate: unsupported = %v, want none", row.Name, got)
 		}
 	}
