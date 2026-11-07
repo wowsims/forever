@@ -497,10 +497,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantChest-Retricutioner-7223"
  value: {
-  dps: 436.8203
-  tps: 1389.5928
-  dtps: 286.87744
-  hps: 36.63167
+  dps: 432.54125
+  tps: 1373.88325
+  dtps: 289.22029
+  hps: 36.66556
  }
 }
 dps_results: {
