@@ -387,7 +387,7 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 	equipment := ProtoToEquipment(playerCopy.Equipment)
 	if testIdx < len(generator.items) {
 		testItem := generator.items[testIdx]
-		equipment.EquipItem(generator.items[testIdx])
+		equipTestItem(&equipment, testItem)
 		label = fmt.Sprintf("%s-%d", strings.ReplaceAll(testItem.Name, " ", ""), testItem.ID)
 	} else if testIdx < len(generator.items)+len(generator.sets) {
 		testSet := generator.sets[testIdx-len(generator.items)]
@@ -422,6 +422,27 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 	}
 
 	return label, nil, nil, rsr
+}
+
+// A test item takes the slot a player wears it in: a weapon replaces the main hand and a two-hander
+// empties the off hand, a shield or an off-hand item replaces the off hand. EquipItem fills the first
+// empty hand instead, which is how an equipment spec lists a dual wielder's two weapons, and put a
+// test weapon into the off hand of a character whose default gear fills the main hand, or into no
+// slot when both hands were filled.
+func equipTestItem(equipment *Equipment, item Item) {
+	if item.Type != proto.ItemType_ItemTypeWeapon {
+		equipment.EquipItem(item)
+		return
+	}
+	switch {
+	case item.WeaponType == proto.WeaponType_WeaponTypeShield, item.HandType == proto.HandType_HandTypeOffHand:
+		*equipment.OffHand() = item
+	case item.HandType == proto.HandType_HandTypeTwoHand:
+		*equipment.MainHand() = item
+		*equipment.OffHand() = Item{}
+	default:
+		*equipment.MainHand() = item
+	}
 }
 
 type SubGenerator struct {
