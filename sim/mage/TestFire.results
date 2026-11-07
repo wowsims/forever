@@ -286,6 +286,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 852.51673
+  tps: 849.86875
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 851.84735

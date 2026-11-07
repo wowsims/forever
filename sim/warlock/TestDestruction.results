@@ -335,6 +335,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 917.55001
+  tps: 723.1449
+  dtps: 10.51298
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-EnchantGloves-Threat-2613"
  value: {
   dps: 917.55001

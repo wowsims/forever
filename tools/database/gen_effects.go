@@ -1926,7 +1926,8 @@ func statesNoRate(routing *ProcRouting) bool {
 
 // One slot's proc. The trigger is the slot's spell; the buff is what the shipped entry says it
 // applies, where it resolves stats, and otherwise the spell it deals damage through or the auras the
-// slot applies.
+// slot applies. An equip spell with no stats that keeps an aura up is an equip aura the way an
+// item's is, before it is read as a proc: Retricutioner's 435901 damage shield.
 func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting {
 	applied := slot.AppliesSpellID
 	if applied == 0 {
@@ -1936,13 +1937,19 @@ func routeEnchantSlot(slot dbc.EnchantProcSlot, instance *dbc.DBC) *ProcRouting 
 	effect := slot.Effect
 	hasStats := effect != nil
 
+	trigger := spelldata.Find(int32(slot.SpellID))
+	if !slot.IsCombatSpell && !hasStats {
+		if row := spelldata.EquipAuraRow(trigger); row.FirstAura(equipAuraKinds...) != spelldata.NilEffect {
+			return equipAuraRouting(instance, trigger, row)
+		}
+	}
+
 	buffSpellID := slot.SpellID
 	if hasStats {
 		buffSpellID = int(effect.BuffId)
 	}
 
 	routing := routeProc(slot.SpellID, buffSpellID, slot.IsCombatSpell, 0)
-	trigger := spelldata.Find(int32(slot.SpellID))
 	if !slot.IsCombatSpell {
 		routing.Unsupported = spelldata.EnchantAuraUnsupported(trigger)
 	}

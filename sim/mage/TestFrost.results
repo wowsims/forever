@@ -286,6 +286,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 770.82316
+  tps: 710.33245
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 770.82316

@@ -12,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 const revelationEnchant = 8217
@@ -376,5 +377,36 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 	}
 	if got := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
 		t.Errorf("Crusader rolls %v on a main-hand hit, want the entry's procs per minute on the weapon's speed, %v", got, want)
+	}
+}
+
+// Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
+// from the generated registrations: the row's amount lands on the attacker of each melee hit taken,
+// and nothing on a spell.
+func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
+	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+
+	var shieldDamage float64
+	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(435901)) {
+		shieldDamage += effect.Average()
+	}
+	var shield *core.Spell
+	for _, spell := range character.Spellbook {
+		if spell.ActionID.Tag == 2 && spell.ActionID.SpellID != 0 {
+			shield = spell
+		}
+	}
+	if shield == nil || shieldDamage <= 0 {
+		t.Fatal("7223 registers no damage shield")
+	}
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
+		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
+	}
+	takeHit(t, sim, character, fireSpell(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+		t.Errorf("after a spell hit taken the shield cast %d times, want once still", got)
 	}
 }

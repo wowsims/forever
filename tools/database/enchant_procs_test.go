@@ -48,7 +48,7 @@ func TestEnchantProcRouting(t *testing.T) {
 			{435467, true, spelldata.ReasonStatesNoRate},
 			{442206, true, "mechanicals"},
 		}},
-		{7223, "Retricutioner: a damage shield", []want{{435901, false, "A_DAMAGE_SHIELD"}}},
+		{7223, "Retricutioner: a damage shield, kept up as an equip aura", []want{{435901, false, ""}}},
 		{7941, "Grand Arcanist: spell power and healing register, the mana beside them is not a stat", []want{{1231152, false, ""}}},
 		{8216, "Insight: a chance, a buff that multiplies Spirit", []want{{1248758, false, ""}}},
 		{8217, "Revelation: 100 beside 'a chance to trigger'", []want{{1248806, false, spelldata.ReasonStatesNoRate}}},

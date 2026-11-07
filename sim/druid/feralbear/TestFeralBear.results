@@ -406,6 +406,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantChest-Retricutioner-7223"
+ value: {
+  dps: 516.70866
+  tps: 1953.13267
+  dtps: 393.14306
+  hps: 83.62305
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnchantCloak-Subtlety-2621"
  value: {
   dps: 512.43023
