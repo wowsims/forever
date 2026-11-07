@@ -99,6 +99,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ArgentDefender-13243"
+ value: {
+  dps: 432.60393
+  tps: 1374.09695
+  dtps: 286.86422
+  hps: 36.69944
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 442.20226
