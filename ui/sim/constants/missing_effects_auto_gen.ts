@@ -496,6 +496,13 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9467, // Gahz'rilla Fang
+		[
+			"Movement can generate Static Electricity.", // 1294477 - https://www.wowhead.com/forever/spell=1294477
+			"Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2 times as much damage to Aquatic enemies.", // 3742 - https://www.wowhead.com/forever/spell=3742
+		]
+	],
+	[
 		9477, // The Chief's Enforcer
 		[
 			"Deal 294 Physical damage and stun for 1s. Trolls take 2 times as much damage and stun duration.", // 1294339 - https://www.wowhead.com/forever/spell=1294339
@@ -541,6 +548,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10518, // Parachute Cloak
 		[
 			"Reduces your fall speed for 10s.", // 12438 - https://www.wowhead.com/forever/spell=12438
+		]
+	],
+	[
+		10567, // Quillshooter
+		[
+			"Strike your ranged target with a Quill Shot for 33 Nature damage.", // 29646 - https://www.wowhead.com/forever/spell=29646
 		]
 	],
 	[
@@ -697,6 +710,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13213, // Smolderweb's Eye
 		[
 			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
+		]
+	],
+	[
+		13246, // Argent Avenger
+		[
+			"Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.", // 17352 - https://www.wowhead.com/forever/spell=17352
 		]
 	],
 	[
@@ -1915,6 +1934,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274425, // White Obsidian Wand
+		[
+			"Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.", // 1294058 - https://www.wowhead.com/forever/spell=1294058
+		]
+	],
+	[
 		274430, // Rock Sentinel Slicer
 		[
 			"While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.", // 1294065 - https://www.wowhead.com/forever/spell=1294065
@@ -1924,6 +1949,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		274608, // Maw of Min'loth
 		[
 			"When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.", // 1295065 - https://www.wowhead.com/forever/spell=1295065
+		]
+	],
+	[
+		274647, // Farraki Kris
+		[
+			"Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0 sec for 6s.", // 1294645 - https://www.wowhead.com/forever/spell=1294645
 		]
 	],
 	[
