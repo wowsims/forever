@@ -5,6 +5,7 @@ import (
 )
 
 func RegisterAllProcs() {
+	defer shared.Generated()()
 
 	// Equip
 

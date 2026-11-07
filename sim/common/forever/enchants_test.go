@@ -391,14 +391,7 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	enemy.AddStatDynamic(sim, stats.Armor, 5000)
 	row := spelldata.MustFind(435901)
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(row) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 435901, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("7223 registers no damage shield")
-	}
+	shield, shieldDamage := damageShield(t, character, 435901)
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.Misses != 0 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times, %d missed, for %v; want once, landing the row's %v through the armor", got.Casts, got.Misses, got.TotalDamage, shieldDamage)

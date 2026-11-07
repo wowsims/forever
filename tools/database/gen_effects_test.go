@@ -514,6 +514,34 @@ func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	})
 }
 
+// A second proc of one item is refused and listed, the one on the lower spell kept, while an equip aura
+// beside a proc stays: core would fold two listeners named for the item into one aura.
+func TestSecondProcOfAnItemIsRefused(t *testing.T) {
+	proc := func(itemID int, spellID int) *Entry {
+		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: spellID}}, Supported: true,
+			Proc: &ProcRouting{TriggerSpellID: spellID, Shape: ShapeStats}}
+	}
+	first, second, other := proc(991600, 21162), proc(991600, 21170), proc(991601, 21162)
+	equip := &Entry{Variants: []*Variant{{ID: 991600, Name: "Test", SpellID: 21142}}, Supported: true,
+		Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
+
+	refuseFoldingProcs(map[string]Group{
+		"Procs": {Name: "Procs", Entries: []*Entry{second, first, other}},
+		"Equip": {Name: "Equip", Entries: []*Entry{equip}},
+	})
+
+	if second.Supported || !slices.Equal(second.Proc.Unsupported, []string{"a second proc of the item would fold under the first's listener"}) {
+		t.Errorf("the second proc supported %v, refused for %q; want refused for folding", second.Supported, second.Proc.Unsupported)
+	}
+	if !first.Supported || !other.Supported || !equip.Supported {
+		t.Errorf("first proc %v, another item's proc %v, the equip aura %v; want all three kept", first.Supported, other.Supported, equip.Supported)
+	}
+	if _, listed := missingEffectsMap["ItemEffects"][991600]; !listed {
+		t.Errorf("991600 is not listed as missing an effect")
+	}
+	delete(missingEffectsMap["ItemEffects"], 991600)
+}
+
 // Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that
 // its buff 23780 carries, and lists nothing as not simulated. The same buff firing a spell that heals
 // no one, Sulfuras's Fireball 21162 for the test, lists the proc with the reason and the item as

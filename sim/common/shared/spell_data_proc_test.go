@@ -372,23 +372,29 @@ func TestProcDamageTarget(t *testing.T) {
 }
 
 // Two generated effects on one item compose into the one registration core takes per item, and an id
-// a hand-written effect holds is left to it.
+// a hand-written effect holds, through core or through a shared constructor outside the generated
+// files, is left to it.
 func TestGeneratedItemEffectsCompose(t *testing.T) {
-	const generatedID, handID int32 = 991540, 991541
-	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(generatedID), testOneHander(handID)}})
+	const generatedID, handID, classFileID int32 = 991540, 991541, 991542
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(generatedID), testOneHander(handID), testOneHander(classFileID)}})
 	core.NewItemEffect(handID, func(core.Agent) {})
+	effectSource{id: classFileID}.registerEffect(func(core.Agent) {})
 
+	done := Generated()
 	source := effectSource{id: generatedID}
 	source.registerEffect(func(core.Agent) {})
 	if source.isAlreadyImplemented() {
 		t.Error("an id the generated effects hold reads as implemented by hand")
 	}
 	source.registerEffect(func(core.Agent) {})
+	done()
 	if got := len(generatedItemEffects[generatedID]); got != 2 || !core.HasItemEffect(generatedID) {
-		t.Errorf("%d generated effects on one item under one core registration %v, want 2 under one", got, core.HasItemEffect(generatedID))
+		t.Errorf("%d generated effects on one item, core registration %v; want 2 under one registration", got, core.HasItemEffect(generatedID))
 	}
-	if !(effectSource{id: handID}).isAlreadyImplemented() {
-		t.Error("an id a hand-written effect holds does not read as implemented by hand")
+	for name, id := range map[string]int32{"through core": handID, "through a shared constructor": classFileID} {
+		if !(effectSource{id: id}).isAlreadyImplemented() {
+			t.Errorf("an id a hand-written effect holds %s does not read as implemented by hand", name)
+		}
 	}
 }
 

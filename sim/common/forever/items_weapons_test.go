@@ -144,14 +144,7 @@ func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(1325228)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 1325228, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("1204 registers no damage shield")
-	}
+	shield, shieldDamage := damageShield(t, character, 1325228)
 	if character.GetAura("The Green Tower Proc") == nil {
 		t.Fatal("1204 registers no stat proc beside its shield")
 	}
@@ -170,14 +163,7 @@ func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(21142)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 21142, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("17182 registers no damage shield")
-	}
+	shield, shieldDamage := damageShield(t, character, 21142)
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)

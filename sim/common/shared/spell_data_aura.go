@@ -135,7 +135,7 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 
 		label := cfg.Name
 		if source.composed() {
-			label = fmt.Sprintf("%s (%d)", cfg.Name, row.ID)
+			label = fmt.Sprintf("%s %d", cfg.Name, row.ID)
 		}
 		// Checked on reset rather than made permanent: a pet resets after its owner's item swap has
 		// settled, and would otherwise put the aura back on for an item only in the swap set.

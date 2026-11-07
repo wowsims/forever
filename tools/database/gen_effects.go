@@ -1192,6 +1192,8 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		}
 	}
 
+	refuseFoldingProcs(groupMapProc)
+
 	// Sorting done in GenerateEffectsFile
 	var onUseGroups []*Group
 	for _, grp := range groupMapOnUse {
@@ -1270,6 +1272,37 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 
 	GenerateEffectsFile(onUseGroups, "sim/common/forever/stat_bonus_cds_auto_gen.go", TmplStrOnUse)
 	GenerateEffectsFile(procGroups, "sim/common/forever/stat_bonus_procs_auto_gen.go", TmplStrProc)
+}
+
+// An item's generated effects compose, but every proc's listener is named for the item, and core folds
+// a second aura registered under a label into the first: a second proc of one item would vanish
+// under the first with nothing to say so. The one on the lower spell stays; the others are refused and
+// listed as missing. An equip aura beside a proc takes a label of its own and is no such case.
+func refuseFoldingProcs(groupMapProc map[string]Group) {
+	var procs []*Entry
+	for name, grp := range groupMapProc {
+		if name == "Equip" {
+			continue
+		}
+		for _, entry := range grp.Entries {
+			if entry.Supported && !entry.Skipped {
+				procs = append(procs, entry)
+			}
+		}
+	}
+	sort.Slice(procs, func(i, j int) bool { return procs[i].Variants[0].SpellID < procs[j].Variants[0].SpellID })
+
+	kept := map[int]bool{}
+	for _, entry := range procs {
+		variant := entry.Variants[0]
+		if !kept[variant.ID] {
+			kept[variant.ID] = true
+			continue
+		}
+		entry.Proc.Unsupported = append(entry.Proc.Unsupported, "a second proc of the item would fold under the first's listener")
+		entry.Supported = false
+		StoreMissingEffect("ItemEffects", variant.Name, Variant{ID: variant.ID, Name: strings.Join(entry.Tooltip, "\n"), SpellID: variant.SpellID})
+	}
 }
 
 func GenerateItemEffectRandomPropPoints(instance *dbc.DBC, db *WowDatabase) {

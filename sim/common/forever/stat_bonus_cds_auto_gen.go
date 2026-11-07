@@ -8,6 +8,7 @@ import (
 )
 
 func RegisterAllOnUseCds() {
+	defer shared.Generated()()
 
 	//
 	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)

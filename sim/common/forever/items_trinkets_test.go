@@ -154,6 +154,20 @@ func meleeSwing(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
 }
 
+// The damage shield spell a row registers on the character, and the amount the row deals per hit.
+func damageShield(t *testing.T, character *core.Character, rowID int32) (*core.Spell, float64) {
+	t.Helper()
+	var amount float64
+	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(rowID)) {
+		amount += effect.Average()
+	}
+	shield := character.GetSpell(core.ActionID{SpellID: rowID, Tag: 2})
+	if shield == nil || amount <= 0 {
+		t.Fatalf("%d registers no damage shield", rowID)
+	}
+	return shield, amount
+}
+
 func rangedShot(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
 }
