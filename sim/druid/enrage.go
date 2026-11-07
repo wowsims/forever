@@ -42,10 +42,9 @@ func (druid *Druid) registerEnrageSpell() {
 	var armorScale float64
 	var agiArmor *stats.StatDependency
 	druid.EnrageAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-		armorScale, agiArmor = enrageBearArmorScale, bearAgiArmor
-		if druid.InForm(DireBear) {
-			armorScale, agiArmor = enrageDireBearArmorScale, direBearAgiArmor
-		}
+		direBear := druid.InForm(DireBear)
+		armorScale = core.TernaryFloat64(direBear, enrageDireBearArmorScale, enrageBearArmorScale)
+		agiArmor = core.Ternary(direBear, direBearAgiArmor, bearAgiArmor)
 		druid.ApplyDynamicEquipScaling(sim, stats.Armor, armorScale)
 		druid.EnableBuildPhaseStatDep(sim, agiArmor)
 	})
