@@ -29,8 +29,9 @@ func init() {
 }
 
 // A character wearing one item, against a level 60 target: the warrior stand-in, with a paladin the
-// stand-in registered as the holy paladin, which has a mana bar, or with a rogue the stand-in
-// registered as the rogue, which shoots its ranged weapon.
+// stand-in registered as the holy paladin, which has a mana bar, with a rogue the stand-in
+// registered as the rogue, which shoots its ranged weapon, and with a druid or a shaman the healer
+// stand-ins of items_relics_test.go.
 func itemWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return itemSpecWearer(t, class, slot, &proto.ItemSpec{Id: itemID})
@@ -60,6 +61,10 @@ func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.E
 		core.WithSpec(player, &proto.Player_HolyPaladin{HolyPaladin: &proto.HolyPaladin{}})
 	case proto.Class_ClassRogue:
 		core.WithSpec(player, &proto.Player_Rogue{Rogue: &proto.Rogue{}})
+	case proto.Class_ClassDruid:
+		core.WithSpec(player, &proto.Player_RestorationDruid{RestorationDruid: &proto.RestorationDruid{}})
+	case proto.Class_ClassShaman:
+		core.WithSpec(player, &proto.Player_RestorationShaman{RestorationShaman: &proto.RestorationShaman{}})
 	default:
 		core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
 	}

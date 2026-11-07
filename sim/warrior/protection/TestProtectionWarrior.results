@@ -855,6 +855,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 434.52087
+  tps: 1402.77906
+  dtps: 290.51473
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-ImperialPlate"
  value: {
   dps: 451.65075
@@ -1419,6 +1428,15 @@ dps_results: {
   tps: 1380.60116
   dtps: 287.0103
   hps: 36.69944
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TotemofFlowingWater-23005"
+ value: {
+  dps: 434.52087
+  tps: 1402.77906
+  dtps: 290.51473
+  hps: 36.59778
  }
 }
 dps_results: {

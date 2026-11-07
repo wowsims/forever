@@ -739,6 +739,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 512.43023
+  tps: 1943.93403
+  dtps: 393.14306
+  hps: 83.62305
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-IdolofSwiftness-279250"
  value: {
   dps: 512.43023

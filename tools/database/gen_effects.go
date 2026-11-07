@@ -169,7 +169,7 @@ var procShapes = [...]struct {
 	ShapeHeal:           {"NewSpellDataHealProc", "NewSpellDataHealOnUse", "Heals", healUnsupported, true},
 	ShapeAbsorb:         {"NewSpellDataAbsorbProc", "NewSpellDataAbsorbOnUse", "Absorbs", absorbUnsupported, true},
 	ShapeSpeed:          {"NewSpellDataProc", "NewSpellDataSpeedOnUse", "Speed", nil, false},
-	ShapeEnergize:       {"NewSpellDataProc", "NewSpellDataEnergizeOnUse", "Resources", nil, false},
+	ShapeEnergize:       {"NewSpellDataEnergizeProc", "NewSpellDataEnergizeOnUse", "Resources", firedGainUnsupported, true},
 	ShapeDebuff:         {"NewSpellDataDebuffProc", "NewSimpleStatActive", "", debuffUnsupported, false},
 	ShapeAura:           {"NewSpellDataAuraProc", "NewSpellDataAuraOnUse", "Auras", procAuraUnsupported, false},
 	ShapeEquip:          {"NewSpellDataEquipAura", "NewSimpleStatActive", "", nil, false},
@@ -231,6 +231,9 @@ func pickNoStatShape(spellID int, debuffID int32) (ProcShape, int32) {
 	if absorb := dbc.ResolveTriggered(spellID, absorbs); absorb != 0 {
 		return ShapeAbsorb, absorb
 	}
+	if fired := spelldata.Find(int32(spellID)).FiredSpell(); fired.EnergizeEffect() != spelldata.NilEffect {
+		return ShapeEnergize, fired.ID
+	}
 	if spelldata.Find(int32(spellID)).ExtraAttacksEffect() != spelldata.NilEffect {
 		return ShapeExtraAttack, int32(spellID)
 	}
@@ -238,6 +241,19 @@ func pickNoStatShape(spellID int, debuffID int32) (ProcShape, int32) {
 		return ShapeDebuff, debuffID
 	}
 	return ShapeStats, 0
+}
+
+// A proc's resource gain lands on the wearer, into a bar the sim keeps.
+func firedGainUnsupported(fired *spelldata.Spell) []string {
+	var unsupported []string
+	gain := fired.EnergizeEffect()
+	if gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+		unsupported = append(unsupported, fmt.Sprintf("the gain lands on implicit target %d, not the wearer", gain.Target[0]))
+	}
+	if !shared.EnergizesABar(dbcenums.PowerType(gain.Misc)) {
+		unsupported = append(unsupported, fmt.Sprintf("fills power type %d, not mana, rage or energy", gain.Misc))
+	}
+	return unsupported
 }
 
 func extraAttackUnsupported(row *spelldata.Spell) []string {
@@ -1437,8 +1453,20 @@ func routeItemProc(parsed *proto.UIItem, itemEffect *proto.ItemEffect) *ProcRout
 		return nil
 	}
 
-	return routeProc(effect.SpellID, int(itemEffect.BuffId), effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT,
+	routing := routeProc(effect.SpellID, int(itemEffect.BuffId), effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT,
 		itemEffect.GetProc().GetPpm())
+	if family, relic := relicFamilies[parsed.RangedWeaponType]; relic {
+		routing.Unsupported = spelldata.RelicProcUnsupportedWithRate(spelldata.Find(int32(effect.SpellID)), family, itemEffect.GetProc().GetPpm())
+	}
+	return routing
+}
+
+// A relic is wielded by one class, so a class mask under that class's family on its trigger is the
+// relic's own lock rather than a filter the item cannot reproduce.
+var relicFamilies = map[proto.RangedWeaponType]int32{
+	proto.RangedWeaponType_RangedWeaponTypeIdol:   core.ClassSpellFamilies[proto.Class_ClassDruid],
+	proto.RangedWeaponType_RangedWeaponTypeLibram: core.ClassSpellFamilies[proto.Class_ClassPaladin],
+	proto.RangedWeaponType_RangedWeaponTypeTotem:  core.ClassSpellFamilies[proto.Class_ClassShaman],
 }
 
 // An equip spell with no stats that applies an aura the stat path cannot state, read from the row it

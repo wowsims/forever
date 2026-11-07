@@ -161,6 +161,12 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// second does not, so for that pair the tooltip decides.
 	castOnly := spellCastMask && (castWord == dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL || hint.Matches(ProcHintCastTrigger))
 
+	// The helpful-spell bit alone with a tooltip naming the cast is a cast of a helpful spell: Idol of
+	// Longevity's 28847 refunds mana "each time you cast Healing Touch". Without the tooltip the bit
+	// alone states no trigger at all, which is Holy Power 28789's shape.
+	helpfulCast := castWord == dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL && hint.Matches(ProcHintCastTrigger)
+	castOnly = castOnly || helpfulCast
+
 	// A tooltip naming an outcome is the exception to all of it: a crit is only known once the
 	// hit resolves, so those stay on hit-dealt.
 	if castOnly && !hint.Matches(ProcHintCrit) {
@@ -180,9 +186,9 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// The helpful-spell bit beside the harmful one is the game files' "any spell", heals included,
 	// which the mask states on its own. A helpful bit without the harmful one needs the tooltip's
-	// evidence that it is a trigger at all.
+	// evidence that it is a trigger at all: a heal, or the cast read above.
 	helpfulSpells := word&dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL != 0 &&
-		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals))
+		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals) || helpfulCast)
 
 	if helpfulSpells {
 		info.RequireDamageDealt = false

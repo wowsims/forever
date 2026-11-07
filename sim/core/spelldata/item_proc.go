@@ -28,16 +28,24 @@ const ReasonPPMHearsNoWeaponHits = "a procs-per-minute rate hears no weapon hits
 // itemPPM is the procs-per-minute rate a weapon's item effect states, which answers a trigger whose
 // row states none; 0 where the item states no rate.
 func ItemProcUnsupportedWithRate(trigger *Spell, isWeaponProc bool, itemPPM float64) []string {
-	return itemProcUnsupported(trigger, isWeaponProc, false, itemPPM)
+	return itemProcUnsupported(trigger, isWeaponProc, false, itemPPM, 0)
+}
+
+// The same for a relic, an idol, libram or totem one class alone wields: a class mask under that
+// class's family is the relic's own lock on its spells, which the listener reads the way a class
+// spell's is read, so it is no reason to refuse. Idol of Longevity's 28847 names Healing Touch under
+// the druid family.
+func RelicProcUnsupportedWithRate(trigger *Spell, family int32, itemPPM float64) []string {
+	return itemProcUnsupported(trigger, false, false, itemPPM, family)
 }
 
 // The same for an enchant's equip aura, whose procs-per-minute rate rolls on weapon hits only: the
 // sim never procs one from a spell or a heal.
 func EnchantAuraUnsupported(trigger *Spell) []string {
-	return itemProcUnsupported(trigger, false, true, 0)
+	return itemProcUnsupported(trigger, false, true, 0, 0)
 }
 
-func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, itemPPM float64) []string {
+func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, itemPPM float64, lockedFamily int32) []string {
 	var unsupported []string
 
 	if trigger == Nil || trigger.ID == 0 {
@@ -54,7 +62,7 @@ func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, item
 	if trigger.ProcHint.Matches(core.ProcHintOutcomeTaken) {
 		unsupported = append(unsupported, "an outcome the proc mask has no bit for")
 	}
-	if !rowClassFlags(trigger).IsZero() {
+	if flags := rowClassFlags(trigger); !flags.IsZero() && flags.Family != lockedFamily {
 		unsupported = append(unsupported, "the trigger carries a class mask")
 	}
 

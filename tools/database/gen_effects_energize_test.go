@@ -53,3 +53,51 @@ func TestOnUseEnergizeRoutesFromTheSpellItCasts(t *testing.T) {
 		}
 	}
 }
+
+// A relic's cast proc whose dummy trigger names the spell it fires registers the gain through the
+// energize proc constructor, its class's mask read as the relic's lock. The same trigger on an item
+// of no relic type keeps the class mask refusal.
+func TestRelicCastProcRoutesToTheGainItFires(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	for _, tc := range []struct {
+		itemID         int
+		trigger, fired int32
+	}{
+		{23004, 28847, 28848}, // Idol of Longevity: Healing Touch Refund, 25 mana
+		{23005, 28849, 28850}, // Totem of Flowing Water: Lesser Healing Wave, 10 mana
+	} {
+		item := instance.Items[tc.itemID]
+		parsed := item.ToUIItem()
+		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		i := slices.IndexFunc(parsed.ItemEffects, func(e *proto.ItemEffect) bool { return e.BuffId == tc.trigger && e.GetProc() != nil })
+		if i < 0 {
+			t.Fatalf("item %d carries no proc effect on %d", tc.itemID, tc.trigger)
+		}
+
+		groups := map[string]Group{}
+		if got := TryParseProcEffect(parsed, parsed.ItemEffects[i], instance, groups); got != EffectParseResultSuccess {
+			t.Errorf("item %d parsed as %v, want it registered", tc.itemID, got)
+			continue
+		}
+		entries := groups["Procs"].Entries
+		if len(entries) != 1 {
+			t.Errorf("item %d: %d entries in Procs, want 1", tc.itemID, len(entries))
+			continue
+		}
+		r := entries[0].Proc
+		if r == nil || r.Shape != ShapeEnergize || r.BuffSpellID != int(tc.fired) || !entries[0].Supported {
+			t.Errorf("item %d: routing %+v, supported %v; want an energize firing %d", tc.itemID, r, entries[0].Supported, tc.fired)
+			continue
+		}
+		if got := r.ProcConstructor(); got != "NewSpellDataEnergizeProc" {
+			t.Errorf("item %d registers through %s, want NewSpellDataEnergizeProc", tc.itemID, got)
+		}
+
+		parsed.RangedWeaponType = proto.RangedWeaponType_RangedWeaponTypeUnknown
+		if got := routeItemProc(parsed, parsed.ItemEffects[i]); !slices.Contains(got.Unsupported, "the trigger carries a class mask") {
+			t.Errorf("item %d of no relic type is refused for %v, want its class mask named", tc.itemID, got.Unsupported)
+		}
+	}
+}

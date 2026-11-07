@@ -780,6 +780,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 197.86378
+  tps: 6.00518
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-IronShieldSpike-43"
  value: {
   dps: 648.08638
@@ -1319,6 +1326,13 @@ dps_results: {
   dps: 661.43752
   tps: 436.97717
   dtps: 0.69516
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TotemofFlowingWater-23005"
+ value: {
+  dps: 197.86378
+  tps: 6.00518
  }
 }
 dps_results: {

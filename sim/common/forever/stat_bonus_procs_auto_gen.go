@@ -1544,36 +1544,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Gain up to 25 mana each time you cast Healing Touch.
-	// https://www.wowhead.com/forever/spell=28847
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 23004, ItemName: "Idol of Longevity"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Regain up to 10 mana each time you cast Lesser Healing Wave.
-	// https://www.wowhead.com/forever/spell=28849
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 23005, ItemName: "Totem of Flowing Water"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Gives you a 50% chance to avoid interruption caused by damage while casting Searing Pain.
 	// https://www.wowhead.com/forever/spell=23046
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2964,6 +2934,22 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 25906, BuffSpellID: 25907},
 		[]shared.ItemVariant{
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
+		})
+
+	// Gain up to 25 mana each time you cast Healing Touch.
+	// https://www.wowhead.com/forever/spell=28847
+	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing) -> buff 28848
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28847, BuffSpellID: 28848},
+		[]shared.ItemVariant{
+			{ItemID: 23004, ItemName: "Idol of Longevity"},
+		})
+
+	// Regain up to 10 mana each time you cast Lesser Healing Wave.
+	// https://www.wowhead.com/forever/spell=28849
+	// trigger 28849 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing) -> buff 28850
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 28849, BuffSpellID: 28850},
+		[]shared.ItemVariant{
+			{ItemID: 23005, ItemName: "Totem of Flowing Water"},
 		})
 
 	// When struck in combat has a 5% chance of inflicting 50 Nature damage to the attacker.

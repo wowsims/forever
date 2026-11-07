@@ -606,6 +606,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 770.4761
+  tps: 570.82194
+  hps: 46.2075
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-IdolofSwiftness-279250"
  value: {
   dps: 770.4761

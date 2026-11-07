@@ -670,6 +670,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-IdolofLongevity-23004"
+ value: {
+  dps: 914.68176
+  tps: 925.82248
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-IdolofSwiftness-279250"
  value: {
   dps: 914.68176

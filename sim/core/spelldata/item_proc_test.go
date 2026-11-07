@@ -91,6 +91,49 @@ func TestItemProcUnsupportedCoversTheRegistrationsOwnRefusal(t *testing.T) {
 	}
 }
 
+// A relic's trigger under its class's family keeps its mask as the relic's lock; under another family,
+// or on an item of no relic type, the mask stays a refusal.
+func TestRelicProcKeepsItsClassMask(t *testing.T) {
+	row := Spell{ID: 2990, ProcChance: 10, ProcChanceSource: ProcChanceColumn,
+		ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING},
+		Effects: []Effect{{SpellID: 2990, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY,
+			ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{32}}}}}
+	classMask := []string{"the trigger carries a class mask"}
+
+	if got := ItemProcUnsupportedWithRate(&row, false, 0); !slices.Equal(got, classMask) {
+		t.Errorf("on an item: unsupported = %v, want the class mask refused", got)
+	}
+	if got := RelicProcUnsupportedWithRate(&row, 7, 0); got != nil {
+		t.Errorf("on a relic of the mask's family: unsupported = %v, want none", got)
+	}
+	if got := RelicProcUnsupportedWithRate(&row, 11, 0); !slices.Equal(got, classMask) {
+		t.Errorf("on a relic of another family: unsupported = %v, want the class mask refused", got)
+	}
+}
+
+// The spell a proc row fires: what its trigger aura names, the one spell a dummy proc's tooltip
+// names, and nothing where a dummy names none or two.
+func TestFiredSpell(t *testing.T) {
+	withRows(t, procRows())
+	dummy := func(refs ...int32) *Spell {
+		return &Spell{ID: 2991, RefIDs: refs, Effects: []Effect{{SpellID: 2991, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY}}}
+	}
+	trigger := &Spell{ID: 2992, Effects: []Effect{{SpellID: 2992, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, TriggerID: 2000}}}
+
+	if got := trigger.FiredSpell(); got.ID != 2000 {
+		t.Errorf("a trigger aura fires %d, want 2000", got.ID)
+	}
+	if got := dummy(2000).FiredSpell(); got.ID != 2000 {
+		t.Errorf("a dummy naming one spell fires %d, want 2000", got.ID)
+	}
+	if got := dummy().FiredSpell(); got != Nil {
+		t.Errorf("a dummy naming none fires %d, want nothing", got.ID)
+	}
+	if got := dummy(2000, 2100).FiredSpell(); got != Nil {
+		t.Errorf("a dummy naming two fires %d, want nothing", got.ID)
+	}
+}
+
 // An enchant aura's procs-per-minute rate rolls on weapon hits only, so a mask of spells alone refuses
 // it. An item's rate on the same mask is measured off the main hand and stands.
 func TestEnchantAuraUnsupported(t *testing.T) {
