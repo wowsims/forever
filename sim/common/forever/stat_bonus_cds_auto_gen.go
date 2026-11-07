@@ -8,6 +8,7 @@ import (
 )
 
 func RegisterAllOnUseCds() {
+	defer shared.Generated()()
 
 	//
 	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
@@ -28,6 +29,8 @@ func RegisterAllOnUseCds() {
 	// unsupported: 14537 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(7734) // Six Demon Bag - https://www.wowhead.com/forever/spell=14537
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
+	// shared.NewSimpleStatActive(9404) // Olaf's All Purpose Shield - https://www.wowhead.com/forever/spell=12438
+	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
 	// shared.NewSimpleStatActive(10518) // Parachute Cloak - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(10588) // Goblin Rocket Helmet - https://www.wowhead.com/forever/spell=22641
@@ -35,6 +38,14 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(10724) // Gnomish Rocket Boots - https://www.wowhead.com/forever/spell=13141
 	// unsupported: 13180 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(10726) // Gnomish Mind Control Cap - https://www.wowhead.com/forever/spell=13180
+	// unsupported: 1300754 deals no damage and heals no one (A_MOD_CHARM)
+	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
+	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
+	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
+	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
+	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
+	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
+	// shared.NewSimpleStatActive(13965) // Blackhand's Breadth - https://www.wowhead.com/forever/spell=1318944
 	// on use: 18386 (E_HEAL)
 	// unsupported: the heal lands on implicit target 5, not the wearer
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
@@ -111,12 +122,14 @@ func RegisterAllOnUseCds() {
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
 
+	// Agility / Stamina / Strength
+	shared.NewSimpleStatActive(15873) // Ragged John's Neverending Cup - https://www.wowhead.com/forever/spell=20587
+
 	// ArcaneResistance / FireResistance / FrostResistance / NatureResistance / ShadowResistance
 	shared.NewSimpleStatActive(23042) // Loatheb's Reflection - https://www.wowhead.com/forever/spell=28778
 
 	// ArmorNoMods
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
-	// not simulated: the proc the buff carries, 23781 (E_HEAL)
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
 
 	// ArmorPenetration
@@ -143,6 +156,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAuraOnUse(5079) // Cold Basilisk Eye - https://www.wowhead.com/forever/spell=1139
 	// on use: 17275 (A_DAMAGE_SHIELD, A_MOD_RESISTANCE)
 	shared.NewSpellDataAuraOnUse(13164) // Heart of the Scale - https://www.wowhead.com/forever/spell=17275
+	// on use: 1287840 (A_MOD_SPELL_HIT_CHANCE)
+	shared.NewSpellDataAuraOnUse(13968) // Eye of the Beast - https://www.wowhead.com/forever/spell=1287840
 	// on use: 23724 (A_ADD_PCT_MODIFIER)
 	shared.NewSpellDataAuraOnUse(19340) // Rune of Metamorphosis - https://www.wowhead.com/forever/spell=23724
 	// on use: 23726 (A_ADD_FLAT_MODIFIER)
@@ -184,6 +199,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataDamageOnUse(8348) // Helm of Fire - https://www.wowhead.com/forever/spell=10578
 	// on use: 15712 (E_SCHOOL_DAMAGE); not simulated: E_TRIGGER_SPELL, E_TRIGGER_SPELL
 	shared.NewSpellDataDamageOnUse(11905) // Linken's Boomerang - https://www.wowhead.com/forever/spell=15712
+	// on use: 17283 (E_SCHOOL_DAMAGE); not simulated: E_NONE
+	shared.NewSpellDataDamageOnUse(13171) // Smokey's Lighter - https://www.wowhead.com/forever/spell=17283
 	// on use: 18364 (A_PERIODIC_TRIGGER_SPELL); every 5s for 15s: 18374 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataPeriodicDamageOnUse(14134) // Cloak of Fire - https://www.wowhead.com/forever/spell=18364
 	// on use: 26789 (E_SCHOOL_DAMAGE)
@@ -230,6 +247,9 @@ func RegisterAllOnUseCds() {
 	// on use: 23064 (E_HEAL); not simulated: E_DISPEL_MECHANIC, E_ENERGIZE
 	shared.NewSpellDataHealOnUse(18637) // Major Recombobulator - https://www.wowhead.com/forever/spell=23064
 
+	// Health
+	shared.NewSimpleStatActive(13966) // Mark of Tyranny - https://www.wowhead.com/forever/spell=1287842
+
 	// MP5
 	shared.NewSimpleStatActive(4696) // Lapidis Tankard of Tidesippe - https://www.wowhead.com/forever/spell=1135
 
@@ -238,6 +258,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(4264) // Barbaric Belt - https://www.wowhead.com/forever/spell=9174
 	// on use: 9253 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(7515) // Celestial Orb - https://www.wowhead.com/forever/spell=9253
+	// on use: 15604 (A_PERIODIC_ENERGIZE)
+	shared.NewSpellDataEnergizeOnUse(11819) // Second Wind - https://www.wowhead.com/forever/spell=15604
 	// on use: 18385 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(14152) // Robe of the Archmage - https://www.wowhead.com/forever/spell=18385
 	// on use: 24571 (E_ENERGIZE)
@@ -258,6 +280,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=12733
+	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=19804
 	// Not simulated: Insignia of the Horde: "Immune Root/Snare/Stun" (5579) - ignored aura type 77

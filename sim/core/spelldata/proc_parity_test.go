@@ -129,7 +129,7 @@ func TestTheItemProcsResolveAsTheyWereRegistered(t *testing.T) {
 			continue
 		}
 
-		unsupported := ItemProcUnsupportedWithRate(row, live.isWeaponProc, live.ppm)
+		unsupported := ItemProcUnsupportedWithRate(row, live.isWeaponProc, live.ppm, 0)
 		if live.unsupported != "" {
 			if len(unsupported) != 1 || unsupported[0] != live.unsupported {
 				t.Errorf("%s (%d): unsupported = %v, want only %q, which is why it registers nothing now",

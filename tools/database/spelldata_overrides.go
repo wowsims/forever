@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
@@ -129,6 +130,18 @@ func applyOverride(s *storeSpell, o overrides.Override) error {
 				s.ID, e.Misc, e.Misc2)
 		}
 		e.Misc2 = int32(o.Value)
+
+	case overrides.ProcClassMask:
+		i := slices.IndexFunc(s.Effects, func(e storeEffect) bool { return spelldata.CarriesProcClassMask(e.Aura) })
+		if i < 0 {
+			return fmt.Errorf("spell %d has no proc effect to carry a class mask", s.ID)
+		}
+		e := &s.Effects[i]
+		if e.ClassFlags.Mask[0] == uint32(o.Value) {
+			return fmt.Errorf("spell %d now states class mask %d on its proc effect, so its hand-supplied one is stale",
+				s.ID, e.ClassFlags.Mask[0])
+		}
+		e.ClassFlags.Mask[0] = uint32(o.Value)
 
 	default:
 		return fmt.Errorf("spell %d carries an override of unknown field %d", s.ID, uint8(o.Field))

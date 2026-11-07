@@ -49,6 +49,13 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 		trigger.SpellFlagsExclude |= core.SpellFlagSuppressWeaponProcs
 	}
 
+	// A proc that deals its own damage on an A_PROC_TRIGGER_DAMAGE aura, with no spell below it, keeps
+	// its cooldown on the row's RecoveryTime rather than on a proc category: the shield spikes' 5 s
+	// between two blocks.
+	if trigger.ICD == 0 && s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE) != NilEffect {
+		trigger.ICD = s.Cooldown()
+	}
+
 	fillProcChance(s, &trigger)
 
 	// The row first and the caller's options on top, so an option sees the mask the row decoded to
@@ -130,15 +137,19 @@ func rowClassFlags(s *Spell) core.ClassFlags {
 	for i := range s.Effects {
 		e := &s.Effects[i]
 
-		if e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY ||
-			e.Aura == dbcenums.A_PROC_TRIGGER_DAMAGE || e.Aura == dbcenums.A_DUMMY {
-			if !e.ClassFlags.IsZero() {
-				return e.ClassFlags
-			}
+		if CarriesProcClassMask(e.Aura) && !e.ClassFlags.IsZero() {
+			return e.ClassFlags
 		}
 	}
 
 	return core.ClassFlags{}
+}
+
+// Whether an effect of this aura kind is the proc whose class mask narrows the listener: a trigger, a
+// copied trigger or a dummy the server scripts. The ProcClassMask override writes onto the same
+// effects.
+func CarriesProcClassMask(aura dbcenums.EffectAuraType) bool {
+	return aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY || aura == dbcenums.A_DUMMY
 }
 
 // Whether the mask names spells of a family this character's class never casts, which is how an

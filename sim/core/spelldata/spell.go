@@ -124,6 +124,32 @@ func (s *Spell) DamageEffect() *Effect {
 		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
 }
 
+// The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
+// aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
+// spikes' 20 to 30.
+func (s *Spell) ProcDamageEffect() *Effect {
+	if e := s.DamageEffect(); e != NilEffect {
+		return e
+	}
+	return s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
+}
+
+// The spell a proc row fires: what its A_PROC_TRIGGER_SPELL triggers, or, on a dummy proc the server
+// scripts, the one spell its tooltip names where that spell restores a resource. Idol of Longevity's
+// 28847 names 28848, the mana it refunds; most dummy procs name the spell they listen for instead,
+// which fires nothing. Nil where the row fires nothing the store carries.
+func (s *Spell) FiredSpell() *Spell {
+	if e := s.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL); e != NilEffect {
+		return e.Trigger()
+	}
+	if s.FirstAura(dbcenums.A_DUMMY) != NilEffect && len(s.RefIDs) == 1 {
+		if ref := Find(s.RefIDs[0]); ref.EnergizeEffect() != NilEffect {
+			return ref
+		}
+	}
+	return Nil
+}
+
 // A weapon strike's damage: its flat weapon-damage roll, the weapon damage and extra, all scaled by
 // the spell's weapon percent, or taken whole where it states none. In game the percent scales the
 // flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4.

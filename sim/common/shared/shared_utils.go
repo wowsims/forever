@@ -681,7 +681,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	outcome := damageOutcome(defenseType, damage.CannotCrit(), OutcomeDefault)
 	application := damageOutcome(defenseType, true, OutcomeDefault)
 	alwaysHits := !asProc && damage.AlwaysHits()
-	effect := damage.DamageEffect()
+	effect := damage.ProcDamageEffect()
 	config.DirectVariance = effect.DirectVariance()
 	// A split row rolls once for every target it reaches (calcMultiTargetDamage), not once a hit.
 	if damage.SplitsDamage {
@@ -1154,12 +1154,13 @@ func (cfg SpellDataProc) effectSource() effectSource {
 }
 
 func NewSimpleStatActive(itemID int32) {
+	source := effectSource{id: itemID}
 	// Soft fail to allow for overrides for bad effects
-	if core.HasItemEffect(itemID) {
+	if source.isAlreadyImplemented() {
 		return
 	}
 
-	core.NewItemEffect(itemID, func(agent core.Agent) {
+	source.registerEffect(func(agent core.Agent) {
 		character := agent.GetCharacter()
 
 		for _, itemEffect := range onUseEffectsFor(itemID) {
@@ -1169,9 +1170,49 @@ func NewSimpleStatActive(itemID int32) {
 			}
 
 			buffStats, buffDuration := onUseStatBuff(character, itemEffect)
-			core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
+			buff := core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
+			attachCarriedProc(character, buff.Aura, spelldata.Find(itemEffect.BuffId))
 		}
 	})
+}
+
+// The proc a stat buff's row carries beside its stats, live while the buff is up: Aegis of
+// Preservation's 23780 heals the wearer 23781's amount on each melee or ranged hit taken for its
+// 20 s. The buff row names the hits, and the spell it fires is cast on the wearer.
+func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldata.Spell) {
+	if len(CarriedProcUnsupported(row)) > 0 {
+		return
+	}
+	heal := character.RegisterSpell(spellDataProcHealSpell(character, row.FiredSpell(), true))
+	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		heal.Cast(sim, &character.Unit)
+	}, spelldata.ItemProcChance(row))
+	trigger.Name = buff.Label + " Proc"
+	// Cast with the hit, the way every generated proc that casts a spell on the wearer is, rather
+	// than a batch window later.
+	trigger.TriggerImmediately = true
+	buff.AttachProcTrigger(trigger)
+}
+
+// Why the proc a stat buff carries cannot be built, or nil where it can: the buff's row fires a spell
+// (FiredSpell) that heals the wearer, a heal over time among them only with a period and a duration
+// to tick over, on a buff that spends no charges and a trigger the listener can hear.
+func CarriedProcUnsupported(row *spelldata.Spell) []string {
+	fired := row.FiredSpell()
+	heal := fired.ProcHealEffect()
+	switch {
+	case fired == spelldata.Nil:
+		return []string{fmt.Sprintf("%d fires no spell the store carries", row.ID)}
+	case heal == spelldata.NilEffect:
+		return []string{fmt.Sprintf("%d fires %d, which heals no one", row.ID, fired.ID)}
+	case heal.Target[0] != dbcenums.TARGET_UNIT_CASTER:
+		return []string{fmt.Sprintf("%d's heal lands on implicit target %d, not the wearer", fired.ID, heal.Target[0])}
+	case heal.Aura == dbcenums.A_PERIODIC_HEAL && (heal.PeriodMs <= 0 || fired.DurationMs <= 0):
+		return []string{fmt.Sprintf("%d's heal over time states no period or no duration to tick over", fired.ID)}
+	case row.ProcCharges > 0:
+		return []string{fmt.Sprintf("%d states %d charges, which the stat aura does not spend", row.ID, row.ProcCharges)}
+	}
+	return spelldata.ItemProcUnsupportedWithRate(row, false, 0, 0)
 }
 
 // An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage
@@ -1363,12 +1404,13 @@ func registerSpellDataOnUse(itemID int32, cdType core.CooldownType, spellConfig 
 // The same, where the row decides the cooldown the manager files the spell under and when it uses it,
 // or that the character has nothing to use it for.
 func registerSpellDataOnUseCooldown(itemID int32, onUse func(*core.Character, *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool)) {
+	source := effectSource{id: itemID}
 	// Soft fail to allow for overrides for bad effects
-	if core.HasItemEffect(itemID) {
+	if source.isAlreadyImplemented() {
 		return
 	}
 
-	core.NewItemEffect(itemID, func(agent core.Agent) {
+	source.registerEffect(func(agent core.Agent) {
 		character := agent.GetCharacter()
 
 		for _, itemEffect := range onUseEffectsFor(itemID) {
@@ -1552,7 +1594,7 @@ func attachStackingCDTrigger(character *core.Character, config StackingStatBonus
 // Creates a new stacking stats bonus aura based on the configuration. If Bonus is not given, the ItemEffect of the item will be used
 // to determine the correct values.
 func NewStackingStatBonusCD(config StackingStatBonusCD) {
-	core.NewItemEffect(config.ID, func(agent core.Agent) {
+	effectSource{id: config.ID}.registerEffect(func(agent core.Agent) {
 		character := agent.GetCharacter()
 		eligibleSlots := character.ItemSwap.EligibleSlotsForItem(config.ID)
 
@@ -1826,22 +1868,59 @@ func (config ProcStatBonusEffect) effectSource() effectSource {
 	return effectSource{id: config.ItemID}
 }
 
+// The generated files' effects by item, composed into the one registration core takes per item: The
+// Green Tower 1204 keeps 1325228's damage shield up beside the stat proc 17154 its hits trigger. The
+// dispatcher reads the map when a character is built, after every registration, so a captured slice
+// would miss the later ones.
+var generatedItemEffects = map[int32][]core.ApplyEffect{}
+
+var generating bool
+
+// Marks the registrations that run until the returned function is called as the generated files':
+// each RegisterAll function of sim/common/forever defers it on its first line. A class file's call
+// to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
+func Generated() func() {
+	generating = true
+	return func() { generating = false }
+}
+
 func (s effectSource) registerEffect(apply core.ApplyEffect) {
-	if s.isEnchant {
+	switch {
+	case s.isEnchant:
 		core.NewEnchantEffect(s.id, apply)
-	} else {
+	case !generating:
 		core.NewItemEffect(s.id, apply)
+	default:
+		first := len(generatedItemEffects[s.id]) == 0
+		generatedItemEffects[s.id] = append(generatedItemEffects[s.id], apply)
+		if first {
+			core.NewItemEffect(s.id, func(agent core.Agent) {
+				for _, apply := range generatedItemEffects[s.id] {
+					apply(agent)
+				}
+			})
+		}
 	}
 }
 
+// Whether the item carries more than one generated effect. Core keeps one aura per label and folds a
+// second registration under a label into the first, so a composed item's equip aura takes a label of
+// its own: The Green Tower's equip shield was folded under its proc listener, both named for the item.
+// Two listeners on one item would still fold, which the generator refuses.
+func (s effectSource) composed() bool {
+	return !s.isEnchant && len(generatedItemEffects[s.id]) > 1
+}
+
 // Whether a hand-written effect already covers this. That is the soft fail letting an override win
-// over the generated registration, and it is why deleting one hands the generated version back.
+// over the generated registration, and it is why deleting one hands the generated version back. A
+// hand-written effect registers with core on import, before the generated ones, so an id the
+// generated effects hold is not one.
 func (s effectSource) isAlreadyImplemented() bool {
 	if s.isEnchant {
 		return core.HasEnchantEffect(s.id)
 	}
 
-	return core.HasItemEffect(s.id)
+	return core.HasItemEffect(s.id) && len(generatedItemEffects[s.id]) == 0
 }
 
 func (s effectSource) actionID() core.ActionID {

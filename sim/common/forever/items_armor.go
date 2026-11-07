@@ -8,36 +8,6 @@ import (
 )
 
 func init() {
-	// Aegis of the Scarlet Commander
-	// https://www.wowhead.com/forever/item=7726/aegis-of-the-scarlet-commander
-	//
-	// Deals 14 Holy damage every time you block.
-	core.NewItemEffect(7726, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		row := spelldata.MustFind(1293539)
-		damage := row.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
-
-		config := procSpellConfig(character, row)
-		// The row states no defense type; a Holy hit rolls on the spell table.
-		config.DefenseType = core.DefenseTypeMagic
-		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			spell.CalcAndDealDamage(sim, target, damage.Roll(sim), spell.OutcomeMagicHitAndCrit)
-		}
-		retribution := character.RegisterSpell(config)
-
-		// The row's ProcTypeMask hears melee and ranged hits taken; the block is the tooltip's. The
-		// row's 5 s RecoveryTime is the internal cooldown between two procs.
-		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			retribution.Cast(sim, spell.Unit)
-		})
-		trigger.Name = "Aegis of the Scarlet Commander"
-		trigger.ActionID = core.ActionID{ItemID: 7726}
-		trigger.ICD = row.Cooldown()
-		trigger.Outcome = core.OutcomeBlock
-		trigger.TriggerImmediately = true
-		character.ItemSwap.RegisterProc(7726, character.MakeProcTriggerAura(trigger))
-	})
-
 	// Force Reactive Disk
 	// https://www.wowhead.com/forever/item=18168/force-reactive-disk
 	//

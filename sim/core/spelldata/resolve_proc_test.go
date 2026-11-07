@@ -74,6 +74,15 @@ func procRows() []Spell {
 					TriggerID: 2900, ClassFlags: core.ClassFlags{Family: 13, Mask: [4]uint32{0: 0x1}}},
 			},
 		},
+		{
+			ID: 2950, Name: "Block Damage", ProcChance: 100, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintBlocked,
+			ProcFlags:  [2]uint32{0: dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_MELEE_ABILITY},
+			CooldownMs: 5000,
+			Effects: []Effect{
+				{SpellID: 2950, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_DAMAGE, BasePoints: 25, Variance: 0.4,
+					Target: [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}},
+			},
+		},
 	}
 }
 

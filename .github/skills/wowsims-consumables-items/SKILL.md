@@ -90,8 +90,9 @@ is registered. Items and enchants work differently:
 - **Three aura lists route the generated item auras** (`tools/database/gen_effects.go`). `itemAuraKinds` is shared
   by on-use and equip spells, so an aura type added there, a class-mask modifier say, flips every equip item that
   states it into the item aura shape; equip-only types go in `equipAuraKinds` and on-use-only ones in
-  `onUseAuraKinds`. `refuseEquipBesideAnotherEffect` refuses an equip aura on an item that already registers an
-  effect and lists it as missing.
+  `onUseAuraKinds`. Core takes one effect per item; the generated registrations compose theirs
+  (`generatedItemEffects` in `sim/common/shared`), so an item's equip aura registers beside its proc, while a
+  hand-written effect on the id keeps every generated one off.
 - **Shapes the builders already cover.** Damage shields attach through `buffs.AttachDamageShield`; an on-use that
   lowers threat registers as `CooldownTypeUnknown` and is never used on its own; `shared.AbsorbBreakDamage` lists the
   absorbs that deal damage when broken; a flat block value on an equip spell (Glyph of Deflection) is a stat through

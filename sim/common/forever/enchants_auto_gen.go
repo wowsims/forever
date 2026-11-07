@@ -12,36 +12,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Attaches an Iron Spike to your shield that deals damage every time you block with it.
-	// https://www.wowhead.com/forever/spell=7216
-	// unsupported: an outcome the proc mask has no bit for; the damage spell's row states no damage
-	// trigger 9784 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Iron Shield Spike",
-	//	EnchantID:      43,
-	//	TriggerSpellID: 9784,
-	//	BuffSpellID:    9784,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Attaches a Mithril Spike to your shield that deals damage every time you block with it.
-	// https://www.wowhead.com/forever/spell=9781
-	// unsupported: an outcome the proc mask has no bit for; the damage spell's row states no damage
-	// trigger 9782 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Mithril Shield Spike",
-	//	EnchantID:      463,
-	//	TriggerSpellID: 9782,
-	//	BuffSpellID:    9782,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
 	// https://www.wowhead.com/forever/spell=13898
 	// unsupported: states no rate
@@ -68,21 +38,6 @@ func RegisterAllEnchants() {
 	//	TriggerSpellID: 13907,
 	//	BuffSpellID:    13907,
 	//	IsWeaponProc:   true,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Attaches a Thorium Spike to your shield that deals damage every time you block with it.
-	// https://www.wowhead.com/forever/spell=16623
-	// unsupported: an outcome the proc mask has no bit for; the damage spell's row states no damage
-	// trigger 16624 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Thorium Shield Spike",
-	//	EnchantID:      1704,
-	//	TriggerSpellID: 16624,
-	//	BuffSpellID:    16624,
 	// }, nil)
 
 	// TODO: Manual implementation required
@@ -167,22 +122,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker
-	// when the bearer is struck in Melee.
-	//
-	// https://www.wowhead.com/forever/spell=435903
-	// unsupported: the enchant's effect entry resolves no stats from 435901 (A_DAMAGE_SHIELD)
-	// trigger 435901 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
-	// shared.NewSpellDataProc(shared.SpellDataProc{
-	//	Name:           "Enchant Chest - Retricutioner",
-	//	EnchantID:      7223,
-	//	TriggerSpellID: 435901,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon so that often when attacking in melee it heals for 400 and increases
 	// Strength by 120 for 20s.
 	// https://www.wowhead.com/forever/spell=1231128
@@ -237,6 +176,16 @@ func RegisterAllEnchants() {
 		IsWeaponProc:   true,
 	}, nil)
 
+	// Attaches an Iron Spike to your shield that deals damage every time you block with it.
+	// https://www.wowhead.com/forever/spell=7216
+	// trigger 9784 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Iron Shield Spike",
+		EnchantID:      43,
+		TriggerSpellID: 9784,
+		BuffSpellID:    9784,
+	}, nil)
+
 	// Enchant a piece of chest armor so it has a 2% chance per hit of giving you 10 points of damage absorption.
 	// Cannot occur more often than once every 5 sec.
 	// https://www.wowhead.com/forever/spell=7426
@@ -257,6 +206,37 @@ func RegisterAllEnchants() {
 		EnchantID:      63,
 		TriggerSpellID: 7446,
 		BuffSpellID:    7447,
+	}, nil)
+
+	// Attaches a Mithril Spike to your shield that deals damage every time you block with it.
+	// https://www.wowhead.com/forever/spell=9781
+	// trigger 9782 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Mithril Shield Spike",
+		EnchantID:      463,
+		TriggerSpellID: 9782,
+		BuffSpellID:    9782,
+	}, nil)
+
+	// Attaches a Thorium Spike to your shield that deals damage every time you block with it.
+	// https://www.wowhead.com/forever/spell=16623
+	// trigger 16624 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Thorium Shield Spike",
+		EnchantID:      1704,
+		TriggerSpellID: 16624,
+		BuffSpellID:    16624,
+	}, nil)
+
+	// Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker
+	// when the bearer is struck in Melee.
+	//
+	// https://www.wowhead.com/forever/spell=435903
+	// equip: 435901 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Chest - Retricutioner",
+		EnchantID:      7223,
+		TriggerSpellID: 435901,
 	}, nil)
 
 	// Permanently enchant a two-handed melee weapon so that often when striking with a spell it restores 400
