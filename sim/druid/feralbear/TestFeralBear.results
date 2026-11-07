@@ -336,19 +336,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-EbonHand-19170"
  value: {
-  dps: 513.61208
-  tps: 1947.31953
-  dtps: 394.03982
-  hps: 83.99416
+  dps: 470.76533
+  tps: 1784.63339
+  dtps: 395.30089
+  hps: 82.792
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 506.26747
-  tps: 1920.0544
-  dtps: 390.20693
-  hps: 84.47168
+  dps: 445.80174
+  tps: 1690.98883
+  dtps: 391.79403
+  hps: 81.3525
  }
 }
 dps_results: {
@@ -606,10 +606,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GlacialBlade-19099"
  value: {
-  dps: 506.26747
-  tps: 1920.0544
-  dtps: 390.20693
-  hps: 84.47168
+  dps: 445.86527
+  tps: 1691.12541
+  dtps: 391.79403
+  hps: 81.3525
  }
 }
 dps_results: {
@@ -804,10 +804,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
+  dps: 421.37992
+  tps: 1614.95491
+  dtps: 394.93378
+  hps: 82.99158
  }
 }
 dps_results: {
@@ -912,10 +912,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
+  dps: 439.52342
+  tps: 1675.14105
+  dtps: 395.33775
+  hps: 81.87712
  }
 }
 dps_results: {
@@ -1047,19 +1047,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 521.06739
-  tps: 1975.43316
-  dtps: 395.04282
-  hps: 84.79953
+  dps: 561.36077
+  tps: 2098.47628
+  dtps: 395.28758
+  hps: 83.16545
  }
 }
 dps_results: {
  key: "TestFeralBear-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
+  dps: 501.77807
+  tps: 1896.14404
+  dtps: 395.33775
+  hps: 81.87712
  }
 }
 dps_results: {
@@ -1164,10 +1164,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
+  dps: 447.72113
+  tps: 1702.09748
+  dtps: 395.33775
+  hps: 81.87712
  }
 }
 dps_results: {
@@ -1227,10 +1227,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 512.43023
-  tps: 1943.93403
-  dtps: 393.14306
-  hps: 83.62305
+  dps: 429.88319
+  tps: 1628.72503
+  dtps: 395.33775
+  hps: 81.87712
  }
 }
 dps_results: {

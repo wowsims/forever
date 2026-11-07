@@ -74,10 +74,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Annihilator-12798"
  value: {
-  dps: 748.41363
-  tps: 772.0783
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 693.44023
+  tps: 716.9133
+  dtps: 7.75757
+  hps: 14.86028
  }
 }
 dps_results: {
@@ -92,10 +92,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 758.41538
+  tps: 781.87018
+  dtps: 7.45809
+  hps: 14.7925
  }
 }
 dps_results: {
@@ -191,10 +191,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BlazingRapier-12777"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 682.37099
+  tps: 705.86152
+  dtps: 7.31182
+  hps: 14.86028
  }
 }
 dps_results: {
@@ -299,10 +299,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Darkspear-12802"
  value: {
-  dps: 754.32399
-  tps: 777.98865
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 750.04591
+  tps: 773.65858
+  dtps: 7.45809
+  hps: 14.91111
  }
 }
 dps_results: {
@@ -398,10 +398,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 753.88456
-  tps: 777.54922
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 673.28169
+  tps: 696.27086
+  dtps: 6.95711
+  hps: 14.80944
  }
 }
 dps_results: {
@@ -623,10 +623,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FieryWarAxe-870"
  value: {
-  dps: 748.60159
-  tps: 772.30093
-  dtps: 8.08988
-  hps: 13.99611
+  dps: 760.15688
+  tps: 783.42678
+  dtps: 7.14751
+  hps: 14.80944
  }
 }
 dps_results: {
@@ -641,10 +641,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Frostguard-12797"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 699.25543
+  tps: 722.71188
+  dtps: 7.45809
+  hps: 14.7925
  }
 }
 dps_results: {
@@ -686,10 +686,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GlacialBlade-19099"
  value: {
-  dps: 753.88456
-  tps: 777.54922
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 674.19773
+  tps: 697.14512
+  dtps: 7.05499
+  hps: 14.80944
  }
 }
 dps_results: {
@@ -731,19 +731,19 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GrimReaper-13054"
  value: {
-  dps: 747.4774
-  tps: 771.14224
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 726.95311
+  tps: 750.65343
+  dtps: 7.86171
+  hps: 14.89417
  }
 }
 dps_results: {
  key: "TestHunter-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 663.26077
+  tps: 686.66835
+  dtps: 7.59213
+  hps: 14.87722
  }
 }
 dps_results: {
@@ -758,10 +758,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HanzoSword-8190"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 641.78379
+  tps: 665.25559
+  dtps: 7.45809
+  hps: 14.86028
  }
 }
 dps_results: {
@@ -812,10 +812,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 630.60654
+  tps: 654.43168
+  dtps: 7.58978
+  hps: 15.66042
  }
 }
 dps_results: {
@@ -947,19 +947,19 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Nightblade-1982"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 755.80964
+  tps: 779.20257
+  dtps: 7.71753
+  hps: 14.7925
  }
 }
 dps_results: {
  key: "TestHunter-AllItems-Nightfall-19169"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 783.99491
+  tps: 807.45105
+  dtps: 7.45809
+  hps: 14.7925
  }
 }
 dps_results: {
@@ -992,10 +992,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PhantomBlade-7961"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 644.59534
+  tps: 668.34602
+  dtps: 7.38891
+  hps: 14.99583
  }
 }
 dps_results: {
@@ -1046,10 +1046,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Ravager-7717"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 670.02137
+  tps: 687.96254
+  dtps: 4.10089
+  hps: 12.70833
  }
 }
 dps_results: {
@@ -1082,10 +1082,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 684.41117
+  tps: 707.85063
+  dtps: 7.72883
+  hps: 14.70778
  }
 }
 dps_results: {
@@ -1118,10 +1118,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 675.77632
+  tps: 699.25893
+  dtps: 7.45829
+  hps: 14.86028
  }
 }
 dps_results: {
@@ -1253,10 +1253,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 667.88843
+  tps: 690.96646
+  dtps: 7.32769
+  hps: 14.80944
  }
 }
 dps_results: {
@@ -1280,10 +1280,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ThrashBlade-17705"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 707.15771
+  tps: 730.62866
+  dtps: 7.08349
+  hps: 15.36861
  }
 }
 dps_results: {
@@ -1298,19 +1298,19 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 750.93591
-  tps: 774.5755
-  dtps: 8.01966
-  hps: 13.99611
+  dps: 694.07471
+  tps: 706.09579
+  dtps: 7.30048
+  hps: 14.89417
  }
 }
 dps_results: {
  key: "TestHunter-AllItems-Thunderstrike-17223"
  value: {
-  dps: 747.4774
-  tps: 771.14224
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 755.33354
+  tps: 778.96252
+  dtps: 7.25148
+  hps: 14.91111
  }
 }
 dps_results: {
@@ -1370,10 +1370,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Witchfury-13051"
  value: {
-  dps: 747.4774
-  tps: 771.14207
-  dtps: 8.0698
-  hps: 13.99611
+  dps: 716.10661
+  tps: 739.57411
+  dtps: 7.34344
+  hps: 14.7925
  }
 }
 dps_results: {

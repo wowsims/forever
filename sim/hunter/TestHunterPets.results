@@ -62,14 +62,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-AegisoftheScarletCommander-7726"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-AnkhofLife-1713"
  value: {
   dps: 657.43256
@@ -80,9 +72,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Annihilator-12798"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -96,9 +88,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -183,9 +175,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BlazingRapier-12777"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -218,14 +210,6 @@ dps_results: {
   dps: 630.94327
   tps: 417.03527
   dtps: 0.1942
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-BramblebarkBarrier-275649"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
  }
 }
 dps_results: {
@@ -286,9 +270,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Darkspear-12802"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -372,19 +356,11 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-EbonHand-19170"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 666.08296
-  tps: 440.91185
-  dtps: 0.69516
+  dps: 641.6914
+  tps: 421.9232
+  dtps: 0.84298
  }
 }
 dps_results: {
@@ -582,9 +558,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-FieryWarAxe-870"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -596,19 +572,11 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-ForceReactiveDisk-18168"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-Frostguard-12797"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -617,14 +585,6 @@ dps_results: {
   dps: 658.63505
   tps: 434.52485
   dtps: 0.66963
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-FurbolgMedicinePouch-16768"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
  }
 }
 dps_results: {
@@ -654,9 +614,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-GlacialBlade-19099"
  value: {
-  dps: 666.08296
-  tps: 440.91185
-  dtps: 0.69516
+  dps: 641.6914
+  tps: 421.9232
+  dtps: 0.84298
  }
 }
 dps_results: {
@@ -692,39 +652,15 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-GrandMarshal'sAegis-18825"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-GrimReaper-13054"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-GryphonRider'sStormhammer-9651"
- value: {
-  dps: 637.6296
-  tps: 418.86553
-  dtps: 0.66687
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Hameya'sSlayer-15814"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-HammeroftheNorthernWind-810"
  value: {
   dps: 637.6296
   tps: 418.86553
@@ -742,9 +678,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-HanzoSword-8190"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -772,21 +708,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-HighWarlord'sShieldWall-18826"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-IdolofLongevity-23004"
- value: {
-  dps: 197.86378
-  tps: 6.00518
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-IronShieldSpike-43"
  value: {
   dps: 648.08638
@@ -805,9 +726,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -835,14 +756,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-LapidisTankardofTidesippe-4696"
- value: {
-  dps: 662.33556
-  tps: 436.67158
-  dtps: 0.48693
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 653.55357
@@ -856,14 +769,6 @@ dps_results: {
   dps: 657.43256
   tps: 432.79059
   dtps: 0.75638
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-LordSakrasis'Scepter-5028"
- value: {
-  dps: 662.68903
-  tps: 438.01365
-  dtps: 0.69516
  }
 }
 dps_results: {
@@ -923,14 +828,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-MasterworkStormhammer-12794"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 648.08638
@@ -949,17 +846,17 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Nightblade-1982"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Nightfall-19169"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -989,9 +886,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-PhantomBlade-7961"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -1019,22 +916,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-PremierGrandMarshal'sAegis-272838"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-PremierHighWarlord'sShieldWall-272591"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-PremierLieutenantCommander'sChainmailGrips-272772"
  value: {
   dps: 653.29524
@@ -1053,9 +934,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Ravager-7717"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -1064,20 +945,6 @@ dps_results: {
   dps: 654.6558
   tps: 432.17021
   dtps: 0.25667
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-SatchelofDarkIronBombs-285278"
- value: {
-  dps: 197.86378
-  tps: 6.00518
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-SatchelofIronBombs-285277"
- value: {
-  dps: 197.86378
-  tps: 6.00518
  }
 }
 dps_results: {
@@ -1099,9 +966,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -1131,9 +998,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -1166,22 +1033,6 @@ dps_results: {
   dps: 648.21614
   tps: 426.30038
   dtps: 1.25271
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-Sulfuras,HandofRagnaros-17182"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-SulfuronHammer-17193"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
  }
 }
 dps_results: {
@@ -1257,14 +1108,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-TheGreenTower-1204"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 661.18556
@@ -1275,9 +1118,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -1299,9 +1142,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-ThrashBlade-17705"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -1315,24 +1158,17 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 664.3038
-  tps: 439.22341
-  dtps: 0.69516
+  dps: 639.07287
+  tps: 419.47185
+  dtps: 0.66687
  }
 }
 dps_results: {
  key: "TestHunterPets-AllItems-Thunderstrike-17223"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-TotemofFlowingWater-23005"
- value: {
-  dps: 197.86378
-  tps: 6.00518
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {
@@ -1357,22 +1193,6 @@ dps_results: {
   dps: 578.88162
   tps: 371.41188
   dtps: 0.15701
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-VileProtector-7747"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-VolcanicHammer-12792"
- value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
  }
 }
 dps_results: {
@@ -1402,9 +1222,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Witchfury-13051"
  value: {
-  dps: 661.43752
-  tps: 436.97717
-  dtps: 0.69516
+  dps: 650.04217
+  tps: 428.2934
+  dtps: 1.13241
  }
 }
 dps_results: {

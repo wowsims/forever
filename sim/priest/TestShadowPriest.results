@@ -104,9 +104,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Benediction-18608"
  value: {
-  dps: 761.88957
-  tps: 544.28226
-  dtps: 5.41108
+  dps: 748.94563
+  tps: 535.32072
+  dtps: 4.95973
  }
 }
 dps_results: {
@@ -265,16 +265,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EbonHand-19170"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -473,8 +473,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-FineryofInfiniteWisdom"
  value: {
-  dps: 732.84726
-  tps: 524.03984
+  dps: 745.92556
+  tps: 533.19465
   dtps: 5.2674
  }
 }
@@ -513,8 +513,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-GlacialBlade-19099"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -545,16 +545,16 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-GryphonRider'sStormhammer-9651"
  value: {
-  dps: 712.37882
-  tps: 509.62474
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 712.37882
-  tps: 509.62474
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -609,8 +609,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -721,8 +721,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -823,22 +823,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-Sulfuras,HandofRagnaros-17182"
- value: {
-  dps: 761.88957
-  tps: 544.28226
-  dtps: 5.41108
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SulfuronHammer-17193"
- value: {
-  dps: 761.88957
-  tps: 544.28226
-  dtps: 5.41108
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-TalismanofArathor-20071"
  value: {
   dps: 753.99958
@@ -889,8 +873,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
@@ -960,8 +944,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 761.88957
-  tps: 544.28226
+  dps: 724.51493
+  tps: 518.12001
   dtps: 5.41108
  }
 }
