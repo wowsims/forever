@@ -1047,8 +1047,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 523.32774
-  tps: 1980.2929
+  dps: 521.06739
+  tps: 1975.43316
   dtps: 395.04282
   hps: 84.79953
  }
