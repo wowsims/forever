@@ -154,10 +154,10 @@ func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
 	}
 }
 
-// Sulfuras, Hand of Ragnaros 17182 carries both its effects. Immolation 21142's damage shield deals
-// its amount to the attacker of each melee hit taken, and nothing for a spell. Fireball 21162 procs
-// at the procs per minute of the item's chance-on-hit entry, deals its row's direct roll, and ticks
-// its periodic amount over the row's duration.
+// Sulfuras, Hand of Ragnaros 17182 carries both its generated effects, composed into one registration.
+// Immolation 21142's damage shield deals its amount to the attacker of each melee hit taken, and
+// nothing for a spell. Fireball 21162 procs at the procs per minute of the item's chance-on-hit entry,
+// deals its row's direct roll, and ticks its periodic amount over the row's duration.
 func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
 	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 17182)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
