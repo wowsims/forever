@@ -1555,14 +1555,17 @@ func TryParseOnUseEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect, ins
 	return EffectParseResultInvalid
 }
 
-// What the flat on-use leaves out of its buff, which grants the buff's stats and nothing else: the proc
-// an A_PROC_TRIGGER_SPELL casts (Aegis of Preservation 23780's heal on every hit taken, 23781), and an
-// absorb or a damage shield that no shape carries with the stats.
+// What the flat on-use leaves out of its buff, which grants the buff's stats and the proc the row
+// carries where that heals the wearer (Aegis of Preservation 23780's 23781 on every hit taken): a
+// carried proc the sim cannot build, and an absorb or a damage shield that no shape carries with the
+// stats.
 func statOnUseLeftOut(buffID int32, instance *dbc.DBC) string {
 	buff := spelldata.Find(buffID)
 	var left []string
-	if trigger := buff.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).TriggerID; trigger != 0 {
-		left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s)", trigger, spellEffectKinds(instance, int(trigger))))
+	if fired := buff.FiredSpell(); fired != spelldata.Nil {
+		if reasons := shared.CarriedProcUnsupported(buff); len(reasons) > 0 {
+			left = append(left, fmt.Sprintf("the proc the buff carries, %d (%s): %s", fired.ID, spellEffectKinds(instance, int(fired.ID)), strings.Join(reasons, "; ")))
+		}
 	}
 	for _, aura := range []dbcenums.EffectAuraType{dbcenums.A_SCHOOL_ABSORB, dbcenums.A_DAMAGE_SHIELD} {
 		if e := buff.FirstAura(aura); e != spelldata.NilEffect {

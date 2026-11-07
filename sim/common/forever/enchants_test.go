@@ -412,7 +412,7 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
 		t.Errorf("a melee hit taken after the lockout left the shield at %d casts, want 2", got)
 	}
-	takeHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: enemy})
+	takeHit(t, sim, character, rangedShot(enemy))
 	takeHit(t, sim, character, fireSpell(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
 		t.Errorf("after a ranged shot and a spell hit taken the shield cast %d times, want 2 still", got)

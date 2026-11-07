@@ -21,6 +21,7 @@ import (
 func init() {
 	forever.RegisterAllProcs()
 	forever.RegisterAllEnchants()
+	forever.RegisterAllOnUseCds()
 	testagent.Register(proto.Player_HolyPaladin{}, proto.Spec_SpecHolyPaladin, func(player *proto.Player, spec any) {
 		player.Spec = spec.(*proto.Player_HolyPaladin)
 	}, func(agent *testagent.Agent) {

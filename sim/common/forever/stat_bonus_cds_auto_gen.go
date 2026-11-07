@@ -129,7 +129,6 @@ func RegisterAllOnUseCds() {
 
 	// ArmorNoMods
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
-	// not simulated: the proc the buff carries, 23781 (E_HEAL)
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
 
 	// ArmorPenetration

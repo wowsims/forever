@@ -1169,9 +1169,49 @@ func NewSimpleStatActive(itemID int32) {
 			}
 
 			buffStats, buffDuration := onUseStatBuff(character, itemEffect)
-			core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
+			buff := core.RegisterTemporaryStatsOnUseCD(character, itemEffect.BuffName, buffStats, buffDuration, spellConfig)
+			attachCarriedProc(character, buff.Aura, spelldata.Find(itemEffect.BuffId))
 		}
 	})
+}
+
+// The proc a stat buff's row carries beside its stats, live while the buff is up: Aegis of
+// Preservation's 23780 heals the wearer 23781's amount on each melee or ranged hit taken for its
+// 20 s. The buff row names the hits, and the spell it fires is cast on the wearer.
+func attachCarriedProc(character *core.Character, buff *core.Aura, row *spelldata.Spell) {
+	if len(CarriedProcUnsupported(row)) > 0 {
+		return
+	}
+	heal := character.RegisterSpell(spellDataProcHealSpell(character, row.FiredSpell(), true))
+	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+		heal.Cast(sim, &character.Unit)
+	}, spelldata.ItemProcChance(row))
+	trigger.Name = buff.Label + " Proc"
+	// Cast with the hit, the way every generated proc that casts a spell on the wearer is, rather
+	// than a batch window later.
+	trigger.TriggerImmediately = true
+	buff.AttachProcTrigger(trigger)
+}
+
+// Why the proc a stat buff carries cannot be built, or nil where it can: the buff's row fires a spell
+// (FiredSpell) that heals the wearer, a heal over time among them only with a period and a duration
+// to tick over, on a buff that spends no charges and a trigger the listener can hear.
+func CarriedProcUnsupported(row *spelldata.Spell) []string {
+	fired := row.FiredSpell()
+	heal := fired.ProcHealEffect()
+	switch {
+	case fired == spelldata.Nil:
+		return []string{fmt.Sprintf("%d fires no spell the store carries", row.ID)}
+	case heal == spelldata.NilEffect:
+		return []string{fmt.Sprintf("%d fires %d, which heals no one", row.ID, fired.ID)}
+	case heal.Target[0] != dbcenums.TARGET_UNIT_CASTER:
+		return []string{fmt.Sprintf("%d's heal lands on implicit target %d, not the wearer", fired.ID, heal.Target[0])}
+	case heal.Aura == dbcenums.A_PERIODIC_HEAL && (heal.PeriodMs <= 0 || fired.DurationMs <= 0):
+		return []string{fmt.Sprintf("%d's heal over time states no period or no duration to tick over", fired.ID)}
+	case row.ProcCharges > 0:
+		return []string{fmt.Sprintf("%d states %d charges, which the stat aura does not spend", row.ID, row.ProcCharges)}
+	}
+	return spelldata.ItemProcUnsupportedWithRate(row, false, 0, 0)
 }
 
 // An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage

@@ -13596,6 +13596,7 @@
     },
     "spell": {
       "absorption": {"spellId": 1249073, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"], "uncastable": true},
+      "aegis_heal": {"spellId": 23781, "registeredBy": ["dps_priest", "healer_priest"], "uncastable": true},
       "arcane_detonation": {"spellId": 23722, "registeredBy": ["hunter"], "uncastable": true},
       "bladestorm": {"spellId": 9632, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"], "uncastable": true},
       "bladestorm_9633": {"spellId": 9633, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"], "uncastable": true},
