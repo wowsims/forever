@@ -310,7 +310,7 @@ func TestOnUseRoutesFromTheSpellItCasts(t *testing.T) {
 }
 
 // An on-use whose spell raises the wearer's speeds registers as a speed buff, every speed effect of
-// its row modelled. Manual Crowd Pummeler is below MIN_EFFECT_ILVL and registers through its
+// its row modelled. Manual Crowd Pummeler is below core.MinEffectItemLevel and registers through its
 // EffectFloorExemptions entry.
 func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	withDBCInputs(t)

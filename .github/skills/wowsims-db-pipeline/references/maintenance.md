@@ -8,7 +8,7 @@ Re-derive a claim before repeating it:
 - `gen_db`'s order: `grep -n 'RequireCommittedHotfixes\|RunOverrides\|WriteBinaryAndJson' tools/database/gen_db/main.go`
 - the go-to-ts outputs: `grep -n '^AUTO_GEN_FILES_TS' makefile`
 - the override tables: `grep -n '^var ' tools/database/overrides/*.go`
-- the item level floor and the phase: `grep -n 'MIN_EFFECT_ILVL = \|Phase = 1' tools/database/gen_effects.go tools/database/gen_db/main.go`
+- the item level floor and the phase: `grep -n 'MinEffectItemLevel = \|Phase = 1' sim/core/item_effects.go tools/database/gen_db/main.go`
 - the PTR settings: `diff tools/database/generator-settings.json tools/database/ptr-generator-settings.json`
 - who embeds `db.bin`: `grep -rn 'assets/database"' --include=*.go .`, then `head -1` of each file for its `//go:build`
 - the fields `ReadDatabaseFromJson` keeps (no `Encounters`): `grep -n -A22 '^func ReadDatabaseFromJson' tools/database/database.go`
