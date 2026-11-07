@@ -88,9 +88,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Annihilator-12798"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -321,17 +321,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EbonHand-19170"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -505,9 +505,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-FieryWarAxe-870"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 639.73416
+  tps: 605.38917
+  dtps: 8.57475
  }
 }
 dps_results: {
@@ -553,9 +553,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-GlacialBlade-19099"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -673,9 +673,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -761,9 +761,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -793,9 +793,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Nightfall-19169"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 639.73416
+  tps: 605.38917
+  dtps: 8.57475
  }
 }
 dps_results: {
@@ -841,9 +841,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 642.51547
+  tps: 608.53608
+  dtps: 8.77161
  }
 }
 dps_results: {
@@ -857,9 +857,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Ravager-7717"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 639.73416
+  tps: 605.38917
+  dtps: 8.57475
  }
 }
 dps_results: {
@@ -937,17 +937,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 639.73416
+  tps: 605.38917
+  dtps: 8.57475
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 639.73416
+  tps: 605.38917
+  dtps: 8.57475
  }
 }
 dps_results: {
@@ -1041,9 +1041,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {
@@ -1153,9 +1153,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 731.10396
-  tps: 689.13067
-  dtps: 8.94964
+  dps: 643.22808
+  tps: 609.16313
+  dtps: 8.71119
  }
 }
 dps_results: {

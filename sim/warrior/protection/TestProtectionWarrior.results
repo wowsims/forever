@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BlazingRapier-12777"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 408.16008
+  tps: 1312.32032
+  dtps: 287.58745
+  hps: 36.66556
  }
 }
 dps_results: {
@@ -434,10 +434,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EbonHand-19170"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 416.89117
+  tps: 1316.78918
+  dtps: 285.72955
+  hps: 36.19111
  }
 }
 dps_results: {
@@ -668,10 +668,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Frostguard-12797"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 405.79456
+  tps: 1291.09341
+  dtps: 283.38643
+  hps: 34.98806
  }
 }
 dps_results: {
@@ -785,10 +785,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 409.5813
+  tps: 1322.23697
+  dtps: 289.86813
+  hps: 38.98694
  }
 }
 dps_results: {
@@ -812,10 +812,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 409.332
+  tps: 1340.54273
+  dtps: 294.12025
+  hps: 43.34167
  }
 }
 dps_results: {
@@ -1019,10 +1019,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-MasterworkStormhammer-12794"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 413.86577
+  tps: 1357.13688
+  dtps: 292.82775
+  hps: 42.42667
  }
 }
 dps_results: {
@@ -1082,10 +1082,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 409.33166
+  tps: 1342.6438
+  dtps: 293.58488
+  hps: 42.44361
  }
 }
 dps_results: {
@@ -1199,10 +1199,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 398.64784
+  tps: 1276.33773
+  dtps: 285.7864
+  hps: 36.25889
  }
 }
 dps_results: {
@@ -1235,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 398.27549
+  tps: 1283.22328
+  dtps: 288.32488
+  hps: 36.59778
  }
 }
 dps_results: {
@@ -1406,10 +1406,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-ThrashBlade-17705"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 408.96873
+  tps: 1311.06389
+  dtps: 288.63537
+  hps: 36.03861
  }
 }
 dps_results: {
@@ -1424,10 +1424,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 449.1902
+  tps: 1401.135
+  dtps: 287.20956
+  hps: 39.59694
  }
 }
 dps_results: {
@@ -1487,10 +1487,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-VolcanicHammer-12792"
  value: {
-  dps: 432.87871
-  tps: 1380.60116
-  dtps: 287.0103
-  hps: 36.69944
+  dps: 401.99747
+  tps: 1285.69305
+  dtps: 285.57723
+  hps: 36.225
  }
 }
 dps_results: {

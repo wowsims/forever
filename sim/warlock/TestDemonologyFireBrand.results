@@ -83,9 +83,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 764.44383
-  tps: 623.13268
-  dtps: 8.5315
+  dps: 700.51974
+  tps: 569.47238
+  dtps: 8.41771
   hps: 10.00951
  }
 }
@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazingRapier-12777"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -313,8 +313,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -546,8 +546,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Frostguard-12797"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -564,8 +564,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GlacialBlade-19099"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -600,8 +600,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -618,8 +618,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HanzoSword-8190"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -681,8 +681,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -804,9 +804,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Nightblade-1982"
  value: {
-  dps: 764.44383
-  tps: 623.13268
-  dtps: 8.5315
+  dps: 700.51974
+  tps: 569.47238
+  dtps: 8.41771
   hps: 10.00951
  }
 }
@@ -831,8 +831,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-PhantomBlade-7961"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -875,8 +875,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -893,8 +893,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -992,8 +992,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -1019,8 +1019,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ThrashBlade-17705"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -1037,8 +1037,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 764.44383
-  tps: 623.13268
+  dps: 713.04304
+  tps: 579.96084
   dtps: 8.5315
   hps: 10.00951
  }
@@ -1089,9 +1089,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Witchfury-13051"
  value: {
-  dps: 764.44383
-  tps: 623.13268
-  dtps: 8.5315
+  dps: 700.51974
+  tps: 569.47238
+  dtps: 8.41771
   hps: 10.00951
  }
 }
