@@ -503,6 +503,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-HandofJustice-11815"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-HanzoSword-8190"
  value: {
   dps: 922.25197
@@ -684,6 +692,22 @@ dps_results: {
   dps: 1055.04983
   tps: 762.38638
   dtps: 10.56487
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-SecondWind-11819"
+ value: {
+  dps: 926.46565
+  tps: 730.17682
+  dtps: 10.29999
  }
 }
 dps_results: {

@@ -589,6 +589,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-HandofJustice-11815"
+ value: {
+  dps: 756.67788
+  tps: 616.76451
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HanzoSword-8190"
  value: {
   dps: 764.44383
@@ -789,6 +798,24 @@ dps_results: {
   dps: 968.2481
   tps: 724.41545
   dtps: 8.70507
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 756.67788
+  tps: 616.76451
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SecondWind-11819"
+ value: {
+  dps: 766.46953
+  tps: 626.63472
+  dtps: 8.44901
+  hps: 10.08905
  }
 }
 dps_results: {

@@ -589,6 +589,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-HandofJustice-11815"
+ value: {
+  dps: 659.87527
+  tps: 533.78017
+  dtps: 8.31601
+  hps: 7.19695
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-HanzoSword-8190"
  value: {
   dps: 667.64699
@@ -789,6 +798,24 @@ dps_results: {
   dps: 882.48439
   tps: 638.93215
   dtps: 8.83766
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 659.87527
+  tps: 533.78017
+  dtps: 8.31601
+  hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-SecondWind-11819"
+ value: {
+  dps: 654.37939
+  tps: 530.00956
+  dtps: 8.80826
+  hps: 7.28225
  }
 }
 dps_results: {

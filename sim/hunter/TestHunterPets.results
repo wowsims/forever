@@ -716,6 +716,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-HandofJustice-11815"
+ value: {
+  dps: 657.43256
+  tps: 432.79059
+  dtps: 0.75638
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-HanzoSword-8190"
  value: {
   dps: 661.43752
@@ -817,6 +825,14 @@ dps_results: {
   dps: 657.43256
   tps: 432.79059
   dtps: 0.75638
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 662.68903
+  tps: 438.01365
+  dtps: 0.69516
  }
 }
 dps_results: {
@@ -980,6 +996,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 657.43256
+  tps: 432.79059
+  dtps: 0.75638
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Ravager-7717"
  value: {
   dps: 661.43752
@@ -1007,6 +1031,14 @@ dps_results: {
  value: {
   dps: 197.86378
   tps: 6.00518
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SecondWind-11819"
+ value: {
+  dps: 657.43256
+  tps: 434.00281
+  dtps: 0.46554
  }
 }
 dps_results: {

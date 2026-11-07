@@ -543,6 +543,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-HandofJustice-11815"
+ value: {
+  dps: 753.99958
+  tps: 538.74643
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Hazza'rah'sCharmofHealing-19958"
  value: {
   dps: 753.99958
@@ -631,6 +639,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 780.82246
+  tps: 557.78275
+  dtps: 4.84081
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Magister'sRegalia"
  value: {
   dps: 692.63565
@@ -703,11 +719,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 753.99958
+  tps: 538.74643
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-RaimentsofConviction"
  value: {
   dps: 706.82338
   tps: 505.86761
   dtps: 4.96748
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-SecondWind-11819"
+ value: {
+  dps: 756.38366
+  tps: 542.24858
+  dtps: 4.84265
  }
 }
 dps_results: {

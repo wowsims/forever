@@ -4,6 +4,12 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		867, // Gloves of Holy Might
+		[
+			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
+		]
+	],
+	[
 		869, // Dazzling Longsword
 		[
 			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
@@ -364,9 +370,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		7730, // Cobalt Crusher
+		[
+			"Blasts a target for 133 Frost damage.", // 18204 - https://www.wowhead.com/forever/spell=18204
+		]
+	],
+	[
 		7734, // Six Demon Bag
 		[
 			"Blasts enemies in front of you with the power of wind, fire, all that kind of thing!", // 14537 - https://www.wowhead.com/forever/spell=14537
+		]
+	],
+	[
+		7736, // Fight Club
+		[
+			"Silences an enemy, preventing it from casting spells for 6s.", // 1293654 - https://www.wowhead.com/forever/spell=1293654
 		]
 	],
 	[
@@ -415,6 +433,24 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		8708, // Hammer of Expertise
 		[
 			"Deal 112 Fire damage. Deals 3 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants.", // 1317432 - https://www.wowhead.com/forever/spell=1317432
+		]
+	],
+	[
+		9397, // Energy Cloak
+		[
+			"Restores 320 Mana.", // 1294025 - https://www.wowhead.com/forever/spell=1294025
+		]
+	],
+	[
+		9404, // Olaf's All Purpose Shield
+		[
+			"Reduces your fall speed for 10s.", // 12438 - https://www.wowhead.com/forever/spell=12438
+		]
+	],
+	[
+		9412, // Galgann's Fireblaster
+		[
+			"Strike your ranged target with a Fire Blast for 28 Fire damage.", // 29644 - https://www.wowhead.com/forever/spell=29644
 		]
 	],
 	[
@@ -481,6 +517,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9509, // Petrolspill Leggings
 		[
 			"Fire damage taken increased by 10%.", // 1293003 - https://www.wowhead.com/forever/spell=1293003
+		]
+	],
+	[
+		9639, // The Hand of Antu'sul
+		[
+			"Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing 42 Nature damage to them. Will affect up to 4 targets.", // 13532 - https://www.wowhead.com/forever/spell=13532
 		]
 	],
 	[
@@ -559,6 +601,30 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11608, // Dark Iron Pulverizer
 		[
 			"Stuns target for 8s.", // 15283 - https://www.wowhead.com/forever/spell=15283
+		]
+	],
+	[
+		11625, // Enthralled Sphere
+		[
+			"Charm a targeted Dark Iron Dwarf for 20s.", // 1300754 - https://www.wowhead.com/forever/spell=1300754
+		]
+	],
+	[
+		11920, // Wraith Scythe
+		[
+			"Steals 49 life from target enemy. Deals 2 times as much damage to Undead.", // 16414 - https://www.wowhead.com/forever/spell=16414
+		]
+	],
+	[
+		11923, // The Hammer of Grace
+		[
+			"Dying heals all party members within 40 yds for 1176.", // 1300891 - https://www.wowhead.com/forever/spell=1300891
+		]
+	],
+	[
+		12469, // Mutilator
+		[
+			"Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.", // 10370 - https://www.wowhead.com/forever/spell=10370
 		]
 	],
 	[
@@ -1812,6 +1878,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274430, // Rock Sentinel Slicer
+		[
+			"While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.", // 1294065 - https://www.wowhead.com/forever/spell=1294065
+		]
+	],
+	[
 		274608, // Maw of Min'loth
 		[
 			"When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.", // 1295065 - https://www.wowhead.com/forever/spell=1295065
@@ -1996,6 +2068,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286982, // Unearthed Barrier
 		[
 			"Deals 22 Nature damage every time you block. Damage is doubled in swamps.", // 1324685 - https://www.wowhead.com/forever/spell=1324685
+		]
+	],
+	[
+		286998, // Deep Flora Bindings
+		[
+			"Underwater Breath lasts 25% longer than normal.", // 1324752 - https://www.wowhead.com/forever/spell=1324752
 		]
 	],
 	[

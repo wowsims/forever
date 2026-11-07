@@ -598,6 +598,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-HandofJustice-11815"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Haruspex'sGarb"
  value: {
   dps: 800.38347
@@ -734,6 +742,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 936.04101
+  tps: 946.78254
+  dtps: 5.01139
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Magister'sRegalia"
  value: {
   dps: 798.94882
@@ -814,11 +830,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-RuneofMetamorphosis-19340"
  value: {
   dps: 869.82454
   tps: 880.96527
   dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-SecondWind-11819"
+ value: {
+  dps: 873.65957
+  tps: 885.90471
+  dtps: 5.318
  }
 }
 dps_results: {

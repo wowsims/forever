@@ -526,6 +526,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-HandofJustice-11815"
+ value: {
+  dps: 624.75238
+  tps: 443.57419
+  hps: 54.03583
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-HanzoSword-8190"
  value: {
   dps: 616.1613
@@ -678,6 +686,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Renataki'sCharmofTrickery-19954"
  value: {
   dps: 609.16267
@@ -699,6 +715,14 @@ dps_results: {
   dps: 608.76975
   tps: 432.22652
   hps: 52.25667
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SecondWind-11819"
+ value: {
+  dps: 608.67846
+  tps: 432.16171
+  hps: 52.49389
  }
 }
 dps_results: {

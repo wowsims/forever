@@ -599,6 +599,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-HandofJustice-11815"
+ value: {
+  dps: 722.01848
+  tps: 680.28244
+  dtps: 8.97714
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-HeartoftheScale-13164"
  value: {
   dps: 722.01848
@@ -799,11 +807,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 722.01848
+  tps: 680.28244
+  dtps: 8.97714
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Ravager-7717"
  value: {
   dps: 731.10396
   tps: 689.13067
   dtps: 8.94964
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SecondWind-11819"
+ value: {
+  dps: 732.61162
+  tps: 690.20265
+  dtps: 8.262
  }
 }
 dps_results: {

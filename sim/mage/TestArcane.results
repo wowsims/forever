@@ -468,6 +468,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-HandofJustice-11815"
+ value: {
+  dps: 724.42309
+  tps: 623.95297
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-HanzoSword-8190"
  value: {
   dps: 769.29015
@@ -542,6 +549,13 @@ dps_results: {
  value: {
   dps: 724.42309
   tps: 623.95297
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-LordSakrasis'Scepter-5028"
+ value: {
+  dps: 801.42297
+  tps: 697.17296
  }
 }
 dps_results: {
@@ -622,10 +636,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 724.42309
+  tps: 623.95297
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-RobeoftheArchmage-14152"
  value: {
   dps: 776.83825
   tps: 667.57731
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-SecondWind-11819"
+ value: {
+  dps: 734.20927
+  tps: 633.36775
  }
 }
 dps_results: {

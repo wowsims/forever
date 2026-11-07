@@ -143,6 +143,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
+	// https://www.wowhead.com/forever/spell=1325229
+	// unsupported: states no rate
+	// trigger 1325229 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1325229, BuffSpellID: 1325229, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 867, ItemName: "Gloves of Holy Might"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=13752
 	// unsupported: states no rate
@@ -265,6 +278,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Strike your ranged target with a Fire Blast for 28 Fire damage.
+	// https://www.wowhead.com/forever/spell=29644
+	// unsupported: states no rate
+	// trigger 29644 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29644, BuffSpellID: 29644, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 9412, ItemName: "Galgann's Fireblaster"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Chance on harmful spell cast to blast a target for 77 Fire damage.
 	// https://www.wowhead.com/forever/spell=18083
 	// unsupported: states no rate
@@ -285,6 +311,20 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1294339, BuffSpellID: 1294339, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 9477, ItemName: "The Chief's Enforcer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing
+	// 42 Nature damage to them. Will affect up to 4 targets.
+	// https://www.wowhead.com/forever/spell=13532
+	// unsupported: states no rate
+	// trigger 13532 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13532, BuffSpellID: 13532, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 9639, ItemName: "The Hand of Antu'sul"},
 	// })
 
 	// TODO: Manual implementation required
@@ -395,6 +435,45 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 11608, ItemName: "Dark Iron Pulverizer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Steals 49 life from target enemy. Deals 2 times as much damage to Undead.
+	// https://www.wowhead.com/forever/spell=16414
+	// unsupported: states no rate; the damage spell's row states no damage
+	// trigger 16414 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16414, BuffSpellID: 16414, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 11920, ItemName: "Wraith Scythe"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Dying heals all party members within 40 yds for 1176.
+	// https://www.wowhead.com/forever/spell=1300891
+	// unsupported: ProcTypeMask DEATH; no callback in the proc mask; the heal lands on implicit target 22, not the wearer
+	// trigger 1300890 (every time, core.CallbackEmpty, core.ProcMaskUnknown) -> buff 1300891
+	// shared.NewSpellDataHealProc(shared.SpellDataProc{TriggerSpellID: 1300890, BuffSpellID: 1300891},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 11923, ItemName: "The Hammer of Grace"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.
+	// https://www.wowhead.com/forever/spell=10370
+	// unsupported: states no rate
+	// trigger 10370 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 10370, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 12469, ItemName: "Mutilator"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2146,6 +2225,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.
+	// https://www.wowhead.com/forever/spell=1294065
+	// unsupported: states no rate
+	// trigger 1294064 (no stated rate, core.CallbackOnHealDealt, core.ProcMaskSpellHealing) -> buff 1294065
+	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1294064, BuffSpellID: 1294065},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 274430, ItemName: "Rock Sentinel Slicer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.
 	// https://www.wowhead.com/forever/spell=1295065
 	// unsupported: the damage spell's row states no damage
@@ -2482,6 +2574,14 @@ func RegisterAllProcs() {
 			{ItemID: 2825, ItemName: "Bow of Searing Arrows"},
 		})
 
+	// Smite your target with the power of the holy spring, inflicting 56 Holy damage.
+	// https://www.wowhead.com/forever/spell=1312330
+	// trigger 1326019 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 1312330
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1326019, BuffSpellID: 1312330},
+		[]shared.ItemVariant{
+			{ItemID: 5028, ItemName: "Lord Sakrasis' Scepter"},
+		})
+
 	// Heals wielder of 78 damage over 12s.
 	// https://www.wowhead.com/forever/spell=8348
 	// trigger 8348 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -2537,6 +2637,15 @@ func RegisterAllProcs() {
 	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 8397, BuffSpellID: 10368},
 		[]shared.ItemVariant{
 			{ItemID: 11302, ItemName: "Uther's Strength"},
+		})
+
+	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to activate
+	// this effect.
+	// https://www.wowhead.com/forever/spell=15601
+	// trigger 15600 (3%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15601
+	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 15600, BuffSpellID: 15601},
+		[]shared.ItemVariant{
+			{ItemID: 11815, ItemName: "Hand of Justice"},
 		})
 
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
@@ -2904,4 +3013,6 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=1294646
 	// Not simulated: Field Agent Beverage: "Resist Charm 06" (1297455) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1297455
+	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 32
+	// https://www.wowhead.com/forever/spell=1314065
 }

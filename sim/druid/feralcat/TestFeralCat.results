@@ -542,6 +542,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-HandofJustice-11815"
+ value: {
+  dps: 793.31758
+  tps: 588.15214
+  hps: 47.71556
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Haruspex'sGarb"
  value: {
   dps: 691.25905
@@ -750,10 +758,26 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-RuneofMetamorphosis-19340"
  value: {
   dps: 780.33933
   tps: 574.9967
+  hps: 46.5125
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-SecondWind-11819"
+ value: {
+  dps: 780.33933
+  tps: 579.42443
   hps: 46.5125
  }
 }

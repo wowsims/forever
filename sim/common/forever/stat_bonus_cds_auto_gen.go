@@ -28,6 +28,8 @@ func RegisterAllOnUseCds() {
 	// unsupported: 14537 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(7734) // Six Demon Bag - https://www.wowhead.com/forever/spell=14537
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
+	// shared.NewSimpleStatActive(9404) // Olaf's All Purpose Shield - https://www.wowhead.com/forever/spell=12438
+	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
 	// shared.NewSimpleStatActive(10518) // Parachute Cloak - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(10588) // Goblin Rocket Helmet - https://www.wowhead.com/forever/spell=22641
@@ -35,6 +37,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(10724) // Gnomish Rocket Boots - https://www.wowhead.com/forever/spell=13141
 	// unsupported: 13180 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(10726) // Gnomish Mind Control Cap - https://www.wowhead.com/forever/spell=13180
+	// unsupported: 1300754 deals no damage and heals no one (A_MOD_CHARM)
+	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
 	// on use: 18386 (E_HEAL)
 	// unsupported: the heal lands on implicit target 5, not the wearer
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
@@ -110,6 +114,9 @@ func RegisterAllOnUseCds() {
 
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
+
+	// Agility / Stamina / Strength
+	shared.NewSimpleStatActive(15873) // Ragged John's Neverending Cup - https://www.wowhead.com/forever/spell=20587
 
 	// ArcaneResistance / FireResistance / FrostResistance / NatureResistance / ShadowResistance
 	shared.NewSimpleStatActive(23042) // Loatheb's Reflection - https://www.wowhead.com/forever/spell=28778
@@ -238,6 +245,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(4264) // Barbaric Belt - https://www.wowhead.com/forever/spell=9174
 	// on use: 9253 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(7515) // Celestial Orb - https://www.wowhead.com/forever/spell=9253
+	// on use: 15604 (A_PERIODIC_ENERGIZE)
+	shared.NewSpellDataEnergizeOnUse(11819) // Second Wind - https://www.wowhead.com/forever/spell=15604
 	// on use: 18385 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(14152) // Robe of the Archmage - https://www.wowhead.com/forever/spell=18385
 	// on use: 24571 (E_ENERGIZE)
