@@ -558,6 +558,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-GirdleofExtractedAnswers-276742"
+ value: {
+  dps: 927.71325
+  tps: 756.30241
+  dtps: 4.74017
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-GirdleofReprisal-11861"
  value: {
   dps: 927.35103
@@ -621,6 +630,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-HandofJustice-11815"
+ value: {
+  dps: 937.99154
+  tps: 764.77608
+  dtps: 5.06444
+  hps: 26.68699
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-HeartoftheScale-13164"
  value: {
   dps: 909.25298
@@ -654,6 +672,15 @@ dps_results: {
   tps: 655.56955
   dtps: 6.38873
   hps: 25.366
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-IronShieldSpike-43"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
  }
 }
 dps_results: {
@@ -855,6 +882,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 910.97887
@@ -945,6 +981,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 909.25298
+  tps: 740.99828
+  dtps: 4.2114
+  hps: 25.97583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Ravager-7717"
  value: {
   dps: 934.99769
@@ -960,6 +1005,15 @@ dps_results: {
   tps: 751.86857
   dtps: 5.44525
   hps: 26.22763
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SecondWind-11819"
+ value: {
+  dps: 911.30815
+  tps: 743.33999
+  dtps: 3.10696
+  hps: 25.97583
  }
 }
 dps_results: {
@@ -1167,6 +1221,15 @@ dps_results: {
   tps: 753.36086
   dtps: 4.59652
   hps: 26.72003
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ThoriumShieldSpike-1704"
+ value: {
+  dps: 906.65079
+  tps: 739.36074
+  dtps: 4.52656
+  hps: 26.72868
  }
 }
 dps_results: {

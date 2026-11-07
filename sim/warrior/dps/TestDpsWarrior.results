@@ -621,6 +621,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-HandofJustice-11815"
+ value: {
+  dps: 553.44512
+  tps: 477.74359
+  dtps: 2.96131
+  hps: 43.14056
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-HanzoSword-8190"
  value: {
   dps: 531.49205
@@ -649,6 +658,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-HibernationCrystal-20636"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-IronShieldSpike-43"
  value: {
   dps: 531.49205
   tps: 458.14223
@@ -756,6 +774,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-MithrilShieldSpike-463"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-MoltenHeartoftheMountain-249470"
  value: {
   dps: 535.99193
@@ -828,6 +855,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-RaggedJohn'sNeverendingCup-15873"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Ravager-7717"
  value: {
   dps: 531.49205
@@ -852,6 +888,15 @@ dps_results: {
   tps: 458.79239
   dtps: 2.96131
   hps: 41.98833
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-SecondWind-11819"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
  }
 }
 dps_results: {
@@ -1018,6 +1063,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestDpsWarrior-AllItems-TheRestrainedEssenceofSapphiron-23046"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-ThoriumShieldSpike-1704"
  value: {
   dps: 531.49205
   tps: 458.14223

@@ -259,7 +259,7 @@ func damageUnsupported(damage *spelldata.Spell) []string {
 	switch {
 	case damage == spelldata.Nil:
 		return []string{"the damage spell has no row in the store"}
-	case damage.DamageEffect() != spelldata.NilEffect:
+	case damage.ProcDamageEffect() != spelldata.NilEffect:
 		return nil
 	case periodic == spelldata.NilEffect:
 		return []string{"the damage spell's row states no damage"}
@@ -2083,14 +2083,19 @@ var damageTriggerMatcher = regexp.MustCompile(`(?i)\bdamaging\b|\bdamage (or hea
 var hasHealMatcher = regexp.MustCompile(`heal(ing)?[^,]`)
 var hasGenericMatcher = regexp.MustCompile(`a spell`)
 
-// A trigger condition stated as an attack outcome. Deliberately matches the condition clause rather
-// than the words themselves: "increases your dodge rating" is a stat on hundreds of items, while
-// "when one of your spells is resisted" is a trigger. "After a block" is the third clause the
-// game files use, on the Battlegear of Wrath parry (23548); "after you dodge" is not in here because
-// the only rows wording it that way are Counterattack's, where it gates the button rather than a
-// proc. A miss is not in here either: the one row naming one, 456394, means its own attack missing
-// rather than an attack on it.
-var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (block|dodge|parry)|after a (block|dodge|parry)`)
+// A trigger condition stated as an attack outcome the mask has no bit for. Deliberately matches the
+// condition clause rather than the words themselves: "increases your dodge rating" is a stat on
+// hundreds of items, while "when one of your spells is resisted" is a trigger. "After you dodge" is
+// not in here because the only rows wording it that way are Counterattack's, where it gates the
+// button rather than a proc. A miss is not in here either: the one row naming one, 456394, means its
+// own attack missing rather than an attack on it.
+var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (dodge|parry)|after a (dodge|parry)`)
+
+// The wearer blocking, named as the trigger: "every time you block", and "after a block" on the
+// Battlegear of Wrath parry (23548). The decoder gives the listener the block off the row, while a
+// dodge or a parry taken stays the caller's, so the block is its own hint. A clause naming a dodge or
+// a parry beside the block would read as the block alone; no row words one that way.
+var blockConditionMatcher = regexp.MustCompile(`(?i)((each|every) time|when|whenever) you block|after a block`)
 
 // The wearer's own attack dodged or parried, named as the trigger: Recovery's "when you are Parried
 // or Dodged". The same words also state a magnitude - "reduces the chance for your attacks to be
@@ -2206,6 +2211,9 @@ func procTooltipHints(tooltip string) core.ProcHint {
 	if outcomeConditionMatcher.MatchString(tooltip) {
 		hints |= core.ProcHintOutcomeTaken
 	}
+	if blockConditionMatcher.MatchString(tooltip) {
+		hints |= core.ProcHintBlocked
+	}
 
 	hints |= attackAvoidedHints(tooltip)
 
@@ -2315,7 +2323,7 @@ func buildSpellProcInfo(procSpell *dbc.Spell, tooltip string, itemType proto.Ite
 	// condition is the only evidence there is. Eye of Magtheridon fires on a resisted spell, and
 	// without this it generates as a 100%-per-cast buff. Crit is deliberately not in here: it is the
 	// one outcome the generated shape can express, and critMatcher below assigns it.
-	if outcomeConditionMatcher.MatchString(tooltip) {
+	if outcomeConditionMatcher.MatchString(tooltip) || blockConditionMatcher.MatchString(tooltip) {
 		return info, false
 	}
 

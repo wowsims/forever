@@ -635,6 +635,26 @@ func TestAttackAvoidedWording(t *testing.T) {
 	}
 }
 
+// A block the wearer makes is named on its own; a resist, a dodge or a parry taken is an outcome the
+// mask has no bit for, and a block's magnitude names no trigger.
+func TestProcTooltipHintsNameTheBlock(t *testing.T) {
+	const outcomes = core.ProcHintBlocked | core.ProcHintOutcomeTaken
+	for _, tc := range []struct {
+		want core.ProcHint
+		text string
+		why  string
+	}{
+		{core.ProcHintBlocked, "Attaches a Thorium Spike to your shield that deals damage every time you block with it.", "Thorium Shield Spike's grant"},
+		{core.ProcHintOutcomeTaken, "When you dodge an attack, gain 10 rage.", "a dodge taken"},
+		{core.ProcHintOutcomeTaken, "Heals you when a harmful spell is resisted.", "a resist"},
+		{0, "Increases your chance to block by $s1%.", "a magnitude"},
+	} {
+		if got := procTooltipHints(tc.text) & outcomes; got != tc.want {
+			t.Errorf("hint = %q, want %q for %s:\n  %s", formatProcHint(got), formatProcHint(tc.want), tc.why, tc.text)
+		}
+	}
+}
+
 // An enchant whose equip spell names a melee weapon subset registers the spell as an equip aura, kept
 // up while the enchant is worn. 430391 (Hit Weapon +2) states A_MOD_HIT_CHANCE on the melee weapons
 // but not spears, which no enchant stat can hold; its row is freed of its area group for the test. An
