@@ -243,7 +243,9 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// An outcome the listener can be given. The crit hint names one, the block hint names the hit
 	// taken that the wearer blocked, and so do the two naming the wearer's own attack dodged or
 	// parried: the mask itself states which hits arrive, never how they resolved, so everything else
-	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome.
+	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome. A
+	// clause naming a dodge or a parry beside the block carries ProcHintOutcomeTaken too, and that
+	// wider outcome stays the caller's.
 	switch {
 	case info.Callback.Matches(CallbackOnCastComplete):
 		info.Outcome = OutcomeEmpty

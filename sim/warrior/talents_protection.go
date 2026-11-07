@@ -78,8 +78,9 @@ func (warrior *Warrior) registerShieldSpecialization() {
 // effect ladder the tooltip's $m names, and the 100 in the proc chance column is noise; the
 // energize the triggered spell states is on the game files' 0-1000 rage bar.
 //
-// No proc mask states an outcome, so which of the three it is stays the caller's; that the hit
-// carries no damage is the row's, off its outcome hint.
+// No proc mask states an outcome. A block comes off the row's block hint, which the decoder reads as
+// the outcome; a dodge or a parry is the caller's. That the hit carries no damage is the row's either
+// way, off its outcome hint.
 func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) *core.ResourceMetrics {
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})

@@ -130,8 +130,7 @@ func rowClassFlags(s *Spell) core.ClassFlags {
 	for i := range s.Effects {
 		e := &s.Effects[i]
 
-		if e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY ||
-			e.Aura == dbcenums.A_PROC_TRIGGER_DAMAGE || e.Aura == dbcenums.A_DUMMY {
+		if e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY || e.Aura == dbcenums.A_DUMMY {
 			if !e.ClassFlags.IsZero() {
 				return e.ClassFlags
 			}

@@ -73,54 +73,6 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
 }
 
-// Aegis of the Scarlet Commander 7726's 1293539 deals its row's Holy roll to the attacker of a melee
-// hit the wearer blocks, at most once per the row's RecoveryTime; a hit not blocked deals nothing.
-func TestAegisOfTheScarletCommanderDealsHolyDamageOnBlock(t *testing.T) {
-	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 7726)
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
-	enemy := sim.Encounter.ActiveTargetUnits[0]
-	retribution := character.GetSpell(core.ActionID{SpellID: 1293539})
-	if retribution == nil {
-		t.Fatal("7726 registers no damage spell")
-	}
-	row := spelldata.MustFind(1293539)
-	damage := row.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
-	lockout := row.Cooldown()
-	if lockout <= 0 {
-		t.Fatalf("1293539 states no RecoveryTime")
-	}
-
-	takeHit(t, sim, character, meleeSwing(enemy))
-	if got := retribution.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
-		t.Errorf("a hit not blocked cast the damage %d times, want none", got)
-	}
-
-	block := func() {
-		character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit | core.OutcomeBlock, Damage: 50})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
-	}
-	firstBlock := sim.CurrentTime
-	block()
-	metrics := retribution.SpellMetrics[enemy.UnitIndex]
-	if metrics.Casts != 1 || !damageInRange(metrics, damage) {
-		t.Errorf("a block cast the damage %d times for %v, want once for %v to %v", metrics.Casts, metrics.TotalDamage, damage.Min(), damage.Max())
-	}
-	block()
-	if got := retribution.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("a second block at once cast the damage %d times in all, want once still", got)
-	}
-	stepTo(t, sim, firstBlock+lockout-core.SpellBatchWindow)
-	block()
-	if got := retribution.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("a block just inside the row's %v cast the damage %d times in all, want once still", lockout, got)
-	}
-	stepTo(t, sim, firstBlock+lockout)
-	block()
-	if got := retribution.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
-		t.Errorf("a block the row's %v after the first cast the damage %d times in all, want 2", lockout, got)
-	}
-}
-
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and
 // nothing on a spell; a wearer without mana registers nothing.
 func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {
@@ -352,16 +304,19 @@ func TestArathiLeatherBonusesActivateAtTheirPieceCounts(t *testing.T) {
 // A row that deals its damage off its own trigger, read from the generated registrations: the
 // A_PROC_TRIGGER_DAMAGE roll lands on the attacker of a melee hit the wearer blocks, once per the
 // row's RecoveryTime, and a hit not blocked deals nothing. Girdle of Extracted Answers 276742 carries
-// 1308777 on an item, Thorium Shield Spike 1704 carries 16624 on an enchant.
+// 1308777 on an item and Thorium Shield Spike 1704 carries 16624 on an enchant, both Physical; Aegis
+// of the Scarlet Commander 7726's 1293539 is Holy and rolls on the spell table.
 func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 	for _, tc := range []struct {
-		name    string
-		equip   *proto.ItemSpec
-		slot    proto.ItemSlot
-		spellID int32
+		name      string
+		equip     *proto.ItemSpec
+		slot      proto.ItemSlot
+		spellID   int32
+		hit, crit stats.Stat
 	}{
-		{"Girdle of Extracted Answers", &proto.ItemSpec{Id: 276742}, proto.ItemSlot_ItemSlotWaist, 1308777},
-		{"Thorium Shield Spike on Shard of the Splithooves", &proto.ItemSpec{Id: 10659, Enchant: 1704}, proto.ItemSlot_ItemSlotOffHand, 16624},
+		{"Girdle of Extracted Answers", &proto.ItemSpec{Id: 276742}, proto.ItemSlot_ItemSlotWaist, 1308777, stats.PhysicalHitPercent, stats.PhysicalCritPercent},
+		{"Thorium Shield Spike on Shard of the Splithooves", &proto.ItemSpec{Id: 10659, Enchant: 1704}, proto.ItemSlot_ItemSlotOffHand, 16624, stats.PhysicalHitPercent, stats.PhysicalCritPercent},
+		{"Aegis of the Scarlet Commander", &proto.ItemSpec{Id: 7726}, proto.ItemSlot_ItemSlotOffHand, 1293539, stats.SpellHitPercent, stats.SpellCritPercent},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
@@ -370,7 +325,10 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 			}
 			items[tc.slot] = tc.equip
 			sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items})
-			character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
+			bonus := stats.Stats{}
+			bonus[tc.hit] = 100
+			bonus[tc.crit] = -character.GetStat(tc.crit)
+			character.AddStatsDynamic(sim, bonus)
 			enemy := sim.Encounter.ActiveTargetUnits[0]
 			spike := character.GetSpell(core.ActionID{SpellID: tc.spellID})
 			if spike == nil {
@@ -400,7 +358,12 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 			}
 			block()
 			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-				t.Errorf("a second block inside the row's %v cast the damage %d times in all, want once still", lockout, got)
+				t.Errorf("a second block at once cast the damage %d times in all, want once still", got)
+			}
+			stepTo(t, sim, firstBlock+lockout-core.SpellBatchWindow)
+			block()
+			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+				t.Errorf("a block just inside the row's %v cast the damage %d times in all, want once still", lockout, got)
 			}
 			stepTo(t, sim, firstBlock+lockout)
 			block()

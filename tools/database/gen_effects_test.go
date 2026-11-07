@@ -650,6 +650,7 @@ func TestProcTooltipHintsNameTheBlock(t *testing.T) {
 		{core.ProcHintOutcomeTaken, "When you dodge an attack, gain 10 rage.", "a dodge taken"},
 		{core.ProcHintOutcomeTaken, "Heals you when a harmful spell is resisted.", "a resist"},
 		{core.ProcHintBlocked | core.ProcHintOutcomeTaken, "Whenever you block or whenever you parry, gain 5 rage.", "two clauses, one of each"},
+		{core.ProcHintBlocked | core.ProcHintOutcomeTaken, "When you block, dodge or parry an attack, gain 5 rage.", "one clause naming all three"},
 		{0, "Increases your chance to block by $s1%.", "a magnitude"},
 	} {
 		if got := procTooltipHints(tc.text) & outcomes; got != tc.want {

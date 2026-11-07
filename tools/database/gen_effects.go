@@ -2090,17 +2090,20 @@ var hasGenericMatcher = regexp.MustCompile(`a spell`)
 // the only rows wording it that way are Counterattack's, where it gates the button rather than a
 // proc. A miss is not in here either: the one row naming one, 456394, means its own attack missing
 // rather than an attack on it.
-var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (block|dodge|parry)|after a (block|dodge|parry)`)
-var blockConditionMatcher = regexp.MustCompile(`(?i)block`)
+var outcomeConditionMatcher = regexp.MustCompile(`(?i)when .{0,60}?(is|are) resisted|((each|every) time|when|whenever) you (block|dodge|parry)((,? or|,) (block|dodge|parry))*|after a (block|dodge|parry)`)
+var blockOutcomeMatcher = regexp.MustCompile(`(?i)\bblock`)
+var takenOutcomeMatcher = regexp.MustCompile(`(?i)\bdodge|\bparry|resisted`)
 
-// The outcome a trigger clause states. A block is an outcome the listener can be given, so it is
-// named on its own; a resist, a dodge or a parry taken is not.
+// The outcomes a trigger clause states. A block is an outcome the listener can be given, so it is
+// named on its own; a resist, a dodge or a parry taken is not, and a clause naming one beside a
+// block carries both hints.
 func outcomeConditionHints(tooltip string) core.ProcHint {
 	var hints core.ProcHint
 	for _, clause := range outcomeConditionMatcher.FindAllString(tooltip, -1) {
-		if blockConditionMatcher.MatchString(clause) {
+		if blockOutcomeMatcher.MatchString(clause) {
 			hints |= core.ProcHintBlocked
-		} else {
+		}
+		if takenOutcomeMatcher.MatchString(clause) {
 			hints |= core.ProcHintOutcomeTaken
 		}
 	}

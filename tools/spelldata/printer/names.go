@@ -350,6 +350,7 @@ func procHintNames(hint core.ProcHint) []string {
 		{core.ProcHintAttackDodged, "own attack dodged"},
 		{core.ProcHintAttackParried, "own attack parried"},
 		{core.ProcHintDamage, "damaging spells only"},
+		{core.ProcHintBlocked, "on a block"},
 	} {
 		if hint.Matches(h.bit) {
 			out = append(out, h.name)
