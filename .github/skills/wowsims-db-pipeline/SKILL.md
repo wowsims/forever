@@ -139,7 +139,8 @@ Reading another table once, what the tables hold and how a script reads them: `r
 
 ## Traps
 
-- `MIN_EFFECT_ILVL = 40` in `tools/database/gen_effects.go` drops chance-on-hit items below item level 40 (Bloodpike).
+- `core.MinEffectItemLevel = 40` in `sim/core/item_effects.go` drops chance-on-hit items below item level 40 (Bloodpike),
+  and the class suites' AllItems tests skip every item below it, hand-written effects included.
 - `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.

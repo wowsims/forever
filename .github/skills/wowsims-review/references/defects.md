@@ -82,8 +82,9 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **A flat weapon bonus is added before the weapon percent.** Ravage 9867 states +98 and 350%, and its
   tooltip reads "350% damage plus 343", which is 98 x 3.5. Shred, Ravage and Claw added the flat bonus
   after the multiplier and lost 44, 245 and 11.5 per hit.
-- **Lacerate** ticked for the row's 15 at every stack count, and priced its direct hit on the count after
-  the new application, where the tooltip says "per existing application".
+- **Lacerate** ticked for the row's 15 at every stack count. Its direct hit counts the stacks after the new
+  application, though the tooltip says "per existing application": in game the first Lacerate hits, and hits grow
+  1:2:3:4:5 with the stacks.
 - **Rupture 11275:** effect 1's `PointsPerResource` 4.73 was dropped, so a 5-point Rupture ticked for 35
   instead of 58.65 before attack power.
 - **Furor:** the energy counted every second out of Cat Form, bear time included, and capped at maximum

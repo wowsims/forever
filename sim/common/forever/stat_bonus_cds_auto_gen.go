@@ -12,6 +12,8 @@ func RegisterAllOnUseCds() {
 	//
 	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
 	// shared.NewSimpleStatActive(1404) // Tidal Charm - https://www.wowhead.com/forever/spell=835
+	// unsupported: 1300364 deals no damage and heals no one (A_MOD_DETECTED_RANGE)
+	// shared.NewSimpleStatActive(1490) // Guardian Talisman - https://www.wowhead.com/forever/spell=1300364
 	// unsupported: 14530 deals no damage and heals no one (A_MOD_INCREASE_SPEED)
 	// shared.NewSimpleStatActive(2820) // Nifty Stopwatch - https://www.wowhead.com/forever/spell=14530
 	// unsupported: 1317740 deals no damage and heals no one (E_DUMMY)
@@ -36,6 +38,8 @@ func RegisterAllOnUseCds() {
 	// on use: 18386 (E_HEAL)
 	// unsupported: the heal lands on implicit target 5, not the wearer
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
+	// unsupported: 21954 deals no damage and heals no one (E_DISPEL)
+	// shared.NewSimpleStatActive(17744) // Heart of Noxxion - https://www.wowhead.com/forever/spell=21954
 	// on use: 1287808 (A_SCHOOL_ABSORB); not simulated: A_DUMMY
 	// unsupported: the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list
 	// shared.NewSpellDataAbsorbOnUse(18406) // Onyxia Blood Talisman - https://www.wowhead.com/forever/spell=1287808
@@ -63,6 +67,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(269741) // Scented Runewood Brooch - https://www.wowhead.com/forever/spell=1296664
 	// unsupported: 1295272 deals no damage and heals no one (E_TRIGGER_MISSILE)
 	// shared.NewSimpleStatActive(274761) // Parachute-Priest Pager - https://www.wowhead.com/forever/spell=1295272
+	// unsupported: 1315972 deals no damage and heals no one (A_MOD_STUN, A_MOD_STUN, A_DUMMY)
+	// shared.NewSimpleStatActive(275009) // Emblem of Slamming - https://www.wowhead.com/forever/spell=1315972
 	// unsupported: 1296564 deals no damage and heals no one (A_MOD_STUN)
 	// shared.NewSimpleStatActive(275347) // Lichbane - https://www.wowhead.com/forever/spell=1296564
 	// unsupported: 1297762 deals no damage and heals no one (A_FEATHER_FALL)
@@ -182,6 +188,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataPeriodicDamageOnUse(14134) // Cloak of Fire - https://www.wowhead.com/forever/spell=18364
 	// on use: 26789 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataDamageOnUse(21891) // Shard of the Fallen Star - https://www.wowhead.com/forever/spell=26789
+	// on use: 1295039 (E_SCHOOL_DAMAGE, A_PERIODIC_DAMAGE); not simulated: E_NONE
+	shared.NewSpellDataDamageOnUse(274609) // Serpentbane Crown - https://www.wowhead.com/forever/spell=1295039
 	// on use: 1295270 (E_SCHOOL_DAMAGE); not simulated: E_NONE, E_NONE
 	shared.NewSpellDataDamageOnUse(274759) // Everlook Pathcarver - https://www.wowhead.com/forever/spell=1295270
 
@@ -242,14 +250,10 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(23027) // Warmth of Forgiveness - https://www.wowhead.com/forever/spell=28760
 
 	// Skipped
-	// Not simulated: Staff of Conjuring: "Conjure Food" (8736) - ignored effect type 24
-	// https://www.wowhead.com/forever/spell=8736
 	// Not simulated: Orb of Deception: "Orb of Deception" (16739) - ignored aura type 56
 	// https://www.wowhead.com/forever/spell=16739
-	// Not simulated: Spider Belt: "Immune Root" (9774) - ignored aura type 77
-	// https://www.wowhead.com/forever/spell=9774
-	// Not simulated: Enchanted Moonstalker Cloak: "Form of the Moonstalker" (6298) - ignored aura type 56
-	// https://www.wowhead.com/forever/spell=6298
+	// Not simulated: Dog Whistle: "Summon Tracking Hound" (9515) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=9515
 	// Not simulated: Ornate Mithril Boots: "Immune Root" (9774) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77

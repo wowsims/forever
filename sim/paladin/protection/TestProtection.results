@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 394.36099
+  tps: 951.05421
+  dtps: 344.04525
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DreadmistRaiment"
  value: {
   dps: 384.9272
@@ -1071,6 +1080,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 413.84276
+  tps: 985.29282
+  dtps: 343.95818
+  hps: 22.90889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 382.78458
+  tps: 910.23717
+  dtps: 353.66129
+  hps: 22.24806
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ShadowcraftArmor"
  value: {
   dps: 394.28718
@@ -1188,15 +1215,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-TenetsoftheSilverHand-249397"
- value: {
-  dps: 404.98878
-  tps: 961.04884
-  dtps: 344.42907
-  hps: 22.90889
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 409.83962
@@ -1256,6 +1274,15 @@ dps_results: {
   dps: 416.56198
   tps: 985.27435
   dtps: 345.35304
+  hps: 22.90889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 413.84276
+  tps: 985.29282
+  dtps: 343.95818
   hps: 22.90889
  }
 }

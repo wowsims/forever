@@ -504,6 +504,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-FieryWarAxe-870"
+ value: {
+  dps: 885.52405
+  tps: 921.87332
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 862.46283
@@ -564,15 +573,6 @@ dps_results: {
   tps: 905.49504
   dtps: 7.3847
   hps: 32.7875
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 881.5651
-  tps: 917.91437
-  dtps: 7.36706
-  hps: 33.07556
  }
 }
 dps_results: {
@@ -738,15 +738,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-PolishedDriftwoodIcon-249398"
- value: {
-  dps: 873.09446
-  tps: 909.17571
-  dtps: 7.55643
-  hps: 33.05861
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
   dps: 885.17326
@@ -756,12 +747,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Ravager-7717"
+ value: {
+  dps: 879.18973
+  tps: 915.53899
+  dtps: 7.36706
+  hps: 33.07556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-SerenityField-272439"
  value: {
   dps: 871.64558
   tps: 907.74363
   dtps: 7.32921
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 842.77689
+  tps: 878.34933
+  dtps: 7.35824
+  hps: 32.43167
  }
 }
 dps_results: {
@@ -931,15 +940,6 @@ dps_results: {
  value: {
   dps: 875.29107
   tps: 911.64033
-  dtps: 7.36706
-  hps: 33.07556
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-TotemofChargedFlames-263412"
- value: {
-  dps: 875.29107
-  tps: 911.62658
   dtps: 7.36706
   hps: 33.07556
  }

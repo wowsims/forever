@@ -213,6 +213,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
+ value: {
+  dps: 630.94327
+  tps: 417.03527
+  dtps: 0.1942
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 661.43752
@@ -329,6 +337,14 @@ dps_results: {
   dps: 644.67544
   tps: 424.17853
   dtps: 1.00781
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 637.6296
+  tps: 418.86553
+  dtps: 0.66687
  }
 }
 dps_results: {
@@ -548,6 +564,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-FieryWarAxe-870"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 653.65326
@@ -656,14 +680,6 @@ dps_results: {
  value: {
   dps: 661.43752
   tps: 436.97717
-  dtps: 0.69516
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-Graverobber'sShovel-273817"
- value: {
-  dps: 663.58296
-  tps: 438.75399
   dtps: 0.69516
  }
 }
@@ -820,14 +836,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-ManualCrowdPummeler-9449"
- value: {
-  dps: 664.3038
-  tps: 439.22341
-  dtps: 0.69516
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-MarkofResolution-17759"
  value: {
   dps: 657.43256
@@ -873,6 +881,14 @@ dps_results: {
   dps: 659.70135
   tps: 434.85063
   dtps: 0.75638
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Nightblade-1982"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
  }
 }
 dps_results: {
@@ -964,6 +980,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Ravager-7717"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Renataki'sCharmofBeasts-19953"
  value: {
   dps: 654.6558
@@ -991,6 +1015,22 @@ dps_results: {
   dps: 657.43256
   tps: 432.59591
   dtps: 0.46695
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SerpentbaneCrown-274609"
+ value: {
+  dps: 649.317
+  tps: 428.18705
+  dtps: 0.60863
  }
 }
 dps_results: {
@@ -1159,6 +1199,14 @@ dps_results: {
   dps: 657.43256
   tps: 432.79059
   dtps: 0.75638
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 661.43752
+  tps: 436.97717
+  dtps: 0.69516
  }
 }
 dps_results: {

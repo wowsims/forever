@@ -254,6 +254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-DreadfrostSaber-274603"
+ value: {
+  dps: 818.69167
+  tps: 646.95558
+  dtps: 10.0114
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-DreadmistRaiment"
  value: {
   dps: 802.40991
@@ -639,6 +647,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Nightblade-1982"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-OrbofFire-12805"
  value: {
   dps: 917.60389
@@ -676,6 +692,14 @@ dps_results: {
   dps: 942.44027
   tps: 744.04968
   dtps: 10.17164
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-SerpentSlicer-13035"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
  }
 }
 dps_results: {
@@ -783,6 +807,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-ThrashBlade-17705"
+ value: {
+  dps: 922.25197
+  tps: 726.77902
+  dtps: 10.51298
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Thunderbrew'sBootFlask-744"
  value: {
   dps: 921.64621
@@ -818,7 +850,7 @@ dps_results: {
  key: "TestDestruction-AllItems-VestmentsoftheDevout"
  value: {
   dps: 794.00146
-  tps: 627.66729
+  tps: 627.61173
   dtps: 9.88503
  }
 }

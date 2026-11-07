@@ -31,7 +31,7 @@ func init() {
 			druid.PrimalBite.CD.Reset()
 		})
 		trigger.Outcome = core.OutcomeLanded
-		// The first Lacerate hits for zero before it adds a stack, but still qualifies.
+		// TODO: Ingame test needed -- whether a fully absorbed Lacerate qualifies; the sim lets it.
 		trigger.RequireDamageDealt = false
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return druid.PrimalBite != nil && spellData.Lacerate.Contains(spell)

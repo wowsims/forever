@@ -13,6 +13,10 @@ type ApplyEffect func(Agent)
 var itemEffects = map[int32]ApplyEffect{}
 var enchantEffects = map[int32]ApplyEffect{}
 
+// The lowest item level whose effects the database generator writes, and where the AllItems tests start:
+// an effect hotfix on lower gear moves the .results files with no level 60 gear at stake.
+const MinEffectItemLevel = 40
+
 func HasItemEffect(id int32) bool {
 	_, ok := itemEffects[id]
 	return ok
