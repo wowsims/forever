@@ -99,15 +99,37 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 	return false
 }
 
+// An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
+// energy, read off the trigger alone the way FiredSpellUnsupported reads it: Idol of Longevity
+// 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer without that bar registers
+// no listener.
+func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
+	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
+}
+
+func registerSpellDataEnergizeProc(cfg SpellDataProc) {
+	refuses := func(trigger *spelldata.Spell) bool { return len(FiredSpellUnsupported(trigger)) > 0 }
+	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
+		character := agent.GetCharacter()
+		handler := FiredSpellHandler(character, source.actionID(), trigger)
+		if handler == nil {
+			return
+		}
+		config := spellDataProcListener(character, cfg, source, trigger)
+		config.Handler = handler
+		source.registerTrigger(character, config)
+	})
+}
+
 // Why the spell a proc row fires cannot be built, or nil where it can: the row states no effect
-// beside its proc, and the spell it fires puts mana, rage or energy into the wearer's bar at once or
-// changes the cooldown of one of the wearer's spell categories.
+// beside its proc, and the spell it fires (FiredSpell) puts mana, rage or energy into the wearer's
+// bar at once or changes the cooldown of one of the wearer's spell categories.
 func FiredSpellUnsupported(row *spelldata.Spell) []string {
 	var unsupported []string
 	if len(row.Effects) > 1 {
 		unsupported = append(unsupported, fmt.Sprintf("%d states effects beside its proc, which the listener leaves out", row.ID))
 	}
-	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	fired := row.FiredSpell()
 	gain, cooldown := fired.EnergizeEffect(), fired.CategoryCooldownEffect()
 
 	switch {
@@ -135,7 +157,7 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.
 func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell) core.ProcHandler {
-	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	fired := row.FiredSpell()
 	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
 		power := dbcenums.PowerType(gain.Misc)
 		bar, ok := energizedBarOf(character, power, actionID)

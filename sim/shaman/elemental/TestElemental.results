@@ -1087,6 +1087,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TotemofFlowingWater-23005"
+ value: {
+  dps: 714.17619
+  tps: 674.32764
+  dtps: 8.94964
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TotemofUrgency-279249"
  value: {
   dps: 714.17619

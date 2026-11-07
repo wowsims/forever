@@ -138,7 +138,7 @@ func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, wantUnsupported)
 		}
 
-		rated := routeProc(int(tc.spellID), int(tc.spellID), true, 1)
+		rated := routeProc(int(tc.spellID), int(tc.spellID), true, 1, 0)
 		rated.as(ShapeDamage, tc.spellID)
 		if !rated.Supported() {
 			t.Errorf("item %d at 1 PPM refused for %q, want registered", tc.itemID, rated.Unsupported)

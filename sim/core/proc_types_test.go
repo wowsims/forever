@@ -132,6 +132,14 @@ func TestDecodeProcTypeMask(t *testing.T) {
 			requireDamageDealt: true,
 		},
 		{
+			name:     "Idol of Longevity 28847, the helpful-spell bit alone with a cast tooltip",
+			mask:     [2]uint32{0x4000, 0},
+			hint:     ProcHintCastTrigger,
+			callback: CallbackOnCastComplete,
+			procMask: ProcMaskSpellHealing,
+			outcome:  OutcomeEmpty,
+		},
+		{
 			name:               "periodic damage taken",
 			mask:               [2]uint32{0x80000, 0},
 			callback:           CallbackOnPeriodicDamageTaken,

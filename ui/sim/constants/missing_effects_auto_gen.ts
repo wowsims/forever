@@ -1434,18 +1434,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		23004, // Idol of Longevity
-		[
-			"Gain up to 25 mana each time you cast Healing Touch.", // 28847 - https://www.wowhead.com/forever/spell=28847
-		]
-	],
-	[
-		23005, // Totem of Flowing Water
-		[
-			"Regain up to 10 mana each time you cast Lesser Healing Wave.", // 28849 - https://www.wowhead.com/forever/spell=28849
-		]
-	],
-	[
 		23282, // Knight-Lieutenant's Dreadweave Handwraps
 		[
 			"Gives you a 50% chance to avoid interruption caused by damage while casting Searing Pain.", // 23046 - https://www.wowhead.com/forever/spell=23046
