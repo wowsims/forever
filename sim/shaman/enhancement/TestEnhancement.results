@@ -524,8 +524,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 904.65085
-  tps: 937.06746
+  dps: 920.18197
+  tps: 952.59858
   dtps: 9.35756
   hps: 20.33333
  }
@@ -758,8 +758,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Nightfall-19169"
  value: {
-  dps: 974.90239
-  tps: 1006.33253
+  dps: 991.07734
+  tps: 1022.50748
   dtps: 8.40468
   hps: 20.70611
  }
@@ -794,8 +794,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 878.75314
-  tps: 910.24564
+  dps: 894.46344
+  tps: 925.95593
   dtps: 7.27566
   hps: 21.77361
  }
@@ -812,8 +812,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Ravager-7717"
  value: {
-  dps: 751.08922
-  tps: 778.01724
+  dps: 763.67164
+  tps: 790.59966
   dtps: 7.32847
   hps: 17.11389
  }
@@ -893,8 +893,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
-  dps: 1013.03166
-  tps: 1044.854
+  dps: 1028.46497
+  tps: 1060.28731
   dtps: 8.68696
   hps: 19.94361
  }
@@ -902,8 +902,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-SulfuronHammer-17193"
  value: {
-  dps: 955.37599
-  tps: 986.98885
+  dps: 970.85989
+  tps: 1002.47275
   dtps: 8.65249
   hps: 19.94361
  }

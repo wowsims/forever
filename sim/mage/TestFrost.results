@@ -75,13 +75,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFrost-AllItems-ArcaniteChampion-12790"
- value: {
-  dps: 674.64956
-  tps: 623.4495
- }
-}
-dps_results: {
  key: "TestFrost-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 706.8142
@@ -643,13 +636,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFrost-AllItems-Nightblade-1982"
- value: {
-  dps: 674.64956
-  tps: 623.4495
- }
-}
-dps_results: {
  key: "TestFrost-AllItems-OrbofFire-12805"
  value: {
   dps: 706.8142
@@ -850,13 +836,6 @@ dps_results: {
  value: {
   dps: 720.46568
   tps: 665.02258
- }
-}
-dps_results: {
- key: "TestFrost-AllItems-Witchfury-13051"
- value: {
-  dps: 674.64956
-  tps: 623.4495
  }
 }
 dps_results: {

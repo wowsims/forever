@@ -81,15 +81,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAffliction-AllItems-ArcaniteChampion-12790"
- value: {
-  dps: 610.63481
-  tps: 495.2525
-  dtps: 8.51105
-  hps: 7.23525
- }
-}
-dps_results: {
  key: "TestAffliction-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 659.87527
@@ -654,10 +645,10 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-ImplementsofUnspokenNames"
  value: {
-  dps: 679.86593
-  tps: 548.38044
-  dtps: 8.49402
-  hps: 7.27415
+  dps: 673.84378
+  tps: 541.39143
+  dtps: 8.43356
+  hps: 7.49483
  }
 }
 dps_results: {
@@ -799,15 +790,6 @@ dps_results: {
   tps: 533.78017
   dtps: 8.20889
   hps: 7.19695
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-Nightblade-1982"
- value: {
-  dps: 610.63481
-  tps: 495.2525
-  dtps: 8.51105
-  hps: 7.23525
  }
 }
 dps_results: {
@@ -1084,15 +1066,6 @@ dps_results: {
   tps: 541.62688
   dtps: 8.20497
   hps: 7.19695
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-Witchfury-13051"
- value: {
-  dps: 610.63481
-  tps: 495.2525
-  dtps: 8.51105
-  hps: 7.23525
  }
 }
 dps_results: {

@@ -75,13 +75,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestArcane-AllItems-ArcaniteChampion-12790"
- value: {
-  dps: 682.46091
-  tps: 588.89322
- }
-}
-dps_results: {
  key: "TestArcane-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 722.56431
@@ -643,13 +636,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestArcane-AllItems-Nightblade-1982"
- value: {
-  dps: 682.46091
-  tps: 588.89322
- }
-}
-dps_results: {
  key: "TestArcane-AllItems-OrbofFire-12805"
  value: {
   dps: 722.56431
@@ -850,13 +836,6 @@ dps_results: {
  value: {
   dps: 736.36104
   tps: 634.50162
- }
-}
-dps_results: {
- key: "TestArcane-AllItems-Witchfury-13051"
- value: {
-  dps: 682.46091
-  tps: 588.89322
  }
 }
 dps_results: {

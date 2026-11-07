@@ -92,8 +92,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ArcaniteChampion-12790"
  value: {
-  dps: 743.56911
-  tps: 767.02392
+  dps: 758.41538
+  tps: 781.87018
   dtps: 7.45809
   hps: 14.7925
  }
@@ -299,8 +299,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Darkspear-12802"
  value: {
-  dps: 734.77545
-  tps: 758.38813
+  dps: 750.04591
+  tps: 773.65858
   dtps: 7.45809
   hps: 14.91111
  }
@@ -623,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FieryWarAxe-870"
  value: {
-  dps: 745.2482
-  tps: 768.5181
+  dps: 760.15688
+  tps: 783.42678
   dtps: 7.14751
   hps: 14.80944
  }
@@ -731,8 +731,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GrimReaper-13054"
  value: {
-  dps: 712.08524
-  tps: 735.78556
+  dps: 726.95311
+  tps: 750.65343
   dtps: 7.86171
   hps: 14.89417
  }
@@ -947,8 +947,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Nightblade-1982"
  value: {
-  dps: 740.93959
-  tps: 764.33251
+  dps: 755.80964
+  tps: 779.20257
   dtps: 7.71753
   hps: 14.7925
  }
@@ -956,8 +956,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Nightfall-19169"
  value: {
-  dps: 768.85394
-  tps: 792.31009
+  dps: 783.99491
+  tps: 807.45105
   dtps: 7.45809
   hps: 14.7925
  }
@@ -1046,8 +1046,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Ravager-7717"
  value: {
-  dps: 657.09788
-  tps: 675.03905
+  dps: 670.02137
+  tps: 687.96254
   dtps: 4.10089
   hps: 12.70833
  }
@@ -1307,8 +1307,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Thunderstrike-17223"
  value: {
-  dps: 740.66477
-  tps: 764.29375
+  dps: 755.33354
+  tps: 778.96252
   dtps: 7.25148
   hps: 14.91111
  }
@@ -1370,8 +1370,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Witchfury-13051"
  value: {
-  dps: 701.79966
-  tps: 725.26716
+  dps: 716.10661
+  tps: 739.57411
   dtps: 7.34344
   hps: 14.7925
  }

@@ -81,15 +81,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ArcaniteChampion-12790"
- value: {
-  dps: 717.28698
-  tps: 610.12735
-  dtps: 10.64861
-  hps: 7.78527
- }
-}
-dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ArenaGrandMaster-19024"
  value: {
   dps: 763.56924
@@ -654,9 +645,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ImplementsofUnspokenNames"
  value: {
-  dps: 801.19409
-  tps: 682.2281
-  dtps: 11.06312
+  dps: 803.02377
+  tps: 678.15781
+  dtps: 11.06784
   hps: 7.82416
  }
 }
@@ -799,15 +790,6 @@ dps_results: {
   tps: 650.30181
   dtps: 10.30208
   hps: 7.8687
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Nightblade-1982"
- value: {
-  dps: 717.28698
-  tps: 610.12735
-  dtps: 10.64861
-  hps: 7.78527
  }
 }
 dps_results: {
@@ -1084,15 +1066,6 @@ dps_results: {
   tps: 655.6747
   dtps: 11.16141
   hps: 7.74339
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Witchfury-13051"
- value: {
-  dps: 717.28698
-  tps: 610.12735
-  dtps: 10.64861
-  hps: 7.78527
  }
 }
 dps_results: {
