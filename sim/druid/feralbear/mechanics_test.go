@@ -185,7 +185,7 @@ func TestFurorPreservesEnergyWhenStartingInABearForm(t *testing.T) {
 	}
 }
 
-func TestFirstLacerateHitsForNothing(t *testing.T) {
+func TestFirstLacerateHitsForItsOwnStack(t *testing.T) {
 	sim, bear := newBear(t)
 	target := bear.CurrentTarget
 	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
@@ -200,8 +200,8 @@ func TestFirstLacerateHitsForNothing(t *testing.T) {
 	if !bear.Lacerate.Dot(target).IsActive() {
 		t.Fatal("lacerate never landed")
 	}
-	if got := bear.Lacerate.SpellMetrics[target.UnitIndex].TotalDamage; got != 0 {
-		t.Errorf("the first lacerate dealt %v, want 0 with no stack already on the target", got)
+	if got := bear.Lacerate.SpellMetrics[target.UnitIndex].TotalDamage; got <= 0 {
+		t.Errorf("the first lacerate dealt %v, want damage for the stack it adds", got)
 	}
 }
 
