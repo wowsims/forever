@@ -179,12 +179,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
 	chance := arcaneConcentrationChance(mage)
-	var burn *core.Spell
-	for _, spell := range mage.Spellbook {
-		if spell.Matches(MageSpellFlamestrikeDot) {
-			burn = spell
-		}
-	}
+	burn := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID, Tag: 1})
 	if burn == nil {
 		t.Fatal("the mage has no Flamestrike burn spell")
 	}
