@@ -551,10 +551,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FistofStone-17943"
  value: {
-  dps: 516.22308
-  tps: 447.20762
+  dps: 517.19186
+  tps: 446.47284
   dtps: 2.96131
-  hps: 44.30972
+  hps: 43.63194
  }
 }
 dps_results: {

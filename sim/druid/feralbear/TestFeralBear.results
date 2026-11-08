@@ -579,10 +579,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FistofStone-17943"
  value: {
-  dps: 421.39542
-  tps: 1610.67131
-  dtps: 391.04034
-  hps: 81.99147
+  dps: 373.04351
+  tps: 1438.79008
+  dtps: 388.14093
+  hps: 78.85895
  }
 }
 dps_results: {

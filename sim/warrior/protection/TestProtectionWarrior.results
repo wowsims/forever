@@ -668,10 +668,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FistofStone-17943"
  value: {
-  dps: 410.71691
-  tps: 1338.15479
-  dtps: 289.51742
-  hps: 40.25778
+  dps: 413.20856
+  tps: 1350.43237
+  dtps: 288.7414
+  hps: 40.35944
  }
 }
 dps_results: {

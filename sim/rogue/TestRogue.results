@@ -448,8 +448,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FistofStone-17943"
  value: {
-  dps: 605.50619
-  tps: 429.90939
+  dps: 607.58535
+  tps: 431.3856
   hps: 52.42611
  }
 }
