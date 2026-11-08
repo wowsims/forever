@@ -112,6 +112,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		2243, // Hand of Edward the Odd
+		[
+			"Next spell cast within 4s will cast instantly.", // 18803 - https://www.wowhead.com/forever/spell=18803
+		]
+	],
+	[
 		2256, // Skeletal Club
 		[
 			"Sends a shadowy bolt at the enemy causing 30 Shadow damage.", // 13440 - https://www.wowhead.com/forever/spell=13440
