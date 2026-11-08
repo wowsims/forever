@@ -7,9 +7,10 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// TODO: In-game testing required. The rows state no attack power share; the Forever notes give the
-// damage traps 10% of ranged attack power over their whole duration, split evenly over the ticks and
-// read at each tick. Explosive Trap's initial hit takes the same 10% on top.
+// The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
+// attack power and its ticks take none. TODO: In-game testing required for Immolation Trap, which the
+// Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
+// each tick.
 const trapTotalAPShare = 0.10
 
 // TODO: In-game testing required. The game files carry no trap object, so its trigger radius and
@@ -82,7 +83,6 @@ func (hunter *Hunter) registerExplosiveTrap() {
 	// Effect 2 is a persistent area aura the resolvers do not read, so its dot is built here.
 	area := explosiveTrapEffectRank.EffectN(2)
 	numberOfTicks := int32(explosiveTrapEffectRank.Duration() / area.Period())
-	tickAPShare := trapTotalAPShare / float64(numberOfTicks)
 
 	config := spelldata.SpellConfig(&hunter.Unit, explosiveTrapEffectRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
@@ -100,8 +100,7 @@ func (hunter *Hunter) registerExplosiveTrap() {
 		TickLength:    area.Period(),
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			for _, target := range sim.Encounter.ActiveTargetUnits {
-				baseDamage := area.Average() + tickAPShare*dot.Spell.RangedAttackPower(target)
-				dot.Spell.CalcAndDealPeriodicDamage(sim, target, baseDamage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				dot.Spell.CalcAndDealPeriodicDamage(sim, target, area.Average(), explosiveTrapEffectRank.TickOutcome(dot))
 			}
 		},
 	}

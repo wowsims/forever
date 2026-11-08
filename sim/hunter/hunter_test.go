@@ -12,6 +12,7 @@ import (
 	_ "github.com/wowsims/forever/sim/common" // imported to get item effects included.
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -613,6 +614,123 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 	want := swing + hunter.AutoAttacks.RangedSwingSpeed() - hunter.ApplyRangedSpeed(core.RangedSwingWindup)
 	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
 		t.Errorf("after a melee swing at %v the next Auto Shot winds up at %v, want %v", swing, got, want)
+	}
+}
+
+// Volley's waves hit every enemy, one wave a tick of the cast row's periodic dummy, and cast speed
+// shortens the ticks while ranged haste does not.
+func TestVolleyWavesHitEveryEnemyOnCastSpeed(t *testing.T) {
+	player := &proto.Player{
+		Name:               "Volley",
+		Race:               proto.Race_RaceHighOrderSkyborne,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		TalentsString:      DefaultMMTalents,
+		Spec:               DefaultOptions,
+		Rotation:           &proto.APLRotation{},
+		DistanceFromTarget: 20,
+	}
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), core.NewDefaultTarget()}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	for i := 0; sim.CurrentTime < time.Second && i < 10000; i++ {
+		sim.Step()
+	}
+
+	volley := hunter.GetSpell(core.ActionID{SpellID: volleyRank.ID})
+	wave := hunter.GetSpell(core.ActionID{SpellID: volleyWaveRank.ID})
+	if volley == nil || wave == nil {
+		t.Fatal("the hunter has no Volley or no Volley wave")
+	}
+	period := volleyRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
+	hasted := hunter.ApplyCastSpeed(period).Round(time.Millisecond)
+	if hasted == period || hasted == hunter.ApplyRangedSpeed(period).Round(time.Millisecond) {
+		t.Fatalf("the hunter's cast speed (%v a tick) must differ from none and from its ranged haste", hasted)
+	}
+
+	if !volley.Cast(sim, hunter.CurrentTarget) {
+		t.Fatal("Volley could not be cast")
+	}
+	channel := volley.AOEDot()
+	if got := channel.TickPeriod(); got != hasted {
+		t.Errorf("Volley ticks every %v, want the row's %v at cast speed, %v", got, period, hasted)
+	}
+	for i := 0; channel.IsActive() && i < 100000; i++ {
+		sim.Step()
+	}
+
+	waves := int32(volleyRank.Duration() / period)
+	for _, target := range sim.Encounter.ActiveTargetUnits {
+		metrics := wave.SpellMetrics[target.UnitIndex]
+		if got := metrics.Hits + metrics.Crits + metrics.Misses; got != waves {
+			t.Errorf("%s took %d waves from a full Volley, want %d", target.Label, got, waves)
+		}
+	}
+}
+
+// Volley's channel holds Auto Shot while the swing timer keeps running: no shot winds up during the
+// channel, and a shot that came due winds up as the channel ends, run out or cut short.
+func TestVolleyHoldsAutoShotUntilTheChannelEnds(t *testing.T) {
+	player := &proto.Player{
+		Name:               "Hold",
+		Race:               proto.Race_RaceOrc,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		TalentsString:      DefaultMMTalents,
+		Spec:               DefaultOptions,
+		Rotation:           &proto.APLRotation{},
+		DistanceFromTarget: 20,
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	volley := hunter.GetSpell(core.ActionID{SpellID: volleyRank.ID})
+	if volley == nil {
+		t.Fatal("the hunter has no Volley")
+	}
+	channel := volley.AOEDot()
+
+	for _, cut := range []bool{false, true} {
+		shot := hunter.AutoAttacks.PreviousRangedAttack()
+		for i := 0; (hunter.AutoAttacks.PreviousRangedAttack() == shot || !hunter.GCD.IsReady(sim)) && i < 10000; i++ {
+			sim.Step()
+		}
+		start := sim.CurrentTime
+		if !volley.Cast(sim, hunter.CurrentTarget) {
+			t.Fatalf("Volley could not be cast at %v", start)
+		}
+		for i := 0; channel.IsActive() && i < 100000; i++ {
+			if cut && sim.CurrentTime >= start+hunter.AutoAttacks.RangedSwingSpeed() {
+				channel.Deactivate(sim)
+				break
+			}
+			sim.Step()
+		}
+		end := sim.CurrentTime
+		want := end + hunter.ApplyRangedSpeed(core.RangedSwingWindup)
+
+		held := hunter.AutoAttacks.PreviousRangedAttack()
+		if held > start {
+			t.Errorf("a shot fired at %v during the Volley from %v to %v", held, start, end)
+		}
+		for i := 0; hunter.AutoAttacks.PreviousRangedAttack() == held && i < 10000; i++ {
+			sim.Step()
+		}
+		if got := hunter.AutoAttacks.PreviousRangedAttack(); got != want {
+			t.Errorf("with the channel cut %v, a Volley from %v to %v let the next shot fire at %v, want %v", cut, start, end, got, want)
+		}
 	}
 }
 
