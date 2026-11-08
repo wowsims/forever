@@ -487,6 +487,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-FistofStone-17943"
+ value: {
+  dps: 720.29321
+  tps: 515.16481
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 748.45545

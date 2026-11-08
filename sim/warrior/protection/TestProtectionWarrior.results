@@ -666,6 +666,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-FistofStone-17943"
+ value: {
+  dps: 410.71691
+  tps: 1338.15479
+  dtps: 289.51742
+  hps: 40.25778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 434.2107

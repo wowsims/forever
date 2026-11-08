@@ -446,6 +446,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-FistofStone-17943"
+ value: {
+  dps: 605.50619
+  tps: 429.90939
+  hps: 52.42611
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 596.56469
