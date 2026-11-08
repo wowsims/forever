@@ -254,11 +254,10 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 
 	// The row's own proc flags say what spends a charge: every auto attack, in
 	// either hand, since the column's chance is the raid aura's roll. A missed
-	// swing spends one as a landed one does, and the sim counts a dodged or
-	// parried swing as missed. The hit that fired the proc spends none. The
-	// attack power stays until the charges are gone or the row's duration runs
-	// out.
-	// TODO: verify in game whether a dodged or parried auto spends a charge; the logs only show misses (8/8).
+	// swing spends one as a landed one does. The hit that fired the proc spends
+	// none. The attack power stays until the charges are gone or the row's
+	// duration runs out.
+	// TODO: a dodged or parried auto spends a charge here as a miss does; verify in game, the logs only show misses (8/8).
 	procAura.MaxStacks = int32(windfuryTotemSpell.ProcCharges)
 	spender := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		procAura.RemoveStack(sim)
@@ -296,9 +295,7 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// included, always rolls it. A landed hit rolls it whether or not it deals
 	// damage, Sunder Armor and a Rend application among them. The proc rolls
 	// off the hit's cast result and puts the attack power up with every charge;
-	// the hit's damage, rolled before the proc, does not gain it. The extra
-	// attack after it spends a charge, and the last one goes to the next auto
-	// in either hand, whether an auto or an ability fired the proc.
+	// the hit's damage, rolled before the proc, does not gain it.
 	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 		procSwing = nil
 		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
