@@ -34,6 +34,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		940, // Robes of Insight
+		[
+			"Reduces the Mana cost of all spells by 200 for 12s.", // 18820 - https://www.wowhead.com/forever/spell=18820
+		]
+	],
+	[
 		1265, // Scorpion Sting
 		[
 			"Poisons target for 13 Nature damage every 5.0 sec for 25s.", // 18208 - https://www.wowhead.com/forever/spell=18208
@@ -145,6 +151,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		2912, // Claw of the Shadowmancer
 		[
 			"Sends a shadowy bolt at the enemy causing 35 Shadow damage.", // 16409 - https://www.wowhead.com/forever/spell=16409
+		]
+	],
+	[
+		2915, // Taran Icebreaker
+		[
+			"Hurls a fiery ball that causes 300 Fire damage and an additional 100 damage over 8s.", // 16415 - https://www.wowhead.com/forever/spell=16415
 		]
 	],
 	[
@@ -666,6 +678,24 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10803, // Blade of the Wretched
+		[
+			"Corrupts the target, causing 90 damage over 3s.", // 18088 - https://www.wowhead.com/forever/spell=18088
+		]
+	],
+	[
+		10805, // Eater of the Dead
+		[
+			"Steals 21 life from the target enemy. Deals 3 times as much damage to Undead.", // 1299869 - https://www.wowhead.com/forever/spell=1299869
+		]
+	],
+	[
+		10844, // Spire of Hakkar
+		[
+			"Harmful spell casts have a chance to steal 112 life from the target enemy over 8s.", // 1299943 - https://www.wowhead.com/forever/spell=1299943
+		]
+	],
+	[
 		11086, // Jang'thraze the Protector
 		[
 			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
@@ -696,6 +726,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		11902, // Linken's Sword of Mastery
+		[
+			"Blasts a target for 98 Nature damage.", // 18089 - https://www.wowhead.com/forever/spell=18089
+		]
+	],
+	[
 		11920, // Wraith Scythe
 		[
 			"Steals 49 life from target enemy. Deals 2 times as much damage to Undead.", // 16414 - https://www.wowhead.com/forever/spell=16414
@@ -705,6 +741,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11923, // The Hammer of Grace
 		[
 			"Dying heals all party members within 40 yds for 1176.", // 1300891 - https://www.wowhead.com/forever/spell=1300891
+		]
+	],
+	[
+		12463, // Drakefang Butcher
+		[
+			"Wounds the target causing them to bleed for 161 damage over 7s. Deals 2 times as much damage to Dragonkin.", // 14118 - https://www.wowhead.com/forever/spell=14118
 		]
 	],
 	[
@@ -765,6 +807,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13032, // Sword of Corruption
 		[
 			"Corrupts the target, causing 30 damage over 3s.", // 17510 - https://www.wowhead.com/forever/spell=17510
+		]
+	],
+	[
+		13053, // Doombringer
+		[
+			"Sends a shadowy bolt at the enemy causing 231 Shadow damage.", // 18211 - https://www.wowhead.com/forever/spell=18211
 		]
 	],
 	[
@@ -1016,6 +1064,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18537, // Counterattack Lodestone
+		[
+			"Energize the lodestone for 10s, heightening its magnetic pull and drawing in the weapon of the next melee attacker that strikes you, Disarming them for 8s.", // 1302356 - https://www.wowhead.com/forever/spell=1302356
+		]
+	],
+	[
 		18634, // Gyrofreeze Ice Reflector
 		[
 			"Reflects Frost spells back at their caster for 5s.", // 23131 - https://www.wowhead.com/forever/spell=23131
@@ -1109,6 +1163,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
+		]
+	],
+	[
+		19991, // Devilsaur Eye
+		[
+			"Your next melee or ranged attack within 10s will Root the target for 2s. The duration of this effect is doubled if the target was moving. Only works against Beasts.", // 24352 - https://www.wowhead.com/forever/spell=24352
+		]
+	],
+	[
+		19992, // Devilsaur Tooth
+		[
+			"Reduces the Mana cost of your next Revive Pet cast within 30s by 100%.", // 24353 - https://www.wowhead.com/forever/spell=24353
 		]
 	],
 	[
@@ -2025,6 +2091,24 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274265, // Brush Cutter
+		[
+			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
+		]
+	],
+	[
+		274270, // Weed Whacker
+		[
+			"Assault the target with a dangerous toxin, dealing 126 Nature damage. Deals 3 times as much damage to Plants.", // 1293568 - https://www.wowhead.com/forever/spell=1293568
+		]
+	],
+	[
+		274271, // Deadhead Blade
+		[
+			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
+		]
+	],
+	[
 		274290, // Painwalker Buckler
 		[
 			"17% chance when struck in combat to gain 12 mana per 5 sec for 10s.", // 1293700 - https://www.wowhead.com/forever/spell=1293700
@@ -2149,6 +2233,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		276631, // Coldflame Saber
 		[
 			"Melee attacks deal 98 additional Fire damage against Frozen targets.", // 1300130 - https://www.wowhead.com/forever/spell=1300130
+		]
+	],
+	[
+		276743, // Fingerbreaker Stamp
+		[
+			"Increases Strength by 38 while affected by a Bleed.", // 1314784 - https://www.wowhead.com/forever/spell=1314784
 		]
 	],
 	[
