@@ -87,6 +87,9 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 			BaseStats:       petBaseStats,
 			StatInheritance: hunter.makeStatInheritance(),
 			EnabledOnStart:  true,
+			// The pet swings at its owner's melee and attack speed on top of its own, which brings
+			// Rapid Fire's melee haste to it; the owner's ranged haste does not reach it.
+			HasDynamicMeleeSpeedInheritance: true,
 		}),
 		hunterOwner: hunter,
 		family:      family,

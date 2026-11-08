@@ -734,6 +734,73 @@ func TestVolleyHoldsAutoShotUntilTheChannelEnds(t *testing.T) {
 	}
 }
 
+// The pet swings at its owner's melee speed on top of its own: Rapid Fire's melee haste speeds it up
+// while it lasts, and the owner's ranged haste leaves it alone.
+func TestPetSwingsAtItsOwnersMeleeSpeed(t *testing.T) {
+	player := &proto.Player{
+		Name:          "Owner",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassHunter,
+		Equipment:     core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		TalentsString: DefaultMMTalents,
+		Spec: &proto.Player_Hunter{Hunter: &proto.Hunter{Options: &proto.Hunter_Options{ClassOptions: &proto.HunterOptions{
+			PetType:   proto.HunterOptions_Wolf,
+			PetUptime: 1,
+		}}}},
+		Rotation:           &proto.APLRotation{},
+		DistanceFromTarget: 20,
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	if hunter.Pet == nil {
+		t.Fatal("the hunter has no pet")
+	}
+	for i := 0; sim.CurrentTime < time.Second && i < 10000; i++ {
+		sim.Step()
+	}
+	swing := hunter.Pet.AutoAttacks.MainhandSwingSpeed
+	untilSwingIsNot := func(old time.Duration) {
+		for i := 0; swing() == old && i < 10000; i++ {
+			sim.Step()
+		}
+	}
+
+	base := swing()
+	hunter.MultiplyRangedSpeed(sim, 1.3)
+	for i := 0; i < 100; i++ {
+		sim.Step()
+	}
+	if got := swing(); got != base {
+		t.Errorf("the owner's ranged haste moved the pet's swing from %v to %v", base, got)
+	}
+
+	rapidFire := hunter.GetAuraByID(core.ActionID{SpellID: rapidFireRank.ID})
+	if rapidFire == nil {
+		t.Fatal("the hunter has no Rapid Fire aura")
+	}
+	haste := 1 + rapidFireRank.Effect(dbcenums.A_MOD_MELEE_HASTE_3, 0).Percent()
+	if haste == 1 {
+		t.Fatal("Rapid Fire's row states no melee haste")
+	}
+	rapidFire.Activate(sim)
+	untilSwingIsNot(base)
+	if got, want := swing(), time.Duration(float64(base)/haste); (got - want).Abs() > time.Millisecond {
+		t.Errorf("with the owner's Rapid Fire up the pet swings every %v, want %v", got, want)
+	}
+	hasted := swing()
+	rapidFire.Deactivate(sim)
+	untilSwingIsNot(hasted)
+	if got := swing(); (got - base).Abs() > time.Millisecond {
+		t.Errorf("after the owner's Rapid Fire the pet swings every %v, want %v back", got, base)
+	}
+}
+
 // Minor Speed and Strider Kick are both A_MOD_INCREASE_SPEED, of which only the highest counts: with
 // both the hunter runs at Strider Kick's 30%, and back at the boots' 8% once the kick runs out.
 func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
