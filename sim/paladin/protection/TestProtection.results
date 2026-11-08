@@ -56,10 +56,10 @@ character_stats_results: {
 dps_results: {
  key: "TestProtection-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 423.76018
-  tps: 1002.57283
-  dtps: 343.96721
-  hps: 23.87472
+  dps: 419.987
+  tps: 996.87211
+  dtps: 347.14325
+  hps: 23.40028
  }
 }
 dps_results: {
@@ -729,6 +729,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 431.73925
+  tps: 1061.20572
+  dtps: 355.0742
+  hps: 28.73778
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-HandofJustice-11815"
  value: {
   dps: 420.79935
@@ -999,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 409.61586
+  tps: 977.17897
+  dtps: 347.51979
+  hps: 22.80722
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Marshal'sLamellarGloves-16471"
  value: {
   dps: 422.1259
@@ -1143,6 +1161,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 411.81764
+  tps: 981.22192
+  dtps: 349.53207
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ScrollsofBlindingLight-19343"
  value: {
   dps: 413.00831
@@ -1172,9 +1199,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SerenityField-272439"
  value: {
-  dps: 413.19862
-  tps: 986.77077
-  dtps: 347.31576
+  dps: 411.40563
+  tps: 981.99989
+  dtps: 347.43457
   hps: 22.80722
  }
 }
@@ -1476,6 +1503,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-WalloftheDead-1979"
+ value: {
+  dps: 411.75492
+  tps: 985.65891
+  dtps: 364.45394
+  hps: 22.90889
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-WarmthofForgiveness-23027"
  value: {
   dps: 409.61251
@@ -1487,9 +1523,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 416.68377
-  tps: 995.42128
-  dtps: 347.17998
+  dps: 415.21836
+  tps: 991.62763
+  dtps: 347.24787
   hps: 22.80722
  }
 }

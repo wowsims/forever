@@ -102,6 +102,24 @@ func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	return 0
 }
 
+// Sets the procs per minute on the item's chance-on-hit entry for the spell for the length of the
+// test; 0 leaves the entry stating no rate.
+func withEntryPPM(t *testing.T, itemID int32, spellID int32, ppm float64) {
+	t.Helper()
+	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+		if proc := effect.GetProc(); effect.BuffId == spellID && proc != nil {
+			committed := proc.ProcRate
+			t.Cleanup(func() { proc.ProcRate = committed })
+			proc.ProcRate = nil
+			if ppm > 0 {
+				proc.ProcRate = &proto.ProcEffect_Ppm{Ppm: ppm}
+			}
+			return
+		}
+	}
+	t.Fatalf("%d has no chance-on-hit entry for %d", itemID, spellID)
+}
+
 // Checks the proc rolls the item entry's procs per minute on the weapon's speed, a chance between
 // none and certain.
 func expectWeaponRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask core.ProcMask, itemID, spellID int32) {
@@ -278,12 +296,14 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 }
 
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
-// entry. Focus makes the next spell with a cast time instant, on its whole global cooldown, and that
-// cast spends it; an instant leaves it up, and unspent it fades after the row's duration.
+// entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
+// global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
+// row's duration.
 func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	if core.GetItemByID(2243) == nil {
 		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
 	}
+	withEntryPPM(t, 2243, 18803, 1)
 	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -333,6 +353,27 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	if focus.IsActive() {
 		t.Errorf("Focus is still up after the row's %v unspent", duration)
 	}
+}
+
+// A hand-written proc that runs at its item entry's procs per minute registers nothing while the entry
+// states none: Hand of Edward the Odd 2243 equips and swings with no Focus proc and no Focus aura.
+func TestAnEntryRateProcRegistersNothingWhileTheEntryStatesNoRate(t *testing.T) {
+	if core.GetItemByID(2243) == nil {
+		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
+	}
+	withEntryPPM(t, 2243, 18803, 0)
+	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
+
+	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].ID; got != 2243 {
+		t.Fatalf("the main hand holds %d, want 2243", got)
+	}
+	if character.GetAura("Hand of Edward the Odd") != nil {
+		t.Error("2243 registers its Focus proc with no rate on its entry, want none")
+	}
+	if character.GetAura("Hand of Edward the Odd Focus") != nil {
+		t.Error("2243 registers its Focus aura with no rate on its entry, want none")
+	}
+	stepTo(t, sim, 30*time.Second)
 }
 
 // Thunderfury, Blessed Blade of the Windseeker 19019 procs 21992 at the procs per minute of the item's

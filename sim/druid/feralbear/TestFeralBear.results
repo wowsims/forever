@@ -111,10 +111,10 @@ stat_weights_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 522.07764
-  tps: 1965.56408
-  dtps: 388.06741
-  hps: 84.65286
+  dps: 509.36372
+  tps: 1937.70969
+  dtps: 391.45833
+  hps: 86.44116
  }
 }
 dps_results: {
@@ -676,6 +676,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 406.54937
+  tps: 1560.65021
+  dtps: 395.33775
+  hps: 81.87712
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-HandofJustice-11815"
  value: {
   dps: 517.11462
@@ -910,6 +919,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 500.95286
+  tps: 1909.76461
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MasterworkStormhammer-12794"
  value: {
   dps: 439.52342
@@ -970,6 +988,15 @@ dps_results: {
   tps: 1909.76461
   dtps: 394.78517
   hps: 84.38378
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 508.29451
+  tps: 1930.65826
+  dtps: 412.4716
+  hps: 83.30178
  }
 }
 dps_results: {

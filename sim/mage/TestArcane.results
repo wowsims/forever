@@ -615,6 +615,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 722.56431
+  tps: 623.04483
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-MindQuickeningGem-19339"
  value: {
   dps: 731.1561
@@ -664,6 +671,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 753.67734
+  tps: 647.00248
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-RobeoftheArchmage-14152"
  value: {
   dps: 777.96094
@@ -680,8 +694,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-SerenityField-272439"
  value: {
-  dps: 733.32906
-  tps: 631.97297
+  dps: 729.38227
+  tps: 628.68849
  }
 }
 dps_results: {
@@ -834,8 +848,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 736.36104
-  tps: 634.50162
+  dps: 732.42445
+  tps: 631.14667
  }
 }
 dps_results: {

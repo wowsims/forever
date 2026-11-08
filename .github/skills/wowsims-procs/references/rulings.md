@@ -13,6 +13,10 @@ Each line is the rule the code follows, where it lives, and the pull request tha
 - **A rate the game files do not state takes the carry-over value (`vanilla-carryover`) with a TODO, or is written and
   commented out waiting for a procs-per-minute rate, and the gear tab shows an in-game validation notice for every
   unvalidated rate, driven by the override tables' `Source`.** `tools/database/gen_effects.go`, `rateOrigin`, PR #322.
+- **A hand-written proc that runs at the procs per minute on its item's entry registers nothing while the entry states
+  none, and no rate is made up for it: the item keeps its stats, and the generator lists it in the gear tab's
+  missing-effect notices until a rate reaches the entry.** `sim/common/forever/items_weapons.go`,
+  `newEntryRateItemEffect`; `tools/database/gen_effects.go`, `handProcStatesNoRate`; PR #905.
 - **A charge buff hit by the wearer's channel is reserved and spent at that channel's end (`Unit.OnChannelEnd`), an
   interrupted channel included, and a charge gained while a channel its class flags name is running is spent at that
   channel's end.** `sim/core/spelldata/charges.go`, `AttachChargeSpender`, PR #658.
