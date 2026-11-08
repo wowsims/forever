@@ -814,6 +814,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Prismcharm-15867"
+ value: {
+  dps: 780.37304
+  tps: 578.46384
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 769.66822

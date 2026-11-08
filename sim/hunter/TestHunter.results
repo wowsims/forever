@@ -648,6 +648,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-FlurryAxe-871"
+ value: {
+  dps: 644.06256
+  tps: 667.66957
+  dtps: 7.48046
+  hps: 15.30083
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Frostguard-12797"
  value: {
   dps: 696.32502
@@ -1050,6 +1059,15 @@ dps_results: {
   tps: 782.6532
   dtps: 7.88422
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Prismcharm-15867"
+ value: {
+  dps: 755.09049
+  tps: 778.6499
+  dtps: 7.45809
+  hps: 14.74167
  }
 }
 dps_results: {

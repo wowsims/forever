@@ -801,6 +801,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Prismcharm-15867"
+ value: {
+  dps: 865.46182
+  tps: 901.70714
+  dtps: 7.42903
+  hps: 32.7875
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
   dps: 892.32187

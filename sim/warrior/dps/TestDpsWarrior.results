@@ -270,6 +270,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-DiamondFlask-20130"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DormantHeartoftheMountain-249473"
  value: {
   dps: 531.49205
@@ -546,6 +555,15 @@ dps_results: {
   tps: 458.14223
   dtps: 2.96131
   hps: 41.9375
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-FlurryAxe-871"
+ value: {
+  dps: 520.64177
+  tps: 452.14727
+  dtps: 2.96131
+  hps: 48.19
  }
 }
 dps_results: {
@@ -897,6 +915,15 @@ dps_results: {
   tps: 444.49218
   dtps: 2.96131
   hps: 45.85167
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Prismcharm-15867"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
  }
 }
 dps_results: {

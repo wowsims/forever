@@ -454,6 +454,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-FlurryAxe-871"
+ value: {
+  dps: 625.63145
+  tps: 444.19833
+  hps: 60.76278
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Frostguard-12797"
  value: {
   dps: 640.14987
@@ -739,6 +747,14 @@ dps_results: {
   dps: 608.26298
   tps: 431.86672
   hps: 57.39083
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Prismcharm-15867"
+ value: {
+  dps: 604.84319
+  tps: 429.43866
+  hps: 51.98556
  }
 }
 dps_results: {

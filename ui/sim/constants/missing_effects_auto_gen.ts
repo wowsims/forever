@@ -466,6 +466,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9386, // Excavator's Brand
+		[
+			"Hurls a fiery ball that causes 51 Fire damage and an additional 12 damage over 6s.", // 13438 - https://www.wowhead.com/forever/spell=13438
+		]
+	],
+	[
 		9394, // Horned Viking Helmet
 		[
 			"Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target.", // 22641 - https://www.wowhead.com/forever/spell=22641
@@ -708,6 +714,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		12582, // Keris of Zul'Serak
+		[
+			"Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks by 11% for 10s.", // 16528 - https://www.wowhead.com/forever/spell=16528
+		]
+	],
+	[
 		12641, // Invulnerable Mail
 		[
 			"When struck in combat has a 5% chance to make you invulnerable to melee damage for 3s. This effect can only occur once every 10 sec.", // 16621 - https://www.wowhead.com/forever/spell=16621
@@ -783,6 +795,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
+		]
+	],
+	[
+		13286, // Rivenspike
+		[
+			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
 		]
 	],
 	[
@@ -968,6 +986,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		17752, // Satyr's Lash
+		[
+			"Sends a shadowy bolt at the enemy causing 70 Shadow damage.", // 1292155 - https://www.wowhead.com/forever/spell=1292155
+		]
+	],
+	[
 		17753, // Verdant Keeper's Aim
 		[
 			"Strike your target with Keeper's Sting for 28 Nature damage.", // 29655 - https://www.wowhead.com/forever/spell=29655
@@ -1085,6 +1109,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
+		]
+	],
+	[
+		20035, // Glacial Spike
+		[
+			"Your Frostbolt spells have a 6% chance to restore 50 mana when cast.", // 24392 - https://www.wowhead.com/forever/spell=24392
+		]
+	],
+	[
+		20036, // Fire Ruby
+		[
+			"Refreshes the cooldown of Fire Ward and causes Fire damage absorbed by it to increase the damage of your next Fire Blast cast within 1min by 50% of the damage absorbed.", // 24389 - https://www.wowhead.com/forever/spell=24389
 		]
 	],
 	[
@@ -1256,6 +1292,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		20130, // Diamond Flask
+		[
+			"", // 1318073 - https://www.wowhead.com/forever/spell=1318073
+		]
+	],
+	[
 		20154, // Defiler's Chain Greaves
 		[
 			"Run speed increased slightly.", // 23990 - https://www.wowhead.com/forever/spell=23990
@@ -1424,6 +1466,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		20534, // Abyss Shard
+		[
+			"Casts your Summon Voidwalker spell with no mana or Soul Shard requirements.", // 25112 - https://www.wowhead.com/forever/spell=25112
+		]
+	],
+	[
 		21119, // Talisman of Arathor
 		[
 			"Absorbs 308 physical damage. Lasts 15s.", // 25750 - https://www.wowhead.com/forever/spell=25750
@@ -1487,6 +1535,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22402, // Libram of Grace
 		[
 			"Reduces the mana cost of your Cleanse spell by 25.", // 27847 - https://www.wowhead.com/forever/spell=27847
+		]
+	],
+	[
+		22458, // Moonshadow Stave
+		[
+			"Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.", // 1300435 - https://www.wowhead.com/forever/spell=1300435
 		]
 	],
 	[
@@ -2152,6 +2206,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		284050, // High Elf's Recurve
+		[
+			"Strike your target with a Poisonous Sting, inflicting 27 damage every 3 sec for 9s.", // 1314888 - https://www.wowhead.com/forever/spell=1314888
+		]
+	],
+	[
 		284386, // Whipfang's Skinsearer
 		[
 			"Sear your target's flesh, dealing 84 Fire damage.", // 1316039 - https://www.wowhead.com/forever/spell=1316039
@@ -2179,6 +2239,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286430, // Toofbreaker
 		[
 			"Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.", // 1320269 - https://www.wowhead.com/forever/spell=1320269
+		]
+	],
+	[
+		286556, // Winds of Tanaris
+		[
+			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
+		]
+	],
+	[
+		286616, // Matriarch's Prowlers
+		[
+			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
@@ -5575,6 +5647,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
 	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
+	[871, { kind: 'ppm', origin: 'vanilla' }], // Flurry Axe
 	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
 	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear
