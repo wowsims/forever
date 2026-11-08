@@ -303,6 +303,7 @@
         "strider_kick": {"spellId": 1317257, "registeredBy": ["hunter"]},
         "thorns": {"spellId": 9910, "tag": -1, "registeredBy": ["hunter"]},
         "trueshot_aura": {"spellId": 20906, "tag": -1, "registeredBy": ["hunter"]},
+        "volley": {"spellId": 14295, "rank": 3, "registeredBy": ["hunter"]},
         "windfury_totem_aura": {"spellId": 10614, "tag": -1, "registeredBy": ["hunter"]},
         "windfury_totem_buff": {"spellId": 10610, "tag": -1, "registeredBy": ["hunter"]},
         "windfury_totem_proc": {"spellId": 10612, "tag": -1, "registeredBy": ["hunter"]}
@@ -412,6 +413,8 @@
         "thorns": {"spellId": 9910, "tag": 1, "registeredBy": ["hunter"], "uncastable": true},
         "trueshot_aura": {"spellId": 1299346, "registeredBy": ["hunter"], "talentOnlyBy": ["hunter"], "uncastable": true},
         "unleashed_fury": {"spellId": 19616, "registeredBy": ["hunter"], "talentOnlyBy": ["hunter"], "uncastable": true},
+        "volley": {"spellId": 14295, "rank": 3, "registeredBy": ["hunter"]},
+        "volley_1279715": {"spellId": 1279715, "rank": 3, "registeredBy": ["hunter"], "uncastable": true},
         "wing_clip": {"spellId": 14268, "rank": 3, "registeredBy": ["hunter"]}
       },
       "target_aura": {
