@@ -706,8 +706,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 762.10774
-  tps: 647.72364
+  dps: 762.09181
+  tps: 647.70834
   dtps: 11.02076
   hps: 7.74339
  }

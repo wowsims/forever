@@ -68,8 +68,9 @@ func (warrior *Warrior) registerShieldSpecialization() {
 	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
 	spelldata.ParseStatic(&warrior.Character, talent)
 
-	// In game this rage's threat reads the same in Battle and Defensive Stance.
-	// TODO: Ingame test needed -- whether Defiance or a threat buff scales it.
+	// In game this rage makes 5 threat a rage in Battle and Defensive Stance alike, and Defiance does not
+	// scale it.
+	// TODO: Ingame test needed -- whether a threat buff scales it.
 	rageMetrics := warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
 	rageMetrics.UnscaledThreat = true
 }
@@ -216,11 +217,13 @@ func (warrior *Warrior) registerMasterOfDefense() {
 
 	talent := spellData.MasterOfDefense.Rank(warrior.Talents.MasterOfDefense)
 
-	// A shield has to be equipped, which the row does not state.
-	warrior.registerRageOnAvoid(talent, talent.EffectN(1).Trigger(), core.OutcomeDodge|core.OutcomeParry,
+	// A shield has to be equipped, which the row does not state. In game this rage makes 5 threat a rage
+	// in Battle and Defensive Stance alike, and Defiance does not scale it.
+	rageMetrics := warrior.registerRageOnAvoid(talent, talent.EffectN(1).Trigger(), core.OutcomeDodge|core.OutcomeParry,
 		func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
 			return warrior.PseudoStats.CanBlock
 		})
+	rageMetrics.UnscaledThreat = true
 }
 
 func (warrior *Warrior) registerImprovedRevenge() {

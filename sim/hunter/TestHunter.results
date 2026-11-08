@@ -848,8 +848,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 755.21147
-  tps: 777.94139
+  dps: 755.24884
+  tps: 777.97876
   dtps: 6.6378
   hps: 14.86028
  }

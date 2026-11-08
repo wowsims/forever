@@ -16,7 +16,18 @@ var victoriousStateRank = spellData.VictoriousState.Highest()
 // Victorious State hears the killing blow and casts Victorious, which Victory Rush needs and spends.
 // The kill roll stands for the game's experience or honor check, so an add counts like any enemy.
 func (warrior *Warrior) registerVictoryRush() {
-	healthMetrics := warrior.NewHealthMetrics(core.ActionID{SpellID: victoryRushRank.ID})
+	// The heal makes healing threat as any heal does: half the health it restores, times the stance,
+	// split between the enemies in combat. Whether healing done and taken modifiers change it is not
+	// measured, so it restores the row's share of maximum health with none of them.
+	healConfig := spelldata.SpellConfig(&warrior.Unit, victoryRushRank, spelldata.Proc(), spelldata.Tag(1),
+		spelldata.Flags(core.SpellFlagIgnoreModifiers))
+	healConfig.ProcMask = core.ProcMaskSpellHealing
+	healConfig.DamageMultiplier = 1
+	healConfig.ThreatMultiplier = 1
+	healConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealHealing(sim, target, warrior.MaxHealth()*victoryRushHealPercent, spell.OutcomeAlwaysHit)
+	}
+	heal := warrior.RegisterSpell(healConfig)
 
 	victoriousAura := warrior.RegisterAura(spelldata.AuraConfig(victoriousRank))
 	warrior.MakeProcTriggerAura(spelldata.ProcTrigger(&warrior.Character, victoriousStateRank,
@@ -33,7 +44,7 @@ func (warrior *Warrior) registerVictoryRush() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := victoryRushRank.DamageEffect().Average() + victoryRushAPCoef*spell.MeleeAttackPower(target)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
-		warrior.GainHealth(sim, warrior.MaxHealth()*victoryRushHealPercent, healthMetrics)
+		heal.Cast(sim, &warrior.Unit)
 		victoriousAura.Deactivate(sim)
 	}
 

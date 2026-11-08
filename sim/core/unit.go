@@ -624,8 +624,12 @@ func (unit *Unit) Armor() float64 {
 	return unit.PseudoStats.ArmorMultiplier * unit.stats[stats.Armor]
 }
 
+// A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
+// floor(shield + Strength x 0.05 - 1). Flooring the Strength part alone gives the same number while the
+// shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
+// floors is not measured, so the whole is floored.
 func (unit *Unit) BlockDamageReduction() float64 {
-	return max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier
+	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)
 }
 
 func (unit *Unit) TotalRangedHasteMultiplier() float64 {

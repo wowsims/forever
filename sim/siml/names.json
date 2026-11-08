@@ -2496,6 +2496,7 @@
         "unbridled_wrath": {"spellId": 12322, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "vanguard": {"spellId": 1310317, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "victory_rush": {"spellId": 402927, "registeredBy": ["dps_warrior", "protection_warrior"]},
+        "victory_rush_tag1": {"spellId": 402927, "tag": 1, "registeredBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "weaponmaster": {"spellId": 1290261, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "whirlwind": {"spellId": 1680, "tag": 14, "registeredBy": ["dps_warrior", "protection_warrior"]},
         "whirlwind_tag15": {"spellId": 1680, "tag": 15, "registeredBy": ["dps_warrior", "protection_warrior"], "uncastable": true}

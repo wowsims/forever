@@ -609,8 +609,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 918.60924
-  tps: 724.74224
+  dps: 918.58369
+  tps: 724.72221
   dtps: 10.37696
  }
 }

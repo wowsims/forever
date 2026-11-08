@@ -866,9 +866,10 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
-// In Defensive Stance, the rage a block grants through Shield Specialization and Bloodrage's instant
-// rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
-// rage over time makes it times the multiplier, and rage gained before the pull makes none.
+// In Defensive Stance, the rage a block grants through Shield Specialization, the rage a dodge grants
+// through Master of Defense and Bloodrage's instant rage make ThreatPerRageGained threat per rage
+// without the warrior's threat multiplier, Bloodrage's rage over time makes it times the multiplier,
+// and rage gained before the pull makes none.
 func TestRageThreatFollowsItsSource(t *testing.T) {
 	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
 	player := &proto.Player{
@@ -909,17 +910,22 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 		return (rageThreat.SpellMetrics[target.UnitIndex].TotalThreat - threatBefore) / war.CurrentRage()
 	}
 
-	block := func() {
-		for range 1000 {
-			war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
-				&core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
-			if war.CurrentRage() > 0 {
-				return
+	avoid := func(outcome core.HitOutcome) func() {
+		return func() {
+			for range 1000 {
+				war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
+					&core.SpellResult{Target: &war.Unit, Outcome: outcome})
+				if war.CurrentRage() > 0 {
+					return
+				}
 			}
 		}
 	}
-	if got := threatPerRage(block); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+	if got := threatPerRage(avoid(core.OutcomeBlock)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
 		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+	if got := threatPerRage(avoid(core.OutcomeDodge)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Master of Defense's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
 	}
 
 	bloodrageInstant := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
@@ -1111,5 +1117,109 @@ func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
 	stepPastBatch(t, sim)
 	if got := swings() - before; got != 0 {
 		t.Errorf("%d Sword Specialization swings went off after their target died, want 0", got)
+	}
+}
+
+// Victory Rush's heal makes ThreatPerHealingDone threat for each point of health it restores, overheal
+// left out, times the warrior's threat multiplier.
+func TestVictoryRushHealMakesThreat(t *testing.T) {
+	sim, war, target := shieldTestSim(t)
+	victoryRush := war.GetSpell(core.ActionID{SpellID: 402927})
+	if victoryRush == nil {
+		t.Fatal("the warrior has no Victory Rush")
+	}
+	heal := war.GetSpell(victoryRush.ActionID.WithTag(1))
+	if heal == nil {
+		t.Fatal("Victory Rush has no heal spell")
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[heal.SchoolIndex]
+	if multiplier == 1 {
+		t.Fatal("Defensive Stance sets no threat multiplier, so the check below proves nothing")
+	}
+	healed := war.MaxHealth() * spelldata.MustFind(victoryRush.ActionID.SpellID).EffectN(2).Percent()
+	if healed == 0 {
+		t.Fatal("the row states no heal, so the check below proves nothing")
+	}
+
+	// Half the heal is missing, so the other half overheals.
+	war.RemoveHealth(sim, healed/2)
+	victoryRush.SkipCastAndApplyEffects(sim, target)
+
+	if got, want := heal.SpellMetrics[target.UnitIndex].TotalThreat, core.ThreatPerHealingDone*healed/2*multiplier; math.Abs(got-want) > 1e-6 {
+		t.Errorf("the heal made %v threat, want %v", got, want)
+	}
+	if got := war.CurrentHealth(); got != war.MaxHealth() {
+		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
+	}
+}
+
+// A flat physical damage bonus reaches the school damage of a row that states a coefficient of 1,
+// Revenge and Hamstring, and not of a row that states 0, Thunder Clap and Victory Rush.
+func TestFlatPhysicalDamageFollowsTheRowsCoefficient(t *testing.T) {
+	sim, war, target := shieldTestSim(t)
+	damage := func(spell *core.Spell) float64 {
+		return spell.CalcDamage(sim, target, 0, spell.OutcomeAlwaysHitNoHitCounter).Damage
+	}
+
+	for _, tc := range []struct {
+		name     string
+		spellID  int32
+		wantsAny bool
+	}{
+		{"Revenge", 25288, true},
+		{"Hamstring", 7373, true},
+		{"Thunder Clap", 11581, false},
+		{"Victory Rush", 402927, false},
+	} {
+		spell := war.GetSpell(core.ActionID{SpellID: tc.spellID})
+		if spell == nil {
+			t.Fatalf("the warrior has no %s", tc.name)
+		}
+		without := damage(spell)
+		war.AddStatDynamic(sim, stats.PhysicalDamage, 10)
+		with := damage(spell)
+		war.AddStatDynamic(sim, stats.PhysicalDamage, -10)
+
+		if got := with > without; got != tc.wantsAny {
+			t.Errorf("%s deals %v with a flat physical bonus and %v without, want the bonus taken %v", tc.name, with, without, tc.wantsAny)
+		}
+	}
+}
+
+// Revenge rolls a whole number between its ends, every one of them, the two ends less often than the
+// numbers between, and averages the middle of its roll.
+func TestRevengeRollsAWholeNumber(t *testing.T) {
+	sim, war, _ := shieldTestSim(t)
+	revenge := spelldata.MustFind(6572).DamageEffect()
+	level := war.Level
+	low, high := revenge.MinAt(level), revenge.MaxAt(level)
+	if high-low < 2 {
+		t.Fatalf("Revenge rolls %v to %v, too narrow for the checks below", low, high)
+	}
+
+	const rolls = 20000
+	counts := map[float64]int{}
+	sum := 0.0
+	for range rolls {
+		roll := revenge.RollAt(sim, level)
+		if roll != math.Trunc(roll) || roll < low || roll > high {
+			t.Fatalf("Revenge rolled %v, want a whole number from %v to %v", roll, low, high)
+		}
+		counts[roll]++
+		sum += roll
+	}
+
+	for v := low; v <= high; v++ {
+		if counts[v] == 0 {
+			t.Errorf("Revenge never rolled %v in %d rolls", v, rolls)
+		}
+	}
+	for v := low + 1; v < high; v++ {
+		if counts[low] >= counts[v] || counts[high] >= counts[v] {
+			t.Errorf("Revenge's ends came up %d and %d times, %v %d times, want the ends rarer", counts[low], counts[high], v, counts[v])
+		}
+	}
+	if got, want := sum/rolls, revenge.MeanAt(level); math.Abs(got-want) > 0.05 {
+		t.Errorf("Revenge averaged %v, want %v", got, want)
 	}
 }

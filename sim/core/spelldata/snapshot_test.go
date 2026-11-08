@@ -177,16 +177,16 @@ func TestRollEndsMatchTheTooltip(t *testing.T) {
 	}
 }
 
-// A physical hit rolls its base points by the whole Variance either side: the copy of Revenge rank 1
-// below, 22 ± 3.4, rolls 19 to 25. A spell-school hit and a heal of any school, Healing Potion's
-// included, leave their roll to core, which spreads the whole amount by DirectVariance; an energize
-// keeps the half-width roll.
+// A physical hit rolls its base points by half the Variance either side, rounded to a whole number:
+// the copy of Revenge rank 1 below, 22 ± 1.69, lands on 20 to 24. A spell-school hit and a heal of
+// any school, Healing Potion's included, leave their roll to core, which spreads the whole amount by
+// DirectVariance; an energize keeps the half-width roll.
 func TestRollWidthByEffectKind(t *testing.T) {
 	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
 		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
 	}}})
 	copied := MustFind(6572).DamageEffect()
-	if got, want := [2]float64{copied.MinAt(60), copied.MaxAt(60)}, [2]float64{19, 25}; got != want {
+	if got, want := [2]float64{copied.MinAt(60), copied.MaxAt(60)}, [2]float64{20, 24}; got != want {
 		t.Errorf("Revenge rank 1 rolls %v at 60, want %v", got, want)
 	}
 
