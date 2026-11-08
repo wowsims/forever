@@ -12,9 +12,9 @@ func (druid *Druid) registerRakeSpell() {
 	// only the periodic effect states the bleed mechanic. The ticks are periodic physical damage, which
 	// core keeps out of armor anyway.
 	config.Flags |= core.SpellFlagIgnoreResists
-	config.Dot = spelldata.DotConfig(rank, rank.PeriodicDamageEffect())
 	hit := rank.DamageEffect()
 	tick := rank.PeriodicDamageEffect()
+	config.Dot = spelldata.DotConfig(rank, tick)
 	// TODO: Verify whether changing attack power after application changes subsequent ticks.
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		damage := (tick.AverageAt(druid.level()) + tick.APCoeff()*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
