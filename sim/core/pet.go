@@ -387,12 +387,9 @@ func (pet *Pet) enableDynamicMeleeSpeed(sim *Simulation) {
 		panic(fmt.Sprintf("Pet melee speed multiplier was not reset properly! Current inherited value = %.17f", pet.inheritedMeleeSpeedMultiplier))
 	}
 
-	// The owner's speed reaches the pet from its next swing: the swing under way keeps its length.
-	pet.dynamicMeleeSpeedInheritance = func(_ *Simulation, ownerSpeedMultiplier float64) {
+	pet.dynamicMeleeSpeedInheritance = func(sim *Simulation, ownerSpeedMultiplier float64) {
 		pet.inheritedMeleeSpeedMultiplier *= ownerSpeedMultiplier
-		pet.PseudoStats.MeleeSpeedMultiplier *= ownerSpeedMultiplier
-		pet.updateMeleeAttackSpeed()
-		pet.AutoAttacks.updateMeleeSwingSpeed()
+		pet.MultiplyMeleeSpeed(sim, ownerSpeedMultiplier)
 	}
 
 	pet.dynamicMeleeSpeedInheritance(sim, pet.Owner.PseudoStats.MeleeSpeedMultiplier)
