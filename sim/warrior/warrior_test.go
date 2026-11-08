@@ -654,10 +654,11 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 }
 
 // A shield's hit is an off-hand hit: it never procs Windfury Totem or the main-hand weapon's
-// enchant, which a main-hand special does.
+// enchant, which a main-hand special does. Windfury Totem hears it as an ability whose row requires
+// a main-hand weapon, so its hand alone keeps it out.
 func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 	sim, war, target := shieldTestSim(t)
-	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}
+	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagRequiresMainHand}
 
 	crusaderTrigger := war.GetAura("Enchant Weapon - Crusader")
 	if crusaderTrigger == nil || crusaderTrigger.Dpm == nil {
@@ -685,8 +686,9 @@ func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 		if rollsCrusader(spell.ProcMask) {
 			t.Errorf("%s procced the main hand's Crusader", name)
 		}
+		shieldHit := &core.Spell{ProcMask: spell.ProcMask, Flags: spell.Flags | core.SpellFlagRequiresMainHand}
 		for i := 0; i < 200 && !windfury.IsActive(); i++ {
-			windfuryTrigger.OnCastResult(windfuryTrigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+			windfuryTrigger.OnCastResult(windfuryTrigger, sim, shieldHit, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 		}
 		if windfury.IsActive() {
 			t.Errorf("%s procced Windfury Totem", name)

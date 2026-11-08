@@ -23,7 +23,7 @@ category one it shares. It fills the cost out of the first bar it states, with r
 forms, caster auras, weapon, shield and out-of-combat state the game files require (see below). That is
 why Pummel needs no Berserker Stance condition and Shield Bash needs no shield check. `Flags` gets
 what the attributes and targets say:
-`SpellFlagPassiveSpell`, `SpellFlagChanneled`, `SpellFlagSuppressWeaponProcs` and `SpellFlagHelpful`.
+`SpellFlagPassiveSpell`, `SpellFlagChanneled`, `SpellFlagSuppressWeaponProcs`, `SpellFlagRequiresMainHand`, `SpellFlagOnNextSwing` and `SpellFlagHelpful`.
 
 A bleed row also sets the damage and threat multipliers to 1.
 
