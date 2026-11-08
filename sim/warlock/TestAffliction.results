@@ -706,8 +706,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 655.30666
-  tps: 529.8446
+  dps: 655.27509
+  tps: 529.81935
   dtps: 8.21443
   hps: 7.19301
  }
