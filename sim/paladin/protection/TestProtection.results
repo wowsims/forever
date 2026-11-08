@@ -603,6 +603,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-FlurryAxe-871"
+ value: {
+  dps: 431.35477
+  tps: 1049.79665
+  dtps: 360.81875
+  hps: 31.97417
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Frostguard-12797"
  value: {
   dps: 409.40234
@@ -1152,6 +1161,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Prismcharm-15867"
+ value: {
+  dps: 409.61263
+  tps: 977.22901
+  dtps: 347.56212
+  hps: 22.80722
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 411.18681
@@ -1161,12 +1179,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-RazorsteelShoulders-20517"
+ value: {
+  dps: 420.8948
+  tps: 997.74663
+  dtps: 345.2408
+  hps: 23.24778
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-RingofSaviors-1447"
  value: {
   dps: 411.81764
   tps: 981.22213
   dtps: 349.63991
   hps: 22.90889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-SanctifiedOrb-20512"
+ value: {
+  dps: 413.40475
+  tps: 988.12428
+  dtps: 347.24665
+  hps: 22.80722
  }
 }
 dps_results: {

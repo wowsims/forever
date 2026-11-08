@@ -837,6 +837,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Prismcharm-15867"
+ value: {
+  dps: 759.81594
+  tps: 647.07961
+  dtps: 10.46408
+  hps: 7.83039
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 759.81594
