@@ -14,13 +14,15 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-// A dodged bite gives back 80% of its base energy and keeps the extra energy and the combo points.
+// A dodged bite gives back its row's miss refund of the base energy and keeps the extra energy and the
+// combo points.
 func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 1
 	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
-	want := cat.CurrentEnergy() - 0.2*cat.FerociousBite.Cost.GetCurrentCost()
+	refund := spelldata.MustFind(cat.FerociousBite.ActionID.SpellID).MissRefund()
+	want := cat.CurrentEnergy() - (1-refund)*cat.FerociousBite.Cost.GetCurrentCost()
 	if !cat.FerociousBite.Cast(sim, target) {
 		t.Fatal("bite did not cast")
 	}
@@ -140,11 +142,32 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	before = metric.TotalDamage
 	dot.TickOnce(sim)
 	high := metric.TotalDamage - before
-	// The override's 0.065 per attack power; the row states none.
-	if math.Abs((high-low)-6.5) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want 6.5", high-low)
+	want := 100 * spelldata.MustFind(cat.Rake.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
+	if want <= 0 || math.Abs((high-low)-want) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want %g from the periodic effect's share", high-low, want)
 	}
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
+}
+
+func TestRakeHitScalesWithAttackPower(t *testing.T) {
+	sim, cat := newCat(t, "", nil)
+	target := cat.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+	metric := &cat.Rake.SpellMetrics[target.UnitIndex]
+	hitDamage := func() float64 {
+		before := metric.TotalDamage - metric.TotalTickDamage
+		cat.Rake.SkipCastAndApplyEffects(sim, target)
+		return metric.TotalDamage - metric.TotalTickDamage - before
+	}
+	low := hitDamage()
+	cat.AddStatDynamic(sim, stats.AttackPower, 100)
+	high := hitDamage()
+	want := 100 * spelldata.MustFind(cat.Rake.ActionID.SpellID).DamageEffect().APCoeff()
+	if want <= 0 || math.Abs((high-low)-want) > 1e-5 {
+		t.Fatalf("100 AP hit gain=%g, want %g from the direct effect's share", high-low, want)
+	}
 }
 
 // Neither Rake's initial hit nor its ticks are reduced by armor in game.
@@ -192,9 +215,9 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 		before = metric.TotalDamage
 		dot.TickOnce(sim)
 		gain := metric.TotalDamage - before - low
-		// The override's 0.01 per attack power and combo point (the row states none), raised by 25%.
-		if math.Abs(gain-1.25*float64(min(cp, 4))) > 1e-5 {
-			t.Fatalf("cp=%d tick gain=%g", cp, gain)
+		share := spelldata.MustFind(cat.Rip.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
+		if want := 100 * share * float64(min(cp, 4)); share <= 0 || math.Abs(gain-want) > 1e-5 {
+			t.Fatalf("cp=%d tick gain=%g, want %g", cp, gain, want)
 		}
 		t.Logf("Rip %d CP: 100 AP gains %g per tick / %g total", cp, gain, gain*6)
 	}

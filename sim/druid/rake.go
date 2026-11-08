@@ -13,6 +13,7 @@ func (druid *Druid) registerRakeSpell() {
 	// core keeps out of armor anyway.
 	config.Flags |= core.SpellFlagIgnoreResists
 	config.Dot = spelldata.DotConfig(rank, rank.PeriodicDamageEffect())
+	hit := rank.DamageEffect()
 	tick := rank.PeriodicDamageEffect()
 	// TODO: Verify whether changing attack power after application changes subsequent ticks.
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
@@ -20,7 +21,6 @@ func (druid *Druid) registerRakeSpell() {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		hit := rank.DamageEffect()
 		initial := (hit.AverageAt(druid.level()) + hit.APCoeff()*spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		result := spell.CalcAndDealDamage(sim, target, initial, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
