@@ -4,7 +4,7 @@ import { renderWithHost } from '@testing/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
@@ -48,10 +48,14 @@ vi.mock('./ItemSource', () => ({
 	),
 }));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
-	ItemNoticeIcon: ({ itemId, enchantId }: { itemId?: number; enchantId?: number }) => (
-		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} />
+	ItemNoticeIcon: ({ itemId, enchantId, infoNotice }: { itemId?: number; enchantId?: number; infoNotice?: ReactNode }) => (
+		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId}>
+			{infoNotice}
+		</div>
 	),
 }));
+const firstSeen = vi.hoisted(() => new Map<number, number>());
+vi.mock('../../hooks/useItemFirstSeen', () => ({ useItemFirstSeen: () => firstSeen }));
 
 const { ItemListRow, ItemListRowView } = await import('./ItemListRow');
 type ItemListRowProps = Parameters<typeof ItemListRow>[0];
@@ -162,6 +166,37 @@ describe('ItemListRow', () => {
 		const itemNotice = items.container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(itemNotice.getAttribute('data-item-id')).toBe('17182');
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
+	});
+
+	describe('the first-seen notice', () => {
+		const NOW_MS = Date.UTC(2026, 10, 8, 12);
+		const DAY_SECONDS = 24 * 60 * 60;
+		const notice = (container: HTMLElement) => container.querySelector('[data-testid="item-notice-marker"]')!.textContent;
+
+		beforeEach(() => {
+			vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
+			firstSeen.set(101, NOW_MS / 1000 - 3 * DAY_SECONDS);
+			firstSeen.set(102, NOW_MS / 1000 - 15 * DAY_SECONDS);
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+			firstSeen.clear();
+		});
+
+		it('shows on an item first seen inside the last fourteen days', () => {
+			const { container } = renderRow({ itemData: makeItemData({ id: 101 }) });
+			expect(notice(container)).toBe('gear_tab.item_notices.first_seen');
+		});
+
+		it.each([
+			['an item first seen before the last fourteen days', SelectorModalTabs.Items, 102],
+			['an item with no first-seen date', SelectorModalTabs.Items, 103],
+			['an enchant whose id has a recent date', SelectorModalTabs.Enchants, 101],
+		])('stays off %s', (_name, label, id) => {
+			const { container } = renderRow({ label, itemData: makeItemData({ id }) });
+			expect(notice(container)).toBe('');
+		});
 	});
 
 	it('hands the ep and equipped ep to the ep cell', () => {

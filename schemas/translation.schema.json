@@ -2306,6 +2306,9 @@
 						},
 						"area_stats": {
 							"type": "string"
+						},
+						"first_seen": {
+							"type": "string"
 						}
 					},
 					"required": [
@@ -2320,7 +2323,8 @@
 						"partial_set_bonus",
 						"set_bonus_warnings",
 						"set_bonus_piece",
-						"area_stats"
+						"area_stats",
+						"first_seen"
 					],
 					"additionalProperties": false
 				}

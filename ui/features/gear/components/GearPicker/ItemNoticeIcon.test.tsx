@@ -78,6 +78,28 @@ describe('ItemNoticeIcon', () => {
 		ITEM_INFO_NOTICES.delete(SPEC_SPECIFIC_ITEM);
 	});
 
+	it('shows a passed info notice behind the info icon, after the item’s own notices', async () => {
+		const host = fakeHost({ player: { getSpec: () => Spec.SpecUnknown } });
+		const { rerender } = render(
+			<SimHostProvider host={host}>
+				<ItemNoticeIcon itemId={1} infoNotice={<p>First seen on 11/8/2026</p>} />
+			</SimHostProvider>,
+		);
+
+		expect(screen.getByRole('button').dataset.level).toBe('info');
+		open();
+		expect(await screen.findByText('First seen on 11/8/2026')).toBeTruthy();
+
+		rerender(
+			<SimHostProvider host={host}>
+				<ItemNoticeIcon itemId={NOTICED_ITEM} infoNotice={<p>First seen on 11/8/2026</p>} />
+			</SimHostProvider>,
+		);
+		expect(screen.getByRole('button').dataset.level).toBe('warning');
+		const infoNotice = await screen.findByText('First seen on 11/8/2026');
+		expect([...infoNotice.parentElement!.children].map(child => child.textContent)).toEqual(['Item notice', 'First seen on 11/8/2026']);
+	});
+
 	it('shows the notice of an enchant whose effect is missing, on an item that has none of its own', async () => {
 		mount(1, undefined, Spec.SpecUnknown, 1894);
 

@@ -635,7 +635,8 @@
 			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
-			"area_stats": "Only while the encounter is in one of these areas:"
+			"area_stats": "Only while the encounter is in one of these areas:",
+			"first_seen": "New: first seen in the game files on {{date}}"
 		}
 	},
 	"settings_tab": {

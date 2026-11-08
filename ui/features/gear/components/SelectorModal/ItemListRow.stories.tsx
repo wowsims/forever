@@ -6,6 +6,7 @@ import { wowheadIconUrl } from '@testing/storybook/fixtures/gear';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
+import { ItemNoticeIconView } from '../GearPicker/ItemNoticeIcon';
 import { ItemListRowView } from './ItemListRow';
 import { ItemSource } from './ItemSource';
 
@@ -51,6 +52,16 @@ export const ItemsTab: Story = {
 
 export const EquippedFavourite: Story = {
 	args: { active: true, favourited: true, ep: { ep: 38, equippedEP: 38 }, compare: { inBatch: true, tooltipId: 'compare-tooltip', onToggle: fn() } },
+};
+
+export const NewlyDiscovered: Story = {
+	args: {
+		notice: (
+			<ItemNoticeIconView level="info">
+				<p>New: first seen in the game files on 11/3/2026</p>
+			</ItemNoticeIconView>
+		),
+	},
 };
 
 export const EnchantsTab: Story = {

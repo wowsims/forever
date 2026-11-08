@@ -28,18 +28,20 @@ export interface ItemNoticeIconProps {
 	itemId?: number;
 	enchantId?: number;
 	additionalNotice?: ReactNode;
+	/** Shown last, at the info level. */
+	infoNotice?: ReactNode;
 }
 
-export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoticeIconProps) => {
+export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice, infoNotice }: ItemNoticeIconProps) => {
 	const spec = usePlayer().getSpec();
 
 	const itemNotice = itemId ? ITEM_NOTICES.get(itemId) : undefined;
 	const ownNotice = itemNotice?.[spec] || itemNotice?.[Spec.SpecUnknown];
 	const enchantNotice = enchantId ? ENCHANT_NOTICES.get(enchantId) : undefined;
 	const ownEnchantNotice = enchantNotice?.[spec] || enchantNotice?.[Spec.SpecUnknown];
-	const infoNotice = itemId ? ITEM_INFO_NOTICES.get(itemId) : undefined;
+	const itemInfoNotice = itemId ? ITEM_INFO_NOTICES.get(itemId) : undefined;
 
-	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice) return null;
+	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !itemInfoNotice && !infoNotice) return null;
 
 	const warns = !!ownNotice || !!ownEnchantNotice || !!additionalNotice;
 
@@ -48,6 +50,7 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 			{ownNotice}
 			{ownEnchantNotice}
 			{additionalNotice}
+			{itemInfoNotice}
 			{infoNotice}
 		</ItemNoticeIconView>
 	);

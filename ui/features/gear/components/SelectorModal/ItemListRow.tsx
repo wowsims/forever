@@ -1,6 +1,7 @@
 import { addBulkItem, hasBulkItem, removeBulkItem } from '@features/bulk/model/gear/items';
 import { type Faction, type ItemQuality, ItemSpec } from '@generated/proto/common';
 import type { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import i18n from '@i18n/config';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useActionId } from '@sim/hooks/useActionId';
 import { isIndividualSimHost } from '@sim/sim_host';
@@ -12,6 +13,8 @@ import { type ReactNode, useMemo } from 'react';
 import { useStore } from 'zustand';
 
 import { trackEvent } from '../../../../tracking/utils';
+import { useItemFirstSeen } from '../../hooks/useItemFirstSeen';
+import { isNewlyDiscovered } from '../../model/item_first_seen';
 import { tabHasLevel } from '../../model/item_sort';
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
@@ -115,6 +118,11 @@ export const ItemListRow = ({
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
 	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
+	const firstSeen = useItemFirstSeen()?.get(itemData.id);
+	const firstSeenNotice =
+		isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen, Date.now()) ? (
+			<p className="mb-0">{i18n.t('gear_tab.item_notices.first_seen', { date: new Date(firstSeen * 1000).toLocaleDateString() })}</p>
+		) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
 	const batchSpec = useMemo(() => ItemSpec.create({ id: itemData.id }), [itemData.id]);
@@ -138,7 +146,13 @@ export const ItemListRow = ({
 			ilvl={level}
 			active={active}
 			onEquip={onEquip}
-			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
+			notice={
+				<ItemNoticeIcon
+					itemId={isEnchantsTab ? undefined : itemData.id}
+					enchantId={isEnchantsTab ? itemData.id : undefined}
+					infoNotice={firstSeenNotice}
+				/>
+			}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
 			favourited={favourited}
