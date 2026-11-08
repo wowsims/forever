@@ -253,12 +253,13 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	procAura.BuildPhase = core.CharacterBuildPhaseNone
 
 	// The row's own proc flags say what spends a charge: every auto attack, in
-	// either hand, since the column's chance is the raid aura's roll. A swing
-	// that misses, is dodged or is parried spends one as a landed one does. The
-	// hit that fired the proc spends none. The attack power stays until the
-	// charges are gone or the row's duration runs out.
+	// either hand, since the column's chance is the raid aura's roll. A missed
+	// swing spends one as a landed one does, and the sim counts a dodged or
+	// parried swing as missed. The hit that fired the proc spends none. The
+	// attack power stays until the charges are gone or the row's duration runs
+	// out.
+	// TODO: verify in game whether a dodged or parried auto spends a charge; the logs only show misses (8/8).
 	procAura.MaxStacks = int32(windfuryTotemSpell.ProcCharges)
-	var procHit *core.SpellResult
 	spender := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		procAura.RemoveStack(sim)
 	}, spelldata.Chance(1))
@@ -266,30 +267,43 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	spender.TriggerImmediately = true
 	spender.Outcome = core.OutcomeEmpty
 	spender.RequireDamageDealt = false
-	// An auto that fires the proc is the first swing the spender hears after
-	// it; an ability's never reaches it. A spell hands back the same result for
-	// each cast on a target, so the proc's hit is forgotten at the first swing,
-	// or a later cast of that spell would keep its charge as well.
-	spender.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-		fired := result == procHit
-		procHit = nil
-		return !fired
+	// The auto that fires the proc is dealt in the same instant as its cast
+	// result and spends nothing. Another swing in that instant, such as the off
+	// hand's, still spends, and an auto that is never dealt leaves nothing to
+	// skip; an ability's hit never reaches the spender.
+	var procSwing *core.Spell
+	var procAt time.Duration
+	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if spell == procSwing && sim.CurrentTime == procAt {
+			procSwing = nil
+			return false
+		}
+		return true
 	}
 	procAura.AttachProcTriggerCallback(&char.Unit, spender)
+	procAura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
+		procSwing = nil
+	})
 
 	// The row hears auto attacks and melee abilities, so the hit of a proc
 	// without Not a Proc does not reach it. The mask names both hands; the
 	// main-hand rule the tooltip states is the server's, and so is the rule
 	// that an ability rolls the totem only where its row requires a main-hand
-	// weapon or goes off in place of the next swing, as Maul does. An auto
-	// attack, another proc's extra swing included, always rolls it. A landed hit rolls it whether or not it deals damage, Sunder
-	// Armor and a Rend application among them. The proc rolls off the hit's
-	// cast result and puts the attack power up with every charge; the hit's
-	// damage, rolled before the proc, does not gain it. The extra attack after
-	// it spends a charge, and the last one goes to the next auto in either
-	// hand, whether an auto or an ability fired the proc.
-	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-		procHit = result
+	// weapon or goes off in place of the next swing, as Maul does. A triggered
+	// spell with Not a Proc and neither bit never rolls it: Seal of Command's
+	// strike 0/117 while the same paladins' swings roll 18.3%, Sweeping Strikes
+	// 0/166, Retaliation 0/18. An auto attack, another proc's extra swing
+	// included, always rolls it. A landed hit rolls it whether or not it deals
+	// damage, Sunder Armor and a Rend application among them. The proc rolls
+	// off the hit's cast result and puts the attack power up with every charge;
+	// the hit's damage, rolled before the proc, does not gain it. The extra
+	// attack after it spends a charge, and the last one goes to the next auto
+	// in either hand, whether an auto or an ability fired the proc.
+	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+		procSwing = nil
+		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+			procSwing, procAt = spell, sim.CurrentTime
+		}
 		procAura.Activate(sim)
 		procAura.SetStacks(sim, procAura.MaxStacks)
 	})

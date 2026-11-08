@@ -789,8 +789,8 @@ func windfuryRowAbilities(t *testing.T) (requires *core.Spell, nextSwing *core.S
 		if row.DefenseType != core.DefenseTypeMelee {
 			continue
 		}
-		mainHand := row.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_REQ_MAIN_HAND)
-		onNextSwing := row.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_ON_NEXT_SWING)
+		mainHand := spelldata.RequiredHand(row).Matches(core.ProcMaskMeleeMH)
+		onNextSwing := row.OnNextSwing()
 		slot := &neither
 		switch {
 		case mainHand && !onNextSwing:

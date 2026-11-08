@@ -72,8 +72,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Annihilator-12798"
  value: {
-  dps: 660.81359
-  tps: 469.17765
+  dps: 660.95138
+  tps: 469.27548
   hps: 49.03722
  }
 }
@@ -120,8 +120,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BlazingRapier-12777"
  value: {
-  dps: 624.99541
-  tps: 443.74674
+  dps: 625.12704
+  tps: 443.8402
   hps: 49.03722
  }
 }
@@ -232,8 +232,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 599.50531
-  tps: 425.64877
+  dps: 599.63736
+  tps: 425.74253
   hps: 49.03722
  }
 }
@@ -456,16 +456,16 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
-  dps: 628.10542
-  tps: 445.95485
+  dps: 628.34302
+  tps: 446.12354
   hps: 60.76278
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Frostguard-12797"
  value: {
-  dps: 641.86402
-  tps: 455.72345
+  dps: 642.03916
+  tps: 455.84781
   hps: 46.88528
  }
 }
@@ -536,8 +536,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 617.68703
-  tps: 438.55779
+  dps: 617.87882
+  tps: 438.69396
   hps: 51.83306
  }
 }
@@ -568,8 +568,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HanzoSword-8190"
  value: {
-  dps: 617.38714
-  tps: 438.34487
+  dps: 617.58227
+  tps: 438.48341
   hps: 58.98361
  }
 }
@@ -744,8 +744,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-PhantomBlade-7961"
  value: {
-  dps: 611.40525
-  tps: 434.09773
+  dps: 611.62719
+  tps: 434.25531
   hps: 57.39083
  }
 }
@@ -816,8 +816,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 617.7739
-  tps: 438.61947
+  dps: 617.91854
+  tps: 438.72216
   hps: 48.42722
  }
 }
@@ -840,8 +840,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 609.25799
-  tps: 432.57318
+  dps: 609.39005
+  tps: 432.66693
   hps: 49.03722
  }
 }
@@ -960,8 +960,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-ThrashBlade-17705"
  value: {
-  dps: 643.78507
-  tps: 457.0874
+  dps: 644.0917
+  tps: 457.30511
   hps: 48.73222
  }
 }
@@ -976,8 +976,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 699.85744
-  tps: 480.30431
+  dps: 700.02694
+  tps: 480.42465
   hps: 52.83278
  }
 }

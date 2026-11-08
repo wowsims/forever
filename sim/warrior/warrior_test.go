@@ -654,8 +654,8 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 }
 
 // A shield's hit is an off-hand hit: it never procs Windfury Totem or the main-hand weapon's
-// enchant, which a main-hand special does. Windfury Totem hears it as an ability whose row requires
-// a main-hand weapon, so its hand alone keeps it out.
+// enchant, which a main-hand special does. The shield rows carry neither bit Windfury Totem reads, so
+// the test adds the main-hand flag to each hit and only the off-hand mask is under test.
 func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 	sim, war, target := shieldTestSim(t)
 	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagRequiresMainHand}
