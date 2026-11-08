@@ -7,7 +7,6 @@ import (
 
 func (druid *Druid) registerRakeSpell() {
 	rank := spellData.Rake.Highest()
-	// TODO: Verify the direct hit's attack power share independently of the periodic damage.
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	// The initial hit is not reduced by armor in game, as a tester's report on PR #149 states, although
 	// only the periodic effect states the bleed mechanic. The ticks are periodic physical damage, which
@@ -21,7 +20,8 @@ func (druid *Druid) registerRakeSpell() {
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		initial := rank.DamageEffect().AverageAt(druid.level()) * druid.rendAndTearMultiplier(target)
+		hit := rank.DamageEffect()
+		initial := (hit.AverageAt(druid.level()) + hit.APCoeff()*spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		result := spell.CalcAndDealDamage(sim, target, initial, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)

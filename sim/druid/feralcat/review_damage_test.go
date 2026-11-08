@@ -14,12 +14,13 @@ import (
 	"github.com/wowsims/forever/sim/druid"
 )
 
-func TestBiteDodgeKeepsExtraEnergyAndComboPoints(t *testing.T) {
+// A dodged bite gives back 80% of its base energy and keeps the extra energy and the combo points.
+func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 1
 	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
-	want := cat.CurrentEnergy() - cat.FerociousBite.Cost.GetCurrentCost()
+	want := cat.CurrentEnergy() - 0.2*cat.FerociousBite.Cost.GetCurrentCost()
 	if !cat.FerociousBite.Cast(sim, target) {
 		t.Fatal("bite did not cast")
 	}
@@ -139,9 +140,9 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	before = metric.TotalDamage
 	dot.TickOnce(sim)
 	high := metric.TotalDamage - before
-	// The override's 0.055 per attack power (the row states none), raised by 25%.
-	if math.Abs((high-low)-6.875) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want 6.875", high-low)
+	// The override's 0.065 per attack power; the row states none.
+	if math.Abs((high-low)-6.5) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want 6.5", high-low)
 	}
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
 }
