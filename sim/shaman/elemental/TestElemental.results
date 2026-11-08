@@ -519,6 +519,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FistofStone-17943"
+ value: {
+  dps: 681.02265
+  tps: 644.07888
+  dtps: 9.03286
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 712.31646

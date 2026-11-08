@@ -470,6 +470,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-FistofStone-17943"
+ value: {
+  dps: 713.75779
+  tps: 543.54785
+  hps: 46.61417
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 778.79558
