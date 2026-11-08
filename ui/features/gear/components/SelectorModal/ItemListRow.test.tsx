@@ -179,13 +179,13 @@ describe('ItemListRow', () => {
 			vi.restoreAllMocks();
 		});
 
-		it('shows on an item first seen inside the last fourteen days', () => {
+		it('shows on an item first seen inside the last seven days', () => {
 			const { container } = renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
-			expect(notice(container)).toBe('gear_tab.item_notices.first_seen');
+			expect(notice(container)).toBe('gear_tab.item_notices.discovered_on');
 		});
 
 		it.each([
-			['an item first seen before the last fourteen days', SelectorModalTabs.Items, NOW_MS / 1000 - 15 * DAY_SECONDS],
+			['an item first seen before the last seven days', SelectorModalTabs.Items, NOW_MS / 1000 - 8 * DAY_SECONDS],
 			['an item with no first-seen date', SelectorModalTabs.Items, undefined],
 			['an enchant whose row has a recent date', SelectorModalTabs.Enchants, NOW_MS / 1000 - 3 * DAY_SECONDS],
 		])('stays off %s', (_name, label, firstSeen) => {

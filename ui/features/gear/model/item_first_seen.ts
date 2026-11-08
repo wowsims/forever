@@ -1,26 +1,37 @@
-// One entry per item id: the unix second the sim's database first held the item.
-const itemFirstSeenUrl = '/forever/assets/database/item_first_seen.json';
+import i18n from '@i18n/config';
 
-const NEWLY_DISCOVERED_WINDOW_MS = 14 * 24 * 60 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const NEWLY_DISCOVERED_WINDOW_MS = 7 * DAY_MS;
 
 export const isNewlyDiscovered = (firstSeenSeconds: number): boolean => Date.now() - firstSeenSeconds * 1000 <= NEWLY_DISCOVERED_WINDOW_MS;
 
-let load: Promise<Map<number, number>> | null = null;
+// Local calendar days, so a stamp from late last night reads as yesterday.
+const calendarDaysAgo = (date: Date): number => {
+	const today = new Date(Date.now());
+	today.setHours(0, 0, 0, 0);
+	const day = new Date(date);
+	day.setHours(0, 0, 0, 0);
+	return Math.round((today.getTime() - day.getTime()) / DAY_MS);
+};
 
-// Fetched once per page. A failed fetch gives an empty map and is never memoized (same reset as
-// Database.get), so the next list to open tries again.
-export const loadItemFirstSeen = (): Promise<Map<number, number>> => {
-	load ??= (async () => {
-		try {
-			const response = await fetch(itemFirstSeenUrl);
-			if (!response.ok) throw new Error(`HTTP ${response.status}`);
-			const entries: Array<{ id: number; firstSeen: number }> = await response.json();
-			return new Map(entries.map(({ id, firstSeen }) => [id, firstSeen]));
-		} catch (error) {
-			console.warn(`Item first-seen dates failed to load from ${itemFirstSeenUrl}:`, error);
-			load = null;
-			return new Map<number, number>();
-		}
-	})();
-	return load;
+const ordinalSuffix = (day: number): string => {
+	switch (new Intl.PluralRules(i18n.language, { type: 'ordinal' }).select(day)) {
+		case 'one':
+			return i18n.t('gear_tab.item_notices.ordinal.one');
+		case 'two':
+			return i18n.t('gear_tab.item_notices.ordinal.two');
+		case 'few':
+			return i18n.t('gear_tab.item_notices.ordinal.few');
+		default:
+			return i18n.t('gear_tab.item_notices.ordinal.other');
+	}
+};
+
+export const discoveredLabel = (firstSeenSeconds: number): string => {
+	const date = new Date(firstSeenSeconds * 1000);
+	const daysAgo = calendarDaysAgo(date);
+	if (daysAgo === 0) return i18n.t('gear_tab.item_notices.discovered_today');
+	if (daysAgo === 1) return i18n.t('gear_tab.item_notices.discovered_yesterday');
+	const month = new Intl.DateTimeFormat(i18n.language, { month: 'long' }).format(date);
+	return i18n.t('gear_tab.item_notices.discovered_on', { date: `${month} ${date.getDate()}${ordinalSuffix(date.getDate())}` });
 };

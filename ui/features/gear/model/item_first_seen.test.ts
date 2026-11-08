@@ -1,10 +1,12 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
-import { isNewlyDiscovered } from './item_first_seen';
+import { discoveredLabel, isNewlyDiscovered } from './item_first_seen';
 
-const NOW_MS = Date.UTC(2026, 10, 8, 12);
+// Local noon, so the calendar-day cases below sit well inside their days.
+const NOW_MS = new Date(2026, 10, 8, 12).getTime();
 const NOW_SECONDS = NOW_MS / 1000;
-const WINDOW_SECONDS = 14 * 24 * 60 * 60;
+const DAY_SECONDS = 24 * 60 * 60;
+const WINDOW_SECONDS = 7 * DAY_SECONDS;
 
 describe('isNewlyDiscovered', () => {
 	it.each([
@@ -19,51 +21,14 @@ describe('isNewlyDiscovered', () => {
 	});
 });
 
-describe('loadItemFirstSeen', () => {
-	// The loader keeps its promise for the page, so each case loads the module afresh.
-	const freshLoader = async () => {
-		vi.resetModules();
-		return (await import('./item_first_seen')).loadItemFirstSeen;
-	};
-
-	afterEach(() => {
-		vi.unstubAllGlobals();
-		vi.restoreAllMocks();
-	});
-
-	it('maps each item id to its first-seen second, fetching once for every caller', async () => {
-		const fetch = vi.fn(async () =>
-			Response.json([
-				{ id: 720, firstSeen: 1668842294 },
-				{ id: 744, firstSeen: NOW_SECONDS },
-			]),
-		);
-		vi.stubGlobal('fetch', fetch);
-		const load = await freshLoader();
-
-		const [first, second] = await Promise.all([load(), load()]);
-
-		expect(first).toBe(second);
-		expect([...first]).toEqual([
-			[720, 1668842294],
-			[744, NOW_SECONDS],
-		]);
-		expect(fetch).toHaveBeenCalledOnce();
-		expect(fetch).toHaveBeenCalledWith('/forever/assets/database/item_first_seen.json');
-	});
-
+describe('discoveredLabel', () => {
 	it.each([
-		['a missing file', async () => new Response('Not found', { status: 404 })],
-		['a failed request', async () => Promise.reject(new TypeError('Failed to fetch'))],
-	])('gives an empty map and a warning for %s, and fetches again on the next call', async (_name, respond) => {
-		const fetch = vi.fn(respond);
-		vi.stubGlobal('fetch', fetch);
-		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-		const load = await freshLoader();
-
-		expect((await load()).size).toBe(0);
-		expect((await load()).size).toBe(0);
-		expect(warn).toHaveBeenCalledTimes(2);
-		expect(fetch).toHaveBeenCalledTimes(2);
+		['this morning', new Date(2026, 10, 8, 1).getTime() / 1000, 'gear_tab.item_notices.discovered_today'],
+		['late last night', new Date(2026, 10, 7, 23, 30).getTime() / 1000, 'gear_tab.item_notices.discovered_yesterday'],
+		['two days ago', NOW_SECONDS - 2 * DAY_SECONDS, 'gear_tab.item_notices.discovered_on'],
+	])('names an item discovered %s', (_name, firstSeen, key) => {
+		vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
+		expect(discoveredLabel(firstSeen)).toBe(key);
+		vi.restoreAllMocks();
 	});
 });

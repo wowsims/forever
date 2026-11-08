@@ -58,7 +58,7 @@ export const NewlyDiscovered: Story = {
 	args: {
 		notice: (
 			<ItemNoticeIconView level="info">
-				<p className="mb-0">New: added to the sim on 11/3/2026</p>
+				<p className="mb-0">Discovered on November 3rd</p>
 			</ItemNoticeIconView>
 		),
 	},

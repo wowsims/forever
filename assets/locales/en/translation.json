@@ -636,7 +636,15 @@
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
 			"area_stats": "Only while the encounter is in one of these areas:",
-			"first_seen": "New: added to the sim on {{date}}"
+			"discovered_today": "Discovered today",
+			"discovered_yesterday": "Discovered yesterday",
+			"discovered_on": "Discovered on {{date}}",
+			"ordinal": {
+				"one": "st",
+				"two": "nd",
+				"few": "rd",
+				"other": "th"
+			}
 		}
 	},
 	"settings_tab": {
