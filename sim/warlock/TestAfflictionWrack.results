@@ -727,6 +727,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Prismcharm-15867"
+ value: {
+  dps: 911.27469
+  tps: 730.30304
+  dtps: 9.19099
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 911.27469

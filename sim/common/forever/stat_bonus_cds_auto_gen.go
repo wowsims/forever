@@ -64,6 +64,11 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(18639) // Ultra-Flash Shadow Reflector - https://www.wowhead.com/forever/spell=23132
 	// unsupported: 23595 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(19141) // Luffa - https://www.wowhead.com/forever/spell=23595
+	// on use: 24389 (A_ADD_FLAT_MODIFIER, A_DUMMY)
+	// unsupported: effect 1 A_ADD_FLAT_MODIFIER misc 0 is not parsed on the wearer; effect 2 A_DUMMY misc 0 is not parsed on the wearer
+	// shared.NewSpellDataAuraOnUse(20036) // Fire Ruby - https://www.wowhead.com/forever/spell=24389
+	// unsupported: 25112 deals no damage and heals no one (E_SUMMON_PET)
+	// shared.NewSimpleStatActive(20534) // Abyss Shard - https://www.wowhead.com/forever/spell=25112
 	// unsupported: 25892 deals no damage and heals no one (E_THREAT)
 	// shared.NewSimpleStatActive(21181) // Grace of Earth - https://www.wowhead.com/forever/spell=25892
 	// unsupported: 26467 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
@@ -90,6 +95,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(276337) // Thaelemaches' Talisman - https://www.wowhead.com/forever/spell=1299440
 	// unsupported: 1302833 deals no damage and heals no one (A_MOD_SPEED_ALWAYS, E_DUMMY, E_FORCE_CAST)
 	// shared.NewSimpleStatActive(277844) // Mirage Mirror - https://www.wowhead.com/forever/spell=1302833
+	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
+	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 
 	// Absorbs
 	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
@@ -130,6 +137,7 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(15873) // Ragged John's Neverending Cup - https://www.wowhead.com/forever/spell=20587
 
 	// ArcaneResistance / FireResistance / FrostResistance / NatureResistance / ShadowResistance
+	shared.NewSimpleStatActive(15867) // Prismcharm - https://www.wowhead.com/forever/spell=19638
 	shared.NewSimpleStatActive(23042) // Loatheb's Reflection - https://www.wowhead.com/forever/spell=28778
 
 	// ArmorNoMods
@@ -251,6 +259,10 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataHealOnUse(16768) // Furbolg Medicine Pouch - https://www.wowhead.com/forever/spell=20631
 	// on use: 23064 (E_HEAL); not simulated: E_DISPEL_MECHANIC, E_ENERGIZE
 	shared.NewSpellDataHealOnUse(18637) // Major Recombobulator - https://www.wowhead.com/forever/spell=23064
+	// on use: 24354 (E_HEAL)
+	shared.NewSpellDataHealOnUse(19990) // Blessed Prayer Beads - https://www.wowhead.com/forever/spell=24354
+	// on use: 363881 (A_PERIODIC_HEAL); not simulated: A_DUMMY
+	shared.NewSpellDataHealOnUse(20130) // Diamond Flask - https://www.wowhead.com/forever/spell=363881
 
 	// Health
 	shared.NewSimpleStatActive(13966) // Mark of Tyranny - https://www.wowhead.com/forever/spell=1287842
@@ -271,6 +283,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(19951) // Gri'lek's Charm of Might - https://www.wowhead.com/forever/spell=24571
 	// on use: 24532 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(19954) // Renataki's Charm of Trickery - https://www.wowhead.com/forever/spell=24532
+	// on use: 24865 (E_ENERGIZE)
+	shared.NewSpellDataEnergizeOnUse(20512) // Sanctified Orb - https://www.wowhead.com/forever/spell=24865
 	// on use: 24884 (A_PERIODIC_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(20525) // Earthen Sigil - https://www.wowhead.com/forever/spell=24884
 	// on use: 28760 (E_ENERGIZE)

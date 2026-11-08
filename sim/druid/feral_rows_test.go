@@ -8,10 +8,7 @@ func TestOmenOfClarityUsesThePlaceholderRate(t *testing.T) {
 	}
 }
 
-func TestFinisherAttackPowerPlaceholders(t *testing.T) {
-	if got := spellData.Rip.Highest().PeriodicDamageEffect().APCoeff(); got != 0.0125 {
-		t.Errorf("Rip tick attack power per combo point = %v, want the placeholder 0.0125", got)
-	}
+func TestFerociousBiteAttackPowerPlaceholder(t *testing.T) {
 	if got := spellData.FerociousBite.ByID(22829).DamageEffect().APCoeff(); got != 0.0375 {
 		t.Errorf("Ferocious Bite attack power per combo point = %v, want the placeholder 0.0375", got)
 	}

@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-BlessedPrayerBeads-19990"
+ value: {
+  dps: 751.45302
+  tps: 536.96384
+  dtps: 5.34518
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-BristleconeCloak-275833"
  value: {
   dps: 743.20054
@@ -768,6 +776,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-PetrifiedScarab-21685"
+ value: {
+  dps: 749.53402
+  tps: 535.62054
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Prismcharm-15867"
  value: {
   dps: 749.53402
   tps: 535.62054

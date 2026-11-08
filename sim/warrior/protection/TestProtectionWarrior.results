@@ -378,6 +378,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-DiamondFlask-20130"
+ value: {
+  dps: 434.60688
+  tps: 1392.20251
+  dtps: 291.1731
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-DormantHeartoftheMountain-249473"
  value: {
   dps: 434.60688
@@ -663,6 +672,15 @@ dps_results: {
   tps: 1376.59044
   dtps: 288.28342
   hps: 36.66556
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-FlurryAxe-871"
+ value: {
+  dps: 423.59315
+  tps: 1382.20285
+  dtps: 293.74102
+  hps: 44.13806
  }
 }
 dps_results: {
@@ -1161,6 +1179,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Prismcharm-15867"
+ value: {
+  dps: 434.60688
+  tps: 1392.20251
+  dtps: 291.1731
+  hps: 36.59778
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-RageofMugamba-19577"
  value: {
   dps: 425.17018
@@ -1176,6 +1203,15 @@ dps_results: {
   tps: 1392.20251
   dtps: 291.1731
   hps: 36.59778
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-RazorsteelShoulders-20517"
+ value: {
+  dps: 431.99557
+  tps: 1369.9791
+  dtps: 283.06136
+  hps: 36.53
  }
 }
 dps_results: {

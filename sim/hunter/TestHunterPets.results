@@ -580,6 +580,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-FlurryAxe-871"
+ value: {
+  dps: 634.25349
+  tps: 416.13299
+  dtps: 0.58028
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Frostguard-12797"
  value: {
   dps: 634.25349
@@ -937,6 +945,14 @@ dps_results: {
   dps: 654.56319
   tps: 433.29097
   dtps: 0.81592
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Prismcharm-15867"
+ value: {
+  dps: 653.88723
+  tps: 432.61703
+  dtps: 0.77273
  }
 }
 dps_results: {

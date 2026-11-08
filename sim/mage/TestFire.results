@@ -664,6 +664,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Prismcharm-15867"
+ value: {
+  dps: 804.69323
+  tps: 804.26704
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 804.69323

@@ -465,39 +465,130 @@ var Spells = []Override{
 		Source:  "issue #225",
 	},
 	{
+		SpellID: 1079,
+		Field:   APCoefPeriodic,
+		Value:   0.0114,
+		Reason:  "Rip Rank 1: attack power share per tick per combo point, measured over 17 ticks at 3 and 4 combo points and 192 to 239 attack power",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9492,
+		Field:   APCoefPeriodic,
+		Value:   0.0114, // TODO: Measure Rip Rank 2 in game.
+		Reason:  "Rip Rank 2: Rank 1's measured share per tick per combo point",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9493,
+		Field:   APCoefPeriodic,
+		Value:   0.0114, // TODO: Measure Rip Rank 3 in game.
+		Reason:  "Rip Rank 3: Rank 1's measured share per tick per combo point",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9752,
+		Field:   APCoefPeriodic,
+		Value:   0.0114, // TODO: Measure Rip Rank 4 in game.
+		Reason:  "Rip Rank 4: Rank 1's measured share per tick per combo point",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9894,
+		Field:   APCoefPeriodic,
+		Value:   0.0114, // TODO: Measure Rip Rank 5 in game.
+		Reason:  "Rip Rank 5: Rank 1's measured share per tick per combo point",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
 		SpellID: 9896,
 		Field:   APCoefPeriodic,
-		Value:   0.0125,
-		Reason:  "Rip: 0.06 attack power per combo point over six ticks as measured, capped at four points, then raised 25% for the November 2 development notes (about 25%); higher-rank verification remains open",
-		Source:  "Rip AP Scaling Testing, 2026-09-26, https://docs.google.com/spreadsheets/d/1fQiaAQzz1r_wS-2pD5e1Y6wZLxajru2R8GK5Uw1Lo60; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.0114, // TODO: Measure Rip Rank 6 in game.
+		Reason:  "Rip Rank 6: Rank 1's measured share per tick per combo point",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 1822,
+		Field:   APCoefDirect,
+		Value:   0.065,
+		Reason:  "Rake Rank 1: measured direct hit share, 0.0648 fitted; one share fits the hit and the tick",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
 		SpellID: 1822,
 		Field:   APCoefPeriodic,
-		Value:   0.06875,
-		Reason:  "Rake Rank 1: periodic attack power share fitted to 136, 162, 217 and 237 AP with reported damage modifiers, raised 25% for the November 2 development notes (about 25%)",
-		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.065,
+		Reason:  "Rake Rank 1: measured periodic share, 0.0652 fitted; one share fits the hit and the tick",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 1823,
+		Field:   APCoefDirect,
+		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
+		Reason:  "Rake Rank 2: Rank 1's measured direct hit share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
 		SpellID: 1823,
 		Field:   APCoefPeriodic,
-		Value:   0.06875,
-		Reason:  "Rake Rank 2: Rank 1's measured periodic share, raised 25% for the November 2 development notes (about 25%); TODO: verify at this rank",
-		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
+		Reason:  "Rake Rank 2: Rank 1's measured periodic share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 1824,
+		Field:   APCoefDirect,
+		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
+		Reason:  "Rake Rank 3: Rank 1's measured direct hit share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
 		SpellID: 1824,
 		Field:   APCoefPeriodic,
-		Value:   0.06875,
-		Reason:  "Rake Rank 3: Rank 1's measured periodic share, raised 25% for the November 2 development notes (about 25%); TODO: verify at this rank",
-		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
+		Reason:  "Rake Rank 3: Rank 1's measured periodic share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9904,
+		Field:   APCoefDirect,
+		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
+		Reason:  "Rake Rank 4: Rank 1's measured direct hit share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
 		SpellID: 9904,
 		Field:   APCoefPeriodic,
-		Value:   0.06875,
-		Reason:  "Rake Rank 4: Rank 1's measured periodic share, raised 25% for the November 2 development notes (about 25%); TODO: verify at this rank",
-		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
+		Reason:  "Rake Rank 4: Rank 1's measured periodic share",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 779,
+		Field:   APCoefDirect,
+		Value:   0.03,
+		Reason:  "Swipe Rank 1: 3% of attack power on each hit, measured; the game files state none",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 780,
+		Field:   APCoefDirect,
+		Value:   0.03,
+		Reason:  "Swipe Rank 2: 3% of attack power on each hit, measured; the game files state none",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 769,
+		Field:   APCoefDirect,
+		Value:   0.03, // TODO: Measure Swipe Rank 3 in game.
+		Reason:  "Swipe Rank 3: the 3% share measured at ranks 1, 2 and 5; the game files state none",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+	},
+	{
+		SpellID: 9754,
+		Field:   APCoefDirect,
+		Value:   0.03, // TODO: Measure Swipe Rank 4 in game.
+		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2 and 5; the game files state none",
+		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
 		SpellID: 9908,
