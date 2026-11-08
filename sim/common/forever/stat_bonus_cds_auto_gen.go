@@ -11,6 +11,8 @@ func RegisterAllOnUseCds() {
 	defer shared.Generated()()
 
 	//
+	// unsupported: 18820 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL)
+	// shared.NewSimpleStatActive(940) // Robes of Insight - https://www.wowhead.com/forever/spell=18820
 	// unsupported: 835 deals no damage and heals no one (A_MOD_STUN)
 	// shared.NewSimpleStatActive(1404) // Tidal Charm - https://www.wowhead.com/forever/spell=835
 	// unsupported: 1300364 deals no damage and heals no one (A_MOD_DETECTED_RANGE)
@@ -56,6 +58,8 @@ func RegisterAllOnUseCds() {
 	// on use: 1287808 (A_SCHOOL_ABSORB); not simulated: A_DUMMY
 	// unsupported: the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list
 	// shared.NewSpellDataAbsorbOnUse(18406) // Onyxia Blood Talisman - https://www.wowhead.com/forever/spell=1287808
+	// unsupported: 1302356 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
+	// shared.NewSimpleStatActive(18537) // Counterattack Lodestone - https://www.wowhead.com/forever/spell=1302356
 	// unsupported: 23131 deals no damage and heals no one (A_REFLECT_SPELLS_SCHOOL)
 	// shared.NewSimpleStatActive(18634) // Gyrofreeze Ice Reflector - https://www.wowhead.com/forever/spell=23131
 	// unsupported: 23097 deals no damage and heals no one (A_REFLECT_SPELLS_SCHOOL)
@@ -64,6 +68,11 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(18639) // Ultra-Flash Shadow Reflector - https://www.wowhead.com/forever/spell=23132
 	// unsupported: 23595 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(19141) // Luffa - https://www.wowhead.com/forever/spell=23595
+	// unsupported: 24352 deals no damage and heals no one (A_DUMMY)
+	// shared.NewSimpleStatActive(19991) // Devilsaur Eye - https://www.wowhead.com/forever/spell=24352
+	// on use: 24353 (A_ADD_PCT_MODIFIER)
+	// unsupported: the buff drops after ProcCharges 1, which the aura does not spend
+	// shared.NewSpellDataAuraOnUse(19992) // Devilsaur Tooth - https://www.wowhead.com/forever/spell=24353
 	// on use: 24389 (A_ADD_FLAT_MODIFIER, A_DUMMY)
 	// unsupported: effect 1 A_ADD_FLAT_MODIFIER misc 0 is not parsed on the wearer; effect 2 A_DUMMY misc 0 is not parsed on the wearer
 	// shared.NewSpellDataAuraOnUse(20036) // Fire Ruby - https://www.wowhead.com/forever/spell=24389
@@ -299,6 +308,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=9774
 	// Not simulated: Glimmering Mithril Insignia: "Fearless" (12733) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=12733
+	// Not simulated: Chained Essence of Eranikus: "Cloud of Chained Essence" (12766) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=12766
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
