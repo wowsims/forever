@@ -28,6 +28,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(7391) // Swift Boots - https://www.wowhead.com/forever/spell=9175
 	// unsupported: 14537 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(7734) // Six Demon Bag - https://www.wowhead.com/forever/spell=14537
+	// unsupported: 22641 deals no damage and heals no one (E_CHARGE, E_TRIGGER_SPELL)
+	// shared.NewSimpleStatActive(9394) // Horned Viking Helmet - https://www.wowhead.com/forever/spell=22641
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
 	// shared.NewSimpleStatActive(9404) // Olaf's All Purpose Shield - https://www.wowhead.com/forever/spell=12438
 	// unsupported: 12438 deals no damage and heals no one (A_FEATHER_FALL)
@@ -118,6 +120,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(23558) // The Burrower's Shell - https://www.wowhead.com/forever/spell=29506
 	// on use: 1291097 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(272437) // Adaptive Combat Assistant - https://www.wowhead.com/forever/spell=1291097
+	// on use: 1314412 (A_SCHOOL_ABSORB)
+	shared.NewSpellDataAbsorbOnUse(282778) // Mark of the Red Flight - https://www.wowhead.com/forever/spell=1314412
 
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
@@ -129,6 +133,7 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(23042) // Loatheb's Reflection - https://www.wowhead.com/forever/spell=28778
 
 	// ArmorNoMods
+	shared.NewSimpleStatActive(1447)  // Ring of Saviors - https://www.wowhead.com/forever/spell=18826
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
 
@@ -362,6 +367,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=438273
 	// Not simulated: Greater Insignia of the Alliance: "PvP Trinket" (438273) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=438273
+	// Not simulated: Theka's Last Breath: "Theka's Last Breath" (1294617) - ignored aura type 56
+	// https://www.wowhead.com/forever/spell=1294617
 	// Not simulated: Field Agent Beverage: "Field Agent Beverage" (1297448) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=1297448
 

@@ -614,6 +614,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 914.7331
+  tps: 925.79147
+  dtps: 5.37252
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-HandofJustice-11815"
  value: {
   dps: 869.82454
@@ -830,6 +838,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-MasterworkStormhammer-12794"
  value: {
   dps: 846.04289
@@ -886,6 +902,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 884.21436
+  tps: 895.30724
+  dtps: 5.44142
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-RuneofMetamorphosis-19340"
  value: {
   dps: 869.82454
@@ -904,9 +928,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-SerenityField-272439"
  value: {
-  dps: 879.7637
-  tps: 890.74053
-  dtps: 5.14104
+  dps: 874.42327
+  tps: 885.26783
+  dtps: 5.56684
  }
 }
 dps_results: {
@@ -1136,8 +1160,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 889.7149
-  tps: 900.89003
+  dps: 885.31751
+  tps: 896.49264
   dtps: 5.63461
  }
 }
@@ -1251,44 +1275,44 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4592.02021
-  tps: 4625.62836
+  dps: 4571.85977
+  tps: 4605.53466
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 795.11473
-  tps: 805.41378
-  dtps: 4.64512
+  dps: 786.6067
+  tps: 797.33054
+  dtps: 4.87328
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 780.01147
-  tps: 786.68047
+  dps: 772.77657
+  tps: 779.44557
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1839.68151
-  tps: 1839.68151
+  dps: 1827.65587
+  tps: 1827.65587
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 327.70049
-  tps: 327.70049
+  dps: 317.9229
+  tps: 317.9229
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 481.41044
-  tps: 481.41044
+  dps: 475.16868
+  tps: 475.16868
  }
 }
 dps_results: {
@@ -1337,44 +1361,44 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4551.93528
-  tps: 4585.55788
+  dps: 4532.32331
+  tps: 4566.0138
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 787.50629
-  tps: 797.76824
+  dps: 779.26368
+  tps: 789.51744
   dtps: 4.82048
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 770.08189
-  tps: 776.75079
+  dps: 762.93189
+  tps: 769.60079
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1860.79006
-  tps: 1860.79006
+  dps: 1847.56402
+  tps: 1847.56402
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 322.77769
-  tps: 322.77769
+  dps: 313.84944
+  tps: 313.84944
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 468.24822
-  tps: 468.24822
+  dps: 462.16107
+  tps: 462.16107
  }
 }
 dps_results: {
