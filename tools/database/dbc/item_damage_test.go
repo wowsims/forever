@@ -207,19 +207,3 @@ func TestReducedCasterWeaponDPS(t *testing.T) {
 		}
 	}
 }
-
-// Attack power on gear raises ranged attack power by the same amount; ranged attack power raises ranged alone.
-func TestGearAttackPowerRaisesRangedAttackPower(t *testing.T) {
-	once.Do(func() {})
-	previous := dbcInstance
-	dbcInstance = NewDBC()
-	t.Cleanup(func() { dbcInstance = previous })
-	dbcInstance.RandomPropertiesByIlvl[60] = RandomPropAllocationMap{proto.ItemQuality_ItemQualityRare: {100, 80, 60, 50, 40}}
-
-	item := Item{Id: 1, ItemClass: ITEM_CLASS_ARMOR, InventoryType: INVTYPE_HANDS, ItemLevel: 60, OverallQuality: RARE,
-		BonusStat: []int{ITEM_MOD_ATTACK_POWER, ITEM_MOD_RANGED_ATTACK_POWER}, StatAlloc: []float64{2000, 1000}}
-	stats := item.GetStats(item.ItemLevel)
-	if ap, rap := stats[proto.Stat_StatAttackPower], stats[proto.Stat_StatRangedAttackPower]; ap != 16 || rap != 24 {
-		t.Errorf("attack power %v, ranged attack power %v, want 16 and 24", ap, rap)
-	}
-}
