@@ -16,6 +16,7 @@ import (
 	"text/template"
 
 	_ "github.com/wowsims/forever/sim/common"
+	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -37,6 +38,13 @@ func aboveEffectFloor(parsed *proto.UIItem) bool {
 // it reads the item, as Alchemist's Stone's bonus to the potions its wearer drinks.
 func implementedByHand(itemID int32) bool {
 	return core.HasItemEffect(itemID) || slices.Contains(core.AlchStoneItemIDs, itemID)
+}
+
+// Whether the entry is the one a hand-written proc reads its procs per minute from, and it states none.
+// That effect then registers nothing (forever.EntryRateProcs), so the item is missing its effect.
+func handProcStatesNoRate(parsed *proto.UIItem, itemEffect *proto.ItemEffect) bool {
+	spellID, ok := forever.EntryRateProcs[parsed.Id]
+	return ok && itemEffect.BuffId == spellID && itemEffect.GetProc().GetPpm() == 0
 }
 
 // Enchantment IDs at or below this are not generated.
@@ -1171,6 +1179,13 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 					skippedGroup = groupMapOnUse
 				}
 				storeSkippedEffect(parsed.Id, parsed.Name, itemEffect.BuffId, instance, skippedGroup)
+				continue
+			}
+
+			if handProcStatesNoRate(parsed, itemEffect) {
+				if tooltip, rendered := renderItemEffectTooltip(parsed, itemEffect, instance); rendered {
+					StoreMissingEffect("ItemEffects", parsed.Name, Variant{ID: int(parsed.Id), Name: tooltip, SpellID: int(itemEffect.BuffId)})
+				}
 				continue
 			}
 

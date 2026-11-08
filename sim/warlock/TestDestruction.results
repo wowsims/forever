@@ -671,6 +671,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 917.60389
+  tps: 723.71915
+  dtps: 10.10641
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 899.68891
@@ -727,6 +735,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 906.17755
+  tps: 715.76891
+  dtps: 10.20046
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-SecondWind-11819"
  value: {
   dps: 926.46565
@@ -737,9 +753,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-SerenityField-272439"
  value: {
-  dps: 942.44027
-  tps: 744.04968
-  dtps: 10.17164
+  dps: 923.06199
+  tps: 727.93974
+  dtps: 10.10641
  }
 }
 dps_results: {
@@ -937,8 +953,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 936.37513
-  tps: 737.93574
+  dps: 932.33126
+  tps: 734.93226
   dtps: 10.21928
  }
 }
