@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 
+import { useItemFirstSeen } from '../../hooks/useItemFirstSeen';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
@@ -149,6 +150,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const phase = useSimStore('phase');
 	const race = usePlayerStore('race');
 	const faction = player.getFaction();
+	const firstSeen = useItemFirstSeen();
 	const showEPValues = useUiStore('showEPValues');
 
 	const isFavourited = useCallback((row: ItemDataFields<ItemListType>) => isItemFavourited(filters, label, row), [filters, label]);
@@ -261,6 +263,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 								favouriteTooltipId={`${tooltipId}-favourite`}
 								compareTooltipId={`${tooltipId}-compare`}
 								faction={faction}
+								firstSeen={firstSeen.get(row.id)}
 								onEquip={() => row.onEquip(row.item)}
 								onToggleFavourite={() => toggleFavourite(row)}
 							/>

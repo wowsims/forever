@@ -16,8 +16,13 @@ type ItemFirstSeen struct {
 	FirstSeen int64 `json:"firstSeen"` // Unix seconds of the gen_db run that first saw the item.
 }
 
+// Stamps the items the file does not hold yet with now and writes the file back.
+func UpdateItemFirstSeen(path string, items map[int32]*proto.UIItem, now int64) {
+	writeItemFirstSeen(path, StampItemFirstSeen(readItemFirstSeen(path), items, now))
+}
+
 // A missing file reads as no entries.
-func ReadItemFirstSeen(path string) []ItemFirstSeen {
+func readItemFirstSeen(path string) []ItemFirstSeen {
 	data, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return nil
@@ -50,7 +55,7 @@ func StampItemFirstSeen(known []ItemFirstSeen, items map[int32]*proto.UIItem, no
 }
 
 // One entry per line, like db.json, so the file diffs by line.
-func WriteItemFirstSeen(path string, entries []ItemFirstSeen) {
+func writeItemFirstSeen(path string, entries []ItemFirstSeen) {
 	var buf bytes.Buffer
 	buf.WriteString("[\n")
 	for i, entry := range entries {

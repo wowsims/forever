@@ -2,17 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { loadItemFirstSeen } from '../model/item_first_seen';
 
-export const useItemFirstSeen = (): ReadonlyMap<number, number> | null => {
-	const [firstSeen, setFirstSeen] = useState<ReadonlyMap<number, number> | null>(null);
+// Empty until the file arrives; the loader never rejects.
+export const useItemFirstSeen = (): ReadonlyMap<number, number> => {
+	const [firstSeen, setFirstSeen] = useState<ReadonlyMap<number, number>>(() => new Map());
 
 	useEffect(() => {
-		let live = true;
-		loadItemFirstSeen().then(map => {
-			if (live) setFirstSeen(map);
-		});
-		return () => {
-			live = false;
-		};
+		loadItemFirstSeen().then(setFirstSeen);
 	}, []);
 
 	return firstSeen;

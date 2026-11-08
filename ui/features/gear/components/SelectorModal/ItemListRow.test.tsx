@@ -54,8 +54,6 @@ vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 		</div>
 	),
 }));
-const firstSeen = vi.hoisted(() => new Map<number, number>());
-vi.mock('../../hooks/useItemFirstSeen', () => ({ useItemFirstSeen: () => firstSeen }));
 
 const { ItemListRow, ItemListRowView } = await import('./ItemListRow');
 type ItemListRowProps = Parameters<typeof ItemListRow>[0];
@@ -175,26 +173,23 @@ describe('ItemListRow', () => {
 
 		beforeEach(() => {
 			vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
-			firstSeen.set(101, NOW_MS / 1000 - 3 * DAY_SECONDS);
-			firstSeen.set(102, NOW_MS / 1000 - 15 * DAY_SECONDS);
 		});
 
 		afterEach(() => {
 			vi.restoreAllMocks();
-			firstSeen.clear();
 		});
 
 		it('shows on an item first seen inside the last fourteen days', () => {
-			const { container } = renderRow({ itemData: makeItemData({ id: 101 }) });
+			const { container } = renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
 			expect(notice(container)).toBe('gear_tab.item_notices.first_seen');
 		});
 
 		it.each([
-			['an item first seen before the last fourteen days', SelectorModalTabs.Items, 102],
-			['an item with no first-seen date', SelectorModalTabs.Items, 103],
-			['an enchant whose id has a recent date', SelectorModalTabs.Enchants, 101],
-		])('stays off %s', (_name, label, id) => {
-			const { container } = renderRow({ label, itemData: makeItemData({ id }) });
+			['an item first seen before the last fourteen days', SelectorModalTabs.Items, NOW_MS / 1000 - 15 * DAY_SECONDS],
+			['an item with no first-seen date', SelectorModalTabs.Items, undefined],
+			['an enchant whose row has a recent date', SelectorModalTabs.Enchants, NOW_MS / 1000 - 3 * DAY_SECONDS],
+		])('stays off %s', (_name, label, firstSeen) => {
+			const { container } = renderRow({ label, firstSeen });
 			expect(notice(container)).toBe('');
 		});
 	});

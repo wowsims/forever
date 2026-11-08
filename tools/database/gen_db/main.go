@@ -322,8 +322,7 @@ func main() {
 	}
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
-	firstSeenPath := fmt.Sprintf("%s/item_first_seen.json", dbDir)
-	database.WriteItemFirstSeen(firstSeenPath, database.StampItemFirstSeen(database.ReadItemFirstSeen(firstSeenPath), db.Items, time.Now().Unix()))
+	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
 }
 
 // Drop sources from NPCs that are not in Forever although their zone is.

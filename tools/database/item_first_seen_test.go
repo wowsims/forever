@@ -40,7 +40,7 @@ func TestStampItemFirstSeenKeepsTheLineOfAnItemThatLeftTheDatabase(t *testing.T)
 func TestItemFirstSeenRoundTripsByteIdentical(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "item_first_seen.json")
 	entries := []ItemFirstSeen{{ID: 1, FirstSeen: 100}, {ID: 2, FirstSeen: 200}}
-	WriteItemFirstSeen(path, entries)
+	writeItemFirstSeen(path, entries)
 	written, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
@@ -49,17 +49,13 @@ func TestItemFirstSeenRoundTripsByteIdentical(t *testing.T) {
 	if string(written) != want {
 		t.Errorf("written file = %q, want one entry per line: %q", written, want)
 	}
-	if got := ReadItemFirstSeen(path); !slices.Equal(got, entries) {
+	if got := readItemFirstSeen(path); !slices.Equal(got, entries) {
 		t.Errorf("read back %v, want %v", got, entries)
-	}
-	WriteItemFirstSeen(path, ReadItemFirstSeen(path))
-	if rewritten, _ := os.ReadFile(path); !bytes.Equal(rewritten, written) {
-		t.Errorf("rewriting what was read changed the file: %q, want %q", rewritten, written)
 	}
 }
 
 func TestItemFirstSeenReadsAMissingFileAsEmpty(t *testing.T) {
-	if got := ReadItemFirstSeen(filepath.Join(t.TempDir(), "missing.json")); len(got) != 0 {
+	if got := readItemFirstSeen(filepath.Join(t.TempDir(), "missing.json")); len(got) != 0 {
 		t.Errorf("a missing file read as %v, want no entries", got)
 	}
 }
@@ -75,7 +71,7 @@ func TestCommittedItemFirstSeenCoversEveryItemInCanonicalForm(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	entries := ReadItemFirstSeen(path)
+	entries := readItemFirstSeen(path)
 	stamped := make(map[int32]bool, len(entries))
 	for i, entry := range entries {
 		if i > 0 && entry.ID <= entries[i-1].ID {
@@ -90,7 +86,7 @@ func TestCommittedItemFirstSeenCoversEveryItemInCanonicalForm(t *testing.T) {
 	}
 
 	rewritten := filepath.Join(t.TempDir(), "item_first_seen.json")
-	WriteItemFirstSeen(rewritten, entries)
+	writeItemFirstSeen(rewritten, entries)
 	if got, _ := os.ReadFile(rewritten); !bytes.Equal(got, committed) {
 		t.Errorf("item_first_seen.json is not in the form gen_db writes, one entry per line")
 	}

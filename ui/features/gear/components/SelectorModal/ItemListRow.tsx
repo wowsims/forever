@@ -13,7 +13,6 @@ import { type ReactNode, useMemo } from 'react';
 import { useStore } from 'zustand';
 
 import { trackEvent } from '../../../../tracking/utils';
-import { useItemFirstSeen } from '../../hooks/useItemFirstSeen';
 import { isNewlyDiscovered } from '../../model/item_first_seen';
 import { tabHasLevel } from '../../model/item_sort';
 import type { ItemData, ItemListType } from '../../types';
@@ -95,6 +94,8 @@ export interface ItemListRowProps {
 	compareTooltipId: string;
 	/** The character's side, whose quests and vendors the source column shows. */
 	faction?: Faction;
+	/** The unix second the sim's database first held the item; unset when unknown. */
+	firstSeen?: number;
 	onEquip: () => void;
 	onToggleFavourite: () => void;
 }
@@ -108,6 +109,7 @@ export const ItemListRow = ({
 	favouriteTooltipId,
 	compareTooltipId,
 	faction,
+	firstSeen,
 	onEquip,
 	onToggleFavourite,
 }: ItemListRowProps) => {
@@ -118,10 +120,9 @@ export const ItemListRow = ({
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
 	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
-	const firstSeen = useItemFirstSeen()?.get(itemData.id);
 	const firstSeenNotice =
-		isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen, Date.now()) ? (
-			<p className="mb-0">{i18n.t('gear_tab.item_notices.first_seen', { date: new Date(firstSeen * 1000).toLocaleDateString() })}</p>
+		isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? (
+			<p className="mb-0">{i18n.t('gear_tab.item_notices.first_seen', { date: new Date(firstSeen * 1000).toLocaleDateString(i18n.language) })}</p>
 		) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;

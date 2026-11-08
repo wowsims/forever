@@ -13,7 +13,9 @@ describe('isNewlyDiscovered', () => {
 		['an item first seen one second before the window', NOW_SECONDS - WINDOW_SECONDS - 1, false],
 		['an item first seen long ago', 1668842294, false],
 	])('counts %s as %s', (_name, firstSeen, expected) => {
-		expect(isNewlyDiscovered(firstSeen, NOW_MS)).toBe(expected);
+		vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
+		expect(isNewlyDiscovered(firstSeen)).toBe(expected);
+		vi.restoreAllMocks();
 	});
 });
 
@@ -53,7 +55,7 @@ describe('loadItemFirstSeen', () => {
 	it.each([
 		['a missing file', async () => new Response('Not found', { status: 404 })],
 		['a failed request', async () => Promise.reject(new TypeError('Failed to fetch'))],
-	])('gives an empty map and one warning for %s, and does not fetch again', async (_name, respond) => {
+	])('gives an empty map and a warning for %s, and fetches again on the next call', async (_name, respond) => {
 		const fetch = vi.fn(respond);
 		vi.stubGlobal('fetch', fetch);
 		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -61,7 +63,7 @@ describe('loadItemFirstSeen', () => {
 
 		expect((await load()).size).toBe(0);
 		expect((await load()).size).toBe(0);
-		expect(warn).toHaveBeenCalledOnce();
-		expect(fetch).toHaveBeenCalledOnce();
+		expect(warn).toHaveBeenCalledTimes(2);
+		expect(fetch).toHaveBeenCalledTimes(2);
 	});
 });
