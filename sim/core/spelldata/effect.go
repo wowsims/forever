@@ -143,9 +143,8 @@ func (e *Effect) baseSpread() (float32, float32) {
 }
 
 // The amount for one cast: rolled where the game files state a spread, the average where they do not.
-// A physical hit rolls a whole number: in game Revenge rank 1's 22 ± 1.69 lands on 20 to 24, the
-// ends taking only the share of the roll that rounds to them. The per-level gain is added after the
-// rounding; no measured row has both a roll and a gain.
+// A physical hit spreads its base points by half the Variance and rounds to a whole number; the
+// per-level gain is added after the rounding.
 func (e *Effect) RollAt(sim *core.Simulation, level int32) float64 {
 	if e.Variance == 0 {
 		return e.AverageAt(level)

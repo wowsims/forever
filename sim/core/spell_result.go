@@ -437,10 +437,8 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
-	// A weapon strike, white or special, takes the caster's flat physical damage bonus whole. A physical
-	// hit the row deals as school damage takes it at the row's coefficient, so with none it keeps only
-	// its own flat bonus: in game Revenge, Hamstring and Shield Bash rank 1, whose rows state 1, take it,
-	// and Thunder Clap and Victory Rush, which state 0, do not.
+	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
+	// school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
 	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {

@@ -132,8 +132,7 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.AppliesBleed() {
 		config.Flags |= core.SpellFlagBleed
 	}
-	// A physical row that deals school damage, which no physical row mixes with a weapon effect,
-	// takes the flat physical damage bonus at its coefficient, 0 or 1 on every such row.
+	// A physical row that deals school damage takes the flat physical damage bonus at its coefficient.
 	if damage.Type == dbcenums.E_SCHOOL_DAMAGE && s.SpellSchool() == core.SpellSchoolPhysical {
 		config.BonusCoefficient = damage.Coeff()
 		config.Flags |= core.SpellFlagPhysicalSchoolDamage

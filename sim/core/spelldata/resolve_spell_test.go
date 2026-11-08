@@ -461,10 +461,7 @@ func TestSpellConfigMagicOption(t *testing.T) {
 	}
 }
 
-// A physical row that deals school damage takes the caster's flat physical damage bonus at its
-// coefficient; the spell's own flat bonus is scaled by a coefficient above 0 (CalcDamage multiplies
-// the bonus damage, which includes it) and added whole at 0. A weapon strike takes the flat physical
-// bonus whole, whatever the coefficient its row states.
+// School damage takes the flat physical bonus at its coefficient; a weapon strike takes it whole.
 func TestFlatPhysicalBonusFollowsTheSchoolDamageCoefficient(t *testing.T) {
 	caster, _, target := casterScene()
 	damage := func(spell *core.Spell) float64 {

@@ -5,15 +5,23 @@ package spelldata
 // the links, masks and effect kinds of a handful of rows; no amount is pinned.
 
 import (
-	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"math"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 )
+
+// Installs a copy of Revenge rank 1, whose 22 ± 1.69 is a physical roll.
+func withRevengeRank1Row(t *testing.T) {
+	t.Helper()
+	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
+		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
+	}}})
+}
 
 // Installs the generated data for one test and puts the fixture back afterwards, since TestMain
 // swaps the fixture in for the whole package.
@@ -179,14 +187,9 @@ func TestRollEndsMatchTheTooltip(t *testing.T) {
 	}
 }
 
-// A physical hit rolls its base points by half the Variance either side, rounded to a whole number:
-// the copy of Revenge rank 1 below, 22 ± 1.69, lands on 20 to 24. A spell-school hit and a heal of
-// any school, Healing Potion's included, leave their roll to core, which spreads the whole amount by
-// DirectVariance; an energize keeps the half-width roll.
+// A physical hit rolls its base points itself; a spell-school hit and a heal hand core a DirectVariance, an energize none.
 func TestRollWidthByEffectKind(t *testing.T) {
-	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
-		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
-	}}})
+	withRevengeRank1Row(t)
 	copied := MustFind(6572).DamageEffect()
 	if got, want := [2]float64{copied.MinAt(60), copied.MaxAt(60)}, [2]float64{20, 24}; got != want {
 		t.Errorf("Revenge rank 1 rolls %v at 60, want %v", got, want)
@@ -209,13 +212,9 @@ func TestRollWidthByEffectKind(t *testing.T) {
 	}
 }
 
-// A physical roll is a whole number between its ends, every one of them, the two ends less often than
-// the numbers between, and averages the middle of its roll: the copy of Revenge rank 1, 22 ± 1.69,
-// rolls 20 to 24.
+// A physical roll is a whole number from end to end, the ends rarer than the numbers between, averaging the middle.
 func TestPhysicalRollIsAWholeNumber(t *testing.T) {
-	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
-		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
-	}}})
+	withRevengeRank1Row(t)
 	revenge := MustFind(6572).DamageEffect()
 	const level, low, high = 60, 20.0, 24.0
 

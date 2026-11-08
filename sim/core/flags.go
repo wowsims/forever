@@ -217,7 +217,7 @@ const (
 	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
 	SpellFlagStun                                           // The spell's mechanic is stun (SpellCategories.Mechanic 12): the whole cast misses a stun-immune target.
 	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
-	SpellFlagPhysicalSchoolDamage                           // A physical hit the row deals as school damage, not a weapon strike: it takes the caster's flat physical damage bonus only at its BonusCoefficient.
+	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
