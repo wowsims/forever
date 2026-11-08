@@ -12,7 +12,7 @@ func (hunter *Hunter) registerAimedShot() {
 	hunter.hasteRangedCast(&config)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := aimedShotRank.WeaponStrike(sim, spell, hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target)), 0)
+		baseDamage := aimedShotRank.WeaponStrike(sim, spell, hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target)), normalizedShotBonus)
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
 
 		spell.DealDamageAfterTravel(sim, result)
