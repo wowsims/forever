@@ -7,8 +7,9 @@ import (
 
 var shieldBashRank = spellData.ShieldBash.Highest()
 
-// Shield Bash's threat is 1.5 times its damage, times the stance, from Rank 1's logs.
-// TODO: Ingame test needed -- those logs fit a flat +2 as well; a hit of other damage tells them apart.
+// Shield Bash's threat is 1.5 times its damage, times the stance. Rank 1's crits for 8, 8, 9, 10 and 11
+// read as 12.0, 12.2, 13.5, 15.0 and 16.7 threat; a factor of 1.5 predicts 12, 12, 13.5, 15 and 16.5,
+// where a flat +2 would predict 10, 10, 11, 12 and 13.
 const shieldBashThreatMultiplier = 1.5
 
 func (warrior *Warrior) registerShieldBash() {

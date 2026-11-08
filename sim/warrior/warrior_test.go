@@ -866,9 +866,10 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
-// In Defensive Stance, the rage a block grants through Shield Specialization and Bloodrage's instant
-// rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
-// rage over time makes it times the multiplier, and rage gained before the pull makes none.
+// In Defensive Stance, the rage a block grants through Shield Specialization, the rage a dodge grants
+// through Master of Defense and Bloodrage's instant rage make ThreatPerRageGained threat per rage
+// without the warrior's threat multiplier, Bloodrage's rage over time makes it times the multiplier,
+// and rage gained before the pull makes none.
 func TestRageThreatFollowsItsSource(t *testing.T) {
 	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
 	player := &proto.Player{
@@ -909,17 +910,22 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 		return (rageThreat.SpellMetrics[target.UnitIndex].TotalThreat - threatBefore) / war.CurrentRage()
 	}
 
-	block := func() {
-		for range 1000 {
-			war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
-				&core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
-			if war.CurrentRage() > 0 {
-				return
+	avoid := func(outcome core.HitOutcome) func() {
+		return func() {
+			for range 1000 {
+				war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
+					&core.SpellResult{Target: &war.Unit, Outcome: outcome})
+				if war.CurrentRage() > 0 {
+					return
+				}
 			}
 		}
 	}
-	if got := threatPerRage(block); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+	if got := threatPerRage(avoid(core.OutcomeBlock)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
 		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+	if got := threatPerRage(avoid(core.OutcomeDodge)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Master of Defense's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
 	}
 
 	bloodrageInstant := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
@@ -1111,5 +1117,50 @@ func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
 	stepPastBatch(t, sim)
 	if got := swings() - before; got != 0 {
 		t.Errorf("%d Sword Specialization swings went off after their target died, want 0", got)
+	}
+}
+
+// Victory Rush heals on its own row, and its heal makes ThreatPerHealingDone threat for each point of
+// health it restores, overheal left out, times the warrior's threat multiplier.
+func TestVictoryRushHealMakesThreat(t *testing.T) {
+	sim, war, target := shieldTestSim(t)
+	victoryRush := war.GetSpell(core.ActionID{SpellID: 402927})
+	if victoryRush == nil {
+		t.Fatal("the warrior has no Victory Rush")
+	}
+	if heal := war.GetSpell(victoryRush.ActionID.WithTag(1)); heal != nil {
+		t.Errorf("Victory Rush registers a separate heal %v, want the heal on Victory Rush itself", heal.ActionID)
+	}
+	if victoryRush.ThreatMultiplier != 1 || victoryRush.FlatThreatBonus != 0 || victoryRush.ThreatAPCoefficient != 0 {
+		t.Fatalf("Victory Rush has threat multiplier %v, flat threat %v and AP threat %v, want 1, 0 and 0 for the checks below",
+			victoryRush.ThreatMultiplier, victoryRush.FlatThreatBonus, victoryRush.ThreatAPCoefficient)
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[victoryRush.SchoolIndex]
+	if multiplier == 1 {
+		t.Fatal("Defensive Stance sets no threat multiplier, so the check below proves nothing")
+	}
+	healed := war.MaxHealth() * spelldata.MustFind(victoryRush.ActionID.SpellID).EffectN(2).Percent()
+	if healed == 0 {
+		t.Fatal("the row states no heal, so the check below proves nothing")
+	}
+
+	// Half the heal is missing, so the other half overheals.
+	war.RemoveHealth(sim, healed/2)
+	victoryRush.SkipCastAndApplyEffects(sim, target)
+
+	onTarget := victoryRush.SpellMetrics[target.UnitIndex]
+	healThreat := onTarget.TotalThreat - onTarget.TotalDamage*multiplier
+	if got, want := healThreat, core.ThreatPerHealingDone*healed/2*multiplier; math.Abs(got-want) > 1e-6 {
+		t.Errorf("the heal made %v threat, want %v", got, want)
+	}
+	onSelf := victoryRush.SpellMetrics[war.UnitIndex]
+	if got := onSelf.TotalHealing; math.Abs(got-healed) > 1e-6 {
+		t.Errorf("Victory Rush shows %v healing, want the row's %v", got, healed)
+	}
+	if onSelf.Hits+onSelf.Crits != 0 {
+		t.Errorf("the heal counts %d hits and %d crits, want none", onSelf.Hits, onSelf.Crits)
+	}
+	if got := war.CurrentHealth(); got != war.MaxHealth() {
+		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
 	}
 }

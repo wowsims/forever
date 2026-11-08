@@ -8,8 +8,8 @@ Each line is the rule the code follows, where it lives, and the pull request tha
 - **The combat model is level 60 with target levels 58 to 63: attack tables come from the level difference, capped at
   +3, and per-hand weapon skill.** `sim/core/target.go`, PR #70.
 - **`EffectVariance` is the full roll width: spell hits and heals roll the whole amount, power included, by ±V/2
-  (`Spell.DirectVariance` after power), and physical effects roll the base by the full V before attack power.**
-  `sim/core/spell_result.go`, PR #267.
+  (`Spell.DirectVariance` after power), and physical effects roll the base by ±V/2, rounded to a whole number,
+  before attack power.** `sim/core/spell_result.go`, PR #267; `sim/core/spelldata/effect.go` `RollAt`.
 - **Every DoT tick rolls its effect's amount.** `sim/core/spelldata/resolve_aura.go`, `PeriodicDamageTick`, PR #573.
 - **Tick misses count in `TargetedActionMetrics.tick_misses`, not `Misses`, and Consecration's own cast roll does not
   count (`OutcomeTickMagicHitNoHitCounter`).** `sim/core/spell_outcome.go`, PR #570.

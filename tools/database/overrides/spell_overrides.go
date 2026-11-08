@@ -677,9 +677,9 @@ var Spells = []Override{
 	{
 		SpellID: 845,
 		Field:   FlatThreat,
-		Value:   31, // TODO: Measure Cleave Rank 1 in game.
-		Reason:  "Cleave Rank 1: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Value:   30,
+		Reason:  "Cleave Rank 1: adds 30 beyond its damage on one target, ~15 on each of two, times the stance",
+		Source:  "threat capture, Cleave Rank 1, 2026-11-07",
 	},
 	{
 		SpellID: 7369,
