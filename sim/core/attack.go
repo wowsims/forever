@@ -1027,6 +1027,14 @@ func (aa *AutoAttacks) MaybeReplaceMHSwing(sim *Simulation, mhSwingSpell *Spell)
 	return aa.mh.replaceSwing(sim, mhSwingSpell)
 }
 
+// Takes a melee speed change from the next swing on: the swing under way keeps its length.
+func (aa *AutoAttacks) updateMeleeSwingSpeed() {
+	aa.mh.updateSwingDuration(aa.mh.unit.TotalMeleeHasteMultiplier())
+	if aa.IsDualWielding {
+		aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
+	}
+}
+
 func (aa *AutoAttacks) UpdateSwingTimers(sim *Simulation) {
 	if aa.AutoSwingRanged {
 		aa.ranged.rescaleRangedSwing(sim)

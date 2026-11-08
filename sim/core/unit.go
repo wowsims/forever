@@ -650,10 +650,10 @@ func (unit *Unit) MultiplyMeleeSpeed(sim *Simulation, amount float64) {
 	unit.PseudoStats.MeleeSpeedMultiplier *= amount
 	unit.updateMeleeAttackSpeed()
 
-	if len(unit.DynamicMeleeSpeedPets) > 0 {
-		unit.Env.TriggerDelayedPetInheritance(sim, unit.DynamicMeleeSpeedPets, func(sim *Simulation, pet *Pet) {
-			pet.dynamicMeleeSpeedInheritance(sim, amount)
-		})
+	// The pets that take the owner's melee speed take each change at once, not at the next pet
+	// heartbeat.
+	for _, pet := range unit.DynamicMeleeSpeedPets {
+		pet.dynamicMeleeSpeedInheritance(sim, amount)
 	}
 
 	unit.AutoAttacks.UpdateSwingTimers(sim)
@@ -731,10 +731,8 @@ func (unit *Unit) MultiplyAttackSpeed(sim *Simulation, amount float64) {
 	unit.updateAttackSpeed()
 	unit.updateMeleeAndRangedHaste()
 
-	if len(unit.DynamicMeleeSpeedPets) > 0 {
-		unit.Env.TriggerDelayedPetInheritance(sim, unit.DynamicMeleeSpeedPets, func(sim *Simulation, pet *Pet) {
-			pet.dynamicMeleeSpeedInheritance(sim, amount)
-		})
+	for _, pet := range unit.DynamicMeleeSpeedPets {
+		pet.dynamicMeleeSpeedInheritance(sim, amount)
 	}
 
 	unit.AutoAttacks.UpdateSwingTimers(sim)

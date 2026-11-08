@@ -735,7 +735,8 @@ func TestVolleyHoldsAutoShotUntilTheChannelEnds(t *testing.T) {
 }
 
 // The pet swings at its owner's melee speed on top of its own: Rapid Fire's melee haste speeds it up
-// while it lasts, and the owner's ranged haste leaves it alone.
+// while it lasts, from the moment it starts and ends, and the swing under way keeps its length. The
+// owner's ranged haste leaves it alone.
 func TestPetSwingsAtItsOwnersMeleeSpeed(t *testing.T) {
 	player := &proto.Player{
 		Name:          "Owner",
@@ -765,17 +766,16 @@ func TestPetSwingsAtItsOwnersMeleeSpeed(t *testing.T) {
 		sim.Step()
 	}
 	swing := hunter.Pet.AutoAttacks.MainhandSwingSpeed
-	untilSwingIsNot := func(old time.Duration) {
-		for i := 0; swing() == old && i < 10000; i++ {
-			sim.Step()
-		}
+	next := hunter.Pet.AutoAttacks.MainhandSwingAt
+	for i := 0; next() <= sim.CurrentTime && i < 10000; i++ {
+		sim.Step()
+	}
+	if next() <= sim.CurrentTime {
+		t.Fatalf("the pet has no swing under way at %v", sim.CurrentTime)
 	}
 
 	base := swing()
 	hunter.MultiplyRangedSpeed(sim, 1.3)
-	for i := 0; i < 100; i++ {
-		sim.Step()
-	}
 	if got := swing(); got != base {
 		t.Errorf("the owner's ranged haste moved the pet's swing from %v to %v", base, got)
 	}
@@ -788,16 +788,22 @@ func TestPetSwingsAtItsOwnersMeleeSpeed(t *testing.T) {
 	if haste == 1 {
 		t.Fatal("Rapid Fire's row states no melee haste")
 	}
-	rapidFire.Activate(sim)
-	untilSwingIsNot(base)
-	if got, want := swing(), time.Duration(float64(base)/haste); (got - want).Abs() > time.Millisecond {
-		t.Errorf("with the owner's Rapid Fire up the pet swings every %v, want %v", got, want)
-	}
-	hasted := swing()
-	rapidFire.Deactivate(sim)
-	untilSwingIsNot(hasted)
-	if got := swing(); (got - base).Abs() > time.Millisecond {
-		t.Errorf("after the owner's Rapid Fire the pet swings every %v, want %v back", got, base)
+	for _, change := range []struct {
+		what string
+		flip func(*core.Simulation)
+		want time.Duration
+	}{
+		{"with the owner's Rapid Fire up", rapidFire.Activate, time.Duration(float64(base) / haste)},
+		{"after the owner's Rapid Fire", rapidFire.Deactivate, base},
+	} {
+		due := next()
+		change.flip(sim)
+		if got := swing(); (got - change.want).Abs() > time.Millisecond {
+			t.Errorf("%s the pet swings every %v, want %v", change.what, got, change.want)
+		}
+		if got := next(); got != due {
+			t.Errorf("%s the pet's swing under way moved from %v to %v", change.what, due, got)
+		}
 	}
 }
 
