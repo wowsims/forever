@@ -554,8 +554,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 707.35688
-  tps: 652.76661
+  dps: 707.36466
+  tps: 652.77438
  }
 }
 dps_results: {

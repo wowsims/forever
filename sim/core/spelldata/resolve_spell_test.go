@@ -6,6 +6,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The category two of the rows below share, as SpellCategories.Category states it.
@@ -436,7 +437,7 @@ func TestSpellConfigMeleeOption(t *testing.T) {
 		t.Error("a melee ability should ignore haste")
 	}
 	if config.BonusCoefficient != 0 {
-		t.Errorf("bonus coefficient = %v, want none on a melee ability", config.BonusCoefficient)
+		t.Errorf("bonus coefficient = %v, want none on a weapon strike", config.BonusCoefficient)
 	}
 }
 
@@ -457,6 +458,42 @@ func TestSpellConfigMagicOption(t *testing.T) {
 	// A spell with nothing but a heal takes its coefficient off the heal.
 	if got := SpellConfig(testUnit(), Find(700), Magic(core.ProcMaskSpellHealing)).BonusCoefficient; got != 0.6 {
 		t.Errorf("bonus coefficient of a heal = %v, want 0.6", got)
+	}
+}
+
+// School damage takes the flat physical bonus at its coefficient; a weapon strike takes it whole.
+func TestFlatPhysicalBonusFollowsTheSchoolDamageCoefficient(t *testing.T) {
+	caster, _, target := casterScene()
+	damage := func(spell *core.Spell) float64 {
+		return spell.CalcDamage(&core.Simulation{}, &target.Unit, 0, spell.OutcomeAlwaysHitNoHitCounter).Damage
+	}
+
+	for i, tc := range []struct {
+		name      string
+		effect    dbcenums.SpellEffectType
+		coeff     float64
+		takesFlat bool
+	}{
+		{"school damage at a coefficient of 1", dbcenums.E_SCHOOL_DAMAGE, 1, true},
+		{"school damage at a coefficient of 0", dbcenums.E_SCHOOL_DAMAGE, 0, false},
+		{"a weapon strike at a coefficient of 0", dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, 0, true},
+	} {
+		id := int32(900 + i)
+		row := &Spell{ID: id, Name: "Strike", School: 1, Effects: []Effect{{SpellID: id, Type: tc.effect, SPCoef: tc.coeff}}}
+		spell := caster.RegisterSpell(SpellConfig(&caster.Unit, row, Melee(core.ProcMaskMeleeMHSpecial)))
+		spell.BonusBaseDamage = 3
+
+		without := damage(spell)
+		caster.AddStat(stats.PhysicalDamage, 10)
+		with := damage(spell)
+		caster.AddStat(stats.PhysicalDamage, -10)
+
+		if without == 0 {
+			t.Errorf("%s left out its own flat bonus", tc.name)
+		}
+		if got := with > without; got != tc.takesFlat {
+			t.Errorf("%s deals %v with a flat physical bonus and %v without, want the bonus taken %v", tc.name, with, without, tc.takesFlat)
+		}
 	}
 }
 

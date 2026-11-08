@@ -768,8 +768,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 868.5977
-  tps: 879.70377
+  dps: 868.57508
+  tps: 879.68115
   dtps: 5.58536
  }
 }

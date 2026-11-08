@@ -938,8 +938,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 910.97887
-  tps: 742.36946
+  dps: 910.96768
+  tps: 742.36051
   dtps: 4.17074
   hps: 25.97583
  }
