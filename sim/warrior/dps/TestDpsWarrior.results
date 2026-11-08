@@ -56,10 +56,10 @@ character_stats_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 539.21304
-  tps: 466.84971
+  dps: 538.4739
+  tps: 465.92428
   dtps: 2.96131
-  hps: 42.92028
+  hps: 42.32722
  }
 }
 dps_results: {
@@ -123,6 +123,15 @@ dps_results: {
   tps: 454.7995
   dtps: 2.96131
   hps: 41.76806
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-BladeofHanna-2801"
+ value: {
+  dps: 506.9528
+  tps: 433.86685
+  dtps: 3.02521
+  hps: 32.99083
  }
 }
 dps_results: {
@@ -639,6 +648,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 504.97802
+  tps: 437.71457
+  dtps: 2.96131
+  hps: 45.85167
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-HandofJustice-11815"
  value: {
   dps: 553.44512
@@ -792,6 +810,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-MasterworkStormhammer-12794"
  value: {
   dps: 527.04423
@@ -897,6 +924,15 @@ dps_results: {
   tps: 339.536
   dtps: 3.02521
   hps: 18.1475
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 531.49205
+  tps: 458.14223
+  dtps: 2.96131
+  hps: 41.9375
  }
 }
 dps_results: {

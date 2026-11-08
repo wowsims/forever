@@ -56,9 +56,9 @@ character_stats_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 785.31354
-  tps: 582.27138
-  hps: 47.34278
+  dps: 782.77745
+  tps: 580.35629
+  hps: 47.02083
  }
 }
 dps_results: {
@@ -558,6 +558,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-HandofEdwardtheOdd-2243"
+ value: {
+  dps: 694.22216
+  tps: 517.21537
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-HandofJustice-11815"
  value: {
   dps: 793.31758
@@ -758,6 +766,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-MarkoftheRedFlight-282778"
+ value: {
+  dps: 780.33933
+  tps: 578.4399
+  hps: 46.5125
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MasterworkStormhammer-12794"
  value: {
   dps: 721.5408
@@ -814,6 +830,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-RingofSaviors-1447"
+ value: {
+  dps: 769.40948
+  tps: 570.73298
+  hps: 46.39389
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-RuneofMetamorphosis-19340"
  value: {
   dps: 780.33933
@@ -832,8 +856,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-SerenityField-272439"
  value: {
-  dps: 781.49547
-  tps: 579.20178
+  dps: 780.33933
+  tps: 578.4079
   hps: 46.5125
  }
 }
@@ -1072,8 +1096,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-WeaknessAnalyzer-272438"
  value: {
-  dps: 780.93203
-  tps: 578.86072
+  dps: 780.38521
+  tps: 578.47248
   hps: 46.5125
  }
 }
