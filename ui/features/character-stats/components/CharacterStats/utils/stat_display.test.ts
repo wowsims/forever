@@ -57,6 +57,14 @@ describe('statDisplayString, stats with a composite display', () => {
 		expect(show(strength(10), blockValue)).toBe('0');
 	});
 
+	it('floors the block value to a whole number', () => {
+		const stats = new Stats()
+			.withStat(Stat.StatBlockValue, 6)
+			.withStat(Stat.StatStrength, 59)
+			.withPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength, 0.05);
+		expect(show(stats, UnitStat.fromStat(Stat.StatBlockValue))).toBe('7');
+	});
+
 	it('renders a school damage stat as the school-plus-spell-damage total with the school bonus in brackets', () => {
 		const stats = new Stats().withStat(Stat.StatFireDamage, 50).withStat(Stat.StatSpellDamage, 200);
 		expect(show(stats, UnitStat.fromStat(Stat.StatFireDamage))).toBe('250 (+50)');

@@ -31,6 +31,8 @@ export const statDisplayString = (player: Player<any>, deltaStats: Stats, unitSt
 			points! *= deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier) || 1;
 		}
 		points! += Math.max(0, deltaStats.getStat(Stat.StatStrength) * deltaStats.getPseudoStat(PseudoStat.PseudoStatBlockValuePerStrength) - 1);
+		// A block takes off a whole number: the sheet floors the sum, as the sim does.
+		return String(Math.floor(points!));
 	} else if (rootStat && SCHOOL_DAMAGE_STATS.includes(rootStat)) {
 		// School damage reads as "total (+school)": the total is the school's own value plus
 		// generic spell damage, the parenthesised value is the school-only bonus.

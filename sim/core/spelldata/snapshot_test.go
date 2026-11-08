@@ -5,7 +5,9 @@ package spelldata
 // the links, masks and effect kinds of a handful of rows; no amount is pinned.
 
 import (
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"math"
 	"slices"
 	"strings"
 	"testing"
@@ -204,6 +206,45 @@ func TestRollWidthByEffectKind(t *testing.T) {
 
 	if got := MustFind(437).EnergizeEffect().DirectVariance(); got != 0 {
 		t.Errorf("Restore Mana hands core a DirectVariance of %v, want 0", got)
+	}
+}
+
+// A physical roll is a whole number between its ends, every one of them, the two ends less often than
+// the numbers between, and averages the middle of its roll: the copy of Revenge rank 1, 22 ± 1.69,
+// rolls 20 to 24.
+func TestPhysicalRollIsAWholeNumber(t *testing.T) {
+	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
+		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
+	}}})
+	revenge := MustFind(6572).DamageEffect()
+	const level, low, high = 60, 20.0, 24.0
+
+	sim, _ := core.NewWeaponTestSim(t, proto.Race_RaceUndead, nil, nil, nil)
+
+	const rolls = 20000
+	counts := map[float64]int{}
+	sum := 0.0
+	for range rolls {
+		roll := revenge.RollAt(sim, level)
+		if roll != math.Trunc(roll) || roll < low || roll > high {
+			t.Fatalf("a physical roll gave %v, want a whole number from %v to %v", roll, low, high)
+		}
+		counts[roll]++
+		sum += roll
+	}
+
+	for v := low; v <= high; v++ {
+		if counts[v] == 0 {
+			t.Errorf("a physical roll never gave %v in %d rolls", v, rolls)
+		}
+	}
+	for v := low + 1; v < high; v++ {
+		if counts[low] >= counts[v] || counts[high] >= counts[v] {
+			t.Errorf("the ends came up %d and %d times, %v %d times, want the ends rarer", counts[low], counts[high], v, counts[v])
+		}
+	}
+	if got, want := sum/rolls, revenge.MeanAt(level); math.Abs(got-want) > 0.05 {
+		t.Errorf("a physical roll averaged %v, want %v", got, want)
 	}
 }
 

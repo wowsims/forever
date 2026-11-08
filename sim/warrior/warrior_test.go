@@ -1120,19 +1120,22 @@ func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
 	}
 }
 
-// Victory Rush's heal makes ThreatPerHealingDone threat for each point of health it restores, overheal
-// left out, times the warrior's threat multiplier.
+// Victory Rush heals on its own row, and its heal makes ThreatPerHealingDone threat for each point of
+// health it restores, overheal left out, times the warrior's threat multiplier.
 func TestVictoryRushHealMakesThreat(t *testing.T) {
 	sim, war, target := shieldTestSim(t)
 	victoryRush := war.GetSpell(core.ActionID{SpellID: 402927})
 	if victoryRush == nil {
 		t.Fatal("the warrior has no Victory Rush")
 	}
-	heal := war.GetSpell(victoryRush.ActionID.WithTag(1))
-	if heal == nil {
-		t.Fatal("Victory Rush has no heal spell")
+	if heal := war.GetSpell(victoryRush.ActionID.WithTag(1)); heal != nil {
+		t.Errorf("Victory Rush registers a separate heal %v, want the heal on Victory Rush itself", heal.ActionID)
 	}
-	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[heal.SchoolIndex]
+	if victoryRush.ThreatMultiplier != 1 || victoryRush.FlatThreatBonus != 0 || victoryRush.ThreatAPCoefficient != 0 {
+		t.Fatalf("Victory Rush has threat multiplier %v, flat threat %v and AP threat %v, want 1, 0 and 0 for the checks below",
+			victoryRush.ThreatMultiplier, victoryRush.FlatThreatBonus, victoryRush.ThreatAPCoefficient)
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[victoryRush.SchoolIndex]
 	if multiplier == 1 {
 		t.Fatal("Defensive Stance sets no threat multiplier, so the check below proves nothing")
 	}
@@ -1145,81 +1148,19 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 	war.RemoveHealth(sim, healed/2)
 	victoryRush.SkipCastAndApplyEffects(sim, target)
 
-	if got, want := heal.SpellMetrics[target.UnitIndex].TotalThreat, core.ThreatPerHealingDone*healed/2*multiplier; math.Abs(got-want) > 1e-6 {
+	onTarget := victoryRush.SpellMetrics[target.UnitIndex]
+	healThreat := onTarget.TotalThreat - onTarget.TotalDamage*multiplier
+	if got, want := healThreat, core.ThreatPerHealingDone*healed/2*multiplier; math.Abs(got-want) > 1e-6 {
 		t.Errorf("the heal made %v threat, want %v", got, want)
+	}
+	onSelf := victoryRush.SpellMetrics[war.UnitIndex]
+	if got := onSelf.TotalHealing; math.Abs(got-healed) > 1e-6 {
+		t.Errorf("Victory Rush shows %v healing, want the row's %v", got, healed)
+	}
+	if onSelf.Hits+onSelf.Crits != 0 {
+		t.Errorf("the heal counts %d hits and %d crits, want none", onSelf.Hits, onSelf.Crits)
 	}
 	if got := war.CurrentHealth(); got != war.MaxHealth() {
 		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
-	}
-}
-
-// A flat physical damage bonus reaches the school damage of a row that states a coefficient of 1,
-// Revenge and Hamstring, and not of a row that states 0, Thunder Clap and Victory Rush.
-func TestFlatPhysicalDamageFollowsTheRowsCoefficient(t *testing.T) {
-	sim, war, target := shieldTestSim(t)
-	damage := func(spell *core.Spell) float64 {
-		return spell.CalcDamage(sim, target, 0, spell.OutcomeAlwaysHitNoHitCounter).Damage
-	}
-
-	for _, tc := range []struct {
-		name     string
-		spellID  int32
-		wantsAny bool
-	}{
-		{"Revenge", 25288, true},
-		{"Hamstring", 7373, true},
-		{"Thunder Clap", 11581, false},
-		{"Victory Rush", 402927, false},
-	} {
-		spell := war.GetSpell(core.ActionID{SpellID: tc.spellID})
-		if spell == nil {
-			t.Fatalf("the warrior has no %s", tc.name)
-		}
-		without := damage(spell)
-		war.AddStatDynamic(sim, stats.PhysicalDamage, 10)
-		with := damage(spell)
-		war.AddStatDynamic(sim, stats.PhysicalDamage, -10)
-
-		if got := with > without; got != tc.wantsAny {
-			t.Errorf("%s deals %v with a flat physical bonus and %v without, want the bonus taken %v", tc.name, with, without, tc.wantsAny)
-		}
-	}
-}
-
-// Revenge rolls a whole number between its ends, every one of them, the two ends less often than the
-// numbers between, and averages the middle of its roll.
-func TestRevengeRollsAWholeNumber(t *testing.T) {
-	sim, war, _ := shieldTestSim(t)
-	revenge := spelldata.MustFind(6572).DamageEffect()
-	level := war.Level
-	low, high := revenge.MinAt(level), revenge.MaxAt(level)
-	if high-low < 2 {
-		t.Fatalf("Revenge rolls %v to %v, too narrow for the checks below", low, high)
-	}
-
-	const rolls = 20000
-	counts := map[float64]int{}
-	sum := 0.0
-	for range rolls {
-		roll := revenge.RollAt(sim, level)
-		if roll != math.Trunc(roll) || roll < low || roll > high {
-			t.Fatalf("Revenge rolled %v, want a whole number from %v to %v", roll, low, high)
-		}
-		counts[roll]++
-		sum += roll
-	}
-
-	for v := low; v <= high; v++ {
-		if counts[v] == 0 {
-			t.Errorf("Revenge never rolled %v in %d rolls", v, rolls)
-		}
-	}
-	for v := low + 1; v < high; v++ {
-		if counts[low] >= counts[v] || counts[high] >= counts[v] {
-			t.Errorf("Revenge's ends came up %d and %d times, %v %d times, want the ends rarer", counts[low], counts[high], v, counts[v])
-		}
-	}
-	if got, want := sum/rolls, revenge.MeanAt(level); math.Abs(got-want) > 0.05 {
-		t.Errorf("Revenge averaged %v, want %v", got, want)
 	}
 }

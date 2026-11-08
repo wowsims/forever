@@ -625,7 +625,7 @@ func (unit *Unit) Armor() float64 {
 }
 
 // A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
-// floor(shield + Strength x 0.05 - 1). Flooring the Strength part alone gives the same number while the
+// floor(shield + max(0, Strength x 0.05 - 1)). Flooring the Strength part alone gives the same number while the
 // shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
 // floors is not measured, so the whole is floored.
 func (unit *Unit) BlockDamageReduction() float64 {
