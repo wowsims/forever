@@ -31,8 +31,8 @@ type PetConfig struct {
 	StatInheritance                  PetStatInheritance
 	EnabledOnStart                   bool
 	IsGuardian                       bool
-	IsDynamic                        bool
-	HasDynamicMeleeSpeedInheritance  bool // The owner's melee and attack speed, live, also on a pet that snapshots its stats.
+	IsDynamic                        bool // The pet's stats follow its owner's; the speed inheritances hold whether or not they do.
+	HasDynamicMeleeSpeedInheritance  bool // The owner's melee and attack speed, each change at the next pet heartbeat.
 	HasDynamicRangedSpeedInheritance bool // The owner's ranged speed, as the pet's melee speed.
 	HasDynamicCastSpeedInheritance   bool
 	HasResourceRegenInheritance      bool
@@ -128,9 +128,9 @@ func NewPet(config PetConfig) Pet {
 		isDynamic:                        config.IsDynamic,
 		hasDynamicMeleeSpeedInheritance:  config.HasDynamicMeleeSpeedInheritance,
 		inheritedMeleeSpeedMultiplier:    1,
-		hasDynamicRangedSpeedInheritance: config.HasDynamicRangedSpeedInheritance && config.IsDynamic,
+		hasDynamicRangedSpeedInheritance: config.HasDynamicRangedSpeedInheritance,
 		inheritedRangedSpeedMultiplier:   1,
-		hasDynamicCastSpeedInheritance:   config.HasDynamicCastSpeedInheritance && config.IsDynamic,
+		hasDynamicCastSpeedInheritance:   config.HasDynamicCastSpeedInheritance,
 		inheritedCastSpeedMultiplier:     1,
 		hasResourceRegenInheritance:      config.HasResourceRegenInheritance,
 		enabledOnStart:                   config.EnabledOnStart,

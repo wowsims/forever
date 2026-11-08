@@ -82,7 +82,7 @@ func (hunter *Hunter) registerExplosiveTrap() {
 	hit := explosiveTrapEffectRank.EffectN(1)
 	// Effect 2 is a persistent area aura the resolvers do not read, so its dot is built here.
 	area := explosiveTrapEffectRank.EffectN(2)
-	numberOfTicks := int32(explosiveTrapEffectRank.Duration() / area.Period())
+	tickDamage := area.Average()
 
 	config := spelldata.SpellConfig(&hunter.Unit, explosiveTrapEffectRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
@@ -96,11 +96,12 @@ func (hunter *Hunter) registerExplosiveTrap() {
 			ActionID: core.ActionID{SpellID: explosiveTrapEffectRank.ID},
 			Label:    explosiveTrapEffectRank.RankedLabel(&hunter.Unit),
 		},
-		NumberOfTicks: numberOfTicks,
+		NumberOfTicks: int32(explosiveTrapEffectRank.Duration() / area.Period()),
 		TickLength:    area.Period(),
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
+			outcome := explosiveTrapEffectRank.TickOutcome(dot)
 			for _, target := range sim.Encounter.ActiveTargetUnits {
-				dot.Spell.CalcAndDealPeriodicDamage(sim, target, area.Average(), explosiveTrapEffectRank.TickOutcome(dot))
+				dot.Spell.CalcAndDealPeriodicDamage(sim, target, tickDamage, outcome)
 			}
 		},
 	}

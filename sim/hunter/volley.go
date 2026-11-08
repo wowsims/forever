@@ -17,7 +17,7 @@ var volleyWaveRank = volleyRank.Refs()[0]
 // as a spell power coefficient, and rolls the ranged hit and crit tables. In game the missile's
 // flight delays the channel's aura but not the waves, so the channel starts at the cast.
 func (hunter *Hunter) registerVolley() {
-	waveDamage := volleyWaveRank.DamageEffect()
+	waveBase := volleyWaveRank.DamageEffect().Average()
 	apShare := volleyRank.EffectN(1).Coeff()
 
 	waveConfig := spelldata.SpellConfig(&hunter.Unit, volleyWaveRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.Proc())
@@ -26,23 +26,19 @@ func (hunter *Hunter) registerVolley() {
 	}
 	waveConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		for _, target := range sim.Encounter.ActiveTargetUnits {
-			baseDamage := waveDamage.Average() + apShare*spell.RangedAttackPower(target)
-			spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeRangedHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, waveBase+apShare*spell.RangedAttackPower(target), spell.OutcomeRangedHitAndCrit)
 		}
 	}
 	wave := hunter.RegisterSpell(waveConfig)
 
-	tickLength := volleyRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0).Period()
 	config := spelldata.SpellConfig(&hunter.Unit, volleyRank, spelldata.Melee(core.ProcMaskEmpty))
-	config.Dot = core.DotConfig{
-		IsAOE:               true,
-		Aura:                spelldata.AuraConfig(volleyRank),
-		NumberOfTicks:       int32(volleyRank.Duration() / tickLength),
-		TickLength:          tickLength,
-		AffectedByCastSpeed: true,
-		OnTick: func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
-			wave.Cast(sim, target)
-		},
+	config.Dot = spelldata.DotConfig(volleyRank, volleyRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0))
+	config.Dot.IsAOE = true
+	// Cast speed shortens the ticks and the channel with them; the wave count stays the row's.
+	config.Dot.AffectedByCastSpeed = true
+	config.Dot.HasteReducesDuration = true
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
+		wave.Cast(sim, target)
 	}
 	// Auto Shot winds up no shot while the channel runs. Its swing timer keeps running, so a shot
 	// that came due winds up when the channel ends, whether it runs out or is cut short.
@@ -55,5 +51,5 @@ func (hunter *Hunter) registerVolley() {
 		hunter.AutoAttacks.DelayRangedUntil(sim, sim.CurrentTime+channel.Duration)
 	}
 
-	hunter.RegisterSpell(config).RelatedDotSpell = wave
+	hunter.RegisterSpell(config)
 }
