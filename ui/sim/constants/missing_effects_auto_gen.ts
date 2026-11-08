@@ -4,6 +4,12 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		809, // Bloodrazor
+		[
+			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
+		]
+	],
+	[
 		867, // Gloves of Holy Might
 		[
 			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
@@ -91,6 +97,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		2042, // Staff of Westfall
 		[
 			"Movement speed increased by 2% in Elwynn Forest, Westfall, Redridge Mountains, and the Deadmines.", // 1292011 - https://www.wowhead.com/forever/spell=1292011
+		]
+	],
+	[
+		2164, // Gut Ripper
+		[
+			"Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to targets below 25% health", // 18107 - https://www.wowhead.com/forever/spell=18107
 		]
 	],
 	[
@@ -253,6 +265,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		6323, // Baron's Scepter
 		[
 			"Cause party members within 30 yds to regenerate 4 health every 5 sec.", // 1292142 - https://www.wowhead.com/forever/spell=1292142
+		]
+	],
+	[
+		6331, // Howling Blade
+		[
+			"Reduces target's attack power by 30 for 30s.", // 13490 - https://www.wowhead.com/forever/spell=13490
 		]
 	],
 	[
@@ -430,6 +448,24 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9372, // Sul'thraze the Lasher
+		[
+			"Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage. This additional Shadow damage deals 2 times as much damage to Trolls.", // 1294430 - https://www.wowhead.com/forever/spell=1294430
+		]
+	],
+	[
+		9379, // Sang'thraze the Deflector
+		[
+			"Increases your chance to Parry attacks by 2% for 9s.", // 1294243 - https://www.wowhead.com/forever/spell=1294243
+		]
+	],
+	[
+		9394, // Horned Viking Helmet
+		[
+			"Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target.", // 22641 - https://www.wowhead.com/forever/spell=22641
+		]
+	],
+	[
 		9397, // Energy Cloak
 		[
 			"Restores 320 Mana.", // 1294025 - https://www.wowhead.com/forever/spell=1294025
@@ -466,6 +502,13 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9425, // Pendulum of Doom
+		[
+			"Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.", // 10373 - https://www.wowhead.com/forever/spell=10373
+			"Each swing alternates your attack speed between 100% faster and 50% slower.", // 1293881 - https://www.wowhead.com/forever/spell=1293881
+		]
+	],
+	[
 		9446, // Electrocutioner Leg
 		[
 			"Blasts a target for 28 Nature damage. Mechanical targets take 2 x damage.", // 1292851 - https://www.wowhead.com/forever/spell=1292851
@@ -497,9 +540,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9475, // Diabolic Skiver
+		[
+			"Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to targets below 25% health.", // 18206 - https://www.wowhead.com/forever/spell=18206
+		]
+	],
+	[
 		9477, // The Chief's Enforcer
 		[
 			"Deal 294 Physical damage and stun for 1s. Trolls take 2 times as much damage and stun duration.", // 1294339 - https://www.wowhead.com/forever/spell=1294339
+		]
+	],
+	[
+		9478, // Ripsaw
+		[
+			"Wounds the target for 70 Physical damage.", // 1292573 - https://www.wowhead.com/forever/spell=1292573
 		]
 	],
 	[
@@ -596,6 +651,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10776, // Silky Spider Cape
 		[
 			"Reduces the duration of all movement impairing effects on you by 7%.", // 1293819 - https://www.wowhead.com/forever/spell=1293819
+		]
+	],
+	[
+		11086, // Jang'thraze the Protector
+		[
+			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
 		]
 	],
 	[
@@ -904,6 +965,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17753, // Verdant Keeper's Aim
 		[
 			"Strike your target with Keeper's Sting for 28 Nature damage.", // 29655 - https://www.wowhead.com/forever/spell=29655
+		]
+	],
+	[
+		17766, // Princess Theradras' Scepter
+		[
+			"Wounds the target for 168 damage and lowers their armor by 100.", // 21961 - https://www.wowhead.com/forever/spell=21961
 		]
 	],
 	[
@@ -1922,6 +1989,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274484, // Axe of Inevitable Ruin
+		[
+			"Wounds the target for 168 damage.", // 1294226 - https://www.wowhead.com/forever/spell=1294226
+		]
+	],
+	[
 		274608, // Maw of Min'loth
 		[
 			"When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.", // 1295065 - https://www.wowhead.com/forever/spell=1295065
@@ -2094,6 +2167,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		285332, // Puncturing Spear
 		[
 			"Puncture the target, inflicting 90 Physical damage.", // 1318250 - https://www.wowhead.com/forever/spell=1318250
+		]
+	],
+	[
+		286430, // Toofbreaker
+		[
+			"Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.", // 1320269 - https://www.wowhead.com/forever/spell=1320269
 		]
 	],
 	[
