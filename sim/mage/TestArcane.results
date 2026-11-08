@@ -664,6 +664,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Prismcharm-15867"
+ value: {
+  dps: 722.56431
+  tps: 623.04483
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 722.56431

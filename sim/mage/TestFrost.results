@@ -664,6 +664,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Prismcharm-15867"
+ value: {
+  dps: 706.8142
+  tps: 652.73625
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 706.8142

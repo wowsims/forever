@@ -44,6 +44,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  871,
+		SpellID: 18797,
+		PPM:     1.9, // TODO: Vanilla value - verify in-game
+		Reason:  "Flurry Axe: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  880,
 		SpellID: 8552,
 		PPM:     1.4, // TODO: Vanilla value - verify in-game

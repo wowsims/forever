@@ -29,9 +29,8 @@ func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell
 		damage += extra * perEnergy
 		damage += damageEffect.APCoeff() * cp * spell.MeleeAttackPower(target)
 		damage *= druid.rendAndTearMultiplier(target)
-		// The extra energy and the combo points are spent on a landed hit only, so a failed bite costs its base energy.
-		// TODO: Ingame research needed -- the row flags Discount Power On Miss, which would give a failed bite back 80%
-		// of its base cost; nothing refunds it until that is checked.
+		// The extra energy and the combo points are spent on a landed hit only. A failed bite gets 80% of its
+		// base energy back, as the row's Discount Power On Miss states.
 		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
 			if extra > 0 && !keepsEnergy {
@@ -40,6 +39,7 @@ func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell
 			druid.spendComboPoints(sim, spell)
 		}
 		spell.DealDamage(sim, result)
+		druid.refundOnMiss(sim, spell, result)
 	}
 	return druid.RegisterSpell(config)
 }

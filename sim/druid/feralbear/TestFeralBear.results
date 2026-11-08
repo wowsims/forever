@@ -973,6 +973,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Prismcharm-15867"
+ value: {
+  dps: 500.95286
+  tps: 1909.76461
+  dtps: 394.78517
+  hps: 84.38378
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 502.06022

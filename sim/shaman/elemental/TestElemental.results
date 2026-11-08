@@ -527,6 +527,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FlurryAxe-871"
+ value: {
+  dps: 681.02265
+  tps: 644.07888
+  dtps: 9.03286
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-ForceReactiveDisk-18168"
  value: {
   dps: 724.37453
@@ -860,6 +868,14 @@ dps_results: {
   dps: 724.37453
   tps: 682.5144
   dtps: 9.07331
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Prismcharm-15867"
+ value: {
+  dps: 719.78071
+  tps: 678.59991
+  dtps: 8.97757
  }
 }
 dps_results: {

@@ -886,6 +886,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Prismcharm-15867"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-PristineEnchantedSouthSeasKelp-19613"
  value: {
   dps: 902.69306

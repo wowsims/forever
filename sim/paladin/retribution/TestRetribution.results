@@ -1035,6 +1035,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Prismcharm-15867"
+ value: {
+  dps: 909.25298
+  tps: 740.99828
+  dtps: 4.2114
+  hps: 25.97583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 909.25298
@@ -1053,12 +1062,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RazorsteelShoulders-20517"
+ value: {
+  dps: 915.16779
+  tps: 746.21873
+  dtps: 4.66599
+  hps: 26.33844
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 898.10973
   tps: 732.12371
   dtps: 4.08708
   hps: 25.89179
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SanctifiedOrb-20512"
+ value: {
+  dps: 915.34471
+  tps: 746.17335
+  dtps: 4.19178
+  hps: 25.97583
  }
 }
 dps_results: {
