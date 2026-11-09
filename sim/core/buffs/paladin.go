@@ -201,8 +201,8 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 	}), rank)
 }
 
-// Whoever lands an attack or spell on the judged target rolls the row's chance to regain the rank's
-// mana. Melee claim it returns mana on a miss as well.
+// Whoever lands an attack or a direct spell on the judged target rolls the row's chance to regain the
+// rank's mana. A miss, dodge or parry rolls nothing, and neither do periodic ticks or damage shields.
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value
@@ -213,12 +213,9 @@ func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura
 		MetricsActionID: actionID,
 		ProcChance:      judgementProcChance(rank.SpellID),
 		ProcMask:        core.ProcMaskDirect,
+		Outcome:         core.OutcomeLanded,
 		Callback:        core.CallbackOnSpellHitTaken,
-		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if !spell.ProcMask.Matches(core.ProcMaskMeleeOrRanged) && !result.Landed() {
-				return
-			}
-
+		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			unit := spell.Unit
 			if !unit.HasManaBar() {
 				return

@@ -56,1167 +56,1167 @@ character_stats_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-AdaptiveCombatAssistant-272437"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Admiral'sHat-10030"
  value: {
-  dps: 752.36018
-  tps: 614.52266
-  dtps: 8.49787
+  dps: 747.59565
+  tps: 608.69626
+  dtps: 8.10249
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-AnkhofLife-1713"
  value: {
-  dps: 755.01616
-  tps: 616.38227
-  dtps: 8.48034
+  dps: 756.08006
+  tps: 616.43196
+  dtps: 8.22358
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ArenaGrandMaster-19024"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BadgeoftheSwarmguard-21670"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BehemothBones-280065"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazefuryMedallion-17111"
  value: {
-  dps: 748.58048
-  tps: 609.99967
-  dtps: 8.38673
+  dps: 748.49542
+  tps: 610.18123
+  dtps: 8.55645
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazingEmblem-2802"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazingRapier-12777"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BristleconeCloak-275833"
  value: {
-  dps: 752.02996
-  tps: 612.2287
-  dtps: 8.45682
+  dps: 750.92423
+  tps: 611.16749
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Champion'sDreadgear"
  value: {
-  dps: 803.95947
-  tps: 658.25755
-  dtps: 8.9815
+  dps: 803.00458
+  tps: 656.67308
+  dtps: 8.57713
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Champion'sThreads"
  value: {
-  dps: 754.35088
-  tps: 616.48069
-  dtps: 8.55251
+  dps: 751.63397
+  tps: 613.62353
+  dtps: 8.48488
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-CloakofFire-14134"
  value: {
-  dps: 759.31215
-  tps: 618.45099
-  dtps: 8.45682
+  dps: 758.21784
+  tps: 617.40042
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ColdBasiliskEye-5079"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 753.46316
-  tps: 613.89031
-  dtps: 8.56803
+  dps: 758.15453
+  tps: 619.66543
+  dtps: 8.1836
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DarkmoonCard:Maelstrom-19289"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Defender'sGripStabilizer-272440"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Defiler'sTalisman-20072"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Defiler'sTalisman-21115"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Defiler'sTalisman-21116"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DemonheartRaiment"
  value: {
-  dps: 731.1555
-  tps: 592.72862
-  dtps: 8.23728
+  dps: 729.27662
+  tps: 588.4879
+  dtps: 8.10541
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Demoniac'sThreads"
  value: {
-  dps: 771.32265
-  tps: 628.69181
-  dtps: 8.60792
+  dps: 772.19214
+  tps: 630.44192
+  dtps: 8.41296
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Doomcaller'sAttire"
  value: {
-  dps: 882.08994
-  tps: 719.13762
-  dtps: 9.51435
+  dps: 879.52789
+  tps: 715.15241
+  dtps: 8.55187
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DormantHeartoftheMountain-249473"
  value: {
-  dps: 753.32842
-  tps: 613.90418
-  dtps: 8.31389
+  dps: 756.54976
+  tps: 617.89189
+  dtps: 8.2264
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DreadfrostSaber-274603"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DreadmistRaiment"
  value: {
-  dps: 739.22012
-  tps: 602.0556
-  dtps: 8.54739
+  dps: 733.44389
+  tps: 595.6252
+  dtps: 8.34591
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EarthenSigil-20525"
  value: {
-  dps: 752.19272
-  tps: 612.80193
-  dtps: 8.8763
+  dps: 750.94606
+  tps: 611.55478
+  dtps: 8.69906
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Earthstrike-21180"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ElectrifiedDagger-19100"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Enchant2HWeapon-GrandArcanist-7941"
  value: {
-  dps: 811.33228
-  tps: 662.3237
-  dtps: 8.5315
+  dps: 814.59808
+  tps: 666.40813
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Enchant:FieryBlaze-36"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantBoots-MinorSpeed-911"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantChest-Absorption-8220"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantChest-LesserAbsorption-63"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantChest-MinorAbsorption-44"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantChest-Retricutioner-7223"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantCloak-Subtlety-2621"
  value: {
-  dps: 761.08148
-  tps: 608.56694
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 612.01949
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantGloves-Threat-2613"
  value: {
-  dps: 761.08148
-  tps: 631.99505
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 635.57656
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Crusader-1900"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
-  dps: 784.09843
-  tps: 639.57253
-  dtps: 8.5315
+  dps: 786.91425
+  tps: 643.26795
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Insight-8216"
  value: {
-  dps: 762.65115
-  tps: 621.70442
-  dtps: 8.50798
+  dps: 760.28059
+  tps: 619.30026
+  dtps: 8.27642
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Recovery-8721"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 778.7089
-  tps: 637.23018
-  dtps: 8.5315
+  dps: 782.41916
+  tps: 641.76138
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EssenceofthePureFlame-18815"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EverlookDeliveryBot-274760"
  value: {
-  dps: 760.2978
-  tps: 620.93124
-  dtps: 8.53998
+  dps: 757.58502
+  tps: 617.08522
+  dtps: 8.35182
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EyeofDiminution-23001"
  value: {
-  dps: 764.42776
-  tps: 623.16309
-  dtps: 8.73944
+  dps: 767.42417
+  tps: 626.97941
+  dtps: 8.429
   hps: 10.04926
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EyeofMoam-21473"
  value: {
-  dps: 768.13295
-  tps: 627.41411
-  dtps: 8.5315
+  dps: 771.36496
+  tps: 631.41198
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EyeoftheBeast-13968"
  value: {
-  dps: 772.02578
-  tps: 628.8315
-  dtps: 8.57563
+  dps: 772.40652
+  tps: 629.13036
+  dtps: 8.21149
   hps: 10.04926
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EyeoftheDead-23047"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FetishofChitinousSpikes-21488"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FetishoftheSandReaver-21647"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FieldMarshal'sThreads"
  value: {
-  dps: 781.70799
-  tps: 638.79967
-  dtps: 8.63195
+  dps: 780.03691
+  tps: 635.59789
+  dtps: 8.44478
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FlameSearedSignet-282080"
  value: {
-  dps: 753.4115
-  tps: 613.38755
-  dtps: 8.45682
+  dps: 752.30565
+  tps: 612.32651
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FlamebreakTalisman-280071"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ForceofWill-11810"
  value: {
-  dps: 753.32842
-  tps: 613.85529
-  dtps: 7.94358
+  dps: 756.54976
+  tps: 617.8396
+  dtps: 7.75108
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FreezingBand-942"
  value: {
-  dps: 749.2669
-  tps: 609.911
-  dtps: 8.45682
+  dps: 748.1614
+  tps: 608.84946
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Frostguard-12797"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FrozenHeartoftheMountain-249469"
  value: {
-  dps: 767.04444
-  tps: 625.50538
-  dtps: 8.5433
+  dps: 771.0677
+  tps: 629.19844
+  dtps: 8.04827
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GlacialBlade-19099"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GlyphofDeflection-23040"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GoblinConstructionHelmet-10543"
  value: {
-  dps: 752.36018
-  tps: 614.52266
-  dtps: 8.49787
+  dps: 747.59565
+  tps: 608.69626
+  dtps: 8.10249
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GoldenBanana-270226"
  value: {
-  dps: 753.91275
-  tps: 613.65297
-  dtps: 8.44872
+  dps: 750.57593
+  tps: 610.72614
+  dtps: 8.13034
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-GutRipper-2164"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HandofJustice-11815"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HanzoSword-8190"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Hazza'rah'sCharmofDestruction-19957"
  value: {
-  dps: 758.23725
-  tps: 618.6365
-  dtps: 8.5315
+  dps: 761.45859
+  tps: 622.6242
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HeartoftheScale-13164"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HibernationCrystal-20636"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ImplementsofUnspokenNames"
  value: {
-  dps: 785.28155
-  tps: 633.45313
-  dtps: 9.09551
+  dps: 785.87834
+  tps: 632.75381
+  dtps: 8.32146
   hps: 10.04926
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-IronShieldSpike-43"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-JomGabbar-23570"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-KissoftheSpider-22954"
  value: {
-  dps: 774.906
-  tps: 631.68749
-  dtps: 8.75553
+  dps: 777.18035
+  tps: 633.4902
+  dtps: 8.52382
   hps: 10.04926
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-LieutenantCommander'sDreadgear"
  value: {
-  dps: 803.95947
-  tps: 658.25755
-  dtps: 8.9815
+  dps: 803.00458
+  tps: 656.67308
+  dtps: 8.57713
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-LieutenantCommander'sThreads"
  value: {
-  dps: 754.35088
-  tps: 616.48069
-  dtps: 8.55251
+  dps: 751.63397
+  tps: 613.62353
+  dtps: 8.48488
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 753.59019
-  tps: 611.74634
-  dtps: 8.5133
+  dps: 750.3104
+  tps: 609.27951
+  dtps: 8.5576
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Loatheb'sReflection-23042"
  value: {
-  dps: 753.32842
-  tps: 613.90418
-  dtps: 8.28732
+  dps: 756.54976
+  tps: 617.89189
+  dtps: 8.19786
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Magister'sRegalia"
  value: {
-  dps: 749.96827
-  tps: 606.69712
-  dtps: 8.98061
+  dps: 742.82748
+  tps: 598.41004
+  dtps: 8.62348
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MajorRecombobulator-18637"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkofResolution-17759"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkofTyranny-13966"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkoftheChampion-23206"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkoftheChampion-23207"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MarkoftheRedFlight-282778"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MithrilShieldSpike-463"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MoltenHeartoftheMountain-249470"
  value: {
-  dps: 753.32842
-  tps: 613.90418
-  dtps: 8.31389
+  dps: 756.54976
+  tps: 617.89189
+  dtps: 8.2264
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Naglering-11669"
  value: {
-  dps: 749.2669
-  tps: 609.911
-  dtps: 8.45682
+  dps: 748.1614
+  tps: 608.84946
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-OrbofFire-12805"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-PetrifiedScarab-21685"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-PhantomBlade-7961"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-PlagueheartRaiment"
  value: {
-  dps: 963.68234
-  tps: 720.73325
-  dtps: 8.70507
+  dps: 961.10799
+  tps: 717.80209
+  dtps: 8.6071
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Prismcharm-15867"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-RingofSaviors-1447"
  value: {
-  dps: 749.2669
-  tps: 609.911
-  dtps: 8.45682
+  dps: 748.1614
+  tps: 608.84946
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SecondWind-11819"
  value: {
-  dps: 763.30201
-  tps: 624.08379
-  dtps: 8.44901
-  hps: 10.08905
+  dps: 756.76932
+  tps: 617.50046
+  dtps: 8.86237
+  hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SerenityField-272439"
  value: {
-  dps: 758.17245
-  tps: 617.9922
-  dtps: 8.5315
+  dps: 761.4169
+  tps: 622.00474
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ShardoftheFallenStar-21891"
  value: {
-  dps: 770.31321
-  tps: 631.16581
-  dtps: 8.49139
+  dps: 764.23534
+  tps: 624.3254
+  dtps: 8.41369
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ShortswordofVengeance-754"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Slayer'sCrest-23041"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Smokey'sLighter-13171"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SmokingHeartoftheMountain-11811"
  value: {
-  dps: 753.32842
-  tps: 613.90418
-  dtps: 8.31389
+  dps: 756.54976
+  tps: 617.89189
+  dtps: 8.2264
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SwordofZeal-6622"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TalismanofArathor-20071"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TalismanofArathor-21117"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TalismanofArathor-21118"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 784.35334
-  tps: 639.34845
-  dtps: 8.5315
+  dps: 788.42777
+  tps: 644.20718
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TalismanofEphemeralPower-18820"
  value: {
-  dps: 775.07699
-  tps: 632.50976
-  dtps: 8.5315
+  dps: 778.14026
+  tps: 636.33823
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TheBlackBook-19337"
  value: {
-  dps: 780.02249
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 783.24477
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TheBurrower'sShell-23558"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TheLobotomizer-19324"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
-  dps: 800.3707
-  tps: 653.24692
-  dtps: 8.5315
+  dps: 804.01285
+  tps: 657.69
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ThoriumShieldSpike-1704"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ThrashBlade-17705"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Thunderbrew'sBootFlask-744"
  value: {
-  dps: 755.23815
-  tps: 616.57983
-  dtps: 8.5315
+  dps: 753.7085
+  tps: 614.54781
+  dtps: 8.1895
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Thunderfury,BlessedBladeoftheWindseeker-19019"
  value: {
-  dps: 709.72655
-  tps: 577.15106
-  dtps: 8.5315
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ToySoldier-274386"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Uther'sStrength-11302"
  value: {
-  dps: 757.48045
-  tps: 617.41104
-  dtps: 8.5315
+  dps: 760.7216
+  tps: 621.42003
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-VestmentsoftheDevout"
  value: {
-  dps: 719.94234
-  tps: 583.96224
-  dtps: 8.61855
+  dps: 713.00774
+  tps: 575.68281
+  dtps: 8.40509
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Warlord'sThreads"
  value: {
-  dps: 781.70799
-  tps: 638.79967
-  dtps: 8.63195
+  dps: 780.03691
+  tps: 635.59789
+  dtps: 8.44478
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-WarmthofForgiveness-23027"
  value: {
-  dps: 757.01106
-  tps: 616.81972
-  dtps: 8.33042
+  dps: 752.18773
+  tps: 611.42183
+  dtps: 8.50078
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-WrathofCenarius-21190"
  value: {
-  dps: 775.05459
-  tps: 631.56022
-  dtps: 8.45682
+  dps: 773.61835
+  tps: 630.14505
+  dtps: 8.35958
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ZandalarianHeroBadge-19948"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ZandalarianHeroCharm-19950"
  value: {
-  dps: 769.47539
-  tps: 627.38834
-  dtps: 8.5315
+  dps: 772.92566
+  tps: 631.62115
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ZandalarianHeroMedallion-19949"
  value: {
-  dps: 753.32842
-  tps: 613.92402
-  dtps: 8.5315
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-Average-Default"
  value: {
-  dps: 776.90468
-  tps: 634.4496
-  dtps: 8.73143
-  hps: 10.02515
+  dps: 778.07217
+  tps: 635.64915
+  dtps: 8.68108
+  hps: 10.03061
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Human-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5129.88715
-  tps: 4880.31263
+  dps: 5130.76142
+  tps: 4880.70085
   dtps: 4.44034
   hps: 1.02341
  }
@@ -1224,18 +1224,18 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Human-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Human-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 771.14567
-  tps: 616.97096
-  dtps: 12.8373
+  dps: 771.16751
+  tps: 616.42356
+  dtps: 12.41466
   hps: 9.78443
  }
 }
@@ -1266,8 +1266,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5094.34422
-  tps: 4842.0362
+  dps: 5095.19329
+  tps: 4842.27942
   dtps: 4.44034
   hps: 1.02341
  }
@@ -1275,18 +1275,18 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 768.27315
-  tps: 619.09396
-  dtps: 8.36248
+  dps: 768.84815
+  tps: 620.41294
+  dtps: 8.32585
   hps: 10.00951
  }
 }
 dps_results: {
  key: "TestDemonologyFireBrand-Settings-Orc-preraid-Fire Brand-demo_fire_brand-FullBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 782.20174
-  tps: 619.24259
-  dtps: 12.8373
+  dps: 782.78789
+  tps: 619.21493
+  dtps: 12.41466
   hps: 9.78443
  }
 }
@@ -1317,9 +1317,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-SwitchInFrontOfTarget-Default"
  value: {
-  dps: 761.08148
-  tps: 620.28099
-  dtps: 8.5315
+  dps: 763.73532
+  tps: 623.79802
+  dtps: 8.339
   hps: 10.00951
  }
 }
