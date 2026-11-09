@@ -700,8 +700,9 @@ var Spells = []Override{
 	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
 	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
 	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's 2.5 a level.
-	// Each rank's bonus is a whole number: a measured bonus and Cleave's share times the spell level
-	// round to the nearest one.
+	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), and Ranks 3
+	// to 5 carry that share. Each rank's bonus is a whole number: a measured bonus rounds to the
+	// nearest one, and each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -781,24 +782,24 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11608,
-		Field:   FlatThreat,
-		Value:   61, // TODO: Measure Cleave Rank 3 in game.
-		Reason:  "Cleave Rank 3: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 3 in game.
+		Reason:  "Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
 	},
 	{
 		SpellID: 11609,
-		Field:   FlatThreat,
-		Value:   77, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 4 in game.
+		Reason:  "Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
 	},
 	{
 		SpellID: 20569,
-		Field:   FlatThreat,
-		Value:   92, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 5 in game.
+		Reason:  "Cleave Rank 5: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
 	},
 
 	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
