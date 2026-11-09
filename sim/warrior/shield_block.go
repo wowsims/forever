@@ -13,7 +13,9 @@ func (warrior *Warrior) registerShieldBlock() {
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
-	// other attacks landing in that batch are blocked too and spend nothing.
+	// other attacks landing in that batch are blocked too and spend nothing. Combat logs show this for
+	// Shield Block; Holy Shield spends charges on blocks the same way but is not measured, and it still
+	// ends at its last block.
 	lastChargeSpent := false
 	batchEnd := &core.PendingAction{
 		Priority: core.ActionPriorityDOT,
@@ -23,6 +25,8 @@ func (warrior *Warrior) registerShieldBlock() {
 		},
 	}
 	// A recast restores both charges and an expiry ends the aura, so either drops a pending batch end.
+	// The expire hook also clears the state at the end of an iteration, which deactivates the aura and
+	// then drops the pending actions without cancelling them.
 	dropBatchEnd := func(sim *core.Simulation) {
 		if lastChargeSpent {
 			batchEnd.Cancel(sim)
