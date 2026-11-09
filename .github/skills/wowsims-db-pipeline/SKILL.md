@@ -131,6 +131,12 @@ its `tools/database/wowsims.db` from `make db`, reading a WoW install (`WOW_DIR`
 the same run with `DB2TOOL_FLAGS="--cdn"` and no install; the modes are `tools/db2tool/README.md` §Usage. Before
 dispatching Build and Deploy by hand, read its state: `gh api repos/wowsims/forever/actions/workflows/deploy.yml --jq .state`.
 
+A `DBCache.bin` row carries no date. A row the game serves on demand has a synthetic `PushID` (0x01000000 and up,
+equal to its `UniqueID`) that is not ordered by time, so neither it nor a real push number dates a row on its own;
+the one date a cache gives is the `created` time of the file on raidbots, whose
+`https://www.raidbots.com/api/dbcache/verified` lists the newest 100 files across every version and does not page
+back. The first stamps in `item_first_seen.json` are such sightings (#913).
+
 ## Tables the generator does not ship
 
 `wowsims.db` holds only the tables in `generator-settings.json`'s `Tables`; a name added there is extracted on every
