@@ -14,7 +14,6 @@ type DamageEffect struct {
 	SchoolMask       int32   // DBC school mask of the damage spell
 	DefenseType      int32   // SpellCategories.DefenseType of the damage spell, which picks its hit table and crit multiplier
 	BonusCoefficient float64 // spell power coefficient
-	IsLeech          bool    // E_HEALTH_LEECH also heals the caster, which is not modelled here
 }
 
 // The effect types whose value is flat damage. E_WEAPON_PERCENT_DAMAGE is deliberately absent: it
@@ -46,7 +45,6 @@ func (w *chainWalker) resolveDamageEffect(spellID int) *DamageEffect {
 			SchoolMask:       dbcInstance.Spells[spellID].SchoolMask,
 			DefenseType:      dbcInstance.Spells[spellID].DefenseType,
 			BonusCoefficient: se.EffectBonusCoefficient,
-			IsLeech:          se.EffectType == dbcenums.E_HEALTH_LEECH,
 		}
 	}
 

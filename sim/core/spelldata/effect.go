@@ -182,10 +182,16 @@ func (e *Effect) DirectVariance() float64 {
 	switch {
 	case e.Type == dbcenums.E_HEAL:
 		return e.Variance
-	case e.Type == dbcenums.E_SCHOOL_DAMAGE && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
+	case e.StatesADamageAmount() && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
 		return e.Variance
 	}
 	return 0
+}
+
+// Whether the effect deals an amount of damage it states itself, rather than one off a weapon:
+// E_SCHOOL_DAMAGE or E_HEALTH_LEECH.
+func (e *Effect) StatesADamageAmount() bool {
+	return e.Type == dbcenums.E_SCHOOL_DAMAGE || e.Type == dbcenums.E_HEALTH_LEECH
 }
 
 func (e *Effect) damageOrHeal() bool {
@@ -204,9 +210,12 @@ func (e *Effect) damageOrHeal() bool {
 
 func (e *Effect) physicalDamage() bool {
 	switch e.Type {
-	case dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE, dbcenums.E_WEAPON_PERCENT_DAMAGE,
+	case dbcenums.E_WEAPON_DAMAGE, dbcenums.E_WEAPON_PERCENT_DAMAGE,
 		dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL:
-		return Find(e.SpellID).SpellSchool() == core.SpellSchoolPhysical
+	default:
+		if !e.StatesADamageAmount() {
+			return false
+		}
 	}
-	return false
+	return Find(e.SpellID).SpellSchool() == core.SpellSchoolPhysical
 }

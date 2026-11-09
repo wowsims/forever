@@ -156,6 +156,11 @@ scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
 sentinel is never a rate.
 
+The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
+table of the row's defense type and takes armor or resistance like any other, and the wearer gains the
+effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
+the attacker for 40 Physical on the melee table.
+
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:
 `NewSpellDataAuraProc` parses the buff's row, whose multiplier works through a dynamic stat dependency

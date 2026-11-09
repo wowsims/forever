@@ -118,10 +118,11 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 // The effect carrying the spell's direct damage, whether it states an amount or a weapon multiplier.
 // It sits on any of the weapon effects as readily as on school damage: a weapon effect states a
 // multiplier or a flat bonus rather than an amount.
+// An E_HEALTH_LEECH deals its amount as damage too.
 func (s *Spell) DamageEffect() *Effect {
 	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
 		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
+		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
 }
 
 // The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
