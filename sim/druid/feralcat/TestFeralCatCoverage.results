@@ -51,7 +51,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:22829 rank:5"
-   value: 6
+   value: 4
   }
   casts: {
    key: "spell_id:22842"
@@ -111,7 +111,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:9830 rank:5"
-   value: 11
+   value: 9
   }
   casts: {
    key: "spell_id:9850 rank:5"
@@ -139,7 +139,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:9904 rank:4"
-   value: 8
+   value: 9
   }
   casts: {
    key: "spell_id:9907 rank:4"

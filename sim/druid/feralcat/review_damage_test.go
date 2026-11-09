@@ -152,10 +152,10 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 // A Pounce Bleed tick reads attack power when it ticks, and Rend and Tear leaves it unchanged.
 func TestPounceBleedTickReadsAttackPowerWithoutRendAndTear(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
-	var share float64
+	_, probe := newCat(t, "", nil)
+	share := spelldata.MustFind(probe.PounceBleed.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
 	ticks := func(talents string) (float64, float64) {
 		sim, cat := newCat(t, talents, nil)
-		share = spelldata.MustFind(cat.PounceBleed.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 		dot := cat.PounceBleed.Dot(cat.CurrentTarget)
 		dot.Apply(sim)
@@ -177,30 +177,81 @@ func TestPounceBleedTickReadsAttackPowerWithoutRendAndTear(t *testing.T) {
 	}
 }
 
-// Pounce's stun and combo point land when its bleed is dodged, and the dodged bleed refunds no energy.
-func TestDodgedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
+// Pounce's stun and combo point land when its bleed misses or is dodged, the avoided bleed refunds no
+// energy, and the cast spends its energy and starts the GCD as usual.
+func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
+	for _, avoid := range []string{"miss", "dodge"} {
+		t.Run(avoid, func(t *testing.T) {
+			sim, cat := newCat(t, "", nil)
+			target := cat.CurrentTarget
+			target.PseudoStats.BaseDodgeChance = 0
+			if avoid == "miss" {
+				cat.AttackTables[target.UnitIndex].Hand(cat.PounceBleed.Spell).BaseMissChance = 1
+			} else {
+				cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+				target.PseudoStats.BaseDodgeChance = 1
+			}
+			cat.ProwlAura.Activate(sim)
+			want := cat.CurrentEnergy() - cat.Pounce.Cost.GetCurrentCost()
+			if !cat.Pounce.Cast(sim, target) {
+				t.Fatal("pounce did not cast")
+			}
+			if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Hits != 1 || m.Misses != 0 {
+				t.Fatalf("pounce landed %d times and missed %d, want 1 and 0", m.Hits, m.Misses)
+			}
+			m := cat.PounceBleed.SpellMetrics[target.UnitIndex]
+			avoided := m.Dodges
+			if avoid == "miss" {
+				avoided = m.Misses
+			}
+			if bleedUp := cat.PounceBleed.Dot(target).IsActive(); avoided != 1 || m.Hits != 0 || bleedUp {
+				t.Fatalf("bleed avoided %d times, %d hits, up=%v, want 1, 0 and no bleed", avoided, m.Hits, bleedUp)
+			}
+			stunUp := target.GetAura("Pounce Stun").IsActive()
+			if !stunUp || cat.ComboPoints() != 1 {
+				t.Errorf("stun up=%v and CP=%d, want the stun and 1", stunUp, cat.ComboPoints())
+			}
+			if cat.CurrentEnergy() != want {
+				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
+			}
+			if got, gcd := cat.GCD.ReadyAt(), sim.CurrentTime+cat.Pounce.DefaultCast.GCD; gcd <= sim.CurrentTime || got != gcd {
+				t.Errorf("GCD ready at %v, want %v", got, gcd)
+			}
+		})
+	}
+}
+
+// A second Pounce whose bleed is dodged leaves the first Pounce Bleed ticking to its own end.
+func TestAvoidedRePounceKeepsTheTickingBleed(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
-	target.PseudoStats.BaseDodgeChance = 1
+	target.PseudoStats.BaseDodgeChance = 0
 	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 	cat.ProwlAura.Activate(sim)
-	want := cat.CurrentEnergy() - cat.Pounce.Cost.GetCurrentCost()
 	if !cat.Pounce.Cast(sim, target) {
-		t.Fatal("pounce did not cast")
+		t.Fatal("first pounce did not cast")
 	}
-	if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Hits != 1 {
-		t.Fatalf("pounce landed %d times, want 1", m.Hits)
+	dot := cat.PounceBleed.Dot(target)
+	metric := &cat.PounceBleed.SpellMetrics[target.UnitIndex]
+	if !dot.IsActive() || metric.Hits != 0 {
+		t.Fatalf("first bleed up=%v with %d hits, want up and no hit of its own", dot.IsActive(), metric.Hits)
 	}
-	bleedUp := cat.PounceBleed.Dot(target).IsActive()
-	if m := cat.PounceBleed.SpellMetrics[target.UnitIndex]; m.Dodges != 1 || bleedUp {
-		t.Fatalf("bleed dodged %d times and up=%v, want 1 dodge and no bleed", m.Dodges, bleedUp)
+	expires := dot.ExpiresAt()
+	sim.CurrentTime = cat.GCD.ReadyAt()
+	fillResource(sim, cat)
+	target.PseudoStats.BaseDodgeChance = 1
+	cat.ProwlAura.Activate(sim)
+	if !cat.Pounce.Cast(sim, target) {
+		t.Fatal("second pounce did not cast")
 	}
-	stunUp := target.GetAura("Pounce Stun").IsActive()
-	if !stunUp || cat.ComboPoints() != 1 {
-		t.Errorf("stun up=%v and CP=%d after a dodged bleed, want the stun and 1", stunUp, cat.ComboPoints())
+	if metric.Dodges != 1 || !dot.IsActive() || dot.ExpiresAt() != expires {
+		t.Fatalf("second bleed dodged %d times; first bleed up=%v, ends %v, want 1 dodge and up to %v", metric.Dodges, dot.IsActive(), dot.ExpiresAt(), expires)
 	}
-	if cat.CurrentEnergy() != want {
-		t.Errorf("energy=%g after a dodged bleed, want %g with no refund", cat.CurrentEnergy(), want)
+	before := metric.TotalDamage
+	dot.TickOnce(sim)
+	if metric.TotalDamage <= before {
+		t.Error("the first bleed dealt no tick after the dodged second one")
 	}
 }
 
@@ -376,8 +427,8 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	}
 }
 
-// Rend and Tear raises bleed ticks. A Rake or Rip tick counts its own bleed as the bleed on the target,
-// and the talent is the only difference between the two builds.
+// Rend and Tear raises Rake and Rip ticks; Pounce Bleed's are not raised. A Rake or Rip tick counts its
+// own bleed as the bleed on the target, and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
 	tick := func(talents string, rip bool) float64 {
