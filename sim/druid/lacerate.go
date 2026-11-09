@@ -27,6 +27,8 @@ func (druid *Druid) registerLacerateSpell() {
 	// The hit is its own row, whose class flags lie outside Natural Instinct's mask: in game it crits
 	// ×2.0 while the ticks, on the rank's flags, take the talent's crit damage. Its weapon percent is
 	// not what lands; the rank's $s2 is.
+	// TODO: The hit missing Natural Instinct's crit damage is most likely a game bug; recheck in a combat log
+	// after each build and put the hit back on the rank's class flags once its crits deal ×2.2.
 	hitConfig := spelldata.SpellConfig(&druid.Unit, spelldata.MustFind(lacerateHitSpellID),
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	hit := druid.RegisterSpell(hitConfig)
