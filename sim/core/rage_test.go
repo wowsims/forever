@@ -323,6 +323,55 @@ func TestPreArmorDamage(t *testing.T) {
 	}
 }
 
+func TestFullBlockGivesNoRage(t *testing.T) {
+	// A 1000 hit from a level 63 attacker: 2.5 * 0.6 * 1000 / 243.64 = 6.157 when anything gets past the
+	// block, even when an absorb takes the rest, and nothing when the block takes it all.
+	tests := []struct {
+		name       string
+		blockValue float64
+		absorbed   bool
+		wantRage   float64
+	}{
+		{name: "blocked in full", blockValue: 1000, wantRage: 0},
+		{name: "partly blocked", blockValue: 100, wantRage: 6.157},
+		{name: "partly blocked, the rest absorbed", blockValue: 100, absorbed: true, wantRage: 6.157},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			sim := SetupFakeRageSim()
+			fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+			spell := sim.Encounter.ActiveTargetUnits[0].AutoAttacks.MHAuto()
+
+			fw.stats[stats.BlockValue] = test.blockValue
+			fw.PseudoStats.CanBlock = true
+			if test.absorbed {
+				fw.DynamicDamageTakenModifiers = append(fw.DynamicDamageTakenModifiers, func(_ *Simulation, _ *Spell, result *SpellResult, _ bool) {
+					result.Damage = 0
+				})
+			}
+
+			block := func(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
+				result.Outcome = OutcomeHit
+				chance := 0.0
+				result.applyEnemyAttackTableBlock(sim, spell, attackTable, -1, &chance)
+			}
+
+			rageBefore := fw.CurrentRage()
+			result := spell.calcDamageInternal(sim, &fw.Unit, 1000, 1, false, block)
+			spell.DealDamage(sim, result)
+			gained := fw.CurrentRage() - rageBefore
+
+			if !result.DidBlock() {
+				t.Fatalf("the hit was not blocked: outcome %v", result.Outcome)
+			}
+			if !WithinToleranceFloat64(test.wantRage, gained, 0.001) {
+				t.Fatalf("Rage from the hit: Expected: %0.3f, Actual: %0.3f", test.wantRage, gained)
+			}
+		})
+	}
+}
+
 func TestOffHandRageMultiplier(t *testing.T) {
 	const swingDamage = 500.0
 

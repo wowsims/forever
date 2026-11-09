@@ -100,7 +100,8 @@ const (
 	crusader     = 1900
 )
 
-// A protection warrior with a main-hand Crusader, Windfury Totem in the party and the preraid shield.
+// A protection warrior with a main-hand Crusader, Windfury Totem in the party, the preraid shield and
+// no rotation, so stepping the sim casts nothing.
 func shieldTestSim(t *testing.T) (*core.Simulation, *core.Character, *core.Unit) {
 	t.Helper()
 
@@ -114,7 +115,7 @@ func shieldTestSim(t *testing.T) (*core.Simulation, *core.Character, *core.Unit)
 		Equipment:     gear,
 		TalentsString: protectionTalents,
 		Spec:          protectionOptions,
-		Rotation:      core.GetAplRotation("../../ui/specs/warrior/protection/apls", "default").Rotation,
+		Rotation:      &proto.APLRotation{},
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true},
@@ -1164,5 +1165,114 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 	}
 	if got := war.CurrentHealth(); got != war.MaxHealth() {
 		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
+	}
+}
+
+// The block that spends Shield Block's last charge leaves the aura up to the end of its spell batch:
+// another attack in that batch meets the raised block chance, one in a later batch does not.
+func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
+	const shieldBlockID = 2565
+	sim, war, target := shieldTestSim(t)
+	shieldBlock := war.GetSpell(core.ActionID{SpellID: shieldBlockID})
+	aura := war.GetAuraByID(core.ActionID{SpellID: shieldBlockID})
+	if shieldBlock == nil || aura == nil {
+		t.Fatal("the warrior has no Shield Block")
+	}
+
+	swing := target.AutoAttacks.MHAuto()
+	blockChance := func() float64 {
+		return war.GetTotalBlockChanceAsDefender(swing, target.AttackTables[war.UnitIndex])
+	}
+	block := func() {
+		war.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
+	}
+
+	withoutShieldBlock := blockChance()
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	withShieldBlock := blockChance()
+	if withShieldBlock <= withoutShieldBlock {
+		t.Fatal("Shield Block raised no block chance, so the checks below prove nothing")
+	}
+
+	for range aura.MaxStacks {
+		block()
+	}
+	if !aura.IsActive() {
+		t.Fatal("Shield Block ended at the block that spent its last charge")
+	}
+	if got := blockChance(); got != withShieldBlock {
+		t.Errorf("a second attack in the batch meets a block chance of %v, want Shield Block's %v", got, withShieldBlock)
+	}
+	block()
+	if !aura.IsActive() || aura.GetStacks() != 1 {
+		t.Errorf("a second block in the batch left Shield Block up %v with %d charges, want up with its last one",
+			aura.IsActive(), aura.GetStacks())
+	}
+
+	// Swings due inside the batch and at its end arrive as pending actions at an auto attack's priority.
+	var inBatch, atBatchEnd float64
+	swingAt := func(at time.Duration, seen *float64) {
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: at, Priority: core.ActionPriorityAuto, OnAction: func(*core.Simulation) {
+			*seen = blockChance()
+			block()
+		}})
+	}
+	swingAt(sim.CurrentTime+core.SpellBatchWindow/2, &inBatch)
+	swingAt(sim.CurrentTime+core.SpellBatchWindow, &atBatchEnd)
+	stepPastBatch(t, sim)
+	if inBatch != withShieldBlock {
+		t.Errorf("a swing inside the batch met a block chance of %v, want Shield Block's %v", inBatch, withShieldBlock)
+	}
+	if atBatchEnd != withoutShieldBlock {
+		t.Errorf("a swing at the end of the batch met a block chance of %v, want %v without Shield Block", atBatchEnd, withoutShieldBlock)
+	}
+	if aura.IsActive() {
+		t.Error("Shield Block is still up in the batch after its last charge was spent")
+	}
+
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	for range aura.MaxStacks {
+		block()
+	}
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	stepPastBatch(t, sim)
+	if !aura.IsActive() || aura.GetStacks() != aura.MaxStacks {
+		t.Errorf("a recast in the batch of the last charge left Shield Block up %v with %d charges, want up with %d",
+			aura.IsActive(), aura.GetStacks(), aura.MaxStacks)
+	}
+}
+
+// Shield Slam adds twice the block value to its roll. Two sims on one seed roll the same damage, and
+// with the outcome forced to a plain hit the casts differ only by the block value they add, taken
+// through the same multipliers.
+func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
+	slam := func(extraBlockValue float64) (*core.Simulation, *core.Unit, *core.Spell, float64) {
+		sim, war, target := shieldTestSim(t)
+		shieldSlam := shieldSpells(t, war)["Shield Slam"]
+		war.AddStatDynamic(sim, stats.BlockValue, extraBlockValue)
+		war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		war.AddStatDynamic(sim, stats.PhysicalCritPercent, -200)
+		target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+		hand := war.AttackTables[target.UnitIndex].Hand(shieldSlam)
+		hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+
+		shieldSlam.SkipCastAndApplyEffects(sim, target)
+		if hits := shieldSlam.SpellMetrics[target.UnitIndex].Hits; hits != 1 {
+			t.Fatalf("Shield Slam landed %d plain hits, want 1", hits)
+		}
+		return sim, target, shieldSlam, war.BlockDamageReduction()
+	}
+
+	sim, target, base, baseBlock := slam(0)
+	_, _, raised, raisedBlock := slam(10)
+	added := raisedBlock - baseBlock
+	if added == 0 {
+		t.Fatal("the extra block value raised no block, so the check below proves nothing")
+	}
+
+	got := raised.SpellMetrics[target.UnitIndex].TotalDamage - base.SpellMetrics[target.UnitIndex].TotalDamage
+	want := base.CalcDamage(sim, target, 2*added, base.OutcomeAlwaysHit).Damage
+	if math.Abs(got-want) > 1e-6 {
+		t.Errorf("%v more block value added %v damage, want %v for twice the block value", added, got, want)
 	}
 }
