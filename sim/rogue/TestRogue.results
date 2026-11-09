@@ -630,6 +630,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-HeartseekingCrossbow-13040"
+ value: {
+  dps: 610.15659
+  tps: 433.21118
+  hps: 51.78222
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-HelmofFire-8348"
  value: {
   dps: 600.61131
@@ -643,6 +651,14 @@ dps_results: {
   dps: 606.73987
   tps: 430.78531
   hps: 51.98556
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Hurricane-2824"
+ value: {
+  dps: 606.27733
+  tps: 430.4569
+  hps: 51.78222
  }
 }
 dps_results: {
@@ -678,6 +694,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Lifestone-833"
+ value: {
+  dps: 606.73987
+  tps: 430.78531
+  hps: 51.98556
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 606.73987
@@ -698,6 +722,14 @@ dps_results: {
  value: {
   dps: 606.73987
   tps: 430.78531
+  hps: 51.98556
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 609.55478
+  tps: 432.78389
   hps: 51.98556
  }
 }

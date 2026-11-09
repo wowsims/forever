@@ -711,6 +711,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Lifestone-833"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.87048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 749.07576
@@ -732,6 +740,14 @@ dps_results: {
   dps: 775.11311
   tps: 553.83538
   dtps: 4.80678
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 750.24488
+  tps: 536.30632
+  dtps: 4.85193
  }
 }
 dps_results: {

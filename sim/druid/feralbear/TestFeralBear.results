@@ -901,6 +901,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Lifestone-833"
+ value: {
+  dps: 455.07813
+  tps: 1762.18036
+  dtps: 389.65574
+  hps: 80.33641
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 455.07813
@@ -915,6 +924,15 @@ dps_results: {
   dps: 455.07813
   tps: 1762.18036
   dtps: 389.57077
+  hps: 80.33641
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 459.28786
+  tps: 1777.64887
+  dtps: 389.65574
   hps: 80.33641
  }
 }

@@ -740,6 +740,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-HeartseekingCrossbow-13040"
+ value: {
+  dps: 652.44524
+  tps: 431.32991
+  dtps: 0.92772
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-HelmofFire-8348"
  value: {
   dps: 675.46065
@@ -753,6 +761,14 @@ dps_results: {
   dps: 667.77024
   tps: 442.00234
   dtps: 1.03406
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Hurricane-2824"
+ value: {
+  dps: 655.09308
+  tps: 433.02943
+  dtps: 0.20924
  }
 }
 dps_results: {
@@ -804,6 +820,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Lifestone-833"
+ value: {
+  dps: 667.77024
+  tps: 442.00234
+  dtps: 1.03406
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 672.04654
@@ -825,6 +849,14 @@ dps_results: {
   dps: 667.77024
   tps: 442.00234
   dtps: 1.03406
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 667.76402
+  tps: 441.34528
+  dtps: 0.61842
  }
 }
 dps_results: {
