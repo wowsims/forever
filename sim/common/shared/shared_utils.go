@@ -704,18 +704,18 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	}
 
 	single := make(core.SpellResultSlice, 1)
-	debuff := debuffOnLanding(character, damage)
+	onLanding := bothAfter(debuffOnLanding(character, damage), leechOnLanding(character, damage, effect))
 	periodic := damage.PeriodicDamageEffect()
 	if periodic == spelldata.NilEffect {
 		multiTarget := effect.HitsAnArea() || effect.ChainTargets > 1
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			bind(spell)
 			if multiTarget {
-				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), debuff)
+				dealOnArrival(sim, spell, target, calcMultiTargetDamage(sim, spell, target, damage, effect, hitOutcome), onLanding)
 				return
 			}
 			single[0] = spell.CalcDamage(sim, target, effect.DirectAmount(sim), hitOutcome)
-			dealOneOnArrival(sim, spell, target, single, debuff)
+			dealOneOnArrival(sim, spell, target, single, onLanding)
 		}
 		return config
 	}
@@ -728,14 +728,7 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 	// time reaches and the hit does not rolls its own application.
 	config.Dot = spelldata.DotConfig(damage, periodic)
 	areaHit, areaDot := effect.HitsAnArea(), periodic.HitsAnArea()
-	after := applyDotIfLanded(areaDot)
-	if debuff != nil {
-		applyDot := after
-		after = func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
-			applyDot(sim, spell, target, results)
-			debuff(sim, spell, target, results)
-		}
-	}
+	after := bothAfter(applyDotIfLanded(areaDot), onLanding)
 	var rolls core.SpellResultSlice
 	if areaDot && !areaHit {
 		rolls = make(core.SpellResultSlice, 0, len(character.Env.AllUnits))
@@ -779,6 +772,40 @@ func spellDataProcDamageSpell(character *core.Character, damage *spelldata.Spell
 }
 
 type afterDealt func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice)
+
+// Runs first, then second; either may be nil.
+func bothAfter(first, second afterDealt) afterDealt {
+	if first == nil {
+		return second
+	}
+	if second == nil {
+		return first
+	}
+	return func(sim *core.Simulation, spell *core.Spell, target *core.Unit, results core.SpellResultSlice) {
+		first(sim, spell, target, results)
+		second(sim, spell, target, results)
+	}
+}
+
+// What an E_HEALTH_LEECH gives its caster: the effect's Amplitude share of the damage the hits dealt,
+// after armor or resistance, times the caster's healing taken multiplier. A hit missed, dodged or
+// parried deals nothing and heals nothing. Nil where the effect is no leech.
+func leechOnLanding(character *core.Character, damage *spelldata.Spell, effect *spelldata.Effect) afterDealt {
+	if effect.Type != dbcenums.E_HEALTH_LEECH {
+		return nil
+	}
+	healthMetrics := character.NewHealthMetrics(core.ActionID{SpellID: damage.ID})
+	return func(sim *core.Simulation, _ *core.Spell, _ *core.Unit, results core.SpellResultSlice) {
+		dealt := 0.0
+		for _, result := range results {
+			dealt += result.Damage
+		}
+		if dealt <= 0 {
+			return
+		}
+		character.GainHealth(sim, dealt*float64(effect.Amplitude)*character.PseudoStats.HealingTakenMultiplier, healthMetrics)
+	}
+}
 
 // Deals the results the cast calculated, then runs after where it is set: at once, or, where the
 // spell has a travel time, once it has landed. The flight carries a copy of the results, since the

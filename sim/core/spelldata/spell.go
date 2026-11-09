@@ -124,11 +124,15 @@ func (s *Spell) DamageEffect() *Effect {
 		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
 }
 
-// The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
-// aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
-// spikes' 20 to 30.
+// The effect a proc deals its damage through: the row's damage effect; an E_HEALTH_LEECH, whose
+// caster also gains its Amplitude share of the damage dealt as health (Fatal Bite 1295065's 40); or
+// the A_PROC_TRIGGER_DAMAGE aura of a proc that deals its amount off its own trigger, with no spell
+// below it: the shield spikes' 20 to 30.
 func (s *Spell) ProcDamageEffect() *Effect {
 	if e := s.DamageEffect(); e != NilEffect {
+		return e
+	}
+	if e := s.firstOfType(dbcenums.E_HEALTH_LEECH); e != NilEffect {
 		return e
 	}
 	return s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)

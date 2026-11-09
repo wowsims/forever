@@ -634,7 +634,7 @@ func RegisterAllProcs() {
 	//
 	// Steals 21 life from the target enemy. Deals 3 times as much damage to Undead.
 	// https://www.wowhead.com/forever/spell=1299869
-	// unsupported: states no rate; the damage spell's row states no damage
+	// unsupported: states no rate
 	// trigger 1299869 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1299869, BuffSpellID: 1299869, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
@@ -716,7 +716,7 @@ func RegisterAllProcs() {
 	//
 	// Steals 49 life from target enemy. Deals 2 times as much damage to Undead.
 	// https://www.wowhead.com/forever/spell=16414
-	// unsupported: states no rate; the damage spell's row states no damage
+	// unsupported: states no rate
 	// trigger 16414 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16414, BuffSpellID: 16414, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
@@ -2727,19 +2727,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.
-	// https://www.wowhead.com/forever/spell=1295065
-	// unsupported: the damage spell's row states no damage
-	// trigger 1295064 (10%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 1295065
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295064, BuffSpellID: 1295065},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 274608, ItemName: "Maw of Min'loth"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0
 	// sec for 6s.
 	// https://www.wowhead.com/forever/spell=1294645
@@ -3520,6 +3507,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1294939, BuffSpellID: 1294940},
 		[]shared.ItemVariant{
 			{ItemID: 274603, ItemName: "Dreadfrost Saber"},
+		})
+
+	// When struck in melee combat, has a 10% chance of stealing 40 life from the target enemy.
+	// https://www.wowhead.com/forever/spell=1295065
+	// trigger 1295064 (10%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 1295065
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295064, BuffSpellID: 1295065},
+		[]shared.ItemVariant{
+			{ItemID: 274608, ItemName: "Maw of Min'loth"},
 		})
 
 	// Deals 25 Physical damage every time you block.

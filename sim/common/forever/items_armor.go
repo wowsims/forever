@@ -200,8 +200,9 @@ func init() {
 		config.Dot = spelldata.DotConfig(row, leech, spelldata.Label("Demon Forged Breastplate"))
 		config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 			result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, leech.Average(), row.TickOutcome(dot))
-			// EffectAmplitude is the share of the damage the wearer gains as health.
-			character.GainHealth(sim, result.Damage*float64(leech.Amplitude), healthMetrics)
+			// EffectAmplitude is the share of the damage the wearer gains as health, times the wearer's
+			// healing taken multiplier, as for the leech of a generated damage proc.
+			character.GainHealth(sim, result.Damage*float64(leech.Amplitude)*character.PseudoStats.HealingTakenMultiplier, healthMetrics)
 		}
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
