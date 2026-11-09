@@ -677,6 +677,7 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 }
 
 func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
+	const lacerateHitID = 414647
 	for _, kind := range []string{"hit", "zero", "miss", "periodic", "swipe"} {
 		t.Run(kind, func(t *testing.T) {
 			items := bearItemSlots()
@@ -700,7 +701,7 @@ func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 				case "swipe":
 					bear.Unit.OnSpellHitDealt(sim, bear.Swipe.Spell, result)
 				default:
-					bear.Unit.OnSpellHitDealt(sim, bear.Lacerate.Spell, result)
+					bear.Unit.OnSpellHitDealt(sim, bear.GetSpell(core.ActionID{SpellID: lacerateHitID}), result)
 				}
 				until := sim.CurrentTime + 2*core.SpellBatchWindow
 				sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})

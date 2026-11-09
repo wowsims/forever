@@ -34,7 +34,7 @@ func init() {
 		// TODO: Ingame test needed -- whether a fully absorbed Lacerate qualifies; the sim lets it.
 		trigger.RequireDamageDealt = false
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			return druid.PrimalBite != nil && spellData.Lacerate.Contains(spell)
+			return druid.PrimalBite != nil && spell.SpellID == lacerateHitSpellID
 		}
 		druid.ItemSwap.RegisterProc(279251, druid.MakeProcTriggerAura(trigger))
 	})

@@ -481,9 +481,9 @@ var Spells = []Override{
 	{
 		SpellID: 9493,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 3 in game.
-		Reason:  "Rip Rank 3: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 3: attack power share per tick per combo point up to 4, measured over 237 ticks (210 fit; 0.0091 fits 154)",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 9752,
@@ -523,16 +523,16 @@ var Spells = []Override{
 	{
 		SpellID: 1823,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
-		Reason:  "Rake Rank 2: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 2: measured direct hit share, 514 of 530 hits fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 1823,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
-		Reason:  "Rake Rank 2: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 2: measured periodic share, 1,157 of 1,232 ticks fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 1824,
@@ -563,6 +563,27 @@ var Spells = []Override{
 		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
+		SpellID: 9007,
+		Field:   APCoefPeriodic,
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 1: measured periodic share, 0.02496 to 0.02536 fits every tick; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 9824,
+		Field:   APCoefPeriodic,
+		Value:   0.025, // TODO: Measure Pounce Bleed Rank 2 in game.
+		Reason:  "Pounce Bleed Rank 2: Rank 1's measured periodic share",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 9826,
+		Field:   APCoefPeriodic,
+		Value:   0.025, // TODO: Measure Pounce Bleed Rank 3 in game.
+		Reason:  "Pounce Bleed Rank 3: Rank 1's measured periodic share",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
 		SpellID: 779,
 		Field:   APCoefDirect,
 		Value:   0.03,
@@ -579,15 +600,15 @@ var Spells = []Override{
 	{
 		SpellID: 769,
 		Field:   APCoefDirect,
-		Value:   0.03, // TODO: Measure Swipe Rank 3 in game.
-		Reason:  "Swipe Rank 3: the 3% share measured at ranks 1, 2 and 5; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.03,
+		Reason:  "Swipe Rank 3: 3% of attack power on each hit, measured, 4,055 of 5,387 hits exact; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 9754,
 		Field:   APCoefDirect,
 		Value:   0.03, // TODO: Measure Swipe Rank 4 in game.
-		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2 and 5; the game files state none",
+		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2, 3 and 5; the game files state none",
 		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
@@ -699,9 +720,10 @@ var Spells = []Override{
 	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power: Heroic
 	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
 	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
-	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's share per level.
-	// Each rank's bonus is a whole number: a measured bonus and a share times the spell level round to
-	// the nearest one.
+	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's 2.5 a level.
+	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), and Ranks 3
+	// to 5 carry that share. Each rank's bonus is a whole number: a measured bonus rounds to the
+	// nearest one, and each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -726,44 +748,44 @@ var Spells = []Override{
 	{
 		SpellID: 1608,
 		Field:   FlatThreat,
-		Value:   61,
-		Reason:  "Heroic Strike Rank 4: threat is the damage + 61, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Value:   60,
+		Reason:  "Heroic Strike Rank 4: threat is the damage + 60, times the stance",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11564,
-		Field:   FlatThreat,
-		Value:   81, // TODO: Measure Heroic Strike Rank 5 in game.
+		Field:   ThreatPerSpellLevel,
+		Value:   2.5, // TODO: Measure Heroic Strike Rank 5 in game.
 		Reason:  "Heroic Strike Rank 5: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11565,
-		Field:   FlatThreat,
-		Value:   102, // TODO: Measure Heroic Strike Rank 6 in game.
+		Field:   ThreatPerSpellLevel,
+		Value:   2.5, // TODO: Measure Heroic Strike Rank 6 in game.
 		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11566,
-		Field:   FlatThreat,
-		Value:   122, // TODO: Measure Heroic Strike Rank 7 in game.
+		Field:   ThreatPerSpellLevel,
+		Value:   2.5, // TODO: Measure Heroic Strike Rank 7 in game.
 		Reason:  "Heroic Strike Rank 7: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11567,
-		Field:   FlatThreat,
-		Value:   142, // TODO: Measure Heroic Strike Rank 8 in game.
+		Field:   ThreatPerSpellLevel,
+		Value:   2.5, // TODO: Measure Heroic Strike Rank 8 in game.
 		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 25286,
-		Field:   FlatThreat,
-		Value:   152, // TODO: Measure Heroic Strike Rank 9 in game.
+		Field:   ThreatPerSpellLevel,
+		Value:   2.5, // TODO: Measure Heroic Strike Rank 9 in game.
 		Reason:  "Heroic Strike Rank 9: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 845,
@@ -781,24 +803,109 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11608,
-		Field:   FlatThreat,
-		Value:   61, // TODO: Measure Cleave Rank 3 in game.
-		Reason:  "Cleave Rank 3: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 3 in game.
+		Reason:  "Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
 	},
 	{
 		SpellID: 11609,
-		Field:   FlatThreat,
-		Value:   77, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 4 in game.
+		Reason:  "Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
 	},
 	{
 		SpellID: 20569,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Cleave Rank 5 in game.
+		Reason:  "Cleave Rank 5: the 1.5 a spell level Ranks 1 and 2 share",
+		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+	},
+
+	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
+	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in. The share comes from
+	// four readings of Rank 1, none fully clean.
+	{
+		SpellID: 1240193,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Slam Rank 1 in game.
+		Reason:  "Slam Rank 1: threat is the damage + 30, times the stance",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1464,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Slam Rank 2 in game.
+		Reason:  "Slam Rank 2: Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 8820,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Slam Rank 3 in game.
+		Reason:  "Slam Rank 3: Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 11604,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Slam Rank 4 in game.
+		Reason:  "Slam Rank 4: Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 11605,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Slam Rank 5 in game.
+		Reason:  "Slam Rank 5: Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1310196,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Improved Slam's Rank 1 in game.
+		Reason:  "Slam Rank 1 under Improved Slam: Slam Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1310197,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Improved Slam's Rank 2 in game.
+		Reason:  "Slam Rank 2 under Improved Slam: Slam Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1310198,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Improved Slam's Rank 3 in game.
+		Reason:  "Slam Rank 3 under Improved Slam: Slam Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1310199,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Improved Slam's Rank 4 in game.
+		Reason:  "Slam Rank 4 under Improved Slam: Slam Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 1310200,
+		Field:   ThreatPerSpellLevel,
+		Value:   1.5, // TODO: Measure Improved Slam's Rank 5 in game.
+		Reason:  "Slam Rank 5 under Improved Slam: Slam Rank 1's measured share per spell level",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+	},
+
+	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
+	// held 177.7 over damage from 223 to 400.
+	// TODO: Measure Shield Slam Ranks 2–4's threat in game.
+	{
+		SpellID: 23922,
 		Field:   FlatThreat,
-		Value:   92, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: Rank 2's measured share",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Value:   178,
+		Reason:  "Shield Slam Rank 1: threat is the damage + 178, times the stance",
+		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
 	},
 }
 
