@@ -261,6 +261,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 								favouriteTooltipId={`${tooltipId}-favourite`}
 								compareTooltipId={`${tooltipId}-compare`}
 								faction={faction}
+								firstSeen={sim.db.getItemFirstSeen(row.id)}
 								onEquip={() => row.onEquip(row.item)}
 								onToggleFavourite={() => toggleFavourite(row)}
 							/>

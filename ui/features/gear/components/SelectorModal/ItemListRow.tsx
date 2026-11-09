@@ -12,11 +12,13 @@ import { type ReactNode, useMemo } from 'react';
 import { useStore } from 'zustand';
 
 import { trackEvent } from '../../../../tracking/utils';
+import { discoveredLabel, isNewlyDiscovered } from '../../model/item_first_seen';
 import { tabHasLevel } from '../../model/item_sort';
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
 import { ItemNoticeIcon } from '../GearPicker/ItemNoticeIcon';
 import { NameDescriptionLabel } from '../ItemCell';
+import { DiscoveredDot } from './DiscoveredDot';
 import { EpCell, type EpCellProps } from './EpCell';
 import { ItemSource } from './ItemSource';
 import { RowActions, type RowActionsProps } from './RowActions';
@@ -31,6 +33,8 @@ export interface ItemListRowViewProps extends RowActionsProps {
 	ilvl?: number;
 	active: boolean;
 	onEquip: () => void;
+	/** The day an item discovered within the last week was discovered; set, it puts a dot on the icon. */
+	discovered?: string;
 	notice?: ReactNode;
 	/** The source column; the items and enchants tabs have one. */
 	source?: ReactNode;
@@ -47,6 +51,7 @@ export const ItemListRowView = ({
 	ilvl,
 	active,
 	onEquip,
+	discovered,
 	notice,
 	source,
 	ep,
@@ -58,7 +63,7 @@ export const ItemListRowView = ({
 				{ilvl || null}
 			</div>
 		)}
-		<div className="flex flex-1 items-center gap-1" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
+		<div className="relative flex flex-1 items-center gap-1" data-testid="selector-modal-list-label-cell" data-active={active ? '' : undefined}>
 			<WowheadAnchor className="ui-selector-modal-list-item-link" testId="selector-modal-list-item-link" href={href || undefined} onActivate={onEquip}>
 				<img className="ui-selector-modal-list-item-icon" data-testid="selector-modal-list-item-icon" src={iconUrl || undefined} alt="" />
 				<span
@@ -69,6 +74,12 @@ export const ItemListRowView = ({
 					{!!nameDescription && <NameDescriptionLabel nameDescription={nameDescription} />}
 				</span>
 			</WowheadAnchor>
+			{discovered && (
+				// The icon's box, outside the link, so hovering the dot opens its own tooltip and not the item's.
+				<div className="pointer-events-none absolute top-1/2 left-0 z-1 size-12 -translate-y-1/2">
+					<DiscoveredDot label={discovered} />
+				</div>
+			)}
 			{notice}
 		</div>
 		{source !== undefined && (
@@ -92,6 +103,8 @@ export interface ItemListRowProps {
 	compareTooltipId: string;
 	/** The character's side, whose quests and vendors the source column shows. */
 	faction?: Faction;
+	/** The unix second the sim's database first held the item; unset when unknown. */
+	firstSeen?: number;
 	onEquip: () => void;
 	onToggleFavourite: () => void;
 }
@@ -105,6 +118,7 @@ export const ItemListRow = ({
 	favouriteTooltipId,
 	compareTooltipId,
 	faction,
+	firstSeen,
 	onEquip,
 	onToggleFavourite,
 }: ItemListRowProps) => {
@@ -115,6 +129,7 @@ export const ItemListRow = ({
 	const level = tabHasLevel(label) ? itemData.ilvl || (isItemsTab ? (itemData.item as unknown as Item).ilvl : 0) : undefined;
 	const enchant = itemData.item as unknown as Enchant;
 	const sourceItem = isItemsTab ? (itemData.item as unknown as Item) : isEnchantsTab ? { id: enchant.itemId, sources: enchant.sources } : undefined;
+	const discovered = isItemsTab && firstSeen !== undefined && isNewlyDiscovered(firstSeen) ? discoveredLabel(firstSeen) : undefined;
 
 	const batchPlayer = isIndividualSimHost(host) ? host.player : null;
 	const batchSpec = useMemo(() => ItemSpec.create({ id: itemData.id }), [itemData.id]);
@@ -138,6 +153,7 @@ export const ItemListRow = ({
 			ilvl={level}
 			active={active}
 			onEquip={onEquip}
+			discovered={discovered}
 			notice={<ItemNoticeIcon itemId={isEnchantsTab ? undefined : itemData.id} enchantId={isEnchantsTab ? itemData.id : undefined} />}
 			source={sourceItem && <ItemSource item={sourceItem} sim={host.sim} faction={faction} />}
 			ep={ep}
