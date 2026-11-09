@@ -126,35 +126,19 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-Beastmaster'sBoots-22061"
- value: {
-  dps: 715.53898
-  tps: 674.758
-  dtps: 8.7658
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 709.5013
-  tps: 669.29455
-  dtps: 9.07331
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-Beastmaster'sGloves-22015"
- value: {
-  dps: 700.62576
-  tps: 662.27028
-  dtps: 8.87485
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-BeaststalkerArmor"
  value: {
   dps: 575.14712
   tps: 549.41136
   dtps: 8.73477
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BehemothBones-280065"
+ value: {
+  dps: 719.78071
+  tps: 678.59991
+  dtps: 8.97757
  }
 }
 dps_results: {
@@ -535,6 +519,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 719.78071
+  tps: 678.59991
+  dtps: 8.97757
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FlurryAxe-871"
  value: {
   dps: 681.02265
@@ -548,6 +540,22 @@ dps_results: {
   dps: 724.37453
   tps: 682.5144
   dtps: 9.07331
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-ForceofWill-11810"
+ value: {
+  dps: 719.78071
+  tps: 678.59991
+  dtps: 8.33298
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-FreezingBand-942"
+ value: {
+  dps: 708.73769
+  tps: 669.38047
+  dtps: 8.95006
  }
 }
 dps_results: {
@@ -624,6 +632,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-GryphonRider'sStormhammer-9651"
+ value: {
+  dps: 681.02265
+  tps: 644.07888
+  dtps: 9.03286
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GutRipper-2164"
  value: {
   dps: 681.02265
   tps: 644.07888
@@ -828,6 +844,14 @@ dps_results: {
   dps: 719.78071
   tps: 678.59991
   dtps: 8.86298
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Naglering-11669"
+ value: {
+  dps: 708.73769
+  tps: 669.38047
+  dtps: 8.95006
  }
 }
 dps_results: {

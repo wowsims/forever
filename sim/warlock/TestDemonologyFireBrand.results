@@ -99,6 +99,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-BehemothBones-280065"
+ value: {
+  dps: 753.32842
+  tps: 613.92402
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 748.58048
@@ -535,6 +544,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 753.32842
+  tps: 613.92402
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-ForceofWill-11810"
+ value: {
+  dps: 753.32842
+  tps: 613.85529
+  dtps: 7.94358
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-FreezingBand-942"
+ value: {
+  dps: 749.2669
+  tps: 609.911
+  dtps: 8.45682
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Frostguard-12797"
  value: {
   dps: 709.72655
@@ -585,6 +621,15 @@ dps_results: {
   dps: 753.91275
   tps: 613.65297
   dtps: 8.44872
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-GutRipper-2164"
+ value: {
+  dps: 709.72655
+  tps: 577.15106
+  dtps: 8.5315
   hps: 10.00951
  }
 }
@@ -713,6 +758,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 709.72655
+  tps: 577.15106
+  dtps: 8.5315
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 753.32842
@@ -798,6 +852,15 @@ dps_results: {
   dps: 753.32842
   tps: 613.90418
   dtps: 8.31389
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Naglering-11669"
+ value: {
+  dps: 749.2669
+  tps: 609.911
+  dtps: 8.45682
   hps: 10.00951
  }
 }
@@ -932,6 +995,15 @@ dps_results: {
   dps: 753.32842
   tps: 613.90418
   dtps: 8.31389
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 709.72655
+  tps: 577.15106
+  dtps: 8.5315
   hps: 10.00951
  }
 }

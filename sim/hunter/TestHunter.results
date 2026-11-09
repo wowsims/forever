@@ -126,29 +126,11 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sBoots-22061"
+ key: "TestHunter-AllItems-BeastmasterArmor"
  value: {
-  dps: 773.79562
-  tps: 797.48939
-  dtps: 7.66787
-  hps: 15.01278
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 780.89316
-  tps: 804.67277
-  dtps: 7.92392
-  hps: 15.06361
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sGloves-22015"
- value: {
-  dps: 768.20108
-  tps: 792.13009
-  dtps: 7.88422
+  dps: 773.71343
+  tps: 797.34418
+  dtps: 7.79285
   hps: 15.01278
  }
 }
@@ -159,6 +141,15 @@ dps_results: {
   tps: 775.61493
   dtps: 7.66787
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BehemothBones-280065"
+ value: {
+  dps: 773.20066
+  tps: 796.76008
+  dtps: 7.45809
+  hps: 14.74167
  }
 }
 dps_results: {
@@ -348,6 +339,15 @@ dps_results: {
   tps: 788.53992
   dtps: 7.45809
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Doombringer-13053"
+ value: {
+  dps: 724.56639
+  tps: 747.97568
+  dtps: 7.70804
+  hps: 14.64
  }
 }
 dps_results: {
@@ -648,12 +648,39 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 771.97895
+  tps: 795.51329
+  dtps: 7.40794
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-FlurryAxe-871"
  value: {
   dps: 644.90907
   tps: 668.51608
   dtps: 7.48046
   hps: 15.30083
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-ForceofWill-11810"
+ value: {
+  dps: 764.98051
+  tps: 788.36638
+  dtps: 6.91975
+  hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-FreezingBand-942"
+ value: {
+  dps: 769.47526
+  tps: 793.16903
+  dtps: 7.66787
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -753,6 +780,15 @@ dps_results: {
   tps: 751.18685
   dtps: 7.86171
   hps: 14.77556
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-GutRipper-2164"
+ value: {
+  dps: 659.31207
+  tps: 682.34975
+  dtps: 7.38951
+  hps: 14.72472
  }
 }
 dps_results: {
@@ -873,6 +909,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 661.83661
+  tps: 684.70179
+  dtps: 7.30321
+  hps: 14.65694
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 764.98051
@@ -969,6 +1014,15 @@ dps_results: {
   tps: 791.79554
   dtps: 7.34816
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Naglering-11669"
+ value: {
+  dps: 769.47526
+  tps: 793.16903
+  dtps: 7.66787
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -1215,6 +1269,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 700.80956
+  tps: 724.21837
+  dtps: 7.45809
+  hps: 14.64
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TalismanofArathor-20071"
  value: {
   dps: 764.98051
@@ -1302,6 +1365,15 @@ dps_results: {
   tps: 688.01634
   dtps: 7.32554
   hps: 14.65694
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheNeedler-13060"
+ value: {
+  dps: 703.05119
+  tps: 726.58454
+  dtps: 7.57043
+  hps: 14.62306
  }
 }
 dps_results: {
