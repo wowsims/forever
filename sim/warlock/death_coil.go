@@ -15,8 +15,6 @@ func (warlock *Warlock) registerDeathCoil() {
 
 	config := spelldata.SpellConfig(&warlock.Unit, rankedSpell, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = WarlockSpellDeathCoil
-	// SpellConfig reads the spell power share off a damage or heal effect, and E_HEALTH_LEECH is neither.
-	config.BonusCoefficient = deathCoilHit.Coeff()
 
 	// Roll the damage and to hit, then land it after the travel time and heal for what it dealt
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

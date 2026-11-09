@@ -62,6 +62,9 @@ func humanise(s *spelldata.Spell, e *spelldata.Effect) string {
 			scaling(e), coefficients(e))
 	case dbcenums.E_HEAL:
 		return sentence(join(amount(e), "healing", targetPhrase(e)), scaling(e), coefficients(e))
+	case dbcenums.E_HEALTH_LEECH:
+		return sentence(join("leeches", amount(e), schoolName(s.SpellSchool()), "damage", targetPhrase(e)),
+			scaling(e), coefficients(e))
 
 	case dbcenums.E_WEAPON_PERCENT_DAMAGE:
 		return sentence(join(percent(e)+" weapon damage", targetPhrase(e)), scaling(e))
