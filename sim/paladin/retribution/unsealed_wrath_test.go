@@ -176,3 +176,27 @@ func TestUnsealedWrathStoresLightAndWisdom(t *testing.T) {
 		t.Errorf("%d spends of three Seal of Wisdom copies restored mana %d times, want a roll per copy", spends, restores)
 	}
 }
+
+// The ladder's first Seal of Righteousness deals its hits as its own spell, not as the level 1
+// starter seal's.
+func TestSealOfRighteousnessRankOneHitsAsItsOwnSpell(t *testing.T) {
+	const want = 25741 // 21084's damage spell, "Rank 1.5" in the game files
+	sim, pal, swing, _ := unsealedWrathPaladin(t)
+	rank := paladin.SealOfRighteousnessRankMap.Rank(1)
+	castSeal(t, sim, pal, rank.ID)
+	for range 20 {
+		swing()
+	}
+
+	hitsBy := map[int32]int32{}
+	for _, spell := range pal.Spellbook {
+		if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) {
+			if casts := spell.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts; casts > 0 {
+				hitsBy[spell.ActionID.SpellID] += casts
+			}
+		}
+	}
+	if len(hitsBy) != 1 || hitsBy[want] == 0 {
+		t.Errorf("seal %d hits as %v (spell id: hits), want spell %d alone", rank.ID, hitsBy, want)
+	}
+}

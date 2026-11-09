@@ -1199,289 +1199,289 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3840.2938
-  tps: 3874.51043
-  dtps: 7.90295
-  hps: 28.70389
+  dps: 3819.14004
+  tps: 3852.64488
+  dtps: 7.19742
+  hps: 27.87361
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 938.08016
-  tps: 972.11868
-  dtps: 7.62166
-  hps: 28.80556
+  dps: 927.15075
+  tps: 961.06479
+  dtps: 7.41732
+  hps: 27.97528
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1069.59004
-  tps: 1106.28068
+  dps: 1061.62846
+  tps: 1097.82771
   dtps: 9.07614
-  hps: 35.88833
+  hps: 34.6175
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 960.8169
-  tps: 960.8169
+  dps: 950.07444
+  tps: 950.07444
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 377.02737
-  tps: 377.02737
+  dps: 370.88357
+  tps: 370.88357
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 555.56523
-  tps: 555.56523
+  dps: 535.93567
+  tps: 535.93567
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3847.20705
-  tps: 3881.46607
-  dtps: 7.75628
-  hps: 28.70389
+  dps: 3822.55555
+  tps: 3856.05527
+  dtps: 7.18652
+  hps: 27.82278
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 941.85215
-  tps: 975.95665
-  dtps: 7.54762
-  hps: 28.80556
+  dps: 930.73046
+  tps: 964.77714
+  dtps: 7.5249
+  hps: 27.97528
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1074.75281
-  tps: 1111.34911
+  dps: 1066.48228
+  tps: 1103.27256
   dtps: 9.07614
-  hps: 35.88833
+  hps: 34.6175
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 959.4116
-  tps: 959.4116
+  dps: 952.19334
+  tps: 952.19334
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 378.64545
-  tps: 378.64545
+  dps: 371.02907
+  tps: 371.02907
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 552.60633
-  tps: 552.60633
+  dps: 534.83471
+  tps: 534.83471
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3770.88889
-  tps: 3805.08856
-  dtps: 7.49492
-  hps: 28.61917
+  dps: 3758.90968
+  tps: 3792.43054
+  dtps: 7.08359
+  hps: 27.755
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 880.53846
-  tps: 914.28963
-  dtps: 7.22223
-  hps: 28.67
+  dps: 865.45039
+  tps: 898.80212
+  dtps: 6.97623
+  hps: 27.87361
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 986.49582
-  tps: 1023.53002
+  dps: 980.2989
+  tps: 1017.01075
   dtps: 9.07614
-  hps: 35.8375
+  hps: 34.77
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 926.26461
-  tps: 926.26461
+  dps: 920.86594
+  tps: 920.86594
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 343.2951
-  tps: 343.2951
+  dps: 337.31105
+  tps: 337.31105
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 500.8547
-  tps: 500.8547
+  dps: 492.44045
+  tps: 492.44045
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3776.42649
-  tps: 3810.72085
-  dtps: 7.68842
-  hps: 28.65306
+  dps: 3762.14949
+  tps: 3795.82361
+  dtps: 7.18821
+  hps: 27.755
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 886.41881
-  tps: 919.9489
-  dtps: 6.96708
-  hps: 28.67
+  dps: 868.79773
+  tps: 902.35807
+  dtps: 7.06844
+  hps: 27.89056
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 991.41996
-  tps: 1028.24515
+  dps: 985.15151
+  tps: 1022.34069
   dtps: 9.07614
-  hps: 35.8375
+  hps: 34.77
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 926.88747
-  tps: 926.88747
+  dps: 921.87432
+  tps: 921.87432
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 345.00021
-  tps: 345.00021
+  dps: 335.6585
+  tps: 335.6585
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 499.47311
-  tps: 499.47311
+  dps: 491.36492
+  tps: 491.36492
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3826.60966
-  tps: 3995.96122
-  dtps: 7.64333
-  hps: 28.65306
+  dps: 3818.95096
+  tps: 3984.26311
+  dtps: 7.88184
+  hps: 27.85667
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 932.07288
-  tps: 1101.2841
-  dtps: 7.31241
-  hps: 28.56833
+  dps: 924.52552
+  tps: 1090.06561
+  dtps: 7.35902
+  hps: 27.9075
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1065.28798
-  tps: 1266.84464
+  dps: 1047.37345
+  tps: 1243.99938
   dtps: 9.07614
-  hps: 35.73583
+  hps: 34.51583
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 944.82781
-  tps: 1068.34781
+  dps: 932.3829
+  tps: 1052.1429
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 361.47827
-  tps: 485.55827
+  dps: 354.72398
+  tps: 475.16398
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 522.50658
-  tps: 675.02658
+  dps: 517.55872
+  tps: 665.39872
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3830.76227
-  tps: 4000.07861
-  dtps: 7.81099
-  hps: 28.65306
+  dps: 3822.71345
+  tps: 3987.95702
+  dtps: 8.03952
+  hps: 27.83972
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 935.20418
-  tps: 1103.92827
-  dtps: 7.08408
-  hps: 28.55139
+  dps: 929.43572
+  tps: 1095.23687
+  dtps: 7.3291
+  hps: 27.94139
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1070.30935
-  tps: 1271.72766
+  dps: 1052.23649
+  tps: 1249.33025
   dtps: 9.07614
-  hps: 35.73583
+  hps: 34.51583
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 945.80401
-  tps: 1070.04401
+  dps: 932.70081
+  tps: 1052.22081
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 360.47918
-  tps: 484.55918
+  dps: 354.77131
+  tps: 474.81131
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Orc-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 520.5088
-  tps: 672.3088
+  dps: 517.71092
+  tps: 665.79092
  }
 }
 dps_results: {
@@ -1583,289 +1583,289 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3830.51804
-  tps: 3864.92316
-  dtps: 7.58792
-  hps: 29.09361
+  dps: 3811.11421
+  tps: 3844.7935
+  dtps: 7.31827
+  hps: 28.31417
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 941.6766
-  tps: 975.52178
-  dtps: 7.18122
-  hps: 29.17833
+  dps: 924.91909
+  tps: 958.78747
+  dtps: 7.41524
+  hps: 28.29722
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1082.24627
-  tps: 1120.24871
+  dps: 1072.3765
+  tps: 1109.6249
   dtps: 9.07614
-  hps: 36.85417
+  hps: 35.93917
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 957.59247
-  tps: 957.59247
+  dps: 970.16466
+  tps: 970.16466
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 376.60564
-  tps: 376.60564
+  dps: 367.67084
+  tps: 367.67084
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 549.84621
-  tps: 549.84621
+  dps: 538.58271
+  tps: 538.58271
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3833.24939
-  tps: 3867.52667
-  dtps: 7.48475
-  hps: 29.05972
+  dps: 3816.8504
+  tps: 3850.34203
+  dtps: 7.18529
+  hps: 28.29722
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 945.92941
-  tps: 979.98042
-  dtps: 7.18122
-  hps: 29.16139
+  dps: 928.12488
+  tps: 961.86783
+  dtps: 7.38662
+  hps: 28.29722
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1087.28711
-  tps: 1125.64085
+  dps: 1077.09715
+  tps: 1114.87325
   dtps: 9.07614
-  hps: 36.85417
+  hps: 35.93917
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 945.59996
-  tps: 945.59996
+  dps: 942.00441
+  tps: 942.00441
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 378.19214
-  tps: 378.19214
+  dps: 365.96037
+  tps: 365.96037
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Flametongue-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 550.82687
-  tps: 550.82687
+  dps: 537.10748
+  tps: 537.10748
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3757.67989
-  tps: 3792.11817
-  dtps: 7.54429
-  hps: 29.09361
+  dps: 3745.36342
+  tps: 3778.90806
+  dtps: 7.30005
+  hps: 28.22944
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 868.08025
-  tps: 902.16908
-  dtps: 7.74662
-  hps: 29.14444
+  dps: 862.25395
+  tps: 896.23188
+  dtps: 7.56694
+  hps: 28.17861
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 987.10849
-  tps: 1025.2577
+  dps: 965.99132
+  tps: 1002.68811
   dtps: 9.07614
-  hps: 36.65083
+  hps: 35.685
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 920.54662
-  tps: 920.54662
+  dps: 924.78518
+  tps: 924.78518
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 345.56044
-  tps: 345.56044
+  dps: 336.5792
+  tps: 336.5792
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 507.21058
-  tps: 507.21058
+  dps: 496.05299
+  tps: 496.05299
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3761.42694
-  tps: 3795.84051
-  dtps: 7.29182
-  hps: 29.07667
+  dps: 3748.57106
+  tps: 3782.11581
+  dtps: 7.2939
+  hps: 28.24639
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 872.21764
-  tps: 906.27344
-  dtps: 7.74662
-  hps: 29.14444
+  dps: 867.62352
+  tps: 901.67366
+  dtps: 7.73494
+  hps: 28.2125
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 992.11267
-  tps: 1030.6182
+  dps: 970.61503
+  tps: 1008.5459
   dtps: 9.07614
-  hps: 36.65083
+  hps: 35.685
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 910.74213
-  tps: 910.74213
+  dps: 905.10296
+  tps: 905.10296
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 346.10554
-  tps: 346.10554
+  dps: 338.72221
+  tps: 338.72221
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Frostbrand-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 504.29401
-  tps: 504.29401
+  dps: 498.03029
+  tps: 498.03029
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3807.23776
-  tps: 3978.59773
-  dtps: 7.21877
-  hps: 28.95806
+  dps: 3814.6547
+  tps: 3981.89262
+  dtps: 7.78496
+  hps: 28.2125
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 930.74835
-  tps: 1101.74536
-  dtps: 7.33042
-  hps: 29.02583
+  dps: 921.20322
+  tps: 1088.02975
+  dtps: 7.25089
+  hps: 28.22944
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1061.19291
-  tps: 1268.19086
+  dps: 1055.27899
+  tps: 1257.4519
   dtps: 9.07614
-  hps: 36.65083
+  hps: 35.93917
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 949.27895
-  tps: 1074.31895
+  dps: 927.74468
+  tps: 1049.30468
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 362.87775
-  tps: 489.15775
+  dps: 353.27217
+  tps: 475.43217
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 528.68357
-  tps: 687.44357
+  dps: 515.23327
+  tps: 667.75327
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 3811.44984
-  tps: 3982.61438
-  dtps: 7.22478
-  hps: 28.95806
+  dps: 3819.44677
+  tps: 3986.15409
+  dtps: 7.46315
+  hps: 28.2125
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 934.00511
-  tps: 1105.43052
-  dtps: 7.48142
-  hps: 29.07667
+  dps: 927.547
+  tps: 1094.89709
+  dtps: 7.38539
+  hps: 28.22944
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 1066.15211
-  tps: 1273.99481
+  dps: 1060.1605
+  tps: 1263.00555
   dtps: 9.07614
-  hps: 36.65083
+  hps: 35.93917
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 947.48435
-  tps: 1073.24435
+  dps: 911.14427
+  tps: 1033.18427
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 358.40905
-  tps: 483.96905
+  dps: 351.96442
+  tps: 474.44442
  }
 }
 dps_results: {
  key: "TestEnhancement-Settings-Troll-testing-Rockbiter-testing_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 519.23134
-  tps: 676.07134
+  dps: 517.55352
+  tps: 669.95352
  }
 }
 dps_results: {

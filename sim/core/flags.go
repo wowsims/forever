@@ -218,6 +218,9 @@ const (
 	SpellFlagStun                                           // The spell's mechanic is stun (SpellCategories.Mechanic 12): the whole cast misses a stun-immune target.
 	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
 	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
+	SpellFlagRequiresMainHand                               // The row requires a main-hand weapon (Attributes[3] 0x400), e.g. Mortal Strike or Sinister Strike.
+	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
+	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
