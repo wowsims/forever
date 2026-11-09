@@ -587,7 +587,7 @@ var Spells = []Override{
 		SpellID: 9754,
 		Field:   APCoefDirect,
 		Value:   0.03, // TODO: Measure Swipe Rank 4 in game.
-		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2 and 5; the game files state none",
+		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2, 3 and 5; the game files state none",
 		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{

@@ -5,8 +5,8 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Lacerate's weapon hit 414647, which every rank casts by script. No row links it to the ranks, so
-// the store carries it as an extra spell.
+// The weapon hit every Lacerate rank casts by script. No row links it to the ranks, so the store
+// carries it as an extra spell.
 const lacerateHitSpellID = 414647
 
 func (druid *Druid) registerLacerateSpell() {
@@ -27,14 +27,20 @@ func (druid *Druid) registerLacerateSpell() {
 	}
 	// The hit is its own row, whose class flags lie outside Natural Instinct's mask: in game it crits
 	// ×2.0 while the ticks, on the rank's flags, take the talent's crit damage. Its weapon percent is
-	// not what lands; the rank's $s2 is. The rank's cast is what misses, is dodged, parried or immune
-	// (every SPELL_MISSED in the log names the rank, never 414647), so the hit rolls the table the cast
-	// would: without the row's No Active Defense, and missing a bleed-immune target as the bleed does.
+	// not what lands; the rank's $s2 is.
 	hitConfig := spelldata.SpellConfig(&druid.Unit, spelldata.MustFind(lacerateHitSpellID),
-		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
-		spelldata.RemoveFlags(core.SpellFlagNoActiveDefense), spelldata.Flags(config.Flags&core.SpellFlagBleed))
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	hit := druid.RegisterSpell(hitConfig)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		// The rank's cast is what misses, is dodged, parried or immune: every SPELL_MISSED in the log
+		// names the rank, never 414647. The hit follows a landed cast and only rolls block and crit, and
+		// its row's No Active Defense leaves crit alone (0 of 790 hits in the log blocked).
+		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
+		if !result.Landed() {
+			spell.DealOutcome(sim, result)
+			druid.refundOnMiss(sim, spell, result)
+			return
+		}
 		dot := spell.Dot(target)
 		stacks := int32(1)
 		if dot.IsActive() {
@@ -42,14 +48,11 @@ func (druid *Druid) registerLacerateSpell() {
 		}
 		// The tooltip's "$s2% weapon damage per existing application" counts the application this cast adds:
 		// in game the hits grow 1:2:3:4:5 with the stacks after the cast, so a first Lacerate hits for $s2%.
-		weapon := hit.Unit.MHWeaponDamage(sim, hit.MeleeAttackPower(target))
+		weapon := druid.MHWeaponDamage(sim, hit.MeleeAttackPower(target))
 		damage := weapon * perStack * float64(stacks) * druid.rendAndTearMultiplier(target)
-		result := hit.CalcAndDealDamage(sim, target, damage, hit.OutcomeMeleeWeaponSpecialHitAndCrit)
-		if result.Landed() {
-			dot.Apply(sim)
-			dot.SetStacks(sim, stacks)
-		}
-		druid.refundOnMiss(sim, spell, result)
+		hit.CalcAndDealDamage(sim, target, damage, hit.OutcomeMeleeSpecialBlockAndCrit)
+		dot.Apply(sim)
+		dot.SetStacks(sim, stacks)
 	}
 	druid.Lacerate = druid.RegisterSpell(config)
 }
