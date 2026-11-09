@@ -6,6 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -293,7 +294,9 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 // normal chance to activate once per stack.
 //
 // Each copy is the Echo of its seal, one aura per seal, each read from its own row. A stored seal's
-// effect lands a batch window after the hit that consumes it, as a live seal's does.
+// effect lands a batch window after the hit that consumes it, as a live seal's does. In game the
+// talent needs a weapon equipped, so swapping the main-hand weapon takes it off for a moment, and
+// every Echo goes with it.
 func (paladin *Paladin) applyUnsealedWrath() {
 	if !paladin.Talents.UnsealedWrath {
 		return
@@ -312,6 +315,17 @@ func (paladin *Paladin) applyUnsealedWrath() {
 			}),
 		})
 	}
+
+	paladin.RegisterItemSwapCallback([]proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}, func(sim *core.Simulation, slot proto.ItemSlot) {
+		// A swap set that names the weapon already in the main hand leaves it there.
+		if paladin.ItemSwap.GetUnequippedItemBySlot(slot).ID == paladin.MainHand().ID {
+			return
+		}
+		for _, echo := range paladin.echoes {
+			echo.seal = nil
+			echo.aura.Deactivate(sim)
+		}
+	})
 
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.UnsealedWrath.Rank(1), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		seal := paladin.activeSeal()

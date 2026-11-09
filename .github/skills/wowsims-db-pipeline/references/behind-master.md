@@ -33,6 +33,8 @@ regenerate.
   a store no input describes.
 - **A `db.bin` conflict.** `protojson.Unmarshal` the merged `db.json` into `proto.UIDatabase`, `proto.Marshal` it, and
   check the two proto-equal. Never `ReadDatabaseFromJson` there: it leaves out `Encounters`.
+- **An `item_first_seen.json` conflict.** Take master's copy and regenerate; the run stamps the branch's new items with
+  its own time.
 - **`db.bin` behind an unchanged `db.json`.** `WriteBinaryAndJson` skips both files when the new `db.json` equals the
   one on disk and `db.bin` exists. Delete `assets/database/db.bin` before `gen_db` to force the write; `gen_db` imports
   no package that embeds it, so it still builds. `assets/database/loader.go` embeds `db.bin` with no build tag, and
