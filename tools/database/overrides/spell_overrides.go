@@ -259,9 +259,10 @@ var Spells = []Override{
 	// logs, one with a 1.6 s weapon and one with a 3.7 s one. The seal healed on 463 of 1101 and 509
 	// of 554 landed melee hits while it was up, which only a per-minute rate fits, and the judgement
 	// on 825 of the 1693 landed while it was up, 534 of 1090 at 1.6 s and 256 of 537 at 3.7 s, which
-	// is a flat chance. Neither fired on a dodge, a parry or a miss. The other ranks carry Rank 1's
-	// numbers until a log at their level says otherwise, and Judgement of Wisdom carries Judgement of
-	// Light's chance until a log measures it.
+	// is a flat chance. Neither fired on a dodge, a parry or a miss. A level 41 log with a 2.6 s weapon
+	// measured the same rate on Seal of Light Rank 2 and the same chance on Judgement of Light Rank 2. The
+	// ranks no log has measured carry the nearest measured rank's numbers until one at their level says
+	// otherwise.
 	{
 		SpellID: 20165,
 		Field:   PPM,
@@ -272,46 +273,46 @@ var Spells = []Override{
 	{
 		SpellID: 20347,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Light Rank 2 in game.
-		Reason:  "Seal of Light Rank 2: Rank 1's measured rate",
-		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Value:   15,
+		Reason:  "Seal of Light Rank 2: 90 of 129 landed melee hits at 2.6 s, where 15 per minute gives 0.65",
+		Source:  "combat log, Seal of Light Rank 2, 2026-11-09",
 	},
 	{
 		SpellID: 20348,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Light Rank 3 in game.
-		Reason:  "Seal of Light Rank 3: Rank 1's measured rate",
-		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Seal of Light Rank 3: Ranks 1 and 2's measured rate",
+		Source:  "combat log, Seal of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
 	},
 	{
 		SpellID: 20349,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Light Rank 4 in game.
-		Reason:  "Seal of Light Rank 4: Rank 1's measured rate",
-		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Seal of Light Rank 4: Ranks 1 and 2's measured rate",
+		Source:  "combat log, Seal of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
 	},
-	// Seal of Wisdom carries Seal of Light's measured rate until a log measures it. Every source that
-	// gives the two seals a rate gives them the same one.
+	// Seal of Wisdom Rank 1 measured the same rate as Seal of Light, and its other ranks carry it until a
+	// log at their level says otherwise.
 	{
 		SpellID: 20166,
 		Field:   PPM,
-		Value:   15, // TODO: Measure Seal of Wisdom Rank 1 in game.
-		Reason:  "Seal of Wisdom Rank 1: Seal of Light Rank 1's measured rate",
-		Source:  "estimate",
+		Value:   15,
+		Reason:  "Seal of Wisdom Rank 1: 187 of 269 landed melee hits at 2.6 s, where 15 per minute gives 0.65",
+		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
 	},
 	{
 		SpellID: 20356,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Wisdom Rank 2 in game.
-		Reason:  "Seal of Wisdom Rank 2: Seal of Light Rank 1's measured rate",
-		Source:  "estimate",
+		Reason:  "Seal of Wisdom Rank 2: Rank 1's measured rate",
+		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
 	},
 	{
 		SpellID: 20357,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Wisdom Rank 3 in game.
-		Reason:  "Seal of Wisdom Rank 3: Seal of Light Rank 1's measured rate",
-		Source:  "estimate",
+		Reason:  "Seal of Wisdom Rank 3: Rank 1's measured rate",
+		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
 	},
 	{
 		SpellID: 20185,
@@ -323,44 +324,44 @@ var Spells = []Override{
 	{
 		SpellID: 20344,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Light Rank 2 in game.
-		Reason:  "Judgement of Light Rank 2: Rank 1's measured chance",
-		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Value:   50,
+		Reason:  "Judgement of Light Rank 2: 59 of 123 landed melee swings; ranged and spell hits never heal",
+		Source:  "combat log, Judgement of Light Rank 2, 2026-11-09",
 	},
 	{
 		SpellID: 20345,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Light Rank 3 in game.
-		Reason:  "Judgement of Light Rank 3: Rank 1's measured chance",
-		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Judgement of Light Rank 3: Ranks 1 and 2's measured chance",
+		Source:  "combat log, Judgement of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
 	},
 	{
 		SpellID: 20346,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Light Rank 4 in game.
-		Reason:  "Judgement of Light Rank 4: Rank 1's measured chance",
-		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Judgement of Light Rank 4: Ranks 1 and 2's measured chance",
+		Source:  "combat log, Judgement of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
 	},
 	{
 		SpellID: 20186,
 		Field:   ProcChancePct,
-		Value:   50, // TODO: Measure Judgement of Wisdom Rank 1 in game.
-		Reason:  "Judgement of Wisdom Rank 1: Judgement of Light Rank 1's measured chance",
-		Source:  "estimate",
+		Value:   50,
+		Reason:  "Judgement of Wisdom Rank 1: 164 of 336 landed melee swings, 59 of 116 direct spells and 44 of 102 ranged shots; misses, ticks and damage shields never pay",
+		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
 	},
 	{
 		SpellID: 20354,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Wisdom Rank 2 in game.
-		Reason:  "Judgement of Wisdom Rank 2: Judgement of Light Rank 1's measured chance",
-		Source:  "estimate",
+		Reason:  "Judgement of Wisdom Rank 2: Rank 1's measured chance",
+		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
 	},
 	{
 		SpellID: 20355,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Wisdom Rank 3 in game.
-		Reason:  "Judgement of Wisdom Rank 3: Judgement of Light Rank 1's measured chance",
-		Source:  "estimate",
+		Reason:  "Judgement of Wisdom Rank 3: Rank 1's measured chance",
+		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
 	},
 
 	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from
