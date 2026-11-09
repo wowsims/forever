@@ -108,39 +108,21 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-Beastmaster'sBoots-22061"
- value: {
-  dps: 872.07055
-  tps: 908.3422
-  dtps: 7.3235
-  hps: 33.245
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 874.58684
-  tps: 911.08875
-  dtps: 7.55363
-  hps: 33.245
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-Beastmaster'sGloves-22015"
- value: {
-  dps: 861.85518
-  tps: 897.90062
-  dtps: 7.27612
-  hps: 32.75361
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-BeaststalkerArmor"
  value: {
   dps: 777.67393
   tps: 815.79552
   dtps: 7.24026
   hps: 32.49944
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-BehemothBones-280065"
+ value: {
+  dps: 872.10705
+  tps: 908.35238
+  dtps: 7.42903
+  hps: 32.7875
  }
 }
 dps_results: {
@@ -540,6 +522,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 864.1884
+  tps: 900.47394
+  dtps: 7.41129
+  hps: 32.75361
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ForceofWill-11810"
+ value: {
+  dps: 865.46182
+  tps: 901.39193
+  dtps: 6.79862
+  hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-FreezingBand-942"
+ value: {
+  dps: 862.36821
+  tps: 898.41375
+  dtps: 7.34689
+  hps: 32.66889
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-GauntletsoftheSea-8346"
  value: {
   dps: 862.55091
@@ -753,6 +762,15 @@ dps_results: {
   tps: 904.80598
   dtps: 7.34069
   hps: 32.7875
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-Naglering-11669"
+ value: {
+  dps: 862.36821
+  tps: 898.41375
+  dtps: 7.34689
+  hps: 32.66889
  }
 }
 dps_results: {

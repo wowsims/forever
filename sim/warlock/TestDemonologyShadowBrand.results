@@ -99,6 +99,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BehemothBones-280065"
+ value: {
+  dps: 759.81594
+  tps: 647.07961
+  dtps: 10.46408
+  hps: 7.83039
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 756.57098
@@ -535,6 +544,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 759.81594
+  tps: 647.07961
+  dtps: 10.46408
+  hps: 7.83039
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ForceofWill-11810"
+ value: {
+  dps: 759.81594
+  tps: 647.06601
+  dtps: 9.88324
+  hps: 7.83039
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-FreezingBand-942"
+ value: {
+  dps: 765.00736
+  tps: 651.97313
+  dtps: 10.80408
+  hps: 7.82416
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Frostguard-12797"
  value: {
   dps: 719.18242
@@ -586,6 +622,15 @@ dps_results: {
   tps: 644.73386
   dtps: 10.46768
   hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-GutRipper-2164"
+ value: {
+  dps: 719.18242
+  tps: 611.32889
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {
@@ -713,6 +758,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 719.18242
+  tps: 611.32889
+  dtps: 10.46408
+  hps: 7.90759
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 759.81594
@@ -799,6 +853,15 @@ dps_results: {
   tps: 647.07961
   dtps: 10.30208
   hps: 7.83039
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Naglering-11669"
+ value: {
+  dps: 765.00736
+  tps: 651.97313
+  dtps: 10.80408
+  hps: 7.82416
  }
 }
 dps_results: {
@@ -933,6 +996,15 @@ dps_results: {
   tps: 647.07961
   dtps: 10.30208
   hps: 7.83039
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 719.18242
+  tps: 611.32889
+  dtps: 10.46408
+  hps: 7.90759
  }
 }
 dps_results: {

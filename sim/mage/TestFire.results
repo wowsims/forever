@@ -96,6 +96,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-BehemothBones-280065"
+ value: {
+  dps: 804.69323
+  tps: 804.26704
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 837.35864
@@ -412,6 +419,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 804.69323
+  tps: 804.26704
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-ForceofWill-11810"
+ value: {
+  dps: 804.69323
+  tps: 804.26704
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-FreezingBand-942"
+ value: {
+  dps: 846.45034
+  tps: 843.82116
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-FrostfireRegalia"
  value: {
   dps: 1118.25306
@@ -465,6 +493,13 @@ dps_results: {
  value: {
   dps: 807.24131
   tps: 806.98257
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-GutRipper-2164"
+ value: {
+  dps: 777.68106
+  tps: 777.55126
  }
 }
 dps_results: {
@@ -559,6 +594,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 777.68106
+  tps: 777.55126
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 804.69323
@@ -640,6 +682,13 @@ dps_results: {
  value: {
   dps: 804.69323
   tps: 804.26704
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-Naglering-11669"
+ value: {
+  dps: 846.45034
+  tps: 843.82116
  }
 }
 dps_results: {
@@ -745,6 +794,13 @@ dps_results: {
  value: {
   dps: 804.69323
   tps: 804.26704
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 777.68106
+  tps: 777.55126
  }
 }
 dps_results: {

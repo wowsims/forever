@@ -117,39 +117,21 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-Beastmaster'sBoots-22061"
- value: {
-  dps: 822.82633
-  tps: 670.89978
-  dtps: 4.18431
-  hps: 23.84829
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 817.81226
-  tps: 666.72116
-  dtps: 4.15741
-  hps: 23.44738
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-Beastmaster'sGloves-22015"
- value: {
-  dps: 816.78559
-  tps: 665.85212
-  dtps: 4.11381
-  hps: 23.83965
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-BeaststalkerArmor"
  value: {
   dps: 722.86473
   tps: 590.77882
   dtps: 3.60402
   hps: 22.19502
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-BehemothBones-280065"
+ value: {
+  dps: 835.68518
+  tps: 680.8623
+  dtps: 4.08358
+  hps: 23.53549
  }
 }
 dps_results: {
@@ -303,6 +285,15 @@ dps_results: {
   tps: 655.64099
   dtps: 4.18082
   hps: 23.83965
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Doombringer-13053"
+ value: {
+  dps: 796.0732
+  tps: 654.1222
+  dtps: 6.67605
+  hps: 27.26293
  }
 }
 dps_results: {
@@ -562,6 +553,42 @@ dps_results: {
  value: {
   dps: 819.57343
   tps: 668.13295
+  dtps: 4.53687
+  hps: 23.51296
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 833.32742
+  tps: 678.95402
+  dtps: 3.98709
+  hps: 23.53702
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ForceImbuedGauntlets-18383"
+ value: {
+  dps: 816.11475
+  tps: 665.46436
+  dtps: 4.50048
+  hps: 23.90675
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-ForceofWill-11810"
+ value: {
+  dps: 829.67483
+  tps: 675.98332
+  dtps: 3.67983
+  hps: 23.53549
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-FreezingBand-942"
+ value: {
+  dps: 817.1124
+  tps: 666.16863
   dtps: 4.53687
   hps: 23.51296
  }
@@ -945,6 +972,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Naglering-11669"
+ value: {
+  dps: 817.3431
+  tps: 666.34768
+  dtps: 4.53687
+  hps: 23.51296
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
   dps: 792.21833
@@ -1302,6 +1338,15 @@ dps_results: {
   tps: 675.21989
   dtps: 5.2212
   hps: 23.85795
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-TheNeedler-13060"
+ value: {
+  dps: 806.86156
+  tps: 665.25898
+  dtps: 7.1311
+  hps: 31.8198
  }
 }
 dps_results: {

@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BehemothBones-280065"
+ value: {
+  dps: 780.81261
+  tps: 578.25189
+  hps: 44.0725
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 774.3307
@@ -486,6 +494,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 778.2868
+  tps: 576.37796
+  hps: 44.0725
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-ForceofWill-11810"
+ value: {
+  dps: 772.49618
+  tps: 572.33469
+  hps: 44.0725
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-FreezingBand-942"
+ value: {
+  dps: 764.07362
+  tps: 566.28894
+  hps: 44.00472
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 772.49618
@@ -555,6 +587,14 @@ dps_results: {
   dps: 696.85409
   tps: 518.37337
   hps: 44.19111
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-GutRipper-2164"
+ value: {
+  dps: 703.24098
+  tps: 523.03054
+  hps: 44.27583
  }
 }
 dps_results: {
@@ -803,6 +843,14 @@ dps_results: {
   dps: 777.03126
   tps: 575.55698
   hps: 44.0725
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Naglering-11669"
+ value: {
+  dps: 764.07362
+  tps: 566.28894
+  hps: 44.00472
  }
 }
 dps_results: {
