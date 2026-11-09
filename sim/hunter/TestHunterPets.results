@@ -118,27 +118,11 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-Beastmaster'sBoots-22061"
+ key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 680.03616
-  tps: 445.33298
-  dtps: 1.39554
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 680.83986
-  tps: 450.03237
-  dtps: 1.06865
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-Beastmaster'sGloves-22015"
- value: {
-  dps: 671.9704
-  tps: 439.34631
-  dtps: 1.3525
+  dps: 674.03071
+  tps: 444.95666
+  dtps: 1.01192
  }
 }
 dps_results: {
@@ -147,6 +131,14 @@ dps_results: {
   dps: 655.11402
   tps: 430.53755
   dtps: 1.40574
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BehemothBones-280065"
+ value: {
+  dps: 673.80018
+  tps: 446.98715
+  dtps: 0.79382
  }
 }
 dps_results: {
@@ -313,6 +305,14 @@ dps_results: {
  value: {
   dps: 667.76013
   tps: 441.98342
+  dtps: 0.79382
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Doombringer-13053"
+ value: {
+  dps: 651.7476
+  tps: 429.42283
   dtps: 0.79382
  }
 }
@@ -581,11 +581,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 674.38626
+  tps: 446.62601
+  dtps: 0.79382
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-FlurryAxe-871"
  value: {
   dps: 639.99613
   tps: 419.32921
   dtps: 0.79382
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ForceofWill-11810"
+ value: {
+  dps: 667.76013
+  tps: 441.98342
+  dtps: 0.73715
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-FreezingBand-942"
+ value: {
+  dps: 669.97261
+  tps: 442.39259
+  dtps: 1.41216
  }
 }
 dps_results: {
@@ -673,6 +697,14 @@ dps_results: {
  value: {
   dps: 651.7476
   tps: 429.42283
+  dtps: 0.79382
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-GutRipper-2164"
+ value: {
+  dps: 639.99613
+  tps: 419.32921
   dtps: 0.79382
  }
 }
@@ -781,6 +813,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 639.99613
+  tps: 419.32921
+  dtps: 0.79382
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 667.76013
@@ -866,6 +906,14 @@ dps_results: {
   dps: 669.83243
   tps: 443.82468
   dtps: 0.79382
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Naglering-11669"
+ value: {
+  dps: 669.97261
+  tps: 442.39259
+  dtps: 1.41216
  }
 }
 dps_results: {
@@ -1085,6 +1133,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 639.99613
+  tps: 419.32921
+  dtps: 0.79382
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TalismanofArathor-20071"
  value: {
   dps: 667.76013
@@ -1161,6 +1217,14 @@ dps_results: {
  value: {
   dps: 639.99613
   tps: 419.32921
+  dtps: 0.79382
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheNeedler-13060"
+ value: {
+  dps: 651.7476
+  tps: 429.42283
   dtps: 0.79382
  }
 }
