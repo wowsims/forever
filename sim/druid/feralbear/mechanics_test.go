@@ -213,6 +213,10 @@ const (
 // The hit's class flags lie outside Natural Instinct's mask, so it crits at the melee base, while a
 // tick of the bleed takes the talent's crit damage.
 func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
+	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
+	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
+		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
+	}
 	const meleeCrit = 2.0
 	// One landed cast on a fresh sim of the same seed, so a crit and a normal hit roll the same weapon damage.
 	cast := func(critPercent float64) (damage float64, crits int32) {
@@ -237,10 +241,6 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, meleeCrit)
 	}
 
-	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
-	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
-		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
-	}
 	target := bear.CurrentTarget
 	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
 	if bonus <= 0 {

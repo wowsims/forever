@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// The weapon hit every Lacerate rank casts by script. No row links it to the ranks, so the store
-// carries it as an extra spell.
+// The weapon hit every Lacerate rank casts by script; the store carries it as an extra spell.
 const lacerateHitSpellID = 414647
 
 func (druid *Druid) registerLacerateSpell() {
@@ -33,8 +32,8 @@ func (druid *Druid) registerLacerateSpell() {
 	hit := druid.RegisterSpell(hitConfig)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// The rank's cast is what misses, is dodged, parried or immune: every SPELL_MISSED in the log
-		// names the rank, never 414647. The hit follows a landed cast and only rolls block and crit, and
-		// its row's No Active Defense leaves crit alone (0 of 790 hits in the log blocked).
+		// names the rank, never 414647. The hit follows a landed cast and rolls block and crit, and its
+		// row's No Active Defense takes block out, so it only rolls crit.
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if !result.Landed() {
 			spell.DealOutcome(sim, result)
