@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BehemothBones-280065"
+ value: {
+  dps: 614.62857
+  tps: 436.38628
+  hps: 51.98556
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 612.54596
@@ -462,11 +470,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 613.27617
+  tps: 435.42608
+  hps: 51.98556
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
   dps: 628.34302
   tps: 446.12354
   hps: 60.76278
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-ForceofWill-11810"
+ value: {
+  dps: 606.65457
+  tps: 430.72475
+  hps: 51.98556
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-FreezingBand-942"
+ value: {
+  dps: 598.27653
+  tps: 424.77634
+  hps: 51.78222
  }
 }
 dps_results: {
@@ -539,6 +571,14 @@ dps_results: {
   dps: 613.21042
   tps: 435.37939
   hps: 45.97028
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-GutRipper-2164"
+ value: {
+  dps: 595.46704
+  tps: 422.7816
+  hps: 52.51083
  }
 }
 dps_results: {
@@ -646,6 +686,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Linken'sSwordofMastery-11902"
+ value: {
+  dps: 618.67716
+  tps: 439.26078
+  hps: 54.32389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Loatheb'sReflection-23042"
  value: {
   dps: 606.65457
@@ -731,6 +779,14 @@ dps_results: {
   dps: 613.02647
   tps: 435.24879
   hps: 51.98556
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Naglering-11669"
+ value: {
+  dps: 598.27653
+  tps: 424.77634
+  hps: 51.78222
  }
 }
 dps_results: {
@@ -883,6 +939,14 @@ dps_results: {
   dps: 603.50077
   tps: 428.48555
   hps: 51.78222
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SwordofZeal-6622"
+ value: {
+  dps: 656.11755
+  tps: 465.84346
+  hps: 46.88528
  }
 }
 dps_results: {

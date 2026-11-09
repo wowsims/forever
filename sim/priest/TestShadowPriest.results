@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-BehemothBones-280065"
+ value: {
+  dps: 749.53402
+  tps: 535.62054
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Benediction-18608"
  value: {
   dps: 744.83887
@@ -503,6 +511,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 749.53402
+  tps: 535.62054
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ForceofWill-11810"
+ value: {
+  dps: 749.53402
+  tps: 535.62054
+  dtps: 5.09233
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-FreezingBand-942"
+ value: {
+  dps: 745.58914
+  tps: 532.85912
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 757.14647
@@ -560,6 +592,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-GryphonRider'sStormhammer-9651"
+ value: {
+  dps: 720.29321
+  tps: 515.16481
+  dtps: 5.41108
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-GutRipper-2164"
  value: {
   dps: 720.29321
   tps: 515.16481
@@ -775,6 +815,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Naglering-11669"
+ value: {
+  dps: 745.58914
+  tps: 532.85912
+  dtps: 5.41108
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-OrbofFire-12805"
  value: {
   dps: 749.53402
@@ -987,6 +1035,14 @@ dps_results: {
   dps: 665.81045
   tps: 476.91501
   dtps: 1.26698
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 751.76263
+  tps: 537.29261
+  dtps: 5.18883
  }
 }
 dps_results: {

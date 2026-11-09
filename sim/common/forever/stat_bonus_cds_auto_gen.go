@@ -44,6 +44,10 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(10726) // Gnomish Mind Control Cap - https://www.wowhead.com/forever/spell=13180
 	// unsupported: 1300754 deals no damage and heals no one (A_MOD_CHARM)
 	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
+	// unsupported: 1300763 deals no damage and heals no one (E_DUMMY)
+	// shared.NewSimpleStatActive(11702) // Grizzle's Skinner - https://www.wowhead.com/forever/spell=1300763
+	// unsupported: 15646 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL)
+	// shared.NewSimpleStatActive(11832) // Burst of Knowledge - https://www.wowhead.com/forever/spell=15646
 	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
 	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
@@ -104,6 +108,9 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(276337) // Thaelemaches' Talisman - https://www.wowhead.com/forever/spell=1299440
 	// unsupported: 1302833 deals no damage and heals no one (A_MOD_SPEED_ALWAYS, E_DUMMY, E_FORCE_CAST)
 	// shared.NewSimpleStatActive(277844) // Mirage Mirror - https://www.wowhead.com/forever/spell=1302833
+	// on use: 1309551 (A_MOD_DAMAGE_PERCENT_TAKEN, A_MOD_SPEED_ALWAYS)
+	// unsupported: effect 2 A_MOD_SPEED_ALWAYS misc 0 is not parsed on the wearer
+	// shared.NewSpellDataAuraOnUse(280074) // Scalding Flamehoof - https://www.wowhead.com/forever/spell=1309551
 	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 
@@ -138,6 +145,9 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(272437) // Adaptive Combat Assistant - https://www.wowhead.com/forever/spell=1291097
 	// on use: 1314412 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(282778) // Mark of the Red Flight - https://www.wowhead.com/forever/spell=1314412
+
+	// Agility
+	shared.NewSimpleStatActive(280071) // Flamebreak Talisman - https://www.wowhead.com/forever/spell=1315878
 
 	// Agility / Intellect / Spirit / Stamina / Strength
 	shared.NewSimpleStatActive(270226) // Golden Banana - https://www.wowhead.com/forever/spell=1287571
@@ -272,6 +282,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataHealOnUse(19990) // Blessed Prayer Beads - https://www.wowhead.com/forever/spell=24354
 	// on use: 363881 (A_PERIODIC_HEAL); not simulated: A_DUMMY
 	shared.NewSpellDataHealOnUse(20130) // Diamond Flask - https://www.wowhead.com/forever/spell=363881
+	// on use: 1315849 (E_HEAL); not simulated: E_TRIGGER_SPELL_WITH_VALUE
+	shared.NewSpellDataHealOnUse(280065) // Behemoth Bones - https://www.wowhead.com/forever/spell=1315849
 
 	// Health
 	shared.NewSimpleStatActive(13966) // Mark of Tyranny - https://www.wowhead.com/forever/spell=1287842
@@ -310,6 +322,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12733
 	// Not simulated: Chained Essence of Eranikus: "Cloud of Chained Essence" (12766) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=12766
+	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=6251
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
@@ -346,6 +360,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=23277
 	// Not simulated: Insignia of the Alliance: "Immune Fear/Polymorph/Stun" (23276) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=23276
+	// Not simulated: Enamored Water Spirit: "Mana Spring Totem" (24854) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=24854
 	// Not simulated: Defender of the Timbermaw: "Defender of the Timbermaw" (26066) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=26066
 	// Not simulated: Vanquished Tentacle of C'Thun: "Tentacle Call" (26391) - ignored effect type 28

@@ -157,6 +157,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-BehemothBones-280065"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 892.01932
@@ -534,6 +542,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.71906
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-ForceofWill-11810"
+ value: {
+  dps: 869.82454
+  tps: 880.96527
+  dtps: 5.35073
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-FreezingBand-942"
+ value: {
+  dps: 884.21436
+  tps: 895.30724
+  dtps: 5.44142
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-FrozenHeartoftheMountain-249469"
  value: {
   dps: 876.63411
@@ -607,6 +639,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-GryphonRider'sStormhammer-9651"
+ value: {
+  dps: 846.04289
+  tps: 857.18093
+  dtps: 5.57247
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-GutRipper-2164"
  value: {
   dps: 846.04289
   tps: 857.18093
@@ -875,6 +915,14 @@ dps_results: {
   dps: 869.82454
   tps: 880.96527
   dtps: 5.69982
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Naglering-11669"
+ value: {
+  dps: 884.21436
+  tps: 895.30724
+  dtps: 5.44142
  }
 }
 dps_results: {
