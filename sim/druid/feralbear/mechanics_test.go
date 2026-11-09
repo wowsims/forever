@@ -200,8 +200,47 @@ func TestFirstLacerateHitsForItsOwnStack(t *testing.T) {
 	if !bear.Lacerate.Dot(target).IsActive() {
 		t.Fatal("lacerate never landed")
 	}
-	if got := bear.Lacerate.SpellMetrics[target.UnitIndex].TotalDamage; got <= 0 {
+	if got := bear.GetSpell(core.ActionID{SpellID: lacerateHitID}).SpellMetrics[target.UnitIndex].TotalDamage; got <= 0 {
 		t.Errorf("the first lacerate dealt %v, want damage for the stack it adds", got)
+	}
+}
+
+// Lacerate's hit 414647 and Natural Instinct 2/2.
+const (
+	lacerateHitID          = 414647
+	naturalInstinctTalents = "0000000000000000-00000000000100020000-0000000000000000"
+)
+
+// The hit's class flags lie outside Natural Instinct's mask, so it crits at the melee base, while a
+// tick of the bleed takes the talent's crit damage.
+func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
+	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
+	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
+		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
+	}
+	target := bear.CurrentTarget
+	attackTable := bear.AttackTables[target.UnitIndex]
+	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
+	if bonus <= 0 {
+		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
+	}
+	const meleeCrit = 2.0
+	if got := bear.GetSpell(core.ActionID{SpellID: lacerateHitID}).CritDamageMultiplier(attackTable); got != meleeCrit {
+		t.Errorf("Lacerate's hit crits ×%v, want ×%v", got, meleeCrit)
+	}
+	tick := func(critPercent float64) float64 {
+		bear.AddStatDynamic(sim, stats.PhysicalCritPercent, critPercent)
+		defer bear.AddStatDynamic(sim, stats.PhysicalCritPercent, -critPercent)
+		metric := &bear.Lacerate.SpellMetrics[target.UnitIndex]
+		before := metric.TotalDamage
+		bear.Lacerate.Dot(target).TickOnce(sim)
+		return metric.TotalDamage - before
+	}
+	bear.Lacerate.Dot(target).Apply(sim)
+	bear.Lacerate.Dot(target).SetStacks(sim, 1)
+	normal, crit := tick(-200), tick(200)
+	if want := 1 + (meleeCrit-1)*(1+bonus); normal <= 0 || math.Abs(crit/normal-want) > 1e-9 {
+		t.Errorf("a Lacerate tick crits ×%v (%v over %v), want ×%v", crit/normal, crit, normal, want)
 	}
 }
 

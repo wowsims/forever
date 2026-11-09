@@ -481,9 +481,9 @@ var Spells = []Override{
 	{
 		SpellID: 9493,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 3 in game.
-		Reason:  "Rip Rank 3: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 3: attack power share per tick per combo point up to 4, measured over 237 ticks (210 fit; 0.0091 fits 154)",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 9752,
@@ -523,16 +523,16 @@ var Spells = []Override{
 	{
 		SpellID: 1823,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
-		Reason:  "Rake Rank 2: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 2: measured direct hit share, 514 of 530 hits fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 1823,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 2 in game.
-		Reason:  "Rake Rank 2: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 2: measured periodic share, 1,157 of 1,232 ticks fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 1824,
@@ -579,9 +579,9 @@ var Spells = []Override{
 	{
 		SpellID: 769,
 		Field:   APCoefDirect,
-		Value:   0.03, // TODO: Measure Swipe Rank 3 in game.
-		Reason:  "Swipe Rank 3: the 3% share measured at ranks 1, 2 and 5; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.03,
+		Reason:  "Swipe Rank 3: 3% of attack power on each hit, measured, 4,055 of 5,387 hits exact; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 9754,

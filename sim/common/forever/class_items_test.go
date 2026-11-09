@@ -700,7 +700,7 @@ func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 				case "swipe":
 					bear.Unit.OnSpellHitDealt(sim, bear.Swipe.Spell, result)
 				default:
-					bear.Unit.OnSpellHitDealt(sim, bear.Lacerate.Spell, result)
+					bear.Unit.OnSpellHitDealt(sim, bear.GetSpell(core.ActionID{SpellID: 414647}), result)
 				}
 				until := sim.CurrentTime + 2*core.SpellBatchWindow
 				sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})

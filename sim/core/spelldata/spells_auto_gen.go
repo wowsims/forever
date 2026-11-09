@@ -710,7 +710,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 679902, SpellID: 769, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 36, BaseLevel: 34, SPCoef: 1, APCoef: 0.03, PvpMult: 1, ChainTargets: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}}, // override: APCoefDirect 0.03 -- Swipe Rank 3: the 3% share measured at ranks 1, 2 and 5; the game files state none
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: APCoefDirect 0.03 -- Swipe Rank 3: 3% of attack power on each hit, measured, 4,055 of 5,387 hits exact; the game files state none
 	{ID: 770, Name: "Faerie Fire", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 1: 0x18000, 2: 0x80000, 6: 0x800000, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 18, BaseLevel: 18, DurationMs: 40000, MaxRange: 30, GCDMs: 1500, Category: 1133, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 1024}}, StanceMask: 0x40000091, StanceExclude: 0x2, Labels: []int16{21}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 679903, SpellID: 770, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ARMOR_NO_MODS, BasePoints: -175, BaseLevel: 18, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -1478,7 +1478,7 @@ var generatedSpells = []Spell{
 			{ID: 681218, SpellID: 1823, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 26, BaseLevel: 34, APCoef: 0.065, PvpMult: 1, PeriodMs: 3000, ChainAmp: 1, Mechanic: 15, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 681219, SpellID: 1823, Index: 2, Type: dbcenums.E_ENERGIZE, BasePoints: 1, BaseLevel: 34, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 40}}}, // override: APCoefDirect 0.065 -- Rake Rank 2: Rank 1's measured direct hit share // override: APCoefPeriodic 0.065 -- Rake Rank 2: Rank 1's measured periodic share
+		Powers: []Power{{Type: 3, Cost: 40}}}, // override: APCoefDirect 0.065 -- Rake Rank 2: measured direct hit share, 514 of 530 hits fit // override: APCoefPeriodic 0.065 -- Rake Rank 2: measured periodic share, 1,157 of 1,232 ticks fit
 	{ID: 1824, Name: "Rake", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0xc000200, 3: 0x80, 6: 0x200000, 8: 0x1200, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 44, BaseLevel: 44, DurationMs: 9000, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 4096, 3: 1073741824}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
 			{ID: 680978, SpellID: 1824, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 56, BaseLevel: 44, APCoef: 0.065, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -6445,7 +6445,7 @@ var generatedSpells = []Spell{
 			{ID: 686148, SpellID: 9493, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 8, BaseLevel: 36, APCoef: 0.0114, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, PointsPerResource: 10.5, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1290992, SpellID: 9493, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 36, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 30}, {Type: 4, Cost: 1}}}, // override: APCoefPeriodic 0.0114 -- Rip Rank 3: Rank 1's measured share per tick per combo point
+		Powers: []Power{{Type: 3, Cost: 30}, {Type: 4, Cost: 1}}}, // override: APCoefPeriodic 0.0114 -- Rip Rank 3: attack power share per tick per combo point up to 4, measured over 237 ticks (210 fit; 0.0091 fits 154)
 	{ID: 9512, Name: "Restore Energy", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CategoryCooldownMs: 60000, Category: 60, DefenseType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 13}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 684839, SpellID: 9512, Type: dbcenums.E_ENERGIZE, BasePoints: 100, BaseLevel: 60, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -25191,6 +25191,10 @@ var generatedSpells = []Spell{
 			{ID: 1083927, SpellID: 414644, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 10, BaseLevel: 42, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 150}}},
+	{ID: 414647, Name: "Lacerate", School: 1, Attr: [17]uint32{0: 0x250010, 3: 0x40040000, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, MaxRange: 50000, DefenseType: 2, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{3: 8}}, Labels: []int16{21}, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1083932, SpellID: 414647, Type: dbcenums.E_WEAPON_PERCENT_DAMAGE, BasePoints: 20, BaseLevel: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 414673, Name: "Gift of the Earthmother", School: 1, Attr: [17]uint32{0: 0x1d0, 2: 0x100, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, ClassFlags: core.ClassFlags{Family: 7}, Labels: []int16{21},
 		Effects: []Effect{
 			{ID: 1083991, SpellID: 414673, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -500, BaseLevel: 1, SPCoef: 1, PvpMult: 1, Misc: 21, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 16, 1: 67108882}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
