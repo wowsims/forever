@@ -12,29 +12,31 @@ func (warrior *Warrior) registerShieldBlock() {
 	aura := warrior.RegisterAura(spelldata.AuraConfig(shieldBlockRank))
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
-	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
-	// other attacks landing in that batch are blocked too and spend nothing. Combat logs show this for
-	// Shield Block; Holy Shield spends charges on blocks the same way but is not measured, and it still
-	// ends at its last block.
+	// The block that spends the last charge leaves the aura up for the rest of that instant, so the
+	// other attacks landing with it are blocked too and spend nothing; the low priority runs the
+	// removal after every swing and action due then. In combat logs the extra blocks come 0-2 ms after
+	// the last charge (19 of 20; the other at 24 ms, before a late removal) and every swing logged
+	// before the removal is blocked, while within 5 ms after it only 5 of 15 are. Holy Shield spends
+	// charges on blocks the same way but is not measured, and it still ends at its last block.
 	lastChargeSpent := false
-	batchEnd := &core.PendingAction{
-		Priority: core.ActionPriorityDOT,
+	lastChargeEnd := &core.PendingAction{
+		Priority: core.ActionPriorityLow,
 		OnAction: func(sim *core.Simulation) {
 			lastChargeSpent = false
 			aura.Deactivate(sim)
 		},
 	}
-	// A recast restores both charges and an expiry ends the aura, so either drops a pending batch end.
+	// A recast restores both charges and an expiry ends the aura, so either drops a pending removal.
 	// The expire hook also clears the state at the end of an iteration, which deactivates the aura and
 	// then drops the pending actions without cancelling them.
-	dropBatchEnd := func(sim *core.Simulation) {
+	dropLastChargeEnd := func(sim *core.Simulation) {
 		if lastChargeSpent {
-			batchEnd.Cancel(sim)
+			lastChargeEnd.Cancel(sim)
 			lastChargeSpent = false
 		}
 	}
 	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		dropBatchEnd(sim)
+		dropLastChargeEnd(sim)
 	})
 
 	// The row states the melee and ranged hits the listener hears and the two charges the aura
@@ -50,8 +52,8 @@ func (warrior *Warrior) registerShieldBlock() {
 				return
 			}
 			lastChargeSpent = true
-			batchEnd.NextActionAt = sim.CurrentTime + core.SpellBatchWindow
-			sim.AddPendingAction(batchEnd)
+			lastChargeEnd.NextActionAt = sim.CurrentTime
+			sim.AddPendingAction(lastChargeEnd)
 		})
 	trigger.Outcome = core.OutcomeBlock
 	trigger.RequireDamageDealt = false
@@ -61,7 +63,7 @@ func (warrior *Warrior) registerShieldBlock() {
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBlockRank, spelldata.Flags(core.SpellFlagAPL))
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		dropBatchEnd(sim)
+		dropLastChargeEnd(sim)
 		aura.Activate(sim)
 		aura.SetStacks(sim, aura.MaxStacks)
 	}
