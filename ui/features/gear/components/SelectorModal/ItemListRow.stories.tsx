@@ -53,6 +53,14 @@ export const EquippedFavourite: Story = {
 	args: { active: true, favourited: true, ep: { ep: 38, equippedEP: 38 }, compare: { inBatch: true, tooltipId: 'compare-tooltip', onToggle: fn() } },
 };
 
+export const NewlyDiscovered: Story = {
+	args: { discovered: 'Discovered on November 3rd' },
+	play: async ({ canvasElement }) => {
+		await userEvent.hover(within(canvasElement).getByTestId('selector-modal-list-item-discovered'));
+		await within(canvasElement.ownerDocument.body).findByRole('tooltip');
+	},
+};
+
 export const EnchantsTab: Story = {
 	args: {
 		name: 'Enchant Weapon - Crusader',
