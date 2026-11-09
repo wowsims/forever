@@ -3,7 +3,6 @@ package spelldata
 import (
 	"slices"
 	"testing"
-	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -52,7 +51,7 @@ func TestItemProcUnsupported(t *testing.T) {
 
 // A proc that deals its amount off its own trigger carries it on the A_PROC_TRIGGER_DAMAGE aura: that
 // aura is the proc's damage effect, rolled by half its variance either side, 20 to 30 on 25 ± 0.4,
-// and the row's RecoveryTime is the listener's cooldown. The row's own damage effect stays empty.
+// and the row's RecoveryTime gives the listener no cooldown. The row's own damage effect stays empty.
 func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	withRows(t, procRows())
 
@@ -69,8 +68,11 @@ func TestProcTriggerDamageAuraIsTheProcsDamageEffect(t *testing.T) {
 	}
 
 	trigger := ProcTrigger(testCharacter(), row, noopHandler)
-	if trigger.ICD != 5*time.Second || trigger.Outcome != core.OutcomeBlock || trigger.RequireDamageDealt {
-		t.Errorf("ICD %v, outcome %v, requires damage %v; want 5s, a block, and no damage required",
+	if row.Cooldown() == 0 {
+		t.Fatal("the row states no RecoveryTime, so the ICD check below proves nothing")
+	}
+	if trigger.ICD != 0 || trigger.Outcome != core.OutcomeBlock || trigger.RequireDamageDealt {
+		t.Errorf("ICD %v, outcome %v, requires damage %v; want none, a block, and no damage required",
 			trigger.ICD, trigger.Outcome, trigger.RequireDamageDealt)
 	}
 }
