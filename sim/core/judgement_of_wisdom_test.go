@@ -40,9 +40,9 @@ func TestJudgementOfWisdomPaysOnlyOnLandedHits(t *testing.T) {
 		return sim, char, target
 	}
 
-	strike := func(char *core.Character, id int32, procMask core.ProcMask, defense core.DefenseType, landed bool) *core.Spell {
+	strike := func(char *core.Character, procMask core.ProcMask, defense core.DefenseType, landed bool) *core.Spell {
 		return char.RegisterSpell(core.SpellConfig{
-			ActionID:         core.ActionID{SpellID: id},
+			ActionID:         core.ActionID{SpellID: 100},
 			SpellSchool:      core.SpellSchoolPhysical,
 			DefenseType:      defense,
 			ProcMask:         procMask,
@@ -77,14 +77,15 @@ func TestJudgementOfWisdomPaysOnlyOnLandedHits(t *testing.T) {
 	}{
 		{"a landed melee swing pays", core.ProcMaskMeleeMHAuto, core.DefenseTypeMelee, true, true},
 		{"a missed melee swing does not", core.ProcMaskMeleeMHAuto, core.DefenseTypeMelee, false, false},
+		{"a landed ranged shot pays", core.ProcMaskRangedAuto, core.DefenseTypeRanged, true, true},
 		{"a missed ranged shot does not", core.ProcMaskRangedAuto, core.DefenseTypeRanged, false, false},
 		{"a landed direct spell pays", core.ProcMaskSpellDamage, core.DefenseTypeMagic, true, true},
 		{"a missed direct spell does not", core.ProcMaskSpellDamage, core.DefenseTypeMagic, false, false},
 	}
-	for i, c := range cases {
+	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			sim, char, target := setup(t)
-			spell := strike(char, int32(100+i), c.procMask, c.defense, c.landed)
+			spell := strike(char, c.procMask, c.defense, c.landed)
 			if got := paidWithin(sim, char, target, spell, 200); got != c.pays {
 				t.Errorf("200 tries on a judged target paid mana: %v, want %v", got, c.pays)
 			}

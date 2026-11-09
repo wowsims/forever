@@ -201,20 +201,25 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 	}), rank)
 }
 
-// Whoever lands an attack or a direct spell on the judged target rolls the row's chance to regain the
-// rank's mana. A miss, dodge or parry rolls nothing, and neither do periodic ticks or damage shields.
+// Whoever lands a hit the row's proc flags name on the judged target (melee, ranged or a direct spell)
+// rolls the row's chance to regain the rank's mana. A miss, dodge or parry rolls nothing, and neither do
+// periodic ticks or damage shields. A landed hit that deals no damage still rolls, so Serpent Sting's
+// application reaches the judgement: the trigger leaves out the damage requirement the decode gives
+// every row.
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value
+	row := spelldata.MustFind(rank.SpellID)
+	hears := core.DecodeProcTypeMask(row.ProcFlags, row.ProcHint)
 
 	return aura.AttachProcTrigger(core.ProcTrigger{
 		Name:            aura.Label,
 		ActionID:        actionID,
 		MetricsActionID: actionID,
 		ProcChance:      judgementProcChance(rank.SpellID),
-		ProcMask:        core.ProcMaskDirect,
-		Outcome:         core.OutcomeLanded,
-		Callback:        core.CallbackOnSpellHitTaken,
+		ProcMask:        hears.ProcMask,
+		Outcome:         hears.Outcome,
+		Callback:        hears.Callback,
 		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			unit := spell.Unit
 			if !unit.HasManaBar() {
