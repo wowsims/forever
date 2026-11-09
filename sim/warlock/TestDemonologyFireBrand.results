@@ -205,6 +205,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
+ value: {
+  dps: 765.57566
+  tps: 625.20661
+  dtps: 8.339
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 756.54976
@@ -749,6 +758,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Lifestone-833"
+ value: {
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 750.3104
@@ -772,6 +790,15 @@ dps_results: {
   dps: 756.54976
   tps: 617.89189
   dtps: 8.19786
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 754.88288
+  tps: 615.45601
+  dtps: 8.22358
   hps: 10.00951
  }
 }

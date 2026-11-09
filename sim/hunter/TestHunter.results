@@ -828,6 +828,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-HeartseekingCrossbow-13040"
+ value: {
+  dps: 753.06306
+  tps: 776.34007
+  dtps: 8.43283
+  hps: 14.55528
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-HelmofFire-8348"
  value: {
   dps: 775.78792
@@ -843,6 +852,15 @@ dps_results: {
   tps: 788.73807
   dtps: 8.9063
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Hurricane-2824"
+ value: {
+  dps: 711.59853
+  tps: 734.93005
+  dtps: 7.8439
+  hps: 15.52111
  }
 }
 dps_results: {
@@ -900,6 +918,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Lifestone-833"
+ value: {
+  dps: 764.94415
+  tps: 788.73807
+  dtps: 8.9063
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 764.59496
@@ -923,6 +950,15 @@ dps_results: {
   dps: 764.94415
   tps: 788.69912
   dtps: 8.70095
+  hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 765.93088
+  tps: 789.36122
+  dtps: 8.47814
   hps: 14.74167
  }
 }

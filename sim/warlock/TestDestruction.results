@@ -190,6 +190,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-DeathmistRaiment"
+ value: {
+  dps: 914.573
+  tps: 721.85403
+  dtps: 10.345
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 916.81355
@@ -647,6 +655,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Lifestone-833"
+ value: {
+  dps: 916.81355
+  tps: 723.43807
+  dtps: 9.98188
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 927.2375
@@ -668,6 +684,14 @@ dps_results: {
   dps: 916.81355
   tps: 723.43807
   dtps: 9.86336
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 921.80485
+  tps: 726.8116
+  dtps: 9.98969
  }
 }
 dps_results: {
