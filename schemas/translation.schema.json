@@ -2307,7 +2307,10 @@
 						"area_stats": {
 							"type": "string"
 						},
-						"discovered_today": {
+						"discovered_within_hour": {
+							"type": "string"
+						},
+						"discovered_ago": {
 							"type": "string"
 						},
 						"discovered_yesterday": {
@@ -2341,7 +2344,8 @@
 						"set_bonus_warnings",
 						"set_bonus_piece",
 						"area_stats",
-						"discovered_today",
+						"discovered_within_hour",
+						"discovered_ago",
 						"discovered_yesterday",
 						"discovered_on",
 						"ordinal"
