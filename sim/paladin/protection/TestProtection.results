@@ -74,9 +74,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-AegisoftheScarletCommander-7726"
  value: {
-  dps: 393.82343
-  tps: 953.88967
-  dtps: 377.26162
+  dps: 393.78437
+  tps: 953.25067
+  dtps: 377.30746
   hps: 21.79056
  }
 }
@@ -650,10 +650,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-GirdleofExtractedAnswers-276742"
  value: {
-  dps: 396.16623
-  tps: 946.97896
-  dtps: 350.22038
-  hps: 21.67194
+  dps: 397.44118
+  tps: 950.41368
+  dtps: 359.14936
+  hps: 21.73972
  }
 }
 dps_results: {
@@ -821,10 +821,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IronShieldSpike-43"
  value: {
-  dps: 398.09625
-  tps: 953.28555
-  dtps: 347.74754
-  hps: 21.67194
+  dps: 397.99562
+  tps: 954.73133
+  dtps: 356.86459
+  hps: 21.73972
  }
 }
 dps_results: {
@@ -1064,10 +1064,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MithrilShieldSpike-463"
  value: {
-  dps: 398.69641
-  tps: 954.08377
-  dtps: 347.74754
-  hps: 21.67194
+  dps: 399.09592
+  tps: 956.19473
+  dtps: 356.86459
+  hps: 21.73972
  }
 }
 dps_results: {
@@ -1469,10 +1469,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-ThoriumShieldSpike-1704"
  value: {
-  dps: 399.22627
-  tps: 954.78848
-  dtps: 347.74754
-  hps: 21.67194
+  dps: 400.05057
+  tps: 957.46441
+  dtps: 356.86459
+  hps: 21.73972
  }
 }
 dps_results: {
