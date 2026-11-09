@@ -13,10 +13,9 @@ type WeaponProc struct {
 	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N"
 }
 
-// Each rate is a carry-over, as its Source says; none has been measured on this server. The table holds
-// rows only for items the live game files hold. When a hotfix adds back a weapon whose row was dropped,
-// the regeneration that takes the item restores the row from git history, or the database tests that
-// name the item fail the Update Items run.
+// Each rate is a carry-over, as its Source says; none has been measured on this server. A hotfix that
+// adds back a weapon whose row was dropped needs the row restored from git history, or the database tests
+// that name the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  12798,
@@ -365,7 +364,7 @@ var WeaponProcs = []WeaponProc{
 		ItemID:  2164,
 		SpellID: 18107,
 		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Gut Ripper: column reads 101",
+		Reason:  "Gut Ripper: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
