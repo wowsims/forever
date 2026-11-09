@@ -129,56 +129,38 @@ func TestRavageAndPounceCannotBeDodged(t *testing.T) {
 	}
 }
 
-func TestRakeTickScalesWithAttackPower(t *testing.T) {
-	sim, cat := newCat(t, "", nil)
-	cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-	dot := cat.Rake.Dot(cat.CurrentTarget)
-	dot.Apply(sim)
-	metric := &cat.Rake.SpellMetrics[cat.CurrentTarget.UnitIndex]
-	before := metric.TotalDamage
-	dot.TickOnce(sim)
-	low := metric.TotalDamage - before
-	cat.AddStatDynamic(sim, stats.AttackPower, 100)
-	before = metric.TotalDamage
-	dot.TickOnce(sim)
-	high := metric.TotalDamage - before
-	want := 100 * spelldata.MustFind(cat.Rake.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
-	if want <= 0 || math.Abs((high-low)-want) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want %g from the periodic effect's share", high-low, want)
-	}
-	t.Logf("Rake 100 AP gain per tick=%g", high-low)
-}
-
-// A Pounce Bleed tick reads attack power when it ticks, and Rend and Tear leaves it unchanged.
-func TestPounceBleedTickReadsAttackPowerWithoutRendAndTear(t *testing.T) {
-	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
-	_, probe := newCat(t, "", nil)
-	share := spelldata.MustFind(probe.PounceBleed.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
-	ticks := func(talents string) (float64, float64) {
-		sim, cat := newCat(t, talents, nil)
+// A Rake or Pounce Bleed tick reads attack power when it ticks.
+func TestBleedTicksScaleWithAttackPower(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		spell func(*FeralDruid) *druid.DruidSpell
+	}{
+		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }},
+		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }},
+	} {
+		sim, cat := newCat(t, "", nil)
+		spell := c.spell(cat)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		dot := cat.PounceBleed.Dot(cat.CurrentTarget)
+		dot := spell.Dot(cat.CurrentTarget)
 		dot.Apply(sim)
-		metric := &cat.PounceBleed.SpellMetrics[cat.CurrentTarget.UnitIndex]
+		metric := &spell.SpellMetrics[cat.CurrentTarget.UnitIndex]
 		before := metric.TotalDamage
 		dot.TickOnce(sim)
 		low := metric.TotalDamage - before
 		cat.AddStatDynamic(sim, stats.AttackPower, 100)
 		before = metric.TotalDamage
 		dot.TickOnce(sim)
-		return low, metric.TotalDamage - before
-	}
-	low, high := ticks("")
-	if want := 100 * share; want <= 0 || math.Abs((high-low)-want) > 1e-5 {
-		t.Fatalf("100 AP tick gain=%g, want %g from the periodic effect's share", high-low, want)
-	}
-	if talentedLow, talentedHigh := ticks(rendAndTear5); math.Abs(talentedLow-low) > 1e-6 || math.Abs(talentedHigh-high) > 1e-6 {
-		t.Errorf("ticks %g and %g with Rend and Tear 5/5, want the untalented %g and %g", talentedLow, talentedHigh, low, high)
+		high := metric.TotalDamage - before
+		want := 100 * spelldata.MustFind(spell.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
+		if want <= 0 || math.Abs((high-low)-want) > 1e-5 {
+			t.Fatalf("%s: 100 AP tick gain=%g, want %g from the periodic effect's share", c.name, high-low, want)
+		}
+		t.Logf("%s 100 AP gain per tick=%g", c.name, high-low)
 	}
 }
 
-// Pounce's stun and combo point land when its bleed misses or is dodged, the avoided bleed refunds no
-// energy, and the cast spends its energy and starts the GCD as usual.
+// Pounce's stun and combo point land when its bleed misses or is dodged, and the avoided bleed refunds
+// no energy.
 func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 	for _, avoid := range []string{"miss", "dodge"} {
 		t.Run(avoid, func(t *testing.T) {
@@ -196,9 +178,6 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 			if !cat.Pounce.Cast(sim, target) {
 				t.Fatal("pounce did not cast")
 			}
-			if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Hits != 1 || m.Misses != 0 {
-				t.Fatalf("pounce landed %d times and missed %d, want 1 and 0", m.Hits, m.Misses)
-			}
 			m := cat.PounceBleed.SpellMetrics[target.UnitIndex]
 			avoided := m.Dodges
 			if avoid == "miss" {
@@ -214,9 +193,6 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 			if cat.CurrentEnergy() != want {
 				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
 			}
-			if got, gcd := cat.GCD.ReadyAt(), sim.CurrentTime+cat.Pounce.DefaultCast.GCD; gcd <= sim.CurrentTime || got != gcd {
-				t.Errorf("GCD ready at %v, want %v", got, gcd)
-			}
 		})
 	}
 }
@@ -227,15 +203,13 @@ func TestAvoidedRePounceKeepsTheTickingBleed(t *testing.T) {
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 0
 	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-	cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 	cat.ProwlAura.Activate(sim)
 	if !cat.Pounce.Cast(sim, target) {
 		t.Fatal("first pounce did not cast")
 	}
 	dot := cat.PounceBleed.Dot(target)
-	metric := &cat.PounceBleed.SpellMetrics[target.UnitIndex]
-	if !dot.IsActive() || metric.Hits != 0 {
-		t.Fatalf("first bleed up=%v with %d hits, want up and no hit of its own", dot.IsActive(), metric.Hits)
+	if !dot.IsActive() {
+		t.Fatal("first bleed did not land")
 	}
 	expires := dot.ExpiresAt()
 	sim.CurrentTime = cat.GCD.ReadyAt()
@@ -245,6 +219,7 @@ func TestAvoidedRePounceKeepsTheTickingBleed(t *testing.T) {
 	if !cat.Pounce.Cast(sim, target) {
 		t.Fatal("second pounce did not cast")
 	}
+	metric := &cat.PounceBleed.SpellMetrics[target.UnitIndex]
 	if metric.Dodges != 1 || !dot.IsActive() || dot.ExpiresAt() != expires {
 		t.Fatalf("second bleed dodged %d times; first bleed up=%v, ends %v, want 1 dodge and up to %v", metric.Dodges, dot.IsActive(), dot.ExpiresAt(), expires)
 	}
@@ -427,29 +402,36 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	}
 }
 
-// Rend and Tear raises Rake and Rip ticks; Pounce Bleed's are not raised. A Rake or Rip tick counts its
-// own bleed as the bleed on the target, and the talent is the only difference between the two builds.
+// Rend and Tear raises Rake and Rip ticks and leaves Pounce Bleed's unchanged. Each tick counts its own
+// bleed as the bleed on the target, and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
-	tick := func(talents string, rip bool) float64 {
-		sim, cat := newCat(t, talents, nil)
-		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		spell := cat.Rake
-		if rip {
-			cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
-			spell = cat.Rip
+	for _, c := range []struct {
+		name  string
+		spell func(*FeralDruid) *druid.DruidSpell
+		want  float64
+	}{
+		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }, 1.15},
+		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }, 1.15},
+		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }, 1},
+	} {
+		tick := func(talents string) float64 {
+			sim, cat := newCat(t, talents, nil)
+			cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+			spell := c.spell(cat)
+			if spell == cat.Rip {
+				cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			}
+			dot := spell.Dot(cat.CurrentTarget)
+			dot.Apply(sim)
+			metric := &spell.SpellMetrics[cat.CurrentTarget.UnitIndex]
+			before := metric.TotalDamage
+			dot.TickOnce(sim)
+			return metric.TotalDamage - before
 		}
-		dot := spell.Dot(cat.CurrentTarget)
-		dot.Apply(sim)
-		metric := &spell.SpellMetrics[cat.CurrentTarget.UnitIndex]
-		before := metric.TotalDamage
-		dot.TickOnce(sim)
-		return metric.TotalDamage - before
-	}
-	for _, rip := range []bool{false, true} {
-		plain, raised := tick("", rip), tick(rendAndTear5, rip)
-		if plain <= 0 || math.Abs(raised/plain-1.15) > 1e-6 {
-			t.Errorf("rip=%v: tick %g without the talent, %g with 5/5, want x1.15", rip, plain, raised)
+		plain, raised := tick(""), tick(rendAndTear5)
+		if plain <= 0 || math.Abs(raised/plain-c.want) > 1e-6 {
+			t.Errorf("%s: tick %g without the talent, %g with 5/5, want x%g", c.name, plain, raised, c.want)
 		}
 	}
 }

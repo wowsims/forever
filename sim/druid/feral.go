@@ -16,8 +16,7 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	}
 	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. A
 	// tester's table on PR #149 shows Rake and Rip ticks, the Rake hit and Claw rising by the talent's
-	// percent with a bleed on the target, and the Rake hit staying put without one. Pounce Bleed's ticks
-	// are not raised in game, though Pounce Bleed counts as the bleed for the others.
+	// percent with a bleed on the target, and the Rake hit staying put without one.
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 

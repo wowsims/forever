@@ -32,16 +32,13 @@ func (druid *Druid) registerPounceSpell() {
 		return druid.ProwlAura.IsActive() && druid.BehindTarget()
 	}
 	// No Active Defense (Attributes 0x200000): the cast is never dodged, parried or blocked, and the
-	// stun and the combo point always land. The bleed rolls its own miss and dodge, and its application
-	// is no hit of its own. An avoided bleed refunds no energy.
+	// stun and the combo point always land. The bleed rolls its own miss and dodge, and an avoided bleed
+	// refunds no energy.
 	// TODO: Ingame research needed -- whether the cast itself can miss.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
 		stuns.Get(target).Activate(sim)
 		druid.awardComboPoints(sim, spell, rank)
-		if target.BleedImmune {
-			return
-		}
 		bleed := druid.PounceBleed.CalcOutcome(sim, target, druid.PounceBleed.OutcomeMeleeSpecialHitNoHitCounter)
 		if bleed.Landed() {
 			druid.PounceBleed.Dot(target).Apply(sim)
