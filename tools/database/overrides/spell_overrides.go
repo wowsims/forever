@@ -346,7 +346,7 @@ var Spells = []Override{
 		SpellID: 20186,
 		Field:   ProcChancePct,
 		Value:   50,
-		Reason:  "Judgement of Wisdom Rank 1: 164 of 336 landed melee swings, 59 of 116 direct spells and 44 of 102 ranged shots; misses, ticks and damage shields never pay",
+		Reason:  "Judgement of Wisdom Rank 1: 164 of 336 landed melee swings, 59 of 116 direct spells and 44 of 102 ranged shots; 1 of 52 misses, 3 of 401 dot ticks and 0 of 33 damage shield hits",
 		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
 	},
 	{
