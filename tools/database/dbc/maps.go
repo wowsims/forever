@@ -161,11 +161,21 @@ var spellPowerStats = []proto.Stat{
 	proto.Stat_StatHealingPower,
 }
 
+// What ItemModType 38 ("Attack Power") expands to: attack power on gear raises ranged attack
+// power by the same amount, as the equip spells that read "+N Attack Power" state both auras
+// (18537 Counterattack Lodestone: 99 and 124 at 30). 39 raises ranged attack power alone.
+var attackPowerStats = []proto.Stat{
+	proto.Stat_StatAttackPower,
+	proto.Stat_StatRangedAttackPower,
+}
+
 // MapBonusStatIndexToStats is MapBonusStatIndexToStat for callers that have to cope with
-// one index granting several stats. Every index maps to exactly one stat except 45 and 124.
+// one index granting several stats. Every index maps to exactly one stat except 38, 45 and 124.
 // An enchant row whose argument is wrong is corrected before it gets here (enchantEffectArgFixes).
 func MapBonusStatIndexToStats(index int) ([]proto.Stat, bool) {
 	switch index {
+	case ITEM_MOD_ATTACK_POWER:
+		return attackPowerStats, true
 	case ITEM_MOD_ALL_RESISTANCES:
 		return allResistanceStats, true
 	case ITEM_MOD_SPELL_POWER:
