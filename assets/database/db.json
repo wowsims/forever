@@ -9679,7 +9679,7 @@
 {"id":25738,"name":"Seal of Righteousness","icon":"ability_thunderbolt","rank":4},
 {"id":25739,"name":"Seal of Righteousness","icon":"ability_thunderbolt","rank":3},
 {"id":25740,"name":"Seal of Righteousness","icon":"ability_thunderbolt","rank":2},
-{"id":25742,"name":"Seal of Righteousness","icon":"ability_thunderbolt","rank":1},
+{"id":25741,"name":"Seal of Righteousness","icon":"ability_thunderbolt","rank":1},
 {"id":25771,"name":"Forbearance","icon":"spell_holy_removecurse","hasBuff":true},
 {"id":25780,"name":"Righteous Fury","icon":"spell_holy_sealoffury","hasBuff":true},
 {"id":25782,"name":"Greater Blessing of Might","icon":"spell_holy_greaterblessingofkings","rank":1,"hasBuff":true},
