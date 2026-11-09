@@ -99,6 +99,11 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		if !result.Landed() {
 			return
 		}
+		// A hit blocked in full grants none. A block whose remainder an absorb takes still grants rage,
+		// so the check reads the damage the block left, before absorbs.
+		if result.DidBlock() && result.PostOutcomeDamage == 0 {
+			return
+		}
 
 		attackerLevel := spell.Unit.Level
 		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreArmorDamage /

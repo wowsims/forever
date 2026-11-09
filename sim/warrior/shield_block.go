@@ -12,12 +12,26 @@ func (warrior *Warrior) registerShieldBlock() {
 	aura := warrior.RegisterAura(spelldata.AuraConfig(shieldBlockRank))
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
+	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
+	// other attacks landing in that batch are blocked too and spend nothing.
+	lastChargeSpent := false
+	batchEnd := &core.PendingAction{OnAction: aura.Deactivate}
+
 	// The row states the melee and ranged hits the listener hears and the two charges the aura
 	// starts with. The block that spends a charge is an outcome no proc mask states, and a full
 	// block deals no damage, so both of those are the caller's.
 	trigger := spelldata.ProcTrigger(&warrior.Character, shieldBlockRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			aura.RemoveStack(sim)
+			if aura.GetStacks() > 1 {
+				aura.RemoveStack(sim)
+				return
+			}
+			if lastChargeSpent {
+				return
+			}
+			lastChargeSpent = true
+			batchEnd.NextActionAt = sim.CurrentTime + core.SpellBatchWindow
+			sim.AddPendingAction(batchEnd)
 		})
 	trigger.Outcome = core.OutcomeBlock
 	trigger.RequireDamageDealt = false
@@ -27,6 +41,10 @@ func (warrior *Warrior) registerShieldBlock() {
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBlockRank, spelldata.Flags(core.SpellFlagAPL))
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		if lastChargeSpent {
+			batchEnd.Cancel(sim)
+			lastChargeSpent = false
+		}
 		aura.Activate(sim)
 		aura.SetStacks(sim, aura.MaxStacks)
 	}

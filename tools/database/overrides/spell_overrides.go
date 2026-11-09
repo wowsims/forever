@@ -726,44 +726,44 @@ var Spells = []Override{
 	{
 		SpellID: 1608,
 		Field:   FlatThreat,
-		Value:   61,
-		Reason:  "Heroic Strike Rank 4: threat is the damage + 61, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Value:   60,
+		Reason:  "Heroic Strike Rank 4: threat is the damage + 60, times the stance",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11564,
 		Field:   FlatThreat,
-		Value:   81, // TODO: Measure Heroic Strike Rank 5 in game.
+		Value:   80, // TODO: Measure Heroic Strike Rank 5 in game.
 		Reason:  "Heroic Strike Rank 5: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11565,
 		Field:   FlatThreat,
-		Value:   102, // TODO: Measure Heroic Strike Rank 6 in game.
+		Value:   100, // TODO: Measure Heroic Strike Rank 6 in game.
 		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11566,
 		Field:   FlatThreat,
-		Value:   122, // TODO: Measure Heroic Strike Rank 7 in game.
+		Value:   120, // TODO: Measure Heroic Strike Rank 7 in game.
 		Reason:  "Heroic Strike Rank 7: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 11567,
 		Field:   FlatThreat,
-		Value:   142, // TODO: Measure Heroic Strike Rank 8 in game.
+		Value:   140, // TODO: Measure Heroic Strike Rank 8 in game.
 		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 25286,
 		Field:   FlatThreat,
-		Value:   152, // TODO: Measure Heroic Strike Rank 9 in game.
+		Value:   150, // TODO: Measure Heroic Strike Rank 9 in game.
 		Reason:  "Heroic Strike Rank 9: Rank 4's measured share per spell level",
-		Source:  "threat capture, Heroic Strike Rank 4, 2026-10-07",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 	{
 		SpellID: 845,
@@ -799,6 +799,16 @@ var Spells = []Override{
 		Value:   92, // TODO: Measure Cleave Rank 5 in game.
 		Reason:  "Cleave Rank 5: Rank 2's measured share",
 		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+	},
+
+	// Slam adds flat threat beyond its damage, times the stance. Only Rank 1 is measured; the higher
+	// ranks and the instant ranks Improved Slam swaps in carry none until a capture at their level.
+	{
+		SpellID: 1240193,
+		Field:   FlatThreat,
+		Value:   30, // TODO: Measure again in a clean window; four readings, none fully clean.
+		Reason:  "Slam Rank 1: threat is the damage + 30, times the stance",
+		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
 }
 

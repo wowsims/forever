@@ -189,8 +189,9 @@ func (warrior *Warrior) registerShieldSlam() {
 	// TODO: In-game testing needed for threat multiplier / flat threat
 	config.FlatThreatBonus = 0
 
+	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := shieldSlamRank.DamageEffect().Roll(sim) + warrior.BlockDamageReduction()
+		baseDamage := shieldSlamRank.DamageEffect().Roll(sim) + 2*warrior.BlockDamageReduction()
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
 		if !result.Landed() {

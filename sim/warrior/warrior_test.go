@@ -1164,3 +1164,122 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
 	}
 }
+
+// A protection warrior with the preraid shield and no rotation, so stepping the sim casts nothing.
+func quietProtectionSim(t *testing.T) (*core.Simulation, *core.Character, *core.Unit) {
+	t.Helper()
+
+	player := &proto.Player{
+		Name:          "Quiet Shield",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     core.GetGearSet("../../ui/specs/warrior/protection/gear_sets", "preraid").GearSet,
+		TalentsString: protectionTalents,
+		Spec:          protectionOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	return sim, sim.Raid.Parties[0].Players[0].GetCharacter(), sim.Encounter.AllTargetUnits[0]
+}
+
+// The block that spends Shield Block's last charge leaves the aura up to the end of its spell batch:
+// another attack in that batch meets the raised block chance, one in a later batch does not.
+func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
+	const shieldBlockID = 2565
+	sim, war, target := quietProtectionSim(t)
+	shieldBlock := war.GetSpell(core.ActionID{SpellID: shieldBlockID})
+	aura := war.GetAuraByID(core.ActionID{SpellID: shieldBlockID})
+	if shieldBlock == nil || aura == nil {
+		t.Fatal("the warrior has no Shield Block")
+	}
+
+	swing := target.AutoAttacks.MHAuto()
+	blockChance := func() float64 {
+		return war.GetTotalBlockChanceAsDefender(swing, target.AttackTables[war.UnitIndex])
+	}
+	block := func() {
+		war.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
+	}
+
+	withoutShieldBlock := blockChance()
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	withShieldBlock := blockChance()
+	if withShieldBlock <= withoutShieldBlock {
+		t.Fatal("Shield Block raised no block chance, so the checks below prove nothing")
+	}
+
+	for range aura.MaxStacks {
+		block()
+	}
+	if !aura.IsActive() {
+		t.Fatal("Shield Block ended at the block that spent its last charge")
+	}
+	if got := blockChance(); got != withShieldBlock {
+		t.Errorf("a second attack in the batch meets a block chance of %v, want Shield Block's %v", got, withShieldBlock)
+	}
+	block()
+
+	stepPastBatch(t, sim)
+	if aura.IsActive() {
+		t.Error("Shield Block is still up in the batch after its last charge was spent")
+	}
+	if got := blockChance(); got != withoutShieldBlock {
+		t.Errorf("an attack in a later batch meets a block chance of %v, want %v without Shield Block", got, withoutShieldBlock)
+	}
+}
+
+// Shield Slam adds twice the block value to its roll. Two sims on one seed roll the same casts, so a
+// plain hit in both differs only by the block value they add, taken through the same multipliers.
+func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
+	const shieldSlamID = 23925
+	const extraBlockValue = 10
+
+	type slamSim struct {
+		sim    *core.Simulation
+		war    *core.Character
+		target *core.Unit
+		spell  *core.Spell
+	}
+	newSlamSim := func(blockValue float64) slamSim {
+		sim, war, target := quietProtectionSim(t)
+		war.AddStatDynamic(sim, stats.BlockValue, blockValue)
+		spell := war.GetSpell(core.ActionID{SpellID: shieldSlamID})
+		if spell == nil {
+			t.Fatal("the warrior has no Shield Slam")
+		}
+		return slamSim{sim, war, target, spell}
+	}
+	// The damage of one cast, and whether it was a plain hit: no crit and no block.
+	cast := func(s slamSim) (float64, bool) {
+		metrics := &s.spell.SpellMetrics[s.target.UnitIndex]
+		damage, hits, crits, blocks := metrics.TotalDamage, metrics.Hits, metrics.Crits, metrics.Blocks
+		s.spell.SkipCastAndApplyEffects(s.sim, s.target)
+		return metrics.TotalDamage - damage, metrics.Hits == hits+1 && metrics.Crits == crits && metrics.Blocks == blocks
+	}
+
+	base, raised := newSlamSim(0), newSlamSim(extraBlockValue)
+	added := raised.war.BlockDamageReduction() - base.war.BlockDamageReduction()
+	if added == 0 {
+		t.Fatal("the extra block value raised no block, so the check below proves nothing")
+	}
+
+	for range 100 {
+		baseDamage, baseHit := cast(base)
+		raisedDamage, raisedHit := cast(raised)
+		if !baseHit || !raisedHit {
+			continue
+		}
+		want := base.spell.CalcDamage(base.sim, base.target, 2*added, base.spell.OutcomeAlwaysHit).Damage
+		if got := raisedDamage - baseDamage; math.Abs(got-want) > 1e-6 {
+			t.Errorf("%v more block value added %v damage, want %v for twice the block value", added, got, want)
+		}
+		return
+	}
+	t.Fatal("100 Shield Slams landed no plain hit")
+}
