@@ -44,6 +44,12 @@ func (druid *Druid) registerOmenOfClarity() {
 			return false
 		}
 		chance := float64(omen.RPPM) * druid.omenSpeed(spell) / 60
+		// Maul rolls at half the chance of the other specials, for a reason not yet known. In bear logs 14
+		// of 342 Mauls proc it (4.1%, 95% interval 2.5 to 6.8%). Every other bear special fits the 8.3%
+		// that 2.0 per minute gives at the 2.5 s paw.
+		if spellData.Maul.Contains(spell) {
+			chance /= 2
+		}
 		return sim.Proc(druid.ModifiedProcChance(omen.ClassFlags, chance), trigger.Name)
 	}
 	druid.OmenOfClarityAura = druid.MakeProcTriggerAura(trigger)
