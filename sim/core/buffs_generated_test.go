@@ -700,9 +700,10 @@ func windfuryTotem(t *testing.T) float64 {
 	return rowAmount(t, 10610, dbcenums.A_MOD_ATTACK_POWER)
 }
 
-// The proc holds the game files' charges and each landed auto attack, in either
-// hand, spends one. A melee special or a missed swing spends none, and a proc no
-// auto lands on keeps its attack power for its whole duration.
+// The proc holds the game files' charges and each auto attack, in either hand,
+// spends one, a missed swing as well as a landed one. A melee special spends
+// none, and a proc no auto swings into keeps its attack power for its whole
+// duration.
 func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{WindfuryTotem: true}, &proto.PartyBuffs{}, &proto.IndividualBuffs{})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -733,14 +734,13 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	fullCharges()
 
 	swing(special, landed)
-	swing(mhAuto, missed)
 	if got := proc.GetStacks(); got != charges {
-		t.Errorf("a special and a missed auto left %d charges, want all %d still there", got, charges)
+		t.Errorf("a special left %d charges, want all %d still there", got, charges)
 	}
 
-	swing(mhAuto, landed)
+	swing(mhAuto, missed)
 	if !proc.IsActive() || proc.GetStacks() != charges-1 {
-		t.Fatalf("one landed auto left the proc active %v with %d charges, want it up with %d",
+		t.Fatalf("one missed auto left the proc active %v with %d charges, want it up with %d",
 			proc.IsActive(), proc.GetStacks(), charges-1)
 	}
 	if got, want := char.GetStats()[stats.AttackPower]-before, windfuryTotem(t); got != want {
@@ -752,7 +752,7 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	}
 	swing(ohAuto, landed)
 	if proc.IsActive() {
-		t.Error("the proc is still up after its last landed auto, an off-hand one, want the charges spent")
+		t.Error("the proc is still up after its last auto, an off-hand one, want the charges spent")
 	}
 	if got := char.GetStats()[stats.AttackPower]; got != before {
 		t.Errorf("the spent proc left %v attack power behind", got-before)
@@ -762,7 +762,7 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	start := sim.CurrentTime
 	swing(special, landed)
 	if !proc.IsActive() || proc.RemainingDuration(sim) != proc.Duration {
-		t.Fatalf("a proc no auto landed on is active %v with %v left, want the full %v",
+		t.Fatalf("a proc no auto swung into is active %v with %v left, want the full %v",
 			proc.IsActive(), proc.RemainingDuration(sim), proc.Duration)
 	}
 	sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
@@ -778,11 +778,52 @@ func TestGeneratedWindfuryTotemProcSpendsItsChargesOnAutoAttacks(t *testing.T) {
 	}
 }
 
-// Windfury Totem's proc is the party aura 10612: a main-hand hit that deals
-// damage can fire it, auto or special, and no other hit can, a proc's hit
-// included. It rolls off the hit's cast result, so the proc starts with every
-// charge whichever main-hand hit fired it.
+// The first melee ability in the store whose row requires a main-hand weapon
+// and does not go off on the next swing, the first that goes off on the next
+// swing without requiring one, and the first that does neither, each built
+// from its row as a main-hand ability is.
+func windfuryRowAbilities(t *testing.T) (requires *core.Spell, nextSwing *core.Spell, neither *core.Spell) {
+	t.Helper()
+	unit := &core.NewGeneratedBuffTestCharacter().Unit
+	for _, row := range spelldata.All() {
+		if row.DefenseType != core.DefenseTypeMelee {
+			continue
+		}
+		mainHand := spelldata.RequiredHand(row).Matches(core.ProcMaskMeleeMH)
+		onNextSwing := row.OnNextSwing()
+		var slot **core.Spell
+		switch {
+		case mainHand && !onNextSwing:
+			slot = &requires
+		case onNextSwing && !mainHand:
+			slot = &nextSwing
+		case !mainHand && !onNextSwing:
+			slot = &neither
+		default:
+			continue
+		}
+		if *slot == nil {
+			config := spelldata.SpellConfig(unit, row, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+			*slot = &core.Spell{ProcMask: config.ProcMask, Flags: config.Flags}
+		}
+		if requires != nil && nextSwing != nil && neither != nil {
+			return requires, nextSwing, neither
+		}
+	}
+	t.Fatalf("the store holds a melee row that requires a main-hand weapon %v, one that goes off on the next swing %v and one that does neither %v, want all three",
+		requires != nil, nextSwing != nil, neither != nil)
+	return nil, nil, nil
+}
+
+// Windfury Totem's proc is the party aura 10612: a main-hand hit that lands
+// can fire it, whether or not it deals damage, and no other hit can, a proc's
+// hit included. Every main-hand auto can; an ability can only where its row
+// requires a main-hand weapon or goes off in place of the next swing. It rolls
+// off the hit's cast result, so the proc starts with every charge whichever
+// main-hand hit fired it.
 func TestGeneratedWindfuryTotemProcsOffMainHandHitsWithEveryCharge(t *testing.T) {
+	requiresMainHand, onNextSwing, lacksMainHand := windfuryRowAbilities(t)
+
 	setup := func(t *testing.T) (*core.Simulation, *core.Unit, *core.Aura, *[]int32) {
 		t.Helper()
 
@@ -806,50 +847,36 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHitsWithEveryCharge(t *testing.T)
 		return sim, sim.Encounter.AllTargetUnits[0], trigger, &started
 	}
 
-	// Offers the trigger up to 200 landed hits of one kind and answers whether any of them procced.
-	offer := func(sim *core.Simulation, target *core.Unit, trigger *core.Aura, started *[]int32, spell *core.Spell, damage float64) bool {
-		for i := 0; i < 200 && len(*started) == 0; i++ {
-			trigger.OnCastResult(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: damage})
-		}
-		return len(*started) > 0
-	}
-
 	for _, row := range []struct {
-		name  string
-		spell *core.Spell
+		name    string
+		spell   *core.Spell
+		outcome core.HitOutcome
+		damage  float64
+		procs   bool
 	}{
-		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}},
-		{"a main-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}},
+		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeHit, 100, true},
+		{"an ability whose row requires a main-hand weapon", requiresMainHand, core.OutcomeHit, 100, true},
+		{"such an ability landing no damage", requiresMainHand, core.OutcomeHit, 0, true},
+		{"an ability whose row goes off on the next swing and does not require a main-hand weapon", onNextSwing, core.OutcomeHit, 100, true},
+		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeMiss, 0, false},
+		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
+		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, Flags: requiresMainHand.Flags}, core.OutcomeHit, 100, false},
+		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
+		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
+		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
+		{"an ability whose row does not require a main-hand weapon", lacksMainHand, core.OutcomeHit, 100, false},
+		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: requiresMainHand.Flags | core.SpellFlagProc}, core.OutcomeHit, 100, false},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			sim, target, trigger, started := setup(t)
-			charges := trigger.Unit.GetAura("Windfury Totem (External)").MaxStacks
-			if !offer(sim, target, trigger, started, row.spell, 100) {
-				t.Fatal("200 landed hits never procced the totem")
+			for i := 0; i < 200 && len(*started) == 0; i++ {
+				trigger.OnCastResult(trigger, sim, row.spell, &core.SpellResult{Target: target, Outcome: row.outcome, Damage: row.damage})
 			}
-			if got := (*started)[0]; got != charges {
-				t.Errorf("%s procced it with %d of its %d charges, want all of them", row.name, got, charges)
+			if procced := len(*started) > 0; procced != row.procs {
+				t.Fatalf("200 hits of %s procced the totem %v, want %v", row.name, procced, row.procs)
 			}
-		})
-	}
-
-	for _, row := range []struct {
-		name   string
-		spell  *core.Spell
-		damage float64
-	}{
-		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, 100},
-		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, 100},
-		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, 100},
-		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, 100},
-		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, 100},
-		{"a main-hand special that deals no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, 0},
-		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagProc}, 100},
-	} {
-		t.Run(row.name+" never procs it", func(t *testing.T) {
-			sim, target, trigger, started := setup(t)
-			if offer(sim, target, trigger, started, row.spell, row.damage) {
-				t.Errorf("%s procced the totem", row.name)
+			if charges := trigger.Unit.GetAura("Windfury Totem (External)").MaxStacks; row.procs && (*started)[0] != charges {
+				t.Errorf("%s procced it with %d of its %d charges, want all of them", row.name, (*started)[0], charges)
 			}
 		})
 	}
@@ -862,11 +889,14 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHitsWithEveryCharge(t *testing.T)
 	})
 }
 
-// Windfury Totem's proc puts every charge up at the hit's cast result. The hit
-// that fired it is dealt first and spends a charge if it is an auto; the extra
-// attack swings after it, in the same instant, and spends the next if it lands.
-// A special spends none, so its extra attack and the auto after it spend them.
-func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *testing.T) {
+// Windfury Totem's proc puts every charge up at the hit's cast result, and the
+// hit that fired it spends none. The extra attack swings after it, in the same
+// instant, and spends one whether it lands or not, so the next auto, in either
+// hand, still gains the attack power and spends the last. A special that fires
+// it leaves its charges the same way.
+func TestGeneratedWindfuryTotemLeavesTheNextAutoACharge(t *testing.T) {
+	special, _, _ := windfuryRowAbilities(t)
+
 	setup := func(t *testing.T) (*core.Simulation, *core.Unit, *core.Aura, *core.Aura, *core.Spell, *[]int32) {
 		t.Helper()
 		sim, owner := setupPetOwnerSim(&proto.RaidBuffs{WindfuryTotem: true}, &proto.PartyBuffs{})
@@ -915,6 +945,13 @@ func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *tes
 		}
 	}
 
+	// The charges as the proc, its extra attack and one more auto spend them.
+	spent := func(charges int32) []int32 {
+		return []int32{charges, charges - 1, charges - 2}
+	}
+
+	// The last charge goes to the next cast of the main-hand auto that fired
+	// the proc, in the same instant, which only the proc's own hit skips.
 	t.Run("a main-hand auto", func(t *testing.T) {
 		sim, target, trigger, proc, extraAttack, changes := setup(t)
 		mhAuto := proc.Unit.AutoAttacks.MHAuto()
@@ -927,7 +964,7 @@ func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *tes
 			if len(*changes) == 0 {
 				continue
 			}
-			if got, want := *changes, []int32{charges, charges - 1}; !slices.Equal(got, want) {
+			if got, want := *changes, []int32{charges}; !slices.Equal(got, want) {
 				t.Fatalf("the auto that procced the totem left the charges going %v, want %v", got, want)
 			}
 			if casts(extraAttack, target) != swung {
@@ -935,12 +972,15 @@ func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *tes
 			}
 			swingExtraAttack(t, sim, extraAttack, target)
 			extraLanded := landed(extraAttack, target) > hits
-			want := []int32{charges, charges - 1}
-			if extraLanded {
-				want = append(want, charges-2)
-			}
-			if got := *changes; !slices.Equal(got, want) {
+			if got, want := *changes, spent(charges)[:2]; !slices.Equal(got, want) {
 				t.Errorf("with the extra attack landed %v the charges went %v, want %v", extraLanded, got, want)
+			}
+			if !proc.IsActive() {
+				t.Fatal("the proc is down before the auto after its extra attack")
+			}
+			mhAuto.Cast(sim, target)
+			if got, want := *changes, spent(charges); !slices.Equal(got, want) {
+				t.Errorf("the extra attack and the main-hand auto after it left the charges going %v, want %v", got, want)
 			}
 			seen[extraLanded] = true
 			proc.Deactivate(sim)
@@ -953,7 +993,6 @@ func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *tes
 
 	t.Run("a main-hand special", func(t *testing.T) {
 		sim, target, trigger, proc, extraAttack, changes := setup(t)
-		special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}
 		hit := &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100}
 		charges := proc.MaxStacks
 		for i := 0; i < 2000; i++ {
@@ -966,20 +1005,14 @@ func TestGeneratedWindfuryTotemSpendsItsChargesOnTheHitThenTheExtraAttack(t *tes
 			if got, want := *changes, []int32{charges}; !slices.Equal(got, want) {
 				t.Fatalf("the special that procced the totem left the charges going %v, want %v", got, want)
 			}
-			hits := landed(extraAttack, target)
 			swingExtraAttack(t, sim, extraAttack, target)
-			if landed(extraAttack, target) == hits {
-				proc.Deactivate(sim)
-				trigger.Icd.Reset()
-				continue
-			}
-			proc.OnSpellHitDealt(proc, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, hit)
-			if got, want := *changes, []int32{charges, charges - 1, charges - 2}; !slices.Equal(got, want) {
+			proc.OnSpellHitDealt(proc, sim, &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, hit)
+			if got, want := *changes, spent(charges); !slices.Equal(got, want) {
 				t.Errorf("the special's extra attack and the auto after it left the charges going %v, want %v", got, want)
 			}
 			return
 		}
-		t.Error("2000 specials never procced the totem with an extra attack that landed")
+		t.Error("2000 specials never procced the totem")
 	})
 }
 
@@ -1149,11 +1182,11 @@ func TestGeneratedWindfuryTotemHoldsOverFlametongueTotem(t *testing.T) {
 	}
 	target := sim.Encounter.AllTargetUnits[0]
 	for i := 0; i < 200 && !proc.IsActive(); i++ {
-		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial},
+		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto},
 			&core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 	}
 	if !proc.IsActive() {
-		t.Error("200 landed main-hand hits never procced Windfury Totem")
+		t.Error("200 landed main-hand autos never procced Windfury Totem")
 	}
 }
 

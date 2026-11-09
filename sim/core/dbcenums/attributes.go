@@ -3,6 +3,10 @@ package dbcenums
 // Spell attribute flags, named after the Attributes column they live in: ATTR_EX_3 is a flag
 // in Attributes[3]. Read them through the Spell helpers rather than indexing Attributes.
 const (
+	// The spell goes off in place of the next main-hand swing: Heroic Strike, Cleave, Maul, Raptor
+	// Strike.
+	ATTR_ON_NEXT_SWING uint32 = 0x4
+
 	// The spell is never cast: a stance's passive, a talent that only modifies other spells.
 	ATTR_PASSIVE uint32 = 0x40
 
