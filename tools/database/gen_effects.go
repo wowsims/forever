@@ -1672,7 +1672,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 	case direct != spelldata.NilEffect || periodic != spelldata.NilEffect:
 		routing.Shape = ShapeDamage
 		routing.Summary = onUseSummary(s, direct, periodic)
-		if direct != spelldata.NilEffect && direct.Type != dbcenums.E_SCHOOL_DAMAGE {
+		if direct != spelldata.NilEffect && direct.Type != dbcenums.E_SCHOOL_DAMAGE && direct.Type != dbcenums.E_HEALTH_LEECH {
 			routing.Unsupported = append(routing.Unsupported, fmt.Sprintf("the direct damage is %v rather than an amount", direct.Type))
 		}
 		for _, e := range []*spelldata.Effect{direct, periodic} {

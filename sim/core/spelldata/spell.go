@@ -117,22 +117,20 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 
 // The effect carrying the spell's direct damage, whether it states an amount or a weapon multiplier.
 // It sits on any of the weapon effects as readily as on school damage: a weapon effect states a
-// multiplier or a flat bonus rather than an amount.
+// multiplier or a flat bonus rather than an amount. An E_HEALTH_LEECH deals its amount as damage too,
+// and its caster gains the effect's Amplitude share of the damage dealt as health: Death Coil, Fatal
+// Bite 1295065's 40.
 func (s *Spell) DamageEffect() *Effect {
 	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
 		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
+		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
 }
 
-// The effect a proc deals its damage through: the row's damage effect; an E_HEALTH_LEECH, whose
-// caster also gains its Amplitude share of the damage dealt as health (Fatal Bite 1295065's 40); or
-// the A_PROC_TRIGGER_DAMAGE aura of a proc that deals its amount off its own trigger, with no spell
-// below it: the shield spikes' 20 to 30.
+// The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
+// aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
+// spikes' 20 to 30.
 func (s *Spell) ProcDamageEffect() *Effect {
 	if e := s.DamageEffect(); e != NilEffect {
-		return e
-	}
-	if e := s.firstOfType(dbcenums.E_HEALTH_LEECH); e != NilEffect {
 		return e
 	}
 	return s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)

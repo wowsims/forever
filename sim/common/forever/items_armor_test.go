@@ -293,21 +293,29 @@ func TestMawOfMinlothLeechesTheAttacker(t *testing.T) {
 		t.Fatalf("the target's armor keeps %v of the damage, want a reduction to test against", armor)
 	}
 	icd := spelldata.MustFind(1295064).ICD()
-	character.RemoveHealth(sim, character.MaxHealth()/2)
 
-	// Each hit taken costs the wearer this much health, which the heal is measured past.
-	const struck = 1.0
+	// Every hit starts the wearer at half health, and a hit that casts nothing shows what the hit
+	// itself costs, so a cast's heal is what the wearer ends above that.
+	start, refill := character.MaxHealth()/2, character.NewHealthMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionHealingModel})
+	struck := -1.0
 	landed, avoided := 0, 0
 	for hits := 0; hits < 5000 && (landed == 0 || avoided == 0); hits++ {
+		if health := character.CurrentHealth(); health < start {
+			character.GainHealth(sim, start-health, refill)
+		} else {
+			character.RemoveHealth(sim, health-start)
+		}
 		metrics := bite.SpellMetrics[enemy.UnitIndex]
-		health := character.CurrentHealth()
-		character.OnSpellHitTaken(sim, meleeSwing(enemy), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: struck})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+		takeHit(t, sim, character, meleeSwing(enemy))
 		after := bite.SpellMetrics[enemy.UnitIndex]
 		if after.Casts == metrics.Casts {
+			struck = start - character.CurrentHealth()
 			continue
 		}
-		dealt, healed := after.TotalDamage-metrics.TotalDamage, character.CurrentHealth()-health+struck
+		if struck < 0 {
+			continue
+		}
+		dealt, healed := after.TotalDamage-metrics.TotalDamage, character.CurrentHealth()-(start-struck)
 		stepTo(t, sim, sim.CurrentTime+icd)
 		if after.Hits+after.Crits == metrics.Hits+metrics.Crits {
 			avoided++

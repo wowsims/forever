@@ -182,7 +182,7 @@ func (e *Effect) DirectVariance() float64 {
 	switch {
 	case e.Type == dbcenums.E_HEAL:
 		return e.Variance
-	case e.Type == dbcenums.E_SCHOOL_DAMAGE && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
+	case (e.Type == dbcenums.E_SCHOOL_DAMAGE || e.Type == dbcenums.E_HEALTH_LEECH) && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
 		return e.Variance
 	}
 	return 0
