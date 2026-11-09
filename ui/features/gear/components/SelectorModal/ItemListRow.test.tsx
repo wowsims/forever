@@ -48,10 +48,8 @@ vi.mock('./ItemSource', () => ({
 	),
 }));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
-	ItemNoticeIcon: ({ itemId, enchantId, infoNotice }: { itemId?: number; enchantId?: number; infoNotice?: ReactNode }) => (
-		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId}>
-			{infoNotice}
-		</div>
+	ItemNoticeIcon: ({ itemId, enchantId }: { itemId?: number; enchantId?: number }) => (
+		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} />
 	),
 }));
 
@@ -166,10 +164,10 @@ describe('ItemListRow', () => {
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
 	});
 
-	describe('the first-seen notice', () => {
+	describe('the discovered dot', () => {
 		const NOW_MS = Date.UTC(2026, 10, 8, 12);
 		const DAY_SECONDS = 24 * 60 * 60;
-		const notice = (container: HTMLElement) => container.querySelector('[data-testid="item-notice-marker"]')!.textContent;
+		const dot = () => screen.queryByTestId('selector-modal-list-item-discovered');
 
 		beforeEach(() => {
 			vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
@@ -179,9 +177,11 @@ describe('ItemListRow', () => {
 			vi.restoreAllMocks();
 		});
 
-		it('shows on an item first seen inside the last seven days', () => {
-			const { container } = renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
-			expect(notice(container)).toBe('gear_tab.item_notices.discovered_on');
+		it('shows on an item first seen inside the last seven days, named and with a tooltip by its day', async () => {
+			renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
+			expect(dot()?.textContent).toBe('gear_tab.item_notices.discovered_on');
+			fireEvent.mouseEnter(dot()!);
+			expect((await screen.findByRole('tooltip')).textContent).toBe('gear_tab.item_notices.discovered_on');
 		});
 
 		it.each([
@@ -189,8 +189,8 @@ describe('ItemListRow', () => {
 			['an item with no first-seen date', SelectorModalTabs.Items, undefined],
 			['an enchant whose row has a recent date', SelectorModalTabs.Enchants, NOW_MS / 1000 - 3 * DAY_SECONDS],
 		])('stays off %s', (_name, label, firstSeen) => {
-			const { container } = renderRow({ label, firstSeen });
-			expect(notice(container)).toBe('');
+			renderRow({ label, firstSeen });
+			expect(dot()).toBeNull();
 		});
 	});
 

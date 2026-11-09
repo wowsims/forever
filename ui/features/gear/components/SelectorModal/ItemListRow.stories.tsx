@@ -6,7 +6,6 @@ import { wowheadIconUrl } from '@testing/storybook/fixtures/gear';
 import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
-import { ItemNoticeIconView } from '../GearPicker/ItemNoticeIcon';
 import { ItemListRowView } from './ItemListRow';
 import { ItemSource } from './ItemSource';
 
@@ -55,12 +54,10 @@ export const EquippedFavourite: Story = {
 };
 
 export const NewlyDiscovered: Story = {
-	args: {
-		notice: (
-			<ItemNoticeIconView level="info">
-				<p className="mb-0">Discovered on November 3rd</p>
-			</ItemNoticeIconView>
-		),
+	args: { discovered: 'Discovered on November 3rd' },
+	play: async ({ canvasElement }) => {
+		await userEvent.hover(within(canvasElement).getByTestId('selector-modal-list-item-discovered'));
+		await within(canvasElement.ownerDocument.body).findByRole('tooltip');
 	},
 };
 
