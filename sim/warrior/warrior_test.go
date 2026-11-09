@@ -1209,12 +1209,25 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 			aura.IsActive(), aura.GetStacks())
 	}
 
+	// Swings due inside the batch and at its end arrive as pending actions at an auto attack's priority.
+	var inBatch, atBatchEnd float64
+	swingAt := func(at time.Duration, seen *float64) {
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: at, Priority: core.ActionPriorityAuto, OnAction: func(*core.Simulation) {
+			*seen = blockChance()
+			block()
+		}})
+	}
+	swingAt(sim.CurrentTime+core.SpellBatchWindow/2, &inBatch)
+	swingAt(sim.CurrentTime+core.SpellBatchWindow, &atBatchEnd)
 	stepPastBatch(t, sim)
+	if inBatch != withShieldBlock {
+		t.Errorf("a swing inside the batch met a block chance of %v, want Shield Block's %v", inBatch, withShieldBlock)
+	}
+	if atBatchEnd != withoutShieldBlock {
+		t.Errorf("a swing at the end of the batch met a block chance of %v, want %v without Shield Block", atBatchEnd, withoutShieldBlock)
+	}
 	if aura.IsActive() {
 		t.Error("Shield Block is still up in the batch after its last charge was spent")
-	}
-	if got := blockChance(); got != withoutShieldBlock {
-		t.Errorf("an attack in a later batch meets a block chance of %v, want %v without Shield Block", got, withoutShieldBlock)
 	}
 
 	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)

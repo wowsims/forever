@@ -341,6 +341,9 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 			}
 			row := spelldata.MustFind(tc.spellID)
 			damage := row.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
+			if row.Cooldown() == 0 {
+				t.Fatalf("%d states no RecoveryTime, so the check for no internal cooldown proves nothing", tc.spellID)
+			}
 
 			takeHit(t, sim, character, meleeSwing(enemy))
 			if got := spike.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
