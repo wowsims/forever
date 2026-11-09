@@ -15,7 +15,9 @@ func (mage *Mage) registerFlamestrikeSpells() {
 // The burn is its own spell (MageSpellFlamestrikeDot) on the cast's row, tagged like Fireball's DoT so
 // the two share a header: every 2 sec it deals the same rank of spellData.FlamestrikeTriggered to each
 // enemy in the area, and rolls a crit unless the tick's row bars it. The cast's row names no tick
-// spell, only an area trigger, so the two pair by rank.
+// spell, only an area trigger, so the two pair by rank. In game each ground tick is a hit of the tick
+// spell, so a talent that listens for hits rolls on it once a tick, however many enemies it hits;
+// here the ticks are periodic damage, and Arcane Concentration forwards them to its hit listener.
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	tickDamage := tickRank.DamageEffect()

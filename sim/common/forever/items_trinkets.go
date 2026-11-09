@@ -247,8 +247,7 @@ func init() {
 	// Sometimes heals bearer of 120 to 180 damage when damaging an enemy in melee.
 	//
 	// The game files state no rate for 23689; the item's entry carries it.
-	core.NewItemEffect(19287, func(agent core.Agent) {
-		character := agent.GetCharacter()
+	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
@@ -265,7 +264,7 @@ func init() {
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(23689), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			heroism.Cast(sim, &character.Unit)
-		}, spelldata.PPM(weaponProcPPM(19287, row.ID)))
+		}, spelldata.PPM(ppm))
 		trigger.Name = "Darkmoon Card: Heroism"
 		trigger.ActionID = core.ActionID{ItemID: 19287}
 		trigger.TriggerImmediately = true

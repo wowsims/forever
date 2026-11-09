@@ -81,8 +81,8 @@ func TestEveryReachableProcIsSupportedOrListed(t *testing.T) {
 // weapon proc's listener is the item's rather than the row's, so a row that states no proc mask at
 // all is not refused for it - Annihilator's 16928 is that shape.
 func itemProcReasons(row *spelldata.Spell) []string {
-	reasons := spelldata.ItemProcUnsupportedWithRate(row, false, 0)
-	if asWeaponProc := spelldata.ItemProcUnsupportedWithRate(row, true, 0); len(asWeaponProc) < len(reasons) {
+	reasons := spelldata.ItemProcUnsupportedWithRate(row, false, 0, 0)
+	if asWeaponProc := spelldata.ItemProcUnsupportedWithRate(row, true, 0, 0); len(asWeaponProc) < len(reasons) {
 		return asWeaponProc
 	}
 	return reasons
@@ -123,13 +123,12 @@ func reachableProcs(roots []int32) []*spelldata.Spell {
 	return procs
 }
 
-// The three auras that fire a spell off a hit. A_PROC_TRIGGER_DAMAGE is in as well: the shield
-// spikes state their retaliation that way rather than through a spell of their own.
+// The auras that fire off a hit: the proc triggers, among them the shield spikes' retaliation on the
+// aura itself, and the copy.
 func triggersAProcEffect(row *spelldata.Spell) bool {
 	for i := range row.Effects {
 		aura := row.Effects[i].Aura
-		if aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY ||
-			aura == dbcenums.A_PROC_TRIGGER_DAMAGE {
+		if aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY {
 			return true
 		}
 	}

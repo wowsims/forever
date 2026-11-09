@@ -8,7 +8,7 @@ import (
 
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
-// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Bloodrage's instant rage)
+// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage)
 // makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 

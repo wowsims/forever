@@ -300,6 +300,8 @@ func auraPhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 		return join("casts", triggerPhrase(e), every(e))
 	case dbcenums.A_PROC_TRIGGER_SPELL:
 		return join("casts", triggerPhrase(e), "on its trigger", onSpells(e))
+	case dbcenums.A_PROC_TRIGGER_DAMAGE:
+		return join("deals", amount(e), schoolName(s.SpellSchool()), "damage to the attacker on its trigger")
 
 	case dbcenums.A_DUMMY, dbcenums.A_PERIODIC_DUMMY:
 		return join(dummyPhrase("aura", e), every(e), onSpells(e))

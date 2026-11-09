@@ -102,6 +102,24 @@ func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	return 0
 }
 
+// Sets the procs per minute on the item's chance-on-hit entry for the spell for the length of the
+// test; 0 leaves the entry stating no rate.
+func withEntryPPM(t *testing.T, itemID int32, spellID int32, ppm float64) {
+	t.Helper()
+	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+		if proc := effect.GetProc(); effect.BuffId == spellID && proc != nil {
+			committed := proc.ProcRate
+			t.Cleanup(func() { proc.ProcRate = committed })
+			proc.ProcRate = nil
+			if ppm > 0 {
+				proc.ProcRate = &proto.ProcEffect_Ppm{Ppm: ppm}
+			}
+			return
+		}
+	}
+	t.Fatalf("%d has no chance-on-hit entry for %d", itemID, spellID)
+}
+
 // Checks the proc rolls the item entry's procs per minute on the weapon's speed, a chance between
 // none and certain.
 func expectWeaponRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask core.ProcMask, itemID, spellID int32) {
@@ -136,53 +154,21 @@ func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
 	}
 }
 
-// Sulfuras, Hand of Ragnaros 17182 carries both its effects. Immolation 21142's damage shield deals
-// its amount to the attacker of each melee hit taken, and nothing for a spell. Fireball 21162 procs
-// at the procs per minute of the item's chance-on-hit entry, deals its row's direct roll, and ticks
-// its periodic amount over the row's duration.
-func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
-	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 17182)
+// The Green Tower 1204 carries both its generated effects, composed into the one registration core
+// takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
+// while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.
+func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 1204)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(21142)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 21142, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("17182 registers no damage shield")
+	shield, shieldDamage := damageShield(t, character, 1325228)
+	if character.GetAura("The Green Tower Proc") == nil {
+		t.Fatal("1204 registers no stat proc beside its shield")
 	}
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
-	}
-	takeHit(t, sim, character, fireSpell(enemy))
-	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("after a spell hit taken the shield cast %d times, want once still", got)
-	}
-
-	proc := character.GetAura("Sulfuras, Hand of Ragnaros")
-	if proc == nil || proc.Dpm == nil {
-		t.Fatal("17182 registers no Fireball proc on a procs per minute rate")
-	}
-	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 17182, 21162)
-
-	row := spelldata.MustFind(21162)
-	hit, tick := row.DamageEffect(), row.PeriodicDamageEffect()
-	ticks := rowTickCount(row, tick)
-	fireball := character.GetSpell(core.ActionID{SpellID: 21162})
-	fireball.Cast(sim, enemy)
-	dot := fireball.Dot(enemy)
-	if dot.BaseTickCount != ticks || dot.BaseTickLength != tick.Period() {
-		t.Errorf("the Fireball ticks %d times every %v, want the row's %d every %v", dot.BaseTickCount, dot.BaseTickLength, ticks, tick.Period())
-	}
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
-	metrics := fireball.SpellMetrics[enemy.UnitIndex]
-	metrics.TotalDamage -= float64(ticks) * tick.Average()
-	if metrics.Casts != 1 || metrics.Ticks != ticks || !damageInRange(metrics, hit) {
-		t.Errorf("the Fireball cast %d times and ticked %d times for %v besides its ticks, want once, %d ticks and %v to %v",
-			metrics.Casts, metrics.Ticks, metrics.TotalDamage, ticks, hit.Min(), hit.Max())
 	}
 }
 
@@ -300,7 +286,7 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
 
 	damage := spelldata.MustFind(29640).DamageEffect()
-	shot := &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	shot := rangedShot(&character.Unit)
 	dealHit(t, sim, character, shot)
 	metrics := shadowbolt.SpellMetrics[enemy.UnitIndex]
 	if metrics.Casts != 1 || metrics.Hits != 1 || metrics.TotalDamage < damage.Min() || metrics.TotalDamage > damage.Max() {
@@ -310,12 +296,14 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 }
 
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
-// entry. Focus makes the next spell with a cast time instant, on its whole global cooldown, and that
-// cast spends it; an instant leaves it up, and unspent it fades after the row's duration.
+// entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
+// global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
+// row's duration.
 func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	if core.GetItemByID(2243) == nil {
 		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
 	}
+	withEntryPPM(t, 2243, 18803, 1)
 	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -365,6 +353,27 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	if focus.IsActive() {
 		t.Errorf("Focus is still up after the row's %v unspent", duration)
 	}
+}
+
+// A hand-written proc that runs at its item entry's procs per minute registers nothing while the entry
+// states none: Hand of Edward the Odd 2243 equips and swings with no Focus proc and no Focus aura.
+func TestAnEntryRateProcRegistersNothingWhileTheEntryStatesNoRate(t *testing.T) {
+	if core.GetItemByID(2243) == nil {
+		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
+	}
+	withEntryPPM(t, 2243, 18803, 0)
+	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
+
+	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].ID; got != 2243 {
+		t.Fatalf("the main hand holds %d, want 2243", got)
+	}
+	if character.GetAura("Hand of Edward the Odd") != nil {
+		t.Error("2243 registers its Focus proc with no rate on its entry, want none")
+	}
+	if character.GetAura("Hand of Edward the Odd Focus") != nil {
+		t.Error("2243 registers its Focus aura with no rate on its entry, want none")
+	}
+	stepTo(t, sim, 30*time.Second)
 }
 
 // Thunderfury, Blessed Blade of the Windseeker 19019 procs 21992 at the procs per minute of the item's

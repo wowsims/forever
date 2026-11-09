@@ -654,10 +654,11 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 }
 
 // A shield's hit is an off-hand hit: it never procs Windfury Totem or the main-hand weapon's
-// enchant, which a main-hand special does.
+// enchant, which a main-hand special does. The shield rows carry neither bit Windfury Totem reads, so
+// the test adds the main-hand flag to each hit and only the off-hand mask is under test.
 func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 	sim, war, target := shieldTestSim(t)
-	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}
+	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagRequiresMainHand}
 
 	crusaderTrigger := war.GetAura("Enchant Weapon - Crusader")
 	if crusaderTrigger == nil || crusaderTrigger.Dpm == nil {
@@ -685,8 +686,9 @@ func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
 		if rollsCrusader(spell.ProcMask) {
 			t.Errorf("%s procced the main hand's Crusader", name)
 		}
+		shieldHit := &core.Spell{ProcMask: spell.ProcMask, Flags: spell.Flags | core.SpellFlagRequiresMainHand}
 		for i := 0; i < 200 && !windfury.IsActive(); i++ {
-			windfuryTrigger.OnCastResult(windfuryTrigger, sim, spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+			windfuryTrigger.OnCastResult(windfuryTrigger, sim, shieldHit, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 		}
 		if windfury.IsActive() {
 			t.Errorf("%s procced Windfury Totem", name)
@@ -866,9 +868,10 @@ func TestExplosiveDropsTheCleavePressInsideTheQueueDelay(t *testing.T) {
 	}
 }
 
-// In Defensive Stance, the rage a block grants through Shield Specialization and Bloodrage's instant
-// rage make ThreatPerRageGained threat per rage without the warrior's threat multiplier, Bloodrage's
-// rage over time makes it times the multiplier, and rage gained before the pull makes none.
+// In Defensive Stance, the rage a block grants through Shield Specialization, the rage a dodge grants
+// through Master of Defense and Bloodrage's instant rage make ThreatPerRageGained threat per rage
+// without the warrior's threat multiplier, Bloodrage's rage over time makes it times the multiplier,
+// and rage gained before the pull makes none.
 func TestRageThreatFollowsItsSource(t *testing.T) {
 	// No rotation: AddRage wakes the rotation, and the default one spends the rage at once.
 	player := &proto.Player{
@@ -909,17 +912,22 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 		return (rageThreat.SpellMetrics[target.UnitIndex].TotalThreat - threatBefore) / war.CurrentRage()
 	}
 
-	block := func() {
-		for range 1000 {
-			war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
-				&core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
-			if war.CurrentRage() > 0 {
-				return
+	avoid := func(outcome core.HitOutcome) func() {
+		return func() {
+			for range 1000 {
+				war.OnSpellHitTaken(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, Unit: target},
+					&core.SpellResult{Target: &war.Unit, Outcome: outcome})
+				if war.CurrentRage() > 0 {
+					return
+				}
 			}
 		}
 	}
-	if got := threatPerRage(block); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+	if got := threatPerRage(avoid(core.OutcomeBlock)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
 		t.Errorf("Shield Specialization's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
+	}
+	if got := threatPerRage(avoid(core.OutcomeDodge)); math.Abs(got-core.ThreatPerRageGained) > 1e-9 {
+		t.Errorf("Master of Defense's rage made %v threat per rage, want %v", got, float64(core.ThreatPerRageGained))
 	}
 
 	bloodrageInstant := func() { bloodrage.SkipCastAndApplyEffects(sim, &war.Unit) }
@@ -965,5 +973,196 @@ func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 
 	if events := war.DamageTakenHealthMetrics.Events; events != 0 {
 		t.Errorf("damage taken counted %d health events, want none", events)
+	}
+}
+
+// An Arms warrior with a two-handed sword, Nightblade, against the given number of targets, with
+// its auto attacks stopped so every swing the test counts comes from the hits it deals. The returned
+// func counts the Sword Specialization swings so far.
+func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+	t.Helper()
+
+	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982}
+	encounter := core.MakeSingleTargetEncounter(0)
+	for len(encounter.Targets) < targets {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	player := &proto.Player{
+		Name:          "Sword",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     gear,
+		TalentsString: armsTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	stepPastBatch(t, sim)
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+
+	swordSpec := war.GetAura("Weaponmaster (Sword)")
+	if swordSpec == nil || !swordSpec.IsActive() {
+		t.Fatal("Weaponmaster's sword proc is not up")
+	}
+	swing := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: swordSpec.ActionID.SpellID})
+	if swing == nil {
+		t.Fatal("Weaponmaster registered no extra swing")
+	}
+	swings := func() int32 {
+		var casts int32
+		for _, metrics := range swing.SpellMetrics {
+			casts += metrics.Casts
+		}
+		return casts
+	}
+	return sim, war, swings
+}
+
+// Whirlwind and Cleave roll Sword Specialization once a cast, however many targets they land on, so
+// no cast brings more than one extra swing.
+func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
+	for _, c := range []struct {
+		name  string
+		spell core.ActionID
+	}{
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)},
+		{"Cleave", core.ActionID{SpellID: 20569}},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{})
+			spell := war.GetSpell(c.spell)
+			if spell == nil {
+				t.Fatalf("the warrior has no %s", c.name)
+			}
+
+			var total int32
+			for range 1000 {
+				before := swings()
+				spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+				stepPastBatch(t, sim)
+				got := swings() - before
+				if got > 1 {
+					t.Fatalf("one %s brought %d extra swings, want at most 1", c.name, got)
+				}
+				total += got
+			}
+			if total == 0 {
+				t.Fatalf("1000 casts of %s brought no extra swing, so the check above proves nothing", c.name)
+			}
+		})
+	}
+}
+
+// Neither Sweeping Strikes' hits nor a Windfury Totem swing bring a Sword Specialization swing. The
+// warrior's own main-hand swing does bring them.
+func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
+	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
+	const sweepingStrikesHit = 12723  // The strike both of Sweeping Strikes' hits report under.
+	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true})
+
+	hits := func(spell *core.Spell) int32 {
+		t.Helper()
+		before := swings()
+		for range 2000 {
+			war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}
+		stepPastBatch(t, sim)
+		return swings() - before
+	}
+
+	for _, id := range []core.ActionID{
+		{SpellID: sweepingStrikesHit},
+		{SpellID: sweepingStrikesHit, Tag: 1},
+		{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttack},
+	} {
+		spell := war.GetSpell(id)
+		if spell == nil {
+			t.Fatalf("the warrior has no %v", id)
+		}
+		if got := hits(spell); got != 0 {
+			t.Errorf("2000 landed hits of %v brought %d Sword Specialization swings, want 0", id, got)
+		}
+	}
+
+	if got := hits(war.AutoAttacks.MHAuto()); got == 0 {
+		t.Error("2000 landed main-hand swings brought no Sword Specialization swing, so the checks above prove nothing")
+	}
+}
+
+// A Sword Specialization swing is lost when its target dies before it swings.
+func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
+	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{})
+	target := sim.Encounter.AllTargets[0]
+	hits := func() {
+		for range 2000 {
+			war.OnSpellHitDealt(sim, war.AutoAttacks.MHAuto(), &core.SpellResult{Target: &target.Unit, Outcome: core.OutcomeHit, Damage: 100})
+		}
+	}
+
+	before := swings()
+	hits()
+	stepPastBatch(t, sim)
+	if swings() == before {
+		t.Fatal("2000 landed main-hand swings brought no Sword Specialization swing, so the check below proves nothing")
+	}
+
+	before = swings()
+	hits()
+	target.Die(sim, 1)
+	stepPastBatch(t, sim)
+	if got := swings() - before; got != 0 {
+		t.Errorf("%d Sword Specialization swings went off after their target died, want 0", got)
+	}
+}
+
+// Victory Rush heals on its own row, and its heal makes ThreatPerHealingDone threat for each point of
+// health it restores, overheal left out, times the warrior's threat multiplier.
+func TestVictoryRushHealMakesThreat(t *testing.T) {
+	sim, war, target := shieldTestSim(t)
+	victoryRush := war.GetSpell(core.ActionID{SpellID: 402927})
+	if victoryRush == nil {
+		t.Fatal("the warrior has no Victory Rush")
+	}
+	if heal := war.GetSpell(victoryRush.ActionID.WithTag(1)); heal != nil {
+		t.Errorf("Victory Rush registers a separate heal %v, want the heal on Victory Rush itself", heal.ActionID)
+	}
+	if victoryRush.ThreatMultiplier != 1 || victoryRush.FlatThreatBonus != 0 || victoryRush.ThreatAPCoefficient != 0 {
+		t.Fatalf("Victory Rush has threat multiplier %v, flat threat %v and AP threat %v, want 1, 0 and 0 for the checks below",
+			victoryRush.ThreatMultiplier, victoryRush.FlatThreatBonus, victoryRush.ThreatAPCoefficient)
+	}
+	multiplier := war.PseudoStats.ThreatMultiplier * war.PseudoStats.SchoolThreatMultiplier[victoryRush.SchoolIndex]
+	if multiplier == 1 {
+		t.Fatal("Defensive Stance sets no threat multiplier, so the check below proves nothing")
+	}
+	healed := war.MaxHealth() * spelldata.MustFind(victoryRush.ActionID.SpellID).EffectN(2).Percent()
+	if healed == 0 {
+		t.Fatal("the row states no heal, so the check below proves nothing")
+	}
+
+	// Half the heal is missing, so the other half overheals.
+	war.RemoveHealth(sim, healed/2)
+	victoryRush.SkipCastAndApplyEffects(sim, target)
+
+	onTarget := victoryRush.SpellMetrics[target.UnitIndex]
+	healThreat := onTarget.TotalThreat - onTarget.TotalDamage*multiplier
+	if got, want := healThreat, core.ThreatPerHealingDone*healed/2*multiplier; math.Abs(got-want) > 1e-6 {
+		t.Errorf("the heal made %v threat, want %v", got, want)
+	}
+	onSelf := victoryRush.SpellMetrics[war.UnitIndex]
+	if got := onSelf.TotalHealing; math.Abs(got-healed) > 1e-6 {
+		t.Errorf("Victory Rush shows %v healing, want the row's %v", got, healed)
+	}
+	if onSelf.Hits+onSelf.Crits != 0 {
+		t.Errorf("the heal counts %d hits and %d crits, want none", onSelf.Hits, onSelf.Crits)
+	}
+	if got := war.CurrentHealth(); got != war.MaxHealth() {
+		t.Errorf("the warrior has %v health after the heal, want the maximum %v", got, war.MaxHealth())
 	}
 }
