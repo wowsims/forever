@@ -1216,11 +1216,11 @@ var generatedSpells = []Spell{
 			{ID: 680332, SpellID: 1463, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MANA_SHIELD, BasePoints: 120, BaseLevel: 20, PvpMult: 1, Amplitude: 2, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Cost: 40}}},
-	{ID: 1464, Name: "Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+	{ID: 1464, Name: "Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 45, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 680356, SpellID: 1464, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 32, BaseLevel: 30, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 2: Rank 1's measured share per spell level
 	{ID: 1494, Name: "Track Beasts", School: 1, Attr: [17]uint32{0: 0x9040010, 1: 0x20020, 14: 0x40, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, DurationMs: -1, GCDMs: 1500, StartRecoveryCategory: 133, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{2: 2}}, Labels: []int16{23},
 		Effects: []Effect{
 			{ID: 680399, SpellID: 1494, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_TRACK_CREATURES, BaseLevel: 1, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -5666,11 +5666,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 686831, SpellID: 8747, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_SWIM_SPEED, BasePoints: 15, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 8820, Name: "Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 38, BaseLevel: 38, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+	{ID: 8820, Name: "Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 38, BaseLevel: 38, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 57, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 687405, SpellID: 8820, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 43, BaseLevel: 38, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 3: Rank 1's measured share per spell level
 	{ID: 8835, Name: "Grace of Air Totem", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 7: 0x20, 14: 0x40, 15: 0x2000}, SpellLevel: 42, BaseLevel: 42, DurationMs: 300000, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 536870912}}, Labels: []int16{24}, RefIDs: []int32{8836}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 686638, SpellID: 8835, Type: dbcenums.E_SUMMON, BasePoints: 5, BaseLevel: 42, PvpMult: 1, Misc: 7486, Misc2: 83, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{43, 0}},
@@ -8575,22 +8575,22 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 689586, SpellID: 11564, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 58, BaseLevel: 32, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 80 -- Heroic Strike Rank 5: Rank 4's measured share per spell level
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 2.5 -- Heroic Strike Rank 5: Rank 4's measured share per spell level
 	{ID: 11565, Name: "Heroic Strike", Rank: "Rank 6", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x8000000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 100, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 64}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 689375, SpellID: 11565, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 80, BaseLevel: 40, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 100 -- Heroic Strike Rank 6: Rank 4's measured share per spell level
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 2.5 -- Heroic Strike Rank 6: Rank 4's measured share per spell level
 	{ID: 11566, Name: "Heroic Strike", Rank: "Rank 7", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x8000000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 120, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 64}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 689393, SpellID: 11566, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 111, BaseLevel: 48, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 120 -- Heroic Strike Rank 7: Rank 4's measured share per spell level
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 2.5 -- Heroic Strike Rank 7: Rank 4's measured share per spell level
 	{ID: 11567, Name: "Heroic Strike", Rank: "Rank 8", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x8000000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 56, BaseLevel: 56, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 140, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 64}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 688860, SpellID: 11567, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 138, BaseLevel: 56, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 140 -- Heroic Strike Rank 8: Rank 4's measured share per spell level
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 2.5 -- Heroic Strike Rank 8: Rank 4's measured share per spell level
 	{ID: 11572, Name: "Rend", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0xa00000, 8: 0x1200, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 21000, MaxRange: 5, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 2, Mechanic: 15, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 32}}, StanceMask: 0x30000, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 689803, SpellID: 11572, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 14, BaseLevel: 40, APCoef: 0.02, PvpMult: 1, PeriodMs: 3000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -8657,16 +8657,16 @@ var generatedSpells = []Spell{
 			{ID: 689703, SpellID: 11601, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 121, Variance: 0.19718310236930847, BaseLevel: 54, SPCoef: 1, APCoef: 0.25, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 50}}}, // override: APCoefDirect 0.25 -- Revenge Rank 5: the tooltip's $APR outside Defensive Stance
-	{ID: 11604, Name: "Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 46, BaseLevel: 46, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+	{ID: 11604, Name: "Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 46, BaseLevel: 46, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 69, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 688565, SpellID: 11604, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 68, BaseLevel: 46, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
-	{ID: 11605, Name: "Slam", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 4: Rank 1's measured share per spell level
+	{ID: 11605, Name: "Slam", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 6: 0x2008000, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 81, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 688660, SpellID: 11605, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 87, BaseLevel: 54, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 5: Rank 1's measured share per spell level
 	{ID: 11608, Name: "Cleave", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x200, 2: 0x1000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 61, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 4194304}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 689145, SpellID: 11608, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 18, BaseLevel: 40, SPCoef: 1, PvpMult: 1, ChainTargets: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -21217,7 +21217,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 702971, SpellID: 25286, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 157, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 150 -- Heroic Strike Rank 9: Rank 4's measured share per spell level
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 2.5 -- Heroic Strike Rank 9: Rank 4's measured share per spell level
 	{ID: 25288, Name: "Revenge", Rank: "Rank 6", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 4: 0x200, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 5, CategoryCooldownMs: 5000, GCDMs: 1500, Category: 65, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 1024}}, StanceMask: 0x20000, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 701608, SpellID: 25288, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 153, Variance: 0.20000000298023224, BaseLevel: 60, SPCoef: 1, APCoef: 0.25, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -32849,7 +32849,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1238371, SpellID: 1240193, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 16, BaseLevel: 20, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}}, // override: FlatThreat 30 -- Slam Rank 1: threat is the damage + 30, times the stance
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 1: threat is the damage + 30, times the stance
 	{ID: 1240287, Name: "Charge", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x30050010, 1: 0x400, 7: 0x40000, 8: 0x1000, 15: 0x2000}, SpellLevel: 4, BaseLevel: 4, MinRange: 8, MaxRange: 25, CategoryCooldownMs: 15000, Category: 44, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 1}}, StanceMask: 0x30000, Labels: []int16{25}, RefIDs: []int32{7922},
 		Effects: []Effect{
 			{ID: 1238531, SpellID: 1240287, Type: dbcenums.E_CHARGE, BaseLevel: 4, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -37284,31 +37284,31 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1339498, SpellID: 1310185, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 10, BaseLevel: 14, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1310196, Name: "Slam", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+	{ID: 1310196, Name: "Slam", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 30, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1339514, SpellID: 1310196, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 16, BaseLevel: 20, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
-	{ID: 1310197, Name: "Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 1 under Improved Slam: Slam Rank 1's measured share per spell level
+	{ID: 1310197, Name: "Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 45, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1339515, SpellID: 1310197, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 32, BaseLevel: 30, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
-	{ID: 1310198, Name: "Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 38, BaseLevel: 38, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 2 under Improved Slam: Slam Rank 1's measured share per spell level
+	{ID: 1310198, Name: "Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 38, BaseLevel: 38, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 57, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1339516, SpellID: 1310198, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 43, BaseLevel: 38, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
-	{ID: 1310199, Name: "Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 46, BaseLevel: 46, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 3 under Improved Slam: Slam Rank 1's measured share per spell level
+	{ID: 1310199, Name: "Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 46, BaseLevel: 46, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 69, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1339517, SpellID: 1310199, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 68, BaseLevel: 46, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
-	{ID: 1310200, Name: "Slam", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 4 under Improved Slam: Slam Rank 1's measured share per spell level
+	{ID: 1310200, Name: "Slam", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 2: 0x20000, 3: 0x400, 6: 0x8000, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, CastTimeMs: 1500, MaxRange: 5, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 2412, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 81, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 2097152}}, InterruptFlags: 7, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 1339518, SpellID: 1310200, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 87, BaseLevel: 54, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 150}}},
+		Powers: []Power{{Type: 1, Cost: 150}}}, // override: ThreatPerSpellLevel 1.5 -- Slam Rank 5 under Improved Slam: Slam Rank 1's measured share per spell level
 	{ID: 1310222, Name: "Spearing Strike", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 3: 0x400, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, MaxRange: 5, CooldownMs: 20000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{2: 1}}, StanceMask: 0x10000, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1339572, SpellID: 1310222, Type: dbcenums.E_NORMALIZED_WEAPON_DMG, BaseLevel: 1, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

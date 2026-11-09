@@ -1232,6 +1232,17 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 	if got := blockChance(); got != withoutShieldBlock {
 		t.Errorf("an attack in a later batch meets a block chance of %v, want %v without Shield Block", got, withoutShieldBlock)
 	}
+
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	for range aura.MaxStacks {
+		block()
+	}
+	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
+	stepPastBatch(t, sim)
+	if !aura.IsActive() || aura.GetStacks() != aura.MaxStacks {
+		t.Errorf("a recast in the batch of the last charge left Shield Block up %v with %d charges, want up with %d",
+			aura.IsActive(), aura.GetStacks(), aura.MaxStacks)
+	}
 }
 
 // Shield Slam adds twice the block value to its roll. Two sims on one seed roll the same casts, so a

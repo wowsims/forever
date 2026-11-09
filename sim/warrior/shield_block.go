@@ -15,7 +15,23 @@ func (warrior *Warrior) registerShieldBlock() {
 	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
 	// other attacks landing in that batch are blocked too and spend nothing.
 	lastChargeSpent := false
-	batchEnd := &core.PendingAction{OnAction: aura.Deactivate}
+	batchEnd := &core.PendingAction{
+		Priority: core.ActionPriorityDOT,
+		OnAction: func(sim *core.Simulation) {
+			lastChargeSpent = false
+			aura.Deactivate(sim)
+		},
+	}
+	// A recast restores both charges and an expiry ends the aura, so either drops a pending batch end.
+	dropBatchEnd := func(sim *core.Simulation) {
+		if lastChargeSpent {
+			batchEnd.Cancel(sim)
+			lastChargeSpent = false
+		}
+	}
+	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		dropBatchEnd(sim)
+	})
 
 	// The row states the melee and ranged hits the listener hears and the two charges the aura
 	// starts with. The block that spends a charge is an outcome no proc mask states, and a full
@@ -41,10 +57,7 @@ func (warrior *Warrior) registerShieldBlock() {
 	config := spelldata.SpellConfig(&warrior.Unit, shieldBlockRank, spelldata.Flags(core.SpellFlagAPL))
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		if lastChargeSpent {
-			batchEnd.Cancel(sim)
-			lastChargeSpent = false
-		}
+		dropBatchEnd(sim)
 		aura.Activate(sim)
 		aura.SetStacks(sim, aura.MaxStacks)
 	}
