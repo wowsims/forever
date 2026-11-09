@@ -14,8 +14,11 @@ func (druid *Druid) registerPounceSpell() {
 	bleedConfig := spelldata.SpellConfig(&druid.Unit, bleedRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)
+	// Attack power is read at each tick. Rend and Tear does not raise the ticks, though the bleed counts
+	// toward it for the other attacks.
 	bleedConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, bleedTick.Average()*druid.rendAndTearMultiplier(target), bleedRank.TickOutcome(dot))
+		damage := bleedTick.AverageAt(druid.level()) + bleedTick.APCoeff()*dot.Spell.MeleeAttackPower(target)
+		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, bleedRank.TickOutcome(dot))
 	}
 	druid.PounceBleed = druid.RegisterSpell(bleedConfig)
 
@@ -28,13 +31,19 @@ func (druid *Druid) registerPounceSpell() {
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
 		return druid.ProwlAura.IsActive() && druid.BehindTarget()
 	}
-	// No Active Defense (Attributes 0x200000): it misses or lands, never dodged, parried or blocked.
+	// No Active Defense (Attributes 0x200000): the cast misses or lands, never dodged, parried or
+	// blocked. A landed cast awards the combo point and stuns, and then the bleed rolls its own miss and
+	// dodge. An avoided bleed refunds no energy.
+	// TODO: Ingame research needed -- whether the cast itself can miss.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 		if result.Landed() {
-			stuns.Get(target).Activate(sim)
-			druid.PounceBleed.Dot(target).Apply(sim)
 			druid.awardComboPoints(sim, spell, rank)
+			stuns.Get(target).Activate(sim)
+			bleed := druid.PounceBleed.CalcAndDealOutcome(sim, target, druid.PounceBleed.OutcomeMeleeSpecialHit)
+			if bleed.Landed() {
+				druid.PounceBleed.Dot(target).Apply(sim)
+			}
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}

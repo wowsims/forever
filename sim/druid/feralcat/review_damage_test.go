@@ -149,6 +149,61 @@ func TestRakeTickScalesWithAttackPower(t *testing.T) {
 	t.Logf("Rake 100 AP gain per tick=%g", high-low)
 }
 
+// A Pounce Bleed tick reads attack power when it ticks, and Rend and Tear leaves it unchanged.
+func TestPounceBleedTickReadsAttackPowerWithoutRendAndTear(t *testing.T) {
+	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
+	var share float64
+	ticks := func(talents string) (float64, float64) {
+		sim, cat := newCat(t, talents, nil)
+		share = spelldata.MustFind(cat.PounceBleed.ActionID.SpellID).PeriodicDamageEffect().APCoeff()
+		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		dot := cat.PounceBleed.Dot(cat.CurrentTarget)
+		dot.Apply(sim)
+		metric := &cat.PounceBleed.SpellMetrics[cat.CurrentTarget.UnitIndex]
+		before := metric.TotalDamage
+		dot.TickOnce(sim)
+		low := metric.TotalDamage - before
+		cat.AddStatDynamic(sim, stats.AttackPower, 100)
+		before = metric.TotalDamage
+		dot.TickOnce(sim)
+		return low, metric.TotalDamage - before
+	}
+	low, high := ticks("")
+	if want := 100 * share; want <= 0 || math.Abs((high-low)-want) > 1e-5 {
+		t.Fatalf("100 AP tick gain=%g, want %g from the periodic effect's share", high-low, want)
+	}
+	if talentedLow, talentedHigh := ticks(rendAndTear5); math.Abs(talentedLow-low) > 1e-6 || math.Abs(talentedHigh-high) > 1e-6 {
+		t.Errorf("ticks %g and %g with Rend and Tear 5/5, want the untalented %g and %g", talentedLow, talentedHigh, low, high)
+	}
+}
+
+// Pounce's stun and combo point land when its bleed is dodged, and the dodged bleed refunds no energy.
+func TestDodgedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
+	sim, cat := newCat(t, "", nil)
+	target := cat.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 1
+	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	cat.ProwlAura.Activate(sim)
+	want := cat.CurrentEnergy() - cat.Pounce.Cost.GetCurrentCost()
+	if !cat.Pounce.Cast(sim, target) {
+		t.Fatal("pounce did not cast")
+	}
+	if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Hits != 1 {
+		t.Fatalf("pounce landed %d times, want 1", m.Hits)
+	}
+	bleedUp := cat.PounceBleed.Dot(target).IsActive()
+	if m := cat.PounceBleed.SpellMetrics[target.UnitIndex]; m.Dodges != 1 || bleedUp {
+		t.Fatalf("bleed dodged %d times and up=%v, want 1 dodge and no bleed", m.Dodges, bleedUp)
+	}
+	stunUp := target.GetAura("Pounce Stun").IsActive()
+	if !stunUp || cat.ComboPoints() != 1 {
+		t.Errorf("stun up=%v and CP=%d after a dodged bleed, want the stun and 1", stunUp, cat.ComboPoints())
+	}
+	if cat.CurrentEnergy() != want {
+		t.Errorf("energy=%g after a dodged bleed, want %g with no refund", cat.CurrentEnergy(), want)
+	}
+}
+
 func TestRakeHitScalesWithAttackPower(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget

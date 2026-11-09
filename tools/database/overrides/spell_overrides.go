@@ -563,6 +563,27 @@ var Spells = []Override{
 		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
 	},
 	{
+		SpellID: 9007,
+		Field:   APCoefPeriodic,
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 1: measured periodic share, 0.02496 to 0.02536 fits every tick; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 9824,
+		Field:   APCoefPeriodic,
+		Value:   0.025, // TODO: Measure Pounce Bleed Rank 2 in game.
+		Reason:  "Pounce Bleed Rank 2: Rank 1's measured periodic share",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 9826,
+		Field:   APCoefPeriodic,
+		Value:   0.025, // TODO: Measure Pounce Bleed Rank 3 in game.
+		Reason:  "Pounce Bleed Rank 3: Rank 1's measured periodic share",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
 		SpellID: 779,
 		Field:   APCoefDirect,
 		Value:   0.03,
