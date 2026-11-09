@@ -1055,10 +1055,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MawofMin'loth-274608"
  value: {
-  dps: 410.61771
-  tps: 983.54539
-  dtps: 393.18926
-  hps: 22.94278
+  dps: 390.87882
+  tps: 941.10277
+  dtps: 392.30833
+  hps: 21.79056
  }
 }
 dps_results: {
