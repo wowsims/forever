@@ -807,6 +807,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-MawofMin'loth-274608"
+ value: {
+  dps: 724.37453
+  tps: 682.5144
+  dtps: 9.07331
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 686.69042

@@ -1053,6 +1053,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-MawofMin'loth-274608"
+ value: {
+  dps: 390.87882
+  tps: 941.10277
+  dtps: 392.30833
+  hps: 21.79056
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 399.09592
