@@ -587,6 +587,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Lifestone-833"
+ value: {
+  dps: 804.66313
+  tps: 803.99764
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 804.66313
@@ -612,6 +619,13 @@ dps_results: {
  value: {
   dps: 860.12456
   tps: 857.75548
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 806.03427
+  tps: 805.53439
  }
 }
 dps_results: {

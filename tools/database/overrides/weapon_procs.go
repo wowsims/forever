@@ -441,6 +441,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  13040,
+		SpellID: 29626,
+		PPM:     3, // TODO: Vanilla value - verify in-game
+		Reason:  "Heartseeking Crossbow: equip trigger, column reads 100",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  15814,
 		SpellID: 16406,
 		PPM:     1, // TODO: Vanilla value - verify in-game

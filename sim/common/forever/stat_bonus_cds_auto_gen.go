@@ -50,6 +50,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(11832) // Burst of Knowledge - https://www.wowhead.com/forever/spell=15646
 	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
+	// unsupported: 18400 deals no damage and heals no one (A_PERIODIC_TRIGGER_SPELL)
+	// shared.NewSimpleStatActive(13379) // Piccolo of the Flaming Fire - https://www.wowhead.com/forever/spell=18400
 	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
 	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
@@ -106,6 +108,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(275729) // Rusty Propeller Blade - https://www.wowhead.com/forever/spell=1297762
 	// unsupported: 1299440 deals no damage and heals no one (A_MOD_FEAR)
 	// shared.NewSimpleStatActive(276337) // Thaelemaches' Talisman - https://www.wowhead.com/forever/spell=1299440
+	// unsupported: 1302359 deals no damage and heals no one (A_PERIODIC_TRIGGER_SPELL)
+	// shared.NewSimpleStatActive(277559) // Shen'dralar Relic - https://www.wowhead.com/forever/spell=1302359
 	// unsupported: 1302833 deals no damage and heals no one (A_MOD_SPEED_ALWAYS, E_DUMMY, E_FORCE_CAST)
 	// shared.NewSimpleStatActive(277844) // Mirage Mirror - https://www.wowhead.com/forever/spell=1302833
 	// on use: 1309551 (A_MOD_DAMAGE_PERCENT_TAKEN, A_MOD_SPEED_ALWAYS)
@@ -220,6 +224,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAuraOnUse(272440) // Defender's Grip Stabilizer - https://www.wowhead.com/forever/spell=1291105
 	// on use: 1293820 (A_MOD_DODGE_PERCENT)
 	shared.NewSpellDataAuraOnUse(274386) // Toy Soldier - https://www.wowhead.com/forever/spell=1293820
+	// on use: 1315844 (A_MOD_DODGE_PERCENT)
+	shared.NewSpellDataAuraOnUse(280060) // Lucky Shovelnose Tuft - https://www.wowhead.com/forever/spell=1315844
 
 	// BlockValue
 	shared.NewSimpleStatActive(23040) // Glyph of Deflection - https://www.wowhead.com/forever/spell=28773
@@ -266,6 +272,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSimpleStatActive(23046) // The Restrained Essence of Sapphiron - https://www.wowhead.com/forever/spell=28779
 
 	// Heals
+	// on use: 17712 (E_HEAL); not simulated: E_NONE
+	shared.NewSpellDataHealOnUse(833) // Lifestone - https://www.wowhead.com/forever/spell=17712
 	// on use: 1317424 (E_HEAL)
 	shared.NewSpellDataHealOnUse(1713) // Ankh of Life - https://www.wowhead.com/forever/spell=1317424
 	// on use: 10577 (E_HEAL)
@@ -312,6 +320,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(23027) // Warmth of Forgiveness - https://www.wowhead.com/forever/spell=28760
 
 	// Skipped
+	// Not simulated: Lei of Lilies: "Conjure Lily Root" (18831) - ignored effect type 24
+	// https://www.wowhead.com/forever/spell=18831
 	// Not simulated: Orb of Deception: "Orb of Deception" (16739) - ignored aura type 56
 	// https://www.wowhead.com/forever/spell=16739
 	// Not simulated: Dog Whistle: "Summon Tracking Hound" (9515) - ignored effect type 28
