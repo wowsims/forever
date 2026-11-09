@@ -19,6 +19,10 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 // so a SPELLMOD_CHANCE_OF_SUCCESS that names the row reaches its roll, and the character's mods are
 // the ones counted wherever the trigger sits.
 //
+// The internal cooldown is the proc category's recovery alone. A row's RecoveryTime is a cooldown
+// on casting the aura, which an item or enchant never casts: the shield spikes state 5 s there and
+// proc on every block in game.
+//
 // ProcCharges is not a property of the trigger: it is how many times the buff acts before it drops,
 // which AuraConfig reads as the aura's MaxStacks.
 //
@@ -47,13 +51,6 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 
 	if s.IsWeaponProcAura() {
 		trigger.SpellFlagsExclude |= core.SpellFlagSuppressWeaponProcs
-	}
-
-	// A proc that deals its own damage on an A_PROC_TRIGGER_DAMAGE aura, with no spell below it, keeps
-	// its cooldown on the row's RecoveryTime rather than on a proc category: the shield spikes' 5 s
-	// between two blocks.
-	if trigger.ICD == 0 && s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE) != NilEffect {
-		trigger.ICD = s.Cooldown()
 	}
 
 	fillProcChance(s, &trigger)

@@ -1168,9 +1168,9 @@ func TestVictoryRushHealMakesThreat(t *testing.T) {
 	}
 }
 
-// The block that spends Shield Block's last charge leaves the aura up to the end of its spell batch:
-// another attack in that batch meets the raised block chance, one in a later batch does not.
-func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
+// The block that spends Shield Block's last charge leaves the aura up for the rest of that instant:
+// another attack at the same time meets the raised block chance, one a millisecond later does not.
+func TestShieldBlockLastChargeCoversItsInstant(t *testing.T) {
 	const shieldBlockID = 2565
 	sim, war, target := shieldTestSim(t)
 	shieldBlock := war.GetSpell(core.ActionID{SpellID: shieldBlockID})
@@ -1185,6 +1185,16 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 	}
 	block := func() {
 		war.OnSpellHitTaken(sim, swing, &core.SpellResult{Target: &war.Unit, Outcome: core.OutcomeBlock})
+	}
+	stepOneMillisecond := func() {
+		at := sim.CurrentTime + time.Millisecond
+		for steps := 0; sim.CurrentTime < at; steps++ {
+			if steps > 10000 {
+				t.Fatalf("the sim did not reach %v", at)
+			}
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: at, OnAction: func(*core.Simulation) {}})
+			sim.Step()
+		}
 	}
 
 	withoutShieldBlock := blockChance()
@@ -1201,20 +1211,20 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 		t.Fatal("Shield Block ended at the block that spent its last charge")
 	}
 	if got := blockChance(); got != withShieldBlock {
-		t.Errorf("a second attack in the batch meets a block chance of %v, want Shield Block's %v", got, withShieldBlock)
+		t.Errorf("a second attack at the same time meets a block chance of %v, want Shield Block's %v", got, withShieldBlock)
 	}
 	block()
 	if !aura.IsActive() || aura.GetStacks() != 1 {
-		t.Errorf("a second block in the batch left Shield Block up %v with %d charges, want up with its last one",
+		t.Errorf("a second block at the same time left Shield Block up %v with %d charges, want up with its last one",
 			aura.IsActive(), aura.GetStacks())
 	}
 
-	stepPastBatch(t, sim)
+	stepOneMillisecond()
 	if aura.IsActive() {
-		t.Error("Shield Block is still up in the batch after its last charge was spent")
+		t.Error("Shield Block is still up a millisecond after its last charge was spent")
 	}
 	if got := blockChance(); got != withoutShieldBlock {
-		t.Errorf("an attack in a later batch meets a block chance of %v, want %v without Shield Block", got, withoutShieldBlock)
+		t.Errorf("an attack a millisecond later meets a block chance of %v, want %v without Shield Block", got, withoutShieldBlock)
 	}
 
 	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
@@ -1222,9 +1232,9 @@ func TestShieldBlockLastChargeCoversItsBatch(t *testing.T) {
 		block()
 	}
 	shieldBlock.SkipCastAndApplyEffects(sim, &war.Unit)
-	stepPastBatch(t, sim)
+	stepOneMillisecond()
 	if !aura.IsActive() || aura.GetStacks() != aura.MaxStacks {
-		t.Errorf("a recast in the batch of the last charge left Shield Block up %v with %d charges, want up with %d",
+		t.Errorf("a recast at the time of the last charge left Shield Block up %v with %d charges, want up with %d",
 			aura.IsActive(), aura.GetStacks(), aura.MaxStacks)
 	}
 }
