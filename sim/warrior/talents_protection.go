@@ -186,8 +186,6 @@ func (warrior *Warrior) registerShieldSlam() {
 	}
 
 	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
-	// TODO: In-game testing needed for threat multiplier / flat threat
-	config.FlatThreatBonus = 0
 
 	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

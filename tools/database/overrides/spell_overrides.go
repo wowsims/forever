@@ -874,6 +874,17 @@ var Spells = []Override{
 		Reason:  "Slam Rank 5 under Improved Slam: Slam Rank 1's measured share per spell level",
 		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
 	},
+
+	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
+	// held 177.7 over damage from 223 to 400.
+	// TODO: Measure Shield Slam Ranks 2–4's threat in game.
+	{
+		SpellID: 23922,
+		Field:   FlatThreat,
+		Value:   178,
+		Reason:  "Shield Slam Rank 1: threat is the damage + 178, times the stance",
+		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+	},
 }
 
 // The procs-per-minute rate stated for a spell, or zero where none is. The item database reads it
