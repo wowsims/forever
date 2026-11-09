@@ -587,6 +587,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Lifestone-833"
+ value: {
+  dps: 703.84418
+  tps: 649.6514
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 703.60053
@@ -612,6 +619,13 @@ dps_results: {
  value: {
   dps: 777.57261
   tps: 718.48522
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 705.58656
+  tps: 651.25463
  }
 }
 dps_results: {

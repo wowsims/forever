@@ -2,14 +2,14 @@ siml 1
 
 head       lionheart_helm + arcanum_of_rapidity
 neck       beads_of_ogre_might + necklace_agility
-shoulder   soulforge_spaulders
+shoulder   deaths_clutch
 back       fel_cape + cloak_lesser_agility
-chest      soulforge_breastplate + chest_greater_stats
-wrist      soulforge_bracers + bracer_healing_power
-hands      soulforge_gauntlets + gloves_greater_agility
-waist      soulforge_belt
+chest      timbermaw_tunic + chest_greater_stats
+wrist      deeprock_bracers + bracer_healing_power
+hands      timbermaw_brawlers + gloves_greater_agility
+waist      might_of_the_timbermaw
 legs       titanic_leggings + arcanum_of_rapidity
-feet       soulforge_boots + boots_greater_agility
+feet       scalegut_treaders + boots_greater_agility
 finger1    band_of_earthen_might
 finger2    don_julios_band
 trinket1   everlook_pathcarver

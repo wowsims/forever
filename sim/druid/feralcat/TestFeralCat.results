@@ -750,6 +750,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Lifestone-833"
+ value: {
+  dps: 767.73294
+  tps: 568.06723
+  hps: 43.85222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 767.73294
@@ -763,6 +771,14 @@ dps_results: {
   dps: 767.73294
   tps: 568.06723
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 775.80256
+  tps: 573.78124
+  hps: 43.90306
  }
 }
 dps_results: {

@@ -735,6 +735,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Lifestone-833"
+ value: {
+  dps: 720.76366
+  tps: 679.92323
+  dtps: 8.95607
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Lightning'sGrasp-280607"
  value: {
   dps: 719.85579
@@ -756,6 +764,14 @@ dps_results: {
   dps: 720.76366
   tps: 679.92323
   dtps: 8.7231
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 720.94797
+  tps: 679.94052
+  dtps: 9.11493
  }
 }
 dps_results: {
@@ -1108,6 +1124,14 @@ dps_results: {
   dps: 662.44121
   tps: 628.71705
   dtps: 8.6576
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheFiveThunders"
+ value: {
+  dps: 722.74293
+  tps: 680.99233
+  dtps: 8.86393
  }
 }
 dps_results: {

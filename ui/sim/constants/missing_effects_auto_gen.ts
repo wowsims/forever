@@ -912,12 +912,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13040, // Heartseeking Crossbow
-		[
-			"Chance to strike your ranged target with a Shadowbolt for 16 Shadow damage.", // 29640 - https://www.wowhead.com/forever/spell=29640
-		]
-	],
-	[
 		13057, // Bloodpike
 		[
 			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
@@ -6051,6 +6045,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
 	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
 	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
+	[13040, { kind: 'ppm', origin: 'vanilla' }], // Heartseeking Crossbow
 	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
 	[13053, { kind: 'ppm', origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper

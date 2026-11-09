@@ -205,6 +205,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-DeathmistRaiment"
+ value: {
+  dps: 661.88835
+  tps: 534.99186
+  dtps: 8.32759
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 651.60061
@@ -749,6 +758,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-Lifestone-833"
+ value: {
+  dps: 651.60061
+  tps: 527.33349
+  dtps: 8.26281
+  hps: 7.19695
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-Linken'sBoomerang-11905"
  value: {
   dps: 651.73297
@@ -773,6 +791,15 @@ dps_results: {
   tps: 527.33163
   dtps: 8.13067
   hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-LuckyShovelnoseTuft-280060"
+ value: {
+  dps: 654.25208
+  tps: 529.77815
+  dtps: 8.38655
+  hps: 7.28225
  }
 }
 dps_results: {
