@@ -788,7 +788,7 @@ func bothAfter(first, second afterDealt) afterDealt {
 }
 
 // What an E_HEALTH_LEECH gives its caster for the damage the hits dealt, after armor or resistance.
-// A hit missed, dodged or parried deals nothing and heals nothing. Nil where the effect is no leech.
+// Nil where the effect is no leech.
 func leechOnLanding(character *core.Character, damage *spelldata.Spell, effect *spelldata.Effect) afterDealt {
 	if effect.Type != dbcenums.E_HEALTH_LEECH {
 		return nil
@@ -803,9 +803,8 @@ func leechOnLanding(character *core.Character, damage *spelldata.Spell, effect *
 	}
 }
 
-// The health an item's leech gives the wearer for the damage it dealt: the leech effect's Amplitude
-// share of it, an E_HEALTH_LEECH's or an A_PERIODIC_LEECH's, times the wearer's healing taken
-// multiplier.
+// Health for the damage a leech dealt, an E_HEALTH_LEECH's or an A_PERIODIC_LEECH's: its Amplitude
+// share, times the caster's healing taken multiplier.
 func GainLeechHealth(sim *core.Simulation, character *core.Character, dealt float64, leech *spelldata.Effect, healthMetrics *core.ResourceMetrics) {
 	if dealt <= 0 {
 		return

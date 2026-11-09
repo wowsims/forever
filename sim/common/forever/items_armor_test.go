@@ -294,30 +294,26 @@ func TestMawOfMinlothLeechesTheAttacker(t *testing.T) {
 	}
 	icd := spelldata.MustFind(1295064).ICD()
 
-	// Every hit starts the wearer at half health, and a hit that casts nothing shows what the hit
-	// itself costs, so a cast's heal is what the wearer ends above that.
-	start, refill := character.MaxHealth()/2, character.NewHealthMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionHealingModel})
+	// The hit takeHit deals removes health, so every hit starts at half health and a hit that casts
+	// nothing shows what it costs; a cast's heal is what the wearer ends above that.
 	struck := -1.0
 	landed, avoided := 0, 0
 	for hits := 0; hits < 5000 && (landed == 0 || avoided == 0); hits++ {
-		if health := character.CurrentHealth(); health < start {
-			character.GainHealth(sim, start-health, refill)
-		} else {
-			character.RemoveHealth(sim, health-start)
-		}
+		character.SetCurrentHealthPercent(0.5)
+		before := character.CurrentHealth()
 		metrics := bite.SpellMetrics[enemy.UnitIndex]
 		takeHit(t, sim, character, meleeSwing(enemy))
 		after := bite.SpellMetrics[enemy.UnitIndex]
 		if after.Casts == metrics.Casts {
-			struck = start - character.CurrentHealth()
+			struck = before - character.CurrentHealth()
 			continue
 		}
 		if struck < 0 {
 			continue
 		}
-		dealt, healed := after.TotalDamage-metrics.TotalDamage, character.CurrentHealth()-(start-struck)
+		dealt, healed := after.TotalDamage-metrics.TotalDamage, character.CurrentHealth()-before+struck
 		stepTo(t, sim, sim.CurrentTime+icd)
-		if after.Hits+after.Crits == metrics.Hits+metrics.Crits {
+		if after.Hits == metrics.Hits {
 			avoided++
 			if dealt != 0 || healed != 0 {
 				t.Errorf("a cast that did not land dealt %v and healed the wearer for %v, want nothing", dealt, healed)
@@ -325,10 +321,10 @@ func TestMawOfMinlothLeechesTheAttacker(t *testing.T) {
 			continue
 		}
 		landed++
-		if want := leech.Average() * armor; math.Abs(dealt-want) > 1e-6 {
+		if want := leech.Average() * armor; !statNear(dealt, want) {
 			t.Errorf("a landed cast dealt %v, want the row's %v reduced by armor to %v", dealt, leech.Average(), want)
 		}
-		if want := dealt * float64(leech.Amplitude); math.Abs(healed-want) > 1e-6 {
+		if want := dealt * float64(leech.Amplitude); !statNear(healed, want) {
 			t.Errorf("a landed cast healed the wearer for %v, want the effect's share of the %v it dealt, %v", healed, dealt, want)
 		}
 	}
