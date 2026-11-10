@@ -475,9 +475,9 @@ var Spells = []Override{
 	{
 		SpellID: 9492,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 2 in game.
-		Reason:  "Rip Rank 2: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 2: 0.0114 * attack power * min(combo points, 4) per tick, measured over 139 ticks",
+		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
 	},
 	{
 		SpellID: 9493,

@@ -15,7 +15,7 @@ func (druid *Druid) registerRakeSpell() {
 	hit := rank.DamageEffect()
 	tick := rank.PeriodicDamageEffect()
 	config.Dot = spelldata.DotConfig(rank, tick)
-	// TODO: Verify whether changing attack power after application changes subsequent ticks.
+	// Each tick reads the attack power when it ticks, not the cast's.
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		damage := (tick.AverageAt(druid.level()) + tick.APCoeff()*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
