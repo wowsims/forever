@@ -210,14 +210,19 @@ const (
 	naturalInstinctTalents = "0000000000000000-00000000000100020000-0000000000000000" // Feral talents taking Lacerate and Natural Instinct 2/2.
 )
 
-// The hit's class flags lie outside Natural Instinct's mask, so it crits at the melee base, while a
-// tick of the bleed takes the talent's crit damage.
-func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
+// Natural Instinct's mask covers the hit's class flags and the rank's, so the hit and a tick of the
+// bleed both crit for the talent's crit damage on top of the melee base.
+func TestLacerateHitCritsWithNaturalInstinct(t *testing.T) {
 	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
 	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
 		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
 	}
 	const meleeCrit = 2.0
+	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
+	if bonus <= 0 {
+		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
+	}
+	want := 1 + (meleeCrit-1)*(1+bonus)
 	// One landed cast on a fresh sim of the same seed, so a crit and a normal hit roll the same weapon damage.
 	cast := func(critPercent float64) (damage float64, crits int32) {
 		sim, bear := newBearWithTalents(t, naturalInstinctTalents)
@@ -237,15 +242,11 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	if normalCrits != 0 || crits != 1 || normal <= 0 {
 		t.Fatalf("the casts crit %d and %d times for %v and %v, want 0 and 1 and damage", normalCrits, crits, normal, crit)
 	}
-	if got := crit / normal; math.Abs(got-meleeCrit) > 1e-9 {
-		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, meleeCrit)
+	if got := crit / normal; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, want)
 	}
 
 	target := bear.CurrentTarget
-	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
-	if bonus <= 0 {
-		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
-	}
 	tick := func(critPercent float64) float64 {
 		bear.AddStatDynamic(sim, stats.PhysicalCritPercent, critPercent)
 		defer bear.AddStatDynamic(sim, stats.PhysicalCritPercent, -critPercent)
@@ -257,7 +258,7 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	bear.Lacerate.Dot(target).Apply(sim)
 	bear.Lacerate.Dot(target).SetStacks(sim, 1)
 	normalTick, critTick := tick(-200), tick(200)
-	if want := 1 + (meleeCrit-1)*(1+bonus); normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
+	if normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
 		t.Errorf("a Lacerate tick crits ×%v (%v over %v), want ×%v", critTick/normalTick, critTick, normalTick, want)
 	}
 }
@@ -461,9 +462,9 @@ func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	}
 }
 
-// Enrage takes its share of the item armor after the form's multiplier and of the 2 armor per Agility, and
-// gives it back when it ends.
-func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
+// Enrage takes its share of the item armor and bonus armor after the form's multiplier and of the 2 armor per
+// Agility, and gives it back when it ends.
+func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	for _, c := range []struct {
 		form         druid.DruidForm
 		multiplier   float64
@@ -478,20 +479,21 @@ func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 			bear.ClearForm(sim)
 			itemArmor := bear.EquipStats()[stats.Armor]
+			bonusArmor := bear.EquipStats()[stats.BonusArmor]
 			if c.form == druid.Bear {
 				bear.BearFormAura.Activate(sim)
 			} else {
 				bear.DireBearFormAura.Activate(sim)
 			}
 			agility := math.Floor(bear.GetStat(stats.Agility))
-			if itemArmor == 0 || agility == 0 {
-				t.Fatal("the bear has no item armor or Agility")
+			if itemArmor == 0 || bonusArmor == 0 || agility == 0 {
+				t.Fatal("the bear has no item armor, bonus armor or Agility")
 			}
 			before := bear.GetStat(stats.Armor)
 			if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
 				t.Fatal("Enrage did not cast")
 			}
-			want := c.armorPenalty * (c.multiplier*itemArmor + 2*agility)
+			want := c.armorPenalty * (c.multiplier*(itemArmor+bonusArmor) + 2*agility)
 			if got := before - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-6 {
 				t.Errorf("Enrage takes %g armor, want %g", got, want)
 			}
@@ -564,8 +566,8 @@ func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
 	}
 }
 
-// Maul procs Omen of Clarity at half the rate of the other specials.
-func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
+// Maul procs Omen of Clarity at the rate of the other specials, the 2 per minute at the 2.5 s paw.
+func TestMaulProcsOmenOfClarityAtTheSpecialRate(t *testing.T) {
 	const hits = 1000
 	procRate := func(spellOf func(bear *GuardianDruid) *core.Spell) float64 {
 		sim, bear := newBear(t)
@@ -588,8 +590,8 @@ func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
 		return bear.GetSpell(bear.Maul.ActionID.WithTag(1))
 	})
 	claw := procRate(func(bear *GuardianDruid) *core.Spell { return bear.Claw.Spell })
-	if claw < 0.05 || claw > 0.12 || maul < 0.35*claw || maul > 0.65*claw {
-		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want about half the special rate on Maul", maul, claw)
+	if claw == 0 || maul/claw < 0.8 || maul/claw > 1.25 {
+		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want the same rate", maul, claw)
 	}
 }
 

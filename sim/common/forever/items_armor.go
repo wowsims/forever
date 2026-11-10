@@ -220,6 +220,40 @@ func init() {
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(12628, character.MakeProcTriggerAura(trigger))
 	})
+
+	// Stoneform Shoulders
+	// https://www.wowhead.com/forever/item=13955/stoneform-shoulders
+	//
+	// After entering combat, reduce the next instance of Physical damage taken within 20s by 60.
+	//
+	// 1298230 applies 1298231 on entering combat, which is the encounter start in the sim. 1298231
+	// states the 60 as flat Physical damage taken and no charges: the first Physical hit taken that
+	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off and removes it.
+	core.NewItemEffect(13955, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1298231)
+		buff := character.RegisterAura(spelldata.AuraConfig(row))
+		spelldata.ParseEffects(character, buff, row)
+
+		spend := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Deactivate(sim)
+		})
+		spend.Name = "Stoneform Shoulders - Spend"
+		spend.TriggerImmediately = true
+		spend.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
+		}
+		buff.AttachProcTriggerCallback(&character.Unit, spend)
+
+		equip := core.MakePermanent(character.RegisterAura(core.Aura{
+			Label:    "Stoneform Shoulders - Enter Combat",
+			ActionID: core.ActionID{ItemID: 13955},
+			OnEncounterStart: func(_ *core.Aura, sim *core.Simulation) {
+				buff.Activate(sim)
+			},
+		}))
+		character.ItemSwap.RegisterProc(13955, equip)
+	})
 }
 
 // TODO: The game files state no rate for Depleted Eye of Influence's 1297085, and none is measured on

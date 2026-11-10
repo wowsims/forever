@@ -475,9 +475,9 @@ var Spells = []Override{
 	{
 		SpellID: 9492,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 2 in game.
-		Reason:  "Rip Rank 2: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 2: 0.0114 * attack power * min(combo points, 4) per tick, measured over 139 ticks",
+		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
 	},
 	{
 		SpellID: 9493,
@@ -620,18 +620,46 @@ var Spells = []Override{
 		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
 	},
 	{
+		SpellID: 1328618,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 1: attack power share per combo point, measured over 157 landed bites, all of which fit 0.03683 to 0.03707 (0.0375 fits 152); the game files state none",
+		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
+	},
+	{
+		SpellID: 22568,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 2: attack power share per combo point, 0.0367 to 0.0376 over 24 bites of Ranks 2 and 3; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 22827,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 3: attack power share per combo point, 0.0367 to 0.0376 over 24 bites of Ranks 2 and 3; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 22828,
+		Field:   APCoefDirect,
+		Value:   0.037, // TODO: Measure Ferocious Bite Rank 4 in game.
+		Reason:  "Ferocious Bite Rank 4: Ranks 1 to 3's measured share per combo point; the game files state none",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
+	},
+	{
 		SpellID: 22829,
 		Field:   APCoefDirect,
-		Value:   0.0375,
-		Reason:  "Placeholder: Ferocious Bite attack power per combo point, raised 25% for the November 2 development notes (about 25%); the game files state none",
-		Source:  "classic-carryover; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.037, // TODO: Measure Ferocious Bite Rank 5 in game.
+		Reason:  "Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
 	},
 	{
 		SpellID: 31018,
 		Field:   APCoefDirect,
-		Value:   0.0375,
-		Reason:  "Placeholder: Ferocious Bite attack power per combo point, as rank 5, raised 25% for the November 2 development notes (about 25%); the game files state none",
-		Source:  "classic-carryover; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.037, // TODO: Measure Ferocious Bite Rank 6 in game.
+		Reason:  "Ferocious Bite Rank 6: Ranks 1 to 3's measured share per combo point; the game files state none",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
@@ -660,9 +688,9 @@ var Spells = []Override{
 	{
 		SpellID: 11600,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 4 in game.
-		Reason:  "Revenge Rank 4: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 4: 0.25 of attack power outside Defensive Stance, measured 0.2518 [0.2455, 0.2581] over 601 hits",
+		Source:  "Combat log, Tandoor-One levels 43–45, game build 1.60.1.70862, 2026-11-09",
 	},
 	{
 		SpellID: 11601,
@@ -699,9 +727,9 @@ var Spells = []Override{
 	{
 		SpellID: 8380,
 		Field:   APCoefThreat,
-		Value:   0.05, // TODO: Measure Sunder Armor Rank 3 in game.
-		Reason:  "Sunder Armor Rank 3: Rank 1's measured share",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Value:   0.05,
+		Reason:  "Sunder Armor Rank 3: measured 117 + 0.05 * sheet attack power over 125 windows",
+		Source:  "Combat log, Tandoor-One levels 43–45, game build 1.60.1.70862, 2026-11-09",
 	},
 	{
 		SpellID: 11596,
@@ -756,9 +784,9 @@ var Spells = []Override{
 	{
 		SpellID: 11564,
 		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 5 in game.
-		Reason:  "Heroic Strike Rank 5: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Value:   2.5,
+		Reason:  "Heroic Strike Rank 5: Rank 4's share per spell level, measured +80.5 [79.6, 81.5] over 6 hits",
+		Source:  "Combat log, Tandoor-One levels 43–45, game build 1.60.1.70862, 2026-11-09",
 	},
 	{
 		SpellID: 11565,

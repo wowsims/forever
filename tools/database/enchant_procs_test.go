@@ -255,6 +255,8 @@ func TestTooltipRateWording(t *testing.T) {
 		"Permanently enchant a Weapon to cause all spells and attacks to sometimes deal 76 additional damage": true,
 		"Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell": true,
 		"healing you for 5% of your maximum health. Cannot occur more often than once every 10 sec.":          false,
+		"Has a chance when struck in combat to increase your chance to block by 18% for 10s.":                 true,
+		"Increases your chance to block by 18%.":                                                              false,
 	} {
 		if got := tooltipStatesAnUnknownRate(tooltip); got != want {
 			t.Errorf("%q: %v, want %v", tooltip, got, want)
