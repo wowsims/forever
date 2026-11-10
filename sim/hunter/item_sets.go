@@ -1,6 +1,8 @@
 package hunter
 
 import (
+	"slices"
+
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -51,7 +53,8 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 // to cast on, and the 3 s recast keeps the 4 s aura from ever falling off, so both carry it exactly
 // while the pet is out. The pet's amount sits on its own aura, so inheritance never copies it; the
 // hunter's amount reaches the pet inside the 10% of the hunter's attack power it inherits.
-// ParseEffects reads no pet area aura, so the stats attach by hand.
+// ParseEffects reads no pet area aura, so the stats attach by hand. The pet is the wearer's one pet
+// that is no guardian.
 func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
 	character := agent.GetCharacter()
 	bonus := stats.Stats{
@@ -59,40 +62,41 @@ func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
 		stats.RangedAttackPower: cryptstalkerStalkersAlly.Effect(dbcenums.A_MOD_RANGED_ATTACK_POWER, 0).Average(),
 	}
 
-	for _, pet := range character.Pets {
-		if pet.IsGuardian() {
-			continue
-		}
-		register := func(unit *core.Unit) *core.Aura {
-			config := spelldata.AuraConfig(cryptstalkerStalkersAlly)
-			config.Duration = core.NeverExpires
-			return unit.RegisterAura(config).AttachStatsBuff(bonus)
-		}
-		ownerAura, petAura := register(&character.Unit), register(&pet.Unit)
-		activate := func(sim *core.Simulation) {
-			ownerAura.Activate(sim)
-			petAura.Activate(sim)
-		}
-		deactivate := func(sim *core.Simulation) {
-			ownerAura.Deactivate(sim)
-			petAura.Deactivate(sim)
-		}
-
-		setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-			if pet.IsEnabled() {
-				activate(sim)
-			}
-		})
-		setBonusAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-			deactivate(sim)
-		})
-		pet.RegisterEnableEffect(func(sim *core.Simulation) {
-			if setBonusAura.IsActive() {
-				activate(sim)
-			}
-		})
-		pet.RegisterDisableEffect(deactivate)
+	petIndex := slices.IndexFunc(character.Pets, func(pet *core.Pet) bool { return !pet.IsGuardian() })
+	if petIndex < 0 {
+		return
 	}
+	pet := character.Pets[petIndex]
+
+	register := func(unit *core.Unit) *core.Aura {
+		config := spelldata.AuraConfig(cryptstalkerStalkersAlly)
+		config.Duration = core.NeverExpires
+		return unit.RegisterAura(config).AttachStatsBuff(bonus)
+	}
+	ownerAura, petAura := register(&character.Unit), register(&pet.Unit)
+	activate := func(sim *core.Simulation) {
+		ownerAura.Activate(sim)
+		petAura.Activate(sim)
+	}
+	deactivate := func(sim *core.Simulation) {
+		ownerAura.Deactivate(sim)
+		petAura.Deactivate(sim)
+	}
+
+	setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+		if pet.IsEnabled() {
+			activate(sim)
+		}
+	})
+	setBonusAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+		deactivate(sim)
+	})
+	pet.RegisterEnableEffect(func(sim *core.Simulation) {
+		if setBonusAura.IsActive() {
+			activate(sim)
+		}
+	})
+	pet.RegisterDisableEffect(deactivate)
 }
 
 var pvpGloveItemIDs = []int32{23279, 22862, 16463, 16571}

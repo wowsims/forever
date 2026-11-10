@@ -1268,7 +1268,7 @@ func (aa *AutoAttacks) PPMProc(sim *Simulation, ppm float64, procMask ProcMask, 
 }
 
 // The swing speed a procs-per-minute rate is measured against for an off-hand hit. A hit with no
-// off-hand weapon behind it, such as a shield's, is measured against the main hand.
+// off-hand weapon behind it is measured against the main hand.
 func (aa *AutoAttacks) offHandProcSpeed() float64 {
 	if aa.oh.SwingSpeed == 0 {
 		return aa.mh.SwingSpeed

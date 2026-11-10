@@ -278,7 +278,7 @@ func (warlock *Warlock) soulSiphonChannelConfig(rankedSpell *spelldata.Spell, ti
 
 	// Calculate expected damage, scaled by Soul Siphon multiplier.
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		result := spell.CalcPeriodicDamage(sim, target, tick.Average(), expectedTickOutcome(rankedSpell, spell))
+		result := spell.CalcPeriodicDamage(sim, target, tick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 		result.Damage *= warlock.soulSiphonMultiplier(target, soulSiphonMult)
 		return result
 	}

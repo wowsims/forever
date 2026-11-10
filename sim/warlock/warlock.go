@@ -7,7 +7,6 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -283,15 +282,6 @@ const (
 func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResult, multiplier float64) {
 	result.Damage *= multiplier
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, spell.Unit.AttackTables[result.Target.UnitIndex])
-}
-
-// What one tick is expected to deal: the crit share counts where the row marks Periodic Can Crit,
-// as the tick itself rolls it.
-func expectedTickOutcome(rank *spelldata.Spell, spell *core.Spell) core.OutcomeApplier {
-	if rank.PeriodicCanCrit() {
-		return spell.OutcomeExpectedMagicCrit
-	}
-	return spell.OutcomeExpectedMagicAlwaysHit
 }
 
 // Combines the class flags of several spells into one set, for filters the data doesn't name the spells for.

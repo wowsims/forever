@@ -654,6 +654,14 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 	}
 }
 
+// Takes miss, dodge, parry and block off the spell's casts on the target.
+func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit, spell *core.Spell) {
+	war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+	hand := war.AttackTables[target.UnitIndex].Hand(spell)
+	hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+}
+
 // A shield's hit is a main-hand special: a landed Shield Slam or Shield Bash rolls the main-hand
 // weapon's enchant. It never brings a Windfury Totem attack, since the shield rows carry neither bit
 // the totem reads; the same casts with the main-hand bit added do bring one.
@@ -663,10 +671,7 @@ func TestShieldHitsProcTheMainHandEnchantButNeverWindfuryTotem(t *testing.T) {
 			sim, war, target := shieldTestSim(t)
 			spell := shieldSpells(t, war)[name]
 			war.AutoAttacks.CancelAutoSwing(sim)
-			war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-			target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
-			hand := war.AttackTables[target.UnitIndex].Hand(spell)
-			hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+			landEveryCast(sim, war, target, spell)
 
 			holyStrength := war.GetAura("Holy Strength (MH)")
 			windfury := war.GetAura("Windfury Totem (External)")
@@ -1265,11 +1270,8 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 		sim, war, target := shieldTestSim(t)
 		shieldSlam := shieldSpells(t, war)["Shield Slam"]
 		war.AddStatDynamic(sim, stats.BlockValue, extraBlockValue)
-		war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 		war.AddStatDynamic(sim, stats.PhysicalCritPercent, -200)
-		target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
-		hand := war.AttackTables[target.UnitIndex].Hand(shieldSlam)
-		hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+		landEveryCast(sim, war, target, shieldSlam)
 
 		shieldSlam.SkipCastAndApplyEffects(sim, target)
 		if hits := shieldSlam.SpellMetrics[target.UnitIndex].Hits; hits != 1 {
@@ -1316,9 +1318,6 @@ func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
 			war.PseudoStats.InFrontOfTarget = true
 			target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
 			*war.AttackTables[target.UnitIndex].Hand(execute) = c.hand
-			if c.hand.BaseMissChance == 0 {
-				war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-			}
 
 			war.AddRage(sim, 30, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
 			before := war.CurrentRage()
@@ -1392,15 +1391,15 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 				}
 				landedCasts++
 
-				wantSpent, wantStrikes := int32(0), int32(0)
+				var want int32
 				if c.spends {
-					wantSpent, wantStrikes = 1, 1
+					want = 1
 				}
-				if spent := sweepingStrikes.MaxStacks - sweepingStrikes.GetStacks(); spent != wantSpent {
-					t.Fatalf("a landed %s spent %d charges, want %d", c.name, spent, wantSpent)
+				if spent := sweepingStrikes.MaxStacks - sweepingStrikes.GetStacks(); spent != want {
+					t.Fatalf("a landed %s spent %d charges, want %d", c.name, spent, want)
 				}
-				if got := strikes() - strikesBefore; got != wantStrikes {
-					t.Fatalf("a landed %s brought %d strikes, want %d", c.name, got, wantStrikes)
+				if got := strikes() - strikesBefore; got != want {
+					t.Fatalf("a landed %s brought %d strikes, want %d", c.name, got, want)
 				}
 			}
 			if landedCasts == 0 {

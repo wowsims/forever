@@ -193,7 +193,7 @@ func (warrior *Warrior) cancelQueuedAttack(sim *core.Simulation) {
 	}
 }
 
-// Whirlwind's one strike a cast. Thunder Clap, a magic hit, spends no charge.
+// Whirlwind's one strike a cast, against two targets or more.
 func (warrior *Warrior) CastNormalizedSweepingStrikesAttack(results core.SpellResultSlice, sim *core.Simulation) {
 	if warrior.SweepingStrikesAura != nil && warrior.SweepingStrikesAura.IsActive() && warrior.Env.ActiveTargetCount() >= 2 {
 		for _, result := range results {

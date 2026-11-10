@@ -143,7 +143,6 @@ func (shaman *Shaman) holdTotemCategoryOnMainHand(category string, imbue proto.S
 // hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
 // dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
 // whose row hears swings alone, procs off the swing that brought the strikes and off none of them.
-// The row is Not a Proc, so a listener that skips procs hears it too.
 func (shaman *Shaman) newWindfuryImbueSpell() *core.Spell {
 	// Elemental Weapons raises effect 1, which the parse would read as damage.
 	attackPower := windfuryWeaponAttack.EffectN(1).Average() * shaman.windfuryWeaponMultiplier

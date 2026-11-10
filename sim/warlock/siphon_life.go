@@ -37,7 +37,7 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 
 	// Calculate expected damage from the row's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), expectedTickOutcome(rankedSpell, spell))
+		return spell.CalcPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}
 
 	warlock.SiphonLife = warlock.RegisterSpell(config)
