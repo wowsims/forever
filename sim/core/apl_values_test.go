@@ -1113,6 +1113,11 @@ func TestValueSpellChannelingAndFlight(t *testing.T) {
 	if ticks.GetInt(sim) != dot.TickCount() {
 		t.Errorf("Channeled Ticks = %d, want %d", ticks.GetInt(sim), dot.TickCount())
 	}
+	fw.ChanneledDot = &Dot{Spell: rend, ticksDone: 2}
+	otherTicks := rot.newValueSpellChanneledTicks(&proto.APLValueSpellChanneledTicks{SpellId: fakeGCDSpellActionID.ToProto()}, nil)
+	if ticks.GetInt(sim) != 2 || otherTicks.GetInt(sim) != 0 {
+		t.Errorf("two ticks into Rend: Channeled Ticks(Rend) = %d, of another spell = %d, want 2, 0", ticks.GetInt(sim), otherTicks.GetInt(sim))
+	}
 	fw.ChanneledDot = &Dot{Spell: other}
 	if isChanneling.GetBool(sim) {
 		t.Errorf("Is Channeling(Rend) while channeling another spell: got true, want false")
