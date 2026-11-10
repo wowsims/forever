@@ -46,6 +46,9 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
 	// unsupported: 1300763 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(11702) // Grizzle's Skinner - https://www.wowhead.com/forever/spell=1300763
+	// on use: 17447 (A_PERIODIC_DAMAGE); not simulated: A_PERIODIC_ENERGIZE
+	// unsupported: the damage lands on implicit target 1, not an enemy
+	// shared.NewSpellDataDamageOnUse(11808) // Circle of Flame - https://www.wowhead.com/forever/spell=17447
 	// unsupported: 15646 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL)
 	// shared.NewSimpleStatActive(11832) // Burst of Knowledge - https://www.wowhead.com/forever/spell=15646
 	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
@@ -115,6 +118,8 @@ func RegisterAllOnUseCds() {
 	// on use: 1309551 (A_MOD_DAMAGE_PERCENT_TAKEN, A_MOD_SPEED_ALWAYS)
 	// unsupported: effect 2 A_MOD_SPEED_ALWAYS misc 0 is not parsed on the wearer
 	// shared.NewSpellDataAuraOnUse(280074) // Scalding Flamehoof - https://www.wowhead.com/forever/spell=1309551
+	// unsupported: 1315557 deals no damage and heals no one (A_MOD_STUN, A_ANIM_REPLACEMENT_SET)
+	// shared.NewSimpleStatActive(284231) // Sayaad Charm - https://www.wowhead.com/forever/spell=1315557
 	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 	// unsupported: 13534 deals no damage and heals no one (A_MOD_DISARM)
@@ -340,6 +345,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12766
 	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=6251
+	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18307) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=18307
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
