@@ -1276,3 +1276,121 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 		t.Errorf("%v more block value added %v damage, want %v for twice the block value", added, got, want)
 	}
 }
+
+// An Execute that misses, is dodged or is parried spends none of the rage above its cost and refunds
+// nothing; a landed one spends all of it. The casts skip the cost, so only the extra rage moves.
+func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
+	const executeID = 20662 // The top rank.
+	for _, c := range []struct {
+		name    string
+		hand    core.AttackTableHand
+		outcome func(core.SpellMetrics) int32
+		lands   bool
+	}{
+		{"a miss", core.AttackTableHand{BaseMissChance: 2}, func(m core.SpellMetrics) int32 { return m.Misses }, false},
+		{"a dodge", core.AttackTableHand{BaseDodgeChance: 1}, func(m core.SpellMetrics) int32 { return m.Dodges }, false},
+		{"a parry", core.AttackTableHand{BaseParryChance: 1}, func(m core.SpellMetrics) int32 { return m.Parries }, false},
+		{"a landed hit", core.AttackTableHand{}, func(m core.SpellMetrics) int32 { return m.Hits + m.Crits }, true},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, target := newWindowSim(t)
+			execute := war.GetSpell(core.ActionID{SpellID: executeID})
+			if execute == nil {
+				t.Fatal("the warrior has no Execute")
+			}
+			war.PseudoStats.InFrontOfTarget = true
+			target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+			*war.AttackTables[target.UnitIndex].Hand(execute) = c.hand
+			if c.hand.BaseMissChance == 0 {
+				war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			}
+
+			war.AddRage(sim, 30, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+			before := war.CurrentRage()
+			if before == 0 || before > war.MaximumRage()-execute.Cost.GetCurrentCost() {
+				t.Fatalf("the warrior holds %v rage, want some within what Execute can spend", before)
+			}
+
+			execute.SkipCastAndApplyEffects(sim, target)
+			if got := c.outcome(execute.SpellMetrics[target.UnitIndex]); got != 1 {
+				t.Fatalf("Execute counted %d of %s, want 1", got, c.name)
+			}
+			want := before
+			if c.lands {
+				want = 0
+			}
+			if got := war.CurrentRage(); got != want {
+				t.Errorf("%s left %v of %v rage, want %v", c.name, got, before, want)
+			}
+		})
+	}
+}
+
+// Sweeping Strikes gives a landed Whirlwind one strike for one charge, against two targets or more.
+// Thunder Clap spends no charge and brings no strike, and Whirlwind against a single target spends none.
+func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.T) {
+	const thunderClapID = 11581 // The top rank.
+	whirlwindID := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	for _, c := range []struct {
+		name    string
+		spell   core.ActionID
+		targets int
+		spends  bool
+	}{
+		{"Thunder Clap on three targets", core.ActionID{SpellID: thunderClapID}, 3, false},
+		{"Whirlwind on three targets", whirlwindID, 3, true},
+		{"Whirlwind on one target", whirlwindID, 1, false},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, _ := swordSpecSim(t, c.targets, &proto.RaidBuffs{})
+			spell := war.GetSpell(c.spell)
+			sweepingStrikes := war.SweepingStrikesAura
+			if spell == nil || sweepingStrikes == nil {
+				t.Fatal("the warrior has no Sweeping Strikes or no spell to cast")
+			}
+			// No Sword Specialization swing follows the casts, so the charges and strikes counted are
+			// the casts' own.
+			war.GetAura("Weaponmaster (Sword)").Deactivate(sim)
+
+			sum := func(spell *core.Spell, count func(core.SpellMetrics) int32) int32 {
+				var total int32
+				for _, metrics := range spell.SpellMetrics {
+					total += count(metrics)
+				}
+				return total
+			}
+			landed := func() int32 { return sum(spell, func(m core.SpellMetrics) int32 { return m.Hits + m.Crits }) }
+			strikes := func() int32 {
+				return sum(war.SweepingStrikesNormalizedAttack, func(m core.SpellMetrics) int32 { return m.Casts })
+			}
+
+			var landedCasts int
+			for i := 0; i < 100 && landedCasts < 10; i++ {
+				sweepingStrikes.Activate(sim)
+				sweepingStrikes.SetStacks(sim, sweepingStrikes.MaxStacks)
+				landedBefore, strikesBefore := landed(), strikes()
+
+				spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+				stepPastBatch(t, sim)
+				if landed() == landedBefore {
+					continue
+				}
+				landedCasts++
+
+				wantSpent, wantStrikes := int32(0), int32(0)
+				if c.spends {
+					wantSpent, wantStrikes = 1, 1
+				}
+				if spent := sweepingStrikes.MaxStacks - sweepingStrikes.GetStacks(); spent != wantSpent {
+					t.Fatalf("a landed %s spent %d charges, want %d", c.name, spent, wantSpent)
+				}
+				if got := strikes() - strikesBefore; got != wantStrikes {
+					t.Fatalf("a landed %s brought %d strikes, want %d", c.name, got, wantStrikes)
+				}
+			}
+			if landedCasts == 0 {
+				t.Fatal("100 casts never landed, so the checks above prove nothing")
+			}
+		})
+	}
+}

@@ -52,7 +52,6 @@ func (warrior *Warrior) registerThunderClap() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := thunderClapBaseDamage + thunderClapAPCoeff*spell.MeleeAttackPower(target)
 		results := spell.CalcCleaveDamage(sim, target, int32(thunderClapRank.MaxTargets), baseDamage, spell.OutcomeMagicHitAndCrit)
-		warrior.CastNormalizedSweepingStrikesAttack(results, sim)
 
 		for _, result := range results {
 			if result.Landed() {
