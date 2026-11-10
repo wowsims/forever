@@ -202,7 +202,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		t.Fatalf("Shadow Bolt travels %v, too short to tell its cast from its impact", warlock.ShadowBolt.TravelTime())
 	}
 	granted, missed := 0, 0
-	for i := 0; i < 400; i++ {
+	for i := range 400 {
 		spell := warlock.SearingPain
 		if i%2 == 1 {
 			spell = warlock.ShadowBolt
@@ -232,7 +232,7 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 
 	sim, warlock, target = newSim(1e12)
 	decimation = warlock.GetAuraByID(core.ActionID{SpellID: 440873})
-	for i := 0; i < 100; i++ {
+	for i := range 100 {
 		spell := warlock.SearingPain
 		if i%2 == 1 {
 			spell = warlock.ShadowBolt

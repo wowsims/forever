@@ -30,7 +30,7 @@ import { StatSweepChart } from '../StatSweepChart';
 import { StatSweepHistory } from '../StatSweepHistory';
 import { StatSweepPanel } from '../StatSweepPanel';
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
 
 const CSV_FILE_NAME = 'wowsims-stat-sweep.csv';
 

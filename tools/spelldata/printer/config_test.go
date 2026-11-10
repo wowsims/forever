@@ -113,7 +113,7 @@ func TestHoverSpellConfig(t *testing.T) {
 	}
 
 	flags := ""
-	for _, line := range strings.Split(markdown, "\n") {
+	for line := range strings.SplitSeq(markdown, "\n") {
 		if strings.HasPrefix(line, "| **Flags** |") {
 			flags = line
 		}

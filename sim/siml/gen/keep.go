@@ -35,7 +35,7 @@ func AppendRecord(record []byte, repins []Repin) []byte {
 		out = []byte(recordHeader)
 	}
 	have := map[string]bool{}
-	for _, line := range strings.Split(string(out), "\n") {
+	for line := range strings.SplitSeq(string(out), "\n") {
 		have[strings.TrimSpace(line)] = true
 	}
 	for _, r := range repins {
@@ -53,11 +53,11 @@ func AppendRecord(record []byte, repins []Repin) []byte {
 // The names of the lines record holds that base, an earlier record, does not hold.
 func RecordedNames(record, base []byte) map[string]bool {
 	old := map[string]bool{}
-	for _, line := range strings.Split(string(base), "\n") {
+	for line := range strings.SplitSeq(string(base), "\n") {
 		old[strings.TrimSpace(line)] = true
 	}
 	names := map[string]bool{}
-	for _, line := range strings.Split(string(record), "\n") {
+	for line := range strings.SplitSeq(string(record), "\n") {
 		line = strings.TrimSpace(line)
 		if line == "" || strings.HasPrefix(line, "#") || old[line] {
 			continue
