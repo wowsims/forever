@@ -73,9 +73,10 @@ An `x.siml` has these sections: `settings:` `consumables:` `buffs:` `party_buffs
 `encounter:` `sim:` `gear:` `item_swap:` `apl:` `simple:` `cooldowns:` `prepull:` `priority:` `group "<name>":`.
 
 Entries are `field value` lines or comma lists of flags (`raid_buffs:` `prayer_of_spirit, windfury_totem`);
-`sim: iterations 25000` fits one line. Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head`
-`neck` `shoulder` `back` `chest` `wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2`
-`main_hand` `off_hand` `ranged`.
+`sim: iterations 25000` fits one line. A field named `<x>_ms` is written `<x>` with a duration, and its
+`<x>_max_ms` as a second duration on that line: `reaction_time 150ms 350ms` (the full names with plain numbers read
+too). Gear rows are `<slot> <item> [<suffix>] [+ <enchant>]`, the slots `head` `neck` `shoulder` `back` `chest`
+`wrist` `hands` `waist` `legs` `feet` `finger1` `finger2` `trinket1` `trinket2` `main_hand` `off_hand` `ranged`.
 
 ## Rotations
 

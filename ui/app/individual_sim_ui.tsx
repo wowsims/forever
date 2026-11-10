@@ -255,7 +255,8 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 	applyDefaultConfigOptions(config: IndividualSimUIConfig<SpecType>): IndividualSimUIConfig<SpecType> {
 		config.otherInputs.inputs = [
 			...(this.player.getPlayerSpec().isTankSpec ? [OtherInputs.RetributionAuraSpellPower, OtherInputs.ThornsSpellPower] : []),
-			...config.otherInputs.inputs,
+			// Every page with an Input Delay also takes its slowest one, which makes the reaction a range.
+			...config.otherInputs.inputs.flatMap(input => (input === OtherInputs.InputDelay ? [input, OtherInputs.InputDelayMax] : [input])),
 		];
 
 		return config;
@@ -288,7 +289,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		return individualSimSettingsToProto(this.serializationContext(), exportCategories);
 	}
 
-	toLink(): string {
+	toLink(): Promise<string> {
 		return createLink(this);
 	}
 

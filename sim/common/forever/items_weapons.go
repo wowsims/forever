@@ -1,12 +1,10 @@
 package forever
 
 import (
-	"fmt"
 	"slices"
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -25,49 +23,6 @@ func init() {
 		character.ItemSwap.RegisterProc(273817, aura)
 	})
 
-	// Sulfuras, Hand of Ragnaros
-	// https://www.wowhead.com/forever/item=17182/sulfuras-hand-of-ragnaros
-	//
-	// Equip: Deals 5 Fire damage to anyone who strikes you with a melee attack.
-	// Chance on hit: Hurls a fiery ball that causes 303 Fire damage and an additional 75 damage over
-	// 10s.
-	//
-	// The game files state no rate for the Fireball; the item's chance-on-hit entry carries it.
-	core.NewItemEffect(17182, func(agent core.Agent) {
-		character := agent.GetCharacter()
-
-		immolation := spelldata.MustFind(21142)
-		shieldAura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(immolation, spelldata.Label("Sulfuras, Hand of Ragnaros Immolation"))))
-		for _, shield := range spelldata.ItemAuraDamageShields(immolation) {
-			buffs.AttachDamageShield(shieldAura, immolation.SpellSchool(), shield.Average(), shield.Coeff())
-		}
-		character.ItemSwap.RegisterProc(17182, shieldAura)
-
-		row := spelldata.MustFind(21162)
-		damage := row.DamageEffect()
-		config := procSpellConfig(character, row)
-		config.Dot = spelldata.DotConfig(row, row.PeriodicDamageEffect())
-		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			result := spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
-			if result.Landed() {
-				spell.Dot(target).Apply(sim)
-			}
-		}
-		fireball := character.RegisterSpell(config)
-
-		ppm := weaponProcPPM(17182, row.ID)
-		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-			fireball.Cast(sim, result.Target)
-		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
-			trigger.ProcChance = 0
-			trigger.DPM = character.NewDynamicLegacyProcForWeapon(17182, ppm, 0)
-		})
-		trigger.Name = "Sulfuras, Hand of Ragnaros"
-		trigger.ActionID = core.ActionID{ItemID: 17182}
-		trigger.TriggerImmediately = true
-		character.ItemSwap.RegisterProc(17182, character.MakeProcTriggerAura(trigger))
-	})
-
 	// Ravager
 	// https://www.wowhead.com/forever/item=7717/ravager
 	//
@@ -78,9 +33,7 @@ func init() {
 	// is a channel: it cuts off a cast in progress, and for its 9 s the wearer swings no auto attack
 	// and casts nothing. Each tick casts 9633, a main-hand strike at every enemy, which rolls the other
 	// weapon procs but not Bladestorm.
-	core.NewItemEffect(7717, func(agent core.Agent) {
-		character := agent.GetCharacter()
-
+	newEntryRateItemEffect(7717, 9632, func(character *core.Character, ppm float64) {
 		strikeRow := spelldata.MustFind(9633)
 		strikeConfig := spelldata.SpellConfig(&character.Unit, strikeRow, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 		if strikeRow.IsAProc() {
@@ -109,7 +62,6 @@ func init() {
 		}
 		bladestorm := character.RegisterSpell(config)
 
-		ppm := weaponProcPPM(7717, row.ID)
 		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			bladestorm.Cast(sim, result.Target)
 		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
@@ -130,11 +82,11 @@ func init() {
 	//
 	// Chance on hit: Next spell cast within 4 sec will cast instantly.
 	//
-	// The game files state no rate for Focus; the item's chance-on-hit entry carries it. The row makes
-	// the cast instant with +100000% cast speed, which the sim states as no cast time at all, so the
-	// global cooldown stays whole. The next spell with a cast time spends the one charge.
-	core.NewItemEffect(2243, func(agent core.Agent) {
-		character := agent.GetCharacter()
+	// The game files state no rate for Focus; the proc runs at the one the item's chance-on-hit entry
+	// states, and registers nothing while it states none. The row makes the cast instant with +100000%
+	// cast speed, which the sim states as no cast time at all, so the global cooldown stays whole. The
+	// next spell with a cast time spends the one charge.
+	newEntryRateItemEffect(2243, 18803, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(18803)
 
 		instant := character.AddDynamicMod(core.SpellModConfig{
@@ -155,7 +107,6 @@ func init() {
 		}
 		focus := character.RegisterAura(config)
 
-		ppm := weaponProcPPM(2243, row.ID)
 		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			focus.Activate(sim)
 		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
@@ -221,8 +172,7 @@ func init() {
 	//
 	// The game files state no rate for 29626; the item's entry carries it, measured on the
 	// crossbow's speed.
-	core.NewItemEffect(13040, func(agent core.Agent) {
-		character := agent.GetCharacter()
+	newEntryRateItemEffect(13040, 29640, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(29640)
 		damage := row.DamageEffect()
 
@@ -232,7 +182,6 @@ func init() {
 		}
 		shadowbolt := character.RegisterSpell(config)
 
-		ppm := weaponProcPPM(13040, row.ID)
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(29626), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			shadowbolt.Cast(sim, result.Target)
 		}, spelldata.PPM(ppm))
@@ -443,14 +392,30 @@ func init() {
 	// })
 }
 
-// The procs per minute the item's chance-on-hit entry for the spell carries.
+// The spell each hand-written proc reads its item's procs per minute for, by item id. The generator
+// lists an item whose entry states no rate for that spell as missing its effect.
+var EntryRateProcs = map[int32]int32{}
+
+// Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
+// states for spellID, since the game files state no rate for it. While the entry states none, the
+// effect registers nothing and the item keeps only its stats; no rate is made up for the proc.
+func newEntryRateItemEffect(itemID int32, spellID int32, apply func(character *core.Character, ppm float64)) {
+	EntryRateProcs[itemID] = spellID
+	core.NewItemEffect(itemID, func(agent core.Agent) {
+		if ppm := weaponProcPPM(itemID, spellID); ppm > 0 {
+			apply(agent.GetCharacter(), ppm)
+		}
+	})
+}
+
+// The procs per minute the item's chance-on-hit entry for the spell carries, or 0 where it states none.
 func weaponProcPPM(itemID int32, spellID int32) float64 {
 	for _, effect := range core.GetItemByID(itemID).ItemEffects {
 		if effect.BuffId == spellID && effect.GetProc().GetPpm() > 0 {
 			return effect.GetProc().GetPpm()
 		}
 	}
-	panic(fmt.Sprintf("item %d states no procs per minute for spell %d", itemID, spellID))
+	return 0
 }
 
 // The multiplier an effect deals against the creature families it names, and 1 against any other

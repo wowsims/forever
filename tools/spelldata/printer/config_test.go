@@ -92,7 +92,7 @@ func TestHoverSpellConfig(t *testing.T) {
 		"| **Rank** | `5` | SpellData · 20662 Execute (Rank 5) |",
 		"| **SpellSchool** | `SpellSchoolPhysical` | SpellData · 20662 Execute (Rank 5) |",
 		"| **DefenseType** | `DefenseTypeMelee` | SpellData · 20662 Execute (Rank 5) |",
-		"| **Flags** | `SpellFlagMeleeMetrics \\| SpellFlagNoOnCastComplete \\| SpellFlagAPL` | Melee(ProcMaskMeleeMHSpecial), Flags(SpellFlagNoOnCastComplete) |",
+		"| **Flags** | `SpellFlagMeleeMetrics \\| SpellFlagNoOnCastComplete \\| SpellFlagAPL \\| SpellFlagRequiresMainHand` | SpellData · 20662 Execute (Rank 5), Melee(ProcMaskMeleeMHSpecial), Flags(SpellFlagNoOnCastComplete) |",
 		"| **ProcMask** | `ProcMaskMeleeMHSpecial` | Melee(ProcMaskMeleeMHSpecial) |",
 		"| **Cast.DefaultCast.GCD** | `" + execute.GCD().String() + "` | SpellData · 20662 Execute (Rank 5) |",
 		"| **Cast.IgnoreHaste** | `true` | SpellData · 20662 Execute (Rank 5) |",
@@ -113,7 +113,7 @@ func TestHoverSpellConfig(t *testing.T) {
 	}
 
 	flags := ""
-	for _, line := range strings.Split(markdown, "\n") {
+	for line := range strings.SplitSeq(markdown, "\n") {
 		if strings.HasPrefix(line, "| **Flags** |") {
 			flags = line
 		}

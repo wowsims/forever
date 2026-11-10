@@ -66,6 +66,8 @@ export interface WorkerSendMessageBodyBase {
 	msg: WorkerSendMessageType;
 	outputData?: Uint8Array;
 	error?: string;
+	// The worker's sim runtime has stopped and answers no further request, so the pool replaces the worker.
+	stopped?: boolean;
 }
 
 export interface WorkerSendMessageIdConfirm extends WorkerSendMessageBodyBase {

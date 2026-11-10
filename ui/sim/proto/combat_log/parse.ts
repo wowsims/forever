@@ -19,6 +19,7 @@ import {
 	isCastFailed,
 	LogKind,
 	MajorCooldownLog,
+	MovementLog,
 	Outcome,
 	ParsedLog,
 	PartialResist,
@@ -255,6 +256,15 @@ function buildStatChangeLog(log: PendingLog, match: RegExpExecArray): StatChange
 	return out;
 }
 
+function buildMovementLog(log: PendingLog, fromYards: number, toYards: number, duration: number): MovementLog {
+	const out = log as Mutable<MovementLog>;
+	out.kind = 'movement';
+	out.fromYards = fromYards;
+	out.toYards = toYards;
+	out.duration = duration;
+	return out;
+}
+
 function buildPlainLog(log: PendingLog): PlainLog {
 	const out = log as Mutable<PlainLog>;
 	out.kind = 'plain';
@@ -273,8 +283,8 @@ type LogMatcher = {
 	// Some patterns match lines they cannot actually build from; those fall through to the
 	// next matcher.
 	valid?: (match: RegExpExecArray) => boolean;
-	// The fragment naming this line's action, e.g. '{SpellID: 48707}'.
-	idString: (match: RegExpExecArray) => string;
+	// The fragment naming this line's action, e.g. '{SpellID: 48707}'; absent for a line that names none.
+	idString?: (match: RegExpExecArray) => string;
 	build: (log: PendingLog, match: RegExpExecArray) => ParsedLog;
 };
 
@@ -365,10 +375,21 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 		idString: match => match[1],
 		build: (log, match) => buildCastPushbackLog(log, match),
 	},
+	{
+		guard: ['] Walking from '],
+		regex: /] Walking from (-?\d+\.?\d*) to (-?\d+\.?\d*) yards over (\d+\.?\d*)s/,
+		build: (log, match) => buildMovementLog(log, parseFloat(match[1]), parseFloat(match[2]), parseFloat(match[3])),
+	},
+	{
+		guard: ['] Stopped walking at '],
+		regex: /] Stopped walking at (-?\d+\.?\d*) yards/,
+		build: (log, match) => buildMovementLog(log, parseFloat(match[1]), parseFloat(match[1]), 0),
+	},
 ];
 
 type MatchedLine = { matcher: LogMatcher; match: RegExpExecArray };
 type PendingLog = Mutable<Omit<BaseLog, 'kind'>> & { kind: LogKind };
+// `key` is the line's action, '' for a line that names none.
 type PendingEntry = { log: PendingLog; matcher: LogMatcher | null; match: RegExpExecArray | null; key: string };
 type ActionIdRequest = { logString: string; playerIndex: number | undefined };
 
@@ -452,6 +473,10 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 			pending[lineIndex] = { log, matcher: null, match: null, key: '' };
 			continue;
 		}
+		if (!matched.matcher.idString) {
+			pending[lineIndex] = { log, ...matched, key: '' };
+			continue;
+		}
 		// Keep the key: the build pass needs it, and recomputing it there means a second
 		// idString() call and a second string per matched line.
 		const logString = matched.matcher.idString(matched.match);
@@ -475,7 +500,7 @@ export async function parseAll(result: RaidSimResult): Promise<Array<ParsedLog>>
 	keys.forEach((key, i) => actionIds.set(key, resolved[i]));
 
 	const logs = pending.map(entry => {
-		const actionId = entry.matcher ? actionIds.get(entry.key)! : null;
+		const actionId = entry.key ? actionIds.get(entry.key)! : null;
 		entry.log.actionId = actionId;
 		entry.log.actionIdAsString = computeActionIdAsString(actionId);
 		return entry.matcher ? entry.matcher.build(entry.log, entry.match!) : buildPlainLog(entry.log);

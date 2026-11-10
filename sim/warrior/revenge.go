@@ -10,8 +10,8 @@ var revengeTrainerRank = spellData.Revenge.ByID(11601)
 var revengeBookRank = spellData.Revenge.ByID(25288)
 
 // The "high amount of threat" the game files state with no number: Revenge's threat is 2.25 times
-// its damage, measured in game on Rank 2.
-// TODO: Ingame test needed -- confirm the multiplier on the top rank.
+// its damage, measured in game on Ranks 2, 3 and 4.
+// TODO: Confirm the multiplier on the top ranks, 5 and 6.
 const revengeThreatMultiplier = 2.25
 
 // The window a block, dodge or parry opens: the aura Defensive State (DND) fires on the hit taken.

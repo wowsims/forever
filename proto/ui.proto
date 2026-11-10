@@ -426,6 +426,7 @@ message SavedSettings {
 	ItemSwap item_swap = 17;
 
 	int32 reaction_time_ms = 10;
+	int32 reaction_time_max_ms = 35;
 	int32 channel_clip_delay_ms = 14;
 	bool in_front_of_target = 11;
 	double distance_from_target = 12;

@@ -10,12 +10,12 @@
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "1b8598a80502e09943b55de974e481c61b0aca1d0455a2dd42425351844fb58b"
+      "computedHash": "0273eeaa2836cde419b44e1bae9ba905f66665eb53e18ea56c773c3afe2ecd55"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "90512016ddfc3c6b7072298e48fa356131b462baf6ea8e89b82b7745a23261fb"
+      "computedHash": "bf1c3657827d580ec9348673681c22fd822c50f26615cef84122579bfe0ec870"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
@@ -25,7 +25,7 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "92d47536ac49c7460cc12444d876bbc5dc9618c812dc17a7c34bc03771a52050"
+      "computedHash": "223fb6b06ade3720eddf219627cf7916e4c408049772e7527a234d974babdeb4"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
@@ -35,17 +35,22 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "8a87127a553c5f4cac8303a66756a0e366d8a9a81cc3b5ee4e6a8c600f1c080f"
+      "computedHash": "bdea2566d352cb4c4aa60caea568dfadb5a3963ebd632761a1d3ad68c3039905"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "871d751ddbf500c12e83601248585e28475786b3830436bc4dc7abb1938e09ec"
+      "computedHash": "915153348ba116f613d641b8787954905bff8e2162402ee19ba7b682b75e14d6"
+    },
+    "wowsims-dependencies": {
+      "source": "./.github/skills",
+      "sourceType": "local",
+      "computedHash": "906185c86278190c9765dc6e2048ee7f352db315bd50c0f120a8cc47bfdc4ced"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "4bbbcc7ead5fd1c2b060b45156e09ed7ec983d24d4fbadfc48de38ffc56a2c04"
+      "computedHash": "50f39e2065b12e4c3566993145c794de87f2ea958c058c0b55ba030bd43dc2c0"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -55,22 +60,22 @@
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "ad8daaf50757893b147ec5beaf1ec1883d3ab591e94f41b7378f1224d8233249"
+      "computedHash": "6b11433e6fe71f70cbbe4cbd8105759fae9808914fd1f0c66d11d8f07691050d"
     },
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "53f82fac8a5c613c3ec0572ddb7f2b7453cff829d228536e1245f8cf02d88730"
+      "computedHash": "0a4322a507acec70080a42896b8c82f0599adc18c5de1aa1e5d9c64b52971a72"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "1f7040a62c6f31e56489eec88ad9edfd5cf8483e30b1ed74badf3a1de3e92ff6"
+      "computedHash": "435ae4e14684835394a7377be43253d77ed6006ce012532260d9bca4377d18d9"
     },
     "wowsims-spell-store": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "26d8b113200f5637caca0ca425fa4915303f18863c900c55ab7a61e964a9144a"
+      "computedHash": "4ca7eefc43a263da1fd1f187c467506e06ab8cfbbec8760e0db3abfe202f4ff7"
     },
     "wowsims-spells": {
       "source": "./.github/skills",
@@ -80,12 +85,12 @@
     "wowsims-testing": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "b9a31b37d990f59448527b77b0cc84d3eb8e2624b12a65acf62ea86c43196381"
+      "computedHash": "cf41d0ba367468824037d45e35baa0d14a2d85580311672e382c92c8b45d05ac"
     },
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "04187a0d201d13ee15bcd4c8a40de6223b48669cc5a08567a4ac11b6438f2210"
+      "computedHash": "13d151bbfc9b2afdae0d08fa7ef1a14b6f4447011fda7f8a2d1289ddd4a081c1"
     }
   }
 }

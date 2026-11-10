@@ -70,10 +70,22 @@ func applyFixedShoutAura(char *core.Character, aura *core.Aura, category string)
 	applyFixedUptimeAura(aura, 1, aura.Duration+1, -1)
 }
 
+// A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) runs the OnReset again, and the schedule it starts
+// replaces the one still running. A tick on a target with the raid's debuffs disabled does nothing.
 func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
+	var schedule *core.PendingAction
+	onAction := options.OnAction
+	options.OnAction = func(sim *core.Simulation) {
+		if !aura.Unit.RaidDebuffsDisabled() {
+			onAction(sim)
+		}
+	}
 	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
 		aura.Duration = core.NeverExpires
-		core.StartPeriodicAction(sim, options)
+		if schedule != nil {
+			schedule.Cancel(sim)
+		}
+		schedule = core.StartPeriodicAction(sim, options)
 	}
 }
 
@@ -240,27 +252,55 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// part of the stats the character sheet is measured with.
 	procAura.BuildPhase = core.CharacterBuildPhaseNone
 
-	// The row's own proc flags say what spends a charge: every auto attack that
-	// lands, since the column's chance is the raid aura's roll. The attack
-	// power stays until the charges are gone or the row's duration runs out.
+	// The row's own proc flags say what spends a charge: every auto attack, in
+	// either hand, since the column's chance is the raid aura's roll. A missed
+	// swing spends one as a landed one does. The hit that fired the proc spends
+	// none. The attack power stays until the charges are gone or the row's
+	// duration runs out.
+	// TODO: a dodged or parried auto spends a charge here as a miss does; verify in game, the logs only show misses (8/8).
 	procAura.MaxStacks = int32(windfuryTotemSpell.ProcCharges)
 	spender := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		procAura.RemoveStack(sim)
 	}, spelldata.Chance(1))
 	spender.Name = "Windfury Totem Charges"
 	spender.TriggerImmediately = true
+	spender.Outcome = core.OutcomeEmpty
+	spender.RequireDamageDealt = false
+	// The auto that fires the proc is dealt in the same instant as its cast
+	// result and spends nothing. Another swing in that instant, such as the off
+	// hand's, still spends, and an auto that is never dealt leaves nothing to
+	// skip; an ability's hit never reaches the spender.
+	var procSwing *core.Spell
+	var procAt time.Duration
+	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if spell == procSwing && sim.CurrentTime == procAt {
+			procSwing = nil
+			return false
+		}
+		return true
+	}
 	procAura.AttachProcTriggerCallback(&char.Unit, spender)
+	procAura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
+		procSwing = nil
+	})
 
 	// The row hears auto attacks and melee abilities, so the hit of a proc
 	// without Not a Proc does not reach it. The mask names both hands; the
-	// main-hand rule the tooltip states is the server's. The proc rolls off the
-	// hit's cast result and puts the attack power up with every charge; the
-	// hit's damage, rolled before the proc, does not gain it. The hit is then
-	// dealt and spends a charge if it is a landed auto, and the extra attack
-	// after it spends the next, so a main-hand auto's extra attack is the only
-	// swing buffed. A special spends none and leaves the last charge to the auto
-	// after its extra attack.
-	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+	// main-hand rule the tooltip states is the server's, and so is the rule
+	// that an ability rolls the totem only where its row requires a main-hand
+	// weapon or goes off in place of the next swing, as Maul does. A triggered
+	// spell with Not a Proc and neither bit never rolls it: Seal of Command's
+	// strike 0/117 while the same paladins' swings roll 18.3%, Sweeping Strikes
+	// 0/166, Retaliation 0/18. An auto attack, another proc's extra swing
+	// included, always rolls it. A landed hit rolls it whether or not it deals
+	// damage, Sunder Armor and a Rend application among them. The proc rolls
+	// off the hit's cast result and puts the attack power up with every charge;
+	// the hit's damage, rolled before the proc, does not gain it.
+	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+		procSwing = nil
+		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
+			procSwing, procAt = spell, sim.CurrentTime
+		}
 		procAura.Activate(sim)
 		procAura.SetStacks(sim, procAura.MaxStacks)
 	})
@@ -269,7 +309,10 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.ProcMask &= core.ProcMaskMeleeMH
-	// TODO: verify in game whether a landed hit that deals no damage, such as Sunder Armor, rolls the totem, and if it does, clear RequireDamageDealt.
+	trigger.RequireDamageDealt = false
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || spell.Flags.Matches(core.SpellFlagRequiresMainHand|core.SpellFlagOnNextSwing)
+	}
 	onInit := char.ExtraAttackProc(&trigger, windfuryTotemSpell.ID, 1)
 	return char.MakeProcTriggerAura(trigger).ApplyOnInit(onInit)
 }

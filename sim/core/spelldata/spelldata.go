@@ -207,9 +207,9 @@ type Effect struct {
 	BaseLevel, MaxLevel int16
 
 	// EffectVariance, the full width of the roll: a spell-school hit or a heal lands within
-	// Variance/2 of its whole amount, power included (DirectVariance); a physical hit rolls
-	// |BasePoints| * Variance either side of the base points and any other effect half that, plus
-	// the per-level gain (Min, Max). Zero on an effect that does not roll.
+	// Variance/2 of its whole amount, power included (DirectVariance); any other effect rolls
+	// |BasePoints| * Variance/2 either side of the base points, a physical hit rounded to a whole
+	// number, plus the per-level gain (Min, Max). Zero on an effect that does not roll.
 	Variance float64
 
 	// EffectBonusCoefficient and BonusCoefficientFromAP: the share of spell power and attack power the

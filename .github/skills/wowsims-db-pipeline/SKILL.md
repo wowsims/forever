@@ -1,6 +1,6 @@
 ---
 name: wowsims-db-pipeline
-description: 'Use when WoWSims Forever work runs or repairs the generators behind committed game files data: make db, make go-to-ts, gen_spelldata, gen_db, db2tool; regenerating the store or the database; adding or removing an override in tools/database/overrides or overrides.go, the numbered .sql among them; a local wowsims.db behind master; merging master into a branch that conflicts in spell_store_inputs.json, spells_auto_gen.go, db.json or db.bin; the Check Hotfixes and Update Items workflows; the proc audit; a table wowsims.db does not carry. Use it too when a generator stops on hotfixes or a stale override, -check names a file, a regeneration deletes items master has, db.bin stays behind db.json, unsupported_procs.txt moves, or a value seems missing from the sim. Reading a row is wowsims-spell-store; item and consumable effects are wowsims-consumables-items; proc wiring is wowsims-procs; proto field rules are wowsims-core-mechanics; tests and .results are wowsims-testing; the spell skills map is wowsims-spells.'
+description: 'Use when WoWSims Forever work runs or repairs the generators behind committed game files data: make db, make go-to-ts, gen_spelldata, gen_db, db2tool; regenerating the store or the database; adding or removing an override in tools/database/overrides or overrides.go, the numbered .sql among them; a local wowsims.db behind master; merging master into a branch that conflicts in spell_store_inputs.json, spells_auto_gen.go, db.json, db.bin or item_first_seen.json; the Check Hotfixes and Update Items workflows; the proc audit; a table wowsims.db does not carry. Use it too when a generator stops on hotfixes or a stale override, -check names a file, a regeneration deletes items master has, db.bin stays behind db.json, unsupported_procs.txt moves, or a value seems missing from the sim. Reading a row is wowsims-spell-store; item and consumable effects are wowsims-consumables-items; proc wiring is wowsims-procs; proto field rules are wowsims-core-mechanics; tests and .results are wowsims-testing; the spell skills map is wowsims-spells.'
 ---
 
 # wowsims-db-pipeline
@@ -25,6 +25,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
 | `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
+| `assets/database/item_first_seen.json`                                      | when `gen_db -gen=db` first saw each item id, in unix seconds, one entry per line sorted by id; the UI marks items first seen in the last 7 days. `gen_db` keeps every line, an item no longer in `db.json` too, and stamps each new id with the run's time; never edit it by hand                    |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
 
 | You are…                                                                       | Open                                                               |
@@ -48,7 +49,7 @@ A full regeneration runs in this order, each step reading what the one before wr
 
 ```
 go run ./tools/database/gen_spelldata                        # the store, the forms, every class file
-go run tools/database/gen_db/*.go -outDir=./assets -gen=db   # db.json, db.bin, registrations, talent files
+go run tools/database/gen_db/*.go -outDir=./assets -gen=db   # db.json, db.bin, item_first_seen.json, registrations, talent files
 go run ./tools/database/gen_spelldata -classes=none -shared=false && \
   go run tools/database/gen_db/*.go -outDir=./assets -gen=db -classes=none   # the items alone, no re-extraction
 go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database needed
@@ -113,7 +114,7 @@ spells. The generator refuses an override once the game files state the value; r
 The generators refuse a database older in hotfixes than the committed inputs (`RequireCommittedHotfixes`,
 `docs/spell_data/partial-updates.md`). Match master's database first, from
 the cache the Update Items pull request names; when it cannot match, splice your own change into master's files and
-prove the splice. Both, and merge conflicts in the store, `db.json` and `db.bin`, are in `references/behind-master.md`.
+prove the splice. Both, and merge conflicts in the store, `db.json`, `db.bin` and `item_first_seen.json`, are in `references/behind-master.md`.
 Proto field numbers on a merge are `wowsims-core-mechanics` `## Protos`.
 
 ## Hotfixes
@@ -130,6 +131,12 @@ its `tools/database/wowsims.db` from `make db`, reading a WoW install (`WOW_DIR`
 the same run with `DB2TOOL_FLAGS="--cdn"` and no install; the modes are `tools/db2tool/README.md` §Usage. Before
 dispatching Build and Deploy by hand, read its state: `gh api repos/wowsims/forever/actions/workflows/deploy.yml --jq .state`.
 
+A `DBCache.bin` row carries no date. A row the game serves on demand has a synthetic `PushID` (0x01000000 and up,
+equal to its `UniqueID`) that is not ordered by time, so neither it nor a real push number dates a row on its own;
+the one date a cache gives is the `created` time of the file on raidbots, whose
+`https://www.raidbots.com/api/dbcache/verified` lists the newest 100 files across every version and does not page
+back. The first stamps in `item_first_seen.json` are such sightings (#913).
+
 ## Tables the generator does not ship
 
 `wowsims.db` holds only the tables in `generator-settings.json`'s `Tables`; a name added there is extracted on every
@@ -139,7 +146,8 @@ Reading another table once, what the tables hold and how a script reads them: `r
 
 ## Traps
 
-- `MIN_EFFECT_ILVL = 40` in `tools/database/gen_effects.go` drops chance-on-hit items below item level 40 (Bloodpike).
+- `core.MinEffectItemLevel = 40` in `sim/core/item_effects.go` drops chance-on-hit items below item level 40 (Bloodpike),
+  and the class suites' AllItems tests skip every item below it, hand-written effects included.
 - `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
@@ -147,7 +155,7 @@ Reading another table once, what the tables hold and how a script reads them: `r
   `ParseEffects` then drops it without a word. When `.results` move after a regeneration, check the changed rows
   for one before taking the change as live; Missile Barrage's tick length is applied by hand for this reason.
 - When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
-store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
+  store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
   ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
 - A talent tree that gains or loses a talent needs the class's `TalentTreeSizes` changed by hand (`sim/warrior/warrior.go`
   holds the warrior's). Nothing checks it against the tree file. With the old sizes the talents string fills the wrong

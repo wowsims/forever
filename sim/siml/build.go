@@ -60,8 +60,9 @@ func LoadBuild(s, b *proto.IndividualSimSettings) {
 	if bp.Profession2 != proto.Profession_ProfessionUnknown {
 		p.Profession2 = bp.Profession2
 	}
+	// A build that states its reaction states its top with it, so a fixed reaction over a ranged default stays fixed.
 	if bp.ReactionTimeMs != 0 {
-		p.ReactionTimeMs = bp.ReactionTimeMs
+		p.ReactionTimeMs, p.ReactionTimeMaxMs = bp.ReactionTimeMs, bp.ReactionTimeMaxMs
 	}
 	if bp.ChannelClipDelayMs != 0 {
 		p.ChannelClipDelayMs = bp.ChannelClipDelayMs

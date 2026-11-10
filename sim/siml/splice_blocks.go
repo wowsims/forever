@@ -194,7 +194,7 @@ func (m *rotationModel) rejoin(s *spliceSlot, own ownConjuncts, keep int) {
 		for prefix, move := range moves {
 			if under(key, prefix) {
 				var path []any
-				for _, x := range strings.Fields(strings.Trim(key, "[]")) {
+				for x := range strings.FieldsSeq(strings.Trim(key, "[]")) {
 					path = append(path, x)
 				}
 				forced[pathKey(slices.Concat(move[1], path[len(move[0]):]))] = text

@@ -9,8 +9,9 @@ import (
 )
 
 // An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time, on the
-// item's cooldowns with the cast time and global cooldown the row states. A character without that
-// bar does not register it. The cooldown manager uses it once the whole gain fits under the bar's
+// item's cooldowns with the cast time and global cooldown the row states. Each aura the spell
+// triggers on the wearer goes up with the gain (WearerAuraTriggers). A character without that bar
+// does not register it. The cooldown manager uses it once the whole gain fits under the bar's
 // maximum.
 func NewSpellDataEnergizeOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
@@ -25,6 +26,19 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			return barAmount(power, effect.Roll(sim))
 		}
 
+		var triggered []*core.Aura
+		for _, trigger := range WearerAuraTriggers(row) {
+			buff := trigger.Trigger()
+			aura := character.RegisterAura(spelldata.AuraConfig(buff))
+			spelldata.ParseEffects(character, aura, buff)
+			triggered = append(triggered, aura)
+		}
+		activateTriggered := func(sim *core.Simulation) {
+			for _, aura := range triggered {
+				aura.Activate(sim)
+			}
+		}
+
 		config := spelldata.SpellConfig(&character.Unit, row)
 		ticks := 1.0
 		if effect.Aura == dbcenums.A_PERIODIC_ENERGIZE {
@@ -35,11 +49,13 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			}
 			config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 				spell.SelfHot().Apply(sim)
+				activateTriggered(sim)
 			}
 			ticks = float64(config.Hot.NumberOfTicks)
 		} else {
 			config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 				bar.add(sim, amount(sim), bar.metrics)
+				activateTriggered(sim)
 			}
 		}
 
@@ -52,6 +68,19 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			},
 		}, true
 	})
+}
+
+// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer: Mindtap Talisman's
+// 1302205 triggers Tapped Mind 1302206, which lowers Intellect for its own duration.
+func WearerAuraTriggers(row *spelldata.Spell) []*spelldata.Effect {
+	var triggers []*spelldata.Effect
+	for i := range row.Effects {
+		e := &row.Effects[i]
+		if e.Type == dbcenums.E_TRIGGER_SPELL && LandsOnTheUser(e) && putsAurasOnTheUser(e.Trigger()) {
+			triggers = append(triggers, e)
+		}
+	}
+	return triggers
 }
 
 // The bar a gain fills: the room left in it, the character's own gain on it metered under the item,
@@ -99,15 +128,37 @@ func EnergizesABar(power dbcenums.PowerType) bool {
 	return false
 }
 
+// An item or enchant proc whose trigger's row fires a spell that restores the wearer's mana, rage or
+// energy, read off the trigger alone the way FiredSpellUnsupported reads it: Idol of Longevity
+// 23004's 28847 refunds 28848's mana on each Healing Touch cast. A wearer without that bar registers
+// no listener.
+func NewSpellDataEnergizeProc(cfg SpellDataProc, variants []ItemVariant) {
+	forEachSpellDataVariant(cfg, variants, registerSpellDataEnergizeProc)
+}
+
+func registerSpellDataEnergizeProc(cfg SpellDataProc) {
+	refuses := func(trigger *spelldata.Spell) bool { return len(FiredSpellUnsupported(trigger)) > 0 }
+	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
+		character := agent.GetCharacter()
+		handler := FiredSpellHandler(character, source.actionID(), trigger)
+		if handler == nil {
+			return
+		}
+		config := spellDataProcListener(character, cfg, source, trigger)
+		config.Handler = handler
+		source.registerTrigger(character, config)
+	})
+}
+
 // Why the spell a proc row fires cannot be built, or nil where it can: the row states no effect
-// beside its proc, and the spell it fires puts mana, rage or energy into the wearer's bar at once or
-// changes the cooldown of one of the wearer's spell categories.
+// beside its proc, and the spell it fires (FiredSpell) puts mana, rage or energy into the wearer's
+// bar at once or changes the cooldown of one of the wearer's spell categories.
 func FiredSpellUnsupported(row *spelldata.Spell) []string {
 	var unsupported []string
 	if len(row.Effects) > 1 {
 		unsupported = append(unsupported, fmt.Sprintf("%d states effects beside its proc, which the listener leaves out", row.ID))
 	}
-	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	fired := row.FiredSpell()
 	gain, cooldown := fired.EnergizeEffect(), fired.CategoryCooldownEffect()
 
 	switch {
@@ -135,7 +186,7 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.
 func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell) core.ProcHandler {
-	fired := row.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL).Trigger()
+	fired := row.FiredSpell()
 	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
 		power := dbcenums.PowerType(gain.Misc)
 		bar, ok := energizedBarOf(character, power, actionID)

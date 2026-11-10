@@ -85,7 +85,7 @@ List the opt-outs with `/usr/bin/grep -rn "smoke: false" ui --include=*.stories.
 The cheap UI gates run first, so a formatting slip reports in about a minute. `deploy.yml` and `release.yml` reuse the
 workflow through `workflow_call` with `needs: tests`, so every gate also blocks a deploy and a release.
 
-`make dist/forever/.dirstamp` runs `tsc --noEmit`, `npx tsx vite.build-workers.mts` and `npx vite build` through
+`make dist/forever/.dirstamp` runs `tsc --noEmit`, `node vite.build-workers.mts` and `npx vite build` through
 `dist/forever/bundle/.dirstamp`, and also builds `dist/forever/lib.wasm.gz`, `ui/generated/proto/api.ts` and the asset
 copies. Build the site through make rather than by calling `vite build` alone.
 
@@ -140,6 +140,12 @@ describes: a new selector with no source change behind it is a class leaking in 
 happy-dom applies the `inert` attribute to focus only. A click inside an inert subtree still reaches its handlers in a
 unit test, so such a test asserts `inert` and the refused focus, and a real browser checks that clicks are blocked.
 `AplEntryView` (`ui/features/apl/components/AplEntryView/`) is the case that hit it.
+
+The wasm worker. The pool's unit tests stub `Worker`, and a stub that answers with `outputData` on the request channel
+answers the way the HTTP worker does. The wasm worker's `raidSimAsync` and `statWeightsAsync` answer `undefined` there
+and send their result as progress, and a panic no handler recovers exits its Go runtime in the middle of a call. A
+change to how `ui/worker/` or `ui/sim/workers/` reads an answer gives the stub the wasm worker's shape in a test, and is
+run on a `lib.wasm` built from the tree: a raid sim and stat weights on a spec page, and the PR says what came back.
 
 ## A fresh checkout needs generated files first
 

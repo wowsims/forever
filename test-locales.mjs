@@ -1,15 +1,12 @@
 import Ajv from 'ajv';
 import path from 'node:path';
-import { fileURLToPath } from 'url';
 import fs from 'node:fs/promises';
-import { glob } from 'glob';
 
 const localesPath = 'assets/locales';
 
 const ajv = new Ajv();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = import.meta.dirname;
 
 const loadSchemaFiles = async () => {
 	const schemas = {};
@@ -28,7 +25,7 @@ const validateSchemas = async () => {
 
 	for (const [name, schema] of Object.entries(schemas)) {
 		const validate = ajv.compile(schema);
-		const filePaths = await glob(path.join(__dirname, localesPath, `**/${name}.json`));
+		const filePaths = await Array.fromAsync(fs.glob(path.join(__dirname, localesPath, `**/${name}.json`)));
 
 		for (const filePath of filePaths) {
 			const relativePath = filePath.split(localesPath)[1].replace('/', '');

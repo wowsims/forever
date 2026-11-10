@@ -118,10 +118,37 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 // The effect carrying the spell's direct damage, whether it states an amount or a weapon multiplier.
 // It sits on any of the weapon effects as readily as on school damage: a weapon effect states a
 // multiplier or a flat bonus rather than an amount.
+// An E_HEALTH_LEECH deals its amount as damage too.
 func (s *Spell) DamageEffect() *Effect {
 	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
 		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL)
+		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
+}
+
+// The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
+// aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
+// spikes' 20 to 30.
+func (s *Spell) ProcDamageEffect() *Effect {
+	if e := s.DamageEffect(); e != NilEffect {
+		return e
+	}
+	return s.FirstAura(dbcenums.A_PROC_TRIGGER_DAMAGE)
+}
+
+// The spell a proc row fires: what its A_PROC_TRIGGER_SPELL triggers, or, on a dummy proc the server
+// scripts, the one spell its tooltip names where that spell restores a resource. Idol of Longevity's
+// 28847 names 28848, the mana it refunds; most dummy procs name the spell they listen for instead,
+// which fires nothing. Nil where the row fires nothing the store carries.
+func (s *Spell) FiredSpell() *Spell {
+	if e := s.FirstAura(dbcenums.A_PROC_TRIGGER_SPELL); e != NilEffect {
+		return e.Trigger()
+	}
+	if s.FirstAura(dbcenums.A_DUMMY) != NilEffect && len(s.RefIDs) == 1 {
+		if ref := Find(s.RefIDs[0]); ref.EnergizeEffect() != NilEffect {
+			return ref
+		}
+	}
+	return Nil
 }
 
 // A weapon strike's damage: its flat weapon-damage roll, the weapon damage and extra, all scaled by
@@ -214,10 +241,8 @@ func (s *Spell) PeriodicEffect() *Effect {
 
 func (s *Spell) firstOfType(types ...dbcenums.SpellEffectType) *Effect {
 	for i := range s.Effects {
-		for _, t := range types {
-			if s.Effects[i].Type == t {
-				return &s.Effects[i]
-			}
+		if slices.Contains(types, s.Effects[i].Type) {
+			return &s.Effects[i]
 		}
 	}
 	return NilEffect

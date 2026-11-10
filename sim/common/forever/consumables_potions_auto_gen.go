@@ -111,6 +111,7 @@ func RegisterPotionsAndConjured() {
 		// Other on-use consumables
 		4376, // Flame Deflector
 		4386, // Ice Deflector
+		4945, // Faintly Glowing Skull
 	} {
 		shared.NewSpellDataOnUseConsumable(itemID)
 	}

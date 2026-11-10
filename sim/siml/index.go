@@ -314,6 +314,26 @@ func jsonPath(at []protoreflect.FieldDescriptor, last ...protoreflect.FieldDescr
 	return strings.Join(names, ".")
 }
 
+// The field of fields named name beside p in the same message, nil for none.
+func sibling(p *placed, name string, fields []*placed) *placed {
+	if name == "" {
+		return nil
+	}
+	holder := strings.TrimSuffix(p.path, p.JSON)
+	for _, x := range fields {
+		if x.Name == name && x.path == holder+x.JSON {
+			return x
+		}
+	}
+	return nil
+}
+
+// The field of fields that p's entry line sets with a second duration (SPEC.md §5.2), nil for none.
+func maxField(p *placed, fields []*placed) *placed { return sibling(p, p.Max, fields) }
+
+// The duration of fields whose entry line sets p as its second value, nil for none.
+func minField(p *placed, fields []*placed) *placed { return sibling(p, p.Min, fields) }
+
 // The field a section's slot rows fill: its list of ItemSpecs.
 func slotField(fields []*placed) *placed {
 	for _, p := range fields {
@@ -370,12 +390,7 @@ func (ix *schemaIndex) unitWordList() []string {
 
 // Whether name is a reserved word, which the name table never holds (SPEC.md §4 note 6).
 func (ix *schemaIndex) isReserved(name string) bool {
-	for _, h := range ix.heads {
-		if h == name {
-			return true
-		}
-	}
-	return ix.keywords[name] || ix.unitReference(name) != nil
+	return slices.Contains(ix.heads, name) || ix.keywords[name] || ix.unitReference(name) != nil
 }
 
 // A new, empty message of the type md describes.

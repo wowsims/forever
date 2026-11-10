@@ -13,7 +13,6 @@ func (druid *Druid) registerRipSpell() {
 	config.Dot = spelldata.DotConfig(rank, tick)
 	// Combo points are captured when the dot is applied. Attack power is read on the tick, and scales
 	// per combo point with the fifth counted as the fourth.
-	// TODO: Ingame research needed -- whether Rip snapshots attack power.
 	comboPoints := map[int32]float64{}
 	config.Dot.OnSnapshot = func(_ *core.Simulation, target *core.Unit, dot *core.Dot) {
 		cp := float64(druid.ComboPoints())
@@ -21,8 +20,8 @@ func (druid *Druid) registerRipSpell() {
 		comboPoints[target.UnitIndex] = cp
 	}
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		apScale := min(comboPoints[target.UnitIndex], 4)
-		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*apScale*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
+		finisherComboPoints := min(comboPoints[target.UnitIndex], 4)
+		damage := (dot.SnapshotBaseDamage + tick.APCoeff()*finisherComboPoints*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, rank.TickOutcome(dot))
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

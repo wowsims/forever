@@ -19,6 +19,11 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 // so a SPELLMOD_CHANCE_OF_SUCCESS that names the row reaches its roll, and the character's mods are
 // the ones counted wherever the trigger sits.
 //
+// The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
+// RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts: the shield
+// spikes state 5 s there and proc on every block in game. A damage shield is no proc trigger and
+// keeps its RecoveryTime as the wait between two reflections (DamageShieldLockout).
+//
 // ProcCharges is not a property of the trigger: it is how many times the buff acts before it drops,
 // which AuraConfig reads as the aura's MaxStacks.
 //
@@ -130,15 +135,19 @@ func rowClassFlags(s *Spell) core.ClassFlags {
 	for i := range s.Effects {
 		e := &s.Effects[i]
 
-		if e.Aura.IsProcTrigger() || e.Aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY ||
-			e.Aura == dbcenums.A_PROC_TRIGGER_DAMAGE || e.Aura == dbcenums.A_DUMMY {
-			if !e.ClassFlags.IsZero() {
-				return e.ClassFlags
-			}
+		if CarriesProcClassMask(e.Aura) && !e.ClassFlags.IsZero() {
+			return e.ClassFlags
 		}
 	}
 
 	return core.ClassFlags{}
+}
+
+// Whether an effect of this aura kind is the proc whose class mask narrows the listener: a trigger, a
+// copied trigger or a dummy the server scripts. The ProcClassMask override writes onto the same
+// effects.
+func CarriesProcClassMask(aura dbcenums.EffectAuraType) bool {
+	return aura.IsProcTrigger() || aura == dbcenums.A_PROC_TRIGGER_SPELL_COPY || aura == dbcenums.A_DUMMY
 }
 
 // Whether the mask names spells of a family this character's class never casts, which is how an

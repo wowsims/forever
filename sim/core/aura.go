@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/exp/constraints"
-
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
@@ -147,7 +145,7 @@ func (aura *Aura) reset(sim *Simulation) {
 	aura.metrics.reset()
 	aura.fadeTime = -NeverExpires
 
-	if aura.OnReset != nil {
+	if aura.OnReset != nil && !aura.isHeldRaidDebuff() {
 		aura.OnReset(aura, sim)
 	}
 
@@ -730,7 +728,7 @@ func (aura *Aura) Activate(sim *Simulation) {
 		if !ee.Activate(sim) {
 			// Go back and deactivate the effects.
 			if i > 0 {
-				for j := 0; j < i; j++ {
+				for j := range i {
 					aura.ExclusiveEffects[j].Deactivate(sim)
 				}
 			}
@@ -1005,7 +1003,7 @@ func (aura *Aura) Deactivate(sim *Simulation) {
 }
 
 // Constant-time removal from slice by swapping with the last element before removing.
-func removeBySwappingToBack[T any, U constraints.Integer](arr []T, removeIdx U) []T {
+func removeBySwappingToBack[T any, U int | int32](arr []T, removeIdx U) []T {
 	arr[removeIdx] = arr[len(arr)-1]
 	return arr[:len(arr)-1]
 }

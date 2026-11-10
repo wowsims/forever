@@ -9,6 +9,7 @@ import (
 	"maps"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -545,7 +546,7 @@ func triggeredSpells(db *sql.DB, spellID int32) ([]int32, error) {
 			ids = append(ids, id)
 		}
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids, nil
 }
 
@@ -563,7 +564,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 	for rank := range l.Ranks {
 		ranks = append(ranks, rank)
 	}
-	sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+	slices.Sort(ranks)
 
 	perRank := map[int32][]int32{}
 	distinct := map[int32]bool{}
@@ -599,7 +600,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 		numbered[order[0]] = 1
 	case oneEach && len(numbered) == len(order):
 	default:
-		sort.Slice(order, func(i, j int) bool { return order[i] < order[j] })
+		slices.Sort(order)
 		for i, id := range order {
 			numbered[id] = int32(i + 1)
 		}
@@ -926,7 +927,7 @@ func exclusiveSkillLines(db *sql.DB, mask int) (map[int32]bool, error) {
 			return nil, err
 		}
 		union := 0
-		for _, part := range strings.Split(masks, ",") {
+		for part := range strings.SplitSeq(masks, ",") {
 			m, err := strconv.Atoi(part)
 			if err != nil {
 				continue
@@ -1002,7 +1003,7 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 	for rank := range byRank {
 		rankNums = append(rankNums, rank)
 	}
-	sort.Slice(rankNums, func(i, j int) bool { return rankNums[i] < rankNums[j] })
+	slices.Sort(rankNums)
 
 	var ambiguous []string
 	for _, rank := range rankNums {
@@ -1095,6 +1096,21 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 		if pinned, ok := ladderPins[name][rank]; ok && ids[pinned] {
 			ladder[rank] = pinned
 			continue
+		}
+		if castable == 0 && len(byRank) == 1 {
+			// Shank is two trainer rows with no rank subtext, 1329283 at level 24 and 1329549 at 44,
+			// both castable. The later one's SkillLineAbility row supersedes the earlier, which
+			// orders them into the family's ranks.
+			chain, err := supersedeChain(db, ids)
+			if err != nil {
+				return nil, err
+			}
+			if chain != nil {
+				for i, id := range chain {
+					ladder[int32(i+1)] = id
+				}
+				continue
+			}
 		}
 		if castable == 0 {
 			// Every ambiguous rank is collected rather than returning on the first, so the skipped
@@ -1192,6 +1208,64 @@ func teacherOf(db *sql.DB, ids map[int32]bool) (int32, error) {
 		found = id
 	}
 	return found, nil
+}
+
+// These spells in the order SkillLineAbility.SupercedesSpell learns them, first to last, or nil
+// unless the rows link every one into a single line: one spell supersedes none of the others, and
+// each of the rest supersedes exactly the one before it.
+func supersedeChain(db *sql.DB, ids map[int32]bool) ([]int32, error) {
+	supersedes := map[int32]int32{}
+	for id := range ids {
+		rows, err := db.Query(`SELECT DISTINCT SupercedesSpell FROM SkillLineAbility WHERE Spell = ? AND SupercedesSpell != 0`, id)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var prev int32
+			if err := rows.Scan(&prev); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			if !ids[prev] {
+				continue
+			}
+			if _, seen := supersedes[id]; seen {
+				rows.Close()
+				return nil, nil
+			}
+			supersedes[id] = prev
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		rows.Close()
+	}
+	if len(supersedes) != len(ids)-1 {
+		return nil, nil
+	}
+
+	next := map[int32]int32{}
+	var first int32
+	for id := range ids {
+		prev, ok := supersedes[id]
+		if !ok {
+			first = id
+			continue
+		}
+		if _, taken := next[prev]; taken {
+			return nil, nil
+		}
+		next[prev] = id
+	}
+	chain := []int32{first}
+	for id, ok := next[first]; ok; id, ok = next[id] {
+		chain = append(chain, id)
+	}
+	if len(chain) != len(ids) {
+		return nil, nil
+	}
+	return chain, nil
 }
 
 // The one spell among these that has a mana cost, or 0 when that does not single one out.
@@ -1360,9 +1434,7 @@ func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *sto
 	for pkg, out := range rendered {
 		files[fmt.Sprintf("sim/%s/spell_data_auto_gen.go", pkg)] = out
 	}
-	for path, out := range extra {
-		files[path] = out
-	}
+	maps.Copy(files, extra)
 	return files, inputs, nil
 }
 
@@ -1497,7 +1569,7 @@ func renderLadderClassFile(pkg string, ladders []rankLadder, triggered map[strin
 		for rank := range l.Ranks {
 			ranks = append(ranks, rank)
 		}
-		sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+		slices.Sort(ranks)
 
 		ids := make([]int32, 0, len(ranks))
 		for i, rank := range ranks {

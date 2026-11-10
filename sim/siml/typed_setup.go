@@ -378,6 +378,20 @@ func (f *typedFile) typeSection(s *section) {
 			f.entries[b] = f.typer.entry(b, fields, f.holder, set)
 		}
 	}
+	// A max at or under its duration sets no range, on the duration's line or on one of its own (SPEC.md §5.2).
+	for _, b := range s.body {
+		for _, e := range f.entries[b] {
+			min := minField(e.placed, fields)
+			if min == nil || f.holder(min).Get(min.desc).Int() < e.value.Int() {
+				continue
+			}
+			at := b.base().span
+			if x, ok := b.(*fieldEntryStmt); ok && x.max != nil {
+				at = x.max.pos()
+			}
+			f.typer.warn("max-not-above-min", "the max of "+min.Siml+" is not above its first value, so it sets no range", at)
+		}
+	}
 }
 
 // `<slot> <item> [<suffix>] [+ <enchant>]`, or the slot and a raw ItemSpec (SPEC.md §5.3).
@@ -677,9 +691,7 @@ func (f *typedFile) readUses(u *uses) usedFiles {
 		used.explicitType = used.explicitType || file.explicitType
 		declared := declaredBy(rotation)
 		used.declared.variables = append(used.declared.variables, declared.variables...)
-		for group, placeholders := range declared.groups {
-			used.declared.groups[group] = placeholders
-		}
+		maps.Copy(used.declared.groups, declared.groups)
 		sequencesIn(rotation, used.declared.sequences)
 	}
 	return used

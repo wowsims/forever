@@ -25,10 +25,11 @@ type Simulation struct {
 
 	Options *proto.SimOptions
 
-	rand        Rand
-	deathRand   Rand // The kill rolls of target deaths, apart from the combat rolls, so gear does not move them.
-	rseed       int64
-	currentSeed int64
+	rand          Rand
+	deathRand     Rand // The kill rolls of target deaths, apart from the combat rolls, so gear does not move them.
+	addDebuffRand Rand // The rolls of the add debuff jitter, apart from the combat rolls, so gear does not move them.
+	rseed         int64
+	currentSeed   int64
 
 	aplActionExecuted APLActionHook // Set by RunSimWithAPLHook.
 
@@ -46,7 +47,7 @@ type Simulation struct {
 	ProgressReport func(*proto.ProgressMetrics)
 	Signals        simsignals.Signals
 
-	Log func(string, ...interface{})
+	Log func(string, ...any)
 
 	nextExecuteDuration time.Duration // The earliest execute phase crossing of any target still to come.
 
@@ -202,10 +203,11 @@ func newSimWithEnv(env *Environment, simOptions *proto.SimOptions, signals simsi
 		Environment: env,
 		Options:     simOptions,
 
-		rand:        NewSplitMix(uint64(rseed)),
-		deathRand:   NewSplitMix(uint64(deathRandSeed(rseed))),
-		rseed:       rseed,
-		currentSeed: rseed,
+		rand:          NewSplitMix(uint64(rseed)),
+		deathRand:     NewSplitMix(uint64(deathRandSeed(rseed))),
+		addDebuffRand: NewSplitMix(uint64(addDebuffRandSeed(rseed))),
+		rseed:         rseed,
+		currentSeed:   rseed,
 
 		isTest:    simOptions.IsTest || simOptions.UseLabeledRands,
 		testRands: make(map[string]Rand),
@@ -251,6 +253,7 @@ func (sim *Simulation) reseedRands(i int64) {
 	sim.currentSeed = rseed
 	sim.rand.Seed(rseed)
 	sim.deathRand.Seed(deathRandSeed(rseed))
+	sim.addDebuffRand.Seed(addDebuffRandSeed(rseed))
 
 	if sim.isTest {
 		for label, rng := range sim.testRands {
@@ -265,6 +268,10 @@ func makeTestRandSeed(rseed int64, label string) int64 {
 
 func deathRandSeed(rseed int64) int64 {
 	return makeTestRandSeed(rseed, "Target Death")
+}
+
+func addDebuffRandSeed(rseed int64) int64 {
+	return makeTestRandSeed(rseed, "Add Debuff Jitter")
 }
 
 func (sim *Simulation) RandomExpFloat(label string) float64 {
@@ -306,8 +313,8 @@ func (sim *Simulation) run() *proto.RaidSimResult {
 
 	logsBuffer := &strings.Builder{}
 	if sim.Options.Debug || sim.Options.DebugFirstIteration {
-		sim.Log = func(message string, vals ...interface{}) {
-			logsBuffer.WriteString(fmt.Sprintf("[%0.2f] "+message+"\n", append([]interface{}{sim.CurrentTime.Seconds()}, vals...)...))
+		sim.Log = func(message string, vals ...any) {
+			logsBuffer.WriteString(fmt.Sprintf("[%0.2f] "+message+"\n", append([]any{sim.CurrentTime.Seconds()}, vals...)...))
 		}
 	}
 

@@ -14,7 +14,7 @@ import { bulkGearSetups, gearSetupLabel, gearSetupsSentWith } from './gear_setup
 
 vi.mock('@i18n/config', () => ({
 	default: {
-		t: (key: string) => (({ 'bulk_tab.results.current_gear': 'Current gear' }) as Record<string, string>)[key] ?? key,
+		t: (key: string) => ({ 'bulk_tab.results.current_gear': 'Current gear' } as Record<string, string>)[key] ?? key,
 	},
 }));
 

@@ -117,7 +117,7 @@
 		"rotation": {
 			"type": "TypeSimple",
 			"simple": {
-				"specRotationJson": "{\"timeToWeave\":400,\"useMulti\":true,\"useArcane\":true,\"playstyle\":\"Weave\"}"
+				"specRotationJson": "{\"useMulti\":true,\"useArcane\":true,\"playstyle\":\"Weave\",\"pullRange\":30}"
 			}
 		},
 		"distanceFromTarget": 12

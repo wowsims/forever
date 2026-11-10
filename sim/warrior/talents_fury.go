@@ -250,14 +250,16 @@ func (warrior *Warrior) registerGoreDrinker() {
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
 	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,
-	// Bloodrage and Death Wish when cast, Bloodthirst when it lands, and Enrage from its own trigger.
+	// Bloodrage, Death Wish and Reckless Swings when cast, Bloodthirst when it lands, and Enrage from
+	// its own trigger.
 	warrior.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Gore Drinker - Trigger",
 		Callback: core.CallbackOnCastComplete | core.CallbackOnSpellHitDealt,
 		Outcome:  core.OutcomeLanded,
 		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			if result == nil {
-				return spellData.BerserkerRage.Contains(spell) || spellData.Bloodrage.Contains(spell) || spellData.DeathWish.Contains(spell)
+				return spellData.BerserkerRage.Contains(spell) || spellData.Bloodrage.Contains(spell) ||
+					spellData.DeathWish.Contains(spell) || spellData.RecklessSwings.Contains(spell)
 			}
 			return spell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial) && spellData.Bloodthirst.Contains(spell)
 		},
@@ -363,7 +365,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: recklessSwingsEnergize.ID})
 	rage := recklessSwingsEnergize.EnergizeEffect().Tenths()
 	// The row's cost is a share of base health, which applyCost leaves to the caller, as on Bloodrage.
-	healthCost := warrior.GetBaseStats()[stats.Health] * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
+	healthCost := warrior.BaseHealth() * float64(recklessSwingsRank.Power(dbcenums.POWER_HEALTH).CostPct) / 100
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
@@ -378,7 +380,7 @@ func (warrior *Warrior) registerRecklessSwings() {
 	config := spelldata.SpellConfig(&warrior.Unit, recklessSwingsRank, spelldata.Flags(core.SpellFlagAPL))
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		warrior.RemoveHealth(sim, healthCost)
+		warrior.SpendHealth(sim, healthCost, spell.HealthMetrics(&warrior.Unit))
 		aura.Activate(sim)
 		aura.SetStacks(sim, aura.MaxStacks)
 	}

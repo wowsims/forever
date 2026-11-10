@@ -16,7 +16,7 @@ UI_SRC := $(shell find ui -name '*.ts' -o -name '*.tsx' -o -name '*.css' -o -nam
 # and --git-dir names a worktree's own folder.
 GIT_DIR := $(shell git rev-parse --git-dir 2>/dev/null)
 AUTO_GEN_FILES_TS := ui/sim/player/classes/capabilities_auto_gen.ts ui/sim/bulk/constants_auto_gen.ts ui/sim/wasm/bulk_sim/constants_auto_gen.ts ui/sim/proto/sim_tables_auto_gen.ts ui/sim/wasm/stat_weights_constants_auto_gen.ts
-AUTO_GEN_FILES_TS_DEPS := sim/core/base_stats.go sim/core/bulk/candidates.go sim/core/bulk/statistics.go sim/core/consumes_imbues.go sim/core/database.go sim/core/itemfit/itemfit.go sim/core/statweight.go tools/database/gen_character_constants_ts.go tools/database/gen_bulksim_constants.ts.go tools/database/gen_sim_tables_ts.go tools/database/gen_stat_weight_constants_ts.go sim/core/proto/api.pb.go
+AUTO_GEN_FILES_TS_DEPS := sim/core/base_stats.go sim/core/constants.go sim/core/bulk/candidates.go sim/core/bulk/statistics.go sim/core/consumes_imbues.go sim/core/database.go sim/core/itemfit/itemfit.go sim/core/statweight.go tools/database/gen_character_constants_ts.go tools/database/gen_bulksim_constants.ts.go tools/database/gen_sim_tables_ts.go tools/database/gen_stat_weight_constants_ts.go sim/core/proto/api.pb.go
 
 $(OUT_DIR)/.dirstamp: \
   $(OUT_DIR)/lib.wasm.gz \
@@ -44,7 +44,7 @@ $(OUT_DIR)/bundle/.dirstamp: \
   $(filter-out %_test.go,$(wildcard sim/siml/*.go)) \
   $(if $(WOWSIMCLI),,| bin/wowsimcli$(BIN_EXT))
 	node_modules/typescript/bin/tsc --noEmit
-	npx tsx vite.build-workers.mts
+	node vite.build-workers.mts
 	npx vite build
 	touch $@
 
@@ -131,7 +131,7 @@ wasm: $(OUT_DIR)/lib.wasm.gz
 WASM_FEATURES := --enable-sign-ext --enable-nontrapping-float-to-int --enable-mutable-globals --enable-bulk-memory
 $(OUT_DIR)/lib.wasm.gz: sim/wasm/* sim/core/proto/api.pb.go sim/siml/forms.json $(filter-out sim/core/items/all_items.go, $(call rwildcard,sim,*.go))
 	@echo "Starting webassembly compile now..."
-	@if GOWASM=satconv,signext GOOS=js GOARCH=wasm go build -ldflags "-w -s" -o ./$(OUT_DIR)/lib.wasm ./sim/wasm/; then \
+	@if GOOS=js GOARCH=wasm go build -ldflags "-w -s" -o ./$(OUT_DIR)/lib.wasm ./sim/wasm/; then \
 		printf "\033[1;32mWASM compile successful.\033[0m\n"; \
 	else \
 		printf "\033[1;31mWASM COMPILE FAILED\033[0m\n"; \
@@ -207,7 +207,7 @@ endif
 
 rundevserver: air devserver $(AUTO_GEN_FILES_TS)
 ifeq ($(WATCH), 1)
-	npx tsx vite.build-workers.mts & npx vite build -m development --watch &
+	node vite.build-workers.mts & npx vite build -m development --watch &
 	ulimit -n 10240 && air -tmp_dir "/tmp" -build.include_ext "go,proto" -build.args_bin "--usefs=true --launch=false" -build.bin "./wowsimforever$(BIN_EXT)" -build.cmd "make devserver" -build.exclude_dir "assets,dist,node_modules,ui,tools"
 else
 	./wowsimforever$(BIN_EXT) --usefs=true --launch=false --host=":3333"
@@ -413,14 +413,15 @@ endif
 
 devmode: air devserver $(AUTO_GEN_FILES_TS)
 ifeq ($(WATCH), 1)
-	npx tsx vite.build-workers.mts & npx vite serve --host &
+	node vite.build-workers.mts & npx vite serve --host &
 	air -tmp_dir "/tmp" -build.include_ext "go,proto" -build.args_bin "--usefs=true --launch=false --wasm=false" -build.bin "./wowsimforever$(BIN_EXT)" -build.cmd "make devserver" -build.exclude_dir "assets,dist,node_modules,ui,tools"
 else
 	./wowsimforever$(BIN_EXT) --usefs=true --launch=false --host=":3333"
 endif
 
+# `--watch` goes only when WATCH is set: util.parseArgs rejects `--watch=false` on a boolean option.
 webworkers:
-	npx tsx vite.build-workers.mts --watch=$(if $(WATCH),true,false)
+	node vite.build-workers.mts $(if $(WATCH),--watch,)
 
 .PHONY: vscode-spelldata
 vscode-spelldata:

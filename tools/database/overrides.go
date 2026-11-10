@@ -67,7 +67,7 @@ var UnsupportedAbsorbBySpellID = map[int32]string{
 	1287808: "the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list",
 }
 
-// Items below MIN_EFFECT_ILVL whose effects are generated anyway, keyed by item ID with the reason a
+// Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
 // level 60 character still uses them.
 var EffectFloorExemptions = map[int32]string{
 	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
@@ -971,6 +971,13 @@ var ItemDenyList = map[int32]struct{}{
 	241090: {}, // Scarlet Great Axe
 	// Forever test items the game files carry
 	280304: {}, // Invisible Dagger
+	// End of Beta event weapons: level 1 copies of raid weapons at item level 35 to 45
+	289292: {}, // Hammer of Bestial Fury
+	289294: {}, // Thunderfury, Blessed Blade of the Windseeker
+	289295: {}, // Sulfuras, Hand of Ragnaros
+	289296: {}, // Benediction
+	289297: {}, // Anathema
+	289303: {}, // Rhok'delar, Longbow of the Ancient Keepers
 }
 
 // Item Ids of consumables to allow
@@ -983,7 +990,6 @@ var ConsumableAllowList = []int32{
 	13452, // Elixir of the Mongoose
 	13454, // Greater Arcane Elixir
 	12662, // Demonic Rune
-	5206,  // Bogling Root
 	12217, // Dragonbreath Chili, whose proc sim/common/forever registers by hand
 	// The Natural flasks, whose zone bonus sim/common/forever registers by hand
 	274273, // Flask of Natural Accuracy
@@ -1017,6 +1023,17 @@ var ConsumableDenyList = []int32{
 	23794, // Permanent Sheen of Zanza
 	23795, // Permanent Spirit of Zanza
 	23796, // Permanent Swiftness of Zanza
+	// End of Beta event elixirs and scrolls
+	289082, // Elixir of Endless Intellect
+	289083, // Elixir of Endless Power
+	289084, // Elixir of Endless Healing
+	289086, // Elixir of Endless Rapidity
+	289087, // Elixir of Endless Opportunity
+	289088, // Scroll of Endless Fortitude
+	289321, // Elixir of Endless Mana
+	289329, // Elixir of Endless Growth
+	289330, // Scroll of Endless Speed
+	289334, // Elixir of Endless Experience
 	// Mage familiar summons, which the settings leave out
 	275069, // Scroll of Rat Familiar
 	277483, // Scroll of Frog Familiar
@@ -1055,14 +1072,23 @@ var ConsumableDenyList = []int32{
 }
 
 // Exclusive groups the server keeps that the rows do not state: the game files carry no stacking
-// table, and these items share no aura with their group and no category whose cooldown outlasts
-// their buffs. A consumable named here takes this group instead of the one its rows give it.
+// table, the rows group by aura only elixirs and scrolls, and by category only the stat consumables
+// whose category cooldown lasts as long as their buffs. A consumable named here takes this group
+// instead of the one its rows give it.
+//
+// TODO: check in game whether these stack with the elixir group of the aura they open on, and add
+// each one that does not: Oil of Olaf 1177 (A_MOD_ARMOR_NO_MODS), Call of the Raptor 4546
+// (A_MOD_STAT Agility), Very Berry Cream 22238 and Midsummer Sausage 23326 (A_MOD_DAMAGE_DONE every
+// school).
 var ConsumableExclusiveGroups = []ConsumableGroup{
 	{Group: ElixirGroup(dbcenums.A_MOD_STAT, 0), Items: []int32{
 		12451, // Juju Power
 	}},
 	{Group: ElixirGroup(dbcenums.A_MOD_ATTACK_POWER, 0), Items: []int32{
 		12460, // Juju Might
+	}},
+	{Group: ElixirGroup(dbcenums.A_MOD_DAMAGE_DONE, 1), Items: []int32{
+		5206, // Bogling Root
 	}},
 	{Group: ConsumableGroupKey{Key: "Zanza", Name: "Zanza"}, Items: []int32{
 		8410,  // R.O.I.D.S.

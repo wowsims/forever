@@ -23,7 +23,7 @@ vi.mock('../action_id', () => {
 });
 
 import { parseAll } from './parse';
-import type { CastBeganLog, CastFailedLog, CastPushbackLog, DamageLog, ParsedLog, SpellQueuedLog, StatChangeLog } from './types';
+import type { CastBeganLog, CastFailedLog, CastPushbackLog, DamageLog, MovementLog, ParsedLog, SpellQueuedLog, StatChangeLog } from './types';
 
 const parseLine = async (line: string): Promise<ParsedLog> => (await parseAll(RaidSimResult.create({ logs: line })))[0];
 
@@ -104,6 +104,24 @@ describe('parseAll on sim log lines', () => {
 		expect(log.isGain).toBe(isGain);
 		expect(log.stats).toBe('{"Strength": 20.000,"CritRating": 14.000,}');
 		expect(log.actionIdAsString).toBe(actionId);
+	});
+
+	it('reads a pet walk and names no action for it', async () => {
+		// movement.go's registerMovementAction.
+		const log = (await parseLine('[-0.50] [Player (#1) - Cat] Walking from 12.00 to 4.00 yards over 0.555s')) as MovementLog;
+		expect(log.kind).toBe('movement');
+		expect(log.timestamp).toBe(-0.5);
+		expect(log.source?.isPet).toBe(true);
+		expect(log.source?.name).toBe('Cat');
+		expect([log.fromYards, log.toYards, log.duration]).toEqual([12, 4, 0.555]);
+		expect(log.actionId).toBeNull();
+	});
+
+	it('reads a stop as a walk of no duration on the spot', async () => {
+		// movement.go's logStop.
+		const log = (await parseLine('[-17.14] [Player (#1)] Stopped walking at 25.00 yards')) as MovementLog;
+		expect(log.kind).toBe('movement');
+		expect([log.fromYards, log.toYards, log.duration]).toEqual([25, 25, 0]);
 	});
 
 	it.each([

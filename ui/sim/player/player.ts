@@ -413,6 +413,7 @@ export class Player<SpecType extends Spec> {
 			talentsString: '',
 			specOptions: this.specTypeFunctions.optionsCreate(),
 			reactionTime: 0,
+			reactionTimeMax: 0,
 			channelClipDelay: 0,
 			inFrontOfTarget: false,
 			distanceFromTarget: 0,
@@ -1103,6 +1104,16 @@ export class Player<SpecType extends Spec> {
 		this.patch('reactionTime', newReactionTime);
 	}
 
+	getReactionTimeMax(): number {
+		return this.slice().reactionTimeMax;
+	}
+
+	setReactionTimeMax(newReactionTimeMax: number) {
+		if (newReactionTimeMax == this.getReactionTimeMax()) return;
+
+		this.patch('reactionTimeMax', newReactionTimeMax);
+	}
+
 	getChannelClipDelay(): number {
 		return this.slice().channelClipDelay;
 	}
@@ -1478,6 +1489,7 @@ export class Player<SpecType extends Spec> {
 				prof1Rank: this.slice().prof1Rank,
 				prof2Rank: this.slice().prof2Rank,
 				reactionTimeMs: this.getReactionTime(),
+				reactionTimeMaxMs: this.getReactionTimeMax(),
 				channelClipDelayMs: this.getChannelClipDelay(),
 				inFrontOfTarget: this.getInFrontOfTarget(),
 				distanceFromTarget: this.getDistanceFromTarget(),
@@ -1530,6 +1542,7 @@ export class Player<SpecType extends Spec> {
 				this.setProfession2(proto.profession2);
 				this.setProfessionRanks(proto.prof1Rank, proto.prof2Rank);
 				this.setReactionTime(proto.reactionTimeMs);
+				this.setReactionTimeMax(proto.reactionTimeMaxMs);
 				this.setChannelClipDelay(proto.channelClipDelayMs);
 				this.setInFrontOfTarget(proto.inFrontOfTarget);
 				this.setDistanceFromTarget(proto.distanceFromTarget);
@@ -1551,6 +1564,7 @@ export class Player<SpecType extends Spec> {
 	applySharedDefaults() {
 		batch(() => {
 			this.setReactionTime(100);
+			this.setReactionTimeMax(0);
 			this.setInFrontOfTarget(this.playerSpec.isTankSpec);
 			this.setHealingModel(
 				HealingModel.create({

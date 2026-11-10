@@ -39,7 +39,7 @@ export const StandardTalents = {
 	}),
 };
 
-export const ManaTideTalents = PresetUtils.makePresetTalents('Mana Tide', SavedTalents.create({ talentsString: '5500331023001351-03-053150001001' }));
+export const ManaTideTalents = PresetUtils.makePresetTalents('Mana Tide', SavedTalents.create({ talentsString: '5500331013001351-04-053150001001' }));
 
 export const DefaultOptions = ElementalShamanOptions.create({
 	classOptions: {

@@ -287,7 +287,7 @@ func writeExprText(out io.Writer, result *exprResult, expr, doc string) {
 	}
 
 	if doc != "" {
-		for _, line := range strings.Split(doc, "\n") {
+		for line := range strings.SplitSeq(doc, "\n") {
 			fmt.Fprintln(out, strings.TrimRight("    "+line, " "))
 		}
 		fmt.Fprintln(out)

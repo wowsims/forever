@@ -4,7 +4,7 @@ import { renderWithHost } from '@testing/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
@@ -162,6 +162,36 @@ describe('ItemListRow', () => {
 		const itemNotice = items.container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(itemNotice.getAttribute('data-item-id')).toBe('17182');
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
+	});
+
+	describe('the discovered dot', () => {
+		const NOW_MS = Date.UTC(2026, 10, 8, 12);
+		const DAY_SECONDS = 24 * 60 * 60;
+		const dot = () => screen.queryByTestId('selector-modal-list-item-discovered');
+
+		beforeEach(() => {
+			vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		it('shows on an item first seen inside the last seven days, named and with a tooltip by its day', async () => {
+			renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
+			expect(dot()?.textContent).toBe('gear_tab.item_notices.discovered_on');
+			fireEvent.mouseEnter(dot()!);
+			expect((await screen.findByRole('tooltip')).textContent).toBe('gear_tab.item_notices.discovered_on');
+		});
+
+		it.each([
+			['an item first seen before the last seven days', SelectorModalTabs.Items, NOW_MS / 1000 - 8 * DAY_SECONDS],
+			['an item with no first-seen date', SelectorModalTabs.Items, undefined],
+			['an enchant whose row has a recent date', SelectorModalTabs.Enchants, NOW_MS / 1000 - 3 * DAY_SECONDS],
+		])('stays off %s', (_name, label, firstSeen) => {
+			renderRow({ label, firstSeen });
+			expect(dot()).toBeNull();
+		});
 	});
 
 	it('hands the ep and equipped ep to the ep cell', () => {

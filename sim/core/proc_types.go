@@ -42,8 +42,8 @@ const (
 	ProcHintPureHeal
 	// The trigger clause names one ability: "Your Shock spells", "Your Moonfire ability".
 	ProcHintNamedAbility
-	// The trigger clause states an attack outcome the mask has no bit for: a resist, a block, a
-	// dodge or a parry.
+	// The trigger clause states an attack outcome the mask has no bit for: a resist, a dodge or a
+	// parry.
 	ProcHintOutcomeTaken
 	// The trigger clause names the wearer's own attack being dodged: "when you are Parried or
 	// Dodged".
@@ -53,6 +53,9 @@ const (
 	// The trigger clause restricts the proc to spells with a damage component: "your damaging
 	// spells", "your next 5 damage or healing spells".
 	ProcHintDamage
+	// The trigger clause names the wearer blocking: "every time you block", "after a block". A
+	// blocked hit is an outcome the listener can be given, so the decoder names it.
+	ProcHintBlocked
 )
 
 // The wearer's own attack landing on nothing, which the decoder turns into the outcome it names.
@@ -144,18 +147,18 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// the same shape as 0x10000, which is what unsupportedProcFlags says of that bit too.
 	castWord := word &^ dbcenums.PROC_FLAG_DEAL_HARMFUL_ABILITY
 
-	// A mask made of nothing but the spell-cast bits. The harmful one has to be present: a
-	// helpful-only mask carries no evidence that casting is the trigger at all, and the helpful
-	// branch below already demands tooltip evidence before it believes one.
-	spellCastMask := castWord&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 &&
+	// A mask made of nothing but the spell-cast bits, one of them at least.
+	spellCastMask := castWord != 0 &&
 		castWord&^(dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL|dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL) == 0
 
 	// Whether the cast itself is the trigger. A mask of only the harmful-spell bit does not care
-	// whether the spell landed. Adding the helpful bit settles nothing either way, and the two
-	// items that pin it down disagree despite carrying the identical mask: Memento of Tyrande
+	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. The
+	// two items that pin that down disagree despite carrying the identical mask: Memento of Tyrande
 	// procs off resists in logs, while Band of the Eternal Restorer does not proc on a miss or a
 	// full resist. What separates them is that the first names the cast as the trigger and the
-	// second does not, so for that pair the tooltip decides.
+	// second does not, so for that pair the tooltip decides. The helpful bit alone is the same
+	// shape: Idol of Longevity's 28847 refunds mana "each time you cast Healing Touch", while Holy
+	// Power 28789 carries the bit with no cast tooltip and states no trigger at all.
 	castOnly := spellCastMask && (castWord == dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL || hint.Matches(ProcHintCastTrigger))
 
 	// A tooltip naming an outcome is the exception to all of it: a crit is only known once the
@@ -177,9 +180,9 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// The helpful-spell bit beside the harmful one is the game files' "any spell", heals included,
 	// which the mask states on its own. A helpful bit without the harmful one needs the tooltip's
-	// evidence that it is a trigger at all.
+	// evidence that it is a trigger at all: a heal, or the cast read above.
 	helpfulSpells := word&dbcenums.PROC_FLAG_DEAL_HELPFUL_SPELL != 0 &&
-		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals))
+		(word&dbcenums.PROC_FLAG_DEAL_HARMFUL_SPELL != 0 || hint.Matches(ProcHintHeals) || castOnly)
 
 	if helpfulSpells {
 		info.RequireDamageDealt = false
@@ -222,27 +225,30 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 
 	// An avoidance outcome - a dodge, a parry, a miss, a full block or a resist - is a hit that
 	// landed on nothing, so a listener whose trigger is one hears a hit that dealt no damage.
-	// Which of them it is stays the caller's: no ProcTypeMask has a bit for any of them.
-	if hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided) {
+	// Which of them it is stays the caller's, except a block, which the hint below names: no
+	// ProcTypeMask has a bit for any of them.
+	avoided := hint.Matches(ProcHintOutcomeTaken | ProcHintAttackAvoided | ProcHintBlocked)
+	if avoided {
 		info.RequireDamageDealt = false
 	}
 
 	// A trigger restricted to spells with a damage component hears a dealt hit that deals damage,
 	// and the landed application of a DoT, which deals none. A cast has no hit to read that from,
 	// and an avoided attack deals nothing by definition, so neither takes the rule.
-	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) &&
-		!hint.Matches(ProcHintOutcomeTaken|ProcHintAttackAvoided) {
+	if hint.Matches(ProcHintDamage) && info.Callback.Matches(CallbackOnSpellHitDealt) && !avoided {
 		info.RequireDamageDealt = false
 		info.RequireDamageComponent = true
 	}
 
-	// An outcome the listener can be given. The crit hint names one, and so do the two naming the
-	// wearer's own attack dodged or parried: the mask itself states which hits arrive, never how
-	// they resolved, so everything else listens to a landed hit. A cast has not resolved into a
-	// hit at all and takes no outcome.
+	// An outcome the listener can be given. The crit hint names one, the block hint names the hit
+	// taken that the wearer blocked, and so do the two naming the wearer's own attack dodged or
+	// parried: the mask itself states which hits arrive, never how they resolved, so everything else
+	// listens to a landed hit. A cast has not resolved into a hit at all and takes no outcome.
 	switch {
 	case info.Callback.Matches(CallbackOnCastComplete):
 		info.Outcome = OutcomeEmpty
+	case hint.Matches(ProcHintBlocked):
+		info.Outcome = OutcomeBlock
 	case hint.Matches(ProcHintAttackAvoided):
 		if hint.Matches(ProcHintAttackDodged) {
 			info.Outcome |= OutcomeDodge
@@ -295,7 +301,7 @@ func unsupportedProcFlags(mask [2]uint32) []string {
 	unsupported := mask[0] & (dbcenums.PROC_FLAG_HEARTBEAT | dbcenums.PROC_FLAG_TAKE_HELPFUL_SPELL | ^(dbcenums.PROC_FLAG_DEATH - 1))
 
 	var names []string
-	for bit := 0; bit < 32; bit++ {
+	for bit := range 32 {
 		if unsupported&(1<<bit) == 0 {
 			continue
 		}
@@ -308,7 +314,7 @@ func unsupportedProcFlags(mask [2]uint32) []string {
 	}
 
 	word1 := mask[1] &^ (dbcenums.PROC_FLAG_2_TARGET_DIES | dbcenums.PROC_FLAG_2_MAIN_HAND_ONLY)
-	for bit := 0; bit < 32; bit++ {
+	for bit := range 32 {
 		if word1&(1<<bit) != 0 {
 			names = append(names, fmt.Sprintf("bit %d", 32+bit))
 		}

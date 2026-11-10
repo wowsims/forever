@@ -78,6 +78,7 @@ export interface OtherDefaults {
 	distanceFromTarget?: number;
 	channelClipDelay?: number;
 	reactionTime?: number;
+	reactionTimeMax?: number;
 	iterationCount?: number;
 	race?: Race;
 	// Applied by applyIndividualDefaults after the encounter defaults.

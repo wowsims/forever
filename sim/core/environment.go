@@ -298,6 +298,12 @@ func (env *Environment) reset(sim *Simulation) {
 	// Targets need to be reset before the raid, so that players can check for
 	// the presence of permanent target auras in their Reset handlers.
 	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
+	// Cleared before any landing of the raid's debuffs reads them: a landing before the target's own reset only releases
+	// the hold, and a target AI that resets first holds another target's debuffs before that target's own reset.
+	for _, target := range env.Encounter.AllTargets {
+		target.aurasReset = false
+		target.raidDebuffsHeld = false
+	}
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}

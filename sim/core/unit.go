@@ -65,7 +65,10 @@ type Unit struct {
 
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
-	ReactionTime time.Duration
+	ReactionTime    time.Duration
+	reactionTimeMax time.Duration // Above the reaction the settings give, ReactionTime is drawn evenly between the two.
+	reactionTimeMin time.Duration // The reaction the settings give.
+	reactionDrawnAt time.Duration // The instant ReactionTime was drawn at.
 
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
@@ -91,6 +94,8 @@ type Unit struct {
 	engagedBeforePull bool
 
 	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
+
+	raidDebuffsHeld bool // A target's only: the raid's debuffs stay off it, its reset included, until Target.ApplyRaidDebuffsAt lands them.
 
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
@@ -215,6 +220,7 @@ type Unit struct {
 
 	// The currently-channeled DOT spell, otherwise nil.
 	ChanneledDot       *Dot
+	endedChannel       *Dot // The channel a lookahead reads the rotation without; its aura reads as down meanwhile.
 	channelEndHandlers []func(sim *Simulation, dot *Dot)
 
 	// Data about the most recently queued spell, otherwise nil.
@@ -287,7 +293,7 @@ func (unit *Unit) LogLabel() string {
 	return "[" + unit.Label + "]"
 }
 
-func (unit *Unit) Log(sim *Simulation, message string, vals ...interface{}) {
+func (unit *Unit) Log(sim *Simulation, message string, vals ...any) {
 	sim.Log(unit.LogLabel()+" "+message, vals...)
 }
 
@@ -618,8 +624,12 @@ func (unit *Unit) Armor() float64 {
 	return unit.PseudoStats.ArmorMultiplier * unit.stats[stats.Armor]
 }
 
+// A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
+// floor(shield + max(0, Strength x 0.05 - 1)). Flooring the Strength part alone gives the same number while the
+// shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
+// floors is not measured, so the whole is floored.
 func (unit *Unit) BlockDamageReduction() float64 {
-	return max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier
+	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)
 }
 
 func (unit *Unit) TotalRangedHasteMultiplier() float64 {
@@ -927,6 +937,7 @@ func (unit *Unit) finalize() {
 	if unit.ReactionTime == 0 {
 		panic("Unset unit.ReactionTime")
 	}
+	unit.reactionTimeMin = unit.ReactionTime
 
 	unit.defaultTarget = unit.CurrentTarget
 	unit.applyParryHaste()
@@ -976,6 +987,10 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	if unit.reactionTimeMax > unit.reactionTimeMin {
+		unit.ReactionTime = (unit.reactionTimeMin + unit.reactionTimeMax) / 2
+		unit.reactionDrawnAt = NeverExpires
+	}
 	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()

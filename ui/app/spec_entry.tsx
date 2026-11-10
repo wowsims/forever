@@ -12,7 +12,10 @@ import { StrictMode } from 'react';
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 
+import { watchForNewBuild } from './new_build';
 import { SimApp } from './SimApp';
+
+watchForNewBuild();
 
 const modules = import.meta.glob<{ default: SpecDefinition<any> }>('../specs/*/*/spec.{ts,tsx}');
 

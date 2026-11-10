@@ -3,13 +3,13 @@ package database
 import (
 	"bytes"
 	"log"
+	"maps"
 	"os"
 	"slices"
 	"strings"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools"
-	"golang.org/x/exp/maps"
 	"google.golang.org/protobuf/encoding/protojson"
 	googleProto "google.golang.org/protobuf/proto"
 )

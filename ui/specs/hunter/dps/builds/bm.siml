@@ -5,7 +5,7 @@ use "../gear_sets/p1.gear.siml"
 use "../apls/turret.apl.siml"
 
 settings:
-  reaction_time_ms 250
+  reaction_time 150ms 350ms
   distance_from_target 12
   quiver_bonus ancient_sinew_wrapped_lamina
   ammo thorium_headed_arrow

@@ -350,6 +350,7 @@ func procHintNames(hint core.ProcHint) []string {
 		{core.ProcHintAttackDodged, "own attack dodged"},
 		{core.ProcHintAttackParried, "own attack parried"},
 		{core.ProcHintDamage, "damaging spells only"},
+		{core.ProcHintBlocked, "on a block"},
 	} {
 		if hint.Matches(h.bit) {
 			out = append(out, h.name)
@@ -403,7 +404,7 @@ func statMaskName(mask int32) string {
 		return statName(-1)
 	}
 	var names []string
-	for i := int32(0); i < 32; i++ {
+	for i := range int32(32) {
 		if uint32(mask)&(1<<i) != 0 {
 			names = append(names, statName(i))
 		}

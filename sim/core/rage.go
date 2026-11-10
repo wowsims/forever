@@ -8,6 +8,8 @@ import (
 
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
+// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage)
+// makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
 // Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
@@ -16,15 +18,18 @@ const ThreatPerRageGained = 5
 // armor reduction the game assumes in place of the defender's own. The defender's level, health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
-// A by the attacker's level: 20% up to level 42, 30% at 44, 36% at 46 and 38% at 50, measured on combat logs, and
-// 40% at 63, the top of the 20% to 40% range the game build's notes give. Levels between two rows interpolate; no
-// log covers 43, 45, 47-49 or 61-63.
+// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
+// 21.8% at attackers 17-38, 23.9% at 42 and 31% at 44 on hundreds of hits each; 36% at 46 and 38% at 50 on a few
+// dozen. The 40% at 63 is the top of the 20% to 40% range the game build's notes give. No log covers 47-49 or 51-63.
+// Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
+// since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
 	level     int32
 	reduction float64
 }{
-	{level: 42, reduction: 0.20},
-	{level: 44, reduction: 0.30},
+	{level: 38, reduction: 0.218},
+	{level: 42, reduction: 0.239},
+	{level: 44, reduction: 0.31},
 	{level: 46, reduction: 0.36},
 	{level: 50, reduction: 0.38},
 	{level: 63, reduction: 0.40},
@@ -95,6 +100,11 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			return
 		}
 		if !result.Landed() {
+			return
+		}
+		// A hit blocked in full grants none. A block whose remainder an absorb takes still grants rage,
+		// so the check reads the damage the block left, before absorbs.
+		if result.DidBlock() && result.PostOutcomeDamage == 0 {
 			return
 		}
 
@@ -222,7 +232,7 @@ func (rb *rageBar) AddRage(sim *Simulation, amount float64, metrics *ResourceMet
 	metrics.AddEvent(amount, gain)
 
 	if gain > 0 && !metrics.NoThreat {
-		rb.addRageGainThreat(sim, gain)
+		rb.addRageGainThreat(sim, gain, metrics)
 	}
 
 	if sim.Log != nil {
@@ -267,10 +277,14 @@ func (rb *rageBar) reset(_ *Simulation) {
 	rb.damageTakenRageMultiplier = 1
 }
 
-// Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, split
-// between the targets in combat at the time.
-func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64) {
-	rb.rageGainSpell.applySplitThreat(sim, gain*ThreatPerRageGained*rb.rageGainSpell.unitThreatMultiplier())
+// Each rage gained is ThreatPerRageGained threat times the unit's threat multiplier at the time, or
+// without it from a source marked UnscaledThreat, split between the targets in combat at the time.
+func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64, metrics *ResourceMetrics) {
+	threat := gain * ThreatPerRageGained
+	if !metrics.UnscaledThreat {
+		threat *= rb.rageGainSpell.unitThreatMultiplier()
+	}
+	rb.rageGainSpell.applySplitThreat(sim, threat)
 	rb.rageGainSpell.SpellMetrics[0].Casts++
 }
 

@@ -8,7 +8,7 @@ settings:
   race human
   profession1 engineering
   profession2 enchanting
-  reaction_time_ms 100
+  reaction_time 100ms
   in_front_of_target
   distance_from_target 5
   healing_model(hps=2200,

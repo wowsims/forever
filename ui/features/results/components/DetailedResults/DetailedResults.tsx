@@ -26,6 +26,7 @@ import { DamageMetricsTable } from '../DamageMetricsTable';
 import { DtpsMetricsTable } from '../DtpsMetricsTable';
 import { HealingMetricsTable } from '../HealingMetricsTable';
 import { LogRunner } from '../LogRunner';
+import { Movement } from '../Movement';
 import { ResourceMetricsTable } from '../ResourceMetricsTable';
 import { ALL_UNITS, hasTarget, ResultsFilter, simResultFilter } from '../ResultsFilter';
 import { ThreatMetricsTable } from '../ThreatMetricsTable';
@@ -341,6 +342,9 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 			</DetailedResultsPane>
 			<DetailedResultsPane id="timelineTab" filling>
 				<Timeline active={activeId === 'timelineTab'} />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="movementTab">
+				<Movement active={activeId === 'movementTab'} />
 			</DetailedResultsPane>
 			<DetailedResultsPane id="logTab">
 				<LogRunner active={activeId === 'logTab'} />

@@ -69,6 +69,8 @@ type schemaField struct {
 	Printed  string
 	Ref      string
 	Index    string
+	Max      string // For a duration, the proto name of the <x>_max_ms field its entry line sets with a second duration (§5.2).
+	Min      string // For that <x>_max_ms field, the proto name of the duration whose line sets it.
 }
 
 type schemaEnum struct {
@@ -342,7 +344,8 @@ func (b *builder) printedByType(fd protoreflect.FieldDescriptor) string {
 }
 
 // The printed names and aliases of a message's fields (§5.2, §8.2). An item ref field drops a trailing _id or
-// _ids when the shorter name is no other field's.
+// _ids, and a duration field (a singular int32 named <x>_ms) its _ms, when the shorter name is no other field's. A
+// duration's <x>_max_ms beside it keeps its full name, and is written as the second value of <x>'s line.
 func nameFields(fields []schemaField) {
 	base := make([]string, len(fields))
 	taken := map[string]bool{}
@@ -355,11 +358,16 @@ func nameFields(fields []schemaField) {
 	}
 	short := make([]string, len(fields))
 	shortCount := map[string]int{}
+	duration := make([]bool, len(fields))
 	for i, f := range fields {
-		if f.Printed != "ref" || f.Ref != "item" {
-			continue
+		var suffixes []string
+		switch {
+		case f.Printed == "ref" && f.Ref == "item":
+			suffixes = []string{"_ids", "_id"}
+		case f.Printed == "number" && f.Scalar == "int32" && !f.Repeated:
+			suffixes, duration[i] = []string{"_ms"}, true
 		}
-		for _, suffix := range []string{"_ids", "_id"} {
+		for _, suffix := range suffixes {
 			if s, ok := strings.CutSuffix(base[i], suffix); ok && s != "" {
 				short[i] = s
 				shortCount[s]++
@@ -367,10 +375,23 @@ func nameFields(fields []schemaField) {
 			}
 		}
 	}
+	byShort := map[string]int{}
 	for i := range fields {
 		fields[i].Siml, fields[i].Aliases = base[i], []string{}
 		if s := short[i]; s != "" && !taken[s] && shortCount[s] == 1 {
 			fields[i].Siml, fields[i].Aliases = s, []string{base[i]}
+			if duration[i] {
+				fields[i].Printed = "duration"
+				byShort[s] = i
+			}
+		}
+	}
+	for i := range fields {
+		if s, ok := strings.CutSuffix(fields[i].Siml, "_max"); ok && fields[i].Printed == "duration" {
+			if min, ok := byShort[s]; ok {
+				fields[min].Max, fields[i].Min = fields[i].Name, fields[min].Name
+				fields[i].Siml, fields[i].Aliases, fields[i].Printed = base[i], []string{}, "number"
+			}
 		}
 	}
 }
@@ -556,7 +577,7 @@ func (b *builder) resolvePath(p string, spec SpecInfo) (protoreflect.MessageDesc
 	if p == "" {
 		return md, jsonPath, nil
 	}
-	for _, seg := range strings.Split(p, ".") {
+	for seg := range strings.SplitSeq(p, ".") {
 		fd := md.Fields().ByName(protoreflect.Name(seg))
 		name := ""
 		if seg == "*" {

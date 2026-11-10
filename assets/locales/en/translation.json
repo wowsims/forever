@@ -103,7 +103,8 @@
 			"aquatic": "Aquatic",
 			"earth_elemental": "Earth Elemental",
 			"fire_elemental": "Fire Elemental",
-			"mountain_giant": "Mountain Giant"
+			"mountain_giant": "Mountain Giant",
+			"swine": "Swine"
 		},
 		"area_types": {
 			"unknown": "None",
@@ -465,6 +466,11 @@
 			"message": "You can download our local sim to speed up your simulations significantly?",
 			"download_button": "Download"
 		},
+		"new_build": {
+			"title": "New version",
+			"message": "A new version of the sim is out. Reload the page to use it.",
+			"reload_button": "Reload"
+		},
 		"crash_modal": {
 			"title": "Extra Crash Information",
 			"header": "Please append the following complete link to the issue you just created. This will simplify debugging the issue."
@@ -628,7 +634,17 @@
 			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
-			"area_stats": "Only while the encounter is in one of these areas:"
+			"area_stats": "Only while the encounter is in one of these areas:",
+			"discovered_within_hour": "Discovered less than an hour ago",
+			"discovered_ago": "Discovered {{when}}",
+			"discovered_yesterday": "Discovered yesterday",
+			"discovered_on": "Discovered on {{date}}",
+			"ordinal": {
+				"one": "st",
+				"two": "nd",
+				"few": "rd",
+				"other": "th"
+			}
 		}
 	},
 	"settings_tab": {
@@ -700,6 +716,10 @@
 			"input_delay": {
 				"label": "Input Delay",
 				"tooltip": "Player input delay, in milliseconds. Specifies the maximum delay on actions that cannot be spell queued, such as spell casts that are waiting on resource gains or waiting for a cooldown to expire. Also used with certain APL values (such as 'Aura Is Active With Reaction Time'). Roughly models the sum of reaction time + server latency."
+			},
+			"input_delay_max": {
+				"label": "Slowest Input Delay",
+				"tooltip": "The slowest the player reacts, in milliseconds. Above the Input Delay, each reaction is drawn evenly between the two, since a player is a little faster or slower every time. 0 keeps every reaction at the Input Delay."
 			},
 			"channel_clip_delay": {
 				"label": "Channel Clip Delay",
@@ -1040,6 +1060,18 @@
 				"kill_share": {
 					"label": "Kill share %",
 					"tooltip": "Chance that a despawning add counts as your kill (on-kill effects)."
+				},
+				"apply_debuffs_to_adds": {
+					"label": "Apply debuffs to adds",
+					"tooltip": "Whether the add(s) get the debuffs from the Debuffs panel. Your own debuffs land as you cast them."
+				},
+				"debuff_delay": {
+					"label": "Debuff delay",
+					"tooltip": "Time after each spawn before the add(s) get the debuffs from the Debuffs panel (in seconds)"
+				},
+				"debuff_jitter": {
+					"label": "Debuff jitter",
+					"tooltip": "Random change to the debuff delay, up to this much earlier or later, for each add at each spawn (in seconds). The debuffs never land before the spawn."
 				},
 				"fear_duration": {
 					"label": "Fear Duration",
@@ -2355,7 +2387,12 @@
 				"stealth": "Stealth",
 				"bear": "Bear",
 				"utility": "Utility",
-				"druid": "Druid"
+				"druid": "Druid",
+				"seals": "Seals",
+				"damage": "Damage",
+				"heals": "Heals",
+				"paladin_auras": "Auras",
+				"paladin": "Paladin"
 			},
 			"item_swap_sets": {
 				"main": "Main",
@@ -2454,6 +2491,9 @@
 		},
 		"options": {
 			"rogue": {
+				"start_in_stealth": {
+					"label": "Start In Stealth"
+				},
 				"use_backstab": {
 					"label": "Use Backstab"
 				},
@@ -2521,10 +2561,6 @@
 				"pull_range": {
 					"label": "Pull range (yd)",
 					"tooltip": "Where you stand when the pull starts. From there you walk to your spot (12 yd at range, 13.2 yd when weaving, melee range in melee), stopping for each Auto Shot you can fire on the way."
-				},
-				"time_to_weave": {
-					"label": "Time to weave (ms)",
-					"tooltip": "How long, in milliseconds, you stay in melee after the weave swing before walking back out. Never shorter than your input delay."
 				},
 				"use_aimed": {
 					"label": "Use Aimed Shot",
@@ -2703,6 +2739,28 @@
 				"delay_tooltip": "Auto delayed by {{delay}}, was ready at {{readyAt}}",
 				"gcd_tooltip": "{{spell}} — {{gcd}}s GCD ({{start}}s → {{end}}s)"
 			},
+			"movement": {
+				"note": "Shows the same single iteration as the timeline. Distances are to the target, and each unit has a bearing of its own so the circles stay apart.",
+				"no_walks": "No unit walked in this run.",
+				"field_label": "The player and pets around the target",
+				"play": "Play",
+				"pause": "Pause",
+				"speed_label": "Playback speed",
+				"speed": "{{speed}}×",
+				"time_label": "Time",
+				"time": "{{time}} s",
+				"unit": "{{name}}: {{yards}} yd",
+				"cast": "{{name}} {{time}} s",
+				"zones": {
+					"melee": "In melee range",
+					"dead_zone": "In the dead zone",
+					"ranged": "At range"
+				},
+				"rings": {
+					"melee": "melee {{yards}} yd",
+					"ranged": "ranged {{yards}} yd"
+				}
+			},
 			"logs": {
 				"top_button": "Top",
 				"export_button": "Export Log",
@@ -2780,6 +2838,7 @@
 				"casts": "Casts",
 				"resources": "Resources",
 				"timeline": "Timeline",
+				"movement": "Movement",
 				"log": "Log"
 			},
 			"columns": {
@@ -2953,6 +3012,7 @@
 			"instructions": "To import, upload a .apl.siml file or paste its text below, then click, 'Import'. Only the rotation is replaced."
 		},
 		"error": "Import error:",
+		"file_too_large": "This file is too large to import.",
 		"success": "Import successful!",
 		"talents_not_imported": "The exported talents are for a different talent tree, so they were not imported. Set them on the Talents tab.",
 		"missing_ids": {
@@ -3251,6 +3311,10 @@
 				"results_timeline": {
 					"title": "Timeline",
 					"body": "One fight laid out over time: casts, buffs and resources."
+				},
+				"results_movement": {
+					"title": "Movement",
+					"body": "Where you and your pets stood around the target over one fight, with a slider to scrub through it."
 				},
 				"results_log": {
 					"title": "Log",
@@ -3623,6 +3687,40 @@
 			"bonus_prefix": "Bonus",
 			"points_suffix": "Points",
 			"percent_suffix": "%"
+		}
+	},
+	"saved_data_transfer": {
+		"menu_label": "Import or export",
+		"export": "Export {{type}}",
+		"import": "Import {{type}}",
+		"export_title": "Export saved {{type}}",
+		"import_title": "Import saved {{type}}",
+		"export_empty": "No saved {{type}} to export",
+		"import_instructions": "Paste the text of an export or upload its file, then tick what to save.",
+		"import_button": "Import {{count}}",
+		"saves_as": "Saves as \"{{name}}\"",
+		"already_saved": "Already saved",
+		"already_saved_as": "Already saved as \"{{name}}\"",
+		"unreadable": "{{count}} entries could not be read and are left out.",
+		"unreadable_one": "{{count}} entry could not be read and is left out.",
+		"unreadable_other": "{{count}} entries could not be read and are left out.",
+		"types": {
+			"gear": "gear sets",
+			"talents": "talents",
+			"rotation": "rotations",
+			"settings": "settings",
+			"encounter": "encounters"
+		},
+		"refused": {
+			"unreadable": "This text is not a saved data export, or part of it is missing. Nothing was saved.",
+			"version": "This export uses a format this site does not know. Nothing was saved.",
+			"too_large": "This export is too large to import. Nothing was saved.",
+			"wrong_type": "This export holds {{found}}, not {{wanted}}.",
+			"other_spec": "This export is for {{spec}}.",
+			"unknown_spec": "This export is for a spec this site does not know.",
+			"empty": "This export holds no entries.",
+			"none_readable": "None of the entries in this export could be read. Nothing was saved.",
+			"storage_full": "The browser refused to store the entries, so nothing was saved. Its storage may be full."
 		}
 	},
 	"stat_filters": {

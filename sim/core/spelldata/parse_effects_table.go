@@ -149,7 +149,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
-		case !ok, rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry:
+		case !ok:
 			return nil
 		case rule == WeaponRulePerWeapon:
 			scope.School = core.SpellSchool(e.Misc)
@@ -230,9 +230,19 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			[]*float64{&p.unit.PseudoStats.BonusRangedDamageTaken}, v)
 	},
 
+	// The threat the unit generates, by school mask. A row that names a weapon holds while one is
+	// equipped, as its damage done does.
 	dbcenums.A_MOD_THREAT: func(p *parser, e *Effect, v float64) *attachment {
-		return p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
+		rule, scope, ok := p.weaponScope(e)
+		if !ok {
+			return nil
+		}
+		a := p.schoolMultiplier("threat", "ThreatMultiplier", e.Misc, core.MultiplierFromPercent(v),
 			&p.unit.PseudoStats.ThreatMultiplier, &p.unit.PseudoStats.SchoolThreatMultiplier)
+		if a == nil || rule != WeaponRuleWhileEquipped {
+			return a
+		}
+		return p.whileEquipped(scope.Equip(), a)
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER: func(p *parser, e *Effect, v float64) *attachment {
@@ -290,6 +300,11 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.PhysicalHitPercent, v)
 	},
 	dbcenums.A_MOD_SPELL_HIT_CHANCE: func(p *parser, e *Effect, v float64) *attachment {
+		if rule, scope, ok := p.weaponScope(e); !ok {
+			return nil
+		} else if rule == WeaponRuleWhileEquipped {
+			return p.statsWhileEquipped([]stats.Stat{stats.SpellHitPercent}, v, scope.Equip())
+		}
 		return p.statBuff(stats.SpellHitPercent, v)
 	},
 	dbcenums.A_MOD_WEAPON_CRIT_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
@@ -804,9 +819,13 @@ func addFlatCost(spell *core.Spell, v int32) {
 }
 
 // WeaponScope, narrowed to the hand OnHand names for a row bound to a weapon. Answers false for a row
-// that hand cannot carry.
+// that hand cannot carry, and for a row held while equipped on a unit with no character, which wears
+// no weapon.
 func (p *parser) weaponScope(e *Effect) (WeaponRule, core.SpellModConfig, bool) {
 	rule, scope := WeaponScope(p.spell, e)
+	if rule == WeaponRuleWhileEquipped && p.character == nil && !p.dry {
+		return rule, scope, false
+	}
 	if p.hand == 0 || (rule != WeaponRulePerWeapon && rule != WeaponRuleWhileEquipped) {
 		return rule, scope, true
 	}
@@ -963,13 +982,9 @@ func (p *parser) statsBuff(sts []stats.Stat, v float64) *attachment {
 }
 
 // Flat stats that hold only while a weapon meeting the requirement is equipped, as well as while the
-// parse is on. They follow item swaps. A unit with no character wears no weapon, so the row is skipped
-// there.
+// parse is on. They follow item swaps. The row's weaponScope has checked that there is a character to
+// wear the weapon.
 func (p *parser) statsWhileEquipped(sts []stats.Stat, v float64, req core.EquipRequirement) *attachment {
-	if p.character == nil && !p.dry {
-		return nil
-	}
-
 	a := &attachment{kind: "stat-while-equipped " + statNames(sts), value: v, stats: sts}
 	var gated *core.EquipGatedStats
 	if !p.dry {
@@ -1330,8 +1345,8 @@ func multiplier(kind string, mult float64, apply func(sim *core.Simulation, fact
 }
 
 // The attachment, or each of its parts, holds only while a weapon meeting the requirement is equipped,
-// as well as while the parse is on, and follows item swaps. The row's caller checks that there is a
-// character to wear the weapon.
+// as well as while the parse is on, and follows item swaps. The row's weaponScope has checked that
+// there is a character to wear the weapon.
 func (p *parser) whileEquipped(req core.EquipRequirement, a *attachment) *attachment {
 	if p.dry {
 		return a
@@ -1495,12 +1510,12 @@ func isOneSchool(mask int32) bool {
 }
 
 func statNames(sts []stats.Stat) string {
-	out := ""
+	var out strings.Builder
 	for i, stat := range sts {
 		if i > 0 {
-			out += "+"
+			out.WriteString("+")
 		}
-		out += stat.StatName()
+		out.WriteString(stat.StatName())
 	}
-	return out
+	return out.String()
 }

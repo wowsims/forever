@@ -112,6 +112,36 @@ func useTrinketAsEntryStates(t *testing.T, sim *core.Simulation, character *core
 	return nil
 }
 
+// Aegis of Preservation 19345's on-use 23780 grants its armor and, while it runs, heals the wearer
+// 23781's amount on each melee or ranged hit taken, read from the generated stat on-use: nothing on a
+// spell hit, and nothing once the 20 s buff has run out.
+func TestAegisOfPreservationHealsOnHitsTakenWhileItRuns(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassPriest, proto.ItemSlot_ItemSlotTrinket1, 19345)
+	character.RemoveHealth(sim, character.MaxHealth()/2)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	amount := spelldata.MustFind(23781).ProcHealEffect().Average()
+
+	use := useTrinketAsEntryStates(t, sim, character, 19345, core.CooldownTypeSurvival)
+	heal := character.GetSpell(core.ActionID{SpellID: 23781})
+	if heal == nil {
+		t.Fatal("19345's buff carries no heal proc")
+	}
+
+	takeHit(t, sim, character, meleeSwing(enemy))
+	takeHit(t, sim, character, rangedShot(enemy))
+	takeHit(t, sim, character, fireSpell(enemy))
+	if got := heal.SpellMetrics[character.UnitIndex]; got.Casts != 2 || amount <= 0 || got.TotalHealing != 2*amount {
+		t.Errorf("a melee, a ranged and a spell hit taken cast the heal %d times for %v, want twice for the row's %v", got.Casts, got.TotalHealing, amount)
+	}
+
+	stepTo(t, sim, use.RelatedSelfBuff.ExpiresAt()+time.Millisecond)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := heal.SpellMetrics[character.UnitIndex].Casts; got != 2 {
+		t.Errorf("a melee hit taken after the buff ran out left the heal at %d casts, want 2 still", got)
+	}
+}
+
 func gained(character *core.Character, before stats.Stats, stat stats.Stat) float64 {
 	return character.GetStat(stat) - before[stat]
 }
@@ -122,6 +152,24 @@ func statNear(a, b float64) bool {
 
 func meleeSwing(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
+}
+
+// The damage shield spell a row registers on the character, and the amount the row deals per hit.
+func damageShield(t *testing.T, character *core.Character, rowID int32) (*core.Spell, float64) {
+	t.Helper()
+	var amount float64
+	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(rowID)) {
+		amount += effect.Average()
+	}
+	shield := character.GetSpell(core.ActionID{SpellID: rowID, Tag: 2})
+	if shield == nil || amount <= 0 {
+		t.Fatalf("%d registers no damage shield", rowID)
+	}
+	return shield, amount
+}
+
+func rangedShot(unit *core.Unit) *core.Spell {
+	return &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: unit}
 }
 
 func fireSpell(unit *core.Unit) *core.Spell {
@@ -135,14 +183,21 @@ func takeHit(t *testing.T, sim *core.Simulation, character *core.Character, spel
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
+// A melee swing the character dodges, and the spell batch window the listener resolves after.
+func dodgeSwing(t *testing.T, sim *core.Simulation, character *core.Character, attacker *core.Unit) {
+	t.Helper()
+	character.OnSpellHitTaken(sim, meleeSwing(attacker), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeDodge})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+}
+
 func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
 	t.Helper()
 	character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
-// The countdown buff a Zandalarian trinket or the Petrified Scarab puts up: on use it carries all its
-// stacks, and each stat it grants is its stack count times one stack's share.
+// The buff the item's use put up, checked to carry all of at least 2 stacks or charges for the row's
+// duration: a Zandalarian trinket's or the Petrified Scarab's countdown, Vigilance Charm's charges.
 func countdownBuff(t *testing.T, character *core.Character, spellID int32) (*core.Aura, int32) {
 	t.Helper()
 	buff := character.GetAuraByID(core.ActionID{SpellID: spellID})
@@ -470,5 +525,35 @@ func TestDormantHeartOfTheMountainAnswersTheFourHeals(t *testing.T) {
 			t.Errorf("rank %d raised no buff", rank)
 		}
 		buff.Deactivate(sim)
+	}
+}
+
+// Vigilance Charm 18370's Vigilant 1302264 goes up with its dodge and its charges, and each attack the
+// wearer dodges spends one: a landed hit taken spends none, and the last dodge takes the buff down.
+func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
+	sim, character := trinketWarrior(t, 18370)
+	before := character.GetStats()
+
+	useTrinketAsEntryStates(t, sim, character, 18370, core.CooldownTypeSurvival)
+	buff, charges := countdownBuff(t, character, 1302264)
+	if got := gained(character, before, stats.DodgePercent); got <= 0 {
+		t.Errorf("the buff grants %v dodge, want the row's", got)
+	}
+
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := buff.GetStacks(); !buff.IsActive() || got != charges {
+		t.Errorf("after a landed hit taken the buff has %d charges, want all %d", got, charges)
+	}
+
+	for dodged := int32(1); dodged < charges; dodged++ {
+		dodgeSwing(t, sim, character, enemy)
+		if got := buff.GetStacks(); !buff.IsActive() || got != charges-dodged {
+			t.Fatalf("after %d dodges the buff has %d charges, want %d", dodged, got, charges-dodged)
+		}
+	}
+	dodgeSwing(t, sim, character, enemy)
+	if buff.IsActive() {
+		t.Errorf("the buff is still up after %d dodges, want it gone", charges)
 	}
 }

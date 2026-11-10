@@ -89,7 +89,7 @@ type TalentsCombo struct {
 }
 type SpecOptionsCombo struct {
 	Label       string
-	SpecOptions interface{}
+	SpecOptions any
 }
 type RotationCombo struct {
 	Label    string
@@ -255,6 +255,12 @@ func (filter *ItemFilter) Matches(item Item, equipChecksOnly bool) bool {
 	}
 
 	if item.Type == proto.ItemType_ItemTypeWeapon {
+		if filter.Class != proto.Class_ClassUnknown {
+			capability, ok := ClassWeaponTypeCapabilities[filter.Class][item.WeaponType]
+			if !ok || (item.HandType == proto.HandType_HandTypeTwoHand && !capability.CanUseTwoHand) {
+				return false
+			}
+		}
 		if len(filter.WeaponTypes) > 0 && !slices.Contains(filter.WeaponTypes, item.WeaponType) {
 			return false
 		}
@@ -262,6 +268,9 @@ func (filter *ItemFilter) Matches(item Item, equipChecksOnly bool) bool {
 			return false
 		}
 	} else if item.Type == proto.ItemType_ItemTypeRanged {
+		if filter.Class != proto.Class_ClassUnknown && !slices.Contains(ClassRangedWeaponTypeCapabilities[filter.Class], item.RangedWeaponType) {
+			return false
+		}
 		if len(filter.RangedWeaponTypes) > 0 && !slices.Contains(filter.RangedWeaponTypes, item.RangedWeaponType) {
 			return false
 		}
@@ -274,7 +283,7 @@ func (filter *ItemFilter) Matches(item Item, equipChecksOnly bool) bool {
 	}
 
 	if !equipChecksOnly {
-		if !HasItemEffect(item.ID) {
+		if !HasItemEffect(item.ID) || item.ScalingOptions[0].GetIlvl() < MinEffectItemLevel {
 			return false
 		}
 
@@ -305,7 +314,7 @@ func (filter *ItemFilter) FindAllSets() []*ItemSet {
 
 	for _, set := range sets {
 		if setItems := set.Items(); len(setItems) > 0 {
-			if filter.Matches(setItems[0], true) {
+			if filter.Matches(setItems[0], true) && setItems[0].ScalingOptions[0].GetIlvl() >= MinEffectItemLevel {
 				filteredSets = append(filteredSets, set)
 			}
 		}
@@ -370,6 +379,13 @@ func (generator *ItemsTestGenerator) init() {
 	}
 
 	generator.items = generator.ItemFilter.FindAllItems()
+	// A character whose default gear is a two-hander has no row for a shield or an off-hand item:
+	// nothing a player could wear beside the weapon.
+	if defaultGear := ProtoToEquipment(generator.Player.Equipment); defaultGear.MainHand().HandType == proto.HandType_HandTypeTwoHand {
+		generator.items = FilterSlice(generator.items, func(item Item) bool {
+			return item.Type != proto.ItemType_ItemTypeWeapon || item.HandType != proto.HandType_HandTypeOffHand
+		})
+	}
 	generator.sets = generator.ItemFilter.FindAllSets()
 	generator.enchants = generator.ItemFilter.FindAllEnchants()
 }
@@ -387,12 +403,12 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 	equipment := ProtoToEquipment(playerCopy.Equipment)
 	if testIdx < len(generator.items) {
 		testItem := generator.items[testIdx]
-		equipment.EquipItem(generator.items[testIdx])
+		equipTestItem(&equipment, testItem)
 		label = fmt.Sprintf("%s-%d", strings.ReplaceAll(testItem.Name, " ", ""), testItem.ID)
 	} else if testIdx < len(generator.items)+len(generator.sets) {
 		testSet := generator.sets[testIdx-len(generator.items)]
 		for _, setItem := range testSet.Items() {
-			equipment.EquipItem(setItem)
+			equipTestItem(&equipment, setItem)
 		}
 		label = strings.ReplaceAll(testSet.Name, " ", "")
 		if slices.ContainsFunc(generator.sets, func(other *ItemSet) bool { return other != testSet && other.Name == testSet.Name }) {
@@ -422,6 +438,26 @@ func (generator *ItemsTestGenerator) GetTest(testIdx int) (string, *proto.Comput
 	}
 
 	return label, nil, nil, rsr
+}
+
+// A test weapon takes the first slot a player wears it in, and a two-hander empties the off hand.
+// EquipItem fills the first empty hand instead, which is how an equipment spec lists a dual wielder's
+// two weapons.
+func equipTestItem(equipment *Equipment, item Item) {
+	slots := EligibleSlotsForItem(&item)
+	if item.Type != proto.ItemType_ItemTypeWeapon || len(slots) == 0 {
+		equipment.EquipItem(item)
+		return
+	}
+	// The replaced weapon's enchant stays where it fits the test weapon, so the row measures the
+	// weapon and not the enchant it displaced.
+	if worn := equipment[slots[0]]; worn.Enchant.EffectID != 0 && enchantRowAppliesToItem(worn.Enchant, item) {
+		item.Enchant = worn.Enchant
+	}
+	equipment[slots[0]] = item
+	if item.HandType == proto.HandType_HandTypeTwoHand {
+		*equipment.OffHand() = Item{}
+	}
 }
 
 type SubGenerator struct {

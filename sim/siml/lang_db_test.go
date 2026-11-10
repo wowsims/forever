@@ -179,7 +179,10 @@ func TestCompleteLines(t *testing.T) {
 }
 
 func TestCompleteEntries(t *testing.T) {
-	hasAll(t, "settings", complete(t, "siml 1\nspec hunter\n\nsettings:\n  |\n", setupPath), "race", "distance_from_target", "quiver_bonus", "cobra_reflexes")
+	settings := complete(t, "siml 1\nspec hunter\n\nsettings:\n  |\n", setupPath)
+	hasAll(t, "settings", settings, "race", "distance_from_target", "quiver_bonus", "cobra_reflexes", "reaction_time", "channel_clip_delay")
+	// A duration's max is the second value of its line (SPEC.md §5.2).
+	hasNone(t, "settings", settings, "reaction_time_ms", "reaction_time_max_ms")
 	hasAll(t, "race", complete(t, "siml 1\nspec hunter\n\nsettings:\n  race |\n", setupPath), "orc")
 	hasAll(t, "quiver", complete(t, "siml 1\nspec hunter\n\nsettings:\n  quiver_bonus |\n", setupPath), "ancient_sinew_wrapped_lamina")
 	hasAll(t, "buffs", complete(t, "siml 1\n\nbuffs: |\n", setupPath), "greater_blessing_of_kings")
@@ -699,8 +702,8 @@ func TestQuickFixDidYouMean(t *testing.T) {
 		t.Fatalf("got %v, want %v", got, want)
 	}
 	fixed := text
-	for i := len(fixes) - 1; i >= 0; i-- {
-		e := fixes[i].Edits[0]
+	for _, f := range slices.Backward(fixes) {
+		e := f.Edits[0]
 		fixed = fixed[:d.Offset(e.Range.Start)] + e.NewText + fixed[d.Offset(e.Range.End):]
 	}
 	var codes []string

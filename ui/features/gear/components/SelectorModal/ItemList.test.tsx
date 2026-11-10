@@ -146,7 +146,7 @@ describe('ItemList', () => {
 			player: {
 				sim: {
 					store: realStore,
-					db: { getNpc: () => undefined },
+					db: { getNpc: () => undefined, getItemFirstSeen: () => undefined },
 					getFilters: () => DatabaseFilters.clone(filters),
 					setFilters,
 					getPhase: () => 5,

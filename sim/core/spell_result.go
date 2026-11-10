@@ -437,8 +437,12 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
+	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
+	// school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
 		baseDamage += spell.BonusCoefficient * spell.BonusDamage(attackTable)
+	} else if spell.Flags.Matches(SpellFlagPhysicalSchoolDamage) {
+		baseDamage += spell.BonusBaseDamage
 	} else if spell.SpellSchool.Matches(SpellSchoolPhysical) {
 		baseDamage += spell.BonusDamage(attackTable)
 	}
@@ -925,7 +929,9 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 		// The target's flat school bonus, Judgement of the Crusader, lands after the caster's done
 		// multipliers and before the target's and the outcome roll: a crit doubles it and a damage done
 		// talent never scales it.
-		result.Damage += spell.takenBonusCoefficient(attackTable.Defender, isPeriodic) * attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
+			result.Damage += spell.takenBonusCoefficient(attackTable.Defender, isPeriodic) * attackTable.Defender.PseudoStats.SchoolBonusSpellDamage[spell.SchoolIndex]
+		}
 	}
 
 	targetMultiplier := spell.TargetDamageMultiplier(sim, attackTable, isPeriodic)

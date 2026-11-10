@@ -32,7 +32,13 @@ go build -o /tmp/wowsimcli ./cmd/wowsimcli && export WOWSIMCLI=/tmp/wowsimcli
 ```
 
 The plugin needs no `with_db` tag: the server reads the name table from `sim/siml/names.json`, again when it changes. A
-change to the Go reader itself takes effect on the next vite start, once the binary it runs is rebuilt.
+change to the Go reader itself takes effect on the next vite start, once the binary it runs is rebuilt, or sooner: stop
+the running `wowsimcli siml serve` child and the next `.siml` read starts one from the rebuilt binary. Until then a
+preset written in a form the old reader lacks fails to import, and its spec page does not load.
+
+New locale keys reach a running dev server only when vite restarts: `vite-plugin-i18next-loader` bundles
+`assets/locales` once, so a key added since shows as its own name on the page. Touching `vite.config.mts` restarts
+vite in place. `vitest` and the site build read the files each run.
 
 ## Two things a plain vite dev server cannot do
 
@@ -45,7 +51,7 @@ never resolves, `loadSettings` never runs and the page looks structurally fine b
 error. Build the workers first:
 
 ```
-npx tsx vite.build-workers.mts     # dist/forever/{local,net,sim}_worker.js and highs.wasm
+node vite.build-workers.mts     # dist/forever/{local,net,sim}_worker.js and highs.wasm
 ```
 
 A fresh worktree also needs the generated files (`verification.md`, last section).

@@ -131,8 +131,9 @@ number the tooltip shows, floored.
   `Variance/2` of itself. Core applies that roll, so the spell takes `DirectVariance()` into
   `core.SpellConfig.DirectVariance` and the call site hands `CalcDamage` or `CalcHealing` the
   unrolled `Average()`; `Mean()` answers the same.
-- A physical hit rolls its base points alone by `|BasePoints| * Variance` either side, and attack
-  power is added on top unspread.
+- A physical hit rolls its base points alone by `|BasePoints| * Variance/2` either side and rounds the
+  roll to a whole number, and attack power is added on top unspread: Revenge rank 1's 22 ± 1.69 lands
+  on 20 to 24 in game, the two ends rarer than the three between.
 - Any other effect (an energize, an absorb, an aura's amount) rolls its base points by
   `|BasePoints| * Variance/2` either side.
 
