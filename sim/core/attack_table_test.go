@@ -477,15 +477,15 @@ func TestBlocksCountOnlyWhereHitsCount(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
 		procMask ProcMask
-		outcome  func(*Spell) OutcomeApplier
+		outcome  func(*Spell, *Simulation, *SpellResult, *AttackTable)
 		counted  bool
 	}{
-		{"melee special", ProcMaskMeleeMHSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeMeleeSpecialHitAndCrit }, true},
-		{"melee special without hit counter", ProcMaskMeleeMHSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeMeleeSpecialHitAndCritNoHitCounter }, false},
-		{"ranged", ProcMaskRangedSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeRangedHitAndCrit }, true},
-		{"ranged without hit counter", ProcMaskRangedSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeRangedHitAndCritNoHitCounter }, false},
-		{"ranged crit only", ProcMaskRangedSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeRangedCritOnly }, true},
-		{"ranged crit only without hit counter", ProcMaskRangedSpecial, func(spell *Spell) OutcomeApplier { return spell.OutcomeRangedCritOnlyNoHitCounter }, false},
+		{"melee special", ProcMaskMeleeMHSpecial, (*Spell).OutcomeMeleeSpecialHitAndCrit, true},
+		{"melee special without hit counter", ProcMaskMeleeMHSpecial, (*Spell).OutcomeMeleeSpecialHitAndCritNoHitCounter, false},
+		{"ranged", ProcMaskRangedSpecial, (*Spell).OutcomeRangedHitAndCrit, true},
+		{"ranged without hit counter", ProcMaskRangedSpecial, (*Spell).OutcomeRangedHitAndCritNoHitCounter, false},
+		{"ranged crit only", ProcMaskRangedSpecial, (*Spell).OutcomeRangedCritOnly, true},
+		{"ranged crit only without hit counter", ProcMaskRangedSpecial, (*Spell).OutcomeRangedCritOnlyNoHitCounter, false},
 	} {
 		for _, crits := range []bool{true, false} {
 			attacker.stats[stats.PhysicalCritPercent] = Ternary(crits, 200.0, 0.0)
@@ -494,17 +494,13 @@ func TestBlocksCountOnlyWhereHitsCount(t *testing.T) {
 			defenseType := Ternary(tc.procMask.Matches(ProcMaskRanged), DefenseTypeRanged, DefenseTypeMelee)
 			spell := &Spell{Unit: attacker, ProcMask: tc.procMask, DefenseType: defenseType, CritMultiplierPct: 1, SpellMetrics: make([]SpellMetrics, 1)}
 			result := &SpellResult{Target: defender, Damage: 100}
-			tc.outcome(spell)(sim, result, table)
+			tc.outcome(spell, sim, result, table)
 
 			if result.Outcome.Matches(OutcomeCrit) != crits || !result.Outcome.Matches(OutcomeBlock) {
 				t.Fatalf("%s: outcome %v, want a block that crits = %v", tc.name, result.Outcome, crits)
 			}
-			var wantBlocks, wantBlockedCrits int32
-			if tc.counted && crits {
-				wantBlockedCrits = 1
-			} else if tc.counted {
-				wantBlocks = 1
-			}
+			wantBlockedCrits := Ternary(tc.counted && crits, int32(1), 0)
+			wantBlocks := Ternary(tc.counted && !crits, int32(1), 0)
 			if m := spell.SpellMetrics[0]; m.Crits != 0 || m.BlockedCrits != wantBlockedCrits || m.Blocks != wantBlocks || m.Hits != 0 {
 				t.Errorf("%s, crits = %v: crits %d, blocked crits %d, blocks %d, hits %d, want 0, %d, %d, 0",
 					tc.name, crits, m.Crits, m.BlockedCrits, m.Blocks, m.Hits, wantBlockedCrits, wantBlocks)
