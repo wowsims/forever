@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -955,19 +956,18 @@ func (rot *APLRotation) newValueMin(config *proto.APLValueMin, _ *proto.UUID, gr
 	}
 }
 
+// A branch that does not resolve is dropped, which loosens an And and tightens an Or, so the check warns once.
+func (rot *APLRotation) warnOfDroppedBranch(vals []APLValue, check string) {
+	if slices.Contains(vals, nil) {
+		rot.ValidationMessage(proto.LogLevel_Warning, "A condition branch in this '%s' check could not be resolved and was dropped.", check)
+	}
+}
+
 func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, groupVariables map[string]*proto.APLValue) APLValue {
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
-	hadUnresolved := false
-	for _, val := range vals {
-		if val == nil {
-			hadUnresolved = true
-		}
-	}
-	if hadUnresolved {
-		rot.ValidationMessage(proto.LogLevel_Warning, "A condition branch in this 'And' check could not be resolved and was dropped.")
-	}
+	rot.warnOfDroppedBranch(vals, "And")
 	vals = FilterSlice(vals, func(val APLValue) bool { return val != nil })
 	if len(vals) == 0 {
 		return nil
@@ -995,17 +995,12 @@ func (rot *APLRotation) newValueOr(config *proto.APLValueOr, _ *proto.UUID, grou
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
-	vals = FilterSlice(vals, func(val APLValue) bool { return val != nil })
-	if len(vals) == 0 {
-		return nil
-	} else if len(vals) == 1 {
-		return vals[0]
-	}
-	// Short-circuit: if any child is const true, the whole Or is true.
+	resolved := FilterSlice(vals, func(val APLValue) bool { return val != nil })
+	// Short-circuit: if any child is const true, the whole Or is true whatever a dropped branch would read.
 	// Orphan the other children so they still get Finalize() called.
-	for _, val := range vals {
+	for _, val := range resolved {
 		if constVal, ok := val.(*APLValueConst); ok && constVal.valType == proto.APLValueType_ValueTypeBool && constVal.boolVal {
-			for _, other := range vals {
+			for _, other := range resolved {
 				if other != val {
 					rot.orphanValue(other)
 				}
@@ -1013,8 +1008,14 @@ func (rot *APLRotation) newValueOr(config *proto.APLValueOr, _ *proto.UUID, grou
 			return constVal
 		}
 	}
+	rot.warnOfDroppedBranch(vals, "Or")
+	if len(resolved) == 0 {
+		return nil
+	} else if len(resolved) == 1 {
+		return resolved[0]
+	}
 	return &APLValueOr{
-		vals: vals,
+		vals: resolved,
 	}
 }
 

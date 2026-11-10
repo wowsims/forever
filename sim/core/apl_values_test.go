@@ -235,6 +235,38 @@ func TestValueOperators(t *testing.T) {
 	}
 }
 
+// A branch that does not resolve is dropped from an And or an Or with a warning, and the check keeps the rest. An Or
+// with a constant true branch is true whatever the dropped branch reads, so it does not warn.
+func TestValueAndOrWarnOfADroppedBranch(t *testing.T) {
+	sim, _, rot := setupFakeRageRotation()
+	yes := yesNoValue()
+	missing := &proto.APLValue{Value: &proto.APLValue_AuraIsActive{AuraIsActive: &proto.APLValueAuraIsActive{AuraId: ActionID{SpellID: testMissingAuraID}.ToProto()}}}
+	and := func(vals ...*proto.APLValue) *proto.APLValue {
+		return &proto.APLValue{Value: &proto.APLValue_And{And: &proto.APLValueAnd{Vals: vals}}}
+	}
+	or := func(vals ...*proto.APLValue) *proto.APLValue {
+		return &proto.APLValue{Value: &proto.APLValue_Or{Or: &proto.APLValueOr{Vals: vals}}}
+	}
+
+	for _, tc := range []struct {
+		name string
+		cfg  *proto.APLValue
+		want []string
+	}{
+		{"And", and(yes, missing), []string{"No aura found", "this 'And' check could not be resolved and was dropped"}},
+		{"Or", or(yes, missing), []string{"No aura found", "this 'Or' check could not be resolved and was dropped"}},
+		{"Or with a constant true branch", or(missing, constValue("true")), []string{"No aura found"}},
+	} {
+		rot.curValidations = nil
+		got := rot.newAPLValue(tc.cfg)
+		wantWarnings(t, tc.name, rot.curValidations, tc.want...)
+		if got == nil || !got.GetBool(sim) {
+			t.Errorf("%s: want the remaining branch, which reads true at the pull", tc.name)
+		}
+	}
+	rot.curValidations = nil
+}
+
 func TestValueVariables(t *testing.T) {
 	sim, _, rot := setupFakeRageRotation()
 	rot.valueVariables = []*APLValueVariable{{name: "five", value: constValue("5")}}
