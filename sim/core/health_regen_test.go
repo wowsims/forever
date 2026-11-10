@@ -71,11 +71,16 @@ func otherActionMetrics(unit *core.Unit, id proto.OtherAction) *proto.ResourceMe
 	return nil
 }
 
-// A temporary stats aura on the owner; auras can only be built while the sim is being constructed.
-func newTestStatsAura(sim *core.Simulation, owner *petOwner, name string, spellID int32, bonus stats.Stats) *core.StatBuffAura {
-	defer func(state core.EnvironmentState) { sim.Environment.State = state }(sim.Environment.State)
-	sim.Environment.State = core.Constructed
-	return owner.NewTemporaryStatsAura(name, core.ActionID{SpellID: spellID}, bonus, core.NeverExpires)
+// The sim setupHealthRegenSim builds, with a temporary stats aura the owner registers in Initialize.
+func setupHealthRegenSimWithAura(t *testing.T, hp5 float64, name string, spellID int32, bonus stats.Stats) (*core.Simulation, *petOwner, *core.StatBuffAura) {
+	t.Helper()
+	var aura *core.StatBuffAura
+	ownerSetup = func(owner *petOwner) {
+		aura = owner.NewTemporaryStatsAura(name, core.ActionID{SpellID: spellID}, bonus, core.NeverExpires)
+	}
+	defer func() { ownerSetup = nil }()
+	sim, owner := setupHealthRegenSim(t, hp5)
+	return sim, owner, aura
 }
 
 // 10 HP5 credits 4 health on each 2.02 s tick, the first at 2.02 s.
@@ -145,8 +150,7 @@ func TestHealthRegenStopsAfterDeath(t *testing.T) {
 
 // HP5 gained at 3 s waits for the 4.04 s tick; the time before it earns nothing.
 func TestHealthRegenStartsWhenHP5Gained(t *testing.T) {
-	sim, owner := setupHealthRegenSim(t, 0)
-	aura := newTestStatsAura(sim, owner, "Test HP5", 910700, stats.Stats{stats.HP5: 10})
+	sim, owner, aura := setupHealthRegenSimWithAura(t, 0, "Test HP5", 910700, stats.Stats{stats.HP5: 10})
 	owner.SetCurrentHealthPercent(0.5)
 
 	gained := recordHealthGained(sim, &owner.Unit, 3*time.Second, 2*healthRegenTick-time.Millisecond, 2*healthRegenTick, 3*healthRegenTick)
@@ -160,8 +164,7 @@ func TestHealthRegenStartsWhenHP5Gained(t *testing.T) {
 
 // HP5 lost at 3 s credits nothing at 4.04 s; HP5 regained at 5 s credits from the 6.06 s tick.
 func TestHealthRegenSleepsWhenHP5Lost(t *testing.T) {
-	sim, owner := setupHealthRegenSim(t, 0)
-	aura := newTestStatsAura(sim, owner, "Test HP5", 910701, stats.Stats{stats.HP5: 10})
+	sim, owner, aura := setupHealthRegenSimWithAura(t, 0, "Test HP5", 910701, stats.Stats{stats.HP5: 10})
 	aura.Activate(sim)
 	owner.SetCurrentHealthPercent(0.5)
 
@@ -198,6 +201,23 @@ func TestHealthRegenDisabledPet(t *testing.T) {
 	}
 }
 
+// A pet with HP5 summoned at 5 s regenerates from the 6.06 s tick.
+func TestHealthRegenPetSummonedMidFight(t *testing.T) {
+	sim, owner := setupHealthRegenSim(t, 0)
+	pet := owner.dynamic
+	pet.AddStatsDynamic(sim, stats.Stats{stats.Health: 1000, stats.HP5: 10})
+
+	stepTo(t, sim, 5*time.Second)
+	pet.Enable(sim, pet)
+	pet.SetCurrentHealthPercent(0.5)
+
+	gained := recordHealthGained(sim, &pet.Unit, 3*healthRegenTick-time.Millisecond, 3*healthRegenTick, 4*healthRegenTick)
+	stepTo(t, sim, 9*time.Second)
+	if want := []float64{0, 4, 8}; !slices.Equal(gained, want) {
+		t.Errorf("the pet summoned at 5 s gained %v health by 6.059 s, 6.06 s and 8.08 s, want %v", gained, want)
+	}
+}
+
 // At full health a tick credits nothing and records no event; the first tick after damage credits.
 func TestHealthRegenSkipsTicksAtFullHealth(t *testing.T) {
 	sim, owner := setupHealthRegenSim(t, 10)
@@ -220,8 +240,7 @@ func TestHealthRegenSkipsTicksAtFullHealth(t *testing.T) {
 
 // Losing a Stamina buff caps current health at the lower maximum at once, so the next tick gains nothing.
 func TestHealthRegenAfterMaxHealthDrops(t *testing.T) {
-	sim, owner := setupHealthRegenSim(t, 10)
-	aura := newTestStatsAura(sim, owner, "Test Stamina", 910702, stats.Stats{stats.Stamina: 100})
+	sim, owner, aura := setupHealthRegenSimWithAura(t, 10, "Test Stamina", 910702, stats.Stats{stats.Stamina: 100})
 	baseMax := owner.MaxHealth()
 	aura.Activate(sim)
 	if owner.MaxHealth() <= baseMax {

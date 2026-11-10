@@ -1,6 +1,7 @@
 package core
 
 import (
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -21,7 +22,7 @@ type healthBar struct {
 
 	DamageTakenHealthMetrics *ResourceMetrics
 	healthRegenMetrics       *ResourceMetrics
-	nextHealthTick           time.Duration // NeverExpires once a tick finds no HP5, until HP5 returns.
+	nextHealthTick           time.Duration // NeverExpires once a tick finds the unit cannot regenerate, until a wake.
 }
 
 func (unit *Unit) EnableHealthBar() {
@@ -36,30 +37,37 @@ func (hb *healthBar) RunTask(sim *Simulation) time.Duration {
 	if sim.CurrentTime < hb.nextHealthTick {
 		return hb.nextHealthTick
 	}
-	unit := hb.unit
-	hp5 := unit.GetStat(stats.HP5)
-	if hp5 <= 0 {
+	if !hb.canRegenerate() {
 		hb.nextHealthTick = NeverExpires
 		return hb.nextHealthTick
 	}
-	if unit.IsEnabled() && !unit.Metrics.Died && hb.currentHealth < hb.MaxHealth() {
-		hb.GainHealth(sim, hp5*2/5, hb.healthRegenMetrics)
+	if hb.currentHealth < hb.MaxHealth() {
+		hb.GainHealth(sim, hb.unit.GetStat(stats.HP5)*2/5, hb.healthRegenMetrics)
 	}
 	hb.nextHealthTick += healthRegenTickDuration
 	return hb.nextHealthTick
 }
 
-// Starts the ticks asleep and wakes them at the pull's first tick if the unit has HP5.
+// A unit regenerates while it has HP5, is enabled (a pet is summoned) and is alive.
+func (hb *healthBar) canRegenerate() bool {
+	return hb.unit.GetStat(stats.HP5) > 0 && hb.unit.IsEnabled() && !hb.unit.Metrics.Died
+}
+
+// Starts the ticks asleep and wakes them at the pull's first tick if the unit can regenerate.
 func (hb *healthBar) enable(sim *Simulation) {
 	hb.nextHealthTick = NeverExpires
-	sim.AddTask(hb)
 	hb.wakeHealthRegen(sim)
 }
 
-// Wakes sleeping ticks at the next tick boundary; the part of a tick before it earns nothing.
+// Wakes sleeping ticks at the next tick boundary; the part of a tick before it earns nothing. The
+// unit joins the sim's tasks at its first wake of an iteration, so a unit without HP5 adds none. A
+// wake can come while the sim resets, before enableHealthTicks, so the check is against the tasks.
 func (hb *healthBar) wakeHealthRegen(sim *Simulation) {
-	if hb.nextHealthTick != NeverExpires || hb.unit.GetStat(stats.HP5) <= 0 {
+	if hb.nextHealthTick != NeverExpires || !hb.canRegenerate() {
 		return
+	}
+	if !slices.Contains(sim.tasks, Task(hb)) {
+		sim.AddTask(hb)
 	}
 	hb.nextHealthTick = (max(sim.CurrentTime, 0)/healthRegenTickDuration + 1) * healthRegenTickDuration
 	sim.RescheduleTask(hb.nextHealthTick)
