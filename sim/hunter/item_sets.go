@@ -3,11 +3,14 @@ package hunter
 import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var (
 	cryptstalkerRapidFire      = spelldata.MustFind(28755) // 2pc: Rapid Fire lasts 4 s longer
+	cryptstalkerStalkersAlly   = spelldata.MustFind(28758) // 4pc: Stalker's Ally, the attack power on the hunter and the pet
 	cryptstalkerAdrenalineProc = spelldata.MustFind(28752) // 6pc: Adrenaline Rush, the proc
 	cryptstalkerAdrenalineMana = spelldata.MustFind(28753) // 6pc: Adrenaline Rush, the mana it grants
 	cryptstalkerShotCost       = spelldata.MustFind(28751) // 8pc: Multi-Shot and Aimed Shot cost 20 less
@@ -20,8 +23,7 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 	Slots: shared.TierThreeSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(cryptstalkerRapidFire),
-		// (4) Set: While your pet is active, increases Attack Power by 50 for both you and your pet.
-		// The pet is not modelled.
+		4: applyStalkersAlly,
 		6: func(agent core.Agent, setBonusAura *core.Aura) {
 			character := agent.GetCharacter()
 			manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: cryptstalkerAdrenalineMana.ID})
@@ -43,6 +45,55 @@ var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{
 		8: shared.ParsedSetBonus(cryptstalkerShotCost),
 	},
 })
+
+// The 4-piece's equip spell 28756 casts 28757 on the pet every 3 s, and 28758, a 4 s pet area aura,
+// gives the hunter and the pet its attack power and ranged attack power. With no pet there is nothing
+// to cast on, and the 3 s recast keeps the 4 s aura from ever falling off, so both carry it exactly
+// while the pet is out. The pet's amount sits on its own aura, so inheritance never copies it; the
+// hunter's amount reaches the pet inside the 10% of the hunter's attack power it inherits.
+// ParseEffects reads no pet area aura, so the stats attach by hand.
+func applyStalkersAlly(agent core.Agent, setBonusAura *core.Aura) {
+	character := agent.GetCharacter()
+	bonus := stats.Stats{
+		stats.AttackPower:       cryptstalkerStalkersAlly.Effect(dbcenums.A_MOD_ATTACK_POWER, 0).Average(),
+		stats.RangedAttackPower: cryptstalkerStalkersAlly.Effect(dbcenums.A_MOD_RANGED_ATTACK_POWER, 0).Average(),
+	}
+
+	for _, pet := range character.Pets {
+		if pet.IsGuardian() {
+			continue
+		}
+		register := func(unit *core.Unit) *core.Aura {
+			config := spelldata.AuraConfig(cryptstalkerStalkersAlly)
+			config.Duration = core.NeverExpires
+			return unit.RegisterAura(config).AttachStatsBuff(bonus)
+		}
+		ownerAura, petAura := register(&character.Unit), register(&pet.Unit)
+		activate := func(sim *core.Simulation) {
+			ownerAura.Activate(sim)
+			petAura.Activate(sim)
+		}
+		deactivate := func(sim *core.Simulation) {
+			ownerAura.Deactivate(sim)
+			petAura.Deactivate(sim)
+		}
+
+		setBonusAura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
+			if pet.IsEnabled() {
+				activate(sim)
+			}
+		})
+		setBonusAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
+			deactivate(sim)
+		})
+		pet.RegisterEnableEffect(func(sim *core.Simulation) {
+			if setBonusAura.IsActive() {
+				activate(sim)
+			}
+		})
+		pet.RegisterDisableEffect(deactivate)
+	}
+}
 
 var pvpGloveItemIDs = []int32{23279, 22862, 16463, 16571}
 
