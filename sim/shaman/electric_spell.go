@@ -27,10 +27,8 @@ func (shaman *Shaman) registerWithOverloads(ranks, overloads spelldata.Ladder, n
 // Lightning Bolt and Chain Lightning, and the copy of either that Lightning Overload casts, with the
 // average damage of one hit. The copy is registered from its own row, whose damage, coefficient and
 // roll it deals, cast with no cast time or cost. Its row states no threat and lacks Not a Proc, so
-// only listeners that can proc from procs hear its hits.
-//
-// TODO: Ingame test needed: the tooltip of 408438 states half of the cast's damage, and the overload
-// rows (408439-408477, 408479-408484) state less than half of the current ranks.
+// only listeners that can proc from procs hear its hits. As the tooltip of 408438 says, the copy's row
+// states half the base points, points per level and coefficient of the rank it copies.
 func (shaman *Shaman) newElectricSpellConfig(row *spelldata.Spell, isOverload bool) (core.SpellConfig, float64) {
 	opts := []spelldata.SpellOpt{
 		spelldata.Magic(core.ProcMaskSpellDamage),

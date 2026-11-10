@@ -117,6 +117,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSpellDataAuraOnUse(280074) // Scalding Flamehoof - https://www.wowhead.com/forever/spell=1309551
 	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
+	// unsupported: 13534 deals no damage and heals no one (A_MOD_DISARM)
+	// shared.NewSimpleStatActive(287026) // Escape Plan - https://www.wowhead.com/forever/spell=13534
 
 	// Absorbs
 	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
@@ -129,6 +131,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(10721) // Gnomish Harm Prevention Belt - https://www.wowhead.com/forever/spell=13234
 	// on use: 21956 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(17759) // Mark of Resolution - https://www.wowhead.com/forever/spell=21956
+	// on use: 1302362 (A_SCHOOL_ABSORB)
+	shared.NewSpellDataAbsorbOnUse(18340) // Eidolon Talisman - https://www.wowhead.com/forever/spell=1302362
 	// on use: 23506 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(19024) // Arena Grand Master - https://www.wowhead.com/forever/spell=23506
 	// on use: 23991 (A_SCHOOL_ABSORB)
@@ -308,6 +312,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(11819) // Second Wind - https://www.wowhead.com/forever/spell=15604
 	// on use: 18385 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(14152) // Robe of the Archmage - https://www.wowhead.com/forever/spell=18385
+	// on use: 1302205 (A_PERIODIC_ENERGIZE, E_TRIGGER_SPELL)
+	shared.NewSpellDataEnergizeOnUse(18371) // Mindtap Talisman - https://www.wowhead.com/forever/spell=1302205
 	// on use: 24571 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(19951) // Gri'lek's Charm of Might - https://www.wowhead.com/forever/spell=24571
 	// on use: 24532 (E_ENERGIZE)
@@ -422,6 +428,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=1294617
 	// Not simulated: Field Agent Beverage: "Field Agent Beverage" (1297448) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=1297448
+	// Not simulated: Zarla's Snack Pouch: "Zarla's Snack Pouch" (1315190) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1315190
 
 	// Speed
 	// on use: 13494 (A_MOD_MELEE_HASTE_3)

@@ -210,14 +210,19 @@ const (
 	naturalInstinctTalents = "0000000000000000-00000000000100020000-0000000000000000" // Feral talents taking Lacerate and Natural Instinct 2/2.
 )
 
-// The hit's class flags lie outside Natural Instinct's mask, so it crits at the melee base, while a
-// tick of the bleed takes the talent's crit damage.
-func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
+// Natural Instinct's mask covers the hit's class flags and the rank's, so the hit and a tick of the
+// bleed both crit for the talent's crit damage on top of the melee base.
+func TestLacerateHitCritsWithNaturalInstinct(t *testing.T) {
 	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
 	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
 		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
 	}
 	const meleeCrit = 2.0
+	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
+	if bonus <= 0 {
+		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
+	}
+	want := 1 + (meleeCrit-1)*(1+bonus)
 	// One landed cast on a fresh sim of the same seed, so a crit and a normal hit roll the same weapon damage.
 	cast := func(critPercent float64) (damage float64, crits int32) {
 		sim, bear := newBearWithTalents(t, naturalInstinctTalents)
@@ -237,15 +242,11 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	if normalCrits != 0 || crits != 1 || normal <= 0 {
 		t.Fatalf("the casts crit %d and %d times for %v and %v, want 0 and 1 and damage", normalCrits, crits, normal, crit)
 	}
-	if got := crit / normal; math.Abs(got-meleeCrit) > 1e-9 {
-		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, meleeCrit)
+	if got := crit / normal; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, want)
 	}
 
 	target := bear.CurrentTarget
-	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
-	if bonus <= 0 {
-		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
-	}
 	tick := func(critPercent float64) float64 {
 		bear.AddStatDynamic(sim, stats.PhysicalCritPercent, critPercent)
 		defer bear.AddStatDynamic(sim, stats.PhysicalCritPercent, -critPercent)
@@ -257,7 +258,7 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	bear.Lacerate.Dot(target).Apply(sim)
 	bear.Lacerate.Dot(target).SetStacks(sim, 1)
 	normalTick, critTick := tick(-200), tick(200)
-	if want := 1 + (meleeCrit-1)*(1+bonus); normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
+	if normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
 		t.Errorf("a Lacerate tick crits ×%v (%v over %v), want ×%v", critTick/normalTick, critTick, normalTick, want)
 	}
 }
