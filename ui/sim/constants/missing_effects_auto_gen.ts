@@ -16,6 +16,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		811, // Axe of the Deep Woods
+		[
+			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
+		]
+	],
+	[
 		867, // Gloves of Holy Might
 		[
 			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
@@ -1063,6 +1069,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13983, // Gravestone War Axe
+		[
+			"Diseases target enemy for 42 Nature damage every 3.0 sec for 12s.", // 18289 - https://www.wowhead.com/forever/spell=18289
+		]
+	],
+	[
 		14023, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
@@ -1259,6 +1271,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17774, // Mark of the Chosen
 		[
 			"Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.", // 21970 - https://www.wowhead.com/forever/spell=21970
+		]
+	],
+	[
+		17780, // Blade of Eternal Darkness
+		[
+			"Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.", // 27860 - https://www.wowhead.com/forever/spell=27860
 		]
 	],
 	[
@@ -2524,6 +2542,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		276419, // Lightcrest Hammer
+		[
+			"Smites a target for 105 Holy damage. Deals 2 times as much damage to Undead.", // 1299631 - https://www.wowhead.com/forever/spell=1299631
+		]
+	],
+	[
 		276631, // Coldflame Saber
 		[
 			"Melee attacks deal 98 additional Fire damage against Frozen targets.", // 1300130 - https://www.wowhead.com/forever/spell=1300130
@@ -2587,6 +2611,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		279895, // Ironforge Greathammer
 		[
 			"Blasts a target for 42 Fire damage.", // 1322295 - https://www.wowhead.com/forever/spell=1322295
+		]
+	],
+	[
+		280016, // Spiderchitin Wrap
+		[
+			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
@@ -2830,6 +2860,35 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
+				],
+			],
+		]),
+	],
+	[
+		81, // The Postmaster
+		new Map([
+			[
+				2,
+				[
+					"Increases run speed by 8%.", // 1302376 - https://www.wowhead.com/forever/spell=1302376
+				],
+			],
+			[
+				3,
+				[
+					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
+				],
+			],
+			[
+				4,
+				[
+					"Falling below 25% health grants Return to Sender, reflecting the next spell cast on you within 6s. Can only occur once every 3 min.", // 1302380 - https://www.wowhead.com/forever/spell=1302380
+				],
+			],
+			[
+				5,
+				[
+					"Improves your chance to hit by 1.0%.", // 432639 - https://www.wowhead.com/forever/spell=432639
 				],
 			],
 		]),
