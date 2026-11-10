@@ -650,9 +650,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 821.09339
-  tps: 670.63815
-  dtps: 5.57248
+  dps: 820.98288
+  tps: 670.58881
+  dtps: 5.67294
   hps: 23.65123
  }
 }

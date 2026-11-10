@@ -2,6 +2,7 @@ package core
 
 import (
 	"math"
+	"math/bits"
 	"strconv"
 	"time"
 )
@@ -75,6 +76,10 @@ type Dot struct {
 
 	rankGroup *dotRankGroup
 	rank      int32
+
+	retimed     bool          // SetTickPeriod changed the period while the dot ran, so its ticks may miss its expiry.
+	unfitTickAt time.Duration // When the next tick is due, while it falls past the expiry and the dot deals it truncated there.
+	tickShare   float64       // While the truncated tick deals: the share of a full tick it deals.
 }
 
 // Takes a new snapshot of this Dot's effects.
@@ -180,30 +185,94 @@ func (dot *Dot) TickPeriod() time.Duration {
 	return dot.tickPeriod
 }
 
-// Ticks a running dot every period from now on, keeping its expiry. The time left to the next tick
-// scales with the period, so the share of a tick already run is kept; ticks that no longer fit before
-// the expiry are lost. The next Apply resets the period.
+// Ticks a running dot every period from now on, keeping its expiry. The share of a period run towards the
+// next tick carries over: the time left to it scales by period / old period, so a tick 0.5 s away at half
+// the period is 1 s away at the whole one. Once re-timed, a dot whose expiry falls part-way to a tick deals
+// that tick at the expiry, truncated to the share of the period it ran, so no progress is lost; ticks
+// that fit before the expiry deal in full. A re-timed dot is the only one that deals a truncated tick. The
+// dot's end or the next Apply returns it to its normal period. A dot with no tick to come (stopped, or a
+// channel with its ticks spent) keeps its period. A tick due now, also the one the call comes from, deals as
+// it is and the new period runs from it.
 func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
-	if !dot.IsActive() || dot.tickAction == nil || dot.tickAction.NextActionAt == NeverExpires || period == dot.tickPeriod {
+	if !dot.IsActive() || dot.tickAction == nil || period == dot.tickPeriod {
+		return
+	}
+	due := dot.nextTickDue()
+	if due == NeverExpires || due < sim.CurrentTime {
 		return
 	}
 
-	// Truncating moves the tick earlier, never past the expiry, so a last tick due at the expiry still lands.
-	untilNext := time.Duration(float64(dot.tickAction.NextActionAt-sim.CurrentTime) * float64(period) / float64(dot.tickPeriod))
-	nextTick := sim.CurrentTime + max(untilNext, 0)
+	dot.retimed = true
+	if due == sim.CurrentTime {
+		// The tick schedules the next one at the new period once it deals.
+		dot.tickPeriod = period
+		dot.remainingTicks = dot.ticksLeftFrom(sim, due)
+		return
+	}
 
+	// Rounded down, so a tick that lands on the expiry at the new period stays on it.
+	untilNext := scaleDuration(due-sim.CurrentTime, period, dot.tickPeriod)
 	dot.tickPeriod = period
-	dot.tickAction.Cancel(sim)
+	dot.rescheduleTick(sim, dot.fireAt(sim, sim.CurrentTime+untilNext))
+}
+
+// d * num / den to the nanosecond, rounded down.
+func scaleDuration(d, num, den time.Duration) time.Duration {
+	hi, lo := bits.Mul64(uint64(d), uint64(num))
+	quo, _ := bits.Div64(hi, lo, uint64(den))
+	return time.Duration(quo)
+}
+
+// When the next tick is due: for a truncated tick, past the expiry it deals at.
+func (dot *Dot) nextTickDue() time.Duration {
+	if dot.unfitTickAt != 0 {
+		return dot.unfitTickAt
+	}
+	return dot.tickAction.NextActionAt
+}
+
+// Where the action of a re-timed dot's tick due at the time given fires. It counts the ticks left from
+// that tick, and a tick that falls past an expiry still to come fires at the expiry, truncated.
+func (dot *Dot) fireAt(sim *Simulation, due time.Duration) time.Duration {
+	dot.remainingTicks = dot.ticksLeftFrom(sim, due)
+	dot.unfitTickAt = 0
+	if due > dot.ExpiresAt() && dot.ExpiresAt() > sim.CurrentTime {
+		dot.unfitTickAt = due
+		return dot.ExpiresAt()
+	}
+	return due
+}
+
+// The ticks left with the next due at the time given: each that fits by the expiry, and a truncated one
+// when the expiry falls between two.
+func (dot *Dot) ticksLeftFrom(sim *Simulation, due time.Duration) int32 {
+	expires := dot.ExpiresAt()
+	if due > expires {
+		if expires > sim.CurrentTime {
+			return 1
+		}
+		return 0
+	}
+	return 1 + int32((expires-due+dot.tickPeriod-1)/dot.tickPeriod)
+}
+
+func (dot *Dot) rescheduleTick(sim *Simulation, at time.Duration) {
+	if dot.tickAction != nil {
+		dot.tickAction.Cancel(sim)
+	}
 	dot.tickAction = &PendingAction{
-		NextActionAt: nextTick,
+		NextActionAt: at,
 		OnAction:     dot.periodicTick,
 	}
 	sim.AddPendingAction(dot.tickAction)
+}
 
-	dot.remainingTicks = 0
-	if nextTick <= dot.ExpiresAt() {
-		dot.remainingTicks = 1 + int32((dot.ExpiresAt()-nextTick)/period)
+// The multiplier a tick's damage or healing takes: the truncated tick's share, or the multiplier as it is.
+func (dot *Dot) scaleTick(multiplier float64) float64 {
+	if dot.tickShare > 0 {
+		return multiplier * dot.tickShare
 	}
+	return multiplier
 }
 
 func (dot *Dot) NextTickAt() time.Duration {
@@ -274,6 +343,8 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	dot.tickPeriod = originaldot.tickPeriod
 	dot.remainingTicks = originaldot.remainingTicks
 	dot.ticksDone = originaldot.ticksDone
+	dot.retimed = originaldot.retimed
+	dot.unfitTickAt = originaldot.unfitTickAt
 
 	// must be set before Activate
 	dot.Duration = originaldot.ExpiresAt() - sim.CurrentTime // originaldot.Duration
@@ -282,15 +353,7 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	dot.Activate(sim)
 
 	// recreate with new period, resetting the next tick.
-	if dot.tickAction != nil {
-		dot.tickAction.Cancel(sim)
-	}
-	pa := &PendingAction{
-		NextActionAt: originaldot.tickAction.NextActionAt,
-		OnAction:     dot.periodicTick,
-	}
-	dot.tickAction = pa
-	sim.AddPendingAction(dot.tickAction)
+	dot.rescheduleTick(sim, originaldot.tickAction.NextActionAt)
 }
 
 // This is the incredibly cursed way of extending DoT durations (for Moonfire / Sunfire / SWP (T15 2P) / VT (T15 2P))
@@ -316,18 +379,15 @@ func (dot *Dot) durationExtendInternal(sim *Simulation, extendBy time.Duration, 
 		dot.TakeSnapshot(sim)
 	}
 
-	previousTick := dot.tickAction.NextActionAt - dot.tickPeriod
+	// The extension puts a re-timed dot back on its normal period, with its last tick at the expiry.
+	previousTick := dot.nextTickDue() - dot.tickPeriod
 	dot.tickPeriod = dot.CalcTickPeriod()
+	dot.retimed = false
+	dot.unfitTickAt = 0
 
 	// ensure the tick is at least scheduled for the future ..
 	nextTick := max(previousTick+dot.tickPeriod, sim.CurrentTime+1*time.Millisecond)
-
-	dot.tickAction.Cancel(sim)
-	dot.tickAction = &PendingAction{
-		NextActionAt: nextTick,
-		// Priority:     ActionPriorityDOT,
-		OnAction: dot.periodicTick,
-	}
+	dot.rescheduleTick(sim, nextTick)
 
 	// cap the total duration to the amount of hasted ticks a new dot would have
 	extendDuration := min(dot.RemainingDuration(sim)+extendBy,
@@ -335,7 +395,6 @@ func (dot *Dot) durationExtendInternal(sim *Simulation, extendBy time.Duration, 
 	dot.remainingTicks = dot.calculateTickCount(extendDuration-(nextTick-sim.CurrentTime), dot.tickPeriod) + 1
 
 	dot.Duration = nextTick - sim.CurrentTime + time.Duration(dot.remainingTicks-1)*dot.tickPeriod
-	sim.AddPendingAction(dot.tickAction)
 	dot.Refresh(sim)
 }
 
@@ -353,10 +412,27 @@ func (dot *Dot) stopTicking(sim *Simulation) {
 	dot.tickAction.NextActionAt = NeverExpires
 }
 
-func (dot *Dot) periodicTick(sim *Simulation) {
+// Deals the tick due now. The truncated tick at a re-timed dot's expiry deals the share of the period it
+// ran towards its tick.
+func (dot *Dot) dealTick(sim *Simulation) {
 	dot.remainingTicks--
 	dot.ticksDone++
+	if dot.unfitTickAt != 0 {
+		dot.tickShare = 1 - float64(dot.unfitTickAt-sim.CurrentTime)/float64(dot.tickPeriod)
+		dot.unfitTickAt = 0
+	}
 	dot.TickOnce(sim)
+	dot.tickShare = 0
+}
+
+func (dot *Dot) periodicTick(sim *Simulation) {
+	if dot.unfitTickAt != 0 {
+		dot.dealTick(sim)
+	} else {
+		dot.remainingTicks--
+		dot.ticksDone++
+		dot.TickOnce(sim)
+	}
 	if dot.isChanneled {
 		channelDelay := dot.getChannelClipDelay()
 		// Note: even if the clip delay is 0ms, need a WaitUntil so that APL is called after the channel aura fades.
@@ -387,7 +463,14 @@ func (dot *Dot) periodicTick(sim *Simulation) {
 	// Dot might have been disabled in tick. For channeled spells, don't reschedule
 	// once all ticks are consumed — the aura may still be alive filling the GCD.
 	if dot.IsActive() && (!dot.isChanneled || dot.remainingTicks > 0) {
-		dot.tickAction.NextActionAt = sim.CurrentTime + dot.tickPeriod
+		next := sim.CurrentTime + dot.tickPeriod
+		// Only a re-timed dot (e.g. under Wrack's channel) deals a truncated tick at its expiry. Every other
+		// dot that ends off its tick grid, as a refreshed Deadly Poison or a wand channel whose expiry moves,
+		// loses the progress it made towards its next tick.
+		if dot.retimed {
+			next = dot.fireAt(sim, next)
+		}
+		dot.tickAction.NextActionAt = next
 		sim.AddPendingAction(dot.tickAction)
 	}
 }
@@ -421,12 +504,7 @@ func newDot(config Dot) *Dot {
 	dot.Duration = dot.tickPeriod * time.Duration(dot.BaseTickCount)
 
 	dot.ApplyOnGain(func(aura *Aura, sim *Simulation) {
-		dot.tickAction = &PendingAction{
-			NextActionAt: sim.CurrentTime + dot.tickPeriod,
-			// Priority:     ActionPriorityDOT,
-			OnAction: dot.periodicTick,
-		}
-		sim.AddPendingAction(dot.tickAction)
+		dot.rescheduleTick(sim, sim.CurrentTime+dot.tickPeriod)
 		if dot.isChanneled {
 			// Starting a channel ends the unit's running one with no further tick. That end clears the
 			// channel state and the rotation's interrupt condition, so it runs before this channel takes them.
@@ -443,14 +521,18 @@ func newDot(config Dot) *Dot {
 	})
 	dot.ApplyOnExpire(func(aura *Aura, sim *Simulation) {
 		// the core scheduling fails to process ticks first so we need to apply the last tick
+		// A dot removed early deals no truncated tick, as that tick waits for the expiry.
 		if dot.tickAction.NextActionAt == sim.CurrentTime {
-			dot.remainingTicks--
-			dot.ticksDone++
-			dot.TickOnce(sim)
+			dot.dealTick(sim)
 		}
 
 		dot.tickAction.Cancel(sim)
 		dot.tickAction = nil
+		dot.unfitTickAt = 0
+		if dot.retimed {
+			dot.tickPeriod = dot.CalcTickPeriod()
+			dot.retimed = false
+		}
 		if dot.isChanneled {
 			channelDelay := dot.getChannelClipDelay()
 			if dot.Spell.Unit.channelPaidMana() {
@@ -612,13 +694,5 @@ func (dot *Dot) RestoreState(state DotState, sim *Simulation) {
 	dot.Aura.RestoreState(state.AuraState, sim)
 
 	// recreate with new period, resetting the next tick.
-	if dot.tickAction != nil {
-		dot.tickAction.Cancel(sim)
-	}
-	pa := &PendingAction{
-		NextActionAt: sim.CurrentTime + state.NextTickIn,
-		OnAction:     dot.periodicTick,
-	}
-	dot.tickAction = pa
-	sim.AddPendingAction(dot.tickAction)
+	dot.rescheduleTick(sim, sim.CurrentTime+state.NextTickIn)
 }

@@ -3991,14 +3991,6 @@ func RegisterAllProcs() {
 			{ItemID: 810, ItemName: "Hammer of the Northern Wind"},
 		})
 
-	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
-	// https://www.wowhead.com/forever/spell=1325229
-	// trigger 1330855 (15%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskSpellDamage) -> buff 1325229
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1330855, BuffSpellID: 1325229},
-		[]shared.ItemVariant{
-			{ItemID: 867, ItemName: "Gloves of Holy Might"},
-		})
-
 	// Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.
 	// https://www.wowhead.com/forever/spell=18796
 	// trigger 18796 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)

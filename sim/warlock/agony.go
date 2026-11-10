@@ -84,7 +84,9 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	warlock.afflictionDots = append(warlock.afflictionDots, warlock.BaneOfAgony)
 }
 
-// Helper function to facilitate the percentage of base damage dealt per tick
+// The share of the base a tick deals, by its number among the base duration's ticks. The ramp advances by tick
+// number, so under Wrack the faster ticks reach the strong third sooner, and the added ticks and the truncated
+// last tick deal in the last third.
 func baneOfAgonyRamp(tick int32, ticks int32) float64 {
 	third := max(ticks/3, 1)
 	switch {
