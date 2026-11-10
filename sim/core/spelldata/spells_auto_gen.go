@@ -15484,6 +15484,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 694860, SpellID: 18097, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 17154, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 18104, Name: "Wrath", School: 8, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 55, MaxRange: 10, DefenseType: 1, ClassFlags: core.ClassFlags{Family: 7},
+		Effects: []Effect{
+			{ID: 695168, SpellID: 18104, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 126, Variance: 0.3333333432674408, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 18107, Name: "Wound", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 40, MaxRange: 5, DefenseType: 2, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 694861, SpellID: 18107, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 105, Variance: 0.24074074625968933, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -15659,6 +15663,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 695823, SpellID: 18288, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 50, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 8, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 32768}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1365363, SpellID: 18288, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -20, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 8, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{2: 262144}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 18289, Name: "Creeping Mold", School: 8, Attr: [17]uint32{8: 0x200, 15: 0x2000}, SpellLevel: 60, DurationMs: 12000, MaxRange: 100, CategoryCooldownMs: 30000, DefenseType: 1, DispelType: 3,
+		Effects: []Effect{
+			{ID: 693968, SpellID: 18289, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 42, PvpMult: 1, PeriodMs: 3000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 18308, Name: "Death by Peasant", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, DurationMs: 20000,
 		Effects: []Effect{
@@ -19171,6 +19179,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 698332, SpellID: 21977, Type: dbcenums.E_DUMMY, BaseLevel: 60, SPCoef: 1, PvpMult: 1, RadiusMax: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 21978, Name: "Engulfing Shadows", School: 32, Attr: [17]uint32{0: 0x101c0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 30, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 100, RefIDs: []int32{27860}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
+		Effects: []Effect{
+			{ID: 698542, SpellID: 21978, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, SPCoef: 1, PvpMult: 1, TriggerID: 27860, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 21991, Name: "Talisman of Binding", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x140, 15: 0x2000}, SpellLevel: 55, DurationMs: -1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 699832, SpellID: 21991, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DAMAGE_SHIELD, BasePoints: 4, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -22397,6 +22409,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704622, SpellID: 27859, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 2, BaseLevel: 60, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 2416967680}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1328150, SpellID: 27859, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 2, BaseLevel: 60, PvpMult: 1, Misc: 22, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 268435456}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 27860, Name: "Engulfing Shadows", School: 32, Speed: 30, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 55, MaxRange: 100, DefenseType: 1,
+		Effects: []Effect{
+			{ID: 704163, SpellID: 27860, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 112, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 704164, SpellID: 27860, Index: 1, Type: dbcenums.E_ENERGIZE, BasePoints: 104, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 27867, Name: "Freeze", School: 16, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 50, ProcChance: 2, ProcFlags: [2]uint32{0: 0x222a8}, ICDMs: 60000, RefIDs: []int32{27868},
 		Effects: []Effect{
@@ -36341,6 +36358,11 @@ var generatedSpells = []Spell{
 	{ID: 1299448, Name: "Quick Strikes", School: 1, Attr: [17]uint32{0: 0x40010, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 12000,
 		Effects: []Effect{
 			{ID: 1323694, SpellID: 1299448, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: 30, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1299631, Name: "Smite", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 30, MaxRange: 100, DefenseType: 1,
+		Effects: []Effect{
+			{ID: 1323965, SpellID: 1299631, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 105, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1323966, SpellID: 1299631, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1299734, Name: "Increased Hit Chance 00.5", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
