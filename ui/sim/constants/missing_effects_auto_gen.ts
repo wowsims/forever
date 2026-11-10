@@ -690,6 +690,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10628, // Deathblow
+		[
+			"Delivers a fatal wound for 159 Physical damage. Deals 75% increased damage to targets below 25% health.", // 1300185 - https://www.wowhead.com/forever/spell=1300185
+		]
+	],
+	[
 		10724, // Gnomish Rocket Boots
 		[
 			"These boots significantly increase your run speed for 20s. WARNING: Their power supply and gyros do not always function as intended.", // 13141 - https://www.wowhead.com/forever/spell=13141
