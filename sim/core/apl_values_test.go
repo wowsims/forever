@@ -46,6 +46,14 @@ func constValue(val string) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Const{Const: &proto.APLValueConst{Val: val}}}
 }
 
+func andValue(vals ...*proto.APLValue) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_And{And: &proto.APLValueAnd{Vals: vals}}}
+}
+
+func orValue(vals ...*proto.APLValue) *proto.APLValue {
+	return &proto.APLValue{Value: &proto.APLValue_Or{Or: &proto.APLValueOr{Vals: vals}}}
+}
+
 // A yes/no value no constant stands in for.
 func yesNoValue() *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Cmp{Cmp: &proto.APLValueCompare{
@@ -166,12 +174,7 @@ func TestValueOperators(t *testing.T) {
 	not := func(val *proto.APLValue) *proto.APLValue {
 		return &proto.APLValue{Value: &proto.APLValue_Not{Not: &proto.APLValueNot{Val: val}}}
 	}
-	and := func(vals ...*proto.APLValue) *proto.APLValue {
-		return &proto.APLValue{Value: &proto.APLValue_And{And: &proto.APLValueAnd{Vals: vals}}}
-	}
-	or := func(vals ...*proto.APLValue) *proto.APLValue {
-		return &proto.APLValue{Value: &proto.APLValue_Or{Or: &proto.APLValueOr{Vals: vals}}}
-	}
+	and, or := andValue, orValue
 	yes, no := cmpValue(lt, "1", "2"), cmpValue(lt, "2", "1")
 
 	tests := []struct {
@@ -235,33 +238,28 @@ func TestValueOperators(t *testing.T) {
 	}
 }
 
-// A branch that does not resolve is dropped from an And or an Or with a warning, and the check keeps the rest. An Or
-// with a constant true branch is true whatever the dropped branch reads, so it does not warn.
-func TestValueAndOrWarnOfADroppedBranch(t *testing.T) {
+// A branch that does not resolve is dropped. An And warns of it unless a constant false branch decides the And; an Or
+// drops it silently, reading it as false.
+func TestValueAndWarnsOfADroppedBranchThatCouldChangeIt(t *testing.T) {
 	sim, _, rot := setupFakeRageRotation()
 	yes := yesNoValue()
 	missing := &proto.APLValue{Value: &proto.APLValue_AuraIsActive{AuraIsActive: &proto.APLValueAuraIsActive{AuraId: ActionID{SpellID: testMissingAuraID}.ToProto()}}}
-	and := func(vals ...*proto.APLValue) *proto.APLValue {
-		return &proto.APLValue{Value: &proto.APLValue_And{And: &proto.APLValueAnd{Vals: vals}}}
-	}
-	or := func(vals ...*proto.APLValue) *proto.APLValue {
-		return &proto.APLValue{Value: &proto.APLValue_Or{Or: &proto.APLValueOr{Vals: vals}}}
-	}
 
 	for _, tc := range []struct {
 		name string
 		cfg  *proto.APLValue
 		want []string
+		read bool
 	}{
-		{"And", and(yes, missing), []string{"No aura found", "this 'And' check could not be resolved and was dropped"}},
-		{"Or", or(yes, missing), []string{"No aura found", "this 'Or' check could not be resolved and was dropped"}},
-		{"Or with a constant true branch", or(missing, constValue("true")), []string{"No aura found"}},
+		{"And", andValue(yes, missing), []string{"No aura found", "this 'And' check could not be resolved and was dropped"}, true},
+		{"And with a constant false branch", andValue(missing, constValue("false")), []string{"No aura found"}, false},
+		{"Or", orValue(yes, missing), []string{"No aura found"}, true},
 	} {
 		rot.curValidations = nil
 		got := rot.newAPLValue(tc.cfg)
 		wantWarnings(t, tc.name, rot.curValidations, tc.want...)
-		if got == nil || !got.GetBool(sim) {
-			t.Errorf("%s: want the remaining branch, which reads true at the pull", tc.name)
+		if got == nil || got.GetBool(sim) != tc.read {
+			t.Errorf("%s: want the remaining branches, which read %v at the pull", tc.name, tc.read)
 		}
 	}
 	rot.curValidations = nil
