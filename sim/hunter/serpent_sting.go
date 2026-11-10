@@ -9,8 +9,8 @@ import (
 var serpentStingTrainerRank = spellData.SerpentSting.ByID(13555)
 var serpentStingBookRank = spellData.SerpentSting.ByID(25295)
 
-// TODO: In-game testing required. The row states no attack power share on the tick; the Forever notes
-// give each tick 5% of ranged attack power, read at each tick. Spell power adds nothing.
+// The row states no attack power share on the tick; in game each tick takes 5% of ranged attack
+// power, read at each tick. Spell power adds nothing.
 const serpentStingTickAPShare = 0.05
 
 func (hunter *Hunter) registerSerpentSting() {

@@ -248,7 +248,7 @@ func (enchant *Enchant) ToProtoWithSlots() (*proto.UIEnchant, []EnchantProcSlot)
 	}
 	enchantStats := stats.Stats{}
 	pseudoStats := make([]float64, stats.PseudoStatsLen)
-	processEnchantmentEffects(enchant.Effects, effectArgs, enchant.EffectPoints, &enchantStats, pseudoStats, true)
+	processEnchantmentEffects(enchant.Effects, effectArgs, enchant.EffectPoints, &enchantStats, pseudoStats)
 	uiEnchant.Stats = enchantStats.ToProtoArray()
 	uiEnchant.PseudoStats = NullFloat(pseudoStats)
 	for i, effect := range enchant.Effects {

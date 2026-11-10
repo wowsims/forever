@@ -16,6 +16,7 @@ import (
 	"text/template"
 
 	_ "github.com/wowsims/forever/sim/common"
+	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -37,6 +38,13 @@ func aboveEffectFloor(parsed *proto.UIItem) bool {
 // it reads the item, as Alchemist's Stone's bonus to the potions its wearer drinks.
 func implementedByHand(itemID int32) bool {
 	return core.HasItemEffect(itemID) || slices.Contains(core.AlchStoneItemIDs, itemID)
+}
+
+// Whether the entry is the one a hand-written proc reads its procs per minute from, and it states none.
+// That effect then registers nothing (forever.EntryRateProcs), so the item is missing its effect.
+func handProcStatesNoRate(parsed *proto.UIItem, itemEffect *proto.ItemEffect) bool {
+	spellID, ok := forever.EntryRateProcs[parsed.Id]
+	return ok && itemEffect.BuffId == spellID && itemEffect.GetProc().GetPpm() == 0
 }
 
 // Enchantment IDs at or below this are not generated.
@@ -1174,6 +1182,13 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 				continue
 			}
 
+			if handProcStatesNoRate(parsed, itemEffect) {
+				if tooltip, rendered := renderItemEffectTooltip(parsed, itemEffect, instance); rendered {
+					StoreMissingEffect("ItemEffects", parsed.Name, Variant{ID: int(parsed.Id), Name: tooltip, SpellID: int(itemEffect.BuffId)})
+				}
+				continue
+			}
+
 			switch TryParseOnUseEffect(parsed, itemEffect, instance, groupMapOnUse) {
 			case EffectParseResultSuccess, EffectParseResultRefused:
 				continue
@@ -1250,10 +1265,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		for _, entry := range entries {
 			for _, variant := range entry.Variants {
 				if _, ok := needsStatPostfix[variant.Name]; ok {
-					item := db.Items[int32(variant.ID)]
-					for _, itemEffect := range item.ItemEffects {
-						variant.Name += " - " + GetEffectStatString(itemEffect)
-					}
+					variant.Name += " - " + variantPostfix(db.Items[int32(variant.ID)], variant.SpellID)
 				}
 
 				variant.Name += BuildItemNamePostfix(variant.ID, instance)
@@ -1319,6 +1331,20 @@ func GenerateItemEffectRandomPropPoints(instance *dbc.DBC, db *WowDatabase) {
 			RandPropPoints: allocMap[proto.ItemQuality_ItemQualityEpic][0],
 		}
 	}
+}
+
+// What tells one of an item's procs apart from the others in its name: the stats its own effect grants,
+// or, for a proc that grants none (Skullflame Shield's Drain Life and Flamestrike), the buff's name.
+func variantPostfix(item *proto.UIItem, spellID int) string {
+	for _, itemEffect := range item.ItemEffects {
+		if int(itemEffect.BuffId) != spellID {
+			continue
+		}
+		if stats := GetEffectStatString(itemEffect); stats != "" {
+			return stats
+		}
+	}
+	return spelldata.Find(int32(spellID)).Name
 }
 
 func BuildItemNamePostfix(itemId int, instance *dbc.DBC) string {
@@ -1469,8 +1495,11 @@ func TryParseEquipAuraEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect,
 		return EffectParseResultInvalid
 	}
 
+	// A proc effect (Stoneform Shoulders' 1298230 on entering combat, Force of Will's 15594 when struck)
+	// keeps nothing up while worn: its buff is the proc's, for its own duration, and the proc parser
+	// reads it.
 	effect := dbc.GetItemEffectForBuffID(int(parsed.Id), int(itemEffect.BuffId))
-	if effect == nil || effect.TriggerType != dbc.ITEM_SPELLTRIGGER_ON_EQUIP {
+	if itemEffect.GetProc() != nil || effect == nil || effect.TriggerType != dbc.ITEM_SPELLTRIGGER_ON_EQUIP {
 		return EffectParseResultInvalid
 	}
 
@@ -1657,7 +1686,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 	case direct != spelldata.NilEffect || periodic != spelldata.NilEffect:
 		routing.Shape = ShapeDamage
 		routing.Summary = onUseSummary(s, direct, periodic)
-		if direct != spelldata.NilEffect && direct.Type != dbcenums.E_SCHOOL_DAMAGE {
+		if direct != spelldata.NilEffect && !direct.StatesADamageAmount() {
 			routing.Unsupported = append(routing.Unsupported, fmt.Sprintf("the direct damage is %v rather than an amount", direct.Type))
 		}
 		for _, e := range []*spelldata.Effect{direct, periodic} {
@@ -1678,8 +1707,12 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		routing.Unsupported = append(routing.Unsupported, absorbUnsupported(s)...)
 	case energize != spelldata.NilEffect:
 		routing.Shape = ShapeEnergize
-		routing.Summary = onUseSummary(s, energize)
+		triggers := shared.WearerAuraTriggers(s)
+		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{energize}, triggers...)...)
 		routing.Unsupported = append(routing.Unsupported, energizeUnsupported(s, energize)...)
+		for _, trigger := range triggers {
+			routing.Unsupported = append(routing.Unsupported, procAuraUnsupported(trigger.Trigger())...)
+		}
 	case len(s.SpeedEffects()) > 0:
 		routing.Shape = ShapeSpeed
 		routing.Summary = onUseSummary(s, s.SpeedEffects()...)
@@ -2168,6 +2201,10 @@ var procTriggerClauseMatcher = regexp.MustCompile(`(?i)melee|ranged|attack|swing
 // an additional 5%". The word the effect modifies sits within a clause of the chance either way.
 var increasedChanceMatcher = regexp.MustCompile(`(?i)increase[sd]?[^.]{0,40}?chance|chance[^.]{0,30}?increase[sd]?`)
 
+// "Has a chance" states the rate even in a sentence that also states a magnitude: Argent Defender's
+// 17350 "Has a chance when struck in combat to increase your chance to block".
+var hasAChanceMatcher = regexp.MustCompile(`(?i)\bhas a chance\b`)
+
 // Where one statement ends and the next begins. Crude on purpose: an abbreviation or a decimal
 // splits a sentence in two, and neither changes which half carries the trigger.
 var sentenceBreak = regexp.MustCompile(`[.!?](?:\s|$)|\r?\n`)
@@ -2184,7 +2221,7 @@ func tooltipStatesAnUnknownRate(description string) bool {
 		if !procTriggerClauseMatcher.MatchString(sentence) {
 			continue
 		}
-		if increasedChanceMatcher.MatchString(sentence) {
+		if increasedChanceMatcher.MatchString(sentence) && !hasAChanceMatcher.MatchString(sentence) {
 			continue
 		}
 

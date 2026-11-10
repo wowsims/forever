@@ -17,7 +17,7 @@ func (hunter *Hunter) registerMultiShot() {
 	hunter.hasteRangedCast(&config)
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target))
+		baseDamage := hunter.RangedNormalizedWeaponDamage(sim, spell.RangedAttackPower(target)) + normalizedShotBonus
 		for _, result := range spell.CalcCleaveDamage(sim, target, multiShotTargets, baseDamage, spell.OutcomeRangedHitAndCrit) {
 			spell.DealCastResult(sim, result)
 		}

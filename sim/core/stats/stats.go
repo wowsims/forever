@@ -615,7 +615,7 @@ type PseudoStats struct {
 
 	DamageTakenMultiplier       float64            // All damage
 	SchoolDamageTakenMultiplier [SchoolLen]float64 // For specific spell schools (arcane, fire, shadow, etc.)
-	SchoolBonusSpellDamage      [SchoolLen]float64 // Flat school damage the target takes extra, ex: Judgement of the Crusader; added at the spell's coefficient after the caster's done multipliers, before the outcome
+	SchoolBonusSpellDamage      [SchoolLen]float64 // Flat school damage the target takes extra, ex: Judgement of the Crusader; added at the spell's coefficient after the caster's done multipliers, before the outcome; none on a spell with SpellFlagIgnoreTargetSchoolBonus (a damage shield)
 	SchoolBonusHitChance        [SchoolLen]float64 // The bonus stats' school hit, on every spell of the school with a ClassSpellMask or class flags; a talent's school hit is a class-flags mod with ShowAsSchoolHit
 
 	DiseaseDamageTakenMultiplier          float64

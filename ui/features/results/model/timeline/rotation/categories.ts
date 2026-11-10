@@ -25,7 +25,7 @@ export const rotationCategoryOverrides: Record<number, number> = {
 
 	// Paladin
 	[20424]: MELEE_ACTION_CATEGORY + 0.0001, // Seal of Command
-	[25742]: MELEE_ACTION_CATEGORY + 0.0011, // Seal of Righteousness (rank 1)
+	[25741]: MELEE_ACTION_CATEGORY + 0.0011, // Seal of Righteousness (rank 1)
 	[25740]: MELEE_ACTION_CATEGORY + 0.0012, // Seal of Righteousness (rank 2)
 	[25739]: MELEE_ACTION_CATEGORY + 0.0013, // Seal of Righteousness (rank 3)
 	[25738]: MELEE_ACTION_CATEGORY + 0.0014, // Seal of Righteousness (rank 4)

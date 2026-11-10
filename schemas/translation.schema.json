@@ -2322,6 +2322,29 @@
 						},
 						"area_stats": {
 							"type": "string"
+						},
+						"discovered_within_hour": {
+							"type": "string"
+						},
+						"discovered_ago": {
+							"type": "string"
+						},
+						"discovered_yesterday": {
+							"type": "string"
+						},
+						"discovered_on": {
+							"type": "string"
+						},
+						"ordinal": {
+							"type": "object",
+							"properties": {
+								"one": { "type": "string" },
+								"two": { "type": "string" },
+								"few": { "type": "string" },
+								"other": { "type": "string" }
+							},
+							"required": ["one", "two", "few", "other"],
+							"additionalProperties": false
 						}
 					},
 					"required": [
@@ -2336,7 +2359,12 @@
 						"partial_set_bonus",
 						"set_bonus_warnings",
 						"set_bonus_piece",
-						"area_stats"
+						"area_stats",
+						"discovered_within_hour",
+						"discovered_ago",
+						"discovered_yesterday",
+						"discovered_on",
+						"ordinal"
 					],
 					"additionalProperties": false
 				}

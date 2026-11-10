@@ -61,7 +61,7 @@ func RegisterAllEnchants() {
 	//
 	// Permanently enchant a melee weapon to often steal life from the enemy and give it to the wielder.
 	// https://www.wowhead.com/forever/spell=20032
-	// unsupported: states no rate; the damage spell's row states no damage
+	// unsupported: states no rate
 	// trigger 20004 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
 	//	Name:           "Enchant Weapon - Lifestealing",

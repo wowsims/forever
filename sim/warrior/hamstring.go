@@ -9,8 +9,7 @@ var hamstringRank = spellData.Hamstring.Highest()
 var hamstringBaseDamage = hamstringRank.DamageEffect().Average()
 
 // Hamstring's threat is 1.25 times its damage, times the stance: Rank 1's 4-damage hits make 5 before
-// the stance.
-// TODO: Ingame test needed -- a hit of other damage tells 1.25 times from a flat +1.
+// the stance, and its crits for 8 make 10, where a flat +1 would make 9.
 const hamstringThreatMultiplier = 1.25
 
 func (warrior *Warrior) registerHamstring() {

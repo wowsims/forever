@@ -15,6 +15,7 @@ var ExtraSpells = []Extra{
 	{SpellID: 414924, Reason: "Cat form Feral Charge", Source: "game files"},
 	{SpellID: 21178, Reason: "Bear Form (Passive2), the bear forms' threat; neither form's row names it", Source: "Spell 21178"},
 	{SpellID: 1328829, Reason: "Poised, the druid's Feral Combat passive; its subtext reads Passive, not Rank N, and its buff 1328827 follows through the $1328827s1 token", Source: "Spell 1328829"},
+	{SpellID: 414647, Reason: "Lacerate's weapon hit, which every rank casts by script; no row links it to the ranks", Source: "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08"},
 	{SpellID: 1293697, Reason: "Demonic Brand's Shadow damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293697 description"},
 	{SpellID: 1293698, Reason: "Demonic Brand's Fire damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293698 description"},
 	{SpellID: 1328570, Reason: "Holy Binding's self heal; nothing links it to the talent", Source: "Spell 1328570"},

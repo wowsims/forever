@@ -16,6 +16,7 @@ const dbUrlJson = '/forever/assets/database/db.json';
 const dbUrlBin = '/forever/assets/database/db.bin';
 const leftoversUrlJson = '/forever/assets/database/leftover_db.json';
 const leftoversUrlBin = '/forever/assets/database/leftover_db.bin';
+const itemFirstSeenUrl = '/forever/assets/database/item_first_seen.json';
 // When changing this value, don't forget to change the html <link> for preloading!
 const READ_JSON = true;
 const RANK_REGEX = /Rank ([0-9]+)/g;
@@ -30,8 +31,8 @@ export class Database {
 	static async get(): Promise<Database> {
 		if (!Database.loadPromise) {
 			Database.loadPromise = (async () => {
-				const dbData = await Database.loadWithRetry();
-				const db = new Database(dbData);
+				const [dbData, itemFirstSeen] = await Promise.all([Database.loadWithRetry(), Database.loadItemFirstSeen()]);
+				const db = new Database(dbData, itemFirstSeen);
 				Database.instance = db;
 				return db;
 			})().catch(error => {
@@ -57,6 +58,20 @@ export class Database {
 				console.warn(`Database load attempt ${attempt} failed, retrying:`, error);
 				await new Promise(resolve => setTimeout(resolve, backoffMs * attempt));
 			}
+		}
+	}
+
+	// The stamps beside db.json. A missing or failing file leaves every item unstamped rather than
+	// failing the load, and the next Database.get retry fetches it again.
+	private static async loadItemFirstSeen(): Promise<ReadonlyMap<number, number>> {
+		try {
+			const response = await fetch(itemFirstSeenUrl);
+			if (!response.ok) throw new Error(`HTTP ${response.status}`);
+			const entries: Array<{ id: number; firstSeen: number }> = await response.json();
+			return new Map(entries.map(({ id, firstSeen }) => [id, firstSeen]));
+		} catch (error) {
+			console.warn(`Item first-seen stamps failed to load from ${itemFirstSeenUrl}:`, error);
+			return new Map();
 		}
 	}
 
@@ -112,7 +127,10 @@ export class Database {
 
 	private loadedLeftovers = false;
 
-	private constructor(db: UIDatabase) {
+	private constructor(
+		db: UIDatabase,
+		private readonly itemFirstSeen: ReadonlyMap<number, number> = new Map(),
+	) {
 		this.loadProto(db);
 	}
 
@@ -183,6 +201,11 @@ export class Database {
 
 	getItemById(id: number): Item | undefined {
 		return this.items.get(id);
+	}
+
+	/** The unix second the sim's database first held the item; undefined when unknown. */
+	getItemFirstSeen(id: number): number | undefined {
+		return this.itemFirstSeen.get(id);
 	}
 
 	getItemIdsForSet(setId: number): Array<number> {
