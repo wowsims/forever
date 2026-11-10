@@ -192,10 +192,11 @@ func (dot *Dot) TickPeriod() time.Duration {
 // that tick at the expiry, truncated to the share of the period it ran, so no progress is lost; ticks
 // that fit before the expiry deal in full. A re-timed dot is the only one that deals a truncated tick. The
 // dot's end or the next Apply returns it to its normal period. A dot with no tick to come (stopped, or a
-// channel with its ticks spent) keeps its period. A tick due now, also the one the call comes from, deals as
-// it is and the new period runs from it.
+// channel with its ticks spent) keeps its period, as does one expiring now, so the truncated tick it holds
+// for the expiry still deals. A tick due now, also the one the call comes from, deals as it is and the new
+// period runs from it.
 func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
-	if !dot.IsActive() || dot.tickAction == nil || period == dot.tickPeriod {
+	if !dot.IsActive() || dot.tickAction == nil || period == dot.tickPeriod || dot.ExpiresAt() == sim.CurrentTime {
 		return
 	}
 	due := dot.nextTickDue()
@@ -283,7 +284,9 @@ func (dot *Dot) scaleTick(multiplier float64) float64 {
 // normal one added (e.g. under Wrack's channel). That is the progress made since the last tick, less what the
 // normal period makes in the same time, over the progress made: one period for a full tick, the share of one
 // for the truncated tick. A dot never re-timed gives 0, and one a longer period slowed gives below 0. The
-// normal period is the one CalcTickPeriod gives at the tick.
+// normal period is the one CalcTickPeriod gives at the tick, so the share holds only while that is the period
+// the dot ran at before it was re-timed: a haste or tick length change since then counts as a speed-up or a
+// slow-down.
 func (dot *Dot) SpedUpShare(sim *Simulation) float64 {
 	if !dot.retimed {
 		return 0
@@ -453,7 +456,7 @@ func (dot *Dot) dealTick(sim *Simulation) {
 }
 
 func (dot *Dot) periodicTick(sim *Simulation) {
-	if dot.retimed {
+	if dot.unfitTickAt != 0 {
 		dot.dealTick(sim)
 	} else {
 		dot.remainingTicks--

@@ -966,30 +966,82 @@ func TestNoWrackContributionWithoutTheChannel(t *testing.T) {
 	}
 }
 
-// Wrack's contribution to Bane of Agony is each tick's share of progress the channel added times that tick's damage,
-// whatever third of the ramp the tick deals in: reaching a stronger third sooner counts for nothing extra. The shares
-// are worked here from the time each tick's interval ran under the channel.
-func TestWrackContributionToAgonyIsTheShareOfEachTicksDamage(t *testing.T) {
+// Wrack's contribution to Bane of Agony and Siphon Life is each tick's share of progress the channel added times the
+// damage the tick dealt. For Bane of Agony that holds whatever third of the ramp the tick deals in: reaching a
+// stronger third sooner counts for nothing extra. What a Siphon Life tick heals counts for nothing. The shares are
+// worked here from the time each tick's interval ran under the channel. Siphon Life is the 14th affliction talent,
+// Wrack the 17th.
+func TestWrackContributionIsTheShareOfEachTicksDamage(t *testing.T) {
+	cases := []struct {
+		name    string
+		talents string
+		spell   func(*Warlock) *core.Spell
+	}{
+		{name: "Bane of Agony", talents: "00000000000000001", spell: func(w *Warlock) *core.Spell { return w.BaneOfAgony }},
+		{name: "Siphon Life", talents: "00000000000001001", spell: func(w *Warlock) *core.Spell { return w.SiphonLife }},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			sim, warlock := newWarlockSim(c.talents, &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+			target := sim.Encounter.AllTargetUnits[0]
+			warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -100})
+
+			spell := c.spell(warlock)
+			dot := spell.Dot(target)
+			dot.Apply(sim)
+			start, period := sim.CurrentTime, dot.TickPeriod()
+			_, fast := wrackSpeedup(period)
+
+			// The channel starts a third of the way to the second tick.
+			wrackStart := start + period + period/3
+			var wrackEnd time.Duration
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: wrackStart, OnAction: func(sim *core.Simulation) {
+				wrack := warlock.Wrack.Dot(target)
+				wrack.Apply(sim)
+				wrackEnd = wrack.ExpiresAt()
+			}})
+			ticks := recordDotTicks(sim, dot)[0]
+			sim.Cleanup()
+
+			want, shared := wantWrackContribution(ticks, start, wrackStart, wrackEnd, period, fast)
+			if shared < 3 {
+				t.Fatalf("Wrack added progress to %d of %s's ticks, too few to tell", shared, c.name)
+			}
+
+			got := wrackMetric(warlock, spell, target)
+			if got == nil {
+				t.Fatalf("%s recorded no Wrack contribution, want %.3f", c.name, want)
+			}
+			if total := got.Avg * float64(got.AggregatorData.N); got.AggregatorData.N != shared || math.Abs(total-want) > 1e-6 {
+				t.Errorf("Wrack contributed %.3f to %s over %d ticks, want %.3f over %d", total, c.name, got.AggregatorData.N, want, shared)
+			}
+		})
+	}
+}
+
+// A Corruption ticking under Wrack before the pull records no Wrack contribution, as its damage is not counted.
+func TestNoWrackContributionBeforeThePull(t *testing.T) {
 	sim, warlock := newWarlockSim("00000000000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
-	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -100})
+	sim.CurrentTime = -20 * time.Second
 
-	agony := warlock.BaneOfAgony.Dot(target)
-	agony.Apply(sim)
-	start, period := sim.CurrentTime, agony.TickPeriod()
-	_, fast := wrackSpeedup(period)
-
-	// The channel starts a third of the way to the second tick.
-	wrackStart := start + period + period/3
-	var wrackEnd time.Duration
-	sim.AddPendingAction(&core.PendingAction{NextActionAt: wrackStart, OnAction: func(sim *core.Simulation) {
-		wrack := warlock.Wrack.Dot(target)
-		wrack.Apply(sim)
-		wrackEnd = wrack.ExpiresAt()
-	}})
-	ticks := recordDotTicks(sim, agony)[0]
+	corruption := warlock.Corruption.Dot(target)
+	corruption.Apply(sim)
+	warlock.Wrack.Dot(target).Apply(sim)
+	ticks := recordDotTicks(sim, corruption)[0]
 	sim.Cleanup()
 
+	if len(ticks) <= int(corruption.BaseTickCount) || ticks[len(ticks)-1].at >= 0 {
+		t.Fatalf("Corruption ticked %d times, the last at %v, want more than its %d under Wrack, all before the pull", len(ticks), ticks[len(ticks)-1].at, corruption.BaseTickCount)
+	}
+	if got := wrackMetric(warlock, warlock.Corruption, target); got != nil {
+		t.Errorf("Corruption recorded a Wrack contribution over %d ticks before the pull, want none", got.AggregatorData.N)
+	}
+}
+
+// The Wrack contribution to a dot's ticks, worked from the time each tick's interval ran under the channel, and the
+// number of ticks it added progress to. The dot ticks every period, and every fast one while the channel runs.
+func wantWrackContribution(ticks []dotTick, start, wrackStart, wrackEnd, period, fast time.Duration) (float64, int32) {
 	var want float64
 	var shared int32
 	last := start
@@ -1002,17 +1054,7 @@ func TestWrackContributionToAgonyIsTheShareOfEachTicksDamage(t *testing.T) {
 		}
 		last = tick.at
 	}
-	if shared < 3 {
-		t.Fatalf("Wrack added progress to %d of Bane of Agony's ticks, too few to tell", shared)
-	}
-
-	got := wrackMetric(warlock, warlock.BaneOfAgony, target)
-	if got == nil {
-		t.Fatalf("Bane of Agony recorded no Wrack contribution, want %.3f", want)
-	}
-	if total := got.Avg * float64(got.AggregatorData.N); got.AggregatorData.N != shared || math.Abs(total-want) > 1e-6 {
-		t.Errorf("Wrack contributed %.3f to Bane of Agony over %d ticks, want %.3f over %d", total, got.AggregatorData.N, want, shared)
-	}
+	return want, shared
 }
 
 // The Wrack contribution the spell recorded on the target, read from the warlock's metrics once the iteration is

@@ -52,10 +52,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 			ampMult = ampNow()
 		}
 		setTick(target, dot, ampMult, baneOfAgonyRamp(dot.TickCount(), dot.BaseTickCount))
-		result := dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
-		if share := dot.SpedUpShare(sim); share > 0 {
-			recordWrackContribution(target, dot, result.Damage, share)
-		}
+		dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
 	}
 
 	// Roll to hit and apply as dot in place of any other Bane
