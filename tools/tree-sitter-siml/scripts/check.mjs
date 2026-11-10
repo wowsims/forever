@@ -7,9 +7,8 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const grammar = dirname(dirname(fileURLToPath(import.meta.url)));
+const grammar = dirname(import.meta.dirname);
 const repository = join(grammar, '..', '..');
 const cli = join(grammar, 'node_modules', 'tree-sitter-cli', 'cli.js');
 const zed = join(repository, 'tools', 'zed-siml');

@@ -89,7 +89,7 @@ type TalentsCombo struct {
 }
 type SpecOptionsCombo struct {
 	Label       string
-	SpecOptions interface{}
+	SpecOptions any
 }
 type RotationCombo struct {
 	Label    string

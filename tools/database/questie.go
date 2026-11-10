@@ -277,7 +277,7 @@ type questieStore map[string]string
 
 func readQuestieStore(toc string) questieStore {
 	store := questieStore{}
-	for _, line := range strings.Split(toc, "\n") {
+	for line := range strings.SplitSeq(toc, "\n") {
 		if key, value, ok := strings.Cut(strings.TrimSuffix(line, "\r"), ": "); ok && strings.HasPrefix(key, "## X-") {
 			store[strings.TrimPrefix(key, "## X-")] = value
 		}

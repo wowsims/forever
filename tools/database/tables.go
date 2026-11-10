@@ -420,7 +420,7 @@ func ScanEnchantsTable(rows *sql.Rows) (dbc.Enchant, error) {
 	raw.Lvl = enchantLvl(spellItemLevel)
 
 	if recipeItemIds != "" {
-		for _, field := range strings.Split(recipeItemIds, ",") {
+		for field := range strings.SplitSeq(recipeItemIds, ",") {
 			id, err := strconv.Atoi(field)
 			if err != nil {
 				return raw, fmt.Errorf("parsing recipe items for enchant %d (%s): %w", raw.EffectId, recipeItemIds, err)
@@ -432,7 +432,7 @@ func ScanEnchantsTable(rows *sql.Rows) (dbc.Enchant, error) {
 
 	// A class may use the enchant when it may use any item that applies it; AllowableClass -1 is every class.
 	if itemClassMasks != "" {
-		for _, field := range strings.Split(itemClassMasks, ",") {
+		for field := range strings.SplitSeq(itemClassMasks, ",") {
 			mask, err := strconv.Atoi(field)
 			if err != nil {
 				return raw, fmt.Errorf("parsing item class masks for enchant %d (%s): %w", raw.EffectId, itemClassMasks, err)

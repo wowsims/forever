@@ -50,7 +50,7 @@ func TestMonocatBitesOnlyAtTheEnd(t *testing.T) {
 		t.Fatal(result.Error.Message)
 	}
 	bites := 0
-	for _, line := range strings.Split(result.Logs, "\n") {
+	for line := range strings.SplitSeq(result.Logs, "\n") {
 		if !strings.Contains(line, "Casting {SpellID: 22829}") {
 			continue
 		}
@@ -449,7 +449,7 @@ func TestJVMESMaintainsFaerieFire(t *testing.T) {
 				t.Fatalf("Faerie Fire casts = %d, want application and refresh", casts)
 			}
 			if !supplied {
-				for _, line := range strings.Split(result.Logs, "\n") {
+				for line := range strings.SplitSeq(result.Logs, "\n") {
 					if strings.HasPrefix(line, "[-") || !strings.Contains(line, "Casting {") {
 						continue
 					}
@@ -483,7 +483,7 @@ func TestAdaptiveMcpReturnsToMainWeapon(t *testing.T) {
 			p.Consumables.SwapMhImbueId = 12643
 		}
 		sim := core.NewSim(req, simsignals.CreateSignals())
-		for iteration := 0; iteration < 2; iteration++ {
+		for range 2 {
 			sim.Reset()
 			sim.PrePull()
 			for sim.CurrentTime < 0 {

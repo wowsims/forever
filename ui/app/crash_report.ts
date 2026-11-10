@@ -20,7 +20,7 @@ function hashCode(str: string): number {
 
 export interface CrashReportContext {
 	crashReport: CrashReportOpener;
-	toLink: () => string;
+	toLink: () => Promise<string>;
 	getLastUsedRngSeed: () => number;
 }
 
@@ -58,7 +58,7 @@ export async function reportSimCrash(error: any, ctx: CrashReportContext): Promi
 	if (window.confirm(i18n.t('sim.crash_report.confirm_title') + '\n' + errorStr + '\n' + i18n.t('sim.crash_report.confirm_message'))) {
 		// Splice out just the line numbers
 		const hash = hashCode(errorStr);
-		const link = ctx.toLink();
+		const link = await ctx.toLink();
 		const rngSeed = ctx.getLastUsedRngSeed();
 		fetch('https://api.github.com/search/issues?q=is:issue+is:open+repo:' + ISSUES_REPO + '+' + hash)
 			.then(resp => {

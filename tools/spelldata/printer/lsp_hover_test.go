@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -895,9 +896,7 @@ func rankRequest(t *testing.T, id int, method, needle string, offset int, extra 
 	line, col := positionOf(t, darkSacrificeGo, needle, offset)
 	at := map[string]any{"line": line, "character": col}
 	params := map[string]any{"textDocument": map[string]any{"uri": "$URI"}, "position": at, "range": map[string]any{"start": at, "end": at}}
-	for key, value := range extra {
-		params[key] = value
-	}
+	maps.Copy(params, extra)
 	return map[string]any{"jsonrpc": "2.0", "id": id, "method": method, "params": params}
 }
 

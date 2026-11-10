@@ -57,7 +57,7 @@ const LEGEND_LINE_WIDTH = 3;
 // The y scale fits its data, with this share of the span as room past the extremes.
 const Y_GRACE = '5%';
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
 
 const metricLabel = (metric: StatSweepMetric) => i18n.t(`sidebar.results.metrics.${metric}.label`);
 

@@ -41,8 +41,8 @@ type ItemEffect struct {
 }
 
 // ToMap returns a generic representation of the effect.
-func (e *ItemEffect) ToMap() map[string]interface{} {
-	return map[string]interface{}{
+func (e *ItemEffect) ToMap() map[string]any {
+	return map[string]any{
 		"ID":                   e.ID,
 		"LegacySlotIndex":      e.LegacySlotIndex,
 		"TriggerType":          e.TriggerType,
