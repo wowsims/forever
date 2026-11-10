@@ -279,6 +279,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-CleverHat-18308"
+ value: {
+  dps: 444.89294
+  tps: 1355.83046
+  dtps: 314.02747
+  hps: 36.64861
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-CloakofFire-14134"
  value: {
   dps: 439.09603
@@ -447,6 +456,15 @@ dps_results: {
   tps: 1373.74186
   dtps: 290.2847
   hps: 36.3775
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 429.17573
+  tps: 1344.35746
+  dtps: 292.28863
+  hps: 36.51306
  }
 }
 dps_results: {
@@ -1152,6 +1170,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 439.82695
+  tps: 1391.21602
+  dtps: 294.76635
+  hps: 36.66556
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 437.43015
@@ -1404,6 +1431,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-SkullflameShield-1168"
+ value: {
+  dps: 444.70401
+  tps: 1411.62464
+  dtps: 287.08718
+  hps: 36.73333
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 460.73246
@@ -1428,6 +1464,15 @@ dps_results: {
   tps: 1391.21602
   dtps: 294.73082
   hps: 36.66556
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-StoneformShoulders-13955"
+ value: {
+  dps: 432.42856
+  tps: 1359.27829
+  dtps: 267.93534
+  hps: 36.49611
  }
 }
 dps_results: {
@@ -1635,6 +1680,15 @@ dps_results: {
   tps: 1287.0184
   dtps: 443.87636
   hps: 35.93694
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 443.21494
+  tps: 1402.20708
+  dtps: 294.69801
+  hps: 36.66556
  }
 }
 dps_results: {

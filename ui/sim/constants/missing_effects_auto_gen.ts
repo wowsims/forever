@@ -4,6 +4,12 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		647, // Destiny
+		[
+			"Increases Strength by 200 for 12s.", // 17152 - https://www.wowhead.com/forever/spell=17152
+		]
+	],
+	[
 		809, // Bloodrazor
 		[
 			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
@@ -37,6 +43,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		940, // Robes of Insight
 		[
 			"Reduces the Mana cost of all spells by 200 for 12s.", // 18820 - https://www.wowhead.com/forever/spell=18820
+		]
+	],
+	[
+		1168, // Skullflame Shield
+		[
+			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
 		]
 	],
 	[
@@ -569,6 +581,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9465, // Digmaster 5000
+		[
+			"Punctures target's armor, lowering it by 100.", // 1293005 - https://www.wowhead.com/forever/spell=1293005
+		]
+	],
+	[
 		9467, // Gahz'rilla Fang
 		[
 			"Movement can generate Static Electricity.", // 1294477 - https://www.wowhead.com/forever/spell=1294477
@@ -591,6 +609,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9478, // Ripsaw
 		[
 			"Wounds the target for 70 Physical damage.", // 1292573 - https://www.wowhead.com/forever/spell=1292573
+		]
+	],
+	[
+		9483, // Flaming Incinerator
+		[
+			"Chance on hit to light the target ablaze, dealing 12 Fire damage over 3s.", // 1294537 - https://www.wowhead.com/forever/spell=1294537
 		]
 	],
 	[
@@ -651,6 +675,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10588, // Goblin Rocket Helmet
 		[
 			"Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target.", // 22641 - https://www.wowhead.com/forever/spell=22641
+		]
+	],
+	[
+		10623, // Winter's Bite
+		[
+			"Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.", // 13439 - https://www.wowhead.com/forever/spell=13439
 		]
 	],
 	[
@@ -852,6 +882,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		12531, // Searing Needle
+		[
+			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
+		]
+	],
+	[
 		12582, // Keris of Zul'Serak
 		[
 			"Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks by 11% for 10s.", // 16528 - https://www.wowhead.com/forever/spell=16528
@@ -1045,6 +1081,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		14487, // Bonechill Hammer
+		[
+			"Blasts a target for 105 Frost damage.", // 18276 - https://www.wowhead.com/forever/spell=18276
+		]
+	],
+	[
 		15138, // Onyxia Scale Cloak
 		[
 			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
@@ -1208,9 +1250,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18321, // Energetic Rod
+		[
+			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
+		]
+	],
+	[
 		18324, // Waveslicer
 		[
 			"Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.", // 1302166 - https://www.wowhead.com/forever/spell=1302166
+		]
+	],
+	[
+		18354, // Pimgib's Collar
+		[
+			"Restores 9 mana per 5 sec to your Imp.", // 22855 - https://www.wowhead.com/forever/spell=22855
+		]
+	],
+	[
+		18388, // Stoneshatter
+		[
+			"Shatter the target, dealing 49 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 1302279 - https://www.wowhead.com/forever/spell=1302279
 		]
 	],
 	[
@@ -1781,6 +1841,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22321, // Heart of Wyrmthalak
 		[
 			"Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.", // 27655 - https://www.wowhead.com/forever/spell=27655
+		]
+	],
+	[
+		22395, // Totem of Rage
+		[
+			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
 		]
 	],
 	[
@@ -2458,6 +2524,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		276744, // Zarla's Snack Pouch
+		[
+			"", // 1318104 - https://www.wowhead.com/forever/spell=1318104
+		]
+	],
+	[
 		277559, // Shen'dralar Relic
 		[
 			"Dispel 1 beneficial magic effect from the target enemy and 1 additional magic effect every 4.0 sec for 8s.", // 1302359 - https://www.wowhead.com/forever/spell=1302359
@@ -2515,6 +2587,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		280074, // Scalding Flamehoof
 		[
 			"Increases Fire damage taken by 14% and movement speed by 14% for 20s.", // 1309551 - https://www.wowhead.com/forever/spell=1309551
+		]
+	],
+	[
+		280080, // Claymore of Two Moons
+		[
+			"Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.", // 1309550 - https://www.wowhead.com/forever/spell=1309550
 		]
 	],
 	[
@@ -2632,6 +2710,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		287026, // Escape Plan
+		[
+			"Disarm target's weapon for 10s.", // 13534 - https://www.wowhead.com/forever/spell=13534
+		]
+	],
+	[
 		288900, // Earthshaker
 		[
 			"Knocks down all nearby enemies for 3s.", // 21152 - https://www.wowhead.com/forever/spell=21152
@@ -2734,6 +2818,30 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
+				],
+			],
+		]),
+	],
+	[
+		121, // Cadaverous Garb
+		new Map([
+			[
+				3,
+				[
+					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
+					"Reduces the duration of all movement impairing effects on you by 10%.", // 1292546 - https://www.wowhead.com/forever/spell=1292546
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Improves your chance to hit by 2.0%.", // 460230 - https://www.wowhead.com/forever/spell=460230
 				],
 			],
 		]),
@@ -4298,94 +4406,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		512, // Darkmantle Armor
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"Chance on melee attack to restore 20 Energy.", // 27787 - https://www.wowhead.com/forever/spell=27787
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		513, // Feralheart Raiment
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a chance of returning 300 mana, 10 rage, or 40 energy to the wearer.", // 27781 - https://www.wowhead.com/forever/spell=27781
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 15.", // 9344 - https://www.wowhead.com/forever/spell=9344
-					"+26 Attack Power.", // 9334 - https://www.wowhead.com/forever/spell=9334
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		517, // Sorcerer's Regalia
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
 		520, // Ironweave Battlesuit
 		new Map([
 			[
@@ -4894,12 +4914,34 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
+		1667, // Feralheart Raiment
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
+				],
+			],
+		]),
+	],
+	[
 		1669, // Beastmaster Armor
 		new Map([
 			[
 				5,
 				[
 					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
+				],
+			],
+		]),
+	],
+	[
+		1671, // Sorcerer's Regalia
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
 				],
 			],
 		]),
@@ -4928,6 +4970,23 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"When struck in combat has a 2% chance of shielding the wearer in a protective shield which will absorb 488 damage. Can only occur once every 60 sec.", // 27778 - https://www.wowhead.com/forever/spell=27778
+				],
+			],
+		]),
+	],
+	[
+		1676, // Darkmantle Armor
+		new Map([
+			[
+				3,
+				[
+					"Restores 15 health per 5 sec.", // 21347 - https://www.wowhead.com/forever/spell=21347
+				],
+			],
+			[
+				5,
+				[
+					"When struck in combat, has a 5% chance to remove a Snare effect from yourself. Can only occur once every 60 sec.", // 1302698 - https://www.wowhead.com/forever/spell=1302698
 				],
 			],
 		]),
@@ -6081,6 +6140,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		184, // Shadowcraft Armor
 		new Map([
 			[5, { kind: 'ppm', origin: 'unknown' }],
+		]),
+	],
+	[
+		1676, // Darkmantle Armor
+		new Map([
+			[4, { kind: 'ppm', origin: 'unknown' }],
 		]),
 	],
 ])

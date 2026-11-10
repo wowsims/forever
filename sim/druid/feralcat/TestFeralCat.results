@@ -158,6 +158,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-CleverHat-18308"
+ value: {
+  dps: 748.88516
+  tps: 532.72026
+  hps: 44.10639
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-CloakofFire-14134"
  value: {
   dps: 758.71575
@@ -267,6 +275,14 @@ dps_results: {
   dps: 736.29494
   tps: 545.44352
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 758.97767
+  tps: 561.7584
+  hps: 43.7675
  }
 }
 dps_results: {
@@ -443,6 +459,14 @@ dps_results: {
   dps: 767.73294
   tps: 568.06723
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-FeralheartRaiment"
+ value: {
+  dps: 757.68841
+  tps: 560.83056
+  hps: 43.81833
  }
 }
 dps_results: {
@@ -846,6 +870,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 771.60261
+  tps: 572.94218
+  hps: 44.15722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 767.73294
@@ -1139,6 +1171,14 @@ dps_results: {
   dps: 596.95208
   tps: 445.44551
   hps: 44.225
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 773.58125
+  tps: 572.23364
+  hps: 43.85222
  }
 }
 dps_results: {

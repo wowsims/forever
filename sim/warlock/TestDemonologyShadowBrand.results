@@ -320,6 +320,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 764.12662
+  tps: 652.05334
+  dtps: 10.4903
+  hps: 7.78527
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 723.08015
@@ -865,6 +874,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 768.83822
+  tps: 656.21344
+  dtps: 10.88781
+  hps: 7.83039
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 774.30386
@@ -1175,6 +1193,15 @@ dps_results: {
   dps: 717.68388
   tps: 605.97139
   dtps: 10.45448
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 764.35158
+  tps: 651.32328
+  dtps: 10.60628
+  hps: 7.66513
  }
 }
 dps_results: {

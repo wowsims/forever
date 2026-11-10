@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-CleverHat-18308"
+ value: {
+  dps: 765.30316
+  tps: 758.0842
+  dtps: 8.6443
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-CloakofFire-14134"
  value: {
   dps: 764.99917
@@ -402,6 +411,15 @@ dps_results: {
   tps: 805.58655
   dtps: 8.9063
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 763.07949
+  tps: 786.57904
+  dtps: 8.49133
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -1035,6 +1053,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 764.97982
+  tps: 787.98321
+  dtps: 4.41839
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 762.06015
@@ -1491,6 +1518,15 @@ dps_results: {
   tps: 702.60369
   dtps: 8.62
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 765.74772
+  tps: 789.54164
+  dtps: 8.9063
+  hps: 14.74167
  }
 }
 dps_results: {

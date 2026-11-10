@@ -295,6 +295,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 899.68501
+  tps: 709.47134
+  dtps: 9.9957
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 837.17718
@@ -751,6 +759,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 931.17175
+  tps: 734.30038
+  dtps: 10.66728
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 896.80197
@@ -1028,6 +1044,14 @@ dps_results: {
   dps: 793.54491
   tps: 627.33264
   dtps: 10.33304
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 916.81355
+  tps: 723.43807
+  dtps: 9.98188
  }
 }
 dps_results: {
