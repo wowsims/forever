@@ -36469,6 +36469,17 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1324647, SpellID: 1300130, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 98, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
+	{ID: 1300180, Name: "Stealth", School: 1, Attr: [17]uint32{0: 0x1a150010, 1: 0x10, 2: 0x200000, 15: 0x2000}, DurationMs: 20000, DispelType: 5, AuraInterrupt: [2]uint32{0: 0x3c07},
+		Effects: []Effect{
+			{ID: 1324739, SpellID: 1300180, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STEALTH, BasePoints: 5, PPL: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1324740, SpellID: 1300180, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -50, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1300185, Name: "Fatal Wound", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 40, MaxRange: 100, DefenseType: 2, ProcHint: core.ProcHintHeals,
+		Effects: []Effect{
+			{ID: 1324745, SpellID: 1300185, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 159, Variance: 0.3333333432674408, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1324746, SpellID: 1300185, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 75, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1324747, SpellID: 1300185, Index: 2, Type: dbcenums.E_DUMMY, BasePoints: 25, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
 	{ID: 1300209, Name: "Bludgeon", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, MaxRange: 100, DefenseType: 2, RefIDs: []int32{1293483},
 		Effects: []Effect{
 			{ID: 1324778, SpellID: 1300209, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 126, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -36933,6 +36944,10 @@ var generatedSpells = []Spell{
 	{ID: 1302191, Name: "Demonic Energy", School: 8, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 55, MaxRange: 100,
 		Effects: []Effect{
 			{ID: 1327685, SpellID: 1302191, Type: dbcenums.E_ENERGIZE, BasePoints: 48, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1302193, Name: "Razor Gauntlets", School: 8, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 24,
+		Effects: []Effect{
+			{ID: 1327687, SpellID: 1302193, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DAMAGE_SHIELD, BasePoints: 7, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 1302205, Name: "Mindtap", School: 64, Attr: [17]uint32{15: 0x2000}, DurationMs: 10000, DispelType: 1, RefIDs: []int32{1302206},
 		Effects: []Effect{

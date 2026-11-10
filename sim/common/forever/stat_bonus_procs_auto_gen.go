@@ -114,6 +114,14 @@ func RegisterAllProcs() {
 			{ItemID: 18308, ItemName: "Clever Hat"},
 		})
 
+	// When struck in combat, inflicts 7 Nature damage to the attacker.
+	// https://www.wowhead.com/forever/spell=1302193
+	// equip: 1302193 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1302193},
+		[]shared.ItemVariant{
+			{ItemID: 18326, ItemName: "Razor Gauntlets"},
+		})
+
 	// Spell Damage received is reduced by 5.
 	// https://www.wowhead.com/forever/spell=1292692
 	// equip: 1292692 (A_MOD_DAMAGE_TAKEN)
@@ -669,6 +677,19 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1300209, BuffSpellID: 1300209, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 10627, ItemName: "Bludgeon of the Grinning Dog"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Delivers a fatal wound for 159 Physical damage. Deals 75% increased damage to targets below 25% health.
+	// https://www.wowhead.com/forever/spell=1300185
+	// unsupported: states no rate
+	// trigger 1300185 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1300185, BuffSpellID: 1300185, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 10628, ItemName: "Deathblow"},
 	// })
 
 	// TODO: Manual implementation required
@@ -4534,6 +4555,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=17746
 	// Not simulated: Catseye Ultra Goggles: "Stealth Detection 15" (12418) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=12418
+	// Not simulated: Stealthblade: "Stealth 08" (27037) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Tooth of Eranikus: "Resist Sleep 03" (1300001) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300001
 	// Not simulated: Dragon's Call: "Dragon's Call" (13049) - ignored effect type 28
@@ -4568,6 +4591,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=21958
 	// Not simulated: Zum'rah's Vexing Cane: "Ward of Zum'rah" (1294258) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=1294258
+	// Not simulated: Murmuring Ring: "Resist Silence 07" (19786) - ignored aura type 117
+	// https://www.wowhead.com/forever/spell=19786
 	// Not simulated: The Eye of Divinity: "Eye of Divinity" (23101) - ignored aura type 19
 	// https://www.wowhead.com/forever/spell=23101
 	// Not simulated: Death Grips: "Immune to Disarm" (7219) - ignored aura type 77

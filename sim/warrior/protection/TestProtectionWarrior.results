@@ -1341,6 +1341,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-RazorGauntlets-18326"
+ value: {
+  dps: 448.43258
+  tps: 1480.82554
+  dtps: 304.58728
+  hps: 36.75028
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-RazorsteelShoulders-20517"
  value: {
   dps: 447.7146
