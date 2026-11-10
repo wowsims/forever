@@ -654,53 +654,68 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 	}
 }
 
-// A shield's hit is an off-hand hit: it never procs Windfury Totem or the main-hand weapon's
-// enchant, which a main-hand special does. The shield rows carry neither bit Windfury Totem reads, so
-// the test adds the main-hand flag to each hit and only the off-hand mask is under test.
-func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
-	sim, war, target := shieldTestSim(t)
-	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagRequiresMainHand}
+// A shield's hit is a main-hand special: a landed Shield Slam or Shield Bash rolls the main-hand
+// weapon's enchant. It never brings a Windfury Totem attack, since the shield rows carry neither bit
+// the totem reads; the same casts with the main-hand bit added do bring one.
+func TestShieldHitsProcTheMainHandEnchantButNeverWindfuryTotem(t *testing.T) {
+	for _, name := range []string{"Shield Bash", "Shield Slam"} {
+		t.Run(name, func(t *testing.T) {
+			sim, war, target := shieldTestSim(t)
+			spell := shieldSpells(t, war)[name]
+			war.AutoAttacks.CancelAutoSwing(sim)
+			war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+			hand := war.AttackTables[target.UnitIndex].Hand(spell)
+			hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
 
-	crusaderTrigger := war.GetAura("Enchant Weapon - Crusader")
-	if crusaderTrigger == nil || crusaderTrigger.Dpm == nil {
-		t.Fatal("the main hand's Crusader registered no proc manager")
-	}
-	rollsCrusader := func(procMask core.ProcMask) bool {
-		for range 1000 {
-			if crusaderTrigger.Dpm.Proc(sim, procMask, "Crusader Test") {
-				return true
+			holyStrength := war.GetAura("Holy Strength (MH)")
+			windfury := war.GetAura("Windfury Totem (External)")
+			if holyStrength == nil || windfury == nil {
+				t.Fatal("the main hand's Crusader or Windfury Totem registered no proc")
 			}
-		}
-		return false
-	}
-	if !rollsCrusader(mainHandSpecial.ProcMask) {
-		t.Fatal("1000 main-hand specials never procced Crusader, so the check below proves nothing")
-	}
+			landed := func() int32 {
+				metrics := spell.SpellMetrics[target.UnitIndex]
+				return metrics.Hits + metrics.Crits
+			}
 
-	windfuryTrigger := war.GetAura("Windfury Totem Trigger")
-	windfury := war.GetAura("Windfury Totem (External)")
-	if windfuryTrigger == nil || windfury == nil {
-		t.Fatal("Windfury Totem registered no trigger or proc")
-	}
+			// Each cast's procs go off by the end of its spell batch, and the auto attacks stay stopped
+			// so that every proc comes from the casts.
+			cast := func() {
+				spell.SkipCastAndApplyEffects(sim, target)
+				stepPastBatch(t, sim)
+			}
 
-	for name, spell := range shieldSpells(t, war) {
-		if rollsCrusader(spell.ProcMask) {
-			t.Errorf("%s procced the main hand's Crusader", name)
-		}
-		shieldHit := &core.Spell{ProcMask: spell.ProcMask, Flags: spell.Flags | core.SpellFlagRequiresMainHand}
-		for i := 0; i < 200 && !windfury.IsActive(); i++ {
-			windfuryTrigger.OnCastResult(windfuryTrigger, sim, shieldHit, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
-		}
-		if windfury.IsActive() {
-			t.Errorf("%s procced Windfury Totem", name)
-		}
-	}
+			const casts = 1000
+			var crusaderProcs, windfuryProcs int
+			for range casts {
+				holyStrength.Deactivate(sim)
+				windfury.Deactivate(sim)
+				cast()
+				if holyStrength.IsActive() {
+					crusaderProcs++
+				}
+				if windfury.IsActive() {
+					windfuryProcs++
+				}
+			}
+			if got := landed(); got != casts {
+				t.Fatalf("%d of %d casts landed, want all of them", got, casts)
+			}
+			if crusaderProcs == 0 {
+				t.Errorf("%d landed casts never procced the main hand's Crusader", casts)
+			}
+			if windfuryProcs != 0 {
+				t.Errorf("%d of %d landed casts procced Windfury Totem, want none", windfuryProcs, casts)
+			}
 
-	for i := 0; i < 200 && !windfury.IsActive(); i++ {
-		windfuryTrigger.OnCastResult(windfuryTrigger, sim, mainHandSpecial, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
-	}
-	if !windfury.IsActive() {
-		t.Error("200 main-hand specials never procced Windfury Totem, so the check above proves nothing")
+			spell.Flags |= core.SpellFlagRequiresMainHand
+			for i := 0; i < 200 && !windfury.IsActive(); i++ {
+				cast()
+			}
+			if !windfury.IsActive() {
+				t.Error("200 casts with the main-hand bit never procced Windfury Totem, so the check above proves nothing")
+			}
+		})
 	}
 }
 

@@ -185,7 +185,12 @@ func (warrior *Warrior) registerShieldSlam() {
 		return
 	}
 
-	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
+	// A main-hand special, though the row requires the shield: the main-hand weapon's
+	// chance-on-hit and enchant hear it, its miss and parry follow the main-hand weapon skill, and
+	// weapon-scoped modifiers read the main hand. A main-hand chance-on-hit fired on 54 of 80 isolated
+	// slams in game and on none of 74 Shield Blocks. Windfury Totem never rolls on it, since the row
+	// carries neither the main-hand nor the next-swing bit.
+	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

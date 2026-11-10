@@ -13,7 +13,12 @@ var shieldBashRank = spellData.ShieldBash.Highest()
 const shieldBashThreatMultiplier = 1.5
 
 func (warrior *Warrior) registerShieldBash() {
-	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
+	// A main-hand special, though the row requires the shield: the main-hand weapon's
+	// chance-on-hit and enchant hear it, its miss and parry follow the main-hand weapon skill, and
+	// weapon-scoped modifiers read the main hand. A main-hand chance-on-hit fired on 7 of 8 isolated
+	// bashes in game. Windfury Totem never rolls on it, since the row carries neither the main-hand nor
+	// the next-swing bit.
+	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = shieldBashThreatMultiplier
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

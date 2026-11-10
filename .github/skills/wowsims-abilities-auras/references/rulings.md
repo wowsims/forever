@@ -31,9 +31,11 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   opposite; no sign override exists.** `sim/core/spelldata/ladder.go`, PR #399.
 - **Seal of Righteousness keeps the tooltip description-variable coefficients 0.12 and 0.0765 over the rows' 0.**
   `sim/paladin/seal_of_righteousness.go`, PR #469.
-- **Shield Bash and Shield Slam register as `ProcMaskMeleeOHSpecial`, which keeps the main-hand weapon's procs and
-  enchants off them; the game files give no hand, so this is a ruling, not data. Windfury Totem skips them by data:
-  their rows carry neither the main-hand nor the next-swing bit.** `sim/warrior/shield_bash.go`.
+- **Shield Bash and Shield Slam register as `ProcMaskMeleeMHSpecial`, though their rows require the shield: the
+  main-hand weapon's procs and enchants hear them, and the main-hand weapon skill sets their miss and parry, as measured
+  in game at 1.60.1.70862. The game files give no hand. The shield stays their cast requirement, and Windfury Totem
+  skips them by data: their rows carry neither the main-hand nor the next-swing bit.** `sim/warrior/shield_bash.go`,
+  `sim/warrior/talents_protection.go`, `sim/core/buffs/drivers.go`.
 
 ## Registering
 
