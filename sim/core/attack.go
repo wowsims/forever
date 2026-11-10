@@ -765,13 +765,15 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 		}
 
 		if aa.IsDualWielding {
+			// An off hand swapped in before the pull opens half its swing after the main hand, as reset
+			// sets one held from the start, so the main hand's opening offset carries over.
+			if aa.oh.swingAt == NeverExpires {
+				aa.oh.swingAt = aa.mh.swingAt + DurationFromSeconds(aa.oh.SwingSpeed/2)
+				aa.oh.naturalReadyAt = aa.oh.swingAt
+			}
 			if aa.oh.IsInRange() {
 				aa.oh.enabled = true
 				aa.oh.addWeaponAttack(sim, aa.oh.unit.TotalMeleeHasteMultiplier())
-			}
-			if aa.oh.swingAt == NeverExpires {
-				aa.oh.swingAt = DurationFromSeconds(aa.oh.curSwingSpeed / 2)
-				aa.oh.naturalReadyAt = aa.oh.swingAt
 			}
 		}
 
@@ -1138,16 +1140,18 @@ func (aa *AutoAttacks) StopRangedUntil(sim *Simulation, readyAt time.Duration) {
 	aa.ranged.scheduleRangedSwing(sim)
 }
 
-// Delays all swing timers for the specified amount.
+// Delays all swing timers for the specified amount. A hand with no swing scheduled stays unscheduled.
 func (aa *AutoAttacks) DelayMeleeBy(sim *Simulation, delay time.Duration) {
 	if delay <= 0 {
 		return
 	}
 
-	aa.mh.swingAt += delay
-	sim.rescheduleWeaponAttack(aa.mh.swingAt)
+	if aa.mh.swingAt != NeverExpires {
+		aa.mh.swingAt += delay
+		sim.rescheduleWeaponAttack(aa.mh.swingAt)
+	}
 
-	if aa.IsDualWielding {
+	if aa.IsDualWielding && aa.oh.swingAt != NeverExpires {
 		aa.oh.swingAt += delay
 		sim.rescheduleWeaponAttack(aa.oh.swingAt)
 	}

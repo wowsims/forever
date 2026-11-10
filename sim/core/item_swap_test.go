@@ -101,6 +101,45 @@ func TestOnUseBuffDropsWhenItsItemIsSwappedOff(t *testing.T) {
 	}
 }
 
+// The off hand first swings half its weapon speed after the main hand, random melee offset at the pull included,
+// whether it is held from the start or a prepull swap equips it.
+func TestPrepullOffHandSwapOpensHalfASwingAfterTheMainHand(t *testing.T) {
+	dualWield := WeaponTestSlots(WeaponTestSwordID, WeaponTestDaggerID, 0)
+	swapToDualWield := []*proto.APLPrepullAction{{DoAtValue: constValue("-5s"), Action: &proto.APLAction{
+		Action: &proto.APLAction_ItemSwap{ItemSwap: &proto.APLActionItemSwap{SwapSet: proto.APLActionItemSwap_Swap1}},
+	}}}
+
+	for _, tc := range []struct {
+		name    string
+		raid    *proto.Raid
+		prepull []*proto.APLPrepullAction
+	}{
+		{"held from the start", weaponTestRaid(proto.Race_RaceHuman, dualWield, nil), nil},
+		{"swapped in before the pull", weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(WeaponTestSwordID, 0, 0), dualWield), swapToDualWield},
+	} {
+		tc.raid.Parties[0].Players[0].Rotation = &proto.APLRotation{Type: proto.APLRotation_TypeAPL, PrepullActions: tc.prepull}
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: tc.raid, Encounter: weaponTestEncounter()}, simsignals.CreateSignals())
+		aa := &sim.Raid.Parties[0].Players[0].GetCharacter().AutoAttacks
+
+		sim.Reset()
+		if aa.IsDualWielding != (tc.prepull == nil) {
+			t.Fatalf("%s: dual wielding at the reset = %v", tc.name, aa.IsDualWielding)
+		}
+		sim.PrePull()
+		stepSwingSim(t, sim, 0)
+		halfSwing := DurationFromSeconds(aa.OH().SwingSpeed / 2)
+		stepSwingSim(t, sim, halfSwing+100*time.Millisecond)
+
+		mainHand := aa.MainhandPreviousSwing()
+		if mainHand <= 0 {
+			t.Fatalf("%s: main hand first swung at %v, want it after the pull by a random melee offset", tc.name, mainHand)
+		}
+		if got := aa.OffhandPreviousSwing(); got != mainHand+halfSwing {
+			t.Errorf("%s: off hand first swung at %v, want %v, half its speed after the main hand at %v", tc.name, got, mainHand+halfSwing, mainHand)
+		}
+	}
+}
+
 // A set swapped in before the pull stays on until an Item Swap: Main runs. The prepull swap warns when nothing swaps
 // back.
 func TestPrepullSwapStaysOnIntoTheFight(t *testing.T) {
