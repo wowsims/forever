@@ -128,6 +128,9 @@ func TestPrepullOffHandSwapOpensHalfASwingAfterTheMainHand(t *testing.T) {
 		sim.PrePull()
 		stepSwingSim(t, sim, 0)
 		halfSwing := DurationFromSeconds(aa.OH().SwingSpeed / 2)
+		if got := aa.OffhandPreviousSwing(); got != -aa.OffhandSwingSpeed() {
+			t.Errorf("%s: off hand's last swing at the pull %v, want %v, a full swing before the fight", tc.name, got, -aa.OffhandSwingSpeed())
+		}
 		stepSwingSim(t, sim, halfSwing+100*time.Millisecond)
 
 		mainHand := aa.MainhandPreviousSwing()

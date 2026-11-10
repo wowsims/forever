@@ -711,10 +711,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 		aa.mh.naturalReadyAt = 0
 
 		if aa.IsDualWielding {
-			aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
-			aa.oh.previousSwing = -aa.OffhandSwingSpeed()
-			aa.oh.swingAt = DurationFromSeconds(aa.oh.SwingSpeed / 2)
-			aa.oh.naturalReadyAt = aa.oh.swingAt
+			aa.resetOffHandSwing()
 		}
 
 		// Each enemy opens at its own point in its swing timer, so a pack does not swing in volleys.
@@ -745,6 +742,14 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 	}
 }
 
+// The off hand opens half its weapon speed into the fight, a full swing after its last one.
+func (aa *AutoAttacks) resetOffHandSwing() {
+	aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
+	aa.oh.previousSwing = -aa.OffhandSwingSpeed()
+	aa.oh.swingAt = DurationFromSeconds(aa.oh.SwingSpeed / 2)
+	aa.oh.naturalReadyAt = aa.oh.swingAt
+}
+
 func (aa *AutoAttacks) startPull(sim *Simulation) {
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
 		return
@@ -765,12 +770,6 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 		}
 
 		if aa.IsDualWielding {
-			// An off hand swapped in before the pull opens half its swing after the main hand, as reset
-			// sets one held from the start, so the main hand's opening offset carries over.
-			if aa.oh.swingAt == NeverExpires {
-				aa.oh.swingAt = aa.mh.swingAt + DurationFromSeconds(aa.oh.SwingSpeed/2)
-				aa.oh.naturalReadyAt = aa.oh.swingAt
-			}
 			if aa.oh.IsInRange() {
 				aa.oh.enabled = true
 				aa.oh.addWeaponAttack(sim, aa.oh.unit.TotalMeleeHasteMultiplier())
@@ -1140,18 +1139,16 @@ func (aa *AutoAttacks) StopRangedUntil(sim *Simulation, readyAt time.Duration) {
 	aa.ranged.scheduleRangedSwing(sim)
 }
 
-// Delays all swing timers for the specified amount. A hand with no swing scheduled stays unscheduled.
+// Delays all swing timers for the specified amount.
 func (aa *AutoAttacks) DelayMeleeBy(sim *Simulation, delay time.Duration) {
 	if delay <= 0 {
 		return
 	}
 
-	if aa.mh.swingAt != NeverExpires {
-		aa.mh.swingAt += delay
-		sim.rescheduleWeaponAttack(aa.mh.swingAt)
-	}
+	aa.mh.swingAt += delay
+	sim.rescheduleWeaponAttack(aa.mh.swingAt)
 
-	if aa.IsDualWielding && aa.oh.swingAt != NeverExpires {
+	if aa.IsDualWielding {
 		aa.oh.swingAt += delay
 		sim.rescheduleWeaponAttack(aa.oh.swingAt)
 	}
