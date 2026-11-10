@@ -1,37 +1,38 @@
 package warlock
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 )
 
-// The debuff half is A_MOD_SPELL_DAMAGE_FROM_CASTER: while the channel is on the target, it takes 10%
-// more damage from the caster's spells the effect's class flags name. Those are Corruption and Bane of
-// Agony (0x2 | 0x400); Siphon Life, a leech rather than periodic damage, and the drains are not named.
+// While the channel is on the target, this warlock's Corruption, Siphon Life and Bane of Agony there deal their
+// periodic damage faster by the percent of the row's dummy effect: they keep their duration and tick every
+// period / (1 + percent) for as long as the channel runs, so the channel adds ticks. The normal period returns
+// when the channel ends or is interrupted. The time left to the tick already scheduled scales with the period at
+// either end. An effect applied while the channel runs keeps its normal period, since casting it ends the channel.
+// TODO: Ingame test needed: whether a tick already scheduled when the channel starts or ends is re-timed, and
+// whether Bane of Agony's added ticks take the ramp of the third they land in.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
-	wrackAmplify := rankedSpell.Effect(dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, 0)
-
-	ampMult := 1 + wrackAmplify.Percent()
-
-	// Damage done by caster: this warlock's damage from the named spells, against the target Wrack is on.
-	amplifyNamed := func(_ *core.Simulation, spell *core.Spell, _ *core.AttackTable) float64 {
-		if spell.MatchesFlags(wrackAmplify.ClassFlags) {
-			return ampMult
-		}
-		return 1
-	}
+	speedup := 1 + rankedSpell.Effect(dbcenums.A_DUMMY, 0).Percent()
 
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	// While the channel is on the target, this warlock's damage from the named spells is raised there.
-	config.Dot.Aura.OnGain = func(aura *core.Aura, _ *core.Simulation) {
-		core.EnableDamageDoneByCaster(DDBC_Wrack, DDBC_Total, warlock.AttackTables[aura.Unit.UnitIndex], amplifyNamed)
+	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
+		for _, spell := range warlock.afflictionDots {
+			dot := spell.Dot(aura.Unit)
+			dot.SetTickPeriod(sim, time.Duration(float64(dot.CalcTickPeriod())/speedup).Round(time.Millisecond))
+		}
 	}
-	config.Dot.Aura.OnExpire = func(aura *core.Aura, _ *core.Simulation) {
-		core.DisableDamageDoneByCaster(DDBC_Wrack, warlock.AttackTables[aura.Unit.UnitIndex])
+	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
+		for _, spell := range warlock.afflictionDots {
+			dot := spell.Dot(aura.Unit)
+			dot.SetTickPeriod(sim, dot.CalcTickPeriod())
+		}
 	}
 
 	warlock.Wrack = warlock.RegisterSpell(config)

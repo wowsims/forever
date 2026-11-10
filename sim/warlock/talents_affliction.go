@@ -230,19 +230,15 @@ func (warlock *Warlock) soulSiphonPerEffect() float64 {
 	return spellData.SoulSiphon.FractionAt(warlock.Talents.SoulSiphon)
 }
 
-// Soul Siphon's cap, from its tooltip: "4/8/12% per each of your other Affliction effects active on the
-// target, up to a maximum increase of 12/24/36%", three effects at every rank. Row 17804 is a single
-// A_DUMMY stating the per-effect share only: no cap and no class flags.
-const soulSiphonMaxEffects = 3
-
-// The multiplier a Soul Siphon spell's tick takes. The spells are the tooltip's, since the row names none:
-// Drain Life, Drain Soul and Wrack, each of which calls this.
-// TODO: Appears to count any "affliction effect", confirm this includes curses in-game.
+// The multiplier a Soul Siphon spell's tick takes. Row 17804 is a single A_DUMMY stating the per-effect
+// share only, with no class flags and no cap, so the spells and effects are the tooltip's: Drain Life,
+// Drain Soul and Wrack, each of which calls this, gain the share per Corruption, Siphon Life and Bane of
+// Agony of this warlock's on the target. The tooltip's cap of three shares is those three effects.
 func (warlock *Warlock) soulSiphonMultiplier(target *core.Unit, multiplierPerEffect float64) float64 {
 	if multiplierPerEffect == 0 {
 		return 1
 	}
-	return 1 + multiplierPerEffect*min(warlock.AfflictionCount(target), soulSiphonMaxEffects)
+	return 1 + multiplierPerEffect*warlock.AfflictionCount(target)
 }
 
 // Builds a Soul Siphon channel: Drain Life, Drain Soul and Wrack share the tick, hit roll and expected

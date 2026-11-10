@@ -10,9 +10,10 @@ import (
 const poisedSpellID = 1328829
 
 // "While at maximum Energy, and out of combat, reduce the Energy cost of your next ability." The
-// passive is a dummy, and the buff its tooltip names holds the cost mod, the charge and the cat
-// abilities that spend it. The druid starts each iteration out of combat at full energy, and nothing
-// takes it out of combat again, so the buff is up from the start until the first of those casts.
+// passive's effect only procs a marker aura 1330763 on entering combat, which the sim has no use for.
+// The buff its tooltip names holds the cost mod, the charge and the cat abilities that spend it. The
+// druid starts each iteration out of combat at full energy, and nothing takes it out of combat again,
+// so the buff is up from the start until the first of those casts.
 func (druid *Druid) registerPoised() {
 	buffRow := spelldata.MustFind(poisedSpellID).Refs()[0]
 	config := spelldata.AuraConfig(buffRow)

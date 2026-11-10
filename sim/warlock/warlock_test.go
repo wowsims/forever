@@ -653,3 +653,126 @@ func TestExpectedDotTickCountsItsCrits(t *testing.T) {
 		t.Errorf("Corruption's expected tick is %.3f with more spell crit and %.3f without, want it higher", raised, plain)
 	}
 }
+
+// While Wrack is channelled on a target, the warlock's Corruption there ticks at its period divided by one plus
+// the percent of Wrack's dummy effect, keeps its expiry, and ticks at its period again once the channel ends.
+// The warlock's Corruption on another target and a second warlock's Corruption on the channelled target keep
+// their period. Wrack is the 17th affliction talent.
+func TestWrackSpeedsUpTheWarlocksDotsOnItsTarget(t *testing.T) {
+	encounter := &proto.Encounter{Duration: core.LongDuration, Targets: []*proto.Target{core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig()}}
+	raid := &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{
+		warlockPlayer("Warlock", "00000000000000001", &proto.WarlockOptions{}),
+		warlockPlayer("Second Warlock", "", &proto.WarlockOptions{}),
+	}, Buffs: &proto.PartyBuffs{}}}, Buffs: &proto.RaidBuffs{}, Debuffs: &proto.Debuffs{}}
+	sim := newWarlockRaidSim(raid, encounter)
+	warlock, second := sim.Raid.Parties[0].Players[0].(*Warlock), sim.Raid.Parties[0].Players[1].(*Warlock)
+	target, otherTarget := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+
+	corruptions := []struct {
+		name    string
+		dot     *core.Dot
+		expires time.Duration
+		ticks   []time.Duration
+	}{
+		{name: "the warlock's Corruption on the channelled target", dot: warlock.Corruption.Dot(target)},
+		{name: "the warlock's Corruption on the other target", dot: warlock.Corruption.Dot(otherTarget)},
+		{name: "the second warlock's Corruption on the channelled target", dot: second.Corruption.Dot(target)},
+	}
+	for i := range corruptions {
+		corruptions[i].dot.Apply(sim)
+		corruptions[i].expires = corruptions[i].dot.ExpiresAt()
+	}
+	sped := &corruptions[0]
+	period := sped.dot.TickPeriod()
+	speedup := 1 + spellData.Wrack.ByID(1316697).EffectN(2).Percent()
+	fast := time.Duration(float64(period) / speedup).Round(time.Millisecond)
+
+	// The channel starts a sixth of a period after the first tick, so neither of its ends meets a tick.
+	var wrackStart, wrackEnd time.Duration
+	for running := true; running && !sim.Step(); {
+		running = false
+		for i := range corruptions {
+			c := &corruptions[i]
+			for int(c.dot.TickCount()) > len(c.ticks) {
+				c.ticks = append(c.ticks, sim.CurrentTime)
+			}
+			running = running || c.dot.IsActive()
+		}
+		if wrackStart == 0 && len(sped.ticks) == 1 {
+			wrackStart = sim.CurrentTime + period/6
+			sim.AddPendingAction(&core.PendingAction{NextActionAt: wrackStart, OnAction: func(sim *core.Simulation) {
+				wrack := warlock.Wrack.Dot(target)
+				wrack.Apply(sim)
+				wrackEnd = wrack.ExpiresAt()
+			}})
+		}
+	}
+	if wrackEnd <= wrackStart {
+		t.Fatalf("Wrack's channel did not run")
+	}
+
+	during, after := 0, 0
+	for i := 1; i < len(sped.ticks); i++ {
+		from, to := sped.ticks[i-1], sped.ticks[i]
+		switch {
+		case from > wrackStart && to <= wrackEnd:
+			during++
+			if to-from != fast {
+				t.Errorf("%s ticked %v after the last tick at %v while Wrack was channelled, want %v", sped.name, to-from, from, fast)
+			}
+		case from > wrackEnd:
+			after++
+			if to-from != period {
+				t.Errorf("%s ticked %v after the last tick at %v once Wrack ended, want %v", sped.name, to-from, from, period)
+			}
+		}
+	}
+	if during < 2 || after < 1 {
+		t.Fatalf("%s has %d gaps between ticks within the channel and %d after it, too few to tell the periods", sped.name, during, after)
+	}
+
+	// The channel runs the dot's clock faster, so it adds the ticks its share of a period fits.
+	added := int(math.Floor(float64(wrackEnd-wrackStart)*(speedup-1)/float64(period) + 1e-9))
+	for i := range corruptions {
+		c := &corruptions[i]
+		want := int(c.dot.BaseTickCount)
+		if c == sped {
+			want += added
+		} else {
+			for j := 1; j < len(c.ticks); j++ {
+				if gap := c.ticks[j] - c.ticks[j-1]; gap != period {
+					t.Errorf("%s ticked %v after the last tick at %v, want %v", c.name, gap, c.ticks[j-1], period)
+				}
+			}
+		}
+		if len(c.ticks) != want {
+			t.Errorf("%s ticked %d times, want %d", c.name, len(c.ticks), want)
+		}
+		if last := c.ticks[len(c.ticks)-1]; last != c.expires {
+			t.Errorf("%s last ticked at %v, want its expiry %v", c.name, last, c.expires)
+		}
+	}
+}
+
+// Soul Siphon raises Drain Life by its share per Corruption, Siphon Life and Bane of Agony of the warlock's on the
+// target, and not for Bane of Doom or a curse. Siphon Life is the 14th affliction talent and Soul Siphon 3/3 the 15th.
+func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
+	sim, warlock := newWarlockSim("000000000000013", &proto.WarlockOptions{CurseOptions: proto.WarlockOptions_Recklessness}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+	plain := warlock.DrainLife.ExpectedTickDamage(sim, target)
+
+	warlock.BaneOfDoom.Dot(target).Apply(sim)
+	warlock.CurseOfRecklessnessAuras.Get(target).Activate(sim)
+	if got := warlock.DrainLife.ExpectedTickDamage(sim, target) / plain; math.Abs(got-1) > 1e-9 {
+		t.Errorf("Drain Life is %.4f times its plain tick with Bane of Doom and Curse of Recklessness on the target, want 1", got)
+	}
+
+	warlock.BaneOfDoom.Dot(target).Deactivate(sim)
+	for _, spell := range []*core.Spell{warlock.Corruption, warlock.SiphonLife, warlock.BaneOfAgony} {
+		spell.Dot(target).Apply(sim)
+	}
+	want := 1 + 3*spellData.SoulSiphon.FractionAt(3)
+	if got := warlock.DrainLife.ExpectedTickDamage(sim, target) / plain; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Drain Life is %.4f times its plain tick with Corruption, Siphon Life and Bane of Agony on the target, want %.4f", got, want)
+	}
+}

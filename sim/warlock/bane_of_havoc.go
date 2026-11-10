@@ -57,7 +57,6 @@ func (warlock *Warlock) registerBaneOfHavoc() {
 	config.ProcMask = core.ProcMaskEmpty
 	config.ThreatMultiplier = 1
 	config.RelatedAuraArrays = warlock.BaneOfHavocAuras.ToMap()
-	// TODO: 1225228 has no SpellCooldowns row, so it is off the GCD where the other Banes have a 1.5 s one; confirm in game.
 
 	// Roll to hit, and move the Bane onto the target in place of any other Bane there
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

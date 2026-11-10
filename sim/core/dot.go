@@ -180,6 +180,32 @@ func (dot *Dot) TickPeriod() time.Duration {
 	return dot.tickPeriod
 }
 
+// Ticks a running dot every period from now on, keeping its expiry. The time left to the next tick
+// scales with the period, so the share of a tick already run is kept; ticks that no longer fit before
+// the expiry are lost. The next Apply resets the period.
+func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
+	if !dot.IsActive() || dot.tickAction == nil || dot.tickAction.NextActionAt == NeverExpires || period == dot.tickPeriod {
+		return
+	}
+
+	// Truncating moves the tick earlier, never past the expiry, so a last tick due at the expiry still lands.
+	untilNext := time.Duration(float64(dot.tickAction.NextActionAt-sim.CurrentTime) * float64(period) / float64(dot.tickPeriod))
+	nextTick := sim.CurrentTime + max(untilNext, 0)
+
+	dot.tickPeriod = period
+	dot.tickAction.Cancel(sim)
+	dot.tickAction = &PendingAction{
+		NextActionAt: nextTick,
+		OnAction:     dot.periodicTick,
+	}
+	sim.AddPendingAction(dot.tickAction)
+
+	dot.remainingTicks = 0
+	if nextTick <= dot.ExpiresAt() {
+		dot.remainingTicks = 1 + int32((dot.ExpiresAt()-nextTick)/period)
+	}
+}
+
 func (dot *Dot) NextTickAt() time.Duration {
 	if !dot.IsActive() {
 		return 0

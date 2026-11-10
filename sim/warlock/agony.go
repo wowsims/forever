@@ -22,7 +22,6 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	config.ClassSpellMask = WarlockSpellBaneOfAgony
 
 	config.Dot = spelldata.DotConfig(rankedSpell, agonyTick)
-	config.Dot.Aura.Tag = "Affliction"
 
 	// The bonus of a cast now, if Amplify Curse is up.
 	ampNow := func() float64 {
@@ -82,6 +81,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 
 	warlock.BaneOfAgony = warlock.RegisterSpell(config)
 	warlock.Banes = append(warlock.Banes, warlock.BaneOfAgony)
+	warlock.afflictionDots = append(warlock.afflictionDots, warlock.BaneOfAgony)
 }
 
 // Helper function to facilitate the percentage of base damage dealt per tick

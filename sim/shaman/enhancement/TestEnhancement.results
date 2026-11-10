@@ -585,6 +585,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 866.61156
+  tps: 902.30493
+  dtps: 7.90603
+  hps: 32.99083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 864.17702
@@ -875,10 +884,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 887.51822
-  tps: 919.30566
-  dtps: 8.41298
-  hps: 21.75667
+  dps: 895.08315
+  tps: 926.7218
+  dtps: 9.20817
+  hps: 20.2825
  }
 }
 dps_results: {

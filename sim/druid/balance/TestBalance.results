@@ -622,6 +622,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 893.9096
+  tps: 904.91709
+  dtps: 5.10238
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 868.69142
