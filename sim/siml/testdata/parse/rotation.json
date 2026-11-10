@@ -1,0 +1,93 @@
+{
+	"player": {
+		"class": "ClassWarrior",
+		"dpsWarrior": {},
+		"cooldowns": {
+			"cooldowns": [
+				{
+					"id": {
+						"spellId": 12328
+					},
+					"timings": [30, 90]
+				},
+				{
+					"id": {
+						"otherId": "OtherActionOffensivePotion"
+					}
+				}
+			],
+			"hpPercentForDefensives": 0.4
+		},
+		"rotation": {
+			"type": "TypeAPL",
+			"prepullActions": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 25289,
+								"rank": 7
+							}
+						}
+					},
+					"doAtValue": {
+						"const": {
+							"val": "-1.5s"
+						}
+					}
+				}
+			],
+			"priorityList": [
+				{
+					"action": {
+						"condition": {
+							"variableRef": {
+								"name": "execute"
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 20662,
+								"rank": 5
+							}
+						}
+					}
+				},
+				{
+					"action": {
+						"groupReference": {
+							"groupName": "Filler"
+						}
+					}
+				}
+			],
+			"groups": [
+				{
+					"name": "Filler",
+					"actions": [
+						{
+							"action": {
+								"castSpell": {
+									"spellId": {
+										"spellId": 11605,
+										"rank": 5
+									}
+								}
+							}
+						}
+					]
+				}
+			],
+			"valueVariables": [
+				{
+					"name": "execute",
+					"value": {
+						"isExecutePhase": {
+							"threshold": "E20"
+						}
+					}
+				}
+			]
+		}
+	}
+}

@@ -19,7 +19,7 @@ import { Input } from '@ui-kit/FormControl';
 import { IconSwatch } from '@ui-kit/IconSwatch';
 import { Pill } from '@ui-kit/Pill';
 import { SearchField } from '@ui-kit/TextField';
-import { type ReactNode, useCallback, useId, useMemo, useState } from 'react';
+import { type ReactNode, type RefObject, useCallback, useId, useMemo, useState } from 'react';
 
 import { useEnchantPresets } from '../../hooks/useEnchantPresets';
 import { ENCHANT_PRESET_SLOTS, saveEnchantPreset, validateEnchantPresetName } from '../../model/enchant_presets';
@@ -49,11 +49,13 @@ export interface EnchantPresetDialogViewProps {
 	onSearchChange: (search: string) => void;
 	showAll: boolean;
 	onShowAllChange: (showAll: boolean) => void;
+	finalFocus?: RefObject<HTMLElement | null>;
 }
 
 export const EnchantPresetDialogView = ({
 	open,
 	onOpenChange,
+	finalFocus,
 	title,
 	name,
 	onNameChange,
@@ -75,6 +77,7 @@ export const EnchantPresetDialogView = ({
 		<Dialog
 			open={open}
 			onOpenChange={onOpenChange}
+			finalFocus={finalFocus}
 			size="xl"
 			scrollContents
 			elevated
@@ -158,6 +161,7 @@ export interface EnchantPresetDialogProps {
 	/** Null for a new preset. */
 	preset: BulkEnchantPreset | null;
 	onClose: () => void;
+	finalFocus?: EnchantPresetDialogViewProps['finalFocus'];
 }
 
 const slotEnchants = (slot: ItemSlot, enchants: Enchant[]): Enchant[] => {
@@ -172,7 +176,7 @@ const slotLabel = (slot: ItemSlot): string => {
 	return translateBulkSlotName(ITEM_SLOT_TO_BULK_SIM_ITEM_SLOT.get(slot)!);
 };
 
-export const EnchantPresetDialog = ({ open, preset, onClose }: EnchantPresetDialogProps) => {
+export const EnchantPresetDialog = ({ open, preset, onClose, finalFocus }: EnchantPresetDialogProps) => {
 	const player = usePlayer();
 	const presets = useEnchantPresets();
 	const [name, setName] = useState(preset?.name ?? '');
@@ -251,6 +255,7 @@ export const EnchantPresetDialog = ({ open, preset, onClose }: EnchantPresetDial
 		<EnchantPresetDialogView
 			open={open}
 			onOpenChange={next => !next && onClose()}
+			finalFocus={finalFocus}
 			title={i18n.t(preset ? 'bulk_tab.settings.enchant_presets.edit_title' : 'bulk_tab.settings.enchant_presets.new_title')}
 			name={name}
 			onNameChange={setName}

@@ -1,0 +1,7 @@
+3:1 error duplicate-slot
+4:1 error unknown-slot
+5:1 error unknown-slot
+6:12 error bad-raw
+7:17 error unknown-name
+8:12 error unknown-name
+9:19 error unknown-name

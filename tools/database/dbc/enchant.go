@@ -31,6 +31,7 @@ type Enchant struct {
 	EffectName         string
 	IsLive             bool
 	Lvl                int
+	RecipeItemIds      []int // The items that teach the enchant's spell.
 }
 
 // A spell an enchant slot casts off a hit, or hangs a listener on.
@@ -247,7 +248,7 @@ func (enchant *Enchant) ToProtoWithSlots() (*proto.UIEnchant, []EnchantProcSlot)
 	}
 	enchantStats := stats.Stats{}
 	pseudoStats := make([]float64, stats.PseudoStatsLen)
-	processEnchantmentEffects(enchant.Effects, effectArgs, enchant.EffectPoints, &enchantStats, pseudoStats, true)
+	processEnchantmentEffects(enchant.Effects, effectArgs, enchant.EffectPoints, &enchantStats, pseudoStats)
 	uiEnchant.Stats = enchantStats.ToProtoArray()
 	uiEnchant.PseudoStats = NullFloat(pseudoStats)
 	for i, effect := range enchant.Effects {

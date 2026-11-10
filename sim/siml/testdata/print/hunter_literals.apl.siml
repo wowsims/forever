@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+var $literal = 1h2m3.5s
+var $negative = -0.25
+var $kept_text = 5.00
+var $bool = false
+var $word = "True"
+var $spaced = " 5"
+var $escapes = "a \"quote\", a \\ and a\nline \u0001 / µ ` end"
+var $empty = ""
+var $not_a_number = "1.5.5"
+var $doubles = all_item_stat_procs_active(min_icd_seconds=0.0000001)
+var $big = all_item_stat_procs_active(agility, min_icd_seconds=1000000000000000000000)

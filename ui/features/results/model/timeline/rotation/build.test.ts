@@ -1,12 +1,13 @@
-import { OtherAction } from '@generated/proto/common';
+import { ItemSlot, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
+import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
-import type { CastLog, ResourceGroupLog } from '@sim/proto/combat_log';
+import type { AuraUptimeLog, CastLog, ResourceGroupLog } from '@sim/proto/combat_log';
 import type { UnitMetrics } from '@sim/proto/sim_result';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { buildRotationModel } from './build';
-import type { CastItem, CastRow, ResourceItem, ResourceRow } from './types';
+import type { AuraRow, CastItem, CastRow, ResourceItem, ResourceRow } from './types';
 
 const SEAL = ActionId.fromSpellId(20293);
 
@@ -59,11 +60,59 @@ describe('wand shots', () => {
 
 	it('keeps the main-hand and off-hand autos in rows of their own', () => {
 		const attack = (tag: number) => ActionId.fromOtherId(OtherAction.OtherActionAttack, tag);
-		expect(castRows([castOf(attack(1), 1), castOf(attack(2), 1.5)])).toHaveLength(2);
+		expect(castRows([castOf(attack(ItemSlot.ItemSlotMainHand), 1), castOf(attack(ItemSlot.ItemSlotOffHand), 1.5)])).toHaveLength(2);
 	});
 
 	it('keeps the tags of a spell outside the grouped list in rows of their own', () => {
 		expect(castRows([castOf(ActionId.fromSpellId(20293), 1), castOf(ActionId.fromSpellId(20293, 0, 1), 2)])).toHaveLength(2);
+	});
+});
+
+describe('buffs section', () => {
+	const aura = (actionId: ActionId): AuraUptimeLog => ({ actionId, timestamp: 1, gainedAt: 1, fadedAt: 3, stacksChange: [] }) as unknown as AuraUptimeLog;
+
+	const build = (castLogs: Array<CastLog>, auraUptimeLogs: Array<AuraUptimeLog>) => {
+		const player = { ...unit(castLogs), auraUptimeLogs } as unknown as UnitMetrics;
+		return buildRotationModel({ player, targets: [unit([])], duration: 30, showGcd: false });
+	};
+
+	const OVERPOWER_WINDOW = ActionId.fromSpellId(1282733);
+
+	it('draws an aura mapped onto a cast row in that row and gives it no Buffs row', () => {
+		const model = build([castOf(ActionId.fromSpellId(11585), 1)], [aura(OVERPOWER_WINDOW)]);
+		const rows = model.rows.filter((r): r is CastRow => r.kind === 'cast');
+		expect(rows).toHaveLength(1);
+		expect(rows[0].items.filter(item => item.kind === 'aura')).toHaveLength(1);
+		expect(model.rows.filter(r => r.kind === 'aura')).toHaveLength(0);
+	});
+
+	it('keeps the Buffs row of an aura with no cast to map onto', () => {
+		const model = build([castOf(ActionId.fromSpellId(11585), 1)], [aura(ActionId.fromSpellId(12345))]);
+		expect(model.rows.filter(r => r.kind === 'aura')).toHaveLength(1);
+	});
+
+	describe("the raid's Windfury Totem", () => {
+		const auraRows = async (spellIds: Array<number>) => {
+			vi.spyOn(ActionId, 'getTooltipData').mockImplementation(async () => ({ name: 'Windfury Totem', icon: '' }) as never);
+			const ids = await Promise.all(spellIds.map(spellId => ActionId.fromSpellId(spellId, 0, -1).fill()));
+			return build([], ids.map(aura)).rows.filter((r): r is AuraRow => r.kind === 'aura');
+		};
+
+		it('leaves the standing totem to the row of the aura that rolls its proc, and the attack power on a row of its own', async () => {
+			const rows = await auraRows([10614, 10612, 10610]);
+			const external = i18n.t('common.action_tags.external');
+			expect(rows.map(row => [row.actionId.spellId, row.label, row.items.length])).toEqual(
+				expect.arrayContaining([
+					[10612, `Windfury Totem (${external})`, 1],
+					[10610, `Windfury Totem (${i18n.t('common.stats.attack_power')} - ${external})`, 1],
+				]),
+			);
+			expect(rows).toHaveLength(2);
+		});
+
+		it('keeps the standing totem on a row of its own without the aura that rolls the proc', async () => {
+			expect((await auraRows([10614])).map(row => row.actionId.spellId)).toEqual([10614]);
+		});
 	});
 });
 

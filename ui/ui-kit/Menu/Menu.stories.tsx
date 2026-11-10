@@ -70,7 +70,12 @@ export const SurfaceNone: Story = {
 export const BareItems: Story = {
 	args: {
 		children: (
-			<MenuLinkItem layout="row" href="#bare-link" bare className="gap-2 p-2 data-highlighted:bg-primary-dampened" testId="bare-link">
+			<MenuLinkItem
+				layout="row"
+				href="#bare-link"
+				bare
+				className="gap-2 p-2 hover:bg-primary-dampened data-highlighted:bg-primary-dampened"
+				testId="bare-link">
 				Bare link
 			</MenuLinkItem>
 		),

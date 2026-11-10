@@ -47,8 +47,8 @@ func TestUnroundedDPS(t *testing.T) {
 			if field == nil {
 				t.Fatal("scaling properties discard unrounded weapon table DPS")
 			}
-			if got := generated.ProtoReflect().Get(field).Float(); got != c.dps {
-				t.Fatalf("unrounded DPS = %.9f, want %.9f", got, c.dps)
+			if got, want := generated.UnroundedDps, float32(c.dps); got != want {
+				t.Fatalf("unrounded DPS = %.9f, want %.9f", got, want)
 			}
 			if generated.WeaponDamageMin != c.low || generated.WeaponDamageMax != c.high {
 				t.Fatalf("equipped endpoints = %v-%v, want %v-%v", generated.WeaponDamageMin, generated.WeaponDamageMax, c.low, c.high)

@@ -15,7 +15,7 @@ func (rogue *Rogue) registerAmbushSpell() {
 	config.ClassSpellMask = RogueSpellAmbush
 	config.DamageMultiplier = ambushRank.EffectN(2).Percent()
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return rogue.HasDagger(core.MainHand) && !rogue.PseudoStats.InFrontOfTarget && (rogue.IsStealthed() || rogue.CutthroatAura.IsActive())
+		return rogue.HasDagger(core.MainHand) && !rogue.PseudoStats.InFrontOfTarget && (rogue.IsStealthed() || rogue.GhostlyStrikeAura.IsActive())
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -23,7 +23,7 @@ func (rogue *Rogue) registerAmbushSpell() {
 		baseDamage := ambushBaseDamage +
 			spell.Unit.MHNormalizedWeaponDamage(sim, spell.MeleeAttackPower(target))
 
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
 			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())

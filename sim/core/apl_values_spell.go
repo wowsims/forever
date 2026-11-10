@@ -38,6 +38,30 @@ func (value *APLValueSpellCanCast) String() string {
 	return fmt.Sprintf("Can Cast(%s)", value.spell.ActionID)
 }
 
+type APLValueSpellInRange struct {
+	DefaultAPLValueImpl
+	spell *Spell
+}
+
+func (rot *APLRotation) newValueSpellInRange(config *proto.APLValueSpellInRange, _ *proto.UUID) APLValue {
+	spell := rot.GetAPLSpell(config.SpellId)
+	if spell == nil {
+		return nil
+	}
+	return &APLValueSpellInRange{
+		spell: spell,
+	}
+}
+func (value *APLValueSpellInRange) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeBool
+}
+func (value *APLValueSpellInRange) GetBool(_ *Simulation) bool {
+	return value.spell.InRange()
+}
+func (value *APLValueSpellInRange) String() string {
+	return fmt.Sprintf("In Range(%s)", value.spell.ActionID)
+}
+
 type APLValueSpellIsReady struct {
 	DefaultAPLValueImpl
 	spell *Spell
@@ -188,6 +212,31 @@ func (value *APLValueSpellIsCasting) GetBool(sim *Simulation) bool {
 }
 func (value *APLValueSpellIsCasting) String() string {
 	return fmt.Sprintf("IsCasting(%s)", value.spell.ActionID)
+}
+
+type APLValueRemainingCastTime struct {
+	DefaultAPLValueImpl
+	unit *Unit
+}
+
+func (rot *APLRotation) newValueRemainingCastTime(_ *proto.APLValueRemainingCastTime, _ *proto.UUID) APLValue {
+	return &APLValueRemainingCastTime{unit: rot.unit}
+}
+func (value *APLValueRemainingCastTime) Type() proto.APLValueType {
+	return proto.APLValueType_ValueTypeDuration
+}
+
+// The time to the end of the unit's running hardcast, and 0 with nothing cast. A channel reads 0, as it
+// reads false for Spell Is Casting; the pick at the cast end reads 0, where Spell Is Casting still reads true.
+func (value *APLValueRemainingCastTime) GetDuration(sim *Simulation) time.Duration {
+	hc := &value.unit.Hardcast
+	if hc.IsChanneled {
+		return 0
+	}
+	return hc.timeLeft(sim.CurrentTime)
+}
+func (value *APLValueRemainingCastTime) String() string {
+	return "Remaining Cast Time"
 }
 
 type APLValueSpellIsChanneling struct {
@@ -427,7 +476,9 @@ func (value *APLValueSpellInFlight) String() string {
 
 // The expected damage of one full cast if cast now, its hit and its ticks, over the time the cast
 // costs the caster: the cast time or channel, or the GCD when that is longer. Only what lands before the
-// fight ends counts, and a channel costs only the ticks it gets in.
+// fight ends counts, and a channel costs only the ticks it gets in. Every cast is taken to land: the
+// hit's expected damage uses OutcomeExpectedMagicCrit and the ticks their always-hit or crit outcome.
+// DoT clipping and mana are left out, and travel time only moves the landing.
 type APLValueSpellExpectedDpet struct {
 	DefaultAPLValueImpl
 	spell     *Spell
@@ -538,8 +589,8 @@ func (value *APLValueSpellIsHitCapped) String() string {
 }
 
 // Whether the current target can neither dodge the spell nor, while the unit stands in front of it, parry it.
-// Only the melee table has dodge and parry, so anything else is capped. It reads the table alone, so a
-// special whose outcome never rolls dodge or parry still counts them.
+// Only the melee table has dodge and parry, so anything else is capped, as is a spell flagged No Active
+// Defense, which the target's chances read as zero. The outcome function the spell passes is not read.
 type APLValueSpellIsExpertiseCapped struct {
 	DefaultAPLValueImpl
 	spell     *Spell
@@ -568,7 +619,7 @@ func (value *APLValueSpellIsExpertiseCapped) GetBool(_ *Simulation) bool {
 	spell := value.spell
 	target := value.targetRef.Get()
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
-	if !spell.Flags.Matches(SpellFlagCannotBeDodged) && target.GetTotalDodgeChanceAsDefender(spell, attackTable) > capTolerance {
+	if target.GetTotalDodgeChanceAsDefender(spell, attackTable) > capTolerance {
 		return false
 	}
 	return !spell.Unit.PseudoStats.InFrontOfTarget || target.GetTotalParryChanceAsDefender(spell, attackTable) <= capTolerance

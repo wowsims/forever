@@ -9,5 +9,8 @@ export interface ExporterDefinition {
 	downloadFileName?: string;
 	downloadMimeType?: string;
 	selectCategories?: boolean;
-	getData: (host: IndividualSimHost<any>, categories: ExportCategories) => string;
+	/** The text is a link, which a plain box shows; a data file gets the code box. */
+	holdsLink?: boolean;
+	/** The exported text, or a promise of it for an exporter that loads what it prints with. */
+	getData: (host: IndividualSimHost<any>, categories: ExportCategories) => string | Promise<string>;
 }

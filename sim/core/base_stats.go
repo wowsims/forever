@@ -20,10 +20,10 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 // beyond the first 20.
 //
 // ClassBaseStats + RaceOffsets hold TRUE pre-racial base attributes: the
-// multiplier racials (The Human Spirit ×1.05 spirit, applied via MultiplyStat
+// multiplier racials (The Human Spirit ×1.1 spirit, applied via MultiplyStat
 // in racials.go) are NOT included here.
 // A naked character sheet shows floor(base × racial), e.g. human paladin
-// spirit 75 shows as 78; multipliers (racial, Kings, %-stat talents) stack
+// spirit 75 shows as 82; multipliers (racial, Kings, %-stat talents) stack
 // multiplicatively on the unfloored value with a single floor at the end.
 //
 // The game keeps one attribute row per race and class, but that table is a
@@ -45,6 +45,7 @@ var BaseStats = map[BaseStatsKey]stats.Stats{}
 // These are also scattered in various dbc/casc files,
 // `octbasempbyclass.txt`, `combatratings.txt`, `chancetospellcritbase.txt`, etc.
 
+// Each race's offset on the class base attributes, Spirit included.
 var RaceOffsets = map[proto.Race]stats.Stats{
 	proto.Race_RaceUnknown: stats.Stats{},
 	proto.Race_RaceHuman:   stats.Stats{},
@@ -97,22 +98,21 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Spirit:    1,
 		stats.Stamina:   1,
 	},
-	// Read from level 1 naked character sheets (2026-09-22): four Human/High
-	// Order pairs (warrior, hunter, mage, rogue) give the same delta, and a
-	// Windshaper warrior matches the High Order one, so both variants share it.
+	// The two Skyborne variants carry their own offsets, read from level 1 naked character
+	// sheets (2026-11-06).
 	proto.Race_RaceHighOrderSkyborne: {
-		stats.Agility:   1,
-		stats.Strength:  -1,
-		stats.Intellect: 1,
-		stats.Spirit:    0,
+		stats.Agility:   4,
+		stats.Strength:  -3,
+		stats.Intellect: 4,
+		stats.Spirit:    -3,
 		stats.Stamina:   -1,
 	},
 	proto.Race_RaceWindshaperSkyborne: {
-		stats.Agility:   1,
-		stats.Strength:  -1,
-		stats.Intellect: 1,
-		stats.Spirit:    0,
-		stats.Stamina:   -1,
+		stats.Agility:   3,
+		stats.Strength:  -4,
+		stats.Intellect: -1,
+		stats.Spirit:    3,
+		stats.Stamina:   0,
 	},
 }
 
@@ -243,6 +243,8 @@ var ClassBaseScaling = map[proto.Class]float64{
 	proto.Class_ClassDruid:   282.633330,
 }
 
+// No game file ships class base crit: ExtraClassBaseStats carries it from the hand-kept tables in
+// assets/db_inputs/basestats/, and crit per Agility comes from PlayerExpectedStat.
 func AddBaseStatsCombo(r proto.Race, c proto.Class) {
 	BaseStats[BaseStatsKey{Race: r, Class: c}] = ClassBaseStats[c].Add(RaceOffsets[r]).Add(ExtraClassBaseStats[c])
 }

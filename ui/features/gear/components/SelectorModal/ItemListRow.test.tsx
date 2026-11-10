@@ -4,7 +4,7 @@ import { renderWithHost } from '@testing/react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { WowheadAnchor } from '@ui-kit/WowheadAnchor';
 import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ItemData, ItemListType } from '../../types';
 import { SelectorModalTabs } from '../../types';
@@ -28,6 +28,7 @@ const store = vi.hoisted(() => {
 		},
 		getState: () => state,
 		getInitialState: () => state,
+		notify: () => listeners.forEach(listener => listener()),
 	};
 });
 
@@ -35,13 +36,17 @@ vi.mock('@sim/hooks/useActionId', () => ({
 	useActionId: () => ({ iconUrl: 'icon-url.png', name: 'item-name', href: 'https://example.com/item', ready: true }),
 }));
 vi.mock('@sim/state/subscriptions', async () => (await import('@testing/sim/subscriptions')).mockSubscriptions(store.subscribe));
-vi.mock('@features/bulk/model/items', () => ({
+vi.mock('@features/bulk/model/gear/items', () => ({
 	hasBulkItem: (_player: unknown, spec: ItemSpec) => batch.hasItem(spec),
 	addBulkItem: (_player: unknown, spec: ItemSpec) => batch.addItem(spec),
 	removeBulkItem: (_player: unknown, spec: ItemSpec) => batch.removeItem(spec),
 }));
 vi.mock('../../../../tracking/utils', () => ({ trackEvent: vi.fn() }));
-vi.mock('./ItemSource', () => ({ ItemSource: () => <div data-testid="item-source-marker" /> }));
+vi.mock('./ItemSource', () => ({
+	ItemSource: ({ item, faction }: { item: Pick<Item, 'id' | 'sources'>; faction?: number }) => (
+		<div data-testid="item-source-marker" data-item-id={item.id} data-source-count={item.sources?.length} data-faction={faction} />
+	),
+}));
 vi.mock('../GearPicker/ItemNoticeIcon', () => ({
 	ItemNoticeIcon: ({ itemId, enchantId }: { itemId?: number; enchantId?: number }) => (
 		<div data-testid="item-notice-marker" data-item-id={itemId} data-enchant-id={enchantId} />
@@ -84,7 +89,7 @@ const renderRow = (
 		...overrides,
 	};
 
-	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store } });
+	const { container, rerender } = renderWithHost(<ItemListRow {...props} />, { sim: { store }, player: {} });
 
 	return {
 		container,
@@ -107,7 +112,6 @@ describe('ItemListRow', () => {
 		const { container } = renderRow({
 			label: SelectorModalTabs.Enchants,
 			itemData: makeItemData({ ilvl: lvl, item: Enchant.create({ effectId: 1894, lvl }) as unknown as ItemListType }),
-			ep: undefined,
 		});
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
@@ -120,12 +124,32 @@ describe('ItemListRow', () => {
 		expect(container.querySelector('[data-testid="selector-modal-list-item-ilvl-container"]')?.textContent).toBe(shown);
 	});
 
-	it('renders the item source cell only on the items tab', () => {
-		const items = renderRow({ label: SelectorModalTabs.Items });
-		expect(items.container.querySelector('[data-testid="selector-modal-list-item-source-container"]')).not.toBeNull();
+	it('renders the source cell on the items and enchants tabs alone', () => {
+		const sourceCell = '[data-testid="selector-modal-list-item-source-container"]';
+		expect(renderRow({ label: SelectorModalTabs.Items }).container.querySelector(sourceCell)).not.toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.Enchants }).container.querySelector(sourceCell)).not.toBeNull();
+		expect(renderRow({ label: SelectorModalTabs.RandomSuffixes }).container.querySelector(sourceCell)).toBeNull();
+	});
 
-		const enchants = renderRow({ label: SelectorModalTabs.Enchants });
-		expect(enchants.container.querySelector('[data-testid="selector-modal-list-item-source-container"]')).toBeNull();
+	it.each([
+		['items', SelectorModalTabs.Items],
+		['enchants', SelectorModalTabs.Enchants],
+	])("hands the %s tab's source cell the faction it is given", (_tab, label) => {
+		const { container } = renderRow({ label, faction: 2, itemData: makeItemData({ item: Enchant.create({ effectId: 1 }) as unknown as ItemListType }) });
+		expect(container.querySelector('[data-testid="item-source-marker"]')?.getAttribute('data-faction')).toBe('2');
+	});
+
+	it('shows an enchant row the sources of the enchant, under its own item id', () => {
+		const enchant = Enchant.create({
+			effectId: 1900,
+			itemId: 16252,
+			sources: [{ source: { oneofKind: 'drop', drop: { zoneId: 28, npcId: 4494, difficulty: 0, otherName: '', category: '' } } }],
+		});
+		const { container } = renderRow({ label: SelectorModalTabs.Enchants, itemData: makeItemData({ id: 1900, item: enchant as unknown as ItemListType }) });
+		const marker = container.querySelector('[data-testid="item-source-marker"]');
+
+		expect(marker?.getAttribute('data-item-id')).toBe('16252');
+		expect(marker?.getAttribute('data-source-count')).toBe('1');
 	});
 
 	it('looks the notice up by enchant id on the enchants tab and by item id elsewhere', () => {
@@ -138,6 +162,36 @@ describe('ItemListRow', () => {
 		const itemNotice = items.container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(itemNotice.getAttribute('data-item-id')).toBe('17182');
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
+	});
+
+	describe('the discovered dot', () => {
+		const NOW_MS = Date.UTC(2026, 10, 8, 12);
+		const DAY_SECONDS = 24 * 60 * 60;
+		const dot = () => screen.queryByTestId('selector-modal-list-item-discovered');
+
+		beforeEach(() => {
+			vi.spyOn(Date, 'now').mockReturnValue(NOW_MS);
+		});
+
+		afterEach(() => {
+			vi.restoreAllMocks();
+		});
+
+		it('shows on an item first seen inside the last seven days, named and with a tooltip by its day', async () => {
+			renderRow({ firstSeen: NOW_MS / 1000 - 3 * DAY_SECONDS });
+			expect(dot()?.textContent).toBe('gear_tab.item_notices.discovered_on');
+			fireEvent.mouseEnter(dot()!);
+			expect((await screen.findByRole('tooltip')).textContent).toBe('gear_tab.item_notices.discovered_on');
+		});
+
+		it.each([
+			['an item first seen before the last seven days', SelectorModalTabs.Items, NOW_MS / 1000 - 8 * DAY_SECONDS],
+			['an item with no first-seen date', SelectorModalTabs.Items, undefined],
+			['an enchant whose row has a recent date', SelectorModalTabs.Enchants, NOW_MS / 1000 - 3 * DAY_SECONDS],
+		])('stays off %s', (_name, label, firstSeen) => {
+			renderRow({ label, firstSeen });
+			expect(dot()).toBeNull();
+		});
 	});
 
 	it('hands the ep and equipped ep to the ep cell', () => {

@@ -1,3 +1,4 @@
+import { ROTATION_TAB_ID } from '@features/hooks/useActivateTab';
 import { APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import { usePlayer } from '@sim/context/SimHostContext';
 import { useAplRotation } from '@sim/hooks/useAplRotation';
@@ -16,7 +17,7 @@ export const RotationTabPane = () => {
 	const rotationType = useAplRotation(() => player.getRotationType());
 
 	return (
-		<SimTabPane id="rotation-tab" data-rotation-type={ROTATION_TYPE_ATTR[rotationType]}>
+		<SimTabPane id={ROTATION_TAB_ID} data-rotation-type={ROTATION_TYPE_ATTR[rotationType]}>
 			<RotationTabBody rotationType={rotationType} />
 		</SimTabPane>
 	);

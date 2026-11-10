@@ -2,6 +2,7 @@ package hunter
 
 import (
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
@@ -11,7 +12,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	hunter.registerDeflection()
 
 	// Tier 2
-	// Entrapment (19184) roots on a trap the sim does not place.
+	// Entrapment (19184) roots the targets a trap springs on, and the sim's targets do not move.
 	hunter.registerSavageStrikes()
 	hunter.registerSurvivalist()
 	// Improved Wing Clip (19228) is a root chance on Wing Clip, which a boss shrugs off.
@@ -22,7 +23,7 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	// Deterrence (19263) is parry and dodge the sim's targets do not test.
 
 	// Tier 4
-	// Survival Tactics (19376) is hit with traps and Feign Death, neither of which the sim casts.
+	hunter.registerSurvivalTactics()
 	hunter.registerPredatorsEdge()
 	// Counterattack (19306) needs a parry, which takes a target attacking the hunter.
 
@@ -39,15 +40,29 @@ func (hunter *Hunter) registerSurvivalTalents() {
 	hunter.registerLaceratingStrikes()
 }
 
+// The Track spells that track a creature type, each naming it in effect 2's A_MOD_DAMAGE_DONE_VERSUS.
+var trackCreatureSpells = []spelldata.Ladder{
+	spellData.TrackBeasts, spellData.TrackDemons, spellData.TrackDragonkin, spellData.TrackElementals,
+	spellData.TrackGiants, spellData.TrackHumanoids, spellData.TrackUndead,
+}
+
 // The talent raises effect 2 of the Track spells, A_MOD_DAMAGE_DONE_VERSUS the tracked creature
-// type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type, so the
-// bonus is on every damage done.
+// type, by 1% a rank. The sim does not track; a hunter is taken to track the target's type when a
+// Track spell names it, so the bonus is on the damage done to those types only. A mechanical
+// target, which no Track spell names, gets none.
 func (hunter *Hunter) registerImprovedTracking() {
 	if hunter.Talents.ImprovedTracking == 0 {
 		return
 	}
 
-	hunter.PseudoStats.DamageDealtMultiplier *= spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
+	var mobTypes []proto.MobType
+	for _, track := range trackCreatureSpells {
+		mobTypes = append(mobTypes, spelldata.MobTypes(track.Highest().EffectN(2).Misc)...)
+	}
+	mult := spellData.ImprovedTracking.MultiplierAt(hunter.Talents.ImprovedTracking)
+	hunter.Env.RegisterPostFinalizeEffect(func() {
+		hunter.MultiplyDamageVersus(mult, mobTypes...)
+	})
 }
 
 func (hunter *Hunter) registerDeflection() {
@@ -166,8 +181,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 		return
 	}
 
-	// TODO: In-game testing required. The talent's dummy holds 40, read as the share of the bite's
-	// damage the bleed deals over its duration.
+	// The talent's dummy holds 40: the share of the bite's damage the bleed deals over its duration.
 	share := spellData.LaceratingStrikes.FractionAt(1)
 	tick := laceratingStrikesBleed.PeriodicEffect()
 
@@ -186,6 +200,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 
 	// The refresh Deep Wounds has: a bite while the bleed is up adds the unticked damage to the new
 	// application and spreads the sum over a full set of ticks; the ticks keep the first application's timer.
+	// The new bleed always replaces the hunter's own, even when it ticks for less.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		dot := spell.Dot(target)
 		totalDamage := dot.OutstandingDmg() + bleedDamage
@@ -217,7 +232,7 @@ func (hunter *Hunter) registerLaceratingStrikes() {
 	hunter.MakeProcTriggerAura(trigger)
 }
 
-// Effect 1 lengthens the crowd control traps, which the sim does not place; effect 2 raises the
+// Effect 1 lengthens Freezing and Frost Trap, which the sim does not place; effect 2 raises the
 // Immolation and Explosive Trap damage.
 func (hunter *Hunter) registerCleverTraps() {
 	if hunter.Talents.CleverTraps == 0 {
@@ -225,4 +240,14 @@ func (hunter *Hunter) registerCleverTraps() {
 	}
 
 	spelldata.ParseStatic(&hunter.Character, spellData.CleverTraps.Rank(hunter.Talents.CleverTraps), spelldata.Effects(2))
+}
+
+// Hit with Immolation and Explosive Trap. The talent also names Freezing Trap, Frost Trap and Feign
+// Death, which the sim does not cast.
+func (hunter *Hunter) registerSurvivalTactics() {
+	if hunter.Talents.SurvivalTactics == 0 {
+		return
+	}
+
+	spelldata.ParseStatic(&hunter.Character, spellData.SurvivalTactics.Rank(hunter.Talents.SurvivalTactics))
 }

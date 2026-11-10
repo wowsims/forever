@@ -1,0 +1,58 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "variableRef": { "name": "plain" } },
+							{ "variableRef": { "name": "Melee weave" } },
+							{ "variableRef": { "name": "Use AoE" } },
+							{ "variableRef": { "name": "use aoe" } },
+							{ "variableRef": { "name": "Never declared" } },
+							{ "variableRef": { "name": "undeclared" } },
+							{ "variableRef": { "name": "5 stacks" } }
+						]
+					}
+				},
+				"groupReference": {
+					"groupName": "G",
+					"variables": [
+						{ "name": "p", "value": { "const": { "val": "1" } } },
+						{ "name": "Q r", "value": { "const": { "val": "2" } } }
+					]
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"variables": [{ "name": "Melee Weave", "value": { "const": { "val": "true" } } }],
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"and": {
+								"vals": [
+									{ "variableRef": { "name": "Melee Weave" } },
+									{ "variableRef": { "name": "plain" } },
+									{ "variablePlaceholder": { "name": "p" } },
+									{ "variablePlaceholder": { "name": "Q r" } }
+								]
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{ "name": "plain", "value": { "const": { "val": "true" } } },
+		{ "name": "Melee weave", "value": { "const": { "val": "true" } } },
+		{ "name": "Use AoE", "value": { "const": { "val": "true" } } },
+		{ "name": "use aoe", "value": { "const": { "val": "false" } } },
+		{ "name": "5 stacks", "value": { "const": { "val": "5" } } }
+	]
+}

@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+// A def does not write apl:, so the used file's rotation comes in whole.
+def weave = true
+
+use "../use/base.apl.siml" with $use_summon_hawk = weave

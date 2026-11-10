@@ -30,7 +30,7 @@ func init() {
 			paw.EnableAutoAttacks(paw, core.AutoAttackOptions{MainHand: paw.GetCatWeapon(), AutoSwingMelee: true})
 			return paw
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_FeralCatDruid)
 		},
 	)
@@ -63,15 +63,14 @@ func catWithMainHand(t *testing.T, mainHand int32, consumes *proto.ConsumesSpec,
 	return sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Dense Weightstone 12643 puts enchant 1703's 8 weapon damage on Monk's Staff 866 (60-90, 2.4 s).
-// The cat's paw swings every second for the staff's damage per second, the stone's 8 included once:
-// 60 / 2.4 + 8 to 90 / 2.4 + 8.
+// Dense Weightstone 12643 puts enchant 1703's 8 weapon damage on Spiritchaser Staff 1613 (75-113, 2.8 s).
+// The cat's paw uses the staff's table DPS and the form's variance; the stone adds 8 once.
 func TestCatPawTakesTheWeaponstoneOnce(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 
 	paw := character.AutoAttacks.MH()
-	if wantMin, wantMax := 60/2.4+8, 90/2.4+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
+	if wantMin, wantMax := 26.0+8, 40.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
 		t.Errorf("the paw deals %.3f-%.3f, want %.3f-%.3f", paw.BaseDamageMin, paw.BaseDamageMax, wantMin, wantMax)
 	}
 }
@@ -79,24 +78,24 @@ func TestCatPawTakesTheWeaponstoneOnce(t *testing.T) {
 // A form swap rebuilds the paw from the main hand, as the druid's item swap callback does; the rebuilt
 // paw keeps the stone's 8, once.
 func TestCatPawKeepsTheWeaponstoneWhenRebuilt(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 	cat := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 
 	for range 2 {
 		character.AutoAttacks.SetMH(cat.GetCatWeapon())
 	}
 	paw := character.AutoAttacks.MH()
-	if wantMin, wantMax := 60/2.4+8, 90/2.4+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
+	if wantMin, wantMax := 26.0+8, 40.0+8; !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
 		t.Errorf("the rebuilt paw deals %.3f-%.3f, want %.3f-%.3f", paw.BaseDamageMin, paw.BaseDamageMax, wantMin, wantMax)
 	}
 }
 
-// Dire Bear Form swings every 2.5 seconds for the staff's damage per second, the stone's 8 included
-// once, through shifts to the paw and back: 60 / 2.4 * 2.5 + 8 to 90 / 2.4 * 2.5 + 8.
+// Bear Form uses the staff's table DPS and the form's variance at 2.5 seconds.
+// The stone adds 8 once, through shifts to the paw and back.
 func TestBearWeaponTakesTheWeaponstoneOnce(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{})
 	cat := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 
 	for range 2 {
@@ -105,23 +104,23 @@ func TestBearWeaponTakesTheWeaponstoneOnce(t *testing.T) {
 	}
 	character.AutoAttacks.SetMH(cat.GetBearWeapon())
 	bear := character.AutoAttacks.MH()
-	if wantMin, wantMax := 60/2.4*2.5+8, 90/2.4*2.5+8; !approxEqual(bear.BaseDamageMin, wantMin) || !approxEqual(bear.BaseDamageMax, wantMax) || bear.SwingSpeed != 2.5 {
+	if wantMin, wantMax := 67.0+8, 101.0+8; !approxEqual(bear.BaseDamageMin, wantMin) || !approxEqual(bear.BaseDamageMax, wantMax) || bear.SwingSpeed != 2.5 {
 		t.Errorf("the bear weapon deals %.3f-%.3f at %.1f s, want %.3f-%.3f at 2.5 s",
 			bear.BaseDamageMin, bear.BaseDamageMax, bear.SwingSpeed, wantMin, wantMax)
 	}
 }
 
 // Windfury Totem's party aura reaches the cat like any other melee: its paw hears the Windfury
-// procs and keeps the stone: 60 / 2.4 + 8.
+// procs and keeps the stone: 26 + 8.
 func TestCatHearsWindfuryTotemAndKeepsItsMainHandImbue(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{WindfuryTotem: true})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{WindfuryTotem: true})
 
 	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != 1703 {
 		t.Errorf("the main hand carries temporary enchant %d, want Dense Weightstone's 1703", got)
 	}
-	if paw := character.AutoAttacks.MH(); !approxEqual(paw.BaseDamageMin, 60/2.4+8) {
-		t.Errorf("the paw deals %.3f at least, want %.3f", paw.BaseDamageMin, 60/2.4+8)
+	if paw := character.AutoAttacks.MH(); !approxEqual(paw.BaseDamageMin, 26.0+8) {
+		t.Errorf("the paw deals %.3f at least, want %.3f", paw.BaseDamageMin, 26.0+8)
 	}
 	if character.GetAura("Windfury Totem Trigger") == nil {
 		t.Error("the cat registers no Windfury Totem proc")
@@ -131,8 +130,8 @@ func TestCatHearsWindfuryTotemAndKeepsItsMainHandImbue(t *testing.T) {
 // Flametongue Totem's party aura reaches the cat the same way: its paw strikes totem fire and keeps
 // the stone.
 func TestCatHearsFlametongueTotemAndKeepsItsMainHandImbue(t *testing.T) {
-	const monksStaff, denseWeightstone = 866, 12643
-	character := catWithMainHand(t, monksStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{FlametongueTotem: true})
+	const spiritchaserStaff, denseWeightstone = 1613, 12643
+	character := catWithMainHand(t, spiritchaserStaff, &proto.ConsumesSpec{MhImbueId: denseWeightstone}, &proto.RaidBuffs{FlametongueTotem: true})
 
 	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].TempEnchant; got != 1703 {
 		t.Errorf("the main hand carries temporary enchant %d, want Dense Weightstone's 1703", got)
@@ -150,25 +149,49 @@ func approxEqual(a, b float64) bool {
 }
 
 func TestFeralEnchantsAndStonesAreIndependentOfWeaponSpeed(t *testing.T) {
-	for _, itemID := range []int32{866, 19323} {
+	for _, itemID := range []int32{1613, 19323} {
 		character := catWithMainHand(t, itemID, &proto.ConsumesSpec{MhImbueId: 12643}, &proto.RaidBuffs{})
 		druid := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
 		item := character.GetMHWeapon()
+		stone := item.TempEnchantWeaponDamage
+		item.TempEnchantWeaponDamage = 0
+		plain := []core.Weapon{druid.GetCatWeapon(), druid.GetBearWeapon()}
+		item.TempEnchantWeaponDamage = stone
 		item.Enchant = *core.GetEnchantByEffectID(963)
 		bonus := item.Enchant.WeaponDamage + item.TempEnchantWeaponDamage
 		if bonus == 0 {
 			t.Fatal("weapon has no flat damage to test")
 		}
-		for _, paw := range []core.Weapon{druid.GetCatWeapon(), druid.GetBearWeapon()} {
-			wantMin := item.WeaponDamageMin/item.SwingSpeed*paw.SwingSpeed + bonus
-			wantMax := item.WeaponDamageMax/item.SwingSpeed*paw.SwingSpeed + bonus
-			if !approxEqual(paw.BaseDamageMin, wantMin) || !approxEqual(paw.BaseDamageMax, wantMax) {
-				t.Errorf("item %d at %g s: paw %g-%g, want %g-%g", itemID, paw.SwingSpeed, paw.BaseDamageMin, paw.BaseDamageMax, wantMin, wantMax)
+		for i, paw := range []core.Weapon{druid.GetCatWeapon(), druid.GetBearWeapon()} {
+			baseMin, baseMax := plain[i].BaseDamageMin, plain[i].BaseDamageMax
+			if !approxEqual(paw.BaseDamageMin, baseMin+bonus) || !approxEqual(paw.BaseDamageMax, baseMax+bonus) {
+				t.Errorf("item %d at %g s: paw %g-%g, want %g-%g", itemID, paw.SwingSpeed, paw.BaseDamageMin, paw.BaseDamageMax, baseMin+bonus, baseMax+bonus)
 			}
 		}
 		weapon := druid.WeaponFromMainHand()
 		if !approxEqual(weapon.BaseDamageMin, item.WeaponDamageMin+bonus) || !approxEqual(weapon.BaseDamageMax, item.WeaponDamageMax+bonus) {
 			t.Errorf("item %d: caster weapon changed its flat damage", itemID)
+		}
+	}
+}
+
+// Base paw endpoints recovered from in-game measurements, before AP and flat weapon damage.
+func TestFeralPawDamageEndpoints(t *testing.T) {
+	for _, test := range []struct {
+		itemID                           int32
+		catMin, catMax, bearMin, bearMax float64
+	}{
+		{0, 1, 1, 1, 1},
+		{5279, 8, 12, 20, 30}, // Harpy Skinner
+	} {
+		character := catWithMainHand(t, test.itemID, &proto.ConsumesSpec{}, &proto.RaidBuffs{})
+		druid := character.Env.Raid.Parties[0].Players[0].(*pawDruid)
+		cat, bear := druid.GetCatWeapon(), druid.GetBearWeapon()
+		if cat.BaseDamageMin != test.catMin || cat.BaseDamageMax != test.catMax ||
+			bear.BaseDamageMin != test.bearMin || bear.BaseDamageMax != test.bearMax {
+			t.Errorf("item %d: cat %g-%g and bear %g-%g, want %g-%g and %g-%g",
+				test.itemID, cat.BaseDamageMin, cat.BaseDamageMax, bear.BaseDamageMin, bear.BaseDamageMax,
+				test.catMin, test.catMax, test.bearMin, test.bearMax)
 		}
 	}
 }

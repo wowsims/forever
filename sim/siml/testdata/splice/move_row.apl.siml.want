@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast serpent_sting if not dot(serpent_sting).is_active
+  cast multi_shot
+  // Bite whenever it is up.
+  /// Mongoose Bite needs a dodge first.
+  cast mongoose_bite

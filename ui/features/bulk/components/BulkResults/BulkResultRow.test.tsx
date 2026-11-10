@@ -1,6 +1,8 @@
+import { warriorTalentsConfig } from '@sim/talents/warrior';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
+import { bulkTalentsText } from '../BulkTalentsGrid';
 import { BulkResultRowView, type BulkResultRowViewProps } from './BulkResultRow';
 
 const renderRow = (props: Partial<BulkResultRowViewProps> = {}) => {
@@ -64,6 +66,17 @@ describe('BulkResultRowView', () => {
 		renderRow({ showDamage: false });
 
 		expect(screen.queryByTestId('results-sim-dps')).toBeNull();
+	});
+
+	it('describes the talent pill by its talents and the enchant count by its enchants, which their tooltips show', () => {
+		const talents = { label: 'Fury', talentsString: '-0505000540501', config: warriorTalentsConfig };
+		renderRow({ gearSetup: 'Pre-BiS (Fury)', enchants: ['Back: Enchant Cloak - Greater Agility', 'Chest: Enchant Chest - Greater Stats'], talents });
+
+		const description = (element: HTMLElement) => document.getElementById(element.getAttribute('aria-describedby')!)!.textContent;
+		const talentsText = bulkTalentsText(talents);
+		expect(talentsText.startsWith(`${warriorTalentsConfig[1].name} `)).toBe(true);
+		expect(description(screen.getByTestId('bulk-result-talents-anchor'))).toBe(talentsText);
+		expect(description(screen.getByTestId('bulk-enchants-differ'))).toBe('Back: Enchant Cloak - Greater Agility, Chest: Enchant Chest - Greater Stats');
 	});
 
 	it('renders the gear combo it is given and equips it from its button', () => {

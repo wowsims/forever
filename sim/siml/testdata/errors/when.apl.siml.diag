@@ -1,0 +1,7 @@
+6:1 error misplaced-when
+10:3 error misplaced-when
+15:3 warning empty-when
+16:3 error misplaced-note
+20:11 error parse
+21:12 error parse
+26:5 error misplaced-var

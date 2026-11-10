@@ -12,6 +12,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 const revelationEnchant = 8217
@@ -23,7 +24,7 @@ func init() {
 		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 			return &testDruid{Character: *character}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_BalanceDruid)
 		},
 	)
@@ -33,7 +34,7 @@ func init() {
 		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 			return &testHunter{Character: *character}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_Hunter)
 		},
 	)
@@ -151,7 +152,7 @@ func (h *testHunter) Initialize() {
 
 func revelationWearer(t *testing.T, class proto.Class, spec any) (*core.Simulation, *core.Character) {
 	t.Helper()
-	items := weaponSlots(873, 0)
+	items := weaponSlots(1613, 0)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceTauren,
@@ -290,6 +291,18 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	if buff.IsActive() {
 		t.Error("a channel whose own hit landed was cut short before its first tick and Revelation's charge is still up")
 	}
+
+	drain := druid.drain.Dot(target)
+	druid.drain.SkipCastAndApplyEffects(sim, target)
+	charge()
+	sim.Step()
+	if !drain.IsActive() || !buff.IsActive() {
+		t.Fatal("the charge came while a channel it covers was running, and it is gone before that channel ended")
+	}
+	stepWhile(drain.IsActive)
+	if buff.IsActive() {
+		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
+	}
 }
 
 // A hunter's buff 1323410 also procs off the ranged shots its mask names, and not off a shot outside it.
@@ -333,7 +346,7 @@ func TestRevelationProcsOffAHuntersShots(t *testing.T) {
 // Enchant Weapon - Crusader 1900 rolls the procs per minute its enchant entry states for Holy Strength
 // 20007 on the enchanted weapon's speed, a chance between none and certain.
 func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
-	const crusader, holyStrength, weapon = 1900, 20007, 873
+	const crusader, holyStrength, weapon = 1900, 20007, 1613
 	items := weaponSlots(weapon, 0)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = crusader
 	player := &proto.Player{
@@ -364,5 +377,37 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 	}
 	if got := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
 		t.Errorf("Crusader rolls %v on a main-hand hit, want the entry's procs per minute on the weapon's speed, %v", got, want)
+	}
+}
+
+// Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
+// from the generated registrations: the row's amount lands whole on the attacker of a melee hit taken,
+// through the target's armor and with no roll to miss, once per the row's 5 s, and nothing on a ranged
+// shot or a spell. The row's proc flags name the melee hits and its cooldown the lockout.
+func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
+	sim, character := itemSpecWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotChest, &proto.ItemSpec{Id: 8245, Enchant: 7223})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	enemy.AddStatDynamic(sim, stats.Armor, 5000)
+	row := spelldata.MustFind(435901)
+
+	shield, shieldDamage := damageShield(t, character, 435901)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.Misses != 0 || got.TotalDamage != shieldDamage {
+		t.Errorf("a melee hit taken cast the shield %d times, %d missed, for %v; want once, landing the row's %v through the armor", got.Casts, got.Misses, got.TotalDamage, shieldDamage)
+	}
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+		t.Errorf("a second melee hit taken inside the row's %v left the shield at %d casts, want 1", row.Cooldown(), got)
+	}
+	stepTo(t, sim, sim.CurrentTime+row.Cooldown())
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+		t.Errorf("a melee hit taken after the lockout left the shield at %d casts, want 2", got)
+	}
+	takeHit(t, sim, character, rangedShot(enemy))
+	takeHit(t, sim, character, fireSpell(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+		t.Errorf("after a ranged shot and a spell hit taken the shield cast %d times, want 2 still", got)
 	}
 }

@@ -1,0 +1,147 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } } },
+		{ "action": { "channelSpell": { "spellId": { "spellId": 900001, "tag": 1 }, "target": { "type": "CurrentTarget" } } } },
+		{ "action": { "castSpell": { "spellId": { "itemId": 10646 } } } },
+		{ "action": { "castSpell": { "spellId": { "otherId": "OtherActionOffensivePotion" } } } },
+		{ "action": { "castSpell": { "spellId": {} } } },
+		{ "action": { "castSpell": { "spellId": { "spellId": 900099, "rank": 2 } } } },
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "auraId": { "spellId": 900001 } } },
+							{ "auraIsKnown": { "sourceUnit": { "type": "Self" }, "auraId": { "spellId": 900001 } } },
+							{ "auraIsKnown": { "sourceUnit": { "type": "Player", "index": 1 }, "auraId": { "spellId": 900001 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsKnown": { "sourceUnit": { "type": "AllPlayers" }, "auraId": { "spellId": 900001 } } },
+							{ "auraIsKnown": { "sourceUnit": {}, "auraId": { "spellId": 900001 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 900001 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "Target", "index": 1 }, "auraId": { "spellId": 14325 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsKnown": { "sourceUnit": { "type": "PreviousTarget" }, "auraId": { "spellId": 5 } } },
+							{ "auraIsKnown": { "sourceUnit": { "type": "NextTarget" }, "auraId": { "spellId": 5 } } },
+							{ "auraIsKnown": { "sourceUnit": { "type": "AllTargets" }, "auraId": { "spellId": 5 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Self" } }, "auraId": { "spellId": 19615 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "Pet", "owner": { "type": "Target" } }, "auraId": { "spellId": 19615 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 900001 } } },
+							{ "auraIsActive": { "sourceUnit": { "type": "CurrentTarget" }, "auraId": { "spellId": 900001 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": { "auraIsKnown": { "auraId": { "itemId": 10646 } } },
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "bossSpellIsCasting": { "spellId": { "spellId": 5 } } },
+							{
+								"cmp": {
+									"op": "OpLt",
+									"lhs": { "bossSpellTimeToReady": { "targetUnit": { "type": "CurrentTarget" }, "spellId": { "spellId": 5 } } },
+									"rhs": { "const": { "val": "1s" } }
+								}
+							},
+							{ "bossSpellIsCasting": { "spellId": { "spellId": 5 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "dotIsActive": { "spellId": { "spellId": 5 } } },
+							{ "dotIsActive": { "targetUnit": { "type": "CurrentTarget" }, "spellId": { "spellId": 5 } } },
+							{ "spellIsReady": { "spellId": { "spellId": 14325, "rank": 4 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "selectedPotion": { "potionId": { "itemId": 250943 } } },
+							{ "multipleCdUsages": { "baseSpellId": { "spellId": 900010 }, "targetSpellId": { "spellId": 5 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 5 } }
+			}
+		},
+		{ "action": { "cancelAura": { "auraId": { "spellId": 900001 } } } },
+		{ "action": { "multidot": { "spellId": { "spellId": 5 }, "maxDots": 2 } } }
+	]
+}

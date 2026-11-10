@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+use   "shared.apl.siml"
+
+priority:
+  cast multi_shot   if at_range and ${Ranged range} > 5
+  move  $ranged_range

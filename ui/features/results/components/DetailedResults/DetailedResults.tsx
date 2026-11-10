@@ -17,6 +17,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 
 import { trackEvent } from '../../../../tracking/utils';
 import { GroupRanksContext } from '../../context/GroupRanksContext';
+import { ShowApmBreakdownContext } from '../../context/ShowApmBreakdownContext';
 import { useSimResult } from '../../hooks/useSimResult';
 import type { SimResultsManager } from '../../model/results_manager';
 import { AuraMetricsTable } from '../AuraMetricsTable';
@@ -25,6 +26,7 @@ import { DamageMetricsTable } from '../DamageMetricsTable';
 import { DtpsMetricsTable } from '../DtpsMetricsTable';
 import { HealingMetricsTable } from '../HealingMetricsTable';
 import { LogRunner } from '../LogRunner';
+import { Movement } from '../Movement';
 import { ResourceMetricsTable } from '../ResourceMetricsTable';
 import { ALL_UNITS, hasTarget, ResultsFilter, simResultFilter } from '../ResultsFilter';
 import { ThreatMetricsTable } from '../ThreatMetricsTable';
@@ -36,6 +38,7 @@ import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResul
 
 // The viewer's choice, shared by every spec page.
 const GROUP_RANKS_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-group-ranks.v1`;
+const SHOW_APM_BREAKDOWN_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-apm-breakdown.v1`;
 
 const parseFlag = (value: unknown): boolean | undefined => (typeof value === 'boolean' ? value : undefined);
 
@@ -52,6 +55,9 @@ export interface DetailedResultsViewProps {
 	/** Whether the tables of the tabs marked `groupsRanks` join the ranks of a spell under one row. */
 	groupRanks: boolean;
 	onGroupRanksChange: (groupRanks: boolean) => void;
+	/** Whether the tables of the tabs marked `breaksDownApm` list only the player's presses, which APM counts. */
+	showApmBreakdown: boolean;
+	onShowApmBreakdownChange: (showApmBreakdown: boolean) => void;
 	/** One `DetailedResultsPane` per tab, its value the tab's id. */
 	children: ReactNode;
 }
@@ -68,10 +74,13 @@ export const DetailedResultsView = ({
 	targetPicker,
 	groupRanks,
 	onGroupRanksChange,
+	showApmBreakdown,
+	onShowApmBreakdownChange,
 	children,
 }: DetailedResultsViewProps) => {
 	const { ref: toolbarRef, stuck, className: stickyToolbarClassName } = useStickyToolbar<HTMLDivElement>();
 	const [stickySlot, setStickySlot] = useState<HTMLElement | null>(null);
+	const activeTab = tabs.find(tab => tab.id === activeId);
 
 	return (
 		<div data-testid="detailed-results-manager-root" className="flex flex-col *:min-h-0">
@@ -94,7 +103,7 @@ export const DetailedResultsView = ({
 						<div data-testid="dr-toolbar-row" className="flex min-h-0 w-full items-center">
 							<div data-testid="results-filter" className="flex min-h-0 items-center">
 								{targetPicker}
-								{tabs.find(tab => tab.id === activeId)?.groupsRanks && (
+								{activeTab?.groupsRanks && (
 									<BooleanPicker
 										id="results-group-ranks"
 										className="ml-4 group-data-no-results/dr:hidden"
@@ -102,6 +111,16 @@ export const DetailedResultsView = ({
 										layout="inline"
 										value={groupRanks}
 										onChange={onGroupRanksChange}
+									/>
+								)}
+								{activeTab?.breaksDownApm && (
+									<BooleanPicker
+										id="results-show-apm-breakdown"
+										className="ml-4 group-data-no-results/dr:hidden"
+										label={i18n.t('results_tab.details.show_apm_breakdown')}
+										layout="inline"
+										value={showApmBreakdown}
+										onChange={onShowApmBreakdownChange}
 									/>
 								)}
 							</div>
@@ -117,7 +136,9 @@ export const DetailedResultsView = ({
 							className="col-start-1 row-start-1 flex items-center justify-center p-6 text-base opacity-100 transition-opacity duration-150 ease-linear group-not-data-no-results/dr:hidden">
 							{i18n.t('results_tab.details.no_results')}
 						</div>
-						<GroupRanksContext.Provider value={groupRanks}>{children}</GroupRanksContext.Provider>
+						<GroupRanksContext.Provider value={groupRanks}>
+							<ShowApmBreakdownContext.Provider value={showApmBreakdown}>{children}</ShowApmBreakdownContext.Provider>
+						</GroupRanksContext.Provider>
 					</TabPanels>
 				</Tabs.Root>
 			</DrStickySlotContext.Provider>
@@ -152,6 +173,7 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	const [deathDisabled, setDeathDisabled] = useState(true);
 	const [target, setTarget] = useState(ALL_UNITS);
 	const [groupRanks, setGroupRanks] = useLocalStorageState(GROUP_RANKS_STORAGE_KEY, parseFlag, () => true);
+	const [showApmBreakdown, setShowApmBreakdown] = useLocalStorageState(SHOW_APM_BREAKDOWN_STORAGE_KEY, parseFlag, () => false);
 	const hasResults = useSimResult() !== null;
 
 	// `updateResults` is bound to the emitter, not to the filter, so the selection it reads is a ref.
@@ -283,7 +305,9 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 				/>
 			}
 			groupRanks={groupRanks}
-			onGroupRanksChange={setGroupRanks}>
+			onGroupRanksChange={setGroupRanks}
+			showApmBreakdown={showApmBreakdown}
+			onShowApmBreakdownChange={setShowApmBreakdown}>
 			{showDamage && (
 				<DetailedResultsPane id="damageTab" className="[&_.ui-metrics-table]:text-xs" topline histogram>
 					<DamageMetricsTable />
@@ -318,6 +342,9 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 			</DetailedResultsPane>
 			<DetailedResultsPane id="timelineTab" filling>
 				<Timeline active={activeId === 'timelineTab'} />
+			</DetailedResultsPane>
+			<DetailedResultsPane id="movementTab">
+				<Movement active={activeId === 'movementTab'} />
 			</DetailedResultsPane>
 			<DetailedResultsPane id="logTab">
 				<LogRunner active={activeId === 'logTab'} />

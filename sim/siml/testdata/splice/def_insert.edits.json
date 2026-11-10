@@ -1,0 +1,1 @@
+[{ "op": "defInsert", "name": "early", "text": "current_time < 10s" }]

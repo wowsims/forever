@@ -1,0 +1,93 @@
+{
+	"type": "TypeAPL",
+	"valueVariables": [
+		{ "name": "a", "value": { "const": { "val": "1" } } },
+		{ "name": "b", "value": { "const": { "val": "2" } } },
+		{
+			"name": "and_in_and",
+			"value": {
+				"and": {
+					"vals": [
+						{ "and": { "vals": [{ "variableRef": { "name": "a" } }, { "variableRef": { "name": "b" } }] } },
+						{ "variableRef": { "name": "a" } }
+					]
+				}
+			}
+		},
+		{
+			"name": "or_in_and",
+			"value": {
+				"and": {
+					"vals": [{ "or": { "vals": [{ "variableRef": { "name": "a" } }, { "variableRef": { "name": "b" } }] } }, { "variableRef": { "name": "a" } }]
+				}
+			}
+		},
+		{
+			"name": "and_in_or",
+			"value": {
+				"or": {
+					"vals": [
+						{ "and": { "vals": [{ "variableRef": { "name": "a" } }, { "variableRef": { "name": "b" } }] } },
+						{ "variableRef": { "name": "a" } }
+					]
+				}
+			}
+		},
+		{ "name": "not_and", "value": { "not": { "val": { "and": { "vals": [{ "variableRef": { "name": "a" } }, { "variableRef": { "name": "b" } }] } } } } },
+		{
+			"name": "not_cmp",
+			"value": { "not": { "val": { "cmp": { "op": "OpEq", "lhs": { "variableRef": { "name": "a" } }, "rhs": { "variableRef": { "name": "b" } } } } } }
+		},
+		{
+			"name": "cmp_of_not",
+			"value": { "cmp": { "op": "OpEq", "lhs": { "not": { "val": { "variableRef": { "name": "a" } } } }, "rhs": { "variableRef": { "name": "b" } } } }
+		},
+		{
+			"name": "cmp_in_cmp",
+			"value": {
+				"cmp": {
+					"op": "OpLt",
+					"lhs": { "cmp": { "op": "OpLt", "lhs": { "variableRef": { "name": "a" } }, "rhs": { "variableRef": { "name": "b" } } } },
+					"rhs": { "variableRef": { "name": "a" } }
+				}
+			}
+		},
+		{
+			"name": "sub_right",
+			"value": {
+				"math": {
+					"op": "OpSub",
+					"lhs": { "variableRef": { "name": "a" } },
+					"rhs": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "b" } }, "rhs": { "variableRef": { "name": "a" } } } }
+				}
+			}
+		},
+		{
+			"name": "sub_left",
+			"value": {
+				"math": {
+					"op": "OpSub",
+					"lhs": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "b" } }, "rhs": { "variableRef": { "name": "a" } } } },
+					"rhs": { "variableRef": { "name": "a" } }
+				}
+			}
+		},
+		{
+			"name": "mul_of_add",
+			"value": {
+				"math": {
+					"op": "OpMul",
+					"lhs": { "math": { "op": "OpAdd", "lhs": { "variableRef": { "name": "a" } }, "rhs": { "variableRef": { "name": "b" } } } },
+					"rhs": {
+						"math": {
+							"op": "OpDiv",
+							"lhs": { "variableRef": { "name": "a" } },
+							"rhs": { "math": { "op": "OpMul", "lhs": { "variableRef": { "name": "a" } }, "rhs": { "variableRef": { "name": "b" } } } }
+						}
+					}
+				}
+			}
+		},
+		{ "name": "negative", "value": { "math": { "op": "OpSub", "lhs": { "variableRef": { "name": "a" } }, "rhs": { "const": { "val": "-1.5s" } } } } }
+	]
+}

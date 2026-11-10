@@ -1,0 +1,17 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"consumables": {
+			"offensivePotId": 250943,
+			"flaskId": 13510,
+			"foodId": 250072,
+			"conjuredId": 12662,
+			"explosiveId": 18588,
+			"mhImbueId": 18262,
+			"potions": [250943, 13444],
+			"extraIds": [10646, 10310],
+			"elixirIds": [13452, 250341]
+		},
+		"hunter": {}
+	}
+}

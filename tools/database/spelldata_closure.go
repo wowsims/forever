@@ -50,7 +50,8 @@ func gearRoots(db *sql.DB, t *spellTables) (gear []int32, err error) {
 }
 
 // Set by gen_spelldata -everyClassSpell: roots the store at every spell of a class family as well,
-// for an export of the game files' class spells rather than a store the sim is built against.
+// for an export of the game files' class spells rather than a store the sim is built against. The
+// export renders no override, area bonus or hand trigger, so it states what the game files state.
 var EveryClassSpell bool
 
 // Selects nothing unless EveryClassSpell is set.
@@ -135,6 +136,9 @@ func buffSpecIDs(spec buffmanifest.Row) []int32 {
 	ids := []int32{spec.SpellID, spec.CastID, spec.Talent}
 	if spec.ImpAction != nil {
 		ids = append(ids, spec.ImpAction.SpellID)
+	}
+	for _, rank := range spec.Ranks {
+		ids = append(ids, rank.SpellID, rank.CastID)
 	}
 	return ids
 }

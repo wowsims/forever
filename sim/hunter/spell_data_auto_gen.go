@@ -13,7 +13,6 @@ import (
 //   Barrage: effect 1 of spell 19461 has no rank curve and is held at its base points
 //   Lacerating Strikes: effect 0 of spell 1310533 has no rank curve and is held at its base points
 //   Lone Wolf: effect 0, 1 of spell 415370 has no rank curve and is held at its base points
-//   Surefooted: effect 3 of spell 19290 has no rank curve and is held at its base points
 
 type generatedSpellData struct {
 	AimedShot                       spelldata.Ladder
@@ -85,7 +84,6 @@ type generatedSpellData struct {
 	Entrapment                      spelldata.Ladder
 	ExplosiveTrap                   spelldata.Ladder
 	ExplosiveTrapTriggered          spelldata.Ladder
-	ExplosiveTrapEffect             spelldata.Ladder
 	ExposePrey                      spelldata.Ladder
 	ExposePreyTriggered             spelldata.Ladder
 	EyesOfTheBeast                  spelldata.Ladder
@@ -306,7 +304,6 @@ var spellData = generatedSpellData{
 	Entrapment:                      spelldata.Talent(19184, 5),
 	ExplosiveTrap:                   spelldata.Ranked(13813, 14316, 14317),
 	ExplosiveTrapTriggered:          spelldata.Ranked(13812, 14314, 14315),
-	ExplosiveTrapEffect:             spelldata.Ranked(13812, 14314, 14315),
 	ExposePrey:                      spelldata.Talent(1310532, 2),
 	ExposePreyTriggered:             spelldata.Ranked(1310726),
 	EyesOfTheBeast:                  spelldata.Ranked(1002),

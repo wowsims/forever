@@ -3,6 +3,7 @@ package shared
 import (
 	"math"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -50,6 +51,54 @@ func swingHealed(sim *core.Simulation, caster *testCaster, outcome core.HitOutco
 	caster.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto},
 		&core.SpellResult{Target: sim.Encounter.ActiveTargetUnits[0], Outcome: outcome, Damage: damage})
 	return caster.CurrentHealth() - before
+}
+
+// A stat buff carrying a proc is built where the proc fires a heal on the wearer, and refused where it
+// fires nothing the store carries, a spell that heals no one, a heal on someone else, a heal over time
+// with no period, or where the buff spends charges. Aegis Heal 23781 is the heal on the wearer,
+// Sulfuras's Fireball 21162 the damage, Recovery's 1248759 is reshaped into a heal on an ally, and
+// the proc heal over time 1297357 loses its period.
+func TestCarriedProcUnsupported(t *testing.T) {
+	const healID, damageID, allyHealID int32 = 23781, 21162, 1248759
+	onWearer := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER}
+	editRow(t, allyHealID, func(s *spelldata.Spell) {
+		s.Effects = []spelldata.Effect{{SpellID: allyHealID, Type: dbcenums.E_HEAL, BasePoints: 35,
+			Target: [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ALLY}}}
+	})
+	editRow(t, procHot, func(s *spelldata.Spell) { s.FirstAura(dbcenums.A_PERIODIC_HEAL).PeriodMs = 0 })
+	carrying := func(fired int32) *spelldata.Spell {
+		const buffID int32 = 991529
+		return &spelldata.Spell{ID: buffID, Name: "Test Buff", DurationMs: 20000, ProcChance: 100, ProcChanceSource: spelldata.ProcChanceAlways,
+			ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_TAKE_MELEE_SWING | dbcenums.PROC_FLAG_TAKE_RANGED_ATTACK},
+			Effects: []spelldata.Effect{
+				{SpellID: buffID, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ARMOR_NO_MODS, BasePoints: 500, Target: onWearer},
+				{SpellID: buffID, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, TriggerID: fired, Target: onWearer},
+			}}
+	}
+
+	if got := CarriedProcUnsupported(carrying(healID)); len(got) > 0 {
+		t.Errorf("a buff firing a heal on the wearer is refused: %v", got)
+	}
+	for name, tc := range map[string]struct {
+		fired int32
+		want  string
+	}{
+		"nothing the store carries":       {0, "fires no spell"},
+		"a spell that heals no one":       {damageID, "heals no one"},
+		"a heal on someone else":          {allyHealID, "not the wearer"},
+		"a heal over time with no period": {procHot, "no period"},
+	} {
+		got := CarriedProcUnsupported(carrying(tc.fired))
+		if !slices.ContainsFunc(got, func(reason string) bool { return strings.Contains(reason, tc.want) }) {
+			t.Errorf("a buff firing %s is refused for %v, want %q named", name, got, tc.want)
+		}
+	}
+
+	charged := carrying(healID)
+	charged.ProcCharges = 3
+	if got := CarriedProcUnsupported(charged); !slices.ContainsFunc(got, func(reason string) bool { return strings.Contains(reason, "does not spend") }) {
+		t.Errorf("a charged buff is refused for %v, want its charges named", got)
+	}
 }
 
 func stepPast(t *testing.T, sim *core.Simulation, until time.Duration) {
@@ -141,8 +190,8 @@ func TestProcHealRollsAStatedAmount(t *testing.T) {
 	}
 }
 
-// Julie's Blessing 8348, Julie's Dagger 6660's heal: A_PERIODIC_HEAL on the caster.
-const julieHot int32 = 8348
+// Reforged Spear 275645's heal, 1297357: A_PERIODIC_HEAL on the caster.
+const procHot int32 = 1297357
 
 // Edits the store's row of a spell for the test, restoring it afterwards. The effects are copied so
 // an edit to one does not reach the original.
@@ -174,8 +223,8 @@ func healedUntil(t *testing.T, sim *core.Simulation, caster *testCaster, start, 
 // The HoT lands nothing when it is applied, then heals the wearer its row's amount every period until
 // its duration runs out, measured as the spell's periodic healing.
 func TestProcHotTicksItsAmountEveryPeriodOnTheWearer(t *testing.T) {
-	sim, caster, hot := newHealProcSim(t, 990979, 990980, julieHot, 0)
-	per, period, ticks := ticksOf(t, spelldata.MustFind(julieHot))
+	sim, caster, hot := newHealProcSim(t, 990979, 990980, procHot, 0)
+	per, period, ticks := ticksOf(t, spelldata.MustFind(procHot))
 
 	if got := swingHealed(sim, caster, core.OutcomeDodge, 0); got != 0 {
 		t.Errorf("applying the HoT healed %v, want nothing until the first tick", got)
@@ -204,13 +253,13 @@ func TestProcHotTicksItsAmountEveryPeriodOnTheWearer(t *testing.T) {
 	}
 }
 
-// Each tick reads the healing power the wearer has when it lands. 8348 states no spell power share,
-// so a copy stating 1 stands in for the rows that do.
+// Each tick reads the healing power the wearer has when it lands. 1297357 states no spell power
+// share, so a copy stating 1 stands in for the rows that do.
 func TestProcHotTicksOnTheHealingPowerOfTheTick(t *testing.T) {
-	editRow(t, julieHot, func(s *spelldata.Spell) { s.Effects[0].SPCoef = 1 })
-	sim, caster, _ := newHealProcSim(t, 990981, 990982, julieHot, 0)
+	editRow(t, procHot, func(s *spelldata.Spell) { s.Effects[0].SPCoef = 1 })
+	sim, caster, _ := newHealProcSim(t, 990981, 990982, procHot, 0)
 	caster.AddStatsDynamic(sim, stats.Stats{stats.HealingPower: -caster.GetStat(stats.HealingPower)})
-	per, period, _ := ticksOf(t, spelldata.MustFind(julieHot))
+	per, period, _ := ticksOf(t, spelldata.MustFind(procHot))
 
 	swingHealed(sim, caster, core.OutcomeDodge, 0)
 	start := sim.CurrentTime
@@ -224,23 +273,23 @@ func TestProcHotTicksOnTheHealingPowerOfTheTick(t *testing.T) {
 	}
 }
 
-// A tick crits only where the row states Periodic Can Crit and does not rule crits out. 8348 states
-// the flag; a copy without it ticks plain at 100% spell crit.
+// A tick crits only where the row states Periodic Can Crit and does not rule crits out. 1297357
+// states the flag; a copy without it ticks plain at 100% spell crit.
 func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
-	editRow(t, julieHot, func(s *spelldata.Spell) {
+	editRow(t, procHot, func(s *spelldata.Spell) {
 		s.Attr[dbcenums.ATTR_INDEX_EX_8] &^= dbcenums.ATTR_EX_8_PERIODIC_CAN_CRIT
 	})
-	per, period, _ := ticksOf(t, spelldata.MustFind(julieHot))
-	sim, caster, hot := newHealProcSim(t, 990983, 990984, julieHot, 100)
+	per, period, _ := ticksOf(t, spelldata.MustFind(procHot))
+	sim, caster, hot := newHealProcSim(t, 990983, 990984, procHot, 100)
 	swingHealed(sim, caster, core.OutcomeDodge, 0)
 	if got := healedUntil(t, sim, caster, sim.CurrentTime, period); got != per {
 		t.Errorf("an unflagged tick at 100%% spell crit healed %v, want %v", got, per)
 	}
 
-	editRow(t, julieHot, func(s *spelldata.Spell) {
+	editRow(t, procHot, func(s *spelldata.Spell) {
 		s.Attr[dbcenums.ATTR_INDEX_EX_8] |= dbcenums.ATTR_EX_8_PERIODIC_CAN_CRIT
 	})
-	sim, caster, hot = newHealProcSim(t, 990985, 990986, julieHot, 100)
+	sim, caster, hot = newHealProcSim(t, 990985, 990986, procHot, 100)
 	want := per * hot.CritDamageMultiplier(nil)
 	swingHealed(sim, caster, core.OutcomeDodge, 0)
 	if got := healedUntil(t, sim, caster, sim.CurrentTime, period); math.Abs(got-want) > 1e-6 {
@@ -250,10 +299,10 @@ func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
 		t.Errorf("crit ticks = %d, want 1", got)
 	}
 
-	editRow(t, julieHot, func(s *spelldata.Spell) {
+	editRow(t, procHot, func(s *spelldata.Spell) {
 		s.Attr[dbcenums.ATTR_INDEX_EX_2] |= dbcenums.ATTR_EX_2_CANT_CRIT
 	})
-	sim, caster, _ = newHealProcSim(t, 990987, 990988, julieHot, 100)
+	sim, caster, _ = newHealProcSim(t, 990987, 990988, procHot, 100)
 	swingHealed(sim, caster, core.OutcomeDodge, 0)
 	if got := healedUntil(t, sim, caster, sim.CurrentTime, period); got != per {
 		t.Errorf("a tick whose row cannot crit healed %v at 100%% spell crit, want %v", got, per)
@@ -265,15 +314,15 @@ func TestProcHotCritsOnlyWhereTheRowLetsItsTicksCrit(t *testing.T) {
 // rows fix a lockout that ends while the HoT still runs.
 func TestProcHotStartsOverOnASecondProc(t *testing.T) {
 	editRow(t, recoveryTrigger, func(s *spelldata.Spell) { s.ICDMs = 10000 })
-	editRow(t, julieHot, func(s *spelldata.Spell) {
+	editRow(t, procHot, func(s *spelldata.Spell) {
 		s.DurationMs = 12000
 		s.Effects[0].PeriodMs = 2000
 	})
-	per, period, ticks := ticksOf(t, spelldata.MustFind(julieHot))
+	per, period, ticks := ticksOf(t, spelldata.MustFind(procHot))
 	duration := time.Duration(ticks) * period
 	lockout := spelldata.MustFind(recoveryTrigger).ICD()
 	before := int(lockout / period)
-	sim, caster, hot := newHealProcSim(t, 990989, 990990, julieHot, 0)
+	sim, caster, hot := newHealProcSim(t, 990989, 990990, procHot, 0)
 	swingHealed(sim, caster, core.OutcomeDodge, 0)
 	start := sim.CurrentTime
 

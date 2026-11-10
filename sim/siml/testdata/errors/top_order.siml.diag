@@ -1,0 +1,4 @@
+3:1 error misplaced-statement
+7:1 error misplaced-statement
+8:1 error misplaced-statement
+8:5 error use-refused

@@ -8,7 +8,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{17, 17, 18}
+var TalentTreeSizes = [3]int{17, 18, 18}
 
 type WarriorInputs struct {
 	UseBattleShout bool
@@ -18,6 +18,8 @@ type WarriorInputs struct {
 	QueueDelay     int32
 	StanceSnapshot bool
 	HasBsT2        bool
+
+	HasBattleShoutRank7 bool
 }
 
 // The game files' SpellClassOptions for the Sweeping Strikes copy, a sim-only sub-spell that takes its
@@ -36,7 +38,6 @@ type Warrior struct {
 	// Current state
 	thunderClapEffectBonus float64
 
-	BattleShout       *core.Spell
 	DemoralizingShout *core.Spell
 	BattleStance      *core.Spell
 	DefensiveStance   *core.Spell
@@ -47,7 +48,6 @@ type Warrior struct {
 	MortalStrike                    *core.Spell
 	SweepingStrikesNormalizedAttack *core.Spell
 
-	HeroicStrike      *core.Spell
 	Cleave            *core.Spell
 	MockingBlow       *core.Spell
 	ChallengingShout  *core.Spell
@@ -59,8 +59,9 @@ type Warrior struct {
 	curQueueAura       *core.Aura
 	curQueuedAutoSpell *core.Spell
 	queuedRealismICD   *core.Cooldown
+	pendingQueue       *core.PendingAction
 
-	EnrageAura     *core.Aura
+	EnrageAura      *core.Aura
 	GoreDrinkerAura *core.Aura
 
 	SweepingStrikesAura *core.Aura
@@ -119,6 +120,7 @@ func (warrior *Warrior) Initialize() {
 func (warrior *Warrior) Reset(_ *core.Simulation) {
 	warrior.curQueueAura = nil
 	warrior.curQueuedAutoSpell = nil
+	warrior.pendingQueue = nil
 
 	switch warrior.DefaultStance {
 	case proto.WarriorStance_WarriorStanceBattle:
@@ -148,7 +150,7 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 		Talents:       &proto.WarriorTalents{},
 		WarriorInputs: inputs,
 	}
-	core.FillTalentsProto(warrior.Talents.ProtoReflect(), talents, TalentTreeSizes)
+	warrior.FillTalentsProto(warrior.Talents.ProtoReflect(), talents, TalentTreeSizes)
 
 	warrior.EnableRageBar(core.RageBarOptions{
 		MaxRage:            100,
@@ -162,6 +164,7 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 		AutoSwingMelee: true,
 		ReplaceMHSwing: warrior.TryHSOrCleave,
 	})
+	warrior.AutoAttacks.SetQueuedSwingCanceler(warrior.cancelQueuedAttack)
 
 	warrior.PseudoStats.CanParry = true
 
@@ -177,6 +180,17 @@ func NewWarrior(character *core.Character, options *proto.WarriorOptions, talent
 	}
 
 	return warrior
+}
+
+// Drops the queued Heroic Strike or Cleave, and a press still waiting out the Queue Delay.
+func (warrior *Warrior) cancelQueuedAttack(sim *core.Simulation) {
+	if !warrior.pendingQueue.IsConsumed() {
+		warrior.pendingQueue.Cancel(sim)
+		warrior.pendingQueue = nil
+	}
+	if warrior.curQueueAura != nil {
+		warrior.curQueueAura.Deactivate(sim)
+	}
 }
 
 func (warrior *Warrior) CastNormalizedSweepingStrikesAttack(results core.SpellResultSlice, sim *core.Simulation) {

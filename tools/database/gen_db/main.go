@@ -10,6 +10,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"strings"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 
@@ -20,14 +21,16 @@ import (
 	"github.com/wowsims/forever/tools"
 	"github.com/wowsims/forever/tools/database"
 	"github.com/wowsims/forever/tools/database/dbc"
+	googleProto "google.golang.org/protobuf/proto"
 )
 
 // To do a full re-scrape, delete the previous output file first.
 // go run ./tools/database/gen_db -outDir=assets -gen=atlasloot
+// go run ./tools/database/gen_db -outDir=assets -gen=questie
 // go run ./tools/database/gen_db -outDir=assets -gen=db
 
 var outDir = flag.String("outDir", "assets", "Path to output directory for writing generated .go files.")
-var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot' and 'go-to-ts'")
+var genAsset = flag.String("gen", "", "Asset to generate. Valid values are 'db', 'atlasloot', 'questie' and 'go-to-ts'")
 var dbPath = flag.String("dbPath", "./tools/database/wowsims.db", "Location of the wowsims.db file produced by tools/db2tool")
 var classes = flag.String("classes", "", "Write the talent files of these classes only (comma-separated package names, all or none, as gen_spelldata -classes); the item database is always written")
 
@@ -71,6 +74,9 @@ func main() {
 		db := database.ReadAtlasLootData(helper)
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
+	} else if *genAsset == "questie" {
+		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
 	}
@@ -109,6 +115,10 @@ func main() {
 		repSources      map[int][]*proto.RepSource
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
+		questieDB       *database.WowDatabase
+		raidZones       map[int32]bool
+		dungeonZones    map[int32]bool
+		areaNames       map[int32]string
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -142,10 +152,20 @@ func main() {
 		atlaslootDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/atlasloot_db.json", inputsDir)))
 		return nil
 	})
+	g.Go(func() error {
+		questieDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/questie_db.json", inputsDir)))
+		return nil
+	})
+	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
+	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
+
+	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
+	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
 
 	db := database.NewWowDatabase()
 	db.Encounters = core.PresetEncounters
@@ -157,6 +177,7 @@ func main() {
 
 	processItems(instance, iconsMap, names, dropSources, craftingSources, repSources, db)
 
+	enchantRecipes := map[database.EnchantDBKey][]int{}
 	for _, enchant := range instance.Enchants {
 		parsed := enchant.ToProto()
 
@@ -166,28 +187,17 @@ func main() {
 		if !enchant.IsLive {
 			nonLiveEnchants[database.EnchantToDBKey(parsed)] = struct{}{}
 		}
+		enchantRecipes[database.EnchantToDBKey(parsed)] = enchant.RecipeItemIds
 		db.MergeEnchant(parsed)
 	}
 
 	for _, atlaslootItem := range atlaslootDB.Items {
 		if dbItem, ok := db.Items[atlaslootItem.Id]; ok {
-			firstDBRepFaction := int32(-1)
-
-			for _, dbItemSource := range dbItem.Sources {
-				if dbRepSource := dbItemSource.GetRep(); dbRepSource != nil {
-					firstDBRepFaction = dbRepSource.RepFactionId
-					break
-				}
-			}
-
-			atlaslootItem.Sources = core.FilterSlice(atlaslootItem.Sources, func(atlaslootItemSource *proto.UIItemSource) bool {
-				atlaslootRepSource := atlaslootItemSource.GetRep()
-				return (atlaslootRepSource == nil) || (atlaslootRepSource.RepFactionId != firstDBRepFaction)
-			})
-
+			atlaslootItem.Sources = database.AtlasLootSourcesBeside(dbItem.Sources, atlaslootItem.Sources)
 			db.MergeItem(atlaslootItem)
 		}
 	}
+	database.AppendQuestieSources(db, questieDB)
 
 	consumableRoutes := map[int]*database.ConsumableRouting{}
 	for _, consumable := range consumables {
@@ -214,13 +224,23 @@ func main() {
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
+	// The PvP source follows from the item's name, so the names must be final here.
+	for _, item := range db.Items {
+		database.InferPvpSource(item)
+	}
+	database.AddEnchantSources(db.Enchants, enchantRecipes, database.EnchantSourceInputs{
+		Crafted: craftingSources,
+		Rep:     repSources,
+		Atlas:   atlaslootDB,
+		Questie: questieDB,
+	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	applyRepSources(leftovers, factionNames)
 	leftovers.WriteBinaryAndJson(fmt.Sprintf("%s/leftover_db.bin", dbDir), fmt.Sprintf("%s/leftover_db.json", dbDir))
 	ApplySimmableFilters(db)
 
-	database.GenerateItemEffects(instance, db, dropSources)
+	database.GenerateItemEffects(instance, db)
 	database.GenerateEnchantEffects(instance, db)
 	if err := database.GenerateConsumableRegistrations(instance, db, consumableRoutes); err != nil {
 		log.Fatalf("failed to generate the consumable registrations: %v", err)
@@ -294,11 +314,48 @@ func main() {
 	atlasDBProto := atlaslootDB.ToUIProto()
 	db.MergeZones(atlasDBProto.Zones)
 	db.MergeNpcs(atlasDBProto.Npcs)
+	// The UI looks up every zone and NPC in db.json, the leftovers' as well.
+	database.AddSourceZonesAndNpcs(db, db, areaNames, questieDB)
+	database.AddSourceZonesAndNpcs(db, leftovers, areaNames, questieDB)
 	if err := database.LoadZoneAreas(db, helper); err != nil {
 		log.Fatal(err)
 	}
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
+	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
+}
+
+// Drop sources from NPCs that are not in Forever although their zone is.
+var dropNpcsNotInForever = map[int32]bool{
+	36296: true, // Apothecary Hummel, Shadowfang Keep.
+}
+
+// pruneAtlasLootDrops removes the zones, NPCs and drop sources of AtlasLoot that are not in the game files or
+// are in dropNpcsNotInForever, sets the remaining drops to Raid in a raid zone and Dungeon elsewhere, and
+// removes the exact duplicates this leaves.
+func pruneAtlasLootDrops(atlas *database.WowDatabase, raidZones map[int32]bool, areaNames map[int32]string) {
+	maps.DeleteFunc(atlas.Zones, func(id int32, _ *proto.UIZone) bool { return areaNames[id] == "" })
+	maps.DeleteFunc(atlas.Npcs, func(id int32, npc *proto.UINPC) bool {
+		return areaNames[npc.ZoneId] == "" || dropNpcsNotInForever[id]
+	})
+	for _, item := range atlas.Items {
+		var drops []*proto.DropSource
+		item.Sources = core.FilterSlice(item.Sources, func(source *proto.UIItemSource) bool {
+			drop := source.GetDrop()
+			if drop == nil {
+				return true
+			}
+			if areaNames[drop.ZoneId] == "" || dropNpcsNotInForever[drop.NpcId] {
+				return false
+			}
+			drop.Difficulty = database.ParseDungeonDifficulty(raidZones[drop.ZoneId])
+			if slices.ContainsFunc(drops, func(seen *proto.DropSource) bool { return googleProto.Equal(seen, drop) }) {
+				return false
+			}
+			drops = append(drops, drop)
+			return true
+		})
+	}
 }
 
 func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
@@ -314,6 +371,13 @@ func applyRepSources(db *database.WowDatabase, factionNames map[int32]string) {
 		if len(sides) == 1 && !sides[proto.Faction_Unknown] {
 			for side := range sides {
 				item.FactionRestriction = database.AtlasLootFactionRestrictions[side]
+			}
+		}
+	}
+	for _, enchant := range db.Enchants {
+		for _, source := range enchant.Sources {
+			if rep := source.GetRep(); rep != nil {
+				db.MergeFaction(&proto.UIFaction{Id: rep.RepFactionId, Name: factionNames[rep.RepFactionId]})
 			}
 		}
 	}
@@ -463,6 +527,8 @@ func ApplyGlobalFilters(db *database.WowDatabase) {
 		return true
 	})
 
+	database.DropLowerSameNameSets(db)
+
 	db.ItemIcons = core.FilterMap(db.ItemIcons, func(_ int32, icon *proto.IconData) bool {
 		return icon.Name != "" && icon.Icon != ""
 	})
@@ -509,14 +575,13 @@ func simmableItemFilter(_ int32, item *proto.UIItem) bool {
 		return false
 	} else if item.Quality >= proto.ItemQuality_ItemQualityHeirloom {
 		return false
-	} else if item.Quality <= proto.ItemQuality_ItemQualityEpic {
-		// TODO: Figure out the appropriate filter
-		// if item.ScalingOptions[0].Ilvl < 60 {
-		// 	return false
-		// }
 	}
 	if item.ScalingOptions[0].Ilvl == 0 {
 		fmt.Printf("Missing ilvl: %s\n", item.Name)
+	}
+	// A level 60 character wears no green below the item effect floor; rares and epics stay at every level.
+	if item.Quality < proto.ItemQuality_ItemQualityRare && item.ScalingOptions[0].Ilvl < core.MinEffectItemLevel {
+		return false
 	}
 
 	return true

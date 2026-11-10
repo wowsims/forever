@@ -1,0 +1,25 @@
+siml 1
+spec hunter
+
+// Every position of SPEC.md §7.2. A name reads the namespace its position gives, among the hunter's entries and then
+// the shared ones; item. reads the items, and a raw ref the JSON it holds.
+priority:
+  cast hunter_shot
+  cast shared_shot
+  channel steady_shot_tag1 on target
+  cast item.goblin_sapper_charge
+  cast other.offensive_potion
+  cast none
+  cast `{"spellId": 900099, "rank": 2}`
+  cast x if aura(steady_shot).is_active and self.aura(steady_shot).is_known and player2.aura(steady_shot).is_known
+  cast x if all_players.aura(steady_shot).is_known and unknown_unit.aura(steady_shot).is_known
+  cast x if target.aura(steady_shot).is_active and target2.aura(hunters_mark).is_active
+  cast x if previous_target.aura(x).is_known and next_target.aura(x).is_known and all_targets.aura(x).is_known
+  cast x if pet1.aura(frenzy).is_active and aura_is_active(frenzy, source_unit=`{"type": "Pet", "owner": {"type": "Target"}}`)
+  cast x if aura_is_active(steady_shot, source_unit=target) and aura(steady_shot).is_active(source_unit=target)
+  cast x if aura(item.goblin_sapper_charge).is_known
+  cast x if boss_spell(x).is_casting and target.boss_spell(x).time_to_ready < 1s and boss_spell_is_casting(x)
+  cast x if dot(x).is_active and target.dot(x).is_active and spell(hunters_mark).is_ready
+  cast x if selected_potion(item.major_frenzy_potion) and multiple_cd_usages(hunter_shot, target_spell_id=x)
+  cancel_aura(steady_shot)
+  multidot(x, max_dots=2)

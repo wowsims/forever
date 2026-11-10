@@ -1,0 +1,4 @@
+5:8 error unknown-name
+6:8 error unknown-name
+7:24 error unknown-enum
+8:29 error wrong-type

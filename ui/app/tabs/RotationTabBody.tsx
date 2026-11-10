@@ -6,8 +6,10 @@ import { RotationTypePicker } from '@features/apl/components/RotationTypePicker'
 import { SavedRotation } from '@features/apl/components/SavedRotation';
 import { SimpleRotationInputs } from '@features/apl/components/SimpleRotationInputs';
 import { VariablesList } from '@features/apl/components/VariablesList';
+import { useAplReveal } from '@features/apl/hooks/useAplReveal';
 import type { AplPaneId } from '@features/apl/model/apl_panes';
 import { APL_PANES } from '@features/apl/model/apl_panes';
+import { SimlRotationActions } from '@features/import-export';
 import { CooldownsPicker, useAvailableCooldowns } from '@features/settings';
 import { APLRotation_Type as APLRotationType } from '@generated/proto/apl';
 import i18n from '@i18n/config';
@@ -29,11 +31,12 @@ const PANE_BODIES: Record<AplPaneId, ComponentType> = {
 	'apl-variables': VariablesList,
 };
 
-/** Preset picker and saved rotations, repeated in all three sub-tabs. */
+/** Preset picker, saved rotations and the rotation as SIML, repeated in all three sub-tabs. */
 const RotationSidebar = () => (
 	<>
 		<PresetConfigurationPicker categories={ROTATION_PRESETS} />
 		<SavedRotation />
+		<SimlRotationActions />
 	</>
 );
 
@@ -50,6 +53,8 @@ export const RotationTabBody = ({ rotationType }: RotationTabBodyProps) => {
 	const hasCooldowns = !config.hideSimpleCooldowns && availableCooldowns.length > 0;
 
 	const [activeId, setActiveId] = useState<AplPaneId>(APL_PANES[0].id);
+	// A cast clicked in the Timeline opens the sub-tab its entry sits in.
+	useAplReveal(({ kind }) => setActiveId(kind === 'group' ? 'apl-action-groups' : 'apl-priority-list'));
 
 	return (
 		<>

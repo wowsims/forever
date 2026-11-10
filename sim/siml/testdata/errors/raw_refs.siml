@@ -1,0 +1,18 @@
+siml 1
+spec hunter
+
+// Raw JSON that holds a spell, item, enchant or suffix id reads; a file under ui/specs reports it as raw-ref.
+gear:
+  head       `{"id": 16428, "enchant": 2586}`
+  neck       `{}`
+
+consumables:
+  `{"offensivePotId": 13442}`
+
+priority:
+  cast `{"spellId": 900099}`
+  cast x if aura(`{"spellId": 900001, "tag": 2}`).is_active
+  `{"castSpell": {"spellId": {"itemId": 10646}}}` if true
+  cast `{"otherId": "OtherActionOffensivePotion"}`
+  cast x on `{"type": "Pet"}`
+  cast hunter_sht

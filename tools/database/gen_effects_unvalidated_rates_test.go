@@ -3,10 +3,12 @@ package database
 import (
 	"bytes"
 	"fmt"
+	"maps"
 	"slices"
 	"strings"
 	"testing"
 
+	_ "github.com/wowsims/forever/sim" // Registers every item set the sim implements.
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools/database/dbc"
@@ -242,6 +244,30 @@ func TestMissingSetBonusesRender(t *testing.T) {
 		"])\n"
 	if !strings.Contains(rendered.String(), block) {
 		t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
+	}
+}
+
+// A registered set with an id grants its bonuses only at piece counts the game files give that set.
+func TestRegisteredSetBonusesSitOnGameFilesThresholds(t *testing.T) {
+	withDBCInputs(t)
+	setSpells := dbc.GetDBC().ItemSetSpells
+
+	if len(core.ItemSets()) == 0 {
+		t.Fatal("no item set is registered")
+	}
+	for _, set := range core.ItemSets() {
+		if set.ID == 0 {
+			continue
+		}
+		thresholds := map[int32]bool{}
+		for _, row := range setSpells[int(set.ID)] {
+			thresholds[int32(row.Threshold)] = true
+		}
+		for _, pieces := range slices.Sorted(maps.Keys(set.Bonuses)) {
+			if !thresholds[pieces] {
+				t.Errorf("set %d (%s) registers a %d-piece bonus, which the game files do not grant", set.ID, set.Name, pieces)
+			}
+		}
 	}
 }
 

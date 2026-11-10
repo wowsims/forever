@@ -1,15 +1,14 @@
 import * as PresetUtils from '@app/preset_utils';
 import * as Consumables from '@features/settings/model/consumables_auto_gen';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, PseudoStat, Race, Spec, Stat, TristateEffect } from '@generated/proto/common';
+import { ConsumesSpec, Profession, PseudoStat, Race, Spec, Stat } from '@generated/proto/common';
 import { EnhancementShaman_Options as EnhancementShamanOptions, ShamanImbue } from '@generated/proto/shaman';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import DefaultApl from './apls/default.apl.json';
 import TestingBuildJson from './builds/testing.build.json';
 
-export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultApl);
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', TestingBuildJson.player.rotation);
 
 export const DefaultGear = PresetUtils.makePresetGear('Testing', TestingBuildJson.player.equipment, { devOnly: true });
 
@@ -18,7 +17,7 @@ export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.
 export const StandardTalents = {
 	name: 'Standard',
 	data: SavedTalents.create({
-		talentsString: '053503102-053030031005112251',
+		talentsString: TestingBuildJson.player.talentsString,
 	}),
 };
 
@@ -49,7 +48,7 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfMight: true,
+	greaterBlessingOfMight: 1,
 });
 
 // Windfury Weapon on the main hand outbids the party's Windfury Totem, so the default is Rockbiter Weapon.
@@ -90,12 +89,12 @@ export const DefaultConsumables = ConsumesSpec.create({
 export const DefaultPartyBuffs = PartyBuffs.create({});
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	prayerOfFortitude: true,
-	giftOfTheWild: true,
-	arcaneBrilliance: true,
-	strengthOfEarthTotem: true,
+	powerWordFortitude: true,
+	markOfTheWild: true,
+	arcaneIntellect: true,
+	strengthOfEarthTotem: 1,
 	windfuryTotem: true,
-	battleShout: TristateEffect.TristateEffectRegular,
+	battleShout: 1, // Rank 6
 	leaderOfThePack: true,
 });
 

@@ -2,7 +2,7 @@ import { BulkEnchantSlotOptions } from '@generated/proto/api';
 import { ItemSlot } from '@generated/proto/common';
 import { BulkEnchantPreset, UIEnchant } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
-import { bulkState, loadStoredEnchantPresets } from '@sim/settings/bulk_settings';
+import { bulkState, loadStoredBulkBuildEnchantPresets, loadStoredEnchantPresets, patchBulkState } from '@sim/settings/bulk_settings';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { beforeEach, describe, expect, it } from 'vitest';
 
@@ -87,6 +87,23 @@ describe('enchant preset writers', () => {
 
 		expect(bulkState(player).enchantPresets.map(saved => [saved.name, saved.checked])).toEqual([['Scourge', true]]);
 		expect(enchantPresetPool(player)).toEqual([BulkEnchantSlotOptions.create({ slot: ItemSlot.ItemSlotBack, effectIds: [STAMINA] })]);
+	});
+
+	it('keeps the Builds pick of a renamed preset under its new name, and drops a deleted one’s for good', () => {
+		saveEnchantPreset(player, preset('Undead', [[ItemSlot.ItemSlotBack, [AGILITY]]]));
+		saveEnchantPreset(player, preset('Beasts', [[ItemSlot.ItemSlotBack, [STAMINA]]]));
+		patchBulkState(player, { buildEnchantPresets: ['Undead', 'Beasts'] });
+		const buildPicks = () => [bulkState(player).buildEnchantPresets, loadStoredBulkBuildEnchantPresets(player)?.names];
+
+		saveEnchantPreset(player, preset('Scourge', [[ItemSlot.ItemSlotBack, [AGILITY]]]), 'Undead');
+		expect(buildPicks()).toEqual([
+			['Scourge', 'Beasts'],
+			['Scourge', 'Beasts'],
+		]);
+
+		deleteEnchantPreset(player, 'Beasts');
+		saveEnchantPreset(player, preset('Beasts', [[ItemSlot.ItemSlotBack, [STAMINA]]]));
+		expect(buildPicks()).toEqual([['Scourge'], ['Scourge']]);
 	});
 
 	it('drops a deleted preset from the pool', () => {

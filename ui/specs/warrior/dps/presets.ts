@@ -69,8 +69,9 @@ const ARMS_PRESET_OPTIONS = {
 // the second ring have no known source.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
-// The best build found on the Pre-BiS Fury gear over a three minute fight.
-export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30305013002-25053005052010501' }));
+// The best build on the Pre-BiS Fury gear over fights of 60 to 240 s. Enrage takes no points: with no tank
+// assigned the boss attacks no one, so the sim gives it no value.
+export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
 
 // Measured on the Pre-BiS Fury gear with the Fury talents.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
@@ -94,14 +95,16 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 );
 
 // The same sources as the Pre-BiS Fury gear; the cloak and the bow are world-drop greens with the "of the
-// Tiger" suffix too.
+// Tiger" suffix too. The one exception is the weapon, the Premier High Warlord's Greatsword, a PvP reward. An
+// epic two-hander puts the set on even terms with the Fury set's epic Persuader.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
-export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30325213132515201-0505-2' }));
+export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
-// Measured on the Pre-BiS Arms gear with the Arms talents. Hit is its value below the 8% cap.
+// Measured on the Pre-BiS Arms gear with the Arcanite Reaper (12784) in the main hand and the Arms talents. Hit is
+// its value below the 8% cap.
 export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Arms',
 	Stats.fromMap(
@@ -133,6 +136,8 @@ export const SIMPLE_ROTATION = DpsWarrior_Rotation.create({
 	useRecklessness: false,
 	useStanceDance: false,
 	useHamstring: true,
+	useHeroicStrikeRank9: false,
+	useBattleShoutRank7: false,
 });
 export const SIMPLE_DEFAULT_ROTATION = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecDpsWarrior, SIMPLE_ROTATION);
 export const SIMPLE_ARMS_DEFAULT_ROTATION = PresetUtils.makePresetSimpleRotation('Simple', Spec.SpecDpsWarrior, {
@@ -146,7 +151,7 @@ export const DefaultOptions = WarriorOptions.create({
 		startingRage: 50,
 		useBattleShout: true,
 		defaultStance: WarriorStance.WarriorStanceBerserker,
-		hasBsT2: true,
+		hasBsT2: false,
 		stanceSnapshot: true,
 	},
 });
@@ -159,7 +164,7 @@ export const DefaultConsumables = ConsumesSpec.create({
 	elixirIds: [Consumables.ElixirOfFerocity.id, Consumables.ElixirOfTheMongoose.id, Consumables.WinterfallFirewater.id],
 });
 
-// The Pre-BiS Arms two-hander is an axe, so the main hand takes the sharpening stone and there is no off hand.
+// The Pre-BiS Arms two-hander is a sword, so the main hand takes the sharpening stone and there is no off hand.
 export const ArmsConsumables = ConsumesSpec.create({
 	...DefaultConsumables,
 	mhImbueId: Consumables.DenseSharpeningStone.id,

@@ -1,4 +1,26 @@
-# How to setup autocompletion for APL editing in vscode
+# Editing rotations in VS Code
+
+A rotation is an `.apl.siml` file, the text form `sim/siml/SPEC.md` describes. The workspace extension in
+`.vscode/extensions/wowsims-apl`, which VS Code offers to install when the repository opens, starts the SIML language
+server (`wowsimcli siml lsp`) that checks, completes, explains and formats every `*.siml` file; see
+`tools/vscode-apl/README.md`.
+
+A rotation with one prepull cast and one priority row looks like
+
+```
+siml 1
+spec hunter
+
+prepull:
+  -1s cast hunters_mark
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+```
+
+The specs other than the hunter and the Retribution and Protection paladins keep their rotations as `.apl.json` until
+they move to SIML. A JSON rotation gets completion from
+a schema generated from `proto/apl.proto`:
 
 1. Install protoc-gen-jsonschema
 
@@ -22,7 +44,7 @@ protoc \
 
 3. Edit APL files
 
-The project settings file for vscode should now pick that up (.vscode/settings.json) should point the schema "jsonschema" directory. The extension ".apl.json" should activate the generated schema.
+The vscode project settings (.vscode/settings.json) map files ending in ".apl.json" to "schemas/apl_rotation.schema.json", so copy the generated "jsonschema/APLRotation.json" to that path.
 
 Create an APL file named "myrotation.apl.json" replacing `myrotation` with whatever name you prefer.
 

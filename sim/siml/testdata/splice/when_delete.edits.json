@@ -1,0 +1,4 @@
+[
+	{ "op": "set", "path": ["priorityList", 2] },
+	{ "op": "set", "path": ["priorityList", 2] }
+]

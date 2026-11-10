@@ -11,7 +11,7 @@ func (mage *Mage) registerFireTalents() {
 	// Tier 1
 	mage.registerImprovedFireBlast()
 	mage.registerIncineration()
-	mage.registerImprovedFireball()
+	mage.registerAccelerant()
 
 	// Tier 2
 	mage.registerIgnite()
@@ -56,12 +56,14 @@ func (mage *Mage) registerIncineration() {
 	spelldata.ParseStatic(&mage.Character, spellData.Incineration.Rank(mage.Talents.Incineration))
 }
 
-func (mage *Mage) registerImprovedFireball() {
-	if mage.Talents.ImprovedFireball == 0 {
+// "Reduces the casting time of your Fireball, Frostfire Bolt, and Arcane Wrath spells by
+// 0.1/0.2/0.3/0.4/0.5 sec."
+func (mage *Mage) registerAccelerant() {
+	if mage.Talents.Accelerant == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&mage.Character, spellData.ImprovedFireball.Rank(mage.Talents.ImprovedFireball))
+	spelldata.ParseStatic(&mage.Character, spellData.Accelerant.Rank(mage.Talents.Accelerant))
 }
 
 // A Fire spell's crit burns the target for a share of its damage (11119, 8% per point) over 4 sec.

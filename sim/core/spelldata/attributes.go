@@ -42,6 +42,16 @@ func (s *Spell) IsBleed() bool {
 	return s.Mechanic == dbcenums.MECHANIC_BLEED
 }
 
+func (s *Spell) IsStun() bool {
+	return s.Mechanic == dbcenums.MECHANIC_STUN
+}
+
+// Whether the spell's periodic damage is a bleed: the mechanic sits on the spell, or on the effect
+// alone where the spell also hits directly.
+func (s *Spell) AppliesBleed() bool {
+	return s.IsBleed() || s.PeriodicDamageEffect().Mechanic == dbcenums.MECHANIC_BLEED
+}
+
 func (s *Spell) RefundsOnMiss() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_1, dbcenums.ATTR_EX_1_DISCOUNT_POWER_ON_MISS)
 }
@@ -75,6 +85,18 @@ func (s *Spell) CannotCrit() bool {
 // Whether the game files flag the spell Always Hit, which picks an outcome with no miss roll.
 func (s *Spell) AlwaysHits() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
+}
+
+// Whether the game files flag the spell On Next Swing, which casts it in place of the next main-hand
+// swing.
+func (s *Spell) OnNextSwing() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_ON_NEXT_SWING)
+}
+
+// Whether the game files flag the spell No Active Defense, which keeps dodge, parry and block out of
+// its hit roll.
+func (s *Spell) NoActiveDefense() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_NO_ACTIVE_DEFENSE)
 }
 
 // Whether the game files flag the spell Fixed Travel Time, which makes its Speed the missile's flight

@@ -1,0 +1,4 @@
+4:5 error reference-cycle
+5:5 error reference-cycle
+8:5 error reference-cycle
+9:5 error reference-cycle

@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+priority:
+  cast x if a = b
+  cast x if a < b < c
+  cast x on target foo
+  cast x if aura(x, include_reaction_time=true).is_active
+  cast x if
+  cast
+  `{nope}`
+  cast x if max(a,)

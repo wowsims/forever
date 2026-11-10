@@ -1,0 +1,17 @@
+siml 1
+spec hunter
+
+prepull:
+  # -1s cast steady_shot
+
+priority:
+  /// One line.
+  cast steady_shot
+  /// Two lines,
+  ///
+  ///   with an empty line and an indented one.
+  # cast steady_shot
+  `{"notes":"A trailing space ","action":{"castSpell":{"spellId":{"spellId":900001}}}}`
+  `{"notes":"A\ttab","action":{"castSpell":{"spellId":{"spellId":900001}}}}`
+  `{"notes":"A carriage\r\nreturn","action":{"castSpell":{"spellId":{"spellId":900001}}}}`
+  none

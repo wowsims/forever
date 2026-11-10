@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+
+// In ${…} and %{…}, a \ escapes only }, \ and n.
+var ${a\tb} = 1
+var $x 1
+var $y = %{p\}

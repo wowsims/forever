@@ -19,6 +19,8 @@ export enum SimRequest {
 	raidSimRequestSplit = 'raidSimRequestSplit',
 	raidSimResultCombination = 'raidSimResultCombination',
 	abortById = 'abortById',
+	simlParse = 'simlParse',
+	simlPrint = 'simlPrint',
 }
 
 // The endpoints that run asynchronously (progress-id handshake + progress polling). Single
@@ -64,6 +66,8 @@ export interface WorkerSendMessageBodyBase {
 	msg: WorkerSendMessageType;
 	outputData?: Uint8Array;
 	error?: string;
+	// The worker's sim runtime has stopped and answers no further request, so the pool replaces the worker.
+	stopped?: boolean;
 }
 
 export interface WorkerSendMessageIdConfirm extends WorkerSendMessageBodyBase {

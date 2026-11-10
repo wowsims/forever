@@ -4,7 +4,10 @@ import (
 	"encoding/binary"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
+
+	"github.com/wowsims/forever/tools/db2tool/dbd"
 )
 
 // The two table hashes ApplyHotfixes special-cases are known constants, so they
@@ -191,6 +194,99 @@ func TestHighestPushCountsOnlyServerPushes(t *testing.T) {
 	}
 	if got := onDemand.HighestPush(); got != 0 {
 		t.Errorf("HighestPush of on-demand rows alone = %d, want 0", got)
+	}
+}
+
+func TestOrderHotfixReaders(t *testing.T) {
+	const own = 70630
+	readers := map[uint32]*HotfixReader{}
+	for _, build := range []int32{70532, own, 70450, 70700} {
+		r, err := parseHotfix(xfthFile(9, build, xfthEntry(1, 0x1, 1, 1, []byte{1})))
+		if err != nil {
+			t.Fatal(err)
+		}
+		readers[uint32(build)] = r
+	}
+	builds := func(ordered []*HotfixReader) []int32 {
+		out := make([]int32, len(ordered))
+		for i, r := range ordered {
+			out[i] = r.BuildID
+		}
+		return out
+	}
+
+	carried, ownReader, newer := OrderHotfixReaders(readers, own, true)
+	if got, want := builds(carried), []int32{70450, 70532}; !slices.Equal(got, want) {
+		t.Errorf("carried builds = %v, want %v (older builds ascending)", got, want)
+	}
+	if ownReader != readers[own] {
+		t.Errorf("own reader = %v, want build %d's", ownReader, own)
+	}
+	if want := []uint32{70700}; !slices.Equal(newer, want) {
+		t.Errorf("newer builds = %v, want %v", newer, want)
+	}
+	carried, ownReader, newer = OrderHotfixReaders(readers, own, false)
+	if len(carried) != 0 || len(newer) != 0 {
+		t.Errorf("without carry, carried %v and newer %v, want none", builds(carried), newer)
+	}
+	if ownReader != readers[own] {
+		t.Errorf("own reader without carry = %v, want build %d's", ownReader, own)
+	}
+
+	delete(readers, own)
+	carried, ownReader, _ = OrderHotfixReaders(readers, own, true)
+	if ownReader != nil {
+		t.Errorf("with no cache for the build, own reader = build %d's, want nil", ownReader.BuildID)
+	}
+	if got, want := builds(carried), []int32{70450, 70532}; !slices.Equal(got, want) {
+		t.Errorf("carried builds with no own cache = %v, want %v", got, want)
+	}
+}
+
+func TestHotfixLayoutMatches(t *testing.T) {
+	builds := func(ns ...uint32) []dbd.Build {
+		out := make([]dbd.Build, len(ns))
+		for i, n := range ns {
+			out[i] = dbd.Build{Expansion: 1, Major: 60, Minor: 1, Build: n}
+		}
+		return out
+	}
+	def := dbd.DBDefinition{VersionDefinitions: []dbd.VersionDefinitions{
+		{Builds: builds(70100)},
+		{Builds: builds(70532, 70630)},
+	}}
+	version, err := dbd.SelectVersion(def, 70630)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !hotfixLayoutMatches(version, 70532) {
+		t.Error("a build in the same version block must carry")
+	}
+	if hotfixLayoutMatches(version, 70100) {
+		t.Error("a build in another version block must not carry")
+	}
+	if hotfixLayoutMatches(version, 69000) {
+		t.Error("a build the definition does not list must not carry")
+	}
+}
+
+func TestApplyHotfixesCarryGuard(t *testing.T) {
+	r, err := parseHotfix(xfthFile(9, 70100, xfthEntry(1, 0x1, 1, 1, []byte{1})))
+	if err != nil {
+		t.Fatal(err)
+	}
+	version := dbd.VersionDefinitions{Builds: []dbd.Build{{Expansion: 1, Major: 60, Minor: 1, Build: 70630}}}
+	for _, c := range []struct {
+		hash        uint32
+		wantSkipped bool
+	}{{0x1, true}, {0x2, false}} {
+		applied, skipped, err := r.ApplyHotfixes(&Table{TableHash: c.hash}, dbd.DBDefinition{}, version, 70630, &Decoded{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if applied || skipped != c.wantSkipped {
+			t.Errorf("table %#x: applied %v, skipped %v, want false, %v", c.hash, applied, skipped, c.wantSkipped)
+		}
 	}
 }
 

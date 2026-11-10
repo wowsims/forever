@@ -14,7 +14,7 @@ func RegisterFeralBearDruid() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewFeralBearDruid(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_FeralBearDruid)
 			if !ok {
 				panic("Invalid spec value for Guardian Druid!")
@@ -55,7 +55,6 @@ func NewFeralBearDruid(character *core.Character, options *proto.Player) *Guardi
 		// Base paw weapon.
 		MainHand:       bear.GetBearWeapon(),
 		AutoSwingMelee: true,
-		ReplaceMHSwing: bear.TryMaul,
 	})
 
 	bear.RegisterBearFormAura()
@@ -87,7 +86,12 @@ func (bear *GuardianDruid) AddPartyBuffs(_ *proto.PartyBuffs) {
 
 func (bear *GuardianDruid) Initialize() {
 	bear.Druid.Initialize()
-	bear.RegisterFeralTankSpells()
+	bear.RegisterFeralSpells()
+	// A cat would spend a 1.5s GCD on it whenever it comes off cooldown.
+	bear.AddMajorCooldown(core.MajorCooldown{
+		Spell: bear.Barkskin.Spell,
+		Type:  core.CooldownTypeSurvival,
+	})
 }
 
 func (bear *GuardianDruid) Reset(sim *core.Simulation) {

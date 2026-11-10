@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+// UnitReference.index is an int32, so targetN, playerN and petN stop at N = 2147483648.
+priority:
+  cast x on target2147483648
+  cast x on target2147483649
+  cast x on player99999999999
+  cast x on pet0

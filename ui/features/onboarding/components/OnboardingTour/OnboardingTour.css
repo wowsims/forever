@@ -24,6 +24,6 @@
 	}
 
 	.ui-tour-card {
-		@apply flex w-86 max-w-(--available-width) flex-col gap-2 border border-surface-border bg-overlay bg-clip-padding p-4 text-white shadow-popup;
+		@apply flex w-86 max-w-(--available-width) flex-col gap-2 border border-surface-border bg-overlay bg-clip-padding p-4 text-white shadow-popup outline-none;
 	}
 }

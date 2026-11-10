@@ -33,7 +33,7 @@ func TestWindfuryWeaponStrikesProcFlametongueTotemAndNeverGlance(t *testing.T) {
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
 		var into *proto.TargetedActionMetrics
 		switch {
-		case action.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && action.Id.Tag == 1:
+		case action.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && action.Id.Tag == int32(proto.ItemSlot_ItemSlotMainHand):
 			into = &mainHand
 		case action.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && action.Id.Tag == strikeTag:
 			into = &strikes

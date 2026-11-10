@@ -43,6 +43,7 @@ const player = {
 	tto: dist(30, 3),
 	chanceOfDeath: dist(1, 0.1),
 	secondsOomAvg: 0,
+	actionsPerMinute: () => 42,
 };
 
 let store: ReturnType<typeof createSimStore>;
@@ -81,7 +82,7 @@ describe('SimResultSummary', () => {
 		act(() => results.setSimResult(result(1000)));
 		const { container } = mount(results);
 
-		expect(metricIds(container)).toEqual(['dps', 'tps', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
+		expect(metricIds(container)).toEqual(['dps', 'tps', 'apm', 'dtps', 'tmi', 'cod', 'tto', 'hps']);
 		expect(strip(container).hasAttribute('data-has-reference')).toBe(false);
 	});
 
@@ -128,8 +129,9 @@ describe('SimResultSummary', () => {
 
 		act(() => fireEvent.click(container.querySelector('[data-testid="results-sim-reference-swap"]')!));
 
+		// In percent of the reference, now the 1100 run.
 		const dps = container.querySelector('[data-metric="dps"] [data-testid="results-reference-diff"]')!;
-		expect(dps.textContent).toBe('-100.00 (10.00%)');
+		expect(dps.textContent).toBe('-100.00 (9.09%)');
 		expect(dps.getAttribute('data-sign')).toBe('negative');
 	});
 

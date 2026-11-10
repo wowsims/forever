@@ -1,0 +1,1 @@
+[{ "op": "defSet", "name": "opener_done", "text": "sequence(\"Opener  A\").is_complete  and current_time > 1s" }]

@@ -62,17 +62,23 @@ export const statOptionScope = (options: ReadonlyArray<PickerStatOptions>, confi
 export interface StatOptionGroup {
 	groupLabel: string;
 	configs: ReadonlyArray<IconPickerStatOption['config']>;
+	// Shown on the group's icon, for a group whose inputs the label alone does not explain.
+	tooltip?: string;
 }
 
-export const statOptionGroup = (label: string, configs: ReadonlyArray<IconPickerStatOption['config']>): StatOptionGroup => ({ groupLabel: label, configs });
+export const statOptionGroup = (label: string, configs: ReadonlyArray<IconPickerStatOption['config']>, tooltip?: string): StatOptionGroup => ({
+	groupLabel: label,
+	configs,
+	tooltip,
+});
 
 const isGroupRow = (row: object): row is StatOptionGroup => 'groupLabel' in row;
 
 // Offered while any member is, tagged with every stat a member carries.
-const groupOf = (label: string, members: IconPickerStatOption[]): MultiIconPickerStatOption => {
+const groupOf = (label: string, members: IconPickerStatOption[], tooltip?: string): MultiIconPickerStatOption => {
 	const inputs = members.map(member => member.config);
 	return {
-		config: { label, inputs, showWhen: player => inputs.some(input => !input.showWhen || input.showWhen(player)) },
+		config: { label, tooltip, inputs, showWhen: player => inputs.some(input => !input.showWhen || input.showWhen(player)) },
 		stats: [...new Set(members.flatMap(member => member.stats))],
 		members,
 	};
@@ -168,7 +174,7 @@ export function inDisplayOrder(
 	};
 
 	const composed = rows.map(row => {
-		if (isGroupRow(row)) return groupOf(row.groupLabel, row.configs.map(member));
+		if (isGroupRow(row)) return groupOf(row.groupLabel, row.configs.map(member), row.tooltip);
 		if ('config' in row) return row;
 		return resolve(row);
 	});

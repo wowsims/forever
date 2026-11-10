@@ -1,0 +1,34 @@
+{
+	"player": {
+		"class": "ClassWarrior",
+		"dpsWarrior": {},
+		"rotation": {
+			"type": "TypeSimple",
+			"simple": {
+				"specRotationJson": "{\"type\":\"SingleTarget\",\"spec\":\"DpsWarriorSpecArms\",\"useRecklessness\":true,\"useOverpower\":true,\"sunderArmor\":\"WarriorSunderMaintain\"}",
+				"cooldowns": {
+					"cooldowns": [
+						{
+							"id": {
+								"spellId": 12328
+							},
+							"timings": [0]
+						}
+					],
+					"hpPercentForDefensives": 0.3
+				}
+			},
+			"priorityList": [
+				{
+					"action": {
+						"castSpell": {
+							"spellId": {
+								"spellId": 12328
+							}
+						}
+					}
+				}
+			]
+		}
+	}
+}

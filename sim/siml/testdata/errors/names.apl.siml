@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+
+// A name that its position's namespace does not hold: unknown-name, naming the namespace that holds it, or the
+// closest names of its own.
+priority:
+  cast hunter_sht
+  cast goblin_sapper_charge
+  cast item.hunter_shot
+  cast falcons_call
+  cast item.goblin_sapper_chrge
+  cast nothing_near_this_name
+  cast x if target.aura(frenzy).is_active
+  cast x if pet1.aura(steady_shot).is_active
+  cast x if boss_spell(hunter_shot).is_casting
+  cast x if aura(hunter_shot).is_active(source_unit=target)

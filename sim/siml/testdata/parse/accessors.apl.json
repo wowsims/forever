@@ -1,0 +1,443 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"auraIsActive": {
+						"auraId": {
+							"spellId": 5
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraIsActive": {
+						"sourceUnit": {
+							"type": "CurrentTarget"
+						},
+						"auraId": {
+							"spellId": 5
+						},
+						"includeReactionTime": true
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGe",
+						"lhs": {
+							"auraNumStacks": {
+								"sourceUnit": {
+									"type": "Pet",
+									"owner": {
+										"type": "Self"
+									}
+								},
+								"auraId": {
+									"spellId": 5
+								},
+								"includeReactionTime": true
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "2"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraShouldRefresh": {
+						"auraId": {
+							"spellId": 5
+						},
+						"maxOverlap": {
+							"const": {
+								"val": "2s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpLt",
+						"lhs": {
+							"auraRemainingTime": {
+								"sourceUnit": {
+									"type": "Target",
+									"index": 1
+								},
+								"auraId": {
+									"spellId": 5
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "3s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"dotIsActive": {
+						"spellId": {
+							"spellId": 5
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpLt",
+						"lhs": {
+							"dotRemainingTime": {
+								"targetUnit": {
+									"type": "CurrentTarget"
+								},
+								"spellId": {
+									"spellId": 5
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "2s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"dotIsActiveOnAllTargets": {
+						"spellId": {
+							"spellId": 5
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"dotPercentIncrease": {
+								"spellId": {
+									"spellId": 5
+								},
+								"useBaseValue": true
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "0"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"spellIsReady": {
+						"spellId": {
+							"spellId": 5
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpLt",
+						"lhs": {
+							"spellCastTime": {
+								"spellId": {
+									"spellId": 5
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "1.5s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpLt",
+						"lhs": {
+							"spellTimeToReady": {
+								"spellId": {
+									"otherId": "OtherActionAttack"
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "1s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"bossSpellIsCasting": {
+						"spellId": {
+							"spellId": 5
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpLt",
+						"lhs": {
+							"bossSpellTimeToReady": {
+								"targetUnit": {
+									"type": "AllTargets"
+								},
+								"spellId": {
+									"spellId": 5
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "5s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"sequenceIsComplete": {
+						"sequenceName": "Opener"
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"sequenceTimeToReady": {
+								"sequenceName": "Opener"
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "0s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraIsKnown": {
+						"auraId": {}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraIsActive": {
+						"auraId": {
+							"spellId": 99,
+							"tag": 2
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraIsActive": {
+						"sourceUnit": {
+							"type": "CurrentTarget"
+						},
+						"auraId": {
+							"spellId": 5
+						},
+						"includeReactionTime": true
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"auraIsActive": {}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"sequence": {
+					"name": "Opener",
+					"actions": [
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 5
+								}
+							}
+						}
+					]
+				}
+			}
+		}
+	]
+}

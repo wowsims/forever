@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+use "lib.apl.siml"
+
+def near = 1
+
+priority:
+  cast multi_shot if near > 0

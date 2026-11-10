@@ -42,7 +42,16 @@ export const RotationRowLabel = ({ text, icon, onHide, hideTooltipId, className,
 			</Button>
 		)}
 		{icon}
-		<span data-testid="rotation-label-text" className="overflow-hidden text-ellipsis max-lg:hidden">
+		<span
+			data-testid="rotation-label-text"
+			className="overflow-hidden text-ellipsis max-lg:hidden"
+			// A label cut short by the column shows its full text as a native title. The rotation's shared
+			// tooltip reads its anchor once the pointer enters, before the width is known.
+			onMouseEnter={event => {
+				const label = event.currentTarget;
+				if (label.scrollWidth > label.clientWidth) label.title = text;
+				else label.removeAttribute('title');
+			}}>
 			{text}
 		</span>
 	</div>

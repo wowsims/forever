@@ -85,6 +85,7 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 			IsGuardian:                       true,
 			IsDynamic:                        true,
 			HasDynamicRangedSpeedInheritance: true,
+			StartsInMeleeRange:               true,
 		})}
 		hawk.EnableAutoAttacks(hawk, core.AutoAttackOptions{
 			MainHand:       hawkSwing,

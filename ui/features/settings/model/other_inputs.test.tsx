@@ -4,7 +4,7 @@ import { fakeHost } from '@testing/sim/fake_host';
 import { act, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { DistanceFromTarget, RetributionAuraSpellPower } from './other_inputs';
+import { DistanceFromTarget, RetributionAuraSpellPower, ThornsSpellPower } from './other_inputs';
 
 const source = vi.hoisted(() => {
 	const listeners = new Set<() => void>();
@@ -100,5 +100,32 @@ describe('RetributionAuraSpellPower', () => {
 		RetributionAuraSpellPower.setValue(player, 450);
 		expect(player.getParty().getBuffs().retributionAuraSpellPower).toBe(450);
 		expect(RetributionAuraSpellPower.getValue(player)).toBe(450);
+	});
+});
+
+// The same rule for Thorns, whose number lives on the player's own buffs next to the Thorns toggle.
+describe('ThornsSpellPower', () => {
+	const fakePlayer = (isTankSpec: boolean, thorns: boolean) => {
+		let buffs = { thorns, thornsSpellPower: 0 } as any;
+		return {
+			getPlayerSpec: () => ({ isTankSpec }),
+			getBuffs: () => buffs,
+			setBuffs: (next: any) => {
+				buffs = next;
+			},
+		} as any;
+	};
+
+	it('shows only for a tank with Thorns selected', () => {
+		expect(ThornsSpellPower.showWhen(fakePlayer(true, true))).toBe(true);
+		expect(ThornsSpellPower.showWhen(fakePlayer(true, false))).toBe(false);
+		expect(ThornsSpellPower.showWhen(fakePlayer(false, true))).toBe(false);
+	});
+
+	it('stores the value on the individual buffs', () => {
+		const player = fakePlayer(true, true);
+		ThornsSpellPower.setValue(player, 450);
+		expect(player.getBuffs().thornsSpellPower).toBe(450);
+		expect(ThornsSpellPower.getValue(player)).toBe(450);
 	});
 });

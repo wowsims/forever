@@ -10,11 +10,11 @@ import (
 //   Improved Shred: missing rank 1 of 2
 
 // Generated with an effect held at its base points, the talent tree stating no rank value for it:
-//   Berserk: effect 0, 1, 2, 3 of spell 417141 has no rank curve and is held at its base points
+//   Bloom: effect 0, 1 of spell 1328621 has no rank curve and is held at its base points
 //   Eclipse: effect 2, 3 of spell 408248 has no rank curve and is held at its base points
-//   Gift of the Earthmother: effect 0 of spell 414673 has no rank curve and is held at its base points
 //   Natural Reaction: effect 2, 3 of spell 417051 has no rank curve and is held at its base points
 //   Nature's Splendor: effect 0, 1, 2 of spell 1223083 has no rank curve and is held at its base points
+//   Predatory Discipline: effect 0 of spell 1328613 has no rank curve and is held at its base points
 //   Predatory Strikes: effect 1 of spell 16972 has no rank curve and is held at its base points
 //   Shifting Power: effect 0 of spell 1322605 has no rank curve and is held at its base points
 
@@ -28,9 +28,9 @@ type generatedSpellData struct {
 	Bash                      spelldata.Ladder
 	BearForm                  spelldata.Ladder
 	BearFormTriggered         spelldata.Ladder
-	Berserk                   spelldata.Ladder
 	BloodFrenzy               spelldata.Ladder
 	BloodFrenzyTriggered      spelldata.Ladder
+	Bloom                     spelldata.Ladder
 	BrutalImpact              spelldata.Ladder
 	CatForm                   spelldata.Ladder
 	CatFormTriggered          spelldata.Ladder
@@ -61,7 +61,6 @@ type generatedSpellData struct {
 	FurorTriggered            spelldata.Ladder
 	Genesis                   spelldata.Ladder
 	GiftOfNature              spelldata.Ladder
-	GiftOfTheEarthmother      spelldata.Ladder
 	GiftOfTheWild             spelldata.Ladder
 	Growl                     spelldata.Ladder
 	HealingTouch              spelldata.Ladder
@@ -76,7 +75,6 @@ type generatedSpellData struct {
 	ImprovedMoonfire          spelldata.Ladder
 	ImprovedRegrowth          spelldata.Ladder
 	ImprovedRejuvenation      spelldata.Ladder
-	ImprovedShiftingPower     spelldata.Ladder
 	ImprovedStarfire          spelldata.Ladder
 	ImprovedStarfireTriggered spelldata.Ladder
 	ImprovedThorns            spelldata.Ladder
@@ -116,6 +114,7 @@ type generatedSpellData struct {
 	Pounce                    spelldata.Ladder
 	PounceTriggered           spelldata.Ladder
 	PounceBleed               spelldata.Ladder
+	PredatoryDiscipline       spelldata.Ladder
 	PredatoryStrikes          spelldata.Ladder
 	PrimalBite                spelldata.Ladder
 	Prowl                     spelldata.Ladder
@@ -162,9 +161,9 @@ var spellData = generatedSpellData{
 	Bash:                      spelldata.Ranked(5211, 6798, 8983),
 	BearForm:                  spelldata.Ranked(5487),
 	BearFormTriggered:         spelldata.Ranked(1178),
-	Berserk:                   spelldata.Talent(417141, 1),
 	BloodFrenzy:               spelldata.Talent(16958, 2),
 	BloodFrenzyTriggered:      spelldata.Ranked(16959),
+	Bloom:                     spelldata.Talent(1328621, 1),
 	BrutalImpact:              spelldata.Talent(16940, 2),
 	CatForm:                   spelldata.Ranked(768),
 	CatFormTriggered:          spelldata.Ranked(3025),
@@ -188,14 +187,13 @@ var spellData = generatedSpellData{
 	FeralChargeTriggered:      spelldata.Ranked(19675),
 	FeralInstinct:             spelldata.Talent(16947, 3),
 	FeralSwiftness:            spelldata.Talent(17002, 2),
-	FerociousBite:             spelldata.Ranked(22568, 22827, 22828, 22829, 31018),
+	FerociousBite:             spelldata.Ranked(1328618, 22568, 22827, 22828, 22829, 31018),
 	Ferocity:                  spelldata.Talent(16934, 5),
 	FrenziedRegeneration:      spelldata.Ranked(22842),
 	Furor:                     spelldata.Talent(17056, 5),
 	FurorTriggered:            spelldata.Ranked(17057),
 	Genesis:                   spelldata.Talent(1223081, 5),
 	GiftOfNature:              spelldata.Talent(17104, 5),
-	GiftOfTheEarthmother:      spelldata.Talent(414673, 1),
 	GiftOfTheWild:             spelldata.Ranked(21849, 21850),
 	Growl:                     spelldata.Ranked(6795),
 	HealingTouch:              spelldata.Ranked(5185, 5186, 5187, 5188, 5189, 6778, 8903, 9758, 9888, 9889, 25297),
@@ -210,7 +208,6 @@ var spellData = generatedSpellData{
 	ImprovedMoonfire:          spelldata.Talent(16821, 2),
 	ImprovedRegrowth:          spelldata.Talent(17074, 5),
 	ImprovedRejuvenation:      spelldata.Talent(17111, 3),
-	ImprovedShiftingPower:     spelldata.Talent(1322670, 2),
 	ImprovedStarfire:          spelldata.Talent(16850, 5),
 	ImprovedStarfireTriggered: spelldata.Ranked(16922),
 	ImprovedThorns:            spelldata.Ranked(16836, 16839, 16840),
@@ -218,7 +215,7 @@ var spellData = generatedSpellData{
 	ImprovedWrath:             spelldata.Talent(16814, 5),
 	Innervate:                 spelldata.Ranked(29166),
 	InsectSwarm:               spelldata.Ranked(5570, 24974, 24975, 24976, 24977),
-	Lacerate:                  spelldata.Ranked(414644, 1235826, 1235827),
+	Lacerate:                  spelldata.Ranked(1328617, 1328616, 414644, 1235826, 1235827),
 	LeaderOfThePack:           spelldata.Ranked(17007),
 	LeaderOfThePackTriggered:  spelldata.Ranked(24932),
 	LivingSpirit:              spelldata.Talent(1309631, 3),
@@ -250,8 +247,9 @@ var spellData = generatedSpellData{
 	Pounce:                    spelldata.Ranked(9005, 9823, 9827),
 	PounceTriggered:           spelldata.Ranked(9007, 9824, 9826),
 	PounceBleed:               spelldata.Ranked(9007, 9824, 9826),
+	PredatoryDiscipline:       spelldata.Talent(1328613, 1),
 	PredatoryStrikes:          spelldata.Talent(16972, 3),
-	PrimalBite:                spelldata.Ranked(407995, 1238069, 1238070, 1238073),
+	PrimalBite:                spelldata.Ranked(407995, 1238069, 1238070),
 	Prowl:                     spelldata.Ranked(5215, 6783, 9913),
 	Rake:                      spelldata.Ranked(1822, 1823, 1824, 9904),
 	Ravage:                    spelldata.Ranked(6785, 6787, 9866, 9867),

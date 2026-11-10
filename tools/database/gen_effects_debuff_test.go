@@ -14,7 +14,7 @@ import (
 //   - Frostguard 12797's Chilled 16927 slows melee beside a movement slow.
 //   - Dark Iron Sunderer 11607's Cleave Armor 15280 takes armor, resolved as negative Armor.
 //   - Bleakwood Hew 12769's Bleakwood Curse 16871 takes every magic resistance, stacking.
-//   - Howling Hide 284262's Howler's Cry 1315767 takes attack power.
+//   - Annihilator 12798's Armor Shatter 16928 takes armor, stacking.
 //
 // The Lobotomizer 19324's Brain Damage 1290950 deals damage beside its cast slow and routes to the
 // damage shape, whose spell carries the debuff. It and Frostguard take their rate from an override, so
@@ -38,7 +38,7 @@ func TestChanceOnHitDebuffsRoute(t *testing.T) {
 		{19324, 1290950, true, true},
 		{11607, 15280, false, false},
 		{12769, 16871, false, false},
-		{284262, 1315767, false, false},
+		{12798, 16928, false, false},
 	} {
 		row := spelldata.Find(tc.spellID)
 		debuffs, slows := row.DebuffEffects(), row.SlowEffects()

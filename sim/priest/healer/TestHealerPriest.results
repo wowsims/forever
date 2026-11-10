@@ -1,12 +1,12 @@
 character_stats_results: {
  key: "TestHealerPriest-preraid"
  value: {
-  final_stats: 116
-  final_stats: 155
-  final_stats: 311
-  final_stats: 272
-  final_stats: 663.75
-  final_stats: 231.12
+  final_stats: 104
+  final_stats: 141
+  final_stats: 325
+  final_stats: 277
+  final_stats: 683.25
+  final_stats: 245.64
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -14,9 +14,9 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 339
-  final_stats: 378
-  final_stats: 50
+  final_stats: 333
+  final_stats: 321
+  final_stats: 100
   final_stats: 0
   final_stats: 0
   final_stats: 0
@@ -28,11 +28,11 @@ character_stats_results: {
   final_stats: 0
   final_stats: 0
   final_stats: 0
-  final_stats: 1902
+  final_stats: 1890
   final_stats: 0
-  final_stats: 4327
-  final_stats: 5176
-  final_stats: 87
+  final_stats: 4467
+  final_stats: 5251
+  final_stats: 83
   final_stats: 27
   final_stats: 27
   final_stats: 27
@@ -41,14 +41,14 @@ character_stats_results: {
   final_stats: 0
   final_stats: 1120
   final_stats: 15
+  final_stats: 1
+  final_stats: 1
+  final_stats: 13.05
+  final_stats: 10.4536
   final_stats: 0
   final_stats: 0
-  final_stats: 13.75
-  final_stats: 10.3696
   final_stats: 0
-  final_stats: 0
-  final_stats: 0
-  final_stats: 10.75
+  final_stats: 10.05
   final_stats: 0
   final_stats: 0
   final_stats: 0

@@ -13,7 +13,7 @@ func RegisterDpsWarrior() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewDpsWarrior(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_DpsWarrior)
 			if !ok {
 				panic("Invalid spec value for Dps Warrior!")
@@ -42,12 +42,13 @@ func NewDpsWarrior(character *core.Character, options *proto.Player) *DpsWarrior
 
 	war := &DpsWarrior{
 		Warrior: warrior.NewWarrior(character, dpsOptions.ClassOptions, options.TalentsString, warrior.WarriorInputs{
-			UseBattleShout: classOptions.UseBattleShout,
-			DefaultStance:  classOptions.DefaultStance,
-			StartingRage:   classOptions.StartingRage,
-			QueueDelay:     classOptions.QueueDelay,
-			StanceSnapshot: classOptions.StanceSnapshot,
-			HasBsT2:        classOptions.HasBsT2,
+			UseBattleShout:      classOptions.UseBattleShout,
+			DefaultStance:       classOptions.DefaultStance,
+			StartingRage:        classOptions.StartingRage,
+			QueueDelay:          classOptions.QueueDelay,
+			StanceSnapshot:      classOptions.StanceSnapshot,
+			HasBsT2:             classOptions.HasBsT2,
+			HasBattleShoutRank7: classOptions.HasBattleShoutRank_7,
 		}),
 		Options: dpsOptions,
 	}

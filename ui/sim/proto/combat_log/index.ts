@@ -1,5 +1,7 @@
 export { computeActionIdAsString, matchTimestampPrefix, parseAll, rawWithoutTimestamp } from './parse';
 export { buildAuraUptimes, buildCastLogs, buildDpsLogs, buildResourceGroups, buildThreatGroups, populateActiveAuras } from './derive';
+export { parseAplEntryPath } from './apl_entry_path';
+export type { AplEntryPath, AplEntrySegment } from './apl_entry_path';
 export {
 	Entity,
 	formattedTimestamp,
@@ -12,6 +14,7 @@ export {
 	isCastFailed,
 	isDamage,
 	isMajorCooldown,
+	isMovement,
 	isResource,
 } from './types';
 export type {
@@ -34,6 +37,7 @@ export type {
 	DpsLog,
 	LogKind,
 	MajorCooldownLog,
+	MovementLog,
 	Outcome,
 	ParsedKind,
 	ParsedLog,

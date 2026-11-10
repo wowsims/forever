@@ -1,12 +1,23 @@
 import { APLActionItemSwap_SwapSet } from '@generated/proto/apl';
-import { ActionID as ActionIdProto, ItemRandomSuffix, OtherAction } from '@generated/proto/common';
+import { ActionID as ActionIdProto, ItemRandomSuffix, ItemSlot, OtherAction } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import { IconData, UIItem as Item } from '@generated/proto/ui';
+import { WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
 
 import { CHARACTER_LEVEL } from '../../constants/mechanics';
 import { Database } from '../database';
 import { buildWowheadTooltipDataset, wowheadEntityUrl, wowheadIconUrl, WowheadTooltipItemParams, WowheadTooltipSpellParams } from '../wowhead';
+
+// Shieldsworn's talent id, the tag on the Holy Shield damage and Shield Specialization mana its Holy Strike causes.
+const SHIELDSWORN_TAG = 1328544;
+// The Echo Unsealed Wrath stores for each seal that deals damage. A seal's hit that a spent Echo casts is
+// tagged with the Echo's spell id.
+const UNSEALED_WRATH_ECHO_TAGS: Record<string, number> = {
+	'Seal of Command': 1311703,
+	'Seal of Fury': 1311701,
+	'Seal of Righteousness': 1311704,
+};
 
 type ActionIdOptions = {
 	itemId?: number;
@@ -18,6 +29,8 @@ type ActionIdOptions = {
 	iconUrl?: string;
 	randomSuffixId?: number;
 	rank?: number;
+	// The name is another, unranked spell's: the id keeps its rank, and the name goes without it.
+	unrankedName?: boolean;
 	definitionId?: number;
 	isEmptyPlaceholder?: boolean;
 };
@@ -51,6 +64,7 @@ export class ActionId {
 		iconUrl,
 		randomSuffixId,
 		rank,
+		unrankedName,
 		definitionId,
 		isEmptyPlaceholder,
 	}: ActionIdOptions = {}) {
@@ -95,15 +109,14 @@ export class ActionId {
 				baseName = i18n.t('common.action_names.rage_gain');
 				iconUrl = resourceTypeToIcon[ResourceType.ResourceTypeRage];
 				break;
-			case OtherAction.OtherActionAttack:
+			case OtherAction.OtherActionAttack: {
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/inv_sword_04.jpg';
 				// A name handed in is a filled one: an extra attack's, from the spell that tagged it.
 				if (name) break;
 				name = i18n.t('common.action_names.attack');
-				if (this.tag == 1) {
-					name += ` (${i18n.t('common.action_tags.main_hand')})`;
-				} else if (this.tag == 2) {
-					name += ` (${i18n.t('common.action_tags.off_hand')})`;
+				const hand = weaponHandName(this.tag);
+				if (hand) {
+					name += ` (${hand})`;
 				} else if (this.tag == 10610) {
 					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
 					name += ` (${i18n.t('common.action_tags.windfury')})`;
@@ -117,6 +130,7 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.custom_boss')}) - ${i18n.t('common.action_tags.thrash')}`;
 				}
 				break;
+			}
 			case OtherAction.OtherActionShoot:
 				name = i18n.t('common.action_names.shoot');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/large/ability_marksmanship.jpg';
@@ -154,6 +168,8 @@ export class ActionId {
 			case OtherAction.OtherActionMove:
 				baseName = i18n.t('common.action_names.moving');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/inv_boots_cloth_03.jpg';
+				// Tag 1 holds the walks a spell or a pet's own logic causes, e.g. Charge's.
+				if (this.tag == 1) name = i18n.t('common.action_names.moving_from_spell');
 				break;
 			case OtherAction.OtherActionPrepull:
 				baseName = i18n.t('common.action_names.prepull');
@@ -172,7 +188,7 @@ export class ActionId {
 		this.baseName = baseName ?? '';
 		this.name = (name || baseName) ?? '';
 		this.iconUrl = iconUrl ?? '';
-		if (this.name) this.name += this.rank ? ` (${i18n.t('common.action_tags.rank', { rank: this.rank })})` : '';
+		if (this.name && !unrankedName) this.name += this.rank ? ` (${i18n.t('common.action_tags.rank', { rank: this.rank })})` : '';
 		this.spellIdTooltipOverride = this.spellTooltipOverride?.spellId || null;
 	}
 
@@ -182,6 +198,12 @@ export class ActionId {
 
 	equals(other: ActionId): boolean {
 		return this.equalsIgnoringTag(other) && this.tag == other.tag;
+	}
+
+	// Every rank of a talent shares one spell id, so two ranked ids also compare their ranks. An id
+	// without a rank matches its spell at any rank.
+	equalsAtRank(other: ActionId): boolean {
+		return this.equals(other) && (!this.rank || !other.rank || this.rank == other.rank);
 	}
 
 	// Every field these read is readonly and set in the constructor, so the string cannot go stale.
@@ -232,20 +254,25 @@ export class ActionId {
 		return wowheadEntityUrl('zone', id);
 	}
 
-	// An extra attack is a main-hand swing tagged with the spell that granted it, so its name comes
-	// from that spell rather than from a list kept by hand. A tag no spell answers keeps the bare name,
-	// and is remembered so it is not asked for again on every fill.
-	private static readonly extraAttackNames = new Map<number, Promise<string>>();
-	private async fillExtraAttack(): Promise<ActionId> {
-		let spellName = ActionId.extraAttackNames.get(this.tag);
+	// The name of the spell a tag holds, or '' where no spell answers. Each tag is asked for once, so a
+	// tag no spell answers is not asked for again on every fill.
+	private static readonly tagSpellNames = new Map<number, Promise<string>>();
+	private static tagSpellName(tag: number): Promise<string> {
+		let spellName = ActionId.tagSpellNames.get(tag);
 		if (!spellName) {
-			spellName = Database.getSpellIconData(this.tag).then(
+			spellName = Database.getSpellIconData(tag).then(
 				data => data.name,
 				() => '',
 			);
-			ActionId.extraAttackNames.set(this.tag, spellName);
+			ActionId.tagSpellNames.set(tag, spellName);
 		}
-		const name = await spellName;
+		return spellName;
+	}
+
+	// An extra attack is a main-hand swing tagged with the spell that granted it, so its name comes
+	// from that spell rather than from a list kept by hand. A tag no spell answers keeps the bare name.
+	private async fillExtraAttack(): Promise<ActionId> {
+		const name = await ActionId.tagSpellName(this.tag);
 		if (!name) return this;
 		return new ActionId({ otherId: this.otherId, tag: this.tag, name: `${i18n.t('common.action_names.attack')} (${name})`, iconUrl: this.iconUrl });
 	}
@@ -253,7 +280,9 @@ export class ActionId {
 	// Returns an ActionId with the name and iconUrl fields filled.
 	// playerIndex is the optional index of the player to whom this ID corresponds.
 	async fill(playerIndex?: number): Promise<ActionId> {
-		if (this.otherId == OtherAction.OtherActionAttack && this.name == i18n.t('common.action_names.attack') && this.tag > 2) {
+		// The constructor names a hand's swing and a unit's attack by their tags, so a tagged attack
+		// it left bare is an extra attack.
+		if (this.otherId == OtherAction.OtherActionAttack && this.name == i18n.t('common.action_names.attack') && this.tag != 0) {
 			return this.fillExtraAttack();
 		}
 		if (this.name || this.iconUrl) {
@@ -269,6 +298,7 @@ export class ActionId {
 		let name = baseName;
 
 		let tag = this.tag;
+		let unrankedName = false;
 
 		switch (baseName) {
 			case 'Minor Speed':
@@ -337,6 +367,7 @@ export class ActionId {
 			case 'Rupture':
 			case 'Slice and Dice':
 			case 'Expose Armor':
+			case 'Death Mark':
 				if (tag) name += ` (${i18n.t('common.action_tags.combo_points', { points: tag })})`;
 				break;
 			case 'Crimson Tempest':
@@ -351,31 +382,12 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.shiv')})`;
 				}
 				break;
-			case 'Bladestorm':
-				if (tag == 1) {
-					name += ` (${i18n.t('common.action_tags.main_hand')})`;
-				} else if (tag == 2) {
-					name += ` (${i18n.t('common.action_tags.off_hand')})`;
-				}
+			case 'Mutilate': {
+				// The cast is untagged; a strike it makes with one hand carries that hand's slot.
+				const label = tag == 0 ? i18n.t('common.action_tags.cast') : weaponHandName(tag);
+				if (label) name += ` (${label})`;
 				break;
-			case 'Mutilate':
-				if (tag == 0) {
-					name += ` (${i18n.t('common.action_tags.cast')})`;
-				} else if (tag == 1) {
-					name += ` (${i18n.t('common.action_tags.main_hand')})`;
-				} else if (tag == 2) {
-					name += ` (${i18n.t('common.action_tags.off_hand')})`;
-				}
-				break;
-			case 'Stormstrike':
-				if (tag == 0) {
-					name += ` (${i18n.t('common.action_tags.cast')})`;
-				} else if (tag == 1) {
-					name += ` (${i18n.t('common.action_tags.main_hand')})`;
-				} else if (tag == 2) {
-					name += ` (${i18n.t('common.action_tags.off_hand')})`;
-				}
-				break;
+			}
 			case 'Chain Lightning':
 			case 'Lightning Bolt':
 			case 'Lava Burst':
@@ -446,15 +458,6 @@ export class ActionId {
 					name += ` (${10 + (tag - 1) * 5}%)`;
 				}
 				break;
-			case 'Whirlwind':
-			case 'Windfury Weapon':
-			case 'Enchant Weapon - Crusader':
-				if (tag == 1) {
-					name += ` (${i18n.t('common.action_tags.main_hand')})`;
-				} else if (tag == 2) {
-					name += ` (${i18n.t('common.action_tags.off_hand')})`;
-				}
-				break;
 			case 'Heroic Strike':
 			case 'Cleave':
 			case 'Maul':
@@ -471,10 +474,6 @@ export class ActionId {
 				if (tag == 1) {
 					name += ` (${i18n.t('common.action_tags.devastate')})`;
 				}
-				break;
-			case 'Improved Berserker Rage':
-			case 'Improved Overpower':
-				name += ` (${tag}/2)`;
 				break;
 			case 'Thunderfury':
 				if (tag == 1) {
@@ -516,6 +515,32 @@ export class ActionId {
 				}
 
 				break;
+			case 'Master Demonologist': {
+				// One aura per demon, tagged with the demon's Summon value.
+				const demon = {
+					[Summon.Imp]: 'imp',
+					[Summon.Voidwalker]: 'voidwalker',
+					[Summon.Succubus]: 'succubus',
+					[Summon.Felhunter]: 'felhunter',
+				}[tag];
+				if (demon) {
+					name += ` (${i18n.t(`rotation_tab.apl.summon_types.${demon}`)})`;
+				}
+				break;
+			}
+			// Demonic Sacrifice's effects, each named with the demon sacrificed for it.
+			case 'Burning Shadow':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.imp')} Sac)`;
+				break;
+			case 'Touch of Fire':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.succubus')} Sac)`;
+				break;
+			case 'Fel Energy':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.voidwalker')} Sac)`;
+				break;
+			case 'Fel Stamina':
+				name += ` (${i18n.t('rotation_tab.apl.summon_types.felhunter')} Sac)`;
+				break;
 			case 'Unstable Affliction':
 			case 'Corruption':
 				if (tag == 1) {
@@ -530,6 +555,12 @@ export class ActionId {
 			case 'Retribution Aura':
 			case 'Holy Shield':
 			case 'Thorns':
+			case 'Brambles':
+			case 'Bristlecone':
+			case 'Heart of the Scale':
+			case 'Immolation':
+			case 'Fiery Aura':
+			case 'Chitinous Spikes':
 				// A damage shield's proc is tagged two past the aura that carries it: tag 2 is the
 				// player's own copy, tag 1 the copy an outside caster provides, and that copy's
 				// aura is the tag -1 this case names below.
@@ -537,6 +568,13 @@ export class ActionId {
 					name += ` (${i18n.t('common.action_tags.hit')})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
+				} else if (tag === SHIELDSWORN_TAG) {
+					name += ` (${i18n.t('common.action_tags.shieldsworn')})`;
+				}
+				break;
+			case 'Shield Specialization':
+				if (tag === SHIELDSWORN_TAG) {
+					name += ` (${i18n.t('common.action_tags.shieldsworn')})`;
 				}
 				break;
 			case 'Searing Totem':
@@ -545,6 +583,15 @@ export class ActionId {
 				// A totem's hits report under the totem's spell, tagged 1, so they share its row.
 				if (tag === 1) {
 					name += ` (${i18n.t('common.action_names.attack')})`;
+				} else if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				}
+				break;
+			case 'Windfury Totem':
+				// The totem, its raid aura and the attack power its proc grants (10610) share one name.
+				if (this.spellId === 10610) {
+					const attackPower = i18n.t('common.stats.attack_power');
+					name += tag === -1 ? ` (${attackPower} - ${i18n.t('common.action_tags.external')})` : ` (${attackPower})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
 				}
@@ -570,6 +617,16 @@ export class ActionId {
 					name += ' (Heal)';
 				}
 				break;
+			case 'Read Leyline':
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.attuned')})`;
+				}
+				break;
+			case 'Skysight':
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.charged')})`;
+				}
+				break;
 			case 'Hack and Slash':
 				if (tag == 1) {
 					name += ' (Axe/Sword)';
@@ -579,13 +636,93 @@ export class ActionId {
 					name += ' (Mace)';
 				}
 				break;
-			default:
-				if (tag === -1) {
-					name += ` (${i18n.t('common.action_tags.external')})`;
+			case 'Judgement of Fury':
+				if (this.spellId === 20232) {
+					name += ' (Taunt)';
+				}
+				break;
+			case 'Weaponmaster': {
+				// One aura per branch of the talent, tagged by the weapons it reads.
+				const weapons = (
+					{
+						1: ['axe', 'polearm'],
+						2: ['mace', 'staff'],
+						3: ['sword'],
+					} as const
+				)[tag];
+				if (weapons) {
+					name += ` (${weapons.map(weapon => i18n.t(`common.weapon_types.${weapon}`)).join('/')})`;
+				}
+				break;
+			}
+			case 'Seal of Command':
+			case 'Seal of Righteousness':
+			case 'Seal of Fury':
+				// A seal's hit that Unsealed Wrath's Echo casts takes the Echo's name, and Seal of Fury's
+				// shield is tagged 1.
+				if (tag === UNSEALED_WRATH_ECHO_TAGS[baseName]) {
+					const echoName = await ActionId.tagSpellName(tag);
+					if (echoName) {
+						name = echoName;
+						unrankedName = true;
+					} else {
+						name += ` (${i18n.t('common.action_tags.echo')})`;
+					}
+				} else if (tag === 1 && baseName === 'Seal of Fury') {
+					name += ` (${i18n.t('common.action_tags.shield')})`;
 				} else if (tag) {
 					name += ' (??)';
 				}
 				break;
+			case 'Power Word: Shield':
+				// The shield the spell puts up is tagged 1.
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.shield')})`;
+				}
+				break;
+			case 'Vindication':
+				// The paladin's debuff is left untagged and the raid's tagged -1.
+				if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				}
+				break;
+			case 'Curse of Weakness':
+				// The curse raised by Amplify Curse is tagged 1.
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.amplified')})`;
+				} else if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				}
+				break;
+			case 'Bane of Havoc':
+				// The share of damage the bane deals again is tagged 1.
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_tags.damage')})`;
+				}
+				break;
+			case 'Feral Charge (Bear)':
+				// The charge's run to the target is tagged 1.
+				if (tag === 1) {
+					name += ` (${i18n.t('common.action_names.moving')})`;
+				}
+				break;
+			default: {
+				const hand = weaponHandName(tag);
+				if (tag === -1) {
+					name += ` (${i18n.t('common.action_tags.external')})`;
+				} else if (hand) {
+					name += ` (${hand})`;
+				} else if (this.itemId && tag === 1) {
+					// A consumable's damage to its user is tagged 1 and a cloud's ticks 2 (sim/common/shared/consumable_explosives.go).
+					// A stat consumable with more than one buff also tags its auras 1, 2, … (consumable_stats.go); none has more than one.
+					name += ` (${i18n.t('common.action_tags.self')})`;
+				} else if (this.itemId && tag === 2) {
+					name += ` (${i18n.t('common.action_tags.dot')})`;
+				} else if (tag) {
+					name += ' (??)';
+				}
+				break;
+			}
 		}
 
 		let iconUrl = ActionId.makeIconUrl(tooltipData['icon']);
@@ -606,6 +743,7 @@ export class ActionId {
 			iconUrl,
 			randomSuffixId: this.randomSuffixId,
 			rank: this.rank || tooltipData['rank'],
+			unrankedName,
 			definitionId: this.definitionId,
 		});
 	}
@@ -836,6 +974,13 @@ const rankSuffixPattern = (): RegExp => {
 	return new RegExp(` \\(${rank}\\)`, 'g');
 };
 
+// A copy one weapon hand carries is tagged with that hand's item slot (ActionID.WithHand in sim/core/agent.go).
+function weaponHandName(tag: number): string | undefined {
+	if (tag === ItemSlot.ItemSlotMainHand) return i18n.t('common.action_tags.main_hand');
+	if (tag === ItemSlot.ItemSlotOffHand) return i18n.t('common.action_tags.off_hand');
+	return undefined;
+}
+
 type ActionIdOverride = { itemId?: number; spellId?: number };
 
 // Some items/spells have weird icons, so use this to show a different icon instead.
@@ -913,4 +1058,5 @@ export const resourceTypeToIcon: Record<ResourceType, string> = {
 // Use this to connect a buff row to a cast row in the timeline view
 export const buffAuraToSpellIdMap: Record<number, ActionId> = {
 	15036: ActionId.fromSpellId(16387), // The party's Flametongue Totem, on the row of the totem's strikes
+	1282733: ActionId.fromSpellId(11585), // Overpower's window after a dodge, on the Overpower row
 };

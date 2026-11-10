@@ -1,0 +1,11 @@
+6:5 error reference-cycle
+7:5 error reference-cycle
+8:5 error reference-cycle
+9:5 error reference-cycle
+11:5 error duplicate-variable
+14:13 error ambiguous-variable
+15:13 warning undefined-variable
+15:26 warning undefined-variable
+16:16 warning undefined-variable
+20:7 error duplicate-variable
+21:13 warning undefined-variable

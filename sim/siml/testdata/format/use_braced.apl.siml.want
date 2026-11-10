@@ -1,0 +1,3 @@
+siml 1
+spec hunter
+use "../parse/var_forms.apl.siml" with ${a\}b\\c\nd} = 0

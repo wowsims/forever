@@ -8,6 +8,7 @@ import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
+import { formatDurationSeconds } from '@sim/utils/format';
 import { stDevToConf90 } from '@sim/utils/math';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -82,7 +83,7 @@ vi.mock('@sim/state/subscriptions', () => {
 const STAT_NAMES: Partial<Record<Stat, string>> = {
 	[Stat.StatStrength]: 'Strength',
 	[Stat.StatAgility]: 'Agility',
-	[Stat.StatCritRating]: 'Crit Rating',
+	[Stat.StatCritRating]: 'Crit',
 };
 vi.mock('@i18n/localization', () => ({
 	translateStat: (stat: Stat) => STAT_NAMES[stat] ?? `Stat ${stat}`,
@@ -92,10 +93,15 @@ vi.mock('@i18n/localization', () => ({
 vi.mock('../SavedEpWeights', () => ({ SavedEpWeights: () => null }));
 
 // The vitest i18n stub has no resources, so `t` answers with the key and never interpolates — which
-// would make the reference-stat half of a column tooltip invisible. This keeps the key and shows the
-// interpolation beside it.
+// would make the reference-stat half of a column tooltip and the time left invisible. This keeps the
+// key and shows the interpolation beside it.
 vi.mock('@i18n/config', () => ({
-	default: { t: (key: string, options?: Record<string, unknown>) => (options?.refStatName ? `${key}[${options.refStatName}]` : key) },
+	default: {
+		t: (key: string, options?: Record<string, unknown>) => {
+			const shown = options?.refStatName ?? options?.time;
+			return shown ? `${key}[${shown}]` : key;
+		},
+	},
 }));
 
 const toasts = vi.hoisted(() => [] as Array<{ variant: string; body: unknown }>);
@@ -340,6 +346,12 @@ describe('EpWeightsDialog', () => {
 		]);
 	});
 
+	it('explains the per 1% weights and the simulated step in a footnote', () => {
+		renderDialog();
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.percent_weights_description');
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
+	});
+
 	// A gear planner never computes weights: no Calculate button, no computed columns, no Update
 	// column, no reference picker. What is left is the editable Current EP column the item pickers sort by.
 	it('gives a gear planner only the editable Current EP column', () => {
@@ -357,6 +369,8 @@ describe('EpWeightsDialog', () => {
 		expect(table().querySelectorAll('thead tr').length).toBe(1);
 		expect(rowFor('Agility').querySelector('[data-testid="swcalc-include-toggle"]')).toBeNull();
 		expect(rowFor('Agility').querySelector('[data-testid="current-ep"] input')).not.toBeNull();
+		expect(popup().textContent).toContain('sidebar.buttons.stat_weights.modal.percent_weights_description');
+		expect(popup().textContent).not.toContain('sidebar.buttons.stat_weights.modal.simulated_step_description');
 	});
 
 	// Vanilla's `.sim-type--tank .ep-weights-menu { display: none }` block is commented out, so a tank
@@ -375,7 +389,7 @@ describe('EpWeightsDialog', () => {
 	it('shows the spec stats, and a stat ticked in the stat filter without an include toggle', async () => {
 		renderDialog();
 		const names = () => [...table().querySelectorAll('tbody tr')].map(row => row.firstElementChild!.textContent);
-		expect(names()).toEqual(['Strength', 'Agility', 'Crit Rating', 'Spell Hit Percent']);
+		expect(names()).toEqual(['Strength', 'Agility', '1% Crit', '1% Spell Hit']);
 
 		await openStatFilter();
 		act(() => {
@@ -383,7 +397,7 @@ describe('EpWeightsDialog', () => {
 		});
 
 		const unweighted = STAMINA.getFullName(Class.ClassWarrior);
-		expect(names()).toEqual(['Strength', 'Agility', unweighted, 'Crit Rating', 'Spell Hit Percent']);
+		expect(names()).toEqual(['Strength', 'Agility', unweighted, '1% Crit', '1% Spell Hit']);
 		expect(rowFor(unweighted).querySelector('[data-testid="swcalc-include-toggle"] input')).toBeNull();
 		expect(rowFor('Strength').querySelector('[data-testid="swcalc-include-toggle"] input')).not.toBeNull();
 	});
@@ -450,8 +464,8 @@ describe('EpWeightsDialog', () => {
 	// below it in the same function already called `sanitizeId`.
 	it('sanitises the include-toggle id, and disables the toggle on the reference stat', () => {
 		renderDialog();
-		expect(rowFor('Spell Hit Percent').querySelector('[data-testid="swcalc-include-toggle"] input')!.id).toBe('sw-stat-toggle-spellhitpercent');
-		expect(rowFor('Crit Rating').querySelector('[data-testid="current-ep"] input')!.id).toBe('ep-weight-stat-crit');
+		expect(rowFor('1% Spell Hit').querySelector('[data-testid="swcalc-include-toggle"] input')!.id).toBe('sw-stat-toggle-1%spellhit');
+		expect(rowFor('1% Crit').querySelector('[data-testid="current-ep"] input')!.id).toBe('ep-weight-stat-crit');
 
 		expect(rowFor('Strength').querySelector<HTMLInputElement>('[data-testid="swcalc-include-toggle"] input')!.disabled).toBe(true);
 		expect(rowFor('Agility').querySelector<HTMLInputElement>('[data-testid="swcalc-include-toggle"] input')!.disabled).toBe(false);
@@ -484,7 +498,7 @@ describe('EpWeightsDialog', () => {
 	// translated display string.
 	it('carries the stat enum on each reference option, writes it, and follows it in the column tooltip', async () => {
 		renderDialog();
-		// The options run Strength, Agility, Crit Rating.
+		// The options run Strength, Agility, Crit.
 		await userEvent.click(popup().querySelector<HTMLElement>('#ep-ref-stat-damage')!);
 		expect(screen.getAllByRole('option').map(option => option.getAttribute('aria-selected'))).toEqual(['true', 'false', 'false']);
 		await userEvent.keyboard('{Escape}');
@@ -597,6 +611,48 @@ describe('EpWeightsDialog', () => {
 			const stdevCells = [...strength.querySelectorAll('[data-testid="stdev-cell"]')];
 			expect(stdevCells[0].hasAttribute('data-unused')).toBe(false);
 			expect(stdevCells[2].hasAttribute('data-unused')).toBe(true);
+		});
+
+		it('shows the time left beside the elapsed time once an iteration is done, and raises it when Target ± plans more', async () => {
+			let report!: (metrics: object) => void;
+			let finish!: (result: StatWeightsResult) => void;
+			player.computeStatWeights.mockImplementation(
+				(_stats, _pseudo, _ref, onProgress) =>
+					new Promise(resolve => {
+						report = onProgress;
+						finish = resolve;
+					}),
+			);
+			renderDialog();
+			vi.useFakeTimers();
+			try {
+				await act(async () => {
+					fireEvent.click(calculate());
+				});
+				const elapsedLine = () => rootElem.querySelector('[data-testid="time-elapsed"]')!.parentElement!.textContent;
+				const shown = (elapsed: number, left?: number) =>
+					`common.elapsed_time: ${formatDurationSeconds(elapsed)}${left === undefined ? '' : ` · common.time_left[${formatDurationSeconds(left)}]`}`;
+
+				act(() => report({ completedSims: 0, totalSims: 8, completedIterations: 0, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(1));
+
+				// 3 s for 250 of 1000 iterations: 9 s for the other 750.
+				act(() => vi.advanceTimersByTime(1000));
+				act(() => report({ completedSims: 2, totalSims: 8, completedIterations: 250, totalIterations: 1000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(3, 9));
+
+				// A top-up pass brings the total to 4000: 28 s left at that rate, which the shown time climbs toward.
+				act(() => report({ completedSims: 8, totalSims: 14, completedIterations: 500, totalIterations: 4000 }));
+				act(() => vi.advanceTimersByTime(1000));
+				expect(elapsedLine()).toBe(shown(4, 14));
+
+				await act(async () => finish(weightsResult([[STRENGTH, 2]])));
+				expect(rootElem.querySelector('[data-testid="progress-tracker-dialog"]')).toBeNull();
+			} finally {
+				vi.useRealTimers();
+			}
 		});
 
 		// DEFECT FIXED. The delta test was `if (…) epAvgElem;` — an expression statement that does
@@ -854,14 +910,14 @@ describe('EpWeightsDialog', () => {
 		});
 	});
 
-	// A percent pseudo-stat's weight, school hit included, is stored per percentage point and shown per rating
-	// point, like the ratings beside it.
+	// A percent pseudo-stat's weight, school hit included, is stored per percentage point, and a rating's per
+	// rating point; both are shown per percentage point.
 	describe('percent pseudo-stats', () => {
 		const RANGED_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent);
 		const FIRE_HIT = UnitStat.fromPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire);
 		const CRIT = UnitStat.fromStat(Stat.StatCritRating);
-		const rangedHitRow = () => rowFor(RANGED_HIT.getFullName(Class.ClassWarrior));
-		const fireHitRow = () => rowFor(FIRE_HIT.getFullName(Class.ClassWarrior));
+		const rangedHitRow = () => rowFor(RANGED_HIT.getWeightName(Class.ClassWarrior));
+		const fireHitRow = () => rowFor(FIRE_HIT.getWeightName(Class.ClassWarrior));
 		const shown = (row: Element, columnType: 'weight' | 'ep') =>
 			row.querySelector(`[data-column-type="${columnType}"] [data-testid="results-avg"]`)!.textContent;
 		const currentEpInput = (row: Element) => row.querySelector<HTMLInputElement>('[data-testid="current-ep"] input')!;
@@ -876,7 +932,7 @@ describe('EpWeightsDialog', () => {
 			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatSchoolHitPercentFire];
 		});
 
-		it('shows the computed weight, EP and ± per rating point, and copies the stored unit', async () => {
+		it('shows the computed weight, EP and ± per percentage point, and copies the stored unit', async () => {
 			const result = weightsResult([
 				[RANGED_HIT, 9.28],
 				[FIRE_HIT, 23.2],
@@ -891,10 +947,10 @@ describe('EpWeightsDialog', () => {
 			});
 
 			for (const columnType of ['weight', 'ep'] as const) {
-				expect(shown(rangedHitRow(), columnType)).toBe('0.93');
-				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(5, 1000).toFixed(2)})`);
-				expect(shown(fireHitRow(), columnType)).toBe('2.32');
-				expect(shown(rowFor('Crit Rating'), columnType)).toBe('1.15');
+				expect(shown(rangedHitRow(), columnType)).toBe('9.28');
+				expect(rangedHitRow().querySelector(`[data-column-type="${columnType}"]`)!.textContent).toContain(`(${stDevToConf90(50, 1000).toFixed(2)})`);
+				expect(shown(fireHitRow(), columnType)).toBe('23.20');
+				expect(shown(rowFor('1% Crit'), columnType)).toBe('16.10');
 			}
 
 			act(() => {
@@ -902,10 +958,10 @@ describe('EpWeightsDialog', () => {
 			});
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(9.28);
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(23.2);
-			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
+			expect(currentEpInput(rangedHitRow()).value).toBe('9.28');
 		});
 
-		it('shows the current EP per rating point, and stores an edit per percentage point', () => {
+		it('shows the current EP per percentage point, and stores an edit in the stored unit', () => {
 			renderDialog();
 			act(() =>
 				player.setEpWeights(
@@ -916,23 +972,24 @@ describe('EpWeightsDialog', () => {
 				),
 			);
 
-			expect(currentEpInput(rangedHitRow()).value).toBe('0.93');
-			expect(currentEpInput(fireHitRow()).value).toBe('2.32');
-			expect(currentEpInput(rowFor('Crit Rating')).value).toBe('1.15');
+			expect(currentEpInput(rangedHitRow()).value).toBe('9.28');
+			expect(currentEpInput(fireHitRow()).value).toBe('23.20');
+			expect(currentEpInput(rowFor('1% Crit')).value).toBe('16.10');
 
-			editCurrentEp(rangedHitRow(), '1.00');
+			editCurrentEp(rangedHitRow(), '10.00');
 			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedHitPercent)).toBe(10);
-			expect(currentEpInput(rangedHitRow()).value).toBe('1.00');
+			expect(currentEpInput(rangedHitRow()).value).toBe('10.00');
 
-			editCurrentEp(fireHitRow(), '2.00');
-			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatSchoolHitPercentFire)).toBe(20);
+			editCurrentEp(rowFor('1% Crit'), '1.40');
+			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.1);
+			expect(currentEpInput(rowFor('1% Crit')).value).toBe('1.40');
 		});
 
-		it('stores an edit without float noise', () => {
-			host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatRangedCritPercent];
+		it('stores an edit without float noise, and reads it back as typed', () => {
 			renderDialog();
-			editCurrentEp(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatRangedCritPercent).getFullName(Class.ClassWarrior)), '0.80');
-			expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatRangedCritPercent)).toBe(11.2);
+			editCurrentEp(rowFor('1% Crit'), '1.23');
+			expect(player.epWeights.getStat(Stat.StatCritRating)).toBe(0.087857);
+			expect(currentEpInput(rowFor('1% Crit')).value).toBe('1.23');
 		});
 	});
 

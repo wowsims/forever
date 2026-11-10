@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+var ${Use Summon Hawk} = false
+var ${Use Multi-Shot} = true
+var ${Use Arcane Shot} = true
+var ${Time to weave} = 400ms
+
+priority:
+  cast arcane_shot if $use_arcane_shot and not $use_summon_hawk
+  cast summon_hawk if $use_summon_hawk
+  wait $time_to_weave if $use_multi_shot

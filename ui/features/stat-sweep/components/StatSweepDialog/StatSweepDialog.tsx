@@ -19,6 +19,7 @@ import {
 	ProgressTrackerDialog,
 	type ProgressTrackerHandle,
 	type ProgressTrackerProgress,
+	TimeLeft,
 } from '@ui-kit/ProgressTrackerDialog';
 import { downloadString } from '@ui-kit/utils/dom';
 import { type Ref, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -29,19 +30,18 @@ import { StatSweepChart } from '../StatSweepChart';
 import { StatSweepHistory } from '../StatSweepHistory';
 import { StatSweepPanel } from '../StatSweepPanel';
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
 
 const CSV_FILE_NAME = 'wowsims-stat-sweep.csv';
 
 // The bar spans every stat's steps, read out in iterations at the running step's expected count; before a step has one it counts steps.
-const trackerProgress = ({ stepCounts, running, completed, iterationsPerStep, secondsRemaining }: StatSweepProgress): ProgressTrackerProgress => {
+const trackerProgress = ({ stepCounts, running, completed, iterationsPerStep }: StatSweepProgress): ProgressTrackerProgress => {
 	const { stat, step } = sweepStepPosition(stepCounts, running);
 	const scale = iterationsPerStep || 1;
 	return {
 		title: t('progress', { current: step + 1, total: stepCounts[stat] }),
 		current: completed * scale,
 		total: sum(stepCounts) * scale,
-		secondsRemaining: secondsRemaining ?? null,
 	};
 };
 
@@ -66,7 +66,8 @@ const useSweepSetup = (settings: StatSweepSettings) => {
 	}, [unitStats, storedStats]);
 	const selectedKeys = useMemo(() => selectedStats.map(stat => stat.getKey()), [selectedStats]);
 	const labelOf = (key: string) => statOptions.find(option => option.value === key)?.label ?? '';
-	const runnable = selectedStats.length > 0 && precisionRunnable(precision);
+	// A range or step of 0 would run only the current value.
+	const runnable = selectedStats.length > 0 && range > 0 && step > 0 && precisionRunnable(precision);
 	return { player, unitStats, statOptions, metrics, metric, range, step, showSpread, precision, selectedStats, selectedKeys, labelOf, runnable };
 };
 
@@ -92,6 +93,7 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 		useSweepSetup(settings);
 	const progressRef = useRef<ProgressTrackerHandle>(null);
 	const statListRef = useRef<ProgressStepListHandle>(null);
+	const secondsRemaining = useRef<number>(undefined);
 	const sweep = useStatSweep();
 	const defaultIterations = useSimStore('iterations');
 
@@ -102,6 +104,7 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 			if (!runnable) return;
 			const finalStats = player.getCurrentStats()?.finalStats;
 			const totals = finalStats ? Stats.fromProto(finalStats) : null;
+			secondsRemaining.current = undefined;
 			sweep
 				.run(
 					{
@@ -117,6 +120,7 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 						batchLabel: t('batch_label', { stats: selectedKeys.map(labelOf).join(', '), range }),
 					},
 					progress => {
+						secondsRemaining.current = progress.secondsRemaining;
 						progressRef.current?.setProgress(trackerProgress(progress));
 						statListRef.current?.setRunning(sweepStepPosition(progress.stepCounts, progress.running).stat);
 					},
@@ -177,6 +181,7 @@ const StatSweepBody = ({ settings, ref, onRunStateChange }: StatSweepBodyProps) 
 					state={{ stage: 'running' }}
 					hasProgressBar
 					belowBar={<HandleProgressStepList ref={statListRef} labels={selectedKeys.map(labelOf)} />}
+					afterElapsed={<TimeLeft secondsRemaining={() => secondsRemaining.current} />}
 					onCancel={sweep.cancel}
 				/>
 			)}

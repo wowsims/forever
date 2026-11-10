@@ -7,9 +7,11 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them,
-// and the store carries no row for them, so the proc is built by hand.
-var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
+// The damage spell each rank fires on a hit. No row triggers them and none is on a skill line, so no
+// ladder holds them and the store carries no row for them; the proc is built by hand. Rank 1 is
+// 21084, which fires 25741 (subtext "Rank 1.5"); 25742 ("Rank 1") belongs to the level 1 starter
+// seal 20154, which 21084 supersedes and the ladder leaves out.
+var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293
@@ -56,12 +58,12 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
 	value := perHit.Average()
-	procSpell := paladin.RegisterSpell(core.SpellConfig{
+	procConfig := core.SpellConfig{
 		ActionID:    core.ActionID{SpellID: sealOfRighteousnessProcIDs[rank.RankNumber()]},
 		SpellSchool: core.SpellSchoolHoly,
 		DefenseType: core.DefenseTypeMelee,
@@ -87,7 +89,9 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 			result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialCritOnly)
 			dealAfterBatch(sim, spell, result)
 		},
-	})
+	}
+	procSpell := paladin.RegisterSpell(procConfig)
+	echoSpell := paladin.registerEchoHit(procConfig, echoOfRighteousnessID)
 
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:            rank.RankedLabel(&paladin.Unit),
@@ -109,7 +113,7 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		judgement: judgement,
 		echoID:    echoOfRighteousnessID,
 		echo: func(sim *core.Simulation, target *core.Unit) {
-			procSpell.Cast(sim, target)
+			echoSpell.Cast(sim, target)
 		},
 	})
 }

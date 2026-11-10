@@ -1,5 +1,6 @@
 import {
 	AuraStats as AuraStatsProto,
+	type MeleeCritCapInfo,
 	Player as PlayerProto,
 	PlayerStats,
 	SpellStats as SpellStatsProto,
@@ -22,13 +23,24 @@ import {
 	Race,
 	Spec,
 	Stat,
+	Target,
 	UnitReference,
 	UnitStats,
 	WeaponSkill,
 	WeaponSkillValue,
 } from '@generated/proto/common';
 import { SimDatabase } from '@generated/proto/db';
-import { DungeonDifficulty, RaidFilterOption, SourceFilterOption, UIEnchant as Enchant, UIItem as Item, UIItem_FactionRestriction } from '@generated/proto/ui';
+import {
+	DatabaseFilters,
+	DungeonDifficulty,
+	FactionFilter,
+	RaidFilterOption,
+	SourceFilterOption,
+	UIEnchant as Enchant,
+	UIItem as Item,
+	UIItem_FactionRestriction,
+	UIItemSource as ItemSource,
+} from '@generated/proto/ui';
 
 import * as Mechanics from '../constants/mechanics';
 import { CURRENT_API_VERSION } from '../constants/other';
@@ -39,11 +51,11 @@ import { addPartyBuffItems } from '../proto/buff_items';
 import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem, isPVPItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
-import { AL_CATEGORY_HARD_MODE, emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
+import { emptyUnitReference, getTalentTreePoints, newUnitReference, raceToFaction } from '../proto/utils';
 import { MAX_PARTY_SIZE, Party } from '../raid/party';
 import { Raid } from '../raid/raid';
 import { ConsumableSlot, isEnchantRelevantFor, relevantConsumableIds } from '../settings/consumables';
@@ -51,7 +63,7 @@ import { ItemSwapSettings } from '../settings/item_swap_settings';
 import { Sim, type StatWeightsOptions } from '../sim';
 import { batch } from '../state/batch';
 import { deleteKeyed, patchKeyed, PLAYER_FIELDS, PlayerField, PlayerSlice, seedKeyed, zeroVersions } from '../state/sim_store';
-import { playerBrokenTalentNames, playerTalentStringToProto } from '../talents/factory';
+import { playerBrokenTalentNames, playerNormalizedTalentsString, playerTalentStringToProto } from '../talents/factory';
 import { arrayEquals, omitDeep, stringComparator } from '../utils/collections';
 import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
@@ -89,15 +101,51 @@ const dropLoneRanks = <T extends { id: ActionId }>(entries: Array<T>): Array<T> 
 	return entries.map(entry => (entry.id.hasRank && ranks.get(keyOf(entry.id))!.size < 2 ? { ...entry, id: entry.id.withoutRank() } : entry));
 };
 
+/** The toggle that governs a source, or undefined when none does. */
+const sourceOption = ({ source }: ItemSource): SourceFilterOption | undefined => {
+	switch (source.oneofKind) {
+		case 'crafted':
+			return SourceFilterOption.SourceCrafting;
+		case 'quest':
+			return SourceFilterOption.SourceQuest;
+		case 'rep':
+			return SourceFilterOption.SourceReputation;
+		case 'soldBy':
+			return SourceFilterOption.SourceSoldBy;
+		case 'drop':
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyRaid) return SourceFilterOption.SourceRaid;
+			if (source.drop.difficulty == DungeonDifficulty.DifficultyDungeon) return SourceFilterOption.SourceDungeon;
+			return undefined;
+		default:
+			return undefined;
+	}
+};
+
+const sourceTicked = (itemSrc: ItemSource, filters: DatabaseFilters, untickedRaidZones: Set<number | undefined>): boolean => {
+	const option = sourceOption(itemSrc);
+	if (option !== undefined && !filters.sources.includes(option)) return false;
+	if (itemSrc.source.oneofKind != 'drop') return true;
+	// A drop with no difficulty is a world drop or an open-world NPC's, which the World Drop toggle governs.
+	if (option === undefined && filters.hideWorldDrops) return false;
+	return !untickedRaidZones.has(itemSrc.source.drop.zoneId);
+};
+
 export class UnitMetadata {
 	private name: string;
 	private auras: Array<AuraStats>;
+	// Internal cooldown triggers with no aura of their own; only icd_is_ready finds them.
+	private icdAuras: Array<AuraStats>;
 	private spells: Array<SpellStats>;
+	private talents: Array<ActionId>;
+	private menuGroupOrder: Array<string>;
 
 	constructor() {
 		this.name = '';
 		this.auras = [];
+		this.icdAuras = [];
 		this.spells = [];
+		this.talents = [];
+		this.menuGroupOrder = [];
 	}
 
 	getName(): string {
@@ -108,8 +156,22 @@ export class UnitMetadata {
 		return this.auras.slice();
 	}
 
+	getIcdAuras(): Array<AuraStats> {
+		return this.icdAuras.slice();
+	}
+
 	getSpells(): Array<SpellStats> {
 		return this.spells.slice();
+	}
+
+	/** The talents the unit has points in, each at the rank it holds. */
+	getTalents(): Array<ActionId> {
+		return this.talents.slice();
+	}
+
+	/** The order of the unit's APL menu groups, by full path; a group not listed follows them. */
+	getMenuGroupOrder(): Array<string> {
+		return this.menuGroupOrder.slice();
 	}
 
 	// Returns whether any updates were made.
@@ -127,10 +189,15 @@ export class UnitMetadata {
 			};
 		});
 
-		await Promise.all([...newSpells, ...newAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
+		const talentsFill = Promise.all(metadata.talents.map(talent => ActionId.fromProto(talent).fill()));
+		let newIcdAuras = metadata!.icdAuras.map(aura => ({ data: aura, id: ActionId.fromProto(aura.id!) }));
+
+		await Promise.all([...newSpells, ...newAuras, ...newIcdAuras].map(newSpell => newSpell.id.fill().then(newId => (newSpell.id = newId))));
+		const newTalents = (await talentsFill).sort((a, b) => stringComparator(a.name, b.name));
 
 		newSpells = dropLoneRanks(newSpells).sort((a, b) => stringComparator(a.id.name, b.id.name));
 		newAuras = dropLoneRanks(newAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
+		newIcdAuras = dropLoneRanks(newIcdAuras).sort((a, b) => stringComparator(a.id.name, b.id.name));
 
 		let anyUpdates = false;
 		if (metadata.name != this.name) {
@@ -143,6 +210,18 @@ export class UnitMetadata {
 		}
 		if (newAuras.length != this.auras.length || newAuras.some((newAura, i) => !newAura.id.equals(this.auras[i].id))) {
 			this.auras = newAuras;
+			anyUpdates = true;
+		}
+		if (newIcdAuras.length != this.icdAuras.length || newIcdAuras.some((newAura, i) => !newAura.id.equals(this.icdAuras[i].id))) {
+			this.icdAuras = newIcdAuras;
+			anyUpdates = true;
+		}
+		if (newTalents.length != this.talents.length || newTalents.some((talent, i) => !talent.equalsAtRank(this.talents[i]))) {
+			this.talents = newTalents;
+			anyUpdates = true;
+		}
+		if (metadata.menuGroupOrder.join() != this.menuGroupOrder.join()) {
+			this.menuGroupOrder = metadata.menuGroupOrder.slice();
 			anyUpdates = true;
 		}
 
@@ -176,23 +255,6 @@ export class UnitMetadataList {
 	asList(): Array<UnitMetadata> {
 		return this.metadatas.slice();
 	}
-}
-
-export interface MeleeCritCapInfo {
-	meleeCrit: number;
-	meleeHit: number;
-	expertise: number;
-	suppression: number;
-	glancing: number;
-	debuffCrit: number;
-	hasOffhandWeapon: boolean;
-	meleeHitCap: number;
-	expertiseCap: number;
-	remainingMeleeHitCap: number;
-	remainingExpertiseCap: number;
-	baseCritCap: number;
-	specSpecificOffset: number;
-	playerCritCapDelta: number;
 }
 
 export type AutoRotationGenerator<SpecType extends Spec> = (player: Player<SpecType>) => APLRotation;
@@ -351,6 +413,7 @@ export class Player<SpecType extends Spec> {
 			talentsString: '',
 			specOptions: this.specTypeFunctions.optionsCreate(),
 			reactionTime: 0,
+			reactionTimeMax: 0,
 			channelClipDelay: 0,
 			inFrontOfTarget: false,
 			distanceFromTarget: 0,
@@ -445,6 +508,11 @@ export class Player<SpecType extends Spec> {
 
 	shouldEnableTargetDummies(): boolean {
 		if (this.getPlayerSpec().isHealingSpec) {
+			return true;
+		}
+
+		// Balance keeps one ally so Innervate and other helpful spells can land on another unit.
+		if (this.getSpec() === Spec.SpecBalanceDruid) {
 			return true;
 		}
 
@@ -716,6 +784,7 @@ export class Player<SpecType extends Spec> {
 		return ConsumesSpec.clone(this.slice().consumables);
 	}
 
+	/** Matches each hand's imbue to the weapon already in that hand, so the gear and the swap gear go in before the consumes. */
 	setConsumes(newConsumes: ConsumesSpec) {
 		const adjustedConsumes = this.itemSwapSettings.getGear().adjustSwapImbues(this.getGear().adjustImbues(newConsumes));
 		if (ConsumesSpec.equals(this.slice().consumables, adjustedConsumes)) return;
@@ -790,7 +859,7 @@ export class Player<SpecType extends Spec> {
 		// the sheet repeats the number and this is the second place to change;
 		// TestHuntersMarkOnTheCharacterSheetMatchesTheSim holds the two together.
 		if (debuffs.huntersMark) {
-			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 71);
+			debuffStats = debuffStats.addStat(Stat.StatRangedAttackPower, 143);
 		}
 
 		return debuffStats;
@@ -865,63 +934,8 @@ export class Player<SpecType extends Spec> {
 		return (this.getGear().getEquippedItem(ItemSlot.ItemSlotOffHand)?.item.weaponSpeed ?? 0) > 0;
 	}
 
-	getMeleeCritCapInfo(): MeleeCritCapInfo {
-		const currentStats = this.slice().currentStats;
-		const debuffStats = this.getDebuffStats();
-		const debuffHit = debuffStats.getPseudoStat(PseudoStat.PseudoStatMeleeHitPercent) || 0;
-		const debuffCrit = debuffStats.getPseudoStat(PseudoStat.PseudoStatMeleeCritPercent) || 0;
-
-		const meleeCrit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritPercent] || 0) + debuffCrit;
-		const meleeHit = (currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeHitPercent] || 0) + debuffHit;
-		const expertise = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatExpertisePercent] || 0;
-		const critSuppression = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMeleeCritSuppressionPercent] || 0;
-		const glancing = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandGlancePercent] || 0;
-
-		const oneHandHitCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandMissPercent] || 0;
-		// DW Penalty is a fixed 19%
-		const dualWieldHitCap = oneHandHitCap + 19;
-		const hasOffhandWeapon = this.isDualWielding();
-		const meleeHitCap = hasOffhandWeapon ? dualWieldHitCap : oneHandHitCap;
-		const dodgeCap = currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandDodgePercent] || 0;
-		const parryCap = this.getInFrontOfTarget() ? currentStats.finalStats?.pseudoStats[PseudoStat.PseudoStatMainHandParryPercent] || 0 : 0;
-		const expertiseCap = dodgeCap + parryCap;
-
-		const remainingMeleeHitCap = Math.max(meleeHitCap - meleeHit, 0.0);
-		const remainingDodgeCap = Math.max(dodgeCap - expertise, 0.0);
-		const remainingParryCap = Math.max(parryCap - expertise, 0.0);
-		const remainingExpertiseCap = remainingDodgeCap + remainingParryCap;
-
-		let specSpecificOffset = 0.0;
-		if (this.getSpec() === Spec.SpecEnhancementShaman) {
-			const player = this as unknown as Player<Spec.SpecEnhancementShaman>;
-			// Elemental Devastation uptime is near 100%
-			const ranks = player.getTalents().elementalDevastation;
-			specSpecificOffset = 3.0 * ranks;
-		}
-
-		const baseCritCap = 100.0 - glancing + critSuppression - remainingMeleeHitCap - remainingExpertiseCap - specSpecificOffset;
-		const playerCritCapDelta = meleeCrit - baseCritCap;
-
-		return {
-			meleeCrit,
-			meleeHit,
-			expertise,
-			suppression: critSuppression,
-			glancing,
-			debuffCrit,
-			hasOffhandWeapon,
-			meleeHitCap,
-			expertiseCap,
-			remainingMeleeHitCap,
-			remainingExpertiseCap,
-			baseCritCap,
-			specSpecificOffset,
-			playerCritCapDelta,
-		};
-	}
-
-	getMeleeCritCap() {
-		return this.getMeleeCritCapInfo().playerCritCapDelta;
+	getMeleeCritCapInfo(): MeleeCritCapInfo | undefined {
+		return this.slice().currentStats.meleeCritCap;
 	}
 
 	// In-place rotation mutation with a single change event — the write path for
@@ -1001,6 +1015,29 @@ export class Player<SpecType extends Spec> {
 		}
 	}
 
+	// The rotation for simming `rotation` with `talentsString` and `gear` in place of the player's own. The
+	// generators run on a view whose slice reports those talents and that gear, whose rotation is the given one
+	// and whose parsed-talents cache starts empty, so the player itself is never written.
+	getResolvedAplRotationForBuild({ talentsString, gear, rotation }: { talentsString: string; gear: Gear; rotation: APLRotation }): APLRotation {
+		const view: Player<SpecType> = Object.create(this, {
+			slice: { value: () => ({ ...this.slice(), talentsString, gear }) },
+			aplRotation_: { value: rotation },
+			talents: { value: null, writable: true },
+		});
+		return view.getResolvedAplRotation(true);
+	}
+
+	// The consumables getConsumes(true) gives with `fields` in place of the player's own, worked out on a view whose slice
+	// reports them, so the player itself is never written.
+	getConsumesFor(fields: Pick<PlayerSlice, 'race' | 'profession1' | 'profession2' | 'prof1Rank' | 'prof2Rank' | 'consumables'>): ConsumesSpec {
+		const current = this.slice();
+		const view: Player<SpecType> = Object.create(this, {
+			slice: { value: () => ({ ...current, ...fields }) },
+			relevantConsumablesCache: { value: null, writable: true },
+		});
+		return view.getConsumes(true);
+	}
+
 	getTalents(): SpecTalents<SpecType> {
 		if (this.talents == null) {
 			this.talents = playerTalentStringToProto(this.playerSpec, this.getTalentsString()) as SpecTalents<SpecType>;
@@ -1013,6 +1050,8 @@ export class Player<SpecType extends Spec> {
 	}
 
 	setTalentsString(newTalentsString: string) {
+		// Capped to the trees, so a build saved before a rework cannot send a rank the talent does not have.
+		newTalentsString = playerNormalizedTalentsString(this.playerSpec, newTalentsString);
 		if (newTalentsString == this.getTalentsString()) return;
 
 		// Invalidate the parsed-talents cache before the emit fires.
@@ -1065,6 +1104,16 @@ export class Player<SpecType extends Spec> {
 		this.patch('reactionTime', newReactionTime);
 	}
 
+	getReactionTimeMax(): number {
+		return this.slice().reactionTimeMax;
+	}
+
+	setReactionTimeMax(newReactionTimeMax: number) {
+		if (newReactionTimeMax == this.getReactionTimeMax()) return;
+
+		this.patch('reactionTimeMax', newReactionTimeMax);
+	}
+
 	getChannelClipDelay(): number {
 		return this.slice().channelClipDelay;
 	}
@@ -1102,7 +1151,7 @@ export class Player<SpecType extends Spec> {
 	setWeaponSkills(newWeaponSkills: Array<WeaponSkillValue>) {
 		const current = this.slice().weaponSkills;
 		const sorted = newWeaponSkills.map(entry => WeaponSkillValue.clone(entry)).sort((a, b) => a.skill - b.skill);
-		if (arrayEquals(sorted, current, WeaponSkillValue.equals)) return;
+		if (arrayEquals(sorted, current, (a, b) => WeaponSkillValue.equals(a, b))) return;
 
 		this.patch('weaponSkills', sorted);
 	}
@@ -1116,8 +1165,7 @@ export class Player<SpecType extends Spec> {
 		this.setWeaponSkills(value == MAX_WEAPON_SKILL ? others : [...others, WeaponSkillValue.create({ skill, value })]);
 	}
 
-	setDefaultHealingParams(hm: HealingModel) {
-		const boss = this.sim.encounter.primaryTarget;
+	setDefaultHealingParams(hm: HealingModel, boss: Target = this.sim.encounter.primaryTarget) {
 		const dualWield = boss.dualWield;
 		if (hm.cadenceSeconds == 0) {
 			let maxCadence = 1.5 * boss.swingSpeed;
@@ -1149,16 +1197,21 @@ export class Player<SpecType extends Spec> {
 		return HealingModel.clone(this.slice().healingModel);
 	}
 
+	// The healing model setHealingModel stores for `healingModel` when `boss` is the primary target.
+	getHealingModelFor(healingModel: HealingModel, boss: Target): HealingModel {
+		// Make a defensive copy
+		const filled = HealingModel.clone(healingModel);
+		// If we have enabled healing model and try to set 0s cadence or 0 incoming HPS, then set intelligent defaults instead based on boss parameters.
+		if (this.healingEnabled) {
+			this.setDefaultHealingParams(filled, boss);
+		}
+		return filled;
+	}
+
 	setHealingModel(newHealingModel: HealingModel) {
 		if (HealingModel.equals(this.slice().healingModel, newHealingModel)) return;
 
-		// Make a defensive copy
-		const healingModel = HealingModel.clone(newHealingModel);
-		// If we have enabled healing model and try to set 0s cadence or 0 incoming HPS, then set intelligent defaults instead based on boss parameters.
-		if (this.healingEnabled) {
-			this.setDefaultHealingParams(healingModel);
-		}
-		this.patch('healingModel', healingModel);
+		this.patch('healingModel', this.getHealingModelFor(newHealingModel, this.sim.encounter.primaryTarget));
 	}
 
 	computeStatsEP(stats?: Stats): number {
@@ -1245,21 +1298,6 @@ export class Player<SpecType extends Spec> {
 
 	static WEAPON_SLOTS: Array<ItemSlot> = [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand];
 
-	static readonly DIFFICULTY_SRCS: Partial<Record<SourceFilterOption, DungeonDifficulty>> = {
-		[SourceFilterOption.SourceDungeon]: DungeonDifficulty.DifficultyNormal,
-		[SourceFilterOption.SourceDungeonH]: DungeonDifficulty.DifficultyHeroic,
-		[SourceFilterOption.SourceRaidRF]: DungeonDifficulty.DifficultyRaid25RF,
-		[SourceFilterOption.SourceRaid]: DungeonDifficulty.DifficultyRaid25,
-		[SourceFilterOption.SourceRaidH]: DungeonDifficulty.DifficultyRaid25H,
-		[SourceFilterOption.SourceRaidFlex]: DungeonDifficulty.DifficultyRaidFlex,
-	};
-
-	static readonly HEROIC_TO_NORMAL: Partial<Record<DungeonDifficulty, DungeonDifficulty>> = {
-		[DungeonDifficulty.DifficultyHeroic]: DungeonDifficulty.DifficultyNormal,
-		[DungeonDifficulty.DifficultyRaid10H]: DungeonDifficulty.DifficultyRaid10,
-		[DungeonDifficulty.DifficultyRaid25H]: DungeonDifficulty.DifficultyRaid25,
-	};
-
 	static readonly RAID_IDS: Partial<Record<RaidFilterOption, number>> = {
 		[RaidFilterOption.RaidMC]: 2717,
 		[RaidFilterOption.RaidOny]: 2159,
@@ -1270,6 +1308,14 @@ export class Player<SpecType extends Spec> {
 		[RaidFilterOption.RaidNaxx]: 3456,
 	};
 
+	// The game files give a quest reward no required level, since the quest carries it. Such an item is placed
+	// by its item level, which tracks the level that equips it: 60 from item level 60, 5 below it otherwise.
+	static requiredLevelOf(item: Item): number {
+		if (item.reqLvl != 0) return item.reqLvl;
+		const ilvl = item.scalingOptions?.[0].ilvl || item.ilvl;
+		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1277,6 +1323,9 @@ export class Player<SpecType extends Spec> {
 			return itemData.filter(itemElem => filterFunc(getItemFunc(itemElem)));
 		};
 
+		if (filters.maxRequiredLevel != 0) {
+			itemData = filterItems(itemData, item => Player.requiredLevelOf(item) <= filters.maxRequiredLevel);
+		}
 		if (filters.minIlvl != 0) {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) >= filters.minIlvl);
 		}
@@ -1284,63 +1333,27 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) <= filters.maxIlvl);
 		}
 
-		if (filters.factionRestriction != UIItem_FactionRestriction.UNSPECIFIED) {
-			itemData = filterItems(
-				itemData,
-				item => item.factionRestriction == filters.factionRestriction || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED,
-			);
+		// Any filters nothing, and so does a value the enum does not list, which a binary link can carry.
+		const faction = filters.factionFilter == FactionFilter.FactionFilterRace ? this.getFaction() : Faction.Unknown;
+		if (faction != Faction.Unknown) {
+			const kept = faction == Faction.Horde ? UIItem_FactionRestriction.HORDE_ONLY : UIItem_FactionRestriction.ALLIANCE_ONLY;
+			itemData = filterItems(itemData, item => item.factionRestriction == kept || item.factionRestriction == UIItem_FactionRestriction.UNSPECIFIED);
 		}
 
-		if (!filters.sources.includes(SourceFilterOption.SourceSoldBy)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'soldBy'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceCrafting)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'crafted'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceQuest)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'quest'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourceReputation)) {
-			itemData = filterItems(itemData, item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'rep'));
-		}
-		if (!filters.sources.includes(SourceFilterOption.SourcePvp)) {
-			itemData = filterItems(itemData, item => !isPVPItem(item));
-		}
-
-		for (const [srcOptionStr, difficulty] of Object.entries(Player.DIFFICULTY_SRCS)) {
-			const srcOption = parseInt(srcOptionStr) as SourceFilterOption;
-
-			if (!filters.sources.includes(srcOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.difficulty == difficulty),
-				);
-
-				if (difficulty == DungeonDifficulty.DifficultyRaid10H || difficulty == DungeonDifficulty.DifficultyRaid25H) {
-					const normalDifficulty = Player.HEROIC_TO_NORMAL[difficulty];
-					itemData = filterItems(
-						itemData,
-						item =>
-							!item.sources.some(
-								itemSrc =>
-									itemSrc.source.oneofKind == 'drop' &&
-									itemSrc.source.drop.difficulty == normalDifficulty &&
-									itemSrc.source.drop.category == AL_CATEGORY_HARD_MODE,
-							),
-					);
-				}
-			}
-		}
-
-		for (const [raidOptionStr, zoneId] of Object.entries(Player.RAID_IDS)) {
-			const raidOption = parseInt(raidOptionStr) as RaidFilterOption;
-			if (!filters.raids.includes(raidOption)) {
-				itemData = filterItems(
-					itemData,
-					item => !item.sources.some(itemSrc => itemSrc.source.oneofKind == 'drop' && itemSrc.source.drop.zoneId == zoneId),
-				);
-			}
-		}
+		// An item shows while one of its sources counts as ticked: its kind is ticked and, for a drop in a raid zone, that raid
+		// is ticked too. PvP is a tag rather than a place, so unticking PvP hides every PvP item whatever its other sources.
+		// An item with no sources always shows.
+		const pvpTicked = filters.sources.includes(SourceFilterOption.SourcePvp);
+		const untickedRaidZones = new Set(
+			Object.entries(Player.RAID_IDS)
+				.filter(([raidOption]) => !filters.raids.includes(parseInt(raidOption)))
+				.map(([, zoneId]) => zoneId),
+		);
+		itemData = filterItems(itemData, item => {
+			if (!item.sources.length) return true;
+			if (!pvpTicked && item.sources.some(itemSrc => itemSrc.source.oneofKind == 'pvp')) return false;
+			return item.sources.some(itemSrc => sourceTicked(itemSrc, filters, untickedRaidZones));
+		});
 
 		if (Player.ARMOR_SLOTS.includes(slot)) {
 			itemData = filterItems(itemData, item => {
@@ -1476,6 +1489,7 @@ export class Player<SpecType extends Spec> {
 				prof1Rank: this.slice().prof1Rank,
 				prof2Rank: this.slice().prof2Rank,
 				reactionTimeMs: this.getReactionTime(),
+				reactionTimeMaxMs: this.getReactionTimeMax(),
 				channelClipDelayMs: this.getChannelClipDelay(),
 				inFrontOfTarget: this.getInFrontOfTarget(),
 				distanceFromTarget: this.getDistanceFromTarget(),
@@ -1528,6 +1542,7 @@ export class Player<SpecType extends Spec> {
 				this.setProfession2(proto.profession2);
 				this.setProfessionRanks(proto.prof1Rank, proto.prof2Rank);
 				this.setReactionTime(proto.reactionTimeMs);
+				this.setReactionTimeMax(proto.reactionTimeMaxMs);
 				this.setChannelClipDelay(proto.channelClipDelayMs);
 				this.setInFrontOfTarget(proto.inFrontOfTarget);
 				this.setDistanceFromTarget(proto.distanceFromTarget);
@@ -1549,6 +1564,7 @@ export class Player<SpecType extends Spec> {
 	applySharedDefaults() {
 		batch(() => {
 			this.setReactionTime(100);
+			this.setReactionTimeMax(0);
 			this.setInFrontOfTarget(this.playerSpec.isTankSpec);
 			this.setHealingModel(
 				HealingModel.create({

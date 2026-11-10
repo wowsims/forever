@@ -1,5 +1,6 @@
 [
 	{ "token": "sim-ui", "reason": "sim-ui root class; theme/specs.css selects it" },
+	{ "pattern": "^wowsims-footer(?:-[a-z]+)*$", "reason": "the shared WoWSims footer; https://www.wowsims.com/footer.css styles these" },
 	{ "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*-sim-ui$", "reason": "<spec>-sim-ui pattern; theme/specs.css selects these per spec" },
 	{ "token": "group", "reason": "Tailwind group/peer companion class" },
 	{ "pattern": "^group\\/.+$", "reason": "Tailwind named group companion class" },

@@ -31,12 +31,12 @@ type PetConfig struct {
 	StatInheritance                  PetStatInheritance
 	EnabledOnStart                   bool
 	IsGuardian                       bool
-	IsDynamic                        bool
-	HasDynamicMeleeSpeedInheritance  bool
+	IsDynamic                        bool // The pet's stats follow its owner's; the speed inheritances hold whether or not they do.
+	HasDynamicMeleeSpeedInheritance  bool // The owner's melee and attack speed, each change at the next pet heartbeat.
 	HasDynamicRangedSpeedInheritance bool // The owner's ranged speed, as the pet's melee speed.
 	HasDynamicCastSpeedInheritance   bool
 	HasResourceRegenInheritance      bool
-	StartsAtOwnerDistance            bool
+	StartsInMeleeRange               bool // For a pet summoned at the enemy, which never walks in.
 }
 
 // Pet is an extension of Character, for any entity created by a player that can
@@ -94,7 +94,9 @@ type Pet struct {
 }
 
 func NewPet(config PetConfig) Pet {
-	distanceFromTarget := TernaryFloat64(config.StartsAtOwnerDistance, config.Owner.StartDistanceFromTarget, MaxMeleeRange)
+	// A pet starts where its owner stands, and its rotation walks it in before it acts: a melee pet to
+	// MaxMeleeRange - 1, a demon to its reach - 1.
+	distanceFromTarget := TernaryFloat64(config.StartsInMeleeRange, MaxMeleeRange, config.Owner.StartDistanceFromTarget)
 
 	pet := Pet{
 		Character: Character{
@@ -110,6 +112,7 @@ func NewPet(config PetConfig) Pet {
 				StatDependencyManager: stats.NewStatDependencyManager(),
 
 				ReactionTime:    config.Owner.ReactionTime,
+				reactionTimeMax: config.Owner.reactionTimeMax,
 				procChanceOwner: &config.Owner.Unit,
 
 				StartDistanceFromTarget: distanceFromTarget,
@@ -123,11 +126,11 @@ func NewPet(config PetConfig) Pet {
 		Owner:                            config.Owner,
 		statInheritance:                  makeStatInheritanceFunc(config.StatInheritance),
 		isDynamic:                        config.IsDynamic,
-		hasDynamicMeleeSpeedInheritance:  config.HasDynamicMeleeSpeedInheritance && config.IsDynamic,
+		hasDynamicMeleeSpeedInheritance:  config.HasDynamicMeleeSpeedInheritance,
 		inheritedMeleeSpeedMultiplier:    1,
-		hasDynamicRangedSpeedInheritance: config.HasDynamicRangedSpeedInheritance && config.IsDynamic,
+		hasDynamicRangedSpeedInheritance: config.HasDynamicRangedSpeedInheritance,
 		inheritedRangedSpeedMultiplier:   1,
-		hasDynamicCastSpeedInheritance:   config.HasDynamicCastSpeedInheritance && config.IsDynamic,
+		hasDynamicCastSpeedInheritance:   config.HasDynamicCastSpeedInheritance,
 		inheritedCastSpeedMultiplier:     1,
 		hasResourceRegenInheritance:      config.HasResourceRegenInheritance,
 		enabledOnStart:                   config.EnabledOnStart,
@@ -244,6 +247,7 @@ func (pet *Pet) EnabledOnStart() bool {
 }
 
 // Sets the pet on the target before the pull: its rotation runs from now on, and it swings once in reach.
+// Its damage before 0 is not counted.
 func (pet *Pet) AttackBeforePull(sim *Simulation) {
 	if sim.CurrentTime >= 0 || pet.engagedBeforePull {
 		return

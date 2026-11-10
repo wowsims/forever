@@ -13,7 +13,7 @@ func RegisterFeralCatDruid() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewFeralCatDruid(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_FeralCatDruid)
 			if !ok {
 				panic("Invalid spec value for Feral Druid!")
@@ -46,7 +46,6 @@ func NewFeralCatDruid(character *core.Character, options *proto.Player) *FeralDr
 		// Base paw weapon.
 		MainHand:       cat.GetCatWeapon(),
 		AutoSwingMelee: true,
-		ReplaceMHSwing: cat.TryMaul,
 	})
 
 	cat.RegisterCatFormAura()
@@ -84,7 +83,7 @@ func (cat *FeralDruid) Initialize() {
 		})
 	}
 	cat.Druid.Initialize()
-	cat.RegisterFeralCatSpells()
+	cat.RegisterFeralSpells()
 }
 
 func (cat *FeralDruid) ApplyTalents() {

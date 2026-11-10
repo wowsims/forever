@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+// An explicit type wins over the one the file implies.
+type auto
+var $x = 1
+
+priority:
+  cast x if $x == 1

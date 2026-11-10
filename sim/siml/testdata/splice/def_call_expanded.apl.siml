@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+var $a = true
+def fits(x) = spell(x).cast_time < 2s or not $a
+
+priority:
+  cast multi_shot if fits(multi_shot) and current_time > 1s
+  cast aimed_shot if fits(aimed_shot)

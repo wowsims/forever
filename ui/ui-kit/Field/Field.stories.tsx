@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
+import { Input } from '@ui-kit/FormControl';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { Field } from './Field';
@@ -85,21 +87,43 @@ export const Parts: Story = {
 		await expect(input.getAttribute('aria-describedby')).toBe(canvas.getByTestId('input-description').id);
 	},
 };
-export const PartsCompactWrappedControl: Story = {
+export const PartsExtraSmallWrappedControl: Story = {
 	render: () => (
-		<Field.Root id="field-parts-compact" density="compact" layout="inline">
+		<Field.Root id="field-parts-xs" size="xs" layout="inline">
 			<Field.Label>Rotation</Field.Label>
 			<Field.Control>
 				<span className="flex gap-2">
-					<Button size="sm">Simple</Button>
-					<Button size="sm">APL</Button>
+					<Button>Simple</Button>
+					<Button>APL</Button>
 				</span>
 			</Field.Control>
 		</Field.Root>
 	),
 	play: async ({ canvasElement }) => {
-		await expect(within(canvasElement).getByTestId('input-root').getAttribute('data-density')).toBe('compact');
+		const canvas = within(canvasElement);
+		await expect(canvas.getByTestId('input-root').getAttribute('data-size')).toBe('xs');
+		await expect(canvas.getByRole('button', { name: 'APL' }).getAttribute('data-size')).toBe('xs');
 	},
+};
+
+/** A sized field hands its size to every control inside it, so each row's input, button and checkbox line up. */
+export const Sizes: Story = {
+	render: () => (
+		<div className="flex flex-col gap-4">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<Field.Root key={size} id={`field-size-${size}`} size={size} layout="inline">
+					<Field.Label>{size}</Field.Label>
+					<Field.Control>
+						<span className="flex items-center gap-2">
+							<Input defaultValue="0.1" />
+							<Button>Apply</Button>
+							<BooleanPicker value onChange={() => {}} />
+						</span>
+					</Field.Control>
+				</Field.Root>
+			))}
+		</div>
+	),
 };
 export const PartsLeadingAndClear: Story = {
 	render: () => (

@@ -1,5 +1,6 @@
 import { Select } from '@base-ui/react/select';
-import { Field, hasFieldFrame } from '@ui-kit/Field';
+import { Field, hasFieldFrame, useControlSize } from '@ui-kit/Field';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { LocaleHtml, Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import clsx from 'clsx';
@@ -25,9 +26,11 @@ export const ChoiceField = <V,>({
 	disabled,
 	equals = Object.is,
 	variant = 'select',
+	invalid,
 	placeholder,
 	renderValue,
 	ariaLabel,
+	'aria-describedby': describedBy,
 	side,
 	positionMethod,
 	className,
@@ -37,6 +40,7 @@ export const ChoiceField = <V,>({
 	const [open, setOpen] = useState(false);
 	const tooltipId = `${useId()}-option`;
 	const portalContainer = usePortalContainer();
+	const size = useControlSize(frameProps.size);
 
 	const flat = useMemo(() => flattenChoices(options), [options]);
 	const selectedIndex = flat.findIndex(option => equals(option.value, value));
@@ -51,8 +55,11 @@ export const ChoiceField = <V,>({
 		id: frameProps.id,
 		className: clsx(!rooted && ['ui-choice-field', className], 'ui-choice-field-trigger', shown?.className),
 		'data-variant': variant,
+		'data-size': variant === 'select' ? size : undefined,
 		'data-testid': rooted ? undefined : testId,
 		'aria-label': ariaLabel,
+		'aria-describedby': describedBy,
+		'aria-invalid': invalid || undefined,
 		disabled,
 	};
 
@@ -82,30 +89,33 @@ export const ChoiceField = <V,>({
 				<Select.Trigger {...triggerProps}>
 					<Select.Value className="flex min-w-0 items-center overflow-hidden">{trigger}</Select.Value>
 				</Select.Trigger>
-				<Select.Portal container={portalContainer ?? undefined}>
-					<Select.Positioner
-						alignItemWithTrigger={false}
-						align="start"
-						side={side}
-						positionMethod={positionMethod}
-						sideOffset={2}
-						className="ui-menu-positioner"
-						data-testid="choice-field-positioner">
-						<Select.Popup className="ui-popup-surface ui-menu">
-							<Select.List className="ui-choice-field-list">
-								{flat.map((option, index) => (
-									<Select.Item
-										key={index}
-										value={index}
-										className={clsx('ui-menu-item', 'ui-menu-item-row', 'ui-choice-field-option', option.className)}
-										{...tooltipAnchorProps(option.tooltip === undefined ? undefined : tooltipId, option.tooltip)}>
-										<OptionContent option={option} />
-									</Select.Item>
-								))}
-							</Select.List>
-						</Select.Popup>
-					</Select.Positioner>
-				</Select.Portal>
+				{/* Out of any Field the trigger sits in, so the popup's contents take no size from that field. */}
+				<FieldContext.Provider value={null}>
+					<Select.Portal container={portalContainer ?? undefined}>
+						<Select.Positioner
+							alignItemWithTrigger={false}
+							align="start"
+							side={side}
+							positionMethod={positionMethod}
+							sideOffset={2}
+							className="ui-menu-positioner"
+							data-testid="choice-field-positioner">
+							<Select.Popup className="ui-popup-surface ui-menu">
+								<Select.List className="ui-choice-field-list">
+									{flat.map((option, index) => (
+										<Select.Item
+											key={index}
+											value={index}
+											className={clsx('ui-menu-item', 'ui-menu-item-row', 'ui-choice-field-option', option.className)}
+											{...tooltipAnchorProps(option.tooltip === undefined ? undefined : tooltipId, option.tooltip)}>
+											<OptionContent option={option} />
+										</Select.Item>
+									))}
+								</Select.List>
+							</Select.Popup>
+						</Select.Positioner>
+					</Select.Portal>
+				</FieldContext.Provider>
 			</Select.Root>
 		);
 

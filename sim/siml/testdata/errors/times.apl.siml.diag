@@ -1,0 +1,7 @@
+5:3 error missing-time
+6:3 error missing-time
+6:18 warning undefined-sequence
+7:5 error missing-time
+10:3 error unexpected-time
+11:3 error unexpected-time
+12:3 error unexpected-time

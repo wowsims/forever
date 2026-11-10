@@ -1,0 +1,21 @@
+siml 1
+spec hunter
+
+var ${Use AoE} = (true)
+
+priority:
+  cast_spell(steady_shot, target=target) if aura_is_active(steady_shot, source_unit=target, include_reaction_time)
+  cast steady_shot if ((${Use AoE})) and not(aura(steady_shot).is_active) and auto_time_to_next(MainHandAuto) > 1s
+  cast_all_stat_buff_cooldowns(stat_type1=StatAgility, stat_type2=14)
+  wait_until(condition=gcd_is_ready)
+  group_reference("G", variables=[`{"name": "p", "value": {"const": {"val": "1"}}}`])
+  cast steady_shot if spell(steady_shot).is_ready and spell(steady_shot).is_ready and spell(steady_shot).is_ready and gcd_is_ready
+  cast steady_shot
+      if gcd_is_ready
+  sequence(name="S", actions=[cast steady_shot])
+  `{"castSpell": {"spellId": {"spellId": 900001}}}` if true
+  `{"action": {"castSpell": {"spellId": {"spellId": 900001}}}, "hide": true}`
+  move `{"const": {"val": "5"}}`
+
+group "G":
+  cast steady_shot if %p > 0

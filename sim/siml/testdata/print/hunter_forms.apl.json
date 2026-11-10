@@ -1,0 +1,33 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{ "action": { "condition": { "cmp": { "op": "OpGt", "lhs": { "currentTime": {} } } }, "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{
+			"action": {
+				"condition": { "cmp": { "lhs": { "currentTime": {} }, "rhs": { "const": { "val": "1s" } } } },
+				"castSpell": { "spellId": { "spellId": 900001 } }
+			}
+		},
+		{ "action": { "condition": { "and": { "vals": [{ "gcdIsReady": {} }] } }, "castSpell": { "target": { "type": "Self" } } } },
+		{ "action": { "condition": { "or": {} }, "channelSpell": { "spellId": { "spellId": 900001 }, "allowRecast": true } } },
+		{ "action": { "condition": { "not": {} }, "wait": {} } },
+		{ "action": { "moveDuration": {} } },
+		{ "action": { "waitUntil": {} } },
+		{ "action": { "schedule": { "schedule": "1s" } } },
+		{ "action": { "sequence": {} } },
+		{ "action": { "groupReference": { "groupName": "G", "variables": [{ "name": "p" }] } } },
+		{ "action": { "groupReference": {} } },
+		{ "action": { "condition": { "auraIsActive": { "sourceUnit": {}, "auraId": { "spellId": 900001 } } }, "itemSwap": {} } },
+		{ "action": { "condition": { "auraIsActive": { "includeReactionTime": true } }, "autocastOtherCooldowns": {} } },
+		{ "action": { "condition": { "currentHealthPercent": { "sourceUnit": {} } }, "strictSequence": {} } },
+		{ "action": { "condition": { "autoTimeToNext": {} }, "resetSequence": {} } },
+		{ "action": { "condition": { "max": { "vals": [{ "const": { "val": "1" } }] } }, "castAllStatBuffCooldowns": { "statType1": 14, "statType2": 99 } } },
+		{
+			"action": {
+				"condition": { "variablePlaceholder": { "name": "a b" } },
+				"groupReference": { "groupName": "G", "variables": [{ "name": "a b", "value": {} }] }
+			}
+		}
+	],
+	"groups": [{ "name": "G", "actions": [{ "action": { "condition": { "variablePlaceholder": { "name": "p" } } } }] }]
+}

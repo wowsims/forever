@@ -1,0 +1,26 @@
+siml 1
+spec hunter
+
+// /// lines directly above a priority or group row are its notes; // lines are comments.
+priority:
+  /// One line.
+  cast x
+  /// Two lines,
+  ///
+  ///    the third indented.
+  # cast x if current_time > 1s
+  /// A comment between notes does not part them.
+  // a comment
+  /// The second note line.
+  cast x // trailing comment
+
+  // a comment apart
+
+  cast x
+  ///tight
+  //// four
+  cast x
+
+group "G":
+  /// In a group.
+  none

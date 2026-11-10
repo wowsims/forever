@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast multi_shot

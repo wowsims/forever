@@ -1,0 +1,19 @@
+siml 1
+spec hunter
+
+prepull:
+  `{"action":{"castSpell":{"spellId":{"spellId":900001}}}}`
+  -1s `{"wait":{}}`
+
+priority:
+  `{"action":{"wait":{}}}`
+  `{"wait":{}}` if gcd_is_ready
+  # `{"move":{}}`
+  /// Kept beside a raw step.
+  `{"move":{}}`
+  `{"hide":true}`
+
+group "Empty":
+
+group "":
+  none

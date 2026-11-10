@@ -1,0 +1,11 @@
+[
+	{ "op": "set", "path": ["groups", 2] },
+	{ "op": "move", "path": ["groups"], "from": 1, "to": 0 },
+	{
+		"op": "insert",
+		"path": ["groups"],
+		"index": 2,
+		"value": { "name": "Execute", "actions": [{ "action": { "castSpell": { "spellId": { "spellId": 20662 } } } }] }
+	},
+	{ "op": "insert", "path": ["priorityList"], "index": 2, "value": { "action": { "groupReference": { "groupName": "Execute" } } } }
+]

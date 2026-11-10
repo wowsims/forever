@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+// Raw JSON alone on a header line is the whole row, as on a line of its own.
+prepull: `{"action": {}, "doAtValue": {"const": {"val": "-1s"}}}`

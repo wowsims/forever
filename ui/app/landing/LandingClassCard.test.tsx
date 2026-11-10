@@ -21,7 +21,7 @@ describe('LandingClassCard', () => {
 		expect(screen.getByTestId('class-card').tagName).not.toBe('A');
 	});
 
-	it('gives a one-sim class a single All Specializations link with the class icon, and leaves the card itself unlinked', () => {
+	it('gives a one-sim class a single All Specializations link with the class icon, and keeps the card itself a plain element', () => {
 		render(<LandingClassCard playerClass={singleSpec} index={0} />);
 		const [link] = screen.getAllByTestId('spec-link');
 		expect(screen.getAllByTestId('spec-link')).toHaveLength(1);

@@ -1,0 +1,17 @@
+siml 1
+spec dps_warrior
+
+priority:
+  group "Engineering"
+  group "CD: Racials"
+
+group "Engineering":
+  cast item.goblin_sapper_charge
+
+// Racials of every race; each casts only for its own.
+group "CD: Racials":
+  cast blood_fury
+  cast berserking
+
+group "Unused":
+  none

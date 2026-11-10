@@ -110,7 +110,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 
 	players := sim.Raid.AllPlayerUnits
 
-	for i := 0; i < len(players); i++ {
+	for i := range players {
 		player := players[i]
 		duration := ai.TimeToMove(ai.MoveYards, player)
 		if player.Hardcast.Expires > sim.CurrentTime && !player.Hardcast.CanMove {
@@ -121,7 +121,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 			pa.Priority = core.ActionPriorityPrePull + 1
 
 			pa.OnAction = func(sim *core.Simulation) {
-				player.MoveDuration(duration, sim)
+				player.MoveDurationByHand(duration, sim)
 			}
 
 			sim.AddPendingAction(pa)
@@ -131,7 +131,7 @@ func (ai *MovementAI) ExecuteCustomRotation(sim *core.Simulation) {
 			// 	return
 			// }
 		} else {
-			player.MoveDuration(duration, sim)
+			player.MoveDurationByHand(duration, sim)
 		}
 	}
 

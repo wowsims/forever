@@ -5,6 +5,7 @@ import { ContentBlock } from '@ui-kit/ContentBlock';
 import { FieldLabel, Input } from '@ui-kit/FormControl';
 import { LocaleHtml, Tooltip } from '@ui-kit/Tooltip';
 import type { ClassValue } from 'clsx';
+import type { ReactNode } from 'react';
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 
 import { SavedDataChip } from './SavedDataChip';
@@ -20,6 +21,7 @@ export interface SavedDataPanelProps<T> {
 	chooseNameAlert?: string;
 	nameExistsAlert?: string;
 	className?: ClassValue;
+	headerChildren?: ReactNode;
 	presets: Array<SavedDataPanelEntry<T>>;
 	userData: Array<SavedDataPanelEntry<T>>;
 	// Serialised form of the subject's live value, compared against each entry's `json`.
@@ -44,6 +46,7 @@ export const SavedDataPanel = <T,>({
 	chooseNameAlert,
 	nameExistsAlert,
 	className,
+	headerChildren,
 	presets,
 	userData,
 	currentJson,
@@ -97,14 +100,17 @@ export const SavedDataPanel = <T,>({
 			return;
 		}
 		if (presets.some(preset => preset.name === name)) {
-			setProblem(nameExistsAlert ? nameExistsAlert.replace('{{name}}', name) : i18n.t('common.saved_data.name_exists', { label, name }));
+			setProblem(nameExistsAlert ? nameExistsAlert.replace('{{name}}', () => name) : i18n.t('common.saved_data.name_exists', { label, name }));
 			return;
 		}
 		onSave(name);
 	}, [name, label, chooseNameAlert, nameExistsAlert, presets, onSave]);
 
+	// The name goes in through a function, so a `$&` in it stays text.
 	const deleteMessage = (entry: SavedDataPanelEntry<T>) =>
-		deleteConfirmMessage ? deleteConfirmMessage.replace('{{name}}', entry.name) : i18n.t('common.saved_data.delete_confirm', { label, name: entry.name });
+		deleteConfirmMessage
+			? deleteConfirmMessage.replace('{{name}}', () => entry.name)
+			: i18n.t('common.saved_data.delete_confirm', { label, name: entry.name });
 
 	const renderChip = (entry: SavedDataPanelEntry<T>) => (
 		<SavedDataChip
@@ -124,7 +130,7 @@ export const SavedDataPanel = <T,>({
 
 	return (
 		<>
-			<ContentBlock className={className} config={{ header: { title } }}>
+			<ContentBlock className={className} config={{ header: { title } }} headerChildren={headerChildren}>
 				<div className="ui-saved-data-container">
 					{presets.length > 0 && (
 						<div className="ui-saved-data-presets" data-testid="saved-data-presets">

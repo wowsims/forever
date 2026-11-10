@@ -1,0 +1,13 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{
+			"action": {},
+			"doAtValue": {
+				"const": {
+					"val": "-1s"
+				}
+			}
+		}
+	]
+}

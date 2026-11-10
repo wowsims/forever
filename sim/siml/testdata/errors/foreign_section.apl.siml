@@ -1,0 +1,11 @@
+siml 1
+spec hunter
+
+priority:
+  cast hunter_shot
+
+// A section the file kind does not hold is an error, and the names in it still read.
+cooldowns:
+  cooldowns(id=hunter_shot)
+
+group "G": cast multi_shot

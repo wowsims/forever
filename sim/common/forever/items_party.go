@@ -59,7 +59,7 @@ func init() {
 
 		character.AddMajorCooldown(core.MajorCooldown{
 			Spell: character.RegisterSpell(config),
-			Type:  core.CooldownTypeDPS,
+			Type:  core.CooldownTypeSurvival,
 		})
 	})
 }

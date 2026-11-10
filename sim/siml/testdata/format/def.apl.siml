@@ -1,0 +1,13 @@
+siml 1
+spec hunter
+var $a = true
+def  fits( x ,  y )=spell( x ).cast_time+1s<=y  or  not $a
+def  early ( ) = current_time<10s
+// A long value breaks as a var line's value does, its call arguments and spacing as written otherwise.
+def long_one(u) = u.current_health_percent < 20% and target.aura(hunters_mark).is_active and aura_is_active(rapid_fire)
+
+priority:
+  cast multi_shot if   aura_is_active(rapid_fire) and fits( multi_shot ,2s )
+  cast x if early()  or early
+  when early:
+    cast x if long_one(target)

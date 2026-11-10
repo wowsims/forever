@@ -1,0 +1,16 @@
+6:13 error bad-character
+7:18 error unclosed-string
+8:22 error bad-character
+9:23 error bad-character
+10:13 error expected-name
+11:13 error expected-name
+12:13 error expected-name
+13:13 error write-not
+13:16 error write-and
+13:21 error write-or
+14:15 error write-and
+14:19 error write-or
+15:13 error bad-literal
+16:13 error bad-literal
+17:13 error bad-literal
+18:13 error unclosed-raw

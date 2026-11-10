@@ -1,0 +1,21 @@
+siml 1
+spec hunter
+
+var ${Use AoE} = true
+var ${use aoe} = false
+var $a = $b
+var $b = $c + 1
+var $c = $a
+var $self = $self
+var $dup = 1
+var $dup = 2
+
+priority:
+  cast x if $use_aoe
+  cast x if $nothing and ${Nothing either}
+  group "G" if $in_group
+
+group "G":
+  var $in_group = 1
+  var $in_group = 2
+  cast x if $in_group and $dup

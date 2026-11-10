@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+talents "-00530501114-550200030050220151"
+use "../hunter_p1.gear.siml"
+use "rotation.apl.siml" with $use_summon_hawk = true, ${Use Arcane Shot} = not $use_multi_shot
+
+settings:
+  race orc
+  distance_from_target 11
+  quiver_bonus ancient_sinew_wrapped_lamina
+
+consumables: offensive_pot major_frenzy_potion
+
+cooldowns:
+  cooldowns(id=rapid_fire, timings=[20])

@@ -106,11 +106,14 @@ func (ct *channelTest) autocastAction() APLActionImpl {
 	return ct.rot.newActionAutocastOtherCooldowns(&proto.APLActionAutocastOtherCooldowns{})
 }
 
-// The pull's rotation action stays pending at 0; the melee swings are turned off.
 func (ct *channelTest) start(actions ...APLActionImpl) {
+	ct.startEntries(MapSlice(actions, func(impl APLActionImpl) *APLAction { return newAPLActionEntry(nil, impl) })...)
+}
+
+// The pull's rotation action stays pending at 0; the melee swings are turned off.
+func (ct *channelTest) startEntries(actions ...*APLAction) {
 	ct.rot.priorityList = nil
-	for _, impl := range actions {
-		action := newAPLActionEntry(nil, impl)
+	for _, action := range actions {
 		action.Finalize(ct.rot)
 		ct.rot.priorityList = append(ct.rot.priorityList, action)
 	}
@@ -782,6 +785,49 @@ func TestWandShootScheduler(t *testing.T) {
 	})
 }
 
+func TestStartingAChannelEndsTheRunningOne(t *testing.T) {
+	t.Run("Shoot in the instant a channel starts", func(t *testing.T) {
+		var drainTicks []time.Duration
+		ct, drain := newSpellShootTest(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+
+		ct.castOf(drain).Execute(ct.sim)
+		ct.castOf(ct.spell).Execute(ct.sim)
+		if dot := ct.fw.ChanneledDot; dot == nil || dot.Spell != ct.spell || drain.Dot(ct.fw.CurrentTarget).IsActive() {
+			t.Fatalf("Shoot should end Drain Life and be the only channel")
+		}
+		ct.runUntil(5001 * time.Millisecond)
+		if len(drainTicks) != 0 || !slices.Equal(ct.shots, seconds(2)) || !slices.Equal(ct.channelEnd, seconds(0, 2)) {
+			t.Fatalf("Drain Life should end at 0 with no tick and Shoot fire its one shot a wand speed after the cast, ticks at %v, shots at %v, ended at %v",
+				drainTicks, ct.shots, ct.channelEnd)
+		}
+	})
+
+	t.Run("a channel off the GCD while another runs", func(t *testing.T) {
+		var drainTicks []time.Duration
+		var other *Spell
+		ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+			other = char.RegisterSpell(manaChannelConfig(5, false))
+			return char.RegisterSpell(drainConfig(&drainTicks, CastConfig{DefaultCast: Cast{GCD: GCDDefault}}))
+		})
+		other.finalize()
+		ct.start(&timedStubAction{readyAt: time.Minute})
+		ct.runUntil(0)
+
+		ct.castOf(ct.spell).Execute(ct.sim)
+		ct.castOf(other).Execute(ct.sim)
+		if dot := ct.fw.ChanneledDot; dot == nil || dot.Spell != other || ct.spell.Dot(ct.fw.CurrentTarget).IsActive() {
+			t.Fatalf("the second channel should end Drain Life and be the only channel")
+		}
+		ct.runUntil(5001 * time.Millisecond)
+		if len(drainTicks) != 0 || !slices.Equal(ct.channelEnd, seconds(0, 5)) {
+			t.Fatalf("Drain Life should end at 0 with no tick and the second channel run to its end at 5 s, Drain Life ticks at %v, ended at %v",
+				drainTicks, ct.channelEnd)
+		}
+	})
+}
+
 func TestValueWand(t *testing.T) {
 	type reads struct {
 		swing, toNext, sinceLast time.Duration
@@ -852,4 +898,18 @@ func TestValueWand(t *testing.T) {
 			t.Fatalf("a unit without a wand reads %+v, want all zero", got)
 		}
 	})
+}
+
+// With Shoot ended for the wand's look at its slot, Shoot's own aura reads as down too, so a cast gated
+// on that aura takes the slot.
+func TestWandSlotReadsShootAuraAsDown(t *testing.T) {
+	var castAt []time.Duration
+	ct, nuke := newSpellShootTest(nukeConfig(&castAt))
+	shootDown := ct.rot.newAPLValue(notAuraActive(ct.spell.ActionID.ToProto()))
+	ct.startEntries(newAPLActionEntry(shootDown, ct.castOf(nuke)), newAPLActionEntry(nil, ct.channelOf(ct.spell, "true", false)))
+
+	ct.runUntil(6 * time.Second)
+	if !slices.Equal(castAt, seconds(0, 2, 4, 6)) || len(ct.shots) != 0 {
+		t.Fatalf("the cast gated on Shoot's aura should take every slot, cast at %v, shots at %v", castAt, ct.shots)
+	}
 }

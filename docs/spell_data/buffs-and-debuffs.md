@@ -22,7 +22,7 @@ through `spelldata.ParseEffects`, the same call a class's own aura reads its sta
 buff carries no effect routing of its own:
 
 ```go
-var battleShoutSpell = spelldata.MustFind(25289)
+var battleShoutSpell = spelldata.MustFind(11551)
 var battleShoutMeta = &Meta{
 	Label:      "Battle Shout",
 	Spell:      battleShoutSpell,
@@ -134,7 +134,7 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | `ImpAction`      | the improved state's source when it is not a talent (an item, or the spell an item set grants at a piece threshold), and the icon that state shows                                                                                                                                                                                                                                                                                                                                                                                       |
 | `Label`          | a UI label override                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `Kind`           | what the row is when it is not simply the aura its spell states, below                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `Proto`          | an override of the derived proto type, for a flag that is a number: `retribution_aura_spell_power` is `ProtoDouble`                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `Proto`          | an override of the derived proto type: for a flag that is a number (`retribution_aura_spell_power` is `ProtoDouble`), or for a row with more states than a tristate (`battle_shout` is `ProtoInt32`)                                                                                                                                                                                                                                                                                                                                     |
 | `Owner`          | the providing class, only for a spell no class family files: the Atiesh rows, pet abilities and talent-granted debuffs. A row whose spell a family files and that names an owner fails the pass                                                                                                                                                                                                                                                                                                                                          |
 | `Reason`         | what a `KindFlag` row is, which the shell it renders as carries. Required on a flag and refused on any other row                                                                                                                                                                                                                                                                                                                                                                                                                         |
 
@@ -319,20 +319,28 @@ of party movement speed and no stat buff at all.
 **A talent curve only scales the row's first stat.** A row whose talent improves a second amount would
 need the generator extended; no manifest row has such a talent.
 
-**A set bonus is not a talent, but it can be a tristate.** The resolver reads `SkillLineAbility`, the
+**A set bonus is not a talent, but it can be a row's `ImpAction`.** The resolver reads `SkillLineAbility`, the
 trait trees and the spell effects. It does not read `ItemSetSpell`, so a set that modifies a buff
 cannot be a manifest `Talent`. It can be the row's `ImpAction`: the improved state a tristate row needs
-when no trait node prices one, and the icon that state shows. Battlegear of Wrath is the case: item set
+when no trait node prices one, the icon that state shows, and a root of the store. Battlegear of Wrath is the case: item set
 218's `ItemSetSpell` at three pieces (2336) is 23563, an `A_ADD_FLAT_MODIFIER` of 30 against every
-effect of the Battle Shout family, which raises the shout from 139 attack power to 169. The two halves
+effect of the Battle Shout family, which raises either rank of the shout by 30 attack power. The two halves
 of that are modelled separately. The warrior's own cast reads the `has_bs_t2` class option (the user's
 word that this warrior wears the set, not the equipped gear). The raid's copy is `battle_shout`'s
-improved state, which `driveBattleShout` reads because the resolver has no curve to give it. Both call `AddGeneratedFlatBonus`, which raises what the aura
+top state, which `driveBattleShout` reads because the resolver has no curve to give it. Both call `AddGeneratedFlatBonus`, which raises what the aura
 applies and what it bids for its category together, so the stronger of the two copies is the one the
 character sheet shows. It is told what the buff is worth without the bonus, because the aura belongs
 to the unit rather than to whoever raised it: two warriors in a party wearing the same set ask for
 the same total and the second call does nothing. The 30 itself lives in
 `buffs.BattleShoutT2Bonus`, with the set and the spell it came from written next to it.
+
+`battle_shout` states `Proto: ProtoInt32` over the tristate its `ImpAction` gives, since it has four
+states: 0 off, 1 the row's Rank 6 (the top rank the trainer teaches), 2 Rank 7 from Manual of Battle
+Shout VII, and 3 Rank 7 with the set. The set sits on Rank 7 only. `sim/core/buffs/battle_shout.go`
+builds either rank from the row's `Meta` with the rank's own spell and a label that names the rank, so
+the warrior's own copies of both ranks never share one aura. The settings input is hand-written in
+`ui/features/settings/model/buffs_debuffs.ts` (a `manualBuffInputs` entry): its first improved icon is
+the manual (item 21298) and its second the set's 23563, and no manifest row carries a second one.
 
 **A party or raid flag means an external caster provides the buff.** The generated apply block builds
 the row's `isPlayer=false` copy whenever the proto field is set, so a class port that registers its own
@@ -340,20 +348,23 @@ the row's `isPlayer=false` copy whenever the proto field is set, so a class port
 `AddPartyBuffs`/`AddRaidBuffs`, or the row states a `Category` with `SingleAura` and the two copies bid
 against each other, so the character sheet shows the buff once. The higher bid deactivates the other
 copy. On a tie the incumbent keeps the category when its remaining duration is the longer one, so a
-druid casting its own Thorns is turned away while the settings' permanent copy is up. Both deal the same
-22, so the character strikes back for the same amount either way. Battle Shout is the worked example.
+druid casting its own Thorns is turned away while the settings' permanent copy is up. The settings'
+copy bids its damage with `thorns_spell_power` folded in, and the druid's own copy bids the row's damage
+alone and adds its Nature spell power only when it deals the hit, so the settings' copy keeps the
+category even against a druid with more spell power. Battle Shout is the worked example.
 Neither copy is permanent, and the two are worth the same unless one side wears the tier 2 set, so
 `TestPlayerBattleShoutTakesTheCategoryOnATie` holds the player's own copy to the tie and
 `TestTheStrongerBattleShoutTakesTheCategory` holds the stronger one to the rest. The rows this decides
 are `thorns`, `leader_of_the_pack`, `moonkin_aura` and `trueshot_aura`: `sim/druid/druid.go`,
 `sim/druid/feralcat` and `sim/druid/feralbear` raise the raid's Leader of the Pack or Moonkin Aura
-from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and the druid's own Thorns waits on the
-druid port. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
+from a talent, `sim/hunter/hunter.go` raises Trueshot Aura, and `sim/druid/thorns.go` registers the
+druid's own Thorns. `thorns`, `battle_shout`, `leader_of_the_pack` and `moonkin_aura` carry a category, so a
 druid registering its own copy of any of them has nothing to decide: the copy joins the same category
 and the two bid. Leader of the Pack and Moonkin Aura each have their own category: one raises melee and
 ranged crit, the other spell crit, so a raid that ticks both gets both. Only `trueshot_aura` is left
 without a category, so the hunter port has to choose. The priest's three prayers (`registerPrayer` in
-`sim/priest/priest.go`) bid without `SingleAura`: `prayer_of_fortitude` and `prayer_of_spirit` each
-stat on its own in `StatBuff`, with Arcane Brilliance and the scrolls, and `prayer_of_shadow_protection`
-in the shadow resistance category every buff joins. A priest's own prayer and the raid's count once,
-while Gift of the Wild and Blood Pact still add their Stamina on top.
+`sim/priest/priest.go`) bid without `SingleAura`: Prayer of Fortitude and Prayer of Spirit each stat on
+its own in `StatBuff`, with Arcane Intellect and the scrolls, and Prayer of Shadow Protection in the shadow
+resistance category every buff joins. A priest's own prayer and the raid's `power_word_fortitude`,
+`prayer_of_spirit` or `shadow_protection` count once, while Mark of the Wild and Blood Pact still add
+their Stamina on top.

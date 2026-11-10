@@ -7,12 +7,34 @@ const idb = vi.hoisted(() => {
 	const remove = vi.fn(async (_id: string) => {});
 	const transaction = vi.fn((_store: string, _mode: string) => ({ store: { delete: remove }, done: Promise.resolve() }));
 	const close = vi.fn();
-	return { remove, transaction, close, openDB: vi.fn(async () => ({ transaction, close })) };
+	return {
+		remove,
+		transaction,
+		close,
+		openDB: vi.fn(async (_name: string, _version: number, _callbacks: { upgrade: (db: unknown) => void }) => ({ transaction, close })),
+	};
 });
 vi.mock('idb', () => ({ openDB: idb.openDB }));
 
 beforeEach(() => {
 	vi.clearAllMocks();
+});
+
+describe('the store', () => {
+	it('an upgrade drops every stored run', async () => {
+		await deleteRuns([]);
+		const [, , { upgrade }] = idb.openDB.mock.calls[0];
+		const db = {
+			objectStoreNames: { contains: (name: string) => name === 'runs' },
+			deleteObjectStore: vi.fn(),
+			createObjectStore: vi.fn(() => ({ createIndex: vi.fn() })),
+		};
+
+		upgrade(db);
+
+		expect(db.deleteObjectStore).toHaveBeenCalledExactlyOnceWith('runs');
+		expect(db.createObjectStore).toHaveBeenCalledExactlyOnceWith('runs', { keyPath: 'id' });
+	});
 });
 
 describe('deleteRuns', () => {

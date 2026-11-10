@@ -10,6 +10,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
@@ -408,6 +409,44 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 		}
 		if len(b.Groups) == 0 || b.Multiplier <= 0 || b.DurationMultiplier <= 0 {
 			t.Errorf("spell %d's area bonus reads %v x%v (duration x%v)", b.SpellID, b.Groups, b.Multiplier, b.DurationMultiplier)
+		}
+	}
+}
+
+// Of two sets sharing a name, the lower set id's items go and the higher's stay; a set alone under its
+// name, an item with no set and an ItemAllowList item of the lower set stay.
+func TestLowerSameNameSetIsDropped(t *testing.T) {
+	var allowed int32
+	for id := range ItemAllowList {
+		allowed = id
+		break
+	}
+	if allowed == 0 {
+		t.Fatal("ItemAllowList is empty")
+	}
+
+	db := NewWowDatabase()
+	for _, item := range []*proto.UIItem{
+		{Id: 1, SetId: 10, SetName: "Shared"},
+		{Id: 2, SetId: 10, SetName: "Shared"},
+		{Id: 3, SetId: 20, SetName: "Shared"},
+		{Id: 4, SetId: 5, SetName: "Alone"},
+		{Id: 5},
+		{Id: allowed, SetId: 10, SetName: "Shared"},
+	} {
+		db.Items[item.Id] = item
+	}
+
+	DropLowerSameNameSets(db)
+
+	for _, id := range []int32{1, 2} {
+		if _, ok := db.Items[id]; ok {
+			t.Errorf("item %d of the lower set ships", id)
+		}
+	}
+	for _, id := range []int32{3, 4, 5, allowed} {
+		if _, ok := db.Items[id]; !ok {
+			t.Errorf("item %d is dropped", id)
 		}
 	}
 }

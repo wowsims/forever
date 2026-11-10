@@ -3,6 +3,7 @@ import { applicableSteps, OnboardingOutlet, OnboardingTour, type SimulationState
 import { ResultsPanelStage } from '@features/results/components/SimResultsPanel/results_panel_store';
 import i18n from '@i18n/config';
 import { ADDON_URL, DISCORD_URL } from '@sim/constants/other';
+import { isDevMode } from '@sim/utils/env';
 import { Button } from '@ui-kit/Button';
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Trans } from 'react-i18next';
@@ -20,12 +21,12 @@ export interface SimOnboardingProps {
 
 /**
  * The spec page's guided tour, drawn inside `SimTabs`, which it opens tabs through. It opens by itself the
- * first time a player opens any spec page, once the page is ready, and again from the options dialog
- * (`useOnboardingRestart`); the `OnboardingProvider` around the page keeps whether it has ended.
+ * first time a player opens any spec page, once the page is ready (never on the dev server), and again from the
+ * options dialog (`useOnboardingRestart`); the `OnboardingProvider` around the page keeps whether it has ended.
  */
 export const SimOnboarding = ({ host, simReady }: SimOnboardingProps) => {
 	const renderTour = useCallback((run: TourRun) => host && <SimTour host={host} run={run} />, [host]);
-	return <OnboardingOutlet ready={simReady && !!host} renderTour={renderTour} />;
+	return <OnboardingOutlet ready={simReady && !!host} autoOpen={!isDevMode()} renderTour={renderTour} />;
 };
 
 const LOGO = '/forever/assets/img/WoW-Simulator-Icon.png';

@@ -34,7 +34,7 @@ const meta = {
 	argTypes: {
 		options: { control: false },
 		value: { control: 'select', options: OPTIONS.map(option => option.value) },
-		size: { control: 'select', options: [undefined, 'sm', 'xs'] },
+		size: { control: 'select', options: [undefined, 'xs', 'sm', 'md'] },
 		tone: { control: 'select', options: ['accent', 'neutral'] },
 		orientation: { control: 'select', options: ['horizontal', 'vertical'] },
 	},
@@ -53,7 +53,15 @@ export const Default: Story = {
 	},
 };
 
-export const Small: Story = { args: { size: 'sm' } };
+export const Sizes: Story = {
+	render: args => (
+		<div className="flex flex-col items-start gap-2">
+			{(['xs', 'sm', 'md'] as const).map(size => (
+				<StatefulToggleGroup key={size} {...args} aria-label={`View (${size})`} size={size} />
+			))}
+		</div>
+	),
+};
 
 export const Disabled: Story = { args: { disabled: true } };
 

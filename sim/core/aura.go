@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/exp/constraints"
-
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
@@ -29,6 +27,9 @@ type OnSpellHit func(aura *Aura, sim *Simulation, spell *Spell, result *SpellRes
 // or anything that comes from the final result of a tick.
 type OnPeriodicDamage func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult)
 
+// Callback for an enemy target's death, while its auras are still on it.
+type OnTargetDeath func(aura *Aura, sim *Simulation, target *Unit)
+
 const Inactive = -1
 
 // Aura lifecycle:
@@ -48,6 +49,9 @@ type Aura struct {
 	ActionID        ActionID     // If set, metrics will be tracked for this aura.
 	ActionIDForProc ActionID     // If set, indicates that this aura is a trigger aura for the specified proc.
 	Source          ActionSource // Left unset, registration fills in the phase it runs in.
+
+	MenuGroup   string // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth).
+	HideFromAPL bool   // Left out of the APL's aura pickers and the SIML names; the aura still runs.
 
 	Icd *Cooldown           // The internal cooldown if any
 	Dpm *DynamicProcManager // Dynamic Proc manager for proc trigger auras if any
@@ -75,6 +79,8 @@ type Aura struct {
 	onPeriodicHealTakenIndex   int32 // Position of this aura's index in the onPeriodicHealAuras array.
 	onEncounterStartIndex      int32 // Position of this aura's index in the onEncounterStartAuras array.
 	onCastResultIndex          int32 // Position of this aura's index in the onCastResultAuras array.
+	onTargetDiesIndex          int32 // Position of this aura's index in the onTargetDiesAuras array.
+	onKillIndex                int32 // Position of this aura's index in the onKillAuras array.
 
 	// The number of stacks, or charges, of this aura. If this aura doesn't care
 	// about charges, is just 0.
@@ -103,6 +109,8 @@ type Aura struct {
 	OnPeriodicHealTaken   OnPeriodicDamage // Invoked when a hot tick occurs and this unit is the target.
 	OnEncounterStart      OnEncounterStart // Invoked at the start of each encounter, after the pre-pull.
 	OnCastResult          OnSpellHit       // Invoked when a direct damage result is dealt at the cast and this unit is the caster.
+	OnTargetDies          OnTargetDeath    // Invoked when an enemy target dies, whoever kills it.
+	OnKill                OnTargetDeath    // Invoked when an enemy target dies and this unit's side gets the kill.
 
 	// If non-default, stat bonuses from the OnGain callback of this aura will be
 	// included in Character Stats in the UI.
@@ -137,7 +145,7 @@ func (aura *Aura) reset(sim *Simulation) {
 	aura.metrics.reset()
 	aura.fadeTime = -NeverExpires
 
-	if aura.OnReset != nil {
+	if aura.OnReset != nil && !aura.isHeldRaidDebuff() {
 		aura.OnReset(aura, sim)
 	}
 
@@ -442,6 +450,8 @@ type auraTracker struct {
 	onPeriodicHealTakenAuras   []*Aura
 	onEncounterStartAuras      []*Aura
 	onCastResultAuras          []*Aura
+	onTargetDiesAuras          []*Aura
+	onKillAuras                []*Aura
 
 	dispatchBuffers [][]*Aura // One copy of a callback list per event being handled, nested events included.
 	dispatchDepth   int
@@ -529,6 +539,8 @@ func (at *auraTracker) registerAura(unit *Unit, aura Aura) *Aura {
 	newAura.onPeriodicHealTakenIndex = Inactive
 	newAura.onEncounterStartIndex = Inactive
 	newAura.onCastResultIndex = Inactive
+	newAura.onTargetDiesIndex = Inactive
+	newAura.onKillIndex = Inactive
 
 	at.auras = append(at.auras, newAura)
 	if newAura.Tag != "" {
@@ -558,6 +570,8 @@ func (unit *Unit) GetOrRegisterAura(aura Aura) *Aura {
 		curAura.OnPeriodicHealTaken = aura.OnPeriodicHealTaken
 		curAura.OnEncounterStart = aura.OnEncounterStart
 		curAura.OnCastResult = aura.OnCastResult
+		curAura.OnTargetDies = aura.OnTargetDies
+		curAura.OnKill = aura.OnKill
 		return curAura
 	}
 }
@@ -624,6 +638,8 @@ func (at *auraTracker) reset(sim *Simulation) {
 	at.onPeriodicHealTakenAuras = at.onPeriodicHealTakenAuras[:0]
 	at.onEncounterStartAuras = at.onEncounterStartAuras[:0]
 	at.onCastResultAuras = at.onCastResultAuras[:0]
+	at.onTargetDiesAuras = at.onTargetDiesAuras[:0]
+	at.onKillAuras = at.onKillAuras[:0]
 
 	for _, resetEffect := range at.resetEffects {
 		resetEffect(sim)
@@ -712,7 +728,7 @@ func (aura *Aura) Activate(sim *Simulation) {
 		if !ee.Activate(sim) {
 			// Go back and deactivate the effects.
 			if i > 0 {
-				for j := 0; j < i; j++ {
+				for j := range i {
 					aura.ExclusiveEffects[j].Deactivate(sim)
 				}
 			}
@@ -787,6 +803,16 @@ func (aura *Aura) Activate(sim *Simulation) {
 	if aura.OnCastResult != nil {
 		aura.onCastResultIndex = int32(len(aura.Unit.onCastResultAuras))
 		aura.Unit.onCastResultAuras = append(aura.Unit.onCastResultAuras, aura)
+	}
+
+	if aura.OnTargetDies != nil {
+		aura.onTargetDiesIndex = int32(len(aura.Unit.onTargetDiesAuras))
+		aura.Unit.onTargetDiesAuras = append(aura.Unit.onTargetDiesAuras, aura)
+	}
+
+	if aura.OnKill != nil {
+		aura.onKillIndex = int32(len(aura.Unit.onKillAuras))
+		aura.Unit.onKillAuras = append(aura.Unit.onKillAuras, aura)
 	}
 
 	if sim.Log != nil && !aura.ActionID.IsEmptyAction() {
@@ -943,6 +969,24 @@ func (aura *Aura) Deactivate(sim *Simulation) {
 		aura.onCastResultIndex = Inactive
 	}
 
+	if aura.onTargetDiesIndex != Inactive {
+		removeOnTargetDiesIndex := aura.onTargetDiesIndex
+		aura.Unit.onTargetDiesAuras = removeBySwappingToBack(aura.Unit.onTargetDiesAuras, removeOnTargetDiesIndex)
+		if removeOnTargetDiesIndex < int32(len(aura.Unit.onTargetDiesAuras)) {
+			aura.Unit.onTargetDiesAuras[removeOnTargetDiesIndex].onTargetDiesIndex = removeOnTargetDiesIndex
+		}
+		aura.onTargetDiesIndex = Inactive
+	}
+
+	if aura.onKillIndex != Inactive {
+		removeOnKillIndex := aura.onKillIndex
+		aura.Unit.onKillAuras = removeBySwappingToBack(aura.Unit.onKillAuras, removeOnKillIndex)
+		if removeOnKillIndex < int32(len(aura.Unit.onKillAuras)) {
+			aura.Unit.onKillAuras[removeOnKillIndex].onKillIndex = removeOnKillIndex
+		}
+		aura.onKillIndex = Inactive
+	}
+
 	// don't invoke possible callbacks until the internal state is consistent
 	if aura.stacks != 0 {
 		aura.SetStacks(sim, 0)
@@ -959,7 +1003,7 @@ func (aura *Aura) Deactivate(sim *Simulation) {
 }
 
 // Constant-time removal from slice by swapping with the last element before removing.
-func removeBySwappingToBack[T any, U constraints.Integer](arr []T, removeIdx U) []T {
+func removeBySwappingToBack[T any, U int | int32](arr []T, removeIdx U) []T {
 	arr[removeIdx] = arr[len(arr)-1]
 	return arr[:len(arr)-1]
 }
@@ -1116,6 +1160,26 @@ func (at *auraTracker) OnEncounterStart(sim *Simulation) {
 	at.endDispatch()
 }
 
+func (at *auraTracker) OnTargetDies(sim *Simulation, target *Unit) {
+	for _, aura := range at.beginDispatch(at.onTargetDiesAuras) {
+		if !aura.active {
+			continue
+		}
+		aura.OnTargetDies(aura, sim, target)
+	}
+	at.endDispatch()
+}
+
+func (at *auraTracker) OnKill(sim *Simulation, target *Unit) {
+	for _, aura := range at.beginDispatch(at.onKillAuras) {
+		if !aura.active {
+			continue
+		}
+		aura.OnKill(aura, sim, target)
+	}
+	at.endDispatch()
+}
+
 func (at *auraTracker) GetMetricsProto() []*proto.AuraMetrics {
 	metrics := make([]*proto.AuraMetrics, 0, len(at.auras))
 
@@ -1195,6 +1259,9 @@ func (auras AuraArray) ApplyOnExpire(onExpire OnExpire) {
 	}
 }
 
+// An aura on every unit allied to the caster, for raid-targeted buffs such as Battle Shout and the
+// prayers. An in-sim cast of a party or raid area aura (paladin auras, shaman totems) reaches only the
+// caster; the party and raid buff settings stand in for the others.
 func (caster *Unit) NewAllyAuraArray(makeAura func(*Unit) *Aura) AuraArray {
 	auras := make([]*Aura, len(caster.Env.AllUnits))
 	for _, target := range caster.Env.AllUnits {

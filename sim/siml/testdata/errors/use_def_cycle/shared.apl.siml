@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+def shared_filler = filler
+def shared_ready = ready

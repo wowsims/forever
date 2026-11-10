@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+priority:
+  // a comment between the note lines
+  /// A note,
+  ///   and its second line.
+  cast steady_shot
+  // a comment above notes
+  # cast steady_shot
+
+group "G":
+  /// The group's note, with blanks after it.
+  none // trailing

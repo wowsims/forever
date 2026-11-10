@@ -13,10 +13,16 @@ var hurricaneTickRank = spellData.HurricaneTriggered.Highest()
 var hurricaneTickDamage = hurricaneTickRank.DamageEffect()
 
 func (druid *Druid) registerHurricaneSpell() {
+	cannotCrit := hurricaneTickRank.CannotCrit()
+
 	tickConfig := spelldata.SpellConfig(&druid.Unit, hurricaneTickRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealAoeDamage(sim, hurricaneTickDamage.Average(), spell.OutcomeMagicHit)
+		outcome := spell.OutcomeMagicHitAndCrit
+		if cannotCrit {
+			outcome = spell.OutcomeMagicHit
+		}
+		spell.CalcAndDealAoeDamage(sim, hurricaneTickDamage.Average(), outcome)
 	}
 	tickSpell := druid.RegisterSpell(tickConfig)
 

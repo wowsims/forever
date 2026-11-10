@@ -1,0 +1,5 @@
+siml 1
+spec hunter
+
+// Bytes that are not UTF-8 read as U+FFFD, one for each maximal subpart: �( � ��
+var $text = "a�b�c���d"

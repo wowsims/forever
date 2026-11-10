@@ -7,9 +7,10 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// TODO: In-game testing required. The rows state no attack power share; the Forever notes give the
-// damage traps 10% of ranged attack power over their whole duration, split evenly over the ticks and
-// read at each tick. Explosive Trap's initial hit takes the same 10% on top.
+// The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
+// attack power and its ticks take none. TODO: In-game testing required for Immolation Trap, which the
+// Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
+// each tick.
 const trapTotalAPShare = 0.10
 
 // TODO: In-game testing required. The game files carry no trap object, so its trigger radius and
@@ -55,7 +56,8 @@ func (hunter *Hunter) registerImmolationTrap() {
 	tick := immolationTrapEffectRank.PeriodicEffect()
 
 	config := spelldata.SpellConfig(&hunter.Unit, immolationTrapEffectRank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
@@ -80,11 +82,11 @@ func (hunter *Hunter) registerExplosiveTrap() {
 	hit := explosiveTrapEffectRank.EffectN(1)
 	// Effect 2 is a persistent area aura the resolvers do not read, so its dot is built here.
 	area := explosiveTrapEffectRank.EffectN(2)
-	numberOfTicks := int32(explosiveTrapEffectRank.Duration() / area.Period())
-	tickAPShare := trapTotalAPShare / float64(numberOfTicks)
+	tickDamage := area.Average()
 
 	config := spelldata.SpellConfig(&hunter.Unit, explosiveTrapEffectRank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.RemoveFlags(core.SpellFlagAPL),
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
 
@@ -94,12 +96,12 @@ func (hunter *Hunter) registerExplosiveTrap() {
 			ActionID: core.ActionID{SpellID: explosiveTrapEffectRank.ID},
 			Label:    explosiveTrapEffectRank.RankedLabel(&hunter.Unit),
 		},
-		NumberOfTicks: numberOfTicks,
+		NumberOfTicks: int32(explosiveTrapEffectRank.Duration() / area.Period()),
 		TickLength:    area.Period(),
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
+			outcome := explosiveTrapEffectRank.TickOutcome(dot)
 			for _, target := range sim.Encounter.ActiveTargetUnits {
-				baseDamage := area.Average() + tickAPShare*dot.Spell.RangedAttackPower(target)
-				dot.Spell.CalcAndDealPeriodicDamage(sim, target, baseDamage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				dot.Spell.CalcAndDealPeriodicDamage(sim, target, tickDamage, outcome)
 			}
 		},
 	}

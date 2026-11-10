@@ -34,21 +34,27 @@ func physicalMultiplier(character *core.Character) float64 {
 	return character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical]
 }
 
-// One-Handed Weapon Specialization 20196 and Two-Handed Weapon Specialization 20111 at 3/3 give their
+// The warrior's Two-Handed Weapon Specialization 12163 at 3/3 names Physical alone: it gives its
 // percent on Physical and on the melee-defense Holy spells such as the Seal of Righteousness hit, and
-// nothing on a magic-defense Holy spell such as Consecration. A physical spell takes it through the
-// school multiplier alone.
+// nothing on a magic-defense Holy spell such as Consecration. The paladin's 20111 at 3/3 names
+// Physical and Holy, so Holy takes it through the school multiplier and no Holy spell takes the
+// melee-defense part. A physical spell takes it through the school multiplier alone.
 func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	defer generatedStore()()
 
 	for _, tc := range []struct {
-		row  *Spell
-		hand proto.HandType
+		row       *Spell
+		hand      proto.HandType
+		holyNamed bool
 	}{
-		{Talent(20196, 3).Rank(3), proto.HandType_HandTypeOneHand},
-		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand},
+		{Talent(12163, 3).Rank(3), proto.HandType_HandTypeTwoHand, false},
+		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand, true},
 	} {
 		want := 1 + tc.row.EffectN(1).Percent()
+		wantHolyMelee, wantHolySchool := want, 1.0
+		if tc.holyNamed {
+			wantHolyMelee, wantHolySchool = 1, want
+		}
 		character := swordWarrior(tc.hand)
 		holyMelee := defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMelee)
 		holyMagic := defenseSpell(character, 2, core.SpellSchoolHoly, core.DefenseTypeMagic)
@@ -56,8 +62,11 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 
 		ParseStatic(character, tc.row)
 
-		if got := holyMelee.DamageMultiplier; math.Abs(got-want) > 1e-9 {
-			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, want)
+		if got := holyMelee.DamageMultiplier; math.Abs(got-wantHolyMelee) > 1e-9 {
+			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, wantHolyMelee)
+		}
+		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; math.Abs(got-wantHolySchool) > 1e-9 {
+			t.Errorf("%s: the holy school multiplier: %v, want %v", tc.row.Name, got, wantHolySchool)
 		}
 		if got := holyMagic.DamageMultiplier; got != 1 {
 			t.Errorf("%s: a magic-defense holy spell: %v, want 1", tc.row.Name, got)
@@ -67,6 +76,35 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 		}
 		if got := physicalMultiplier(character); math.Abs(got-want) > 1e-9 {
 			t.Errorf("%s: the physical school multiplier: %v, want %v", tc.row.Name, got, want)
+		}
+	}
+}
+
+// 20111's threat goes with the two-hander as its damage does: both in full with one, neither with a
+// one-hander.
+func TestWeaponThreatRowHoldsWhileEquipped(t *testing.T) {
+	defer generatedStore()()
+
+	row := Talent(20111, 3).Rank(3)
+	damage, cut := 1+row.EffectN(1).Percent(), 1+row.EffectN(2).Percent()
+	for _, tc := range []struct {
+		name       string
+		hand       proto.HandType
+		wantDamage float64
+		wantThreat float64
+	}{
+		{"two-hander", proto.HandType_HandTypeTwoHand, damage, cut},
+		{"one-hander", proto.HandType_HandTypeMainHand, 1, 1},
+	} {
+		character := swordWarrior(tc.hand)
+
+		ParseStatic(character, row)
+
+		if got := physicalMultiplier(character); math.Abs(got-tc.wantDamage) > 1e-9 {
+			t.Errorf("%s: the physical school multiplier: %v, want %v", tc.name, got, tc.wantDamage)
+		}
+		if got := character.PseudoStats.ThreatMultiplier; math.Abs(got-tc.wantThreat) > 1e-9 {
+			t.Errorf("%s: the threat multiplier: %v, want %v", tc.name, got, tc.wantThreat)
 		}
 	}
 }
@@ -159,7 +197,7 @@ func TestRangedWeaponDamageDoneRowIsARangedMod(t *testing.T) {
 func TestWeaponDamageDoneRowReportsItsMeleeDefensePart(t *testing.T) {
 	defer generatedStore()()
 
-	row := Talent(20196, 3).Rank(3)
+	row := Talent(12163, 3).Rank(3)
 	applied := DryRun(row).Applied
 	if len(applied) != 2 {
 		t.Fatalf("applied %+v, want the school multiplier and the melee-defense part", applied)

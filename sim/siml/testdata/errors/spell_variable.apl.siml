@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+var $filler = true
+
+priority:
+  // Until ActionID can name a variable, a variable names no spell.
+  cast $filler
+  cast multi_shot if spell(${filler}).is_ready

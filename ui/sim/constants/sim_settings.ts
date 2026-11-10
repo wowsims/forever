@@ -22,3 +22,6 @@ export const SIM_CATEGORY_KEYS: Map<SimSettingCategories, string> = (() => {
 	map.set(SimSettingCategories.UISettings, 'u');
 	return map;
 })();
+
+// The category each key in SIM_CATEGORY_KEYS stands for.
+export const SIM_CATEGORY_OF_KEY: Map<string, SimSettingCategories> = new Map([...SIM_CATEGORY_KEYS].map(([category, key]) => [key, category]));

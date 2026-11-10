@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+prepull:
+  -22s cast hunters_mark
+  -20s cast aspect_of_the_hawk
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  # cast multi_shot

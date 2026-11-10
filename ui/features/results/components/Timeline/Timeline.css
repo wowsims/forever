@@ -37,18 +37,31 @@
 	.ui-timeline-tooltip {
 		@apply flex max-w-[min(92vw,64rem)] flex-col items-start gap-4;
 
-		& ul {
+		& ul:not(:where(.ui-timeline-tooltip-apl *)) {
 			@apply m-0 grid list-none auto-cols-max grid-flow-col grid-rows-[repeat(auto-fit,1lh)] gap-x-4 gap-y-1 pl-0;
 			max-height: calc(80vh - 2lh - --spacing(8) - 2 * var(--tooltip-body-padding-y) - 2px);
 		}
 
-		& li {
+		& li:not(:where(.ui-timeline-tooltip-apl *)) {
 			@apply flex items-center gap-2 whitespace-nowrap;
 		}
 
+		/* The hits give way to the APL entry below them, so a cast with many hits still shows its entry. */
 		& .ui-timeline-tooltip-hits {
-			@apply flex flex-col;
+			@apply flex min-h-0 flex-col overflow-hidden;
 		}
+	}
+
+	.ui-timeline-hover-tooltip .ui-timeline-tooltip {
+		max-height: calc(80vh - 2 * var(--tooltip-body-padding-y) - 2px);
+	}
+
+	.ui-timeline-tooltip-apl {
+		@apply flex w-[min(40rem,88vw)] shrink-0 flex-col gap-1 border-t border-surface-border pt-2;
+	}
+
+	.ui-timeline-tooltip-apl-preview {
+		@apply border border-surface-border bg-surface-raised p-2;
 	}
 
 	.ui-timeline-tooltip-header {

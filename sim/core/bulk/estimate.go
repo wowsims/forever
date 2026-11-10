@@ -12,15 +12,17 @@ func bulkSimSingleStageIterations(candidateCount int) int64 {
 	return int64(bulkSimHighStageFloor()) * int64(candidateCount+1)
 }
 
-func shouldUseSingleStageBulkSim(candidateCount int) bool {
-	if candidateCount < BulkSimMinCombinations {
+// A run that shows every candidate sims the high stage alone, as culling cannot change what it shows. So does one under
+// BulkSimMinCombinations candidates, and one the high stage alone sims in fewer iterations.
+func shouldUseSingleStageBulkSim(candidateCount int, topResults int) bool {
+	if candidateCount < BulkSimMinCombinations || topResults >= candidateCount {
 		return true
 	}
 
-	return getBulkSimOptimisationIterationsUpperBound(candidateCount) >= bulkSimSingleStageIterations(candidateCount)
+	return getBulkSimOptimisationIterationsUpperBound(candidateCount, topResults) >= bulkSimSingleStageIterations(candidateCount)
 }
 
-func getBulkSimOptimisationIterationsUpperBound(candidateCount int) int64 {
+func getBulkSimOptimisationIterationsUpperBound(candidateCount int, topResults int) int64 {
 	remainingCandidates := candidateCount
 	var iterations int64
 
@@ -28,26 +30,13 @@ func getBulkSimOptimisationIterationsUpperBound(candidateCount int) int64 {
 		if stageConfig.Stage == proto.BulkSimStage_BulkSimStageHigh {
 			break
 		}
-		if !shouldRunBulkSimStage(stageConfig, remainingCandidates) {
+		if !shouldRunBulkSimStage(stageConfig, remainingCandidates, topResults) {
 			continue
 		}
 
 		iterations += int64(stageConfig.MinIterations) * int64(remainingCandidates+1)
-		remainingCandidates = min(remainingCandidates, getBulkSimStageMaxSurvivors(stageConfig, remainingCandidates))
+		remainingCandidates = min(remainingCandidates, getBulkSimStageMaxSurvivors(stageConfig, remainingCandidates, topResults))
 	}
 
 	return iterations + int64(bulkSimHighStageFloor())*int64(remainingCandidates+1)
-}
-
-// estimateBulkSimIterations is what a batch of candidateCount gear sets sims at each stage's minimum, the baseline included,
-// with every culling stage keeping its most survivors. The error target can raise a stage above its minimum, and the adaptive
-// passes and the finalist stage add iterations on top, so a run usually sims more.
-func estimateBulkSimIterations(candidateCount int) int64 {
-	singleStageIterations := bulkSimSingleStageIterations(candidateCount)
-	if candidateCount < BulkSimMinCombinations {
-		return singleStageIterations
-	}
-
-	// shouldUseSingleStageBulkSim runs whichever of the two sims fewer iterations.
-	return min(singleStageIterations, getBulkSimOptimisationIterationsUpperBound(candidateCount))
 }

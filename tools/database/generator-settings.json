@@ -1,7 +1,7 @@
 {
 	"Settings": {
 		"BaseDir": "/mnt/c/Program Files/World of Warcraft",
-		"Product": "wow_classic_beta"
+		"Product": "wowf"
 	},
 	"TargetDirectory": "dbfilesclient",
 	"GameTablesOutDirectory": "../../assets/db_inputs/basestats",

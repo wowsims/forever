@@ -64,7 +64,7 @@ export const runConcurrentBulkSim = async (
 	let candidates = request.candidates
 		.filter(candidate => candidate.gear)
 		.map((candidate: BulkGearCandidate) => ({ index: candidate.index, gear: candidate.gear! }));
-	const topResults = request.topResults > 0 ? request.topResults : BULK_SIM_DEFAULT_TOP_RESULTS;
+	const topResults = request.allResults ? candidates.length : request.topResults > 0 ? request.topResults : BULK_SIM_DEFAULT_TOP_RESULTS;
 	const result = BulkSimResult.create({ timings: BulkSimTimings.create() });
 
 	if (candidates.length == 0) {
@@ -88,7 +88,7 @@ export const runConcurrentBulkSim = async (
 	let latestBaseline: ConcurrentBulkSimCandidateResult | undefined;
 	let latestResults: ConcurrentBulkSimCandidateResult[] = [];
 	let carry: ConcurrentBulkSimStageCarryOver | undefined;
-	const singleStage = shouldUseSingleStageBulkSim(candidates.length);
+	const singleStage = shouldUseSingleStageBulkSim(candidates.length, topResults);
 	// Culling intervals are corrected for how many candidates the run started with, not
 	// for how many are left: the survivors were themselves selected by the same noisy
 	// metric, so recomputing the correction on the shrinking set would weaken it exactly
@@ -99,7 +99,7 @@ export const runConcurrentBulkSim = async (
 	for (const stageConfig of bulkSimStageConfigs) {
 		if (signals.abort.isTriggered()) return makeAndSendBulkSimError(ErrorOutcome.create({ type: ErrorOutcomeType.ErrorOutcomeAborted }), onProgress);
 		if (singleStage && stageConfig.stage !== BulkSimStage.BulkSimStageHigh) continue;
-		if (!shouldRunBulkSimStage(stageConfig, candidates.length)) continue;
+		if (!shouldRunBulkSimStage(stageConfig, candidates.length, topResults)) continue;
 
 		const stageResult = await runConcurrentBulkSimStage(request, candidates, stageConfig, workerPool, onProgress, signals, carry);
 		if (stageResult.baseline?.error) return makeAndSendBulkSimError(stageResult.baseline.error, onProgress);
@@ -123,7 +123,7 @@ export const runConcurrentBulkSim = async (
 		}
 
 		if (stageConfig.maxSurvivors !== undefined && latestBaseline) {
-			candidates = selectBulkSimSurvivors(stageResult.results, latestBaseline, stageResult.iterations, stageConfig, originalCandidateCount);
+			candidates = selectBulkSimSurvivors(stageResult.results, latestBaseline, stageResult.iterations, stageConfig, originalCandidateCount, topResults);
 			stageResult.metrics.survivors = candidates.length;
 		}
 		if (isDevMode()) {

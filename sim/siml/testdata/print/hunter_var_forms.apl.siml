@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+
+var $unset
+var ${a\}b\\c\nd} = true
+var ${Two words}
+var ${\}\\} = true
+
+priority:
+  group "G" with %{p\}q} = $unset, %{r\ns} = 1 if $a_b_c_d and ${\}\\}
+  group_reference("G", variables=[`{"name":"p}q"}`])
+
+group "G":
+  var ${Group unset}
+  var ${g\\h}
+  none if %{p\}q} and %{r\ns}

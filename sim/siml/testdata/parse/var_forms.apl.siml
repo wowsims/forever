@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+// A var line with no value declares a variable with no value. In ${…} and %{…}, \}, \\ and \n are }, \ and a line feed.
+var $unset
+var ${a\}b\\c\nd} = 1
+var $both = ${a\}b\\c\nd}
+
+priority:
+  group "G" with %{p\}q} = ${a\}b\\c\nd}
+
+group "G":
+  var ${Group unset}
+  none if %{p\}q}

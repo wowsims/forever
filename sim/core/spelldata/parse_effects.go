@@ -186,8 +186,8 @@ func FromCaster(caster *core.Unit, index, total int) ParseOpt {
 
 // The character sheet shows the row's SPELLMOD_RESIST_MISS_CHANCE hit in these schools' hit, from the
 // talents stage on. The row names its spells by class flags, which carry no school, so the caller states
-// the schools its tooltip names, for a talent that reaches the class's main spells of them: Arcane Focus
-// takes core.SpellSchoolArcane. The spells the mod reaches stay the ones the class flags name.
+// the schools its tooltip names, for a talent that reaches the class's main spells of them: Shadow Focus
+// takes core.SpellSchoolShadow. The spells the mod reaches stay the ones the class flags name.
 func ShowAsSchoolHit(schools core.SpellSchool) ParseOpt {
 	return func(o *parseOptions) {
 		o.showAsSchoolHit = schools

@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
+import { Field } from '@ui-kit/Field';
 import { Icon } from '@ui-kit/Icon';
 import { describe, expect, it } from 'vitest';
 
@@ -113,6 +114,25 @@ describe('Button', () => {
 		const spinner = within(button).getByTestId('loader');
 		expect(spinner.previousElementSibling).toBe(rendered.parentElement);
 		expect(spinner.getAttribute('data-size')).toBe('xs');
+	});
+
+	it('emits no size for an iconOnly, unstyled or size none button, nor for a link in a sized field', () => {
+		render(
+			<Field size="xs">
+				<Button iconOnly aria-label="Icon">
+					×
+				</Button>
+				<Button variant="unstyled">Unstyled</Button>
+				<Button size="none">None</Button>
+				<Button variant="link">Link</Button>
+			</Field>,
+		);
+		expect(['Icon', 'Unstyled', 'None', 'Link'].map(name => screen.getByRole('button', { name }).hasAttribute('data-size'))).toEqual([
+			false,
+			false,
+			false,
+			false,
+		]);
 	});
 
 	it('renders no spinner and no aria-busy when not loading', () => {

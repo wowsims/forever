@@ -152,11 +152,14 @@ func ReadWeb(url string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
+		return "", fmt.Errorf("GET %s: %s", url, resp.Status)
+	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
-	resp.Body.Close()
 	return string(body), nil
 }
 func ReadWebRequired(url string) string {
@@ -169,10 +172,7 @@ func ReadWebRequired(url string) string {
 
 // Fetches web results from all the given urls, and returns a parallel array of page contents.
 func ReadWebMulti(urls []string) []string {
-	threads := *readWebThreads
-	if threads > len(urls) {
-		threads = len(urls)
-	}
+	threads := min(*readWebThreads, len(urls))
 
 	type WebResult struct {
 		urlIdx int
@@ -181,13 +181,12 @@ func ReadWebMulti(urls []string) []string {
 	webResults := make(chan WebResult, 10)
 	wg := &sync.WaitGroup{}
 
-	for thread := 0; thread < threads; thread++ {
+	for thread := range threads {
 		startIdx := len(urls) * thread / threads
 		endIdx := len(urls) * (thread + 1) / threads
-		wg.Add(1)
-		go func(min, max int) {
-			fmt.Printf("ReadWebMulti Starting worker for URL block %d to %d\n", min, max-1)
-			for i := min; i < max; i++ {
+		wg.Go(func() {
+			fmt.Printf("ReadWebMulti Starting worker for URL block %d to %d\n", startIdx, endIdx-1)
+			for i := startIdx; i < endIdx; i++ {
 				url := urls[i]
 				body, err := ReadWeb(url)
 				if err != nil {
@@ -196,8 +195,7 @@ func ReadWebMulti(urls []string) []string {
 				}
 				webResults <- WebResult{urlIdx: i, body: body}
 			}
-			wg.Done()
-		}(startIdx, endIdx)
+		})
 	}
 
 	go func() {
@@ -231,7 +229,7 @@ func ReadWebMultiMap[K comparable](keys []K, keyToUrl func(K) string) map[K]stri
 	results := ReadWebMulti(urls)
 
 	mapResults := make(map[K]string, len(urls))
-	for i := 0; i < len(urls); i++ {
+	for i := range urls {
 		mapResults[keys[i]] = results[i]
 	}
 	return mapResults

@@ -40,7 +40,7 @@ also reads a pick followed by the store's own accessors: `-expr
 carries and the row, with the effect it read marked `(read)`.
 
 The worded line states each number in the unit the sim spends it in, written as the accessor that reads
-it: a plain amount is `Average(60)` and a range is `Min`/`Max`, a percentage is `Percent()`, rage is
+it: a plain amount is `Average()` and a range is `Min`/`Max`, a percentage is `Percent()`, rage is
 `Tenths()`, a time is `TimeValue()`, and a share of spell or attack power is `Coeff()`/`APCoeff()`. A
 dummy line states the row's number and says nothing about its meaning; it is the one shape that always
 needs the tooltip. When the printer has no wording for an effect's type or aura, the line says
@@ -53,7 +53,7 @@ resolver builds for that call. Each field shows the step that filled it (the row
 the row pick is substituted through the package's declarations.
 
 The same reading is available as an editor hover. `go run ./tools/spelldata -lsp` is a language server
-on stdio. A hover on an id in any of the forms Go, APL JSON and TS state it (`MustFind(11574)`,
+on stdio. A hover on an id in any of the forms Go, JSON and TS state it (`MustFind(11574)`,
 `SpellID: 11574`, `"spellId": 11574`, `fromSpellId(23563)`) shows the row, with the header and the
 effects as tables. In Go, a `spellData.<Family>` token shows the ladder, a name bound to a ladder chain
 shows the rank or the value it reads (substituted through the names it stands on, read from the open
@@ -131,8 +131,9 @@ number the tooltip shows, floored.
   `Variance/2` of itself. Core applies that roll, so the spell takes `DirectVariance()` into
   `core.SpellConfig.DirectVariance` and the call site hands `CalcDamage` or `CalcHealing` the
   unrolled `Average()`; `Mean()` answers the same.
-- A physical hit rolls its base points alone by `|BasePoints| * Variance` either side, and attack
-  power is added on top unspread.
+- A physical hit rolls its base points alone by `|BasePoints| * Variance/2` either side and rounds the
+  roll to a whole number, and attack power is added on top unspread: Revenge rank 1's 22 ± 1.69 lands
+  on 20 to 24 in game, the two ends rarer than the three between.
 - Any other effect (an energize, an absorb, an aura's amount) rolls its base points by
   `|BasePoints| * Variance/2` either side.
 
@@ -151,7 +152,7 @@ holds.
 end answers unset instead of panicking. `sim/core/spelldata/attributes.go` names the ones the sim acts
 on: `IsPassive`, `IsChanneled`, `RefundsOnMiss` with `MissRefund()` (the 0.8 a
 `RageCostOptions.Refund` takes), `PeriodicCanCrit`, `CanProcFromProcs`, `ClassSpellsOnly`,
-`CannotCrit`, `AlwaysHits`, `IsAProc`, `SuppressesWeaponProcs` and `IsWeaponProcAura`; `IsBleed` reads
+`CannotCrit`, `AlwaysHits`, `NoActiveDefense`, `IsAProc`, `SuppressesWeaponProcs` and `IsWeaponProcAura`; `IsBleed` reads
 `SpellCategories.Mechanic` instead.
 
 |                     |                                                                                                        |
@@ -196,21 +197,20 @@ the effects the curve covers; an effect the curve has no row for keeps the spell
 `MustFind` every id, so a family that loses a spell fails at startup rather than registering nothing.
 
 The curve's value keeps the sign the game files state, also where the row's base points and the tooltip
-state the opposite. Instrument of Law's threat (effect 2: row -20, curve 10/20) raises the threat the
-paladin generates by 20% at 2/2 while Righteous Fury is off, where the tooltip says it reduces it. Iron
-Will's Stun and Fear duration has the same shape, a positive curve under a reducing tooltip, and reads the
-curve too.
+state the opposite. Iron Will 12962's first mechanic duration mod (effect 0: row -15, curve 3/6/9/12/15)
+lengthens that mechanic's duration by 15% at 5/5, where the tooltip says the talent reduces Stun and
+Fear. Its second effect has no curve row and keeps the row's -15.
 
-|                                          |                                                                                          |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `Rank(n)`                                | the spell at rank n. Rank 0 is untaken and answers `Nil`, so no `if rank > 0` guard      |
-| `Highest()`                              | the top rank                                                                             |
-| `ByID(id)`                               | the rank with this spell id; panics on one the ladder does not carry                     |
-| `Len()`, `Each(fn)`                      | how many ranks, and each of them with its number                                         |
-| `Contains(spell)`                        | whether a registered spell's id is one of the ladder's ranks                             |
-| `ValueAt(rank)`                          | the rank's only effect in the game files' units; panics where the rank has more than one |
-| `FractionAt`, `MultiplierAt`, `TenthsAt` | the same over 100, as `1 +` that, and over 10                                            |
-| `EffectAt(n)`, `Effect(aura, misc)`      | one named effect across the ranks, carrying the same four readers                        |
+|                                          |                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| `Rank(n)`                                | the spell at rank n. Rank 0 is untaken and answers `Nil`, so no `if rank > 0` guard     |
+| `Highest()`                              | the ladder's last entry, which is not always its top rank                               |
+| `ByID(id)`                               | the rank with this spell id; panics on one the ladder does not carry                    |
+| `Len()`, `Each(fn)`                      | how many ranks, and each of them with its number                                        |
+| `Contains(spell)`                        | whether a registered spell's id is one of the ladder's ranks                            |
+| `ValueAt(rank)`                          | the rank's only effect in the game files' units; panics unless the rank has exactly one |
+| `FractionAt`, `MultiplierAt`, `TenthsAt` | the same over 100, as `1 +` that, and over 10                                           |
+| `EffectAt(n)`, `Effect(aura, misc)`      | one named effect across the ranks, carrying the same four readers                       |
 
 `MultiplierAt` takes its sign from the data: a talent the game files state as -2/-4/-6 gives 0.94 at rank
 3 and nobody writes the minus.

@@ -1,5 +1,7 @@
+import { Stat } from '@generated/proto/common';
 import { ResourceType } from '@generated/proto/spell';
 import i18n from '@i18n/config';
+import { translateProtoStatName } from '@i18n/localization';
 import type {
 	AuraLog,
 	AuraStacksLog,
@@ -20,6 +22,7 @@ import type {
 } from '@sim/proto/combat_log';
 import { matchTimestampPrefix } from '@sim/proto/combat_log';
 import { resourceNames } from '@sim/proto/names';
+import { UnitStat } from '@sim/proto/stats';
 import { resourceTextClass } from '@ui-kit/utils/colors';
 import type { ComponentType } from 'react';
 import { Trans } from 'react-i18next';
@@ -32,11 +35,57 @@ import { ActionLink } from './ActionLink';
 // one-expression renderers for a single discriminated union, and the file is their unit.
 const SourcePrefix = ({ log }: { log: CombatLog }) => <>{log.source && <EntityLabel entity={log.source} />}</>;
 
+// The sim's Stats.FlatString(), as in `{"Strength": 20.000,"CritRating": 14.000,}`, and one entry of it.
+const FLAT_STATS = /\{(?:"\w+": -?\d+\.\d+,)+\}/g;
+const FLAT_STAT_ENTRY = /"(\w+)": (-?\d+\.\d+),/g;
+// The sim's StatDependency.String() on a dynamic dep line: `CritRating *= 1.10` or `CritRating += Intellect * 0.50`.
+const DYNAMIC_DEP = /(Dynamic dep \w+ \()(\w+) (?:\*= (-?\d+\.\d+)|\+= (\w+) \* (-?\d+\.\d+))\)/;
+
+const unitStatOf = (name: string): UnitStat | null => {
+	const stat = Stat[`Stat${name}` as keyof typeof Stat] as Stat | undefined;
+	return stat === undefined ? null : UnitStat.fromStat(stat);
+};
+
+// A rating with a percent reads as that percent and defense rating as the skill it buys. Names ending in Percent have no
+// Stat of their own and already hold a percent.
+const amountAsShown = (name: string, amount: number, decimals: number): string => {
+	const unitStat = unitStatOf(name);
+	const shown = unitStat?.convertRatingToPercent(amount) ?? amount;
+	return `${Number(shown.toFixed(decimals))}${unitStat?.isPercentRating() || name.endsWith('Percent') ? '%' : ''}`;
+};
+
+// A += amount is per point of the source and in the destination's units, so a rating source reads per 1% of it. Three
+// decimals, as a two-decimal rating amount can be under 0.01%. A *= amount is a bare multiplier.
+const dynamicDepAsShown = (_match: string, prefix: string, stat: string, multiplier?: string, source?: string, amount?: string): string => {
+	const name = translateProtoStatName(stat);
+	if (source === undefined) return `${prefix}${name} *= ${multiplier})`;
+	const perShownSource = parseFloat(amount!) * (unitStatOf(source)?.convertPercentToRating(1) ?? 1);
+	return `${prefix}${name} += ${translateProtoStatName(source)} * ${amountAsShown(stat, perShownSource, 3)})`;
+};
+
+// A rating conversion is a stat dependency, so one block can hold a rating and its percent. Where the two share a name
+// (Dodge, Parry, Block, Expertise) only the percent is listed; crit and hit keep their distinct names.
+const flatStatsAsShown = (flat: string): string => {
+	const entries = Array.from(flat.matchAll(FLAT_STAT_ENTRY), ([, name, amount]) => ({
+		name,
+		amount: parseFloat(amount),
+		label: translateProtoStatName(name),
+	}));
+	const percentLabels = new Set(entries.filter(({ name }) => name.endsWith('Percent')).map(({ label }) => label));
+	return entries
+		.filter(({ name, label }) => !(name.endsWith('Rating') && percentLabels.has(label)))
+		.map(({ name, amount, label }) => `${amountAsShown(name, amount, 2)} ${label}`)
+		.join(', ');
+};
+
+// Render only: the exporter and search read the line as the sim wrote it.
+const withStatsAsShown = (text: string): string => text.replace(FLAT_STATS, flatStatsAsShown).replace(DYNAMIC_DEP, dynamicDepAsShown);
+
 const DefaultLine = ({ log }: { log: CombatLog }) => {
 	// Group 3 only: combat_log's own rawWithoutTimestamp keeps the entity bracket for plain-text
 	// export, while this path drops it because EntityLabel supplies a styled replacement.
 	const captureArr = matchTimestampPrefix(log.raw);
-	const body = <>{captureArr ? captureArr[3] : log.raw}</>;
+	const body = <>{withStatsAsShown(captureArr ? captureArr[3] : log.raw)}</>;
 	if (!log.source) return body;
 	return (
 		<>
@@ -209,7 +258,7 @@ const StatChangeLine = ({ log }: { log: StatChangeLog }) => (
 		<Trans
 			i18n={i18n}
 			i18nKey={log.isGain ? 'results_tab.details.logs.lines.stats_gained' : 'results_tab.details.logs.lines.stats_lost'}
-			values={{ stats: log.stats }}
+			values={{ stats: withStatsAsShown(log.stats) }}
 			components={{ action: <ActionLink actionId={log.actionId!} /> }}
 		/>
 	</>
@@ -249,6 +298,7 @@ const LINE_BY_KIND: { [K in CombatLog['kind']]: ComponentType<{ log: LogOfKind<K
 	'cast-failed': CastFailedLine,
 	'cast-pushback': CastPushbackLine,
 	'stat-change': StatChangeLine,
+	movement: DefaultLine,
 	'resource-group': ResourceGroupLine,
 	cast: CastLine,
 	plain: DefaultLine,

@@ -1,0 +1,4 @@
+[
+	{ "op": "move", "path": ["priorityList"], "from": 2, "to": 0 },
+	{ "op": "set", "path": ["priorityList", 3, "action", "condition"], "value": { "const": { "val": "true" } } }
+]

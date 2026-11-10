@@ -13,8 +13,8 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The priority list's bar: the new button appends an unnamed row at once. */
-export const PriorityListBar: Story = {};
+/** The priority list's bar: the new button appends an unnamed row at once, and the paste button appends the row the clipboard holds. */
+export const PriorityListBar: Story = { args: { onPaste: fn() } };
 
 /** The groups' and variables' bar: the new button asks for a name, and a taken one blocks the confirm button. */
 export const NamedItemBar: Story = {

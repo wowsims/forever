@@ -1,0 +1,17 @@
+siml 1
+spec hunter
+
+// A statement continues onto lines indented deeper than its first, or while a bracket is open.
+var $long =
+    current_time > 1s
+    and current_time < 2s
+var $bracket = max(
+1s,
+  2s)
+
+priority:
+  cast x
+      if $long
+      or $bracket > 1s
+  cast x if max(1s,
+      2s) > 0s

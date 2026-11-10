@@ -1,0 +1,19 @@
+@layer components {
+	/* One gradient fades both edges: the top once the view is scrolled to the marked step, the bottom when the entry
+	   goes on below the cap. */
+	.ui-apl-entry-view {
+		--fade-top: 0rem;
+		--fade-bottom: 0rem;
+
+		@apply max-h-24 overflow-hidden;
+		mask-image: linear-gradient(to bottom, transparent, black var(--fade-top), black calc(100% - var(--fade-bottom)), transparent);
+
+		&[data-scrolled] {
+			--fade-top: 0.75rem;
+		}
+
+		&[data-clipped] {
+			--fade-bottom: 2rem;
+		}
+	}
+}

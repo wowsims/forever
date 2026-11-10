@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
+	"github.com/wowsims/forever/sim/druid"
 )
 
 // The caster stand-in's spells: a 2 s cast and an instant, both on the global cooldown.
@@ -101,6 +102,24 @@ func itemEntryPPM(t *testing.T, itemID int32, spellID int32) float64 {
 	return 0
 }
 
+// Sets the procs per minute on the item's chance-on-hit entry for the spell for the length of the
+// test; 0 leaves the entry stating no rate.
+func withEntryPPM(t *testing.T, itemID int32, spellID int32, ppm float64) {
+	t.Helper()
+	for _, effect := range core.GetItemByID(itemID).ItemEffects {
+		if proc := effect.GetProc(); effect.BuffId == spellID && proc != nil {
+			committed := proc.ProcRate
+			t.Cleanup(func() { proc.ProcRate = committed })
+			proc.ProcRate = nil
+			if ppm > 0 {
+				proc.ProcRate = &proto.ProcEffect_Ppm{Ppm: ppm}
+			}
+			return
+		}
+	}
+	t.Fatalf("%d has no chance-on-hit entry for %d", itemID, spellID)
+}
+
 // Checks the proc rolls the item entry's procs per minute on the weapon's speed, a chance between
 // none and certain.
 func expectWeaponRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask core.ProcMask, itemID, spellID int32) {
@@ -120,6 +139,9 @@ func rowTickCount(row *spelldata.Spell, tick *spelldata.Effect) int32 {
 // which the item's stats carry, and its effects 3 and 4 grant as much again of each against Undead.
 func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
 	const shovel = 273817
+	if spelldata.Find(1319047) == spelldata.Nil {
+		t.Skip("spell 1319047 is not in the live game files; this runs again once they hold it")
+	}
 	row := spelldata.MustFind(1319047)
 	want := stats.Stats{stats.AttackPower: row.EffectN(3).Average(), stats.RangedAttackPower: row.EffectN(4).Average()}
 	_, againstUndead := warriorWithConsumes(t, &proto.ConsumesSpec{}, shovel, 0, proto.MobType_MobTypeUndead)
@@ -132,53 +154,21 @@ func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
 	}
 }
 
-// Sulfuras, Hand of Ragnaros 17182 carries both its effects. Immolation 21142's damage shield deals
-// its amount to the attacker of each melee hit taken, and nothing for a spell. Fireball 21162 procs
-// at the procs per minute of the item's chance-on-hit entry, deals its row's direct roll, and ticks
-// its periodic amount over the row's duration.
-func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
-	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotMainHand, 17182)
+// The Green Tower 1204 carries both its generated effects, composed into the one registration core
+// takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
+// while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.
+func TestTheGreenTowerCarriesItsShieldAndItsProc(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 1204)
 	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
-	var shieldDamage float64
-	for _, effect := range spelldata.ItemAuraDamageShields(spelldata.MustFind(21142)) {
-		shieldDamage += effect.Average()
-	}
-	shield := character.GetSpell(core.ActionID{SpellID: 21142, Tag: 2})
-	if shield == nil || shieldDamage <= 0 {
-		t.Fatal("17182 registers no damage shield")
+	shield, shieldDamage := damageShield(t, character, 1325228)
+	if character.GetAura("The Green Tower Proc") == nil {
+		t.Fatal("1204 registers no stat proc beside its shield")
 	}
 	takeHit(t, sim, character, meleeSwing(enemy))
 	if got := shield.SpellMetrics[enemy.UnitIndex]; got.Casts != 1 || got.TotalDamage != shieldDamage {
 		t.Errorf("a melee hit taken cast the shield %d times for %v, want once for the row's %v", got.Casts, got.TotalDamage, shieldDamage)
-	}
-	takeHit(t, sim, character, fireSpell(enemy))
-	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
-		t.Errorf("after a spell hit taken the shield cast %d times, want once still", got)
-	}
-
-	proc := character.GetAura("Sulfuras, Hand of Ragnaros")
-	if proc == nil || proc.Dpm == nil {
-		t.Fatal("17182 registers no Fireball proc on a procs per minute rate")
-	}
-	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 17182, 21162)
-
-	row := spelldata.MustFind(21162)
-	hit, tick := row.DamageEffect(), row.PeriodicDamageEffect()
-	ticks := rowTickCount(row, tick)
-	fireball := character.GetSpell(core.ActionID{SpellID: 21162})
-	fireball.Cast(sim, enemy)
-	dot := fireball.Dot(enemy)
-	if dot.BaseTickCount != ticks || dot.BaseTickLength != tick.Period() {
-		t.Errorf("the Fireball ticks %d times every %v, want the row's %d every %v", dot.BaseTickCount, dot.BaseTickLength, ticks, tick.Period())
-	}
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
-	metrics := fireball.SpellMetrics[enemy.UnitIndex]
-	metrics.TotalDamage -= float64(ticks) * tick.Average()
-	if metrics.Casts != 1 || metrics.Ticks != ticks || !damageInRange(metrics, hit) {
-		t.Errorf("the Fireball cast %d times and ticked %d times for %v besides its ticks, want once, %d ticks and %v to %v",
-			metrics.Casts, metrics.Ticks, metrics.TotalDamage, ticks, hit.Min(), hit.Max())
 	}
 }
 
@@ -187,6 +177,7 @@ func TestSulfurasCarriesItsDamageShieldAndFireball(t *testing.T) {
 // holds back the auto attacks, and every period strikes each enemy with 9633: main-hand weapon damage
 // plus the strike row's flat amount. The strikes do not proc Bladestorm.
 func TestRavagerChannelsBladestormOverEveryEnemy(t *testing.T) {
+	t.Skip("Ravager 7717 is not in the live game files; this runs again once they hold it")
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 7717, 3)
 
 	proc := character.GetAura("Ravager")
@@ -279,6 +270,9 @@ func TestRavagerChannelsBladestormOverEveryEnemy(t *testing.T) {
 // Heartseeking Crossbow 13040's 29626 procs at the procs per minute of the item's entry, on the
 // crossbow's speed, and strikes the target with Shadowbolt 29640 for its row's roll.
 func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
+	if core.GetItemByID(13040) == nil {
+		t.Skip("item 13040 is not in the live game files; this runs again once they hold it")
+	}
 	sim, character := itemWearer(t, proto.Class_ClassRogue, proto.ItemSlot_ItemSlotRanged, 13040)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 	proc := character.GetAura("Heartseeking Crossbow")
@@ -292,7 +286,7 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
 
 	damage := spelldata.MustFind(29640).DamageEffect()
-	shot := &core.Spell{ProcMask: core.ProcMaskRangedAuto, SpellSchool: core.SpellSchoolPhysical, Unit: &character.Unit}
+	shot := rangedShot(&character.Unit)
 	dealHit(t, sim, character, shot)
 	metrics := shadowbolt.SpellMetrics[enemy.UnitIndex]
 	if metrics.Casts != 1 || metrics.Hits != 1 || metrics.TotalDamage < damage.Min() || metrics.TotalDamage > damage.Max() {
@@ -302,9 +296,14 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 }
 
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
-// entry. Focus makes the next spell with a cast time instant, on its whole global cooldown, and that
-// cast spends it; an instant leaves it up, and unspent it fades after the row's duration.
+// entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
+// global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
+// row's duration.
 func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
+	if core.GetItemByID(2243) == nil {
+		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
+	}
+	withEntryPPM(t, 2243, 18803, 1)
 	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -356,6 +355,27 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	}
 }
 
+// A hand-written proc that runs at its item entry's procs per minute registers nothing while the entry
+// states none: Hand of Edward the Odd 2243 equips and swings with no Focus proc and no Focus aura.
+func TestAnEntryRateProcRegistersNothingWhileTheEntryStatesNoRate(t *testing.T) {
+	if core.GetItemByID(2243) == nil {
+		t.Skip("item 2243 is not in the live game files; this runs again once they hold it")
+	}
+	withEntryPPM(t, 2243, 18803, 0)
+	sim, character := weaponWearer(t, proto.Class_ClassShaman, 2243, 1)
+
+	if got := character.Equipment[proto.ItemSlot_ItemSlotMainHand].ID; got != 2243 {
+		t.Fatalf("the main hand holds %d, want 2243", got)
+	}
+	if character.GetAura("Hand of Edward the Odd") != nil {
+		t.Error("2243 registers its Focus proc with no rate on its entry, want none")
+	}
+	if character.GetAura("Hand of Edward the Odd Focus") != nil {
+		t.Error("2243 registers its Focus aura with no rate on its entry, want none")
+	}
+	stepTo(t, sim, 30*time.Second)
+}
+
 // Thunderfury, Blessed Blade of the Windseeker 19019 procs 21992 at the procs per minute of the item's
 // chance-on-hit entry.
 func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
@@ -367,10 +387,83 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
 }
 
+// Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
+// mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
+// death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing
+// either.
+func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
+	const reaper = 288901
+	if core.GetItemByID(reaper) == nil {
+		t.Skip("item 288901 is not in the live game files; this runs again once they hold it")
+	}
+	cooldown := spelldata.MustFind(21185).ICD()
+	gain := spelldata.MustFind(21186)
+	for _, tc := range []struct {
+		name  string
+		class proto.Class
+		bear  bool
+		want  float64
+	}{
+		{"mana", proto.Class_ClassWarlock, false, gain.EffectN(1).BaseValue()},
+		{"rage", proto.Class_ClassWarrior, false, gain.EffectN(2).Tenths()},
+		{"rage in bear form", proto.Class_ClassDruid, true, gain.EffectN(2).Tenths()},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var sim *core.Simulation
+			var character *core.Character
+			if tc.bear {
+				items := bearItemSlots()
+				items[proto.ItemSlot_ItemSlotMainHand].Id = reaper
+				var bear *druid.Druid
+				sim, bear = equippedBear(t, items)
+				bear.ClearForm(sim)
+				bear.BearFormAura.Activate(sim)
+				character = bear.GetCharacter()
+			} else {
+				sim, character = modWearer(t, tc.class, proto.ItemSlot_ItemSlotMainHand, reaper)
+			}
+			target := sim.Encounter.AllTargets[0]
+			spent := character.NewManaMetrics(core.ActionID{SpellID: 993105})
+			// The power the death gives. Mana is spent first, which leaves room for the gain and holds
+			// off the regen for the moment the gain is measured.
+			gainOn := func(killShare float64) float64 {
+				if character.HasManaBar() {
+					character.SpendMana(sim, character.CurrentMana(), spent)
+				}
+				target.Enable(sim)
+				before := character.CurrentMana() + character.CurrentRage()
+				target.Die(sim, killShare)
+				stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+				return character.CurrentMana() + character.CurrentRage() - before
+			}
+
+			if tc.want <= 0 || cooldown <= 0 {
+				t.Fatalf("the rows state a gain of %v and a cooldown of %v, want both", tc.want, cooldown)
+			}
+			if got := gainOn(0); got != 0 {
+				t.Errorf("a death with no kill credit gave %v, want nothing", got)
+			}
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow gave %v, want %v", got, tc.want)
+			}
+			if got := gainOn(1); got != 0 {
+				t.Errorf("a second killing blow inside the cooldown gave %v, want nothing", got)
+			}
+			stepTo(t, sim, sim.CurrentTime+cooldown)
+			if got := gainOn(1); got != tc.want {
+				t.Errorf("a killing blow after the cooldown gave %v, want %v", got, tc.want)
+			}
+		})
+	}
+}
+
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
 // that brings the stacks to the count the row names casts Perfected Form 1325508: its damage once,
 // its +20 to every stat for the row's duration, and the stacks gone so they build again.
 func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
+	if core.GetItemByID(2801) == nil {
+		t.Skip("item 2801 is not in the live game files; this runs again once they hold it")
+	}
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 2801, 1)
 	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertiseRating: 1000, stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent)})
 	enemy := character.CurrentTarget

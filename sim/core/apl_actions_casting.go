@@ -29,11 +29,15 @@ func (rot *APLRotation) newActionCastSpell(config *proto.APLActionCastSpell) APL
 	}
 }
 func (action *APLActionCastSpell) IsReady(sim *Simulation) bool {
-	return action.spell.CanCastOrQueue(sim, action.target.Get()) &&
-		(!action.spell.Flags.Matches(SpellFlagMCD) ||
-			action.spell.Flags.Matches(SpellFlagReactive) ||
-			action.spell.Unit.GCD.IsReady(sim) ||
-			action.spell.Unit.Rotation.inSequence)
+	return action.spell.CanCastOrQueue(sim, action.target.Get()) && !action.spell.majorCooldownWaits(sim)
+}
+
+// A major cooldown that is not reactive goes only at a GCD-ready look, unless a sequence runs it.
+func (spell *Spell) majorCooldownWaits(sim *Simulation) bool {
+	return spell.Flags.Matches(SpellFlagMCD) &&
+		!spell.Flags.Matches(SpellFlagReactive) &&
+		!spell.Unit.GCD.IsReady(sim) &&
+		!spell.Unit.Rotation.inSequence
 }
 func (action *APLActionCastSpell) Execute(sim *Simulation) {
 	action.spell.CastOrQueue(sim, action.target.Get())
@@ -57,14 +61,15 @@ func (rot *APLRotation) postFinalize(action *APLAction) {
 		}
 	}
 	for _, inner := range all {
-		if spell := castSpellOf(inner); spell != nil && !inGroup[inner] {
+		if spell := castSpellOf(inner.impl); spell != nil && !inGroup[inner] {
 			rot.warnIfNeverInRange(spell)
 		}
 	}
 }
 
-func castSpellOf(action *APLAction) *Spell {
-	switch impl := action.impl.(type) {
+// The spell a cast action casts or queues, nil for any other action.
+func castSpellOf(impl APLActionImpl) *Spell {
+	switch impl := impl.(type) {
 	case *APLActionCastSpell:
 		return impl.spell
 	case *APLActionCastFriendlySpell:
@@ -147,7 +152,7 @@ func (rot *APLRotation) newActionCastFriendlySpell(config *proto.APLActionCastFr
 	}
 }
 func (action *APLActionCastFriendlySpell) IsReady(sim *Simulation) bool {
-	return action.spell.CanCastOrQueue(sim, action.target.Get()) && (!action.spell.Flags.Matches(SpellFlagMCD) || action.spell.Flags.Matches(SpellFlagReactive) || action.spell.Unit.GCD.IsReady(sim) || action.spell.Unit.Rotation.inSequence)
+	return action.spell.CanCastOrQueue(sim, action.target.Get()) && !action.spell.majorCooldownWaits(sim)
 }
 func (action *APLActionCastFriendlySpell) Execute(sim *Simulation) {
 	action.spell.CastOrQueue(sim, action.target.Get())
@@ -195,6 +200,9 @@ func (rot *APLRotation) newActionChannelSpell(config *proto.APLActionChannelSpel
 }
 func (action *APLActionChannelSpell) GetAPLValues() []APLValue {
 	return []APLValue{action.interruptIf}
+}
+func (action *APLActionChannelSpell) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.interruptIf = replace(action.interruptIf)
 }
 func (action *APLActionChannelSpell) IsReady(sim *Simulation) bool {
 	return action.spell.CanCastOrQueue(sim, action.target.Get())
@@ -247,6 +255,9 @@ func (rot *APLRotation) newActionMultidot(config *proto.APLActionMultidot) APLAc
 func (action *APLActionMultidot) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
 }
+func (action *APLActionMultidot) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
+}
 func (action *APLActionMultidot) Reset(*Simulation) {
 	action.nextTarget = nil
 }
@@ -262,8 +273,16 @@ func (action *APLActionMultidot) IsReady(sim *Simulation) bool {
 			}
 		}
 	} else {
-		for i := int32(0); i < action.maxDots; i++ {
-			target := sim.Encounter.AllTargetUnits[i]
+		// The first maxDots active targets, since a target can be disabled or dead.
+		dots := int32(0)
+		for _, target := range sim.Encounter.AllTargetUnits {
+			if !target.IsEnabled() {
+				continue
+			}
+			if dots == action.maxDots {
+				break
+			}
+			dots++
 			if dot := readDot(sim, action.spell.Dot(target)); (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 				action.nextTarget = target
 				return true
@@ -323,7 +342,7 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 	}
 
 	actions := []*APLAction{}
-	for i := int32(0); i < maxDots; i++ {
+	for i := int32(0); i < numTargets; i++ {
 		if isHeal {
 			actions = append(actions, &APLAction{
 				impl: rot.newActionCastSpell(&proto.APLActionCastSpell{
@@ -360,6 +379,9 @@ func (rot *APLRotation) newActionStrictMultidot(config *proto.APLActionStrictMul
 func (action *APLActionStrictMultidot) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
 }
+func (action *APLActionStrictMultidot) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
+}
 func (action *APLActionStrictMultidot) Reset(*Simulation) {
 	action.readyActions = []*APLAction{}
 }
@@ -368,8 +390,15 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 	action.readyActions = []*APLAction{}
 
 	var previousTarget *Unit
-	for i := int32(0); i < action.maxDots; i++ {
-		target := action.targets[i]
+	dots := int32(0)
+	for i, target := range action.targets {
+		if !target.IsEnabled() {
+			continue
+		}
+		if dots == action.maxDots {
+			break
+		}
+		dots++
 		dot := readDot(sim, action.spell.Dot(target))
 		if (!dot.active || dot.remaining < maxOverlap) && action.spell.CanCastOrQueue(sim, target) {
 			action.readyActions = append(action.readyActions, action.actions[i])
@@ -386,6 +415,9 @@ func (action *APLActionStrictMultidot) IsReady(sim *Simulation) bool {
 
 	return len(action.readyActions) > 0
 }
+
+// The gate re-checks the entry's If and the If of every Group Reference above it, at any depth; the
+// Ifs of Sequence and Schedule wrappers only decide the start.
 func (action *APLActionStrictMultidot) Execute(sim *Simulation) {
 	groupConditions := action.unit.Rotation.groupConditions
 	var gate APLValue
@@ -445,6 +477,9 @@ func (rot *APLRotation) newActionMultishield(config *proto.APLActionMultishield)
 }
 func (action *APLActionMultishield) GetAPLValues() []APLValue {
 	return []APLValue{action.maxOverlap}
+}
+func (action *APLActionMultishield) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.maxOverlap = replace(action.maxOverlap)
 }
 func (action *APLActionMultishield) Reset(*Simulation) {
 	action.nextTarget = nil
@@ -586,10 +621,11 @@ func (action *APLActionAutocastOtherCooldowns) String() string {
 	return "Autocast Other Cooldowns"
 }
 func (action *APLActionAutocastOtherCooldowns) PostFinalize(rot *APLRotation) {
-	if len(action.character.initialMajorCooldowns) == 0 {
-		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL.", action)
+	mcds := FilterSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) bool { return mcd.autocasts() })
+	if len(mcds) == 0 {
+		rot.ValidationMessage(proto.LogLevel_Warning, "%s will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.", action)
 	} else {
-		actionIDs := MapSlice(action.character.initialMajorCooldowns, func(mcd MajorCooldown) ActionID {
+		actionIDs := MapSlice(mcds, func(mcd MajorCooldown) ActionID {
 			return mcd.Spell.ActionID
 		})
 

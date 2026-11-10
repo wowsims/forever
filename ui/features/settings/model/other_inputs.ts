@@ -3,7 +3,7 @@ import i18n from '@i18n/config';
 import { Player } from '@sim/player/player';
 import { emptyUnitReference } from '@sim/proto/utils';
 
-const INPUT_DELAY_FIELDS = ['reactionTime', 'channelClipDelay'] as const;
+const INPUT_DELAY_FIELDS = ['reactionTime', 'reactionTimeMax', 'channelClipDelay'] as const;
 // The healing-model inputs below are enabled only while the player is one of the
 // raid's tanks, so they have to re-evaluate on a tank-assignment change as well as
 // on their own value.
@@ -18,6 +18,18 @@ export const InputDelay = {
 	getValue: (player: Player<any>) => player.getReactionTime(),
 	setValue: (player: Player<any>, newValue: number) => {
 		player.setReactionTime(newValue);
+	},
+};
+
+export const InputDelayMax = {
+	id: 'input-delay-max',
+	type: 'number' as const,
+	label: i18n.t('settings_tab.other.input_delay_max.label'),
+	labelTooltip: i18n.t('settings_tab.other.input_delay_max.tooltip'),
+	storeField: INPUT_DELAY_FIELDS,
+	getValue: (player: Player<any>) => player.getReactionTimeMax(),
+	setValue: (player: Player<any>, newValue: number) => {
+		player.setReactionTimeMax(newValue);
 	},
 };
 
@@ -212,5 +224,23 @@ export const RetributionAuraSpellPower = {
 		const buffs = party.getBuffs();
 		buffs.retributionAuraSpellPower = newValue;
 		party.setBuffs(buffs);
+	},
+};
+
+// The Nature spell power of the druid providing Thorns as an individual buff (sim/core's
+// NewSpellDataThornsAuraWithSpellPower turns it into damage per hit). Only a tank takes the hits, and the
+// number means nothing without Thorns, so it shows under both conditions.
+export const ThornsSpellPower = {
+	id: 'thornsSpellPower',
+	type: 'number' as const,
+	label: i18n.t('settings_tab.other.thorns_spell_power.label'),
+	labelTooltip: i18n.t('settings_tab.other.thorns_spell_power.tooltip'),
+	storeField: 'buffs' as const,
+	showWhen: (player: Player<any>) => player.getPlayerSpec().isTankSpec && player.getBuffs().thorns,
+	getValue: (player: Player<any>) => player.getBuffs().thornsSpellPower,
+	setValue: (player: Player<any>, newValue: number) => {
+		const buffs = player.getBuffs();
+		buffs.thornsSpellPower = newValue;
+		player.setBuffs(buffs);
 	},
 };

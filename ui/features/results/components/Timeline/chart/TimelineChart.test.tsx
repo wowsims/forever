@@ -19,6 +19,8 @@ interface FakeChart {
 const charts = fakeCharts as Array<FakeChart>;
 
 vi.mock('chart.js', async () => (await import('@testing/chart-js-mock')).chartJsMock);
+// The chart draws on first render, without waiting on the lazy load the page does.
+vi.mock('../../../../../shared/lazy_charts', () => import('react-chartjs-2'));
 
 const dataset = (seriesId: string, label: string): TimelineDataset =>
 	({

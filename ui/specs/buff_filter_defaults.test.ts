@@ -1,21 +1,19 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
 import { inputPicked } from '@features/inputs/components/ConnectedIconEnumPicker/utils';
 import { type ConsumeConfig, consumeConfigs, type ConsumeToggle } from '@features/settings/components/ConsumesPicker/utils';
+import { applyIndividualDefaults, type DefaultsHost } from '@features/settings/model/apply_defaults';
 import { BUFFS_CONFIG, DEBUFFS_CONFIG, DEBUFFS_MISC_CONFIG, PARTY_BUFFS_CONFIG } from '@features/settings/model/buffs_debuffs';
+import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { isMultiIconOption, type PickerStatOptions, relevantStatOptions, statOptionScope } from '@features/settings/model/stat_options';
 import { shownStats, type StatFilterSlot } from '@features/stat-filters/model/stat_filters';
 import { ConsumableType, type PseudoStat, Stat } from '@generated/proto/common';
 import type { Consumable } from '@generated/proto/db';
 import { ResourceType } from '@generated/proto/spell';
-import { DatabaseFilters, UIDatabase } from '@generated/proto/ui';
+import { DatabaseFilters } from '@generated/proto/ui';
 import type { Player } from '@sim/player/player';
 import { Database } from '@sim/proto/database';
 import { consumablePseudoStatsOf, consumableStatsOf } from '@sim/settings/consumables';
 import type { SpecDefinition } from '@sim/spec_config';
-import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { makeIndividualSim, serveRealDatabase } from '@testing/sim/individual_sim';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
@@ -103,10 +101,14 @@ const STAT_ONLY_TYPES = [
 ];
 
 // The consumables' stat rule, written out in full against the stats and percents the spec weighs
-// consumables by: the filter at its defaults must keep exactly the picks that fail it.
+// consumables by and the stats it displays: the filter at its defaults must keep exactly the picks
+// that fail it or sit below the minimum level. Dragonbreath Chili's worth is damage, so it always passes.
 const consumableRule = (consumable: Consumable, player: Player<any>) => {
-	const stats = consumableStatsOf(player.getSpecConfig());
-	const pseudoStats = consumablePseudoStatsOf(player.getSpecConfig());
+	if (consumable.id === DragonbreathChili.id) return true;
+	const specConfig = player.getSpecConfig();
+	const displayed = (specConfig.displayStats ?? []).filter(stat => stat.hasRootStat()).map(stat => stat.getRootStat());
+	const stats = consumableStatsOf({ epStats: [...specConfig.epStats, ...displayed], consumableStats: specConfig.consumableStats });
+	const pseudoStats = consumablePseudoStatsOf(specConfig);
 	const conditionalStats = [...consumable.mobTypeStats, ...consumable.zoneStats].flatMap(({ stats }) =>
 		Object.entries(stats).flatMap(([stat, value]) => (value > 0 ? [Number(stat) as Stat] : [])),
 	);
@@ -141,8 +143,7 @@ describe("a spec's default picks at the default stat filters", () => {
 	const players = new Map<SpecDefinition<any>, Player<any>>();
 
 	beforeAll(async () => {
-		const dbPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../assets/database/db.json');
-		serveDatabase(UIDatabase.fromJson(JSON.parse(readFileSync(dbPath, 'utf8'))));
+		serveRealDatabase();
 		for (const [, spec] of specs) players.set(spec, await presetPlayer(spec));
 	});
 
@@ -188,11 +189,13 @@ describe("a spec's default picks at the default stat filters", () => {
 					config.type === 'icon' ? config.keptBy?.(player, config.getValue(player)) : config.keptBy?.(player, config.getValue(player)),
 				)
 				.map(([field]) => field),
-			expected: picks.filter(({ consumable }) => !consumableRule(consumable, player)).map(({ field }) => field),
+			expected: picks
+				.filter(({ consumable }) => !consumableRule(consumable, player) || consumable.lvl < player.sim.getMinConsumableLvl(consumable.type))
+				.map(({ field }) => field),
 		};
 	};
 
-	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the stat rule leaves out', (_file, spec) => {
+	it.each(specs)('%s: the consumables filter keeps exactly the picked consumables the minimum level or the stat rule leaves out', (_file, spec) => {
 		const { kept, expected } = consumablePicks(spec);
 
 		expect(kept).toEqual(expected);
@@ -202,5 +205,17 @@ describe("a spec's default picks at the default stat filters", () => {
 		const picks = specs.flatMap(([, spec]) => consumablePicks(spec).picks);
 
 		expect(picks.length).toBeGreaterThan(0);
+	});
+});
+
+describe('default swap consumables', () => {
+	it.each(specs.filter(([, spec]) => spec.defaults.consumables.swapMhImbueId))('%s retains its swap imbue when applying defaults', async (_file, spec) => {
+		const { host, player } = await makeIndividualSim({ spec: spec.spec, config: spec });
+		const defaultsHost = Object.assign(host, {
+			statWeightActionSettings: { applyDefaults: () => {} },
+			statSweepSettings: { applyDefaults: () => {} },
+		}) as unknown as DefaultsHost<typeof spec.spec>;
+		applyIndividualDefaults(defaultsHost);
+		expect(player.getConsumes().swapMhImbueId).toBe(spec.defaults.consumables.swapMhImbueId);
 	});
 });

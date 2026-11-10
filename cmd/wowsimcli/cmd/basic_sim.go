@@ -24,25 +24,19 @@ var simCmd = &cobra.Command{
 }
 
 func init() {
-	simCmd.Flags().StringVar(&infile, "infile", "input.json", "location of input file (RaidSimRequest in protojson format)")
+	simCmd.Flags().StringVar(&infile, "infile", "input.json", "location of input file (RaidSimRequest in protojson format, or an x.siml: a full setup, or a preset build loaded over its spec's defaults.siml, simmed without the potions and conjured items the site adds for its APL)")
 	simCmd.Flags().StringVar(&outfile, "outfile", "", "location of output file, defaults to stdout")
 	simCmd.Flags().BoolVar(&verbose, "verbose", false, "print information during runtime")
 	simCmd.MarkFlagRequired("infile")
 }
 
 func simMain(cmd *cobra.Command, args []string) {
-	data, err := os.ReadFile(infile)
+	input, warnings, err := readSimRequest(infile)
 	if err != nil {
-		log.Fatalf("failed to load input json file %q: %v", infile, err)
+		log.Fatalf("failed to load input file %q:\n%v", infile, err)
 	}
-	input := &proto.RaidSimRequest{}
-	err = protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(data, input)
-	if err != nil {
-		log.Fatalf("failed to load input json file: %s", err)
-	}
-
-	if input.SimOptions == nil {
-		log.Fatalf("expected property 'simOptions' to be present in the input json file")
+	for _, w := range warnings {
+		fmt.Fprintln(os.Stderr, w)
 	}
 
 	var output []byte

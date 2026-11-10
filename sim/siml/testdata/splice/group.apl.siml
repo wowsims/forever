@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+var ${Melee range} = 5.00
+
+priority:
+  group "Weave"
+  cast multi_shot
+
+// Step in for one main-hand swing.
+group "Weave":
+  var $wait = 400ms
+  wait $wait if auto_time_since_last(main_hand_auto) < $wait
+  move $melee_range // in range for the swing

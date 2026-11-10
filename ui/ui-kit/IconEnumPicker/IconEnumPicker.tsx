@@ -10,7 +10,8 @@ import { IconEnumOptionItem } from './IconEnumOption';
 import { type IconEnumOption, IconEnumPickerDirection } from './types';
 import { iconStyleOf } from './utils';
 
-export interface IconEnumPickerProps<T> extends FieldFrameProps, ControlledProps<T>, Pick<IconSwatchProps, 'keptTooltip'> {
+/** No `size`: the trigger is an icon swatch, not a form-height control. */
+export interface IconEnumPickerProps<T> extends Omit<FieldFrameProps, 'size'>, ControlledProps<T>, Pick<IconSwatchProps, 'keptTooltip'> {
 	options: Array<IconEnumOption<T>>;
 	equals: (a: T, b: T) => boolean;
 	/** The value that reads as inactive. */

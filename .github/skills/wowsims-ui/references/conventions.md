@@ -8,9 +8,12 @@ styling, component state and locating elements, `ui/README.md` ("How to author a
 
 `oxfmt` is the formatter; prettier is not a dependency. `npm run fmt` is `npx oxfmt . --check` over the whole repo,
 including the markdown in `.github/skills/`, the workflows and the JSON schemas, so run it after editing any of them.
-It skips `ignorePatterns` in `.oxfmtrc.json` (generated files, `assets/**` and the per-spec preset and talent JSON,
+It skips `ignorePatterns` in `.oxfmtrc.json` (generated files, `assets/**`, the SIML name table `sim/siml/names.json`,
+the per-spec preset JSON (`*.apl.json`, `*.build.json`, `*.gear.json` and `presets/**/*.json`) and the talent JSON,
 whose reformatting would be a diff nobody can review) and anything `.gitignore` hides. A new preset JSON directory
-needs its own ignore entry. Print the config:
+needs its own ignore entry. The hunter's and the Retribution and Protection paladins' rotations, gear sets, builds and
+defaults are SIML (`*.siml`), which oxfmt does not read: their form is the one `go run --tags=with_db ./cmd/wowsimcli
+siml fmt -w <files>` writes, and `siml fmt -check ui/specs` fails on a committed file in any other. Print the config:
 
 ```
 node -e "console.log(require('./.oxfmtrc.json'))"
@@ -54,9 +57,16 @@ Adding a spec is three edits:
 `tools/vite/spec_pages.mts` globs `ui/specs/*/*/spec.ts(x)`, so the page appears at `/forever/<class>/<spec>/` with no
 build-config edit and no HTML file.
 
-Preset data: gear sets, APLs and builds are JSON under the spec folder (`gear_sets/`, `apls/`, `builds/`), built into
-presets by the `make*` helpers in `ui/app/preset_utils.ts`. EP weights, talents (one `talentsString`, since there are
-no glyphs and no per-talent enum) and anything that needs a callback such as `onLoad` stay TS in `presets.ts`. Rules
+Preset data: gear sets, APLs, builds and the spec's defaults are files under the spec folder, never TS literals. The
+hunter and the Retribution and Protection paladins write them in SIML (`gear_sets/*.gear.siml`, `apls/*.apl.siml`,
+`builds/*.siml`, `defaults.siml`); every other spec keeps JSON (`*.gear.json`, `*.apl.json`, `*.build.json`) with its
+defaults in `spec.ts`, until it moves. On SIML, `spec.ts` takes the proto-backed `defaults` from `defaults.siml` through
+`PresetUtils.specDefaultsFromSettings` and keeps only the UI-only ones (EP weights, stat caps, soft caps) in TypeScript.
+`presets.ts` imports a SIML file as its message's JSON (`import DefaultApl from './apls/default.apl.siml'`), which
+`tools/vite/siml.mts` reads at build time and fails the build on, with the file, line and column of each problem, and
+builds presets from it with the `make*` helpers in `ui/app/preset_utils.ts`. A build's rotation or gear set that a file
+it uses gives unchanged is that file's module, so it ships once. EP weights, talents (one `talentsString`, since there
+are no glyphs and no per-talent enum) and anything that needs a callback such as `onLoad` stay TS in `presets.ts`. Rules
 that several specs of one class share live in `ui/specs/<class>/shared/`; only the classes that need it have one.
 
 **Every new gearset passes `devOnly: true`** to `makePresetGear`, and a `makePresetBuildFromJSON` build takes that
@@ -79,11 +89,25 @@ Two traps:
 `en` is the only locale. A new user-facing string goes into `assets/locales/en/`, and its key needs a matching property
 in `schemas/<name>.schema.json` (`verification.md`, "Locales"). With no second locale, that is the whole change.
 
+## Stats read as percents
+
+The game never shows a rating, so the UI never does either: no rating value and no word "rating" where a user reads or
+enters a stat. A new stat display goes through the percent conversion on `UnitStat` (`ui/sim/proto/stats.ts`),
+`convertRatingToPercent` for a value and `storedEpToShown` for a weight. Defense rating buys skill, so it shows as a
+skill number with no percent sign.
+
 ## Code that looks dead but is not
 
 - There is no raid sim UI. The individual sim models a one-party raid, which is why `Raid` and `Party` exist in
   `ui/sim`.
 - `PartyBuffs` (`proto/buffs.proto`) is a populated message, and its party-buff slice, subscription and picker are live.
+- A kit option with no production caller may have been requested ahead of use (Drawer `side`, the TabNav badge): list
+  such options and ask before removing kit API.
+- A container's exported view, the exports the design-system pages use and Popover `container` are settled exceptions
+  to the rule that tests and stories add no production code (PR #187).
+- A hover Popover inside a Dialog needs its own Escape handling: the Dialog closes on Escape before the popover hears
+  it, so a consumer that wants Escape to close only the list listens in the capture phase (`MoreSources` in
+  `ui/features/gear/components/SelectorModal/ItemSource.tsx`).
 
 ## Decisions already made
 
@@ -99,7 +123,11 @@ Reopen one only with new evidence.
 | The kit is controlled; the store binding is in `ui/features/inputs` | a kit picker takes `value` / `onChange` and never names `@sim` state, so it renders in a story with no host; `InputConfig`, `useInput` and the `Connected*` adapters are the one place a picker meets the store                                                                                                      |
 | Storybook is the component registry                                 | the catalogue comes from the code, so there is no hand-kept list to go stale                                                                                                                                                                                                                                         |
 | Stories run as tests                                                | `ui/testing/storybook/stories.test.tsx` mounts every story in `npm run test:unit`, so a story cannot rot unnoticed                                                                                                                                                                                                   |
-| One stylesheet body, `ui/styles/main.css`, with two entries         | production excludes stories, `ui/testing/storybook` and `ui/design-system`; Storybook adds them back (`ui/STYLING.md` §7)                                                                                                                                                                                            |
+| One stylesheet body, `ui/styles/main.css`, with two entries         | Tailwind merges `@source not` across the whole import graph, so production excludes stories, `ui/testing/storybook` and `ui/design-system` in one entry and Storybook adds them back in the other (`ui/STYLING.md` §7); after an `@source` change, check both bundles                                                |
 | Views are props-only; containers keep the hooks                     | a view renders in a story from plain props, and the store reads stay in one greppable place per feature (`ui/README.md`, "Placement rules")                                                                                                                                                                          |
 | Component state is a `data-*` attribute                             | styling and tests key on the same attribute (`data-kept`, `data-customised`, …), never on a state class (`ui/STYLING.md` §3)                                                                                                                                                                                         |
 | Tests pin behaviour and props, never classes                        | a test asserts what a user action or a prop changes: output, a callback, a store read or write, a `data-*` or ARIA attribute. No "it renders" case where a story exists, no case that only exercises Base UI, and one behaviour is tested at one layer. One test file per component unless its `vi.mock` set differs |
+| UI tests drive the top-level feature component                      | the dialog or panel a user opens, through its real surface; its sub-components get stories only, and `model/` logic keeps its unit tests                                                                                                                                                                             |
+| Presentational kit props get a story, not a test                    | a border, padding or a variant's data attribute is shown in a story or matrix; tests pin behaviour                                                                                                                                                                                                                   |
+| One folder per feature component                                    | every component under `ui/features/<x>/components/` gets its own folder with its story, a dialog's sub-components included                                                                                                                                                                                           |
+| Only base scale tokens hold literals                                | spacing, typography, colour, radius and shadow are the base scale (`ui/styles/theme/spacing.css` and its siblings); every component, primitive or feature token aliases a base token, and a value with no base match is raised, not added as a literal                                                               |

@@ -27,20 +27,30 @@ describe('CritCapRow', () => {
 		expect(link.textContent).toBe('8.40% under ');
 
 		const rows = await openRows(container);
-		expect(rows.map(([label]) => label)).not.toContain('sidebar.character_stats.attack_table.spec_offsets');
+		const labels = rows.map(([label]) => label);
+		expect(labels).not.toContain('sidebar.character_stats.attack_table.spec_offsets');
+		expect(labels).not.toContain('sidebar.character_stats.attack_table.block');
+		expect(rows).toContainEqual(['sidebar.character_stats.attack_table.final_crit_cap', '61.10%']);
 		expect(rows.at(-1)).toEqual(['sidebar.character_stats.attack_table.can_raise_by', '3.70%']);
 	});
 
 	it('adds the spec offset row when there is one', async () => {
-		const { container } = renderRow({ ...CRIT_CAP_INFO, specSpecificOffset: 1.5 });
+		const { container } = renderRow({ ...CRIT_CAP_INFO, specOffset: 1.5 });
 		expect(await openRows(container)).toContainEqual(['sidebar.character_stats.attack_table.spec_offsets', '1.50%']);
+	});
+
+	it('adds the block row when the target blocks, which hit and expertise cannot raise', async () => {
+		const { container } = renderRow({ ...CRIT_CAP_INFO, block: 5 });
+		const rows = await openRows(container);
+		expect(rows).toContainEqual(['sidebar.character_stats.attack_table.block', '5.00%']);
+		expect(rows.at(-1)).toEqual(['sidebar.character_stats.attack_table.can_raise_by', '3.70%']);
 	});
 
 	it('colours the value by whether the player is under or over the crit cap', () => {
 		const under = renderRow(CRIT_CAP_INFO);
 		expect(under.container.querySelector('[data-tone]')!.getAttribute('data-tone')).toBe('positive');
 
-		const over = renderRow({ ...CRIT_CAP_INFO, playerCritCapDelta: 8.4 });
+		const over = renderRow({ ...CRIT_CAP_INFO, delta: 8.4 });
 		expect(over.container.querySelector('[data-tone]')!.getAttribute('data-tone')).toBe('negative');
 	});
 });

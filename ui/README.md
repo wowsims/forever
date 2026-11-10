@@ -25,8 +25,8 @@ ui/
                      components/ (React, one folder per component) + hooks/ + utils/ (feature
                      helpers that are neither a component nor DOM-free). The capabilities are
                      apl, bulk, character-stats, enchant-presets, encounter, gear, import-export,
-                     item-swap, onboarding, reforge, results, settings, stat-filters, stat-sweep,
-                     stat-weights, talents.
+                     item-swap, onboarding, reforge, results, saved-data-transfer, settings,
+                     stat-filters, stat-sweep, stat-weights, talents.
                      alias @features
   features/hooks/    React hooks several features share and none owns (useSavedPanel,
                      useActivateTab), one per file, beside the capability folders
@@ -77,7 +77,7 @@ ui/
                      inputs.ts, saved_panel.ts, results-metrics.ts, timeline_rotation.ts and
                      chart-js-mock.ts helpers. A module under testing/sim/ imports neither
                      @features nor @ui-kit. alias @testing, for tests and stories only
-  types/             ambient .d.ts (i18n-loader.d.ts)
+  types/             ambient .d.ts (i18n-loader.d.ts, siml.d.ts)
   index_template.html   the one spec page; tracking/ the analytics shim
   canonical_classes.test.ts, no_class_hooks.test.ts, no_raw_controls.test.ts,
   no_testid_wrappers.test.ts, class_hook_allowlist.json,
@@ -135,7 +135,7 @@ and `STYLING.md` cover placement and co-located CSS.
 - `sim/`: code that needs `window` or `document` does not belong here. Inject an `Env` adapter instead.
 - `ui-kit/`: reusable widgets that know nothing about the sim. No `@sim` import is allowed except `@sim/utils/**` and `@sim/constants/**` (lint-enforced), so the kit never names the `Player`, `Sim` or `ActionId` types. The kit contract:
     - **Controlled.** A picker takes `value`/`onChange`/`disabled` plus `FieldFrameProps` (`ui/ui-kit/Field/types.ts`) and holds no store state; `features/inputs/` binds it to the store.
-    - **One field shell.** `Field` renders the label, tooltip, description and layout for every picker, with `density="compact"`, `role`/`aria-labelledby` for a field that names a group, an optional clear button and an `after` slot.
+    - **One field shell.** `Field` renders the label, tooltip, description and layout for every picker, with `size` (the control size every control inside takes, see `ui/STYLING.md`), `role`/`aria-labelledby` for a field that names a group, an optional clear button and an `after` slot.
     - **Icons arrive resolved.** An icon prop is a `ResolvedIcon` (`iconUrl`, `name`, optional `href`). The caller resolves it (`useResolvedIcon`, `useActionIds` in `ui/sim/hooks/`) and the kit paints it with `resolvedIconStyle` (`ui/ui-kit/utils/icons.ts`).
     - **`testId` everywhere**, forwarded to the element that carries the identity (`STYLING.md` §5).
     - **A story and a test per folder.** `Box` has a story and no test.
@@ -189,14 +189,12 @@ convenience. The preset shapes
 (`PresetGear`, `PresetEpWeights`, …) live in `ui/sim/presets/types.ts`; `app/preset_utils.ts`
 holds the `make*` builders and re-exports the types.
 
-Preset gear, APLs and builds live as JSON under `ui/specs/<class>/<spec>/`: gear in
-`gear_sets/*.gear.json`, APLs in `apls/*.apl.json` and builds in `builds/*.build.json`. The spec's
-`presets.ts` imports them and passes them to `makePresetGear`, `makePresetAPLRotation` and
-`makePresetBuildFromJSON`. Talents and EP weights are TS literals in `presets.ts`:
-`makePresetTalents` wraps a `SavedTalents` holding the `talentsString`, and `makePresetEpWeights`
-takes the weights as `Stats.fromMap(...)`. An `onLoad` handler goes in a preset's options.
-`makePresetEpWeightsFromJSON` builds an EP preset from JSON that stores enum fields by name
-(e.g. `"StatCritRating"`) and resolves them through `Stat`/`PseudoStat`, though no spec calls it.
+Gear, APLs and builds live in files under `ui/specs/<class>/<spec>/`, never as TS literals. The hunter and the
+Retribution and Protection paladins write them, and their defaults (`defaults.siml`), in SIML (`sim/siml/SPEC.md`),
+which `tools/vite/siml.mts` imports as each message's JSON; the other specs keep JSON files (`*.gear.json`,
+`*.apl.json`, `*.build.json`) until they move. EP weights and talents are TS presets in `presets.ts`:
+`PresetUtils.makePresetEpWeights` over a `Stats` map, and a talent preset is a `SavedTalents`, whose one field is the
+`talentsString`. An `onLoad` handler goes in a preset's options.
 
 `@i18n/*` resolves to `ui/i18n/*`, a top-level leaf that `app/` does not own. Sim, ui-kit and
 features reach it through that alias. `ui/i18n/**/*.{ts,tsx}` has its own `no-restricted-imports`
@@ -339,11 +337,11 @@ landing page translates through `i18n.t` as it renders and calls `updateLandingP
 its title and `<meta name="description">`.
 
 Anything shared by several specs of the same class lives in `ui/specs/<class>/shared/`, under a
-fixed name: `inputs.ts` for the input configs its specs share, and `presets.ts` for encounter
-presets, EP-breakpoint tables and a class's `DefaultRaidBuffs` where its specs share one raid-buff
-default. Only the classes that need it have the directory: `shaman/shared/inputs.ts` and
-`warrior/shared/{inputs,presets}.ts`. Druid's four specs and paladin's three share nothing at this
-level, so there is no `druid/shared/` or `paladin/shared/`.
+fixed name: `inputs.ts` for the input configs its specs share, and `presets.ts` for the defaults they
+share, such as one raid-buff default. Only the classes that need it have the directory:
+`priest/shared/inputs.ts`, `shaman/shared/inputs.ts` and `warrior/shared/{inputs,presets}.ts`. Druid's
+four specs and paladin's three share nothing at this level, so there is no `druid/shared/` or
+`paladin/shared/`.
 
 If a rule ever has to be shared as a `DerivedSetting`, declare it `DerivedSetting<any>`. `Player<S>`
 is invariant in `S`, so a rule typed against a spec union is not assignable into any one spec's

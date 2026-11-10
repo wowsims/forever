@@ -1,6 +1,6 @@
 import { ActionPicker } from '@features/apl/components/ActionPicker';
-import { AplItemActions } from '@features/apl/components/AplList';
-import { useApl } from '@features/apl/context/AplContext';
+import { AplItemActions, AplRevealTarget } from '@features/apl/components/AplList';
+import { AplProvider, useApl } from '@features/apl/context/AplContext';
 import { useOwnListSortable } from '@features/apl/hooks/useOwnListSortable';
 import { freshUuids } from '@features/apl/model/fresh_uuids';
 import { type ListItemsConfig, useListItems } from '@features/inputs/hooks/useListItems';
@@ -11,6 +11,31 @@ import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
 import { Tree } from '@ui-kit/Tree';
 import clsx from 'clsx';
+import { type ReactNode, useMemo } from 'react';
+
+const UNMARKED: ReadonlyArray<number> = [];
+
+interface MarkedStepProps {
+	markedSteps: ReadonlyArray<number>;
+	index: number;
+	children: ReactNode;
+}
+
+// The step on the way to the one that fired hands the rest of the indexes down; every other step hands down an
+// empty list, since `AplProvider` passes its parent's on for `undefined`.
+const MarkedStep = ({ markedSteps, index, children }: MarkedStepProps) => {
+	const onPath = markedSteps[0] === index;
+	const below = useMemo(() => (onPath ? markedSteps.slice(1) : UNMARKED), [onPath, markedSteps]);
+	return (
+		<AplProvider markedSteps={below}>
+			<div
+				data-marked={onPath && markedSteps.length === 1 ? '' : undefined}
+				className="data-marked:bg-primary-dampened data-marked:outline-2 data-marked:-outline-offset-2 data-marked:outline-primary data-marked:outline-solid">
+				{children}
+			</div>
+		</AplProvider>
+	);
+};
 
 export interface ActionFieldListProps {
 	player: Player<any>;
@@ -31,7 +56,8 @@ export const ActionFieldList = ({ player, config }: ActionFieldListProps) => {
 		// Called through, not passed: `clone` reads `this`, so the bare method copies nothing.
 		copyItem: (oldItem: APLAction) => freshUuids(APLAction.clone(oldItem)),
 	};
-	const group = useApl().listGroup ?? 'apl-actions';
+	const { listGroup, markedSteps } = useApl();
+	const group = listGroup ?? 'apl-actions';
 	const { items, itemConfig, create, remove, copy, move, hidden, disabled } = useListItems(player, listConfig);
 	const sortable = useOwnListSortable(move, group);
 	if (hidden) return null;
@@ -49,6 +75,8 @@ export const ActionFieldList = ({ player, config }: ActionFieldListProps) => {
 			<Tree.Items>
 				{items.map((action, index) => {
 					const key = String(keyFor(action, index));
+					const stepConfig = itemConfig(action, index);
+					const picker = <ActionPicker player={player} config={stepConfig} />;
 					return (
 						<Tree.Item key={key} id={key} testId="apl-action-list-item">
 							<Tree.Item.Header>
@@ -63,7 +91,15 @@ export const ActionFieldList = ({ player, config }: ActionFieldListProps) => {
 								</Tree.Item.Actions>
 							</Tree.Item.Header>
 							<Tree.Item.Body>
-								<ActionPicker player={player} config={itemConfig(action, index)} />
+								<AplRevealTarget getItem={() => stepConfig.getValue(player)}>
+									{markedSteps.length ? (
+										<MarkedStep markedSteps={markedSteps} index={index}>
+											{picker}
+										</MarkedStep>
+									) : (
+										picker
+									)}
+								</AplRevealTarget>
 							</Tree.Item.Body>
 						</Tree.Item>
 					);

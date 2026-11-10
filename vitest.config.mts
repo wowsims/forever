@@ -1,12 +1,12 @@
 // Unit-test config. The site build stays in vite.config.mts; this only adds a DOM and the
 // test-file glob, and reuses the same aliases so a test resolves imports exactly as the app does.
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { defineConfig } from 'vitest/config';
 
-import { UI_ALIASES } from './vite.config.mjs';
+import { simlPlugin } from './tools/vite/siml.mts';
+import { UI_ALIASES } from './vite.config.mts';
 
-const here = path.dirname(fileURLToPath(import.meta.url));
+const here = import.meta.dirname;
 
 export default defineConfig({
 	resolve: {
@@ -15,6 +15,7 @@ export default defineConfig({
 			...UI_ALIASES,
 		},
 	},
+	plugins: [simlPlugin()],
 	// Same JSX contract as the app.
 	oxc: {
 		jsx: { runtime: 'automatic', importSource: 'react' },

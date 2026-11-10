@@ -1,6 +1,8 @@
 package druid
 
 import (
+	"math"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -77,27 +79,36 @@ func (druid *Druid) GetCatWeapon() core.Weapon {
 	return druid.feralWeapon(1)
 }
 
-// The paw swings the equipped weapon's damage per second at the form's speed. Enchant and stone damage
-// is added whole, after the scaling.
+// SpellShapeshiftForm.DamageVariance is 0.4 for Cat, Bear, and Dire Bear.
+const feralPawVariance = 0.4
+
+// The paw uses the weapon's table DPS and form variance, with single-precision endpoints
+// rounded before AP and flat enchant or stone damage.
+// TODO: Ingame test needed -- whether the paw also takes the QualityModifier the table DPS leaves out.
 func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	paw := core.Weapon{
+		BaseDamageMin:        1,
+		BaseDamageMax:        1,
 		SwingSpeed:           swingSpeed,
 		NormalizedSwingSpeed: swingSpeed,
 		AttackPowerPerDPS:    core.DefaultAttackPowerPerDPS,
 		MaxRange:             core.MaxMeleeRange,
 	}
 	if item := druid.GetMHWeapon(); item != nil {
-		flat := item.Enchant.WeaponDamage + item.TempEnchantWeaponDamage
-		bonusDps := druid.PseudoStats.BonusMHDps
-		paw.BaseDamageMin = (item.WeaponDamageMin/item.SwingSpeed+bonusDps)*swingSpeed + flat
-		paw.BaseDamageMax = (item.WeaponDamageMax/item.SwingSpeed+bonusDps)*swingSpeed + flat
+		mean := float32(item.UnroundedDPS * float32(swingSpeed*1000))
+		mean = float32(mean * 0.001)
+		half := float32(float32(feralPawVariance) / 2)
+		flat := item.Enchant.WeaponDamage + item.TempEnchantWeaponDamage + druid.PseudoStats.BonusMHDps*swingSpeed
+		paw.BaseDamageMin = max(1, math.Floor(float64(float32(mean*float32(1-half))))) + flat
+		paw.BaseDamageMax = max(1, math.Round(float64(float32(mean*float32(1+half))))) + flat
 	}
 	return paw
 }
 
 // A bear's auto attack takes the two-hander rage factor: a combat log shows 11.25 rage a swing at the
 // bear's 2.5 seconds, 4.5 rage per second of swing. No druid row states a rage multiplier of its own.
-// TODO: Ingame test needed -- whether a bear holding a one-hander takes the one-hand factor instead.
+// TODO: Ingame test needed -- whether a bear holding a one-hander takes the one-hand factor instead, and
+// whether a bear's crit doubles the whole swing as a two-hand warrior's does (measured on warriors only).
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -127,34 +138,25 @@ func (druid *Druid) RegisterCatFormAura() {
 	})
 }
 
-// Bear Form (Passive2) 21178 is the bear forms' threat: A_MOD_THREAT on every school, 50 in the hotfixed
-// game files. The spell store does not carry the row, as neither form's row names it.
-// TODO: Read 21178 from the spell store once tools/database takes it for the druid.
-const bearFormThreatMultiplier = 1.5
+// Bear Form (Passive2) 21178 holds the bear forms' threat, an A_MOD_THREAT on every school. Neither
+// form's row names it, so the store carries it as an extra spell.
+const bearFormThreatSpellID = 21178
 
 func (druid *Druid) RegisterBearFormAura() {
 	druid.BearFormAura = druid.registerBearAura(spellData.BearForm.Highest(), spellData.BearFormTriggered.Highest(), Bear, druid.StartingForm == Bear)
+	// Out of the APL with its spell, which Dire Bear Form replaces.
+	druid.BearFormAura.HideFromAPL = true
 	druid.DireBearFormAura = druid.registerBearAura(spellData.DireBearForm.Highest(), spellData.DireBearFormTriggered.Highest(), DireBear, druid.StartingForm.Matches(DireBear))
 }
 
 func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.Spell, kind DruidForm, starting bool) *core.Aura {
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
-	// Armor from items, health, attack power and the Faerie Fire spell mods are parsed.
+	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
-	// The parser leaves A_MOD_BONUS_ARMOR_PCT alone: the items' bonus armor ("+N Armor") scales by the
-	// same 180% or 360% as their base armor ("Armor contribution from items").
-	if e := passive.FindEffect(dbcenums.E_APPLY_AURA, dbcenums.A_MOD_BONUS_ARMOR_PCT, 0); e != spelldata.NilEffect {
-		bonusArmor := 1 + e.Percent()
-		aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
-			druid.ApplyDynamicEquipScaling(sim, stats.BonusArmor, bonusArmor)
-		})
-		aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-			druid.RemoveDynamicEquipScaling(sim, stats.BonusArmor, bonusArmor)
-		})
-	}
+	spelldata.ParseEffects(&druid.Character, aura, spelldata.MustFind(bearFormThreatSpellID))
 	aura.ApplyOnGain(func(_ *core.Aura, sim *core.Simulation) {
 		druid.pauseCatEnergy(sim)
 		druid.setForm(kind)
@@ -162,12 +164,14 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 		druid.SetCurrentPowerBar(core.RageBar)
 		if !druid.Env.MeasuringStats {
 			druid.AutoAttacks.SetMH(druid.GetBearWeapon())
+			// A swing replacement also asks the rotation to queue an attack before the swing.
+			// Only Bear forms can queue Maul.
+			druid.AutoAttacks.SetReplaceMHSwing(druid.TryMaul)
 		}
-		druid.furorRageOnEnterBear(sim)
-		druid.PseudoStats.ThreatMultiplier *= bearFormThreatMultiplier
 	})
 	aura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
-		druid.PseudoStats.ThreatMultiplier /= bearFormThreatMultiplier
+		druid.AutoAttacks.SetReplaceMHSwing(nil)
+		druid.cancelMaulQueue(sim)
 		if druid.HasEnergyBar() && !druid.Env.MeasuringStats {
 			druid.EnergyPerTick = druid.furorEnergyPerTick
 			druid.rememberCatEnergy(sim, druid.furorStoredEnergy)
@@ -229,6 +233,8 @@ func (druid *Druid) registerCatFormSpell() {
 
 func (druid *Druid) registerBearFormSpell() {
 	druid.BearForm = druid.registerShapeshiftSpell(spellData.BearForm.Highest(), druid.BearFormAura)
+	// Dire Bear Form replaces Bear Form once learned, at level 40.
+	druid.BearForm.Flags &^= core.SpellFlagAPL
 	druid.DireBearForm = druid.registerShapeshiftSpell(spellData.DireBearForm.Highest(), druid.DireBearFormAura)
 }
 
@@ -236,7 +242,7 @@ func (druid *Druid) registerShapeshiftSpell(rank *spelldata.Spell, aura *core.Au
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
-		return aura != nil && !aura.IsActive()
+		return aura != nil && (aura == druid.BearFormAura || aura == druid.DireBearFormAura || !aura.IsActive())
 	}
 	// A shift into Bear or Dire Bear Form starts the rage bar at 0, and Furor's rage comes on top. The
 	// starting form is not cast, so the pull keeps the starting rage.
@@ -250,6 +256,9 @@ func (druid *Druid) registerShapeshiftSpell(rank *spelldata.Spell, aura *core.Au
 			druid.SpendRage(sim, druid.CurrentRage(), rageMetrics)
 		}
 		aura.Activate(sim)
+		if rageMetrics != nil {
+			druid.furorRageOnEnterBear(sim)
+		}
 	}
 	return druid.RegisterSpell(config)
 }
@@ -341,9 +350,8 @@ func (druid *Druid) RegisterMoonkinFormAura() {
 		return
 	}
 	druid.MoonkinFormAura = druid.registerFormAura(spellData.MoonkinForm.Highest(), druid.StartingForm.Matches(Moonkin))
-	// Moonkin Form (Passive) 24905 states the form's armor from items; its A_MOD_BONUS_ARMOR_PCT has no sim
-	// kind and is reported as skipped. The spell crit of Moonkin Aura 24907 is the raid buff AddRaidBuffs
-	// turns on.
+	// Moonkin Form (Passive) 24905 states the form's armor from items, base and bonus. The crit of
+	// Moonkin Aura 24907 is the raid buff AddRaidBuffs turns on.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinFormTriggered.ByID(24905))
 	// Of the form's own effects only Omen of Clarity's proc chance and proc cooldown have a sim kind.
 	spelldata.ParseEffects(&druid.Character, druid.MoonkinFormAura, spellData.MoonkinForm.Highest(), spelldata.Effects(5, 6))

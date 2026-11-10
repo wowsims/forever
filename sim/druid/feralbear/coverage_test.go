@@ -9,9 +9,9 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// The same talent string the cat coverage uses. The opener leaves dire bear and comes back so both
-// form spells are casts, then the bear abilities run.
-const coverageTalents = "0000000000000000-00000000100100000001-0500300000000000"
+// The cat coverage talents with Lacerate in place of Shifting Power. The opener leaves dire bear and
+// comes back so both form spells are casts, then the bear abilities run.
+const coverageTalents = "0000000000000000-05000000100100000010-0000300000000000"
 
 func TestFeralBearCoverage(t *testing.T) {
 	core.RunTestSuite(t, t.Name(), []core.TestGenerator{castsGen{bearCoverageRequest()}})
@@ -32,7 +32,7 @@ func bearCoverageRequest() *proto.RaidSimRequest {
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand].Id = 866
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
 	return &proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
@@ -48,16 +48,14 @@ func bearCoverageRequest() *proto.RaidSimRequest {
 				Rotation: &proto.APLRotation{
 					Type: proto.APLRotation_TypeAPL,
 					PriorityList: []*proto.APLListItem{
-						// One of each before Berserk removes Primal Bite's cooldown and it spends the rage.
-						sequence(9908, 1235827, 8983, 5209, 9898, 1238073),
+						sequence(9908, 1235827, 8983, 5209, 9898, 1238070),
 						cast(9881),
 						cast(5229),
 						cast(22842),
 						cast(6795),
-						cast(1238122),
+						cast(16979),
 						cast(22812),
 						castUnlessOnTarget(9907),
-						cast(417141),
 						// Both shifts cost mana: shift out only with the mana to shift back.
 						withCondition(sequence(768, 9634), cmp(proto.APLValueCompare_OpGe,
 							&proto.APLValue{Value: &proto.APLValue_CurrentMana{CurrentMana: &proto.APLValueCurrentMana{}}},

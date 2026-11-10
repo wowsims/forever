@@ -1,0 +1,7 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"cooldowns": { "cooldowns": [{ "id": { "spellId": 900010 }, "timings": [30] }, { "id": { "spellId": 29602 } }] }
+	}
+}

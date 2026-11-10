@@ -1,0 +1,18 @@
+siml 1
+spec balance_druid
+
+// Raw JSON as JSON.parse reads it, then as protojson reads that value (SPEC.md §11).
+settings:
+  `{"distanceFromTarget": "1e3", "reactionTimeMs": "10e-1", "darkIntentUptime": "-0", "name": "a", "name": "b"}`
+
+encounter: targets(stats=`[]`)
+
+sim:
+  fixed_rng_seed `123456789012345670`
+  filters(min_consumable_lvl=`{"+7": 1, "-0": 2, "10": 3, "-2": 4}`)
+
+cooldowns: cooldowns(id=x, timings=`[]`)
+
+priority:
+  strict_sequence(actions=`[]`)
+  wait `{"const": {"val": "1", "val": "2"}}`

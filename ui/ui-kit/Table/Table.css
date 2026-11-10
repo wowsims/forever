@@ -34,6 +34,14 @@
 			}
 		}
 
+		&[data-variant='rows'] > * > .ui-table-row > :is(.ui-table-cell, .ui-table-header-cell) {
+			@apply border-x-0;
+		}
+
+		&[data-size='sm'] {
+			@apply text-sm;
+		}
+
 		&[data-flush] > * > .ui-table-row > :is(.ui-table-cell, .ui-table-header-cell) {
 			@apply first:pl-0 last:pr-0;
 		}

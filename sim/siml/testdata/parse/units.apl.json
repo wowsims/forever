@@ -1,0 +1,375 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Self"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "CurrentTarget"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "PreviousTarget"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "NextTarget"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "AllTargets"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "AllPlayers"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Target"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Target",
+						"index": 1
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Player"
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Player",
+						"index": 2
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Pet",
+						"owner": {
+							"type": "Self"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Pet",
+						"index": 1,
+						"owner": {
+							"type": "Self"
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					},
+					"target": {
+						"type": "Pet",
+						"index": 1,
+						"owner": {
+							"type": "Player",
+							"index": 2
+						}
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"cmp": {
+									"op": "OpLt",
+									"lhs": {
+										"currentHealthPercent": {
+											"sourceUnit": {
+												"type": "CurrentTarget"
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "20%"
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLt",
+									"lhs": {
+										"currentHealthPercent": {}
+									},
+									"rhs": {
+										"const": {
+											"val": "50%"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentMana": {
+											"sourceUnit": {
+												"type": "Self"
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "100"
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"currentManaPercent": {
+											"sourceUnit": {
+												"type": "Player",
+												"index": 1
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "10%"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"or": {
+						"vals": [
+							{
+								"unitIsMoving": {
+									"sourceUnit": {
+										"type": "CurrentTarget"
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"unitDistance": {
+											"sourceUnit": {
+												"type": "Target",
+												"index": 2
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "8"
+										}
+									}
+								}
+							},
+							{
+								"bossCurrentTarget": {
+									"targetUnit": {
+										"type": "CurrentTarget"
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"currentHealth": {
+								"sourceUnit": {
+									"type": "Pet",
+									"owner": {
+										"type": "Self"
+									}
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "1"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"changeTarget": {
+					"newTarget": {
+						"type": "NextTarget"
+					}
+				}
+			}
+		}
+	]
+}

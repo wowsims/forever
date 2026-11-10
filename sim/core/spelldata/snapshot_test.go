@@ -5,13 +5,23 @@ package spelldata
 // the links, masks and effect kinds of a handful of rows; no amount is pinned.
 
 import (
-	"github.com/wowsims/forever/sim/core/dbcenums"
+	"math"
 	"slices"
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 )
+
+// Installs a copy of Revenge rank 1, whose 22 ± 1.69 is a physical roll.
+func withRevengeRank1Row(t *testing.T) {
+	t.Helper()
+	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
+		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
+	}}})
+}
 
 // Installs the generated data for one test and puts the fixture back afterwards, since TestMain
 // swaps the fixture in for the whole package.
@@ -177,16 +187,11 @@ func TestRollEndsMatchTheTooltip(t *testing.T) {
 	}
 }
 
-// A physical hit rolls its base points by the whole Variance either side: the copy of Revenge rank 1
-// below, 22 ± 3.4, rolls 19 to 25. A spell-school hit and a heal of any school, Healing Potion's
-// included, leave their roll to core, which spreads the whole amount by DirectVariance; an energize
-// keeps the half-width roll.
+// A physical hit rolls its base points itself; a spell-school hit and a heal hand core a DirectVariance, an energize none.
 func TestRollWidthByEffectKind(t *testing.T) {
-	withRows(t, []Spell{{ID: 6572, Name: "Revenge", School: 1, Effects: []Effect{
-		{SpellID: 6572, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 22, Variance: 0.1538461595773697, BaseLevel: 14},
-	}}})
+	withRevengeRank1Row(t)
 	copied := MustFind(6572).DamageEffect()
-	if got, want := [2]float64{copied.MinAt(60), copied.MaxAt(60)}, [2]float64{19, 25}; got != want {
+	if got, want := [2]float64{copied.MinAt(60), copied.MaxAt(60)}, [2]float64{20, 24}; got != want {
 		t.Errorf("Revenge rank 1 rolls %v at 60, want %v", got, want)
 	}
 
@@ -204,6 +209,41 @@ func TestRollWidthByEffectKind(t *testing.T) {
 
 	if got := MustFind(437).EnergizeEffect().DirectVariance(); got != 0 {
 		t.Errorf("Restore Mana hands core a DirectVariance of %v, want 0", got)
+	}
+}
+
+// A physical roll is a whole number from end to end, the ends rarer than the numbers between, averaging the middle.
+func TestPhysicalRollIsAWholeNumber(t *testing.T) {
+	withRevengeRank1Row(t)
+	revenge := MustFind(6572).DamageEffect()
+	const level, low, high = 60, 20.0, 24.0
+
+	sim, _ := core.NewWeaponTestSim(t, proto.Race_RaceUndead, nil, nil, nil)
+
+	const rolls = 20000
+	counts := map[float64]int{}
+	sum := 0.0
+	for range rolls {
+		roll := revenge.RollAt(sim, level)
+		if roll != math.Trunc(roll) || roll < low || roll > high {
+			t.Fatalf("a physical roll gave %v, want a whole number from %v to %v", roll, low, high)
+		}
+		counts[roll]++
+		sum += roll
+	}
+
+	for v := low; v <= high; v++ {
+		if counts[v] == 0 {
+			t.Errorf("a physical roll never gave %v in %d rolls", v, rolls)
+		}
+	}
+	for v := low + 1; v < high; v++ {
+		if counts[low] >= counts[v] || counts[high] >= counts[v] {
+			t.Errorf("the ends came up %d and %d times, %v %d times, want the ends rarer", counts[low], counts[high], v, counts[v])
+		}
+	}
+	if got, want := sum/rolls, revenge.MeanAt(level); math.Abs(got-want) > 0.05 {
+		t.Errorf("a physical roll averaged %v, want %v", got, want)
 	}
 }
 
@@ -242,9 +282,15 @@ func TestGeneratedRequiredAreas(t *testing.T) {
 	if s := MustFind(1287561); s.RequiredAreas != 0 || s.AreaType() != proto.AreaType_AreaTypeUnknown {
 		t.Errorf("Stolen Power 1287561 requires area group %d, want none", s.RequiredAreas)
 	}
-	if s := MustFind(1292011); s.RequiredAreas != 9071 || s.AreaType() != proto.AreaType_AreaTypeUnknown {
-		t.Errorf("Staff of Westfall requires area group %d (%v), want 9071 (Unknown)", s.RequiredAreas, s.AreaType())
-	}
+	t.Run("Staff of Westfall", func(t *testing.T) {
+		s := Find(1292011)
+		if s == Nil {
+			t.Skip("spell 1292011 is not in the live game files; this runs again once they hold it")
+		}
+		if s.RequiredAreas != 9071 || s.AreaType() != proto.AreaType_AreaTypeUnknown {
+			t.Errorf("Staff of Westfall requires area group %d (%v), want 9071 (Unknown)", s.RequiredAreas, s.AreaType())
+		}
+	})
 }
 
 // Area bonuses come from the override table, not the game files.
@@ -290,16 +336,16 @@ func TestGeneratedHandLink(t *testing.T) {
 	}
 }
 
-// Flurry is a trait talent: one spell, five ranks, and the per-rank numbers on a curve.
+// Flurry is a trait talent: one spell, three ranks, and the per-rank numbers on a curve.
 func TestGeneratedTalentCurve(t *testing.T) {
 	withGeneratedStore(t)
 
 	curve := curves[12319]
-	if len(curve) != 1 || len(curve[0]) != 5 {
-		t.Fatalf("Flurry's curve is %v, want one effect row of five ranks", curve)
+	if len(curve) != 1 || len(curve[0]) != 3 {
+		t.Fatalf("Flurry's curve is %v, want one effect row of three ranks", curve)
 	}
 
-	ladder := Talent(12319, 5)
+	ladder := Talent(12319, 3)
 	if got := ladder.Rank(3).EffectN(1).BaseValue(); got != curve[0][2] {
 		t.Errorf("Flurry rank 3 states %v, want the curve's third value %v", got, curve[0][2])
 	}

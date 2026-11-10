@@ -3,67 +3,68 @@ package proto;
 
 option go_package = "./proto";
 
+import "common.proto";
+
 // DO NOT REMOVE THE COMMENTS
 // BEGIN GENERATED
 // MageTalents message.
 message MageTalents {
     // Arcane
-    int32 wand_specialization = 1;
-    int32 arcane_focus = 2;
-    int32 improved_channeling = 3;
-    int32 missile_barrage = 4;
-    int32 arcane_subtlety = 5;
-    int32 magic_absorption = 6;
-    int32 arcane_concentration = 7;
-    int32 arcane_resilience = 8;
-    int32 arcane_geometry = 9;
-    int32 arcane_impact = 10;
-    bool arcane_blast = 11;
-    int32 arcane_shielding = 12;
-    int32 improved_counterspell = 13;
-    int32 arcane_meditation = 14;
-    bool arcane_wrath = 15;
-    bool presence_of_mind = 16;
-    int32 arcane_mind = 17;
-    int32 arcane_instability = 18;
-    bool arcane_power = 19;
+    int32 wand_specialization = 1 [(talent_spell_id) = 6057, (talent_max_rank) = 2];
+    int32 improved_channeling = 2 [(talent_spell_id) = 11237, (talent_max_rank) = 5];
+    int32 arcane_resilience = 3 [(talent_spell_id) = 28574, (talent_max_rank) = 3];
+    int32 arcane_subtlety = 4 [(talent_spell_id) = 11210, (talent_max_rank) = 2];
+    int32 magic_absorption = 5 [(talent_spell_id) = 29441, (talent_max_rank) = 2];
+    int32 arcane_concentration = 6 [(talent_spell_id) = 11213, (talent_max_rank) = 5];
+    int32 missile_barrage = 7 [(talent_spell_id) = 400588, (talent_max_rank) = 2];
+    int32 arcane_geometry = 8 [(talent_spell_id) = 11247, (talent_max_rank) = 2];
+    int32 arcane_impact = 9 [(talent_spell_id) = 11242, (talent_max_rank) = 3];
+    bool arcane_blast = 10 [(talent_spell_id) = 400574];
+    int32 arcane_shielding = 11 [(talent_spell_id) = 11252, (talent_max_rank) = 2];
+    int32 improved_counterspell = 12 [(talent_spell_id) = 11255, (talent_max_rank) = 2];
+    int32 arcane_meditation = 13 [(talent_spell_id) = 18462, (talent_max_rank) = 3];
+    bool arcane_wrath = 14 [(talent_spell_id) = 1326079];
+    bool presence_of_mind = 15 [(talent_spell_id) = 12043];
+    int32 arcane_mind = 16 [(talent_spell_id) = 11232, (talent_max_rank) = 5];
+    int32 arcane_instability = 17 [(talent_spell_id) = 15058, (talent_max_rank) = 3];
+    bool arcane_power = 18 [(talent_spell_id) = 12042];
     // Fire
-    int32 improved_fire_blast = 20;
-    int32 incineration = 21;
-    int32 improved_fireball = 22;
-    int32 ignite = 23;
-    int32 flame_throwing = 24;
-    int32 impact = 25;
-    int32 burning_soul = 26;
-    int32 improved_flamestrike = 27;
-    bool pyroblast = 28;
-    int32 improved_scorch = 29;
-    int32 improved_fire_ward = 30;
-    bool heating_up = 31;
-    int32 master_of_elements = 32;
-    int32 critical_mass = 33;
-    bool blast_wave = 34;
-    int32 fire_power = 35;
-    bool combustion = 36;
+    int32 incineration = 19 [(talent_spell_id) = 18459, (talent_max_rank) = 5];
+    int32 accelerant = 20 [(talent_spell_id) = 11069, (talent_max_rank) = 5];
+    int32 ignite = 21 [(talent_spell_id) = 11119, (talent_max_rank) = 5];
+    int32 flame_throwing = 22 [(talent_spell_id) = 11100, (talent_max_rank) = 2];
+    int32 impact = 23 [(talent_spell_id) = 11103, (talent_max_rank) = 3];
+    int32 burning_soul = 24 [(talent_spell_id) = 11083, (talent_max_rank) = 3];
+    int32 improved_flamestrike = 25 [(talent_spell_id) = 11108, (talent_max_rank) = 3];
+    bool pyroblast = 26 [(talent_spell_id) = 11366];
+    int32 improved_fire_blast = 27 [(talent_spell_id) = 11078, (talent_max_rank) = 2];
+    int32 improved_scorch = 28 [(talent_spell_id) = 11095, (talent_max_rank) = 3];
+    int32 improved_fire_ward = 29 [(talent_spell_id) = 11094, (talent_max_rank) = 2];
+    bool heating_up = 30 [(talent_spell_id) = 400624];
+    int32 master_of_elements = 31 [(talent_spell_id) = 29074, (talent_max_rank) = 3];
+    int32 critical_mass = 32 [(talent_spell_id) = 11115, (talent_max_rank) = 3];
+    bool blast_wave = 33 [(talent_spell_id) = 11113];
+    int32 fire_power = 34 [(talent_spell_id) = 11124, (talent_max_rank) = 3];
+    bool combustion = 35 [(talent_spell_id) = 11129];
     // Frost
-    int32 frost_warding = 37;
-    int32 improved_frostbolt = 38;
-    int32 elemental_precision = 39;
-    int32 ice_shards = 40;
-    int32 frostbite = 41;
-    int32 improved_frost_nova = 42;
-    int32 permafrost = 43;
-    int32 frost_channeling = 44;
-    int32 improved_blizzard = 45;
-    bool ice_lance = 46;
-    int32 arctic_reach = 47;
-    bool ice_block = 48;
-    int32 shatter = 49;
-    int32 improved_cone_of_cold = 50;
-    bool cold_snap = 51;
-    int32 fingers_of_frost = 52;
-    int32 winters_chill = 53;
-    bool ice_barrier = 54;
+    int32 frost_warding = 36 [(talent_spell_id) = 11189, (talent_max_rank) = 2];
+    int32 improved_frostbolt = 37 [(talent_spell_id) = 11070, (talent_max_rank) = 5];
+    int32 precision = 38 [(talent_spell_id) = 29438, (talent_max_rank) = 3];
+    int32 ice_shards = 39 [(talent_spell_id) = 11207, (talent_max_rank) = 5];
+    int32 frostbite = 40 [(talent_spell_id) = 11071, (talent_max_rank) = 3];
+    int32 improved_frost_nova = 41 [(talent_spell_id) = 11165, (talent_max_rank) = 2];
+    int32 permafrost = 42 [(talent_spell_id) = 11175, (talent_max_rank) = 3];
+    int32 frost_channeling = 43 [(talent_spell_id) = 11160, (talent_max_rank) = 3];
+    int32 improved_blizzard = 44 [(talent_spell_id) = 11185, (talent_max_rank) = 3];
+    bool ice_lance = 45 [(talent_spell_id) = 1312002];
+    int32 arctic_reach = 46 [(talent_spell_id) = 16757, (talent_max_rank) = 2];
+    bool ice_block = 47 [(talent_spell_id) = 11958];
+    int32 shatter = 48 [(talent_spell_id) = 11170, (talent_max_rank) = 3];
+    int32 improved_cone_of_cold = 49 [(talent_spell_id) = 11190, (talent_max_rank) = 3];
+    bool cold_snap = 50 [(talent_spell_id) = 12472];
+    int32 fingers_of_frost = 51 [(talent_spell_id) = 400647, (talent_max_rank) = 2];
+    int32 winters_chill = 52 [(talent_spell_id) = 11180, (talent_max_rank) = 5];
+    bool ice_barrier = 53 [(talent_spell_id) = 11426];
 }
 
 // END GENERATED

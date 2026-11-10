@@ -1,0 +1,7 @@
+siml 1
+spec hunter
+talents "-005305031150001-5502000300502201"
+use "../../parse/hunter_p1.gear.siml"
+
+group "Opener":
+  cast hunters_mark

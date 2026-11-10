@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+group:
+priority:
+  var $x = 1
+buffs:
+  var $y = 2
+cast x

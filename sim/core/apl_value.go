@@ -102,6 +102,14 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueNumberTargets(config.GetNumberTargets(), config.Uuid)
 	case *proto.APLValue_EncounterInArea:
 		value = rot.newValueEncounterInArea(config.GetEncounterInArea(), config.Uuid)
+	case *proto.APLValue_TargetIsActive:
+		value = rot.newValueTargetIsActive(config.GetTargetIsActive(), config.Uuid)
+	case *proto.APLValue_NumActiveAdds:
+		value = rot.newValueNumActiveAdds(config.GetNumActiveAdds(), config.Uuid)
+	case *proto.APLValue_TimeUntilTargetActive:
+		value = rot.newValueTimeUntilTargetActive(config.GetTimeUntilTargetActive(), config.Uuid)
+	case *proto.APLValue_TimeUntilTargetDies:
+		value = rot.newValueTimeUntilTargetDies(config.GetTimeUntilTargetDies(), config.Uuid)
 
 	// Boss
 	case *proto.APLValue_BossSpellIsCasting:
@@ -112,6 +120,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueBossCurrentTarget(config.GetBossCurrentTarget(), config.Uuid)
 	case *proto.APLValue_TargetIsMobType:
 		value = rot.newValueTargetIsMobType(config.GetTargetIsMobType(), config.Uuid)
+	case *proto.APLValue_TargetIsBleedImmune:
+		value = rot.newValueTargetIsBleedImmune(config.GetTargetIsBleedImmune(), config.Uuid)
 
 	// Resources
 	case *proto.APLValue_CurrentHealth:
@@ -172,6 +182,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellIsKnown(config.GetSpellIsKnown(), config.Uuid)
 	case *proto.APLValue_SpellCanCast:
 		value = rot.newValueSpellCanCast(config.GetSpellCanCast(), config.Uuid)
+	case *proto.APLValue_SpellInRange:
+		value = rot.newValueSpellInRange(config.GetSpellInRange(), config.Uuid)
 	case *proto.APLValue_SpellIsReady:
 		value = rot.newValueSpellIsReady(config.GetSpellIsReady(), config.Uuid)
 	case *proto.APLValue_SpellTimeToReady:
@@ -184,6 +196,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueSpellCPM(config.GetSpellCpm(), config.Uuid)
 	case *proto.APLValue_SpellIsCasting:
 		value = rot.newValueSpellIsCasting(config.GetSpellIsCasting(), config.Uuid)
+	case *proto.APLValue_RemainingCastTime:
+		value = rot.newValueRemainingCastTime(config.GetRemainingCastTime(), config.Uuid)
 	case *proto.APLValue_SpellIsChanneling:
 		value = rot.newValueSpellIsChanneling(config.GetSpellIsChanneling(), config.Uuid)
 	case *proto.APLValue_SpellChanneledTicks:
@@ -207,6 +221,12 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 	case *proto.APLValue_SpellIsExpertiseCapped:
 		value = rot.newValueSpellIsExpertiseCapped(config.GetSpellIsExpertiseCapped(), config.Uuid)
 
+	// Talents
+	case *proto.APLValue_TalentIsKnown:
+		value = rot.newValueTalentIsKnown(config.GetTalentIsKnown(), config.Uuid)
+	case *proto.APLValue_TalentRank:
+		value = rot.newValueTalentRank(config.GetTalentRank(), config.Uuid)
+
 	// Auras
 	case *proto.APLValue_AuraIsKnown:
 		value = rot.newValueAuraIsKnown(config.GetAuraIsKnown(), config.Uuid)
@@ -214,6 +234,10 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueAuraIsActive(config.GetAuraIsActive(), config.Uuid)
 	case *proto.APLValue_AuraIsInactive:
 		value = rot.newValueAuraIsInactive(config.GetAuraIsInactive(), config.Uuid)
+	case *proto.APLValue_AuraIsActiveOnAllTargets:
+		value = rot.newValueAuraIsActiveOnAllTargets(config.GetAuraIsActiveOnAllTargets(), config.Uuid)
+	case *proto.APLValue_AuraIsActiveOnAnyTarget:
+		value = rot.newValueAuraIsActiveOnAnyTarget(config.GetAuraIsActiveOnAnyTarget(), config.Uuid)
 	case *proto.APLValue_AuraRemainingTime:
 		value = rot.newValueAuraRemainingTime(config.GetAuraRemainingTime(), config.Uuid)
 	case *proto.APLValue_AuraNumStacks:
@@ -252,6 +276,8 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotIsActive(config.GetDotIsActive(), config.Uuid)
 	case *proto.APLValue_DotIsActiveOnAllTargets:
 		value = rot.newValueDotIsActiveOnAllTargets(config.GetDotIsActiveOnAllTargets(), config.Uuid)
+	case *proto.APLValue_DotIsActiveOnAnyTarget:
+		value = rot.newValueDotIsActiveOnAnyTarget(config.GetDotIsActiveOnAnyTarget(), config.Uuid)
 	case *proto.APLValue_DotRemainingTime:
 		value = rot.newValueDotRemainingTime(config.GetDotRemainingTime(), config.Uuid)
 	case *proto.APLValue_DotLowestRemainingTime:
@@ -262,10 +288,13 @@ func (rot *APLRotation) newAPLValueWithContext(config *proto.APLValue, groupVari
 		value = rot.newValueDotTimeToNextTick(config.GetDotTimeToNextTick(), config.Uuid)
 	case *proto.APLValue_DotBaseDuration:
 		value = rot.newValueDotBaseDuration(config.GetDotBaseDuration(), config.Uuid)
+	// Disabled for now, with the DoT increase values in apl_values_dot.go.
 	case *proto.APLValue_DotPercentIncrease:
-		value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Damage Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotPercentIncrease(config.GetDotPercentIncrease(), config.Uuid)
 	case *proto.APLValue_DotTickRatePercentIncrease:
-		value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
+		rot.ValidationMessageByUUID(config.Uuid, proto.LogLevel_Warning, "Dot Tick Rate Increase %% is disabled: combat restrictions in game keep addons from tracking it")
+		// value = rot.newValueDotTickRatePercentIncrease(config.GetDotTickRatePercentIncrease(), config.Uuid)
 
 	// Sequences
 	case *proto.APLValue_SequenceIsComplete:

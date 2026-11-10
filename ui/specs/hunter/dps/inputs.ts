@@ -160,7 +160,7 @@ export const PetAttackSpeed = <SpecType extends HunterSpecs>() =>
 	});
 
 // Beast Training, the part of it that changes the pet's damage. Cobra Reflexes is a flag, but it is
-// picked the way its neighbours are so the four read alike: label, then icon.
+// picked the way its neighbours are so the three read alike: label, then icon.
 export const CobraReflexes = <SpecType extends HunterSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, number>({
 		fieldName: 'cobraReflexes',
@@ -178,23 +178,6 @@ export const CobraReflexes = <SpecType extends HunterSpecs>() =>
 		},
 	});
 
-// One spell per rank, so the wowhead tooltip is the rank's own.
-export const PetAggression = <SpecType extends HunterSpecs>() =>
-	InputHelpers.makeClassOptionsEnumIconInput<SpecType, number>({
-		fieldName: 'petAggression',
-		label: i18n.t('settings_tab.other.pet_training.pet_aggression.label'),
-		labelTooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.tooltip'),
-		numColumns: 3,
-		values: [
-			{ value: 0, tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.untrained') },
-			{ value: 1, actionId: ActionId.fromSpellId(6311), text: '1', tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.rank', { rank: 1 }) },
-			{ value: 2, actionId: ActionId.fromSpellId(6314), text: '2', tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.rank', { rank: 2 }) },
-			{ value: 3, actionId: ActionId.fromSpellId(6315), text: '3', tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.rank', { rank: 3 }) },
-			{ value: 4, actionId: ActionId.fromSpellId(6316), text: '4', tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.rank', { rank: 4 }) },
-			{ value: 5, actionId: ActionId.fromSpellId(6317), text: '5', tooltip: i18n.t('settings_tab.other.pet_training.pet_aggression.rank', { rank: 5 }) },
-		],
-	});
-
 export const PetUptime = () =>
 	InputHelpers.makeClassOptionsNumberInput<Spec.SpecHunter>({
 		fieldName: 'petUptime',
@@ -209,7 +192,7 @@ export const PetSection: CustomSection<Spec.SpecHunter> = {
 	id: 'hunter-pet-settings',
 	title: i18n.t('settings_tab.other.pet_section.title'),
 	iconGroupClassName: 'grid grid-cols-2 gap-x-6 gap-y-2',
-	iconInputs: [PetTypeInput(), PetAttackSpeed(), CobraReflexes(), PetAggression()],
+	iconInputs: [PetTypeInput(), PetAttackSpeed(), CobraReflexes()],
 	inputs: [PetUptime()],
 };
 
@@ -229,11 +212,10 @@ export const RotationInputs = {
 			],
 		}),
 		InputHelpers.makeRotationNumberInput<Spec.SpecHunter>({
-			fieldName: 'timeToWeave',
-			label: i18n.t('rotation_tab.options.hunter.time_to_weave.label'),
-			labelTooltip: i18n.t('rotation_tab.options.hunter.time_to_weave.tooltip'),
+			fieldName: 'pullRange',
+			label: i18n.t('rotation_tab.options.hunter.pull_range.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.pull_range.tooltip'),
 			positive: true,
-			showWhen: (player: Player<Spec.SpecHunter>) => player.getSimpleRotation().playstyle === Playstyle.Weave,
 		}),
 		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
 			fieldName: 'useAimed',
@@ -263,6 +245,17 @@ export const RotationInputs = {
 			fieldName: 'useHawk',
 			label: i18n.t('rotation_tab.options.hunter.use_hawk.label'),
 			labelTooltip: i18n.t('rotation_tab.options.hunter.use_hawk.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useSerpentStingRank9',
+			label: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_serpent_sting_rank_9.tooltip'),
+		}),
+		InputHelpers.makeRotationBooleanInput<Spec.SpecHunter>({
+			fieldName: 'useAspectOfTheHawkRank7',
+			label: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.label'),
+			labelTooltip: i18n.t('rotation_tab.options.hunter.use_aspect_of_the_hawk_rank_7.tooltip'),
+			showWhen: isRanged,
 		}),
 	],
 };

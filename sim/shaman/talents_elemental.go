@@ -30,14 +30,14 @@ func (shaman *Shaman) registerElementalTalents() {
 
 	// Tier 5
 	shaman.applyElementalReach()
-	shaman.applyLavaBurst()
+	shaman.applyCallOfThunder()
 	// Lightning Overload: shaman.go, GetOverloadChance
 
 	// Tier 6
 	shaman.applyElementalFury()
 
 	// Tier 7
-	shaman.applyElementalMastery()
+	shaman.applyLightningMastery()
 }
 
 func (shaman *Shaman) applyConvection() {
@@ -85,7 +85,7 @@ func (shaman *Shaman) applyElementalDevastation() {
 	// 30165 supplies the duration. The crit is the talent's own ladder, 3/6/9 by rank, which is
 	// what the tooltip of 30160 reads; the buff row states a flat 3.
 	critAura := shaman.RegisterAura(spelldata.AuraConfig(elementalDevastationBuff)).
-		AttachStatBuff(stats.PhysicalCritPercent, spellData.ElementalDevastation.ValueAt(shaman.Talents.ElementalDevastation))
+		AttachStatBuff(stats.PhysicalCritPercent, shaman.ElementalDevastationCritPercent())
 
 	// The row hears harmful spells with no roll, and the tooltip's "Critical Strikes with direct
 	// damage spells" makes the crit the outcome.
@@ -96,6 +96,11 @@ func (shaman *Shaman) applyElementalDevastation() {
 	trigger.Name = "Elemental Devastation - Trigger"
 
 	shaman.MakeProcTriggerAura(trigger)
+}
+
+// The physical crit Elemental Devastation's buff grants at the talent's rank, 0 without the talent.
+func (shaman *Shaman) ElementalDevastationCritPercent() float64 {
+	return spellData.ElementalDevastation.ValueAt(shaman.Talents.ElementalDevastation)
 }
 
 var clearcastingBuff = spellData.ElementalFocusTriggered.Highest()
@@ -157,8 +162,7 @@ func (shaman *Shaman) applyTrialByFire() {
 	spelldata.ParseStatic(&shaman.Character, spellData.TrialByFire.Rank(shaman.Talents.TrialByFire))
 }
 
-// The range the row states reaches the spells' range checks only, and the sim has no Totemic
-// Projection for effect 3's cooldown to reach.
+// The range the row states reaches the spells' range checks only. Effect 3 is a dummy.
 func (shaman *Shaman) applyElementalReach() {
 	if shaman.Talents.ElementalReach == 0 {
 		return
@@ -173,34 +177,34 @@ func (shaman *Shaman) applyElementalFury() {
 	spelldata.ParseStatic(&shaman.Character, spellData.ElementalFury.Rank(shaman.Talents.ElementalFury))
 }
 
-// The talent teaches Lava Burst.
-func (shaman *Shaman) applyLavaBurst() {
-	if !shaman.Talents.LavaBurst {
+// The crit reaches the overloads too, whose rows carry Lightning Bolt's and Chain Lightning's class flags.
+func (shaman *Shaman) applyCallOfThunder() {
+	if !shaman.Talents.CallOfThunder {
 		return
 	}
-	shaman.registerLavaBurstSpells()
+	spelldata.ParseStatic(&shaman.Character, spellData.CallOfThunder.Highest())
 }
 
-var elementalMasteryRank = spellData.ElementalMastery.Highest()
+var lightningMasteryRank = spellData.LightningMastery.Highest()
 
 // The row states one charge and casts that would spend it, but the tooltip reads "Lasts $d", so the
 // buff lasts its full 15 s and no cast spends it.
 //
 // TODO: Ingame test needed: whether the first spell the buff reaches ends it.
-func (shaman *Shaman) applyElementalMastery() {
-	if !shaman.Talents.ElementalMastery {
+func (shaman *Shaman) applyLightningMastery() {
+	if !shaman.Talents.LightningMastery {
 		return
 	}
 
-	emAura := shaman.RegisterAura(spelldata.AuraConfig(elementalMasteryRank))
-	spelldata.ParseEffects(&shaman.Character, emAura, elementalMasteryRank)
+	lmAura := shaman.RegisterAura(spelldata.AuraConfig(lightningMasteryRank))
+	spelldata.ParseEffects(&shaman.Character, lmAura, lightningMasteryRank)
 
-	config := spelldata.SpellConfig(&shaman.Unit, elementalMasteryRank)
-	config.ClassSpellMask = SpellMaskElementalMastery
+	config := spelldata.SpellConfig(&shaman.Unit, lightningMasteryRank)
+	config.ClassSpellMask = SpellMaskLightningMastery
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		emAura.Activate(sim)
+		lmAura.Activate(sim)
 	}
-	config.RelatedSelfBuff = emAura
+	config.RelatedSelfBuff = lmAura
 
 	shaman.AddMajorCooldown(core.MajorCooldown{
 		Spell: shaman.RegisterSpell(config),

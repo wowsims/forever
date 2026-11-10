@@ -7,12 +7,10 @@ import type { ReactNode } from 'react';
 import { UI_CLASS_FILES } from '../tokens/ui_classes';
 import { UTILITIES } from '../tokens/utilities';
 
-const BUTTON_SIZES = new Set(['ui-button-md', 'ui-button-sm', 'ui-button-icon']);
-
 const uiClassSample = (name: string): ReactNode => {
 	if (name === 'ui-button' || name.startsWith('ui-button-'))
 		return (
-			<button type="button" className={clsx('ui-button', BUTTON_SIZES.has(name) ? 'ui-button-primary' : 'ui-button-md', name)}>
+			<button type="button" data-size="md" className={clsx('ui-button', name === 'ui-button-icon' && 'ui-button-primary', name)}>
 				Button
 			</button>
 		);
@@ -33,12 +31,12 @@ const UTILITY_SAMPLES: Record<string, ReactNode> = {
 	interactive: <span className="interactive">Pointer cursor, no text selection</span>,
 	'icon-sm': <span className="icon-sm bg-primary" />,
 	'focus-ring': (
-		<button type="button" className="ui-button ui-button-md ui-button-secondary focus-visible:focus-ring">
+		<button type="button" data-size="md" className="ui-button ui-button-secondary focus-visible:focus-ring">
 			Tab to focus
 		</button>
 	),
 	'focus-ring-inset': (
-		<button type="button" className="ui-button ui-button-md ui-button-secondary focus-visible:focus-ring-inset">
+		<button type="button" data-size="md" className="ui-button ui-button-secondary focus-visible:focus-ring-inset">
 			Tab to focus
 		</button>
 	),

@@ -9,7 +9,7 @@ import {
 } from '@features/settings/model/consumables';
 import { DragonbreathChili } from '@features/settings/model/consumables_auto_gen';
 import { shownStatsReader, type StatFilterScope } from '@features/stat-filters/model/stat_filters';
-import { ConsumableType, ItemSlot, PotionClass } from '@generated/proto/common';
+import { Class, ConsumableType, ItemSlot, PotionClass } from '@generated/proto/common';
 import type { Consumable } from '@generated/proto/db';
 import i18n from '@i18n/config';
 import type { Player } from '@sim/player/player';
@@ -37,7 +37,7 @@ export interface ConsumeConfigs {
 	foodGroups: Array<ConsumeConfig>;
 	miscGroups: Array<ConsumeConfig>;
 	food: ConsumeConfig;
-	// A food that stacks with the food pick, offered to the specs that hit in melee.
+	// A food that stacks with the food pick, offered to the specs that hit in melee, hunters among them.
 	dragonbreathChili?: ConsumeToggle;
 	// A world event's consumables: one pick per exclusive group holding one, and the rest each on its own.
 	holidayGroups: Array<ConsumeConfig>;
@@ -129,8 +129,10 @@ const buildConsumeConfigs = (player: Player<any>, db: Database): ConsumeConfigs 
 	const fitsWeaponIn = fitsHandOf((p, slot) => p.getEquippedItem(slot));
 	const fitsSwapWeaponIn = fitsHandOf((p, slot) => p.itemSwapSettings.getItem(slot));
 	const swapOn = (p: Player<any>) => p.itemSwapSettings.getEnableItemSwap();
+	// A hunter weaves melee swings between shots.
+	const hitsInMelee = (_: Consumable, p: Player<any>) =>
+		p.getPlayerSpec().isMeleeDpsSpec || p.getPlayerSpec().isTankSpec || p.getClass() === Class.ClassHunter;
 	// The potion already picked stays offered, so a pick outside the class can still be seen and cleared.
-	const hitsInMelee = (_: Consumable, p: Player<any>) => p.getPlayerSpec().isMeleeDpsSpec || p.getPlayerSpec().isTankSpec;
 	const ofPotionClass =
 		(potionClass: PotionClass, field: 'offensivePotId' | 'defensivePotId' | 'resourcePotId') => (consumable: Consumable, p: Player<any>) =>
 			consumable.potionClasses.includes(potionClass) || p.getConsumes()[field] === consumable.id;

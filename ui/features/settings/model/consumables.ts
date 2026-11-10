@@ -44,13 +44,14 @@ export interface ConsumableInputOptions {
 
 // The class, race and profession decide whether a consumable is offered at all, picked or not. The
 // minimum level and the stat rule only trim what is offered: a consumable already picked stays
-// offered below the level and with its stats hidden.
+// offered below the level or with its stats hidden, marked as kept.
+const trimmed = (consumable: Consumable, relevance: ConsumableRelevance, player: Player<any>) =>
+	consumable.lvl < player.sim.getMinConsumableLvl(consumable.type) || !relevance.relevant(consumable, player);
+
 const offeredTo =
 	(consumable: Consumable, relevance: ConsumableRelevance, picked: (player: Player<any>) => boolean, includeIf?: ConsumableInputOptions['includeIf']) =>
 	(player: Player<any>) =>
-		consumableAllowed(consumable, player) &&
-		((consumable.lvl >= player.sim.getMinConsumableLvl(consumable.type) && relevance.relevant(consumable, player)) || picked(player)) &&
-		(!includeIf || includeIf(consumable, player));
+		consumableAllowed(consumable, player) && (!trimmed(consumable, relevance, player) || picked(player)) && (!includeIf || includeIf(consumable, player));
 
 // Defaults are the stats and percents the spec weighs consumables by and the stats it displays, as the
 // buffs' filter counts them (a pseudo-stat by its root rating); the universe adds every one a
@@ -151,7 +152,7 @@ function consumablePicker(
 		showWhen: options.showWhen,
 		keptBy: (player: Player<any>, value: number) => {
 			const picked = byId.get(value);
-			return !!picked && !relevance.relevant(picked, player);
+			return !!picked && trimmed(picked, relevance, player);
 		},
 		getValue: (player: Player<any>) => pickOf(player.getConsumes()),
 		setValue: (player: Player<any>, newValue: number) => {
@@ -175,7 +176,7 @@ export function makeIdListInput(consumable: Consumable, relevance: ConsumableRel
 		states: 2,
 		storeField: STORE_FIELDS,
 		showWhen: offeredTo(consumable, relevance, picked, includeIf),
-		keptBy: (player: Player<any>, value: boolean) => value && !relevance.relevant(consumable, player),
+		keptBy: (player: Player<any>, value: boolean) => value && trimmed(consumable, relevance, player),
 		getValue: picked,
 		setValue: (player: Player<any>, newValue: boolean) => {
 			const consumes = player.getConsumes();

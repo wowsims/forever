@@ -13,7 +13,7 @@ func _() {
 	_ = x[SpellFlagIgnoreTargetModifiers-4]
 	_ = x[SpellFlagIgnoreAttackerModifiers-8]
 	_ = x[SpellFlagApplyArmorReduction-16]
-	_ = x[SpellFlagCannotBeDodged-32]
+	_ = x[SpellFlagNoActiveDefense-32]
 	_ = x[SpellFlagIncludeTargetBonusDamage-64]
 	_ = x[SpellFlagBinary-128]
 	_ = x[SpellFlagChanneled-256]
@@ -46,59 +46,73 @@ func _() {
 	_ = x[SpellFlagPushback-34359738368]
 	_ = x[SpellFlagNoPartialResist-68719476736]
 	_ = x[SpellFlagKeepsSwingTimer-137438953472]
-	_ = x[SpellFlagMovesToTarget-274877906944]
-	_ = x[SpellFlagAgentReserved1-549755813888]
-	_ = x[SpellFlagAgentReserved2-1099511627776]
-	_ = x[SpellFlagAgentReserved3-2199023255552]
-	_ = x[SpellFlagAgentReserved4-4398046511104]
+	_ = x[SpellFlagDropsQueuedSwing-274877906944]
+	_ = x[SpellFlagBleed-549755813888]
+	_ = x[SpellFlagStun-1099511627776]
+	_ = x[SpellFlagMovesToTarget-2199023255552]
+	_ = x[SpellFlagPhysicalSchoolDamage-4398046511104]
+	_ = x[SpellFlagRequiresMainHand-8796093022208]
+	_ = x[SpellFlagOnNextSwing-17592186044416]
+	_ = x[SpellFlagIgnoreTargetSchoolBonus-35184372088832]
+	_ = x[SpellFlagAgentReserved1-70368744177664]
+	_ = x[SpellFlagAgentReserved2-140737488355328]
+	_ = x[SpellFlagAgentReserved3-281474976710656]
+	_ = x[SpellFlagAgentReserved4-562949953421312]
 }
 
-const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagCannotBeDodgedSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagMovesToTargetSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
+const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagNoActiveDefenseSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagDropsQueuedSwingSpellFlagBleedSpellFlagStunSpellFlagMovesToTargetSpellFlagPhysicalSchoolDamageSpellFlagRequiresMainHandSpellFlagOnNextSwingSpellFlagIgnoreTargetSchoolBonusSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
 
 var _SpellFlag_map = map[SpellFlag]string{
-	0:             _SpellFlag_name[0:13],
-	2:             _SpellFlag_name[13:35],
-	4:             _SpellFlag_name[35:65],
-	8:             _SpellFlag_name[65:97],
-	16:            _SpellFlag_name[97:125],
-	32:            _SpellFlag_name[125:148],
-	64:            _SpellFlag_name[148:181],
-	128:           _SpellFlag_name[181:196],
-	256:           _SpellFlag_name[196:214],
-	512:           _SpellFlag_name[214:230],
-	1024:          _SpellFlag_name[230:245],
-	2048:          _SpellFlag_name[245:261],
-	4096:          _SpellFlag_name[261:277],
-	8192:          _SpellFlag_name[277:298],
-	16384:         _SpellFlag_name[298:323],
-	32768:         _SpellFlag_name[323:341],
-	65536:         _SpellFlag_name[341:356],
-	131072:        _SpellFlag_name[356:368],
-	262144:        _SpellFlag_name[368:380],
-	524288:        _SpellFlag_name[380:397],
-	1048576:       _SpellFlag_name[397:421],
-	2097152:       _SpellFlag_name[421:441],
-	4194304:       _SpellFlag_name[441:463],
-	8388608:       _SpellFlag_name[463:478],
-	16777216:      _SpellFlag_name[478:495],
-	33554432:      _SpellFlag_name[495:513],
-	67108864:      _SpellFlag_name[513:533],
-	134217728:     _SpellFlag_name[533:560],
-	268435456:     _SpellFlag_name[560:581],
-	536870912:     _SpellFlag_name[581:609],
-	1073741824:    _SpellFlag_name[609:622],
-	2147483648:    _SpellFlag_name[622:646],
-	4294967296:    _SpellFlag_name[646:662],
-	8589934592:    _SpellFlag_name[662:693],
-	17179869184:   _SpellFlag_name[693:721],
-	34359738368:   _SpellFlag_name[721:738],
-	68719476736:   _SpellFlag_name[738:762],
-	137438953472:  _SpellFlag_name[762:786],
-	274877906944:  _SpellFlag_name[786:808],
-	549755813888:  _SpellFlag_name[808:831],
-	1099511627776: _SpellFlag_name[831:854],
-	2199023255552: _SpellFlag_name[854:877],
-	4398046511104: _SpellFlag_name[877:900],
+	0:               _SpellFlag_name[0:13],
+	2:               _SpellFlag_name[13:35],
+	4:               _SpellFlag_name[35:65],
+	8:               _SpellFlag_name[65:97],
+	16:              _SpellFlag_name[97:125],
+	32:              _SpellFlag_name[125:149],
+	64:              _SpellFlag_name[149:182],
+	128:             _SpellFlag_name[182:197],
+	256:             _SpellFlag_name[197:215],
+	512:             _SpellFlag_name[215:231],
+	1024:            _SpellFlag_name[231:246],
+	2048:            _SpellFlag_name[246:262],
+	4096:            _SpellFlag_name[262:278],
+	8192:            _SpellFlag_name[278:299],
+	16384:           _SpellFlag_name[299:324],
+	32768:           _SpellFlag_name[324:342],
+	65536:           _SpellFlag_name[342:357],
+	131072:          _SpellFlag_name[357:369],
+	262144:          _SpellFlag_name[369:381],
+	524288:          _SpellFlag_name[381:398],
+	1048576:         _SpellFlag_name[398:422],
+	2097152:         _SpellFlag_name[422:442],
+	4194304:         _SpellFlag_name[442:464],
+	8388608:         _SpellFlag_name[464:479],
+	16777216:        _SpellFlag_name[479:496],
+	33554432:        _SpellFlag_name[496:514],
+	67108864:        _SpellFlag_name[514:534],
+	134217728:       _SpellFlag_name[534:561],
+	268435456:       _SpellFlag_name[561:582],
+	536870912:       _SpellFlag_name[582:610],
+	1073741824:      _SpellFlag_name[610:623],
+	2147483648:      _SpellFlag_name[623:647],
+	4294967296:      _SpellFlag_name[647:663],
+	8589934592:      _SpellFlag_name[663:694],
+	17179869184:     _SpellFlag_name[694:722],
+	34359738368:     _SpellFlag_name[722:739],
+	68719476736:     _SpellFlag_name[739:763],
+	137438953472:    _SpellFlag_name[763:787],
+	274877906944:    _SpellFlag_name[787:812],
+	549755813888:    _SpellFlag_name[812:826],
+	1099511627776:   _SpellFlag_name[826:839],
+	2199023255552:   _SpellFlag_name[839:861],
+	4398046511104:   _SpellFlag_name[861:890],
+	8796093022208:   _SpellFlag_name[890:915],
+	17592186044416:  _SpellFlag_name[915:935],
+	35184372088832:  _SpellFlag_name[935:967],
+	70368744177664:  _SpellFlag_name[967:990],
+	140737488355328: _SpellFlag_name[990:1013],
+	281474976710656: _SpellFlag_name[1013:1036],
+	562949953421312: _SpellFlag_name[1036:1059],
 }
 
 func (i SpellFlag) String() string {

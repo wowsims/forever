@@ -1,0 +1,25 @@
+siml 1
+spec hunter
+
+// Each def doubles the calls of the one before it, so d17 expands 2^17 times, past the 65536 a file may.
+def d0 = true
+def d1 = d0 and d0
+def d2 = d1 and d1
+def d3 = d2 and d2
+def d4 = d3 and d3
+def d5 = d4 and d4
+def d6 = d5 and d5
+def d7 = d6 and d6
+def d8 = d7 and d7
+def d9 = d8 and d8
+def d10 = d9 and d9
+def d11 = d10 and d10
+def d12 = d11 and d11
+def d13 = d12 and d12
+def d14 = d13 and d13
+def d15 = d14 and d14
+def d16 = d15 and d15
+def d17 = d16 and d16
+
+priority:
+  cast aimed_shot if d17

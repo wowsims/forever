@@ -61,21 +61,23 @@ export const OnboardingProvider = ({ storage, storageKey, children }: Onboarding
 export interface OnboardingOutletProps {
 	/** The page is ready to be toured; the tour waits for it. */
 	ready: boolean;
+	/** Opens the tour by itself on a first visit; when false it opens only when asked. */
+	autoOpen: boolean;
 	/** Draws the running tour. A new run (a restart) remounts it at its first card. */
 	renderTour: (run: TourRun) => ReactNode;
 }
 
-/** Where the running tour is drawn; nothing outside an `OnboardingProvider`. Opens it by itself once the page is first ready, unless a tour has ended before. */
-export const OnboardingOutlet = ({ ready, renderTour }: OnboardingOutletProps) => {
+/** Where the running tour is drawn; nothing outside an `OnboardingProvider`. Opens it by itself once the page is first ready, unless a tour has ended before or `autoOpen` is off. */
+export const OnboardingOutlet = ({ ready, autoOpen, renderTour }: OnboardingOutletProps) => {
 	const state = use(OnboardingContext);
 	const run = state?.run ?? null;
 
 	useEffect(() => {
-		if (!state || !ready || state.seen()) return;
+		if (!state || !ready || !autoOpen || state.seen()) return;
 		const { openFirst } = state;
 		const timer = setTimeout(openFirst, FIRST_OPEN_DELAY_MS);
 		return () => clearTimeout(timer);
-	}, [state, ready]);
+	}, [state, ready, autoOpen]);
 
 	return state && run !== null && ready ? <TourMount key={run} trigger={run === 0 ? 'auto' : 'restart'} end={state.end} renderTour={renderTour} /> : null;
 };

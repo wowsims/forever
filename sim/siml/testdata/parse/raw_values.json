@@ -1,0 +1,57 @@
+{
+	"settings": {
+		"fixedRngSeed": "123456789012345664",
+		"filters": {
+			"minConsumableLvl": {
+				"0": 2,
+				"7": 1,
+				"10": 3,
+				"-2": 4
+			}
+		}
+	},
+	"player": {
+		"name": "b",
+		"class": "ClassDruid",
+		"balanceDruid": {
+			"options": {
+				"classOptions": {}
+			}
+		},
+		"cooldowns": {
+			"cooldowns": [
+				{
+					"id": {
+						"spellId": 5
+					}
+				}
+			]
+		},
+		"rotation": {
+			"type": "TypeAPL",
+			"priorityList": [
+				{
+					"action": {
+						"strictSequence": {}
+					}
+				},
+				{
+					"action": {
+						"wait": {
+							"duration": {
+								"const": {
+									"val": "2"
+								}
+							}
+						}
+					}
+				}
+			]
+		},
+		"reactionTimeMs": 1,
+		"distanceFromTarget": 1000
+	},
+	"encounter": {
+		"targets": [{}]
+	}
+}

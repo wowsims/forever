@@ -1,9 +1,11 @@
-import { AplItemActions, AplList, AplSectionTitle } from '@features/apl/components/AplList';
+import { AplItemActions, AplList, AplRevealTarget, AplSectionTitle } from '@features/apl/components/AplList';
 import { AplListItem } from '@features/apl/components/AplListItem';
 import { AplNameDialog } from '@features/apl/components/AplNameDialog';
+import { AplPasteDialog } from '@features/apl/components/AplPasteDialog';
 import { ListItemHeader } from '@features/apl/components/ListItemHeader';
 import { uuidValidations } from '@features/apl/components/ListItemHeader/utils';
 import { NameDisplay } from '@features/apl/components/NameDisplay';
+import { copyAplClip, useAplPaste } from '@features/apl/hooks/useAplClipboard';
 import { useAplInput } from '@features/apl/hooks/useAplInput';
 import { useVariableExtraction } from '@features/apl/hooks/useVariableExtraction';
 import { aplItemId } from '@features/apl/model/apply_move';
@@ -53,6 +55,7 @@ export const GroupEditor = ({ id, player, config, groupIndex, onCopy, onDelete }
 			config.getValue(player)!.actions[index].action!.condition = reference;
 		},
 	);
+	const pasting = useAplPaste('action', actions);
 	const groupLabel = i18n.t('rotation_tab.apl.actionGroups.name');
 	const label = i18n.t('rotation_tab.apl.priorityList.name');
 
@@ -62,8 +65,16 @@ export const GroupEditor = ({ id, player, config, groupIndex, onCopy, onDelete }
 			id={id}
 			label={groupLabel}
 			title={<NameDisplay name={group?.name || ''} onRename={() => setRenaming(true)} />}
-			actions={<AplItemActions label={groupLabel} onCopy={onCopy} onDelete={onDelete} />}
+			actions={
+				<AplItemActions
+					label={groupLabel}
+					onCopy={onCopy}
+					onCopyToClipboard={() => copyAplClip({ kind: 'group', item: config.getValue(player) })}
+					onDelete={onDelete}
+				/>
+			}
 			disabled={disabled}
+			revealOn={request => request.kind === 'group' && !!config.getValue(player)?.actions.includes(request.item as APLListItem)}
 			testId="apl-group-editor-root">
 			<Tree.Item.Children testId="apl-group-actions">
 				<span className="flex items-center gap-2">
@@ -97,25 +108,36 @@ export const GroupEditor = ({ id, player, config, groupIndex, onCopy, onDelete }
 										<AplItemActions
 											label={label}
 											onCopy={() => actions.copy(index)}
+											onCopyToClipboard={() => copyAplClip({ kind: 'action', item: itemConfig.getValue(player) })}
 											onExtract={() => extraction.extract(index)}
 											canExtract={() => extraction.canExtract(index)}
 											onDelete={() => actions.remove(index)}
 										/>
 									}>
 									<Tree.Item.Body>
-										<AplListItem player={player} config={itemConfig} actionFullWidth />
+										<AplRevealTarget getItem={() => itemConfig.getValue(player)}>
+											<AplListItem player={player} config={itemConfig} actionFullWidth />
+										</AplRevealTarget>
 									</Tree.Item.Body>
 								</AplList.Item>
 							);
 						})}
 					</AplList.Rows>
 				)}
-				<Tree.AddButton
-					label={i18n.t('rotation_tab.apl.floatingActionBar.new', { itemName: label })}
-					icon="plus"
-					tone="success"
-					onClick={() => actions.create()}
-				/>
+				<span className="flex items-center gap-1">
+					<Tree.AddButton
+						label={i18n.t('rotation_tab.apl.floatingActionBar.new', { itemName: label })}
+						icon="plus"
+						tone="success"
+						onClick={() => actions.create()}
+					/>
+					<Tree.AddButton
+						label={i18n.t('rotation_tab.apl.floatingActionBar.paste', { itemName: label })}
+						icon="paste"
+						testId="apl-paste"
+						onClick={pasting.paste}
+					/>
+				</span>
 			</Tree.Item.Children>
 			<AplNameDialog
 				open={renaming}
@@ -134,6 +156,7 @@ export const GroupEditor = ({ id, player, config, groupIndex, onCopy, onDelete }
 				onClose={() => setRenaming(false)}
 			/>
 			<AplNameDialog {...extraction.dialog} />
+			<AplPasteDialog {...pasting.textDialog} />
 		</AplList.Item>
 	);
 };

@@ -1,0 +1,79 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"notes": "One line.",
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"notes": "Two lines,\n\n   the third indented.",
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"currentTime": {}
+						},
+						"rhs": {
+							"const": {
+								"val": "1s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"notes": "A comment between notes does not part them.\nThe second note line.",
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"notes": "tight\n/ four",
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"actions": [
+				{
+					"notes": "In a group.",
+					"action": {}
+				}
+			]
+		}
+	]
+}

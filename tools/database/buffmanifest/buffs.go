@@ -5,11 +5,16 @@ import "github.com/wowsims/forever/sim/core/proto"
 // One row per proto field of RaidBuffs, PartyBuffs, IndividualBuffs and Debuffs, in the order the
 // settings tab lists them, with the fields that have no input after the last one that does. A
 // field's proto number is its position in its slice.
+//
+// A row's Ranks open with the rank no class book teaches, and a book teaches the last rank of a totem or
+// a greater blessing, so the list opens with the trainer's top rank. Mark of the Wild, Power Word:
+// Fortitude, Arcane Intellect and Shadow Protection read the single-target spell's top rank, whose
+// amounts match the group spell's top rank.
 
 var Raid = []BuffSpec{
 	{
-		Field:    "arcane_brilliance",
-		SpellID:  23028,
+		Field:    "arcane_intellect",
+		SpellID:  10157,
 		Category: "StatBuff",
 		Stats: []proto.Stat{
 			proto.Stat_StatIntellect,
@@ -24,8 +29,8 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:   "gift_of_the_wild",
-		SpellID: 21850,
+		Field:   "mark_of_the_wild",
+		SpellID: 9885,
 		Stats: []proto.Stat{
 			proto.Stat_StatArmor,
 			proto.Stat_StatStrength,
@@ -36,16 +41,16 @@ var Raid = []BuffSpec{
 		},
 	},
 	{
-		Field:    "prayer_of_fortitude",
-		SpellID:  21564,
+		Field:    "power_word_fortitude",
+		SpellID:  10938,
 		Category: "StatBuff",
 		Stats: []proto.Stat{
 			proto.Stat_StatStamina,
 		},
 	},
 	{
-		Field:   "prayer_of_shadow_protection",
-		SpellID: 27683,
+		Field:   "shadow_protection",
+		SpellID: 10958,
 		Stats: []proto.Stat{
 			proto.Stat_StatShadowResistance,
 		},
@@ -106,18 +111,20 @@ var Raid = []BuffSpec{
 	},
 	{
 		Field:    "strength_of_earth_totem",
-		SpellID:  25362,
-		CastID:   25361,
+		SpellID:  10441,
+		CastID:   10442,
 		Category: "StrengthOfEarthTotem",
+		Ranks:    []BuffRank{{SpellID: 10441, CastID: 10442}, {SpellID: 25362, CastID: 25361}},
 		Stats: []proto.Stat{
 			proto.Stat_StatStrength,
 		},
 	},
 	{
 		Field:    "grace_of_air_totem",
-		SpellID:  25360,
-		CastID:   25359,
+		SpellID:  10626,
+		CastID:   10627,
 		Category: "GraceOfAirTotem",
+		Ranks:    []BuffRank{{SpellID: 10626, CastID: 10627}, {SpellID: 25360, CastID: 25359}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAgility,
 		},
@@ -143,15 +150,18 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// The improved state is a warrior wearing three pieces of Battlegear of Wrath, whose set spell
-	// 23563 adds 30 to every effect of the shout. No set spell is resolved, so driveBattleShout adds it.
+	// Four states: off, the row's Rank 6 (the top rank the trainer teaches), Rank 7 from Manual of
+	// Battle Shout VII, and Rank 7 from a warrior wearing three pieces of Battlegear of Wrath, whose
+	// set spell 23563 adds 30 to every effect of the shout. No set spell is resolved, so
+	// driveBattleShout picks the rank and adds the 30; ImpAction keeps 23563 in the store.
 	{
 		Field:      "battle_shout",
-		SpellID:    25289,
+		SpellID:    11551,
 		Category:   "BattleShout",
 		SingleAura: true,
 		Driver:     true,
 		ImpAction:  &ActionRef{SpellID: 23563},
+		Proto:      ProtoInt32,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
@@ -184,24 +194,26 @@ var Raid = []BuffSpec{
 			proto.Stat_StatNatureResistance,
 		},
 	},
-	// Melee and ranged crit only, so it stacks with Moonkin Aura's spell crit.
+	// Raises all crit, as Moonkin Aura below does; the two share one category, so only one counts.
 	{
 		Field:      "leader_of_the_pack",
 		SpellID:    24932,
 		CastID:     17007,
-		Category:   "LeaderOfThePack",
+		Category:   "RaidCrit",
 		SingleAura: true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
+			proto.Stat_StatSpellDamage,
 		},
 	},
 	{
 		Field:      "moonkin_aura",
 		SpellID:    24907,
 		TooltipID:  24858,
-		Category:   "MoonkinAura",
+		Category:   "RaidCrit",
 		SingleAura: true,
 		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
 			proto.Stat_StatSpellDamage,
 		},
 	},
@@ -383,33 +395,31 @@ var Individual = []BuffSpec{
 	},
 	{
 		Field:   "greater_blessing_of_might",
-		SpellID: 25916,
+		SpellID: 25782,
+		Ranks:   []BuffRank{{SpellID: 25782}, {SpellID: 25916}},
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
 	},
 	{
 		Field:   "greater_blessing_of_wisdom",
-		SpellID: 25918,
+		SpellID: 25894,
+		Ranks:   []BuffRank{{SpellID: 25894}, {SpellID: 25918}},
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,
 		},
 	},
+	// The game files no longer have Greater Blessing of Salvation 25895 or Greater Blessing of Light
+	// 25890, so the two fields stay in saved settings and do nothing.
 	{
-		Field:   "greater_blessing_of_salvation",
-		SpellID: 25895,
+		Field:  "greater_blessing_of_salvation",
+		Kind:   KindFlag,
+		Reason: "Greater Blessing of Salvation 25895 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
-	// Raises the healing Holy Light and Flash of Light do through flat modifiers on those families.
-	// The paladin's heals read the bonus off their own rows and only look for the aura, which the
-	// category tags.
 	{
-		Field:    "greater_blessing_of_light",
-		SpellID:  25890,
-		Kind:     KindManual,
-		Category: "BlessingOfLight",
-		Stats: []proto.Stat{
-			proto.Stat_StatHealingPower,
-		},
+		Field:  "greater_blessing_of_light",
+		Kind:   KindFlag,
+		Reason: "Greater Blessing of Light 25890 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
 	{
 		Field:    "innervates",
@@ -432,15 +442,23 @@ var Individual = []BuffSpec{
 		},
 		Label: "Power Infusions",
 	},
+	// Driven because the damage scales with the providing druid's Nature spell power.
 	{
 		Field:      "thorns",
 		SpellID:    9910,
 		Category:   "Thorns",
 		SingleAura: true,
+		Driver:     true,
 		Stats: []proto.Stat{
 			proto.Stat_StatDefenseRating,
 			proto.Stat_StatStamina,
 		},
+	},
+	{
+		Field:  "thorns_spell_power",
+		Kind:   KindFlag,
+		Proto:  ProtoDouble,
+		Reason: "the Nature spell power of the druid providing Thorns, which driveThorns scales the damage with; a sim input with no spell source, rendered under Other Inputs.",
 	},
 }
 

@@ -8,6 +8,7 @@ import * as Mechanics from '@sim/constants/mechanics';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
+import { withSpellIds } from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
 import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
@@ -90,7 +91,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 	// IconInputs to include in the 'Player' section on the settings tab.
 	// Icon pickers are not part of the `InputConfig` union, so the two Battle Shout icon toggles
 	// sit in the player icon row.
-	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutT2()],
+	playerIconInputs: [WarriorInputs.ShoutPicker(), WarriorInputs.StancePicker(), WarriorInputs.BattleShoutT2(), WarriorInputs.BattleShoutRank7()],
 	// Buff and Debuff inputs to include/exclude, overriding the EP-based defaults.
 	includeBuffDebuffInputs: [],
 	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
@@ -144,6 +145,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			useRecklessness = false,
 			useStanceDance = false,
 			useHamstring = true,
+			useHeroicStrikeRank9 = false,
+			useBattleShoutRank7 = false,
 		} = simple;
 
 		if (!spec) {
@@ -154,10 +157,18 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 			}
 		}
 
-		const rotation = APLRotation.clone(
+		// The presets cast the ranks the Ruins of Ahn'Qiraj class books teach; each rank left unchosen moves to the
+		// trainer's top rank.
+		const trainerRanks = new Map<number, number>();
+		if (!useHeroicStrikeRank9) trainerRanks.set(25286, 11567);
+		if (!useBattleShoutRank7) trainerRanks.set(25289, 11551);
+		const rotation = withSpellIds(
 			spec == DpsWarriorSpec.DpsWarriorSpecFury ? Presets.FURY_DEFAULT_ROTATION.rotation.rotation! : Presets.ARMS_DEFAULT_ROTATION.rotation.rotation!,
+			trainerRanks,
 		);
 
+		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
+		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
 		const recklessnessAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action.action.groupReference.groupName === 'Recklessness ON/OFF',
 		);
@@ -168,6 +179,8 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (stanceDanceAction) stanceDanceAction.hide = !useStanceDance;
 
+		// Help stacks to 5 and leaves the rest to the raid, restacking once the debuff falls off even with no raid Sunder;
+		// Maintain also refreshes; None casts none. Stacking and refreshing stay separate groups so the option can split them.
 		const sunderArmorAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Sunder Armor',
 		);
@@ -188,6 +201,9 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 		if (rendWeaveAction) rendWeaveAction.hide = !useRend;
 
+		// Hamstring is woven for Windfury procs only while Windfury Totem is known: Fury below Overpower weaving, Arms above
+		// Execute while the Windfury buff is down. It runs on a single target only, since on more targets the rage goes to
+		// Cleave and Whirlwind instead; Arms with Stance Dance on, which has no Whirlwind stance weave, keeps it on two.
 		const hamstringWeaveAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action?.action.groupReference.groupName === 'Hamstring Weave ON/OFF',
 		);

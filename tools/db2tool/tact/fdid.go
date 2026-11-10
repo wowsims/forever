@@ -130,15 +130,15 @@ func (l *Listfile) load() error {
 	scanner.Buffer(make([]byte, 1<<20), 1<<20)
 	for scanner.Scan() {
 		line := scanner.Text()
-		sep := strings.IndexByte(line, ';')
-		if sep < 0 {
+		before, after, ok := strings.Cut(line, ";")
+		if !ok {
 			continue
 		}
-		fdid, err := strconv.ParseUint(line[:sep], 10, 32)
+		fdid, err := strconv.ParseUint(before, 10, 32)
 		if err != nil {
 			continue
 		}
-		l.byPath[strings.ToLower(line[sep+1:])] = uint32(fdid)
+		l.byPath[strings.ToLower(after)] = uint32(fdid)
 	}
 	return scanner.Err()
 }

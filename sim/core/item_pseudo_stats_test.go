@@ -151,9 +151,10 @@ func TestReducedCasterDpsSuffixSwapsTheWeaponDamage(t *testing.T) {
 	})
 
 	for _, tc := range []struct {
-		name          string
-		suffix        int32
-		min, max, dps float64
+		name     string
+		suffix   int32
+		min, max float64
+		dps      float32
 	}{
 		{"no suffix", 0, 58, 88, 20.483225},
 		{"a suffix that does not reduce caster DPS", plainSuffixID, 58, 88, 20.483225},

@@ -4,7 +4,7 @@ import * as OtherInputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type, APLValueVariable } from '@generated/proto/apl';
 import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
+import { Cooldowns, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import * as Mechanics from '@sim/constants/mechanics';
 import { PlayerClasses } from '@sim/player/classes';
@@ -90,20 +90,19 @@ export default defineSpec<Spec.SpecRogue>({
 		specOptions: Presets.DefaultOptions,
 		// Default raid/party buffs settings.
 		raidBuffs: RaidBuffs.create({
-			giftOfTheWild: true,
-			strengthOfEarthTotem: true,
+			markOfTheWild: true,
+			strengthOfEarthTotem: 1,
 			windfuryTotem: true,
-			battleShout: TristateEffect.TristateEffectRegular,
+			battleShout: 1, // Rank 6
 			leaderOfThePack: true,
-			graceOfAirTotem: true,
+			graceOfAirTotem: 1,
 			moonkinAura: true,
-			prayerOfFortitude: true,
+			powerWordFortitude: true,
 		}),
 		partyBuffs: PartyBuffs.create({}),
 		individualBuffs: IndividualBuffs.create({
 			greaterBlessingOfKings: true,
-			greaterBlessingOfMight: true,
-			greaterBlessingOfSalvation: true,
+			greaterBlessingOfMight: 1,
 		}),
 		debuffs: Debuffs.create({
 			curseOfRecklessness: true,
@@ -121,12 +120,27 @@ export default defineSpec<Spec.SpecRogue>({
 	rotationInputs: {
 		inputs: [
 			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'startInStealth',
+				label: i18n.t('rotation_tab.options.rogue.start_in_stealth.label'),
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
 				fieldName: 'useBackstab',
 				label: i18n.t('rotation_tab.options.rogue.use_backstab.label'),
 			}),
 			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
 				fieldName: 'useExposeArmor',
 				label: i18n.t('rotation_tab.options.rogue.use_expose_armor.label'),
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'useBackstabRank9',
+				label: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.label'),
+				labelTooltip: i18n.t('rotation_tab.options.rogue.use_backstab_rank_9.tooltip'),
+				showWhen: (player: Player<Spec.SpecRogue>) => player.getSimpleRotation().useBackstab,
+			}),
+			InputHelpers.makeRotationBooleanInput<Spec.SpecRogue>({
+				fieldName: 'useEviscerateRank9',
+				label: i18n.t('rotation_tab.options.rogue.use_eviscerate_rank_9.label'),
+				labelTooltip: i18n.t('rotation_tab.options.rogue.use_eviscerate_rank_9.tooltip'),
 			}),
 		],
 	},
@@ -137,7 +151,7 @@ export default defineSpec<Spec.SpecRogue>({
 	excludeBuffDebuffInputs: [BuffDebuffInputs.AtieshMage],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [OtherInputs.InFrontOfTarget, OtherInputs.InputDelay],
+		inputs: [OtherInputs.InputDelay, OtherInputs.TankAssignment, OtherInputs.InFrontOfTarget],
 	},
 	itemSwapSlots: [ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2, ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand],
 	encounterPicker: {
@@ -148,25 +162,17 @@ export default defineSpec<Spec.SpecRogue>({
 	presets: {
 		epWeights: [Presets.EP_PRESET_ASSASSINATION, Presets.EP_PRESET_COMBAT_DAGS, Presets.EP_PRESET_COMBAT_SINISTER, Presets.EP_PRESET_SUBTLETY],
 		// Preset talents that the user can quickly select.
-		talents: [
-			Presets.TALENTS_MUTILATE_ASN,
-			Presets.TALENTS_MUTILATE_COM,
-			Presets.TALENTS_COMBAT_SS,
-			Presets.TALENTS_COMBAT_BS,
-			Presets.TALENTS_SUB_HEMO,
-			Presets.TALENTS_SUB_BS,
-		],
+		talents: [Presets.TALENTS_MUTILATE_ASN, Presets.TALENTS_COMBAT_SS, Presets.TALENTS_COMBAT_BS, Presets.TALENTS_SUB_HEMO, Presets.TALENTS_COMBAT_VENOM],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.SIMPLE_ROTATION, Presets.DEFAULT_APL],
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.P1_BS_COMBAT_GEAR, Presets.P1_MUTI_GEAR, Presets.P1_SLOW_MH_GEAR, Presets.P1_BS_SUB_GEAR],
 		builds: [
 			Presets.PRESET_BUILD_MUTILATE_ASN,
-			Presets.PRESET_BUILD_MUTILATE_COM,
 			Presets.PRESET_BUILD_COMBAT_SS,
 			Presets.PRESET_BUILD_COMBAT_BS,
 			Presets.PRESET_BUILD_SUB_HEMO,
-			Presets.PRESET_BUILD_SUB_BS,
+			Presets.PRESET_BUILD_COM_VEN,
 		],
 	},
 
@@ -174,10 +180,15 @@ export default defineSpec<Spec.SpecRogue>({
 		return Presets.DEFAULT_APL.rotation.rotation!;
 	},
 
+	// A rank toggle turned on casts the book rank in place of the trainer's top rank.
 	simpleRotation: (_player: Player<Spec.SpecRogue>, simple: SpecRotation<Spec.SpecRogue>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
-		const rotation = APLRotation.clone(Presets.DEFAULT_APL.rotation.rotation!);
+		const bookRanks = new Map<number, number>();
+		if (simple.useBackstabRank9) bookRanks.set(11281, 25300);
+		if (simple.useEviscerateRank9) bookRanks.set(11300, 31016);
+		const rotation = AplUtils.withSpellIds(Presets.DEFAULT_APL.rotation.rotation!, bookRanks);
 		const values: Record<string, string> = {
+			'Start In Stealth': String(simple.startInStealth),
 			'Use Backstab': String(simple.useBackstab),
 			'Use Expose Armor': String(simple.useExposeArmor),
 		};

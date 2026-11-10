@@ -16,6 +16,7 @@ const meta = {
 		text: { control: 'text' },
 		tooltip: { control: 'text' },
 		className: { control: 'text' },
+		disabled: { control: 'boolean' },
 	},
 } satisfies Meta<typeof CopyButton>;
 
@@ -25,6 +26,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 export const OutlinePrimary: Story = { args: { variant: 'outline-primary', text: 'Copy Export' } };
 export const WithTooltip: Story = { args: { variant: 'primary', tooltip: 'Copies the whole sim as JSON.' } };
+/** Nothing to copy yet, such as an export whose text is still being made. */
+export const Disabled: Story = { args: { variant: 'primary', disabled: true } };
 
 /** An insecure origin has no `navigator.clipboard`: the click toasts the payload for a manual copy. */
 export const NoClipboard: Story = {

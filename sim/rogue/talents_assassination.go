@@ -1,26 +1,25 @@
 package rogue
 
 import (
-	"time"
-
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 func (rogue *Rogue) registerAssassinationTalents() {
 	// Tier 1
 	// Gouge NYI
-	// Remorseless Attacks NYI
+	rogue.registerRemorselessAttacks()
 	rogue.registerMalice()
 
 	// Tier 2
 	// Ruthlessness modeled in rogue.go ApplyFinisher
-	rogue.registerMurder()
+	rogue.registerImprovedExposeArmor()
 	// Improved Slice modeled in Slice and Dice directly
 
 	// Tier 3
-	// Relentless Strikes modeled in rogue.go ApplyFinisher
-	rogue.registerImprovedExposeArmor()
+	// Vigor modeled in rogue.go during initialization
+	rogue.registerBloodSplatter()
 	rogue.registerLethality()
 
 	// Tier 4
@@ -29,24 +28,58 @@ func (rogue *Rogue) registerAssassinationTalents() {
 	rogue.registerImprovedPoisons()
 
 	// Tier 5
-	// Vigor modeled in rogue.go during initialization
-	rogue.registerMutilate()
+	// Relentless Strikes modeled in rogue.go ApplyFinisher
+	// Venom modeled in shank.go
 	// Kidney Shot NYI
 
 	// Tier 6
 	rogue.registerSealFate()
 
 	// Tier 7
-	rogue.registerVenom()
+	rogue.registerMutilate()
 }
 
-func (rogue *Rogue) registerImprovedEviscerate() {
-	if rogue.Talents.ImprovedEviscerate == 0 {
+func (rogue *Rogue) registerCoupDeGrace() {
+	if rogue.Talents.CoupDeGrace == 0 {
 		return
 	}
 
+	// Effect 2, on Death Mark, is read in death_mark.go.
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.ImprovedEviscerate.Rank(rogue.Talents.ImprovedEviscerate))
+		spellData.CoupDeGrace.Rank(rogue.Talents.CoupDeGrace), spelldata.Effects(1))
+}
+
+var remorselessRank = spellData.RemorselessAttacksTriggered.Highest()
+
+// The talent row hears the killing blow, and a credited kill grants Remorseless. The buff row states
+// a flat 40% crit where the talent's effect 1 is 20/40% by rank, so the row is scaled by the ranks
+// taken. The spells its crit mod names spend its one charge.
+func (rogue *Rogue) registerRemorselessAttacks() {
+	if rogue.Talents.RemorselessAttacks == 0 {
+		return
+	}
+
+	buff := rogue.RegisterAura(spelldata.AuraConfig(remorselessRank))
+	spelldata.ParseEffects(&rogue.Character, buff, remorselessRank,
+		spelldata.ScaledByRanks(rogue.Talents.RemorselessAttacks, spellData.RemorselessAttacks.Len()), spelldata.IgnoreStacks())
+	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+	})
+	// A miss, dodge or parry of a qualifying strike spends the charge as a landed one does.
+	spelldata.AttachChargeSpender(&rogue.Character, buff, remorselessRank, "Remorseless Attacks - Spend",
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnCastResult
+			trigger.Outcome = core.OutcomeEmpty
+			trigger.RequireDamageDealt = false
+			trigger.RequireDamageComponent = false
+			trigger.TriggerImmediately = true
+		})
+
+	rogue.MakeProcTriggerAura(spelldata.ProcTrigger(&rogue.Character,
+		spellData.RemorselessAttacks.Rank(rogue.Talents.RemorselessAttacks),
+		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Activate(sim)
+		}))
 }
 
 func (rogue *Rogue) registerMalice() {
@@ -58,13 +91,13 @@ func (rogue *Rogue) registerMalice() {
 		spellData.Malice.Rank(rogue.Talents.Malice))
 }
 
-func (rogue *Rogue) registerMurder() {
-	if rogue.Talents.Murder == 0 {
+func (rogue *Rogue) registerBloodSplatter() {
+	if !rogue.Talents.BloodSplatter {
 		return
 	}
 
 	spelldata.ParseStatic(&rogue.Character,
-		spellData.Murder.Rank(rogue.Talents.Murder))
+		spellData.BloodSplatter.Rank(1))
 }
 
 func (rogue *Rogue) registerImprovedExposeArmor() {
@@ -202,7 +235,7 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	config.Flags |= SpellFlagBuilder | SpellFlagColdBlooded | core.SpellFlagPassiveSpell
 	config.Flags &^= core.SpellFlagAPL
 	config.SpellID = mutilateCastRank.ID
-	config.Tag = core.TernaryInt32(isMH, 1, 2)
+	config.ActionID = config.ActionID.WithHand(core.Ternary(isMH, proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand))
 	for i := range config.ClassFlags.Mask {
 		config.ClassFlags.Mask[i] |= mutilateCastRank.ClassFlags.Mask[i]
 	}
@@ -227,26 +260,4 @@ func (rogue *Rogue) newMutilateHitSpell(isMH bool) *core.Spell {
 	}
 
 	return rogue.RegisterSpell(config)
-}
-
-var venomRank = spellData.Venom.Highest()
-
-func (rogue *Rogue) registerVenom() {
-	if !rogue.Talents.Venom {
-		return
-	}
-
-	config := spelldata.SpellConfig(&rogue.Unit, venomRank, spelldata.Melee(core.ProcMaskEmpty))
-	venomAura := rogue.RegisterAura(spelldata.AuraConfig(venomRank))
-	spelldata.ParseEffects(&rogue.Character, venomAura, venomRank)
-	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
-
-	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		rogue.BreakStealth(sim) // As this finisher deals no damage, it may or may not break stealth. To be tested.
-		venomAura.Duration = venomRank.Duration() + time.Second*3*time.Duration(rogue.ComboPoints())
-		rogue.ApplyFinisher(sim, spell)
-		venomAura.Activate(sim)
-	}
-
-	rogue.RegisterSpell(config)
 }

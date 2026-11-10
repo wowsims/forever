@@ -21,8 +21,8 @@ func (warrior *Warrior) registerExecute() {
 	// TODO: Manual review needed -- the game files state no threat coefficient; 1 until measured in game.
 	config := spelldata.SpellConfig(&warrior.Unit, executeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
-	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return sim.IsExecutePhase20()
+	config.ExtraCastCondition = func(_ *core.Simulation, target *core.Unit) bool {
+		return target.IsExecutePhase20()
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

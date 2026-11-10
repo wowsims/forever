@@ -56,12 +56,19 @@ type Unit struct {
 
 	Level int32 // Level of Unit, e.g. Bosses are 83.
 
+	MenuGroupOrder []string // The order of the unit's APL menu groups, by full path; a group not listed follows them.
+
 	MobType        proto.MobType
+	BleedImmune    bool // A bleed misses this unit, and its Dot does not land (SpellFlagBleed).
+	StunImmune     bool // A stun misses this unit whole (SpellFlagStun), and stun auras do not land: a raid boss.
 	CreatureFamily proto.CreatureFamily
 
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
-	ReactionTime time.Duration
+	ReactionTime    time.Duration
+	reactionTimeMax time.Duration // Above the reaction the settings give, ReactionTime is drawn evenly between the two.
+	reactionTimeMin time.Duration // The reaction the settings give.
+	reactionDrawnAt time.Duration // The instant ReactionTime was drawn at.
 
 	// Amount of time following a post-GCD channel tick, to when the next action can be performed.
 	ChannelClipDelay time.Duration
@@ -85,6 +92,10 @@ type Unit struct {
 
 	// A pet its owner set on the target before the pull: its rotation and swings run before 0.
 	engagedBeforePull bool
+
+	executePhase int32 // 35 or 20 for the execute phase a target is in, 0 above them and for players and pets.
+
+	raidDebuffsHeld bool // A target's only: the raid's debuffs stay off it, its reset included, until Target.ApplyRaidDebuffsAt lands them.
 
 	// Stats this Unit will have at the very start of each Sim iteration.
 	// Includes all equipment / buffs / permanent effects but not temporary
@@ -209,6 +220,7 @@ type Unit struct {
 
 	// The currently-channeled DOT spell, otherwise nil.
 	ChanneledDot       *Dot
+	endedChannel       *Dot // The channel a lookahead reads the rotation without; its aura reads as down meanwhile.
 	channelEndHandlers []func(sim *Simulation, dot *Dot)
 
 	// Data about the most recently queued spell, otherwise nil.
@@ -240,6 +252,9 @@ type Unit struct {
 	GetAttackPowerValue GetAttackPowerValue
 
 	SpellsInFlight map[*Spell]int32
+
+	// The path of the APL entry the rotation cast runs for, set only while the sim logs and until its Cast returns.
+	rotationCastEntryPath string
 }
 
 func (unit *Unit) getSpellDamageValueImpl(spell *Spell, _ *Unit) float64 {
@@ -278,7 +293,7 @@ func (unit *Unit) LogLabel() string {
 	return "[" + unit.Label + "]"
 }
 
-func (unit *Unit) Log(sim *Simulation, message string, vals ...interface{}) {
+func (unit *Unit) Log(sim *Simulation, message string, vals ...any) {
 	sim.Log(unit.LogLabel()+" "+message, vals...)
 }
 
@@ -617,8 +632,12 @@ func (unit *Unit) Armor() float64 {
 	return unit.PseudoStats.ArmorMultiplier * unit.stats[stats.Armor]
 }
 
+// A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
+// floor(shield + max(0, Strength x 0.05 - 1)). Flooring the Strength part alone gives the same number while the
+// shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
+// floors is not measured, so the whole is floored.
 func (unit *Unit) BlockDamageReduction() float64 {
-	return max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier
+	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)
 }
 
 func (unit *Unit) TotalRangedHasteMultiplier() float64 {
@@ -814,6 +833,50 @@ func RatingChannelsOf(rating stats.Stat) (RatingChannels, bool) {
 	return RatingChannels{}, false
 }
 
+// The rating behind a stat and how much of it one unit of the stat costs: a stat is its own rating at 1, a
+// percent pseudo stat costs its rating per percent. hasRating is false for any other pseudo stat, which costs 1.
+// A percent's cost matches UnitStat.convertPercentToRating(1) in the UI; the two are kept in sync by hand.
+func ratingBehindStat(stat stats.UnitStat) (rating stats.Stat, ratingPerUnit float64, hasRating bool) {
+	if stat.IsStat() {
+		return stats.Stat(stat.StatIdx()), 1, true
+	}
+	switch proto.PseudoStat(stat.PseudoStatIdx()) {
+	case proto.PseudoStat_PseudoStatMeleeHitPercent,
+		proto.PseudoStat_PseudoStatRangedHitPercent,
+		proto.PseudoStat_PseudoStatSpellHitPercent,
+		proto.PseudoStat_PseudoStatSchoolHitPercentArcane,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFire,
+		proto.PseudoStat_PseudoStatSchoolHitPercentFrost,
+		proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
+		proto.PseudoStat_PseudoStatSchoolHitPercentNature,
+		proto.PseudoStat_PseudoStatSchoolHitPercentShadow:
+		return stats.HitRating, HitRatingPerHitPercent, true
+	case proto.PseudoStat_PseudoStatExpertisePercent:
+		return stats.ExpertiseRating, ExpertiseRatingPerExpertisePercent, true
+	case proto.PseudoStat_PseudoStatMeleeCritPercent,
+		proto.PseudoStat_PseudoStatRangedCritPercent,
+		proto.PseudoStat_PseudoStatSpellCritPercent:
+		return stats.CritRating, CritRatingPerCritPercent, true
+	}
+	return 0, 1, false
+}
+
+// The rating that buys one percent of a stat. Defense rating buys levels, so it has none and takes the default step like any stat without a percent.
+func ratingPerPercent(stat stats.Stat) (float64, bool) {
+	if channels, ok := RatingChannelsOf(stat); ok {
+		return channels.RatingPerPercent, true
+	}
+	if stat == stats.DefenseRating {
+		return 0, false
+	}
+	for _, conversion := range RatingConversions {
+		if conversion.Rating == stat {
+			return conversion.RatingPerPercent, true
+		}
+	}
+	return 0, false
+}
+
 // The pseudo stat each magic school's hit percent travels as. None and Physical have none and hold
 // the zero value, PseudoStatMainHandDps, so read from SchoolIndexArcane on.
 var SchoolHitPseudoStats = [stats.SchoolLen]proto.PseudoStat{
@@ -882,6 +945,7 @@ func (unit *Unit) finalize() {
 	if unit.ReactionTime == 0 {
 		panic("Unset unit.ReactionTime")
 	}
+	unit.reactionTimeMin = unit.ReactionTime
 
 	unit.defaultTarget = unit.CurrentTarget
 	unit.applyParryHaste()
@@ -931,6 +995,10 @@ func (unit *Unit) reset(sim *Simulation, _ Agent) {
 	unit.QueuedSpell = nil
 	unit.endRotationCast()
 	unit.DistanceFromTarget = unit.StartDistanceFromTarget
+	if unit.reactionTimeMax > unit.reactionTimeMin {
+		unit.ReactionTime = (unit.reactionTimeMin + unit.reactionTimeMax) / 2
+		unit.reactionDrawnAt = NeverExpires
+	}
 	unit.engagedBeforePull = false
 	unit.Metrics.reset()
 	unit.ResetStatDeps()
@@ -1029,7 +1097,8 @@ func (unit *Unit) GetMetadata() *proto.UnitMetadata {
 // casters are the units whose spells can cast this unit's auras, which decides an aura's category.
 func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 	metadata := &proto.UnitMetadata{
-		Name: unit.Label,
+		Name:           unit.Label,
+		MenuGroupOrder: unit.MenuGroupOrder,
 	}
 
 	// The rank rides on the id so the UI can group a spell's ranks; the tooltips the UI fetches do not
@@ -1066,20 +1135,31 @@ func (unit *Unit) metadata(casters ...*Unit) *proto.UnitMetadata {
 			HasMissileSpeed:    spell.MissileSpeed > 0.0 || spell.MissileMinDuration > 0,
 			HasRanks:           spell.Rank > 0,
 			Category:           spell.category(),
+			MenuGroup:          spell.MenuGroup,
 		}
 	})
 
-	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
-		return !aura.ActionID.IsEmptyAction()
-	})
-	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
+	auraStats := func(aura *Aura, id ActionID) *proto.AuraStats {
 		return &proto.AuraStats{
-			Id:                 rankedID(aura.ActionID),
+			Id:                 rankedID(id),
 			MaxStacks:          aura.MaxStacks,
 			HasIcd:             aura.Icd != nil,
 			HasExclusiveEffect: len(aura.ExclusiveEffects) > 0,
 			Category:           auraCategory(aura, casters),
+			MenuGroup:          aura.MenuGroup,
 		}
+	}
+	aplAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
+		return !aura.ActionID.IsEmptyAction() && !aura.HideFromAPL
+	})
+	metadata.Auras = MapSlice(aplAuras, func(aura *Aura) *proto.AuraStats {
+		return auraStats(aura, aura.ActionID)
+	})
+	icdAuras := FilterSlice(unit.auras, func(aura *Aura) bool {
+		return aura.ActionID.IsEmptyAction() && aura.Icd != nil && !aura.ActionIDForProc.IsEmptyAction()
+	})
+	metadata.IcdAuras = MapSlice(icdAuras, func(aura *Aura) *proto.AuraStats {
+		return auraStats(aura, aura.ActionIDForProc)
 	})
 
 	return metadata
@@ -1100,6 +1180,9 @@ func (unit *Unit) GetBlockFromRating() float64 {
 }
 
 func (unit *Unit) GetTotalDodgeChanceAsDefender(spell *Spell, atkTable *AttackTable) float64 {
+	if spell.Flags.Matches(SpellFlagNoActiveDefense) {
+		return 0
+	}
 	chance := unit.PseudoStats.BaseDodgeChance +
 		atkTable.Hand(spell).BaseDodgeChance +
 		unit.GetDodgeFromRating() -
@@ -1109,6 +1192,9 @@ func (unit *Unit) GetTotalDodgeChanceAsDefender(spell *Spell, atkTable *AttackTa
 }
 
 func (unit *Unit) GetTotalParryChanceAsDefender(spell *Spell, atkTable *AttackTable) float64 {
+	if spell.Flags.Matches(SpellFlagNoActiveDefense) {
+		return 0
+	}
 	chance := unit.PseudoStats.BaseParryChance +
 		atkTable.Hand(spell).BaseParryChance +
 		unit.GetParryFromRating() -
@@ -1126,6 +1212,9 @@ func (unit *Unit) GetTotalChanceToBeMissedAsDefender(spell *Spell, atkTable *Att
 }
 
 func (unit *Unit) GetTotalBlockChanceAsDefender(spell *Spell, atkTable *AttackTable) float64 {
+	if spell.Flags.Matches(SpellFlagNoActiveDefense) {
+		return 0
+	}
 	chance := unit.PseudoStats.BaseBlockChance +
 		atkTable.Hand(spell).BaseBlockChance +
 		unit.GetBlockFromRating()

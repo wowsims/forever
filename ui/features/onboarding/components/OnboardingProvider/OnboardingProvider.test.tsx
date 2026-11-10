@@ -23,11 +23,11 @@ const Tour = ({ run }: { run: TourRun }) => (
 );
 
 // The restart sits outside the part of the page the tour is drawn in, as the options dialog does.
-const page = (ready: boolean, storage: ReturnType<typeof memoryEnv>['storage']) => (
+const page = (ready: boolean, storage: ReturnType<typeof memoryEnv>['storage'], autoOpen = true) => (
 	<OnboardingProvider storage={storage} storageKey="tour">
 		<RestartButton />
 		<main>
-			<OnboardingOutlet ready={ready} renderTour={run => <Tour run={run} />} />
+			<OnboardingOutlet ready={ready} autoOpen={autoOpen} renderTour={run => <Tour run={run} />} />
 		</main>
 	</OnboardingProvider>
 );
@@ -65,5 +65,15 @@ describe('OnboardingProvider', () => {
 		screen.getByTestId('end').focus();
 		fireEvent.click(screen.getByTestId('end'));
 		expect(document.activeElement).toBe(restart);
+	});
+
+	it('does not open by itself with autoOpen off, but opens when asked', () => {
+		const storage = memoryEnv().storage;
+		render(page(true, storage, false));
+		act(() => vi.advanceTimersByTime(5000));
+		expect(screen.queryByTestId('running-tour')).toBeNull();
+		expect(readTourOutcome(storage, 'tour')).toBeNull();
+		fireEvent.click(screen.getByTestId('restart'));
+		expect(screen.getByTestId('running-tour').getAttribute('data-trigger')).toBe('restart');
 	});
 });

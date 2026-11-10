@@ -74,7 +74,7 @@ func syntheticBuffRows() []ResolvedBuff {
 				Field: "battle_shout", Category: "SynthBattleShout",
 				SingleAura: true, Driver: true,
 			},
-			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoTristate,
+			Scope: buffmanifest.ScopeRaid, Proto: buffmanifest.ProtoInt32,
 			Go: "SynthBattleShout", Name: "Battle Shout",
 			SpellID: 25289, CastSpellID: 25289, DurationMs: 180000, Supported: true,
 			Spell: spell(25289, core.SpellSchoolPhysical, 180000, aura(dbcenums.A_MOD_ATTACK_POWER, 0, 139)),

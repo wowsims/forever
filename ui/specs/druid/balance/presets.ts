@@ -12,7 +12,7 @@ import PreBiSGearJson from './gear_sets/prebis.gear.json';
 
 export const StandardRotation = PresetUtils.makePresetAPLRotation('Default', DefaultAPL);
 
-export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTalents.create({ talentsString: '5232220115501351--505003' }));
+export const StandardTalents = PresetUtils.makePresetTalents('Moonkin', SavedTalents.create({ talentsString: '5232220115501351--5053' }));
 
 // Dungeon drops, world-drop greens with the "of Magic" suffix and crafted items whose reagents include no
 // raid materials; no reputation or PvP rewards, and no Scourge Invasion drops. The neck is a Dire Maul
@@ -61,9 +61,9 @@ export const DefaultOptions = BalanceDruidOptions.create({
 });
 
 export const DefaultRaidBuffs = RaidBuffs.create({
-	arcaneBrilliance: true,
-	giftOfTheWild: true,
-	prayerOfFortitude: true,
+	arcaneIntellect: true,
+	markOfTheWild: true,
+	powerWordFortitude: true,
 	prayerOfSpirit: true,
 });
 
@@ -73,7 +73,7 @@ export const DefaultPartyBuffs = PartyBuffs.create({
 
 export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: true,
+	greaterBlessingOfWisdom: 1,
 });
 
 export const DefaultDebuffs = Debuffs.create({

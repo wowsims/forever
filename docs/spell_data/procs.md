@@ -61,6 +61,8 @@ already running keeps its length.
 | `WeaponSpeedPPM(n)` | the same, on the main hand's speed as Seal of the Crusader leaves it: the seal's faster swings each carry 1/1.4 of the chance and haste leaves it alone. Vindication rolls it |
 | `Chance(f)`         | a rate the caller states outright, manager included                                                                                                                           |
 | `ChanceFrom(e)`     | the chance an effect states, for a `$mN` the generator could not resolve                                                                                                      |
+| `WeaponProc()`      | the listener of a chance-on-hit effect or combat enchant: every landed weapon hit, the weapon deciding which                                                                  |
+| `ItemProcChance(s)` | an item or enchant proc rolls the column where it contradicts the effect's chance (Uther's Light 8397)                                                                        |
 
 A trigger that ends with neither a chance nor a manager panics and names the spell, because a row with
 no stated rate never means a listener that fires on every qualifying hit. A procs-per-minute rate with
@@ -73,9 +75,9 @@ hits count.
 `Callback`, a `ProcMask`, an `Outcome` and `RequireDamageDealt`, and names the bits it does not model
 in `Unsupported`. `RequireDamageDealt` defaults to **true**, and a listener that fires on a dodge, a
 parry, a miss or a block needs it false. Where the tooltip named that outcome, the row carries
-`ProcHintOutcomeTaken` and the decoder has already cleared the flag. A row whose wording yielded no
-hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which outcome it is
-stays the caller's either way, since no `ProcTypeMask` has a bit for any of them.
+`ProcHintOutcomeTaken` or `ProcHintBlocked` and the decoder has already cleared the flag. A row whose
+wording yielded no hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which
+outcome it is stays the caller's, except the block, since no `ProcTypeMask` has a bit for any of them.
 
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
@@ -86,12 +88,30 @@ generator reads that off the tooltip into `core.ProcHint`:
 | `ProcHintCrit`         | the tooltip names a critical strike, which sets `Outcome = OutcomeCrit` and keeps the listener on the hit rather than the cast                          |
 | `ProcHintHeals`        | the trigger clause names healing or an unrestricted spell, which is the evidence that a helpful-spell bit carries a real trigger rather than a leftover |
 | `ProcHintPureHeal`     | the trigger is healing only, so the damage callbacks come off                                                                                           |
+| `ProcHintBlocked`      | the clause names the wearer blocking ("every time you block"), which clears `RequireDamageDealt` and sets `Outcome = OutcomeBlock`                      |
 | `ProcHintNamedAbility` | the clause names one ability ("your Shock spells"), which no proc mask can state                                                                        |
-| `ProcHintOutcomeTaken` | the clause names an outcome the mask has no bit for, which clears `RequireDamageDealt`                                                                  |
+| `ProcHintOutcomeTaken` | the clause names a resist, a dodge or a parry taken, an outcome the mask has no bit for, which clears `RequireDamageDealt`                              |
 
 The decode does not model the last two shapes; it reads past them. A trigger is still built for them,
 and for the bits the decoder names as unsupported. Such a listener hears fewer hits than the game files
 state, and that narrower listener is deliberate.
+
+Two bits name a death. `PROC_FLAG_KILL` (word 0, 0x2) decodes to `CallbackOnKill`: the
+owner's side landed the killing blow, which the kill roll in `Target.Die` decides. `PROC_FLAG_2_TARGET_DIES`
+(word 1, 0x1) decodes to `CallbackOnTargetDies`: an enemy died, with no roll. In game the two are separate
+events, so a row carrying both fires twice on a credited kill unless its ICD stops the second. The one
+such row in the game files is Lunar Idol 419288, on an item Forever does not ship. `PROC_FLAG_DEATH`, the wearer dying, stays unsupported.
+
+A death listener gets a nil spell and a result whose `Target` is the dying enemy, so every condition and
+handler a death can reach checks the spell before reading it. `Die` runs the listeners before it disables
+the target, but a handler without `TriggerImmediately` runs one `SpellBatchWindow` later, when the dead
+target's auras have expired. A row that asks for an aura on the dying target ("an enemy afflicted by your
+Vampiric Embrace dies") checks it in `ExtraCondition`, which runs inside `Die`. A proc whose damage or
+debuff a death casts goes to the current target while it is up and is not the one dying, else to the next
+target still up, and casts nothing when none is left (`procDamageTarget`). A rated trigger hears no
+death: in game a death rolls the row's plain chance, which a rated row leaves at 0, so
+`spelldata.ProcTrigger` drops the death callbacks wherever it ends with a procs-per-minute manager, the
+row's or the caller's. A rated row that hears deaths alone is refused by `ItemProcUnsupportedWithRate`.
 
 A class mask naming **another class's** family is dropped. An item every class can wear states the
 filter of the one class it was written for. On anyone else that mask matches nothing, so obeying it
@@ -104,9 +124,8 @@ for no class, carry no evidence and are left alone.
   the column is a real roll on damage taken. Only the trigger's name is the caller's, because the
   driver and the buff share one.
 - **Shield Specialization** (`sim/warrior/talents_protection.go`) is the effect ladder: the column
-  reads 100 and the roll is effect 2. Its tooltip names an outcome, which the row carries as
-  `ProcHintOutcomeTaken`, so the decoder already clears `RequireDamageDealt`, since a block deals no damage.
-  Which outcome it is stays the caller's: `Outcome = OutcomeBlock`.
+  reads 100 and the roll is effect 2. Its tooltip names the block, which the row carries as
+  `ProcHintBlocked`.
 - **Flurry** (`sim/warrior/talents_fury.go`) is the no-roll shape: the row states "always" and the
   crit is the condition. The buff row supplies the duration and the three charges through
   `AuraConfig`, the haste comes off the talent's ladder, and the mask stays the caller's because the
@@ -128,12 +147,19 @@ shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 7711, BuffSpe
 	})
 ```
 
-`NewSpellDataProc` is the same for a proc whose buff is an aura. The trigger's row supplies what the
+`NewSpellDataProc` is the same for a proc whose buff is an aura, and `NewSpellDataHealProc`,
+`NewSpellDataAbsorbProc`, `NewSpellDataDebuffProc` and `NewSpellDataExtraAttackProc` are the heal,
+absorb, debuff and extra-attack shapes. The trigger's row supplies what the
 listener hears, how often it fires and its internal cooldown. The buff's row supplies how long the buff
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
 sentinel is never a rate.
+
+The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
+table of the row's defense type and takes armor or resistance like any other, and the wearer gains the
+effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
+the attacker for 40 Physical on the melee table.
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:

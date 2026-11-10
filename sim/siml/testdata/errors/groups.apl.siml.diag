@@ -1,0 +1,10 @@
+5:9 warning undefined-group
+6:26 warning undefined-placeholder
+7:18 warning undefined-sequence
+8:22 warning undefined-sequence
+9:3 warning undefined-group
+12:18 warning undefined-sequence
+12:40 warning undefined-sequence
+14:7 error reference-cycle
+18:7 error reference-cycle
+22:7 error reference-cycle

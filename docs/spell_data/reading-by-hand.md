@@ -1,14 +1,15 @@
 # Reading a row by hand
 
-The druid, priest, rogue and warlock read the store by hand. A class file names the ladder it
+A class reads the store by hand in the files that `grep -l 'spelldata.SpellConfig\|spelldata.Parse' sim/<class>/*.go`
+does not list. A class file names the ladder it
 needs, picks a rank, and reads every field the registration wants straight into a plain expression,
-with no resolver in between. In these classes' files **a row is a source of numbers only**: they use
+with no resolver in between. In those files **a row is a source of numbers only**: they use
 no `spelldata.SpellConfig`, `AuraConfig`, `DotConfig`, `ProcTrigger`, `ParseEffects` or
 `ParseStatic`. They build `core.SpellConfig` and `core.DotConfig` by hand, field by field. These are
 the same shapes that [Building an ability](building-an-ability.md) and
 [Auras and dots](auras-and-dots.md) describe for the resolvers, filled in without one.
 
-For these classes the generated file is ladders too (see
+For those files the generated file is ladders too (see
 [A class file is ladders](store.md#a-class-file-is-ladders)). `spellData.ShadowWordPain` is a
 `spelldata.Ladder`, `.Highest()`/`.ByID(id)`/`.Rank(n)` answer a `*spelldata.Spell`, and `.Each(fn)`
 walks every rank in declaration order:

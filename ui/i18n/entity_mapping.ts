@@ -156,12 +156,7 @@ export const pseudoStatI18nKeys: Record<PseudoStat, string> = {
 	[PseudoStat.PseudoStatOffHandCritRating]: 'off_hand_crit_rating',
 	[PseudoStat.PseudoStatRangedHitRating]: 'ranged_hit_rating',
 	[PseudoStat.PseudoStatRangedCritRating]: 'ranged_crit_rating',
-	[PseudoStat.PseudoStatMeleeCritSuppressionPercent]: 'melee_crit_suppression',
 	[PseudoStat.PseudoStatRangedCritSuppressionPercent]: 'ranged_crit_suppression',
-	[PseudoStat.PseudoStatMainHandMissPercent]: 'main_hand_miss',
-	[PseudoStat.PseudoStatMainHandDodgePercent]: 'main_hand_dodge',
-	[PseudoStat.PseudoStatMainHandParryPercent]: 'main_hand_parry',
-	[PseudoStat.PseudoStatMainHandGlancePercent]: 'main_hand_glance',
 };
 
 export const spellSchoolI18nKeys: Record<SpellSchool, string> = {
@@ -252,6 +247,7 @@ export const statusI18nKeys: Record<LaunchStatus, string> = {
 export const targetInputI18nKeys: Record<string, string> = {
 	'Frenzy time': 'frenzy_time',
 	'Spiritual Grasp frequency': 'spiritual_grasp_frequency',
+	'Kill share %': 'kill_share',
 };
 
 export const mobTypeI18nKeys: Record<MobType, string> = {
@@ -274,6 +270,7 @@ export const creatureFamilyI18nKeys: Record<CreatureFamily, string> = {
 	[CreatureFamily.CreatureFamilyEarthElemental]: 'earth_elemental',
 	[CreatureFamily.CreatureFamilyFireElemental]: 'fire_elemental',
 	[CreatureFamily.CreatureFamilyMountainGiant]: 'mountain_giant',
+	[CreatureFamily.CreatureFamilySwine]: 'swine',
 };
 
 export const areaTypeI18nKeys: Record<AreaType, string> = {
@@ -327,11 +324,7 @@ export const sourceFilterI18nKeys: Record<SourceFilterOption, string> = {
 	[SourceFilterOption.SourceSoldBy]: 'sold_by',
 	[SourceFilterOption.SourcePvp]: 'pvp',
 	[SourceFilterOption.SourceDungeon]: 'dungeon',
-	[SourceFilterOption.SourceDungeonH]: 'dungeon_h',
 	[SourceFilterOption.SourceRaid]: 'raid',
-	[SourceFilterOption.SourceRaidH]: 'raid_h',
-	[SourceFilterOption.SourceRaidRF]: 'raid_rf',
-	[SourceFilterOption.SourceRaidFlex]: 'raid_flex',
 };
 
 export const raidFilterI18nKeys: Record<RaidFilterOption, string> = {

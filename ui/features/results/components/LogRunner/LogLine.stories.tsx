@@ -42,7 +42,9 @@ export const RageSpent: Story = { args: { log: resourceLog(12.5, 60, 30, { actio
 export const HealthLost: Story = { args: { log: resourceLog(20, 4200, 3350, { resourceType: ResourceType.ResourceTypeHealth, total: 4200 }) } };
 
 export const CastBegan: Story = {
-	args: { log: { ...base, kind: 'cast-began', manaCost: 0, castTime: 0, gcd: 1.5, effectiveTime: 1.5 } satisfies CastBeganLog as CombatLog },
+	args: {
+		log: { ...base, kind: 'cast-began', manaCost: 0, castTime: 0, gcd: 1.5, effectiveTime: 1.5, aplEntryPath: null } satisfies CastBeganLog as CombatLog,
+	},
 };
 
 export const CastFailed: Story = {
@@ -50,7 +52,15 @@ export const CastFailed: Story = {
 };
 
 export const StatGained: Story = {
-	args: { log: { ...base, actionId: BATTLE_SHOUT, kind: 'stat-change', isGain: true, stats: '{Attack Power: 232}' } satisfies StatChangeLog as CombatLog },
+	args: {
+		log: {
+			...base,
+			actionId: BATTLE_SHOUT,
+			kind: 'stat-change',
+			isGain: true,
+			stats: '{"AttackPower": 232.000,"CritRating": 14.000,}',
+		} satisfies StatChangeLog as CombatLog,
+	},
 };
 
 export const Plain: Story = {

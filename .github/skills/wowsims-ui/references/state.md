@@ -31,7 +31,7 @@ against an in-memory `Env`.
 | ----------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------- |
 | `ui`                    | `Sim`                              | show\* flags, language, `wasmConcurrency`: presentation                                             |
 | `sim`                   | `Sim`                              | iterations, phase, faction, `fixedRngSeed`, filters, `lastUsedRngSeed(+version)`, `metadataVersion` |
-| `encounter`             | `Encounter`                        | duration, execute proportions, `useHealth`, `targets` (replace-on-write)                            |
+| `encounter`             | `Encounter`                        | duration, execute proportions, `targets` (replace-on-write)                                         |
 | `raid`                  | `Raid` / `Party`                   | buffs, debuffs, tanks, targetDummies, numActiveParties, `partyBuffs[5]`, `composition[5][5]`        |
 | `players[storeKey]`     | `Player` / `ItemSwapSettings`      | the values, as `PlayerSlice`, plus a per-field version counter `v` keyed by `PLAYER_FIELDS`         |
 | `reforge[storeKey]`     | `ReforgeSettings`                  | gear-optimizer settings (`REFORGE_FIELDS`) and counters                                             |
@@ -149,7 +149,7 @@ time the menu opens. That is how the consumables follow their EP order (`ordered
 the picker subscribing to the EP fields.
 
 **Kept selections.** The icon, icon-enum and multi-icon configs implement `KeptInput.keptBy(obj, value)`
-(`ui/features/inputs/input.ts`): true when the stat filter hides a selection that stays offered because it is
+(`ui/features/inputs/input.ts`): true when a filter (the stat filter, or a consumable's minimum level) hides a selection that stays offered because it is
 selected. The adapter turns that into the kit's single `keptTooltip` prop through `keptTooltipOf`; present means kept.
 `IconSwatch` (`ui/ui-kit/IconSwatch/IconSwatch.tsx`) owns the dimmed swatch, the corner badge with the tooltip, and
 the `data-kept` attribute on the swatch box. `valuePicked` and `inputPicked` (same `utils.ts`) answer whether a value or
@@ -164,8 +164,8 @@ commit through `useCommitChange` (`ui/ui-kit/hooks/useCommitChange.ts`) on the n
 edit, or Enter), so typing writes nothing to the store until the edit is committed. `SearchField` commits per
 keystroke or when typing pauses, and `ChoiceField` (`ui/ui-kit/ChoiceField/ChoiceField.tsx`) on selection.
 
-**Lists.** `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) binds an array field: `create`, `remove`,
-`copy`, `move` and each row's `itemConfig` write one fresh array through `config.setValue` and never mutate the array
+**Lists.** `useListItems` (`ui/features/inputs/hooks/useListItems.ts`) binds an array field: `create`, `append`,
+`remove`, `copy`, `move` and each row's `itemConfig` write one fresh array through `config.setValue` and never mutate the array
 they read. Rows find their item by key (`ui/features/inputs/list_ids.ts`), so a row keeps its item through a reorder
 and through a source that returns clones. The caller renders the array on the kit `Tree` (`ui/ui-kit/Tree/`) and wires
 `move` to `sortable.onMove`.

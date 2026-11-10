@@ -22,7 +22,7 @@ type Warlock struct {
 	DrainLife   *core.Spell
 	DrainSoul   *core.Spell
 	Hellfire    *core.Spell
-	Immolate    *core.Spell
+	Immolate    []*core.Spell // Every registered rank
 	Incinerate  *core.Spell
 	RainOfFire  *core.Spell
 	SearingPain *core.Spell
@@ -109,7 +109,7 @@ func RegisterWarlock() {
 		func(character *core.Character, options *proto.Player, raid *proto.Raid) core.Agent {
 			return NewWarlock(character, options, options.GetWarlock().Options.ClassOptions, raid)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Warlock)
 			if !ok {
 				panic("Invalid spec value for Warlock!")
@@ -167,7 +167,7 @@ func NewWarlock(character *core.Character, options *proto.Player, warlockOptions
 		Options:   warlockOptions,
 	}
 
-	core.FillTalentsProto(warlock.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	warlock.FillTalentsProto(warlock.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
 	warlock.resolveSacrifice()
 
@@ -263,11 +263,13 @@ func deactivateOthersOnTarget(sim *core.Simulation, group []*core.Spell, landing
 }
 
 // Slots in a target's per-caster damage multipliers (core.EnableDamageDoneByCaster / AttachDDBC), one per
-// warlock debuff that raises only this warlock's damage against the target. Each needs its own slot so one
-// debuff's expiry cannot clear another's, and every caller passes DDBC_Total so the slice is sized alike.
+// warlock effect that raises only this warlock's damage against the target: a debuff, or Decimation's bonus
+// against a target below 35%. Each needs its own slot so one debuff's expiry cannot clear another's, and every
+// caller passes DDBC_Total so the slice is sized alike.
 const (
 	DDBC_ShadowVulnerability int = iota
 	DDBC_Wrack
+	DDBC_Decimation
 	DDBC_Total
 )
 

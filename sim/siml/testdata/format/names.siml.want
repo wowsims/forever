@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+
+// An enchant keeps the name it is written with while that names its effect; every other ref prints by the name the
+// table gives it, which for a spell is the class's before the shared one, whatever its rank.
+gear:
+  neck       fury_of_the_forgotten_swarm + boots_agility
+  wrist      fury_of_the_forgotten_swarm + bracer_agility
+  feet       mongoose_boots + boots_agility
+
+priority:
+  cast hunter_shot
+  cast hunter_shot
+  cast item.goblin_sapper_charge
+  cast `{"itemId":10646,"tag":1}`
+  cast x if aura(steady_shot).is_active and pet1.aura(`{"spellId":900001}`).is_active

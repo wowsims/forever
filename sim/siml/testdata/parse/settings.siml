@@ -1,0 +1,26 @@
+siml 1
+spec warlock
+
+// Player's fields, then the spec's options, then its class options, then the tanks.
+settings:
+  name "Main"
+  race undead
+  profession1 tailoring
+  profession2 enchanting
+  prof1_rank 300
+  prof2_rank 375
+  reaction_time_ms 100
+  channel_clip_delay_ms 50
+  in_front_of_target
+  distance_from_target 20.5
+  dark_intent_uptime 0.9
+  challenge_mode
+  weapon_skills(skill=staves, value=300)
+  weapon_skills(skill=daggers, value=310)
+  healing_model(hps=1200, cadence_seconds=2, burst_window=4)
+  summon imp
+  soul_shards 8
+  armor demon_armor
+  sacrificed_demon succubus
+  curse_options recklessness
+  tanks player1, target2, `{"type":"Pet","index":1,"owner":{"type":"Player"}}`

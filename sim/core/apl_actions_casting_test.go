@@ -10,6 +10,41 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 )
 
+// A multidot counts active targets only: with the first target dotted and the second disabled, the second dot
+// goes to the third, and a limit of one dot stops at the first.
+func TestMultidotsCountActiveTargetsOnly(t *testing.T) {
+	const dotID = 910105
+	var spell *Spell
+	sim, fw := setupLifecycleSimWith(lifecycleTargets(3), nil, func(char *Character) {
+		spell = char.RegisterSpell(fakeWarlockDot(dotID, "Multidot Test", ClassFlags{}, SpellFlagAPL))
+	})
+	spell.finalize()
+	runLifecycleUntil(sim, time.Second)
+	first, disabled, active := sim.Encounter.AllTargets[0], sim.Encounter.AllTargets[1], sim.Encounter.AllTargets[2]
+	disabled.Disable(sim, false)
+	spell.Dot(&first.Unit).Apply(sim)
+	spellID := ActionID{SpellID: dotID}.ToProto()
+
+	multidot := fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionMultidot)
+	if !multidot.IsReady(sim) || multidot.nextTarget != &active.Unit {
+		t.Errorf("Multidot of 2: expected it ready on the third target, got %s", unitLabel(multidot.nextTarget))
+	}
+	strict := fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 2}).(*APLActionStrictMultidot)
+	if !strict.IsReady(sim) || len(strict.readyActions) != 1 {
+		t.Fatalf("Strict Multidot of 2: expected one cast ready, got %d", len(strict.readyActions))
+	}
+	if got := strict.readyActions[0].impl.(*APLActionCastSpell).target.Get(); got != &active.Unit {
+		t.Errorf("Strict Multidot of 2: expected its cast on the third target, got %s", unitLabel(got))
+	}
+
+	if fw.Rotation.newActionMultidot(&proto.APLActionMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Multidot of 1: expected nothing to do with the first target dotted")
+	}
+	if fw.Rotation.newActionStrictMultidot(&proto.APLActionStrictMultidot{SpellId: spellID, MaxDots: 1}).IsReady(sim) {
+		t.Error("Strict Multidot of 1: expected nothing to do with the first target dotted")
+	}
+}
+
 // A Strict Multidot on two targets dots both in one chain, unless a condition on its entry, or on a
 // group reference it sits under at any depth, turns false before the second dot. An outer Sequence's
 // condition only decides whether the sequence starts.
@@ -169,5 +204,81 @@ func TestCastOutOfReachWarns(t *testing.T) {
 				t.Errorf("warnings = %d, want %d: %v", warnings, tc.warnings, validations)
 			}
 		})
+	}
+}
+
+// A manual cast is a button press by the rotation. A spell that another spell casts keeps its own casts
+// but adds no press.
+func TestManualCastsCountOnlyWhatTheRotationPresses(t *testing.T) {
+	const pressedID, triggeredID = 910105, 910106
+	var pressed, triggered *Spell
+	ct := newChannelTest(func(ct *channelTest, char *Character) *Spell {
+		triggered = char.RegisterSpell(SpellConfig{
+			ActionID:     ActionID{SpellID: triggeredID},
+			Flags:        SpellFlagPassiveSpell | SpellFlagProc,
+			ApplyEffects: func(*Simulation, *Unit, *Spell) {},
+		})
+		pressed = char.RegisterSpell(SpellConfig{
+			ActionID: ActionID{SpellID: pressedID},
+			Flags:    SpellFlagAPL,
+			Cast:     CastConfig{DefaultCast: Cast{GCD: GCDDefault}},
+			ApplyEffects: func(sim *Simulation, target *Unit, _ *Spell) {
+				triggered.Cast(sim, target)
+			},
+		})
+		return fakeShoot(char, &ct.shots)
+	})
+	pressed.finalize()
+	triggered.finalize()
+
+	ct.start(ct.castOf(pressed))
+	ct.runUntil(10 * time.Second)
+
+	unit := ct.fw.CurrentTarget.UnitIndex
+	got, trig := pressed.SpellMetrics[unit], triggered.SpellMetrics[unit]
+	if got.Casts == 0 || got.ManualCasts != got.Casts {
+		t.Errorf("pressed spell: ManualCasts = %d, Casts = %d, want both equal and above 0", got.ManualCasts, got.Casts)
+	}
+	if trig.Casts != got.Casts || trig.ManualCasts != 0 {
+		t.Errorf("triggered spell: ManualCasts = %d, Casts = %d, want 0 and %d", trig.ManualCasts, trig.Casts, got.Casts)
+	}
+}
+
+// A walk the rotation sets off from standing is one press of the move. A walk a spell starts, such as Charge,
+// and a turn of a walk under way add none, though the first walk and the spell's own are both casts.
+func TestManualCastsCountTheMovesTheRotationStarts(t *testing.T) {
+	ct := newShootTest()
+	move := ct.rot.newActionMove(&proto.APLActionMove{RangeFromTarget: constValue("20")})
+	moveFor := ct.rot.newActionMoveDuration(&proto.APLActionMoveDuration{Duration: constValue("2s")})
+	// Walks by hand and walks a spell causes record in separate splits of the move; the counts here are their sum.
+	metrics := func() SpellMetrics {
+		var sum SpellMetrics
+		for _, split := range ct.fw.moveSpell.splitSpellMetrics {
+			sum.Casts += split[ct.fw.CurrentTarget.UnitIndex].Casts
+			sum.ManualCasts += split[ct.fw.CurrentTarget.UnitIndex].ManualCasts
+		}
+		return sum
+	}
+
+	move.Execute(ct.sim)
+	if got := metrics(); got.ManualCasts != 1 || got.Casts != 1 {
+		t.Errorf("a Move from standing: ManualCasts = %d, Casts = %d, want 1 and 1", got.ManualCasts, got.Casts)
+	}
+
+	moveFor.Execute(ct.sim)
+	if got := metrics(); got.ManualCasts != 1 || got.Casts != 1 {
+		t.Errorf("a MoveDuration that turns the walk under way: ManualCasts = %d, Casts = %d, want 1 and 1", got.ManualCasts, got.Casts)
+	}
+
+	ct.fw.StopMoving(ct.sim)
+	ct.fw.MoveTo(5, ct.sim)
+	if got := metrics(); got.ManualCasts != 1 || got.Casts != 2 {
+		t.Errorf("a walk a spell starts: ManualCasts = %d, Casts = %d, want 1 and 2", got.ManualCasts, got.Casts)
+	}
+
+	ct.fw.StopMoving(ct.sim)
+	moveFor.Execute(ct.sim)
+	if got := metrics(); got.ManualCasts != 2 || got.Casts != 3 {
+		t.Errorf("a MoveDuration from standing: ManualCasts = %d, Casts = %d, want 2 and 3", got.ManualCasts, got.Casts)
 	}
 }

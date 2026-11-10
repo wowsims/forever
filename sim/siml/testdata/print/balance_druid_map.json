@@ -1,0 +1,21 @@
+{
+	"settings": {
+		"filters": {
+			"minConsumableLvl": {
+				"-2": 1,
+				"10": 2,
+				"5": 3,
+				"-1": 4
+			}
+		}
+	},
+	"player": {
+		"class": "ClassDruid",
+		"balanceDruid": {
+			"options": {
+				"classOptions": {}
+			}
+		},
+		"darkIntentUptime": 0.2
+	}
+}

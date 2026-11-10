@@ -1,4 +1,4 @@
-import { useResolvedIcon } from '@sim/hooks/useResolvedIcon';
+import { usePendingIcon, useResolvedIcon } from '@sim/hooks/useResolvedIcon';
 import { IconPicker } from '@ui-kit/IconPicker';
 
 import { useConnectedField } from '../../hooks/useConnectedField';
@@ -23,8 +23,9 @@ export const ConnectedIconPicker = <ModObject, ValueType>({ modObject, config, t
 	useHideZeroRestore({ value, setValue: write, hidden, revision }, toSource(0), current => !valuePicked(config, current));
 
 	const icon = useResolvedIcon(config.actionId ?? undefined);
-	const improvedIcon = useResolvedIcon(config.improvedId);
-	const improvedIcon2 = useResolvedIcon(config.improvedId2);
+	// Pending, not resolved: a missing improved icon makes the picker write its counter, which would flash while it loads.
+	const improvedIcon = usePendingIcon(config.improvedId);
+	const improvedIcon2 = usePendingIcon(config.improvedId2);
 
 	if (hidden) return null;
 

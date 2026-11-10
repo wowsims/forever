@@ -9,6 +9,7 @@ import (
 	"maps"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -239,7 +240,8 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	// one - beside Parry and Block, which have several classes' bits.
 	rows, err := db.Query(`
 		SELECT n.Name_lang, sla.Spell, s.NameSubtext_lang, sla.ClassMask, sla.SkillLine, sla.AcquireMethod,
-		       COALESCE(lv.BaseLevel, 0), (COALESCE(json_extract(sm.Attributes, '$[0]'), 0) & ?) != 0
+		       COALESCE(lv.BaseLevel, 0), (COALESCE(json_extract(sm.Attributes, '$[0]'), 0) & ?) != 0,
+		       sm.SpellID IS NOT NULL
 		FROM SkillLineAbility sla
 		JOIN SpellName n ON n.ID = sla.Spell
 		JOIN Spell s ON s.ID = sla.Spell
@@ -272,7 +274,8 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 
 	byName := map[string]map[int32][]rankCandidate{}
 	// A spell with no subtext is a single-rank family of its own only where no "Rank N" row carries
-	// its name - Execute's granted 20647 is a sub-spell of the ranked Execute, not a rank - and only
+	// its name, or those rows have no rank 1 (see the loop over unranked below) - Execute's granted
+	// 20647 is a sub-spell of the ranked Execute, not a rank - and only
 	// when a trainer teaches it (Death Wish, Sweeping Strikes and the stance passives all have a
 	// trainer row) or a talent the tree could not describe shares its name. A grant-only one is a
 	// Season of Discovery rune ability or an internal (Quick Strike, Meathook). Skill lines 2851 and
@@ -280,12 +283,13 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	// is a class line too.
 	unranked := map[string][]rankCandidate{}
 	trainedUnranked := map[string]bool{}
+	noMisc := map[string][]string{}
 	for rows.Next() {
 		var name, subtext string
 		var c rankCandidate
 		var baseLevel int32
-		var passive bool
-		if err := rows.Scan(&name, &c.SpellID, &subtext, &c.ClassMask, &c.SkillLine, &c.AcquireMethod, &baseLevel, &passive); err != nil {
+		var passive, hasMisc bool
+		if err := rows.Scan(&name, &c.SpellID, &subtext, &c.ClassMask, &c.SkillLine, &c.AcquireMethod, &baseLevel, &passive, &hasMisc); err != nil {
 			return nil, nil, nil, err
 		}
 		m := rankSubtext.FindStringSubmatch(subtext)
@@ -303,6 +307,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		}
 		rank, _ := strconv.Atoi(m[1])
 		c.Rank = int32(rank)
+		// A "Rank N" spell with no SpellMisc row states no school, cost, level or range, so it cannot
+		// be cast and is no ladder rank. The class file names it.
+		if !hasMisc {
+			noMisc[name] = append(noMisc[name], fmt.Sprintf("%s: rank %d, spell %d, has no SpellMisc row", name, c.Rank, c.SpellID))
+			continue
+		}
 		if byName[name] == nil {
 			byName[name] = map[int32][]rankCandidate{}
 		}
@@ -328,7 +338,10 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		return nil, nil, nil, err
 	}
 	for name, cands := range unranked {
-		if byName[name] != nil {
+		// "Rank N" rows with no rank 1 are a retired talent's leftover ranks, and they give way to the
+		// spell with no subtext: Lightning Mastery 16166 is the talent, beside the old Lightning Mastery's
+		// ranks 2 to 5 (16579-16582), whose rank 1 16578 is Elemental Alacrity now.
+		if byRank := byName[name]; byRank != nil && byRank[1] != nil {
 			continue
 		}
 		if _, talent := traits[name]; talent {
@@ -342,7 +355,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 
 	seen := map[string]bool{}
 	var names []string
-	for _, source := range []map[string]bool{keysOf(byName), keysOf(traits), keysOf(traitSkipped)} {
+	for _, source := range []map[string]bool{keysOf(byName), keysOf(traits), keysOf(traitSkipped), keysOf(noMisc)} {
 		for name := range source {
 			if !seen[name] {
 				seen[name] = true
@@ -357,6 +370,7 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	taken := map[string]string{}
 
 	for _, name := range names {
+		skipped = append(skipped, noMisc[name]...)
 		_, talent := traits[name]
 		_, talentSkipped := traitSkipped[name]
 		if !talent && !talentSkipped && runeOnlyFamily(byName[name], runeOnly) {
@@ -385,8 +399,12 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 		// kept its subtext on rank 1 alone, and leaving it as that one rank would let a 3-point
 		// talent be read past its own ladder. Below that the "Rank N" spells win - they state a cost
 		// and a cast time per rank, which the tree does not - and a family the resolver refused
-		// stays refused, since a tree node that grants an ability does not describe its ranks.
-		if t, ok := traits[name]; ok && resolveErr == nil && int(t.MaxRanks) > len(ladder) {
+		// stays refused, since a tree node that grants an ability does not describe its ranks. At an
+		// equal count the tree wins too when no "Rank N" spell is in it: those are a legacy talent's
+		// ranks (Shield Specialization 20148 and 20149 beside the tree's 20150), which state
+		// none of what the tree's spell does.
+		if t, ok := traits[name]; ok && resolveErr == nil &&
+			(int(t.MaxRanks) > len(ladder) || int(t.MaxRanks) == len(ladder) && !anyInTree(ladder, treeSpells)) {
 			ladder, points = map[int32]int32{}, t.Points
 			for rank := int32(1); rank <= t.MaxRanks; rank++ {
 				ladder[rank] = t.SpellID
@@ -412,6 +430,16 @@ func discoverLadders(db *sql.DB, class dbc.DbcClass, treeID int, runeOnly map[in
 	}
 
 	return ladders, skipped, partial, nil
+}
+
+// Whether any rank of the ladder is a spell the talent tree defines.
+func anyInTree(ladder map[int32]int32, treeSpells map[int32]bool) bool {
+	for _, id := range ladder {
+		if treeSpells[id] {
+			return true
+		}
+	}
+	return false
 }
 
 // A trailing roman numeral on a crafted imbue's name: "Deadly Poison IV", "Occult Poison I".
@@ -518,7 +546,7 @@ func triggeredSpells(db *sql.DB, spellID int32) ([]int32, error) {
 			ids = append(ids, id)
 		}
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids, nil
 }
 
@@ -536,7 +564,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 	for rank := range l.Ranks {
 		ranks = append(ranks, rank)
 	}
-	sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+	slices.Sort(ranks)
 
 	perRank := map[int32][]int32{}
 	distinct := map[int32]bool{}
@@ -572,7 +600,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 		numbered[order[0]] = 1
 	case oneEach && len(numbered) == len(order):
 	default:
-		sort.Slice(order, func(i, j int) bool { return order[i] < order[j] })
+		slices.Sort(order)
 		for i, id := range order {
 			numbered[id] = int32(i + 1)
 		}
@@ -899,7 +927,7 @@ func exclusiveSkillLines(db *sql.DB, mask int) (map[int32]bool, error) {
 			return nil, err
 		}
 		union := 0
-		for _, part := range strings.Split(masks, ",") {
+		for part := range strings.SplitSeq(masks, ",") {
 			m, err := strconv.Atoi(part)
 			if err != nil {
 				continue
@@ -975,7 +1003,7 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 	for rank := range byRank {
 		rankNums = append(rankNums, rank)
 	}
-	sort.Slice(rankNums, func(i, j int) bool { return rankNums[i] < rankNums[j] })
+	slices.Sort(rankNums)
 
 	var ambiguous []string
 	for _, rank := range rankNums {
@@ -1068,6 +1096,21 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 		if pinned, ok := ladderPins[name][rank]; ok && ids[pinned] {
 			ladder[rank] = pinned
 			continue
+		}
+		if castable == 0 && len(byRank) == 1 {
+			// Shank is two trainer rows with no rank subtext, 1329283 at level 24 and 1329549 at 44,
+			// both castable. The later one's SkillLineAbility row supersedes the earlier, which
+			// orders them into the family's ranks.
+			chain, err := supersedeChain(db, ids)
+			if err != nil {
+				return nil, err
+			}
+			if chain != nil {
+				for i, id := range chain {
+					ladder[int32(i+1)] = id
+				}
+				continue
+			}
 		}
 		if castable == 0 {
 			// Every ambiguous rank is collected rather than returning on the first, so the skipped
@@ -1165,6 +1208,64 @@ func teacherOf(db *sql.DB, ids map[int32]bool) (int32, error) {
 		found = id
 	}
 	return found, nil
+}
+
+// These spells in the order SkillLineAbility.SupercedesSpell learns them, first to last, or nil
+// unless the rows link every one into a single line: one spell supersedes none of the others, and
+// each of the rest supersedes exactly the one before it.
+func supersedeChain(db *sql.DB, ids map[int32]bool) ([]int32, error) {
+	supersedes := map[int32]int32{}
+	for id := range ids {
+		rows, err := db.Query(`SELECT DISTINCT SupercedesSpell FROM SkillLineAbility WHERE Spell = ? AND SupercedesSpell != 0`, id)
+		if err != nil {
+			return nil, err
+		}
+		for rows.Next() {
+			var prev int32
+			if err := rows.Scan(&prev); err != nil {
+				rows.Close()
+				return nil, err
+			}
+			if !ids[prev] {
+				continue
+			}
+			if _, seen := supersedes[id]; seen {
+				rows.Close()
+				return nil, nil
+			}
+			supersedes[id] = prev
+		}
+		if err := rows.Err(); err != nil {
+			rows.Close()
+			return nil, err
+		}
+		rows.Close()
+	}
+	if len(supersedes) != len(ids)-1 {
+		return nil, nil
+	}
+
+	next := map[int32]int32{}
+	var first int32
+	for id := range ids {
+		prev, ok := supersedes[id]
+		if !ok {
+			first = id
+			continue
+		}
+		if _, taken := next[prev]; taken {
+			return nil, nil
+		}
+		next[prev] = id
+	}
+	chain := []int32{first}
+	for id, ok := next[first]; ok; id, ok = next[id] {
+		chain = append(chain, id)
+	}
+	if len(chain) != len(ids) {
+		return nil, nil
+	}
+	return chain, nil
 }
 
 // The one spell among these that has a mana cost, or 0 when that does not single one out.
@@ -1333,9 +1434,7 @@ func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *sto
 	for pkg, out := range rendered {
 		files[fmt.Sprintf("sim/%s/spell_data_auto_gen.go", pkg)] = out
 	}
-	for path, out := range extra {
-		files[path] = out
-	}
+	maps.Copy(files, extra)
 	return files, inputs, nil
 }
 
@@ -1470,7 +1569,7 @@ func renderLadderClassFile(pkg string, ladders []rankLadder, triggered map[strin
 		for rank := range l.Ranks {
 			ranks = append(ranks, rank)
 		}
-		sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+		slices.Sort(ranks)
 
 		ids := make([]int32, 0, len(ranks))
 		for i, rank := range ranks {

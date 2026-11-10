@@ -4,6 +4,7 @@ import { Z_95 } from '../../utils/math';
 import {
 	BULK_SIM_COMBINATION_LOG_MIN,
 	BULK_SIM_CULLING_COEFFICIENT,
+	BULK_SIM_DEFAULT_TOP_RESULTS,
 	BULK_SIM_PAIRED_INTERVAL_CONSERVATISM,
 	BULK_SIM_SURVIVOR_SOFT_CAP_MULTIPLIER,
 } from './constants_auto_gen';
@@ -91,7 +92,8 @@ export const bulkSimPairedDpsError = (metrics: DistributionMetrics | undefined, 
 	return Math.sqrt(Math.max(0, sumSq / count - mean * mean) / count);
 };
 
-// Decides whether a candidate is far enough behind the leader to drop out. Every
+// Decides whether a candidate is far enough behind the cutoff candidate
+// (bulkSimCullingCutoff) to drop out. Every
 // candidate is simmed on the same seed sequence, so most of the per-iteration noise is
 // shared between any two of them; differencing the paired values keeps that, which
 // resolves the same gap with fewer iterations. Falls back to the marginal comparison when
@@ -112,35 +114,56 @@ const bulkSimCandidateIsCulled = (
 	return candidateUpperBound < bestLowerBound;
 };
 
-export const selectBulkSimSurvivors = (
+// The candidate a stage culls against, mirroring bulkSimCullingCutoff in sim/core/bulk/statistics.go. At
+// BULK_SIM_DEFAULT_TOP_RESULTS or fewer, every stage culls against the leader, the baseline included. Above it, every
+// stage culls against the last shown candidate, the topResults-th best by mean.
+const bulkSimCullingCutoff = (
 	results: ConcurrentBulkSimCandidateResult[],
 	baseline: ConcurrentBulkSimCandidateResult,
-	iterations: number,
-	config: ConcurrentBulkSimStageConfig,
-	originalCandidateCount: number,
-): ConcurrentBulkSimCandidate[] => {
-	const maxSurvivors = getBulkSimStageMaxSurvivors(config, results.length);
-	if (maxSurvivors === undefined || results.length <= maxSurvivors) {
-		return results.map(result => result.candidate);
+	meanSurvivors: ConcurrentBulkSimCandidateResult[],
+	topResults: number,
+): DistributionMetrics | undefined => {
+	if (topResults > BULK_SIM_DEFAULT_TOP_RESULTS && meanSurvivors.length) {
+		return meanSurvivors[Math.min(topResults, meanSurvivors.length) - 1].dpsMetrics;
 	}
-
 	let bestMetrics = baseline.dpsMetrics;
 	for (const result of results) {
 		if (result.dpsMetrics && (!bestMetrics || result.dpsMetrics.avg > bestMetrics.avg)) {
 			bestMetrics = result.dpsMetrics;
 		}
 	}
+	return bestMetrics;
+};
+
+// Keeps candidates that could still plausibly reach the run's shown results, mirroring
+// selectBulkSimSurvivors in sim/core/bulk/statistics.go: the top minSurvivors by mean,
+// and at least the top topResults, always survive, then any candidate the cutoff
+// candidate does not leave behind.
+export const selectBulkSimSurvivors = (
+	results: ConcurrentBulkSimCandidateResult[],
+	baseline: ConcurrentBulkSimCandidateResult,
+	iterations: number,
+	config: ConcurrentBulkSimStageConfig,
+	originalCandidateCount: number,
+	topResults: number,
+): ConcurrentBulkSimCandidate[] => {
+	const maxSurvivors = getBulkSimStageMaxSurvivors(config, results.length, topResults);
+	if (maxSurvivors === undefined || results.length <= maxSurvivors) {
+		return results.map(result => result.candidate);
+	}
+
+	const meanSurvivors = topBulkSimResults(results, Math.max(config.minSurvivors ?? 0, topResults));
+	const cutoffMetrics = bulkSimCullingCutoff(results, baseline, meanSurvivors, topResults);
 
 	const intervalMultiplier = bulkSimSurvivorIntervalMultiplier(originalCandidateCount, config.cullingCoefficient ?? BULK_SIM_CULLING_COEFFICIENT);
-	const bestLowerBound = (bestMetrics?.avg ?? 0) - bulkSimDpsError(bestMetrics, iterations) * intervalMultiplier;
-	const meanSurvivors = topBulkSimResults(results, config.minSurvivors ?? 0);
+	const cutoffLowerBound = (cutoffMetrics?.avg ?? 0) - bulkSimDpsError(cutoffMetrics, iterations) * intervalMultiplier;
 	let survivors = meanSurvivors.slice();
 	const seen = new Set(survivors.map(result => result.candidate.index));
 
 	for (const result of results) {
 		if (!result.dpsMetrics || seen.has(result.candidate.index)) continue;
 
-		if (bulkSimCandidateIsCulled(result.dpsMetrics, bestMetrics, bestLowerBound, iterations, intervalMultiplier)) continue;
+		if (bulkSimCandidateIsCulled(result.dpsMetrics, cutoffMetrics, cutoffLowerBound, iterations, intervalMultiplier)) continue;
 
 		survivors.push(result);
 		seen.add(result.candidate.index);

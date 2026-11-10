@@ -7,14 +7,18 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// Endurance Training, Improved Aspect of the Monkey, Pathfinding, Improved Revive Pet, Bestial
-// Swiftness, Improved Mend Pet, Spirit Bond and Intimidation change nothing the sim measures.
+// Endurance Training (the pet's health and armor), Improved Aspect of the Monkey, Improved Revive
+// Pet, Improved Mend Pet and Spirit Bond change nothing the sim measures.
 func (hunter *Hunter) registerBeastMasteryTalents() {
 	// Tier 1
 	// Deadly Aspects: aspects.go
 	hunter.registerFocusedFire()
 
+	// Tier 2
+	// Pathfinding: aspects.go
+
 	// Tier 3
+	hunter.registerBestialSwiftness()
 	hunter.registerUnleashedFury()
 
 	// Tier 4
@@ -22,6 +26,7 @@ func (hunter *Hunter) registerBeastMasteryTalents() {
 	hunter.registerSummonHawk()
 
 	// Tier 5
+	hunter.registerIntimidation()
 	hunter.registerBestialDiscipline()
 	hunter.registerFrenzy()
 
@@ -113,11 +118,21 @@ func (hunter *Hunter) registerBestialWrath() {
 		return
 	}
 
-	pet := hunter.Pet
-	aura := pet.RegisterAura(spelldata.AuraConfig(bestialWrathRank))
-	spelldata.ParseEffects(&pet.Character, aura, bestialWrathRank, spelldata.Effects(2))
+	_, spell := hunter.registerPetBuff(bestialWrathRank)
+	hunter.AddMajorCooldown(core.MajorCooldown{
+		Spell: spell,
+		Type:  core.CooldownTypeDPS,
+	})
+}
 
-	config := spelldata.SpellConfig(&hunter.Unit, bestialWrathRank, spelldata.Flags(core.SpellFlagAPL))
+// A buff on the pet with the row's effect 2 parsed onto it, and the hunter's spell that puts it up
+// while the pet is.
+func (hunter *Hunter) registerPetBuff(rank *spelldata.Spell) (*core.Aura, *core.Spell) {
+	pet := hunter.Pet
+	aura := pet.RegisterAura(spelldata.AuraConfig(rank))
+	spelldata.ParseEffects(&pet.Character, aura, rank, spelldata.Effects(2))
+
+	config := spelldata.SpellConfig(&hunter.Unit, rank, spelldata.Flags(core.SpellFlagAPL))
 	config.ExtraCastCondition = func(sim *core.Simulation, _ *core.Unit) bool {
 		return pet.IsEnabled()
 	}
@@ -125,10 +140,35 @@ func (hunter *Hunter) registerBestialWrath() {
 		aura.Activate(sim)
 	}
 
-	hunter.AddMajorCooldown(core.MajorCooldown{
-		Spell: hunter.RegisterSpell(config),
-		Type:  core.CooldownTypeDPS,
+	return aura, hunter.RegisterSpell(config)
+}
+
+// The talent raises the speed Tamed Pet Passive (19582) gives the pet, which the store lacks: a
+// speed of the kind Dash and Dive give, so the higher of them holds.
+func (hunter *Hunter) registerBestialSwiftness() {
+	if !hunter.Talents.BestialSwiftness || hunter.Pet == nil {
+		return
+	}
+
+	rank := spellData.BestialSwiftness.Highest()
+	aura := hunter.Pet.RegisterAura(spelldata.AuraConfig(rank, spelldata.Permanent()))
+	aura.NewActiveMovementSpeedEffect(rank.EffectN(1).Percent())
+}
+
+var intimidationRank = spellData.Intimidation.Highest()
+
+// The pet's next attack crits, effect 2, and spends the row's one charge. Effect 1 is the stun that
+// attack carries.
+func (hunter *Hunter) registerIntimidation() {
+	if !hunter.Talents.Intimidation || hunter.Pet == nil {
+		return
+	}
+
+	aura, _ := hunter.registerPetBuff(intimidationRank)
+	aura.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
 	})
+	spelldata.AttachChargeSpender(&hunter.Pet.Character, aura, intimidationRank, "Intimidation - Spend")
 }
 
 // Effect 1 is the pet's focus regeneration. Effect 2 is the hunter's own mana regeneration while

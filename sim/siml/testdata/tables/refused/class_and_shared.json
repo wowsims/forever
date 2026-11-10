@@ -1,0 +1,1 @@
+{ "classes": { "warrior": { "spell": { "a": { "spellId": 1, "registeredBy": [] } } } }, "shared": { "spell": { "a": { "spellId": 2, "registeredBy": [] } } } }

@@ -1,9 +1,13 @@
-import { ItemQuality } from '@generated/proto/common';
+import { Faction, ItemQuality } from '@generated/proto/common';
+import { UIItemSource } from '@generated/proto/ui';
+import type { Sim } from '@sim/sim';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { wowheadIconUrl } from '@testing/storybook/fixtures/gear';
+import { makeUIItem } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { ItemListRowView } from './ItemListRow';
+import { ItemSource } from './ItemSource';
 
 const meta = {
 	title: 'Features/Gear/SelectorModal/Components/ItemListRow',
@@ -49,15 +53,70 @@ export const EquippedFavourite: Story = {
 	args: { active: true, favourited: true, ep: { ep: 38, equippedEP: 38 }, compare: { inBatch: true, tooltipId: 'compare-tooltip', onToggle: fn() } },
 };
 
+export const NewlyDiscovered: Story = {
+	args: { discovered: 'Discovered on November 3rd' },
+	play: async ({ canvasElement }) => {
+		await userEvent.hover(within(canvasElement).getByTestId('selector-modal-list-item-discovered'));
+		await within(canvasElement.ownerDocument.body).findByRole('tooltip');
+	},
+};
+
 export const EnchantsTab: Story = {
 	args: {
 		name: 'Enchant Weapon - Crusader',
 		quality: ItemQuality.ItemQualityUncommon,
 		iconUrl: wowheadIconUrl('spell_holy_greaterheal'),
 		ilvl: undefined,
-		source: undefined,
+		source: (
+			<small>
+				Western Plaguelands
+				<br />
+				Scarlet Spellbinder
+			</small>
+		),
 		compare: undefined,
 		ep: { ep: 9.2, equippedEP: 12 },
+	},
+};
+
+export const EnchantWithoutSource: Story = {
+	args: {
+		name: 'Enchant Chest - Inferior Stamina',
+		quality: ItemQuality.ItemQualityCommon,
+		iconUrl: wowheadIconUrl('inv_misc_enchantedscroll'),
+		ilvl: 0,
+		source: null,
+		compare: undefined,
+		ep: { ep: 1.2, equippedEP: 12 },
+	},
+};
+
+export const OtherSources: Story = {
+	args: {
+		source: (
+			<ItemSource
+				item={makeUIItem({
+					id: 19019,
+					sources: [
+						UIItemSource.create({
+							source: { oneofKind: 'soldBy', soldBy: { npcId: 12944, npcName: 'Lokhtos Darkbargainer', zoneId: 1584, faction: Faction.Unknown } },
+						}),
+						UIItemSource.create({ source: { oneofKind: 'quest', quest: { id: 7, name: 'Attunement to the Core', faction: Faction.Unknown } } }),
+						UIItemSource.create({
+							source: { oneofKind: 'drop', drop: { difficulty: 0, npcId: 0, zoneId: 0, otherName: 'World Drop', category: '' } },
+						}),
+					],
+				})}
+				sim={{ db: { getZone: () => null, getNpc: () => null } } as unknown as Sim}
+			/>
+		),
+	},
+	play: async ({ args, canvasElement }) => {
+		const more = within(canvasElement).getByTestId('item-source-more');
+		await userEvent.hover(more);
+		await within(canvasElement.ownerDocument.body).findByRole('dialog');
+		await userEvent.click(more);
+		await expect(args.onEquip).not.toHaveBeenCalled();
 	},
 };
 

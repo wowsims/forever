@@ -10,9 +10,6 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// The Twist of Light build with its last point left out, so Benediction is the seal's only cost cut.
-var benedictionOnlyTalents = "55003003--05225331101330320"
-
 // Casts Seal of Righteousness and one Judgement under the talents, and returns the seal's base cost,
 // what the seal cost to cast, and the mana Sanctified Judgement returned.
 func judgeSealOfRighteousness(t *testing.T, talents string) (baseCost, paid, refund float64) {
@@ -21,12 +18,12 @@ func judgeSealOfRighteousness(t *testing.T, talents string) (baseCost, paid, ref
 		Name:          "Sanctified Judgement",
 		Race:          proto.Race_RaceHuman,
 		Class:         proto.Class_ClassPaladin,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "twist_of_light").GearSet,
+		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
 		TalentsString: talents,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
 			Options: &proto.RetributionPaladin_Options{ClassOptions: &proto.PaladinOptions{}},
 		}},
-		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "twist_of_light").Rotation,
+		Rotation: core.GetAplRotation("../../../ui/specs/paladin/retribution/apls", "default").Rotation,
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
@@ -64,7 +61,7 @@ func judgeSealOfRighteousness(t *testing.T, talents string) (baseCost, paid, ref
 // and Benediction's 10% cut on the seal is added to the refund instead of taken from it: a 90 mana
 // seal costs 81 and returns 59.4 in game.
 func TestSanctifiedJudgementReturnsSealMana(t *testing.T) {
-	baseCost, paid, refund := judgeSealOfRighteousness(t, benedictionOnlyTalents)
+	baseCost, paid, refund := judgeSealOfRighteousness(t, UnsealedWrathTalents)
 	if math.Abs(paid-baseCost*0.9) > 1e-6 {
 		t.Fatalf("Benediction 5/5 leaves the seal costing %.3f of %.0f, want 90%%", paid, baseCost)
 	}
@@ -73,14 +70,8 @@ func TestSanctifiedJudgementReturnsSealMana(t *testing.T) {
 	}
 }
 
-// With Twist of Light as a second cut the seal costs 90% × 80% of its base, and the refund takes the
-// same 28% on top. That is the sim's model for two cuts; the game has only been measured with one.
-func TestSanctifiedJudgementFlipsEverySealCostCut(t *testing.T) {
-	baseCost, paid, refund := judgeSealOfRighteousness(t, TwistOfLightTalents)
-	if math.Abs(paid-baseCost*0.72) > 1e-6 {
-		t.Fatalf("Benediction 5/5 and Twist of Light leave the seal costing %.3f of %.0f, want 72%%", paid, baseCost)
-	}
-	if want := baseCost * 1.28 * 0.6; math.Abs(refund-want) > 1e-6 {
-		t.Errorf("Judgement returned %.3f mana, want %.3f (seal base cost %.0f)", refund, want, baseCost)
-	}
+// A talents string with more points in Sanctified Judgement than it takes builds the talent at its
+// top rank instead of panicking on a rank its ladder does not have.
+func TestSanctifiedJudgementOverItsRanksBuildsAtTheTopRank(t *testing.T) {
+	judgeSealOfRighteousness(t, "050250002-501-05235011201301351")
 }

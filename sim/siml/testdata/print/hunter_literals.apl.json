@@ -1,0 +1,16 @@
+{
+	"type": "TypeAPL",
+	"valueVariables": [
+		{ "name": "literal", "value": { "const": { "val": "1h2m3.5s" } } },
+		{ "name": "negative", "value": { "const": { "val": "-0.25" } } },
+		{ "name": "kept_text", "value": { "const": { "val": "5.00" } } },
+		{ "name": "bool", "value": { "const": { "val": "false" } } },
+		{ "name": "word", "value": { "const": { "val": "True" } } },
+		{ "name": "spaced", "value": { "const": { "val": " 5" } } },
+		{ "name": "escapes", "value": { "const": { "val": "a \"quote\", a \\ and a\nline \u0001 / µ ` end" } } },
+		{ "name": "empty", "value": { "const": {} } },
+		{ "name": "not_a_number", "value": { "const": { "val": "1.5.5" } } },
+		{ "name": "doubles", "value": { "allItemStatProcsActive": { "minIcdSeconds": 1e-7 } } },
+		{ "name": "big", "value": { "allItemStatProcsActive": { "statType1": 1, "minIcdSeconds": 1e21 } } }
+	]
+}

@@ -1,11 +1,26 @@
-import { v4 as uuidv4 } from 'uuid';
-
-export const randomUUID = () => uuidv4();
+// `crypto.randomUUID` exists only in a secure context. A page served over plain http from a LAN host
+// (`make dev` with `--host`) builds the v4 id from `getRandomValues`, which every context has.
+export const randomUUID = (): string => {
+	if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
+	const bytes = crypto.getRandomValues(new Uint8Array(16));
+	bytes[6] = (bytes[6] & 0x0f) | 0x40;
+	bytes[8] = (bytes[8] & 0x3f) | 0x80;
+	const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+	return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 export const noop = () => {};
 
 export const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+/** `name` when it is free, otherwise the first free `base (2)`, `base (3)`, ..., where `base` is `name` without a ` (n)` it already ends in. */
+export const freeName = (name: string, taken: Iterable<string>): string => {
+	const names = taken instanceof Set ? taken : new Set(taken);
+	if (!names.has(name)) return name;
+	const base = name.replace(/ \(\d+\)$/, '');
+	for (let n = 2; ; n++) if (!names.has(`${base} (${n})`)) return `${base} (${n})`;
+};
 
 /** A one-entry memo: each call returns the last value, or runs `compute` again when one of `deps` changed identity since. */
 export const memoLast = <T>() => {

@@ -17,6 +17,7 @@ func Execute(version string) {
 	rootCmd.AddCommand(newVersionCommand(version))
 	rootCmd.AddCommand(simCmd)
 	rootCmd.AddCommand(decodeLinkCmd)
+	rootCmd.AddCommand(simlCmd)
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)

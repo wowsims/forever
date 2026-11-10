@@ -1,0 +1,16 @@
+siml 1
+spec hunter
+
+// Raw JSON in place of a value, an action, a ref, a unit, a field's value, a var's value and a whole row.
+var $v = `{"currentTime": {}}`
+
+prepull:
+  -1s `{"autocastOtherCooldowns": {}}`
+  `{"action": {"castSpell": {"spellId": {"spellId": 5}}}, "doAtValue": {"const": {"val": "-2s"}}}`
+
+priority:
+  cast `{"spellId": 5, "rank": 2}` on `{"type": "Target", "index": 4}` if `{"gcdIsReady": {}}`
+  `{"wait": {}}` if true
+  multidot(`{"spellId": 5}`, max_dots=`3`)
+  strict_sequence(`{"wait": {}}`, `{"move": {}}` if true)
+  `{"action": {}, "notes": "a note\twith a tab"}`

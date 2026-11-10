@@ -1,0 +1,22 @@
+siml 1
+spec hunter
+
+var $plain = true
+var ${Melee weave} = true
+var ${Use AoE} = true
+var ${use aoe} = false
+var ${5 stacks} = 5
+
+priority:
+  group "G" with %p = 1, %{Q r} = 2
+      if $plain
+      and $melee_weave
+      and ${Use AoE}
+      and ${use aoe}
+      and ${Never declared}
+      and $undeclared
+      and ${5 stacks}
+
+group "G":
+  var ${Melee Weave} = true
+  none if ${Melee Weave} and $plain and %p and %{Q r}

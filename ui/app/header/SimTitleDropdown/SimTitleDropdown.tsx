@@ -16,7 +16,7 @@ export interface SimTitleDropdownProps {
 }
 
 const SIM_LINK_CLASSES =
-	'block w-full border-0 bg-background text-left no-underline hover:bg-surface-hover focus:bg-surface-hover data-highlighted:bg-surface-hover data-popup-open:bg-surface-hover';
+	'block w-full border-0 bg-background text-left no-underline hover:bg-surface-hover focus-visible:bg-surface-hover data-highlighted:bg-surface-hover data-popup-open:bg-surface-hover';
 
 const launchLabel = (launch: { phase: number; status: number }) =>
 	i18n.t('sidebar.header.phase', { phase: i18n.t(`common.phases.${launch.phase}`), status: translateStatus(launch.status) });
@@ -75,7 +75,7 @@ export const SimTitleDropdown = ({ currentSpec }: SimTitleDropdownProps) => (
 				}
 				triggerProps={{
 					className: clsx(
-						'ui-sim-title-trigger flex h-full w-full bg-background hover:bg-surface-hover focus:bg-surface-hover data-popup-open:bg-surface-hover',
+						'ui-sim-title-trigger flex h-full w-full bg-background hover:bg-surface-hover focus-visible:bg-surface-hover data-popup-open:bg-surface-hover',
 						textClassNameForSpec(currentSpec),
 					),
 					'data-testid': 'sim-link',

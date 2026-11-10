@@ -87,6 +87,8 @@ message Player {
 	// This will remove a lot of the boilerplate code in the UI for each new field.
 
 	int32 reaction_time_ms = 45;
+	// Above reaction_time_ms, each reaction the player makes is drawn evenly between the two.
+	int32 reaction_time_max_ms = 62;
 	int32 channel_clip_delay_ms = 46;
 	bool in_front_of_target = 47;
 	double distance_from_target = 48;
@@ -282,6 +284,10 @@ message TargetedActionMetrics {
 
 	// Values a class or spec records on this action, one entry per key.
 	repeated CustomActionMetric custom_metrics = 38;
+
+	// # of times the rotation or a major cooldown pressed this action on this target, so procs, swings and
+	// spells cast by other spells never count. A cleave counts once, on the target it was pressed on.
+	int32 manual_casts = 40;
 }
 
 // The outcome a range in TargetedActionMetrics.ranges covers. The resisted kinds are partial resists.
@@ -476,8 +482,9 @@ message BulkSimRequest {
 	string request_id = 1;
 	RaidSimRequest base_request = 2;
 	repeated BulkGearCandidate candidates = 3;
-	reserved 4;
-	reserved "optimized_candidates";
+	// Ranks and returns every candidate, generated ones too; top_results is not read then.
+	bool all_results = 4;
+	// 0 ranks the sim's default top results.
 	int32 top_results = 5;
 	reserved 6;
 	reserved "high_stage_iterations";
@@ -619,6 +626,7 @@ message AuraStats {
 	bool has_icd = 3;
 	bool has_exclusive_effect = 4;
 	ActionCategory category = 5;
+	string menu_group = 6; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message SpellStats {
 	ActionID id = 1;
@@ -639,6 +647,7 @@ message SpellStats {
 	bool is_potion = 14; // Whether this spell is a potion
 	bool is_conjured = 15; // Whether this spell is a conjured item
 	ActionCategory category = 16;
+	string menu_group = 18; // A manual APL menu group, rotation_tab.apl.submenus keys joined by dots (spell.cat.stealth); empty for none.
 }
 message APLValidation {
 	LogLevel log_level = 1;
@@ -664,9 +673,28 @@ message UnitMetadata {
 	string name = 3;
 	repeated SpellStats spells = 1;
 	repeated AuraStats auras = 2;
+	// The talents the unit has points in, each at the rank it holds.
+	repeated ActionID talents = 4;
+	// Proc triggers with an internal cooldown and no action of their own, by the action they proc from:
+	// the id icd_is_ready finds them by, which no other aura value does.
+	repeated AuraStats icd_auras = 5;
+	// The order of the unit's APL menu groups, by full path; a group not listed follows them.
+	repeated string menu_group_order = 6;
 }
 message PetStats {
 	UnitMetadata metadata = 1;
+}
+// The most crit the main-hand auto attack can land against the current target, all in percent: what the
+// white-hit table leaves after miss, dodge, parry, glancing and block.
+message MeleeCritCapInfo {
+	double glancing = 1;
+	double suppression = 2; // The crit the target takes off the sheet's crit, spec_offset counted; below 0 when a debuff adds crit.
+	double remaining_hit = 3; // The miss left after hit, the dual-wield penalty included.
+	double remaining_expertise = 4; // The dodge and parry left after expertise; parry only from the front.
+	double block = 5; // Only from the front.
+	double spec_offset = 6; // Crit a spec counts as taken that the sheet does not show.
+	double crit_cap = 7;
+	double delta = 8; // The sheet's melee crit less crit_cap.
 }
 message PlayerStats {
 	// Stats
@@ -687,6 +715,8 @@ message PlayerStats {
 
 	// The full skill per weapon skill, with every bonus the gear, talents and buffs add.
 	repeated WeaponSkillValue weapon_skills = 13;
+
+	MeleeCritCapInfo melee_crit_cap = 14; // Unset before the attack tables exist and without a main-hand auto attack.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;
@@ -729,7 +759,7 @@ message StatWeightsRequest {
 
 // The ± each targeted EP runs extra iterations to reach.
 message StatWeightsTarget {
-	double ep_ci = 1; // The 90% ± of each EP to reach.
+	double ep_ci = 1; // The 90% ± of each EP to reach; a percent pseudo stat's ± is per rating point.
 	int32 max_iteration_multiplier = 2; // Caps each run at this multiple of its first pass's iterations; 0 means no cap.
 	repeated StatWeightsTargetMetric metrics = 3; // The metrics whose EP ± the target applies to; empty means DPS only.
 }
@@ -817,6 +847,8 @@ message StatWeightsResult {
 	StatWeightValues p_death = 6;
 	ErrorOutcome error = 7;
 	UnitStats sample_counts = 8; // Paired samples behind each stat's weight.
+	UnitStats step_below = 9; // How far each stat's run below the baseline moved it, as a negative; 0 without such a run.
+	UnitStats step_above = 10; // How far each stat's run above the baseline moved it, in the stat's own unit; 0 for a stat without runs.
 }
 message StatWeightValues {
 	UnitStats weights = 1;
@@ -928,8 +960,7 @@ message BulkCombinationCountRequest {
 message BulkCombinationCountResult {
 	int32 raw_combinations = 1;
 	int32 combinations = 2;
-	double iterations = 3;
-	ErrorOutcome error = 4;
+	ErrorOutcome error = 3;
 }
 
 message BulkCandidatesRequest {

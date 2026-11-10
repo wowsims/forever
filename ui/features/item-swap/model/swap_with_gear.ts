@@ -33,8 +33,8 @@ export const swapWithGear = <SpecType extends Spec>(player: Player<SpecType>, it
 	}
 
 	batch(() => {
-		player.setConsumes(newConsumes);
 		player.setGear(newGear);
 		player.itemSwapSettings.setGear(newSwapGear);
+		player.setConsumes(newConsumes);
 	});
 };

@@ -15,7 +15,7 @@ func (druid *Druid) registerGrowlSpell() {
 func (druid *Druid) registerBearUtility(rank *spelldata.Spell, applyEffects core.ApplySpellResults) *DruidSpell {
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL
-	config.ProcMask = core.ProcMaskEmpty
+	config.ProcMask = core.ProcMaskEmpty // A landed taunt rolls no proc, Omen of Clarity included.
 	config.ThreatMultiplier = 1
 	config.ApplyEffects = applyEffects
 	return druid.RegisterSpell(config)

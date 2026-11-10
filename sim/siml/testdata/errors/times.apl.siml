@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+
+prepull:
+  cast x
+  reset_sequence("S") if true
+  # wait 1s
+
+priority:
+  -1s cast x
+  "a" cast x
+  $v cast x

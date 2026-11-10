@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+
+type auto
+var $x = 1
+
+priority:
+  cast steady_shot

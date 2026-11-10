@@ -81,7 +81,7 @@ func TestNoPartialResistKeepsTheWholeHit(t *testing.T) {
 
 // A hit the target resists in full is a miss: it is not landed, counts as a miss, and no hit or crit is counted.
 func TestFullResistIsAMiss(t *testing.T) {
-	sim, fw := setupFakeWarlockSim(proto.Race_RaceHuman)
+	sim, fw := setupFakeWarlockSim(proto.Race_RaceHuman, &proto.IndividualBuffs{})
 	target := fw.CurrentTarget
 	spell := fw.Corruption
 	target.stats[stats.ShadowResistance] = 1e12

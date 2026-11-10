@@ -8,10 +8,7 @@ import (
 
 func (druid *Druid) registerThornsSpell() {
 	rank := spellData.Thorns.Highest()
-	aura := druid.GetAura("Thorns (Player)")
-	if aura == nil {
-		aura = buffs.NewSpellDataThornsAura(&druid.Unit, true, 0)
-	}
+	aura := buffs.NewSpellDataThornsAuraWithSpellPower(&druid.Unit, true, 0)
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL | core.SpellFlagHelpful
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {

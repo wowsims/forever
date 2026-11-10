@@ -29,9 +29,9 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 	proto.HunterOptions_FasterAttackVII: spellData.FasterAttackVII,
 }
 
-// A tamed pet's own armor, health and weapon are the creature values for its level in the game files
-// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel, core.CreatureAutoAttackDpsMaxLevel), and its own
-// attack power is 30% of the creature dps as attack power, 14 a point of dps, with nothing from Strength:
+// A tamed pet's own armor and health are the creature values for its level in the game files
+// (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
+// dps (core.CreatureAutoAttackDpsMaxLevel) as attack power, 14 a point of dps, with nothing from Strength:
 // 36, 61 and 103 on the sheets of a level 11 Carrion Bird, a level 17 Cat and a level 30 pet, each the
 // creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it.
 // TODO: Health is one reading, 550 with Great Stamina 2 at 35 owner Stamina, which the creature health
@@ -40,14 +40,18 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 var petBaseStats = stats.Stats{
 	stats.Health:      core.CreatureHealthMaxLevel,
 	stats.Armor:       core.CreatureArmorMaxLevel,
-	stats.AttackPower: 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel,
+	stats.AttackPower: petAttackPower,
 }
 
-// The swing before attack power is the creature dps over the 2.0 s, spanning 20% either side: a level 11
-// Carrion Bird's 20-27 at 44 attack power and 2.0 s, and a level 17 Cat's 28-37 and 27-37 at 75 and 72,
-// swinging at 1.5 s with Faster Attack III, are the creature dps plus attack power over 14, over the swing
-// as sped up, with the Cat's +10%. The sheet leaves happiness out.
-const petSwingAverage = core.CreatureAutoAttackDpsMaxLevel * 2
+const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
+
+// The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
+// attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
+// a level 30 Cat's logged swings before armor, 42-55 and 46-59 at 119 and 146 attack power, swinging at 1.2 s
+// with Unleashed Fury 5/5, are this swing plus attack power over 14, over the swing as sped up, with the Cat's
+// +10% and happiness. The pet sheet shows the whole creature dps as the weapon and leaves happiness out, so
+// its damage range is not the damage the pet deals.
+const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
 	BaseDamageMin: petSwingAverage * (1 - 0.2),
@@ -78,12 +82,13 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 
 	hp := &HunterPet{
 		Pet: core.NewPet(core.PetConfig{
-			Name:                  family.Name,
-			Owner:                 &hunter.Character,
-			BaseStats:             petBaseStats,
-			StatInheritance:       hunter.makeStatInheritance(),
-			EnabledOnStart:        true,
-			StartsAtOwnerDistance: true,
+			Name:            family.Name,
+			Owner:           &hunter.Character,
+			BaseStats:       petBaseStats,
+			StatInheritance: hunter.makeStatInheritance(),
+			EnabledOnStart:  true,
+			// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
+			HasDynamicMeleeSpeedInheritance: true,
 		}),
 		hunterOwner: hunter,
 		family:      family,
@@ -164,13 +169,13 @@ func (hp *HunterPet) registerStatInheritance() {
 
 // The family's own damage, armor and health, and what Beast Training taught the pet that changes
 // its damage: each is a passive the pet is never without, applied as its effects read. Great
-// Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim measures.
+// Stamina, Natural Armor, Pet Hardiness and Pet Resistance change nothing the sim measures, and no
+// Beast Training teaching spell in the game files teaches Pet Aggression.
 func (hp *HunterPet) ApplyTalents() {
 	opts := hp.hunterOwner.Options
 	// The family's armor share is stated on armor from items, which a pet has none of: its armor is
 	// its owner's, inherited, and the second effect is left out.
 	spelldata.ParseStatic(&hp.Character, hp.family.Passive.Highest(), spelldata.SkipEffects(2))
-	spelldata.ParseStatic(&hp.Character, spellData.PetAggression.Rank(opts.PetAggression))
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
 	// are auras the pet is never without.
@@ -219,6 +224,8 @@ func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
 
 func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	target := hp.CurrentTarget
+	// The pet starts beside the hunter and walks in to melee range before it acts, closing with
+	// Charge, Dash or Dive when it has one.
 	if hp.DistanceFromTarget > core.MaxMeleeRange {
 		for _, closer := range hp.closers {
 			if closer.CanCast(sim, target) {
@@ -249,9 +256,9 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	}
 }
 
-// An ability by the client's name of its row, so the generated family table needs no hand list
-// beside it. A name not here is one the sim has nothing to measure - Cower, Growl, Prowl, Shell
-// Shield - and stays unregistered.
+// An ability by its row's name in the game files, so the generated family table needs no hand list
+// beside it. A name not here stays unregistered: Cower, Growl, Prowl and Shell Shield change nothing
+// the sim measures, and the Boar's Charge is not modelled.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	var spell *core.Spell
 	switch rank.Name {
@@ -269,9 +276,6 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 		spell = hp.registerFuriousHowl(rank)
 	case "Trickster's Dance":
 		spell = hp.registerSelfBuff(rank)
-	case "Charge":
-		hp.closers = append(hp.closers, hp.registerCharge(rank))
-		return
 	case "Dash", "Dive":
 		hp.closers = append(hp.closers, hp.registerSprint(rank))
 		return
@@ -467,25 +471,6 @@ func (hp *HunterPet) registerSprint(rank *spelldata.Spell) *core.Spell {
 	config := hp.spellConfig(rank)
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 		aura.Activate(sim)
-	}
-	return hp.RegisterSpell(config)
-}
-
-// The boar's charge: the pet closes to the enemy, and its next melee hit carries the row's attack
-// power. The stun is not modelled.
-func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
-	aura := hp.RegisterAura(spelldata.AuraConfig(rank))
-	spelldata.ParseEffects(&hp.Character, aura, rank, spelldata.Effects(2))
-	aura.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if spell.ProcMask.Matches(core.ProcMaskMelee) && result.Landed() {
-			aura.Deactivate(sim)
-		}
-	}
-
-	config := hp.spellConfig(rank)
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		aura.Activate(sim)
-		hp.MoveTo(core.MaxMeleeRange-1, sim)
 	}
 	return hp.RegisterSpell(config)
 }

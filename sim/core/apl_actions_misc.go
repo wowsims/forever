@@ -31,14 +31,24 @@ func (action *APLActionChangeTarget) Reset(sim *Simulation) {
 }
 func (action *APLActionChangeTarget) IsReady(sim *Simulation) bool {
 	// Prevent infinite loops by only allowing this action to be performed once at each timestamp.
-	return action.lastExecutedAt != sim.CurrentTime
+	// A change to the unit already targeted is not ready, so a line that returns to the main target
+	// needs no check that another unit is targeted. Inside a sequence such a step is ready and does
+	// nothing, so the sequence goes on.
+	if action.lastExecutedAt == sim.CurrentTime {
+		return false
+	}
+	return action.newTarget.Get() != action.unit.CurrentTarget || action.unit.Rotation.inSequence
 }
 func (action *APLActionChangeTarget) Execute(sim *Simulation) {
-	if sim.Log != nil {
-		action.unit.Log(sim, "Changing target to %s", action.newTarget.Get().Label)
-	}
-	action.unit.CurrentTarget = action.newTarget.Get()
 	action.lastExecutedAt = sim.CurrentTime
+	newTarget := action.newTarget.Get()
+	if newTarget == action.unit.CurrentTarget {
+		return
+	}
+	if sim.Log != nil {
+		action.unit.Log(sim, "Changing target to %s", newTarget.Label)
+	}
+	action.unit.CurrentTarget = newTarget
 }
 func (action *APLActionChangeTarget) String() string {
 	return fmt.Sprintf("Change Target(%s)", action.newTarget.Get().Label)
@@ -296,12 +306,55 @@ type APLActionMove struct {
 	defaultAPLActionImpl
 	unit      *Unit
 	moveRange APLValue
+
+	recheckWhileMoving bool
+	entry              *APLAction      // The rotation entry, whose condition the walk is held to.
+	walk               *MovementAction // The walk this action started, while it is under way.
 }
 
 func (rot *APLRotation) newActionMove(config *proto.APLActionMove) APLActionImpl {
-	return &APLActionMove{
-		unit:      rot.unit,
-		moveRange: rot.newAPLValue(config.RangeFromTarget),
+	moveRange := rot.coerceTo(rot.newAPLValue(config.RangeFromTarget), proto.APLValueType_ValueTypeFloat)
+	if moveRange == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Move needs a range from the target, ignoring this action")
+		return nil
+	}
+	action := &APLActionMove{
+		unit:               rot.unit,
+		moveRange:          moveRange,
+		recheckWhileMoving: config.RecheckWhileMoving,
+	}
+	if action.recheckWhileMoving {
+		rot.recheckedMoves = append(rot.recheckedMoves, action)
+	}
+	return action
+}
+func (action *APLActionMove) GetAPLValues() []APLValue {
+	return []APLValue{action.moveRange}
+}
+func (action *APLActionMove) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveRange = replace(action.moveRange)
+}
+
+// At each look of the rotation during this action's walk: the walk stops where it is once the condition is
+// false, and turns to the range once it changes. A walk something else replaced or that ended is let go.
+func (action *APLActionMove) recheck(sim *Simulation) {
+	if action.walk == nil {
+		return
+	}
+	if action.unit.movementAction != action.walk {
+		action.walk = nil
+		return
+	}
+	if action.entry != nil && action.entry.condition != nil && !action.entry.condition.GetBool(sim) {
+		action.walk = nil
+		if sim.Log != nil {
+			action.unit.Log(sim, "[DEBUG] Stopping at %.1f yards", action.unit.DistanceFromTarget)
+		}
+		action.unit.StopMoving(sim)
+		return
+	}
+	if action.moveRange.GetFloat(sim) != action.walk.srcPosition+action.walk.moveDistance {
+		action.Execute(sim)
 	}
 }
 func (action *APLActionMove) IsReady(sim *Simulation) bool {
@@ -314,7 +367,10 @@ func (action *APLActionMove) Execute(sim *Simulation) {
 		action.unit.Log(sim, "[DEBUG] Moving to %.1f yards", moveRange)
 	}
 
-	action.unit.MoveTo(moveRange, sim)
+	action.unit.moveTo(moveRange, sim, true)
+	if action.recheckWhileMoving && action.unit.Moving {
+		action.walk = action.unit.movementAction
+	}
 }
 func (action *APLActionMove) String() string {
 	return fmt.Sprintf("Move(%s)", action.moveRange)
@@ -412,14 +468,25 @@ type APLActionMoveDuration struct {
 }
 
 func (rot *APLRotation) newActionMoveDuration(config *proto.APLActionMoveDuration) APLActionImpl {
+	moveDuration := rot.coerceTo(rot.newAPLValue(config.Duration), proto.APLValueType_ValueTypeDuration)
+	if moveDuration == nil {
+		rot.ValidationMessage(proto.LogLevel_Warning, "Move Duration needs a duration, ignoring this action")
+		return nil
+	}
 	return &APLActionMoveDuration{
 		unit:         rot.unit,
-		moveDuration: rot.newAPLValue(config.Duration),
+		moveDuration: moveDuration,
 	}
+}
+func (action *APLActionMoveDuration) GetAPLValues() []APLValue {
+	return []APLValue{action.moveDuration}
+}
+func (action *APLActionMoveDuration) ReplaceAPLValues(replace func(APLValue) APLValue) {
+	action.moveDuration = replace(action.moveDuration)
 }
 
 func (action *APLActionMoveDuration) Execute(sim *Simulation) {
-	action.unit.MoveDuration(action.moveDuration.GetDuration(sim), sim)
+	action.unit.MoveDurationByHand(action.moveDuration.GetDuration(sim), sim)
 }
 
 func (action *APLActionMoveDuration) IsReady(sim *Simulation) bool {

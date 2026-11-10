@@ -1,0 +1,29 @@
+// A file comment, kept above siml 1.
+
+siml 1
+spec hunter // trailing on spec
+
+var ${Melee weave} = true
+
+var $x = $melee_weave and true
+// between var lines
+type auto
+
+priority:
+  cast steady_shot if $x
+
+  // inside a continuation
+  cast steady_shot if $x and not $melee_weave
+  wait (1s + 2s) * 2
+  cast steady_shot // trailing on a row
+
+// a comment line at column 1, above a header
+prepull:
+  -1s cast steady_shot // trailing on the header line
+
+group "G":
+  none
+
+  none
+
+// at the end

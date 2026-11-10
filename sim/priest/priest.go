@@ -100,8 +100,8 @@ func (priest *Priest) registerSelfBuffSpell(rank *spelldata.Spell, aura *core.Au
 }
 
 // A prayer's own copy on every player in the raid, up once the priest casts it. It bids in the same
-// category as the raid buff of that name, so the two count once. The cast waits until nothing as
-// strong holds the category, which the raid buff, permanent from the start, always does.
+// category as the raid buff of its stat, so the two count once. The cast waits until nothing as
+// strong holds the category, which a raid buff as strong, permanent from the start, always does.
 func (priest *Priest) registerPrayer(rank *spelldata.Spell, newAura func(*core.Unit, bool, int32) *core.Aura) *core.Spell {
 	auras := priest.NewAllyAuraArray(func(unit *core.Unit) *core.Aura {
 		return newAura(unit, true, 0)
@@ -200,7 +200,7 @@ func New(char *core.Character, selfBuffs SelfBuffs, talents string) *Priest {
 		Talents:   &proto.PriestTalents{},
 	}
 
-	core.FillTalentsProto(priest.Talents.ProtoReflect(), talents, TalentTreeSizes)
+	priest.FillTalentsProto(priest.Talents.ProtoReflect(), talents, TalentTreeSizes)
 	priest.EnableManaBar()
 	priest.AddStatDependency(stats.Strength, stats.AttackPower, 1)
 	priest.AddStatDependency(stats.Agility, stats.PhysicalCritPercent, core.CritPerAgiMaxLevel[char.Class])
@@ -233,7 +233,7 @@ func RegisterPriest() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewPriest(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_DpsPriest)
 			if !ok {
 				panic("Invalid spec value for Priest!")
@@ -257,7 +257,6 @@ const (
 	PriestSpellLesserHeal
 	PriestSpellHeal
 	PriestSpellGreaterHeal
-	PriestSpellBindingHeal
 	PriestSpellRenew
 	PriestSpellPowerWordShield
 	PriestSpellHolyNova

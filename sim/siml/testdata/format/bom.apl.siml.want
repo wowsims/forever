@@ -1,0 +1,6 @@
+siml 1
+spec hunter
+
+// Format writes no byte order mark.
+priority:
+  cast hunter_shot

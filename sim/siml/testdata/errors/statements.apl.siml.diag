@@ -1,0 +1,10 @@
+3:1 error misplaced-note
+6:3 error indented-header
+8:1 error misplaced-statement
+9:1 error unknown-section
+11:1 error section-not-allowed
+12:1 error duplicate-section
+16:7 error duplicate-group
+17:3 error bad-hidden-row
+20:3 error misplaced-var
+21:1 error misplaced-note

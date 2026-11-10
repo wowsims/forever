@@ -17,18 +17,17 @@ mage port, it cost 1.2% DPS. Use `ByID`.
 
 **A parsed row doubles the hand line that already states it.** When the paladin parses Shield
 Specialization, the `BlockValueMultiplier` line in `sim/paladin/talents_protection.go` goes, since
-`A_MOD_BLOCK_VALUE_PCT` is a row. Holy Power's crit mods in `talents_holy.go` go the same way. The
-`agiApDep` the druid's Cat Form stub keeps commented out must not come back beside a parsed Cat Form
-(Passive) 3025, which states the same Agility share. Last Stand 12976 is the opposite case: it stays
-hand-read, because its 30 is a percentage and the parse reads `A_MOD_INCREASE_HEALTH` as flat
-health.
+`A_MOD_BLOCK_VALUE_PCT` is a row. The `agiApDep` the druid's Cat Form stub keeps commented out must not
+come back beside a parsed Cat Form (Passive) 3025, which states the same Agility share. Last Stand 12976
+is the opposite case: it stays hand-read, because its 30 is a percentage and the parse reads
+`A_MOD_INCREASE_HEALTH` as flat health.
 
-**A parsed school hit talent shows on the sheet only when asked.** Arcane Focus, Elemental Precision,
-Shadow Focus, Holy Precision and Divine Precision state their hit on class flags, so a plain
-`ParseStatic` raises the hit of their spells and leaves the character sheet's school hit rows where
-they were. Pass `spelldata.ShowAsSchoolHit` with the schools the tooltip names. Writing the hit into
-`PseudoStats.SchoolBonusHitChance` instead drops the row's spell list, and Divine Precision would lose
-Holy Strike's melee roll. See [Talents and auras](talents-and-auras.md).
+**A parsed school hit talent shows on the sheet only when asked.** Shadow Focus, Holy Precision and
+Divine Precision state their hit on class flags, so a plain `ParseStatic` raises the hit of their
+spells and leaves the character sheet's school hit rows where they were. Pass
+`spelldata.ShowAsSchoolHit` with the schools the tooltip names. Writing the hit into
+`PseudoStats.SchoolBonusHitChance` instead drops the row's spell list, and Divine Precision would
+lose Holy Strike's melee roll. See [Talents and auras](talents-and-auras.md).
 
 **A rank can carry nothing in a role.** Lay on Hands rank 1 restores no mana, while ranks 2-4 do, so
 `EnergizeEffect()` answers `NilEffect` for rank 1, and every accessor reads that as zero.
@@ -84,9 +83,13 @@ never touch that spell.
 
 **`SPCoef` of exactly 1 is the column's filler.** 2,113 of the store's 9,651 effects carry it, among
 them weapon-damage effects, speed auras and shapeshifts. No physical-school row in the game files states
-a fractional coefficient at all. `Magic()` and `DotConfig` hand the row's coefficient to core as it
-stands, so a physical row read through either would take spell power per hit or per tick. Read the
-tooltip before you believe a coefficient of 1.
+a fractional coefficient at all. Read the tooltip before you believe a coefficient of 1 on a spell-school
+row. On a physical row the column does mean something: core scales the caster's flat physical damage
+bonus by it, never spell power, per hit or per tick. In game Revenge's and Hamstring's school damage
+state 1 and take the bonus, and Thunder Clap's and Victory Rush's state 0 and Rend's ticks 0 and do
+not. `SpellConfig` hands a physical row's school damage coefficient to core
+(`SpellFlagPhysicalSchoolDamage`), and `DotConfig` a tick's. A weapon strike takes the bonus whole,
+whatever the column says.
 
 **`Spell.ProcChance` is not always a chance.** 100 and 101 are the game files' "fires whenever its own
 condition is met", and the tooltip says whether the column means a chance or that condition.

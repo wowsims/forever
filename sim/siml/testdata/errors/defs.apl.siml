@@ -1,0 +1,33 @@
+siml 1
+spec hunter
+
+var $a = true
+def fits(x) = spell(x).cast_time < 2s
+// A def's name means nothing else: a reserved word, a value, a unit, a head, a name.
+def when = 1
+def max = 1
+def target = 1
+def aura = 1
+def multi_shot = 1
+def fits = 1
+def two(p, p) = p
+def unused(y) = 1
+def loop = again
+def again = loop
+def broken(u) = u.current_health_percent < nonsense_value
+def later = current_time
+
+priority:
+  cast x if fits(multi_shot, aimed_shot)
+  cast x if fits
+  cast x if fits(x=multi_shot)
+  // A diagnostic in a def's value is at the call; one at an argument stays at the argument.
+  cast x if broken(target)
+  cast x if fits(nonsense)
+  cast x if broken(1)
+  cast x if loop
+  // Where a name goes, a def stands only for a name, and one with parameters for nothing.
+  cast later
+  cast fits
+  fits(multi_shot)
+  def late = 1

@@ -15,6 +15,15 @@ extend google.protobuf.MessageOptions {
 	int32 current_version_number = 50000;
 }
 
+extend google.protobuf.FieldOptions {
+	// The spell a talent field stands for, which every rank of the talent shares. An APL condition
+	// names a talent by this id, so it outlives a rename of the field.
+	int32 talent_spell_id = 50001;
+	// The most points the talent takes. A talents string saved before a tree was reworked can carry
+	// more, and the sim caps the field at this many.
+	int32 talent_max_rank = 50002;
+}
+
 message ProtoVersion {
 	// The version the UI stamps every api_version field with. The sim is not
 	// deployed anywhere, so no saved browser data or sim link predates this
@@ -30,7 +39,7 @@ message ScalingItemProperties {
     int32 rand_prop_points = 1;
     double weapon_damage_min = 2;
     double weapon_damage_max = 3;
-    double unrounded_dps = 8;
+    float unrounded_dps = 8;
     map<int32, double> stats = 4; // for compactness
 	int32 ilvl = 6;
 	// The damage the weapon deals with a random suffix that reduces caster DPS; unset on items with no such suffix option.
@@ -43,7 +52,7 @@ message ScalingItemProperties {
 message ReducedCasterWeaponDamage {
 	double weapon_damage_min = 1;
 	double weapon_damage_max = 2;
-	double unrounded_dps = 3;
+	float unrounded_dps = 3;
 }
 
 message AreaStats {
@@ -327,7 +336,7 @@ enum PseudoStat {
 	// (the tier 1 4P bonuses) and converts into this at 10 rating per percent.
 	PseudoStatExpertisePercent = 27;
 
-	// Character sheet values per attack; the sim never reads them back.
+	// Character sheet values per attack; the sim never reads them back, and the UI does not read the *Rating ones either.
 	PseudoStatOffHandHitPercent = 28;
 	PseudoStatOffHandCritPercent = 29;
 	PseudoStatMainHandHitRating = 30;
@@ -336,13 +345,7 @@ enum PseudoStat {
 	PseudoStatOffHandCritRating = 33;
 	PseudoStatRangedHitRating = 34;
 	PseudoStatRangedCritRating = 35;
-	PseudoStatMeleeCritSuppressionPercent = 36;
-	PseudoStatRangedCritSuppressionPercent = 37;
-	// The main-hand auto attack's table against the current target, 0 before the attack tables exist.
-	PseudoStatMainHandMissPercent = 38; // The miss hit has to cover.
-	PseudoStatMainHandDodgePercent = 39;
-	PseudoStatMainHandParryPercent = 40; // The target's parry against attacks from in front, not the character's own.
-	PseudoStatMainHandGlancePercent = 41;
+	PseudoStatRangedCritSuppressionPercent = 36;
 }
 
 message UnitStats {
@@ -546,6 +549,7 @@ enum CreatureFamily {
 	CreatureFamilyEarthElemental = 4;
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
+	CreatureFamilySwine = 7;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).
@@ -579,6 +583,9 @@ message TargetInput {
 
 	int32 enum_value = 6;
 	repeated string enum_options = 7;
+
+	// The label of the target's Bool input that shows this one while it is on; empty shows it always.
+	string shown_by = 8;
 }
 
 message Target {
@@ -600,6 +607,7 @@ message Target {
         bool parry_haste = 12;
         bool suppress_dodge = 16; // Sunwell Radiance
         bool can_crush = 17; // Whether this enemy can land Crushing Blows. Defaults on for level 63 targets.
+        bool bleed_immune = 21; // Whether bleeds fail to land on this enemy.
         SpellSchool spell_school = 13; // Allows elemental attacks.
 
         // Index in Raid.tanks indicating the player tanking this mob at the
@@ -638,9 +646,6 @@ message Encounter {
 
 	reserved 7, 8, 10;
 	reserved "execute_proportion_25", "execute_proportion_45", "execute_proportion_90";
-
-	// If set, will use the targets health value instead of a duration for fight length.
-	bool use_health = 5;
 
 	// If type != Simple or Custom, then this may be empty.
 	repeated Target targets = 6;

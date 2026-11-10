@@ -1,0 +1,17 @@
+siml 1
+spec hunter
+
+// `#` hides a row in every rows section; the row stays in the proto.
+prepull:
+  # -1s cast x
+  -0.5s cast x
+
+priority:
+  # cast x
+  # cast x if current_time > 1s
+  # group "G"
+  # `{"castSpell": {"spellId": {"spellId": 7}}}`
+
+group "G":
+  # none
+  # wait 1s

@@ -29,7 +29,7 @@ export interface ActionIdFieldProps {
 	getParentValue: () => any;
 }
 
-const sameActionId = (a: ActionId | undefined, b: ActionId | undefined) => (a == null) == (b == null) && (!a || a.equals(b!));
+const sameActionId = (a: ActionId | undefined, b: ActionId | undefined) => (a == null) == (b == null) && (!a || a.equalsAtRank(b!));
 
 /**
  * The spell or aura a field names.

@@ -41,10 +41,15 @@ describe('withoutDevOnlyGear', () => {
 	});
 
 	it('clears a default gear no preset lists', () => {
-		expect(EquipmentSpec.equals(withoutDevOnlyGear(spec(gearOf(2))).defaults.gear, EquipmentSpec.create())).toBe(true);
+		expect(EquipmentSpec.equals(withoutDevOnlyGear(spec(gearOf(3))).defaults.gear, EquipmentSpec.create())).toBe(true);
 	});
 
 	it('keeps a released default gear', () => {
 		expect(withoutDevOnlyGear(spec(releasedGear.gear)).defaults.gear).toBe(releasedGear.gear);
+	});
+
+	it('keeps a default gear read apart from the released gearset it equals', () => {
+		const copy = EquipmentSpec.clone(releasedGear.gear);
+		expect(withoutDevOnlyGear(spec(copy)).defaults.gear).toBe(copy);
 	});
 });

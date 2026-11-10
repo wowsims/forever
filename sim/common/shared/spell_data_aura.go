@@ -1,6 +1,8 @@
 package shared
 
 import (
+	"fmt"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -33,7 +35,7 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 				append([]spelldata.ParseOpt{spelldata.Effects(effects...)}, wearerOpts...)...).Stats()
 		}
 		for _, shield := range spelldata.ItemAuraDamageShields(row) {
-			buffs.AttachDamageShield(auras.wearer, row.SpellSchool(), shield.Average(), shield.Coeff())
+			buffs.AttachDamageShield(auras.wearer, row.SpellSchool(), shield.Average(), shield.Coeff(), spelldata.DamageShieldHits(row), spelldata.DamageShieldLockout(row))
 		}
 	}
 
@@ -62,7 +64,7 @@ func (auras *spellDataAuras) activate(sim *core.Simulation, target *core.Unit) {
 			aura.Activate(sim)
 		}
 	}
-	if auras.enemies != nil {
+	if auras.enemies != nil && target != nil {
 		applyDebuff(sim, auras.enemies.Get(target))
 	}
 }
@@ -109,6 +111,10 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 // An item or enchant whose equip spell applies auras: the row's auras on the wearer and on each
 // summoned pet for as long as the item or the enchant is worn. An equip spell that only re-applies another aura on a period is read as
 // that aura.
+//
+// The generator emits no equip spell that states spell modifiers: each class registers its own through
+// this constructor in its item files, ported or not, and an item whose modifier has no sim value stays
+// in the missing effects list.
 func NewSpellDataEquipAura(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataEquipAura)
 }
@@ -127,9 +133,13 @@ func registerSpellDataEquipAura(cfg SpellDataProc) {
 		character := agent.GetCharacter()
 		slots := source.eligibleSlots(character)
 
+		label := cfg.Name
+		if source.composed() {
+			label = fmt.Sprintf("%s %d", cfg.Name, row.ID)
+		}
 		// Checked on reset rather than made permanent: a pet resets after its owner's item swap has
 		// settled, and would otherwise put the aura back on for an item only in the swap set.
-		config := spelldata.AuraConfig(row, spelldata.Label(cfg.Name))
+		config := spelldata.AuraConfig(row, spelldata.Label(label))
 		config.Duration = core.NeverExpires
 		// Worn from the start, the aura is part of the gear the character sheet shows.
 		config.BuildPhase = core.Ternary(source.isEquipped(character, slots), core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
@@ -161,10 +171,7 @@ func NewSpellDataAuraOnUse(itemID int32) {
 		auras := newSpellDataAuras(character, row, spelldata.AuraConfig(row))
 		cooldown := core.MajorCooldown{Type: onUseAuraCooldownType(row, auras)}
 		if lowersThreat(row) {
-			cooldown = core.MajorCooldown{
-				Type:           core.CooldownTypeUnknown,
-				ShouldActivate: func(_ *core.Simulation, _ *core.Character) bool { return false },
-			}
+			cooldown = core.MajorCooldown{Type: core.CooldownTypeUnknown, DisableAutocast: true}
 		}
 		return spellDataOnUseAuraSpell(character, row, auras), cooldown, true
 	})

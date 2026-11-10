@@ -1,0 +1,1 @@
+[{ "op": "insert", "path": ["priorityList"], "index": 1, "value": { "action": { "castSpell": { "spellId": { "spellId": 14271 } } } } }]

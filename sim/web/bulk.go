@@ -55,7 +55,7 @@ func runBulkSimAsync(request *proto.BulkSimRequest, progress chan *proto.Progres
 	}
 	defer unregister()
 
-	generatesCandidates := len(request.GetCandidates()) == 0
+	generatesCandidates := request.GetBulkSettings() != nil && len(request.GetCandidates()) == 0
 	generationStartedAt := time.Now()
 	if err := bulk.EnsureBulkSimCandidatesGenerated(request); err != nil {
 		finishBulkSim(progress, proto.BulkSimStage_BulkSimStageError, &proto.BulkSimResult{

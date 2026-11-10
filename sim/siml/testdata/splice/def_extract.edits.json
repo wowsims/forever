@@ -1,0 +1,1 @@
+[{ "op": "extract", "path": ["priorityList", 0, "action", "condition"], "name": "no_mark" }]

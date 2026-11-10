@@ -1,13 +1,12 @@
-import { type ArmorType, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
-import { type DatabaseFilters, SourceFilterOption, UIItem_FactionRestriction } from '@generated/proto/ui';
+import { type ArmorType, Faction, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
+import { type DatabaseFilters, FactionFilter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { sourceFilterI18nKeys } from '@i18n/entity_mapping';
 import { translateArmorType, translateRaidFilter, translateRangedWeaponType, translateSourceFilter, translateWeaponType } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
 import { Sim } from '@sim/sim';
-import { subscribeSimField } from '@sim/state/subscriptions';
+import { subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
@@ -15,16 +14,11 @@ import { NumberField } from '@ui-kit/TextField';
 
 import { MenuSection } from './MenuSection';
 
-const factionRestrictionsToLabels: Record<UIItem_FactionRestriction, string> = {
-	[UIItem_FactionRestriction.UNSPECIFIED]: i18n.t('gear_tab.gear_picker.filters.faction_labels.none'),
-	[UIItem_FactionRestriction.ALLIANCE_ONLY]: i18n.t('gear_tab.gear_picker.filters.faction_labels.alliance_only'),
-	[UIItem_FactionRestriction.HORDE_ONLY]: i18n.t('gear_tab.gear_picker.filters.faction_labels.horde_only'),
+const factionLabels: Record<Faction, string> = {
+	[Faction.Unknown]: i18n.t('gear_tab.gear_picker.filters.faction_labels.none'),
+	[Faction.Alliance]: i18n.t('gear_tab.gear_picker.filters.faction_labels.alliance_only'),
+	[Faction.Horde]: i18n.t('gear_tab.gear_picker.filters.faction_labels.horde_only'),
 };
-
-// A sorted copy, since `Sim.ALL_SOURCES` is shared. Both inputs are static, so the order is decided
-// once here instead of on every render.
-const sourceKeys = Object.keys(sourceFilterI18nKeys) as unknown as SourceFilterOption[];
-const SOURCES = [...Sim.ALL_SOURCES].sort((a, b) => sourceKeys.indexOf(a) - sourceKeys.indexOf(b));
 
 type FilterListField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends Array<number> ? K : never }[keyof DatabaseFilters];
 type FilterNumberField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends number ? K : never }[keyof DatabaseFilters];
@@ -42,6 +36,8 @@ export interface FiltersMenuViewProps {
 	weaponTypes: ReadonlyArray<WeaponType>;
 	rangedWeaponTypes: ReadonlyArray<RangedWeaponType>;
 	canDualWield: boolean;
+	/** The player's race's faction, which names the faction filter's default option. */
+	raceFaction: Faction;
 }
 
 export const FiltersMenuView = ({
@@ -54,6 +50,7 @@ export const FiltersMenuView = ({
 	weaponTypes,
 	rangedWeaponTypes,
 	canDualWield,
+	raceFaction,
 }: FiltersMenuViewProps) => {
 	const listToggle = (field: FilterListField, value: number, id: string, label: string) => (
 		<BooleanPicker
@@ -61,6 +58,7 @@ export const FiltersMenuView = ({
 			id={id}
 			label={label}
 			layout="inline"
+			size="xs"
 			value={(filters as Record<FilterListField, Array<number>>)[field].includes(value)}
 			onChange={checked =>
 				onFiltersChange(next => {
@@ -95,30 +93,46 @@ export const FiltersMenuView = ({
 			bodyClassName="gap-2"
 			title={i18n.t('gear_tab.gear_picker.filters.title')}>
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.general')}>
-				<div className="grid grid-cols-split gap-x-(--modal-padding)">
+				<div className="relative grid grid-cols-2 gap-x-(--modal-padding)">
 					{numberInput('minIlvl', 'filters-min-ilvl', i18n.t('gear_tab.gear_picker.filters.min_ilvl'), { showZeroes: false })}
-					<span className="flex justify-center self-end py-2">-</span>
+					<span className="absolute bottom-0 left-1/2 -translate-x-1/2 py-2">-</span>
 					{numberInput('maxIlvl', 'filters-max-ilvl', i18n.t('gear_tab.gear_picker.filters.max_ilvl'), { showZeroes: false })}
 				</div>
-				<ChoiceField
-					id="filters-faction-restriction"
-					label={i18n.t('gear_tab.gear_picker.filters.faction_restrictions')}
-					options={[UIItem_FactionRestriction.UNSPECIFIED, UIItem_FactionRestriction.ALLIANCE_ONLY, UIItem_FactionRestriction.HORDE_ONLY].map(
-						restriction => ({ value: restriction, label: factionRestrictionsToLabels[restriction] }),
-					)}
-					value={filters.factionRestriction}
-					onChange={value =>
-						onFiltersChange(next => {
-							next.factionRestriction = value;
-						})
-					}
-				/>
+				<div className="grid grid-cols-2 gap-x-(--modal-padding)">
+					{numberInput('maxRequiredLevel', 'filters-required-level', i18n.t('gear_tab.gear_picker.filters.required_level'), { showZeroes: false })}
+					<ChoiceField
+						id="filters-faction-restriction"
+						label={i18n.t('gear_tab.gear_picker.filters.faction_restrictions')}
+						options={[
+							{ value: FactionFilter.FactionFilterRace, label: factionLabels[raceFaction] },
+							{ value: FactionFilter.FactionFilterAny, label: factionLabels[Faction.Unknown] },
+						]}
+						value={filters.factionFilter}
+						onChange={value =>
+							onFiltersChange(next => {
+								next.factionFilter = value;
+							})
+						}
+					/>
+				</div>
 			</MenuSection>
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
-				{SOURCES.map(source => {
+				{Sim.ALL_SOURCES.map(source => {
 					const label = translateSourceFilter(source);
 					return label ? listToggle('sources', source, `filters-source-${source}`, label) : null;
 				})}
+				<BooleanPicker
+					id="filters-source-world-drop"
+					label={i18n.t('common.sources.world_drop')}
+					layout="inline"
+					size="xs"
+					value={!filters.hideWorldDrops}
+					onChange={checked =>
+						onFiltersChange(next => {
+							next.hideWorldDrops = !checked;
+						})
+					}
+				/>
 			</MenuSection>
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
@@ -203,6 +217,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const sim = player.sim;
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
+	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
 
 	return (
 		<FiltersMenuView
@@ -219,6 +234,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 			weaponTypes={playerClass.weaponTypes.map(entry => entry.weaponType)}
 			rangedWeaponTypes={playerClass.rangedWeaponTypes}
 			canDualWield={player.getPlayerSpec().canDualWield}
+			raceFaction={raceFaction}
 		/>
 	);
 };

@@ -28,8 +28,8 @@
    and a DPS diff will not show it. Diff the `.results` as well as the DPS numbers.
 9. **`RequireDamageDealt` defaults true.** A listener that fires on a dodge, a parry, a miss or a block
    needs it false, which the decoder has already done where the tooltip named the outcome and the row
-   carries `ProcHintOutcomeTaken`; clear it by hand only where the wording yielded no hint. The outcome
-   itself is always the caller's.
+   carries `ProcHintOutcomeTaken` or `ProcHintBlocked`; clear it by hand only where the wording yielded
+   no hint. A block is set as the outcome too; any other outcome is the caller's.
 10. **Rename a trigger whose driver and buff share a name**, and split a row that decodes to hits dealt
     _and_ taken into two listeners with a condition each.
 11. **Say which source won.** Where the row and the tooltip disagree, the decision goes in a comment

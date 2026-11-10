@@ -1,0 +1,177 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"sequence": {
+					"name": "S",
+					"actions": [
+						{
+							"groupReference": {
+								"groupName": "A",
+								"variables": [
+									{
+										"name": "p",
+										"value": {
+											"const": {
+												"val": "1"
+											}
+										}
+									}
+								]
+							}
+						},
+						{
+							"castSpell": {
+								"spellId": {
+									"spellId": 5
+								}
+							}
+						}
+					]
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "A",
+			"actions": [
+				{
+					"action": {
+						"condition": {
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"variablePlaceholder": {
+										"name": "p"
+									}
+								},
+								"rhs": {
+									"const": {
+										"val": "0"
+									}
+								}
+							}
+						},
+						"castSpell": {
+							"spellId": {
+								"spellId": 5
+							}
+						}
+					}
+				}
+			]
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "a",
+			"value": {
+				"const": {
+					"val": "1"
+				}
+			}
+		},
+		{
+			"name": "minus",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": {
+						"math": {
+							"op": "OpSub",
+							"lhs": {
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "-1"
+								}
+							}
+						}
+					},
+					"rhs": {
+						"math": {
+							"op": "OpMul",
+							"lhs": {
+								"math": {
+									"op": "OpSub",
+									"lhs": {
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "1"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "-1.5s"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "words",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"not": {
+								"val": {
+									"const": {
+										"val": "true"
+									}
+								}
+							}
+						},
+						{
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									{
+										"const": {
+											"val": "true"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "escapes",
+			"value": {
+				"cmp": {
+					"op": "OpEq",
+					"lhs": {
+						"const": {
+							"val": "a\"b\\nA\t"
+						}
+					},
+					"rhs": {
+						"const": {
+							"val": "x"
+						}
+					}
+				}
+			}
+		}
+	]
+}

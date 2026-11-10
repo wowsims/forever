@@ -1,0 +1,11 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": { "auraIsActive": { "sourceUnit": { "type": 77 }, "auraId": { "spellId": 14325 } } },
+				"castSpell": { "spellId": { "spellId": 2643 } }
+			}
+		}
+	]
+}

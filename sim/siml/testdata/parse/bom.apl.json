@@ -1,0 +1,4 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } } }]
+}

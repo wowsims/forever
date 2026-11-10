@@ -1,0 +1,87 @@
+{
+	"Rotation file": {
+		"prefix": "siml",
+		"description": "An .apl.siml rotation: the version and spec lines, a prepull and a priority list.",
+		"body": ["siml 1", "spec ${1:hunter}", "", "prepull:", "  ${2:-1.5s} cast ${3:spell}", "", "priority:", "  $0"]
+	},
+	"when block": {
+		"prefix": "when",
+		"description": "Rows that each read with the block's condition joined to their own.",
+		"body": ["when ${1:condition}:", "  $0"]
+	},
+	"Group": {
+		"prefix": "group",
+		"description": "A group of rows, which a group row runs.",
+		"body": ["group \"${1:Name}\":", "  $0"]
+	},
+	"Sequence": {
+		"prefix": "sequence",
+		"description": "A sequence of actions, cast in order.",
+		"body": ["sequence \"${1:Name}\" [cast ${2:spell}, cast ${3:spell}]$0"]
+	},
+	"Def": {
+		"prefix": "def",
+		"description": "A value with parameters, read at each call.",
+		"body": ["def ${1:name}(${2:x}) = ${0:value}"]
+	},
+	"Variable": {
+		"prefix": "var",
+		"description": "A rotation value variable.",
+		"body": ["var \\${${1:Name}} = ${0:true}"]
+	},
+	"Refresh a DoT": {
+		"prefix": "dot",
+		"description": "Casts a DoT when it is off the target or its remaining time is at or below a threshold.",
+		"body": ["cast ${1:spell} if dot($1).remaining_time <= ${2:1.5s}"]
+	},
+	"Keep a debuff on the target": {
+		"prefix": "debuff",
+		"description": "Casts a spell when its debuff on the current target is missing or about to run out.",
+		"body": ["cast ${1:spell} if target.aura($1).remaining_time <= ${2:3s}"]
+	},
+	"Keep a buff up": {
+		"prefix": "buff",
+		"description": "Casts a spell whenever its buff is not on you.",
+		"body": ["cast ${1:spell} if not aura($1).is_active"]
+	},
+	"Use a cooldown while another is active": {
+		"prefix": "during",
+		"description": "Casts a spell only while an aura, such as another cooldown, is on you.",
+		"body": ["cast ${1:cooldown} if aura(${2:aura}).is_active"]
+	},
+	"Line up two cooldowns": {
+		"prefix": "lineup",
+		"description": "Casts a cooldown while another one is active, or when the other is too far from ready to wait for.",
+		"body": ["cast ${1:cooldown} if aura(${2:other_cooldown}).is_active or spell($2).time_to_ready > ${3:20s}"]
+	},
+	"Cast in the execute phase": {
+		"prefix": "execute",
+		"description": "Casts a spell only once the target is below the execute threshold.",
+		"body": ["cast ${1:spell} if is_execute_phase(${2:e20})"]
+	},
+	"Outside the execute phase": {
+		"prefix": "notexecute",
+		"description": "True while the target is above the execute threshold.",
+		"body": ["not is_execute_phase(${1:e20})"]
+	},
+	"Cast above a resource amount": {
+		"prefix": "resource",
+		"description": "Casts a spell only while a resource is at or above an amount, keeping some back for higher rows.",
+		"body": ["cast ${1:spell} if ${2:current_mana_percent} >= ${3:10%}"]
+	},
+	"Toggle is on": {
+		"prefix": "toggle",
+		"description": "True while the row referencing a toggle group is shown.",
+		"body": ["action_group_used(\"${1:Toggle ON/OFF}\")"]
+	},
+	"Potion": {
+		"prefix": "potion",
+		"description": "Drinks the selected offensive potion as soon as it is ready; placed near the top, that is at the pull.",
+		"body": ["cast other.offensive_potion"]
+	},
+	"Prepull sequence": {
+		"prefix": "prepull",
+		"description": "Casts spells before the pull, the first at a start time and each next one a gap later.",
+		"body": ["${1:-3s} cast ${2:spell}", "${3:-1.5s} cast ${4:spell}"]
+	}
+}

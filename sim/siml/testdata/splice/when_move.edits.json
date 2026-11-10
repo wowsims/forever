@@ -1,0 +1,4 @@
+[
+	{ "op": "move", "path": ["priorityList"], "from": 4, "to": 2 },
+	{ "op": "move", "path": ["priorityList"], "from": 1, "to": 4 }
+]

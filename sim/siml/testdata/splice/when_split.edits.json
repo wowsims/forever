@@ -1,0 +1,1 @@
+[{ "op": "set", "path": ["priorityList", 2, "action", "condition"], "value": { "variableRef": { "name": "a" } } }]

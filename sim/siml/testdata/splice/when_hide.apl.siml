@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+priority:
+  when $a and $b:
+    cast aimed_shot if current_time > 1s
+    cast multi_shot
+  # when $a:
+    cast serpent_sting
+    cast arcane_shot
+  cast hunters_mark

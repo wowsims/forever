@@ -3,11 +3,18 @@ package dbcenums
 // Spell attribute flags, named after the Attributes column they live in: ATTR_EX_3 is a flag
 // in Attributes[3]. Read them through the Spell helpers rather than indexing Attributes.
 const (
+	// The spell goes off in place of the next main-hand swing: Heroic Strike, Cleave, Maul, Raptor
+	// Strike.
+	ATTR_ON_NEXT_SWING uint32 = 0x4
+
 	// The spell is never cast: a stance's passive, a talent that only modifies other spells.
 	ATTR_PASSIVE uint32 = 0x40
 
 	// The spell cannot be cast while the caster is in any shapeshift form.
 	ATTR_NOT_SHAPESHIFTED uint32 = 0x10000
+
+	// The spell cannot be dodged, parried or blocked (No Active Defense).
+	ATTR_NO_ACTIVE_DEFENSE uint32 = 0x200000
 
 	// The two bits the game files mark a channel with. Arcane Missiles and Blizzard carry the first,
 	// Evocation and Tranquility only the second, so a channel check has to read both.
@@ -62,7 +69,6 @@ const (
 	ATTR_HIDDEN                             uint32 = 0x80
 	ATTR_REQ_STEALTH                        uint32 = 0x20000
 	ATTR_CANCEL_AUTO_ATTACK                 uint32 = 0x100000
-	ATTR_NO_D_P_B                           uint32 = 0x200000
 	ATTR_NOT_IN_COMBAT                      uint32 = 0x10000000
 	ATTR_NO_CANCEL                          uint32 = 0x80000000
 	ATTR_EX_1_NO_STEALTH_BREAK              uint32 = 0x20

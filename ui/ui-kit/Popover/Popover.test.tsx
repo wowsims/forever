@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Button } from '@ui-kit/Button';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { describe, expect, it, vi } from 'vitest';
@@ -81,6 +81,17 @@ describe('Popover', () => {
 		fireEvent.keyDown(trigger, { key: 'Escape' });
 		expect(onOpenChange).toHaveBeenCalledWith(false);
 		expect(screen.getByRole('dialog').hasAttribute('data-open')).toBe(false);
+	});
+
+	it('focuses the first tabbable element in finalFocus on close, not the trigger', async () => {
+		const section = document.createElement('div');
+		section.innerHTML = '<h6>Picks</h6><button type="button">First pick</button>';
+		document.body.appendChild(section);
+		const { trigger } = openPopover({ finalFocus: { current: section } });
+
+		fireEvent.keyDown(trigger, { key: 'Escape' });
+		await waitFor(() => expect(document.activeElement).toBe(within(section).getByRole('button', { name: 'First pick' })));
+		section.remove();
 	});
 
 	it('names the popup after its title, set as a heading above the contents', () => {

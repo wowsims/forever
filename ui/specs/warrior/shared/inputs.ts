@@ -11,7 +11,7 @@ export const ShoutPicker = <SpecType extends WarriorSpecs>() =>
 		fieldName: 'useBattleShout',
 		label: i18n.t('settings_tab.other.default_shout.label'),
 		labelTooltip: i18n.t('settings_tab.other.default_shout.tooltip'),
-		id: ActionId.fromSpellId(25289),
+		id: ActionId.fromSpellId(11551),
 	});
 export const StancePicker = <SpecType extends WarriorSpecs>() =>
 	InputHelpers.makeClassOptionsEnumIconInput<SpecType, WarriorStance>({
@@ -44,6 +44,14 @@ export const QueueDelay = <SpecType extends WarriorSpecs>() =>
 		fieldName: 'queueDelay',
 		label: i18n.t('settings_tab.other.queue_delay.label'),
 		labelTooltip: i18n.t('settings_tab.other.queue_delay.tooltip'),
+	});
+
+export const BattleShoutRank7 = <SpecType extends WarriorSpecs>() =>
+	InputHelpers.makeClassOptionsBooleanIconInput<SpecType>({
+		fieldName: 'hasBattleShoutRank7',
+		label: i18n.t('settings_tab.other.has_battle_shout_rank_7.label'),
+		labelTooltip: i18n.t('settings_tab.other.has_battle_shout_rank_7.tooltip'),
+		id: ActionId.fromItemId(21298),
 	});
 
 export const BattleShoutT2 = <SpecType extends WarriorSpecs>() =>

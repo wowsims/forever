@@ -1,0 +1,4 @@
+5:1 error misplaced-statement
+6:1 error misplaced-statement
+6:5 warning unused-def
+7:1 error misplaced-statement

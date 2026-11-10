@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+-3s cast x
+
+// The section file's own header, left out as print leaves it out.
+// its comment
+-2s cast x
+-1s cast x

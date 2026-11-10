@@ -1,0 +1,14 @@
+siml 1
+spec hunter
+use "common.apl.siml"
+
+// The pull of the rotations that shoot from a spot: from Pull range, the hunter walks to Shoot spot between Auto
+// Shots. A rotation sets Shoot spot with use … with. pull.apl.siml or the rotation's own prepull puts the hunter at
+// Pull range.
+var ${Shoot spot} = 12
+
+group "Walk in":
+  /// Walk to my spot, looking again every reaction time. Stop while my Auto Shot's windup is close or running, and react to each shot before walking on.
+  move $shoot_spot recheck if not shot_due_here
+  /// Standing for my Auto Shot.
+  wait input_delay

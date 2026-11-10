@@ -19,7 +19,7 @@ import {
 	type WeaponSkillValue,
 	type WeaponType,
 } from '@generated/proto/common';
-import { type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
+import { type BulkBuildBundle, type BulkEnchantPreset, type BulkEncounterRef, DatabaseFilters } from '@generated/proto/ui';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
@@ -52,7 +52,6 @@ export interface EncounterSlice {
 	durationVariation: number;
 	executeProportion20: number;
 	executeProportion35: number;
-	useHealth: boolean;
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;
@@ -110,6 +109,8 @@ export interface PlayerSlice {
 	// Per-spec proto; the generic is only known on Player<SpecType>.
 	specOptions: unknown;
 	reactionTime: number;
+	// Above reactionTime, each reaction the sim draws lies between the two; 0 keeps every one at reactionTime.
+	reactionTimeMax: number;
 	channelClipDelay: number;
 	inFrontOfTarget: boolean;
 	distanceFromTarget: number;
@@ -144,6 +145,7 @@ export const PLAYER_FIELDS = [
 	'talentsString',
 	'specOptions',
 	'reactionTime',
+	'reactionTimeMax',
 	'channelClipDelay',
 	'inFrontOfTarget',
 	'distanceFromTarget',
@@ -209,8 +211,8 @@ export type StatSweepMetric = 'dps' | 'hps' | 'tps' | 'dtps' | 'tmi';
 // Stat sweep settings, one slice per player (keyed by storeKey).
 export interface StatSweepSlice {
 	stats: UnitStat[] | null; // null, or only ones the spec does not offer, means the first one offered, and [] means none.
-	range: number;
-	step: number;
+	range: number; // In percent.
+	step: number; // In percent.
 	metric: StatSweepMetric; // Plotted when offered, else DPS; a run's Target ± follows the one plotted when it starts.
 	showSpread: boolean; // Shades ± 1 standard deviation around each line.
 	precisionMode: PrecisionMode;
@@ -219,6 +221,9 @@ export interface StatSweepSlice {
 	maxIterationMultiplier: number; // Caps a step's iterations at this multiple of its first pass; 0 means no cap.
 	v: { settings: number };
 }
+
+// Gear runs the current encounter and talents alone; Builds runs the ticked bundles on the ticked encounters.
+export type BulkMode = 'gear' | 'builds';
 
 // Bulk (batch) sim tab, one slice per player. The autosave and the combination
 // count react to the `v` counters, never to the entry: the run fields are
@@ -231,15 +236,30 @@ export interface BulkSlice {
 	frozenWeaponSlot: ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand | undefined;
 	weaponTypeFilters: ReadonlyMap<ItemSlot.ItemSlotMainHand | ItemSlot.ItemSlotOffHand, WeaponType[]>;
 	enchantPresets: readonly BulkEnchantPreset[];
-	// The checked saved encounters, in list order; the current encounter is read live and never stored here.
+	// The names of the enchant presets Builds mode runs every gear set with, in list order; not the Gear mode's checked ones.
+	buildEnchantPresets: readonly string[];
+	// The bundles Builds mode lists below the Current bundle, in list order.
+	bundles: readonly BulkBuildBundle[];
+	// Whether the Current bundle runs; unticked, each encounter's best row stands as the reference.
+	currentBundleChecked: boolean;
+	// The checked encounters Builds mode runs, in list order; the current one, read live, is checked by its empty-name ref.
 	encounters: readonly BulkEncounterRef[];
+	// Picked in the top navigation; Builds counts only with power tools on.
+	mode: BulkMode;
+	// How many results each mode ranks per encounter while power tools are on; 0 is All. Without power tools Gear ranks 5.
+	gearTopResults: number;
+	buildsTopResults: number;
 	combinations: number;
-	iterations: number;
+	// Why the selection gives no combination (the engine's reason), or null when it gives some.
+	combinationsError: string | null;
 	combinationsPending: boolean;
 	isRunning: boolean;
-	started: boolean;
-	// One per finished encounter of the last run, the current one first.
-	results: readonly BulkEncounterResults[] | null;
+	// Whether each mode has started a run. Each mode keeps its own, and the Results pane shows those of the mode the batch runs in.
+	gearStarted: boolean;
+	buildsStarted: boolean;
+	// One per finished encounter of each mode's last run, the current one first.
+	gearResults: readonly BulkEncounterResults[] | null;
+	buildsResults: readonly BulkEncounterResults[] | null;
 	// The gear the last batch started from. The set-bonus feasibility check judges against it, not
 	// against the candidate gear a run swaps in and out of the player.
 	runGear: Gear | null;
@@ -314,7 +334,6 @@ const initialState = (): SimState => ({
 	// Encounter constructor writes the default target on construction.
 	encounter: {
 		...ENCOUNTER_DEFAULTS,
-		useHealth: false,
 		areaTypes: [],
 		zoneId: 0,
 		targets: [],

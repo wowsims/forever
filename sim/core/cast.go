@@ -39,6 +39,10 @@ func (hc *Hardcast) pushBack(currentTime time.Duration) time.Duration {
 	return pushback
 }
 
+func (hc *Hardcast) timeLeft(currentTime time.Duration) time.Duration {
+	return max(0, hc.Expires-currentTime)
+}
+
 // Input for constructing the CastSpell function for a spell.
 type CastConfig struct {
 	// Default cast values with all static effects applied.
@@ -196,6 +200,10 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			}
 		}
 
+		if spell.Flags.Matches(SpellFlagDropsQueuedSwing) {
+			spell.Unit.AutoAttacks.CancelQueuedSwing(sim)
+		}
+
 		if unshift {
 			spell.Unit.AutoUnshift(sim)
 		}
@@ -214,8 +222,8 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		// Hardcasts
 		if spell.CurCast.CastTime > 0 {
 			if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
-				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-					spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime())
+				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
+					spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime(), spell.aplEntrySuffix())
 			}
 
 			spell.Unit.Hardcast = Hardcast{
@@ -278,8 +286,8 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		}
 
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
-			spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-				spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime())
+			spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
+				spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime(), spell.aplEntrySuffix())
 			spell.Unit.Log(sim, "Completed cast %s", spell.ActionID)
 		}
 
@@ -376,8 +384,8 @@ func (spell *Spell) makeCastFuncSimple() CastSuccessFunc {
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 			// The ranged auto's windup already logged its cast start.
 			if spell != spell.Unit.AutoAttacks.ranged.spell {
-				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-					spell.ActionID, 0.0, "0s", "0s", "0s")
+				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
+					spell.ActionID, 0.0, "0s", "0s", "0s", spell.aplEntrySuffix())
 			}
 			spell.Unit.Log(sim, "Completed cast %s", spell.ActionID)
 		}
@@ -409,8 +417,8 @@ func (spell *Spell) makeCastFuncAutosOrProcs() CastSuccessFunc {
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 			// The ranged auto's windup already logged its cast start.
 			if spell != spell.Unit.AutoAttacks.ranged.spell {
-				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-					spell.ActionID, 0.0, "0s", "0s", "0s")
+				spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
+					spell.ActionID, 0.0, "0s", "0s", "0s", spell.aplEntrySuffix())
 			}
 			spell.Unit.Log(sim, "Completed cast %s", spell.ActionID)
 		}
@@ -430,8 +438,8 @@ func (spell *Spell) makeCastFuncAutosOrProcs() CastSuccessFunc {
 // Can be used for spells that proc off other spells and are the same spell id
 func (spell *Spell) Proc(sim *Simulation, target *Unit) {
 	if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
-		spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)",
-			spell.ActionID, 0.0, "0s", "0s", "0s")
+		spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
+			spell.ActionID, 0.0, "0s", "0s", "0s", spell.aplEntrySuffix())
 		spell.Unit.Log(sim, "Completed cast %s", spell.ActionID)
 	}
 

@@ -1,0 +1,33 @@
+siml 1
+spec hunter
+use "walk_in.apl.siml" with $shoot_spot = max($ranged_range, 11.67)
+use "pull.apl.siml"
+
+// The melee weave as a player plays it: once Auto Shot has gone off, walk in and swing; once I've swung, hit or not,
+// walk back out to the spot and shoot. The player's reactions set the timing.
+var ${Ranged range} = 13.19
+var ${Walk-in range} = 4.99
+var ${Melee spot} = min($walk_in_range, 4.99)
+var ${Not weaving yet} = auto_time_since_last(main_hand_auto) > current_time
+
+def kick_wait = max(spell(strider_kick).time_to_ready, gcd_time_to_ready)
+def kick_soon =
+    in_melee
+    and spell(strider_kick).is_known
+    and spell(strider_kick).current_cost <= current_mana
+    and kick_wait > 0s
+    and kick_wait <= 400ms
+def shot_since_swing = auto_time_since_last(ranged_auto) <= auto_time_since_last(main_hand_auto)
+
+// A move row passes on to the next row while a walk is under way or when I already stand at its range, so each walk
+// names its own case.
+group "Weave":
+  start_attack if in_melee
+  /// In melee with the GCD about to come up: wait for it, so the melee key goes out before I leave.
+  wait gcd_time_to_ready if in_melee and gcd_time_to_ready > 0s and gcd_time_to_ready <= 400ms
+  /// In melee with Strider Kick about to come up: wait for it.
+  wait kick_wait if kick_soon
+  /// I swung since my last Auto Shot: walk out to my spot and shoot.
+  move $shoot_spot if not shot_since_swing
+  /// Auto Shot went off since my last swing: walk in and swing.
+  move $melee_spot if shot_since_swing

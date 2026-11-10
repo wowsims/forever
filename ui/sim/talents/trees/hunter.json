@@ -48,25 +48,25 @@
         "maxPoints": 3
       },
       {
-        "fieldName": "pathfinding",
-        "fancyName": "Pathfinding",
-        "location": {
-          "rowIdx": 1,
-          "colIdx": 2
-        },
-        "spellId": 19559,
-        "definitionId": 134435,
-        "maxPoints": 2
-      },
-      {
         "fieldName": "improvedRevivePet",
         "fancyName": "Improved Revive Pet",
         "location": {
           "rowIdx": 1,
-          "colIdx": 3
+          "colIdx": 2
         },
         "spellId": 24443,
         "definitionId": 134434,
+        "maxPoints": 2
+      },
+      {
+        "fieldName": "pathfinding",
+        "fancyName": "Pathfinding",
+        "location": {
+          "rowIdx": 2,
+          "colIdx": 0
+        },
+        "spellId": 19559,
+        "definitionId": 134435,
         "maxPoints": 2
       },
       {

@@ -22,6 +22,7 @@ var arrows = map[string]generatedArrow{
 	"ExplosiveArrow":     {Name: "Explosive Arrow", ItemID: 10579, DPS: 14.5},
 	"IceThreadedArrow":   {Name: "Ice Threaded Arrow", ItemID: 19316, DPS: 16.5},
 	"ThoriumHeadedArrow": {Name: "Thorium Headed Arrow", ItemID: 18042, DPS: 17.5},
+	"Doomshot":           {Name: "Doomshot", ItemID: 12654, DPS: 20},
 	"SwiftfeatherArrow":  {Name: "Swiftfeather Arrow", ItemID: 274387, DPS: 24.5},
 }
 
@@ -39,5 +40,6 @@ var quivers = map[string]generatedQuiver{
 	"QuiverOfTheNightWatch":     {Name: "Quiver of the Night Watch", ItemID: 3605, Haste: 11},
 	"HeavyQuiver":               {Name: "Heavy Quiver", ItemID: 7371, Haste: 12},
 	"QuickdrawQuiver":           {Name: "Quickdraw Quiver", ItemID: 8217, Haste: 13},
+	"RibblysQuiver":             {Name: "Ribbly's Quiver", ItemID: 2662, Haste: 14},
 	"AncientSinewWrappedLamina": {Name: "Ancient Sinew Wrapped Lamina", ItemID: 18714, Haste: 15},
 }

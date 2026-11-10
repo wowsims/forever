@@ -57,32 +57,11 @@ func NewSpellDataShadowResistanceAuraRank(char *core.Character, rank PaladinAura
 	return newBuff(&char.Unit, paladinAuraMeta(shadowResistanceAuraMeta, rank), true, 0)
 }
 
-// Retribution Aura scales with the casting paladin's Holy spell power in Forever even though its
-// game files row carries no coefficient (every rank and Thorns are the same: EffectBonusCoefficient 0,
-// and the damage still moves with spell power in game). The coefficient is the 1.5 s cast-time
-// floor over 3.5, the AoE divisor because the shield hits every attacker, and the 0.42 penalty for
-// the aura effect: 6% of spell power, the ratio Blizzard states for the aura.
-const RetributionAuraSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
-
-// NewSpellDataRetributionAuraRank is the aura on the unit the shield protects. The self-cast variant reads
-// the paladin's own Holy spell power through the proc spell; the external (party-buff) variant
-// cannot see the providing paladin, so externalSpellPower stands in for it and the recipient's
-// own stats stay out of the damage.
+// The aura on the unit the shield protects, at the rank the paladin cast. The external
+// (party-buff) copy takes the providing paladin's Holy spell power as externalSpellPower.
 func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank PaladinAuraRank, externalSpellPower float64) *core.Aura {
-	m := paladinAuraMeta(retributionAuraMeta, rank)
-	label := m.label(isPlayer)
-	if char.HasAura(label) {
-		return char.GetAura(label)
-	}
-
-	damage, coefficient := rank.Value, RetributionAuraSpellPowerCoefficient
-	if !isPlayer {
-		damage, coefficient = rank.Value+RetributionAuraSpellPowerCoefficient*externalSpellPower, 0
-	}
-	aura := NewDamageShield(&char.Unit, label, m.actionID(isPlayer), core.NeverExpires, m.Category, m.SingleAura,
-		core.SpellSchoolHoly, damage, coefficient)
-	joinSharedCategory(aura, m.SharedCategory, isPlayer)
-	return aura
+	return newSpellPowerDamageShield(&char.Unit, paladinAuraMeta(retributionAuraMeta, rank), isPlayer, rank.Value,
+		externalSpellPower)
 }
 
 // One rank of a judgement debuff: the spell the target shows and the number its row states. The
@@ -222,24 +201,26 @@ func NewSpellDataJudgementOfWisdomAuraRank(target *core.Unit, rank JudgementRank
 	}), rank)
 }
 
-// Whoever lands an attack or spell on the judged target rolls the row's chance to regain the rank's
-// mana. Melee claim it returns mana on a miss as well.
+// Whoever lands a hit the row's proc flags name on the judged target (melee, ranged or a direct spell)
+// rolls the row's chance to regain the rank's mana. A miss, dodge or parry rolls nothing, and neither do
+// periodic ticks or damage shields. A landed hit that deals no damage still rolls, so Serpent Sting's
+// application reaches the judgement: the trigger leaves out the damage requirement the decode gives
+// every row.
 func AttachJudgementOfWisdomMana(aura *core.Aura, rank JudgementRank) *core.Aura {
 	actionID := core.ActionID{SpellID: rank.SpellID}
 	mana := rank.Value
+	row := spelldata.MustFind(rank.SpellID)
+	hears := core.DecodeProcTypeMask(row.ProcFlags, row.ProcHint)
 
 	return aura.AttachProcTrigger(core.ProcTrigger{
 		Name:            aura.Label,
 		ActionID:        actionID,
 		MetricsActionID: actionID,
 		ProcChance:      judgementProcChance(rank.SpellID),
-		ProcMask:        core.ProcMaskDirect,
-		Callback:        core.CallbackOnSpellHitTaken,
-		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if !spell.ProcMask.Matches(core.ProcMaskMeleeOrRanged) && !result.Landed() {
-				return
-			}
-
+		ProcMask:        hears.ProcMask,
+		Outcome:         hears.Outcome,
+		Callback:        hears.Callback,
+		Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
 			unit := spell.Unit
 			if !unit.HasManaBar() {
 				return

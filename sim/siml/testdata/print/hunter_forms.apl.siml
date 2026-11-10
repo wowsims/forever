@@ -1,0 +1,24 @@
+siml 1
+spec hunter
+
+priority:
+  cast steady_shot if cmp(op_gt, lhs=current_time)
+  cast steady_shot if cmp(lhs=current_time, rhs=1s)
+  cast_spell(target=self) if and(gcd_is_ready)
+  channel steady_shot recast if or()
+  `{"wait":{}}` if not()
+  move_duration
+  wait_until
+  schedule("1s")
+  sequence "" []
+  group_reference("G", variables=[`{"name":"p"}`])
+  group ""
+  item_swap if aura_is_active(steady_shot, source_unit=none)
+  autocast_other_cooldowns if aura_is_active(include_reaction_time=true)
+  strict_sequence if current_health_percent(source_unit=none)
+  reset_sequence if auto_time_to_next
+  cast_all_stat_buff_cooldowns(attack_power, stat_type2=99) if max(1)
+  group "G" with %{a b} = none if %{a b}
+
+group "G":
+  none if %p

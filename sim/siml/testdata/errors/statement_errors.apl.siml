@@ -1,0 +1,20 @@
+siml 1
+spec hunter
+
+// A bad statement costs only itself.
+priority:
+  cast x if true = true
+  cast x
+  wait
+  cast x if true
+  wait 1s 2s
+  cast x if target.aura(x)
+  cast x if aura().is_active
+  sequence "S" [cast x cast x]
+  cast if
+  cast x if -$y
+  cast x if (true
+    true)
+  group x
+  f(a,)
+  cast x if 1 == 1 c

@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+use "weave.apl.siml" with $shoot_spot = shoot_from
+
+var $wait = 400ms
+
+priority:
+  cast multi_shot if soon(multi_shot)
+  cast filler if at_range
+  move $melee_spot

@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+var ${Multi-Shot} = true
+var ${Use Arcane Shot} = false
+var ${Use Aimed Shot} = false
+
+priority:
+  cast multi_shot if $multi_shot
+  cast arcane_shot if $use_arcane_shot

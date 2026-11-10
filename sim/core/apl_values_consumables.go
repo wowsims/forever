@@ -10,6 +10,7 @@ type APLValueSelectedPotion struct {
 	DefaultAPLValueImpl
 	character *Character
 	potionId  int32
+	slot      proto.OtherAction
 }
 
 func (rot *APLRotation) newValueSelectedPotion(config *proto.APLValueSelectedPotion, uuid *proto.UUID) APLValue {
@@ -22,12 +23,16 @@ func (rot *APLRotation) newValueSelectedPotion(config *proto.APLValueSelectedPot
 	return &APLValueSelectedPotion{
 		character: character,
 		potionId:  config.PotionId.GetItemId(),
+		slot:      config.Slot,
 	}
 }
 func (value *APLValueSelectedPotion) Type() proto.APLValueType {
 	return proto.APLValueType_ValueTypeBool
 }
 func (value *APLValueSelectedPotion) GetBool(sim *Simulation) bool {
+	if picked, isSlot := placeholderPotionID(value.character.Consumables, value.slot); isSlot {
+		return picked == value.potionId
+	}
 	return value.character.IsPickedPotion(value.potionId)
 }
 func (value *APLValueSelectedPotion) String() string {

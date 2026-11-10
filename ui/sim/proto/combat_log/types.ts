@@ -2,6 +2,7 @@ import type { SpellSchool } from '@generated/proto/common';
 import type { ResourceType } from '@generated/proto/spell';
 
 import type { ActionId } from '../action_id';
+import type { AplEntryPath } from './apl_entry_path';
 
 export class Entity {
 	readonly name: string;
@@ -91,7 +92,8 @@ export type ParsedKind =
 	| 'spell-queued'
 	| 'cast-failed'
 	| 'cast-pushback'
-	| 'stat-change';
+	| 'stat-change'
+	| 'movement';
 
 export type DerivedKind = 'dps' | 'threat-group' | 'resource-group' | 'aura-uptime' | 'cast';
 
@@ -173,6 +175,8 @@ export interface CastBeganLog extends BaseLog {
 	readonly castTime: number;
 	readonly gcd: number;
 	readonly effectiveTime: number;
+	// The rotation entry that launched the cast; null when the Casting line names none.
+	readonly aplEntryPath: AplEntryPath | null;
 }
 
 export interface CastCancelledLog extends BaseLog {
@@ -219,6 +223,16 @@ export interface StatChangeLog extends BaseLog {
 	readonly stats: string;
 }
 
+// A walk: the unit sets off from `fromYards` from its target and reaches `toYards` after `duration`
+// seconds, unless a later line for the unit lands first and takes over from where the unit is then. A
+// stop line reads as a walk of no duration from and to the yards the unit stopped at.
+export interface MovementLog extends BaseLog {
+	readonly kind: 'movement';
+	readonly fromYards: number;
+	readonly toYards: number;
+	readonly duration: number;
+}
+
 export type ParsedLog =
 	| PlainLog
 	| DamageLog
@@ -233,7 +247,8 @@ export type ParsedLog =
 	| SpellQueuedLog
 	| CastFailedLog
 	| CastPushbackLog
-	| StatChangeLog;
+	| StatChangeLog
+	| MovementLog;
 
 export interface DpsLog extends BaseLog {
 	readonly kind: 'dps';
@@ -271,6 +286,7 @@ export interface CastLog extends BaseLog {
 	readonly effectiveTime: number;
 	readonly travelTime: number;
 	readonly cancelTime: number;
+	readonly aplEntryPath: AplEntryPath | null;
 	readonly castBeganLog: CastBeganLog;
 	readonly castCancelledLog: CastCancelledLog | null;
 	readonly castCompletedLog: CastCompletedLog | null;
@@ -298,6 +314,7 @@ export const isCastCancelled = (log: CombatLog): log is CastCancelledLog => log.
 export const isCastCompleted = (log: CombatLog): log is CastCompletedLog => log.kind === 'cast-completed';
 export const isAutoDelay = (log: CombatLog): log is AutoDelayLog => log.kind === 'auto-delay';
 export const isCastFailed = (log: CombatLog): log is CastFailedLog => log.kind === 'cast-failed';
+export const isMovement = (log: CombatLog): log is MovementLog => log.kind === 'movement';
 
 export function formattedTimestamp(log: BaseLog): string {
 	const positiveTimestamp = Math.abs(log.timestamp);

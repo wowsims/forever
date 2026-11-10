@@ -17,6 +17,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -65,12 +66,14 @@ func TestManifestAnchorsMatchTheGameFiles(t *testing.T) {
 		}
 
 		// A totem or dummy whose cast the manifest does not name reads the aura's name, which no
-		// skill line grants, so it fails here.
+		// skill line grants, so it fails here. SkillLineAbility states a book's rank like a trained one,
+		// and a row pins the trainer's top rank.
 		classMask := ownerClassMask(row.Owner)
 		cands, err := anchorCandidates(db, row.Name, classMask)
 		if err != nil {
 			t.Fatalf("%s: %v", row.Field, err)
 		}
+		cands = slices.DeleteFunc(cands, func(c buffCandidate) bool { return spelldata.IsBookRank(c.SpellID) })
 		if len(cands) == 0 {
 			t.Errorf("%s: no SkillLineAbility row grants %q to %s", row.Field, row.Name, row.Owner)
 			continue

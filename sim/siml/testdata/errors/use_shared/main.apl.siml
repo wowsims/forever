@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+// Both files use common.apl.siml, whose variables come in once. A sequence a used rotation holds is found.
+use "a.apl.siml"
+use "b.apl.siml"
+
+prepull:
+  -1s reset_sequence("Open")
+  -1s reset_sequence("Missing")

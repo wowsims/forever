@@ -43,13 +43,18 @@ func init() {
 	}
 }
 
-// A caster with the given profession carrying the consumables, against the given number of targets,
-// its spells certain to hit and never to crit.
+// A caster with the given profession carrying the consumables, against the given number of level 60
+// targets, its spells certain to hit and never to crit.
 func newExplosiveSim(t *testing.T, consumes *proto.ConsumesSpec, profession proto.Profession, targetCount int) (*core.Simulation, *testCaster) {
+	t.Helper()
+	return newExplosiveSimAt(t, consumes, profession, targetCount, 60)
+}
+
+func newExplosiveSimAt(t *testing.T, consumes *proto.ConsumesSpec, profession proto.Profession, targetCount int, level int32) (*core.Simulation, *testCaster) {
 	t.Helper()
 	targets := make([]*proto.Target, targetCount)
 	for i := range targets {
-		targets[i] = &proto.Target{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}
+		targets[i] = &proto.Target{Name: "target", Level: level, MobType: proto.MobType_MobTypeDemon}
 	}
 
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -191,6 +196,65 @@ func TestDynamiteLandsAfterItsCastAndFlight(t *testing.T) {
 	}
 }
 
+// 15239 states the stun mechanic, as the bombs and grenades do: a level 63 target, stun-immune as a
+// raid boss is, takes none of its damage, where a level 60 one takes it.
+func TestStunExplosiveMissesAStunImmuneTarget(t *testing.T) {
+	for _, c := range []struct {
+		level int32
+		hits  bool
+	}{{60, true}, {63, false}} {
+		sim, caster := newExplosiveSimAt(t, &proto.ConsumesSpec{ExplosiveId: testCrystalID}, proto.Profession_ProfessionUnknown, 1, c.level)
+		charge := onUseSpell(t, caster, testCrystalID)
+		target := sim.Encounter.ActiveTargetUnits[0]
+		if !charge.Cast(sim, target) {
+			t.Fatalf("the charge could not be used on the level %d target", c.level)
+		}
+		stepPast(t, sim, sim.CurrentTime+5*time.Second)
+		metrics := charge.SpellMetrics[target.UnitIndex]
+		if c.hits && metrics.TotalDamage == 0 {
+			t.Errorf("the charge dealt nothing to the level %d target", c.level)
+		}
+		if !c.hits && (metrics.TotalDamage != 0 || metrics.Misses == 0) {
+			t.Errorf("the charge dealt %v to the stun-immune level %d target (%d misses), want a miss", metrics.TotalDamage, c.level, metrics.Misses)
+		}
+	}
+}
+
+// Throwing the dynamite half a second before a swing is due leaves the swing timer running: the swing
+// lands on time inside the cast, and the one after it a swing later.
+func TestDynamiteLeavesTheSwingTimerRunning(t *testing.T) {
+	player := shaman("Thrower", nil)
+	player.Consumables = &proto.ConsumesSpec{ExplosiveId: testDynamiteID}
+	sim := newAuraSim(player)
+	thrower := auraTesterAt(sim, 0)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	dynamite := thrower.GetSpell(core.ActionID{ItemID: testDynamiteID})
+	if dynamite == nil {
+		t.Fatalf("the dynamite registered no on-use spell")
+	}
+	if dynamite.DefaultCast.CastTime < time.Second {
+		t.Fatalf("the dynamite casts in %v, want a cast that covers the swing", dynamite.DefaultCast.CastTime)
+	}
+
+	thrower.AutoAttacks.EnableAutoSwing(sim)
+	stepPast(t, sim, sim.CurrentTime+time.Millisecond)
+	due := thrower.AutoAttacks.MainhandSwingAt()
+	swings := &thrower.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex]
+	landed := swings.Casts
+
+	stepPast(t, sim, due-500*time.Millisecond)
+	if !dynamite.Cast(sim, target) {
+		t.Fatalf("the dynamite could not be thrown")
+	}
+	stepPast(t, sim, due+time.Millisecond)
+	if swings.Casts != landed+1 {
+		t.Errorf("%d swings landed by the time one was due inside the cast, want %d", swings.Casts, landed+1)
+	}
+	if got, want := thrower.AutoAttacks.MainhandSwingAt(), due+thrower.AutoAttacks.MainhandSwingSpeed(); got != want {
+		t.Errorf("the next swing is due at %v, want %v, a swing after the one due inside the cast", got, want)
+	}
+}
+
 // An instant copy of 15239 flying at 14 yards a second: from 14 yards the charge lands 1 s after it is
 // used.
 func TestCrystalChargeLandsAfterItsFlight(t *testing.T) {
@@ -213,15 +277,10 @@ func TestCrystalChargeLandsAfterItsFlight(t *testing.T) {
 	}
 }
 
-// An explosive that requires Engineering cannot be used in a shapeshift form, which the game files do
-// not mark on its spell; one anyone can throw, such as the dynamite, keeps no such requirement.
-func TestEngineeringExplosivesCannotBeUsedShapeshifted(t *testing.T) {
-	_, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExplosiveId: testDynamiteID, ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
-	if sapper := onUseSpell(t, caster, goblinSapperID); !sapper.CastRequirement.NotShapeshifted {
-		t.Error("the Engineering sapper can be used in a shapeshift form")
-	}
-	if dynamite := onUseSpell(t, caster, testDynamiteID); dynamite.CastRequirement.NotShapeshifted {
-		t.Error("the dynamite, which needs no profession, cannot be used in a shapeshift form")
+func TestSapperAllowsShapeshiftedUse(t *testing.T) {
+	_, caster := newExplosiveSim(t, &proto.ConsumesSpec{ExtraIds: []int32{goblinSapperID}}, proto.Profession_Engineering, 1)
+	if sapper := onUseSpell(t, caster, goblinSapperID); sapper.CastRequirement.NotShapeshifted {
+		t.Error("Sapper requires leaving form")
 	}
 }
 

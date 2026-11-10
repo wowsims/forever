@@ -35,7 +35,7 @@ const setup = () => {
 		spell(named(2, 'Prepull Spell'), { prepullOnly: true }),
 		spell(named(3, 'Encounter Spell'), { encounterOnly: true }),
 	];
-	player.sim.getUnitMetadata = () => ({ getSpells: () => spells, getAuras: () => [], getName: () => '' });
+	player.sim.getUnitMetadata = () => ({ getSpells: () => spells, getAuras: () => [], getName: () => '', getMenuGroupOrder: () => [] });
 };
 
 const mount = (isPrepull: boolean) =>
@@ -105,7 +105,7 @@ describe('ActionIdField — the unit named by unitRefField', () => {
 	it('reads the unit named by unitRefField on mount', async () => {
 		setup();
 		const reads: Array<string> = [];
-		const metadata = { getSpells: () => [], getAuras: () => [], getName: () => '' };
+		const metadata = { getSpells: () => [], getAuras: () => [], getName: () => '', getMenuGroupOrder: () => [] };
 		player.sim.getUnitMetadata = (ref: UnitReference | undefined) => {
 			reads.push(ref ? `${UnitType[ref.type]}:${ref.index}` : 'none');
 			return metadata;

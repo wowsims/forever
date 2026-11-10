@@ -12,6 +12,8 @@ import {
 	APLValueAuraICDIsReady,
 	APLValueAuraInternalCooldown,
 	APLValueAuraIsActive,
+	APLValueAuraIsActiveOnAllTargets,
+	APLValueAuraIsActiveOnAnyTarget,
 	APLValueAuraIsInactive,
 	APLValueAuraIsKnown,
 	APLValueAuraNumStacks,
@@ -40,6 +42,7 @@ import {
 	APLValueDotBaseDuration,
 	APLValueDotIsActive,
 	APLValueDotIsActiveOnAllTargets,
+	APLValueDotIsActiveOnAnyTarget,
 	APLValueDotLowestRemainingTime,
 	APLValueDotPercentIncrease,
 	APLValueDotRemainingTime,
@@ -66,11 +69,13 @@ import {
 	APLValueMin,
 	APLValueMultipleCdUsages,
 	APLValueNot,
+	APLValueNumActiveAdds,
 	APLValueNumberTargets,
 	APLValueNumEquippedStatProcItems,
 	APLValueNumStatBuffCooldowns,
 	APLValueOr,
 	APLValueProtectionPaladinDamageTakenLastGlobal,
+	APLValueRemainingCastTime,
 	APLValueRemainingTime,
 	APLValueRemainingTimePercent,
 	APLValueSelectedConjured,
@@ -87,6 +92,7 @@ import {
 	APLValueSpellFullCooldown,
 	APLValueSpellGCDHastedDuration,
 	APLValueSpellInFlight,
+	APLValueSpellInRange,
 	APLValueSpellIsCasting,
 	APLValueSpellIsChanneling,
 	APLValueSpellIsExpertiseCapped,
@@ -97,14 +103,22 @@ import {
 	APLValueSpellTimeToCharge,
 	APLValueSpellTimeToReady,
 	APLValueSpellTravelTime,
+	APLValueTalentIsKnown,
+	APLValueTalentRank,
+	APLValueTargetIsActive,
+	APLValueTargetIsBleedImmune,
 	APLValueTargetIsMobType,
 	APLValueTimeToNextEnergyTick,
+	APLValueTimeUntilTargetActive,
+	APLValueTimeUntilTargetDies,
 	APLValueTotemRemainingTime,
 	APLValueUnitDistance,
 	APLValueUnitIsMoving,
 	APLValueUnitMovementSpeed,
 	APLValueWarlockActivePet,
 	APLValueWarlockAssignedCurseIsActive,
+	APLValueWarlockAssignedCurseIsActiveOnAllTargets,
+	APLValueWarlockBaneIsActiveOnAllTargets,
 	APLValueWarlockIsAssignedCurse,
 } from '@generated/proto/apl';
 import { Class, Spec } from '@generated/proto/common';
@@ -128,6 +142,7 @@ import {
 	minIcdInput,
 	mobTypeFieldConfig,
 	placeholderNameFieldConfig,
+	potionSlotFieldConfig,
 	reactionTimeCheckbox,
 	statTypeFieldConfig,
 	stringFieldConfig,
@@ -276,7 +291,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.is_execute_phase.tooltip'),
 		newValue: APLValueIsExecutePhase.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
-		fields: [executePhaseThresholdFieldConfig('threshold')],
+		fields: [executePhaseThresholdFieldConfig('threshold'), unitFieldConfig('targetUnit', 'targets')],
 	}),
 	numberTargets: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.num_targets.label'),
@@ -299,6 +314,36 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.encounter_in_area.tooltip'),
 		newValue: APLValueEncounterInArea.create,
 		fields: [areaTypeFieldConfig('areaType')],
+	}),
+	targetIsActive: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.target_is_active.label'),
+		submenu: ['encounter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.target_is_active.tooltip'),
+		newValue: APLValueTargetIsActive.create,
+		fields: [unitFieldConfig('targetUnit', 'targets')],
+	}),
+	numActiveAdds: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.num_active_adds.label'),
+		submenu: ['encounter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.num_active_adds.tooltip'),
+		newValue: APLValueNumActiveAdds.create,
+		fields: [],
+	}),
+	timeUntilTargetActive: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.time_until_target_active.label'),
+		submenu: ['encounter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.time_until_target_active.tooltip'),
+		newValue: APLValueTimeUntilTargetActive.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [unitFieldConfig('targetUnit', 'targets')],
+	}),
+	timeUntilTargetDies: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.time_until_target_dies.label'),
+		submenu: ['encounter'],
+		shortDescription: i18n.t('rotation_tab.apl.values.time_until_target_dies.tooltip'),
+		newValue: APLValueTimeUntilTargetDies.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [unitFieldConfig('targetUnit', 'targets')],
 	}),
 
 	// Boss
@@ -332,6 +377,13 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.target_is_mob_type.tooltip'),
 		newValue: APLValueTargetIsMobType.create,
 		fields: [unitFieldConfig('targetUnit', 'targets'), mobTypeFieldConfig('mobType')],
+	}),
+	targetIsBleedImmune: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.target_is_bleed_immune.label'),
+		submenu: ['boss'],
+		shortDescription: i18n.t('rotation_tab.apl.values.target_is_bleed_immune.tooltip'),
+		newValue: APLValueTargetIsBleedImmune.create,
+		fields: [unitFieldConfig('targetUnit', 'targets')],
 	}),
 
 	// Unit
@@ -603,6 +655,15 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'castable_spells', '')],
 	}),
+	spellInRange: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.in_range.label'),
+		submenu: ['spell'],
+		shortDescription: i18n.t('rotation_tab.apl.values.in_range.tooltip'),
+		fullDescription: i18n.t('rotation_tab.apl.values.in_range.full_description'),
+		newValue: APLValueSpellInRange.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [actionIdFieldConfig('spellId', 'castable_spells', '')],
+	}),
 	spellIsHitCapped: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.is_hit_capped.label'),
 		submenu: ['spell'],
@@ -667,6 +728,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'castable_spells', '')],
 	}),
+	remainingCastTime: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.remaining_cast_time.label'),
+		submenu: ['spell'],
+		shortDescription: i18n.t('rotation_tab.apl.values.remaining_cast_time.tooltip'),
+		newValue: APLValueRemainingCastTime.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [],
+	}),
 	spellIsChanneling: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.is_channeling.label'),
 		submenu: ['spell'],
@@ -704,7 +773,6 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['spell'],
 		shortDescription: i18n.t('rotation_tab.apl.values.gcd_hasted_duration.tooltip'),
 		newValue: APLValueSpellGCDHastedDuration.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'castable_spells', '')],
 	}),
 	spellFullCooldown: inputBuilder({
@@ -748,6 +816,22 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_damage_spells', '')],
 	}),
 
+	// Talents
+	talentIsKnown: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.talent_known.label'),
+		submenu: ['talents'],
+		shortDescription: i18n.t('rotation_tab.apl.values.talent_known.tooltip'),
+		newValue: APLValueTalentIsKnown.create,
+		fields: [actionIdFieldConfig('talentId', 'talents', '')],
+	}),
+	talentRank: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.talent_rank.label'),
+		submenu: ['talents'],
+		shortDescription: i18n.t('rotation_tab.apl.values.talent_rank.tooltip'),
+		newValue: APLValueTalentRank.create,
+		fields: [actionIdFieldConfig('talentId', 'talent_ranks', '')],
+	}),
+
 	// Auras
 	auraIsKnown: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.aura_known.label'),
@@ -772,6 +856,22 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: () => APLValueAuraIsInactive.create({ includeReactionTime: true }),
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('sourceUnit', 'aura_sources'), actionIdFieldConfig('auraId', 'auras', 'sourceUnit'), reactionTimeCheckbox()],
+	}),
+	auraIsActiveOnAllTargets: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.aura_active_on_all_targets.label'),
+		submenu: ['aura'],
+		shortDescription: i18n.t('rotation_tab.apl.values.aura_active_on_all_targets.tooltip'),
+		newValue: () => APLValueAuraIsActiveOnAllTargets.create({ includeReactionTime: true }),
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [actionIdFieldConfig('auraId', 'auras', undefined, 'currentTarget'), reactionTimeCheckbox()],
+	}),
+	auraIsActiveOnAnyTarget: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.aura_active_on_any_target.label'),
+		submenu: ['aura'],
+		shortDescription: i18n.t('rotation_tab.apl.values.aura_active_on_any_target.tooltip'),
+		newValue: () => APLValueAuraIsActiveOnAnyTarget.create({ includeReactionTime: true }),
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [actionIdFieldConfig('auraId', 'auras', undefined, 'currentTarget'), reactionTimeCheckbox()],
 	}),
 	auraRemainingTime: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.aura_remaining_time.label'),
@@ -837,7 +937,6 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.aura_duration.tooltip'),
 		fullDescription: i18n.t('rotation_tab.apl.values.aura_duration.full_description'),
 		newValue: APLValueAuraDuration.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [unitFieldConfig('sourceUnit', 'aura_sources'), actionIdFieldConfig('auraId', 'auras', 'sourceUnit')],
 	}),
 
@@ -982,6 +1081,14 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
 		fields: [actionIdFieldConfig('spellId', 'dot_spells')],
 	}),
+	dotIsActiveOnAnyTarget: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.dot_is_active_on_any_target.label'),
+		submenu: ['dot'],
+		shortDescription: i18n.t('rotation_tab.apl.values.dot_is_active_on_any_target.tooltip'),
+		newValue: APLValueDotIsActiveOnAnyTarget.create,
+		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		fields: [actionIdFieldConfig('spellId', 'dot_spells')],
+	}),
 	dotRemainingTime: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.dot_remaining_time.label'),
 		submenu: ['dot'],
@@ -1027,7 +1134,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['dot'],
 		shortDescription: i18n.t('rotation_tab.apl.values.dot_percent_increase.tooltip'),
 		newValue: APLValueDotPercentIncrease.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		includeIf: (_player: Player<any>, _isPrepull: boolean) => false, // Disabled for now, with the DoT increase values in sim/core/apl_values_dot.go.
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
 	}),
 	dotTickRatePercentIncrease: inputBuilder({
@@ -1035,7 +1142,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		submenu: ['dot'],
 		shortDescription: i18n.t('rotation_tab.apl.values.dot_tick_rate_percent_increase.tooltip'),
 		newValue: APLValueDotPercentIncrease.create,
-		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
+		includeIf: (_player: Player<any>, _isPrepull: boolean) => false, // Disabled for now, with the DoT increase values in sim/core/apl_values_dot.go.
 		fields: [unitFieldConfig('targetUnit', 'targets'), actionIdFieldConfig('spellId', 'expected_dot_spells', ''), makeUseDotBaseValueCheckbox()],
 	}),
 	sequenceIsComplete: inputBuilder({
@@ -1079,6 +1186,22 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		newValue: APLValueWarlockAssignedCurseIsActive.create,
 		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() == Spec.SpecWarlock,
 		fields: [unitFieldConfig('targetUnit', 'targets')],
+	}),
+	warlockAssignedCurseIsActiveOnAllTargets: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.warlock_assigned_curse_is_active_on_all_targets.label'),
+		submenu: ['warlock'],
+		shortDescription: i18n.t('rotation_tab.apl.values.warlock_assigned_curse_is_active_on_all_targets.tooltip'),
+		newValue: APLValueWarlockAssignedCurseIsActiveOnAllTargets.create,
+		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() == Spec.SpecWarlock,
+		fields: [],
+	}),
+	warlockBaneIsActiveOnAllTargets: inputBuilder({
+		label: i18n.t('rotation_tab.apl.values.warlock_bane_is_active_on_all_targets.label'),
+		submenu: ['warlock'],
+		shortDescription: i18n.t('rotation_tab.apl.values.warlock_bane_is_active_on_all_targets.tooltip'),
+		newValue: APLValueWarlockBaneIsActiveOnAllTargets.create,
+		includeIf: (player: Player<any>, isPrepull: boolean) => !isPrepull && player.getSpec() == Spec.SpecWarlock,
+		fields: [],
 	}),
 	warlockIsAssignedCurse: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.warlock_is_assigned_curse.label'),
@@ -1164,7 +1287,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 		shortDescription: i18n.t('rotation_tab.apl.values.selected_potion.tooltip'),
 		newValue: APLValueSelectedPotion.create,
 		includeIf: (_: Player<any>, isPrepull: boolean) => !isPrepull,
-		fields: [actionIdFieldConfig('potionId', 'potions')],
+		fields: [actionIdFieldConfig('potionId', 'potions'), potionSlotFieldConfig('slot')],
 	}),
 	selectedConjured: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.selected_conjured.label'),

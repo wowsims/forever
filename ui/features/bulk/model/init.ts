@@ -3,8 +3,12 @@ import { BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS, BulkSimItemSlot } from '@sim/bul
 import type { Player } from '@sim/player/player';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import {
+	loadStoredBulkBuildEnchantPresets,
+	loadStoredBulkBundles,
 	loadStoredBulkEncounters,
+	loadStoredBulkMode,
 	loadStoredBulkSettings,
+	loadStoredBulkTopResults,
 	loadStoredEnchantPresets,
 	patchBulkState,
 	seedBulkSettings,
@@ -13,9 +17,9 @@ import {
 import type { IndividualSimHost } from '@sim/sim_host';
 import { subscribeAll, subscribeBulkChange, subscribePlayerField } from '@sim/state/subscriptions';
 
-import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './items';
-import { refreshBulkCombinations } from './run';
-import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './settings';
+import { addBulkItems, loadEquippedBulkItems, seedBulkPickerGroups } from './gear/items';
+import { type BulkFrozenSlot, createBulkSettingsProto, setBulkFrozenItem, setBulkFrozenWeaponSlot, setBulkWeaponTypeFilter } from './gear/settings';
+import { refreshBulkCombinations } from './run/run';
 
 const equippedItemForFrozenSlot = (player: Player<any>, bulkSlot: BulkFrozenSlot, itemSlot: number): EquippedItem | null => {
 	const slots = BULK_SIM_ITEM_SLOT_TO_ITEM_SLOT_PAIRS.get(bulkSlot);
@@ -46,9 +50,29 @@ const loadSettings = (player: Player<any>) => {
 		patchBulkState(player, { enchantPresets: enchantPresets.presets }, ['settings']);
 	}
 
+	const buildEnchantPresets = loadStoredBulkBuildEnchantPresets(player);
+	if (buildEnchantPresets != null) {
+		patchBulkState(player, { buildEnchantPresets: buildEnchantPresets.names });
+	}
+
+	const bundles = loadStoredBulkBundles(player);
+	if (bundles != null) {
+		patchBulkState(player, { bundles: bundles.bundles, currentBundleChecked: !bundles.currentUnchecked });
+	}
+
 	const encounters = loadStoredBulkEncounters(player);
 	if (encounters != null) {
 		patchBulkState(player, { encounters: encounters.encounters });
+	}
+
+	const mode = loadStoredBulkMode(player);
+	if (mode != null) {
+		patchBulkState(player, { mode });
+	}
+
+	const topResults = loadStoredBulkTopResults(player);
+	if (topResults != null) {
+		patchBulkState(player, { gearTopResults: topResults.gear, buildsTopResults: topResults.builds });
 	}
 };
 

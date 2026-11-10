@@ -3,6 +3,7 @@ package core
 import (
 	"math"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -82,10 +83,9 @@ func addStatWeightPass(calc *proto.StatWeightsCalcRequest, baseline statWeightRu
 
 const syntheticBaselineDps = 1000.0
 
-// Builds the stat weight requests and answers each sub-sim with the DPS a point of its stat is worth
-// in dpsPerPoint, then computes the weights.
-func runSyntheticStatWeights(t *testing.T, statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsPerPoint map[stats.UnitStat]float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
-	t.Helper()
+// Builds the stat weight requests and answers each sub-sim with what run gives for its stat and modifier,
+// the baseline at a modifier of 0.
+func syntheticStatWeightCalc(statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, run func(stats.UnitStat, float64) *proto.RaidSimResult) (*proto.StatWeightRequestsData, *proto.StatWeightsCalcRequest) {
 	requests := buildStatWeightRequests(&proto.StatWeightsRequest{
 		Player:             &proto.Player{},
 		Encounter:          &proto.Encounter{},
@@ -99,17 +99,30 @@ func runSyntheticStatWeights(t *testing.T, statsToWeigh []proto.Stat, pseudoStat
 	var runs []statWeightStatRuns
 	for _, request := range requests.StatSimRequests {
 		stat := stats.UnitStatFromIdx(int(request.StatData.UnitStat))
-		statRuns := statWeightStatRuns{
-			statData: request.StatData,
-			high:     statWeightResult(syntheticBaselineDps + dpsPerPoint[stat]*request.StatData.ModHigh),
-		}
+		statRuns := statWeightStatRuns{statData: request.StatData, high: run(stat, request.StatData.ModHigh)}
 		if request.RequestLow != nil {
-			statRuns.low = statWeightResult(syntheticBaselineDps + dpsPerPoint[stat]*request.StatData.ModLow)
+			statRuns.low = run(stat, request.StatData.ModLow)
 		}
 		runs = append(runs, statRuns)
 	}
 
-	return requests, computeStatWeights(pairedStatWeightCalc(requests, statWeightResult(syntheticBaselineDps), runs))
+	return requests, pairedStatWeightCalc(requests, run(agilityUnitStat, 0), runs)
+}
+
+// Computes the weights with each sub-sim at the DPS dpsGain gives its stat and modifier over the baseline.
+func runSyntheticStatWeightsWithDpsGain(statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsGain func(stats.UnitStat, float64) float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
+	requests, calc := syntheticStatWeightCalc(statsToWeigh, pseudoStatsToWeigh, func(stat stats.UnitStat, mod float64) *proto.RaidSimResult {
+		return statWeightResult(syntheticBaselineDps + dpsGain(stat, mod))
+	})
+	return requests, computeStatWeights(calc)
+}
+
+// Computes the weights with every stat worth its dpsPerPoint for each point, however many it gains.
+func runSyntheticStatWeights(t *testing.T, statsToWeigh []proto.Stat, pseudoStatsToWeigh []proto.PseudoStat, dpsPerPoint map[stats.UnitStat]float64) (*proto.StatWeightRequestsData, *proto.StatWeightsResult) {
+	t.Helper()
+	return runSyntheticStatWeightsWithDpsGain(statsToWeigh, pseudoStatsToWeigh, func(stat stats.UnitStat, mod float64) float64 {
+		return dpsPerPoint[stat] * mod
+	})
 }
 
 func protoUnitStat(unitStats *proto.UnitStats, stat stats.UnitStat) float64 {
@@ -174,8 +187,7 @@ func TestStatWeightsSimulateHitRatingBesideItsPercents(t *testing.T) {
 	}
 }
 
-// A school hit weight and EP are per percentage point, like every other percent's, although its sub-sim
-// probes a tenth of a percent, one hit rating point's worth.
+// A school hit weight and EP are per percentage point, like every other percent's.
 func TestStatWeightsWeighSchoolHitPerPercent(t *testing.T) {
 	_, result := runSyntheticStatWeights(t,
 		[]proto.Stat{proto.Stat_StatAgility},
@@ -202,6 +214,179 @@ func TestStatWeightsLeaveAnUnrequestedRatingAtZero(t *testing.T) {
 	}
 	if got := protoUnitStat(result.Dps.Weights, hitRatingUnitStat); got != 0 {
 		t.Errorf("hit rating weight = %v, want 0", got)
+	}
+}
+
+// Hit and expertise, as ratings and as percents, are simulated above the baseline only, and every other
+// stat on both sides.
+func TestStatWeightsSimulateHitAndExpertiseAboveTheBaselineOnly(t *testing.T) {
+	aboveOnly := []stats.UnitStat{
+		hitRatingUnitStat,
+		stats.UnitStatFromStat(stats.ExpertiseRating),
+		meleeHitUnitStat,
+		rangedHitUnitStat,
+		stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatSpellHitPercent),
+		holyHitUnitStat,
+		stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatExpertisePercent),
+	}
+	requests, _ := runSyntheticStatWeights(t,
+		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating, proto.Stat_StatExpertiseRating, proto.Stat_StatCritRating},
+		[]proto.PseudoStat{
+			proto.PseudoStat_PseudoStatMeleeHitPercent,
+			proto.PseudoStat_PseudoStatRangedHitPercent,
+			proto.PseudoStat_PseudoStatSpellHitPercent,
+			proto.PseudoStat_PseudoStatSchoolHitPercentHoly,
+			proto.PseudoStat_PseudoStatExpertisePercent,
+			proto.PseudoStat_PseudoStatMeleeCritPercent,
+			proto.PseudoStat_PseudoStatMainHandDps,
+		},
+		map[stats.UnitStat]float64{agilityUnitStat: 1})
+
+	for _, request := range requests.StatSimRequests {
+		stat := stats.UnitStatFromIdx(int(request.StatData.UnitStat))
+		wantAboveOnly := slices.Contains(aboveOnly, stat)
+		if got := request.RequestLow == nil; got != wantAboveOnly {
+			t.Errorf("stat %d has no run below the baseline = %v, want %v", stat, got, wantAboveOnly)
+		}
+		if got := request.StatData.ModLow == 0; got != wantAboveOnly {
+			t.Errorf("stat %d ModLow = %v, want it 0 = %v", stat, request.StatData.ModLow, wantAboveOnly)
+		}
+		if request.StatData.ModHigh <= 0 {
+			t.Errorf("stat %d ModHigh = %v, want a run above the baseline", stat, request.StatData.ModHigh)
+		}
+	}
+}
+
+// The result reports how far each stat's runs moved it, also for a hard-capped stat that gets no weight.
+func TestStatWeightsReportEachStatsSteps(t *testing.T) {
+	_, result := runSyntheticStatWeights(t,
+		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		nil,
+		map[stats.UnitStat]float64{agilityUnitStat: 1})
+
+	if got := protoUnitStat(result.StepAbove, agilityUnitStat); got != 10 {
+		t.Errorf("agility step above = %v, want 10", got)
+	}
+	if got := protoUnitStat(result.StepBelow, agilityUnitStat); got != -10 {
+		t.Errorf("agility step below = %v, want -10", got)
+	}
+	if got := protoUnitStat(result.Dps.Weights, hitRatingUnitStat); got != 0 {
+		t.Fatalf("hit rating weight = %v, want the hard cap's 0", got)
+	}
+	if got := protoUnitStat(result.StepAbove, hitRatingUnitStat); got != 10 {
+		t.Errorf("hit rating step above = %v, want 10", got)
+	}
+	if got := protoUnitStat(result.StepBelow, hitRatingUnitStat); got != 0 {
+		t.Errorf("hit rating step below = %v, want 0", got)
+	}
+}
+
+// A rating with a percent steps by its rating per percent and a percent pseudo stat by 1; defense, agility, armor penetration and weapon DPS keep their own steps.
+func TestStatWeightsStepEachPercentStatByOnePercent(t *testing.T) {
+	requests := buildStatWeightRequests(&proto.StatWeightsRequest{
+		Player:     &proto.Player{},
+		Encounter:  &proto.Encounter{},
+		SimOptions: &proto.SimOptions{Iterations: 2, RandomSeed: 1},
+		StatsToWeigh: []proto.Stat{
+			proto.Stat_StatCritRating,
+			proto.Stat_StatDodgeRating,
+			proto.Stat_StatParryRating,
+			proto.Stat_StatBlockRating,
+			proto.Stat_StatHitRating,
+			proto.Stat_StatHasteRating,
+			proto.Stat_StatExpertiseRating,
+			proto.Stat_StatDefenseRating,
+			proto.Stat_StatAgility,
+			proto.Stat_StatArmorPenetration,
+		},
+		PseudoStatsToWeigh: []proto.PseudoStat{
+			proto.PseudoStat_PseudoStatRangedCritPercent,
+			proto.PseudoStat_PseudoStatRangedHitPercent,
+			proto.PseudoStat_PseudoStatMainHandDps,
+		},
+		EpReferenceStat:  proto.Stat_StatAgility,
+		HpsReferenceStat: proto.Stat_StatAgility,
+	})
+
+	for _, c := range []struct {
+		name string
+		stat stats.UnitStat
+		want float64
+	}{
+		{"crit rating", stats.UnitStatFromStat(stats.CritRating), CritRatingPerCritPercent},
+		{"dodge rating", stats.UnitStatFromStat(stats.DodgeRating), DodgeRatingPerDodgePercent},
+		{"parry rating", stats.UnitStatFromStat(stats.ParryRating), ParryRatingPerParryPercent},
+		{"block rating", stats.UnitStatFromStat(stats.BlockRating), BlockRatingPerBlockPercent},
+		{"hit rating", hitRatingUnitStat, HitRatingPerHitPercent},
+		{"haste rating", stats.UnitStatFromStat(stats.HasteRating), HasteRatingPerHastePercent},
+		{"expertise rating", stats.UnitStatFromStat(stats.ExpertiseRating), ExpertiseRatingPerExpertisePercent},
+		{"defense rating", stats.UnitStatFromStat(stats.DefenseRating), 10},
+		{"agility", agilityUnitStat, 10},
+		{"armor penetration", stats.UnitStatFromStat(stats.ArmorPenetration), 100},
+		{"ranged crit percent", stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedCritPercent), 1},
+		{"ranged hit percent", rangedHitUnitStat, 1},
+		{"main hand DPS", stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMainHandDps), 5},
+	} {
+		i := slices.IndexFunc(requests.StatSimRequests, func(r *proto.StatWeightsStatRequestData) bool {
+			return r.StatData.UnitStat == int32(c.stat)
+		})
+		if i < 0 {
+			t.Errorf("%s has no sub-sim", c.name)
+			continue
+		}
+		if got := requests.StatSimRequests[i].StatData.ModHigh; got != c.want {
+			t.Errorf("%s steps by %v, want %v", c.name, got, c.want)
+		}
+	}
+}
+
+// Only a stat with a rating per percent or weapon DPS has a step to weigh it by; anything else, like a per-hand
+// value or reduced crit taken, panics.
+func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
+	for _, pseudoStat := range []proto.PseudoStat{
+		proto.PseudoStat_PseudoStatMainHandHitRating,
+		proto.PseudoStat_PseudoStatOffHandHitPercent,
+		proto.PseudoStat_PseudoStatOffHandCritPercent,
+		proto.PseudoStat_PseudoStatReducedCritTakenPercent,
+	} {
+		t.Run(pseudoStat.String(), func(t *testing.T) {
+			defer func() {
+				message, _ := recover().(string)
+				if !strings.Contains(message, "Unsupported PseudoStat") {
+					t.Errorf("panic = %q, want the unsupported pseudo stat one", message)
+				}
+			}()
+			buildStatWeightRequests(&proto.StatWeightsRequest{
+				Player:             &proto.Player{},
+				Encounter:          &proto.Encounter{},
+				SimOptions:         &proto.SimOptions{Iterations: 2, RandomSeed: 1},
+				PseudoStatsToWeigh: []proto.PseudoStat{pseudoStat},
+			})
+		})
+	}
+}
+
+// Inside the last step before a cap, a percent and its rating both read what the points left are worth.
+func TestStatWeightsAgreeOnAPercentAndItsRatingNearACap(t *testing.T) {
+	const dpsPerRating = 3.0
+	const ratingToCap = 5.0
+	_, result := runSyntheticStatWeightsWithDpsGain(
+		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		[]proto.PseudoStat{proto.PseudoStat_PseudoStatRangedHitPercent},
+		func(stat stats.UnitStat, mod float64) float64 {
+			switch stat {
+			case hitRatingUnitStat:
+				return dpsPerRating * math.Min(mod, ratingToCap)
+			case rangedHitUnitStat:
+				return dpsPerRating * math.Min(mod*HitRatingPerHitPercent, ratingToCap)
+			}
+			return mod
+		})
+
+	rating := protoUnitStat(result.Dps.Weights, hitRatingUnitStat)
+	percentPerRating := protoUnitStat(result.Dps.Weights, rangedHitUnitStat) / HitRatingPerHitPercent
+	if rating <= 0 || math.Abs(percentPerRating-rating) > 1e-9 {
+		t.Errorf("ranged hit percent per rating = %v, hit rating = %v, want them equal and above 0", percentPerRating, rating)
 	}
 }
 
@@ -406,6 +591,56 @@ func plannedIterations(plan *proto.StatWeightsTopUpPlan) map[stats.UnitStat]int3
 	return planned
 }
 
+// Every stat is sized at the target per rating point, so a percent and its rating plan the same count, and
+// agility, which has no percent, the count its own stdev per point asks for.
+func TestStatWeightTopUpPlanSizesEveryStatAtTheTargetPerRatingPoint(t *testing.T) {
+	const perSide = 20
+	_, calc := syntheticStatWeightCalc(
+		[]proto.Stat{proto.Stat_StatAgility, proto.Stat_StatHitRating},
+		[]proto.PseudoStat{proto.PseudoStat_PseudoStatRangedHitPercent, proto.PseudoStat_PseudoStatRangedCritPercent, proto.PseudoStat_PseudoStatExpertisePercent},
+		func(_ stats.UnitStat, mod float64) *proto.RaidSimResult {
+			values := make([]float64, perSide)
+			for i := range values {
+				values[i] = syntheticBaselineDps + mod
+				if mod > 0 {
+					values[i] += float64(i%5) - 2
+				}
+			}
+			return statWeightRun(values)
+		})
+
+	const target = 0.0001
+	plan := planStatWeightTopUp(&proto.StatWeightsTopUpRequest{Calc: calc, Target: &proto.StatWeightsTarget{EpCi: target}})
+	planned := plannedIterations(plan)
+	hitRating := planned[hitRatingUnitStat]
+	if hitRating == 0 {
+		t.Fatal("hit rating needs no top-up, want one to compare the percents against")
+	}
+	if got := planned[rangedHitUnitStat]; got < hitRating-1 || got > hitRating+1 {
+		t.Errorf("ranged hit percent planned %d iterations, want hit rating's %d", got, hitRating)
+	}
+	result := computeStatWeights(calc)
+	for _, c := range []struct {
+		stat             stats.UnitStat
+		ratingPerPercent float64
+		stdevPerPercent  bool
+		sides            float64
+	}{
+		{agilityUnitStat, 1, false, 2},
+		{stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatRangedCritPercent), CritRatingPerCritPercent, true, 2},
+		{stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatExpertisePercent), ExpertiseRatingPerExpertisePercent, true, 1},
+	} {
+		stdevPerPoint := protoUnitStat(result.Dps.EpValuesStdev, c.stat)
+		if c.stdevPerPercent {
+			stdevPerPoint /= c.ratingPerPercent
+		}
+		want := int32(math.Ceil(math.Pow(StatWeightZ90*stdevPerPoint/target, 2) / c.sides))
+		if got := planned[c.stat]; got != want {
+			t.Errorf("stat %d planned %d iterations, want %d", c.stat, got, want)
+		}
+	}
+}
+
 // The plan sizes each stat for the target from its EP spread and pooled sides, caps it at a multiple
 // of the first baseline run, runs the baseline as far as the furthest stat, and leaves out every stat
 // already at or under the target.
@@ -418,7 +653,8 @@ func TestStatWeightTopUpPlanSizesEachStatForTheTarget(t *testing.T) {
 		t.Fatalf("shown ± agility %v, hit rating %v: want two different spreads", agilityCi, hitCi)
 	}
 	sized := func(stat stats.UnitStat, target, sides float64) int32 {
-		return int32(math.Ceil(math.Pow(StatWeightZ90*protoUnitStat(result.Dps.EpValuesStdev, stat)/target, 2) / sides))
+		stdev := protoUnitStat(result.Dps.EpValuesStdev, stat)
+		return int32(math.Ceil(math.Pow(StatWeightZ90*stdev/target, 2) / sides))
 	}
 	const uncapped = math.MaxInt32 / perSide
 	plan := func(target float64, multiplier int32) *proto.StatWeightsTopUpPlan {
@@ -646,11 +882,12 @@ func TestStatWeightsTargetModeRunsToTheTargetOrTheCap(t *testing.T) {
 		return runStatWeights(request, nil, simsignals.CreateSignals())
 	}
 	weighed := []stats.UnitStat{attackPowerUnitStat, hitRatingUnitStat}
+	scales := map[stats.UnitStat]float64{attackPowerUnitStat: 1, hitRatingUnitStat: HitRatingPerHitPercent}
 
 	probe := weigh(0)
 	target := math.Inf(1)
 	for _, stat := range weighed {
-		target = min(target, shownEpCi(probe, stat)/2)
+		target = min(target, shownEpCi(probe, stat)/scales[stat]/2)
 	}
 	if target == 0 {
 		t.Fatal("a stat has no spread, so there is nothing to top up")
@@ -666,7 +903,7 @@ func TestStatWeightsTargetModeRunsToTheTargetOrTheCap(t *testing.T) {
 		if samples <= protoUnitStat(probe.SampleCounts, stat) {
 			t.Errorf("stat %d kept its probe's %v samples", stat, samples)
 		}
-		if ci := shownEpCi(result, stat); ci > target && samples != sides*probePerSide*multiplier {
+		if ci := shownEpCi(result, stat) / scales[stat]; ci > target && samples != sides*probePerSide*multiplier {
 			t.Errorf("stat %d shows ± %v over the target %v with %v samples, under the cap", stat, ci, target, samples)
 		}
 	}

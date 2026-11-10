@@ -1,6 +1,7 @@
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Cooldowns, ItemSwap, Profession, type Spec } from '@generated/proto/common';
+import { Cooldowns, Profession, Spec } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
+import { Stats } from '@sim/proto/stats';
 import type { StatSweepSettings } from '@sim/settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
@@ -67,6 +68,9 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.applySharedDefaults();
 		player.setRace(config.defaults.other?.race || player.getPlayerClass().races[0]);
 		player.setGear(sim.db.lookupEquipmentSpec(config.defaults.gear));
+		if (config.defaults.itemSwap) {
+			player.itemSwapSettings.setItemSwapSettings(true, sim.db.lookupItemSwap(config.defaults.itemSwap));
+		}
 		player.setConsumes(config.defaults.consumables);
 		applyDefaultRotation(player, config);
 		player.setTalentsString(config.defaults.talents.talentsString);
@@ -78,9 +82,6 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		// Tank specs can name their own EP reference stat; without this the dialog
 		// falls back to StatArmor for every one of them.
 		player.setRefStat('tankRefStat', config.tankRefStat);
-		if (config.defaults.itemSwap) {
-			player.itemSwapSettings.setItemSwapSettings(true, sim.db.lookupItemSwap(config.defaults.itemSwap || ItemSwap.create()));
-		}
 
 		const defaultRatios = player.getDefaultEpRatios(tankSpec, healingSpec);
 		player.setEpRatios(defaultRatios);
@@ -95,10 +96,16 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		player.setDistanceFromTarget(config.defaults.other?.distanceFromTarget || 0);
 		player.setChannelClipDelay(config.defaults.other?.channelClipDelay || 0);
 		player.setReactionTime(config.defaults.other?.reactionTime || 100);
+		player.setReactionTimeMax(config.defaults.other?.reactionTimeMax || 0);
+		// A spec whose defaults come from defaults.siml states where it stands, its dummies and its tanks there.
+		const fromFile = !!config.defaults.settings;
+		if (fromFile) player.setInFrontOfTarget(!!config.defaults.other?.inFrontOfTarget);
 
 		host.reforger?.applyDefaults();
 
-		sim.raid.setTargetDummies(healingSpec ? 9 : 0);
+		// defaults.siml writes the count in raid_buffs:, and leaves 0 out. Healers get a full party of allies; Balance
+		// keeps one so Innervate can leave the druid.
+		sim.raid.setTargetDummies(fromFile ? config.defaults.settings!.targetDummies : healingSpec ? 9 : player.getSpec() === Spec.SpecBalanceDruid ? 1 : 0);
 		if (config.defaults.encounter?.encounter) {
 			sim.encounter.fromProto(config.defaults.encounter.encounter);
 		} else {
@@ -114,7 +121,9 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 			sim.setIterations(config.defaults.other!.iterationCount!);
 		}
 
-		if (tankSpec) {
+		if (fromFile) {
+			sim.raid.setTanks(config.defaults.other?.tanks ?? []);
+		} else if (tankSpec) {
 			sim.raid.setTanks([player.makeUnitReference()]);
 		} else {
 			sim.raid.setTanks([]);
@@ -123,8 +132,27 @@ export function applyIndividualDefaults<SpecType extends Spec>(host: DefaultsHos
 		host.statWeightActionSettings.applyDefaults();
 		host.statSweepSettings.applyDefaults();
 
+		applyFileDefaults(host);
+
 		if (config.defaultBuild) {
 			applyBuild(config.defaultBuild, host);
 		}
 	});
+}
+
+// What the spec's defaults.siml sets that has no field of its own in `defaults`: the cooldowns, bonus stats, EP
+// ratios, reference stats and reforge settings. A section the file does not hold keeps what the defaults above set.
+function applyFileDefaults<SpecType extends Spec>({ player, reforger, individualConfig: config }: DefaultsHost<SpecType>) {
+	const settings = config.defaults.settings;
+	if (!settings) {
+		return;
+	}
+	const file = settings.player;
+	if (file?.cooldowns) player.setSimpleCooldowns(file.cooldowns);
+	if (file?.bonusStats) player.setBonusStats(Stats.fromProto(file.bonusStats));
+	if (settings.epRatios.length) player.setEpRatios(settings.epRatios);
+	if (settings.dpsRefStat) player.setRefStat('dpsRefStat', settings.dpsRefStat);
+	if (settings.healRefStat) player.setRefStat('healRefStat', settings.healRefStat);
+	if (settings.tankRefStat) player.setRefStat('tankRefStat', settings.tankRefStat);
+	if (settings.reforgeSettings) reforger?.applyPresetSettings(settings.reforgeSettings);
 }

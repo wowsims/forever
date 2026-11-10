@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import type { ControlSize } from '@ui-kit/Field';
 import { describe, expect, it, vi } from 'vitest';
 
 import { ToggleGroup } from './ToggleGroup';
@@ -9,7 +10,7 @@ const OPTIONS = [
 	{ value: 'three', label: 'Three' },
 ] as const;
 
-const mount = (value: 'one' | 'two' | 'three', size?: 'sm') => {
+const mount = (value: 'one' | 'two' | 'three', size?: ControlSize) => {
 	const onChange = vi.fn();
 	return { onChange, ...render(<ToggleGroup options={OPTIONS} value={value} onChange={onChange} aria-label="Pick one" size={size} />) };
 };
@@ -53,9 +54,10 @@ describe('ToggleGroup', () => {
 		expect(onChange).not.toHaveBeenCalled();
 	});
 
-	it('passes the small size to the group', () => {
-		mount('one', 'sm');
+	it.each(['xs', 'sm', 'md'] as const)('passes the %s size to the group and every button', size => {
+		mount('one', size);
 
-		expect(screen.getByRole('group').getAttribute('data-size')).toBe('sm');
+		expect(screen.getByRole('group').getAttribute('data-size')).toBe(size);
+		expect(screen.getAllByRole('button').map(button => button.getAttribute('data-size'))).toEqual([size, size, size]);
 	});
 });

@@ -5,17 +5,24 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-var heroicStrikeRank = spellData.HeroicStrike.Highest()
+// Rank 8 is the top rank the trainer teaches; Rank 9 comes from Manual of Heroic Strike IX.
+var heroicStrikeTrainerRank = spellData.HeroicStrike.ByID(11567)
+var heroicStrikeBookRank = spellData.HeroicStrike.ByID(25286)
 
 var cleaveRank = spellData.Cleave.Highest()
 var cleaveTargets = int32(cleaveRank.DamageEffect().ChainTargets)
 
 func (warrior *Warrior) registerHeroicStrike() {
-	config := spelldata.SpellConfig(&warrior.Unit, heroicStrikeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	warrior.registerHeroicStrikeRank(heroicStrikeTrainerRank)
+	warrior.registerHeroicStrikeRank(heroicStrikeBookRank)
+}
+
+func (warrior *Warrior) registerHeroicStrikeRank(rank *spelldata.Spell) {
+	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.Flags &^= core.SpellFlagAPL
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := heroicStrikeRank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
+		baseDamage := rank.WeaponStrike(sim, spell, warrior.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if !result.Landed() {
@@ -23,8 +30,7 @@ func (warrior *Warrior) registerHeroicStrike() {
 		}
 	}
 
-	warrior.HeroicStrike = warrior.RegisterSpell(config)
-	warrior.makeQueueSpellsAndAura(warrior.HeroicStrike)
+	warrior.makeQueueSpellsAndAura(warrior.RegisterSpell(config))
 }
 
 func (warrior *Warrior) registerCleave() {
@@ -59,15 +65,10 @@ func (warrior *Warrior) registerCleave() {
 // attacks included, casts it in the swing's place. One attack is queued at a time, and a swing the
 // rage no longer covers drops the queue.
 func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
-	isQueueQueued := false
-
 	queueAura := warrior.RegisterAura(core.Aura{
 		Label:    "HS/Cleave Queue Aura-" + srcSpell.ActionID.String(),
 		ActionID: srcSpell.ActionID.WithTag(1),
 		Duration: core.NeverExpires,
-		OnReset: func(_ *core.Aura, _ *core.Simulation) {
-			isQueueQueued = false
-		},
 		OnGain: func(aura *core.Aura, _ *core.Simulation) {
 			warrior.curQueueAura = aura
 			warrior.curQueuedAutoSpell = srcSpell
@@ -93,25 +94,23 @@ func (warrior *Warrior) makeQueueSpellsAndAura(srcSpell *core.Spell) {
 
 		ExtraCastCondition: func(sim *core.Simulation, _ *core.Unit) bool {
 			return warrior.curQueueAura == nil &&
-				!isQueueQueued &&
+				warrior.pendingQueue.IsConsumed() &&
 				warrior.CurrentRage() >= srcSpell.Cost.GetCurrentCost() &&
 				warrior.queuedRealismICD.IsReady(sim)
 		},
-		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			srcSpell.CountManualCast(target)
 			if warrior.queuedRealismICD.Duration == 0 {
 				queueAura.Activate(sim)
 				return
 			}
 
-			isQueueQueued = true
 			warrior.queuedRealismICD.Use(sim)
-			sim.AddPendingAction(&core.PendingAction{
+			warrior.pendingQueue = &core.PendingAction{
 				NextActionAt: sim.CurrentTime + warrior.queuedRealismICD.Duration,
-				OnAction: func(sim *core.Simulation) {
-					queueAura.Activate(sim)
-					isQueueQueued = false
-				},
-			})
+				OnAction:     queueAura.Activate,
+			}
+			sim.AddPendingAction(warrior.pendingQueue)
 		},
 	})
 }

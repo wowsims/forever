@@ -1,0 +1,99 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{
+			"action": {
+				"autocastOtherCooldowns": {}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-1s"
+				}
+			}
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-2s"
+				}
+			}
+		}
+	],
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"gcdIsReady": {}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5,
+						"rank": 2
+					},
+					"target": {
+						"type": "Target",
+						"index": 4
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"const": {
+						"val": "true"
+					}
+				},
+				"wait": {}
+			}
+		},
+		{
+			"action": {
+				"multidot": {
+					"spellId": {
+						"spellId": 5
+					},
+					"maxDots": 3
+				}
+			}
+		},
+		{
+			"action": {
+				"strictSequence": {
+					"actions": [
+						{
+							"wait": {}
+						},
+						{
+							"condition": {
+								"const": {
+									"val": "true"
+								}
+							},
+							"move": {}
+						}
+					]
+				}
+			}
+		},
+		{
+			"notes": "a note\twith a tab",
+			"action": {}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "v",
+			"value": {
+				"currentTime": {}
+			}
+		}
+	]
+}

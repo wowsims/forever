@@ -1,0 +1,13 @@
+siml 1
+spec hunter
+
+var $a = true
+var $b = true
+
+priority:
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  when $a and $b:
+    cast serpent_sting if current_time > 2s
+    cast multi_shot
+  cast arcane_shot
+  cast aimed_shot if $a and $b and current_time > 1s

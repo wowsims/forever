@@ -1,0 +1,10 @@
+siml 1
+spec hunter
+
+// The statements under a header that names no section are not read, and only their lexer errors are reported.
+prioirty:
+  /// note
+  cast x if !a
+  var $x = 1
+priority:
+  cast x

@@ -1,0 +1,17 @@
+siml 1
+spec hunter
+/// above a header
+priority:
+  /// apart
+
+  cast x /// trailing
+  cast x
+    /// inside
+    if true
+prepull:
+  /// prepull
+  -1s cast x
+apl:
+  /// var
+  var $v = 1
+/// end

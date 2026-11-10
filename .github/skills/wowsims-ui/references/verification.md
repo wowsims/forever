@@ -48,6 +48,11 @@ commit.
 `ui/features/gear/components/FiltersMenu/FiltersMenu.test.tsx`) that passes alone. Rerun that file alone, then the
 whole suite once; call the change red only if it fails again.
 
+**A tooltip that never opens in a test may be the debounce.** react-tooltip opens on the leading edge of a 50 ms
+debounce that every `focusin` and `mouseover` on the page feeds, so a test that focuses or hovers two anchors in the
+same tick drops the second and finds no `role="tooltip"`. Wait past the window between the two; real key presses are
+always further apart.
+
 ## The tree-wide gates
 
 The `ui/*.test.ts` files at the root of `ui/` are not component tests: they scan the tree from disk under
@@ -63,20 +68,24 @@ List the opt-outs with `/usr/bin/grep -rn "smoke: false" ui --include=*.stories.
 
 ## What CI runs
 
-`.github/workflows/run_tests.yml` has two jobs:
+`.github/workflows/run_tests.yml` has three jobs, `build-ui`, `test-ui` and `test`:
 
-- **`build-ui`**: `npm ci` and `test:locales`, then `fmt`, `lint:js`, `lint:css`, `make ui/generated/proto/api.ts
-go-to-ts`, `type-check`, `test:unit`, `storybook:build`, and `make dist/forever/.dirstamp`, with `BUILD_COMMIT` set to
-  the pull request's head so the page's release names it rather than the merge commit. A pull request from this
+- **`build-ui`**: `make skills-check`, `npm ci` and `test:locales`, then `fmt`, `lint:js`, `lint:css`,
+  `make ui/generated/proto/api.ts go-to-ts`, a `go build` of `wowsimcli` exported as `WOWSIMCLI` for the SIML imports
+  (`running-locally.md`), `type-check`, the SIML extension's `npm run check` and `npm test` in `tools/vscode-apl`,
+  `storybook:build`, and `make dist/forever/.dirstamp`, with `BUILD_COMMIT` set to the pull request's head so the page's
+  release names it rather than the merge commit. A pull request from this
   repository then gets its build deployed as a Cloudflare Pages preview at a hashed `*.wowsims-forever.pages.dev`
   address, linked from one comment on the pull request; fork pull requests skip it. `preview_cleanup.yml` deletes the
   deployments when the pull request closes.
-- **`test`**: the Go side (`go test --tags=with_db` over `./sim/...`, plus the buff generator tests), not the UI.
+- **`test-ui`**: `test:unit`, sharded, each shard after `make ui/generated/proto/api.ts go-to-ts` and the same
+  `wowsimcli` build for the SIML imports.
+- **`test`**: the Go side, sharded; its steps are `wowsims-testing` `## The gates`.
 
 The cheap UI gates run first, so a formatting slip reports in about a minute. `deploy.yml` and `release.yml` reuse the
 workflow through `workflow_call` with `needs: tests`, so every gate also blocks a deploy and a release.
 
-`make dist/forever/.dirstamp` runs `tsc --noEmit`, `npx tsx vite.build-workers.mts` and `npx vite build` through
+`make dist/forever/.dirstamp` runs `tsc --noEmit`, `node vite.build-workers.mts` and `npx vite build` through
 `dist/forever/bundle/.dirstamp`, and also builds `dist/forever/lib.wasm.gz`, `ui/generated/proto/api.ts` and the asset
 copies. Build the site through make rather than by calling `vite build` alone.
 
@@ -128,11 +137,22 @@ the PR what you ran or clicked, with the screenshots.
 For a kit or stylesheet change, also diff the production CSS against the parent commit's, as `ui/STYLING.md` §7
 describes: a new selector with no source change behind it is a class leaking in from a story, fixture or docs page.
 
+happy-dom applies the `inert` attribute to focus only. A click inside an inert subtree still reaches its handlers in a
+unit test, so such a test asserts `inert` and the refused focus, and a real browser checks that clicks are blocked.
+`AplEntryView` (`ui/features/apl/components/AplEntryView/`) is the case that hit it.
+
+The wasm worker. The pool's unit tests stub `Worker`, and a stub that answers with `outputData` on the request channel
+answers the way the HTTP worker does. The wasm worker's `raidSimAsync` and `statWeightsAsync` answer `undefined` there
+and send their result as progress, and a panic no handler recovers exits its Go runtime in the middle of a call. A
+change to how `ui/worker/` or `ui/sim/workers/` reads an answer gives the stub the wasm worker's shape in a test, and is
+run on a `lib.wasm` built from the tree: a raid sim and stat weights on a spec page, and the PR says what came back.
+
 ## A fresh checkout needs generated files first
 
 `type-check` and every build need files that Go tooling generates and a fresh checkout lacks: `ui/generated/proto/*`
 (`make ui/generated/proto/api.ts`) and the untracked `*_auto_gen.ts` files among the ones `make go-to-ts` writes
-(`go run ./tools/database/gen_db -gen=go-to-ts`). Copying them from a built checkout also works. The makefile's
+(`go run ./tools/database/gen_db -gen=go-to-ts`). Copying them from a built checkout also works. Every build,
+`vitest` run and Storybook build also needs Go itself, for the `.siml` imports (`running-locally.md`). The makefile's
 `AUTO_GEN_FILES_TS` must list exactly what that generator writes; a stale entry makes every dependent `make` rerun
 `gen_db`. Compare the generator's outputs with the makefile and with what git tracks:
 
@@ -145,3 +165,7 @@ describes: a new selector with no source change behind it is a class leaking in 
 The tracked ones that `go-to-ts` does not write come from the full database generation, which needs the game files
 database that CI does not have, so they are committed. Never hand-edit any of them, and never run two `gen_db`
 processes at once.
+
+`bin/wowsimcli` goes stale without a word. The SIML plugin runs it whenever the file exists and never checks its age, so
+after a change to Go or `sim/siml/names.json`, vitest fails on `.siml` imports with wrong-type and unknown-field errors
+that point at no real fault. Run `make bin/wowsimcli` before vitest (`running-locally.md`).

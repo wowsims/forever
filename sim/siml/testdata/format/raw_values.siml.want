@@ -1,0 +1,12 @@
+siml 1
+spec balance_druid
+
+settings:
+  distance_from_target 1000
+  dark_intent_uptime 0
+
+sim:
+  fixed_rng_seed 123456789012345664
+  filters(min_ilvl=5, min_consumable_lvl=`{"0":2,"7":1,"10":3,"-2":4}`)
+
+encounter: targets()

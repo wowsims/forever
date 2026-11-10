@@ -655,3 +655,28 @@ export const makeSpecOptionsEnumIconInput = <SpecType extends Spec, T>(
 		extraClassNames: config.extraClassNames,
 	});
 };
+export const makeRotationEnumIconInput = <SpecType extends Spec, T>(
+	config: PlayerEnumIconInputConfig<SpecType, SpecRotation<SpecType>, T>,
+): TypedIconEnumPickerConfig<Player<SpecType>, T> => {
+	return makeWrappedEnumIconInput<SpecType, Player<SpecType>, T>({
+		id: `${String(config.fieldName) || randomUUID()}`,
+		label: config.label,
+		labelTooltip: config.labelTooltip,
+		numColumns: config.numColumns || 1,
+		values: config.values,
+		equals: (a: T, b: T) => a == b,
+		showWhen: config.showWhen,
+		zeroValue: 0 as unknown as T,
+		getModObject: (player: Player<SpecType>) => player,
+		getValue: config.getValue || ((player: Player<SpecType>) => player.getSimpleRotation()[config.fieldName] as unknown as T),
+		setValue:
+			config.setValue ||
+			((player: Player<SpecType>, newVal: T) => {
+				const newMessage = player.getSimpleRotation();
+				(newMessage[config.fieldName] as unknown as T) = newVal;
+				player.setSimpleRotation(newMessage);
+			}),
+		...storeBinding(config.storeSubscribe, config.storeField ?? 'rotation'),
+		extraClassNames: config.extraClassNames,
+	});
+};

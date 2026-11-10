@@ -17,6 +17,12 @@ const freshDatabase = async () => {
 
 const okResponse = () => ({ json: () => Promise.resolve({}) });
 
+const FIRST_SEEN_URL = '/forever/assets/database/item_first_seen.json';
+// `Database.get` fetches the first-seen stamps beside db.json; this answers them with no entries so
+// the inner mock sees and counts the db.json requests alone.
+const withFirstSeen = (respond: (url: string) => Promise<unknown>) =>
+	vi.fn((url: string) => (url === FIRST_SEEN_URL ? Promise.resolve(Response.json([])) : respond(url)));
+
 // `runAllTimersAsync` drains what is scheduled when it is called; the retry schedules its next
 // backoff from inside a rejection handler, so under load the third attempt can be scheduled after
 // the drain has already finished. Advancing until the call count settles is deterministic.
@@ -32,7 +38,7 @@ describe('Database.get', () => {
 
 	it('retries a failing load before giving up', async () => {
 		const fetchMock = vi.fn().mockRejectedValueOnce(new Error('boom')).mockRejectedValueOnce(new Error('boom')).mockResolvedValue(okResponse());
-		vi.stubGlobal('fetch', fetchMock);
+		vi.stubGlobal('fetch', withFirstSeen(fetchMock));
 
 		const Database = await freshDatabase();
 		const loaded = expect(Database.get()).resolves.toBeDefined();
@@ -46,7 +52,7 @@ describe('Database.get', () => {
 	// await the same failure, and the app could not recover.
 	it('does not memoize a failure — a later call tries again and can succeed', async () => {
 		const fetchMock = vi.fn().mockRejectedValue(new Error('offline'));
-		vi.stubGlobal('fetch', fetchMock);
+		vi.stubGlobal('fetch', withFirstSeen(fetchMock));
 
 		const Database = await freshDatabase();
 		// The assertion is attached before the timers run: `get()` rejects while they are draining,
@@ -71,7 +77,7 @@ describe('Database.get', () => {
 			'/forever/assets/database/leftover_db.json': { items: [{ id: 7, name: 'Grey Sword', scalingOptions: { 0: { ilvl: 5 } } }] },
 		};
 		const fetchMock = vi.fn((url: string) => Promise.resolve({ json: () => Promise.resolve(bodies[url]) }));
-		vi.stubGlobal('fetch', fetchMock);
+		vi.stubGlobal('fetch', withFirstSeen(fetchMock));
 
 		const Database = await freshDatabase();
 		const db = await Database.loadLeftoversIfNecessary(EquipmentSpec.create({ items: [ItemSpec.create({ id: 7 })] }));
@@ -83,13 +89,42 @@ describe('Database.get', () => {
 
 	it('shares one load between concurrent callers', async () => {
 		const fetchMock = vi.fn().mockResolvedValue(okResponse());
-		vi.stubGlobal('fetch', fetchMock);
+		vi.stubGlobal('fetch', withFirstSeen(fetchMock));
 
 		const Database = await freshDatabase();
 		const [a, b] = await Promise.all([Database.get(), Database.get()]);
 
 		expect(a).toBe(b);
 		expect(fetchMock).toHaveBeenCalledTimes(1);
+	}, 30000);
+
+	it('reads the first-seen stamps beside db.json', async () => {
+		const bodies: Record<string, unknown> = { '/forever/assets/database/db.json': {}, [FIRST_SEEN_URL]: [{ id: 7, firstSeen: 1700000000 }] };
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((url: string) => Promise.resolve(Response.json(bodies[url]))),
+		);
+
+		const Database = await freshDatabase();
+		const db = await Database.get();
+
+		expect(db.getItemFirstSeen(7)).toBe(1700000000);
+		expect(db.getItemFirstSeen(8)).toBeUndefined();
+	}, 30000);
+
+	it('loads with no stamps and one warning when the first-seen file is missing', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn((url: string) => Promise.resolve(url === FIRST_SEEN_URL ? new Response('Not found', { status: 404 }) : Response.json({}))),
+		);
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+		const Database = await freshDatabase();
+		const db = await Database.get();
+
+		expect(db.getItemFirstSeen(7)).toBeUndefined();
+		expect(warn).toHaveBeenCalledOnce();
+		warn.mockRestore();
 	}, 30000);
 
 	it('returns every row of an effect id once, across the slots it fits', async () => {
@@ -104,7 +139,7 @@ describe('Database.get', () => {
 			{ effectId: 1897, itemId: 3, name: 'Enchant Weapon - Superior Striking', type: ItemType.ItemTypeWeapon },
 			{ effectId: 849, itemId: 1, name: 'Enchant Cloak - Minor Agility', type: ItemType.ItemTypeBack },
 		];
-		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ json: () => Promise.resolve({ enchants }) }));
+		vi.stubGlobal('fetch', withFirstSeen(vi.fn().mockResolvedValue({ json: () => Promise.resolve({ enchants }) })));
 
 		const Database = await freshDatabase();
 		const db = await Database.get();

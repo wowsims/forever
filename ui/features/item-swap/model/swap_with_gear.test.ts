@@ -1,8 +1,16 @@
 import { ConsumesSpec, ItemSlot } from '@generated/proto/common';
 import type { Player } from '@sim/player/player';
-import { describe, expect, it } from 'vitest';
+import { DENSE_SHARPENING_STONE_ID, DENSE_WEIGHTSTONE_ID } from '@sim/proto/sim_tables_auto_gen';
+import { makeIndividualSim, serveDatabase } from '@testing/sim/individual_sim';
+import { MACE, swapSet, SWORD, weaponsDatabase } from '@testing/sim/weapons';
+import { makeEquipmentSpec } from '@testing/storybook/fixtures/protos';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { swapWithGear } from './swap_with_gear';
+
+vi.mock('@sim/workers/worker_pool', async () => (await import('@testing/sim/worker_pool')).idleWorkerPool());
+
+beforeAll(() => serveDatabase(weaponsDatabase()));
 
 type Items = Partial<Record<ItemSlot, string>>;
 
@@ -84,5 +92,18 @@ describe('swapWithGear', () => {
 		swapWithGear(player, [ItemSlot.ItemSlotMainHand]);
 
 		expect(imbuesOf(state.consumes)).toEqual([5, 2, 7, 4, 1, 6, 3, 8]);
+	});
+
+	it('keeps a stone that moves to a hand the other set leaves empty', async () => {
+		const { sim, player } = await makeIndividualSim();
+		player.setGear(sim.db.lookupEquipmentSpec(makeEquipmentSpec({ [ItemSlot.ItemSlotMainHand]: { id: SWORD }, [ItemSlot.ItemSlotOffHand]: { id: MACE } })));
+		player.itemSwapSettings.setItemSwapSettings(true, sim.db.lookupItemSwap(swapSet({ mainHand: MACE })));
+		player.setConsumes(ConsumesSpec.create({ mhImbueId: DENSE_SHARPENING_STONE_ID, ohImbueId: DENSE_WEIGHTSTONE_ID, swapMhImbueId: DENSE_WEIGHTSTONE_ID }));
+
+		swapWithGear(player, [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand]);
+
+		expect(player.itemSwapSettings.getItem(ItemSlot.ItemSlotOffHand)?.item.id).toBe(MACE);
+		expect(player.getEquippedItem(ItemSlot.ItemSlotOffHand)).toBeNull();
+		expect(imbuesOf(player.getConsumes())).toEqual([DENSE_WEIGHTSTONE_ID, 0, 0, 0, DENSE_SHARPENING_STONE_ID, DENSE_WEIGHTSTONE_ID, 0, 0]);
 	});
 });

@@ -1,0 +1,12 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"rotation": {
+			"type": "TypeSimple",
+			"simple": {
+				"specRotationJson": "{\"pullRange\": \"x\", \"useMulti\": true}"
+			}
+		}
+	}
+}

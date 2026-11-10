@@ -1,0 +1,9 @@
+siml 1
+spec hunter
+
+// An escape of a lone surrogate names no character, in a string and in raw JSON.
+var $pair = "😀"
+var $high = "\ud800"
+var $low = "x\udc00"
+var $reversed = "\udc00\ud800"
+var $raw = `{"const": {"val": "\ud800"}}`

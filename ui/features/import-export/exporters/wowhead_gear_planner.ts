@@ -97,6 +97,7 @@ function createWowheadGearPlannerLink(data: WowheadGearPlannerData): string {
 export const WOWHEAD_GEAR_PLANNER_EXPORTER: ExporterDefinition = {
 	title: i18n.t('export.wowhead.title'),
 	allowDownload: true,
+	holdsLink: true,
 	getData: host => {
 		const player = host.player;
 

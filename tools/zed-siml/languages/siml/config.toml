@@ -1,0 +1,21 @@
+name = "SIML"
+grammar = "siml"
+path_suffixes = ["siml"]
+line_comments = ["// ", "/// "]
+tab_size = 2
+hard_tabs = false
+word_characters = ["$", "%"]
+brackets = [
+	{ start = "(", end = ")", close = true, newline = true },
+	{ start = "[", end = "]", close = true, newline = true },
+	{ start = "\"", end = "\"", close = true, newline = false, not_in = [
+		"string",
+		"comment",
+	] },
+	{ start = "`", end = "`", close = true, newline = false, not_in = [
+		"string",
+		"comment",
+	] },
+]
+# The line after a section header, a group header or a when line is indented one level.
+increase_indent_pattern = '''^[A-Za-z_][A-Za-z0-9_]*\s*:\s*$|^group\s+"(?:[^"\\]|\\.)*"\s*:\s*$|^\s*#?\s*when\b.*:\s*$'''

@@ -13,7 +13,9 @@ type WeaponProc struct {
 	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N"
 }
 
-// Each rate is a carry-over, as its Source says; none has been measured on this server.
+// Each rate is a carry-over, as its Source says; none has been measured on this server. A hotfix that
+// adds back a weapon whose row was dropped needs the row restored from git history, or the database tests
+// that name the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  12798,
@@ -351,16 +353,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Dark Edge of Insanity: column reads 101",
 		Source:  "vanilla-carryover",
 	},
-	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
-	// has been measured on this server. Replace each with a measured rate (Source wcl:<report>/<fight> or
-	// issue #N) when logs exist.
-	{
-		ItemID:  1728,
-		SpellID: 1300753,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Teebu's Blazing Longsword: no proc row",
-		Source:  "vanilla-carryover",
-	},
 	{
 		ItemID:  1982,
 		SpellID: 18211,
@@ -372,7 +364,7 @@ var WeaponProcs = []WeaponProc{
 		ItemID:  2164,
 		SpellID: 18107,
 		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Gut Ripper: column reads 101",
+		Reason:  "Gut Ripper: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -396,6 +388,9 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Ravager: no proc row",
 		Source:  "vanilla-carryover",
 	},
+	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
+	// has been measured on this server. Replace each with a measured rate (Source wcl:<report>/<fight> or
+	// issue #N) when logs exist.
 	{
 		ItemID:  9651,
 		SpellID: 18081,

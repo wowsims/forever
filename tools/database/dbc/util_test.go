@@ -24,6 +24,46 @@ func TestGetRacesFromRaceMask(t *testing.T) {
 	}
 }
 
+// Goblin and Draenei are not playable races, so their bits restrict nothing.
+func TestGetFactionRestrictionFromRaceMask(t *testing.T) {
+	for _, tc := range []struct {
+		mask int64
+		want proto.UIItem_FactionRestriction
+	}{
+		{int64(Tauren | Goblin), proto.UIItem_FACTION_RESTRICTION_HORDE_ONLY},
+		{int64(Human | Dwarf | NightElf | Gnome | Draenei), proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY},
+		{int64(HighOrderSkyborne), proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY},
+		{int64(WindshaperSkyborne), proto.UIItem_FACTION_RESTRICTION_HORDE_ONLY},
+		{int64(Human | Orc), proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED},
+		{int64(Goblin | Draenei), proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED},
+		{-1, proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED},
+		{0, proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED},
+	} {
+		if got := GetFactionRestrictionFromRaceMask(tc.mask); got != tc.want {
+			t.Errorf("mask %#x: %v, want %v", tc.mask, got, tc.want)
+		}
+	}
+}
+
+// The faction flags decide before the race mask does.
+func TestParseItemFlagsFactionRestriction(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		item Item
+		want proto.UIItem_FactionRestriction
+	}{
+		{"horde flag over an alliance mask", Item{Flags1: HORDE_SPECIFIC, RaceMask: int64(Human)}, proto.UIItem_FACTION_RESTRICTION_HORDE_ONLY},
+		{"alliance mask without a flag", Item{RaceMask: int64(Human | Gnome)}, proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY},
+		{"every race without a flag", Item{RaceMask: -1}, proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED},
+	} {
+		uiItem := &proto.UIItem{}
+		tc.item.ParseItemFlags(uiItem)
+		if uiItem.FactionRestriction != tc.want {
+			t.Errorf("%s: %v, want %v", tc.name, uiItem.FactionRestriction, tc.want)
+		}
+	}
+}
+
 // Bit n-1 is class n; bits of classes no player can be (6, 10, 12-15) drop out.
 func TestGetClassesFromClassMask(t *testing.T) {
 	for _, tc := range []struct {

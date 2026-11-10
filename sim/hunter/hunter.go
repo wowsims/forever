@@ -12,6 +12,13 @@ var TalentTreeSizes = [3]int{16, 16, 18}
 
 var autoShotRank = spellData.AutoShot.Highest()
 
+// TODO: In-game testing required. In game Multi-Shot and Aimed Shot hit 9 harder than the rows'
+// normalised weapon damage across the whole weapon roll, and Auto Shot hits for its own; the game
+// files state no such bonus. The 9 was read at levels 34 and 36, where a flat bonus and one that
+// grows with ranged attack power predict the same hits. Sniper Shot, the third normalised shot, was
+// not in the logs and takes none.
+const normalizedShotBonus = 9
+
 type Hunter struct {
 	core.Character
 
@@ -26,7 +33,6 @@ type Hunter struct {
 	RaptorStrike      *core.Spell
 	raptorStrikeQueue *core.Aura
 
-	AspectOfTheHawkAura  *core.Aura
 	AspectOfTheBeastAura *core.Aura
 	MongooseBiteAura     *core.Aura
 
@@ -50,7 +56,7 @@ func RegisterHunter() {
 		func(character *core.Character, options *proto.Player, raid *proto.Raid) core.Agent {
 			return NewHunter(character, options, options.GetHunter().Options.ClassOptions, raid)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_Hunter)
 			if !ok {
 				panic("Invalid spec value for Hunter!")
@@ -67,7 +73,7 @@ func NewHunter(character *core.Character, options *proto.Player, hunterOptions *
 		Options:   hunterOptions,
 	}
 
-	core.FillTalentsProto(hunter.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
+	hunter.FillTalentsProto(hunter.Talents.ProtoReflect(), options.TalentsString, TalentTreeSizes)
 
 	// The hunter casts its own mark, so a raid's permanent one would credit it before the cast.
 	if raid.Debuffs != nil {
@@ -117,6 +123,7 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerAimedShot()
 	hunter.registerArcaneShot()
 	hunter.registerMultiShot()
+	hunter.registerVolley()
 	hunter.registerSerpentSting()
 	hunter.registerTraps()
 	hunter.registerScorpidSting()
@@ -144,11 +151,18 @@ func (hunter *Hunter) stingTag() string {
 	return "Sting-" + hunter.Label
 }
 
-// One sting per hunter on a target: applying either sting drops the hunter's other one.
+// One sting per hunter on a target: applying either sting drops the hunter's other one. Two ranks of Serpent Sting
+// are the dot's rank group's to settle, which keeps the higher.
 func dropOtherSting(sim *core.Simulation, sting *core.Aura) {
-	if active := sting.Unit.GetActiveAuraWithTag(sting.Tag); active != nil && active != sting {
-		active.Deactivate(sim)
+	active := sting.Unit.GetActiveAuraWithTag(sting.Tag)
+	if active == nil || active == sting || (isSerpentSting(active) && isSerpentSting(sting)) {
+		return
 	}
+	active.Deactivate(sim)
+}
+
+func isSerpentSting(aura *core.Aura) bool {
+	return aura.ActionID.SpellID == serpentStingTrainerRank.ID || aura.ActionID.SpellID == serpentStingBookRank.ID
 }
 
 func (hunter *Hunter) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {

@@ -10,6 +10,8 @@ type APLAction struct {
 	condition APLValue
 	impl      APLActionImpl
 	spell     *Spell // The spell a cast action casts or queues, whose queue check runs before the condition.
+	entryPath string // The path of the config entry the action runs for; empty outside APL rotations.
+	rot       *APLRotation
 }
 
 func (action *APLAction) Finalize(rot *APLRotation) {
@@ -33,8 +35,33 @@ func (action *APLAction) heldByQueuedSpell(sim *Simulation) bool {
 	return action.spell != nil && action.spell.heldByQueuedSpell(sim)
 }
 
+// Whether the action casts spell, itself or one its class spell mask names.
+func (action *APLAction) casts(spell *Spell) bool {
+	return action.spell != nil && (action.spell == spell || action.spell.Matches(spell.ClassSpellMask))
+}
+
 func (action *APLAction) Execute(sim *Simulation) {
+	if sim.aplActionExecuted != nil {
+		sim.aplActionExecuted(sim, action)
+	}
+	if sim.Log != nil {
+		action.executeLogged(sim)
+		return
+	}
 	action.impl.Execute(sim)
+}
+
+// While the sim logs, the action's entry path is the rotation's running entry path until the action returns.
+func (action *APLAction) executeLogged(sim *Simulation) {
+	rot := action.rot
+	if rot == nil {
+		action.impl.Execute(sim)
+		return
+	}
+	outer := rot.runningEntryPath
+	rot.runningEntryPath = action.entryPath
+	action.impl.Execute(sim)
+	rot.runningEntryPath = outer
 }
 
 // Returns this Action, along with all inner Actions.
@@ -123,8 +150,8 @@ type APLActionImpl interface {
 	// Called only while this action is controlling the rotation.
 	GetNextAction(sim *Simulation) *APLAction
 
-	// Re-resolve variable references with updated group variables.
-	ReResolveVariableRefs(*APLRotation, map[string]*proto.APLValue)
+	// Swaps each value this action holds in its own fields for what replace gives for it.
+	ReplaceAPLValues(replace func(APLValue) APLValue)
 
 	// Pretty-print string for debugging.
 	String() string
@@ -134,13 +161,13 @@ type APLActionImpl interface {
 type defaultAPLActionImpl struct {
 }
 
-func (impl defaultAPLActionImpl) GetInnerActions() []*APLAction                                  { return nil }
-func (impl defaultAPLActionImpl) GetAPLValues() []APLValue                                       { return nil }
-func (impl defaultAPLActionImpl) Finalize(*APLRotation)                                          {}
-func (impl defaultAPLActionImpl) PostFinalize(*APLRotation)                                      {}
-func (impl defaultAPLActionImpl) Reset(*Simulation)                                              {}
-func (impl defaultAPLActionImpl) GetNextAction(*Simulation) *APLAction                           { return nil }
-func (impl defaultAPLActionImpl) ReResolveVariableRefs(*APLRotation, map[string]*proto.APLValue) {}
+func (impl defaultAPLActionImpl) GetInnerActions() []*APLAction            { return nil }
+func (impl defaultAPLActionImpl) GetAPLValues() []APLValue                 { return nil }
+func (impl defaultAPLActionImpl) Finalize(*APLRotation)                    {}
+func (impl defaultAPLActionImpl) PostFinalize(*APLRotation)                {}
+func (impl defaultAPLActionImpl) Reset(*Simulation)                        {}
+func (impl defaultAPLActionImpl) GetNextAction(*Simulation) *APLAction     { return nil }
+func (impl defaultAPLActionImpl) ReplaceAPLValues(func(APLValue) APLValue) {}
 
 func (rot *APLRotation) newAPLAction(config *proto.APLAction) *APLAction {
 	if config == nil {
@@ -179,32 +206,22 @@ func newAPLActionEntry(condition APLValue, impl APLActionImpl) *APLAction {
 	action := &APLAction{
 		condition: condition,
 		impl:      impl,
+		spell:     castSpellOf(impl),
 	}
 	switch impl := impl.(type) {
-	case *APLActionCastSpell:
-		action.spell = impl.spell
-	case *APLActionCastFriendlySpell:
-		action.spell = impl.spell
-	case *APLActionChannelSpell:
-		action.spell = impl.spell
-	case *APLActionMultidot:
-		action.spell = impl.spell
-	case *APLActionMultishield:
-		action.spell = impl.spell
 	case *APLActionStrictMultidot:
 		impl.entry = action
-		action.spell = impl.spell
 	case *APLActionGroupReference:
+		impl.entry = action
+	case *APLActionMove:
 		impl.entry = action
 	}
 	return action
 }
 
 func removeFromMajorCooldowns(action APLActionImpl, character *Character) {
-	if castSpellAction, ok := action.(*APLActionCastSpell); ok {
-		character.removeInitialMajorCooldown(castSpellAction.spell.ActionID)
-	} else if castFriendlySpellAction, ok := action.(*APLActionCastFriendlySpell); ok {
-		character.removeInitialMajorCooldown(castFriendlySpellAction.spell.ActionID)
+	if spell := castSpellOf(action); spell != nil {
+		character.removeInitialMajorCooldown(spell.ActionID)
 	}
 }
 

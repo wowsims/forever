@@ -8,6 +8,13 @@ import "shaman.proto";
 import "warlock.proto";
 
 // Rotation options are based heavily on APL. See https://github.com/simulationcraft/simc/wiki/ActionLists.
+//
+// SIML (sim/siml/SPEC.md §8) writes every action and value kind here from this file, so a new kind needs no SIML
+// edit. After a change here, run `make siml`, which writes the wowsims-siml skill again and checks the .siml files
+// under ui/specs. Taking out or renaming a kind or a field breaks the .siml files that use it: the check names them, and
+// they take the new form by hand. For the short accessor form `[unit.]aura(x).prop`, name a value kind
+// `<head>_<prop>` (heads aura, dot, spell, boss_spell, sequence) and give it one ActionID field (one string for
+// sequence) and at most one UnitReference; any other kind is written `kind(field=value, …)`.
 
 message APLRotation {
     enum Type {
@@ -100,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 138
+// NextIndex: 148
 message APLValue {
 	UUID uuid = 85;
 
@@ -123,12 +130,17 @@ message APLValue {
         APLValueIsExecutePhase is_execute_phase = 41;
         APLValueNumberTargets number_targets = 28;
         APLValueEncounterInArea encounter_in_area = 134;
+        APLValueTargetIsActive target_is_active = 31;
+        APLValueNumActiveAdds num_active_adds = 32;
+        APLValueTimeUntilTargetActive time_until_target_active = 33;
+        APLValueTimeUntilTargetDies time_until_target_dies = 34;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
         APLValueBossSpellIsCasting boss_spell_is_casting = 65;
         APLValueBossCurrentTarget boss_current_target = 120;
         APLValueTargetIsMobType target_is_mob_type = 133;
+        APLValueTargetIsBleedImmune target_is_bleed_immune = 143;
 
         // Resource values
         APLValueCurrentHealth current_health = 26;
@@ -165,12 +177,14 @@ message APLValue {
         // Spell values
         APLValueSpellIsKnown spell_is_known = 74;
         APLValueSpellCanCast spell_can_cast = 19;
+        APLValueSpellInRange spell_in_range = 142;
         APLValueSpellIsReady spell_is_ready = 20;
         APLValueSpellTimeToReady spell_time_to_ready = 21;
         APLValueSpellCastTime spell_cast_time = 35;
         APLValueSpellTravelTime spell_travel_time = 37;
         APLValueSpellCPM spell_cpm = 42;
         APLValueSpellIsCasting spell_is_casting = 30;
+        APLValueRemainingCastTime remaining_cast_time = 147;
         APLValueSpellIsChanneling spell_is_channeling = 56;
         APLValueSpellChanneledTicks spell_channeled_ticks = 57;
         APLValueSpellCurrentCost spell_current_cost = 62;
@@ -183,10 +197,16 @@ message APLValue {
         APLValueSpellIsHitCapped spell_is_hit_capped = 25;
         APLValueSpellIsExpertiseCapped spell_is_expertise_capped = 29;
 
+        // Talent values
+        APLValueTalentIsKnown talent_is_known = 140;
+        APLValueTalentRank talent_rank = 141;
+
         // Aura values
         APLValueAuraIsKnown aura_is_known = 73;
         APLValueAuraIsActive aura_is_active = 22;
         APLValueAuraIsInactive aura_is_inactive = 107;
+        APLValueAuraIsActiveOnAllTargets aura_is_active_on_all_targets = 144;
+        APLValueAuraIsActiveOnAnyTarget aura_is_active_on_any_target = 145;
         APLValueAuraRemainingTime aura_remaining_time = 23;
         APLValueAuraNumStacks aura_num_stacks = 24;
         APLValueAuraInternalCooldown aura_internal_cooldown = 39;
@@ -208,6 +228,7 @@ message APLValue {
         // Dot values
         APLValueDotIsActive dot_is_active = 6;
         APLValueDotIsActiveOnAllTargets dot_is_active_on_all_targets = 103;
+        APLValueDotIsActiveOnAnyTarget dot_is_active_on_any_target = 146;
         APLValueDotRemainingTime dot_remaining_time = 13;
         APLValueDotLowestRemainingTime dot_lowest_remaining_time = 104;
         APLValueDotTickFrequency dot_tick_frequency = 67;
@@ -231,6 +252,8 @@ message APLValue {
 APLValueWarlockAssignedCurseIsActive warlock_assigned_curse_is_active = 59;
 		APLValueWarlockIsAssignedCurse warlock_is_assigned_curse = 129;
 		APLValueWarlockActivePet warlock_active_pet = 135;
+		APLValueWarlockBaneIsActiveOnAllTargets warlock_bane_is_active_on_all_targets = 138;
+		APLValueWarlockAssignedCurseIsActiveOnAllTargets warlock_assigned_curse_is_active_on_all_targets = 139;
 		APLValueProtectionPaladinDamageTakenLastGlobal protection_paladin_damage_taken_last_global = 100;
 		APLValueDruidBleedIsActive druid_bleed_is_active = 68;
 		APLValueDruidExcessEnergy druid_excess_energy = 137;
@@ -386,6 +409,9 @@ message APLActionGuardianHotwDpsRotation {
 
 message APLActionMove {
     APLValue range_from_target = 1;
+    // While the walk is under way, the rotation looks again every reaction time: the walk stops where it is once
+    // the action's condition is false, and turns to the new range once the range changes.
+    bool recheck_while_moving = 2;
 }
 
 message APLActionMoveDuration {
@@ -484,6 +510,17 @@ message APLValueIsExecutePhase {
         reserved "E25", "E45", "E90";
     }
     ExecutePhaseThreshold threshold = 1;
+    UnitReference target_unit = 2;
+}
+message APLValueTargetIsActive {
+    UnitReference target_unit = 1;
+}
+message APLValueNumActiveAdds {}
+message APLValueTimeUntilTargetActive {
+    UnitReference target_unit = 1;
+}
+message APLValueTimeUntilTargetDies {
+    UnitReference target_unit = 1;
 }
 
 message APLValueBossSpellTimeToReady {
@@ -500,6 +537,9 @@ message APLValueBossCurrentTarget {
 message APLValueTargetIsMobType {
     UnitReference target_unit = 1;
     MobType mob_type = 2;
+}
+message APLValueTargetIsBleedImmune {
+    UnitReference target_unit = 1;
 }
 message APLValueEncounterInArea {
     AreaType area_type = 1;
@@ -578,7 +618,21 @@ message APLValueAutoTimeSinceLast {
 message APLValueSpellIsKnown {
     ActionID spell_id = 1;
 }
+// True when the player holds the talent at the id's rank or higher. The id is the talent's spell
+// (the talent_spell_id option on its field) with the rank in its rank field.
+message APLValueTalentIsKnown {
+    ActionID talent_id = 1;
+}
+// The rank the player holds in the talent, 0 without points. The id's rank is not read.
+message APLValueTalentRank {
+    ActionID talent_id = 1;
+}
 message APLValueSpellCanCast {
+    ActionID spell_id = 1;
+}
+// True while the unit stands within the spell's range: no closer than its minimum and no farther than its
+// maximum after range mods. A spell with no range is always in range.
+message APLValueSpellInRange {
     ActionID spell_id = 1;
 }
 message APLValueSpellIsReady {
@@ -606,6 +660,7 @@ message APLValueSpellCPM {
 message APLValueSpellIsCasting {
     ActionID spell_id = 1;
 }
+message APLValueRemainingCastTime {}
 message APLValueSpellIsChanneling {
     ActionID spell_id = 1;
 }
@@ -654,6 +709,14 @@ message APLValueAuraIsInactive {
     UnitReference source_unit = 2;
     ActionID aura_id = 1;
 	bool include_reaction_time = 3;
+}
+message APLValueAuraIsActiveOnAllTargets {
+    ActionID aura_id = 1;
+	bool include_reaction_time = 2;
+}
+message APLValueAuraIsActiveOnAnyTarget {
+    ActionID aura_id = 1;
+	bool include_reaction_time = 2;
 }
 message APLValueAuraRemainingTime {
     UnitReference source_unit = 2;
@@ -742,6 +805,9 @@ message APLValueDotIsActive {
 message APLValueDotIsActiveOnAllTargets {
     ActionID spell_id = 1;
 }
+message APLValueDotIsActiveOnAnyTarget {
+    ActionID spell_id = 1;
+}
 message APLValueDotRemainingTime {
     UnitReference target_unit = 2;
     ActionID spell_id = 1;
@@ -782,6 +848,10 @@ message APLValueWarlockIsAssignedCurse {
 message APLValueWarlockActivePet {
 	WarlockOptions.Summon summon = 1;
 }
+// True while one of the warlock's Banes is on every target that is up: a target holds one Bane at a time.
+message APLValueWarlockBaneIsActiveOnAllTargets {}
+// True while the assigned curse is on every target that is up; false with no curse assigned.
+message APLValueWarlockAssignedCurseIsActiveOnAllTargets {}
 // True while one of the druid's bleeds is up on the target, or while the druid assumes a bleed.
 message APLValueDruidBleedIsActive {
 	UnitReference target_unit = 1;
@@ -833,6 +903,7 @@ message APLValueActiveItemSwapSet {
 
 message APLValueSelectedPotion {
 	ActionID potion_id = 1;
+	OtherAction slot = 2; // The potion placeholder whose pick to read; unset reads every slot.
 }
 
 message APLValueSelectedConjured {

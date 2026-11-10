@@ -1,0 +1,5 @@
+siml 1
+
+// A file with no spec line reads the shared spells and auras only.
+cooldowns(id=shared_shot, timings=[30])
+cooldowns(id=jom_gabbar)

@@ -1,21 +1,20 @@
 /** @type {import('vite').UserConfig} */
 
 import fs from 'fs';
-import { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'http';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
-import { ConfigEnv, defineConfig, PluginOption, UserConfigExport } from 'vite';
+import { type ConfigEnv, defineConfig, type PluginOption, type UserConfigExport } from 'vite';
 import { watchAndRun } from 'vite-plugin-watch-and-run';
 import { checker } from 'vite-plugin-checker';
 import i18nextLoader from 'vite-plugin-i18next-loader';
 
-import { readBuildInfo } from './tools/vite/build_info.mjs';
-import { SPEC_PAGE_TEMPLATE, specPages } from './tools/vite/spec_pages.mjs';
+import { readBuildInfo } from './tools/vite/build_info.mts';
+import { simlPlugin } from './tools/vite/siml.mts';
+import { SPEC_PAGE_TEMPLATE, specPages } from './tools/vite/spec_pages.mts';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = import.meta.dirname;
 
 export const BASE_PATH = path.resolve(__dirname, 'ui');
 export const OUT_DIR = path.join(__dirname, 'dist', 'forever');
@@ -42,6 +41,7 @@ function serveExternalAssets() {
 		'/forever/net_worker.js': '/forever/net_worker.js',
 		'/forever/lib.wasm.gz': '/forever/lib.wasm.gz',
 		'/forever/highs.wasm': '/forever/highs.wasm',
+		'/forever/siml_names.json': '/forever/siml_names.json',
 	};
 
 	return {
@@ -125,7 +125,6 @@ export const getBaseConfig = ({ command, mode }: ConfigEnv) =>
 			outDir: OUT_DIR,
 			minify: mode === 'development' ? false : 'oxc',
 			sourcemap: command === 'serve' ? 'inline' : false,
-			target: ['es2020'],
 		},
 	}) satisfies Partial<UserConfigExport>;
 
@@ -162,7 +161,16 @@ export default defineConfig(({ command, mode }) => {
 				},
 			]),
 			serveExternalAssets(),
+			// The commit of this build, which open pages compare with their own (ui/app/new_build.tsx).
+			{
+				name: 'build-version',
+				apply: 'build',
+				generateBundle() {
+					this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ commit: buildInfo.commit }) });
+				},
+			},
 			specPages(BASE_PATH),
+			simlPlugin(),
 			checker({
 				root: BASE_PATH,
 				typescript: { root: __dirname, tsconfigPath: 'tsconfig.json' },

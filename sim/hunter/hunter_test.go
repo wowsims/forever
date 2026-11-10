@@ -14,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	googleProto "google.golang.org/protobuf/proto"
 
@@ -45,11 +46,15 @@ func TestHunter(t *testing.T) {
 			Consumables:      DefaultConsumables,
 			SpecOptions:      core.SpecOptionsCombo{Label: "Default", SpecOptions: DefaultOptions},
 			StartingDistance: 12,
+			ReactionTimeMs:   250,
 			Profession1:      proto.Profession_Engineering,
 			Profession2:      proto.Profession_Blacksmithing,
 
-			Rotation:       core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"),
-			OtherRotations: []core.RotationCombo{core.GetAplRotation("../../ui/specs/hunter/dps/apls", "clean_weave")},
+			Rotation: core.GetAplRotation("../../ui/specs/hunter/dps/apls", "default"),
+			OtherRotations: []core.RotationCombo{
+				core.GetAplRotation("../../ui/specs/hunter/dps/apls", "clean_weave"),
+				core.RotationWithSpellIds("default_book_ranks", weaveRotation, map[int32]int32{13555: 25295, 14322: 25296}),
+			},
 
 			ItemFilter: core.ItemFilter{
 				ArmorType: proto.ArmorType_ArmorTypeMail,
@@ -109,6 +114,7 @@ func TestHunterPets(t *testing.T) {
 			SpecOptions:      families[0],
 			OtherSpecOptions: families[1:],
 			StartingDistance: 12,
+			ReactionTimeMs:   250,
 			Rotation:         turretRotation,
 			ItemFilter:       core.ItemFilter{ArmorType: proto.ArmorType_ArmorTypeMail},
 		},
@@ -238,7 +244,7 @@ func TestEachHunterKeepsOneStingPerTarget(t *testing.T) {
 	other := sim.Raid.Parties[0].Players[1].(*Hunter)
 	target := sim.Encounter.AllTargetUnits[0]
 
-	serpent := hunter.GetSpell(core.ActionID{SpellID: serpentStingRank.ID}).Dot(target)
+	serpent := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(target)
 	scorpid := target.GetAura("Scorpid Sting-" + hunter.Label)
 	otherScorpid := target.GetAura("Scorpid Sting-" + other.Label)
 
@@ -490,8 +496,7 @@ func TestSurvivalistsDisciplineShortensTheTrapCooldown(t *testing.T) {
 	}
 }
 
-// An Auto Shot that comes due while the hunter moves winds up a reaction time after the move ends,
-// as the player starts it again by hand, not at the hidden retry timer's next check.
+// An Auto Shot that comes due while the hunter moves winds up a reaction time after the move ends.
 func TestAutoShotWindsUpWhenTheMoveEnds(t *testing.T) {
 	player := &proto.Player{
 		Name:               "Shot",
@@ -523,7 +528,7 @@ func TestAutoShotWindsUpWhenTheMoveEnds(t *testing.T) {
 	for i := 0; sim.CurrentTime <= recast && i < 10000; i++ {
 		sim.Step()
 	}
-	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+core.RangedSwingWindup; got != want {
+	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+hunter.ApplyRangedSpeed(core.RangedSwingWindup); got != want {
 		t.Errorf("a shot due at %v during a move that ended at %v fires at %v, want %v", due, moveEnd, got, want)
 	}
 }
@@ -554,14 +559,16 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 		sim.Step()
 	}
 
-	// Into melee before the next shot, then out to the minimum range, arriving after it came due.
-	hunter.MoveTo(core.MaxMeleeRange, sim)
+	// Into the deadzone past melee range, where no melee swing restarts the shot, before the next
+	// shot, then out to the minimum range, arriving after it came due.
+	deadzone := core.MaxMeleeRange + 1
+	hunter.MoveTo(deadzone, sim)
 	for i := 0; hunter.Moving && i < 10000; i++ {
 		sim.Step()
 	}
 	due := hunter.AutoAttacks.NextRangedAttackAt()
 	hunter.MoveTo(core.MinRangedRange, sim)
-	walkEnd := sim.CurrentTime + time.Duration((core.MinRangedRange-core.MaxMeleeRange)/hunter.GetMovementSpeed()*float64(time.Second))
+	walkEnd := sim.CurrentTime + time.Duration((core.MinRangedRange-deadzone)/hunter.GetMovementSpeed()*float64(time.Second))
 	if walkEnd <= due {
 		t.Fatalf("the walk out ends at %v, before the shot comes due at %v", walkEnd, due)
 	}
@@ -569,8 +576,43 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 	for i := 0; sim.CurrentTime <= recast && i < 10000; i++ {
 		sim.Step()
 	}
-	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+core.RangedSwingWindup; (got - want).Abs() > time.Millisecond {
+	if got, want := hunter.AutoAttacks.NextRangedAttackAt(), recast+hunter.ApplyRangedSpeed(core.RangedSwingWindup); (got - want).Abs() > time.Millisecond {
 		t.Errorf("a walk out ending on the minimum range at %v fires its shot at %v, want %v", walkEnd, got, want)
+	}
+}
+
+// A main-hand swing restarts Auto Shot: the next shot fires one full ranged swing after the melee
+// swing, the windup included.
+func TestMeleeSwingRestartsAutoShot(t *testing.T) {
+	player := &proto.Player{
+		Name:               "Swing",
+		Race:               proto.Race_RaceOrc,
+		Class:              proto.Class_ClassHunter,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		TalentsString:      DefaultMMTalents,
+		Spec:               DefaultOptions,
+		Rotation:           &proto.APLRotation{},
+		DistanceFromTarget: core.MaxMeleeRange,
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	sim.PrePull()
+	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
+	for i := 0; sim.CurrentTime < time.Second && i < 10000; i++ {
+		sim.Step()
+	}
+
+	swing := hunter.AutoAttacks.MainhandSwingAt()
+	for i := 0; hunter.AutoAttacks.MainhandPreviousSwing() < swing && i < 10000; i++ {
+		sim.Step()
+	}
+	want := swing + hunter.AutoAttacks.RangedSwingSpeed() - hunter.ApplyRangedSpeed(core.RangedSwingWindup)
+	if got := hunter.AutoAttacks.NextRangedAttackAt(); got != want {
+		t.Errorf("after a melee swing at %v the next Auto Shot winds up at %v, want %v", swing, got, want)
 	}
 }
 
@@ -619,6 +661,49 @@ func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 	}
 }
 
+// The trainer's top rank of Aspect of the Hawk takes the book rank's place and procs Quick Shots under Deadly
+// Aspects. The book rank of Serpent Sting replaces the trainer's, and the trainer's does not land under it.
+func TestTrainerRanksBesideBookRanks(t *testing.T) {
+	sim, hunter := newTalentSim("5", proto.HunterOptions_PetNone)
+	target := hunter.CurrentTarget
+
+	hawkAura := func(rank *spelldata.Spell) *core.Aura {
+		return hunter.GetAuraByID(core.ActionID{SpellID: rank.ID})
+	}
+	castHawk := func(rank *spelldata.Spell) {
+		hunter.GetSpell(core.ActionID{SpellID: rank.ID}).SkipCastAndApplyEffects(sim, target)
+	}
+	castHawk(aspectOfTheHawkBookRank)
+	castHawk(aspectOfTheHawkTrainerRank)
+	if !hawkAura(aspectOfTheHawkTrainerRank).IsActive() || hawkAura(aspectOfTheHawkBookRank).IsActive() {
+		t.Error("the trainer's Aspect of the Hawk left the book rank up, want one aspect at a time")
+	}
+
+	quickShotsAura := hunter.GetAuraByID(core.ActionID{SpellID: quickShots.ID})
+	for range 500 {
+		if quickShotsAura.IsActive() {
+			break
+		}
+		hunter.AutoAttacks.RangedAuto().SkipCastAndApplyEffects(sim, target)
+	}
+	if !quickShotsAura.IsActive() {
+		t.Error("500 Auto Shots under the trainer's Aspect of the Hawk procced no Quick Shots")
+	}
+
+	trainerSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingTrainerRank.ID}).Dot(target)
+	bookSting := hunter.GetSpell(core.ActionID{SpellID: serpentStingBookRank.ID}).Dot(target)
+	trainerSting.Apply(sim)
+	bookSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the book rank's Serpent Sting left the trainer's up, want it to replace the trainer's")
+	}
+	dropOtherSting(sim, trainerSting.Aura)
+	trainerSting.Apply(sim)
+	if trainerSting.IsActive() || !bookSting.IsActive() {
+		t.Error("the trainer's Serpent Sting landed under the book rank, want it refused")
+	}
+}
+
 // One combo per pet family, fully trained.
 // The default rotation with its "Melee weave" variable turned off: the hunter stays at range.
 func stopWeaving(rotation *proto.APLRotation) {
@@ -649,7 +734,6 @@ func petOptions() []core.SpecOptionsCombo {
 							PetType:        petType,
 							PetUptime:      1,
 							CobraReflexes:  true,
-							PetAggression:  5,
 							PetAttackSpeed: proto.HunterOptions_FasterAttackII,
 						},
 					},

@@ -1,18 +1,21 @@
+import { type AplRun, runRotation } from '@features/apl/model/apl_entry';
+import { APLRotation } from '@generated/proto/apl';
 import i18n from '@i18n/config';
+import { usePlayer } from '@sim/context/SimHostContext';
 import type { UnitMetrics } from '@sim/proto/sim_result';
+import { memoLast } from '@sim/utils/misc';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Icon } from '@ui-kit/Icon';
 import { NOTICE_COLOR } from '@ui-kit/Notice';
 import { useEffect, useMemo, useState } from 'react';
 
-import { useSimResult } from '../../hooks/useSimResult';
+import { useHeldSimResult } from '../../hooks/useHeldSimResult';
 import { buildRotationModel } from '../../model/timeline/rotation';
 import { chartSpec } from './chart/build';
 import { TimelineChart } from './chart/TimelineChart';
 import { ChartViewPicker } from './ChartViewPicker';
 import { RotationTrack } from './rotation/RotationTrack';
 import type { ChartView } from './utils';
-import { resultKey } from './utils';
 
 export interface TimelineProps {
 	/** The timeline tab is open. While it is not, a finished run is held rather than drawn. */
@@ -20,23 +23,25 @@ export interface TimelineProps {
 }
 
 export const Timeline = ({ active }: TimelineProps) => {
-	const live = useSimResult();
-	const [shown, setShown] = useState<ReturnType<typeof useSimResult>>(null);
+	const shown = useHeldSimResult(active);
 	const [view, setView] = useState<ChartView>('rotation');
 	// GCD spans are model rows and model items, not a CSS overlay: a row hidden with display still
 	// owns its height in the windower's prefix sums. So the toggle rebuilds the model.
 	const [showGcd, setShowGcd] = useState(false);
 
-	// Two emits carrying the same run under the same filter draw the same timeline, so the result the
-	// view holds only changes when its key does — which is what keeps a re-emit from rebuilding the model.
-	useEffect(() => {
-		if (!active || !live) return;
-		setShown(prev => (resultKey(prev) === resultKey(live) ? prev : live));
-	}, [active, live]);
-
 	// A cleared result still emits, with an empty raid.
 	const player = useMemo(() => (shown ? (shown.result.getRaidIndexedPlayers(shown.filter)[0] ?? null) : null), [shown]);
 	const duration = shown ? shown.result.result.firstIterationDuration || 1 : 1;
+
+	const simPlayer = usePlayer();
+	const aplRun = useMemo((): AplRun | undefined => {
+		const rotation = shown && player ? runRotation(shown.result, player) : undefined;
+		if (!rotation) return undefined;
+		// The editor changes the rotation in place, so its counter in the store is the only sign of an edit.
+		const version = () => simPlayer.sim.store.getState().players[simPlayer.storeKey]?.v.rotation;
+		const compared = memoLast<boolean>();
+		return { rotation, changedSinceRun: () => compared([version()], () => !APLRotation.equals(rotation, simPlayer.getResolvedAplRotation(true))) };
+	}, [shown, player, simPlayer]);
 
 	// The unit walk is inside the guard, not beside it: a result the model cannot be built from
 	// leaves the rotation empty rather than taking the whole Results tab down with it.
@@ -90,7 +95,7 @@ export const Timeline = ({ active }: TimelineProps) => {
 					</div>
 				) : (
 					<div className="m-auto" data-testid="rotation-plot">
-						<RotationTrack model={model} active={active} />
+						<RotationTrack model={model} active={active} aplRun={aplRun} />
 					</div>
 				)}
 			</div>

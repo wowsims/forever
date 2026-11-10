@@ -1,0 +1,6 @@
+{
+	"enchants": { "a": { "effectId": 1, "slots": ["head", "main_hand"] } },
+	"items": { "a": 1 },
+	"shared": { "aura": { "a": { "spellId": 1, "registeredBy": [] } }, "spell": { "a": { "spellId": 2, "registeredBy": [] } } },
+	"suffixes": { "a": 1 }
+}

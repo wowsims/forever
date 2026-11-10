@@ -1,5 +1,5 @@
 @layer components {
 	.ui-social-link {
-		@apply text-white hover:text-brand focus:text-brand;
+		@apply text-white hover:text-brand focus-visible:text-brand;
 	}
 }

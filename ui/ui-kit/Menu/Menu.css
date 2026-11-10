@@ -5,7 +5,9 @@
 		&:where(:not([data-bare])) {
 			@apply px-2 py-1;
 
-			&[data-highlighted] {
+			&[data-highlighted],
+			&[data-popup-open],
+			&:hover:not([data-disabled]) {
 				@apply bg-surface-hover;
 			}
 		}

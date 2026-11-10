@@ -1,0 +1,8 @@
+1:1 error bad-character
+1:1 error missing-version
+2:1 error misplaced-statement
+8:10 error write-not
+9:3 error bad-character
+10:10 error expected-if
+10:14 error write-not
+11:22 error write-not

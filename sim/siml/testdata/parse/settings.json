@@ -1,0 +1,59 @@
+{
+	"tanks": [
+		{
+			"type": "Player"
+		},
+		{
+			"type": "Target",
+			"index": 1
+		},
+		{
+			"type": "Pet",
+			"index": 1,
+			"owner": {
+				"type": "Player"
+			}
+		}
+	],
+	"player": {
+		"name": "Main",
+		"race": "RaceUndead",
+		"class": "ClassWarlock",
+		"warlock": {
+			"options": {
+				"classOptions": {
+					"summon": "Imp",
+					"armor": "DemonArmor",
+					"curseOptions": "Recklessness",
+					"sacrificedDemon": "Succubus",
+					"soulShards": 8
+				}
+			}
+		},
+		"profession1": "Tailoring",
+		"profession2": "Enchanting",
+		"prof1Rank": 300,
+		"prof2Rank": 375,
+		"reactionTimeMs": 100,
+		"channelClipDelayMs": 50,
+		"inFrontOfTarget": true,
+		"distanceFromTarget": 20.5,
+		"darkIntentUptime": 0.9,
+		"challengeMode": true,
+		"weaponSkills": [
+			{
+				"skill": "WeaponSkillStaves",
+				"value": 300
+			},
+			{
+				"skill": "WeaponSkillDaggers",
+				"value": 310
+			}
+		],
+		"healingModel": {
+			"hps": 1200,
+			"cadenceSeconds": 2,
+			"burstWindow": 4
+		}
+	}
+}

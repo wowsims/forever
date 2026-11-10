@@ -1,0 +1,11 @@
+siml 1
+spec hunter
+
+// Each group sits under its header, indented as in any file.
+group "Weave":
+  var $Clip = 0.5s
+  cast hunter_shot
+  cast arcane_shot
+
+group "Move to range":
+  move 11

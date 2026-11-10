@@ -51,6 +51,35 @@ func (character *Character) sheetAttackTable() *AttackTable {
 	return character.AttackTables[character.CurrentTarget.UnitIndex]
 }
 
+// An agent that moves the melee crit cap the character sheet shows. Suppression and the cap are worked out
+// after the hook, the cap from the info fields, so a change to any of them reaches it.
+type MeleeCritCapModifier interface {
+	ModifyMeleeCritCap(info *proto.MeleeCritCapInfo)
+}
+
+// The melee crit cap of the main-hand auto against the current target; nil before the attack tables exist and
+// without a main-hand auto. sheetCritPercent is the melee crit the sheet shows.
+func (character *Character) meleeCritCapProto(sheetCritPercent float64) *proto.MeleeCritCapInfo {
+	table, auto := character.sheetAttackTable(), character.AutoAttacks.MHAuto()
+	if table == nil || auto == nil {
+		return nil
+	}
+	white := auto.whiteHitTable(table.Defender, table)
+	info := &proto.MeleeCritCapInfo{
+		Glancing:           white.glance * 100,
+		RemainingHit:       white.miss * 100,
+		RemainingExpertise: (white.dodge + white.parry) * 100,
+		Block:              white.block * 100,
+	}
+	if modifier, ok := character.Env.GetAgentFromUnit(&character.Unit).(MeleeCritCapModifier); ok {
+		modifier.ModifyMeleeCritCap(info)
+	}
+	info.Suppression = sheetCritPercent + info.SpecOffset - auto.physicalCritChanceUnclamped(table, info.SpecOffset)*100
+	info.CritCap = 100 - info.Glancing - info.RemainingHit - info.RemainingExpertise - info.Block - info.SpecOffset + info.Suppression
+	info.Delta = sheetCritPercent - info.CritCap
+	return info
+}
+
 // The hit the active hit mods with a ShowAsSchoolHit give each of those schools. A talent such as Arcane
 // Focus states its hit on its spells' class flags, which name no school the sheet could show it under.
 func (character *Character) schoolHitMods() [stats.SchoolLen]float64 {
@@ -90,10 +119,6 @@ func (character *Character) GetPseudoStatsProto() []float64 {
 	var offHand sheetAttackStats
 	if character.AutoAttacks.IsDualWielding {
 		offHand = character.sheetAttackStats(ProcMaskMeleeOHAuto)
-	}
-	var mainHandTable AttackTableHand
-	if table := character.sheetAttackTable(); table != nil {
-		mainHandTable = table.MH
 	}
 	pseudoStats := []float64{
 		proto.PseudoStat_PseudoStatMainHandDps: character.AutoAttacks.MH().DPS(),
@@ -137,13 +162,7 @@ func (character *Character) GetPseudoStatsProto() []float64 {
 		proto.PseudoStat_PseudoStatRangedHitRating:    ranged.HitRating,
 		proto.PseudoStat_PseudoStatRangedCritRating:   ranged.CritRating,
 
-		proto.PseudoStat_PseudoStatMeleeCritSuppressionPercent:  mainHand.CritSuppressionPercent,
 		proto.PseudoStat_PseudoStatRangedCritSuppressionPercent: ranged.CritSuppressionPercent,
-
-		proto.PseudoStat_PseudoStatMainHandMissPercent:   mainHandTable.BaseMissChance * 100,
-		proto.PseudoStat_PseudoStatMainHandDodgePercent:  mainHandTable.BaseDodgeChance * 100,
-		proto.PseudoStat_PseudoStatMainHandParryPercent:  mainHandTable.BaseParryChance * 100,
-		proto.PseudoStat_PseudoStatMainHandGlancePercent: mainHandTable.BaseGlanceChance * 100,
 	}
 	modHit := character.schoolHitMods()
 	for school := stats.SchoolIndexArcane; school < stats.SchoolLen; school++ {

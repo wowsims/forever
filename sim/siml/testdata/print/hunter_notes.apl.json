@@ -1,0 +1,12 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [{ "action": { "castSpell": { "spellId": { "spellId": 900001 } } }, "doAtValue": { "const": { "val": "-1s" } }, "hide": true }],
+	"priorityList": [
+		{ "notes": "One line.", "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "notes": "Two lines,\n\n  with an empty line and an indented one.", "hide": true, "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "notes": "A trailing space ", "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "notes": "A\ttab", "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "notes": "A carriage\r\nreturn", "action": { "castSpell": { "spellId": { "spellId": 900001 } } } },
+		{ "notes": "", "action": {} }
+	]
+}

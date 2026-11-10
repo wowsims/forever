@@ -13,10 +13,10 @@ func (rogue *Rogue) registerGarrote() {
 	comboPointGen := garroteRank.EnergizeEffect().Average()
 
 	config := spelldata.SpellConfig(&rogue.Unit, garroteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-	config.Flags |= SpellFlagBuilder | core.SpellFlagCannotBeDodged
+	config.Flags |= SpellFlagBuilder
 	config.ClassSpellMask = RogueSpellGarrote
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
-		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) && rogue.IsStealthed()
+		return (!rogue.PseudoStats.InFrontOfTarget || rogue.Talents.DirtyDeeds > 0) && (rogue.IsStealthed() || rogue.GhostlyStrikeAura.IsActive())
 	}
 
 	config.Dot = spelldata.DotConfig(garroteRank, tick)
@@ -26,7 +26,7 @@ func (rogue *Rogue) registerGarrote() {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
-		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialNoBlockDodgeParryNoCritNoHitCounter)
+		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
 			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())

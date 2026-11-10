@@ -63,7 +63,7 @@ func (cd *Cooldown) Reduce(t time.Duration) {
 }
 
 func BothTimersReadyAt(t1 *Timer, t2 *Timer) time.Duration {
-	readyAt := time.Duration(0)
+	readyAt := startingCDTime
 	if t1 != nil {
 		readyAt = t1.ReadyAt()
 	}

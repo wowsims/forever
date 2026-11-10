@@ -180,7 +180,7 @@ const (
 	SpellFlagIgnoreTargetModifiers                          // skip target damage modifiers
 	SpellFlagIgnoreAttackerModifiers                        // skip attacker damage modifiers
 	SpellFlagApplyArmorReduction                            // Forces damage reduction from armor to apply, even if it otherwise wouldn't.
-	SpellFlagCannotBeDodged                                 // Ignores dodge in physical hit rolls
+	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
 	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist; a physical one is blocked whole.
 	SpellFlagChanneled                                      // Spell is channeled
@@ -212,8 +212,15 @@ const (
 	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits and channel ticks do, where other ticks meet a tenth (Insect Swarm).
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist, e.g. a wand's shots.
-	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000).
-	SpellFlagMovesToTarget                                  // The cast moves the caster to its target, e.g. Charge. Not enforced, just a signal for the APL validation.
+	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000), or an explosive.
+	SpellFlagDropsQueuedSwing                               // Starting a cast of the spell drops the attack queued for the next swing, e.g. a thrown dynamite.
+	SpellFlagBleed                                          // A bleed: the whole cast misses a bleed-immune target, and its Dot does not land there.
+	SpellFlagStun                                           // The spell's mechanic is stun (SpellCategories.Mechanic 12): the whole cast misses a stun-immune target.
+	SpellFlagMovesToTarget                                  // The cast moves the caster toward its target, e.g. Charge or Blink. Not enforced, just a signal for the APL validation.
+	SpellFlagPhysicalSchoolDamage                           // A physical row that deals school damage: it takes the caster's flat physical damage bonus at its BonusCoefficient, where a weapon strike takes it whole.
+	SpellFlagRequiresMainHand                               // The row requires a main-hand weapon (Attributes[3] 0x400), e.g. Mortal Strike or Sinister Strike.
+	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
+	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

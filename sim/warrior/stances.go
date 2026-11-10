@@ -26,6 +26,8 @@ func (warrior *Warrior) makeStanceSpell(rank *spelldata.Spell, aura *core.Aura) 
 	maxRetainedRage := spellData.TacticalMastery.ValueAt(1) + spellData.ImprovedTacticalMastery.ValueAt(warrior.Talents.ImprovedTacticalMastery)
 
 	config := spelldata.SpellConfig(&warrior.Unit, rank, spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagAPL))
+	config.MenuGroup = "stances"
+	aura.MenuGroup = "stances"
 
 	config.ExtraCastCondition = func(sim *core.Simulation, target *core.Unit) bool {
 		return warrior.ShapeshiftForm != form

@@ -1,19 +1,24 @@
 package druid
 
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/stats"
+)
+
 func (druid *Druid) registerRestorationTalents() {
 	// Tier 1
 	druid.applyNaturesFocus()
-	// Furor is read on entering Cat Form and the bear forms (forms.go).
+	druid.applyHeartOfTheWild()
 
 	// Tier 2
 	druid.applyNaturalist()
-	druid.applySubtlety()
+	druid.applyReflection()
 	druid.applyNaturalShapeshifter()
 
 	// Tier 3
-	druid.applyReflection()
+	druid.applySubtlety()
 	druid.applyGiftOfNature()
-	druid.applyGiftOfTheEarthmother()
+	druid.applyBloom()
 
 	// Tier 4
 	druid.applyTranquilSpirit()
@@ -30,6 +35,26 @@ func (druid *Druid) registerRestorationTalents() {
 
 	// Tier 7
 	druid.applyWildGrowth()
+}
+
+func (druid *Druid) applyHeartOfTheWild() {
+	if druid.Talents.HeartOfTheWild == 0 {
+		return
+	}
+	// Effect 1 is the Intellect ($s1), which the parse reads from its stat mask. The bear Stamina ($s2)
+	// and cat Strength ($s3) are dummies the forms carry.
+	druid.parseTalent(druid.Talents.HeartOfTheWild, spellData.HeartOfTheWild)
+	row := spellData.HeartOfTheWild.Rank(druid.Talents.HeartOfTheWild)
+	strength := druid.NewDynamicMultiplyStat(stats.Strength, 1+row.EffectN(3).Percent())
+	if druid.CatFormAura != nil {
+		druid.CatFormAura.AttachStatDependency(strength)
+	}
+	stamina := druid.NewDynamicMultiplyStat(stats.Stamina, 1+row.EffectN(2).Percent())
+	for _, aura := range []*core.Aura{druid.BearFormAura, druid.DireBearFormAura} {
+		if aura != nil {
+			aura.AttachStatDependency(stamina)
+		}
+	}
 }
 
 func (druid *Druid) applyNaturalShapeshifter() {
@@ -71,12 +96,10 @@ func (druid *Druid) applyGiftOfNature() {
 	}
 }
 
-// applyGiftOfTheEarthmother implements Gift of the Earthmother, new in Forever.
-//
-// TODO: To be implemented. Needs the Forever tooltip and a spellData ladder before
-// the effect can be modelled; there is no TBC equivalent to port.
-func (druid *Druid) applyGiftOfTheEarthmother() {
-	if !druid.Talents.GiftOfTheEarthmother {
+// TODO: To be implemented. The heal on a Rejuvenation or Regrowth expiry needs those heals, which
+// the sim does not register.
+func (druid *Druid) applyBloom() {
+	if !druid.Talents.Bloom {
 		return
 	}
 }

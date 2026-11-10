@@ -25,7 +25,7 @@ func TestDefaultEp(t *testing.T) {
 	if n, err := strconv.Atoi(os.Getenv("EP_SWEEP_ITERATIONS")); err == nil && n > 0 {
 		iterations = int32(n)
 	}
-	base := bearRequest(bearAPL(bestBearAPL), iterations)
+	base := bearRequest(selectedAdaptiveBearAPL(), iterations)
 	// The UI default assumes a raid bleed for Rend and Tear.
 	base.Raid.Parties[0].Players[0].GetFeralBearDruid().Options.AssumeBleedActive = true
 	// IsTest caps the sim at 3 workers. Labeled RNG is turned on inside stat weights.

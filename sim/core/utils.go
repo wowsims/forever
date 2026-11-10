@@ -46,7 +46,7 @@ func (unit *Unit) ExecuteResourceGain(sim *Simulation, resource proto.ResourceTy
 	case resource == proto.ResourceType_ResourceTypeHealth && amount > 0:
 		unit.GainHealth(sim, amount, metrics)
 	case resource == proto.ResourceType_ResourceTypeHealth && amount < 0:
-		unit.RemoveHealth(sim, -amount)
+		unit.SpendHealth(sim, -amount, metrics)
 	case resource == proto.ResourceType_ResourceTypeRage && amount < 0:
 		unit.SpendRage(sim, -amount/10, metrics)
 	case resource == proto.ResourceType_ResourceTypeRage && amount > 0:
@@ -214,10 +214,8 @@ func Flatten[T any](src [][]T) []T {
 // Returns true if two slices share any common elements, and false otherwise.
 func CheckSliceOverlap[T comparable](s1 []T, s2 []T) bool {
 	for _, v1 := range s1 {
-		for _, v2 := range s2 {
-			if v1 == v2 {
-				return true
-			}
+		if slices.Contains(s2, v1) {
+			return true
 		}
 	}
 	return false
@@ -291,6 +289,7 @@ func (r *valueRange) add(v float64) {
 	r.m2 += d * (v - r.mean)
 }
 
+// Chan's pairwise combine of two Welford ranges, so ranges merged across threads match a single-threaded run.
 func (r *valueRange) merge(o *valueRange) {
 	if o.n == 0 {
 		return

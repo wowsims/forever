@@ -8,9 +8,26 @@ import (
 // Tags every warlock's Immolate dot, so Incinerate can see any Immolate on the target.
 const immolateTag = "Immolate"
 
-// A hit, then a dot. Effect 3 is a server script (E_SCRIPT_EFFECT) the game files do not describe.
+// Rank 7 is the last rank the trainer teaches; rank 8 comes from the Grimoire of Immolate VIII book.
 func (warlock *Warlock) registerImmolate() {
-	rankedSpell := spellData.Immolate.ByID(25309)
+	warlock.Immolate = []*core.Spell{
+		warlock.registerImmolateRank(spellData.Immolate.ByID(11668)),
+		warlock.registerImmolateRank(spellData.Immolate.ByID(25309)),
+	}
+}
+
+// The ranks share one rank group, so at most one of them burns on a target.
+func (warlock *Warlock) activeImmolate(target *core.Unit) *core.Dot {
+	for _, spell := range warlock.Immolate {
+		if dot := spell.Dot(target); dot.IsActive() {
+			return dot
+		}
+	}
+	return nil
+}
+
+// A hit, then a dot. Effect 3 is a server script (E_SCRIPT_EFFECT) the game files do not describe.
+func (warlock *Warlock) registerImmolateRank(rankedSpell *spelldata.Spell) *core.Spell {
 	immolateHit := rankedSpell.DamageEffect()
 	immolateTick := rankedSpell.PeriodicEffect()
 
@@ -38,5 +55,5 @@ func (warlock *Warlock) registerImmolate() {
 		return spell.CalcPeriodicDamage(sim, target, immolateTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
 	}
 
-	warlock.Immolate = warlock.RegisterSpell(config)
+	return warlock.RegisterSpell(config)
 }

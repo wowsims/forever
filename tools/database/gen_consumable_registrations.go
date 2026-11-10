@@ -143,7 +143,8 @@ func registrationFamilyOf(c *proto.Consumable, catalogued *dbc.Consumable, routi
 		return conjuredFamily
 	case catalogued == nil:
 		return unregisteredFamily
-	case routing.Kind == ConsumableHeal, routing.Kind == ConsumableAbsorb, routing.Kind == ConsumableEnergize:
+	case routing.Kind == ConsumableHeal, routing.Kind == ConsumableAbsorb, routing.Kind == ConsumableEnergize,
+		routing.Kind == ConsumableDamage:
 		return otherOnUseFamily
 	case routing.Supported() && routing.Kind == ConsumableStatAura:
 		return statFamily

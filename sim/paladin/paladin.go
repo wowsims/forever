@@ -9,7 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-var TalentTreeSizes = [3]int{17, 16, 17}
+var TalentTreeSizes = [3]int{17, 17, 17}
 
 type Paladin struct {
 	core.Character
@@ -19,9 +19,6 @@ type Paladin struct {
 	Forbearance       *core.Aura
 	RighteousFuryAura *core.Aura
 
-	// Swift Judgement's free next Judgement, which Judgement spends.
-	swiftJudgementAura *core.Aura
-
 	Judgement *core.Spell
 
 	// The seal the paladin is under, and the ranks it has cast so far this iteration.
@@ -30,8 +27,8 @@ type Paladin struct {
 	// The judgement effects this paladin can put on enemies; its melee strikes refresh them.
 	JudgementAuras []core.AuraArray
 
-	// Twist of Light: one Echo per seal that leaves one, keyed by the Echo's spell id.
-	echoes map[int32]*sealEcho
+	// Unsealed Wrath: one Echo per seal that leaves one.
+	echoes []*sealEcho
 
 	// The mark Consecration lays on its bonus targets, one aura per enemy, which carries Consecrated Ground.
 	consecrationMarks core.AuraArray
@@ -40,6 +37,8 @@ type Paladin struct {
 
 	// Light's Vigil: one entry per rank, so Holy Shock can find the vigil it consumes.
 	lightsVigils []*lightsVigil
+	// Oath of Light: nil without the talent.
+	oathOfLight *oathOfLight
 
 	// What gear adds to numbers the spells read as they register. Item effects and set bonuses
 	// apply before Initialize, so the spells pick these up.
@@ -48,6 +47,8 @@ type Paladin struct {
 	flashOfLightBonusHealing          float64
 	holyShieldBlockValueMultiplier    float64
 	forbearanceReduction              time.Duration
+
+	sealOfFuryTaunt *core.Spell
 }
 
 // Implemented by each Paladin spec.
@@ -87,6 +88,8 @@ func (paladin *Paladin) Initialize() {
 	HolyLightRankMap.Each(paladin.registerHolyLight)
 	FlashOfLightRankMap.Each(paladin.registerFlashOfLight)
 	LayOnHandsRankMap.Each(paladin.registerLayOnHands)
+
+	paladin.registerMenuGroups()
 }
 
 func (paladin *Paladin) Reset(_ *core.Simulation) {
@@ -107,7 +110,7 @@ func NewPaladin(character *core.Character, talentsStr string, _ *proto.PaladinOp
 		holyShieldBlockValueMultiplier: 1,
 	}
 
-	core.FillTalentsProto(paladin.Talents.ProtoReflect(), talentsStr, TalentTreeSizes)
+	paladin.FillTalentsProto(paladin.Talents.ProtoReflect(), talentsStr, TalentTreeSizes)
 
 	paladin.PseudoStats.CanParry = true
 

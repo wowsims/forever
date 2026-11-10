@@ -13,7 +13,7 @@ func RegisterEnhancementShaman() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewEnhancementShaman(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_EnhancementShaman)
 			if !ok {
 				panic("Invalid spec value for Enhancement Shaman!")
@@ -55,6 +55,12 @@ type EnhancementShaman struct {
 
 func (enh *EnhancementShaman) GetShaman() *shaman.Shaman {
 	return enh.Shaman
+}
+
+// The melee crit cap counts Elemental Devastation's crit as taken. The buff is up for almost every
+// swing, and the sheet shows its crit only while it is up.
+func (enh *EnhancementShaman) ModifyMeleeCritCap(info *proto.MeleeCritCapInfo) {
+	info.SpecOffset += enh.ElementalDevastationCritPercent()
 }
 
 func (enh *EnhancementShaman) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {

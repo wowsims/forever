@@ -7,6 +7,9 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
+// An empty base spell means none. With no base spell, aligning to the encounter end casts early only
+// when a later use still gets at least half its buff (remaining > CD + buff/2) or the buff runs to the
+// end. The cooldown is FullCooldown, which for a potion includes its shared potion cooldown.
 type APLValueMultipleCdUsages struct {
 	DefaultAPLValueImpl
 	unit *Unit

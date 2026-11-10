@@ -242,8 +242,7 @@ func init() {
 	// Sometimes heals bearer of 120 to 180 damage when damaging an enemy in melee.
 	//
 	// The game files state no rate for 23689; the item's entry carries it.
-	core.NewItemEffect(19287, func(agent core.Agent) {
-		character := agent.GetCharacter()
+	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(23682)
 		heal := row.HealEffect()
 
@@ -260,7 +259,7 @@ func init() {
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(23689), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			heroism.Cast(sim, &character.Unit)
-		}, spelldata.PPM(weaponProcPPM(19287, row.ID)))
+		}, spelldata.PPM(ppm))
 		trigger.Name = "Darkmoon Card: Heroism"
 		trigger.ActionID = core.ActionID{ItemID: 19287}
 		trigger.TriggerImmediately = true
@@ -324,6 +323,30 @@ func init() {
 		character.ItemSwap.RegisterProc(249473, character.MakeProcTriggerAura(trigger))
 		character.AddStatProcBuff(249473, &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}, false,
 			character.ItemSwap.EligibleSlotsForItem(249473))
+	})
+
+	// Vigilance Charm
+	// https://www.wowhead.com/forever/item=18370/vigilance-charm
+	//
+	// Use: Increases your chance to Dodge by 20% for 20s or until you Dodge 3 attacks.
+	//
+	// Vigilant 1302264 goes up with its 3 charges, and each attack the wearer dodges spends one. Its
+	// ProcTypeMask names the melee and ranged attacks taken and no outcome; the dodge is the tooltip's.
+	core.NewItemEffect(18370, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1302264)
+		buff := character.RegisterAura(spelldata.AuraConfig(row))
+		parsed := spelldata.ParseEffects(character, buff, row)
+		spelldata.AttachChargeSpender(character, buff, row, buff.Label+" Charge", func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Outcome = core.OutcomeDodge
+			trigger.RequireDamageDealt = false
+		})
+
+		statBuff := &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}
+		registerItemOnUse(character, 18370, statBuff.InferCDType(), statBuff, func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			buff.Activate(sim)
+			buff.SetStacks(sim, buff.MaxStacks)
+		})
 	})
 }
 

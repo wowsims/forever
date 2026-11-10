@@ -1,6 +1,7 @@
 import { Combobox } from '@base-ui/react/combobox';
 import { Chip } from '@ui-kit/Chip';
-import { Field } from '@ui-kit/Field';
+import { Field, useControlSize } from '@ui-kit/Field';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import { Icon } from '@ui-kit/Icon';
 import { useMemo, useRef } from 'react';
@@ -23,6 +24,7 @@ export const MultiComboBox = ({
 }: MultiComboBoxProps) => {
 	const portalContainer = usePortalContainer();
 	const anchor = useRef<HTMLDivElement>(null);
+	const size = useControlSize(frameProps.size);
 
 	const selected = useMemo(() => values.filter(entry => value.includes(entry.value)), [values, value]);
 
@@ -40,7 +42,7 @@ export const MultiComboBox = ({
 				itemToStringLabel={(entry: EnumValueConfig) => entry.name}
 				isItemEqualToValue={(a: EnumValueConfig, b: EnumValueConfig) => a.value === b.value}
 				disabled={disabled}>
-				<Combobox.InputGroup ref={anchor} className="ui-multi-combo-box-field" data-testid="multi-combo-box-field">
+				<Combobox.InputGroup ref={anchor} className="ui-multi-combo-box-field" data-size={size} data-testid="multi-combo-box-field">
 					<Combobox.Input id={frameProps.id} className="ui-multi-combo-box-input" placeholder={placeholder} data-testid="multi-combo-box-input" />
 					{fitOptions && (
 						<span className="ui-multi-combo-box-sizer" aria-hidden>
@@ -77,23 +79,26 @@ export const MultiComboBox = ({
 						}
 					</Combobox.Value>
 				</Combobox.Chips>
-				<Combobox.Portal container={portalContainer ?? undefined}>
-					<Combobox.Positioner className="ui-multi-combo-box-positioner" anchor={anchor} align="start" sideOffset={2}>
-						<Combobox.Popup className="ui-multi-combo-box-popup">
-							<Combobox.Empty className="ui-multi-combo-box-empty">{emptyText}</Combobox.Empty>
-							<Combobox.List className="ui-multi-combo-box-list" data-testid="multi-combo-box-list">
-								{(entry: EnumValueConfig) => (
-									<Combobox.Item key={entry.value} value={entry} className="ui-multi-combo-box-item" title={entry.tooltip}>
-										<span>{entry.name}</span>
-										<Combobox.ItemIndicator className="ui-multi-combo-box-indicator">
-											<Icon name="check" />
-										</Combobox.ItemIndicator>
-									</Combobox.Item>
-								)}
-							</Combobox.List>
-						</Combobox.Popup>
-					</Combobox.Positioner>
-				</Combobox.Portal>
+				{/* Out of the box's own Field, so the popup's contents take no size from it. */}
+				<FieldContext.Provider value={null}>
+					<Combobox.Portal container={portalContainer ?? undefined}>
+						<Combobox.Positioner className="ui-multi-combo-box-positioner" anchor={anchor} align="start" sideOffset={2}>
+							<Combobox.Popup className="ui-multi-combo-box-popup">
+								<Combobox.Empty className="ui-multi-combo-box-empty">{emptyText}</Combobox.Empty>
+								<Combobox.List className="ui-multi-combo-box-list" data-testid="multi-combo-box-list">
+									{(entry: EnumValueConfig) => (
+										<Combobox.Item key={entry.value} value={entry} className="ui-multi-combo-box-item" title={entry.tooltip}>
+											<span>{entry.name}</span>
+											<Combobox.ItemIndicator className="ui-multi-combo-box-indicator">
+												<Icon name="check" />
+											</Combobox.ItemIndicator>
+										</Combobox.Item>
+									)}
+								</Combobox.List>
+							</Combobox.Popup>
+						</Combobox.Positioner>
+					</Combobox.Portal>
+				</FieldContext.Provider>
 			</Combobox.Root>
 		</Field>
 	);

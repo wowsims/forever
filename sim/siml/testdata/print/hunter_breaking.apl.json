@@ -1,0 +1,90 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{ "spellIsReady": { "spellId": { "spellId": 900001 } } },
+							{ "spellIsReady": { "spellId": { "spellId": 900002 } } },
+							{ "spellIsReady": { "spellId": { "spellId": 900004 } } }
+						]
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 900001 } }
+			},
+			"doAtValue": { "math": { "op": "OpAdd", "lhs": { "const": { "val": "-1s" } }, "rhs": { "variableRef": { "name": "Long variable name" } } } }
+		}
+	],
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"or": { "vals": [{ "spellIsReady": { "spellId": { "spellId": 900001 } } }, { "spellIsReady": { "spellId": { "spellId": 900002 } } }] }
+				},
+				"castSpell": { "spellId": { "spellId": 900001 } }
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"not": {
+						"val": {
+							"and": {
+								"vals": [
+									{ "spellIsReady": { "spellId": { "spellId": 900001 } } },
+									{ "spellIsReady": { "spellId": { "spellId": 900002 } } },
+									{ "spellIsReady": { "spellId": { "spellId": 900004 } } }
+								]
+							}
+						}
+					}
+				},
+				"castSpell": { "spellId": { "spellId": 900001 } }
+			}
+		},
+		{
+			"action": {
+				"sequence": {
+					"name": "A sequence whose actions alone run past the width of the line",
+					"actions": [
+						{ "castSpell": { "spellId": { "spellId": 900001 } } },
+						{ "castSpell": { "spellId": { "spellId": 900002 } } },
+						{ "castSpell": { "spellId": { "spellId": 900004 } } }
+					]
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "Long variable name",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": { "spellCastTime": { "spellId": { "spellId": 900001 } } },
+					"rhs": {
+						"math": {
+							"op": "OpAdd",
+							"lhs": { "spellCastTime": { "spellId": { "spellId": 900002 } } },
+							"rhs": { "spellCastTime": { "spellId": { "spellId": 900004 } } }
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "Short",
+			"value": {
+				"and": {
+					"vals": [
+						{ "spellIsReady": { "spellId": { "spellId": 900001 } } },
+						{ "spellIsReady": { "spellId": { "spellId": 900002 } } },
+						{ "spellIsReady": { "spellId": { "spellId": 900004 } } }
+					]
+				}
+			}
+		}
+	]
+}

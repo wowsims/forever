@@ -1,0 +1,8 @@
+siml 1
+spec hunter
+use "common.apl.siml"
+
+var ${Melee spot} = 4.99
+var ${Shoot spot} = 12
+def soon(x) = at_range and spell(x).time_to_ready <= $wait
+def filler = arcane_shot

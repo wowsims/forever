@@ -101,6 +101,29 @@ func (m *Meta) label(isPlayer bool) string {
 	return m.Label + " (" + core.Ternary(isPlayer, "Player", "External") + ")"
 }
 
+// A rank of a generated buff is its row on the rank's own spell, labelled with the rank so that two ranks on one unit
+// never share an aura. Both bid in the row's category.
+func (m *Meta) atRank(rank *spelldata.Spell) *Meta {
+	return m.atState(rank, m.Label+" "+rank.Rank)
+}
+
+// The row on another spell under the label given, bidding in the row's categories. A priest's prayer
+// reads its own spell this way against the raid's input of its stat.
+func (m *Meta) atState(spell *spelldata.Spell, label string) *Meta {
+	state := *m
+	state.Label = label
+	state.Spell = spell
+	return &state
+}
+
+// The states of a rank select, in the order the proto field counts them from 1.
+type rankStates []*Meta
+
+// A state past the last reads as the last.
+func (r rankStates) at(state int32) *Meta {
+	return r[min(int(state), len(r))-1]
+}
+
 func (m *Meta) actionID(isPlayer bool) core.ActionID {
 	return core.ActionID{SpellID: m.Spell.ID}.WithTag(core.TernaryInt32(isPlayer, 0, -1))
 }
@@ -154,6 +177,8 @@ func newCasterDebuff(target *core.Unit, m *Meta, caster *core.Unit, tag string, 
 	return m.debuff(target, true, m.Label+"-"+caster.Label, tag, talentPoints)
 }
 
+// Every debuff lands and only the strongest in its category counts, so debuff rows leave SingleAura
+// false. Curse of Recklessness, Faerie Fire and Dust Cloud share MinorArmorReduction this way.
 func (m *Meta) debuff(target *core.Unit, isPlayer bool, label string, tag string, talentPoints int32) *core.Aura {
 	opts := m.Options(talentPoints)
 	if m.Category != "" {
@@ -190,6 +215,33 @@ func (m *Meta) parsedAura(unit *core.Unit, isPlayer bool, label string, tag stri
 func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32) *core.Aura {
 	aura := NewDamageShield(unit, m.label(isPlayer), m.actionID(isPlayer), m.Duration(talentPoints),
 		m.Category, m.SingleAura, m.Spell.School, m.Value(talentPoints), 0)
+	joinSharedCategory(aura, m.SharedCategory, isPlayer)
+	return aura
+}
+
+// Retribution Aura and Thorns scale with their caster's spell power in Forever even though their
+// game files rows carry no coefficient (every rank states EffectBonusCoefficient 0, and the damage
+// still moves with spell power in game). The coefficient is the 1.5 s cast-time floor over 3.5, the
+// AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect: 6% of
+// spell power, the ratio Blizzard states for Retribution Aura and the one measured for Thorns.
+const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
+
+// A damage shield that scales with its caster's spell power. The player's copy reads its own spell
+// power through the proc spell; the external copy cannot see the caster, so externalSpellPower
+// stands in for it, folded into the damage it bids and deals, and the recipient's own stats stay
+// out of the damage.
+func newSpellPowerDamageShield(unit *core.Unit, m *Meta, isPlayer bool, damage float64, externalSpellPower float64) *core.Aura {
+	label := m.label(isPlayer)
+	if unit.HasAura(label) {
+		return unit.GetAura(label)
+	}
+
+	coefficient := DamageShieldSpellPowerCoefficient
+	if !isPlayer {
+		damage, coefficient = damage+coefficient*externalSpellPower, 0
+	}
+	aura := NewDamageShield(unit, label, m.actionID(isPlayer), m.Duration(0), m.Category, m.SingleAura,
+		m.Spell.School, damage, coefficient)
 	joinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }

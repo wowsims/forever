@@ -1,0 +1,37 @@
+@layer components {
+	.ui-code-text-area {
+		@apply relative flex overflow-hidden border border-surface-border bg-surface text-foreground transition-colors duration-150 ease-in-out;
+
+		&:focus-within {
+			@apply border-input-focus-border shadow-focus-input;
+		}
+	}
+
+	.ui-code-text-area-line {
+		@apply pointer-events-none absolute inset-x-0 h-(--leading-code) bg-foreground/5;
+		top: calc(--spacing(2) + var(--ui-code-line) * var(--leading-code) - var(--ui-code-scroll-top, 0px));
+	}
+
+	.ui-code-text-area-gutter {
+		@apply relative shrink-0 overflow-hidden border-r border-surface-border p-2 text-right font-mono text-ui leading-code whitespace-pre text-secondary select-none;
+
+		& [data-current] {
+			@apply absolute right-2 h-(--leading-code) bg-surface text-foreground;
+			top: calc(--spacing(2) + var(--ui-code-line) * var(--leading-code) - var(--ui-code-scroll-top, 0px));
+		}
+	}
+
+	.ui-code-text-area-numbers {
+		transform: translateY(calc(-1 * var(--ui-code-scroll-top, 0px)));
+	}
+
+	.ui-code-text-area-input {
+		@apply relative h-full min-w-0 flex-1 resize-none overflow-auto bg-transparent p-2 font-mono text-ui leading-code whitespace-pre outline-none;
+	}
+
+	.ui-code-text-area-position {
+		@apply pointer-events-none absolute bg-surface px-1 font-mono text-2xs text-muted;
+		right: calc(var(--ui-code-scrollbar-y, 0px) + --spacing(1));
+		bottom: calc(var(--ui-code-scrollbar-x, 0px) + --spacing(1));
+	}
+}

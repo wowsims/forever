@@ -1,0 +1,1 @@
+[{ "op": "set", "path": ["whens", 0, "condition", "and", "vals", 1, "variableRef", "name"], "value": "a" }]

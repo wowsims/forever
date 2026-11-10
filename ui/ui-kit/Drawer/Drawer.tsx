@@ -1,4 +1,5 @@
 import { Drawer as BaseDrawer } from '@base-ui/react/drawer';
+import { FieldContext } from '@ui-kit/Field/context/FieldContext';
 import { usePortalContainer } from '@ui-kit/hooks/usePortalContainer';
 import clsx from 'clsx';
 import type { CSSProperties, ReactElement, ReactNode } from 'react';
@@ -38,13 +39,16 @@ export const Drawer = ({ trigger, open, onOpenChange, ignoreOutsidePress, modal 
 				onOpenChange?.(nextOpen);
 			}}>
 			<BaseDrawer.Trigger render={trigger} />
-			<BaseDrawer.Portal container={portalContainer ?? undefined}>
-				<BaseDrawer.Viewport className="contents">
-					<BaseDrawer.Popup className={clsx('ui-drawer', className)} style={style} data-side={side} data-testid={testId ?? 'sim-drawer-popup'}>
-						{children}
-					</BaseDrawer.Popup>
-				</BaseDrawer.Viewport>
-			</BaseDrawer.Portal>
+			{/* Out of any Field the trigger sits in, so the drawer's controls take no size from that field. */}
+			<FieldContext.Provider value={null}>
+				<BaseDrawer.Portal container={portalContainer ?? undefined}>
+					<BaseDrawer.Viewport className="contents">
+						<BaseDrawer.Popup className={clsx('ui-drawer', className)} style={style} data-side={side} data-testid={testId ?? 'sim-drawer-popup'}>
+							{children}
+						</BaseDrawer.Popup>
+					</BaseDrawer.Viewport>
+				</BaseDrawer.Portal>
+			</FieldContext.Provider>
 		</BaseDrawer.Root>
 	);
 };

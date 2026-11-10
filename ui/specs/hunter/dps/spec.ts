@@ -1,7 +1,7 @@
 import * as BuffDebuffInputs from '@features/settings/model/buffs_debuffs';
 import * as other_inputs from '@features/settings/model/other_inputs';
 import { StatCapType } from '@generated/proto/api';
-import { APLListItem, APLRotation, APLRotation_Type, APLValueVariable } from '@generated/proto/apl';
+import { APLListItem, APLRotation, APLValueVariable } from '@generated/proto/apl';
 import { Cooldowns, HandType, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
 import { PlayerClasses } from '@sim/player/classes';
@@ -69,8 +69,7 @@ export default defineSpec<Spec.SpecHunter>({
 	displayWeaponSkillGroups: [WeaponSkillGroup.Melee, WeaponSkillGroup.Ranged],
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotRanged, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.P1Gear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		softCapBreakpoints: [
@@ -80,20 +79,6 @@ export default defineSpec<Spec.SpecHunter>({
 				postCapEPs: [0],
 			}),
 		],
-		rotationType: APLRotation_Type.TypeSimple,
-		simpleRotation: Presets.DefaultSimpleRotation,
-		other: Presets.OtherDefaults,
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.SurvivalWeaveTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-		partyBuffs: Presets.DefaultPartyBuffs,
-		individualBuffs: Presets.DefaultIndividualBuffs,
-		debuffs: Presets.DefaultDebuffs,
 	},
 
 	// IconInputs to include in the 'Player' section on the settings tab.
@@ -110,12 +95,11 @@ export default defineSpec<Spec.SpecHunter>({
 		BuffDebuffInputs.ConcentrationAura,
 		BuffDebuffInputs.DemoralizingRoar,
 		BuffDebuffInputs.DemoralizingScreech,
-		BuffDebuffInputs.GreaterBlessingOfSalvation,
 		BuffDebuffInputs.HexOfWeakness,
 		BuffDebuffInputs.JudgementOfTheCrusader,
 		BuffDebuffInputs.MoonkinAura,
 		BuffDebuffInputs.PowerInfusion,
-		BuffDebuffInputs.PrayerOfFortitude,
+		BuffDebuffInputs.PowerWordFortitude,
 		BuffDebuffInputs.ScorpidSting,
 		BuffDebuffInputs.ThunderClap,
 		BuffDebuffInputs.Thunderfury,
@@ -133,20 +117,13 @@ export default defineSpec<Spec.SpecHunter>({
 	presets: {
 		epWeights: [],
 		// Preset talents that the user can quickly select.
-		talents: [
-			Presets.SurvivalWeaveTalents,
-			Presets.MarksmanshipWeaveTalents,
-			Presets.BeastMasteryWeaveTalents,
-			Presets.MarksmanshipTalents,
-			Presets.BeastMasteryTalents,
-			Presets.SurvivalTalents,
-			Presets.SurvivalMeleeTalents,
-		],
+		talents: Presets.BuildTalents,
 		// Preset rotations that the user can quickly select.
 		rotations: [
 			Presets.SimpleRotation,
 			Presets.WeaveAPLRotation,
 			Presets.WeaveHawkAPLRotation,
+			Presets.WeaveMmAPLRotation,
 			Presets.CleanWeaveAPLRotation,
 			Presets.TurretAPLRotation,
 			Presets.TurretMultiAPLRotation,
@@ -164,14 +141,21 @@ export default defineSpec<Spec.SpecHunter>({
 		return APLRotation.fromJson(Presets.PlaystyleAPLs[twoHander ? Playstyle.Weave : Playstyle.Turret]);
 	},
 
-	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell.
+	// The playstyle picks the priority list, and each toggle sets the list's variable of the same spell. A rank toggle
+	// turned on casts the book rank in place of the trainer's top rank.
 	simpleRotation: (_player: Player<Spec.SpecHunter>, simple: SpecRotation<Spec.SpecHunter>, cooldowns: Cooldowns): APLRotation => {
 		const actions = AplUtils.simpleCooldownActions(cooldowns);
 		const hawksAtRange = simple.playstyle === Playstyle.Turret && simple.useHawk;
-		const rotation = APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]);
+		const bookRanks = new Map<number, number>();
+		if (simple.useSerpentStingRank9) bookRanks.set(13555, 25295);
+		if (simple.useAspectOfTheHawkRank7) bookRanks.set(14322, 25296);
+		const rotation = AplUtils.withSpellIds(
+			APLRotation.fromJson(hawksAtRange ? Presets.TurretHawkPlaystyleAPL : Presets.PlaystyleAPLs[simple.playstyle]),
+			bookRanks,
+		);
 
 		const values: Record<string, string> = {
-			'Time to weave': `${simple.timeToWeave || 100}ms`,
+			'Pull range': String(simple.pullRange || 25),
 			'Use Aimed Shot': String(simple.useAimed),
 			'Use Multi-Shot': String(simple.useMulti),
 			'Use Arcane Shot': String(simple.useArcane),

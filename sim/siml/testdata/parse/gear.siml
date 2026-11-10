@@ -1,0 +1,14 @@
+siml 1
+spec dps_warrior
+
+gear:
+  head       lionheart_helm + falcons_call
+  waist      commanders_vambraces of_the_tiger
+  finger1    `{"id":21205,"randomSuffix":12736}`
+  main_hand  bonereavers_edge + weapon_crusader
+  bonus_stats(stats(strength=10, attack_power=-20), pseudo_stats(main_hand_dps=2))
+  enable_item_swap
+
+item_swap:
+  main_hand  dual_wielders_axe + weapon_crusader
+  prepull_bonus_stats(stats(agility=5))

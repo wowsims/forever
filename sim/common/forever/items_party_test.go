@@ -156,7 +156,7 @@ func TestAdmiralsHatGrantsItsStaminaOnce(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			sim, character := partyItemWearer(t, 1, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotHead, hat, tc.party)
 			before := character.GetStats()
-			useTrinket(t, sim, character, hat, core.CooldownTypeDPS, cooldown, category, categoryCooldown)
+			useTrinket(t, sim, character, hat, core.CooldownTypeSurvival, cooldown, category, categoryCooldown)
 			if got := gained(character, before, stats.Stamina); got != tc.want {
 				t.Errorf("the hat adds %v Stamina, want %v", got, tc.want)
 			}

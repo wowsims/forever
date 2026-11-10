@@ -1,0 +1,27 @@
+siml 1
+spec hunter
+
+var ${Use AoE} = true
+
+priority:
+  cast steady_shot on target if target.aura(steady_shot).is_active(include_reaction_time=true)
+  cast steady_shot
+      if $use_aoe
+      and not aura(steady_shot).is_active
+      and auto_time_to_next(main_hand_auto) > 1s
+  cast_all_stat_buff_cooldowns(agility, stat_type2=attack_power)
+  wait until gcd_is_ready
+  group "G" with %p = 1
+  cast steady_shot
+      if spell(steady_shot).is_ready
+      and spell(steady_shot).is_ready
+      and spell(steady_shot).is_ready
+      and gcd_is_ready
+  cast steady_shot if gcd_is_ready
+  sequence "S" [cast steady_shot]
+  cast steady_shot if true
+  # cast steady_shot
+  move 5
+
+group "G":
+  cast steady_shot if %p > 0

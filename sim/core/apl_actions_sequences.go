@@ -14,21 +14,34 @@ type APLActionSequence struct {
 	name       string
 	subactions []*APLAction
 	curIdx     int
+
+	subactionIdx []int // Each step's index in the config's actions.
+}
+
+// Builds the steps that parse, each with its index in the config's actions.
+func (rot *APLRotation) newSequenceSteps(configs []*proto.APLAction) ([]*APLAction, []int) {
+	var steps []*APLAction
+	var stepIdx []int
+	for i, config := range configs {
+		if step := rot.newAPLAction(config); step != nil {
+			steps = append(steps, step)
+			stepIdx = append(stepIdx, i)
+		}
+	}
+	return steps, stepIdx
 }
 
 func (rot *APLRotation) newActionSequence(config *proto.APLActionSequence) APLActionImpl {
-	subactions := MapSlice(config.Actions, func(action *proto.APLAction) *APLAction {
-		return rot.newAPLAction(action)
-	})
-	subactions = FilterSlice(subactions, func(action *APLAction) bool { return action != nil })
+	subactions, subactionIdx := rot.newSequenceSteps(config.Actions)
 	if len(subactions) == 0 {
 		return nil
 	}
 
 	return &APLActionSequence{
-		unit:       rot.unit,
-		name:       config.Name,
-		subactions: subactions,
+		unit:         rot.unit,
+		name:         config.Name,
+		subactions:   subactions,
+		subactionIdx: subactionIdx,
 	}
 }
 func (action *APLActionSequence) GetInnerActions() []*APLAction {
@@ -121,6 +134,7 @@ type APLActionStrictSequence struct {
 	subactions []*APLAction
 	curIdx     int
 
+	subactionIdx    []int // Each step's index in the config's actions.
 	subactionSpells []*Spell
 
 	// The queue action currently hooked to advance this sequence, and the callback it replaced.
@@ -131,17 +145,15 @@ type APLActionStrictSequence struct {
 }
 
 func (rot *APLRotation) newActionStrictSequence(config *proto.APLActionStrictSequence) APLActionImpl {
-	subactions := MapSlice(config.Actions, func(action *proto.APLAction) *APLAction {
-		return rot.newAPLAction(action)
-	})
-	subactions = FilterSlice(subactions, func(action *APLAction) bool { return action != nil })
+	subactions, subactionIdx := rot.newSequenceSteps(config.Actions)
 	if len(subactions) == 0 {
 		return nil
 	}
 
 	return &APLActionStrictSequence{
-		unit:       rot.unit,
-		subactions: subactions,
+		unit:         rot.unit,
+		subactions:   subactions,
+		subactionIdx: subactionIdx,
 	}
 }
 func (action *APLActionStrictSequence) GetInnerActions() []*APLAction {
@@ -245,6 +257,9 @@ func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction
 		return nil
 	} else if action.hookedQueueAction != nil && action.unit.spellQueuedAfterHardcast() {
 		return action.cooldownAheadOfStep(sim)
+	} else if spell := nextAction.spell; spell != nil && spell.IsReady(sim) && spell.waitsForCastEnd(sim) {
+		// The step goes in the cast-end pass, once the hardcast has landed.
+		return nil
 	} else if action.unit.GCD.TimeToReady(sim) <= MaxSpellQueueWindow {
 		// If the GCD is ready when the next subaction isn't, it means the sequence is bad
 		// so reset and exit the sequence.

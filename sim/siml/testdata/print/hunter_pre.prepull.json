@@ -1,0 +1,10 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {},
+		"rotation": {
+			"type": "TypeAPL",
+			"prepullActions": [{ "action": { "castSpell": { "spellId": { "spellId": 900010 } } }, "doAtValue": { "const": { "val": "-22s" } } }]
+		}
+	}
+}

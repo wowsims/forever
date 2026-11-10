@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -19,6 +20,9 @@ type APLRotation struct {
 	canMoveCloserKnown bool // canMoveCloser's answer is set once, as it depends only on the rotation.
 	canMoveCloserValue bool
 
+	hasMoveKnown bool // hasMove's answer is set once, as it depends only on the rotation.
+	hasMoveValue bool
+
 	majorCooldownActionsKnown bool         // majorCooldownActions is set once, as it depends only on the rotation.
 	majorCooldownActions      []*APLAction // The priority list's actions that can be a major cooldown going ahead of the spell queued after a hardcast.
 
@@ -34,6 +38,9 @@ type APLRotation struct {
 	// Actions pruned by compile-time constant folding (const false condition).
 	// Their spells still need to be removed from MCD auto-casting.
 	prunedActions []APLActionImpl
+
+	// The moves that look again at their condition and range while their walk is under way.
+	recheckedMoves []*APLActionMove
 
 	// Action currently controlling this rotation (only used for certain actions, such as StrictSequence).
 	controllingActions []APLActionImpl
@@ -54,8 +61,12 @@ type APLRotation struct {
 	// Used to avoid recursive APL loops.
 	inLoop bool
 
-	// Used to override MCD restrictions within sequences.
+	// Set while a sequence asks whether its step is ready or runs it: major cooldowns skip their GCD
+	// wait, and a Change Target to the current target is a step that does nothing.
 	inSequence bool
+
+	// The path of the entry whose action is running, kept only while the sim logs; empty outside one.
+	runningEntryPath string
 
 	// Validation warnings that occur during proto parsing.
 	// We return these back to the user for display in the UI.
@@ -67,15 +78,22 @@ type APLRotation struct {
 
 	// Maps indices in filtered sim lists to indices in configs.
 	prepullIdxMap      []int
+	prepullDoAt        []time.Duration // When each of prepullActions runs.
 	priorityListIdxMap []int
 	groupListIdxMap    [][]int
 }
+
+// Called with every action a sim that RunSimWithAPLHook runs executes: a row, a group reference's row and then the
+// row it ran from the group, and the actions inside a row. Tools that read a rotation's choices pass one, and find
+// the rows among the actions with APLRotation.RowPaths.
+type APLActionHook func(sim *Simulation, action *APLAction)
 
 type APLGroup struct {
 	name         string
 	actions      []*APLAction
 	variables    map[string]*proto.APLValue
 	referencedBy *APLActionGroupReference
+	configIdx    int // The group's index in the config's groups, shared by its copies.
 }
 
 type APLValueVariable struct {
@@ -83,7 +101,7 @@ type APLValueVariable struct {
 	value *proto.APLValue
 }
 
-func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message string, vals ...interface{}) {
+func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message string, vals ...any) {
 	formatted_message := fmt.Sprintf(message, vals...)
 	rot.curValidations = append(rot.curValidations, &proto.APLValidation{
 		LogLevel:   log_level,
@@ -91,7 +109,7 @@ func (rot *APLRotation) ValidationMessage(log_level proto.LogLevel, message stri
 	})
 }
 
-func (rot *APLRotation) ValidationMessageByUUID(uuid *proto.UUID, log_level proto.LogLevel, message string, vals ...interface{}) {
+func (rot *APLRotation) ValidationMessageByUUID(uuid *proto.UUID, log_level proto.LogLevel, message string, vals ...any) {
 	if uuid != nil {
 		formatted_message := fmt.Sprintf(message, vals...)
 		rot.uuidValidations[uuid] = append(rot.uuidValidations[uuid], &proto.APLValidation{
@@ -126,6 +144,13 @@ func (unit *Unit) newCustomRotation() *APLRotation {
 	})
 }
 
+// Read before the encounter starts, with a nil sim. A value that reads the encounter (the current time, a
+// unit's health) panics then, and the time is unknown; the panic comes back as err.
+func prepullTime(value APLValue) (doAt time.Duration, err any) {
+	defer func() { err = recover() }()
+	return value.GetDuration(nil), nil
+}
+
 func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 	if config == nil {
 		return nil
@@ -155,16 +180,21 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		prepullIdx := i // Save to local variable for correct lambda capture behavior
 		rotation.doAndRecordWarnings(&rotation.prepullValidations[prepullIdx], true, func() {
 			if !prepullItem.Hide {
-				doAtVal := rotation.newAPLValue(prepullItem.DoAtValue)
-				if doAtVal != nil {
-					doAt := doAtVal.GetDuration(nil)
-					if doAt > 0 {
+				doAtVal := rotation.coerceTo(rotation.newAPLValue(prepullItem.DoAtValue), proto.APLValueType_ValueTypeDuration)
+				if doAtVal == nil {
+					rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' needs a time, ignoring this Prepull Action")
+				} else {
+					doAt, err := prepullTime(doAtVal)
+					if err != nil {
+						rotation.ValidationMessage(proto.LogLevel_Warning, "'Do At' cannot be read before the pull (%v), ignoring this Prepull Action", err)
+					} else if doAt > 0 {
 						rotation.ValidationMessage(proto.LogLevel_Warning, "Invalid time for 'Do At', ignoring this Prepull Action")
 					} else {
 						action := rotation.newAPLAction(prepullItem.Action)
 						if action != nil {
 							rotation.prepullActions = append(rotation.prepullActions, action)
 							rotation.prepullIdxMap = append(rotation.prepullIdxMap, prepullIdx)
+							rotation.prepullDoAt = append(rotation.prepullDoAt, doAt)
 							unit.RegisterPrepullAction(doAt, func(sim *Simulation) {
 								// A prepull action at a cast's last instant runs before the cast's own
 								// completion; the cast completes first.
@@ -204,6 +234,7 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 		group := &APLGroup{
 			name:      groupConfig.Name,
 			variables: make(map[string]*proto.APLValue),
+			configIdx: slices.Index(config.Groups, groupConfig),
 		}
 
 		for _, varConfig := range groupConfig.Variables {
@@ -232,32 +263,37 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 
 		rotation.groups = append(rotation.groups, group)
 
-		// Duplicate the group if it is referenced more than once in the priority list.
+		// Each reference runs its own copy of the group: the group is duplicated for every reference past the first
+		// in the prepull and priority lists, and for every reference in another group's actions. A reference inside
+		// a sequence counts too.
 		foundReference := false
 
-		for _, action := range rotation.priorityList {
-			if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
-				if (groupReferenceAction.groupName == group.name) && !groupReferenceAction.matched {
-					if foundReference {
-						groupsConfig = append(groupsConfig, groupConfig)
-						rotation.groupListValidations = append(rotation.groupListValidations, nil)
-					}
+		for _, entry := range slices.Concat(rotation.prepullActions, rotation.priorityList) {
+			for _, action := range entry.GetAllActions() {
+				if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
+					if (groupReferenceAction.groupName == group.name) && !groupReferenceAction.matched {
+						if foundReference {
+							groupsConfig = append(groupsConfig, groupConfig)
+							rotation.groupListValidations = append(rotation.groupListValidations, nil)
+						}
 
-					foundReference = true
-					groupReferenceAction.matched = true
-					group.referencedBy = groupReferenceAction
+						foundReference = true
+						groupReferenceAction.matched = true
+						group.referencedBy = groupReferenceAction
+					}
 				}
 			}
 		}
 
-		// Duplicate any other groups referenced by this group's actions.
-		for _, action := range group.actions {
-			if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
-				for _, groupConfig := range groupsConfig {
-					if (groupReferenceAction.groupName == groupConfig.Name) && !groupReferenceAction.matched {
-						groupsConfig = append(groupsConfig, groupConfig)
-						rotation.groupListValidations = append(rotation.groupListValidations, nil)
-						groupReferenceAction.matched = true
+		for _, entry := range group.actions {
+			for _, action := range entry.GetAllActions() {
+				if groupReferenceAction, ok := action.impl.(*APLActionGroupReference); ok {
+					for _, groupConfig := range groupsConfig {
+						if (groupReferenceAction.groupName == groupConfig.Name) && !groupReferenceAction.matched {
+							groupsConfig = append(groupsConfig, groupConfig)
+							rotation.groupListValidations = append(rotation.groupListValidations, nil)
+							groupReferenceAction.matched = true
+						}
 					}
 				}
 			}
@@ -303,23 +339,10 @@ func (unit *Unit) newAPLRotation(config *proto.APLRotation) *APLRotation {
 			removeFromMajorCooldowns(impl, character)
 		}
 
-		// If user has Item Swapping enabled and hasn't swapped back to the main set do it here.
-		if character != nil && character.ItemSwap.IsEnabled() {
-			skipItemSwapCheck := true
-			hasMainSwap := false
-			for _, prepullAction := range rotation.allPrepullActions() {
-				if action, ok := prepullAction.impl.(*APLActionItemSwap); ok {
-					hasMainSwap = action.swapSet == proto.APLActionItemSwap_Main
-					skipItemSwapCheck = false
-				}
-			}
-			if !skipItemSwapCheck && !hasMainSwap {
-				unit.RegisterPrepullAction(-1, func(sim *Simulation) {
-					character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
-				})
-			}
-		}
+		rotation.warnOnPrepullSwapWithoutMain()
 	}
+
+	rotation.assignEntryPaths(config)
 
 	return rotation
 }
@@ -400,6 +423,57 @@ func (rot *APLRotation) allAPLActions() []*APLAction {
 	return actions
 }
 
+// Whether a Move sits anywhere in the rotation.
+func (rot *APLRotation) hasMove() bool {
+	if !rot.hasMoveKnown {
+		rot.hasMoveKnown = true
+		rot.hasMoveValue = slices.ContainsFunc(rot.allAPLActions(), func(action *APLAction) bool {
+			_, isMove := action.impl.(*APLActionMove)
+			return isMove
+		})
+	}
+	return rot.hasMoveValue
+}
+
+// A set swapped in before the pull stays on into the fight until an Item Swap: Main runs. A prepull swap away from
+// the main set warns when no Item Swap: Main follows it in the prepull or sits in the rotation.
+func (rot *APLRotation) warnOnPrepullSwapWithoutMain() {
+	swapsTo := func(action *APLAction, main bool) bool {
+		return slices.ContainsFunc(getAllActionsSafe(action), func(inner *APLAction) bool {
+			swap, ok := inner.impl.(*APLActionItemSwap)
+			return ok && (swap.swapSet == proto.APLActionItemSwap_Main) == main
+		})
+	}
+
+	// Prepull actions run in time order, and in list order at the same time.
+	runsNoEarlier := func(j, i int) bool {
+		return rot.prepullDoAt[j] > rot.prepullDoAt[i] || (rot.prepullDoAt[j] == rot.prepullDoAt[i] && j >= i)
+	}
+	lastMain := -1 // The Main swap that runs last.
+	var swapsAway []int
+	for i, action := range rot.prepullActions {
+		if swapsTo(action, true) && (lastMain < 0 || runsNoEarlier(i, lastMain)) {
+			lastMain = i
+		}
+		if swapsTo(action, false) {
+			swapsAway = append(swapsAway, i)
+		}
+	}
+	// Walked from the priority list, so a group only counts where a shown line references it.
+	if len(swapsAway) == 0 || slices.ContainsFunc(rot.priorityList, func(action *APLAction) bool { return swapsTo(action, true) }) {
+		return
+	}
+
+	for _, i := range swapsAway {
+		if lastMain >= 0 && runsNoEarlier(lastMain, i) {
+			continue
+		}
+		rot.doAndRecordWarnings(&rot.prepullValidations[rot.prepullIdxMap[i]], true, func() {
+			rot.ValidationMessage(proto.LogLevel_Warning, "Nothing swaps back to the main set, so the swapped set stays on for the whole fight. Add an Item Swap: Main to the rotation.")
+		})
+	}
+}
+
 // Returns all action objects from the prepull as an unstructured list. Used for easily finding specific actions.
 func (rot *APLRotation) allPrepullActions() []*APLAction {
 	return Flatten(MapSlice(rot.prepullActions, func(action *APLAction) []*APLAction { return action.GetAllActions() }))
@@ -408,6 +482,7 @@ func (rot *APLRotation) allPrepullActions() []*APLAction {
 func (rot *APLRotation) reset(sim *Simulation) {
 	rot.controllingActions = rot.controllingActions[:0]
 	rot.inLoop = false
+	rot.runningEntryPath = ""
 	rot.interruptChannelIf = nil
 	rot.allowChannelRecastOnInterrupt = false
 	rot.evalGeneration++ // Invalidate any variable caches from previous iteration or initialization
@@ -430,6 +505,7 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.inLoop {
 		return
 	}
+	apl.unit.drawReactionTime(sim)
 
 	// An event at a cast's last instant, such as a rage tick, wakes the rotation before the cast's
 	// own completion runs; the cast completes first.
@@ -466,6 +542,12 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	apl.inLoop = true
 
 	apl.unit.UpdatePosition(sim, false)
+	if len(apl.recheckedMoves) > 0 {
+		apl.evalGeneration++
+		for _, move := range apl.recheckedMoves {
+			move.recheck(sim)
+		}
+	}
 	free := apl.unit.GCD.IsReady(sim) && apl.unit.Hardcast.Expires <= sim.CurrentTime
 	apl.unit.costBlocked = false
 	for nextAction := apl.firstAction(sim); ; i, nextAction = i+1, apl.getNextAction(sim) {
@@ -513,7 +595,9 @@ func (apl *APLRotation) DoNextAction(sim *Simulation) {
 	if apl.unit.RotationTimer.IsReady(sim) {
 		nextEvaluation := sim.CurrentTime + apl.unit.ReactionTime
 
-		if !apl.unit.Moving {
+		// A rotation that moves keeps looking through the GCD, so a walk timed to a swing timer starts
+		// when its condition turns true, as a player watching the timer starts it.
+		if !apl.unit.Moving && !apl.hasMove() {
 			nextEvaluation = max(nextEvaluation, apl.unit.NextGCDAt())
 		}
 
@@ -565,12 +649,12 @@ func (apl *APLRotation) majorCooldownMayGo(sim *Simulation) bool {
 		apl.majorCooldownActionsKnown = true
 		apl.majorCooldownActions = FilterSlice(apl.priorityList, canBeMajorCooldown)
 	}
-	for _, action := range apl.majorCooldownActions {
-		if action.IsReady(sim) {
-			return true
-		}
-	}
-	return false
+	// A Strict Sequence asked whether it is ready marks the rotation as in a sequence. Nothing asked here
+	// runs, so the mark is put back.
+	inSequence := apl.inSequence
+	mayGo := slices.ContainsFunc(apl.majorCooldownActions, func(action *APLAction) bool { return action.IsReady(sim) })
+	apl.inSequence = inSequence
+	return mayGo
 }
 
 // Whether isMajorCooldown can accept the action: an autocast, a cast of a major cooldown, or a group holding
@@ -583,6 +667,8 @@ func canBeMajorCooldown(action *APLAction) bool {
 	case *APLActionCastSpell:
 		return impl.spell.Flags.Matches(SpellFlagMCD)
 	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionChannelSpell:
 		return impl.spell.Flags.Matches(SpellFlagMCD)
 	case *APLActionGroupReference:
 		return impl.group != nil && slices.ContainsFunc(impl.group.actions, canBeMajorCooldown)
@@ -599,6 +685,8 @@ func (apl *APLRotation) isMajorCooldown(sim *Simulation, action *APLAction) bool
 	case *APLActionCastSpell:
 		return impl.spell.Flags.Matches(SpellFlagMCD)
 	case *APLActionCastFriendlySpell:
+		return impl.spell.Flags.Matches(SpellFlagMCD)
+	case *APLActionChannelSpell:
 		return impl.spell.Flags.Matches(SpellFlagMCD)
 	case *APLActionGroupReference:
 		if impl.group == nil {
@@ -639,59 +727,85 @@ func (apl *APLRotation) popControllingAction(ca APLActionImpl) {
 	apl.controllingActions = apl.controllingActions[:len(apl.controllingActions)-1]
 }
 
-// nextActionWouldRecastChannel reports whether the same channeled spell would be
-// the first action cast if the channel ended right now. Run inside withChannelEnded,
-// so it evaluates the APL in the post-channel state (ChanneledDot = nil) and
-// channel-state-dependent conditions don't produce stale results.
-//
-// Uses CanCast rather than CanCastOrQueue so that a proc-queued spell in the
-// same timestep does not incorrectly block a same-spell re-cast from being
-// detected.
-func (apl *APLRotation) nextActionWouldRecastChannel(sim *Simulation, channeledDot *Dot) bool {
-	channeledSpell := channeledDot.Spell
+// Whether the first action the rotation would run casts the channel's spell. Read inside withChannelEnded.
+func (apl *APLRotation) firstActionRecasts(sim *Simulation, channeled *Spell) bool {
+	if step, controlled := apl.controlledStep(); controlled {
+		return step != nil && step.IsReady(sim) && step.casts(channeled)
+	}
+	_, recasts := apl.firstActionIn(sim, apl.priorityList, channeled)
+	return recasts
+}
 
-	for _, action := range apl.priorityList {
+// The current step of the strict sequence that controls the rotation, read without moving the sequence
+// on; nil under any other controlling action, which runs on its own. controlled says one controls it.
+func (apl *APLRotation) controlledStep() (step *APLAction, controlled bool) {
+	n := len(apl.controllingActions)
+	if n == 0 {
+		return nil, false
+	}
+	if sequence, ok := apl.controllingActions[n-1].(*APLActionStrictSequence); ok {
+		return sequence.current(), true
+	}
+	return nil, true
+}
+
+// Walks actions as the rotation would, a referenced group's actions in the reference's place and a
+// sequence's current step in the sequence's, to the first one that would run: found says there is one,
+// recasts that it casts the channel's spell. A cast or channel is read with CanCast rather than
+// CanCastOrQueue, so a spell queued for the GCD's end does not end the channel before then; it fires
+// after the channel's next tick. Autocast Other Cooldowns fires its cooldowns beside the rotation and is
+// passed over.
+func (apl *APLRotation) firstActionIn(sim *Simulation, actions []*APLAction, channeled *Spell) (found, recasts bool) {
+	for _, action := range actions {
 		if action.condition != nil && !action.condition.GetBool(sim) {
 			continue
 		}
 
-		if castAction, ok := action.impl.(*APLActionCastSpell); ok {
-			canCast := castAction.spell.CanCast(sim, castAction.target.Get())
-			if castAction.spell == channeledSpell || castAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
+		var inner []*APLAction
+		var canCast bool
+		switch impl := action.impl.(type) {
+		case *APLActionAutocastOtherCooldowns:
+			continue
+		case *APLActionGroupReference:
+			if impl.group == nil {
+				continue
 			}
-			// Use CanCast (not CanCastOrQueue) so SQW-queued spells don't
-			// prematurely interrupt — they'll fire after the channel's next tick.
-			if canCast {
-				return false
+			inner = impl.group.actions
+		case *APLActionSequence:
+			if impl.curIdx == len(impl.subactions) {
+				continue
+			}
+			inner = impl.subactions[impl.curIdx : impl.curIdx+1]
+		case *APLActionStrictSequence:
+			if !impl.IsReady(sim) {
+				continue
+			}
+			inner = impl.subactions[impl.curIdx : impl.curIdx+1]
+		case *APLActionCastSpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get()) && !impl.spell.majorCooldownWaits(sim)
+		case *APLActionCastFriendlySpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get()) && !impl.spell.majorCooldownWaits(sim)
+		case *APLActionChannelSpell:
+			canCast = impl.spell.CanCast(sim, impl.target.Get())
+		default:
+			canCast = action.impl.IsReady(sim)
+		}
+
+		if inner != nil {
+			if found, recasts := apl.firstActionIn(sim, inner, channeled); found {
+				return true, recasts
 			}
 			continue
 		}
-
-		if channelAction, ok := action.impl.(*APLActionChannelSpell); ok {
-			canCast := channelAction.spell.CanCast(sim, channelAction.target.Get())
-			if channelAction.spell == channeledSpell || channelAction.spell.Matches(channeledSpell.ClassSpellMask) {
-				return canCast
-			}
-			if canCast {
-				return false
-			}
-			continue
+		if action.casts(channeled) {
+			return true, canCast
 		}
-
-		// autocast_other_cooldowns fires off-GCD MCDs alongside the main rotation —
-		// never blocks same-spell detection.
-		if _, ok := action.impl.(*APLActionAutocastOtherCooldowns); ok {
-			continue
-		}
-
-		// A different non-spell action is fully ready — it would be cast first.
-		if action.impl.IsReady(sim) {
-			return false
+		if canCast {
+			return true, false
 		}
 	}
 
-	return false
+	return false, false
 }
 
 func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
@@ -701,25 +815,31 @@ func (apl *APLRotation) shouldInterruptChannel(sim *Simulation) bool {
 		return false
 	}
 
-	// Check whether the same channel would be re-cast in post-channel state.
-	var wouldRecast bool
+	var recasts bool
 	apl.withChannelEnded(func() {
-		wouldRecast = apl.nextActionWouldRecastChannel(sim, channeledDot)
+		recasts = apl.firstActionRecasts(sim, channeledDot.Spell)
 	})
 
-	if wouldRecast {
+	if recasts {
 		return apl.allowChannelRecastOnInterrupt
 	}
 
 	return true
 }
 
-// Runs evaluate as if the channel had ended, with no ChanneledDot, which it restores after.
+// Runs evaluate as if the channel had ended, with no ChanneledDot and the channel's aura read as down,
+// which it restores after. A variable read while the channel was up reads again. A sequence asked
+// whether it is ready marks the rotation as in a sequence; nothing asked here runs, so the mark is put
+// back.
 func (apl *APLRotation) withChannelEnded(evaluate func()) {
-	dot := apl.unit.ChanneledDot
+	dot, inSequence := apl.unit.ChanneledDot, apl.inSequence
 	apl.unit.ChanneledDot = nil
+	apl.unit.endedChannel = dot
+	apl.evalGeneration++
 	evaluate()
+	apl.unit.endedChannel = nil
 	apl.unit.ChanneledDot = dot
+	apl.inSequence = inSequence
 }
 
 // A starting channel takes the condition of the channel action that cast it. It takes the action's
@@ -814,4 +934,30 @@ func (rot *APLRotation) orphanValue(value APLValue) {
 	for _, inner := range value.GetInnerValues() {
 		rot.orphanValue(inner)
 	}
+}
+
+// The rows of the rotation by their JSON paths in the APL. A group referenced twice is parsed twice, and both
+// copies carry the path of the one in the APL.
+func (rot *APLRotation) RowPaths() map[*APLAction]string {
+	paths := map[*APLAction]string{}
+	for i, action := range rot.prepullActions {
+		paths[action] = PrepullRowPath(rot.prepullIdxMap[i])
+	}
+	for i, action := range rot.priorityList {
+		paths[action] = PriorityRowPath(rot.priorityListIdxMap[i])
+	}
+	for g, group := range rot.groups {
+		inAPL := slices.IndexFunc(rot.groups, func(other *APLGroup) bool { return other.name == group.name })
+		for i, action := range group.actions {
+			paths[action] = GroupRowPath(inAPL, rot.groupListIdxMap[g][i])
+		}
+	}
+	return paths
+}
+
+// The JSON path of a row in the APL.
+func PrepullRowPath(i int) string  { return fmt.Sprintf("prepullActions/%d", i) }
+func PriorityRowPath(i int) string { return fmt.Sprintf("priorityList/%d", i) }
+func GroupRowPath(group, i int) string {
+	return fmt.Sprintf("groups/%d/actions/%d", group, i)
 }

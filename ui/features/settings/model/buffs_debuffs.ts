@@ -1,4 +1,4 @@
-import { makeBooleanIndividualBuffInput, makeBooleanPartyBuffInput } from '@features/inputs/icon_inputs';
+import { makeBooleanPartyBuffInput, makeMultistateRaidBuffInput } from '@features/inputs/icon_inputs';
 import { Class, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
@@ -18,19 +18,20 @@ export const Innervate = Generated.Innervates;
 export const PowerInfusion = Generated.PowerInfusions;
 export const ManaTideTotem = Generated.ManaTideTotems;
 
-// Individual Buffs
-export const GreaterBlessingOfSalvation = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25895),
-	fieldName: 'greaterBlessingOfSalvation',
-	label: 'Mass Salvation',
-	showWhen: player => !player.getPlayerSpec().isTankSpec && !player.getPlayerSpec().isHealingSpec,
-});
-export const GreaterBlessingOfLight = makeBooleanIndividualBuffInput({
-	actionId: ActionId.fromSpellId(25890),
-	fieldName: 'greaterBlessingOfLight',
-	label: 'Greater Blessing of Light',
-	showWhen: player => player.getPlayerSpec().isHealingSpec || player.getPlayerSpec().isTankSpec,
-});
+// Raid Buffs
+// The raid's Battle Shout steps through the trainer's Rank 6, Rank 7 from Manual of Battle Shout VII (the first
+// improved icon) and Rank 7 from a warrior wearing three pieces of Battlegear of Wrath (both improved icons).
+export const BattleShout = {
+	...makeMultistateRaidBuffInput({
+		actionId: ActionId.fromSpellId(11551),
+		numStates: 4,
+		fieldName: 'battleShout',
+		label: 'Battle Shout',
+	}),
+	improvedId: ActionId.fromItemId(21298),
+	improvedId2: ActionId.fromSpellId(23563),
+};
+const BattleShoutOption: IconPickerStatOption = { config: BattleShout, stats: [Stat.StatAttackPower], ownerClass: Class.ClassWarrior };
 
 // Party Buffs
 export const RetributionAura = makeBooleanPartyBuffInput({
@@ -64,19 +65,17 @@ export const PARTY_BUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_PARTY_BUFFS
 ]);
 
 export const BUFFS_CONFIG = inDisplayOrder(
-	[...Generated.GENERATED_RAID_BUFFS_CONFIG, ...Generated.GENERATED_INDIVIDUAL_BUFFS_CONFIG],
+	[...Generated.GENERATED_RAID_BUFFS_CONFIG, BattleShoutOption, ...Generated.GENERATED_INDIVIDUAL_BUFFS_CONFIG],
 	[
-		Generated.ArcaneBrilliance,
+		Generated.ArcaneIntellect,
 		Generated.GreaterBlessingOfKings,
 		Generated.PrayerOfSpirit,
-		Generated.GiftOfTheWild,
+		Generated.MarkOfTheWild,
 		Generated.Thorns,
-		Generated.PrayerOfFortitude,
+		Generated.PowerWordFortitude,
 		Generated.GreaterBlessingOfMight,
 		Generated.GreaterBlessingOfWisdom,
-		{ config: GreaterBlessingOfSalvation, stats: [] },
-		{ config: GreaterBlessingOfLight, stats: [Stat.StatHealingPower], ownerClass: Class.ClassPaladin },
-		statOptionGroup(i18n.t('settings_tab.raid_buffs.shadow_resistance'), [Generated.PrayerOfShadowProtection, Generated.ShadowResistanceAura]),
+		statOptionGroup(i18n.t('settings_tab.raid_buffs.shadow_resistance'), [Generated.ShadowProtection, Generated.ShadowResistanceAura]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.fire_resistance'), [Generated.FireResistanceAura, Generated.FireResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.frost_resistance'), [Generated.FrostResistanceAura, Generated.FrostResistanceTotem]),
 		statOptionGroup(i18n.t('settings_tab.raid_buffs.nature_resistance'), [Generated.NatureResistanceTotem, Generated.AspectOfTheWild]),
@@ -84,7 +83,11 @@ export const BUFFS_CONFIG = inDisplayOrder(
 		Generated.GraceOfAirTotem,
 		Generated.WindfuryTotem,
 		Generated.FlametongueTotem,
-		statOptionGroup(i18n.t('settings_tab.raid_buffs.attack_power'), [Generated.BattleShout, Generated.FuriousHowl]),
+		statOptionGroup(
+			i18n.t('settings_tab.raid_buffs.attack_power'),
+			[BattleShout, Generated.FuriousHowl],
+			i18n.t('settings_tab.raid_buffs.attack_power_tooltip'),
+		),
 		Generated.TrueshotAura,
 		Generated.LeaderOfThePack,
 		Generated.MoonkinAura,

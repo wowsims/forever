@@ -15,12 +15,32 @@ import (
 // Holy damage dealt. Only one Seal can be active on the Paladin at any one time.
 //
 // Unleashing this Seal's energy causes 168 to 182 Holy damage to an enemy and taunts the target to
-// attack you for 4 sec.
+// attack you for 3 sec.
 func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfFuryTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementDamage := judgementRank.DamageEffect()
 	procRank := rank.Refs()[0]
 	procDamage := procRank.DamageEffect()
+
+	if paladin.sealOfFuryTaunt == nil {
+		tauntRank := spellData.SealOfFuryTriggered.Rank(3)
+
+		tauntAuras := paladin.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+			return target.GetOrRegisterAura(spelldata.AuraConfig(tauntRank))
+		})
+
+		tauntSpellConfig := spelldata.SpellConfig(&paladin.Unit, tauntRank, spelldata.Flags(core.SpellFlagNoOnCastComplete))
+		tauntSpellConfig.ProcMask = core.ProcMaskEmpty
+		tauntSpellConfig.Cast.DefaultCast.NonEmpty = true
+		tauntSpellConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+			if result.Landed() {
+				tauntAuras.Get(target).Activate(sim)
+			}
+		}
+
+		paladin.sealOfFuryTaunt = paladin.RegisterSpell(tauntSpellConfig)
+	}
 
 	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
 	// dodged, parried or blocked.
@@ -29,7 +49,8 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialNoBlockDodgeParry)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
+		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
@@ -37,15 +58,15 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	var pendingShield float64
 	shield := paladin.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
 		Aura: core.Aura{
-			Label:    fmt.Sprintf("Seal of Fury Shield%s Rank %d", paladin.Label, rank.RankNumber()),
-			ActionID: core.ActionID{SpellID: rank.ID}.WithTag(1),
-			Duration: sealDuration,
+			Label:     fmt.Sprintf("Seal of Fury Shield%s Rank %d", paladin.Label, rank.RankNumber()),
+			ActionID:  core.ActionID{SpellID: rank.ID}.WithTag(1),
+			Duration:  sealDuration,
+			MenuGroup: menuPaladinSeals,
 		},
 		ShieldStrengthCalculator: func(_ *core.Unit) float64 {
 			return pendingShield
 		},
 	})
-	paladin.applyImprovedSealOfFury(shield)
 
 	damage := procDamage.Mean()
 	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no
@@ -68,6 +89,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		}))
 	}
 	procSpell := paladin.RegisterSpell(procConfig)
+	echoSpell := paladin.registerEchoHit(procConfig, echoOfFuryID)
 
 	aura := paladin.makeSealExclusive(paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:            rank.RankedLabel(&paladin.Unit),
@@ -89,7 +111,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		judgement: judgement,
 		echoID:    echoOfFuryID,
 		echo: func(sim *core.Simulation, target *core.Unit) {
-			procSpell.Cast(sim, target)
+			echoSpell.Cast(sim, target)
 		},
 	})
 }

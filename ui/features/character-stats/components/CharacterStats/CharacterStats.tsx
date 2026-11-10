@@ -76,8 +76,6 @@ export const CharacterStats = ({ className }: CharacterStatsProps) => {
 	const { groups, shownStats } = useMemo(() => buildRows(player, statFilter.shown), [player, statFilter.shown]);
 	const race = usePlayerStore('race');
 	const consumables = usePlayerStore('consumables');
-	const talentsString = usePlayerStore('talentsString');
-	const inFrontOfTarget = usePlayerStore('inFrontOfTarget');
 	// Not player state, but read by the facade getters below: getDebuffStats and getMissChanceInfo
 	// go through raid.debuffs.
 	const debuffs = useStore(host.sim.store, s => s.raid.debuffs);
@@ -91,17 +89,18 @@ export const CharacterStats = ({ className }: CharacterStatsProps) => {
 			overwriteDisplayStats ? overwriteDisplayStats(player) : undefined,
 		);
 		const isTank = shouldShowCritImmunity(player);
+		const critCapInfo = shouldShowMeleeCritCap(player) ? player.getMeleeCritCapInfo() : undefined;
 		return {
 			pending: !currentStats.finalStats,
 			attribution,
 			rangedWeapon: player.getEquippedItem(ItemSlot.ItemSlotRanged),
-			critCap: shouldShowMeleeCritCap(player) ? { info: player.getMeleeCritCapInfo(), text: meleeCritCapDisplayString(player) } : null,
+			critCap: critCapInfo ? { info: critCapInfo, text: meleeCritCapDisplayString(critCapInfo.delta) } : null,
 			miss: isTank ? player.getMissChanceInfo() : null,
 			avoidance: isTank ? player.getAvoidanceInfo() : null,
 			critImmunity: isTank ? { info: player.getCritImmunityInfo(), text: critImmunityCapDisplayString(player) } : null,
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- every store value below reaches the body through the player/sim facades rather than by name; they are the invalidation keys, and dropping one stales the snapshot.
-	}, [player, currentStats, bonusStats, gear, race, consumables, talentsString, inFrontOfTarget, debuffs, modifyDisplayStats, overwriteDisplayStats]);
+	}, [player, currentStats, bonusStats, gear, race, consumables, debuffs, modifyDisplayStats, overwriteDisplayStats]);
 
 	const { pending, attribution, rangedWeapon, critCap, miss, avoidance, critImmunity } = snapshot;
 	const show = (deltaStats: Stats, unitStat: UnitStat, includeBase?: boolean) => statDisplayString(player, deltaStats, unitStat, includeBase);

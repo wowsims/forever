@@ -14,7 +14,7 @@ func RegisterProtectionWarrior() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewProtectionWarrior(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_ProtectionWarrior)
 			if !ok {
 				panic("Invalid spec value for Protection Warrior!")
@@ -40,12 +40,13 @@ func NewProtectionWarrior(character *core.Character, options *proto.Player) *Pro
 
 	war := &ProtectionWarrior{
 		Warrior: warrior.NewWarrior(character, protOptions.ClassOptions, options.TalentsString, warrior.WarriorInputs{
-			UseBattleShout: classOptions.UseBattleShout,
-			DefaultStance:  classOptions.DefaultStance,
-			StartingRage:   classOptions.StartingRage,
-			QueueDelay:     classOptions.QueueDelay,
-			StanceSnapshot: classOptions.StanceSnapshot,
-			HasBsT2:        classOptions.HasBsT2,
+			UseBattleShout:      classOptions.UseBattleShout,
+			DefaultStance:       classOptions.DefaultStance,
+			StartingRage:        classOptions.StartingRage,
+			QueueDelay:          classOptions.QueueDelay,
+			StanceSnapshot:      classOptions.StanceSnapshot,
+			HasBsT2:             classOptions.HasBsT2,
+			HasBattleShoutRank7: classOptions.HasBattleShoutRank_7,
 		}),
 		Options: protOptions,
 	}

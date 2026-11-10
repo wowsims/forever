@@ -9,60 +9,61 @@ import "common.proto";
 // WarriorTalents message.
 message WarriorTalents {
     // Arms
-    int32 improved_heroic_strike = 1;
-    int32 deflection = 2;
-    int32 improved_rend = 3;
-    int32 improved_charge = 4;
-    int32 improved_tactical_mastery = 5;
-    int32 improved_overpower = 6;
-    bool anger_management = 7;
-    int32 deep_wounds = 8;
-    bool spearing_strike = 9;
-    int32 two_handed_weapon_specialization = 10;
-    int32 impale = 11;
-    int32 bloodthrill = 12;
-    bool sweeping_strikes = 13;
-    int32 weaponmaster = 14;
-    int32 improved_slam = 15;
-    int32 improved_hamstring = 16;
-    bool mortal_strike = 17;
+    int32 improved_heroic_strike = 1 [(talent_spell_id) = 12282, (talent_max_rank) = 3];
+    int32 deflection = 2 [(talent_spell_id) = 16462, (talent_max_rank) = 5];
+    int32 improved_rend = 3 [(talent_spell_id) = 12286, (talent_max_rank) = 3];
+    int32 improved_charge = 4 [(talent_spell_id) = 12285, (talent_max_rank) = 2];
+    int32 improved_tactical_mastery = 5 [(talent_spell_id) = 12295, (talent_max_rank) = 3];
+    int32 improved_overpower = 6 [(talent_spell_id) = 12290, (talent_max_rank) = 2];
+    bool anger_management = 7 [(talent_spell_id) = 12296];
+    int32 deep_wounds = 8 [(talent_spell_id) = 12834, (talent_max_rank) = 3];
+    bool spearing_strike = 9 [(talent_spell_id) = 1310222];
+    int32 two_handed_weapon_specialization = 10 [(talent_spell_id) = 12163, (talent_max_rank) = 3];
+    int32 impale = 11 [(talent_spell_id) = 16493, (talent_max_rank) = 2];
+    int32 bloodthrill = 12 [(talent_spell_id) = 1289682, (talent_max_rank) = 2];
+    bool sweeping_strikes = 13 [(talent_spell_id) = 12292];
+    int32 weaponmaster = 14 [(talent_spell_id) = 1290261, (talent_max_rank) = 5];
+    int32 improved_slam = 15 [(talent_spell_id) = 12862, (talent_max_rank) = 2];
+    int32 improved_hamstring = 16 [(talent_spell_id) = 12289, (talent_max_rank) = 3];
+    bool mortal_strike = 17 [(talent_spell_id) = 12294];
     // Fury
-    int32 booming_voice = 18;
-    int32 cruelty = 19;
-    int32 lingering_rage = 20;
-    int32 unbridled_wrath = 21;
-    int32 furious_precision = 22;
-    bool piercing_howl = 23;
-    int32 blood_craze = 24;
-    int32 dual_wield_specialization = 25;
-    bool raging_blows = 26;
-    int32 enrage = 27;
-    int32 improved_execute = 28;
-    int32 improved_berserker_rage = 29;
-    bool death_wish = 30;
-    int32 improved_intercept = 31;
-    int32 flurry = 32;
-    int32 gore_drinker = 33;
-    bool bloodthirst = 34;
+    int32 booming_voice = 18 [(talent_spell_id) = 12321, (talent_max_rank) = 5];
+    int32 cruelty = 19 [(talent_spell_id) = 12320, (talent_max_rank) = 5];
+    int32 lingering_rage = 20 [(talent_spell_id) = 1323964, (talent_max_rank) = 5];
+    int32 unbridled_wrath = 21 [(talent_spell_id) = 12322, (talent_max_rank) = 5];
+    int32 furious_precision = 22 [(talent_spell_id) = 1323963, (talent_max_rank) = 3];
+    bool piercing_howl = 23 [(talent_spell_id) = 12323];
+    int32 blood_craze = 24 [(talent_spell_id) = 16487, (talent_max_rank) = 3];
+    int32 enrage = 25 [(talent_spell_id) = 12317, (talent_max_rank) = 5];
+    int32 dual_wield_specialization = 26 [(talent_spell_id) = 23584, (talent_max_rank) = 5];
+    bool reckless_swings = 27 [(talent_spell_id) = 1329555];
+    int32 improved_execute = 28 [(talent_spell_id) = 20502, (talent_max_rank) = 2];
+    int32 improved_berserker_rage = 29 [(talent_spell_id) = 20500, (talent_max_rank) = 2];
+    bool death_wish = 30 [(talent_spell_id) = 12328];
+    int32 gore_drinker = 31 [(talent_spell_id) = 1323967, (talent_max_rank) = 2];
+    int32 improved_intercept = 32 [(talent_spell_id) = 20504, (talent_max_rank) = 2];
+    int32 improved_whirlwind = 33 [(talent_spell_id) = 1310315, (talent_max_rank) = 2];
+    int32 flurry = 34 [(talent_spell_id) = 12319, (talent_max_rank) = 3];
+    bool bloodthirst = 35 [(talent_spell_id) = 23881];
     // Protection
-    int32 improved_bloodrage = 35;
-    int32 shield_specialization = 36;
-    int32 iron_will = 37;
-    int32 anticipation = 38;
-    int32 improved_revenge = 39;
-    int32 improved_thunder_clap = 40;
-    bool last_stand = 41;
-    int32 master_of_defense = 42;
-    int32 improved_disarm = 43;
-    int32 defiance = 44;
-    int32 improved_sunder_armor = 45;
-    bool vanguard = 46;
-    int32 improved_shield_bash = 47;
-    int32 improved_shield_wall = 48;
-    bool concussion_blow = 49;
-    int32 focused_rage = 50;
-    int32 bastion = 51;
-    bool shield_slam = 52;
+    int32 improved_bloodrage = 36 [(talent_spell_id) = 12301, (talent_max_rank) = 2];
+    int32 shield_specialization = 37 [(talent_spell_id) = 12298, (talent_max_rank) = 5];
+    int32 iron_will = 38 [(talent_spell_id) = 12962, (talent_max_rank) = 5];
+    int32 anticipation = 39 [(talent_spell_id) = 12297, (talent_max_rank) = 5];
+    int32 improved_revenge = 40 [(talent_spell_id) = 12797, (talent_max_rank) = 3];
+    int32 improved_thunder_clap = 41 [(talent_spell_id) = 12287, (talent_max_rank) = 3];
+    bool last_stand = 42 [(talent_spell_id) = 12975];
+    int32 master_of_defense = 43 [(talent_spell_id) = 1310316, (talent_max_rank) = 2];
+    int32 improved_disarm = 44 [(talent_spell_id) = 12313, (talent_max_rank) = 3];
+    int32 defiance = 45 [(talent_spell_id) = 12792, (talent_max_rank) = 3];
+    int32 improved_sunder_armor = 46 [(talent_spell_id) = 12308, (talent_max_rank) = 3];
+    bool vanguard = 47 [(talent_spell_id) = 1310317];
+    int32 improved_shield_bash = 48 [(talent_spell_id) = 12311, (talent_max_rank) = 2];
+    int32 improved_shield_wall = 49 [(talent_spell_id) = 12312, (talent_max_rank) = 2];
+    bool concussion_blow = 50 [(talent_spell_id) = 12809];
+    int32 focused_rage = 51 [(talent_spell_id) = 29787, (talent_max_rank) = 3];
+    int32 bastion = 52 [(talent_spell_id) = 16538, (talent_max_rank) = 5];
+    bool shield_slam = 53 [(talent_spell_id) = 23922];
 }
 
 // END GENERATED
@@ -83,6 +84,7 @@ message WarriorOptions {
 	bool has_bs_t2 = 4;
 	bool use_battle_shout = 5;
 	int32 queue_delay = 6;
+	bool has_battle_shout_rank_7 = 7;
 }
 
 enum DpsWarriorSpec {
@@ -108,6 +110,9 @@ message DpsWarrior {
 		bool use_rend = 6;
 		bool use_stance_dance = 7;
 		bool use_hamstring = 8;
+		// The preset rotations cast the ranks the class books teach; each use_ rank field left false casts the trainer's top rank in its place.
+		bool use_heroic_strike_rank_9 = 9;
+		bool use_battle_shout_rank_7 = 10;
 	}
 
 	message Options {

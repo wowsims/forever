@@ -21,13 +21,6 @@ var HandTriggers = []HandTrigger{
 		Source: "game-files-rows",
 	},
 	{
-		Spell:    1314103,
-		Triggers: 1314104,
-		Reason: "Improved Seal of Fury's talent aura (three dummies) casts the mana restore 1314104: same name " +
-			"and icon, a mana energize whose tooltip reads its numbers off 1314103 and whose aura text is Restoring Mana",
-		Source: "game-files-rows",
-	},
-	{
 		Spell:    1311074,
 		Triggers: 1311077,
 		Reason: "Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, " +

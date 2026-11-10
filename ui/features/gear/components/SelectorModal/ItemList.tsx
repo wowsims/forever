@@ -3,6 +3,7 @@ import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
+import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUiStore } from '@sim/hooks/useUiStore';
@@ -21,7 +22,7 @@ import { useCallback, useId, useMemo, useRef, useState } from 'react';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
-import { defaultSortBy, ItemListSortBy, sortItemIdxs, tabSortsByEP } from '../../model/item_sort';
+import { defaultSortBy, ItemListSortBy, slotSortsByEP, sortItemIdxs } from '../../model/item_sort';
 import { type ItemDataFields, type ItemListType, SelectorModalTabs } from '../../types';
 import { FiltersMenu } from '../FiltersMenu';
 import { ItemListHeaderRow } from './ItemListHeaderRow';
@@ -77,7 +78,7 @@ export const ItemListToolbarView = ({
 	remove,
 }: ItemListToolbarViewProps) => {
 	return (
-		<div className="ui-selector-modal-filters mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
+		<div className="mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
 			<SearchField
 				value={search}
 				onChange={onSearchChange}
@@ -116,8 +117,9 @@ export const ItemListToolbarView = ({
 	);
 };
 
-const toggle = (name: string, label: string, value: boolean, onChange: (value: boolean) => void): ItemListToggle => ({
-	id: `show-${name}-selector`,
+// Both panes stay mounted, so a toggle's id carries its tab.
+const toggle = (tab: SelectorModalTabs, name: string, label: string, value: boolean, onChange: (value: boolean) => void): ItemListToggle => ({
+	id: `show-${name}-selector-${tab.toLowerCase().replace(/\s+/g, '-')}`,
 	testId: `selector-modal-show-${name}`,
 	label,
 	value,
@@ -134,10 +136,10 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 	const host = useSimHost();
 	const player = host.player;
 	const sim = player.sim;
-	const { label, itemData, computeEP, equippedToItem, onRemove } = tab;
+	const { label, itemData, computeEP, equippedToItem, epComparable, onRemove } = tab;
 
 	const [search, setSearch] = useState('');
-	const [sortBy, setSortBy] = useState(() => defaultSortBy(label, slot));
+	const [sortBy, setSortBy] = useState(() => defaultSortBy(slot));
 	const [sortDirection, setSortDirection] = useState(SortDirection.DESC);
 	const listRef = useRef<HTMLDivElement>(null);
 	const [filtersOpen, setFiltersOpen] = useState(false);
@@ -145,6 +147,8 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const phase = useSimStore('phase');
+	const race = usePlayerStore('race');
+	const faction = player.getFaction();
 	const showEPValues = useUiStore('showEPValues');
 
 	const isFavourited = useCallback((row: ItemDataFields<ItemListType>) => isItemFavourited(filters, label, row), [filters, label]);
@@ -173,14 +177,16 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 		// `filters` is named here even though the body never reads it: `player.filterItemData` and
 		// `player.filterEnchantData` reach `sim.getFilters()` internally, so a filter change has to
 		// rebuild this. The lint calls it unnecessary; deleting it leaves correctness resting on
-		// `isFavourited` happening to close over `filters` too.
+		// `isFavourited` happening to close over `filters` too. `race` is named for the same reason:
+		// the faction filter follows the race unless the user picked a faction.
 		// oxlint-disable-next-line react-hooks/exhaustive-deps
-	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters]);
+	}, [itemData, player, sim, slot, label, phase, search, sortBy, sortDirection, computeEP, isFavourited, filters, race]);
 
-	const showEPOptions = tabSortsByEP(label, slot);
+	const showEPOptions = slotSortsByEP(slot);
 	const equipped = equippedToItem(equippedItem);
 	const equippedId = getItemIdByItemType(label, equipped);
-	const equippedEP = showEPOptions && equipped !== null && equipped !== undefined ? computeEP(equipped) : null;
+	const comparableEP = (item: ItemListType) => epComparable?.(item) ?? true;
+	const equippedEP = showEPOptions && equipped !== null && equipped !== undefined && comparableEP(equipped) ? computeEP(equipped) : null;
 
 	const sort = (next: ItemListSortBy) => {
 		setSortDirection(current => (sortBy === next ? 1 - current : SortDirection.DESC));
@@ -205,12 +211,12 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 
 	const toggles = [
 		showWeaponOptions &&
-			toggle('1h-weapons', i18n.t('settings_tab.other.show_1h_weapons.label'), filters.oneHandedWeapons, setFilterFlag('oneHandedWeapons')),
+			toggle(label, '1h-weapons', i18n.t('settings_tab.other.show_1h_weapons.label'), filters.oneHandedWeapons, setFilterFlag('oneHandedWeapons')),
 		showWeaponOptions &&
-			toggle('2h-weapons', i18n.t('settings_tab.other.show_2h_weapons.label'), filters.twoHandedWeapons, setFilterFlag('twoHandedWeapons')),
+			toggle(label, '2h-weapons', i18n.t('settings_tab.other.show_2h_weapons.label'), filters.twoHandedWeapons, setFilterFlag('twoHandedWeapons')),
 		label === SelectorModalTabs.Enchants &&
-			toggle('all-enchants', i18n.t('settings_tab.other.show_all_enchants.label'), filters.showAllEnchants, setFilterFlag('showAllEnchants')),
-		showEPOptions && toggle('ep-values', i18n.t('settings_tab.other.show_ep_values.label'), showEPValues, value => sim.setShowEPValues(value)),
+			toggle(label, 'all-enchants', i18n.t('settings_tab.other.show_all_enchants.label'), filters.showAllEnchants, setFilterFlag('showAllEnchants')),
+		showEPOptions && toggle(label, 'ep-values', i18n.t('settings_tab.other.show_ep_values.label'), showEPValues, value => sim.setShowEPValues(value)),
 	].filter((entry): entry is ItemListToggle => !!entry);
 
 	return (
@@ -250,10 +256,12 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 								itemData={row}
 								label={label}
 								active={row.id === equippedId}
-								ep={showEPOptions ? { ep: computeEP(row.item), equippedEP } : undefined}
+								ep={showEPOptions ? { ep: computeEP(row.item), equippedEP: comparableEP(row.item) ? equippedEP : null } : undefined}
 								favourited={isFavourited(row)}
 								favouriteTooltipId={`${tooltipId}-favourite`}
 								compareTooltipId={`${tooltipId}-compare`}
+								faction={faction}
+								firstSeen={sim.db.getItemFirstSeen(row.id)}
 								onEquip={() => row.onEquip(row.item)}
 								onToggleFavourite={() => toggleFavourite(row)}
 							/>

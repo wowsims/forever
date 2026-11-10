@@ -206,6 +206,9 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 	{Group: ElixirGroup(dbcenums.A_MOD_ATTACK_POWER, 0), Items: []int32{
 		12460, // Juju Might
 	}},
+	{Group: ElixirGroup(dbcenums.A_MOD_DAMAGE_DONE, 1), Items: []int32{
+		5206, // Bogling Root
+	}},
 	{Group: ConsumableGroupKey{Key: "Zanza", Name: "Zanza"}, Items: []int32{
 		8410,  // R.O.I.D.S.
 		8411,  // Lung Juice Cocktail
@@ -230,7 +233,9 @@ var ConsumableExclusiveGroups = []ConsumableGroup{
 ```
 
 The Jujus are Quest-class items the catalogue filter leaves out; naming them here brings them into
-the catalogue as well. The Blasted Lands buffs leave their category group for Zanza. The permanent
+the catalogue as well. Bogling Root 5206 opens on the same aura as Elixir of Minor Force 247755
+(`A_MOD_DAMAGE_DONE` Physical, 13/1); the server does not stack the two, so the entry puts it in the
+elixir's group. The Blasted Lands buffs leave their category group for Zanza. The permanent
 Zanza items (23794, 23795, 23796) are not obtainable and `ConsumableDenyList` keeps them out. The rums
 stack with the food and not with each other; the three the game files type as food leave the food pick
 for the Rum group. The two
@@ -488,7 +493,7 @@ physical damage), and the percents `consumablePseudoStatsOf` names, and the play
 any stat some consumable grants. A warrior weighs no Stamina but displays it, so the Stamina scrolls
 and the rums start shown. The potions and conjured items a sim request lists
 (`relevantConsumableIds`) still follow the weighed stats alone. A consumable already picked stays offered below the minimum level or
-with its stats hidden, so it can be seen and cleared; with its stats hidden, it is marked as kept.
+with its stats hidden, so it can be seen and cleared, and it is marked as kept.
 
 Each picker and each row of toggles lists its consumables by the EP their stats and percents add at
 the player's EP weights, highest first (`orderedByEp`). A mob type stat counts only while the

@@ -31,7 +31,7 @@ vi.mock('@sim/proto/sim_result', async importOriginal => ({
 
 // Every pane below is React now, so they are prop readers rather than islands: what this pane owes
 // each is `active`, which is what their own deferral is built on.
-const panes = vi.hoisted(() => ({ log: [] as Array<boolean>, timeline: [] as Array<boolean> }));
+const panes = vi.hoisted(() => ({ log: [] as Array<boolean>, timeline: [] as Array<boolean>, movement: [] as Array<boolean> }));
 vi.mock('../LogRunner', () => ({
 	LogRunner: ({ active }: { active: boolean }) => {
 		panes.log.push(active);
@@ -42,6 +42,12 @@ vi.mock('../Timeline', () => ({
 	Timeline: ({ active }: { active: boolean }) => {
 		panes.timeline.push(active);
 		return <div className="timeline-root" />;
+	},
+}));
+vi.mock('../Movement', () => ({
+	Movement: ({ active }: { active: boolean }) => {
+		panes.movement.push(active);
+		return <div className="movement-root" />;
 	},
 }));
 
@@ -89,6 +95,7 @@ const tabButton = (container: HTMLElement, tabId: string) =>
 beforeEach(() => {
 	panes.log.length = 0;
 	panes.timeline.length = 0;
+	panes.movement.length = 0;
 	resultChannel = new ResultChannel();
 	currentChangeEmitter = new Emitter<void>();
 	runData = null;
@@ -103,7 +110,7 @@ describe('DetailedResults', () => {
 	it('renders only the tabs whose metrics toggle is on, opens the damage pane and fades the rest out, and keeps each pane in the container its island was built into', () => {
 		const { container } = renderPane();
 		const buttons = [...container.querySelectorAll<HTMLButtonElement>('[data-testid="dr-toolbar"] [role="tab"]')];
-		expect(buttons).toHaveLength(7);
+		expect(buttons).toHaveLength(8);
 		expect(buttons.map(button => button.getAttribute('aria-controls'))).toEqual([
 			'damageTab',
 			'buffsTab',
@@ -111,6 +118,7 @@ describe('DetailedResults', () => {
 			'castsTab',
 			'resourcesTab',
 			'timelineTab',
+			'movementTab',
 			'logTab',
 		]);
 		expect(buttons.filter(button => button.getAttribute('aria-selected') === 'true')).toHaveLength(1);
@@ -123,6 +131,7 @@ describe('DetailedResults', () => {
 
 		expect(container.querySelectorAll('#logTab .log-runner-root')).toHaveLength(1);
 		expect(container.querySelectorAll('#timelineTab .timeline-root')).toHaveLength(1);
+		expect(container.querySelectorAll('#movementTab .movement-root')).toHaveLength(1);
 	});
 
 	it('holds every metrics table in its own tab, under its own root', () => {
@@ -152,6 +161,7 @@ describe('DetailedResults', () => {
 	it.each([
 		['log', 'logTab'],
 		['timeline', 'timelineTab'],
+		['movement', 'movementTab'],
 	] as const)('tells the %s pane whether its tab is the open one', (pane, tabId) => {
 		const { container } = renderPane();
 		expect(panes[pane].at(-1)).toBe(false);
@@ -251,13 +261,20 @@ describe('DetailedResults', () => {
 
 const TABS: Array<DetailedResultsTabConfig> = [
 	{ id: 'damageTab', labelKey: 'results_tab.details.tabs.damage', groupsRanks: true },
+	{ id: 'castsTab', labelKey: 'results_tab.details.tabs.casts', breaksDownApm: true },
 	{ id: 'logTab', labelKey: 'results_tab.details.tabs.log' },
 ];
 
 const SlotReader = () => <span data-testid="slot-reader">{useDrStickySlot()?.getAttribute('data-testid') ?? 'none'}</span>;
 
 const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
-	const handlers = { onActiveIdChange: vi.fn(), onSimulateIteration: vi.fn(), onSimulateDeath: vi.fn(), onGroupRanksChange: vi.fn() };
+	const handlers = {
+		onActiveIdChange: vi.fn(),
+		onSimulateIteration: vi.fn(),
+		onSimulateDeath: vi.fn(),
+		onGroupRanksChange: vi.fn(),
+		onShowApmBreakdownChange: vi.fn(),
+	};
 	const view = render(
 		<DetailedResultsView
 			tabs={TABS}
@@ -267,9 +284,11 @@ const mount = (props: Partial<DetailedResultsViewProps> = {}) => {
 			deathDisabled
 			targetPicker={<span data-testid="filter-slot" />}
 			groupRanks
+			showApmBreakdown
 			{...handlers}
 			{...props}>
 			<TabPanel value="damageTab">damage pane</TabPanel>
+			<TabPanel value="castsTab">casts pane</TabPanel>
 			<TabPanel value="logTab">
 				<SlotReader />
 			</TabPanel>
@@ -316,8 +335,8 @@ describe('DetailedResultsView', () => {
 		const { onActiveIdChange } = mount();
 
 		const tabs = screen.getAllByRole('tab');
-		expect(tabs.map(tab => tab.id)).toEqual(['damageTab-nav', 'logTab-nav']);
-		fireEvent.click(tabs[1]);
+		expect(tabs.map(tab => tab.id)).toEqual(['damageTab-nav', 'castsTab-nav', 'logTab-nav']);
+		fireEvent.click(tabs[2]);
 
 		expect(onActiveIdChange).toHaveBeenCalledWith('logTab');
 		expect(screen.getByTestId('results-filter').contains(screen.getByTestId('filter-slot'))).toBe(true);
@@ -337,6 +356,20 @@ describe('DetailedResultsView', () => {
 		mount({ activeId: 'logTab' });
 
 		expect(within(screen.getByTestId('results-filter')).queryByRole('checkbox')).toBeNull();
+	});
+
+	it('shows the APM breakdown toggle only on a tab whose table breaks down APM, and reports a change', () => {
+		const name = 'results_tab.details.show_apm_breakdown';
+		const damage = mount();
+		expect(screen.queryByRole('checkbox', { name })).toBeNull();
+		damage.unmount();
+
+		const { onShowApmBreakdownChange } = mount({ activeId: 'castsTab' });
+		const toggle = within(screen.getByTestId('results-filter')).getByRole('checkbox', { name });
+		expect(toggle.getAttribute('aria-checked')).toBe('true');
+		fireEvent.click(toggle);
+
+		expect(onShowApmBreakdownChange).toHaveBeenCalledWith(false);
 	});
 
 	it('hands the panes the sticky slot under the toolbar', () => {

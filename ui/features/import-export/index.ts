@@ -5,10 +5,12 @@ export {
 	BulkGearImporterDialog,
 	Importer,
 	JsonImporterDialog,
+	SimlImporterDialog,
 	SixtyUpgradesImporterDialog,
 	WowheadImporterDialog,
 } from './components/Importer';
 export type { ImporterDialogProps, ImporterProps } from './components/Importer';
+export { SimlRotationActions } from './components/SimlRotationActions';
 export {
 	CLI_EXPORTER,
 	createLink,
@@ -16,6 +18,7 @@ export {
 	JSON_EXPORTER,
 	LINK_EXPORTER,
 	PAWN_EP_EXPORTER,
+	SIML_EXPORTER,
 	SIXTY_UPGRADES_EP_EXPORTER,
 	WOWHEAD_GEAR_PLANNER_EXPORTER,
 } from './exporters';

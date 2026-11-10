@@ -77,6 +77,42 @@ describe('BooleanPicker', () => {
 		render(<Harness disabled />);
 		expect(checkbox().getAttribute('aria-disabled')).toBe('true');
 		expect(checkbox().closest('[data-testid="boolean-picker-root"]')!.hasAttribute('data-disabled')).toBe(true);
+		expect(checkbox().tabIndex).toBe(-1);
+	});
+
+	it('keeps a disabled box focusable when asked, still disabled and untoggled, and opens the label tooltip on its focus', async () => {
+		render(<Harness disabled focusableWhenDisabled labelTooltip="Needs a dual wielder" />);
+		expect(checkbox().tabIndex).toBe(0);
+		expect(checkbox().getAttribute('aria-disabled')).toBe('true');
+
+		fireEvent.click(checkbox());
+		// A cancelled keydown: Space does not scroll the page either.
+		expect(fireEvent.keyDown(checkbox(), { key: ' ' })).toBe(false);
+		fireEvent.keyUp(checkbox(), { key: ' ' });
+		fireEvent.keyDown(checkbox(), { key: 'Enter' });
+		expect(changes).not.toHaveBeenCalled();
+		expect(isChecked(checkbox())).toBe(false);
+
+		fireEvent.focus(checkbox());
+		expect((await screen.findByRole('tooltip')).textContent).toBe('Needs a dual wielder');
+		fireEvent.blur(checkbox());
+		await waitFor(() => expect(screen.queryByRole('tooltip')).toBeNull());
+	});
+
+	it('opens the label tooltip of a focused disabled box at the label, on the side it is given', async () => {
+		render(<Harness disabled focusableWhenDisabled labelTooltip="Needs a dual wielder" labelTooltipPlace="right" />);
+		// The label is the tooltip's one anchor, so a side placement sits beside the label text, not over it.
+		expect(checkbox().hasAttribute('data-tooltip-id')).toBe(false);
+
+		fireEvent.focus(checkbox());
+		const tooltip = await screen.findByRole('tooltip');
+		expect(tooltip.className).toContain('react-tooltip__place-right');
+		expect([...document.querySelectorAll(`[data-tooltip-id="${tooltip.id}"]`)]).toEqual([screen.getByText('Enable Item Swap')]);
+	});
+
+	it('keeps an enabled box in the tab order with focusableWhenDisabled', () => {
+		render(<Harness focusableWhenDisabled />);
+		expect(checkbox().tabIndex).toBe(0);
 	});
 
 	it('renders a labelled field: the label targets the checkbox, and the description sits alongside it', () => {

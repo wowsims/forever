@@ -10,7 +10,7 @@ import { Tooltip, tooltipAnchorProps } from '@ui-kit/Tooltip';
 import { type ReactNode, useId, useMemo } from 'react';
 
 import { useOpenFilterGroups } from '../../hooks/useOpenFilterGroups';
-import { type FilterGroupKey, filterGroupsOf, filterLabelsOf } from '../../model/stat_groups';
+import { type FilterGroupKey, filterGroupsOf, ratingsByPercentKey } from '../../model/stat_groups';
 
 export interface StatFilterListProps {
 	universe: ReadonlyArray<UnitStat>;
@@ -35,7 +35,7 @@ export interface StatFilterPopoverProps extends Omit<StatFilterListProps, 'openG
 }
 
 const groupLabel = (key: FilterGroupKey | 'other') =>
-	key === 'primary' || key === 'ratings' || key === 'other' ? i18n.t(`stat_filters.groups.${key}`) : i18n.t(`sidebar.character_stats.groups.${key}`);
+	key === 'primary' || key === 'gear' || key === 'other' ? i18n.t(`stat_filters.groups.${key}`) : i18n.t(`sidebar.character_stats.groups.${key}`);
 
 /** The popover's body without its trigger, for a popover that holds other filters as well. */
 export const StatFilterList = ({
@@ -50,10 +50,14 @@ export const StatFilterList = ({
 	idPrefix,
 }: StatFilterListProps) => {
 	const shownKeys = new Set(shown.map(stat => stat.getKey()));
-	const isShown = (stat: UnitStat) => shownKeys.has(stat.getKey());
-	const toggle = (stat: UnitStat, checked: boolean) => onChange(universe.filter(other => (other.equals(stat) ? checked : isShown(other))));
+	const ratingsByPercent = useMemo(() => ratingsByPercentKey(universe), [universe]);
+	const rowStats = (stat: UnitStat) => [stat, ...(ratingsByPercent.get(stat.getKey()) ?? [])];
+	const isShown = (stat: UnitStat) => rowStats(stat).some(rowStat => shownKeys.has(rowStat.getKey()));
+	const toggle = (stat: UnitStat, checked: boolean) => {
+		const row = rowStats(stat);
+		onChange(universe.filter(other => (row.some(rowStat => rowStat.equals(other)) ? checked : isShown(other))));
+	};
 	const groups = useMemo(() => filterGroupsOf(universe), [universe]);
-	const labels = useMemo(() => filterLabelsOf(universe, playerClass), [universe, playerClass]);
 
 	return (
 		<div className="flex min-h-0 flex-col gap-2">
@@ -81,9 +85,9 @@ export const StatFilterList = ({
 								<BooleanPicker
 									key={stat.getKey()}
 									id={`${idPrefix}-${stat.getKey()}`}
-									label={labels.get(stat.getKey())}
+									label={stat.getShortName(playerClass)}
 									layout="inline"
-									density="compact"
+									size="xs"
 									value={isShown(stat)}
 									onChange={checked => toggle(stat, checked)}
 								/>

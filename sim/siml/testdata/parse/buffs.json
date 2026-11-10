@@ -1,0 +1,29 @@
+{
+	"raidBuffs": {
+		"arcaneIntellect": true,
+		"markOfTheWild": true,
+		"battleShout": 2,
+		"leaderOfThePack": true
+	},
+	"debuffs": {
+		"huntersMark": true,
+		"judgementOfTheCrusader": true,
+		"curseOfRecklessness": true,
+		"faerieFire": true,
+		"exposeArmor": true,
+		"sunderArmor": true
+	},
+	"partyBuffs": {
+		"manaSpringTotem": "TristateEffectRegular",
+		"manaTideTotems": 2
+	},
+	"player": {
+		"class": "ClassWarrior",
+		"buffs": {
+			"greaterBlessingOfKings": true,
+			"greaterBlessingOfMight": 1
+		},
+		"dpsWarrior": {}
+	},
+	"targetDummies": 3
+}

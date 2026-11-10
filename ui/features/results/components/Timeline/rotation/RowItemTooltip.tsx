@@ -1,3 +1,5 @@
+import type { AplRun } from '@features/apl/model/apl_entry';
+
 import type { RowItem } from '../../../model/timeline/rotation';
 import { ResourceTooltip } from '../tooltips/ResourceTooltip';
 import { AuraTooltip } from './AuraTooltip';
@@ -8,13 +10,14 @@ import { TickTooltip } from './TickTooltip';
 
 export interface RowItemTooltipProps {
 	item: RowItem;
+	aplRun?: AplRun;
 }
 
 /** What hovering one bar, tick or resource block shows. One entry per item kind, so a new kind is a type error. */
-export const RowItemTooltip = ({ item }: RowItemTooltipProps) => {
+export const RowItemTooltip = ({ item, aplRun }: RowItemTooltipProps) => {
 	switch (item.kind) {
 		case 'cast':
-			return <CastTooltip log={item.log} stack={item.stack} />;
+			return <CastTooltip log={item.log} stack={item.stack} aplRun={aplRun} />;
 		case 'delay':
 			return <DelayTooltip log={item.log} />;
 		case 'gcdSegment':

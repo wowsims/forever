@@ -66,12 +66,29 @@ func (warlock *Warlock) applyGrimReach() {
 	spelldata.ParseStatic(&warlock.Character, spellData.GrimReach.Rank(warlock.Talents.GrimReach))
 }
 
-// TODO: Not implemented due to lack of a kill event: adds "leave" the encounter on a set timer rather
-// than dying. Requires a Drain Soul kill to trigger.
+// Killing a target with this warlock's Drain Soul on it grants Soul Harvest (1242853). The talent row states
+// no proc, so the trigger is the kill Drain Soul's PROC_FLAG_KILL hears: the raid's kill roll decides it. The
+// buff row states the 2/2 value; the talent's dummies price it at each rank.
 func (warlock *Warlock) applySoulHarvest() {
 	if warlock.Talents.SoulHarvest == 0 {
 		return
 	}
+
+	buffRow := spellData.SoulHarvestTriggered.ByID(1242853)
+	buff := warlock.RegisterAura(spelldata.AuraConfig(buffRow))
+	spelldata.ParseEffects(&warlock.Character, buff, buffRow,
+		spelldata.ScaledByRanks(warlock.Talents.SoulHarvest, spellData.SoulHarvest.Len()))
+
+	warlock.MakeProcTriggerAura(core.ProcTrigger{
+		Name:     "Soul Harvest - Trigger",
+		Callback: core.CallbackOnKill,
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+			return warlock.DrainSoul.Dot(result.Target).IsActive()
+		},
+		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Activate(sim)
+		},
+	})
 }
 
 func (warlock *Warlock) applyImprovedDrains() {
@@ -129,9 +146,9 @@ func (warlock *Warlock) registerAmplifyCurse() {
 
 	// Never cast on its own: the APL decides which curse takes the amp.
 	warlock.AddMajorCooldown(core.MajorCooldown{
-		Spell:          warlock.AmplifyCurse,
-		Type:           core.CooldownTypeDPS,
-		ShouldActivate: func(*core.Simulation, *core.Character) bool { return false },
+		Spell:           warlock.AmplifyCurse,
+		Type:            core.CooldownTypeDPS,
+		DisableAutocast: true,
 	})
 }
 
@@ -144,12 +161,16 @@ func (warlock *Warlock) applyPandemic() {
 }
 
 // --- Tier 4 ---
+
+// The class flags also name Lash of Pain, which the Succubus casts, so the row is parsed on the Succubus too.
 func (warlock *Warlock) applyMalevolence() {
 	if warlock.Talents.Malevolence == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&warlock.Character, spellData.Malevolence.Rank(warlock.Talents.Malevolence))
+	rank := spellData.Malevolence.Rank(warlock.Talents.Malevolence)
+	spelldata.ParseStatic(&warlock.Character, rank)
+	spelldata.ParseStatic(&warlock.Succubus.Character, rank)
 }
 
 func (warlock *Warlock) applyNightfall() {

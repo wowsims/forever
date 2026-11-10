@@ -12,15 +12,18 @@ import (
 //
 // A channel is one cast: the charge stays up for every tick and every target, and is spent when the
 // channel ends. A channel the buff's class flags name spends it once the channel has started, even
-// when its cast lands nothing itself. Wand Shoot is no such channel: each shot spends a charge like any
-// hit, and so do other hits while wanding.
+// when its cast lands nothing itself, and so does one already running when the charge comes. Wand Shoot
+// is no such channel: each shot spends a charge like any hit, and so do other hits while wanding.
 // TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
+	classFlags := chargeClassFlags(character, s)
 	firstHit, resetFirstHit := core.OncePerCast()
 	channelHit := false
 	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
 		resetFirstHit()
-		channelHit = false
+		channel := character.ChanneledDot
+		// A channel with no ticks left only waits out the GCD.
+		channelHit = channel != nil && channel.RemainingTicks() > 0 && channel.Spell.MatchesFlags(classFlags)
 	})
 
 	character.OnChannelEnd(func(sim *core.Simulation, _ *core.Dot) {
@@ -34,7 +37,7 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 		buff.RemoveStack(sim)
 	}, opts...)
 	spender.Name = name
-	spender.ClassFlags = chargeClassFlags(character, s)
+	spender.ClassFlags = classFlags
 	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		// The channel's own hit lands before its dot starts, its ticks while it runs. A hit the wearer
 		// takes is not part of the channel.

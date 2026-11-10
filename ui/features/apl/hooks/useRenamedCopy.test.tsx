@@ -38,11 +38,11 @@ describe('useRenamedCopy', () => {
 		expect(hook().dialog.open).toBe(true);
 	});
 
-	it('offers the copied row’s name as the placeholder and every name as taken', () => {
+	it('starts on the next free name and offers every name as taken', () => {
 		const { hook } = mount(rotationWith(['a', 'b']));
 
 		act(() => hook().onCopyItem(1));
-		expect(hook().dialog.placeholder).toBe('b');
+		expect(hook().dialog.defaultValue).toBe('b (2)');
 		expect(hook().dialog.existingNames).toEqual(['a', 'b']);
 	});
 

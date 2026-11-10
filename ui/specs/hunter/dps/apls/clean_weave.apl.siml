@@ -1,0 +1,18 @@
+siml 1
+spec hunter
+use "weave_common.apl.siml"
+
+priority:
+  autocast_other_cooldowns if current_time >= 5s and at_range
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast raptor_strike
+  cast strider_kick
+  cast mongoose_bite
+  cast immolation_trap if in_melee
+  cast wing_clip if not spell(strider_kick).is_known or spell(strider_kick).time_to_ready > 1.5s
+  cast serpent_sting if not dot(serpent_sting).is_active
+  cast arcane_shot
+  cast multi_shot
+  /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.
+  group "Walk in" if self.unit_distance != $shoot_spot and $not_weaving_yet
+  group "Weave"

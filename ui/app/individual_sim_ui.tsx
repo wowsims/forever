@@ -258,7 +258,11 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 	}
 
 	applyDefaultConfigOptions(config: IndividualSimUIConfig<SpecType>): IndividualSimUIConfig<SpecType> {
-		config.otherInputs.inputs = [...(this.player.getPlayerSpec().isTankSpec ? [OtherInputs.RetributionAuraSpellPower] : []), ...config.otherInputs.inputs];
+		config.otherInputs.inputs = [
+			...(this.player.getPlayerSpec().isTankSpec ? [OtherInputs.RetributionAuraSpellPower, OtherInputs.ThornsSpellPower] : []),
+			// Every page with an Input Delay also takes its slowest one, which makes the reaction a range.
+			...config.otherInputs.inputs.flatMap(input => (input === OtherInputs.InputDelay ? [input, OtherInputs.InputDelayMax] : [input])),
+		];
 
 		return config;
 	}
@@ -290,7 +294,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		return individualSimSettingsToProto(this.serializationContext(), exportCategories);
 	}
 
-	toLink(): string {
+	toLink(): Promise<string> {
 		return createLink(this);
 	}
 
@@ -298,10 +302,15 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		// A gear planner hides the encounter settings, so the default target applied by `applyDefaults`
 		// stays whatever the saved settings or the link carried: stats and the gear optimizer always
 		// have a full environment to build, without a second ComputeStats to put it back.
-		const categories = this.simDisabled
-			? (includeCategories?.length ? includeCategories : ALL_SETTING_CATEGORIES).filter(category => category !== SimSettingCategories.Encounter)
-			: includeCategories;
-		applyIndividualSimSettings(this.serializationContext(), settings, categories);
+		if (!this.simDisabled) {
+			applyIndividualSimSettings(this.serializationContext(), settings, includeCategories);
+			return;
+		}
+		const categories = (includeCategories?.length ? includeCategories : ALL_SETTING_CATEGORIES).filter(
+			category => category !== SimSettingCategories.Encounter,
+		);
+		// An import of the encounter alone loads nothing, where the empty list it leaves would read as every category.
+		if (categories.length) applyIndividualSimSettings(this.serializationContext(), settings, categories);
 	}
 
 	getSavedGearStorageKey(): string {

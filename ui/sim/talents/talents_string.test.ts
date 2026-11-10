@@ -8,7 +8,7 @@ import { parseTalentsString, serializeTalentsString, totalPointsSpent, treePoint
 
 // A valid Forever mage build: 51 points, Fire left empty so the codec's empty-run
 // handling stays covered.
-const MAGE_DEFAULT = '25502252231221--25352';
+const MAGE_DEFAULT = '250205223100311531--05352';
 
 describe('talents string codec', () => {
 	it('round-trips a real Forever default byte-identically, empty middle tree and all', () => {
@@ -22,7 +22,7 @@ describe('talents string codec', () => {
 			serializeTalentsString(points)
 				.split('-')
 				.map(tree => tree.length),
-		).toEqual([14, 0, 5]);
+		).toEqual([18, 0, 5]);
 	});
 
 	it('widens a short string to the config shape and trims it back', () => {
@@ -72,7 +72,7 @@ describe('talents string codec', () => {
 		const next = withTreeCleared(points, 0);
 		expect(treePointTotal(next, 0)).toBe(0);
 		expect(treePointTotal(next, 2)).toBe(treePointTotal(points, 2));
-		expect(serializeTalentsString(next)).toBe('--25352');
+		expect(serializeTalentsString(next)).toBe('--05352');
 	});
 
 	it('counts every point in a full default build', () => {
@@ -80,8 +80,8 @@ describe('talents string codec', () => {
 	});
 
 	it('reads a build longer than the tree without throwing', () => {
-		// Arcane holds 19 talents: pad to 19 before overflowing, or the digits land inside the tree.
-		const overlong = MAGE_DEFAULT.replace('25502252231221', '25502252231221' + '0'.repeat(5) + '555555');
+		// Arcane holds 18 talents and the build spends the last one, so the extra digits start past the tree.
+		const overlong = MAGE_DEFAULT.replace('250205223100311531', '250205223100311531' + '555555');
 		expect(() => playerTalentStringToProto(Mage, overlong)).not.toThrow();
 		expect(playerTalentStringToProto(Mage, overlong)).toEqual(playerTalentStringToProto(Mage, MAGE_DEFAULT));
 	});

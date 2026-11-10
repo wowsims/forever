@@ -44,7 +44,8 @@ export const useListItems = <M, T>(modObject: M, config: ListItemsConfig<M, T>) 
 
 	const canRemove = (index: number) => canDeleteAt(index, configRef.current.minimumItems);
 
-	const create = () => setValue(read().concat([configRef.current.newItem()]));
+	const append = (item: T) => setValue(read().concat([item]));
+	const create = () => append(configRef.current.newItem());
 
 	const remove = (index: number) => {
 		const list = read().slice();
@@ -96,5 +97,5 @@ export const useListItems = <M, T>(modObject: M, config: ListItemsConfig<M, T>) 
 		};
 	};
 
-	return { items: value, itemConfig, create, remove, copy, move, canRemove, hidden, disabled, frameProps };
+	return { items: value, itemConfig, create, append, remove, copy, move, canRemove, hidden, disabled, frameProps };
 };

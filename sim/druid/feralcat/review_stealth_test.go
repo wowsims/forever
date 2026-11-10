@@ -37,18 +37,21 @@ func TestReviewProwlAndFeralSwiftnessSpeed(t *testing.T) {
 	if !cat.Dash.Cast(sim, cat.CurrentTarget) || !cat.ProwlAura.IsActive() {
 		t.Fatal("Dash failed or broke Prowl")
 	}
+	check(baseSpeed * 1.6 * 0.7)
 	sim.CurrentTime += 2 * time.Second
 	if !cat.Claw.Cast(sim, cat.CurrentTarget) || cat.ProwlAura.IsActive() {
 		t.Fatal("Claw failed or retained Prowl")
 	}
-	check(baseSpeed * 1.3 * 1.6)
+	check(baseSpeed * 1.6)
 	cat.ClearForm(sim)
 	check(baseSpeed)
 	sim.CurrentTime += 2 * time.Second
 	if !cat.CatForm.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("return to Cat Form failed")
 	}
-	check(baseSpeed * 1.3 * 1.6)
+	check(baseSpeed * 1.6)
+	cat.DashAura.Deactivate(sim)
+	check(baseSpeed * 1.3)
 	t.Logf("cat=%g yd/s, prowling cat=%g yd/s, humanoid=%g yd/s; re-entry restored cat speed", baseSpeed*1.3, baseSpeed*1.3*0.7, baseSpeed)
 }
 
@@ -67,7 +70,7 @@ func TestReviewCatChargeBreaksProwlWithoutDebuff(t *testing.T) {
 			t.Fatal("Cat Charge applied a bear debuff")
 		}
 	}
-	if mh, _, _ := cat.AutoAttacks.SwingAt(); mh != sim.CurrentTime {
+	if mh, _ := cat.AutoAttacks.SwingAt(); mh != sim.CurrentTime {
 		t.Fatalf("melee resumes at %v, want %v", mh, sim.CurrentTime)
 	}
 	t.Log("Cat Charge ended Prowl, resumed melee, and applied no root or daze")

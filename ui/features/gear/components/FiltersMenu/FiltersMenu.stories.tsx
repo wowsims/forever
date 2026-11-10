@@ -1,4 +1,4 @@
-import { ArmorType, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
+import { ArmorType, Faction, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
 import { DatabaseFilters, SourceFilterOption } from '@generated/proto/ui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
@@ -19,6 +19,7 @@ const meta = {
 		weaponTypes: [WeaponType.WeaponTypeAxe, WeaponType.WeaponTypeSword, WeaponType.WeaponTypeMace],
 		rangedWeaponTypes: [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeGun],
 		canDualWield: true,
+		raceFaction: Faction.Horde,
 	},
 	argTypes: { filters: { control: false } },
 } satisfies Meta<typeof FiltersMenuView>;

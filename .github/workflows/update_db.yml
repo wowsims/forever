@@ -1,7 +1,7 @@
 name: Update DB
 
 # Regenerates everything derived from the game files without a WoW install:
-# db2tool reads the current wow_classic_beta build off Blizzard's CDN, overlays
+# db2tool reads the current wowf build off Blizzard's CDN, overlays
 # the latest hotfix cache (raidbots' mirror of the game files' DBCache.bin), and
 # every generator runs as it would after a local `make db` — the database
 # assets, the .proto talent enums, the auto-generated Go and TypeScript, the
@@ -14,8 +14,9 @@ on:
     #     - cron: '0 6 * * *'
 
 env:
-    PRODUCT: wow_classic_beta
-    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/classic_beta/enUS/DBCache.bin
+    PRODUCT: wowf
+    # Raidbots' Forever cache (docs/spell_data/partial-updates.md).
+    DBCACHE_URL: https://storage.googleapis.com/raidbots-static/wow/forever/enUS/DBCache.bin
 
 jobs:
     update-db:
@@ -33,7 +34,7 @@ jobs:
             - name: Install Go
               uses: actions/setup-go@v6
               with:
-                  go-version: 1.25.x
+                  go-version: 1.27.x
 
             - name: Install Protoc
               uses: ./.github/actions/setup-protoc
@@ -44,7 +45,7 @@ jobs:
             - name: Install Node
               uses: actions/setup-node@v5
               with:
-                  node-version: 22
+                  node-version: 26
                   cache: npm
 
             - name: Install npm dependencies
@@ -53,7 +54,7 @@ jobs:
             # The version service names the build the CDN currently serves. Its
             # build config hash keys the download cache below, so a re-run for
             # the same build (new hotfixes only) fetches nothing from the CDN.
-            - name: Resolve the current beta build 🔎
+            - name: Resolve the current build 🔎
               id: build
               run: |
                   row=$(curl -fsS "https://us.version.battle.net/$PRODUCT/versions" | awk -F'|' '$1 == "us"')
@@ -78,27 +79,26 @@ jobs:
               run: |
                   mkdir -p tools/db2tool/caches
                   curl -fsSL -o tools/db2tool/caches/DBCache.bin "$DBCACHE_URL"
-
             # gen_db imports the Go protos, so they are generated from the
             # committed .proto files first; `make proto` runs again further
             # down, once gen_db has rewritten the talent enums in them.
             - name: Bootstrap the Go protos and the dist stub 🧬
               run: make sim/core/proto/api.pb.go binary_dist/dist.go
 
-            # db2tool warns (and carries on) when the hotfix cache is for another
-            # build than the CDN serves, which happens around a build push; the
-            # pull request says which it was. The spell data change report goes
-            # into the pull request body.
+            # --carry-hotfixes carries an older build's cache onto the CDN
+            # build (docs/spell_data/partial-updates.md). db2tool's Hotfixes
+            # line, which names any carried build, and the spell data change
+            # report go into the pull request body.
             - name: Extract game files data and regenerate the database 🔧
               id: db
               run: |
                   set -o pipefail
-                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin" 2>&1 | tee "$RUNNER_TEMP/db.log"
-                  if grep -q 'none of the given --dbcache files hold hotfixes' "$RUNNER_TEMP/db.log"; then
-                      echo "hotfixes=NOT applied: the downloaded DBCache.bin is for a different build" >> "$GITHUB_OUTPUT"
-                  else
-                      echo "hotfixes=$(grep -m1 'Loaded hotfixes' "$RUNNER_TEMP/db.log" | sed 's/.*for build/applied, DBCache.bin for build/')" >> "$GITHUB_OUTPUT"
-                  fi
+                  make db DB2TOOL_FLAGS="--cdn --dbcache tools/db2tool/caches/DBCache.bin --carry-hotfixes" 2>&1 | tee "$RUNNER_TEMP/db.log"
+                  line=$(grep -m1 '^Hotfixes: ' "$RUNNER_TEMP/db.log")
+                  case "$line" in
+                      "Hotfixes: none applied"*) echo "hotfixes=${line#Hotfixes: }" >> "$GITHUB_OUTPUT" ;;
+                      *) echo "hotfixes=applied (${line#Hotfixes: })" >> "$GITHUB_OUTPUT" ;;
+                  esac
                   {
                       echo "report<<REPORT_EOF"
                       python3 tools/spelldata_report_markdown.py < "$RUNNER_TEMP/db.log" || echo "The spell data change report could not be formatted; the build log has it."
@@ -122,6 +122,14 @@ jobs:
                   go build ./...
                   go test ./tools/database/
                   npm run type-check
+
+            # The SIML name table names every item, enchant and suffix of the database and every spell the sim
+            # registers, so the pull request carries the names a new row adds (sim/siml/SPEC.md §7.4). Like the
+            # tests below, a failure still opens the pull request, with the committed table, and fails the job after.
+            - name: Regenerate the SIML name table
+              id: names
+              continue-on-error: true
+              run: go run --tags=with_db ./sim/siml/cmd/simlnames -w
 
             # A new build often moves .results numbers, and the pull request is where they are reviewed,
             # so a failing test still opens it: the summary goes into its body and the job fails after.
@@ -174,11 +182,17 @@ jobs:
 
                       - Build: ${{ steps.build.outputs.version }}
                       - Hotfixes: ${{ steps.db.outputs.hotfixes }} (from ${{ env.DBCACHE_URL }})
-                      - Ran `make db --cdn`, `make basestats`, `gen_spelldata`, `make proto` and `go-to-ts`; the Go builds, the generator tests pass and the UI type-checks
+                      - Ran `make db --cdn`, `make basestats`, `gen_spelldata`, `make proto`, `go-to-ts` and `simlnames`; the Go builds, the generator tests pass and the UI type-checks
 
                       ${{ steps.tests.outputs.summary }}
 
                       ${{ steps.db.outputs.report }}
+
+            - name: Fail on the SIML name table
+              if: steps.names.outcome == 'failure'
+              run: |
+                  echo "::error::simlnames fails; the pull request carries the committed name table"
+                  exit 1
 
             - name: Fail on the Go tests
               if: steps.tests.outcome == 'failure'

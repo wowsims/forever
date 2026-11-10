@@ -1,0 +1,21 @@
+siml 1
+spec hunter
+
+var ${Long variable name} =
+    spell(steady_shot).cast_time + (spell(steady_shot_900002).cast_time + spell(spell_5_second_rule).cast_time)
+var $Short =
+    spell(steady_shot).is_ready
+    and spell(steady_shot_900002).is_ready
+    and spell(spell_5_second_rule).is_ready
+
+prepull:
+  (-1s + $long_variable_name) cast steady_shot
+      if spell(steady_shot).is_ready
+      and spell(steady_shot_900002).is_ready
+      and spell(spell_5_second_rule).is_ready
+
+priority:
+  cast steady_shot if spell(steady_shot).is_ready or spell(steady_shot_900002).is_ready
+  cast steady_shot
+      if not (spell(steady_shot).is_ready and spell(steady_shot_900002).is_ready and spell(spell_5_second_rule).is_ready)
+  sequence "A sequence whose actions alone run past the width of the line" [cast steady_shot, cast steady_shot_900002, cast spell_5_second_rule]

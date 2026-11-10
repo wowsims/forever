@@ -17,6 +17,7 @@ type Item struct {
 	OverallQuality        ItemQuality
 	DmgVariance           float64
 	ItemLevel             int
+	RequiredLevel         int
 	ItemClass             int
 	ItemSubClass          int
 	StatAlloc             []float64
@@ -36,7 +37,7 @@ type Item struct {
 	ItemSetName           string
 	ItemSetId             int
 	ClassMask             int
-	RaceMask              int
+	RaceMask              int64
 	QualityModifier       float64
 	DamageType            int // ItemSparse.DamageType, the weapon's school in the game files' order.
 	RandomSuffixOptions   []int32
@@ -70,6 +71,7 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		WeaponSpeed:         float64(item.ItemDelay) / 1000,
 		NameDescription:     item.NameDescription,
 		LimitCategory:       int32(item.LimitCategory),
+		ReqLvl:              int32(item.RequiredLevel),
 		QualityModifier:     item.GetWeaponQualityModifier(),
 	}
 
@@ -98,11 +100,12 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
-		scalingProperties[0].UnroundedDps, _ = dbcInstance.WeaponDPS(item, item.ItemLevel)
+		dps, _ := dbcInstance.WeaponDPS(item, item.ItemLevel)
+		scalingProperties[0].UnroundedDps = float32(dps)
 		if item.hasReducedCasterDpsSuffix() {
 			dps, _ := dbcInstance.ReducedCasterWeaponDPS(item, item.ItemLevel)
 			low, high := item.WeaponDamage(dps)
-			scalingProperties[0].ReducedCasterWeaponDamage = &proto.ReducedCasterWeaponDamage{WeaponDamageMin: low, WeaponDamageMax: high, UnroundedDps: dps}
+			scalingProperties[0].ReducedCasterWeaponDamage = &proto.ReducedCasterWeaponDamage{WeaponDamageMin: low, WeaponDamageMax: high, UnroundedDps: float32(dps)}
 		}
 	}
 
@@ -117,6 +120,10 @@ func (item *Item) ParseItemFlags(uiItem *proto.UIItem) {
 
 	if item.Flags1.Has(ALLIANCE_SPECIFIC) {
 		uiItem.FactionRestriction = proto.UIItem_FACTION_RESTRICTION_ALLIANCE_ONLY
+	}
+
+	if uiItem.FactionRestriction == proto.UIItem_FACTION_RESTRICTION_UNSPECIFIED {
+		uiItem.FactionRestriction = GetFactionRestrictionFromRaceMask(item.RaceMask)
 	}
 
 	if item.Flags0.Has(UNIQUE_EQUIPPABLE) {

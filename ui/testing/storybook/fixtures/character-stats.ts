@@ -1,6 +1,6 @@
+import type { MeleeCritCapInfo } from '@generated/proto/api';
 import { PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
-import type { MeleeCritCapInfo } from '@sim/player/player';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
 
 const stage = (strength: number, attackPower: number, meleeHit: number, offHandHit: number, rangedHaste: number) =>
@@ -37,18 +37,12 @@ export const AVOIDANCE_INFO = { miss: 8.4, dodge: 18.2, parry: 14.1, block: 42.3
 export const CRIT_IMMUNITY_INFO = { total: 5.6, delta: 0, defense: 4.6, talents: 1 };
 
 export const CRIT_CAP_INFO: MeleeCritCapInfo = {
-	meleeCrit: 42.8,
-	meleeHit: 7.8,
-	expertise: 3,
-	hasOffhandWeapon: false,
-	meleeHitCap: 9,
-	expertiseCap: 5.5,
 	glancing: 40,
 	suppression: 4.8,
-	remainingMeleeHitCap: 1.2,
-	remainingExpertiseCap: 2.5,
-	debuffCrit: 3,
-	specSpecificOffset: 0,
-	baseCritCap: 51.2,
-	playerCritCapDelta: -8.4,
+	remainingHit: 1.2,
+	remainingExpertise: 2.5,
+	block: 0,
+	specOffset: 0,
+	critCap: 61.1,
+	delta: -8.4,
 };

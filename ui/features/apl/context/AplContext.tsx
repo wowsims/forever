@@ -14,9 +14,11 @@ export interface AplScope {
 	inSequence: boolean;
 	/** The `Tree.Root` group a list field below names its list with, from `valueListGroup`/`actionListGroup`. */
 	listGroup: string | undefined;
+	/** In a drawn APL entry, the step indexes down to the step that fired, outermost first; empty where no step below is marked. */
+	markedSteps: ReadonlyArray<number>;
 }
 
-const DEFAULT: AplScope = { isPrepull: false, isGroup: false, changeSource: rotationSource, inSequence: false, listGroup: undefined };
+const DEFAULT: AplScope = { isPrepull: false, isGroup: false, changeSource: rotationSource, inSequence: false, listGroup: undefined, markedSteps: [] };
 
 const AplContext = createContext<AplScope>(DEFAULT);
 
@@ -30,7 +32,7 @@ export interface AplProviderProps extends Partial<AplScope> {
  * It travels down rather than being read up off the DOM — `closest('.apl-prepull-action-picker')`
  * and its kin cannot answer, because a React component renders before it is in the document.
  */
-export const AplProvider = ({ isPrepull, isGroup, changeSource, inSequence, listGroup, children }: AplProviderProps) => {
+export const AplProvider = ({ isPrepull, isGroup, changeSource, inSequence, listGroup, markedSteps, children }: AplProviderProps) => {
 	const parent = useContext(AplContext);
 	const scope = useMemo(
 		() => ({
@@ -39,8 +41,9 @@ export const AplProvider = ({ isPrepull, isGroup, changeSource, inSequence, list
 			changeSource: changeSource ?? parent.changeSource,
 			inSequence: inSequence ?? parent.inSequence,
 			listGroup: listGroup ?? parent.listGroup,
+			markedSteps: markedSteps ?? parent.markedSteps,
 		}),
-		[isPrepull, isGroup, changeSource, inSequence, listGroup, parent],
+		[isPrepull, isGroup, changeSource, inSequence, listGroup, markedSteps, parent],
 	);
 	return <AplContext value={scope}>{children}</AplContext>;
 };

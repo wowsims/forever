@@ -1,0 +1,715 @@
+{
+	"type": "TypeAPL",
+	"valueVariables": [
+		{
+			"name": "times",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": {
+						"math": {
+							"op": "OpAdd",
+							"lhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"math": {
+											"op": "OpAdd",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"math": {
+															"op": "OpAdd",
+															"lhs": {
+																"math": {
+																	"op": "OpAdd",
+																	"lhs": {
+																		"math": {
+																			"op": "OpAdd",
+																			"lhs": {
+																				"const": {
+																					"val": "1.5s"
+																				}
+																			},
+																			"rhs": {
+																				"const": {
+																					"val": "400ms"
+																				}
+																			}
+																		}
+																	},
+																	"rhs": {
+																		"const": {
+																			"val": "1m30s"
+																		}
+																	}
+																}
+															},
+															"rhs": {
+																"const": {
+																	"val": "1h2m3.5s"
+																}
+															}
+														}
+													},
+													"rhs": {
+														"const": {
+															"val": "10µs"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "5us"
+												}
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "3ns"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "2m"
+								}
+							}
+						}
+					},
+					"rhs": {
+						"const": {
+							"val": "1h"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "numbers",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": {
+						"math": {
+							"op": "OpAdd",
+							"lhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"math": {
+											"op": "OpAdd",
+											"lhs": {
+												"math": {
+													"op": "OpAdd",
+													"lhs": {
+														"const": {
+															"val": "5.00"
+														}
+													},
+													"rhs": {
+														"const": {
+															"val": "7"
+														}
+													}
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "30%"
+												}
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "-22s"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"const": {
+									"val": "-1"
+								}
+							}
+						}
+					},
+					"rhs": {
+						"const": {
+							"val": "0.25"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "strings",
+			"value": {
+				"cmp": {
+					"op": "OpEq",
+					"lhs": {
+						"const": {
+							"val": "text"
+						}
+					},
+					"rhs": {
+						"const": {
+							"val": "with \"quotes\" and \\ and \n"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "bools",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"const": {
+								"val": "true"
+							}
+						},
+						{
+							"const": {
+								"val": "false"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "none",
+			"value": {}
+		},
+		{
+			"name": "Two words",
+			"value": {
+				"variableRef": {
+					"name": "times"
+				}
+			}
+		},
+		{
+			"name": "refs",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": {
+						"math": {
+							"op": "OpAdd",
+							"lhs": {
+								"variableRef": {
+									"name": "Two words"
+								}
+							},
+							"rhs": {
+								"variableRef": {
+									"name": "Two words"
+								}
+							}
+						}
+					},
+					"rhs": {
+						"variableRef": {
+							"name": "numbers"
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "logic",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "bools"
+										}
+									},
+									{
+										"variableRef": {
+											"name": "refs"
+										}
+									}
+								]
+							}
+						},
+						{
+							"and": {
+								"vals": [
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "none"
+												}
+											}
+										}
+									},
+									{
+										"variableRef": {
+											"name": "strings"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "runs",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									{
+										"variableRef": {
+											"name": "b"
+										}
+									},
+									{
+										"variableRef": {
+											"name": "c"
+										}
+									}
+								]
+							}
+						},
+						{
+							"variableRef": {
+								"name": "d"
+							}
+						},
+						{
+							"variableRef": {
+								"name": "e"
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "calls",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"and": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "bools"
+										}
+									}
+								]
+							}
+						},
+						{
+							"and": {
+								"vals": [
+									{
+										"or": {}
+									},
+									{
+										"not": {
+											"val": {
+												"variableRef": {
+													"name": "none"
+												}
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "kept",
+			"value": {
+				"or": {
+					"vals": [
+						{
+							"and": {
+								"vals": [
+									{
+										"and": {
+											"vals": [
+												{
+													"variableRef": {
+														"name": "bools"
+													}
+												},
+												{
+													"variableRef": {
+														"name": "refs"
+													}
+												}
+											]
+										}
+									},
+									{
+										"variableRef": {
+											"name": "none"
+										}
+									}
+								]
+							}
+						},
+						{
+							"or": {
+								"vals": [
+									{
+										"variableRef": {
+											"name": "strings"
+										}
+									},
+									{
+										"variableRef": {
+											"name": "refs"
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "compares",
+			"value": {
+				"and": {
+					"vals": [
+						{
+							"cmp": {
+								"op": "OpEq",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpNe",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGe",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpGt",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLe",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						},
+						{
+							"cmp": {
+								"op": "OpLt",
+								"lhs": {
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								"rhs": {
+									"variableRef": {
+										"name": "b"
+									}
+								}
+							}
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "math",
+			"value": {
+				"math": {
+					"op": "OpSub",
+					"lhs": {
+						"math": {
+							"op": "OpSub",
+							"lhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									"rhs": {
+										"variableRef": {
+											"name": "b"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"math": {
+									"op": "OpDiv",
+									"lhs": {
+										"math": {
+											"op": "OpMul",
+											"lhs": {
+												"variableRef": {
+													"name": "c"
+												}
+											},
+											"rhs": {
+												"variableRef": {
+													"name": "d"
+												}
+											}
+										}
+									},
+									"rhs": {
+										"variableRef": {
+											"name": "e"
+										}
+									}
+								}
+							}
+						}
+					},
+					"rhs": {
+						"math": {
+							"op": "OpMul",
+							"lhs": {
+								"math": {
+									"op": "OpSub",
+									"lhs": {
+										"variableRef": {
+											"name": "a"
+										}
+									},
+									"rhs": {
+										"variableRef": {
+											"name": "b"
+										}
+									}
+								}
+							},
+							"rhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"variableRef": {
+											"name": "c"
+										}
+									},
+									"rhs": {
+										"variableRef": {
+											"name": "d"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "lists",
+			"value": {
+				"math": {
+					"op": "OpAdd",
+					"lhs": {
+						"max": {
+							"vals": [
+								{
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								{
+									"variableRef": {
+										"name": "b"
+									}
+								},
+								{
+									"const": {
+										"val": "1s"
+									}
+								}
+							]
+						}
+					},
+					"rhs": {
+						"min": {
+							"vals": [
+								{
+									"variableRef": {
+										"name": "a"
+									}
+								},
+								{
+									"inputDelay": {}
+								}
+							]
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "precedence",
+			"value": {
+				"not": {
+					"val": {
+						"cmp": {
+							"op": "OpEq",
+							"lhs": {
+								"variableRef": {
+									"name": "a"
+								}
+							},
+							"rhs": {
+								"math": {
+									"op": "OpAdd",
+									"lhs": {
+										"variableRef": {
+											"name": "b"
+										}
+									},
+									"rhs": {
+										"math": {
+											"op": "OpMul",
+											"lhs": {
+												"const": {
+													"val": "1"
+												}
+											},
+											"rhs": {
+												"const": {
+													"val": "2"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "a",
+			"value": {
+				"const": {
+					"val": "1"
+				}
+			}
+		},
+		{
+			"name": "b",
+			"value": {
+				"const": {
+					"val": "2"
+				}
+			}
+		},
+		{
+			"name": "c",
+			"value": {
+				"const": {
+					"val": "3"
+				}
+			}
+		},
+		{
+			"name": "d",
+			"value": {
+				"const": {
+					"val": "4"
+				}
+			}
+		},
+		{
+			"name": "e",
+			"value": {
+				"const": {
+					"val": "5"
+				}
+			}
+		}
+	]
+}

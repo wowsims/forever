@@ -9,6 +9,9 @@ export interface ProgressTrackerBarProps {
 	running: boolean;
 	/** Fraction done, 0 to 1. Omit while nothing is measured: the track stays and the fill hides. */
 	progress?: number;
+	/** `line` is the same bar as a full-width hairline, which can lie over a row's 1px separator: a row's own progress. */
+	variant?: 'bar' | 'line';
+	label?: string;
 	title?: string;
 	readout?: string;
 	/** The time left, on a line under the bar; null holds that line empty until there is an estimate. Omit for no line. */
@@ -20,19 +23,21 @@ export interface ProgressTrackerBarProps {
 export const ProgressTrackerBar = ({
 	running,
 	progress,
+	variant = 'bar',
+	label,
 	title,
 	readout,
 	secondsRemaining,
 	className,
 	testId = 'progress-tracker-bar',
 }: ProgressTrackerBarProps) => (
-	<div className={clsx('ui-progress', className)} data-testid={testId}>
+	<div className={clsx('ui-progress', className)} data-variant={variant === 'line' ? variant : undefined} data-testid={testId}>
 		{running && title && (
-			<div className="mb-2" data-testid="progress-tracker-modal-progress-title">
+			<div className="mb-2 self-center whitespace-nowrap" data-testid="progress-tracker-modal-progress-title">
 				{title}
 			</div>
 		)}
-		<Progress.Root value={running ? (progress ?? null) : null} max={1}>
+		<Progress.Root value={running ? (progress ?? null) : null} max={1} aria-label={label}>
 			<Progress.Track className="ui-progress-track">
 				<Progress.Indicator className="ui-progress-indicator" data-testid="progress-tracker-bar-indicator" />
 			</Progress.Track>

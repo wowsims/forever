@@ -336,7 +336,7 @@ func (swap *ItemSwap) EligibleSlotsForItem(itemID int32) []proto.ItemSlot {
 func (swap *ItemSwap) EligibleSlotsForEffect(effectID int32) []proto.ItemSlot {
 	var eligibleSlots []proto.ItemSlot
 
-	for itemSlot := proto.ItemSlot(0); itemSlot < NumItemSlots; itemSlot++ {
+	for itemSlot := range NumItemSlots {
 		if !swap.IsEnabled() {
 			if swap.character.Equipment.containsEnchantInSlot(effectID, itemSlot) {
 				eligibleSlots = append(eligibleSlots, itemSlot)
@@ -365,7 +365,7 @@ func (swap *ItemSwap) SwapItems(sim *Simulation, swapSet proto.APLActionItemSwap
 		if slot == proto.ItemSlot_ItemSlotMainHand || slot == proto.ItemSlot_ItemSlotOffHand || slot == proto.ItemSlot_ItemSlotRanged {
 			weaponSlotSwapped = true
 		} else if !isReset && !isPrepull {
-			continue
+			continue // Armor swaps only before the pull, so a set swapped in then keeps its armor on for the fight.
 		}
 
 		swap.swapItem(sim, slot, isPrepull, isReset)
@@ -428,10 +428,6 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 
 	swap.unEquippedItems[slot] = oldItem
 
-	if isPrepull {
-		return
-	}
-
 	character := swap.character
 
 	switch slot {
@@ -455,7 +451,7 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 			weapon := character.WeaponFromOffHand()
 			character.AutoAttacks.SetOH(weapon)
 			character.AutoAttacks.IsDualWielding = weapon.SwingSpeed != 0
-			if !isReset {
+			if !isReset && !isPrepull {
 				character.AutoAttacks.EnableMeleeSwing(sim)
 			}
 			character.PseudoStats.CanBlock = character.OffHand().WeaponType == proto.WeaponType_WeaponTypeShield

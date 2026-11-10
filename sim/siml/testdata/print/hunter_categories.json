@@ -1,0 +1,26 @@
+{
+	"player": {
+		"class": "ClassHunter",
+		"hunter": {
+			"options": {
+				"classOptions": {
+					"ammo": "ThoriumHeadedArrow"
+				}
+			}
+		},
+		"consumables": {
+			"offensivePotId": 250943
+		},
+		"equipment": {
+			"items": [
+				{
+					"id": 16428
+				}
+			]
+		},
+		"talentsString": ""
+	},
+	"encounter": {
+		"duration": 120
+	}
+}

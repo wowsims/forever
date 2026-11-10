@@ -1,0 +1,12 @@
+siml 1
+spec hunter
+// The sim reads each reference in a variable's value as a value variable's, whichever file declares it or with sets it.
+use "a.apl.siml" with $x = $x + 1
+use "b.apl.siml"
+use "c.apl.siml"
+use "d.apl.siml"
+
+var $y = $z
+
+priority:
+  cast multi_shot if $x > 0 and $y > 0 and $p > 0

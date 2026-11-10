@@ -1,0 +1,15 @@
+siml 1
+spec hunter
+
+// A minus is part of a number only directly before it; and, or and not are calls only directly before (; a with list
+// ends at a comma not followed by %p =; a string decodes its escapes.
+var $a = 1
+var $minus = $a - -1 + ($a -1) * -1.5s
+var $words = not (true) or $a and(true)
+var $escapes = "a\"b\\n\u0041\t" == "x"
+
+priority:
+  sequence "S" [group "A" with %p = 1, cast x]
+
+group "A":
+  cast x if %p > 0

@@ -1,0 +1,110 @@
+{
+	"type": "TypeAPL",
+	"prepullActions": [
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-1s"
+				}
+			},
+			"hide": true
+		},
+		{
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			},
+			"doAtValue": {
+				"const": {
+					"val": "-0.5s"
+				}
+			}
+		}
+	],
+	"priorityList": [
+		{
+			"hide": true,
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"currentTime": {}
+						},
+						"rhs": {
+							"const": {
+								"val": "1s"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 5
+					}
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"groupReference": {
+					"groupName": "G"
+				}
+			}
+		},
+		{
+			"hide": true,
+			"action": {
+				"castSpell": {
+					"spellId": {
+						"spellId": 7
+					}
+				}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "G",
+			"actions": [
+				{
+					"hide": true,
+					"action": {}
+				},
+				{
+					"hide": true,
+					"action": {
+						"wait": {
+							"duration": {
+								"const": {
+									"val": "1s"
+								}
+							}
+						}
+					}
+				}
+			]
+		}
+	]
+}

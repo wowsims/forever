@@ -1,0 +1,4 @@
+{
+	"classes": { "warrior": { "aura": { "a": { "spellId": 1, "registeredBy": [] } } } },
+	"shared": { "aura": { "a": { "spellId": 1, "tag": 1, "registeredBy": [] } } }
+}

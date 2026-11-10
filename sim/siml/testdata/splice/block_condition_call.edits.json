@@ -1,0 +1,1 @@
+[{ "op": "set", "path": ["whens", 0, "condition", "and", "vals", 1], "call": "fits(aimed_shot)" }]

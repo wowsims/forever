@@ -1,0 +1,118 @@
+{
+	"type": "TypeAPL",
+	"priorityList": [
+		{
+			"action": {
+				"condition": {
+					"and": {
+						"vals": [
+							{
+								"cmp": {
+									"op": "OpGt",
+									"lhs": {
+										"unitDistance": {
+											"sourceUnit": {
+												"type": "Self"
+											}
+										}
+									},
+									"rhs": {
+										"const": {
+											"val": "5"
+										}
+									}
+								}
+							},
+							{
+								"cmp": {
+									"op": "OpLe",
+									"lhs": {
+										"spellTimeToReady": {
+											"spellId": {
+												"spellId": 2643
+											}
+										}
+									},
+									"rhs": {
+										"variableRef": {
+											"name": "wait"
+										}
+									}
+								}
+							}
+						]
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 2643
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"condition": {
+					"cmp": {
+						"op": "OpGt",
+						"lhs": {
+							"unitDistance": {
+								"sourceUnit": {
+									"type": "Self"
+								}
+							}
+						},
+						"rhs": {
+							"const": {
+								"val": "5"
+							}
+						}
+					}
+				},
+				"castSpell": {
+					"spellId": {
+						"spellId": 14287,
+						"rank": 8
+					}
+				}
+			}
+		},
+		{
+			"action": {
+				"move": {
+					"rangeFromTarget": {
+						"variableRef": {
+							"name": "Melee spot"
+						}
+					}
+				}
+			}
+		}
+	],
+	"valueVariables": [
+		{
+			"name": "wait",
+			"value": {
+				"const": {
+					"val": "400ms"
+				}
+			}
+		},
+		{
+			"name": "Melee spot",
+			"value": {
+				"const": {
+					"val": "4.99"
+				}
+			}
+		},
+		{
+			"name": "Shoot spot",
+			"value": {
+				"const": {
+					"val": "11.67"
+				}
+			}
+		}
+	]
+}

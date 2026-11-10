@@ -2,11 +2,11 @@ casts_results: {
  key: "TestFeralBearCoverage-Casts"
  value: {
   casts: {
-   key: "other_id:OtherActionAttack tag:1"
-   value: 69
+   key: "other_id:OtherActionAttack tag:14"
+   value: 66
   }
   casts: {
-   key: "other_id:OtherActionAttack tag:2"
+   key: "other_id:OtherActionAttack tag:15"
    value: 0
   }
   casts: {
@@ -18,20 +18,20 @@ casts_results: {
    value: 0
   }
   casts: {
+   key: "other_id:OtherActionMove tag:1"
+   value: 0
+  }
+  casts: {
    key: "other_id:OtherActionRageGain"
    value: 38
   }
   casts: {
-   key: "spell_id:1235827 rank:3"
-   value: 7
+   key: "spell_id:1235827 rank:5"
+   value: 5
   }
   casts: {
-   key: "spell_id:1238073 rank:4"
+   key: "spell_id:1238070 rank:3"
    value: 1
-  }
-  casts: {
-   key: "spell_id:1238122"
-   value: 0
   }
   casts: {
    key: "spell_id:1259799"
@@ -39,6 +39,10 @@ casts_results: {
   }
   casts: {
    key: "spell_id:1322605"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:16979"
    value: 0
   }
   casts: {
@@ -50,7 +54,7 @@ casts_results: {
    value: 3
   }
   casts: {
-   key: "spell_id:22829 rank:4"
+   key: "spell_id:22829 rank:5"
    value: 0
   }
   casts: {
@@ -62,8 +66,16 @@ casts_results: {
    value: 0
   }
   casts: {
-   key: "spell_id:417141"
-   value: 1
+   key: "spell_id:31018 rank:6"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:414647"
+   value: 0
+  }
+  casts: {
+   key: "spell_id:414924"
+   value: 0
   }
   casts: {
    key: "spell_id:5209"
@@ -87,7 +99,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:8983 rank:3"
-   value: 3
+   value: 2
   }
   casts: {
    key: "spell_id:9634"
@@ -119,7 +131,7 @@ casts_results: {
   }
   casts: {
    key: "spell_id:9881 tag:1 rank:7"
-   value: 6
+   value: 8
   }
   casts: {
    key: "spell_id:9892 rank:3"
@@ -144,14 +156,6 @@ casts_results: {
   casts: {
    key: "spell_id:9908 rank:5"
    value: 27
-  }
-  casts: {
-   key: "spell_id:9910 rank:6"
-   value: 0
-  }
-  casts: {
-   key: "spell_id:9910 tag:2"
-   value: 0
   }
   casts: {
    key: "spell_id:9913 rank:3"

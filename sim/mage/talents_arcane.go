@@ -11,7 +11,6 @@ import (
 func (mage *Mage) registerArcaneTalents() {
 	// Tier 1
 	mage.registerWandSpecialization()
-	mage.registerArcaneFocus()
 	mage.registerImprovedChanneling()
 	mage.registerMissileBarrage()
 
@@ -59,15 +58,6 @@ func (mage *Mage) registerWandSpecialization() {
 	})
 }
 
-// "Improves your chance to hit with Arcane spells by 5%."
-func (mage *Mage) registerArcaneFocus() {
-	if mage.Talents.ArcaneFocus == 0 {
-		return
-	}
-
-	spelldata.ParseStatic(&mage.Character, spellData.ArcaneFocus.Rank(mage.Talents.ArcaneFocus), spelldata.ShowAsSchoolHit(core.SpellSchoolArcane))
-}
-
 // Improved Channeling, a chance to avoid interruption from damage while channeling Arcane Missiles
 // or casting Arcane Blast. The sim models no pushback, so there is nothing to apply.
 func (mage *Mage) registerImprovedChanneling() {
@@ -99,7 +89,10 @@ func (mage *Mage) registerMagicAbsorption() {
 
 // "Gives you a 10% chance of entering a Clearcasting state after any damage spell hits a target. The
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
-// and is spent by the next cast.
+// and is spent by the next cast. Arcane Missiles rolls it once as the channel starts and again as each
+// missile lands (the missile's row carries Not a Proc, so the listener hears it), all under the row's
+// 1 sec cooldown. In game the talent's chance is split evenly across those rolls, so each one takes
+// a sixth of it; the game files row states only the full chance.
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -109,8 +102,14 @@ func (mage *Mage) registerArcaneConcentration() {
 	costEffect := clearcastingRank.EffectN(1)
 
 	config := spelldata.AuraConfig(clearcastingRank)
-	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+	// An Arcane Missiles that Missile Barrage pays for keeps Clearcasting up. This runs before the
+	// cast completes, while Missile Barrage is still up, and before the channel's own roll, so a plain
+	// channel spends Clearcasting and a proc from its start brings up a fresh one.
+	config.OnApplyEffects = func(aura *core.Aura, sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		if !spell.MatchesFlags(costEffect.ClassFlags) || spell.Cost == nil || spell.Cost.BaseCost == 0 {
+			return
+		}
+		if spell.Matches(MageSpellArcaneMissilesCast) && mage.MissileBarrageAura.IsActive() {
 			return
 		}
 		aura.Deactivate(sim)
@@ -126,28 +125,41 @@ func (mage *Mage) registerArcaneConcentration() {
 		})
 	trigger.Name = "Arcane Concentration - Trigger"
 	trigger.ProcMask = core.ProcMaskSpellDamage
-	// An area spell, or one Blizzard tick, rolls once however many targets it lands on. The condition
-	// runs just before the roll, so the first target to reach it takes the roll.
+	// An area spell, or one Blizzard or Flamestrike tick, rolls once however many targets it lands on.
+	// The condition runs just before the roll, so the first target to reach it takes the roll.
 	var rolledSpell *core.Spell
 	var rolledAt time.Duration
 	mage.RegisterResetEffect(func(_ *core.Simulation) {
 		rolledSpell = nil
 	})
-	// Arcane Missiles never rolls: the channel lands an outcome with no damage, and its missiles do
-	// not roll either.
+	// The share of the talent's chance each roll of an Arcane Missiles channel takes: its start and each missile.
+	missilesShare := 1 / float64(arcaneMissilesBookRank.Duration()/arcaneMissilesBookRank.PeriodicEffect().Period()+1)
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if spellData.ArcaneMissiles.Contains(spell) || spellData.ArcaneMissilesTriggered.Contains(spell) ||
-			(spell == rolledSpell && sim.CurrentTime == rolledAt) {
+		if spell == rolledSpell && sim.CurrentTime == rolledAt {
 			return false
 		}
 		rolledSpell, rolledAt = spell, sim.CurrentTime
+		if spell.Matches(MageSpellArcaneMissilesCast | MageSpellArcaneMissilesTick) {
+			return sim.Proc(missilesShare, "Arcane Concentration - Arcane Missiles")
+		}
 		return true
 	}
 
-	mage.MakeProcTriggerAura(trigger)
+	triggerAura := mage.MakeProcTriggerAura(trigger)
+	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
+	// registerFlamestrikeSpell) reach the hit listener here.
+	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
+	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		if onPeriodic != nil {
+			onPeriodic(aura, sim, spell, result)
+		}
+		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
+			onHit(aura, sim, spell, result)
+		}
+	}
 }
 
-// "Increases your Armor by an amount equal to 50% of your Intellect."
+// "Increases your Armor by an amount equal to 25/50/75% of your Intellect."
 func (mage *Mage) registerArcaneResilience() {
 	if mage.Talents.ArcaneResilience == 0 {
 		return
@@ -232,8 +244,8 @@ func (mage *Mage) registerArcaneWrathTalent() {
 
 // "Gives your Arcane Blast spell a 20/40% chance, and your Arcane Wrath, Fireball, Frostbolt, and
 // Frostfire Bolt spells a 10/20% chance to reduce the channeled duration of your next Arcane Missiles
-// spell by 50%, reduce the Mana cost by 100%, and missiles fire every 0.5 sec." Frost Blast procs
-// it too, which the tooltip does not say; that is confirmed in game. Arcane Missiles does not proc it.
+// spell by 50%, reduce the Mana cost by 100%, and missiles fire every 0.5 sec." Arcane Missiles does
+// not proc it.
 func (mage *Mage) registerMissileBarrage() {
 	if mage.Talents.MissileBarrage == 0 {
 		return
@@ -251,12 +263,19 @@ func (mage *Mage) registerMissileBarrage() {
 		}
 	}
 	buffAura := mage.RegisterAura(config)
+	mage.MissileBarrageAura = buffAura
 
 	// Missiles every 0.5 sec (effect 2) and the mana cost (effect 3). The sim counts a DoT's
 	// duration as its ticks times their length, so the halved tick alone halves the channel and
 	// keeps its 5 missiles: the row's -50% duration (effect 1) is already in it and is not applied
-	// again.
-	spelldata.ParseEffects(&mage.Character, buffAura, buffRank, spelldata.Effects(2, 3))
+	// again. Effect 2 is an A_DUMMY the server scripts; the script takes its -500 ms off the tick, so
+	// it applies here under effect 1's Arcane Missiles flags.
+	buffAura.AttachSpellMod(core.SpellModConfig{
+		Kind:       core.SpellMod_DotTickLength_Flat,
+		ClassFlags: buffRank.EffectN(1).ClassFlags,
+		TimeValue:  buffRank.EffectN(2).TimeValue(),
+	})
+	spelldata.ParseEffects(&mage.Character, buffAura, buffRank, spelldata.Effects(3))
 
 	trigger := spelldata.ProcTrigger(&mage.Character, talentRank,
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
@@ -272,11 +291,9 @@ func (mage *Mage) registerMissileBarrage() {
 	// The buff goes up on the hit that procs it, with no spell batch window delay, so a proc while
 	// it is up only refreshes it and the next Arcane Missiles consumes it with nothing landing after.
 	trigger.TriggerImmediately = true
-	// Frost Blast at Frostbolt's half chance, from the 15 October 2026 patch note giving it every
-	// talent that affects Frostbolt.
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spellData.ArcaneBlast.Contains(spell) || spellData.ArcaneWrath.Contains(spell) || spellData.Fireball.Contains(spell) ||
-			spellData.Frostbolt.Contains(spell) || spellData.FrostBlast.Contains(spell) || spellData.FrostfireBolt.Contains(spell)
+			spellData.Frostbolt.Contains(spell) || spellData.FrostfireBolt.Contains(spell)
 	}
 
 	mage.MakeProcTriggerAura(trigger)

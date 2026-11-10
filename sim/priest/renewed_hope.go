@@ -6,7 +6,6 @@ const priestRenewedHopeSpells = PriestSpellFlashHeal |
 	PriestSpellLesserHeal |
 	PriestSpellHeal |
 	PriestSpellGreaterHeal |
-	PriestSpellBindingHeal |
 	PriestSpellPenance
 
 func (priest *Priest) withRenewedHope(sim *core.Simulation, target *core.Unit, spell *core.Spell, apply func()) {
