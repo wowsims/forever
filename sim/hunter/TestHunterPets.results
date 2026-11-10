@@ -221,6 +221,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-CadaverousGarb"
+ value: {
+  dps: 652.70955
+  tps: 428.41987
+  dtps: 4.30788
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-CleverHat-18308"
+ value: {
+  dps: 666.53321
+  tps: 422.42331
+  dtps: 1.04384
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-CloakofFire-14134"
  value: {
   dps: 666.17634
@@ -361,6 +377,14 @@ dps_results: {
   dps: 680.42912
   tps: 452.0719
   dtps: 1.03406
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 664.92728
+  tps: 438.15645
+  dtps: 1.02074
  }
 }
 dps_results: {
@@ -593,14 +617,6 @@ dps_results: {
   dps: 639.99496
   tps: 419.38221
   dtps: 0.90654
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-ForceofWill-11810"
- value: {
-  dps: 667.77024
-  tps: 442.00234
-  dtps: 0.94906
  }
 }
 dps_results: {
@@ -921,6 +937,13 @@ dps_results: {
   dps: 678.84122
   tps: 449.61164
   dtps: 1.79862
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 666.59069
+  tps: 440.79847
  }
 }
 dps_results: {
@@ -1329,6 +1352,14 @@ dps_results: {
   dps: 596.13345
   tps: 381.81706
   dtps: 0.60381
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 667.77024
+  tps: 442.00234
+  dtps: 1.03406
  }
 }
 dps_results: {
