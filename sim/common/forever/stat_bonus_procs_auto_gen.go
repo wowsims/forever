@@ -58,6 +58,19 @@ func RegisterAllProcs() {
 	// equip: 1320726 (A_MOD_SKILL)
 	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
 	//	[]shared.ItemVariant{
+	//	{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases Feral Combat +1.
+	// https://www.wowhead.com/forever/spell=1320726
+	// unsupported: effect 1 A_MOD_SKILL misc 3014 is not parsed on the wearer
+	// equip: 1320726 (A_MOD_SKILL)
+	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
+	//	[]shared.ItemVariant{
 	//	{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
 	// })
 
@@ -175,6 +188,19 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17504, BuffSpellID: 17504, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 809, ItemName: "Bloodrazor"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Blasts a target for 126 Nature damage.
+	// https://www.wowhead.com/forever/spell=18104
+	// unsupported: states no rate
+	// trigger 18104 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18104, BuffSpellID: 18104, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 811, ItemName: "Axe of the Deep Woods"},
 	// })
 
 	// TODO: Manual implementation required
@@ -1315,6 +1341,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Diseases target enemy for 42 Nature damage every 3.0 sec for 12s.
+	// https://www.wowhead.com/forever/spell=18289
+	// unsupported: states no rate
+	// trigger 18289 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18289, BuffSpellID: 18289, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 13983, ItemName: "Gravestone War Axe"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// https://www.wowhead.com/forever/spell=1298508
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
@@ -1754,6 +1793,19 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 17774, ItemName: "Mark of the Chosen"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
+	// https://www.wowhead.com/forever/spell=27860
+	// unsupported: states no rate
+	// trigger 21978 (no stated rate, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 27860
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3525,6 +3577,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Smites a target for 105 Holy damage. Deals 2 times as much damage to Undead.
+	// https://www.wowhead.com/forever/spell=1299631
+	// unsupported: states no rate
+	// trigger 1299631 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1299631, BuffSpellID: 1299631, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 276419, ItemName: "Lightcrest Hammer"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Increases Strength by 38 while affected by a Bleed.
 	// https://www.wowhead.com/forever/spell=1314784
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4422,6 +4487,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=1294258
 	// Not simulated: The Eye of Divinity: "Eye of Divinity" (23101) - ignored aura type 19
 	// https://www.wowhead.com/forever/spell=23101
+	// Not simulated: Death Grips: "Immune to Disarm" (7219) - ignored aura type 77
+	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Pirate's Eye Patch: "Fear Resistance 4" (24351) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=24351
 	// Not simulated: Bloodvine Lens: "Stealth Detection 10" (23217) - ignored aura type 17
