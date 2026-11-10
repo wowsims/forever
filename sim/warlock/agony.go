@@ -1,16 +1,20 @@
 package warlock
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Bane of Agony's base ramps in thirds: the first third of the ticks at half, the second at the base, the last
-// at one and a half. The spell power share and the damage multipliers are read as each tick lands, and the
-// share does not ramp. Amplify Curse, which the cast spends, raises the whole tick, base and share, for the
-// whole of the Bane it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files
-// do not state it.
+// Bane of Agony's base ramps in thirds of its duration: a tick in the first third deals half, one in the second
+// the base, and one in the last, the expiry included, one and a half. The spell power share and the damage
+// multipliers are read as each tick lands, and the share does not ramp. Amplify Curse, which the cast spends,
+// raises the whole tick, base and share, for the whole of the Bane it landed with. The share read at each tick
+// comes from the Nov 3 patch notes; the game files do not state it.
 // TODO: Ingame test needed: confirm on live that each tick reads the spell power of the moment.
+// TODO: Ingame test needed: whether the ramp under Wrack's faster ticks follows the time through the Bane's
+// duration, as here, or the tick number.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
 	agonyTick := rankedSpell.PeriodicEffect()
@@ -22,7 +26,6 @@ func (warlock *Warlock) registerBaneOfAgony() {
 	config.ClassSpellMask = WarlockSpellBaneOfAgony
 
 	config.Dot = spelldata.DotConfig(rankedSpell, agonyTick)
-	config.Dot.Aura.Tag = "Affliction"
 
 	// The bonus of a cast now, if Amplify Curse is up.
 	ampNow := func() float64 {
@@ -52,7 +55,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 		if !ok {
 			ampMult = ampNow()
 		}
-		setTick(target, dot, ampMult, baneOfAgonyRamp(dot.TickCount(), dot.BaseTickCount))
+		setTick(target, dot, ampMult, baneOfAgonyRamp(sim.CurrentTime-dot.StartedAt(), dot.ExpiresAt()-dot.StartedAt()))
 		dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
 	}
 
@@ -82,15 +85,17 @@ func (warlock *Warlock) registerBaneOfAgony() {
 
 	warlock.BaneOfAgony = warlock.RegisterSpell(config)
 	warlock.Banes = append(warlock.Banes, warlock.BaneOfAgony)
+	warlock.afflictionDots = append(warlock.afflictionDots, warlock.BaneOfAgony)
 }
 
-// Helper function to facilitate the percentage of base damage dealt per tick
-func baneOfAgonyRamp(tick int32, ticks int32) float64 {
-	third := max(ticks/3, 1)
+// The share of the base a tick deals, by the third of the duration its time since the Bane landed falls in. A
+// tick on a third's end deals that third's share, so Wrack's added ticks deal the share of the time they land
+// in, and a truncated last tick at the expiry deals the last third's.
+func baneOfAgonyRamp(elapsed time.Duration, duration time.Duration) float64 {
 	switch {
-	case tick <= third:
+	case 3*elapsed <= duration:
 		return 0.5
-	case tick <= 2*third:
+	case 3*elapsed <= 2*duration:
 		return 1
 	default:
 		return 1.5

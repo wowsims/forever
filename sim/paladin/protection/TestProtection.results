@@ -693,6 +693,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 396.80537
+  tps: 955.33016
+  dtps: 358.39281
+  hps: 21.84139
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 396.43057
@@ -1023,6 +1032,15 @@ dps_results: {
   tps: 948.95109
   dtps: 349.05322
   hps: 21.90917
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-MagicallySealedBracers-18351"
+ value: {
+  dps: 392.50101
+  tps: 948.28791
+  dtps: 332.9778
+  hps: 21.67194
  }
 }
 dps_results: {

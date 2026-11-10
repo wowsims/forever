@@ -685,6 +685,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 456.39413
+  tps: 1745.1428
+  dtps: 401.14589
+  hps: 81.90407
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 458.37992

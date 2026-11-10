@@ -94,6 +94,39 @@ func init() {
 		character.ItemSwap.RegisterProc(10760, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Gloves of Holy Might
+	// https://www.wowhead.com/forever/item=867/gloves-of-holy-might
+	//
+	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
+	//
+	// 1330855 casts 1325229 on a hit, and the rows deal its Holy damage the same to any target: no
+	// second effect, creature type restriction or aura states the tripling, only the tooltip. The row
+	// states no power coefficient, so tripling the amount triples the hit. Its defense type is ranged,
+	// so it rolls on the ranged hit table.
+	core.NewItemEffect(867, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1325229)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			amount := damage.DirectAmount(sim)
+			if target.MobType == proto.MobType_MobTypeUndead {
+				amount *= 3
+			}
+			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeRangedHitAndCrit)
+		}
+		smite := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1330855), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			smite.Cast(sim, result.Target)
+		})
+		trigger.Name = "Gloves of Holy Might"
+		trigger.ActionID = core.ActionID{ItemID: 867}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(867, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Thick Obsidian Breastplate
 	// https://www.wowhead.com/forever/item=22196/thick-obsidian-breastplate
 	//
