@@ -621,16 +621,7 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			expected["Bear (#1) picks no potion for {OtherID: 25}"] = true
 		}
 		for line, messages := range bearAPLWarnings(t, req) {
-			missingVindication := false
 			for _, message := range messages {
-				if message == "No aura found on Target 1 for: {SpellID: 440667, Tag: -1}" {
-					missingVindication = true
-				}
-			}
-			for _, message := range messages {
-				if missingVindication && message == "A condition branch in this 'And' check could not be resolved and was dropped." {
-					continue
-				}
 				if !expected[message] {
 					t.Errorf("consumes=%t line %d: %s", consumes, line, message)
 				}

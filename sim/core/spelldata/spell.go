@@ -376,6 +376,15 @@ func (s *Spell) TickOutcome(dot *core.Dot) core.OutcomeApplier {
 	}
 }
 
+// What a tick of a magic damage over time is expected to deal: the crit share counts where the row
+// states Periodic Can Crit, as the tick rolls it.
+func (s *Spell) ExpectedMagicTickOutcome(spell *core.Spell) core.OutcomeApplier {
+	if s.PeriodicCanCrit() {
+		return spell.OutcomeExpectedMagicCrit
+	}
+	return spell.OutcomeExpectedMagicAlwaysHit
+}
+
 // Which of the three ticks the two flags pick. Split out so the choice can be asserted without a Dot.
 const (
 	tickOutcomeMagicCrit = iota

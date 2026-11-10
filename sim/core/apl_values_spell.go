@@ -282,7 +282,7 @@ func (value *APLValueSpellChanneledTicks) Type() proto.APLValueType {
 }
 func (value *APLValueSpellChanneledTicks) GetInt(_ *Simulation) int32 {
 	channeledDot := value.spell.Unit.ChanneledDot
-	if channeledDot == nil {
+	if channeledDot == nil || channeledDot.Spell != value.spell {
 		return 0
 	} else {
 		return channeledDot.TickCount()

@@ -258,7 +258,7 @@ func (spell *Spell) outcomeMeleeWhite(sim *Simulation, result *SpellResult, atta
 			!result.applyAttackTableDodge(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableParry(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableGlance(sim, spell, attackTable, roll, &chance) &&
-			!result.applyAttackTableBlock(spell, attackTable, roll, &chance) &&
+			!result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) &&
 			!result.applyAttackTableCrit(spell, attackTable, roll, &chance, countHits) {
 			result.applyAttackTableHit(spell, countHits)
 		}
@@ -316,9 +316,9 @@ func (spell *Spell) outcomeMeleeSpecialHitAndCrit(sim *Simulation, result *Spell
 			!result.applyAttackTableDodge(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableParry(spell, attackTable, roll, &chance) {
 			if result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, countHits) {
-				result.applyAttackTableBlock(spell, attackTable, roll, &chance)
+				result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits)
 			} else {
-				if !result.applyAttackTableBlock(spell, attackTable, roll, &chance) {
+				if !result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) {
 					result.applyAttackTableHit(spell, countHits)
 				}
 			}
@@ -346,7 +346,7 @@ func (spell *Spell) outcomeMeleeWeaponSpecialNoParry(sim *Simulation, result *Sp
 
 		if !result.applyAttackTableMissNoDWPenalty(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableDodge(spell, attackTable, roll, &chance) &&
-			!result.applyAttackTableBlock(spell, attackTable, roll, &chance) &&
+			!result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) &&
 			!result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, countHits) {
 			result.applyAttackTableHit(spell, countHits)
 		}
@@ -371,7 +371,7 @@ func (spell *Spell) outcomeMeleeWeaponSpecialHitAndCrit(sim *Simulation, result 
 		if !result.applyAttackTableMissNoDWPenalty(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableDodge(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableParry(spell, attackTable, roll, &chance) &&
-			!result.applyAttackTableBlock(spell, attackTable, roll, &chance) &&
+			!result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) &&
 			!result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, countHits) {
 			result.applyAttackTableHit(spell, countHits)
 		}
@@ -395,7 +395,7 @@ func (spell *Spell) outcomeMeleeWeaponSpecialNoCrit(sim *Simulation, result *Spe
 		if !result.applyAttackTableMissNoDWPenalty(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableDodge(spell, attackTable, roll, &chance) &&
 			!result.applyAttackTableParry(spell, attackTable, roll, &chance) &&
-			!result.applyAttackTableBlock(spell, attackTable, roll, &chance) {
+			!result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) {
 			result.applyAttackTableHit(spell, countHits)
 		}
 	} else {
@@ -429,7 +429,7 @@ func (spell *Spell) outcomeMeleeSpecialBlockAndCrit(sim *Simulation, result *Spe
 	if spell.Unit.PseudoStats.InFrontOfTarget {
 		roll := sim.RandomFloat("White Hit Table")
 		chance := 0.0
-		if result.applyAttackTableBlock(spell, attackTable, roll, &chance) {
+		if result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) {
 			return
 		}
 	}
@@ -466,9 +466,9 @@ func (spell *Spell) outcomeRangedHitAndCrit(sim *Simulation, result *SpellResult
 	if spell.Unit.PseudoStats.InFrontOfTarget {
 		if !result.applyAttackTableMissNoDWPenalty(spell, attackTable, roll, &chance) {
 			if result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, countHits) {
-				result.applyAttackTableBlock(spell, attackTable, roll, &chance)
+				result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits)
 			} else {
-				if !result.applyAttackTableBlock(spell, attackTable, roll, &chance) {
+				if !result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) {
 					result.applyAttackTableHit(spell, countHits)
 				}
 			}
@@ -510,9 +510,9 @@ func (spell *Spell) outcomeRangedCritOnly(sim *Simulation, result *SpellResult, 
 		chance := 0.0
 
 		if result.applyAttackTableCritSeparateRoll(sim, spell, attackTable, countHits) {
-			result.applyAttackTableBlock(spell, attackTable, roll, &chance)
+			result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits)
 		} else {
-			if !result.applyAttackTableBlock(spell, attackTable, roll, &chance) {
+			if !result.applyAttackTableBlock(spell, attackTable, roll, &chance, countHits) {
 				result.applyAttackTableHit(spell, countHits)
 			}
 		}
@@ -582,20 +582,23 @@ func (result *SpellResult) applyAttackTableMissNoDWPenalty(spell *Spell, attackT
 	return false
 }
 
-func (result *SpellResult) applyAttackTableBlock(spell *Spell, attackTable *AttackTable, roll float64, chance *float64) bool {
+// A block lands like the hit or crit it stands in for, so it is counted only where they are.
+func (result *SpellResult) applyAttackTableBlock(spell *Spell, attackTable *AttackTable, roll float64, chance *float64, countHits bool) bool {
 	*chance += result.Target.GetTotalBlockChanceAsDefender(spell, attackTable)
 	if roll < *chance {
 		isPartialResist := result.DidResist()
 		result.Outcome |= OutcomeBlock
-		if result.DidCrit() {
-			spell.SpellMetrics[result.Target.UnitIndex].Crits--
-			spell.SpellMetrics[result.Target.UnitIndex].BlockedCrits++
+		if countHits {
+			if result.DidCrit() {
+				spell.SpellMetrics[result.Target.UnitIndex].Crits--
+				spell.SpellMetrics[result.Target.UnitIndex].BlockedCrits++
 
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits--
+				if isPartialResist {
+					spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits--
+				}
+			} else {
+				spell.SpellMetrics[result.Target.UnitIndex].Blocks++
 			}
-		} else {
-			spell.SpellMetrics[result.Target.UnitIndex].Blocks++
 		}
 		// Physical abilities tagged with "Completely Blocked" are fully blocked every time
 		if spell.Flags.Matches(SpellFlagBinary) {

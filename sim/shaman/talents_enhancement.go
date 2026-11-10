@@ -131,8 +131,8 @@ func (shaman *Shaman) applyFlurry() {
 	}
 
 	// The row has no roll and the crit is the condition, read off the result here because the same
-	// listener has to see the white hits that spend a charge. Windfury Weapon's strikes are white in
-	// name only and spend none.
+	// listener has to see the white hits that spend a charge. 16257 hears swings alone, so an ability's
+	// hit spends none.
 	//
 	// TODO: Ingame test needed: only a landed white swing spends a charge here. Warrior Flurry, the
 	// same talent and buff shape, spends one on every white swing whatever its outcome, misses,
@@ -145,8 +145,7 @@ func (shaman *Shaman) applyFlurry() {
 				return
 			}
 
-			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) &&
-				spell != shaman.windfuryWeaponStrike && chargeICD.IsReady(sim) {
+			if flurryAura.IsActive() && spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
 				flurryAura.RemoveStack(sim)
 			}

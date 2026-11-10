@@ -166,8 +166,6 @@ var Raid = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// TODO: rank 5 states 50 ranged attack power and rank 4 states 75; in-game testing has to say
-	// which one the top rank grants.
 	{
 		Field:   "trueshot_aura",
 		SpellID: 20906,

@@ -454,6 +454,10 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 			if !isReset && !isPrepull {
 				character.AutoAttacks.EnableMeleeSwing(sim)
 			}
+			// An off hand first equipped before the pull opens as one held from the start does.
+			if isPrepull && character.AutoAttacks.IsDualWielding && character.AutoAttacks.OffhandSwingAt() == NeverExpires {
+				character.AutoAttacks.resetOffHandSwing()
+			}
 			character.PseudoStats.CanBlock = character.OffHand().WeaponType == proto.WeaponType_WeaponTypeShield
 		}
 	}
