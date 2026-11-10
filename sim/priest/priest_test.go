@@ -21,7 +21,7 @@ func init() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return &healingPriest{Priest: New(character, SelfBuffs{}, options.TalentsString)}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_HealerPriest)
 		},
 	)
