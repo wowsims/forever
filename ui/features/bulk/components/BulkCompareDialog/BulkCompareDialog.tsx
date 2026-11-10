@@ -17,7 +17,7 @@ import { changedEnchantLabels, changedItemLabels, compareMatrix, type GainTint, 
 import { formatBulkDps } from '../../model/results/format';
 import { BulkCompareTable, type BulkCompareTableProps } from '../BulkCompareTable';
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.compare.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`bulk_tab.compare.${key}`, options);
 
 const currentLabel = () => i18n.t('bulk_tab.results.current');
 
