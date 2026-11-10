@@ -645,21 +645,21 @@ var Spells = []Override{
 		Field:   APCoefDirect,
 		Value:   0.037, // TODO: Measure Ferocious Bite Rank 4 in game.
 		Reason:  "Ferocious Bite Rank 4: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
 	},
 	{
 		SpellID: 22829,
 		Field:   APCoefDirect,
 		Value:   0.037, // TODO: Measure Ferocious Bite Rank 5 in game.
 		Reason:  "Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
 	},
 	{
 		SpellID: 31018,
 		Field:   APCoefDirect,
 		Value:   0.037, // TODO: Measure Ferocious Bite Rank 6 in game.
 		Reason:  "Ferocious Bite Rank 6: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 26–33, game build 1.60.1.70862, 2026-11-09",
+		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's

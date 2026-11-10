@@ -9,11 +9,12 @@ import (
 // The tooltip's "reduces base armor by 27% in Bear Form and 16% in Dire Bear Form". The row carries the
 // penalty as effect 4, an A_DUMMY with no value. In Bear Form the game takes 27% of the item armor and the
 // items' bonus armor, both after the form's multiplier, and of the 2 armor per Agility: 1206 armor drops to 962
-// on a sheet whose item and Agility share is 904, and sheets with 60 and 100 bonus armor lose 27% of 2.8 times
-// it on top. Buff armor stays whole and the level adds nothing. Only Bear Form was measured; Dire Bear takes its
-// 16% from the same share. Thick Hide's armor stays whole, as no measured druid had it.
+// on a sheet whose item and Agility share is 904, and sheets whose bonus armor reads 60 and 100 lose 27% of 2.8
+// times it on top. Buff armor stays whole and the level adds nothing. Thick Hide's armor stays whole, as no
+// measured druid had it.
 const (
-	enrageBearArmorScale     = 0.73
+	enrageBearArmorScale = 0.73
+	// TODO: Ingame test needed -- Dire Bear takes its 16% from the same share as Bear Form, its bonus armor included.
 	enrageDireBearArmorScale = 0.84
 )
 

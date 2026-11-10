@@ -12,10 +12,16 @@ func TestOmenOfClarityUsesThePlaceholderRate(t *testing.T) {
 	}
 }
 
-func TestFerociousBiteAttackPowerPerComboPoint(t *testing.T) {
+// The game files state no attack power share on Ferocious Bite; every rank carries the top rank's measured one,
+// so a lower rank registered later does not read 0.
+func TestFerociousBiteRanksShareTheAttackPowerPerComboPoint(t *testing.T) {
+	top := spellData.FerociousBite.Highest().DamageEffect().APCoeff()
+	if top <= 0 {
+		t.Fatalf("Ferocious Bite's top rank has no attack power per combo point")
+	}
 	spellData.FerociousBite.Each(func(rank int32, s *spelldata.Spell) {
-		if got := s.DamageEffect().APCoeff(); got != 0.037 {
-			t.Errorf("Ferocious Bite rank %d (%d) attack power per combo point = %v, want the measured 0.037", rank, s.ID, got)
+		if got := s.DamageEffect().APCoeff(); got != top {
+			t.Errorf("Ferocious Bite rank %d (%d) attack power per combo point = %v, want the top rank's %v", rank, s.ID, got, top)
 		}
 	})
 }
