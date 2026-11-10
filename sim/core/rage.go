@@ -18,10 +18,9 @@ const ThreatPerRageGained = 5
 // armor reduction the game assumes in place of the defender's own. The defender's level, health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
-// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits: 21.8% at attackers
-// 20-38, 23.9% at 42, 31% at 44, 36% at 46 and 38% at 50. The 40% at 63 is the top of the 20% to 40% range the
-// game build's notes give. A stays flat below the first row and interpolates between rows, which lands inside the
-// measured ranges at 39-41 (22.7-23.2%), 43 (27.5%) and 45 (33.5%). No log covers 47-49 or 61-63.
+// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
+// 21.8% at attackers 17-38, 23.9% at 42 and 31% at 44 on hundreds of hits each; 36% at 46 and 38% at 50 on a few
+// dozen. The 40% at 63 is the top of the 20% to 40% range the game build's notes give. No log covers 47-49 or 51-63.
 // Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
 // since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
