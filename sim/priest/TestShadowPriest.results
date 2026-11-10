@@ -287,6 +287,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 746.48527
+  tps: 533.47436
+  dtps: 5.78012
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 719.85047
@@ -516,14 +524,6 @@ dps_results: {
   dps: 749.07576
   tps: 535.27487
   dtps: 5.87048
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-ForceofWill-11810"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.53756
  }
 }
 dps_results: {
@@ -815,6 +815,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 743.92773
+  tps: 532.94353
+  dtps: 4.63516
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 744.31941
@@ -1059,6 +1067,14 @@ dps_results: {
   dps: 752.10219
   tps: 537.61927
   dtps: 4.85193
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.87048
  }
 }
 dps_results: {

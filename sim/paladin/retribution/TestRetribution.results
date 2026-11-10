@@ -189,6 +189,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-CadaverousGarb"
+ value: {
+  dps: 788.63656
+  tps: 645.24172
+  dtps: 6.24927
+  hps: 23.77424
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-CleverHat-18308"
+ value: {
+  dps: 802.38548
+  tps: 629.82069
+  dtps: 5.87314
+  hps: 23.41299
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-CloakofFire-14134"
  value: {
   dps: 822.89418
@@ -339,6 +357,15 @@ dps_results: {
   tps: 683.90615
   dtps: 6.09147
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 820.3189
+  tps: 670.04287
+  dtps: 6.02526
+  hps: 23.65597
  }
 }
 dps_results: {
@@ -573,15 +600,6 @@ dps_results: {
   tps: 666.97789
   dtps: 6.50137
   hps: 23.90878
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-ForceofWill-11810"
- value: {
-  dps: 825.92657
-  tps: 674.65956
-  dtps: 5.53897
-  hps: 23.54312
  }
 }
 dps_results: {
@@ -972,6 +990,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 824.21656
+  tps: 671.88856
+  dtps: 2.95279
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MithrilShieldSpike-463"
  value: {
   dps: 802.86762
@@ -1251,6 +1278,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-StoneformShoulders-13955"
+ value: {
+  dps: 815.74556
+  tps: 666.4739
+  dtps: 6.21279
+  hps: 23.84524
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-StormGauntlets-12632"
  value: {
   dps: 824.77975
@@ -1455,6 +1491,15 @@ dps_results: {
   tps: 578.12467
   dtps: 3.07227
   hps: 22.11928
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 830.27273
+  tps: 678.2114
+  dtps: 6.09147
+  hps: 23.54312
  }
 }
 dps_results: {

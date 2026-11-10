@@ -226,9 +226,10 @@ func TestOffHandAutoAttackRageGeneration(t *testing.T) {
 
 func TestDamageTakenRageGeneration(t *testing.T) {
 	// 1000 damage before armor from a level 63 attacker, which assumes 40% armor: 2.5 * 0.6 * 1000 / 243.64
-	// = 6.157, whatever the school, and a periodic tick alike. From a level 30 attacker (20%): 2.5 * 0.8 * 1000 /
-	// 109.23 = 18.310; level 44 (30%): 2.5 * 0.7 * 1000 / 163.83 = 10.682; level 45 sits halfway between the 44 and
-	// 46 rows (33%): 2.5 * 0.67 * 1000 / 167.87 = 9.978.
+	// = 6.157, whatever the school, and a periodic tick alike. From a level 30 attacker (21.8%): 2.5 * 0.782 * 1000 /
+	// 109.23 = 17.898; level 40 sits halfway between the 38 and 42 rows (22.85%): 2.5 * 0.7715 * 1000 / 147.87 =
+	// 13.044; level 44 (31%): 2.5 * 0.69 * 1000 / 163.83 = 10.529; level 45 sits halfway between the 44 and 46 rows
+	// (33.5%): 2.5 * 0.665 * 1000 / 167.87 = 9.904.
 	const preArmorDamage = 1000.0
 
 	tests := []struct {
@@ -244,9 +245,10 @@ func TestDamageTakenRageGeneration(t *testing.T) {
 		{name: "dodge", school: SpellSchoolPhysical, outcome: OutcomeDodge, wantRage: 0},
 		{name: "nature tick", school: SpellSchoolNature, outcome: OutcomeHit, periodic: true, wantRage: 6.157},
 		{name: "physical tick", school: SpellSchoolPhysical, outcome: OutcomeHit, periodic: true, wantRage: 6.157},
-		{name: "lower level attacker", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 30, wantRage: 18.310},
-		{name: "attacker on a row", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 44, wantRage: 10.682},
-		{name: "attacker between rows", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 45, wantRage: 9.978},
+		{name: "lower level attacker", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 30, wantRage: 17.898},
+		{name: "attacker between rows 38 and 42", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 40, wantRage: 13.044},
+		{name: "attacker on a row", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 44, wantRage: 10.529},
+		{name: "attacker between rows 44 and 46", school: SpellSchoolPhysical, outcome: OutcomeHit, attackerLevel: 45, wantRage: 9.904},
 	}
 
 	for _, test := range tests {

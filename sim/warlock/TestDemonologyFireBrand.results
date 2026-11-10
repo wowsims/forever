@@ -320,6 +320,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 748.49542
+  tps: 610.16139
+  dtps: 8.43279
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 712.17685
@@ -558,15 +567,6 @@ dps_results: {
   dps: 756.54976
   tps: 617.91172
   dtps: 8.339
-  hps: 10.00951
- }
-}
-dps_results: {
- key: "TestDemonologyFireBrand-AllItems-ForceofWill-11810"
- value: {
-  dps: 756.54976
-  tps: 617.8396
-  dtps: 7.75108
   hps: 10.00951
  }
 }
@@ -861,6 +861,15 @@ dps_results: {
   dps: 756.54976
   tps: 617.91172
   dtps: 8.339
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 746.88306
+  tps: 606.23417
+  dtps: 8.6031
   hps: 10.00951
  }
 }
@@ -1175,6 +1184,15 @@ dps_results: {
   dps: 713.00774
   tps: 575.68281
   dtps: 8.40509
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 756.54976
+  tps: 617.91172
+  dtps: 8.339
+  hps: 10.00951
  }
 }
 dps_results: {

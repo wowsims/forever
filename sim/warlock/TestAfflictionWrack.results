@@ -295,6 +295,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-EidolonTalisman-18340"
+ value: {
+  dps: 890.53321
+  tps: 713.75302
+  dtps: 9.21186
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-ElectrifiedDagger-19100"
  value: {
   dps: 828.40181
@@ -484,14 +492,6 @@ dps_results: {
   dps: 911.98984
   tps: 731.06005
   dtps: 9.19092
- }
-}
-dps_results: {
- key: "TestAfflictionWrack-AllItems-ForceofWill-11810"
- value: {
-  dps: 911.98984
-  tps: 731.06005
-  dtps: 8.58884
  }
 }
 dps_results: {
@@ -748,6 +748,14 @@ dps_results: {
   dps: 911.98984
   tps: 731.06005
   dtps: 9.19092
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-MindtapTalisman-18371"
+ value: {
+  dps: 898.23628
+  tps: 719.23103
+  dtps: 5.43456
  }
 }
 dps_results: {
@@ -1028,6 +1036,14 @@ dps_results: {
   dps: 755.41557
   tps: 609.08794
   dtps: 8.85173
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-VigilanceCharm-18370"
+ value: {
+  dps: 911.98984
+  tps: 731.06005
+  dtps: 9.19092
  }
 }
 dps_results: {
