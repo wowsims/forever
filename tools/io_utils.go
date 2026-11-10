@@ -181,7 +181,7 @@ func ReadWebMulti(urls []string) []string {
 	webResults := make(chan WebResult, 10)
 	wg := &sync.WaitGroup{}
 
-	for thread := 0; thread < threads; thread++ {
+	for thread := range threads {
 		startIdx := len(urls) * thread / threads
 		endIdx := len(urls) * (thread + 1) / threads
 		wg.Go(func() {

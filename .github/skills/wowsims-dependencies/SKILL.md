@@ -37,8 +37,10 @@ with the VS Code version.
    turns `clearMocks` on, so a stub's calls from module load are gone by the time a test runs.
    The worker build runs on Node's own type stripping; what that asks of the files it loads is at the top of
    `vite.build-workers.mts`.
-   After a Go release, `go fix -diff ./sim/... ./cmd/... ./tools/...` lists what its modernizers would rewrite; apply
-   them with `-embedlit=false`, since `embedlit` turns `ActionID: core.ActionID{SpellID: X}` into `SpellID: X`.
+   After a Go release, `go fix -diff -tags with_db ./sim/... ./cmd/... ./tools/...` lists what its modernizers would
+   rewrite, and `GOOS=js GOARCH=wasm go fix -diff ./sim/wasm/...` the wasm entry point, which only that target builds;
+   apply them with `-embedlit=false`, since `embedlit` turns `ActionID: core.ActionID{SpellID: X}` into `SpellID: X`.
+   A rebase or a merge of `master` carries code `go fix` never saw, so both runs repeat after one.
 4. **Patch and minor npm packages**, then each major on its own. Bump the packages in `dependencies` apart from those in
    `devDependencies`, so a failure names its group. Check a major is imported at all, since an unused package is removed, and
    read its deprecation notice, since `@types/*` of a package that ships its own types is a stub.

@@ -99,7 +99,7 @@ func TestWalksLogWhereTheUnitIs(t *testing.T) {
 	ct := &channelTest{sim: sim, fw: fw, rot: fw.Rotation}
 
 	var logs []string
-	sim.Log = func(message string, vals ...interface{}) { logs = append(logs, fmt.Sprintf(message, vals...)) }
+	sim.Log = func(message string, vals ...any) { logs = append(logs, fmt.Sprintf(message, vals...)) }
 	// The walk's time is whole milliseconds, so the logged seconds sit within one of the exact time.
 	walked := func(from, to float64, over time.Duration) {
 		t.Helper()

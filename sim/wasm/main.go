@@ -1,5 +1,4 @@
 //go:build wasm
-// +build wasm
 
 package main
 
@@ -46,17 +45,17 @@ func main() {
 	js.Global().Set("statWeightTopUpPlan", js.FuncOf(statWeightTopUpPlan))
 	js.Global().Set("abortById", js.FuncOf(abortById))
 	js.Global().Set("simlNames", js.FuncOf(setSimlNames))
-	js.Global().Set("simlParse", js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+	js.Global().Set("simlParse", js.FuncOf(func(_ js.Value, args []js.Value) any {
 		return simlCall(args, &proto.SimlParseRequest{}, siml.ParseRequest)
 	}))
-	js.Global().Set("simlPrint", js.FuncOf(func(_ js.Value, args []js.Value) interface{} {
+	js.Global().Set("simlPrint", js.FuncOf(func(_ js.Value, args []js.Value) any {
 		return simlCall(args, &proto.SimlPrintRequest{}, siml.PrintRequest)
 	}))
 	js.Global().Call("wasmready")
 	<-c
 }
 
-func computeStats(this js.Value, args []js.Value) (response interface{}) {
+func computeStats(this js.Value, args []js.Value) (response any) {
 	defer func() {
 		if err := recover(); err != nil {
 			errStr := ""
@@ -101,7 +100,7 @@ func computeStats(this js.Value, args []js.Value) (response interface{}) {
 	return response
 }
 
-func computeStatsJson(this js.Value, args []js.Value) (response interface{}) {
+func computeStatsJson(this js.Value, args []js.Value) (response any) {
 	defer func() {
 		if err := recover(); err != nil {
 			errStr := ""
@@ -141,7 +140,7 @@ func computeStatsJson(this js.Value, args []js.Value) (response interface{}) {
 	return response
 }
 
-func reforgeOptimize(this js.Value, args []js.Value) (response interface{}) {
+func reforgeOptimize(this js.Value, args []js.Value) (response any) {
 	defer func() {
 		if err := recover(); err != nil {
 			errStr := ""
@@ -197,7 +196,7 @@ func reforgeOptimize(this js.Value, args []js.Value) (response interface{}) {
 	return response
 }
 
-func reforgeOptimizeAsync(this js.Value, args []js.Value) interface{} {
+func reforgeOptimizeAsync(this js.Value, args []js.Value) any {
 	req := &proto.ReforgeOptimizeRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse ReforgeOptimizeRequest: %s", err)
@@ -237,7 +236,7 @@ func reforgeOptimizeAsync(this js.Value, args []js.Value) interface{} {
 	return js.Undefined()
 }
 
-func raidSim(this js.Value, args []js.Value) interface{} {
+func raidSim(this js.Value, args []js.Value) any {
 	rsr := &proto.RaidSimRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), rsr); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -257,7 +256,7 @@ func raidSim(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func raidSimJson(this js.Value, args []js.Value) interface{} {
+func raidSimJson(this js.Value, args []js.Value) any {
 	rsr := &proto.RaidSimRequest{}
 	if err := protojson.Unmarshal(getArgsJson(args[0]), rsr); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -274,7 +273,7 @@ func raidSimJson(this js.Value, args []js.Value) interface{} {
 	return response
 }
 
-func raidSimAsync(this js.Value, args []js.Value) interface{} {
+func raidSimAsync(this js.Value, args []js.Value) any {
 	rsr := &proto.RaidSimRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), rsr); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -290,7 +289,7 @@ func raidSimAsync(this js.Value, args []js.Value) interface{} {
 	return js.Undefined()
 }
 
-func statWeights(this js.Value, args []js.Value) interface{} {
+func statWeights(this js.Value, args []js.Value) any {
 	swr := &proto.StatWeightsRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), swr); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -310,7 +309,7 @@ func statWeights(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func statWeightsAsync(this js.Value, args []js.Value) interface{} {
+func statWeightsAsync(this js.Value, args []js.Value) any {
 	rsr := &proto.StatWeightsRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), rsr); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -325,7 +324,7 @@ func statWeightsAsync(this js.Value, args []js.Value) interface{} {
 	return js.Undefined()
 }
 
-func statWeightRequests(this js.Value, args []js.Value) interface{} {
+func statWeightRequests(this js.Value, args []js.Value) any {
 	req := &proto.StatWeightsRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -345,7 +344,7 @@ func statWeightRequests(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func statWeightCompute(this js.Value, args []js.Value) interface{} {
+func statWeightCompute(this js.Value, args []js.Value) any {
 	req := &proto.StatWeightsCalcRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -365,7 +364,7 @@ func statWeightCompute(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func statWeightTopUpPlan(this js.Value, args []js.Value) interface{} {
+func statWeightTopUpPlan(this js.Value, args []js.Value) any {
 	req := &proto.StatWeightsTopUpRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse request: %s", err)
@@ -385,7 +384,7 @@ func statWeightTopUpPlan(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func raidSimRequestSplit(this js.Value, args []js.Value) interface{} {
+func raidSimRequestSplit(this js.Value, args []js.Value) any {
 	splitRequest := &proto.RaidSimRequestSplitRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), splitRequest); err != nil {
 		log.Printf("Failed to parse RaidSimRequestSplitRequest: %s", err)
@@ -405,7 +404,7 @@ func raidSimRequestSplit(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func raidSimResultCombination(this js.Value, args []js.Value) interface{} {
+func raidSimResultCombination(this js.Value, args []js.Value) any {
 	combRequest := &proto.RaidSimResultCombinationRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), combRequest); err != nil {
 		log.Printf("Failed to parse RaidSimResultCombinationRequest: %s", err)
@@ -440,7 +439,7 @@ func raidSimResultCombination(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func bulkCombinationCount(this js.Value, args []js.Value) interface{} {
+func bulkCombinationCount(this js.Value, args []js.Value) any {
 	request := &proto.BulkCombinationCountRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), request); err != nil {
 		log.Printf("Failed to parse BulkCombinationCountRequest: %s", err)
@@ -458,7 +457,7 @@ func bulkCombinationCount(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func bulkCandidates(this js.Value, args []js.Value) interface{} {
+func bulkCandidates(this js.Value, args []js.Value) any {
 	request := &proto.BulkCandidatesRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), request); err != nil {
 		log.Printf("Failed to parse BulkCandidatesRequest: %s", err)
@@ -476,7 +475,7 @@ func bulkCandidates(this js.Value, args []js.Value) interface{} {
 	return outArray
 }
 
-func abortById(this js.Value, args []js.Value) interface{} {
+func abortById(this js.Value, args []js.Value) any {
 	abortRequest := &proto.AbortRequest{}
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), abortRequest); err != nil {
 		log.Printf("Failed to parse AbortRequest: %s", err)
@@ -504,7 +503,7 @@ func abortById(this js.Value, args []js.Value) interface{} {
 var simlNames *siml.Names
 
 // Reads args[0], the bytes of sim/siml/names.json, as the name table. Gives the error, or "" once it is read.
-func setSimlNames(this js.Value, args []js.Value) interface{} {
+func setSimlNames(this js.Value, args []js.Value) any {
 	names, err := siml.ParseNames(getArgsBinary(args[0]))
 	if err != nil {
 		return js.ValueOf(err.Error())
@@ -515,7 +514,7 @@ func setSimlNames(this js.Value, args []js.Value) interface{} {
 
 // Answers the SIML request in args[0] with handle, which answers a request that comes before the name table with an
 // error, or nil when the request does not unmarshal.
-func simlCall[Req, Res googleProto.Message](args []js.Value, req Req, handle func(Req, *siml.Names) Res) interface{} {
+func simlCall[Req, Res googleProto.Message](args []js.Value, req Req, handle func(Req, *siml.Names) Res) any {
 	if err := googleProto.Unmarshal(getArgsBinary(args[0]), req); err != nil {
 		log.Printf("Failed to parse request: %s", err)
 		return nil
