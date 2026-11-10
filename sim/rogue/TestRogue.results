@@ -158,6 +158,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-CadaverousGarb"
+ value: {
+  dps: 579.15015
+  tps: 411.1966
+  hps: 50.98583
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-CleverHat-18308"
  value: {
   dps: 571.42309
@@ -507,14 +515,6 @@ dps_results: {
   dps: 598.0982
   tps: 424.64972
   hps: 59.23778
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-ForceofWill-11810"
- value: {
-  dps: 581.15952
-  tps: 412.62326
-  hps: 51.0875
  }
 }
 dps_results: {

@@ -189,6 +189,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-CadaverousGarb"
+ value: {
+  dps: 799.87134
+  tps: 810.91248
+  dtps: 4.85313
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Champion'sRefuge"
  value: {
   dps: 800.39385
@@ -574,14 +582,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-ForceofWill-11810"
- value: {
-  dps: 868.69142
-  tps: 879.61548
-  dtps: 5.03101
- }
-}
-dps_results: {
  key: "TestBalance-AllItems-FreezingBand-942"
  value: {
   dps: 883.30583
@@ -944,9 +944,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 874.52043
-  tps: 888.47118
-  dtps: 4.90582
+  dps: 869.94159
+  tps: 882.27272
+  dtps: 4.68902
  }
 }
 dps_results: {

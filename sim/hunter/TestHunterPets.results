@@ -221,6 +221,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-CadaverousGarb"
+ value: {
+  dps: 652.70955
+  tps: 428.41987
+  dtps: 4.30788
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-CleverHat-18308"
  value: {
   dps: 666.53321
@@ -612,14 +620,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-ForceofWill-11810"
- value: {
-  dps: 667.77024
-  tps: 442.00234
-  dtps: 0.94906
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-FreezingBand-942"
  value: {
   dps: 669.97339
@@ -942,8 +942,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 667.75741
-  tps: 442.93567
+  dps: 666.59069
+  tps: 440.79847
  }
 }
 dps_results: {

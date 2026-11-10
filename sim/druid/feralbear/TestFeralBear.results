@@ -208,6 +208,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-CadaverousGarb"
+ value: {
+  dps: 459.95223
+  tps: 1759.72723
+  dtps: 422.26625
+  hps: 82.41167
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Champion'sRefuge"
  value: {
   dps: 408.58852
@@ -637,15 +646,6 @@ dps_results: {
   tps: 1772.90813
   dtps: 389.04846
   hps: 80.45042
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-ForceofWill-11810"
- value: {
-  dps: 455.87901
-  tps: 1748.2461
-  dtps: 372.84706
-  hps: 80.19392
  }
 }
 dps_results: {

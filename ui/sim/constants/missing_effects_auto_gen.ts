@@ -828,6 +828,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		11810, // Force of Will
+		[
+			"When struck in combat has a chance to reduce all damage taken by 51 for 10s.", // 15595 - https://www.wowhead.com/forever/spell=15595
+		]
+	],
+	[
 		11816, // Angerforge's Battle Axe
 		[
 			"Deal 109 Physical damage. Trolls and Orcs take 2 times as much damage and are horrified for 4s.", // 1300783 - https://www.wowhead.com/forever/spell=1300783
@@ -981,6 +987,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13218, // Fang of the Crystal Spider
 		[
 			"Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.", // 17331 - https://www.wowhead.com/forever/spell=17331
+		]
+	],
+	[
+		13243, // Argent Defender
+		[
+			"Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike you are 2 times as likely to activate this effect.", // 17351 - https://www.wowhead.com/forever/spell=17351
 		]
 	],
 	[
@@ -2818,30 +2830,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
-				],
-			],
-		]),
-	],
-	[
-		121, // Cadaverous Garb
-		new Map([
-			[
-				3,
-				[
-					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
-					"Reduces the duration of all movement impairing effects on you by 10%.", // 1292546 - https://www.wowhead.com/forever/spell=1292546
-				],
-			],
-			[
-				4,
-				[
-					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
-				],
-			],
-			[
-				5,
-				[
-					"Improves your chance to hit by 2.0%.", // 460230 - https://www.wowhead.com/forever/spell=460230
 				],
 			],
 		]),

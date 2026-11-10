@@ -527,14 +527,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-ForceofWill-11810"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.53756
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-FreezingBand-942"
  value: {
   dps: 745.13135
@@ -825,9 +817,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 748.34478
-  tps: 538.01971
-  dtps: 5.00825
+  dps: 743.92773
+  tps: 532.94353
+  dtps: 4.63516
  }
 }
 dps_results: {

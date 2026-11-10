@@ -495,14 +495,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAfflictionWrack-AllItems-ForceofWill-11810"
- value: {
-  dps: 911.98984
-  tps: 731.06005
-  dtps: 8.58884
- }
-}
-dps_results: {
  key: "TestAfflictionWrack-AllItems-FreezingBand-942"
  value: {
   dps: 908.17715
@@ -761,9 +753,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 906.25207
-  tps: 727.84241
-  dtps: 6.73381
+  dps: 898.23628
+  tps: 719.23103
+  dtps: 5.43456
  }
 }
 dps_results: {

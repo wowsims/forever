@@ -571,15 +571,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyFireBrand-AllItems-ForceofWill-11810"
- value: {
-  dps: 756.54976
-  tps: 617.8396
-  dtps: 7.75108
-  hps: 10.00951
- }
-}
-dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FreezingBand-942"
  value: {
   dps: 748.1614
@@ -876,9 +867,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 750.20843
-  tps: 611.32526
-  dtps: 8.71836
+  dps: 746.88306
+  tps: 606.23417
+  dtps: 8.6031
   hps: 10.00951
  }
 }

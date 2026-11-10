@@ -183,14 +183,21 @@ func takeHit(t *testing.T, sim *core.Simulation, character *core.Character, spel
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
+// A melee swing the character dodges, and the spell batch window the listener resolves after.
+func dodgeSwing(t *testing.T, sim *core.Simulation, character *core.Character, attacker *core.Unit) {
+	t.Helper()
+	character.OnSpellHitTaken(sim, meleeSwing(attacker), &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeDodge})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+}
+
 func dealHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
 	t.Helper()
 	character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
-// The countdown buff a Zandalarian trinket or the Petrified Scarab puts up: on use it carries all its
-// stacks, and each stat it grants is its stack count times one stack's share.
+// The buff the item's use put up, checked to carry all of at least 2 stacks or charges for the row's
+// duration: a Zandalarian trinket's or the Petrified Scarab's countdown, Vigilance Charm's charges.
 func countdownBuff(t *testing.T, character *core.Character, spellID int32) (*core.Aura, int32) {
 	t.Helper()
 	buff := character.GetAuraByID(core.ActionID{SpellID: spellID})
@@ -518,5 +525,35 @@ func TestDormantHeartOfTheMountainAnswersTheFourHeals(t *testing.T) {
 			t.Errorf("rank %d raised no buff", rank)
 		}
 		buff.Deactivate(sim)
+	}
+}
+
+// Vigilance Charm 18370's Vigilant 1302264 goes up with its dodge and its charges, and each attack the
+// wearer dodges spends one: a landed hit taken spends none, and the last dodge takes the buff down.
+func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
+	sim, character := trinketWarrior(t, 18370)
+	before := character.GetStats()
+
+	useTrinketAsEntryStates(t, sim, character, 18370, core.CooldownTypeSurvival)
+	buff, charges := countdownBuff(t, character, 1302264)
+	if got := gained(character, before, stats.DodgePercent); got <= 0 {
+		t.Errorf("the buff grants %v dodge, want the row's", got)
+	}
+
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := buff.GetStacks(); !buff.IsActive() || got != charges {
+		t.Errorf("after a landed hit taken the buff has %d charges, want all %d", got, charges)
+	}
+
+	for dodged := int32(1); dodged < charges; dodged++ {
+		dodgeSwing(t, sim, character, enemy)
+		if got := buff.GetStacks(); !buff.IsActive() || got != charges-dodged {
+			t.Fatalf("after %d dodges the buff has %d charges, want %d", dodged, got, charges-dodged)
+		}
+	}
+	dodgeSwing(t, sim, character, enemy)
+	if buff.IsActive() {
+		t.Errorf("the buff is still up after %d dodges, want it gone", charges)
 	}
 }

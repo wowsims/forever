@@ -433,13 +433,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestArcane-AllItems-ForceofWill-11810"
- value: {
-  dps: 728.1076
-  tps: 628.26869
- }
-}
-dps_results: {
  key: "TestArcane-AllItems-FreezingBand-942"
  value: {
   dps: 758.21395
@@ -694,8 +687,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 731.9872
-  tps: 632.89362
+  dps: 709.82407
+  tps: 611.32473
  }
 }
 dps_results: {

@@ -198,6 +198,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-CadaverousGarb"
+ value: {
+  dps: 531.99501
+  tps: 456.73059
+  dtps: 3.05866
+  hps: 41.29361
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-CleverHat-18308"
  value: {
   dps: 494.08479
@@ -618,15 +627,6 @@ dps_results: {
   tps: 432.54423
   dtps: 2.96131
   hps: 46.80056
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-ForceofWill-11810"
- value: {
-  dps: 499.72724
-  tps: 431.89202
-  dtps: 2.63406
-  hps: 39.92111
  }
 }
 dps_results: {

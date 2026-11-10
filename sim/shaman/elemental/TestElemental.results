@@ -102,14 +102,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-ArgentDefender-13243"
- value: {
-  dps: 734.71662
-  tps: 679.77733
-  dtps: 8.89432
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 733.31635
@@ -195,6 +187,14 @@ dps_results: {
   dps: 716.73649
   tps: 666.60185
   dtps: 8.94695
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-CadaverousGarb"
+ value: {
+  dps: 633.42159
+  tps: 589.13227
+  dtps: 8.75392
  }
 }
 dps_results: {
@@ -559,14 +559,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-ForceofWill-11810"
- value: {
-  dps: 733.31635
-  tps: 679.92323
-  dtps: 8.31148
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-FreezingBand-942"
  value: {
   dps: 721.20246
@@ -865,9 +857,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 744.67209
-  tps: 692.12709
-  dtps: 5.17196
+  dps: 735.64308
+  tps: 680.33584
+  dtps: 4.74026
  }
 }
 dps_results: {

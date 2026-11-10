@@ -9,9 +9,10 @@ func (druid *Druid) registerPounceSpell() {
 	rank := spellData.Pounce.Highest()
 	bleedRank := spellData.PounceBleed.Highest()
 
+	// Natural Instinct's mask covers the bleed 9826's class flags, so its crit ticks take the talent's crit
+	// damage.
 	// TODO: Ingame research needed -- Genesis names Pounce 9827 by its class flags, and the bleed 9826's
-	// flags lie outside Genesis' mask, so the bleed here takes no Genesis. Natural Instinct's mask covers
-	// them, so the bleed's crit ticks take the talent's crit damage.
+	// flags lie outside Genesis' mask, so the bleed here takes no Genesis.
 	bleedConfig := spelldata.SpellConfig(&druid.Unit, bleedRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)

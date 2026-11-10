@@ -99,15 +99,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-ArgentDefender-13243"
- value: {
-  dps: 404.83857
-  tps: 984.35902
-  dtps: 338.68615
-  hps: 22.18028
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 394.87769
@@ -213,6 +204,15 @@ dps_results: {
   tps: 950.36218
   dtps: 342.67218
   hps: 21.82444
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-CadaverousGarb"
+ value: {
+  dps: 399.30432
+  tps: 952.22461
+  dtps: 416.34292
+  hps: 22.31583
  }
 }
 dps_results: {
@@ -636,15 +636,6 @@ dps_results: {
   tps: 942.84143
   dtps: 335.99137
   hps: 21.84139
- }
-}
-dps_results: {
- key: "TestProtection-AllItems-ForceofWill-11810"
- value: {
-  dps: 394.48372
-  tps: 945.72746
-  dtps: 330.51181
-  hps: 21.87528
  }
 }
 dps_results: {
@@ -1127,9 +1118,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 393.17116
-  tps: 941.34274
-  dtps: 348.43749
+  dps: 392.72081
+  tps: 939.36714
+  dtps: 348.33315
   hps: 21.94306
  }
 }
@@ -1388,9 +1379,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SkullflameShield-1168"
  value: {
-  dps: 390.34317
-  tps: 945.39701
-  dtps: 344.07198
+  dps: 389.9706
+  tps: 944.129
+  dtps: 343.58606
   hps: 21.62111
  }
 }
@@ -1444,7 +1435,7 @@ dps_results: {
  value: {
   dps: 389.99009
   tps: 939.24932
-  dtps: 311.03495
+  dtps: 325.99095
   hps: 21.72278
  }
 }
@@ -1658,10 +1649,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-VigilanceCharm-18370"
  value: {
-  dps: 393.31447
-  tps: 944.46003
-  dtps: 341.21662
-  hps: 21.84139
+  dps: 390.56072
+  tps: 939.9639
+  dtps: 338.75887
+  hps: 21.70583
  }
 }
 dps_results: {

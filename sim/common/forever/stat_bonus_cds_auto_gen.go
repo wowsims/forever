@@ -198,8 +198,6 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAuraOnUse(13164) // Heart of the Scale - https://www.wowhead.com/forever/spell=17275
 	// on use: 1287840 (A_MOD_SPELL_HIT_CHANCE)
 	shared.NewSpellDataAuraOnUse(13968) // Eye of the Beast - https://www.wowhead.com/forever/spell=1287840
-	// on use: 1302264 (A_MOD_DODGE_PERCENT)
-	shared.NewSpellDataAuraOnUse(18370) // Vigilance Charm - https://www.wowhead.com/forever/spell=1302264
 	// on use: 23724 (A_ADD_PCT_MODIFIER)
 	shared.NewSpellDataAuraOnUse(19340) // Rune of Metamorphosis - https://www.wowhead.com/forever/spell=23724
 	// on use: 23726 (A_ADD_FLAT_MODIFIER)
@@ -314,7 +312,7 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(11819) // Second Wind - https://www.wowhead.com/forever/spell=15604
 	// on use: 18385 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(14152) // Robe of the Archmage - https://www.wowhead.com/forever/spell=18385
-	// on use: 1302205 (A_PERIODIC_ENERGIZE); not simulated: E_TRIGGER_SPELL
+	// on use: 1302205 (A_PERIODIC_ENERGIZE, E_TRIGGER_SPELL)
 	shared.NewSpellDataEnergizeOnUse(18371) // Mindtap Talisman - https://www.wowhead.com/forever/spell=1302205
 	// on use: 24571 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(19951) // Gri'lek's Charm of Might - https://www.wowhead.com/forever/spell=24571

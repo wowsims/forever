@@ -571,15 +571,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-ForceofWill-11810"
- value: {
-  dps: 764.35158
-  tps: 651.30968
-  dtps: 10.01128
-  hps: 7.66513
- }
-}
-dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-FreezingBand-942"
  value: {
   dps: 763.83885
@@ -876,10 +867,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 768.83822
-  tps: 656.21344
-  dtps: 10.88781
-  hps: 7.83039
+  dps: 751.56097
+  tps: 641.97064
+  dtps: 10.53028
+  hps: 7.62232
  }
 }
 dps_results: {

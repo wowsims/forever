@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-CadaverousGarb"
+ value: {
+  dps: 749.07507
+  tps: 772.01745
+  dtps: 8.70892
+  hps: 15.18222
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-CleverHat-18308"
  value: {
   dps: 765.30316
@@ -684,15 +693,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-ForceofWill-11810"
- value: {
-  dps: 764.94415
-  tps: 788.56452
-  dtps: 8.29005
-  hps: 14.74167
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-FreezingBand-942"
  value: {
   dps: 769.44058
@@ -1055,8 +1055,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 764.97982
-  tps: 787.98321
+  dps: 759.72226
+  tps: 780.95044
   dtps: 4.41839
   hps: 14.74167
  }

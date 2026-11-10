@@ -495,14 +495,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDestruction-AllItems-ForceofWill-11810"
- value: {
-  dps: 916.81355
-  tps: 723.43807
-  dtps: 9.36563
- }
-}
-dps_results: {
  key: "TestDestruction-AllItems-FreezingBand-942"
  value: {
   dps: 902.56685
@@ -761,9 +753,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-MindtapTalisman-18371"
  value: {
-  dps: 931.17175
-  tps: 734.30038
-  dtps: 10.66728
+  dps: 927.00328
+  tps: 731.18514
+  dtps: 9.42906
  }
 }
 dps_results: {
