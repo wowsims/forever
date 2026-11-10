@@ -430,3 +430,28 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 		})
 	}
 }
+
+// Stoneform Shoulders 13955 put up 1298231's flat Physical damage taken at the encounter start, and the
+// first Physical hit taken that deals damage spends it: a spell hit and a dodged attack leave it up.
+func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotShoulder, 13955)
+	reduction := spelldata.MustFind(1298231).EffectN(1).BasePoints
+	before := character.PseudoStats.BonusPhysicalDamageTaken
+
+	character.OnEncounterStart(sim)
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; reduction >= 0 || got != reduction {
+		t.Fatalf("the encounter start changed the flat Physical damage taken by %v, want the row's %v", got, reduction)
+	}
+
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	takeHit(t, sim, character, fireSpell(enemy))
+	dodgeSwing(t, sim, character, enemy)
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; got != reduction {
+		t.Fatalf("after a spell hit and a dodge the flat Physical damage taken is %v off, want %v still", got, reduction)
+	}
+
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; got != 0 {
+		t.Errorf("after a Physical hit taken the flat Physical damage taken is %v off, want 0", got)
+	}
+}

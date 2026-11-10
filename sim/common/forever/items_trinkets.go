@@ -329,6 +329,30 @@ func init() {
 		character.AddStatProcBuff(249473, &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}, false,
 			character.ItemSwap.EligibleSlotsForItem(249473))
 	})
+
+	// Vigilance Charm
+	// https://www.wowhead.com/forever/item=18370/vigilance-charm
+	//
+	// Use: Increases your chance to Dodge by 20% for 20s or until you Dodge 3 attacks.
+	//
+	// Vigilant 1302264 goes up with its 3 charges, and each attack the wearer dodges spends one. Its
+	// ProcTypeMask names the melee and ranged attacks taken and no outcome; the dodge is the tooltip's.
+	core.NewItemEffect(18370, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1302264)
+		buff := character.RegisterAura(spelldata.AuraConfig(row))
+		parsed := spelldata.ParseEffects(character, buff, row)
+		spelldata.AttachChargeSpender(character, buff, row, buff.Label+" Charge", func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Outcome = core.OutcomeDodge
+			trigger.RequireDamageDealt = false
+		})
+
+		statBuff := &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}
+		registerItemOnUse(character, 18370, statBuff.InferCDType(), statBuff, func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			buff.Activate(sim)
+			buff.SetStacks(sim, buff.MaxStacks)
+		})
+	})
 }
 
 // TODO: The game files state no rate for these procs, and none is measured on Forever.

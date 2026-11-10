@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The items' on-use spells, on cooldowns and categories of the test's own.
@@ -16,6 +18,7 @@ func grileksOnUse() *proto.ItemEffect   { return testOnUse(24571, 180000, 1141, 
 func robeOnUse() *proto.ItemEffect      { return testOnUse(18385, 300000, 0, 0) }        // Robe of the Archmage 14152
 func warmthOnUse() *proto.ItemEffect    { return testOnUse(28760, 180000, 0, 0) }        // Warmth of Forgiveness 23027
 func sigilOnUse() *proto.ItemEffect     { return testOnUse(24884, 180000, 0, 0) }        // Earthen Sigil 20525
+func mindtapOnUse() *proto.ItemEffect   { return testOnUse(1302205, 180000, 0, 0) }      // Mindtap Talisman 18371
 
 func init() {
 	registerBarTester(proto.Player_Rogue{}, proto.Spec_SpecRogue, func(c *testCaster) {
@@ -236,6 +239,31 @@ func TestOnUseEnergizeRestoresManaOverTime(t *testing.T) {
 	}
 	if gained, events := gainedFrom(mage, sigilID); gained != per*float64(ticks) || events != int32(ticks) {
 		t.Errorf("the sigil restored %v over %d ticks, want %v over %d", gained, events, per*float64(ticks), ticks)
+	}
+}
+
+// Mindtap Talisman 18371 casts 1302205, mana over time, whose E_TRIGGER_SPELL puts Tapped Mind 1302206
+// on the wearer: its Intellect loss is up for that row's duration.
+func TestOnUseEnergizePutsUpTheAuraItTriggers(t *testing.T) {
+	const talismanID int32 = 991310
+	sim, mage := newBarSim(t, testMage(), testTrinket{talismanID, NewSpellDataEnergizeOnUse, mindtapOnUse()})
+	talisman := onUseSpell(t, mage, talismanID)
+	tapped := spelldata.MustFind(1302206)
+	before := mage.GetStats()[stats.Intellect]
+
+	talisman.Cast(sim, &mage.Unit)
+	aura := mage.GetAuraByID(core.ActionID{SpellID: tapped.ID})
+	if aura == nil || !aura.IsActive() || aura.Duration != tapped.Duration() {
+		t.Fatalf("using the talisman put up %v, want %d for its %v", aura, tapped.ID, tapped.Duration())
+	}
+	if got := mage.GetStats()[stats.Intellect]; got >= before {
+		t.Errorf("Intellect with %d up is %v, want below the %v before", tapped.ID, got, before)
+	}
+
+	stepPast(t, sim, sim.CurrentTime+tapped.Duration())
+	if got := mage.GetStats()[stats.Intellect]; aura.IsActive() || math.Abs(got-before) > 1e-9 {
+		t.Errorf("after %v Intellect is %v with %d up %v, want the %v before with it gone",
+			tapped.Duration(), got, tapped.ID, aura.IsActive(), before)
 	}
 }
 

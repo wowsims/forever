@@ -159,7 +159,7 @@ func (warrior *Warrior) registerImprovedShieldWall() {
 
 var concussionBlowRank = spellData.ConcussionBlow.Highest()
 
-// TODO: In-game testing if this generates threat
+// Concussion Blow generates no threat, measured in game.
 func (warrior *Warrior) registerConcussionBlow() {
 	if !warrior.Talents.ConcussionBlow {
 		return
