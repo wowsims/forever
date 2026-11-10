@@ -403,6 +403,56 @@ func TestDotRetimedFromItsOwnTick(t *testing.T) {
 	checkDotTicks(t, ticks, start, at, 1)
 }
 
+// A dot re-timed off its grid whose period is set again at the instant it expires, before its own expiry is
+// handled (as by a channel that ends with it), still deals its truncated tick at the expiry: half a tick, the
+// share of the period it ran, half of that progress made at twice the normal speed.
+func TestDotRetimedAtItsExpiryDealsItsTruncatedTick(t *testing.T) {
+	ms := time.Millisecond
+	var ticks []dotTick
+	var lastSpedUp float64
+	var endsWithDot *Aura
+	dotUpAtEnd := false
+	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+		config := recordedDotConfig(910312, &ticks)
+		onTick := config.Dot.OnTick
+		config.Dot.OnTick = func(sim *Simulation, target *Unit, dot *Dot) {
+			onTick(sim, target, dot)
+			lastSpedUp = dot.SpedUpShare(sim)
+		}
+		spell := char.RegisterSpell(config)
+		endsWithDot = char.CurrentTarget.RegisterAura(Aura{
+			Label:    "Ends With The Dot",
+			Duration: 5 * time.Second,
+			OnExpire: func(aura *Aura, sim *Simulation) {
+				dot := spell.Dot(aura.Unit)
+				dotUpAtEnd = dot.IsActive()
+				dot.SetTickPeriod(sim, time.Second)
+			},
+		})
+		return spell
+	})
+	ct.start()
+	start := ct.sim.CurrentTime
+	// Activated before the dot, so its expiry is handled first at the instant both expire.
+	endsWithDot.Activate(ct.sim)
+	ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
+	dot := ct.spell.Dot(ct.fw.CurrentTarget)
+	if dot.ExpiresAt() != endsWithDot.ExpiresAt() {
+		t.Fatalf("the dot expires at %v and the aura at %v, want the same instant", dot.ExpiresAt()-start, endsWithDot.ExpiresAt()-start)
+	}
+
+	ct.runUntil(start + 1500*ms)
+	dot.SetTickPeriod(ct.sim, 500*ms)
+	ct.runUntil(start + 12*time.Second)
+	if !dotUpAtEnd {
+		t.Fatal("the dot had expired when its period was set at its expiry, so the case is not reached")
+	}
+	checkDotTicks(t, ticks, start, []time.Duration{1000 * ms, 1750 * ms, 2250 * ms, 2750 * ms, 3250 * ms, 3750 * ms, 4250 * ms, 4750 * ms, 5000 * ms}, 0.5)
+	if math.Abs(lastSpedUp-0.5) > 1e-9 {
+		t.Errorf("the truncated tick's sped-up share is %v, want 0.5", lastSpedUp)
+	}
+}
+
 func TestDotSnapshot(t *testing.T) {
 	sim := SetupFakeSim()
 	fa := sim.Raid.Parties[0].Players[0].(*FakeAgent)

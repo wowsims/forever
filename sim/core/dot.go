@@ -80,6 +80,7 @@ type Dot struct {
 	retimed     bool          // SetTickPeriod changed the period while the dot ran, so its ticks may miss its expiry.
 	unfitTickAt time.Duration // When the next tick is due, while it falls past the expiry and the dot deals it truncated there.
 	tickShare   float64       // While the truncated tick deals: the share of a full tick it deals.
+	lastTickAt  time.Duration // While re-timed: when the last tick dealt, or the dot started if none has.
 }
 
 // Takes a new snapshot of this Dot's effects.
@@ -191,10 +192,11 @@ func (dot *Dot) TickPeriod() time.Duration {
 // that tick at the expiry, truncated to the share of the period it ran, so no progress is lost; ticks
 // that fit before the expiry deal in full. A re-timed dot is the only one that deals a truncated tick. The
 // dot's end or the next Apply returns it to its normal period. A dot with no tick to come (stopped, or a
-// channel with its ticks spent) keeps its period. A tick due now, also the one the call comes from, deals as
-// it is and the new period runs from it.
+// channel with its ticks spent) keeps its period, as does one expiring now, so the truncated tick it holds
+// for the expiry still deals. A tick due now, also the one the call comes from, deals as it is and the new
+// period runs from it.
 func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
-	if !dot.IsActive() || dot.tickAction == nil || period == dot.tickPeriod {
+	if !dot.IsActive() || dot.tickAction == nil || period == dot.tickPeriod || dot.ExpiresAt() == sim.CurrentTime {
 		return
 	}
 	due := dot.nextTickDue()
@@ -202,6 +204,9 @@ func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
 		return
 	}
 
+	if !dot.retimed {
+		dot.lastTickAt = due - dot.tickPeriod
+	}
 	dot.retimed = true
 	if due == sim.CurrentTime {
 		// The tick schedules the next one at the new period once it deals.
@@ -275,6 +280,30 @@ func (dot *Dot) scaleTick(multiplier float64) float64 {
 	return multiplier
 }
 
+// While a tick of a re-timed dot deals: the share of the progress behind it that a period shorter than the
+// normal one added (e.g. under Wrack's channel). That is the progress made since the last tick, less what the
+// normal period makes in the same time, over the progress made: one period for a full tick, the share of one
+// for the truncated tick. A dot never re-timed gives 0, and one a longer period slowed gives below 0. The
+// normal period is the one CalcTickPeriod gives at the tick, so the share holds only while that is the period
+// the dot ran at before it was re-timed: a haste or tick length change since then counts as a speed-up or a
+// slow-down.
+func (dot *Dot) SpedUpShare(sim *Simulation) float64 {
+	if !dot.retimed {
+		return 0
+	}
+	return dot.retimedSpedUpShare(sim)
+}
+
+func (dot *Dot) retimedSpedUpShare(sim *Simulation) float64 {
+	normal := dot.CalcTickPeriod()
+	progress := normal
+	if dot.tickShare > 0 {
+		ran := time.Duration(math.Round(dot.tickShare * float64(dot.tickPeriod)))
+		progress = scaleDuration(ran, normal, dot.tickPeriod)
+	}
+	return float64(progress-(sim.CurrentTime-dot.lastTickAt)) / float64(progress)
+}
+
 func (dot *Dot) NextTickAt() time.Duration {
 	if !dot.IsActive() {
 		return 0
@@ -345,6 +374,7 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	dot.ticksDone = originaldot.ticksDone
 	dot.retimed = originaldot.retimed
 	dot.unfitTickAt = originaldot.unfitTickAt
+	dot.lastTickAt = originaldot.lastTickAt
 
 	// must be set before Activate
 	dot.Duration = originaldot.ExpiresAt() - sim.CurrentTime // originaldot.Duration
@@ -468,6 +498,7 @@ func (dot *Dot) periodicTick(sim *Simulation) {
 		// dot that ends off its tick grid, as a refreshed Deadly Poison or a wand channel whose expiry moves,
 		// loses the progress it made towards its next tick.
 		if dot.retimed {
+			dot.lastTickAt = sim.CurrentTime
 			next = dot.fireAt(sim, next)
 		}
 		dot.tickAction.NextActionAt = next
