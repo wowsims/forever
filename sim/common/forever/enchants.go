@@ -299,7 +299,7 @@ func init() {
 				Label:    "Minor Run Speed",
 				ActionID: core.ActionID{SpellID: 13889},
 			}))
-			aura.NewActiveMovementSpeedEffect(0.08)
+			aura.NewActiveMovementSpeedEffect(spelldata.MustFind(13889).EffectN(1).Percent())
 
 			character.ItemSwap.RegisterEnchantProc(enchantID, aura)
 		})

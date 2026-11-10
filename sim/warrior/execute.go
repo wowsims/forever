@@ -31,15 +31,17 @@ func (warrior *Warrior) registerExecute() {
 		if extraRage > maxRage {
 			extraRage = maxRage
 		}
-		warrior.SpendRage(sim, extraRage, rageMetrics)
-		rageMetrics.Events--
 
 		baseDamage := executeBaseDamage + executeDamagePerRage*extraRage
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
-		if !result.Landed() {
-			spell.IssueRefund(sim)
+		// A miss, dodge or parry costs the base rage alone: the extra rage stays, and none of the base
+		// cost comes back.
+		if result.Landed() {
+			warrior.SpendRage(sim, extraRage, rageMetrics)
+			rageMetrics.Events--
 		}
+		spell.DealDamage(sim, result)
 	}
 
 	spell := warrior.RegisterSpell(config)

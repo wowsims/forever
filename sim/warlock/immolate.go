@@ -52,7 +52,7 @@ func (warlock *Warlock) registerImmolateRank(rankedSpell *spelldata.Spell) *core
 		return spell.CalcDamage(sim, target, immolateHit.Average(), spell.OutcomeExpectedMagicCrit)
 	}
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcPeriodicDamage(sim, target, immolateTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		return spell.CalcPeriodicDamage(sim, target, immolateTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}
 
 	return warlock.RegisterSpell(config)

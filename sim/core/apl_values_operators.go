@@ -959,22 +959,8 @@ func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, gr
 	vals := MapSlice(config.Vals, func(val *proto.APLValue) APLValue {
 		return rot.coerceTo(rot.newAPLValueWithContext(val, groupVariables), proto.APLValueType_ValueTypeBool)
 	})
-	hadUnresolved := false
-	for _, val := range vals {
-		if val == nil {
-			hadUnresolved = true
-		}
-	}
-	if hadUnresolved {
-		rot.ValidationMessage(proto.LogLevel_Warning, "A condition branch in this 'And' check could not be resolved and was dropped.")
-	}
 	vals = FilterSlice(vals, func(val APLValue) bool { return val != nil })
-	if len(vals) == 0 {
-		return nil
-	} else if len(vals) == 1 {
-		return vals[0]
-	}
-	// Short-circuit: if any child is const false, the whole And is false.
+	// Short-circuit: if any child is const false, the whole And is false whatever a dropped branch would read.
 	// Orphan the other children so they still get Finalize() called.
 	for _, val := range vals {
 		if constVal, ok := val.(*APLValueConst); ok && constVal.valType == proto.APLValueType_ValueTypeBool && !constVal.boolVal {
@@ -985,6 +971,14 @@ func (rot *APLRotation) newValueAnd(config *proto.APLValueAnd, _ *proto.UUID, gr
 			}
 			return constVal
 		}
+	}
+	if len(vals) < len(config.Vals) {
+		rot.ValidationMessage(proto.LogLevel_Warning, "A condition branch in this 'And' check could not be resolved and was dropped.")
+	}
+	if len(vals) == 0 {
+		return nil
+	} else if len(vals) == 1 {
+		return vals[0]
 	}
 	return &APLValueAnd{
 		vals: vals,

@@ -255,8 +255,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-CryptstalkerArmor"
  value: {
-  dps: 781.12072
-  tps: 517.44236
+  dps: 800.50336
+  tps: 525.51568
  }
 }
 dps_results: {
