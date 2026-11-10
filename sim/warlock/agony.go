@@ -77,7 +77,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 			ampMult = ampNow()
 		}
 		setTick(target, dot, ampMult, 1)
-		return dot.CalcSnapshotDamage(sim, target, spell.OutcomeExpectedMagicAlwaysHit)
+		return dot.CalcSnapshotDamage(sim, target, expectedTickOutcome(rankedSpell, spell))
 	}
 
 	warlock.BaneOfAgony = warlock.RegisterSpell(config)

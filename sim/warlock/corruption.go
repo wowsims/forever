@@ -33,7 +33,7 @@ func (warlock *Warlock) registerCorruptionRank(rankedSpell *spelldata.Spell) *co
 
 	// Calculate expected damage from the row's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcPeriodicDamage(sim, target, corruptionTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		return spell.CalcPeriodicDamage(sim, target, corruptionTick.Average(), expectedTickOutcome(rankedSpell, spell))
 	}
 
 	return warlock.RegisterSpell(config)
