@@ -4666,17 +4666,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		530, // Cryptstalker Armor
-		new Map([
-			[
-				4,
-				[
-					"Increases Attack Power by 50 for both you and your pet.", // 28756 - https://www.wowhead.com/forever/spell=28756
-				],
-			],
-		]),
-	],
-	[
 		533, // Battlegear of Undead Slaying
 		new Map([
 			[

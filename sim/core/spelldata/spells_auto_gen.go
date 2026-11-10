@@ -20223,24 +20223,24 @@ var generatedSpells = []Spell{
 			{ID: 701767, SpellID: 23922, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 430, Variance: 0.043478261679410934, BaseLevel: 40, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 178 -- Shield Slam Rank 1: threat is the damage + 178, times the stance
-	{ID: 23923, Name: "Shield Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
+	{ID: 23923, Name: "Shield Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 214, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 696035, SpellID: 23923, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 48, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 696036, SpellID: 23923, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 505, Variance: 0.04444444552063942, BaseLevel: 48, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}},
-	{ID: 23924, Name: "Shield Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 214 -- Shield Slam Rank 2: Rank 1's measured 4.45 per spell level at spell level 48
+	{ID: 23924, Name: "Shield Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 240, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 701791, SpellID: 23924, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 54, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 701792, SpellID: 23924, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 580, Variance: 0.04516129195690155, BaseLevel: 54, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}},
-	{ID: 23925, Name: "Shield Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 240 -- Shield Slam Rank 3: Rank 1's measured 4.45 per spell level at spell level 54
+	{ID: 23925, Name: "Shield Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 267, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 701793, SpellID: 23925, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 701794, SpellID: 23925, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 655, Variance: 0.04571428522467613, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}},
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 267 -- Shield Slam Rank 4: Rank 1's measured 4.45 per spell level at spell level 60
 	{ID: 23929, Name: "Increase Spell Dam 71", School: 8, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1, ProcChance: 101, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 701286, SpellID: 23929, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_DONE, BasePoints: 71, BaseLevel: 60, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -27563,6 +27563,10 @@ var generatedSpells = []Spell{
 	{ID: 439431, Name: "Windfury Weapon", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0xc0, 2: 0x1000000, 6: 0x4000000, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 38, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 20, ProcFlags: [2]uint32{0: 0x14}, ICDMs: 1500, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{2: 256}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{24}, RefIDs: []int32{8233},
 		Effects: []Effect{
 			{ID: 1132731, SpellID: 439431, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 46, PPL: 7.199999809265137, BaseLevel: 30, MaxLevel: 38, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 439440, Name: "Windfury Weapon", Rank: "Rank 1", School: 1, Attr: [17]uint32{3: 0x40000600, 10: 0x2000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 2, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 8388608}}, Labels: []int16{24},
+		Effects: []Effect{
+			{ID: 1132740, SpellID: 439440, Type: dbcenums.E_WEAPON_DAMAGE, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 439462, Name: "Sebacious Poison", School: 1, Attr: [17]uint32{0: 0x10010, 1: 0x20, 2: 0x2000, 15: 0x2000}, SpellLevel: 56, CastTimeMs: 3000, ProcChance: 30, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{2: 1}}, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 173555, RefIDs: []int32{439471},
 		Effects: []Effect{
