@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 6.3
   final_stats: 6.3
   final_stats: 12.6562
@@ -975,7 +976,7 @@ dps_results: {
  key: "TestProtection-AllItems-Lifestone-833"
  value: {
   dps: 392.82438
-  tps: 942.22898
+  tps: 942.22687
   dtps: 349.87882
   hps: 26.41115
  }
@@ -1614,7 +1615,7 @@ dps_results: {
  key: "TestProtection-AllItems-ToySoldier-274386"
  value: {
   dps: 393.77943
-  tps: 945.89353
+  tps: 945.89129
   dtps: 347.89459
   hps: 21.82444
  }

@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 67
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 8.6
   final_stats: 8.6
   final_stats: 20.8
@@ -273,7 +274,7 @@ dps_results: {
  key: "TestDestruction-AllItems-DreadmistRaiment"
  value: {
   dps: 801.02896
-  tps: 636.5231
+  tps: 636.43393
   dtps: 9.84673
   hps: 9.05673
  }

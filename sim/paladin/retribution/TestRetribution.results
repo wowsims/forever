@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 60
   final_stats: 0
   final_stats: 1620
+  final_stats: 0
   final_stats: 8.6
   final_stats: 8.6
   final_stats: 34.4872
@@ -111,7 +112,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BattlegearofValor"
  value: {
   dps: 718.85023
-  tps: 587.67483
+  tps: 587.656
   dtps: 5.17755
   hps: 22.16249
  }
@@ -174,7 +175,7 @@ dps_results: {
  key: "TestRetribution-AllItems-BlessedPlate"
  value: {
   dps: 750.55259
-  tps: 614.26104
+  tps: 614.22254
   dtps: 5.79968
   hps: 22.61931
  }
@@ -876,7 +877,7 @@ dps_results: {
  key: "TestRetribution-AllItems-Lifestone-833"
  value: {
   dps: 825.92657
-  tps: 674.73448
+  tps: 674.6964
   dtps: 6.09147
   hps: 23.54312
  }
@@ -1155,7 +1156,7 @@ dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 817.74808
-  tps: 667.97951
+  tps: 667.95178
   dtps: 6.0568
   hps: 23.64987
  }
@@ -1461,7 +1462,7 @@ dps_results: {
  key: "TestRetribution-AllItems-ToySoldier-274386"
  value: {
   dps: 825.92657
-  tps: 674.73448
+  tps: 674.69335
   dtps: 6.09147
   hps: 23.54312
  }

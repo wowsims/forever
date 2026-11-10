@@ -51,6 +51,7 @@ export default defineSpec<Spec.SpecProtectionWarrior>({
 	displayStats: UnitStat.createDisplayStatArray(
 		[
 			Stat.StatHealth,
+			Stat.StatHP5,
 			Stat.StatArmor,
 			Stat.StatBonusArmor,
 			Stat.StatArmorNoMods,

@@ -16,6 +16,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/tools/database/dbc"
 )
 
@@ -45,6 +47,11 @@ func TestConsumablesRouteByTheirSpell(t *testing.T) {
 		{13457, ConsumableAbsorb},            // Greater Fire Protection Potion: 17543
 		{4376, ConsumableAbsorb},             // Flame Deflector: 4057
 		{213564, ConsumableEnergize},         // Scroll of Minor Evocation: 434851
+		{3382, ConsumableStatAura},           // Minor Troll's Blood Elixir: 3219
+		{3388, ConsumableStatAura},           // Lesser Troll's Blood Elixir: 3222
+		{3826, ConsumableStatAura},           // Troll's Blood Elixir: 3223
+		{20004, ConsumableStatAura},          // Major Troll's Blood Elixir: 24361
+		{250336, ConsumableStatAura},         // Elixir of Wicked Regeneration: 1250932
 	} {
 		consumable, ok := instance.Consumables[tc.itemID]
 		if !ok {
@@ -54,6 +61,14 @@ func TestConsumablesRouteByTheirSpell(t *testing.T) {
 		if routing := RouteConsumable(&consumable, instance); !routing.Supported() || routing.Kind != tc.want {
 			t.Errorf("%d %s routes as %q (%s), want %q", tc.itemID, consumable.Name, routing.Kind, routing.Reason(), tc.want)
 		}
+	}
+
+	wickedRegeneration := instance.Consumables[250336]
+	if got, want := *wickedRegeneration.GetStatModifiers(), (stats.Stats{
+		stats.HP5: equipAuraPoints(t, 1250932, dbcenums.A_MOD_HEALTH_REGEN_IN_COMBAT),
+		stats.MP5: equipAuraPoints(t, 1250932, dbcenums.A_MOD_POWER_REGEN),
+	}); got != want {
+		t.Errorf("250336 carries %v, want 1250932's %v", got.FlatString(), want.FlatString())
 	}
 
 	blastingCharge := instance.Consumables[221325]

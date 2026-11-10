@@ -11,9 +11,14 @@ import { Stats, UnitStat } from './stats';
 describe('UnitStat', () => {
 	// `displayStatOrder` is built at module scope, so a throw inside getRootStat there takes every
 	// transitive importer down with it.
-	it('builds displayStatOrder at module scope over the 39-stat shape', () => {
+	it('builds displayStatOrder at module scope over the 40-stat shape', () => {
 		expect(UnitStat.createDisplayStatArray([Stat.StatHealth], []).length).toBe(1);
-		expect(new Stats().asProtoArray().length).toBe(39);
+		expect(new Stats().asProtoArray().length).toBe(40);
+	});
+
+	it('shows HP5 directly after Health', () => {
+		const order = UnitStat.createDisplayStatArray([Stat.StatHP5, Stat.StatHealth], []);
+		expect(order.map(stat => stat.getStat())).toEqual([Stat.StatHealth, Stat.StatHP5]);
 	});
 
 	it('leaves the six school hit pseudo-stats without a root', () => {

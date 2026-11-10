@@ -112,11 +112,6 @@ func init() {
 			},
 			OnExpire: func(aura *core.Aura, sim *core.Simulation) {
 				character.AddStatsDynamic(sim, stats.Stats{stats.Health: -bonusHealth})
-				if character.CurrentHealth() > character.MaxHealth() {
-					// Healing caps health at the maximum, so a heal of 0 trims the excess without
-					// counting it as damage taken.
-					character.GainHealth(sim, 0, healthMetrics)
-				}
 			},
 		})
 

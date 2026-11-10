@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 67
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 8.6
   final_stats: 8.6
   final_stats: 19.6
@@ -273,7 +274,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-DreadmistRaiment"
  value: {
   dps: 769.63408
-  tps: 619.53272
+  tps: 619.47944
   dtps: 9.11809
   hps: 5.22196
  }
@@ -1105,8 +1106,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Average-Default"
  value: {
-  dps: 912.3495
-  tps: 731.62621
+  dps: 912.34943
+  tps: 731.62616
   dtps: 9.76428
  }
 }

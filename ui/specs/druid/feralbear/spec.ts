@@ -47,6 +47,7 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	displayStats: UnitStat.createDisplayStatArray(
 		[
 			Stat.StatHealth,
+			Stat.StatHP5,
 			Stat.StatStamina,
 			Stat.StatAgility,
 			Stat.StatStrength,

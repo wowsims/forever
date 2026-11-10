@@ -10,8 +10,7 @@ import (
 
 // A bonus list's allocations, per 10000 of the item's random property points, land on the stats their
 // item mod names: spell power on spell damage and healing alike, healing and spell damage done each on
-// its own, a mod named twice adds up, and health regeneration, which the sim has no stat for, is left
-// out.
+// its own, a mod named twice adds up, and health regeneration lands on HP5.
 func TestRandomSuffixAllocations(t *testing.T) {
 	type stats = map[proto.Stat]float64
 	row := func(itemMod, allocation int) dbc.RandomSuffixStat {
@@ -33,7 +32,7 @@ func TestRandomSuffixAllocations(t *testing.T) {
 			stats{proto.Stat_StatStamina: 1200}},
 		{"of Regeneration: health regeneration alone",
 			[]dbc.RandomSuffixStat{row(dbc.ITEM_MOD_HEALTH_REGEN, 1000)},
-			stats{}},
+			stats{proto.Stat_StatHP5: 1000}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			suffix := dbc.RandomSuffix{ID: 990001, Name: tc.name, Stats: tc.rows}.ToProto()

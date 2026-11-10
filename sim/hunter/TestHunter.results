@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 68
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 3.7
   final_stats: 3.7
   final_stats: 21.3211
@@ -939,7 +940,7 @@ dps_results: {
  key: "TestHunter-AllItems-Lifestone-833"
  value: {
   dps: 764.94415
-  tps: 788.73807
+  tps: 788.43295
   dtps: 8.9063
   hps: 14.74167
  }
@@ -1218,7 +1219,7 @@ dps_results: {
  key: "TestHunter-AllItems-RingofSaviors-1447"
  value: {
   dps: 769.44058
-  tps: 792.95289
+  tps: 792.69383
   dtps: 8.6443
   hps: 15.01278
  }
@@ -1497,7 +1498,7 @@ dps_results: {
  key: "TestHunter-AllItems-ToySoldier-274386"
  value: {
   dps: 764.94415
-  tps: 788.73807
+  tps: 788.41439
   dtps: 8.9063
   hps: 14.74167
  }

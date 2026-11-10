@@ -58,6 +58,7 @@ const (
 	ShadowResistance
 	PhysicalDamage
 	ArmorNoMods
+	HP5
 	// end of Stat enum in proto/common.proto
 
 	// The remaining stats below are stored as PseudoStats rather than as
@@ -185,6 +186,8 @@ func (s Stat) StatName() string {
 		return "ArmorNoMods"
 	case Health:
 		return "Health"
+	case HP5:
+		return "HP5"
 	case Mana:
 		return "Mana"
 	case MP5:

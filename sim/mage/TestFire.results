@@ -40,6 +40,7 @@ character_stats_results: {
   final_stats: 75
   final_stats: 0
   final_stats: 1120
+  final_stats: 0
   final_stats: 2
   final_stats: 8
   final_stats: 21.653
@@ -750,8 +751,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-RingofSaviors-1447"
  value: {
-  dps: 859.32568
-  tps: 857.19503
+  dps: 859.30557
+  tps: 857.17493
  }
 }
 dps_results: {
