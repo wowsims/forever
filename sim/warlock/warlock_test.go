@@ -847,36 +847,44 @@ func TestWrackEndedEarlyLeavesCorruptionATruncatedLastTick(t *testing.T) {
 	}
 }
 
-// Bane of Agony's ramp advances by tick number, so under Wrack its faster ticks reach the stronger thirds
-// sooner: each tick deals once, twice or three times the first tick's damage by the third its number falls in
-// among the base duration's ticks, and the ticks Wrack adds deal in the last third.
-func TestWrackAgonyRampFollowsTheTickNumber(t *testing.T) {
+// Bane of Agony's ramp follows the time through its duration, so under Wrack the faster ticks deal the share of
+// the third they land in: each tick deals once, twice or three times the first tick's damage as its time since
+// the Bane landed falls in the first, second or last third, a tick on a third's end in that third, and the
+// ticks Wrack adds early deal in the first third.
+func TestWrackAgonyRampFollowsTheTime(t *testing.T) {
 	sim, warlock := newWarlockSim("00000000000000001", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
 	target := sim.Encounter.AllTargetUnits[0]
 	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -100})
 
 	agony := warlock.BaneOfAgony.Dot(target)
 	agony.Apply(sim)
-	wrack := warlock.Wrack.Dot(target)
-	wrack.Apply(sim)
-	expires, wrackEnd := agony.ExpiresAt(), wrack.ExpiresAt()
+	warlock.Wrack.Dot(target).Apply(sim)
+	start, expires := agony.StartedAt(), agony.ExpiresAt()
+	duration := expires - start
 
 	ticks := recordDotTicks(sim, agony)[0]
-	third := int(agony.BaseTickCount / 3)
-	if len(ticks) <= 3*third {
-		t.Fatalf("Bane of Agony ticked %d times under Wrack, want more than its %d", len(ticks), 3*third)
-	}
-	if ticks[third].at > wrackEnd {
-		t.Errorf("Bane of Agony's first tick of the second third came at %v, after Wrack ended at %v", ticks[third].at, wrackEnd)
+	if len(ticks) <= int(agony.BaseTickCount) {
+		t.Fatalf("Bane of Agony ticked %d times under Wrack, want more than its %d", len(ticks), agony.BaseTickCount)
 	}
 	if last := ticks[len(ticks)-1].at; last != expires {
 		t.Errorf("Bane of Agony last ticked at %v, want its expiry %v", last, expires)
 	}
+	firstThird := 0
 	for i, tick := range ticks {
-		want := float64(min(i/third, 2) + 1)
+		want := 3.0
+		switch elapsed := tick.at - start; {
+		case 3*elapsed <= duration:
+			want = 1
+			firstThird++
+		case 3*elapsed <= 2*duration:
+			want = 2
+		}
 		if got := tick.damage / ticks[0].damage; math.Abs(got-want) > 1e-9 {
 			t.Errorf("Bane of Agony's tick %d at %v is %.4f times the first, want %.0f", i+1, tick.at, got, want)
 		}
+	}
+	if baseThird := int(agony.BaseTickCount / 3); firstThird <= baseThird {
+		t.Errorf("Bane of Agony ticked %d times in the first third under Wrack, want more than its %d", firstThird, baseThird)
 	}
 }
 
