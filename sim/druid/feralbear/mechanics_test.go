@@ -461,9 +461,9 @@ func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	}
 }
 
-// Enrage takes its share of the item armor after the form's multiplier and of the 2 armor per Agility, and
-// gives it back when it ends.
-func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
+// Enrage takes its share of the item armor and bonus armor after the form's multiplier and of the 2 armor per
+// Agility, and gives it back when it ends.
+func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	for _, c := range []struct {
 		form         druid.DruidForm
 		multiplier   float64
@@ -478,20 +478,21 @@ func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 			bear.ClearForm(sim)
 			itemArmor := bear.EquipStats()[stats.Armor]
+			bonusArmor := bear.EquipStats()[stats.BonusArmor]
 			if c.form == druid.Bear {
 				bear.BearFormAura.Activate(sim)
 			} else {
 				bear.DireBearFormAura.Activate(sim)
 			}
 			agility := math.Floor(bear.GetStat(stats.Agility))
-			if itemArmor == 0 || agility == 0 {
-				t.Fatal("the bear has no item armor or Agility")
+			if itemArmor == 0 || bonusArmor == 0 || agility == 0 {
+				t.Fatal("the bear has no item armor, bonus armor or Agility")
 			}
 			before := bear.GetStat(stats.Armor)
 			if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
 				t.Fatal("Enrage did not cast")
 			}
-			want := c.armorPenalty * (c.multiplier*itemArmor + 2*agility)
+			want := c.armorPenalty * (c.multiplier*(itemArmor+bonusArmor) + 2*agility)
 			if got := before - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-6 {
 				t.Errorf("Enrage takes %g armor, want %g", got, want)
 			}
@@ -564,8 +565,8 @@ func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
 	}
 }
 
-// Maul procs Omen of Clarity at half the rate of the other specials.
-func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
+// Maul procs Omen of Clarity at the rate of the other specials, the 2 per minute at the 2.5 s paw.
+func TestMaulProcsOmenOfClarityAtTheSpecialRate(t *testing.T) {
 	const hits = 1000
 	procRate := func(spellOf func(bear *GuardianDruid) *core.Spell) float64 {
 		sim, bear := newBear(t)
@@ -588,8 +589,10 @@ func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
 		return bear.GetSpell(bear.Maul.ActionID.WithTag(1))
 	})
 	claw := procRate(func(bear *GuardianDruid) *core.Spell { return bear.Claw.Spell })
-	if claw < 0.05 || claw > 0.12 || maul < 0.35*claw || maul > 0.65*claw {
-		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want about half the special rate on Maul", maul, claw)
+	for name, rate := range map[string]float64{"Mauls": maul, "Claws": claw} {
+		if rate < 0.06 || rate > 0.11 {
+			t.Errorf("Omen of Clarity procs on %.3f of %s, want about 0.083", rate, name)
+		}
 	}
 }
 

@@ -19195,10 +19195,10 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 22568, Name: "Ferocious Bite", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 32, BaseLevel: 32, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 700435, SpellID: 22568, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 27, Variance: 0.7272727489471436, BaseLevel: 32, SPCoef: 1, PvpMult: 1, PointsPerResource: 45, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 700435, SpellID: 22568, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 27, Variance: 0.7272727489471436, BaseLevel: 32, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 45, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1277237, SpellID: 22568, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 120, BaseLevel: 32, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}},
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 2: attack power share per combo point, 0.0367 to 0.0376 over 24 bites of Ranks 2 and 3; the game files state none
 	{ID: 22600, Name: "Force Reactive Disk", School: 8, Speed: 20, Attr: [17]uint32{0: 0x1000000, 1: 0x88, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 10, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 699121, SpellID: 22600, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 30, Variance: 0.3333333432674408, BaseLevel: 60, PvpMult: 1, RadiusMax: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
@@ -19351,22 +19351,22 @@ var generatedSpells = []Spell{
 		}},
 	{ID: 22827, Name: "Ferocious Bite", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 699381, SpellID: 22827, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 40, Variance: 0.75, BaseLevel: 40, SPCoef: 1, PvpMult: 1, PointsPerResource: 74, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 699381, SpellID: 22827, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 40, Variance: 0.75, BaseLevel: 40, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 74, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1277234, SpellID: 22827, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 180, BaseLevel: 40, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}},
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 3: attack power share per combo point, 0.0367 to 0.0376 over 24 bites of Ranks 2 and 3; the game files state none
 	{ID: 22828, Name: "Ferocious Bite", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 699876, SpellID: 22828, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 62, Variance: 0.800000011920929, BaseLevel: 48, SPCoef: 1, PvpMult: 1, PointsPerResource: 115, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 699876, SpellID: 22828, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 62, Variance: 0.800000011920929, BaseLevel: 48, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 115, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1277238, SpellID: 22828, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 250, BaseLevel: 48, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}},
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 4: Ranks 1 to 3's measured share per combo point; the game files state none
 	{ID: 22829, Name: "Ferocious Bite", Rank: "Rank 5", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 56, BaseLevel: 56, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 699984, SpellID: 22829, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 87, Variance: 0.7142857313156128, BaseLevel: 56, SPCoef: 1, APCoef: 0.0375, PvpMult: 1, PointsPerResource: 160, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 699984, SpellID: 22829, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 87, Variance: 0.7142857313156128, BaseLevel: 56, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 160, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1277239, SpellID: 22829, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 310, BaseLevel: 56, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.0375 -- Placeholder: Ferocious Bite attack power per combo point, raised 25% for the November 2 development notes (about 25%); the game files state none
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none
 	{ID: 22841, Name: "Arcanum of Rapidity", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 699498, SpellID: 22841, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: 1, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -23286,10 +23286,10 @@ var generatedSpells = []Spell{
 		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}},
 	{ID: 31018, Name: "Ferocious Bite", Rank: "Rank 6", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 705079, SpellID: 31018, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 102, Variance: 0.7317073345184326, BaseLevel: 60, SPCoef: 1, APCoef: 0.0375, PvpMult: 1, PointsPerResource: 181, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 705079, SpellID: 31018, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 102, Variance: 0.7317073345184326, BaseLevel: 60, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 181, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1277241, SpellID: 31018, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 330, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.0375 -- Placeholder: Ferocious Bite attack power per combo point, as rank 5, raised 25% for the November 2 development notes (about 25%); the game files state none
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 6: Ranks 1 to 3's measured share per combo point; the game files state none
 	{ID: 36936, Name: "Totemic Recall", School: 8, Attr: [17]uint32{0: 0x10000, 14: 0x40, 15: 0x2000}, SpellLevel: 20, BaseLevel: 20, GCDMs: 1500, StartRecoveryCategory: 133, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 11},
 		Effects: []Effect{
 			{ID: 1315568, SpellID: 36936, Type: dbcenums.E_DESTROY_ALL_TOTEMS, BasePoints: 25, BaseLevel: 20, PvpMult: 1, ChainAmp: 1},
@@ -39069,10 +39069,10 @@ var generatedSpells = []Spell{
 		Powers: []Power{{Type: 1, Cost: 150}}},
 	{ID: 1328618, Name: "Ferocious Bite", Rank: "Rank 1", School: 1, Attr: [17]uint32{0: 0x40010, 1: 0x8000200, 4: 0x800, 14: 0x40, 15: 0x2000}, SpellLevel: 24, BaseLevel: 24, MaxRange: 5, GCDMs: 1000, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 8388608, 3: 4096}}, StanceMask: 0x1, Labels: []int16{21},
 		Effects: []Effect{
-			{ID: 1367722, SpellID: 1328618, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 17, Variance: 0.7142857313156128, BaseLevel: 24, SPCoef: 1, PvpMult: 1, PointsPerResource: 30, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+			{ID: 1367722, SpellID: 1328618, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 17, Variance: 0.7142857313156128, BaseLevel: 24, SPCoef: 1, APCoef: 0.037, PvpMult: 1, PointsPerResource: 30, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1367723, SpellID: 1328618, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 70, BaseLevel: 24, SPCoef: 1, PvpMult: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}},
+		Powers: []Power{{Type: 3, Cost: 35}, {Type: 4, Cost: 1}}}, // override: APCoefDirect 0.037 -- Ferocious Bite Rank 1: attack power share per combo point, measured over 157 landed bites, all of which fit 0.03683 to 0.03707 (0.0375 fits 152); the game files state none
 	{ID: 1328621, Name: "Bloom", School: 1, Attr: [17]uint32{0: 0x1d0, 2: 0x100, 15: 0x2000}, SpellLevel: 1, BaseLevel: 1, ClassFlags: core.ClassFlags{Family: 7}, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1367726, SpellID: 1328621, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 100, BaseLevel: 1, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
