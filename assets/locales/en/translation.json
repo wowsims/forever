@@ -2928,7 +2928,8 @@
 			},
 			"custom_metrics": {
 				"group": "Spec metrics",
-				"divine_aegis": "Divine Aegis shield"
+				"divine_aegis": "Divine Aegis shield",
+				"wrack": "From Wrack"
 			},
 			"unit": "Unit",
 			"damage_result": {

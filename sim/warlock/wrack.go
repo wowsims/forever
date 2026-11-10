@@ -34,3 +34,11 @@ func (warlock *Warlock) registerWrackSpell() {
 
 	warlock.Wrack = warlock.RegisterSpell(config)
 }
+
+// Records on the dot's spell the part of a tick's damage Wrack contributed: the damage times the share of the
+// tick's progress the channel added (core.Dot.SpedUpShare), which the tick checks is above 0 so a dot Wrack never
+// sped up records nothing. The faster ticks reach Bane of Agony's stronger thirds sooner; that counts for nothing
+// extra, as the share applies to the damage the tick dealt.
+func recordWrackContribution(target *core.Unit, dot *core.Dot, damage float64, share float64) {
+	dot.Spell.RecordCustomMetric(target, "wrack", damage*share)
+}

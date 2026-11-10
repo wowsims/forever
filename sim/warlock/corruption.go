@@ -19,7 +19,12 @@ func (warlock *Warlock) registerCorruptionRank(rankedSpell *spelldata.Spell) *co
 
 	// Tick the row's average, rolling only the crit: the hit was rolled when the dot landed
 	config.Dot = spelldata.DotConfig(rankedSpell, corruptionTick)
-	config.Dot.OnTick = spelldata.PeriodicDamageTick(corruptionTick, rankedSpell.TickOutcome)
+	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, corruptionTick.Roll(sim), rankedSpell.TickOutcome(dot))
+		if share := dot.SpedUpShare(sim); share > 0 {
+			recordWrackContribution(target, dot, result.Damage, share)
+		}
+	}
 
 	// Roll to hit and apply as dot
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

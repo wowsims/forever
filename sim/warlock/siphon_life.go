@@ -20,6 +20,9 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 	config.Dot = spelldata.DotConfig(rankedSpell, siphonLifeTick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.TickOutcome(dot))
+		if share := dot.SpedUpShare(sim); share > 0 {
+			recordWrackContribution(target, dot, result.Damage, share)
+		}
 
 		heal := result.Damage * warlock.PseudoStats.SelfHealingMultiplier * warlock.PseudoStats.HealingTakenMultiplier
 		warlock.GainHealth(sim, heal, healthMetrics)
