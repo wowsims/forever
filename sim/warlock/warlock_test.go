@@ -637,3 +637,19 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 		t.Errorf("Immolate rank 7 still burns after 20 Conflagrates")
 	}
 }
+
+// A dot whose row marks Periodic Can Crit expects its tick with the crit share in it, as the tick
+// itself rolls it: more spell crit raises what Corruption's tick is expected to deal.
+func TestExpectedDotTickCountsItsCrits(t *testing.T) {
+	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+	if !spellData.Corruption.ByID(warlock.Corruption.SpellID).PeriodicCanCrit() {
+		t.Fatal("Corruption's row no longer marks Periodic Can Crit, so the check below proves nothing")
+	}
+
+	plain := warlock.Corruption.ExpectedTickDamage(sim, target)
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: 50})
+	if raised := warlock.Corruption.ExpectedTickDamage(sim, target); raised <= plain {
+		t.Errorf("Corruption's expected tick is %.3f with more spell crit and %.3f without, want it higher", raised, plain)
+	}
+}

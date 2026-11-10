@@ -434,7 +434,10 @@ func TestStriderKickSpeedRunsOutMidWalk(t *testing.T) {
 	}
 }
 
-// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter 8% faster.
+// The run speed, in yards a second, of a hunter with nothing but Enchant Boots - Minor Speed raising it.
+var minorSpeedRun = 7 * (1 + spelldata.MustFind(13889).EffectN(1).Percent())
+
+// Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its row's share.
 func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	gear := core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet
 	gear = googleProto.Clone(gear).(*proto.EquipmentSpec)
@@ -455,8 +458,8 @@ func TestMinorSpeedBootsRunFaster(t *testing.T) {
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
-	if got := hunter.GetMovementSpeed(); math.Abs(got-7*1.08) > 1e-9 {
-		t.Errorf("with Minor Speed on the boots the hunter runs %v yd/s, want %v", got, 7*1.08)
+	if got := hunter.GetMovementSpeed(); math.Abs(got-minorSpeedRun) > 1e-9 {
+		t.Errorf("with Minor Speed on the boots the hunter runs %v yd/s, want %v", got, minorSpeedRun)
 	}
 }
 
@@ -617,7 +620,7 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 }
 
 // Minor Speed and Strider Kick are both A_MOD_INCREASE_SPEED, of which only the highest counts: with
-// both the hunter runs at Strider Kick's 30%, and back at the boots' 8% once the kick runs out.
+// both the hunter runs at Strider Kick's share, and back at the boots' once the kick runs out.
 func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet).(*proto.EquipmentSpec)
 	gear.Items[proto.ItemSlot_ItemSlotFeet].Enchant = 911
@@ -643,8 +646,8 @@ func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 		sim.Step()
 	}
 
-	if got := hunter.GetMovementSpeed(); math.Abs(got-7*1.08) > 1e-9 {
-		t.Fatalf("with the boots alone the hunter runs %v yd/s, want %v", got, 7*1.08)
+	if got := hunter.GetMovementSpeed(); math.Abs(got-minorSpeedRun) > 1e-9 {
+		t.Fatalf("with the boots alone the hunter runs %v yd/s, want %v", got, minorSpeedRun)
 	}
 	kick := hunter.GetSpell(core.ActionID{SpellID: striderKickRank.ID})
 	kick.SkipCastAndApplyEffects(sim, sim.Encounter.AllTargetUnits[0])
@@ -656,8 +659,8 @@ func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
 		sim.AddPendingAction(&core.PendingAction{NextActionAt: end, OnAction: func(*core.Simulation) {}})
 		sim.Step()
 	}
-	if got := hunter.GetMovementSpeed(); math.Abs(got-7*1.08) > 1e-9 {
-		t.Errorf("after Strider Kick runs out the hunter runs %v yd/s, want the boots' %v", got, 7*1.08)
+	if got := hunter.GetMovementSpeed(); math.Abs(got-minorSpeedRun) > 1e-9 {
+		t.Errorf("after Strider Kick runs out the hunter runs %v yd/s, want the boots' %v", got, minorSpeedRun)
 	}
 }
 

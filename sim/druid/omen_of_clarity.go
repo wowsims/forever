@@ -24,6 +24,8 @@ func (druid *Druid) registerOmenOfClarity() {
 	trigger.RequireDamageComponent = false
 	// One Hurricane tick rolls once however many targets it lands on; the first target to reach the
 	// condition takes the roll.
+	// TODO: Ingame research needed -- whether a Hurricane tick rolls it at all. The tick's row is a
+	// triggered spell that is not marked Not a Proc, and this row lacks Can Proc From Procs.
 	firstHurricaneHit, resetHurricaneHit := core.OncePerCast()
 	druid.RegisterResetEffect(func(_ *core.Simulation) {
 		resetHurricaneHit()

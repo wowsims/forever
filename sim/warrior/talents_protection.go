@@ -185,7 +185,9 @@ func (warrior *Warrior) registerShieldSlam() {
 		return
 	}
 
-	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
+	// A main-hand special, though the row requires the shield: the main-hand weapon's procs hear it
+	// and the main-hand weapon skill sets its miss and parry.
+	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
