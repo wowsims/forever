@@ -119,12 +119,12 @@ func TestMissileBarrageArcaneMissilesKeepsClearcasting(t *testing.T) {
 	}
 }
 
-// A rotation of only Arcane Missiles procs Clearcasting from its missiles, well past the one roll each
-// channel makes as it starts.
-func TestArcaneMissilesMissilesProcClearcasting(t *testing.T) {
+// A rotation of only Arcane Missiles procs Clearcasting at about the talent's chance per channel: the
+// channel start and its five missiles share that chance between them.
+func TestArcaneMissilesSplitsClearcastingChance(t *testing.T) {
 	_, mage := newMageSim(ArcaneTalents)
 	chance := arcaneConcentrationChance(mage)
-	metrics := runMageRotation(arcaneSuite(), ArcaneTalents, 60, arcaneMissilesBookRank.ID)
+	metrics := runMageRotation(arcaneSuite(), ArcaneTalents, 300, arcaneMissilesBookRank.ID)
 	var channels, procs float64
 	for _, action := range metrics.Actions {
 		if action.Id.GetSpellId() == arcaneMissilesBookRank.ID {
@@ -138,13 +138,13 @@ func TestArcaneMissilesMissilesProcClearcasting(t *testing.T) {
 			procs = aura.ProcsAvg
 		}
 	}
-	// The start roll gives one chance a channel; the five missiles under the 1 sec cooldown give about 4.5 more.
-	if channels == 0 || procs <= 3.5*chance*channels {
-		t.Fatalf("Clearcasting procced %.2f times over %.2f channels, want more than the channel starts alone give", procs, channels)
+	if channels == 0 || procs < chance*channels/2 || procs > chance*channels*3/2 {
+		t.Fatalf("Clearcasting procced %.2f times over %.2f channels, want about the talent's %.3f a channel", procs, channels, chance)
 	}
 }
 
-// The Arcane Missiles channel rolls Arcane Concentration once as it starts, before its first missile flies.
+// The Arcane Missiles channel rolls Arcane Concentration once as it starts, before its first missile flies,
+// at a sixth of the talent's chance.
 func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
 	target := mage.CurrentTarget
@@ -154,7 +154,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	gains := 0
 	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { gains++ })
 
-	const channels = 1000
+	const channels = 2300
 	for range channels {
 		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
 		if !channel.Cast(sim, target) {
@@ -167,11 +167,11 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 			t.Fatal("a missile flew before the channel was ended")
 		}
 		mage.ClearCasting.Deactivate(sim)
-		stepFor(sim, 2*time.Second)
+		stepFor(sim, 1400*time.Millisecond)
 	}
 
-	if rate := float64(gains) / channels; rate < chance/2 || rate > chance*3/2 {
-		t.Errorf("Clearcasting procced on %d of %d channel starts (%.3f), want about the talent's %.3f", gains, channels, rate, chance)
+	if rate, want := float64(gains)/channels, chance/6; rate < want/2 || rate > want*3/2 {
+		t.Errorf("Clearcasting procced on %d of %d channel starts (%.4f), want about a sixth of the talent's chance, %.4f", gains, channels, rate, want)
 	}
 }
 
@@ -179,10 +179,7 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
 	chance := arcaneConcentrationChance(mage)
-	burn := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID, Tag: 1})
-	if burn == nil {
-		t.Fatal("the mage has no Flamestrike burn spell")
-	}
+	burn := flamestrikeBurn(t, mage)
 	gains := 0
 	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { gains++ })
 
@@ -195,6 +192,25 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 
 	if rate := float64(gains) / ticks; rate < chance/2 || rate > chance*3/2 {
 		t.Errorf("Clearcasting procced on %d of %d ticks on 3 targets (%.3f), want about the talent's %.3f once per tick", gains, ticks, rate, chance)
+	}
+}
+
+// A Flamestrike ground tick leaves Clearcasting up for the next cast.
+func TestFlamestrikeGroundTickKeepsClearcasting(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
+	burn := flamestrikeBurn(t, mage)
+	mage.ClearCasting.Activate(sim)
+	if !burn.Cast(sim, mage.CurrentTarget) {
+		t.Fatal("the Flamestrike burn did not cast")
+	}
+	for tick := range int32(4) {
+		stepFor(sim, 2100*time.Millisecond)
+		if ticks := burn.AOEDot().TickCount(); ticks <= tick {
+			t.Fatalf("the burn ticked %d times by %v", ticks, sim.CurrentTime)
+		}
+		if !mage.ClearCasting.IsActive() {
+			t.Fatalf("Clearcasting fell off at %v while only Flamestrike's ground ticks dealt damage", sim.CurrentTime)
+		}
 	}
 }
 
@@ -251,6 +267,15 @@ func longEncounter(targets int) *proto.Encounter {
 		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
 	}
 	return encounter
+}
+
+// The burn Flamestrike's cast leaves on the ground, registered under the cast's id with tag 1.
+func flamestrikeBurn(t *testing.T, mage *Mage) *core.Spell {
+	burn := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID, Tag: 1})
+	if burn == nil {
+		t.Fatal("the mage has no Flamestrike burn spell")
+	}
+	return burn
 }
 
 func arcaneConcentrationChance(mage *Mage) float64 {
