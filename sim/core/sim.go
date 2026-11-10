@@ -47,7 +47,7 @@ type Simulation struct {
 	ProgressReport func(*proto.ProgressMetrics)
 	Signals        simsignals.Signals
 
-	Log func(string, ...interface{})
+	Log func(string, ...any)
 
 	nextExecuteDuration time.Duration // The earliest execute phase crossing of any target still to come.
 
@@ -313,8 +313,8 @@ func (sim *Simulation) run() *proto.RaidSimResult {
 
 	logsBuffer := &strings.Builder{}
 	if sim.Options.Debug || sim.Options.DebugFirstIteration {
-		sim.Log = func(message string, vals ...interface{}) {
-			logsBuffer.WriteString(fmt.Sprintf("[%0.2f] "+message+"\n", append([]interface{}{sim.CurrentTime.Seconds()}, vals...)...))
+		sim.Log = func(message string, vals ...any) {
+			logsBuffer.WriteString(fmt.Sprintf("[%0.2f] "+message+"\n", append([]any{sim.CurrentTime.Seconds()}, vals...)...))
 		}
 	}
 

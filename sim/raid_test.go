@@ -201,7 +201,7 @@ func TestDynamicAddsKillShare(t *testing.T) {
 // The seconds of the debug log lines that contain text.
 func logTimes(logs string, text string) []float64 {
 	var times []float64
-	for _, line := range strings.Split(logs, "\n") {
+	for line := range strings.SplitSeq(logs, "\n") {
 		if !strings.Contains(line, text) {
 			continue
 		}

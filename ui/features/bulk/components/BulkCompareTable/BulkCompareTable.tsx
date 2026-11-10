@@ -62,7 +62,7 @@ export interface BulkCompareTableProps {
 	againstBest?: boolean;
 }
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.compare.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`bulk_tab.compare.${key}`, options);
 
 // A diverging scale on the result rows' gain and loss tones, neutral next to no change. The loss tone is the darker, so
 // its steps run deeper; the darkest of either keeps the foreground text readable.

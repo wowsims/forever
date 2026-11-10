@@ -219,7 +219,7 @@ func (raid *Raid) GetFirstEmptyRaidIndex() (*Party, int) {
 			continue
 		}
 
-		for partyIndex := 0; partyIndex < 5; partyIndex++ {
+		for partyIndex := range 5 {
 			slotTaken := false
 			for _, player := range party.Players {
 				if player.GetCharacter().PartyIndex == partyIndex {

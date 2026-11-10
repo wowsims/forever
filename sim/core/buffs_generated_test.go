@@ -995,7 +995,7 @@ func TestGeneratedWindfuryTotemLeavesTheNextAutoACharge(t *testing.T) {
 		sim, target, trigger, proc, extraAttack, changes := setup(t)
 		hit := &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100}
 		charges := proc.MaxStacks
-		for i := 0; i < 2000; i++ {
+		for range 2000 {
 			*changes = nil
 			trigger.OnCastResult(trigger, sim, special, hit)
 			if len(*changes) == 0 {
@@ -1074,7 +1074,7 @@ func TestGeneratedFlametongueTotemStrikesOnMainHandHits(t *testing.T) {
 		char.AutoAttacks.SetMH(core.Weapon{SwingSpeed: row.speed})
 		want := buffs.FlametongueTotemDamage(row.speed)
 		landedDamage := false
-		for i := 0; i < 20; i++ {
+		for range 20 {
 			casts, damage, crit := offer(row.procMask, core.OutcomeHit)
 			if casts != 1 {
 				t.Fatalf("%s cast the proc %d times, want once", row.name, casts)
@@ -1204,7 +1204,7 @@ func init() {
 		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
 			return &totemShaman{Character: *character}
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_EnhancementShaman)
 		},
 	)
@@ -1776,7 +1776,7 @@ func init() {
 			})
 			return owner
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			player.Spec = spec.(*proto.Player_Hunter)
 		},
 	)

@@ -1,6 +1,7 @@
 package reforgeoptimizer
 
 import (
+	"maps"
 	"math"
 	"strconv"
 	"strings"
@@ -108,9 +109,7 @@ func (c *lpConstraints) clone() *lpConstraints {
 		order:  append([]string(nil), c.order...),
 		byName: make(map[string]lpConstraint, len(c.byName)),
 	}
-	for k, v := range c.byName {
-		out.byName[k] = v
-	}
+	maps.Copy(out.byName, c.byName)
 	return out
 }
 
@@ -263,7 +262,7 @@ func wrapLPExpression(expression string, maxLength int) []string {
 	var lines []string
 	var currentLine strings.Builder
 	currentLine.Grow(maxLength)
-	for _, token := range strings.Split(expression, " ") {
+	for token := range strings.SplitSeq(expression, " ") {
 		if currentLine.Len() == 0 {
 			currentLine.WriteString(token)
 		} else if currentLine.Len()+1+len(token) <= maxLength {

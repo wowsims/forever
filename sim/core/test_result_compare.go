@@ -186,7 +186,7 @@ func compareStruct(t *testing.T, loc string, vst reflect.Value, vmt reflect.Valu
 		stField := vst.Field(i)
 		mtField := vmt.Field(i)
 
-		if stField.Kind() == reflect.Ptr {
+		if stField.Kind() == reflect.Pointer {
 			if stField.IsNil() && mtField.IsNil() {
 				continue
 			} else if stField.IsNil() != mtField.IsNil() {
@@ -289,7 +289,7 @@ func newLogReader(log string, isSplitLog bool) *logReader {
 }
 
 func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
-	outLog := ""
+	var outLog strings.Builder
 	showBefore := 5
 	showAfter := 5
 
@@ -308,7 +308,7 @@ func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
 
 	diffs := 0
 
-	outLog += fmt.Sprintf("Scanning for first %d differences with %d iterations...\n", showCount, rsr.SimOptions.Iterations)
+	fmt.Fprintf(&outLog, "Scanning for first %d differences with %d iterations...\n", showCount, rsr.SimOptions.Iterations)
 
 	for {
 		if !haveStLine && !haveMtLine {
@@ -335,25 +335,25 @@ func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
 
 			diffs++
 
-			outLog += fmt.Sprintln("====================================================")
-			outLog += fmt.Sprintf("==== Lines %d | %d do not match unexpectedly!\n", str.I+1, mtr.I+1)
-			outLog += fmt.Sprintf("ST Iteration: %d\n", str.Iteration)
-			outLog += fmt.Sprintf("MT Instance: %d, Iteration: %d\n", mtr.SimInstance, mtr.Iteration)
-			outLog += fmt.Sprintln("--- ST log --------------------------------")
+			fmt.Fprintln(&outLog, "====================================================")
+			fmt.Fprintf(&outLog, "==== Lines %d | %d do not match unexpectedly!\n", str.I+1, mtr.I+1)
+			fmt.Fprintf(&outLog, "ST Iteration: %d\n", str.Iteration)
+			fmt.Fprintf(&outLog, "MT Instance: %d, Iteration: %d\n", mtr.SimInstance, mtr.Iteration)
+			fmt.Fprintln(&outLog, "--- ST log --------------------------------")
 			for i := -showBefore; i <= showAfter; i++ {
 				if i == 0 {
-					outLog += fmt.Sprintf(">> %s\n", stLine)
+					fmt.Fprintf(&outLog, ">> %s\n", stLine)
 					continue
 				}
-				outLog += fmt.Sprintln(str.PeakLine(i))
+				fmt.Fprintln(&outLog, str.PeakLine(i))
 			}
-			outLog += fmt.Sprintln("--- MT log --------------------------------")
+			fmt.Fprintln(&outLog, "--- MT log --------------------------------")
 			for i := -showBefore; i <= showAfter; i++ {
 				if i == 0 {
-					outLog += fmt.Sprintf(">> %s\n", mtLine)
+					fmt.Fprintf(&outLog, ">> %s\n", mtLine)
 					continue
 				}
-				outLog += fmt.Sprintln(mtr.PeakLine(i))
+				fmt.Fprintln(&outLog, mtr.PeakLine(i))
 			}
 
 			if str.PeakLine(1) == mtLine {
@@ -376,11 +376,11 @@ func DebugCompareLogs(rsr *proto.RaidSimRequest, showCount int) (bool, string) {
 	}
 
 	if diffs == 0 {
-		outLog += fmt.Sprintln("No differences found!")
+		fmt.Fprintln(&outLog, "No differences found!")
 	}
 
 	//os.WriteFile("st", []byte(st.Logs), 0644)
 	//os.WriteFile("mt", []byte(mt.Logs), 0644)
 
-	return diffs > 0, outLog
+	return diffs > 0, outLog.String()
 }

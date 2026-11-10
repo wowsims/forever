@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"maps"
 
 	"github.com/wowsims/forever/sim/core/proto"
 )
@@ -134,9 +135,7 @@ func (action *APLActionGroupReference) Finalize(rot *APLRotation) {
 
 	// Add all provided variables to the group's variables map
 	// This allows normal variable references to resolve to the provided values
-	for k, v := range action.variables {
-		action.group.variables[k] = v
-	}
+	maps.Copy(action.group.variables, action.variables)
 
 	// Re-resolve variable references in group actions with the updated group variables
 	for _, groupAction := range action.group.actions {

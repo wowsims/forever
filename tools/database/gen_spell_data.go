@@ -9,6 +9,7 @@ import (
 	"maps"
 	"math"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -545,7 +546,7 @@ func triggeredSpells(db *sql.DB, spellID int32) ([]int32, error) {
 			ids = append(ids, id)
 		}
 	}
-	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+	slices.Sort(ids)
 	return ids, nil
 }
 
@@ -563,7 +564,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 	for rank := range l.Ranks {
 		ranks = append(ranks, rank)
 	}
-	sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+	slices.Sort(ranks)
 
 	perRank := map[int32][]int32{}
 	distinct := map[int32]bool{}
@@ -599,7 +600,7 @@ func triggeredRows(db *sql.DB, l rankLadder) ([]triggeredRow, error) {
 		numbered[order[0]] = 1
 	case oneEach && len(numbered) == len(order):
 	default:
-		sort.Slice(order, func(i, j int) bool { return order[i] < order[j] })
+		slices.Sort(order)
 		for i, id := range order {
 			numbered[id] = int32(i + 1)
 		}
@@ -926,7 +927,7 @@ func exclusiveSkillLines(db *sql.DB, mask int) (map[int32]bool, error) {
 			return nil, err
 		}
 		union := 0
-		for _, part := range strings.Split(masks, ",") {
+		for part := range strings.SplitSeq(masks, ",") {
 			m, err := strconv.Atoi(part)
 			if err != nil {
 				continue
@@ -1002,7 +1003,7 @@ func resolveLadder(db *sql.DB, name string, byRank map[int32][]rankCandidate, ma
 	for rank := range byRank {
 		rankNums = append(rankNums, rank)
 	}
-	sort.Slice(rankNums, func(i, j int) bool { return rankNums[i] < rankNums[j] })
+	slices.Sort(rankNums)
 
 	var ambiguous []string
 	for _, rank := range rankNums {
@@ -1433,9 +1434,7 @@ func renderSpellDataFiles(helper *DBHelper, only SpellDataGroups, committed *sto
 	for pkg, out := range rendered {
 		files[fmt.Sprintf("sim/%s/spell_data_auto_gen.go", pkg)] = out
 	}
-	for path, out := range extra {
-		files[path] = out
-	}
+	maps.Copy(files, extra)
 	return files, inputs, nil
 }
 
@@ -1570,7 +1569,7 @@ func renderLadderClassFile(pkg string, ladders []rankLadder, triggered map[strin
 		for rank := range l.Ranks {
 			ranks = append(ranks, rank)
 		}
-		sort.Slice(ranks, func(i, j int) bool { return ranks[i] < ranks[j] })
+		slices.Sort(ranks)
 
 		ids := make([]int32, 0, len(ranks))
 		for i, rank := range ranks {
