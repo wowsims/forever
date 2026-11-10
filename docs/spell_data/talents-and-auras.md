@@ -42,7 +42,7 @@ mask names, because the mod is attached to the aura and not to each spell pointi
 
 **A debuff that reaches only its caster's attacks** sits on the target and is parsed onto the target's
 aura with `FromCaster`: Shadow Weaving's shadow damage (`A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER`, by the
-school mask in its misc value), Hemorrhage's Rupture and Wrack's other shadow dots
+school mask in its misc value), Hemorrhage's Rupture and Garrote
 (`A_MOD_SPELL_DAMAGE_FROM_CASTER`) and Winter's Chill's crit on Frostbolt and Ice Lance
 (`A_MOD_CRIT_CHANCE_FOR_CASTER_WITH_ABILITIES`). The last two pick their spells by the effect's class
 flags, as a modifier does. Each is a percentage applied once per stack, so Shadow Weaving at three

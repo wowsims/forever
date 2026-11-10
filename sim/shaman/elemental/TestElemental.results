@@ -599,6 +599,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 716.55959
+  tps: 664.61965
+  dtps: 9.48635
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 733.31635
@@ -953,9 +961,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 694.53829
-  tps: 643.83838
-  dtps: 8.78564
+  dps: 688.19442
+  tps: 638.66393
+  dtps: 9.03382
  }
 }
 dps_results: {

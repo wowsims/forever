@@ -22,12 +22,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		867, // Gloves of Holy Might
-		[
-			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
-		]
-	],
-	[
 		869, // Dazzling Longsword
 		[
 			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
@@ -768,6 +762,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10847, // Dragon's Call
+		[
+			"", // 1318108 - https://www.wowhead.com/forever/spell=1318108
+		]
+	],
+	[
 		11086, // Jang'thraze the Protector
 		[
 			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
@@ -825,6 +825,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11803, // Force of Magma
 		[
 			"Blasts a target for 182 Fire damage.", // 18086 - https://www.wowhead.com/forever/spell=18086
+		]
+	],
+	[
+		11808, // Circle of Flame
+		[
+			"Channels 79 health into mana every 1.0 sec for 10s.", // 17447 - https://www.wowhead.com/forever/spell=17447
 		]
 	],
 	[
@@ -1026,6 +1032,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13348, // Demonshear
+		[
+			"Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.", // 17483 - https://www.wowhead.com/forever/spell=17483
+		]
+	],
+	[
 		13379, // Piccolo of the Flaming Fire
 		[
 			"Causes nearby players to dance.", // 18400 - https://www.wowhead.com/forever/spell=18400
@@ -1035,6 +1047,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13382, // Cannonball Runner
 		[
 			"", // 1300668 - https://www.wowhead.com/forever/spell=1300668
+		]
+	],
+	[
+		13393, // Malown's Slam
+		[
+			"Knocks target silly for 2s and increases Strength by 53 for 20s.", // 17500 - https://www.wowhead.com/forever/spell=17500
 		]
 	],
 	[
@@ -1072,6 +1090,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13983, // Gravestone War Axe
 		[
 			"Diseases target enemy for 42 Nature damage every 3.0 sec for 12s.", // 18289 - https://www.wowhead.com/forever/spell=18289
+		]
+	],
+	[
+		14022, // Barov Peasant Caller
+		[
+			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
 		]
 	],
 	[
@@ -1114,6 +1138,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		15138, // Onyxia Scale Cloak
 		[
 			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
+		]
+	],
+	[
+		15418, // Shimmering Platinum Warhammer
+		[
+			"Blasts a target for 252 Nature damage.", // 19874 - https://www.wowhead.com/forever/spell=19874
 		]
 	],
 	[
@@ -1888,7 +1918,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		22397, // Idol of Ferocity
 		[
-			"Reduces the energy cost of Claw, Rake, and Mangle by 2.", // 27851 - https://www.wowhead.com/forever/spell=27851
+			"Reduces the energy cost of Claw and Rake by 2.", // 27851 - https://www.wowhead.com/forever/spell=27851
 		]
 	],
 	[
@@ -1931,6 +1961,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22870, // Blood Guard's Silk Handwraps
 		[
 			"Increases the damage absorbed by your Mana Shield by 285.", // 23037 - https://www.wowhead.com/forever/spell=23037
+		]
+	],
+	[
+		23198, // Idol of Brutality
+		[
+			"Reduces the Rage cost of Maul and Swipe by 2.0.", // 28855 - https://www.wowhead.com/forever/spell=28855
 		]
 	],
 	[
@@ -2638,6 +2674,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		281598, // Rusthowl's Worn Collar
+		[
+			"Increases movement speed by 4% in Mount Hyjal.", // 1311895 - https://www.wowhead.com/forever/spell=1311895
+		]
+	],
+	[
 		281665, // Twilight Forgehammer
 		[
 			"Blast the target with the fires of a forge, inflicting 51 Fire damage.", // 1312176 - https://www.wowhead.com/forever/spell=1312176
@@ -2665,6 +2707,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		284050, // High Elf's Recurve
 		[
 			"Strike your target with a Poisonous Sting, inflicting 27 damage every 3 sec for 9s.", // 1314888 - https://www.wowhead.com/forever/spell=1314888
+		]
+	],
+	[
+		284231, // Sayaad Charm
+		[
+			"Charms the target, preventing all actions for up to 15s. Any damage caused will remove the effect. Only works against Humanoids.", // 1315557 - https://www.wowhead.com/forever/spell=1315557
 		]
 	],
 	[

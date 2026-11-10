@@ -155,6 +155,36 @@ func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
 	}
 }
 
+// Gloves of Holy Might 867's 1330855 casts 1325229's Holy damage on a hit, tripled against an Undead
+// target. Both wearers roll from the same seed, so the target's creature type is all that differs.
+func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
+	smite := func(mobType proto.MobType) core.SpellMetrics {
+		sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotHands, 867)
+		character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.SpellHitPercent: 100})
+		target := character.CurrentTarget
+		target.MobType = mobType
+		damage := character.GetSpell(core.ActionID{SpellID: 1325229})
+		if damage == nil {
+			t.Fatal("867 registers no damage spell")
+		}
+		for hits := 0; damage.SpellMetrics[target.UnitIndex].Casts == 0; hits++ {
+			if hits > 200 {
+				t.Fatal("200 hits cast no damage")
+			}
+			dealHit(t, sim, character, meleeSwing(&character.Unit))
+		}
+		return damage.SpellMetrics[target.UnitIndex]
+	}
+
+	undead, humanoid := smite(proto.MobType_MobTypeUndead), smite(proto.MobType_MobTypeHumanoid)
+	if humanoid.TotalDamage <= 0 {
+		t.Fatalf("the proc dealt %v to a Humanoid, want some damage", humanoid.TotalDamage)
+	}
+	if math.Abs(undead.TotalDamage-3*humanoid.TotalDamage) > 1e-6 {
+		t.Errorf("the proc dealt %v to an Undead target, want 3 times the %v it dealt to a Humanoid", undead.TotalDamage, humanoid.TotalDamage)
+	}
+}
+
 // Thick Obsidian Breastplate 22196's 27539 has a chance, on a spell hit taken, to shield the wearer
 // against that spell's school with the Fire row 27533's absorb roll for its duration. The chance has
 // 27539's internal cooldown, and a Physical spell, which has no shield, does not spend it.
