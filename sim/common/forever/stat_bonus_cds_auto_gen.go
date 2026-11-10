@@ -343,6 +343,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12733
 	// Not simulated: Chained Essence of Eranikus: "Cloud of Chained Essence" (12766) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=12766
+	// Not simulated: Stealthblade: "Stealth" (1300180) - ignored aura type 16
+	// https://www.wowhead.com/forever/spell=1300180
 	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=6251
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18307) - ignored effect type 28
