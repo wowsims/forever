@@ -70,10 +70,10 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 ## What a cast spends, and when
 
 - **Ferocious Bite** spent all its extra energy when it missed or was dodged or parried. In game a failed
-  Bite keeps its extra energy and its combo points, so both are spent inside `result.Landed()`. Its row flags
-  Discount Power On Miss, but whether a failed Bite gets 80% of its base cost back is unchecked in game, so
-  the code refunds nothing and carries a TODO. The runtime regressions check that a dodged 5-point Bite keeps
-  its 5 points and all the energy above its base cost, and that a landed one spends both.
+  Bite keeps its extra energy and its combo points, so both are spent inside `result.Landed()`, and gets 80%
+  of its base cost back, as its row's Discount Power On Miss states (measured on 5 avoided bites in a game
+  build 70862 log). The runtime regressions check that a dodged 5-point Bite keeps its 5 points and its extra
+  energy and gets the row's refund, and that a landed one spends both.
 - **Cutthroat 462707** carries one charge, and nothing consumed it, so one proc allowed every Ambush the
   energy paid for in its 10 s.
 
@@ -82,8 +82,9 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 - **A flat weapon bonus is added before the weapon percent.** Ravage 9867 states +98 and 350%, and its
   tooltip reads "350% damage plus 343", which is 98 x 3.5. Shred, Ravage and Claw added the flat bonus
   after the multiplier and lost 44, 245 and 11.5 per hit.
-- **Lacerate** ticked for the row's 15 at every stack count, and priced its direct hit on the count after
-  the new application, where the tooltip says "per existing application".
+- **Lacerate** ticked for the row's 15 at every stack count. Its direct hit counts the stacks after the new
+  application, though the tooltip says "per existing application": in game the first Lacerate hits, and hits grow
+  1:2:3:4:5 with the stacks.
 - **Rupture 11275:** effect 1's `PointsPerResource` 4.73 was dropped, so a 5-point Rupture ticked for 35
   instead of 58.65 before attack power.
 - **Furor:** the energy counted every second out of Cat Form, bear time included, and capped at maximum

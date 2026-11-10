@@ -68,22 +68,22 @@ func (warrior *Warrior) registerShieldSpecialization() {
 	// Effect 1 is the block bonus; effect 2 is the proc trigger, which the parse skips.
 	spelldata.ParseStatic(&warrior.Character, talent)
 
-	// In game this rage's threat reads the same in Battle and Defensive Stance, while Bloodrage's takes
-	// the stance's.
-	// TODO: Ingame test needed -- whether Defiance or a threat buff scales it.
-	rageMetrics := warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
-	rageMetrics.UnscaledThreat = true
+	warrior.registerRageOnAvoid(talent, talent.EffectN(2).Trigger(), core.OutcomeBlock, nil)
 }
 
 // A chance to gain rage when an incoming attack is blocked, dodged or parried. The rate is the
 // effect ladder the tooltip's $m names, and the 100 in the proc chance column is noise; the
 // energize the triggered spell states is on the game files' 0-1000 rage bar.
 //
-// No proc mask states an outcome, so which of the three it is stays the caller's; that the hit
-// carries no damage is the row's, off its outcome hint.
-func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) *core.ResourceMetrics {
+// No proc mask states an outcome, so the caller names it; for the block the row's hint decodes to
+// the same OutcomeBlock. That the hit carries no damage is the row's, off its outcome hint.
+func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *spelldata.Spell, outcome core.HitOutcome, extra core.ProcExtraCondition) {
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})
+	// In game this rage makes 5 threat a rage in Battle and Defensive Stance alike, and Defiance does not
+	// scale it.
+	// TODO: Ingame test needed -- whether a threat buff scales it.
+	rageMetrics.UnscaledThreat = true
 
 	trigger := spelldata.ProcTrigger(&warrior.Character, driver,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -94,7 +94,6 @@ func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *s
 	trigger.ExtraCondition = extra
 
 	warrior.MakeProcTriggerAura(trigger)
-	return rageMetrics
 }
 
 var lastStandRank = spellData.LastStand.Highest()
@@ -160,7 +159,7 @@ func (warrior *Warrior) registerImprovedShieldWall() {
 
 var concussionBlowRank = spellData.ConcussionBlow.Highest()
 
-// TODO: In-game testing if this generates threat
+// Concussion Blow generates no threat, measured in game.
 func (warrior *Warrior) registerConcussionBlow() {
 	if !warrior.Talents.ConcussionBlow {
 		return
@@ -187,11 +186,10 @@ func (warrior *Warrior) registerShieldSlam() {
 	}
 
 	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
-	// TODO: In-game testing needed for threat multiplier / flat threat
-	config.FlatThreatBonus = 0
 
+	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		baseDamage := shieldSlamRank.DamageEffect().Roll(sim) + warrior.BlockDamageReduction()
+		baseDamage := shieldSlamRank.DamageEffect().Roll(sim) + 2*warrior.BlockDamageReduction()
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
 		if !result.Landed() {

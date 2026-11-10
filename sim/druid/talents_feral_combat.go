@@ -141,8 +141,8 @@ func (druid *Druid) applyBloodFrenzy() {
 			}
 			return
 		}
-		// TODO: Ingame research needed -- the triggered spell restores rage in bear form. The cat's
-		// extra combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
+		// Blood Frenzy 2/2 in Bear Form restores 5 rage on every non-periodic crit, once per Swipe target.
+		// The cat's extra combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
 		if druid.InForm(Cat) && druid.isComboBuilder(spell) && sim.Proc(comboChance, "Blood Frenzy Combo Point") {
 			druid.AddComboPoints(sim, 1, combo)
 		}

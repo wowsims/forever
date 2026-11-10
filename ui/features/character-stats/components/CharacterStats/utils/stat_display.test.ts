@@ -55,6 +55,7 @@ describe('statDisplayString, stats with a composite display', () => {
 
 		expect(show(strength(120).withStat(Stat.StatBlockValue, 100).withPseudoStat(PseudoStat.PseudoStatBlockValueMultiplier, 1.3), blockValue)).toBe('135');
 		expect(show(strength(10), blockValue)).toBe('0');
+		expect(show(strength(59).withStat(Stat.StatBlockValue, 6), blockValue)).toBe('7');
 	});
 
 	it('renders a school damage stat as the school-plus-spell-damage total with the school bonus in brackets', () => {

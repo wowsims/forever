@@ -6,7 +6,7 @@ Re-derive a claim before repeating it:
   and `grep -n WriteBinaryAndJson tools/database/gen_db/main.go` for when the files are written
 - what loads the database: `grep -n 'go:embed' assets/database/loader.go` and `grep -n READ_JSON ui/sim/proto/database.ts`
 - the request's extra items: `grep -n PARTY_BUFF_ITEM_IDS ui/sim/proto/buff_items.ts`
-- one effect per item, the aura lists: `grep -n 'panic(\|func implementedByHand\|AuraKinds = ' sim/core/item_effects.go tools/database/gen_effects.go`
+- one effect per item, the aura lists: `grep -n 'panic(\|func implementedByHand\|AuraKinds = \|generatedItemEffects' sim/core/item_effects.go tools/database/gen_effects.go sim/common/shared/shared_utils.go`
 - the enchant row accessors: `grep -n 'func GetEnchant\|func FittingEnchantRow' sim/core/database.go`
 
 | You changed…                                                        | Update                                                          |

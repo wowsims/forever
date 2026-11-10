@@ -130,22 +130,28 @@ func (e *Effect) spread(level int32) (float64, float64) {
 		whole := math.Floor(e.exactAt(level))
 		return whole, whole
 	}
-	base := float32(e.BasePoints)
-	// A physical hit rolls its base points by the whole Variance either side; anything else by half.
-	side := float32(float32(math.Abs(e.BasePoints)) * float32(e.Variance) / 2)
-	if e.physicalDamage() {
-		side *= 2
-	}
+	base, side := e.baseSpread()
 	gain := e.levelGain(level)
 	low := float32(math.RoundToEven(float64(base-side))) + gain
 	high := float32(math.RoundToEven(float64(base+side))) + gain
 	return math.Floor(float64(low)), math.Ceil(float64(high))
 }
 
+// The base points and how far either side of them the roll reaches: half the Variance.
+func (e *Effect) baseSpread() (float32, float32) {
+	return float32(e.BasePoints), float32(float32(math.Abs(e.BasePoints)) * float32(e.Variance) / 2)
+}
+
 // The amount for one cast: rolled where the game files state a spread, the average where they do not.
+// A physical hit spreads its base points by half the Variance and rounds to a whole number; the
+// per-level gain is added after the rounding.
 func (e *Effect) RollAt(sim *core.Simulation, level int32) float64 {
 	if e.Variance == 0 {
 		return e.AverageAt(level)
+	}
+	if e.physicalDamage() {
+		base, side := e.baseSpread()
+		return math.Round(sim.Roll(float64(base-side), float64(base+side))) + float64(e.levelGain(level))
 	}
 	return sim.Roll(e.spread(level))
 }
@@ -176,10 +182,16 @@ func (e *Effect) DirectVariance() float64 {
 	switch {
 	case e.Type == dbcenums.E_HEAL:
 		return e.Variance
-	case e.Type == dbcenums.E_SCHOOL_DAMAGE && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
+	case e.StatesADamageAmount() && Find(e.SpellID).SpellSchool() != core.SpellSchoolPhysical:
 		return e.Variance
 	}
 	return 0
+}
+
+// Whether the effect deals an amount of damage it states itself, rather than one off a weapon:
+// E_SCHOOL_DAMAGE or E_HEALTH_LEECH.
+func (e *Effect) StatesADamageAmount() bool {
+	return e.Type == dbcenums.E_SCHOOL_DAMAGE || e.Type == dbcenums.E_HEALTH_LEECH
 }
 
 func (e *Effect) damageOrHeal() bool {
@@ -198,9 +210,12 @@ func (e *Effect) damageOrHeal() bool {
 
 func (e *Effect) physicalDamage() bool {
 	switch e.Type {
-	case dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE, dbcenums.E_WEAPON_PERCENT_DAMAGE,
+	case dbcenums.E_WEAPON_DAMAGE, dbcenums.E_WEAPON_PERCENT_DAMAGE,
 		dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL:
-		return Find(e.SpellID).SpellSchool() == core.SpellSchoolPhysical
+	default:
+		if !e.StatesADamageAmount() {
+			return false
+		}
 	}
-	return false
+	return Find(e.SpellID).SpellSchool() == core.SpellSchoolPhysical
 }

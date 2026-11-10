@@ -371,6 +371,32 @@ func TestProcDamageTarget(t *testing.T) {
 	}
 }
 
+// Two generated effects on one item compose into the one registration core takes per item, and an id
+// a hand-written effect holds, through core or through a shared constructor outside the generated
+// files, is left to it.
+func TestGeneratedItemEffectsCompose(t *testing.T) {
+	const generatedID, handID, classFileID int32 = 991540, 991541, 991542
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(generatedID), testOneHander(handID), testOneHander(classFileID)}})
+	core.NewItemEffect(handID, func(core.Agent) {})
+	effectSource{id: classFileID}.registerEffect(func(core.Agent) {})
+
+	defer Generated()()
+	source := effectSource{id: generatedID}
+	source.registerEffect(func(core.Agent) {})
+	if source.isAlreadyImplemented() {
+		t.Error("an id the generated effects hold reads as implemented by hand")
+	}
+	source.registerEffect(func(core.Agent) {})
+	if got := len(generatedItemEffects[generatedID]); got != 2 || !core.HasItemEffect(generatedID) {
+		t.Errorf("%d generated effects on one item, core registration %v; want 2 under one registration", got, core.HasItemEffect(generatedID))
+	}
+	for name, id := range map[string]int32{"through core": handID, "through a shared constructor": classFileID} {
+		if !(effectSource{id: id}).isAlreadyImplemented() {
+			t.Errorf("an id a hand-written effect holds %s does not read as implemented by hand", name)
+		}
+	}
+}
+
 func testOneHander(id int32) *proto.SimItem {
 	return &proto.SimItem{
 		Id:             id,
@@ -476,7 +502,7 @@ func TestSpellDataProcTakesAPPMOverride(t *testing.T) {
 			row.ProcChanceSource, row.ProcChanceEffect = spelldata.ProcChancePPM, 0
 			unsupported := func() []string {
 				if tc.isWeaponProc {
-					return spelldata.ItemProcUnsupportedWithRate(&row, true, 0)
+					return spelldata.ItemProcUnsupportedWithRate(&row, true, 0, 0)
 				}
 				return spelldata.EnchantAuraUnsupported(&row)
 			}

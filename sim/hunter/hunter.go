@@ -12,6 +12,13 @@ var TalentTreeSizes = [3]int{16, 16, 18}
 
 var autoShotRank = spellData.AutoShot.Highest()
 
+// TODO: In-game testing required. In game Multi-Shot and Aimed Shot hit 9 harder than the rows'
+// normalised weapon damage across the whole weapon roll, and Auto Shot hits for its own; the game
+// files state no such bonus. The 9 was read at levels 34 and 36, where a flat bonus and one that
+// grows with ranged attack power predict the same hits. Sniper Shot, the third normalised shot, was
+// not in the logs and takes none.
+const normalizedShotBonus = 9
+
 type Hunter struct {
 	core.Character
 
@@ -116,6 +123,7 @@ func (hunter *Hunter) Initialize() {
 	hunter.registerAimedShot()
 	hunter.registerArcaneShot()
 	hunter.registerMultiShot()
+	hunter.registerVolley()
 	hunter.registerSerpentSting()
 	hunter.registerTraps()
 	hunter.registerScorpidSting()

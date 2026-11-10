@@ -179,7 +179,8 @@ func TestParseScopedOffHandInventoryType(t *testing.T) {
 	r.check(t, bonusHit, 0, 2, 0, 0)
 }
 
-// 13705: the row's melee weapons bind its melee hit, and its spell hit is every spell's.
+// 13705: the row's melee weapons bind its melee hit, and its spell hit is every spell's while one is
+// equipped.
 func TestParseScopedPrecision(t *testing.T) {
 	r := parseScoped(t, &Spell{ID: 13705, Name: "Precision", EquipClass: 2, EquipSubclass: 173555,
 		Effects: []Effect{
@@ -187,7 +188,7 @@ func TestParseScopedPrecision(t *testing.T) {
 			casterAura(dbcenums.A_MOD_SPELL_HIT_CHANCE, 1),
 		}})
 
-	if kinds := appliedKinds(r.parsed); !slices.Equal(kinds, []string{"SpellMod_BonusHit_Percent", "stat SpellHitPercent"}) {
+	if kinds := appliedKinds(r.parsed); !slices.Equal(kinds, []string{"SpellMod_BonusHit_Percent", "stat-while-equipped SpellHitPercent"}) {
 		t.Errorf("attached %v", kinds)
 	}
 	r.check(t, bonusHit, 1, 1, 0, 0)

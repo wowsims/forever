@@ -123,8 +123,9 @@ func (s *SpellEffect) ScalingClass() proto.Class {
 	}
 }
 
-// Reports whether the aura fires another spell when its owner procs. Both forms are the same edge
-// for the purposes of walking a trigger chain; only the amount differs.
+// Reports whether the aura fires when its owner procs: one that casts another spell, with or without
+// an amount, or one that deals its own damage and names no spell below it. The first two are the same
+// edge for walking a trigger chain; the walk stops at the third.
 func (effect *SpellEffect) IsProcTrigger() bool {
 	return effect.EffectAura.IsProcTrigger()
 }

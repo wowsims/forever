@@ -3,6 +3,7 @@ package spelldata
 import (
 	"fmt"
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -88,6 +89,27 @@ func ItemAuraDamageShields(s *Spell) []*Effect {
 		}
 	}
 	return shields
+}
+
+// The physical hits a row's damage shield answers: the ones its proc flags name, or every one where
+// it states none. Retricutioner's 435901 names the melee swings and abilities taken, so a ranged shot
+// is not reflected; Immolation 21142 and the other passive shields state no flags. The flags say which
+// hits reach the shield and nothing about a roll: a shield answers each of them.
+func DamageShieldHits(s *Spell) core.ProcMask {
+	if s.ProcFlags == [2]uint32{} {
+		return core.ProcMaskUnknown
+	}
+	return core.DecodeProcTypeMask(s.ProcFlags, s.ProcHint).ProcMask
+}
+
+// The time a row's damage shield waits between two reflections: its internal cooldown, or the cooldown
+// the row states where it has none. Retricutioner's 435901 states 5 s, so a second melee hit inside
+// them is not reflected; the passive shields state none and answer every hit.
+func DamageShieldLockout(s *Spell) time.Duration {
+	if s.ICDMs > 0 {
+		return s.ICD()
+	}
+	return s.Cooldown()
 }
 
 // What an item's aura shape leaves out of a row, one reason per effect: an effect that is not an

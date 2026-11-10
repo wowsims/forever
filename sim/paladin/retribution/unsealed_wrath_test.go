@@ -9,16 +9,18 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// A paladin with Unsealed Wrath and no rotation or auto attacks, a swing that always lands, and a
-// count of the Seal of Righteousness hits cast so far under one tag.
+// A paladin with Unsealed Wrath and no rotation or auto attacks, a main-hand weapon to swap to, a
+// swing that always lands, and a count of the Seal of Righteousness hits cast so far under one tag.
 func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
 	t.Helper()
 	player := &proto.Player{
-		Name:          "Unsealed Wrath",
-		Race:          proto.Race_RaceHuman,
-		Class:         proto.Class_ClassPaladin,
-		Equipment:     core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
-		TalentsString: UnsealedWrathTalents,
+		Name:           "Unsealed Wrath",
+		Race:           proto.Race_RaceHuman,
+		Class:          proto.Class_ClassPaladin,
+		Equipment:      core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
+		TalentsString:  UnsealedWrathTalents,
+		EnableItemSwap: true,
+		ItemSwap:       core.GetItemSwapGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock_item_swap").ItemSwap,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
 			Options: &proto.RetributionPaladin_Options{ClassOptions: &proto.PaladinOptions{}},
 		}},
@@ -119,6 +121,36 @@ func TestUnsealedWrathSpendsTheStoredCopiesUnderAnotherSeal(t *testing.T) {
 	}
 }
 
+// Swapping the main-hand weapon drops every Echo, so a hit under another seal afterwards spends no
+// stored copy.
+func TestUnsealedWrathDropsTheEchoesOnAMainHandSwap(t *testing.T) {
+	sim, pal, swing, righteousnessHits := unsealedWrathPaladin(t)
+	castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
+	for range 3 {
+		swing()
+	}
+	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
+	if echo.GetStacks() != 3 {
+		t.Fatalf("Echo of Righteousness has %d stacks before the swap, want 3", echo.GetStacks())
+	}
+
+	mainHand := pal.MainHand().ID
+	pal.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	if pal.MainHand().ID == mainHand {
+		t.Fatalf("the swap left main-hand weapon %d in place", mainHand)
+	}
+	if echo.IsActive() {
+		t.Error("Echo of Righteousness stays up through a main-hand swap")
+	}
+
+	castSeal(t, sim, pal, paladin.SealOfFuryRankMap.Highest().ID)
+	before := righteousnessHits(1311704)
+	swing()
+	if got := righteousnessHits(1311704) - before; got != 0 {
+		t.Errorf("the hit under Seal of Fury after the swap replayed %d Seal of Righteousness hits, want 0", got)
+	}
+}
+
 // Seal of Light and Seal of Wisdom are stored as well, and each spent copy of Seal of Wisdom rolls the
 // seal's own chance to restore mana.
 func TestUnsealedWrathStoresLightAndWisdom(t *testing.T) {
@@ -174,5 +206,29 @@ func TestUnsealedWrathStoresLightAndWisdom(t *testing.T) {
 	}
 	if restores == 0 || restores == 3*spends {
 		t.Errorf("%d spends of three Seal of Wisdom copies restored mana %d times, want a roll per copy", spends, restores)
+	}
+}
+
+// The ladder's first Seal of Righteousness deals its hits as its own spell, not as the level 1
+// starter seal's.
+func TestSealOfRighteousnessRankOneHitsAsItsOwnSpell(t *testing.T) {
+	const want = 25741 // 21084's damage spell, "Rank 1.5" in the game files
+	sim, pal, swing, _ := unsealedWrathPaladin(t)
+	rank := paladin.SealOfRighteousnessRankMap.Rank(1)
+	castSeal(t, sim, pal, rank.ID)
+	for range 20 {
+		swing()
+	}
+
+	hitsBy := map[int32]int32{}
+	for _, spell := range pal.Spellbook {
+		if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) {
+			if casts := spell.SpellMetrics[pal.CurrentTarget.UnitIndex].Casts; casts > 0 {
+				hitsBy[spell.ActionID.SpellID] += casts
+			}
+		}
+	}
+	if len(hitsBy) != 1 || hitsBy[want] == 0 {
+		t.Errorf("seal %d hits as %v (spell id: hits), want spell %d alone", rank.ID, hitsBy, want)
 	}
 }
