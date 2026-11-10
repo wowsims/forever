@@ -114,6 +114,14 @@ func RegisterAllProcs() {
 			{ItemID: 18308, ItemName: "Clever Hat"},
 		})
 
+	// Spell Damage received is reduced by 5.
+	// https://www.wowhead.com/forever/spell=1292692
+	// equip: 1292692 (A_MOD_DAMAGE_TAKEN)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1292692},
+		[]shared.ItemVariant{
+			{ItemID: 18351, ItemName: "Magically Sealed Bracers"},
+		})
+
 	// When struck in combat inflicts 13 Fire damage to the attacker.
 	// https://www.wowhead.com/forever/spell=23266
 	// equip: 23266 (A_DAMAGE_SHIELD)
@@ -201,19 +209,6 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18104, BuffSpellID: 18104, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 811, ItemName: "Axe of the Deep Woods"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
-	// https://www.wowhead.com/forever/spell=1325229
-	// unsupported: states no rate
-	// trigger 1325229 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1325229, BuffSpellID: 1325229, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 867, ItemName: "Gloves of Holy Might"},
 	// })
 
 	// TODO: Manual implementation required
@@ -814,6 +809,20 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// https://www.wowhead.com/forever/spell=1318108
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 10847, ItemName: "Dragon's Call"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.
 	// https://www.wowhead.com/forever/spell=11657
 	// unsupported: states no rate
@@ -1273,6 +1282,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.
+	// https://www.wowhead.com/forever/spell=17483
+	// unsupported: states no rate
+	// trigger 17483 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17483, BuffSpellID: 17483, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 13348, ItemName: "Demonshear"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// https://www.wowhead.com/forever/spell=1300668
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
@@ -1281,6 +1303,21 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 13382, ItemName: "Cannonball Runner"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Knocks target silly for 2s and increases Strength by 53 for 20s.
+	// https://www.wowhead.com/forever/spell=17500
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 13393, ItemName: "Malown's Slam"},
 	// })
 
 	// TODO: Manual implementation required
@@ -1361,6 +1398,7 @@ func RegisterAllProcs() {
 	//	Outcome:            core.OutcomeEmpty,
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
+	//	{ItemID: 14022, ItemName: "Barov Peasant Caller"},
 	//	{ItemID: 14023, ItemName: "Barov Peasant Caller"},
 	// })
 
@@ -1420,6 +1458,19 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 15138, ItemName: "Onyxia Scale Cloak"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Blasts a target for 252 Nature damage.
+	// https://www.wowhead.com/forever/spell=19874
+	// unsupported: states no rate
+	// trigger 19874 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 19874, BuffSpellID: 19874, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 15418, ItemName: "Shimmering Platinum Warhammer"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2478,7 +2529,7 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Reduces the energy cost of Claw, Rake, and Mangle by 2.
+	// Reduces the energy cost of Claw and Rake by 2.
 	// https://www.wowhead.com/forever/spell=27851
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
@@ -2592,6 +2643,21 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22870, ItemName: "Blood Guard's Silk Handwraps"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Reduces the Rage cost of Maul and Swipe by 2.0.
+	// https://www.wowhead.com/forever/spell=28855
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 23198, ItemName: "Idol of Brutality"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3721,6 +3787,21 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Increases movement speed by 4% in Mount Hyjal.
+	// https://www.wowhead.com/forever/spell=1311895
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 281598, ItemName: "Rusthowl's Worn Collar"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Blast the target with the fires of a forge, inflicting 51 Fire damage.
 	// https://www.wowhead.com/forever/spell=1312176
 	// unsupported: states no rate
@@ -4455,6 +4536,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=12418
 	// Not simulated: Tooth of Eranikus: "Resist Sleep 03" (1300001) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300001
+	// Not simulated: Dragon's Call: "Dragon's Call" (13049) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=13049
 	// Not simulated: Carrot on a Stick: "Mount Speed" (13587) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=13587
 	// Not simulated: Savage Gladiator Chain: "Resist Fear 04" (1292574) - ignored aura type 117

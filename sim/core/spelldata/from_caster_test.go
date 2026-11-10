@@ -55,35 +55,35 @@ func TestSchoolDamageFromCasterFollowsTheStacks(t *testing.T) {
 	}
 }
 
-// Wrack 1316697: 10% more damage from the warlock's other shadow dots, which its class mask names,
-// and not from Wrack itself.
+// Hemorrhage 16511: 15% more damage from the rogue's Rupture and Garrote, which its class mask names,
+// and not from Hemorrhage itself.
 func TestSpellDamageFromCasterReachesTheNamedSpells(t *testing.T) {
 	sim := &core.Simulation{}
 	caster, other, target := casterScene()
-	row := &Spell{ID: 1316697, Name: "Wrack", DurationMs: 6000,
-		ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{1: 262144}},
-		Effects: []Effect{{SpellID: 1316697, Index: 1, Type: dbcenums.E_APPLY_AURA,
-			Aura: dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, BasePoints: 10,
-			ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 1026}}}}}
+	row := &Spell{ID: 16511, Name: "Hemorrhage", DurationMs: 15000,
+		ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 41943040}},
+		Effects: []Effect{{SpellID: 16511, Index: 2, Type: dbcenums.E_APPLY_AURA,
+			Aura: dbcenums.A_MOD_SPELL_DAMAGE_FROM_CASTER, BasePoints: 15,
+			ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 1048832}}}}}
 
-	corruption := parseSpell(caster, 1, core.SpellSchoolShadow, core.ProcMaskSpellDamage,
-		core.ClassFlags{Family: 5, Mask: [4]uint32{0: 2}})
-	wrack := parseSpell(caster, 2, core.SpellSchoolShadow, core.ProcMaskSpellDamage, row.ClassFlags)
-	otherCorruption := parseSpell(other, 1, core.SpellSchoolShadow, core.ProcMaskSpellDamage,
-		core.ClassFlags{Family: 5, Mask: [4]uint32{0: 2}})
+	rupture := parseSpell(caster, 1, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial,
+		core.ClassFlags{Family: 8, Mask: [4]uint32{0: 1048576}})
+	hemorrhage := parseSpell(caster, 2, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial, row.ClassFlags)
+	otherRupture := parseSpell(other, 1, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial,
+		core.ClassFlags{Family: 8, Mask: [4]uint32{0: 1048576}})
 
 	aura := target.RegisterAura(AuraConfig(row))
 	ParseEffects(nil, aura, row, FromCaster(&caster.Unit, 0, 1))
 	aura.Activate(sim)
 
-	if got := takenMultiplier(corruption, target); math.Abs(got-1.1) > 1e-9 {
-		t.Errorf("the caster's Corruption: %v, want 1.1", got)
+	if got := takenMultiplier(rupture, target); math.Abs(got-1.15) > 1e-9 {
+		t.Errorf("the caster's Rupture: %v, want 1.15", got)
 	}
-	if got := takenMultiplier(wrack, target); got != 1 {
-		t.Errorf("the caster's Wrack: %v, want 1", got)
+	if got := takenMultiplier(hemorrhage, target); got != 1 {
+		t.Errorf("the caster's Hemorrhage: %v, want 1", got)
 	}
-	if got := takenMultiplier(otherCorruption, target); got != 1 {
-		t.Errorf("another caster's Corruption: %v, want 1", got)
+	if got := takenMultiplier(otherRupture, target); got != 1 {
+		t.Errorf("another caster's Rupture: %v, want 1", got)
 	}
 }
 

@@ -465,12 +465,12 @@ func (spell *Spell) CalcPeriodicDamage(sim *Simulation, target *Unit, baseDamage
 	if dot.BonusCoefficient > 0 {
 		baseDamage += dot.BonusCoefficient * spell.BonusDamage(attackTable)
 	}
-	attackerMultiplier *= dot.PeriodicDamageMultiplier
+	attackerMultiplier = dot.scaleTick(attackerMultiplier * dot.PeriodicDamageMultiplier)
 
 	return spell.calcDamageInternal(sim, target, baseDamage, attackerMultiplier, true, outcomeApplier)
 }
 func (dot *Dot) CalcSnapshotDamage(sim *Simulation, target *Unit, outcomeApplier OutcomeApplier) *SpellResult {
-	return dot.Spell.calcDamageInternal(sim, target, dot.SnapshotBaseDamage, dot.SnapshotAttackerMultiplier, true, outcomeApplier)
+	return dot.Spell.calcDamageInternal(sim, target, dot.SnapshotBaseDamage, dot.scaleTick(dot.SnapshotAttackerMultiplier), true, outcomeApplier)
 }
 
 func (spell *Spell) DealOutcome(sim *Simulation, result *SpellResult) {
@@ -780,10 +780,10 @@ func (spell *Spell) CalcPeriodicHealing(sim *Simulation, target *Unit, baseHeali
 	if dot.BonusCoefficient > 0 {
 		baseHealing += dot.BonusCoefficient * spell.HealingPower(target)
 	}
-	return spell.calcHealingInternal(sim, target, baseHealing, dot.CasterPeriodicHealingMultiplier(), outcomeApplier)
+	return spell.calcHealingInternal(sim, target, baseHealing, dot.scaleTick(dot.CasterPeriodicHealingMultiplier()), outcomeApplier)
 }
 func (dot *Dot) CalcSnapshotHealing(sim *Simulation, target *Unit, outcomeApplier OutcomeApplier) *SpellResult {
-	return dot.Spell.calcHealingInternal(sim, target, dot.SnapshotBaseDamage, dot.SnapshotAttackerMultiplier, outcomeApplier)
+	return dot.Spell.calcHealingInternal(sim, target, dot.SnapshotBaseDamage, dot.scaleTick(dot.SnapshotAttackerMultiplier), outcomeApplier)
 }
 
 func (dot *Dot) SnapshotHeal(target *Unit, baseHealing float64) {

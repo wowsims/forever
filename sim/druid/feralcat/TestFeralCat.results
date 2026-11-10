@@ -566,6 +566,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 768.85717
+  tps: 568.50692
+  hps: 43.97083
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 767.65846

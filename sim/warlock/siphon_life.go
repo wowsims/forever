@@ -18,7 +18,6 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 
 	// Tick the row's average, rolling only the crit the row allows, and heal for the damage dealt
 	config.Dot = spelldata.DotConfig(rankedSpell, siphonLifeTick)
-	config.Dot.Aura.Tag = "Affliction"
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		result := dot.Spell.CalcAndDealPeriodicDamage(sim, target, siphonLifeTick.Average(), rankedSpell.TickOutcome(dot))
 
@@ -41,4 +40,5 @@ func (warlock *Warlock) registerSiphonLifeSpell() {
 	}
 
 	warlock.SiphonLife = warlock.RegisterSpell(config)
+	warlock.afflictionDots = append(warlock.afflictionDots, warlock.SiphonLife)
 }
