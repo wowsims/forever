@@ -12,9 +12,13 @@ import (
 	"github.com/wowsims/forever/sim/shaman"
 )
 
-// Windfury Weapon's strikes are white in name only: Flametongue Totem, which hears auto attacks
-// alone, procs off every one that lands, yet they roll the special attack table and never glance.
-func TestWindfuryWeaponStrikesProcFlametongueTotemAndNeverGlance(t *testing.T) {
+// The spell each Windfury Weapon strike reports under.
+var windfuryWeaponStrike = core.ActionID{SpellID: spelldata.MustFind(439440).ID}
+
+// Windfury Weapon's strikes are main-hand abilities: Flametongue Totem, which hears auto attacks
+// alone, procs once for each swing that lands and never off a strike, and the strikes roll the
+// special attack table and never glance.
+func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	result := core.RunRaidSim(&proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(player, &proto.PartyBuffs{},
@@ -27,7 +31,6 @@ func TestWindfuryWeaponStrikesProcFlametongueTotemAndNeverGlance(t *testing.T) {
 	}
 
 	// A proc logs no casts, so each count is the outcomes it logged.
-	strikeTag := spelldata.MustFind(16362).Refs()[0].ID
 	flametongueTotem := spelldata.MustFind(16387).ID
 	var mainHand, strikes, flametongue proto.TargetedActionMetrics
 	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
@@ -35,7 +38,7 @@ func TestWindfuryWeaponStrikesProcFlametongueTotemAndNeverGlance(t *testing.T) {
 		switch {
 		case action.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && action.Id.Tag == int32(proto.ItemSlot_ItemSlotMainHand):
 			into = &mainHand
-		case action.Id.GetOtherId() == proto.OtherAction_OtherActionAttack && action.Id.Tag == strikeTag:
+		case action.Id.GetSpellId() == windfuryWeaponStrike.SpellID:
 			into = &strikes
 		case action.Id.GetSpellId() == flametongueTotem && action.Id.Tag == 1:
 			into = &flametongue
@@ -60,14 +63,18 @@ func TestWindfuryWeaponStrikesProcFlametongueTotemAndNeverGlance(t *testing.T) {
 	if mainHand.Glances == 0 {
 		t.Error("the main hand's swings never glanced, so the run cannot tell the strikes from them")
 	}
-	if got, want := landed(&flametongue)+flametongue.Misses, landed(&mainHand)+landed(&strikes); got != want {
-		t.Errorf("Flametongue Totem procced %d times, want one for each of the %d swings and %d Windfury Weapon strikes that landed",
-			got, landed(&mainHand), landed(&strikes))
+	procs := landed(&flametongue) + flametongue.Misses
+	if procs == 0 {
+		t.Fatal("Flametongue Totem never procced over the run")
+	}
+	if want := landed(&mainHand); procs != want {
+		t.Errorf("Flametongue Totem procced %d times, want one for each of the %d swings that landed and none for the %d Windfury Weapon strikes that landed",
+			procs, want, landed(&strikes))
 	}
 }
 
-// Windfury Weapon's strikes spend no Flurry charge, though they are white for every proc: a main-hand
-// swing spends one.
+// Windfury Weapon's strikes are main-hand abilities and spend no Flurry charge: a main-hand swing
+// spends one.
 func TestWindfuryWeaponStrikesSpendNoFlurryCharge(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
@@ -81,7 +88,7 @@ func TestWindfuryWeaponStrikesSpendNoFlurryCharge(t *testing.T) {
 	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
 	target := sham.CurrentTarget
 	flurry := sham.GetAuraByID(core.ActionID{SpellID: spelldata.MustFind(16257).ID})
-	strike := sham.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: spelldata.MustFind(16362).Refs()[0].ID})
+	strike := sham.GetSpell(windfuryWeaponStrike)
 	if flurry == nil || strike == nil {
 		t.Fatalf("Flurry %v, Windfury Weapon's strike %v; want both registered", flurry, strike)
 	}
