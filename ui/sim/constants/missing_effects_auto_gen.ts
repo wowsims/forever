@@ -40,6 +40,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1168, // Skullflame Shield
+		[
+			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
+		]
+	],
+	[
 		1265, // Scorpion Sting
 		[
 			"Poisons target for 13 Nature damage every 5.0 sec for 25s.", // 18208 - https://www.wowhead.com/forever/spell=18208
@@ -852,6 +858,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		12531, // Searing Needle
+		[
+			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
+		]
+	],
+	[
 		12582, // Keris of Zul'Serak
 		[
 			"Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks by 11% for 10s.", // 16528 - https://www.wowhead.com/forever/spell=16528
@@ -1208,9 +1220,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18321, // Energetic Rod
+		[
+			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
+		]
+	],
+	[
 		18324, // Waveslicer
 		[
 			"Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.", // 1302166 - https://www.wowhead.com/forever/spell=1302166
+		]
+	],
+	[
+		18354, // Pimgib's Collar
+		[
+			"Restores 9 mana per 5 sec to your Imp.", // 22855 - https://www.wowhead.com/forever/spell=22855
+		]
+	],
+	[
+		18388, // Stoneshatter
+		[
+			"Shatter the target, dealing 49 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 1302279 - https://www.wowhead.com/forever/spell=1302279
 		]
 	],
 	[
@@ -2458,6 +2488,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		276744, // Zarla's Snack Pouch
+		[
+			"", // 1318104 - https://www.wowhead.com/forever/spell=1318104
+		]
+	],
+	[
 		277559, // Shen'dralar Relic
 		[
 			"Dispel 1 beneficial magic effect from the target enemy and 1 additional magic effect every 4.0 sec for 8s.", // 1302359 - https://www.wowhead.com/forever/spell=1302359
@@ -2515,6 +2551,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		280074, // Scalding Flamehoof
 		[
 			"Increases Fire damage taken by 14% and movement speed by 14% for 20s.", // 1309551 - https://www.wowhead.com/forever/spell=1309551
+		]
+	],
+	[
+		280080, // Claymore of Two Moons
+		[
+			"Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.", // 1309550 - https://www.wowhead.com/forever/spell=1309550
 		]
 	],
 	[
@@ -2632,6 +2674,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		287026, // Escape Plan
+		[
+			"Disarm target's weapon for 10s.", // 13534 - https://www.wowhead.com/forever/spell=13534
+		]
+	],
+	[
 		288900, // Earthshaker
 		[
 			"Knocks down all nearby enemies for 3s.", // 21152 - https://www.wowhead.com/forever/spell=21152
@@ -2734,6 +2782,30 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
+				],
+			],
+		]),
+	],
+	[
+		121, // Cadaverous Garb
+		new Map([
+			[
+				3,
+				[
+					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
+					"Reduces the duration of all movement impairing effects on you by 10%.", // 1292546 - https://www.wowhead.com/forever/spell=1292546
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Improves your chance to hit by 2.0%.", // 460230 - https://www.wowhead.com/forever/spell=460230
 				],
 			],
 		]),
@@ -4357,35 +4429,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		517, // Sorcerer's Regalia
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
 		520, // Ironweave Battlesuit
 		new Map([
 			[
@@ -4900,6 +4943,17 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
+				],
+			],
+		]),
+	],
+	[
+		1671, // Sorcerer's Regalia
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
 				],
 			],
 		]),

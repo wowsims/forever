@@ -117,6 +117,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSpellDataAuraOnUse(280074) // Scalding Flamehoof - https://www.wowhead.com/forever/spell=1309551
 	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
+	// unsupported: 13534 deals no damage and heals no one (A_MOD_DISARM)
+	// shared.NewSimpleStatActive(287026) // Escape Plan - https://www.wowhead.com/forever/spell=13534
 
 	// Absorbs
 	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
@@ -194,6 +196,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAuraOnUse(13164) // Heart of the Scale - https://www.wowhead.com/forever/spell=17275
 	// on use: 1287840 (A_MOD_SPELL_HIT_CHANCE)
 	shared.NewSpellDataAuraOnUse(13968) // Eye of the Beast - https://www.wowhead.com/forever/spell=1287840
+	// on use: 1302264 (A_MOD_DODGE_PERCENT)
+	shared.NewSpellDataAuraOnUse(18370) // Vigilance Charm - https://www.wowhead.com/forever/spell=1302264
 	// on use: 23724 (A_ADD_PCT_MODIFIER)
 	shared.NewSpellDataAuraOnUse(19340) // Rune of Metamorphosis - https://www.wowhead.com/forever/spell=23724
 	// on use: 23726 (A_ADD_FLAT_MODIFIER)
@@ -308,6 +312,8 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataEnergizeOnUse(11819) // Second Wind - https://www.wowhead.com/forever/spell=15604
 	// on use: 18385 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(14152) // Robe of the Archmage - https://www.wowhead.com/forever/spell=18385
+	// on use: 1302205 (A_PERIODIC_ENERGIZE); not simulated: E_TRIGGER_SPELL
+	shared.NewSpellDataEnergizeOnUse(18371) // Mindtap Talisman - https://www.wowhead.com/forever/spell=1302205
 	// on use: 24571 (E_ENERGIZE)
 	shared.NewSpellDataEnergizeOnUse(19951) // Gri'lek's Charm of Might - https://www.wowhead.com/forever/spell=24571
 	// on use: 24532 (E_ENERGIZE)
@@ -422,6 +428,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=1294617
 	// Not simulated: Field Agent Beverage: "Field Agent Beverage" (1297448) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=1297448
+	// Not simulated: Zarla's Snack Pouch: "Zarla's Snack Pouch" (1315190) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1315190
 
 	// Speed
 	// on use: 13494 (A_MOD_MELEE_HASTE_3)
