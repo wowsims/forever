@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -138,7 +139,7 @@ func TestChanceOnHitDamageOverTimeRoutesAsDamage(t *testing.T) {
 			t.Errorf("item %d refused for %q, want %q", tc.itemID, r.Unsupported, wantUnsupported)
 		}
 
-		rated := routeProc(int(tc.spellID), int(tc.spellID), true, 1)
+		rated := routeProc(int(tc.spellID), int(tc.spellID), true, 1, 0)
 		rated.as(ShapeDamage, tc.spellID)
 		if !rated.Supported() {
 			t.Errorf("item %d at 1 PPM refused for %q, want registered", tc.itemID, rated.Unsupported)
@@ -232,6 +233,33 @@ func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 	}
 }
 
+// A hand-written proc that runs at its item entry's procs per minute leaves the item missing its effect
+// while that entry states no rate, and not once it states one; an entry for another spell never does.
+func TestHandProcWithNoRateOnItsEntryIsMissing(t *testing.T) {
+	if len(forever.EntryRateProcs) == 0 {
+		t.Fatal("no hand-written proc reads its rate off its item's entry")
+	}
+	proc := func(spellID int32, rate *proto.ProcEffect_Ppm) *proto.ItemEffect {
+		effect := &proto.ProcEffect{}
+		if rate != nil {
+			effect.ProcRate = rate
+		}
+		return &proto.ItemEffect{BuffId: spellID, Effect: &proto.ItemEffect_Proc{Proc: effect}}
+	}
+	for itemID, spellID := range forever.EntryRateProcs {
+		parsed := &proto.UIItem{Id: itemID}
+		if !handProcStatesNoRate(parsed, proc(spellID, nil)) {
+			t.Errorf("item %d with no rate on its entry for %d is not missing its effect", itemID, spellID)
+		}
+		if handProcStatesNoRate(parsed, proc(spellID, &proto.ProcEffect_Ppm{Ppm: 1})) {
+			t.Errorf("item %d with a rate on its entry for %d is missing its effect", itemID, spellID)
+		}
+		if handProcStatesNoRate(parsed, proc(spellID+1, nil)) {
+			t.Errorf("item %d's entry for another spell than %d leaves it missing its effect", itemID, spellID)
+		}
+	}
+}
+
 // Every hand-kept weapon rate names an effect the game files hang on that item for that spell, and
 // the database writes the rate onto the item: a mistyped id would otherwise leave the weapon refused
 // as stating no rate, with the rate sitting unread.
@@ -310,7 +338,7 @@ func TestOnUseRoutesFromTheSpellItCasts(t *testing.T) {
 }
 
 // An on-use whose spell raises the wearer's speeds registers as a speed buff, every speed effect of
-// its row modelled. Manual Crowd Pummeler is below MIN_EFFECT_ILVL and registers through its
+// its row modelled. Manual Crowd Pummeler is below core.MinEffectItemLevel and registers through its
 // EffectFloorExemptions entry.
 func TestOnUseSpeedBuffRoutesAsASpeedBuff(t *testing.T) {
 	withDBCInputs(t)
@@ -514,55 +542,75 @@ func TestOnUseStatBuffWithWhatItsBuffStatesBeside(t *testing.T) {
 	})
 }
 
-// An item registers one effect, so an equip aura beside another effect of the item that registers is
-// refused and listed, and the other kept: Sulfuras 17182's damage shield beside its Fireball proc. An
-// equip aura alone, Cloak of Flames 3475's, stays.
-func TestEquipAuraBesideAnotherEffectIsRefused(t *testing.T) {
-	equip := func(itemID int) *Entry {
-		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: 21142}}, Supported: true,
-			Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
+// A second proc of one item is refused and listed, the one on the lower spell kept, while an equip aura
+// beside a proc stays: core would fold two listeners named for the item into one aura.
+func TestSecondProcOfAnItemIsRefused(t *testing.T) {
+	proc := func(itemID int, spellID int) *Entry {
+		return &Entry{Variants: []*Variant{{ID: itemID, Name: "Test", SpellID: spellID}}, Supported: true,
+			Proc: &ProcRouting{TriggerSpellID: spellID, Shape: ShapeStats}}
 	}
-	sulfurasShield, cloakShield := equip(17182), equip(3475)
-	fireball := &Entry{Variants: []*Variant{{ID: 17182, Name: "Test", SpellID: 21162}}, Supported: true,
-		Proc: &ProcRouting{TriggerSpellID: 21162, Shape: ShapeDamage}}
+	first, second, other := proc(991600, 21162), proc(991600, 21170), proc(991601, 21162)
+	stacking := &Entry{Variants: []*Variant{{ID: 991600, Name: "Test", SpellID: 21180}}, Supported: true}
+	equip := &Entry{Variants: []*Variant{{ID: 991600, Name: "Test", SpellID: 21142}}, Supported: true,
+		Proc: &ProcRouting{TriggerSpellID: 21142, Shape: ShapeEquip}}
 
-	refuseEquipBesideAnotherEffect(map[string]Group{}, map[string]Group{
-		"Equip": {Name: "Equip", Entries: []*Entry{sulfurasShield, cloakShield}},
-		"Procs": {Name: "Procs", Entries: []*Entry{fireball}},
+	refuseFoldingProcs(map[string]Group{
+		"Procs": {Name: "Procs", Entries: []*Entry{second, first, other, stacking}},
+		"Equip": {Name: "Equip", Entries: []*Entry{equip}},
 	})
 
-	if sulfurasShield.Supported || !slices.Equal(sulfurasShield.Proc.Unsupported, []string{"another effect of the item registers"}) {
-		t.Errorf("Sulfuras' damage shield supported %v, refused for %q; want refused beside its proc",
-			sulfurasShield.Supported, sulfurasShield.Proc.Unsupported)
+	if second.Supported || !slices.Equal(second.Proc.Unsupported, []string{"a second proc of the item would fold under the first's listener"}) {
+		t.Errorf("the second proc supported %v, refused for %q; want refused for folding", second.Supported, second.Proc.Unsupported)
 	}
-	if !fireball.Supported || !cloakShield.Supported {
-		t.Errorf("Sulfuras' proc supported %v, Cloak of Flames' shield supported %v; want both kept", fireball.Supported, cloakShield.Supported)
+	if stacking.Supported {
+		t.Error("a stacking proc beside the first, with no routing to carry a reason, stayed supported")
 	}
-	if _, listed := missingEffectsMap["ItemEffects"][17182]; !listed {
-		t.Errorf("17182 is not listed as missing an effect")
+	if !first.Supported || !other.Supported || !equip.Supported {
+		t.Errorf("first proc %v, another item's proc %v, the equip aura %v; want all three kept", first.Supported, other.Supported, equip.Supported)
 	}
+	if _, listed := missingEffectsMap["ItemEffects"][991600]; !listed {
+		t.Errorf("991600 is not listed as missing an effect")
+	}
+	delete(missingEffectsMap["ItemEffects"], 991600)
 }
 
-// Aegis of Preservation 19345 registers its 500 armor and lists the heal on every hit taken, 23781,
-// that its buff 23780 procs.
-func TestOnUseStatBuffListsTheProcItCarries(t *testing.T) {
+// Aegis of Preservation 19345 registers its 500 armor with the heal on every hit taken, 23781, that
+// its buff 23780 carries, and lists nothing as not simulated. The same buff firing a spell that heals
+// no one, Sulfuras's Fireball 21162 for the test, lists the proc with the reason and the item as
+// missing an effect.
+func TestOnUseStatBuffCarriesItsHealProc(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
-	item := instance.Items[19345]
-	parsed := item.ToUIItem()
-	parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
-	groups := map[string]Group{}
-	if got := TryParseOnUseEffect(parsed, parsed.ItemEffects[0], instance, groups); got != EffectParseResultSuccess {
-		t.Fatalf("parsed as %v, want the stat on-use registered", got)
+	parse := func() *Entry {
+		t.Helper()
+		parsed, effect := parsedItem(t, instance, 19345, 23780)
+		groups := map[string]Group{}
+		if got := TryParseOnUseEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
+			t.Fatalf("parsed as %v, want the stat on-use registered", got)
+		}
+		return groups["ArmorNoMods"].Entries[0]
 	}
 
-	entry := groups["ArmorNoMods"].Entries[0]
-	if want := "the proc the buff carries, 23781 (E_HEAL)"; !entry.Supported || entry.NotSimulated != want {
-		t.Errorf("supported %v, not simulated %q; want registered with %q", entry.Supported, entry.NotSimulated, want)
+	if entry := parse(); !entry.Supported || entry.NotSimulated != "" {
+		t.Errorf("supported %v, not simulated %q; want registered with nothing left out", entry.Supported, entry.NotSimulated)
+	}
+	if _, listed := missingEffectsMap["ItemEffects"][19345]; listed {
+		t.Errorf("19345 is listed as missing an effect, want it off the list")
+	}
+
+	proc := spelldata.MustFind(23780).FirstAura(dbcenums.A_PROC_TRIGGER_SPELL)
+	fired := proc.TriggerID
+	proc.TriggerID = 21162
+	t.Cleanup(func() {
+		proc.TriggerID = fired
+		delete(missingEffectsMap["ItemEffects"], 19345)
+	})
+	if entry := parse(); !entry.Supported || !strings.Contains(entry.NotSimulated, "heals no one") {
+		t.Errorf("firing damage: supported %v, not simulated %q; want registered with the proc left out for healing no one", entry.Supported, entry.NotSimulated)
 	}
 	if _, listed := missingEffectsMap["ItemEffects"][19345]; !listed {
-		t.Errorf("19345 is not listed as missing an effect")
+		t.Errorf("firing damage: 19345 is not listed as missing an effect")
 	}
 }
 
@@ -630,6 +678,26 @@ func TestAttackAvoidedWording(t *testing.T) {
 			"the wearer parrying an attack it takes"},
 	} {
 		if got := procTooltipHints(tc.text) & avoided; got != tc.want {
+			t.Errorf("hint = %q, want %q for %s:\n  %s", formatProcHint(got), formatProcHint(tc.want), tc.why, tc.text)
+		}
+	}
+}
+
+// A block the wearer makes is named on its own; a resist, a dodge or a parry taken is an outcome the
+// mask has no bit for, and a block's magnitude names no trigger.
+func TestProcTooltipHintsNameTheBlock(t *testing.T) {
+	const outcomes = core.ProcHintBlocked | core.ProcHintOutcomeTaken
+	for _, tc := range []struct {
+		want core.ProcHint
+		text string
+		why  string
+	}{
+		{core.ProcHintBlocked, "Attaches a Thorium Spike to your shield that deals damage every time you block with it.", "Thorium Shield Spike's grant"},
+		{core.ProcHintOutcomeTaken, "When you dodge an attack, gain 10 rage.", "a dodge taken"},
+		{core.ProcHintOutcomeTaken, "Heals you when a harmful spell is resisted.", "a resist"},
+		{0, "Increases your chance to block by $s1%.", "a magnitude"},
+	} {
+		if got := procTooltipHints(tc.text) & outcomes; got != tc.want {
 			t.Errorf("hint = %q, want %q for %s:\n  %s", formatProcHint(got), formatProcHint(tc.want), tc.why, tc.text)
 		}
 	}

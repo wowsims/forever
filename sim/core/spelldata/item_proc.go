@@ -27,17 +27,22 @@ const ReasonPPMHearsNoWeaponHits = "a procs-per-minute rate hears no weapon hits
 //
 // itemPPM is the procs-per-minute rate a weapon's item effect states, which answers a trigger whose
 // row states none; 0 where the item states no rate.
-func ItemProcUnsupportedWithRate(trigger *Spell, isWeaponProc bool, itemPPM float64) []string {
-	return itemProcUnsupported(trigger, isWeaponProc, false, itemPPM)
+//
+// lockedFamily is the class family of a relic, an idol, libram or totem one class alone wields: a
+// class mask under that family is the relic's own lock on its spells, which the listener reads the way
+// a class spell's is read, so it is no reason to refuse as long as it names a spell of the family.
+// Idol of Longevity's 28847 names Healing Touch under the druid family. 0 on any other item.
+func ItemProcUnsupportedWithRate(trigger *Spell, isWeaponProc bool, itemPPM float64, lockedFamily int32) []string {
+	return itemProcUnsupported(trigger, isWeaponProc, false, itemPPM, lockedFamily)
 }
 
 // The same for an enchant's equip aura, whose procs-per-minute rate rolls on weapon hits only: the
 // sim never procs one from a spell or a heal.
 func EnchantAuraUnsupported(trigger *Spell) []string {
-	return itemProcUnsupported(trigger, false, true, 0)
+	return itemProcUnsupported(trigger, false, true, 0, 0)
 }
 
-func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, itemPPM float64) []string {
+func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, itemPPM float64, lockedFamily int32) []string {
 	var unsupported []string
 
 	if trigger == Nil || trigger.ID == 0 {
@@ -54,8 +59,12 @@ func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, item
 	if trigger.ProcHint.Matches(core.ProcHintOutcomeTaken) {
 		unsupported = append(unsupported, "an outcome the proc mask has no bit for")
 	}
-	if !rowClassFlags(trigger).IsZero() {
+	switch flags := rowClassFlags(trigger); {
+	case flags.IsZero():
+	case lockedFamily == 0 || flags.Family != lockedFamily:
 		unsupported = append(unsupported, "the trigger carries a class mask")
+	case !namesASpellOfItsFamily(flags):
+		unsupported = append(unsupported, "the class mask names no spell of its family")
 	}
 
 	for _, bits := range decoded.Unsupported {
@@ -87,6 +96,19 @@ func itemProcUnsupported(trigger *Spell, isWeaponProc bool, isEnchant bool, item
 	}
 
 	return unsupported
+}
+
+// Whether a class mask reaches a spell of its family in the store, which a relic's lock has to: Totem
+// of Flowing Water's 28849 names bit 5 of the shaman family, under which no spell is filed, while
+// Lesser Healing Wave is bit 7, so the lock as the game files state it would hear nothing.
+func namesASpellOfItsFamily(flags core.ClassFlags) bool {
+	for _, s := range All() {
+		if s.ClassFlags.Family == flags.Family && s.ClassFlags.Mask[0]&flags.Mask[0]|s.ClassFlags.Mask[1]&flags.Mask[1]|
+			s.ClassFlags.Mask[2]&flags.Mask[2]|s.ClassFlags.Mask[3]&flags.Mask[3] != 0 {
+			return true
+		}
+	}
+	return false
 }
 
 // The same for a weapon proc, where the game files' 100 and 101 are no answer. Those mean "fires

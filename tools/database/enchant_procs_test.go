@@ -48,7 +48,7 @@ func TestEnchantProcRouting(t *testing.T) {
 			{435467, true, spelldata.ReasonStatesNoRate},
 			{442206, true, "mechanicals"},
 		}},
-		{7223, "Retricutioner: a damage shield", []want{{435901, false, "A_DAMAGE_SHIELD"}}},
+		{7223, "Retricutioner: a damage shield, kept up as an equip aura", []want{{435901, false, ""}}},
 		{7941, "Grand Arcanist: spell power and healing register, the mana beside them is not a stat", []want{{1231152, false, ""}}},
 		{8216, "Insight: a chance, a buff that multiplies Spirit", []want{{1248758, false, ""}}},
 		{8217, "Revelation: 100 beside 'a chance to trigger'", []want{{1248806, false, spelldata.ReasonStatesNoRate}}},
@@ -83,11 +83,34 @@ func TestEnchantProcRouting(t *testing.T) {
 				if w.reason == "" && !r.Supported() {
 					t.Errorf("routing %d is refused (%s), want it registered", i, r.Reason())
 				}
+				if tc.effectID == 7223 && r.Shape != ShapeEquip {
+					t.Errorf("routing %d took shape %v, want the equip aura", i, r.Shape)
+				}
 				if w.reason != "" && !strings.Contains(r.Reason(), w.reason) {
 					t.Errorf("routing %d: reason %q, want it to name %q", i, r.Reason(), w.reason)
 				}
 			}
 		})
+	}
+}
+
+// An equip slot whose row states a proc trigger beside an equip aura kind stays a proc, the way an
+// item's does: a trigger is added to Retricutioner's 435901 in the game files for the test, and the
+// slot leaves the equip aura branch.
+func TestEnchantEquipSlotWithATriggerStaysAProc(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+
+	slot := dbc.EnchantProcSlot{SpellID: 435901}
+	if r := routeEnchantSlot(slot, instance); r.Shape != ShapeEquip {
+		t.Fatalf("Retricutioner's slot took shape %v, want the equip aura", r.Shape)
+	}
+
+	effects := instance.SpellEffects[435901]
+	effects[9] = dbc.SpellEffect{EffectType: dbcenums.E_APPLY_AURA, EffectAura: dbcenums.A_PROC_TRIGGER_SPELL, EffectTriggerSpell: 23781}
+	t.Cleanup(func() { delete(effects, 9) })
+	if r := routeEnchantSlot(slot, instance); r.Shape == ShapeEquip {
+		t.Errorf("a slot whose row states a trigger took the equip aura shape, want it read as a proc")
 	}
 }
 
@@ -232,6 +255,8 @@ func TestTooltipRateWording(t *testing.T) {
 		"Permanently enchant a Weapon to cause all spells and attacks to sometimes deal 76 additional damage": true,
 		"Permanently enchant a Melee Weapon to have a chance to trigger Revelation when a non-periodic spell": true,
 		"healing you for 5% of your maximum health. Cannot occur more often than once every 10 sec.":          false,
+		"Has a chance when struck in combat to increase your chance to block by 18% for 10s.":                 true,
+		"Increases your chance to block by 18%.":                                                              false,
 	} {
 		if got := tooltipStatesAnUnknownRate(tooltip); got != want {
 			t.Errorf("%q: %v, want %v", tooltip, got, want)

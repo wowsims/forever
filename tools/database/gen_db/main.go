@@ -10,6 +10,7 @@ import (
 	"runtime/debug"
 	"slices"
 	"strings"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 
@@ -321,6 +322,7 @@ func main() {
 	}
 	applyRepSources(db, factionNames)
 	db.WriteBinaryAndJson(fmt.Sprintf("%s/db.bin", dbDir), fmt.Sprintf("%s/db.json", dbDir))
+	database.UpdateItemFirstSeen(fmt.Sprintf("%s/item_first_seen.json", dbDir), db.Items, time.Now().Unix())
 }
 
 // Drop sources from NPCs that are not in Forever although their zone is.
@@ -573,14 +575,13 @@ func simmableItemFilter(_ int32, item *proto.UIItem) bool {
 		return false
 	} else if item.Quality >= proto.ItemQuality_ItemQualityHeirloom {
 		return false
-	} else if item.Quality <= proto.ItemQuality_ItemQualityEpic {
-		// TODO: Figure out the appropriate filter
-		// if item.ScalingOptions[0].Ilvl < 60 {
-		// 	return false
-		// }
 	}
 	if item.ScalingOptions[0].Ilvl == 0 {
 		fmt.Printf("Missing ilvl: %s\n", item.Name)
+	}
+	// A level 60 character wears no green below the item effect floor; rares and epics stay at every level.
+	if item.Quality < proto.ItemQuality_ItemQualityRare && item.ScalingOptions[0].Ilvl < core.MinEffectItemLevel {
+		return false
 	}
 
 	return true

@@ -13,7 +13,9 @@ type WeaponProc struct {
 	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N"
 }
 
-// Each rate is a carry-over, as its Source says; none has been measured on this server.
+// Each rate is a carry-over, as its Source says; none has been measured on this server. A hotfix that
+// adds back a weapon whose row was dropped needs the row restored from git history, or the database tests
+// that name the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  12798,
@@ -34,6 +36,20 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 13439,
 		PPM:     3.5, // TODO: Vanilla value - verify in-game
 		Reason:  "Hammer of the Northern Wind: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  870,
+		SpellID: 18796,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Fiery War Axe: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  871,
+		SpellID: 18797,
+		PPM:     1.9, // TODO: Vanilla value - verify in-game
+		Reason:  "Flurry Axe: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -135,6 +151,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  6622,
+		SpellID: 8191,
+		PPM:     1.8, // TODO: Vanilla value - verify in-game
+		Reason:  "Sword of Zeal: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  6660,
 		SpellID: 8348,
 		PPM:     1, // TODO: Vanilla value - verify in-game
@@ -146,6 +169,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 8313,
 		PPM:     1, // TODO: Vanilla value - verify in-game
 		Reason:  "Bite of Serra'kis: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  7730,
+		SpellID: 18204,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Cobalt Crusher: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -167,6 +197,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 11790,
 		PPM:     0.8, // TODO: Vanilla value - verify in-game
 		Reason:  "Toxic Revenger: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  11902,
+		SpellID: 18089,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Linken's Sword of Mastery: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -212,10 +249,24 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  13053,
+		SpellID: 18211,
+		PPM:     0.75, // TODO: Vanilla value - verify in-game
+		Reason:  "Doombringer: no proc row; shares the trigger with Ebon Hand",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  13054,
 		SpellID: 14126,
 		PPM:     0.87, // TODO: Vanilla value - verify in-game
 		Reason:  "Grim Reaper: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13060,
+		SpellID: 16405,
+		PPM:     3, // TODO: Vanilla value - verify in-game
+		Reason:  "The Needler: column reads 101; shares the trigger with Hanzo Sword",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -237,6 +288,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16407,
 		PPM:     1.2, // TODO: Vanilla value - verify in-game
 		Reason:  "Edge of Winter: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  17705,
+		SpellID: 21919,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Thrash Blade: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -295,6 +353,41 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Dark Edge of Insanity: column reads 101",
 		Source:  "vanilla-carryover",
 	},
+	{
+		ItemID:  1982,
+		SpellID: 18211,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Nightblade: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2164,
+		SpellID: 18107,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Gut Ripper: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2243,
+		SpellID: 18803,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Hand of Edward the Odd: column reads 100; vanilla figures differ, 1.0 from 21 procs in 757 hits against 2.0",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  2825,
+		SpellID: 29638,
+		PPM:     3.35, // TODO: Vanilla value - verify in-game
+		Reason:  "Bow of Searing Arrows: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  7717,
+		SpellID: 9632,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Ravager: no proc row",
+		Source:  "vanilla-carryover",
+	},
 	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
 	// has been measured on this server. Replace each with a measured rate (Source wcl:<report>/<fight> or
 	// issue #N) when logs exist.
@@ -338,6 +431,20 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16927,
 		PPM:     1, // TODO: Vanilla value - verify in-game
 		Reason:  "Frostguard: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13035,
+		SpellID: 17511,
+		PPM:     1, // TODO: Vanilla value - verify in-game
+		Reason:  "Serpent Slicer: column reads 101",
+		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  13040,
+		SpellID: 29626,
+		PPM:     3, // TODO: Vanilla value - verify in-game
+		Reason:  "Heartseeking Crossbow: equip trigger, column reads 100",
 		Source:  "vanilla-carryover",
 	},
 	{

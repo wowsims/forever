@@ -210,9 +210,10 @@ func (w *chainWalker) resolveStatsSpell(spellID int) int {
 		}
 	}
 
-	// If we cant resolve the spell in the first loop, we follow proc triggers downwards
+	// If we cant resolve the spell in the first loop, we follow proc triggers downwards. A proc that
+	// deals its own damage names no spell below it, so it is its own.
 	for _, se := range effects {
-		if se.IsProcTrigger() {
+		if se.IsProcTrigger() && se.CastsItsTrigger() {
 			return w.resolveStatsSpell(se.EffectTriggerSpell)
 		}
 	}
@@ -241,6 +242,12 @@ func resolveTriggerType(topType, spellID int) int {
 		if se.IsProcTrigger() {
 			return ITEM_SPELLTRIGGER_CHANCE_ON_HIT
 		}
+	}
+
+	// A dummy proc the server scripts states no trigger aura; the one that fires the resource gain
+	// its tooltip names is a proc all the same. Idol of Longevity's 28847 names 28848.
+	if spelldata.Find(int32(spellID)).FiredSpell() != spelldata.Nil {
+		return ITEM_SPELLTRIGGER_CHANCE_ON_HIT
 	}
 
 	return topType

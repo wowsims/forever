@@ -87,6 +87,12 @@ func (s *Spell) AlwaysHits() bool {
 	return s.HasAttr(dbcenums.ATTR_INDEX_EX_3, dbcenums.ATTR_EX_3_ALWAYS_HIT)
 }
 
+// Whether the game files flag the spell On Next Swing, which casts it in place of the next main-hand
+// swing.
+func (s *Spell) OnNextSwing() bool {
+	return s.HasAttr(dbcenums.ATTR_INDEX_BASE, dbcenums.ATTR_ON_NEXT_SWING)
+}
+
 // Whether the game files flag the spell No Active Defense, which keeps dodge, parry and block out of
 // its hit roll.
 func (s *Spell) NoActiveDefense() bool {

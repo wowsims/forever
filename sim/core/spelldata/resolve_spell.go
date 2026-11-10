@@ -132,6 +132,11 @@ func SpellConfig(unit *core.Unit, s *Spell, opts ...SpellOpt) core.SpellConfig {
 	if s.AppliesBleed() {
 		config.Flags |= core.SpellFlagBleed
 	}
+	// A physical row that deals school damage takes the flat physical damage bonus at its coefficient.
+	if damage.Type == dbcenums.E_SCHOOL_DAMAGE && s.SpellSchool() == core.SpellSchoolPhysical {
+		config.BonusCoefficient = damage.Coeff()
+		config.Flags |= core.SpellFlagPhysicalSchoolDamage
+	}
 
 	// The row first, the caller's options on top, so an option sees what the row filled; the reach is
 	// settled after the options.
@@ -349,6 +354,12 @@ func rowFlags(s *Spell) core.SpellFlag {
 	}
 	if s.NoActiveDefense() {
 		flags |= core.SpellFlagNoActiveDefense
+	}
+	if RequiredHand(s).Matches(core.ProcMaskMeleeMH) {
+		flags |= core.SpellFlagRequiresMainHand
+	}
+	if s.OnNextSwing() {
+		flags |= core.SpellFlagOnNextSwing
 	}
 	// Helpful decides who the APL casts the spell on, so it follows the first effect's target. An
 	// attack whose first effect is a self side-effect reads as helpful here and the caller clears it.

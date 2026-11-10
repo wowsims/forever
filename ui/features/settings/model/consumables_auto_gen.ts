@@ -97,6 +97,7 @@ export const CallOfTheRaptor = { id: 4546 };
 export const LongjawMudSnapper = { id: 4592 };
 export const GoblinFishingPole = { id: 4598 };
 export const LesserStoneshieldPotion = { id: 4623 };
+export const FaintlyGlowingSkull = { id: 4945 };
 export const Stormstout = { id: 4952 };
 export const FertileBulb = { id: 5013 };
 export const RainbowFinAlbacore = { id: 5095 };

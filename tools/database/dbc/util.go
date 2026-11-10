@@ -160,7 +160,6 @@ func processEnchantmentEffects(
 	effectPoints []int,
 	outStats *stats.Stats,
 	outPseudoStats []float64,
-	addRanged bool,
 ) {
 	for i, effect := range effects {
 		switch effect {
@@ -177,11 +176,6 @@ func processEnchantmentEffects(
 			}
 			for _, stat := range mapped {
 				outStats[stat] = float64(effectPoints[i])
-
-				// If the bonus stat is attack power, copy it to ranged attack power
-				if addRanged && stat == proto.Stat_StatAttackPower {
-					outStats[proto.Stat_StatRangedAttackPower] = float64(effectPoints[i])
-				}
 			}
 		case ITEM_ENCHANTMENT_EQUIP_SPELL: //Buff
 			if !EquipSpellFolds(effectArgs[i]) {
@@ -230,7 +224,7 @@ const (
 	FoldRanged
 	// Applied at run time, where the attack's own weapon decides: any other hit or crit aura the parse
 	// binds to a weapon, a rating aura bound to any weapon, whose mask the fold would read as a rating
-	// on every channel, and a damage done aura bound to any weapon.
+	// on every channel, a damage done aura bound to any weapon, and any aura held while equipped.
 	FoldRuntime
 )
 
@@ -241,7 +235,8 @@ func equipFold(s *spelldata.Spell, e *spelldata.Effect) EquipFold {
 		return FoldStats
 	case rule == spelldata.WeaponRuleRangedRatings:
 		return FoldRanged
-	case e.Aura == dbcenums.A_MOD_RATING, e.Aura == dbcenums.A_MOD_DAMAGE_PERCENT_DONE, scope.ProcMask != core.ProcMaskRanged:
+	case rule == spelldata.WeaponRuleWhileEquipped, e.Aura == dbcenums.A_MOD_RATING, e.Aura == dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
+		scope.ProcMask != core.ProcMaskRanged:
 		return FoldRuntime
 	}
 	return FoldRanged

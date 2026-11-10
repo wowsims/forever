@@ -7,9 +7,11 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The damage spell each rank fires on a hit. They carry no rank subtext, so no ladder holds them,
-// and the store carries no row for them, so the proc is built by hand.
-var sealOfRighteousnessProcIDs = map[int32]int32{1: 25742, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
+// The damage spell each rank fires on a hit. No row triggers them and none is on a skill line, so no
+// ladder holds them and the store carries no row for them; the proc is built by hand. Rank 1 is
+// 21084, which fires 25741 (subtext "Rank 1.5"); 25742 ("Rank 1") belongs to the level 1 starter
+// seal 20154, which 21084 supersedes and the ladder leaves out.
+var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4: 25738, 5: 25737, 6: 25736, 7: 25735, 8: 25713}
 
 // Seal of Righteousness
 // https://www.wowhead.com/forever/spell=20293

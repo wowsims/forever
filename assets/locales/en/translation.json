@@ -635,7 +635,17 @@
 			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
-			"area_stats": "Only while the encounter is in one of these areas:"
+			"area_stats": "Only while the encounter is in one of these areas:",
+			"discovered_within_hour": "Discovered less than an hour ago",
+			"discovered_ago": "Discovered {{when}}",
+			"discovered_yesterday": "Discovered yesterday",
+			"discovered_on": "Discovered on {{date}}",
+			"ordinal": {
+				"one": "st",
+				"two": "nd",
+				"few": "rd",
+				"other": "th"
+			}
 		}
 	},
 	"settings_tab": {

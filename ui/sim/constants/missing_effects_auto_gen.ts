@@ -4,21 +4,27 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
+		647, // Destiny
+		[
+			"Increases Strength by 200 for 12s.", // 17152 - https://www.wowhead.com/forever/spell=17152
+		]
+	],
+	[
+		809, // Bloodrazor
+		[
+			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
+		]
+	],
+	[
+		867, // Gloves of Holy Might
+		[
+			"Smite your target for 112 Holy damage. Damage is tripled against Undead.", // 1325229 - https://www.wowhead.com/forever/spell=1325229
+		]
+	],
+	[
 		869, // Dazzling Longsword
 		[
 			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
-		]
-	],
-	[
-		880, // Staff of Horrors
-		[
-			"Damage caused by the target is reduced by 5 for 2min.", // 8552 - https://www.wowhead.com/forever/spell=8552
-		]
-	],
-	[
-		899, // Venom Web Fang
-		[
-			"Poisons target for 3 Nature damage every 3.0 sec for 15s.", // 18077 - https://www.wowhead.com/forever/spell=18077
 		]
 	],
 	[
@@ -34,15 +40,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		1131, // Totem of Infliction
+		940, // Robes of Insight
 		[
-			"When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.", // 16783 - https://www.wowhead.com/forever/spell=16783
+			"Reduces the Mana cost of all spells by 200 for 12s.", // 18820 - https://www.wowhead.com/forever/spell=18820
 		]
 	],
 	[
-		1204, // The Green Tower
+		1168, // Skullflame Shield
 		[
-			"When struck in combat, inflicts 3 Physical damage to the attacker.", // 1325228 - https://www.wowhead.com/forever/spell=1325228
+			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
 		]
 	],
 	[
@@ -55,12 +61,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		1318, // Night Reaver
 		[
 			"Sends a shadowy bolt at the enemy causing 84 Shadow damage.", // 13480 - https://www.wowhead.com/forever/spell=13480
-		]
-	],
-	[
-		1387, // Ghoulfang
-		[
-			"Sends a shadowy bolt at the enemy, causing 100 Shadow damage.", // 1312438 - https://www.wowhead.com/forever/spell=1312438
 		]
 	],
 	[
@@ -88,6 +88,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1490, // Guardian Talisman
+		[
+			"Reduces the range enemies detect you by 10 yds for 15s.", // 1300364 - https://www.wowhead.com/forever/spell=1300364
+		]
+	],
+	[
 		1726, // Poison-tipped Bone Spear
 		[
 			"Poisons target for 30 Nature damage every 6.0 sec for 30s.", // 16401 - https://www.wowhead.com/forever/spell=16401
@@ -100,15 +106,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		2000, // Archeus
+		1986, // Gutrender
 		[
-			"Blasts a target for 85 Arcane damage.", // 18091 - https://www.wowhead.com/forever/spell=18091
+			"Wounds the target for 102 damage.", // 18090 - https://www.wowhead.com/forever/spell=18090
 		]
 	],
 	[
 		2042, // Staff of Westfall
 		[
 			"Movement speed increased by 2% in Elwynn Forest, Westfall, Redridge Mountains, and the Deadmines.", // 1292011 - https://www.wowhead.com/forever/spell=1292011
+		]
+	],
+	[
+		2163, // Shadowblade
+		[
+			"Sends a shadowy bolt at the enemy causing 125 Shadow damage.", // 18138 - https://www.wowhead.com/forever/spell=18138
 		]
 	],
 	[
@@ -124,15 +136,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		2263, // Phytoblade
-		[
-			"Blasts a target for 35 Nature damage.", // 14119 - https://www.wowhead.com/forever/spell=14119
-		]
-	],
-	[
 		2280, // Kam's Walking Stick
 		[
 			"Reduces the duration of all movement impairing effects on you by 10%.", // 1292546 - https://www.wowhead.com/forever/spell=1292546
+		]
+	],
+	[
+		2291, // Kang the Decapitator
+		[
+			"Wounds the target causing them to bleed for 500 damage over 15s.", // 17153 - https://www.wowhead.com/forever/spell=17153
 		]
 	],
 	[
@@ -154,6 +166,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		2915, // Taran Icebreaker
+		[
+			"Hurls a fiery ball that causes 300 Fire damage and an additional 100 damage over 8s.", // 16415 - https://www.wowhead.com/forever/spell=16415
+		]
+	],
+	[
 		2942, // Iron Knuckles
 		[
 			"Pummel the target for 25 damage and interrupt the spell being cast for 5s.", // 13491 - https://www.wowhead.com/forever/spell=13491
@@ -172,27 +190,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		3336, // Flesh Piercer
-		[
-			"Wounds the target causing them to bleed for 30 damage over 30s.", // 18078 - https://www.wowhead.com/forever/spell=18078
-		]
-	],
-	[
 		3416, // Martyr's Chain
 		[
 			"Dying inflicts 420 Holy damage to all enemies within 15 yds.", // 1292746 - https://www.wowhead.com/forever/spell=1292746
 		]
 	],
 	[
-		3748, // Feline Mantle
+		3456, // Dog Whistle
 		[
-			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150
+			"", // 1293501 - https://www.wowhead.com/forever/spell=1293501
 		]
 	],
 	[
-		3822, // Runic Darkblade
+		3748, // Feline Mantle
 		[
-			"Sends a shadowy bolt at the enemy causing 35 Shadow damage.", // 16409 - https://www.wowhead.com/forever/spell=16409
+			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150
 		]
 	],
 	[
@@ -208,27 +220,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		4248, // Dark Leather Gloves
-		[
-			"Increases your lockpicking skill slightly.", // 9133 - https://www.wowhead.com/forever/spell=9133
-		]
-	],
-	[
 		4262, // Gem-studded Leather Belt
 		[
 			"Heal yourself for 300.", // 9163 - https://www.wowhead.com/forever/spell=9163
-		]
-	],
-	[
-		4381, // Minor Recombobulator
-		[
-			"Dispels Polymorph effects on a friendly target. Also restores 270 Health and 128 Mana.", // 18805 - https://www.wowhead.com/forever/spell=18805
-		]
-	],
-	[
-		4444, // Black Husk Shield
-		[
-			"Attempts to cure 1 poison effect on the target, and 1 more poison effect every 2.0 seconds for 8s.", // 14253 - https://www.wowhead.com/forever/spell=14253
 		]
 	],
 	[
@@ -238,21 +232,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		4449, // Naraxis' Fang
-		[
-			"Poisons target for 6 Nature damage every 3.0 sec for 15s.", // 16400 - https://www.wowhead.com/forever/spell=16400
-		]
-	],
-	[
 		4984, // Skull of Impending Doom
 		[
 			"Increase your run speed by 60% for 10s, but deals 300 damage and drains 300 mana every 2 seconds.", // 5024 - https://www.wowhead.com/forever/spell=5024
-		]
-	],
-	[
-		5182, // Shiver Blade
-		[
-			"Blasts a target for 50 Frost damage.", // 18092 - https://www.wowhead.com/forever/spell=18092
 		]
 	],
 	[
@@ -286,33 +268,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		5323, // Everglow Lantern
-		[
-			"Heal your target for 150.", // 14053 - https://www.wowhead.com/forever/spell=14053
-		]
-	],
-	[
 		5443, // Gold-plated Buckler
 		[
 			"After entering combat, reduce the next instance of Physical damage taken within 20s by 15.", // 1291908 - https://www.wowhead.com/forever/spell=1291908
 		]
 	],
 	[
-		5613, // Staff of the Purifier
+		5616, // Gutwrencher
 		[
-			"Purifies the friendly target, removing 1 disease effect and 1 poison effect.", // 14134 - https://www.wowhead.com/forever/spell=14134
+			"Wounds the target causing them to bleed for 77 damage over 7s.", // 1294426 - https://www.wowhead.com/forever/spell=1294426
 		]
 	],
 	[
-		5752, // Wyvern Tailspike
+		5756, // Sliverblade
 		[
-			"Poisons target for 6 Nature damage every 3.0 sec for 15s.", // 16400 - https://www.wowhead.com/forever/spell=16400
-		]
-	],
-	[
-		5815, // Glacial Stone
-		[
-			"Blasts a target for 75 Frost damage.", // 20869 - https://www.wowhead.com/forever/spell=20869
+			"Blasts a target for 63 Frost damage.", // 1293653 - https://www.wowhead.com/forever/spell=1293653
 		]
 	],
 	[
@@ -331,6 +301,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		6323, // Baron's Scepter
 		[
 			"Cause party members within 30 yds to regenerate 4 health every 5 sec.", // 1292142 - https://www.wowhead.com/forever/spell=1292142
+		]
+	],
+	[
+		6331, // Howling Blade
+		[
+			"Reduces target's attack power by 30 for 30s.", // 13490 - https://www.wowhead.com/forever/spell=13490
 		]
 	],
 	[
@@ -361,12 +337,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		6693, // Agamaggan's Clutch
 		[
 			"Increases movement speed by 3% in The Barrens, Thousand Needles, Razorfen Kraul, and Razorfen Downs.", // 1293199 - https://www.wowhead.com/forever/spell=1293199
-		]
-	],
-	[
-		6738, // Bleeding Crescent
-		[
-			"Wounds the target causing them to bleed for 85 damage over 30s.", // 16403 - https://www.wowhead.com/forever/spell=16403
 		]
 	],
 	[
@@ -412,12 +382,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		7052, // Azure Silk Belt
-		[
-			"Increases swim speed by 15%.", // 8747 - https://www.wowhead.com/forever/spell=8747
-		]
-	],
-	[
 		7133, // Brutal Hauberk
 		[
 			"Increase Rage by 30.", // 9174 - https://www.wowhead.com/forever/spell=9174
@@ -430,45 +394,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		7284, // Red Whelp Gloves
-		[
-			"5% chance of dealing 40 Fire damage on a successful melee attack.", // 9057 - https://www.wowhead.com/forever/spell=9057
-		]
-	],
-	[
-		7344, // Torch of Holy Flame
-		[
-			"Decrease the armor of target by 50 for 1min.", // 9176 - https://www.wowhead.com/forever/spell=9176
-		]
-	],
-	[
-		7375, // Green Whelp Armor
-		[
-			"When struck by a melee attacker, that attacker has a 5% chance of being put to sleep for 10s. Only affects enemies level 50 and below.", // 9159 - https://www.wowhead.com/forever/spell=9159
-		]
-	],
-	[
 		7391, // Swift Boots
 		[
 			"Increases run speed by 40% for 15s.", // 9175 - https://www.wowhead.com/forever/spell=9175
-		]
-	],
-	[
-		7506, // Gnomish Universal Remote
-		[
-			"Allows control of a mechanical target for a short time. It may not always work and may just root the machine or make it very very angry. Gnomish engineering at its finest.", // 8344 - https://www.wowhead.com/forever/spell=8344
-		]
-	],
-	[
-		7507, // Arcane Orb
-		[
-			"Restores 160 mana.", // 9252 - https://www.wowhead.com/forever/spell=9252
-		]
-	],
-	[
-		7508, // Ley Orb
-		[
-			"Restores 160 mana.", // 9252 - https://www.wowhead.com/forever/spell=9252
 		]
 	],
 	[
@@ -484,9 +412,33 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		7720, // Whitemane's Chapeau
+		[
+			"Reduces the cast time of spells and effects that revive targets by 20%.", // 1293540 - https://www.wowhead.com/forever/spell=1293540
+		]
+	],
+	[
+		7730, // Cobalt Crusher
+		[
+			"Blasts a target for 133 Frost damage.", // 18204 - https://www.wowhead.com/forever/spell=18204
+		]
+	],
+	[
 		7734, // Six Demon Bag
 		[
 			"Blasts enemies in front of you with the power of wind, fire, all that kind of thing!", // 14537 - https://www.wowhead.com/forever/spell=14537
+		]
+	],
+	[
+		7736, // Fight Club
+		[
+			"Silences an enemy, preventing it from casting spells for 6s.", // 1293654 - https://www.wowhead.com/forever/spell=1293654
+		]
+	],
+	[
+		7753, // Bloodspiller
+		[
+			"Wounds the target causing them to bleed for 250 damage over 10s.", // 18200 - https://www.wowhead.com/forever/spell=18200
 		]
 	],
 	[
@@ -520,9 +472,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		8224, // Silithid Ripper
+		8225, // Tainted Pierce
 		[
-			"Wounds the target causing them to bleed for 85 damage over 30s.", // 16403 - https://www.wowhead.com/forever/spell=16403
+			"Corrupts the target, causing 63 damage over 3s.", // 13530 - https://www.wowhead.com/forever/spell=13530
 		]
 	],
 	[
@@ -532,9 +484,76 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9372, // Sul'thraze the Lasher
+		[
+			"Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage. This additional Shadow damage deals 2 times as much damage to Trolls.", // 1294430 - https://www.wowhead.com/forever/spell=1294430
+		]
+	],
+	[
+		9379, // Sang'thraze the Deflector
+		[
+			"Increases your chance to Parry attacks by 2% for 9s.", // 1294243 - https://www.wowhead.com/forever/spell=1294243
+		]
+	],
+	[
+		9386, // Excavator's Brand
+		[
+			"Hurls a fiery ball that causes 51 Fire damage and an additional 12 damage over 6s.", // 13438 - https://www.wowhead.com/forever/spell=13438
+		]
+	],
+	[
+		9394, // Horned Viking Helmet
+		[
+			"Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target.", // 22641 - https://www.wowhead.com/forever/spell=22641
+		]
+	],
+	[
+		9397, // Energy Cloak
+		[
+			"Restores 320 Mana.", // 1294025 - https://www.wowhead.com/forever/spell=1294025
+		]
+	],
+	[
+		9404, // Olaf's All Purpose Shield
+		[
+			"Reduces your fall speed for 10s.", // 12438 - https://www.wowhead.com/forever/spell=12438
+		]
+	],
+	[
+		9412, // Galgann's Fireblaster
+		[
+			"Strike your ranged target with a Fire Blast for 28 Fire damage.", // 29644 - https://www.wowhead.com/forever/spell=29644
+		]
+	],
+	[
+		9414, // Oilskin Leggings
+		[
+			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
+		]
+	],
+	[
+		9418, // Stoneslayer
+		[
+			"Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 12731 - https://www.wowhead.com/forever/spell=12731
+		]
+	],
+	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
+		]
+	],
+	[
+		9423, // The Jackhammer
+		[
+			"Increases your attack speed by 15% for 10s.", // 13533 - https://www.wowhead.com/forever/spell=13533
+		]
+	],
+	[
+		9425, // Pendulum of Doom
+		[
+			"Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.", // 10373 - https://www.wowhead.com/forever/spell=10373
+			"Each swing alternates your attack speed between 100% faster and 50% slower.", // 1293881 - https://www.wowhead.com/forever/spell=1293881
 		]
 	],
 	[
@@ -562,6 +581,43 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		9465, // Digmaster 5000
+		[
+			"Punctures target's armor, lowering it by 100.", // 1293005 - https://www.wowhead.com/forever/spell=1293005
+		]
+	],
+	[
+		9467, // Gahz'rilla Fang
+		[
+			"Movement can generate Static Electricity.", // 1294477 - https://www.wowhead.com/forever/spell=1294477
+			"Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2 times as much damage to Aquatic enemies.", // 3742 - https://www.wowhead.com/forever/spell=3742
+		]
+	],
+	[
+		9475, // Diabolic Skiver
+		[
+			"Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to targets below 25% health.", // 18206 - https://www.wowhead.com/forever/spell=18206
+		]
+	],
+	[
+		9477, // The Chief's Enforcer
+		[
+			"Deal 294 Physical damage and stun for 1s. Trolls take 2 times as much damage and stun duration.", // 1294339 - https://www.wowhead.com/forever/spell=1294339
+		]
+	],
+	[
+		9478, // Ripsaw
+		[
+			"Wounds the target for 70 Physical damage.", // 1292573 - https://www.wowhead.com/forever/spell=1292573
+		]
+	],
+	[
+		9483, // Flaming Incinerator
+		[
+			"Chance on hit to light the target ablaze, dealing 12 Fire damage over 3s.", // 1294537 - https://www.wowhead.com/forever/spell=1294537
+		]
+	],
+	[
 		9485, // Vibroblade
 		[
 			"Punctures target's armor, lowering it by 100.", // 1293005 - https://www.wowhead.com/forever/spell=1293005
@@ -586,9 +642,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9608, // Shoni's Disarming Tool
+		9511, // Bloodletter Scalpel
 		[
-			"Disarm target's weapon for 5s.", // 11879 - https://www.wowhead.com/forever/spell=11879
+			"Wounds the target for 77 Physical damage.", // 13486 - https://www.wowhead.com/forever/spell=13486
+		]
+	],
+	[
+		9639, // The Hand of Antu'sul
+		[
+			"Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing 42 Nature damage to them. Will affect up to 4 targets.", // 13532 - https://www.wowhead.com/forever/spell=13532
 		]
 	],
 	[
@@ -604,9 +666,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10567, // Quillshooter
+		[
+			"Strike your ranged target with a Quill Shot for 33 Nature damage.", // 29646 - https://www.wowhead.com/forever/spell=29646
+		]
+	],
+	[
 		10588, // Goblin Rocket Helmet
 		[
 			"Charge an enemy, knocking it silly for 30 seconds. Also knocks you down, stunning you for a short period of time. Any damage caused will revive the target.", // 22641 - https://www.wowhead.com/forever/spell=22641
+		]
+	],
+	[
+		10623, // Winter's Bite
+		[
+			"Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.", // 13439 - https://www.wowhead.com/forever/spell=13439
+		]
+	],
+	[
+		10627, // Bludgeon of the Grinning Dog
+		[
+			"Bludgeon the target, dealing 126 Physical damage. Canines and Hyaenidae are stunned and sit for 3s.", // 1300209 - https://www.wowhead.com/forever/spell=1300209
 		]
 	],
 	[
@@ -622,15 +702,69 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		10750, // Lifeforce Dirk
+		[
+			"Heals wielder of 42 damage.", // 1300356 - https://www.wowhead.com/forever/spell=1300356
+		]
+	],
+	[
+		10758, // X'caliboar
+		[
+			"Unleash a mighty swing, dealing 42 Holy damage. Deals 3 times as much damage to Undead and Swine.", // 1293787 - https://www.wowhead.com/forever/spell=1293787
+		]
+	],
+	[
 		10761, // Coldrage Dagger
 		[
 			"Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.", // 1293790 - https://www.wowhead.com/forever/spell=1293790
 		]
 	],
 	[
+		10772, // Glutton's Cleaver
+		[
+			"Wounds the target causing them to bleed for 70 damage over 7s.", // 18075 - https://www.wowhead.com/forever/spell=18075
+		]
+	],
+	[
 		10776, // Silky Spider Cape
 		[
 			"Reduces the duration of all movement impairing effects on you by 7%.", // 1293819 - https://www.wowhead.com/forever/spell=1293819
+		]
+	],
+	[
+		10797, // Firebreather
+		[
+			"Hurls a fiery ball that causes 77 Fire damage and an additional 14 damage over 7s.", // 16413 - https://www.wowhead.com/forever/spell=16413
+		]
+	],
+	[
+		10803, // Blade of the Wretched
+		[
+			"Corrupts the target, causing 90 damage over 3s.", // 18088 - https://www.wowhead.com/forever/spell=18088
+		]
+	],
+	[
+		10804, // Fist of the Damned
+		[
+			"Steals 56 life from target enemy.", // 18084 - https://www.wowhead.com/forever/spell=18084
+		]
+	],
+	[
+		10805, // Eater of the Dead
+		[
+			"Steals 21 life from the target enemy. Deals 3 times as much damage to Undead.", // 1299869 - https://www.wowhead.com/forever/spell=1299869
+		]
+	],
+	[
+		10844, // Spire of Hakkar
+		[
+			"Harmful spell casts have a chance to steal 112 life from the target enemy over 8s.", // 1299943 - https://www.wowhead.com/forever/spell=1299943
+		]
+	],
+	[
+		11086, // Jang'thraze the Protector
+		[
+			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
 		]
 	],
 	[
@@ -652,9 +786,117 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12250, // Midnight Axe
+		11625, // Enthralled Sphere
 		[
-			"Sends a shadowy bolt at the enemy causing 30 Shadow damage.", // 13440 - https://www.wowhead.com/forever/spell=13440
+			"Charm a targeted Dark Iron Dwarf for 20s.", // 1300754 - https://www.wowhead.com/forever/spell=1300754
+		]
+	],
+	[
+		11635, // Hookfang Shanker
+		[
+			"Corrosive acid that deals 13 Nature damage every 2.0 sec and lowers target's armor by 50 for 14s.", // 13526 - https://www.wowhead.com/forever/spell=13526
+		]
+	],
+	[
+		11702, // Grizzle's Skinner
+		[
+			"Skin a Humanoid target.", // 1300763 - https://www.wowhead.com/forever/spell=1300763
+		]
+	],
+	[
+		11744, // Bloodfist
+		[
+			"Wounds the target for 35 damage.", // 16433 - https://www.wowhead.com/forever/spell=16433
+		]
+	],
+	[
+		11750, // Kindling Stave
+		[
+			"Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.", // 1300782 - https://www.wowhead.com/forever/spell=1300782
+		]
+	],
+	[
+		11803, // Force of Magma
+		[
+			"Blasts a target for 182 Fire damage.", // 18086 - https://www.wowhead.com/forever/spell=18086
+		]
+	],
+	[
+		11809, // Flame Wrath
+		[
+			"Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops the caster with a Fire Shield for 15s.", // 16559 - https://www.wowhead.com/forever/spell=16559
+		]
+	],
+	[
+		11810, // Force of Will
+		[
+			"When struck in combat has a chance to reduce all damage taken by 51 for 10s.", // 15595 - https://www.wowhead.com/forever/spell=15595
+		]
+	],
+	[
+		11816, // Angerforge's Battle Axe
+		[
+			"Deal 109 Physical damage. Trolls and Orcs take 2 times as much damage and are horrified for 4s.", // 1300783 - https://www.wowhead.com/forever/spell=1300783
+		]
+	],
+	[
+		11817, // Lord General's Sword
+		[
+			"Increases attack power by 84 for 10s.", // 15602 - https://www.wowhead.com/forever/spell=15602
+		]
+	],
+	[
+		11832, // Burst of Knowledge
+		[
+			"Reduces the Mana cost of all spells by 150 for 10s.", // 15646 - https://www.wowhead.com/forever/spell=15646
+		]
+	],
+	[
+		11920, // Wraith Scythe
+		[
+			"Steals 49 life from target enemy. Deals 2 times as much damage to Undead.", // 16414 - https://www.wowhead.com/forever/spell=16414
+		]
+	],
+	[
+		11923, // The Hammer of Grace
+		[
+			"Dying heals all party members within 40 yds for 1176.", // 1300891 - https://www.wowhead.com/forever/spell=1300891
+		]
+	],
+	[
+		12243, // Smoldering Claw
+		[
+			"Hurls a fiery ball that causes 171 Fire damage and an additional 18 damage over 6s.", // 15662 - https://www.wowhead.com/forever/spell=15662
+		]
+	],
+	[
+		12463, // Drakefang Butcher
+		[
+			"Wounds the target causing them to bleed for 161 damage over 7s. Deals 2 times as much damage to Dragonkin.", // 14118 - https://www.wowhead.com/forever/spell=14118
+		]
+	],
+	[
+		12469, // Mutilator
+		[
+			"Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.", // 10370 - https://www.wowhead.com/forever/spell=10370
+		]
+	],
+	[
+		12528, // The Judge's Gavel
+		[
+			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56
+		]
+	],
+	[
+		12531, // Searing Needle
+		[
+			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
+		]
+	],
+	[
+		12582, // Keris of Zul'Serak
+		[
+			"Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks by 11% for 10s.", // 16528 - https://www.wowhead.com/forever/spell=16528
 		]
 	],
 	[
@@ -673,6 +915,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12781, // Serenity
 		[
 			"Dispels a magic effect on the current foe.", // 16908 - https://www.wowhead.com/forever/spell=16908
+		]
+	],
+	[
+		12791, // Barman Shanker
+		[
+			"Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied while behind the target.", // 1300787 - https://www.wowhead.com/forever/spell=1300787
 		]
 	],
 	[
@@ -706,21 +954,124 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13035, // Serpent Slicer
-		[
-			"Poisons target for 8 Nature damage every 2.0 sec for 20s.", // 17511 - https://www.wowhead.com/forever/spell=17511
-		]
-	],
-	[
 		13057, // Bloodpike
 		[
 			"Wounds the target causing them to bleed for 98 damage over 14s.", // 18202 - https://www.wowhead.com/forever/spell=18202
 		]
 	],
 	[
+		13146, // Shell Launcher Shotgun
+		[
+			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
+		]
+	],
+	[
+		13183, // Venomspitter
+		[
+			"Poisons target for 7 Nature damage every 1.0 sec for 15s.", // 18203 - https://www.wowhead.com/forever/spell=18203
+		]
+	],
+	[
+		13204, // Bashguuder
+		[
+			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
+		]
+	],
+	[
+		13213, // Smolderweb's Eye
+		[
+			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
+		]
+	],
+	[
+		13218, // Fang of the Crystal Spider
+		[
+			"Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.", // 17331 - https://www.wowhead.com/forever/spell=17331
+		]
+	],
+	[
+		13243, // Argent Defender
+		[
+			"Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike you are 2 times as likely to activate this effect.", // 17351 - https://www.wowhead.com/forever/spell=17351
+		]
+	],
+	[
+		13246, // Argent Avenger
+		[
+			"Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.", // 17352 - https://www.wowhead.com/forever/spell=17352
+		]
+	],
+	[
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
+		]
+	],
+	[
+		13285, // The Blackrock Slicer
+		[
+			"Wounds the target for 100 damage and deals an additional 13 damage every 1.0 sec for 10s.", // 17407 - https://www.wowhead.com/forever/spell=17407
+		]
+	],
+	[
+		13286, // Rivenspike
+		[
+			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
+		]
+	],
+	[
+		13379, // Piccolo of the Flaming Fire
+		[
+			"Causes nearby players to dance.", // 18400 - https://www.wowhead.com/forever/spell=18400
+		]
+	],
+	[
+		13382, // Cannonball Runner
+		[
+			"", // 1300668 - https://www.wowhead.com/forever/spell=1300668
+		]
+	],
+	[
+		13401, // The Cruel Hand of Timmy
+		[
+			"Steals 85 life from target enemy.", // 17505 - https://www.wowhead.com/forever/spell=17505
+		]
+	],
+	[
+		13408, // Soul Breaker
+		[
+			"Target enemy loses 10 health and mana every 1.0 sec for 10s.", // 17506 - https://www.wowhead.com/forever/spell=17506
+		]
+	],
+	[
+		13544, // Spectral Essence
+		[
+			"Releases the spirit from an Undead corpse within 10 yds, laying it to rest and restoring 933 Health.", // 1298497 - https://www.wowhead.com/forever/spell=1298497
+		]
+	],
+	[
+		13965, // Blackhand's Breadth
+		[
+			"Marks your target, increasing your Critical Strike chance against them by 5% for 20s. This effect is doubled against Orcs and Ogres.", // 1318944 - https://www.wowhead.com/forever/spell=1318944
+			"", // 1318945 - https://www.wowhead.com/forever/spell=1318945
+		]
+	],
+	[
+		13968, // Eye of the Beast
+		[
+			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
+		]
+	],
+	[
+		14023, // Barov Peasant Caller
+		[
+			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
+		]
+	],
+	[
+		14024, // Frightalon
+		[
+			"Increase the duration of Fear effects applied to the target by 25% for 1min.", // 19755 - https://www.wowhead.com/forever/spell=19755
 		]
 	],
 	[
@@ -742,15 +1093,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		15138, // Onyxia Scale Cloak
+		14487, // Bonechill Hammer
 		[
-			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
+			"Blasts a target for 105 Frost damage.", // 18276 - https://www.wowhead.com/forever/spell=18276
 		]
 	],
 	[
-		15866, // Veildust Medicine Bag
+		15138, // Onyxia Scale Cloak
 		[
-			"Restores 50 mana every 3.0 sec for 15s.", // 19634 - https://www.wowhead.com/forever/spell=19634
+			"Protects the wearer from being fully engulfed by Shadow Flame.", // 22683 - https://www.wowhead.com/forever/spell=22683
 		]
 	],
 	[
@@ -868,9 +1219,40 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17704, // Edge of Winter
+		17730, // Gatorbite Axe
 		[
-			"Blasts a target for 30 Frost damage.", // 16407 - https://www.wowhead.com/forever/spell=16407
+			"Wounds the target causing them to bleed for 210 damage over 7s.", // 21949 - https://www.wowhead.com/forever/spell=21949
+		]
+	],
+	[
+		17738, // Claw of Celebras
+		[
+			"Poisons target for 13 Nature damage every 1.0 sec for 7s.", // 21952 - https://www.wowhead.com/forever/spell=21952
+		]
+	],
+	[
+		17744, // Heart of Noxxion
+		[
+			"Reduces the duration of all poison effects applied to you by 10%.", // 1294777 - https://www.wowhead.com/forever/spell=1294777
+			"Removes 1 poison effect.", // 21954 - https://www.wowhead.com/forever/spell=21954
+		]
+	],
+	[
+		17752, // Satyr's Lash
+		[
+			"Sends a shadowy bolt at the enemy causing 70 Shadow damage.", // 1292155 - https://www.wowhead.com/forever/spell=1292155
+		]
+	],
+	[
+		17753, // Verdant Keeper's Aim
+		[
+			"Strike your target with Keeper's Sting for 28 Nature damage.", // 29655 - https://www.wowhead.com/forever/spell=29655
+		]
+	],
+	[
+		17766, // Princess Theradras' Scepter
+		[
+			"Wounds the target for 168 damage and lowers their armor by 100.", // 21961 - https://www.wowhead.com/forever/spell=21961
 		]
 	],
 	[
@@ -880,9 +1262,63 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18321, // Energetic Rod
+		[
+			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
+		]
+	],
+	[
+		18324, // Waveslicer
+		[
+			"Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.", // 1302166 - https://www.wowhead.com/forever/spell=1302166
+		]
+	],
+	[
+		18354, // Pimgib's Collar
+		[
+			"Restores 9 mana per 5 sec to your Imp.", // 22855 - https://www.wowhead.com/forever/spell=22855
+		]
+	],
+	[
+		18388, // Stoneshatter
+		[
+			"Shatter the target, dealing 49 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 1302279 - https://www.wowhead.com/forever/spell=1302279
+		]
+	],
+	[
+		18396, // Mind Carver
+		[
+			"Chance on landing a damaging spell to assault the target's mind, increasing the casting time of all spells by 10% for 30s. Stacks up to 5 times.", // 1302342 - https://www.wowhead.com/forever/spell=1302342
+		]
+	],
+	[
 		18406, // Onyxia Blood Talisman
 		[
 			"Reduces your magic damage taken from Dragon Breath spells by 33% for 15s.", // 1287808 - https://www.wowhead.com/forever/spell=1287808
+		]
+	],
+	[
+		18410, // Sprinter's Sword
+		[
+			"Increases run speed by 35% for 10s.", // 22863 - https://www.wowhead.com/forever/spell=22863
+		]
+	],
+	[
+		18411, // Spry Boots
+		[
+			"Minor increase to running and swimming speed. Does not stack with similar effects.", // 24090 - https://www.wowhead.com/forever/spell=24090
+		]
+	],
+	[
+		18463, // Ogre Pocket Knife
+		[
+			"Increases the chance your Pick Pocket and Distract abilities are successful by 2%.", // 1302345 - https://www.wowhead.com/forever/spell=1302345
+		]
+	],
+	[
+		18537, // Counterattack Lodestone
+		[
+			"Energize the lodestone for 10s, heightening its magnetic pull and drawing in the weapon of the next melee attacker that strikes you, Disarming them for 8s.", // 1302356 - https://www.wowhead.com/forever/spell=1302356
 		]
 	],
 	[
@@ -946,12 +1382,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		19345, // Aegis of Preservation
-		[
-			"Increases armor by 500, and heals 35 damage every time you take ranged or melee damage for 20s.", // 23780 - https://www.wowhead.com/forever/spell=23780
-		]
-	],
-	[
 		19588, // Hero's Brand
 		[
 			"Increases the duration of Hammer of Justice by 0.5 sec.", // 24188 - https://www.wowhead.com/forever/spell=24188
@@ -985,6 +1415,36 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
+		]
+	],
+	[
+		19982, // Duskbat Drape
+		[
+			"Reduces damage from falling.", // 1300663 - https://www.wowhead.com/forever/spell=1300663
+		]
+	],
+	[
+		19991, // Devilsaur Eye
+		[
+			"Your next melee or ranged attack within 10s will Root the target for 2s. The duration of this effect is doubled if the target was moving. Only works against Beasts.", // 24352 - https://www.wowhead.com/forever/spell=24352
+		]
+	],
+	[
+		19992, // Devilsaur Tooth
+		[
+			"Reduces the Mana cost of your next Revive Pet cast within 30s by 100%.", // 24353 - https://www.wowhead.com/forever/spell=24353
+		]
+	],
+	[
+		20035, // Glacial Spike
+		[
+			"Your Frostbolt spells have a 6% chance to restore 50 mana when cast.", // 24392 - https://www.wowhead.com/forever/spell=24392
+		]
+	],
+	[
+		20036, // Fire Ruby
+		[
+			"Refreshes the cooldown of Fire Ward and causes Fire damage absorbed by it to increase the damage of your next Fire Blast cast within 1min by 50% of the damage absorbed.", // 24389 - https://www.wowhead.com/forever/spell=24389
 		]
 	],
 	[
@@ -1156,6 +1616,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		20130, // Diamond Flask
+		[
+			"", // 1318073 - https://www.wowhead.com/forever/spell=1318073
+		]
+	],
+	[
 		20154, // Defiler's Chain Greaves
 		[
 			"Run speed increased slightly.", // 23990 - https://www.wowhead.com/forever/spell=23990
@@ -1324,6 +1790,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		20503, // Enamored Water Spirit
+		[
+			"", // 1300667 - https://www.wowhead.com/forever/spell=1300667
+		]
+	],
+	[
+		20534, // Abyss Shard
+		[
+			"Casts your Summon Voidwalker spell with no mana or Soul Shard requirements.", // 25112 - https://www.wowhead.com/forever/spell=25112
+		]
+	],
+	[
 		21119, // Talisman of Arathor
 		[
 			"Absorbs 308 physical damage. Lasts 15s.", // 25750 - https://www.wowhead.com/forever/spell=25750
@@ -1366,21 +1844,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22060, // Beastmaster's Tunic
-		[
-			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
-		]
-	],
-	[
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559
 		]
 	],
 	[
-		22206, // Bouquet of Red Roses
+		22321, // Heart of Wyrmthalak
 		[
-			"Shower a nearby target with a cascade of rose petals!", // 27571 - https://www.wowhead.com/forever/spell=27571
+			"Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.", // 27655 - https://www.wowhead.com/forever/spell=27655
+		]
+	],
+	[
+		22395, // Totem of Rage
+		[
+			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
 		]
 	],
 	[
@@ -1390,9 +1868,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22397, // Idol of Ferocity
+		[
+			"Reduces the energy cost of Claw, Rake, and Mangle by 2.", // 27851 - https://www.wowhead.com/forever/spell=27851
+		]
+	],
+	[
+		22400, // Libram of Truth
+		[
+			"Reduces the Mana cost of Purify and Cleanse by 10%.", // 27850 - https://www.wowhead.com/forever/spell=27850
+		]
+	],
+	[
 		22402, // Libram of Grace
 		[
 			"Reduces the mana cost of your Cleanse spell by 25.", // 27847 - https://www.wowhead.com/forever/spell=27847
+		]
+	],
+	[
+		22458, // Moonshadow Stave
+		[
+			"Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.", // 1300435 - https://www.wowhead.com/forever/spell=1300435
 		]
 	],
 	[
@@ -1420,15 +1916,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		23004, // Idol of Longevity
+		23200, // Totem of Sustaining
 		[
-			"Gain up to 25 mana each time you cast Healing Touch.", // 28847 - https://www.wowhead.com/forever/spell=28847
+			"Increases the maximum number of charges on your Water Shield by 1.", // 28856 - https://www.wowhead.com/forever/spell=28856
 		]
 	],
 	[
-		23005, // Totem of Flowing Water
+		23201, // Libram of Divinity
 		[
-			"Regain up to 10 mana each time you cast Lesser Healing Wave.", // 28849 - https://www.wowhead.com/forever/spell=28849
+			"Causes Judgement to heal all nearby party members for 25.", // 1302540 - https://www.wowhead.com/forever/spell=1302540
 		]
 	],
 	[
@@ -1498,6 +1994,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		260308, // Hyjal Postal Clasp
+		[
+			"Increases running and swimming speed by 5%.", // 1284734 - https://www.wowhead.com/forever/spell=1284734
+		]
+	],
+	[
 		260819, // EZ-Thro Field Transporter: Gadgetzan
 		[
 			"Safely transport yourself to Gadgetzan in Tanaris! Emphasis on Safe! Yup, nothing bad could ever happen while using this device!", // 23453 - https://www.wowhead.com/forever/spell=23453
@@ -1516,27 +2018,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		263411, // Idol of Shifting Tides
-		[
-			"Reduces the mana cost of shapeshifting spells by 40.", // 1270470 - https://www.wowhead.com/forever/spell=1270470
-		]
-	],
-	[
-		263436, // Firestorm Totem
-		[
-			"Reduces the mana cost of your totems by 5%.", // 1270492 - https://www.wowhead.com/forever/spell=1270492
-		]
-	],
-	[
 		267369, // Wolfsbane
 		[
 			"Sear the target with a vortex of blazing wind, dealing 49 Holystorm damage. Deals 3 times as much damage to Wolves and Worgen.", // 1282503 - https://www.wowhead.com/forever/spell=1282503
-		]
-	],
-	[
-		268484, // Moonsilver Blade
-		[
-			"Sear certain enchanted targets with blazing light causing them to take additional damage from Holy attacks and spells.", // 1282482 - https://www.wowhead.com/forever/spell=1282482
 		]
 	],
 	[
@@ -1550,6 +2034,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		[
 			"Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.", // 1318324 - https://www.wowhead.com/forever/spell=1318324
 			"Charm target Furbolg for 20s. Only works on targets not in combat.", // 1296664 - https://www.wowhead.com/forever/spell=1296664
+		]
+	],
+	[
+		271718, // Linken's Boots of Iron
+		[
+			"", // 1289404 - https://www.wowhead.com/forever/spell=1289404
 		]
 	],
 	[
@@ -1901,6 +2391,24 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274265, // Brush Cutter
+		[
+			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
+		]
+	],
+	[
+		274270, // Weed Whacker
+		[
+			"Assault the target with a dangerous toxin, dealing 126 Nature damage. Deals 3 times as much damage to Plants.", // 1293568 - https://www.wowhead.com/forever/spell=1293568
+		]
+	],
+	[
+		274271, // Deadhead Blade
+		[
+			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
+		]
+	],
+	[
 		274290, // Painwalker Buckler
 		[
 			"17% chance when struck in combat to gain 12 mana per 5 sec for 10s.", // 1293700 - https://www.wowhead.com/forever/spell=1293700
@@ -1913,9 +2421,33 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274747, // Soggy Boots
+		274425, // White Obsidian Wand
 		[
-			"", // 1295267 - https://www.wowhead.com/forever/spell=1295267
+			"Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.", // 1294058 - https://www.wowhead.com/forever/spell=1294058
+		]
+	],
+	[
+		274430, // Rock Sentinel Slicer
+		[
+			"While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.", // 1294065 - https://www.wowhead.com/forever/spell=1294065
+		]
+	],
+	[
+		274484, // Axe of Inevitable Ruin
+		[
+			"Wounds the target for 168 damage.", // 1294226 - https://www.wowhead.com/forever/spell=1294226
+		]
+	],
+	[
+		274647, // Farraki Kris
+		[
+			"Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0 sec for 6s.", // 1294645 - https://www.wowhead.com/forever/spell=1294645
+		]
+	],
+	[
+		274651, // Zealot Plate
+		[
+			"When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once every 15 sec.", // 1294666 - https://www.wowhead.com/forever/spell=1294666
 		]
 	],
 	[
@@ -1926,9 +2458,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		274952, // Jom-jom's Gabbar
+		[
+			"Launch a boulder, dealing 98 Physical damage.", // 1295736 - https://www.wowhead.com/forever/spell=1295736
+		]
+	],
+	[
 		274963, // Rot-Covered Harpoon
 		[
 			"Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.", // 1295744 - https://www.wowhead.com/forever/spell=1295744
+		]
+	],
+	[
+		275009, // Emblem of Slamming
+		[
+			"Stuns target and yourself for 3s. Ogres are Stunned for 5s and refund 50% of the cooldown.", // 1315972 - https://www.wowhead.com/forever/spell=1315972
 		]
 	],
 	[
@@ -1986,9 +2530,21 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		276895, // Transformative Cocoon
+		276743, // Fingerbreaker Stamp
 		[
-			"", // 1316049 - https://www.wowhead.com/forever/spell=1316049
+			"Increases Strength by 38 while affected by a Bleed.", // 1314784 - https://www.wowhead.com/forever/spell=1314784
+		]
+	],
+	[
+		276744, // Zarla's Snack Pouch
+		[
+			"", // 1318104 - https://www.wowhead.com/forever/spell=1318104
+		]
+	],
+	[
+		277559, // Shen'dralar Relic
+		[
+			"Dispel 1 beneficial magic effect from the target enemy and 1 additional magic effect every 4.0 sec for 8s.", // 1302359 - https://www.wowhead.com/forever/spell=1302359
 		]
 	],
 	[
@@ -2022,15 +2578,33 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		279876, // Plaguefang
+		279891, // Guidance of Ursoc
 		[
-			"Poisons target for 2 Nature damage every 1.0 sec for 10s.", // 1309315 - https://www.wowhead.com/forever/spell=1309315
+			"Movement speed increased by 2% in Forest and Grassland areas.", // 1308520 - https://www.wowhead.com/forever/spell=1308520
 		]
 	],
 	[
 		279895, // Ironforge Greathammer
 		[
 			"Blasts a target for 42 Fire damage.", // 1322295 - https://www.wowhead.com/forever/spell=1322295
+		]
+	],
+	[
+		280032, // Bolt's Charged Eyeball
+		[
+			"Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3 times as much damage to Dinosaurs.", // 1311505 - https://www.wowhead.com/forever/spell=1311505
+		]
+	],
+	[
+		280074, // Scalding Flamehoof
+		[
+			"Increases Fire damage taken by 14% and movement speed by 14% for 20s.", // 1309551 - https://www.wowhead.com/forever/spell=1309551
+		]
+	],
+	[
+		280080, // Claymore of Two Moons
+		[
+			"Your attacks have a chance to Wax, dealing 189 Arcane damage or Wane, granting 40 Strength for 10s.", // 1309550 - https://www.wowhead.com/forever/spell=1309550
 		]
 	],
 	[
@@ -2046,15 +2620,27 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		282703, // Needletooth's Needletooth
+		282632, // Scalding Staff
 		[
-			"Puncture the target, inflicting 21 Physical damage.", // 1314305 - https://www.wowhead.com/forever/spell=1314305
+			"Blast the enemy, inflicting 70 Fire damage.", // 1314069 - https://www.wowhead.com/forever/spell=1314069
 		]
 	],
 	[
-		284193, // Moongazer's Wand
+		284040, // Cliff Jumpers
 		[
-			"Increases intellect by 5 at night.", // 1315339 - https://www.wowhead.com/forever/spell=1315339
+			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150
+		]
+	],
+	[
+		284050, // High Elf's Recurve
+		[
+			"Strike your target with a Poisonous Sting, inflicting 27 damage every 3 sec for 9s.", // 1314888 - https://www.wowhead.com/forever/spell=1314888
+		]
+	],
+	[
+		284262, // Howling Hide
+		[
+			"Reduces the target enemy's attack power by 60 for 30s.", // 1315767 - https://www.wowhead.com/forever/spell=1315767
 		]
 	],
 	[
@@ -2064,27 +2650,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		285089, // Swamp Roamer's Band
-		[
-			"Increases movement speed by 3% in Dustwallow Marsh and Swamp of Sorrows.", // 1317486 - https://www.wowhead.com/forever/spell=1317486
-		]
-	],
-	[
 		285102, // Darkmist Dirk
 		[
 			"Your attacks have a high chance to poison the target for 8 Nature damage every 3.0 sec for 9s.", // 1317583 - https://www.wowhead.com/forever/spell=1317583
-		]
-	],
-	[
-		285275, // Satchel of Copper Bombs
-		[
-			"Thrown attacks explode on impact, causing 6 Fire damage to nearby enemies.", // 1318031 - https://www.wowhead.com/forever/spell=1318031
-		]
-	],
-	[
-		285276, // Satchel of Bronze Bombs
-		[
-			"Thrown attacks explode on impact, causing 11 Fire damage to nearby enemies.", // 1318061 - https://www.wowhead.com/forever/spell=1318061
 		]
 	],
 	[
@@ -2100,21 +2668,63 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		286537, // Thunderstomp's Horn
+		286430, // Toofbreaker
 		[
-			"Thunderstomp nearby enemies, inflicting 23 Nature damage.", // 1320498 - https://www.wowhead.com/forever/spell=1320498
+			"Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.", // 1320269 - https://www.wowhead.com/forever/spell=1320269
 		]
 	],
 	[
-		286541, // Bael'dun Tankard
+		286556, // Winds of Tanaris
 		[
-			"Restores 1345 mana over 27s. Must remain seated while drinking.", // 1133 - https://www.wowhead.com/forever/spell=1133
+			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
+		]
+	],
+	[
+		286616, // Matriarch's Prowlers
+		[
+			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
+		]
+	],
+	[
+		286646, // Gill's Gills
+		[
+			"Underwater Breath lasts 50% longer than normal.", // 11789 - https://www.wowhead.com/forever/spell=11789
+		]
+	],
+	[
+		286650, // Pyromancer's Baton
+		[
+			"Burns the target for 30 Fire damage every 3.0 sec for 9s.", // 1320925 - https://www.wowhead.com/forever/spell=1320925
 		]
 	],
 	[
 		286982, // Unearthed Barrier
 		[
 			"Deals 22 Nature damage every time you block. Damage is doubled in swamps.", // 1324685 - https://www.wowhead.com/forever/spell=1324685
+		]
+	],
+	[
+		286998, // Deep Flora Bindings
+		[
+			"Underwater Breath lasts 25% longer than normal.", // 1324752 - https://www.wowhead.com/forever/spell=1324752
+		]
+	],
+	[
+		287005, // Sword of Dismemberment
+		[
+			"Dismember the target, inflicting 670 Physical damage.", // 1324687 - https://www.wowhead.com/forever/spell=1324687
+		]
+	],
+	[
+		287025, // Enchantresses' Spire
+		[
+			"Reduces the cast time of Disenchant by 25%.", // 1324981 - https://www.wowhead.com/forever/spell=1324981
+		]
+	],
+	[
+		287026, // Escape Plan
+		[
+			"Disarm target's weapon for 10s.", // 13534 - https://www.wowhead.com/forever/spell=13534
 		]
 	],
 	[
@@ -2127,18 +2737,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 
 export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 	[
-		43, // Iron Shield Spike
-		[
-			"Attaches an Iron Spike to your shield that deals damage every time you block with it.", // 9784 - https://www.wowhead.com/forever/spell=9784
-		]
-	],
-	[
-		463, // Mithril Shield Spike
-		[
-			"Attaches a Mithril Spike to your shield that deals damage every time you block with it.", // 9782 - https://www.wowhead.com/forever/spell=9782
-		]
-	],
-	[
 		803, // Enchant Weapon - Fiery Weapon
 		[
 			"Permanently enchant a melee weapon to often strike for 40 additional fire damage.", // 13897 - https://www.wowhead.com/forever/spell=13897
@@ -2148,12 +2746,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		912, // Enchant Weapon - Demonslaying
 		[
 			"Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.", // 13907 - https://www.wowhead.com/forever/spell=13907
-		]
-	],
-	[
-		1704, // Thorium Shield Spike
-		[
-			"Attaches a Thorium Spike to your shield that deals damage every time you block with it.", // 16624 - https://www.wowhead.com/forever/spell=16624
 		]
 	],
 	[
@@ -2181,12 +2773,6 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		7223, // Enchant Chest - Retricutioner
-		[
-			"Teaches you how to permanently enchant a piece of chest armor to reflect 9 damage back to the attacker when the bearer is struck in Melee. ", // 435901 - https://www.wowhead.com/forever/spell=435901
-		]
-	],
-	[
 		7940, // Enchant Weapon - Grand Crusader
 		[
 			"Permanently enchant a melee weapon so that often when attacking in melee it heals for 400 and increases Strength by 120 for 20s.", // 1231124 - https://www.wowhead.com/forever/spell=1231124
@@ -2208,6 +2794,133 @@ export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 
 // Keyed by set id, then by the bonus's piece count; the tooltips of the spells the sim leaves out.
 export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
+	[
+		1, // The Gladiator
+		new Map([
+			[
+				2,
+				[
+					"Reduces the hit chance of Fear effects against you by 8%.", // 1301126 - https://www.wowhead.com/forever/spell=1301126
+				],
+			],
+			[
+				3,
+				[
+					"+20 Attack Power.", // 9331 - https://www.wowhead.com/forever/spell=9331
+				],
+			],
+			[
+				4,
+				[
+					"Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as likely to activate this effect.", // 1301123 - https://www.wowhead.com/forever/spell=1301123
+				],
+			],
+			[
+				5,
+				[
+					"Improves your chance to get a critical strike by 1.0%.", // 1314795 - https://www.wowhead.com/forever/spell=1314795
+				],
+			],
+		]),
+	],
+	[
+		65, // Spider's Kiss
+		new Map([
+			[
+				2,
+				[
+					"Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.", // 17332 - https://www.wowhead.com/forever/spell=17332
+				],
+			],
+		]),
+	],
+	[
+		122, // Necropile Raiment
+		new Map([
+			[
+				2,
+				[
+					"Improves your chance to hit by 0.5%.", // 1299734 - https://www.wowhead.com/forever/spell=1299734
+				],
+			],
+			[
+				3,
+				[
+					"Harmful spell casts have a chance to steal 28 life from the target enemy.", // 1299737 - https://www.wowhead.com/forever/spell=1299737
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
+				],
+			],
+		]),
+	],
+	[
+		123, // Bloodmail Regalia
+		new Map([
+			[
+				2,
+				[
+					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
+				],
+			],
+			[
+				3,
+				[
+					"Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.", // 1299740 - https://www.wowhead.com/forever/spell=1299740
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Improves your chance to get a critical strike by 1.5%.", // 1299738 - https://www.wowhead.com/forever/spell=1299738
+				],
+			],
+		]),
+	],
+	[
+		124, // Deathbone Guardian
+		new Map([
+			[
+				2,
+				[
+					"Increased Defense +3.", // 7516 - https://www.wowhead.com/forever/spell=7516
+				],
+			],
+			[
+				3,
+				[
+					"Grants a chance when struck in combat to increase damage and healing done by magical spells and effects by up to 70 for 10s.", // 1299743 - https://www.wowhead.com/forever/spell=1299743
+				],
+			],
+			[
+				4,
+				[
+					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
+				],
+			],
+			[
+				5,
+				[
+					"Reduces the chance for your attacks to be dodged or parried by 2%.", // 1213289 - https://www.wowhead.com/forever/spell=1213289
+				],
+			],
+		]),
+	],
 	[
 		141, // Volcanic Armor
 		new Map([
@@ -3681,263 +4394,36 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		511, // Battlegear of Heroism
+		520, // Ironweave Battlesuit
 		new Map([
 			[
 				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"Chance on melee attack to heal you for 110.", // 27419 - https://www.wowhead.com/forever/spell=27419
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				8,
 				[
 					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
 				],
 			],
-		]),
-	],
-	[
-		512, // Darkmantle Armor
-		new Map([
 			[
-				2,
+				3,
 				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
+					"Decreases the magical resistances of your spell targets by 5.", // 26283 - https://www.wowhead.com/forever/spell=26283
 				],
 			],
 			[
 				4,
 				[
-					"Chance on melee attack to restore 20 Energy.", // 27787 - https://www.wowhead.com/forever/spell=27787
+					"Reduces the hit chance of Silence and Interrupt effects against you by 10%.", // 27733 - https://www.wowhead.com/forever/spell=27733
 				],
 			],
 			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		513, // Feralheart Raiment
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a chance of returning 300 mana, 10 rage, or 40 energy to the wearer.", // 27781 - https://www.wowhead.com/forever/spell=27781
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 15.", // 9344 - https://www.wowhead.com/forever/spell=9344
-					"+26 Attack Power.", // 9334 - https://www.wowhead.com/forever/spell=9334
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		514, // Vestments of the Virtuous
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a 2% chance of shielding the wearer in a protective shield which will absorb 488 damage. Can only occur once every 60 sec.", // 27778 - https://www.wowhead.com/forever/spell=27778
-				],
-			],
-			[
-				6,
+				5,
 				[
 					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
 				],
 			],
 			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		515, // Beastmaster Armor
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"Your normal ranged attacks have a 4% chance of restoring 200 mana.", // 27785 - https://www.wowhead.com/forever/spell=27785
-				],
-			],
-			[
 				6,
 				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		516, // Soulforge Armor
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"Chance on melee attack to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 27498 - https://www.wowhead.com/forever/spell=27498
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		517, // Sorcerer's Regalia
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		518, // Deathmist Raiment
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"When struck in combat has a 2% chance of causing the attacker to flee in terror for 2s. Can only occur once every 60 sec.", // 27780 - https://www.wowhead.com/forever/spell=27780
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-		]),
-	],
-	[
-		519, // The Five Thunders
-		new Map([
-			[
-				2,
-				[
-					"+8 All Resistances.", // 18679 - https://www.wowhead.com/forever/spell=18679
-				],
-			],
-			[
-				4,
-				[
-					"Chance on spell cast to increase your damage and healing by up to 65 for 10s.", // 27774 - https://www.wowhead.com/forever/spell=27774
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				8,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
+					"The Ironweave hardens under duress, reducing damage taken while Stunned by 15%.", // 1302374 - https://www.wowhead.com/forever/spell=1302374
 				],
 			],
 		]),
@@ -4411,6 +4897,135 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
+				],
+			],
+		]),
+	],
+	[
+		1667, // Feralheart Raiment
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat, has a 5% chance to increase your movement speed by 10% for 8s. Can only occur once every 60 sec.", // 1302708 - https://www.wowhead.com/forever/spell=1302708
+				],
+			],
+		]),
+	],
+	[
+		1669, // Beastmaster Armor
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
+				],
+			],
+		]),
+	],
+	[
+		1671, // Sorcerer's Regalia
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat has a 2% chance of freezing the attacker in place for 3s. Can only occur once every 60 sec.", // 27867 - https://www.wowhead.com/forever/spell=27867
+				],
+			],
+		]),
+	],
+	[
+		1673, // Soulforge Armor
+		new Map([
+			[
+				4,
+				[
+					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450625 - https://www.wowhead.com/forever/spell=450625
+				],
+			],
+			[
+				5,
+				[
+					"When struck by a harmful spell, has a 7% chance of Silencing the caster for 3s. Can only occur once every 60 sec.", // 1302716 - https://www.wowhead.com/forever/spell=1302716
+				],
+			],
+		]),
+	],
+	[
+		1675, // Vestments of the Virtuous
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat has a 2% chance of shielding the wearer in a protective shield which will absorb 488 damage. Can only occur once every 60 sec.", // 27778 - https://www.wowhead.com/forever/spell=27778
+				],
+			],
+		]),
+	],
+	[
+		1676, // Darkmantle Armor
+		new Map([
+			[
+				3,
+				[
+					"Restores 15 health per 5 sec.", // 21347 - https://www.wowhead.com/forever/spell=21347
+				],
+			],
+			[
+				5,
+				[
+					"When struck in combat, has a 5% chance to remove a Snare effect from yourself. Can only occur once every 60 sec.", // 1302698 - https://www.wowhead.com/forever/spell=1302698
+				],
+			],
+		]),
+	],
+	[
+		1679, // The Five Thunders
+		new Map([
+			[
+				4,
+				[
+					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450626 - https://www.wowhead.com/forever/spell=450626
+				],
+			],
+			[
+				5,
+				[
+					"When struck in melee combat, has a 5% chance of Disarming the attacker for 4s. Can only occur once every 60 sec.", // 1302718 - https://www.wowhead.com/forever/spell=1302718
+				],
+			],
+		]),
+	],
+	[
+		1681, // Deathmist Raiment
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat has a 2% chance of causing the attacker to flee in terror for 2s. Can only occur once every 60 sec.", // 27780 - https://www.wowhead.com/forever/spell=27780
+				],
+			],
+		]),
+	],
+	[
+		1778, // Battlegear of Heroism
+		new Map([
+			[
+				3,
+				[
+					"Restores 15 health per 5 sec.", // 21347 - https://www.wowhead.com/forever/spell=21347
+				],
+			],
+			[
+				4,
+				[
+					"Chance on melee attack to heal for 110 and generate 10 Rage", // 450587 - https://www.wowhead.com/forever/spell=450587
+				],
+			],
+			[
+				5,
+				[
+					"When struck in combat, has a 10% chance to remove a Disarm effect from yourself. Can only occur once every 60 sec.", // 1302721 - https://www.wowhead.com/forever/spell=1302721
 				],
 			],
 		]),
@@ -5277,6 +5892,23 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
+		2130, // Rider of the Plaguelands
+		new Map([
+			[
+				2,
+				[
+					"Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.", // 1315080 - https://www.wowhead.com/forever/spell=1315080
+				],
+			],
+			[
+				3,
+				[
+					"Chance on melee attack to lash the target, inflicting 140 Shadow damage.", // 1315077 - https://www.wowhead.com/forever/spell=1315077
+				],
+			],
+		]),
+	],
+	[
 		2131, // Partners in Crime
 		new Map([
 			[
@@ -5386,6 +6018,35 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 			],
 		]),
 	],
+	[
+		2136, // Defias Enforcer's Garb
+		new Map([
+			[
+				2,
+				[
+					"+10 Fire Resistance.", // 1324673 - https://www.wowhead.com/forever/spell=1324673
+				],
+			],
+			[
+				3,
+				[
+					"+15 Stamina.", // 1324674 - https://www.wowhead.com/forever/spell=1324674
+				],
+			],
+			[
+				4,
+				[
+					"Increased Swords +1.", // 1324675 - https://www.wowhead.com/forever/spell=1324675
+				],
+			],
+			[
+				5,
+				[
+					"Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled in swamps.", // 1324684 - https://www.wowhead.com/forever/spell=1324684
+				],
+			],
+		]),
+	],
 ])
 
 // A proc rate the game files do not state and nobody has measured on Forever, and where it comes from.
@@ -5394,26 +6055,31 @@ export type UnvalidatedRate = { kind: 'ppm' | 'chance'; origin: 'vanilla' | 'tbc
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
-	[880, { kind: 'ppm', origin: 'vanilla' }], // Staff of Horrors
-	[899, { kind: 'ppm', origin: 'vanilla' }], // Venom Web Fang
+	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
+	[871, { kind: 'ppm', origin: 'vanilla' }], // Flurry Axe
 	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
 	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear
-	[2000, { kind: 'ppm', origin: 'vanilla' }], // Archeus
+	[1982, { kind: 'ppm', origin: 'vanilla' }], // Nightblade
+	[2164, { kind: 'ppm', origin: 'vanilla' }], // Gut Ripper
+	[2243, { kind: 'ppm', origin: 'vanilla' }], // Hand of Edward the Odd
 	[2256, { kind: 'ppm', origin: 'vanilla' }], // Skeletal Club
+	[2825, { kind: 'ppm', origin: 'vanilla' }], // Bow of Searing Arrows
 	[2912, { kind: 'ppm', origin: 'vanilla' }], // Claw of the Shadowmancer
 	[2942, { kind: 'ppm', origin: 'vanilla' }], // Iron Knuckles
-	[3336, { kind: 'ppm', origin: 'vanilla' }], // Flesh Piercer
 	[4090, { kind: 'ppm', origin: 'vanilla' }], // Mug O' Hurt
-	[5182, { kind: 'ppm', origin: 'vanilla' }], // Shiver Blade
 	[6220, { kind: 'ppm', origin: 'vanilla' }], // Meteor Shard
 	[6472, { kind: 'ppm', origin: 'vanilla' }], // Stinging Viper
+	[6622, { kind: 'ppm', origin: 'vanilla' }], // Sword of Zeal
 	[6660, { kind: 'ppm', origin: 'vanilla' }], // Julie's Dagger
 	[6904, { kind: 'ppm', origin: 'vanilla' }], // Bite of Serra'kis
+	[7717, { kind: 'ppm', origin: 'vanilla' }], // Ravager
+	[7730, { kind: 'ppm', origin: 'vanilla' }], // Cobalt Crusher
 	[7961, { kind: 'ppm', origin: 'vanilla' }], // Phantom Blade
 	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
 	[9453, { kind: 'ppm', origin: 'vanilla' }], // Toxic Revenger
 	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
+	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
 	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', origin: 'vanilla' }], // Arcanite Champion
 	[12792, { kind: 'ppm', origin: 'vanilla' }], // Volcanic Hammer
@@ -5425,14 +6091,18 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12992, { kind: 'ppm', origin: 'vanilla' }], // Searing Blade
 	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
 	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
+	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
+	[13040, { kind: 'ppm', origin: 'vanilla' }], // Heartseeking Crossbow
 	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
+	[13053, { kind: 'ppm', origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper
+	[13060, { kind: 'ppm', origin: 'vanilla' }], // The Needler
 	[15814, { kind: 'ppm', origin: 'vanilla' }], // Hameya's Slayer
 	[17073, { kind: 'ppm', origin: 'vanilla' }], // Earthshaker
 	[17182, { kind: 'ppm', origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
 	[17193, { kind: 'ppm', origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', origin: 'vanilla' }], // Thunderstrike
-	[17704, { kind: 'ppm', origin: 'vanilla' }], // Edge of Winter
+	[17705, { kind: 'ppm', origin: 'vanilla' }], // Thrash Blade
 	[19019, { kind: 'ppm', origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', origin: 'vanilla' }], // Glacial Blade
 	[19100, { kind: 'ppm', origin: 'vanilla' }], // Electrified Dagger
@@ -5458,6 +6128,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		184, // Shadowcraft Armor
 		new Map([
 			[5, { kind: 'ppm', origin: 'unknown' }],
+		]),
+	],
+	[
+		1676, // Darkmantle Armor
+		new Map([
+			[4, { kind: 'ppm', origin: 'unknown' }],
 		]),
 	],
 ])

@@ -423,7 +423,7 @@ func TestAvoidanceTalentsAddTheirRowsAmounts(t *testing.T) {
 	buff := auraOf(t, rogue, ghostlyStrikeRank.ID)
 	before := rogue.GetStat(stats.DodgePercent)
 	buff.Activate(sim)
-	if got, want := rogue.GetStat(stats.DodgePercent)-before, ghostlyStrikeRank.EffectN(2).BaseValue(); got != want {
+	if got, want := rogue.GetStat(stats.DodgePercent)-before, ghostlyStrikeRank.EffectN(2).BaseValue(); math.Abs(got-want) > 1e-9 {
 		t.Errorf("Ghostly Strike's buff adds %.2f%% dodge, want %.2f%%", got, want)
 	}
 }
