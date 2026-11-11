@@ -17,7 +17,7 @@
 	}
 
 	.ui-multi-combo-box-chips {
-		@apply mt-2 flex flex-wrap gap-1;
+		@apply mt-2 flex min-w-0 flex-wrap gap-1;
 
 		&:empty {
 			@apply hidden;
@@ -25,6 +25,15 @@
 
 		&[data-disabled] {
 			@apply pointer-events-none;
+		}
+
+		/* A pick wider than the field cuts its name short. */
+		.ui-chip {
+			@apply max-w-full min-w-0;
+		}
+
+		.ui-chip-name {
+			@apply min-w-0 truncate;
 		}
 	}
 

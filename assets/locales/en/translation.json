@@ -104,7 +104,18 @@
 			"earth_elemental": "Earth Elemental",
 			"fire_elemental": "Fire Elemental",
 			"mountain_giant": "Mountain Giant",
-			"swine": "Swine"
+			"swine": "Swine",
+			"plant": "Plant",
+			"troll": "Troll",
+			"orc": "Orc",
+			"ogre": "Ogre",
+			"wolf": "Wolf",
+			"worgen": "Worgen",
+			"murloc": "Murloc",
+			"furbolg": "Furbolg",
+			"dwarf": "Dwarf",
+			"dinosaur": "Dinosaur",
+			"serpentine": "Serpentine"
 		},
 		"area_types": {
 			"unknown": "None",
@@ -535,8 +546,19 @@
 				"min_ilvl": "Min Item Level",
 				"max_ilvl": "Max Item Level",
 				"faction_restrictions": "Faction Restrictions",
+				"newly_discovered": "Newly discovered only",
 				"source": "Source",
 				"raids": "Raids",
+				"bonus": {
+					"title": "Bonus",
+					"area": "In area",
+					"mob_type": "Against mob type",
+					"creature": "Against creature",
+					"any": "Any",
+					"empty": "No match",
+					"remove": "Remove",
+					"open": "Show all"
+				},
 				"faction_labels": {
 					"none": "Any",
 					"alliance_only": "Alliance only",
@@ -560,6 +582,7 @@
 			},
 			"ep_tooltip": "EP (Equivalence Points) is way of comparing items by multiplying the raw stats of an item with your current stat weights. More EP does not necessarily mean more DPS, as EP doesn't take into account stat caps and non-linear stat calculations.",
 			"filters_button": "Filters",
+			"filters_button_active": "Filters ({{active}})",
 			"unequip_item": "Unequip Item",
 			"table_headers": {
 				"ilvl": "ILvl",

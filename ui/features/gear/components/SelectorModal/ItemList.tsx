@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 
+import { activeFilterCount } from '../../model/active_filters';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
@@ -60,6 +61,8 @@ export interface ItemListToolbarViewProps {
 	/** The filters dialog. The filters button renders only beside one. */
 	filtersMenu?: ReactNode;
 	onOpenFilters?: () => void;
+	/** How many filters narrow the list; above zero, the filters button shows it. */
+	activeFilters?: number;
 	phase: number;
 	onPhaseChange: (phase: number) => void;
 	toggles: ReadonlyArray<ItemListToggle>;
@@ -72,6 +75,7 @@ export const ItemListToolbarView = ({
 	onSearchChange,
 	filtersMenu,
 	onOpenFilters,
+	activeFilters = 0,
 	phase,
 	onPhaseChange,
 	toggles,
@@ -89,7 +93,9 @@ export const ItemListToolbarView = ({
 			{filtersMenu !== undefined && (
 				<>
 					<Button data-testid="selector-modal-filters-button" onClick={onOpenFilters}>
-						{i18n.t('gear_tab.gear_picker.filters_button')}
+						{activeFilters > 0
+							? i18n.t('gear_tab.gear_picker.filters_button_active', { active: activeFilters })
+							: i18n.t('gear_tab.gear_picker.filters_button')}
 					</Button>
 					{filtersMenu}
 				</>
@@ -226,6 +232,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 				onSearchChange={setSearch}
 				filtersMenu={label === SelectorModalTabs.Items ? <FiltersMenu slot={slot} open={filtersOpen} onOpenChange={setFiltersOpen} /> : undefined}
 				onOpenFilters={() => setFiltersOpen(true)}
+				activeFilters={activeFilterCount(filters)}
 				phase={phase}
 				onPhaseChange={next => sim.setPhase(next)}
 				toggles={toggles}
