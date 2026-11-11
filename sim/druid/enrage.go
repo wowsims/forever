@@ -11,10 +11,10 @@ import (
 // items' bonus armor, both after the form's multiplier, and of the 2 armor per Agility: 1206 armor drops to 962
 // on a sheet whose item and Agility share is 904, and sheets whose bonus armor reads 60 and 100 lose 27% of 2.8
 // times it on top. Buff armor stays whole and the level adds nothing. Thick Hide's armor stays whole, as no
-// measured druid had it.
+// measured druid had it. Dire Bear Form takes its 16% from the same share: the item and bonus armor after the
+// form's multiplier dropped by 16% on 153 of 153 sheets, and the Agility armor with them.
 const (
-	enrageBearArmorScale = 0.73
-	// TODO: Ingame test needed -- Dire Bear takes its 16% from the same share as Bear Form, its bonus armor included.
+	enrageBearArmorScale     = 0.73
 	enrageDireBearArmorScale = 0.84
 )
 
