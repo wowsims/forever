@@ -2021,6 +2021,7 @@
         "tidal_focus": {"spellId": 16179, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "talentOnlyBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "uncastable": true},
         "tidal_mastery": {"spellId": 16194, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "talentOnlyBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "uncastable": true},
         "totemic_focus": {"spellId": 16173, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "talentOnlyBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "uncastable": true},
+        "totemic_recall": {"spellId": 36936, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
         "toughness": {"spellId": 16252, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "talentOnlyBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "uncastable": true},
         "trial_by_fire": {"spellId": 16086, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "talentOnlyBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"], "uncastable": true},
         "water_shield": {"spellId": 408510, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},

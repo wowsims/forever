@@ -27,13 +27,40 @@ func (shaman *Shaman) newTotemSpellConfig(rank *spelldata.Spell) core.SpellConfi
 }
 
 // Stands a totem in its element's slot for the totem row's duration, taking down the one there.
-func (shaman *Shaman) dropTotem(sim *core.Simulation, slot int, aura *core.Aura, duration time.Duration) {
-	if current := shaman.TotemAuras[slot]; current != nil && current != aura {
-		current.Deactivate(sim)
+func (shaman *Shaman) dropTotem(sim *core.Simulation, slot int, totem *core.Spell, duration time.Duration) {
+	aura := totem.RelatedSelfBuff
+	if current := shaman.TotemSpells[slot]; current != nil && current.RelatedSelfBuff != aura {
+		current.RelatedSelfBuff.Deactivate(sim)
 	}
-	shaman.TotemAuras[slot] = aura
+	shaman.TotemSpells[slot] = totem
 	shaman.TotemExpirations[slot] = sim.CurrentTime + duration
 	aura.Activate(sim)
+}
+
+var totemicRecallRank = spellData.TotemicRecall.Highest()
+
+// Takes down every totem the shaman has standing and returns the row's share of their base mana
+// costs, the costs before any talent lowers them.
+func (shaman *Shaman) registerTotemicRecallSpell() {
+	share := totemicRecallRank.EffectN(1).Percent()
+	manaMetrics := shaman.NewManaMetrics(core.ActionID{SpellID: totemicRecallRank.ID})
+
+	config := shaman.newTotemSpellConfig(totemicRecallRank)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		var baseCosts int32
+		for slot, totem := range shaman.TotemSpells {
+			if totem == nil || !totem.RelatedSelfBuff.IsActive() {
+				continue
+			}
+			aura := totem.RelatedSelfBuff
+			baseCosts += totem.Cost.BaseCost
+			aura.Deactivate(sim)
+			shaman.TotemExpirations[slot] = sim.CurrentTime
+		}
+		shaman.AddMana(sim, float64(baseCosts)*share, manaMetrics)
+	}
+
+	shaman.RegisterSpell(config)
 }
 
 // A totem the sim models as the buff it gives its caster, lasting as long as the totem stands.
@@ -44,8 +71,8 @@ func (shaman *Shaman) registerBuffTotem(rank *spelldata.Spell, slot int, buff *c
 	config := shaman.newTotemSpellConfig(rank)
 	config.ClassSpellMask = SpellMaskBasicTotem
 	config.RelatedSelfBuff = buff
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		shaman.dropTotem(sim, slot, buff, duration)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		shaman.dropTotem(sim, slot, spell, duration)
 	}
 
 	return shaman.RegisterSpell(config)
@@ -74,8 +101,8 @@ func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, categ
 	config := shaman.newTotemSpellConfig(rank)
 	config.ClassSpellMask = SpellMaskBasicTotem
 	config.RelatedSelfBuff = totemAura
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		shaman.dropTotem(sim, slot, totemAura, duration)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		shaman.dropTotem(sim, slot, spell, duration)
 	}
 	return shaman.RegisterSpell(config)
 }
