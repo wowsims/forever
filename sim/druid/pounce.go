@@ -25,7 +25,7 @@ func (druid *Druid) registerPounceSpell() {
 	druid.PounceBleed = druid.RegisterSpell(bleedConfig)
 
 	stuns := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label(rank.Name+" Stun")))
+		return target.GetOrRegisterAura(spelldata.AuraConfig(rank, spelldata.Label(rank.Name+" Stun")))
 	})
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	// CastRequirement does not enforce ATTR_REQ_STEALTH. These attacks require Prowl;
