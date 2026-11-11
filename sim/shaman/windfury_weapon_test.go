@@ -4,6 +4,7 @@ package shaman_test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -73,9 +74,9 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	}
 }
 
-// Windfury Weapon's strikes are main-hand abilities and spend no Flurry charge: a main-hand swing
-// spends one.
-func TestWindfuryWeaponStrikesSpendNoFlurryCharge(t *testing.T) {
+// A main-hand swing spends a Flurry charge whatever its outcome, and so does a Windfury Weapon
+// strike; a Stormstrike spends none, and a hit in the same instant as a crit's gain spends none.
+func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
 	sim := core.NewSim(&proto.RaidSimRequest{
@@ -88,26 +89,41 @@ func TestWindfuryWeaponStrikesSpendNoFlurryCharge(t *testing.T) {
 	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
 	target := sham.CurrentTarget
 	flurry := sham.GetAuraByID(core.ActionID{SpellID: spelldata.MustFind(16257).ID})
-	strike := sham.GetSpell(windfuryWeaponStrike)
-	if flurry == nil || strike == nil {
-		t.Fatalf("Flurry %v, Windfury Weapon's strike %v; want both registered", flurry, strike)
-	}
-	flurry.Activate(sim)
-	flurry.SetStacks(sim, flurry.MaxStacks)
-
-	for range 50 {
-		strike.SkipCastAndApplyEffects(sim, target)
-		if got := flurry.GetStacks(); got != flurry.MaxStacks {
-			t.Fatalf("a Windfury Weapon strike left Flurry at %d charges, want %d", got, flurry.MaxStacks)
-		}
-	}
-
+	trigger := sham.GetAura("Flurry - Trigger")
 	swing := sham.AutoAttacks.MHAuto()
-	for range 50 {
-		swing.SkipCastAndApplyEffects(sim, target)
-		if flurry.GetStacks() < flurry.MaxStacks {
-			return
+	strike := sham.GetSpell(windfuryWeaponStrike)
+	if flurry == nil || trigger == nil || strike == nil || sham.Stormstrike == nil {
+		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon's strike %v, Stormstrike %v; want all registered",
+			flurry, trigger, strike, sham.Stormstrike)
+	}
+	hit := func(spell *core.Spell, outcome core.HitOutcome) {
+		trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: outcome, Damage: 100})
+	}
+
+	// Each case starts a second after the last, past the cooldown between charges spent, and hits a
+	// moment after the full charges are set.
+	cases := 0
+	expect := func(name string, spell *core.Spell, outcome core.HitOutcome, spends bool) {
+		t.Helper()
+		cases++
+		sim.CurrentTime = time.Duration(cases) * time.Second
+		flurry.Activate(sim)
+		flurry.SetStacks(sim, flurry.MaxStacks)
+		sim.CurrentTime += time.Millisecond
+		hit(spell, outcome)
+		if spent := flurry.GetStacks() < flurry.MaxStacks; spent != spends {
+			t.Errorf("%s: spent a charge %v, want %v", name, spent, spends)
 		}
 	}
-	t.Error("50 main-hand swings never spent a Flurry charge, so the check above proves nothing")
+	expect("a dodged swing", swing, core.OutcomeDodge, true)
+	expect("a Windfury Weapon strike", strike, core.OutcomeHit, true)
+	expect("a Stormstrike", sham.Stormstrike, core.OutcomeHit, false)
+
+	cases++
+	sim.CurrentTime = time.Duration(cases) * time.Second
+	hit(swing, core.OutcomeCrit)
+	hit(strike, core.OutcomeHit)
+	if got := flurry.GetStacks(); got != flurry.MaxStacks {
+		t.Errorf("a strike in the instant of a crit's gain left %d charges, want %d", got, flurry.MaxStacks)
+	}
 }

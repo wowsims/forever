@@ -108,6 +108,8 @@ type Shaman struct {
 
 	// The aura of the totem standing in each element's slot, indexed like TotemExpirations.
 	TotemAuras [4]*core.Aura
+	// The cast that stood the totem in each slot, whose base cost Totemic Recall returns a share of.
+	totemSpells [4]*core.Spell
 }
 
 // Implemented by each Shaman spec.
@@ -140,6 +142,7 @@ func (shaman *Shaman) Initialize() {
 	shaman.registerStrengthOfEarthTotemSpell()
 	shaman.registerGraceOfAirTotemSpell()
 	shaman.registerManaSpringTotemSpell()
+	shaman.registerTotemicRecallSpell()
 	shaman.registerShocks()
 
 	// In Initialize so that the imbues read the multipliers the talents set.

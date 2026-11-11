@@ -1,6 +1,8 @@
 package shaman
 
 import (
+	"time"
+
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -43,14 +45,18 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 	config := shaman.newTotemSpellConfig(rank)
 	config.ClassSpellMask = mask
 	config.RelatedSelfBuff = totemAura
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		shaman.dropTotem(sim, FireTotem, totemAura, totemAura.Duration)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		shaman.dropTotem(sim, FireTotem, spell, totemAura, totemAura.Duration)
 	}
 
 	return shaman.RegisterSpell(config)
 }
 
-// The totem attacks its target once a cast of its attack, 10436's 2.2 s.
+// The totem casts its attack, 10436, at its target, and in the combat log waits about 0.27 s after
+// each cast ends before it starts the next: one attack every 2.472 s. The first attack comes one
+// such period after the drop, where in game it lands at the end of the first 2.2 s cast.
+var searingTotemPeriod = searingAttackRank.CastTime() + 272*time.Millisecond
+
 func (shaman *Shaman) registerSearingTotemSpell() {
 	damage := searingAttackRank.DamageEffect()
 
@@ -63,7 +69,7 @@ func (shaman *Shaman) registerSearingTotemSpell() {
 	attack := shaman.RegisterSpell(attackConfig)
 
 	shaman.SearingTotem = shaman.registerFireTotem(searingTotemRank, SpellMaskSearingTotem, core.PeriodicActionOptions{
-		Period: searingAttackRank.CastTime(),
+		Period: searingTotemPeriod,
 		OnAction: func(sim *core.Simulation) {
 			attack.Cast(sim, shaman.CurrentTarget)
 		},
