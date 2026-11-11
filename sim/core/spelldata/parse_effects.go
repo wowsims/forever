@@ -87,8 +87,8 @@ func Level(n int32) ParseOpt {
 	}
 }
 
-// An amount that does not roll is the whole number nearest its exact value, for a row whose amount
-// rounds in game where Effect.AverageAt floors it. Damage and heal amounts keep their fraction.
+// Every amount is the whole number nearest its exact value, where Effect.AverageAt floors it: a row whose
+// amount rounds in game.
 func NearestAmounts() ParseOpt {
 	return func(o *parseOptions) {
 		o.nearest = true
@@ -324,7 +324,7 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		}
 
 		value := e.MeanAt(level)
-		if o.nearest && e.Variance == 0 && !e.damageOrHeal() {
+		if o.nearest {
 			value = math.Round(e.exactAt(level))
 		}
 

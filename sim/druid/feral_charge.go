@@ -13,7 +13,7 @@ var feralCharges = spelldata.Ranked(16979, 414924)
 func (druid *Druid) registerFeralChargeSpell() {
 	root := spellData.FeralChargeTriggered.Highest()
 	roots := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		return target.GetOrRegisterAura(spelldata.AuraConfig(root))
+		return target.RegisterAura(spelldata.AuraConfig(root, spelldata.Label(root.Name+" - "+druid.Label)))
 	})
 	feralCharges.Each(func(_ int32, rank *spelldata.Spell) {
 		config := spelldata.SpellConfig(&druid.Unit, rank)

@@ -132,6 +132,9 @@ type BuffSpec struct {
 	Reason string
 	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID.
 	Ranks []BuffRank
+	// NearestAmounts says the aura's amounts round to the nearest whole number in game, where the store
+	// reads the floor.
+	NearestAmounts bool
 }
 
 // One state of a rank select, whose aura bids in the row's categories. SpellID and CastID mean what

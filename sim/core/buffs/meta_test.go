@@ -179,27 +179,17 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 	}
 }
 
-// Demoralizing Roar's attack power reduction is its row's exact amount at the character level, rounded to
-// the nearest whole number. Demoralizing Shout, in the same category, keeps the floor of its own.
+// Demoralizing Roar's attack power reduction is the whole number nearest its row's amount, on either
+// side of the half.
 func TestDemoralizingRoarRoundsItsAttackPowerToTheNearest(t *testing.T) {
-	exact := func(e *spelldata.Effect) float64 {
-		level := int32(core.CharacterLevel)
-		if e.MaxLevel > 0 {
-			level = min(level, int32(e.MaxLevel))
+	e := firstAura(t, demoralizingRoarSpell, dbcenums.A_MOD_ATTACK_POWER)
+	original := *e
+	t.Cleanup(func() { *e = original })
+	for amount, want := range map[float64]float64{-100.3: -100, -100.7: -101} {
+		e.BasePoints, e.PPL = amount, 0
+		if got := DemoralizingRoarValue(0); got != want {
+			t.Errorf("Demoralizing Roar stating %v is worth %v, want %v", amount, got, want)
 		}
-		gain := float32(max(level-int32(e.BaseLevel), 0)) * float32(e.PPL)
-		return float64(float32(e.BasePoints) + gain)
-	}
-	roar := exact(firstAura(t, demoralizingRoarSpell, dbcenums.A_MOD_ATTACK_POWER))
-	if roar == 0 {
-		t.Fatal("Demoralizing Roar states no attack power")
-	}
-	if got, want := DemoralizingRoarValue(0), math.Round(roar); got != want {
-		t.Errorf("Demoralizing Roar is worth %v, want its exact %v rounded, %v", got, roar, want)
-	}
-	shout := exact(firstAura(t, demoralizingShoutSpell, dbcenums.A_MOD_ATTACK_POWER))
-	if got, want := DemoralizingShoutValue(0), math.Floor(shout); got != want {
-		t.Errorf("Demoralizing Shout is worth %v, want its exact %v floored, %v", got, shout, want)
 	}
 }
 

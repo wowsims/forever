@@ -9,7 +9,7 @@ import (
 func (druid *Druid) registerBashSpell() {
 	rank := spellData.Bash.Highest()
 	stuns := druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
-		return target.GetOrRegisterAura(spelldata.AuraConfig(rank, spelldata.Label(rank.Name)))
+		return target.RegisterAura(spelldata.AuraConfig(rank, spelldata.Label(rank.Name+" - "+druid.Label)))
 	})
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

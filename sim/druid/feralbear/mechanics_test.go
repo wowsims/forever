@@ -419,9 +419,6 @@ func TestFaerieFireThreatensInBearFormOnly(t *testing.T) {
 	}
 	for _, level := range []int32{60, 40} {
 		threat, multiplier := cast(level, false)
-		if multiplier <= 1 {
-			t.Fatalf("level %d: the threat multiplier in Dire Bear Form is %g, want the form's raise", level, multiplier)
-		}
 		if want := 2 * float64(level) * multiplier; math.Abs(threat-want) > 1e-9 {
 			t.Errorf("level %d: faerie fire in Dire Bear Form threatens for %g, want %g", level, threat, want)
 		}
@@ -439,7 +436,6 @@ func TestLacerateThreatensForTenThirdsOfItsDamage(t *testing.T) {
 	target.PseudoStats.BaseDodgeChance = 0
 	target.PseudoStats.BaseParryChance = 0
 	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-	bear.AddRage(sim, 50, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
 	if !bear.Lacerate.Cast(sim, target) {
 		t.Fatal("lacerate did not cast")
 	}

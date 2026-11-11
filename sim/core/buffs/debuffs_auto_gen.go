@@ -185,9 +185,10 @@ func NewSpellDataGiftOfArthasAura(unit *core.Unit, isPlayer bool, talentPoints i
 var DemoralizingRoarCategory = "Demoralizing"
 var demoralizingRoarSpell = spelldata.MustFind(9898)
 var demoralizingRoarMeta = &Meta{
-	Label:    "Demoralizing Roar",
-	Spell:    demoralizingRoarSpell,
-	Category: DemoralizingRoarCategory,
+	Label:          "Demoralizing Roar",
+	Spell:          demoralizingRoarSpell,
+	Category:       DemoralizingRoarCategory,
+	NearestAmounts: true,
 }
 
 func DemoralizingRoarValue(talentPoints int32) float64 {

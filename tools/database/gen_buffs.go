@@ -372,10 +372,9 @@ func appliedKinds(applied []spelldata.Applied) []string {
 }
 
 // The options buffs.Meta.Options states for the row, less the talent's scaling
-// and the rounding to the nearest a row may take, which price an amount and
-// never change what is attached. A damage shield's
-// own effect is left to newDamageShield, and an item-count row counts its
-// amounts, which is what a multiplier cannot be read through.
+// and NearestAmounts, which price an amount and never change what is attached.
+// A damage shield's own effect is left to newDamageShield, and an item-count
+// row counts its amounts, which is what a multiplier cannot be read through.
 func (row *ResolvedBuff) parseOptions() []spelldata.ParseOpt {
 	skip := row.SkipAuraTypes
 	if row.Kind == buffmanifest.KindDamageShield {
@@ -869,6 +868,9 @@ func buffMetaFields(row ResolvedBuff, rendered buffRow) string {
 	}
 	if row.FullComboPoints {
 		b.WriteString("FullComboPoints: true,\n")
+	}
+	if row.NearestAmounts {
+		b.WriteString("NearestAmounts: true,\n")
 	}
 	return b.String()
 }

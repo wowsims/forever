@@ -2174,7 +2174,7 @@
 				},
 				"druid_bleed_is_active": {
 					"label": "Bleed Is Active",
-					"tooltip": "<b>True</b> if one of your bleeds is on the target, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
+					"tooltip": "<b>True</b> if a bleed is on the target, yours or another player's, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
 				},
 				"druid_excess_energy": {
 					"label": "Excess Energy",

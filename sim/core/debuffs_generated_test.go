@@ -448,21 +448,9 @@ func TestGeneratedThunderfuryKeepsItsResistanceBesideThunderClap(t *testing.T) {
 func TestGeneratedDemoralizingDebuffsApplyOnce(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{DemoralizingRoar: true, DemoralizingShout: true},
 		buffs.DemoralizingShoutCategory, stats.AttackPower, map[string]float64{
-			"Demoralizing Roar (External)":  demoralizingRoar(t),
+			"Demoralizing Roar (External)":  buffs.DemoralizingRoarValue(0),
 			"Demoralizing Shout (External)": demoralizingShout(t),
 		})
-}
-
-// Demoralizing Roar's amount rounds to the nearest whole number, where rowAmount takes the floor.
-func demoralizingRoar(t *testing.T) float64 {
-	t.Helper()
-	e := rowEffect(t, 9898, dbcenums.A_MOD_ATTACK_POWER)
-	level := int32(core.CharacterLevel)
-	if e.MaxLevel > 0 {
-		level = min(level, int32(e.MaxLevel))
-	}
-	gain := float32(max(level-int32(e.BaseLevel), 0)) * float32(e.PPL)
-	return math.Round(float64(float32(e.BasePoints) + gain))
 }
 
 func demoralizingShout(t *testing.T) float64 {
