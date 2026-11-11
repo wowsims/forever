@@ -8,6 +8,8 @@ import { getLang } from './locale_service';
 i18n.use(initReactI18next).init({
 	lng: getLang(),
 	fallbackLng: 'en',
+	// An empty translation is a translation: the one-spec classes' spec names are '' in character.json.
+	returnEmptyString: true,
 	debug: process.env.NODE_ENV === 'development',
 	interpolation: {
 		escapeValue: false,

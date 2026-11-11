@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 838.2977
+  tps: 684.60893
+  dtps: 5.99497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 796.49329
@@ -389,10 +398,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-EnchantBoots-MinorSpeed-911"
  value: {
-  dps: 829.1196
-  tps: 676.8368
-  dtps: 5.11078
-  hps: 23.75493
+  dps: 826.20287
+  tps: 674.42918
+  dtps: 5.23493
+  hps: 23.78678
  }
 }
 dps_results: {
@@ -645,6 +654,15 @@ dps_results: {
   tps: 668.85552
   dtps: 5.80619
   hps: 23.84524
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 820.98288
+  tps: 670.58881
+  dtps: 5.67294
+  hps: 23.65123
  }
 }
 dps_results: {
@@ -918,6 +936,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-MagicallySealedBracers-18351"
+ value: {
+  dps: 812.18216
+  tps: 663.63158
+  dtps: 5.75411
+  hps: 23.84524
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Magister'sRegalia"
  value: {
   dps: 728.49894
@@ -1140,6 +1167,15 @@ dps_results: {
   tps: 537.69871
   dtps: 4.03341
   hps: 19.37902
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-RazorGauntlets-18326"
+ value: {
+  dps: 814.91892
+  tps: 665.82877
+  dtps: 5.80619
+  hps: 23.84371
  }
 }
 dps_results: {

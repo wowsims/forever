@@ -3,6 +3,7 @@
 package forever_test
 
 import (
+	"maps"
 	"math"
 	"testing"
 	"time"
@@ -103,11 +104,20 @@ func flatHit(id core.ActionID, school core.SpellSchool, mask core.ProcMask, fami
 // The class's stand-in wearing one item, or nothing for item 0, against a level 60 target.
 func modWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	var spec any = &proto.Player_Warlock{Warlock: &proto.Warlock{}}
+	if class == proto.Class_ClassWarrior {
+		spec = &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}}
+	}
+	return wearing(t, class, spec, map[proto.ItemSlot]int32{slot: itemID})
+}
+
+// The class on the spec's stand-in wearing the items, against a level 60 target.
+func wearing(t *testing.T, class proto.Class, spec any, worn map[proto.ItemSlot]int32) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
-		items[i] = &proto.ItemSpec{}
+		items[i] = &proto.ItemSpec{Id: worn[proto.ItemSlot(i)]}
 	}
-	items[slot].Id = itemID
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceOrc,
 		Equipment:   &proto.EquipmentSpec{Items: items},
@@ -115,11 +125,7 @@ func modWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, itemID int3
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
 	}
-	if class == proto.Class_ClassWarrior {
-		core.WithSpec(player, &proto.Player_ProtectionWarrior{ProtectionWarrior: &proto.ProtectionWarrior{}})
-	} else {
-		core.WithSpec(player, &proto.Player_Warlock{Warlock: &proto.Warlock{}})
-	}
+	core.WithSpec(player, spec)
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
@@ -461,6 +467,71 @@ func TestFerrasCollarRaisesThePetsDamage(t *testing.T) {
 	want := base * (1 + spelldata.MustFind(22854).EffectN(1).Percent())
 	if got := dealtBy(sim, &hunter.Pets[0].Unit, stubPetClaw); !core.WithinToleranceFloat64(want, got, 1e-6) {
 		t.Errorf("wearing Ferra's Collar, the pet's claw dealt %v, want %v", got, want)
+	}
+}
+
+// Cryptstalker Armor's 4-piece bonus gives the hunter and the pet Stalker's Ally 28758's attack power
+// and ranged attack power while the pet is out: both lose it when the pet is dismissed and have it
+// again when it returns. Three pieces give none, and a hunter with no pet gets none.
+func TestCryptstalkerArmorGivesAttackPowerWhileThePetIsOut(t *testing.T) {
+	const stalkersAlly = 28758
+	row := spelldata.MustFind(stalkersAlly)
+	want := stats.Stats{stats.AttackPower: row.EffectN(1).BaseValue(), stats.RangedAttackPower: row.EffectN(2).BaseValue()}
+	if want[stats.AttackPower] == 0 || want[stats.RangedAttackPower] == 0 {
+		t.Fatalf("Stalker's Ally states attack power %v and ranged attack power %v, want both above 0",
+			want[stats.AttackPower], want[stats.RangedAttackPower])
+	}
+	attackPowers := func(unit *core.Character) stats.Stats {
+		return stats.Stats{stats.AttackPower: unit.GetStat(stats.AttackPower), stats.RangedAttackPower: unit.GetStat(stats.RangedAttackPower)}
+	}
+	threePieces := map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead:     22438,
+		proto.ItemSlot_ItemSlotShoulder: 22439,
+		proto.ItemSlot_ItemSlotChest:    22436,
+	}
+	fourPieces := maps.Clone(threePieces)
+	fourPieces[proto.ItemSlot_ItemSlotLegs] = 22437
+	withPet := &proto.Player_Warlock{Warlock: &proto.Warlock{}}
+
+	// What the hunter and the pet lose when the pet is dismissed, and gain when it is summoned again.
+	dismissAndSummon := func(sim *core.Simulation, hunter *core.Character) (lost, gained [2]stats.Stats) {
+		pet := hunter.Pets[0]
+		if !pet.IsEnabled() {
+			t.Fatalf("the pet is not out at the start")
+		}
+		out := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		pet.Disable(sim)
+		dismissed := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		pet.Enable(sim, hunter.PetAgents[0])
+		back := [2]stats.Stats{attackPowers(hunter), attackPowers(&pet.Character)}
+		for i := range out {
+			lost[i], gained[i] = out[i].Subtract(dismissed[i]), back[i].Subtract(dismissed[i])
+		}
+		return lost, gained
+	}
+
+	sim, four := wearing(t, proto.Class_ClassHunter, withPet, fourPieces)
+	lost, gained := dismissAndSummon(sim, four)
+	for i, unit := range []string{"hunter", "pet"} {
+		if lost[i] != want {
+			t.Errorf("with four pieces, the %s loses %v when the pet is dismissed, want %v", unit, lost[i], want)
+		}
+		if gained[i] != want {
+			t.Errorf("with four pieces, the %s gains %v when the pet returns, want %v", unit, gained[i], want)
+		}
+	}
+
+	sim, three := wearing(t, proto.Class_ClassHunter, withPet, threePieces)
+	lost, _ = dismissAndSummon(sim, three)
+	for i, unit := range []string{"hunter", "pet"} {
+		if lost[i] != (stats.Stats{}) {
+			t.Errorf("with three pieces, the %s loses %v when the pet is dismissed, want nothing", unit, lost[i])
+		}
+	}
+
+	_, petless := wearing(t, proto.Class_ClassHunter, &proto.Player_Hunter{Hunter: &proto.Hunter{}}, fourPieces)
+	if aura := petless.GetAuraByID(core.ActionID{SpellID: stalkersAlly}); aura != nil && aura.IsActive() {
+		t.Errorf("with four pieces and no pet, the hunter has Stalker's Ally")
 	}
 }
 

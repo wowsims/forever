@@ -514,7 +514,7 @@ func GenerateEffectsFile(groups []*Group, outFile string, templateString string)
 	}
 
 	var rendered bytes.Buffer
-	if err := tmpl.Execute(&rendered, map[string]interface{}{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
+	if err := tmpl.Execute(&rendered, map[string]any{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
@@ -1167,6 +1167,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	// Example loop over your items
 	for _, parsed := range db.Items {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
 		for _, itemEffect := range parsed.ItemEffects {
 			if !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {

@@ -65,9 +65,6 @@ type Shaman struct {
 	rockbiterWeaponMultiplier    float64
 	spiritWeaponsRockbiterThreat float64
 
-	// Windfury Weapon's extra strikes, which spend no Flurry charge.
-	windfuryWeaponStrike *core.Spell
-
 	// The equipped main hand and the swap set's, which the imbue options name.
 	mainHandID     int32
 	swapMainHandID int32

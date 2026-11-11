@@ -301,6 +301,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 893.57058
+  tps: 904.49464
+  dtps: 5.37809
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-DreadmistRaiment"
  value: {
   dps: 792.42001
@@ -622,6 +630,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 893.9096
+  tps: 904.91709
+  dtps: 5.10238
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 868.69142
@@ -787,6 +803,14 @@ dps_results: {
   dps: 916.94063
   tps: 927.86469
   dtps: 5.37809
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Ironfoe-11684"
+ value: {
+  dps: 844.73942
+  tps: 855.6787
+  dtps: 5.42761
  }
 }
 dps_results: {

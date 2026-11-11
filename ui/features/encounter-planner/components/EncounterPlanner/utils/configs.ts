@@ -22,7 +22,8 @@ import { firesAtInstants, getEvent, isBossCastArea, withAbilityKind } from '../.
 import { fractionToSeconds, secondsToFraction } from '../../../model/time';
 import { PLAN_ISSUE_KEYS } from '../../../model/validate';
 
-export const plannerText = (name: string, options?: Record<string, string | number>): string => i18n.t(`settings_tab.encounter.planner.${name}`, options);
+export const plannerText = (name: string, options?: Record<string, string | number>): string =>
+	options ? i18n.t(`settings_tab.encounter.planner.${name}`, options) : i18n.t(`settings_tab.encounter.planner.${name}`);
 
 export const nameConfig = (): StringFieldConfig<Encounter> => ({
 	id: 'encounter-planner-name',

@@ -927,13 +927,34 @@ var Spells = []Override{
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
-	// held 177.7 over damage from 223 to 400.
-	// TODO: Measure Shield Slam Ranks 2–4's threat in game.
+	// held 177.7 over damage from 223 to 400. Ranks 2 to 4 carry Rank 1's 4.45 a spell level, rounded
+	// to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,
 		Value:   178,
 		Reason:  "Shield Slam Rank 1: threat is the damage + 178, times the stance",
+		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 23923,
+		Field:   FlatThreat,
+		Value:   214, // TODO: Measure Shield Slam Rank 2 in game.
+		Reason:  "Shield Slam Rank 2: Rank 1's measured 4.45 per spell level at spell level 48",
+		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 23924,
+		Field:   FlatThreat,
+		Value:   240, // TODO: Measure Shield Slam Rank 3 in game.
+		Reason:  "Shield Slam Rank 3: Rank 1's measured 4.45 per spell level at spell level 54",
+		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+	},
+	{
+		SpellID: 23925,
+		Field:   FlatThreat,
+		Value:   267, // TODO: Measure Shield Slam Rank 4 in game.
+		Reason:  "Shield Slam Rank 4: Rank 1's measured 4.45 per spell level at spell level 60",
 		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
 	},
 }

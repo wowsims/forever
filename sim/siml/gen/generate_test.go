@@ -55,11 +55,11 @@ func committedTable(t *testing.T) (*siml.Names, []byte, *Collection) {
 // The lines of b that a does not hold, each with prefix.
 func missingLines(a, b []byte, prefix string) []string {
 	have := map[string]bool{}
-	for _, line := range strings.Split(string(a), "\n") {
+	for line := range strings.SplitSeq(string(a), "\n") {
 		have[strings.TrimSuffix(strings.TrimSpace(line), ",")] = true
 	}
 	var out []string
-	for _, line := range strings.Split(string(b), "\n") {
+	for line := range strings.SplitSeq(string(b), "\n") {
 		if key := strings.TrimSuffix(strings.TrimSpace(line), ","); !have[key] {
 			out = append(out, prefix+key)
 		}

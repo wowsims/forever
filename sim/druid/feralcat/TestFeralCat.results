@@ -254,6 +254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 767.65846
+  tps: 568.01435
+  hps: 43.85222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-DreadmistRaiment"
  value: {
   dps: 599.7093
@@ -566,6 +574,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 768.85717
+  tps: 568.50692
+  hps: 43.97083
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 767.65846
@@ -731,6 +747,14 @@ dps_results: {
   dps: 767.65846
   tps: 568.01435
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Ironfoe-11684"
+ value: {
+  dps: 753.55031
+  tps: 559.63219
+  hps: 49.73194
  }
 }
 dps_results: {

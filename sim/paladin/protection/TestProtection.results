@@ -315,6 +315,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 401.48801
+  tps: 962.2795
+  dtps: 349.30386
+  hps: 21.89222
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 390.53697
@@ -693,6 +702,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 396.80537
+  tps: 955.33016
+  dtps: 358.39281
+  hps: 21.84139
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 396.43057
@@ -837,6 +855,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 406.26238
+  tps: 965.62526
+  dtps: 362.80359
+  hps: 23.79
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ImperialPlate"
  value: {
   dps: 378.45031
@@ -852,6 +879,15 @@ dps_results: {
   tps: 954.2172
   dtps: 349.57294
   hps: 21.63806
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Ironfoe-11684"
+ value: {
+  dps: 415.70659
+  tps: 985.01692
+  dtps: 337.8745
+  hps: 23.9425
  }
 }
 dps_results: {
@@ -1023,6 +1059,15 @@ dps_results: {
   tps: 948.95109
   dtps: 349.05322
   hps: 21.90917
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-MagicallySealedBracers-18351"
+ value: {
+  dps: 392.50101
+  tps: 948.28791
+  dtps: 332.9778
+  hps: 21.67194
  }
 }
 dps_results: {
@@ -1266,6 +1311,15 @@ dps_results: {
   tps: 941.21072
   dtps: 353.50857
   hps: 21.77361
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-RazorGauntlets-18326"
+ value: {
+  dps: 393.33526
+  tps: 944.15553
+  dtps: 347.75395
+  hps: 21.79056
  }
 }
 dps_results: {

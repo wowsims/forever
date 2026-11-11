@@ -46,14 +46,21 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(11625) // Enthralled Sphere - https://www.wowhead.com/forever/spell=1300754
 	// unsupported: 1300763 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(11702) // Grizzle's Skinner - https://www.wowhead.com/forever/spell=1300763
+	// on use: 17447 (A_PERIODIC_DAMAGE); not simulated: A_PERIODIC_ENERGIZE
+	// unsupported: the damage lands on implicit target 1, not an enemy
+	// shared.NewSpellDataDamageOnUse(11808) // Circle of Flame - https://www.wowhead.com/forever/spell=17447
 	// unsupported: 15646 deals no damage and heals no one (A_MOD_POWER_COST_SCHOOL)
 	// shared.NewSimpleStatActive(11832) // Burst of Knowledge - https://www.wowhead.com/forever/spell=15646
 	// unsupported: 1308917 deals no damage and heals no one (E_DISPEL_MECHANIC)
 	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
 	// unsupported: 18400 deals no damage and heals no one (A_PERIODIC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(13379) // Piccolo of the Flaming Fire - https://www.wowhead.com/forever/spell=18400
+	// unsupported: 1299443 deals no damage and heals no one (A_MOD_STUN)
+	// shared.NewSimpleStatActive(13515) // Ramstein's Lightning Bolts - https://www.wowhead.com/forever/spell=1299443
 	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
+	// unsupported: 18264 deals no damage and heals no one (E_APPLY_AREA_AURA_PARTY)
+	// shared.NewSimpleStatActive(13937) // Headmaster's Charge - https://www.wowhead.com/forever/spell=18264
 	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
 	// shared.NewSimpleStatActive(13965) // Blackhand's Breadth - https://www.wowhead.com/forever/spell=1318944
 	// on use: 18386 (E_HEAL)
@@ -115,10 +122,14 @@ func RegisterAllOnUseCds() {
 	// on use: 1309551 (A_MOD_DAMAGE_PERCENT_TAKEN, A_MOD_SPEED_ALWAYS)
 	// unsupported: effect 2 A_MOD_SPEED_ALWAYS misc 0 is not parsed on the wearer
 	// shared.NewSpellDataAuraOnUse(280074) // Scalding Flamehoof - https://www.wowhead.com/forever/spell=1309551
+	// unsupported: 1315557 deals no damage and heals no one (A_MOD_STUN, A_ANIM_REPLACEMENT_SET)
+	// shared.NewSimpleStatActive(284231) // Sayaad Charm - https://www.wowhead.com/forever/spell=1315557
 	// unsupported: 1320579 deals no damage and heals no one (A_MOD_DECREASE_SPEED, E_DUMMY)
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 	// unsupported: 13534 deals no damage and heals no one (A_MOD_DISARM)
 	// shared.NewSimpleStatActive(287026) // Escape Plan - https://www.wowhead.com/forever/spell=13534
+	// unsupported: 1325180 deals no damage and heals no one (E_ACTIVATE_OBJECT, E_CREATE_LOOT)
+	// shared.NewSimpleStatActive(287045) // Ancient Mattock - https://www.wowhead.com/forever/spell=1325180
 
 	// Absorbs
 	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
@@ -338,8 +349,12 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12733
 	// Not simulated: Chained Essence of Eranikus: "Cloud of Chained Essence" (12766) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=12766
+	// Not simulated: Stealthblade: "Stealth" (1300180) - ignored aura type 16
+	// https://www.wowhead.com/forever/spell=1300180
 	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=6251
+	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18307) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=18307
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18308) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=18308
 	// Not simulated: Arcanite Dragonling: "Arcanite Dragonling" (19804) - ignored effect type 28
@@ -430,6 +445,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=1297448
 	// Not simulated: Zarla's Snack Pouch: "Zarla's Snack Pouch" (1315190) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=1315190
+	// Not simulated: Sand-Covered Silk Sash: "Immune Root" (9774) - ignored aura type 77
+	// https://www.wowhead.com/forever/spell=9774
 
 	// Speed
 	// on use: 13494 (A_MOD_MELEE_HASTE_3)

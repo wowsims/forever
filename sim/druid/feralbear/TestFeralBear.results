@@ -334,6 +334,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 458.60252
+  tps: 1766.02137
+  dtps: 391.38804
+  hps: 81.36191
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-DreadmistRaiment"
  value: {
   dps: 390.5593
@@ -685,6 +694,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 456.39413
+  tps: 1745.1428
+  dtps: 401.14589
+  hps: 81.90407
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 458.37992
@@ -880,6 +898,15 @@ dps_results: {
   tps: 1776.10504
   dtps: 392.26789
   hps: 80.86952
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Ironfoe-11684"
+ value: {
+  dps: 447.26085
+  tps: 1681.39846
+  dtps: 395.44865
+  hps: 84.63337
  }
 }
 dps_results: {

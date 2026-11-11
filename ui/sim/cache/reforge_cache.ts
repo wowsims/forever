@@ -83,7 +83,7 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 
 			record.lastAccessedAt = Date.now();
 			await this.putRecord(db, key, record);
-			return this.parseCachedGear(record.gear);
+			return await this.parseCachedGear(record.gear);
 		} catch (error) {
 			console.warn('[Reforge Cache] Failed to read cached reforge result.', error);
 			return null;
@@ -120,7 +120,7 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 						continue;
 					}
 
-					const gear = this.parseCachedGear(record.gear);
+					const gear = await this.parseCachedGear(record.gear);
 					if (!gear) {
 						continue;
 					}
@@ -217,12 +217,12 @@ export class ReforgeGearCache<SpecType extends Spec = Spec> {
 		}
 	}
 
-	private parseCachedGear(gear: string): EquipmentSpec | null {
+	private async parseCachedGear(gear: string): Promise<EquipmentSpec | null> {
 		if (gear.startsWith(REFORGE_CACHE_EQUIPMENT_SPEC_PREFIX)) {
 			return EquipmentSpec.fromJsonString(gear.slice(REFORGE_CACHE_EQUIPMENT_SPEC_PREFIX.length), { ignoreUnknownFields: true });
 		}
 
-		return tryParseUrlLocation(new URL(gear, this.env.location.href))?.settings.player?.equipment || null;
+		return (await tryParseUrlLocation(new URL(gear, this.env.location.href)))?.settings.player?.equipment || null;
 	}
 
 	// Deliberately a fresh connection per call rather than a pooled one: object stores are

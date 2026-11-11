@@ -16,7 +16,6 @@ import type { StatSweepSettings } from '../settings/stat_sweep_settings';
 import type { StatWeightActionSettings } from '../settings/stat_weight_settings';
 import { batch } from './batch';
 import { withoutMyEncounter } from './my_encounter_sharing';
-import { tryParseUrlLocation } from './sim_links';
 import { withViewerStatFilters } from './stat_filter_sharing';
 import type { StoreSubscribe } from './subscriptions';
 
@@ -66,12 +65,12 @@ export function loadIndividualSettings(
 			// (e.g. rotation only) include the previous settings for other categories. The saved stat filters
 			// stay, whatever the link carries.
 			try {
-				const urlParseResults = tryParseUrlLocation(env.location);
+				const urlParseResults = opts.player.sim.linkedSettings;
 				if (urlParseResults) {
 					host.fromProto(withoutMyEncounter(withViewerStatFilters(urlParseResults.settings, opts.player.sim)), urlParseResults.categories);
 				}
 			} catch (e) {
-				console.warn('Failed to parse link settings: ' + e);
+				console.warn('Failed to apply link settings: ' + e);
 			}
 			env.location.setHash('');
 

@@ -118,6 +118,11 @@ message UIItem {
 	map<int32, ScalingItemProperties> scaling_options = 29; // keys are the other ilvl variants that this item could potentially have
 	repeated ItemEffect item_effects = 30;
 	SpellSchool spell_school = 35; // The weapon's damage school; unset means physical.
+	// The terrain areas, mob types and creature groups the item's effects name: a stat bonus, proc or on-use that
+	// only counts there or against them, or is stronger there. The gear picker filters by them.
+	repeated AreaType area_types = 37;
+	repeated MobType mob_types = 38;
+	repeated CreatureFamily creature_families = 39;
 }
 
 enum Expansion {
@@ -301,6 +306,13 @@ message DatabaseFilters {
 	bool two_handed_weapons = 7;
 	reserved 8;
 	reserved "matching_gems_only";
+	// With any set, the item list shows only the items with an effect that names one of them (UIItem.area_types,
+	// mob_types and creature_families). Empty hides none.
+	repeated AreaType area_types = 29;
+	repeated MobType mob_types = 30;
+	repeated CreatureFamily creature_families = 31;
+	// Shows only the items the sim's database first held within the last week, the ones the item list marks.
+	bool newly_discovered_only = 32;
 	// The enchant picker also lists enchants worth nothing to the spec's stat weights.
 	bool show_all_enchants = 25;
 	// The stats each panel shows; see StatFilters.

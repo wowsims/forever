@@ -34,7 +34,7 @@ export const PlannerIssues = ({ plan, issues, baseSeconds, onSelect }: PlannerIs
 									{eventName(plan, issue.ref)}
 								</Button>
 								{': '}
-								{i18n.t(issue.key, issue.span && { from: seconds(issue.span.start), to: seconds(issue.span.end) })}
+								{issue.span ? i18n.t(issue.key, { from: seconds(issue.span.start), to: seconds(issue.span.end) }) : i18n.t(issue.key)}
 							</Notice>
 						</li>
 					))}

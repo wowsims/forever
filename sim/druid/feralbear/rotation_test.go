@@ -93,7 +93,7 @@ func TestBearFormRecastGrantsFuror(t *testing.T) {
 					bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 					form := bear.GetSpell(core.ActionID{SpellID: id})
 					wantRage := core.Ternary(rank == 0, 0.0, 10.0)
-					for cast := 0; cast < 2; cast++ {
+					for cast := range 2 {
 						bear.SetGCDTimer(sim, at)
 						bear.AddRage(sim, 40, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
 						mana := bear.CurrentMana()
@@ -121,7 +121,7 @@ func TestBearStartingRageDoesNotTriggerFuror(t *testing.T) {
 		player.GetFeralBearDruid().Options.StartingRage = rage
 		player.Rotation = selectedAdaptiveBearAPL()
 		sim := core.NewSim(req, simsignals.CreateSignals())
-		for iteration := 0; iteration < 2; iteration++ {
+		for iteration := range 2 {
 			sim.Reset()
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 			if bear.CurrentRage() != rage {
@@ -152,7 +152,7 @@ func TestBearPrepullEnrage(t *testing.T) {
 	req.Raid.Parties[0].Players[0].TalentsString = withFurorFive(bearTalents)
 	req.Raid.Tanks = nil
 	sim := core.NewSim(req, simsignals.CreateSignals())
-	for iteration := 0; iteration < 2; iteration++ {
+	for iteration := range 2 {
 		sim.Reset()
 		bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 		bear.AutoAttacks.CancelAutoSwing(sim)
@@ -189,7 +189,7 @@ func TestBearPrepullEnrageWithFullRotation(t *testing.T) {
 	}
 	for _, id := range []int32{spellDireBear, spellEnrage} {
 		count := 0
-		for _, line := range strings.Split(result.Logs, "\n") {
+		for line := range strings.SplitSeq(result.Logs, "\n") {
 			if strings.Contains(line, fmt.Sprintf("Casting {SpellID: %d}", id)) {
 				if id == spellEnrage && !strings.HasPrefix(line, "[-10.00]") {
 					continue
@@ -329,7 +329,7 @@ func TestAdaptiveMcpReturnsToMainWeapon(t *testing.T) {
 			p.Consumables.SwapMhImbueId = 12643
 		}
 		sim := core.NewSim(req, simsignals.CreateSignals())
-		for iteration := 0; iteration < 2; iteration++ {
+		for range 2 {
 			sim.Reset()
 			sim.PrePull()
 			for sim.CurrentTime < 0 {
@@ -376,7 +376,7 @@ func TestAdaptiveBearPrepullPreservesStartingRage(t *testing.T) {
 			player.GetFeralBearDruid().Options.StartingRage = rage
 			player.Rotation = rotation
 			sim := core.NewSim(req, simsignals.CreateSignals())
-			for iteration := 0; iteration < 2; iteration++ {
+			for iteration := range 2 {
 				sim.Reset()
 				bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 				bear.AutoAttacks.CancelAutoSwing(sim)
@@ -621,16 +621,7 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			expected["Bear (#1) picks no potion for {OtherID: 25}"] = true
 		}
 		for line, messages := range bearAPLWarnings(t, req) {
-			missingVindication := false
 			for _, message := range messages {
-				if message == "No aura found on Target 1 for: {SpellID: 440667, Tag: -1}" {
-					missingVindication = true
-				}
-			}
-			for _, message := range messages {
-				if missingVindication && message == "A condition branch in this 'And' check could not be resolved and was dropped." {
-					continue
-				}
 				if !expected[message] {
 					t.Errorf("consumes=%t line %d: %s", consumes, line, message)
 				}

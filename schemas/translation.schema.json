@@ -330,10 +330,63 @@
 						},
 						"swine": {
 							"type": "string"
+						},
+						"plant": {
+							"type": "string"
+						},
+						"troll": {
+							"type": "string"
+						},
+						"orc": {
+							"type": "string"
+						},
+						"ogre": {
+							"type": "string"
+						},
+						"wolf": {
+							"type": "string"
+						},
+						"worgen": {
+							"type": "string"
+						},
+						"murloc": {
+							"type": "string"
+						},
+						"furbolg": {
+							"type": "string"
+						},
+						"dwarf": {
+							"type": "string"
+						},
+						"dinosaur": {
+							"type": "string"
+						},
+						"serpentine": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "naga", "satyr", "aquatic", "earth_elemental", "fire_elemental", "mountain_giant", "swine"]
+					"required": [
+						"unknown",
+						"naga",
+						"satyr",
+						"aquatic",
+						"earth_elemental",
+						"fire_elemental",
+						"mountain_giant",
+						"swine",
+						"plant",
+						"troll",
+						"orc",
+						"ogre",
+						"wolf",
+						"worgen",
+						"murloc",
+						"furbolg",
+						"dwarf",
+						"dinosaur",
+						"serpentine"
+					]
 				},
 				"area_types": {
 					"type": "object",
@@ -1965,6 +2018,24 @@
 								"raids": {
 									"type": "string"
 								},
+								"newly_discovered": {
+									"type": "string"
+								},
+								"bonus": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"area": { "type": "string" },
+										"mob_type": { "type": "string" },
+										"creature": { "type": "string" },
+										"any": { "type": "string" },
+										"empty": { "type": "string" },
+										"remove": { "type": "string" },
+										"open": { "type": "string" }
+									},
+									"required": ["title", "area", "mob_type", "creature", "any", "empty", "remove", "open"],
+									"additionalProperties": false
+								},
 								"faction_labels": {
 									"type": "object",
 									"properties": {
@@ -1992,6 +2063,8 @@
 								"faction_restrictions",
 								"source",
 								"raids",
+								"newly_discovered",
+								"bonus",
 								"faction_labels"
 							]
 						},
@@ -2048,6 +2121,9 @@
 							"type": "string"
 						},
 						"filters_button": {
+							"type": "string"
+						},
+						"filters_button_active": {
 							"type": "string"
 						},
 						"unequip_item": {
@@ -2162,6 +2238,7 @@
 						"cooldowns",
 						"ep_tooltip",
 						"filters_button",
+						"filters_button_active",
 						"unequip_item",
 						"table_headers",
 						"sorted_ascending",

@@ -110,9 +110,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BeaststalkerArmor"
  value: {
-  dps: 780.09169
-  tps: 817.79975
-  dtps: 7.4058
+  dps: 778.80783
+  tps: 815.30222
+  dtps: 7.39365
   hps: 32.55028
  }
 }
@@ -275,6 +275,15 @@ dps_results: {
   dps: 864.17702
   tps: 899.65447
   dtps: 7.52738
+  hps: 33.05861
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 874.12776
+  tps: 909.61518
+  dtps: 7.54732
   hps: 33.05861
  }
 }
@@ -585,6 +594,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-GlovesofHolyMight-867"
+ value: {
+  dps: 866.47641
+  tps: 902.23122
+  dtps: 8.02889
+  hps: 32.99083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-GlyphofDeflection-23040"
  value: {
   dps: 864.17702
@@ -875,10 +893,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-RageoftheStorm-280604"
  value: {
-  dps: 887.51822
-  tps: 919.30566
-  dtps: 8.41298
-  hps: 21.75667
+  dps: 895.08315
+  tps: 926.7218
+  dtps: 9.20817
+  hps: 20.2825
  }
 }
 dps_results: {
@@ -1037,8 +1055,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TalismanofAscendance-22678"
  value: {
-  dps: 877.34558
-  tps: 912.87582
+  dps: 879.75247
+  tps: 915.28271
   dtps: 7.63296
   hps: 33.05861
  }

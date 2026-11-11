@@ -336,7 +336,7 @@ func (swap *ItemSwap) EligibleSlotsForItem(itemID int32) []proto.ItemSlot {
 func (swap *ItemSwap) EligibleSlotsForEffect(effectID int32) []proto.ItemSlot {
 	var eligibleSlots []proto.ItemSlot
 
-	for itemSlot := proto.ItemSlot(0); itemSlot < NumItemSlots; itemSlot++ {
+	for itemSlot := range NumItemSlots {
 		if !swap.IsEnabled() {
 			if swap.character.Equipment.containsEnchantInSlot(effectID, itemSlot) {
 				eligibleSlots = append(eligibleSlots, itemSlot)
@@ -453,6 +453,10 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 			character.AutoAttacks.IsDualWielding = weapon.SwingSpeed != 0
 			if !isReset && !isPrepull {
 				character.AutoAttacks.EnableMeleeSwing(sim)
+			}
+			// An off hand first equipped before the pull opens as one held from the start does.
+			if isPrepull && character.AutoAttacks.IsDualWielding && character.AutoAttacks.OffhandSwingAt() == NeverExpires {
+				character.AutoAttacks.resetOffHandSwing()
 			}
 			character.PseudoStats.CanBlock = character.OffHand().WeaponType == proto.WeaponType_WeaponTypeShield
 		}

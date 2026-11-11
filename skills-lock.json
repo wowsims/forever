@@ -10,12 +10,12 @@
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0273eeaa2836cde419b44e1bae9ba905f66665eb53e18ea56c773c3afe2ecd55"
+      "computedHash": "9d64ba63723f64cf3147ab2c005eb6a0bd6a1fabac8de86c200b5f3212a36abe"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "5a80308caf991cd49d6d2fa417de70833344ee0f049cd971483fc34f2c9c84e4"
+      "computedHash": "cf550f05a1c083b8c787dbe07dab247228667a1dc530f2489f6565ecf102c416"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
@@ -40,7 +40,12 @@
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "d059af80a933b8c72ae0d704068c7882c14dcf1e387012d54e107c32b517bccb"
+      "computedHash": "915153348ba116f613d641b8787954905bff8e2162402ee19ba7b682b75e14d6"
+    },
+    "wowsims-dependencies": {
+      "source": "./.github/skills",
+      "sourceType": "local",
+      "computedHash": "906185c86278190c9765dc6e2048ee7f352db315bd50c0f120a8cc47bfdc4ced"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
@@ -85,7 +90,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "47cfa0a0b352ab628cf248a8210999da4e3d5fc4a5b401a05e84c8ee7ce9d5ca"
+      "computedHash": "9b43d562bc098e4a467b6f2382aa2633444abfcff02c13f130a5624c379ef9a4"
     }
   }
 }

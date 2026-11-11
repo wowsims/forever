@@ -108,10 +108,11 @@ preset names:
 - **An unknown spell.** A Cast Spell, Multidot or value on a spell the unit lacks logs "does not know spell" and the line
   or value is dropped (`GetAPLSpell`). A `spellIsKnown` guard prunes the line, and the warning stays.
 - **An aura under another ActionID.** An `auraIsActive` or `auraNumStacks` naming a spell id core registers under
-  another ActionID logs "No aura found" and the value is dropped. An And drops that branch with a warning, an Or or a
-  Not drops it silently, and a condition with nothing left reads true and the line runs every time it is ready,
-  logging "Condition could not be resolved and will be treated as always true" (`sim/core/apl_action.go`); only the
-  branch inside an Or or a Not is silent. An `auraIsKnown` on such an id folds to false and the line never runs.
+  another ActionID logs "No aura found" and the value is dropped. An `auraIsKnown` on such an id folds to false and
+  the line never runs. An And drops that branch with a warning unless a constant false branch decides it, such as an
+  `auraIsKnown` guard on the same aura (`newValueAnd` in `sim/core/apl_values_operators.go`). An Or or a Not drops it
+  silently, so an Or reads it as false. A condition with nothing left reads true and the line runs every time it is
+  ready, logging "Condition could not be resolved and will be treated as always true" (`sim/core/apl_action.go`).
 - **A misspelled preset name in a suite.** `GetAplRotation` logs "no apl json file" and the suite runs no rotation
   (`GetTestBuildFromJSON` stops the run instead).
 
@@ -120,6 +121,12 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 `core.GetTestBuildFromJSON`'s config), calls `core.ComputeStats`, and prints every `Validations` entry of
 `RotationStats`: `PrepullActions`, `PriorityList`, `Groups[i].Actions` and `UuidValidations`, as `bearAPLWarnings` in
 `sim/druid/feralbear/rotation_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
+
+**Count the presets before a check starts to warn.** A change to which checks warn reaches every shipped rotation, and
+only the feral suites pin their validations. A throwaway line in the warning's path that appends the test binary and the
+dropped value to a file, and one run of the `with_db` suites over `./sim/...`, lists every preset the warning would
+reach. A warning on an Or that drops a branch reached the rogue and Protection warrior presets that way, on branches
+for another race's racial or an untaken talent.
 
 ## Timing
 

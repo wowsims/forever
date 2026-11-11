@@ -208,8 +208,8 @@ func Read(r io.Reader, validate bool) (DBDefinition, error) {
 			colDef.Verified = true
 		}
 
-		if idx := strings.Index(line, "//"); idx >= 0 {
-			colDef.Comment = strings.TrimSpace(line[idx+2:])
+		if _, after, ok := strings.Cut(line, "//"); ok {
+			colDef.Comment = strings.TrimSpace(after)
 		}
 
 		if _, exists := columnDefinitions[name]; exists {
