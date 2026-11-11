@@ -104,9 +104,9 @@ func (rogue *Rogue) AddRaidBuffs(_ *proto.RaidBuffs)   {}
 func (rogue *Rogue) AddPartyBuffs(_ *proto.PartyBuffs) {}
 
 // Apply the effect of successfully casting a finisher to combo points
-func (rogue *Rogue) ApplyFinisher(sim *core.Simulation, spell *core.Spell) {
-	numPoints := rogue.ComboPoints()
-	rogue.SpendComboPoints(sim, spell.ComboPointMetrics())
+func (rogue *Rogue) ApplyFinisher(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+	numPoints := rogue.ComboPoints(target)
+	rogue.SpendComboPoints(sim, target, spell.ComboPointMetrics())
 
 	// Relentless Strikes
 	if rogue.Talents.RelentlessStrikes > 0 && sim.Proc(rogue.relentlessStrikesChance*float64(numPoints), "Relentless Strikes") {
@@ -115,7 +115,7 @@ func (rogue *Rogue) ApplyFinisher(sim *core.Simulation, spell *core.Spell) {
 
 	// Ruthlessness
 	if rogue.Talents.Ruthlessness > 0 && sim.Proc(rogue.ruthlessnessChance, "Ruthlessness") {
-		rogue.AddComboPoints(sim, 1, rogue.ruthlessnessMetrics)
+		rogue.AddComboPoints(sim, target, 1, rogue.ruthlessnessMetrics)
 	}
 }
 
@@ -239,7 +239,13 @@ func (rogue *Rogue) IsStealthed() bool {
 }
 
 func (rogue *Rogue) FinisherExtraCastCondition(sim *core.Simulation, target *core.Unit) bool {
-	return rogue.ComboPoints() > 0
+	return rogue.ComboPoints(target) > 0
+}
+
+// ModifyCast is given no cast target, so the split reads the points where they are; a finisher that goes
+// through FinisherExtraCastCondition is cast at that unit.
+func (rogue *Rogue) setFinisherMetricsSplit(_ *core.Simulation, spell *core.Spell, _ *core.Cast) {
+	spell.SetMetricsSplit(rogue.ComboPoints(rogue.ComboPointTarget()))
 }
 
 func RegisterRogue() {

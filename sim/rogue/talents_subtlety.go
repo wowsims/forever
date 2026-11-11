@@ -58,8 +58,8 @@ func (rogue *Rogue) registerInitiative() {
 	initMetrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: initiativeRank.ID})
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, initiativeRank,
-		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.AddComboPoints(sim, 1, initMetrics)
+		func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			rogue.AddComboPoints(sim, result.Target, 1, initMetrics)
 		})
 	trigger.ClassSpellMask = RogueSpellGarrote | RogueSpellAmbush
 	trigger.TriggerImmediately = true
@@ -119,7 +119,7 @@ func (rogue *Rogue) registerGhostlyStrike() {
 		if result.Landed() {
 			dodgeBuff.Activate(sim)
 			rogue.GhostlyStrikeAura.Activate(sim)
-			rogue.AddComboPoints(sim, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(ghostlyStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -233,7 +233,7 @@ func (rogue *Rogue) registerHemorrhage() {
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
 			hemoAuras.Get(target).Activate(sim)
-			rogue.AddComboPoints(sim, int32(hemorrhageRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(hemorrhageRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -257,7 +257,7 @@ func (rogue *Rogue) registerPremeditation() {
 	premedMetrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: premeditationRank.ID})
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		rogue.AddComboPoints(sim, int32(premeditationRank.ProcEnergizeEffect().Roll(sim)), premedMetrics)
+		rogue.AddComboPoints(sim, target, int32(premeditationRank.ProcEnergizeEffect().Roll(sim)), premedMetrics)
 	}
 
 	rogue.Premeditation = rogue.GetOrRegisterSpell(config)
@@ -280,7 +280,8 @@ func (rogue *Rogue) registerSetup() {
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			rogue.AddComboPoints(sim, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
+			// The dodged attack's result is on the rogue; the point goes on the rogue's target, the attacker.
+			rogue.AddComboPoints(sim, rogue.CurrentTarget, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
 		})
 	// Only the dodge half is modelled. The fully resisted spell half is not.
 	trigger.Outcome = core.OutcomeDodge

@@ -27,12 +27,12 @@ func (rogue *Rogue) registerExposeArmorSpell() {
 			if result.Landed() {
 				rogue.ExposeArmorAuras.Get(target).Activate(sim)
 
-				if rogue.Talents.ImprovedExposeArmor > 0 && rogue.ComboPoints() >= 5 {
+				if rogue.Talents.ImprovedExposeArmor > 0 && rogue.ComboPoints(target) >= 5 {
 					pointsRefunded := int32(spellData.ImprovedExposeArmor.Rank(rogue.Talents.ImprovedExposeArmor).EffectN(2).BaseValue())
-					rogue.ApplyFinisher(sim, spell)
-					rogue.AddComboPoints(sim, pointsRefunded, spell.ComboPointMetrics())
+					rogue.ApplyFinisher(sim, target, spell)
+					rogue.AddComboPoints(sim, target, pointsRefunded, spell.ComboPointMetrics())
 				} else {
-					rogue.ApplyFinisher(sim, spell)
+					rogue.ApplyFinisher(sim, target, spell)
 				}
 			} else {
 				spell.IssueRefund(sim)
@@ -42,17 +42,15 @@ func (rogue *Rogue) registerExposeArmorSpell() {
 	}
 
 	config.MetricSplits = 6
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-		spell.SetMetricsSplit(rogue.ComboPoints())
-	}
+	config.Cast.ModifyCast = rogue.setFinisherMetricsSplit
 
 	rogue.ExposeArmor = rogue.RegisterSpell(config)
 }
 
-func (rogue *Rogue) GetExposeArmorValue() float64 {
-	return math.Abs((float64(exposeArmorRank.EffectN(1).PointsPerResource) * float64(rogue.ComboPoints())))
+func (rogue *Rogue) GetExposeArmorValue(target *core.Unit) float64 {
+	return math.Abs((float64(exposeArmorRank.EffectN(1).PointsPerResource) * float64(rogue.ComboPoints(target))))
 }
 
 func (rogue *Rogue) CanApplyExposeArmorAura(target *core.Unit) bool {
-	return !rogue.ExposeArmorAuras.Get(target).IsActive() || rogue.ExposeArmorAuras.Get(target).ExclusiveEffects[0].Priority <= rogue.GetExposeArmorValue()
+	return !rogue.ExposeArmorAuras.Get(target).IsActive() || rogue.ExposeArmorAuras.Get(target).ExclusiveEffects[0].Priority <= rogue.GetExposeArmorValue(target)
 }

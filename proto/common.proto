@@ -797,6 +797,7 @@ enum OtherAction {
 	OtherActionResourcePotion = 24;
 	OtherActionDefensivePotion = 25;
 	OtherActionOffensivePotion = 26;
+	OtherActionComboPointsLost = 27; // Combo points dropped when a gain lands on another unit.
 }
 
 message ActionID {

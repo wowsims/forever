@@ -1401,6 +1401,9 @@
 						"encounter_start": {
 							"type": "string"
 						},
+						"combo_points_lost": {
+							"type": "string"
+						},
 						"minor_run_speed": {
 							"type": "string"
 						},
@@ -1424,6 +1427,7 @@
 						"moving_from_spell",
 						"prepull",
 						"encounter_start",
+						"combo_points_lost",
 						"minor_run_speed",
 						"item_swap_main",
 						"item_swap_swapped"

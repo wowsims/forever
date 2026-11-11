@@ -50,7 +50,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   (0.8 where the row flags Discount Power On Miss), the default unless verified spell-specific behaviour differs.
 - **Combo points are not part of the cost.** The spell spends them through `SpendComboPoints` (`energy.go`), each
   resource on its own: a failed Ferocious Bite gets 80% of its base cost back and keeps its points and its extra
-  energy.
+  energy. The points sit on one unit: a gain on another unit drops them (the Combo Points Lost metric), a target swap
+  alone keeps them, and finishers and Current Combo Points read the points on their cast or given target.
 - **A one-charge buff is spent by the cast it modifies**; the spender is `wowsims-procs`. A spell's own charges
   (`MaxCharges`) are spent by `ConsumeCharge` and refuse the cast at zero.
 

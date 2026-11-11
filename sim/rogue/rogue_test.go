@@ -50,20 +50,20 @@ func TestBookRanksBesideTrainerRanks(t *testing.T) {
 		if !backstab.Cast(sim, rogue.CurrentTarget) {
 			t.Fatalf("%s did not cast", rank.RankedName())
 		}
-		if rogue.ComboPoints() != 1 || !backstab.Matches(RogueSpellBackstab) {
-			t.Errorf("%s leaves %d combo points, or lost the Backstab mask; want 1", rank.RankedName(), rogue.ComboPoints())
+		if rogue.ComboPoints(rogue.CurrentTarget) != 1 || !backstab.Matches(RogueSpellBackstab) {
+			t.Errorf("%s leaves %d combo points, or lost the Backstab mask; want 1", rank.RankedName(), rogue.ComboPoints(rogue.CurrentTarget))
 		}
 	}
 
 	eviscerate := func(rank *spelldata.Spell) float64 {
 		sim, rogue, spell := newRogue(rank)
 		target := rogue.CurrentTarget
-		rogue.AddComboPoints(sim, 5, rogue.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		rogue.AddComboPoints(sim, target, 5, rogue.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		if !spell.Cast(sim, target) {
 			t.Fatalf("%s did not cast", rank.RankedName())
 		}
-		if rogue.ComboPoints() != 0 {
-			t.Errorf("%s leaves %d combo points, want 0", rank.RankedName(), rogue.ComboPoints())
+		if rogue.ComboPoints(target) != 0 {
+			t.Errorf("%s leaves %d combo points, want 0", rank.RankedName(), rogue.ComboPoints(target))
 		}
 		return spell.SpellMetrics[target.UnitIndex].TotalDamage
 	}
@@ -338,6 +338,63 @@ func TestRiposteWindowOpensOnParriedSwings(t *testing.T) {
 	}
 }
 
+// A finisher spends the combo points on its cast target and is refused at a unit that holds none.
+func TestFinisherNeedsComboPointsOnItsTarget(t *testing.T) {
+	sim, rogue, targets := newTankSim(t, "")
+	holder, other := targets[0], targets[1]
+	eviscerate := rogue.GetSpell(core.ActionID{SpellID: eviscerateTrainerRank.ID})
+	rogue.AddComboPoints(sim, holder, 3, rogue.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+
+	if eviscerate.CanCast(sim, other) {
+		t.Error("Eviscerate can be cast at a target that holds no combo points")
+	}
+	if !eviscerate.CanCast(sim, holder) {
+		t.Fatal("Eviscerate cannot be cast at the target that holds the combo points")
+	}
+	holder.PseudoStats.BaseDodgeChance = 0
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	if !eviscerate.Cast(sim, holder) {
+		t.Fatal("Eviscerate did not cast at the target that holds the combo points")
+	}
+	if got := rogue.ComboPoints(holder); got != 0 {
+		t.Errorf("Eviscerate leaves %d combo points on its target, want 0", got)
+	}
+}
+
+// A Rupture on a second target leaves the first target's ticks at the points the first cast spent.
+func TestRuptureTicksKeepTheirOwnCastsPoints(t *testing.T) {
+	sim, rogue, targets := newTankSim(t, "")
+	first, second := targets[0], targets[1]
+	rogue.AutoAttacks.CancelAutoSwing(sim)
+	rogue.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	rupture := func(target *core.Unit, points int32) {
+		t.Helper()
+		for !rogue.GCD.IsReady(sim) {
+			if sim.Step() {
+				t.Fatal("the sim ended while the GCD was running")
+			}
+		}
+		target.PseudoStats.BaseDodgeChance = 0
+		rogue.AddEnergy(sim, 100, rogue.EnergyRefundMetrics)
+		rogue.AddComboPoints(sim, target, points, rogue.Rupture.ComboPointMetrics())
+		if !rogue.Rupture.Cast(sim, target) {
+			t.Fatalf("Rupture did not cast at %s", target.Label)
+		}
+	}
+	tick := func() float64 {
+		before := rogue.Rupture.SpellMetrics[first.UnitIndex].TotalDamage
+		rogue.Rupture.Dot(first).TickOnce(sim)
+		return rogue.Rupture.SpellMetrics[first.UnitIndex].TotalDamage - before
+	}
+
+	rupture(first, 5)
+	atFive := tick()
+	rupture(second, 1)
+	if got := tick(); got != atFive {
+		t.Errorf("a 5-point Rupture ticks for %.4f after a 1-point Rupture on another target, want %.4f", got, atFive)
+	}
+}
+
 // Riposte is off the GCD, and only its own cast spends the window: a Sinister Strike leaves it up.
 func TestRiposteCastsOffTheGCDAndSpendsItsWindow(t *testing.T) {
 	sim, rogue, targets := newTankSim(t, tankTalents)
@@ -385,10 +442,10 @@ func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 
 			var gained int32
 			for range dodges {
-				rogue.ResetComboPoints(sim, 0)
+				rogue.ResetComboPoints(sim, targets[0], 0)
 				swingAt(sim, rogue, targets[c.fromIndex], core.OutcomeDodge)
 				passBatchWindow(t, sim)
-				gained += rogue.ComboPoints()
+				gained += rogue.ComboPoints(targets[0])
 
 				until := sim.CurrentTime + icd
 				for sim.CurrentTime <= until {
@@ -531,11 +588,11 @@ func TestShankFollowsItsTalents(t *testing.T) {
 			for range 100 {
 				waitForGCD()
 				rogue.Shank.CD.Reset()
-				rogue.ResetComboPoints(sim, 0)
+				rogue.ResetComboPoints(sim, target, 0)
 				if !rogue.Shank.Cast(sim, target) {
 					t.Fatal("Shank did not cast")
 				}
-				if got := rogue.ComboPoints(); got != wantPoints {
+				if got := rogue.ComboPoints(target); got != wantPoints {
 					t.Fatalf("Shank adds %d combo points, want %d", got, wantPoints)
 				}
 			}
@@ -581,12 +638,12 @@ func TestDeathMarkStoresAndPaysOut(t *testing.T) {
 					}
 				}
 				deathMark.CD.Reset()
-				rogue.AddComboPoints(sim, points, deathMark.ComboPointMetrics())
+				rogue.AddComboPoints(sim, target, points, deathMark.ComboPointMetrics())
 				if !deathMark.Cast(sim, target) {
 					t.Fatal("Death Mark did not cast")
 				}
-				if rogue.ComboPoints() != 0 || !dot.IsActive() {
-					t.Fatalf("Death Mark leaves %d combo points and its mark up: %v; want 0 and up", rogue.ComboPoints(), dot.IsActive())
+				if rogue.ComboPoints(target) != 0 || !dot.IsActive() {
+					t.Fatalf("Death Mark leaves %d combo points and its mark up: %v; want 0 and up", rogue.ComboPoints(target), dot.IsActive())
 				}
 			}
 			payout := func() float64 {

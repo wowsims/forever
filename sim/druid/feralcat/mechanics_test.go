@@ -535,7 +535,7 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	fillResource(sim, cat)
 	var landed bool
 	for range 15 {
-		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints() > 0 {
+		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints(cat.CurrentTarget) > 0 {
 			landed = true
 			break
 		}
@@ -545,13 +545,13 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	if !landed {
 		t.Fatal("claw never awarded a combo point")
 	}
-	points := cat.ComboPoints()
+	points := cat.ComboPoints(cat.CurrentTarget)
 	fillResource(sim, cat)
 	sim.CurrentTime += 2 * time.Second
 	if !cat.Rip.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("rip did not cast")
 	}
-	if got := cat.ComboPoints(); got != 0 {
+	if got := cat.ComboPoints(cat.CurrentTarget); got != 0 {
 		t.Errorf("combo points after rip = %d, want 0 (spent %d)", got, points)
 	}
 	if !cat.Rip.Dot(cat.CurrentTarget).IsActive() {
@@ -957,7 +957,7 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 						sim.Cleanup()
 						sim.Reset()
 					}
-					cat.AddComboPoints(sim, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
+					cat.AddComboPoints(sim, cat.CurrentTarget, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
 					dot := cat.Rip.Dot(cat.CurrentTarget)
 					dot.Apply(sim)
 					want := row.Duration()

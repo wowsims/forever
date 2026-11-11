@@ -175,6 +175,10 @@ export class ActionId {
 				baseName = i18n.t('common.action_names.encounter_start');
 				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/achievement_faction_elders.jpg';
 				break;
+			case OtherAction.OtherActionComboPointsLost:
+				baseName = i18n.t('common.action_names.combo_points_lost');
+				iconUrl = 'https://wow.zamimg.com/images/wow/icons/medium/ability_rogue_eviscerate.jpg';
+				break;
 			case OtherAction.OtherActionItemSwap:
 				baseName =
 					this.tag == APLActionItemSwap_SwapSet.Main ? i18n.t('common.action_names.item_swap_main') : i18n.t('common.action_names.item_swap_swapped');

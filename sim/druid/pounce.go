@@ -40,7 +40,7 @@ func (druid *Druid) registerPounceSpell() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHit)
 		stuns.Get(target).Activate(sim)
-		druid.awardComboPoints(sim, spell, rank)
+		druid.awardComboPoints(sim, target, spell, rank)
 		bleed := druid.PounceBleed.CalcOutcome(sim, target, druid.PounceBleed.OutcomeMeleeSpecialHitNoHitCounter)
 		if bleed.Landed() {
 			druid.PounceBleed.Dot(target).Apply(sim)

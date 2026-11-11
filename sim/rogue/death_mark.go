@@ -31,7 +31,7 @@ func (rogue *Rogue) registerDeathMark() {
 	// sim applies to direct hits only, and the payout is a tick, so it is read here. The tooltip's $coup reads the
 	// talent's first effect, which states the same values.
 	coupDeGrace := spellData.CoupDeGrace.EffectAt(2).MultiplierAt(rogue.Talents.CoupDeGrace)
-	var comboPoints int32
+	comboPoints := map[int32]int32{}
 
 	config := spelldata.SpellConfig(&rogue.Unit, deathMarkRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
@@ -41,7 +41,7 @@ func (rogue *Rogue) registerDeathMark() {
 		if spell.Unit != &rogue.Unit || spell == rogue.DeathMark {
 			return
 		}
-		rate := deathMarkStoredPerPoint * float64(comboPoints) * coupDeGrace
+		rate := deathMarkStoredPerPoint * float64(comboPoints[aura.Unit.UnitIndex]) * coupDeGrace
 		if spell.Matches(RogueSpellGarrote | RogueSpellRupture) {
 			rate *= 2
 		}
@@ -52,7 +52,7 @@ func (rogue *Rogue) registerDeathMark() {
 	config.Dot.Aura.OnSpellHitTaken = store
 	config.Dot.Aura.OnPeriodicDamageTaken = store
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		points := float64(comboPoints)
+		points := float64(comboPoints[target.UnitIndex])
 		// $mcrit is the melee crit chance the character sheet shows, before the target's level takes any.
 		critFactor := 1 + rogue.GetStat(stats.PhysicalCritPercent)/100
 		limit := (deathMarkCapBase + deathMarkCapPerPoint*points + deathMarkCapAPPerPoint*points*dot.Spell.MeleeAttackPower(target)) *
@@ -64,11 +64,11 @@ func (rogue *Rogue) registerDeathMark() {
 		rogue.BreakStealth(sim)
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
-			comboPoints = rogue.ComboPoints()
+			comboPoints[target.UnitIndex] = rogue.ComboPoints(target)
 			dot := spell.Dot(target)
 			dot.SnapshotBaseDamage = 0
 			dot.Apply(sim)
-			rogue.ApplyFinisher(sim, spell)
+			rogue.ApplyFinisher(sim, target, spell)
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -76,9 +76,7 @@ func (rogue *Rogue) registerDeathMark() {
 	}
 
 	config.MetricSplits = 6
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-		spell.SetMetricsSplit(rogue.ComboPoints())
-	}
+	config.Cast.ModifyCast = rogue.setFinisherMetricsSplit
 
 	rogue.DeathMark = rogue.RegisterSpell(config)
 }

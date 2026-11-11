@@ -224,7 +224,8 @@ func getComboPoints() int {
 	if !player.GetCharacter().HasEnergyBar() {
 		return 0
 	}
-	return int(player.GetCharacter().ComboPoints())
+	character := player.GetCharacter()
+	return int(character.ComboPoints(character.CurrentTarget))
 }
 
 //export getUnitCount
