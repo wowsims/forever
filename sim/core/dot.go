@@ -114,11 +114,10 @@ func (dot *Dot) isImmuneBleed() bool {
 	return dot.Unit.BleedImmune && dot.Spell.Flags.Matches(SpellFlagBleed)
 }
 
-// Whether a bleed Dot of any caster in the sim is up on the unit, an item proc's included. A bleed's
-// last tick, dealt at its expiry, does not find its own Dot up.
-func (unit *Unit) HasActiveBleed() bool {
-	return unit.activeBleeds > 0
-}
+// The tag every bleed Dot's aura carries (SpellFlagBleed), any caster's and an item proc's included, so
+// HasActiveAuraWithTag says whether a unit is bleeding. A bleed's last tick, dealt at its expiry, does not
+// find its own Dot up.
+const BleedAuraTag = "Bleed"
 
 // A rank does not land while a higher rank from the same caster is up on the unit; otherwise it ends
 // the other ranks there before it starts.
@@ -539,12 +538,8 @@ func newDot(config Dot) *Dot {
 
 	dot.tickPeriod = dot.BaseTickLength
 	dot.Duration = dot.tickPeriod * time.Duration(dot.BaseTickCount)
-	bleed := dot.Spell.Flags.Matches(SpellFlagBleed)
 
 	dot.ApplyOnGain(func(aura *Aura, sim *Simulation) {
-		if bleed {
-			aura.Unit.activeBleeds++
-		}
 		dot.rescheduleTick(sim, sim.CurrentTime+dot.tickPeriod)
 		if dot.isChanneled {
 			// Starting a channel ends the unit's running one with no further tick. That end clears the
@@ -561,9 +556,6 @@ func newDot(config Dot) *Dot {
 		}
 	})
 	dot.ApplyOnExpire(func(aura *Aura, sim *Simulation) {
-		if bleed {
-			aura.Unit.activeBleeds--
-		}
 		// the core scheduling fails to process ticks first so we need to apply the last tick
 		// A dot removed early deals no truncated tick, as that tick waits for the expiry.
 		if dot.tickAction.NextActionAt == sim.CurrentTime {
@@ -645,6 +637,12 @@ func (spell *Spell) createDots(config DotConfig, isHot bool) {
 	auraConfig := config.Aura
 	if auraConfig.ActionID.IsEmptyAction() {
 		auraConfig.ActionID = dot.Spell.ActionID
+	}
+	if dot.Spell.Flags.Matches(SpellFlagBleed) {
+		if auraConfig.Tag != "" {
+			panic("bleed dot " + auraConfig.Label + " carries the tag " + auraConfig.Tag + ", so it cannot carry " + BleedAuraTag)
+		}
+		auraConfig.Tag = BleedAuraTag
 	}
 
 	caster := dot.Spell.Unit

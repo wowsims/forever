@@ -63,8 +63,6 @@ type Unit struct {
 	StunImmune     bool // A stun misses this unit whole (SpellFlagStun), and stun auras do not land: a raid boss.
 	CreatureFamily proto.CreatureFamily
 
-	activeBleeds int32 // The bleed Dots (SpellFlagBleed) up on this unit, any caster's.
-
 	// Amount of time it takes for the human agent to react to in-game events.
 	// Used by certain APL values and actions.
 	ReactionTime    time.Duration

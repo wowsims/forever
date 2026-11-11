@@ -77,7 +77,7 @@ func (druid *Druid) targetIsBleeding(target *core.Unit) bool {
 	if target.BleedImmune {
 		return false
 	}
-	return druid.AssumeBleedActive || target.HasActiveBleed()
+	return druid.AssumeBleedActive || target.HasActiveAuraWithTag(core.BleedAuraTag)
 }
 
 func (druid *Druid) breakProwl(sim *core.Simulation) {
