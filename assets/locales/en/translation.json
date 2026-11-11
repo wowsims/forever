@@ -104,7 +104,18 @@
 			"earth_elemental": "Earth Elemental",
 			"fire_elemental": "Fire Elemental",
 			"mountain_giant": "Mountain Giant",
-			"swine": "Swine"
+			"swine": "Swine",
+			"plant": "Plants",
+			"troll": "Trolls",
+			"orc": "Orcs",
+			"ogre": "Ogres",
+			"wolf": "Wolves",
+			"worgen": "Worgen",
+			"murloc": "Murlocs",
+			"furbolg": "Furbolg",
+			"dwarf": "Dwarves",
+			"dinosaur": "Dinosaurs",
+			"serpentine": "Serpentine"
 		},
 		"area_types": {
 			"unknown": "None",
@@ -537,6 +548,8 @@
 				"faction_restrictions": "Faction Restrictions",
 				"source": "Source",
 				"raids": "Raids",
+				"area_types": "Only items with an effect in",
+				"mob_types": "Only items with an effect against",
 				"faction_labels": {
 					"none": "Any",
 					"alliance_only": "Alliance only",

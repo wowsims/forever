@@ -269,6 +269,17 @@ export const creatureFamilyI18nKeys: Record<CreatureFamily, string> = {
 	[CreatureFamily.CreatureFamilyFireElemental]: 'fire_elemental',
 	[CreatureFamily.CreatureFamilyMountainGiant]: 'mountain_giant',
 	[CreatureFamily.CreatureFamilySwine]: 'swine',
+	[CreatureFamily.CreatureFamilyPlant]: 'plant',
+	[CreatureFamily.CreatureFamilyTroll]: 'troll',
+	[CreatureFamily.CreatureFamilyOrc]: 'orc',
+	[CreatureFamily.CreatureFamilyOgre]: 'ogre',
+	[CreatureFamily.CreatureFamilyWolf]: 'wolf',
+	[CreatureFamily.CreatureFamilyWorgen]: 'worgen',
+	[CreatureFamily.CreatureFamilyMurloc]: 'murloc',
+	[CreatureFamily.CreatureFamilyFurbolg]: 'furbolg',
+	[CreatureFamily.CreatureFamilyDwarf]: 'dwarf',
+	[CreatureFamily.CreatureFamilyDinosaur]: 'dinosaur',
+	[CreatureFamily.CreatureFamilySerpentine]: 'serpentine',
 };
 
 export const areaTypeI18nKeys: Record<AreaType, string> = {

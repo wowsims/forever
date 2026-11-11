@@ -547,6 +547,17 @@ enum CreatureFamily {
 	CreatureFamilyFireElemental = 5;
 	CreatureFamilyMountainGiant = 6;
 	CreatureFamilySwine = 7;
+	CreatureFamilyPlant = 8;
+	CreatureFamilyTroll = 9;
+	CreatureFamilyOrc = 10;
+	CreatureFamilyOgre = 11;
+	CreatureFamilyWolf = 12;
+	CreatureFamilyWorgen = 13;
+	CreatureFamilyMurloc = 14;
+	CreatureFamilyFurbolg = 15;
+	CreatureFamilyDwarf = 16;
+	CreatureFamilyDinosaur = 17;
+	CreatureFamilySerpentine = 18;
 }
 
 // The game files' terrain area groups (SpellCastingRequirements.RequiredAreasID).

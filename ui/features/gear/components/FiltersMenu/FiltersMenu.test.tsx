@@ -1,5 +1,5 @@
-import { ArmorType, Faction, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
-import { DatabaseFilters, FactionFilter, SourceFilterOption } from '@generated/proto/ui';
+import { AreaType, ArmorType, CreatureFamily, Faction, ItemSlot, MobType, RangedWeaponType, WeaponType } from '@generated/proto/common';
+import { DatabaseFilters, FactionFilter, SourceFilterOption, UIItem } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { storeSource as store } from '@testing/gear';
 import { renderWithHost } from '@testing/react';
@@ -31,6 +31,7 @@ describe('FiltersMenu', () => {
 	let filters: DatabaseFilters;
 	let setFilters: ReturnType<typeof vi.fn>;
 	let raceFaction: Faction;
+	let items: UIItem[];
 	let rootElem: HTMLElement;
 
 	const setup = (
@@ -48,6 +49,7 @@ describe('FiltersMenu', () => {
 				sim: {
 					getFilters: () => DatabaseFilters.clone(filters),
 					setFilters,
+					db: { getAllItems: () => items },
 				},
 				getPlayerClass: () => ({ armorTypes, weaponTypes: weaponTypes.map(weaponType => ({ weaponType })), rangedWeaponTypes }),
 				getPlayerSpec: () => ({ canDualWield }),
@@ -71,6 +73,7 @@ describe('FiltersMenu', () => {
 	beforeEach(() => {
 		filters = DatabaseFilters.create({});
 		raceFaction = Faction.Horde;
+		items = [];
 		setFilters = vi.fn((next: DatabaseFilters) => {
 			filters = next;
 		});
@@ -97,6 +100,28 @@ describe('FiltersMenu', () => {
 
 		setup({ weaponTypes: [WeaponType.WeaponTypeAxe], canDualWield: true }, { slot: ItemSlot.ItemSlotMainHand });
 		expect(pickerIds()).toEqual(expect.arrayContaining(['filters-min-oh-weapon-speed', 'filters-max-oh-weapon-speed']));
+	});
+
+	it('lists the biomes, mob types and creature groups the items carry, in enum order, and none the items lack', () => {
+		items = [
+			UIItem.create({ id: 1, areaTypes: [AreaType.AreaTypeDesert], mobTypes: [MobType.MobTypeUndead, MobType.MobTypeDemon] }),
+			UIItem.create({
+				id: 2,
+				areaTypes: [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert],
+				creatureFamilies: [CreatureFamily.CreatureFamilyPlant],
+			}),
+			UIItem.create({ id: 3 }),
+		];
+		setup();
+
+		const typeIds = pickerIds().filter(id => /^filters-(area-type|mob-type|creature-family)-/.test(id));
+		expect(typeIds).toEqual([
+			`filters-area-type-${AreaType.AreaTypeForestGrassland}`,
+			`filters-area-type-${AreaType.AreaTypeDesert}`,
+			`filters-mob-type-${MobType.MobTypeDemon}`,
+			`filters-mob-type-${MobType.MobTypeUndead}`,
+			`filters-creature-family-${CreatureFamily.CreatureFamilyPlant}`,
+		]);
 	});
 
 	it('portals into the sim root for the spec theme, writes a source toggle and a faction pick back through the sim, and closes on its own close button', async () => {
@@ -161,6 +186,9 @@ const renderView = (props: Partial<FiltersMenuViewProps> = {}) => {
 			armorTypes={[ArmorType.ArmorTypeMail, ArmorType.ArmorTypePlate]}
 			weaponTypes={[WeaponType.WeaponTypeAxe, WeaponType.WeaponTypeSword]}
 			rangedWeaponTypes={[RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeGun]}
+			areaTypes={[]}
+			mobTypes={[]}
+			creatureFamilies={[]}
 			canDualWield={false}
 			raceFaction={Faction.Horde}
 			{...props}
@@ -186,6 +214,32 @@ describe('FiltersMenuView', () => {
 			'gear_tab.gear_picker.filters.source',
 			'gear_tab.gear_picker.filters.raids',
 			'gear_tab.gear_picker.armor_type',
+		]);
+	});
+
+	it('puts the biome section and the mob type and creature group section after the raids, and writes a ticked type into its list', () => {
+		const { lastEdit } = renderView({
+			areaTypes: [AreaType.AreaTypeDesert],
+			mobTypes: [MobType.MobTypeUndead, MobType.MobTypeDemon],
+			creatureFamilies: [CreatureFamily.CreatureFamilyPlant],
+		});
+		expect(viewSections().slice(2)).toEqual([
+			'gear_tab.gear_picker.filters.raids',
+			'gear_tab.gear_picker.filters.area_types',
+			'gear_tab.gear_picker.filters.mob_types',
+			'gear_tab.gear_picker.armor_type',
+		]);
+
+		fireEvent.click(input(`filters-mob-type-${MobType.MobTypeUndead}`));
+		expect(lastEdit().mobTypes).toEqual([MobType.MobTypeUndead]);
+
+		fireEvent.click(input(`filters-creature-family-${CreatureFamily.CreatureFamilyPlant}`));
+		expect(lastEdit().creatureFamilies).toEqual([CreatureFamily.CreatureFamilyPlant]);
+
+		fireEvent.click(input(`filters-area-type-${AreaType.AreaTypeDesert}`));
+		expect(lastEdit(DatabaseFilters.create({ areaTypes: [AreaType.AreaTypeDesert] })).areaTypes).toEqual([
+			AreaType.AreaTypeDesert,
+			AreaType.AreaTypeDesert,
 		]);
 	});
 

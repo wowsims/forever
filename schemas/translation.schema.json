@@ -330,10 +330,63 @@
 						},
 						"swine": {
 							"type": "string"
+						},
+						"plant": {
+							"type": "string"
+						},
+						"troll": {
+							"type": "string"
+						},
+						"orc": {
+							"type": "string"
+						},
+						"ogre": {
+							"type": "string"
+						},
+						"wolf": {
+							"type": "string"
+						},
+						"worgen": {
+							"type": "string"
+						},
+						"murloc": {
+							"type": "string"
+						},
+						"furbolg": {
+							"type": "string"
+						},
+						"dwarf": {
+							"type": "string"
+						},
+						"dinosaur": {
+							"type": "string"
+						},
+						"serpentine": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "naga", "satyr", "aquatic", "earth_elemental", "fire_elemental", "mountain_giant", "swine"]
+					"required": [
+						"unknown",
+						"naga",
+						"satyr",
+						"aquatic",
+						"earth_elemental",
+						"fire_elemental",
+						"mountain_giant",
+						"swine",
+						"plant",
+						"troll",
+						"orc",
+						"ogre",
+						"wolf",
+						"worgen",
+						"murloc",
+						"furbolg",
+						"dwarf",
+						"dinosaur",
+						"serpentine"
+					]
 				},
 				"area_types": {
 					"type": "object",
@@ -1949,6 +2002,12 @@
 								"raids": {
 									"type": "string"
 								},
+								"area_types": {
+									"type": "string"
+								},
+								"mob_types": {
+									"type": "string"
+								},
 								"faction_labels": {
 									"type": "object",
 									"properties": {
@@ -1976,6 +2035,8 @@
 								"faction_restrictions",
 								"source",
 								"raids",
+								"area_types",
+								"mob_types",
 								"faction_labels"
 							]
 						},

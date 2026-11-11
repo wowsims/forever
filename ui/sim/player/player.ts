@@ -1333,6 +1333,17 @@ export class Player<SpecType extends Spec> {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) <= filters.maxIlvl);
 		}
 
+		// A ticked biome, mob type or creature group narrows the list to the items with an effect that names a ticked one.
+		if (filters.areaTypes.length || filters.mobTypes.length || filters.creatureFamilies.length) {
+			itemData = filterItems(
+				itemData,
+				item =>
+					item.areaTypes.some(areaType => filters.areaTypes.includes(areaType)) ||
+					item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) ||
+					item.creatureFamilies.some(family => filters.creatureFamilies.includes(family)),
+			);
+		}
+
 		// Any filters nothing, and so does a value the enum does not list, which a binary link can carry.
 		const faction = filters.factionFilter == FactionFilter.FactionFilterRace ? this.getFaction() : Faction.Unknown;
 		if (faction != Faction.Unknown) {

@@ -1,7 +1,25 @@
-import { type ArmorType, Faction, ItemSlot, type RangedWeaponType, type WeaponType } from '@generated/proto/common';
+import {
+	type AreaType,
+	type ArmorType,
+	type CreatureFamily,
+	Faction,
+	ItemSlot,
+	type MobType,
+	type RangedWeaponType,
+	type WeaponType,
+} from '@generated/proto/common';
 import { type DatabaseFilters, FactionFilter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { translateArmorType, translateRaidFilter, translateRangedWeaponType, translateSourceFilter, translateWeaponType } from '@i18n/localization';
+import {
+	translateAreaType,
+	translateArmorType,
+	translateCreatureFamily,
+	translateMobType,
+	translateRaidFilter,
+	translateRangedWeaponType,
+	translateSourceFilter,
+	translateWeaponType,
+} from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
@@ -11,6 +29,7 @@ import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
 import { NumberField } from '@ui-kit/TextField';
+import { useMemo } from 'react';
 
 import { MenuSection } from './MenuSection';
 
@@ -35,6 +54,10 @@ export interface FiltersMenuViewProps {
 	armorTypes: ReadonlyArray<ArmorType>;
 	weaponTypes: ReadonlyArray<WeaponType>;
 	rangedWeaponTypes: ReadonlyArray<RangedWeaponType>;
+	/** The biomes, mob types and creature groups some item's effect names; ticking one narrows the list to those items. */
+	areaTypes: ReadonlyArray<AreaType>;
+	mobTypes: ReadonlyArray<MobType>;
+	creatureFamilies: ReadonlyArray<CreatureFamily>;
 	canDualWield: boolean;
 	/** The player's race's faction, which names the faction filter's default option. */
 	raceFaction: Faction;
@@ -49,6 +72,9 @@ export const FiltersMenuView = ({
 	armorTypes,
 	weaponTypes,
 	rangedWeaponTypes,
+	areaTypes,
+	mobTypes,
+	creatureFamilies,
 	canDualWield,
 	raceFaction,
 }: FiltersMenuViewProps) => {
@@ -137,6 +163,19 @@ export const FiltersMenuView = ({
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
 			</MenuSection>
+			{areaTypes.length > 0 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.area_types')} className="ui-filters-menu-section-bool-list">
+					{areaTypes.map(areaType => listToggle('areaTypes', areaType, `filters-area-type-${areaType}`, translateAreaType(areaType)))}
+				</MenuSection>
+			)}
+			{mobTypes.length + creatureFamilies.length > 0 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.mob_types')} className="ui-filters-menu-section-bool-list">
+					{mobTypes.map(mobType => listToggle('mobTypes', mobType, `filters-mob-type-${mobType}`, translateMobType(mobType)))}
+					{creatureFamilies.map(family =>
+						listToggle('creatureFamilies', family, `filters-creature-family-${family}`, translateCreatureFamily(family)),
+					)}
+				</MenuSection>
+			)}
 			{Player.ARMOR_SLOTS.includes(slot)
 				? armorTypes.length > 1 && (
 						<MenuSection name={i18n.t('gear_tab.gear_picker.armor_type')} className="ui-filters-menu-section-bool-list">
@@ -218,6 +257,15 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
 	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
+	const { areaTypes, mobTypes, creatureFamilies } = useMemo(() => {
+		const items = sim.db.getAllItems();
+		const listed = <T extends number>(typesOf: (item: (typeof items)[number]) => Array<T>) => [...new Set(items.flatMap(typesOf))].sort((a, b) => a - b);
+		return {
+			areaTypes: listed(item => item.areaTypes),
+			mobTypes: listed(item => item.mobTypes),
+			creatureFamilies: listed(item => item.creatureFamilies),
+		};
+	}, [sim.db]);
 
 	return (
 		<FiltersMenuView
@@ -233,6 +281,9 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 			armorTypes={playerClass.armorTypes}
 			weaponTypes={playerClass.weaponTypes.map(entry => entry.weaponType)}
 			rangedWeaponTypes={playerClass.rangedWeaponTypes}
+			areaTypes={areaTypes}
+			mobTypes={mobTypes}
+			creatureFamilies={creatureFamilies}
 			canDualWield={player.getPlayerSpec().canDualWield}
 			raceFaction={raceFaction}
 		/>
