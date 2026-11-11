@@ -279,9 +279,10 @@ func (rogue *Rogue) registerSetup() {
 	setupMetrics := rogue.NewComboPointMetrics(core.ActionID{SpellID: setupRank.ID})
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, setupRank,
-		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			// The dodged attack's result is on the rogue; the point goes on the rogue's target, the attacker.
-			rogue.AddComboPoints(sim, rogue.CurrentTarget, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
+		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+			// The dodged attack's result is on the rogue; the point goes on the attacker, the rogue's target at the
+			// dodge, even if the target changes before this deferred handler runs.
+			rogue.AddComboPoints(sim, spell.Unit, int32(setupTriggered.ProcEnergizeEffect().Roll(sim)), setupMetrics)
 		})
 	// Only the dodge half is modelled. The fully resisted spell half is not.
 	trigger.Outcome = core.OutcomeDodge

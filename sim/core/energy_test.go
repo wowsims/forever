@@ -42,6 +42,23 @@ func TestComboPointsLiveOnOneUnit(t *testing.T) {
 	}
 }
 
+// A target that dies takes the combo points on it, and comes back without them.
+func TestComboPointsGoWithADyingTarget(t *testing.T) {
+	sim, fw := setupTwoTargetRotationSim()
+	fw.EnableEnergyBar(EnergyBarOptions{MaxEnergy: 100, MaxComboPoints: 5})
+	second := sim.Encounter.AllTargetUnits[1]
+	fw.AddComboPoints(sim, second, 3, fw.NewComboPointMetrics(ActionID{SpellID: 1}))
+
+	sim.DisableTargetUnit(second, true)
+	if got := fw.ComboPoints(second); got != 0 {
+		t.Errorf("%s holds %d combo points after it died, want 0", second.Label, got)
+	}
+	sim.EnableTargetUnit(second)
+	if got := fw.ComboPoints(second); got != 0 {
+		t.Errorf("%s holds %d combo points after it came back, want 0", second.Label, got)
+	}
+}
+
 func TestEnergyRegenTicksEveryTenthOfASecond(t *testing.T) {
 	character := newPowerBarCharacter()
 	character.EnableEnergyBar(EnergyBarOptions{MaxEnergy: 100, MaxComboPoints: 5})

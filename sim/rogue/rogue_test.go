@@ -429,9 +429,11 @@ func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 		name      string
 		fromIndex int
 		rate      float64
+		swapAway  bool
 	}{
-		{"a dodge of the current target's swing adds a point at the rank's chance", 0, chance},
-		{"a dodge of another target's swing adds none", 1, 0},
+		{"a dodge of the current target's swing adds a point at the rank's chance", 0, chance, false},
+		{"a dodge of another target's swing adds none", 1, 0, false},
+		{"a swap before the deferred proc still adds the point on the attacker", 0, chance, true},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			sim, rogue, targets := newTankSim(t, tankTalents)
@@ -442,10 +444,17 @@ func TestSetupAddsAPointOnTheCurrentTargetsDodgedSwings(t *testing.T) {
 
 			var gained int32
 			for range dodges {
+				rogue.CurrentTarget = targets[0]
 				rogue.ResetComboPoints(sim, targets[0], 0)
 				swingAt(sim, rogue, targets[c.fromIndex], core.OutcomeDodge)
+				if c.swapAway {
+					rogue.CurrentTarget = targets[1]
+				}
 				passBatchWindow(t, sim)
 				gained += rogue.ComboPoints(targets[0])
+				if got := rogue.ComboPoints(targets[1]); got != 0 {
+					t.Fatalf("%s holds %d combo points after a dodge of %s's swing, want 0", targets[1].Label, got, targets[c.fromIndex].Label)
+				}
 
 				until := sim.CurrentTime + icd
 				for sim.CurrentTime <= until {

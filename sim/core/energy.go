@@ -236,6 +236,18 @@ func (eb *energyBar) AddComboPoints(sim *Simulation, target *Unit, pointsToAdd i
 	eb.comboPoints = newComboPoints
 }
 
+// The combo points on a unit that dies go with it.
+func (eb *energyBar) dropComboPointsOn(sim *Simulation, target *Unit) {
+	if eb.unit == nil || eb.comboPointTarget != target {
+		return
+	}
+	if eb.comboPoints > 0 && sim.Log != nil {
+		eb.unit.Log(sim, "Lost %d combo points on %s, which died.", eb.comboPoints, target.Label)
+	}
+	eb.comboPoints = 0
+	eb.comboPointTarget = nil
+}
+
 // A spend on a unit that holds no combo points spends none.
 func (eb *energyBar) SpendPartialComboPoints(sim *Simulation, target *Unit, pointsToSpend int32, metrics *ResourceMetrics) {
 	eb.spendComboPointsInternal(sim, target, pointsToSpend, metrics)
