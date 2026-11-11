@@ -32,26 +32,33 @@ func (hawk *HawkPet) ExecuteCustomRotation(sim *core.Simulation) {
 	hawk.WaitUntil(sim, sim.CurrentTime+hawkSummon.Duration())
 }
 
-// What a hawk is, read off level 30 combat logs of 2862 swings at 407 to 1023 owner ranged attack power:
-// 5% of the creature health for its level and no armor or attack power of its own; 80% of the owner's
-// ranged attack power and 30% of the owner's armor on top. The row that scales a hawk, Hunter Guardian
-// Hawk Pet Scaling 01 (1293586), is not in the store, so the swing below is fitted to those logs.
+// What a hawk is, read off combat logs at levels 30 and 48: 5% of the creature health for its level and no
+// armor or attack power of its own; 80% of the owner's attack power and 30% of the owner's armor on top.
+// The row that scales a hawk, Hunter Guardian Hawk Pet Scaling 01 (1293586), is not in the store, so the
+// swing below is fitted to those logs.
 var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
-// A swing before armor read 0.0815 of the creature dps over the 2.5 s, spanning a third either side, plus
-// 0.0179 a point of the owner's ranged attack power: 112 attack power a point of dps at 80% of it. Both
-// are fitted (3.3-6.7 plus 0.0179 × ranged attack power at level 30), not stated in the game files, and
-// were read with Unleashed Fury 5/5, which reaches the hawks, so the swing here is before it.
-var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5)
-var hawkSwingAverage = 0.0815 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
+// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the ranged weapon
+// adds to it in game, 14 a point of its dps on a base of 7: one level 48 hunter logged 352 at 345 ranged
+// attack power with no weapons, and 1180 at 747 with a 27.3 dps bow.
+const hawkOwnerBaseWeaponAP = 7.0
+const hawkOwnerAPPerWeaponDPS = 14.0
+
+// A swing before armor read 17 to 26.5 plus 0.0417 a point of the hawk's attack power at level 48, over
+// 357 swings at 282, 944, 988 and 1060 attack power: 0.185 of the creature dps over the 2.5 s, spanning
+// 0.22 either side, and 60 attack power a point of dps. Both are fitted, not stated in the game files,
+// and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here
+// is before them.
+var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
+var hawkSwingAverage = 0.185 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
 
 var hawkSwing = core.Weapon{
-	BaseDamageMin:     hawkSwingAverage * (1 - 1.0/3),
-	BaseDamageMax:     hawkSwingAverage * (1 + 1.0/3),
+	BaseDamageMin:     hawkSwingAverage * (1 - 0.22),
+	BaseDamageMax:     hawkSwingAverage * (1 + 0.22),
 	SwingSpeed:        2.5,
-	AttackPowerPerDPS: 112 * hawkLogDamageMultiplier,
+	AttackPowerPerDPS: 60 * hawkLogDamageMultiplier,
 	MaxRange:          core.MaxMeleeRange,
 }
 
@@ -76,7 +83,7 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 			StatInheritance: func(ownerStats stats.Stats) stats.Stats {
 				return stats.Stats{
 					stats.Armor:               ownerStats[stats.Armor] * 0.3,
-					stats.AttackPower:         ownerStats[stats.RangedAttackPower] * 0.8,
+					stats.AttackPower:         (ownerStats[stats.RangedAttackPower] + hunter.hawkWeaponAP()) * 0.8,
 					stats.PhysicalCritPercent: hunter.inheritedCrit(ownerStats) * 0.5,
 					stats.PhysicalHitPercent:  inheritedHit(ownerStats),
 					stats.ExpertisePercent:    ownerStats[stats.ExpertisePercent],
@@ -104,6 +111,10 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 		hawks[i] = hawk
 	}
 	return hawks
+}
+
+func (hunter *Hunter) hawkWeaponAP() float64 {
+	return hawkOwnerBaseWeaponAP + hawkOwnerAPPerWeaponDPS*hunter.AutoAttacks.Ranged().DPS()
 }
 
 // The tamed pet and the hawks: what the talents that name pets and hawks reach.
