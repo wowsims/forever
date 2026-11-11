@@ -286,6 +286,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 753.89638
+  tps: 698.19595
+  dtps: 8.95607
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 719.00173
@@ -719,11 +727,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 694.20542
+  tps: 644.44089
+  dtps: 8.78408
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-IronShieldSpike-43"
  value: {
   dps: 699.45247
   tps: 650.18636
   dtps: 9.02808
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Ironfoe-11684"
+ value: {
+  dps: 694.20542
+  tps: 644.44089
+  dtps: 8.78408
  }
 }
 dps_results: {

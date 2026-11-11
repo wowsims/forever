@@ -262,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 580.73031
@@ -694,11 +702,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 617.56053
+  tps: 438.46798
+  hps: 50.95194
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-IronShieldSpike-43"
  value: {
   dps: 584.81063
   tps: 415.21555
   hps: 51.34167
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Ironfoe-11684"
+ value: {
+  dps: 650.14
+  tps: 461.5994
+  hps: 49.15583
  }
 }
 dps_results: {

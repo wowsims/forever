@@ -315,6 +315,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 401.48801
+  tps: 962.2795
+  dtps: 349.30386
+  hps: 21.89222
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 390.53697
@@ -846,6 +855,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 406.26238
+  tps: 965.62526
+  dtps: 362.80359
+  hps: 23.79
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ImperialPlate"
  value: {
   dps: 378.45031
@@ -861,6 +879,15 @@ dps_results: {
   tps: 954.2172
   dtps: 349.57294
   hps: 21.63806
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Ironfoe-11684"
+ value: {
+  dps: 415.70659
+  tps: 985.01692
+  dtps: 337.8745
+  hps: 23.9425
  }
 }
 dps_results: {
