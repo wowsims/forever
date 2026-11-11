@@ -556,7 +556,7 @@ func TestAdaptiveBleedsRespectExpiryReaction(t *testing.T) {
 			sim.CurrentTime = time.Second
 			spell.Dot(cat.CurrentTarget).Apply(sim)
 			sim.CurrentTime = 20 * time.Second
-			cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			fillResource(sim, cat)
 			cat.SetGCDTimer(sim, 0)
 			before := spell.SpellMetrics[cat.CurrentTarget.UnitIndex].Casts
@@ -878,7 +878,7 @@ func TestAdaptiveBitePoolsByComboPointsAndClearcasting(t *testing.T) {
 			sim.CurrentTime = 10 * time.Second
 			fillResource(sim, cat)
 			cat.SpendEnergy(sim, cat.CurrentEnergy()-tc.energy, cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
-			cat.AddComboPoints(sim, tc.cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, tc.cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			dot := cat.GetSpell(core.ActionID{SpellID: spellRip}).Dot(cat.CurrentTarget)
 			dot.Apply(sim)
 			dot.UpdateExpires(sim.CurrentTime + tc.ripLeft)
@@ -920,7 +920,7 @@ func TestAdaptiveRipBuildLeavesTimeForNextGlobal(t *testing.T) {
 			cat.AutoAttacks.CancelAutoSwing(sim)
 			sim.CurrentTime = sim.Duration - tc.left
 			fillResource(sim, cat)
-			cat.AddComboPoints(sim, 4, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+			cat.AddComboPoints(sim, cat.CurrentTarget, 4, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			cat.SetGCDTimer(sim, sim.CurrentTime)
 			cat.Rotation.DoNextAction(sim)
 			rip := cat.GetSpell(core.ActionID{SpellID: spellRip})

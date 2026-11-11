@@ -220,11 +220,11 @@ func getEnergy() float64 {
 
 //export getComboPoints
 func getComboPoints() int {
-	player := _active_sim.Raid.Parties[0].Players[0]
-	if !player.GetCharacter().HasEnergyBar() {
+	character := _active_sim.Raid.Parties[0].Players[0].GetCharacter()
+	if !character.HasEnergyBar() {
 		return 0
 	}
-	return int(player.GetCharacter().ComboPoints())
+	return int(character.ComboPoints(character.CurrentTarget))
 }
 
 //export getUnitCount

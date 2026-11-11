@@ -64,11 +64,11 @@ func (rogue *Rogue) registerDeathMark() {
 		rogue.BreakStealth(sim)
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
-			comboPoints = rogue.ComboPoints()
+			comboPoints = rogue.ComboPoints(target)
 			dot := spell.Dot(target)
 			dot.SnapshotBaseDamage = 0
 			dot.Apply(sim)
-			rogue.ApplyFinisher(sim, spell)
+			rogue.ApplyFinisher(sim, target, spell)
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -76,9 +76,7 @@ func (rogue *Rogue) registerDeathMark() {
 	}
 
 	config.MetricSplits = 6
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-		spell.SetMetricsSplit(rogue.ComboPoints())
-	}
+	config.Cast.ModifyCast = rogue.setFinisherMetricsSplit
 
 	rogue.DeathMark = rogue.RegisterSpell(config)
 }

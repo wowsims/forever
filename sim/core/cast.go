@@ -49,7 +49,7 @@ type CastConfig struct {
 	DefaultCast Cast
 
 	// Dynamic modifications for each cast.
-	ModifyCast func(*Simulation, *Spell, *Cast)
+	ModifyCast func(*Simulation, *Spell, *Cast, *Unit)
 
 	// Ignores haste when calculating the GCD and cast time for this cast.
 	// Automatically set if GCD and cast times are all 0, e.g. for empty casts.
@@ -117,7 +117,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 		spell.CurCast = spell.DefaultCast
 
 		if config.ModifyCast != nil {
-			config.ModifyCast(sim, spell, &spell.CurCast)
+			config.ModifyCast(sim, spell, &spell.CurCast, target)
 			if spell.CurCast.Cost != spell.DefaultCast.Cost {
 				// Costs need to be modified using the unit and spell multipliers, so that
 				// their affects are also visible in the spell.CanCast() function, which
