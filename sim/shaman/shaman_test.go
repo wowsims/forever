@@ -227,6 +227,39 @@ func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	}
 }
 
+// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a fire totem's attack, which deals
+// the same damage to a beast as to any other creature.
+func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
+	raid := enhancementRaid(enhancementTalents)
+	raid.Parties[0].Players[0].Race = proto.Race_RaceDwarf
+	beast := core.FreshDefaultTargetConfig()
+	beast.MobType = proto.MobType_MobTypeBeast
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, beast)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       raid,
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	other := sham.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex]
+	beastTable := sham.AttackTables[sim.Encounter.AllTargetUnits[1].UnitIndex]
+	beastBonus := func(spell *core.Spell) float64 {
+		return spell.AttackerDamageMultiplier(beastTable, false) / spell.AttackerDamageMultiplier(other, false)
+	}
+
+	if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: sham.FireNova.ActionID.SpellID, Tag: 1})); bonus <= 1 {
+		t.Errorf("Fire Nova's hits deal %v times the damage to a beast; want the racial's bonus above 1", bonus)
+	}
+	for _, totem := range []*core.Spell{sham.MagmaTotem, sham.SearingTotem} {
+		if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: totem.ActionID.SpellID, Tag: 1})); bonus != 1 {
+			t.Errorf("%s's attack deals %v times the damage to a beast; want 1", totem.ActionID, bonus)
+		}
+	}
+}
+
 // Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
 // maximum mana, one globe every few seconds; a spell that does not crit spends none.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {

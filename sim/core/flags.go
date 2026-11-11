@@ -221,6 +221,7 @@ const (
 	SpellFlagRequiresMainHand                               // The row requires a main-hand weapon (Attributes[3] 0x400), e.g. Mortal Strike or Sinister Strike.
 	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
+	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1
