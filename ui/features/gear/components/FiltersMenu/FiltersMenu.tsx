@@ -55,7 +55,7 @@ export interface FiltersMenuViewProps {
 	armorTypes: ReadonlyArray<ArmorType>;
 	weaponTypes: ReadonlyArray<WeaponType>;
 	rangedWeaponTypes: ReadonlyArray<RangedWeaponType>;
-	/** The biomes, mob types and creature groups some item's effect names; ticking one narrows the list to those items. */
+	/** The areas, mob types and creature groups some item has a bonus in or against; picking one narrows the list to those items. */
 	areaTypes: ReadonlyArray<AreaType>;
 	mobTypes: ReadonlyArray<MobType>;
 	creatureFamilies: ReadonlyArray<CreatureFamily>;
@@ -116,8 +116,11 @@ export const FiltersMenuView = ({
 		label: string,
 		types: ReadonlyArray<T>,
 		translate: (type: T) => string,
-	) =>
-		types.length > 0 && (
+	) => {
+		// A stored pick no item carries any more stays on offer, so its chip is there to remove it.
+		const offered = [...new Set([...types, ...(filters[field] as ReadonlyArray<number> as ReadonlyArray<T>)])].sort((a, b) => a - b);
+		if (!offered.length) return null;
+		return (
 			<MultiComboBox
 				id={id}
 				label={label}
@@ -126,7 +129,7 @@ export const FiltersMenuView = ({
 				emptyText={i18n.t('gear_tab.gear_picker.filters.bonus.empty')}
 				removeLabel={i18n.t('gear_tab.gear_picker.filters.bonus.remove')}
 				openLabel={i18n.t('gear_tab.gear_picker.filters.bonus.open')}
-				values={types.map(type => ({ name: translate(type), value: type }))}
+				values={offered.map(type => ({ name: translate(type), value: type }))}
 				value={filters[field]}
 				onChange={picked =>
 					onFiltersChange(next => {
@@ -136,6 +139,8 @@ export const FiltersMenuView = ({
 				testId={id}
 			/>
 		);
+	};
+	const bonusCount = (field: 'areaTypes' | 'mobTypes' | 'creatureFamilies', types: ReadonlyArray<number>) => types.length + filters[field].length;
 
 	return (
 		<Dialog
@@ -152,7 +157,7 @@ export const FiltersMenuView = ({
 					<span className="absolute bottom-0 left-1/2 -translate-x-1/2 py-2">-</span>
 					{numberInput('maxIlvl', 'filters-max-ilvl', i18n.t('gear_tab.gear_picker.filters.max_ilvl'), { showZeroes: false })}
 				</div>
-				<div className="grid grid-cols-2 gap-x-(--modal-padding)">
+				<div className="grid grid-cols-2 gap-x-(--modal-padding) gap-y-2">
 					{numberInput('maxRequiredLevel', 'filters-required-level', i18n.t('gear_tab.gear_picker.filters.required_level'), { showZeroes: false })}
 					<ChoiceField
 						id="filters-faction-restriction"
@@ -165,6 +170,18 @@ export const FiltersMenuView = ({
 						onChange={value =>
 							onFiltersChange(next => {
 								next.factionFilter = value;
+							})
+						}
+					/>
+					<BooleanPicker
+						id="filters-newly-discovered"
+						label={i18n.t('gear_tab.gear_picker.filters.newly_discovered')}
+						layout="inline"
+						size="xs"
+						value={filters.newlyDiscoveredOnly}
+						onChange={checked =>
+							onFiltersChange(next => {
+								next.newlyDiscoveredOnly = checked;
 							})
 						}
 					/>
@@ -191,7 +208,7 @@ export const FiltersMenuView = ({
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
 			</MenuSection>
-			{areaTypes.length + mobTypes.length + creatureFamilies.length > 0 && (
+			{bonusCount('areaTypes', areaTypes) + bonusCount('mobTypes', mobTypes) + bonusCount('creatureFamilies', creatureFamilies) > 0 && (
 				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.bonus.title')} className="grid grid-cols-3 items-start gap-x-2 max-sm:grid-cols-1">
 					{bonusPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
 					{bonusPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}

@@ -97,6 +97,12 @@ func TestTooltipTargetsReadsTheNamesAfterALead(t *testing.T) {
 		{tooltip: "Attacks against Undead have a chance to summon a Fire Elemental.", mobTypes: []proto.MobType{undead}},
 		{tooltip: "Deals 40 Fire damage to all enemies. Transforms you into a Furbolg against your will."},
 		{tooltip: "Increases damage against Demonic foes."},
+		{tooltip: "Trolls and Orcs take 2 times as much damage.", families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll, proto.CreatureFamily_CreatureFamilyOrc}},
+		{tooltip: "Chance to strike back. Undead that strike you are 3 times as likely to trigger this effect.", mobTypes: []proto.MobType{undead}},
+		{tooltip: "Deals 30 damage, tripled if attacking an Earth Elemental.", families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental}},
+		{tooltip: "Mechanical targets take 2x damage.", mobTypes: []proto.MobType{proto.MobType_MobTypeMechanical}},
+		{tooltip: "Tracks nearby creatures. Only works against Beasts."},
+		{tooltip: "Undead are everywhere in the Plaguelands."},
 	} {
 		mobTypes, families := tooltipTargets(tc.tooltip)
 		if !slices.Equal(mobTypes, tc.mobTypes) || !slices.Equal(families, tc.families) {

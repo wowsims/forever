@@ -2002,6 +2002,9 @@
 								"raids": {
 									"type": "string"
 								},
+								"newly_discovered": {
+									"type": "string"
+								},
 								"bonus": {
 									"type": "object",
 									"properties": {
@@ -2044,6 +2047,7 @@
 								"faction_restrictions",
 								"source",
 								"raids",
+								"newly_discovered",
 								"bonus",
 								"faction_labels"
 							]

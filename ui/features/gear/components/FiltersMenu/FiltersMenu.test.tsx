@@ -239,6 +239,23 @@ describe('FiltersMenuView', () => {
 		expect(lastEdit().areaTypes).toEqual([AreaType.AreaTypeDesert]);
 	});
 
+	it('keeps a stored pick no item carries on offer, so its chip can remove it', () => {
+		const { lastEdit } = renderView({ filters: DatabaseFilters.create({ mobTypes: [MobType.MobTypeHumanoid] }) });
+		expect(viewSections()).toContain('gear_tab.gear_picker.filters.bonus.title');
+		expect(screen.queryByTestId('filters-bonus-area')).toBeNull();
+
+		fireEvent.click(within(screen.getByTestId('multi-combo-box-chip')).getByRole('button'));
+		expect(lastEdit(DatabaseFilters.create({ mobTypes: [MobType.MobTypeHumanoid] })).mobTypes).toEqual([]);
+	});
+
+	it('writes the newly discovered tick into its flag', () => {
+		const { lastEdit } = renderView();
+		expect(input('filters-newly-discovered').checked).toBe(false);
+
+		fireEvent.click(input('filters-newly-discovered'));
+		expect(lastEdit().newlyDiscoveredOnly).toBe(true);
+	});
+
 	it('gives a weapon slot the weapon sections, with off hand speeds for a dual wielder', () => {
 		renderView({ slot: ItemSlot.ItemSlotMainHand, canDualWield: true });
 		expect(viewSections().slice(3)).toEqual(['gear_tab.gear_picker.weapon_type', 'gear_tab.gear_picker.weapon_speed']);

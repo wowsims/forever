@@ -13,49 +13,49 @@ const DESERT = Item.create({ id: 4, areaTypes: [AreaType.AreaTypeDesert] });
 const UNDEAD_AND_DEMON = Item.create({ id: 5, mobTypes: [MobType.MobTypeDemon, MobType.MobTypeUndead] });
 const PLANT = Item.create({ id: 6, creatureFamilies: [CreatureFamily.CreatureFamilyPlant] });
 
-describe('Player.filterItemData biome, mob type and creature group filters', () => {
+describe('Player.filterItemData area, mob type and creature group filters', () => {
 	const setup = async () => {
 		const { sim, player } = await makeIndividualSim();
 		sim.applyDefaults(false, false);
 		const listed = () =>
 			player.filterItemData([PLAIN, FOREST, DESERT, UNDEAD_AND_DEMON, PLANT], item => item, ItemSlot.ItemSlotTrinket1).map(item => item.id);
-		const tick = (areaTypes: AreaType[], mobTypes: MobType[], creatureFamilies: CreatureFamily[] = []) =>
+		const pick = (areaTypes: AreaType[], mobTypes: MobType[], creatureFamilies: CreatureFamily[] = []) =>
 			sim.setFilters({ ...sim.getFilters(), areaTypes, mobTypes, creatureFamilies });
-		return { listed, tick };
+		return { listed, pick };
 	};
 
-	it('keeps every item while nothing is ticked', async () => {
+	it('keeps every item while nothing is picked', async () => {
 		const { listed } = await setup();
 		expect(listed()).toEqual([2, 3, 4, 5, 6]);
 	});
 
-	it('shows only the items with an effect in a ticked biome', async () => {
-		const { listed, tick } = await setup();
-		tick([AreaType.AreaTypeForestGrassland], []);
+	it('shows only the items with an effect in a picked area', async () => {
+		const { listed, pick } = await setup();
+		pick([AreaType.AreaTypeForestGrassland], []);
 		expect(listed()).toEqual([3]);
 
-		tick([AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert], []);
+		pick([AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert], []);
 		expect(listed()).toEqual([3, 4]);
 	});
 
-	it('shows an item when one of its mob types is ticked', async () => {
-		const { listed, tick } = await setup();
-		tick([], [MobType.MobTypeUndead]);
+	it('shows an item when one of its mob types is picked', async () => {
+		const { listed, pick } = await setup();
+		pick([], [MobType.MobTypeUndead]);
 		expect(listed()).toEqual([5]);
 
-		tick([], [MobType.MobTypeBeast]);
+		pick([], [MobType.MobTypeBeast]);
 		expect(listed()).toEqual([]);
 	});
 
-	it('shows only the items with an effect against a ticked creature group', async () => {
-		const { listed, tick } = await setup();
-		tick([], [], [CreatureFamily.CreatureFamilyPlant]);
+	it('shows only the items with an effect against a picked creature group', async () => {
+		const { listed, pick } = await setup();
+		pick([], [], [CreatureFamily.CreatureFamilyPlant]);
 		expect(listed()).toEqual([6]);
 	});
 
-	it('shows the items of every ticked kind together', async () => {
-		const { listed, tick } = await setup();
-		tick([AreaType.AreaTypeDesert], [MobType.MobTypeDemon], [CreatureFamily.CreatureFamilyPlant]);
+	it('shows the items of every picked kind together', async () => {
+		const { listed, pick } = await setup();
+		pick([AreaType.AreaTypeDesert], [MobType.MobTypeDemon], [CreatureFamily.CreatureFamilyPlant]);
 		expect(listed()).toEqual([4, 5, 6]);
 	});
 });

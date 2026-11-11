@@ -536,7 +536,7 @@ enum MobType {
 	MobTypeUndead = 8;
 }
 
-// The groups of creatures item effects deal extra damage to. None of them is a creature type or a
+// The groups of creatures item effects count against. None of them is a creature type or a
 // creature family in the game files, whose CreatureFamily table holds the hunter and warlock pet families.
 enum CreatureFamily {
 	CreatureFamilyUnknown = 0;

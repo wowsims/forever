@@ -8,7 +8,6 @@ import (
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/tools/database/overrides"
 )
 
 // The auras whose misc value is a creature type mask.
@@ -53,73 +52,92 @@ var tooltipTargetNames = []struct {
 	{name: "orc", family: proto.CreatureFamily_CreatureFamilyOrc},
 	{name: "ogre", family: proto.CreatureFamily_CreatureFamilyOgre},
 	{name: "wolves", family: proto.CreatureFamily_CreatureFamilyWolf},
+	{name: "wolf", family: proto.CreatureFamily_CreatureFamilyWolf},
 	{name: "worgen", family: proto.CreatureFamily_CreatureFamilyWorgen},
 	{name: "murloc", family: proto.CreatureFamily_CreatureFamilyMurloc},
 	{name: "furbolg", family: proto.CreatureFamily_CreatureFamilyFurbolg},
 	{name: "dwarves", family: proto.CreatureFamily_CreatureFamilyDwarf},
+	{name: "dwarf", family: proto.CreatureFamily_CreatureFamilyDwarf},
 	{name: "dinosaur", family: proto.CreatureFamily_CreatureFamilyDinosaur},
 	{name: "serpentine", family: proto.CreatureFamily_CreatureFamilySerpentine},
 }
 
 // The words a tooltip puts before the creatures an effect counts against: "damage to Plants",
 // "tripled against Undead", "when fighting Undead and Demons", "if there is an elemental nearby".
-var tooltipTargetLead = regexp.MustCompile(`(?i)\b(?:against|damage to|when fighting|versus|there is an?)\s+`)
-var tooltipTargetSkip = regexp.MustCompile(`(?i)^(?:all|the|and|or|,)\b\s*|^,\s*`)
+var tooltipTargetLead = regexp.MustCompile(`\b(?:against|damage to|when fighting|versus|there is an?|if attacking an?)\s+`)
 
-// The mob types and creature groups a tooltip names after a lead: the run of names, joined by "and",
-// "or" and commas, that follows it. The run ends at the first other word, so "against Undead have a
-// chance to summon a Fire Elemental" names the Undead alone.
-func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.CreatureFamily) {
-	for _, lead := range tooltipTargetLead.FindAllStringIndex(tooltip, -1) {
-		rest := strings.ToLower(tooltip[lead[1]:])
-	run:
-		for {
-			if skip := tooltipTargetSkip.FindString(rest); skip != "" {
-				rest = rest[len(skip):]
+// A sentence that opens with the creatures: "Trolls and Orcs take 2 times as much damage",
+// "Undead that strike you are 3 times as likely to trigger this effect".
+var tooltipTargetSentence = regexp.MustCompile(`(?:^|[.!]\s+)`)
+var tooltipTargetVerb = regexp.MustCompile(`^(?:targets |enemies )?(?:take|that strike)\b`)
+var tooltipTargetSkip = regexp.MustCompile(`^(?:(?:all|the|and|or)\b|,)\s*`)
+
+// The run of names at the start of lowered text, joined by "and", "or" and commas, and the text after
+// it. The run ends at the first other word, so "undead have a chance to summon a fire elemental"
+// names the Undead alone.
+func tooltipNameRun(rest string) (mobTypes []proto.MobType, families []proto.CreatureFamily, after string) {
+	for {
+		if skip := tooltipTargetSkip.FindString(rest); skip != "" {
+			rest = rest[len(skip):]
+			continue
+		}
+		matched := false
+		for _, target := range tooltipTargetNames {
+			tail, found := strings.CutPrefix(rest, target.name)
+			if !found {
 				continue
 			}
-			for _, target := range tooltipTargetNames {
-				after, found := strings.CutPrefix(rest, target.name)
-				if !found {
-					continue
-				}
-				after = strings.TrimPrefix(after, "s")
-				if after != "" && (after[0] >= 'a' && after[0] <= 'z') {
-					continue
-				}
-				if target.mob != proto.MobType_MobTypeUnknown {
-					mobTypes = append(mobTypes, target.mob)
-				} else {
-					families = append(families, target.family)
-				}
-				rest = strings.TrimLeft(after, " ")
-				continue run
+			tail = strings.TrimPrefix(tail, "s")
+			if tail != "" && tail[0] >= 'a' && tail[0] <= 'z' {
+				continue
 			}
+			if target.mob != proto.MobType_MobTypeUnknown {
+				mobTypes = append(mobTypes, target.mob)
+			} else {
+				families = append(families, target.family)
+			}
+			rest, matched = strings.TrimLeft(tail, " "), true
 			break
+		}
+		if !matched {
+			return mobTypes, families, rest
+		}
+	}
+}
+
+// The mob types and creature groups a tooltip states a bonus against: the names after a lead, and
+// the names that open a sentence about what they take or do. "Only works against Beasts" limits an
+// effect and states no bonus, so it names none.
+func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.CreatureFamily) {
+	lower := strings.ToLower(tooltip)
+	for _, lead := range tooltipTargetLead.FindAllStringIndex(lower, -1) {
+		if strings.HasSuffix(lower[:lead[0]], "only works ") {
+			continue
+		}
+		mobs, fams, _ := tooltipNameRun(lower[lead[1]:])
+		mobTypes, families = append(mobTypes, mobs...), append(families, fams...)
+	}
+	for _, start := range tooltipTargetSentence.FindAllStringIndex(lower, -1) {
+		if mobs, fams, after := tooltipNameRun(lower[start[1]:]); tooltipTargetVerb.MatchString(after) {
+			mobTypes, families = append(mobTypes, mobs...), append(families, fams...)
 		}
 	}
 	return mobTypes, families
 }
 
-// The terrain areas, mob types and creature groups an item's effects name, which the gear picker
-// filters by: the areas a spell requires or is stronger in, the mob types a versus aura counts
-// against and the ones a spell can only hit. A tooltip states the rest, the creature groups among
-// them, which no row holds (tooltipTargets). Every item effect counts, whatever triggers it, with
-// each spell its trigger chain reaches. A spell that requires a single zone names no terrain area.
+// The terrain areas, mob types and creature groups an item's effects state a bonus in or against,
+// which the gear picker filters by: the areas a spell requires or is stronger in and the mob types a
+// versus aura counts against. A tooltip states the rest, the creature groups among them, which no row
+// holds (tooltipTargets). Every item effect counts, whatever triggers it, with each spell its trigger
+// chain reaches. A spell that requires a single zone names no terrain area, and one that can only
+// hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
 func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType
 	var families []proto.CreatureFamily
 	addArea := func(group int32) {
-		if areaType := spelldata.AreaTypeOfGroup(group); areaType != proto.AreaType_AreaTypeUnknown && !slices.Contains(areaTypes, areaType) {
+		if areaType := spelldata.AreaTypeOfGroup(group); areaType != proto.AreaType_AreaTypeUnknown {
 			areaTypes = append(areaTypes, areaType)
-		}
-	}
-	addMobs := func(found ...proto.MobType) {
-		for _, mobType := range found {
-			if !slices.Contains(mobTypes, mobType) {
-				mobTypes = append(mobTypes, mobType)
-			}
 		}
 	}
 
@@ -133,25 +151,16 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 		spell := dbcInstance.Spells[spellID]
 
 		addArea(spell.RequiredAreasID)
-		for _, bonus := range overrides.AreaBonuses {
-			if int(bonus.SpellID) == spellID {
-				for _, group := range bonus.Groups {
-					addArea(group)
-				}
-			}
+		for _, group := range spelldata.Find(int32(spellID)).AreaBonusGroups {
+			addArea(group)
 		}
-		addMobs(spelldata.MobTypes(spelldata.Find(int32(spellID)).TargetCreatureType)...)
 		tooltipMobs, tooltipFamilies := tooltipTargets(spell.Description)
-		addMobs(tooltipMobs...)
-		for _, family := range tooltipFamilies {
-			if !slices.Contains(families, family) {
-				families = append(families, family)
-			}
-		}
+		mobTypes = append(mobTypes, tooltipMobs...)
+		families = append(families, tooltipFamilies...)
 
 		for _, effect := range effects {
 			if slices.Contains(versusAuras, effect.EffectAura) && len(effect.EffectMiscValues) > 0 {
-				addMobs(spelldata.MobTypes(int32(effect.EffectMiscValues[0]))...)
+				mobTypes = append(mobTypes, spelldata.MobTypes(int32(effect.EffectMiscValues[0]))...)
 			}
 			if effect.EffectTriggerSpell != 0 {
 				visit(effect.EffectTriggerSpell)
@@ -161,10 +170,10 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 	for _, itemEffect := range dbcInstance.ItemEffectsByParentID[int(itemID)] {
 		visit(itemEffect.SpellID)
 	}
-	addMobs(tooltipMobTypes[itemID]...)
+	mobTypes = append(mobTypes, tooltipMobTypes[itemID]...)
 
 	slices.Sort(areaTypes)
 	slices.Sort(mobTypes)
 	slices.Sort(families)
-	return areaTypes, mobTypes, families
+	return slices.Compact(areaTypes), slices.Compact(mobTypes), slices.Compact(families)
 }
