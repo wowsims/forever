@@ -25,10 +25,9 @@ type energyBar struct {
 	// Scales the total Energy regen from ticks.
 	energyRegenMultiplier float64
 
-	regenMetrics           *ResourceMetrics
-	EncounterStartMetrics  *ResourceMetrics
-	EnergyRefundMetrics    *ResourceMetrics
-	comboPointsLostMetrics *ResourceMetrics
+	regenMetrics          *ResourceMetrics
+	EncounterStartMetrics *ResourceMetrics
+	EnergyRefundMetrics   *ResourceMetrics
 
 	ownerClass proto.Class
 	hasNoRegen bool // some units have an energy bar but do not require regen ticks
@@ -44,18 +43,17 @@ func (unit *Unit) EnableEnergyBar(options EnergyBarOptions) {
 	unit.SetCurrentPowerBar(EnergyBar)
 
 	unit.energyBar = energyBar{
-		unit:                   unit,
-		maxEnergy:              max(10, options.MaxEnergy),
-		maxComboPoints:         options.MaxComboPoints,
-		EnergyTickDuration:     time.Second / 10,
-		EnergyPerTick:          1,
-		energyRegenMultiplier:  1,
-		regenMetrics:           unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionEnergyRegen}),
-		EnergyRefundMetrics:    unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionRefund}),
-		EncounterStartMetrics:  unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionEncounterStart}),
-		comboPointsLostMetrics: unit.NewComboPointMetrics(ActionID{OtherID: proto.OtherAction_OtherActionComboPointsLost}),
-		ownerClass:             options.UnitClass,
-		hasNoRegen:             options.HasNoRegen,
+		unit:                  unit,
+		maxEnergy:             max(10, options.MaxEnergy),
+		maxComboPoints:        options.MaxComboPoints,
+		EnergyTickDuration:    time.Second / 10,
+		EnergyPerTick:         1,
+		energyRegenMultiplier: 1,
+		regenMetrics:          unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionEnergyRegen}),
+		EnergyRefundMetrics:   unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionRefund}),
+		EncounterStartMetrics: unit.NewEnergyMetrics(ActionID{OtherID: proto.OtherAction_OtherActionEncounterStart}),
+		ownerClass:            options.UnitClass,
+		hasNoRegen:            options.HasNoRegen,
 	}
 
 }
@@ -214,13 +212,14 @@ func (eb *energyBar) updateMaxEnergyInternal(sim *Simulation, bonusEnergy float6
 }
 
 // Combo points live on one unit. A gain on another unit drops the points held on the old one, and the gain
-// lands on the new one; a target swap with no gain keeps them.
+// lands on the new one; a target swap with no gain keeps them. The gain's metrics spend the dropped points, as a
+// shapeshift's own metrics spend the rage it drops.
 func (eb *energyBar) AddComboPoints(sim *Simulation, target *Unit, pointsToAdd int32, metrics *ResourceMetrics) {
 	if target != eb.comboPointTarget {
 		if eb.comboPoints > 0 {
-			eb.comboPointsLostMetrics.AddEvent(float64(-eb.comboPoints), float64(-eb.comboPoints))
+			metrics.AddEvent(float64(-eb.comboPoints), float64(-eb.comboPoints))
 			if sim.Log != nil {
-				eb.unit.Log(sim, "Spent %d combo points from %s (%d --> 0) of %d total, lost on %s to a gain on %s.", eb.comboPoints, eb.comboPointsLostMetrics.ActionID, eb.comboPoints, eb.maxComboPoints, eb.comboPointTarget.Label, target.Label)
+				eb.unit.Log(sim, "Spent %d combo points from %s (%d --> 0) of %d total, lost on %s to a gain on %s.", eb.comboPoints, metrics.ActionID, eb.comboPoints, eb.maxComboPoints, eb.comboPointTarget.Label, target.Label)
 			}
 			eb.comboPoints = 0
 		}

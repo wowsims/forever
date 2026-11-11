@@ -24,16 +24,16 @@ func TestComboPointsLiveOnOneUnit(t *testing.T) {
 		t.Fatalf("A holds %d combo points after B was read, want 3", got)
 	}
 
-	character.AddComboPoints(sim, b, 2, metrics)
+	onB := character.NewComboPointMetrics(ActionID{SpellID: 2})
+	character.AddComboPoints(sim, b, 2, onB)
 	if got := character.ComboPoints(a); got != 0 {
 		t.Errorf("A holds %d combo points after a gain on B, want 0", got)
 	}
 	if got := character.ComboPoints(b); got != 2 {
 		t.Errorf("B holds %d combo points after a gain of 2, want 2", got)
 	}
-	lost := character.energyBar.comboPointsLostMetrics
-	if lost.Events != 1 || lost.Gain != -3 || lost.ActualGain != -3 {
-		t.Errorf("the loss metric records %d events of %v (%v actual), want 1 of -3", lost.Events, lost.Gain, lost.ActualGain)
+	if onB.Events != 2 || onB.Gain != -1 || onB.ActualGain != -1 {
+		t.Errorf("the gain on B records %d events netting %v (%v actual), want 2 netting -1: 3 dropped, 2 gained", onB.Events, onB.Gain, onB.ActualGain)
 	}
 
 	character.SpendComboPoints(sim, a, metrics)
