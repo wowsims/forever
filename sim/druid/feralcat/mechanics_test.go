@@ -32,8 +32,7 @@ func newCat(t *testing.T, talents string, consumes *proto.ConsumesSpec) (*core.S
 	return newCatWearing(t, talents, consumes, nil)
 }
 
-func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
-	t.Helper()
+func catPlayer(name, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) *proto.Player {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -45,21 +44,26 @@ func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, w
 	if consumes == nil {
 		consumes = &proto.ConsumesSpec{}
 	}
+	return &proto.Player{
+		Name: name, Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
+		TalentsString: talents,
+		Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
+			Options: &proto.FeralCatDruid_Options{},
+		}},
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: consumes,
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+}
+
+func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
+	t.Helper()
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{{
-				Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
-				TalentsString: talents,
-				Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
-					Options: &proto.FeralCatDruid_Options{},
-				}},
-				Equipment:   &proto.EquipmentSpec{Items: items},
-				Consumables: consumes,
-				Buffs:       &proto.IndividualBuffs{},
-				Rotation:    &proto.APLRotation{},
-			}},
-			Buffs: &proto.PartyBuffs{},
+			Players: []*proto.Player{catPlayer("Cat", talents, consumes, worn)},
+			Buffs:   &proto.PartyBuffs{},
 		}}},
 		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
 	}, simsignals.CreateSignals())
