@@ -907,7 +907,7 @@ func (parentAura *Aura) AttachPeriodicAction(config PeriodicActionOptions) *Aura
 			pa = NewPeriodicAction(sim, config)
 		}
 		pa.cancelled = false
-		pa.NextActionAt = sim.CurrentTime + TernaryDuration(tickImmediately, 0, config.Period)
+		pa.NextActionAt = sim.CurrentTime + TernaryDuration(tickImmediately, 0, TernaryDuration(config.FirstTickAfter != 0, config.FirstTickAfter, config.Period))
 		sim.AddPendingAction(pa)
 	})
 	parentAura.ApplyOnExpire(func(_ *Aura, sim *Simulation) {

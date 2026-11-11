@@ -300,3 +300,40 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 		shield.OnSpellHitTaken(shield, sim, attack, &core.SpellResult{Target: &sham.Unit, Outcome: core.OutcomeHit, Damage: 100})
 	}, 1, true)
 }
+
+// Totemic Recall takes down the shaman's standing totems and returns the row's share of their base
+// mana costs.
+func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	recallRow := spelldata.MustFind(36936)
+	recall := sham.GetSpell(core.ActionID{SpellID: recallRow.ID})
+	if recall == nil {
+		t.Fatal("Totemic Recall is not registered")
+	}
+
+	totems := []*core.Spell{sham.SearingTotem, sham.WindfuryTotem}
+	var baseCosts float64
+	for _, totem := range totems {
+		totem.SkipCastAndApplyEffects(sim, sham.CurrentTarget)
+		baseCosts += float64(totem.Cost.BaseCost)
+	}
+	sham.SpendMana(sim, sham.MaxMana()/2, sham.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 99}))
+
+	before := sham.CurrentMana()
+	recall.SkipCastAndApplyEffects(sim, &sham.Unit)
+	if got, want := sham.CurrentMana()-before, baseCosts*recallRow.EffectN(1).Percent(); got != want || want == 0 {
+		t.Errorf("Totemic Recall returned %v mana, want %v above 0", got, want)
+	}
+	for _, totem := range totems {
+		if totem.RelatedSelfBuff.IsActive() {
+			t.Errorf("%s still stands after Totemic Recall", totem.ActionID)
+		}
+	}
+}
