@@ -51,6 +51,7 @@ import { addPartyBuffItems } from '../proto/buff_items';
 import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
+import { isNewlyDiscovered } from '../proto/item_first_seen';
 import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
@@ -1331,6 +1332,24 @@ export class Player<SpecType extends Spec> {
 		}
 		if (filters.maxIlvl != 0) {
 			itemData = filterItems(itemData, item => (item.scalingOptions?.[0].ilvl || item.ilvl) <= filters.maxIlvl);
+		}
+
+		// A picked area, mob type or creature group narrows the list to the items with a bonus in or against a picked one.
+		if (filters.areaTypes.length || filters.mobTypes.length || filters.creatureFamilies.length) {
+			itemData = filterItems(
+				itemData,
+				item =>
+					item.areaTypes.some(areaType => filters.areaTypes.includes(areaType)) ||
+					item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) ||
+					item.creatureFamilies.some(family => filters.creatureFamilies.includes(family)),
+			);
+		}
+
+		if (filters.newlyDiscoveredOnly) {
+			itemData = filterItems(itemData, item => {
+				const firstSeen = this.sim.db.getItemFirstSeen(item.id);
+				return firstSeen !== undefined && isNewlyDiscovered(firstSeen);
+			});
 		}
 
 		// Any filters nothing, and so does a value the enum does not list, which a binary link can carry.
