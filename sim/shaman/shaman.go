@@ -106,10 +106,8 @@ type Shaman struct {
 	// Always nil: its registrar is commented out in totems.go, upstream of the fork.
 	HealingStreamTotem *core.Spell
 
-	// The aura of the totem standing in each element's slot, indexed like TotemExpirations.
-	TotemAuras [4]*core.Aura
-	// The cast that stood the totem in each slot, whose base cost Totemic Recall returns a share of.
-	totemSpells [4]*core.Spell
+	// The cast that stood the totem in each element's slot, indexed like TotemExpirations; its aura is RelatedSelfBuff.
+	TotemSpells [4]*core.Spell
 }
 
 // Implemented by each Shaman spec.

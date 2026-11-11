@@ -35,6 +35,9 @@ type PeriodicActionOptions struct {
 	// How often the action should be performed.
 	Period time.Duration
 
+	// The delay before the first action when it differs from Period; zero means Period.
+	FirstTickAfter time.Duration
+
 	// Number of times to perform the action before stopping.
 	// 0 indicates a permanent periodic action.
 	NumTicks int
@@ -55,7 +58,7 @@ func NewPeriodicAction(sim *Simulation, options PeriodicActionOptions) *PendingA
 	}
 
 	pa := &PendingAction{
-		NextActionAt: sim.CurrentTime + options.Period,
+		NextActionAt: sim.CurrentTime + TernaryDuration(options.FirstTickAfter != 0, options.FirstTickAfter, options.Period),
 		Priority:     options.Priority,
 		CleanUp:      options.CleanUp,
 	}

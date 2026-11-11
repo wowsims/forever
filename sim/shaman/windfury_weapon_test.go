@@ -102,11 +102,9 @@ func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
 
 	// Each case starts a second after the last, past the cooldown between charges spent, and hits a
 	// moment after the full charges are set.
-	cases := 0
 	expect := func(name string, spell *core.Spell, outcome core.HitOutcome, spends bool) {
 		t.Helper()
-		cases++
-		sim.CurrentTime = time.Duration(cases) * time.Second
+		sim.CurrentTime += time.Second
 		flurry.Activate(sim)
 		flurry.SetStacks(sim, flurry.MaxStacks)
 		sim.CurrentTime += time.Millisecond
@@ -119,8 +117,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
 	expect("a Windfury Weapon strike", strike, core.OutcomeHit, true)
 	expect("a Stormstrike", sham.Stormstrike, core.OutcomeHit, false)
 
-	cases++
-	sim.CurrentTime = time.Duration(cases) * time.Second
+	sim.CurrentTime += time.Second
 	hit(swing, core.OutcomeCrit)
 	hit(strike, core.OutcomeHit)
 	if got := flurry.GetStacks(); got != flurry.MaxStacks {

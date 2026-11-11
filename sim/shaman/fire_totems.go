@@ -46,15 +46,15 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 	config.ClassSpellMask = mask
 	config.RelatedSelfBuff = totemAura
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-		shaman.dropTotem(sim, FireTotem, spell, totemAura, totemAura.Duration)
+		shaman.dropTotem(sim, FireTotem, spell, totemAura.Duration)
 	}
 
 	return shaman.RegisterSpell(config)
 }
 
-// The totem casts its attack, 10436, at its target, and in the combat log waits about 0.27 s after
-// each cast ends before it starts the next: one attack every 2.472 s. The first attack comes one
-// such period after the drop, where in game it lands at the end of the first 2.2 s cast.
+// The totem casts its attack, 10436, at its target. The first lands at the end of the first 2.2 s
+// cast, and in the combat log the totem waits about 0.27 s after each cast ends before it starts the
+// next: one attack every 2.472 s.
 var searingTotemPeriod = searingAttackRank.CastTime() + 272*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {
@@ -69,7 +69,8 @@ func (shaman *Shaman) registerSearingTotemSpell() {
 	attack := shaman.RegisterSpell(attackConfig)
 
 	shaman.SearingTotem = shaman.registerFireTotem(searingTotemRank, SpellMaskSearingTotem, core.PeriodicActionOptions{
-		Period: searingTotemPeriod,
+		Period:         searingTotemPeriod,
+		FirstTickAfter: searingAttackRank.CastTime(),
 		OnAction: func(sim *core.Simulation) {
 			attack.Cast(sim, shaman.CurrentTarget)
 		},
@@ -125,8 +126,8 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		spelldata.Flags(SpellFlagShamanSpell|SpellFlagInstant))
 	config.ClassSpellMask = SpellMaskFireNova
 	config.ExtraCastCondition = func(_ *core.Simulation, _ *core.Unit) bool {
-		totem := shaman.TotemAuras[FireTotem]
-		return totem != nil && totem.IsActive()
+		totem := shaman.TotemSpells[FireTotem]
+		return totem != nil && totem.RelatedSelfBuff.IsActive()
 	}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		nova.Cast(sim, target)

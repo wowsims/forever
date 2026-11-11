@@ -145,9 +145,12 @@ func (shaman *Shaman) applyFlurry() {
 				return
 			}
 
+			if !flurryAura.IsActive() {
+				return
+			}
 			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.SpellID == windfuryWeaponStrike.ID
 			gainedNow := flurryAura.RemainingDuration(sim) == flurryAura.Duration
-			if flurryAura.IsActive() && spends && !gainedNow && chargeICD.IsReady(sim) {
+			if spends && !gainedNow && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
 				flurryAura.RemoveStack(sim)
 			}
