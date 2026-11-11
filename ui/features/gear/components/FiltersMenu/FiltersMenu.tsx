@@ -28,6 +28,7 @@ import { subscribePlayerField, subscribeSimField } from '@sim/state/subscription
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { ChoiceField } from '@ui-kit/ChoiceField';
 import { Dialog } from '@ui-kit/Dialog';
+import { MultiComboBox } from '@ui-kit/MultiComboBox';
 import { NumberField } from '@ui-kit/TextField';
 import { useMemo } from 'react';
 
@@ -109,6 +110,33 @@ export const FiltersMenuView = ({
 		/>
 	);
 
+	const bonusPicker = <T extends number>(
+		field: 'areaTypes' | 'mobTypes' | 'creatureFamilies',
+		id: string,
+		label: string,
+		types: ReadonlyArray<T>,
+		translate: (type: T) => string,
+	) =>
+		types.length > 0 && (
+			<MultiComboBox
+				id={id}
+				label={label}
+				className="min-w-0 flex-col items-stretch"
+				placeholder={i18n.t('gear_tab.gear_picker.filters.bonus.any')}
+				emptyText={i18n.t('gear_tab.gear_picker.filters.bonus.empty')}
+				removeLabel={i18n.t('gear_tab.gear_picker.filters.bonus.remove')}
+				openLabel={i18n.t('gear_tab.gear_picker.filters.bonus.open')}
+				values={types.map(type => ({ name: translate(type), value: type }))}
+				value={filters[field]}
+				onChange={picked =>
+					onFiltersChange(next => {
+						(next as Record<typeof field, Array<number>>)[field] = picked;
+					})
+				}
+				testId={id}
+			/>
+		);
+
 	return (
 		<Dialog
 			open={open}
@@ -163,16 +191,16 @@ export const FiltersMenuView = ({
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
 			</MenuSection>
-			{areaTypes.length > 0 && (
-				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.area_types')} className="ui-filters-menu-section-bool-list">
-					{areaTypes.map(areaType => listToggle('areaTypes', areaType, `filters-area-type-${areaType}`, translateAreaType(areaType)))}
-				</MenuSection>
-			)}
-			{mobTypes.length + creatureFamilies.length > 0 && (
-				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.mob_types')} className="ui-filters-menu-section-bool-list">
-					{mobTypes.map(mobType => listToggle('mobTypes', mobType, `filters-mob-type-${mobType}`, translateMobType(mobType)))}
-					{creatureFamilies.map(family =>
-						listToggle('creatureFamilies', family, `filters-creature-family-${family}`, translateCreatureFamily(family)),
+			{areaTypes.length + mobTypes.length + creatureFamilies.length > 0 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.bonus.title')} className="grid grid-cols-3 items-start gap-x-2 max-sm:grid-cols-1">
+					{bonusPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
+					{bonusPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}
+					{bonusPicker(
+						'creatureFamilies',
+						'filters-bonus-creature',
+						i18n.t('gear_tab.gear_picker.filters.bonus.creature'),
+						creatureFamilies,
+						translateCreatureFamily,
 					)}
 				</MenuSection>
 			)}

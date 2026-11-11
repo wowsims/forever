@@ -4,7 +4,7 @@ import { SimHostProvider } from '@sim/context/SimHostContext';
 import { storeSource as store } from '@testing/gear';
 import { renderWithHost } from '@testing/react';
 import { fakeHost } from '@testing/sim/fake_host';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PortalContainerContext } from '@ui-kit/hooks/usePortalContainer';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -26,6 +26,16 @@ interface ClassStub {
 
 const factionLabel = (label: string) => `gear_tab.gear_picker.filters.faction_labels.${label}`;
 const factionOptions = () => screen.getAllByRole('option');
+const openBonus = (id: string) => {
+	fireEvent.click(within(screen.getByTestId(id)).getByTestId('multi-combo-box-trigger'));
+	return within(screen.getAllByTestId('multi-combo-box-list').at(-1)!).getAllByRole('option');
+};
+const bonusOptions = (id: string) => {
+	const names = openBonus(id).map(option => option.textContent);
+	fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+	return names;
+};
+const pickBonus = (id: string, name: string) => fireEvent.click(openBonus(id).find(option => option.textContent === name)!);
 
 describe('FiltersMenu', () => {
 	let filters: DatabaseFilters;
@@ -102,26 +112,17 @@ describe('FiltersMenu', () => {
 		expect(pickerIds()).toEqual(expect.arrayContaining(['filters-min-oh-weapon-speed', 'filters-max-oh-weapon-speed']));
 	});
 
-	it('lists the biomes, mob types and creature groups the items carry, in enum order, and none the items lack', () => {
+	it('offers the areas, mob types and creatures the items carry, in enum order, and no picker for a kind no item carries', () => {
 		items = [
 			UIItem.create({ id: 1, areaTypes: [AreaType.AreaTypeDesert], mobTypes: [MobType.MobTypeUndead, MobType.MobTypeDemon] }),
-			UIItem.create({
-				id: 2,
-				areaTypes: [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert],
-				creatureFamilies: [CreatureFamily.CreatureFamilyPlant],
-			}),
+			UIItem.create({ id: 2, areaTypes: [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert] }),
 			UIItem.create({ id: 3 }),
 		];
 		setup();
 
-		const typeIds = pickerIds().filter(id => /^filters-(area-type|mob-type|creature-family)-/.test(id));
-		expect(typeIds).toEqual([
-			`filters-area-type-${AreaType.AreaTypeForestGrassland}`,
-			`filters-area-type-${AreaType.AreaTypeDesert}`,
-			`filters-mob-type-${MobType.MobTypeDemon}`,
-			`filters-mob-type-${MobType.MobTypeUndead}`,
-			`filters-creature-family-${CreatureFamily.CreatureFamilyPlant}`,
-		]);
+		expect(bonusOptions('filters-bonus-area')).toEqual(['AreaTypeForestGrassland', 'AreaTypeDesert']);
+		expect(bonusOptions('filters-bonus-mob-type')).toEqual(['MobTypeDemon', 'MobTypeUndead']);
+		expect(screen.queryByTestId('filters-bonus-creature')).toBeNull();
 	});
 
 	it('portals into the sim root for the spec theme, writes a source toggle and a faction pick back through the sim, and closes on its own close button', async () => {
@@ -217,30 +218,25 @@ describe('FiltersMenuView', () => {
 		]);
 	});
 
-	it('puts the biome section and the mob type and creature group section after the raids, and writes a ticked type into its list', () => {
+	it('puts the bonus row after the raids, shows the picks as chips and writes a pick into its list', () => {
 		const { lastEdit } = renderView({
 			areaTypes: [AreaType.AreaTypeDesert],
 			mobTypes: [MobType.MobTypeUndead, MobType.MobTypeDemon],
 			creatureFamilies: [CreatureFamily.CreatureFamilyPlant],
+			filters: DatabaseFilters.create({ mobTypes: [MobType.MobTypeDemon] }),
 		});
 		expect(viewSections().slice(2)).toEqual([
 			'gear_tab.gear_picker.filters.raids',
-			'gear_tab.gear_picker.filters.area_types',
-			'gear_tab.gear_picker.filters.mob_types',
+			'gear_tab.gear_picker.filters.bonus.title',
 			'gear_tab.gear_picker.armor_type',
 		]);
+		expect(screen.getAllByTestId('multi-combo-box-chip').map(chip => chip.textContent)).toEqual(['MobTypeDemon']);
 
-		fireEvent.click(input(`filters-mob-type-${MobType.MobTypeUndead}`));
-		expect(lastEdit().mobTypes).toEqual([MobType.MobTypeUndead]);
-
-		fireEvent.click(input(`filters-creature-family-${CreatureFamily.CreatureFamilyPlant}`));
+		pickBonus('filters-bonus-creature', 'CreatureFamilyPlant');
 		expect(lastEdit().creatureFamilies).toEqual([CreatureFamily.CreatureFamilyPlant]);
 
-		fireEvent.click(input(`filters-area-type-${AreaType.AreaTypeDesert}`));
-		expect(lastEdit(DatabaseFilters.create({ areaTypes: [AreaType.AreaTypeDesert] })).areaTypes).toEqual([
-			AreaType.AreaTypeDesert,
-			AreaType.AreaTypeDesert,
-		]);
+		pickBonus('filters-bonus-area', 'AreaTypeDesert');
+		expect(lastEdit().areaTypes).toEqual([AreaType.AreaTypeDesert]);
 	});
 
 	it('gives a weapon slot the weapon sections, with off hand speeds for a dual wielder', () => {

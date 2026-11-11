@@ -2002,11 +2002,20 @@
 								"raids": {
 									"type": "string"
 								},
-								"area_types": {
-									"type": "string"
-								},
-								"mob_types": {
-									"type": "string"
+								"bonus": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"area": { "type": "string" },
+										"mob_type": { "type": "string" },
+										"creature": { "type": "string" },
+										"any": { "type": "string" },
+										"empty": { "type": "string" },
+										"remove": { "type": "string" },
+										"open": { "type": "string" }
+									},
+									"required": ["title", "area", "mob_type", "creature", "any", "empty", "remove", "open"],
+									"additionalProperties": false
 								},
 								"faction_labels": {
 									"type": "object",
@@ -2035,8 +2044,7 @@
 								"faction_restrictions",
 								"source",
 								"raids",
-								"area_types",
-								"mob_types",
+								"bonus",
 								"faction_labels"
 							]
 						},

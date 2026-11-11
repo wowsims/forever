@@ -548,8 +548,16 @@
 				"faction_restrictions": "Faction Restrictions",
 				"source": "Source",
 				"raids": "Raids",
-				"area_types": "Only items with an effect in",
-				"mob_types": "Only items with an effect against",
+				"bonus": {
+					"title": "Bonus",
+					"area": "In area",
+					"mob_type": "Against mob type",
+					"creature": "Against creature",
+					"any": "Any",
+					"empty": "No match",
+					"remove": "Remove",
+					"open": "Show all"
+				},
 				"faction_labels": {
 					"none": "Any",
 					"alliance_only": "Alliance only",
