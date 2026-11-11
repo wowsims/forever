@@ -284,6 +284,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 780.64157
+  tps: 638.16453
+  dtps: 8.339
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 712.17685

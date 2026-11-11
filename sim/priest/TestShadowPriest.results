@@ -254,6 +254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 765.76472
+  tps: 546.95714
+  dtps: 5.87048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-DreadmistRaiment"
  value: {
   dps: 686.32834
@@ -659,6 +667,14 @@ dps_results: {
  value: {
   dps: 744.31941
   tps: 531.95826
+  dtps: 5.87048
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Ironfoe-11684"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
   dtps: 5.87048
  }
 }
