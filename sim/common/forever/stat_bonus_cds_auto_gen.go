@@ -55,8 +55,12 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(13213) // Smolderweb's Eye - https://www.wowhead.com/forever/spell=1308917
 	// unsupported: 18400 deals no damage and heals no one (A_PERIODIC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(13379) // Piccolo of the Flaming Fire - https://www.wowhead.com/forever/spell=18400
+	// unsupported: 1299443 deals no damage and heals no one (A_MOD_STUN)
+	// shared.NewSimpleStatActive(13515) // Ramstein's Lightning Bolts - https://www.wowhead.com/forever/spell=1299443
 	// unsupported: 1298497 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
+	// unsupported: 18264 deals no damage and heals no one (E_APPLY_AREA_AURA_PARTY)
+	// shared.NewSimpleStatActive(13937) // Headmaster's Charge - https://www.wowhead.com/forever/spell=18264
 	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
 	// shared.NewSimpleStatActive(13965) // Blackhand's Breadth - https://www.wowhead.com/forever/spell=1318944
 	// on use: 18386 (E_HEAL)
@@ -124,6 +128,8 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(286556) // Winds of Tanaris - https://www.wowhead.com/forever/spell=1320579
 	// unsupported: 13534 deals no damage and heals no one (A_MOD_DISARM)
 	// shared.NewSimpleStatActive(287026) // Escape Plan - https://www.wowhead.com/forever/spell=13534
+	// unsupported: 1325180 deals no damage and heals no one (E_ACTIVATE_OBJECT, E_CREATE_LOOT)
+	// shared.NewSimpleStatActive(287045) // Ancient Mattock - https://www.wowhead.com/forever/spell=1325180
 
 	// Absorbs
 	// on use: 13744 (A_SCHOOL_ABSORB, A_MOD_RESISTANCE)
@@ -439,6 +445,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=1297448
 	// Not simulated: Zarla's Snack Pouch: "Zarla's Snack Pouch" (1315190) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=1315190
+	// Not simulated: Sand-Covered Silk Sash: "Immune Root" (9774) - ignored aura type 77
+	// https://www.wowhead.com/forever/spell=9774
 
 	// Speed
 	// on use: 13494 (A_MOD_MELEE_HASTE_3)
