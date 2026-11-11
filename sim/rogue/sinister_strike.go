@@ -21,7 +21,7 @@ func (rogue *Rogue) registerSinisterStrikeSpell() {
 		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 
 		if result.Landed() {
-			rogue.AddComboPoints(sim, int32(sinisterStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(sinisterStrikeRank.ProcEnergizeEffect().Roll(sim)), spell.ComboPointMetrics())
 
 		} else {
 			spell.IssueRefund(sim)

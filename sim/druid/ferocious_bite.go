@@ -23,7 +23,7 @@ func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = druid.requiresComboPoints(rank)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		cp := float64(druid.ComboPoints())
+		cp := float64(druid.ComboPoints(target))
 		extra := druid.CurrentEnergy()
 		damage := damageEffect.RollAt(sim, druid.level()) + float64(damageEffect.PointsPerResource)*cp
 		damage += extra * perEnergy
@@ -36,7 +36,7 @@ func (druid *Druid) registerFerociousBiteRank(rank *spelldata.Spell) *DruidSpell
 			if extra > 0 && !keepsEnergy {
 				druid.SpendEnergy(sim, extra, spell.EnergyMetrics())
 			}
-			druid.spendComboPoints(sim, spell)
+			druid.spendComboPoints(sim, target, spell)
 		}
 		spell.DealDamage(sim, result)
 		druid.refundOnMiss(sim, spell, result)

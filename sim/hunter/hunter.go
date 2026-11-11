@@ -142,7 +142,7 @@ func (hunter *Hunter) hasteRangedCast(config *core.SpellConfig) {
 	config.Cast.CastTime = func(spell *core.Spell) time.Duration {
 		return hunter.ApplyRangedSpeed(spell.DefaultCast.CastTime)
 	}
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
+	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast, _ *core.Unit) {
 		cast.CastTime = spell.CastTime()
 	}
 }

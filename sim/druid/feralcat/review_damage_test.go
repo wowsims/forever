@@ -9,6 +9,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
@@ -20,7 +21,7 @@ func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 1
-	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 	refund := spelldata.MustFind(cat.FerociousBite.ActionID.SpellID).MissRefund()
 	want := cat.CurrentEnergy() - (1-refund)*cat.FerociousBite.Cost.GetCurrentCost()
 	if !cat.FerociousBite.Cast(sim, target) {
@@ -29,10 +30,10 @@ func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	if cat.FerociousBite.SpellMetrics[target.UnitIndex].Dodges != 1 {
 		t.Fatal("bite was not dodged")
 	}
-	if cat.CurrentEnergy() != want || cat.ComboPoints() != 5 {
-		t.Fatalf("dodged bite leaves energy=%g CP=%d, want %g and 5", cat.CurrentEnergy(), cat.ComboPoints(), want)
+	if cat.CurrentEnergy() != want || cat.ComboPoints(cat.CurrentTarget) != 5 {
+		t.Fatalf("dodged bite leaves energy=%g CP=%d, want %g and 5", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget), want)
 	}
-	t.Logf("dodged bite: energy=%g CP=%d", cat.CurrentEnergy(), cat.ComboPoints())
+	t.Logf("dodged bite: energy=%g CP=%d", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 }
 
 func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
@@ -40,15 +41,15 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 0
 	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 	if !cat.FerociousBite.Cast(sim, target) {
 		t.Fatal("bite did not cast")
 	}
 	if metrics := cat.FerociousBite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
 		t.Fatal("bite did not land")
 	}
-	if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
-		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints())
+	if cat.CurrentEnergy() != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
+		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 	}
 }
 
@@ -60,7 +61,7 @@ func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 		target := cat.CurrentTarget
 		target.PseudoStats.BaseDodgeChance = 0
 		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		bite := cat.GetSpell(core.ActionID{SpellID: id})
 		if bite == nil {
 			t.Fatalf("spell %d is not registered", id)
@@ -74,8 +75,8 @@ func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 		if metrics := bite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
 			t.Fatalf("spell %d did not land", id)
 		}
-		if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
-			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints())
+		if cat.CurrentEnergy() != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
+			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 		}
 	}
 }
@@ -88,13 +89,13 @@ func TestPredatoryDisciplineBiteKeepsExtraEnergy(t *testing.T) {
 		target.PseudoStats.BaseDodgeChance = 0
 		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		want := cat.CurrentEnergy() - cat.FerociousBite.Cost.GetCurrentCost()
 		if !cat.FerociousBite.Cast(sim, target) {
 			t.Fatal("bite did not cast")
 		}
-		if cat.ComboPoints() != 0 {
-			t.Fatalf("landed bite leaves CP=%d, want 0", cat.ComboPoints())
+		if cat.ComboPoints(cat.CurrentTarget) != 0 {
+			t.Fatalf("landed bite leaves CP=%d, want 0", cat.ComboPoints(cat.CurrentTarget))
 		}
 		if talents != "" && cat.CurrentEnergy() != want {
 			t.Fatalf("bite with Predatory Discipline leaves energy=%g, want %g", cat.CurrentEnergy(), want)
@@ -186,9 +187,9 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 			if bleedUp := cat.PounceBleed.Dot(target).IsActive(); avoided != 1 || m.Hits != 0 || bleedUp {
 				t.Fatalf("bleed avoided %d times, %d hits, up=%v, want 1, 0 and no bleed", avoided, m.Hits, bleedUp)
 			}
-			stunUp := target.GetAura("Pounce Stun").IsActive()
-			if !stunUp || cat.ComboPoints() != 1 {
-				t.Errorf("stun up=%v and CP=%d, want the stun and 1", stunUp, cat.ComboPoints())
+			stunUp := target.GetAura("Pounce Stun - " + cat.Label).IsActive()
+			if !stunUp || cat.ComboPoints(cat.CurrentTarget) != 1 {
+				t.Errorf("stun up=%v and CP=%d, want the stun and 1", stunUp, cat.ComboPoints(cat.CurrentTarget))
 			}
 			if cat.CurrentEnergy() != want {
 				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
@@ -285,7 +286,7 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 	for cp := int32(1); cp <= 5; cp++ {
 		sim, cat := newCat(t, "", nil)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		cat.AddComboPoints(sim, cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		dot := cat.Rip.Dot(cat.CurrentTarget)
 		dot.Apply(sim)
 		metric := &cat.Rip.SpellMetrics[cat.CurrentTarget.UnitIndex]
@@ -341,7 +342,7 @@ func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
 	target.BleedImmune = true
 	fillResource(sim, cat)
 	cat.Rake.Cast(sim, target)
-	if cat.Rake.Dot(target).IsActive() || cat.Rake.SpellMetrics[target.UnitIndex].TotalDamage != 0 || cat.ComboPoints() != 0 {
+	if cat.Rake.Dot(target).IsActive() || cat.Rake.SpellMetrics[target.UnitIndex].TotalDamage != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
 		t.Fatal("rake landed on a bleed-immune target")
 	}
 
@@ -364,18 +365,19 @@ func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
 }
 
 // Rend and Tear raises Shred on a bleeding target, by the same amount under each of the cat's own
-// bleeds. With the bleed assumed, a target with no bleed of the cat's own takes the same raised Shred.
+// bleeds. With the bleed assumed, a target with no bleed of the cat's own takes the same raised Shred,
+// and another player's bleed counts the same.
 func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
-	shred := func(assume bool, bleed func(*FeralDruid) *druid.DruidSpell) float64 {
-		sim, cat := newCat(t, rendAndTear5, nil)
+	shred := func(assume bool, bleed func(cat, other *FeralDruid) *druid.DruidSpell) float64 {
+		sim, cat, other := newCatBesideAnother(t, rendAndTear5)
 		cat.AssumeBleedActive = assume
 		target := cat.CurrentTarget
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 		target.PseudoStats.BaseDodgeChance = 0
 		if bleed != nil {
-			bleed(cat).Dot(target).Apply(sim)
+			bleed(cat, other).Dot(target).Apply(sim)
 		}
 		fillResource(sim, cat)
 		if !cat.Shred.Cast(sim, target) {
@@ -384,14 +386,15 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 		return cat.Shred.SpellMetrics[target.UnitIndex].TotalDamage
 	}
 	plain := shred(false, nil)
-	bleeding := shred(false, func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake })
+	bleeding := shred(false, func(cat, _ *FeralDruid) *druid.DruidSpell { return cat.Rake })
 	if plain <= 0 || bleeding <= plain*1.01 {
 		t.Fatalf("shred %g without a bleed, %g with Rake up: Rend and Tear did not apply", plain, bleeding)
 	}
-	for name, bleed := range map[string]func(*FeralDruid) *druid.DruidSpell{
-		"Rip":          func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip },
-		"Lacerate":     func(cat *FeralDruid) *druid.DruidSpell { return cat.Lacerate },
-		"Pounce Bleed": func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed },
+	for name, bleed := range map[string]func(cat, other *FeralDruid) *druid.DruidSpell{
+		"Rip":            func(cat, _ *FeralDruid) *druid.DruidSpell { return cat.Rip },
+		"Lacerate":       func(cat, _ *FeralDruid) *druid.DruidSpell { return cat.Lacerate },
+		"Pounce Bleed":   func(cat, _ *FeralDruid) *druid.DruidSpell { return cat.PounceBleed },
+		"the other Rake": func(_, other *FeralDruid) *druid.DruidSpell { return other.Rake },
 	} {
 		if got := shred(false, bleed); math.Abs(got-bleeding) > 1e-6 {
 			t.Errorf("shred with %s up = %g, with Rake up = %g", name, got, bleeding)
@@ -400,6 +403,22 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	if assumed := shred(true, nil); math.Abs(assumed-bleeding) > 1e-6 {
 		t.Fatalf("shred with the bleed assumed = %g, with Rake up = %g", assumed, bleeding)
 	}
+}
+
+// Two cats of one build against one target: the cat under test and another whose bleeds it can read.
+func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *FeralDruid, *FeralDruid) {
+	t.Helper()
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{
+			Players: []*proto.Player{catPlayer("Cat", talents, nil, nil), catPlayer("Other cat", talents, nil, nil)},
+			Buffs:   &proto.PartyBuffs{},
+		}}},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	players := sim.Raid.Parties[0].Players
+	return sim, players[0].(*FeralDruid), players[1].(*FeralDruid)
 }
 
 // Rend and Tear raises Rake and Rip ticks and leaves Pounce Bleed's unchanged. Each tick counts its own
@@ -420,7 +439,7 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 			cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 			spell := c.spell(cat)
 			if spell == cat.Rip {
-				cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+				cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			}
 			dot := spell.Dot(cat.CurrentTarget)
 			dot.Apply(sim)

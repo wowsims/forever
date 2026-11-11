@@ -1468,6 +1468,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Wounds the target, causing them to bleed for 140 damage over 14s.
+	// https://www.wowhead.com/forever/spell=1320824
+	// unsupported: states no rate
+	// trigger 1320824 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320824, BuffSpellID: 1320824, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 13399, ItemName: "Gargoyle Shredder Talons"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Steals 85 life from target enemy.
 	// https://www.wowhead.com/forever/spell=17505
 	// unsupported: states no rate
@@ -2190,6 +2203,35 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 18469, ItemName: "Royal Seal of Eldre'Thalas"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Chance on hit to restore 65 mana.
+	// https://www.wowhead.com/forever/spell=1302350
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 18483, ItemName: "Mana Channeling Wand"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage
+	// to Plants.
+	// https://www.wowhead.com/forever/spell=1302344
+	// unsupported: states no rate
+	// trigger 1302344 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302344, BuffSpellID: 1302344, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 18498, ItemName: "Hedgecutter"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2977,6 +3019,20 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 191312, ItemName: "Failsafe Phylactery"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// https://www.wowhead.com/forever/spell=463001
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 208424, ItemName: "Sun Shades"},
 	// })
 
 	// TODO: Manual implementation required

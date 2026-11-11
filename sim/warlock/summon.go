@@ -22,7 +22,7 @@ func (warlock *Warlock) registerSummon(row *spelldata.Spell, pet *WarlockPet) *c
 	config.ClassSpellMask = WarlockSpellSummonDemon
 
 	// The demon out is stunned from the start of the cast. The APL checks the summon can be cast first.
-	config.Cast.ModifyCast = func(sim *core.Simulation, _ *core.Spell, _ *core.Cast) {
+	config.Cast.ModifyCast = func(sim *core.Simulation, _ *core.Spell, _ *core.Cast, _ *core.Unit) {
 		if warlock.ActivePet != nil && warlock.ActivePet.IsEnabled() {
 			core.ApplyStun(sim, warlock.ActivePet.summonStun)
 		}

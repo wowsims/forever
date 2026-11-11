@@ -15,7 +15,7 @@ func (druid *Druid) registerShredSpell() {
 		// The flat bonus is the row's $s1.
 		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank), spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
-			druid.awardComboPoints(sim, spell, rank)
+			druid.awardComboPoints(sim, target, spell, rank)
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}

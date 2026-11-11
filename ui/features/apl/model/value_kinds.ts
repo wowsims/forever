@@ -631,7 +631,7 @@ export const valueKinds: { [f in ValidAPLValueKind]: ValueKindModel<APLValueImpl
 			const spec = player.getSpec();
 			return !isPrepull && (spec === Spec.SpecFeralCatDruid || spec === Spec.SpecFeralBearDruid || clss === Class.ClassRogue);
 		},
-		fields: [],
+		fields: [unitFieldConfig('targetUnit', 'targets')],
 	}),
 	maxComboPoints: inputBuilder({
 		label: i18n.t('rotation_tab.apl.values.max_combo_points.label'),

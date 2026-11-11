@@ -1116,6 +1116,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13399, // Gargoyle Shredder Talons
+		[
+			"Wounds the target, causing them to bleed for 140 damage over 14s.", // 1320824 - https://www.wowhead.com/forever/spell=1320824
+		]
+	],
+	[
 		13401, // The Cruel Hand of Timmy
 		[
 			"Steals 85 life from target enemy.", // 17505 - https://www.wowhead.com/forever/spell=17505
@@ -1463,6 +1469,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18469, // Royal Seal of Eldre'Thalas
 		[
 			"Increases Spirit by 16 in Cavernous or Underground areas.", // 1318480 - https://www.wowhead.com/forever/spell=1318480
+		]
+	],
+	[
+		18483, // Mana Channeling Wand
+		[
+			"Chance on hit to restore 65 mana.", // 1302350 - https://www.wowhead.com/forever/spell=1302350
+		]
+	],
+	[
+		18498, // Hedgecutter
+		[
+			"Slice the target with magically enhanced precision, dealing 42 Arcane damage. Deals 3 times as much damage to Plants.", // 1302344 - https://www.wowhead.com/forever/spell=1302344
 		]
 	],
 	[
@@ -2111,6 +2129,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		191312, // Failsafe Phylactery
 		[
 			"Prevents an attack that would otherwise kill you. Triggering this effect also grants you 3s of damage immunity and shatters the phylactery.", // 370391 - https://www.wowhead.com/forever/spell=370391
+		]
+	],
+	[
+		208424, // Sun Shades
+		[
+			"", // 463001 - https://www.wowhead.com/forever/spell=463001
 		]
 	],
 	[

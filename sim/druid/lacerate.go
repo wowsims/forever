@@ -8,6 +8,13 @@ import (
 // The weapon hit every Lacerate rank casts by script; the store carries it as an extra spell.
 const lacerateHitSpellID = 414647
 
+// The tooltip's "Causes a high amount of threat", which the rows state no effect for: in game the hit and
+// the ticks each threaten for 10/3 of their damage, with no flat part, before the form's threat
+// multiplier. Measured on rank 2 in Bear Form.
+// TODO: Ingame research needed -- the later ranks in Dire Bear Form fit 10/3 only in part; this takes them
+// to follow rank 2.
+const lacerateThreatMultiplier = 10.0 / 3
+
 func (druid *Druid) registerLacerateSpell() {
 	if !druid.Talents.Lacerate {
 		return
@@ -16,9 +23,8 @@ func (druid *Druid) registerLacerateSpell() {
 	tick := rank.PeriodicDamageEffect()
 	perStack := rank.EffectN(2).Percent()
 	config := spelldata.SpellConfig(&druid.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
+	config.ThreatMultiplier = lacerateThreatMultiplier
 	config.Dot = spelldata.DotConfig(rank, tick)
-	// TODO: Ingame research needed -- the tooltip's "Causes a high amount of threat"; the row states no
-	// threat effect, so the cast threatens only for its damage.
 	// Each application stacks the bleed, so a tick is the row's amount per stack.
 	// The bleed gains no attack power: in game its ticks stayed at the rank's amount a stack with 43 more AP.
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
@@ -29,6 +35,7 @@ func (druid *Druid) registerLacerateSpell() {
 	// what lands; the rank's $s2 is.
 	hitConfig := spelldata.SpellConfig(&druid.Unit, spelldata.MustFind(lacerateHitSpellID),
 		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
+	hitConfig.ThreatMultiplier = lacerateThreatMultiplier
 	hit := druid.RegisterSpell(hitConfig)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		// The rank's cast is what misses, is dodged, parried or immune: every SPELL_MISSED in the log
