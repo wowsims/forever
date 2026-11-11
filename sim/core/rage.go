@@ -19,8 +19,9 @@ const ThreatPerRageGained = 5
 const DamageTakenRageFactor = 2.5
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
-// 21.8% at attackers 17-38, 23.9% at 42 and 31% at 44 on hundreds of hits each; 36% at 46 and 38% at 50 on a few
-// dozen. The 40% at 63 is the top of the 20% to 40% range the game build's notes give. No log covers 47-49 or 51-63.
+// 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 it
+// stays near 38%: 37.9% to 38.1% at 48-51, on hundreds of hits at 48 and 49 and a few dozen at 50 and 51. The 40% at
+// 63 is the top of the 20% to 40% range the game build's notes give. No log covers 52-63 beyond a handful of hits.
 // Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
 // since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
@@ -31,6 +32,7 @@ var damageTakenRageAssumedArmor = []struct {
 	{level: 42, reduction: 0.239},
 	{level: 44, reduction: 0.31},
 	{level: 46, reduction: 0.36},
+	{level: 47, reduction: 0.377},
 	{level: 50, reduction: 0.38},
 	{level: 63, reduction: 0.40},
 }

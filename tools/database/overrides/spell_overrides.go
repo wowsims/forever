@@ -489,9 +489,9 @@ var Spells = []Override{
 	{
 		SpellID: 9752,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 4 in game.
-		Reason:  "Rip Rank 4: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 4: attack power share per tick per combo point up to 4, measured over 372 ticks (371 fit; the share on all 5 points fits none of 263)",
+		Source:  "Combat log, Bison-Plainsrunner levels 46–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 9894,
@@ -538,16 +538,16 @@ var Spells = []Override{
 	{
 		SpellID: 1824,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
-		Reason:  "Rake Rank 3: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 3: measured direct hit share, 347 of 349 hits fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 46–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 1824,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
-		Reason:  "Rake Rank 3: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 3: measured periodic share, 683 of 686 ticks fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 46–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 9904,
@@ -573,9 +573,9 @@ var Spells = []Override{
 	{
 		SpellID: 9824,
 		Field:   APCoefPeriodic,
-		Value:   0.025, // TODO: Measure Pounce Bleed Rank 2 in game.
-		Reason:  "Pounce Bleed Rank 2: Rank 1's measured periodic share",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 2: measured periodic share, 0.02482 to 0.02539 fits every one of 34 ticks; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 49–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 9826,
@@ -608,9 +608,9 @@ var Spells = []Override{
 	{
 		SpellID: 9754,
 		Field:   APCoefDirect,
-		Value:   0.03, // TODO: Measure Swipe Rank 4 in game.
-		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2, 3 and 5; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.03,
+		Reason:  "Swipe Rank 4: 3% of attack power on each hit, measured, 7,518 of 7,711 hits exact; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 46–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 9908,
@@ -643,9 +643,9 @@ var Spells = []Override{
 	{
 		SpellID: 22828,
 		Field:   APCoefDirect,
-		Value:   0.037, // TODO: Measure Ferocious Bite Rank 4 in game.
-		Reason:  "Ferocious Bite Rank 4: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "Combat logs, Oskar-Beefheart levels 26–33 (2026-11-09) and Bison-Plainsrunner levels 37–41 (2026-11-08), game build 1.60.1.70862",
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 4: attack power share per combo point, 0.03671 to 0.03745 over 62 bites (59 fit); the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 49–51, game build 1.60.1.70862 or 70888, 2026-11-10",
 	},
 	{
 		SpellID: 22829,

@@ -114,6 +114,11 @@ func (dot *Dot) isImmuneBleed() bool {
 	return dot.Unit.BleedImmune && dot.Spell.Flags.Matches(SpellFlagBleed)
 }
 
+// The tag every bleed Dot's aura carries (SpellFlagBleed), any caster's and an item proc's included, so
+// HasActiveAuraWithTag says whether a unit is bleeding. A bleed's last tick, dealt at its expiry, does not
+// find its own Dot up.
+const BleedAuraTag = "Bleed"
+
 // A rank does not land while a higher rank from the same caster is up on the unit; otherwise it ends
 // the other ranks there before it starts.
 func (dot *Dot) replaceOtherRanks(sim *Simulation) bool {
@@ -632,6 +637,12 @@ func (spell *Spell) createDots(config DotConfig, isHot bool) {
 	auraConfig := config.Aura
 	if auraConfig.ActionID.IsEmptyAction() {
 		auraConfig.ActionID = dot.Spell.ActionID
+	}
+	if dot.Spell.Flags.Matches(SpellFlagBleed) {
+		if auraConfig.Tag != "" {
+			panic("bleed dot " + auraConfig.Label + " carries the tag " + auraConfig.Tag + ", so it cannot carry " + BleedAuraTag)
+		}
+		auraConfig.Tag = BleedAuraTag
 	}
 
 	caster := dot.Spell.Unit
