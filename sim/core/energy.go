@@ -135,15 +135,10 @@ func (eb *energyBar) SpendEnergy(sim *Simulation, amount float64, metrics *Resou
 
 // The combo points on target: none unless target holds them.
 func (eb *energyBar) ComboPoints(target *Unit) int32 {
-	if target == nil || target != eb.comboPointTarget {
+	if target != eb.comboPointTarget {
 		return 0
 	}
 	return eb.comboPoints
-}
-
-// The unit the combo points are on, or nil before the first gain.
-func (eb *energyBar) ComboPointTarget() *Unit {
-	return eb.comboPointTarget
 }
 
 func (eb *energyBar) SetMaxComboPoints(maxComboPoints int32) {

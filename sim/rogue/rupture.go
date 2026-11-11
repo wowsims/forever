@@ -30,9 +30,10 @@ func (rogue *Rogue) registerRupture() {
 		rogue.BreakStealth(sim)
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
-			comboPoints[target.UnitIndex] = rogue.ComboPoints(target)
+			points := rogue.ComboPoints(target)
+			comboPoints[target.UnitIndex] = points
 			dot := spell.Dot(target)
-			dot.BaseTickCount = baseTicks + comboPoints[target.UnitIndex]
+			dot.BaseTickCount = baseTicks + points
 			dot.Apply(sim)
 			rogue.ApplyFinisher(sim, target, spell)
 		} else {

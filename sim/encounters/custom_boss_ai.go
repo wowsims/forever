@@ -301,7 +301,7 @@ func (ai *DefaultTankAI) registerMagicSpell() {
 				CastTime: ai.Config.MagicSpellCastTime,
 			},
 
-			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
+			ModifyCast: func(sim *core.Simulation, spell *core.Spell, cast *core.Cast, _ *core.Unit) {
 				meleeDelay := sim.CurrentTime + cast.CastTime
 				if ai.Config.HasCleave {
 					cleaveDelay := max(

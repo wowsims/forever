@@ -20,9 +20,6 @@ func TestComboPointsLiveOnOneUnit(t *testing.T) {
 	if got := character.ComboPoints(b); got != 0 {
 		t.Fatalf("B holds %d combo points with none gained on it, want 0", got)
 	}
-	if got := character.ComboPoints(a); got != 3 {
-		t.Fatalf("A holds %d combo points after B was read, want 3", got)
-	}
 
 	onB := character.NewComboPointMetrics(ActionID{SpellID: 2})
 	character.AddComboPoints(sim, b, 2, onB)

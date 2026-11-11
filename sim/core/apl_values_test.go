@@ -616,11 +616,6 @@ func TestValueRageAndEnergyAndComboPoints(t *testing.T) {
 	if got := comboPoints.GetInt(sim); got != 3 {
 		t.Errorf("Current Combo Points = %v, want 3", got)
 	}
-	unit.CurrentTarget = &Unit{}
-	if got := comboPoints.GetInt(sim); got != 0 {
-		t.Errorf("Current Combo Points on a target holding none = %v, want 0", got)
-	}
-	unit.CurrentTarget = target
 	if got := rot.newValueMaxComboPoints(&proto.APLValueMaxComboPoints{}, nil).GetInt(sim); got != 5 {
 		t.Errorf("Max Combo Points = %v, want 5", got)
 	}

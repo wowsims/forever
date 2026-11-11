@@ -242,10 +242,8 @@ func (rogue *Rogue) FinisherExtraCastCondition(sim *core.Simulation, target *cor
 	return rogue.ComboPoints(target) > 0
 }
 
-// ModifyCast is given no cast target, so the split reads the points where they are; a finisher that goes
-// through FinisherExtraCastCondition is cast at that unit.
-func (rogue *Rogue) setFinisherMetricsSplit(_ *core.Simulation, spell *core.Spell, _ *core.Cast) {
-	spell.SetMetricsSplit(rogue.ComboPoints(rogue.ComboPointTarget()))
+func (rogue *Rogue) setFinisherMetricsSplit(_ *core.Simulation, spell *core.Spell, _ *core.Cast, target *core.Unit) {
+	spell.SetMetricsSplit(rogue.ComboPoints(target))
 }
 
 func RegisterRogue() {
