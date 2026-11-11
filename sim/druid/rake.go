@@ -25,7 +25,7 @@ func (druid *Druid) registerRakeSpell() {
 		result := spell.CalcAndDealDamage(sim, target, initial, spell.OutcomeMeleeSpecialHitAndCrit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
-			druid.awardComboPoints(sim, spell, rank)
+			druid.awardComboPoints(sim, target, spell, rank)
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}

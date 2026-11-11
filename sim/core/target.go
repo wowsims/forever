@@ -291,6 +291,7 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 				channel.stopTicking(sim)
 				channel.Deactivate(sim)
 			}
+			unit.energyBar.dropComboPointsOn(sim, &target.Unit)
 		}
 	}
 

@@ -27,19 +27,19 @@ func (druid *Druid) weaponSpecialDamage(sim *core.Simulation, spell *core.Spell,
 	return rank.WeaponStrike(sim, spell, weapon, 0) * druid.rendAndTearMultiplier(target)
 }
 
-func (druid *Druid) awardComboPoints(sim *core.Simulation, spell *core.Spell, rank *spelldata.Spell) {
+func (druid *Druid) awardComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell, rank *spelldata.Spell) {
 	e := rank.EnergizeEffect()
 	if e == spelldata.NilEffect || dbcenums.PowerType(e.Misc) != dbcenums.POWER_COMBO_POINTS {
 		return
 	}
-	druid.AddComboPoints(sim, int32(e.BaseValue()), spell.ComboPointMetrics())
+	druid.AddComboPoints(sim, target, int32(e.BaseValue()), spell.ComboPointMetrics())
 }
 
 // Spends every combo point. The row's combo-point cost is the minimum the cast requires; the
 // per-resource damage is priced on the points actually spent.
-func (druid *Druid) spendComboPoints(sim *core.Simulation, spell *core.Spell) {
-	if druid.ComboPoints() > 0 {
-		druid.SpendComboPoints(sim, spell.ComboPointMetrics())
+func (druid *Druid) spendComboPoints(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+	if druid.ComboPoints(target) > 0 {
+		druid.SpendComboPoints(sim, target, spell.ComboPointMetrics())
 	}
 }
 
@@ -48,8 +48,8 @@ func (druid *Druid) requiresComboPoints(rank *spelldata.Spell) core.CanCastCondi
 	if need == 0 {
 		return nil
 	}
-	return func(_ *core.Simulation, _ *core.Unit) bool {
-		return druid.ComboPoints() >= need
+	return func(_ *core.Simulation, target *core.Unit) bool {
+		return druid.ComboPoints(target) >= need
 	}
 }
 

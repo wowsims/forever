@@ -568,7 +568,9 @@ message APLValueCurrentManaPercent {
 }
 message APLValueCurrentRage {}
 message APLValueCurrentEnergy {}
-message APLValueCurrentComboPoints {}
+message APLValueCurrentComboPoints {
+	UnitReference target_unit = 1;
+}
 message APLValueCurrentGenericResource {}
 message APLValueCurrentManaRegen {}
 message APLValueMaxHealth {}

@@ -198,7 +198,7 @@ Written from `proto/apl.proto`, but for the accessors below.
 - `[unit.]current_mana_percent`
 - `current_rage`
 - `current_energy`
-- `current_combo_points`
+- `[unit.]current_combo_points`
 - `current_generic_resource`
 - `current_mana_regen`
 - `max_health`
