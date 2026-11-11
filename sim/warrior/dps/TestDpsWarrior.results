@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 501.34814
+  tps: 433.29199
+  dtps: 2.86968
+  hps: 39.955
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 470.41298
@@ -819,12 +828,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 498.75346
+  tps: 433.13671
+  dtps: 2.96131
+  hps: 40.81917
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-IronShieldSpike-43"
  value: {
   dps: 501.34814
   tps: 433.29199
   dtps: 2.96131
   hps: 39.955
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Ironfoe-11684"
+ value: {
+  dps: 554.10837
+  tps: 476.86757
+  dtps: 2.96131
+  hps: 41.44611
  }
 }
 dps_results: {
