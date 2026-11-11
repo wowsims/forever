@@ -522,8 +522,8 @@ func TestSoulShardsCapAt32(t *testing.T) {
 }
 
 // A target that dies within Shadowburn's debuff window returns a Soul Shard, whoever gets the kill; once the
-// window has passed, or for the same target enabled again and dying with no Shadowburn of its own, its death
-// returns none. Shadowburn is the 8th destruction talent.
+// window has passed, or for a later spawn in the dead target's slot, its death returns none. Shadowburn is the
+// 8th destruction talent.
 func TestShadowburnShardWhenTheTargetDiesInTheWindow(t *testing.T) {
 	shadowburnOn := func() (*core.Simulation, *Warlock, *core.Target) {
 		sim, warlock, first, _ := newTwoTargetWarlockSim("--00000001", &proto.WarlockOptions{SoulShards: 1})
@@ -543,13 +543,13 @@ func TestShadowburnShardWhenTheTargetDiesInTheWindow(t *testing.T) {
 		t.Errorf("%d Soul Shards after the target died 1 sec after Shadowburn with no kill credit, want 1", got)
 	}
 
-	// The target comes back inside the first window and dies with no Shadowburn of its own.
+	// The same slot spawns again inside the first target's window and dies with no Shadowburn of its own.
 	first.Enable(sim)
 	stepFor(sim, time.Second)
 	first.Die(sim, 0)
 	stepFor(sim, 2*core.SpellBatchWindow)
 	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
-		t.Errorf("%d Soul Shards after the target enabled again died within the window of its first life's Shadowburn, want 1", got)
+		t.Errorf("%d Soul Shards after a respawn in the slot died within the window of its predecessor's Shadowburn, want 1", got)
 	}
 
 	sim, warlock, first = shadowburnOn()
@@ -595,17 +595,77 @@ func TestSoulHarvestOnADrainSoulKill(t *testing.T) {
 	}
 }
 
-// Decimation's damage bonus counts against the target of each Shadow Bolt once that target is below 35% health,
-// and not while it is above.
+// Decimation's damage bonus counts against a target below 35% health and not against another target of the
+// same fight above it.
 func TestDecimationBonusAgainstTheTargetBelow35(t *testing.T) {
-	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
-	target := sim.Encounter.AllTargetUnits[0]
-	above := warlock.ShadowBolt.ExpectedInitialDamage(sim, target)
-	for !target.IsExecutePhase35() && !sim.Step() {
+	sim, warlock, first, second := newTwoTargetWarlockSim("-000000000002", &proto.WarlockOptions{})
+	ratio := func() float64 {
+		return warlock.ShadowBolt.ExpectedInitialDamage(sim, &first.Unit) / warlock.ShadowBolt.ExpectedInitialDamage(sim, &second.Unit)
+	}
+	if got := ratio(); math.Abs(got-1) > 1e-9 {
+		t.Fatalf("Shadow Bolt against the first target is %.4f times that against the second with both at full health, want 1", got)
+	}
+
+	first.SetHealthCurve(sim, sim.CurrentTime, time.Minute, core.HealthKnot{At: 0, Percent: 30})
+	if !first.IsExecutePhase35() || second.IsExecutePhase35() {
+		t.Fatalf("the first target is below 35%% %v and the second %v, want only the first", first.IsExecutePhase35(), second.IsExecutePhase35())
 	}
 	want := 1 + spellData.Decimation.Rank(2).EffectN(4).Percent()
-	if got := warlock.ShadowBolt.ExpectedInitialDamage(sim, target) / above; math.Abs(got-want) > 1e-9 {
-		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that while it was above, want %.4f", got, want)
+	if got := ratio(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("Shadow Bolt against the target below 35%% is %.4f times that against the one above, want %.4f", got, want)
+	}
+}
+
+// A Shadow Bolt at a target below 35% health grants Decimation's buff (440873) and a Shadow Bolt at a target above
+// it grants nothing. The buff sits on the warlock, so Soul Fire keeps its bonus against the target above until the
+// buff runs out, and another cast at the low target refreshes it.
+func TestDecimationBuffCarriesToAnotherTarget(t *testing.T) {
+	sim, warlock, low, full := newTwoTargetWarlockSim("-000000000002", &proto.WarlockOptions{SoulShards: 1})
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spellData.DecimationTriggered.ByID(440873)
+	buff := warlock.GetAuraByID(core.ActionID{SpellID: row.ID})
+	soulFire := warlock.Soulfire
+	baseCastTime := soulFire.CastTimeMultiplier
+
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &full.Unit)
+	if misses := warlock.ShadowBolt.SpellMetrics[full.UnitIndex].Misses; misses != 0 {
+		t.Fatalf("%d Shadow Bolts missed the full-health target at 100%% spell hit, want it landed", misses)
+	}
+	if buff.IsActive() {
+		t.Fatal("a Shadow Bolt at a full-health target granted Decimation")
+	}
+
+	low.SetHealthCurve(sim, sim.CurrentTime, time.Minute, core.HealthKnot{At: 0, Percent: 30})
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &low.Unit)
+	if !buff.IsActive() {
+		t.Fatal("a Shadow Bolt at a target below 35% health did not grant Decimation")
+	}
+
+	wantCastTime := baseCastTime + spellData.Decimation.Rank(2).EffectN(1).Percent()
+	if got := soulFire.CastTimeMultiplier; math.Abs(got-wantCastTime) > 1e-9 {
+		t.Errorf("Soul Fire's cast time multiplier %.3f under Decimation, want %.3f", got, wantCastTime)
+	}
+	soulFire.SkipCastAndApplyEffects(sim, &full.Unit)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 1 {
+		t.Errorf("%d Soul Shards after Soul Fire at the full-health target under Decimation, want 1 and none spent", got)
+	}
+
+	stepFor(sim, row.Duration()/2)
+	warlock.ShadowBolt.SkipCastAndApplyEffects(sim, &low.Unit)
+	if got, want := buff.ExpiresAt(), sim.CurrentTime+row.Duration(); got != want {
+		t.Errorf("Decimation expires at %v after another cast at the low target, want %v", got, want)
+	}
+
+	stepFor(sim, row.Duration()+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Fatalf("Decimation is up past its %v", row.Duration())
+	}
+	if got := soulFire.CastTimeMultiplier; math.Abs(got-baseCastTime) > 1e-9 {
+		t.Errorf("Soul Fire's cast time multiplier %.3f after Decimation, want %.3f", got, baseCastTime)
+	}
+	soulFire.SkipCastAndApplyEffects(sim, &full.Unit)
+	if got := warlock.SoulShardsAura.GetStacks(); got != 0 {
+		t.Errorf("%d Soul Shards after Soul Fire with Decimation gone, want 0", got)
 	}
 }
 

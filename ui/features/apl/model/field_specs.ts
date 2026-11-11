@@ -7,7 +7,7 @@ import {
 	APLValueIsExecutePhase_ExecutePhaseThreshold as ExecutePhaseThreshold,
 	APLValueMath_MathOperator as MathOperator,
 } from '@generated/proto/apl';
-import { ActionID, AreaType, MobType, OtherAction, RangedWeaponType, Stat } from '@generated/proto/common';
+import { ActionID, AreaType, DamageAmpType, MobType, OtherAction, RangedWeaponType, Stat } from '@generated/proto/common';
 import { ShamanTotems_TotemType as TotemType } from '@generated/proto/shaman';
 import { WarlockOptions_CurseOptions as CurseOptions, WarlockOptions_Summon as Summon } from '@generated/proto/warlock';
 import i18n from '@i18n/config';
@@ -51,7 +51,7 @@ interface FieldBase {
 /**
  * A field descriptor resolved to the picker shape the view has to build.
  *
- * The descriptor types collapse to thirteen kinds: the fixed-enum types are one
+ * The descriptor types collapse to fourteen kinds: the fixed-enum types are one
  * `enum`, the three alias descriptors (`minIcd`, `reactionTime`, `useDotBaseValue`) are a `number`
  * and two `boolean`s, and `variableName`/`groupName` are one `rotationName` over two sources.
  */
@@ -65,6 +65,7 @@ export type AplFieldSpec =
 	| (FieldBase & { kind: 'rotationName'; source: 'variables' | 'groups' })
 	| (FieldBase & { kind: 'placeholderName' })
 	| (FieldBase & { kind: 'groupVariables'; groupNameField: string })
+	| (FieldBase & { kind: 'bossAbilityName' })
 	| (FieldBase & { kind: 'value' })
 	| (FieldBase & { kind: 'valueList' })
 	| (FieldBase & { kind: 'action' })
@@ -201,6 +202,15 @@ const AREA_TYPES: EnumTable = {
 		.map(areaType => ({ value: areaType, label: translateAreaType(areaType) })),
 };
 
+const DAMAGE_AMP_TYPES: EnumTable = {
+	defaultLabel: none(),
+	options: [
+		{ value: DamageAmpType.DamageAmpTypeCasterBuff, label: i18n.t('settings_tab.encounter.planner.amp_types.caster_buff') },
+		{ value: DamageAmpType.DamageAmpTypeEnvironmentBuff, label: i18n.t('settings_tab.encounter.planner.amp_types.environment_buff') },
+		{ value: DamageAmpType.DamageAmpTypeTargetDebuff, label: i18n.t('settings_tab.encounter.planner.amp_types.target_debuff') },
+	],
+};
+
 const newAplValue = () => APLValue.create({ uuid: { value: randomUUID() } });
 
 /**
@@ -249,6 +259,8 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return { ...base, kind: 'placeholderName', field: descriptor.field, newValue: () => '' };
 		case 'groupReferenceVariables':
 			return { ...base, kind: 'groupVariables', field: descriptor.field, newValue: () => [], groupNameField: descriptor.groupNameField };
+		case 'bossAbilityName':
+			return { ...base, kind: 'bossAbilityName', field: descriptor.field, newValue: () => '' };
 		case 'curseType':
 			return asEnum(descriptor.field, CURSE_TYPES, () => CurseOptions.Elements);
 		case 'summonType':
@@ -283,6 +295,9 @@ export const resolveField = (descriptor: APLFieldDescriptor, player: Player<any>
 			return asEnum(descriptor.field, MOB_TYPES, () => MobType.MobTypeUnknown);
 		case 'areaType':
 			return asEnum(descriptor.field, AREA_TYPES, () => AreaType.AreaTypeForestGrassland);
+		case 'damageAmpType':
+			// The caster buff is 0, which fieldInputConfig reads as unset and replaces with this default, so it has to be the default to stay selectable.
+			return asEnum(descriptor.field, DAMAGE_AMP_TYPES, () => DamageAmpType.DamageAmpTypeCasterBuff);
 		case 'minIcd':
 			return {
 				kind: 'number',

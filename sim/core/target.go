@@ -17,7 +17,10 @@ type Encounter struct {
 	AllTargetUnits    []*Unit
 	ActiveTargetUnits []*Unit
 
-	strandedSwings []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
+	targetConfigs   []*proto.Target // The config of each target in AllTargets, nil for the stand-in target of an encounter without any.
+	strandedSwings  []strandedSwing // Raid units whose auto attacks stopped because no target was left to switch to.
+	strandedScratch []strandedSwing // The stranded swings being brought back, kept so bringing them back allocates nothing.
+	plan            *encounterPlan
 
 	ExecuteProportion_20 float64
 	ExecuteProportion_35 float64
@@ -57,12 +60,14 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		ActiveTargets:        make([]*Target, 0, totalTargetCount),
 		AllTargetUnits:       make([]*Unit, 0, totalTargetCount),
 		ActiveTargetUnits:    make([]*Unit, 0, totalTargetCount),
+		targetConfigs:        make([]*proto.Target, 0, totalTargetCount),
 	}
 
 	for targetIndex, targetOptions := range options.Targets {
 		target := NewTarget(targetOptions, int32(targetIndex))
 		encounter.AllTargets = append(encounter.AllTargets, target)
 		encounter.AllTargetUnits = append(encounter.AllTargetUnits, &target.Unit)
+		encounter.targetConfigs = append(encounter.targetConfigs, targetOptions)
 
 		if target.IsEnabled() {
 			encounter.ActiveTargets = append(encounter.ActiveTargets, target)
@@ -78,11 +83,28 @@ func NewEncounter(options *proto.Encounter) Encounter {
 		encounter.ActiveTargets = append(encounter.ActiveTargets, target)
 		encounter.AllTargetUnits = append(encounter.AllTargetUnits, &target.Unit)
 		encounter.ActiveTargetUnits = append(encounter.ActiveTargetUnits, &target.Unit)
+		encounter.targetConfigs = append(encounter.targetConfigs, nil)
 	}
 
+	encounter.plan = newEncounterPlan(&encounter, options.Plan)
 	encounter.updateAOECapMultiplier()
 
 	return encounter
+}
+
+// n disabled targets built from template, appended to the encounter. Only NewEncounter may call it: the
+// construct phase lists the encounter's units and points the raid at them right after.
+func (encounter *Encounter) allocatePoolTargets(template *proto.Target, n int) []*Target {
+	pool := make([]*Target, 0, n)
+	for range n {
+		target := NewTarget(template, int32(len(encounter.AllTargets)))
+		target.enabled = false
+		encounter.AllTargets = append(encounter.AllTargets, target)
+		encounter.AllTargetUnits = append(encounter.AllTargetUnits, &target.Unit)
+		encounter.targetConfigs = append(encounter.targetConfigs, template)
+		pool = append(pool, target)
+	}
+	return pool
 }
 
 // The enabled target with the lowest index, or nil.
@@ -93,6 +115,19 @@ func (encounter *Encounter) preferredActiveTarget() *Target {
 		}
 	}
 	return nil
+}
+
+// Rebuilds the active target lists in index order, which removing a target scrambles.
+func (encounter *Encounter) resetActiveTargetOrder() {
+	encounter.ActiveTargets = encounter.ActiveTargets[:0]
+	encounter.ActiveTargetUnits = encounter.ActiveTargetUnits[:0]
+	for _, target := range encounter.AllTargets {
+		if target.IsEnabled() {
+			encounter.ActiveTargets = append(encounter.ActiveTargets, target)
+			encounter.ActiveTargetUnits = append(encounter.ActiveTargetUnits, &target.Unit)
+		}
+	}
+	encounter.updateAOECapMultiplier()
 }
 
 func (encounter *Encounter) AOECapMultiplier() float64 {
@@ -142,6 +177,7 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 
 	for idx, target := range encounter.AllTargets {
 		metrics.Targets[idx] = target.GetMetricsProto()
+		metrics.Targets[idx].PlanAdd = encounter.planAdd(target)
 	}
 
 	return metrics
@@ -151,11 +187,7 @@ func (encounter *Encounter) GetMetricsProto() *proto.EncounterMetrics {
 type Target struct {
 	Unit
 
-	AI       TargetAI
-	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
-
-	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
-	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
+	health healthCurve
 
 	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.
 	raidDebuffs        []*Aura       // The target's auras with SourceExternalDebuff, gathered at their first hold or landing.
@@ -219,11 +251,6 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	target.PseudoStats.InFrontOfTarget = true
 	target.PseudoStats.DamageSpread = options.DamageSpread
 
-	preset := GetPresetTargetWithID(options.Id)
-	if preset != nil && preset.AI != nil {
-		target.AI = preset.AI()
-	}
-
 	return target
 }
 
@@ -237,10 +264,6 @@ func (target *Target) Reset(sim *Simulation) {
 	}
 
 	target.SetGCDTimer(sim, 0)
-
-	if target.AI != nil {
-		target.AI.Reset(sim)
-	}
 }
 
 func (target *Target) Enable(sim *Simulation) {
@@ -262,14 +285,6 @@ func (target *Target) Enable(sim *Simulation) {
 	}
 }
 
-func (sim *Simulation) EnableTargetUnit(targetUnit *Unit) {
-	if targetUnit.Type != EnemyUnit {
-		panic("Unit is not an enemy target!")
-	}
-
-	sim.Encounter.AllTargets[targetUnit.Index].Enable(sim)
-}
-
 func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	if !target.IsEnabled() {
 		return
@@ -282,17 +297,13 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 	target.AutoAttacks.CancelAutoSwing(sim)
 
 	// A channel on the target ends with no further tick, before the expiry below could land one. A ground
-	// channel lives on its caster and runs on. While the sim resets, the raid still holds the last
-	// iteration's state and has not reset yet: the target only starts the iteration disabled, and the pull
-	// moves the raid off it.
-	if !sim.isResetting {
-		for _, unit := range sim.Raid.AllUnits {
-			if channel := unit.ChanneledDot; channel != nil && channel.Unit == &target.Unit {
-				channel.stopTicking(sim)
-				channel.Deactivate(sim)
-			}
-			unit.energyBar.dropComboPointsOn(sim, &target.Unit)
+	// channel lives on its caster and runs on.
+	for _, unit := range sim.Raid.AllUnits {
+		if channel := unit.ChanneledDot; channel != nil && channel.Unit == &target.Unit {
+			channel.stopTicking(sim)
+			channel.Deactivate(sim)
 		}
+		unit.energyBar.dropComboPointsOn(sim, &target.Unit)
 	}
 
 	target.enabled = false
@@ -302,25 +313,8 @@ func (target *Target) Disable(sim *Simulation, expireAuras bool) {
 		target.auraTracker.expireAll(sim)
 	}
 
-	if target.CurrentTarget != nil {
-		if sim.isResetting {
-			target.retargetOwnTarget()
-		} else {
-			target.CurrentTarget = nil
-		}
-	}
-
-	if !sim.isResetting {
-		sim.Encounter.moveRaidOffTarget(sim, target)
-	}
-}
-
-func (sim *Simulation) DisableTargetUnit(targetUnit *Unit, expireAuras bool) {
-	if targetUnit.Type != EnemyUnit {
-		panic("Unit is not an enemy target!")
-	}
-
-	sim.Encounter.AllTargets[targetUnit.Index].Disable(sim, expireAuras)
+	target.CurrentTarget = nil
+	sim.Encounter.moveRaidOffTarget(sim, target)
 }
 
 // Points the unit this target attacks at the next active target, or leaves it on this one when none
@@ -376,17 +370,23 @@ func (encounter *Encounter) moveRaidOffDisabledTargets(sim *Simulation) {
 // disabled enemy moves to the preferred active target, the auto attacks moveRaidOffTarget stopped start
 // again, and each of these units looks at its rotation again.
 func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
+	// A rotation woken here may take the new target away again, which records fresh swings, or bring one
+	// back, which runs this again. The swings move into the scratch slice, which this call holds until it
+	// is done, so a nested call works on its own copy and the slices are reused across iterations.
+	swings := append(encounter.strandedScratch[:0], encounter.strandedSwings...)
+	encounter.strandedScratch = nil
+	encounter.strandedSwings = encounter.strandedSwings[:0]
 	preferred := encounter.preferredActiveTarget()
 	for _, unit := range sim.Raid.AllUnits {
 		if unit.CurrentTarget == nil || unit.CurrentTarget.Type != EnemyUnit || unit.CurrentTarget.IsEnabled() {
 			continue
 		}
 		unit.CurrentTarget = &preferred.Unit
-		if !slices.ContainsFunc(encounter.strandedSwings, func(swing strandedSwing) bool { return swing.unit == unit }) {
+		if !slices.ContainsFunc(swings, func(swing strandedSwing) bool { return swing.unit == unit }) {
 			wakeRotation(sim, unit)
 		}
 	}
-	for _, swing := range encounter.strandedSwings {
+	for _, swing := range swings {
 		if !swing.unit.IsEnabled() {
 			continue
 		}
@@ -398,7 +398,7 @@ func (encounter *Encounter) returnStrandedRaid(sim *Simulation) {
 		}
 		wakeRotation(sim, swing.unit)
 	}
-	encounter.strandedSwings = encounter.strandedSwings[:0]
+	encounter.strandedScratch = swings[:0]
 }
 
 func wakeRotation(sim *Simulation, unit *Unit) {

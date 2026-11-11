@@ -2,7 +2,7 @@
 // categories, and the settings they come from. The sim's reading itself is tested in Go (sim/siml/api_test.go).
 import { Player } from '@generated/proto/api';
 import { APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { ConsumesSpec, Cooldowns, EquipmentSpec, ItemSpec, Spec } from '@generated/proto/common';
+import { ConsumesSpec, Cooldowns, Encounter, EquipmentSpec, ItemSpec, Spec } from '@generated/proto/common';
 import { IndividualSimSettings, SimlDiagnostic, SimlParseResult } from '@generated/proto/ui';
 import { SimSettingCategories } from '@sim/constants/sim_settings';
 import { fakeHost } from '@testing/sim/fake_host';
@@ -99,6 +99,17 @@ describe('a rotation', () => {
 });
 
 describe('pasted text', () => {
+	it('loads an encounter the page holds as no entry of My encounters, when the text leaves it as it is', async () => {
+		const own = fakeHost({
+			player: { getSpec: () => Spec.SpecHunter, ...cooldowns },
+			toProto: () => IndividualSimSettings.create({ player: Player.create(), encounter: Encounter.create({ name: 'Mine', myEncounter: true }) }),
+			fromProto,
+		});
+		parseSiml.mockResolvedValue(SimlParseResult.create({ settings: IndividualSimSettings.create(), categories: ['e'], spec: Spec.SpecHunter }));
+		await SIML_IMPORTER.onImport(own, 'the text');
+		expect(loaded().settings.encounter).toMatchObject({ name: 'Mine', myEncounter: false });
+	});
+
 	it('reads as a full setup, and loads each category it holds', async () => {
 		reads({ talentsString: '-0053', rotation, consumables: ConsumesSpec.create() }, ['t', 'r', 'c']);
 		await SIML_IMPORTER.onImport(hunter, 'the text');

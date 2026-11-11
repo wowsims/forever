@@ -269,10 +269,11 @@ func TestSpiritTapComesWithAKillingBlowOrAnAfflictedDeath(t *testing.T) {
 	})
 }
 
-// Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is off for a cast
-// while the target is above its threshold and on once the target is below it.
+// Early Demise reads the health of each Shadow Word: Death's own target: the crit bonus is on for a cast
+// at a target below its threshold and off for one at a target above it.
 func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig())
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid: core.SinglePlayerRaidProto(&proto.Player{
 			Name:      "Early Demise",
@@ -302,18 +303,22 @@ func TestEarlyDemiseFollowsTheCastsTarget(t *testing.T) {
 	if spell == nil {
 		t.Fatalf("the priest has no %s %d", rank.Name, rank.ID)
 	}
-	target := sim.Encounter.AllTargetUnits[0]
+	full, low := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargets[1]
+	low.SetHealthCurve(sim, 0, sim.Duration, core.HealthKnot{At: 0, Percent: 15}, core.HealthKnot{At: 1, Percent: 0})
 	base := spell.BonusCritPercent
 	bonus := spellData.EarlyDemise.EffectAt(1).ValueAt(2)
 
-	spell.SkipCastAndApplyEffects(sim, target)
-	if got := spell.BonusCritPercent - base; math.Abs(got) > 1e-9 {
-		t.Errorf("Shadow Word: Death at a target above 20%% has %v bonus crit, want 0", got)
-	}
-	for !target.IsExecutePhase20() && !sim.Step() {
-	}
-	spell.SkipCastAndApplyEffects(sim, target)
-	if got := spell.BonusCritPercent - base; math.Abs(got-bonus) > 1e-9 {
-		t.Errorf("Shadow Word: Death at a target below 20%% has %v bonus crit, want %v", got, bonus)
+	for _, c := range []struct {
+		target *core.Unit
+		want   float64
+	}{
+		{full, 0},
+		{&low.Unit, bonus},
+		{full, 0},
+	} {
+		spell.SkipCastAndApplyEffects(sim, c.target)
+		if got := spell.BonusCritPercent - base; math.Abs(got-c.want) > 1e-9 {
+			t.Errorf("Shadow Word: Death at %s has %v bonus crit, want %v", c.target.Label, got, c.want)
+		}
 	}
 }

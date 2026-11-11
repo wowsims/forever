@@ -55,17 +55,18 @@ const meta = {
 		preset: (
 			<ChoiceField
 				id="story-preset"
-				label="Encounter Preset"
+				label="Encounter"
 				options={[
 					{ value: -1, label: 'Custom' },
-					{ value: 0, label: 'Molten Core/Ragnaros' },
+					{ label: 'Presets', options: [{ value: 0, label: 'Molten Core/Ragnaros' }] },
+					{ label: 'My encounters', options: [{ value: 10, label: 'Two adds' }] },
 				]}
-				value={0}
+				value={10}
 				onChange={fn()}
 			/>
 		),
-		targetInputs: null,
-		onAdvancedClick: fn(),
+		onPlannerClick: fn(),
+		onNewClick: fn(),
 	},
 	argTypes: {
 		duration: { control: false },
@@ -75,7 +76,6 @@ const meta = {
 		preset: { control: false },
 		allies: { control: false },
 		minBaseDamage: { control: false },
-		targetInputs: { control: false },
 	},
 } satisfies Meta<typeof EncounterPickerView>;
 
@@ -84,8 +84,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 
-export const WithExecuteBands: Story = { args: { execute: EXECUTE } };
+// A simple fight, with no events in its plan, shows the execute bands of a spec that reads them.
+export const SimpleFight: Story = { args: { execute: EXECUTE } };
+
+// A fight with a plan sets its execute bands in the planner, so the panel shows none.
+export const WithPlan: Story = { args: { execute: undefined } };
 
 export const Tank: Story = { args: { minBaseDamage: number('story-min-base-damage', 'Min Base Damage', 4192) } };
 
-export const WithoutDamageMetrics: Story = { args: { preset: undefined } };
+export const WithoutDamageMetrics: Story = { args: { preset: undefined, onNewClick: undefined } };

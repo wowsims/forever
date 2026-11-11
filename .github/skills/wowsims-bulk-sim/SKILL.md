@@ -246,12 +246,15 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   them to every later bundle of that plan and to the next plan. It keeps setups only from the last plan, so a gear set
   the next plan does not hold drops its setups.
 - **Encounters column** (`EncounterList`): a ticked list, the current encounter first, then the spec's preset
-  encounters and the user's saved ones in the Saved Encounters panel's order; one with no encounter or no target is
-  left out. The current encounter is checked by its empty ref in the stored refs, seeded on fresh storage, and runs
-  unnamed. While the current encounter is ticked, an entry that sims like it (`bulkEncounterList` compares the
-  encounters without their proto version, zone or target names) is disabled and shown unchecked, "Same as Current
-  encounter", keeps its stored state, and does not run or count; with the current encounter unticked it runs under its
-  own name. A later entry with the content of an earlier checked one is disabled the same way, "Same as <encounter>".
+  encounters, My encounters (the encounter planner's list, read from the same per-spec key as the encounter dropdown) under the
+  dropdown's label, and the user's saved ones in the Saved Encounters panel's order; one with no encounter or no target
+  is left out. An entry of My encounters is checked by a ref with `my_encounter` set, so it stays apart from a saved
+  encounter of its name, and a deleted one has no pickable ref and drops out as a deleted saved one does. Two of one
+  name with different content both run, and read alike in the results. The current encounter is checked by its empty
+  ref in the stored refs, seeded on fresh storage, and runs unnamed. While the current encounter is ticked, an entry that sims like it (`bulkEncounterList` compares the
+  encounters without their proto version, name, My encounters mark, zone, target names or an empty encounter plan) is disabled
+  and shown unchecked, "Same as Current encounter", keeps its stored state, and does not run or count; with the current
+  encounter unticked it runs under its own name. A later entry with the content of an earlier checked one is disabled the same way, "Same as <encounter>".
   A tick rebuilds the stored refs from every pickable ref (`checkedRefsAfter`), so their order follows the list.
 - The plan (`builds.ts`): `bulkBundleRuns` gives the Current bundle first while it is ticked, then every checked
   bundle the list shows that duplicates none, in list order. An unticked Current bundle does not run, and nothing sims

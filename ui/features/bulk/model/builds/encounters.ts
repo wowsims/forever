@@ -1,4 +1,4 @@
-import { Encounter } from '@generated/proto/common';
+import { Encounter, EncounterPlan } from '@generated/proto/common';
 import { BulkEncounterRef, BulkEncounterSelection, SavedEncounter } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import type { BulkEncounterResults, BulkEncounterSetup } from '@sim/bulk/types';
@@ -6,6 +6,7 @@ import type { Player } from '@sim/player/player';
 import type { PresetEncounter } from '@sim/presets/types';
 import { bulkState, patchBulkState, storeBulkEncounters } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
+import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { formatDurationSeconds } from '@sim/utils/format';
 
 import { checkedRefsAfter, keyedOnce, sameRef, storedSavedData } from './saved_refs';
@@ -36,25 +37,41 @@ export const formatEncounterSummary = (encounter: EncounterSummaryFields): strin
 export const encounterLabel = ({ isCurrent, name }: Pick<BulkEncounterResults, 'isCurrent' | 'name'>): string =>
 	isCurrent ? i18n.t('bulk_tab.results.current') : name;
 
-const entry = (name: string, preset: boolean, encounter: Encounter | undefined): BulkEncounterEntry[] =>
-	encounter && encounter.targets.length > 0 ? [{ ref: BulkEncounterRef.create({ name, preset }), name, encounter }] : [];
+const entry = (source: Pick<BulkEncounterRef, 'name'> & Partial<BulkEncounterRef>, encounter: Encounter | undefined): BulkEncounterEntry[] =>
+	encounter && encounter.targets.length > 0 ? [{ ref: BulkEncounterRef.create(source), name: source.name, encounter }] : [];
 
-// Presets first, then the user's saved encounters, in the order the Saved Encounters panel lists them. One with no
-// encounter or no target cannot run and is left out.
+// Presets first, then My encounters as the encounter dropdown lists them, then the user's saved encounters in the order
+// the Saved Encounters panel lists them. One with no encounter or no target cannot run and is left out.
 export const bulkEncounterEntries = (
 	presets: readonly PresetEncounter[] | undefined,
+	mine: ReadonlyArray<{ name: string; data: Encounter }>,
 	saved: ReadonlyArray<{ name: string; data: SavedEncounter }>,
 ): BulkEncounterEntry[] => [
-	...(presets ?? []).flatMap(({ name, encounter }) => entry(name, true, encounter)),
-	...saved.flatMap(({ name, data }) => entry(name, false, data.encounter)),
+	...(presets ?? []).flatMap(({ name, encounter }) => entry({ name, preset: true }, encounter)),
+	...mine.flatMap(({ name, data }) => entry({ name, myEncounter: true }, data)),
+	...saved.flatMap(({ name, data }) => entry({ name }, data.encounter)),
 ];
 
 export const pickableBulkEncounters = (host: IndividualSimHost<any>): BulkEncounterEntry[] =>
-	bulkEncounterEntries(host.individualConfig.presets.encounters, storedSavedData(host, host.getSavedEncounterStorageKey(), SavedEncounter));
+	bulkEncounterEntries(
+		host.individualConfig.presets.encounters,
+		storedSavedData(host, host.getStorageKey(MY_ENCOUNTERS_STORAGE_KEY), Encounter),
+		storedSavedData(host, host.getSavedEncounterStorageKey(), SavedEncounter),
+	);
 
-// The proto version, the zone the areas came from and the target names change nothing the sim reads.
+// The proto version, the name given in the encounter planner and the My encounters mark, the zone the areas came from
+// and the target names change nothing the sim reads. Neither does an empty encounter plan, which
+// the live encounter holds where a saved one has none.
 const encounterContentKey = keyedOnce((encounter: Encounter) =>
-	Encounter.toJsonString({ ...encounter, apiVersion: 0, zoneId: 0, targets: encounter.targets.map(target => ({ ...target, name: '' })) }),
+	Encounter.toJsonString({
+		...encounter,
+		apiVersion: 0,
+		name: '',
+		myEncounter: false,
+		zoneId: 0,
+		plan: EncounterPlan.equals(encounter.plan, EncounterPlan.create()) ? undefined : encounter.plan,
+		targets: encounter.targets.map(target => ({ ...target, name: '' })),
+	}),
 );
 
 // The current encounter's ref: checked when listed, like every other encounter's.

@@ -1,7 +1,19 @@
 import { saveEnchantPreset, setEnchantPresetChecked } from '@features/enchant-presets/model/enchant_presets';
 import { BulkEnchantSlotOptions, BulkSettings, BulkSimStage, ProgressMetrics } from '@generated/proto/api';
 import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@generated/proto/apl';
-import { Encounter, type EquipmentSpec, ItemSlot, ItemSpec, ItemType, Profession, Race, Stat, Target } from '@generated/proto/common';
+import {
+	Encounter,
+	EncounterPlan,
+	type EquipmentSpec,
+	ItemSlot,
+	ItemSpec,
+	ItemType,
+	PlanDowntime,
+	Profession,
+	Race,
+	Stat,
+	Target,
+} from '@generated/proto/common';
 import {
 	BulkBuildBundle,
 	BulkEnchantPreset,
@@ -24,6 +36,7 @@ import { Stats } from '@sim/proto/stats';
 import { bulkState, patchBulkState } from '@sim/settings/bulk_settings';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { type BulkMode, patchSlice } from '@sim/state/sim_store';
+import { MY_ENCOUNTERS_STORAGE_KEY } from '@sim/state/storage_keys';
 import { makeBulkPlayer } from '@testing/sim/bulk_player';
 import { makeEquippedItem } from '@testing/storybook/fixtures/gear';
 import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
@@ -90,6 +103,7 @@ const SAVED_TALENTS_KEY = 'saved-talents';
 const SAVED_GEAR_KEY = 'saved-gear';
 const SAVED_SETTINGS_KEY = 'saved-settings';
 const SAVED_ROTATIONS_KEY = 'saved-rotations';
+const MY_ENCOUNTERS_KEY = `test-${MY_ENCOUNTERS_STORAGE_KEY}`;
 const LIVE = '30305001302';
 const ARMS = '3030500130';
 const FURY = '-0505000540501';
@@ -98,6 +112,12 @@ const FURY_EDITED = '-0505000530501';
 const CURRENT = Encounter.create({ duration: 180, durationVariation: 5, targets: [Target.create()] });
 const PATCHWERK = Encounter.create({ duration: 300, durationVariation: 30, targets: [Target.create()] });
 const COUNCIL = Encounter.create({ duration: 90, durationVariation: 10, targets: [Target.create()] });
+const WITH_PLAN = Encounter.create({
+	duration: 240,
+	durationVariation: 5,
+	targets: [Target.create()],
+	plan: EncounterPlan.create({ downtimes: [PlanDowntime.create({ name: 'Phase two' })] }),
+});
 
 const HEALER = SavedSettings.create({ race: Race.RaceTroll, professions: [Profession.Alchemy, Profession.Herbalism] });
 
@@ -142,6 +162,7 @@ const resolvedFor = (notes: string) => APLRotation.create({ priorityList: [APLLi
 const CURRENT_ENCOUNTER_REF = BulkEncounterRef.create();
 const eref = (name: string, preset = false) => BulkEncounterRef.create({ name, preset });
 const COUNCIL_REF = eref('Council');
+const myRef = (name: string) => BulkEncounterRef.create({ name, myEncounter: true });
 
 const RAID_SET = BulkGearSetRef.create({ name: 'Raid', preset: true });
 const BUFFED_SET = BulkGearSetRef.create({ name: 'Buffed' });
@@ -237,6 +258,7 @@ const batchHost = ({
 				rotations: [{ name: 'Opener', rotation: SavedRotation.create({ rotation: OPENER }) }],
 			},
 		},
+		getStorageKey: (key: string) => `test-${key}`,
 		getSavedEncounterStorageKey: () => SAVED_KEY,
 		getSavedTalentsStorageKey: () => SAVED_TALENTS_KEY,
 		getSavedGearStorageKey: () => SAVED_GEAR_KEY,
@@ -265,11 +287,13 @@ const sentBuilds = () =>
 
 const steps = (host: IndividualSimHost<any>) => bulkProgress(host.player)!.steps;
 
-// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL and PATCHWERK.
+// Each encounter's length and target count as the step row words them: CURRENT, COUNCIL, its twin, PATCHWERK and WITH_PLAN.
 const ENCOUNTER_SUMMARIES: Record<string, string> = {
 	'bulk_tab.settings.encounters.current': '3:00 ±5s · bulk_tab.settings.encounters.targets',
 	Council: '1:30 ±10s · bulk_tab.settings.encounters.targets',
+	'Council twin': '1:30 ±10s · bulk_tab.settings.encounters.targets',
 	Patchwerk: '5:00 ±30s · bulk_tab.settings.encounters.targets',
+	'Add waves': '4:00 ±5s · bulk_tab.settings.encounters.targets',
 };
 
 const step = (
@@ -473,6 +497,48 @@ describe('runBulkBatch', () => {
 			['Council', false],
 			['Three minutes', false],
 		]);
+	});
+
+	describe('with My encounters', () => {
+		const runWith = async (encounters: BulkEncounterRef[], mine: Record<string, Encounter>) => {
+			vi.mocked(runCoreBulkSim).mockClear();
+			vi.mocked(runCoreBulkSim).mockResolvedValue(CORE_RESULT as never);
+			const host = batchHost({ encounters: [CURRENT_ENCOUNTER_REF, ...encounters] });
+			writeSaved(host, MY_ENCOUNTERS_KEY, Encounter, mine);
+			await runBulkBatch(host);
+			return host;
+		};
+
+		it('runs a ticked entry with its plan under its name', async () => {
+			const host = await runWith([myRef('Add waves')], { 'Add waves': WITH_PLAN });
+
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN]);
+			expect(steps(host).rows).toEqual([step(), step('Add waves')]);
+		});
+
+		it('keeps an entry and a saved encounter of one name apart', async () => {
+			await runWith([myRef('Council')], { Council: WITH_PLAN });
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN]);
+
+			await runWith([COUNCIL_REF], { Council: WITH_PLAN });
+			expect(sentEncounters()).toEqual([CURRENT, COUNCIL]);
+
+			await runWith([myRef('Council'), COUNCIL_REF], { Council: WITH_PLAN });
+			expect(sentEncounters()).toEqual([CURRENT, WITH_PLAN, COUNCIL]);
+		});
+
+		it('drops a deleted entry from the batch, leaving the saved encounter of its name unticked', async () => {
+			await runWith([myRef('Council')], {});
+
+			expect(sentEncounters()).toEqual([CURRENT]);
+		});
+
+		it('runs an entry and a saved encounter with one content once', async () => {
+			const host = await runWith([myRef('Council twin'), COUNCIL_REF], { 'Council twin': COUNCIL });
+
+			expect(sentEncounters()).toEqual([CURRENT, COUNCIL]);
+			expect(steps(host).rows).toEqual([step(), step('Council twin')]);
+		});
 	});
 
 	it('runs a saved talents entry with the talents it holds when the batch starts', async () => {

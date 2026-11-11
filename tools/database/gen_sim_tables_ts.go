@@ -19,12 +19,18 @@ type tsItemTypeSlots struct {
 	ItemSlotNames []string
 }
 
+type tsCreatureArmor struct {
+	Level int32
+	Armor float64
+}
+
 type tsSimTables struct {
 	ItemTypeToSlots        []tsItemTypeSlots
 	SharpWeaponTypes       []string
 	BluntWeaponTypes       []string
 	DenseSharpeningStoneID int32
 	DenseWeightstoneID     int32
+	CreatureArmorByLevel   []tsCreatureArmor
 	MaxMeleeRange          float64
 	MinRangedRange         float64
 	MinRangeWeaponTypes    []string
@@ -48,6 +54,13 @@ export const BLUNT_WEAPON_TYPES: WeaponType[] = [{{ range $index, $type := .Blun
 export const DENSE_SHARPENING_STONE_ID = {{ .DenseSharpeningStoneID }};
 
 export const DENSE_WEIGHTSTONE_ID = {{ .DenseWeightstoneID }};
+
+// ExpectedStat's creature armor at each level.
+export const CREATURE_ARMOR_BY_LEVEL: Partial<Record<number, number>> = {
+{{- range .CreatureArmorByLevel }}
+	{{ .Level }}: {{ .Armor }},
+{{- end }}
+};
 
 // In yards from the target: melee reaches out to the first, and a bow, gun or crossbow fires from the second out.
 export const MAX_MELEE_RANGE = {{ .MaxMeleeRange }};
@@ -99,10 +112,15 @@ func simTablesTSData() tsSimTables {
 		})
 	}
 
+	for _, level := range slices.Sorted(maps.Keys(core.CreatureArmorByLevel)) {
+		data.CreatureArmorByLevel = append(data.CreatureArmorByLevel, tsCreatureArmor{Level: level, Armor: core.CreatureArmorByLevel[level]})
+	}
+
 	return data
 }
 
-// Writes the sim's item slot and weapon tables and its melee and ranged distances, which the UI reads.
+// Writes the sim's item slot, weapon and creature armor tables and its melee and ranged distances, which the UI
+// reads.
 func GenerateSimTablesTSFile() error {
 	tpl, err := template.New("simTablesTS").Parse(simTablesTSTemplate)
 	if err != nil {

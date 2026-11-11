@@ -40,7 +40,6 @@ import {
 	getSourceFilterI18nKey,
 	getSpecI18nKey,
 	getStatusI18nKey,
-	getTargetInputI18nKey,
 	getWeaponSkillI18nKey,
 	getWeaponTypeI18nKey,
 	protoStatNameI18nKeys,
@@ -69,21 +68,6 @@ export const translateProtoStatName = (statName: string): string => {
 export const translatePseudoStat = (pseudoStat: PseudoStat): string => {
 	return i18n.t(`common.stats.${pseudoStatI18nKeys[pseudoStat] || PseudoStat[pseudoStat].toLowerCase()}`, {
 		defaultValue: PseudoStat[pseudoStat],
-	});
-};
-
-// Target Inputs are fetched from proto, so we need to translate the label and tooltip
-// Currently it is TBD if we will translate Golang texts, let's keep it for now
-
-export const translateTargetInputLabel = (label: string): string => {
-	return i18n.t(`settings_tab.encounter.target_inputs.${getTargetInputI18nKey(label)}.label`, {
-		defaultValue: label,
-	});
-};
-
-export const translateTargetInputTooltip = (label: string, tooltip: string): string => {
-	return i18n.t(`settings_tab.encounter.target_inputs.${getTargetInputI18nKey(label)}.tooltip`, {
-		defaultValue: tooltip,
 	});
 };
 

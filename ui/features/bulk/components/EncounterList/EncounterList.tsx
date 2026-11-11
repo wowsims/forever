@@ -17,17 +17,19 @@ import { BulkCheckList, type BulkCheckListProps, type BulkCheckRow } from '../Bu
 export interface EncounterListViewProps {
 	current: NonNullable<BulkCheckListProps['current']>;
 	presets: readonly BulkCheckRow[];
+	myEncounters: readonly BulkCheckRow[];
 	saved: readonly BulkCheckRow[];
 	onCheckedChange(ref: SavedRef, checked: boolean): void;
 }
 
 const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
-export const EncounterListView = ({ current, presets, saved, onCheckedChange }: EncounterListViewProps) => (
+export const EncounterListView = ({ current, presets, myEncounters, saved, onCheckedChange }: EncounterListViewProps) => (
 	<BulkCheckList
-		strings={{ presets: t('presets'), saved: t('saved'), empty: t('empty') }}
+		strings={{ presets: t('presets'), myEncounters: t('my_encounters'), saved: t('saved'), empty: t('empty') }}
 		current={current}
 		presets={presets}
+		myEncounters={myEncounters}
 		saved={saved}
 		onCheckedChange={onCheckedChange}
 		testIds={{ list: 'bulk-encounters', row: 'bulk-encounter', current: 'bulk-encounter-current' }}
@@ -47,13 +49,17 @@ export const EncounterList = () => {
 			duplicate: false,
 			disabledReason: row.duplicateOf === null ? undefined : t('duplicate', { encounter: row.duplicateOf }),
 		}));
-		return { presets: list.filter(row => row.ref.preset), saved: list.filter(row => !row.ref.preset) };
+		return {
+			presets: list.filter(row => row.ref.preset),
+			myEncounters: list.filter(row => row.ref.myEncounter),
+			saved: list.filter(row => !row.ref.preset && !row.ref.myEncounter),
+		};
 	}, [current, entries, checked]);
 
 	const onCheckedChange = (ref: SavedRef, isChecked: boolean) =>
 		setBulkEncounterChecked(
 			player,
-			BulkEncounterRef.create({ name: ref.name, preset: ref.preset }),
+			BulkEncounterRef.create({ name: ref.name, preset: ref.preset, myEncounter: ref.myEncounter }),
 			isChecked,
 			entries.map(entry => entry.ref),
 		);
@@ -67,6 +73,7 @@ export const EncounterList = () => {
 				onCheckedChange: isChecked => onCheckedChange(CURRENT_ENCOUNTER_REF, isChecked),
 			}}
 			presets={rows.presets}
+			myEncounters={rows.myEncounters}
 			saved={rows.saved}
 			onCheckedChange={onCheckedChange}
 		/>

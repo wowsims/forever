@@ -29,9 +29,17 @@ export const encounterListProps = (overrides: Partial<EncounterListViewProps> = 
 			disabledReason: i18n.t('bulk_tab.settings.encounters.duplicate', { encounter: 'Patchwerk' }),
 		},
 	],
+	myEncounters: [],
 	onCheckedChange: fn(),
 	...overrides,
 });
+
+/** Two encounters with plans, the first named as a saved encounter of `encounterListProps`. */
+export const myEncounterRows = (): BulkCheckRow[] =>
+	[checkRow('Long fight', '6:00 ±5s · 2 targets', false, true), checkRow('Add waves', '4:00 ±5s · 1 target', false, false)].map(row => ({
+		...row,
+		ref: { ...row.ref, myEncounter: true },
+	}));
 
 /** A saved encounter stored ticked that sims what the current encounter does: disabled while the current one is ticked. */
 export const sameAsCurrentEncounterRow = (currentChecked: boolean): BulkCheckRow => ({

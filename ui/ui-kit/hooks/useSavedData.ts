@@ -20,7 +20,8 @@ export interface UseSavedDataResult<T> {
 	entries: Array<SavedDataEntry<T>>;
 	// Every name in the slot, the ones the codec rejected included, which `entries` leaves out.
 	storedNames: string[];
-	save: (name: string, data: T) => void;
+	/** With `replacing`, the entry of that name gives way to this one at its position: a rename. */
+	save: (name: string, data: T, replacing?: string) => void;
 	// All in one write, with one answer: false when storage refused it, and nothing of the batch is kept.
 	saveMany: (items: ReadonlyArray<{ name: string; data: T }>) => boolean;
 	remove: (name: string) => void;
@@ -79,8 +80,15 @@ export const useSavedData = <T>(key: string, codec: SavedDataCodec<T>): UseSaved
 	);
 
 	const save = useCallback(
-		(name: string, data: T) => {
-			write(record => ({ ...record, [name]: codecRef.current.toJson(data) }));
+		(name: string, data: T, replacing?: string) => {
+			const json = codecRef.current.toJson(data);
+			write(record =>
+				replacing === undefined || replacing === name || !(replacing in record)
+					? { ...record, [name]: json }
+					: Object.fromEntries(
+							Object.entries(record).flatMap(([key, value]) => (key === replacing ? [[name, json]] : key === name ? [] : [[key, value]])),
+						),
+			);
 		},
 		[write],
 	);

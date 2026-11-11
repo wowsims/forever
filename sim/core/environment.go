@@ -58,7 +58,7 @@ func NewEnvironment(raidProto *proto.Raid, encounterProto *proto.Encounter, runF
 	}
 
 	env.construct(raidProto, encounterProto)
-	raidStats := env.initialize(raidProto, encounterProto)
+	raidStats := env.initialize(raidProto)
 	env.finalize(raidProto, encounterProto, raidStats, runFakePrepull, skipRotation)
 
 	encounterStats := &proto.EncounterStats{}
@@ -107,8 +107,7 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 	tankFirstTarget := map[*Unit]*Target{}
 	// Assign target-of-target using Tanks field.
 	for _, target := range env.Encounter.AllTargets {
-		if target.Index < int32(len(encounterProto.Targets)) {
-			targetProto := encounterProto.Targets[target.Index]
+		if targetProto := env.Encounter.targetConfigs[target.Index]; targetProto != nil {
 			env.setupTankTarget(target, targetProto.TankIndex, raidProto.Tanks, true, tankFirstTarget)
 
 			if targetProto.SecondTankIndex != targetProto.TankIndex {
@@ -131,13 +130,9 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 }
 
 // The initialization phase.
-func (env *Environment) initialize(raidProto *proto.Raid, encounterProto *proto.Encounter) *proto.RaidStats {
+func (env *Environment) initialize(raidProto *proto.Raid) *proto.RaidStats {
 	for _, target := range env.Encounter.AllTargets {
-		if target.Index < int32(len(encounterProto.Targets)) {
-			target.initialize(encounterProto.Targets[target.Index])
-		} else {
-			target.initialize(nil)
-		}
+		target.initialize(env.Encounter.targetConfigs[target.Index])
 	}
 
 	for _, party := range env.Raid.Parties {
@@ -153,6 +148,7 @@ func (env *Environment) initialize(raidProto *proto.Raid, encounterProto *proto.
 			playerOrPet.Initialize()
 		}
 	}
+	env.Encounter.plan.registerLanes(env)
 
 	env.State = Initialized
 	return raidStats
@@ -167,9 +163,6 @@ func (env *Environment) finalize(raidProto *proto.Raid, _ *proto.Encounter, raid
 
 	for _, target := range env.Encounter.AllTargets {
 		target.finalize()
-		if target.AI != nil {
-			target.Rotation = target.newCustomRotation()
-		}
 	}
 
 	for _, party := range env.Raid.Parties {
@@ -299,14 +292,16 @@ func (env *Environment) reset(sim *Simulation) {
 	// the presence of permanent target auras in their Reset handlers.
 	env.Encounter.strandedSwings = env.Encounter.strandedSwings[:0]
 	// Cleared before any landing of the raid's debuffs reads them: a landing before the target's own reset only releases
-	// the hold, and a target AI that resets first holds another target's debuffs before that target's own reset.
+	// the hold. The plan's add waves then hold their pool targets' debuffs, before those targets' own resets.
 	for _, target := range env.Encounter.AllTargets {
 		target.aurasReset = false
 		target.raidDebuffsHeld = false
 	}
+	env.Encounter.plan.holdAddRaidDebuffs(sim)
 	for _, target := range env.Encounter.AllTargets {
 		target.Reset(sim)
 	}
+	env.Encounter.plan.reset(sim)
 
 	env.Raid.reset(sim)
 }

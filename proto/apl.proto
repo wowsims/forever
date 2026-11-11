@@ -107,7 +107,7 @@ message APLAction {
 }
 
 
-// NextIndex: 148
+// NextIndex: 150
 message APLValue {
 	UUID uuid = 85;
 
@@ -134,6 +134,14 @@ message APLValue {
         APLValueNumActiveAdds num_active_adds = 32;
         APLValueTimeUntilTargetActive time_until_target_active = 33;
         APLValueTimeUntilTargetDies time_until_target_dies = 34;
+        APLValueTimeUntilNextMove time_until_next_move = 36;
+        APLValueNextMoveDuration next_move_duration = 50;
+        APLValueAmpIsActive amp_is_active = 51;
+        APLValueTimeUntilAmp time_until_amp = 52;
+        APLValueBossAbilityIsActive boss_ability_is_active = 53;
+        APLValueTimeUntilBossAbility time_until_boss_ability = 54;
+        APLValueBossAbilityCastTimeRemaining boss_ability_cast_time_remaining = 148;
+        APLValueBossAbilityIsKnown boss_ability_is_known = 149;
 
         // Boss values
         APLValueBossSpellTimeToReady boss_spell_time_to_ready = 64;
@@ -521,6 +529,42 @@ message APLValueTimeUntilTargetActive {
 }
 message APLValueTimeUntilTargetDies {
     UnitReference target_unit = 1;
+}
+message APLValueTimeUntilNextMove {}
+message APLValueNextMoveDuration {}
+message APLValueAmpIsActive {
+    DamageAmpType amp_type = 1;
+}
+message APLValueTimeUntilAmp {
+    DamageAmpType amp_type = 1;
+}
+// A boss ability value reads the abilities of its name on any unit, or with target_unit set only those whose target
+// is that unit. An Environment Pulse or Area Hit comes from no target, so a set target_unit leaves it out; a Boss
+// one is its target's.
+
+// True while a window of a Thrash, Swing Timing or Pulse is open on the timeline, its target active or not; always
+// false for Spell Hit, Strike and Area Hit, which have no window.
+message APLValueBossAbilityIsActive {
+    string ability_name = 1; // The boss ability's name; with several of that name, any of them.
+    UnitReference target_unit = 2;
+}
+// 0 while a window of the ability is open, else the time until its next window or hit starts, or never with none left.
+message APLValueTimeUntilBossAbility {
+    string ability_name = 1; // The boss ability's name; with several of that name, the soonest of them.
+    UnitReference target_unit = 2;
+}
+// The time left on the hardcast of a Spell Hit, or a Boss Pulse or Area Hit, of the name, 0 while none of them is
+// casting; no other kind casts.
+message APLValueBossAbilityCastTimeRemaining {
+    string ability_name = 1; // The boss ability's name; with several of that name casting, the soonest to land.
+    UnitReference target_unit = 2;
+}
+// True when the plan has a boss ability of the name that construction kept. With no target_unit or a fixed one it
+// is read when the rotation is built; with a current, previous or next target it is read each time, on the target
+// the reference resolves to then.
+message APLValueBossAbilityIsKnown {
+    string ability_name = 1;
+    UnitReference target_unit = 2;
 }
 
 message APLValueBossSpellTimeToReady {

@@ -46,11 +46,11 @@ func TestComboPointsGoWithADyingTarget(t *testing.T) {
 	second := sim.Encounter.AllTargetUnits[1]
 	fw.AddComboPoints(sim, second, 3, fw.NewComboPointMetrics(ActionID{SpellID: 1}))
 
-	sim.DisableTargetUnit(second, true)
+	sim.Encounter.AllTargets[1].Disable(sim, true)
 	if got := fw.ComboPoints(second); got != 0 {
 		t.Errorf("%s holds %d combo points after it died, want 0", second.Label, got)
 	}
-	sim.EnableTargetUnit(second)
+	sim.Encounter.AllTargets[1].Enable(sim)
 	if got := fw.ComboPoints(second); got != 0 {
 		t.Errorf("%s holds %d combo points after it came back, want 0", second.Label, got)
 	}

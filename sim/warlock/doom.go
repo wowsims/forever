@@ -7,8 +7,8 @@ import (
 
 // One tick at the end of its minute: the row's period is its duration.
 // TODO: Bane of Doom Effect (18662) summons a Doomguard (11859) for 15s. The tooltip has it come only when
-// Doom's tick is the killing blow, at a chance no row states, and a target dies when its encounter ends its
-// life rather than from a damage event; the sim has no Doomguard either.
+// Doom's tick is the killing blow, at a chance no row states, and a target dies on the encounter's schedule
+// rather than from a damage event; the sim has no Doomguard either.
 func (warlock *Warlock) registerBaneOfDoom() {
 	rankedSpell := spellData.BaneOfDoom.ByID(603)
 	doomTick := rankedSpell.PeriodicEffect()

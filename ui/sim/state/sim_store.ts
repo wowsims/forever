@@ -10,6 +10,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import {
 	type AreaType,
 	ConsumesSpec,
+	EncounterPlan,
 	Faction,
 	HealingModel,
 	type ItemSlot,
@@ -48,6 +49,8 @@ export interface UISlice {
 // Encounter.modifyTarget/setTargets store a new array, and the pickers copy
 // before mutating, so subscribers can use reference equality.
 export interface EncounterSlice {
+	name: string;
+	myEncounter: boolean;
 	duration: number;
 	durationVariation: number;
 	executeProportion20: number;
@@ -55,6 +58,7 @@ export interface EncounterSlice {
 	areaTypes: Array<AreaType>;
 	zoneId: number;
 	targets: Array<TargetProto>;
+	plan: EncounterPlan;
 }
 
 // Raid-wide settings (owned by Raid; partyBuffs entries owned by each Party).
@@ -333,10 +337,13 @@ const initialState = (): SimState => ({
 	// Targets are seeded empty to avoid importing encounter.ts (cycle); the
 	// Encounter constructor writes the default target on construction.
 	encounter: {
+		name: '',
+		myEncounter: false,
 		...ENCOUNTER_DEFAULTS,
 		areaTypes: [],
 		zoneId: 0,
 		targets: [],
+		plan: EncounterPlan.create(),
 	},
 	players: {},
 	reforge: {},

@@ -15,12 +15,12 @@
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "5468ab2af0b41af6feb531cf30985214b7e1c575d1a719bbfab28ae7c7180c74"
+      "computedHash": "cf550f05a1c083b8c787dbe07dab247228667a1dc530f2489f6565ecf102c416"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "c2314aa2d9764fb414373163a8c8ee22872dfd67f5ad172208272330cb320da8"
+      "computedHash": "a8bd1426080b5d18b31623cd534f48d04393589289bf0d2abc6c8793f30aa837"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",
@@ -35,7 +35,7 @@
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "760b89b9d53e1fd4f92ffa22d5efad561717b2ad9329a0bfd0fd3ac9d7df76a5"
+      "computedHash": "4856b53379a023f0355145c1fbb68471b850a29fd6fee47a4beee292466f12ce"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
@@ -50,7 +50,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "50f39e2065b12e4c3566993145c794de87f2ea958c058c0b55ba030bd43dc2c0"
+      "computedHash": "29f5d90b5d8fc4ab32bbf9f5f4e6e93def71c15e994bfcdaf2124502e1eb6125"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -65,7 +65,7 @@
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "47acbb75acb0854cc485155ba26d3456fabcec87ef013ef7ce4c9ec8c5d4dffd"
+      "computedHash": "cd63ca6af3f50e5fb7df7352823747cd4dc9df4916c34513d934c56190fbbdc0"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
@@ -90,7 +90,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "13d151bbfc9b2afdae0d08fa7ef1a14b6f4447011fda7f8a2d1289ddd4a081c1"
+      "computedHash": "9b43d562bc098e4a467b6f2382aa2633444abfcff02c13f130a5624c379ef9a4"
     }
   }
 }
