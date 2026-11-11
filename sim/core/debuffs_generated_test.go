@@ -448,7 +448,7 @@ func TestGeneratedThunderfuryKeepsItsResistanceBesideThunderClap(t *testing.T) {
 func TestGeneratedDemoralizingDebuffsApplyOnce(t *testing.T) {
 	checkOneReductionApplies(t, &proto.Debuffs{DemoralizingRoar: true, DemoralizingShout: true},
 		buffs.DemoralizingShoutCategory, stats.AttackPower, map[string]float64{
-			"Demoralizing Roar (External)":  buffs.DemoralizingRoarValue(0),
+			"Demoralizing Roar (External)":  rowAmount(t, 9898, dbcenums.A_MOD_ATTACK_POWER),
 			"Demoralizing Shout (External)": demoralizingShout(t),
 		})
 }

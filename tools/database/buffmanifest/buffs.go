@@ -560,10 +560,6 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatStamina,
 			proto.Stat_StatDefenseRating,
 		},
-		// Rank 9747 read -round(144 + 1.4 × (level - 42)) on 400 of 403 applications at levels 46 to 51,
-		// where the floor fits 229 and the ceiling 188.
-		// TODO: Ingame research needed -- the level 60 rank 9898, which this takes to round the same way.
-		NearestAmounts: true,
 	},
 	{
 		Field:    "demoralizing_shout",

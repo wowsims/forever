@@ -23,7 +23,6 @@ type parseOptions struct {
 	ignoreStacks bool
 
 	level        int32
-	nearest      bool
 	scale        *Effect
 	rankFraction float64
 	comboPoints  bool
@@ -84,14 +83,6 @@ func IgnoreStacks() ParseOpt {
 func Level(n int32) ParseOpt {
 	return func(o *parseOptions) {
 		o.level = n
-	}
-}
-
-// Every amount is the whole number nearest its exact value, where Effect.AverageAt floors it: a row whose
-// amount rounds in game.
-func NearestAmounts() ParseOpt {
-	return func(o *parseOptions) {
-		o.nearest = true
 	}
 }
 
@@ -324,9 +315,6 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		}
 
 		value := e.MeanAt(level)
-		if o.nearest {
-			value = math.Round(e.exactAt(level))
-		}
 
 		if e.PointsPerResource != 0 && value == 0 {
 			if !o.comboPoints {

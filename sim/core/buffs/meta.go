@@ -40,16 +40,11 @@ type Meta struct {
 	SkipAuras []dbcenums.EffectAuraType
 	// The finisher the raid config puts on the target is cast at full combo points.
 	FullComboPoints bool
-	// The aura's amounts round to the nearest whole number in game, where the store reads the floor.
-	NearestAmounts bool
 }
 
 // The parse options the row states, for a caster with these talent points.
 func (m *Meta) Options(talentPoints int32) []spelldata.ParseOpt {
 	opts := spelldata.RaidBuffOptions(m.SkipAuras, m.FullComboPoints)
-	if m.NearestAmounts {
-		opts = append(opts, spelldata.NearestAmounts())
-	}
 	switch {
 	case m.TalentDivisor > 0:
 		opts = append(opts, spelldata.ScaledByRanks(talentPoints, m.TalentDivisor))

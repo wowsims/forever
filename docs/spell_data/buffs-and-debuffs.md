@@ -48,10 +48,7 @@ generator found any, and `FullComboPoints` for a finisher, which the generator a
 since `Duration` reads that separately. A row with a `TalentDivisor` takes
 `ScaledByRanks(talentPoints, TalentDivisor)` instead: every amount the parse attaches is worth that
 fraction of the spell's, rounded to the nearest whole amount the way the tooltip shows it, and 0
-points is the full amount. A row whose manifest entry sets `NearestAmounts` takes
-`spelldata.NearestAmounts()`: its amounts are the whole numbers nearest their exact values, where
-`Average` reads the floor. The generator leaves that option out of its own parse, since it prices an
-amount and attaches nothing.
+points is the full amount.
 
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
 `SingleAura` row or `ExclusivePerStat(Category)` for any other. A generated buff and a hand-written
@@ -288,10 +285,9 @@ fixtures with `UPDATE_BUFF_FIXTURES=1 go test ./tools/database/`.
 ## Pitfalls
 
 **A negative amount that scales by level floors away from zero.** `Average` floors an aura's folded
-amount, so Demoralizing Shout's -196 and -1.4 a level read -205 at 60. Demoralizing Roar's -193 would too,
-but in game its amount rounds to the nearest (400 of 403 applications of rank 9747 at levels 46 to 51), so
-its manifest row sets `NearestAmounts` and it reads -204. Shout is not measured and keeps the store's
-reading, which makes it outbid Roar by 1 in the category they share.
+amount, so Demoralizing Shout's -196 and -1.4 a level read -205 at 60, and Demoralizing Roar's -193 does too.
+A game build that truncated the per-level part toward zero would state -204. The sim takes the store's
+reading until the game says otherwise.
 
 **A debuff prices at the character's level, not the target's.** `Meta.Options` states `Level`
 unconditionally, so `newDebuff` reads the row at `core.CharacterLevel` (60) whatever level the target

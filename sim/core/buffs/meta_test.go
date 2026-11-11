@@ -179,20 +179,6 @@ func TestVindicationRankReadsLikeItsTooltip(t *testing.T) {
 	}
 }
 
-// Demoralizing Roar's attack power reduction is the whole number nearest its row's amount, on either
-// side of the half.
-func TestDemoralizingRoarRoundsItsAttackPowerToTheNearest(t *testing.T) {
-	e := firstAura(t, demoralizingRoarSpell, dbcenums.A_MOD_ATTACK_POWER)
-	original := *e
-	t.Cleanup(func() { *e = original })
-	for amount, want := range map[float64]float64{-100.3: -100, -100.7: -101} {
-		e.BasePoints, e.PPL = amount, 0
-		if got := DemoralizingRoarValue(0); got != want {
-			t.Errorf("Demoralizing Roar stating %v is worth %v, want %v", amount, got, want)
-		}
-	}
-}
-
 // Each state puts up the external copy of its own row, worth what that row states and bidding in the
 // row's category. Off puts up nothing, and a state past the last reads as the last.
 func TestRankSelectStatesGrantTheirOwnRows(t *testing.T) {
