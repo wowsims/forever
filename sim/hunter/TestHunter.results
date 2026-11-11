@@ -378,6 +378,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 764.95681
+  tps: 788.68658
+  dtps: 8.83608
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 756.37935
@@ -888,6 +897,15 @@ dps_results: {
   tps: 734.86329
   dtps: 7.97802
   hps: 15.52111
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-IcebladeHacker-13952"
+ value: {
+  dps: 682.97405
+  tps: 706.25404
+  dtps: 8.36325
+  hps: 14.82639
  }
 }
 dps_results: {
