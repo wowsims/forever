@@ -3,6 +3,7 @@ import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { Sim } from '@sim/sim';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { storeSource as store } from '@testing/gear';
@@ -173,13 +174,15 @@ describe('ItemList', () => {
 		expect(enchants.container.querySelector('[data-filters-menu]')).toBeNull();
 	});
 
-	it('shows the count of narrowing filters on the filters button, and none while nothing narrows', () => {
+	it('shows the count of filters off their default on the filters button, and none while all stand on it', () => {
 		const button = (container: HTMLElement) => container.querySelector('[data-testid="selector-modal-filters-button"]')!.textContent;
+		const defaults = { sources: Sim.ALL_SOURCES.slice(), raids: Sim.ALL_RAIDS.slice() };
+		filters = DatabaseFilters.create(defaults);
 		const plain = setup();
 		expect(button(plain.container)).toBe('gear_tab.gear_picker.filters_button');
 		plain.unmount();
 
-		filters = DatabaseFilters.create({ ...filters, mobTypes: [8], newlyDiscoveredOnly: true });
+		filters = DatabaseFilters.create({ ...defaults, raids: defaults.raids.slice(2), newlyDiscoveredOnly: true });
 		expect(button(setup().container)).toBe('gear_tab.gear_picker.filters_button_active');
 	});
 
