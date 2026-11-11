@@ -2107,6 +2107,9 @@
 						"filters_button": {
 							"type": "string"
 						},
+						"filters_button_active": {
+							"type": "string"
+						},
 						"unequip_item": {
 							"type": "string"
 						},
@@ -2219,6 +2222,7 @@
 						"cooldowns",
 						"ep_tooltip",
 						"filters_button",
+						"filters_button_active",
 						"unequip_item",
 						"table_headers",
 						"sorted_ascending",

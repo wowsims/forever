@@ -173,6 +173,16 @@ describe('ItemList', () => {
 		expect(enchants.container.querySelector('[data-filters-menu]')).toBeNull();
 	});
 
+	it('shows the count of narrowing filters on the filters button, and none while nothing narrows', () => {
+		const button = (container: HTMLElement) => container.querySelector('[data-testid="selector-modal-filters-button"]')!.textContent;
+		const plain = setup();
+		expect(button(plain.container)).toBe('gear_tab.gear_picker.filters_button');
+		plain.unmount();
+
+		filters = DatabaseFilters.create({ ...filters, mobTypes: [8], newlyDiscoveredOnly: true });
+		expect(button(setup().container)).toBe('gear_tab.gear_picker.filters_button_active');
+	});
+
 	it('opens the filters dialog from the filters button', () => {
 		const { container } = setup();
 		expect(container.querySelector('[data-filters-menu]')?.getAttribute('data-filters-menu')).toBe('false');
