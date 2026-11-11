@@ -284,6 +284,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 674.30716
+  tps: 545.14559
+  dtps: 8.26281
+  hps: 7.19695
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 610.8649
