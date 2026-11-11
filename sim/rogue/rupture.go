@@ -13,7 +13,7 @@ func (rogue *Rogue) registerRupture() {
 	tickBase := tick.Average()
 	tickPerPoint := float64(tick.PointsPerResource)
 	baseTicks := int32(ruptureRank.Duration() / tick.Period())
-	var comboPoints int32
+	comboPoints := map[int32]int32{}
 
 	config := spelldata.SpellConfig(&rogue.Unit, ruptureRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
@@ -21,7 +21,8 @@ func (rogue *Rogue) registerRupture() {
 
 	config.Dot = spelldata.DotConfig(ruptureRank, tick)
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		damage := tickBase + tickPerPoint*float64(comboPoints) + dot.Spell.MeleeAttackPower(target)*ruptureApScaling[comboPoints]
+		points := comboPoints[target.UnitIndex]
+		damage := tickBase + tickPerPoint*float64(points) + dot.Spell.MeleeAttackPower(target)*ruptureApScaling[points]
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, ruptureRank.TickOutcome(dot))
 	}
 
@@ -29,11 +30,12 @@ func (rogue *Rogue) registerRupture() {
 		rogue.BreakStealth(sim)
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
-			comboPoints = rogue.ComboPoints()
+			points := rogue.ComboPoints(target)
+			comboPoints[target.UnitIndex] = points
 			dot := spell.Dot(target)
-			dot.BaseTickCount = baseTicks + comboPoints
+			dot.BaseTickCount = baseTicks + points
 			dot.Apply(sim)
-			rogue.ApplyFinisher(sim, spell)
+			rogue.ApplyFinisher(sim, target, spell)
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -41,9 +43,7 @@ func (rogue *Rogue) registerRupture() {
 	}
 
 	config.MetricSplits = 6
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-		spell.SetMetricsSplit(rogue.ComboPoints())
-	}
+	config.Cast.ModifyCast = rogue.setFinisherMetricsSplit
 
 	rogue.Rupture = rogue.RegisterSpell(config)
 }
