@@ -23,6 +23,7 @@ type parseOptions struct {
 	ignoreStacks bool
 
 	level        int32
+	nearest      bool
 	scale        *Effect
 	rankFraction float64
 	comboPoints  bool
@@ -83,6 +84,14 @@ func IgnoreStacks() ParseOpt {
 func Level(n int32) ParseOpt {
 	return func(o *parseOptions) {
 		o.level = n
+	}
+}
+
+// An amount that does not roll is the whole number nearest its exact value, for a row whose amount
+// rounds in game where Effect.AverageAt floors it. Damage and heal amounts keep their fraction.
+func NearestAmounts() ParseOpt {
+	return func(o *parseOptions) {
+		o.nearest = true
 	}
 }
 
@@ -315,6 +324,9 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		}
 
 		value := e.MeanAt(level)
+		if o.nearest && e.Variance == 0 && !e.damageOrHeal() {
+			value = math.Round(e.exactAt(level))
+		}
 
 		if e.PointsPerResource != 0 && value == 0 {
 			if !o.comboPoints {

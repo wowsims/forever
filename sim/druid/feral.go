@@ -70,21 +70,15 @@ func (druid *Druid) BehindTarget() bool {
 	return !druid.PseudoStats.InFrontOfTarget && !druid.CannotShredTarget
 }
 
-// Whether the target is bleeding, for Rend and Tear and the Bleed Is Active APL value: one of the
-// druid's bleeds is up on it, or the druid assumes another raid member's. A bleed-immune target never is.
+// Whether the target is bleeding, for Rend and Tear and the Bleed Is Active APL value: a bleed of any
+// caster in the sim is up on it, or the druid assumes one from a player outside the sim. In game any
+// bleed counts, the druid's own, another player's or a weapon proc's: Swipe took the bonus on 861 of
+// 874 hits with only other players' bleeds up. A bleed-immune target never is.
 func (druid *Druid) targetIsBleeding(target *core.Unit) bool {
 	if target.BleedImmune {
 		return false
 	}
-	if druid.AssumeBleedActive {
-		return true
-	}
-	for _, bleed := range [...]*DruidSpell{druid.Rake, druid.Rip, druid.Lacerate, druid.PounceBleed} {
-		if bleed != nil && bleed.Dot(target).IsActive() {
-			return true
-		}
-	}
-	return false
+	return druid.AssumeBleedActive || target.HasActiveBleed()
 }
 
 func (druid *Druid) breakProwl(sim *core.Simulation) {

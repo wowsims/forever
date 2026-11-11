@@ -394,6 +394,69 @@ func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	}
 }
 
+// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level, which the form's threat
+// multiplier raises. In Cat Form it threatens for none.
+func TestFaerieFireThreatensInBearFormOnly(t *testing.T) {
+	cast := func(level int32, inCat bool) (threat, multiplier float64) {
+		sim, bear := newBear(t)
+		bear.Level = level
+		if inCat {
+			bear.DireBearFormAura.Deactivate(sim)
+			bear.CatFormAura.Activate(sim)
+			bear.AddEnergy(sim, bear.MaximumEnergy(), bear.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+		}
+		target := bear.CurrentTarget
+		bear.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		bear.AddMana(sim, bear.MaxMana(), bear.NewManaMetrics(core.ActionID{SpellID: 1}))
+		if !bear.FaerieFire.Cast(sim, target) {
+			t.Fatalf("level %d: faerie fire did not cast", level)
+		}
+		if !bear.FaerieFireAuras.Get(target).IsActive() {
+			t.Fatalf("level %d: faerie fire did not land", level)
+		}
+		multiplier = bear.PseudoStats.ThreatMultiplier * bear.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexNature]
+		return bear.FaerieFire.SpellMetrics[target.UnitIndex].TotalThreat, multiplier
+	}
+	for _, level := range []int32{60, 40} {
+		threat, multiplier := cast(level, false)
+		if multiplier <= 1 {
+			t.Fatalf("level %d: the threat multiplier in Dire Bear Form is %g, want the form's raise", level, multiplier)
+		}
+		if want := 2 * float64(level) * multiplier; math.Abs(threat-want) > 1e-9 {
+			t.Errorf("level %d: faerie fire in Dire Bear Form threatens for %g, want %g", level, threat, want)
+		}
+	}
+	if threat, _ := cast(60, true); threat != 0 {
+		t.Errorf("faerie fire in Cat Form threatens for %g, want 0", threat)
+	}
+}
+
+// Lacerate's hit and each tick of its bleed threaten for 10/3 of their damage, which the form's threat
+// multiplier raises.
+func TestLacerateThreatensForTenThirdsOfItsDamage(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	bear.AddRage(sim, 50, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("lacerate did not cast")
+	}
+	multiplier := 10.0 / 3 * bear.PseudoStats.ThreatMultiplier * bear.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexPhysical]
+	hit := bear.GetSpell(core.ActionID{SpellID: lacerateHitID}).SpellMetrics[target.UnitIndex]
+	if hit.TotalDamage <= 0 || math.Abs(hit.TotalThreat-hit.TotalDamage*multiplier) > 1e-6 {
+		t.Errorf("the hit dealt %g and threatened for %g, want %g", hit.TotalDamage, hit.TotalThreat, hit.TotalDamage*multiplier)
+	}
+	metric := &bear.Lacerate.SpellMetrics[target.UnitIndex]
+	damage, threat := metric.TotalDamage, metric.TotalThreat
+	bear.Lacerate.Dot(target).TickOnce(sim)
+	tickDamage, tickThreat := metric.TotalDamage-damage, metric.TotalThreat-threat
+	if tickDamage <= 0 || math.Abs(tickThreat-tickDamage*multiplier) > 1e-6 {
+		t.Errorf("a tick dealt %g and threatened for %g, want %g", tickDamage, tickThreat, tickDamage*multiplier)
+	}
+}
+
 // Natural Reaction 5/5, which the Bear preset leaves out.
 const naturalReactionTalents = "0500220000000000-50200322123102125510-0500000000000000"
 

@@ -371,8 +371,9 @@ func appliedKinds(applied []spelldata.Applied) []string {
 	return kinds
 }
 
-// The options buffs.Meta.Options states for the row, less the talent's scaling,
-// which prices an amount and never changes what is attached. A damage shield's
+// The options buffs.Meta.Options states for the row, less the talent's scaling
+// and the rounding to the nearest a row may take, which price an amount and
+// never change what is attached. A damage shield's
 // own effect is left to newDamageShield, and an item-count row counts its
 // amounts, which is what a multiplier cannot be read through.
 func (row *ResolvedBuff) parseOptions() []spelldata.ParseOpt {

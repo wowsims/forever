@@ -9,6 +9,7 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/druid"
@@ -399,6 +400,78 @@ func TestAssumedBleedRaisesShredLikeOwnBleed(t *testing.T) {
 	}
 	if assumed := shred(true, nil); math.Abs(assumed-bleeding) > 1e-6 {
 		t.Fatalf("shred with the bleed assumed = %g, with Rake up = %g", assumed, bleeding)
+	}
+}
+
+// Two cats of one build against one target: the cat under test and another whose bleeds it can read.
+func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *FeralDruid, *FeralDruid) {
+	t.Helper()
+	player := func(name string) *proto.Player {
+		items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+		for i := range items {
+			items[i] = &proto.ItemSpec{}
+		}
+		items[proto.ItemSlot_ItemSlotMainHand].Id = 1613
+		return &proto.Player{
+			Name: name, Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
+			TalentsString: talents,
+			Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
+				Options: &proto.FeralCatDruid_Options{},
+			}},
+			Equipment:   &proto.EquipmentSpec{Items: items},
+			Consumables: &proto.ConsumesSpec{},
+			Buffs:       &proto.IndividualBuffs{},
+			Rotation:    &proto.APLRotation{},
+		}
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{
+			Players: []*proto.Player{player("Cat"), player("Other cat")},
+			Buffs:   &proto.PartyBuffs{},
+		}}},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	players := sim.Raid.Parties[0].Players
+	return sim, players[0].(*FeralDruid), players[1].(*FeralDruid)
+}
+
+// Rend and Tear counts another player's bleed on the target as it counts the cat's own: Shred under the
+// other cat's Rake takes the same bonus as under its own, and none with no bleed up. A white swing takes
+// it under neither.
+func TestRendAndTearCountsAnotherPlayersBleed(t *testing.T) {
+	const rendAndTear5 = "0000000000000000-00000000000100005000-0000000000000000"
+	hits := func(bleeder func(cat, other *FeralDruid) *FeralDruid) (shred, swing float64) {
+		sim, cat, other := newCatBesideAnother(t, rendAndTear5)
+		target := cat.CurrentTarget
+		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
+		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+		target.PseudoStats.BaseDodgeChance = 0
+		if bleeder != nil {
+			bleeder(cat, other).Rake.Dot(target).Apply(sim)
+		}
+		fillResource(sim, cat)
+		if !cat.Shred.Cast(sim, target) {
+			t.Fatal("shred did not cast")
+		}
+		if !cat.AutoAttacks.MHAuto().Cast(sim, target) {
+			t.Fatal("the white swing did not cast")
+		}
+		return cat.Shred.SpellMetrics[target.UnitIndex].TotalDamage, cat.AutoAttacks.MHAuto().SpellMetrics[target.UnitIndex].TotalDamage
+	}
+	plainShred, plainSwing := hits(nil)
+	ownShred, ownSwing := hits(func(cat, _ *FeralDruid) *FeralDruid { return cat })
+	otherShred, otherSwing := hits(func(_, other *FeralDruid) *FeralDruid { return other })
+	if plainShred <= 0 || ownShred <= plainShred*1.01 {
+		t.Fatalf("shred %g without a bleed, %g with its own Rake up: Rend and Tear did not apply", plainShred, ownShred)
+	}
+	if math.Abs(otherShred-ownShred) > 1e-6 {
+		t.Errorf("shred with the other cat's Rake up = %g, with its own = %g", otherShred, ownShred)
+	}
+	if plainSwing <= 0 || ownSwing != plainSwing || otherSwing != plainSwing {
+		t.Errorf("the white swing hit for %g without a bleed, %g with its own Rake up and %g with the other cat's, want the same",
+			plainSwing, ownSwing, otherSwing)
 	}
 }
 
