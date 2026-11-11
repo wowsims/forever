@@ -227,6 +227,44 @@ func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	}
 }
 
+// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a Magma Totem pulse, which deals
+// the same damage to a beast as to any other creature.
+func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
+	raid := enhancementRaid(enhancementTalents)
+	raid.Parties[0].Players[0].Race = proto.Race_RaceDwarf
+	beast := core.FreshDefaultTargetConfig()
+	beast.MobType = proto.MobType_MobTypeBeast
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, beast)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       raid,
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	other := sham.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex]
+	beastTable := sham.AttackTables[sim.Encounter.AllTargetUnits[1].UnitIndex]
+	if beastTable.Defender.MobType != proto.MobType_MobTypeBeast || other.Defender.MobType == proto.MobType_MobTypeBeast {
+		t.Fatalf("the targets are %v and %v; want a beast and another creature", beastTable.Defender.MobType, other.Defender.MobType)
+	}
+	beastBonus := func(spell *core.Spell) float64 {
+		t.Helper()
+		if spell == nil {
+			t.Fatal("the spell is not registered")
+		}
+		return spell.AttackerDamageMultiplier(beastTable, false) / spell.AttackerDamageMultiplier(other, false)
+	}
+
+	if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: sham.FireNova.ActionID.SpellID, Tag: 1})); bonus <= 1 {
+		t.Errorf("Fire Nova's hits deal %v times the damage to a beast; want the racial's bonus above 1", bonus)
+	}
+	if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: sham.MagmaTotem.ActionID.SpellID, Tag: 1})); bonus != 1 {
+		t.Errorf("a Magma Totem pulse deals %v times the damage to a beast; want 1", bonus)
+	}
+}
+
 // Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
 // maximum mana, one globe every few seconds; a spell that does not crit spends none.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {

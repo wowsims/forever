@@ -20,11 +20,13 @@ var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
 
 // A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
 // It reports as the totem's spell tagged 1, so the results show the totem and its hits as one row.
+// It takes the caster's damage done multipliers but not the caster's damage against a creature type,
+// so a Dwarf's or Troll's beast bonus does not reach it.
 func (shaman *Shaman) newTotemAttackConfig(totem *spelldata.Spell, rank *spelldata.Spell) core.SpellConfig {
 	config := spelldata.SpellConfig(&shaman.Unit, rank,
 		spelldata.Magic(core.ProcMaskEmpty),
 		spelldata.Proc(),
-		spelldata.Flags(SpellFlagShamanSpell))
+		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagNoDamageVersus))
 	config.ActionID = core.ActionID{SpellID: totem.ID, Tag: 1}
 	return config
 }
@@ -53,9 +55,9 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 }
 
 // The totem casts its attack, 10436, at its target. The first lands at the end of the first 2.2 s
-// cast, and in the combat log the totem waits about 0.27 s after each cast ends before it starts the
-// next: one attack every 2.472 s.
-var searingTotemPeriod = searingAttackRank.CastTime() + 272*time.Millisecond
+// cast, and in the combat log the totem waits 0.225 s after each cast ends before it starts the next
+// while it keeps its target: one attack every 2.425 s.
+var searingTotemPeriod = searingAttackRank.CastTime() + 225*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {
 	damage := searingAttackRank.DamageEffect()
