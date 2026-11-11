@@ -24,7 +24,7 @@ func (rogue *Rogue) registerEviscerateRank(rank *spelldata.Spell) {
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		rogue.BreakStealth(sim)
-		comboPoints := float64(rogue.ComboPoints())
+		comboPoints := float64(rogue.ComboPoints(target))
 		// The roll spreads the base points alone; the per-point damage and attack power add on top.
 		flatBaseDamage := eviscerateBaseDamage.Roll(sim) + eviscerateDamagePerPoint*comboPoints
 
@@ -33,7 +33,7 @@ func (rogue *Rogue) registerEviscerateRank(rank *spelldata.Spell) {
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
 		if result.Landed() {
-			rogue.ApplyFinisher(sim, spell)
+			rogue.ApplyFinisher(sim, target, spell)
 		} else {
 			spell.IssueRefund(sim)
 		}
@@ -42,9 +42,7 @@ func (rogue *Rogue) registerEviscerateRank(rank *spelldata.Spell) {
 	}
 
 	config.MetricSplits = 6
-	config.Cast.ModifyCast = func(sim *core.Simulation, spell *core.Spell, cast *core.Cast) {
-		spell.SetMetricsSplit(rogue.ComboPoints())
-	}
+	config.Cast.ModifyCast = rogue.setFinisherMetricsSplit
 
 	rogue.RegisterSpell(config)
 }

@@ -29,7 +29,7 @@ func (rogue *Rogue) registerGarrote() {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHitNoHitCounter)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
-			rogue.AddComboPoints(sim, int32(comboPointGen), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(comboPointGen), spell.ComboPointMetrics())
 		} else {
 			spell.IssueRefund(sim)
 		}

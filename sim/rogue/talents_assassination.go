@@ -177,7 +177,7 @@ func (rogue *Rogue) registerSealFate() {
 	trigger := spelldata.ProcTrigger(&rogue.Character, sfRank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if result.Outcome.Matches(core.OutcomeCrit) {
-				rogue.AddComboPoints(sim, 1, sfMetrics)
+				rogue.AddComboPoints(sim, result.Target, 1, sfMetrics)
 			}
 		})
 	trigger.Name = "Seal Fate - Trigger"
@@ -208,7 +208,7 @@ func (rogue *Rogue) registerMutilate() {
 		rogue.BreakStealth(sim)
 		result := spell.CalcOutcome(sim, target, spell.OutcomeMeleeSpecialHit) // Miss/Dodge/Parry/Hit
 		if result.Landed() {
-			rogue.AddComboPoints(sim, int32(pointGen), spell.ComboPointMetrics())
+			rogue.AddComboPoints(sim, target, int32(pointGen), spell.ComboPointMetrics())
 			rogue.MutilateOH.Cast(sim, target)
 			rogue.MutilateMH.Cast(sim, target)
 		} else {

@@ -586,15 +586,17 @@ func TestValueHealthAndMana(t *testing.T) {
 
 func TestValueRageAndEnergyAndComboPoints(t *testing.T) {
 	sim := &Simulation{CurrentTime: 30 * time.Millisecond}
-	unit := &Unit{}
+	target := &Unit{}
+	unit := &Unit{CurrentTarget: target}
 	unit.rageBar = rageBar{unit: unit, currentRage: 40, maxRage: 100}
 	unit.energyBar = energyBar{
-		unit:           unit,
-		currentEnergy:  60,
-		maxEnergy:      110,
-		comboPoints:    3,
-		maxComboPoints: 5,
-		nextEnergyTick: 100 * time.Millisecond,
+		unit:             unit,
+		currentEnergy:    60,
+		maxEnergy:        110,
+		comboPoints:      3,
+		comboPointTarget: target,
+		maxComboPoints:   5,
+		nextEnergyTick:   100 * time.Millisecond,
 	}
 	rot := &APLRotation{unit: unit}
 
@@ -610,7 +612,8 @@ func TestValueRageAndEnergyAndComboPoints(t *testing.T) {
 	if got := rot.newValueMaxEnergy(&proto.APLValueMaxEnergy{}, nil).GetFloat(sim); got != 110 {
 		t.Errorf("Max Energy = %v, want 110", got)
 	}
-	if got := rot.newValueCurrentComboPoints(&proto.APLValueCurrentComboPoints{}, nil).GetInt(sim); got != 3 {
+	comboPoints := rot.newValueCurrentComboPoints(&proto.APLValueCurrentComboPoints{}, nil)
+	if got := comboPoints.GetInt(sim); got != 3 {
 		t.Errorf("Current Combo Points = %v, want 3", got)
 	}
 	if got := rot.newValueMaxComboPoints(&proto.APLValueMaxComboPoints{}, nil).GetInt(sim); got != 5 {
@@ -630,6 +633,34 @@ func TestValueRageAndEnergyAndComboPoints(t *testing.T) {
 		"Max Combo Points without the bar":     empty.newValueMaxComboPoints(&proto.APLValueMaxComboPoints{}, nil),
 		"Next Energy Tick without the bar":     empty.newValueTimeToNextEnergyTick(&proto.APLValueTimeToNextEnergyTick{}, nil),
 	})
+}
+
+// Current Combo Points reads the unit it names, or the current target when it names none.
+func TestValueCurrentComboPointsReadsItsTargetUnit(t *testing.T) {
+	sim, fw := setupTwoTargetRotationSim()
+	fw.EnableEnergyBar(EnergyBarOptions{MaxEnergy: 100, MaxComboPoints: 5})
+	first, second := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+	onSecond := fw.Rotation.newValueCurrentComboPoints(&proto.APLValueCurrentComboPoints{
+		TargetUnit: &proto.UnitReference{Type: proto.UnitReference_Target, Index: 1},
+	}, nil)
+	onCurrent := fw.Rotation.newValueCurrentComboPoints(&proto.APLValueCurrentComboPoints{}, nil)
+	metrics := fw.NewComboPointMetrics(ActionID{SpellID: 1})
+
+	fw.AddComboPoints(sim, second, 2, metrics)
+	if got := onSecond.GetInt(sim); got != 2 {
+		t.Errorf("Current Combo Points on %q = %d after a gain of 2 there, want 2", second.Label, got)
+	}
+	if got := onCurrent.GetInt(sim); got != 0 {
+		t.Errorf("Current Combo Points on the current target %q = %d, want 0", first.Label, got)
+	}
+
+	fw.AddComboPoints(sim, first, 1, metrics)
+	if got := onSecond.GetInt(sim); got != 0 {
+		t.Errorf("Current Combo Points on %q = %d after a gain on %q, want 0", second.Label, got, first.Label)
+	}
+	if got := onCurrent.GetInt(sim); got != 1 {
+		t.Errorf("Current Combo Points on the current target %q = %d after a gain of 1 there, want 1", first.Label, got)
+	}
 }
 
 func TestValueEnergyTimeToTarget(t *testing.T) {

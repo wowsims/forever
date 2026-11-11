@@ -21,7 +21,7 @@ func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 1
-	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 	refund := spelldata.MustFind(cat.FerociousBite.ActionID.SpellID).MissRefund()
 	want := cat.CurrentEnergy() - (1-refund)*cat.FerociousBite.Cost.GetCurrentCost()
 	if !cat.FerociousBite.Cast(sim, target) {
@@ -30,10 +30,10 @@ func TestBiteDodgeRefundsAndKeepsExtraEnergyAndComboPoints(t *testing.T) {
 	if cat.FerociousBite.SpellMetrics[target.UnitIndex].Dodges != 1 {
 		t.Fatal("bite was not dodged")
 	}
-	if cat.CurrentEnergy() != want || cat.ComboPoints() != 5 {
-		t.Fatalf("dodged bite leaves energy=%g CP=%d, want %g and 5", cat.CurrentEnergy(), cat.ComboPoints(), want)
+	if cat.CurrentEnergy() != want || cat.ComboPoints(cat.CurrentTarget) != 5 {
+		t.Fatalf("dodged bite leaves energy=%g CP=%d, want %g and 5", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget), want)
 	}
-	t.Logf("dodged bite: energy=%g CP=%d", cat.CurrentEnergy(), cat.ComboPoints())
+	t.Logf("dodged bite: energy=%g CP=%d", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 }
 
 func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
@@ -41,15 +41,15 @@ func TestBiteLandedSpendsExtraEnergyAndComboPoints(t *testing.T) {
 	target := cat.CurrentTarget
 	target.PseudoStats.BaseDodgeChance = 0
 	cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-	cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+	cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 	if !cat.FerociousBite.Cast(sim, target) {
 		t.Fatal("bite did not cast")
 	}
 	if metrics := cat.FerociousBite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
 		t.Fatal("bite did not land")
 	}
-	if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
-		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints())
+	if cat.CurrentEnergy() != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
+		t.Fatalf("landed bite leaves energy=%g CP=%d, want 0 and 0", cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 	}
 }
 
@@ -61,7 +61,7 @@ func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 		target := cat.CurrentTarget
 		target.PseudoStats.BaseDodgeChance = 0
 		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		bite := cat.GetSpell(core.ActionID{SpellID: id})
 		if bite == nil {
 			t.Fatalf("spell %d is not registered", id)
@@ -75,8 +75,8 @@ func TestBothBiteRanksSpendExtraEnergyAndComboPoints(t *testing.T) {
 		if metrics := bite.SpellMetrics[target.UnitIndex]; metrics.Hits+metrics.Crits != 1 {
 			t.Fatalf("spell %d did not land", id)
 		}
-		if cat.CurrentEnergy() != 0 || cat.ComboPoints() != 0 {
-			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints())
+		if cat.CurrentEnergy() != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
+			t.Errorf("spell %d leaves energy=%g CP=%d, want 0 and 0", id, cat.CurrentEnergy(), cat.ComboPoints(cat.CurrentTarget))
 		}
 	}
 }
@@ -89,13 +89,13 @@ func TestPredatoryDisciplineBiteKeepsExtraEnergy(t *testing.T) {
 		target.PseudoStats.BaseDodgeChance = 0
 		cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		want := cat.CurrentEnergy() - cat.FerociousBite.Cost.GetCurrentCost()
 		if !cat.FerociousBite.Cast(sim, target) {
 			t.Fatal("bite did not cast")
 		}
-		if cat.ComboPoints() != 0 {
-			t.Fatalf("landed bite leaves CP=%d, want 0", cat.ComboPoints())
+		if cat.ComboPoints(cat.CurrentTarget) != 0 {
+			t.Fatalf("landed bite leaves CP=%d, want 0", cat.ComboPoints(cat.CurrentTarget))
 		}
 		if talents != "" && cat.CurrentEnergy() != want {
 			t.Fatalf("bite with Predatory Discipline leaves energy=%g, want %g", cat.CurrentEnergy(), want)
@@ -188,8 +188,8 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 				t.Fatalf("bleed avoided %d times, %d hits, up=%v, want 1, 0 and no bleed", avoided, m.Hits, bleedUp)
 			}
 			stunUp := target.GetAura("Pounce Stun - " + cat.Label).IsActive()
-			if !stunUp || cat.ComboPoints() != 1 {
-				t.Errorf("stun up=%v and CP=%d, want the stun and 1", stunUp, cat.ComboPoints())
+			if !stunUp || cat.ComboPoints(cat.CurrentTarget) != 1 {
+				t.Errorf("stun up=%v and CP=%d, want the stun and 1", stunUp, cat.ComboPoints(cat.CurrentTarget))
 			}
 			if cat.CurrentEnergy() != want {
 				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
@@ -286,7 +286,7 @@ func TestRipAttackPowerCapsAtFourComboPoints(t *testing.T) {
 	for cp := int32(1); cp <= 5; cp++ {
 		sim, cat := newCat(t, "", nil)
 		cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
-		cat.AddComboPoints(sim, cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, cp, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		dot := cat.Rip.Dot(cat.CurrentTarget)
 		dot.Apply(sim)
 		metric := &cat.Rip.SpellMetrics[cat.CurrentTarget.UnitIndex]
@@ -342,7 +342,7 @@ func TestBleedImmuneTargetTakesNoRakeAndNoAssumedBleed(t *testing.T) {
 	target.BleedImmune = true
 	fillResource(sim, cat)
 	cat.Rake.Cast(sim, target)
-	if cat.Rake.Dot(target).IsActive() || cat.Rake.SpellMetrics[target.UnitIndex].TotalDamage != 0 || cat.ComboPoints() != 0 {
+	if cat.Rake.Dot(target).IsActive() || cat.Rake.SpellMetrics[target.UnitIndex].TotalDamage != 0 || cat.ComboPoints(cat.CurrentTarget) != 0 {
 		t.Fatal("rake landed on a bleed-immune target")
 	}
 
@@ -439,7 +439,7 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 			cat.AddStatDynamic(sim, stats.PhysicalCritPercent, -100)
 			spell := c.spell(cat)
 			if spell == cat.Rip {
-				cat.AddComboPoints(sim, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+				cat.AddComboPoints(sim, cat.CurrentTarget, 5, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 			}
 			dot := spell.Dot(cat.CurrentTarget)
 			dot.Apply(sim)

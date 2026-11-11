@@ -15,7 +15,7 @@ func (druid *Druid) registerRipSpell() {
 	// per combo point with the fifth counted as the fourth.
 	comboPoints := map[int32]float64{}
 	config.Dot.OnSnapshot = func(_ *core.Simulation, target *core.Unit, dot *core.Dot) {
-		cp := float64(druid.ComboPoints())
+		cp := float64(druid.ComboPoints(target))
 		dot.SnapshotBaseDamage = tick.AverageAt(druid.level()) + float64(tick.PointsPerResource)*cp
 		comboPoints[target.UnitIndex] = cp
 	}
@@ -28,7 +28,7 @@ func (druid *Druid) registerRipSpell() {
 		result := spell.CalcAndDealOutcome(sim, target, spell.OutcomeMeleeSpecialHit)
 		if result.Landed() {
 			spell.Dot(target).Apply(sim)
-			druid.spendComboPoints(sim, spell)
+			druid.spendComboPoints(sim, target, spell)
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}
