@@ -47,13 +47,14 @@ func (warlock *Warlock) registerBaneOfAgony() {
 		dot.SnapshotAttackerMultiplier = dot.Spell.AttackerDamageMultiplier(attackTable, true) * dot.PeriodicDamageMultiplier
 	}
 
-	// A dot activated without Apply has no entry, and ticks as if cast now.
+	// A dot activated without Apply has no entry, and ticks as if cast now. The duration is the one the Bane landed
+	// with: the expiry reads 0 by the time a tick dealt as the Bane ends (a recast at an instant its tick is due).
 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		ampMult, ok := ampByTarget[target.UnitIndex]
 		if !ok {
 			ampMult = ampNow()
 		}
-		setTick(target, dot, ampMult, baneOfAgonyRamp(sim.CurrentTime-dot.StartedAt(), dot.ExpiresAt()-dot.StartedAt()))
+		setTick(target, dot, ampMult, baneOfAgonyRamp(sim.CurrentTime-dot.StartedAt(), dot.Duration))
 		dot.CalcAndDealPeriodicSnapshotDamage(sim, target, rankedSpell.TickOutcome(dot))
 	}
 

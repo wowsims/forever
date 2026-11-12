@@ -1,6 +1,7 @@
 package warlock
 
 import (
+	"fmt"
 	"slices"
 	"time"
 
@@ -16,9 +17,9 @@ import (
 // starting or ending the channel moves no tick. An effect applied while the channel runs keeps its normal period,
 // since casting it ends the channel.
 // TODO: Ingame test needed: combat logs time a channel's start and end with up to 0.2 s of jitter, so they leave a
-// channel starting or ending exactly on a half point unmeasured. Cast Wrack so it lands within 0.05 s before and after Siphon
-// Life's half point at 1.5 s, and end it within 0.05 s before and after one, many times each, and count the ticks
-// at that half point.
+// channel starting or ending exactly on a half point unmeasured. Cast Wrack so it lands within 0.05 s before and
+// after Siphon Life's half point at 1.5 s, and end it within 0.05 s before and after one, many times each, and count
+// the ticks at that half point.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
@@ -27,17 +28,28 @@ func (warlock *Warlock) registerWrackSpell() {
 	config := warlock.soulSiphonChannelConfig(rankedSpell, wrackTick, nil)
 	config.ClassSpellMask = WarlockSpellWrack
 
-	setPeriods := func(sim *core.Simulation, target *core.Unit, divisor float64) {
-		for _, spell := range warlock.afflictionDots {
-			dot := spell.Dot(target)
-			dot.SetTickPeriod(sim, time.Duration(float64(dot.CalcTickPeriod())/divisor).Round(time.Millisecond))
+	// The listener below takes a tick on the effect's application plus whole normal periods for a normal one, which
+	// holds while the channel's period divides the normal one. The effects register after this talent, so the check
+	// runs as the channel starts: a row that breaks it panics on the first channel.
+	fastPeriod := func(dot *core.Dot) time.Duration {
+		normal := dot.CalcTickPeriod()
+		fast := time.Duration(float64(normal) / speedup).Round(time.Millisecond)
+		if normal%fast != 0 {
+			panic(fmt.Sprintf("Wrack ticks %s every %v, which does not divide its period of %v", dot.Spell.ActionID, fast, normal))
 		}
+		return fast
 	}
 	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
-		setPeriods(sim, aura.Unit, speedup)
+		for _, spell := range warlock.afflictionDots {
+			dot := spell.Dot(aura.Unit)
+			dot.SetTickPeriod(sim, fastPeriod(dot))
+		}
 	}
 	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
-		setPeriods(sim, aura.Unit, 1)
+		for _, spell := range warlock.afflictionDots {
+			dot := spell.Dot(aura.Unit)
+			dot.SetTickPeriod(sim, dot.CalcTickPeriod())
+		}
 	}
 
 	warlock.Wrack = warlock.RegisterSpell(config)

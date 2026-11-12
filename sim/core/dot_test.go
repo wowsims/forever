@@ -290,7 +290,7 @@ func retimeDot(at, period time.Duration, first bool) dotEvent {
 
 // Applies a recorded dot of 5 ticks 1 s apart, runs the events and returns its ticks, the time it was applied
 // and, for each event, whether the dot had a tick still queued at its instant. After a last event that re-times
-// the dot, its remaining ticks are the ticks it deals later.
+// the dot, its remaining ticks are the ticks it deals later, and once it has ended it holds its normal period.
 func runRetimedDot(t *testing.T, events []dotEvent) ([]dotTick, time.Duration, []bool) {
 	t.Helper()
 	var ticks []dotTick
@@ -328,6 +328,9 @@ func runRetimedDot(t *testing.T, events []dotEvent) ([]dotTick, time.Duration, [
 		if remaining != later {
 			t.Errorf("%d ticks remaining after the last re-timing, want the %d it dealt later", remaining, later)
 		}
+	}
+	if dot.IsActive() {
+		t.Fatalf("the dot is still up at %v", ct.sim.CurrentTime-start)
 	}
 	return ticks, start, queued
 }
@@ -444,41 +447,64 @@ func TestDotRetimedAtATickDealsItOnce(t *testing.T) {
 	}
 }
 
-// A dot re-timed from inside its own tick deals that tick once and ticks at the new period from it, and its
-// tick stays queued once, so an action due between two ticks runs on time.
+// A dot re-timed from inside its own tick deals that tick once, and its next tick is the next point of the new
+// period's grid, also when that tick is a half point and the period goes back to the normal one. Its tick stays
+// queued once, so an action due between two ticks runs on time.
 func TestDotRetimedFromItsOwnTick(t *testing.T) {
 	ms := time.Millisecond
-	var ticks []dotTick
-	var remaining []int32
-	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
-		config := recordedDotConfig(910311, &ticks)
-		onTick := config.Dot.OnTick
-		config.Dot.OnTick = func(sim *Simulation, target *Unit, dot *Dot) {
-			onTick(sim, target, dot)
-			if dot.TickCount() == 1 {
-				dot.SetTickPeriod(sim, 500*ms)
+	for _, tc := range []struct {
+		name   string
+		before bool  // Half its period from 1.2 s, before the tick.
+		atTick int32 // The tick that sets the period.
+		period time.Duration
+		ticks  []time.Duration
+	}{
+		{name: "half its period from its tick at 1 s", atTick: 1, period: 500 * ms, ticks: gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5)},
+		{name: "its period again from its tick on the half point 1.5 s", before: true, atTick: 2, period: time.Second, ticks: gridTimes(1, 1.5, 2, 3, 4, 5)},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var ticks []dotTick
+			var remaining []int32
+			ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+				config := recordedDotConfig(910311, &ticks)
+				onTick := config.Dot.OnTick
+				config.Dot.OnTick = func(sim *Simulation, target *Unit, dot *Dot) {
+					onTick(sim, target, dot)
+					if dot.TickCount() == tc.atTick {
+						dot.SetTickPeriod(sim, tc.period)
+					}
+					if dot.TickCount() >= tc.atTick {
+						remaining = append(remaining, dot.RemainingTicks())
+					}
+				}
+				return char.RegisterSpell(config)
+			})
+			ct.start()
+			start := ct.sim.CurrentTime
+			ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
+			dot := ct.spell.Dot(ct.fw.CurrentTarget)
+			if tc.before {
+				ct.sim.AddPendingAction(&PendingAction{NextActionAt: start + 1200*ms, OnAction: func(sim *Simulation) {
+					dot.SetTickPeriod(sim, 500*ms)
+				}})
 			}
-			remaining = append(remaining, dot.RemainingTicks())
-		}
-		return char.RegisterSpell(config)
-	})
-	ct.start()
-	start := ct.sim.CurrentTime
-	ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
-	var probeRanAt time.Duration
-	ct.sim.AddPendingAction(&PendingAction{NextActionAt: start + 1750*ms, OnAction: func(sim *Simulation) {
-		probeRanAt = sim.CurrentTime
-	}})
+			var probeRanAt time.Duration
+			ct.sim.AddPendingAction(&PendingAction{NextActionAt: start + 1750*ms, OnAction: func(sim *Simulation) {
+				probeRanAt = sim.CurrentTime
+			}})
 
-	ct.runUntil(start + 12*time.Second)
-	if got, want := probeRanAt-start, 1750*ms; got != want {
-		t.Errorf("an action due at %v ran at %v", want, got)
-	}
-	checkDotTicks(t, ticks, start, gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5))
-	for i, got := range remaining {
-		if want := int32(len(ticks) - 1 - i); got != want {
-			t.Errorf("%d ticks remaining after tick %d, want %d", got, i+1, want)
-		}
+			ct.runUntil(start + 12*time.Second)
+			if got, want := probeRanAt-start, 1750*ms; got != want {
+				t.Errorf("an action due at %v ran at %v", want, got)
+			}
+			checkDotTicks(t, ticks, start, tc.ticks)
+			for i, got := range remaining {
+				tick := int(tc.atTick) + i
+				if want := int32(len(ticks) - tick); got != want {
+					t.Errorf("%d ticks remaining after tick %d, want %d", got, tick, want)
+				}
+			}
+		})
 	}
 }
 

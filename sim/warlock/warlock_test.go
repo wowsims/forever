@@ -321,6 +321,38 @@ func TestBaneOfAgonySpendsAmplifyCurse(t *testing.T) {
 	}
 }
 
+// A Bane of Agony recast at an instant its tick is due, before the tick's action runs, deals that tick as the old
+// Bane ends at the ramp of its time since the old Bane landed: at its first tick, the first third's share, the same
+// as the new Bane's first tick.
+func TestBaneOfAgonyRecastAtADueTickKeepsItsRamp(t *testing.T) {
+	sim, warlock := newWarlockSim("", &proto.WarlockOptions{}, core.MakeSingleTargetEncounter(0))
+	target := sim.Encounter.AllTargetUnits[0]
+	warlock.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -100})
+
+	dot := warlock.BaneOfAgony.Dot(target)
+	dot.Apply(sim)
+	start, period := sim.CurrentTime, dot.TickPeriod()
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: start + period, Priority: core.ActionPriorityDOT, OnAction: dot.Apply})
+
+	var ticks []dotTick
+	metrics := &warlock.BaneOfAgony.SpellMetrics[target.UnitIndex]
+	for len(ticks) < 2 {
+		damage := metrics.TotalDamage
+		if sim.Step() {
+			break
+		}
+		if metrics.TotalDamage > damage {
+			ticks = append(ticks, dotTick{sim.CurrentTime, metrics.TotalDamage - damage})
+		}
+	}
+	if got, want := tickTimes(ticks, start), []time.Duration{period, 2 * period}; !slices.Equal(got, want) {
+		t.Fatalf("Bane of Agony ticked at %v, want %v", got, want)
+	}
+	if got := ticks[0].damage / ticks[1].damage; math.Abs(got-1) > 1e-9 {
+		t.Errorf("the tick dealt as the recast ended the old Bane is %.4f times the new Bane's first tick, want 1", got)
+	}
+}
+
 // The Imp's Blood Pact is up on the party's players while the Imp is out, counts in the stats with the Imp out at
 // the start, and drops when the Imp is dismissed or sacrificed. A Blood Pact ticked in the party buffs adds nothing
 // while the Imp's is up and takes over once it drops. With two Imps in the party one Blood Pact counts, and it
@@ -719,7 +751,7 @@ func TestWrackTicksTheHalfPointsOfTheWarlocksDots(t *testing.T) {
 			if period != seconds(c.period) || dots[0].ExpiresAt()-start != seconds(c.dur) {
 				t.Fatalf("%s ticks every %v for %v, the case is written for %vs and %vs", c.name, period, dots[0].ExpiresAt()-start, c.period, c.dur)
 			}
-			if _, fast := wrackSpeedup(period); fast != period/2 {
+			if fast := wrackPeriod(period); fast != period/2 {
 				t.Fatalf("Wrack ticks the effect every %v, the case is written for half its period", fast)
 			}
 			wrack := warlock.Wrack.Dot(target)
@@ -806,11 +838,7 @@ func TestWrackTicksTheHalfPointsOfTheWarlocksDots(t *testing.T) {
 
 // The ticks' times from the effect's application.
 func tickTimes(ticks []dotTick, start time.Duration) []time.Duration {
-	times := make([]time.Duration, len(ticks))
-	for i, tick := range ticks {
-		times[i] = tick.at - start
-	}
-	return times
+	return core.MapSlice(ticks, func(tick dotTick) time.Duration { return tick.at - start })
 }
 
 type dotTick struct {
@@ -841,10 +869,9 @@ func recordDotTicks(sim *core.Simulation, dots ...*core.Dot) [][]dotTick {
 	return ticks
 }
 
-// Wrack's speedup, and the period it gives a dot that otherwise ticks every period.
-func wrackSpeedup(period time.Duration) (float64, time.Duration) {
-	speedup := 1 + spellData.Wrack.ByID(1316697).EffectN(2).Percent()
-	return speedup, time.Duration(float64(period) / speedup).Round(time.Millisecond)
+// The period Wrack gives a dot that otherwise ticks every period.
+func wrackPeriod(period time.Duration) time.Duration {
+	return time.Duration(float64(period) / (1 + spellData.Wrack.ByID(1316697).EffectN(2).Percent())).Round(time.Millisecond)
 }
 
 // With Wrack learnt and not channelled, the warlock's Corruption, Siphon Life and Bane of Agony record no Wrack
