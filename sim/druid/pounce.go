@@ -11,15 +11,15 @@ func (druid *Druid) registerPounceSpell() {
 
 	// Natural Instinct's mask covers the bleed 9826's class flags, so its crit ticks take the talent's crit
 	// damage.
-	// TODO: Ingame research needed -- Genesis names Pounce 9827 by its class flags, and the bleed 9826's
-	// flags lie outside Genesis' mask, so the bleed here takes no Genesis.
+	// Genesis names Pounce 9827 by its class flags, and the bleed 9826's flags lie outside Genesis' mask, so
+	// the bleed takes no Genesis.
 	bleedConfig := spelldata.SpellConfig(&druid.Unit, bleedRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc())
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)
-	// Attack power is read at each tick. Rend and Tear does not raise the ticks, though the bleed counts
-	// toward it for the other attacks.
+	// Attack power is read at each tick, and Rend and Tear raises the ticks; the bleed itself counts as the
+	// bleed on the target.
 	bleedConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-		damage := bleedTick.AverageAt(druid.level()) + bleedTick.APCoeff()*dot.Spell.MeleeAttackPower(target)
+		damage := (bleedTick.AverageAt(druid.level()) + bleedTick.APCoeff()*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, bleedRank.TickOutcome(dot))
 	}
 	druid.PounceBleed = druid.RegisterSpell(bleedConfig)
