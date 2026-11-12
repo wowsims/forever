@@ -1,6 +1,7 @@
 package dbc
 
 import (
+	"maps"
 	"math"
 	"testing"
 
@@ -129,6 +130,27 @@ func TestCasterWeaponSpellPower(t *testing.T) {
 		if got, want := [2]float64{stats[proto.Stat_StatHealingPower], stats[proto.Stat_StatSpellDamage]}, [2]float64{tc.healing, tc.damage}; got != want {
 			t.Errorf("%s: healing %v, spell damage %v, want %v and %v", tc.name, got[0], got[1], want[0], want[1])
 		}
+	}
+}
+
+// A weapon skill stat is budgeted like the other stats and rounded to nearest, and it goes to the item's
+// weapon skills, never its stats. An id between them that no item states raises nothing.
+func TestWeaponSkillStats(t *testing.T) {
+	once.Do(func() {})
+	previous := dbcInstance
+	dbcInstance = NewDBC()
+	t.Cleanup(func() { dbcInstance = previous })
+	dbcInstance.RandomPropertiesByIlvl[60] = RandomPropAllocationMap{proto.ItemQuality_ItemQualityRare: {10, 10, 10, 10, 10}}
+
+	item := Item{Id: 1, ItemClass: ITEM_CLASS_WEAPON, ItemSubClass: ITEM_SUBCLASS_WEAPON_MACE, InventoryType: INVTYPE_WEAPON,
+		ItemLevel: 60, OverallQuality: RARE,
+		BonusStat: []int{ITEM_MOD_DAGGERS_SKILL, ITEM_MOD_TWO_HANDED_AXES_SKILL, 95}, StatAlloc: []float64{1850, 1000, 1000}}
+	want := map[int32]int32{int32(proto.WeaponSkill_WeaponSkillDaggers): 2, int32(proto.WeaponSkill_WeaponSkillTwoHandedAxes): 1}
+	if got := item.GetWeaponSkills(item.ItemLevel); !maps.Equal(got, want) {
+		t.Errorf("weapon skills %v, want %v", got, want)
+	}
+	if got := item.GetStats(item.ItemLevel).ToProtoMap(); len(got) != 0 {
+		t.Errorf("stats %v, want none from weapon skill", got)
 	}
 }
 

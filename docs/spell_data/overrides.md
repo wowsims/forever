@@ -89,6 +89,12 @@ against the encounter's area set. The override is stale once the row states a `R
 own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
 tooltip says is doubled has no reader yet.
 
+`ItemEffectDenyList` in `tools/database/overrides.go` drops an effect the game files link to an item
+that the game does not apply, keyed by item and spell with a reason. The effect leaves the item's
+database entry, its registration and the missing-effects list. Bloody Claws of Attack 280068 is the one
+row: its item stat 98 gives the +1 Fist Weapons the in-game tooltip shows once, and equip spell 1297442
+states the same skill again. The generator stops on a row whose item no longer carries the spell.
+
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).
 

@@ -1111,11 +1111,34 @@ func LoadAndWriteItemEffects(dbHelper *DBHelper, inputsDir string) ([]dbc.ItemEf
 	if err != nil {
 		return nil, fmt.Errorf("error loading item effects: %w", err)
 	}
+	if effects, err = dropDeniedItemEffects(effects); err != nil {
+		return nil, err
+	}
 
 	fmt.Println("Loaded ItemEffects:", len(effects))
 	json, _ := json.Marshal(effects)
 	if err := dbc.WriteGzipFile(fmt.Sprintf("%s/dbc/item_effects.json", inputsDir), json); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
+	}
+	return effects, nil
+}
+
+func dropDeniedItemEffects(effects []dbc.ItemEffect) ([]dbc.ItemEffect, error) {
+	dropped := map[[2]int32]bool{}
+	effects = slices.DeleteFunc(effects, func(effect dbc.ItemEffect) bool {
+		key := [2]int32{int32(effect.ParentItemID), int32(effect.SpellID)}
+		if _, denied := ItemEffectDenyList[key[0]][key[1]]; denied {
+			dropped[key] = true
+			return true
+		}
+		return false
+	})
+	for itemID, spells := range ItemEffectDenyList {
+		for spellID := range spells {
+			if !dropped[[2]int32{itemID, spellID}] {
+				return nil, fmt.Errorf("ItemEffectDenyList: item %d no longer carries spell %d; remove the row", itemID, spellID)
+			}
+		}
 	}
 	return effects, nil
 }

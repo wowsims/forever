@@ -304,6 +304,20 @@ const (
 	ITEM_MOD_SHADOW_DAMAGE = 88
 	ITEM_MOD_ARCANE_DAMAGE = 89
 
+	// Weapon skill, one id per skill, budgeted like the other stats. 18505 Mugger's Belt states 96 and its
+	// tooltip reads "Increased Daggers +1"; 14551 Edgemaster's Handguards states 93, 96 and 103 and reads +1
+	// Axes, Daggers and Swords. No item states 95, 97, 99 or 102, so their skills are unknown.
+	ITEM_MOD_TWO_HANDED_AXES_SKILL   = 90
+	ITEM_MOD_TWO_HANDED_MACES_SKILL  = 91
+	ITEM_MOD_TWO_HANDED_SWORDS_SKILL = 92
+	ITEM_MOD_AXES_SKILL              = 93
+	ITEM_MOD_BOWS_SKILL              = 94
+	ITEM_MOD_DAGGERS_SKILL           = 96
+	ITEM_MOD_FIST_WEAPONS_SKILL      = 98
+	ITEM_MOD_MACES_SKILL             = 100
+	ITEM_MOD_POLEARMS_SKILL          = 101
+	ITEM_MOD_SWORDS_SKILL            = 103
+
 	// Spell penetration on one school, in points of the target's resistance: 21516 Dagger of Spell
 	// Penetration - Fire 150 Resist (TEST) budgets 150 of 119, and 21518's Frost twin 150 of 121.
 	ITEM_MOD_FIRE_SPELL_PENETRATION  = 119

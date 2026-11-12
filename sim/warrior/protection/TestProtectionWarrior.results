@@ -252,15 +252,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtectionWarrior-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 428.08362
-  tps: 1421.59769
-  dtps: 291.71956
-  hps: 36.0725
- }
-}
-dps_results: {
  key: "TestProtectionWarrior-AllItems-BowofSearingArrows-2825"
  value: {
   dps: 445.79379

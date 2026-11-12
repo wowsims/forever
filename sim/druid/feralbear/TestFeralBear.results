@@ -208,15 +208,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 415.52834
-  tps: 2195.1895
-  dtps: 393.41204
-  hps: 77.52869
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-BristleconeCloak-275833"
  value: {
   dps: 478.98478

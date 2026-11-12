@@ -73,6 +73,13 @@ var EffectFloorExemptions = map[int32]string{
 	9449: "Manual Crowd Pummeler: a level 60 melee swaps it in for its on-use attack speed",
 }
 
+// Item effects the game files link to an item that the game does not apply, keyed by item ID and then
+// spell ID with the reason. A listed effect never reaches the item: no database entry, no registration
+// and no missing effect. A row whose item no longer carries the spell stops the generator.
+var ItemEffectDenyList = map[int32]map[int32]string{
+	280068: {1297442: "Bloody Claws of Attack: item stat 98 gives the +1 Fist Weapons the in-game tooltip shows once; the equip spell states it again"},
+}
+
 var OtherItemIdsToFetch = []string{}
 var ConsumableOverrides = []*proto.Consumable{}
 

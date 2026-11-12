@@ -50,6 +50,13 @@ func (character *Character) applyWeaponSkills(weaponSkills []*proto.WeaponSkillV
 	}
 }
 
+// An item's weapon skill goes on top of the stated skill, and every copy worn counts; sign -1 takes it off.
+func (character *Character) addItemWeaponSkills(item *Item, sign float64) {
+	for skill, value := range item.ScalingOptions[0].GetWeaponSkills() {
+		character.PseudoStats.WeaponSkills[skill] += sign * float64(value)
+	}
+}
+
 // Rebuilds the hand entries of the attack tables against every enemy, which read the weapons and their
 // weapon skill.
 func (character *Character) UpdateAttackTableWeapons() {

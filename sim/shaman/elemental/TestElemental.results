@@ -174,14 +174,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 686.26687
-  tps: 637.84877
-  dtps: 8.78996
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 727.13565
