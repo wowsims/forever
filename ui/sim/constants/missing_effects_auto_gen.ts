@@ -798,12 +798,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10847, // Dragon's Call
-		[
-			"", // 1318108 - https://www.wowhead.com/forever/spell=1318108
-		]
-	],
-	[
 		11086, // Jang'thraze the Protector
 		[
 			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
@@ -2219,12 +2213,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		260186, // Darkblade
 		[
 			"Sends a shadowy bolt at the enemy causing 140 Shadow damage.", // 16784 - https://www.wowhead.com/forever/spell=16784
-		]
-	],
-	[
-		260205, // Highborne Research Tablet
-		[
-			"Chance on hit to deal 75 Arcane damage. Deals 2 times as much damage to Naga and Satyrs.", // 1265634 - https://www.wowhead.com/forever/spell=1265634
 		]
 	],
 	[

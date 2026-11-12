@@ -10,7 +10,7 @@
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "9d64ba63723f64cf3147ab2c005eb6a0bd6a1fabac8de86c200b5f3212a36abe"
+      "computedHash": "07b3ad23e822167d3331555aaa822902b695da969cdf12fd9b3cbf85345d7c16"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
@@ -25,7 +25,7 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "223fb6b06ade3720eddf219627cf7916e4c408049772e7527a234d974babdeb4"
+      "computedHash": "2b1d1f05827562589869a8e17299fbf5c3bdf28fa646d43d126d1a631be3d336"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
@@ -50,7 +50,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "5f34c559c453a210862f252178cbc1b9a6f314a5b2d1e43f694ee63e3f233504"
+      "computedHash": "33d6eec24a644c1a806824709ba5ffcfea55ad59279df50126c2c499f1b9ede1"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",

@@ -59,6 +59,40 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 	return &dpm
 }
 
+// A procs-per-minute rate that spell hits roll as well. The hits NewLegacyPPMManager measures on a
+// swing keep that swing's speed. Every other hit of the mask except a ranged auto attack rolls on the
+// main-hand weapon's own speed, read at the roll, whether or not the character swings it. Those are a
+// caster's spells, and a spell on the ranged hit table with no ranged swing behind it, such as Thunder
+// Clap or Hammer of Wrath. With no main-hand weapon it is the sim's unarmed weapon's speed.
+func (character *Character) NewLegacyPPMManagerWithSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+	build := func() DynamicProcManager {
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)
+		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto)
+		dpm.procChances = append(dpm.procChances, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+		return dpm
+	}
+	dpm := build()
+
+	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, slot proto.ItemSlot) {
+		dpm = build()
+	})
+
+	return &dpm
+}
+
+type mainHandWeaponSpeedProc struct {
+	character *Character
+	ppm       float64
+}
+
+func (mp mainHandWeaponSpeedProc) Reset() {}
+func (mp mainHandWeaponSpeedProc) Chance(_ *Simulation) float64 {
+	return mp.ppm / 60 * mp.character.WeaponFromMainHand().SwingSpeed
+}
+func (mp mainHandWeaponSpeedProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(mp.Chance(sim), label)
+}
+
 // PPMManager for static ProcMasks and no item swap callback
 func (character *Character) NewStaticLegacyPPMManager(ppm float64, procMask ProcMask) *DynamicProcManager {
 	dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)

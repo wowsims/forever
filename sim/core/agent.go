@@ -200,7 +200,10 @@ func NewAgent(party *Party, partyIndex int, player *proto.Player, raidConfig *pr
 	}
 
 	character := NewCharacter(party, partyIndex, player)
-	return factory(&character, player, raidConfig)
+	agent := factory(&character, player, raidConfig)
+	// On the agent's own character, which the factory copies from the one it is handed.
+	agent.GetCharacter().addItemPets()
+	return agent
 }
 
 // Applies the spec options to the given player. This is only necessary because

@@ -6,35 +6,45 @@ import "testing"
 // or outcome check. Rows are the hitting spell, columns the listener.
 func TestProcTriggerEligibility(t *testing.T) {
 	triggers := []struct {
-		name     string
-		procMask ProcMask
-		flags    SpellFlag
+		name        string
+		procMask    ProcMask
+		flags       SpellFlag
+		defenseType DefenseType
+		shield      bool
 	}{
-		{"auto attack", ProcMaskMeleeMHAuto, SpellFlagNone},
-		{"ability", ProcMaskMeleeMHSpecial, SpellFlagNone},
-		{"proc", ProcMaskMeleeMHSpecial, SpellFlagProc},
-		{"proc suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagProc | SpellFlagSuppressWeaponProcs},
-		{"ability suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagSuppressWeaponProcs},
-		{"magic item proc's damage", ProcMaskEmpty, SpellFlagProc},
-		{"spell", ProcMaskSpellDamage, SpellFlagNone},
+		{name: "auto attack", procMask: ProcMaskMeleeMHAuto, defenseType: DefenseTypeMelee},
+		{name: "ability", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMelee},
+		{name: "proc", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagProc, defenseType: DefenseTypeMelee},
+		{name: "proc suppressing weapon procs", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagProc | SpellFlagSuppressWeaponProcs, defenseType: DefenseTypeMelee},
+		{name: "ability suppressing weapon procs", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagSuppressWeaponProcs, defenseType: DefenseTypeMelee},
+		{name: "magic item proc's damage", procMask: ProcMaskEmpty, flags: SpellFlagProc, defenseType: DefenseTypeMagic},
+		{name: "spell", procMask: ProcMaskSpellDamage, defenseType: DefenseTypeMagic},
+		{name: "ability requiring a shield", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMelee, shield: true},
+		{name: "melee ability with magic DefenseType", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMagic},
+		{name: "ranged ability with magic DefenseType", procMask: ProcMaskRangedSpecial, defenseType: DefenseTypeMagic},
+		{name: "wand shot", procMask: ProcMaskRangedAuto, defenseType: DefenseTypeMagic},
 	}
 	listeners := []struct {
 		name   string
 		config ProcTrigger
 		// One expectation per trigger above.
-		want [7]bool
+		want []bool
 	}{
-		{"aura", ProcTrigger{}, [7]bool{true, true, false, false, true, false, true}},
-		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [7]bool{true, true, true, true, true, true, true}},
-		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [7]bool{true, true, true, false, false, false, false}},
-		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [7]bool{true, true, false, false, false, false, true}},
+		{"aura", ProcTrigger{}, []bool{true, true, false, false, true, false, true, true, true, true, true}},
+		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, []bool{true, true, true, true, true, true, true, true, true, true, true}},
+		{"weapon proc", ProcTrigger{IsWeaponProc: true}, []bool{true, true, true, false, false, false, false, false, false, false, true}},
+		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, []bool{true, true, false, false, false, false, true, true, true, true, true}},
 	}
 
 	for _, listener := range listeners {
+		if len(listener.want) != len(triggers) {
+			t.Fatalf("%s states %d expectations for %d triggers", listener.name, len(listener.want), len(triggers))
+		}
 		for i, trigger := range triggers {
 			unit := &Unit{}
 			aura := &Aura{Unit: unit}
-			spell := &Spell{ProcMask: trigger.procMask, Flags: trigger.flags}
+			spell := &Spell{ProcMask: trigger.procMask, Flags: trigger.flags, DefenseType: trigger.defenseType,
+				CastRequirement: CastRequirement{Shield: trigger.shield}}
 			result := &SpellResult{Outcome: OutcomeHit}
 			fired := false
 
