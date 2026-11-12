@@ -57,7 +57,13 @@ func (druid *Druid) registerLacerateSpell() {
 		weapon := druid.MHWeaponDamage(sim, hit.MeleeAttackPower(target))
 		damage := weapon * perStack * float64(stacks) * druid.rendAndTearMultiplier(target)
 		hit.CalcAndDealDamage(sim, target, damage, hit.OutcomeMeleeSpecialBlockAndCrit)
-		dot.Apply(sim)
+		// A dose or refresh keeps the tick grid of the first application, and the bleed ends its duration
+		// after the latest dose.
+		if dot.IsActive() {
+			dot.Refresh(sim)
+		} else {
+			dot.Apply(sim)
+		}
 		dot.SetStacks(sim, stacks)
 	}
 	druid.Lacerate = druid.RegisterSpell(config)
