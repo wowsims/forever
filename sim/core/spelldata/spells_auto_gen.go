@@ -6474,6 +6474,11 @@ var generatedSpells = []Spell{
 			{ID: 688349, SpellID: 9579, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_TOTAL_THREAT, BasePoints: -1425, PPL: -3, BaseLevel: 30, MaxLevel: 40, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Cost: 125}}},
+	{ID: 9591, Name: "Acid Spit", School: 8, Speed: 24, Attr: [17]uint32{0: 0x90000}, SpellLevel: 20, CastTimeMs: 3000, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ProcChance: 101, InterruptFlags: 15, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 680619, SpellID: 9591, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 438.5230712890625, Variance: 0.2933333218097687, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Cost: 90, CostPerLevel: 4}}},
 	{ID: 9592, Name: "Fade", Rank: "Rank 4", School: 32, Attr: [17]uint32{0: 0x50000, 1: 0x400, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 50, DurationMs: 10000, CategoryCooldownMs: 30000, GCDMs: 1500, Category: 82, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 16384}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 680539, SpellID: 9592, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_TOTAL_THREAT, BasePoints: -2200, PPL: -3, BaseLevel: 40, MaxLevel: 50, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

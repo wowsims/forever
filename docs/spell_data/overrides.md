@@ -93,7 +93,8 @@ A consumable's spells take these overrides like any other spell's; the lists tha
 replace a consumable itself are in [Consumables](../consumables.md).
 
 `tools/database/overrides/extra_spells.go` is another hand-kept list: spells the generator
-force-includes although no class, item, enchant or set reaches them. It is empty today. Each entry
+force-includes although no class, item, enchant or set reaches them, such as a spell a server script
+casts or a summoned creature's own spell. Each entry
 states a reason and a source like an override, and the generator refuses one without a reason. The
 extras are added while the store renders, so adding one without regenerating fails the check rather
 than shipping a store that does not match its source.
