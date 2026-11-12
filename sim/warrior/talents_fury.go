@@ -221,13 +221,14 @@ func (warrior *Warrior) registerGoreDrinker() {
 	buffConfig.MaxStacks = charges
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
-	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
 	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
 	// target alike, until the charges run out. Measured in 82 clean Whirlwind casts: one per landed
 	// strike fits 76, one per cast only the 25 where the two coincide (two main-hand and two
 	// off-hand strikes landed at 3 charges gave 3 heals; a dodged main hand and one landed off-hand
 	// strike gave 1). Cleave: 2 landed strikes gave 2 heals at 3 charges (13 casts) and at 2 charges
 	// (10 casts).
+	//
+	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.

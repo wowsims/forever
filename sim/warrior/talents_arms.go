@@ -338,8 +338,8 @@ func (warrior *Warrior) registerWeaponmaster() {
 	// TODO: Ingame test needed: the main hand's one roll per Whirlwind or Cleave cast is measured (7
 	// extra attacks in 100 two-handed Whirlwinds; by landed targets 1 gave 0 in 7, 2 gave 1 in 26, 3
 	// gave 5 in 44, 4 gave 1 in 23), but whether Whirlwind's off-hand strike (its own spell, 462891
-	// in game) rolls its own chance is not; the sim shares the main hand's roll. A dual-wield
-	// Weaponmaster 5/5 log with an off-hand sword, about 150 Whirlwinds on 2+ targets, settles it.
+	// in game) rolls its own chance is not; the sim gives the cast one roll for both hands, on the
+	// first landed strike of a sword. A dual-wield Weaponmaster 5/5 log with an off-hand sword, about 150 Whirlwinds on 2+ targets, settles it.
 	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
 		Name:            "Weaponmaster (Sword)",

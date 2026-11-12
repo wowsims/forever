@@ -1427,15 +1427,16 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 // charge and heals once, until the charges run out.
 func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 	const goreDrinkerHeal = 1323968
+	whirlwind := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
 	cases := []struct {
 		name      string
-		spellID   int32
+		spell     core.ActionID
 		charges   int32
 		wantHeals int32
 	}{
-		{"Whirlwind lands four strikes on two targets and heals as many times as there are charges", 1680, 3, 3},
-		{"Whirlwind lands four strikes on two targets with two charges", 1680, 2, 2},
-		{"Cleave lands two strikes on two targets", 20569, 3, 2},
+		{"Whirlwind lands four strikes on two targets and heals as many times as there are charges", whirlwind, 3, 3},
+		{"Whirlwind lands four strikes on two targets with two charges", whirlwind, 2, 2},
+		{"Cleave lands two strikes on two targets", core.ActionID{SpellID: 20569}, 3, 2},
 	}
 
 	for _, c := range cases {
@@ -1445,7 +1446,7 @@ func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 				Race:          proto.Race_RaceOrc,
 				Class:         proto.Class_ClassWarrior,
 				Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
-				TalentsString: "30303003-050530355022120031",
+				TalentsString: "30303003-050530355022120031", // furyTalents with Gore Drinker 2/2.
 				Spec:          dpsOptions,
 				Rotation:      &proto.APLRotation{},
 			}
@@ -1460,17 +1461,20 @@ func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 			war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
 			war.AutoAttacks.CancelAutoSwing(sim)
 
-			spell := war.GetSpell(core.ActionID{SpellID: c.spellID}.WithHand(proto.ItemSlot_ItemSlotMainHand))
-			if c.spellID == 20569 {
-				spell = war.GetSpell(core.ActionID{SpellID: c.spellID})
-			}
+			spell := war.GetSpell(c.spell)
 			heal := war.GetSpell(core.ActionID{SpellID: goreDrinkerHeal})
 			gore := war.GoreDrinkerAura
 			if spell == nil || heal == nil || gore == nil {
 				t.Fatalf("spell %v, heal %v, Gore Drinker %v; want all registered", spell, heal, gore)
 			}
+			// Whirlwind's off-hand strike rolls on the off hand's attack table, which the main hand's
+			// spell leaves as it is.
+			offHand := war.GetSpell(core.ActionID{SpellID: c.spell.SpellID}.WithHand(proto.ItemSlot_ItemSlotOffHand))
 			for _, target := range sim.Encounter.AllTargetUnits {
 				landEveryCast(sim, &war.Character, target, spell)
+				if offHand != nil {
+					landEveryCast(sim, &war.Character, target, offHand)
+				}
 			}
 			gore.Activate(sim)
 			gore.SetStacks(sim, c.charges)
