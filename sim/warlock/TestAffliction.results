@@ -329,6 +329,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 610.8649
+  tps: 490.63951
+  dtps: 8.36443
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-EidolonTalisman-18340"
  value: {
   dps: 647.48735
@@ -862,6 +871,15 @@ dps_results: {
   tps: 527.27094
   dtps: 8.26281
   hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 644.27374
+  tps: 521.39385
+  dtps: 8.58119
+  hps: 7.27415
  }
 }
 dps_results: {

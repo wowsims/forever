@@ -205,6 +205,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 685.0063
+  tps: 422.7522
+  dtps: 0.79773
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
  value: {
   dps: 686.47632
@@ -385,6 +393,14 @@ dps_results: {
   dps: 724.27981
   tps: 451.87816
   dtps: 0.87705
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 680.87465
+  tps: 415.31071
+  dtps: 0.90654
  }
 }
 dps_results: {
@@ -609,6 +625,14 @@ dps_results: {
   dps: 713.42087
   tps: 442.37164
   dtps: 1.33468
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 703.90747
+  tps: 434.89976
+  dtps: 0.86929
  }
 }
 dps_results: {
@@ -945,6 +969,14 @@ dps_results: {
   dps: 710.83569
   tps: 441.8086
   dtps: 0.87705
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 713.42087
+  tps: 442.37164
+  dtps: 1.33468
  }
 }
 dps_results: {
@@ -1384,6 +1416,14 @@ dps_results: {
   dps: 710.83569
   tps: 441.8086
   dtps: 0.87705
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-WarbladeofCaerDarrow-13982"
+ value: {
+  dps: 693.6212
+  tps: 429.4649
+  dtps: 0.71045
  }
 }
 dps_results: {
