@@ -1236,6 +1236,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Striker'sGarb"
+ value: {
+  dps: 784.77933
+  tps: 496.32975
+  dtps: 3.82453
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SwineFists-10760"
  value: {
   dps: 687.22509
@@ -1449,6 +1457,14 @@ dps_results: {
   dps: 620.12621
   tps: 384.55763
   dtps: 0.41545
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-WildstalkerArmor"
+ value: {
+  dps: 642.74354
+  tps: 405.81389
+  dtps: 4.3199
  }
 }
 dps_results: {
