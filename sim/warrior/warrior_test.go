@@ -765,7 +765,8 @@ func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 	war.AutoAttacks.CancelAutoSwing(sim)
 	target := war.CurrentTarget
 
-	// Both hits carry both hands' special bits, so Crusader's handler raises the off-hand buff.
+	// The copied hit carries both hands' special bits, so Crusader's handler can raise the off-hand
+	// buff; the normalized hit is the main hand's.
 	holyStrength := []*core.Aura{war.GetAura("Holy Strength (MH)"), war.GetAura("Holy Strength (OH)")}
 	shadowBolt := war.GetSpell(core.ActionID{SpellID: 18211})
 	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
@@ -775,7 +776,7 @@ func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 	}
 
 	// Each hit's procs go off by the end of its spell batch.
-	procs := func(spell *core.Spell) (crusader int, bolts int32) {
+	procs := func(spell *core.Spell) (crusader, offHandCrusader int, bolts int32) {
 		t.Helper()
 		before := shadowBolt.SpellMetrics[target.UnitIndex].Casts
 		for range 1000 {
@@ -787,18 +788,21 @@ func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 			if holyStrength[0].IsActive() || holyStrength[1].IsActive() {
 				crusader++
 			}
+			if holyStrength[1].IsActive() {
+				offHandCrusader++
+			}
 		}
-		return crusader, shadowBolt.SpellMetrics[target.UnitIndex].Casts - before
+		return crusader, offHandCrusader, shadowBolt.SpellMetrics[target.UnitIndex].Casts - before
 	}
 
-	if crusader, bolts := procs(copied); crusader != 0 || bolts != 0 {
+	if crusader, _, bolts := procs(copied); crusader != 0 || bolts != 0 {
 		t.Errorf("1000 copied hits procced Crusader %d and Nightblade %d times, want neither", crusader, bolts)
 	}
-	if crusader, bolts := procs(normalized); crusader == 0 || bolts == 0 {
-		t.Errorf("1000 normalized hits procced Crusader %d and Nightblade %d times, want both", crusader, bolts)
+	if crusader, offHand, bolts := procs(normalized); crusader == 0 || offHand != 0 || bolts == 0 {
+		t.Errorf("1000 normalized hits procced Crusader %d (%d as the off hand's) and Nightblade %d times, want both, none as the off hand's", crusader, offHand, bolts)
 	}
 	copied.DefenseType = core.DefenseTypeMelee
-	if crusader, bolts := procs(copied); crusader == 0 || bolts == 0 {
+	if crusader, _, bolts := procs(copied); crusader == 0 || bolts == 0 {
 		t.Errorf("1000 copied hits with melee DefenseType procced Crusader %d and Nightblade %d times, want both, so the first check proves nothing", crusader, bolts)
 	}
 }

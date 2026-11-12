@@ -458,8 +458,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		DefenseType: core.DefenseTypeMelee,
-		ProcMask:    core.ProcMaskMeleeSpecial,
-		Flags:       core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		// A main-hand strike, so only the main-hand weapon's procs hear it.
+		ProcMask: core.ProcMaskMeleeMHSpecial,
+		Flags:    core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,

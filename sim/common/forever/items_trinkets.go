@@ -372,18 +372,7 @@ func init() {
 	// on 437 melee hits on Dark Iron dwarves (2.75%) and 106 on 10,977 on other targets (0.97%), outside
 	// the 2 s cooldown and whatever the wearer's race.
 	core.NewItemEffect(11815, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		row := spelldata.MustFind(15600)
-		extraAttacks := spelldata.MustFind(15601)
-
-		trigger := spelldata.ProcTrigger(character, row, nil)
-		trigger.Name = "Hand of Justice"
-		trigger.ActionID = core.ActionID{ItemID: 11815}
-		rollsLikelierAgainst(&trigger, row, proto.CreatureFamily_CreatureFamilyDwarf)
-		onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
-		aura := character.MakeProcTriggerAura(trigger)
-		aura.ApplyOnInit(onInit)
-		character.ItemSwap.RegisterProc(11815, aura)
+		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, 15601, proto.CreatureFamily_CreatureFamilyDwarf)
 	})
 }
 

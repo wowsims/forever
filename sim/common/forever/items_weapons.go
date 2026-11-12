@@ -283,18 +283,7 @@ func init() {
 	// divided by the dummy's value.
 	// TODO: Measure the rate in game, against Orcs and against other targets.
 	core.NewItemEffect(11684, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		row := spelldata.MustFind(1301046)
-		extraAttacks := spelldata.MustFind(15494)
-
-		trigger := spelldata.ProcTrigger(character, row, nil)
-		trigger.Name = "Ironfoe"
-		trigger.ActionID = core.ActionID{ItemID: 11684}
-		rollsLikelierAgainst(&trigger, row, proto.CreatureFamily_CreatureFamilyOrc)
-		onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
-		aura := character.MakeProcTriggerAura(trigger)
-		aura.ApplyOnInit(onInit)
-		character.ItemSwap.RegisterProc(11684, aura)
+		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, 15494, proto.CreatureFamily_CreatureFamilyOrc)
 	})
 
 	// Naga Heartpiercer
@@ -487,22 +476,27 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 	return 0
 }
 
-// A roll whose row states the chance against one creature family in its ProcChance column, and on
-// its second effect how many times likelier a hit on that family is than one on any other target.
-// The condition draws the roll, once per hit under the trigger's name, so the trigger's own chance
-// is 1 and draws nothing. The trigger's cooldown starts only once the condition lets a hit through.
-// Name the trigger before calling this, and add a condition of its own after it.
-func rollsLikelierAgainst(trigger *core.ProcTrigger, row *spelldata.Spell, family proto.CreatureFamily) {
-	chance := row.StatedChance()
-	elsewhere := chance / row.EffectN(2).BasePoints
-	label := trigger.Name
+// An item's extra attack proc whose row states the chance against one creature family in its
+// ProcChance column, and on its second effect how many times likelier a hit on that family is than
+// one on any other target. The condition draws the roll, once per hit under the item's name, so the
+// trigger's own chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
+func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, extraAttacksID int32, family proto.CreatureFamily) {
+	row := spelldata.MustFind(rowID)
+	extraAttacks := spelldata.MustFind(extraAttacksID)
+	factor := row.EffectN(2).BasePoints
+	elsewhere := row.StatedChance() / factor
+
+	trigger := spelldata.ProcTrigger(character, row, nil)
+	trigger.Name = name
+	trigger.ActionID = core.ActionID{ItemID: itemID}
 	trigger.ProcChance = 1
 	trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-		if result.Target.CreatureFamily == family {
-			return sim.Proc(chance, label)
-		}
-		return sim.Proc(elsewhere, label)
+		return sim.Proc(elsewhere*creatureFamilyMultiplier(result.Target, factor, family), name)
 	}
+	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
+	aura := character.MakeProcTriggerAura(trigger)
+	aura.ApplyOnInit(onInit)
+	character.ItemSwap.RegisterProc(itemID, aura)
 }
 
 // The multiplier an effect deals against the creature families it names, and 1 against any other

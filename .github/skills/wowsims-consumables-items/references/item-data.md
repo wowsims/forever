@@ -14,7 +14,8 @@ What the game files' item, enchant, suffix and set rows say, and where they misl
   instead, treat the grant effect's base points as a display magnitude, never a proc chance, and count defense as 1
   rating per skill point. The table is `SpellItemEnchantment` in `tools/database/wowsims.db`.
 - **An Item row with no ItemSparse row is an item the game build does not ship**, so it needs no sim work. A later
-  build can add the row: Ironfoe and Felstriker ship as of game build 1.60.1.70888. Resolve names through `ItemSparse.Display_lang` and ignore `Monster -` rows.
+  build can add the row: Ironfoe and Felstriker ship as of game build 1.60.1.70888. Resolve names through
+  `ItemSparse.Display_lang` and ignore `Monster -` rows.
 - **Random enchantments are bonus lists**: `ItemXBonusTree` to `ItemBonusTreeNode` context 0 to `ItemBonus` types 2,
   5 and 23 (`tools/database/tables.go`). They are keyed by bonus list id, since one name can carry different
   allocations, and each stat is rounded to nearest from allocation × points / 10000 (`sim/core/database.go`,
