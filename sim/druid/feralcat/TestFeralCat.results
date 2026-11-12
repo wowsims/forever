@@ -1054,6 +1054,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 701.47946
+  tps: 520.52698
+  hps: 44.0725
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 809.36442

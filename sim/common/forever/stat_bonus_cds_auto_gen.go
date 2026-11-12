@@ -185,6 +185,7 @@ func RegisterAllOnUseCds() {
 	// ArmorNoMods
 	shared.NewSimpleStatActive(1447)  // Ring of Saviors - https://www.wowhead.com/forever/spell=18826
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
+	shared.NewSimpleStatActive(12532) // Spire of the Stoneshaper - https://www.wowhead.com/forever/spell=16470
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
 
 	// ArmorPenetration
@@ -355,6 +356,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12766
 	// Not simulated: Stealthblade: "Stealth" (1300180) - ignored aura type 16
 	// https://www.wowhead.com/forever/spell=1300180
+	// Not simulated: Book of the Dead: "Summon Skeleton" (17490) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=17490
 	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=6251
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18307) - ignored effect type 28

@@ -1062,6 +1062,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 646.97426
+  tps: 523.08698
+  dtps: 8.28035
+  hps: 7.35945
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-SwordofZeal-6622"
  value: {
   dps: 610.8649

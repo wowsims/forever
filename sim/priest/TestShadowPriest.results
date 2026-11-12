@@ -967,6 +967,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 742.05222
+  tps: 530.37123
+  dtps: 5.87048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-TalismanofArathor-20071"
  value: {
   dps: 749.07576

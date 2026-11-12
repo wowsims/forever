@@ -1062,6 +1062,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 756.46411
+  tps: 643.481
+  dtps: 10.7281
+  hps: 7.82576
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-SwordofZeal-6622"
  value: {
   dps: 723.08015

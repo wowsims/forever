@@ -13643,6 +13643,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 694284, SpellID: 16462, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_PARRY_PERCENT, BasePoints: 1, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 16470, Name: "Gift of Stone", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 55, DurationMs: 10000, DispelType: 1,
+		Effects: []Effect{
+			{ID: 693350, SpellID: 16470, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ARMOR_NO_MODS, BasePoints: 4000, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 693351, SpellID: 16470, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_PACIFY_SILENCE, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 16487, Name: "Blood Craze", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x222a8}, RefIDs: []int32{16488}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCrit,
 		Effects: []Effect{
 			{ID: 693265, SpellID: 16487, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -14550,6 +14555,10 @@ var generatedSpells = []Spell{
 	{ID: 17485, Name: "Ancestral Knowledge", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, Labels: []int16{24},
 		Effects: []Effect{
 			{ID: 696793, SpellID: 17485, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_TOTAL_STAT_PERCENTAGE, BasePoints: 10, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc2: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 17490, Name: "Summon Skeleton", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, MaxLevel: 60, DurationMs: 60000,
+		Effects: []Effect{
+			{ID: 694988, SpellID: 17490, Type: dbcenums.E_SUMMON, BasePoints: 1, MaxLevel: 60, PvpMult: 1, Misc: 11200, Misc2: 6698, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},
 		}},
 	{ID: 17495, Name: "Crest of Retribution", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x2a8}, RefIDs: []int32{17496}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintBlocked,
 		Effects: []Effect{
@@ -36465,6 +36474,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1322205, SpellID: 1298508, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1298517, Name: "Book of the Dead", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 50000,
+		Effects: []Effect{
+			{ID: 1322215, SpellID: 1298517, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 1298707, Name: "Explosive Runeshard", School: 4, Speed: 60, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 3000, MinRange: 45, MaxRange: 175, DefenseType: 1, PreventionType: 2, InterruptFlags: 1,
 		Effects: []Effect{
 			{ID: 1322472, SpellID: 1298707, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 350, Variance: 0.30000001192092896, BaseLevel: 60, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{16, 0}},
@@ -38876,6 +38889,12 @@ var generatedSpells = []Spell{
 	{ID: 1318470, Name: "Defender of the Timbermaw", School: 1, Attr: [17]uint32{0: 0x1c0, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 50000,
 		Effects: []Effect{
 			{ID: 1351946, SpellID: 1318470, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1318476, Name: "Royal Seal of Eldre'Thalas", School: 1, Attr: [17]uint32{0: 0x9800140, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, ProcHint: core.ProcHintHeals,
+		Effects: []Effect{
+			{ID: 1351954, SpellID: 1318476, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_DONE, BasePoints: 18, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1351955, SpellID: 1318476, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_HEALING_DONE, BasePoints: 18, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1351956, SpellID: 1318476, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS, BasePoints: 18, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 1318477, Name: "Royal Seal of Eldre'Thalas", School: 1, Attr: [17]uint32{0: 0x9800100, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x1020, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, DurationMs: -1, RequiredAreas: 9202,
 		Effects: []Effect{
