@@ -929,9 +929,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-SpireoftheStoneshaper-12532"
  value: {
-  dps: 886.37801
-  tps: 712.92746
-  dtps: 9.34438
+  dps: 876.36856
+  tps: 704.21969
+  dtps: 9.45375
  }
 }
 dps_results: {
