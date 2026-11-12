@@ -510,6 +510,7 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	heroicStrike := core.ActionID{SpellID: 11567}
 	cleave := core.ActionID{SpellID: 20569}
+	whirlwindOffHand := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	cases := []struct {
 		name    string
 		spell   core.ActionID
@@ -530,6 +531,10 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
 		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
+		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
+		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
+		{"a landed off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeHit, 3, 3},
+		{"a dodged off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeDodge, 3, 3},
 	}
 
 	for _, c := range cases {
@@ -1413,6 +1418,77 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 			}
 			if landedCasts == 0 {
 				t.Fatal("100 casts never landed, so the checks above prove nothing")
+			}
+		})
+	}
+}
+
+// Every landed strike of Whirlwind and Cleave, each hand and each target, spends a Gore Drinker
+// charge and heals once, until the charges run out.
+func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
+	const goreDrinkerHeal = 1323968
+	whirlwind := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	cases := []struct {
+		name      string
+		spell     core.ActionID
+		charges   int32
+		wantHeals int32
+	}{
+		{"Whirlwind, four landed strikes, three charges", whirlwind, 3, 3},
+		{"Whirlwind, four landed strikes, two charges", whirlwind, 2, 2},
+		{"Cleave, two landed strikes, three charges", core.ActionID{SpellID: 20569}, 3, 2},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			player := &proto.Player{
+				Name:          "Gore Drinker",
+				Race:          proto.Race_RaceOrc,
+				Class:         proto.Class_ClassWarrior,
+				Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+				TalentsString: "30303003-050530355022120031", // furyTalents with Gore Drinker 2/2.
+				Spec:          dpsOptions,
+				Rotation:      &proto.APLRotation{},
+			}
+			encounter := core.MakeSingleTargetEncounter(0)
+			encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+			sim := core.NewSim(&proto.RaidSimRequest{
+				Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+				Encounter:  encounter,
+				SimOptions: &proto.SimOptions{RandomSeed: 1},
+			}, simsignals.CreateSignals())
+			sim.Reset()
+			war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+			war.AutoAttacks.CancelAutoSwing(sim)
+
+			spell := war.GetSpell(c.spell)
+			heal := war.GetSpell(core.ActionID{SpellID: goreDrinkerHeal})
+			gore := war.GoreDrinkerAura
+			if spell == nil || heal == nil || gore == nil {
+				t.Fatalf("spell %v, heal %v, Gore Drinker %v; want all registered", spell, heal, gore)
+			}
+			// Whirlwind's off-hand strike rolls on the off hand's attack table, which the main hand's
+			// spell leaves as it is.
+			offHand := war.GetSpell(core.ActionID{SpellID: c.spell.SpellID}.WithHand(proto.ItemSlot_ItemSlotOffHand))
+			for _, target := range sim.Encounter.AllTargetUnits {
+				landEveryCast(sim, &war.Character, target, spell)
+				if offHand != nil {
+					landEveryCast(sim, &war.Character, target, offHand)
+				}
+			}
+			gore.Activate(sim)
+			gore.SetStacks(sim, c.charges)
+			war.AddRage(sim, 100, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+
+			spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+			stepPastBatch(t, sim)
+
+			var heals int32
+			for _, metrics := range heal.SpellMetrics {
+				heals += metrics.Casts
+			}
+			if heals != c.wantHeals {
+				t.Errorf("%d heals, want %d", heals, c.wantHeals)
 			}
 		})
 	}

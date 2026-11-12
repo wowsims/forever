@@ -329,12 +329,17 @@ func (warrior *Warrior) registerWeaponmaster() {
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
 	// the shape, the mask and the rate's effect are all the caller's. Measured in game, Sweeping
 	// Strikes' hits never roll it, and Whirlwind and Cleave roll it once a cast however many targets
-	// they land on. Which target's hit takes that roll is not measured; here the first landed one
+	// they land on (7 extra attacks in 100 two-handed Whirlwinds; by landed targets 1 gave 0 in 7,
+	// 2 gave 1 in 26, 3 gave 5 in 44, 4 gave 1 in 23). Which target's hit takes that roll is not
+	// measured; here the first landed one
 	// does, since a hit that is avoided never reaches the condition. A Windfury Totem swing's proc
 	// brings no extra swing; only the totem's swing is measured, so swings other procs grant (Hand of
 	// Justice, Thrash Blade) still bring one. 10610 is the proc the totem's raid aura 10612 names,
 	// which tags its swing (core/buffs/drivers.go).
 	windfuryTotemSwing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 10610}
+	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)
+	// rolls its own chance; the sim gives both hands the cast's one roll. A dual-wield Weaponmaster
+	// 5/5 log with an off-hand sword, about 150 Whirlwinds on 2 or more targets, settles it.
 	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
 	swordTrigger := core.ProcTrigger{
 		Name:            "Weaponmaster (Sword)",
@@ -472,6 +477,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 				return
 			}
 
+			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack, from the main
+			// hand's results: one hit and one charge a cast, measured in 43 casts at 2 to 4 targets.
+			// TODO: Ingame test needed: whether Whirlwind's off-hand strike brings a hit of its own.
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return
 			}
