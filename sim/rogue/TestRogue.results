@@ -216,9 +216,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
-  dps: 591.78227
-  tps: 420.16541
-  hps: 51.34167
+  dps: 583.79645
+  tps: 414.49548
+  hps: 49.5625
  }
 }
 dps_results: {
@@ -688,9 +688,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HandofJustice-11815"
  value: {
-  dps: 604.53968
-  tps: 429.22317
-  hps: 52.155
+  dps: 597.00853
+  tps: 423.87606
+  hps: 51.52806
  }
 }
 dps_results: {
@@ -768,9 +768,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Ironfoe-11684"
  value: {
-  dps: 650.14
-  tps: 461.5994
-  hps: 49.15583
+  dps: 626.96508
+  tps: 445.14521
+  hps: 47.96972
  }
 }
 dps_results: {

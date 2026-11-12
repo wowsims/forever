@@ -813,10 +813,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HandofJustice-11815"
  value: {
-  dps: 486.09037
-  tps: 2527.22486
-  dtps: 393.35278
-  hps: 83.17223
+  dps: 477.76795
+  tps: 2488.86728
+  dtps: 391.7873
+  hps: 81.99446
  }
 }
 dps_results: {
@@ -939,10 +939,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Ironfoe-11684"
  value: {
-  dps: 466.71826
-  tps: 2362.70194
-  dtps: 396.88105
-  hps: 82.36422
+  dps: 439.10465
+  tps: 2280.16077
+  dtps: 391.73156
+  hps: 80.85409
  }
 }
 dps_results: {

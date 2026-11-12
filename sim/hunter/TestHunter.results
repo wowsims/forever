@@ -126,11 +126,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Beastmaster'sGauntlets-226883"
+ value: {
+  dps: 768.1333
+  tps: 792.1496
+  dtps: 9.2251
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BeastmasterArmor"
  value: {
-  dps: 773.71224
-  tps: 797.08362
-  dtps: 8.5878
+  dps: 768.08983
+  tps: 792.12178
+  dtps: 9.07849
   hps: 15.01278
  }
 }
@@ -929,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HandofJustice-11815"
  value: {
-  dps: 774.61758
-  tps: 798.08967
-  dtps: 8.52553
-  hps: 15.16528
+  dps: 770.26026
+  tps: 793.9982
+  dtps: 8.71472
+  hps: 14.92806
  }
 }
 dps_results: {

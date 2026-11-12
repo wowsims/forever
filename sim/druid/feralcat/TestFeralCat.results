@@ -536,8 +536,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistofStone-17943"
  value: {
-  dps: 700.06481
-  tps: 535.33671
+  dps: 701.8492
+  tps: 524.22066
   hps: 44.29278
  }
 }
@@ -680,9 +680,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HandofJustice-11815"
  value: {
-  dps: 787.47407
-  tps: 584.7457
-  hps: 45.2925
+  dps: 774.69514
+  tps: 575.52177
+  hps: 44.32667
  }
 }
 dps_results: {
@@ -784,9 +784,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Ironfoe-11684"
  value: {
-  dps: 753.55031
-  tps: 562.29877
-  hps: 49.73194
+  dps: 733.99744
+  tps: 547.36808
+  hps: 46.64806
  }
 }
 dps_results: {

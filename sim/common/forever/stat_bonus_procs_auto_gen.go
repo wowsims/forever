@@ -162,6 +162,14 @@ func RegisterAllProcs() {
 			{ItemID: 22191, ItemName: "Obsidian Mail Tunic"},
 		})
 
+	// Increases your pet's critical strike chance by 2%.
+	// https://www.wowhead.com/forever/spell=27043
+	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
+		[]shared.ItemVariant{
+			{ItemID: 226883, ItemName: "Beastmaster's Gauntlets"},
+		})
+
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1297378
 	// equip: 1297378 (A_DAMAGE_SHIELD)
@@ -2115,6 +2123,7 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 18469, ItemName: "Royal Seal of Eldre'Thalas"},
+	//	{ItemID: 18470, ItemName: "Royal Seal of Eldre'Thalas"},
 	// })
 
 	// TODO: Manual implementation required
@@ -4333,15 +4342,6 @@ func RegisterAllProcs() {
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
 
-	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times as
-	// likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=15494
-	// trigger 1301046 (6%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeMHSpecial) -> buff 15494
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 1301046, BuffSpellID: 15494},
-		[]shared.ItemVariant{
-			{ItemID: 11684, ItemName: "Ironfoe"},
-		})
-
 	// Wounds the target for 35 damage.
 	// https://www.wowhead.com/forever/spell=16433
 	// trigger 16433 (3.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4356,15 +4356,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18086, BuffSpellID: 18086, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11803, ItemName: "Force of Magma"},
-		})
-
-	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to activate
-	// this effect.
-	// https://www.wowhead.com/forever/spell=15601
-	// trigger 15600 (3%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15601
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 15600, BuffSpellID: 15601},
-		[]shared.ItemVariant{
-			{ItemID: 11815, ItemName: "Hand of Justice"},
 		})
 
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
@@ -4652,7 +4643,7 @@ func RegisterAllProcs() {
 	// Titan-forged enemy.
 	//
 	// https://www.wowhead.com/forever/spell=1294794
-	// trigger 1294794 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	// trigger 1294794 (3.2 ppm on the item, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294794},
 		[]shared.ItemVariant{
 			{ItemID: 17943, ItemName: "Fist of Stone"},
