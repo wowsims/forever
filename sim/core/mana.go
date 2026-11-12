@@ -134,7 +134,7 @@ func (mb *manaBar) addManaGainThreat(sim *Simulation, gain float64, metrics *Res
 		return
 	}
 	mb.manaGainSpell.SpellMetrics[0].Casts++
-	mb.manaGainSpell.applySplitThreat(sim, gain*ThreatPerManaGained)
+	mb.manaGainSpell.ApplySplitThreat(sim, gain*ThreatPerManaGained)
 }
 
 func (unit *Unit) SpendMana(sim *Simulation, amount float64, metrics *ResourceMetrics) {
