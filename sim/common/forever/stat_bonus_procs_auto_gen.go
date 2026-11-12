@@ -4333,15 +4333,6 @@ func RegisterAllProcs() {
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
 
-	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times as
-	// likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=15494
-	// trigger 1301046 (6%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeMHSpecial) -> buff 15494
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 1301046, BuffSpellID: 15494},
-		[]shared.ItemVariant{
-			{ItemID: 11684, ItemName: "Ironfoe"},
-		})
-
 	// Wounds the target for 35 damage.
 	// https://www.wowhead.com/forever/spell=16433
 	// trigger 16433 (3.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4356,15 +4347,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18086, BuffSpellID: 18086, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11803, ItemName: "Force of Magma"},
-		})
-
-	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to activate
-	// this effect.
-	// https://www.wowhead.com/forever/spell=15601
-	// trigger 15600 (3%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15601
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 15600, BuffSpellID: 15601},
-		[]shared.ItemVariant{
-			{ItemID: 11815, ItemName: "Hand of Justice"},
 		})
 
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
