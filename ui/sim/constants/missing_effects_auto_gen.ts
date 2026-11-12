@@ -3570,21 +3570,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		381, // Lieutenant Commander's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -3593,21 +3581,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		382, // Champion's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -3845,21 +3821,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		397, // Field Marshal's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
 				3,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
 				],
 			],
 		]),
@@ -3868,21 +3832,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		398, // Warlord's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
 				3,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
 				],
 			],
 		]),
@@ -4366,13 +4318,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		493, // Genesis Raiment
 		new Map([
-			[
-				3,
-				[
-					"Increased Defense +15.", // 18196 - https://www.wowhead.com/forever/spell=18196
-					"+150 Armor.", // 15693 - https://www.wowhead.com/forever/spell=15693
-				],
-			],
 			[
 				5,
 				[

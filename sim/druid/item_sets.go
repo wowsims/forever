@@ -15,9 +15,9 @@ func parsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	}
 }
 
-// TODO: Sets without full game files data are not registered: the Feral T1 set 2115 (Grovekeeper
-// Ferocity, whose pieces have no ItemSparse rows), the Sanctuary PvP set and the Symbols of Unending
-// Life 3-piece bonus.
+// TODO: Sets without full game files data are not registered: the Feral and Guardian T1 sets, 2115
+// (Grovekeeper Ferocity) and 2113 (Grovekeeper Rage), whose pieces state armor and no other stat, and
+// the Symbols of Unending Life 3-piece bonus.
 
 var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotHead,
@@ -72,13 +72,73 @@ var ItemSetHaruspexsGarb = core.NewItemSet(core.ItemSet{
 	},
 })
 
+// Ahn'Qiraj
+// https://www.wowhead.com/forever/item-set=493/genesis-raiment
+//
+// The 5-piece bonus takes 10 minutes off Rebirth's cooldown, which the sim does not cast.
+var ItemSetGenesisRaiment = core.NewItemSet(core.ItemSet{
+	ID:   493,
+	Name: "Genesis Raiment",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotHead,
+		proto.ItemSlot_ItemSlotShoulder,
+		proto.ItemSlot_ItemSlotChest,
+		proto.ItemSlot_ItemSlotLegs,
+		proto.ItemSlot_ItemSlotFeet,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: parsedSetBonus(spelldata.MustFind(18196), spelldata.MustFind(15693)), // +15 defense, +150 armor
+	},
+})
+
 // The PvP sets. Every bonus is a plain stat but movement speed in the animal forms (23218), which has
 // no place in the sim.
 var (
-	pvpStamina  = spelldata.MustFind(14467)  // +20 Stamina
-	pvpRefuge   = spelldata.MustFind(467550) // +44 healing, +15 spell damage
-	pvpWildhide = spelldata.MustFind(14047)  // +23 spell damage and healing
+	pvpStamina   = spelldata.MustFind(14467)  // +20 Stamina
+	pvpRefuge    = spelldata.MustFind(467550) // +44 healing, +15 spell damage
+	pvpWildhide  = spelldata.MustFind(14047)  // +23 spell damage and healing
+	pvpSanctuary = spelldata.MustFind(14049)  // +40 attack power
 )
+
+var ItemSetLieutenantCommandersSanctuary = core.NewItemSet(core.ItemSet{
+	ID:    381,
+	Name:  "Lieutenant Commander's Sanctuary",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: parsedSetBonus(pvpSanctuary),
+		6: parsedSetBonus(pvpStamina),
+	},
+})
+
+var ItemSetChampionsSanctuary = core.NewItemSet(core.ItemSet{
+	ID:    382,
+	Name:  "Champion's Sanctuary",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: parsedSetBonus(pvpSanctuary),
+		6: parsedSetBonus(pvpStamina),
+	},
+})
+
+var ItemSetFieldMarshalsSanctuary = core.NewItemSet(core.ItemSet{
+	ID:    397,
+	Name:  "Field Marshal's Sanctuary",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: parsedSetBonus(pvpStamina),
+		6: parsedSetBonus(pvpSanctuary),
+	},
+})
+
+var ItemSetWarlordsSanctuary = core.NewItemSet(core.ItemSet{
+	ID:    398,
+	Name:  "Warlord's Sanctuary",
+	Slots: sixPieceSlots,
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: parsedSetBonus(pvpStamina),
+		6: parsedSetBonus(pvpSanctuary),
+	},
+})
 
 var ItemSetChampionsRefuge = core.NewItemSet(core.ItemSet{
 	ID:    539,

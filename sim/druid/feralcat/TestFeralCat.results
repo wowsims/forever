@@ -182,6 +182,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Champion'sSanctuary"
+ value: {
+  dps: 698.76275
+  tps: 520.95843
+  hps: 43.92
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Champion'sWildhide"
  value: {
   dps: 639.31994
@@ -550,6 +558,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-FieldMarshal'sSanctuary"
+ value: {
+  dps: 727.3086
+  tps: 541.17918
+  hps: 44.02167
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FieldMarshal'sWildhide"
  value: {
   dps: 645.91807
@@ -611,6 +627,14 @@ dps_results: {
   dps: 751.87757
   tps: 559.38749
   hps: 43.83528
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-GenesisRaiment"
+ value: {
+  dps: 749.23737
+  tps: 556.30021
+  hps: 44.225
  }
 }
 dps_results: {
@@ -859,6 +883,14 @@ dps_results: {
   dps: 632.67397
   tps: 473.66155
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-LieutenantCommander'sSanctuary"
+ value: {
+  dps: 698.76275
+  tps: 520.95843
+  hps: 43.92
  }
 }
 dps_results: {
@@ -1371,6 +1403,14 @@ dps_results: {
   dps: 632.67397
   tps: 473.61879
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Warlord'sSanctuary"
+ value: {
+  dps: 727.3086
+  tps: 541.17918
+  hps: 44.02167
  }
 }
 dps_results: {
