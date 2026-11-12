@@ -130,6 +130,8 @@ func (druid *Druid) applyBloodFrenzy() {
 	comboChance := row.EffectN(2).Percent() // $m2, the combo point in Cat Form
 	rageSpell := spellData.BloodFrenzyTriggered.Highest()
 	metrics := druid.NewRageMetrics(core.ActionID{SpellID: rageSpell.ID})
+	// In game its rage threatens without the form's threat multiplier.
+	metrics.UnscaledThreat = true
 	combo := druid.NewComboPointMetrics(core.ActionID{SpellID: row.ID})
 	druid.MakeProcTriggerAura(spelldata.ProcTrigger(&druid.Character, row, func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !result.Outcome.Matches(core.OutcomeCrit) {

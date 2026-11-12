@@ -25,9 +25,11 @@ func (druid *Druid) registerPoised() {
 	spelldata.ParseEffects(&druid.Character, buff, buffRow)
 	// Cower carries no proc mask in the sim, so the decoded melee mask would never hear it and the
 	// discount would carry over to the next ability. The buff's class flags already name the eight
-	// abilities that spend it.
+	// abilities that spend it. In game a missed, dodged, parried or immune cast spends it too, so the
+	// spender hears avoided casts as well as landed ones.
 	spelldata.AttachChargeSpender(&druid.Character, buff, buffRow, "Poised - Spend",
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskUnknown
+			trigger.Outcome = core.OutcomeLanded | core.OutcomeMiss | core.OutcomeDodge | core.OutcomeParry
 		})
 }

@@ -169,7 +169,9 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 			target := cat.CurrentTarget
 			target.PseudoStats.BaseDodgeChance = 0
 			if avoid == "miss" {
+				// The cast and the bleed share the main hand's table, so only the cast takes the hit.
 				cat.AttackTables[target.UnitIndex].Hand(cat.PounceBleed.Spell).BaseMissChance = 1
+				cat.Pounce.BonusHitPercent = 100
 			} else {
 				cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 				target.PseudoStats.BaseDodgeChance = 1
@@ -195,6 +197,36 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
 			}
 		})
+	}
+}
+
+// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back its row's miss
+// refund of the cost.
+func TestMissedPounceRefundsAndAppliesNothing(t *testing.T) {
+	sim, cat := newCat(t, "", nil)
+	target := cat.CurrentTarget
+	cat.AttackTables[target.UnitIndex].Hand(cat.Pounce.Spell).BaseMissChance = 1
+	cat.ProwlAura.Activate(sim)
+	refund := spelldata.MustFind(cat.Pounce.ActionID.SpellID).MissRefund()
+	if refund <= 0 {
+		t.Fatal("pounce's row states no miss refund")
+	}
+	cost := cat.Pounce.Cost.GetCurrentCost()
+	want := cat.CurrentEnergy() - cost*(1-refund)
+	if !cat.Pounce.Cast(sim, target) {
+		t.Fatal("pounce did not cast")
+	}
+	if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Misses != 1 || m.Hits+m.Crits != 0 {
+		t.Fatalf("pounce missed %d times and landed %d, want 1 miss", m.Misses, m.Hits+m.Crits)
+	}
+	if got := cat.CurrentEnergy(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("energy=%g, want %g with the refund of a %g cost", got, want, cost)
+	}
+	stunUp := target.GetAura("Pounce Stun - " + cat.Label).IsActive()
+	bleed := cat.PounceBleed.SpellMetrics[target.UnitIndex]
+	if stunUp || cat.ComboPoints(target) != 0 || bleed.Misses+bleed.Dodges+bleed.Hits != 0 || cat.PounceBleed.Dot(target).IsActive() {
+		t.Errorf("stun up=%v, CP=%d, bleed rolled %d times, want no stun, no combo point and no bleed roll",
+			stunUp, cat.ComboPoints(target), bleed.Misses+bleed.Dodges+bleed.Hits)
 	}
 }
 
