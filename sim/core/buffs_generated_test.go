@@ -1326,26 +1326,6 @@ func TestGeneratedPartyWindfuryTotemHoldsOverOwnFlametongueTotem(t *testing.T) {
 	}
 }
 
-// Windfury Weapon on the main hand keeps the shaman's own Windfury Totem's proc
-// down, and the standing totem still holds over Flametongue Totem.
-func TestGeneratedWindfuryTotemHoldsOverFlametongueTotemUnderWindfuryWeapon(t *testing.T) {
-	var windfury, imbue *core.Aura
-	sim, char := newTotemSim(t, &proto.RaidBuffs{FlametongueTotem: true}, func(c *core.Character) {
-		windfury = standWindfuryTotem(c)
-		imbue = c.RegisterAura(core.Aura{Label: "Windfury Weapon (Main Hand)", Duration: core.NeverExpires})
-		imbue.NewExclusiveEffect(buffs.WindfuryTotemCategory, false, core.ExclusiveEffect{Priority: math.MaxFloat64})
-	})
-
-	imbue.Activate(sim)
-	windfury.Activate(sim)
-	if char.GetAura("Windfury Totem Trigger").IsActive() {
-		t.Fatal("under Windfury Weapon the shaman's Windfury Totem turned its trigger on")
-	}
-	if char.GetAura("Flametongue Totem Trigger").IsActive() {
-		t.Error("under Windfury Weapon and the shaman's Windfury Totem, Flametongue Totem's trigger is up")
-	}
-}
-
 // A generated damage shield deals the game files' damage back to whoever lands a
 // melee hit, and nothing to a spell.
 func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {

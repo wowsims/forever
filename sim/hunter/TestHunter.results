@@ -992,10 +992,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 777.05753
-  tps: 800.95528
-  dtps: 9.30325
-  hps: 14.84333
+  dps: 775.95846
+  tps: 799.75129
+  dtps: 8.60077
+  hps: 14.92806
  }
 }
 dps_results: {

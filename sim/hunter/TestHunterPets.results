@@ -887,9 +887,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 689.76282
-  tps: 439.11457
-  dtps: 2.01917
+  dps: 696.21681
+  tps: 442.78476
+  dtps: 1.08479
  }
 }
 dps_results: {

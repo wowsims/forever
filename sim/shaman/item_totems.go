@@ -43,7 +43,7 @@ func init() {
 			return
 		}
 
-		ppm := maelstromWeaponPPM * totemOfTheStormShare
+		ppm := maelstromWeaponPPM(spellData.MaelstromWeapon.Rank(shaman.Talents.MaelstromWeapon)) * totemOfTheStormShare
 		var maelstromAura *core.Aura
 		aura := shaman.MakeProcTriggerAura(core.ProcTrigger{
 			Name:           "Totem of the Storm",

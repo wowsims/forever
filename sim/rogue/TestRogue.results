@@ -704,9 +704,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 592.56909
-  tps: 420.72405
-  hps: 50.79944
+  dps: 594.73952
+  tps: 422.26506
+  hps: 50.83333
  }
 }
 dps_results: {
