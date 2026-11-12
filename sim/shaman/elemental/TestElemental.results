@@ -288,9 +288,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Champion'sEarthshaker"
  value: {
-  dps: 608.56445
-  tps: 568.51431
-  dtps: 8.36479
+  dps: 612.25638
+  tps: 571.43356
+  dtps: 8.34006
  }
 }
 dps_results: {
@@ -304,16 +304,16 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Champion'sThunderfist"
  value: {
-  dps: 659.3949
-  tps: 614.37574
-  dtps: 8.70609
+  dps: 655.02129
+  tps: 609.43596
+  dtps: 8.78195
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-Champion'sWartide"
  value: {
-  dps: 635.03739
-  tps: 592.15865
+  dps: 633.88702
+  tps: 591.13522
   dtps: 8.51768
  }
 }
@@ -665,16 +665,16 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-FieldMarshal'sEarthshaker"
  value: {
-  dps: 627.34613
-  tps: 585.757
-  dtps: 8.71245
+  dps: 628.66962
+  tps: 586.57844
+  dtps: 8.75885
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-FieldMarshal'sThunderfist"
  value: {
-  dps: 687.76095
-  tps: 640.26478
+  dps: 687.16957
+  tps: 639.73767
   dtps: 8.83054
  }
 }
@@ -1017,24 +1017,24 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-LieutenantCommander'sEarthshaker"
  value: {
-  dps: 608.56445
-  tps: 568.51431
-  dtps: 8.36479
+  dps: 612.25638
+  tps: 571.43356
+  dtps: 8.34006
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-LieutenantCommander'sThunderfist"
  value: {
-  dps: 659.3949
-  tps: 614.37574
-  dtps: 8.70609
+  dps: 655.02129
+  tps: 609.43596
+  dtps: 8.78195
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-LieutenantCommander'sWartide"
  value: {
-  dps: 635.03739
-  tps: 592.15865
+  dps: 633.88702
+  tps: 591.13522
   dtps: 8.51768
  }
 }
@@ -1825,16 +1825,16 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Warlord'sEarthshaker"
  value: {
-  dps: 627.34613
-  tps: 585.757
-  dtps: 8.71245
+  dps: 628.66962
+  tps: 586.57844
+  dtps: 8.75885
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-Warlord'sThunderfist"
  value: {
-  dps: 687.76095
-  tps: 640.26478
+  dps: 687.16957
+  tps: 639.73767
   dtps: 8.83054
  }
 }
