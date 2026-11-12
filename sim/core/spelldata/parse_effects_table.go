@@ -13,15 +13,13 @@ import (
 
 // The misc values the stat and school auras key on.
 const (
-	miscAllSchools  int32 = 127 // every school bit, which the sim states as one multiplier
-	miscMagicSchool int32 = 126 // every school but physical, which is what spell damage covers
-	miscArmor       int32 = 1   // A_MOD_RESISTANCE, A_MOD_ARMOR_NO_MODS and the two resistance percentages state armor as school 1
-	miscAllStats    int32 = -1  // A_MOD_STAT, A_MOD_PERCENT_STAT and A_MOD_TOTAL_STAT_PERCENTAGE: all five at once
-	miscDefense     int32 = 95  // A_MOD_SKILL on the Defense skill line
+	miscAllSchools  int32 = 127  // every school bit, which the sim states as one multiplier
+	miscMagicSchool int32 = 126  // every school but physical, which is what spell damage covers
+	miscArmor       int32 = 1    // A_MOD_RESISTANCE, A_MOD_ARMOR_NO_MODS and the two resistance percentages state armor as school 1
+	miscAllStats    int32 = -1   // A_MOD_STAT, A_MOD_PERCENT_STAT and A_MOD_TOTAL_STAT_PERCENTAGE: all five at once
+	miscDefense     int32 = 95   // A_MOD_SKILL on the Defense skill line
+	miscFeralCombat int32 = 3014 // A_MOD_SKILL on the Feral Combat skill line
 )
-
-// A_MOD_SKILL on the Feral Combat skill line, the skill a druid's animal forms attack with.
-const miscFeralCombat int32 = 3014
 
 // The weapon skill each of the game files' weapon skill lines is. Unarmed (162) is fist weapons: Devilsaur
 // Claws' "Increased Fist Weapons" names it.
@@ -529,7 +527,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		if !ok {
 			return nil
 		}
-		return p.weaponSkill(skill, v)
+		return p.skillPoints(fmt.Sprintf("WeaponSkills%d", skill), &p.unit.PseudoStats.WeaponSkills[skill], v)
 	},
 
 	// The off-hand bonus is a damage modifier on the off-hand's own hits rather than on a family of
@@ -1278,10 +1276,6 @@ func (p *parser) pseudoAdd(kind string, key string, fields []*float64, v float64
 	})
 	a.key = key
 	return a
-}
-
-func (p *parser) weaponSkill(skill proto.WeaponSkill, v float64) *attachment {
-	return p.skillPoints(fmt.Sprintf("WeaponSkills%d", skill), &p.unit.PseudoStats.WeaponSkills[skill], v)
 }
 
 // Skill points, which the attack tables read when they are built, so a change rebuilds them.
