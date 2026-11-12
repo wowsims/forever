@@ -846,6 +846,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 739.11645
+  tps: 638.7313
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-SwordofZeal-6622"
  value: {
   dps: 710.95932

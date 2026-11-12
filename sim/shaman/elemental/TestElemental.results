@@ -1119,6 +1119,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 723.30238
+  tps: 671.1034
+  dtps: 8.87118
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-StormGauntlets-12632"
  value: {
   dps: 724.2364

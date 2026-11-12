@@ -1228,6 +1228,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 679.41353
+  tps: 432.12627
+  dtps: 0.90654
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-StormGauntlets-12632"
  value: {
   dps: 688.27567
