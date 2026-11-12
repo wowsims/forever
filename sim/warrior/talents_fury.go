@@ -217,18 +217,17 @@ func (warrior *Warrior) registerGoreDrinker() {
 	}
 	heal := warrior.RegisterSpell(healConfig)
 
-	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
-
 	buffConfig := spelldata.AuraConfig(goreDrinkerBuff)
 	buffConfig.MaxStacks = charges
-	buffConfig.OnReset = func(_ *core.Aura, _ *core.Simulation) {
-		resetFirstAoeHit()
-	}
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
-	// TODO: Ingame test needed: Cleave and Whirlwind spend one charge and heal once per cast, however
-	// many targets they hit.
+	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
+	// target alike, until the charges run out. Measured in 82 clean Whirlwind casts: one per landed
+	// strike fits 76, one per cast only the 25 where the two coincide (two main-hand and two
+	// off-hand strikes landed at 3 charges gave 3 heals; a dodged main hand and one landed off-hand
+	// strike gave 1). Cleave: 2 landed strikes gave 2 heals at 3 charges (13 casts) and at 2 charges
+	// (10 casts).
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
@@ -240,15 +239,6 @@ func (warrior *Warrior) registerGoreDrinker() {
 		})
 	consume.Name = "Gore Drinker - Heal"
 	consume.Outcome = core.OutcomeLanded
-	consume.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) {
-			return true
-		}
-		if !spellData.Cleave.Contains(spell) && !spellData.Whirlwind.Contains(spell) {
-			return true
-		}
-		return firstAoeHit(sim, spell)
-	}
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
 	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,

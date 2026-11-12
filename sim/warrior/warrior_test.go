@@ -1422,3 +1422,70 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 		})
 	}
 }
+
+// Every landed strike of Whirlwind and Cleave, each hand and each target, spends a Gore Drinker
+// charge and heals once, until the charges run out.
+func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
+	const goreDrinkerHeal = 1323968
+	cases := []struct {
+		name      string
+		spellID   int32
+		charges   int32
+		wantHeals int32
+	}{
+		{"Whirlwind lands four strikes on two targets and heals as many times as there are charges", 1680, 3, 3},
+		{"Whirlwind lands four strikes on two targets with two charges", 1680, 2, 2},
+		{"Cleave lands two strikes on two targets", 20569, 3, 2},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			player := &proto.Player{
+				Name:          "Gore Drinker",
+				Race:          proto.Race_RaceOrc,
+				Class:         proto.Class_ClassWarrior,
+				Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+				TalentsString: "30303003-050530355022120031",
+				Spec:          dpsOptions,
+				Rotation:      &proto.APLRotation{},
+			}
+			encounter := core.MakeSingleTargetEncounter(0)
+			encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+			sim := core.NewSim(&proto.RaidSimRequest{
+				Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+				Encounter:  encounter,
+				SimOptions: &proto.SimOptions{RandomSeed: 1},
+			}, simsignals.CreateSignals())
+			sim.Reset()
+			war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+			war.AutoAttacks.CancelAutoSwing(sim)
+
+			spell := war.GetSpell(core.ActionID{SpellID: c.spellID}.WithHand(proto.ItemSlot_ItemSlotMainHand))
+			if c.spellID == 20569 {
+				spell = war.GetSpell(core.ActionID{SpellID: c.spellID})
+			}
+			heal := war.GetSpell(core.ActionID{SpellID: goreDrinkerHeal})
+			gore := war.GoreDrinkerAura
+			if spell == nil || heal == nil || gore == nil {
+				t.Fatalf("spell %v, heal %v, Gore Drinker %v; want all registered", spell, heal, gore)
+			}
+			for _, target := range sim.Encounter.AllTargetUnits {
+				landEveryCast(sim, &war.Character, target, spell)
+			}
+			gore.Activate(sim)
+			gore.SetStacks(sim, c.charges)
+			war.AddRage(sim, 100, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+
+			spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+			stepPastBatch(t, sim)
+
+			var heals int32
+			for _, metrics := range heal.SpellMetrics {
+				heals += metrics.Casts
+			}
+			if heals != c.wantHeals {
+				t.Errorf("%d heals, want %d", heals, c.wantHeals)
+			}
+		})
+	}
+}
