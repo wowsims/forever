@@ -305,9 +305,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EbonHiltofMarduk-14576"
  value: {
-  dps: 850.41009
-  tps: 678.50553
-  dtps: 9.25769
+  dps: 842.25813
+  tps: 672.07535
+  dtps: 9.20236
  }
 }
 dps_results: {
@@ -761,9 +761,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-MarkoftheDragonLord-13143"
  value: {
-  dps: 927.55422
-  tps: 746.05737
-  dtps: 9.25461
+  dps: 918.74589
+  tps: 739.25244
+  dtps: 9.4296
  }
 }
 dps_results: {
