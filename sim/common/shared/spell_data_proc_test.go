@@ -453,6 +453,67 @@ func TestStatedEnchantChanceRollsOnTheEnchantedWeaponOnly(t *testing.T) {
 	}
 }
 
+// A main-hand special flagged SpellFlagNoChanceOnHit reaches the main hand's equip proc, but neither
+// the weapon's chance-on-hit effect nor its combat enchant, which both hear a plain main-hand special.
+func TestWeaponProcsIgnoreSpellsFlaggedNoChanceOnHit(t *testing.T) {
+	const weaponID, enchantID int32 = 990601, 990602
+	core.AddToDatabase(&proto.SimDatabase{
+		Items: []*proto.SimItem{testOneHander(weaponID)},
+		Enchants: []*proto.SimEnchant{{EffectId: enchantID, Name: "Test Combat Enchant",
+			Type: proto.ItemType_ItemTypeWeapon}},
+	})
+
+	agent := newTestAgent()
+	character := agent.character
+	character.Equipment = core.ProtoToEquipment(&proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: weaponID, Enchant: enchantID}, &proto.ItemSpec{})})
+	character.EnableAutoAttacks(agent, core.AutoAttackOptions{MainHand: character.WeaponFromMainHand(), AutoSwingMelee: true})
+
+	everyHitRow := func(id int32) *spelldata.Spell {
+		return &spelldata.Spell{ID: id, Name: "Test Trigger", ProcChance: 100}
+	}
+	equipRow := &spelldata.Spell{ID: 990612, Name: "Test Equip Proc", ProcChance: 100, ProcChanceSource: spelldata.ProcChanceAlways,
+		ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY}}
+	listeners := []struct {
+		name    string
+		cfg     SpellDataProc
+		trigger *spelldata.Spell
+	}{
+		{"chance on hit", SpellDataProc{Name: "Test Chance On Hit", ItemID: weaponID, IsWeaponProc: true}, everyHitRow(990610)},
+		{"combat enchant", SpellDataProc{Name: "Test Combat Enchant", EnchantID: enchantID, IsWeaponProc: true}, everyHitRow(990611)},
+		{"equip proc", SpellDataProc{Name: "Test Equip Proc", ItemID: weaponID}, equipRow},
+	}
+
+	heard := map[string]int{}
+	var auras []*core.Aura
+	for _, listener := range listeners {
+		config := spellDataProcListener(character, listener.cfg, listener.cfg.effectSource(), listener.trigger)
+		config.TriggerImmediately = true
+		config.Handler = func(_ *core.Simulation, _ *core.Spell, _ *core.SpellResult) { heard[listener.name]++ }
+		aura := &core.Aura{Unit: &character.Unit}
+		aura.AttachProcTriggerCallback(&character.Unit, config)
+		auras = append(auras, aura)
+	}
+	hit := func(flags core.SpellFlag) {
+		for _, aura := range auras {
+			aura.OnSpellHitDealt(aura, nil, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: flags},
+				&core.SpellResult{Outcome: core.OutcomeHit, Damage: 100})
+		}
+	}
+
+	hit(core.SpellFlagNone)
+	for _, listener := range listeners {
+		if heard[listener.name] != 1 {
+			t.Fatalf("the %s heard %d plain main-hand specials, want 1", listener.name, heard[listener.name])
+		}
+	}
+	hit(core.SpellFlagNoChanceOnHit)
+	for name, want := range map[string]int{"chance on hit": 1, "combat enchant": 1, "equip proc": 2} {
+		if heard[name] != want {
+			t.Errorf("after a special flagged SpellFlagNoChanceOnHit the %s has heard %d hits, want %d", name, heard[name], want)
+		}
+	}
+}
+
 // A PPM override on a rate-less enchant proc's row clears its refusal, and the registration measures
 // the rate on the enchanted weapon's hits. An equip aura that hears only spells never rolls, which is
 // the refusal its rate gets. Each row's copy is stripped of any rate of its own first.

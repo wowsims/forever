@@ -7,6 +7,14 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   oils; triggered by an off-hand hit it is heard by none (main hand chains, off hand nothing). Magic weapon procs stay
   `ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears them.**
   `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, PR #352.
+- **Shield Slam, Shield Bash and Thunder Clap carry `SpellFlagNoChanceOnHit`, and no weapon proc hears them: a
+  weapon's chance-on-hit item effect (ItemEffect TriggerType 2) and a combat enchant both skip their hits. Equip procs
+  (TriggerType 1) still hear all three. Logs of Protection warriors: Fiery Blaze (enchant 36) 0 of 617 Shield Slams, 0 of 78 Shield Bashes
+  and 0 of 436 Thunder Claps, against 14.0% of white main-hand hits; Rock on Stick 0 of 157 Shield Slams; Dragon's
+  Call 1 of 50 Shield Slams (sharing its millisecond with a white hit) and 0 of 4 Shield Bashes; Dreadfrost Saber's
+  equip proc 54 of 80 and 60 of 105 Shield Slams and 7 of 8 Shield Bashes. Non-damaging Sunder Armor, Concussion Blow
+  and Rend applications proc Fiery Blaze and Dragon's Call; Rend ticks proc neither.** `sim/core/aura_helpers.go`,
+  `canProcFrom`; PR #958.
 - **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); Shadow Oil
   hears its hand's melee hits and Frost Oil white hits only; a strike's own re-cast during its cast goes one batch
   later.** `sim/common/shared/shared_utils.go`, `procDamageHandler`, PR #352.

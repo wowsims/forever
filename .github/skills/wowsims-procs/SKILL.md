@@ -63,6 +63,9 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 - **A cast listener on a proc that depends on the hit is a defect**: a dodged or missed cast still procs, for the
   reason in `wowsims-core-mechanics` `## Cast order`. `ProcTrigger` on the rank decodes the hit listener the row states.
 - **Read the chance off the effect the tooltip names**, never a look-alike effect whose ladder happens to fit.
+- **Shield Slam, Shield Bash and Thunder Clap carry `SpellFlagNoChanceOnHit`.** Core keeps every weapon proc, an
+  item's chance-on-hit effect or a combat enchant, from hearing a flagged spell; equip procs still hear it. The ruling
+  is in `references/rulings.md`.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no

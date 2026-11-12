@@ -662,10 +662,11 @@ func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit,
 	hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
 }
 
-// A shield's hit is a main-hand special: a landed Shield Slam or Shield Bash rolls the main-hand
-// weapon's enchant. It never brings a Windfury Totem attack, since the shield rows carry neither bit
-// the totem reads; the same casts with the main-hand bit added do bring one.
-func TestShieldHitsProcTheMainHandEnchantButNeverWindfuryTotem(t *testing.T) {
+// A shield's hit is a main-hand special, but a landed Shield Slam or Shield Bash never rolls the
+// main-hand weapon's combat enchant; the same casts without SpellFlagNoChanceOnHit do. It never brings
+// a Windfury Totem attack either, since the shield rows carry neither bit the totem reads; the same
+// casts with the main-hand bit added do bring one.
+func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 	for _, name := range []string{"Shield Bash", "Shield Slam"} {
 		t.Run(name, func(t *testing.T) {
 			sim, war, target := shieldTestSim(t)
@@ -706,11 +707,19 @@ func TestShieldHitsProcTheMainHandEnchantButNeverWindfuryTotem(t *testing.T) {
 			if got := landed(); got != casts {
 				t.Fatalf("%d of %d casts landed, want all of them", got, casts)
 			}
-			if crusaderProcs == 0 {
-				t.Errorf("%d landed casts never procced the main hand's Crusader", casts)
+			if crusaderProcs != 0 {
+				t.Errorf("%d of %d landed casts procced the main hand's Crusader, want none", crusaderProcs, casts)
 			}
 			if windfuryProcs != 0 {
 				t.Errorf("%d of %d landed casts procced Windfury Totem, want none", windfuryProcs, casts)
+			}
+
+			spell.Flags &^= core.SpellFlagNoChanceOnHit
+			for i := 0; i < 1000 && !holyStrength.IsActive(); i++ {
+				cast()
+			}
+			if !holyStrength.IsActive() {
+				t.Error("1000 casts without SpellFlagNoChanceOnHit never procced Crusader, so the check above proves nothing")
 			}
 
 			spell.Flags |= core.SpellFlagRequiresMainHand

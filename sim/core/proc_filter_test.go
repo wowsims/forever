@@ -17,17 +17,18 @@ func TestProcTriggerEligibility(t *testing.T) {
 		{"ability suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagSuppressWeaponProcs},
 		{"magic item proc's damage", ProcMaskEmpty, SpellFlagProc},
 		{"spell", ProcMaskSpellDamage, SpellFlagNone},
+		{"ability no chance-on-hit proc hears", ProcMaskMeleeMHSpecial, SpellFlagNoChanceOnHit},
 	}
 	listeners := []struct {
 		name   string
 		config ProcTrigger
 		// One expectation per trigger above.
-		want [7]bool
+		want [8]bool
 	}{
-		{"aura", ProcTrigger{}, [7]bool{true, true, false, false, true, false, true}},
-		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [7]bool{true, true, true, true, true, true, true}},
-		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [7]bool{true, true, true, false, false, false, false}},
-		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [7]bool{true, true, false, false, false, false, true}},
+		{"aura", ProcTrigger{}, [8]bool{true, true, false, false, true, false, true, true}},
+		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [8]bool{true, true, true, true, true, true, true, true}},
+		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [8]bool{true, true, true, false, false, false, false, false}},
+		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [8]bool{true, true, false, false, false, false, true, true}},
 	}
 
 	for _, listener := range listeners {

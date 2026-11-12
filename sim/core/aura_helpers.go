@@ -71,8 +71,9 @@ type ProcTrigger struct {
 	CanProcFromProcs bool
 	// A weapon proc: a "Chance on hit" item effect (ItemEffect.TriggerType 2) or a combat enchant
 	// (SpellItemEnchantment.Effect 1, e.g. Mongoose, Crusader, poisons, imbues).
-	// The game casts these off every melee or ranged hit that lacks SpellFlagSuppressWeaponProcs,
-	// whether or not that hit was itself a proc, so SpellFlagProc and CanProcFromProcs are ignored.
+	// The game casts these off every melee or ranged hit that lacks SpellFlagSuppressWeaponProcs and
+	// SpellFlagNoChanceOnHit, whether or not that hit was itself a proc, so SpellFlagProc and
+	// CanProcFromProcs are ignored.
 	// A weapon proc's own strike is such a hit, unless an off-hand hit cast it.
 	// Which hand's hits qualify is still the DPM's or ProcMask's job.
 	IsWeaponProc bool
@@ -81,12 +82,15 @@ type ProcTrigger struct {
 // The game's rule for whether a hit may reach a listener at all, before the proc flags are
 // matched. Weapon procs (Player::CastItemCombatSpell) hear only melee and ranged hits, and of those
 // skip the spells with Suppress Weapon Procs; a hit with no melee or ranged mask, such as the damage
-// of a magic item proc, never casts them. Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered
-// spells that lack Not a Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra
-// attacks included, carry neither flag and so are always eligible.
+// of a magic item proc, never casts them. They also skip the spells flagged SpellFlagNoChanceOnHit,
+// which combat logs show casting no chance-on-hit item effect and no combat enchant while equip
+// procs hear them: Shield Slam, Shield Bash and Thunder Clap. Aura procs
+// (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a Proc, unless the listener
+// carries Can Proc From Procs. Auto attacks, extra attacks included, carry neither flag and so are
+// always eligible.
 func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
 	if config.IsWeaponProc {
-		return spell.ProcMask.Matches(ProcMaskMeleeOrRanged) && !spell.Flags.Matches(SpellFlagSuppressWeaponProcs)
+		return spell.ProcMask.Matches(ProcMaskMeleeOrRanged) && !spell.Flags.Matches(SpellFlagSuppressWeaponProcs|SpellFlagNoChanceOnHit)
 	}
 	return config.CanProcFromProcs || !spell.Flags.Matches(SpellFlagProc)
 }
