@@ -5,8 +5,7 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// In game each energy Shifting Power gives threatens for 0.5, without the form's threat multiplier, the
-// same as a mana gain.
+// In game each energy Shifting Power gives threatens for 0.5, without the form's threat multiplier.
 const shiftingPowerThreatPerEnergy = 0.5
 
 func (druid *Druid) registerShiftingPowerSpell() {

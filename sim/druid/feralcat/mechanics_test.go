@@ -629,19 +629,32 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 	}
 }
 
-// A missed or dodged Claw spends Poised as a landed one does, and pays the lowered cost less the row's
-// miss refund.
+// A missed, dodged or parried Claw spends Poised as a landed one does, and pays the lowered cost less the
+// row's miss refund.
 func TestAvoidedClawSpendsPoised(t *testing.T) {
-	for _, avoid := range []string{"miss", "dodge"} {
+	for _, c := range []struct {
+		avoid string
+		setup func(*core.Simulation, *FeralDruid, *core.Unit)
+	}{
+		{"miss", func(_ *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AttackTables[target.UnitIndex].Hand(cat.Claw.Spell).BaseMissChance = 1
+		}},
+		{"dodge", func(sim *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			target.PseudoStats.BaseDodgeChance = 1
+		}},
+		{"parry", func(sim *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			cat.PseudoStats.InFrontOfTarget = true
+			target.PseudoStats.BaseDodgeChance = 0
+			target.PseudoStats.BaseParryChance = 1
+		}},
+	} {
+		avoid := c.avoid
 		t.Run(avoid, func(t *testing.T) {
 			sim, cat := newCat(t, "", nil)
 			target := cat.CurrentTarget
-			if avoid == "miss" {
-				cat.AttackTables[target.UnitIndex].Hand(cat.Claw.Spell).BaseMissChance = 1
-			} else {
-				cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
-				target.PseudoStats.BaseDodgeChance = 1
-			}
+			c.setup(sim, cat, target)
 			poised := cat.GetAuraByID(core.ActionID{SpellID: 1328827})
 			if poised == nil || !poised.IsActive() {
 				t.Fatal("poised is not up at the start")
@@ -651,8 +664,8 @@ func TestAvoidedClawSpendsPoised(t *testing.T) {
 			if !cat.Claw.Cast(sim, target) {
 				t.Fatal("claw did not cast")
 			}
-			if m := cat.Claw.SpellMetrics[target.UnitIndex]; m.Misses+m.Dodges != 1 {
-				t.Fatalf("claw missed %d and was dodged %d times, want one avoided cast", m.Misses, m.Dodges)
+			if m := cat.Claw.SpellMetrics[target.UnitIndex]; m.Misses+m.Dodges+m.Parries != 1 {
+				t.Fatalf("claw missed %d, was dodged %d and parried %d times, want one avoided cast", m.Misses, m.Dodges, m.Parries)
 			}
 			if got := cat.CurrentEnergy(); math.Abs(got-want) > 1e-9 {
 				t.Errorf("energy=%g, want %g from the lowered cost %g", got, want, cost)
