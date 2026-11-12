@@ -189,6 +189,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-BloodTigerHarness"
+ value: {
+  dps: 395.42628
+  tps: 945.39756
+  dtps: 364.10761
+  hps: 21.8075
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 390.59672
@@ -321,6 +330,15 @@ dps_results: {
   tps: 941.52556
   dtps: 343.62374
   hps: 21.8075
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-DevilsaurArmor"
+ value: {
+  dps: 408.52991
+  tps: 979.14119
+  dtps: 374.62065
+  hps: 22.265
  }
 }
 dps_results: {

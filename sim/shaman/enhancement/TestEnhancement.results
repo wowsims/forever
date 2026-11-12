@@ -153,6 +153,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-BloodTigerHarness"
+ value: {
+  dps: 850.26972
+  tps: 885.46135
+  dtps: 7.24313
+  hps: 32.75361
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BristleconeCloak-275833"
  value: {
   dps: 856.79586
@@ -267,6 +276,15 @@ dps_results: {
   tps: 896.54739
   dtps: 7.23402
   hps: 32.71972
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-DevilsaurArmor"
+ value: {
+  dps: 858.44909
+  tps: 894.54733
+  dtps: 7.99962
+  hps: 32.88917
  }
 }
 dps_results: {

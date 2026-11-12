@@ -181,6 +181,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-BloodTigerHarness"
+ value: {
+  dps: 881.79089
+  tps: 892.87245
+  dtps: 5.49954
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-BristleconeCloak-275833"
  value: {
   dps: 908.16967
@@ -290,6 +298,14 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-DevilsaurArmor"
+ value: {
+  dps: 883.47513
+  tps: 894.60548
+  dtps: 5.25262
  }
 }
 dps_results: {

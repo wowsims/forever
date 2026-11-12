@@ -3134,17 +3134,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		143, // Devilsaur Armor
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to hit by 2.0%.", // 460230 - https://www.wowhead.com/forever/spell=460230
-				],
-			],
-		]),
-	],
-	[
 		144, // Ironfeather Armor
 		new Map([
 			[
@@ -3962,18 +3951,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Minor increase to running and swimming speed. Does not stack with similar effects.", // 24090 - https://www.wowhead.com/forever/spell=24090
-				],
-			],
-		]),
-	],
-	[
-		442, // Blood Tiger Harness
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
 				],
 			],
 		]),

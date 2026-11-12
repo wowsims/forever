@@ -199,6 +199,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BloodTigerHarness"
+ value: {
+  dps: 468.18282
+  tps: 2461.81391
+  dtps: 416.66065
+  hps: 83.89656
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Bloodfist-11744"
  value: {
   dps: 413.73692
@@ -340,6 +349,15 @@ dps_results: {
   tps: 2450.23328
   dtps: 393.6699
   hps: 81.75697
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-DevilsaurArmor"
+ value: {
+  dps: 483.83012
+  tps: 2532.28572
+  dtps: 415.76926
+  hps: 81.09247
  }
 }
 dps_results: {

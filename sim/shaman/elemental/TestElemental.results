@@ -166,6 +166,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BloodTigerHarness"
+ value: {
+  dps: 710.62414
+  tps: 661.223
+  dtps: 8.56477
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Bloodfist-11744"
  value: {
   dps: 684.33398
@@ -299,6 +307,14 @@ dps_results: {
   dps: 718.28777
   tps: 666.72844
   dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-DevilsaurArmor"
+ value: {
+  dps: 689.41843
+  tps: 639.51202
+  dtps: 8.75282
  }
 }
 dps_results: {

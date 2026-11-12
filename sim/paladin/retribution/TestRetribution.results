@@ -180,6 +180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BloodTigerHarness"
+ value: {
+  dps: 813.08458
+  tps: 663.82909
+  dtps: 5.3764
+  hps: 23.84066
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BristleconeCloak-275833"
  value: {
   dps: 820.19209
@@ -321,6 +330,15 @@ dps_results: {
   tps: 679.43706
   dtps: 6.46757
   hps: 23.85185
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-DevilsaurArmor"
+ value: {
+  dps: 830.49148
+  tps: 678.56744
+  dtps: 6.0404
+  hps: 23.80627
  }
 }
 dps_results: {

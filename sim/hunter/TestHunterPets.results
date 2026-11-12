@@ -214,6 +214,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BloodTigerHarness"
+ value: {
+  dps: 686.54588
+  tps: 435.8639
+  dtps: 0.94523
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Bloodfist-11744"
  value: {
   dps: 665.52467
@@ -362,6 +370,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DevilsaurArmor"
+ value: {
+  dps: 697.36195
+  tps: 441.85919
+  dtps: 1.48697
  }
 }
 dps_results: {

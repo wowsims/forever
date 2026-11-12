@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-BloodTigerHarness"
+ value: {
+  dps: 431.71997
+  tps: 1438.92132
+  dtps: 310.11071
+  hps: 36.08944
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodfist-11744"
  value: {
   dps: 425.83138
@@ -420,6 +429,15 @@ dps_results: {
   tps: 1420.5221
   dtps: 299.91964
   hps: 36.59778
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DevilsaurArmor"
+ value: {
+  dps: 476.01182
+  tps: 1567.27142
+  dtps: 336.96617
+  hps: 37.20778
  }
 }
 dps_results: {
