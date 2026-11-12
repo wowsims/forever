@@ -738,6 +738,56 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 	}
 }
 
+// Sweeping Strikes' copied hit 12723 states no DefenseType, so it rolls neither Nightblade's
+// chance-on-hit bolt nor the main-hand weapon's Crusader; the normalized hit 26654, a melee hit, rolls both.
+// The copied hit with melee DefenseType rolls them too.
+func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
+	const sweepingStrikesHit = 12723
+	sim, war, _ := swordSpecSim(t, 1, &proto.RaidBuffs{}, crusader)
+	target := war.CurrentTarget
+
+	// The copied hit carries both hands' special bits, so Crusader's handler can raise the off-hand
+	// buff; the normalized hit is the main hand's.
+	holyStrength := []*core.Aura{war.GetAura("Holy Strength (MH)"), war.GetAura("Holy Strength (OH)")}
+	shadowBolt := war.GetSpell(core.ActionID{SpellID: 18211})
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	normalized := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit, Tag: 1})
+	if holyStrength[0] == nil || holyStrength[1] == nil || shadowBolt == nil || copied == nil || normalized == nil {
+		t.Fatal("the warrior lacks Crusader, Nightblade's bolt or a Sweeping Strikes hit")
+	}
+
+	// Each hit's procs go off by the end of its spell batch.
+	procs := func(spell *core.Spell) (crusader, offHandCrusader int, bolts int32) {
+		t.Helper()
+		before := shadowBolt.SpellMetrics[target.UnitIndex].Casts
+		for range 1000 {
+			for _, aura := range holyStrength {
+				aura.Deactivate(sim)
+			}
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepPastBatch(t, sim)
+			if holyStrength[0].IsActive() || holyStrength[1].IsActive() {
+				crusader++
+			}
+			if holyStrength[1].IsActive() {
+				offHandCrusader++
+			}
+		}
+		return crusader, offHandCrusader, shadowBolt.SpellMetrics[target.UnitIndex].Casts - before
+	}
+
+	if crusader, _, bolts := procs(copied); crusader != 0 || bolts != 0 {
+		t.Errorf("1000 copied hits procced Crusader %d and Nightblade %d times, want neither", crusader, bolts)
+	}
+	if crusader, offHand, bolts := procs(normalized); crusader == 0 || offHand != 0 || bolts == 0 {
+		t.Errorf("1000 normalized hits procced Crusader %d (%d as the off hand's) and Nightblade %d times, want both, none as the off hand's", crusader, offHand, bolts)
+	}
+	copied.DefenseType = core.DefenseTypeMelee
+	if crusader, _, bolts := procs(copied); crusader == 0 || bolts == 0 {
+		t.Errorf("1000 copied hits with melee DefenseType procced Crusader %d and Nightblade %d times, want both, so the first check proves nothing", crusader, bolts)
+	}
+}
+
 // Heroic Strike goes off on the next swing, which casts it directly, so the press that queues it is the
 // manual cast. A press whose swing never fires still counts.
 func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
@@ -779,11 +829,11 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 func stepPastBatch(t *testing.T, sim *core.Simulation) {
 	t.Helper()
 	at := sim.CurrentTime + core.SpellBatchWindow
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 	for steps := 0; sim.CurrentTime <= at; steps++ {
 		if steps > 10000 {
 			t.Fatalf("the sim did not pass %v", at)
 		}
-		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
 	}
 }
@@ -1012,13 +1062,14 @@ func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 }
 
 // An Arms warrior with a two-handed sword, Nightblade, against the given number of targets, with
-// its auto attacks stopped so every swing the test counts comes from the hits it deals. The returned
+// its auto attacks stopped so every swing the test counts comes from the hits it deals. The main
+// hand carries the given enchant, 0 for none. The returned
 // func counts the Sword Specialization swings so far.
-func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHandEnchant int32) (*core.Simulation, *dps.DpsWarrior, func() int32) {
 	t.Helper()
 
 	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
-	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982}
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982, Enchant: mainHandEnchant}
 	encounter := core.MakeSingleTargetEncounter(0)
 	for len(encounter.Targets) < targets {
 		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
@@ -1071,7 +1122,7 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 		{"Cleave", core.ActionID{SpellID: 20569}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{})
+			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{}, 0)
 			spell := war.GetSpell(c.spell)
 			if spell == nil {
 				t.Fatalf("the warrior has no %s", c.name)
@@ -1100,7 +1151,7 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
 	const sweepingStrikesHit = 12723  // The strike both of Sweeping Strikes' hits report under.
-	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true})
+	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
 	hits := func(spell *core.Spell) int32 {
 		t.Helper()
@@ -1133,7 +1184,7 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 
 // A Sword Specialization swing is lost when its target dies before it swings.
 func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
-	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{})
+	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{}, 0)
 	target := sim.Encounter.AllTargets[0]
 	hits := func() {
 		for range 2000 {
@@ -1370,7 +1421,7 @@ func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.
 		{"Whirlwind on one target", whirlwindID, 1, false},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, war, _ := swordSpecSim(t, c.targets, &proto.RaidBuffs{})
+			sim, war, _ := swordSpecSim(t, c.targets, &proto.RaidBuffs{}, 0)
 			spell := war.GetSpell(c.spell)
 			sweepingStrikes := war.SweepingStrikesAura
 			if spell == nil || sweepingStrikes == nil {

@@ -416,7 +416,7 @@ func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
 	enemy := character.CurrentTarget
 	casts := func() int32 { return summon.SpellMetrics[enemy.UnitIndex].Casts }
 	hit := func(outcome core.HitOutcome, damage float64) {
-		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Unit: &character.Unit},
+		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit},
 			&core.SpellResult{Target: enemy, Outcome: outcome, Damage: damage})
 	}
 
@@ -591,6 +591,12 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Ironfoe 11684 rolls 1301046's ProcChance on each landed melee hit on an Orc, and on any other target
+// the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
+	expectLikelierAgainst(t, 11684, 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing

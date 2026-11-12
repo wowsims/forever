@@ -776,10 +776,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-HandofJustice-11815"
  value: {
-  dps: 848.2543
-  tps: 692.72605
-  dtps: 5.89352
-  hps: 24.3107
+  dps: 828.52812
+  tps: 676.75361
+  dtps: 5.7478
+  hps: 23.72714
  }
 }
 dps_results: {

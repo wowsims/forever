@@ -436,11 +436,14 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
+	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
+	// enchant hears the copied hit. Equip procs still hear it; no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		ProcMask:    core.ProcMaskMeleeSpecial,
+		DefenseType: core.DefenseTypeNone,
 		Flags:       core.SpellFlagIgnoreModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
@@ -456,8 +459,9 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		DefenseType: core.DefenseTypeMelee,
-		ProcMask:    core.ProcMaskMeleeSpecial,
-		Flags:       core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
+		// A main-hand strike, so only the main-hand weapon's procs hear it.
+		ProcMask: core.ProcMaskMeleeMHSpecial,
+		Flags:    core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,

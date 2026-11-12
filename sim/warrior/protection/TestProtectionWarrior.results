@@ -965,10 +965,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HandofJustice-11815"
  value: {
-  dps: 455.40826
-  tps: 1495.30789
-  dtps: 296.00072
-  hps: 37.30944
+  dps: 445.93081
+  tps: 1472.18064
+  dtps: 295.7271
+  hps: 36.85194
  }
 }
 dps_results: {
@@ -1073,10 +1073,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Ironfoe-11684"
  value: {
-  dps: 452.14178
-  tps: 1475.63002
-  dtps: 291.5839
-  hps: 38.74972
+  dps: 445.01437
+  tps: 1464.5502
+  dtps: 294.88945
+  hps: 37.66528
  }
 }
 dps_results: {

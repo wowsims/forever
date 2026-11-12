@@ -46,7 +46,12 @@ const creatureFamiliesByMobType: Partial<Record<MobType, ReadonlyArray<CreatureF
 	[MobType.MobTypeDemon]: [CreatureFamily.CreatureFamilySatyr],
 	[MobType.MobTypeElemental]: [CreatureFamily.CreatureFamilyEarthElemental, CreatureFamily.CreatureFamilyFireElemental, CreatureFamily.CreatureFamilyAquatic],
 	[MobType.MobTypeGiant]: [CreatureFamily.CreatureFamilyMountainGiant],
-	[MobType.MobTypeHumanoid]: [CreatureFamily.CreatureFamilyNaga, CreatureFamily.CreatureFamilyAquatic],
+	[MobType.MobTypeHumanoid]: [
+		CreatureFamily.CreatureFamilyDwarf,
+		CreatureFamily.CreatureFamilyNaga,
+		CreatureFamily.CreatureFamilyOrc,
+		CreatureFamily.CreatureFamilyAquatic,
+	],
 };
 
 export const creatureFamiliesOf = (mobType: MobType): ReadonlyArray<CreatureFamily> => creatureFamiliesByMobType[mobType] ?? [];
