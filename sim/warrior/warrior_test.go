@@ -1434,9 +1434,9 @@ func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
 		charges   int32
 		wantHeals int32
 	}{
-		{"Whirlwind lands four strikes on two targets and heals as many times as there are charges", whirlwind, 3, 3},
-		{"Whirlwind lands four strikes on two targets with two charges", whirlwind, 2, 2},
-		{"Cleave lands two strikes on two targets", core.ActionID{SpellID: 20569}, 3, 2},
+		{"Whirlwind, four landed strikes, three charges", whirlwind, 3, 3},
+		{"Whirlwind, four landed strikes, two charges", whirlwind, 2, 2},
+		{"Cleave, two landed strikes, three charges", core.ActionID{SpellID: 20569}, 3, 2},
 	}
 
 	for _, c := range cases {

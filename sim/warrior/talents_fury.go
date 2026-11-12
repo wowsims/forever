@@ -161,8 +161,7 @@ func (warrior *Warrior) registerFlurry() {
 	// tooltip says a melee critical strike, so the mask stays the caller's.
 	//
 	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
-	// whether it lands, is dodged or is parried: it is no white swing and no Heroic Strike or Cleave
-	// miss. Logs of 97 Whirlwind casts by eight dual-wield Fury warriors: 16 of 18 off-hand-only
+	// whether it lands, is dodged or is parried. Logs of 97 Whirlwind casts by eight dual-wield Fury warriors: 16 of 18 off-hand-only
 	// crits gained Flurry at the cast (all 18 within 130 ms), and 12 casts with Flurry up and a landed
 	// off-hand strike lost no charge, nor did 4 avoided ones.
 	//
@@ -226,7 +225,8 @@ func (warrior *Warrior) registerGoreDrinker() {
 	// strike fits 76, one per cast only the 25 where the two coincide (two main-hand and two
 	// off-hand strikes landed at 3 charges gave 3 heals; a dodged main hand and one landed off-hand
 	// strike gave 1). Cleave: 2 landed strikes gave 2 heals at 3 charges (13 casts) and at 2 charges
-	// (10 casts).
+	// (10 casts). So the buff builds its own spender: spelldata.AttachChargeSpender spends one charge a
+	// cast.
 	//
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
