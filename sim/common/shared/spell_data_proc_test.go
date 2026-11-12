@@ -469,9 +469,6 @@ func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 	character.Equipment = core.ProtoToEquipment(&proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: weaponID, Enchant: enchantID}, &proto.ItemSpec{})})
 	character.EnableAutoAttacks(agent, core.AutoAttackOptions{MainHand: character.WeaponFromMainHand(), AutoSwingMelee: true})
 
-	everyHitRow := func(id int32) *spelldata.Spell {
-		return &spelldata.Spell{ID: id, Name: "Test Trigger", ProcChance: 100}
-	}
 	equipRow := &spelldata.Spell{ID: 990612, Name: "Test Equip Proc", ProcChance: 100, ProcChanceSource: spelldata.ProcChanceAlways,
 		ProcFlags: [2]uint32{0: dbcenums.PROC_FLAG_DEAL_MELEE_SWING | dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY}}
 	listeners := []struct {
@@ -479,8 +476,10 @@ func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 		cfg     SpellDataProc
 		trigger *spelldata.Spell
 	}{
-		{"chance on hit", SpellDataProc{Name: "Test Chance On Hit", ItemID: weaponID, IsWeaponProc: true}, everyHitRow(990610)},
-		{"combat enchant", SpellDataProc{Name: "Test Combat Enchant", EnchantID: enchantID, IsWeaponProc: true}, everyHitRow(990611)},
+		{"chance on hit", SpellDataProc{Name: "Test Chance On Hit", ItemID: weaponID, IsWeaponProc: true},
+			&spelldata.Spell{ID: 990610, Name: "Test Trigger", ProcChance: 100}},
+		{"combat enchant", SpellDataProc{Name: "Test Combat Enchant", EnchantID: enchantID, IsWeaponProc: true},
+			&spelldata.Spell{ID: 990611, Name: "Test Trigger", ProcChance: 100}},
 		{"equip proc", SpellDataProc{Name: "Test Equip Proc", ItemID: weaponID}, equipRow},
 	}
 
@@ -495,20 +494,19 @@ func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 		auras = append(auras, aura)
 	}
 	hit := func(spell *core.Spell) {
-		spell.ProcMask = core.ProcMaskMeleeMHSpecial
 		for _, aura := range auras {
 			aura.OnSpellHitDealt(aura, nil, spell, &core.SpellResult{Outcome: core.OutcomeHit, Damage: 100})
 		}
 	}
 
-	hit(&core.Spell{DefenseType: core.DefenseTypeMelee})
+	hit(&core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee})
 	for _, listener := range listeners {
 		if heard[listener.name] != 1 {
 			t.Fatalf("the %s heard %d plain main-hand specials, want 1", listener.name, heard[listener.name])
 		}
 	}
-	hit(&core.Spell{DefenseType: core.DefenseTypeMelee, CastRequirement: core.CastRequirement{Shield: true}})
-	hit(&core.Spell{DefenseType: core.DefenseTypeMagic})
+	hit(&core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, CastRequirement: core.CastRequirement{Shield: true}})
+	hit(&core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMagic})
 	for name, want := range map[string]int{"chance on hit": 1, "combat enchant": 1, "equip proc": 3} {
 		if heard[name] != want {
 			t.Errorf("after a shield special and a magic DefenseType special the %s has heard %d hits, want %d", name, heard[name], want)

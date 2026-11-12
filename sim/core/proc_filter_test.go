@@ -12,31 +12,34 @@ func TestProcTriggerEligibility(t *testing.T) {
 		defenseType DefenseType
 		shield      bool
 	}{
-		{"auto attack", ProcMaskMeleeMHAuto, SpellFlagNone, DefenseTypeMelee, false},
-		{"ability", ProcMaskMeleeMHSpecial, SpellFlagNone, DefenseTypeMelee, false},
-		{"proc", ProcMaskMeleeMHSpecial, SpellFlagProc, DefenseTypeMelee, false},
-		{"proc suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagProc | SpellFlagSuppressWeaponProcs, DefenseTypeMelee, false},
-		{"ability suppressing weapon procs", ProcMaskMeleeMHSpecial, SpellFlagSuppressWeaponProcs, DefenseTypeMelee, false},
-		{"magic item proc's damage", ProcMaskEmpty, SpellFlagProc, DefenseTypeMagic, false},
-		{"spell", ProcMaskSpellDamage, SpellFlagNone, DefenseTypeMagic, false},
-		{"ability requiring a shield", ProcMaskMeleeMHSpecial, SpellFlagNone, DefenseTypeMelee, true},
-		{"melee ability with magic DefenseType", ProcMaskMeleeMHSpecial, SpellFlagNone, DefenseTypeMagic, false},
-		{"ranged ability with magic DefenseType", ProcMaskRangedSpecial, SpellFlagNone, DefenseTypeMagic, false},
-		{"wand shot", ProcMaskRangedAuto, SpellFlagNone, DefenseTypeMagic, false},
+		{name: "auto attack", procMask: ProcMaskMeleeMHAuto, defenseType: DefenseTypeMelee},
+		{name: "ability", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMelee},
+		{name: "proc", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagProc, defenseType: DefenseTypeMelee},
+		{name: "proc suppressing weapon procs", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagProc | SpellFlagSuppressWeaponProcs, defenseType: DefenseTypeMelee},
+		{name: "ability suppressing weapon procs", procMask: ProcMaskMeleeMHSpecial, flags: SpellFlagSuppressWeaponProcs, defenseType: DefenseTypeMelee},
+		{name: "magic item proc's damage", procMask: ProcMaskEmpty, flags: SpellFlagProc, defenseType: DefenseTypeMagic},
+		{name: "spell", procMask: ProcMaskSpellDamage, defenseType: DefenseTypeMagic},
+		{name: "ability requiring a shield", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMelee, shield: true},
+		{name: "melee ability with magic DefenseType", procMask: ProcMaskMeleeMHSpecial, defenseType: DefenseTypeMagic},
+		{name: "ranged ability with magic DefenseType", procMask: ProcMaskRangedSpecial, defenseType: DefenseTypeMagic},
+		{name: "wand shot", procMask: ProcMaskRangedAuto, defenseType: DefenseTypeMagic},
 	}
 	listeners := []struct {
 		name   string
 		config ProcTrigger
 		// One expectation per trigger above.
-		want [11]bool
+		want []bool
 	}{
-		{"aura", ProcTrigger{}, [11]bool{true, true, false, false, true, false, true, true, true, true, true}},
-		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, [11]bool{true, true, true, true, true, true, true, true, true, true, true}},
-		{"weapon proc", ProcTrigger{IsWeaponProc: true}, [11]bool{true, true, true, false, false, false, false, false, false, false, true}},
-		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, [11]bool{true, true, false, false, false, false, true, true, true, true, true}},
+		{"aura", ProcTrigger{}, []bool{true, true, false, false, true, false, true, true, true, true, true}},
+		{"aura that can proc from procs", ProcTrigger{CanProcFromProcs: true}, []bool{true, true, true, true, true, true, true, true, true, true, true}},
+		{"weapon proc", ProcTrigger{IsWeaponProc: true}, []bool{true, true, true, false, false, false, false, false, false, false, true}},
+		{"aura marked as weapon proc", ProcTrigger{SpellFlagsExclude: SpellFlagSuppressWeaponProcs}, []bool{true, true, false, false, false, false, true, true, true, true, true}},
 	}
 
 	for _, listener := range listeners {
+		if len(listener.want) != len(triggers) {
+			t.Fatalf("%s states %d expectations for %d triggers", listener.name, len(listener.want), len(triggers))
+		}
 		for i, trigger := range triggers {
 			unit := &Unit{}
 			aura := &Aura{Unit: unit}

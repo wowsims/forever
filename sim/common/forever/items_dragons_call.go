@@ -56,12 +56,8 @@ const whelpFirstSpitMax = 1800 * time.Millisecond
 const whelpSpitIdleMin = 200 * time.Millisecond
 const whelpSpitIdleMax = 3500 * time.Millisecond
 
-func whelpFirstSpitDelay(sim *core.Simulation) time.Duration {
-	return time.Duration(sim.RandomFloat("Whelp First Spit") * float64(whelpFirstSpitMax))
-}
-
 func whelpSpitIdle(sim *core.Simulation) time.Duration {
-	return whelpSpitIdleMin + time.Duration(sim.RandomFloat("Whelp Spit Idle")*float64(whelpSpitIdleMax-whelpSpitIdleMin))
+	return time.Duration(sim.RollWithLabel(float64(whelpSpitIdleMin), float64(whelpSpitIdleMax), "Whelp Spit Idle"))
 }
 
 func newEmeraldDragonWhelp(owner *core.Character) core.PetAgent {
@@ -80,7 +76,7 @@ func newEmeraldDragonWhelp(owner *core.Character) core.PetAgent {
 		AutoSwingMelee: true,
 	})
 	whelp.OnPetEnable = func(sim *core.Simulation) {
-		whelp.nextSpitAt = sim.CurrentTime + whelpFirstSpitDelay(sim)
+		whelp.nextSpitAt = sim.CurrentTime + time.Duration(sim.RollWithLabel(0, float64(whelpFirstSpitMax), "Whelp First Spit"))
 	}
 	return whelp
 }

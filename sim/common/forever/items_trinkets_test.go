@@ -497,16 +497,12 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	}
 
 	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
-	hit := func(spell *core.Spell, damage float64) {
-		t.Helper()
-		character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: damage})
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
-	}
-	hit(meleeSwing(&character.Unit), 0)
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 0 {
 		t.Errorf("a hit that dealt no damage cast it %d times, want none", got)
 	}
-	hit(meleeSwing(&character.Unit), 100)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
 	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
 		t.Errorf("a landed damaging hit cast it %d times, want once", got)
 	}

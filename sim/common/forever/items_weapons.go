@@ -135,6 +135,7 @@ func init() {
 		for _, pet := range character.PetAgents {
 			if w, ok := pet.(*emeraldDragonWhelp); ok {
 				whelp = w
+				break
 			}
 		}
 		row := spelldata.MustFind(13049)

@@ -96,7 +96,10 @@ func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {
 			return false
 		}
-		return spell.ProcMask.Matches(ProcMaskWhiteHit) || !spell.CastRequirement.Shield && spell.DefenseType != DefenseTypeMagic
+		if spell.ProcMask.Matches(ProcMaskWhiteHit) {
+			return true
+		}
+		return !spell.CastRequirement.Shield && spell.DefenseType != DefenseTypeMagic
 	}
 	return config.CanProcFromProcs || !spell.Flags.Matches(SpellFlagProc)
 }

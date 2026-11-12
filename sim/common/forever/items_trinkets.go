@@ -295,10 +295,10 @@ func init() {
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		})
-		// The tooltip's damage hint lets the landed application of a DoT roll; combat logs show Rend
-		// and Concussion Blow applications never proc it, so only a hit that dealt damage rolls.
+		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; combat
+		// logs show Rend and Concussion Blow applications never proc it, so only a hit that dealt damage
+		// rolls.
 		trigger.RequireDamageDealt = true
-		trigger.RequireDamageComponent = false
 		trigger.Name = "Highborne Research Tablet"
 		trigger.ActionID = core.ActionID{ItemID: 260205}
 		trigger.TriggerImmediately = true
