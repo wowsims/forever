@@ -839,10 +839,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HandofJustice-11815"
  value: {
-  dps: 399.58048
-  tps: 950.93381
-  dtps: 349.40339
-  hps: 22.38361
+  dps: 395.40318
+  tps: 945.98957
+  dtps: 350.92839
+  hps: 22.09556
  }
 }
 dps_results: {

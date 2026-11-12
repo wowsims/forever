@@ -794,10 +794,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HandofJustice-11815"
  value: {
-  dps: 522.60874
-  tps: 451.27826
+  dps: 519.28574
+  tps: 448.6744
   dtps: 2.94293
-  hps: 41.44611
+  hps: 41.09028
  }
 }
 dps_results: {

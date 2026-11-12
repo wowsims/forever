@@ -672,9 +672,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HandofJustice-11815"
  value: {
-  dps: 604.53968
-  tps: 429.22317
-  hps: 52.155
+  dps: 597.00853
+  tps: 423.87606
+  hps: 51.52806
  }
 }
 dps_results: {

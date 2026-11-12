@@ -4550,15 +4550,6 @@ func RegisterAllProcs() {
 			{ItemID: 11684, ItemName: "Ironfoe"},
 		})
 
-	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to activate
-	// this effect.
-	// https://www.wowhead.com/forever/spell=15601
-	// trigger 15600 (3%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 15601
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 15600, BuffSpellID: 15601},
-		[]shared.ItemVariant{
-			{ItemID: 11815, ItemName: "Hand of Justice"},
-		})
-
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
 	// https://www.wowhead.com/forever/spell=16783
 	// trigger 7617 (1%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 16783

@@ -4,6 +4,7 @@ package forever_test
 
 import (
 	"math"
+	"slices"
 	"testing"
 	"time"
 
@@ -625,5 +626,90 @@ func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
 	dodgeSwing(t, sim, character, enemy)
 	if buff.IsActive() {
 		t.Errorf("the buff is still up after %d dodges, want it gone", charges)
+	}
+}
+
+// Edits the store's row of a spell for the test, restoring it afterwards. The effects are copied so
+// an edit to one does not reach the original.
+func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) {
+	t.Helper()
+	row := spelldata.MustFind(id)
+	original := *row
+	row.Effects = slices.Clone(row.Effects)
+	edit(row)
+	t.Cleanup(func() { *row = original })
+}
+
+// A warrior wearing Hand of Justice 11815 who swings only when the test deals a hit, the extra attack
+// 15601 grants, and the extra attacks one proc swings.
+func handOfJusticeWearer(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, int32) {
+	t.Helper()
+	sim, character := trinketWarrior(t, 11815)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: 15601})
+	perProc := int32(spelldata.MustFind(15601).ExtraAttacksEffect().BasePoints)
+	if extraAttack == nil || perProc <= 0 {
+		t.Fatal("11815 registers no extra attack")
+	}
+	return sim, character, extraAttack, perProc
+}
+
+// Hand of Justice 11815 rolls 15600's ProcChance divided by the value of its second effect, the factor
+// a hit on a Dwarf is likelier by, on each landed melee hit. The row copy rests no cooldown, so every
+// hit rolls.
+func TestHandOfJusticeRollsItsColumnOverItsDwarfFactor(t *testing.T) {
+	editSpellRow(t, 15600, func(s *spelldata.Spell) { s.ICDMs = 0 })
+	row := spelldata.MustFind(15600)
+	factor := row.EffectN(2).BasePoints
+	if row.StatedChance() <= 0 || factor <= 1 {
+		t.Fatalf("15600 states a chance of %v and a factor of %v, want a chance and a factor above 1 to tell the two apart", row.StatedChance(), factor)
+	}
+	want := row.StatedChance() / factor
+
+	sim, character, extraAttack, perProc := handOfJusticeWearer(t)
+	enemy := character.CurrentTarget
+	const hits = 40000
+	for range hits {
+		character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	}
+	stepTo(t, sim, sim.CurrentTime+time.Millisecond)
+
+	procs := float64(extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc)
+	// Five standard deviations of the count either way.
+	if spread := 5 * math.Sqrt(hits*want*(1-want)); math.Abs(procs-hits*want) > spread {
+		t.Errorf("%v of %d landed melee hits procced it, want %v within %v: the column over the factor", procs, hits, hits*want, spread)
+	}
+}
+
+// Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and
+// rolls again once the cooldown ends. The row copy procs on every hit.
+func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
+	editSpellRow(t, 15600, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+		s.EffectN(2).BasePoints = 1
+	})
+	cooldown := spelldata.MustFind(15600).ICD()
+	if cooldown <= 0 {
+		t.Fatalf("15600 states a cooldown of %v, want one", cooldown)
+	}
+
+	sim, character, extraAttack, perProc := handOfJusticeWearer(t)
+	enemy := character.CurrentTarget
+	procs := func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
+
+	start := sim.CurrentTime
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 1 {
+		t.Fatalf("a landed melee hit procced it %d times, want once", got)
+	}
+	stepTo(t, sim, start+cooldown-time.Millisecond)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 1 {
+		t.Errorf("a hit 1 ms before the cooldown ends procced it %d times in all, want once still", got)
+	}
+	stepTo(t, sim, start+cooldown)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := procs(); got != 2 {
+		t.Errorf("a hit as the cooldown ends procced it %d times in all, want twice", got)
 	}
 }
