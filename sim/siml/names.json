@@ -312,7 +312,7 @@
       "pet_aura": {
         "bestial_swiftness": {"spellId": 19596, "registeredBy": ["hunter"]},
         "bestial_wrath": {"spellId": 19574, "registeredBy": ["hunter"]},
-        "charge": {"spellId": 27685, "registeredBy": []},
+        "charge": {"spellId": 27685, "registeredBy": ["hunter"]},
         "dash": {"spellId": 23110, "registeredBy": ["hunter"]},
         "dive": {"spellId": 23148, "registeredBy": ["hunter"]},
         "fire_resistance": {"spellId": 10535, "tag": -1, "registeredBy": ["hunter"]},
