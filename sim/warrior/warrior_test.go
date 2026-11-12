@@ -663,7 +663,7 @@ func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit,
 }
 
 // A shield's hit is a main-hand special, but a landed Shield Slam or Shield Bash never rolls the
-// main-hand weapon's combat enchant; the same casts without SpellFlagNoChanceOnHit do. It never brings
+// main-hand weapon's combat enchant; the same casts without the shield requirement do. It never brings
 // a Windfury Totem attack either, since the shield rows carry neither bit the totem reads; the same
 // casts with the main-hand bit added do bring one.
 func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
@@ -714,12 +714,12 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 				t.Errorf("%d of %d landed casts procced Windfury Totem, want none", windfuryProcs, casts)
 			}
 
-			spell.Flags &^= core.SpellFlagNoChanceOnHit
+			spell.CastRequirement.Shield = false
 			for i := 0; i < 1000 && !holyStrength.IsActive(); i++ {
 				cast()
 			}
 			if !holyStrength.IsActive() {
-				t.Error("1000 casts without SpellFlagNoChanceOnHit never procced Crusader, so the check above proves nothing")
+				t.Error("1000 casts without the shield requirement never procced Crusader, so the check above proves nothing")
 			}
 
 			spell.Flags |= core.SpellFlagRequiresMainHand

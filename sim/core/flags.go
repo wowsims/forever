@@ -222,7 +222,6 @@ const (
 	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
-	SpellFlagNoChanceOnHit                                  // Weapon procs (chance-on-hit item effects and combat enchants) ignore the spell's hits, which equip procs still hear: Shield Slam, Shield Bash and Thunder Clap, measured in game. Not a game files attribute.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

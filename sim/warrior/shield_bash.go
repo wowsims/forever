@@ -14,10 +14,9 @@ const shieldBashThreatMultiplier = 1.5
 
 func (warrior *Warrior) registerShieldBash() {
 	// A main-hand special, though the row requires the shield: the main-hand weapon's equip procs hear
-	// it, and the main-hand weapon skill sets its miss and parry. The weapon's chance-on-hit effects
-	// and combat enchants do not hear it, as measured in game.
-	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
-		spelldata.Flags(core.SpellFlagNoChanceOnHit))
+	// it, and the main-hand weapon skill sets its miss and parry. The shield the row requires keeps the
+	// weapon's chance-on-hit effects and combat enchants from hearing it (core's canProcFrom).
+	config := spelldata.SpellConfig(&warrior.Unit, shieldBashRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ThreatMultiplier = shieldBashThreatMultiplier
 
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

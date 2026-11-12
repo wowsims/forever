@@ -34,8 +34,9 @@ Each line is the rule the code follows, where it lives, and the pull request tha
 - **Shield Bash and Shield Slam register as `ProcMaskMeleeMHSpecial`, though their rows require the shield: the
   main-hand weapon's equip procs hear them, and the main-hand weapon skill sets their miss and parry, as measured in game
   at 1.60.1.70862. The game files give no hand. The shield stays their cast requirement, and Windfury Totem skips them by
-  data: their rows carry neither the main-hand nor the next-swing bit. Both carry `SpellFlagNoChanceOnHit`, as Thunder
-  Clap does, so no chance-on-hit item effect or combat enchant hears them (`wowsims-procs` `references/rulings.md`).**
+  data: their rows carry neither the main-hand nor the next-swing bit. The shield requirement also keeps every
+  chance-on-hit item effect and combat enchant from hearing them, as Thunder Clap's magic DefenseType does for it
+  (`wowsims-procs` `references/rulings.md`).**
   `sim/warrior/shield_bash.go`, `sim/warrior/talents_protection.go`, `sim/warrior/thunder_clap.go`,
   `sim/core/buffs/drivers.go`.
 

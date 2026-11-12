@@ -453,9 +453,10 @@ func TestStatedEnchantChanceRollsOnTheEnchantedWeaponOnly(t *testing.T) {
 	}
 }
 
-// A main-hand special flagged SpellFlagNoChanceOnHit reaches the main hand's equip proc, but neither
-// the weapon's chance-on-hit effect nor its combat enchant, which both hear a plain main-hand special.
-func TestWeaponProcsIgnoreSpellsFlaggedNoChanceOnHit(t *testing.T) {
+// A main-hand special that requires a shield, or has magic DefenseType, reaches the main hand's equip
+// proc, but neither the weapon's chance-on-hit effect nor its combat enchant, which both hear a plain
+// main-hand special.
+func TestWeaponProcsIgnoreShieldAndMagicDefenseSpecials(t *testing.T) {
 	const weaponID, enchantID int32 = 990601, 990602
 	core.AddToDatabase(&proto.SimDatabase{
 		Items: []*proto.SimItem{testOneHander(weaponID)},
@@ -493,23 +494,24 @@ func TestWeaponProcsIgnoreSpellsFlaggedNoChanceOnHit(t *testing.T) {
 		aura.AttachProcTriggerCallback(&character.Unit, config)
 		auras = append(auras, aura)
 	}
-	hit := func(flags core.SpellFlag) {
+	hit := func(spell *core.Spell) {
+		spell.ProcMask = core.ProcMaskMeleeMHSpecial
 		for _, aura := range auras {
-			aura.OnSpellHitDealt(aura, nil, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: flags},
-				&core.SpellResult{Outcome: core.OutcomeHit, Damage: 100})
+			aura.OnSpellHitDealt(aura, nil, spell, &core.SpellResult{Outcome: core.OutcomeHit, Damage: 100})
 		}
 	}
 
-	hit(core.SpellFlagNone)
+	hit(&core.Spell{DefenseType: core.DefenseTypeMelee})
 	for _, listener := range listeners {
 		if heard[listener.name] != 1 {
 			t.Fatalf("the %s heard %d plain main-hand specials, want 1", listener.name, heard[listener.name])
 		}
 	}
-	hit(core.SpellFlagNoChanceOnHit)
-	for name, want := range map[string]int{"chance on hit": 1, "combat enchant": 1, "equip proc": 2} {
+	hit(&core.Spell{DefenseType: core.DefenseTypeMelee, CastRequirement: core.CastRequirement{Shield: true}})
+	hit(&core.Spell{DefenseType: core.DefenseTypeMagic})
+	for name, want := range map[string]int{"chance on hit": 1, "combat enchant": 1, "equip proc": 3} {
 		if heard[name] != want {
-			t.Errorf("after a special flagged SpellFlagNoChanceOnHit the %s has heard %d hits, want %d", name, heard[name], want)
+			t.Errorf("after a shield special and a magic DefenseType special the %s has heard %d hits, want %d", name, heard[name], want)
 		}
 	}
 }
