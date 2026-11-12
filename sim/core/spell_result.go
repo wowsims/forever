@@ -807,7 +807,7 @@ func (spell *Spell) dealHealingInternal(sim *Simulation, isPeriodic bool, result
 		healed = max(0, min(healed, result.Target.MaxHealth()-result.Target.CurrentHealth()))
 	}
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, healed*ThreatPerHealingDone, spell.Unit.AttackTables[result.Target.UnitIndex])
-	spell.applySplitThreat(sim, result.Threat)
+	spell.ApplySplitThreat(sim, result.Threat)
 	kind := proto.HitKind_HitKindHeal
 	switch {
 	case isPeriodic && result.DidCrit():

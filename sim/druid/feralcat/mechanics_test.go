@@ -439,6 +439,40 @@ func TestShiftingPowerTradesManaForEnergy(t *testing.T) {
 	}
 }
 
+// Shifting Power's energy threatens for half a point an energy gained, which Cat Form's threat multiplier
+// does not scale, split between the targets in combat.
+func TestShiftingPowerEnergyThreatensUnscaled(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{
+			Players: []*proto.Player{catPlayer("Cat", shiftingPowerTalents, nil, nil)},
+			Buffs:   &proto.PartyBuffs{},
+		}}},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "a", Level: 60}, {Name: "b", Level: 60}}, Duration: 60},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+	if !cat.InForm(druid.Cat) || cat.PseudoStats.ThreatMultiplier == 1 {
+		t.Fatalf("in cat form %v with threat multiplier %v, want cat form and a multiplier other than 1", cat.InForm(druid.Cat), cat.PseudoStats.ThreatMultiplier)
+	}
+	fillResource(sim, cat)
+	emptyEnergy(sim, cat)
+	if !cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("shifting power did not cast")
+	}
+	gained := cat.CurrentEnergy()
+	targets := sim.Encounter.ActiveTargetUnits
+	if gained <= 0 || len(targets) != 2 {
+		t.Fatalf("gained %v energy against %d targets, want energy against 2", gained, len(targets))
+	}
+	want := gained * 0.5 / 2
+	for _, target := range targets {
+		if got := cat.ShiftingPower.SpellMetrics[target.UnitIndex].TotalThreat; math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s: shifting power threatened for %v, want %v", target.Label, got, want)
+		}
+	}
+}
+
 func TestShiftingPowerNeedsTheTalentAndCatForm(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	fillResource(sim, cat)
@@ -577,7 +611,7 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 		for range 15 {
 			fillResource(sim, cat)
 			spell.Cast(sim, cat.CurrentTarget)
-			// The charge goes a batch window after the hit lands.
+			// The charge goes a batch window after the cast.
 			until := sim.CurrentTime + 2*time.Second
 			for poised.IsActive() && sim.CurrentTime < until && !sim.Step() {
 			}
@@ -592,6 +626,45 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 		if got := spell.Cost.GetCurrentCost() - withPoised; got != 10 {
 			t.Errorf("%s costs %v more once poised is spent, want 10", name, got)
 		}
+	}
+}
+
+// A missed or dodged Claw spends Poised as a landed one does, and pays the lowered cost less the row's
+// miss refund.
+func TestAvoidedClawSpendsPoised(t *testing.T) {
+	for _, avoid := range []string{"miss", "dodge"} {
+		t.Run(avoid, func(t *testing.T) {
+			sim, cat := newCat(t, "", nil)
+			target := cat.CurrentTarget
+			if avoid == "miss" {
+				cat.AttackTables[target.UnitIndex].Hand(cat.Claw.Spell).BaseMissChance = 1
+			} else {
+				cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+				target.PseudoStats.BaseDodgeChance = 1
+			}
+			poised := cat.GetAuraByID(core.ActionID{SpellID: 1328827})
+			if poised == nil || !poised.IsActive() {
+				t.Fatal("poised is not up at the start")
+			}
+			cost := cat.Claw.Cost.GetCurrentCost()
+			want := cat.CurrentEnergy() - cost*(1-spelldata.MustFind(cat.Claw.ActionID.SpellID).MissRefund())
+			if !cat.Claw.Cast(sim, target) {
+				t.Fatal("claw did not cast")
+			}
+			if m := cat.Claw.SpellMetrics[target.UnitIndex]; m.Misses+m.Dodges != 1 {
+				t.Fatalf("claw missed %d and was dodged %d times, want one avoided cast", m.Misses, m.Dodges)
+			}
+			if got := cat.CurrentEnergy(); math.Abs(got-want) > 1e-9 {
+				t.Errorf("energy=%g, want %g from the lowered cost %g", got, want, cost)
+			}
+			// The charge goes a batch window after the cast.
+			until := sim.CurrentTime + 100*time.Millisecond
+			for poised.IsActive() && sim.CurrentTime < until && !sim.Step() {
+			}
+			if poised.IsActive() {
+				t.Errorf("the %s claw left poised up", avoid)
+			}
+		})
 	}
 }
 

@@ -453,6 +453,82 @@ func TestLacerateThreatensForTenThirdsOfItsDamage(t *testing.T) {
 	}
 }
 
+// A Lacerate dose between two ticks keeps the tick grid of the first application and ends the bleed the
+// rank's duration after the dose.
+func TestLacerateDoseKeepsTheTickGrid(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("the first lacerate did not cast")
+	}
+	dot := bear.Lacerate.Dot(target)
+	period := dot.TickPeriod()
+	first := dot.NextTickAt()
+	if first != sim.CurrentTime+period {
+		t.Fatalf("the first tick is due at %v, want one period after the application at %v", first, sim.CurrentTime)
+	}
+	for sim.CurrentTime < first+period/2 && !sim.Step() {
+	}
+	if (sim.CurrentTime-first)%period == 0 {
+		t.Fatalf("the dose at %v falls on a tick", sim.CurrentTime)
+	}
+	next := dot.NextTickAt()
+	bear.AddRage(sim, bear.MaximumRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("the dose did not cast")
+	}
+	if dot.GetStacks() != 2 {
+		t.Fatalf("lacerate holds %d stacks after the dose, want 2", dot.GetStacks())
+	}
+	if got := dot.NextTickAt(); got != next {
+		t.Errorf("the dose at %v moved the next tick from %v to %v", sim.CurrentTime, next, got)
+	}
+	duration := spelldata.MustFind(bear.Lacerate.ActionID.SpellID).Duration()
+	if got, want := dot.ExpiresAt(), sim.CurrentTime+duration; got != want {
+		t.Errorf("the bleed ends at %v, want %v, its duration after the dose", got, want)
+	}
+}
+
+// Blood Frenzy's rage threatens for the rage gained at the rage rate, which the bear form's threat
+// multiplier does not scale.
+func TestBloodFrenzyRageThreatIsUnscaled(t *testing.T) {
+	sim, bear := newBearWithTalents(t, naturalReactionTalents)
+	chance := spelldata.Talent(16958, 2).Rank(bear.Talents.BloodFrenzy).EffectN(1).Percent()
+	if bear.Talents.BloodFrenzy == 0 || chance != 1 || bear.PseudoStats.ThreatMultiplier == 1 {
+		t.Fatalf("Blood Frenzy %d with chance %v and threat multiplier %v, want the talent at a sure chance and a multiplier other than 1",
+			bear.Talents.BloodFrenzy, chance, bear.PseudoStats.ThreatMultiplier)
+	}
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	bear.AddStatDynamic(sim, stats.PhysicalCritPercent, 200)
+	bear.AutoAttacks.CancelAutoSwing(sim)
+	// Rage up to the Swipe's cost only, so the cast leaves the bar empty and the rage gained is not capped.
+	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
+	bear.SpendRage(sim, bear.CurrentRage(), metrics)
+	bear.AddRage(sim, bear.Swipe.Cost.GetCurrentCost(), metrics)
+	gain := bear.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain})
+	before := gain.SpellMetrics[target.UnitIndex].TotalThreat
+	if !bear.Swipe.Cast(sim, target) {
+		t.Fatal("swipe did not cast")
+	}
+	if m := bear.Swipe.SpellMetrics[target.UnitIndex]; m.Crits != 1 {
+		t.Fatalf("swipe crit %d times, want 1", m.Crits)
+	}
+	until := sim.CurrentTime + 100*time.Millisecond
+	for sim.CurrentTime < until && !sim.Step() {
+	}
+	rage := spelldata.MustFind(16959).EnergizeEffect().Tenths()
+	got := gain.SpellMetrics[target.UnitIndex].TotalThreat - before
+	if want := rage * core.ThreatPerRageGained; rage <= 0 || math.Abs(got-want) > 1e-9 {
+		t.Errorf("Blood Frenzy's %v rage threatened for %v, want %v", rage, got, want)
+	}
+}
+
 // Natural Reaction 5/5, which the Bear preset leaves out.
 const naturalReactionTalents = "0500220000000000-50200322123102125510-0500000000000000"
 
@@ -652,26 +728,6 @@ func TestMaulProcsOmenOfClarityAtTheSpecialRate(t *testing.T) {
 	if claw == 0 || maul/claw < 0.8 || maul/claw > 1.25 {
 		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want the same rate", maul, claw)
 	}
-}
-
-func TestLacerateApplicationRestartsTheTickClock(t *testing.T) {
-	sim, bear := newBear(t)
-	target := bear.CurrentTarget
-	dot := bear.Lacerate.Dot(target)
-	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
-	for range 30 {
-		before := dot.GetStacks()
-		bear.AddRage(sim, 50, metrics)
-		bear.Lacerate.Cast(sim, target)
-		if before > 0 && dot.GetStacks() > before {
-			if got := dot.NextTickAt(); got != sim.CurrentTime+dot.TickPeriod() {
-				t.Fatalf("next Lacerate tick %s, want %s", got, sim.CurrentTime+dot.TickPeriod())
-			}
-			return
-		}
-		sim.CurrentTime += 1500 * time.Millisecond
-	}
-	t.Fatal("two Lacerates did not land")
 }
 
 func TestSapperPreservesFormsAndResources(t *testing.T) {

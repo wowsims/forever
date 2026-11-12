@@ -8,8 +8,8 @@ import (
 
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
-// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage)
-// makes it without the unit's threat multiplier.
+// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage,
+// Blood Frenzy) makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
 // Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
@@ -19,9 +19,9 @@ const ThreatPerRageGained = 5
 const DamageTakenRageFactor = 2.5
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
-// 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 it
-// stays near 38%: 37.9% to 38.1% at 48-51, on hundreds of hits at 48 and 49 and a few dozen at 50 and 51. The 40% at
-// 63 is the top of the 20% to 40% range the game build's notes give. No log covers 52-63 beyond a handful of hits.
+// 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 to 55
+// it stays near 38%, on hundreds of hits a level to 51 and about 90 at 52-55. The 40% at 63 is the top of the 20% to
+// 40% range the game build's notes give; no log covers 56-63.
 // Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
 // since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
@@ -34,6 +34,7 @@ var damageTakenRageAssumedArmor = []struct {
 	{level: 46, reduction: 0.36},
 	{level: 47, reduction: 0.377},
 	{level: 50, reduction: 0.38},
+	{level: 55, reduction: 0.381},
 	{level: 63, reduction: 0.40},
 }
 
@@ -286,7 +287,7 @@ func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64, metrics *Res
 	if !metrics.UnscaledThreat {
 		threat *= rb.rageGainSpell.unitThreatMultiplier()
 	}
-	rb.rageGainSpell.applySplitThreat(sim, threat)
+	rb.rageGainSpell.ApplySplitThreat(sim, threat)
 	rb.rageGainSpell.SpellMetrics[0].Casts++
 }
 
