@@ -950,6 +950,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 883.30583
+  tps: 894.16321
+  dtps: 5.0299
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-MarkoftheRedFlight-282778"
  value: {
   dps: 868.69142

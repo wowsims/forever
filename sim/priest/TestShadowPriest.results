@@ -815,6 +815,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 745.13135
+  tps: 532.51378
+  dtps: 5.87048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-MarkoftheRedFlight-282778"
  value: {
   dps: 749.07576

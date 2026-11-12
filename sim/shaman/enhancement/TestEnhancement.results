@@ -558,6 +558,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 855.87152
+  tps: 891.15907
+  dtps: 7.17592
+  hps: 32.80444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-FlamebreakTalisman-280071"
  value: {
   dps: 864.51343
@@ -789,6 +798,15 @@ dps_results: {
   tps: 896.57846
   dtps: 7.29617
   hps: 32.71972
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 856.84944
+  tps: 892.16991
+  dtps: 7.69367
+  hps: 32.75361
  }
 }
 dps_results: {

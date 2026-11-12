@@ -52,6 +52,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		1263, // Brain Hacker
+		[
+			"Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by 30% for 30s.", // 17148 - https://www.wowhead.com/forever/spell=17148
+		]
+	],
+	[
 		1265, // Scorpion Sting
 		[
 			"Poisons target for 13 Nature damage every 5.0 sec for 25s.", // 18208 - https://www.wowhead.com/forever/spell=18208
@@ -103,6 +109,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		1727, // Sword of Decay
 		[
 			"Reduces target enemy's attack power by 84 for 30s.", // 13528 - https://www.wowhead.com/forever/spell=13528
+		]
+	],
+	[
+		1728, // Teebu's Blazing Longsword
+		[
+			"Blasts a target for 140 Fire damage.", // 1300753 - https://www.wowhead.com/forever/spell=1300753
 		]
 	],
 	[
@@ -271,6 +283,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		5243, // Firebelcher
 		[
 			"Chance on hit to blast the target for 28 Fire damage.", // 1291662 - https://www.wowhead.com/forever/spell=1291662
+		]
+	],
+	[
+		5426, // Serpent's Kiss
+		[
+			"Poisons target for 9 Nature damage every 3.0 sec for 15s.", // 18197 - https://www.wowhead.com/forever/spell=18197
 		]
 	],
 	[
@@ -1044,6 +1062,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13209, // Seal of the Dawn
+		[
+			"+78 Attack Power against Undead. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 23930 - https://www.wowhead.com/forever/spell=23930
+		]
+	],
+	[
 		13213, // Smolderweb's Eye
 		[
 			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
@@ -1189,6 +1213,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13984, // Darrowspike
+		[
+			"Blasts a target for 105 Frost damage.", // 18276 - https://www.wowhead.com/forever/spell=18276
+		]
+	],
+	[
 		14022, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
@@ -1234,6 +1264,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14531, // Frightskull Shaft
 		[
 			"Deals 15 Shadow damage every 2.0 sec for 14s and lowers their attack power by 92 for 14s.", // 18633 - https://www.wowhead.com/forever/spell=18633
+		]
+	],
+	[
+		14541, // Barovian Family Sword
+		[
+			"Deals 49 Shadow damage every 1.0 sec for 5s. All damage done is then transferred to the caster.", // 18652 - https://www.wowhead.com/forever/spell=18652
+		]
+	],
+	[
+		14576, // Ebon Hilt of Marduk
+		[
+			"Corrupts the target, causing 84 damage over 9s.", // 18656 - https://www.wowhead.com/forever/spell=18656
 		]
 	],
 	[
@@ -1583,6 +1625,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
+		]
+	],
+	[
+		19812, // Rune of the Dawn
+		[
+			"Increases damage done to Undead by magical spells and effects by up to 46. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 24198 - https://www.wowhead.com/forever/spell=24198
 		]
 	],
 	[

@@ -142,6 +142,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 623.58309
+  tps: 442.74399
+  hps: 45.51278
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BowofSearingArrows-2825"
  value: {
   dps: 588.68782
@@ -307,6 +315,14 @@ dps_results: {
   dps: 637.64873
   tps: 452.7306
   hps: 46.055
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 606.5238
+  tps: 426.32558
+  hps: 45.86861
  }
 }
 dps_results: {
@@ -835,6 +851,14 @@ dps_results: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 581.24221
+  tps: 412.68197
+  hps: 50.98583
  }
 }
 dps_results: {
