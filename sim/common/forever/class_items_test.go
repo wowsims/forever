@@ -554,8 +554,8 @@ func TestBurningTotemExtendsFlameShock(t *testing.T) {
 }
 
 // Totem of the Storm 272432 lets a landed Lightning Bolt grant a Maelstrom Weapon stack at the share
-// of the talent's rate per minute its dummy 1291078 states, priced on the bolt's cast time. Chain
-// Lightning and the copy Lightning Overload casts never do.
+// of a main-hand hit's chance its dummy 1291078 states. Chain Lightning and the copy Lightning
+// Overload casts never do.
 func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 	sim, wearer := enhancementShamanWithTotem(t, 272432)
 	if wearer.Talents.MaelstromWeapon == 0 {
@@ -603,19 +603,19 @@ func TestTotemOfTheStormLetsLightningBoltGrantMaelstromWeapon(t *testing.T) {
 		t.Errorf("Chain Lightning and the overload granted Maelstrom Weapon %d times, want never", got)
 	}
 
-	// The talent's own rate per minute, measured on main-hand hits at the main hand's speed.
+	// The talent's own chance, measured on main-hand hits.
 	const swings = 60000
 	swung := gains(swings, func() { dealHit(t, sim, &wearer.Character, meleeSwing(&wearer.Unit)) })
-	talentPPM := float64(swung) / swings / (wearer.AutoAttacks.MH().SwingSpeed / 60)
+	hitChance := float64(swung) / swings
 
 	// Against a level 63 target about one bolt in six misses, so a miss that rolled would show.
 	granted := gains(20000, cast(bolt))
 	m := bolt.SpellMetrics[target.UnitIndex]
 	landed := m.Hits + m.Crits
-	want := talentPPM * spelldata.MustFind(1291078).EffectN(1).Percent() * bolt.DefaultCast.CastTime.Minutes()
+	want := hitChance * spelldata.MustFind(1291078).EffectN(1).Percent()
 	if got := float64(granted) / float64(landed); math.Abs(got-want) > 0.015 {
-		t.Errorf("%d of %d landed Lightning Bolts (%v cast) granted a stack, %.3f a bolt, want %.3f",
-			granted, landed, bolt.DefaultCast.CastTime, got, want)
+		t.Errorf("%d of %d landed Lightning Bolts granted a stack, %.3f a bolt, want %.3f of a main-hand hit's %.3f",
+			granted, landed, got, want, hitChance)
 	}
 }
 

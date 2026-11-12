@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Augur'sRegalia"
+ value: {
+  dps: 711.19479
+  tps: 661.33074
+  dtps: 8.0799
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 718.28777
@@ -134,11 +142,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BlackDragonMail"
+ value: {
+  dps: 667.9157
+  tps: 620.83712
+  dtps: 8.17459
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BlackGraspoftheDestroyer-22194"
  value: {
   dps: 704.37335
   tps: 656.18489
   dtps: 9.10367
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 721.45395
+  tps: 669.60913
+  dtps: 8.96329
  }
 }
 dps_results: {
@@ -166,6 +190,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BloodTigerHarness"
+ value: {
+  dps: 710.62414
+  tps: 661.223
+  dtps: 8.56477
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Bloodfist-11744"
  value: {
   dps: 684.33398
@@ -174,11 +206,43 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
+ key: "TestElemental-AllItems-BloodmailRegalia"
  value: {
-  dps: 686.26687
-  tps: 637.84877
-  dtps: 8.78996
+  dps: 661.83117
+  tps: 615.18953
+  dtps: 8.66458
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BloodsoulEmbrace"
+ value: {
+  dps: 676.76678
+  tps: 631.37417
+  dtps: 9.46219
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BloodvineGarb"
+ value: {
+  dps: 767.713
+  tps: 706.95547
+  dtps: 9.31129
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BlueDragonMail"
+ value: {
+  dps: 707.39689
+  tps: 656.35373
+  dtps: 8.43536
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 730.6697
+  tps: 675.62403
+  dtps: 8.98878
  }
 }
 dps_results: {
@@ -211,6 +275,38 @@ dps_results: {
   dps: 635.09218
   tps: 591.36706
   dtps: 7.86589
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Champion'sEarthshaker"
+ value: {
+  dps: 612.25638
+  tps: 571.43356
+  dtps: 8.34006
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Champion'sStormcaller"
+ value: {
+  dps: 656.1432
+  tps: 612.72323
+  dtps: 8.80119
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Champion'sThunderfist"
+ value: {
+  dps: 655.02129
+  tps: 609.43596
+  dtps: 8.78195
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Champion'sWartide"
+ value: {
+  dps: 633.88702
+  tps: 591.13522
+  dtps: 8.51768
  }
 }
 dps_results: {
@@ -278,6 +374,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 612.32557
+  tps: 574.825
+  dtps: 9.01733
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 718.28777
@@ -299,6 +403,14 @@ dps_results: {
   dps: 718.28777
   tps: 666.72844
   dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-DevilsaurArmor"
+ value: {
+  dps: 689.41843
+  tps: 639.51202
+  dtps: 8.75282
  }
 }
 dps_results: {
@@ -543,6 +655,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FieldMarshal'sEarthshaker"
+ value: {
+  dps: 628.66962
+  tps: 586.57844
+  dtps: 8.75885
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-FieldMarshal'sThunderfist"
+ value: {
+  dps: 687.16957
+  tps: 639.73767
+  dtps: 8.83054
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-FieldMarshal'sWartide"
+ value: {
+  dps: 653.19695
+  tps: 608.78363
+  dtps: 8.74499
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FieryWarAxe-870"
  value: {
   dps: 681.67387
@@ -620,6 +756,14 @@ dps_results: {
   dps: 738.60477
   tps: 683.68712
   dtps: 9.11597
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GarboftheUndeadSlayer"
+ value: {
+  dps: 700.78186
+  tps: 650.92085
+  dtps: 9.02504
  }
 }
 dps_results: {
@@ -708,6 +852,14 @@ dps_results: {
   dps: 681.67387
   tps: 633.03061
   dtps: 9.46147
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GreenDragonMail"
+ value: {
+  dps: 684.69006
+  tps: 636.90878
+  dtps: 8.68583
  }
 }
 dps_results: {
@@ -807,6 +959,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-IronfeatherArmor"
+ value: {
+  dps: 734.17693
+  tps: 682.05633
+  dtps: 8.31547
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Ironfoe-11684"
  value: {
   dps: 684.33398
@@ -844,6 +1004,30 @@ dps_results: {
   dps: 745.72021
   tps: 689.30292
   dtps: 9.30125
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-LieutenantCommander'sEarthshaker"
+ value: {
+  dps: 612.25638
+  tps: 571.43356
+  dtps: 8.34006
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-LieutenantCommander'sThunderfist"
+ value: {
+  dps: 655.02129
+  tps: 609.43596
+  dtps: 8.78195
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-LieutenantCommander'sWartide"
+ value: {
+  dps: 633.88702
+  tps: 591.13522
+  dtps: 8.51768
  }
 }
 dps_results: {
@@ -1023,6 +1207,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-NecropileRaiment"
+ value: {
+  dps: 703.35306
+  tps: 653.72354
+  dtps: 8.73974
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Nightfall-19169"
  value: {
   dps: 681.67387
@@ -1108,6 +1300,14 @@ dps_results: {
   dps: 681.67387
   tps: 633.03061
   dtps: 9.46147
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 713.29182
+  tps: 661.81383
+  dtps: 8.96205
  }
 }
 dps_results: {
@@ -1215,6 +1415,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Stormcaller'sGarb"
+ value: {
+  dps: 739.55034
+  tps: 687.75555
+  dtps: 8.38737
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-StormclothRegalia"
+ value: {
+  dps: 632.88352
+  tps: 589.7973
+  dtps: 8.44499
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-StormshroudArmor"
+ value: {
+  dps: 656.52637
+  tps: 611.11917
+  dtps: 8.44313
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 681.67387
@@ -1287,11 +1511,51 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TheDefiler'sDetermination"
+ value: {
+  dps: 692.30471
+  tps: 644.48264
+  dtps: 8.6918
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheDefiler'sFortitude"
+ value: {
+  dps: 699.49528
+  tps: 650.71898
+  dtps: 8.38338
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 730.85305
+  tps: 679.8679
+  dtps: 8.37516
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 690.42814
   tps: 639.92402
   dtps: 9.23163
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 708.16685
+  tps: 659.74768
+  dtps: 8.37516
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheEarthshatterer"
+ value: {
+  dps: 587.676
+  tps: 552.31874
+  dtps: 4.45574
  }
 }
 dps_results: {
@@ -1305,9 +1569,17 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheFiveThunders"
  value: {
-  dps: 704.33149
-  tps: 655.44841
-  dtps: 8.3637
+  dps: 725.64843
+  tps: 672.91867
+  dtps: 8.35692
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheGladiator"
+ value: {
+  dps: 595.86666
+  tps: 556.7641
+  dtps: 8.8512
  }
 }
 dps_results: {
@@ -1319,11 +1591,43 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TheHighlander'sDetermination"
+ value: {
+  dps: 692.30471
+  tps: 644.48264
+  dtps: 8.6918
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheHighlander'sFortitude"
+ value: {
+  dps: 708.55041
+  tps: 660.07826
+  dtps: 8.34997
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 730.85305
+  tps: 679.8679
+  dtps: 8.37516
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 690.42814
   tps: 639.92402
   dtps: 9.23163
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 708.16685
+  tps: 659.74768
+  dtps: 8.37516
  }
 }
 dps_results: {
@@ -1335,11 +1639,43 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-ThePostmaster"
+ value: {
+  dps: 695.64655
+  tps: 648.55203
+  dtps: 8.35829
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheRestrainedEssenceofSapphiron-23046"
  value: {
   dps: 757.91678
   tps: 702.02626
   dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheSpiritcaller"
+ value: {
+  dps: 646.29547
+  tps: 604.28365
+  dtps: 8.3015
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheSpiritcaller'sRage"
+ value: {
+  dps: 640.90342
+  tps: 594.5359
+  dtps: 8.36705
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheSpiritcaller'sStorm"
+ value: {
+  dps: 646.80914
+  tps: 601.39791
+  dtps: 8.17488
  }
 }
 dps_results: {
@@ -1407,6 +1743,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 700.78186
+  tps: 650.92085
+  dtps: 9.02504
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-UnmarredVisionofVoodress-19609"
  value: {
   dps: 722.50383
@@ -1468,6 +1812,30 @@ dps_results: {
   dps: 727.13565
   tps: 674.73948
   dtps: 8.97408
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Warlord'sEarthshaker"
+ value: {
+  dps: 628.66962
+  tps: 586.57844
+  dtps: 8.75885
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Warlord'sThunderfist"
+ value: {
+  dps: 687.16957
+  tps: 639.73767
+  dtps: 8.83054
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Warlord'sWartide"
+ value: {
+  dps: 653.19695
+  tps: 608.78363
+  dtps: 8.74499
  }
 }
 dps_results: {

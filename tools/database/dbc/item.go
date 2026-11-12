@@ -97,6 +97,7 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		Stats:           item.GetStats(item.ItemLevel).ToProtoMap(),
 		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
 		Ilvl:            int32(item.ItemLevel),
+		WeaponSkills:    item.GetWeaponSkills(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
@@ -181,6 +182,18 @@ func (item *Item) GetStats(itemLevel int) *stats.Stats {
 	item.addCasterSpellPower(stats, itemLevel)
 
 	return stats
+}
+
+func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
+	var skills []*proto.WeaponSkillValue
+	for i, stat := range item.BonusStat {
+		if skill, ok := weaponSkillByBonusStat[stat]; ok {
+			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
+				skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: value})
+			}
+		}
+	}
+	return skills
 }
 
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the

@@ -1,10 +1,7 @@
 package shaman
 
 import (
-	"math"
-
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -131,14 +128,6 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// "When applied to main hand, disables any benefit you personally receive from" the totem of the
-// same name: while the main hand carries the imbue, its aura outbids the totem for its category.
-func (shaman *Shaman) holdTotemCategoryOnMainHand(category string, imbue proto.ShamanImbue) {
-	shaman.imbueAuras[imbue].NewExclusiveEffect(category, false, core.ExclusiveEffect{
-		Priority: math.MaxFloat64,
-	})
-}
-
 // Each strike is 439440, the main-hand ability the combat log reports it under, dealing the main
 // hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
 // dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
@@ -184,8 +173,6 @@ func (shaman *Shaman) RegisterWindfuryImbue() {
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
 	shaman.MakeProcTriggerAura(trigger)
-
-	shaman.holdTotemCategoryOnMainHand(buffs.WindfuryTotemCategory, proto.ShamanImbue_WindfuryWeapon)
 }
 
 // The hit is 10444, and the tooltip's ${$16344m1/77-1+($10444m1)} to ${$16344m1/25+($10444m1)}
@@ -218,8 +205,6 @@ func (shaman *Shaman) RegisterFlametongueImbue() {
 	trigger.Name = "Flametongue Weapon Trigger"
 	trigger.TriggerImmediately = true
 	shaman.MakeProcTriggerAura(trigger)
-
-	shaman.holdTotemCategoryOnMainHand(buffs.FlametongueTotemCategory, proto.ShamanImbue_FlametongueWeapon)
 }
 
 // Enchant 1668 casts 16353 off the main hand's hits. The slow, effect 1, is not

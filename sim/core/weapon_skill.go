@@ -49,10 +49,24 @@ func (character *Character) applyWeaponSkills(weaponSkills []*proto.WeaponSkillV
 	for _, weaponSkill := range weaponSkills {
 		if weaponSkill.Skill == proto.WeaponSkill_WeaponSkillFeralCombat && character.Class == proto.Class_ClassDruid {
 			character.PseudoStats.FeralCombatSkill = float64(weaponSkill.Value - character.Level*5)
-		} else if weaponSkill.Skill > proto.WeaponSkill_WeaponSkillUnknown && int(weaponSkill.Skill) < len(character.PseudoStats.WeaponSkills) {
+		} else if character.keepsWeaponSkill(weaponSkill.Skill) {
 			character.PseudoStats.WeaponSkills[weaponSkill.Skill] = float64(weaponSkill.Value - character.Level*5)
 		}
 	}
+}
+
+// An item's weapon skill goes on top of the stated skill, and every copy worn counts; sign -1 takes it off.
+func (character *Character) addItemWeaponSkills(item *Item, sign float64) {
+	for _, weaponSkill := range item.ScalingOptions[0].GetWeaponSkills() {
+		if character.keepsWeaponSkill(weaponSkill.Skill) {
+			character.PseudoStats.WeaponSkills[weaponSkill.Skill] += sign * float64(weaponSkill.Value)
+		}
+	}
+}
+
+// Whether the skill has a slot in the unit's weapon skill bonuses.
+func (character *Character) keepsWeaponSkill(skill proto.WeaponSkill) bool {
+	return skill > proto.WeaponSkill_WeaponSkillUnknown && int(skill) < len(character.PseudoStats.WeaponSkills)
 }
 
 // Rebuilds the hand entries of the attack tables against every enemy, which read the weapons and their

@@ -172,6 +172,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 479.62741
+  tps: 2522.76367
+  dtps: 392.08033
+  hps: 78.29228
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 482.19369
@@ -199,6 +208,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BloodTigerHarness"
+ value: {
+  dps: 469.97356
+  tps: 2470.12689
+  dtps: 413.96564
+  hps: 83.27543
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Bloodfist-11744"
  value: {
   dps: 415.82474
@@ -208,12 +226,21 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-BloodyClawsofAttack-280068"
+ key: "TestFeralBear-AllItems-BloodvineGarb"
  value: {
-  dps: 417.63947
-  tps: 2205.55246
-  dtps: 392.95916
-  hps: 77.07629
+  dps: 466.16601
+  tps: 2427.77716
+  dtps: 450.81975
+  hps: 77.92204
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 480.02685
+  tps: 2503.96964
+  dtps: 392.503
+  hps: 79.19405
  }
 }
 dps_results: {
@@ -241,6 +268,15 @@ dps_results: {
   tps: 2237.12029
   dtps: 430.12584
   hps: 86.53108
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Champion'sSanctuary"
+ value: {
+  dps: 470.89574
+  tps: 2444.47947
+  dtps: 437.50516
+  hps: 85.93669
  }
 }
 dps_results: {
@@ -316,6 +352,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 480.11356
+  tps: 2500.69603
+  dtps: 442.50978
+  hps: 79.68556
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 478.25019
@@ -343,6 +388,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DevilsaurArmor"
+ value: {
+  dps: 493.1547
+  tps: 2574.12332
+  dtps: 415.67442
+  hps: 79.71602
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-DormantHeartoftheMountain-249473"
  value: {
   dps: 475.01745
@@ -367,6 +421,15 @@ dps_results: {
   tps: 2190.48523
   dtps: 535.80481
   hps: 81.69468
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-DreamwalkerRaiment"
+ value: {
+  dps: 413.90639
+  tps: 2180.47727
+  dtps: 422.51918
+  hps: 83.58092
  }
 }
 dps_results: {
@@ -640,6 +703,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-FieldMarshal'sSanctuary"
+ value: {
+  dps: 469.30129
+  tps: 2461.67446
+  dtps: 391.38172
+  hps: 87.06346
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sWildhide"
  value: {
   dps: 432.46708
@@ -712,6 +784,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-GenesisRaiment"
+ value: {
+  dps: 474.65886
+  tps: 2496.96042
+  dtps: 381.33503
+  hps: 83.58629
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-GlacialBlade-19099"
  value: {
   dps: 424.94293
@@ -723,10 +804,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 480.95218
-  tps: 2525.39279
-  dtps: 401.4756
-  hps: 80.37557
+  dps: 485.07236
+  tps: 2523.47009
+  dtps: 400.43404
+  hps: 79.07195
  }
 }
 dps_results: {
@@ -772,6 +853,33 @@ dps_results: {
   tps: 2354.56257
   dtps: 423.53567
   hps: 76.45306
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperFerocity"
+ value: {
+  dps: 450.77358
+  tps: 2363.66466
+  dtps: 423.26683
+  hps: 78.41605
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperRage"
+ value: {
+  dps: 459.6054
+  tps: 2397.02894
+  dtps: 417.24832
+  hps: 77.96873
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperRaiment"
+ value: {
+  dps: 451.35465
+  tps: 2359.92141
+  dtps: 417.58416
+  hps: 76.16648
  }
 }
 dps_results: {
@@ -955,6 +1063,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-IronfeatherArmor"
+ value: {
+  dps: 454.07961
+  tps: 2390.55518
+  dtps: 416.81289
+  hps: 80.79567
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Ironfoe-11684"
  value: {
   dps: 442.6863
@@ -1006,6 +1123,15 @@ dps_results: {
   tps: 2243.04706
   dtps: 433.72314
   hps: 86.30077
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-LieutenantCommander'sSanctuary"
+ value: {
+  dps: 470.89574
+  tps: 2444.47947
+  dtps: 437.50516
+  hps: 85.93669
  }
 }
 dps_results: {
@@ -1189,6 +1315,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-NecropileRaiment"
+ value: {
+  dps: 441.88077
+  tps: 2311.57596
+  dtps: 484.69528
+  hps: 79.92812
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-OrbofFire-12805"
  value: {
   dps: 475.49687
@@ -1240,6 +1375,15 @@ dps_results: {
   tps: 2491.38346
   dtps: 395.29232
   hps: 81.87994
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 470.47929
+  tps: 2475.5925
+  dtps: 404.44827
+  hps: 79.53577
  }
 }
 dps_results: {
@@ -1342,6 +1486,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-StormclothRegalia"
+ value: {
+  dps: 422.88339
+  tps: 2216.25561
+  dtps: 533.62105
+  hps: 77.23612
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-StormshroudArmor"
+ value: {
+  dps: 464.61339
+  tps: 2439.81625
+  dtps: 432.78297
+  hps: 78.66283
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 531.5455
@@ -1441,12 +1603,39 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 463.02462
+  tps: 2418.74695
+  dtps: 396.34718
+  hps: 82.27613
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 488.31959
   tps: 2555.96967
   dtps: 380.89183
   hps: 84.07111
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 471.07478
+  tps: 2469.84292
+  dtps: 388.20479
+  hps: 83.11753
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 463.02462
+  tps: 2418.74695
+  dtps: 396.34718
+  hps: 82.27613
  }
 }
 dps_results: {
@@ -1459,12 +1648,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 471.07478
+  tps: 2469.84292
+  dtps: 388.20479
+  hps: 83.11753
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
   dps: 427.27639
   tps: 2237.7425
   dtps: 391.9949
   hps: 77.32618
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-ThePostmaster"
+ value: {
+  dps: 447.11202
+  tps: 2342.45816
+  dtps: 494.57116
+  hps: 76.409
  }
 }
 dps_results: {
@@ -1501,6 +1708,15 @@ dps_results: {
   tps: 2495.68809
   dtps: 391.93468
   hps: 79.59744
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 474.89481
+  tps: 2499.88136
+  dtps: 397.76754
+  hps: 80.12051
  }
 }
 dps_results: {
@@ -1555,6 +1771,15 @@ dps_results: {
   tps: 2242.22855
   dtps: 411.51514
   hps: 88.0415
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Warlord'sSanctuary"
+ value: {
+  dps: 469.30129
+  tps: 2461.67446
+  dtps: 391.38172
+  hps: 87.06346
  }
 }
 dps_results: {

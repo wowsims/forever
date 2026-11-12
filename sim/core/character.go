@@ -191,6 +191,9 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 			character.PseudoStats.FeralCombatSkill += ps[proto.PseudoStat_PseudoStatFeralCombatSkill]
 		}
 	}
+	for slot := range character.Equipment {
+		character.addItemWeaponSkills(&character.Equipment[slot], 1)
+	}
 
 	if player.EnableItemSwap && player.ItemSwap != nil {
 		character.enableItemSwap(player.ItemSwap)

@@ -186,14 +186,6 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
-	// Increased Fist Weapons +1.
-	// https://www.wowhead.com/forever/spell=1297442
-	// equip: 1297442 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1297442},
-		[]shared.ItemVariant{
-			{ItemID: 280068, ItemName: "Bloody Claws of Attack"},
-		})
-
 	// When struck in combat, inflicts 2 Fire damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1312955
 	// equip: 1312955 (A_DAMAGE_SHIELD)
@@ -1491,20 +1483,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 13953, ItemName: "Silent Fang"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// https://www.wowhead.com/forever/spell=1318945
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 13965, ItemName: "Blackhand's Breadth"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3905,22 +3883,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 279891, ItemName: "Guidance of Ursoc"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3 times as much
-	// damage to Dinosaurs.
-	// https://www.wowhead.com/forever/spell=1311505
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 280032, ItemName: "Bolt's Charged Eyeball"},
 	// })
 
 	// TODO: Manual implementation required
