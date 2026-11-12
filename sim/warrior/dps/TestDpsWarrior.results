@@ -180,6 +180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Bloodfist-11744"
+ value: {
+  dps: 494.77517
+  tps: 429.59697
+  dtps: 2.94293
+  hps: 45.78389
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 526.49098
@@ -240,6 +249,15 @@ dps_results: {
   tps: 436.76274
   dtps: 2.94293
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-CremationLongbow-275441"
+ value: {
+  dps: 495.95818
+  tps: 429.44305
+  dtps: 2.94293
+  hps: 40.07361
  }
 }
 dps_results: {
@@ -306,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Demonshear-13348"
+ value: {
+  dps: 464.35663
+  tps: 392.68276
+  dtps: 2.97628
+  hps: 20.46889
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DiamondFlask-20130"
  value: {
   dps: 505.19476
@@ -348,6 +375,15 @@ dps_results: {
   tps: 444.02762
   dtps: 2.94293
   hps: 38.48083
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DrakefangButcher-12463"
+ value: {
+  dps: 446.31813
+  tps: 380.81871
+  dtps: 2.97628
+  hps: 25.48444
  }
 }
 dps_results: {
@@ -666,6 +702,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 464.06233
+  tps: 393.55348
+  dtps: 2.97628
+  hps: 22.75639
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-FreezingBand-942"
  value: {
   dps: 505.19476
@@ -690,6 +735,15 @@ dps_results: {
   tps: 439.67524
   dtps: 2.89629
   hps: 40.68361
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 448.34016
+  tps: 381.31134
+  dtps: 2.97628
+  hps: 22.57
  }
 }
 dps_results: {
@@ -744,6 +798,15 @@ dps_results: {
   tps: 435.053
   dtps: 2.94293
   hps: 40.27694
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 456.39679
+  tps: 386.92364
+  dtps: 2.97628
+  hps: 21.70583
  }
 }
 dps_results: {
@@ -924,6 +987,15 @@ dps_results: {
   tps: 436.76274
   dtps: 2.94293
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 517.78869
+  tps: 444.63872
+  dtps: 2.94293
+  hps: 38.63333
  }
 }
 dps_results: {
@@ -1134,6 +1206,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 461.77881
+  tps: 391.62353
+  dtps: 2.97628
+  hps: 22.21417
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Prismcharm-15867"
  value: {
   dps: 505.19476
@@ -1206,6 +1287,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 457.51084
+  tps: 386.97888
+  dtps: 2.97628
+  hps: 20.96028
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-SerenityField-272439"
  value: {
   dps: 505.19476
@@ -1275,6 +1365,24 @@ dps_results: {
   tps: 436.76274
   dtps: 2.89629
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Stoneshatter-18388"
+ value: {
+  dps: 495.95818
+  tps: 429.44305
+  dtps: 2.94293
+  hps: 40.07361
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Stoneslayer-9418"
+ value: {
+  dps: 454.82944
+  tps: 385.04484
+  dtps: 2.97628
+  hps: 20.50278
  }
 }
 dps_results: {
@@ -1449,6 +1557,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Venomspitter-13183"
+ value: {
+  dps: 507.76733
+  tps: 438.93444
+  dtps: 2.94293
+  hps: 41.76806
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-VerdantKeeper'sAim-17753"
+ value: {
+  dps: 495.95818
+  tps: 429.44305
+  dtps: 2.94293
+  hps: 40.07361
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-VestmentsoftheDevout"
  value: {
   dps: 456.87691
@@ -1500,6 +1626,15 @@ dps_results: {
   tps: 436.76274
   dtps: 2.94293
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 442.11257
+  tps: 376.96598
+  dtps: 2.97628
+  hps: 23.41722
  }
 }
 dps_results: {
