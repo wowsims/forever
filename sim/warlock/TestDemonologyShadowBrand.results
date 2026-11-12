@@ -135,6 +135,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BloodvineGarb"
+ value: {
+  dps: 828.87248
+  tps: 702.14585
+  dtps: 11.55031
+  hps: 7.65533
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BristleconeCloak-275833"
  value: {
   dps: 766.69265
@@ -175,6 +184,15 @@ dps_results: {
   tps: 651.40264
   dtps: 10.45093
   hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 721.907
+  tps: 613.86467
+  dtps: 10.38859
+  hps: 7.82416
  }
 }
 dps_results: {
@@ -750,6 +768,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 730.57479
+  tps: 616.95151
+  dtps: 10.593
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
  value: {
   dps: 764.43425
@@ -963,6 +989,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-NecropileRaiment"
+ value: {
+  dps: 781.98842
+  tps: 664.13818
+  dtps: 10.33827
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-OrbofFire-12805"
  value: {
   dps: 764.43425
@@ -1013,6 +1047,15 @@ dps_results: {
   tps: 651.40264
   dtps: 10.45093
   hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 767.30866
+  tps: 653.64414
+  dtps: 11.18736
+  hps: 7.82416
  }
 }
 dps_results: {
@@ -1106,6 +1149,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-StormclothRegalia"
+ value: {
+  dps: 697.75268
+  tps: 590.93936
+  dtps: 10.39359
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-SwordofZeal-6622"
  value: {
   dps: 723.15724
@@ -1178,12 +1229,36 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 790.84461
+  tps: 670.23865
+  dtps: 10.9106
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 790.84461
+  tps: 670.23865
+  dtps: 10.9106
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-TheLobotomizer-19324"
  value: {
   dps: 723.15724
   tps: 615.06489
   dtps: 10.45093
   hps: 7.74233
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ThePostmaster"
+ value: {
+  dps: 782.66135
+  tps: 662.1146
+  dtps: 11.00055
  }
 }
 dps_results: {

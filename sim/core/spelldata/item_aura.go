@@ -161,6 +161,39 @@ func ItemAuraUnsupported(s *Spell, equipped bool) []string {
 	return unsupported
 }
 
+// What a set bonus aura leaves out of a row, one reason per effect: an effect that is not an aura or
+// lands on anyone but the wearer, and one the parser skips; and a row restricted to an area group,
+// which the set bonus does not check. Empty means the row parses whole onto the set bonus aura, as
+// shared.ParsedSetBonus parses it. That parse puts every aura effect on the wearer, so an effect meant
+// for a pet is refused here.
+func SetBonusUnsupported(s *Spell) []string {
+	if s == Nil || len(s.Effects) == 0 {
+		return []string{"no row in the store"}
+	}
+
+	var unsupported []string
+	if s.RequiredAreas != 0 {
+		unsupported = append(unsupported, fmt.Sprintf("the row applies only in area group %d", s.RequiredAreas))
+	}
+
+	for i := range s.Effects {
+		e := &s.Effects[i]
+		switch {
+		case !AppliesAura(e.Type):
+			unsupported = append(unsupported, fmt.Sprintf("effect %d is %v", i+1, e.Type))
+		case e.AuraTarget() != AuraOnWearer:
+			unsupported = append(unsupported, fmt.Sprintf("effect %d lands on implicit target %d", i+1, e.Target[0]))
+		}
+	}
+
+	for _, e := range scratchParse(s, AuraOnWearer, false, EffectsOn(s, AuraOnWearer)).Skipped {
+		unsupported = append(unsupported, fmt.Sprintf("effect %d %s misc %d is not parsed%s",
+			e.Index+1, auraName(e.Aura), e.Misc, reasonNote(e.Reason)))
+	}
+
+	return unsupported
+}
+
 func scratchParse(s *Spell, target AuraTarget, equipped bool, positions []int32) *Parsed {
 	scratch := core.NewCharacter(&core.Party{}, 0, &proto.Player{
 		Name:      "Item Aura Scratch",

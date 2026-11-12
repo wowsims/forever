@@ -199,12 +199,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BloodTigerHarness"
+ value: {
+  dps: 468.18282
+  tps: 2461.81391
+  dtps: 416.66065
+  hps: 83.89656
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Bloodfist-11744"
  value: {
   dps: 413.73692
   tps: 2160.8845
   dtps: 395.73618
   hps: 80.65821
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-BloodvineGarb"
+ value: {
+  dps: 460.72222
+  tps: 2402.5849
+  dtps: 451.46443
+  hps: 78.18468
  }
 }
 dps_results: {
@@ -241,6 +259,15 @@ dps_results: {
   tps: 2223.92485
   dtps: 429.68468
   hps: 86.83254
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Champion'sSanctuary"
+ value: {
+  dps: 458.76424
+  tps: 2408.30481
+  dtps: 440.7658
+  hps: 86.70582
  }
 }
 dps_results: {
@@ -316,6 +343,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 473.92685
+  tps: 2477.55332
+  dtps: 433.52608
+  hps: 79.77002
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 466.93433
@@ -343,6 +379,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-DevilsaurArmor"
+ value: {
+  dps: 483.83012
+  tps: 2532.28572
+  dtps: 415.76926
+  hps: 81.09247
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-DormantHeartoftheMountain-249473"
  value: {
   dps: 467.82019
@@ -367,6 +412,15 @@ dps_results: {
   tps: 2156.99821
   dtps: 534.9735
   hps: 83.04698
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-DreamwalkerRaiment"
+ value: {
+  dps: 403.03064
+  tps: 2132.32471
+  dtps: 423.48709
+  hps: 82.88913
  }
 }
 dps_results: {
@@ -640,6 +694,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-FieldMarshal'sSanctuary"
+ value: {
+  dps: 472.4782
+  tps: 2468.78684
+  dtps: 392.43407
+  hps: 87.68061
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FieldMarshal'sWildhide"
  value: {
   dps: 425.78045
@@ -712,6 +775,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-GenesisRaiment"
+ value: {
+  dps: 474.84272
+  tps: 2498.9182
+  dtps: 383.04712
+  hps: 82.31352
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-GlacialBlade-19099"
  value: {
   dps: 423.14468
@@ -772,6 +844,33 @@ dps_results: {
   tps: 2327.67346
   dtps: 420.25039
   hps: 76.84427
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperFerocity"
+ value: {
+  dps: 446.66295
+  tps: 2329.74531
+  dtps: 422.92602
+  hps: 80.56106
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperRage"
+ value: {
+  dps: 453.20499
+  tps: 2368.20871
+  dtps: 413.53334
+  hps: 77.82224
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-GrovekeeperRaiment"
+ value: {
+  dps: 442.1837
+  tps: 2310.16495
+  dtps: 414.65543
+  hps: 76.66297
  }
 }
 dps_results: {
@@ -937,6 +1036,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-IronfeatherArmor"
+ value: {
+  dps: 450.13514
+  tps: 2372.30671
+  dtps: 420.57714
+  hps: 79.27103
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Ironfoe-11684"
  value: {
   dps: 439.10465
@@ -988,6 +1096,15 @@ dps_results: {
   tps: 2226.71748
   dtps: 434.1942
   hps: 86.93985
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-LieutenantCommander'sSanctuary"
+ value: {
+  dps: 458.76424
+  tps: 2408.30481
+  dtps: 440.7658
+  hps: 86.70582
  }
 }
 dps_results: {
@@ -1171,6 +1288,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-NecropileRaiment"
+ value: {
+  dps: 434.30888
+  tps: 2281.37168
+  dtps: 487.19673
+  hps: 82.45718
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-OrbofFire-12805"
  value: {
   dps: 468.29062
@@ -1222,6 +1348,15 @@ dps_results: {
   tps: 2446.84392
   dtps: 393.12704
   hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 470.5633
+  tps: 2457.99479
+  dtps: 408.01513
+  hps: 79.6921
  }
 }
 dps_results: {
@@ -1324,6 +1459,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-StormclothRegalia"
+ value: {
+  dps: 413.94644
+  tps: 2174.78785
+  dtps: 531.81784
+  hps: 76.67802
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-StormshroudArmor"
+ value: {
+  dps: 456.90046
+  tps: 2407.13306
+  dtps: 428.19199
+  hps: 78.57164
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 531.67188
@@ -1423,12 +1576,39 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 453.81075
+  tps: 2378.01878
+  dtps: 397.76719
+  hps: 83.73835
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 477.98062
   tps: 2519.83317
   dtps: 381.30299
   hps: 84.01097
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 464.72029
+  tps: 2444.11158
+  dtps: 383.91473
+  hps: 83.54077
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 453.81075
+  tps: 2378.01878
+  dtps: 397.76719
+  hps: 83.73835
  }
 }
 dps_results: {
@@ -1441,12 +1621,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 464.72029
+  tps: 2444.11158
+  dtps: 383.91473
+  hps: 83.54077
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheLobotomizer-19324"
  value: {
   dps: 427.59458
   tps: 2236.6714
   dtps: 392.19613
   hps: 78.14165
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-ThePostmaster"
+ value: {
+  dps: 445.24829
+  tps: 2317.69451
+  dtps: 495.01051
+  hps: 77.55825
  }
 }
 dps_results: {
@@ -1483,6 +1681,15 @@ dps_results: {
   tps: 2446.84392
   dtps: 393.12704
   hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 476.60852
+  tps: 2487.45049
+  dtps: 401.5156
+  hps: 81.60645
  }
 }
 dps_results: {
@@ -1537,6 +1744,15 @@ dps_results: {
   tps: 2198.60668
   dtps: 412.7746
   hps: 90.56864
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Warlord'sSanctuary"
+ value: {
+  dps: 472.4782
+  tps: 2468.78684
+  dtps: 392.43407
+  hps: 87.68061
  }
 }
 dps_results: {
