@@ -160,14 +160,16 @@ func (warrior *Warrior) registerFlurry() {
 	// Cleave uses one only when it misses. The row's mask reaches ranged and spell hits too; the
 	// tooltip says a melee critical strike, so the mask stays the caller's.
 	//
+	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
+	// whether it lands, is dodged or is parried: it is no white swing and no Heroic Strike or Cleave
+	// miss. Logs of 97 Whirlwind casts by eight dual-wield Fury warriors: 16 of 18 off-hand-only
+	// crits gained Flurry at the cast (all 18 within 130 ms), and 12 casts with Flurry up and a landed
+	// off-hand strike lost no charge, nor did 4 avoided ones.
+	//
 	// TODO: Ingame test needed: the Cleave miss follows the measured Heroic Strike miss; no log
 	// holds a missed Cleave yet.
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if spellData.Whirlwind.Contains(spell) && spell.ProcMask.Matches(core.ProcMaskMeleeOH) {
-				return
-			}
-
 			if result.Outcome.Matches(core.OutcomeCrit) {
 				flurryAura.Activate(sim)
 				flurryAura.SetStacks(sim, int32(flurryBuff.ProcCharges))

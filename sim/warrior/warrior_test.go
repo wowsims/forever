@@ -510,6 +510,7 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	heroicStrike := core.ActionID{SpellID: 11567}
 	cleave := core.ActionID{SpellID: 20569}
+	whirlwindOffHand := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	cases := []struct {
 		name    string
 		spell   core.ActionID
@@ -530,6 +531,10 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
 		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
+		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
+		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
+		{"a landed off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeHit, 3, 3},
+		{"a dodged off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeDodge, 3, 3},
 	}
 
 	for _, c := range cases {
