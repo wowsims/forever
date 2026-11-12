@@ -162,6 +162,14 @@ func RegisterAllProcs() {
 			{ItemID: 22191, ItemName: "Obsidian Mail Tunic"},
 		})
 
+	// Increases your pet's critical strike chance by 2%.
+	// https://www.wowhead.com/forever/spell=27043
+	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
+		[]shared.ItemVariant{
+			{ItemID: 226883, ItemName: "Beastmaster's Gauntlets"},
+		})
+
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1297378
 	// equip: 1297378 (A_DAMAGE_SHIELD)
@@ -2300,6 +2308,7 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 18469, ItemName: "Royal Seal of Eldre'Thalas"},
+	//	{ItemID: 18470, ItemName: "Royal Seal of Eldre'Thalas"},
 	// })
 
 	// TODO: Manual implementation required

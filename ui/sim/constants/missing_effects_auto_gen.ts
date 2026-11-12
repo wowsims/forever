@@ -1514,6 +1514,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18470, // Royal Seal of Eldre'Thalas
+		[
+			"Increases Spirit by 16 in Forest and Grassland areas.", // 1318478 - https://www.wowhead.com/forever/spell=1318478
+		]
+	],
+	[
 		18483, // Mana Channeling Wand
 		[
 			"Chance on hit to restore 65 mana.", // 1302350 - https://www.wowhead.com/forever/spell=1302350
