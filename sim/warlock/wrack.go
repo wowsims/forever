@@ -10,7 +10,7 @@ import (
 )
 
 // While the channel is on the target, this warlock's Corruption, Siphon Life and Bane of Agony there tick every
-// period / (1 + the row's dummy percent), at their application plus whole periods (core.Dot.SetTickPeriod). At half
+// period / (1 + the row's dummy percent), at their application plus whole periods (retimeOnGrid). At half
 // the period each normal tick stays, and the half points between them tick too: each one from the instant the
 // channel starts up to the instant it ends, both included. A channel that starts on a half point ticks it at once,
 // and a recast at the instant the channel ends ticks that point once. Every tick is full and the expiry stays;
@@ -39,16 +39,21 @@ func (warlock *Warlock) registerWrackSpell() {
 		}
 		return fast
 	}
+	// When each effect was last re-timed, cleared each iteration as the clock starts over.
+	retimedAt := map[*core.Dot]time.Duration{}
+	warlock.RegisterResetEffect(func(_ *core.Simulation) {
+		clear(retimedAt)
+	})
 	config.Dot.Aura.OnGain = func(aura *core.Aura, sim *core.Simulation) {
 		for _, spell := range warlock.afflictionDots {
 			dot := spell.Dot(aura.Unit)
-			dot.SetTickPeriod(sim, fastPeriod(dot))
+			retimeOnGrid(sim, dot, fastPeriod(dot), retimedAt)
 		}
 	}
 	config.Dot.Aura.OnExpire = func(aura *core.Aura, sim *core.Simulation) {
 		for _, spell := range warlock.afflictionDots {
 			dot := spell.Dot(aura.Unit)
-			dot.SetTickPeriod(sim, dot.CalcTickPeriod())
+			retimeOnGrid(sim, dot, dot.CalcTickPeriod(), retimedAt)
 		}
 	}
 
@@ -68,4 +73,39 @@ func (warlock *Warlock) registerWrackSpell() {
 			}
 		},
 	}))
+}
+
+// Ticks a running effect every period from now on, at its expiry less whole periods, so its last tick lands on the
+// expiry in full. Apply puts the expiry on the effect's normal ticks, so a period that divides the normal one keeps
+// them and adds the points between, and the normal period again puts the effect back on them. RestoreState drops the
+// queued tick and queues the next one anew, so a tick due now deals here, once: also one whose action the sim has
+// already taken off the queue, as when the channel runs out at the instant of the tick. A point only the new period
+// has ticks here at once, unless the effect was re-timed at this instant before (retimedAt): a re-timing leaves no
+// point at its instant unticked, so a channel recast at the instant one ends does not tick that point again. A point
+// already passed does not tick, and an effect that is not up is left alone. The call must not come from inside the
+// effect's own tick, where the tick queues the next one a second time: Wrack's channel starts and ends from its
+// aura's gain and expiry, never from inside a tick of these effects.
+func retimeOnGrid(sim *core.Simulation, dot *core.Dot, period time.Duration, retimedAt map[*core.Dot]time.Duration) {
+	if !dot.IsActive() || period == dot.TickPeriod() {
+		return
+	}
+	state := dot.SaveState(sim)
+	untilExpiry := state.RemainingDuration
+	lastAt, retimed := retimedAt[dot]
+	retimedAt[dot] = sim.CurrentTime
+	newPointNow := untilExpiry%period == 0 && untilExpiry%state.TickPeriod != 0 && !(retimed && lastAt == sim.CurrentTime)
+	tickNow := state.NextTickIn == 0 || newPointNow
+
+	state.TickPeriod = period
+	state.TicksRemaining = int32((untilExpiry + period - 1) / period)
+	state.NextTickIn = untilExpiry - time.Duration(state.TicksRemaining-1)*period
+	if tickNow {
+		// Counted before it deals, as the effect's own tick does; the next tick is already after now, so an
+		// expiry the tick brings about finds none due.
+		state.TicksDone++
+	}
+	dot.RestoreState(state, sim)
+	if tickNow {
+		dot.TickOnce(sim)
+	}
 }

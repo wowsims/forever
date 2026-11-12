@@ -60,7 +60,6 @@ type Dot struct {
 	BaseTickCount          int32 // base tick count without haste applied
 	remainingTicks         int32
 	ticksDone              int32         // The periodic ticks since the dot was applied.
-	lastTickAt             time.Duration // When the last of those ticks dealt, so read only while there is one.
 	BaseDurationMultiplier float64       // Some effects extend the BaseDuration - i.E. 50% - the DoTs will be subject to normal DoT fitting for base duration extend
 	BaseDurationFlat       time.Duration // Added to the BaseDuration; the DoT fits it into whole extra ticks
 
@@ -186,58 +185,6 @@ func (dot *Dot) TickPeriod() time.Duration {
 	return dot.tickPeriod
 }
 
-// Ticks a running dot every period from now on, at its expiry less whole periods, so its last tick lands on the
-// expiry in full. Apply and CopyDotAndApply put a dot's expiry on its normal ticks, so the grid also holds them: a
-// period that divides the normal one keeps each of them and adds the points between (e.g. Wrack's channel), and the
-// normal period again puts the dot back on them. DurationExtend and AddTick keep the expiry on the ticks the dot has,
-// so while it is re-timed they move it off its normal ticks: they are not for a re-timed dot. A tick due now deals
-// once, at the period it was due at, whether the call comes before or after it at this instant. A point only the new
-// period has ticks at once at the instant of the call, unless the dot already ticked at this instant. A point already
-// passed does not tick; the next tick is the first point after now, also when the call comes from inside the dot's
-// own tick. A channel keeps its ticks, and a dot that is not up its period: the call does nothing for either. Apply
-// sets the period again.
-func (dot *Dot) SetTickPeriod(sim *Simulation, period time.Duration) {
-	if !dot.IsActive() || dot.isChanneled || period == dot.tickPeriod {
-		return
-	}
-	untilExpiry := dot.ExpiresAt() - sim.CurrentTime
-	dueNow := dot.tickAction.NextActionAt == sim.CurrentTime && !dot.tickAction.IsConsumed()
-	newPointNow := untilExpiry%period == 0 && untilExpiry%dot.tickPeriod != 0 &&
-		(dot.ticksDone == 0 || dot.lastTickAt != sim.CurrentTime)
-	if dueNow || newPointNow {
-		// Moved off now first, so an expiry the tick brings about finds no tick due.
-		dot.stopTicking(sim)
-		dot.remainingTicks--
-		dot.ticksDone++
-		dot.lastTickAt = sim.CurrentTime
-		dot.TickOnce(sim)
-		if !dot.IsActive() {
-			return
-		}
-	}
-	dot.tickPeriod = period
-	if dot.tickAction.IsConsumed() {
-		// Called from the dot's own tick, which queues the next one a period on: right after it, at this instant,
-		// the next tick moves to the grid.
-		dot.remainingTicks = int32((untilExpiry + period - 1) / period)
-		sim.AddPendingAction(&PendingAction{NextActionAt: sim.CurrentTime, OnAction: func(sim *Simulation) {
-			if dot.IsActive() {
-				dot.queueOnGrid(sim)
-			}
-		}})
-		return
-	}
-	dot.queueOnGrid(sim)
-}
-
-// Queues the dot's next tick at the first point after now of its grid, its expiry less whole periods.
-func (dot *Dot) queueOnGrid(sim *Simulation) {
-	dot.remainingTicks = int32((dot.ExpiresAt() - sim.CurrentTime + dot.tickPeriod - 1) / dot.tickPeriod)
-	dot.tickAction.Cancel(sim)
-	dot.tickAction.NextActionAt = dot.ExpiresAt() - time.Duration(dot.remainingTicks-1)*dot.tickPeriod
-	sim.AddPendingAction(dot.tickAction)
-}
-
 func (dot *Dot) NextTickAt() time.Duration {
 	if !dot.IsActive() {
 		return 0
@@ -306,7 +253,6 @@ func (dot *Dot) CopyDotAndApply(sim *Simulation, originaldot *Dot) {
 	dot.tickPeriod = originaldot.tickPeriod
 	dot.remainingTicks = originaldot.remainingTicks
 	dot.ticksDone = originaldot.ticksDone
-	dot.lastTickAt = originaldot.lastTickAt
 
 	// must be set before Activate
 	dot.Duration = originaldot.ExpiresAt() - sim.CurrentTime // originaldot.Duration
@@ -389,7 +335,6 @@ func (dot *Dot) stopTicking(sim *Simulation) {
 func (dot *Dot) periodicTick(sim *Simulation) {
 	dot.remainingTicks--
 	dot.ticksDone++
-	dot.lastTickAt = sim.CurrentTime
 	dot.TickOnce(sim)
 	if dot.isChanneled {
 		channelDelay := dot.getChannelClipDelay()

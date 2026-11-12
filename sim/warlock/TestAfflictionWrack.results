@@ -1161,22 +1161,22 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Settings-Human-raid-Wrack-aff_wrack-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 370.8684
-  tps: 324.85983
+  dps: 370.85344
+  tps: 324.8481
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Human-raid-Wrack-aff_wrack-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 544.13571
-  tps: 455.01823
+  dps: 544.08997
+  tps: 454.98237
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Human-raid-Wrack-aff_wrack-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 591.17996
-  tps: 471.31108
+  dps: 591.14321
+  tps: 471.28227
  }
 }
 dps_results: {
@@ -1206,22 +1206,22 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-raid-Wrack-aff_wrack-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 376.11904
-  tps: 328.61066
+  dps: 376.10173
+  tps: 328.59709
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-raid-Wrack-aff_wrack-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 544.96929
-  tps: 455.58092
+  dps: 545.03458
+  tps: 455.63211
  }
 }
 dps_results: {
  key: "TestAfflictionWrack-Settings-Orc-raid-Wrack-aff_wrack-NoBuffs-20.0yards-ShortSingleTarget"
  value: {
-  dps: 594.91797
-  tps: 474.11569
+  dps: 594.88797
+  tps: 474.09217
  }
 }
 dps_results: {
