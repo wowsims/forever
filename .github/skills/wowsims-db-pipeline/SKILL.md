@@ -137,10 +137,10 @@ the one date a cache gives is the `created` time of the file on raidbots, whose
 `https://www.raidbots.com/api/dbcache/verified` lists the newest 100 files across every version and does not page
 back. The first stamps in `item_first_seen.json` are such sightings (#913).
 
-Two files at the same highest push can hold different records, so a group's `Hotfixes` stamp does not prove it took
-every record up to that push. The classes stamped 113904 lacked Wild Growth's coefficient from push 113718 until a
-regeneration from a later file brought it in (#954). A post's hotfix that no row shows (Judgement as a ranged
-attack, November 11) stays out of the store until a file carries it.
+A hotfix file need not hold every record up to its highest push, and two files at one push can differ, so a group's
+`Hotfixes` stamp does not prove it took them all. The classes stamped 113904 lacked Wild Growth's coefficient from
+push 113718 until a regeneration from a later file brought it in (#954). A hotfix the patch notes announce that no
+row shows stays out of the store until a file carries it.
 
 ## Tables the generator does not ship
 
