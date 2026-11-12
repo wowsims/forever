@@ -54,7 +54,7 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 export const DefaultOptions = EnhancementShamanOptions.create({
 	classOptions: {
 		shieldProcrate: 0,
-		imbueMh: ShamanImbue.RockbiterWeapon,
+		imbueMh: ShamanImbue.WindfuryWeapon,
 	},
 });
 
