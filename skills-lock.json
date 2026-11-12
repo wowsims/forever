@@ -10,7 +10,7 @@
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "7de1c71ef7ef53e724c95f39dbe40e91c3ca0b3649172f35f0bb1e346a9d4f85"
+      "computedHash": "9d6dc348246b25e886019909436f6e07b3b004702a2b7c689ba4a5e0237eced9"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
@@ -40,7 +40,7 @@
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "5236da1c6d28fbcee5d165b1e48a57621af9c37724558210094f5da3c2161ce7"
+      "computedHash": "445302c41c1ee0af13bc7e855321b88e17b90b351ba87ebf2785c498aeee7d11"
     },
     "wowsims-dependencies": {
       "source": "./.github/skills",

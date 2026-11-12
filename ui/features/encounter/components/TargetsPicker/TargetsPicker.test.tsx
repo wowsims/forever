@@ -234,6 +234,7 @@ describe('TargetsPicker', () => {
 			`family-${CreatureFamily.CreatureFamilyUnknown}`,
 			`family-${CreatureFamily.CreatureFamilyDwarf}`,
 			`family-${CreatureFamily.CreatureFamilyNaga}`,
+			`family-${CreatureFamily.CreatureFamilyOgre}`,
 			`family-${CreatureFamily.CreatureFamilyOrc}`,
 			`family-${CreatureFamily.CreatureFamilyAquatic}`,
 		]);

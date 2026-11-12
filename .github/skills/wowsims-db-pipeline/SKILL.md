@@ -142,6 +142,29 @@ A hotfix file need not hold every record up to its highest push, and two files a
 push 113718 until a regeneration from a later file brought it in (#954). A hotfix the patch notes announce that no
 row shows stays out of the store until a file carries it.
 
+Every raidbots file up to push 114024 skips push 113722 (Stormstrike, Maelstrom Weapon, the imbue texts), which a
+logged-in game's own `_forever_/Cache/ADB/enUS/DBCache.bin` holds. When an announced change is in no raidbots file,
+read the local game's cache after a login, and regenerate from both: `--dbcache` repeats and combines the files.
+`DB2TOOL_FLAGS` given on the `make` line replaces the makefile's `--basedir "$(WOW_DIR)"`, so a local-install run
+names the install itself:
+
+```
+make db CLASSES=shaman SHARED=0 DB2TOOL_FLAGS="--basedir '<WoW install>' --dbcache <game DBCache.bin> --dbcache <raidbots DBCache.bin>"
+```
+
+The game writes that file when it exits, so quit the game before reading it; while it runs, the new records sit in a
+locked `DBCache.bin<pid>.tmp` beside it. A hotfix can also arrive under a push number below the committed stamp, as
+113722 did under 114015, so compare the records of the two files as well as their highest push. A named file of an
+older build than the install's is left out with no warning unless the run has `--carry-hotfixes`. With no `--dbcache`,
+a local `make db` reads every `DBCache.bin` under the install and every `.bin` in `tools/db2tool/caches`.
+
+The game's cache can reach a push past raidbots' newest, and the generators then refuse the Update Items runs
+(`RequireCommittedHotfixes`) until raidbots publishes a file at that push. That check compares the stamp with
+`BuildInfo.HotfixPush`, the highest push in the database. Once raidbots passes the stamp with a file that still skips
+records the game's cache gave, the next Update Items run writes the items without them. The run merges itself when
+the suites pass, and they fail only where a reverted row moves a `.results` line, so compare that run's item rows
+with master's when it opens.
+
 ## Tables the generator does not ship
 
 `wowsims.db` holds only the tables in `generator-settings.json`'s `Tables`; a name added there is extracted on every

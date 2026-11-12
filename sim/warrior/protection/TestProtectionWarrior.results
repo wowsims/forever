@@ -207,6 +207,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 448.60572
+  tps: 1478.21739
+  dtps: 295.49126
+  hps: 36.6825
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 440.30849
@@ -330,6 +339,15 @@ dps_results: {
   tps: 1385.30942
   dtps: 325.47542
   hps: 36.25889
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 450.01165
+  tps: 1485.28809
+  dtps: 296.2666
+  hps: 36.69944
  }
 }
 dps_results: {
@@ -1019,10 +1037,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 451.51117
-  tps: 1489.35108
-  dtps: 312.7085
-  hps: 36.81806
+  dps: 453.46032
+  tps: 1492.01418
+  dtps: 309.93127
+  hps: 36.88583
  }
 }
 dps_results: {

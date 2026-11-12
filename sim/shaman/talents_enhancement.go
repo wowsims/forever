@@ -239,9 +239,10 @@ func (shaman *Shaman) applyImprovedStormstrike() {
 
 var maelstromWeaponBuff = spellData.MaelstromWeaponTriggered.Highest()
 
-// TODO: the patch notes double the chance to trigger, and no row states a chance as of hotfix push
-// 113596, so the rate is twice the measured 10.
-const maelstromWeaponPPM = 20.0
+// The talent's effect 2, the tooltip's $s2, is the rate per minute: 6 at one point up to 10 at five.
+func maelstromWeaponPPM(rank *spelldata.Spell) float64 {
+	return rank.EffectN(2).BaseValue()
+}
 
 func (shaman *Shaman) applyMaelstromWeapon() {
 	if shaman.Talents.MaelstromWeapon == 0 {
@@ -251,7 +252,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	rank := spellData.MaelstromWeapon.Rank(shaman.Talents.MaelstromWeapon)
 
 	// 408505 supplies the duration, the five stacks and the spells its two mods reach. The amount
-	// per stack is the talent's ranked effect 1, -4% a point; the buff row states rank 5's -20%.
+	// per stack is the talent's ranked effect 1, -20% at every point.
 	perStack := rank.EffectN(1).Percent()
 	castTimeMod := shaman.AddDynamicMod(core.SpellModConfig{
 		Kind:       core.SpellMod_CastTime_Pct,
@@ -284,12 +285,8 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 	maelstromAura := shaman.RegisterAura(config)
 
 	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
-	// column is the "no roll" 100 and it names no procs per minute, while the tooltip says "a
-	// chance". In game the chance per hit rises with the main hand's speed, so it is a rate per
-	// minute; a proc at five stacks refreshes the buff.
-	//
-	// TODO: the measured 10 fits the 3.6 s weapon and a 2.4 s weapon measured about 6.6, both
-	// before the patch notes doubled the chance.
+	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
+	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)
@@ -298,7 +295,7 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskMelee
 		},
-		spelldata.PPM(maelstromWeaponPPM))
+		spelldata.PPM(maelstromWeaponPPM(rank)))
 	trigger.Name = "Maelstrom Weapon - Trigger"
 
 	shaman.MakeProcTriggerAura(trigger)

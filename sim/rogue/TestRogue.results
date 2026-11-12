@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 597.14595
+  tps: 423.97362
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 594.00376
@@ -171,6 +179,14 @@ dps_results: {
   dps: 623.58309
   tps: 442.74399
   hps: 45.51278
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 593.03992
+  tps: 421.05834
+  hps: 51.0875
  }
 }
 dps_results: {
@@ -688,9 +704,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 592.56909
-  tps: 420.72405
-  hps: 50.79944
+  dps: 594.73952
+  tps: 422.26506
+  hps: 50.83333
  }
 }
 dps_results: {

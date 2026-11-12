@@ -1134,13 +1134,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13965, // Blackhand's Breadth
-		[
-			"Marks your target, increasing your Critical Strike chance against them by 5% for 20s. This effect is doubled against Orcs and Ogres.", // 1318944 - https://www.wowhead.com/forever/spell=1318944
-			"", // 1318945 - https://www.wowhead.com/forever/spell=1318945
-		]
-	],
-	[
 		13968, // Eye of the Beast
 		[
 			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
@@ -2701,12 +2694,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		279895, // Ironforge Greathammer
 		[
 			"Blasts a target for 42 Fire damage.", // 1322295 - https://www.wowhead.com/forever/spell=1322295
-		]
-	],
-	[
-		280032, // Bolt's Charged Eyeball
-		[
-			"Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3 times as much damage to Dinosaurs.", // 1311505 - https://www.wowhead.com/forever/spell=1311505
 		]
 	],
 	[
