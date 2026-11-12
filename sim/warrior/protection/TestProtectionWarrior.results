@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 429.19324
+  tps: 1425.41944
+  dtps: 291.6593
+  hps: 36.0725
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BowofSearingArrows-2825"
  value: {
   dps: 448.66471
@@ -312,6 +321,15 @@ dps_results: {
   tps: 1583.78261
   dtps: 232.22337
   hps: 36.36056
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-CrestofRetribution-13375"
+ value: {
+  dps: 457.8826
+  tps: 1507.43839
+  dtps: 296.04997
+  hps: 36.69944
  }
 }
 dps_results: {
@@ -465,6 +483,15 @@ dps_results: {
   tps: 1457.61418
   dtps: 290.39085
   hps: 36.39444
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 425.13046
+  tps: 1403.42958
+  dtps: 291.15163
+  hps: 35.42861
  }
 }
 dps_results: {
@@ -699,6 +726,15 @@ dps_results: {
   tps: 1479.85642
   dtps: 297.72686
   hps: 36.71639
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 448.2915
+  tps: 1475.5864
+  dtps: 302.23347
+  hps: 36.66556
  }
 }
 dps_results: {
@@ -1167,6 +1203,15 @@ dps_results: {
   tps: 1475.29905
   dtps: 294.7219
   hps: 36.66556
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 448.15844
+  tps: 1484.68286
+  dtps: 297.80015
+  hps: 36.69944
  }
 }
 dps_results: {

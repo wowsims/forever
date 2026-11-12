@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-CrestofRetribution-13375"
+ value: {
+  dps: 398.8392
+  tps: 957.40323
+  dtps: 352.71181
+  hps: 21.75667
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 392.82438
@@ -375,6 +384,15 @@ dps_results: {
   tps: 963.48558
   dtps: 337.59613
   hps: 21.24833
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 384.37333
+  tps: 915.87086
+  dtps: 341.63281
+  hps: 20.38417
  }
 }
 dps_results: {
@@ -618,6 +636,15 @@ dps_results: {
   tps: 949.60058
   dtps: 342.07578
   hps: 21.8075
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 386.59993
+  tps: 930.93266
+  dtps: 338.34435
+  hps: 21.73972
  }
 }
 dps_results: {
@@ -1122,6 +1149,15 @@ dps_results: {
   tps: 939.22389
   dtps: 349.87882
   hps: 21.89222
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 392.68345
+  tps: 945.73058
+  dtps: 341.85669
+  hps: 21.8075
  }
 }
 dps_results: {
