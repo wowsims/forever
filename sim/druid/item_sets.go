@@ -15,9 +15,9 @@ func parsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	}
 }
 
-// TODO: Sets without full game files data are not registered: the Feral and Guardian T1 sets, 2115
-// (Grovekeeper Ferocity) and 2113 (Grovekeeper Rage), whose pieces state armor and no other stat, and
-// the Symbols of Unending Life 3-piece bonus.
+// TODO: Not registered: the Feral and Guardian T1 sets, 2115 (Grovekeeper Ferocity) and 2113 (Grovekeeper
+// Rage), until their pieces state stats. Their four shipped pieces, like Grovekeeper Eclipse's, state armor
+// and no other stat. The Symbols of Unending Life 3-piece bonus lacks full game files data.
 
 var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotHead,
