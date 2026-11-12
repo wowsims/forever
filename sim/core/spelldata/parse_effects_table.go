@@ -20,6 +20,9 @@ const (
 	miscDefense     int32 = 95  // A_MOD_SKILL on the Defense skill line
 )
 
+// A_MOD_SKILL on the Feral Combat skill line, the skill a druid's animal forms attack with.
+const miscFeralCombat int32 = 3014
+
 // The weapon skill each of the game files' weapon skill lines is. Unarmed (162) is fist weapons: Devilsaur
 // Claws' "Increased Fist Weapons" names it.
 var weaponSkillLines = map[int32]proto.WeaponSkill{
@@ -510,14 +513,20 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.ParryPercent, v)
 	},
 
-	// Skill points: Defense as defense rating, and a weapon skill on top of the skill the player states.
-	// A profession skill is skipped.
+	// Skill points: Defense as defense rating, a weapon skill on top of the skill the player states, and
+	// Feral Combat, which stands in for the weapon's skill in an animal form. A profession skill is skipped.
 	dbcenums.A_MOD_SKILL: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc == miscDefense {
 			return p.statBuff(stats.DefenseRating, v*core.DefenseRatingPerDefenseLevel)
 		}
+		if p.character == nil {
+			return nil
+		}
+		if e.Misc == miscFeralCombat {
+			return p.skillPoints("FeralCombatSkill", &p.unit.PseudoStats.FeralCombatSkill, v)
+		}
 		skill, ok := weaponSkillLines[e.Misc]
-		if !ok || p.character == nil {
+		if !ok {
 			return nil
 		}
 		return p.weaponSkill(skill, v)
@@ -1271,9 +1280,13 @@ func (p *parser) pseudoAdd(kind string, key string, fields []*float64, v float64
 	return a
 }
 
-// Weapon skill, which the attack tables read when they are built, so a change rebuilds them.
 func (p *parser) weaponSkill(skill proto.WeaponSkill, v float64) *attachment {
-	a := p.pseudoAdd("weapon-skill", fmt.Sprintf("WeaponSkills%d", skill), []*float64{&p.unit.PseudoStats.WeaponSkills[skill]}, v)
+	return p.skillPoints(fmt.Sprintf("WeaponSkills%d", skill), &p.unit.PseudoStats.WeaponSkills[skill], v)
+}
+
+// Skill points, which the attack tables read when they are built, so a change rebuilds them.
+func (p *parser) skillPoints(key string, field *float64, v float64) *attachment {
+	a := p.pseudoAdd("weapon-skill", key, []*float64{field}, v)
 	set := a.set
 	character := p.character
 	a.set = func(sim *core.Simulation, level float64) {

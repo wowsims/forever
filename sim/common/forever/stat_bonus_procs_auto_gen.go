@@ -13,19 +13,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// unsupported: effect 1 A_MOD_SKILL misc 3014 is not parsed on the wearer
-	// equip: 1320726 (A_MOD_SKILL)
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 9414, ItemName: "Oilskin Leggings"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Reduces your damage taken by 5% in the Battle Ring and The Maul.
 	// https://www.wowhead.com/forever/spell=1317285
 	// unsupported: the row applies only in area group 9337, which names no area type
@@ -48,38 +35,20 @@ func RegisterAllProcs() {
 	//	{ItemID: 19024, ItemName: "Arena Grand Master"},
 	// })
 
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// unsupported: effect 1 A_MOD_SKILL misc 3014 is not parsed on the wearer
-	// equip: 1320726 (A_MOD_SKILL)
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// unsupported: effect 1 A_MOD_SKILL misc 3014 is not parsed on the wearer
-	// equip: 1320726 (A_MOD_SKILL)
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
-	// })
-
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1325228
 	// equip: 1325228 (A_DAMAGE_SHIELD)
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1325228},
 		[]shared.ItemVariant{
 			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
+	// Increases Feral Combat +1.
+	// https://www.wowhead.com/forever/spell=1320726
+	// equip: 1320726 (A_MOD_SKILL)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
+		[]shared.ItemVariant{
+			{ItemID: 9414, ItemName: "Oilskin Leggings"},
 		})
 
 	// When struck in combat inflicts 3 Arcane damage to the attacker.
@@ -186,6 +155,14 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
+	// Increases Feral Combat +1.
+	// https://www.wowhead.com/forever/spell=1320726
+	// equip: 1320726 (A_MOD_SKILL)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
+		[]shared.ItemVariant{
+			{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
+		})
+
 	// Increased Fist Weapons +1.
 	// https://www.wowhead.com/forever/spell=1297442
 	// equip: 1297442 (A_MOD_SKILL)
@@ -200,6 +177,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1312955},
 		[]shared.ItemVariant{
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
+		})
+
+	// Increases Feral Combat +1.
+	// https://www.wowhead.com/forever/spell=1320726
+	// equip: 1320726 (A_MOD_SKILL)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
+		[]shared.ItemVariant{
+			{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
 		})
 
 	// Procs

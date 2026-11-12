@@ -1085,6 +1085,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 690.68613
+  tps: 439.49047
+  dtps: 1.2458
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-MindtapTalisman-18371"
  value: {
   dps: 691.98388
@@ -1137,6 +1145,14 @@ dps_results: {
   dps: 703.03631
   tps: 449.55117
   dtps: 1.99278
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 691.79612
+  tps: 439.94344
+  dtps: 1.5771
  }
 }
 dps_results: {
@@ -1313,6 +1329,14 @@ dps_results: {
   dps: 693.04335
   tps: 441.71179
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 683.46805
+  tps: 434.19834
+  dtps: 1.53664
  }
 }
 dps_results: {

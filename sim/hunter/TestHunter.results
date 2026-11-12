@@ -1215,6 +1215,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 765.69386
+  tps: 789.17417
+  dtps: 8.5878
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-MindtapTalisman-18371"
  value: {
   dps: 760.03218
@@ -1274,6 +1283,15 @@ dps_results: {
   dps: 784.23581
   tps: 808.21721
   dtps: 9.1001
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 766.06076
+  tps: 789.54232
+  dtps: 8.5878
   hps: 15.01278
  }
 }
@@ -1473,6 +1491,15 @@ dps_results: {
   tps: 788.67382
   dtps: 8.68311
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 757.86012
+  tps: 781.87642
+  dtps: 9.2251
+  hps: 15.01278
  }
 }
 dps_results: {

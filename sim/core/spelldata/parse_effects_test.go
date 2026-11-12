@@ -818,6 +818,11 @@ func TestParseStaticStatConventions(t *testing.T) {
 	if got := swords.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillSwords]; got != 5 {
 		t.Errorf("sword skill from a 5 point Swords skill row: %v, want 5", got)
 	}
+	feral := parseWarrior()
+	ParseStatic(feral, oneEffectRow(dbcenums.A_MOD_SKILL, miscFeralCombat, 5))
+	if got := feral.PseudoStats.FeralCombatSkill; got != 5 {
+		t.Errorf("feral combat skill from a 5 point Feral Combat skill row: %v, want 5", got)
+	}
 	fishing := parseWarrior()
 	if parsed := ParseStatic(fishing, oneEffectRow(dbcenums.A_MOD_SKILL, 356, 25)); len(parsed.Applied) != 0 {
 		t.Errorf("a Fishing skill row attached %v, want nothing", parsed.Applied)

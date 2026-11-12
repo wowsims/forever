@@ -747,6 +747,22 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	}
 }
 
+// Feral Combat skill on gear stands in for the weapon's skill while the druid is in an animal form.
+func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
+	skill := spelldata.MustFind(1320726).EffectN(1).BaseValue()
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 280016
+	sim, bear := equippedBear(t, items)
+	mh := bear.GetMHWeapon()
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != skill {
+		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
+	}
+	bear.ClearForm(sim)
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != 0 {
+		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
+	}
+}
+
 func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 	const lacerateHitID = 414647
 	for _, kind := range []string{"hit", "zero", "miss", "periodic", "swipe"} {

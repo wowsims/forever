@@ -550,12 +550,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9414, // Oilskin Leggings
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
-		]
-	],
-	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -2722,12 +2716,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		280016, // Spiderchitin Wrap
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
-		]
-	],
-	[
 		280032, // Bolt's Charged Eyeball
 		[
 			"Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3 times as much damage to Dinosaurs.", // 1311505 - https://www.wowhead.com/forever/spell=1311505
@@ -2827,12 +2815,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286556, // Winds of Tanaris
 		[
 			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
-		]
-	],
-	[
-		286616, // Matriarch's Prowlers
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
