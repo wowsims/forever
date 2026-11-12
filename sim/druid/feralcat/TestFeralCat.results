@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 777.42985
+  tps: 577.56496
+  hps: 43.93694
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 770.66261
@@ -163,6 +171,14 @@ dps_results: {
   dps: 714.85202
   tps: 532.90974
   hps: 44.03861
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 775.03946
+  tps: 575.92738
+  hps: 43.85222
  }
 }
 dps_results: {
