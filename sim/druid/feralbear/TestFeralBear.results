@@ -921,10 +921,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Ironfoe-11684"
  value: {
-  dps: 466.71826
-  tps: 2362.70194
-  dtps: 396.88105
-  hps: 82.36422
+  dps: 439.10465
+  tps: 2280.16077
+  dtps: 391.73156
+  hps: 80.85409
  }
 }
 dps_results: {

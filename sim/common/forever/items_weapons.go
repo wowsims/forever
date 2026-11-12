@@ -271,6 +271,32 @@ func init() {
 		character.ItemSwap.RegisterProc(288901, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Ironfoe
+	// https://www.wowhead.com/forever/item=11684/ironfoe
+	//
+	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times
+	// as likely to activate this effect.
+	//
+	// The tooltip states no chance, and the rate is unmeasured. It follows Hand of Justice's tooltip
+	// shape: 1301046's ProcChance is the chance against an Orc and its second effect, a dummy, is the "2
+	// times as likely", so a hit on an Orc rolls the column and a hit on any other target the column
+	// divided by the dummy's value.
+	// TODO: Measure the rate in game, against Orcs and against other targets.
+	core.NewItemEffect(11684, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1301046)
+		extraAttacks := spelldata.MustFind(15494)
+
+		trigger := spelldata.ProcTrigger(character, row, nil)
+		trigger.Name = "Ironfoe"
+		trigger.ActionID = core.ActionID{ItemID: 11684}
+		rollsLikelierAgainst(&trigger, row, proto.CreatureFamily_CreatureFamilyOrc)
+		onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
+		aura := character.MakeProcTriggerAura(trigger)
+		aura.ApplyOnInit(onInit)
+		character.ItemSwap.RegisterProc(11684, aura)
+	})
+
 	// Naga Heartpiercer
 	// https://www.wowhead.com/forever/item=3078/naga-heartpiercer
 	//
@@ -459,6 +485,24 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 		}
 	}
 	return 0
+}
+
+// A roll whose row states the chance against one creature family in its ProcChance column, and on
+// its second effect how many times likelier a hit on that family is than one on any other target.
+// The condition draws the roll, once per hit under the trigger's name, so the trigger's own chance
+// is 1 and draws nothing. The trigger's cooldown starts only once the condition lets a hit through.
+// Name the trigger before calling this, and add a condition of its own after it.
+func rollsLikelierAgainst(trigger *core.ProcTrigger, row *spelldata.Spell, family proto.CreatureFamily) {
+	chance := row.StatedChance()
+	elsewhere := chance / row.EffectN(2).BasePoints
+	label := trigger.Name
+	trigger.ProcChance = 1
+	trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		if result.Target.CreatureFamily == family {
+			return sim.Proc(chance, label)
+		}
+		return sim.Proc(elsewhere, label)
+	}
 }
 
 // The multiplier an effect deals against the creature families it names, and 1 against any other

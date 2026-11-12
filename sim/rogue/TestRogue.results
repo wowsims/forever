@@ -752,9 +752,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Ironfoe-11684"
  value: {
-  dps: 650.14
-  tps: 461.5994
-  hps: 49.15583
+  dps: 626.96508
+  tps: 445.14521
+  hps: 47.96972
  }
 }
 dps_results: {

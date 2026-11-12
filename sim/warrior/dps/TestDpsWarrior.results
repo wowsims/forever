@@ -884,10 +884,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Ironfoe-11684"
  value: {
-  dps: 562.0996
-  tps: 483.91641
+  dps: 540.76308
+  tps: 463.96264
   dtps: 2.94293
-  hps: 41.85278
+  hps: 39.955
  }
 }
 dps_results: {

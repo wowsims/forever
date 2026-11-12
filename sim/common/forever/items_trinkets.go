@@ -367,20 +367,19 @@ func init() {
 	// activate this effect.
 	//
 	// The tooltip states the chance as ${$h/3}%. 15600's ProcChance is the chance against a Dwarf and its
-	// second effect, a dummy, is the "3 times as likely", so a hit on any other target rolls the column
-	// divided by the dummy's value. Combat logs measure 106 extra attacks on 10,977 melee hits on other
-	// targets outside the 2 s cooldown, 0.97%, whatever the wearer's race.
+	// second effect, a dummy, is the "3 times as likely", so a hit on a Dwarf rolls the column and a hit
+	// on any other target the column divided by the dummy's value. Combat logs measure 12 extra attacks
+	// on 437 melee hits on Dark Iron dwarves (2.75%) and 106 on 10,977 on other targets (0.97%), outside
+	// the 2 s cooldown and whatever the wearer's race.
 	core.NewItemEffect(11815, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(15600)
 		extraAttacks := spelldata.MustFind(15601)
 
-		// TODO: A hit on a Dwarf rolls the whole column (12 of 437 hits on Dark Iron dwarves, 2.75%). A
-		// target's CreatureFamily can be Dwarf, but no encounter or picker option sets it and nothing here
-		// reads it.
-		trigger := spelldata.ProcTrigger(character, row, nil, spelldata.Chance(row.StatedChance()/row.EffectN(2).BasePoints))
+		trigger := spelldata.ProcTrigger(character, row, nil)
 		trigger.Name = "Hand of Justice"
 		trigger.ActionID = core.ActionID{ItemID: 11815}
+		rollsLikelierAgainst(&trigger, row, proto.CreatureFamily_CreatureFamilyDwarf)
 		onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 		aura := character.MakeProcTriggerAura(trigger)
 		aura.ApplyOnInit(onInit)

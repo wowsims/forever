@@ -4541,15 +4541,6 @@ func RegisterAllProcs() {
 			{ItemID: 11302, ItemName: "Uther's Strength"},
 		})
 
-	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times as
-	// likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=15494
-	// trigger 1301046 (6%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeMHSpecial) -> buff 15494
-	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 1301046, BuffSpellID: 15494},
-		[]shared.ItemVariant{
-			{ItemID: 11684, ItemName: "Ironfoe"},
-		})
-
 	// When struck in combat has a 1% chance of inflicting 100 Shadow damage to the attacker.
 	// https://www.wowhead.com/forever/spell=16783
 	// trigger 7617 (1%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 16783

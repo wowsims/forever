@@ -593,6 +593,16 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 	}
 }
 
+// Ironfoe 11684 rolls 1301046's ProcChance on each landed melee hit on an Orc, and that column divided
+// by the value of its second effect on any other target.
+func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
+	expectLikelierAgainst(t, 1301046, proto.CreatureFamily_CreatureFamilyOrc, func(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, int32) {
+		sim, character := trinketWarriorWielding(t, 0, 11684, 0)
+		extraAttack, perProc := extraAttackOf(t, sim, character, 11684, 15494)
+		return sim, character, extraAttack, perProc
+	})
+}
+
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
 // that brings the stacks to the count the row names casts Perfected Form 1325508: its damage once,
 // its +20 to every stat for the row's duration, and the stacks gone so they build again.
