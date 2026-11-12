@@ -160,14 +160,15 @@ func (warrior *Warrior) registerFlurry() {
 	// Cleave uses one only when it misses. The row's mask reaches ranged and spell hits too; the
 	// tooltip says a melee critical strike, so the mask stays the caller's.
 	//
+	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
+	// whether it lands, is dodged or is parried. Logs of 97 Whirlwind casts by eight dual-wield Fury warriors: 16 of 18 off-hand-only
+	// crits gained Flurry at the cast (all 18 within 130 ms), and 12 casts with Flurry up and a landed
+	// off-hand strike lost no charge, nor did 4 avoided ones.
+	//
 	// TODO: Ingame test needed: the Cleave miss follows the measured Heroic Strike miss; no log
 	// holds a missed Cleave yet.
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if spellData.Whirlwind.Contains(spell) && spell.ProcMask.Matches(core.ProcMaskMeleeOH) {
-				return
-			}
-
 			if result.Outcome.Matches(core.OutcomeCrit) {
 				flurryAura.Activate(sim)
 				flurryAura.SetStacks(sim, int32(flurryBuff.ProcCharges))
@@ -215,18 +216,19 @@ func (warrior *Warrior) registerGoreDrinker() {
 	}
 	heal := warrior.RegisterSpell(healConfig)
 
-	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
-
 	buffConfig := spelldata.AuraConfig(goreDrinkerBuff)
 	buffConfig.MaxStacks = charges
-	buffConfig.OnReset = func(_ *core.Aura, _ *core.Simulation) {
-		resetFirstAoeHit()
-	}
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
+	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
+	// target alike, until the charges run out. Measured in 82 clean Whirlwind casts: one per landed
+	// strike fits 76, one per cast only the 25 where the two coincide (two main-hand and two
+	// off-hand strikes landed at 3 charges gave 3 heals; a dodged main hand and one landed off-hand
+	// strike gave 1). Cleave: 2 landed strikes gave 2 heals at 3 charges (13 casts) and at 2 charges
+	// (10 casts). So the buff builds its own spender: spelldata.AttachChargeSpender spends one charge a
+	// cast.
+	//
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
-	// TODO: Ingame test needed: Cleave and Whirlwind spend one charge and heal once per cast, however
-	// many targets they hit.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
@@ -238,15 +240,6 @@ func (warrior *Warrior) registerGoreDrinker() {
 		})
 	consume.Name = "Gore Drinker - Heal"
 	consume.Outcome = core.OutcomeLanded
-	consume.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) {
-			return true
-		}
-		if !spellData.Cleave.Contains(spell) && !spellData.Whirlwind.Contains(spell) {
-			return true
-		}
-		return firstAoeHit(sim, spell)
-	}
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
 	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,
