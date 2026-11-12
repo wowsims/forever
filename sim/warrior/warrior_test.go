@@ -738,6 +738,71 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 	}
 }
 
+// Sweeping Strikes' copied hit 12723 states no DefenseType, so it rolls neither Nightblade's
+// chance-on-hit bolt nor the main-hand weapon's Crusader; the normalized hit 26654, a melee hit, rolls both.
+// The copied hit with melee DefenseType rolls them too.
+func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
+	const sweepingStrikesHit = 12723
+	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982, Enchant: crusader}
+	player := &proto.Player{
+		Name:          "Sweeping",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     gear,
+		TalentsString: armsTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	stepPastBatch(t, sim)
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	target := war.CurrentTarget
+
+	// Both hits carry both hands' special bits, so Crusader's handler raises the off-hand buff.
+	holyStrength := []*core.Aura{war.GetAura("Holy Strength (MH)"), war.GetAura("Holy Strength (OH)")}
+	shadowBolt := war.GetSpell(core.ActionID{SpellID: 18211})
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	normalized := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit, Tag: 1})
+	if holyStrength[0] == nil || holyStrength[1] == nil || shadowBolt == nil || copied == nil || normalized == nil {
+		t.Fatal("the warrior lacks Crusader, Nightblade's bolt or a Sweeping Strikes hit")
+	}
+
+	// Each hit's procs go off by the end of its spell batch.
+	procs := func(spell *core.Spell) (crusader int, bolts int32) {
+		t.Helper()
+		before := shadowBolt.SpellMetrics[target.UnitIndex].Casts
+		for range 1000 {
+			for _, aura := range holyStrength {
+				aura.Deactivate(sim)
+			}
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepPastBatch(t, sim)
+			if holyStrength[0].IsActive() || holyStrength[1].IsActive() {
+				crusader++
+			}
+		}
+		return crusader, shadowBolt.SpellMetrics[target.UnitIndex].Casts - before
+	}
+
+	if crusader, bolts := procs(copied); crusader != 0 || bolts != 0 {
+		t.Errorf("1000 copied hits procced Crusader %d and Nightblade %d times, want neither", crusader, bolts)
+	}
+	if crusader, bolts := procs(normalized); crusader == 0 || bolts == 0 {
+		t.Errorf("1000 normalized hits procced Crusader %d and Nightblade %d times, want both", crusader, bolts)
+	}
+	copied.DefenseType = core.DefenseTypeMelee
+	if crusader, bolts := procs(copied); crusader == 0 || bolts == 0 {
+		t.Errorf("1000 copied hits with melee DefenseType procced Crusader %d and Nightblade %d times, want both, so the first check proves nothing", crusader, bolts)
+	}
+}
+
 // Heroic Strike goes off on the next swing, which casts it directly, so the press that queues it is the
 // manual cast. A press whose swing never fires still counts.
 func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {

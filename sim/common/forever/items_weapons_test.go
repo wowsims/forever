@@ -416,7 +416,7 @@ func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
 	enemy := character.CurrentTarget
 	casts := func() int32 { return summon.SpellMetrics[enemy.UnitIndex].Casts }
 	hit := func(outcome core.HitOutcome, damage float64) {
-		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Unit: &character.Unit},
+		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit},
 			&core.SpellResult{Target: enemy, Outcome: outcome, Damage: damage})
 	}
 

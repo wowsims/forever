@@ -107,7 +107,7 @@ func (p *testPet) ExecuteCustomRotation(_ *core.Simulation) {}
 
 func (p *testPet) Initialize() {
 	p.Pet.Initialize()
-	p.claw = p.RegisterSpell(testHit(petClawID, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial))
+	p.claw = p.RegisterSpell(testStrike(petClawID))
 }
 
 func (c *auraTester) GetCharacter() *core.Character       { return &c.Character }
@@ -118,7 +118,7 @@ func (c *auraTester) OnEncounterStart(_ *core.Simulation) {}
 
 func (c *auraTester) Initialize() {
 	c.bolt = c.RegisterSpell(testHit(auraBoltID, core.SpellSchoolArcane, core.ProcMaskSpellDamage))
-	c.strike = c.RegisterSpell(testHit(auraStrikeID, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial))
+	c.strike = c.RegisterSpell(testStrike(auraStrikeID))
 
 	manaBolt := testHit(auraManaBoltID, core.SpellSchoolArcane, core.ProcMaskSpellDamage)
 	manaBolt.ManaCost = core.ManaCostOptions{FlatCost: 100}
@@ -137,6 +137,13 @@ func testHit(id int32, school core.SpellSchool, mask core.ProcMask) core.SpellCo
 			spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeAlwaysHit)
 		},
 	}
+}
+
+// A main-hand melee special that weapon procs hear, which takes melee DefenseType.
+func testStrike(id int32) core.SpellConfig {
+	config := testHit(id, core.SpellSchoolPhysical, core.ProcMaskMeleeMHSpecial)
+	config.DefenseType = core.DefenseTypeMelee
+	return config
 }
 
 func withAuraItem(id int32, itemType proto.ItemType, effects ...*proto.ItemEffect) {

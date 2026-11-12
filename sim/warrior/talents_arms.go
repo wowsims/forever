@@ -436,6 +436,8 @@ func (warrior *Warrior) registerSweepingStrikes() {
 	actionID := core.ActionID{SpellID: sweepingStrikesHitID}
 
 	var copyDamage float64
+	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
+	// enchant hears the copied hit. Equip procs still hear it; no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
