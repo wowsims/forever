@@ -144,6 +144,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 837.25057
+  tps: 683.79157
+  dtps: 6.05497
+  hps: 23.54668
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BladeofHanna-2801"
  value: {
   dps: 796.91687
@@ -177,6 +186,15 @@ dps_results: {
   tps: 614.25666
   dtps: 5.70537
   hps: 22.61931
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 831.4307
+  tps: 679.17271
+  dtps: 6.47584
+  hps: 23.55176
  }
 }
 dps_results: {

@@ -158,6 +158,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 702.79269
+  tps: 448.10013
+  dtps: 0.80333
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BladeofHanna-2801"
  value: {
   dps: 675.83172
@@ -227,6 +235,14 @@ dps_results: {
   dps: 667.30813
   tps: 422.58982
   dtps: 0.97203
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 697.14018
+  tps: 445.80863
+  dtps: 0.75707
  }
 }
 dps_results: {

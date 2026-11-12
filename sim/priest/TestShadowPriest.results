@@ -118,6 +118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 751.1623
+  tps: 536.73545
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 746.48527
@@ -139,6 +147,14 @@ dps_results: {
   dps: 750.99382
   tps: 536.61751
   dtps: 5.71845
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 756.36958
+  tps: 541.77996
+  dtps: 5.03404
  }
 }
 dps_results: {

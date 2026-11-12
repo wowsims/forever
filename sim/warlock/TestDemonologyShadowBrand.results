@@ -108,6 +108,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 767.56102
+  tps: 654.40434
+  dtps: 10.45093
+  hps: 7.66513
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 764.21135
@@ -132,6 +141,15 @@ dps_results: {
   tps: 615.06489
   dtps: 10.45093
   hps: 7.74233
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 758.78676
+  tps: 646.3481
+  dtps: 10.93222
+  hps: 7.66513
  }
 }
 dps_results: {
