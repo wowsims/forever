@@ -194,6 +194,8 @@ func (warrior *Warrior) cancelQueuedAttack(sim *core.Simulation) {
 }
 
 // Whirlwind's one strike a cast, against two targets or more.
+// TODO: Ingame test needed: the main hand's one normalized hit and one charge per Whirlwind cast is
+// measured (43 casts at 2 to 4 targets), but whether the off-hand strike brings its own hit is not.
 func (warrior *Warrior) CastNormalizedSweepingStrikesAttack(results core.SpellResultSlice, sim *core.Simulation) {
 	if warrior.SweepingStrikesAura != nil && warrior.SweepingStrikesAura.IsActive() && warrior.Env.ActiveTargetCount() >= 2 {
 		for _, result := range results {
