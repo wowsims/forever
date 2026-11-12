@@ -342,6 +342,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 527.97335
+  tps: 438.38324
+  dtps: 2.94293
+  hps: 38.09111
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 470.41298
@@ -834,6 +843,15 @@ dps_results: {
   tps: 433.29199
   dtps: 2.94293
   hps: 39.955
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 515.19371
+  tps: 444.74481
+  dtps: 2.96243
+  hps: 40.14139
  }
 }
 dps_results: {

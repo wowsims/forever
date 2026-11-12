@@ -36,6 +36,7 @@ var ExtraSpells = []Extra{
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},
 	{SpellID: 439440, Reason: "Windfury Weapon's extra attack, which the combat log reports each strike of the imbue under; the rank's 16361 casts it by script, and no row links it to the imbue", Source: "Combat log, Slayerone and Zenkahi, 2026-10-05 and 2026-10-07"},
+	{SpellID: 9591, Reason: "Acid Spit, cast by the Emerald Dragon Whelp (creature 8776) that Dragon's Call 13049 summons; a creature's spells are on the server, so no row links it", Source: "Combat log, 2026-11-12"},
 	{SpellID: 1311703, Reason: "Seal of Command's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311703"},
 	{SpellID: 1311704, Reason: "Seal of Righteousness's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311704"},
 	{SpellID: 1311705, Reason: "Seal of Justice's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311705"},

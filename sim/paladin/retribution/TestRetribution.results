@@ -765,6 +765,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 834.7137
+  tps: 681.89802
+  dtps: 6.19393
+  hps: 23.54871
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-ImperialPlate"
  value: {
   dps: 715.56241

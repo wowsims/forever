@@ -154,7 +154,9 @@ listener hears, how often it fires and its internal cooldown. The buff's row sup
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
-sentinel is never a rate.
+sentinel is never a rate. An ability whose row requires a shield (Shield Slam, Shield Bash) or has magic
+DefenseType (Thunder Clap) reaches equip procs and no chance-on-hit effect or combat enchant; auto attacks
+are exempt, so a wand's shots still cast them.
 
 The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
 table of the row's defense type and takes armor or resistance like any other, and the wearer gains the

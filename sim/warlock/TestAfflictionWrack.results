@@ -270,6 +270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 842.50937
+  tps: 678.87562
+  dtps: 9.07236
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 842.50937
@@ -612,6 +620,14 @@ dps_results: {
   dps: 925.95829
   tps: 743.54085
   dtps: 9.13784
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 925.33029
+  tps: 742.90762
+  dtps: 9.15419
  }
 }
 dps_results: {

@@ -270,6 +270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 837.48844
+  tps: 662.05272
+  dtps: 10.38107
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 837.48844
@@ -612,6 +620,14 @@ dps_results: {
   dps: 917.19972
   tps: 723.74083
   dtps: 9.91129
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 911.57686
+  tps: 718.46697
+  dtps: 10.19324
  }
 }
 dps_results: {

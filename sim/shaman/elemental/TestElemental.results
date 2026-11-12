@@ -751,6 +751,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 728.09083
+  tps: 675.20338
+  dtps: 9.16351
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-IcebladeHacker-13952"
  value: {
   dps: 684.33398

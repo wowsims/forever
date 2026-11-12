@@ -357,6 +357,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 683.46805
@@ -818,6 +826,14 @@ dps_results: {
   dps: 693.04335
   tps: 441.71179
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 699.46682
+  tps: 448.06353
+  dtps: 0.7773
  }
 }
 dps_results: {

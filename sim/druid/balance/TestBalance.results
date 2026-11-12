@@ -750,6 +750,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 875.42554
+  tps: 886.59764
+  dtps: 5.19642
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-HowlingIdol-272427"
  value: {
   dps: 913.79338

@@ -333,6 +333,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 406.22316
+  tps: 938.1265
+  dtps: 339.55083
+  hps: 21.11278
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 390.53697
@@ -879,6 +888,15 @@ dps_results: {
   tps: 944.9706
   dtps: 321.80126
   hps: 21.62111
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 398.98366
+  tps: 950.08927
+  dtps: 349.64547
+  hps: 21.96
  }
 }
 dps_results: {

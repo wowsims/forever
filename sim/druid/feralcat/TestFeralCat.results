@@ -702,6 +702,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 773.53587
+  tps: 574.86106
+  hps: 43.85222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-IdolofHealth-22399"
  value: {
   dps: 764.05884

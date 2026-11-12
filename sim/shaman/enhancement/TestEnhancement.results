@@ -684,6 +684,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 871.66019
+  tps: 906.75929
+  dtps: 7.8305
+  hps: 32.83833
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-IronShieldSpike-43"
  value: {
   dps: 845.86524
