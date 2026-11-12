@@ -17,6 +17,8 @@ func (druid *Druid) registerPounceSpell() {
 	bleedTick := bleedRank.PeriodicDamageEffect()
 	bleedConfig.Dot = spelldata.DotConfig(bleedRank, bleedTick)
 	// Attack power is read at each tick, and Rend and Tear raises the ticks.
+	// TODO: Ingame research needed -- whether the bleed alone meets Rend and Tear's bleed check; every tick
+	// measured with the talent had Rake or Rip up on the target too.
 	bleedConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 		damage := (bleedTick.AverageAt(druid.level()) + bleedTick.APCoeff()*dot.Spell.MeleeAttackPower(target)) * druid.rendAndTearMultiplier(target)
 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, bleedRank.TickOutcome(dot))

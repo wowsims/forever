@@ -421,18 +421,18 @@ func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *Feral
 	return sim, players[0].(*FeralDruid), players[1].(*FeralDruid)
 }
 
-// Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own
-// bleed as the bleed on the target, and the talent is the only difference between the two builds.
+// Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own bleed as the bleed on the
+// target, and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
+	want := 1 + spelldata.Talent(1223246, 5).Rank(5).EffectN(1).Percent()
 	for _, c := range []struct {
 		name  string
 		spell func(*FeralDruid) *druid.DruidSpell
-		want  float64
 	}{
-		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }, 1.15},
-		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }, 1.15},
-		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }, 1.15},
+		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }},
+		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }},
+		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }},
 	} {
 		tick := func(talents string) float64 {
 			sim, cat := newCat(t, talents, nil)
@@ -449,8 +449,8 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 			return metric.TotalDamage - before
 		}
 		plain, raised := tick(""), tick(rendAndTear5)
-		if plain <= 0 || math.Abs(raised/plain-c.want) > 1e-6 {
-			t.Errorf("%s: tick %g without the talent, %g with 5/5, want x%g", c.name, plain, raised, c.want)
+		if plain <= 0 || math.Abs(raised/plain-want) > 1e-6 {
+			t.Errorf("%s: tick %g without the talent, %g with 5/5, want x%g", c.name, plain, raised, want)
 		}
 	}
 }
