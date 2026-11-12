@@ -663,6 +663,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.87048
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-IronShieldSpike-43"
  value: {
   dps: 744.31941

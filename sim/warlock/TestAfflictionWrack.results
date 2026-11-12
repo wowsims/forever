@@ -615,6 +615,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 932.78117
+  tps: 749.43787
+  dtps: 9.32099
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-ImplementsofUnspokenNames"
  value: {
   dps: 920.18552

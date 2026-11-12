@@ -559,6 +559,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 819.85151
+  tps: 819.2148
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Illusionist'sAttire"
  value: {
   dps: 830.98857

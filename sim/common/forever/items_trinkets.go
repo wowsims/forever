@@ -276,32 +276,34 @@ func init() {
 	//
 	// Chance on hit to deal 69 to 81 Arcane damage. Deals 2 times as much damage to Naga and Satyrs.
 	//
-	// TODO: waiting for PPM data
-	//
 	// The 2 times is the trigger 1318159's own value; 1265634 states only the damage.
-	// core.NewItemEffect(260205, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1265634)
-	// 	triggerRow := spelldata.MustFind(1318159)
-	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := triggerRow.Effects[0].BaseValue()
-	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-	// 			proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
-	// 	}
-	// 	ancientPower := character.RegisterSpell(config)
-	//
-	// 	trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		ancientPower.Cast(sim, result.Target)
-	// 	}, spelldata.Chance(highborneResearchTabletChance))
-	// 	trigger.Name = "Highborne Research Tablet"
-	// 	trigger.ActionID = core.ActionID{ItemID: 260205}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
-	// })
+	core.NewItemEffect(260205, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1265634)
+		triggerRow := spelldata.MustFind(1318159)
+		damage := row.DamageEffect()
+		familyMultiplier := triggerRow.Effects[0].BaseValue()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
+				proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr)
+			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+		}
+		ancientPower := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			ancientPower.Cast(sim, result.Target)
+		})
+		// The tooltip's damage hint lets the landed application of a DoT roll; combat logs show Rend
+		// and Concussion Blow applications never proc it, so only a hit that dealt damage rolls.
+		trigger.RequireDamageDealt = true
+		trigger.RequireDamageComponent = false
+		trigger.Name = "Highborne Research Tablet"
+		trigger.ActionID = core.ActionID{ItemID: 260205}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
+	})
 
 	// Dormant Heart of the Mountain
 	// https://www.wowhead.com/forever/item=249473/dormant-heart-of-the-mountain
@@ -354,9 +356,6 @@ func init() {
 		})
 	})
 }
-
-// TODO: The game files state no rate for these procs, and none is measured on Forever.
-// const highborneResearchTabletChance = 0 // TODO: waiting for PPM data
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.
 var eternalPowerHeals = []spelldata.Ladder{

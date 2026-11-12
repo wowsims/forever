@@ -837,6 +837,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 515.19371
+  tps: 444.74481
+  dtps: 2.98082
+  hps: 40.14139
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Hurricane-2824"
  value: {
   dps: 496.96858

@@ -615,6 +615,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 916.81355
+  tps: 723.43807
+  dtps: 9.98188
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-ImplementsofUnspokenNames"
  value: {
   dps: 901.77614

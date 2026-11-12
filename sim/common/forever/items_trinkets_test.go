@@ -480,6 +480,38 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	}
 }
 
+// Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the swing's speed
+// for every landed hit that deals damage, and casts 1265634 on the target. A hit that deals none
+// (an application) never rolls.
+func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
+	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
+	proc := character.GetAura("Highborne Research Tablet")
+	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("260205 registers no proc on a procs per minute rate")
+	}
+	ppm := float64(spelldata.MustFind(1318159).RPPM)
+	speed := character.AutoAttacks.MH().SwingSpeed
+	if chance, want := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim), ppm*speed/60; ppm <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
+		t.Errorf("the chance on a main hand swing is %v, want the row's procs per minute on the swing's speed, %v", chance, want)
+	}
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	hit := func(spell *core.Spell, damage float64) {
+		t.Helper()
+		character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: damage})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	}
+	hit(meleeSwing(&character.Unit), 0)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 0 {
+		t.Errorf("a hit that dealt no damage cast it %d times, want none", got)
+	}
+	hit(meleeSwing(&character.Unit), 100)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
+		t.Errorf("a landed damaging hit cast it %d times, want once", got)
+	}
+}
+
 // Dormant Heart of the Mountain 249473's 1249118 answers a heal of any rank of Greater Heal, Healing
 // Touch, Healing Wave or Holy Light with 1249119: the row's healing and spell damage for its
 // duration. Another heal, such as Flash of Light, does not.

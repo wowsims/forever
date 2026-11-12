@@ -710,6 +710,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 597.62541
+  tps: 424.31404
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Hurricane-2824"
  value: {
   dps: 588.68782

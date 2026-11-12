@@ -3180,19 +3180,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Chance on hit to deal 75 Arcane damage. Deals 2 times as much damage to Naga and Satyrs.
-	// https://www.wowhead.com/forever/spell=1265634
-	// unsupported: states no rate
-	// trigger 1318159 (no stated rate, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 1265634
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318159, BuffSpellID: 1265634},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 260205, ItemName: "Highborne Research Tablet"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases running and swimming speed by 5%.
 	// https://www.wowhead.com/forever/spell=1284734
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{

@@ -466,6 +466,13 @@ var Spells = []Override{
 		Source:  "issue #225",
 	},
 	{
+		SpellID: 1318159,
+		Field:   PPM,
+		Value:   2.6,
+		Reason:  "Highborne Research Tablet: 2.6 procs per minute, 70 procs in 647 landed damaging melee hits at a 2.5 s weapon; the game files state none",
+		Source:  "combat log, 2026-11-12",
+	},
+	{
 		SpellID: 1079,
 		Field:   APCoefPeriodic,
 		Value:   0.0114,

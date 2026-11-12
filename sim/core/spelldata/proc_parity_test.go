@@ -72,14 +72,6 @@ func liveProcs() []liveProc {
 		shieldSpike(272591, 13959, "Premier High Warlord's Shield Wall"),
 		shieldSpike(272838, 13959, "Premier Grand Marshal's Aegis"),
 		{
-			// "Chance on hit" beside a column of 100 states no rate.
-			itemID: 260205, name: "Highborne Research Tablet", triggerSpellID: 1318159,
-			callback: core.CallbackOnSpellHitDealt,
-			procMask: shieldSpikeMask | core.ProcMaskSpellDamage,
-			outcome:  core.OutcomeLanded, chance: 1,
-			unsupported: "states no rate",
-		},
-		{
 			itemID: 285278, name: "Satchel of Dark Iron Bombs", triggerSpellID: 1318123,
 			callback: core.CallbackOnSpellHitDealt, procMask: core.ProcMaskRangedAuto,
 			outcome: core.OutcomeLanded, requireDamageDealt: true, chance: 1,

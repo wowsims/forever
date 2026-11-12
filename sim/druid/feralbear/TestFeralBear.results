@@ -838,6 +838,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 463.93836
+  tps: 2387.0262
+  dtps: 392.35375
+  hps: 81.16423
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-HowlingIdol-272427"
  value: {
   dps: 464.15655

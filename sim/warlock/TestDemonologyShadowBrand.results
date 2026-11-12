@@ -715,6 +715,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 764.35158
+  tps: 651.32328
+  dtps: 10.60628
+  hps: 7.66513
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-ImplementsofUnspokenNames"
  value: {
   dps: 790.71523

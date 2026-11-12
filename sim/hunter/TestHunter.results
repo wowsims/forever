@@ -918,6 +918,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 775.45089
+  tps: 799.0168
+  dtps: 8.67363
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Hurricane-2824"
  value: {
   dps: 711.55613

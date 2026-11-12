@@ -821,6 +821,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 699.46682
+  tps: 448.06353
+  dtps: 0.79713
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Hurricane-2824"
  value: {
   dps: 675.69766

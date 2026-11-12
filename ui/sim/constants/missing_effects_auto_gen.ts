@@ -2216,12 +2216,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		260205, // Highborne Research Tablet
-		[
-			"Chance on hit to deal 75 Arcane damage. Deals 2 times as much damage to Naga and Satyrs.", // 1265634 - https://www.wowhead.com/forever/spell=1265634
-		]
-	],
-	[
 		260308, // Hyjal Postal Clasp
 		[
 			"Increases running and swimming speed by 5%.", // 1284734 - https://www.wowhead.com/forever/spell=1284734
