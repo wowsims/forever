@@ -59,13 +59,22 @@ func catPlayer(name, talents string, consumes *proto.ConsumesSpec, worn map[prot
 
 func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
 	t.Helper()
+	return newCatAgainst(t, catPlayer("Cat", talents, consumes, worn), 1)
+}
+
+func newCatAgainst(t *testing.T, player *proto.Player, numTargets int) (*core.Simulation, *FeralDruid) {
+	t.Helper()
+	targets := make([]*proto.Target, numTargets)
+	for i := range targets {
+		targets[i] = &proto.Target{Name: "target", Level: 60}
+	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{catPlayer("Cat", talents, consumes, worn)},
+			Players: []*proto.Player{player},
 			Buffs:   &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
+		Encounter: &proto.Encounter{Targets: targets, Duration: 60},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].(*FeralDruid)
@@ -442,16 +451,7 @@ func TestShiftingPowerTradesManaForEnergy(t *testing.T) {
 // Shifting Power's energy threatens for half a point an energy gained, which Cat Form's threat multiplier
 // does not scale, split between the targets in combat.
 func TestShiftingPowerEnergyThreatensUnscaled(t *testing.T) {
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
-		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{catPlayer("Cat", shiftingPowerTalents, nil, nil)},
-			Buffs:   &proto.PartyBuffs{},
-		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "a", Level: 60}, {Name: "b", Level: 60}}, Duration: 60},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	cat := sim.Raid.Parties[0].Players[0].(*FeralDruid)
+	sim, cat := newCatAgainst(t, catPlayer("Cat", shiftingPowerTalents, nil, nil), 2)
 	if !cat.InForm(druid.Cat) || cat.PseudoStats.ThreatMultiplier == 1 {
 		t.Fatalf("in cat form %v with threat multiplier %v, want cat form and a multiplier other than 1", cat.InForm(druid.Cat), cat.PseudoStats.ThreatMultiplier)
 	}
