@@ -41,6 +41,12 @@ var weaponSkillLines = map[int32]proto.WeaponSkill{
 	473: proto.WeaponSkill_WeaponSkillFistWeapons,
 }
 
+// The weapon skill an A_MOD_SKILL effect on the skill line raises; false for a line that is no weapon skill.
+func WeaponSkillOfLine(line int32) (proto.WeaponSkill, bool) {
+	skill, ok := weaponSkillLines[line]
+	return skill, ok
+}
+
 // The five stats the game files count in their own order, which is what A_MOD_STAT, A_MOD_PERCENT_STAT
 // and A_MOD_TOTAL_STAT_PERCENTAGE index by.
 var clientStats = [5]stats.Stat{stats.Strength, stats.Agility, stats.Stamina, stats.Intellect, stats.Spirit}

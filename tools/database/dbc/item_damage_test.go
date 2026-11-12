@@ -145,12 +145,20 @@ func TestWeaponSkillStats(t *testing.T) {
 	item := Item{Id: 1, ItemClass: ITEM_CLASS_WEAPON, ItemSubClass: ITEM_SUBCLASS_WEAPON_MACE, InventoryType: INVTYPE_WEAPON,
 		ItemLevel: 60, OverallQuality: RARE,
 		BonusStat: []int{ITEM_MOD_DAGGERS_SKILL, ITEM_MOD_TWO_HANDED_AXES_SKILL, 95}, StatAlloc: []float64{1850, 1000, 1000}}
-	want := map[int32]int32{int32(proto.WeaponSkill_WeaponSkillDaggers): 2, int32(proto.WeaponSkill_WeaponSkillTwoHandedAxes): 1}
-	if got := item.GetWeaponSkills(item.ItemLevel); !maps.Equal(got, want) {
+	got := map[proto.WeaponSkill]int32{}
+	for _, skill := range item.GetWeaponSkills(item.ItemLevel) {
+		got[skill.Skill] += skill.Value
+	}
+	if want := map[proto.WeaponSkill]int32{proto.WeaponSkill_WeaponSkillDaggers: 2, proto.WeaponSkill_WeaponSkillTwoHandedAxes: 1}; !maps.Equal(got, want) {
 		t.Errorf("weapon skills %v, want %v", got, want)
 	}
 	if got := item.GetStats(item.ItemLevel).ToProtoMap(); len(got) != 0 {
 		t.Errorf("stats %v, want none from weapon skill", got)
+	}
+
+	item.BonusStat, item.StatAlloc = []int{ITEM_MOD_STAMINA}, []float64{1000}
+	if got := item.GetWeaponSkills(item.ItemLevel); got != nil {
+		t.Errorf("an item with no weapon skill stat lists %v, want nil", got)
 	}
 }
 

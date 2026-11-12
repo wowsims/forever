@@ -48,8 +48,8 @@ message ScalingItemProperties {
 	// Stats that only apply while the encounter is in that kind of area.
 	repeated AreaStats area_stats = 7;
 
-	// The weapon skill the item adds on top of the level-based skill, keyed by WeaponSkill.
-	map<int32, int32> weapon_skills = 10;
+	// The weapon skill the item adds; each value is the bonus on top of the level-based skill, not the full skill.
+	repeated WeaponSkillValue weapon_skills = 10;
 }
 
 message ReducedCasterWeaponDamage {

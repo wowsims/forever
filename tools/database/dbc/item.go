@@ -184,12 +184,12 @@ func (item *Item) GetStats(itemLevel int) *stats.Stats {
 	return stats
 }
 
-func (item *Item) GetWeaponSkills(itemLevel int) map[int32]int32 {
-	skills := map[int32]int32{}
+func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
+	var skills []*proto.WeaponSkillValue
 	for i, stat := range item.BonusStat {
 		if skill, ok := weaponSkillByBonusStat[stat]; ok {
 			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
-				skills[int32(skill)] += value
+				skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: value})
 			}
 		}
 	}

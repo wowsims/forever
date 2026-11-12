@@ -367,7 +367,7 @@ func TestGearWeaponSkillFollowsTheItem(t *testing.T) {
 	const daggerRingID, plainRingID, ringSkill int32 = 990921, 990922, 5
 	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
 		{Id: daggerRingID, Name: "Test Dagger Skill Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
-			0: {WeaponSkills: map[int32]int32{int32(proto.WeaponSkill_WeaponSkillDaggers): ringSkill}},
+			0: {WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: ringSkill}}},
 		}},
 		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
 	}})
