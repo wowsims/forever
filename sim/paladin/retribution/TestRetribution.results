@@ -182,10 +182,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodTigerHarness"
  value: {
-  dps: 813.08458
-  tps: 663.82909
+  dps: 806.79171
+  tps: 658.7948
   dtps: 5.3764
-  hps: 23.84066
+  hps: 23.83711
  }
 }
 dps_results: {

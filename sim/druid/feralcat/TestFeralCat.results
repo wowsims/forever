@@ -136,9 +136,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTigerHarness"
  value: {
-  dps: 739.90826
-  tps: 550.0196
-  hps: 44.08944
+  dps: 734.72642
+  tps: 546.35688
+  hps: 44.10639
  }
 }
 dps_results: {

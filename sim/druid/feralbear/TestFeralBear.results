@@ -201,10 +201,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTigerHarness"
  value: {
-  dps: 468.18282
-  tps: 2461.81391
-  dtps: 416.66065
-  hps: 83.89656
+  dps: 462.97706
+  tps: 2433.52225
+  dtps: 416.79568
+  hps: 83.38819
  }
 }
 dps_results: {

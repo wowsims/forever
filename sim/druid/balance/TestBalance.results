@@ -183,9 +183,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-BloodTigerHarness"
  value: {
-  dps: 881.79089
-  tps: 892.87245
-  dtps: 5.49954
+  dps: 875.93764
+  tps: 887.02134
+  dtps: 5.72111
  }
 }
 dps_results: {

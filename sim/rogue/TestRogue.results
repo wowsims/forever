@@ -144,8 +144,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodTigerHarness"
  value: {
-  dps: 573.8725
-  tps: 407.44948
+  dps: 568.147
+  tps: 403.38437
   hps: 51.34167
  }
 }

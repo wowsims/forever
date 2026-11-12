@@ -245,10 +245,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodTigerHarness"
  value: {
-  dps: 431.71997
-  tps: 1438.92132
-  dtps: 310.11071
-  hps: 36.08944
+  dps: 428.14181
+  tps: 1428.2942
+  dtps: 310.88092
+  hps: 36.0725
  }
 }
 dps_results: {

@@ -22,3 +22,6 @@ What the game files' item, enchant, suffix and set rows say, and where they misl
   `ui/sim/proto/equipped_item.ts`).
 - **An `S03 - …` ItemSetSpell row still ships when it sits in Forever's own threshold layout of the set.** Compare
   the layout with the set's Season of Discovery copy in the game files, not the name.
+- **An ItemSet row's `RequiredSkill` gates the set's bonuses.** Blood Tiger Harness 442 and Primal Batskin 441 state
+  Leatherworking (165) at 300, Bloodvine Garb 421 states Tailoring and The Darksoul 444 Blacksmithing. No generator
+  reads the column, so a hand-written `core.ItemSet` sets `RequiredProfession` to match.

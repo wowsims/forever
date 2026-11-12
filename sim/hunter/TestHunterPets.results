@@ -216,9 +216,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BloodTigerHarness"
  value: {
-  dps: 686.54588
-  tps: 435.8639
-  dtps: 0.94523
+  dps: 680.82669
+  tps: 431.58925
+  dtps: 0.68341
  }
 }
 dps_results: {
