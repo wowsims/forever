@@ -45,11 +45,24 @@ var whelpSwing = core.Weapon{
 	MaxRange:      core.MaxMeleeRange,
 }
 
-// The log's median waits: the first Acid Spit starts 0.9 s after the summon and each next one 1.0 s
-// after the last ends, a start every 4.0 s. A spit's hardcast holds the swing, which comes 2.0 s after
-// the cast ends, so the whelp swings as it arrives and spits from then on.
-const whelpFirstSpitDelay = 900 * time.Millisecond
-const whelpSpitIdle = time.Second
+// The whelp's waits are uniform draws. In the log's 41 summons the first Acid Spit starts 0.00, 0.01,
+// 0.89 and 2.59 s after the summon at the 0, 25, 50 and 75% marks, and the waits from a cast's end to the
+// next start (69) run 0.20, 0.58, 0.99 and 1.88 s with a maximum of 6.9 s. The ranges keep those medians:
+// the first start is 0 to 1.8 s and each next wait 0.2 to 1.8 s. The 47 waits of 1.5 s or less run 0.20 to
+// 1.47 s; the longer ones come with the target alive and fit the whelp chasing moving quest mobs, so they
+// stay out. A spit's hardcast holds the swing, which comes 2.0 s after the cast ends, so the whelp swings
+// as it arrives and spits from then on.
+const whelpFirstSpitMax = 1800 * time.Millisecond
+const whelpSpitIdleMin = 200 * time.Millisecond
+const whelpSpitIdleMax = 1800 * time.Millisecond
+
+func whelpFirstSpitDelay(sim *core.Simulation) time.Duration {
+	return time.Duration(sim.RandomFloat("Whelp First Spit") * float64(whelpFirstSpitMax))
+}
+
+func whelpSpitIdle(sim *core.Simulation) time.Duration {
+	return whelpSpitIdleMin + time.Duration(sim.RandomFloat("Whelp Spit Idle")*float64(whelpSpitIdleMax-whelpSpitIdleMin))
+}
 
 func newEmeraldDragonWhelp(owner *core.Character) core.PetAgent {
 	whelp := &emeraldDragonWhelp{Pet: core.NewPet(core.PetConfig{
@@ -67,7 +80,7 @@ func newEmeraldDragonWhelp(owner *core.Character) core.PetAgent {
 		AutoSwingMelee: true,
 	})
 	whelp.OnPetEnable = func(sim *core.Simulation) {
-		whelp.nextSpitAt = sim.CurrentTime + whelpFirstSpitDelay
+		whelp.nextSpitAt = sim.CurrentTime + whelpFirstSpitDelay(sim)
 	}
 	return whelp
 }
@@ -88,7 +101,7 @@ func (whelp *emeraldDragonWhelp) Initialize() {
 	config := spelldata.SpellConfig(&whelp.Unit, row, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ManaCost = core.ManaCostOptions{}
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		whelp.nextSpitAt = sim.CurrentTime + whelpSpitIdle
+		whelp.nextSpitAt = sim.CurrentTime + whelpSpitIdle(sim)
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMagicHitAndCrit)
 		spell.DealDamageAfterTravel(sim, result)
 	}
@@ -99,6 +112,6 @@ func (whelp *emeraldDragonWhelp) ExecuteCustomRotation(sim *core.Simulation) {
 	if sim.CurrentTime < whelp.nextSpitAt {
 		whelp.WaitUntil(sim, whelp.nextSpitAt)
 	} else if !whelp.acidSpit.Cast(sim, whelp.CurrentTarget) {
-		whelp.WaitUntil(sim, sim.CurrentTime+whelpSpitIdle)
+		whelp.WaitUntil(sim, sim.CurrentTime+whelpSpitIdle(sim))
 	}
 }
