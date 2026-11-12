@@ -9,9 +9,16 @@ import (
 )
 
 // While the channel is on the target, this warlock's Corruption, Siphon Life and Bane of Agony there tick every
-// period / (1 + the row's dummy percent), keeping their expiry (core.Dot.SetTickPeriod), so the channel adds
-// ticks. The normal period returns when the channel ends. An effect applied while the channel runs keeps its
-// normal period, since casting it ends the channel.
+// period / (1 + the row's dummy percent), at their application plus whole periods (core.Dot.SetTickPeriod). At half
+// the period each normal tick stays, and the half points between them tick too: each one from the instant the
+// channel starts up to the instant it ends, both included. A channel that starts on a half point ticks it at once,
+// and a recast at the instant the channel ends ticks that point once. Every tick is full and the expiry stays;
+// starting or ending the channel moves no tick. An effect applied while the channel runs keeps its normal period,
+// since casting it ends the channel.
+// TODO: Ingame test needed: combat logs time a channel's start and end with up to 0.2 s of jitter, so they leave a
+// channel starting or ending exactly on a half point unmeasured. Cast Wrack so it lands within 0.05 s before and after Siphon
+// Life's half point at 1.5 s, and end it within 0.05 s before and after one, many times each, and count the ticks
+// at that half point.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
@@ -35,19 +42,17 @@ func (warlock *Warlock) registerWrackSpell() {
 
 	warlock.Wrack = warlock.RegisterSpell(config)
 
-	// Each tick of the effects the channel speeds up records on its spell, under the key wrack, the part of its
-	// damage Wrack contributed: the damage times the share of the tick's progress the channel added
-	// (core.Dot.SpedUpShare), above 0 only for a tick it sped up. A tick before the pull records nothing, as its
-	// damage is not counted either. The faster ticks reach Bane of Agony's stronger thirds sooner; that counts
-	// for nothing extra, as the share applies to the damage the tick dealt.
+	// A tick of these effects off their normal grid, on a half point only the channel's period gives, is wholly
+	// Wrack's: it records its damage on its spell under the key wrack. A tick on the normal grid records nothing,
+	// nor does one before the pull, as its damage is not counted either.
 	core.MakePermanent(warlock.RegisterAura(core.Aura{
 		Label: "Wrack Contribution",
 		OnPeriodicDamageDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if sim.CurrentTime < 0 || !slices.Contains(warlock.afflictionDots, spell) {
 				return
 			}
-			if share := spell.Dot(result.Target).SpedUpShare(sim); share > 0 {
-				spell.RecordCustomMetric(result.Target, "wrack", result.Damage*share)
+			if dot := spell.Dot(result.Target); (sim.CurrentTime-dot.StartedAt())%dot.CalcTickPeriod() != 0 {
+				spell.RecordCustomMetric(result.Target, "wrack", result.Damage)
 			}
 		},
 	}))

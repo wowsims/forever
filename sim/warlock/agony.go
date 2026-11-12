@@ -7,14 +7,12 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// Bane of Agony's base ramps in thirds of its duration: a tick in the first third deals half, one in the second
-// the base, and one in the last, the expiry included, one and a half. The spell power share and the damage
-// multipliers are read as each tick lands, and the share does not ramp. Amplify Curse, which the cast spends,
-// raises the whole tick, base and share, for the whole of the Bane it landed with. The share read at each tick
-// comes from the Nov 3 patch notes; the game files do not state it.
+// Bane of Agony's base ramps in thirds of its duration by the time since it landed, also under Wrack's added
+// ticks: a tick in the first third, its end included, deals half, one in the second the base, and one in the last
+// one and a half. The spell power share and the damage multipliers are read as each tick lands, and the share does
+// not ramp. Amplify Curse, which the cast spends, raises the whole tick, base and share, for the whole of the Bane
+// it landed with. The share read at each tick comes from the Nov 3 patch notes; the game files do not state it.
 // TODO: Ingame test needed: confirm on live that each tick reads the spell power of the moment.
-// TODO: Ingame test needed: whether the ramp under Wrack's faster ticks follows the time through the Bane's
-// duration, as here, or the tick number.
 func (warlock *Warlock) registerBaneOfAgony() {
 	rankedSpell := spellData.BaneOfAgony.ByID(11713)
 	agonyTick := rankedSpell.PeriodicEffect()
@@ -89,8 +87,7 @@ func (warlock *Warlock) registerBaneOfAgony() {
 }
 
 // The share of the base a tick deals, by the third of the duration its time since the Bane landed falls in. A
-// tick on a third's end deals that third's share, so Wrack's added ticks deal the share of the time they land
-// in, and a truncated last tick at the expiry deals the last third's.
+// tick on a third's end deals that third's share.
 func baneOfAgonyRamp(elapsed time.Duration, duration time.Duration) float64 {
 	switch {
 	case 3*elapsed <= duration:

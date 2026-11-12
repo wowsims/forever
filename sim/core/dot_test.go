@@ -2,7 +2,6 @@ package core
 
 import (
 	"math"
-	"slices"
 	"testing"
 	"time"
 
@@ -254,117 +253,194 @@ func recordedDotConfig(id int32, ticks *[]dotTick) SpellConfig {
 	return config
 }
 
-// Checks the ticks against their times and their shares of a full tick: each is a full one but the last,
-// which deals lastShare of one.
-func checkDotTicks(t *testing.T, got []dotTick, start time.Duration, at []time.Duration, lastShare float64) {
+// Checks the ticks against their times from the dot's application, each a full tick.
+func checkDotTicks(t *testing.T, got []dotTick, start time.Duration, at []time.Duration) {
 	t.Helper()
+	times := MapSlice(got, func(tick dotTick) time.Duration { return tick.at - start })
 	if len(got) != len(at) {
-		t.Fatalf("%d ticks at %v, want %d at %v", len(got), got, len(at), at)
+		t.Fatalf("%d ticks at %v, want %d at %v", len(got), times, len(at), at)
 	}
 	for i, tick := range got {
-		if tick.at-start != at[i] {
-			t.Errorf("tick %d at %v, want %v", i+1, tick.at-start, at[i])
+		if times[i] != at[i] {
+			t.Errorf("tick %d at %v, want %v", i+1, times[i], at[i])
 		}
-		share := 1.0
-		if i == len(got)-1 {
-			share = lastShare
-		}
-		if want := share * got[0].damage; math.Abs(tick.damage-want) > 1e-9 {
-			t.Errorf("tick %d at %v dealt %v, want %v (%v of a full tick)", i+1, tick.at-start, tick.damage, want, share)
+		if math.Abs(tick.damage-got[0].damage) > 1e-9 {
+			t.Errorf("tick %d at %v dealt %v, want a full tick's %v", i+1, times[i], tick.damage, got[0].damage)
 		}
 	}
 }
 
-// A dot re-timed while it runs keeps its expiry and its share of progress to the next tick, both ways: a tick
-// 0.5 s away at 1 s ticks is 0.25 s away at 0.5 s ticks. One whose expiry then falls part-way to a tick deals
-// that tick at the expiry, truncated to the share of the period it ran; one back on its grid, or never re-timed,
-// ends on a whole tick. One refreshed or cancelled before its expiry deals no truncated tick. An ended dot
-// ticks at its normal period again.
-func TestDotRetimedEndsWithATruncatedTick(t *testing.T) {
+// Times in seconds, to the millisecond.
+func gridTimes(values ...float64) []time.Duration {
+	return MapSlice(values, func(s float64) time.Duration { return time.Duration(math.Round(s*1000)) * time.Millisecond })
+}
+
+// A change made to the dot at a time from its application, queued to run before the dot's own tick due at that
+// instant (first) or after it.
+type dotEvent struct {
+	at     time.Duration
+	first  bool
+	retime bool
+	do     func(ct *channelTest, dot *Dot)
+}
+
+func retimeDot(at, period time.Duration, first bool) dotEvent {
+	return dotEvent{at: at, first: first, retime: true, do: func(ct *channelTest, dot *Dot) { dot.SetTickPeriod(ct.sim, period) }}
+}
+
+// Applies a recorded dot of 5 ticks 1 s apart, runs the events and returns its ticks, the time it was applied
+// and, for each event, whether the dot had a tick still queued at its instant. After a last event that re-times
+// the dot, its remaining ticks are the ticks it deals later.
+func runRetimedDot(t *testing.T, events []dotEvent) ([]dotTick, time.Duration, []bool) {
+	t.Helper()
+	var ticks []dotTick
+	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
+		return char.RegisterSpell(recordedDotConfig(910310, &ticks))
+	})
+	ct.start()
+	start := ct.sim.CurrentTime
+	ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
+	dot := ct.spell.Dot(ct.fw.CurrentTarget)
+	if got, want := dot.ExpiresAt()-start, 5*time.Second; got != want {
+		t.Fatalf("the dot expires at %v, want %v", got, want)
+	}
+	queued := make([]bool, len(events))
+	var remaining int32
+	for i, e := range events {
+		priority := ActionPriorityLow
+		if e.first {
+			priority = ActionPriorityDOT
+		}
+		ct.sim.AddPendingAction(&PendingAction{NextActionAt: start + e.at, Priority: priority, OnAction: func(sim *Simulation) {
+			queued[i] = dot.IsActive() && dot.NextTickAt() == sim.CurrentTime
+			e.do(ct, dot)
+			remaining = dot.RemainingTicks()
+		}})
+	}
+	ct.runUntil(start + 12*time.Second)
+	if n := len(events); n > 0 && events[n-1].retime {
+		later := int32(0)
+		for _, tick := range ticks {
+			if tick.at > start+events[n-1].at {
+				later++
+			}
+		}
+		if remaining != later {
+			t.Errorf("%d ticks remaining after the last re-timing, want the %d it dealt later", remaining, later)
+		}
+	}
+	return ticks, start, queued
+}
+
+// A dot re-timed while it runs ticks at its expiry less whole periods, which for a dot applied at its normal
+// period is its application plus whole periods. Half its period keeps every normal tick and adds the points
+// between, the points at the instants it starts and ends included and one already passed not; its period again
+// puts it back on its normal ticks. Re-timed at its application, it does not tick there. The last tick lands on
+// the expiry in full, also at a period that does not divide the duration. One refreshed or cancelled ticks as any
+// dot does.
+func TestDotRetimedTicksOnItsGrid(t *testing.T) {
 	ms := time.Millisecond
-	type event struct {
-		at        time.Duration
-		do        func(ct *channelTest, dot *Dot)
-		untilNext time.Duration // The time to the next tick after the event, when checked.
+	at := func(at time.Duration, do func(ct *channelTest, dot *Dot)) dotEvent {
+		return dotEvent{at: at, do: do}
 	}
-	retime := func(at, period, untilNext time.Duration) event {
-		return event{at: at, untilNext: untilNext, do: func(ct *channelTest, dot *Dot) { dot.SetTickPeriod(ct.sim, period) }}
-	}
-	endsPartWay := []event{retime(1500*ms, 500*ms, 250*ms), retime(1600*ms, 1000*ms, 300*ms)}
+	recast := func(ct *channelTest, _ *Dot) { ct.spell.Cast(ct.sim, ct.fw.CurrentTarget) }
+	cancel := func(ct *channelTest, dot *Dot) { dot.Deactivate(ct.sim) }
 	for _, tc := range []struct {
-		name      string
-		events    []event
-		ticks     []time.Duration
-		lastShare float64
+		name   string
+		events []dotEvent
+		ticks  []time.Duration
 	}{
+		{name: "never re-timed", ticks: gridTimes(1, 2, 3, 4, 5)},
 		{
-			name:      "never re-timed",
-			ticks:     []time.Duration{1000 * ms, 2000 * ms, 3000 * ms, 4000 * ms, 5000 * ms},
-			lastShare: 1,
+			name:   "half its period from 1.2 s to 3.2 s",
+			events: []dotEvent{retimeDot(1200*ms, 500*ms, false), retimeDot(3200*ms, time.Second, false)},
+			ticks:  gridTimes(1, 1.5, 2, 2.5, 3, 4, 5),
 		},
 		{
-			name:      "re-timed back onto its grid",
-			events:    []event{retime(1500*ms, 500*ms, 250*ms), retime(2500*ms, 1000*ms, 500*ms)},
-			ticks:     []time.Duration{1000 * ms, 1750 * ms, 2250 * ms, 3000 * ms, 4000 * ms, 5000 * ms},
-			lastShare: 1,
+			name:   "half its period from 1.5 s to 3.5 s, both half points",
+			events: []dotEvent{retimeDot(1500*ms, 500*ms, false), retimeDot(3500*ms, time.Second, false)},
+			ticks:  gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 5),
 		},
 		{
-			name:      "ends part-way to a tick at the new period",
-			events:    []event{retime(1500*ms, 500*ms, 250*ms)},
-			ticks:     []time.Duration{1000 * ms, 1750 * ms, 2250 * ms, 2750 * ms, 3250 * ms, 3750 * ms, 4250 * ms, 4750 * ms, 5000 * ms},
-			lastShare: 0.5,
+			name:   "half its period from 1.6 s, past a half point",
+			events: []dotEvent{retimeDot(1600*ms, 500*ms, false)},
+			ticks:  gridTimes(1, 2, 2.5, 3, 3.5, 4, 4.5, 5),
 		},
 		{
-			name:      "ends part-way to a tick",
-			events:    endsPartWay,
-			ticks:     []time.Duration{1000 * ms, 1900 * ms, 2900 * ms, 3900 * ms, 4900 * ms, 5000 * ms},
-			lastShare: 0.1,
+			name:   "half its period from its application",
+			events: []dotEvent{retimeDot(0, 500*ms, false)},
+			ticks:  gridTimes(0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5),
 		},
 		{
-			name: "refreshed before its expiry",
-			events: append(slices.Clone(endsPartWay), event{at: 4950 * ms, do: func(ct *channelTest, dot *Dot) {
-				ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
-			}}),
-			ticks:     []time.Duration{1000 * ms, 1900 * ms, 2900 * ms, 3900 * ms, 4900 * ms, 5950 * ms, 6950 * ms, 7950 * ms, 8950 * ms, 9950 * ms},
-			lastShare: 1,
+			name:   "half its period from 3.7 s to its expiry",
+			events: []dotEvent{retimeDot(3700*ms, 500*ms, false)},
+			ticks:  gridTimes(1, 2, 3, 4, 4.5, 5),
 		},
 		{
-			name: "cancelled before its expiry",
-			events: append(slices.Clone(endsPartWay), event{at: 4950 * ms, do: func(ct *channelTest, dot *Dot) {
-				dot.Deactivate(ct.sim)
-			}}),
-			ticks:     []time.Duration{1000 * ms, 1900 * ms, 2900 * ms, 3900 * ms, 4900 * ms},
-			lastShare: 1,
+			name:   "a period that does not divide its duration",
+			events: []dotEvent{retimeDot(1200*ms, 400*ms, false)},
+			ticks:  gridTimes(1, 1.4, 1.8, 2.2, 2.6, 3, 3.4, 3.8, 4.2, 4.6, 5),
+		},
+		{
+			name:   "refreshed before its expiry",
+			events: []dotEvent{retimeDot(1200*ms, 500*ms, false), at(4950*ms, recast)},
+			ticks:  gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5.95, 6.95, 7.95, 8.95, 9.95),
+		},
+		{
+			name:   "cancelled before its expiry",
+			events: []dotEvent{retimeDot(1200*ms, 500*ms, false), at(4950*ms, cancel)},
+			ticks:  gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5),
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			var ticks []dotTick
-			ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
-				return char.RegisterSpell(recordedDotConfig(910310, &ticks))
-			})
-			ct.start()
-			start := ct.sim.CurrentTime
-			ct.spell.Cast(ct.sim, ct.fw.CurrentTarget)
-			dot := ct.spell.Dot(ct.fw.CurrentTarget)
-			if got, want := dot.ExpiresAt()-start, 5*time.Second; got != want {
-				t.Fatalf("the dot expires at %v, want %v", got, want)
-			}
-
-			for _, e := range tc.events {
-				ct.runUntil(start + e.at)
-				e.do(ct, dot)
-				if e.untilNext != 0 {
-					if got := dot.TimeUntilNextTick(ct.sim); got != e.untilNext {
-						t.Errorf("next tick %v after the event at %v, want %v", got, e.at, e.untilNext)
-					}
-				}
-			}
-			ct.runUntil(start + 12*time.Second)
-			checkDotTicks(t, ticks, start, tc.ticks, tc.lastShare)
-			if got := dot.TickPeriod(); got != time.Second {
-				t.Errorf("the ended dot ticks every %v, want its normal %v", got, time.Second)
-			}
+			ticks, start, _ := runRetimedDot(t, tc.events)
+			checkDotTicks(t, ticks, start, tc.ticks)
 		})
+	}
+}
+
+// A re-timing at an instant the dot has a tick due deals that tick once, whether it runs before or after the
+// tick, and the next tick falls on the new period's grid. Ending a half period on a half point and starting it
+// again there, as a channel recast on the instant it ends, deals that point once.
+func TestDotRetimedAtATickDealsItOnce(t *testing.T) {
+	ms := time.Millisecond
+	for _, tc := range []struct {
+		name   string
+		events func(first bool) []dotEvent
+		at     int // The event at the instant of the tick.
+		ticks  []time.Duration
+	}{
+		{
+			name:   "half its period from a tick",
+			events: func(first bool) []dotEvent { return []dotEvent{retimeDot(2000*ms, 500*ms, first)} },
+			ticks:  gridTimes(1, 2, 2.5, 3, 3.5, 4, 4.5, 5),
+		},
+		{
+			name: "its period again on a half point",
+			events: func(first bool) []dotEvent {
+				return []dotEvent{retimeDot(1200*ms, 500*ms, false), retimeDot(3500*ms, time.Second, first)}
+			},
+			at:    1,
+			ticks: gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 5),
+		},
+		{
+			name: "half its period again on the half point it ended on",
+			events: func(first bool) []dotEvent {
+				return []dotEvent{retimeDot(1200*ms, 500*ms, false), retimeDot(3500*ms, time.Second, first), retimeDot(3500*ms, 500*ms, first)}
+			},
+			at:    1,
+			ticks: gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5),
+		},
+	} {
+		for _, first := range []bool{true, false} {
+			t.Run(tc.name+map[bool]string{true: ", before the tick", false: ", after the tick"}[first], func(t *testing.T) {
+				ticks, start, queued := runRetimedDot(t, tc.events(first))
+				if queued[tc.at] != first {
+					t.Fatalf("the dot's tick was queued at the event: %v, want %v", queued[tc.at], first)
+				}
+				checkDotTicks(t, ticks, start, tc.ticks)
+			})
+		}
 	}
 }
 
@@ -373,6 +449,7 @@ func TestDotRetimedEndsWithATruncatedTick(t *testing.T) {
 func TestDotRetimedFromItsOwnTick(t *testing.T) {
 	ms := time.Millisecond
 	var ticks []dotTick
+	var remaining []int32
 	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
 		config := recordedDotConfig(910311, &ticks)
 		onTick := config.Dot.OnTick
@@ -381,6 +458,7 @@ func TestDotRetimedFromItsOwnTick(t *testing.T) {
 			if dot.TickCount() == 1 {
 				dot.SetTickPeriod(sim, 500*ms)
 			}
+			remaining = append(remaining, dot.RemainingTicks())
 		}
 		return char.RegisterSpell(config)
 	})
@@ -396,30 +474,23 @@ func TestDotRetimedFromItsOwnTick(t *testing.T) {
 	if got, want := probeRanAt-start, 1750*ms; got != want {
 		t.Errorf("an action due at %v ran at %v", want, got)
 	}
-	var at []time.Duration
-	for tick := 1000 * ms; tick <= 5000*ms; tick += 500 * ms {
-		at = append(at, tick)
+	checkDotTicks(t, ticks, start, gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5))
+	for i, got := range remaining {
+		if want := int32(len(ticks) - 1 - i); got != want {
+			t.Errorf("%d ticks remaining after tick %d, want %d", got, i+1, want)
+		}
 	}
-	checkDotTicks(t, ticks, start, at, 1)
 }
 
-// A dot re-timed off its grid whose period is set again at the instant it expires, before its own expiry is
-// handled (as by a channel that ends with it), still deals its truncated tick at the expiry: half a tick, the
-// share of the period it ran, half of that progress made at twice the normal speed.
-func TestDotRetimedAtItsExpiryDealsItsTruncatedTick(t *testing.T) {
+// A dot whose period is set at the instant it expires, before its own expiry is handled (as by a channel that
+// ends with it), deals its last tick at the expiry once, in full.
+func TestDotRetimedAtItsExpiryDealsItsLastTickOnce(t *testing.T) {
 	ms := time.Millisecond
 	var ticks []dotTick
-	var lastSpedUp float64
 	var endsWithDot *Aura
 	dotUpAtEnd := false
 	ct := newChannelTest(func(_ *channelTest, char *Character) *Spell {
-		config := recordedDotConfig(910312, &ticks)
-		onTick := config.Dot.OnTick
-		config.Dot.OnTick = func(sim *Simulation, target *Unit, dot *Dot) {
-			onTick(sim, target, dot)
-			lastSpedUp = dot.SpedUpShare(sim)
-		}
-		spell := char.RegisterSpell(config)
+		spell := char.RegisterSpell(recordedDotConfig(910312, &ticks))
 		endsWithDot = char.CurrentTarget.RegisterAura(Aura{
 			Label:    "Ends With The Dot",
 			Duration: 5 * time.Second,
@@ -441,16 +512,13 @@ func TestDotRetimedAtItsExpiryDealsItsTruncatedTick(t *testing.T) {
 		t.Fatalf("the dot expires at %v and the aura at %v, want the same instant", dot.ExpiresAt()-start, endsWithDot.ExpiresAt()-start)
 	}
 
-	ct.runUntil(start + 1500*ms)
+	ct.runUntil(start + 1200*ms)
 	dot.SetTickPeriod(ct.sim, 500*ms)
 	ct.runUntil(start + 12*time.Second)
 	if !dotUpAtEnd {
 		t.Fatal("the dot had expired when its period was set at its expiry, so the case is not reached")
 	}
-	checkDotTicks(t, ticks, start, []time.Duration{1000 * ms, 1750 * ms, 2250 * ms, 2750 * ms, 3250 * ms, 3750 * ms, 4250 * ms, 4750 * ms, 5000 * ms}, 0.5)
-	if math.Abs(lastSpedUp-0.5) > 1e-9 {
-		t.Errorf("the truncated tick's sped-up share is %v, want 0.5", lastSpedUp)
-	}
+	checkDotTicks(t, ticks, start, gridTimes(1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5))
 }
 
 func TestDotSnapshot(t *testing.T) {
