@@ -663,9 +663,7 @@ func newSources(db *proto.UIDatabase) *sources {
 		}
 	}
 	for _, set := range core.ItemSets() {
-		if set.ID != 0 {
-			src.setProfessions[set.ID] = set.RequiredProfession
-		}
+		src.setProfessions[set.ID] = set.RequiredProfession
 	}
 	for _, e := range db.Enchants {
 		if core.HasEnchantEffect(e.EffectId) && !slices.Contains(src.effects, e.EffectId) {
