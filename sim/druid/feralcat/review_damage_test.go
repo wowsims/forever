@@ -421,7 +421,7 @@ func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *Feral
 	return sim, players[0].(*FeralDruid), players[1].(*FeralDruid)
 }
 
-// Rend and Tear raises Rake and Rip ticks and leaves Pounce Bleed's unchanged. Each tick counts its own
+// Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own
 // bleed as the bleed on the target, and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
@@ -432,7 +432,7 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	}{
 		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }, 1.15},
 		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }, 1.15},
-		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }, 1},
+		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }, 1.15},
 	} {
 		tick := func(talents string) float64 {
 			sim, cat := newCat(t, talents, nil)
