@@ -215,6 +215,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 710.2647
+  tps: 655.36883
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 710.2647
@@ -556,6 +563,13 @@ dps_results: {
  value: {
   dps: 721.65206
   tps: 665.98719
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 734.00868
+  tps: 676.89783
  }
 }
 dps_results: {
