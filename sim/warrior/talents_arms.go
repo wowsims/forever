@@ -443,6 +443,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 		ClassFlags:  SpellFlagsSweepingStrikes,
 		SpellSchool: core.SpellSchoolPhysical,
 		ProcMask:    core.ProcMaskMeleeSpecial,
+		DefenseType: core.DefenseTypeNone,
 		Flags:       core.SpellFlagIgnoreModifiers | core.SpellFlagMeleeMetrics | core.SpellFlagPassiveSpell | core.SpellFlagNoOnCastComplete,
 
 		DamageMultiplier: 1,

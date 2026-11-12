@@ -88,13 +88,11 @@ type ProcTrigger struct {
 // Combat logs show no chance-on-hit effect or combat enchant off Shield Slam, Shield Bash or Thunder
 // Clap (Fiery Blaze 0 of 617, 78 and 436; Rock on Stick 0 of 157 Shield Slams; Dragon's Call 1 of 50
 // Shield Slams, sharing its millisecond with a white hit), while an equip proc such as Dreadfrost
-// Saber's hears Shield Slam (54 of 80 and 60 of 105). Sweeping Strikes' copied hit 12723, which has
-// no SpellCategories row and so no DefenseType, rolls none on 567 copies where the white hit rate
-// predicts about 61 (Nightblade, Runic Darkblade, Sword of Dismemberment, Rock on Stick, Bigger Rock),
-// while its normalized hit 26654, with melee DefenseType, rolls them at about the white hit rate.
-// Equip procs on 12723 are unmeasured. Aura procs (Aura::IsProcTriggeredOnEvent) skip
-// triggered spells that lack Not a Proc, unless the listener carries Can Proc From Procs. Auto
-// attacks, extra attacks included, carry neither flag and so are always eligible.
+// Saber's hears Shield Slam (54 of 80 and 60 of 105). A special with no DefenseType, such as Sweeping
+// Strikes' copied hit 12723, is no weapon hit either, while its normalized hit 26654, with melee
+// DefenseType, is. Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a
+// Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra attacks included, carry
+// neither flag and so are always eligible.
 func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
 	if config.IsWeaponProc {
 		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {

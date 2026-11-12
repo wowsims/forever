@@ -66,8 +66,7 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 - **A weapon proc never hears an ability that requires a shield or has magic or no DefenseType.** Core keeps an
   item's chance-on-hit effects and combat enchants from hearing Shield Slam, Shield Bash, Thunder Clap and Sweeping
   Strikes' copied hit 12723. Equip procs still hear them, and auto attacks are exempt, so a wand's shots cast weapon
-  procs. A hand-built melee or ranged special states its row's DefenseType. The rulings are in
-  `references/rulings.md`.
+  procs. The rulings are in `references/rulings.md`.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no

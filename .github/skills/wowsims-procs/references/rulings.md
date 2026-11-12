@@ -22,7 +22,7 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   Runic Darkblade, Sword of Dismemberment, Rock on Stick, Bigger Rock) on 567 copies where the white hit rate predicts
   about 61, while its normalized hit 26654, with melee DefenseType, rolls them at about the white hit rate (0.83 of
   it, 95% 0.37 to 1.44). Equip procs such as Hand of Justice and Dreadfrost Saber's are unmeasured on 12723 and still
-  hear it. A hand-built melee or ranged special states its row's DefenseType.** `sim/core/aura_helpers.go`,
+  hear it.** `sim/core/aura_helpers.go`,
   `canProcFrom`; `sim/warrior/talents_arms.go`, `registerSweepingStrikes`; PR #965.
 - **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); a strike's own
   re-cast during its cast goes one batch later.** `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and

@@ -367,12 +367,11 @@ func init() {
 	// activate this effect.
 	//
 	// The tooltip states the chance as ${$h/3}%. 15600's ProcChance is the chance against a Dwarf and its
-	// second effect, a dummy, is the "3 times as likely", so a hit on a Dwarf rolls the column and a hit
-	// on any other target the column divided by the dummy's value. Combat logs measure 12 extra attacks
+	// second effect, a dummy, is the "3 times as likely". Combat logs measure 12 extra attacks
 	// on 437 melee hits on Dark Iron dwarves (2.75%) and 106 on 10,977 on other targets (0.97%), outside
 	// the 2 s cooldown and whatever the wearer's race.
 	core.NewItemEffect(11815, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, 15601, proto.CreatureFamily_CreatureFamilyDwarf)
+		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 	})
 }
 

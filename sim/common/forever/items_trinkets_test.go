@@ -629,49 +629,49 @@ func TestVigilanceCharmSpendsAChargePerDodge(t *testing.T) {
 	}
 }
 
-// Edits the store's row of a spell for the test, restoring it afterwards. The effects are copied so
-// an edit to one does not reach the original.
-func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) {
+// Edits the store's row of a spell for the test, restoring it afterwards, and returns the row. The
+// effects are copied so an edit to one does not reach the original.
+func editSpellRow(t *testing.T, id int32, edit func(*spelldata.Spell)) *spelldata.Spell {
 	t.Helper()
 	row := spelldata.MustFind(id)
 	original := *row
 	row.Effects = slices.Clone(row.Effects)
 	edit(row)
 	t.Cleanup(func() { *row = original })
+	return row
 }
 
-// The extra attack the item's proc swings, tagged with the row that grants it, and the extra attacks
-// one proc swings. The character's auto attacks stop, so it swings only when the test deals a hit.
-func extraAttackOf(t *testing.T, sim *core.Simulation, character *core.Character, itemID int32, rowID int32) (*core.Spell, int32) {
+// A warrior wearing the extra attack item, the trinket in the first trinket slot and any other item
+// in the main hand, who swings only when the test deals a hit. The returned func counts the procs of
+// the extra attack the row's first effect grants: the extra attacks swung over the extra attacks
+// one proc swings.
+func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulation, *core.Character, func() int32) {
 	t.Helper()
+	var sim *core.Simulation
+	var character *core.Character
+	if core.GetItemByID(itemID).Type == proto.ItemType_ItemTypeTrinket {
+		sim, character = trinketWarrior(t, itemID)
+	} else {
+		sim, character = weaponWearer(t, proto.Class_ClassWarrior, itemID, 1)
+	}
 	character.AutoAttacks.CancelAutoSwing(sim)
-	extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: rowID})
-	perProc := int32(spelldata.MustFind(rowID).ExtraAttacksEffect().BasePoints)
+	granted := spelldata.MustFind(rowID).EffectN(1).Trigger()
+	extraAttack := character.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack, Tag: granted.ID})
+	perProc := int32(granted.ExtraAttacksEffect().BasePoints)
 	if extraAttack == nil || perProc <= 0 {
 		t.Fatalf("%d registers no extra attack", itemID)
 	}
-	return extraAttack, perProc
+	enemy := character.CurrentTarget
+	return sim, character, func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
 }
 
-// A warrior wearing Hand of Justice 11815 who swings only when the test deals a hit, the extra attack
-// 15601 grants, and the extra attacks one proc swings.
-func handOfJusticeWearer(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, int32) {
+// Checks registerLikelierExtraAttack's rule for an item: on a target of the family it rolls the row's
+// column, on any other target the column divided by the factor. Each case counts the procs of many
+// landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
+// hit rolls.
+func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto.CreatureFamily) {
 	t.Helper()
-	sim, character := trinketWarrior(t, 11815)
-	extraAttack, perProc := extraAttackOf(t, sim, character, 11815, 15601)
-	return sim, character, extraAttack, perProc
-}
-
-// Checks an extra attack proc whose row states the chance against one creature family in its
-// ProcChance column and, on its second effect, how many times likelier that family is: on a target
-// of the family it rolls the column, on any other target the column divided by the factor. Each case
-// counts the procs of many landed melee hits, within five standard deviations of the count. The row
-// rests no cooldown, so every hit rolls.
-func expectLikelierAgainst(t *testing.T, rowID int32, family proto.CreatureFamily,
-	wearer func(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, int32)) {
-	t.Helper()
-	editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
-	row := spelldata.MustFind(rowID)
+	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
 	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
 	if column <= 0 || factor <= 1 {
 		t.Fatalf("%d states a chance of %v and a factor of %v, want a chance and a factor above 1 to tell the two apart", rowID, column, factor)
@@ -682,28 +682,27 @@ func expectLikelierAgainst(t *testing.T, rowID int32, family proto.CreatureFamil
 		want   float64
 	}{{family, column}, {proto.CreatureFamily_CreatureFamilyUnknown, column / factor}} {
 		t.Run(target.family.String(), func(t *testing.T) {
-			sim, character, extraAttack, perProc := wearer(t)
+			sim, character, procs := extraAttackWearer(t, itemID, rowID)
 			enemy := character.CurrentTarget
 			enemy.CreatureFamily = target.family
+			swing := meleeSwing(&character.Unit)
 			const hits = 40000
 			for range hits {
-				character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+				character.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
 			}
 			stepTo(t, sim, sim.CurrentTime+time.Millisecond)
 
-			procs := float64(extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc)
-			want := target.want
-			if spread := 5 * math.Sqrt(hits*want*(1-want)); math.Abs(procs-hits*want) > spread {
-				t.Errorf("%v of %d landed melee hits procced it, want %v within %v", procs, hits, hits*want, spread)
+			if spread := 5 * math.Sqrt(hits*target.want*(1-target.want)); math.Abs(float64(procs())-hits*target.want) > spread {
+				t.Errorf("%d of %d landed melee hits procced it, want %v within %v", procs(), hits, hits*target.want, spread)
 			}
 		})
 	}
 }
 
-// Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and that column
-// divided by the value of its second effect on any other target.
+// Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and on any other
+// target the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
-	expectLikelierAgainst(t, 15600, proto.CreatureFamily_CreatureFamilyDwarf, handOfJusticeWearer)
+	expectLikelierAgainst(t, 11815, 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and
@@ -718,9 +717,7 @@ func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 		t.Fatalf("15600 states a cooldown of %v, want one", cooldown)
 	}
 
-	sim, character, extraAttack, perProc := handOfJusticeWearer(t)
-	enemy := character.CurrentTarget
-	procs := func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
+	sim, character, procs := extraAttackWearer(t, 11815, 15600)
 
 	start := sim.CurrentTime
 	dealHit(t, sim, character, meleeSwing(&character.Unit))

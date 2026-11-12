@@ -277,13 +277,11 @@ func init() {
 	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times
 	// as likely to activate this effect.
 	//
-	// The tooltip states no chance, and the rate is unmeasured. It follows Hand of Justice's tooltip
-	// shape: 1301046's ProcChance is the chance against an Orc and its second effect, a dummy, is the "2
-	// times as likely", so a hit on an Orc rolls the column and a hit on any other target the column
-	// divided by the dummy's value.
+	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
+	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
 	// TODO: Measure the rate in game, against Orcs and against other targets.
 	core.NewItemEffect(11684, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, 15494, proto.CreatureFamily_CreatureFamilyOrc)
+		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 	})
 
 	// Naga Heartpiercer
@@ -478,11 +476,13 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 
 // An item's extra attack proc whose row states the chance against one creature family in its
 // ProcChance column, and on its second effect how many times likelier a hit on that family is than
-// one on any other target. The condition draws the roll, once per hit under the item's name, so the
-// trigger's own chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
-func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, extraAttacksID int32, family proto.CreatureFamily) {
+// one on any other target. The extra attack is the spell the row's first effect triggers. A hit on
+// the family rolls the row's column and a hit on any other target the column divided by the second
+// effect; the condition draws that one roll per hit under the item's name, so the trigger's own
+// chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
+func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	row := spelldata.MustFind(rowID)
-	extraAttacks := spelldata.MustFind(extraAttacksID)
+	extraAttacks := row.EffectN(1).Trigger()
 	factor := row.EffectN(2).BasePoints
 	elsewhere := row.StatedChance() / factor
 
@@ -499,7 +499,7 @@ func registerLikelierExtraAttack(character *core.Character, itemID int32, name s
 	character.ItemSwap.RegisterProc(itemID, aura)
 }
 
-// The multiplier an effect deals against the creature families it names, and 1 against any other
+// The factor an effect applies against the creature families it names, and 1 against any other
 // target.
 func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ...proto.CreatureFamily) float64 {
 	if slices.Contains(families, target.CreatureFamily) {
