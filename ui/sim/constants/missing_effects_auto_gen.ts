@@ -2972,32 +2972,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				3,
-				[
-					"+20 Attack Power.", // 9331 - https://www.wowhead.com/forever/spell=9331
-				],
-			],
-			[
 				4,
 				[
 					"Chance on hit to gain 5% attack speed for 10s. Attacks while no allies are within 20 yds are 2 times as likely to activate this effect.", // 1301123 - https://www.wowhead.com/forever/spell=1301123
-				],
-			],
-			[
-				5,
-				[
-					"Improves your chance to get a critical strike by 1.0%.", // 1314795 - https://www.wowhead.com/forever/spell=1314795
-				],
-			],
-		]),
-	],
-	[
-		41, // Dal'Rend's Arms
-		new Map([
-			[
-				2,
-				[
-					"+50 Attack Power.", // 14056 - https://www.wowhead.com/forever/spell=14056
 				],
 			],
 		]),
@@ -3023,21 +3000,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				3,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
 				4,
 				[
 					"Falling below 25% health grants Return to Sender, reflecting the next spell cast on you within 6s. Can only occur once every 3 min.", // 1302380 - https://www.wowhead.com/forever/spell=1302380
-				],
-			],
-			[
-				5,
-				[
-					"Improves your chance to hit by 1.0%.", // 432639 - https://www.wowhead.com/forever/spell=432639
 				],
 			],
 		]),
@@ -3046,27 +3011,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		122, // Necropile Raiment
 		new Map([
 			[
-				2,
-				[
-					"Improves your chance to hit by 0.5%.", // 1299734 - https://www.wowhead.com/forever/spell=1299734
-				],
-			],
-			[
 				3,
 				[
 					"Harmful spell casts have a chance to steal 28 life from the target enemy.", // 1299737 - https://www.wowhead.com/forever/spell=1299737
-				],
-			],
-			[
-				4,
-				[
-					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
-				],
-			],
-			[
-				5,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
 				],
 			],
 		]),
@@ -3075,27 +3022,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		123, // Bloodmail Regalia
 		new Map([
 			[
-				2,
-				[
-					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
-				],
-			],
-			[
 				3,
 				[
 					"Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.", // 1299740 - https://www.wowhead.com/forever/spell=1299740
-				],
-			],
-			[
-				4,
-				[
-					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
-				],
-			],
-			[
-				5,
-				[
-					"Improves your chance to get a critical strike by 1.5%.", // 1299738 - https://www.wowhead.com/forever/spell=1299738
 				],
 			],
 		]),
@@ -3104,21 +3033,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		124, // Deathbone Guardian
 		new Map([
 			[
-				2,
-				[
-					"Increased Defense +3.", // 7516 - https://www.wowhead.com/forever/spell=7516
-				],
-			],
-			[
 				3,
 				[
 					"Grants a chance when struck in combat to increase damage and healing done by magical spells and effects by up to 70 for 10s.", // 1299743 - https://www.wowhead.com/forever/spell=1299743
-				],
-			],
-			[
-				4,
-				[
-					"+5 All Resistances.", // 18676 - https://www.wowhead.com/forever/spell=18676
 				],
 			],
 			[
@@ -3155,61 +3072,15 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"4% chance on melee attack of restoring 30 energy.", // 23863 - https://www.wowhead.com/forever/spell=23863
 				],
 			],
-			[
-				4,
-				[
-					"+14 Attack Power.", // 9142 - https://www.wowhead.com/forever/spell=9142
-				],
-			],
-		]),
-	],
-	[
-		143, // Devilsaur Armor
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to hit by 2.0%.", // 460230 - https://www.wowhead.com/forever/spell=460230
-				],
-			],
-		]),
-	],
-	[
-		144, // Ironfeather Armor
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 20.", // 14799 - https://www.wowhead.com/forever/spell=14799
-				],
-			],
 		]),
 	],
 	[
 		161, // Defias Leather
 		new Map([
 			[
-				2,
-				[
-					"+5 Arcane Resistance.", // 14707 - https://www.wowhead.com/forever/spell=14707
-				],
-			],
-			[
-				3,
-				[
-					"+15 Attack Power against Humanoids.", // 1292025 - https://www.wowhead.com/forever/spell=1292025
-				],
-			],
-			[
 				4,
 				[
 					"Grants your melee attacks a 5% chance when striking from behind to hit a vital point, causing the target to Bleed for 75 Physical damage over 5s.", // 1292028 - https://www.wowhead.com/forever/spell=1292028
-				],
-			],
-			[
-				5,
-				[
-					"Increased Daggers +1.", // 7534 - https://www.wowhead.com/forever/spell=7534
 				],
 			],
 		]),
@@ -3217,18 +3088,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		162, // Embrace of the Viper
 		new Map([
-			[
-				2,
-				[
-					"+10 Intellect.", // 9106 - https://www.wowhead.com/forever/spell=9106
-				],
-			],
-			[
-				3,
-				[
-					"+10 Attack Power.", // 9140 - https://www.wowhead.com/forever/spell=9140
-				],
-			],
 			[
 				4,
 				[
@@ -3247,27 +3106,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		163, // Chain of the Scarlet Crusade
 		new Map([
 			[
-				2,
-				[
-					"+10 Shadow Resistance.", // 14673 - https://www.wowhead.com/forever/spell=14673
-				],
-			],
-			[
-				3,
-				[
-					"+30 Attack Power against Undead.", // 18074 - https://www.wowhead.com/forever/spell=18074
-				],
-			],
-			[
 				4,
 				[
 					"Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to deal 20 Holy damage. Deals 3 times as much damage to Undead.", // 1293674 - https://www.wowhead.com/forever/spell=1293674
-				],
-			],
-			[
-				5,
-				[
-					"Improves your chance to hit by 1.0%.", // 432639 - https://www.wowhead.com/forever/spell=432639
 				],
 			],
 			[
@@ -3414,115 +3255,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		221, // Garb of Thero-shan
-		new Map([
-			[
-				6,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		281, // Champion's Battlegear
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		282, // Lieutenant Commander's Battlegear
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		301, // Champion's Earthshaker
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
 		321, // Imperial Plate
 		new Map([
 			[
 				4,
 				[
 					"Imperial discipline prevents your movement speed from being reduced below 80%.", // 1302372 - https://www.wowhead.com/forever/spell=1302372
-				],
-			],
-		]),
-	],
-	[
-		343, // Lieutenant Commander's Regalia
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Blink spell by 1.5 sec.", // 23025 - https://www.wowhead.com/forever/spell=23025
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -3539,93 +3277,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		348, // Lieutenant Commander's Vestments
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Gouge ability by 1.0 sec.", // 23048 - https://www.wowhead.com/forever/spell=23048
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		361, // Champion's Pursuit
-		new Map([
-			[
-				2,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		362, // Lieutenant Commander's Pursuit
-		new Map([
-			[
-				2,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
 		381, // Lieutenant Commander's Sanctuary
 		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
 			[
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -3634,136 +3291,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		382, // Champion's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
 				4,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		383, // Warlord's Battlegear
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		384, // Field Marshal's Battlegear
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		386, // Warlord's Earthshaker
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		387, // Warlord's Regalia
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Blink spell by 1.5 sec.", // 23025 - https://www.wowhead.com/forever/spell=23025
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-		]),
-	],
-	[
-		388, // Field Marshal's Regalia
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Blink spell by 1.5 sec.", // 23025 - https://www.wowhead.com/forever/spell=23025
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
 				],
 			],
 		]),
@@ -3791,116 +3321,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		393, // Warlord's Vestments
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Gouge ability by 1.0 sec.", // 23048 - https://www.wowhead.com/forever/spell=23048
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		394, // Field Marshal's Vestments
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Gouge ability by 1.0 sec.", // 23048 - https://www.wowhead.com/forever/spell=23048
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		395, // Field Marshal's Pursuit
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-		]),
-	],
-	[
-		396, // Warlord's Pursuit
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-		]),
-	],
-	[
 		397, // Field Marshal's Sanctuary
 		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
 			[
 				3,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
 				],
 			],
 		]),
@@ -3909,78 +3335,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		398, // Warlord's Sanctuary
 		new Map([
 			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
 				3,
 				[
 					"Increases your movement speed by 15% while in Bear, Cat, or Travel Form. Only active outdoors.", // 23218 - https://www.wowhead.com/forever/spell=23218
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		401, // Lieutenant Commander's Aegis
-		new Map([
-			[
-				2,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		402, // Field Marshal's Aegis
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-		]),
-	],
-	[
-		421, // Bloodvine Garb
-		new Map([
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 2.0%.", // 18382 - https://www.wowhead.com/forever/spell=18382
 				],
 			],
 		]),
@@ -3992,257 +3349,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Minor increase to running and swimming speed. Does not stack with similar effects.", // 24090 - https://www.wowhead.com/forever/spell=24090
-				],
-			],
-		]),
-	],
-	[
-		442, // Blood Tiger Harness
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		443, // Bloodsoul Embrace
-		new Map([
-			[
-				3,
-				[
-					"Restores 12 mana per 5 sec.", // 21636 - https://www.wowhead.com/forever/spell=21636
-				],
-			],
-		]),
-	],
-	[
-		444, // The Darksoul
-		new Map([
-			[
-				3,
-				[
-					"Increased Defense +20.", // 21416 - https://www.wowhead.com/forever/spell=21416
-				],
-			],
-		]),
-	],
-	[
-		467, // The Highlander's Resolution
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		468, // The Highlander's Resolve
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		469, // The Highlander's Determination
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		470, // The Highlander's Fortitude
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		472, // The Highlander's Will
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		473, // The Highlander's Intent
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		474, // Vindicator's Battlegear
-		new Map([
-			[
-				2,
-				[
-					"Increases your chance to block attacks with a shield by 2%.", // 13675 - https://www.wowhead.com/forever/spell=13675
-				],
-			],
-			[
-				3,
-				[
-					"Decreases the cooldown of Intimidating Shout by 15.0 sec.", // 24456 - https://www.wowhead.com/forever/spell=24456
-				],
-			],
-			[
-				5,
-				[
-					"Decrease the rage cost of Whirlwind by 3.0.", // 24431 - https://www.wowhead.com/forever/spell=24431
-				],
-			],
-		]),
-	],
-	[
-		475, // Freethinker's Armor
-		new Map([
-			[
-				2,
-				[
-					"Restores 4 mana per 5 sec.", // 21618 - https://www.wowhead.com/forever/spell=21618
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the casting time of your Holy Light spell by 0.1 sec.", // 24457 - https://www.wowhead.com/forever/spell=24457
-				],
-			],
-			[
-				5,
-				[
-					"Increases the duration of all Blessings by 10%.", // 24460 - https://www.wowhead.com/forever/spell=24460
-				],
-			],
-		]),
-	],
-	[
-		476, // Augur's Regalia
-		new Map([
-			[
-				2,
-				[
-					"Restores 4 mana per 5 sec.", // 21618 - https://www.wowhead.com/forever/spell=21618
-				],
-			],
-			[
-				3,
-				[
-					"Improves the duration of your Frost Shock spell by 1.0 sec.", // 24461 - https://www.wowhead.com/forever/spell=24461
-				],
-			],
-			[
-				5,
-				[
-					"Increase the range of your Lightning Bolt spell by 5 yds.", // 24462 - https://www.wowhead.com/forever/spell=24462
-				],
-			],
-		]),
-	],
-	[
-		477, // Predator's Armor
-		new Map([
-			[
-				2,
-				[
-					"+20 Attack Power.", // 9331 - https://www.wowhead.com/forever/spell=9331
-				],
-			],
-			[
-				3,
-				[
-					"Decreases the cooldown of Concussive Shot by 1.0 sec.", // 24465 - https://www.wowhead.com/forever/spell=24465
-				],
-			],
-			[
-				5,
-				[
-					"Increases the duration of Serpent Sting by 3.0 sec.", // 24467 - https://www.wowhead.com/forever/spell=24467
-				],
-			],
-		]),
-	],
-	[
-		478, // Madcap's Outfit
-		new Map([
-			[
-				2,
-				[
-					"+20 Attack Power.", // 9331 - https://www.wowhead.com/forever/spell=9331
-				],
-			],
-			[
-				3,
-				[
-					"Decreases the cooldown of Blind by 20.0 sec.", // 24469 - https://www.wowhead.com/forever/spell=24469
-				],
-			],
-			[
-				5,
-				[
-					"Decrease the energy cost of Eviscerate and Rupture by 5.", // 24471 - https://www.wowhead.com/forever/spell=24471
 				],
 			],
 		]),
@@ -4270,166 +3376,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		483, // The Defiler's Determination
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		484, // The Defiler's Fortitude
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		485, // The Defiler's Intent
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		487, // The Defiler's Resolution
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 1.0%.", // 7597 - https://www.wowhead.com/forever/spell=7597
-				],
-			],
-		]),
-	],
-	[
-		488, // The Defiler's Will
-		new Map([
-			[
-				2,
-				[
-					"+5 Stamina.", // 7503 - https://www.wowhead.com/forever/spell=7503
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with spells by 1.0%.", // 18384 - https://www.wowhead.com/forever/spell=18384
-				],
-			],
-		]),
-	],
-	[
-		489, // Black Dragon Mail
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to hit by 1.0%.", // 15464 - https://www.wowhead.com/forever/spell=15464
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with melee attacks by 2.0%.", // 7598 - https://www.wowhead.com/forever/spell=7598
-				],
-			],
-		]),
-	],
-	[
-		490, // Green Dragon Mail
-		new Map([
-			[
-				2,
-				[
-					"Restores 3 mana per 5 sec.", // 21625 - https://www.wowhead.com/forever/spell=21625
-				],
-			],
-			[
-				3,
-				[
-					"Allows 15% of your Mana regeneration to continue while casting.", // 21894 - https://www.wowhead.com/forever/spell=21894
-				],
-			],
-		]),
-	],
-	[
-		491, // Blue Dragon Mail
-		new Map([
-			[
-				2,
-				[
-					"+4 All Resistances.", // 18675 - https://www.wowhead.com/forever/spell=18675
-				],
-			],
-			[
-				3,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 28.", // 14127 - https://www.wowhead.com/forever/spell=14127
-				],
-			],
-		]),
-	],
-	[
 		492, // Twilight Trappings
 		new Map([
 			[
 				3,
 				[
 					"Bestows the wearer with the evil aura of a Twilight's Hammer cultist.", // 24746 - https://www.wowhead.com/forever/spell=24746
-				],
-			],
-		]),
-	],
-	[
-		493, // Genesis Raiment
-		new Map([
-			[
-				3,
-				[
-					"Increased Defense +15.", // 18196 - https://www.wowhead.com/forever/spell=18196
-					"+150 Armor.", // 15693 - https://www.wowhead.com/forever/spell=15693
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of Rebirth by 10.0 minutes.", // 26106 - https://www.wowhead.com/forever/spell=26106
 				],
 			],
 		]),
@@ -4446,57 +3398,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		495, // Battlegear of Unyielding Strength
-		new Map([
-			[
-				3,
-				[
-					"rage cost to Intercept.", // 26111 - https://www.wowhead.com/forever/spell=26111
-				],
-			],
-		]),
-	],
-	[
-		497, // Deathdealer's Embrace
-		new Map([
-			[
-				3,
-				[
-					"Reduces the cooldown of your Evasion ability by min.", // 26112 - https://www.wowhead.com/forever/spell=26112
-				],
-			],
-			[
-				5,
-				[
-					"15% increased damage to your Eviscerate ability.", // 26113 - https://www.wowhead.com/forever/spell=26113
-				],
-			],
-		]),
-	],
-	[
-		498, // Emblems of Veiled Shadows
-		new Map([
-			[
-				3,
-				[
-					"energy cost for your Slice and Dice ability.", // 26114 - https://www.wowhead.com/forever/spell=26114
-				],
-			],
-		]),
-	],
-	[
 		501, // Stormcaller's Garb
 		new Map([
 			[
 				3,
 				[
 					"Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50 Nature damage to spells for 8s.", // 26119 - https://www.wowhead.com/forever/spell=26119
-				],
-			],
-			[
-				5,
-				[
-					"seconds on the casting time of your Chain Heal spell.", // 26122 - https://www.wowhead.com/forever/spell=26122
 				],
 			],
 		]),
@@ -4519,34 +3426,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Your Blizzard spell has a 30% chance to be uninterruptible.", // 26127 - https://www.wowhead.com/forever/spell=26127
-				],
-			],
-		]),
-	],
-	[
-		504, // Trappings of Vaulted Secrets
-		new Map([
-			[
-				3,
-				[
-					"15% increase to the total damage absorbed by Mana Shield.", // 26131 - https://www.wowhead.com/forever/spell=26131
-				],
-			],
-		]),
-	],
-	[
-		505, // Avenger's Battlegear
-		new Map([
-			[
-				3,
-				[
-					"Increases the duration of your Judgements by 20%.", // 26130 - https://www.wowhead.com/forever/spell=26130
-				],
-			],
-			[
-				5,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 71.", // 23929 - https://www.wowhead.com/forever/spell=23929
 				],
 			],
 		]),
@@ -4588,27 +3467,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		520, // Ironweave Battlesuit
 		new Map([
 			[
-				2,
-				[
-					"+200 Armor.", // 14803 - https://www.wowhead.com/forever/spell=14803
-				],
-			],
-			[
-				3,
-				[
-					"Decreases the magical resistances of your spell targets by 5.", // 26283 - https://www.wowhead.com/forever/spell=26283
-				],
-			],
-			[
 				4,
 				[
 					"Reduces the hit chance of Silence and Interrupt effects against you by 10%.", // 27733 - https://www.wowhead.com/forever/spell=27733
-				],
-			],
-			[
-				5,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
 				],
 			],
 			[
@@ -4629,12 +3490,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				4,
-				[
-					"Reduces the mana cost of your Healing Touch, Regrowth, Rejuvenation, and Tranquility spells by 3%.", // 28743 - https://www.wowhead.com/forever/spell=28743
-				],
-			],
-			[
 				6,
 				[
 					"Your initial cast and Regrowth ticks will increase the maximum health of your target by up to 50, stacking up to 7 times.", // 28744 - https://www.wowhead.com/forever/spell=28744
@@ -4644,29 +3499,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				8,
 				[
 					"On Healing Touch critical hits, you regain 30% of the mana cost of the spell.", // 28719 - https://www.wowhead.com/forever/spell=28719
-				],
-			],
-		]),
-	],
-	[
-		522, // Champion's Vestments
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Gouge ability by 1.0 sec.", // 23048 - https://www.wowhead.com/forever/spell=23048
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -4684,12 +3516,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy.", // 28812 - https://www.wowhead.com/forever/spell=28812
-				],
-			],
-			[
-				6,
-				[
-					"Reduces the threat from your Backstab, Sinister Strike, Hemorrhage, and Eviscerate abilities.", // 28811 - https://www.wowhead.com/forever/spell=28811
 				],
 			],
 			[
@@ -4726,18 +3552,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		527, // The Earthshatterer
 		new Map([
 			[
-				2,
-				[
-					"Reduces the mana cost of your totem spells by 12%.", // 28818 - https://www.wowhead.com/forever/spell=28818
-				],
-			],
-			[
-				4,
-				[
-					"Increases the mana gained from your Mana Spring totems by 25%.", // 29171 - https://www.wowhead.com/forever/spell=29171
-				],
-			],
-			[
 				6,
 				[
 					"Your Healing Wave and Lesser Healing Wave spells have a chance to imbue your target with Totemic Power.", // 28823 - https://www.wowhead.com/forever/spell=28823
@@ -4758,12 +3572,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Increases the amount healed by your Judgement of Light by 20.", // 28775 - https://www.wowhead.com/forever/spell=28775
-				],
-			],
-			[
-				4,
-				[
-					"Reduces cooldown on your Lay on Hands by 12.0 min.", // 28774 - https://www.wowhead.com/forever/spell=28774
 				],
 			],
 			[
@@ -4798,96 +3606,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		533, // Battlegear of Undead Slaying
-		new Map([
-			[
-				3,
-				[
-					"Increases your damage against undead by 2%.", // 29068 - https://www.wowhead.com/forever/spell=29068
-				],
-			],
-		]),
-	],
-	[
-		534, // Undead Slayer's Armor
-		new Map([
-			[
-				3,
-				[
-					"Increases your damage against undead by 2%.", // 29068 - https://www.wowhead.com/forever/spell=29068
-				],
-			],
-		]),
-	],
-	[
-		535, // Garb of the Undead Slayer
-		new Map([
-			[
-				3,
-				[
-					"Increases your damage against undead by 2%.", // 29068 - https://www.wowhead.com/forever/spell=29068
-				],
-			],
-		]),
-	],
-	[
-		536, // Regalia of Undead Cleansing
-		new Map([
-			[
-				3,
-				[
-					"Increases your damage against undead by 2%.", // 29068 - https://www.wowhead.com/forever/spell=29068
-				],
-			],
-		]),
-	],
-	[
-		537, // Champion's Battlearmor
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		538, // Champion's Stormcaller
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
 		539, // Champion's Refuge
 		new Map([
 			[
@@ -4899,173 +3617,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		542, // Champion's Arcanum
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Blink spell by 1.5 sec.", // 23025 - https://www.wowhead.com/forever/spell=23025
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		543, // Champion's Pursuance
-		new Map([
-			[
-				2,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		544, // Lieutenant Commander's Redoubt
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		545, // Lieutenant Commander's Battlearmor
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Intercept ability by 5.0 sec.", // 22738 - https://www.wowhead.com/forever/spell=22738
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		546, // Champion's Regalia
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Blink spell by 1.5 sec.", // 23025 - https://www.wowhead.com/forever/spell=23025
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		548, // Lieutenant Commander's Guard
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Gouge ability by 1.0 sec.", // 23048 - https://www.wowhead.com/forever/spell=23048
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
 		549, // Champion's Raiment
 		new Map([
 			[
 				4,
 				[
 					"Increases the duration of your Psychic Scream spell by 1.0 sec.", // 23044 - https://www.wowhead.com/forever/spell=23044
-				],
-			],
-		]),
-	],
-	[
-		550, // Lieutenant Commander's Pursuance
-		new Map([
-			[
-				2,
-				[
-					"+20 Agility.", // 14384 - https://www.wowhead.com/forever/spell=14384
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Concussive Shot by 1.0 sec.", // 23158 - https://www.wowhead.com/forever/spell=23158
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
 				],
 			],
 		]),
@@ -5222,23 +3779,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		1972, // Stormcloth Regalia
-		new Map([
-			[
-				3,
-				[
-					"+10 Spirit.", // 1258496 - https://www.wowhead.com/forever/spell=1258496
-				],
-			],
-			[
-				6,
-				[
-					"Increases healing done by spells and effects by up to 22 and damage done by spells and effects by up to 8.", // 1258494 - https://www.wowhead.com/forever/spell=1258494
-				],
-			],
-		]),
-	],
-	[
 		2071, // Teachings of the Furbolgs
 		new Map([
 			[
@@ -5360,388 +3900,8 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		2082, // Champion's Aegis
-		new Map([
-			[
-				2,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2083, // Warlord's Aegis
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-		]),
-	],
-	[
-		2084, // Champion's Vindication
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2085, // Warlord's Vindication
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-		]),
-	],
-	[
-		2086, // Lieutenant Commander's Vindication
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2087, // Field Marshal's Vindication
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Hammer of Justice by 10.0 sec.", // 23302 - https://www.wowhead.com/forever/spell=23302
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-		]),
-	],
-	[
-		2088, // Lieutenant Commander's Earthshaker
-		new Map([
-			[
-				2,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2089, // Field Marshal's Earthshaker
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+40 Attack Power.", // 14049 - https://www.wowhead.com/forever/spell=14049
-				],
-			],
-		]),
-	],
-	[
-		2090, // Champion's Wartide
-		new Map([
-			[
-				2,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2091, // Warlord's Wartide
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-		]),
-	],
-	[
-		2092, // Lieutenant Commander's Wartide
-		new Map([
-			[
-				2,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2093, // Field Marshal's Wartide
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"Increases healing done by up to 44 and damage done by up to 15 for all magical spells and effects.", // 467550 - https://www.wowhead.com/forever/spell=467550
-				],
-			],
-		]),
-	],
-	[
-		2094, // Champion's Thunderfist
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2095, // Warlord's Thunderfist
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-		]),
-	],
-	[
-		2096, // Lieutenant Commander's Thunderfist
-		new Map([
-			[
-				2,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-			[
-				4,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-		]),
-	],
-	[
-		2097, // Field Marshal's Thunderfist
-		new Map([
-			[
-				2,
-				[
-					"+20 Stamina.", // 14467 - https://www.wowhead.com/forever/spell=14467
-				],
-			],
-			[
-				3,
-				[
-					"Improves your chance to get a critical strike with all Shock spells by 2%.", // 22804 - https://www.wowhead.com/forever/spell=22804
-				],
-			],
-			[
-				6,
-				[
-					"Increases damage and healing done by magical spells and effects by up to 23.", // 14047 - https://www.wowhead.com/forever/spell=14047
-				],
-			],
-		]),
-	],
-	[
 		2098, // Manaflare Regalia
 		new Map([
-			[
-				2,
-				[
-					"Improves your chance to hit by 1.0%.", // 1300947 - https://www.wowhead.com/forever/spell=1300947
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Counterspell by 5 sec.", // 1301013 - https://www.wowhead.com/forever/spell=1301013
-				],
-			],
 			[
 				4,
 				[
@@ -5752,35 +3912,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger Fingers of Frost.", // 1301488 - https://www.wowhead.com/forever/spell=1301488
-				],
-			],
-		]),
-	],
-	[
-		2099, // Grimstitch Armor
-		new Map([
-			[
-				2,
-				[
-					"Improves your chance to hit by 1.0%.", // 1300956 - https://www.wowhead.com/forever/spell=1300956
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Kidney Shot ability by 3 sec.", // 1301047 - https://www.wowhead.com/forever/spell=1301047
-				],
-			],
-			[
-				4,
-				[
-					"+36 Attack Power against Humanoids.", // 1301088 - https://www.wowhead.com/forever/spell=1301088
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cost of your Envenom and Eviscerate abilities by 5 Energy.", // 1301708 - https://www.wowhead.com/forever/spell=1301708
 				],
 			],
 		]),
@@ -5861,27 +3992,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2109, // The Spiritcaller
 		new Map([
 			[
-				2,
-				[
-					"Increased Spirit +10", // 1300960 - https://www.wowhead.com/forever/spell=1300960
-				],
-			],
-			[
 				3,
 				[
 					"Increases the radius of effect of your beneficial Fire and Water totems by 10 yds.", // 1301059 - https://www.wowhead.com/forever/spell=1301059
-				],
-			],
-			[
-				4,
-				[
-					"Increases healing done by up to 26 and damage done by up to 9 for all magical spells and effects.", // 1301093 - https://www.wowhead.com/forever/spell=1301093
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Riptide spell by 1 sec.", // 1301713 - https://www.wowhead.com/forever/spell=1301713
 				],
 			],
 		]),
@@ -5890,27 +4003,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2110, // The Spiritcaller's Rage
 		new Map([
 			[
-				2,
-				[
-					"Increases your attack speed and casting speed by 1%.", // 1300957 - https://www.wowhead.com/forever/spell=1300957
-				],
-			],
-			[
 				3,
 				[
 					"Increases the radius of effect of your beneficial Air and Earth totems by 10 yds.", // 1301051 - https://www.wowhead.com/forever/spell=1301051
-				],
-			],
-			[
-				4,
-				[
-					"+36 Attack Power against Elementals.", // 1301090 - https://www.wowhead.com/forever/spell=1301090
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Stormstrike ability by 0.5 sec.", // 1301709 - https://www.wowhead.com/forever/spell=1301709
 				],
 			],
 		]),
@@ -5919,56 +4014,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2111, // The Spiritcaller's Storm
 		new Map([
 			[
-				2,
-				[
-					"Improves your chance to hit by 1.0%.", // 1300959 - https://www.wowhead.com/forever/spell=1300959
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Earthbind Totem spell by 2 sec.", // 1301053 - https://www.wowhead.com/forever/spell=1301053
-				],
-			],
-			[
 				4,
 				[
 					"Increases damage done by your spells and effects by up to 21 when fighting Elementals.", // 1301092 - https://www.wowhead.com/forever/spell=1301092
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Lava Burst spell by 1 sec.", // 1301711 - https://www.wowhead.com/forever/spell=1301711
-				],
-			],
-		]),
-	],
-	[
-		2112, // Grovekeeper Raiment
-		new Map([
-			[
-				2,
-				[
-					"Increased Spirit +10", // 1300943 - https://www.wowhead.com/forever/spell=1300943
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Barkskin spell by 10 sec.", // 1301006 - https://www.wowhead.com/forever/spell=1301006
-				],
-			],
-			[
-				4,
-				[
-					"Increases healing done by up to 26 and damage done by up to 9 for all magical spells and effects.", // 1301077 - https://www.wowhead.com/forever/spell=1301077
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Swiftmend spell by 3.0 sec.", // 1301250 - https://www.wowhead.com/forever/spell=1301250
 				],
 			],
 		]),
@@ -5977,27 +4025,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2113, // Grovekeeper Rage
 		new Map([
 			[
-				2,
-				[
-					"Increased Defense +7", // 1300942 - https://www.wowhead.com/forever/spell=1300942
-				],
-			],
-			[
 				3,
 				[
 					"Your Rebirth spell is now castable in Bear Form and Dire Bear Form and its cast time is reduced by 2.0 sec while you are in Bear Form or Dire Bear Form.", // 1301005 - https://www.wowhead.com/forever/spell=1301005
-				],
-			],
-			[
-				4,
-				[
-					"Reduces the chance for your melee attacks to be Dodged or Parried by 1.2%.", // 1301076 - https://www.wowhead.com/forever/spell=1301076
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Berserk ability by 15.0 sec.", // 1301249 - https://www.wowhead.com/forever/spell=1301249
 				],
 			],
 		]),
@@ -6017,27 +4047,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2115, // Grovekeeper Ferocity
 		new Map([
 			[
-				2,
-				[
-					"Increases your attack speed and casting speed by 1%.", // 1300934 - https://www.wowhead.com/forever/spell=1300934
-				],
-			],
-			[
 				3,
 				[
 					"Your Hibernate spell is now castable in Cat Form and its cast time is reduced by 1.5 sec while you are in Cat Form, but Hibernate gains a cooldown of 15 sec.", // 1300999 - https://www.wowhead.com/forever/spell=1300999
-				],
-			],
-			[
-				4,
-				[
-					"+36 Attack Power against Demons.", // 1301075 - https://www.wowhead.com/forever/spell=1301075
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Shifting Power ability by 1.0 sec.", // 1301247 - https://www.wowhead.com/forever/spell=1301247
 				],
 			],
 		]),
@@ -6086,18 +4098,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2133, // Rotmender's Raiment
 		new Map([
 			[
-				2,
-				[
-					"+5 Shadow Resistance.", // 14668 - https://www.wowhead.com/forever/spell=14668
-				],
-			],
-			[
-				3,
-				[
-					"+10 Intellect.", // 9106 - https://www.wowhead.com/forever/spell=9106
-				],
-			],
-			[
 				4,
 				[
 					"When your Mana falls below 15%, restore 200 Mana over 10s. Restores twice as much Mana in Haunted and Wasteland areas. May only occur once every 5 min.", // 1321560 - https://www.wowhead.com/forever/spell=1321560
@@ -6114,18 +4114,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		2134, // Violet Sorcerer's Vestments
 		new Map([
-			[
-				2,
-				[
-					"+5 Arcane Resistance.", // 1324311 - https://www.wowhead.com/forever/spell=1324311
-				],
-			],
-			[
-				3,
-				[
-					"+10 Spirit.", // 1324312 - https://www.wowhead.com/forever/spell=1324312
-				],
-			],
 			[
 				4,
 				[
@@ -6144,18 +4132,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2135, // Krol'dok Battlegear
 		new Map([
 			[
-				2,
-				[
-					"+100 Armor.", // 1324287 - https://www.wowhead.com/forever/spell=1324287
-				],
-			],
-			[
-				3,
-				[
-					"Increased Defense +5.", // 1324288 - https://www.wowhead.com/forever/spell=1324288
-				],
-			],
-			[
 				4,
 				[
 					"Chance on block to heal for 18. Healing is doubled in Strongholds and Cities.", // 1324298 - https://www.wowhead.com/forever/spell=1324298
@@ -6172,24 +4148,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		2136, // Defias Enforcer's Garb
 		new Map([
-			[
-				2,
-				[
-					"+10 Fire Resistance.", // 1324673 - https://www.wowhead.com/forever/spell=1324673
-				],
-			],
-			[
-				3,
-				[
-					"+15 Stamina.", // 1324674 - https://www.wowhead.com/forever/spell=1324674
-				],
-			],
-			[
-				4,
-				[
-					"Increased Swords +1.", // 1324675 - https://www.wowhead.com/forever/spell=1324675
-				],
-			],
 			[
 				5,
 				[
