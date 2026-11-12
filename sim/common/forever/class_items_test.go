@@ -759,9 +759,7 @@ func TestIdolOfBrutalityCutsMaulAndSwipesRage(t *testing.T) {
 		name  string
 		spell func(*druid.Druid) *core.Spell
 	}{
-		{"Maul", func(bear *druid.Druid) *core.Spell {
-			return bear.GetSpell(core.ActionID{SpellID: bear.Maul.SpellID, Tag: 1})
-		}},
+		{"Maul", func(bear *druid.Druid) *core.Spell { return bear.GetSpell(bear.Maul.ActionID.WithTag(1)) }},
 		{"Swipe", func(bear *druid.Druid) *core.Spell { return bear.Swipe.Spell }},
 	} {
 		if got, want := c.spell(idol).Cost.GetCurrentCost(), c.spell(bare).Cost.GetCurrentCost()+cut; got != want {
@@ -774,18 +772,14 @@ func TestIdolOfBrutalityCutsMaulAndSwipesRage(t *testing.T) {
 // restores, in tenths of rage.
 func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
 	enrage := spelldata.MustFind(5229)
-	ticks := float64(enrage.Duration() / enrage.PeriodicEffect().Period())
+	ticks := float64(rowTickCount(enrage, enrage.PeriodicEffect()))
 	gained := func(items []*proto.ItemSpec) float64 {
 		sim, bear := equippedBear(t, items)
 		before := bear.CurrentRage()
 		if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
 			t.Fatal("Enrage did not cast")
 		}
-		until := sim.CurrentTime + enrage.Duration() + time.Second
-		sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})
-		for sim.CurrentTime < until {
-			sim.Step()
-		}
+		stepTo(t, sim, sim.CurrentTime+enrage.Duration()+time.Second)
 		return bear.CurrentRage() - before
 	}
 	bare := gained(bearItemSlots())
