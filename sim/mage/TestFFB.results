@@ -103,6 +103,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 755.90957
+  tps: 780.50451
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 774.37608
@@ -128,6 +135,13 @@ dps_results: {
  value: {
   dps: 874.43747
   tps: 899.6448
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 746.48969
+  tps: 771.18054
  }
 }
 dps_results: {

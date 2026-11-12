@@ -205,7 +205,7 @@ func (spell *Spell) PhysicalCritChance(attackTable *AttackTable) float64 {
 // The crit chance before the floor at 0, with extraCritPercent more crit on the spell.
 func (spell *Spell) physicalCritChanceUnclamped(attackTable *AttackTable, extraCritPercent float64) float64 {
 	critPercent := spell.Unit.stats[stats.PhysicalCritPercent] + spell.BonusCritPercent +
-		attackTable.critChanceByCaster(spell) + extraCritPercent
+		attackTable.BonusCritPercent + attackTable.critChanceByCaster(spell) + extraCritPercent
 
 	if spell.ProcMask.Matches(ProcMaskRanged) {
 		critPercent += spell.Unit.stats[stats.RangedCritPercent]
@@ -304,6 +304,7 @@ func (spell *Spell) SpellCritChance(target *Unit) float64 {
 	critPercent := spell.Unit.stats[stats.SpellCritPercent] +
 		spell.BonusCritPercent +
 		attackTable.BonusSpellCritPercent +
+		attackTable.BonusCritPercent +
 		attackTable.critChanceByCaster(spell)
 	// Reduced crit taken, like Defense, lowers the chance to be crit by melee and ranged attacks only.
 	return max(critPercent/100, 0)
