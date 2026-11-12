@@ -625,9 +625,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 932.78117
-  tps: 749.43787
-  dtps: 9.32099
+  dps: 932.77514
+  tps: 749.29213
+  dtps: 9.3982
  }
 }
 dps_results: {

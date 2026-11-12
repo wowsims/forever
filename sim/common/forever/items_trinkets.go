@@ -292,8 +292,12 @@ func init() {
 		}
 		ancientPower := character.RegisterSpell(config)
 
+		// The row's harmful-spell bit makes spell hits roll its procs per minute too, on the main hand's
+		// speed. The chance on a spell hit is unmeasured in game.
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
+		}, func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
 		})
 		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; combat
 		// logs show Rend and Concussion Blow applications never proc it, so only a hit that dealt damage

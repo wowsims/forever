@@ -753,9 +753,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.08809
+  dps: 728.09083
+  tps: 675.20338
+  dtps: 9.25178
  }
 }
 dps_results: {
