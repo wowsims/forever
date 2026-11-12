@@ -605,8 +605,8 @@ var literalRates = []literalRate{
 		ID:     272432,
 		Kind:   overrides.RatePPM,
 		Origin: "unknown",
-		Reason: "Totem of the Storm: half of Maelstrom Weapon's rate per minute, which the shaman talent " +
-			"code keeps as its own literal; the item cannot carry it without the talent reading it from the item",
+		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
+			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the bolt's cast time",
 	},
 	{
 		Gear:   "set bonus",

@@ -929,9 +929,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 396.80537
-  tps: 955.33016
-  dtps: 358.36772
+  dps: 399.40253
+  tps: 960.00971
+  dtps: 357.10745
   hps: 21.84139
  }
 }
