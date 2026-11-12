@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-DraconicInfusedEmblem-22268"
+ value: {
+  dps: 838.2977
+  tps: 684.60893
+  dtps: 5.99497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 796.49329

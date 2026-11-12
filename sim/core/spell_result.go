@@ -908,9 +908,12 @@ func (spell *Spell) attackerDamageMultiplierInternal(attackTable *AttackTable) f
 		return 1
 	}
 
-	return spell.Unit.PseudoStats.DamageDealtMultiplier *
-		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex] *
-		attackTable.DamageDealtMultiplier
+	multiplier := spell.Unit.PseudoStats.DamageDealtMultiplier *
+		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex]
+	if !spell.Flags.Matches(SpellFlagNoDamageVersus) {
+		multiplier *= attackTable.DamageDealtMultiplier
+	}
+	return multiplier
 }
 
 func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, attackTable *AttackTable, isPeriodic bool) float64 {

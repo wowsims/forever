@@ -227,6 +227,39 @@ func TestFireNovaHitsHoldTheCastsAndCastTime(t *testing.T) {
 	}
 }
 
+// A Dwarf's beast bonus reaches the shaman's own Fire Nova but not a fire totem's attack, which deals
+// the same damage to a beast as to any other creature.
+func TestTotemAttacksTakeNoCreatureTypeBonus(t *testing.T) {
+	raid := enhancementRaid(enhancementTalents)
+	raid.Parties[0].Players[0].Race = proto.Race_RaceDwarf
+	beast := core.FreshDefaultTargetConfig()
+	beast.MobType = proto.MobType_MobTypeBeast
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, beast)
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       raid,
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	other := sham.AttackTables[sim.Encounter.AllTargetUnits[0].UnitIndex]
+	beastTable := sham.AttackTables[sim.Encounter.AllTargetUnits[1].UnitIndex]
+	beastBonus := func(spell *core.Spell) float64 {
+		return spell.AttackerDamageMultiplier(beastTable, false) / spell.AttackerDamageMultiplier(other, false)
+	}
+
+	if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: sham.FireNova.ActionID.SpellID, Tag: 1})); bonus <= 1 {
+		t.Errorf("Fire Nova's hits deal %v times the damage to a beast; want the racial's bonus above 1", bonus)
+	}
+	for _, totem := range []*core.Spell{sham.MagmaTotem, sham.SearingTotem} {
+		if bonus := beastBonus(sham.GetSpell(core.ActionID{SpellID: totem.ActionID.SpellID, Tag: 1})); bonus != 1 {
+			t.Errorf("%s's attack deals %v times the damage to a beast; want 1", totem.ActionID, bonus)
+		}
+	}
+}
+
 // Water Shield's tooltip: a hit taken or one of the shaman's spell crits spends a globe for 2% of
 // maximum mana, one globe every few seconds; a spell that does not crit spends none.
 func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
@@ -299,4 +332,41 @@ func TestWaterShieldSpendsAGlobeOnAHitTakenOrASpellCrit(t *testing.T) {
 	expect("a hit taken", func() {
 		shield.OnSpellHitTaken(shield, sim, attack, &core.SpellResult{Target: &sham.Unit, Outcome: core.OutcomeHit, Damage: 100})
 	}, 1, true)
+}
+
+// Totemic Recall takes down the shaman's standing totems and returns the row's share of their base
+// mana costs.
+func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       enhancementRaid(enhancementTalents),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	recallRow := spelldata.MustFind(36936)
+	recall := sham.GetSpell(core.ActionID{SpellID: recallRow.ID})
+	if recall == nil {
+		t.Fatal("Totemic Recall is not registered")
+	}
+
+	totems := []*core.Spell{sham.SearingTotem, sham.WindfuryTotem}
+	var baseCosts float64
+	for _, totem := range totems {
+		totem.SkipCastAndApplyEffects(sim, sham.CurrentTarget)
+		baseCosts += float64(totem.Cost.BaseCost)
+	}
+	sham.SpendMana(sim, sham.MaxMana()/2, sham.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen, Tag: 99}))
+
+	before := sham.CurrentMana()
+	recall.SkipCastAndApplyEffects(sim, &sham.Unit)
+	if got, want := sham.CurrentMana()-before, baseCosts*recallRow.EffectN(1).Percent(); got != want || want == 0 {
+		t.Errorf("Totemic Recall returned %v mana, want %v above 0", got, want)
+	}
+	for _, totem := range totems {
+		if totem.RelatedSelfBuff.IsActive() {
+			t.Errorf("%s still stands after Totemic Recall", totem.ActionID)
+		}
+	}
 }

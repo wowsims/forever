@@ -25,7 +25,7 @@ func (druid *Druid) excessEnergy(sim *core.Simulation) float64 {
 	target := druid.CurrentTarget
 	remaining := sim.GetRemainingDuration()
 	refreshes := make([]pendingRefresh, 0, 2)
-	if druid.Rip != nil && druid.ComboPoints() >= 5 {
+	if druid.Rip != nil && druid.ComboPoints(target) >= 5 {
 		if dot := druid.Rip.Dot(target); dot.IsActive() && dot.RemainingDuration(sim) <= remaining-10*time.Second {
 			refreshes = append(refreshes, pendingRefresh{dot.ExpiresAt(), druid.Rip.DefaultCast.Cost})
 		}

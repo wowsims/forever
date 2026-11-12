@@ -32,8 +32,7 @@ func newCat(t *testing.T, talents string, consumes *proto.ConsumesSpec) (*core.S
 	return newCatWearing(t, talents, consumes, nil)
 }
 
-func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
-	t.Helper()
+func catPlayer(name, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) *proto.Player {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -45,21 +44,26 @@ func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, w
 	if consumes == nil {
 		consumes = &proto.ConsumesSpec{}
 	}
+	return &proto.Player{
+		Name: name, Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
+		TalentsString: talents,
+		Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
+			Options: &proto.FeralCatDruid_Options{},
+		}},
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: consumes,
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+}
+
+func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
+	t.Helper()
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{{
-				Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
-				TalentsString: talents,
-				Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
-					Options: &proto.FeralCatDruid_Options{},
-				}},
-				Equipment:   &proto.EquipmentSpec{Items: items},
-				Consumables: consumes,
-				Buffs:       &proto.IndividualBuffs{},
-				Rotation:    &proto.APLRotation{},
-			}},
-			Buffs: &proto.PartyBuffs{},
+			Players: []*proto.Player{catPlayer("Cat", talents, consumes, worn)},
+			Buffs:   &proto.PartyBuffs{},
 		}}},
 		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
 	}, simsignals.CreateSignals())
@@ -535,7 +539,7 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	fillResource(sim, cat)
 	var landed bool
 	for range 15 {
-		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints() > 0 {
+		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints(cat.CurrentTarget) > 0 {
 			landed = true
 			break
 		}
@@ -545,13 +549,13 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	if !landed {
 		t.Fatal("claw never awarded a combo point")
 	}
-	points := cat.ComboPoints()
+	points := cat.ComboPoints(cat.CurrentTarget)
 	fillResource(sim, cat)
 	sim.CurrentTime += 2 * time.Second
 	if !cat.Rip.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("rip did not cast")
 	}
-	if got := cat.ComboPoints(); got != 0 {
+	if got := cat.ComboPoints(cat.CurrentTarget); got != 0 {
 		t.Errorf("combo points after rip = %d, want 0 (spent %d)", got, points)
 	}
 	if !cat.Rip.Dot(cat.CurrentTarget).IsActive() {
@@ -957,7 +961,7 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 						sim.Cleanup()
 						sim.Reset()
 					}
-					cat.AddComboPoints(sim, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
+					cat.AddComboPoints(sim, cat.CurrentTarget, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
 					dot := cat.Rip.Dot(cat.CurrentTarget)
 					dot.Apply(sim)
 					want := row.Duration()

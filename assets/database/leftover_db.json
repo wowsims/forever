@@ -3024,7 +3024,7 @@
 {"id":251965,"name":"Undead Knight's Bracers","type":6,"armorType":3,"quality":2,"sources":[{"quest":{"id":96986,"name":"The Grave Knight","faction":2}}],"scalingOptions":{"0":{"randPropPoints":8,"stats":{"0":3,"2":6,"3":3,"27":95},"ilvl":36}}},
 {"id":252449,"name":"Hillman's Leather Boots","type":10,"armorType":2,"reqLvl":22,"quality":2,"sources":[{"crafted":{"profession":8,"spellId":1255103}}],"scalingOptions":{"0":{"randPropPoints":7,"stats":{"2":4,"4":6,"5":6,"27":61},"ilvl":27}}},
 {"id":253999,"name":"Earthen Leggings","type":9,"armorType":1,"reqLvl":30,"quality":2,"sources":[{"crafted":{"profession":11,"spellId":1257425}}],"scalingOptions":{"0":{"randPropPoints":14,"stats":{"4":15,"5":5,"13":11,"27":41},"ilvl":35}}},
-{"id":254013,"name":"Earthen Silk Slippers","type":10,"armorType":1,"reqLvl":31,"quality":2,"sources":[{"crafted":{"profession":11,"spellId":1257432}}],"scalingOptions":{"0":{"randPropPoints":11,"stats":{"4":18,"5":24,"13":7,"27":33},"ilvl":36}}},
+{"id":254013,"name":"Earthen Silk Slippers","type":10,"armorType":1,"reqLvl":31,"quality":2,"sources":[{"crafted":{"profession":11,"spellId":1257432}}],"scalingOptions":{"0":{"randPropPoints":11,"stats":{"4":17,"5":6,"13":7,"27":33},"ilvl":36}}},
 {"id":254015,"name":"Earthen Silk Hood","type":1,"armorType":1,"reqLvl":32,"quality":2,"sources":[{"crafted":{"profession":11,"spellId":1257433}}],"scalingOptions":{"0":{"randPropPoints":15,"stats":{"4":22,"5":8,"13":10,"27":40},"ilvl":37}}},
 {"id":254017,"name":"Earthen Silk Gloves","type":7,"armorType":1,"reqLvl":34,"quality":2,"sources":[{"crafted":{"profession":11,"spellId":1257434}}],"scalingOptions":{"0":{"randPropPoints":12,"stats":{"4":18,"5":6,"13":8,"27":32},"ilvl":39}}},
 {"id":254779,"name":"A'sharahm, the Roiling Tempest","icon":"inv_sword_1h_arakkoa_c_02","type":13,"weaponType":9,"handType":2,"weaponSpeed":2.4,"quality":2,"scalingOptions":{"0":{"randPropPoints":1,"weaponDamageMin":10,"weaponDamageMax":20,"unroundedDps":6.5093184,"stats":{"2":1},"ilvl":12}}},
@@ -3753,8 +3753,7 @@
 {"effectId":8691,"itemId":274375,"spellId":1293806,"name":"Warden's Signet of Ferocity","icon":"inv_60pvp_trinket1b","type":1,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,60,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1},
 {"effectId":8692,"itemId":274376,"spellId":1293807,"name":"Warden's Signet of Brilliance","icon":"inv_60pvp_trinket1a","type":1,"stats":[0,0,0,0,35,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1},
 {"effectId":8693,"itemId":274377,"spellId":1293808,"name":"Warden's Signet of Caution","icon":"inv_60pvp_trinket1c","type":1,"stats":[0,0,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1},
-{"effectId":8694,"itemId":274378,"spellId":1293809,"name":"Warden's Signet of Recovery","icon":"inv_60pvp_trinket1d","type":1,"stats":[0,0,0,0,66,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1},
-{"effectId":8726,"itemId":282707,"spellId":1314330,"name":"Arcanum of Binding","icon":"inv_misc_gem_02","type":13,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1,"procKind":1}
+{"effectId":8694,"itemId":274378,"spellId":1293809,"name":"Warden's Signet of Recovery","icon":"inv_60pvp_trinket1d","type":1,"stats":[0,0,0,0,66,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"quality":1}
 ],
 "zones":[
 ],

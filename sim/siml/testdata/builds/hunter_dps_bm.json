@@ -167,39 +167,6 @@
 							"val": "-19s"
 						}
 					}
-				},
-				{
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Sniper Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 1310786,
-								"rank": 3
-							}
-						}
-					},
-					"doAtValue": {
-						"math": {
-							"op": "OpMul",
-							"lhs": {
-								"spellCastTime": {
-									"spellId": {
-										"spellId": 1310786,
-										"rank": 3
-									}
-								}
-							},
-							"rhs": {
-								"const": {
-									"val": "-1"
-								}
-							}
-						}
-					}
 				}
 			],
 			"priorityList": [
@@ -440,22 +407,6 @@
 					}
 				},
 				{
-					"notes": "The least damage per second of casting, so it waits until none of the shots above is ready.",
-					"action": {
-						"condition": {
-							"variableRef": {
-								"name": "Use Sniper Shot"
-							}
-						},
-						"castSpell": {
-							"spellId": {
-								"spellId": 1310786,
-								"rank": 3
-							}
-						}
-					}
-				},
-				{
 					"notes": "Start of the fight: get to my spot without losing an Auto Shot.",
 					"action": {
 						"condition": {
@@ -571,18 +522,10 @@
 					}
 				},
 				{
-					"name": "Use Sniper Shot",
-					"value": {
-						"const": {
-							"val": "true"
-						}
-					}
-				},
-				{
 					"name": "Use Summon Hawk",
 					"value": {
 						"const": {
-							"val": "false"
+							"val": "true"
 						}
 					}
 				},

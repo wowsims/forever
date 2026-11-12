@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTalon-12795"
  value: {
-  dps: 711.31336
-  tps: 527.40229
+  dps: 712.23125
+  tps: 528.05645
   hps: 44.32667
  }
 }
@@ -247,6 +247,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralCat-AllItems-DormantHeartoftheMountain-249473"
+ value: {
+  dps: 767.65846
+  tps: 568.01435
+  hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DraconicInfusedEmblem-22268"
  value: {
   dps: 767.65846
   tps: 568.01435
@@ -739,6 +747,14 @@ dps_results: {
   dps: 767.65846
   tps: 568.01435
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Ironfoe-11684"
+ value: {
+  dps: 753.55031
+  tps: 559.63219
+  hps: 49.73194
  }
 }
 dps_results: {
