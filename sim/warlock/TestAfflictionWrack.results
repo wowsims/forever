@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-BloodvineGarb"
+ value: {
+  dps: 946.77368
+  tps: 760.20363
+  dtps: 9.92748
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-BristleconeCloak-275833"
  value: {
   dps: 906.67366
@@ -163,6 +171,14 @@ dps_results: {
   dps: 925.95829
   tps: 743.54085
   dtps: 9.13784
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 826.42801
+  tps: 666.18398
+  dtps: 9.25876
  }
 }
 dps_results: {
@@ -647,6 +663,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 772.13481
+  tps: 622.61699
+  dtps: 9.3692
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-JomGabbar-23570"
  value: {
   dps: 925.45906
@@ -839,6 +863,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-NecropileRaiment"
+ value: {
+  dps: 869.13758
+  tps: 699.48827
+  dtps: 9.17561
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-OrbofFire-12805"
  value: {
   dps: 925.95829
@@ -884,6 +916,14 @@ dps_results: {
   dps: 925.95829
   tps: 743.54085
   dtps: 9.13784
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 921.22347
+  tps: 739.91224
+  dtps: 9.2258
  }
 }
 dps_results: {
@@ -967,6 +1007,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-StormclothRegalia"
+ value: {
+  dps: 780.05126
+  tps: 631.65154
+  dtps: 9.29912
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-SwordofZeal-6622"
  value: {
   dps: 842.50937
@@ -1031,11 +1079,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 921.25025
+  tps: 740.25524
+  dtps: 9.09805
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 921.25025
+  tps: 740.25524
+  dtps: 9.09805
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-TheLobotomizer-19324"
  value: {
   dps: 842.50937
   tps: 678.87562
   dtps: 9.07236
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-ThePostmaster"
+ value: {
+  dps: 883.72046
+  tps: 710.68533
+  dtps: 9.21219
  }
 }
 dps_results: {

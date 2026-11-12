@@ -134,10 +134,26 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BloodTigerHarness"
+ value: {
+  dps: 739.90826
+  tps: 550.0196
+  hps: 44.08944
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Bloodfist-11744"
  value: {
   dps: 712.68106
   tps: 531.09792
+  hps: 44.29278
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-BloodvineGarb"
+ value: {
+  dps: 697.54837
+  tps: 519.91366
   hps: 44.29278
  }
 }
@@ -171,6 +187,14 @@ dps_results: {
   dps: 632.67397
   tps: 473.66155
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Champion'sSanctuary"
+ value: {
+  dps: 698.76275
+  tps: 520.95843
+  hps: 43.92
  }
 }
 dps_results: {
@@ -238,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 708.11357
+  tps: 528.31888
+  hps: 44.32667
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 767.65846
@@ -258,6 +290,14 @@ dps_results: {
  value: {
   dps: 767.65846
   tps: 570.68102
+  hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DevilsaurArmor"
+ value: {
+  dps: 751.38148
+  tps: 559.10257
   hps: 43.85222
  }
 }
@@ -283,6 +323,14 @@ dps_results: {
   dps: 599.7093
   tps: 450.10045
   hps: 44.30972
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DreamwalkerRaiment"
+ value: {
+  dps: 583.56991
+  tps: 438.0732
+  hps: 43.71667
  }
 }
 dps_results: {
@@ -526,6 +574,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-FieldMarshal'sSanctuary"
+ value: {
+  dps: 727.3086
+  tps: 541.17918
+  hps: 44.02167
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FieldMarshal'sWildhide"
  value: {
   dps: 645.91807
@@ -590,6 +646,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-GenesisRaiment"
+ value: {
+  dps: 749.23737
+  tps: 556.30021
+  hps: 44.225
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-GlacialBlade-19099"
  value: {
   dps: 724.19394
@@ -643,6 +707,30 @@ dps_results: {
   dps: 681.05886
   tps: 508.99401
   hps: 43.86917
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-GrovekeeperFerocity"
+ value: {
+  dps: 685.5687
+  tps: 511.99182
+  hps: 44.39444
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-GrovekeeperRage"
+ value: {
+  dps: 679.73155
+  tps: 508.1385
+  hps: 44.51306
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-GrovekeeperRaiment"
+ value: {
+  dps: 681.32084
+  tps: 509.00347
+  hps: 43.98778
  }
 }
 dps_results: {
@@ -782,6 +870,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-IronfeatherArmor"
+ value: {
+  dps: 718.09796
+  tps: 534.36794
+  hps: 44.17417
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Ironfoe-11684"
  value: {
   dps: 733.99744
@@ -827,6 +923,14 @@ dps_results: {
   dps: 632.67397
   tps: 473.66155
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-LieutenantCommander'sSanctuary"
+ value: {
+  dps: 698.76275
+  tps: 520.95843
+  hps: 43.92
  }
 }
 dps_results: {
@@ -990,6 +1094,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-NecropileRaiment"
+ value: {
+  dps: 658.38968
+  tps: 491.88758
+  hps: 44.32667
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-OrbofFire-12805"
  value: {
   dps: 768.65457
@@ -1035,6 +1147,14 @@ dps_results: {
   dps: 767.65846
   tps: 570.68102
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 750.87709
+  tps: 558.34716
+  hps: 44.00472
  }
 }
 dps_results: {
@@ -1126,6 +1246,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-StormclothRegalia"
+ value: {
+  dps: 632.94035
+  tps: 474.00053
+  hps: 44.05556
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-StormshroudArmor"
+ value: {
+  dps: 708.22858
+  tps: 528.31329
+  hps: 43.80139
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 809.36442
@@ -1214,11 +1350,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 715.88286
+  tps: 532.89908
+  hps: 44.24194
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 754.73469
   tps: 561.40539
   hps: 43.80139
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 737.63136
+  tps: 548.40727
+  hps: 44.24194
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 715.88286
+  tps: 532.89908
+  hps: 44.24194
  }
 }
 dps_results: {
@@ -1230,11 +1390,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 737.63136
+  tps: 548.40727
+  hps: 44.24194
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-TheLobotomizer-19324"
  value: {
   dps: 720.89428
   tps: 537.1176
   hps: 44.225
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-ThePostmaster"
+ value: {
+  dps: 670.24679
+  tps: 500.28343
+  hps: 44.19111
  }
 }
 dps_results: {
@@ -1267,6 +1443,14 @@ dps_results: {
   dps: 767.65846
   tps: 570.68102
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 754.23326
+  tps: 561.03802
+  hps: 43.81833
  }
 }
 dps_results: {
@@ -1315,6 +1499,14 @@ dps_results: {
   dps: 632.67397
   tps: 473.61879
   hps: 44.14028
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Warlord'sSanctuary"
+ value: {
+  dps: 727.3086
+  tps: 541.17918
+  hps: 44.02167
  }
 }
 dps_results: {
