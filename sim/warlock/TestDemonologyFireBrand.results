@@ -293,6 +293,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 712.17685
+  tps: 580.44147
+  dtps: 8.339
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 712.17685

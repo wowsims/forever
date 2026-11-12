@@ -278,6 +278,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 616.07239
+  tps: 437.4114
+  hps: 47.51222
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 580.73031

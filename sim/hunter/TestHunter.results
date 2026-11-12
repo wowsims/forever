@@ -396,6 +396,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 688.78573
+  tps: 712.49389
+  dtps: 8.66112
+  hps: 14.57222
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-DragonscaleBreastplate-8367"
  value: {
   dps: 756.37935

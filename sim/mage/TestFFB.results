@@ -215,6 +215,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 725.89883
+  tps: 750.88735
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 725.89883

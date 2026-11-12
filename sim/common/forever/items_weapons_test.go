@@ -387,6 +387,54 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
 }
 
+// Dragon's Call 10847 casts 13049 at the procs per minute of the item's chance-on-hit entry, on the
+// sword's speed, off any landed main-hand hit, an application that deals no damage included. A miss
+// casts nothing, and no hit rolls during the row's category cooldown, which starts at the proc.
+func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Dragon's Call")
+	summon := character.GetSpell(core.ActionID{SpellID: 13049})
+	if proc == nil || proc.Dpm == nil || summon == nil {
+		t.Fatal("10847 registers no 13049 or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 10847, 13049)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 10847, 13049)
+	cooldown := spelldata.MustFind(13049).CategoryCooldown()
+	if cooldown <= 0 || summon.CD.Duration != cooldown {
+		t.Errorf("13049's cooldown is %v, want the row's category cooldown, %v", summon.CD.Duration, cooldown)
+	}
+
+	// Every landed melee hit outside the cooldown now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	enemy := character.CurrentTarget
+	casts := func() int32 { return summon.SpellMetrics[enemy.UnitIndex].Casts }
+	hit := func(outcome core.HitOutcome, damage float64) {
+		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Unit: &character.Unit},
+			&core.SpellResult{Target: enemy, Outcome: outcome, Damage: damage})
+	}
+
+	hit(core.OutcomeMiss, 0)
+	if got := casts(); got != 0 {
+		t.Errorf("a miss cast it %d times, want none", got)
+	}
+	start := sim.CurrentTime
+	hit(core.OutcomeHit, 0)
+	if got := casts(); got != 1 {
+		t.Errorf("a landed application that dealt no damage cast it %d times, want once", got)
+	}
+	stepTo(t, sim, start+cooldown-time.Millisecond)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 1 {
+		t.Errorf("a hit 1 ms before the cooldown ends cast it %d times in all, want once still", got)
+	}
+	stepTo(t, sim, start+cooldown)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 2 {
+		t.Errorf("a hit as the cooldown ends cast it %d times in all, want twice", got)
+	}
+}
+
 // Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
 // mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
 // death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing

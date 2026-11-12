@@ -119,6 +119,37 @@ func init() {
 		character.ItemSwap.RegisterProc(2243, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Dragon's Call
+	// https://www.wowhead.com/forever/item=10847/dragons-call
+	//
+	// Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of
+	// time.
+	//
+	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
+	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
+	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons
+	// nothing: the Emerald Dragon Whelp 8776 the row's E_SUMMON names is not simulated.
+	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(13049)
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Flags(core.SpellFlagNoOnCastComplete))
+		config.ProcMask = core.ProcMaskEmpty
+		dragonsCall := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			dragonsCall.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(10847, ppm, 0)
+		})
+		trigger.Name = "Dragon's Call"
+		trigger.ActionID = core.ActionID{ItemID: 10847}
+		trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return dragonsCall.CD.IsReady(sim)
+		}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(10847, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Blade of Hanna
 	// https://www.wowhead.com/forever/item=2801/blade-of-hanna
 	//

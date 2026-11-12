@@ -293,6 +293,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 610.8649
+  tps: 495.10781
+  dtps: 8.36443
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 610.8649

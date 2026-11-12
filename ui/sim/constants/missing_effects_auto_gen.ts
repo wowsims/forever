@@ -798,12 +798,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10847, // Dragon's Call
-		[
-			"", // 1318108 - https://www.wowhead.com/forever/spell=1318108
-		]
-	],
-	[
 		11086, // Jang'thraze the Protector
 		[
 			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
