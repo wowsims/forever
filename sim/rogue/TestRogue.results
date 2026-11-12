@@ -216,9 +216,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
-  dps: 591.78227
-  tps: 420.16541
-  hps: 51.34167
+  dps: 583.79645
+  tps: 414.49548
+  hps: 49.5625
  }
 }
 dps_results: {
@@ -608,9 +608,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 592.56909
-  tps: 420.72405
-  hps: 50.79944
+  dps: 594.73952
+  tps: 422.26506
+  hps: 50.83333
  }
 }
 dps_results: {

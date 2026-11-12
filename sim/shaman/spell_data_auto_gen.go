@@ -13,7 +13,7 @@ import (
 //   Earthbound: effect 0 of spell 1222988 has no rank curve and is held at its base points
 //   Improved Ghost Wolf: effect 1, 2 of spell 16262 has no rank curve and is held at its base points
 //   Improved Stormstrike: effect 2 of spell 1223031 has no rank curve and is held at its base points
-//   Maelstrom Weapon: effect 1, 2 of spell 408498 has no rank curve and is held at its base points
+//   Maelstrom Weapon: effect 2 of spell 408498 has no rank curve and is held at its base points
 //   Mental Dexterity: effect 1 of spell 415140 has no rank curve and is held at its base points
 //   Shamanistic Focus: effect 0 of spell 1223030 has no rank curve and is held at its base points
 //   Water Shield: effect 0, 1 of spell 408510 has no rank curve and is held at its base points

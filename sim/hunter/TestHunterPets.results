@@ -118,11 +118,19 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sGauntlets-226883"
+ value: {
+  dps: 694.77714
+  tps: 438.63665
+  dtps: 1.96526
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 697.28516
-  tps: 444.09855
-  dtps: 1.1488
+  dps: 694.53424
+  tps: 439.06077
+  dtps: 2.30276
  }
 }
 dps_results: {
@@ -759,9 +767,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 689.76282
-  tps: 439.11457
-  dtps: 2.01917
+  dps: 696.21681
+  tps: 442.78476
+  dtps: 1.08479
  }
 }
 dps_results: {

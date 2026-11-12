@@ -1305,9 +1305,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheFiveThunders"
  value: {
-  dps: 722.6836
-  tps: 670.49855
-  dtps: 9.04541
+  dps: 725.64843
+  tps: 672.91867
+  dtps: 8.35692
  }
 }
 dps_results: {

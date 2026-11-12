@@ -142,6 +142,19 @@ A hotfix file need not hold every record up to its highest push, and two files a
 push 113718 until a regeneration from a later file brought it in (#954). A hotfix the patch notes announce that no
 row shows stays out of the store until a file carries it.
 
+Every raidbots file up to push 114024 skips push 113722 (Stormstrike, Maelstrom Weapon, the imbue texts), which a
+logged-in game's own `_forever_/Cache/ADB/enUS/DBCache.bin` holds. When an announced change is in no raidbots file,
+read the local game's cache after a login, and regenerate from both: `--dbcache` repeats and combines the files.
+`DB2TOOL_FLAGS` given on the `make` line replaces the makefile's `--basedir "$(WOW_DIR)"`, so a local-install run
+names the install itself:
+
+```
+make db CLASSES=shaman SHARED=0 DB2TOOL_FLAGS="--basedir '<WoW install>' --dbcache <game DBCache.bin> --dbcache <raidbots DBCache.bin>"
+```
+
+The game's cache can reach a push past raidbots' newest, and the generators then refuse the Update Items runs
+(`RequireCommittedHotfixes`) until raidbots publishes a file at that push.
+
 ## Tables the generator does not ship
 
 `wowsims.db` holds only the tables in `generator-settings.json`'s `Tables`; a name added there is extracted on every

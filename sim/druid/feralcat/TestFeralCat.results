@@ -600,9 +600,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 768.85717
-  tps: 571.17356
-  hps: 43.97083
+  dps: 765.08341
+  tps: 568.59073
+  hps: 43.86917
  }
 }
 dps_results: {
