@@ -207,10 +207,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DeathmistRaiment"
  value: {
-  dps: 661.88144
-  tps: 534.97813
-  dtps: 8.17452
-  hps: 7.27415
+  dps: 668.84637
+  tps: 538.21056
+  dtps: 8.36221
  }
 }
 dps_results: {
