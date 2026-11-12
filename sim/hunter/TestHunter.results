@@ -1377,6 +1377,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 737.25316
+  tps: 760.8643
+  dtps: 8.88622
+  hps: 14.64
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-StormGauntlets-12632"
  value: {
   dps: 759.59966

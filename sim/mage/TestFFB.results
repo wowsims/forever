@@ -846,6 +846,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 752.21391
+  tps: 777.05219
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-SwordofZeal-6622"
  value: {
   dps: 725.89883

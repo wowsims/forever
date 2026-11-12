@@ -1118,6 +1118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-SpireoftheStoneshaper-12532"
+ value: {
+  dps: 870.61004
+  tps: 881.54932
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 826.08518
