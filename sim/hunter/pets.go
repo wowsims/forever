@@ -66,10 +66,13 @@ type HunterPet struct {
 	hunterOwner *Hunter
 	family      generatedPetFamily
 
-	// What the pet casts in melee range, longest cooldown first, and what it casts to close the
-	// distance when it is not.
+	// What the pet casts in melee range, longest cooldown first as a player orders the bar, and what
+	// it casts to close the distance when it is not.
 	abilities []*core.Spell
 	closers   []*core.Spell
+
+	summonAttackPower float64 // The attack power and health inherited at the summon, kept while the pet is out.
+	summonHealth      float64
 
 	uptimePercent float64
 }
@@ -81,18 +84,21 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	}
 
 	hp := &HunterPet{
-		Pet: core.NewPet(core.PetConfig{
-			Name:            family.Name,
-			Owner:           &hunter.Character,
-			BaseStats:       petBaseStats,
-			StatInheritance: hunter.makeStatInheritance(),
-			EnabledOnStart:  true,
-			// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
-			HasDynamicMeleeSpeedInheritance: true,
-		}),
 		hunterOwner: hunter,
 		family:      family,
 	}
+	inherit := hunter.makeStatInheritance()
+	hp.Pet = core.NewPet(core.PetConfig{
+		Name:      family.Name,
+		Owner:     &hunter.Character,
+		BaseStats: petBaseStats,
+		StatInheritance: func(ownerStats stats.Stats) stats.Stats {
+			return hp.keepSummonStats(inherit(ownerStats))
+		},
+		EnabledOnStart: true,
+		// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
+		HasDynamicMeleeSpeedInheritance: true,
+	})
 
 	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +10% a rank.
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
@@ -154,8 +160,22 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
+// The attack power and health the pet takes at the summon stay until it is dismissed; the rest follows
+// the owner. In a combat log the pet's attack power holds through 20 Aspect of the Hawk toggles and a
+// gear swap in one summon, its health through the owner's Stamina changes, and its armor follows
+// each gear swap.
+func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
+	// The summon: Enable snapshots the owner before it marks the pet enabled.
+	if !hp.IsEnabled() {
+		hp.summonAttackPower, hp.summonHealth = inherited[stats.AttackPower], inherited[stats.Health]
+	}
+	inherited[stats.AttackPower] = hp.summonAttackPower
+	inherited[stats.Health] = hp.summonHealth
+	return inherited
+}
+
 // The server's HunterPetInheritance: the pet snapshots its owner's stats when summoned and again on
-// any action it takes, at most once every 2 s.
+// any action it takes, at most once every 2 s, keeping the summon's attack power and health.
 func (hp *HunterPet) registerStatInheritance() {
 	hp.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Hunter Pet Inheritance",
@@ -179,17 +199,20 @@ func (hp *HunterPet) ApplyTalents() {
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
 	// are auras the pet is never without.
-	attackSpeed := petAttackSpeeds[opts.PetAttackSpeed].Highest()
-	hp.applyPassiveAura(attackSpeed)
-	if attackSpeed != spelldata.Nil {
-		// Normalized: a faster swing deals less a swing, the damage a second unchanged.
-		hp.AutoAttacks.MHConfig().DamageMultiplier /= 1 + attackSpeed.Effect(dbcenums.A_MOD_ATTACKSPEED, 0).Percent()
-	}
+	hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	// The same attack speed aura as Faster Attack: its "reduces damage" is the normalization.
 	if opts.CobraReflexes {
-		hp.applyPassiveAura(cobraReflexesRank)
-		// TODO: In-game testing required. "but reduces damage" states no number; TBC's 15% kept.
-		hp.AutoAttacks.MHConfig().DamageMultiplier *= 0.85
+		hp.applyAttackSpeed(cobraReflexesRank)
 	}
+}
+
+// A pet attack speed is normalized: a faster swing deals less a swing, the damage a second unchanged.
+func (hp *HunterPet) applyAttackSpeed(rank *spelldata.Spell) {
+	if rank == spelldata.Nil {
+		return
+	}
+	hp.applyPassiveAura(rank)
+	hp.AutoAttacks.MHConfig().DamageMultiplier /= 1 + rank.Effect(dbcenums.A_MOD_ATTACKSPEED, 0).Percent()
 }
 
 func (hp *HunterPet) applyPassiveAura(rank *spelldata.Spell) {
@@ -224,16 +247,13 @@ func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
 
 func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	target := hp.CurrentTarget
-	// The pet starts beside the hunter and walks in to melee range before it acts, closing with
-	// Charge, Dash or Dive when it has one.
+	// The pet starts beside the hunter and walks in to melee range, closing with Charge, Dash or Dive
+	// when it has one, and casting on the way what reaches from where it stands, e.g. Lightning Breath.
 	if hp.DistanceFromTarget > core.MaxMeleeRange {
-		for _, closer := range hp.closers {
-			if closer.CanCast(sim, target) {
-				closer.Cast(sim, target)
-				break
-			}
+		if !hp.castFirstReady(sim, target, hp.closers) {
+			hp.castFirstReady(sim, target, hp.abilities)
 		}
-		if !hp.Moving {
+		if !hp.Moving && hp.DistanceFromTarget > core.MaxMeleeRange {
 			hp.MoveTo(core.MaxMeleeRange-1, sim)
 		}
 		return
@@ -244,21 +264,23 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	for _, spell := range hp.abilities {
+	// Autocast never waits: an ability short of focus passes to the next one on the bar.
+	hp.castFirstReady(sim, target, hp.abilities)
+}
+
+func (hp *HunterPet) castFirstReady(sim *core.Simulation, target *core.Unit, spells []*core.Spell) bool {
+	for _, spell := range spells {
 		if spell.CanCast(sim, target) {
 			spell.Cast(sim, target)
-			return
-		}
-		// A cooldown that is up but short of focus is waited for rather than spent on a filler.
-		if (spell.CD.Duration > 0 || spell.SharedCD.Duration > 0) && spell.IsReady(sim) {
-			return
+			return true
 		}
 	}
+	return false
 }
 
 // An ability by its row's name in the game files, so the generated family table needs no hand list
-// beside it. A name not here stays unregistered: Cower, Growl, Prowl and Shell Shield change nothing
-// the sim measures, and the Boar's Charge is not modelled.
+// beside it. A name not here stays unregistered: Cower, Growl and Shell Shield change nothing the sim
+// measures, and Prowl's 40% slower walk in from the hunter costs more than its +50% first attack gains.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	var spell *core.Spell
 	switch rank.Name {
@@ -278,6 +300,9 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 		spell = hp.registerSelfBuff(rank)
 	case "Dash", "Dive":
 		hp.closers = append(hp.closers, hp.registerSprint(rank))
+		return
+	case "Charge":
+		hp.closers = append(hp.closers, hp.registerCharge(rank))
 		return
 	default:
 		return
@@ -447,6 +472,26 @@ func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 		for _, aura := range auras {
 			aura.Activate(sim)
 		}
+	}
+	return hp.RegisterSpell(config)
+}
+
+// The pet runs to the enemy at three times its speed, and its next swing or ability takes the row's
+// attack power. The stun the charge triggers changes nothing the sim measures.
+func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
+	buff := hp.RegisterAura(spelldata.AuraConfig(rank))
+	spelldata.ParseEffects(&hp.Character, buff, rank, spelldata.Effects(2))
+	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+	})
+	spelldata.AttachChargeSpender(&hp.Character, buff, rank, "Charge - Spend")
+
+	config := hp.spellConfig(rank, spelldata.Flags(core.SpellFlagMovesToTarget))
+	run := core.MakeDashAura(&hp.Unit, "Charge - Run", config.ActionID, config.Cast.CD.Duration, nil)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		buff.Activate(sim)
+		run.Activate(sim)
+		hp.MoveTo(core.MaxMeleeRange-1, sim)
 	}
 	return hp.RegisterSpell(config)
 }
