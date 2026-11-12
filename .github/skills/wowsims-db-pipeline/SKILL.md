@@ -152,8 +152,17 @@ names the install itself:
 make db CLASSES=shaman SHARED=0 DB2TOOL_FLAGS="--basedir '<WoW install>' --dbcache <game DBCache.bin> --dbcache <raidbots DBCache.bin>"
 ```
 
+The game writes that file when it exits, so quit the game before reading it; while it runs, the new records sit in a
+locked `DBCache.bin<pid>.tmp` beside it. A hotfix can also arrive under a push number below the committed stamp, as
+113722 did under 114015, so compare the records of two files and never their highest push alone. A named file of an
+older build than the install's is left out with no warning unless the run has `--carry-hotfixes`. With no `--dbcache`,
+a local `make db` reads every `DBCache.bin` under the install and every `.bin` in `tools/db2tool/caches`.
+
 The game's cache can reach a push past raidbots' newest, and the generators then refuse the Update Items runs
-(`RequireCommittedHotfixes`) until raidbots publishes a file at that push.
+(`RequireCommittedHotfixes`) until raidbots publishes a file at that push. That check reads the highest push alone.
+Once raidbots passes it with a file that still skips the records the game's cache gave, the next Update Items run
+takes the items back to the rows without them, so read its diff for item rows it reverts or removes before merging
+it.
 
 ## Tables the generator does not ship
 

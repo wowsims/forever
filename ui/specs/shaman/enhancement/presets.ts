@@ -51,7 +51,6 @@ export const DefaultIndividualBuffs = IndividualBuffs.create({
 	greaterBlessingOfMight: 1,
 });
 
-// Windfury Weapon on the main hand outbids the party's Windfury Totem, so the default is Rockbiter Weapon.
 export const DefaultOptions = EnhancementShamanOptions.create({
 	classOptions: {
 		shieldProcrate: 0,
