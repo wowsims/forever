@@ -10,11 +10,11 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N"
+	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N", "combat log, <date>"
 }
 
-// The rates measured on this server come first; every one after them is a carry-over, as its Source says. A
-// hotfix that adds back a weapon whose row was dropped needs the row restored from git history, or the database
+// Each rate is a carry-over unless its Source names a combat log or WCL reports from this server. A hotfix
+// that adds back a weapon whose row was dropped needs the row restored from git history, or the database
 // tests that name the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
 	// Measured in end-game dungeon logs: the procs over the landed hits of the weapon carrying them, white swings
@@ -320,6 +320,13 @@ var WeaponProcs = []WeaponProc{
 		PPM:     0.8, // TODO: Vanilla value - verify in-game
 		Reason:  "Toxic Revenger: column reads 101",
 		Source:  "vanilla-carryover",
+	},
+	{
+		ItemID:  10847,
+		SpellID: 13049,
+		PPM:     4.5,
+		Reason:  "Dragon's Call: no proc row; 41 procs in 220 landed main-hand hits outside the 45 s cooldown at a 2.5 s weapon, 18.6% a hit",
+		Source:  "combat log, 2026-11-12",
 	},
 	{
 		ItemID:  11902,

@@ -59,6 +59,12 @@ func init() {
 // warrior stand-in, or with a shaman the caster stand-in.
 func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return weaponWearerFor(t, class, itemID, targets, 180)
+}
+
+// weaponWearer's character in an encounter of the given seconds.
+func weaponWearerFor(t *testing.T, class proto.Class, itemID int32, targets int, duration float64) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -76,7 +82,7 @@ func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*
 	} else {
 		core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
 	}
-	encounter := &proto.Encounter{Duration: 180}
+	encounter := &proto.Encounter{Duration: duration}
 	for range targets {
 		encounter.Targets = append(encounter.Targets, &proto.Target{Name: "target", Level: 60})
 	}
@@ -385,6 +391,136 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 		t.Fatal("19019 registers no proc on a procs per minute rate")
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
+}
+
+// Dragon's Call 10847 casts 13049 at the procs per minute of the item's chance-on-hit entry, on the
+// sword's speed, off any landed main-hand hit, an application that deals no damage included. A miss
+// casts nothing, and no hit rolls during the row's category cooldown, which starts at the proc.
+func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Dragon's Call")
+	summon := character.GetSpell(core.ActionID{SpellID: 13049})
+	if proc == nil || proc.Dpm == nil || summon == nil {
+		t.Fatal("10847 registers no 13049 or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 10847, 13049)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 10847, 13049)
+	cooldown := spelldata.MustFind(13049).CategoryCooldown()
+	if cooldown <= 0 {
+		t.Fatalf("13049 states a category cooldown of %v, want one", cooldown)
+	}
+
+	// Every landed melee hit outside the cooldown now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	enemy := character.CurrentTarget
+	casts := func() int32 { return summon.SpellMetrics[enemy.UnitIndex].Casts }
+	hit := func(outcome core.HitOutcome, damage float64) {
+		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Unit: &character.Unit},
+			&core.SpellResult{Target: enemy, Outcome: outcome, Damage: damage})
+	}
+
+	hit(core.OutcomeMiss, 0)
+	if got := casts(); got != 0 {
+		t.Errorf("a miss cast it %d times, want none", got)
+	}
+	start := sim.CurrentTime
+	hit(core.OutcomeHit, 0)
+	if got := casts(); got != 1 {
+		t.Errorf("a landed application that dealt no damage cast it %d times, want once", got)
+	}
+	stepTo(t, sim, start+cooldown-time.Millisecond)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 1 {
+		t.Errorf("a hit 1 ms before the cooldown ends cast it %d times in all, want once still", got)
+	}
+	stepTo(t, sim, start+cooldown)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 2 {
+		t.Errorf("a hit as the cooldown ends cast it %d times in all, want twice", got)
+	}
+}
+
+// The Emerald Dragon Whelp the wearer of Dragon's Call 10847 owns, or nil.
+func emeraldDragonWhelp(character *core.Character) *core.Pet {
+	for _, pet := range character.Pets {
+		if pet.Name == "Emerald Dragon Whelp" {
+			return pet
+		}
+	}
+	return nil
+}
+
+// Dragon's Call's 13049 summons the Emerald Dragon Whelp on the enemy for the row's duration, and the
+// whelp swings and casts Acid Spit 9591 while it is up.
+func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	whelp := emeraldDragonWhelp(character)
+	if whelp == nil {
+		t.Fatal("the wearer of 10847 owns no Emerald Dragon Whelp")
+	}
+	enemy := character.CurrentTarget
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 13049}).Cast(sim, enemy)
+	duration := spelldata.MustFind(13049).Duration()
+	stepTo(t, sim, start+duration-time.Millisecond)
+	if !whelp.IsEnabled() {
+		t.Fatalf("the whelp is gone 1 ms before the row's %v run out", duration)
+	}
+	if got := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex].Casts; got == 0 {
+		t.Error("the whelp cast no Acid Spit on the enemy")
+	}
+	if got := whelp.AutoAttacks.MHAuto().SpellMetrics[enemy.UnitIndex].Casts; got == 0 {
+		t.Error("the whelp swung at the enemy no time")
+	}
+	stepTo(t, sim, start+duration)
+	if whelp.IsEnabled() {
+		t.Errorf("the whelp is still up as the row's %v run out", duration)
+	}
+}
+
+// Acid Spit 9591 states its base points as a percent of the creature auto attack dps for the caster's
+// level, which is the owner's. Its hits roll the row's variance, so their mean sits at that amount.
+func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
+	// Long enough for 100 summons a cooldown apart.
+	sim, character := weaponWearerFor(t, proto.Class_ClassWarrior, 10847, 1, 5000)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	whelp := emeraldDragonWhelp(character)
+	enemy := character.CurrentTarget
+	summon := character.GetSpell(core.ActionID{SpellID: 13049})
+	for range 100 {
+		stepTo(t, sim, summon.ReadyAt())
+		summon.Cast(sim, enemy)
+	}
+	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(13049).Duration())
+
+	metrics := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex]
+	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureAutoAttackDpsMaxLevel
+	got := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
+	if metrics.Hits < 200 || math.Abs(got-want) > 0.015*want {
+		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the creature dps at level %d, %.1f",
+			metrics.Hits, got, core.CharacterLevel, want)
+	}
+}
+
+// A character carrying Dragon's Call only in its item swap set owns the whelp too, and the proc's cast
+// summons it.
+func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
+	sim, character := stonedWarrior(t, &proto.ConsumesSpec{}, weaponSlots(10847, 0))
+	whelp := emeraldDragonWhelp(character)
+	if whelp == nil {
+		t.Fatal("a swap set holding 10847 gives its owner no Emerald Dragon Whelp")
+	}
+	character.GetSpell(core.ActionID{SpellID: 13049}).Cast(sim, character.CurrentTarget)
+	if !whelp.IsEnabled() {
+		t.Error("13049 cast from the swap set summons no whelp")
+	}
+
+	_, without := stonedWarrior(t, &proto.ConsumesSpec{}, nil)
+	if emeraldDragonWhelp(without) != nil {
+		t.Error("a character with no 10847 owns an Emerald Dragon Whelp")
+	}
 }
 
 // Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the

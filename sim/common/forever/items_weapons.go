@@ -119,6 +119,49 @@ func init() {
 		character.ItemSwap.RegisterProc(2243, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Dragon's Call
+	// https://www.wowhead.com/forever/item=10847/dragons-call
+	//
+	// Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of
+	// time.
+	//
+	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
+	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
+	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
+	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the row's duration.
+	core.NewItemPet(10847, newEmeraldDragonWhelp)
+	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
+		var whelp *emeraldDragonWhelp
+		for _, pet := range character.PetAgents {
+			if w, ok := pet.(*emeraldDragonWhelp); ok {
+				whelp = w
+				break
+			}
+		}
+		row := spelldata.MustFind(13049)
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Flags(core.SpellFlagNoOnCastComplete))
+		config.ProcMask = core.ProcMaskEmpty
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			whelp.CurrentTarget = target
+			whelp.EnableWithTimeout(sim, whelp, row.Duration())
+		}
+		dragonsCall := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			dragonsCall.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(10847, ppm, 0)
+		})
+		trigger.Name = "Dragon's Call"
+		trigger.ActionID = core.ActionID{ItemID: 10847}
+		trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return dragonsCall.CD.IsReady(sim)
+		}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(10847, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Blade of Hanna
 	// https://www.wowhead.com/forever/item=2801/blade-of-hanna
 	//

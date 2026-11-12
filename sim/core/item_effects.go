@@ -79,6 +79,31 @@ func NewEnchantEffect(id int32, enchantEffect ApplyEffect) {
 	enchantEffects[id] = enchantEffect
 }
 
+var itemPets = map[int32]func(owner *Character) PetAgent{}
+
+// Registers the pet an item's effect summons, such as a creature a proc calls forth. A pet must be
+// added while its owner is constructed, before the item effects run, so the owner builds it then:
+// once for an item it wears or carries in its item swap set, if its class can use the item. The
+// item's effect finds the pet among the owner's PetAgents.
+func NewItemPet(id int32, newPet func(owner *Character) PetAgent) {
+	if _, ok := itemPets[id]; ok {
+		panic(fmt.Sprintf("Cannot add multiple pets for one item: %d", id))
+	}
+	itemPets[id] = newPet
+}
+
+func (character *Character) addItemPets() {
+	added := make(map[int32]bool)
+	for _, equipment := range []*Equipment{&character.Equipment, &character.ItemSwap.unEquippedItems} {
+		for _, item := range equipment {
+			if newPet, ok := itemPets[item.ID]; ok && !added[item.ID] && item.UsableBy(character.Class) {
+				character.AddPet(newPet(character))
+				added[item.ID] = true
+			}
+		}
+	}
+}
+
 func (equipment *Equipment) applyItemEffects(agent Agent, registeredItemEffects map[int32]bool, registeredItemEnchantEffects map[int32]bool) {
 	class := agent.GetCharacter().Class
 	for _, eq := range equipment {

@@ -83,6 +83,10 @@ is registered. Items and enchants work differently:
   regenerated `sim/common/forever/` files in one change; until the generator runs, the sim panics on the duplicate.
   The first `gen_db` run still panics, since its binary was compiled from the old generated file (`sim.RegisterAll`
   runs after `GenerateItemEffects` rewrites the files and before `db.json` is written), and a second run completes.
+- **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
+  is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
+  carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the
+  pet in `PetAgents`; Dragon's Call's whelp is the example (`sim/common/forever/items_dragons_call.go`).
 - **The folder follows who can use the item**, as `references/rulings.md` states. A class test binary registers only
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's

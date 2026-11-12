@@ -1,8 +1,9 @@
-// What the item procs the sim registered before it read them off the rows resolve to. The table is
-// the sixteen registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried at 60266be6f7,
-// transcribed by hand, and every field is what that generated call stated, except a rolled chance and
-// the cooldown, which are the trigger row's own. One of them states a mask that leaves out the heals
-// the game files' mask names, three register nothing, one required damage where a weapon proc needs
+// What the item procs the sim registered before it read them off the rows resolve to. The table holds
+// fifteen of the sixteen registrations sim/common/forever/stat_bonus_procs_auto_gen.go carried at
+// 60266be6f7, transcribed by hand; Highborne Research Tablet has a hand-written item effect instead.
+// Every field is what that generated call stated, except a rolled chance and the cooldown, which are
+// the trigger row's own. One of them states a mask that leaves out the heals
+// the game files' mask names, two register nothing, one required damage where a weapon proc needs
 // only a landed hit, and three required damage where their rows take any damage component; each says
 // so here.
 //
@@ -71,14 +72,6 @@ func liveProcs() []liveProc {
 		shieldSpike(18826, 13959, "High Warlord's Shield Wall"),
 		shieldSpike(272591, 13959, "Premier High Warlord's Shield Wall"),
 		shieldSpike(272838, 13959, "Premier Grand Marshal's Aegis"),
-		{
-			// "Chance on hit" beside a column of 100 states no rate.
-			itemID: 260205, name: "Highborne Research Tablet", triggerSpellID: 1318159,
-			callback: core.CallbackOnSpellHitDealt,
-			procMask: shieldSpikeMask | core.ProcMaskSpellDamage,
-			outcome:  core.OutcomeLanded, chance: 1,
-			unsupported: "states no rate",
-		},
 		{
 			itemID: 285278, name: "Satchel of Dark Iron Bombs", triggerSpellID: 1318123,
 			callback: core.CallbackOnSpellHitDealt, procMask: core.ProcMaskRangedAuto,

@@ -480,6 +480,76 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 	}
 }
 
+// Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
+// speed for every landed hit that deals damage, and casts 1265634 on the target. A spell rolls on the
+// main hand's speed too, and so does a ranged special with no ranged swing behind it (Thunder Clap).
+// A hit that deals none (an application) never rolls.
+func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
+	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
+	proc := character.GetAura("Highborne Research Tablet")
+	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("260205 registers no proc on a procs per minute rate")
+	}
+	ppm := float64(spelldata.MustFind(1318159).RPPM)
+	want := ppm * character.AutoAttacks.MH().SwingSpeed / 60
+	if ppm <= 0 || want >= 1 {
+		t.Fatalf("the row's %v procs per minute on the main hand give %v, want a chance between none and certain", ppm, want)
+	}
+	for _, hit := range []struct {
+		name string
+		mask core.ProcMask
+	}{
+		{"main hand swing", core.ProcMaskMeleeMHAuto},
+		{"spell", core.ProcMaskSpellDamage},
+		{"ranged special", core.ProcMaskRangedSpecial},
+	} {
+		if chance := proc.Dpm.Chance(hit.mask, sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a %s is %v, want the row's procs per minute on the main hand's speed, %v", hit.name, chance, want)
+		}
+	}
+
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 0 {
+		t.Errorf("a hit that dealt no damage cast it %d times, want none", got)
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts; got != 1 {
+		t.Errorf("a landed damaging hit cast it %d times, want once", got)
+	}
+}
+
+// A caster who never swings rolls Highborne Research Tablet 260205's procs per minute on each damaging
+// spell hit, on the speed of the weapon in its main hand.
+func TestHighborneResearchTabletProcsOnACastersSpells(t *testing.T) {
+	const weapon = 810
+	sim, character := wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
+		map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 260205, proto.ItemSlot_ItemSlotMainHand: weapon})
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
+		t.Fatal("the caster stand-in swings, want no auto attacks")
+	}
+	proc := character.GetAura("Highborne Research Tablet")
+	damage := character.GetSpell(core.ActionID{SpellID: 1265634})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("260205 registers no proc on a procs per minute rate")
+	}
+	want := float64(spelldata.MustFind(1318159).RPPM) * core.GetItemByID(weapon).SwingSpeed / 60
+	if chance := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); want <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
+		t.Errorf("the chance on a spell hit is %v, want the row's procs per minute on the main-hand weapon's speed, %v", chance, want)
+	}
+
+	const hits = 2000
+	for range hits {
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+	}
+	mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
+	if got := float64(damage.SpellMetrics[character.CurrentTarget.UnitIndex].Casts); math.Abs(got-mean) > 4*deviation {
+		t.Errorf("%d spell hits cast it %v times, want about %.0f", hits, got, mean)
+	}
+}
+
 // Dormant Heart of the Mountain 249473's 1249118 answers a heal of any rank of Greater Heal, Healing
 // Touch, Healing Wave or Holy Light with 1249119: the row's healing and spell damage for its
 // duration. Another heal, such as Flash of Light, does not.

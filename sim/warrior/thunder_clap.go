@@ -42,7 +42,9 @@ func (warrior *Warrior) registerThunderClap() {
 	// (logs show full resists next to armor mitigation) and crits on spell crit chance for
 	// 1.5x. Warriors have no base spell crit, so logs without Totem of Wrath show none
 	// (0 of 799 landed hits from 6 prot warriors on fresh.warcraftlogs.com, 2026-09-14). A magic
-	// hit spends no Sweeping Strikes charge, which melee swings and abilities do.
+	// hit spends no Sweeping Strikes charge, which melee swings and abilities do. Its ranged mask
+	// reaches equip procs that hear ranged abilities, and core's canProcFrom decides which weapon procs
+	// hear it.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
 		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagBinary))
 	config.ProcMask = core.ProcMaskRangedSpecial

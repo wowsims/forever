@@ -293,6 +293,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Dragon'sCall-10847"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DreadfrostSaber-274603"
  value: {
   dps: 723.15724
@@ -711,6 +720,15 @@ dps_results: {
   dps: 764.43425
   tps: 651.40264
   dtps: 10.45093
+  hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
+ value: {
+  dps: 765.97418
+  tps: 652.6412
+  dtps: 11.04977
   hps: 7.66513
  }
 }
