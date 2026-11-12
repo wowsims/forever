@@ -46,15 +46,15 @@ var whelpSwing = core.Weapon{
 }
 
 // The whelp's waits are uniform draws. In the log's 41 summons the first Acid Spit starts 0.00, 0.01,
-// 0.89 and 2.59 s after the summon at the 0, 25, 50 and 75% marks, and the waits from a cast's end to the
-// next start (69) run 0.20, 0.58, 0.99 and 1.88 s with a maximum of 6.9 s. The ranges keep those medians:
-// the first start is 0 to 1.8 s and each next wait 0.2 to 1.8 s. The 47 waits of 1.5 s or less run 0.20 to
-// 1.47 s; the longer ones come with the target alive and fit the whelp chasing moving quest mobs, so they
-// stay out. A spit's hardcast holds the swing, which comes 2.0 s after the cast ends, so the whelp swings
-// as it arrives and spits from then on.
+// 0.89 and 2.59 s after the summon at the 0, 25, 50 and 75% marks, so the first start is 0 to 1.8 s,
+// around that median. The waits from a cast's end to the next start (69) run 0.20, 0.58, 0.99 and
+// 1.88 s with a maximum of 6.9 s, all with the target alive. Each next wait is 0.2 to 3.5 s, whose
+// 1.85 s mean is the 1.86 s mean wait of the 16 summons that lasted 15 s with no target dying. A spit's
+// hardcast holds the swing, as in the log, where no swing lands inside a cast that reaches its end, so
+// the whelp swings only as it arrives and in the waits between casts.
 const whelpFirstSpitMax = 1800 * time.Millisecond
 const whelpSpitIdleMin = 200 * time.Millisecond
-const whelpSpitIdleMax = 1800 * time.Millisecond
+const whelpSpitIdleMax = 3500 * time.Millisecond
 
 func whelpFirstSpitDelay(sim *core.Simulation) time.Duration {
 	return time.Duration(sim.RandomFloat("Whelp First Spit") * float64(whelpFirstSpitMax))

@@ -280,9 +280,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Dragon'sCall-10847"
  value: {
-  dps: 629.04202
-  tps: 434.0066
-  hps: 47.275
+  dps: 630.75302
+  tps: 435.45545
+  hps: 47.4275
  }
 }
 dps_results: {
