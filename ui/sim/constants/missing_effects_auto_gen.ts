@@ -556,12 +556,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9418, // Stoneslayer
-		[
-			"Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 12731 - https://www.wowhead.com/forever/spell=12731
-		]
-	],
-	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -738,12 +732,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10750, // Lifeforce Dirk
-		[
-			"Heals wielder of 42 damage.", // 1300356 - https://www.wowhead.com/forever/spell=1300356
-		]
-	],
-	[
 		10758, // X'caliboar
 		[
 			"Unleash a mighty swing, dealing 42 Holy damage. Deals 3 times as much damage to Undead and Swine.", // 1293787 - https://www.wowhead.com/forever/spell=1293787
@@ -846,21 +834,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11744, // Bloodfist
-		[
-			"Wounds the target for 35 damage.", // 16433 - https://www.wowhead.com/forever/spell=16433
-		]
-	],
-	[
 		11750, // Kindling Stave
 		[
 			"Harmful spell casts have a chance to deal 70 Fire damage. Deals 3 times as much damage to Plants.", // 1300782 - https://www.wowhead.com/forever/spell=1300782
-		]
-	],
-	[
-		11803, // Force of Magma
-		[
-			"Blasts a target for 182 Fire damage.", // 18086 - https://www.wowhead.com/forever/spell=18086
 		]
 	],
 	[
@@ -918,12 +894,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12463, // Drakefang Butcher
-		[
-			"Wounds the target causing them to bleed for 161 damage over 7s. Deals 2 times as much damage to Dragonkin.", // 14118 - https://www.wowhead.com/forever/spell=14118
-		]
-	],
-	[
 		12469, // Mutilator
 		[
 			"Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.", // 10370 - https://www.wowhead.com/forever/spell=10370
@@ -939,12 +909,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12531, // Searing Needle
 		[
 			"Blasts a target for 56 Fire damage and increases Fire damage done to target by 10 for 30s.", // 16454 - https://www.wowhead.com/forever/spell=16454
-		]
-	],
-	[
-		12582, // Keris of Zul'Serak
-		[
-			"Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks by 11% for 10s.", // 16528 - https://www.wowhead.com/forever/spell=16528
 		]
 	],
 	[
@@ -1002,12 +966,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12969, // Seeping Willow
-		[
-			"Deals 51 Nature damage every 2.0 sec to all enemies within an 8 yard radius of the caster for 10s.", // 17196 - https://www.wowhead.com/forever/spell=17196
-		]
-	],
-	[
 		12974, // The Black Knight
 		[
 			"Sends a shadowy bolt at the enemy causing 40 Shadow damage.", // 14106 - https://www.wowhead.com/forever/spell=14106
@@ -1041,12 +999,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13146, // Shell Launcher Shotgun
 		[
 			"Strike the target with a Flaming Shell for 38 Fire damage.", // 29647 - https://www.wowhead.com/forever/spell=29647
-		]
-	],
-	[
-		13183, // Venomspitter
-		[
-			"Poisons target for 7 Nature damage every 1.0 sec for 15s.", // 18203 - https://www.wowhead.com/forever/spell=18203
 		]
 	],
 	[
@@ -1107,12 +1059,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13286, // Rivenspike
 		[
 			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
-		]
-	],
-	[
-		13348, // Demonshear
-		[
-			"Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.", // 17483 - https://www.wowhead.com/forever/spell=17483
 		]
 	],
 	[
@@ -1210,12 +1156,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13968, // Eye of the Beast
 		[
 			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
-		]
-	],
-	[
-		13983, // Gravestone War Axe
-		[
-			"Diseases target enemy for 42 Nature damage every 3.0 sec for 12s.", // 18289 - https://www.wowhead.com/forever/spell=18289
 		]
 	],
 	[
@@ -1411,12 +1351,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17730, // Gatorbite Axe
-		[
-			"Wounds the target causing them to bleed for 210 damage over 7s.", // 21949 - https://www.wowhead.com/forever/spell=21949
-		]
-	],
-	[
 		17738, // Claw of Celebras
 		[
 			"Poisons target for 13 Nature damage every 1.0 sec for 7s.", // 21952 - https://www.wowhead.com/forever/spell=21952
@@ -1433,18 +1367,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		17752, // Satyr's Lash
 		[
 			"Sends a shadowy bolt at the enemy causing 70 Shadow damage.", // 1292155 - https://www.wowhead.com/forever/spell=1292155
-		]
-	],
-	[
-		17753, // Verdant Keeper's Aim
-		[
-			"Strike your target with Keeper's Sting for 28 Nature damage.", // 29655 - https://www.wowhead.com/forever/spell=29655
-		]
-	],
-	[
-		17766, // Princess Theradras' Scepter
-		[
-			"Wounds the target for 168 damage and lowers their armor by 100.", // 21961 - https://www.wowhead.com/forever/spell=21961
 		]
 	],
 	[
@@ -1475,12 +1397,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18354, // Pimgib's Collar
 		[
 			"Restores 9 mana per 5 sec to your Imp.", // 22855 - https://www.wowhead.com/forever/spell=22855
-		]
-	],
-	[
-		18388, // Stoneshatter
-		[
-			"Shatter the target, dealing 49 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems, and Titan-forged.", // 1302279 - https://www.wowhead.com/forever/spell=1302279
 		]
 	],
 	[
@@ -2631,12 +2547,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274270, // Weed Whacker
-		[
-			"Assault the target with a dangerous toxin, dealing 126 Nature damage. Deals 3 times as much damage to Plants.", // 1293568 - https://www.wowhead.com/forever/spell=1293568
-		]
-	],
-	[
 		274271, // Deadhead Blade
 		[
 			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
@@ -2722,12 +2632,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		275441, // Cremation Longbow
-		[
-			"Cremate the target for 56 Fire damage.", // 1297921 - https://www.wowhead.com/forever/spell=1297921
-		]
-	],
-	[
 		275630, // Depleted Eye of Influence
 		[
 			"Chance on harmful spell cast to reduce target's attack power by 60 for 30s. ", // 1297082 - https://www.wowhead.com/forever/spell=1297082
@@ -2755,12 +2659,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		276337, // Thaelemaches' Talisman
 		[
 			"Fear all Demons within 15 yds for 6s.", // 1299440 - https://www.wowhead.com/forever/spell=1299440
-		]
-	],
-	[
-		276419, // Lightcrest Hammer
-		[
-			"Smites a target for 105 Holy damage. Deals 2 times as much damage to Undead.", // 1299631 - https://www.wowhead.com/forever/spell=1299631
 		]
 	],
 	[

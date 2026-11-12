@@ -134,6 +134,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Bloodfist-11744"
+ value: {
+  dps: 712.68106
+  tps: 531.09792
+  hps: 44.29278
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 714.85202
@@ -550,6 +558,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 746.70686
+  tps: 555.50171
+  hps: 43.86917
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FreezingBand-942"
  value: {
   dps: 759.45496
@@ -782,6 +798,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 714.12367
+  tps: 532.31197
+  hps: 44.225
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-KissoftheSpider-22954"
  value: {
   dps: 787.11182
@@ -806,11 +830,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 701.96184
+  tps: 523.62608
+  hps: 45.66472
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Lifestone-833"
  value: {
   dps: 767.65846
   tps: 570.68102
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 719.1759
+  tps: 535.89427
+  hps: 44.10639
  }
 }
 dps_results: {
@@ -958,6 +998,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 739.10047
+  tps: 550.28714
+  hps: 44.03861
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Prismcharm-15867"
  value: {
   dps: 767.65846
@@ -1002,6 +1050,14 @@ dps_results: {
  value: {
   dps: 767.47149
   tps: 571.57059
+  hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 744.56825
+  tps: 554.0695
   hps: 43.85222
  }
 }
@@ -1211,6 +1267,14 @@ dps_results: {
   dps: 767.65846
   tps: 570.68102
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-Venomspitter-13183"
+ value: {
+  dps: 713.68766
+  tps: 532.01199
+  hps: 44.225
  }
 }
 dps_results: {

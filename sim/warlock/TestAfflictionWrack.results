@@ -647,6 +647,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 842.50937
+  tps: 678.87562
+  dtps: 9.07236
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-KissoftheSpider-22954"
  value: {
   dps: 939.60553
@@ -668,6 +676,14 @@ dps_results: {
   dps: 823.75076
   tps: 663.81389
   dtps: 9.12005
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 842.50937
+  tps: 678.87562
+  dtps: 9.07236
  }
 }
 dps_results: {

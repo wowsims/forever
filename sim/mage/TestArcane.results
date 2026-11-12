@@ -587,6 +587,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 712.49593
+  tps: 616.65471
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-KissoftheSpider-22954"
  value: {
   dps: 740.8956
@@ -598,6 +605,13 @@ dps_results: {
  value: {
   dps: 760.37263
   tps: 652.50762
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 712.49593
+  tps: 616.65471
  }
 }
 dps_results: {

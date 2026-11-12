@@ -590,6 +590,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-FreezingBand-942"
  value: {
   dps: 883.55179
@@ -830,6 +838,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-KissoftheSpider-22954"
  value: {
   dps: 885.1319
@@ -862,11 +878,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Lifestone-833"
  value: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -1022,6 +1054,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Prismcharm-15867"
  value: {
   dps: 868.92475
@@ -1067,6 +1107,14 @@ dps_results: {
   dps: 873.17448
   tps: 885.3461
   dtps: 4.90577
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
  }
 }
 dps_results: {
@@ -1267,6 +1315,14 @@ dps_results: {
   dps: 873.22723
   tps: 884.15129
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Venomspitter-13183"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {

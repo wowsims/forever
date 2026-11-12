@@ -199,6 +199,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Bloodfist-11744"
+ value: {
+  dps: 413.73692
+  tps: 2160.8845
+  dtps: 395.73618
+  hps: 80.65821
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 415.52834
@@ -667,6 +676,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 455.49999
+  tps: 2342.7001
+  dtps: 392.19613
+  hps: 78.14165
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-FreezingBand-942"
  value: {
   dps: 478.86671
@@ -937,6 +955,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 418.18367
+  tps: 2189.1335
+  dtps: 392.19613
+  hps: 78.14165
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-KissoftheSpider-22954"
  value: {
   dps: 477.62795
@@ -964,12 +991,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 403.87883
+  tps: 2139.13897
+  dtps: 393.21342
+  hps: 80.30898
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Lifestone-833"
  value: {
   dps: 467.82019
   tps: 2446.84392
   dtps: 393.12704
   hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 428.65958
+  tps: 2211.65671
+  dtps: 392.19613
+  hps: 78.14165
  }
 }
 dps_results: {
@@ -1135,6 +1180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 441.25599
+  tps: 2293.54648
+  dtps: 395.94952
+  hps: 78.666
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Prismcharm-15867"
  value: {
   dps: 467.82019
@@ -1186,6 +1240,15 @@ dps_results: {
   tps: 2446.84392
   dtps: 393.12704
   hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 456.2272
+  tps: 2367.85576
+  dtps: 392.19613
+  hps: 78.14165
  }
 }
 dps_results: {
@@ -1420,6 +1483,15 @@ dps_results: {
   tps: 2449.74578
   dtps: 391.7499
   hps: 81.30348
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Venomspitter-13183"
+ value: {
+  dps: 418.58079
+  tps: 2189.9873
+  dtps: 392.19613
+  hps: 78.14165
  }
 }
 dps_results: {

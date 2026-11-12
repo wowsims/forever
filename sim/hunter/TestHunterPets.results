@@ -206,6 +206,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Bloodfist-11744"
+ value: {
+  dps: 665.52467
+  tps: 421.12064
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 667.30813
@@ -259,6 +267,14 @@ dps_results: {
   dps: 693.04335
   tps: 441.71179
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-CremationLongbow-275441"
+ value: {
+  dps: 672.11692
+  tps: 427.44684
+  dtps: 1.10708
  }
 }
 dps_results: {
@@ -333,6 +349,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Demonshear-13348"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Doombringer-13053"
  value: {
   dps: 675.83172
@@ -362,6 +386,14 @@ dps_results: {
   dps: 683.46805
   tps: 434.19834
   dtps: 1.53664
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DrakefangButcher-12463"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
  }
 }
 dps_results: {
@@ -677,6 +709,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-GauntletsoftheSea-8346"
  value: {
   dps: 686.77884
@@ -746,6 +786,14 @@ dps_results: {
   dps: 694.42879
   tps: 442.41711
   dtps: 0.87214
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
  }
 }
 dps_results: {
@@ -861,6 +909,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-KissoftheSpider-22954"
  value: {
   dps: 723.89993
@@ -882,6 +938,14 @@ dps_results: {
   dps: 696.01959
   tps: 443.90668
   dtps: 1.89144
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
  }
 }
 dps_results: {
@@ -1236,6 +1300,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Stoneshatter-18388"
+ value: {
+  dps: 684.49094
+  tps: 436.63518
+  dtps: 0.63637
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Stoneslayer-9418"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-StormGauntlets-12632"
  value: {
   dps: 688.27567
@@ -1420,6 +1500,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-VerdantKeeper'sAim-17753"
+ value: {
+  dps: 668.99905
+  tps: 427.38908
+  dtps: 0.30292
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-VestmentsoftheDevout"
  value: {
   dps: 616.64631
@@ -1457,6 +1545,14 @@ dps_results: {
   dps: 694.49026
   tps: 442.22633
   dtps: 0.87214
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
  }
 }
 dps_results: {

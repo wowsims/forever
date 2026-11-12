@@ -587,6 +587,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 794.70557
+  tps: 793.97685
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-KissoftheSpider-22954"
  value: {
   dps: 844.60866
@@ -598,6 +605,13 @@ dps_results: {
  value: {
   dps: 858.75701
   tps: 855.56962
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 794.70557
+  tps: 793.97685
  }
 }
 dps_results: {

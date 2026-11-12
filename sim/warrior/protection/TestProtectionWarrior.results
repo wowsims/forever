@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Bloodfist-11744"
+ value: {
+  dps: 427.01888
+  tps: 1435.94878
+  dtps: 300.6104
+  hps: 43.6975
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 429.19324
@@ -321,6 +330,15 @@ dps_results: {
   tps: 1585.40622
   dtps: 232.45636
   hps: 36.36056
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-CremationLongbow-275441"
+ value: {
+  dps: 448.67505
+  tps: 1482.33062
+  dtps: 297.34587
+  hps: 36.64861
  }
 }
 dps_results: {
@@ -1098,6 +1116,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 434.24553
+  tps: 1443.42648
+  dtps: 292.68
+  hps: 36.71639
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-LightforgeArmor"
  value: {
   dps: 460.89867
@@ -1566,6 +1593,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Stoneshatter-18388"
+ value: {
+  dps: 448.67505
+  tps: 1482.33062
+  dtps: 297.34587
+  hps: 36.64861
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-StormGauntlets-12632"
  value: {
   dps: 455.51242
@@ -1761,6 +1797,24 @@ dps_results: {
   tps: 1475.81768
   dtps: 293.02855
   hps: 36.66556
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-Venomspitter-13183"
+ value: {
+  dps: 429.35053
+  tps: 1438.6888
+  dtps: 293.43647
+  hps: 39.63083
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VerdantKeeper'sAim-17753"
+ value: {
+  dps: 448.67505
+  tps: 1482.33062
+  dtps: 297.34587
+  hps: 36.64861
  }
 }
 dps_results: {

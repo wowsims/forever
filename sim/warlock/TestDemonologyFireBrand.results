@@ -751,6 +751,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 712.25983
+  tps: 580.50129
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-KissoftheSpider-22954"
  value: {
   dps: 777.23193
@@ -773,6 +782,15 @@ dps_results: {
   dps: 751.66723
   tps: 613.65545
   dtps: 8.38146
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 712.25983
+  tps: 580.50129
+  dtps: 8.2264
+  hps: 10.00951
  }
 }
 dps_results: {

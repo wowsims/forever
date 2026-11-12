@@ -576,12 +576,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 940.62794
+  tps: 972.32822
+  dtps: 8.23411
+  hps: 21.82444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-FreezingBand-942"
  value: {
   dps: 856.84944
   tps: 892.15046
   dtps: 7.65477
   hps: 32.75361
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 922.63783
+  tps: 954.54849
+  dtps: 8.79395
+  hps: 21.70583
  }
 }
 dps_results: {
@@ -645,6 +663,15 @@ dps_results: {
   tps: 897.66633
   dtps: 7.23851
   hps: 32.73667
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 940.75996
+  tps: 972.74017
+  dtps: 9.27471
+  hps: 21.045
  }
 }
 dps_results: {
@@ -900,6 +927,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 939.42305
+  tps: 971.94038
+  dtps: 9.78248
+  hps: 21.01111
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Prismcharm-15867"
  value: {
   dps: 861.40928
@@ -951,6 +987,15 @@ dps_results: {
   tps: 897.69167
   dtps: 7.19568
   hps: 32.70278
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 929.2725
+  tps: 960.85439
+  dtps: 9.03622
+  hps: 20.13
  }
 }
 dps_results: {
@@ -1248,6 +1293,15 @@ dps_results: {
   tps: 895.0528
   dtps: 7.67837
   hps: 32.70278
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 903.0082
+  tps: 935.25543
+  dtps: 9.13186
+  hps: 22.265
  }
 }
 dps_results: {

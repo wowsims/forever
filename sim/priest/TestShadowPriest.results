@@ -695,6 +695,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-KissoftheSpider-22954"
  value: {
   dps: 767.61894
@@ -727,10 +735,26 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Lifestone-833"
  value: {
   dps: 749.07576
   tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
   dtps: 5.83127
  }
 }
@@ -1067,6 +1091,14 @@ dps_results: {
  value: {
   dps: 751.95285
   tps: 537.28884
+  dtps: 5.83127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-Venomspitter-13183"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
   dtps: 5.83127
  }
 }

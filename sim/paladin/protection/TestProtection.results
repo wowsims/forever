@@ -1044,6 +1044,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 406.97394
+  tps: 986.72343
+  dtps: 334.97188
+  hps: 21.63806
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-LightforgeArmor"
  value: {
   dps: 382.36678
@@ -1725,6 +1734,15 @@ dps_results: {
   tps: 943.23927
   dtps: 347.843
   hps: 21.89222
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Venomspitter-13183"
+ value: {
+  dps: 399.86528
+  tps: 966.32426
+  dtps: 342.06797
+  hps: 24.8575
  }
 }
 dps_results: {

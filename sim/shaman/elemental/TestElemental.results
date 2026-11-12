@@ -166,6 +166,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Bloodfist-11744"
+ value: {
+  dps: 684.33398
+  tps: 635.55945
+  dtps: 8.86708
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 686.26687
@@ -591,6 +599,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FreezingBand-942"
  value: {
   dps: 708.55134
@@ -604,6 +620,14 @@ dps_results: {
   dps: 738.60477
   tps: 683.68712
   dtps: 9.11597
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
  }
 }
 dps_results: {
@@ -676,6 +700,14 @@ dps_results: {
   dps: 727.13565
   tps: 674.73948
   dtps: 8.97408
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
  }
 }
 dps_results: {
@@ -791,6 +823,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 684.33398
+  tps: 635.55945
+  dtps: 8.86708
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-KissoftheSpider-22954"
  value: {
   dps: 745.72021
@@ -799,11 +839,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 684.33398
+  tps: 635.55945
+  dtps: 8.86708
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Lifestone-833"
  value: {
   dps: 718.28777
   tps: 666.72844
   dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 684.33398
+  tps: 635.55945
+  dtps: 8.86708
  }
 }
 dps_results: {
@@ -1007,6 +1063,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Prismcharm-15867"
  value: {
   dps: 718.28777
@@ -1052,6 +1116,14 @@ dps_results: {
   dps: 729.42405
   tps: 677.66442
   dtps: 7.85707
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
  }
 }
 dps_results: {
@@ -1343,6 +1415,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Venomspitter-13183"
+ value: {
+  dps: 684.33398
+  tps: 635.55945
+  dtps: 8.86708
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-VestmentsoftheDevout"
  value: {
   dps: 633.12098
@@ -1388,6 +1468,14 @@ dps_results: {
   dps: 719.43368
   tps: 669.32281
   dtps: 7.97554
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 681.67387
+  tps: 633.03061
+  dtps: 9.46147
  }
 }
 dps_results: {
