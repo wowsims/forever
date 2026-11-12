@@ -17,9 +17,12 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   equip proc 54 of 80 and 60 of 105 Shield Slams and 7 of 8 Shield Bashes. Non-damaging Sunder Armor, Concussion Blow
   and Rend applications proc Fiery Blaze and Dragon's Call; Rend ticks proc neither.** `sim/core/aura_helpers.go`,
   `canProcFrom`; PR #958.
-- **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); Shadow Oil
-  hears its hand's melee hits and Frost Oil white hits only; a strike's own re-cast during its cast goes one batch
-  later.** `sim/common/shared/shared_utils.go`, `procDamageHandler`, PR #352.
+- **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); a strike's own
+  re-cast during its cast goes one batch later.** `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and
+  `procDamageHandler`, PR #352.
+- **An oil's combat spell rolls on its hand's landed white swings and specials: Frost Oil's and Shadow Oil's enchant
+  rows (26 and 25) state a chance and no hit kind.** `sim/common/shared/consumable_imbues.go`,
+  `registerTemporaryEnchantCombatSpell`, PR #352, PR #956.
 - **A rate the game files do not state takes the carry-over value (`vanilla-carryover`) with a TODO, or is written and
   commented out waiting for a procs-per-minute rate, and the gear tab shows an in-game validation notice for every
   unvalidated rate, driven by the override tables' `Source`.** `tools/database/gen_effects.go`, `rateOrigin`, PR #322.

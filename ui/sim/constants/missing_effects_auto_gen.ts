@@ -1110,6 +1110,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		13353, // Book of the Dead
+		[
+			"", // 1298517 - https://www.wowhead.com/forever/spell=1298517
+		]
+	],
+	[
 		13361, // Skullforge Reaver
 		[
 			"Drains target for 21 Shadow damage every 1.0 sec and transfers it to the caster. Lasts for 10s.", // 17484 - https://www.wowhead.com/forever/spell=17484
@@ -4664,23 +4670,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		509, // Striker's Garb
-		new Map([
-			[
-				3,
-				[
-					"Reduces the cost of your Arcane Shots by 10%.", // 26173 - https://www.wowhead.com/forever/spell=26173
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Rapid Fire ability by 2.0 minutes.", // 26174 - https://www.wowhead.com/forever/spell=26174
-				],
-			],
-		]),
-	],
-	[
 		510, // Trappings of the Unseen Path
 		new Map([
 			[
@@ -5905,35 +5894,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				5,
 				[
 					"Your Life Tap generates 20% more Mana at no additional Health cost.", // 1301715 - https://www.wowhead.com/forever/spell=1301715
-				],
-			],
-		]),
-	],
-	[
-		2101, // Wildstalker Armor
-		new Map([
-			[
-				2,
-				[
-					"Increases your attack speed and casting speed by 1%.", // 1300945 - https://www.wowhead.com/forever/spell=1300945
-				],
-			],
-			[
-				3,
-				[
-					"Reduces the cooldown of your Frost Trap and Freezing Trap abilities by 3 sec.", // 1301012 - https://www.wowhead.com/forever/spell=1301012
-				],
-			],
-			[
-				4,
-				[
-					"+36 Attack Power against Beasts.", // 1301078 - https://www.wowhead.com/forever/spell=1301078
-				],
-			],
-			[
-				5,
-				[
-					"Reduces the cooldown of your Aimed Shot and Multi-Shot abilities by 1 sec.", // 1301252 - https://www.wowhead.com/forever/spell=1301252
 				],
 			],
 		]),

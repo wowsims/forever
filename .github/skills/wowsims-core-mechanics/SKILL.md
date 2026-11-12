@@ -103,6 +103,9 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
 - **A dot tick rolls its amount, not its hit** (`docs/spell_data/auras-and-dots.md`); a spell whose ticks roll hit
   passes `Spell.OutcomeTickMagicHitAndCrit` or `Dot.OutcomeTickMagicHit`. Always Hit on a triggered row:
   `.github/skills/wowsims-abilities-auras/references/rulings.md`.
+- **`Dot.Apply` on an active dot deactivates and reactivates it, so its tick timer restarts** (`dot.go`). A stack that
+  keeps the tick grid calls `Dot.Refresh` and then sets the stacks: `SetStacks` in Lacerate, `AddStack` in Deadly
+  Poison.
 - **Within an exclusive category the enabled effect with the highest `Priority` applies**; `YieldsTies` takes the
   category only by outbidding (`exclusive_effect.go`). The `SingleAura` reset is `wowsims-abilities-auras` §Buffs and
   debuffs.

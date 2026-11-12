@@ -169,7 +169,9 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 			target := cat.CurrentTarget
 			target.PseudoStats.BaseDodgeChance = 0
 			if avoid == "miss" {
+				// The cast and the bleed share the main hand's table, so only the cast takes the hit.
 				cat.AttackTables[target.UnitIndex].Hand(cat.PounceBleed.Spell).BaseMissChance = 1
+				cat.Pounce.BonusHitPercent = 100
 			} else {
 				cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 				target.PseudoStats.BaseDodgeChance = 1
@@ -195,6 +197,36 @@ func TestAvoidedPounceBleedKeepsStunAndComboPoint(t *testing.T) {
 				t.Errorf("energy=%g, want %g with no refund", cat.CurrentEnergy(), want)
 			}
 		})
+	}
+}
+
+// A missed Pounce stuns nothing, awards no combo point, rolls no bleed and gives back its row's miss
+// refund of the cost.
+func TestMissedPounceRefundsAndAppliesNothing(t *testing.T) {
+	sim, cat := newCat(t, "", nil)
+	target := cat.CurrentTarget
+	cat.AttackTables[target.UnitIndex].Hand(cat.Pounce.Spell).BaseMissChance = 1
+	cat.ProwlAura.Activate(sim)
+	refund := spelldata.MustFind(cat.Pounce.ActionID.SpellID).MissRefund()
+	if refund <= 0 {
+		t.Fatal("pounce's row states no miss refund")
+	}
+	cost := cat.Pounce.Cost.GetCurrentCost()
+	want := cat.CurrentEnergy() - cost*(1-refund)
+	if !cat.Pounce.Cast(sim, target) {
+		t.Fatal("pounce did not cast")
+	}
+	if m := cat.Pounce.SpellMetrics[target.UnitIndex]; m.Misses != 1 || m.Hits+m.Crits != 0 {
+		t.Fatalf("pounce missed %d times and landed %d, want 1 miss", m.Misses, m.Hits+m.Crits)
+	}
+	if got := cat.CurrentEnergy(); math.Abs(got-want) > 1e-9 {
+		t.Errorf("energy=%g, want %g with the refund of a %g cost", got, want, cost)
+	}
+	stunUp := target.GetAura("Pounce Stun - " + cat.Label).IsActive()
+	bleed := cat.PounceBleed.SpellMetrics[target.UnitIndex]
+	if stunUp || cat.ComboPoints(target) != 0 || bleed.Misses+bleed.Dodges+bleed.Hits != 0 || cat.PounceBleed.Dot(target).IsActive() {
+		t.Errorf("stun up=%v, CP=%d, bleed rolled %d times, want no stun, no combo point and no bleed roll",
+			stunUp, cat.ComboPoints(target), bleed.Misses+bleed.Dodges+bleed.Hits)
 	}
 }
 
@@ -421,18 +453,18 @@ func newCatBesideAnother(t *testing.T, talents string) (*core.Simulation, *Feral
 	return sim, players[0].(*FeralDruid), players[1].(*FeralDruid)
 }
 
-// Rend and Tear raises Rake and Rip ticks and leaves Pounce Bleed's unchanged. Each tick counts its own
-// bleed as the bleed on the target, and the talent is the only difference between the two builds.
+// Rend and Tear raises Rake, Rip and Pounce Bleed ticks. Each tick counts its own bleed as the bleed on the
+// target, and the talent is the only difference between the two builds.
 func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 	const rendAndTear5 = "0000000000000000-00000000000000005000-0000000000000000"
+	want := 1 + spelldata.Talent(1223246, 5).Rank(5).EffectN(1).Percent()
 	for _, c := range []struct {
 		name  string
 		spell func(*FeralDruid) *druid.DruidSpell
-		want  float64
 	}{
-		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }, 1.15},
-		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }, 1.15},
-		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }, 1},
+		{"Rake", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rake }},
+		{"Rip", func(cat *FeralDruid) *druid.DruidSpell { return cat.Rip }},
+		{"Pounce Bleed", func(cat *FeralDruid) *druid.DruidSpell { return cat.PounceBleed }},
 	} {
 		tick := func(talents string) float64 {
 			sim, cat := newCat(t, talents, nil)
@@ -449,8 +481,8 @@ func TestRendAndTearRaisesBleedTicks(t *testing.T) {
 			return metric.TotalDamage - before
 		}
 		plain, raised := tick(""), tick(rendAndTear5)
-		if plain <= 0 || math.Abs(raised/plain-c.want) > 1e-6 {
-			t.Errorf("%s: tick %g without the talent, %g with 5/5, want x%g", c.name, plain, raised, c.want)
+		if plain <= 0 || math.Abs(raised/plain-want) > 1e-6 {
+			t.Errorf("%s: tick %g without the talent, %g with 5/5, want x%g", c.name, plain, raised, want)
 		}
 	}
 }
