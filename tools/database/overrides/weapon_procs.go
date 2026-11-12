@@ -112,6 +112,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "wcl:x3qQt7yf9mAgbTrZ/1 and 1 more run, 2026-11-12",
 	},
 	{
+		ItemID:  17943,
+		SpellID: 1294794,
+		PPM:     3.2,
+		Reason:  "Fist of Stone: equip trigger, column reads 100; 105 procs on 1086 landed autos, Holy Strikes and Judgements, 1 end-game dungeon run, 1 player",
+		Source:  "wcl:vQZLCzhPNatk7r3d/1, 2026-11-12",
+	},
+	{
 		ItemID:  18388,
 		SpellID: 1302279,
 		PPM:     1.7,
