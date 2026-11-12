@@ -207,10 +207,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 776.90761
-  tps: 662.23855
-  dtps: 10.66898
-  hps: 7.74233
+  dps: 795.19
+  tps: 674.91907
+  dtps: 10.39493
  }
 }
 dps_results: {
@@ -769,6 +768,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-KissoftheSpider-22954"
  value: {
   dps: 783.41899
@@ -791,6 +799,15 @@ dps_results: {
   dps: 746.05243
   tps: 631.84981
   dtps: 10.25758
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
  }
 }
 dps_results: {

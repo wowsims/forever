@@ -126,11 +126,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Beastmaster'sGauntlets-226883"
+ value: {
+  dps: 768.1333
+  tps: 792.1496
+  dtps: 9.2251
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BeastmasterArmor"
  value: {
-  dps: 773.71224
-  tps: 797.08362
-  dtps: 8.5878
+  dps: 768.08983
+  tps: 792.12178
+  dtps: 9.07849
   hps: 15.01278
  }
 }
@@ -225,6 +234,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Bloodfist-11744"
+ value: {
+  dps: 641.10012
+  tps: 664.71077
+  dtps: 8.8094
+  hps: 14.84333
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 707.43395
@@ -285,6 +303,15 @@ dps_results: {
   tps: 788.6834
   dtps: 8.82972
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-CremationLongbow-275441"
+ value: {
+  dps: 727.27015
+  tps: 748.09875
+  dtps: 5.4201
+  hps: 15.57194
  }
 }
 dps_results: {
@@ -369,6 +396,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Demonshear-13348"
+ value: {
+  dps: 783.72428
+  tps: 806.9828
+  dtps: 8.69459
+  hps: 14.60611
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Doombringer-13053"
  value: {
   dps: 724.58637
@@ -411,6 +447,15 @@ dps_results: {
   tps: 780.38606
   dtps: 9.03162
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-DrakefangButcher-12463"
+ value: {
+  dps: 733.58405
+  tps: 757.04011
+  dtps: 8.61067
+  hps: 14.55528
  }
 }
 dps_results: {
@@ -765,6 +810,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 746.46963
+  tps: 770.21677
+  dtps: 8.64923
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-GauntletsoftheSea-8346"
  value: {
   dps: 761.06383
@@ -846,6 +900,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 758.17199
+  tps: 781.56773
+  dtps: 8.24775
+  hps: 14.64
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-GrimReaper-13054"
  value: {
   dps: 727.53717
@@ -875,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HandofJustice-11815"
  value: {
-  dps: 774.61758
-  tps: 798.08967
-  dtps: 8.52553
-  hps: 15.16528
+  dps: 770.26026
+  tps: 793.9982
+  dtps: 8.71472
+  hps: 14.92806
  }
 }
 dps_results: {
@@ -981,6 +1044,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 665.55602
+  tps: 688.60129
+  dtps: 8.41179
+  hps: 14.65694
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-KissoftheSpider-22954"
  value: {
   dps: 789.58734
@@ -1005,6 +1077,15 @@ dps_results: {
   tps: 793.5279
   dtps: 9.2251
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 648.03409
+  tps: 672.18681
+  dtps: 8.50221
+  hps: 15.69556
  }
 }
 dps_results: {
@@ -1404,6 +1485,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Stoneshatter-18388"
+ value: {
+  dps: 720.1877
+  tps: 741.06304
+  dtps: 5.75259
+  hps: 15.25
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Stoneslayer-9418"
+ value: {
+  dps: 786.01252
+  tps: 809.641
+  dtps: 8.61077
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-StormGauntlets-12632"
  value: {
   dps: 759.59966
@@ -1611,6 +1710,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-VerdantKeeper'sAim-17753"
+ value: {
+  dps: 723.92919
+  tps: 744.65402
+  dtps: 4.90106
+  hps: 15.45333
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-VestmentsoftheDevout"
  value: {
   dps: 680.84401
@@ -1652,6 +1760,15 @@ dps_results: {
   dps: 766.62212
   tps: 790.34871
   dtps: 8.82972
+  hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 735.7168
+  tps: 759.53915
+  dtps: 8.20027
   hps: 14.74167
  }
 }

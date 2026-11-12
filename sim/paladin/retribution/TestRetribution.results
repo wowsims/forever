@@ -216,6 +216,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-CloudkeeperLegplates-14554"
+ value: {
+  dps: 817.64584
+  tps: 667.86374
+  dtps: 5.75926
+  hps: 23.40841
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 825.92657
@@ -306,6 +315,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Demonshear-13348"
+ value: {
+  dps: 831.54878
+  tps: 679.43706
+  dtps: 6.46757
+  hps: 23.85185
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Doombringer-13053"
  value: {
   dps: 785.87461
@@ -339,6 +357,15 @@ dps_results: {
   tps: 651.02667
   dtps: 5.45115
   hps: 23.84016
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-DrakefangButcher-12463"
+ value: {
+  dps: 791.22328
+  tps: 651.20387
+  dtps: 7.54418
+  hps: 28.06017
  }
 }
 dps_results: {
@@ -621,6 +648,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-ForceofMagma-11803"
+ value: {
+  dps: 803.16843
+  tps: 658.68244
+  dtps: 7.26704
+  hps: 25.41463
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-FreezingBand-942"
  value: {
   dps: 817.38919
@@ -636,6 +672,15 @@ dps_results: {
   tps: 675.69465
   dtps: 5.9763
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-GatorbiteAxe-17730"
+ value: {
+  dps: 794.73256
+  tps: 651.94885
+  dtps: 6.6931
+  hps: 25.4697
  }
 }
 dps_results: {
@@ -711,6 +756,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-GravestoneWarAxe-13983"
+ value: {
+  dps: 802.16181
+  tps: 656.70794
+  dtps: 5.86601
+  hps: 24.82819
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Gri'lek'sCharmofValor-19952"
  value: {
   dps: 826.40801
@@ -731,10 +785,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-HandofJustice-11815"
  value: {
-  dps: 848.2543
-  tps: 692.72605
-  dtps: 5.89352
-  hps: 24.3107
+  dps: 828.52812
+  tps: 676.75361
+  dtps: 5.7478
+  hps: 23.72714
  }
 }
 dps_results: {
@@ -1170,6 +1224,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-PrincessTheradras'Scepter-17766"
+ value: {
+  dps: 807.03028
+  tps: 659.98939
+  dtps: 5.46675
+  hps: 24.89834
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Prismcharm-15867"
  value: {
   dps: 825.92657
@@ -1248,6 +1311,15 @@ dps_results: {
   tps: 675.72833
   dtps: 3.76434
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SeepingWillow-12969"
+ value: {
+  dps: 823.45918
+  tps: 673.14298
+  dtps: 6.12897
+  hps: 24.35171
  }
 }
 dps_results: {
@@ -1347,6 +1419,15 @@ dps_results: {
   tps: 666.47158
   dtps: 6.16578
   hps: 23.84524
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Stoneslayer-9418"
+ value: {
+  dps: 833.45552
+  tps: 680.80373
+  dtps: 5.58983
+  hps: 23.47687
  }
 }
 dps_results: {
@@ -1590,6 +1671,15 @@ dps_results: {
   tps: 680.85503
   dtps: 6.05497
   hps: 23.54414
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-WeedWhacker-274270"
+ value: {
+  dps: 781.60436
+  tps: 641.697
+  dtps: 7.4727
+  hps: 26.02701
  }
 }
 dps_results: {

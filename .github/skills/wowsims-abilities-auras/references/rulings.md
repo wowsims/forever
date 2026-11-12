@@ -39,6 +39,10 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   (`wowsims-procs` `references/rulings.md`).**
   `sim/warrior/shield_bash.go`, `sim/warrior/talents_protection.go`, `sim/warrior/thunder_clap.go`,
   `sim/core/buffs/drivers.go`.
+- **A hand-built melee or ranged special states its row's DefenseType, since a special with none is no weapon hit and
+  no chance-on-hit item effect or combat enchant hears it. Sweeping Strikes' copied hit 12723 has no SpellCategories
+  row and registers with none; its normalized hit 26654 is melee (`wowsims-procs` `references/rulings.md`).**
+  `sim/warrior/talents_arms.go`, `registerSweepingStrikes`, PR #965.
 
 ## Registering
 

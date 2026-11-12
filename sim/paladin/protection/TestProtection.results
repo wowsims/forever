@@ -234,6 +234,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-CloudkeeperLegplates-14554"
+ value: {
+  dps: 396.72183
+  tps: 951.9435
+  dtps: 336.99455
+  hps: 21.73972
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 392.82438
@@ -839,10 +848,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HandofJustice-11815"
  value: {
-  dps: 399.58048
-  tps: 950.93381
-  dtps: 349.40339
-  hps: 22.38361
+  dps: 395.40318
+  tps: 945.98957
+  dtps: 350.92839
+  hps: 22.09556
  }
 }
 dps_results: {
@@ -929,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Ironfoe-11684"
  value: {
-  dps: 415.70659
-  tps: 985.01692
-  dtps: 337.85453
-  hps: 23.9425
+  dps: 404.42812
+  tps: 964.98876
+  dtps: 337.51762
+  hps: 22.68861
  }
 }
 dps_results: {
@@ -1059,6 +1068,15 @@ dps_results: {
   tps: 942.22898
   dtps: 349.86188
   hps: 26.41115
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-LightcrestHammer-276419"
+ value: {
+  dps: 406.97394
+  tps: 986.72343
+  dtps: 334.97188
+  hps: 21.63806
  }
 }
 dps_results: {
@@ -1743,6 +1761,15 @@ dps_results: {
   tps: 943.23927
   dtps: 347.843
   hps: 21.89222
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Venomspitter-13183"
+ value: {
+  dps: 399.86528
+  tps: 966.32426
+  dtps: 342.06797
+  hps: 24.8575
  }
 }
 dps_results: {

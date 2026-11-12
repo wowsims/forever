@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 914.90603
-  tps: 722.13914
-  dtps: 10.29885
+  dps: 910.63744
+  tps: 716.31422
+  dtps: 10.07653
  }
 }
 dps_results: {
@@ -663,6 +663,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-KerisofZul'Serak-12582"
+ value: {
+  dps: 837.48844
+  tps: 662.05272
+  dtps: 10.38107
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-KissoftheSpider-22954"
  value: {
   dps: 932.91363
@@ -684,6 +692,14 @@ dps_results: {
   dps: 821.75394
   tps: 650.10886
   dtps: 9.87727
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-LifeforceDirk-10750"
+ value: {
+  dps: 837.48844
+  tps: 662.05272
+  dtps: 10.38107
  }
 }
 dps_results: {
