@@ -798,7 +798,7 @@ var generatedSpells = []Spell{
 			{ID: 679225, SpellID: 853, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, BaseLevel: 8, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 30}}},
-	{ID: 865, Name: "Frost Nova", Rank: "Rank 2", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 6: 0x200000, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 26, BaseLevel: 26, MaxLevel: 31, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
+	{ID: 865, Name: "Frost Nova", Rank: "Rank 2", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 3: 0x4000000, 6: 0x200000, 7: 0x40000000, 12: 0x2, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 26, BaseLevel: 26, MaxLevel: 31, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 679518, SpellID: 865, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 34, PPL: 0.5, Variance: 0.11428570747375488, BaseLevel: 26, MaxLevel: 31, SPCoef: 0.028999999165534973, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
 			{ID: 679519, SpellID: 865, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, BaseLevel: 26, MaxLevel: 31, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Mechanic: 7, Target: [2]dbcenums.ImplicitTarget{22, 15}},
@@ -1237,7 +1237,7 @@ var generatedSpells = []Spell{
 			{ID: 680230, SpellID: 1499, Type: dbcenums.E_SUMMON_OBJECT_SLOT1, BaseLevel: 20, SPCoef: 1, PvpMult: 1, Misc: 2561, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{47, 0}},
 		},
 		Powers: []Power{{Cost: 50}}},
-	{ID: 1510, Name: "Volley", Rank: "Rank 1", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279721},
+	{ID: 1510, Name: "Volley", Rank: "Rank 1", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 4: 0x800000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, AuraInterrupt: [2]uint32{0: 0x7c0c}, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279721},
 		Effects: []Effect{
 			{ID: 680772, SpellID: 1510, Type: dbcenums.E_DUMMY, PPL: 0.30000001192092896, BaseLevel: 40, SPCoef: 0.029999999329447746, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1292241, SpellID: 1510, Index: 1, Type: dbcenums.E_CREATE_AREATRIGGER, BaseLevel: 40, PvpMult: 1, RadiusMax: 8, Misc: 41245, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
@@ -3081,7 +3081,7 @@ var generatedSpells = []Spell{
 			{ID: 684094, SpellID: 6129, Type: dbcenums.E_CREATE_ITEM, BasePoints: 2, PPL: 2, BaseLevel: 32, MaxLevel: 41, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Cost: 285}}},
-	{ID: 6131, Name: "Frost Nova", Rank: "Rank 3", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 6: 0x200000, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 45, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
+	{ID: 6131, Name: "Frost Nova", Rank: "Rank 3", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 3: 0x4000000, 6: 0x200000, 7: 0x40000000, 12: 0x2, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 45, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 684315, SpellID: 6131, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 53, PPL: 0.5, Variance: 0.1090909093618393, BaseLevel: 40, MaxLevel: 45, SPCoef: 0.028999999165534973, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
 			{ID: 684316, SpellID: 6131, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, BaseLevel: 40, MaxLevel: 45, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Mechanic: 7, Target: [2]dbcenums.ImplicitTarget{22, 15}},
@@ -5225,7 +5225,7 @@ var generatedSpells = []Spell{
 		Powers: []Power{{Cost: 140}}},
 	{ID: 8250, Name: "Flametongue Totem", Rank: "Rank 2", School: 4, Attr: [17]uint32{0: 0x140, 3: 0x100, 11: 0x400, 15: 0x2000}, SpellLevel: 38, BaseLevel: 38, MaxLevel: 46, DefenseType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4}, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 67108864, 3: 2147483648}}, Labels: []int16{24}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
-			{ID: 687698, SpellID: 8250, Type: dbcenums.E_APPLY_AREA_AURA_RAID, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 38, MaxLevel: 46, PvpMult: 1, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 687698, SpellID: 8250, Type: dbcenums.E_APPLY_AREA_AURA_RAID, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 8248, BaseLevel: 38, MaxLevel: 46, PvpMult: 1, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 8253, Name: "Flametongue Totem Proc", Rank: "Rank 1", School: 4, Attr: [17]uint32{0: 0x40100, 15: 0x2000}, SpellLevel: 28, BaseLevel: 28, MaxLevel: 36, MaxRange: 100, ProcChance: 100, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{1: 4}}, Labels: []int16{24},
 		Effects: []Effect{
@@ -7157,7 +7157,7 @@ var generatedSpells = []Spell{
 			{ID: 687331, SpellID: 10225, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_REFLECT_SPELLS_SCHOOL, BaseLevel: 60, PvpMult: 1, Amplitude: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Cost: 320}}},
-	{ID: 10230, Name: "Frost Nova", Rank: "Rank 4", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 6: 0x200000, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxLevel: 59, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
+	{ID: 10230, Name: "Frost Nova", Rank: "Rank 4", School: 16, Attr: [17]uint32{0: 0x40010000, 1: 0x88, 3: 0x4000000, 6: 0x200000, 7: 0x40000000, 12: 0x2, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxLevel: 59, DurationMs: 8000, CategoryCooldownMs: 25000, GCDMs: 1500, Category: 35, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x800a22a8}, ClassFlags: core.ClassFlags{Family: 3, Mask: [4]uint32{0: 524352}}, InterruptFlags: 8, Labels: []int16{17}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 688517, SpellID: 10230, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 73, PPL: 0.5, Variance: 0.1066666692495346, BaseLevel: 54, MaxLevel: 59, SPCoef: 0.028999999165534973, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
 			{ID: 688518, SpellID: 10230, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, BaseLevel: 54, MaxLevel: 59, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Mechanic: 7, Target: [2]dbcenums.ImplicitTarget{22, 15}},
@@ -10725,14 +10725,14 @@ var generatedSpells = []Spell{
 			{ID: 691069, SpellID: 14287, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 280, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{CostPct: 11}}},
-	{ID: 14294, Name: "Volley", Rank: "Rank 2", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279719},
+	{ID: 14294, Name: "Volley", Rank: "Rank 2", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 4: 0x800000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, AuraInterrupt: [2]uint32{0: 0x7c0c}, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279719},
 		Effects: []Effect{
 			{ID: 691336, SpellID: 14294, Type: dbcenums.E_DUMMY, PPL: 0.30000001192092896, BaseLevel: 50, SPCoef: 0.029999999329447746, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1292238, SpellID: 14294, Index: 1, Type: dbcenums.E_CREATE_AREATRIGGER, BaseLevel: 50, PvpMult: 1, RadiusMax: 8, Misc: 41244, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1292239, SpellID: 14294, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DUMMY, BaseLevel: 50, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Cost: 420}}},
-	{ID: 14295, Name: "Volley", Rank: "Rank 3", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 58, BaseLevel: 58, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279715},
+	{ID: 14295, Name: "Volley", Rank: "Rank 3", School: 64, Speed: 45, Attr: [17]uint32{0: 0x10000, 1: 0x10000040, 2: 0x420000, 4: 0x800000, 10: 0x4, 13: 0x1, 14: 0x40, 15: 0x2000}, SpellLevel: 58, BaseLevel: 58, DurationMs: 6000, MaxRange: 35, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 3, PreventionType: 2, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, InterruptFlags: 9, AuraInterrupt: [2]uint32{0: 0x7c0c}, ChannelInterrupt: [2]uint32{0: 0x7c0c}, EquipClass: 2, EquipSubclass: 262156, Labels: []int16{23}, RefIDs: []int32{1279715},
 		Effects: []Effect{
 			{ID: 692653, SpellID: 14295, Type: dbcenums.E_DUMMY, PPL: 0.30000001192092896, BaseLevel: 58, SPCoef: 0.029999999329447746, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1292223, SpellID: 14295, Index: 1, Type: dbcenums.E_CREATE_AREATRIGGER, BaseLevel: 58, PvpMult: 1, RadiusMax: 8, Misc: 41242, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
@@ -12240,7 +12240,7 @@ var generatedSpells = []Spell{
 			{ID: 692356, SpellID: 14751, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: -100, BaseLevel: 60, PvpMult: 1, Misc: 14, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 3573022715, 1: 278135862, 2: 83952128, 3: 268436624}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 692357, SpellID: 14751, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 25, BaseLevel: 60, PvpMult: 1, Misc: 7, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 3656662672, 1: 623668, 3: 270532608}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 14752, Name: "Divine Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 40, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, StanceMask: 0x8000000, Labels: []int16{18},
+	{ID: 14752, Name: "Divine Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 40, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 692824, SpellID: 14752, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 17, BaseLevel: 30, MaxLevel: 40, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		},
@@ -12274,12 +12274,12 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 691619, SpellID: 14814, Type: dbcenums.E_SUMMON_OBJECT_WILD, BaseLevel: 60, PvpMult: 1, Misc: 165578, ChainAmp: 1},
 		}},
-	{ID: 14818, Name: "Divine Spirit", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, StanceMask: 0x8000000, Labels: []int16{18},
+	{ID: 14818, Name: "Divine Spirit", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 50, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 691641, SpellID: 14818, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 23, BaseLevel: 40, MaxLevel: 50, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		},
 		Powers: []Power{{Cost: 420}}},
-	{ID: 14819, Name: "Divine Spirit", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 60, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, StanceMask: 0x8000000, Labels: []int16{18},
+	{ID: 14819, Name: "Divine Spirit", Rank: "Rank 3", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 60, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 691642, SpellID: 14819, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 33, BaseLevel: 50, MaxLevel: 60, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		},
@@ -12319,7 +12319,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 688700, SpellID: 14912, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: -15, BaseLevel: 60, PvpMult: 1, Misc: 14, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 267264, 1: 8388640}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 14913, Name: "Twilight Focus", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 6}, StanceExclude: 0x8000000, Labels: []int16{18},
+	{ID: 14913, Name: "Twilight Focus", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 6}, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 690494, SpellID: 14913, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 70, BaseLevel: 60, PvpMult: 1, Misc: 9, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 11943568, 1: 8486916, 2: 128, 3: 1074790400}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
@@ -22345,7 +22345,7 @@ var generatedSpells = []Spell{
 			{ID: 704437, SpellID: 27656, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, PvpMult: 1, TriggerID: 27655, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1351927, SpellID: 27656, Index: 1, BasePoints: 3, PvpMult: 1, ChainAmp: 1},
 		}},
-	{ID: 27681, Name: "Prayer of Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x20000, 2: 0x80000, 3: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483680}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18},
+	{ID: 27681, Name: "Prayer of Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x20000, 2: 0x80000, 3: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 701842, SpellID: 27681, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 40, BaseLevel: 60, MaxLevel: 70, PvpMult: 1, RadiusMax: 100, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{56, 0}},
 		},
@@ -22498,7 +22498,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704752, SpellID: 27836, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 25, BaseLevel: 60, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 27841, Name: "Divine Spirit", Rank: "Rank 4", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, StanceMask: 0x8000000, Labels: []int16{18},
+	{ID: 27841, Name: "Divine Spirit", Rank: "Rank 4", School: 2, Attr: [17]uint32{0: 0x10000, 2: 0x80000, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 704677, SpellID: 27841, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 40, BaseLevel: 60, MaxLevel: 70, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		},
@@ -24487,9 +24487,9 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1071909, SpellID: 408025, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_HEALTH, BasePoints: 30, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 408120, Name: "Wild Growth", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 48, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 8, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 408120, Name: "Wild Growth", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 48, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
-			{ID: 1072065, SpellID: 408120, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 40, PPL: 1, BaseLevel: 40, MaxLevel: 48, SPCoef: 0.032999999821186066, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
+			{ID: 1072065, SpellID: 408120, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 40, PPL: 1, BaseLevel: 40, MaxLevel: 48, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1075729, SpellID: 408120, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 40, MaxLevel: 48, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 		},
 		Powers: []Power{{Cost: 550}}},
@@ -33115,15 +33115,15 @@ var generatedSpells = []Spell{
 			{ID: 1235171, SpellID: 1238122, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BasePoints: 5, BaseLevel: 20, SPCoef: 1, PvpMult: 1, TriggerID: 19675, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 50}}},
-	{ID: 1238214, Name: "Wild Growth", Rank: "Rank 2", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 58, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 8, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 1238214, Name: "Wild Growth", Rank: "Rank 2", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 58, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
-			{ID: 1235327, SpellID: 1238214, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 60, PPL: 1.2999999523162842, BaseLevel: 50, MaxLevel: 58, SPCoef: 0.032999999821186066, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
+			{ID: 1235327, SpellID: 1238214, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 60, PPL: 1.2999999523162842, BaseLevel: 50, MaxLevel: 58, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1235328, SpellID: 1238214, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 50, MaxLevel: 58, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 		},
 		Powers: []Power{{Cost: 755}}},
-	{ID: 1238215, Name: "Wild Growth", Rank: "Rank 3", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 68, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 8, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 1238215, Name: "Wild Growth", Rank: "Rank 3", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 68, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
-			{ID: 1235329, SpellID: 1238215, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 97, PPL: 1.600000023841858, BaseLevel: 60, MaxLevel: 68, SPCoef: 0.032999999821186066, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
+			{ID: 1235329, SpellID: 1238215, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 97, PPL: 1.600000023841858, BaseLevel: 60, MaxLevel: 68, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1235330, SpellID: 1238215, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 60, MaxLevel: 68, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 		},
 		Powers: []Power{{Cost: 1050}}},
@@ -35050,7 +35050,7 @@ var generatedSpells = []Spell{
 			{ID: 1289725, SpellID: 1277378, Type: dbcenums.E_HEAL, BasePoints: 1383, PPL: 8.199999809265137, Variance: 0.16493399441242218, BaseLevel: 58, MaxLevel: 64, SPCoef: 0.42899999022483826, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 1289726, SpellID: 1277378, Index: 1, Type: dbcenums.E_SCRIPT_EFFECT, BasePoints: 50, BaseLevel: 58, MaxLevel: 64, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 1277455, Name: "Confounding Flash", School: 2, Attr: [17]uint32{0: 0x40010, 1: 0x88, 6: 0x200000, 13: 0x80, 15: 0x2000}, SpellLevel: 10, BaseLevel: 10, CastTimeMs: 500, DurationMs: 3000, CooldownMs: 120000, DefenseType: 1, Mechanic: 2, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 1073741824, 3: 1073741824}}, InterruptFlags: 15, AuraInterrupt: [2]uint32{0: 0x2}, StanceExclude: 0x8000000, MaxTargets: 5, Labels: []int16{18}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1277455, Name: "Confounding Flash", School: 2, Attr: [17]uint32{0: 0x40010, 1: 0x88, 6: 0x200000, 13: 0x80, 15: 0x2000}, SpellLevel: 10, BaseLevel: 10, CastTimeMs: 500, DurationMs: 3000, CooldownMs: 120000, DefenseType: 1, Mechanic: 2, PreventionType: 1, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 1073741824, 3: 1073741824}}, InterruptFlags: 15, AuraInterrupt: [2]uint32{0: 0x2}, MaxTargets: 5, Labels: []int16{18}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1289832, SpellID: 1277455, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CONFUSE, BaseLevel: 10, PvpMult: 1, Amplitude: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
 		},
@@ -35135,15 +35135,15 @@ var generatedSpells = []Spell{
 			{ID: 1291315, SpellID: 1278968, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 98, PPL: 0.20000000298023224, BaseLevel: 50, MaxLevel: 56, SPCoef: 0.029999999329447746, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 			{ID: 1291316, SpellID: 1278968, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: -20, BaseLevel: 50, MaxLevel: 56, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 		}},
-	{ID: 1279715, Name: "Volley", Rank: "Rank 3", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x8080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 58, BaseLevel: 58, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1279715, Name: "Volley", Rank: "Rank 3", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x808080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 58, BaseLevel: 58, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1292220, SpellID: 1279715, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 112, BaseLevel: 58, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 		}},
-	{ID: 1279719, Name: "Volley", Rank: "Rank 2", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x8080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1279719, Name: "Volley", Rank: "Rank 2", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x808080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1292228, SpellID: 1279719, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 91, BaseLevel: 50, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 		}},
-	{ID: 1279721, Name: "Volley", Rank: "Rank 1", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x8080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1279721, Name: "Volley", Rank: "Rank 1", School: 64, Attr: [17]uint32{1: 0x88, 2: 0x40000000, 3: 0x40000000, 4: 0x808080, 5: 0x400, 8: 0x1000, 9: 0x100008, 13: 0x1, 15: 0x2000}, SpellLevel: 40, BaseLevel: 40, MaxRange: 50000, DefenseType: 3, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 9, Mask: [4]uint32{0: 8192}}, Labels: []int16{23}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1292230, SpellID: 1279721, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 70, BaseLevel: 40, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 16}},
 		}},
