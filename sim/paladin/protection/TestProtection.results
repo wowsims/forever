@@ -58,7 +58,7 @@ dps_results: {
  value: {
   dps: 400.95074
   tps: 957.65944
-  dtps: 348.47292
+  dtps: 348.43788
   hps: 22.43444
  }
 }
@@ -67,7 +67,7 @@ dps_results: {
  value: {
   dps: 369.24312
   tps: 886.223
-  dtps: 353.27298
+  dtps: 353.24861
   hps: 21.02806
  }
 }
@@ -76,7 +76,7 @@ dps_results: {
  value: {
   dps: 393.41353
   tps: 953.75564
-  dtps: 370.90432
+  dtps: 370.87438
   hps: 21.655
  }
 }
@@ -85,7 +85,7 @@ dps_results: {
  value: {
   dps: 393.25036
   tps: 940.13188
-  dtps: 348.97293
+  dtps: 348.956
   hps: 26.06676
  }
 }
@@ -94,7 +94,7 @@ dps_results: {
  value: {
   dps: 399.29485
   tps: 958.21071
-  dtps: 335.30995
+  dtps: 335.28999
   hps: 21.62111
  }
 }
@@ -103,7 +103,7 @@ dps_results: {
  value: {
   dps: 394.87769
   tps: 941.9548
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -112,7 +112,7 @@ dps_results: {
  value: {
   dps: 393.46696
   tps: 946.5327
-  dtps: 351.02589
+  dtps: 351.0023
   hps: 21.79056
  }
 }
@@ -121,7 +121,7 @@ dps_results: {
  value: {
   dps: 375.44462
   tps: 888.85756
-  dtps: 340.3555
+  dtps: 340.31053
   hps: 21.16361
  }
 }
@@ -139,7 +139,7 @@ dps_results: {
  value: {
   dps: 395.34873
   tps: 946.98429
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 24.77623
  }
 }
@@ -148,7 +148,7 @@ dps_results: {
  value: {
   dps: 395.78654
   tps: 952.1586
-  dtps: 349.13146
+  dtps: 349.11498
   hps: 21.82444
  }
 }
@@ -157,7 +157,7 @@ dps_results: {
  value: {
   dps: 391.07011
   tps: 938.35658
-  dtps: 334.38449
+  dtps: 334.36756
   hps: 21.45167
  }
 }
@@ -166,7 +166,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -175,7 +175,7 @@ dps_results: {
  value: {
   dps: 390.3363
   tps: 940.80131
-  dtps: 334.8636
+  dtps: 334.84667
   hps: 21.62111
  }
 }
@@ -184,7 +184,7 @@ dps_results: {
  value: {
   dps: 403.31953
   tps: 972.98124
-  dtps: 392.07829
+  dtps: 392.04325
   hps: 21.82444
  }
 }
@@ -193,7 +193,7 @@ dps_results: {
  value: {
   dps: 390.59672
   tps: 945.44106
-  dtps: 361.71138
+  dtps: 361.69021
   hps: 21.63806
  }
 }
@@ -202,7 +202,7 @@ dps_results: {
  value: {
   dps: 396.29279
   tps: 950.36218
-  dtps: 342.67218
+  dtps: 342.6486
   hps: 21.82444
  }
 }
@@ -211,7 +211,7 @@ dps_results: {
  value: {
   dps: 399.30432
   tps: 952.22461
-  dtps: 416.34292
+  dtps: 416.31159
   hps: 22.31583
  }
 }
@@ -220,7 +220,7 @@ dps_results: {
  value: {
   dps: 369.08023
   tps: 849.07342
-  dtps: 348.71619
+  dtps: 348.6926
   hps: 21.02806
  }
 }
@@ -229,7 +229,7 @@ dps_results: {
  value: {
   dps: 394.73683
   tps: 946.76757
-  dtps: 341.7291
+  dtps: 341.70551
   hps: 21.82444
  }
 }
@@ -238,7 +238,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -247,7 +247,7 @@ dps_results: {
  value: {
   dps: 398.8392
   tps: 957.40323
-  dtps: 352.71181
+  dtps: 352.68187
   hps: 21.75667
  }
 }
@@ -256,7 +256,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -265,7 +265,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 949.89025
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 30.94015
  }
 }
@@ -274,7 +274,7 @@ dps_results: {
  value: {
   dps: 400.51124
   tps: 950.88419
-  dtps: 349.98498
+  dtps: 349.96889
   hps: 21.89222
  }
 }
@@ -283,7 +283,7 @@ dps_results: {
  value: {
   dps: 393.19395
   tps: 939.79439
-  dtps: 349.68843
+  dtps: 349.66484
   hps: 21.89222
  }
 }
@@ -292,7 +292,7 @@ dps_results: {
  value: {
   dps: 393.14867
   tps: 939.73417
-  dtps: 349.86882
+  dtps: 349.84523
   hps: 21.89222
  }
 }
@@ -301,7 +301,7 @@ dps_results: {
  value: {
   dps: 393.1034
   tps: 939.67395
-  dtps: 350.02743
+  dtps: 350.00384
   hps: 21.89222
  }
 }
@@ -310,7 +310,7 @@ dps_results: {
  value: {
   dps: 392.71461
   tps: 941.52556
-  dtps: 343.64733
+  dtps: 343.62374
   hps: 21.8075
  }
 }
@@ -319,7 +319,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.84716
+  dtps: 349.79251
   hps: 21.89222
  }
 }
@@ -328,7 +328,7 @@ dps_results: {
  value: {
   dps: 401.48801
   tps: 962.2795
-  dtps: 349.30386
+  dtps: 349.28692
   hps: 21.89222
  }
 }
@@ -337,7 +337,7 @@ dps_results: {
  value: {
   dps: 390.53697
   tps: 938.6398
-  dtps: 351.09251
+  dtps: 351.05707
   hps: 21.8075
  }
 }
@@ -346,15 +346,15 @@ dps_results: {
  value: {
   dps: 378.12871
   tps: 922.85728
-  dtps: 335.1693
+  dtps: 335.14934
   hps: 21.62111
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-DreadmistRaiment"
  value: {
-  dps: 369.10155
-  tps: 898.28209
+  dps: 369.10583
+  tps: 898.28779
   dtps: 499.64477
   hps: 23.10677
  }
@@ -364,7 +364,7 @@ dps_results: {
  value: {
   dps: 393.24255
   tps: 941.10254
-  dtps: 348.82107
+  dtps: 348.80414
   hps: 21.94306
  }
 }
@@ -373,7 +373,7 @@ dps_results: {
  value: {
   dps: 397.53417
   tps: 946.87865
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -382,7 +382,7 @@ dps_results: {
  value: {
   dps: 406.30888
   tps: 963.48558
-  dtps: 337.59613
+  dtps: 337.58004
   hps: 21.24833
  }
 }
@@ -391,7 +391,7 @@ dps_results: {
  value: {
   dps: 384.37333
   tps: 915.87086
-  dtps: 341.63281
+  dtps: 341.61285
   hps: 20.38417
  }
 }
@@ -400,7 +400,7 @@ dps_results: {
  value: {
   dps: 387.83199
   tps: 932.96297
-  dtps: 333.99457
+  dtps: 333.94567
   hps: 21.51944
  }
 }
@@ -409,7 +409,7 @@ dps_results: {
  value: {
   dps: 401.54699
   tps: 969.41362
-  dtps: 334.77297
+  dtps: 334.75301
   hps: 21.62111
  }
 }
@@ -418,7 +418,7 @@ dps_results: {
  value: {
   dps: 395.67747
   tps: 951.60836
-  dtps: 334.84008
+  dtps: 334.82095
   hps: 21.63806
  }
 }
@@ -427,7 +427,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 954.50789
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -436,7 +436,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 954.50789
-  dtps: 332.55773
+  dtps: 332.53776
   hps: 21.62111
  }
 }
@@ -445,7 +445,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 954.50789
-  dtps: 334.81467
+  dtps: 334.79471
   hps: 21.62111
  }
 }
@@ -454,7 +454,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 954.50789
-  dtps: 335.06328
+  dtps: 335.04332
   hps: 21.62111
  }
 }
@@ -463,7 +463,7 @@ dps_results: {
  value: {
   dps: 398.06718
   tps: 957.30274
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -472,7 +472,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 935.70132
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -481,7 +481,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 973.31447
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -490,7 +490,7 @@ dps_results: {
  value: {
   dps: 403.35957
   tps: 966.99969
-  dtps: 334.53728
+  dtps: 334.51927
   hps: 21.62111
  }
 }
@@ -499,7 +499,7 @@ dps_results: {
  value: {
   dps: 398.23472
   tps: 960.56349
-  dtps: 334.98697
+  dtps: 334.967
   hps: 21.62111
  }
 }
@@ -508,7 +508,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 954.50656
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -517,7 +517,7 @@ dps_results: {
  value: {
   dps: 395.96579
   tps: 965.52067
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 39.79065
  }
 }
@@ -526,7 +526,7 @@ dps_results: {
  value: {
   dps: 405.27412
   tps: 978.03006
-  dtps: 335.12717
+  dtps: 335.10721
   hps: 21.62111
  }
 }
@@ -535,7 +535,7 @@ dps_results: {
  value: {
   dps: 396.66631
   tps: 945.64862
-  dtps: 349.40242
+  dtps: 349.38549
   hps: 21.94306
  }
 }
@@ -544,7 +544,7 @@ dps_results: {
  value: {
   dps: 394.93506
   tps: 943.67074
-  dtps: 349.69689
+  dtps: 349.67996
   hps: 21.89222
  }
 }
@@ -553,7 +553,7 @@ dps_results: {
  value: {
   dps: 395.33792
   tps: 944.7454
-  dtps: 349.61472
+  dtps: 349.59779
   hps: 21.97694
  }
 }
@@ -562,16 +562,16 @@ dps_results: {
  value: {
   dps: 398.92418
   tps: 951.35907
-  dtps: 349.69014
+  dtps: 349.67321
   hps: 21.89222
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-EyeofMoam-21473"
  value: {
-  dps: 395.33671
-  tps: 945.21816
-  dtps: 349.80962
+  dps: 395.3648
+  tps: 945.25553
+  dtps: 349.78526
   hps: 21.89222
  }
 }
@@ -580,7 +580,7 @@ dps_results: {
  value: {
   dps: 394.66266
   tps: 943.42209
-  dtps: 349.221
+  dtps: 349.1956
   hps: 21.96
  }
 }
@@ -589,7 +589,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -598,7 +598,7 @@ dps_results: {
  value: {
   dps: 393.60286
   tps: 940.93904
-  dtps: 349.35752
+  dtps: 349.33756
   hps: 21.94306
  }
 }
@@ -607,7 +607,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -616,7 +616,7 @@ dps_results: {
  value: {
   dps: 393.30962
   tps: 944.09173
-  dtps: 347.33449
+  dtps: 347.29911
   hps: 21.89222
  }
 }
@@ -634,7 +634,7 @@ dps_results: {
  value: {
   dps: 394.90787
   tps: 949.60058
-  dtps: 342.07578
+  dtps: 342.05219
   hps: 21.8075
  }
 }
@@ -643,7 +643,7 @@ dps_results: {
  value: {
   dps: 386.59993
   tps: 930.93266
-  dtps: 338.34435
+  dtps: 338.32304
   hps: 21.73972
  }
 }
@@ -652,7 +652,7 @@ dps_results: {
  value: {
   dps: 394.85268
   tps: 949.10443
-  dtps: 348.70827
+  dtps: 348.68775
   hps: 21.96
  }
 }
@@ -661,7 +661,7 @@ dps_results: {
  value: {
   dps: 414.21033
   tps: 1007.98391
-  dtps: 350.40541
+  dtps: 350.37003
   hps: 30.78806
  }
 }
@@ -670,7 +670,7 @@ dps_results: {
  value: {
   dps: 392.12787
   tps: 942.84143
-  dtps: 335.99137
+  dtps: 335.95599
   hps: 21.84139
  }
 }
@@ -679,7 +679,7 @@ dps_results: {
  value: {
   dps: 393.26212
   tps: 947.31085
-  dtps: 342.25798
+  dtps: 342.23439
   hps: 21.8075
  }
 }
@@ -688,7 +688,7 @@ dps_results: {
  value: {
   dps: 389.78561
   tps: 937.05111
-  dtps: 336.52883
+  dtps: 336.50547
   hps: 20.02833
  }
 }
@@ -697,7 +697,7 @@ dps_results: {
  value: {
   dps: 397.55887
   tps: 951.3525
-  dtps: 350.37194
+  dtps: 350.34022
   hps: 22.14639
  }
 }
@@ -706,7 +706,7 @@ dps_results: {
  value: {
   dps: 392.80554
   tps: 948.29398
-  dtps: 355.39623
+  dtps: 355.37458
   hps: 23.88098
  }
 }
@@ -715,7 +715,7 @@ dps_results: {
  value: {
   dps: 397.41625
   tps: 949.86673
-  dtps: 361.31716
+  dtps: 361.2968
   hps: 21.73972
  }
 }
@@ -724,7 +724,7 @@ dps_results: {
  value: {
   dps: 394.08326
   tps: 948.10081
-  dtps: 348.8628
+  dtps: 348.83921
   hps: 21.79056
  }
 }
@@ -733,7 +733,7 @@ dps_results: {
  value: {
   dps: 396.80537
   tps: 955.33016
-  dtps: 358.39281
+  dtps: 358.36772
   hps: 21.84139
  }
 }
@@ -742,7 +742,7 @@ dps_results: {
  value: {
   dps: 396.43057
   tps: 953.07837
-  dtps: 326.90782
+  dtps: 326.88786
   hps: 21.8075
  }
 }
@@ -751,7 +751,7 @@ dps_results: {
  value: {
   dps: 391.52917
   tps: 943.30165
-  dtps: 350.71657
+  dtps: 350.69298
   hps: 21.79056
  }
 }
@@ -760,7 +760,7 @@ dps_results: {
  value: {
   dps: 368.98883
   tps: 885.57573
-  dtps: 353.14483
+  dtps: 353.12379
   hps: 21.02806
  }
 }
@@ -769,7 +769,7 @@ dps_results: {
  value: {
   dps: 393.50851
   tps: 941.22298
-  dtps: 347.74928
+  dtps: 347.73235
   hps: 21.96
  }
 }
@@ -778,7 +778,7 @@ dps_results: {
  value: {
   dps: 391.1426
   tps: 946.78191
-  dtps: 321.619
+  dtps: 321.59648
   hps: 21.62111
  }
 }
@@ -787,7 +787,7 @@ dps_results: {
  value: {
   dps: 393.0406
   tps: 939.74873
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -796,7 +796,7 @@ dps_results: {
  value: {
   dps: 381.09601
   tps: 916.42385
-  dtps: 341.64276
+  dtps: 341.61766
   hps: 20.41806
  }
 }
@@ -805,7 +805,7 @@ dps_results: {
  value: {
   dps: 394.50481
   tps: 955.87379
-  dtps: 343.90392
+  dtps: 343.88209
   hps: 24.095
  }
 }
@@ -832,7 +832,7 @@ dps_results: {
  value: {
   dps: 399.58048
   tps: 950.93381
-  dtps: 349.42503
+  dtps: 349.40339
   hps: 22.38361
  }
 }
@@ -850,7 +850,7 @@ dps_results: {
  value: {
   dps: 398.61208
   tps: 948.2327
-  dtps: 349.25941
+  dtps: 349.23402
   hps: 21.96
  }
 }
@@ -859,7 +859,7 @@ dps_results: {
  value: {
   dps: 374.89212
   tps: 898.94581
-  dtps: 343.25274
+  dtps: 343.23109
   hps: 21.02806
  }
 }
@@ -868,7 +868,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -877,7 +877,7 @@ dps_results: {
  value: {
   dps: 390.61573
   tps: 944.9706
-  dtps: 321.81682
+  dtps: 321.80126
   hps: 21.62111
  }
 }
@@ -886,7 +886,7 @@ dps_results: {
  value: {
   dps: 406.26238
   tps: 965.62526
-  dtps: 362.80359
+  dtps: 362.78476
   hps: 23.79
  }
 }
@@ -895,7 +895,7 @@ dps_results: {
  value: {
   dps: 378.45031
   tps: 900.27206
-  dtps: 384.36727
+  dtps: 384.33189
   hps: 21.51944
  }
 }
@@ -904,7 +904,7 @@ dps_results: {
  value: {
   dps: 396.2001
   tps: 954.2172
-  dtps: 349.57294
+  dtps: 349.5424
   hps: 21.63806
  }
 }
@@ -913,7 +913,7 @@ dps_results: {
  value: {
   dps: 415.70659
   tps: 985.01692
-  dtps: 337.8745
+  dtps: 337.85453
   hps: 23.9425
  }
 }
@@ -922,7 +922,7 @@ dps_results: {
  value: {
   dps: 398.76353
   tps: 949.03009
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -931,7 +931,7 @@ dps_results: {
  value: {
   dps: 377.26831
   tps: 917.35357
-  dtps: 353.65371
+  dtps: 353.63678
   hps: 21.87528
  }
 }
@@ -940,7 +940,7 @@ dps_results: {
  value: {
   dps: 372.38745
   tps: 902.17073
-  dtps: 353.71259
+  dtps: 353.69565
   hps: 21.92611
  }
 }
@@ -958,7 +958,7 @@ dps_results: {
  value: {
   dps: 404.54699
   tps: 965.81771
-  dtps: 350.84974
+  dtps: 350.81246
   hps: 22.63778
  }
 }
@@ -967,7 +967,7 @@ dps_results: {
  value: {
   dps: 398.43889
   tps: 959.52978
-  dtps: 346.77042
+  dtps: 346.74683
   hps: 21.82444
  }
 }
@@ -976,7 +976,7 @@ dps_results: {
  value: {
   dps: 401.10672
   tps: 965.30468
-  dtps: 346.18477
+  dtps: 346.16119
   hps: 21.82444
  }
 }
@@ -985,7 +985,7 @@ dps_results: {
  value: {
   dps: 387.74823
   tps: 931.78904
-  dtps: 335.57386
+  dtps: 335.5539
   hps: 21.62111
  }
 }
@@ -994,7 +994,7 @@ dps_results: {
  value: {
   dps: 387.74823
   tps: 931.78904
-  dtps: 335.57386
+  dtps: 335.5539
   hps: 21.62111
  }
 }
@@ -1003,7 +1003,7 @@ dps_results: {
  value: {
   dps: 387.74823
   tps: 931.78904
-  dtps: 335.57386
+  dtps: 335.5539
   hps: 21.62111
  }
 }
@@ -1012,7 +1012,7 @@ dps_results: {
  value: {
   dps: 387.42987
   tps: 931.02618
-  dtps: 335.28286
+  dtps: 335.2629
   hps: 21.62111
  }
 }
@@ -1021,7 +1021,7 @@ dps_results: {
  value: {
   dps: 389.2966
   tps: 935.70175
-  dtps: 335.57386
+  dtps: 335.5539
   hps: 21.62111
  }
 }
@@ -1030,7 +1030,7 @@ dps_results: {
  value: {
   dps: 387.74823
   tps: 931.78904
-  dtps: 335.57386
+  dtps: 335.5539
   hps: 21.62111
  }
 }
@@ -1039,7 +1039,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 942.22898
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 26.41115
  }
 }
@@ -1057,7 +1057,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1066,7 +1066,7 @@ dps_results: {
  value: {
   dps: 399.3436
   tps: 965.93586
-  dtps: 341.82815
+  dtps: 341.81103
   hps: 25.84028
  }
 }
@@ -1075,7 +1075,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.77775
+  dtps: 349.71248
   hps: 21.89222
  }
 }
@@ -1084,7 +1084,7 @@ dps_results: {
  value: {
   dps: 396.18157
   tps: 948.95109
-  dtps: 349.05322
+  dtps: 349.03629
   hps: 21.90917
  }
 }
@@ -1093,15 +1093,15 @@ dps_results: {
  value: {
   dps: 392.50101
   tps: 948.28791
-  dtps: 332.9778
+  dtps: 332.95676
   hps: 21.67194
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-Magister'sRegalia"
  value: {
-  dps: 367.45524
-  tps: 892.59806
+  dps: 367.45803
+  tps: 892.60178
   dtps: 500.85345
   hps: 21.53639
  }
@@ -1111,7 +1111,7 @@ dps_results: {
  value: {
   dps: 393.25036
   tps: 940.132
-  dtps: 348.97293
+  dtps: 348.956
   hps: 25.79038
  }
 }
@@ -1120,7 +1120,7 @@ dps_results: {
  value: {
   dps: 392.90033
   tps: 939.43913
-  dtps: 345.68282
+  dtps: 345.65923
   hps: 21.89222
  }
 }
@@ -1129,7 +1129,7 @@ dps_results: {
  value: {
   dps: 391.19466
   tps: 938.67458
-  dtps: 343.89023
+  dtps: 343.86664
   hps: 21.82444
  }
 }
@@ -1138,7 +1138,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1147,7 +1147,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1156,7 +1156,7 @@ dps_results: {
  value: {
   dps: 392.68345
   tps: 945.73058
-  dtps: 341.85669
+  dtps: 341.8331
   hps: 21.8075
  }
 }
@@ -1165,7 +1165,7 @@ dps_results: {
  value: {
   dps: 393.25036
   tps: 940.132
-  dtps: 348.97293
+  dtps: 348.956
   hps: 21.94306
  }
 }
@@ -1174,7 +1174,7 @@ dps_results: {
  value: {
   dps: 402.36378
   tps: 966.60031
-  dtps: 343.95253
+  dtps: 343.92895
   hps: 21.82444
  }
 }
@@ -1192,7 +1192,7 @@ dps_results: {
  value: {
   dps: 386.51891
   tps: 932.10746
-  dtps: 383.10453
+  dtps: 383.08053
   hps: 21.655
  }
 }
@@ -1210,7 +1210,7 @@ dps_results: {
  value: {
   dps: 397.31173
   tps: 955.69567
-  dtps: 349.57294
+  dtps: 349.5424
   hps: 21.63806
  }
 }
@@ -1219,7 +1219,7 @@ dps_results: {
  value: {
   dps: 393.91204
   tps: 940.76624
-  dtps: 349.84716
+  dtps: 349.79251
   hps: 21.89222
  }
 }
@@ -1228,7 +1228,7 @@ dps_results: {
  value: {
   dps: 395.66812
   tps: 950.58579
-  dtps: 336.84623
+  dtps: 336.81628
   hps: 21.75667
  }
 }
@@ -1237,7 +1237,7 @@ dps_results: {
  value: {
   dps: 399.24026
   tps: 954.31853
-  dtps: 347.48121
+  dtps: 347.45762
   hps: 21.8075
  }
 }
@@ -1246,7 +1246,7 @@ dps_results: {
  value: {
   dps: 397.5352
   tps: 945.15062
-  dtps: 342.99308
+  dtps: 342.96949
   hps: 21.79056
  }
 }
@@ -1255,7 +1255,7 @@ dps_results: {
  value: {
   dps: 393.72872
   tps: 942.64197
-  dtps: 350.15794
+  dtps: 350.12256
   hps: 21.90917
  }
 }
@@ -1264,7 +1264,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.81741
+  dtps: 349.80048
   hps: 21.89222
  }
 }
@@ -1282,7 +1282,7 @@ dps_results: {
  value: {
   dps: 393.5393
   tps: 947.60998
-  dtps: 345.23964
+  dtps: 345.21605
   hps: 21.82444
  }
 }
@@ -1291,7 +1291,7 @@ dps_results: {
  value: {
   dps: 391.31826
   tps: 946.88203
-  dtps: 337.14433
+  dtps: 337.11931
   hps: 21.62111
  }
 }
@@ -1300,7 +1300,7 @@ dps_results: {
  value: {
   dps: 392.92121
   tps: 950.71682
-  dtps: 336.7634
+  dtps: 336.73838
   hps: 21.62111
  }
 }
@@ -1309,7 +1309,7 @@ dps_results: {
  value: {
   dps: 392.82637
   tps: 946.25946
-  dtps: 347.56311
+  dtps: 347.53952
   hps: 21.82444
  }
 }
@@ -1318,7 +1318,7 @@ dps_results: {
  value: {
   dps: 393.5393
   tps: 947.60998
-  dtps: 345.23964
+  dtps: 345.21605
   hps: 21.82444
  }
 }
@@ -1327,7 +1327,7 @@ dps_results: {
  value: {
   dps: 392.82637
   tps: 946.25946
-  dtps: 347.56311
+  dtps: 347.53952
   hps: 21.82444
  }
 }
@@ -1336,7 +1336,7 @@ dps_results: {
  value: {
   dps: 392.82438
   tps: 939.22389
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1345,7 +1345,7 @@ dps_results: {
  value: {
   dps: 391.40102
   tps: 941.21072
-  dtps: 353.50857
+  dtps: 353.49164
   hps: 21.77361
  }
 }
@@ -1354,7 +1354,7 @@ dps_results: {
  value: {
   dps: 393.33526
   tps: 944.15553
-  dtps: 347.75395
+  dtps: 347.73036
   hps: 21.79056
  }
 }
@@ -1363,7 +1363,7 @@ dps_results: {
  value: {
   dps: 401.69915
   tps: 961.64078
-  dtps: 336.26452
+  dtps: 336.24804
   hps: 21.97694
  }
 }
@@ -1372,7 +1372,7 @@ dps_results: {
  value: {
   dps: 393.03997
   tps: 946.20476
-  dtps: 341.70581
+  dtps: 341.68222
   hps: 21.8075
  }
 }
@@ -1381,7 +1381,7 @@ dps_results: {
  value: {
   dps: 397.0709
   tps: 950.98023
-  dtps: 349.01745
+  dtps: 348.99386
   hps: 21.94306
  }
 }
@@ -1390,7 +1390,7 @@ dps_results: {
  value: {
   dps: 394.58235
   tps: 943.03971
-  dtps: 351.59289
+  dtps: 351.57612
   hps: 22.14639
  }
 }
@@ -1399,7 +1399,7 @@ dps_results: {
  value: {
   dps: 394.50258
   tps: 945.03224
-  dtps: 348.7385
+  dtps: 348.72157
   hps: 21.94306
  }
 }
@@ -1408,7 +1408,7 @@ dps_results: {
  value: {
   dps: 388.52765
   tps: 932.68559
-  dtps: 335.32345
+  dtps: 335.30009
   hps: 21.89222
  }
 }
@@ -1417,7 +1417,7 @@ dps_results: {
  value: {
   dps: 394.58619
   tps: 943.9085
-  dtps: 349.76345
+  dtps: 349.74652
   hps: 21.89222
  }
 }
@@ -1426,7 +1426,7 @@ dps_results: {
  value: {
   dps: 382.99628
   tps: 924.20694
-  dtps: 337.0246
+  dtps: 337.00464
   hps: 21.21444
  }
 }
@@ -1435,7 +1435,7 @@ dps_results: {
  value: {
   dps: 366.6245
   tps: 884.89536
-  dtps: 345.83459
+  dtps: 345.8092
   hps: 20.96028
  }
 }
@@ -1444,7 +1444,7 @@ dps_results: {
  value: {
   dps: 375.28848
   tps: 898.75704
-  dtps: 406.82575
+  dtps: 406.78004
   hps: 21.655
  }
 }
@@ -1453,7 +1453,7 @@ dps_results: {
  value: {
   dps: 395.14439
   tps: 944.55193
-  dtps: 349.86733
+  dtps: 349.84374
   hps: 21.97694
  }
 }
@@ -1462,7 +1462,7 @@ dps_results: {
  value: {
   dps: 382.76804
   tps: 932.08231
-  dtps: 334.90986
+  dtps: 334.8899
   hps: 21.62111
  }
 }
@@ -1471,7 +1471,7 @@ dps_results: {
  value: {
   dps: 389.9706
   tps: 944.129
-  dtps: 343.58606
+  dtps: 343.54686
   hps: 21.62111
  }
 }
@@ -1480,7 +1480,7 @@ dps_results: {
  value: {
   dps: 401.94948
   tps: 954.0805
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1489,7 +1489,7 @@ dps_results: {
  value: {
   dps: 396.04047
   tps: 946.09379
-  dtps: 349.01459
+  dtps: 348.99766
   hps: 21.94306
  }
 }
@@ -1498,7 +1498,7 @@ dps_results: {
  value: {
   dps: 392.83048
   tps: 939.21598
-  dtps: 349.08606
+  dtps: 349.03141
   hps: 21.89222
  }
 }
@@ -1507,7 +1507,7 @@ dps_results: {
  value: {
   dps: 395.11737
   tps: 951.05289
-  dtps: 333.91773
+  dtps: 333.89777
   hps: 21.67194
  }
 }
@@ -1516,7 +1516,7 @@ dps_results: {
  value: {
   dps: 387.74823
   tps: 931.78904
-  dtps: 331.58331
+  dtps: 331.56334
   hps: 21.62111
  }
 }
@@ -1525,7 +1525,7 @@ dps_results: {
  value: {
   dps: 389.99009
   tps: 939.24932
-  dtps: 325.99095
+  dtps: 325.96991
   hps: 21.72278
  }
 }
@@ -1534,7 +1534,7 @@ dps_results: {
  value: {
   dps: 402.4378
   tps: 964.97083
-  dtps: 353.67685
+  dtps: 353.64147
   hps: 22.12944
  }
 }
@@ -1543,7 +1543,7 @@ dps_results: {
  value: {
   dps: 392.59554
   tps: 945.55011
-  dtps: 352.64663
+  dtps: 352.62304
   hps: 21.82444
  }
 }
@@ -1552,7 +1552,7 @@ dps_results: {
  value: {
   dps: 391.78189
   tps: 939.41825
-  dtps: 336.51179
+  dtps: 336.48843
   hps: 20.16389
  }
 }
@@ -1561,7 +1561,7 @@ dps_results: {
  value: {
   dps: 393.19395
   tps: 939.79439
-  dtps: 349.68843
+  dtps: 349.66484
   hps: 21.89222
  }
 }
@@ -1570,7 +1570,7 @@ dps_results: {
  value: {
   dps: 393.14867
   tps: 939.73417
-  dtps: 349.86882
+  dtps: 349.84523
   hps: 21.89222
  }
 }
@@ -1579,7 +1579,7 @@ dps_results: {
  value: {
   dps: 393.1034
   tps: 939.67395
-  dtps: 350.02743
+  dtps: 350.00384
   hps: 21.89222
  }
 }
@@ -1588,7 +1588,7 @@ dps_results: {
  value: {
   dps: 404.29163
   tps: 969.72976
-  dtps: 349.08187
+  dtps: 349.06493
   hps: 21.89222
  }
 }
@@ -1597,7 +1597,7 @@ dps_results: {
  value: {
   dps: 399.89045
   tps: 957.95476
-  dtps: 349.48219
+  dtps: 349.46525
   hps: 21.89222
  }
 }
@@ -1606,7 +1606,7 @@ dps_results: {
  value: {
   dps: 392.83048
   tps: 939.21598
-  dtps: 344.011
+  dtps: 343.99406
   hps: 21.89222
  }
 }
@@ -1615,16 +1615,16 @@ dps_results: {
  value: {
   dps: 396.82326
   tps: 952.79814
-  dtps: 353.97995
+  dtps: 353.95891
   hps: 21.68889
  }
 }
 dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
-  dps: 378.26712
-  tps: 915.98964
-  dtps: 424.33514
+  dps: 378.29208
+  tps: 916.02283
+  dtps: 424.29786
   hps: 21.75667
  }
 }
@@ -1633,7 +1633,7 @@ dps_results: {
  value: {
   dps: 390.89129
   tps: 945.93975
-  dtps: 377.71141
+  dtps: 377.69024
   hps: 21.63806
  }
 }
@@ -1642,7 +1642,7 @@ dps_results: {
  value: {
   dps: 396.82326
   tps: 952.79814
-  dtps: 353.97995
+  dtps: 353.95891
   hps: 21.68889
  }
 }
@@ -1651,7 +1651,7 @@ dps_results: {
  value: {
   dps: 410.33265
   tps: 985.73765
-  dtps: 348.77422
+  dtps: 348.75729
   hps: 21.89222
  }
 }
@@ -1660,7 +1660,7 @@ dps_results: {
  value: {
   dps: 397.47722
   tps: 950.03733
-  dtps: 337.51189
+  dtps: 337.48831
   hps: 21.8075
  }
 }
@@ -1669,7 +1669,7 @@ dps_results: {
  value: {
   dps: 398.28529
   tps: 956.99051
-  dtps: 349.57294
+  dtps: 349.5424
   hps: 21.63806
  }
 }
@@ -1678,7 +1678,7 @@ dps_results: {
  value: {
   dps: 399.76367
   tps: 955.38451
-  dtps: 339.97482
+  dtps: 339.95123
   hps: 21.85833
  }
 }
@@ -1687,7 +1687,7 @@ dps_results: {
  value: {
   dps: 394.25677
   tps: 940.31046
-  dtps: 349.27661
+  dtps: 349.25968
   hps: 21.94306
  }
 }
@@ -1696,7 +1696,7 @@ dps_results: {
  value: {
   dps: 476.91576
   tps: 1032.58402
-  dtps: 341.40359
+  dtps: 341.37874
   hps: 24.8575
  }
 }
@@ -1705,7 +1705,7 @@ dps_results: {
  value: {
   dps: 393.77943
   tps: 945.89353
-  dtps: 347.89459
+  dtps: 347.87766
   hps: 21.82444
  }
 }
@@ -1714,7 +1714,7 @@ dps_results: {
  value: {
   dps: 390.57891
   tps: 939.43932
-  dtps: 345.7676
+  dtps: 345.74401
   hps: 22.39613
  }
 }
@@ -1723,7 +1723,7 @@ dps_results: {
  value: {
   dps: 394.3345
   tps: 943.23927
-  dtps: 347.85993
+  dtps: 347.843
   hps: 21.89222
  }
 }
@@ -1741,7 +1741,7 @@ dps_results: {
  value: {
   dps: 390.56072
   tps: 939.9639
-  dtps: 338.75887
+  dtps: 338.73722
   hps: 21.70583
  }
 }
@@ -1750,7 +1750,7 @@ dps_results: {
  value: {
   dps: 390.66808
   tps: 945.2251
-  dtps: 387.64711
+  dtps: 387.62457
   hps: 21.63806
  }
 }
@@ -1759,7 +1759,7 @@ dps_results: {
  value: {
   dps: 394.76253
   tps: 942.1841
-  dtps: 336.638
+  dtps: 336.62105
   hps: 21.23139
  }
 }
@@ -1768,7 +1768,7 @@ dps_results: {
  value: {
   dps: 389.95139
   tps: 944.87293
-  dtps: 355.16644
+  dtps: 355.14244
   hps: 21.62111
  }
 }
@@ -1777,7 +1777,7 @@ dps_results: {
  value: {
   dps: 393.07691
   tps: 940.00817
-  dtps: 348.42109
+  dtps: 348.40416
   hps: 21.97694
  }
 }
@@ -1786,7 +1786,7 @@ dps_results: {
  value: {
   dps: 398.20529
   tps: 953.10955
-  dtps: 349.57076
+  dtps: 349.55383
   hps: 21.89222
  }
 }
@@ -1804,7 +1804,7 @@ dps_results: {
  value: {
   dps: 394.0911
   tps: 949.48406
-  dtps: 342.15594
+  dtps: 342.13235
   hps: 21.8075
  }
 }
@@ -1813,7 +1813,7 @@ dps_results: {
  value: {
   dps: 392.84565
   tps: 942.55087
-  dtps: 340.01268
+  dtps: 339.99217
   hps: 21.73972
  }
 }
@@ -1822,7 +1822,7 @@ dps_results: {
  value: {
   dps: 403.3425
   tps: 967.11708
-  dtps: 349.25607
+  dtps: 349.23914
   hps: 21.89222
  }
 }
@@ -1831,7 +1831,7 @@ dps_results: {
  value: {
   dps: 394.97444
   tps: 942.08347
-  dtps: 349.87882
+  dtps: 349.86188
   hps: 21.89222
  }
 }
@@ -1840,7 +1840,7 @@ dps_results: {
  value: {
   dps: 395.92871
   tps: 950.07774
-  dtps: 333.61326
+  dtps: 333.58682
   hps: 21.89046
  }
 }
