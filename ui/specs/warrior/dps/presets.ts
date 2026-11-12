@@ -62,15 +62,14 @@ const ARMS_PRESET_OPTIONS = {
 	},
 };
 
-// Dungeon and world drops, the warrior's dungeon tier sets and crafted items whose reagents include no
-// raid materials; no reputation or PvP rewards. The shoulders and bracers are world-drop greens with the
-// "of the Tiger" suffix, and the neck is a Darkmoon Faire ticket reward. The cloak, the first ring and the
-// Adaptive Combat Assistant are sold by the Undermine Trader in Stranglethorn Vale; the Dawn Armor pattern and
-// the second ring have no known source.
+// Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
+// materials; no raid, raid quest, reputation or PvP rewards. The cloak, the belt and the first ring are sold by the
+// Undermine Trader in Stranglethorn Vale. The Dawn Armor pattern and its Pristine Scale and Fel Leather have no
+// known source.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
-// The best build on the Pre-BiS Fury gear over fights of 60 to 240 s. Enrage takes no points: with no tank
-// assigned the boss attacks no one, so the sim gives it no value.
+// The Fury build for fights of 60 to 240 s. Enrage takes no points: with no tank assigned the boss attacks no
+// one, so the sim gives it no value.
 export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
 
 // Measured on the Pre-BiS Fury gear with the Fury talents.
@@ -79,23 +78,23 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 2.25,
+			[Stat.StatAgility]: 1.74,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.41,
-			[Stat.StatHitRating]: 2.29,
-			[Stat.StatHasteRating]: 2.29,
-			[Stat.StatCritRating]: 2.92,
-			[Stat.StatExpertiseRating]: 1.9,
+			[Stat.StatArmorPenetration]: 0.4,
+			[Stat.StatHitRating]: 1.9,
+			[Stat.StatHasteRating]: 1.91,
+			[Stat.StatCritRating]: 2.33,
+			[Stat.StatExpertiseRating]: 2.06,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 9.89,
-			[PseudoStat.PseudoStatOffHandDps]: 3.15,
+			[PseudoStat.PseudoStatMainHandDps]: 11.52,
+			[PseudoStat.PseudoStatOffHandDps]: 3.26,
 		},
 	),
 );
 
-// The same sources as the Pre-BiS Fury gear; the cloak and the bow are world-drop greens with the "of the
-// Tiger" suffix too. The one exception is the weapon, the Premier High Warlord's Greatsword, a PvP reward. An
+// The same sources as the Pre-BiS Fury gear, with one exception: the weapon, the Premier High Warlord's
+// Greatsword, a PvP reward. The shoulders and the bow are world-drop greens with the "of the Tiger" suffix. An
 // epic two-hander puts the set on even terms with the Fury set's epic Persuader.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
@@ -103,23 +102,22 @@ export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGe
 // global cooldowns Mortal Strike and Slam leave.
 export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
-// Measured on the Pre-BiS Arms gear with the Arcanite Reaper (12784) in the main hand and the Arms talents. Hit is
-// its value below the 8% cap.
+// Measured on the Pre-BiS Arms gear with the Arms talents. Hit is its value below the 8% cap, where the gear sits.
 export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Arms',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.82,
+			[Stat.StatAgility]: 1.73,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.45,
-			[Stat.StatHitRating]: 4.59,
-			[Stat.StatHasteRating]: 2,
-			[Stat.StatCritRating]: 2.36,
-			[Stat.StatExpertiseRating]: 2.23,
+			[Stat.StatArmorPenetration]: 0.44,
+			[Stat.StatHitRating]: 4.19,
+			[Stat.StatHasteRating]: 1.36,
+			[Stat.StatCritRating]: 2.26,
+			[Stat.StatExpertiseRating]: 1.68,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 17.69,
+			[PseudoStat.PseudoStatMainHandDps]: 17.56,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),
