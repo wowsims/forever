@@ -134,6 +134,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 714.85202
+  tps: 530.24307
+  hps: 44.03861
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-BristleconeCloak-275833"
  value: {
   dps: 757.53369
@@ -875,6 +883,14 @@ dps_results: {
   dps: 767.65846
   tps: 568.01435
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 759.45496
+  tps: 562.11204
+  hps: 43.78444
  }
 }
 dps_results: {

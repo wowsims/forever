@@ -199,6 +199,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 405.98028
+  tps: 2097.81469
+  dtps: 392.44369
+  hps: 78.64154
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-BristleconeCloak-275833"
  value: {
   dps: 453.49661
@@ -1042,6 +1051,15 @@ dps_results: {
   tps: 2376.84294
   dtps: 392.00095
   hps: 81.24789
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 468.80513
+  tps: 2407.98598
+  dtps: 412.05738
+  hps: 79.03728
  }
 }
 dps_results: {

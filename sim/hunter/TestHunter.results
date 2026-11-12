@@ -225,6 +225,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 707.43395
+  tps: 731.54044
+  dtps: 8.69394
+  hps: 14.96194
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BowofSearingArrows-2825"
  value: {
   dps: 706.79802
@@ -429,6 +438,15 @@ dps_results: {
   tps: 805.56014
   dtps: 8.88622
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 699.58353
+  tps: 715.81351
+  dtps: 8.70808
+  hps: 14.52139
  }
 }
 dps_results: {
@@ -680,6 +698,15 @@ dps_results: {
   dps: 769.44058
   tps: 792.94914
   dtps: 8.6443
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 759.15956
+  tps: 782.64305
+  dtps: 8.59415
   hps: 15.01278
  }
 }
@@ -1059,6 +1086,15 @@ dps_results: {
   tps: 788.71165
   dtps: 8.88622
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 769.44058
+  tps: 792.94914
+  dtps: 8.6443
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -1554,6 +1590,15 @@ dps_results: {
   tps: 789.51522
   dtps: 8.88622
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-WarbladeofCaerDarrow-13982"
+ value: {
+  dps: 774.34598
+  tps: 797.45401
+  dtps: 7.90137
+  hps: 14.77556
  }
 }
 dps_results: {

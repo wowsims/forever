@@ -244,6 +244,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 708.65769
+  tps: 647.5446
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-EidolonTalisman-18340"
  value: {
   dps: 759.83697
@@ -675,6 +682,13 @@ dps_results: {
  value: {
   dps: 719.84022
   tps: 664.35654
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 772.62639
+  tps: 711.99112
  }
 }
 dps_results: {

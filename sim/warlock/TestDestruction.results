@@ -303,6 +303,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 837.17718
+  tps: 655.69157
+  dtps: 10.47393
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-EidolonTalisman-18340"
  value: {
   dps: 899.68501
@@ -748,6 +756,14 @@ dps_results: {
   dps: 916.81355
   tps: 723.43807
   dtps: 9.98188
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 902.56685
+  tps: 710.97275
+  dtps: 10.03624
  }
 }
 dps_results: {

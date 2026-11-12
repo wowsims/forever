@@ -166,6 +166,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 686.26687
+  tps: 637.84877
+  dtps: 8.87566
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 727.13565
@@ -219,6 +227,14 @@ dps_results: {
   dps: 718.28777
   tps: 666.72844
   dtps: 9.08809
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-CrestofRetribution-13375"
+ value: {
+  dps: 727.13565
+  tps: 674.73948
+  dtps: 9.05978
  }
 }
 dps_results: {
@@ -543,6 +559,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 715.86833
+  tps: 664.50903
+  dtps: 8.83914
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-FlamebreakTalisman-280071"
  value: {
   dps: 718.28777
@@ -860,6 +884,14 @@ dps_results: {
   dps: 718.28777
   tps: 666.72844
   dtps: 9.08809
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 708.55134
+  tps: 657.91265
+  dtps: 9.11584
  }
 }
 dps_results: {

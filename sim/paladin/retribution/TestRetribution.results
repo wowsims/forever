@@ -594,6 +594,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-FlameWalkers-18047"
+ value: {
+  dps: 815.84372
+  tps: 666.53449
+  dtps: 5.7097
+  hps: 23.84473
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-FlamebreakTalisman-280071"
  value: {
   dps: 829.86863
@@ -996,6 +1005,15 @@ dps_results: {
   tps: 674.73448
   dtps: 6.09147
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 817.38919
+  tps: 667.7009
+  dtps: 6.0568
+  hps: 23.64987
  }
 }
 dps_results: {
@@ -1536,6 +1554,15 @@ dps_results: {
   tps: 678.2114
   dtps: 6.09147
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-WarbladeofCaerDarrow-13982"
+ value: {
+  dps: 822.17543
+  tps: 673.403
+  dtps: 6.96435
+  hps: 24.93273
  }
 }
 dps_results: {
