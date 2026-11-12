@@ -813,10 +813,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GlovesofHolyMight-867"
  value: {
-  dps: 478.51384
-  tps: 2509.4278
-  dtps: 401.36579
-  hps: 81.41146
+  dps: 478.22811
+  tps: 2490.6451
+  dtps: 402.29189
+  hps: 81.07538
  }
 }
 dps_results: {

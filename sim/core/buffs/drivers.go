@@ -317,8 +317,7 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	return char.MakeProcTriggerAura(trigger).ApplyOnInit(onInit)
 }
 
-// A standing Windfury Totem, the raid's or the shaman's own, outbids its rivals
-// even while Windfury Weapon on the main hand keeps its proc down.
+// A standing Windfury Totem, the raid's or the shaman's own, outbids its rivals.
 func HoldOverWindfuryTotemRivals(totemAura *core.Aura) {
 	for _, category := range windfuryTotemHoldsOver {
 		totemAura.NewExclusiveEffect(category, false, core.ExclusiveEffect{Priority: math.MaxFloat64})
@@ -326,9 +325,9 @@ func HoldOverWindfuryTotemRivals(totemAura *core.Aura) {
 }
 
 // A weapon totem's raid aura bids for the category while it is up, which keeps
-// the proc trigger up while it holds it. Outbid, by a main-hand
-// imbue, the shaman's own totem or a standing Windfury Totem, it stays up and takes
-// the category back once the higher bid goes.
+// the proc trigger up while it holds it. Outbid, by the shaman's own totem or a
+// standing Windfury Totem, it stays up and takes the category back once the higher
+// bid goes.
 func holdTotemAura(totemAura *core.Aura, category string, priority float64, procTrigger *core.Aura) {
 	totemAura.NewExclusiveEffect(category, false, core.ExclusiveEffect{
 		Priority: priority,
