@@ -225,10 +225,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 765.62717
-  tps: 625.23621
-  dtps: 8.2264
-  hps: 10.00951
+  dps: 776.94842
+  tps: 630.47186
+  dtps: 8.19786
  }
 }
 dps_results: {
