@@ -20,6 +20,7 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/itemfit"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
@@ -881,7 +882,160 @@ func setBonusTooltip(instance *dbc.DBC, spellID int) string {
 	return spell.NameLang
 }
 
-func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
+const setBonusesFileName = "sim/common/forever/item_sets_auto_gen.go"
+
+// A piece count of a generated set: the rows the game files grant at it, and what the set bonus aura
+// leaves out of each.
+type GeneratedSetBonus struct {
+	Pieces      int32
+	Spells      []int32
+	Tooltips    []string   // One per spell.
+	Unsupported [][]string // One per spell, empty where the row parses whole.
+}
+
+// Whether every row of the bonus parses whole, which is when it is registered.
+func (bonus GeneratedSetBonus) Supported() bool {
+	return !slices.ContainsFunc(bonus.Unsupported, func(reasons []string) bool { return len(reasons) > 0 })
+}
+
+// A set no hand-written set covers, as gen_db writes it.
+type GeneratedSet struct {
+	ID      int32
+	Name    string
+	Slots   []proto.ItemSlot
+	Bonuses []GeneratedSetBonus // In piece count order.
+}
+
+// Whether the set registers any of its bonuses.
+func (set GeneratedSet) Registers() bool {
+	return slices.ContainsFunc(set.Bonuses, GeneratedSetBonus.Supported)
+}
+
+// Every set with items in the database that no registered set covers, in set id order, with all of its
+// piece counts. A set registered with ID 0 covers the sets of its name.
+func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSpell, db *WowDatabase, tooltipOf func(spellID int) string) []GeneratedSet {
+	names := setNamesOf(db)
+	var sets []GeneratedSet
+	for _, setID := range slices.Sorted(maps.Keys(names)) {
+		name := names[setID]
+		if slices.ContainsFunc(registered, func(set *core.ItemSet) bool {
+			return set.ID == setID || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
+		}) {
+			continue
+		}
+
+		byPieces := map[int32]*GeneratedSetBonus{}
+		for _, row := range setSpells[int(setID)] {
+			pieces := int32(row.Threshold)
+			bonus, ok := byPieces[pieces]
+			if !ok {
+				bonus = &GeneratedSetBonus{Pieces: pieces}
+				byPieces[pieces] = bonus
+			}
+			bonus.Spells = append(bonus.Spells, int32(row.SpellID))
+			bonus.Tooltips = append(bonus.Tooltips, tooltipOf(row.SpellID))
+			bonus.Unsupported = append(bonus.Unsupported, spelldata.SetBonusUnsupported(spelldata.Find(int32(row.SpellID))))
+		}
+		if len(byPieces) == 0 {
+			continue
+		}
+
+		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID)}
+		for _, pieces := range slices.Sorted(maps.Keys(byPieces)) {
+			set.Bonuses = append(set.Bonuses, *byPieces[pieces])
+		}
+		sets = append(sets, set)
+	}
+	return sets
+}
+
+// The slots the set's items in the database go in, in slot order.
+func setSlots(db *WowDatabase, setID int32) []proto.ItemSlot {
+	var slots []proto.ItemSlot
+	for _, item := range db.Items {
+		if item.SetId == setID {
+			slots = append(slots, itemfit.ItemSlots(itemfit.Item{
+				Type: item.Type, HandType: item.HandType, WeaponType: item.WeaponType, RangedType: item.RangedWeaponType,
+			})...)
+		}
+	}
+	slices.Sort(slots)
+	return slices.Compact(slots)
+}
+
+// The sets file, written the way the item files are: a registration for each set with a bonus that
+// parses whole, and every bonus that does not as a comment naming what the parse leaves out.
+func renderSetBonuses(sets []GeneratedSet) []byte {
+	var b strings.Builder
+	b.WriteString("package forever\n\n")
+	if slices.ContainsFunc(sets, GeneratedSet.Registers) {
+		b.WriteString("import (\n\t\"github.com/wowsims/forever/sim/common/shared\"\n\t\"github.com/wowsims/forever/sim/core/proto\"\n)\n\n")
+	}
+	b.WriteString("// The sets no hand-written set covers. A bonus is registered when every row it grants parses whole\n")
+	b.WriteString("// onto the set bonus aura; the others are comments. A set written by hand leaves this file on the next\n")
+	b.WriteString("// db run.\n")
+	b.WriteString("func RegisterAllSetBonuses() {\n")
+
+	for i, set := range sets {
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		indent := "\t"
+		if !set.Registers() {
+			b.WriteString("\t// TODO: Manual implementation required\n\t//\n")
+			indent = "\t// "
+		}
+		fmt.Fprintf(&b, "\t// %s\n\t// https://www.wowhead.com/forever/item-set=%d\n", set.Name, set.ID)
+		slots := core.MapSlice(set.Slots, func(slot proto.ItemSlot) string { return "proto.ItemSlot_" + slot.String() })
+		fmt.Fprintf(&b, "%sshared.NewParsedItemSet(%d, %q, []proto.ItemSlot{%s}, map[int32][]int32{\n",
+			indent, set.ID, set.Name, strings.Join(slots, ", "))
+
+		for j, bonus := range set.Bonuses {
+			pad, code := indent+"\t", indent+"\t"
+			todo := !bonus.Supported() && set.Registers()
+			if j > 0 && set.Registers() && (todo || !set.Bonuses[j-1].Supported()) {
+				b.WriteString("\n")
+			}
+			if todo {
+				fmt.Fprintf(&b, "%s// TODO: Manual implementation required\n%s//\n", pad, pad)
+				code += "// "
+			}
+			for k, spellID := range bonus.Spells {
+				for _, text := range formatStrings(100, []string{bonus.Tooltips[k]}) {
+					fmt.Fprintf(&b, "%s// %s\n", pad, text)
+				}
+				fmt.Fprintf(&b, "%s// https://www.wowhead.com/forever/spell=%d\n", pad, spellID)
+				if len(bonus.Unsupported[k]) > 0 {
+					fmt.Fprintf(&b, "%s// unsupported: %s\n", pad, strings.Join(bonus.Unsupported[k], ", "))
+				}
+			}
+			ids := core.MapSlice(bonus.Spells, func(id int32) string { return strconv.Itoa(int(id)) })
+			fmt.Fprintf(&b, "%s%d: {%s},\n", code, bonus.Pieces, strings.Join(ids, ", "))
+		}
+		fmt.Fprintf(&b, "%s})\n", indent)
+	}
+
+	b.WriteString("}\n")
+	return []byte(b.String())
+}
+
+// Writes the sets no hand-written set covers, and answers them for the missing-effects list. gen_db runs it
+// before anything calls RegisterAllSetBonuses, so the registered sets are the hand-written ones.
+func GenerateSetBonuses(instance *dbc.DBC, db *WowDatabase) ([]GeneratedSet, error) {
+	sets := generatedSets(core.ItemSets(), instance.ItemSetSpells, db, func(spellID int) string {
+		return setBonusTooltip(instance, spellID)
+	})
+	out, err := format.Source(renderSetBonuses(sets))
+	if err != nil {
+		return nil, fmt.Errorf("generated %s is not valid Go: %w", setBonusesFileName, err)
+	}
+	if err := os.WriteFile(setBonusesFileName, out, 0644); err != nil {
+		return nil, fmt.Errorf("failed to write file %s: %w", setBonusesFileName, err)
+	}
+	return sets, nil
+}
+
+func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []GeneratedSet) error {
 	if _, err := os.Stat(missingEffectsFileName); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
 	}
@@ -890,7 +1044,17 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
 	if err != nil {
 		return err
 	}
-	setBonuses := missingSetBonuses(core.ItemSets(), instance.ItemSetSpells, db, func(spellID int) string {
+	registered := slices.Clone(core.ItemSets())
+	for _, set := range generated {
+		bonuses := map[int32]core.ApplySetBonus{}
+		for _, bonus := range set.Bonuses {
+			if bonus.Supported() {
+				bonuses[bonus.Pieces] = nil
+			}
+		}
+		registered = append(registered, &core.ItemSet{ID: set.ID, Name: set.Name, Bonuses: bonuses})
+	}
+	setBonuses := missingSetBonuses(registered, instance.ItemSetSpells, db, func(spellID int) string {
 		return setBonusTooltip(instance, spellID)
 	})
 

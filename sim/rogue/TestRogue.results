@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 597.14595
+  tps: 423.97362
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 594.00376
@@ -142,6 +150,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BloodTigerHarness"
+ value: {
+  dps: 573.8725
+  tps: 407.44948
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Bloodfist-11744"
  value: {
   dps: 610.51543
@@ -150,11 +166,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BloodvineGarb"
+ value: {
+  dps: 568.10475
+  tps: 403.35437
+  hps: 53.71389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 623.58309
   tps: 442.74399
   hps: 45.51278
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 593.03992
+  tps: 421.05834
+  hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-BonescytheArmor"
+ value: {
+  dps: 694.92259
+  tps: 480.32094
+  hps: 53.10389
  }
 }
 dps_results: {
@@ -178,6 +218,14 @@ dps_results: {
  value: {
   dps: 579.15015
   tps: 411.1966
+  hps: 50.98583
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Champion'sVestments"
+ value: {
+  dps: 559.60465
+  tps: 397.3193
   hps: 50.98583
  }
 }
@@ -214,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 640.81087
+  tps: 454.97572
+  hps: 44.66556
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
   dps: 583.79645
@@ -246,11 +302,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Deathdealer'sEmbrace"
+ value: {
+  dps: 658.27503
+  tps: 467.37527
+  hps: 53.71389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 570.13516
+  tps: 404.79597
+  hps: 52.37528
  }
 }
 dps_results: {
@@ -275,6 +347,14 @@ dps_results: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-DevilsaurArmor"
+ value: {
+  dps: 597.80558
+  tps: 424.44196
+  hps: 51.78222
  }
 }
 dps_results: {
@@ -363,6 +443,14 @@ dps_results: {
   dps: 594.6434
   tps: 422.19681
   hps: 51.34167
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EmblemsofVeiledShadows"
+ value: {
+  dps: 624.983
+  tps: 443.73793
+  hps: 52.155
  }
 }
 dps_results: {
@@ -534,6 +622,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-FieldMarshal'sVestments"
+ value: {
+  dps: 573.17273
+  tps: 406.95264
+  hps: 50.98583
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-FistofStone-17943"
  value: {
   dps: 587.82809
@@ -643,6 +739,14 @@ dps_results: {
   dps: 589.06962
   tps: 418.57471
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-GrimstitchArmor"
+ value: {
+  dps: 539.07334
+  tps: 382.74207
+  hps: 51.34167
  }
 }
 dps_results: {
@@ -766,6 +870,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-IronfeatherArmor"
+ value: {
+  dps: 560.75111
+  tps: 398.13329
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Ironfoe-11684"
  value: {
   dps: 626.96508
@@ -803,6 +915,22 @@ dps_results: {
   dps: 611.40393
   tps: 434.09679
   hps: 52.95139
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-LieutenantCommander'sGuard"
+ value: {
+  dps: 596.14008
+  tps: 423.25946
+  hps: 53.10389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-LieutenantCommander'sVestments"
+ value: {
+  dps: 559.60465
+  tps: 397.3193
+  hps: 50.98583
  }
 }
 dps_results: {
@@ -859,6 +987,14 @@ dps_results: {
   dps: 590.87699
   tps: 419.52266
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Madcap'sOutfit"
+ value: {
+  dps: 604.60552
+  tps: 429.26992
+  hps: 51.545
  }
 }
 dps_results: {
@@ -966,6 +1102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-NecropileRaiment"
+ value: {
+  dps: 525.01401
+  tps: 372.75995
+  hps: 51.49417
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-OrbofFire-12805"
  value: {
   dps: 588.15782
@@ -1003,6 +1147,14 @@ dps_results: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 582.17201
+  tps: 413.34213
+  hps: 50.98583
  }
 }
 dps_results: {
@@ -1118,6 +1270,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-StormclothRegalia"
+ value: {
+  dps: 508.78313
+  tps: 361.23602
+  hps: 50.98583
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-StormshroudArmor"
+ value: {
+  dps: 566.19733
+  tps: 402.0001
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-SwineFists-10760"
  value: {
   dps: 587.37453
@@ -1182,10 +1350,34 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 555.9602
+  tps: 394.73174
+  hps: 50.325
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 591.63747
   tps: 420.0626
+  hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 575.22221
+  tps: 408.40777
+  hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 555.9602
+  tps: 394.73174
   hps: 50.325
  }
 }
@@ -1195,6 +1387,22 @@ dps_results: {
   dps: 591.63747
   tps: 420.0626
   hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 575.22221
+  tps: 408.40777
+  hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-ThePostmaster"
+ value: {
+  dps: 524.90998
+  tps: 372.68608
+  hps: 51.34167
  }
 }
 dps_results: {
@@ -1243,6 +1451,14 @@ dps_results: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 589.04293
+  tps: 418.22048
+  hps: 50.98583
  }
 }
 dps_results: {
@@ -1299,6 +1515,14 @@ dps_results: {
   dps: 604.08152
   tps: 428.89788
   hps: 46.08889
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Warlord'sVestments"
+ value: {
+  dps: 573.17273
+  tps: 406.95264
+  hps: 50.98583
  }
 }
 dps_results: {

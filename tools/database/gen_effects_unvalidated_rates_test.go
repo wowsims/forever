@@ -3,6 +3,7 @@ package database
 import (
 	"bytes"
 	"fmt"
+	"go/format"
 	"maps"
 	"slices"
 	"strings"
@@ -244,6 +245,86 @@ func TestMissingSetBonusesRender(t *testing.T) {
 		"])\n"
 	if !strings.Contains(rendered.String(), block) {
 		t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
+	}
+}
+
+// A set no registered set covers is generated with every piece count, and a bonus is supported only when
+// each of its rows parses whole. A set covered by id, or by name for a set registered with ID 0, and a
+// set with no items in the database stay out.
+func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
+	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger the parse skips
+	registered := []*core.ItemSet{{ID: 100, Name: "Set 100"}, {Name: "Set 300"}}
+	setSpells := map[int][]dbc.ItemSetSpell{
+		100: {{ItemSetID: 100, Threshold: 2, SpellID: hit}},
+		200: {{ItemSetID: 200, Threshold: 4, SpellID: hit}, {ItemSetID: 200, Threshold: 4, SpellID: proc}, {ItemSetID: 200, Threshold: 2, SpellID: hit}},
+		300: {{ItemSetID: 300, Threshold: 2, SpellID: hit}},
+		400: {{ItemSetID: 400, Threshold: 2, SpellID: hit}},
+	}
+	db := rateTestDB(nil, nil, map[int32]int32{10: 100, 20: 200, 30: 300})
+
+	got := generatedSets(registered, setSpells, db, func(spellID int) string { return fmt.Sprintf("Tooltip %d", spellID) })
+
+	if len(got) != 1 || got[0].ID != 200 || got[0].Name != "Set 200" {
+		t.Fatalf("generated %+v, want set 200 alone", got)
+	}
+	type bonus struct {
+		pieces    int32
+		spells    []int32
+		supported bool
+	}
+	want := []bonus{{2, []int32{hit}, true}, {4, []int32{hit, proc}, false}}
+	if !slices.EqualFunc(got[0].Bonuses, want, func(a GeneratedSetBonus, b bonus) bool {
+		return a.Pieces == b.pieces && slices.Equal(a.Spells, b.spells) && a.Supported() == b.supported
+	}) {
+		t.Errorf("generated bonuses %+v, want %+v", got[0].Bonuses, want)
+	}
+}
+
+// A set with a supported bonus is a registration whose other bonuses are TODO comments; a set with none
+// is commented out whole.
+func TestGeneratedSetsRender(t *testing.T) {
+	sets := []GeneratedSet{
+		{ID: 1, Name: "Set", Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotHands}, Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{11}, Tooltips: []string{"Hit."}, Unsupported: [][]string{nil}},
+			{Pieces: 4, Spells: []int32{12}, Tooltips: []string{"Proc."}, Unsupported: [][]string{{"effect 1 is E_DUMMY"}}},
+		}},
+		{ID: 2, Name: "Other", Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{13}, Tooltips: []string{"Proc."}, Unsupported: [][]string{{"effect 1 is E_DUMMY"}}},
+		}},
+	}
+
+	got, err := format.Source(renderSetBonuses(sets))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, block := range []string{
+		"\tshared.NewParsedItemSet(1, \"Set\", []proto.ItemSlot{proto.ItemSlot_ItemSlotHands}, map[int32][]int32{\n" +
+			"\t\t// Hit.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=11\n" +
+			"\t\t2: {11},\n" +
+			"\n" +
+			"\t\t// TODO: Manual implementation required\n" +
+			"\t\t//\n" +
+			"\t\t// Proc.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=12\n" +
+			"\t\t// unsupported: effect 1 is E_DUMMY\n" +
+			"\t\t// 4: {12},\n" +
+			"\t})\n",
+		"\t// TODO: Manual implementation required\n" +
+			"\t//\n" +
+			"\t// Other\n" +
+			"\t// https://www.wowhead.com/forever/item-set=2\n" +
+			"\t// shared.NewParsedItemSet(2, \"Other\", []proto.ItemSlot{}, map[int32][]int32{\n" +
+			"\t// \t// Proc.\n" +
+			"\t// \t// https://www.wowhead.com/forever/spell=13\n" +
+			"\t// \t// unsupported: effect 1 is E_DUMMY\n" +
+			"\t// \t2: {13},\n" +
+			"\t// })\n",
+	} {
+		if !strings.Contains(string(got), block) {
+			t.Errorf("the generated file holds no block\n%s\nin\n%s", block, got)
+		}
 	}
 }
 

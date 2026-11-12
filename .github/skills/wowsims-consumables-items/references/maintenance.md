@@ -8,12 +8,14 @@ Re-derive a claim before repeating it:
 - the request's extra items: `grep -n PARTY_BUFF_ITEM_IDS ui/sim/proto/buff_items.ts`
 - one effect per item, the aura lists: `grep -n 'panic(\|func implementedByHand\|AuraKinds = \|generatedItemEffects' sim/core/item_effects.go tools/database/gen_effects.go sim/common/shared/shared_utils.go`
 - the enchant row accessors: `grep -n 'func GetEnchant\|func FittingEnchantRow' sim/core/database.go`
+- the generated sets: `grep -n 'func GenerateSetBonuses\|func NewParsedItemSet\|func SetBonusUnsupported\|RegisterAllSetBonuses' tools/database/gen_effects.go sim/common/shared/item_sets.go sim/core/spelldata/item_aura.go sim/common/includes.go`
 
 | You changed…                                                        | Update                                                          |
 | ------------------------------------------------------------------- | --------------------------------------------------------------- |
 | a step or its order in `tools/database/gen_db/main.go`              | "The pipeline"                                                  |
 | routing, shipping, groups, unparsed stats or potion classes         | `docs/consumables.md`, the matching section                     |
 | the item or enchant registries, `implementedByHand` or an aura list | "Hand-written effects"                                          |
+| the set generator or `SetBonusUnsupported`                          | "Hand-written effects"                                          |
 | the enchant row accessors, the suffix tables or the set rows read   | `references/item-data.md`                                       |
 | what the UI adds to a request                                       | "The request database", `docs/consumables.md` §The browser path |
 | a ruling's code or its number                                       | `references/rulings.md`                                         |
