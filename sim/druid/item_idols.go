@@ -62,12 +62,20 @@ func init() {
 	//
 	// Your Enrage ability generates an additional 10 Rage over its duration.
 	//
-	// TODO: 1291060 states the 10 as SPELLMOD_EFFECT1 on Enrage, which the parse reads as base
-	// damage. The Enrage port has to add the rage off its effect 1.
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291060},
-	// 	[]shared.ItemVariant{
-	// 		{ItemID: 272428, ItemName: "Enraged Idol"},
-	// 	})
+	// Enrage's ticks add the rage (enrage.go).
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291060},
+		[]shared.ItemVariant{
+			{ItemID: 272428, ItemName: "Enraged Idol"},
+		})
+
+	// Idol of Brutality
+	// https://www.wowhead.com/forever/item=23198/idol-of-brutality
+	//
+	// Reduces the Rage cost of Maul and Swipe by 2.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 28855},
+		[]shared.ItemVariant{
+			{ItemID: 23198, ItemName: "Idol of Brutality"},
+		})
 
 	// Swarming Idol
 	// https://www.wowhead.com/forever/item=272430/swarming-idol

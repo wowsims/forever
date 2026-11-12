@@ -438,6 +438,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 764.05884
+  tps: 566.58452
+  hps: 43.95389
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EssenceofthePureFlame-18815"
  value: {
   dps: 767.65846
@@ -723,6 +731,14 @@ dps_results: {
   dps: 773.53587
   tps: 574.86106
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-IdolofBrutality-23198"
+ value: {
+  dps: 764.05884
+  tps: 566.58452
+  hps: 43.95389
  }
 }
 dps_results: {

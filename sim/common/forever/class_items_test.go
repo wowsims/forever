@@ -747,6 +747,56 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	}
 }
 
+// Idol of Brutality's 28855 states a flat modifier on Maul's and Swipe's cost in tenths of rage, which
+// comes off both as whole rage.
+func TestIdolOfBrutalityCutsMaulAndSwipesRage(t *testing.T) {
+	cut := spelldata.MustFind(28855).EffectN(1).Tenths()
+	_, bare := equippedBear(t, bearItemSlots())
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotRanged].Id = 23198
+	_, idol := equippedBear(t, items)
+	for _, c := range []struct {
+		name  string
+		spell func(*druid.Druid) *core.Spell
+	}{
+		{"Maul", func(bear *druid.Druid) *core.Spell {
+			return bear.GetSpell(core.ActionID{SpellID: bear.Maul.SpellID, Tag: 1})
+		}},
+		{"Swipe", func(bear *druid.Druid) *core.Spell { return bear.Swipe.Spell }},
+	} {
+		if got, want := c.spell(idol).Cost.GetCurrentCost(), c.spell(bare).Cost.GetCurrentCost()+cut; got != want {
+			t.Errorf("with the idol, %s costs %v rage, want %v", c.name, got, want)
+		}
+	}
+}
+
+// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
+// restores, in tenths of rage.
+func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
+	enrage := spelldata.MustFind(5229)
+	ticks := float64(enrage.Duration() / enrage.PeriodicEffect().Period())
+	gained := func(items []*proto.ItemSpec) float64 {
+		sim, bear := equippedBear(t, items)
+		before := bear.CurrentRage()
+		if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
+			t.Fatal("Enrage did not cast")
+		}
+		until := sim.CurrentTime + enrage.Duration() + time.Second
+		sim.AddPendingAction(&core.PendingAction{NextActionAt: until, OnAction: func(*core.Simulation) {}})
+		for sim.CurrentTime < until {
+			sim.Step()
+		}
+		return bear.CurrentRage() - before
+	}
+	bare := gained(bearItemSlots())
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotRanged].Id = 272428
+	want := ticks * spelldata.MustFind(1291060).EffectN(1).Tenths()
+	if got := gained(items) - bare; math.Abs(got-want) > 1e-9 {
+		t.Errorf("the idol adds %v rage to Enrage, want %v", got, want)
+	}
+}
+
 // Feral Combat skill on gear stands in for the weapon's skill while the druid is in an animal form.
 func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
 	skill := spelldata.MustFind(1320726).EffectN(1).BaseValue()

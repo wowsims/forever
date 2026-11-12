@@ -2048,12 +2048,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		23198, // Idol of Brutality
-		[
-			"Reduces the Rage cost of Maul and Swipe by 2.0.", // 28855 - https://www.wowhead.com/forever/spell=28855
-		]
-	],
-	[
 		23200, // Totem of Sustaining
 		[
 			"Increases the maximum number of charges on your Water Shield by 1.", // 28856 - https://www.wowhead.com/forever/spell=28856
@@ -2178,12 +2172,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		271718, // Linken's Boots of Iron
 		[
 			"", // 1289404 - https://www.wowhead.com/forever/spell=1289404
-		]
-	],
-	[
-		272428, // Enraged Idol
-		[
-			"Your Enrage ability generates an additional 10 Rage over its duration.", // 1291060 - https://www.wowhead.com/forever/spell=1291060
 		]
 	],
 	[

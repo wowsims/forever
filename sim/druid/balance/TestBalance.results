@@ -470,6 +470,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 913.79338
+  tps: 924.71744
+  dtps: 5.35885
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-EssenceofthePureFlame-18815"
  value: {
   dps: 868.92475
@@ -767,6 +775,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-HowlingIdol-272427"
+ value: {
+  dps: 913.79338
+  tps: 924.71744
+  dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-IdolofBrutality-23198"
  value: {
   dps: 913.79338
   tps: 924.71744

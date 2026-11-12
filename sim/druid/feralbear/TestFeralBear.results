@@ -541,6 +541,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 480.47653
+  tps: 2518.86735
+  dtps: 391.00945
+  hps: 80.84963
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EssenceofthePureFlame-18815"
  value: {
   dps: 471.9241
@@ -871,6 +880,15 @@ dps_results: {
   tps: 2499.41336
   dtps: 391.16418
   hps: 80.69264
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-IdolofBrutality-23198"
+ value: {
+  dps: 486.72524
+  tps: 2551.07752
+  dtps: 391.89867
+  hps: 81.03989
  }
 }
 dps_results: {
