@@ -1386,6 +1386,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Striker'sGarb"
+ value: {
+  dps: 843.08432
+  tps: 865.90505
+  dtps: 9.35329
+  hps: 15.30083
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-SwineFists-10760"
  value: {
   dps: 762.14274
@@ -1626,6 +1635,15 @@ dps_results: {
   tps: 708.89627
   dtps: 8.62
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-WildstalkerArmor"
+ value: {
+  dps: 710.33051
+  tps: 733.03651
+  dtps: 8.87948
+  hps: 14.92806
  }
 }
 dps_results: {

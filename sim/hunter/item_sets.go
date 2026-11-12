@@ -6,6 +6,7 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -17,6 +18,50 @@ var (
 	cryptstalkerAdrenalineMana = spelldata.MustFind(28753) // 6pc: Adrenaline Rush, the mana it grants
 	cryptstalkerShotCost       = spelldata.MustFind(28751) // 8pc: Multi-Shot and Aimed Shot cost 20 less
 )
+
+// Tier 1
+// https://www.wowhead.com/forever/item-set=2101/wildstalker-armor
+//
+// The game files ship four of the six pieces (shoulders, hands, legs, feet), so the 5-piece bonus
+// waits on the head and chest the ItemSet row lists. The 3-piece bonus takes 3 sec off Frost Trap and
+// Freezing Trap, which the sim does not cast. The 5-piece's mask names Aimed Shot alone; Multi-Shot
+// shares its cooldown category.
+var ItemSetWildstalkerArmor = core.NewItemSet(core.ItemSet{
+	ID:   2101,
+	Name: "Wildstalker Armor",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotHead,
+		proto.ItemSlot_ItemSlotShoulder,
+		proto.ItemSlot_ItemSlotChest,
+		proto.ItemSlot_ItemSlotHands,
+		proto.ItemSlot_ItemSlotLegs,
+		proto.ItemSlot_ItemSlotFeet,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		2: shared.ParsedSetBonus(spelldata.MustFind(1300945)), // +1% attack and casting speed
+		3: shared.ParsedSetBonus(spelldata.MustFind(1301012)), // Frost and Freezing Trap cooldowns -3 sec
+		4: shared.ParsedSetBonus(spelldata.MustFind(1301078)), // +36 melee attack power against Beasts
+		5: shared.ParsedSetBonus(spelldata.MustFind(1301252)), // Aimed Shot cooldown -1 sec
+	},
+})
+
+// Ruins of Ahn'Qiraj
+// https://www.wowhead.com/forever/item-set=509/strikers-garb
+var ItemSetStrikersGarb = core.NewItemSet(core.ItemSet{
+	ID:   509,
+	Name: "Striker's Garb",
+	Slots: []proto.ItemSlot{
+		proto.ItemSlot_ItemSlotHead,
+		proto.ItemSlot_ItemSlotShoulder,
+		proto.ItemSlot_ItemSlotChest,
+		proto.ItemSlot_ItemSlotLegs,
+		proto.ItemSlot_ItemSlotFeet,
+	},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: shared.ParsedSetBonus(spelldata.MustFind(26173)), // Arcane Shot costs 10% less mana
+		5: shared.ParsedSetBonus(spelldata.MustFind(26174)), // Rapid Fire cooldown -2 min
+	},
+})
 
 // Tier 3
 var ItemSetCryptstalkerArmor = core.NewItemSet(core.ItemSet{

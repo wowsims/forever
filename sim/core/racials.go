@@ -50,8 +50,6 @@ func applyRaceEffects(agent Agent) {
 		applyExpansiveMind(character)
 		applyEureka(character)
 	case proto.Race_RaceHuman:
-		// TODO: The 26 October development notes set The Human Spirit 20598 to 10% and Ruthless 20597 to
-		// 1%; the game build still states 5% and 2%.
 		character.MultiplyStat(stats.Spirit, 1.1)
 		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1})
 	case proto.Race_RaceNightElf:
@@ -90,8 +88,6 @@ func applyRaceEffects(agent Agent) {
 			{Stat: stats.HealingPower, Multiplier: 1.1},
 		})
 
-		// TODO: the 2 minute cooldown is from the 27 October development notes; the game build states 3
-		// minutes for 20572.
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
 			Duration: time.Minute * 2,
@@ -165,8 +161,6 @@ func applyRaceEffects(agent Agent) {
 
 		actionID := ActionID{SpellID: 20554}
 
-		// TODO: the 15 s duration is from the 27 October development notes; the game build states 10 s
-		// for 20554.
 		berserkingAura := character.RegisterAura(Aura{
 			Label:    "Berserking",
 			ActionID: actionID,
@@ -202,8 +196,6 @@ func applyRaceEffects(agent Agent) {
 
 		// The sim tracks no health regeneration, so Energized raises mana regeneration only. Innervate
 		// takes its place: Read Leyline cannot be cast under it, and an Innervate that lands ends Energized.
-		// TODO: 15 s at +50% (+100% Attuned) is from the 26 October development notes; the game build
-		// states 30 s at +100% for 1270842.
 		energizedAura := registerSkyborneCasts(character, 1259705, time.Millisecond*500, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
 			if character.HasManaBar() {
 				character.MultiplyManaRegenSpeed(sim, multiplier)
@@ -221,8 +213,7 @@ func applyRaceEffects(agent Agent) {
 	case proto.Race_RaceWindshaperSkyborne:
 		applySkyborneSharedRacials(character)
 
-		// TODO: 15 s at +15% (+30% Charged) is from the 26 October development notes; the game build
-		// states 30 s at +10% for 1259688.
+		// TODO: the 15 s is from the 26 October development notes; the game build states 30 s for 1259688.
 		registerSkyborneCasts(character, 1259686, time.Millisecond*500, Aura{Label: "Elemental Blessing", ActionID: ActionID{SpellID: 1259688}}, 1.15, 1.3, character.MultiplyMovementSpeed, nil)
 	}
 }
@@ -233,7 +224,6 @@ const innervateTag = "Innervate"
 func applySkyborneSharedRacials(character *Character) {
 	applyDamageVersus(character, proto.MobType_MobTypeElemental)
 
-	// TODO: Wind Blessed 1259710 is 2% in the 26 October development notes; the game build states 3%.
 	character.PseudoStats.AttackSpeedMultiplier *= 1.02
 	character.PseudoStats.CastSpeedMultiplier *= 1.02
 }
