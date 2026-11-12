@@ -103,6 +103,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 755.90957
+  tps: 780.50451
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 774.37608
@@ -124,6 +131,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-BloodvineGarb"
+ value: {
+  dps: 874.43747
+  tps: 899.6448
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 746.48969
+  tps: 771.18054
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-BristleconeCloak-275833"
  value: {
   dps: 797.28186
@@ -138,6 +159,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Champion'sArcanum"
+ value: {
+  dps: 875.09506
+  tps: 900.40761
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Champion'sRegalia"
+ value: {
+  dps: 784.95598
+  tps: 810.01322
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-CloakofFire-14134"
  value: {
   dps: 809.16539
@@ -149,6 +184,13 @@ dps_results: {
  value: {
   dps: 750.39697
   tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 711.63036
+  tps: 736.68544
  }
 }
 dps_results: {
@@ -440,6 +482,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-FieldMarshal'sRegalia"
+ value: {
+  dps: 827.71829
+  tps: 852.87051
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 797.62565
@@ -587,6 +636,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 752.2696
+  tps: 777.14076
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
   dps: 750.39697
@@ -619,6 +675,13 @@ dps_results: {
  value: {
   dps: 791.15169
   tps: 810.9797
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-LieutenantCommander'sRegalia"
+ value: {
+  dps: 784.95598
+  tps: 810.01322
  }
 }
 dps_results: {
@@ -682,6 +745,13 @@ dps_results: {
  value: {
   dps: 750.39697
   tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ManaflareRegalia"
+ value: {
+  dps: 763.14064
+  tps: 787.9805
  }
 }
 dps_results: {
@@ -762,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-NecropileRaiment"
+ value: {
+  dps: 798.90635
+  tps: 823.77945
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-OrbofFire-12805"
  value: {
   dps: 750.39697
@@ -794,6 +871,13 @@ dps_results: {
  value: {
   dps: 750.39697
   tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 817.34824
+  tps: 842.30786
  }
 }
 dps_results: {
@@ -881,6 +965,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-StormclothRegalia"
+ value: {
+  dps: 752.31728
+  tps: 776.86533
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-SwordofZeal-6622"
  value: {
   dps: 725.96828
@@ -923,10 +1014,31 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 815.6518
+  tps: 840.57504
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 815.6518
+  tps: 840.57504
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-TheLobotomizer-19324"
  value: {
   dps: 725.96828
   tps: 750.95679
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ThePostmaster"
+ value: {
+  dps: 803.60411
+  tps: 828.4037
  }
 }
 dps_results: {
@@ -972,6 +1084,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-TrappingsofVaultedSecrets"
+ value: {
+  dps: 808.88467
+  tps: 833.87243
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-Uther'sStrength-11302"
  value: {
   dps: 754.39601
@@ -990,6 +1109,13 @@ dps_results: {
  value: {
   dps: 750.39697
   tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Warlord'sRegalia"
+ value: {
+  dps: 827.71829
+  tps: 852.87051
  }
 }
 dps_results: {

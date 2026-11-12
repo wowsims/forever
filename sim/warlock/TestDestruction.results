@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 921.02726
+  tps: 726.74162
+  dtps: 9.91129
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 900.04681
@@ -123,6 +131,22 @@ dps_results: {
   dps: 837.48844
   tps: 662.05272
   dtps: 10.38107
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-BloodvineGarb"
+ value: {
+  dps: 955.07941
+  tps: 750.30304
+  dtps: 10.35067
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 918.53126
+  tps: 725.01379
+  dtps: 10.27888
  }
 }
 dps_results: {
@@ -163,6 +187,14 @@ dps_results: {
   dps: 917.19972
   tps: 723.74083
   dtps: 9.91129
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 819.31672
+  tps: 647.65372
+  dtps: 10.38107
  }
 }
 dps_results: {
@@ -647,6 +679,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 798.49168
+  tps: 630.63665
+  dtps: 10.17006
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-JomGabbar-23570"
  value: {
   dps: 917.19972
@@ -839,6 +879,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-NecropileRaiment"
+ value: {
+  dps: 877.48937
+  tps: 693.30497
+  dtps: 10.11192
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-OrbofFire-12805"
  value: {
   dps: 917.19972
@@ -884,6 +932,14 @@ dps_results: {
   dps: 917.19972
   tps: 723.74083
   dtps: 9.91129
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 915.08074
+  tps: 720.96263
+  dtps: 10.08065
  }
 }
 dps_results: {
@@ -967,6 +1023,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-StormclothRegalia"
+ value: {
+  dps: 792.16653
+  tps: 629.85777
+  dtps: 9.66344
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-SwordofZeal-6622"
  value: {
   dps: 837.48844
@@ -1031,11 +1095,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 913.10972
+  tps: 719.02556
+  dtps: 10.28617
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 913.10972
+  tps: 719.02556
+  dtps: 10.28617
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-TheLobotomizer-19324"
  value: {
   dps: 837.48844
   tps: 662.05272
   dtps: 10.38107
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-ThePostmaster"
+ value: {
+  dps: 894.70165
+  tps: 705.96208
+  dtps: 9.79878
  }
 }
 dps_results: {

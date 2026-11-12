@@ -59,6 +59,7 @@ func (character *Character) addItemWeaponSkills(item *Item, sign float64) {
 	}
 }
 
+// Whether the skill has a slot in the unit's weapon skill bonuses.
 func (character *Character) keepsWeaponSkill(skill proto.WeaponSkill) bool {
 	return skill > proto.WeaponSkill_WeaponSkillUnknown && int(skill) < len(character.PseudoStats.WeaponSkills)
 }
