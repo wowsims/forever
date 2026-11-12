@@ -309,6 +309,75 @@ func init() {
 		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Blackhand's Breadth
+	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
+	//
+	// Use: Marks your target, increasing your Critical Strike chance against them by 5% for 20 sec. This
+	// effect is doubled against Orcs and Ogres.
+	//
+	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
+	// against the marked target, and no one else's. The doubling is the tooltip's alone: the equip dummy
+	// 1318945 states no amount.
+	core.NewItemEffect(13965, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1318944)
+		crit := row.EffectN(1).BaseValue()
+
+		marks := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+			var bonus float64
+			return target.RegisterAura(core.Aura{
+				Label:    fmt.Sprintf("%s %s", row.Name, character.Label),
+				ActionID: core.ActionID{SpellID: row.ID},
+				Duration: row.Duration(),
+				OnGain: func(aura *core.Aura, _ *core.Simulation) {
+					bonus = crit * creatureFamilyMultiplier(aura.Unit, 2, proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre)
+					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent += bonus
+				},
+				OnExpire: func(aura *core.Aura, _ *core.Simulation) {
+					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent -= bonus
+				},
+			})
+		})
+
+		registerItemOnUse(character, 13965, core.CooldownTypeDPS, nil, func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			marks.Get(target).Activate(sim)
+		})
+	})
+
+	// Bolt's Charged Eyeball
+	// https://www.wowhead.com/forever/item=280032/bolts-charged-eyeball
+	//
+	// Equip: Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3
+	// times as much damage to Dinosaurs.
+	//
+	// 1311505's first effect casts 1315996, and its second holds the 3.
+	// TODO: The game files state no split between the wearer and the target. The sim gives the wearer one
+	// shock in two, and a shock on the wearer deals nothing the sim counts; a combat log would settle it.
+	core.NewItemEffect(280032, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1315996)
+		triggerRow := spelldata.MustFind(1311505)
+		damage := row.DamageEffect()
+		dinosaurMultiplier := triggerRow.EffectN(2).BaseValue()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, dinosaurMultiplier, proto.CreatureFamily_CreatureFamilyDinosaur)
+			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+		}
+		shock := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			if sim.Proc(0.5, "Bolt's Charged Eyeball") {
+				shock.Cast(sim, result.Target)
+			}
+		})
+		trigger.Name = "Bolt's Charged Eyeball"
+		trigger.ActionID = core.ActionID{ItemID: 280032}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(280032, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Dormant Heart of the Mountain
 	// https://www.wowhead.com/forever/item=249473/dormant-heart-of-the-mountain
 	//

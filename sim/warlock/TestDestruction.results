@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 921.02726
+  tps: 726.74162
+  dtps: 9.91129
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 900.04681
@@ -131,6 +139,14 @@ dps_results: {
   dps: 955.07941
   tps: 750.30304
   dtps: 10.35067
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 918.53126
+  tps: 725.01379
+  dtps: 10.27888
  }
 }
 dps_results: {

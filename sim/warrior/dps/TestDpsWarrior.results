@@ -144,6 +144,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Blackhand'sBreadth-13965"
+ value: {
+  dps: 508.11284
+  tps: 439.73299
+  dtps: 2.94293
+  hps: 40.61583
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BladeofHanna-2801"
  value: {
   dps: 483.04086
@@ -222,6 +231,15 @@ dps_results: {
   tps: 452.78126
   dtps: 2.94293
   hps: 37.85389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Bolt'sChargedEyeball-280032"
+ value: {
+  dps: 509.62822
+  tps: 440.3095
+  dtps: 2.94293
+  hps: 40.29389
  }
 }
 dps_results: {
