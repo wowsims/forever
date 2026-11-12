@@ -52,15 +52,16 @@ it is `wowsims-db-pipeline` `## Regenerating`. For items, enchants and consumabl
 4. `ItemOverrides`, then `ApplyItemSetClasses`, which replaces the allowlist of every item in a listed set, then
    `EnchantOverrides`;
 5. the global filters (`KeepEnchant`, `KeepConsumable`), the consumable icons, then the leftovers split off;
-6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the
-   missing-effects file, the random property points.
+6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the set
+   bonuses, the missing-effects file, the random property points.
 
 `db.json` and `db.bin` are written at the very end, so a run that stops partway leaves the old database beside new
 registrations.
 
 - **A new parse row ships consumables.** `Effect.ParsedAura()` turns true for every misc value of a newly parsed
   aura, and routing reads that as supported, so the next regeneration can add imbues and stat auras nobody chose.
-  Diff the generated consumables and check each new one against its row.
+  A set bonus goes live the same way. Diff the generated consumables and `item_sets_auto_gen.go`, and check each new
+  one against its row.
 
 ## Conditions are data
 
@@ -83,6 +84,13 @@ is registered. Items and enchants work differently:
   regenerated `sim/common/forever/` files in one change; until the generator runs, the sim panics on the duplicate.
   The first `gen_db` run still panics, since its binary was compiled from the old generated file (`sim.RegisterAll`
   runs after `GenerateItemEffects` rewrites the files and before `db.json` is written), and a second run completes.
+- **A set takes one registration, written by hand or generated.** `GenerateSetBonuses` writes
+  `sim/common/forever/item_sets_auto_gen.go` for every set with items in the database that no hand-written set
+  covers. A bonus whose rows all pass `spelldata.SetBonusUnsupported` registers through `shared.NewParsedItemSet`,
+  and the others stay in the file as TODO comments naming what the parse leaves out. The generated sets register from
+  `common.RegisterAllEffects`, after the hand-written ones, so the generator reads `core.ItemSets()` as the
+  hand-written list, and `NewParsedItemSet` skips an id a hand-written set already holds. A set written by hand
+  leaves the generated file on the next run, so it carries every bonus of the set, the generated ones included.
 - **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
   is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
   carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the

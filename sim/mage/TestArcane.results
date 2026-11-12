@@ -131,6 +131,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-BloodvineGarb"
+ value: {
+  dps: 818.24114
+  tps: 702.94422
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Bolt'sChargedEyeball-280032"
  value: {
   dps: 725.07206
@@ -152,6 +159,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Champion'sArcanum"
+ value: {
+  dps: 793.26466
+  tps: 679.44262
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-Champion'sRegalia"
+ value: {
+  dps: 745.69929
+  tps: 643.22409
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-CloakofFire-14134"
  value: {
   dps: 760.3875
@@ -163,6 +184,13 @@ dps_results: {
  value: {
   dps: 729.73391
   tps: 629.62535
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 694.02547
+  tps: 599.78421
  }
 }
 dps_results: {
@@ -454,6 +482,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-FieldMarshal'sRegalia"
+ value: {
+  dps: 774.53983
+  tps: 666.21055
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 762.91034
@@ -601,6 +636,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 726.39503
+  tps: 626.52558
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-JomGabbar-23570"
  value: {
   dps: 729.73391
@@ -633,6 +675,13 @@ dps_results: {
  value: {
   dps: 760.37263
   tps: 652.50762
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-LieutenantCommander'sRegalia"
+ value: {
+  dps: 745.69929
+  tps: 643.22409
  }
 }
 dps_results: {
@@ -696,6 +745,13 @@ dps_results: {
  value: {
   dps: 729.73391
   tps: 629.62535
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-ManaflareRegalia"
+ value: {
+  dps: 715.21026
+  tps: 616.5817
  }
 }
 dps_results: {
@@ -776,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-NecropileRaiment"
+ value: {
+  dps: 756.09982
+  tps: 648.79773
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-OrbofFire-12805"
  value: {
   dps: 729.73391
@@ -808,6 +871,13 @@ dps_results: {
  value: {
   dps: 729.73391
   tps: 629.62535
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 776.74018
+  tps: 668.43988
  }
 }
 dps_results: {
@@ -895,6 +965,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-StormclothRegalia"
+ value: {
+  dps: 705.45671
+  tps: 607.74884
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-SwordofZeal-6622"
  value: {
   dps: 712.49593
@@ -937,10 +1014,31 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 764.14419
+  tps: 657.71502
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 764.14419
+  tps: 657.71502
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-TheLobotomizer-19324"
  value: {
   dps: 712.49593
   tps: 616.65471
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-ThePostmaster"
+ value: {
+  dps: 769.13546
+  tps: 659.06853
  }
 }
 dps_results: {
@@ -986,6 +1084,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-TrappingsofVaultedSecrets"
+ value: {
+  dps: 776.67116
+  tps: 668.02581
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Uther'sStrength-11302"
  value: {
   dps: 732.71983
@@ -1004,6 +1109,13 @@ dps_results: {
  value: {
   dps: 729.73391
   tps: 629.62535
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-Warlord'sRegalia"
+ value: {
+  dps: 774.53983
+  tps: 666.21055
  }
 }
 dps_results: {

@@ -150,6 +150,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BlackDragonMail"
+ value: {
+  dps: 703.01825
+  tps: 448.26812
+  dtps: 2.59866
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BlackGraspoftheDestroyer-22194"
  value: {
   dps: 693.19756
@@ -222,6 +230,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BloodTigerHarness"
+ value: {
+  dps: 686.54588
+  tps: 435.8639
+  dtps: 0.94523
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Bloodfist-11744"
  value: {
   dps: 665.52467
@@ -230,11 +246,43 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BloodmailRegalia"
+ value: {
+  dps: 676.39876
+  tps: 426.87449
+  dtps: 4.10865
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BloodsoulEmbrace"
+ value: {
+  dps: 699.27436
+  tps: 443.02691
+  dtps: 2.28921
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BloodvineGarb"
+ value: {
+  dps: 663.79464
+  tps: 417.8952
+  dtps: 2.68455
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 667.30813
   tps: 422.58982
   dtps: 0.97203
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BlueDragonMail"
+ value: {
+  dps: 673.17347
+  tps: 427.80312
+  dtps: 2.65512
  }
 }
 dps_results: {
@@ -267,6 +315,22 @@ dps_results: {
   dps: 676.39319
   tps: 428.39761
   dtps: 4.31054
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Champion'sPursuance"
+ value: {
+  dps: 719.88584
+  tps: 456.78418
+  dtps: 4.1994
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Champion'sPursuit"
+ value: {
+  dps: 674.88057
+  tps: 428.62668
+  dtps: 4.16261
  }
 }
 dps_results: {
@@ -306,6 +370,14 @@ dps_results: {
  value: {
   dps: 824.65815
   tps: 525.4539
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 676.83593
+  tps: 429.85585
+  dtps: 1.24885
  }
 }
 dps_results: {
@@ -349,6 +421,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 679.86035
+  tps: 427.40155
+  dtps: 4.21383
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Defiler'sTalisman-20072"
  value: {
   dps: 693.04335
@@ -378,6 +458,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DevilsaurArmor"
+ value: {
+  dps: 697.36195
+  tps: 441.85919
+  dtps: 1.48697
  }
 }
 dps_results: {
@@ -677,6 +765,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-FieldMarshal'sPursuit"
+ value: {
+  dps: 700.37539
+  tps: 448.87042
+  dtps: 4.38926
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-FieryWarAxe-870"
  value: {
   dps: 675.83172
@@ -738,6 +834,14 @@ dps_results: {
   dps: 698.03476
   tps: 443.33012
   dtps: 0.62902
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-GarboftheUndeadSlayer"
+ value: {
+  dps: 688.11435
+  tps: 437.90632
+  dtps: 1.53664
  }
 }
 dps_results: {
@@ -826,6 +930,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-GreenDragonMail"
+ value: {
+  dps: 648.17681
+  tps: 407.08221
+  dtps: 1.21275
  }
 }
 dps_results: {
@@ -933,6 +1045,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-IronfeatherArmor"
+ value: {
+  dps: 681.76211
+  tps: 432.26521
+  dtps: 0.6729
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-JomGabbar-23570"
  value: {
   dps: 707.84858
@@ -978,6 +1098,22 @@ dps_results: {
   dps: 696.01959
   tps: 443.90668
   dtps: 1.89144
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LieutenantCommander'sPursuance"
+ value: {
+  dps: 719.88584
+  tps: 456.78418
+  dtps: 4.1994
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-LieutenantCommander'sPursuit"
+ value: {
+  dps: 674.88057
+  tps: 428.62668
+  dtps: 4.16261
  }
 }
 dps_results: {
@@ -1132,6 +1268,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-NecropileRaiment"
+ value: {
+  dps: 645.82263
+  tps: 404.30662
+  dtps: 2.39099
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Nightblade-1982"
  value: {
   dps: 675.83172
@@ -1177,6 +1321,14 @@ dps_results: {
   dps: 663.3017
   tps: 419.37007
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Predator'sArmor"
+ value: {
+  dps: 713.95251
+  tps: 454.71618
+  dtps: 0.78253
  }
 }
 dps_results: {
@@ -1233,6 +1385,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 684.59608
+  tps: 435.14888
+  dtps: 1.53664
  }
 }
 dps_results: {
@@ -1364,6 +1524,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-StormclothRegalia"
+ value: {
+  dps: 612.33839
+  tps: 381.24781
+  dtps: 4.17167
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-StormshroudArmor"
+ value: {
+  dps: 683.2302
+  tps: 428.62462
+  dtps: 4.09796
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Striker'sGarb"
  value: {
   dps: 784.77933
@@ -1436,11 +1612,43 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sDetermination"
+ value: {
+  dps: 712.64391
+  tps: 455.23552
+  dtps: 2.93845
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sFortitude"
+ value: {
+  dps: 703.47562
+  tps: 447.80292
+  dtps: 2.63662
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 682.24275
+  tps: 432.9168
+  dtps: 2.40941
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 712.34251
   tps: 455.37954
   dtps: 2.77159
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 702.42828
+  tps: 449.84959
+  dtps: 2.65797
  }
 }
 dps_results: {
@@ -1452,11 +1660,51 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheGladiator"
+ value: {
+  dps: 668.69048
+  tps: 419.25527
+  dtps: 4.37258
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sDetermination"
+ value: {
+  dps: 712.64391
+  tps: 455.23552
+  dtps: 2.93845
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sFortitude"
+ value: {
+  dps: 697.42102
+  tps: 445.64827
+  dtps: 2.4181
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 682.24275
+  tps: 432.9168
+  dtps: 2.40941
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 712.34251
   tps: 455.37954
   dtps: 2.77159
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 702.42828
+  tps: 449.84959
+  dtps: 2.65797
  }
 }
 dps_results: {
@@ -1473,6 +1721,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-ThePostmaster"
+ value: {
+  dps: 654.28596
+  tps: 410.76311
+  dtps: 3.8739
  }
 }
 dps_results: {
@@ -1532,6 +1788,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 688.11435
+  tps: 437.90632
+  dtps: 1.53664
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Uther'sStrength-11302"
  value: {
   dps: 693.04335
@@ -1569,6 +1833,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Warlord'sPursuit"
+ value: {
+  dps: 700.37539
+  tps: 448.87042
+  dtps: 4.38926
  }
 }
 dps_results: {
