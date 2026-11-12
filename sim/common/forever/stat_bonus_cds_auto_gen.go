@@ -140,8 +140,12 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(10543) // Goblin Construction Helmet - https://www.wowhead.com/forever/spell=12561
 	// on use: 13234 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(10721) // Gnomish Harm Prevention Belt - https://www.wowhead.com/forever/spell=13234
+	// on use: 17252 (A_SCHOOL_ABSORB); not simulated: A_PERIODIC_ENERGIZE
+	shared.NewSpellDataAbsorbOnUse(13143) // Mark of the Dragon Lord - https://www.wowhead.com/forever/spell=17252
 	// on use: 21956 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(17759) // Mark of Resolution - https://www.wowhead.com/forever/spell=21956
+	// on use: 1301625 (A_SCHOOL_ABSORB)
+	shared.NewSpellDataAbsorbOnUse(18047) // Flame Walkers - https://www.wowhead.com/forever/spell=1301625
 	// on use: 1302362 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(18340) // Eidolon Talisman - https://www.wowhead.com/forever/spell=1302362
 	// on use: 23506 (A_SCHOOL_ABSORB)

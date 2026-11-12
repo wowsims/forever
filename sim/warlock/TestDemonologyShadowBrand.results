@@ -329,6 +329,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EbonHiltofMarduk-14576"
+ value: {
+  dps: 723.08015
+  tps: 609.26588
+  dtps: 10.60628
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-EidolonTalisman-18340"
  value: {
   dps: 764.12662
@@ -862,6 +871,15 @@ dps_results: {
   tps: 651.32328
   dtps: 10.60628
   hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheDragonLord-13143"
+ value: {
+  dps: 763.83885
+  tps: 651.1092
+  dtps: 10.74787
+  hps: 7.74233
  }
 }
 dps_results: {
