@@ -5,6 +5,7 @@ export enum WeaponSkillGroup {
 	Ranged,
 	Thrown,
 	Wands,
+	FeralCombat,
 }
 
 const WEAPON_SKILL_GROUPS: Record<WeaponSkillGroup, WeaponSkill[]> = {
@@ -23,6 +24,7 @@ const WEAPON_SKILL_GROUPS: Record<WeaponSkillGroup, WeaponSkill[]> = {
 	[WeaponSkillGroup.Ranged]: [WeaponSkill.WeaponSkillBows, WeaponSkill.WeaponSkillCrossbows, WeaponSkill.WeaponSkillGuns],
 	[WeaponSkillGroup.Thrown]: [WeaponSkill.WeaponSkillThrown],
 	[WeaponSkillGroup.Wands]: [WeaponSkill.WeaponSkillWands],
+	[WeaponSkillGroup.FeralCombat]: [WeaponSkill.WeaponSkillFeralCombat],
 };
 
 export const weaponSkillsInGroups = (groups: ReadonlyArray<WeaponSkillGroup>): WeaponSkill[] => groups.flatMap(group => WEAPON_SKILL_GROUPS[group]);

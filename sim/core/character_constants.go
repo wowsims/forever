@@ -216,7 +216,7 @@ var rangedWeaponSkills = map[proto.RangedWeaponType]proto.WeaponSkill{
 	proto.RangedWeaponType_RangedWeaponTypeWand:     proto.WeaponSkill_WeaponSkillWands,
 }
 
-// ClassWeaponSkills lists the weapon skills of the weapons the class can use, sorted. Race plays no part: in the
+// The class's combat skills, sorted. Race plays no part: in the
 // game files (SkillRaceClassInfo) race only decides which weapon skills a character starts with.
 func ClassWeaponSkills(class proto.Class) []proto.WeaponSkill {
 	var skills []proto.WeaponSkill
@@ -232,6 +232,9 @@ func ClassWeaponSkills(class proto.Class) []proto.WeaponSkill {
 		if skill, ok := rangedWeaponSkills[rangedWeaponType]; ok {
 			skills = append(skills, skill)
 		}
+	}
+	if class == proto.Class_ClassDruid {
+		skills = append(skills, proto.WeaponSkill_WeaponSkillFeralCombat)
 	}
 	slices.Sort(skills)
 	return skills

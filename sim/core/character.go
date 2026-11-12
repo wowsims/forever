@@ -185,6 +185,12 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 	}
 	character.PseudoStats.InFrontOfTarget = player.InFrontOfTarget
 	character.applyWeaponSkills(player.WeaponSkills)
+	if character.Class == proto.Class_ClassDruid && player.BonusStats != nil {
+		ps := player.BonusStats.PseudoStats
+		if len(ps) > int(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			character.PseudoStats.FeralCombatSkill += ps[proto.PseudoStat_PseudoStatFeralCombatSkill]
+		}
+	}
 
 	if player.EnableItemSwap && player.ItemSwap != nil {
 		character.enableItemSwap(player.ItemSwap)

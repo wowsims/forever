@@ -774,6 +774,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-IdolofBrutality-23198"
+ value: {
+  dps: 913.79338
+  tps: 924.71744
+  dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-IdolofFerocity-22397"
+ value: {
+  dps: 913.79338
+  tps: 924.71744
+  dtps: 5.35885
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-IdolofHealth-22399"
  value: {
   dps: 913.79338

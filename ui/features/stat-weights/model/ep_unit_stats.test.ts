@@ -7,10 +7,11 @@ import { EP_UNIT_STATS, epFilterScope, isEpStat } from './ep_unit_stats';
 const names = (stats: ReadonlyArray<UnitStat>) => stats.map(stat => stat.getKey());
 
 describe('EP_UNIT_STATS', () => {
-	it('keeps every Stat', () => {
-		const allStats = UnitStat.getAll().filter(stat => stat.isStat());
+	it('keeps every Stat except Feral Attack Power', () => {
+		const allStats = UnitStat.getAll().filter(stat => stat.isStat() && stat.getStat() !== Stat.StatFeralAttackPower);
 		expect(EP_UNIT_STATS.filter(stat => stat.isStat()).length).toBe(allStats.length);
 		expect(allStats.length).toBeGreaterThan(0);
+		expect(EP_UNIT_STATS.some(stat => stat.equalsStat(Stat.StatFeralAttackPower))).toBe(false);
 	});
 
 	it('drops a pseudo-stat that is not on the list', () => {
@@ -47,7 +48,7 @@ describe('epFilterScope', () => {
 		]);
 	});
 
-	it('offers every Stat', () => {
+	it('offers every supported Stat', () => {
 		const { universe } = epFilterScope(statSet);
 		expect(universe.filter(stat => stat.isStat()).length).toBe(EP_UNIT_STATS.filter(stat => stat.isStat()).length);
 		expect(names(universe)).toContain(UnitStat.fromStat(Stat.StatIntellect).getKey());
@@ -62,4 +63,11 @@ describe('epFilterScope', () => {
 		const universe = names(epFilterScope(statSet).universe);
 		expect(universe).toEqual(names(EP_UNIT_STATS).filter(key => universe.includes(key)));
 	});
+});
+
+it('exposes Feral Combat Skill only for specs that weigh it', () => {
+	const skill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatFeralCombatSkill);
+	expect(EP_UNIT_STATS.some(stat => stat.equals(skill))).toBe(true);
+	expect(epFilterScope({ epStats: [], epPseudoStats: [PseudoStat.PseudoStatFeralCombatSkill] }).defaults.some(stat => stat.equals(skill))).toBe(true);
+	expect(epFilterScope({ epStats: [], epPseudoStats: [] }).universe.some(stat => stat.equals(skill))).toBe(false);
 });

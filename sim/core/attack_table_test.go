@@ -622,3 +622,61 @@ func TestExpectedMeleeDamageBlocksNoMoreThanTheDamage(t *testing.T) {
 		}
 	}
 }
+
+func TestFeralCombatSkillUsesSavedSkillWithoutChangingCasterSkill(t *testing.T) {
+	for _, value := range []int32{290, 300, 301, 308} {
+		character := NewCharacter(&Party{}, 0, &proto.Player{Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}}, Class: proto.Class_ClassDruid, Race: proto.Race_RaceTauren, Equipment: &proto.EquipmentSpec{}, WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: value}, {Skill: proto.WeaponSkill_WeaponSkillStaves, Value: 280}}})
+		staff := &Item{WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
+		character.SetFeralCombat(true)
+		if got := GetWeaponSkill(&character.Unit, staff); got != float64(value-300) {
+			t.Errorf("Feral bonus %v, want %v", got, value-300)
+		}
+		character.SetFeralCombat(false)
+		if got := GetWeaponSkill(&character.Unit, staff); got != -20 {
+			t.Errorf("Caster staff bonus %v, want -20", got)
+		}
+		found := false
+		for _, skill := range character.weaponSkillsProto() {
+			if skill.Skill == proto.WeaponSkill_WeaponSkillFeralCombat {
+				found = true
+				if skill.Value != value {
+					t.Errorf("Saved Feral skill %v, want %v", skill.Value, value)
+				}
+			}
+		}
+		if !found {
+			t.Fatal("Feral Combat missing from character stats")
+		}
+	}
+	character := NewCharacter(&Party{}, 0, &proto.Player{Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}}, Class: proto.Class_ClassDruid, Race: proto.Race_RaceTauren, Equipment: &proto.EquipmentSpec{}})
+	if character.PseudoStats.FeralCombatSkill != 0 {
+		t.Fatal("Missing Feral Combat setting changes the default skill")
+	}
+}
+
+func TestFeralSkillBonusAddsToSavedSkillOnlyForDruids(t *testing.T) {
+	for _, class := range []proto.Class{proto.Class_ClassDruid, proto.Class_ClassMage} {
+		bonus := make([]float64, stats.PseudoStatsLen)
+		bonus[proto.PseudoStat_PseudoStatFeralCombatSkill] = 1
+		player := &proto.Player{
+			Class: class, Race: proto.Race_RaceNightElf,
+			Spec:      &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}},
+			Equipment: &proto.EquipmentSpec{}, BonusStats: &proto.UnitStats{PseudoStats: bonus},
+			WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: 302}},
+		}
+		if class == proto.Class_ClassMage {
+			player.Spec = &proto.Player_Mage{Mage: &proto.Mage{}}
+		}
+		character := NewCharacter(&Party{}, 0, player)
+		want := 0.0
+		if class == proto.Class_ClassDruid {
+			want = 3
+		}
+		if got := character.PseudoStats.FeralCombatSkill; got != want {
+			t.Errorf("class %v skill %v, want %v", class, got, want)
+		}
+		if got := character.GetPseudoStatsProto()[proto.PseudoStat_PseudoStatFeralCombatSkill]; got != want {
+			t.Errorf("character sheet skill %v, want %v", got, want)
+		}
+	}
+}

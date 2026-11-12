@@ -1,50 +1,55 @@
 import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats } from '@sim/proto/stats';
 
-// Hybrid 9/42/0, four races, 180s ±120s, and Adaptive rotations.
+// Hybrid reference build, four races, 180s ±120s, and Adaptive rotations.
 // Hit uses 7–8% and expertise uses 5.5–6.5%; rating weights are per point.
-// Cat is DPS per stat; Bear adds calibrated DTPS and TMI reduction value.
+// Cat is DPS per stat; Bear includes calibrated TMI reduction value.
+// Feral Combat Skill uses the next point from base skill at 7% hit.
 export const CatEp = Stats.fromMap(
 	{
-		[Stat.StatStrength]: 0.49630486278728336,
-		[Stat.StatAgility]: 0.5159261908819341,
-		[Stat.StatAttackPower]: 0.20467203716254861,
-		[Stat.StatFeralAttackPower]: 0.20466522318514968,
-		[Stat.StatHitRating]: 0.4078999148291679,
-		[Stat.StatCritRating]: 0.38018320500522035,
-		[Stat.StatHasteRating]: 0.294614735295168,
-		[Stat.StatArmorPenetration]: 0.06660080481481513,
-		[Stat.StatExpertiseRating]: 0.3856003085648115,
-		[Stat.StatPhysicalDamage]: 1.9125857214075173,
+		[Stat.StatStrength]: 0.5942180657086884,
+		[Stat.StatAgility]: 0.6546615973907315,
+		[Stat.StatAttackPower]: 0.24378941350988748,
+		[Stat.StatFeralAttackPower]: 0.24313926679561954,
+		[Stat.StatHitRating]: 0.5211576370723761,
+		[Stat.StatCritRating]: 0.5057159311903373,
+		[Stat.StatHasteRating]: 0.39306887257711326,
+		[Stat.StatArmorPenetration]: 0.07421506952196227,
+		[Stat.StatExpertiseRating]: 0.49040516114181354,
+		[Stat.StatPhysicalDamage]: 1.8630615922745424,
 	},
 	{
-		[PseudoStat.PseudoStatMainHandDps]: 2.0463121920819978,
+		[PseudoStat.PseudoStatMainHandDps]: 2.142010195278739,
+		[PseudoStat.PseudoStatFeralCombatSkill]: 5.326180320036634,
 	},
 );
 
 export const BearEp = Stats.fromMap(
 	{
-		[Stat.StatStrength]: 0.46935464459097603,
-		[Stat.StatAgility]: 0.4497333164963253,
-		[Stat.StatStamina]: 0.9656595073782596,
-		[Stat.StatAttackPower]: 0.21308564484691025,
-		[Stat.StatFeralAttackPower]: 0.21308564484691025,
-		[Stat.StatHitRating]: 0.7657291219047078,
-		[Stat.StatCritRating]: 0.340533171530225,
-		[Stat.StatHasteRating]: 0.24298121005700268,
-		[Stat.StatArmorPenetration]: 0.0802239756770389,
-		[Stat.StatExpertiseRating]: 1.9612700593371994,
-		[Stat.StatDefenseRating]: 0.9529964781955986,
-		[Stat.StatDodgeRating]: 0.13653626021319415,
-		[Stat.StatArmor]: 0.20349776153972676,
-		[Stat.StatBonusArmor]: 0.20391902537209813,
-		[Stat.StatHealth]: 0.07228807547682363,
-		[Stat.StatPhysicalDamage]: 1.3497636434965008,
-		[Stat.StatArmorNoMods]: 0.04116475035877257,
+		[Stat.StatStrength]: 0.4860504938346992,
+		[Stat.StatAgility]: 0.4334793978220709,
+		[Stat.StatStamina]: 1.0028749432917183,
+		[Stat.StatAttackPower]: 0.22093229824112756,
+		[Stat.StatFeralAttackPower]: 0.22093229824112756,
+		[Stat.StatHitRating]: 0.6879449708049289,
+		[Stat.StatCritRating]: 0.36326222397559405,
+		[Stat.StatHasteRating]: 0.3581301339921136,
+		[Stat.StatArmorPenetration]: 0.08262889794633035,
+		[Stat.StatExpertiseRating]: 1.775973949024296,
+		[Stat.StatDefenseRating]: 0.8758307060275772,
+		[Stat.StatDodgeRating]: 0.10739498989242388,
+		[Stat.StatArmor]: 0.1743755390508764,
+		[Stat.StatBonusArmor]: 0.17437553905087635,
+		[Stat.StatHealth]: 0.07717112351322317,
+		[Stat.StatPhysicalDamage]: 1.3666857276700761,
+		[Stat.StatArmorNoMods]: 0.03691185978147275,
 	},
 	{
-		[PseudoStat.PseudoStatMainHandDps]: 2.988082747976817,
+		[PseudoStat.PseudoStatMainHandDps]: 3.0930521753757847,
+		[PseudoStat.PseudoStatFeralCombatSkill]: 2.5478378284939915,
 	},
 );
 
-export const HybridEp = CatEp.add(BearEp).scale(0.5);
+// This role split balances Hybrid Strength, Agility and Stamina in the reference setup.
+const hybridCatFraction = 0.4651707224542499;
+export const HybridEp = CatEp.scale(hybridCatFraction).add(BearEp.scale(1 - hybridCatFraction));

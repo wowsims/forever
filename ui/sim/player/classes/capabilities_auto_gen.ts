@@ -52,7 +52,7 @@ export const CLASS_WEAPON_SKILLS: Record<number, WeaponSkill[]> = {
 	[Class.ClassShaman]: [WeaponSkill.WeaponSkillAxes, WeaponSkill.WeaponSkillTwoHandedAxes, WeaponSkill.WeaponSkillMaces, WeaponSkill.WeaponSkillTwoHandedMaces, WeaponSkill.WeaponSkillStaves, WeaponSkill.WeaponSkillDaggers, WeaponSkill.WeaponSkillFistWeapons],
 	[Class.ClassMage]: [WeaponSkill.WeaponSkillSwords, WeaponSkill.WeaponSkillStaves, WeaponSkill.WeaponSkillDaggers, WeaponSkill.WeaponSkillWands],
 	[Class.ClassWarlock]: [WeaponSkill.WeaponSkillSwords, WeaponSkill.WeaponSkillStaves, WeaponSkill.WeaponSkillDaggers, WeaponSkill.WeaponSkillWands],
-	[Class.ClassDruid]: [WeaponSkill.WeaponSkillMaces, WeaponSkill.WeaponSkillTwoHandedMaces, WeaponSkill.WeaponSkillPolearms, WeaponSkill.WeaponSkillStaves, WeaponSkill.WeaponSkillDaggers, WeaponSkill.WeaponSkillFistWeapons],
+	[Class.ClassDruid]: [WeaponSkill.WeaponSkillMaces, WeaponSkill.WeaponSkillTwoHandedMaces, WeaponSkill.WeaponSkillPolearms, WeaponSkill.WeaponSkillStaves, WeaponSkill.WeaponSkillDaggers, WeaponSkill.WeaponSkillFistWeapons, WeaponSkill.WeaponSkillFeralCombat],
 };
 
 export const CLASS_RACES: Record<number, Race[]> = {

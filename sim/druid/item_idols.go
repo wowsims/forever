@@ -12,6 +12,13 @@ import (
 // TODO: Items without full game files data are not registered here:
 //   - Idol of Shifting Tides 263411 (1270470, shapeshifting spells cost 40 less mana).
 func init() {
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27851}, []shared.ItemVariant{
+		{ItemID: 22397, ItemName: "Idol of Ferocity"},
+	})
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 28855}, []shared.ItemVariant{
+		{ItemID: 23198, ItemName: "Idol of Brutality"},
+	})
+
 	core.NewItemEffect(263435, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1270490)

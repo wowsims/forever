@@ -121,9 +121,10 @@ func (character *Character) GetPseudoStatsProto() []float64 {
 		offHand = character.sheetAttackStats(ProcMaskMeleeOHAuto)
 	}
 	pseudoStats := []float64{
-		proto.PseudoStat_PseudoStatMainHandDps: character.AutoAttacks.MH().DPS(),
-		proto.PseudoStat_PseudoStatOffHandDps:  character.AutoAttacks.OH().DPS(),
-		proto.PseudoStat_PseudoStatRangedDps:   character.AutoAttacks.Ranged().DPS(),
+		proto.PseudoStat_PseudoStatFeralCombatSkill: character.PseudoStats.FeralCombatSkill,
+		proto.PseudoStat_PseudoStatMainHandDps:      character.AutoAttacks.MH().DPS(),
+		proto.PseudoStat_PseudoStatOffHandDps:       character.AutoAttacks.OH().DPS(),
+		proto.PseudoStat_PseudoStatRangedDps:        character.AutoAttacks.Ranged().DPS(),
 
 		// Avoidance against an attacker of the character's own level, whose attack table adds 5% parry and 5% block.
 		proto.PseudoStat_PseudoStatDodgePercent:            (character.PseudoStats.BaseDodgeChance + character.GetDodgeFromRating()) * 100,

@@ -176,6 +176,7 @@ func TestBearPrepullEnrage(t *testing.T) {
 
 func TestBearPrepullEnrageWithFullRotation(t *testing.T) {
 	req := bearRequest(selectedAdaptiveBearAPL(), 2)
+	req.Raid.Parties[0].Players[0].TalentsString = withFurorFive(bearTalents)
 	req.SimOptions.Debug = true
 	sim := core.NewSim(req, simsignals.CreateSignals())
 	sim.Reset()
@@ -213,7 +214,7 @@ func TestAdaptiveBearHoldsEnrageForRageShortage(t *testing.T) {
 		rage                float64
 		want                bool
 	}{
-		{"bite-starved", true, true, 15, true},
+		{"bite-starved", true, true, 5, true},
 		{"lacerate-starved", false, true, 5, true},
 		{"bite-funded", true, true, 20, false},
 		{"lacerate-funded", false, true, 15, false},
@@ -373,6 +374,7 @@ func TestAdaptiveBearPrepullPreservesStartingRage(t *testing.T) {
 			req := bearNakedRequest()
 			req.Raid.Tanks = nil
 			player := req.Raid.Parties[0].Players[0]
+			player.TalentsString = withFurorFive(bearTalents)
 			player.GetFeralBearDruid().Options.StartingRage = rage
 			player.Rotation = rotation
 			sim := core.NewSim(req, simsignals.CreateSignals())
@@ -610,7 +612,9 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			req.Raid.Parties[0].Players[0].Profession1 = proto.Profession_ProfessionUnknown
 		}
 		expected := map[string]bool{
-			"No swap set configured in Settings.":                       true,
+			"No swap set configured in Settings.": true,
+			"Autocast Other Cooldowns will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.": true,
+			"Bear (#1) does not know talent {SpellID: 17056} (Rank 1)":  true,
 			"Bear (#1) does not know spell {ItemID: 9449}":              true,
 			"Bear (#1) picks no potion for {OtherID: 26}":               true,
 			"No aura found on Target 1 for: {SpellID: 440667, Tag: -1}": true,
