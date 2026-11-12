@@ -162,6 +162,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BlackDragonMail"
+ value: {
+  dps: 781.26494
+  tps: 805.75558
+  dtps: 8.73479
+  hps: 15.06361
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BlackGraspoftheDestroyer-22194"
  value: {
   dps: 773.10115
@@ -252,12 +261,48 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BloodmailRegalia"
+ value: {
+  dps: 753.58021
+  tps: 776.35301
+  dtps: 8.78225
+  hps: 15.06361
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BloodsoulEmbrace"
+ value: {
+  dps: 777.18022
+  tps: 801.21139
+  dtps: 9.35915
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BloodvineGarb"
+ value: {
+  dps: 741.1328
+  tps: 765.85912
+  dtps: 9.02525
+  hps: 15.69056
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BloodyClawsofAttack-280068"
  value: {
   dps: 707.43395
   tps: 731.51107
   dtps: 8.63521
   hps: 14.96194
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BlueDragonMail"
+ value: {
+  dps: 745.23282
+  tps: 769.85078
+  dtps: 8.59693
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -285,6 +330,24 @@ dps_results: {
   tps: 771.98093
   dtps: 8.56228
   hps: 15.18222
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Champion'sPursuance"
+ value: {
+  dps: 801.06437
+  tps: 823.98145
+  dtps: 9.27368
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Champion'sPursuit"
+ value: {
+  dps: 745.36178
+  tps: 768.27708
+  dtps: 8.99985
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -333,6 +396,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 699.71806
+  tps: 722.35979
+  dtps: 8.26073
+  hps: 13.58944
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 764.95681
@@ -375,6 +447,15 @@ dps_results: {
   tps: 788.6834
   dtps: 8.82972
   hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 746.67762
+  tps: 769.48894
+  dtps: 8.8032
+  hps: 15.18222
  }
 }
 dps_results: {
@@ -756,6 +837,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-FieldMarshal'sPursuit"
+ value: {
+  dps: 775.78919
+  tps: 798.7045
+  dtps: 8.99985
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-FieryWarAxe-870"
  value: {
   dps: 757.74326
@@ -825,6 +915,15 @@ dps_results: {
   tps: 799.51204
   dtps: 8.44118
   hps: 14.99583
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-GarboftheUndeadSlayer"
+ value: {
+  dps: 764.02751
+  tps: 788.0438
+  dtps: 9.2251
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -924,6 +1023,15 @@ dps_results: {
   tps: 781.56773
   dtps: 8.24775
   hps: 14.64
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-GreenDragonMail"
+ value: {
+  dps: 714.0436
+  tps: 737.14019
+  dtps: 8.13263
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -1044,6 +1152,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-IronfeatherArmor"
+ value: {
+  dps: 755.68734
+  tps: 778.7789
+  dtps: 8.13263
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-JomGabbar-23570"
  value: {
   dps: 785.76206
@@ -1094,6 +1211,24 @@ dps_results: {
   dps: 769.5116
   tps: 793.5279
   dtps: 9.2251
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-LieutenantCommander'sPursuance"
+ value: {
+  dps: 801.06437
+  tps: 823.98145
+  dtps: 9.27368
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-LieutenantCommander'sPursuit"
+ value: {
+  dps: 745.36178
+  tps: 768.27708
+  dtps: 8.99985
   hps: 15.01278
  }
 }
@@ -1278,6 +1413,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-NecropileRaiment"
+ value: {
+  dps: 715.08196
+  tps: 737.63901
+  dtps: 8.79511
+  hps: 15.02972
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Nightblade-1982"
  value: {
   dps: 753.11126
@@ -1341,6 +1485,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Predator'sArmor"
+ value: {
+  dps: 803.44768
+  tps: 826.99293
+  dtps: 8.40481
+  hps: 14.50444
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-PremierChainGauntlets-272495"
  value: {
   dps: 768.14469
@@ -1401,6 +1554,15 @@ dps_results: {
   tps: 686.11183
   dtps: 4.28625
   hps: 12.58972
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 759.47755
+  tps: 783.49384
+  dtps: 9.2251
+  hps: 15.01278
  }
 }
 dps_results: {
@@ -1557,6 +1719,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-StormclothRegalia"
+ value: {
+  dps: 673.30044
+  tps: 695.921
+  dtps: 9.26145
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-StormshroudArmor"
+ value: {
+  dps: 760.18892
+  tps: 783.03112
+  dtps: 9.06142
+  hps: 15.06361
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Striker'sGarb"
  value: {
   dps: 843.08432
@@ -1638,11 +1818,47 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sDetermination"
+ value: {
+  dps: 794.54555
+  tps: 819.01507
+  dtps: 8.96377
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sFortitude"
+ value: {
+  dps: 784.79096
+  tps: 809.17591
+  dtps: 9.18424
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 757.21601
+  tps: 781.60097
+  dtps: 9.31744
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 795.49469
   tps: 819.96421
   dtps: 8.96377
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 784.77578
+  tps: 809.2453
+  dtps: 9.09698
   hps: 15.01278
  }
 }
@@ -1656,11 +1872,56 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-TheGladiator"
+ value: {
+  dps: 742.37338
+  tps: 765.304
+  dtps: 8.89856
+  hps: 15.06361
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sDetermination"
+ value: {
+  dps: 794.54555
+  tps: 819.01507
+  dtps: 8.96377
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sFortitude"
+ value: {
+  dps: 778.66074
+  tps: 803.04569
+  dtps: 9.31744
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 757.21601
+  tps: 781.60097
+  dtps: 9.31744
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 795.49469
   tps: 819.96421
   dtps: 8.96377
+  hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 784.77578
+  tps: 809.2453
+  dtps: 9.09698
   hps: 15.01278
  }
 }
@@ -1680,6 +1941,15 @@ dps_results: {
   tps: 726.44067
   dtps: 8.25282
   hps: 14.62306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-ThePostmaster"
+ value: {
+  dps: 720.43053
+  tps: 742.98494
+  dtps: 8.76806
+  hps: 15.06361
  }
 }
 dps_results: {
@@ -1746,6 +2016,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 764.02751
+  tps: 788.0438
+  dtps: 9.2251
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Uther'sStrength-11302"
  value: {
   dps: 764.95681
@@ -1788,6 +2067,15 @@ dps_results: {
   tps: 797.42502
   dtps: 7.8434
   hps: 14.77556
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Warlord'sPursuit"
+ value: {
+  dps: 775.78919
+  tps: 798.7045
+  dtps: 8.99985
+  hps: 15.01278
  }
 }
 dps_results: {

@@ -142,6 +142,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-BloodvineGarb"
+ value: {
+  dps: 788.31001
+  tps: 563.03912
+  dtps: 5.12684
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-BristleconeCloak-275833"
  value: {
   dps: 742.74393
@@ -687,6 +695,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-IronweaveBattlesuit"
+ value: {
+  dps: 686.55418
+  tps: 491.79127
+  dtps: 5.00486
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-JomGabbar-23570"
  value: {
   dps: 749.07576
@@ -903,6 +919,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-NecropileRaiment"
+ value: {
+  dps: 723.34121
+  tps: 517.30334
+  dtps: 4.8146
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-OrbofFire-12805"
  value: {
   dps: 749.07576
@@ -940,6 +964,14 @@ dps_results: {
   dps: 702.05682
   tps: 502.47025
   dtps: 5.06023
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 747.84539
+  tps: 534.42645
+  dtps: 5.83127
  }
 }
 dps_results: {
@@ -1007,6 +1039,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-StormclothRegalia"
+ value: {
+  dps: 677.69379
+  tps: 485.34036
+  dtps: 4.89589
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-TalismanofArathor-20071"
  value: {
   dps: 749.07576
@@ -1055,11 +1095,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 751.82224
+  tps: 537.34798
+  dtps: 5.72274
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 751.82224
+  tps: 537.34798
+  dtps: 5.72274
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-TheLobotomizer-19324"
  value: {
   dps: 719.85047
   tps: 514.83001
   dtps: 5.83127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ThePostmaster"
+ value: {
+  dps: 734.6508
+  tps: 525.46367
+  dtps: 5.34023
  }
 }
 dps_results: {

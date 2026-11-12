@@ -28,17 +28,6 @@ var ItemSetDefilersPurpose = arathiLeatherSet(486, "The Defiler's Purpose")
 var ItemSetHighlandersPurpose = arathiLeatherSet(471, "The Highlander's Purpose")
 
 // Leatherworking - Leather
-// https://www.wowhead.com/forever/item-set=143/devilsaur-armor
-var ItemSetDevilsaurArmor = core.NewItemSet(core.ItemSet{
-	ID:    143,
-	Name:  "Devilsaur Armor",
-	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs},
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: shared.ParsedSetBonus(spelldata.MustFind(460230)), // +2% hit
-	},
-})
-
-// Leatherworking - Leather
 // https://www.wowhead.com/forever/item-set=442/blood-tiger-harness
 //
 // The ItemSet row gates the bonus on Leatherworking 300.

@@ -126,6 +126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-BattlegearofUnyieldingStrength"
+ value: {
+  dps: 569.98141
+  tps: 486.93401
+  dtps: 2.94293
+  hps: 40.93778
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BehemothBones-280065"
  value: {
   dps: 512.65257
@@ -195,6 +204,15 @@ dps_results: {
   tps: 429.59697
   dtps: 2.94293
   hps: 45.78389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-BloodvineGarb"
+ value: {
+  dps: 510.31592
+  tps: 440.40756
+  dtps: 3.05866
+  hps: 43.05583
  }
 }
 dps_results: {
@@ -270,6 +288,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Dal'Rend'sArms"
+ value: {
+  dps: 533.07036
+  tps: 456.91687
+  dtps: 2.97628
+  hps: 40.70056
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 505.19476
@@ -303,6 +330,15 @@ dps_results: {
   tps: 436.76274
   dtps: 2.94293
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DefiasEnforcer'sGarb"
+ value: {
+  dps: 537.22758
+  tps: 463.66469
+  dtps: 2.89629
+  hps: 41.95444
  }
 }
 dps_results: {
@@ -963,6 +999,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-IronfeatherArmor"
+ value: {
+  dps: 505.19476
+  tps: 436.76274
+  dtps: 3.05866
+  hps: 40.29389
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Ironfoe-11684"
  value: {
   dps: 540.76308
@@ -1179,6 +1224,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-NecropileRaiment"
+ value: {
+  dps: 482.37223
+  tps: 418.35637
+  dtps: 3.05866
+  hps: 40.53111
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Nightblade-1982"
  value: {
   dps: 434.44759
@@ -1284,6 +1338,15 @@ dps_results: {
   tps: 310.05526
   dtps: 2.97628
   hps: 17.09694
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-RegaliaofUndeadCleansing"
+ value: {
+  dps: 500.80782
+  tps: 433.33114
+  dtps: 2.94293
+  hps: 40.29389
  }
 }
 dps_results: {
@@ -1431,6 +1494,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-StormclothRegalia"
+ value: {
+  dps: 472.824
+  tps: 411.55873
+  dtps: 3.05866
+  hps: 40.24306
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-StormshroudArmor"
+ value: {
+  dps: 541.6114
+  tps: 467.63637
+  dtps: 3.13362
+  hps: 41.98833
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Sulfuras,HandofRagnaros-17182"
  value: {
   dps: 536.54255
@@ -1521,6 +1602,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-TheDefiler'sIntent"
+ value: {
+  dps: 494.76301
+  tps: 428.66891
+  dtps: 2.94293
+  hps: 40.31083
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-TheDefiler'sPurpose"
  value: {
   dps: 536.74495
@@ -1530,12 +1620,48 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-TheDefiler'sWill"
+ value: {
+  dps: 511.11024
+  tps: 442.24083
+  dtps: 2.94293
+  hps: 40.88694
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TheHighlander'sIntent"
+ value: {
+  dps: 494.76301
+  tps: 428.66891
+  dtps: 2.94293
+  hps: 40.31083
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-TheHighlander'sPurpose"
  value: {
   dps: 536.74495
   tps: 463.25665
   dtps: 2.94293
   hps: 41.34444
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TheHighlander'sWill"
+ value: {
+  dps: 511.11024
+  tps: 442.24083
+  dtps: 2.94293
+  hps: 40.88694
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-ThePostmaster"
+ value: {
+  dps: 481.20657
+  tps: 417.51158
+  dtps: 3.05866
+  hps: 40.73444
  }
 }
 dps_results: {
@@ -1593,6 +1719,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-UndeadSlayer'sArmor"
+ value: {
+  dps: 507.38824
+  tps: 438.47854
+  dtps: 2.94293
+  hps: 40.29389
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Uther'sStrength-11302"
  value: {
   dps: 505.19476
@@ -1635,6 +1770,15 @@ dps_results: {
   tps: 440.5375
   dtps: 2.94293
   hps: 40.29389
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-Vindicator'sBattlegear"
+ value: {
+  dps: 540.07323
+  tps: 464.8083
+  dtps: 3.09675
+  hps: 41.05639
  }
 }
 dps_results: {
