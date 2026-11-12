@@ -4598,7 +4598,7 @@ func RegisterAllProcs() {
 	// Titan-forged enemy.
 	//
 	// https://www.wowhead.com/forever/spell=1294794
-	// trigger 1294794 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
+	// trigger 1294794 (3.2 ppm on the item, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294794},
 		[]shared.ItemVariant{
 			{ItemID: 17943, ItemName: "Fist of Stone"},
