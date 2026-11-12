@@ -232,7 +232,9 @@ describe('TargetsPicker', () => {
 		await userEvent.click(family()!);
 		expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual([
 			`family-${CreatureFamily.CreatureFamilyUnknown}`,
+			`family-${CreatureFamily.CreatureFamilyDwarf}`,
 			`family-${CreatureFamily.CreatureFamilyNaga}`,
+			`family-${CreatureFamily.CreatureFamilyOrc}`,
 			`family-${CreatureFamily.CreatureFamilyAquatic}`,
 		]);
 		await userEvent.click(screen.getByRole('option', { name: `family-${CreatureFamily.CreatureFamilyNaga}` }));
