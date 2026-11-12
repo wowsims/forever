@@ -254,8 +254,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BloodvineGarb"
  value: {
-  dps: 413.52529
-  tps: 995.85916
+  dps: 412.97765
+  tps: 994.53926
   dtps: 394.95927
   hps: 22.38361
  }
@@ -1955,10 +1955,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheDarksoul"
  value: {
-  dps: 395.96218
-  tps: 954.33507
-  dtps: 327.75669
-  hps: 22.07861
+  dps: 398.16054
+  tps: 954.4251
+  dtps: 345.24931
+  hps: 22.4175
  }
 }
 dps_results: {

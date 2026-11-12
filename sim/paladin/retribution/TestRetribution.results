@@ -245,8 +245,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodvineGarb"
  value: {
-  dps: 822.67115
-  tps: 672.48102
+  dps: 821.66393
+  tps: 671.67525
   dtps: 6.28835
   hps: 23.79203
  }

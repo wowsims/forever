@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BloodvineGarb"
  value: {
-  dps: 778.85322
-  tps: 814.98137
-  dtps: 7.47076
-  hps: 36.24417
+  dps: 774.26298
+  tps: 810.35692
+  dtps: 7.38805
+  hps: 36.21028
  }
 }
 dps_results: {

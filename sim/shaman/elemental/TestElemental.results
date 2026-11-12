@@ -224,9 +224,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-BloodvineGarb"
  value: {
-  dps: 767.713
-  tps: 706.95547
-  dtps: 9.31129
+  dps: 756.43182
+  tps: 696.84
+  dtps: 9.05292
  }
 }
 dps_results: {

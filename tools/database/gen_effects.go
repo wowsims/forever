@@ -900,10 +900,11 @@ func (bonus GeneratedSetBonus) Supported() bool {
 
 // A set no hand-written set covers, as gen_db writes it.
 type GeneratedSet struct {
-	ID      int32
-	Name    string
-	Slots   []proto.ItemSlot
-	Bonuses []GeneratedSetBonus // In piece count order.
+	ID         int32
+	Name       string
+	Slots      []proto.ItemSlot
+	Profession proto.Profession    // The profession the ItemSet row gates the bonuses on, if any.
+	Bonuses    []GeneratedSetBonus // In piece count order.
 }
 
 // Whether the set registers any of its bonuses.
@@ -940,7 +941,7 @@ func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSp
 			continue
 		}
 
-		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID)}
+		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID), Profession: dbc.GetProfession(setSpells[int(setID)][0].RequiredSkill)}
 		for _, pieces := range slices.Sorted(maps.Keys(byPieces)) {
 			set.Bonuses = append(set.Bonuses, *byPieces[pieces])
 		}
@@ -987,8 +988,13 @@ func renderSetBonuses(sets []GeneratedSet) []byte {
 		}
 		fmt.Fprintf(&b, "\t// %s\n\t// https://www.wowhead.com/forever/item-set=%d\n", set.Name, set.ID)
 		slots := core.MapSlice(set.Slots, func(slot proto.ItemSlot) string { return "proto.ItemSlot_" + slot.String() })
-		fmt.Fprintf(&b, "%sshared.NewParsedItemSet(%d, %q, []proto.ItemSlot{%s}, map[int32][]int32{\n",
-			indent, set.ID, set.Name, strings.Join(slots, ", "))
+		if set.Profession == proto.Profession_ProfessionUnknown {
+			fmt.Fprintf(&b, "%sshared.NewParsedItemSet(%d, %q, []proto.ItemSlot{%s}, map[int32][]int32{\n",
+				indent, set.ID, set.Name, strings.Join(slots, ", "))
+		} else {
+			fmt.Fprintf(&b, "%sshared.NewParsedProfessionItemSet(%d, %q, proto.Profession_%s, []proto.ItemSlot{%s}, map[int32][]int32{\n",
+				indent, set.ID, set.Name, set.Profession, strings.Join(slots, ", "))
+		}
 
 		for j, bonus := range set.Bonuses {
 			pad, code := indent+"\t", indent+"\t"

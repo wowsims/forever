@@ -317,8 +317,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodvineGarb"
  value: {
-  dps: 455.15064
-  tps: 1513.25039
+  dps: 455.10156
+  tps: 1513.1444
   dtps: 356.13708
   hps: 37.49583
  }

@@ -228,10 +228,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodvineGarb"
  value: {
-  dps: 460.72222
-  tps: 2402.5849
-  dtps: 451.46443
-  hps: 78.18468
+  dps: 460.13889
+  tps: 2397.58154
+  dtps: 451.16749
+  hps: 78.19244
  }
 }
 dps_results: {

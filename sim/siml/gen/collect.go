@@ -637,17 +637,19 @@ func wearable(item *core.Item, class proto.Class) bool {
 }
 
 // What the source builds draw on: the database's items, one per id and by id, the professions they need, the
-// items of each item set, the effect ids of the enchants that have an effect, and the consumables by id.
+// items of each item set and the profession its bonuses need, the effect ids of the enchants that have an effect,
+// and the consumables by id.
 type sources struct {
-	items       []*proto.UIItem
-	professions map[int32]proto.Profession
-	sets        map[int32][]int32
-	effects     []int32
-	consumables []*proto.Consumable
+	items          []*proto.UIItem
+	professions    map[int32]proto.Profession
+	sets           map[int32][]int32
+	setProfessions map[int32]proto.Profession
+	effects        []int32
+	consumables    []*proto.Consumable
 }
 
 func newSources(db *proto.UIDatabase) *sources {
-	src := &sources{professions: map[int32]proto.Profession{}, sets: map[int32][]int32{}}
+	src := &sources{professions: map[int32]proto.Profession{}, sets: map[int32][]int32{}, setProfessions: map[int32]proto.Profession{}}
 	for _, it := range db.Items {
 		if _, ok := src.professions[it.Id]; !ok {
 			src.professions[it.Id] = it.RequiredProfession
@@ -658,6 +660,11 @@ func newSources(db *proto.UIDatabase) *sources {
 	for _, it := range src.items {
 		if it.SetId != 0 {
 			src.sets[it.SetId] = append(src.sets[it.SetId], it.Id)
+		}
+	}
+	for _, set := range core.ItemSets() {
+		if set.ID != 0 {
+			src.setProfessions[set.ID] = set.RequiredProfession
 		}
 	}
 	for _, e := range db.Enchants {
@@ -730,7 +737,11 @@ func (s *specBuild) gearBuilds(src *sources) []*build {
 	}
 	for _, id := range slices.Sorted(maps.Keys(src.sets)) {
 		if len(src.sets[id]) > 1 {
-			add(s.withGear(src, fmt.Sprintf("item set %d", id), src.sets[id]...))
+			b := s.withGear(src, fmt.Sprintf("item set %d", id), src.sets[id]...)
+			if p := src.setProfessions[id]; b != nil && p != proto.Profession_ProfessionUnknown {
+				b.player.Profession1 = p // The ItemSet row gates the bonuses on a profession the pieces do not need.
+			}
+			add(b)
 		}
 	}
 	for _, effect := range src.effects {

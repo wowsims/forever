@@ -27,20 +27,6 @@ var ItemSetDefilersPurpose = arathiLeatherSet(486, "The Defiler's Purpose")
 // https://www.wowhead.com/forever/item-set=471/the-highlanders-purpose
 var ItemSetHighlandersPurpose = arathiLeatherSet(471, "The Highlander's Purpose")
 
-// Leatherworking - Leather
-// https://www.wowhead.com/forever/item-set=442/blood-tiger-harness
-//
-// The ItemSet row gates the bonus on Leatherworking 300.
-var ItemSetBloodTigerHarness = core.NewItemSet(core.ItemSet{
-	ID:                 442,
-	Name:               "Blood Tiger Harness",
-	Slots:              []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest},
-	RequiredProfession: proto.Profession_Leatherworking,
-	Bonuses: map[int32]core.ApplySetBonus{
-		2: shared.ParsedSetBonus(spelldata.MustFind(7597), spelldata.MustFind(18384)), // +1% melee crit, +1% spell crit
-	},
-})
-
 // Blacksmithing - Plate
 // https://www.wowhead.com/forever/item-set=321/imperial-plate
 //

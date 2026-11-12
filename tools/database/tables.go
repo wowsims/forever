@@ -1127,6 +1127,7 @@ func ScanItemSetSpell(rows *sql.Rows) (dbc.ItemSetSpell, error) {
 		&spell.ItemSetID,
 		&spell.Threshold,
 		&spell.SpellID,
+		&spell.RequiredSkill,
 	)
 	if err != nil {
 		return spell, fmt.Errorf("scanning item set spell data: %w", err)
@@ -1139,8 +1140,10 @@ const itemSetSpellsQuery = `
 	SELECT
 		iss.ItemSetID,
 		iss.Threshold,
-		iss.SpellID
+		iss.SpellID,
+		COALESCE(s.RequiredSkill, 0)
 	FROM ItemSetSpell iss
+	LEFT JOIN ItemSet s ON s.ID = iss.ItemSetID
 	ORDER BY iss.ID
 	`
 

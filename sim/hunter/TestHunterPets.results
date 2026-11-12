@@ -264,9 +264,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BloodvineGarb"
  value: {
-  dps: 663.79464
-  tps: 417.8952
-  dtps: 2.68455
+  dps: 663.75132
+  tps: 417.85189
+  dtps: 2.55574
  }
 }
 dps_results: {
