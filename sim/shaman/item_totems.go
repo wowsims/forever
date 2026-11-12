@@ -34,9 +34,10 @@ func init() {
 	// Your Lightning Bolt ability can now also trigger the Maelstrom Weapon talent, but with a 50%
 	// reduced chance.
 	//
-	// A landed Lightning Bolt rolls at half the talent's rate per minute, priced on the bolt's cast
-	// time after talent reductions; cast speed and Maelstrom Weapon's own stacks do not change it.
-	// Item effects apply before the talents, so the buff is looked up when the bolt lands.
+	// A landed Lightning Bolt rolls half the chance a main-hand hit rolls: half the talent's rate per
+	// minute, priced on the main hand's speed as the talent's tooltip prices it. The bolt's cast time
+	// does not change it. Item effects apply before the talents, so the buff is looked up when the
+	// bolt lands.
 	core.NewItemEffect(272432, func(agent core.Agent) {
 		shaman := agent.(ShamanAgent).GetShaman()
 		if shaman.Talents.MaelstromWeapon == 0 {
@@ -52,8 +53,8 @@ func init() {
 			ProcMask:       core.ProcMaskSpellDamage,
 			Outcome:        core.OutcomeLanded,
 			ClassSpellMask: SpellMaskLightningBolt,
-			Handler: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-				if !sim.Proc(ppm*spell.DefaultCast.CastTime.Minutes(), "Totem of the Storm") {
+			Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+				if !sim.Proc(ppm*shaman.AutoAttacks.MH().SwingSpeed/60, "Totem of the Storm") {
 					return
 				}
 				if maelstromAura == nil {
