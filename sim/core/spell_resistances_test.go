@@ -118,7 +118,7 @@ func TestExpectedDamageUsesAverageResistWithoutRolling(t *testing.T) {
 	attackTable := NewAttackTable(attacker, defender)
 	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow}
 
-	for _, resistance := range []float64{150, 540, 5000, -100} {
+	for _, resistance := range []float64{150, 499, 5000, -100} {
 		defender.stats[stats.ShadowResistance] = max(resistance, 0)
 		attacker.stats[stats.SpellPiercing] = 0
 		if resistance < 0 {

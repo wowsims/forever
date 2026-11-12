@@ -24,10 +24,10 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 	}{
 		{"no resistance", 0, false, 0, 0},
 		{"no resistance, tick", 0, true, 0, 0},
-		{"100 resistance", 100, false, 0, 100.0 / 599},
-		{"100 resistance, tick", 100, true, 0, 100.0 / 599 / 10},
-		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / 599},
-		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / 599},
+		{"100 resistance", 100, false, 0, 100.0 / (100 + 499)},
+		{"100 resistance, tick", 100, true, 0, 100.0 / (100 + 499) / 10},
+		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / (100 + 499)},
+		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
 	} {
 		spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: tc.flags}
 		if got := target(tc.resistance).averageResist(spell, attacker, tc.tick); math.Abs(got-tc.want) > 1e-12 {
@@ -36,7 +36,7 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 	}
 
 	spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: SpellFlagBinary}
-	if got, want := target(100).binaryHitChance(spell, attacker), 1-100.0/599; math.Abs(got-want) > 1e-12 {
+	if got, want := target(100).binaryHitChance(spell, attacker), 1-100.0/(100+499); math.Abs(got-want) > 1e-12 {
 		t.Errorf("binary hit chance against 100 resistance at +3 = %v, want %v", got, want)
 	}
 }
