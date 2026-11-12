@@ -552,8 +552,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistofStone-17943"
  value: {
-  dps: 700.06481
-  tps: 535.33671
+  dps: 701.8492
+  tps: 524.22066
   hps: 44.29278
  }
 }
