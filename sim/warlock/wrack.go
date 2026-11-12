@@ -16,10 +16,11 @@ import (
 // and a recast at the instant the channel ends ticks that point once. Every tick is full and the expiry stays;
 // starting or ending the channel moves no tick. An effect applied while the channel runs keeps its normal period,
 // since casting it ends the channel.
-// TODO: Ingame test needed: combat logs time a channel's start and end with up to 0.2 s of jitter, so they leave a
-// channel starting or ending exactly on a half point unmeasured. Cast Wrack so it lands within 0.05 s before and
-// after Siphon Life's half point at 1.5 s, and end it within 0.05 s before and after one, many times each, and count
-// the ticks at that half point.
+// The start is measured: in combat logs Wrack cast one global cooldown after Siphon Life ticked its half point at
+// 1.5 s in 13 of 16 openers, and a half point ticked whenever the channel landed up to 0.03 s after it.
+// TODO: Ingame test needed: the end is not measured. Channels ending within 0.05 s of a half point ticked it about
+// half the time, which the logs' 0.05 s steps cannot split. End Wrack within 0.05 s before and after a half point,
+// many times each, and count the ticks there.
 func (warlock *Warlock) registerWrackSpell() {
 	rankedSpell := spellData.Wrack.ByID(1316697)
 	wrackTick := rankedSpell.PeriodicEffect()
