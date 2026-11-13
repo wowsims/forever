@@ -27,6 +27,7 @@ func (druid *Druid) registerEnrageSpell() {
 	config.Hot.SelfOnly = true
 	// The periodic rage is the row's first effect, so a SPELLMOD_EFFECT1 on Enrage (Enraged Idol's
 	// 1291060) raises each tick. The parse puts that modifier on BonusBaseDamage, in the row's tenths of rage.
+	// The combat log writes no line for these ticks, though each threatens as any rage gained does.
 	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 		druid.AddRage(sim, periodic.Tenths()+dot.Spell.BonusBaseDamage/10, druid.enrageMetrics())
 	}

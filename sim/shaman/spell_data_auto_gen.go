@@ -299,7 +299,7 @@ var spellData = generatedSpellData{
 	WaterWalking:                   spelldata.Ranked(546),
 	WeaponMastery:                  spelldata.Ranked(29082, 29084, 29086, 29087, 29088),
 	WindfuryTotem:                  spelldata.Ranked(8512, 10613, 10614),
-	WindfuryTotemTriggered:         spelldata.Ranked(8515, 8516, 10608, 10609, 10610, 10612),
+	WindfuryTotemTriggered:         spelldata.Ranked(8515, 10609, 10612),
 	WindfuryWeapon:                 spelldata.Ranked(8232, 8235, 10486, 16362),
 	WindfuryWeaponTriggered:        spelldata.Ranked(8233, 8236, 10484, 16361),
 	WindwallTotem:                  spelldata.Ranked(15107, 15111, 15112),
