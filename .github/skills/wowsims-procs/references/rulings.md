@@ -24,6 +24,12 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   it, 95% 0.37 to 1.44). Equip procs such as Hand of Justice and Dreadfrost Saber's are unmeasured on 12723 and still
   hear it.** `sim/core/aura_helpers.go`,
   `canProcFrom`; `sim/warrior/talents_arms.go`, `registerSweepingStrikes`; PR #965.
+- **A chance-on-hit weapon rolls once for each target an area melee strike lands on, since the hit listener hears each
+  target's result. Thrash Blade in end-game dungeon logs procs on 4.1%, 7.0%, 11.0% and 13.8% of the Whirlwinds that
+  land on 1 to 4 targets (3877 casts) and on 3.9% and 6.8% of the Cleaves that land on 1 and 2 (5601 casts). One roll
+  a target predicts 4.0%, 7.8%, 11.5% and 15.1%, and 7.8% for Cleave on 2, while one roll a cast stays near 4%.
+  Weaponmaster's sword roll is the measured exception and rolls once a cast.** `sim/core/aura_helpers.go`,
+  `matchesSpell`; `sim/warrior/talents_arms.go`, `core.OncePerCast`; PR #986.
 - **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); a strike's own
   re-cast during its cast goes one batch later.** `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and
   `procDamageHandler`, PR #352.

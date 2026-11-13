@@ -407,8 +407,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 824.56109
-  tps: 849.7851
+  dps: 821.25376
+  tps: 846.33699
  }
 }
 dps_results: {
@@ -643,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 725.96828
+  tps: 750.95679
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
   dps: 750.39697
@@ -769,14 +776,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 750.39697
-  tps: 775.00185
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23207"
+ key: "TestFFB-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 750.39697
   tps: 775.00185
@@ -892,6 +892,20 @@ dps_results: {
  value: {
   dps: 836.77803
   tps: 862.89958
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
  }
 }
 dps_results: {
@@ -1025,6 +1039,13 @@ dps_results: {
  value: {
   dps: 815.6518
   tps: 840.57504
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
  }
 }
 dps_results: {

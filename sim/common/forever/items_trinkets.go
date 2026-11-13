@@ -70,27 +70,6 @@ func init() {
 		})
 	})
 
-	// Mark of the Champion (physical): +150 AP vs Undead and Demons.
-	core.NewItemEffect(23206, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Physical)",
-			ActionID: core.ActionID{ItemID: 23206},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.AttackPower: 150, stats.RangedAttackPower: 150},
-			proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23206, aura)
-	})
-
-	// Mark of the Champion (spell): +85 spell damage vs Undead and Demons.
-	core.NewItemEffect(23207, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Spell)",
-			ActionID: core.ActionID{ItemID: 23207},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: 85}, proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23207, aura)
-	})
-
 	// Lifegiving Gem: Gift of Life 23725 raises maximum health by 15% for 20 s (23782) and heals for as
 	// much (23783). Both are scripted: the dummy states neither, and 23782 states 0 for its
 	// A_MOD_INCREASE_HEALTH and is not in the spell store, so the 15% is the tooltip's and the 20 s is
@@ -442,6 +421,19 @@ func init() {
 	core.NewItemEffect(11815, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 	})
+
+	// Mark of the Chosen
+	// https://www.wowhead.com/forever/item=17774/mark-of-the-chosen
+	//
+	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
+	//
+	// 21969's ProcTypeMask also names helpful spells taken, but every proc in the combat logs followed a
+	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone. The logs measure 5
+	// procs on 392 landed hits taken (1.28%), in line with the row's 2%.
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
+		[]shared.ItemVariant{
+			{ItemID: 17774, ItemName: "Mark of the Chosen"},
+		})
 }
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.

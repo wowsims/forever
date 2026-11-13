@@ -43,12 +43,12 @@ func NewSpellDataBattleShoutAura(unit *core.Unit, isPlayer bool, talentPoints in
 
 `Meta.Options(talentPoints)` states the `spelldata.ParseOpt`s every row needs:
 `spelldata.RaidBuffOptions` (`Level(core.CharacterLevel)`, `BuffAuras`, `SkipAuras` where the
-generator found any, and `FullComboPoints` for a finisher, which the generator also parses with) and
-`ScaledBy` the improving talent. `ScaledBy` is left out where the talent scales the duration instead,
-since `Duration` reads that separately. A row with a `TalentDivisor` takes
-`ScaledByRanks(talentPoints, TalentDivisor)` instead: every amount the parse attaches is worth that
-fraction of the spell's, rounded to the nearest whole amount the way the tooltip shows it, and 0
-points is the full amount.
+generator found any, and `FullComboPoints` for a finisher, which the generator also parses with),
+`AllManaRegen` where the manifest row sets it, and `ScaledBy` the improving talent. `ScaledBy` is
+left out where the talent scales the duration instead, since `Duration` reads that separately. A
+row with a `TalentDivisor` takes `ScaledByRanks(talentPoints, TalentDivisor)` instead: every amount
+the parse attaches is worth that fraction of the spell's, rounded to the nearest whole amount the
+way the tooltip shows it, and 0 points is the full amount.
 
 `newBuff` adds `SchoolResistances` and, where `Category` is set, `Exclusive(Category, true)` for a
 `SingleAura` row or `ExclusivePerStat(Category)` for any other. A generated buff and a hand-written
@@ -137,8 +137,9 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | `Proto`          | an override of the derived proto type: for a flag that is a number (`retribution_aura_spell_power` is `ProtoDouble`), or for a row with more states than a tristate (`battle_shout` is `ProtoInt32`)                                                                                                                                                                                                                                                                                                                                     |
 | `Owner`          | the providing class, only for a spell no class family files: the Atiesh rows, pet abilities and talent-granted debuffs. A row whose spell a family files and that names an owner fails the pass                                                                                                                                                                                                                                                                                                                                          |
 | `Reason`         | what a `KindFlag` row is, which the shell it renders as carries. Required on a flag and refused on any other row                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `AllManaRegen`   | the row's mana regen percent multiplies all of the mana regen, MP5 included, where a row otherwise multiplies the Spirit regen only: Innervate's                                                                                                                                                                                                                                                                                                                                                                                         |
 
-The last four are exceptions; most rows state none of them. The rest of a row is derived:
+The last five are exceptions; most rows state none of them. The rest of a row is derived:
 
 - **Go stem.** `GoStem()` is `GoField()`, protoc-gen-go's name for the field, without underscores:
   `battle_shout` gives `NewSpellDataBattleShoutAura`, `BattleShoutValue`, `BattleShoutDuration`,

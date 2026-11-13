@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -353,7 +354,7 @@ func (mb *manaBar) EndOOMEvent(sim *Simulation) {
 }
 
 type ManaCostOptions struct {
-	BaseCostPercent float64 // The cost of the spell as a percentage (0-100) of the unit's base mana.
+	BaseCostPercent float64 // The cost of the spell as a percentage (0-100) of the unit's base mana, rounded to the nearest whole mana.
 	FlatCost        int32   // Alternative to BaseCostPercent for giving a flat value.
 	PercentModifier float64 // Will default to 1. PercentModifier stored as a float i.e. 40% reduction is (0.6 multiplier) to the base cost
 }
@@ -364,7 +365,7 @@ type ManaCost struct {
 func newManaCost(spell *Spell, options ManaCostOptions) *SpellCost {
 	return &SpellCost{
 		spell:                   spell,
-		BaseCost:                TernaryInt32(options.FlatCost > 0, options.FlatCost, int32(options.BaseCostPercent*spell.Unit.BaseMana)/100),
+		BaseCost:                TernaryInt32(options.FlatCost > 0, options.FlatCost, int32(math.Round(options.BaseCostPercent*spell.Unit.BaseMana/100))),
 		PercentModifier:         TernaryFloat64(options.PercentModifier == 0, 1, options.PercentModifier),
 		AdditivePercentModifier: 1,
 		ResourceCostImpl: &ManaCost{

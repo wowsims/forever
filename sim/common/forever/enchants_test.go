@@ -38,17 +38,28 @@ func init() {
 			player.Spec = spec.(*proto.Player_Hunter)
 		},
 	)
+	core.RegisterAgentFactory(
+		proto.Player_Mage{},
+		proto.Spec_SpecMage,
+		func(character *core.Character, _ *proto.Player, _ *proto.Raid) core.Agent {
+			return &testMage{Character: *character}
+		},
+		func(player *proto.Player, spec any) {
+			player.Spec = spec.(*proto.Player_Mage)
+		},
+	)
 }
 
 // A caster with two druid spells: Wrath, which Revelation's druid buff 1323400 names (family 7 bit 0),
 // and Moonfire, which it does not (bit 1). Hurricane is a three-tick channel whose ticks cast a spell
 // of their own, both under Wrath's flags. Drain is a channel under Wrath's flags whose own hit lands
-// before its dot starts and whose ticks hit nothing.
+// before its dot starts and whose ticks hit nothing. Bolt, under Wrath's flags, rolls at the cast and
+// lands a second later.
 type testDruid struct {
 	core.Character
-	wrath, moonfire, hurricane, drain *core.Spell
-	last                              *core.SpellResult
-	tickCrits                         []bool
+	wrath, moonfire, hurricane, drain, bolt *core.Spell
+	last                                    *core.SpellResult
+	tickCrits                               []bool
 }
 
 func (d *testDruid) GetCharacter() *core.Character       { return &d.Character }
@@ -76,6 +87,19 @@ func (d *testDruid) Initialize() {
 	d.moonfire = nuke(8921, 1)
 
 	wrathFlags := core.ClassFlags{Family: 7, Mask: [4]uint32{1}}
+	d.bolt = d.RegisterSpell(core.SpellConfig{
+		ActionID:           core.ActionID{SpellID: 2912},
+		SpellSchool:        core.SpellSchoolArcane,
+		DefenseType:        core.DefenseTypeMagic,
+		ProcMask:           core.ProcMaskSpellDamage,
+		ClassFlags:         wrathFlags,
+		MissileMinDuration: time.Second,
+		DamageMultiplier:   1,
+		ThreatMultiplier:   1,
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
+		},
+	})
 	tick := d.RegisterSpell(core.SpellConfig{
 		ActionID:         core.ActionID{SpellID: 16914, Tag: 1},
 		SpellSchool:      core.SpellSchoolNature,
@@ -150,8 +174,85 @@ func (h *testHunter) Initialize() {
 	h.aimedShot = shot(20904, 17)
 }
 
+// A mage with spells Revelation's mage buff 1248808 names: Fire Blast (family 3 bit 1), Frostbolt
+// (bit 5), which rolls at the cast and lands a second later, Arcane Explosion (bit 12), which hits
+// every target, and Arcane Missiles (bit 11), a three-tick channel, with a second channeled cast under
+// its flags that starts no channel. None rolls to miss, and each keeps the crits of its landings.
+type testMage struct {
+	core.Character
+	fireBlast, frostbolt, explosion, missiles, missile, stalled *core.Spell
+	crits                                                       map[*core.Spell][]bool
+}
+
+func (m *testMage) GetCharacter() *core.Character       { return &m.Character }
+func (m *testMage) ApplyTalents()                       {}
+func (m *testMage) Reset(_ *core.Simulation)            {}
+func (m *testMage) OnGCDReady(_ *core.Simulation)       {}
+func (m *testMage) OnEncounterStart(_ *core.Simulation) {}
+
+func (m *testMage) Initialize() {
+	m.crits = map[*core.Spell][]bool{}
+	land := func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		spell.DealDamage(sim, result)
+		m.crits[spell] = append(m.crits[spell], result.DidCrit())
+	}
+	hit := func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
+	}
+	spell := func(id core.ActionID, bit uint, config core.SpellConfig) *core.Spell {
+		config.ActionID = id
+		config.SpellSchool = core.SpellSchoolFire
+		config.DefenseType = core.DefenseTypeMagic
+		config.ProcMask = core.ProcMaskSpellDamage
+		config.ClassFlags = core.ClassFlags{Family: 3, Mask: [4]uint32{1 << bit}}
+		config.DamageMultiplier = 1
+		config.ThreatMultiplier = 1
+		return m.RegisterSpell(config)
+	}
+	m.fireBlast = spell(core.ActionID{SpellID: 10199}, 1, core.SpellConfig{ApplyEffects: hit})
+	m.frostbolt = spell(core.ActionID{SpellID: 25304}, 5, core.SpellConfig{
+		MissileMinDuration: time.Second,
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit)
+			spell.DealCastResult(sim, result)
+			spell.WaitTravelTime(sim, func(sim *core.Simulation) { land(sim, spell, result) })
+		},
+	})
+	m.explosion = spell(core.ActionID{SpellID: 10202}, 12, core.SpellConfig{
+		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+			for _, result := range spell.CalcAndDealAoeDamage(sim, 100, spell.OutcomeMagicCrit) {
+				m.crits[spell] = append(m.crits[spell], result.DidCrit())
+			}
+		},
+	})
+	m.missile = spell(core.ActionID{SpellID: 25345, Tag: 1}, 11, core.SpellConfig{ApplyEffects: hit})
+	m.stalled = spell(core.ActionID{SpellID: 25345, Tag: 2}, 11, core.SpellConfig{Flags: core.SpellFlagChanneled})
+	m.missiles = spell(core.ActionID{SpellID: 25345}, 11, core.SpellConfig{
+		Flags: core.SpellFlagChanneled,
+		Dot: core.DotConfig{
+			Aura:          core.Aura{Label: "Arcane Missiles"},
+			NumberOfTicks: 3,
+			TickLength:    time.Second,
+			OnTick: func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
+				m.missile.Cast(sim, target)
+			},
+		},
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.Dot(target).Apply(sim)
+		},
+	})
+}
+
 func revelationWearer(t *testing.T, class proto.Class, spec any) (*core.Simulation, *core.Character) {
+	return revelationWearerFacing(t, class, spec, 1)
+}
+
+func revelationWearerFacing(t *testing.T, class proto.Class, spec any, enemies int) (*core.Simulation, *core.Character) {
 	t.Helper()
+	targets := make([]*proto.Target, enemies)
+	for i := range targets {
+		targets[i] = &proto.Target{Name: "target", Level: 60}
+	}
 	items := weaponSlots(1613, 0)
 	items[proto.ItemSlot_ItemSlotMainHand].Enchant = revelationEnchant
 	player := &proto.Player{
@@ -168,10 +269,15 @@ func revelationWearer(t *testing.T, class proto.Class, spec any) (*core.Simulati
 			Players: []*proto.Player{player},
 			Buffs:   &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter: &proto.Encounter{Targets: targets, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
 }
 
 // Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400 on a direct spell that lands
@@ -232,21 +338,13 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 	channel := druid.hurricane.Dot(target)
 
-	stepWhile := func(cond func() bool) {
-		for steps := 0; cond(); steps++ {
-			if steps > 1000 {
-				t.Fatal("the sim did not get there in 1000 steps")
-			}
-			sim.Step()
-		}
-	}
 	procced := false
 	for casts := 0; !procced; casts++ {
 		if casts > 40 {
 			t.Fatal("40 channels and no tick procced Revelation")
 		}
 		druid.hurricane.SkipCastAndApplyEffects(sim, target)
-		stepWhile(func() bool {
+		stepWhile(t, sim, func() bool {
 			procced = procced || buff.IsActive()
 			return channel.IsActive()
 		})
@@ -254,22 +352,18 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	sim.Step()
 	buff.Deactivate(sim)
 
-	charge := func() {
-		buff.Activate(sim)
-		buff.SetStacks(sim, buff.MaxStacks)
-	}
 	channelFor := func(ticks int) {
 		druid.tickCrits = nil
 		druid.hurricane.SkipCastAndApplyEffects(sim, target)
-		stepWhile(func() bool { return len(druid.tickCrits) < ticks })
+		stepWhile(t, sim, func() bool { return len(druid.tickCrits) < ticks })
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	channelFor(2)
 	if !buff.IsActive() {
 		t.Fatal("two ticks into the channel, Revelation's charge is spent")
 	}
-	stepWhile(channel.IsActive)
+	stepWhile(t, sim, channel.IsActive)
 	sim.Step()
 	if len(druid.tickCrits) != 3 || slices.Contains(druid.tickCrits, false) {
 		t.Errorf("ticks crit %v, want all three", druid.tickCrits)
@@ -278,14 +372,14 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 		t.Error("the channel ended and Revelation's charge is still up")
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	channelFor(1)
 	channel.Deactivate(sim)
 	if buff.IsActive() {
 		t.Error("the channel was cut short and Revelation's charge is still up")
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	druid.drain.SkipCastAndApplyEffects(sim, target)
 	druid.drain.Dot(target).Deactivate(sim)
 	if buff.IsActive() {
@@ -294,12 +388,12 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 
 	drain := druid.drain.Dot(target)
 	druid.drain.SkipCastAndApplyEffects(sim, target)
-	charge()
+	chargeRevelation(sim, buff)
 	sim.Step()
 	if !drain.IsActive() || !buff.IsActive() {
 		t.Fatal("the charge came while a channel it covers was running, and it is gone before that channel ended")
 	}
-	stepWhile(drain.IsActive)
+	stepWhile(t, sim, drain.IsActive)
 	if buff.IsActive() {
 		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
 	}
@@ -340,6 +434,109 @@ func TestRevelationProcsOffAHuntersShots(t *testing.T) {
 	}
 	if buff.IsActive() {
 		t.Error("Arcane Shot did not spend Revelation's charge")
+	}
+}
+
+// A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
+// cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
+// spell cast while it flies gets none, and its landing spends no charge. A channel keeps the charge
+// for every tick and spends it at the channel's end, and a channeled cast that starts no channel
+// spends it as it completes.
+func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
+	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
+	mage := sim.Raid.Parties[0].Players[0].(*testMage)
+	target := character.CurrentTarget
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -character.GetStat(stats.SpellCritPercent)})
+
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1248808})
+	if buff == nil {
+		t.Fatal("no Revelation buff 1248808 on the mage")
+	}
+	crits := func(spell *core.Spell) []bool {
+		got := mage.crits[spell]
+		mage.crits[spell] = nil
+		return got
+	}
+	// Lets the procs of the last landings run and takes away any charge they gave.
+	settle := func() {
+		stepTo(t, sim, sim.CurrentTime+time.Second)
+		buff.Deactivate(sim)
+	}
+
+	chargeRevelation(sim, buff)
+	mage.explosion.Cast(sim, target)
+	if got := crits(mage.explosion); len(got) != 3 || slices.Contains(got, false) {
+		t.Errorf("Arcane Explosion with Revelation up crit %v, want every one of the 3 targets", got)
+	}
+	if buff.IsActive() {
+		t.Error("Arcane Explosion completed and Revelation's charge is still up")
+	}
+	mage.explosion.Cast(sim, target)
+	if got := crits(mage.explosion); len(got) != 3 || slices.Contains(got, true) {
+		t.Errorf("a second Arcane Explosion in the same moment crit %v, want 3 targets hit and none crit", got)
+	}
+	settle()
+
+	chargeRevelation(sim, buff)
+	mage.frostbolt.Cast(sim, target)
+	if buff.IsActive() {
+		t.Error("Frostbolt completed and Revelation's charge is still up while it flies")
+	}
+	mage.fireBlast.Cast(sim, target)
+	if got := crits(mage.fireBlast); len(got) != 1 || got[0] {
+		t.Errorf("Fire Blast cast while Frostbolt flies crit %v, want one hit without Revelation's crit", got)
+	}
+	chargeRevelation(sim, buff)
+	stepTo(t, sim, sim.CurrentTime+time.Second+100*time.Millisecond)
+	if got := crits(mage.frostbolt); len(got) != 1 || !got[0] {
+		t.Errorf("Frostbolt landed with crits %v, want the crit it rolled at the cast", got)
+	}
+	if !buff.IsActive() {
+		t.Error("Frostbolt's landing spent a charge gained while it flew")
+	}
+	settle()
+
+	chargeRevelation(sim, buff)
+	mage.missiles.Cast(sim, target)
+	channel := mage.missiles.Dot(target)
+	if !channel.IsActive() || !buff.IsActive() {
+		t.Fatal("Arcane Missiles started and Revelation's charge is gone before the channel ends")
+	}
+	stepWhile(t, sim, channel.IsActive)
+	if got := crits(mage.missile); len(got) != 3 || slices.Contains(got, false) {
+		t.Errorf("Arcane Missiles' ticks crit %v, want all three", got)
+	}
+	if buff.IsActive() {
+		t.Error("Arcane Missiles ended and Revelation's charge is still up")
+	}
+	settle()
+
+	chargeRevelation(sim, buff)
+	mage.stalled.Cast(sim, target)
+	if character.IsChanneling() {
+		t.Fatal("the cast that starts no channel left a channel running")
+	}
+	if buff.IsActive() {
+		t.Error("a channeled cast completed without starting its channel and Revelation's charge is still up")
+	}
+}
+
+// The druid's buff 1323400 spends its charge as the spell lands: a missile in flight leaves it up.
+func TestRevelationDruidSpendsTheChargeAtImpact(t *testing.T) {
+	sim, character := revelationWearer(t, proto.Class_ClassDruid, &proto.Player_BalanceDruid{BalanceDruid: &proto.BalanceDruid{}})
+	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
+
+	chargeRevelation(sim, buff)
+	cast := sim.CurrentTime
+	druid.bolt.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, cast+500*time.Millisecond)
+	if !buff.IsActive() {
+		t.Error("the druid's charge is gone while the bolt that should spend it is in flight")
+	}
+	stepTo(t, sim, cast+time.Second+100*time.Millisecond)
+	if buff.IsActive() {
+		t.Error("the bolt landed and the druid's charge is still up")
 	}
 }
 

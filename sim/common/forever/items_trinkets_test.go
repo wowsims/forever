@@ -23,6 +23,11 @@ func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Char
 
 func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)
+}
+
+func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck int32, mobType proto.MobType) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -44,10 +49,33 @@ func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck 
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
+// 136, which the sim adds to the attack table of an Undead target alone, at the value their equip spells
+// 23930 and 24198 state.
+func TestDawnTrinketsGrantTheirBonusAgainstUndeadAlone(t *testing.T) {
+	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
+	for _, c := range []struct {
+		item int32
+		want stats.Stats
+	}{
+		{13209, stats.Stats{stats.AttackPower: seal.EffectN(1).Average(), stats.RangedAttackPower: seal.EffectN(2).Average()}},
+		{19812, stats.Stats{stats.SpellDamage: rune.EffectN(1).Average()}},
+	} {
+		_, againstUndead := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeUndead)
+		if got := bonusAgainstTarget(againstUndead); got != c.want || c.want == (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Undead is %v, want the row's %v", c.item, got, c.want)
+		}
+		_, againstDemons := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeDemon)
+		if got := bonusAgainstTarget(againstDemons); got != (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Demons is %v, want none", c.item, got)
+		}
+	}
 }
 
 func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
@@ -57,6 +85,16 @@ func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
 	for steps := 0; !reached; steps++ {
 		if steps > 10000 {
 			t.Fatalf("the sim did not reach %v", until)
+		}
+		sim.Step()
+	}
+}
+
+func stepWhile(t *testing.T, sim *core.Simulation, cond func() bool) {
+	t.Helper()
+	for steps := 0; cond(); steps++ {
+		if steps > 1000 {
+			t.Fatal("the sim did not get there in 1000 steps")
 		}
 		sim.Step()
 	}
@@ -734,4 +772,71 @@ func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 	if got := procs(); got != 2 {
 		t.Errorf("a hit as the cooldown ends procced it %d times in all, want twice", got)
 	}
+}
+
+// Mark of the Chosen 17774 puts up 21970 for its row's duration on a melee, ranged or harmful spell
+// hit taken, and a heal taken never does. After a proc of any kind every hit rests for 21969's
+// cooldown, which outlasts the buff. The row copy procs on every hit.
+func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
+	editSpellRow(t, 21969, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+	})
+	cooldown, duration := spelldata.MustFind(21969).ICD(), spelldata.MustFind(21970).Duration()
+	if duration <= 0 || cooldown <= duration {
+		t.Fatalf("21969's cooldown is %v and 21970 lasts %v, want a buff that ends inside the cooldown", cooldown, duration)
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
+		t.Helper()
+		sim, character := trinketWarrior(t, 17774)
+		buff := character.GetAura("Mark of the Chosen Proc")
+		if buff == nil {
+			t.Fatal("17774 registers no proc buff")
+		}
+		return sim, character, buff
+	}
+
+	t.Run("heal taken", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		heal := &core.Spell{ProcMask: core.ProcMaskSpellHealing, SpellSchool: core.SpellSchoolHoly, Unit: &character.Unit}
+		character.OnHealTaken(sim, heal, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+		if buff.IsActive() {
+			t.Error("a heal taken put the buff up, want no buff")
+		}
+	})
+
+	for _, hit := range []struct {
+		name  string
+		spell func(*core.Unit) *core.Spell
+	}{{"melee", meleeSwing}, {"ranged", rangedShot}, {"spell", fireSpell}} {
+		t.Run(hit.name, func(t *testing.T) {
+			sim, character, buff := wearer(t)
+			takeHit(t, sim, character, hit.spell(sim.Encounter.ActiveTargetUnits[0]))
+			if !buff.IsActive() || buff.Duration != duration {
+				t.Errorf("after a %s hit taken the buff is active %v and lasts %v, want it active for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
+			}
+		})
+	}
+
+	t.Run("cooldown", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		start := sim.CurrentTime
+		takeHit(t, sim, character, meleeSwing(enemy))
+		// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown after
+		// a hit taken, so the cooldown is crossed in 10 s legs.
+		for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+			stepTo(t, sim, at)
+		}
+		stepTo(t, sim, start+cooldown-time.Millisecond)
+		takeHit(t, sim, character, rangedShot(enemy))
+		if buff.IsActive() {
+			t.Error("a ranged hit taken 1 ms before a melee proc's cooldown ends put the buff up, want none")
+		}
+		stepTo(t, sim, start+cooldown)
+		takeHit(t, sim, character, fireSpell(enemy))
+		if !buff.IsActive() {
+			t.Error("a spell hit taken as the cooldown ends left the buff down, want it up")
+		}
+	})
 }

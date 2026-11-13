@@ -232,9 +232,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BloodTigerHarness"
  value: {
-  dps: 686.54588
-  tps: 435.8639
-  dtps: 0.94523
+  dps: 680.82669
+  tps: 431.58925
+  dtps: 0.68341
  }
 }
 dps_results: {
@@ -264,9 +264,17 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BloodvineGarb"
  value: {
-  dps: 663.79464
-  tps: 417.8952
-  dtps: 2.68455
+  dps: 663.75132
+  tps: 417.85189
+  dtps: 2.55574
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 667.30813
+  tps: 422.58982
+  dtps: 0.97203
  }
 }
 dps_results: {
@@ -1045,6 +1053,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-JomGabbar-23570"
  value: {
   dps: 707.84858
@@ -1189,15 +1205,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 693.04335
-  tps: 441.71179
-  dtps: 0.83027
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-MarkoftheChampion-23207"
+ key: "TestHunterPets-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 693.04335
   tps: 441.71179
@@ -1226,6 +1234,14 @@ dps_results: {
   dps: 701.3634
   tps: 448.63229
   dtps: 2.01917
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 690.68613
+  tps: 439.49047
+  dtps: 1.2458
  }
 }
 dps_results: {
@@ -1289,6 +1305,14 @@ dps_results: {
   dps: 703.03631
   tps: 449.55117
   dtps: 1.99278
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 691.79612
+  tps: 439.94344
+  dtps: 1.5771
  }
 }
 dps_results: {
@@ -1404,6 +1428,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Ripsaw-9478"
+ value: {
+  dps: 665.15417
+  tps: 420.82888
+  dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SecondWind-11819"
  value: {
   dps: 693.03169
@@ -1484,6 +1532,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 683.46805
+  tps: 434.19834
+  dtps: 1.53664
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 679.41353
@@ -1545,6 +1601,14 @@ dps_results: {
   dps: 687.22509
   tps: 437.01987
   dtps: 1.53664
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
  }
 }
 dps_results: {
@@ -1700,6 +1764,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheLobotomizer-19324"
  value: {
   dps: 663.3017
@@ -1817,6 +1889,14 @@ dps_results: {
   dps: 693.04335
   tps: 441.71179
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-VolcanicArmor"
+ value: {
+  dps: 659.11745
+  tps: 416.74203
+  dtps: 2.56706
  }
 }
 dps_results: {

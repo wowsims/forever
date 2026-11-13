@@ -794,6 +794,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
  value: {
   dps: 764.43425
@@ -935,16 +944,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 764.43425
-  tps: 651.40264
-  dtps: 10.45093
-  hps: 7.66513
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-MarkoftheChampion-23207"
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 764.43425
   tps: 651.40264
@@ -1083,6 +1083,24 @@ dps_results: {
   tps: 651.19252
   dtps: 10.57145
   hps: 7.74233
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 764.43425
+  tps: 651.40264
+  dtps: 10.45093
+  hps: 7.66513
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 764.43425
+  tps: 651.40264
+  dtps: 10.45093
+  hps: 7.66513
  }
 }
 dps_results: {
@@ -1260,6 +1278,15 @@ dps_results: {
   dps: 790.84461
   tps: 670.23865
   dtps: 10.9106
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 764.43425
+  tps: 651.40264
+  dtps: 10.45093
+  hps: 7.66513
  }
 }
 dps_results: {

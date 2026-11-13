@@ -163,9 +163,10 @@ func NewSpellDataSynthFrostResistanceTotemAura(unit *core.Unit, isPlayer bool, t
 var SynthInnervatesCategory = "Innervate"
 var synthInnervatesSpell = spelldata.MustFind(29166)
 var synthInnervatesMeta = &Meta{
-	Label:    "Innervates",
-	Spell:    synthInnervatesSpell,
-	Category: SynthInnervatesCategory,
+	Label:        "Innervates",
+	Spell:        synthInnervatesSpell,
+	Category:     SynthInnervatesCategory,
+	AllManaRegen: true,
 }
 
 func SynthInnervatesValue(talentPoints int32) float64 {

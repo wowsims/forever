@@ -86,11 +86,16 @@ is registered. Items and enchants work differently:
   runs after `GenerateItemEffects` rewrites the files and before `db.json` is written), and a second run completes.
 - **A set takes one registration, written by hand or generated.** `GenerateSetBonuses` writes
   `sim/common/forever/item_sets_auto_gen.go` for every set with items in the database that no hand-written set
-  covers. A bonus whose rows all pass `spelldata.SetBonusUnsupported` registers through `shared.NewParsedItemSet`,
-  and the others stay in the file as TODO comments naming what the parse leaves out. The generated sets register from
-  `common.RegisterAllEffects`, after the hand-written ones, so the generator reads `core.ItemSets()` as the
-  hand-written list, and `NewParsedItemSet` skips an id a hand-written set already holds. A set written by hand
-  leaves the generated file on the next run, so it carries every bonus of the set, the generated ones included.
+  covers. A bonus whose rows all pass `shared.SetBonusUnsupported` registers through `shared.NewParsedItemSet`, or
+  `shared.NewParsedProfessionItemSet` for a set its ItemSet row gates on a profession, and the others stay in the file
+  as TODO comments naming what keeps them out. A row the parse states whole passes, and so does a proc trigger whose
+  listener and rate an item's proc would take and whose spell deals damage at once, fills the wearer's bar or puts
+  auras on the wearer alone; `shared.ParsedSetBonus` builds that proc on the set bonus aura. A proc row of a class
+  family whose effect names none of the family's spells stays out, since the spells its tooltip names are not in the
+  row. The generated sets register from `common.RegisterAllEffects`,
+  after the hand-written ones, so the generator reads `core.ItemSets()` as the hand-written list, and both
+  constructors skip an id a hand-written set already holds. A set written by hand leaves the generated file on the
+  next run, so it carries every bonus of the set, the generated ones included.
 - **An item that summons a creature registers its pet with `core.NewItemPet`.** `AddPet` panics once the environment
   is set, and the item effects run after that, so `NewAgent` builds the pet with its owner, once for an item worn or
   carried in the item swap set by a class that can use it (`sim/core/item_effects.go`). The item's effect finds the

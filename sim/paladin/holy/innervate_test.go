@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 func innervatedPaladin(t *testing.T, talents string) (*core.Simulation, *core.Character) {
@@ -29,10 +31,12 @@ func innervatedPaladin(t *testing.T, talents string) (*core.Simulation, *core.Ch
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Innervate lets all of the spirit regen continue while casting and multiplies it by five, whatever
-// share Reverence already lets through: with the standard talents' 2/2 Reverence it is the same regen,
-// and Reverence's 30% is back once the aura falls off. The mana bar's regen follows each change.
-func TestInnervateGivesFiveTimesTheFullSpiritRegen(t *testing.T) {
+// Innervate lets all of the spirit regen continue while casting and multiplies all of the regen, MP5
+// included, by its row's mana regen factor, whatever share Reverence already lets through: with the
+// standard talents' 2/2 Reverence it is the same regen, and Reverence's 30% is back once the aura falls
+// off. The mana bar's regen follows each change.
+func TestInnervateMultipliesTheFullRegen(t *testing.T) {
+	factor := core.MultiplierFromPercent(spelldata.MustFind(29166).Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
 	for _, c := range []struct {
 		talents string
 		share   float64
@@ -58,9 +62,11 @@ func TestInnervateGivesFiveTimesTheFullSpiritRegen(t *testing.T) {
 			return pally.CurrentMana()
 		}
 
-		mp5, spirit := pally.MP5ManaRegenPerSecond(), pally.SpiritManaRegenPerSecond()
+		if pally.MP5ManaRegenPerSecond() == 0 {
+			t.Fatal("the paladin has no MP5")
+		}
 		idle, casting := pally.ManaRegenPerSecondWhileNotCasting(), pally.ManaRegenPerSecondWhileCasting()
-		want := idle / (mp5 + spirit) * (mp5 + 5*spirit)
+		want := factor * idle
 
 		aura := pally.GetAura("Innervates (External)")
 		if aura == nil {

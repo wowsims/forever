@@ -687,6 +687,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 837.48844
+  tps: 662.05272
+  dtps: 10.38107
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-JomGabbar-23570"
  value: {
   dps: 917.19972
@@ -815,15 +823,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23207"
+ key: "TestDestruction-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 917.19972
   tps: 723.74083
@@ -948,6 +948,22 @@ dps_results: {
   dps: 902.94873
   tps: 711.27214
   dtps: 10.01537
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 917.19972
+  tps: 723.74083
+  dtps: 9.91129
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 917.19972
+  tps: 723.74083
+  dtps: 9.91129
  }
 }
 dps_results: {
@@ -1111,6 +1127,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 917.19972
+  tps: 723.74083
+  dtps: 9.91129
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-TheLobotomizer-19324"
  value: {
   dps: 837.48844
@@ -1266,7 +1290,7 @@ dps_results: {
  key: "TestDestruction-Settings-Gnome-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
   dps: 8688.02781
-  tps: 6810.23679
+  tps: 6810.23929
   dtps: 3.99816
  }
 }
@@ -1311,7 +1335,7 @@ dps_results: {
  key: "TestDestruction-Settings-Human-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
   dps: 8643.10422
-  tps: 6775.00833
+  tps: 6775.01083
   dtps: 3.99816
  }
 }
@@ -1334,8 +1358,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Human-raid-Destruction-destro-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4125.34885
-  tps: 3247.69336
+  dps: 4124.83154
+  tps: 3247.36533
  }
 }
 dps_results: {
