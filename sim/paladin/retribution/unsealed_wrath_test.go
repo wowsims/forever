@@ -6,8 +6,18 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/paladin"
 )
+
+// The swing the tests land, and the time they let pass after one: the batch window the seal effects
+// land in and the talent's proc cooldown, so the next swing is heard.
+var unsealedWrathSwing = core.ActionID{OtherID: 1}
+
+func passUnsealedWrathCooldown(sim *core.Simulation) {
+	for end := sim.CurrentTime + spelldata.MustFind(1310735).ICD() + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
+	}
+}
 
 // A paladin with Unsealed Wrath and no rotation or auto attacks, a main-hand weapon to swap to, a
 // swing that always lands, and a count of the Seal of Righteousness hits cast so far under one tag.
@@ -49,7 +59,7 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 	}
 
 	strike := pal.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{OtherID: 1},
+		ActionID:         unsealedWrathSwing,
 		SpellSchool:      core.SpellSchoolPhysical,
 		ProcMask:         core.ProcMaskMeleeMHAuto,
 		Flags:            core.SpellFlagMeleeMetrics,
@@ -59,11 +69,9 @@ func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Pala
 			spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeAlwaysHit)
 		},
 	})
-	// Each swing steps the sim past the batch window the seal effects land in.
 	swing = func() {
 		strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
-		for end := sim.CurrentTime + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
-		}
+		passUnsealedWrathCooldown(sim)
 	}
 	return sim, pal, swing, righteousnessHits
 }
@@ -91,6 +99,30 @@ func TestUnsealedWrathStoresUpToThreeCopies(t *testing.T) {
 		if got := echo.GetStacks(); got != want {
 			t.Fatalf("after swing %d Echo of Righteousness has %d stacks, want %d", i+1, got, want)
 		}
+	}
+}
+
+// A second swing in the instant of the first stores no copy, which is how an extra attack adds none;
+// a swing after the talent's proc cooldown stores one again.
+func TestUnsealedWrathStoresNoCopyFromASwingInsideItsProcCooldown(t *testing.T) {
+	if spelldata.MustFind(1310735).ICD() <= 0 {
+		t.Fatal("Unsealed Wrath states no proc cooldown")
+	}
+	sim, pal, swing, _ := unsealedWrathPaladin(t)
+	castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
+	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
+	strike := pal.GetSpell(unsealedWrathSwing)
+
+	strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
+	strike.SkipCastAndApplyEffects(sim, pal.CurrentTarget)
+	if got := echo.GetStacks(); got != 1 {
+		t.Fatalf("two swings in one instant stored %d copies of the seal, want 1", got)
+	}
+
+	passUnsealedWrathCooldown(sim)
+	swing()
+	if got := echo.GetStacks(); got != 2 {
+		t.Errorf("a swing after the proc cooldown left %d copies of the seal, want 2", got)
 	}
 }
 

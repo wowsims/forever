@@ -361,7 +361,9 @@ func (paladin *Paladin) applyUnsealedWrath() {
 		}
 	})
 	trigger.Name = "Unsealed Wrath" + paladin.Label
-	// A copy is stored and spent on a hit that lands.
+	// A copy is stored and spent on a hit that lands. The row's proc cooldown is shorter than any
+	// swing timer, so the only swing it turns away is an extra attack dealt in the instant of the
+	// swing that granted it, Windfury Totem's among them: that one neither stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
 	paladin.MakeProcTriggerAura(trigger)
