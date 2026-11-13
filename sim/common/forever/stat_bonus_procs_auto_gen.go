@@ -148,6 +148,14 @@ func RegisterAllProcs() {
 			{ItemID: 22191, ItemName: "Obsidian Mail Tunic"},
 		})
 
+	// Increases damage dealt by your pet by 3%.
+	// https://www.wowhead.com/forever/spell=27206
+	// equip: 27206 keeps 27205 up (A_MOD_DAMAGE_PERCENT_DONE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27206},
+		[]shared.ItemVariant{
+			{ItemID: 226881, ItemName: "Beastmaster's Treads"},
+		})
+
 	// Increases your pet's critical strike chance by 2%.
 	// https://www.wowhead.com/forever/spell=27043
 	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
@@ -4895,6 +4903,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=1293068
 	// Not simulated: Medal of Valor: "Resist Fear 02" (1324578) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1324578
 	// Not simulated: Premier Kodohide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type 17
