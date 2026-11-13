@@ -51,25 +51,30 @@ func (druid *Druid) registerOmenOfClarity() {
 	// in Moonkin Form only. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts
 	// neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid
 	// its cost or spent Clearcasting, so a proc never makes its own cast free.
+	// Core gives every trigger a cooldown of its own, and the row's proc mask hears no helpful cast, so
+	// this trigger gates on and starts the hit trigger's cooldown itself. A row with no ICD leaves
+	// none to share.
 	icd := druid.OmenOfClarityAura.Icd
 	druid.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Omen of Clarity - Cast Trigger",
 		Callback: core.CallbackOnCastComplete,
 		Handler:  trigger.Handler,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			rolls := 0
+			rolls := int32(0)
 			switch {
 			case spellData.Hurricane.Contains(spell):
-				rolls = len(sim.Encounter.ActiveTargetUnits)
+				rolls = sim.Environment.ActiveTargetCount()
 			case (spellData.Thorns.Contains(spell) || spellData.Innervate.Contains(spell)) && druid.InForm(Moonkin):
 				rolls = 1
 			}
-			if rolls == 0 || !icd.IsReady(sim) {
+			if rolls == 0 || (icd != nil && !icd.IsReady(sim)) {
 				return false
 			}
 			for range rolls {
 				if roll(sim, spell) {
-					icd.Set(sim.CurrentTime + druid.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
+					if icd != nil {
+						icd.Set(sim.CurrentTime + druid.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
+					}
 					return true
 				}
 			}

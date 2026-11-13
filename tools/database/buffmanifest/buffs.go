@@ -419,6 +419,9 @@ var Individual = []BuffSpec{
 		Kind:   KindFlag,
 		Reason: "Greater Blessing of Light 25890 is gone from the game files; the field stays for saved settings and applies nothing.",
 	},
+	// Innervate's mana regen percent multiplies all of the regen, Spirit and MP5 alike, and its other
+	// effect keeps the Spirit regen running while casting, so the regen is the same inside the
+	// five-second rule as outside it. The other rows with a mana regen percent keep the Spirit reading.
 	{
 		Field:    "innervates",
 		SpellID:  29166,
@@ -427,7 +430,8 @@ var Individual = []BuffSpec{
 		Stats: []proto.Stat{
 			proto.Stat_StatMP5,
 		},
-		Label: "Innervates",
+		Label:        "Innervates",
+		AllManaRegen: true,
 	},
 	{
 		Field:    "power_infusions",

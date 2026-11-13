@@ -129,16 +129,17 @@ func applyFixedUptimeAura(aura *core.Aura, uptime float64, tickLength time.Durat
 // mana cooldown is spent first. The row's auras raise the mana regen while it
 // is up, and the metrics record what the character gains from it.
 func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
-	aura := NewSpellDataInnervatesAuraWithMP5(&char.Unit, false)
+	aura := NewSpellDataInnervatesAura(&char.Unit, false, 0)
 	manaMetrics := char.NewManaMetrics(aura.ActionID)
 
 	threshold, expectedMana := 0.0, 0.0
 	char.Env.RegisterPostFinalizeEffect(func() {
 		threshold = innervateManaThreshold(char)
 		// Spell 29166 states +400% mana regen on the mana bar (aura 110), Spirit and MP5 alike, which
-		// prices the mana the metrics record.
-		expectedMana = (char.SpiritManaRegenPerSecond() + char.MP5ManaRegenPerSecond()) *
-			core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue()) *
+		// prices the mana the metrics record. MP5 runs while casting without Innervate and Spirit regen
+		// does not, so Innervate adds the whole multiplied Spirit regen and the MP5 above its own.
+		multiplier := core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
+		expectedMana = (char.SpiritManaRegenPerSecond()*multiplier + char.MP5ManaRegenPerSecond()*(multiplier-1)) *
 			aura.Duration.Seconds()
 	})
 

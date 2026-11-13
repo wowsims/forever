@@ -381,6 +381,9 @@ func (row *ResolvedBuff) parseOptions() []spelldata.ParseOpt {
 		skip = append(slices.Clone(skip), dbcenums.A_DAMAGE_SHIELD)
 	}
 	opts := spelldata.RaidBuffOptions(skip, row.FullComboPoints)
+	if row.AllManaRegen {
+		opts = append(opts, spelldata.AllManaRegen())
+	}
 	if row.Kind == buffmanifest.KindItemCount {
 		opts = append(opts, spelldata.Count(1))
 	}
@@ -868,6 +871,9 @@ func buffMetaFields(row ResolvedBuff, rendered buffRow) string {
 	}
 	if row.FullComboPoints {
 		b.WriteString("FullComboPoints: true,\n")
+	}
+	if row.AllManaRegen {
+		b.WriteString("AllManaRegen: true,\n")
 	}
 	return b.String()
 }
