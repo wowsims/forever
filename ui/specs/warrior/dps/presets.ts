@@ -123,6 +123,10 @@ export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
+// The rotations have no Autocast Other Cooldowns, so an on-use trinket fires only from the "CD: Trinkets" group. Its
+// Cast All Stat Buff Cooldowns lines take only a cooldown whose buff raises a stat; any other trinket needs a line
+// naming its item id. Blackhand's Breadth marks the target and has no self buff for Multiple CD Usages to read, so its
+// lines spell out Multiple CD Usages' end-of-fight timing by hand: at most 20 s or more than 310 s left.
 export const FURY_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Fury', DefaultFuryApl);
 export const ARMS_DEFAULT_ROTATION = PresetUtils.makePresetAPLRotation('Arms', DefaultArmsApl);
 
