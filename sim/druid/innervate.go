@@ -10,7 +10,7 @@ func (druid *Druid) registerInnervateCD() {
 	rank := spellData.Innervate.Highest()
 	// Every raid player can receive Innervate; RegisterAura cannot run after finalize.
 	for _, unit := range druid.Env.Raid.AllPlayerUnits {
-		buffs.NewSpellDataInnervatesAura(unit, true, 0)
+		buffs.NewSpellDataInnervatesAuraWithMP5(unit, true)
 	}
 	config := spelldata.SpellConfig(&druid.Unit, rank)
 	config.Flags |= core.SpellFlagAPL | core.SpellFlagHelpful
@@ -18,7 +18,7 @@ func (druid *Druid) registerInnervateCD() {
 		return !druid.innervateRecipient(castTarget).HasActiveAuraWithTag(buffs.InnervatesCategory)
 	}
 	config.ApplyEffects = func(sim *core.Simulation, castTarget *core.Unit, _ *core.Spell) {
-		buffs.NewSpellDataInnervatesAura(druid.innervateRecipient(castTarget), true, 0).Activate(sim)
+		buffs.NewSpellDataInnervatesAuraWithMP5(druid.innervateRecipient(castTarget), true).Activate(sim)
 	}
 	druid.Innervate = druid.RegisterSpell(config)
 	druid.AddMajorCooldown(core.MajorCooldown{

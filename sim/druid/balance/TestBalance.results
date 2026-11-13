@@ -1329,7 +1329,7 @@ dps_results: {
  key: "TestBalance-AllItems-StormshroudArmor"
  value: {
   dps: 851.53667
-  tps: 862.58689
+  tps: 862.57533
   dtps: 5.00299
  }
 }
@@ -1686,15 +1686,15 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2944.40454
-  tps: 2944.40454
+  dps: 3027.49378
+  tps: 3027.49378
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 462.08428
-  tps: 462.08428
+  dps: 467.29809
+  tps: 467.29809
  }
 }
 dps_results: {
@@ -1729,15 +1729,15 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1877.60636
-  tps: 1877.60636
+  dps: 1914.94162
+  tps: 1914.94162
  }
 }
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 316.39171
-  tps: 316.39171
+  dps: 320.48352
+  tps: 320.48352
  }
 }
 dps_results: {
@@ -1772,15 +1772,15 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2925.72015
-  tps: 2925.72015
+  dps: 2977.34461
+  tps: 2977.34461
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 455.66103
-  tps: 455.66103
+  dps: 461.1901
+  tps: 461.1901
  }
 }
 dps_results: {
@@ -1801,7 +1801,7 @@ dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
   dps: 777.30692
-  tps: 787.78989
+  tps: 787.77464
   dtps: 5.04645
  }
 }
@@ -1815,15 +1815,15 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1815.12227
-  tps: 1815.12227
+  dps: 1833.14665
+  tps: 1833.14665
  }
 }
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongSingleTarget"
  value: {
-  dps: 311.94892
-  tps: 311.94892
+  dps: 313.94369
+  tps: 313.94369
  }
 }
 dps_results: {

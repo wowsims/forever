@@ -26,7 +26,8 @@ what the game files mean by an unmasked class modifier.
 **Call `ParseEffects` before the aura activates.** It attaches through `ApplyOnGain` and
 `ApplyOnExpire`. The parse catches up an aura that is already active the same way core's `Attach`
 helpers do, with one exception. The rows that need a `Simulation` to act (the cast, melee, ranged and
-attack speed multipliers and the energy regen multiplier) stay off until the aura is applied again.
+attack speed multipliers, the energy regen multiplier and the `AllManaRegen` mana regen multiplier)
+stay off until the aura is applied again.
 
 **An aura that several ranks share takes a modifier once**, however many of those ranks the modifier's
 mask names, because the mod is attached to the aura and not to each spell pointing at it.
@@ -39,6 +40,7 @@ mask names, because the mod is attached to the aura and not to each spell pointi
 | `IgnoreStacks()`             | the values do not follow the aura's stacks, which is what a row stating charges rather than cumulative stacks means |
 | `FromCaster(unit, i, total)` | the unit that cast a debuff, for the rows that reach only its attacks, in slot `i` of `total` on its attack table   |
 | `ShowAsSchoolHit(schools)`   | the schools whose hit the character sheet shows the row's `SPELLMOD_RESIST_MISS_CHANCE` hit in                      |
+| `AllManaRegen()`             | the row's mana regen percent multiplies all of the mana regen, MP5 included, not the Spirit regen alone (Innervate) |
 
 **A debuff that reaches only its caster's attacks** sits on the target and is parsed onto the target's
 aura with `FromCaster`: Shadow Weaving's shadow damage (`A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER`, by the
@@ -167,9 +169,12 @@ rows, and 635 `A_IGNORE_FOG_OF_WAR` after Enchanted Flare 1221416, which has not
 Innervate 29166 states both mana regen auras. `A_MOD_MANA_REGEN_INTERRUPT` adds its share to
 `SpiritRegenRateCasting`, and core caps the sum at the full spirit regen, so Innervate's 100% on top
 of Reverence's 30% gives the regen the character has while not casting. `A_MOD_POWER_REGEN_PERCENT`
-multiplies `SpiritRegenMultiplier` on the mana bar (Innervate's +400%) and the energy regen speed on an
-energy bar. Innervate's regen comes from the generated aura. No flag forces full spirit regen, and its
-driver keeps only the timing and the metrics. The energy row asks the unit for its bar at parse time and is
+multiplies `SpiritRegenMultiplier` on the mana bar and the energy regen speed on an energy bar. Under
+`AllManaRegen` the mana row multiplies all of the mana regen, MP5 included, instead: Innervate's +400%
+does, so its regen is five times the Spirit regen and MP5 together, the same inside the five-second
+rule as outside it. `NewSpellDataInnervatesAuraWithMP5` (`sim/core/buffs/druid.go`) parses it that
+way; the generated constructor keeps the Spirit reading the other rows with a mana regen percent take.
+No flag forces full spirit regen, and its driver keeps only the timing and the metrics. The energy row asks the unit for its bar at parse time and is
 skipped on a unit without one, so a rogue enables the bar before it parses Adrenaline Rush 13750.
 
 A maximum power row raises the bar its misc value names, through `SetMaximumRage` or
