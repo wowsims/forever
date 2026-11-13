@@ -437,6 +437,40 @@ func TestRevelationProcsOffAHuntersShots(t *testing.T) {
 	}
 }
 
+// A paladin's ranged judgement, which the paladin buff 1323419 names (family 10 bit 10), rolls no
+// Revelation: only a hunter's shots roll it beside spells and heals.
+func TestRevelationDoesNotProcOffAPaladinsRangedJudgement(t *testing.T) {
+	sim, character := itemSpecWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotMainHand, &proto.ItemSpec{Id: 1613, Enchant: revelationEnchant})
+	target := character.CurrentTarget
+
+	buff := character.GetAuraByID(core.ActionID{SpellID: 1323419})
+	if buff == nil {
+		t.Fatal("no Revelation buff 1323419 on the paladin")
+	}
+	procs := 0
+	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { procs++ })
+
+	judgement := character.RegisterSpell(core.SpellConfig{
+		ActionID:         core.ActionID{SpellID: 20286},
+		SpellSchool:      core.SpellSchoolHoly,
+		DefenseType:      core.DefenseTypeRanged,
+		ProcMask:         core.ProcMaskRangedSpecial,
+		ClassFlags:       core.ClassFlags{Family: 10, Mask: [4]uint32{1 << 10}},
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, 100, spell.OutcomeAlwaysHit)
+		},
+	})
+	for range 300 {
+		judgement.SkipCastAndApplyEffects(sim, target)
+		sim.Step()
+	}
+	if procs != 0 {
+		t.Errorf("300 ranged judgements procced Revelation %d times, want none", procs)
+	}
+}
+
 // A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
 // cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
 // spell cast while it flies gets none, and its landing spends no charge. A channel keeps the charge

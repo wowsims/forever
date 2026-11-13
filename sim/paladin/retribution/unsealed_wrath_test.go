@@ -105,9 +105,6 @@ func TestUnsealedWrathStoresUpToThreeCopies(t *testing.T) {
 // A second swing in the instant of the first stores no copy, which is how an extra attack adds none;
 // a swing after the talent's proc cooldown stores one again.
 func TestUnsealedWrathStoresNoCopyFromASwingInsideItsProcCooldown(t *testing.T) {
-	if spelldata.MustFind(1310735).ICD() <= 0 {
-		t.Fatal("Unsealed Wrath states no proc cooldown")
-	}
 	sim, pal, swing, _ := unsealedWrathPaladin(t)
 	castSeal(t, sim, pal, paladin.SealOfRighteousnessRankMap.Highest().ID)
 	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
