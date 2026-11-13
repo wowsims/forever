@@ -11,6 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func init() {
@@ -50,6 +51,33 @@ func TestFingersOfFrostGivesBlizzardTicksNoShatterBonus(t *testing.T) {
 	}
 	if ticksWith != ticksWithout {
 		t.Errorf("Blizzard tick crits moved with Shatter: %d without, %d with", ticksWithout, ticksWith)
+	}
+}
+
+// With no crit chance of their own, Flamestrike's ground ticks never crit while Fingers of Frost makes the
+// target Frozen for Shatter.
+func TestFingersOfFrostGivesFlamestrikeTicksNoShatterBonus(t *testing.T) {
+	const shatter = "--000000001000300200"
+	sim, mage := newMageSimAgainst(shatter, longEncounter(1))
+	target := mage.CurrentTarget
+	burn, tick := flamestrikeBurn(t, mage), flamestrikeTick(t, mage)
+	mage.AddStatsDynamic(sim, stats.Stats{stats.SpellCritPercent: -mage.GetStat(stats.SpellCritPercent)})
+	if chance := tick.SpellCritChance(target); chance != 0 {
+		t.Fatalf("a ground tick's crit chance is %v with no crit, want 0", chance)
+	}
+	mage.FingersOfFrostAura.Activate(sim)
+	mage.FingersOfFrostAura.SetStacks(sim, mage.FingersOfFrostAura.MaxStacks)
+
+	const ticks = 200
+	for range ticks {
+		burn.AOEDot().TickOnce(sim)
+	}
+	if !mage.isFrozen(target) {
+		t.Fatal("the target is no longer Frozen after the ticks")
+	}
+	if metrics := tick.SpellMetrics[target.UnitIndex]; metrics.Hits == 0 || metrics.Crits != 0 {
+		t.Errorf("%d ground ticks landed %d hits and %d crits on a Frozen target, want hits and no crit",
+			ticks, metrics.Hits, metrics.Crits)
 	}
 }
 
@@ -237,12 +265,11 @@ func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
 // With Revelation up, a Flamestrike ground tick neither takes its crit nor spends its charge, while the
 // cast it comes from takes the crit.
 func TestFlamestrikeGroundTickKeepsRevelation(t *testing.T) {
-	sim, mage := newRevelationMage(t, ArcaneTalents, 3)
+	sim, mage, buff := newRevelationMage(t, ArcaneTalents, 3)
 	target := mage.CurrentTarget
 	burn := flamestrikeBurn(t, mage)
-	tick := mage.GetSpell(core.ActionID{SpellID: spellData.FlamestrikeTriggered.Rank(spellData.Flamestrike.Len()).ID})
+	tick := flamestrikeTick(t, mage)
 	cast := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID})
-	buff := mage.GetAuraByID(core.ActionID{SpellID: revelationBuff})
 	expirations := 0
 	buff.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) { expirations++ })
 
@@ -329,7 +356,8 @@ func longEncounter(targets int) *proto.Encounter {
 	return encounter
 }
 
-// The burn Flamestrike's cast leaves on the ground, registered under the cast's id with tag 1.
+// The burn Flamestrike's cast leaves on the ground, the first spell registered under the cast's id with
+// tag 1.
 func flamestrikeBurn(t *testing.T, mage *Mage) *core.Spell {
 	burn := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID, Tag: 1})
 	if burn == nil {
@@ -338,32 +366,40 @@ func flamestrikeBurn(t *testing.T, mage *Mage) *core.Spell {
 	return burn
 }
 
-// The mage's buff from Enchant Weapon - Revelation.
-const revelationBuff = 1248808
-
-// A mage with no gear but the suite's main hand, enchanted with Revelation, against the given number of
-// targets for an hour.
-func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulation, *Mage) {
-	gear := core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "p1Arcane").GearSet
-	equipment := &proto.EquipmentSpec{Items: make([]*proto.ItemSpec, len(gear.Items))}
-	for slot := range equipment.Items {
-		equipment.Items[slot] = &proto.ItemSpec{}
+// The spell each Flamestrike ground tick casts, which reports under the burn's id.
+func flamestrikeTick(t *testing.T, mage *Mage) *core.Spell {
+	burn := flamestrikeBurn(t, mage)
+	for _, spell := range mage.Spellbook {
+		if spell != burn && spell.ActionID.SameAction(burn.ActionID) {
+			return spell
+		}
 	}
-	mainHand := gear.Items[proto.ItemSlot_ItemSlotMainHand]
-	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: mainHand.Id, Enchant: 8217}
-	sim, mage := newMageSimWearing(talents, longEncounter(targets), equipment)
-	if mage.GetAuraByID(core.ActionID{SpellID: revelationBuff}) == nil {
+	t.Fatal("the mage has no Flamestrike ground tick spell")
+	return nil
+}
+
+// A mage with no gear but a staff enchanted with Revelation, against the given number of targets for an
+// hour, and the mage's Revelation buff.
+func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulation, *Mage, *core.Aura) {
+	const staff = 1613
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
+	for slot := range items {
+		items[slot] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: 8217}
+	sim, mage := newMageSimWearing(talents, longEncounter(targets), &proto.EquipmentSpec{Items: items})
+	buff := mage.GetAura("Revelation")
+	if buff == nil {
 		t.Fatal("the mage has no Revelation buff")
 	}
-	return sim, mage
+	return sim, mage, buff
 }
 
 // How many of the given Flamestrike ground ticks proc Revelation and Clearcasting against the given number
 // of targets, each buff taken down after every tick, and the chance Arcane Concentration states.
 func flamestrikeTickProcs(t *testing.T, targets, ticks int) (revelation, clearcasting int, chance float64) {
-	sim, mage := newRevelationMage(t, ArcaneTalents, targets)
+	sim, mage, buff := newRevelationMage(t, ArcaneTalents, targets)
 	burn := flamestrikeBurn(t, mage)
-	buff := mage.GetAuraByID(core.ActionID{SpellID: revelationBuff})
 	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { revelation++ })
 	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { clearcasting++ })
 

@@ -176,12 +176,12 @@ func (h *testHunter) Initialize() {
 
 // A mage with spells Revelation's mage buff 1248808 names: Fire Blast (family 3 bit 1), Frostbolt
 // (bit 5), which rolls at the cast and lands a second later, Arcane Explosion (bit 12), which hits
-// every target, and Arcane Missiles (bit 11), a three-tick channel. None rolls to miss, and each
-// keeps the crits of its landings.
+// every target, and Arcane Missiles (bit 11), a three-tick channel, with a second channeled cast under
+// its flags that starts no channel. None rolls to miss, and each keeps the crits of its landings.
 type testMage struct {
 	core.Character
-	fireBlast, frostbolt, explosion, missiles, missile *core.Spell
-	crits                                              map[*core.Spell][]bool
+	fireBlast, frostbolt, explosion, missiles, missile, stalled *core.Spell
+	crits                                                       map[*core.Spell][]bool
 }
 
 func (m *testMage) GetCharacter() *core.Character       { return &m.Character }
@@ -230,6 +230,10 @@ func (m *testMage) Initialize() {
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
 		},
+	})
+	m.stalled = spell(core.ActionID{SpellID: 25345, Tag: 2}, 11, core.SpellConfig{
+		Flags:        core.SpellFlagChanneled,
+		ApplyEffects: func(_ *core.Simulation, _ *core.Unit, _ *core.Spell) {},
 	})
 	m.missiles = spell(core.ActionID{SpellID: 25345}, 11, core.SpellConfig{
 		Flags: core.SpellFlagChanneled,
@@ -451,7 +455,8 @@ func TestRevelationProcsOffAHuntersShots(t *testing.T) {
 // A mage's buff 1248808 spends its charge as the cast it reaches completes. Every target of an area
 // cast crits and the next cast does not; a missile rolled at the cast keeps its crit in flight, a
 // spell cast while it flies gets none, and its landing spends no charge. A channel keeps the charge
-// for every tick and spends it at the channel's end.
+// for every tick and spends it at the channel's end, and a channeled cast that starts no channel
+// spends it as it completes.
 func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	sim, character := revelationWearerFacing(t, proto.Class_ClassMage, &proto.Player_Mage{Mage: &proto.Mage{}}, 3)
 	mage := sim.Raid.Parties[0].Players[0].(*testMage)
@@ -527,6 +532,16 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 	if buff.IsActive() {
 		t.Error("Arcane Missiles ended and Revelation's charge is still up")
+	}
+	settle()
+
+	charge()
+	mage.stalled.Cast(sim, target)
+	if character.IsChanneling() {
+		t.Fatal("the cast that starts no channel left a channel running")
+	}
+	if buff.IsActive() {
+		t.Error("a channeled cast completed without starting its channel and Revelation's charge is still up")
 	}
 }
 

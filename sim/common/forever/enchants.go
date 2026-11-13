@@ -12,14 +12,19 @@ import (
 )
 
 // Revelation's buff per class. Warriors and rogues have none.
-var revelationBuffs = map[proto.Class]int32{
-	proto.Class_ClassMage:    1248808,
-	proto.Class_ClassPriest:  1323377,
-	proto.Class_ClassWarlock: 1323392,
-	proto.Class_ClassDruid:   1323400,
-	proto.Class_ClassHunter:  1323410,
-	proto.Class_ClassShaman:  1323418,
-	proto.Class_ClassPaladin: 1323419,
+var revelationBuffs = map[proto.Class]revelationBuff{
+	proto.Class_ClassMage:    {id: 1248808, spendsAtCast: true},
+	proto.Class_ClassPriest:  {id: 1323377},
+	proto.Class_ClassWarlock: {id: 1323392},
+	proto.Class_ClassDruid:   {id: 1323400},
+	proto.Class_ClassHunter:  {id: 1323410},
+	proto.Class_ClassShaman:  {id: 1323418},
+	proto.Class_ClassPaladin: {id: 1323419},
+}
+
+type revelationBuff struct {
+	id           int32
+	spendsAtCast bool // The charge goes as the cast completes, not with its first hit.
 }
 
 func init() {
@@ -229,12 +234,12 @@ func init() {
 	// TODO: Verify in game that warriors and rogues get no buff.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
-		buffID, ok := revelationBuffs[character.Class]
+		revelation, ok := revelationBuffs[character.Class]
 		if !ok {
 			return
 		}
 
-		row := spelldata.MustFind(buffID)
+		row := spelldata.MustFind(revelation.id)
 		buff := character.RegisterAura(spelldata.AuraConfig(row))
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
@@ -250,9 +255,8 @@ func init() {
 		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
-				if character.Class == proto.Class_ClassMage {
+				if revelation.spendsAtCast {
 					trigger.Callback = core.CallbackOnCastComplete
-					trigger.TriggerImmediately = true
 				}
 			})
 
