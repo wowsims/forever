@@ -226,10 +226,10 @@ func TestOffHandAutoAttackRageGeneration(t *testing.T) {
 
 func TestDamageTakenRageGeneration(t *testing.T) {
 	// 1000 damage before armor from a level 63 attacker, which assumes 40% armor: 2.5 * 0.6 * 1000 / 243.64
-	// = 6.157 for a physical direct hit, and twice that, 12.314, for another school or any periodic tick. From a level
-	// 30 attacker (21.8%): 2.5 * 0.782 * 1000 / 109.23 = 17.898; level 40 sits halfway between the 38 and 42 rows (22.85%): 2.5 * 0.7715 * 1000 / 147.87 =
-	// 13.044; level 44 (31%): 2.5 * 0.69 * 1000 / 163.83 = 10.529; level 45 sits halfway between the 44 and 46 rows
-	// (33.5%): 2.5 * 0.665 * 1000 / 167.87 = 9.904.
+	// = 6.157 for a physical direct hit, and twice that, 12.314, for another school or any periodic tick. From a
+	// level 30 attacker (21.8%): 2.5 * 0.782 * 1000 / 109.23 = 17.898; level 40 sits halfway between the 38 and 42
+	// rows (22.85%): 2.5 * 0.7715 * 1000 / 147.87 = 13.044; level 44 (31%): 2.5 * 0.69 * 1000 / 163.83 = 10.529;
+	// level 45 sits halfway between the 44 and 46 rows (33.5%): 2.5 * 0.665 * 1000 / 167.87 = 9.904.
 	const preArmorDamage = 1000.0
 
 	tests := []struct {
