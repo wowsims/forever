@@ -1035,24 +1035,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
-  hps: 36.49833
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
-  hps: 36.49833
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 771.14222

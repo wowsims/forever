@@ -1119,22 +1119,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 708.55134

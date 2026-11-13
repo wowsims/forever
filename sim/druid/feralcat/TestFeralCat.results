@@ -1030,22 +1030,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralCat-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 767.65846
-  tps: 570.35857
-  hps: 43.85222
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 767.65846
-  tps: 570.35857
-  hps: 43.85222
- }
-}
-dps_results: {
  key: "TestFeralCat-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 759.45496

@@ -1440,24 +1440,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtectionWarrior-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 444.62534
-  tps: 1468.23943
-  dtps: 294.753
-  hps: 36.66556
- }
-}
-dps_results: {
- key: "TestProtectionWarrior-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 444.62534
-  tps: 1468.23943
-  dtps: 294.753
-  hps: 36.66556
- }
-}
-dps_results: {
  key: "TestProtectionWarrior-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 445.57069

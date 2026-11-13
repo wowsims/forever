@@ -390,6 +390,11 @@ func (character *Character) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 func (character *Character) initialize(agent Agent) {
 	character.majorCooldownManager.initialize(character)
 	character.ItemSwap.initialize(character)
+	character.Env.RegisterPostFinalizeEffect(func() {
+		for slot := range character.Equipment {
+			character.addItemMobTypeStats(&character.Equipment[slot], 1)
+		}
+	})
 	character.RegisterWeaponChangeCallback(func(_ *Simulation) {
 		character.refilterEquipMods()
 	})

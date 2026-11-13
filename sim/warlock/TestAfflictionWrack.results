@@ -815,22 +815,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAfflictionWrack-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 925.95829
-  tps: 743.54085
-  dtps: 9.13784
- }
-}
-dps_results: {
- key: "TestAfflictionWrack-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 925.95829
-  tps: 743.54085
-  dtps: 9.13784
- }
-}
-dps_results: {
  key: "TestAfflictionWrack-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 919.04057

@@ -863,22 +863,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.83127
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.83127
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 745.13135

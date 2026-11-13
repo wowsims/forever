@@ -50,6 +50,14 @@ message ScalingItemProperties {
 
 	// The weapon skill the item adds; each value is the bonus on top of the level-based skill, not the full skill.
 	repeated WeaponSkillValue weapon_skills = 10;
+
+	// Stats that only apply against a target of the mob type, one entry per mob type.
+	repeated MobTypeStats mob_type_stats = 11;
+
+	// Health restored every 5 seconds. Shown on the item only, since the sim does not regenerate health.
+	int32 health_per_five = 12;
+	// The profession skills the item adds. Shown on the item only, since the sim has no use for them.
+	repeated ProfessionSkillValue profession_skills = 13;
 }
 
 message ReducedCasterWeaponDamage {
@@ -162,6 +170,20 @@ enum Profession {
 	Mining = 9;
 	Skinning = 10;
 	Tailoring = 11;
+}
+
+// A profession skill an item raises. Profession lists the professions a player picks and has no Fishing.
+enum ProfessionSkill {
+	ProfessionSkillUnknown = 0;
+	ProfessionSkillHerbalism = 1;
+	ProfessionSkillMining = 2;
+	ProfessionSkillSkinning = 3;
+	ProfessionSkillFishing = 4;
+}
+
+message ProfessionSkillValue {
+	ProfessionSkill skill = 1;
+	int32 value = 2;
 }
 
 // General rules for Stats vs. PseudoStats at the proto level:

@@ -2,6 +2,7 @@ package dbc
 
 import (
 	"math"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -92,12 +93,15 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 
 	// Append base itemlevel stats
 	scalingProperties[int32(0)] = &proto.ScalingItemProperties{
-		WeaponDamageMin: item.WeaponDmgMin(item.ItemLevel),
-		WeaponDamageMax: item.WeaponDmgMax(item.ItemLevel),
-		Stats:           item.GetStats(item.ItemLevel).ToProtoMap(),
-		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
-		Ilvl:            int32(item.ItemLevel),
-		WeaponSkills:    item.GetWeaponSkills(item.ItemLevel),
+		WeaponDamageMin:  item.WeaponDmgMin(item.ItemLevel),
+		WeaponDamageMax:  item.WeaponDmgMax(item.ItemLevel),
+		Stats:            item.GetStats(item.ItemLevel).ToProtoMap(),
+		RandPropPoints:   item.GetRandPropPoints(item.ItemLevel),
+		Ilvl:             int32(item.ItemLevel),
+		WeaponSkills:     item.GetWeaponSkills(item.ItemLevel),
+		MobTypeStats:     item.GetMobTypeStats(item.ItemLevel),
+		HealthPerFive:    item.GetHealthPerFive(item.ItemLevel),
+		ProfessionSkills: item.GetProfessionSkills(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
@@ -190,6 +194,52 @@ func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
 		if skill, ok := weaponSkillByBonusStat[stat]; ok {
 			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
 				skills = append(skills, &proto.WeaponSkillValue{Skill: skill, Value: value})
+			}
+		}
+	}
+	return skills
+}
+
+// One entry per mob type, in the order the item first states each.
+func (item *Item) GetMobTypeStats(itemLevel int) []*proto.MobTypeStats {
+	var out []*proto.MobTypeStats
+	for i, stat := range item.BonusStat {
+		versus, ok := mobTypeStatByBonusStat[stat]
+		if !ok {
+			continue
+		}
+		value := item.GetScaledStat(i, itemLevel)
+		if value == 0 {
+			continue
+		}
+		index := slices.IndexFunc(out, func(entry *proto.MobTypeStats) bool { return entry.MobTypes[0] == versus.mobType })
+		if index < 0 {
+			out = append(out, &proto.MobTypeStats{MobTypes: []proto.MobType{versus.mobType}, Stats: map[int32]float64{}})
+			index = len(out) - 1
+		}
+		for _, granted := range versus.stats {
+			out[index].Stats[int32(granted)] += value
+		}
+	}
+	return out
+}
+
+func (item *Item) GetHealthPerFive(itemLevel int) int32 {
+	var total int32
+	for i, stat := range item.BonusStat {
+		if stat == ITEM_MOD_HEALTH_REGEN {
+			total += int32(item.GetScaledStat(i, itemLevel))
+		}
+	}
+	return total
+}
+
+func (item *Item) GetProfessionSkills(itemLevel int) []*proto.ProfessionSkillValue {
+	var skills []*proto.ProfessionSkillValue
+	for i, stat := range item.BonusStat {
+		if skill, ok := professionSkillByBonusStat[stat]; ok {
+			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
+				skills = append(skills, &proto.ProfessionSkillValue{Skill: skill, Value: value})
 			}
 		}
 	}

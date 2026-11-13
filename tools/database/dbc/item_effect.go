@@ -483,37 +483,75 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 	return effects
 }
 
-// An equip spell that raises only weapon skills the item's own stats already state adds nothing in game.
-// Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and again as equip spell 1297442,
-// A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1. The stat gives the skill and the spell
-// leaves the item: no database entry, no registration and no missing effect. A spell on an item whose
-// stats state no such skill stays.
-func (d *DBC) dropRestatedWeaponSkills() {
+// An equip spell that only restates weapon skills or creature type stats the item's own stats already
+// state adds nothing in game. Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and
+// again as equip spell 1297442, A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1. Seal of
+// the Dawn 13209 states +78 Attack Power against Undead as item stat 128 and again as equip spell 23930,
+// melee and ranged attack power against Undead, and its tooltip shows one +78. The stat gives the bonus
+// and the spell leaves the item: no database entry, no registration and no missing effect. A spell on an
+// item whose stats state no such bonus, or a spell that does more, stays.
+func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
-		stated := map[proto.WeaponSkill]bool{}
-		for _, stat := range d.Items[itemID].BonusStat {
-			if skill, ok := weaponSkillByBonusStat[stat]; ok {
-				stated[skill] = true
-			}
-		}
+		stated := statedBonuses(d.Items[itemID])
 		if len(stated) == 0 {
 			continue
 		}
 		d.ItemEffectsByParentID[itemID] = slices.DeleteFunc(effects, func(effect ItemEffect) bool {
-			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.raisesOnlyWeaponSkills(effect.SpellID, stated)
+			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.restatesOnly(effect.SpellID, stated)
 		})
 	}
 }
 
-func (d *DBC) raisesOnlyWeaponSkills(spellID int, skills map[proto.WeaponSkill]bool) bool {
+// A bonus item stats give outside the stat array: a weapon skill, or a stat against one mob type.
+type statedBonus struct {
+	skill   proto.WeaponSkill
+	mobType proto.MobType
+	stat    proto.Stat
+}
+
+func statedBonuses(item Item) map[statedBonus]bool {
+	stated := map[statedBonus]bool{}
+	for _, stat := range item.BonusStat {
+		if skill, ok := weaponSkillByBonusStat[stat]; ok {
+			stated[statedBonus{skill: skill}] = true
+		}
+		if versus, ok := mobTypeStatByBonusStat[stat]; ok {
+			for _, granted := range versus.stats {
+				stated[statedBonus{mobType: versus.mobType, stat: granted}] = true
+			}
+		}
+	}
+	return stated
+}
+
+func (d *DBC) restatesOnly(spellID int, stated map[statedBonus]bool) bool {
 	effects := d.SpellEffects[spellID]
 	for _, effect := range effects {
-		if effect.EffectAura != dbcenums.A_MOD_SKILL || len(effect.EffectMiscValues) == 0 {
-			return false
-		}
-		if skill, ok := spelldata.WeaponSkillOfLine(int32(effect.EffectMiscValues[0])); !ok || !skills[skill] {
+		if !restates(effect, stated) {
 			return false
 		}
 	}
 	return len(effects) > 0
+}
+
+func restates(effect SpellEffect, stated map[statedBonus]bool) bool {
+	if len(effect.EffectMiscValues) == 0 {
+		return false
+	}
+	misc := int32(effect.EffectMiscValues[0])
+	if effect.EffectAura == dbcenums.A_MOD_SKILL {
+		skill, ok := spelldata.WeaponSkillOfLine(misc)
+		return ok && stated[statedBonus{skill: skill}]
+	}
+	stat, ok := spelldata.VersusStat(effect.EffectAura)
+	mobTypes := spelldata.MobTypes(misc)
+	if !ok || len(mobTypes) == 0 {
+		return false
+	}
+	for _, mobType := range mobTypes {
+		if !stated[statedBonus{mobType: mobType, stat: proto.Stat(stat)}] {
+			return false
+		}
+	}
+	return true
 }

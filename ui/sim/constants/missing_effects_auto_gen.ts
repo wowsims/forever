@@ -1008,12 +1008,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13209, // Seal of the Dawn
-		[
-			"+78 Attack Power against Undead. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 23930 - https://www.wowhead.com/forever/spell=23930
-		]
-	],
-	[
 		13213, // Smolderweb's Eye
 		[
 			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
@@ -1546,12 +1540,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
-		]
-	],
-	[
-		19812, // Rune of the Dawn
-		[
-			"Increases damage done to Undead by magical spells and effects by up to 46. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 24198 - https://www.wowhead.com/forever/spell=24198
 		]
 	],
 	[

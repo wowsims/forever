@@ -815,22 +815,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
- }
-}
-dps_results: {
  key: "TestDestruction-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 902.94873

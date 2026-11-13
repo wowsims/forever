@@ -212,6 +212,34 @@ var weaponSkillByBonusStat = map[int]proto.WeaponSkill{
 	ITEM_MOD_SWORDS_SKILL:            proto.WeaponSkill_WeaponSkillSwords,
 }
 
+// The mob type each creature type stat counts against and the stats it grants there, which the sim
+// keeps on the attack tables. Attack power raises ranged attack power too, as the equip spells that
+// state it give both auras; spell damage is damage alone, as A_MOD_FLAT_SPELL_DAMAGE_VERSUS is.
+var mobTypeStatByBonusStat = map[int]struct {
+	mobType proto.MobType
+	stats   []proto.Stat
+}{
+	ITEM_MOD_ATTACK_POWER_VS_HUMANOID:   {proto.MobType_MobTypeHumanoid, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_ELEMENTAL:  {proto.MobType_MobTypeElemental, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_DEMON:      {proto.MobType_MobTypeDemon, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_UNDEAD:     {proto.MobType_MobTypeUndead, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_DRAGONKIN:  {proto.MobType_MobTypeDragonkin, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_BEAST:      {proto.MobType_MobTypeBeast, attackPowerStats},
+	ITEM_MOD_ATTACK_POWER_VS_MECHANICAL: {proto.MobType_MobTypeMechanical, attackPowerStats},
+	ITEM_MOD_SPELL_DAMAGE_VS_HUMANOID:   {proto.MobType_MobTypeHumanoid, []proto.Stat{proto.Stat_StatSpellDamage}},
+	ITEM_MOD_SPELL_DAMAGE_VS_ELEMENTAL:  {proto.MobType_MobTypeElemental, []proto.Stat{proto.Stat_StatSpellDamage}},
+	ITEM_MOD_SPELL_DAMAGE_VS_DEMON:      {proto.MobType_MobTypeDemon, []proto.Stat{proto.Stat_StatSpellDamage}},
+	ITEM_MOD_SPELL_DAMAGE_VS_UNDEAD:     {proto.MobType_MobTypeUndead, []proto.Stat{proto.Stat_StatSpellDamage}},
+	ITEM_MOD_SPELL_DAMAGE_VS_DRAGONKIN:  {proto.MobType_MobTypeDragonkin, []proto.Stat{proto.Stat_StatSpellDamage}},
+}
+
+var professionSkillByBonusStat = map[int]proto.ProfessionSkill{
+	ITEM_MOD_HERBALISM_SKILL: proto.ProfessionSkill_ProfessionSkillHerbalism,
+	ITEM_MOD_MINING_SKILL:    proto.ProfessionSkill_ProfessionSkillMining,
+	ITEM_MOD_SKINNING_SKILL:  proto.ProfessionSkill_ProfessionSkillSkinning,
+	ITEM_MOD_FISHING_SKILL:   proto.ProfessionSkill_ProfessionSkillFishing,
+}
+
 var MapProfessionIdToProfession = map[int]proto.Profession{
 	0:   proto.Profession_ProfessionUnknown,
 	164: proto.Profession_Blacksmithing,
