@@ -46,10 +46,7 @@ type Meta struct {
 
 // The parse options the row states, for a caster with these talent points.
 func (m *Meta) Options(talentPoints int32) []spelldata.ParseOpt {
-	opts := spelldata.RaidBuffOptions(m.SkipAuras, m.FullComboPoints)
-	if m.AllManaRegen {
-		opts = append(opts, spelldata.AllManaRegen())
-	}
+	opts := spelldata.RaidBuffOptions(m.SkipAuras, m.FullComboPoints, m.AllManaRegen)
 	switch {
 	case m.TalentDivisor > 0:
 		opts = append(opts, spelldata.ScaledByRanks(talentPoints, m.TalentDivisor))

@@ -231,11 +231,45 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
+// A Balance druid in a fresh sim with this many targets; a duration other than 0 resets the sim to run that long.
+func newBalanceDruid(t *testing.T, targets int, duration time.Duration) (*core.Simulation, *BalanceDruid) {
+	t.Helper()
+	sim, _ := balanceDruid(t, false, 0, targets)
+	if duration != 0 {
+		sim.Cleanup()
+		sim.BaseDuration = duration
+		sim.Reset()
+	}
+	return sim, sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+}
+
+// Steps the sim until the clock reaches until.
+func stepUntil(sim *core.Simulation, until time.Duration) {
+	for sim.CurrentTime < until && !sim.Step() {
+	}
+}
+
+// How many of casts casts end with Clearcasting active 100 ms later. The buff makes each cast free;
+// settle waits out the proc's cooldown.
+func countOmenProcs(sim *core.Simulation, druid *BalanceDruid, casts int, cast, settle func(start time.Duration)) int {
+	procs := 0
+	for range casts {
+		druid.ClearcastingAura.Activate(sim)
+		start := sim.CurrentTime
+		cast(start)
+		stepUntil(sim, start+100*time.Millisecond)
+		if druid.ClearcastingAura.IsActive() {
+			procs++
+		}
+		settle(start)
+	}
+	return procs
+}
+
 // Hurricane's ticks roll no Omen of Clarity, and their crits grant no Nature's Grace.
 func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 	t.Run("Omen of Clarity", func(t *testing.T) {
-		sim, _ := balanceDruid(t, false, 0, 3)
-		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		sim, druid := newBalanceDruid(t, 3, 0)
 		for range 500 {
 			// The step clears the proc's cooldown, which a successful roll starts on the spot.
 			sim.CurrentTime += time.Minute
@@ -247,8 +281,7 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 	})
 
 	t.Run("Nature's Grace", func(t *testing.T) {
-		sim, _ := balanceDruid(t, false, 0, 1)
-		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		sim, druid := newBalanceDruid(t, 1, 0)
 		naturesGrace := druid.GetAura("Nature's Grace")
 		if naturesGrace == nil {
 			t.Fatal("Nature's Grace is not registered")
@@ -257,8 +290,7 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 		tick := druid.Hurricane.RelatedDotSpell
 		start := sim.CurrentTime
 		tick.Cast(sim, druid.CurrentTarget)
-		for sim.CurrentTime < start+time.Second && !sim.Step() {
-		}
+		stepUntil(sim, start+time.Second)
 		if tick.SpellMetrics[druid.CurrentTarget.UnitIndex].Crits == 0 {
 			t.Fatal("the tick did not crit")
 		}
@@ -273,28 +305,16 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 	const casts = 400
 	procsOn := func(targets int) int {
-		sim, _ := balanceDruid(t, false, 0, targets)
-		sim.Cleanup()
-		sim.BaseDuration = casts * time.Minute
-		sim.Reset()
-		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
-		procs := 0
-		for range casts {
-			// The buff makes the cast free; the channel outlasts the proc's cooldown.
-			druid.ClearcastingAura.Activate(sim)
-			start := sim.CurrentTime
+		sim, druid := newBalanceDruid(t, targets, casts*time.Minute)
+		return countOmenProcs(sim, druid, casts, func(_ time.Duration) {
 			if !druid.Hurricane.Cast(sim, druid.CurrentTarget) {
 				t.Fatal("Hurricane did not cast")
 			}
-			for sim.CurrentTime < start+100*time.Millisecond && !sim.Step() {
-			}
-			if druid.ClearcastingAura.IsActive() {
-				procs++
-			}
+		}, func(_ time.Duration) {
+			// The channel outlasts the proc's cooldown.
 			for druid.Hurricane.AOEDot().IsActive() && !sim.Step() {
 			}
-		}
-		return procs
+		})
 	}
 
 	one, five := procsOn(1), procsOn(5)
@@ -311,34 +331,21 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 func TestHelpfulCastsRollOmenInMoonkinFormOnly(t *testing.T) {
 	const casts = 400
 	newDruid := func() (*core.Simulation, *BalanceDruid) {
-		sim, _ := balanceDruid(t, false, 0, 1)
-		sim.Cleanup()
-		sim.BaseDuration = casts * 10 * time.Second
-		sim.Reset()
-		return sim, sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		return newBalanceDruid(t, 1, casts*10*time.Second)
 	}
 	procsIn := func(moonkin bool) int {
 		sim, druid := newDruid()
 		if !moonkin {
 			druid.ClearForm(sim)
 		}
-		procs := 0
-		for range casts {
-			// The buff makes the cast free; the wait outlasts the proc's cooldown.
-			druid.ClearcastingAura.Activate(sim)
-			start := sim.CurrentTime
+		return countOmenProcs(sim, druid, casts, func(_ time.Duration) {
 			if !druid.Thorns.Cast(sim, &druid.Unit) {
 				t.Fatal("Thorns did not cast")
 			}
-			for sim.CurrentTime < start+100*time.Millisecond && !sim.Step() {
-			}
-			if druid.ClearcastingAura.IsActive() {
-				procs++
-			}
-			for sim.CurrentTime < start+10*time.Second && !sim.Step() {
-			}
-		}
-		return procs
+		}, func(start time.Duration) {
+			// The wait outlasts the proc's cooldown.
+			stepUntil(sim, start+10*time.Second)
+		})
 	}
 
 	if got := procsIn(true); got == 0 {
@@ -360,7 +367,6 @@ func TestHelpfulCastsRollOmenInMoonkinFormOnly(t *testing.T) {
 		if !druid.OmenOfClarityAura.Icd.IsReady(sim) {
 			t.Fatal("a shift into Moonkin Form rolled Omen of Clarity")
 		}
-		for sim.CurrentTime < start+10*time.Second && !sim.Step() {
-		}
+		stepUntil(sim, start+10*time.Second)
 	}
 }

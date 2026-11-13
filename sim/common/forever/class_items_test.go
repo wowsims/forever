@@ -714,11 +714,11 @@ func TestIdolOfShiftingTidesCheapensEveryShapeshift(t *testing.T) {
 		items := bearItemSlots()
 		items[proto.ItemSlot_ItemSlotRanged].Id = idol
 		_, bear := equippedBear(t, items)
-		var costs []float64
+		var formCosts []float64
 		for _, form := range []*druid.DruidSpell{bear.CatForm, bear.BearForm, bear.DireBearForm} {
-			costs = append(costs, form.Cost.GetCurrentCost())
+			formCosts = append(formCosts, form.Cost.GetCurrentCost())
 		}
-		return costs
+		return formCosts
 	}
 	flat := spelldata.MustFind(1270470).EffectN(1).BaseValue()
 	if flat >= 0 {

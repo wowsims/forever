@@ -380,10 +380,7 @@ func (row *ResolvedBuff) parseOptions() []spelldata.ParseOpt {
 	if row.Kind == buffmanifest.KindDamageShield {
 		skip = append(slices.Clone(skip), dbcenums.A_DAMAGE_SHIELD)
 	}
-	opts := spelldata.RaidBuffOptions(skip, row.FullComboPoints)
-	if row.AllManaRegen {
-		opts = append(opts, spelldata.AllManaRegen())
-	}
+	opts := spelldata.RaidBuffOptions(skip, row.FullComboPoints, row.AllManaRegen)
 	if row.Kind == buffmanifest.KindItemCount {
 		opts = append(opts, spelldata.Count(1))
 	}
