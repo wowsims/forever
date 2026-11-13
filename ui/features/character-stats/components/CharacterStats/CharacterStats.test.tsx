@@ -459,34 +459,46 @@ const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
 };
 
 describe('CharacterStats bonuses against a kind of target', () => {
-	it("lists each mob type and area the sim reports a bonus against, the target's mob type and the encounter's area marked", async () => {
+	afterEach(() => {
+		window.localStorage.clear();
+	});
+
+	const hit = UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!;
+	const attackPower = (amount: string) => [
+		[translateStat(Stat.StatAttackPower), amount],
+		[translateStat(Stat.StatRangedAttackPower), amount],
+	];
+	const mobTypeGroups = [
+		{ label: translateMobType(MobType.MobTypeBeast), lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%']], current: false },
+		{
+			label: translateMobType(MobType.MobTypeHumanoid),
+			lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
+			current: false,
+		},
+		{ label: translateMobType(MobType.MobTypeUndead), lines: attackPower('+99'), current: false },
+	];
+	const areaLabel = i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) });
+	const areaLines = [
+		[translateStat(Stat.StatAttackPower), '+28'],
+		[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
+	];
+
+	it("lists each mob type and area the sim reports a bonus against, the target's mob type unmarked and the encounter's area marked as counted", async () => {
 		const view = renderVersus(
 			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
 		);
-		const hit = UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!;
-		const attackPower = (amount: string) => [
-			[translateStat(Stat.StatAttackPower), amount],
-			[translateStat(Stat.StatRangedAttackPower), amount],
-		];
 
 		expect(await openVersusGroups(view)).toEqual([
-			{ label: translateMobType(MobType.MobTypeBeast), lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%']], current: false },
-			{
-				label: translateMobType(MobType.MobTypeHumanoid),
-				lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
-				current: true,
-			},
-			{ label: translateMobType(MobType.MobTypeUndead), lines: attackPower('+99'), current: false },
-			{
-				label: i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) }),
-				lines: [
-					[translateStat(Stat.StatAttackPower), '+28'],
-					[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
-				],
-				current: true,
-			},
+			...mobTypeGroups,
+			{ label: areaLabel, lines: [[i18n.t('sidebar.character_stats.versus.already_counted')], ...areaLines], current: true },
 		]);
+	});
+
+	it('leaves an area the encounter is not in unmarked', async () => {
+		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES });
+
+		expect(await openVersusGroups(view)).toEqual([...mobTypeGroups, { label: areaLabel, lines: areaLines, current: false }]);
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {
