@@ -366,7 +366,7 @@ func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	}
 }
 
-// A hand's weapon skill is weighed per skill point from five points above the baseline. A hand that neither the
+// A hand's weapon skill is weighed per skill point from two points above the baseline. A hand that neither the
 // gear nor the item swap puts a weapon in, by the sim's rule, gets no run: an empty hand, a shield or a
 // held-in-off-hand item.
 func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
@@ -411,11 +411,11 @@ func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
 			continue
 		}
 		request := requests.StatSimRequests[i]
-		if request.RequestLow != nil || request.StatData.ModHigh != 5 {
-			t.Errorf("%s weapon skill runs below the baseline = %v and steps by %v, want five points above it only", hand.name, request.RequestLow != nil, request.StatData.ModHigh)
+		if request.RequestLow != nil || request.StatData.ModHigh != 2 {
+			t.Errorf("%s weapon skill runs below the baseline = %v and steps by %v, want two points above it only", hand.name, request.RequestLow != nil, request.StatData.ModHigh)
 		}
-		if got := protoUnitStat(request.RequestHigh.Raid.Parties[0].Players[0].BonusStats, hand.stat); got != 5 {
-			t.Errorf("%s weapon skill run carries %v bonus points, want 5", hand.name, got)
+		if got := protoUnitStat(request.RequestHigh.Raid.Parties[0].Players[0].BonusStats, hand.stat); got != 2 {
+			t.Errorf("%s weapon skill run carries %v bonus points, want 2", hand.name, got)
 		}
 	}
 

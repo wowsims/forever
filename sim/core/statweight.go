@@ -247,9 +247,10 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 			if !handHoldsWeapon(swr.Player, stat) {
 				continue
 			}
-			// One skill point changes too few attack rolls to measure cheaply, and an item grants several, so
-			// the step is 5 points and the weight their average per point.
-			statMod = 5
+			// One skill point changes too few attack rolls to measure cheaply, and most items grant one or two
+			// points, so the step is 2 points and the weight their average per point. A wider step would average
+			// over breakpoints past what an item reaches.
+			statMod = 2
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {
