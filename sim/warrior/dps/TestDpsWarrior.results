@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Blackhand'sBreadth-13965"
  value: {
-  dps: 517.7744
-  tps: 447.29822
+  dps: 525.10503
+  tps: 453.02449
   dtps: 2.94293
-  hps: 41.61556
+  hps: 41.73417
  }
 }
 dps_results: {
