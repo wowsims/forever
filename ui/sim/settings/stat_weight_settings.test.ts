@@ -1,4 +1,4 @@
-import { Stat } from '@generated/proto/common';
+import { PseudoStat, Stat } from '@generated/proto/common';
 import { SavedStatWeightSettings } from '@generated/proto/ui';
 import { describe, expect, it } from 'vitest';
 
@@ -72,6 +72,21 @@ describe('StatWeightActionSettings precision', () => {
 
 		expect(loaded.precision).toEqual({ precisionMode: 'iterations', iterations: 4000, targetCi: 0.005, maxIterationMultiplier: 4 });
 		expect(loaded.excludedStats).toEqual([Stat.StatAgility]);
+	});
+
+	it('starts with the weapon skill rows excluded, keeps a stored choice to include one, and excludes them again on defaults', () => {
+		const weaponSkills = [PseudoStat.PseudoStatMainHandWeaponSkill, PseudoStat.PseudoStatOffHandWeaponSkill];
+		const storage = new Map<string, string>();
+		const saved = settingsOn(storage);
+		expect(saved.excludedPseudoStats).toEqual(weaponSkills);
+
+		saved.setStatExcluded(UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill), false);
+		const loaded = settingsOn(storage);
+		loaded.load();
+		expect(loaded.excludedPseudoStats).toEqual([PseudoStat.PseudoStatOffHandWeaponSkill]);
+
+		loaded.applyDefaults();
+		expect(loaded.excludedPseudoStats).toEqual(weaponSkills);
 	});
 
 	it('does not rewrite storage for a patch that changes nothing', () => {

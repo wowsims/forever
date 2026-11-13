@@ -423,13 +423,15 @@ describe('EpWeightsDialog', () => {
 		expect(player.computeStatWeights.mock.calls[0][0]).toEqual([Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating]);
 	});
 
-	it("shows and weights a hand's weapon skill where a spec showing melee weapon skill weights that hand's weapon DPS and the hand holds a weapon", async () => {
+	it("shows a hand's weapon skill unchecked where a spec showing melee weapon skill weights that hand's weapon DPS and the hand holds a weapon, and weights it once checked", async () => {
 		const mainHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill);
 		const offHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill);
 		host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatOffHandDps];
 		host.individualConfig.displayWeaponSkillGroups = [WeaponSkillGroup.Melee];
+		// The two weapon skill rows start excluded, as StatWeightActionSettings seeds them.
+		settings.excludedPseudoStats = [PseudoStat.PseudoStatMainHandWeaponSkill, PseudoStat.PseudoStatOffHandWeaponSkill];
 		player.weaponSlots = [ItemSlot.ItemSlotMainHand];
-		player.epWeights = new Stats().withPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill, 9);
+		player.epWeights = new Stats().withPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill, 3).withPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill, 9);
 		const result = weightsResult([
 			[STRENGTH, 2],
 			[mainHandSkill, 10],
@@ -437,21 +439,35 @@ describe('EpWeightsDialog', () => {
 		result.stepAbove = new Stats().withUnitStat(STRENGTH, 10).withUnitStat(mainHandSkill, 5).toProto();
 		player.computeStatWeights.mockResolvedValue(result);
 		renderDialog();
+		const mainHandRow = () => rowFor(mainHandSkill.getWeightName(Class.ClassWarrior));
+		const mainHandToggle = () => mainHandRow().querySelector('[data-testid="swcalc-include-toggle"] [data-testid="boolean-picker-input"]')!;
+		const copyEp = () =>
+			act(() => {
+				fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
+			});
 
-		expect(rowFor(mainHandSkill.getWeightName(Class.ClassWarrior))).toBeDefined();
+		expect(mainHandRow()).toBeDefined();
+		expect(mainHandToggle().getAttribute('aria-checked')).toBe('false');
 		expect(rowFor(offHandSkill.getWeightName(Class.ClassWarrior))).toBeUndefined();
 		await act(async () => {
 			fireEvent.click(calculate());
 		});
-		expect(player.computeStatWeights.mock.calls[0][1]).toEqual([
+		expect(player.computeStatWeights.mock.calls[0][1]).toEqual([PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatOffHandDps]);
+		copyEp();
+		expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill)).toBe(3);
+
+		act(() => {
+			fireEvent.click(mainHandToggle());
+		});
+		await act(async () => {
+			fireEvent.click(calculate());
+		});
+		expect(player.computeStatWeights.mock.calls[1][1]).toEqual([
 			PseudoStat.PseudoStatMainHandDps,
 			PseudoStat.PseudoStatOffHandDps,
 			PseudoStat.PseudoStatMainHandWeaponSkill,
 		]);
-
-		act(() => {
-			fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
-		});
+		copyEp();
 		expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill)).toBe(5);
 		expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill)).toBe(9);
 	});
