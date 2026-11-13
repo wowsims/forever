@@ -878,6 +878,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 588.99221
+  tps: 418.18447
+  hps: 51.79917
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-JomGabbar-23570"
  value: {
   dps: 609.59151
@@ -1166,6 +1174,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Ripsaw-9478"
+ value: {
+  dps: 614.65221
+  tps: 436.40307
+  hps: 46.39389
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 588.68782
@@ -1371,6 +1387,14 @@ dps_results: {
   dps: 575.22221
   tps: 408.40777
   hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 598.02092
+  tps: 424.59486
+  hps: 44.95361
  }
 }
 dps_results: {

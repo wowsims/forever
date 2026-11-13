@@ -165,6 +165,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 876.81937
@@ -1459,6 +1467,14 @@ dps_results: {
   dps: 880.15979
   tps: 891.35352
   dtps: 5.47873
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {

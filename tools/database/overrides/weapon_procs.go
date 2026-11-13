@@ -146,6 +146,45 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Lightcrest Hammer: no proc row; 148 procs on landed hits, 1 end-game dungeon run, 1 player, main hand while dual wielding",
 		Source:  "wcl:AHaVwhrgcm9NM2TZ/19, 2026-11-12",
 	},
+	// Measured the same way in combat logs of levelling players. A druid's Maul, Swipe, Claw and Lacerate hits
+	// are left out as well: 2 of 7736 gave a chance-on-hit weapon's proc (3 druids, 2 weapons). The chance a
+	// swing scales with the swing speed, as procs per minute do: Bigger Rock on Bigger Stick reads 11.7% at its
+	// own 3.4 speed, 8.6% at a bear's 2.5 and 2.5% at a cat's 1.0.
+	{
+		ItemID:  9478,
+		SpellID: 1292573,
+		PPM:     2,
+		Reason:  "Ripsaw: no proc row; 185 procs on 2018 landed main-hand hits, 1 player",
+		Source:  "combat log, 2026-11-12",
+	},
+	{
+		ItemID:  9639,
+		SpellID: 13532,
+		PPM:     2,
+		Reason:  "The Hand of Antu'sul: no proc row; 91 procs on 991 landed hits, 1 player",
+		Source:  "combat log, 2026-11-12",
+	},
+	{
+		ItemID:  11086,
+		SpellID: 11657,
+		PPM:     2.9,
+		Reason:  "Jang'thraze the Protector: no proc row; 181 procs on 1972 landed hits, 1 player",
+		Source:  "combat log, 2026-11-12",
+	},
+	{
+		ItemID:  17705,
+		SpellID: 21919,
+		PPM:     1,
+		Reason:  "Thrash Blade: no proc row; 61 procs on 1425 landed main-hand hits, 1 player",
+		Source:  "combat log, 2026-11-12",
+	},
+	{
+		ItemID:  279480,
+		SpellID: 1306816,
+		PPM:     2,
+		Reason:  "Bigger Rock on Bigger Stick: no proc row; 255 procs on 3130 landed white hits, 4 players, a bear and cat druid among them",
+		Source:  "combat log, 2026-11-12",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,
@@ -424,13 +463,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16407,
 		PPM:     1.2, // TODO: Vanilla value - verify in-game
 		Reason:  "Edge of Winter: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  17705,
-		SpellID: 21919,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Thrash Blade: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{

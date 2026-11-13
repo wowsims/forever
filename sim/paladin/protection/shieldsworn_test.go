@@ -11,7 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/paladin"
 )
 
-// A Holy Strike that lands puts up Shieldsworn's 6 sec spell block. While it is up a Fire swing
+// A Holy Strike puts up Shieldsworn's 6 sec spell block, whether or not it lands. While it is up a Fire swing
 // rolls the paladin's block chance, and a blocked Fire swing is a block to Holy Shield, which spends
 // a charge, and to Shield Specialization, which restores mana.
 func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
@@ -61,28 +61,42 @@ func TestShieldswornBlocksNonPhysicalSwings(t *testing.T) {
 		t.Fatalf("%d of 50 Fire swings were blocked without Shieldsworn's spell block up", blocks())
 	}
 
-	for range 50 {
-		holyStrike.SkipCastAndApplyEffects(sim, target)
-		if spellBlock.IsActive() {
-			break
-		}
-	}
-	if !spellBlock.IsActive() {
-		t.Fatal("no Holy Strike in 50 put up Shieldsworn's spell block")
-	}
-	if holyShield.GetStacks() != holyShield.MaxStacks {
-		t.Fatalf("a Holy Strike left Holy Shield at %d of %d charges", holyShield.GetStacks(), holyShield.MaxStacks)
-	}
-
 	// A Holy Strike's shield damage reports under Holy Shield tagged with Shieldsworn, and a block's under tag 2.
 	blockDamage := pally.GetSpell(holyShield.ActionID.WithTag(2))
 	strikeDamage := pally.GetSpell(holyShield.ActionID.WithTag(1328544))
 	if blockDamage == nil || strikeDamage == nil {
 		t.Fatal("Holy Shield's block damage or its Shieldsworn copy is not registered")
 	}
-	if strikeDamage.SpellMetrics[target.UnitIndex].Hits == 0 || blockDamage.SpellMetrics[target.UnitIndex].Hits != 0 {
-		t.Fatalf("a Holy Strike's shield damage hit %d times under Shieldsworn's tag and %d under the block's",
-			strikeDamage.SpellMetrics[target.UnitIndex].Hits, blockDamage.SpellMetrics[target.UnitIndex].Hits)
+
+	// Every strike puts the spell block up, a dodged or missed one too, and only one that lands deals the
+	// shield's damage.
+	landed, avoided := 0, 0
+	for casts := 0; casts < 5000 && (landed == 0 || avoided == 0); casts++ {
+		spellBlock.Deactivate(sim)
+		strikes, shieldCasts := holyStrike.SpellMetrics[target.UnitIndex], strikeDamage.SpellMetrics[target.UnitIndex].Casts
+		holyStrike.SkipCastAndApplyEffects(sim, target)
+		after := holyStrike.SpellMetrics[target.UnitIndex]
+		wasAvoided := after.Misses+after.Dodges+after.Parries > strikes.Misses+strikes.Dodges+strikes.Parries
+		if !spellBlock.IsActive() {
+			t.Fatalf("a Holy Strike put up no spell block (avoided: %t)", wasAvoided)
+		}
+		if dealt := strikeDamage.SpellMetrics[target.UnitIndex].Casts > shieldCasts; dealt == wasAvoided {
+			t.Fatalf("a Holy Strike dealt the shield's damage: %t (avoided: %t)", dealt, wasAvoided)
+		}
+		if wasAvoided {
+			avoided++
+		} else {
+			landed++
+		}
+	}
+	if landed == 0 || avoided == 0 {
+		t.Fatalf("%d Holy Strikes landed and %d were avoided, want both", landed, avoided)
+	}
+	if holyShield.GetStacks() != holyShield.MaxStacks {
+		t.Fatalf("a Holy Strike left Holy Shield at %d of %d charges", holyShield.GetStacks(), holyShield.MaxStacks)
+	}
+	if blockDamage.SpellMetrics[target.UnitIndex].Casts != 0 {
+		t.Fatalf("a Holy Strike's shield damage was cast %d times under the block's tag", blockDamage.SpellMetrics[target.UnitIndex].Casts)
 	}
 
 	// Mana is drained first so Shield Specialization's restore has room to land.

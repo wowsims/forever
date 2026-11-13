@@ -1103,6 +1103,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-TheHighlander'sIntent"
  value: {
   dps: 751.82224

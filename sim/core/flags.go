@@ -222,6 +222,7 @@ const (
 	SpellFlagOnNextSwing                                    // The row goes off in place of the next main-hand swing (Attributes[0] 0x4), e.g. Heroic Strike or Maul.
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
+	SpellFlagIgnoreWeaponSchoolBonus                        // A melee weapon's damage done row that leaves a school out skips the spell in its schools past Physical: in game Two-Handed Weapon Specialization's Holy reaches none of Exorcism, Hammer of Wrath and Retribution Aura.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

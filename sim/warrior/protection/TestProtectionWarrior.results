@@ -1260,6 +1260,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 420.47724
+  tps: 1413.26776
+  dtps: 289.38973
+  hps: 39.59694
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-JomGabbar-23570"
  value: {
   dps: 444.62534
@@ -1710,6 +1719,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Ripsaw-9478"
+ value: {
+  dps: 426.73454
+  tps: 1408.67892
+  dtps: 292.86699
+  hps: 35.615
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 446.55076
@@ -2040,6 +2058,15 @@ dps_results: {
   tps: 1483.72933
   dtps: 316.01834
   hps: 36.75028
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 412.02487
+  tps: 1375.74684
+  dtps: 291.19958
+  hps: 35.34389
  }
 }
 dps_results: {
