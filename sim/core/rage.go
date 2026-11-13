@@ -137,10 +137,10 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			handMultiplier := 1.0
 			var weapon *Weapon
 
-			switch spell.ProcMask {
-			case ProcMaskMeleeMHAuto:
+			switch {
+			case spell.ProcMask == ProcMaskMeleeMHAuto, spell.Flags.Matches(SpellFlagSwingRage):
 				weapon = unit.AutoAttacks.MH()
-			case ProcMaskMeleeOHAuto:
+			case spell.ProcMask == ProcMaskMeleeOHAuto:
 				// OH hits generate 50% of the rage they would if they were MH hits
 				hitFactor /= 2
 				handMultiplier = unit.rageBar.offHandRageMultiplier
