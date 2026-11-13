@@ -17,7 +17,7 @@ var revelationBuffs = map[proto.Class]revelationBuff{
 	proto.Class_ClassPriest:  {id: 1323377},
 	proto.Class_ClassWarlock: {id: 1323392},
 	proto.Class_ClassDruid:   {id: 1323400},
-	proto.Class_ClassHunter:  {id: 1323410, shotsRoll: true},
+	proto.Class_ClassHunter:  {id: 1323410},
 	proto.Class_ClassShaman:  {id: 1323418},
 	proto.Class_ClassPaladin: {id: 1323419},
 }
@@ -25,7 +25,6 @@ var revelationBuffs = map[proto.Class]revelationBuff{
 type revelationBuff struct {
 	id           int32
 	spendsAtCast bool // The charge goes as the cast completes, not with its first hit.
-	shotsRoll    bool // A ranged Shot the buff's class flags name rolls the proc as a spell does.
 }
 
 func init() {
@@ -266,14 +265,14 @@ func init() {
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// The row's listener hears direct spells and heals. A hunter's ranged Shot the buff's class
-		// flags name rolls the same chance, which Arcane Shot is. The paladin's buff names its ranged
-		// judgements too, and they roll nothing: they are not spells to the listener.
-		// TODO: Verify in game that a hunter's Arcane Shot procs Revelation.
+		// The row's listener hears direct spells and heals. A ranged attack the buff's class flags name
+		// rolls the same chance: the hunter buff's Arcane Shot, and the paladin buff's Hammer of Wrath,
+		// Judgement of Righteousness and Judgement of Fury.
+		// TODO: Verify in game that a hunter's Arcane Shot and a paladin's judgement proc Revelation.
 		spellHits, classFlags := trigger.ProcMask, spender.ClassFlags
 		trigger.ProcMask = core.ProcMaskUnknown
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			shot := revelation.shotsRoll && spell.DefenseType == core.DefenseTypeRanged && spell.MatchesFlags(classFlags)
+			shot := spell.DefenseType == core.DefenseTypeRanged && spell.MatchesFlags(classFlags)
 			if !spell.ProcMask.Matches(spellHits) && !shot {
 				return false
 			}
