@@ -2137,6 +2137,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Deal 175 Fire damage. Deals 3 times as much damage to Plants.
+	// https://www.wowhead.com/forever/spell=1302354
+	// unsupported: states no rate
+	// trigger 1302354 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302354, BuffSpellID: 1302354, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 18538, ItemName: "Treant's Bane"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// While equipped, the wearer suffers less damage from falls.
 	// https://www.wowhead.com/forever/spell=23409
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4941,6 +4954,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=1314065
 	// Not simulated: Wintersaber Hide Lined Gloves: "Mount Speed" (1315778) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=1315778
+	// Not simulated: Ankle Slicers: "Sliced Ankle" (1316346) - ignored aura type 33
+	// https://www.wowhead.com/forever/spell=1316346
 	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 32
 	// https://www.wowhead.com/forever/spell=1314065
 }
