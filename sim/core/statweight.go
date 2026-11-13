@@ -131,17 +131,31 @@ func isHandWeaponSkill(stat stats.UnitStat) bool {
 	return stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatMainHandWeaponSkill) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill)
 }
 
-// Whether the request's gear and item swap leave the hand that weapon skill pseudo stat raises empty, so its
-// runs would repeat the baseline. A shield or a held-in-off-hand item is not looked up and repeats it too.
-func handIsEmpty(player *proto.Player, stat stats.UnitStat) bool {
+// Whether the request's gear or enabled item swap puts a weapon in the hand that weapon skill pseudo stat
+// raises, by GetMHWeapon's and GetOHWeapon's rule; without one its runs would repeat the baseline. An item
+// neither the request's database nor the loaded one knows counts as a weapon.
+func handHoldsWeapon(player *proto.Player, stat stats.UnitStat) bool {
 	slot := proto.ItemSlot_ItemSlotMainHand
 	if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill) {
 		slot = proto.ItemSlot_ItemSlotOffHand
 	}
-	holds := func(items []*proto.ItemSpec) bool {
-		return int(slot) < len(items) && items[slot].GetId() != 0
+	isWeapon := func(id int32) bool {
+		if slot != proto.ItemSlot_ItemSlotOffHand {
+			return true
+		}
+		weaponType := proto.WeaponType_WeaponTypeUnknown
+		requestItems := player.GetDatabase().GetItems()
+		if i := slices.IndexFunc(requestItems, func(item *proto.SimItem) bool { return item.Id == id }); i >= 0 {
+			weaponType = requestItems[i].WeaponType
+		} else if item := GetItemByID(id); item != nil {
+			weaponType = item.WeaponType
+		}
+		return weaponType != proto.WeaponType_WeaponTypeShield && weaponType != proto.WeaponType_WeaponTypeOffHand
 	}
-	return !holds(player.GetEquipment().GetItems()) && !(player.GetEnableItemSwap() && holds(player.GetItemSwap().GetItems()))
+	holds := func(items []*proto.ItemSpec) bool {
+		return int(slot) < len(items) && items[slot].GetId() != 0 && isWeapon(items[slot].GetId())
+	}
+	return holds(player.GetEquipment().GetItems()) || (player.GetEnableItemSwap() && holds(player.GetItemSwap().GetItems()))
 }
 
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
@@ -230,7 +244,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		if _, _, hasRating := ratingBehindStat(stat); hasRating {
 			statMod = 1
 		} else if isHandWeaponSkill(stat) {
-			if handIsEmpty(swr.Player, stat) {
+			if !handHoldsWeapon(swr.Player, stat) {
 				continue
 			}
 			// One skill point changes too few attack rolls to measure cheaply, and an item grants several, so

@@ -366,22 +366,29 @@ func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	}
 }
 
-// A hand's weapon skill is weighed per skill point from five points above the baseline. A hand the gear and the
-// item swap leave empty gets no run.
+// A hand's weapon skill is weighed per skill point from five points above the baseline. A hand that neither the
+// gear nor the item swap puts a weapon in, by the sim's rule, gets no run: an empty hand, a shield or a
+// held-in-off-hand item.
 func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
 	mhSkill := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMainHandWeaponSkill)
 	ohSkill := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill)
-	gear := func(heldSlots ...proto.ItemSlot) []*proto.ItemSpec {
+	const sword, shield, heldInOffHand = 900001, 900002, 900003
+	database := &proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: sword, WeaponType: proto.WeaponType_WeaponTypeSword},
+		{Id: shield, WeaponType: proto.WeaponType_WeaponTypeShield},
+		{Id: heldInOffHand, WeaponType: proto.WeaponType_WeaponTypeOffHand},
+	}}
+	gear := func(mainHand, offHand int32) []*proto.ItemSpec {
 		items := make([]*proto.ItemSpec, len(proto.ItemSlot_name))
 		for slot := range items {
 			items[slot] = &proto.ItemSpec{}
 		}
-		for _, slot := range heldSlots {
-			items[slot].Id = int32(slot) + 1
-		}
+		items[proto.ItemSlot_ItemSlotMainHand].Id = mainHand
+		items[proto.ItemSlot_ItemSlotOffHand].Id = offHand
 		return items
 	}
 	weaponSkillRequests := func(player *proto.Player) *proto.StatWeightRequestsData {
+		player.Database = database
 		return buildStatWeightRequests(&proto.StatWeightsRequest{
 			Player:             player,
 			Encounter:          &proto.Encounter{},
@@ -393,7 +400,7 @@ func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
 		})
 	}
 
-	requests := weaponSkillRequests(&proto.Player{Equipment: &proto.EquipmentSpec{Items: gear(proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand)}})
+	requests := weaponSkillRequests(&proto.Player{Equipment: &proto.EquipmentSpec{Items: gear(sword, sword)}})
 	for _, hand := range []struct {
 		name string
 		stat stats.UnitStat
@@ -437,17 +444,28 @@ func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
 		}
 	}
 
-	twoHander := weaponSkillRequests(&proto.Player{Equipment: &proto.EquipmentSpec{Items: gear(proto.ItemSlot_ItemSlotMainHand)}})
-	if simulatesStat(twoHander, ohSkill) {
-		t.Error("a run for the off hand's weapon skill, which holds nothing")
-	}
-	swapped := weaponSkillRequests(&proto.Player{
-		Equipment:      &proto.EquipmentSpec{Items: gear(proto.ItemSlot_ItemSlotMainHand)},
-		EnableItemSwap: true,
-		ItemSwap:       &proto.ItemSwap{Items: gear(proto.ItemSlot_ItemSlotOffHand)},
-	})
-	if !simulatesStat(swapped, ohSkill) {
-		t.Error("no run for the off hand's weapon skill, which the item swap fills")
+	for _, c := range []struct {
+		name          string
+		offHand       int32
+		swapOffHand   int32
+		swapEnabled   bool
+		weighsOffHand bool
+	}{
+		{"empty off hand", 0, 0, false, false},
+		{"shield", shield, 0, false, false},
+		{"held-in-off-hand item", heldInOffHand, 0, false, false},
+		{"shield with a swap shield", shield, shield, true, false},
+		{"shield with a swap weapon", shield, sword, true, true},
+		{"shield with a swap weapon, swap off", shield, sword, false, false},
+	} {
+		requests := weaponSkillRequests(&proto.Player{
+			Equipment:      &proto.EquipmentSpec{Items: gear(sword, c.offHand)},
+			EnableItemSwap: c.swapEnabled,
+			ItemSwap:       &proto.ItemSwap{Items: gear(0, c.swapOffHand)},
+		})
+		if got := simulatesStat(requests, ohSkill); got != c.weighsOffHand {
+			t.Errorf("%s: off hand weapon skill has a run = %v, want %v", c.name, got, c.weighsOffHand)
+		}
 	}
 }
 

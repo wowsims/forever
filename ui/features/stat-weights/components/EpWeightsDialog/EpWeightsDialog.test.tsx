@@ -1,7 +1,7 @@
 // The store, the worker and the saved-data manager are stubbed — what is under test is the view,
 // and every source it reads is driven directly.
 import { ErrorOutcomeType, type StatWeightsResult, StatWeightsTargetMetric } from '@generated/proto/api';
-import { Class, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { Class, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -131,6 +131,7 @@ class FakePlayer {
 	readonly playerClass = { classID: Class.ClassWarrior };
 	playerSpec: { isTankSpec: boolean; isHealingSpec: boolean } | undefined = undefined;
 	computeStatWeights = vi.fn<(...args: any[]) => Promise<StatWeightsResult>>();
+	weaponSlots: ItemSlot[] = [];
 
 	constructor(store: SimStore) {
 		this.sim = { store };
@@ -162,6 +163,9 @@ class FakePlayer {
 	setEpRatios(ratios: number[]) {
 		this.epRatios = ratios;
 		source.notify('player:epRatios');
+	}
+	holdsWeaponIn(slot: ItemSlot) {
+		return this.weaponSlots.includes(slot);
 	}
 	getRefStat(kind: 'dpsRefStat' | 'healRefStat' | 'tankRefStat') {
 		return this.refStats[kind];
@@ -419,19 +423,37 @@ describe('EpWeightsDialog', () => {
 		expect(player.computeStatWeights.mock.calls[0][0]).toEqual([Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating]);
 	});
 
-	it("shows and weights a hand's weapon skill where a spec showing melee weapon skill weights that hand's weapon DPS", async () => {
-		host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatMainHandDps];
+	it("shows and weights a hand's weapon skill where a spec showing melee weapon skill weights that hand's weapon DPS and the hand holds a weapon", async () => {
+		const mainHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill);
+		const offHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill);
+		host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatOffHandDps];
 		host.individualConfig.displayWeaponSkillGroups = [WeaponSkillGroup.Melee];
-		player.computeStatWeights.mockResolvedValue(weightsResult([[STRENGTH, 2]]));
+		player.weaponSlots = [ItemSlot.ItemSlotMainHand];
+		player.epWeights = new Stats().withPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill, 9);
+		const result = weightsResult([
+			[STRENGTH, 2],
+			[mainHandSkill, 10],
+		]);
+		result.stepAbove = new Stats().withUnitStat(STRENGTH, 10).withUnitStat(mainHandSkill, 5).toProto();
+		player.computeStatWeights.mockResolvedValue(result);
 		renderDialog();
 
-		const mainHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill);
 		expect(rowFor(mainHandSkill.getWeightName(Class.ClassWarrior))).toBeDefined();
-		expect(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill).getWeightName(Class.ClassWarrior))).toBeUndefined();
+		expect(rowFor(offHandSkill.getWeightName(Class.ClassWarrior))).toBeUndefined();
 		await act(async () => {
 			fireEvent.click(calculate());
 		});
-		expect(player.computeStatWeights.mock.calls[0][1]).toEqual([PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatMainHandWeaponSkill]);
+		expect(player.computeStatWeights.mock.calls[0][1]).toEqual([
+			PseudoStat.PseudoStatMainHandDps,
+			PseudoStat.PseudoStatOffHandDps,
+			PseudoStat.PseudoStatMainHandWeaponSkill,
+		]);
+
+		act(() => {
+			fireEvent.click(table().querySelector('thead th[data-column-type="ep"] [data-testid="col-action"]')!);
+		});
+		expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill)).toBe(5);
+		expect(player.epWeights.getPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill)).toBe(9);
 	});
 
 	it('switches the table between EP and weight columns, and keeps that and the stat filter in step across a close and reopen', async () => {

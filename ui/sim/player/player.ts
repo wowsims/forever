@@ -70,11 +70,9 @@ import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
 import { PlayerSpec } from './player_spec';
 import { PlayerSpecs } from './specs';
-import { meleeWeaponSkillOf } from './weapon_skill_groups';
+import { isHandWeapon, MELEE_HANDS, meleeWeaponSkillOf } from './weapon_skill_groups';
 
 export const MAX_WEAPON_SKILL = Mechanics.CHARACTER_LEVEL * 5;
-
-const HAND_WEAPON_SKILL_PSEUDO_STATS = [PseudoStat.PseudoStatMainHandWeaponSkill, PseudoStat.PseudoStatOffHandWeaponSkill];
 
 export const weaponSkillValue = (weaponSkills: ReadonlyArray<WeaponSkillValue>, skill: WeaponSkill): number =>
 	weaponSkills.find(entry => entry.skill == skill)?.value ?? MAX_WEAPON_SKILL;
@@ -1259,9 +1257,10 @@ export class Player<SpecType extends Spec> {
 		if (item == null) return 0;
 
 		const areaTypes = this.sim.encounter.getAreaTypes();
+		const epWeights = this.getEpWeights();
 		const weaponSkills = item.scalingOptions[0]?.weaponSkills ?? [];
 		const handSkills = weaponSkills.length ? this.handWeaponSkills(item, slot) : [];
-		const cacheKey = `${item.id}-${areaTypes.join(',')}-${handSkills.join(',')}-${JSON.stringify(this.getEpWeights())}`;
+		const cacheKey = `${item.id}-${areaTypes.join(',')}-${handSkills.join(',')}-${JSON.stringify(epWeights)}`;
 
 		const cached = this.itemEPCache[slot].get(cacheKey);
 		if (cached !== undefined) return cached;
@@ -1280,12 +1279,12 @@ export class Player<SpecType extends Spec> {
 			maxSuffixEP = Math.max(...suffixEPs);
 		}
 
-		let ep = itemStats.computeEP(this.getEpWeights()) + maxSuffixEP;
+		let ep = itemStats.computeEP(epWeights) + maxSuffixEP;
 
 		// Weapon skill counts for each melee hand whose weapon uses it, at that hand's weight.
 		for (const { skill, value } of weaponSkills) {
-			HAND_WEAPON_SKILL_PSEUDO_STATS.forEach((pseudoStat, hand) => {
-				if (handSkills[hand] === skill) ep += value * this.getEpWeights().getPseudoStat(pseudoStat);
+			MELEE_HANDS.forEach(({ weaponSkill }, hand) => {
+				if (handSkills[hand] === skill) ep += value * epWeights.getPseudoStat(weaponSkill);
 			});
 		}
 
@@ -1310,6 +1309,13 @@ export class Player<SpecType extends Spec> {
 					? undefined
 					: equipped(ItemSlot.ItemSlotOffHand);
 		return [meleeWeaponSkillOf(mainHand), meleeWeaponSkillOf(offHand)];
+	}
+
+	// Whether the gear or the enabled item swap puts a weapon in the hand of the slot, the rule stat weights skip a
+	// hand's weapon skill by.
+	holdsWeaponIn(slot: ItemSlot): boolean {
+		const swap = this.itemSwapSettings;
+		return isHandWeapon(this.getEquippedItem(slot)?.item, slot) || (swap.getEnableItemSwap() && isHandWeapon(swap.getItem(slot)?.item, slot));
 	}
 
 	static ARMOR_SLOTS: Array<ItemSlot> = [

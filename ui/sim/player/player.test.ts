@@ -218,6 +218,36 @@ describe('Player.computeItemEP on weapon skill', () => {
 	});
 });
 
+describe('Player.holdsWeaponIn', () => {
+	const sword = Item.create({ id: 1, weaponType: WeaponType.WeaponTypeSword });
+	const shield = Item.create({ id: 2, weaponType: WeaponType.WeaponTypeShield });
+	const heldInOffHand = Item.create({ id: 3, weaponType: WeaponType.WeaponTypeOffHand });
+	const holdsOffHandWeapon = (offHand: Item | undefined, swapOffHand?: Item, swapEnabled = false) =>
+		Player.prototype.holdsWeaponIn.call(
+			{
+				getEquippedItem: () => (offHand ? new EquippedItem({ item: offHand }) : null),
+				itemSwapSettings: {
+					getEnableItemSwap: () => swapEnabled,
+					getItem: () => (swapOffHand ? new EquippedItem({ item: swapOffHand }) : null),
+				},
+			} as unknown as Player<any>,
+			ItemSlot.ItemSlotOffHand,
+		);
+
+	it('counts a weapon in the off hand, and no shield, held-in-off-hand item or empty hand', () => {
+		expect(holdsOffHandWeapon(sword)).toBe(true);
+		expect(holdsOffHandWeapon(shield)).toBe(false);
+		expect(holdsOffHandWeapon(heldInOffHand)).toBe(false);
+		expect(holdsOffHandWeapon(undefined)).toBe(false);
+	});
+
+	it('counts a weapon the item swap holds only while the item swap is on', () => {
+		expect(holdsOffHandWeapon(shield, sword, true)).toBe(true);
+		expect(holdsOffHandWeapon(shield, sword, false)).toBe(false);
+		expect(holdsOffHandWeapon(shield, shield, true)).toBe(false);
+	});
+});
+
 describe('Player.getResolvedAplRotationForBuild', () => {
 	const SPEC = PlayerSpecs.DpsWarrior;
 	const LIVE = '30303001102';
