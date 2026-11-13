@@ -1045,6 +1045,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-JomGabbar-23570"
  value: {
   dps: 707.84858
@@ -1417,6 +1425,14 @@ dps_results: {
   dps: 693.75963
   tps: 442.10746
   dtps: 1.53664
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Ripsaw-9478"
+ value: {
+  dps: 665.15417
+  tps: 420.82888
+  dtps: 0.88475
  }
 }
 dps_results: {

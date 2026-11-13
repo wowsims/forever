@@ -633,19 +633,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Wounds the target for 70 Physical damage.
-	// https://www.wowhead.com/forever/spell=1292573
-	// unsupported: states no rate
-	// trigger 1292573 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1292573, BuffSpellID: 1292573, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 9478, ItemName: "Ripsaw"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Chance on hit to light the target ablaze, dealing 12 Fire damage over 3s.
 	// https://www.wowhead.com/forever/spell=1294537
 	// unsupported: states no rate
@@ -666,20 +653,6 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13486, BuffSpellID: 13486, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 9511, ItemName: "Bloodletter Scalpel"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing
-	// 42 Nature damage to them. Will affect up to 4 targets.
-	// https://www.wowhead.com/forever/spell=13532
-	// unsupported: states no rate
-	// trigger 13532 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13532, BuffSpellID: 13532, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 9639, ItemName: "The Hand of Antu'sul"},
 	// })
 
 	// TODO: Manual implementation required
@@ -868,19 +841,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 10844, ItemName: "Spire of Hakkar"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.
-	// https://www.wowhead.com/forever/spell=11657
-	// unsupported: states no rate
-	// trigger 11657 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 11657, BuffSpellID: 11657, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11086, ItemName: "Jang'thraze the Protector"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3817,19 +3777,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.
-	// https://www.wowhead.com/forever/spell=1306816
-	// unsupported: states no rate
-	// trigger 1306816 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
 	// https://www.wowhead.com/forever/spell=1309967
 	// unsupported: states no rate
@@ -4248,6 +4195,23 @@ func RegisterAllProcs() {
 			{ItemID: 9418, ItemName: "Stoneslayer"},
 		})
 
+	// Wounds the target for 70 Physical damage.
+	// https://www.wowhead.com/forever/spell=1292573
+	// trigger 1292573 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1292573, BuffSpellID: 1292573, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 9478, ItemName: "Ripsaw"},
+		})
+
+	// Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing
+	// 42 Nature damage to them. Will affect up to 4 targets.
+	// https://www.wowhead.com/forever/spell=13532
+	// trigger 13532 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13532, BuffSpellID: 13532, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 9639, ItemName: "The Hand of Antu'sul"},
+		})
+
 	// Blasts a target for 91 Nature damage.
 	// https://www.wowhead.com/forever/spell=18081
 	// trigger 18081 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4262,6 +4226,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataHealProc(shared.SpellDataProc{TriggerSpellID: 1300356, BuffSpellID: 1300356, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10750, ItemName: "Lifeforce Dirk"},
+		})
+
+	// Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.
+	// https://www.wowhead.com/forever/spell=11657
+	// trigger 11657 (2.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataAbsorbProc(shared.SpellDataProc{TriggerSpellID: 11657, BuffSpellID: 11657, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 11086, ItemName: "Jang'thraze the Protector"},
 		})
 
 	// 2% chance when struck in melee to gain a holy shield, absorbing 216 damage for 15s. This chance is doubled
@@ -4766,6 +4738,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1308777, BuffSpellID: 1308777},
 		[]shared.ItemVariant{
 			{ItemID: 276742, ItemName: "Girdle of Extracted Answers"},
+		})
+
+	// Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.
+	// https://www.wowhead.com/forever/spell=1306816
+	// trigger 1306816 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},
 		})
 
 	// Thrown attacks explode on impact, causing 17 Fire damage to nearby enemies.

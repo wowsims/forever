@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 726.86478
+  tps: 540.86639
+  hps: 43.95389
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 777.42985
@@ -1427,6 +1435,14 @@ dps_results: {
   dps: 737.63136
   tps: 548.39176
   hps: 44.24194
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 698.42964
+  tps: 520.91653
+  hps: 44.12333
  }
 }
 dps_results: {

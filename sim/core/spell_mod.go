@@ -25,6 +25,7 @@ type SpellModConfig struct {
 	MultiplierSchool  SpellSchool // Only apply to spells whose SchoolIndex reads one of these schools
 	ProcMask          ProcMask
 	SpellFlag         SpellFlag
+	SpellFlagsExclude SpellFlag // Spells carrying any of these flags are left out.
 	ResourceType      proto.ResourceType
 	IntValue          int32
 	TimeValue         time.Duration
@@ -48,27 +49,28 @@ type SpellModConfig struct {
 }
 
 type SpellMod struct {
-	ClassMask        int64
-	ClassFlags       ClassFlags
-	Kind             SpellModType
-	School           SpellSchool
-	DefenseType      DefenseType
-	MultiplierSchool SpellSchool
-	ShowAsSchoolHit  SpellSchool
-	ProcMask         ProcMask
-	SpellFlag        SpellFlag
-	ResourceType     proto.ResourceType
-	Equip            EquipRequirement
-	FromRating       bool
-	floatValue       float64
-	intValue         int32
-	timeValue        time.Duration
-	keyValue         string
-	Apply            SpellModApply
-	Remove           SpellModRemove
-	IsActive         bool
-	AffectedSpells   []*Spell
-	OnReset          SpellModOnReset
+	ClassMask         int64
+	ClassFlags        ClassFlags
+	Kind              SpellModType
+	School            SpellSchool
+	DefenseType       DefenseType
+	MultiplierSchool  SpellSchool
+	ShowAsSchoolHit   SpellSchool
+	ProcMask          ProcMask
+	SpellFlag         SpellFlag
+	SpellFlagsExclude SpellFlag
+	ResourceType      proto.ResourceType
+	Equip             EquipRequirement
+	FromRating        bool
+	floatValue        float64
+	intValue          int32
+	timeValue         time.Duration
+	keyValue          string
+	Apply             SpellModApply
+	Remove            SpellModRemove
+	IsActive          bool
+	AffectedSpells    []*Spell
+	OnReset           SpellModOnReset
 
 	// The auras this mod has written to, for the kinds that change an aura rather than the spell
 	// pointing at it. One aura is routinely shared by every rank of a family and a class mask names
@@ -147,26 +149,27 @@ func buildMod(unit *Unit, config SpellModConfig) *SpellMod {
 	}
 
 	mod := &SpellMod{
-		ClassMask:        config.ClassMask,
-		ClassFlags:       config.ClassFlags,
-		Kind:             config.Kind,
-		School:           config.School,
-		DefenseType:      config.DefenseType,
-		MultiplierSchool: config.MultiplierSchool,
-		ShowAsSchoolHit:  config.ShowAsSchoolHit,
-		ProcMask:         config.ProcMask,
-		SpellFlag:        config.SpellFlag,
-		ResourceType:     config.ResourceType,
-		Equip:            config.Equip(),
-		FromRating:       config.FromRating,
-		floatValue:       config.FloatValue,
-		intValue:         config.IntValue,
-		timeValue:        config.TimeValue,
-		keyValue:         config.KeyValue,
-		Apply:            applyFn,
-		Remove:           removeFn,
-		IsActive:         false,
-		OnReset:          resetFn,
+		ClassMask:         config.ClassMask,
+		ClassFlags:        config.ClassFlags,
+		Kind:              config.Kind,
+		School:            config.School,
+		DefenseType:       config.DefenseType,
+		MultiplierSchool:  config.MultiplierSchool,
+		ShowAsSchoolHit:   config.ShowAsSchoolHit,
+		ProcMask:          config.ProcMask,
+		SpellFlag:         config.SpellFlag,
+		SpellFlagsExclude: config.SpellFlagsExclude,
+		ResourceType:      config.ResourceType,
+		Equip:             config.Equip(),
+		FromRating:        config.FromRating,
+		floatValue:        config.FloatValue,
+		intValue:          config.IntValue,
+		timeValue:         config.TimeValue,
+		keyValue:          config.KeyValue,
+		Apply:             applyFn,
+		Remove:            removeFn,
+		IsActive:          false,
+		OnReset:           resetFn,
 	}
 	unit.spellMods = append(unit.spellMods, mod)
 	if !mod.Equip.IsZero() {
@@ -267,6 +270,10 @@ func passesSpellChecks(spell *Spell, mod *SpellMod) bool {
 	}
 
 	if mod.SpellFlag > 0 && !mod.SpellFlag.Matches(spell.Flags) {
+		return false
+	}
+
+	if spell.Flags.Matches(mod.SpellFlagsExclude) {
 		return false
 	}
 

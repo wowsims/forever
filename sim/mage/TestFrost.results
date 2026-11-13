@@ -643,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 710.25523
+  tps: 655.47605
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-JomGabbar-23570"
  value: {
   dps: 721.65948
