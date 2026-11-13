@@ -185,6 +185,15 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row; 255 procs on 3130 landed white hits, 4 players, a bear and cat druid among them",
 		Source:  "combat log, 2026-11-12",
 	},
+	// Measured the same way in WCL reports of dungeons below the end game, on players with no extra attacks, leaving
+	// out the hits made under an attack speed aura and every swing that came sooner than the weapon's speed.
+	{
+		ItemID:  287005,
+		SpellID: 1324687,
+		PPM:     0.6,
+		Reason:  "Sword of Dismemberment: no proc row; 91 procs on 2333 landed hits, 3 paladins, seal and judgement hits among them",
+		Source:  "wcl:hWHgAPGmrNpDxwCR/1 and 4 more runs, 2026-11-13",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,

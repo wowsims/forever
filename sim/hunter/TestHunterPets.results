@@ -1604,6 +1604,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 675.83172
+  tps: 429.29538
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SwordofZeal-6622"
  value: {
   dps: 663.3017
