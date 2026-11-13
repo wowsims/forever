@@ -196,6 +196,10 @@ for another race's racial or an untaken talent.
   (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
   Resource Potion line's rage check, and an offensive potion beside a rage potion in another slot still aligns with the
   cooldowns.
+- **A warrior explosive the Engineering group does not list never goes.** An explosive is a major cooldown, the
+  Protection preset hides Autocast Other Cooldowns and the Fury and Arms presets have none. Autocast throws it just after
+  a GCD starts (`getFirstReadyMCD` in `sim/core/major_cooldown.go`), a Cast Spell line at a GCD-ready look (§Timing), so
+  the line's hardcast holds back the next ability.
 
 ## Keeping this skill true
 
