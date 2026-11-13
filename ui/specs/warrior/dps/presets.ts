@@ -65,7 +65,7 @@ const ARMS_PRESET_OPTIONS = {
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
 // materials; no raid, raid quest, reputation or PvP rewards. The cloak, the belt and the first ring are sold by the
 // Undermine Trader in Stranglethorn Vale. The Dawn Armor pattern and its Pristine Scale and Fel Leather have no
-// known source, and neither do the Gauntlets of Heroism, a piece of the warrior's dungeon set.
+// known source, and neither do the Gauntlets of Heroism.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
 // The Fury build for fights of 60 to 240 s. Enrage takes no points: with no tank assigned the boss attacks no
@@ -78,16 +78,16 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.74,
+			[Stat.StatAgility]: 1.73,
 			[Stat.StatAttackPower]: 1,
 			[Stat.StatArmorPenetration]: 0.4,
-			[Stat.StatHitRating]: 1.9,
-			[Stat.StatHasteRating]: 1.91,
-			[Stat.StatCritRating]: 2.33,
-			[Stat.StatExpertiseRating]: 2.06,
+			[Stat.StatHitRating]: 1.98,
+			[Stat.StatHasteRating]: 1.95,
+			[Stat.StatCritRating]: 2.31,
+			[Stat.StatExpertiseRating]: 2.16,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 11.52,
+			[PseudoStat.PseudoStatMainHandDps]: 11.54,
 			[PseudoStat.PseudoStatOffHandDps]: 3.26,
 		},
 	),
@@ -108,13 +108,13 @@ export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.73,
+			[Stat.StatAgility]: 1.75,
 			[Stat.StatAttackPower]: 1,
 			[Stat.StatArmorPenetration]: 0.44,
-			[Stat.StatHitRating]: 4.19,
-			[Stat.StatHasteRating]: 1.36,
-			[Stat.StatCritRating]: 2.26,
-			[Stat.StatExpertiseRating]: 1.68,
+			[Stat.StatHitRating]: 4.13,
+			[Stat.StatHasteRating]: 1.38,
+			[Stat.StatCritRating]: 2.28,
+			[Stat.StatExpertiseRating]: 1.69,
 		},
 		{
 			[PseudoStat.PseudoStatMainHandDps]: 17.56,
