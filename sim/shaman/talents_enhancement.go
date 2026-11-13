@@ -134,9 +134,9 @@ func (shaman *Shaman) applyFlurry() {
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges,
 	// Stormstrike's and a Windfury Weapon strike's included. A white swing spends one whatever its
 	// outcome, as Warrior Flurry's does. 16257's proc flags name swings alone, but in the combat log
-	// a Windfury Weapon strike spends one too; Stormstrike and spells spend none. A hit in the same
-	// instant as a gain spends none, so a crit followed by Windfury Weapon's strikes leaves three
-	// charges.
+	// a Windfury Weapon strike spends one too, and so does Windfury Totem's strike 10610, the same
+	// row; Stormstrike and spells spend none. A hit in the same instant as a gain spends none, so a
+	// crit followed by Windfury Weapon's strikes leaves three charges.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if result.Outcome.Matches(core.OutcomeCrit) {
@@ -148,7 +148,8 @@ func (shaman *Shaman) applyFlurry() {
 			if !flurryAura.IsActive() {
 				return
 			}
-			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.SpellID == windfuryWeaponStrike.ID
+			spends := spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spell.SpellID == windfuryWeaponStrike.ID ||
+				spell.SpellID == windfuryTotemStrike.ID
 			gainedNow := flurryAura.RemainingDuration(sim) == flurryAura.Duration
 			if spends && !gainedNow && chargeICD.IsReady(sim) {
 				chargeICD.Use(sim)
