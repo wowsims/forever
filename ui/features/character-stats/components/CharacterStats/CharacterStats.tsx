@@ -25,6 +25,7 @@ import {
 	shouldShowMeleeCritCap,
 	statDisplayString,
 } from './utils/stat_display';
+import { VersusBonuses } from './VersusBonuses';
 import { WeaponSkills } from './WeaponSkills';
 
 // Every stat the sheet has a row for: buildRows drops the rest.
@@ -176,6 +177,7 @@ export const CharacterStats = ({ className }: CharacterStatsProps) => {
 					</AccordionItem>
 				))}
 				<WeaponSkills />
+				<VersusBonuses />
 			</Accordion>
 		</CharacterStatsPanelView>
 	);

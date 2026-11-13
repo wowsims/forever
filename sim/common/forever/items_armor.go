@@ -109,12 +109,11 @@ func init() {
 		damage := row.DamageEffect()
 
 		config := procSpellConfig(character, row)
+		// The tooltip's tripling, which no row states.
+		config.VersusBonus = character.NewItemVersusBonus(867, proto.VersusEffectKind_VersusEffectKindDamage,
+			core.VersusBonus{Multiplier: 3, MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}})
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim)
-			if target.MobType == proto.MobType_MobTypeUndead {
-				amount *= 3
-			}
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeRangedHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeRangedHitAndCrit)
 		}
 		smite := character.RegisterSpell(config)
 

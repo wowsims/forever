@@ -118,7 +118,7 @@ describe('SelectorModal', () => {
 			rootElem,
 			player: {
 				storeKey: STORE_KEY,
-				sim: { store: realStore, encounter: { getAreaTypes: () => [] } },
+				sim: { store: realStore },
 				getGear: () => ({ getEquippedItem: (slot: ItemSlot) => equippedItems.get(slot) ?? null }),
 				getChallengeModeEnabled: () => false,
 				equipItem: () => undefined,

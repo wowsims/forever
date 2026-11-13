@@ -717,6 +717,36 @@ message PlayerStats {
 	repeated WeaponSkillValue weapon_skills = 13;
 
 	MeleeCritCapInfo melee_crit_cap = 14; // Unset before the attack tables exist and without a main-hand auto attack.
+
+	// One entry for each mob type the player has a bonus against, whatever mob types the encounter's targets are.
+	repeated MobTypeBonus mob_type_bonuses = 5;
+	// The stats the gear adds only while the encounter is in an area of the type, one entry for each area type.
+	// final_stats holds none of them; the sim adds those of the encounter's own area types when the fight starts.
+	repeated AreaStats area_stats = 15;
+	// The factors the worn items' spells deal or restore against the mob types and creature families their
+	// tooltips name, one entry for each item.
+	repeated VersusEffect versus_effects = 16;
+}
+// What the player has against a target of one mob type alone.
+message MobTypeBonus {
+	MobType mob_type = 1;
+	map<int32, double> stats = 2; // keys are the numeric values of Stat
+	double damage_multiplier = 3;
+	double crit_damage_multiplier = 4; // On top of damage_multiplier, for a critical strike alone.
+}
+// The factor one item's spell deals or restores against a target of any of the mob types or creature
+// families, once however many of them the target is.
+message VersusEffect {
+	int32 item_id = 1;
+	string item_name = 2;
+	repeated MobType mob_types = 3;
+	repeated CreatureFamily creature_families = 4;
+	double multiplier = 5;
+	VersusEffectKind kind = 6;
+}
+enum VersusEffectKind {
+	VersusEffectKindDamage = 0;
+	VersusEffectKindRestore = 1; // The mana, rage or energy the spell restores.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

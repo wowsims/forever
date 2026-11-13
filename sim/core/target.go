@@ -460,8 +460,9 @@ type AttackTable struct {
 	OH     AttackTableHand
 	Ranged AttackTableHand
 
-	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects, such as effect 1 of Humanoid Slaying 19151 and Monster
-	// Slaying 24294. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise damage alone.
+	// Raised only by A_MOD_CRIT_PERCENT_VERSUS effects. The game files state one only on Humanoid Slaying
+	// 19151, which no class learns. A_MOD_DAMAGE_DONE_VERSUS effects, Beast Slaying 20557 among them, raise
+	// damage alone.
 	CritMultiplier float64
 
 	DamageDealtMultiplier       float64 // attacker buff, applied in applyAttackerModifiers()

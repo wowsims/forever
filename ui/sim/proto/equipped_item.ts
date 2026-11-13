@@ -1,4 +1,4 @@
-import { type AreaType, ItemRandomSuffix, ItemSlot, ItemSpec, Profession, PseudoStat, ScalingItemProperties } from '@generated/proto/common';
+import { ItemRandomSuffix, ItemSlot, ItemSpec, Profession, PseudoStat, ScalingItemProperties } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 
 import { distinct } from '../utils/collections';
@@ -142,8 +142,8 @@ export class EquippedItem {
 		});
 	}
 
-	// Folds in the stats of the given areas, as the sim does.
-	withDynamicStats(areaTypes: readonly AreaType[] = []) {
+	// The stats the item adds everywhere. Those it adds only in an area stay out, as they stay out of the sheet's totals.
+	withDynamicStats() {
 		const item = this.item;
 		const scalingOptions = item.scalingOptions[0];
 
@@ -155,10 +155,6 @@ export class EquippedItem {
 			const suffixStats = this._randomSuffix.stats;
 			// The game rounds each suffix stat to the nearest point and adds it to the item's own.
 			item.stats = item.stats.map((stat, index) => stat + Math.round(((suffixStats[index] || 0) * item.randPropPoints) / 10000));
-		}
-
-		for (const areaStats of scalingOptions.areaStats.filter(bonus => areaTypes.includes(bonus.areaType))) {
-			item.stats = item.stats.map((stat, index) => stat + (areaStats.stats[index] || 0));
 		}
 
 		return new EquippedItem({

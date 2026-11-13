@@ -1,17 +1,18 @@
 // The loading state of the sheet. The crit-cap row is the last row of the Physical group for this
 // display-stat list, so it is the last row either way; what is pinned here is that it skeletons
 // with its siblings instead of reading as settled while the stats are still in flight.
-import { Class, PseudoStat, Race, Stat, WeaponSkill } from '@generated/proto/common';
+import { PlayerStats } from '@generated/proto/api';
+import { AreaType, Class, CreatureFamily, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { translateWeaponSkill } from '@i18n/localization';
+import { translateAreaType, translateCreatureFamily, translateMobType, translateStat, translateWeaponSkill } from '@i18n/localization';
 import { getClassWeaponSkills } from '@sim/player/classes/capabilities';
 import { PlayerClasses } from '@sim/player/classes/index';
 import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
-import { createSimStore, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { createSimStore, type EncounterSlice, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { CRIT_CAP_INFO } from '@testing/storybook/fixtures/character-stats';
+import { CRIT_CAP_INFO, VERSUS_BONUSES } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -31,11 +32,13 @@ interface SheetSetup {
 	displayWeaponSkillGroups?: Array<WeaponSkillGroup>;
 	currentStats: object;
 	inFrontOfTarget?: boolean;
+	encounter?: Partial<EncounterSlice>;
 	player: Record<string, unknown>;
 }
 
-const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inFrontOfTarget = false, player }: SheetSetup) => {
+const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inFrontOfTarget = false, encounter = {}, player }: SheetSetup) => {
 	const store = createSimStore();
+	patchSlice(store, 'encounter', encounter);
 	seedKeyed(store, 'players', KEY, {
 		name: 'P',
 		race: Race.RaceOrc,
@@ -43,7 +46,7 @@ const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inF
 		bonusStats: new Stats(),
 		inFrontOfTarget,
 		weaponSkills: [],
-		currentStats,
+		currentStats: PlayerStats.create(currentStats),
 		v: zeroVersions(PLAYER_FIELDS),
 	} as unknown as PlayerSlice);
 
@@ -430,6 +433,92 @@ describe('CharacterStats combined melee hand rows', () => {
 		fireEvent.mouseEnter(links[index]);
 		expect((await screen.findByTestId('character-stats-tooltip-hand')).textContent).toBe(label);
 		expect((await screen.findAllByText(value)).length).toBeGreaterThan(1);
+	});
+});
+
+const renderVersus = (currentStats: object, encounter: Partial<EncounterSlice> = {}) =>
+	renderSheet({
+		displayStats: DISPLAY_STATS,
+		currentStats,
+		encounter,
+		player: { getPlayerSpec: () => ({ isTankSpec: false, isMeleeDpsSpec: false }) },
+	}).view;
+
+const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
+	await act(async () => {
+		fireEvent.click(view.getByTestId('character-stats-group-versus-trigger'));
+	});
+	return Array.from(view.container.querySelectorAll<HTMLTableSectionElement>('[data-testid="character-stats-versus-group"]')).map(group => {
+		const [heading, ...lines] = Array.from(group.querySelectorAll('tr'));
+		return {
+			label: heading.textContent,
+			lines: lines.map(line => Array.from(line.querySelectorAll('td')).map(cell => cell.textContent)),
+		};
+	});
+};
+
+describe('CharacterStats bonuses against a kind of target', () => {
+	afterEach(() => {
+		window.localStorage.clear();
+	});
+
+	const hit = UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!;
+	const attackPower = (amount: string) => [
+		[translateStat(Stat.StatAttackPower), amount],
+		[translateStat(Stat.StatRangedAttackPower), amount],
+	];
+	const against = (target: string) => i18n.t('sidebar.character_stats.versus.against', { target });
+	const serpentbane = ['Serpentbane Crown', i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 2 })];
+	const targetGroups = [
+		{
+			label: against(translateMobType(MobType.MobTypeBeast)),
+			lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%'], serpentbane],
+		},
+		{
+			label: against(translateMobType(MobType.MobTypeHumanoid)),
+			lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
+		},
+		{ label: against(translateMobType(MobType.MobTypeUndead)), lines: attackPower('+99') },
+		{
+			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyEarthElemental)),
+			lines: [['Fist of Stone', i18n.t('sidebar.character_stats.versus.effect_restore', { factor: 3 })]],
+		},
+		{
+			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyDinosaur)),
+			lines: [["Bolt's Charged Eyeball", i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 3 })]],
+		},
+		{ label: against(translateCreatureFamily(CreatureFamily.CreatureFamilySerpentine)), lines: [serpentbane] },
+	];
+	const areaLabel = i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) });
+	const areaLines = [
+		[translateStat(Stat.StatAttackPower), '+28'],
+		[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
+	];
+
+	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type and the encounter's area alike", async () => {
+		const view = renderVersus(
+			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
+			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
+		);
+
+		expect(await openVersusGroups(view)).toEqual([...targetGroups, { label: areaLabel, lines: areaLines }]);
+	});
+
+	it("shows the sim's Attack Power total in the encounter's area, its area stats listed under Bonus alone", () => {
+		const finalStats = new Stats().withStat(Stat.StatAttackPower, 1000);
+		const view = renderVersus({ finalStats: finalStats.toProto(), ...VERSUS_BONUSES }, { areaTypes: [AreaType.AreaTypeForestGrassland] });
+
+		const attackPowerLabel = UnitStat.fromStat(Stat.StatAttackPower).getShortName(Class.ClassWarrior);
+		const row = Array.from(view.container.querySelectorAll('[data-testid="character-stats-table-row"]')).find(
+			row => row.firstElementChild!.textContent === attackPowerLabel,
+		)!;
+		expect(row.lastElementChild!.textContent).toBe(statDisplayString({} as never, finalStats, UnitStat.fromStat(Stat.StatAttackPower)));
+	});
+
+	it('leaves the group out while the sim reports no bonus against any kind of target', () => {
+		const view = renderVersus({ finalStats: new Stats().toProto() });
+
+		expect(view.queryByTestId('character-stats-group-versus')).toBeNull();
 	});
 });
 

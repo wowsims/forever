@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"slices"
 	"sync"
@@ -617,24 +618,41 @@ func ProtoToEquipment(es *proto.EquipmentSpec) Equipment {
 	return NewEquipmentSet(ProtoToEquipmentSpec(es))
 }
 
-// Folds the stats of every matching area into Stats.
-func (item Item) inArea(areaTypes []proto.AreaType) Item {
-	if item.ID == 0 {
-		return item
-	}
+// The stats the item adds in an area of any of the types, which Stats leaves out.
+func (item *Item) areaStats(areaTypes []proto.AreaType) stats.Stats {
+	var sum stats.Stats
 	for _, areaStats := range item.ScalingOptions[0].GetAreaStats() {
 		if slices.Contains(areaTypes, areaStats.AreaType) {
-			item.Stats = item.Stats.Add(stats.FromProtoMap(areaStats.Stats))
+			sum = sum.Add(stats.FromProtoMap(areaStats.Stats))
 		}
 	}
-	return item
+	return sum
 }
 
-func (equipment Equipment) inArea(areaTypes []proto.AreaType) Equipment {
+func (equipment *Equipment) areaStats(areaTypes []proto.AreaType) stats.Stats {
+	var sum stats.Stats
 	for i := range equipment {
-		equipment[i] = equipment[i].inArea(areaTypes)
+		sum = sum.Add(equipment[i].areaStats(areaTypes))
 	}
-	return equipment
+	return sum
+}
+
+// The stats the gear adds only in an area of each type, summed over every item worn.
+func (equipment Equipment) areaStatsProto() []*proto.AreaStats {
+	byArea := map[proto.AreaType]stats.Stats{}
+	for _, item := range equipment {
+		if item.ID == 0 {
+			continue
+		}
+		for _, areaStats := range item.ScalingOptions[0].GetAreaStats() {
+			byArea[areaStats.AreaType] = byArea[areaStats.AreaType].Add(stats.FromProtoMap(areaStats.Stats))
+		}
+	}
+	var areaStats []*proto.AreaStats
+	for _, areaType := range slices.Sorted(maps.Keys(byArea)) {
+		areaStats = append(areaStats, &proto.AreaStats{AreaType: areaType, Stats: byArea[areaType].ToProtoMap()})
+	}
+	return areaStats
 }
 
 // Like ItemSpec, but uses names for reference instead of ID.

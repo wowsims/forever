@@ -53,6 +53,10 @@ type Character struct {
 	//Item Swap Handler
 	ItemSwap ItemSwap
 
+	areaStatsAura *Aura // Unset unless an item worn or in the swap set has stats in the encounter's area types.
+
+	itemVersusBonuses []itemVersusBonus
+
 	// Consumables this Character will be using.
 	Consumables *proto.ConsumesSpec
 
@@ -120,7 +124,7 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 		Class: player.Class,
 		Spec:  PlayerProtoToSpec(player),
 
-		Equipment: ProtoToEquipment(player.Equipment).inArea(party.areaTypes()),
+		Equipment: ProtoToEquipment(player.Equipment),
 
 		professions: [2]proto.Profession{
 			player.Profession1,
@@ -387,6 +391,33 @@ func (character *Character) AddRaidBuffs(_ *proto.RaidBuffs) {
 func (character *Character) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 }
 
+// Gear stats for the encounter's area types are on from the reset to the end of the fight. No build phase applies
+// them, so the sheet's totals leave them out.
+func (character *Character) registerAreaStatsAura() {
+	areaTypes := character.Party.areaTypes()
+	if character.Equipment.areaStats(areaTypes) == (stats.Stats{}) && character.ItemSwap.swapEquip.areaStats(areaTypes) == (stats.Stats{}) {
+		return
+	}
+	character.areaStatsAura = MakePermanent(character.RegisterAura(Aura{
+		Label: "Area Stats",
+		OnGain: func(_ *Aura, sim *Simulation) {
+			character.AddStatsDynamic(sim, character.Equipment.areaStats(areaTypes))
+		},
+		OnExpire: func(_ *Aura, sim *Simulation) {
+			character.AddStatsDynamic(sim, character.Equipment.areaStats(areaTypes).Invert())
+		},
+	}))
+}
+
+// Trades the area stats of the item swapped off for those of the item swapped on while they apply.
+func (character *Character) swapItemAreaStats(sim *Simulation, oldItem *Item, newItem *Item) {
+	if !character.areaStatsAura.IsActive() {
+		return
+	}
+	areaTypes := character.Party.areaTypes()
+	character.AddStatsDynamic(sim, newItem.areaStats(areaTypes).Subtract(oldItem.areaStats(areaTypes)))
+}
+
 func (character *Character) initialize(agent Agent) {
 	character.majorCooldownManager.initialize(character)
 	character.ItemSwap.initialize(character)
@@ -398,6 +429,7 @@ func (character *Character) initialize(agent Agent) {
 	character.RegisterWeaponChangeCallback(func(_ *Simulation) {
 		character.refilterEquipMods()
 	})
+	character.registerAreaStatsAura()
 
 	character.rotationAction = &PendingAction{
 		Priority: ActionPriorityGCD,
@@ -508,6 +540,9 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 	}
 	playerStats.WeaponSkills = character.weaponSkillsProto()
 	playerStats.MeleeCritCap = character.meleeCritCapProto(playerStats.FinalStats.PseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent])
+	playerStats.MobTypeBonuses = character.mobTypeBonusesProto()
+	playerStats.AreaStats = character.Equipment.areaStatsProto()
+	playerStats.VersusEffects = character.versusEffectsProto()
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()

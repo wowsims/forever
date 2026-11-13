@@ -440,6 +440,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
+	baseDamage *= spell.VersusBonus.Against(target)
 	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
 	// school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
@@ -458,6 +459,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 func (spell *Spell) CalcPeriodicDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(attackTable, true)
+	baseDamage *= spell.VersusBonus.Against(target)
 
 	var dot *Dot
 	if spell.aoeDot != nil {
