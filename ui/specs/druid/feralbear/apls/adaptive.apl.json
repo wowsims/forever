@@ -1477,8 +1477,7 @@
                 "spellId": 1235827
               },
               "target": {
-                "type": "Target",
-                "index": 0
+                "type": "CurrentTarget"
               }
             },
             "condition": {
@@ -1489,8 +1488,7 @@
                       "val": {
                         "druidBleedIsActive": {
                           "targetUnit": {
-                            "type": "Target",
-                            "index": 0
+                            "type": "CurrentTarget"
                           }
                         }
                       }
@@ -1499,8 +1497,7 @@
                   {
                     "auraIsInactive": {
                       "sourceUnit": {
-                        "type": "Target",
-                        "index": 0
+                        "type": "CurrentTarget"
                       },
                       "auraId": {
                         "spellId": 1235827
@@ -1708,8 +1705,7 @@
                 "spellId": 1235827
               },
               "target": {
-                "type": "Target",
-                "index": 0
+                "type": "CurrentTarget"
               }
             },
             "condition": {
@@ -1720,8 +1716,7 @@
                       "val": {
                         "druidBleedIsActive": {
                           "targetUnit": {
-                            "type": "Target",
-                            "index": 0
+                            "type": "CurrentTarget"
                           }
                         }
                       }
@@ -1730,8 +1725,7 @@
                   {
                     "auraIsInactive": {
                       "sourceUnit": {
-                        "type": "Target",
-                        "index": 0
+                        "type": "CurrentTarget"
                       },
                       "auraId": {
                         "spellId": 1235827

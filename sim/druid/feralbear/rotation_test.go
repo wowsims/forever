@@ -671,3 +671,50 @@ func cmp(op proto.APLValueCompare_ComparisonOperator, lhs, rhs *proto.APLValue) 
 func mathOp(op proto.APLValueMath_MathOperator, lhs, rhs *proto.APLValue) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{Op: op, Lhs: lhs, Rhs: rhs}}}
 }
+
+func TestAdaptiveBearCleaveLacerateFollowsLivingTarget(t *testing.T) {
+	for _, name := range []string{"Two targets: Swipe and Primal Bite", "Three targets: Swipe priority"} {
+		t.Run(name, func(t *testing.T) {
+			rotation := selectedAdaptiveBearAPL()
+			var row *proto.APLListItem
+			for _, group := range rotation.Groups {
+				if group.Name == name {
+					for _, candidate := range group.Actions {
+						if candidate.Action.GetCastSpell().GetSpellId().GetSpellId() == spellLacerate {
+							row = candidate
+						}
+					}
+				}
+			}
+			if row == nil {
+				t.Fatal("cleave Lacerate row is missing")
+			}
+			rotation.PriorityList = []*proto.APLListItem{row}
+			rotation.Groups = nil
+			rotation.PrepullActions = nil
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			req.Raid.Parties[0].Players[0].Rotation = rotation
+			req.Encounter.Targets = []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), core.NewDefaultTarget()}
+			if name == "Three targets: Swipe priority" {
+				req.Encounter.Targets = append(req.Encounter.Targets, core.NewDefaultTarget())
+			}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AutoAttacks.CancelAutoSwing(sim)
+			bear.GCD.Set(10 * time.Second)
+			bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+			sim.Encounter.AllTargets[0].Disable(sim, true)
+			if bear.CurrentTarget == &sim.Encounter.AllTargets[0].Unit {
+				t.Fatal("still targeting the dead mob")
+			}
+			sim.CurrentTime = time.Second
+			bear.GCD.Set(sim.CurrentTime)
+			bear.Rotation.DoNextAction(sim)
+			if got := bear.Lacerate.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts; got != 1 {
+				t.Fatalf("Lacerate casts on the living target = %d, want 1", got)
+			}
+		})
+	}
+}
