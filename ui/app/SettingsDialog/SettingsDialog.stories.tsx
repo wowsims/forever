@@ -18,6 +18,9 @@ const meta = {
 		onLanguageChange: fn(),
 		showThreatMetrics: false,
 		onShowThreatMetricsChange: fn(),
+		showDamageMetrics: false,
+		onShowDamageMetricsChange: fn(),
+		showDamageMetricsRow: true,
 		showExperimental: false,
 		onShowExperimentalChange: fn(),
 		showPowerTools: false,
@@ -43,6 +46,7 @@ const LiveSettingsDialog = (args: ViewProps) => {
 	const [fixedRngSeed, setFixedRngSeed] = useState(args.fixedRngSeed);
 	const [language, setLanguage] = useState(args.language);
 	const [showThreatMetrics, setShowThreatMetrics] = useState(args.showThreatMetrics);
+	const [showDamageMetrics, setShowDamageMetrics] = useState(args.showDamageMetrics);
 	const [showExperimental, setShowExperimental] = useState(args.showExperimental);
 	const [showPowerTools, setShowPowerTools] = useState(args.showPowerTools);
 	const [showQuickSwap, setShowQuickSwap] = useState(args.showQuickSwap);
@@ -64,6 +68,8 @@ const LiveSettingsDialog = (args: ViewProps) => {
 			onLanguageChange={relay(setLanguage, args.onLanguageChange)}
 			showThreatMetrics={showThreatMetrics}
 			onShowThreatMetricsChange={relay(setShowThreatMetrics, args.onShowThreatMetricsChange)}
+			showDamageMetrics={showDamageMetrics}
+			onShowDamageMetricsChange={relay(setShowDamageMetrics, args.onShowDamageMetricsChange)}
 			showExperimental={showExperimental}
 			onShowExperimentalChange={relay(setShowExperimental, args.onShowExperimentalChange)}
 			showPowerTools={showPowerTools}

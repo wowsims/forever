@@ -40,10 +40,10 @@ func TestRevelationReachesHolyLight(t *testing.T) {
 		t.Fatal("Holy Light or Lay on Hands is not registered")
 	}
 
-	baseCrit := holyLight.HealingCritChance()
+	baseCrit := holyLight.HealingCritChance(&pally.Unit)
 	buff.Activate(sim)
 	buff.SetStacks(sim, buff.MaxStacks)
-	if got := holyLight.HealingCritChance(); got <= baseCrit {
+	if got := holyLight.HealingCritChance(&pally.Unit); got <= baseCrit {
 		t.Errorf("Holy Light's crit chance is %v with Revelation up and %v without", got, baseCrit)
 	}
 

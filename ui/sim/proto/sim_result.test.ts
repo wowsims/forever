@@ -29,6 +29,37 @@ const playerAction = async (onTarget: Entry, onPlayer: Entry) => {
 };
 
 describe('damage done and damage taken from self-inflicted damage', () => {
+	it('filters healing and shielding from both the player and its pets by recipient', async () => {
+		const { request, result } = makeSimRun();
+		const player = result.raidMetrics!.parties[0].players[0];
+		player.actions = [
+			ActionMetricsProto.create({
+				id: player.actions[0].id,
+				targets: [
+					TargetedActionMetricsProto.create({ unitIndex: PLAYER, healing: 120 }),
+					TargetedActionMetricsProto.create({ unitIndex: TARGET, damage: 500 }),
+				],
+			}),
+		];
+		player.pets = [
+			UnitMetricsProto.create({
+				name: 'Pet',
+				unitIndex: 2,
+				actions: [
+					ActionMetricsProto.create({
+						id: player.actions[0].id,
+						targets: [
+							TargetedActionMetricsProto.create({ unitIndex: PLAYER, shielding: 40 }),
+							TargetedActionMetricsProto.create({ unitIndex: TARGET }),
+						],
+					}),
+				],
+			}),
+		];
+		const simResult = await SimResult.makeNew(request, result);
+		expect(ActionMetrics.merge(simResult.getRaidIndexedActionMetrics({ target: PLAYER })).healing).toBe(160);
+		expect(ActionMetrics.merge(simResult.getRaidIndexedActionMetrics({ target: TARGET })).healing).toBe(0);
+	});
 	it('counts only the damage on the other side as damage done', async () => {
 		const [sapper] = (await playerAction({ damage: 1000 }, { damage: 500 })).getDamageActions();
 

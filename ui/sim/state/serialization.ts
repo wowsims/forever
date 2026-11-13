@@ -44,6 +44,7 @@ export function individualSimSettingsToProto(ctx: IndividualSimSerializationCont
 			raidBuffs: ctx.sim.raid.getBuffs(),
 			debuffs: ctx.sim.raid.getDebuffs(),
 			targetDummies: ctx.sim.raid.getTargetDummies(),
+			healingSettings: ctx.sim.raid.getHealingSettings(),
 		});
 	}
 	if (exportCategory(SimSettingCategories.UISettings)) {
@@ -71,7 +72,7 @@ export function individualSimSettingsCategories(settings: IndividualSimSettings)
 		[SimSettingCategories.Rotation]: !!player?.rotation,
 		[SimSettingCategories.Consumes]: !!player?.consumables,
 		[SimSettingCategories.Miscellaneous]: !!player?.healingModel,
-		[SimSettingCategories.External]: !!player?.buffs,
+		[SimSettingCategories.External]: !!player?.buffs || settings.targetDummies > 0,
 		[SimSettingCategories.Encounter]: !!settings.encounter,
 		[SimSettingCategories.UISettings]: !!settings.settings,
 	};
@@ -106,6 +107,7 @@ export function applyIndividualSimSettings(
 				party.setBuffs(settings.partyBuffs || PartyBuffs.create());
 			}
 			ctx.sim.raid.setTargetDummies(settings.targetDummies);
+			if (settings.healingSettings) ctx.sim.raid.setHealingSettings(settings.healingSettings);
 		}
 		if (loadCategory(SimSettingCategories.Encounter)) {
 			ctx.sim.encounter.fromProto(settings.encounter || EncounterProto.create());

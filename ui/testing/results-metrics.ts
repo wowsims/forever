@@ -14,9 +14,20 @@ const NONE = { value: 0, percentage: 0, average: 0 };
  * tables read. `forTarget` returns the metric itself, so a filtered read sees the same numbers.
  */
 export const actionMetric = (name: string, overrides: Record<string, unknown> = {}): ActionMetrics => {
+	const actionId = {
+		spellId: 0,
+		itemId: 0,
+		tag: 0,
+		name,
+		toStringIgnoringTag: () => name,
+		toString: () => name,
+		withoutTag() {
+			return { ...this, tag: 0 };
+		},
+	};
 	const base: Record<string, unknown> = {
 		name,
-		actionId: { toStringIgnoringTag: () => name, toString: () => name },
+		actionId,
 		unit: { isPet: false, petActionId: null },
 		spellSchool: null,
 		casts: 10,
@@ -118,9 +129,10 @@ export const petActionMetric = (name: string, overrides: Record<string, unknown>
  * ActionMetrics out of protos; a parent row only needs to be a row.
  */
 export const mockActionMetricsMerge = (...summed: Array<string>) =>
-	vi.spyOn(ActionMetrics, 'merge').mockImplementation(((metrics: Array<Record<string, number>>) => ({
+	vi.spyOn(ActionMetrics, 'merge').mockImplementation(((metrics: Array<ActionMetrics>, options?: { removeTag?: boolean }) => ({
 		...metrics[0],
-		...Object.fromEntries(summed.map(field => [field, metrics.reduce((sum, entry) => sum + entry[field], 0)])),
+		...(options?.removeTag && { actionId: metrics[0].actionId.withoutTag() }),
+		...Object.fromEntries(summed.map(field => [field, metrics.reduce((sum, entry) => sum + (entry as unknown as Record<string, number>)[field], 0)])),
 	})) as unknown as typeof ActionMetrics.merge);
 
 type ActionsGetter = 'getDamageActions' | 'getThreatActions' | 'getHealingActions';
@@ -131,7 +143,14 @@ export const playerMetricsResult =
 		({
 			filter: {},
 			result: {
-				getRaidIndexedPlayers: () => [{ [getter]: () => actions, pets: petActions.length ? [{ name: 'Wolf', [getter]: () => petActions }] : [] }],
+				getRaidIndexedPlayers: () => [
+					{
+						[getter]: () => actions,
+						getDamageActions: () => (getter === 'getDamageActions' ? actions : []),
+						getHealingActions: () => (getter === 'getHealingActions' ? actions : []),
+						pets: petActions.length ? [{ name: 'Wolf', [getter]: () => petActions }] : [],
+					},
+				],
 			},
 		}) as unknown as SimResultData;
 

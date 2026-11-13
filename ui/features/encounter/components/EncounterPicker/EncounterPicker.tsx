@@ -79,7 +79,10 @@ export const EncounterPicker = ({ showExecuteProportion }: EncounterPickerProps)
 				zone={<ConnectedChoiceField modObject={encounter} config={zone} />}
 				areaTypes={<AreaTypesPicker encounter={encounter} />}
 				preset={showDamage && <ConnectedChoiceField modObject={encounter} config={preset} />}
-				allies={player.canEnableTargetDummies() && <ConnectedNumberField modObject={host.sim.raid} config={allies} />}
+				allies={
+					player.canEnableTargetDummies() &&
+					!player.getPlayerSpec().isHealingSpec && <ConnectedNumberField modObject={host.sim.raid} config={allies} />
+				}
 				minBaseDamage={player.getPlayerSpec().isTankSpec && <ConnectedNumberField modObject={encounter} config={minBaseDamage} />}
 				targetInputs={<TargetInputsPicker encounter={encounter} targetIndex={0} />}
 				onAdvancedClick={() => setAdvancedOpen(true)}
