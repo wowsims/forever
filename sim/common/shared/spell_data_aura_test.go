@@ -745,7 +745,7 @@ func TestItemSwapMovesArmorNoModsWhole(t *testing.T) {
 // the item is only in the item swap set.
 func TestItemSpellDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	const itemID int32 = 992090
-	factor := spelldata.MustFind(17283).EffectAtIndex(1).BasePoints
+	factor := spelldata.MustFind(17283).EffectAtIndex(1).BaseValue()
 	if factor <= 1 {
 		t.Fatalf("the row states a factor of %v, want one above 1 to tell the targets apart", factor)
 	}
@@ -786,5 +786,35 @@ func TestItemSpellDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
 	sim.Raid.Parties[0].Players[0].GetCharacter().FillPlayerStats(playerStats)
 	if len(playerStats.VersusEffects) != 0 {
 		t.Errorf("with the item only in the item swap set the stats sheet lists %v, want none", playerStats.VersusEffects)
+	}
+}
+
+// An item's damage over time whose row states a factor against some targets, Rend 14118 against
+// Dragonkin at its second effect, ticks for that factor times as much against them.
+func TestItemDotDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
+	row := spelldata.MustFind(14118)
+	factor := row.EffectAtIndex(1).BaseValue()
+	if factor <= 1 {
+		t.Fatalf("the row states a factor of %v, want one above 1 to tell the targets apart", factor)
+	}
+	ticked := func(itemID int32, mobType proto.MobType) float64 {
+		sim, caster := newOnUseSim(t, NewSpellDataDamageOnUse, map[int32]*proto.ItemEffect{itemID: testOnUse(14118, 60000, 0, 0)})
+		target := sim.Encounter.ActiveTargetUnits[0]
+		target.MobType = mobType
+		spell := onUseSpell(t, caster, itemID)
+		if !spell.Cast(sim, target) {
+			t.Fatal("the on-use could not be used")
+		}
+		stepPast(t, sim, sim.CurrentTime+row.Duration()+time.Second)
+		return spell.SpellMetrics[target.UnitIndex].TotalDamage
+	}
+
+	dragonkin := ticked(992091, proto.MobType_MobTypeDragonkin)
+	other := ticked(992092, proto.MobType_MobTypeMechanical)
+	if other <= 0 {
+		t.Fatalf("the spell dealt %v to a Mechanical target, want some damage", other)
+	}
+	if !core.WithinToleranceFloat64(dragonkin, factor*other, 1e-6) {
+		t.Errorf("the spell dealt %v to a Dragonkin, want %v times the %v it dealt to a Mechanical target", dragonkin, factor, other)
 	}
 }

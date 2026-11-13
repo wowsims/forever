@@ -18,7 +18,12 @@ func init() {
 	core.NewItemEffect(273817, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1319047)
-		aura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(row)))
+		config := spelldata.AuraConfig(row)
+		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
+		// two-handed, so only the main hand wears it.
+		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
+			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
+		aura := core.MakePermanent(character.RegisterAura(config))
 		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
 		character.ItemSwap.RegisterProc(273817, aura)
 	})
