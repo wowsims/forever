@@ -214,6 +214,62 @@ func TestFlamestrikeGroundTickKeepsClearcasting(t *testing.T) {
 	}
 }
 
+// Each enemy a Flamestrike ground tick lands on rolls Revelation, while Arcane Concentration rolls once a
+// tick: against many enemies a tick procs Revelation far more often than against one, and Clearcasting
+// just as often.
+func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
+	const ticks, manyTargets = 1500, 8
+	revelationOne, clearcastingOne, chance := flamestrikeTickProcs(t, 1, ticks)
+	revelationMany, clearcastingMany, _ := flamestrikeTickProcs(t, manyTargets, ticks)
+
+	if revelationOne == 0 || revelationMany < 3*revelationOne {
+		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want at least three times as many on %d",
+			revelationOne, ticks, revelationMany, manyTargets, manyTargets)
+	}
+	for _, gains := range []int{clearcastingOne, clearcastingMany} {
+		if rate := float64(gains) / ticks; rate < chance/2 || rate > chance*3/2 {
+			t.Errorf("Clearcasting procced on %d of %d ticks (%d on one target, %d on %d targets), want about the talent's %.3f once per tick",
+				gains, ticks, clearcastingOne, clearcastingMany, manyTargets, chance)
+		}
+	}
+}
+
+// With Revelation up, a Flamestrike ground tick neither takes its crit nor spends its charge, while the
+// cast it comes from takes the crit.
+func TestFlamestrikeGroundTickKeepsRevelation(t *testing.T) {
+	sim, mage := newRevelationMage(t, ArcaneTalents, 3)
+	target := mage.CurrentTarget
+	burn := flamestrikeBurn(t, mage)
+	tick := mage.GetSpell(core.ActionID{SpellID: spellData.FlamestrikeTriggered.Rank(spellData.Flamestrike.Len()).ID})
+	cast := mage.GetSpell(core.ActionID{SpellID: spellData.Flamestrike.Highest().ID})
+	buff := mage.GetAuraByID(core.ActionID{SpellID: revelationBuff})
+	expirations := 0
+	buff.ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) { expirations++ })
+
+	tickCrit, castCrit := tick.SpellCritChance(target), cast.SpellCritChance(target)
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	if got := tick.SpellCritChance(target); got != tickCrit {
+		t.Errorf("a ground tick's crit chance is %v with Revelation up and %v without", got, tickCrit)
+	}
+	if got := cast.SpellCritChance(target); got <= castCrit {
+		t.Errorf("Flamestrike's crit chance is %v with Revelation up and %v without", got, castCrit)
+	}
+
+	if !burn.Cast(sim, target) {
+		t.Fatal("the Flamestrike burn did not cast")
+	}
+	for tickCount := range int32(4) {
+		stepFor(sim, 2100*time.Millisecond)
+		if ticks := burn.AOEDot().TickCount(); ticks <= tickCount {
+			t.Fatalf("the burn ticked %d times by %v", ticks, sim.CurrentTime)
+		}
+	}
+	if expirations != 0 || !buff.IsActive() {
+		t.Errorf("Revelation fell off %d times while only Flamestrike's ground ticks dealt damage", expirations)
+	}
+}
+
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {
 	tickID := spellData.BlizzardTriggered.Highest().ID
 	directID := spellData.FireBlast.Highest().ID
@@ -242,11 +298,15 @@ func newMageSim(talents string) (*core.Simulation, *Mage) {
 }
 
 func newMageSimAgainst(talents string, encounter *proto.Encounter) (*core.Simulation, *Mage) {
+	return newMageSimWearing(talents, encounter, &proto.EquipmentSpec{})
+}
+
+func newMageSimWearing(talents string, encounter *proto.Encounter, equipment *proto.EquipmentSpec) (*core.Simulation, *Mage) {
 	suite := arcaneSuite()
 	player := core.WithSpec(&proto.Player{
 		Class:         suite.Class,
 		Race:          suite.Race,
-		Equipment:     &proto.EquipmentSpec{},
+		Equipment:     equipment,
 		TalentsString: talents,
 		Rotation:      &proto.APLRotation{},
 	}, suite.SpecOptions.SpecOptions)
@@ -276,6 +336,44 @@ func flamestrikeBurn(t *testing.T, mage *Mage) *core.Spell {
 		t.Fatal("the mage has no Flamestrike burn spell")
 	}
 	return burn
+}
+
+// The mage's buff from Enchant Weapon - Revelation.
+const revelationBuff = 1248808
+
+// A mage with no gear but the suite's main hand, enchanted with Revelation, against the given number of
+// targets for an hour.
+func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulation, *Mage) {
+	gear := core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "p1Arcane").GearSet
+	equipment := &proto.EquipmentSpec{Items: make([]*proto.ItemSpec, len(gear.Items))}
+	for slot := range equipment.Items {
+		equipment.Items[slot] = &proto.ItemSpec{}
+	}
+	mainHand := gear.Items[proto.ItemSlot_ItemSlotMainHand]
+	equipment.Items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: mainHand.Id, Enchant: 8217}
+	sim, mage := newMageSimWearing(talents, longEncounter(targets), equipment)
+	if mage.GetAuraByID(core.ActionID{SpellID: revelationBuff}) == nil {
+		t.Fatal("the mage has no Revelation buff")
+	}
+	return sim, mage
+}
+
+// How many of the given Flamestrike ground ticks proc Revelation and Clearcasting against the given number
+// of targets, each buff taken down after every tick, and the chance Arcane Concentration states.
+func flamestrikeTickProcs(t *testing.T, targets, ticks int) (revelation, clearcasting int, chance float64) {
+	sim, mage := newRevelationMage(t, ArcaneTalents, targets)
+	burn := flamestrikeBurn(t, mage)
+	buff := mage.GetAuraByID(core.ActionID{SpellID: revelationBuff})
+	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { revelation++ })
+	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { clearcasting++ })
+
+	for range ticks {
+		burn.AOEDot().TickOnce(sim)
+		stepFor(sim, 1100*time.Millisecond)
+		buff.Deactivate(sim)
+		mage.ClearCasting.Deactivate(sim)
+	}
+	return revelation, clearcasting, arcaneConcentrationChance(mage)
 }
 
 func arcaneConcentrationChance(mage *Mage) float64 {

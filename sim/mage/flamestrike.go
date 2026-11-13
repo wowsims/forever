@@ -13,29 +13,39 @@ func (mage *Mage) registerFlamestrikeSpells() {
 }
 
 // The burn is its own spell (MageSpellFlamestrikeDot) on the cast's row, tagged like Fireball's DoT so
-// the two share a header: every 2 sec it deals the same rank of spellData.FlamestrikeTriggered to each
-// enemy in the area, and rolls a crit unless the tick's row bars it. The cast's row names no tick
-// spell, only an area trigger, so the two pair by rank. In game each ground tick is a hit of the tick
-// spell, so a talent that listens for hits rolls on it once a tick, however many enemies it hits;
-// here the ticks are periodic damage, and Arcane Concentration forwards them to its hit listener. A
-// tick casts nothing, so it never spends Clearcasting.
+// the two share a header: every 2 sec it casts the same rank of spellData.FlamestrikeTriggered, which
+// hits each enemy in the area and rolls a crit unless the tick's row bars it. The cast's row names no
+// tick spell, only an area trigger, so the two pair by rank. Each tick is a direct hit of the tick
+// spell, so a hit listener hears every enemy it lands on: Revelation rolls per enemy, Ignite takes
+// each crit, and Arcane Concentration rolls once a tick. The tick's row is outside the class flags of
+// Revelation's crit and charge, and it costs nothing, so it neither takes nor spends Revelation or
+// Clearcasting. A tick takes no partial resist: in game, mobs that partially resist about a quarter of
+// Scorch and Fire Blast hits resist almost no ticks.
+// TODO: Verify in game whether a tick rolls a partial resist, and whether Spell Piercing beyond a
+// target's resistance adds to it.
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
-	tickDamage := tickRank.DamageEffect()
 	cannotCrit := tickRank.CannotCrit()
+
+	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(),
+		spelldata.Flags(core.SpellFlagNoPartialResist))
+	tickConfig.ClassSpellMask = MageSpellFlamestrikeDot
+	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		outcome := spell.OutcomeMagicHitAndCrit
+		if cannotCrit {
+			outcome = spell.OutcomeMagicHit
+		}
+		spell.CalcAndDealAoeDamageWithVariance(sim, outcome, rollDamage(tickRank.DamageEffect()))
+	}
+	tickSpell := mage.RegisterSpell(tickConfig)
 
 	dotConfig := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
 	dotConfig.ClassSpellMask = MageSpellFlamestrikeDot
 	dotConfig.Dot = spelldata.DotConfig(castRank, castRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0),
 		spelldata.RankLabel(castRank, &mage.Unit))
 	dotConfig.Dot.IsAOE = true
-	dotConfig.Dot.BonusCoefficient = tickDamage.Coeff()
-	dotConfig.Dot.OnTick = func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
-		outcome := dot.Spell.OutcomeTickMagicHitAndCrit
-		if cannotCrit {
-			outcome = dot.OutcomeTickMagicHit
-		}
-		dot.Spell.CalcAndDealPeriodicAoeDamage(sim, tickDamage.Average(), outcome)
+	dotConfig.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, _ *core.Dot) {
+		tickSpell.Cast(sim, target)
 	}
 	dotConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		spell.AOEDot().Apply(sim)
