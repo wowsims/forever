@@ -15,22 +15,25 @@ import PreBiSThreatGearJson from './gear_sets/prebis_threat.gear.json';
 // Eventually we will import these values for the raid sim too, so its good to
 // keep them in a separate file.
 
+// The rotation hides Autocast Other Cooldowns, so an on-use trinket fires only when the "CD: Offensive Trinkets" group
+// names its item id.
 export const ROTATION_DEFAULT = PresetUtils.makePresetAPLRotation('Generic', GenericApl);
 
-// Dungeon and world drops, the warrior's dungeon tier set, crafted items whose reagents include no raid
+// Dungeon and world drops, quest rewards, the warrior's dungeon tier set, crafted items whose reagents include no raid
 // materials and vendor items; no reputation, PvP or Silithus rewards. The most threat at 140 defense, the least that
-// makes a level 63 boss unable to crit. The "of Defense" pieces are world-drop greens, Cragfists of Defense drops in
-// Uldaman and Blackstone Ring in Maraudon; the cloak, Ring of Awareness and Defender's Grip Stabilizer are sold by the
-// Undermine Trader in Stranglethorn Vale; Rune of the Guard Captain is a Hinterlands quest reward. Horn of Ve'han,
-// Furbolg Berserker's Boots and the Sentinel's Wristguards and Waistguard plans have no source in the item database.
+// makes a level 63 boss unable to crit. Cragfists of Defense drops in Uldaman and the other "of Defense" pieces are
+// world-drop greens; Blackstone Ring drops in Maraudon; Howler's Furs, Ring of Awareness and Defender's Grip Stabilizer
+// are sold by the Undermine Trader in Stranglethorn Vale; Rune of the Guard Captain is a Hinterlands quest reward. Horn
+// of Ve'han, Furbolg Berserker's Boots and the Sentinel's Wristguards and Waistguard plans have no source in the item
+// database.
 export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', PreBiSGearJson, { devOnly: true });
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Vambraces of the Sadist and Crest of Retribution drop in Stratholme, Blackstone Ring in Maraudon and Riphook in
-// Lower Blackrock Spire; Royal Seal of Eldre'Thalas is a Dire Maul quest reward and Mark of Fordring the In Dreams
-// one. Howler's Furs, Valiant's Waistguard, Cutthroat's Signet and Adaptive Combat Assistant are sold by the Undermine
-// Trader. Spaulders of Containment, Gauntlets of Heroism, Furbolg Berserker's Boots and the Dawn Armor pattern have no
-// source in the item database.
+// Lower Blackrock Spire; Royal Seal of Eldre'Thalas is a Dire Maul quest reward and Mark of Fordring the reward for In
+// Dreams. Howler's Furs, Valiant's Waistguard, Cutthroat's Signet and Adaptive Combat Assistant are sold by the
+// Undermine Trader. Spaulders of Containment, Gauntlets of Heroism, Furbolg Berserker's Boots, the Dawn Armor pattern
+// and its Pristine Scale and Fel Leather have no source in the item database.
 export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
