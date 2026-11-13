@@ -200,6 +200,12 @@ for another race's racial or an untaken talent.
   Protection preset hides Autocast Other Cooldowns and the Fury and Arms presets have none. Autocast throws it just after
   a GCD starts (`getFirstReadyMCD` in `sim/core/major_cooldown.go`), a Cast Spell line at a GCD-ready look (§Timing), so
   the line's hardcast holds back the next ability.
+- **Cast All Stat Buff Cooldowns casts only a major cooldown whose `BuffAura` raises one of its stats**
+  (`GetMatchingStatBuffSpells` in `sim/core/major_cooldown.go`). An on-use that marks the target, such as Blackhand's
+  Breadth (13965), registers no buff, so in a rotation without Autocast Other Cooldowns it fires only from a Cast Spell
+  line naming its item id. `Multiple CD Usages` cannot time it either: a target spell with no `RelatedSelfBuff` logs
+  "does not have a related self buff" and the value is dropped. The Fury and Arms presets write the end-of-fight
+  timing out with `Remaining Time`.
 
 ## Keeping this skill true
 
