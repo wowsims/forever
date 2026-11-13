@@ -231,7 +231,8 @@ cost rows are, and gives the cost back exactly when it drops.
 Anything the table has no row for is skipped and reported; the parse does not guess a value for it. That covers the dummies the game files use
 for "a script does this", the proc-driver auras (a proc is a `ProcTrigger`, not a modifier), the
 crowd-control auras (stun, fear, root, silence) and `A_MOD_SKILL` on a profession skill; Defense reads
-as defense rating and a weapon skill adds to the skill the player states. Those are named in the report
+as defense rating, Feral Combat adds to the skill a druid's animal forms attack with, and a weapon skill
+adds to the skill the player states. Those are named in the report
 rather than numbered, so a port can see at a glance which ones are its own work.
 
 The shape of the parse also skips some rows the table does know. A value the sim keeps as one number

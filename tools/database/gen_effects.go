@@ -900,10 +900,11 @@ func (bonus GeneratedSetBonus) Supported() bool {
 
 // A set no hand-written set covers, as gen_db writes it.
 type GeneratedSet struct {
-	ID      int32
-	Name    string
-	Slots   []proto.ItemSlot
-	Bonuses []GeneratedSetBonus // In piece count order.
+	ID         int32
+	Name       string
+	Slots      []proto.ItemSlot
+	Profession proto.Profession    // The profession the ItemSet row gates the bonuses on, if any.
+	Bonuses    []GeneratedSetBonus // In piece count order.
 }
 
 // Whether the set registers any of its bonuses.
@@ -924,8 +925,9 @@ func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSp
 			continue
 		}
 
+		rows := setSpells[int(setID)]
 		byPieces := map[int32]*GeneratedSetBonus{}
-		for _, row := range setSpells[int(setID)] {
+		for _, row := range rows {
 			pieces := int32(row.Threshold)
 			bonus, ok := byPieces[pieces]
 			if !ok {
@@ -940,7 +942,7 @@ func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSp
 			continue
 		}
 
-		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID)}
+		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID), Profession: dbc.GetProfession(rows[0].RequiredSkill)}
 		for _, pieces := range slices.Sorted(maps.Keys(byPieces)) {
 			set.Bonuses = append(set.Bonuses, *byPieces[pieces])
 		}
@@ -987,8 +989,12 @@ func renderSetBonuses(sets []GeneratedSet) []byte {
 		}
 		fmt.Fprintf(&b, "\t// %s\n\t// https://www.wowhead.com/forever/item-set=%d\n", set.Name, set.ID)
 		slots := core.MapSlice(set.Slots, func(slot proto.ItemSlot) string { return "proto.ItemSlot_" + slot.String() })
-		fmt.Fprintf(&b, "%sshared.NewParsedItemSet(%d, %q, []proto.ItemSlot{%s}, map[int32][]int32{\n",
-			indent, set.ID, set.Name, strings.Join(slots, ", "))
+		constructor, gate := "NewParsedItemSet", ""
+		if set.Profession != proto.Profession_ProfessionUnknown {
+			constructor, gate = "NewParsedProfessionItemSet", "proto.Profession_"+set.Profession.String()+", "
+		}
+		fmt.Fprintf(&b, "%sshared.%s(%d, %q, %s[]proto.ItemSlot{%s}, map[int32][]int32{\n",
+			indent, constructor, set.ID, set.Name, gate, strings.Join(slots, ", "))
 
 		for j, bonus := range set.Bonuses {
 			pad, code := indent+"\t", indent+"\t"
@@ -1996,9 +2002,11 @@ func (r *ProcRouting) ProcConstructor() string {
 }
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
-// multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, and skill points, none
-// of which an item states as a stat. The percents reach the item stats only through an equip spell that
-// folds; an on-use or a weapon-scoped equip spell applies them as an aura.
+// multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
+// attack power and spell damage against a creature type, none of which an item states as a stat. The
+// percents reach the item stats only through an equip spell that folds; an on-use or a weapon-scoped equip
+// spell applies them as an aura. An equip spell that folds drops its bonus against a creature type, so an
+// item stating one beside its stats registers it by hand, as Graverobber's Shovel does.
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -2019,6 +2027,9 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DODGE_PERCENT,
 	dbcenums.A_MOD_PARRY_PERCENT,
 	dbcenums.A_MOD_SKILL,
+	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
+	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
+	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
 }
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a

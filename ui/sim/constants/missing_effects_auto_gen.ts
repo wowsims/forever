@@ -550,12 +550,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9414, // Oilskin Leggings
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
-		]
-	],
-	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -1005,12 +999,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13204, // Bashguuder
 		[
 			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
-		]
-	],
-	[
-		13209, // Seal of the Dawn
-		[
-			"+78 Attack Power against Undead. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 23930 - https://www.wowhead.com/forever/spell=23930
 		]
 	],
 	[
@@ -1546,12 +1534,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
-		]
-	],
-	[
-		19812, // Rune of the Dawn
-		[
-			"Increases damage done to Undead by magical spells and effects by up to 46. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 24198 - https://www.wowhead.com/forever/spell=24198
 		]
 	],
 	[
@@ -2186,12 +2168,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		272428, // Enraged Idol
-		[
-			"Your Enrage ability generates an additional 10 Rage over its duration.", // 1291060 - https://www.wowhead.com/forever/spell=1291060
-		]
-	],
-	[
 		272429, // Idol of Synthesis
 		[
 			"Each of your heal over time effects on the target reduces the remaining cooldown on Swiftmend by 1 sec when you cast it.", // 1291075 - https://www.wowhead.com/forever/spell=1291075
@@ -2721,12 +2697,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		280016, // Spiderchitin Wrap
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
-		]
-	],
-	[
 		280074, // Scalding Flamehoof
 		[
 			"Increases Fire damage taken by 14% and movement speed by 14% for 20s.", // 1309551 - https://www.wowhead.com/forever/spell=1309551
@@ -2820,12 +2790,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286556, // Winds of Tanaris
 		[
 			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
-		]
-	],
-	[
-		286616, // Matriarch's Prowlers
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[

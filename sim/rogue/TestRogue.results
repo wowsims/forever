@@ -152,8 +152,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodTigerHarness"
  value: {
-  dps: 573.8725
-  tps: 407.44948
+  dps: 568.147
+  tps: 403.38437
   hps: 51.34167
  }
 }
@@ -168,8 +168,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodvineGarb"
  value: {
-  dps: 568.10475
-  tps: 403.35437
+  dps: 567.21558
+  tps: 402.72306
   hps: 53.71389
  }
 }
@@ -1062,6 +1062,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 588.66191
+  tps: 417.94996
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-MindtapTalisman-18371"
  value: {
   dps: 587.86207
@@ -1099,6 +1107,14 @@ dps_results: {
   dps: 525.01401
   tps: 372.75995
   hps: 51.49417
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 582.19536
+  tps: 413.35871
+  hps: 51.34167
  }
 }
 dps_results: {
@@ -1166,6 +1182,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 588.68782
@@ -1179,6 +1203,14 @@ dps_results: {
   dps: 588.68782
   tps: 417.96835
   hps: 50.98583
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
  }
 }
 dps_results: {
@@ -1251,6 +1283,14 @@ dps_results: {
   dps: 587.86207
   tps: 417.38207
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 581.591
+  tps: 412.92961
+  hps: 51.34167
  }
 }
 dps_results: {

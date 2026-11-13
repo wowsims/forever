@@ -250,13 +250,18 @@ func TestMissingSetBonusesRender(t *testing.T) {
 
 // A set no registered set covers is generated with every piece count, and a bonus is supported only when
 // each of its rows parses whole. A set covered by id, or by name for a set registered with ID 0, and a
-// set with no items in the database stay out.
+// set with no items in the database stay out. The skill line the ItemSet row requires is the set's profession.
 func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger the parse skips
+	const leatherworking = 165
 	registered := []*core.ItemSet{{ID: 100, Name: "Set 100"}, {Name: "Set 300"}}
 	setSpells := map[int][]dbc.ItemSetSpell{
 		100: {{ItemSetID: 100, Threshold: 2, SpellID: hit}},
-		200: {{ItemSetID: 200, Threshold: 4, SpellID: hit}, {ItemSetID: 200, Threshold: 4, SpellID: proc}, {ItemSetID: 200, Threshold: 2, SpellID: hit}},
+		200: {
+			{ItemSetID: 200, Threshold: 4, SpellID: hit, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 4, SpellID: proc, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 2, SpellID: hit, RequiredSkill: leatherworking},
+		},
 		300: {{ItemSetID: 300, Threshold: 2, SpellID: hit}},
 		400: {{ItemSetID: 400, Threshold: 2, SpellID: hit}},
 	}
@@ -266,6 +271,9 @@ func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 
 	if len(got) != 1 || got[0].ID != 200 || got[0].Name != "Set 200" {
 		t.Fatalf("generated %+v, want set 200 alone", got)
+	}
+	if got[0].Profession != proto.Profession_Leatherworking {
+		t.Errorf("set 200's row requires Leatherworking (165), generated with profession %v", got[0].Profession)
 	}
 	type bonus struct {
 		pieces    int32
@@ -281,7 +289,7 @@ func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 }
 
 // A set with a supported bonus is a registration whose other bonuses are TODO comments; a set with none
-// is commented out whole.
+// is commented out whole. A set with a profession registers gated on it.
 func TestGeneratedSetsRender(t *testing.T) {
 	sets := []GeneratedSet{
 		{ID: 1, Name: "Set", Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotHands}, Bonuses: []GeneratedSetBonus{
@@ -290,6 +298,9 @@ func TestGeneratedSetsRender(t *testing.T) {
 		}},
 		{ID: 2, Name: "Other", Bonuses: []GeneratedSetBonus{
 			{Pieces: 2, Spells: []int32{13}, Tooltips: []string{"Proc."}, Unsupported: [][]string{{"effect 1 is E_DUMMY"}}},
+		}},
+		{ID: 3, Name: "Crafted", Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotChest}, Profession: proto.Profession_Tailoring, Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{14}, Tooltips: []string{"Crit."}, Unsupported: [][]string{nil}},
 		}},
 	}
 
@@ -321,6 +332,11 @@ func TestGeneratedSetsRender(t *testing.T) {
 			"\t// \t// unsupported: effect 1 is E_DUMMY\n" +
 			"\t// \t2: {13},\n" +
 			"\t// })\n",
+		"\tshared.NewParsedProfessionItemSet(3, \"Crafted\", proto.Profession_Tailoring, []proto.ItemSlot{proto.ItemSlot_ItemSlotChest}, map[int32][]int32{\n" +
+			"\t\t// Crit.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=14\n" +
+			"\t\t2: {14},\n" +
+			"\t})\n",
 	} {
 		if !strings.Contains(string(got), block) {
 			t.Errorf("the generated file holds no block\n%s\nin\n%s", block, got)

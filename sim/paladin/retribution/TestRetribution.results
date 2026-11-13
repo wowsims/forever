@@ -218,10 +218,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodTigerHarness"
  value: {
-  dps: 813.0525
-  tps: 663.97836
+  dps: 806.75963
+  tps: 658.94407
   dtps: 5.82415
-  hps: 23.84066
+  hps: 23.83711
  }
 }
 dps_results: {
@@ -245,8 +245,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BloodvineGarb"
  value: {
-  dps: 822.65606
-  tps: 672.53009
+  dps: 821.64885
+  tps: 671.72432
   dtps: 6.30569
   hps: 23.79203
  }
@@ -1323,6 +1323,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 819.06363
+  tps: 669.10149
+  dtps: 5.65064
+  hps: 23.84524
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MindtapTalisman-18371"
  value: {
   dps: 824.16244
@@ -1392,6 +1401,15 @@ dps_results: {
   tps: 667.92736
   dtps: 5.75012
   hps: 23.84371
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 805.07153
+  tps: 657.66255
+  dtps: 5.84075
+  hps: 23.42315
  }
 }
 dps_results: {
@@ -1539,6 +1557,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 825.92657
+  tps: 674.74291
+  dtps: 6.05497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-SanctifiedOrb-20512"
  value: {
   dps: 831.72173
@@ -1554,6 +1581,15 @@ dps_results: {
   tps: 683.58026
   dtps: 5.63478
   hps: 23.75848
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 825.92657
+  tps: 674.74291
+  dtps: 6.05497
+  hps: 23.54312
  }
 }
 dps_results: {
@@ -1653,6 +1689,15 @@ dps_results: {
   tps: 667.91837
   dtps: 5.74173
   hps: 23.84524
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 804.65671
+  tps: 657.76233
+  dtps: 5.85567
+  hps: 23.84016
  }
 }
 dps_results: {

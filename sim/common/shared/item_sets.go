@@ -22,11 +22,16 @@ func ParsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 // A set gen_db registers from the game files, each piece count's bonus parsed from its rows. A set
 // written by hand under the same id keeps it off.
 func NewParsedItemSet(id int32, name string, slots []proto.ItemSlot, bonuses map[int32][]int32) {
+	NewParsedProfessionItemSet(id, name, proto.Profession_ProfessionUnknown, slots, bonuses)
+}
+
+// A generated set whose ItemSet row gates the bonuses on a profession (RequiredSkill).
+func NewParsedProfessionItemSet(id int32, name string, profession proto.Profession, slots []proto.ItemSlot, bonuses map[int32][]int32) {
 	if slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool { return set.ID == id }) {
 		return
 	}
 
-	set := core.ItemSet{ID: id, Name: name, Slots: slots, Bonuses: map[int32]core.ApplySetBonus{}}
+	set := core.ItemSet{ID: id, Name: name, Slots: slots, RequiredProfession: profession, Bonuses: map[int32]core.ApplySetBonus{}}
 	for pieces, spellIDs := range bonuses {
 		set.Bonuses[pieces] = ParsedSetBonus(core.MapSlice(spellIDs, spelldata.MustFind)...)
 	}

@@ -620,7 +620,7 @@ func RegisterAllSetBonuses() {
 
 	// Bloodvine Garb
 	// https://www.wowhead.com/forever/item-set=421
-	shared.NewParsedItemSet(421, "Bloodvine Garb", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
+	shared.NewParsedProfessionItemSet(421, "Bloodvine Garb", proto.Profession_Tailoring, []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet}, map[int32][]int32{
 		// Improves your chance to get a critical strike with spells by 2.0%.
 		// https://www.wowhead.com/forever/spell=18382
 		3: {18382},
@@ -630,7 +630,7 @@ func RegisterAllSetBonuses() {
 	//
 	// Primal Batskin
 	// https://www.wowhead.com/forever/item-set=441
-	// shared.NewParsedItemSet(441, "Primal Batskin", []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotHands}, map[int32][]int32{
+	// shared.NewParsedProfessionItemSet(441, "Primal Batskin", proto.Profession_Leatherworking, []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotWrist, proto.ItemSlot_ItemSlotHands}, map[int32][]int32{
 	// 	// Minor increase to running and swimming speed. Does not stack with similar effects.
 	// 	// https://www.wowhead.com/forever/spell=24090
 	// 	// unsupported: effect 1 A_MOD_INCREASE_SPEED misc 0 is not parsed, effect 2 A_MOD_INCREASE_SWIM_SPEED misc 0 is not parsed
@@ -639,7 +639,7 @@ func RegisterAllSetBonuses() {
 
 	// Blood Tiger Harness
 	// https://www.wowhead.com/forever/item-set=442
-	shared.NewParsedItemSet(442, "Blood Tiger Harness", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest}, map[int32][]int32{
+	shared.NewParsedProfessionItemSet(442, "Blood Tiger Harness", proto.Profession_Leatherworking, []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest}, map[int32][]int32{
 		// Improves your chance to get a critical strike with melee attacks by 1.0%.
 		// https://www.wowhead.com/forever/spell=7597
 		// Improves your chance to get a critical strike with spells by 1.0%.
@@ -657,7 +657,7 @@ func RegisterAllSetBonuses() {
 
 	// The Darksoul
 	// https://www.wowhead.com/forever/item-set=444
-	shared.NewParsedItemSet(444, "The Darksoul", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
+	shared.NewParsedProfessionItemSet(444, "The Darksoul", proto.Profession_Blacksmithing, []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
 		// Increased Defense +20.
 		// https://www.wowhead.com/forever/spell=21416
 		3: {21416},

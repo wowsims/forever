@@ -1086,6 +1086,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SecondWind-11819"
  value: {
   dps: 756.82477

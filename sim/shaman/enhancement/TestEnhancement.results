@@ -209,10 +209,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BloodvineGarb"
  value: {
-  dps: 778.84898
-  tps: 814.92105
-  dtps: 7.35058
-  hps: 36.24417
+  dps: 774.26593
+  tps: 810.35933
+  dtps: 7.39339
+  hps: 36.21028
  }
 }
 dps_results: {
@@ -1071,6 +1071,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 775.67583
+  tps: 811.92241
+  dtps: 7.64687
+  hps: 36.61694
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-MindtapTalisman-18371"
  value: {
   dps: 760.16516
@@ -1140,6 +1149,15 @@ dps_results: {
   tps: 811.85707
   dtps: 7.1787
   hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 757.56667
+  tps: 793.39061
+  dtps: 7.14266
+  hps: 36.48139
  }
 }
 dps_results: {
@@ -1224,6 +1242,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
+  hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
+  hps: 36.49833
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-SecondWind-11819"
  value: {
   dps: 773.55322
@@ -1302,6 +1338,15 @@ dps_results: {
   tps: 810.72625
   dtps: 7.293
   hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 762.80395
+  tps: 798.49029
+  dtps: 6.93498
+  hps: 36.27806
  }
 }
 dps_results: {

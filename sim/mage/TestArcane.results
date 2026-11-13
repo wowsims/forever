@@ -895,6 +895,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 729.98599
+  tps: 630.10558
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 729.98599
+  tps: 630.10558
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-SecondWind-11819"
  value: {
   dps: 731.49895

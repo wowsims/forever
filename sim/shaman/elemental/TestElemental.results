@@ -224,9 +224,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-BloodvineGarb"
  value: {
-  dps: 767.713
-  tps: 706.95547
-  dtps: 9.31129
+  dps: 756.43182
+  tps: 696.84
+  dtps: 9.05292
  }
 }
 dps_results: {
@@ -1159,6 +1159,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 715.86833
+  tps: 664.50903
+  dtps: 8.76871
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-MawofMin'loth-274608"
  value: {
   dps: 727.13565
@@ -1228,6 +1236,14 @@ dps_results: {
   dps: 708.91671
   tps: 659.21549
   dtps: 8.9549
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 698.28082
+  tps: 646.98814
+  dtps: 9.14278
  }
 }
 dps_results: {
@@ -1319,6 +1335,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 718.28777
+  tps: 666.72844
+  dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 718.28777
+  tps: 666.72844
+  dtps: 9.01765
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-SecondWind-11819"
  value: {
   dps: 729.42405
@@ -1396,6 +1428,14 @@ dps_results: {
   dps: 718.28777
   tps: 666.72844
   dtps: 8.89264
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 707.17828
+  tps: 656.05203
+  dtps: 9.00404
  }
 }
 dps_results: {
