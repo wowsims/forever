@@ -107,7 +107,7 @@ export default defineSpec<Spec.SpecHunter>({
 	rotationInputs: HunterInputs.RotationInputs,
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [other_inputs.InputDelay, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
+		inputs: [other_inputs.InputDelay, other_inputs.ChannelClipDelay, other_inputs.DistanceFromTarget, other_inputs.TankAssignment],
 	},
 	encounterPicker: {
 		// Whether to include 'Execute Duration (%)' in the 'Encounter' section of the settings tab.
