@@ -55,7 +55,7 @@
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "c808af4801999919a47580cd65c614ab7a3d3fda269f07b850c3556423100b9f"
+      "computedHash": "7b2ad4f43c85966a05a343d31dcedd98bc79ff064ba1cc7a061bb2ca954dbc2b"
     },
     "wowsims-review": {
       "source": "./.github/skills",

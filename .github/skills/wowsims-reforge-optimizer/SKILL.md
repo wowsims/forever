@@ -91,11 +91,10 @@ change.
   point over the next five: one point changes too few attack rolls to measure cheaply, and items grant several. A hand
   with no weapon in the gear or the enabled item swap (empty, a shield or a held-in-off-hand item) gets no run. The EP
   dialog adds a hand's row where a spec showing melee weapon skill weighs that hand's weapon DPS and the hand holds a
-  weapon (`withWeaponSkillEpPseudoStats`), and applying a result keeps the weight of a row it did not measure. The rows
-  start unchecked (excluded in `StatWeightActionSettings`), because in Target ± mode they cost more than any other row.
-  Item EP in the gear picker (`Player.computeItemEP`) gives an item's weapon skill to each hand whose weapon uses that
-  skill, at that hand's weight; in a weapon slot the item itself is that hand's weapon. The optimizer leaves weapon
-  skill out, as no enchant grants it.
+  weapon (`withWeaponSkillEpPseudoStats`), and applying a result keeps the weight of a row it did not measure. Item EP
+  in the gear picker (`Player.computeItemEP`) gives an item's weapon skill to each hand whose weapon uses that skill,
+  at that hand's weight; in a weapon slot the item itself is that hand's weapon. The optimizer leaves weapon skill
+  out, as no enchant grants it.
 - `enchantTieBreak` (twice for the slot's input enchant, none where the input enchant stays in the baseline) keeps
   the input enchant on an EP tie and fills a slot whose candidates are all worth 0. The solve passes an explicit
   `mipRelGap` far below HiGHS's default, which would otherwise swamp the tie-break.

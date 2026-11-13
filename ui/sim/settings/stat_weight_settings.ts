@@ -3,7 +3,6 @@ import { SavedStatWeightSettings } from '@generated/proto/ui';
 
 import { CURRENT_API_VERSION } from '../constants/other';
 import type { Player } from '../player/player';
-import { MELEE_HANDS } from '../player/weapon_skill_groups';
 import { UnitStat } from '../proto/stats';
 import type { Env } from '../state/env';
 import { patchKeyed, seedKeyed, SimStore, StatWeightsSlice } from '../state/sim_store';
@@ -12,8 +11,6 @@ import { isUnchangedPatch } from '../utils/collections';
 import { precisionModeFromProto, precisionModeToProto, type PrecisionSettings } from './precision';
 
 const PRECISION_DEFAULTS: PrecisionSettings = { precisionMode: 'iterations', iterations: 0, targetCi: 0.05, maxIterationMultiplier: 0 };
-// The weapon skill rows start unchecked: in Target ± mode each costs more iterations than any other row.
-const EXCLUDED_PSEUDO_STATS_DEFAULT = MELEE_HANDS.map(hand => hand.weaponSkill);
 
 // Proto3 cannot tell an unset field from 0, so a zero target reads as the default.
 const precisionFromProto = (saved: SavedStatWeightSettings): PrecisionSettings => ({
@@ -40,7 +37,7 @@ export class StatWeightActionSettings {
 
 		seedKeyed(this.store, 'statWeights', this.storeKey, {
 			excludedStats: [],
-			excludedPseudoStats: EXCLUDED_PSEUDO_STATS_DEFAULT.slice(),
+			excludedPseudoStats: [],
 			...PRECISION_DEFAULTS,
 			v: { settings: 0 },
 		});
@@ -76,7 +73,7 @@ export class StatWeightActionSettings {
 	}
 
 	applyDefaults() {
-		this.write({ excludedStats: [], excludedPseudoStats: EXCLUDED_PSEUDO_STATS_DEFAULT.slice(), ...PRECISION_DEFAULTS });
+		this.write({ excludedStats: [], excludedPseudoStats: [], ...PRECISION_DEFAULTS });
 	}
 
 	load() {
