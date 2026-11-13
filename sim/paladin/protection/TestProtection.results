@@ -1413,24 +1413,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 398.56687
-  tps: 957.24235
-  dtps: 344.76784
-  hps: 21.82444
- }
-}
-dps_results: {
- key: "TestProtection-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 398.56687
-  tps: 957.24235
-  dtps: 344.76784
-  hps: 21.82444
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 397.39239
@@ -1710,15 +1692,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 398.56687
-  tps: 957.24235
-  dtps: 344.76784
-  hps: 21.82444
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-SanctifiedOrb-20512"
  value: {
   dps: 402.3641
@@ -1734,15 +1707,6 @@ dps_results: {
   tps: 955.32445
   dtps: 345.2821
   hps: 22.21417
- }
-}
-dps_results: {
- key: "TestProtection-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 398.56687
-  tps: 957.24235
-  dtps: 344.76784
-  hps: 21.82444
  }
 }
 dps_results: {
