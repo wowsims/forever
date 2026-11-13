@@ -152,8 +152,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodTigerHarness"
  value: {
-  dps: 573.8725
-  tps: 407.44948
+  dps: 568.147
+  tps: 403.38437
   hps: 51.34167
  }
 }
@@ -168,8 +168,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodvineGarb"
  value: {
-  dps: 568.10475
-  tps: 403.35437
+  dps: 567.21558
+  tps: 402.72306
   hps: 53.71389
  }
 }
@@ -878,6 +878,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 588.99221
+  tps: 418.18447
+  hps: 51.79917
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-JomGabbar-23570"
  value: {
   dps: 609.59151
@@ -1062,6 +1070,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 588.66191
+  tps: 417.94996
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-MindtapTalisman-18371"
  value: {
   dps: 587.86207
@@ -1099,6 +1115,14 @@ dps_results: {
   dps: 525.01401
   tps: 372.75995
   hps: 51.49417
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 582.19536
+  tps: 413.35871
+  hps: 51.34167
  }
 }
 dps_results: {
@@ -1166,6 +1190,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-Ripsaw-9478"
+ value: {
+  dps: 614.65221
+  tps: 436.40307
+  hps: 46.39389
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 588.68782
@@ -1179,6 +1219,14 @@ dps_results: {
   dps: 588.68782
   tps: 417.96835
   hps: 50.98583
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
  }
 }
 dps_results: {
@@ -1254,6 +1302,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 581.591
+  tps: 412.92961
+  hps: 51.34167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Stoneshatter-18388"
  value: {
   dps: 588.68782
@@ -1272,9 +1328,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-StormshroudArmor"
  value: {
-  dps: 566.19733
-  tps: 402.0001
-  hps: 51.34167
+  dps: 614.90451
+  tps: 436.5822
+  hps: 53.61222
  }
 }
 dps_results: {
@@ -1363,6 +1419,14 @@ dps_results: {
   dps: 575.22221
   tps: 408.40777
   hps: 50.325
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 598.02092
+  tps: 424.59486
+  hps: 44.95361
  }
 }
 dps_results: {
@@ -1499,6 +1563,14 @@ dps_results: {
   dps: 590.41315
   tps: 419.19334
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-VolcanicArmor"
+ value: {
+  dps: 549.14879
+  tps: 389.89564
+  hps: 51.34167
  }
 }
 dps_results: {

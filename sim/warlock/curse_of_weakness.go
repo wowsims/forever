@@ -33,7 +33,7 @@ func (warlock *Warlock) registerCurseOfWeakness() {
 				ActionID: core.ActionID{SpellID: rankedSpell.ID, Tag: 1},
 				Duration: rankedSpell.Duration(),
 			})
-			opts := append(spelldata.RaidBuffOptions(nil, false),
+			opts := append(spelldata.RaidBuffOptions(nil, false, false),
 				spelldata.ScaledBy(ampWeakness),
 				spelldata.Exclusive(buffs.CurseOfWeaknessCategory, false))
 			spelldata.ParseEffects(nil, aura, rankedSpell, opts...)

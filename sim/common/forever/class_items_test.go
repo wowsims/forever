@@ -708,6 +708,30 @@ func TestUrsendrisReportedArmorMatchesCombat(t *testing.T) {
 	}
 }
 
+// Idol of Shifting Tides takes its flat amount off the mana cost of every shapeshift.
+func TestIdolOfShiftingTidesCheapensEveryShapeshift(t *testing.T) {
+	costs := func(idol int32) []float64 {
+		items := bearItemSlots()
+		items[proto.ItemSlot_ItemSlotRanged].Id = idol
+		_, bear := equippedBear(t, items)
+		var formCosts []float64
+		for _, form := range []*druid.DruidSpell{bear.CatForm, bear.BearForm, bear.DireBearForm} {
+			formCosts = append(formCosts, form.Cost.GetCurrentCost())
+		}
+		return formCosts
+	}
+	flat := spelldata.MustFind(1270470).EffectN(1).BaseValue()
+	if flat >= 0 {
+		t.Fatalf("the idol's row states %v, want a cost cut", flat)
+	}
+	without, with := costs(0), costs(263411)
+	for i := range without {
+		if want := without[i] + flat; with[i] != want {
+			t.Errorf("shapeshift %d costs %v with the idol, want %v", i, with[i], want)
+		}
+	}
+}
+
 func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	req := bearItemRequest()
 	player := req.Raid.Parties[0].Players[0]
@@ -744,6 +768,45 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 		if math.Abs(bear.GetStat(stats.Armor)-initialArmor) > 1e-8 {
 			t.Fatal("repeated swaps accumulated armor")
 		}
+	}
+}
+
+// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
+// restores, in tenths of rage.
+func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
+	enrage := spelldata.MustFind(5229)
+	ticks := float64(rowTickCount(enrage, enrage.PeriodicEffect()))
+	gained := func(items []*proto.ItemSpec) float64 {
+		sim, bear := equippedBear(t, items)
+		before := bear.CurrentRage()
+		if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
+			t.Fatal("Enrage did not cast")
+		}
+		stepTo(t, sim, sim.CurrentTime+enrage.Duration()+time.Second)
+		return bear.CurrentRage() - before
+	}
+	bare := gained(bearItemSlots())
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotRanged].Id = 272428
+	want := ticks * spelldata.MustFind(1291060).EffectN(1).Tenths()
+	if got := gained(items) - bare; math.Abs(got-want) > 1e-9 {
+		t.Errorf("the idol adds %v rage to Enrage, want %v", got, want)
+	}
+}
+
+// Feral Combat skill on gear stands in for the weapon's skill while the druid is in an animal form.
+func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
+	skill := spelldata.MustFind(1320726).EffectN(1).BaseValue()
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 280016
+	sim, bear := equippedBear(t, items)
+	mh := bear.GetMHWeapon()
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != skill {
+		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
+	}
+	bear.ClearForm(sim)
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != 0 {
+		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
 	}
 }
 

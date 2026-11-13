@@ -7,6 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/paladin"
 )
 
@@ -62,6 +63,41 @@ func TestConvictionGivesEverySpellAndAttackCrit(t *testing.T) {
 		}
 		if math.Abs(got-0.06) > 1e-9 {
 			t.Errorf("Conviction gives %s %.4f crit, want 0.06", spell.name, got)
+		}
+	}
+}
+
+// Two-Handed Weapon Specialization's Holy with a two-hander in the main hand: Holy Wrath and
+// Consecration take the bonus the physical attacks take, and Exorcism, Hammer of Wrath, Retribution
+// Aura's shield and Holy Light take none.
+func TestTwoHandedWeaponSpecializationHolyReach(t *testing.T) {
+	_, pal, _, _ := unsealedWrathPaladin(t)
+	if pal.Talents.TwoHandedWeaponSpecialization == 0 || pal.MainHand().HandType != proto.HandType_HandTypeTwoHand {
+		t.Fatal("the paladin lacks Two-Handed Weapon Specialization or a two-hander")
+	}
+	bonus := pal.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical]
+	if bonus <= 1 {
+		t.Fatalf("the physical school multiplier is %v, want the talent's bonus", bonus)
+	}
+
+	for _, tc := range []struct {
+		name string
+		id   core.ActionID
+		want float64
+	}{
+		{"Holy Wrath", core.ActionID{SpellID: paladin.HolyWrathRankMap.Highest().ID}, bonus},
+		{"Consecration", core.ActionID{SpellID: paladin.ConsecrationRankMap.Highest().ID}, bonus},
+		{"Exorcism", core.ActionID{SpellID: paladin.ExorcismRankMap.Highest().ID}, 1},
+		{"Hammer of Wrath", core.ActionID{SpellID: paladin.HammerOfWrathRankMap.Highest().ID}, 1},
+		{"Retribution Aura", core.ActionID{SpellID: paladin.RetributionAuraRankMap.Highest().ID, Tag: 2}, 1},
+		{"Holy Light", core.ActionID{SpellID: paladin.HolyLightRankMap.Highest().ID}, 1},
+	} {
+		spell := pal.GetSpell(tc.id)
+		if spell == nil {
+			t.Fatalf("%s: %v is not registered", tc.name, tc.id)
+		}
+		if got := spell.DamageMultiplier; math.Abs(got-tc.want) > 1e-9 {
+			t.Errorf("%s: damage multiplier %v, want %v", tc.name, got, tc.want)
 		}
 	}
 }

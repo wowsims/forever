@@ -226,6 +226,10 @@ func (paladin *Paladin) applySacredArbiter() {
 
 // Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
 // reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
+//
+// In game the Holy part reaches none of Exorcism, Hammer of Wrath and Retribution Aura, which carry
+// SpellFlagIgnoreWeaponSchoolBonus. No log has measured Holy Wrath or Holy Shock under the talent,
+// and they keep it.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return

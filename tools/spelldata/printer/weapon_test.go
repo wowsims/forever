@@ -49,6 +49,7 @@ var dualWield = spelldata.MustFind(23584)
 var furiousPrecision = spelldata.MustFind(1323963)
 var scorpidSting = spelldata.MustFind(3043)
 var twoHandedSpec = spelldata.MustFind(12163)
+var holyTwoHandedSpec = spelldata.MustFind(20111)
 `
 
 func TestHoverWeaponRules(t *testing.T) {
@@ -60,6 +61,7 @@ func TestHoverWeaponRules(t *testing.T) {
 		"MustFind(1323963)": "**1** · " + percent(1323963) + " physical hit, per weapon: only attacks made with a one-handed axe, one-handed mace, one-handed sword, fist weapon or dagger in the off hand  \n",
 		"MustFind(3043)":    "**1** · " + percent(3043) + " physical hit to the enemy (the weapon requirement only gates casting)  \n",
 		"MustFind(12163)":   "**1** · " + percent(12163) + " physical damage done and on the melee-defense spells of the other schools, while a two-handed axe, two-handed mace, polearm, two-handed sword, staff, bit 0x1000 or spear is equipped  \n",
+		"MustFind(20111)":   "**1** · " + percent(20111) + " physical+holy damage done and on the melee-defense spells of the other schools, while a two-handed axe, two-handed mace, polearm, two-handed sword, staff, bit 0x1000 or spear is equipped; the holy part skips heals and the spells flagged SpellFlagIgnoreWeaponSchoolBonus  \n",
 	} {
 		wantHover(t, weaponRowsGo, needle, 9, want)
 	}

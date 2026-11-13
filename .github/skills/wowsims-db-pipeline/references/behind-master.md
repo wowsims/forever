@@ -8,9 +8,11 @@ The Update Items pull request names the cache it applied (`Hotfixes: … (from <
 `db.json` commit, not the push id, since several runs can record one push and still change `db.json`. Extract with
 `db2tool --cdn --dbcache <that DBCache.bin>`, then prove it on a clean checkout of `origin/master`: a regeneration
 there leaves `git status` clean. `spell_store_inputs.json` can still show as modified with only its gzip bytes changed:
-compare it with `zcat`, and restore the file when the content is equal. A matching push stamp alone proves nothing. A
-class branch carries its own `Builds` and `Hotfixes` in `spell_store_inputs.json`, so read them on the branch you
-regenerate.
+compare it with `zcat`, and restore the file when the content is equal. Once the CDN serves a newer build than the
+committed items, that cache holds no hotfixes for it and the run drops every hotfixed row; add `--carry-hotfixes`. A
+matching run then moves only the `Builds` and `Hotfixes` stamps in `spell_store_inputs.json`, which is restored too.
+A matching push stamp alone proves nothing. A class branch carries its own `Builds` and `Hotfixes` in
+`spell_store_inputs.json`, so read them on the branch you regenerate.
 
 ## Splicing
 

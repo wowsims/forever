@@ -39,6 +39,8 @@ type parseOptions struct {
 	casterSlot *casterSlot
 
 	showAsSchoolHit core.SpellSchool
+
+	allManaRegen bool
 }
 
 // Only these effects, counted from 1 by position the way EffectN counts.
@@ -194,6 +196,14 @@ func ShowAsSchoolHit(schools core.SpellSchool) ParseOpt {
 	}
 }
 
+// The row's mana regen percent (A_MOD_POWER_REGEN_PERCENT on mana) multiplies all of the unit's mana
+// regen, MP5 included, where the parse otherwise reads it as a Spirit regen multiplier.
+func AllManaRegen() ParseOpt {
+	return func(o *parseOptions) {
+		o.allManaRegen = true
+	}
+}
+
 // One attachment the parse made, or one part of an attachment that has parts, for a log or a test: the
 // effect it came from, the sim kind it became and the value it carries in the sim's own units. A time
 // value is stated in milliseconds, and a multiplier as the factor itself.
@@ -289,6 +299,7 @@ func parse(unit *core.Unit, character *core.Character, aura *core.Aura, s *Spell
 		hand:            o.hand,
 		casterSlot:      o.casterSlot,
 		showAsSchoolHit: o.showAsSchoolHit,
+		allManaRegen:    o.allManaRegen,
 	}
 	if o.casterSlot != nil {
 		o.casterSlot.target = unit
@@ -485,11 +496,11 @@ func AppliesAura(t dbcenums.SpellEffectType) bool {
 		t == dbcenums.E_APPLY_AREA_AURA_RAID
 }
 
-// Whether ParseEffects attaches something for the effect's aura. The skill row reads only Defense and
-// the weapon skills, so a profession skill is not one. Another row can still refuse one effect by its
-// misc value, which only a parse against a unit finds out.
+// Whether ParseEffects attaches something for the effect's aura. The skill row reads only Defense, Feral
+// Combat and the weapon skills, so a profession skill is not one. Another row can still refuse one effect
+// by its misc value, which only a parse against a unit finds out.
 func (e *Effect) ParsedAura() bool {
-	if _, weapon := weaponSkillLines[e.Misc]; e.Aura == dbcenums.A_MOD_SKILL && e.Misc != miscDefense && !weapon {
+	if _, weapon := weaponSkillLines[e.Misc]; e.Aura == dbcenums.A_MOD_SKILL && e.Misc != miscDefense && e.Misc != miscFeralCombat && !weapon {
 		return false
 	}
 	return AppliesAura(e.Type) && auraTable[e.Aura] != nil

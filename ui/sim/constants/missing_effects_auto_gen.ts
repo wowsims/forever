@@ -550,12 +550,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9414, // Oilskin Leggings
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
-		]
-	],
-	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -624,12 +618,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9478, // Ripsaw
-		[
-			"Wounds the target for 70 Physical damage.", // 1292573 - https://www.wowhead.com/forever/spell=1292573
-		]
-	],
-	[
 		9483, // Flaming Incinerator
 		[
 			"Chance on hit to light the target ablaze, dealing 12 Fire damage over 3s.", // 1294537 - https://www.wowhead.com/forever/spell=1294537
@@ -663,12 +651,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9511, // Bloodletter Scalpel
 		[
 			"Wounds the target for 77 Physical damage.", // 13486 - https://www.wowhead.com/forever/spell=13486
-		]
-	],
-	[
-		9639, // The Hand of Antu'sul
-		[
-			"Blasts nearby enemies with thunder increasing the time between their attacks by 11% for 10s and doing 42 Nature damage to them. Will affect up to 4 targets.", // 13532 - https://www.wowhead.com/forever/spell=13532
 		]
 	],
 	[
@@ -783,12 +765,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		10844, // Spire of Hakkar
 		[
 			"Harmful spell casts have a chance to steal 112 life from the target enemy over 8s.", // 1299943 - https://www.wowhead.com/forever/spell=1299943
-		]
-	],
-	[
-		11086, // Jang'thraze the Protector
-		[
-			"Shields the wielder from physical damage, absorbing 84 damage. Lasts 20s.", // 11657 - https://www.wowhead.com/forever/spell=11657
 		]
 	],
 	[
@@ -1005,12 +981,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13204, // Bashguuder
 		[
 			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
-		]
-	],
-	[
-		13209, // Seal of the Dawn
-		[
-			"+78 Attack Power against Undead. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 23930 - https://www.wowhead.com/forever/spell=23930
 		]
 	],
 	[
@@ -1447,6 +1417,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18538, // Treant's Bane
+		[
+			"Deal 175 Fire damage. Deals 3 times as much damage to Plants.", // 1302354 - https://www.wowhead.com/forever/spell=1302354
+		]
+	],
+	[
 		18634, // Gyrofreeze Ice Reflector
 		[
 			"Reflects Frost spells back at their caster for 5s.", // 23131 - https://www.wowhead.com/forever/spell=23131
@@ -1540,12 +1516,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		19621, // Maelstrom's Wrath
 		[
 			"Decreases the cooldown of Feign Death by 2.0 sec.", // 24432 - https://www.wowhead.com/forever/spell=24432
-		]
-	],
-	[
-		19812, // Rune of the Dawn
-		[
-			"Increases damage done to Undead by magical spells and effects by up to 46. Allows the acquisition of Scourgestones on behalf of the Argent Dawn.", // 24198 - https://www.wowhead.com/forever/spell=24198
 		]
 	],
 	[
@@ -2168,12 +2138,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		272428, // Enraged Idol
-		[
-			"Your Enrage ability generates an additional 10 Rage over its duration.", // 1291060 - https://www.wowhead.com/forever/spell=1291060
-		]
-	],
-	[
 		272429, // Idol of Synthesis
 		[
 			"Each of your heal over time effects on the target reduces the remaining cooldown on Swiftmend by 1 sec when you cast it.", // 1291075 - https://www.wowhead.com/forever/spell=1291075
@@ -2679,12 +2643,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		279480, // Bigger Rock on Bigger Stick
-		[
-			"Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.", // 1306816 - https://www.wowhead.com/forever/spell=1306816
-		]
-	],
-	[
 		279852, // Rock on Stick
 		[
 			"Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.", // 1309967 - https://www.wowhead.com/forever/spell=1309967
@@ -2700,12 +2658,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		279895, // Ironforge Greathammer
 		[
 			"Blasts a target for 42 Fire damage.", // 1322295 - https://www.wowhead.com/forever/spell=1322295
-		]
-	],
-	[
-		280016, // Spiderchitin Wrap
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
@@ -2802,12 +2754,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286556, // Winds of Tanaris
 		[
 			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
-		]
-	],
-	[
-		286616, // Matriarch's Prowlers
-		[
-			"Increases Feral Combat +1.", // 1320726 - https://www.wowhead.com/forever/spell=1320726
 		]
 	],
 	[
@@ -3008,43 +2954,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		124, // Deathbone Guardian
 		new Map([
 			[
-				3,
-				[
-					"Grants a chance when struck in combat to increase damage and healing done by magical spells and effects by up to 70 for 10s.", // 1299743 - https://www.wowhead.com/forever/spell=1299743
-				],
-			],
-			[
 				5,
 				[
 					"Reduces the chance for your attacks to be dodged or parried by 2%.", // 1213289 - https://www.wowhead.com/forever/spell=1213289
-				],
-			],
-		]),
-	],
-	[
-		141, // Volcanic Armor
-		new Map([
-			[
-				3,
-				[
-					"5% chance of dealing 40 Fire damage on a successful melee attack.", // 9233 - https://www.wowhead.com/forever/spell=9233
-				],
-			],
-		]),
-	],
-	[
-		142, // Stormshroud Armor
-		new Map([
-			[
-				2,
-				[
-					"10% chance of dealing 20 Nature damage on a successful melee attack.", // 18979 - https://www.wowhead.com/forever/spell=18979
-				],
-			],
-			[
-				3,
-				[
-					"4% chance on melee attack of restoring 30 energy.", // 23863 - https://www.wowhead.com/forever/spell=23863
 				],
 			],
 		]),
@@ -4186,7 +4098,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[17182, { kind: 'ppm', origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
 	[17193, { kind: 'ppm', origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', origin: 'vanilla' }], // Thunderstrike
-	[17705, { kind: 'ppm', origin: 'vanilla' }], // Thrash Blade
 	[19019, { kind: 'ppm', origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', origin: 'vanilla' }], // Glacial Blade
 	[19100, { kind: 'ppm', origin: 'vanilla' }], // Electrified Dagger

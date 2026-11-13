@@ -172,6 +172,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 428.53614
+  tps: 2243.01
+  dtps: 393.75927
+  hps: 77.44723
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 480.09668
@@ -210,10 +219,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTigerHarness"
  value: {
-  dps: 469.97356
-  tps: 2470.12689
-  dtps: 413.96564
-  hps: 83.27543
+  dps: 465.20324
+  tps: 2452.6965
+  dtps: 414.88741
+  hps: 83.36532
  }
 }
 dps_results: {
@@ -228,10 +237,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodvineGarb"
  value: {
-  dps: 466.16601
-  tps: 2427.77716
-  dtps: 450.81975
-  hps: 77.92204
+  dps: 466.32733
+  tps: 2428.97186
+  dtps: 450.95175
+  hps: 77.75899
  }
 }
 dps_results: {
@@ -601,6 +610,15 @@ dps_results: {
   tps: 2517.75769
   dtps: 391.64234
   hps: 78.67673
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 485.13983
+  tps: 2532.11702
+  dtps: 391.98543
+  hps: 79.60441
  }
 }
 dps_results: {
@@ -1279,6 +1297,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 477.72814
+  tps: 2510.40788
+  dtps: 399.38255
+  hps: 78.98979
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MindtapTalisman-18371"
  value: {
   dps: 475.01745
@@ -1321,6 +1348,15 @@ dps_results: {
   tps: 2311.57596
   dtps: 484.69528
   hps: 79.92812
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 476.29775
+  tps: 2494.66454
+  dtps: 413.44365
+  hps: 77.07979
  }
 }
 dps_results: {
@@ -1405,6 +1441,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 475.01745
+  tps: 2493.19943
+  dtps: 392.503
+  hps: 79.19405
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 475.01745
+  tps: 2493.19943
+  dtps: 392.503
+  hps: 79.19405
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SecondWind-11819"
  value: {
   dps: 475.01745
@@ -1477,6 +1531,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 471.06428
+  tps: 2480.76493
+  dtps: 405.41559
+  hps: 81.61424
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 406.12641
@@ -1497,8 +1560,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-StormshroudArmor"
  value: {
-  dps: 464.61339
-  tps: 2439.81625
+  dps: 466.44757
+  tps: 2443.75973
   dtps: 432.78297
   hps: 78.66283
  }
@@ -1630,6 +1693,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 401.01962
+  tps: 2110.30952
+  dtps: 391.9949
+  hps: 77.32618
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-TheHighlander'sIntent"
  value: {
   dps: 463.02462
@@ -1753,6 +1825,15 @@ dps_results: {
   tps: 2512.29199
   dtps: 392.503
   hps: 79.19405
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-VolcanicArmor"
+ value: {
+  dps: 459.25838
+  tps: 2381.02765
+  dtps: 412.42668
+  hps: 80.71373
  }
 }
 dps_results: {

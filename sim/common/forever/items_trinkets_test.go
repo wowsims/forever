@@ -23,6 +23,11 @@ func trinketWarrior(t *testing.T, trinketID int32) (*core.Simulation, *core.Char
 
 func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)
+}
+
+func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck int32, mobType proto.MobType) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -44,10 +49,32 @@ func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck 
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead on an equip spell that
+// grants nothing else, so the item aura shape registers it, on the attack table of an Undead target alone.
+func TestDawnTrinketsGrantTheirBonusAgainstUndeadAlone(t *testing.T) {
+	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
+	for _, c := range []struct {
+		item int32
+		want stats.Stats
+	}{
+		{13209, stats.Stats{stats.AttackPower: seal.EffectN(1).Average(), stats.RangedAttackPower: seal.EffectN(2).Average()}},
+		{19812, stats.Stats{stats.SpellDamage: rune.EffectN(1).Average()}},
+	} {
+		_, againstUndead := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeUndead)
+		if got := bonusAgainstTarget(againstUndead); got != c.want || c.want == (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Undead is %v, want the row's %v", c.item, got, c.want)
+		}
+		_, againstDemons := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeDemon)
+		if got := bonusAgainstTarget(againstDemons); got != (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Demons is %v, want none", c.item, got)
+		}
+	}
 }
 
 func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
