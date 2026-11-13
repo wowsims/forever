@@ -991,6 +991,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-SecondWind-11819"
  value: {
   dps: 752.11659
@@ -1127,6 +1143,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-TheLobotomizer-19324"
  value: {
   dps: 719.85047
@@ -1216,9 +1240,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 752.10219
-  tps: 537.61927
-  dtps: 4.82281
+  dps: 732.06931
+  tps: 523.60636
+  dtps: 5.29721
  }
 }
 dps_results: {

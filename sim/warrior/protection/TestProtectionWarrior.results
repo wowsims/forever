@@ -128,10 +128,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BattlegearofHeroism"
  value: {
-  dps: 443.47149
-  tps: 1456.59161
-  dtps: 290.99087
-  hps: 36.78417
+  dps: 464.23522
+  tps: 1527.51128
+  dtps: 286.86481
+  hps: 36.42833
  }
 }
 dps_results: {
@@ -321,6 +321,15 @@ dps_results: {
   tps: 1513.1444
   dtps: 356.13708
   hps: 37.49583
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 428.08362
+  tps: 1421.59769
+  dtps: 291.71956
+  hps: 36.0725
  }
 }
 dps_results: {
@@ -1737,6 +1746,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 444.62534
+  tps: 1468.23943
+  dtps: 294.753
+  hps: 36.66556
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 446.55076
@@ -1752,6 +1770,15 @@ dps_results: {
   tps: 1470.27406
   dtps: 297.05785
   hps: 36.6825
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 444.62534
+  tps: 1468.23943
+  dtps: 294.753
+  hps: 36.66556
  }
 }
 dps_results: {
@@ -2139,6 +2166,15 @@ dps_results: {
   tps: 1469.1834
   dtps: 309.1122
   hps: 36.46222
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 442.7494
+  tps: 1467.07412
+  dtps: 287.18416
+  hps: 36.76722
  }
 }
 dps_results: {

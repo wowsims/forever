@@ -1242,6 +1242,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
+  hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
+  hps: 36.49833
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-SecondWind-11819"
  value: {
   dps: 773.55322
@@ -1562,6 +1580,15 @@ dps_results: {
   dps: 778.05282
   tps: 814.43127
   dtps: 7.37289
+  hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
   hps: 36.49833
  }
 }
