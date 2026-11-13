@@ -42,14 +42,14 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		paladin.sealOfFuryTaunt = paladin.RegisterSpell(tauntSpellConfig)
 	}
 
-	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
-	// dodged, parried or blocked.
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	// Ranged in SpellCategories with No Active Defense: hit and crit on the ranged table, never
+	// blocked, and a ranged attack to procs.
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
 	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeRangedHitAndCrit)
 		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)

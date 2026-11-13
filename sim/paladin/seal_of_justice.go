@@ -27,7 +27,7 @@ func (paladin *Paladin) registerSealOfJustice() {
 		})
 	})
 
-	// Melee in SpellCategories and Always Hit: the debuff lands without a roll.
+	// Ranged in SpellCategories and Always Hit: the debuff lands without a roll.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskEmpty), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfJustice
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
