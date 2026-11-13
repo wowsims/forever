@@ -457,7 +457,9 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	},
 
 	// The tooltip's "armor from items" is stated twice: this effect scales the items' base armor, and
-	// A_MOD_BONUS_ARMOR_PCT beside it scales their bonus armor ("+N Armor"), a stat of its own.
+	// A_MOD_BONUS_ARMOR_PCT beside it scales their bonus armor ("+N Armor"), a stat of its own. In game each
+	// applies once and the armor from Agility and Mark of the Wild stays whole, in both bear forms at every
+	// level from 25 to 60.
 	dbcenums.A_MOD_BASE_RESISTANCE_PCT: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc&miscArmor == 0 {
 			return nil
