@@ -1413,6 +1413,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 400.54975
+  tps: 961.40279
+  dtps: 344.05721
+  hps: 21.85833
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 397.39239

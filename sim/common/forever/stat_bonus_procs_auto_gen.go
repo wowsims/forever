@@ -1892,19 +1892,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
-	// https://www.wowhead.com/forever/spell=21970
-	// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL
-	// trigger 21969 (2%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage) -> buff 21970
-	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 17774, ItemName: "Mark of the Chosen"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	// https://www.wowhead.com/forever/spell=27860
 	// unsupported: states no rate
