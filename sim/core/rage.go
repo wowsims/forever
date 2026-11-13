@@ -96,9 +96,11 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 	rageFromDamageTakenMetrics.NoThreat = true
 	// Direct hits and periodic ticks from a unit grant rage alike.
 	// TODO: Ingame test needed -- the rule is measured on melee hits. Spells land at a multiple of it the logs do
-	// not explain yet: Immolate ticks, Shadow Bolt, Arcane Missiles and Lightning Bolt about 1 times, Fireball and
-	// Mortal Strike about 1.2 times, Cleave about 1.3 times, which is the rule without its assumed armor, and Poison
-	// ticks, Venom Sting and Lizard Bolt about 2 times.
+	// not explain yet, about twice what the same attacker's melee gives: Poison ticks, Venom Sting, Venom Spit,
+	// Fevered Plague and Lizard Bolt about 2 times, and from mana users, whose melee gives about half, Shadow Bolt,
+	// Lightning Bolt, Fireball, Shadow Word: Pain and Immolate ticks and Arcane Missiles about 1 to 1.2 times.
+	// Weapon specials stay near 1 time (Shield Slam, Strike, Trample, Shoot), with Mortal Strike about 1.2 and
+	// Cleave about 1.3.
 	rageFromDamageTaken := func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
 		if unit.GetCurrentPowerBar() != RageBar {
 			return

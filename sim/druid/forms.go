@@ -152,8 +152,10 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
 	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
-	// In game, Bear Form's health is flat and follows the level: it adds 488 at level 36 whatever the
-	// maximum health, the passive's 20 plus 18 for each level above 10.
+	// In game, the forms' health is flat and follows the level, whatever the maximum health: Bear Form's
+	// passive adds 20 plus 18 for each level above 10, up to 560 at 40, and Dire Bear Form's 600 plus 32 for
+	// each level above 40, 1240 at 60, measured at every level from 25 to 60. Like the rest of the maximum
+	// health, it takes a Tauren's 5% more.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -303,10 +305,10 @@ func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
-	// The energy bar ticks outside the bear forms, so a first entry with no bear form before it keeps
-	// the pull's bar.
-	// TODO: Ingame research needed -- what death does to the stored energy, and what a first entry starts
-	// with below 5/5: in game, one at 1/5 came back near the 1/5 cap of 20.
+	// Nothing is stored only for the starting Cat Form, which keeps the pull's bar since the cat was in Cat
+	// Form before the pull. In game every entry takes Furor's share, the first after a login included: 275 of
+	// 275 at 0/5 started at 0, and one at 1/5 came back near 20.
+	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return
 	}
