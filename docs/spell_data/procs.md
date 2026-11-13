@@ -163,6 +163,10 @@ table of the row's defense type and takes armor or resistance like any other, an
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
+A damage row that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
+or energy with every proc, whether the damage lands or not, since the gain's target is the caster
+(`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
+
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:
 `NewSpellDataAuraProc` parses the buff's row, whose multiplier works through a dynamic stat dependency

@@ -191,6 +191,13 @@ var Spells = []Override{
 		Reason:  "Frostbrand Weapon: enchant 1668 casts 16353 with 0 in its amount, and 16353 has no proc row",
 		Source:  "vanilla-carryover",
 	},
+	{
+		SpellID: 21978,
+		Field:   ProcChancePct,
+		Value:   10, // TODO: Vanilla value - verify in-game
+		Reason:  "Blade of Eternal Darkness: column reads 100, tooltip says 'Chance on landing a damaging spell'; the vanilla row states 10%",
+		Source:  "vanilla-carryover",
+	},
 
 	// A relic's lock stated under a bit no spell of its class is filed under.
 	{
