@@ -3647,7 +3647,9 @@
 				"in_area": "In {{area}}",
 				"already_counted": "Already in your stats",
 				"damage": "Damage",
-				"crit_damage": "Critical Strike Damage"
+				"crit_damage": "Critical Strike Damage",
+				"effect_damage": "×{{factor}} damage",
+				"effect_restore": "×{{factor}} restored"
 			},
 			"tooltip": {
 				"base": "Base:",

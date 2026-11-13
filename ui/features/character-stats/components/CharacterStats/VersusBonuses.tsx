@@ -1,7 +1,7 @@
-import type { PlayerStats } from '@generated/proto/api';
+import { type PlayerStats, type VersusEffect, VersusEffectKind } from '@generated/proto/api';
 import type { AreaType, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
-import { translateAreaType, translateMobType, translateStat } from '@i18n/localization';
+import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { UnitStat } from '@sim/proto/stats';
@@ -9,7 +9,7 @@ import { AccordionItem } from '@ui-kit/Accordion';
 import { Table, TableCell, TableRow } from '@ui-kit/Table';
 import { useStore } from 'zustand';
 
-export type VersusBonuses = Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats'>;
+export type VersusBonuses = Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats' | 'versusEffects'>;
 
 export interface VersusBonusesViewProps {
 	bonuses: VersusBonuses;
@@ -42,8 +42,22 @@ const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>
 	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
 
+const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
+	effects.map(effect => ({
+		label: effect.itemName,
+		value: i18n.t(`sidebar.character_stats.versus.${effect.kind === VersusEffectKind.VersusEffectKindRestore ? 'effect_restore' : 'effect_damage'}`, {
+			factor: Number(effect.multiplier.toFixed(2)),
+		}),
+	}));
+
 const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
-	const mobTypes = [...new Set([...bonuses.mobTypeStats.flatMap(entry => entry.mobTypes), ...bonuses.mobTypeDamage.map(entry => entry.mobType)])];
+	const mobTypes = [
+		...new Set([
+			...bonuses.mobTypeStats.flatMap(entry => entry.mobTypes),
+			...bonuses.mobTypeDamage.map(entry => entry.mobType),
+			...bonuses.versusEffects.flatMap(effect => effect.mobTypes),
+		]),
+	];
 	const mobTypeGroups = mobTypes
 		.sort((a, b) => a - b)
 		.map(mobType => {
@@ -54,17 +68,26 @@ const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<Ver
 				lines: [
 					...bonuses.mobTypeStats.filter(entry => entry.mobTypes.includes(mobType)).flatMap(entry => statLines(entry.stats)),
 					...(damage ? [...multiplierLines('damage', damage.damageMultiplier), ...multiplierLines('crit_damage', damage.critDamageMultiplier)] : []),
+					...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType))),
 				],
 				counted: false,
 			};
 		});
+	const familyGroups = [...new Set(bonuses.versusEffects.flatMap(effect => effect.creatureFamilies))]
+		.sort((a, b) => a - b)
+		.map(family => ({
+			key: `creature-family-${family}`,
+			label: translateCreatureFamily(family),
+			lines: effectLines(bonuses.versusEffects.filter(effect => effect.creatureFamilies.includes(family))),
+			counted: false,
+		}));
 	const areaGroups = bonuses.areaStats.map(entry => ({
 		key: `area-type-${entry.areaType}`,
 		label: i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(entry.areaType) }),
 		lines: statLines(entry.stats),
 		counted: areaTypes.includes(entry.areaType),
 	}));
-	return [...mobTypeGroups, ...areaGroups];
+	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
 };
 
 export const VersusBonusesView = (props: VersusBonusesViewProps) => (
@@ -98,7 +121,7 @@ export const VersusBonuses = () => {
 	const host = useSimHost();
 	const bonuses = usePlayerStore('currentStats');
 	const areaTypes = useStore(host.sim.store, s => s.encounter.areaTypes);
-	if (!bonuses.mobTypeStats.length && !bonuses.mobTypeDamage.length && !bonuses.areaStats.length) return null;
+	if (!bonuses.mobTypeStats.length && !bonuses.mobTypeDamage.length && !bonuses.areaStats.length && !bonuses.versusEffects.length) return null;
 
 	return (
 		<AccordionItem value="versus" title={i18n.t('sidebar.character_stats.versus.title')} panelClassName="pb-1" testId="character-stats-group-versus">

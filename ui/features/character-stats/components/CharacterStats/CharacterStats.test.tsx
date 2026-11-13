@@ -2,10 +2,10 @@
 // display-stat list, so it is the last row either way; what is pinned here is that it skeletons
 // with its siblings instead of reading as settled while the stats are still in flight.
 import { PlayerStats } from '@generated/proto/api';
-import { AreaType, Class, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
+import { AreaType, Class, CreatureFamily, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { translateAreaType, translateMobType, translateStat, translateWeaponSkill } from '@i18n/localization';
+import { translateAreaType, translateCreatureFamily, translateMobType, translateStat, translateWeaponSkill } from '@i18n/localization';
 import { getClassWeaponSkills } from '@sim/player/classes/capabilities';
 import { PlayerClasses } from '@sim/player/classes/index';
 import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill_groups';
@@ -468,14 +468,30 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		[translateStat(Stat.StatAttackPower), amount],
 		[translateStat(Stat.StatRangedAttackPower), amount],
 	];
-	const mobTypeGroups = [
-		{ label: translateMobType(MobType.MobTypeBeast), lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%']], current: false },
+	const serpentbane = ['Serpentbane Crown', i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 2 })];
+	const targetGroups = [
+		{
+			label: translateMobType(MobType.MobTypeBeast),
+			lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%'], serpentbane],
+			current: false,
+		},
 		{
 			label: translateMobType(MobType.MobTypeHumanoid),
 			lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
 			current: false,
 		},
 		{ label: translateMobType(MobType.MobTypeUndead), lines: attackPower('+99'), current: false },
+		{
+			label: translateCreatureFamily(CreatureFamily.CreatureFamilyEarthElemental),
+			lines: [['Fist of Stone', i18n.t('sidebar.character_stats.versus.effect_restore', { factor: 3 })]],
+			current: false,
+		},
+		{
+			label: translateCreatureFamily(CreatureFamily.CreatureFamilyDinosaur),
+			lines: [["Bolt's Charged Eyeball", i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 3 })]],
+			current: false,
+		},
+		{ label: translateCreatureFamily(CreatureFamily.CreatureFamilySerpentine), lines: [serpentbane], current: false },
 	];
 	const areaLabel = i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) });
 	const areaLines = [
@@ -483,14 +499,14 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
 	];
 
-	it("lists each mob type and area the sim reports a bonus against, the target's mob type unmarked and the encounter's area marked as counted", async () => {
+	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type unmarked and the encounter's area marked as counted", async () => {
 		const view = renderVersus(
 			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
 		);
 
 		expect(await openVersusGroups(view)).toEqual([
-			...mobTypeGroups,
+			...targetGroups,
 			{ label: areaLabel, lines: [[i18n.t('sidebar.character_stats.versus.already_counted')], ...areaLines], current: true },
 		]);
 	});
@@ -498,7 +514,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 	it('leaves an area the encounter is not in unmarked', async () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES });
 
-		expect(await openVersusGroups(view)).toEqual([...mobTypeGroups, { label: areaLabel, lines: areaLines, current: false }]);
+		expect(await openVersusGroups(view)).toEqual([...targetGroups, { label: areaLabel, lines: areaLines, current: false }]);
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

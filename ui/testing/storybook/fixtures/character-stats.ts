@@ -1,5 +1,5 @@
-import type { MeleeCritCapInfo, PlayerStats } from '@generated/proto/api';
-import { AreaType, MobType, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
+import { type MeleeCritCapInfo, type PlayerStats, VersusEffectKind } from '@generated/proto/api';
+import { AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
 
@@ -47,8 +47,8 @@ export const CRIT_CAP_INFO: MeleeCritCapInfo = {
 	delta: -8.4,
 };
 
-/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead and an area ring: stats, both multipliers and area stats. */
-export const VERSUS_BONUSES: Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats'> = {
+/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
+export const VERSUS_BONUSES: Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats' | 'versusEffects'> = {
 	mobTypeStats: [
 		{ mobTypes: [MobType.MobTypeHumanoid], stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 } },
 		{ mobTypes: [MobType.MobTypeUndead], stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 } },
@@ -58,4 +58,30 @@ export const VERSUS_BONUSES: Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' 
 		{ mobType: MobType.MobTypeHumanoid, damageMultiplier: 1, critDamageMultiplier: 1.03 },
 	],
 	areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 28, [Stat.StatHitRating]: 10 } }],
+	versusEffects: [
+		{
+			itemId: 280032,
+			itemName: "Bolt's Charged Eyeball",
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyDinosaur],
+			multiplier: 3,
+			kind: VersusEffectKind.VersusEffectKindDamage,
+		},
+		{
+			itemId: 274609,
+			itemName: 'Serpentbane Crown',
+			mobTypes: [MobType.MobTypeBeast],
+			creatureFamilies: [CreatureFamily.CreatureFamilySerpentine],
+			multiplier: 2,
+			kind: VersusEffectKind.VersusEffectKindDamage,
+		},
+		{
+			itemId: 17943,
+			itemName: 'Fist of Stone',
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyEarthElemental],
+			multiplier: 3,
+			kind: VersusEffectKind.VersusEffectKindRestore,
+		},
+	],
 };

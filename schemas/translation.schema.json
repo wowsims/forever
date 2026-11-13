@@ -12379,10 +12379,16 @@
 								},
 								"crit_damage": {
 									"type": "string"
+								},
+								"effect_damage": {
+									"type": "string"
+								},
+								"effect_restore": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "already_counted", "damage", "crit_damage"]
+							"required": ["title", "in_area", "already_counted", "damage", "crit_damage", "effect_damage", "effect_restore"]
 						},
 						"tooltip": {
 							"type": "object",
