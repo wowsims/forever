@@ -8,9 +8,6 @@ import (
 )
 
 // The idols' equip spells reach their spells by class flags.
-//
-// TODO: Items without full game files data are not registered here:
-//   - Idol of Shifting Tides 263411 (1270470, shapeshifting spells cost 40 less mana).
 func init() {
 	core.NewItemEffect(263435, func(agent core.Agent) {
 		character := agent.GetCharacter()
@@ -76,6 +73,15 @@ func init() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1291061},
 		[]shared.ItemVariant{
 			{ItemID: 272430, ItemName: "Swarming Idol"},
+		})
+
+	// Idol of Shifting Tides
+	//
+	// Reduces the mana cost of your shapeshifts by 40. The cut comes off the row's cost before
+	// the percent cost mods.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1270470},
+		[]shared.ItemVariant{
+			{ItemID: 263411, ItemName: "Idol of Shifting Tides"},
 		})
 
 	// Mystic Mushroom
