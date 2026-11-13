@@ -1860,6 +1860,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-VolcanicArmor"
+ value: {
+  dps: 659.11745
+  tps: 416.74203
+  dtps: 2.56706
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-WarbladeofCaerDarrow-13982"
  value: {
   dps: 675.83172

@@ -1312,9 +1312,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-StormshroudArmor"
  value: {
-  dps: 566.19733
-  tps: 402.0001
-  hps: 51.34167
+  dps: 614.90451
+  tps: 436.5822
+  hps: 53.61222
  }
 }
 dps_results: {
@@ -1539,6 +1539,14 @@ dps_results: {
   dps: 590.41315
   tps: 419.19334
   hps: 51.0875
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-VolcanicArmor"
+ value: {
+  dps: 549.14879
+  tps: 389.89564
+  hps: 51.34167
  }
 }
 dps_results: {

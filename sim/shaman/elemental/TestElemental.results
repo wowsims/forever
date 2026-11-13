@@ -1839,6 +1839,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-VolcanicArmor"
+ value: {
+  dps: 659.58837
+  tps: 613.52457
+  dtps: 8.38136
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-VolcanicHammer-12792"
  value: {
   dps: 684.33398

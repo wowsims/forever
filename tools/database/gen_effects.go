@@ -884,16 +884,16 @@ func setBonusTooltip(instance *dbc.DBC, spellID int) string {
 
 const setBonusesFileName = "sim/common/forever/item_sets_auto_gen.go"
 
-// A piece count of a generated set: the rows the game files grant at it, and what the set bonus aura
-// leaves out of each.
+// A piece count of a generated set: the rows the game files grant at it, and what keeps each from
+// registering.
 type GeneratedSetBonus struct {
 	Pieces      int32
 	Spells      []int32
 	Tooltips    []string   // One per spell.
-	Unsupported [][]string // One per spell, empty where the row parses whole.
+	Unsupported [][]string // One per spell, empty where the row registers.
 }
 
-// Whether every row of the bonus parses whole, which is when it is registered.
+// Whether every row of the bonus registers, which is when the bonus does.
 func (bonus GeneratedSetBonus) Supported() bool {
 	return !slices.ContainsFunc(bonus.Unsupported, func(reasons []string) bool { return len(reasons) > 0 })
 }
@@ -936,7 +936,7 @@ func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSp
 			}
 			bonus.Spells = append(bonus.Spells, int32(row.SpellID))
 			bonus.Tooltips = append(bonus.Tooltips, tooltipOf(row.SpellID))
-			bonus.Unsupported = append(bonus.Unsupported, spelldata.SetBonusUnsupported(spelldata.Find(int32(row.SpellID))))
+			bonus.Unsupported = append(bonus.Unsupported, shared.SetBonusUnsupported(spelldata.Find(int32(row.SpellID))))
 		}
 		if len(byPieces) == 0 {
 			continue
@@ -965,8 +965,8 @@ func setSlots(db *WowDatabase, setID int32) []proto.ItemSlot {
 	return slices.Compact(slots)
 }
 
-// The sets file, written the way the item files are: a registration for each set with a bonus that
-// parses whole, and every bonus that does not as a comment naming what the parse leaves out.
+// The sets file, written the way the item files are: a registration for each set with a bonus whose rows
+// all register, and every other bonus as a comment naming what keeps it out.
 func renderSetBonuses(sets []GeneratedSet) []byte {
 	var b strings.Builder
 	b.WriteString("package forever\n\n")
@@ -974,8 +974,8 @@ func renderSetBonuses(sets []GeneratedSet) []byte {
 		b.WriteString("import (\n\t\"github.com/wowsims/forever/sim/common/shared\"\n\t\"github.com/wowsims/forever/sim/core/proto\"\n)\n\n")
 	}
 	b.WriteString("// The sets no hand-written set covers. A bonus is registered when every row it grants parses whole\n")
-	b.WriteString("// onto the set bonus aura; the others are comments. A set written by hand leaves this file on the next\n")
-	b.WriteString("// db run.\n")
+	b.WriteString("// onto the set bonus aura or is a proc the set builds; the others are comments. A set written by\n")
+	b.WriteString("// hand leaves this file on the next db run.\n")
 	b.WriteString("func RegisterAllSetBonuses() {\n")
 
 	for i, set := range sets {

@@ -249,10 +249,11 @@ func TestMissingSetBonusesRender(t *testing.T) {
 }
 
 // A set no registered set covers is generated with every piece count, and a bonus is supported only when
-// each of its rows parses whole. A set covered by id, or by name for a set registered with ID 0, and a
+// each of its rows registers: it parses whole, or it is a proc trigger the set builds. A set covered by id, or by name for a set registered with ID 0, and a
 // set with no items in the database stay out. The skill line the ItemSet row requires is the set's profession.
 func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
-	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger the parse skips
+	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger whose mask states no listener
+	const lightning = 18979           // a 10% chance on melee hits to cast 18980's Nature damage
 	const leatherworking = 165
 	registered := []*core.ItemSet{{ID: 100, Name: "Set 100"}, {Name: "Set 300"}}
 	setSpells := map[int][]dbc.ItemSetSpell{
@@ -261,6 +262,7 @@ func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 			{ItemSetID: 200, Threshold: 4, SpellID: hit, RequiredSkill: leatherworking},
 			{ItemSetID: 200, Threshold: 4, SpellID: proc, RequiredSkill: leatherworking},
 			{ItemSetID: 200, Threshold: 2, SpellID: hit, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 3, SpellID: lightning, RequiredSkill: leatherworking},
 		},
 		300: {{ItemSetID: 300, Threshold: 2, SpellID: hit}},
 		400: {{ItemSetID: 400, Threshold: 2, SpellID: hit}},
@@ -280,7 +282,7 @@ func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
 		spells    []int32
 		supported bool
 	}
-	want := []bonus{{2, []int32{hit}, true}, {4, []int32{hit, proc}, false}}
+	want := []bonus{{2, []int32{hit}, true}, {3, []int32{lightning}, true}, {4, []int32{hit, proc}, false}}
 	if !slices.EqualFunc(got[0].Bonuses, want, func(a GeneratedSetBonus, b bonus) bool {
 		return a.Pieces == b.pieces && slices.Equal(a.Spells, b.spells) && a.Supported() == b.supported
 	}) {

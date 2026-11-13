@@ -2990,43 +2990,9 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		124, // Deathbone Guardian
 		new Map([
 			[
-				3,
-				[
-					"Grants a chance when struck in combat to increase damage and healing done by magical spells and effects by up to 70 for 10s.", // 1299743 - https://www.wowhead.com/forever/spell=1299743
-				],
-			],
-			[
 				5,
 				[
 					"Reduces the chance for your attacks to be dodged or parried by 2%.", // 1213289 - https://www.wowhead.com/forever/spell=1213289
-				],
-			],
-		]),
-	],
-	[
-		141, // Volcanic Armor
-		new Map([
-			[
-				3,
-				[
-					"5% chance of dealing 40 Fire damage on a successful melee attack.", // 9233 - https://www.wowhead.com/forever/spell=9233
-				],
-			],
-		]),
-	],
-	[
-		142, // Stormshroud Armor
-		new Map([
-			[
-				2,
-				[
-					"10% chance of dealing 20 Nature damage on a successful melee attack.", // 18979 - https://www.wowhead.com/forever/spell=18979
-				],
-			],
-			[
-				3,
-				[
-					"4% chance on melee attack of restoring 30 energy.", // 23863 - https://www.wowhead.com/forever/spell=23863
 				],
 			],
 		]),
