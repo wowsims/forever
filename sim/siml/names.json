@@ -14499,7 +14499,7 @@
       "increased_enrage_rage": {"spellId": 1291060, "registeredBy": ["balance_druid", "feral_bear_druid", "feral_cat_druid", "restoration_druid"]},
       "increased_feral_combat": {"spellId": 1320726, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
       "increased_fire_resist_10": {"spellId": 1324673, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
-      "increased_fist_weapons_01": {"spellId": 1297442, "registeredBy": ["balance_druid", "dps_priest", "dps_warrior", "elemental_shaman", "enhancement_shaman", "feral_bear_druid", "feral_cat_druid", "healer_priest", "holy_paladin", "hunter", "mage", "protection_paladin", "protection_warrior", "restoration_druid", "restoration_shaman", "retribution_paladin", "rogue", "warlock"]},
+      "increased_fist_weapons_01": {"spellId": 1297442, "registeredBy": []},
       "increased_flame_shock_duration": {"spellId": 1291077, "registeredBy": ["elemental_shaman", "enhancement_shaman", "restoration_shaman"]},
       "increased_flash_of_light_crit_chance": {"spellId": 1293544, "registeredBy": ["holy_paladin", "protection_paladin", "retribution_paladin"]},
       "increased_hit_chance": {"spellId": 28842, "registeredBy": ["dps_warrior", "protection_warrior"]},

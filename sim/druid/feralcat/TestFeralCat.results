@@ -166,14 +166,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralCat-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 714.85202
-  tps: 532.90974
-  hps: 44.03861
- }
-}
-dps_results: {
  key: "TestFeralCat-AllItems-Bolt'sChargedEyeball-280032"
  value: {
   dps: 775.03946

@@ -482,3 +482,38 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 	parsed.PseudoStats = NullFloat(pseudoStats)
 	return effects
 }
+
+// An equip spell that raises only weapon skills the item's own stats already state adds nothing in game.
+// Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and again as equip spell 1297442,
+// A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1. The stat gives the skill and the spell
+// leaves the item: no database entry, no registration and no missing effect. A spell on an item whose
+// stats state no such skill stays.
+func (d *DBC) dropRestatedWeaponSkills() {
+	for itemID, effects := range d.ItemEffectsByParentID {
+		stated := map[proto.WeaponSkill]bool{}
+		for _, stat := range d.Items[itemID].BonusStat {
+			if skill, ok := weaponSkillByBonusStat[stat]; ok {
+				stated[skill] = true
+			}
+		}
+		if len(stated) == 0 {
+			continue
+		}
+		d.ItemEffectsByParentID[itemID] = slices.DeleteFunc(effects, func(effect ItemEffect) bool {
+			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.raisesOnlyWeaponSkills(effect.SpellID, stated)
+		})
+	}
+}
+
+func (d *DBC) raisesOnlyWeaponSkills(spellID int, skills map[proto.WeaponSkill]bool) bool {
+	effects := d.SpellEffects[spellID]
+	for _, effect := range effects {
+		if effect.EffectAura != dbcenums.A_MOD_SKILL || len(effect.EffectMiscValues) == 0 {
+			return false
+		}
+		if skill, ok := spelldata.WeaponSkillOfLine(int32(effect.EffectMiscValues[0])); !ok || !skills[skill] {
+			return false
+		}
+	}
+	return len(effects) > 0
+}

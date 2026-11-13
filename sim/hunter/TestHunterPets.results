@@ -270,14 +270,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 667.30813
-  tps: 422.58982
-  dtps: 0.97203
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-BlueDragonMail"
  value: {
   dps: 673.17347

@@ -174,14 +174,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-BloodyClawsofAttack-280068"
- value: {
-  dps: 623.58309
-  tps: 442.74399
-  hps: 45.51278
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-Bolt'sChargedEyeball-280032"
  value: {
   dps: 593.03992

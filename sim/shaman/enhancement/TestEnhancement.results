@@ -1658,9 +1658,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TotemoftheStorm-272432"
  value: {
-  dps: 784.79944
-  tps: 821.06831
-  dtps: 7.29271
+  dps: 783.51632
+  tps: 819.89611
+  dtps: 7.29465
   hps: 36.37972
  }
 }

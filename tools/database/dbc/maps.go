@@ -198,6 +198,20 @@ func MapBonusStatIndexToPiercingSchool(index int) (stats.SchoolIndex, bool) {
 	return stats.SchoolIndexNone, false
 }
 
+// The weapon skill each weapon skill stat raises, which the sim keeps outside the stat array.
+var weaponSkillByBonusStat = map[int]proto.WeaponSkill{
+	ITEM_MOD_TWO_HANDED_AXES_SKILL:   proto.WeaponSkill_WeaponSkillTwoHandedAxes,
+	ITEM_MOD_TWO_HANDED_MACES_SKILL:  proto.WeaponSkill_WeaponSkillTwoHandedMaces,
+	ITEM_MOD_TWO_HANDED_SWORDS_SKILL: proto.WeaponSkill_WeaponSkillTwoHandedSwords,
+	ITEM_MOD_AXES_SKILL:              proto.WeaponSkill_WeaponSkillAxes,
+	ITEM_MOD_BOWS_SKILL:              proto.WeaponSkill_WeaponSkillBows,
+	ITEM_MOD_DAGGERS_SKILL:           proto.WeaponSkill_WeaponSkillDaggers,
+	ITEM_MOD_FIST_WEAPONS_SKILL:      proto.WeaponSkill_WeaponSkillFistWeapons,
+	ITEM_MOD_MACES_SKILL:             proto.WeaponSkill_WeaponSkillMaces,
+	ITEM_MOD_POLEARMS_SKILL:          proto.WeaponSkill_WeaponSkillPolearms,
+	ITEM_MOD_SWORDS_SKILL:            proto.WeaponSkill_WeaponSkillSwords,
+}
+
 var MapProfessionIdToProfession = map[int]proto.Profession{
 	0:   proto.Profession_ProfessionUnknown,
 	164: proto.Profession_Blacksmithing,

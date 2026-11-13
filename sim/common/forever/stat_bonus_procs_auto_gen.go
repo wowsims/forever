@@ -163,14 +163,6 @@ func RegisterAllProcs() {
 			{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
 		})
 
-	// Increased Fist Weapons +1.
-	// https://www.wowhead.com/forever/spell=1297442
-	// equip: 1297442 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1297442},
-		[]shared.ItemVariant{
-			{ItemID: 280068, ItemName: "Bloody Claws of Attack"},
-		})
-
 	// When struck in combat, inflicts 2 Fire damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1312955
 	// equip: 1312955 (A_DAMAGE_SHIELD)

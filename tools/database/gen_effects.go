@@ -606,7 +606,7 @@ var literalRates = []literalRate{
 		Kind:   overrides.RatePPM,
 		Origin: "unknown",
 		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
-			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the bolt's cast time",
+			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the main hand's speed",
 	},
 	{
 		Gear:   "set bonus",
