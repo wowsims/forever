@@ -764,8 +764,8 @@ func TestHandOfJusticeRestsForItsRowsCooldown(t *testing.T) {
 }
 
 // Mark of the Chosen 17774 puts up 21970 for its row's duration on a melee, ranged or harmful spell
-// hit taken, and a heal taken never does. After a proc it rests for 21969's cooldown, which outlasts
-// the buff. The row copy procs on every hit.
+// hit taken, and a heal taken never does. After a proc of any kind every hit rests for 21969's
+// cooldown, which outlasts the buff. The row copy procs on every hit.
 func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 	editSpellRow(t, 21969, func(s *spelldata.Spell) {
 		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
@@ -800,28 +800,32 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 	}{{"melee", meleeSwing}, {"ranged", rangedShot}, {"spell", fireSpell}} {
 		t.Run(hit.name, func(t *testing.T) {
 			sim, character, buff := wearer(t)
-			enemy := sim.Encounter.ActiveTargetUnits[0]
-
-			start := sim.CurrentTime
-			takeHit(t, sim, character, hit.spell(enemy))
+			takeHit(t, sim, character, hit.spell(sim.Encounter.ActiveTargetUnits[0]))
 			if !buff.IsActive() || buff.Duration != duration {
-				t.Fatalf("after a %s hit taken the buff is active %v and lasts %v, want it active for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
-			}
-			// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown after
-			// a hit taken, so the cooldown is crossed in 10 s legs.
-			for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
-				stepTo(t, sim, at)
-			}
-			stepTo(t, sim, start+cooldown-time.Millisecond)
-			takeHit(t, sim, character, hit.spell(enemy))
-			if buff.IsActive() {
-				t.Errorf("a %s hit taken 1 ms before the cooldown ends put the buff up, want none", hit.name)
-			}
-			stepTo(t, sim, start+cooldown)
-			takeHit(t, sim, character, hit.spell(enemy))
-			if !buff.IsActive() {
-				t.Errorf("a %s hit taken as the cooldown ends left the buff down, want it up", hit.name)
+				t.Errorf("after a %s hit taken the buff is active %v and lasts %v, want it active for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
 			}
 		})
 	}
+
+	t.Run("cooldown", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		enemy := sim.Encounter.ActiveTargetUnits[0]
+		start := sim.CurrentTime
+		takeHit(t, sim, character, meleeSwing(enemy))
+		// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown after
+		// a hit taken, so the cooldown is crossed in 10 s legs.
+		for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+			stepTo(t, sim, at)
+		}
+		stepTo(t, sim, start+cooldown-time.Millisecond)
+		takeHit(t, sim, character, rangedShot(enemy))
+		if buff.IsActive() {
+			t.Error("a ranged hit taken 1 ms before a melee proc's cooldown ends put the buff up, want none")
+		}
+		stepTo(t, sim, start+cooldown)
+		takeHit(t, sim, character, fireSpell(enemy))
+		if !buff.IsActive() {
+			t.Error("a spell hit taken as the cooldown ends left the buff down, want it up")
+		}
+	})
 }
