@@ -1327,12 +1327,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17774, // Mark of the Chosen
-		[
-			"Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.", // 21970 - https://www.wowhead.com/forever/spell=21970
-		]
-	],
-	[
 		17780, // Blade of Eternal Darkness
 		[
 			"Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.", // 27860 - https://www.wowhead.com/forever/spell=27860

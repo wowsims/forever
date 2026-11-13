@@ -1287,6 +1287,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 823.61079
+  tps: 672.89029
+  dtps: 6.05497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 815.20735

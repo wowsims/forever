@@ -421,6 +421,19 @@ func init() {
 	core.NewItemEffect(11815, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 	})
+
+	// Mark of the Chosen
+	// https://www.wowhead.com/forever/item=17774/mark-of-the-chosen
+	//
+	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
+	//
+	// 21969's ProcTypeMask also names helpful spells taken, but every proc in the combat logs followed a
+	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone. The logs measure 5
+	// procs on 392 landed hits taken (1.28%), in line with the row's 2%.
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
+		[]shared.ItemVariant{
+			{ItemID: 17774, ItemName: "Mark of the Chosen"},
+		})
 }
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.

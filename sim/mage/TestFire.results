@@ -776,6 +776,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 860.97702
