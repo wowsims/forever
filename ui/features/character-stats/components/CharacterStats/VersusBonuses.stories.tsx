@@ -1,4 +1,3 @@
-import { AreaType } from '@generated/proto/common';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { VERSUS_BONUSES } from '@testing/storybook/fixtures/character-stats';
 
@@ -8,10 +7,9 @@ const meta = {
 	title: 'Features/CharacterStats/Components/VersusBonuses',
 	component: VersusBonusesView,
 	tags: ['autodocs'],
-	args: { bonuses: VERSUS_BONUSES, areaTypes: [] },
+	args: { bonuses: VERSUS_BONUSES },
 	argTypes: {
 		bonuses: { control: false },
-		areaTypes: { control: false },
 	},
 	decorators: [
 		Story => (
@@ -26,5 +24,3 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-
-export const InTheArea: Story = { args: { areaTypes: [AreaType.AreaTypeForestGrassland] } };

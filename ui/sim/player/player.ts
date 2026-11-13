@@ -1255,13 +1255,12 @@ export class Player<SpecType extends Spec> {
 	computeItemEP(item: Item, slot: ItemSlot): number {
 		if (item == null) return 0;
 
-		const areaTypes = this.sim.encounter.getAreaTypes();
-		const cacheKey = `${item.id}-${areaTypes.join(',')}-${JSON.stringify(this.getEpWeights())}`;
+		const cacheKey = `${item.id}-${JSON.stringify(this.getEpWeights())}`;
 
 		const cached = this.itemEPCache[slot].get(cacheKey);
 		if (cached !== undefined) return cached;
 
-		const equippedItem = new EquippedItem({ item }).withDynamicStats(areaTypes);
+		const equippedItem = new EquippedItem({ item }).withDynamicStats();
 		const itemStats = equippedItem.calcStats(slot);
 
 		// For random suffix items, use the suffix option with the highest EP for the purposes of ranking items in the picker.

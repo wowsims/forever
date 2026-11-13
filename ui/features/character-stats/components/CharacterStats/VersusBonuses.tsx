@@ -1,20 +1,16 @@
 import { type PlayerStats, type VersusEffect, VersusEffectKind } from '@generated/proto/api';
-import type { AreaType, Stat } from '@generated/proto/common';
+import type { Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
-import { useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { UnitStat } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
-import { useStore } from 'zustand';
 
 export type VersusBonusSet = Pick<PlayerStats, 'mobTypeBonuses' | 'areaStats' | 'versusEffects'>;
 
 export interface VersusBonusesViewProps {
 	bonuses: VersusBonusSet;
-	// The encounter's area types, whose stats the other groups already count.
-	areaTypes: ReadonlyArray<AreaType>;
 }
 
 interface VersusLine {
@@ -27,7 +23,6 @@ interface VersusGroup {
 	key: string;
 	label: string;
 	lines: Array<VersusLine>;
-	counted: boolean;
 }
 
 const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
@@ -56,7 +51,7 @@ const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 		}),
 	}));
 
-const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
+const versusGroups = ({ bonuses }: VersusBonusesViewProps): Array<VersusGroup> => {
 	const mobTypes = [...new Set([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...bonuses.versusEffects.flatMap(effect => effect.mobTypes)])];
 	const mobTypeGroups = mobTypes
 		.sort((a, b) => a - b)
@@ -64,7 +59,7 @@ const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<Ver
 			const bonus = bonuses.mobTypeBonuses.find(entry => entry.mobType === mobType);
 			return {
 				key: `mob-type-${mobType}`,
-				label: translateMobType(mobType),
+				label: i18n.t('sidebar.character_stats.versus.against', { target: translateMobType(mobType) }),
 				lines: [
 					...(bonus
 						? [
@@ -75,22 +70,19 @@ const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<Ver
 						: []),
 					...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType))),
 				],
-				counted: false,
 			};
 		});
 	const familyGroups = [...new Set(bonuses.versusEffects.flatMap(effect => effect.creatureFamilies))]
 		.sort((a, b) => a - b)
 		.map(family => ({
 			key: `creature-family-${family}`,
-			label: translateCreatureFamily(family),
+			label: i18n.t('sidebar.character_stats.versus.against', { target: translateCreatureFamily(family) }),
 			lines: effectLines(bonuses.versusEffects.filter(effect => effect.creatureFamilies.includes(family))),
-			counted: false,
 		}));
 	const areaGroups = bonuses.areaStats.map(entry => ({
 		key: `area-type-${entry.areaType}`,
 		label: i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(entry.areaType) }),
 		lines: statLines(entry.stats),
-		counted: areaTypes.includes(entry.areaType),
 	}));
 	return [...mobTypeGroups, ...familyGroups, ...areaGroups];
 };
@@ -98,22 +90,15 @@ const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<Ver
 export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 	<Table variant="plain" flush>
 		{versusGroups(props).map(group => (
-			<tbody key={group.key} className="data-current:text-success" data-current={group.counted || undefined} data-testid="character-stats-versus-group">
+			<tbody key={group.key} data-testid="character-stats-versus-group">
 				<TableRow className="ui-character-stats-row">
 					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-bold">
 						{group.label}
 					</TableHeaderCell>
 				</TableRow>
-				{group.counted && (
-					<TableRow className="ui-character-stats-row">
-						<TableCell className="ui-character-stats-label text-xs text-muted" colSpan={2}>
-							{i18n.t('sidebar.character_stats.versus.already_counted')}
-						</TableCell>
-					</TableRow>
-				)}
 				{group.lines.map(line => (
 					<TableRow key={line.key} className="ui-character-stats-row">
-						<TableCell className="ui-character-stats-label pl-2">{line.label}</TableCell>
+						<TableCell className="ui-character-stats-label">{line.label}</TableCell>
 						<TableCell className="ui-character-stats-value">{line.value}</TableCell>
 					</TableRow>
 				))}
@@ -123,14 +108,12 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 );
 
 export const VersusBonuses = () => {
-	const host = useSimHost();
 	const bonuses = usePlayerStore('currentStats');
-	const areaTypes = useStore(host.sim.store, s => s.encounter.areaTypes);
 	if (!bonuses.mobTypeBonuses.length && !bonuses.areaStats.length && !bonuses.versusEffects.length) return null;
 
 	return (
 		<AccordionItem value="versus" title={i18n.t('sidebar.character_stats.versus.title')} panelClassName="pb-1" testId="character-stats-group-versus">
-			<VersusBonusesView bonuses={bonuses} areaTypes={areaTypes} />
+			<VersusBonusesView bonuses={bonuses} />
 		</AccordionItem>
 	);
 };

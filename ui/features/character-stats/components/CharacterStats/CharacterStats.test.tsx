@@ -453,7 +453,6 @@ const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
 		return {
 			label: heading.textContent,
 			lines: lines.map(line => Array.from(line.querySelectorAll('td')).map(cell => cell.textContent)),
-			current: group.hasAttribute('data-current'),
 		};
 	});
 };
@@ -468,30 +467,27 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		[translateStat(Stat.StatAttackPower), amount],
 		[translateStat(Stat.StatRangedAttackPower), amount],
 	];
+	const against = (target: string) => i18n.t('sidebar.character_stats.versus.against', { target });
 	const serpentbane = ['Serpentbane Crown', i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 2 })];
 	const targetGroups = [
 		{
-			label: translateMobType(MobType.MobTypeBeast),
+			label: against(translateMobType(MobType.MobTypeBeast)),
 			lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%'], serpentbane],
-			current: false,
 		},
 		{
-			label: translateMobType(MobType.MobTypeHumanoid),
+			label: against(translateMobType(MobType.MobTypeHumanoid)),
 			lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
-			current: false,
 		},
-		{ label: translateMobType(MobType.MobTypeUndead), lines: attackPower('+99'), current: false },
+		{ label: against(translateMobType(MobType.MobTypeUndead)), lines: attackPower('+99') },
 		{
-			label: translateCreatureFamily(CreatureFamily.CreatureFamilyEarthElemental),
+			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyEarthElemental)),
 			lines: [['Fist of Stone', i18n.t('sidebar.character_stats.versus.effect_restore', { factor: 3 })]],
-			current: false,
 		},
 		{
-			label: translateCreatureFamily(CreatureFamily.CreatureFamilyDinosaur),
+			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyDinosaur)),
 			lines: [["Bolt's Charged Eyeball", i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 3 })]],
-			current: false,
 		},
-		{ label: translateCreatureFamily(CreatureFamily.CreatureFamilySerpentine), lines: [serpentbane], current: false },
+		{ label: against(translateCreatureFamily(CreatureFamily.CreatureFamilySerpentine)), lines: [serpentbane] },
 	];
 	const areaLabel = i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) });
 	const areaLines = [
@@ -499,22 +495,24 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
 	];
 
-	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type unmarked and the encounter's area marked as counted", async () => {
+	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type and the encounter's area alike", async () => {
 		const view = renderVersus(
 			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
 		);
 
-		expect(await openVersusGroups(view)).toEqual([
-			...targetGroups,
-			{ label: areaLabel, lines: [[i18n.t('sidebar.character_stats.versus.already_counted')], ...areaLines], current: true },
-		]);
+		expect(await openVersusGroups(view)).toEqual([...targetGroups, { label: areaLabel, lines: areaLines }]);
 	});
 
-	it('leaves an area the encounter is not in unmarked', async () => {
-		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES });
+	it("shows the sim's Attack Power total in the encounter's area, its area stats listed under Bonus alone", () => {
+		const finalStats = new Stats().withStat(Stat.StatAttackPower, 1000);
+		const view = renderVersus({ finalStats: finalStats.toProto(), ...VERSUS_BONUSES }, { areaTypes: [AreaType.AreaTypeForestGrassland] });
 
-		expect((await openVersusGroups(view)).at(-1)).toEqual({ label: areaLabel, lines: areaLines, current: false });
+		const attackPowerLabel = UnitStat.fromStat(Stat.StatAttackPower).getShortName(Class.ClassWarrior);
+		const row = Array.from(view.container.querySelectorAll('[data-testid="character-stats-table-row"]')).find(
+			row => row.firstElementChild!.textContent === attackPowerLabel,
+		)!;
+		expect(row.lastElementChild!.textContent).toBe(statDisplayString({} as never, finalStats, UnitStat.fromStat(Stat.StatAttackPower)));
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

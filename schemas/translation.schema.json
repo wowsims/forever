@@ -12367,7 +12367,7 @@
 								"in_area": {
 									"type": "string"
 								},
-								"already_counted": {
+								"against": {
 									"type": "string"
 								},
 								"damage": {
@@ -12384,7 +12384,7 @@
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "already_counted", "damage", "crit_damage", "effect_damage", "effect_restore"]
+							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore"]
 						},
 						"tooltip": {
 							"type": "object",

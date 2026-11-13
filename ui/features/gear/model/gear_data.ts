@@ -32,6 +32,6 @@ export const ALL_ITEM_SLOTS: ReadonlyArray<ItemSlot> = [...LEFT_ITEM_SLOTS, ...R
 
 export const createGearData = (player: Player<any>, slot: ItemSlot): GearData => ({
 	equipItem: (equippedItem: EquippedItem | null) => player.equipItem(slot, equippedItem),
-	getEquippedItem: () => player.getEquippedItem(slot)?.withDynamicStats(player.sim.encounter.getAreaTypes()) || null,
+	getEquippedItem: () => player.getEquippedItem(slot)?.withDynamicStats() || null,
 	subscribe: subscribePlayerField(player, 'gear'),
 });

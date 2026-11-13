@@ -73,7 +73,7 @@ const mount = () => {
 
 	const db = { lookupItemSpec: (spec: ItemSpec) => [BATCHED, WORN, PICKED, ENCHANTED].find(item => item.id === spec.id) ?? null };
 	const player = {
-		sim: { store, db, isNative: false, encounter: { getAreaTypes: () => [] } },
+		sim: { store, db, isNative: false },
 		storeKey: STORE_KEY,
 		getGear: () => gear,
 		getEquippedItems: () => [WORN],
@@ -129,7 +129,7 @@ const mountFrozenWeapon = () => {
 	seedKeyed(store, 'players', STORE_KEY, { gear, v: zeroVersions(PLAYER_FIELDS) } as never);
 
 	const player = {
-		sim: { store, db: { lookupItemSpec: () => null }, isNative: false, encounter: { getAreaTypes: () => [] } },
+		sim: { store, db: { lookupItemSpec: () => null }, isNative: false },
 		storeKey: STORE_KEY,
 		getGear: () => gear,
 		getEquippedItems: () => {

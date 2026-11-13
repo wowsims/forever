@@ -81,7 +81,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **A rate the game files lack**: `wowsims-db-pipeline` `## Overrides`.
 - **A row that deals or restores N times as much against some creatures** names them only in its tooltip; its row id,
   effect index and the mob types or creature families go in `versusFactors` (`sim/common/shared/versus.go`), or the
-  spell deals 1× and the sheet's Versus group leaves the item out. A hand-written effect sets `SpellConfig.VersusBonus`
+  spell deals 1× and the sheet's Bonus group leaves the item out. A hand-written effect sets `SpellConfig.VersusBonus`
   through `shared.ItemVersusBonus` or `Character.NewItemVersusBonus`.
 
 ## Measuring a rate

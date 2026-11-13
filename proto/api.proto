@@ -720,8 +720,8 @@ message PlayerStats {
 
 	// One entry for each mob type the player has a bonus against, whatever mob types the encounter's targets are.
 	repeated MobTypeBonus mob_type_bonuses = 5;
-	// The stats the gear adds only while the encounter is in an area of the type, one entry for each area type. Those
-	// of the encounter's own area types are in final_stats as well.
+	// The stats the gear adds only while the encounter is in an area of the type, one entry for each area type.
+	// final_stats holds none of them; the sim adds those of the encounter's own area types when the fight starts.
 	repeated AreaStats area_stats = 15;
 	// The factors the worn items' spells deal or restore against the mob types and creature families their
 	// tooltips name, one entry for each item.

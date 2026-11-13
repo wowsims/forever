@@ -618,24 +618,23 @@ func ProtoToEquipment(es *proto.EquipmentSpec) Equipment {
 	return NewEquipmentSet(ProtoToEquipmentSpec(es))
 }
 
-// Folds the stats of every matching area into Stats.
-func (item Item) inArea(areaTypes []proto.AreaType) Item {
-	if item.ID == 0 {
-		return item
-	}
+// The stats the item adds in an area of any of the types, which Stats leaves out.
+func (item *Item) areaStats(areaTypes []proto.AreaType) stats.Stats {
+	var sum stats.Stats
 	for _, areaStats := range item.ScalingOptions[0].GetAreaStats() {
 		if slices.Contains(areaTypes, areaStats.AreaType) {
-			item.Stats = item.Stats.Add(stats.FromProtoMap(areaStats.Stats))
+			sum = sum.Add(stats.FromProtoMap(areaStats.Stats))
 		}
 	}
-	return item
+	return sum
 }
 
-func (equipment Equipment) inArea(areaTypes []proto.AreaType) Equipment {
+func (equipment *Equipment) areaStats(areaTypes []proto.AreaType) stats.Stats {
+	var sum stats.Stats
 	for i := range equipment {
-		equipment[i] = equipment[i].inArea(areaTypes)
+		sum = sum.Add(equipment[i].areaStats(areaTypes))
 	}
-	return equipment
+	return sum
 }
 
 // The stats the gear adds only in an area of each type, summed over every item worn.
