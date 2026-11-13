@@ -261,13 +261,11 @@ func init() {
 		row := spelldata.MustFind(1265634)
 		triggerRow := spelldata.MustFind(1318159)
 		damage := row.DamageEffect()
-		familyMultiplier := triggerRow.Effects[0].BaseValue()
 
 		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 260205, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-				proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr)
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
 		ancientPower := character.RegisterSpell(config)
 
@@ -337,12 +335,11 @@ func init() {
 		row := spelldata.MustFind(1315996)
 		triggerRow := spelldata.MustFind(1311505)
 		damage := row.DamageEffect()
-		dinosaurMultiplier := triggerRow.EffectN(2).BaseValue()
 
 		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 280032, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, dinosaurMultiplier, proto.CreatureFamily_CreatureFamilyDinosaur)
-			spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 		}
 		shock := character.RegisterSpell(config)
 

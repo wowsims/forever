@@ -53,6 +53,8 @@ type Character struct {
 	//Item Swap Handler
 	ItemSwap ItemSwap
 
+	itemVersusBonuses []itemVersusBonus
+
 	// Consumables this Character will be using.
 	Consumables *proto.ConsumesSpec
 
@@ -510,6 +512,7 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 	playerStats.MeleeCritCap = character.meleeCritCapProto(playerStats.FinalStats.PseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent])
 	playerStats.MobTypeStats, playerStats.MobTypeDamage = character.mobTypeBonusesProto()
 	playerStats.AreaStats = character.Equipment.areaStatsProto()
+	playerStats.VersusEffects = character.versusEffectsProto()
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()

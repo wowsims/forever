@@ -738,3 +738,53 @@ func TestItemSwapMovesArmorNoModsWhole(t *testing.T) {
 		t.Errorf("after the swap back the wearer has %v armor, want the %v it started with", got, enchanted)
 	}
 }
+
+// An item's spell whose row states a factor against some targets, Smokey's Lighter 17283 against Plants
+// at its second effect, deals that factor times as much to a target of them as to any other target from
+// the same rolls. The wearer's stats sheet lists the item's factor against them, and lists nothing while
+// the item is only in the item swap set.
+func TestItemSpellDealsTheRowsFactorAgainstItsTargets(t *testing.T) {
+	const itemID int32 = 992090
+	factor := spelldata.MustFind(17283).EffectAtIndex(1).BasePoints
+	if factor <= 1 {
+		t.Fatalf("the row states a factor of %v, want one above 1 to tell the targets apart", factor)
+	}
+	use := func(family proto.CreatureFamily) (float64, []*proto.VersusEffect) {
+		sim, caster := newOnUseSim(t, NewSpellDataDamageOnUse, map[int32]*proto.ItemEffect{itemID: testOnUse(17283, 60000, 0, 0)})
+		target := sim.Encounter.ActiveTargetUnits[0]
+		target.CreatureFamily = family
+		spell := onUseSpell(t, caster, itemID)
+		if !spell.Cast(sim, target) {
+			t.Fatal("the on-use could not be used")
+		}
+		stepPast(t, sim, sim.CurrentTime+time.Second)
+		playerStats := &proto.PlayerStats{}
+		caster.FillPlayerStats(playerStats)
+		return spell.SpellMetrics[target.UnitIndex].TotalDamage, playerStats.VersusEffects
+	}
+
+	plant, sheet := use(proto.CreatureFamily_CreatureFamilyPlant)
+	other, _ := use(proto.CreatureFamily_CreatureFamilyUnknown)
+	if other <= 0 {
+		t.Fatalf("the spell dealt %v to a target of no family, want some damage", other)
+	}
+	if !core.WithinToleranceFloat64(plant, factor*other, 1e-6) {
+		t.Errorf("the spell dealt %v to a Plant, want %v times the %v it dealt to a target of no family", plant, factor, other)
+	}
+	if len(sheet) != 1 || sheet[0].ItemId != itemID || sheet[0].Multiplier != factor ||
+		len(sheet[0].CreatureFamilies) != 1 || sheet[0].CreatureFamilies[0] != proto.CreatureFamily_CreatureFamilyPlant {
+		t.Errorf("the stats sheet lists %v, want the item's factor of %v against Plants", sheet, factor)
+	}
+
+	equipped, swapped := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket2+1), make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotTrinket2+1)
+	for i := range swapped {
+		equipped[i], swapped[i] = &proto.ItemSpec{}, &proto.ItemSpec{}
+	}
+	swapped[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: itemID}
+	sim := newTestCasterSim(equipped, swapped)
+	playerStats := &proto.PlayerStats{}
+	sim.Raid.Parties[0].Players[0].GetCharacter().FillPlayerStats(playerStats)
+	if len(playerStats.VersusEffects) != 0 {
+		t.Errorf("with the item only in the item swap set the stats sheet lists %v, want none", playerStats.VersusEffects)
+	}
+}
