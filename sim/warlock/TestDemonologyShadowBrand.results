@@ -794,6 +794,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-JomGabbar-23570"
  value: {
   dps: 764.43425

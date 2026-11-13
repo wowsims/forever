@@ -153,6 +153,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 784.20106
+  tps: 642.46052
+  dtps: 6.07753
+  hps: 24.8963
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BlackDragonMail"
  value: {
   dps: 801.62721

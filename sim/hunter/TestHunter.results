@@ -1170,6 +1170,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 653.45847
+  tps: 676.94592
+  dtps: 8.43489
+  hps: 14.70778
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-JomGabbar-23570"
  value: {
   dps: 785.76206
@@ -1590,6 +1599,15 @@ dps_results: {
   tps: 792.92089
   dtps: 8.5878
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-Ripsaw-9478"
+ value: {
+  dps: 703.22279
+  tps: 726.73924
+  dtps: 8.82472
+  hps: 14.55528
  }
 }
 dps_results: {

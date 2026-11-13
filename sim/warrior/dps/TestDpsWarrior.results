@@ -144,6 +144,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 437.5773
+  tps: 372.5466
+  dtps: 2.97628
+  hps: 21.97694
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 508.11284
@@ -1026,6 +1035,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 491.2433
+  tps: 425.8656
+  dtps: 2.94293
+  hps: 41.92056
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-JomGabbar-23570"
  value: {
   dps: 524.39867
@@ -1368,6 +1386,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Ripsaw-9478"
+ value: {
+  dps: 509.19718
+  tps: 438.18622
+  dtps: 2.94293
+  hps: 37.65056
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 505.19476
@@ -1653,6 +1680,15 @@ dps_results: {
   tps: 442.24083
   dtps: 2.94293
   hps: 40.88694
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 505.78448
+  tps: 433.80314
+  dtps: 2.94293
+  hps: 37.41333
  }
 }
 dps_results: {

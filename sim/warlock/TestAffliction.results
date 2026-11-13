@@ -794,6 +794,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 610.87393
+  tps: 495.11504
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-JomGabbar-23570"
  value: {
   dps: 651.54232
