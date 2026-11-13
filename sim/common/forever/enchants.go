@@ -245,11 +245,9 @@ func init() {
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
 		// The charge goes to the next cast the crit modifier reaches, whatever its proc mask. A channel
-		// the mask names (Blizzard, a hunter's Volley) spends it. The mage's charge goes the moment that
-		// cast completes, after its hits have rolled: an area cast crits on every target, a missile keeps
-		// its crit in flight, and no other spell landing in the meantime takes the charge. Mage logs: 81
-		// of 84 charges go at the buffed cast's success and the other 3 expire. The other classes'
-		// charge goes with the cast's first hit, as the druid's does at the spell's impact.
+		// the mask names (Blizzard, a hunter's Volley) spends it. The mage's charge goes as the cast
+		// completes, the other classes' with the cast's first hit. Mage logs: 81 of 84 charges go at the
+		// buffed cast's success and the other 3 expire.
 		// TODO: Pyroblast spends the mage's charge and crits in game, though the row's crit modifier
 		// names neither Pyroblast nor Fireball.
 		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",

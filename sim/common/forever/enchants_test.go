@@ -196,6 +196,9 @@ func (m *testMage) Initialize() {
 		spell.DealDamage(sim, result)
 		m.crits[spell] = append(m.crits[spell], result.DidCrit())
 	}
+	hit := func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
+	}
 	spell := func(id core.ActionID, bit uint, config core.SpellConfig) *core.Spell {
 		config.ActionID = id
 		config.SpellSchool = core.SpellSchoolFire
@@ -206,11 +209,7 @@ func (m *testMage) Initialize() {
 		config.ThreatMultiplier = 1
 		return m.RegisterSpell(config)
 	}
-	m.fireBlast = spell(core.ActionID{SpellID: 10199}, 1, core.SpellConfig{
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
-		},
-	})
+	m.fireBlast = spell(core.ActionID{SpellID: 10199}, 1, core.SpellConfig{ApplyEffects: hit})
 	m.frostbolt = spell(core.ActionID{SpellID: 25304}, 5, core.SpellConfig{
 		MissileMinDuration: time.Second,
 		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -221,20 +220,13 @@ func (m *testMage) Initialize() {
 	})
 	m.explosion = spell(core.ActionID{SpellID: 10202}, 12, core.SpellConfig{
 		ApplyEffects: func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
-			for _, target := range sim.Encounter.ActiveTargetUnits {
-				land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
+			for _, result := range spell.CalcAndDealAoeDamage(sim, 100, spell.OutcomeMagicCrit) {
+				m.crits[spell] = append(m.crits[spell], result.DidCrit())
 			}
 		},
 	})
-	m.missile = spell(core.ActionID{SpellID: 25345, Tag: 1}, 11, core.SpellConfig{
-		ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			land(sim, spell, spell.CalcDamage(sim, target, 100, spell.OutcomeMagicCrit))
-		},
-	})
-	m.stalled = spell(core.ActionID{SpellID: 25345, Tag: 2}, 11, core.SpellConfig{
-		Flags:        core.SpellFlagChanneled,
-		ApplyEffects: func(_ *core.Simulation, _ *core.Unit, _ *core.Spell) {},
-	})
+	m.missile = spell(core.ActionID{SpellID: 25345, Tag: 1}, 11, core.SpellConfig{ApplyEffects: hit})
+	m.stalled = spell(core.ActionID{SpellID: 25345, Tag: 2}, 11, core.SpellConfig{Flags: core.SpellFlagChanneled})
 	m.missiles = spell(core.ActionID{SpellID: 25345}, 11, core.SpellConfig{
 		Flags: core.SpellFlagChanneled,
 		Dot: core.DotConfig{
@@ -281,6 +273,11 @@ func revelationWearerFacing(t *testing.T, class proto.Class, spec any, enemies i
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
+
+func chargeRevelation(sim *core.Simulation, buff *core.Aura) {
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
 }
 
 // Enchant Weapon - Revelation 8217 gives a druid its class's buff 1323400 on a direct spell that lands
@@ -341,21 +338,13 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 	channel := druid.hurricane.Dot(target)
 
-	stepWhile := func(cond func() bool) {
-		for steps := 0; cond(); steps++ {
-			if steps > 1000 {
-				t.Fatal("the sim did not get there in 1000 steps")
-			}
-			sim.Step()
-		}
-	}
 	procced := false
 	for casts := 0; !procced; casts++ {
 		if casts > 40 {
 			t.Fatal("40 channels and no tick procced Revelation")
 		}
 		druid.hurricane.SkipCastAndApplyEffects(sim, target)
-		stepWhile(func() bool {
+		stepWhile(t, sim, func() bool {
 			procced = procced || buff.IsActive()
 			return channel.IsActive()
 		})
@@ -363,22 +352,18 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 	sim.Step()
 	buff.Deactivate(sim)
 
-	charge := func() {
-		buff.Activate(sim)
-		buff.SetStacks(sim, buff.MaxStacks)
-	}
 	channelFor := func(ticks int) {
 		druid.tickCrits = nil
 		druid.hurricane.SkipCastAndApplyEffects(sim, target)
-		stepWhile(func() bool { return len(druid.tickCrits) < ticks })
+		stepWhile(t, sim, func() bool { return len(druid.tickCrits) < ticks })
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	channelFor(2)
 	if !buff.IsActive() {
 		t.Fatal("two ticks into the channel, Revelation's charge is spent")
 	}
-	stepWhile(channel.IsActive)
+	stepWhile(t, sim, channel.IsActive)
 	sim.Step()
 	if len(druid.tickCrits) != 3 || slices.Contains(druid.tickCrits, false) {
 		t.Errorf("ticks crit %v, want all three", druid.tickCrits)
@@ -387,14 +372,14 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 		t.Error("the channel ended and Revelation's charge is still up")
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	channelFor(1)
 	channel.Deactivate(sim)
 	if buff.IsActive() {
 		t.Error("the channel was cut short and Revelation's charge is still up")
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	druid.drain.SkipCastAndApplyEffects(sim, target)
 	druid.drain.Dot(target).Deactivate(sim)
 	if buff.IsActive() {
@@ -403,12 +388,12 @@ func TestRevelationLastsTheWholeChannel(t *testing.T) {
 
 	drain := druid.drain.Dot(target)
 	druid.drain.SkipCastAndApplyEffects(sim, target)
-	charge()
+	chargeRevelation(sim, buff)
 	sim.Step()
 	if !drain.IsActive() || !buff.IsActive() {
 		t.Fatal("the charge came while a channel it covers was running, and it is gone before that channel ended")
 	}
-	stepWhile(drain.IsActive)
+	stepWhile(t, sim, drain.IsActive)
 	if buff.IsActive() {
 		t.Error("the charge came while a channel it covers was running, the channel ended and the charge is still up")
 	}
@@ -467,10 +452,6 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	if buff == nil {
 		t.Fatal("no Revelation buff 1248808 on the mage")
 	}
-	charge := func() {
-		buff.Activate(sim)
-		buff.SetStacks(sim, buff.MaxStacks)
-	}
 	crits := func(spell *core.Spell) []bool {
 		got := mage.crits[spell]
 		mage.crits[spell] = nil
@@ -482,7 +463,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 		buff.Deactivate(sim)
 	}
 
-	charge()
+	chargeRevelation(sim, buff)
 	mage.explosion.Cast(sim, target)
 	if got := crits(mage.explosion); len(got) != 3 || slices.Contains(got, false) {
 		t.Errorf("Arcane Explosion with Revelation up crit %v, want every one of the 3 targets", got)
@@ -496,7 +477,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 	settle()
 
-	charge()
+	chargeRevelation(sim, buff)
 	mage.frostbolt.Cast(sim, target)
 	if buff.IsActive() {
 		t.Error("Frostbolt completed and Revelation's charge is still up while it flies")
@@ -505,7 +486,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	if got := crits(mage.fireBlast); len(got) != 1 || got[0] {
 		t.Errorf("Fire Blast cast while Frostbolt flies crit %v, want one hit without Revelation's crit", got)
 	}
-	charge()
+	chargeRevelation(sim, buff)
 	stepTo(t, sim, sim.CurrentTime+time.Second+100*time.Millisecond)
 	if got := crits(mage.frostbolt); len(got) != 1 || !got[0] {
 		t.Errorf("Frostbolt landed with crits %v, want the crit it rolled at the cast", got)
@@ -515,18 +496,13 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 	settle()
 
-	charge()
+	chargeRevelation(sim, buff)
 	mage.missiles.Cast(sim, target)
 	channel := mage.missiles.Dot(target)
 	if !channel.IsActive() || !buff.IsActive() {
 		t.Fatal("Arcane Missiles started and Revelation's charge is gone before the channel ends")
 	}
-	for steps := 0; channel.IsActive(); steps++ {
-		if steps > 1000 {
-			t.Fatal("the channel did not end in 1000 steps")
-		}
-		sim.Step()
-	}
+	stepWhile(t, sim, channel.IsActive)
 	if got := crits(mage.missile); len(got) != 3 || slices.Contains(got, false) {
 		t.Errorf("Arcane Missiles' ticks crit %v, want all three", got)
 	}
@@ -535,7 +511,7 @@ func TestRevelationMageSpendsTheChargeAtTheCast(t *testing.T) {
 	}
 	settle()
 
-	charge()
+	chargeRevelation(sim, buff)
 	mage.stalled.Cast(sim, target)
 	if character.IsChanneling() {
 		t.Fatal("the cast that starts no channel left a channel running")
@@ -551,8 +527,7 @@ func TestRevelationDruidSpendsTheChargeAtImpact(t *testing.T) {
 	druid := sim.Raid.Parties[0].Players[0].(*testDruid)
 	buff := character.GetAuraByID(core.ActionID{SpellID: 1323400})
 
-	buff.Activate(sim)
-	buff.SetStacks(sim, buff.MaxStacks)
+	chargeRevelation(sim, buff)
 	cast := sim.CurrentTime
 	druid.bolt.Cast(sim, character.CurrentTarget)
 	stepTo(t, sim, cast+500*time.Millisecond)

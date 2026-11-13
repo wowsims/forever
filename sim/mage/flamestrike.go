@@ -16,13 +16,12 @@ func (mage *Mage) registerFlamestrikeSpells() {
 // spellData.FlamestrikeTriggered pair by rank. The burn (MageSpellFlamestrikeDot) is the ground effect
 // on the cast's row: every 2 sec it casts the tick spell, which hits each enemy in the area and rolls a
 // crit unless the tick's row bars it. The burn deals nothing, and its casts record no metrics or log
-// lines; its aura logs under the cast's id like any row's aura. The tick spell keeps its row's class
-// flags, rank and coefficient but reports under the cast's id with tag 1, as Fireball's DoT does, so
-// its damage is the DoT line under Flamestrike's header. The burn carries the same id and registers
-// first, so a lookup of that id finds the spell that holds the area dot.
+// lines. The tick spell keeps its row's class flags, rank and coefficient but reports under the cast's
+// id with tag 1, as Fireball's DoT does, so its damage is the DoT line under Flamestrike's header. The
+// burn carries the same id and registers first, so a lookup of that id finds the spell that holds the
+// area dot.
 //
-// Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on:
-// Revelation rolls per enemy, Ignite takes each crit, and Arcane Concentration rolls once a tick. The
+// Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on. The
 // tick's row is outside the class flags of Revelation's crit and charge, and it costs nothing, so it
 // neither takes nor spends Revelation or Clearcasting. A tick takes no partial resist: in game, mobs
 // that partially resist about a quarter of Scorch and Fire Blast hits resist almost no ticks.
@@ -31,6 +30,7 @@ func (mage *Mage) registerFlamestrikeSpells() {
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()
+	tickDamage := rollDamage(tickRank.DamageEffect())
 	var tickSpell *core.Spell
 
 	dotConfig := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Proc(), spelldata.Tag(1),
@@ -56,7 +56,7 @@ func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell
 		if cannotCrit {
 			outcome = spell.OutcomeMagicHit
 		}
-		spell.CalcAndDealAoeDamageWithVariance(sim, outcome, rollDamage(tickRank.DamageEffect()))
+		spell.CalcAndDealAoeDamageWithVariance(sim, outcome, tickDamage)
 	}
 	tickSpell = mage.RegisterSpell(tickConfig)
 

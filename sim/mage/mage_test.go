@@ -223,48 +223,21 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	}
 }
 
-// A Flamestrike ground tick leaves Clearcasting up for the next cast.
-func TestFlamestrikeGroundTickKeepsClearcasting(t *testing.T) {
-	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
-	burn := flamestrikeBurn(t, mage)
-	mage.ClearCasting.Activate(sim)
-	if !burn.Cast(sim, mage.CurrentTarget) {
-		t.Fatal("the Flamestrike burn did not cast")
-	}
-	for tick := range int32(4) {
-		stepFor(sim, 2100*time.Millisecond)
-		if ticks := burn.AOEDot().TickCount(); ticks <= tick {
-			t.Fatalf("the burn ticked %d times by %v", ticks, sim.CurrentTime)
-		}
-		if !mage.ClearCasting.IsActive() {
-			t.Fatalf("Clearcasting fell off at %v while only Flamestrike's ground ticks dealt damage", sim.CurrentTime)
-		}
-	}
-}
-
-// Each enemy a Flamestrike ground tick lands on rolls Revelation, while Arcane Concentration rolls once a
-// tick: against many enemies a tick procs Revelation far more often than against one, and Clearcasting
-// just as often.
+// Each enemy a Flamestrike ground tick lands on rolls Revelation: against many enemies a tick procs it far
+// more often than against one.
 func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
 	const ticks, manyTargets = 1500, 8
-	revelationOne, clearcastingOne, chance := flamestrikeTickProcs(t, 1, ticks)
-	revelationMany, clearcastingMany, _ := flamestrikeTickProcs(t, manyTargets, ticks)
+	one, many := flamestrikeTickRevelations(t, 1, ticks), flamestrikeTickRevelations(t, manyTargets, ticks)
 
-	if revelationOne == 0 || revelationMany < 3*revelationOne {
+	if one == 0 || many < 3*one {
 		t.Errorf("Revelation procced on %d of %d ticks on one target and %d on %d targets, want at least three times as many on %d",
-			revelationOne, ticks, revelationMany, manyTargets, manyTargets)
-	}
-	for _, gains := range []int{clearcastingOne, clearcastingMany} {
-		if rate := float64(gains) / ticks; rate < chance/2 || rate > chance*3/2 {
-			t.Errorf("Clearcasting procced on %d of %d ticks (%d on one target, %d on %d targets), want about the talent's %.3f once per tick",
-				gains, ticks, clearcastingOne, clearcastingMany, manyTargets, chance)
-		}
+			one, ticks, many, manyTargets, manyTargets)
 	}
 }
 
-// With Revelation up, a Flamestrike ground tick neither takes its crit nor spends its charge, while the
-// cast it comes from takes the crit.
-func TestFlamestrikeGroundTickKeepsRevelation(t *testing.T) {
+// With Clearcasting and Revelation up, Flamestrike's ground ticks spend neither and take no crit from
+// Revelation, while the cast they come from takes the crit.
+func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	sim, mage, buff := newRevelationMage(t, ArcaneTalents, 3)
 	target := mage.CurrentTarget
 	burn := flamestrikeBurn(t, mage)
@@ -283,6 +256,7 @@ func TestFlamestrikeGroundTickKeepsRevelation(t *testing.T) {
 		t.Errorf("Flamestrike's crit chance is %v with Revelation up and %v without", got, castCrit)
 	}
 
+	mage.ClearCasting.Activate(sim)
 	if !burn.Cast(sim, target) {
 		t.Fatal("the Flamestrike burn did not cast")
 	}
@@ -290,6 +264,9 @@ func TestFlamestrikeGroundTickKeepsRevelation(t *testing.T) {
 		stepFor(sim, 2100*time.Millisecond)
 		if ticks := burn.AOEDot().TickCount(); ticks <= tickCount {
 			t.Fatalf("the burn ticked %d times by %v", ticks, sim.CurrentTime)
+		}
+		if !mage.ClearCasting.IsActive() {
+			t.Fatalf("Clearcasting fell off at %v while only Flamestrike's ground ticks dealt damage", sim.CurrentTime)
 		}
 	}
 	if expirations != 0 || !buff.IsActive() {
@@ -395,21 +372,19 @@ func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulat
 	return sim, mage, buff
 }
 
-// How many of the given Flamestrike ground ticks proc Revelation and Clearcasting against the given number
-// of targets, each buff taken down after every tick, and the chance Arcane Concentration states.
-func flamestrikeTickProcs(t *testing.T, targets, ticks int) (revelation, clearcasting int, chance float64) {
+// How many of the given Flamestrike ground ticks proc Revelation against the given number of targets, the
+// buff taken down after every tick.
+func flamestrikeTickRevelations(t *testing.T, targets, ticks int) (revelations int) {
 	sim, mage, buff := newRevelationMage(t, ArcaneTalents, targets)
 	burn := flamestrikeBurn(t, mage)
-	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { revelation++ })
-	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { clearcasting++ })
+	buff.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { revelations++ })
 
 	for range ticks {
 		burn.AOEDot().TickOnce(sim)
 		stepFor(sim, 1100*time.Millisecond)
 		buff.Deactivate(sim)
-		mage.ClearCasting.Deactivate(sim)
 	}
-	return revelation, clearcasting, arcaneConcentrationChance(mage)
+	return revelations
 }
 
 func arcaneConcentrationChance(mage *Mage) float64 {
