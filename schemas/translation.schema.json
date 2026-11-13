@@ -12362,6 +12362,25 @@
 						"weapon_skill": {
 							"type": "string"
 						},
+						"versus": {
+							"type": "object",
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"in_area": {
+									"type": "string"
+								},
+								"damage": {
+									"type": "string"
+								},
+								"crit_damage": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["title", "in_area", "damage", "crit_damage"]
+						},
 						"tooltip": {
 							"type": "object",
 							"properties": {
@@ -12550,6 +12569,7 @@
 						"hands",
 						"melee_crit_cap",
 						"weapon_skill",
+						"versus",
 						"tooltip",
 						"attack_table",
 						"crit_cap",

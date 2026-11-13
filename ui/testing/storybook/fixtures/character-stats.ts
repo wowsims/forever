@@ -1,5 +1,5 @@
-import type { MeleeCritCapInfo } from '@generated/proto/api';
-import { PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
+import type { MeleeCritCapInfo, PlayerStats } from '@generated/proto/api';
+import { AreaType, MobType, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
 
@@ -45,4 +45,17 @@ export const CRIT_CAP_INFO: MeleeCritCapInfo = {
 	specOffset: 0,
 	critCap: 61.1,
 	delta: -8.4,
+};
+
+/** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead and an area ring: stats, both multipliers and area stats. */
+export const VERSUS_BONUSES: Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats'> = {
+	mobTypeStats: [
+		{ mobTypes: [MobType.MobTypeHumanoid], stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 } },
+		{ mobTypes: [MobType.MobTypeUndead], stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 } },
+	],
+	mobTypeDamage: [
+		{ mobType: MobType.MobTypeBeast, damageMultiplier: 1.05, critDamageMultiplier: 1 },
+		{ mobType: MobType.MobTypeHumanoid, damageMultiplier: 1, critDamageMultiplier: 1.03 },
+	],
+	areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 28, [Stat.StatHitRating]: 10 } }],
 };

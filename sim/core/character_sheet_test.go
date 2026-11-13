@@ -384,3 +384,76 @@ func TestSheetHasNoMeleeCritCapWithoutMainHandAuto(t *testing.T) {
 		t.Errorf("melee crit cap %v, want none without a main-hand auto", info)
 	}
 }
+
+// The sheet lists the bonuses against every mob type, the target's or not: gear, a build-phase aura and
+// a racial, each as the attack table against a target of that type holds it once the sim resets. It
+// lists the gear's area stats per area type, in an area or not.
+func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
+	const ringID int32 = 990925
+	const ringAttackPower, ringAreaAttackPower, auraSpellDamage = 78.0, 29.0, 21.0
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: ringID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {
+				MobTypeStats: []*proto.MobTypeStats{{
+					MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+					Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
+				}},
+				AreaStats: []*proto.AreaStats{{
+					AreaType: proto.AreaType_AreaTypeForestGrassland,
+					Stats:    map[int32]float64{int32(stats.AttackPower): ringAreaAttackPower},
+				}},
+			},
+		}},
+	}})
+	weaponTestTalents = func(character *Character) {
+		MakePermanent(character.RegisterAura(Aura{Label: "Test Undead Bane", BuildPhase: CharacterBuildPhaseTalents})).
+			AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
+	}
+	defer func() { weaponTestTalents = nil }()
+	equipped := WeaponTestSlots(WeaponTestSwordID, 0, 0)
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: ringID}
+	raid := weaponTestRaid(proto.Race_RaceTroll, equipped, nil)
+	playerStats := ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: weaponTestEncounter()}).RaidStats.Parties[0].Players[0]
+
+	wantStats := map[proto.MobType]stats.Stats{
+		proto.MobType_MobTypeHumanoid: {stats.AttackPower: ringAttackPower},
+		proto.MobType_MobTypeUndead:   {stats.SpellDamage: auraSpellDamage},
+	}
+	if len(playerStats.MobTypeStats) != len(wantStats) {
+		t.Errorf("the sheet lists stats against %d mob types, want %d: %v", len(playerStats.MobTypeStats), len(wantStats), playerStats.MobTypeStats)
+	}
+	for _, versus := range playerStats.MobTypeStats {
+		if len(versus.MobTypes) != 1 {
+			t.Fatalf("a stats entry names mob types %v, want one", versus.MobTypes)
+		}
+		if got, want := stats.FromProtoMap(versus.Stats), wantStats[versus.MobTypes[0]]; got != want {
+			t.Errorf("the sheet lists %v against %s, want %v", got, versus.MobTypes[0], want)
+		}
+	}
+	if len(playerStats.MobTypeDamage) != 1 || playerStats.MobTypeDamage[0].MobType != proto.MobType_MobTypeBeast {
+		t.Fatalf("the sheet lists damage multipliers %v, want the racial's against Beasts alone", playerStats.MobTypeDamage)
+	}
+	if len(playerStats.AreaStats) != 1 || playerStats.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland ||
+		stats.FromProtoMap(playerStats.AreaStats[0].Stats) != (stats.Stats{stats.AttackPower: ringAreaAttackPower}) {
+		t.Errorf("the sheet lists area stats %v, want the ring's attack power in Forest and Grassland", playerStats.AreaStats)
+	}
+
+	for _, mobType := range []proto.MobType{proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeUndead, proto.MobType_MobTypeBeast} {
+		encounter := weaponTestEncounter()
+		encounter.Targets[0].MobType = mobType
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: raid, Encounter: encounter}, simsignals.CreateSignals())
+		sim.Reset()
+		character := sim.Raid.Parties[0].Players[0].GetCharacter()
+		table := character.AttackTables[character.CurrentTarget.UnitIndex]
+		if got := table.MobTypeBonusStats[mobType]; got != wantStats[mobType] {
+			t.Errorf("against %s the attack table holds %v, the sheet %v", mobType, got, wantStats[mobType])
+		}
+		wantMultiplier := 1.0
+		if mobType == proto.MobType_MobTypeBeast {
+			wantMultiplier = playerStats.MobTypeDamage[0].DamageMultiplier
+		}
+		if !WithinToleranceFloat64(table.DamageDealtMultiplier, wantMultiplier, 1e-9) {
+			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, wantMultiplier)
+		}
+	}
+}

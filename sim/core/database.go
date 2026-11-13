@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"maps"
 	"math"
 	"slices"
 	"sync"
@@ -635,6 +636,24 @@ func (equipment Equipment) inArea(areaTypes []proto.AreaType) Equipment {
 		equipment[i] = equipment[i].inArea(areaTypes)
 	}
 	return equipment
+}
+
+// The stats the gear adds only in an area of each type, summed over every item worn.
+func (equipment Equipment) areaStatsProto() []*proto.AreaStats {
+	byArea := map[proto.AreaType]stats.Stats{}
+	for _, item := range equipment {
+		if item.ID == 0 {
+			continue
+		}
+		for _, areaStats := range item.ScalingOptions[0].GetAreaStats() {
+			byArea[areaStats.AreaType] = byArea[areaStats.AreaType].Add(stats.FromProtoMap(areaStats.Stats))
+		}
+	}
+	var areaStats []*proto.AreaStats
+	for _, areaType := range slices.Sorted(maps.Keys(byArea)) {
+		areaStats = append(areaStats, &proto.AreaStats{AreaType: areaType, Stats: byArea[areaType].ToProtoMap()})
+	}
+	return areaStats
 }
 
 // Like ItemSpec, but uses names for reference instead of ID.

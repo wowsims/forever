@@ -3642,6 +3642,12 @@
 			},
 			"melee_crit_cap": "Melee Crit Cap",
 			"weapon_skill": "Weapon Skill",
+			"versus": {
+				"title": "Versus",
+				"in_area": "In {{area}}",
+				"damage": "Damage",
+				"crit_damage": "Critical Strike Damage"
+			},
 			"tooltip": {
 				"base": "Base:",
 				"gear": "Gear:",

@@ -508,6 +508,8 @@ func (character *Character) FillPlayerStats(playerStats *proto.PlayerStats) {
 	}
 	playerStats.WeaponSkills = character.weaponSkillsProto()
 	playerStats.MeleeCritCap = character.meleeCritCapProto(playerStats.FinalStats.PseudoStats[proto.PseudoStat_PseudoStatMeleeCritPercent])
+	playerStats.MobTypeStats, playerStats.MobTypeDamage = character.mobTypeBonusesProto()
+	playerStats.AreaStats = character.Equipment.areaStatsProto()
 
 	character.clearBuildPhaseAuras(CharacterBuildPhaseAll)
 	playerStats.Sets = character.GetActiveSetBonusNames()
