@@ -1252,6 +1252,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 470.22003
+  tps: 2463.28137
+  dtps: 390.83044
+  hps: 80.04903
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 478.81697

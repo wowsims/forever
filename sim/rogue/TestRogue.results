@@ -1046,6 +1046,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 587.86207
+  tps: 417.38207
+  hps: 51.0875
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 581.24221

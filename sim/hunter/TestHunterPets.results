@@ -1213,6 +1213,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 693.75963

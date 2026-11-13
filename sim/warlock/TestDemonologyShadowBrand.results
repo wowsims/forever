@@ -962,6 +962,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 764.43425
+  tps: 651.40264
+  dtps: 10.45093
+  hps: 7.66513
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 763.92565

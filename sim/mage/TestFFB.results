@@ -790,6 +790,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 793.57301
