@@ -267,3 +267,41 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 		}
 	})
 }
+
+// The Hurricane cast rolls Omen of Clarity once for each target its area reaches, after it spends
+// Clearcasting, so a cast that spends the buff can come out with a new one.
+func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
+	const casts = 400
+	procsOn := func(targets int) int {
+		sim, _ := balanceDruid(t, false, 0, targets)
+		sim.Cleanup()
+		sim.BaseDuration = casts * time.Minute
+		sim.Reset()
+		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		procs := 0
+		for range casts {
+			// The buff makes the cast free; the channel outlasts the proc's cooldown.
+			druid.ClearcastingAura.Activate(sim)
+			start := sim.CurrentTime
+			if !druid.Hurricane.Cast(sim, druid.CurrentTarget) {
+				t.Fatal("Hurricane did not cast")
+			}
+			for sim.CurrentTime < start+100*time.Millisecond && !sim.Step() {
+			}
+			if druid.ClearcastingAura.IsActive() {
+				procs++
+			}
+			for druid.Hurricane.AOEDot().IsActive() && !sim.Step() {
+			}
+		}
+		return procs
+	}
+
+	one, five := procsOn(1), procsOn(5)
+	if one == 0 {
+		t.Fatalf("a Hurricane cast that spends Clearcasting on one target never comes out with a new one in %d casts", casts)
+	}
+	if float64(five) < 2.5*float64(one) {
+		t.Errorf("Hurricane procs Omen of Clarity %d of %d casts on five targets, %d on one; want about four times as often", five, casts, one)
+	}
+}
