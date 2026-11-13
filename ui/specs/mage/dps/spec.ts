@@ -112,7 +112,7 @@ export default defineSpec<Spec.SpecMage>({
 	excludeBuffDebuffInputs: [],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [OtherInputs.InputDelay, OtherInputs.DistanceFromTarget, OtherInputs.TankAssignment],
+		inputs: [OtherInputs.InputDelay, OtherInputs.ChannelClipDelay, OtherInputs.DistanceFromTarget, OtherInputs.TankAssignment],
 	},
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	encounterPicker: {

@@ -52,6 +52,7 @@ export const DefaultOptions = MageOptions.create({
 });
 
 export const OtherDefaults = {
+	channelClipDelay: 100,
 	distanceFromTarget: 20,
 	profession1: Profession.Engineering,
 	profession2: Profession.Tailoring,
@@ -100,7 +101,7 @@ export const DefaultSettings: PresetSettings = {
 	partyBuffs: DefaultPartyBuffs,
 	raidBuffs: DefaultRaidBuffs,
 	debuffs: DefaultDebuffs,
-	playerOptions: OtherDefaults,
+	playerOptions: { ...OtherDefaults, channelClipDelayMs: OtherDefaults.channelClipDelay },
 };
 
 export const ArcaneBuild = PresetUtils.makePresetBuild('Arcane', {
