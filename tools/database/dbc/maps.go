@@ -233,13 +233,6 @@ var mobTypeStatByBonusStat = map[int]struct {
 	ITEM_MOD_SPELL_DAMAGE_VS_DRAGONKIN:  {proto.MobType_MobTypeDragonkin, []proto.Stat{proto.Stat_StatSpellDamage}},
 }
 
-var professionSkillByBonusStat = map[int]proto.ProfessionSkill{
-	ITEM_MOD_HERBALISM_SKILL: proto.ProfessionSkill_ProfessionSkillHerbalism,
-	ITEM_MOD_MINING_SKILL:    proto.ProfessionSkill_ProfessionSkillMining,
-	ITEM_MOD_SKINNING_SKILL:  proto.ProfessionSkill_ProfessionSkillSkinning,
-	ITEM_MOD_FISHING_SKILL:   proto.ProfessionSkill_ProfessionSkillFishing,
-}
-
 var MapProfessionIdToProfession = map[int]proto.Profession{
 	0:   proto.Profession_ProfessionUnknown,
 	164: proto.Profession_Blacksmithing,

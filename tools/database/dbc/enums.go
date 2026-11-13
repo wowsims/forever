@@ -318,14 +318,6 @@ const (
 	ITEM_MOD_POLEARMS_SKILL          = 101
 	ITEM_MOD_SWORDS_SKILL            = 103
 
-	// Profession skill. 276395 Grimm's Packing Gloves states 112 and reads "+4 Herbalism"; enchant 8210
-	// "Skinning +$k1" states 114. 113 sits only on mining gear (10542 Goblin Mining Helmet, 9465 Digmaster
-	// 5000) and 117 only on fishing gear (19970 Arcanite Fishing Pole, 19972 Lucky Fishing Hat).
-	ITEM_MOD_HERBALISM_SKILL = 112
-	ITEM_MOD_MINING_SKILL    = 113
-	ITEM_MOD_SKINNING_SKILL  = 114
-	ITEM_MOD_FISHING_SKILL   = 117
-
 	// Spell penetration on one school, in points of the target's resistance: 21516 Dagger of Spell
 	// Penetration - Fire 150 Resist (TEST) budgets 150 of 119, and 21518's Frost twin 150 of 121.
 	ITEM_MOD_FIRE_SPELL_PENETRATION  = 119

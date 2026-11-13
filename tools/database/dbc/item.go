@@ -93,15 +93,14 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 
 	// Append base itemlevel stats
 	scalingProperties[int32(0)] = &proto.ScalingItemProperties{
-		WeaponDamageMin:  item.WeaponDmgMin(item.ItemLevel),
-		WeaponDamageMax:  item.WeaponDmgMax(item.ItemLevel),
-		Stats:            item.GetStats(item.ItemLevel).ToProtoMap(),
-		RandPropPoints:   item.GetRandPropPoints(item.ItemLevel),
-		Ilvl:             int32(item.ItemLevel),
-		WeaponSkills:     item.GetWeaponSkills(item.ItemLevel),
-		MobTypeStats:     item.GetMobTypeStats(item.ItemLevel),
-		HealthPerFive:    item.GetHealthPerFive(item.ItemLevel),
-		ProfessionSkills: item.GetProfessionSkills(item.ItemLevel),
+		WeaponDamageMin: item.WeaponDmgMin(item.ItemLevel),
+		WeaponDamageMax: item.WeaponDmgMax(item.ItemLevel),
+		Stats:           item.GetStats(item.ItemLevel).ToProtoMap(),
+		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
+		Ilvl:            int32(item.ItemLevel),
+		WeaponSkills:    item.GetWeaponSkills(item.ItemLevel),
+		MobTypeStats:    item.GetMobTypeStats(item.ItemLevel),
+		Hp5:             item.GetHP5(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
@@ -224,7 +223,7 @@ func (item *Item) GetMobTypeStats(itemLevel int) []*proto.MobTypeStats {
 	return out
 }
 
-func (item *Item) GetHealthPerFive(itemLevel int) int32 {
+func (item *Item) GetHP5(itemLevel int) int32 {
 	var total int32
 	for i, stat := range item.BonusStat {
 		if stat == ITEM_MOD_HEALTH_REGEN {
@@ -232,18 +231,6 @@ func (item *Item) GetHealthPerFive(itemLevel int) int32 {
 		}
 	}
 	return total
-}
-
-func (item *Item) GetProfessionSkills(itemLevel int) []*proto.ProfessionSkillValue {
-	var skills []*proto.ProfessionSkillValue
-	for i, stat := range item.BonusStat {
-		if skill, ok := professionSkillByBonusStat[stat]; ok {
-			if value := int32(item.GetScaledStat(i, itemLevel)); value != 0 {
-				skills = append(skills, &proto.ProfessionSkillValue{Skill: skill, Value: value})
-			}
-		}
-	}
-	return skills
 }
 
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the
