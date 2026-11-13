@@ -9,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func init() {
@@ -230,35 +231,39 @@ func balanceDruid(t *testing.T, gift bool, incoming int32, targets int) (*core.S
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// One Hurricane tick rolls Omen of Clarity once, however many targets it lands on: three targets proc
-// a little more often than one, since one of them nearly always lands, where a roll per target would
-// nearly triple it.
-func TestHurricaneTickRollsOmenOnce(t *testing.T) {
-	const ticks = 2000
-	procsOn := func(targets int) int {
-		sim, _ := balanceDruid(t, false, 0, targets)
+// Hurricane's ticks roll no Omen of Clarity, and their crits grant no Nature's Grace.
+func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
+	t.Run("Omen of Clarity", func(t *testing.T) {
+		sim, _ := balanceDruid(t, false, 0, 3)
 		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
-		if len(sim.Encounter.ActiveTargetUnits) != targets {
-			t.Fatalf("targets = %d, want %d", len(sim.Encounter.ActiveTargetUnits), targets)
-		}
-		procs := 0
-		for range ticks {
-			// The step clears the proc's cooldown. A successful roll starts that cooldown on the spot; the
-			// Clearcasting aura follows a spell batch window later.
+		for range 500 {
+			// The step clears the proc's cooldown, which a successful roll starts on the spot.
 			sim.CurrentTime += time.Minute
 			druid.Hurricane.RelatedDotSpell.Cast(sim, druid.CurrentTarget)
 			if !druid.OmenOfClarityAura.Icd.IsReady(sim) {
-				procs++
+				t.Fatal("a Hurricane tick rolled Omen of Clarity")
 			}
 		}
-		return procs
-	}
+	})
 
-	one, three := procsOn(1), procsOn(3)
-	if one < 100 {
-		t.Fatalf("one target procs Omen of Clarity %d of %d ticks, too few to compare", one, ticks)
-	}
-	if float64(three) > float64(one)*1.3 {
-		t.Errorf("three targets proc Omen of Clarity %d of %d ticks, one target %d; want about the same", three, ticks, one)
-	}
+	t.Run("Nature's Grace", func(t *testing.T) {
+		sim, _ := balanceDruid(t, false, 0, 1)
+		druid := sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+		naturesGrace := druid.GetAura("Nature's Grace")
+		if naturesGrace == nil {
+			t.Fatal("Nature's Grace is not registered")
+		}
+		druid.AddStatDynamic(sim, stats.SpellCritPercent, 100)
+		tick := druid.Hurricane.RelatedDotSpell
+		start := sim.CurrentTime
+		tick.Cast(sim, druid.CurrentTarget)
+		for sim.CurrentTime < start+time.Second && !sim.Step() {
+		}
+		if tick.SpellMetrics[druid.CurrentTarget.UnitIndex].Crits == 0 {
+			t.Fatal("the tick did not crit")
+		}
+		if naturesGrace.IsActive() {
+			t.Error("a Hurricane tick crit granted Nature's Grace")
+		}
+	})
 }

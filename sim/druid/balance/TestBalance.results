@@ -1664,8 +1664,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5047.93287
-  tps: 5080.81073
+  dps: 4617.86721
+  tps: 4665.66029
  }
 }
 dps_results: {
@@ -1686,8 +1686,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2709.5892
-  tps: 2709.5892
+  dps: 1784.59048
+  tps: 1784.59048
  }
 }
 dps_results: {
@@ -1707,8 +1707,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4571.85977
-  tps: 4605.5995
+  dps: 4185.72205
+  tps: 4233.84552
  }
 }
 dps_results: {
@@ -1729,8 +1729,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1827.65587
-  tps: 1827.65587
+  dps: 1295.03389
+  tps: 1295.03389
  }
 }
 dps_results: {
@@ -1750,8 +1750,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 5013.30619
-  tps: 5046.17191
+  dps: 4585.1943
+  tps: 4632.96897
  }
 }
 dps_results: {
@@ -1772,8 +1772,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 2621.51065
-  tps: 2621.51065
+  dps: 1760.12359
+  tps: 1760.12359
  }
 }
 dps_results: {
@@ -1793,8 +1793,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4532.32331
-  tps: 4566.09475
+  dps: 4157.38193
+  tps: 4205.4908
  }
 }
 dps_results: {
@@ -1815,8 +1815,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1847.56402
-  tps: 1847.56402
+  dps: 1259.90017
+  tps: 1259.90017
  }
 }
 dps_results: {

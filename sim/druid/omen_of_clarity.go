@@ -22,14 +22,6 @@ func (druid *Druid) registerOmenOfClarity() {
 	}, spelldata.Chance(1))
 	// A landed caster-form debuff can roll it without dealing damage.
 	trigger.RequireDamageComponent = false
-	// One Hurricane tick rolls once however many targets it lands on; the first target to reach the
-	// condition takes the roll.
-	// TODO: Ingame research needed -- whether a Hurricane tick rolls it at all. The tick's row is a
-	// triggered spell that is not marked Not a Proc, and this row lacks Can Proc From Procs.
-	firstHurricaneHit, resetHurricaneHit := core.OncePerCast()
-	druid.RegisterResetEffect(func(_ *core.Simulation) {
-		resetHurricaneHit()
-	})
 	// Chance(1) keeps the resolver from building a procs-per-minute manager and leaves core no roll of
 	// its own. The chance depends on what hit, so it is drawn here, after the ICD check and before the
 	// ICD starts. Only auto attacks and druid spells roll it.
@@ -42,7 +34,8 @@ func (druid *Druid) registerOmenOfClarity() {
 		if !spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && spell.ClassFlags.Family != omen.ClassFlags.Family {
 			return false
 		}
-		if spellData.HurricaneTriggered.Contains(spell) && !firstHurricaneHit(sim, spell) {
+		// Hurricane's ticks never roll it.
+		if spellData.HurricaneTriggered.Contains(spell) {
 			return false
 		}
 		chance := float64(omen.RPPM) * druid.omenSpeed(spell) / 60
