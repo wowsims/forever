@@ -28,6 +28,8 @@ var versusFactors = map[int32]versusFactor{
 	1318159: {index: 0, families: []proto.CreatureFamily{ // Ancient Power
 		proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr}},
 	1311505: {index: 1, families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDinosaur}}, // Grounded Electroshocks
+	14118:   {index: 1, mobTypes: []proto.MobType{proto.MobType_MobTypeDragonkin}},                     // Rend
+	1299631: {index: 1, mobTypes: []proto.MobType{proto.MobType_MobTypeUndead}},                        // Smite
 }
 
 // The factor the first of the rows that states one deals or restores against its targets, kept for the
