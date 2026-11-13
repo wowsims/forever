@@ -550,17 +550,16 @@ func GraceOfAirTotemDuration(talentPoints int32) time.Duration {
 }
 
 // Windfury Totem
+// Left out: effect 1 A_PROC_TRIGGER_SPELL(42) misc 0
+// Left out: effect 2 A_DUMMY(4) misc 0
 var WindfuryTotemCategory = "WindfuryTotem"
-var windfuryTotemSpell = spelldata.MustFind(10610)
+var windfuryTotemSpell = spelldata.MustFind(10612)
 var windfuryTotemMeta = &Meta{
 	Label:    "Windfury Totem",
 	Spell:    windfuryTotemSpell,
 	Category: WindfuryTotemCategory,
 }
 
-func WindfuryTotemValue(talentPoints int32) float64 {
-	return windfuryTotemMeta.Value(talentPoints)
-}
 func WindfuryTotemDuration(talentPoints int32) time.Duration {
 	return windfuryTotemMeta.Duration(talentPoints)
 }

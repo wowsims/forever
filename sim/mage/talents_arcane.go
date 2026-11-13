@@ -145,18 +145,7 @@ func (mage *Mage) registerArcaneConcentration() {
 		return true
 	}
 
-	triggerAura := mage.MakeProcTriggerAura(trigger)
-	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
-	// registerFlamestrikeSpell) reach the hit listener here.
-	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
-	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if onPeriodic != nil {
-			onPeriodic(aura, sim, spell, result)
-		}
-		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
-			onHit(aura, sim, spell, result)
-		}
-	}
+	mage.MakeProcTriggerAura(trigger)
 }
 
 // "Increases your Armor by an amount equal to 25/50/75% of your Intellect."
