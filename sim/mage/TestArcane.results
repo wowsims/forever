@@ -643,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 709.68549
+  tps: 613.55924
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-JomGabbar-23570"
  value: {
   dps: 729.98599
@@ -892,6 +899,20 @@ dps_results: {
  value: {
   dps: 784.35616
   tps: 675.02383
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 729.98599
+  tps: 630.10558
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 729.98599
+  tps: 630.10558
  }
 }
 dps_results: {

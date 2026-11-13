@@ -771,6 +771,45 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	}
 }
 
+// Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
+// restores, in tenths of rage.
+func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {
+	enrage := spelldata.MustFind(5229)
+	ticks := float64(rowTickCount(enrage, enrage.PeriodicEffect()))
+	gained := func(items []*proto.ItemSpec) float64 {
+		sim, bear := equippedBear(t, items)
+		before := bear.CurrentRage()
+		if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
+			t.Fatal("Enrage did not cast")
+		}
+		stepTo(t, sim, sim.CurrentTime+enrage.Duration()+time.Second)
+		return bear.CurrentRage() - before
+	}
+	bare := gained(bearItemSlots())
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotRanged].Id = 272428
+	want := ticks * spelldata.MustFind(1291060).EffectN(1).Tenths()
+	if got := gained(items) - bare; math.Abs(got-want) > 1e-9 {
+		t.Errorf("the idol adds %v rage to Enrage, want %v", got, want)
+	}
+}
+
+// Feral Combat skill on gear stands in for the weapon's skill while the druid is in an animal form.
+func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
+	skill := spelldata.MustFind(1320726).EffectN(1).BaseValue()
+	items := bearItemSlots()
+	items[proto.ItemSlot_ItemSlotChest].Id = 280016
+	sim, bear := equippedBear(t, items)
+	mh := bear.GetMHWeapon()
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != skill {
+		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
+	}
+	bear.ClearForm(sim)
+	if got := core.GetWeaponSkill(&bear.Unit, mh); got != 0 {
+		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
+	}
+}
+
 func TestUrsineTwinsResetsOnlyFromLandedDirectLacerates(t *testing.T) {
 	const lacerateHitID = 414647
 	for _, kind := range []string{"hit", "zero", "miss", "periodic", "swipe"} {

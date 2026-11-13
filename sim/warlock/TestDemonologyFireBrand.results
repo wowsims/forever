@@ -794,6 +794,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 712.25983
+  tps: 580.50129
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-JomGabbar-23570"
  value: {
   dps: 756.63914
@@ -1082,6 +1091,24 @@ dps_results: {
   dps: 748.22086
   tps: 608.8867
   dtps: 8.24533
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
   hps: 10.00951
  }
 }

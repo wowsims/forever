@@ -643,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 710.25523
+  tps: 655.47605
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-JomGabbar-23570"
  value: {
   dps: 721.65948
@@ -892,6 +899,20 @@ dps_results: {
  value: {
   dps: 805.31037
   tps: 741.84379
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 721.65948
+  tps: 666.1295
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 721.65948
+  tps: 666.1295
  }
 }
 dps_results: {
