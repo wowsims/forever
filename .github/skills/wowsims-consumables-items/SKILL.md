@@ -133,6 +133,10 @@ is registered. Items and enchants work differently:
 - **Zero means none on item scalars.** `ScalingItemProperties.unrounded_dps` is 0 for an item with no weapon table
   row and is read into `core.Item.UnroundedDPS` as it stands; the rule for every proto field is
   `wowsims-core-mechanics` `## Protos`.
+- **An explosive with a cast costs a tank its avoidance, and one whose row states a stun misses a raid boss.** Dodge,
+  parry and block are zero for the whole hardcast (`HardcastAvoidanceAura`), and a bomb or grenade with a stun misses a
+  level 63 target in full, damage included (`missesImmune` in `sim/core/spell_result.go`). Dynamite and sapper charges
+  state no stun and hit it.
 
 ## Keeping this skill true
 

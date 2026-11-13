@@ -111,6 +111,8 @@ export const DefaultOptions = ProtectionWarriorOptions.create({
 
 export const DefaultConsumables = ConsumesSpec.create({
 	...WarriorPresets.DefaultConsumables,
+	// A dynamite states no stun, so a level 63 boss does not shrug it off the way it does the EZ-Thro Dark Bomb.
+	explosiveId: Consumables.SAFTCleverDynamite.id,
 	offensivePotId: Consumables.MajorFrenzyPotion.id,
 	elixirIds: [
 		Consumables.ElixirOfFerocity.id,
