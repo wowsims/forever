@@ -37,6 +37,7 @@ func TestAddAreaStatsKeepsOneEntryPerArea(t *testing.T) {
 
 // An equip spell raising only a weapon skill or a stat against a creature type the item's own stats state
 // leaves the item; the same spell on an item whose stats state no such bonus, or a spell doing more, stays.
+// One that states the bonus at another value than the stats stops the build.
 func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 	const fistLine, undeadMask, demonAndUndeadMask = 162, 32, 36
 	const fistSpell, fistAndArmorSpell, undeadAttackPowerSpell, undeadSpellDamageSpell, demonAndUndeadSpell = 1, 2, 3, 4, 5
@@ -79,6 +80,37 @@ func TestEquipSpellRestatingAnItemStatLeavesTheItem(t *testing.T) {
 		d.dropRestatedItemStats()
 		if stays := len(d.ItemEffectsByParentID[itemID]) == 1; stays != tc.stays {
 			t.Errorf("%s: the equip spell stays %v, want %v", tc.name, stays, tc.stays)
+		}
+	}
+
+	// A rare ring at item level 60 whose stats state 78 attack power against Undead.
+	const ringID, ringSpell = 11, 6
+	d.RandomPropertiesByIlvl[60] = RandomPropAllocationMap{proto.ItemQuality_ItemQualityRare: {10, 10, 10, 10, 10}}
+	d.Items[ringID] = Item{Id: ringID, ItemClass: ITEM_CLASS_ARMOR, InventoryType: INVTYPE_FINGER, ItemLevel: 60, OverallQuality: RARE,
+		BonusStat: []int{ITEM_MOD_ATTACK_POWER_VS_UNDEAD}, StatAlloc: []float64{78000}}
+	for _, tc := range []struct {
+		name       string
+		basePoints float64
+		panics     bool
+	}{
+		{"the spell at the stat's value", 78, false},
+		{"the spell at another value", 77, true},
+	} {
+		d.SpellEffects[ringSpell] = map[int]SpellEffect{
+			0: {EffectAura: dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, EffectMiscValues: []int{undeadMask, 0}, EffectBasePoints: tc.basePoints},
+			1: {EffectAura: dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS, EffectMiscValues: []int{undeadMask, 0}, EffectBasePoints: tc.basePoints},
+		}
+		d.ItemEffectsByParentID[ringID] = []ItemEffect{{SpellID: ringSpell, TriggerType: ITEM_SPELLTRIGGER_ON_EQUIP, ParentItemID: ringID}}
+		panicked := func() (panicked bool) {
+			defer func() { panicked = recover() != nil }()
+			d.dropRestatedItemStats()
+			return false
+		}()
+		if panicked != tc.panics {
+			t.Errorf("%s: the build stops %v, want %v", tc.name, panicked, tc.panics)
+		}
+		if !tc.panics && len(d.ItemEffectsByParentID[ringID]) != 0 {
+			t.Errorf("%s: the equip spell stays, want it dropped", tc.name)
 		}
 	}
 }

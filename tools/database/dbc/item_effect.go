@@ -492,12 +492,13 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 // item whose stats state no such bonus, or a spell that does more, stays.
 func (d *DBC) dropRestatedItemStats() {
 	for itemID, effects := range d.ItemEffectsByParentID {
-		stated := statedBonuses(d.Items[itemID])
+		item := d.Items[itemID]
+		stated := d.statedBonuses(&item)
 		if len(stated) == 0 {
 			continue
 		}
 		d.ItemEffectsByParentID[itemID] = slices.DeleteFunc(effects, func(effect ItemEffect) bool {
-			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.restatesOnly(effect.SpellID, stated)
+			return effect.TriggerType == ITEM_SPELLTRIGGER_ON_EQUIP && d.restatesOnly(itemID, effect.SpellID, stated)
 		})
 	}
 }
@@ -509,49 +510,68 @@ type statedBonus struct {
 	stat    proto.Stat
 }
 
-func statedBonuses(item Item) map[statedBonus]bool {
-	stated := map[statedBonus]bool{}
-	for _, stat := range item.BonusStat {
+// Each bonus the item's stats state, with its value at the item's own level.
+func (d *DBC) statedBonuses(item *Item) map[statedBonus]float64 {
+	stated := map[statedBonus]float64{}
+	for i, stat := range item.BonusStat {
 		if skill, ok := weaponSkillByBonusStat[stat]; ok {
-			stated[statedBonus{skill: skill}] = true
+			stated[statedBonus{skill: skill}] += d.scaledStat(item, i, item.ItemLevel)
 		}
 		if versus, ok := mobTypeStatByBonusStat[stat]; ok {
 			for _, granted := range versus.stats {
-				stated[statedBonus{mobType: versus.mobType, stat: granted}] = true
+				stated[statedBonus{mobType: versus.mobType, stat: granted}] += d.scaledStat(item, i, item.ItemLevel)
 			}
 		}
 	}
 	return stated
 }
 
-func (d *DBC) restatesOnly(spellID int, stated map[statedBonus]bool) bool {
+func (d *DBC) restatesOnly(itemID, spellID int, stated map[statedBonus]float64) bool {
 	effects := d.SpellEffects[spellID]
+	if len(effects) == 0 {
+		return false
+	}
 	for _, effect := range effects {
-		if !restates(effect, stated) {
+		bonuses := restatedBonuses(effect)
+		if bonuses == nil {
 			return false
 		}
+		for _, bonus := range bonuses {
+			if _, ok := stated[bonus]; !ok {
+				return false
+			}
+		}
 	}
-	return len(effects) > 0
-}
-
-func restates(effect SpellEffect, stated map[statedBonus]bool) bool {
-	if len(effect.EffectMiscValues) == 0 {
-		return false
-	}
-	misc := int32(effect.EffectMiscValues[0])
-	if effect.EffectAura == dbcenums.A_MOD_SKILL {
-		skill, ok := spelldata.WeaponSkillOfLine(misc)
-		return ok && stated[statedBonus{skill: skill}]
-	}
-	stat, ok := spelldata.VersusStat(effect.EffectAura)
-	mobTypes := spelldata.MobTypes(misc)
-	if !ok || len(mobTypes) == 0 {
-		return false
-	}
-	for _, mobType := range mobTypes {
-		if !stated[statedBonus{mobType: mobType, stat: proto.Stat(stat)}] {
-			return false
+	for _, effect := range effects {
+		for _, bonus := range restatedBonuses(effect) {
+			if stated[bonus] != effect.EffectBasePoints {
+				// Keeping the spell would count the bonus twice, and dropping it would hide the change.
+				panic(fmt.Sprintf("item %d states %+v as %v in its stats and as %v on equip spell %d", itemID, bonus, stated[bonus], effect.EffectBasePoints, spellID))
+			}
 		}
 	}
 	return true
+}
+
+// The weapon skill or the stats against creature types the effect raises; nil for any other effect.
+func restatedBonuses(effect SpellEffect) []statedBonus {
+	if len(effect.EffectMiscValues) == 0 {
+		return nil
+	}
+	misc := int32(effect.EffectMiscValues[0])
+	if effect.EffectAura == dbcenums.A_MOD_SKILL {
+		if skill, ok := spelldata.WeaponSkillOfLine(misc); ok {
+			return []statedBonus{{skill: skill}}
+		}
+		return nil
+	}
+	stat, ok := spelldata.VersusStat(effect.EffectAura)
+	if !ok {
+		return nil
+	}
+	var bonuses []statedBonus
+	for _, mobType := range spelldata.MobTypes(misc) {
+		bonuses = append(bonuses, statedBonus{mobType: mobType, stat: proto.Stat(stat)})
+	}
+	return bonuses
 }

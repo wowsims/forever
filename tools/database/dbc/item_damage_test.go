@@ -3,6 +3,7 @@ package dbc
 import (
 	"maps"
 	"math"
+	"slices"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -162,10 +163,9 @@ func TestWeaponSkillStats(t *testing.T) {
 	}
 }
 
-// Creature type stats and HP5 are budgeted like the other stats and go to
-// their own fields, never the item's stats. Attack power against a creature type raises ranged attack
-// power too, and every stat against one creature type shares its entry. An id between them that no item
-// states raises nothing.
+// Creature type stats and HP5 are budgeted like the other stats and go to their own fields, never the
+// item's stats. Attack power against a creature type raises ranged attack power too, and every stat
+// against one creature type shares its entry. An id between them that no item states raises nothing.
 func TestCreatureTypeAndHP5Stats(t *testing.T) {
 	once.Do(func() {})
 	previous := dbcInstance
@@ -183,14 +183,8 @@ func TestCreatureTypeAndHP5Stats(t *testing.T) {
 		{MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}, Stats: map[int32]float64{ap: 10, rap: 10, sd: 5}},
 		{MobTypes: []proto.MobType{proto.MobType_MobTypeBeast}, Stats: map[int32]float64{ap: 20, rap: 20}},
 	}
-	got := item.GetMobTypeStats(item.ItemLevel)
-	if len(got) != len(want) {
-		t.Fatalf("mob type stats %v, want %v", got, want)
-	}
-	for i := range want {
-		if !googleProto.Equal(got[i], want[i]) {
-			t.Errorf("mob type stats entry %d = %v, want %v", i, got[i], want[i])
-		}
+	if got := item.GetMobTypeStats(item.ItemLevel); !slices.EqualFunc(got, want, func(a, b *proto.MobTypeStats) bool { return googleProto.Equal(a, b) }) {
+		t.Errorf("mob type stats %v, want %v", got, want)
 	}
 	if got := item.GetHP5(item.ItemLevel); got != 30 {
 		t.Errorf("hp5 = %d, want 30", got)

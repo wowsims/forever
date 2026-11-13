@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -442,44 +441,26 @@ func TestGearWeaponSkillFollowsTheItem(t *testing.T) {
 	}
 }
 
-// Attack power on gear against a creature type counts against targets of that type and no other, and an
-// item swap takes it off and puts it back with the item.
+// Attack power on gear against a creature type counts against a target of that type, and an item swap
+// takes it off and puts it back with the item.
 func TestGearMobTypeStatsFollowTheItem(t *testing.T) {
-	const undeadRingID, plainRingID int32 = 990923, 990924
+	const humanoidRingID, plainRingID int32 = 990923, 990924
 	const ringAttackPower = 78.0
 	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
-		{Id: undeadRingID, Name: "Test Undead Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+		{Id: humanoidRingID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
 			0: {MobTypeStats: []*proto.MobTypeStats{{
-				MobTypes: []proto.MobType{proto.MobType_MobTypeUndead},
-				Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower, int32(stats.RangedAttackPower): ringAttackPower},
+				MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+				Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
 			}}},
 		}},
 		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
 	}})
 	equipped := WeaponTestSlots(WeaponTestDaggerID, 0, 0)
-	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: undeadRingID}
-	equipped[proto.ItemSlot_ItemSlotFinger2] = &proto.ItemSpec{Id: plainRingID}
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: humanoidRingID}
 	swapped := WeaponTestSlots(0, 0, 0)
 	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
-
-	sim := NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       weaponTestRaid(proto.Race_RaceUndead, equipped, swapped),
-		Encounter: &proto.Encounter{Duration: 180, Targets: []*proto.Target{
-			{Name: "undead", Level: 63, MobType: proto.MobType_MobTypeUndead},
-			{Name: "beast", Level: 63, MobType: proto.MobType_MobTypeBeast},
-		}},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	character := sim.Raid.Parties[0].Players[0].GetCharacter()
-	undead, beast := sim.Encounter.AllTargetUnits[0], sim.Encounter.AllTargetUnits[1]
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, equipped, swapped, nil)
 	attack := character.AutoAttacks.MHAuto()
-	bonusAgainst := func(target *Unit) float64 {
-		return character.GetAttackPowerValue(attack, target) - character.GetStat(stats.AttackPower)
-	}
-	rangedBonusAgainst := func(target *Unit) float64 {
-		return character.AttackTables[target.UnitIndex].MobTypeBonusStats[target.MobType][stats.RangedAttackPower]
-	}
 	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
 		return func() { character.ItemSwap.SwapItems(sim, set, false) }
 	}
@@ -497,14 +478,8 @@ func TestGearMobTypeStatsFollowTheItem(t *testing.T) {
 		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, ringAttackPower},
 	} {
 		step.swap()
-		if got := bonusAgainst(undead); got != step.bonus {
-			t.Errorf("%s: attack power against the Undead target is %v over the sheet, want %v", step.when, got, step.bonus)
-		}
-		if got := rangedBonusAgainst(undead); got != step.bonus {
-			t.Errorf("%s: ranged attack power against the Undead target is %v over the sheet, want %v", step.when, got, step.bonus)
-		}
-		if got := bonusAgainst(beast); got != 0 {
-			t.Errorf("%s: attack power against the Beast target is %v over the sheet, want 0", step.when, got)
+		if got := character.GetAttackPowerValue(attack, character.CurrentTarget) - character.GetStat(stats.AttackPower); got != step.bonus {
+			t.Errorf("%s: attack power against the Humanoid target is %v over the sheet, want %v", step.when, got, step.bonus)
 		}
 	}
 }

@@ -281,6 +281,11 @@ func (item *Item) GetRandPropPoints(itemLevel int) int32 {
 	return randomProperty[item.OverallQuality.ToProto()][suffixType]
 }
 func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
+	return GetDBC().scaledStat(item, index, itemLevel)
+}
+
+// On the DBC itself, so InitDBC can read item stats: GetDBC there deadlocks inside its own once.Do.
+func (d *DBC) scaledStat(item *Item, index int, itemLevel int) float64 {
 	//Todo check if overflow array
 
 	// The game files ship no precomputed StatModifier_bonusAmount, so the allocation
@@ -290,7 +295,7 @@ func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
 
 	if slotType != -1 && item.OverallQuality > 0 {
 
-		randomProperty := GetDBC().RandomPropertiesByIlvl[itemLevel]
+		randomProperty := d.RandomPropertiesByIlvl[itemLevel]
 		itemBudget = float64(randomProperty[item.OverallQuality.ToProto()][slotType])
 
 		if item.StatAlloc[index] > 0 && itemBudget > 0 {

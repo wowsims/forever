@@ -55,8 +55,9 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead on an equip spell that
-// grants nothing else, so the item aura shape registers it, on the attack table of an Undead target alone.
+// Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
+// 136, which the sim adds to the attack table of an Undead target alone, at the value their equip spells
+// 23930 and 24198 state.
 func TestDawnTrinketsGrantTheirBonusAgainstUndeadAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
 	for _, c := range []struct {

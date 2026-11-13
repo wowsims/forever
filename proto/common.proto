@@ -46,7 +46,7 @@ message ScalingItemProperties {
 	repeated AreaStats area_stats = 7;
 
 	// Stats that only apply against a target of the mob type, one entry per mob type.
-	repeated MobTypeStats mob_type_stats = 11;
+	repeated MobTypeStats mob_type_stats = 5;
 
 	int32 ilvl = 6;
 	// The damage the weapon deals with a random suffix that reduces caster DPS; unset on items with no such suffix option.
@@ -55,8 +55,8 @@ message ScalingItemProperties {
 	// The weapon skill the item adds; each value is the bonus on top of the level-based skill, not the full skill.
 	repeated WeaponSkillValue weapon_skills = 10;
 
-	// Health restored every 5 seconds. Shown on the item only, since the sim does not regenerate health.
-	int32 hp5 = 12;
+	// Health restored every 5 seconds. Nothing reads it yet, since the sim does not regenerate health.
+	int32 hp5 = 11;
 }
 
 message ReducedCasterWeaponDamage {
