@@ -12,11 +12,19 @@ import (
 // Blood Frenzy) makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
-// Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
-// damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor, resistances, flat damage
-// taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level (230.6 at 60) and A is the
-// armor reduction the game assumes in place of the defender's own. The defender's level, health and armor play no part.
+// A physical direct hit taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after
+// the defender's damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor, resistances,
+// flat damage taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level (230.6 at 60)
+// and A is the armor reduction the game assumes in place of the defender's own. The defender's level, health and armor
+// play no part.
 const DamageTakenRageFactor = 2.5
+
+// Damage of a school other than physical, and every periodic tick whatever its school, grants twice the rage of a
+// physical direct hit. Measured on hits from rage-using mobs, with Defensive Stance divided out: arcane and fire melee
+// swings and Poison, Localized Toxin and Rend ticks read 3.75-3.86 in place of DamageTakenRageFactor * (1 - A), which
+// physical melee swings read as 1.96 and a physical Shoot as 2.08.
+// TODO: Ingame test needed -- a mob's physical Mortal Strike read about 1.2 times a melee swing.
+const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
 // 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 to 55
@@ -94,11 +102,7 @@ type RageBarOptions struct {
 func (unit *Unit) EnableRageBar(options RageBarOptions) {
 	rageFromDamageTakenMetrics := unit.NewRageMetrics(ActionID{OtherID: proto.OtherAction_OtherActionDamageTaken})
 	rageFromDamageTakenMetrics.NoThreat = true
-	// Direct hits and periodic ticks from a unit grant rage alike.
-	// TODO: Ingame test needed -- the rule is measured on melee hits. Spells land at a multiple of it the logs do
-	// not explain yet: Immolate ticks, Shadow Bolt and Arcane Missiles about 1 times, Fireball and Mortal Strike
-	// about 1.2 times, Poison ticks, Venom Sting and Lizard Bolt about 2 times.
-	rageFromDamageTaken := func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+	rageFromDamageTaken := func(sim *Simulation, spell *Spell, result *SpellResult, periodic bool) {
 		if unit.GetCurrentPowerBar() != RageBar {
 			return
 		}
@@ -114,6 +118,9 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		attackerLevel := spell.Unit.Level
 		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreArmorDamage /
 			rageConversion(attackerLevel) * unit.rageBar.damageTakenRageMultiplier
+		if periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical) {
+			generatedRage *= SpellDamageTakenRageMultiplier
+		}
 
 		unit.AddRage(sim, generatedRage, rageFromDamageTakenMetrics)
 	}
@@ -170,8 +177,12 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			}
 			unit.AddRage(sim, generatedRage, metrics)
 		},
-		OnSpellHitTaken:       rageFromDamageTaken,
-		OnPeriodicDamageTaken: rageFromDamageTaken,
+		OnSpellHitTaken: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+			rageFromDamageTaken(sim, spell, result, false)
+		},
+		OnPeriodicDamageTaken: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+			rageFromDamageTaken(sim, spell, result, true)
+		},
 	})
 
 	// Not a real spell, just holds metrics from rage gain threat.
