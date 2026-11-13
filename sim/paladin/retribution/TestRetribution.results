@@ -1755,6 +1755,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 785.8136
+  tps: 642.83679
+  dtps: 5.80775
+  hps: 23.96199
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-TalismanofArathor-20071"
  value: {
   dps: 823.89065
