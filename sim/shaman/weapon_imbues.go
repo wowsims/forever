@@ -13,6 +13,7 @@ var (
 	windfuryWeaponPassive    = spelldata.MustFind(439431)
 	windfuryWeaponAttack     = spellData.WindfuryWeapon.Highest().Refs()[0]
 	windfuryWeaponStrike     = spelldata.MustFind(439440)
+	windfuryTotemStrike      = spelldata.MustFind(10610)
 	flametongueWeaponPassive = spelldata.MustFind(436519)
 	flametongueWeaponProc    = spellData.FlametongueWeapon.Highest().Refs()[0]
 	flametongueWeaponAttack  = spellData.FlametongueWeapon.Highest().Refs()[1]

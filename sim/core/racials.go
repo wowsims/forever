@@ -155,7 +155,9 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
-		character.MultiplyStat(stats.Health, 1.05) // Endurance 20550
+		// Endurance 20550 scales all health, flat health added later included: in game a Tauren's bear forms
+		// add 5% more than their rows, at every level from 25 to 60.
+		character.MultiplyStat(stats.Health, 1.05)
 	case proto.Race_RaceTroll:
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
 

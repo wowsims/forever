@@ -158,6 +158,8 @@ func (result *SpellResult) HealingString() string {
 	return fmt.Sprintf("%s for %0.3f healing", result.Outcome.String(), result.Damage)
 }
 
+// A hit or tick takes the threat multiplier in force when it lands: in game a Lacerate tick that landed after
+// Dire Bear Form dropped threatened at caster form's 1.
 func (spell *Spell) ThreatFromDamage(sim *Simulation, outcome HitOutcome, damage float64, attackTable *AttackTable) float64 {
 	if outcome.Matches(OutcomeLanded) {
 		bonus := spell.FlatThreatBonus

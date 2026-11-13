@@ -129,7 +129,8 @@ func itemOnUseRow(itemID int32) *spelldata.Spell {
 }
 
 // Hits up to count active targets starting from target, prices each hit on its own target, and deals
-// them together once all are rolled. results is the caller's own buffer, reused across casts.
+// them together once all are rolled. A miss, dodge or parry takes one of the count, as Swipe's do in
+// game. results is the caller's own buffer, reused across casts.
 func cleave(sim *core.Simulation, target *core.Unit, spell *core.Spell, count int32, results *core.SpellResultSlice, hit func(target *core.Unit) *core.SpellResult) {
 	*results = (*results)[:0]
 	for range min(count, sim.Environment.ActiveTargetCount()) {
