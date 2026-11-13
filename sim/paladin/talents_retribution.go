@@ -361,7 +361,9 @@ func (paladin *Paladin) applyUnsealedWrath() {
 		}
 	})
 	trigger.Name = "Unsealed Wrath" + paladin.Label
-	// A copy is stored and spent on a hit that lands.
+	// A copy is stored and spent on a hit that lands. The row's proc cooldown is shorter than any
+	// swing timer, so it turns away only a swing dealt in the instant of another, which is an extra
+	// attack such as Hand of Justice's: that one neither stores nor spends a copy.
 	trigger.Outcome = core.OutcomeLanded
 	trigger.TriggerImmediately = true
 	paladin.MakeProcTriggerAura(trigger)
