@@ -565,32 +565,31 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 // off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the row's mana with the
 // proc, whether the damage lands or misses.
 func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
-	const engulfingShadows int32 = 27860
+	const trinketID, engulfingShadows int32 = 991632, 27860
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: trinketID, Name: "Test Engulfing Shadows",
+		Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Engulfing Shadows", ItemID: trinketID,
+		TriggerSpellID: 7711, BuffSpellID: engulfingShadows})
+	want := spelldata.MustFind(engulfingShadows).EnergizeEffect().Average()
+	needAmount(t, "27860's mana", want)
+
 	for _, tc := range []struct {
-		name      string
-		trinketID int32
-		hit       float64
-		landed    bool
+		name   string
+		hit    float64
+		landed bool
 	}{
-		{"landed", 991801, 100, true},
-		{"missed", 991802, -100, false},
+		{"landed", 100, true},
+		{"missed", -100, false},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: tc.trinketID, Name: "Test Engulfing Shadows",
-				Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
-			registerSpellDataDamageProc(SpellDataProc{Name: "Test Engulfing Shadows", ItemID: tc.trinketID,
-				TriggerSpellID: 7711, BuffSpellID: engulfingShadows})
-
 			items := testHands(&proto.ItemSpec{}, &proto.ItemSpec{})
-			items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: tc.trinketID}
+			items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: trinketID}
 			sim := newTestCasterSimAgainst(items, nil, 1, func(player *proto.Player) {
 				player.Class, player.Race, player.Spec = proto.Class_ClassMage, proto.Race_RaceGnome, &proto.Player_Mage{}
 			})
 			caster := sim.Raid.Parties[0].Players[0].(*testCaster)
 			target := sim.Encounter.ActiveTargetUnits[0]
 			caster.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: tc.hit})
-			want := spelldata.MustFind(engulfingShadows).EnergizeEffect().Average()
-			needAmount(t, "27860's mana", want)
 
 			landMainHandSwing(sim, caster, target)
 			settleChains(t, sim)
