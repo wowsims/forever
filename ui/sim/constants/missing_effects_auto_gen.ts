@@ -2631,6 +2631,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		276632, // Wit's Edge
+		[
+			"Melee attacks have a 15% chance to grant a Clearcasting state, reducing the mana cost of your next damage spell by 100%.", // 1300140 - https://www.wowhead.com/forever/spell=1300140
+		]
+	],
+	[
 		276743, // Fingerbreaker Stamp
 		[
 			"Increases Strength by 38 while affected by a Bleed.", // 1314784 - https://www.wowhead.com/forever/spell=1314784

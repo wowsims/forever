@@ -3761,6 +3761,22 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Melee attacks have a 15% chance to grant a Clearcasting state, reducing the mana cost of your next damage
+	// spell by 100%.
+	// https://www.wowhead.com/forever/spell=1300140
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 276632, ItemName: "Wit's Edge"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Increases Strength by 38 while affected by a Bleed.
 	// https://www.wowhead.com/forever/spell=1314784
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
