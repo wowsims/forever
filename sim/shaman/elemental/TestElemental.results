@@ -238,6 +238,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 686.26687
+  tps: 637.84877
+  dtps: 8.78996
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BlueDragonMail"
  value: {
   dps: 707.39689
@@ -1343,6 +1351,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 718.28777
+  tps: 666.72844
+  dtps: 9.01765
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 718.28777
+  tps: 666.72844
+  dtps: 9.01765
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-SecondWind-11819"
  value: {
   dps: 729.42405
@@ -1668,6 +1692,14 @@ dps_results: {
   dps: 708.16685
   tps: 659.74768
   dtps: 8.37516
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 718.28777
+  tps: 666.72844
+  dtps: 9.01765
  }
 }
 dps_results: {

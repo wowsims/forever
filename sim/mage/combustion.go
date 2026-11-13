@@ -41,9 +41,12 @@ func (mage *Mage) registerCombustionSpell() {
 
 	// Each landed Fire spell hit adds a stack, a crit included; a crit then spends one of the charges.
 	// Periodic damage never reaches OnSpellHitDealt, so DoT ticks and Ignite neither stack nor spend,
-	// and a Fire wand's shots are ranged autos, not spells.
+	// and a Fire wand's shots are ranged autos, not spells. Flamestrike's ground ticks are hits, but
+	// neither stack nor spend here.
+	// TODO: Verify in game whether a Flamestrike ground tick adds a stack and its crit spends a charge.
 	chargesConfig.OnSpellHitDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() {
+		if !spell.ProcMask.Matches(core.ProcMaskSpellDamage) || !spell.SpellSchool.Matches(core.SpellSchoolFire) || !result.Landed() ||
+			spell.Matches(MageSpellFlamestrikeDot) {
 			return
 		}
 

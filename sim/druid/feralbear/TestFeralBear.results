@@ -244,6 +244,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 415.52834
+  tps: 2195.1895
+  dtps: 393.41204
+  hps: 77.52869
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Bolt'sChargedEyeball-280032"
  value: {
   dps: 472.8195
@@ -687,10 +696,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FeralheartRaiment"
  value: {
-  dps: 474.50547
-  tps: 2484.09276
-  dtps: 386.42568
-  hps: 81.20857
+  dps: 463.81644
+  tps: 2425.54575
+  dtps: 371.64389
+  hps: 82.51055
  }
 }
 dps_results: {
@@ -1414,6 +1423,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 467.82019
+  tps: 2446.84392
+  dtps: 393.12704
+  hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 467.82019
+  tps: 2446.84392
+  dtps: 393.12704
+  hps: 80.69834
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SecondWind-11819"
  value: {
   dps: 467.82019
@@ -1681,6 +1708,15 @@ dps_results: {
   tps: 2444.11158
   dtps: 383.91473
   hps: 83.54077
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 462.3158
+  tps: 2431.2586
+  dtps: 378.0038
+  hps: 80.83365
  }
 }
 dps_results: {
