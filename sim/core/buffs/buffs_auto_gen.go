@@ -760,9 +760,10 @@ func GreaterBlessingOfWisdomDuration(talentPoints int32) time.Duration {
 var InnervatesCategory = "Innervate"
 var innervatesSpell = spelldata.MustFind(29166)
 var innervatesMeta = &Meta{
-	Label:    "Innervates",
-	Spell:    innervatesSpell,
-	Category: InnervatesCategory,
+	Label:        "Innervates",
+	Spell:        innervatesSpell,
+	Category:     InnervatesCategory,
+	AllManaRegen: true,
 }
 
 func InnervatesValue(talentPoints int32) float64 {

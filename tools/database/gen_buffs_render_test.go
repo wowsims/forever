@@ -124,7 +124,7 @@ func syntheticBuffRows() []ResolvedBuff {
 		{
 			BuffSpec: buffmanifest.BuffSpec{
 				Field: "innervates", Label: "Innervates",
-				Category: "Innervate",
+				Category: "Innervate", AllManaRegen: true,
 			},
 			Scope: buffmanifest.ScopeIndividual, Proto: buffmanifest.ProtoInt32, Kind: buffmanifest.KindExternalCD,
 			Go: "SynthInnervates", Name: "Innervate",

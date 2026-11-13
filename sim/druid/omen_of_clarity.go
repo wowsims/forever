@@ -22,14 +22,10 @@ func (druid *Druid) registerOmenOfClarity() {
 	}, spelldata.Chance(1))
 	// A landed caster-form debuff can roll it without dealing damage.
 	trigger.RequireDamageComponent = false
-	// One Hurricane tick rolls once however many targets it lands on; the first target to reach the
-	// condition takes the roll.
-	// TODO: Ingame research needed -- whether a Hurricane tick rolls it at all. The tick's row is a
-	// triggered spell that is not marked Not a Proc, and this row lacks Can Proc From Procs.
-	firstHurricaneHit, resetHurricaneHit := core.OncePerCast()
-	druid.RegisterResetEffect(func(_ *core.Simulation) {
-		resetHurricaneHit()
-	})
+	roll := func(sim *core.Simulation, spell *core.Spell) bool {
+		chance := float64(omen.RPPM) * druid.omenSpeed(spell) / 60
+		return sim.Proc(druid.ModifiedProcChance(omen.ClassFlags, chance), trigger.Name)
+	}
 	// Chance(1) keeps the resolver from building a procs-per-minute manager and leaves core no roll of
 	// its own. The chance depends on what hit, so it is drawn here, after the ICD check and before the
 	// ICD starts. Only auto attacks and druid spells roll it.
@@ -42,13 +38,47 @@ func (druid *Druid) registerOmenOfClarity() {
 		if !spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && spell.ClassFlags.Family != omen.ClassFlags.Family {
 			return false
 		}
-		if spellData.HurricaneTriggered.Contains(spell) && !firstHurricaneHit(sim, spell) {
+		// Hurricane's ticks never roll it.
+		if spellData.HurricaneTriggered.Contains(spell) {
 			return false
 		}
-		chance := float64(omen.RPPM) * druid.omenSpeed(spell) / 60
-		return sim.Proc(druid.ModifiedProcChance(omen.ClassFlags, chance), trigger.Name)
+		return roll(sim, spell)
 	}
 	druid.OmenOfClarityAura = druid.MakeProcTriggerAura(trigger)
+
+	// Two kinds of cast roll it at the cast, on the same chance and cooldown: Hurricane once for each
+	// target its area reaches, a proc ending the rolls, and the helpful buffs Thorns and Innervate once,
+	// in Moonkin Form only. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts
+	// neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid
+	// its cost or spent Clearcasting, so a proc never makes its own cast free.
+	//
+	// Core gives every trigger a cooldown of its own, and the row's proc mask hears no helpful cast, so
+	// this trigger gates on and starts the hit trigger's cooldown itself.
+	icd := druid.OmenOfClarityAura.Icd
+	druid.OmenOfClarityAura.AttachProcTrigger(core.ProcTrigger{
+		Name:     "Omen of Clarity - Cast Trigger",
+		Callback: core.CallbackOnCastComplete,
+		Handler:  trigger.Handler,
+		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			rolls := int32(0)
+			switch {
+			case spellData.Hurricane.Contains(spell):
+				rolls = sim.Environment.ActiveTargetCount()
+			case druid.InForm(Moonkin) && (spellData.Thorns.Contains(spell) || spellData.Innervate.Contains(spell)):
+				rolls = 1
+			}
+			if rolls == 0 || !icd.IsReady(sim) {
+				return false
+			}
+			for range rolls {
+				if roll(sim, spell) {
+					icd.Set(sim.CurrentTime + druid.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
+					return true
+				}
+			}
+			return false
+		},
+	})
 }
 
 // The speed, in seconds, that turns Omen of Clarity's procs per minute into a chance for this hit.

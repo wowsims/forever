@@ -91,6 +91,9 @@ type parser struct {
 	// ShowAsSchoolHit: the schools the hit mods are shown under, and whether a row stamped them.
 	showAsSchoolHit        core.SpellSchool
 	showAsSchoolHitStamped bool
+
+	// AllManaRegen: a mana regen percent multiplies all of the mana regen.
+	allManaRegen bool
 }
 
 // One attachment made for one effect: the sim kind it became, the value in the sim's own units, and
@@ -384,8 +387,8 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.MP5, v)
 	},
 	// The share of spirit regen that continues while casting, which core caps at all of it, and a
-	// multiplier on spirit regen. The energy bar's regen is a speed, which needs the Simulation an
-	// aura's gain hands over.
+	// multiplier on spirit regen, or on all of the mana regen under AllManaRegen. The energy bar's
+	// regen and all of the mana regen are speeds, which need the Simulation an aura's gain hands over.
 	dbcenums.A_MOD_MANA_REGEN_INTERRUPT: func(p *parser, e *Effect, v float64) *attachment {
 		return p.refreshingManaRegen(p.pseudoAdd("spirit-regen-casting", "SpiritRegenRateCasting",
 			[]*float64{&p.unit.PseudoStats.SpiritRegenRateCasting}, v/100))
@@ -393,6 +396,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_POWER_REGEN_PERCENT: func(p *parser, e *Effect, v float64) *attachment {
 		switch e.Misc {
 		case int32(dbcenums.POWER_MANA):
+			if p.allManaRegen {
+				return p.speed("mana-regen", "ManaRegenMultiplier", (*core.Unit).MultiplyManaRegenSpeed,
+					core.MultiplierFromPercent(v))
+			}
 			return p.refreshingManaRegen(p.pseudoMultiplier("spirit-regen", "SpiritRegenMultiplier",
 				[]*float64{&p.unit.PseudoStats.SpiritRegenMultiplier}, core.MultiplierFromPercent(v)))
 		case int32(dbcenums.POWER_ENERGY):

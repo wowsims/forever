@@ -29,14 +29,18 @@ var buffAuraTable = map[dbcenums.EffectAuraType]row{
 
 // The options every raid buff and debuff is parsed with: priced at core.CharacterLevel, with the
 // buff table's rows, less the auras skip names, and a finisher at full combo points where
-// fullComboPoints says so.
-func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints bool) []ParseOpt {
+// fullComboPoints says so, and a mana regen percent that multiplies all of the mana regen where
+// allManaRegen says so.
+func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints, allManaRegen bool) []ParseOpt {
 	opts := []ParseOpt{Level(core.CharacterLevel), BuffAuras()}
 	if len(skip) > 0 {
 		opts = append(opts, SkipAuras(skip...))
 	}
 	if fullComboPoints {
 		opts = append(opts, FullComboPoints())
+	}
+	if allManaRegen {
+		opts = append(opts, AllManaRegen())
 	}
 	return opts
 }
