@@ -776,20 +776,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 750.39697
-  tps: 775.00185
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 750.39697
-  tps: 775.00185
- }
-}
-dps_results: {
  key: "TestFFB-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 793.57301
@@ -899,20 +885,6 @@ dps_results: {
  value: {
   dps: 836.77803
   tps: 862.89958
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 750.39697
-  tps: 775.00185
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 750.39697
-  tps: 775.00185
  }
 }
 dps_results: {

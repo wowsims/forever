@@ -944,24 +944,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAffliction-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 651.54232
-  tps: 527.27866
-  dtps: 8.1557
-  hps: 7.19695
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 651.54232
-  tps: 527.27866
-  dtps: 8.1557
-  hps: 7.19695
- }
-}
-dps_results: {
  key: "TestAffliction-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 644.31174
@@ -1092,24 +1074,6 @@ dps_results: {
   tps: 521.42425
   dtps: 8.49892
   hps: 7.27415
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 651.54232
-  tps: 527.27866
-  dtps: 8.1557
-  hps: 7.19695
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 651.54232
-  tps: 527.27866
-  dtps: 8.1557
-  hps: 7.19695
  }
 }
 dps_results: {
