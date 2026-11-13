@@ -1557,6 +1557,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 823.61079
+  tps: 672.89029
+  dtps: 6.05497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-SanctifiedOrb-20512"
  value: {
   dps: 829.38692
@@ -1572,6 +1581,15 @@ dps_results: {
   tps: 681.81196
   dtps: 5.63478
   hps: 23.75848
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 823.61079
+  tps: 672.89029
+  dtps: 6.05497
+  hps: 23.54312
  }
 }
 dps_results: {
@@ -1667,10 +1685,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 815.39721
-  tps: 666.16285
-  dtps: 5.74173
-  hps: 23.84524
+  dps: 813.72431
+  tps: 664.09171
+  dtps: 4.99987
+  hps: 23.8488
  }
 }
 dps_results: {
@@ -1968,6 +1986,15 @@ dps_results: {
   tps: 671.1079
   dtps: 6.15268
   hps: 23.85337
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 823.61079
+  tps: 672.89029
+  dtps: 6.05497
+  hps: 23.54312
  }
 }
 dps_results: {
