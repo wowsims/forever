@@ -88,7 +88,7 @@ var DefaultProtectionTalents = "05-05050005-150531120300001351"
 var DefaultConsumables = &proto.ConsumesSpec{
 	OffensivePotId: 250943, // Major Frenzy Potion
 	FoodId:         20452,  // Smoked Desert Dumplings
-	ExplosiveId:    260817, // EZ-Thro Dark Bomb
+	ExplosiveId:    260814, // SAF-T Clever Dynamite
 	MhImbueId:      12404,  // Dense Sharpening Stone
 	ConjuredId:     9421,   // Major Healthstone
 	// Elixir of Ferocity, Elixir of the Mongoose, Winterfall Firewater, Elixir of Greater Defense, Elixir of the Phalanx
