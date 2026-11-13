@@ -37,8 +37,9 @@ func physicalMultiplier(character *core.Character) float64 {
 // The warrior's Two-Handed Weapon Specialization 12163 at 3/3 names Physical alone: it gives its
 // percent on Physical and on the melee-defense Holy spells such as the Seal of Righteousness hit, and
 // nothing on a magic-defense Holy spell such as Consecration. The paladin's 20111 at 3/3 names
-// Physical and Holy, so Holy takes it through the school multiplier and no Holy spell takes the
-// melee-defense part. A physical spell takes it through the school multiplier alone.
+// Physical and Holy, so every Holy spell takes it once, melee-defense or not, except one flagged
+// SpellFlagIgnoreWeaponSchoolBonus and a heal. A physical spell takes it through the school multiplier
+// alone.
 func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 	defer generatedStore()()
 
@@ -51,25 +52,35 @@ func TestWeaponSpecializationsReachMeleeDefenseHolySpells(t *testing.T) {
 		{Talent(20111, 3).Rank(3), proto.HandType_HandTypeTwoHand, true},
 	} {
 		want := 1 + tc.row.EffectN(1).Percent()
-		wantHolyMelee, wantHolySchool := want, 1.0
+		wantHolyMagic := 1.0
 		if tc.holyNamed {
-			wantHolyMelee, wantHolySchool = 1, want
+			wantHolyMagic = want
 		}
 		character := swordWarrior(tc.hand)
 		holyMelee := defenseSpell(character, 1, core.SpellSchoolHoly, core.DefenseTypeMelee)
 		holyMagic := defenseSpell(character, 2, core.SpellSchoolHoly, core.DefenseTypeMagic)
 		physical := defenseSpell(character, 3, core.SpellSchoolPhysical, core.DefenseTypeMelee)
+		flagged := defenseSpell(character, 4, core.SpellSchoolHoly, core.DefenseTypeMagic)
+		flagged.Flags |= core.SpellFlagIgnoreWeaponSchoolBonus
+		heal := defenseSpell(character, 5, core.SpellSchoolHoly, core.DefenseTypeMagic)
+		heal.Flags |= core.SpellFlagHelpful
 
 		ParseStatic(character, tc.row)
 
-		if got := holyMelee.DamageMultiplier; math.Abs(got-wantHolyMelee) > 1e-9 {
-			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, wantHolyMelee)
+		if got := holyMelee.DamageMultiplier; math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s: a melee-defense holy spell: %v, want %v", tc.row.Name, got, want)
 		}
-		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; math.Abs(got-wantHolySchool) > 1e-9 {
-			t.Errorf("%s: the holy school multiplier: %v, want %v", tc.row.Name, got, wantHolySchool)
+		if got := holyMagic.DamageMultiplier; math.Abs(got-wantHolyMagic) > 1e-9 {
+			t.Errorf("%s: a magic-defense holy spell: %v, want %v", tc.row.Name, got, wantHolyMagic)
 		}
-		if got := holyMagic.DamageMultiplier; got != 1 {
-			t.Errorf("%s: a magic-defense holy spell: %v, want 1", tc.row.Name, got)
+		if got := flagged.DamageMultiplier; got != 1 {
+			t.Errorf("%s: a flagged magic-defense holy spell: %v, want 1", tc.row.Name, got)
+		}
+		if got := heal.DamageMultiplier; got != 1 {
+			t.Errorf("%s: a holy heal: %v, want 1", tc.row.Name, got)
+		}
+		if got := character.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexHoly]; got != 1 {
+			t.Errorf("%s: the holy school multiplier: %v, want 1", tc.row.Name, got)
 		}
 		if got := physical.DamageMultiplier; got != 1 {
 			t.Errorf("%s: a physical spell's own multiplier: %v, want 1", tc.row.Name, got)
@@ -193,22 +204,36 @@ func TestRangedWeaponDamageDoneRowIsARangedMod(t *testing.T) {
 	}
 }
 
-// Applied names the melee-defense part beside the school multiplier.
+// Applied names the melee-defense part beside the school multiplier, and the mod on the schools past
+// Physical of a row that names one, 20111's Holy.
 func TestWeaponDamageDoneRowReportsItsMeleeDefensePart(t *testing.T) {
 	defer generatedStore()()
 
-	row := Talent(12163, 3).Rank(3)
-	applied := DryRun(row).Applied
-	if len(applied) != 2 {
-		t.Fatalf("applied %+v, want the school multiplier and the melee-defense part", applied)
+	// A school multiplier reports 1 plus the row's percent, a mod the percent.
+	type part struct {
+		kind string
+		base float64
 	}
-	part := row.EffectN(1).Percent()
-	for i, want := range []struct {
-		kind  string
-		value float64
-	}{{"damage-dealt-by-school", 1 + part}, {"damage-dealt-melee", part}} {
-		if applied[i].Kind != want.kind || math.Abs(applied[i].Value-want.value) > 1e-9 {
-			t.Errorf("applied[%d] = %s %v, want %s %v", i, applied[i].Kind, applied[i].Value, want.kind, want.value)
+	school := part{"damage-dealt-by-school", 1}
+	others := part{"damage-dealt-weapon-schools", 0}
+	melee := part{"damage-dealt-melee", 0}
+	for _, tc := range []struct {
+		row  *Spell
+		want []part
+	}{
+		{Talent(12163, 3).Rank(3), []part{school, melee}},
+		{Talent(20111, 3).Rank(3), []part{school, others, melee}},
+	} {
+		applied := DryRun(tc.row).Applied
+		if len(applied) < len(tc.want) {
+			t.Fatalf("%s: applied %+v, want %d damage done parts first", tc.row.Name, applied, len(tc.want))
+		}
+		percent := tc.row.EffectN(1).Percent()
+		for i, want := range tc.want {
+			value := want.base + percent
+			if applied[i].Kind != want.kind || math.Abs(applied[i].Value-value) > 1e-9 {
+				t.Errorf("%s: applied[%d] = %s %v, want %s %v", tc.row.Name, i, applied[i].Kind, applied[i].Value, want.kind, value)
+			}
 		}
 	}
 }
