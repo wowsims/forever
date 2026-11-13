@@ -1044,24 +1044,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestEnhancement-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
-  hps: 36.49833
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
-  hps: 36.49833
- }
-}
-dps_results: {
  key: "TestEnhancement-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 774.26707
@@ -1256,24 +1238,6 @@ dps_results: {
   dps: 771.14222
   tps: 807.14611
   dtps: 7.2547
-  hps: 36.49833
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
-  hps: 36.49833
- }
-}
-dps_results: {
- key: "TestEnhancement-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 774.26707
-  tps: 810.76059
-  dtps: 7.36167
   hps: 36.49833
  }
 }

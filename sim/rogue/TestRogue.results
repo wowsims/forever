@@ -1030,22 +1030,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 587.86207
-  tps: 417.38207
-  hps: 51.0875
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 587.86207
-  tps: 417.38207
-  hps: 51.0875
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 587.86207
@@ -1206,14 +1190,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 587.86207
-  tps: 417.38207
-  hps: 51.0875
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 588.68782
@@ -1227,14 +1203,6 @@ dps_results: {
   dps: 588.68782
   tps: 417.96835
   hps: 50.98583
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 587.86207
-  tps: 417.38207
-  hps: 51.0875
  }
 }
 dps_results: {

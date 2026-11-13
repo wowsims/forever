@@ -19,6 +19,13 @@ func (unit *Unit) AddMobTypeBonusStats(bonus stats.Stats, mobTypes ...proto.MobT
 	}
 }
 
+// An item's stats against mob types, every copy worn counting; sign -1 takes them off.
+func (character *Character) addItemMobTypeStats(item *Item, sign float64) {
+	for _, versus := range item.ScalingOptions[0].GetMobTypeStats() {
+		character.AddMobTypeBonusStats(stats.FromProtoMap(versus.Stats).Multiply(sign), versus.MobTypes...)
+	}
+}
+
 // Multiplies the damage the unit deals to every defender of the mob types; 1/mult takes the
 // multiplier back off.
 func (unit *Unit) MultiplyDamageVersus(mult float64, mobTypes ...proto.MobType) {

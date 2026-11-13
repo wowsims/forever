@@ -1197,22 +1197,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 693.04335
-  tps: 441.71179
-  dtps: 0.83027
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 693.04335
-  tps: 441.71179
-  dtps: 0.83027
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 693.04335
@@ -1441,22 +1425,6 @@ dps_results: {
   dps: 665.15417
   tps: 420.82888
   dtps: 0.88475
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 693.04335
-  tps: 441.71179
-  dtps: 0.83027
- }
-}
-dps_results: {
- key: "TestHunterPets-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 693.04335
-  tps: 441.71179
-  dtps: 0.83027
  }
 }
 dps_results: {

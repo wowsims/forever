@@ -1127,22 +1127,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 718.28777
@@ -1356,22 +1340,6 @@ dps_results: {
   dps: 684.33398
   tps: 635.55945
   dtps: 8.86708
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 718.28777
-  tps: 666.72844
-  dtps: 9.01765
  }
 }
 dps_results: {

@@ -863,22 +863,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.83127
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.83127
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 749.07576
@@ -1003,22 +987,6 @@ dps_results: {
  value: {
   dps: 745.13135
   tps: 532.51378
-  dtps: 5.83127
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 749.07576
-  tps: 535.27487
-  dtps: 5.83127
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 749.07576
-  tps: 535.27487
   dtps: 5.83127
  }
 }

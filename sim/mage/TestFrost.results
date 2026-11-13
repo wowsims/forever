@@ -776,20 +776,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFrost-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 721.65948
-  tps: 666.1295
- }
-}
-dps_results: {
- key: "TestFrost-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 721.65948
-  tps: 666.1295
- }
-}
-dps_results: {
  key: "TestFrost-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 721.65948
@@ -906,20 +892,6 @@ dps_results: {
  value: {
   dps: 805.31037
   tps: 741.84379
- }
-}
-dps_results: {
- key: "TestFrost-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 721.65948
-  tps: 666.1295
- }
-}
-dps_results: {
- key: "TestFrost-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 721.65948
-  tps: 666.1295
  }
 }
 dps_results: {

@@ -1161,24 +1161,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 505.19476
@@ -1404,15 +1386,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 495.95818
@@ -1428,15 +1401,6 @@ dps_results: {
   tps: 429.44305
   dtps: 2.94293
   hps: 40.07361
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
  }
 }
 dps_results: {

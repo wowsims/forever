@@ -1341,24 +1341,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 764.95681
-  tps: 788.6834
-  dtps: 8.82972
-  hps: 14.74167
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 764.95681
-  tps: 788.6834
-  dtps: 8.82972
-  hps: 14.74167
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 764.95681
@@ -1617,24 +1599,6 @@ dps_results: {
   tps: 726.73924
   dtps: 8.82472
   hps: 14.55528
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 764.95681
-  tps: 788.6834
-  dtps: 8.82972
-  hps: 14.74167
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 764.95681
-  tps: 788.6834
-  dtps: 8.82972
-  hps: 14.74167
  }
 }
 dps_results: {

@@ -2,6 +2,7 @@ package dbc
 
 import (
 	"math"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -98,6 +99,8 @@ func (item *Item) ToScaledUIItem(itemLevel int) *proto.UIItem {
 		RandPropPoints:  item.GetRandPropPoints(item.ItemLevel),
 		Ilvl:            int32(item.ItemLevel),
 		WeaponSkills:    item.GetWeaponSkills(item.ItemLevel),
+		MobTypeStats:    item.GetMobTypeStats(item.ItemLevel),
+		Hp5:             item.GetHP5(item.ItemLevel),
 	}
 	if item.ItemClass == ITEM_CLASS_WEAPON {
 		// Equipped damage is rounded; a form that swings at its own speed needs the table cell itself.
@@ -196,6 +199,40 @@ func (item *Item) GetWeaponSkills(itemLevel int) []*proto.WeaponSkillValue {
 	return skills
 }
 
+// One entry per mob type, in the order the item first states each.
+func (item *Item) GetMobTypeStats(itemLevel int) []*proto.MobTypeStats {
+	var out []*proto.MobTypeStats
+	for i, stat := range item.BonusStat {
+		versus, ok := mobTypeStatByBonusStat[stat]
+		if !ok {
+			continue
+		}
+		value := item.GetScaledStat(i, itemLevel)
+		if value == 0 {
+			continue
+		}
+		index := slices.IndexFunc(out, func(entry *proto.MobTypeStats) bool { return entry.MobTypes[0] == versus.mobType })
+		if index < 0 {
+			out = append(out, &proto.MobTypeStats{MobTypes: []proto.MobType{versus.mobType}, Stats: map[int32]float64{}})
+			index = len(out) - 1
+		}
+		for _, granted := range versus.stats {
+			out[index].Stats[int32(granted)] += value
+		}
+	}
+	return out
+}
+
+func (item *Item) GetHP5(itemLevel int) int32 {
+	var total int32
+	for i, stat := range item.BonusStat {
+		if stat == ITEM_MOD_HEALTH_REGEN {
+			total += int32(item.GetScaledStat(i, itemLevel))
+		}
+	}
+	return total
+}
+
 // Caster weapons carry spell power that no stat slot states, worked out from the first column of the
 // item level budget with the allocations of the "of Magic" and "of Healing" bonus lists: 20000 spell
 // power, or on a healing weapon 37600 healing (1.88 times the spell power) and a third of that as spell
@@ -244,6 +281,11 @@ func (item *Item) GetRandPropPoints(itemLevel int) int32 {
 	return randomProperty[item.OverallQuality.ToProto()][suffixType]
 }
 func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
+	return GetDBC().scaledStat(item, index, itemLevel)
+}
+
+// On the DBC itself, so InitDBC can read item stats: GetDBC there deadlocks inside its own once.Do.
+func (d *DBC) scaledStat(item *Item, index int, itemLevel int) float64 {
 	//Todo check if overflow array
 
 	// The game files ship no precomputed StatModifier_bonusAmount, so the allocation
@@ -253,7 +295,7 @@ func (item *Item) GetScaledStat(index int, itemLevel int) float64 {
 
 	if slotType != -1 && item.OverallQuality > 0 {
 
-		randomProperty := GetDBC().RandomPropertiesByIlvl[itemLevel]
+		randomProperty := d.RandomPropertiesByIlvl[itemLevel]
 		itemBudget = float64(randomProperty[item.OverallQuality.ToProto()][slotType])
 
 		if item.StatAlloc[index] > 0 && itemBudget > 0 {
