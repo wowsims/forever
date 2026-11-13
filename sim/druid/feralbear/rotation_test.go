@@ -612,8 +612,7 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 			req.Raid.Parties[0].Players[0].Profession1 = proto.Profession_ProfessionUnknown
 		}
 		expected := map[string]bool{
-			"No swap set configured in Settings.": true,
-			"Autocast Other Cooldowns will not cast any spells! There are either no major cooldowns configured for this character, or all of them are manually cast in the APL or never go on their own.": true,
+			"No swap set configured in Settings.":                       true,
 			"Bear (#1) does not know talent {SpellID: 17056} (Rank 1)":  true,
 			"Bear (#1) does not know spell {ItemID: 9449}":              true,
 			"Bear (#1) picks no potion for {OtherID: 26}":               true,
@@ -715,6 +714,67 @@ func TestAdaptiveBearCleaveLacerateFollowsLivingTarget(t *testing.T) {
 			if got := bear.Lacerate.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts; got != 1 {
 				t.Fatalf("Lacerate casts on the living target = %d, want 1", got)
 			}
+		})
+	}
+}
+
+func TestAdaptiveBearSelectedOnUseItems(t *testing.T) {
+	for _, item := range []int32{21180, 23041, 21670, 23570, 22954, 249470, 280071, 272437, 11811, 19024} {
+		t.Run(fmt.Sprintf("item%d", item), func(t *testing.T) {
+			rotation := selectedAdaptiveBearAPL()
+			actionID := &proto.ActionID{RawId: &proto.ActionID_ItemId{ItemId: item}}
+			if item == 23570 {
+				actionID = bearSpellID(29602)
+			}
+			var selected *proto.APLListItem
+			for _, group := range rotation.Groups {
+				if group.Name == "Optional on-use items" {
+					for _, row := range group.Actions {
+						if googleProto.Equal(row.Action.GetCastSpell().GetSpellId(), actionID) {
+							selected = row
+						}
+					}
+				}
+			}
+			if selected == nil || !selected.Hide {
+				t.Fatal("optional item must have a disabled row to enable explicitly")
+			}
+			selected.Hide = false
+			rotation.PriorityList = []*proto.APLListItem{selected}
+			rotation.Groups = nil
+			rotation.PrepullActions = nil
+			req := bearRequest(rotation, 1)
+			player := req.Raid.Parties[0].Players[0]
+			player.Equipment.Items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: item}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AutoAttacks.CancelAutoSwing(sim)
+			sim.CurrentTime = time.Second
+			bear.SetGCDTimer(sim, sim.CurrentTime)
+			spell := bear.GetSpell(core.ProtoToActionID(actionID))
+			if spell == nil {
+				t.Fatal("equipped on-use item is not registered")
+			}
+			if item == 272437 || item == 11811 || item == 19024 {
+				bear.Rotation.DoNextAction(sim)
+				for _, metric := range spell.SpellMetrics {
+					if metric.Casts != 0 {
+						t.Fatal("defensive on-use fired above its health threshold")
+					}
+				}
+			}
+			bear.RemoveHealth(sim, bear.MaxHealth()*0.7)
+			bear.SetRotationTimer(sim, sim.CurrentTime)
+			bear.Rotation.DoNextAction(sim)
+			var casts int32
+			for _, metric := range spell.SpellMetrics {
+				casts += metric.Casts
+			}
+			if casts != 1 {
+				t.Fatalf("enabled on-use item cast %d times, want one", casts)
+			}
+			t.Logf("item %d: enabled casts=%d", item, casts)
 		})
 	}
 }

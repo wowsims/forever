@@ -211,6 +211,14 @@
       }
     },
     {
+      "name": "On-use defensive health threshold",
+      "value": {
+        "const": {
+          "val": "40%"
+        }
+      }
+    },
+    {
       "name": "Lacerate has five stacks",
       "value": {
         "and": {
@@ -1279,9 +1287,11 @@
       }
     },
     {
-      "notes": "Use grenades and other available cooldowns",
+      "notes": "Optional on-use items: enable the rows for equipped items",
       "action": {
-        "autocastOtherCooldowns": {}
+        "groupReference": {
+          "groupName": "Optional on-use items"
+        }
       }
     },
     {
@@ -1905,6 +1915,248 @@
               }
             }
           }
+        }
+      ]
+    },
+    {
+      "name": "Optional on-use items",
+      "actions": [
+        {
+          "notes": "Enable Earthstrike when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 21180
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 21180
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Slayer’s Crest when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 23041
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 23041
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Badge of the Swarmguard when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 21670
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 21670
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Jom Gabbar when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "spellId": 29602
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "spellId": 29602
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Kiss of the Spider when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 22954
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 22954
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Molten Heart of the Mountain when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 249470
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 249470
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Flamebreak Talisman when equipped",
+          "action": {
+            "condition": {
+              "spellIsKnown": {
+                "spellId": {
+                  "itemId": 280071
+                }
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 280071
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Adaptive Combat Assistant at 40% health or lower",
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "itemId": 272437
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "currentHealthPercent": {}
+                      },
+                      "rhs": {
+                        "variableRef": {
+                          "name": "On-use defensive health threshold"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 272437
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Smoking Heart of the Mountain at 40% health or lower",
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "itemId": 11811
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "currentHealthPercent": {}
+                      },
+                      "rhs": {
+                        "variableRef": {
+                          "name": "On-use defensive health threshold"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 11811
+              }
+            }
+          },
+          "hide": true
+        },
+        {
+          "notes": "Enable Arena Grand Master at 40% health or lower",
+          "action": {
+            "condition": {
+              "and": {
+                "vals": [
+                  {
+                    "spellIsKnown": {
+                      "spellId": {
+                        "itemId": 19024
+                      }
+                    }
+                  },
+                  {
+                    "cmp": {
+                      "op": "OpLe",
+                      "lhs": {
+                        "currentHealthPercent": {}
+                      },
+                      "rhs": {
+                        "variableRef": {
+                          "name": "On-use defensive health threshold"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "castSpell": {
+              "spellId": {
+                "itemId": 19024
+              }
+            }
+          },
+          "hide": true
         }
       ]
     }
