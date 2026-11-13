@@ -23,7 +23,7 @@ const DamageTakenRageFactor = 2.5
 // physical direct hit. Measured on hits from rage-using mobs, with Defensive Stance divided out: arcane and fire melee
 // swings and Poison, Localized Toxin and Rend ticks read 3.75-3.86 in place of DamageTakenRageFactor * (1 - A), which
 // physical melee swings read as 1.96 and a physical Shoot as 2.08.
-// TODO: Ingame test needed -- a mob's physical Mortal Strike read about 1.2 times a melee swing.
+// TODO: Ingame test needed -- a mob's physical Mortal Strike read about 1.2 times a melee swing, and Cleave about 1.3.
 const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
@@ -71,8 +71,8 @@ const (
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
 	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
 	// halving included, for every rage user (the game files' Rule of Rage (DND) 1322574 states 100; the
-	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, and an
-	// off-hand crit at twice the off-hand's halved share.
+	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, a bear's swing
+	// with any weapon included, and an off-hand crit at twice the off-hand's halved share.
 	CritRageBonus = 1.0
 )
 
@@ -144,10 +144,10 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			handMultiplier := 1.0
 			var weapon *Weapon
 
-			switch spell.ProcMask {
-			case ProcMaskMeleeMHAuto:
+			switch {
+			case spell.ProcMask == ProcMaskMeleeMHAuto, spell.Flags.Matches(SpellFlagSwingRage):
 				weapon = unit.AutoAttacks.MH()
-			case ProcMaskMeleeOHAuto:
+			case spell.ProcMask == ProcMaskMeleeOHAuto:
 				// OH hits generate 50% of the rage they would if they were MH hits
 				hitFactor /= 2
 				handMultiplier = unit.rageBar.offHandRageMultiplier
