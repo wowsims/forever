@@ -1593,6 +1593,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-SecondWind-11819"
  value: {
   dps: 764.94902

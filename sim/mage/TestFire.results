@@ -895,6 +895,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-SecondWind-11819"
  value: {
   dps: 827.78741

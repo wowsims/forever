@@ -951,6 +951,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 917.19972
+  tps: 723.74083
+  dtps: 9.91129
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 917.19972
+  tps: 723.74083
+  dtps: 9.91129
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-SecondWind-11819"
  value: {
   dps: 935.48779

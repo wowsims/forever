@@ -895,6 +895,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 721.65206
+  tps: 665.98719
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 721.65206
+  tps: 665.98719
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-SecondWind-11819"
  value: {
   dps: 729.16739

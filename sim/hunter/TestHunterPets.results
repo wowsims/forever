@@ -1420,6 +1420,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SecondWind-11819"
  value: {
   dps: 693.03169

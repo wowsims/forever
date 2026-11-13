@@ -1557,6 +1557,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 825.92657
+  tps: 674.73155
+  dtps: 6.05497
+  hps: 23.54312
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-SanctifiedOrb-20512"
  value: {
   dps: 831.73626
@@ -1572,6 +1581,15 @@ dps_results: {
   tps: 683.59251
   dtps: 5.72051
   hps: 23.75848
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 825.92657
+  tps: 674.73155
+  dtps: 6.05497
+  hps: 23.54312
  }
 }
 dps_results: {

@@ -1270,6 +1270,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 868.92475
+  tps: 879.84881
+  dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 868.92475
+  tps: 879.84881
+  dtps: 5.35885
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-SecondWind-11819"
  value: {
   dps: 873.17448

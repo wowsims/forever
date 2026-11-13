@@ -1206,6 +1206,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 767.65846
+  tps: 570.68102
+  hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 767.65846
+  tps: 570.68102
+  hps: 43.85222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-SecondWind-11819"
  value: {
   dps: 767.47149
