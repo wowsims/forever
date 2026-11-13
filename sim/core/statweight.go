@@ -116,9 +116,11 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 	}
 }
 
-// Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
-// player already has and overstates the next ones.
+// Hit, expertise and skill are measured upward to preserve caps and the next-point interval.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
+	if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+		return true
+	}
 	rating, _, hasRating := ratingBehindStat(stat)
 	return hasRating && (rating == stats.HitRating || rating == stats.ExpertiseRating)
 }
@@ -130,8 +132,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	if swr.Player.BonusStats.Stats == nil {
 		swr.Player.BonusStats.Stats = make([]float64, stats.ProtoStatsLen)
 	}
-	if swr.Player.BonusStats.PseudoStats == nil {
-		swr.Player.BonusStats.PseudoStats = make([]float64, stats.PseudoStatsLen)
+	if len(swr.Player.BonusStats.PseudoStats) < stats.PseudoStatsLen {
+		swr.Player.BonusStats.PseudoStats = append(swr.Player.BonusStats.PseudoStats, make([]float64, stats.PseudoStatsLen-len(swr.Player.BonusStats.PseudoStats))...)
 	}
 
 	raidProto := SinglePlayerRaidProto(swr.Player, swr.PartyBuffs, swr.RaidBuffs, swr.Debuffs)
@@ -172,7 +174,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	}
 
 	// Do half the iterations with a positive, and half with a negative value for better accuracy.
-	// Hit and expertise keep only the positive half.
+	// Forward-only stats keep the positive half.
 	const defaultStatMod = 10.0
 	statMods := make([]float64, stats.UnitStatsLen)
 
@@ -205,7 +207,9 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if _, _, hasRating := ratingBehindStat(stat); hasRating {
+		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			statMod = 1
+		} else if _, _, hasRating := ratingBehindStat(stat); hasRating {
 			statMod = 1
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5

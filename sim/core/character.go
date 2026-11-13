@@ -185,6 +185,12 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 	}
 	character.PseudoStats.InFrontOfTarget = player.InFrontOfTarget
 	character.applyWeaponSkills(player.WeaponSkills)
+	if character.Class == proto.Class_ClassDruid && player.BonusStats != nil {
+		ps := player.BonusStats.PseudoStats
+		if len(ps) > int(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			character.PseudoStats.FeralCombatSkill += ps[proto.PseudoStat_PseudoStatFeralCombatSkill]
+		}
+	}
 	for slot := range character.Equipment {
 		character.addItemWeaponSkills(&character.Equipment[slot], 1)
 	}

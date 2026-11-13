@@ -176,6 +176,7 @@ func TestBearPrepullEnrage(t *testing.T) {
 
 func TestBearPrepullEnrageWithFullRotation(t *testing.T) {
 	req := bearRequest(selectedAdaptiveBearAPL(), 2)
+	req.Raid.Parties[0].Players[0].TalentsString = withFurorFive(bearTalents)
 	req.SimOptions.Debug = true
 	sim := core.NewSim(req, simsignals.CreateSignals())
 	sim.Reset()
@@ -213,7 +214,7 @@ func TestAdaptiveBearHoldsEnrageForRageShortage(t *testing.T) {
 		rage                float64
 		want                bool
 	}{
-		{"bite-starved", true, true, 15, true},
+		{"bite-starved", true, true, 5, true},
 		{"lacerate-starved", false, true, 5, true},
 		{"bite-funded", true, true, 20, false},
 		{"lacerate-funded", false, true, 15, false},
@@ -373,6 +374,7 @@ func TestAdaptiveBearPrepullPreservesStartingRage(t *testing.T) {
 			req := bearNakedRequest()
 			req.Raid.Tanks = nil
 			player := req.Raid.Parties[0].Players[0]
+			player.TalentsString = withFurorFive(bearTalents)
 			player.GetFeralBearDruid().Options.StartingRage = rage
 			player.Rotation = rotation
 			sim := core.NewSim(req, simsignals.CreateSignals())
@@ -611,6 +613,7 @@ func TestAdaptiveBearAvailabilityWarnings(t *testing.T) {
 		}
 		expected := map[string]bool{
 			"No swap set configured in Settings.":                       true,
+			"Bear (#1) does not know talent {SpellID: 17056} (Rank 1)":  true,
 			"Bear (#1) does not know spell {ItemID: 9449}":              true,
 			"Bear (#1) picks no potion for {OtherID: 26}":               true,
 			"No aura found on Target 1 for: {SpellID: 440667, Tag: -1}": true,
@@ -666,4 +669,112 @@ func cmp(op proto.APLValueCompare_ComparisonOperator, lhs, rhs *proto.APLValue) 
 
 func mathOp(op proto.APLValueMath_MathOperator, lhs, rhs *proto.APLValue) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{Op: op, Lhs: lhs, Rhs: rhs}}}
+}
+
+func TestAdaptiveBearCleaveLacerateFollowsLivingTarget(t *testing.T) {
+	for _, name := range []string{"Two targets: Swipe and Primal Bite", "Three targets: Swipe priority"} {
+		t.Run(name, func(t *testing.T) {
+			rotation := selectedAdaptiveBearAPL()
+			var row *proto.APLListItem
+			for _, group := range rotation.Groups {
+				if group.Name == name {
+					for _, candidate := range group.Actions {
+						if candidate.Action.GetCastSpell().GetSpellId().GetSpellId() == spellLacerate {
+							row = candidate
+						}
+					}
+				}
+			}
+			if row == nil {
+				t.Fatal("cleave Lacerate row is missing")
+			}
+			rotation.PriorityList = []*proto.APLListItem{row}
+			rotation.Groups = nil
+			rotation.PrepullActions = nil
+			req := bearNakedRequest()
+			req.Raid.Tanks = nil
+			req.Raid.Parties[0].Players[0].Rotation = rotation
+			req.Encounter.Targets = []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), core.NewDefaultTarget()}
+			if name == "Three targets: Swipe priority" {
+				req.Encounter.Targets = append(req.Encounter.Targets, core.NewDefaultTarget())
+			}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AutoAttacks.CancelAutoSwing(sim)
+			bear.GCD.Set(10 * time.Second)
+			bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+			sim.Encounter.AllTargets[0].Disable(sim, true)
+			if bear.CurrentTarget == &sim.Encounter.AllTargets[0].Unit {
+				t.Fatal("still targeting the dead mob")
+			}
+			sim.CurrentTime = time.Second
+			bear.GCD.Set(sim.CurrentTime)
+			bear.Rotation.DoNextAction(sim)
+			if got := bear.Lacerate.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts; got != 1 {
+				t.Fatalf("Lacerate casts on the living target = %d, want 1", got)
+			}
+		})
+	}
+}
+
+func TestAdaptiveBearSelectedOnUseItems(t *testing.T) {
+	for _, item := range []int32{21180, 23041, 21670, 23570, 22954, 249470, 280071, 272437, 11811, 19024} {
+		t.Run(fmt.Sprintf("item%d", item), func(t *testing.T) {
+			rotation := selectedAdaptiveBearAPL()
+			actionID := &proto.ActionID{RawId: &proto.ActionID_ItemId{ItemId: item}}
+			if item == 23570 {
+				actionID = bearSpellID(29602)
+			}
+			var selected *proto.APLListItem
+			for _, group := range rotation.Groups {
+				if group.Name == "Optional on-use items" {
+					for _, row := range group.Actions {
+						if googleProto.Equal(row.Action.GetCastSpell().GetSpellId(), actionID) {
+							selected = row
+						}
+					}
+				}
+			}
+			if selected == nil || !selected.Hide {
+				t.Fatal("optional item must have a disabled row to enable explicitly")
+			}
+			selected.Hide = false
+			rotation.PriorityList = []*proto.APLListItem{selected}
+			rotation.Groups = nil
+			rotation.PrepullActions = nil
+			req := bearRequest(rotation, 1)
+			player := req.Raid.Parties[0].Players[0]
+			player.Equipment.Items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: item}
+			sim := core.NewSim(req, simsignals.CreateSignals())
+			sim.Reset()
+			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
+			bear.AutoAttacks.CancelAutoSwing(sim)
+			sim.CurrentTime = time.Second
+			bear.SetGCDTimer(sim, sim.CurrentTime)
+			spell := bear.GetSpell(core.ProtoToActionID(actionID))
+			if spell == nil {
+				t.Fatal("equipped on-use item is not registered")
+			}
+			if item == 272437 || item == 11811 || item == 19024 {
+				bear.Rotation.DoNextAction(sim)
+				for _, metric := range spell.SpellMetrics {
+					if metric.Casts != 0 {
+						t.Fatal("defensive on-use fired above its health threshold")
+					}
+				}
+			}
+			bear.RemoveHealth(sim, bear.MaxHealth()*0.7)
+			bear.SetRotationTimer(sim, sim.CurrentTime)
+			bear.Rotation.DoNextAction(sim)
+			var casts int32
+			for _, metric := range spell.SpellMetrics {
+				casts += metric.Casts
+			}
+			if casts != 1 {
+				t.Fatalf("enabled on-use item cast %d times, want one", casts)
+			}
+			t.Logf("item %d: enabled casts=%d", item, casts)
+		})
+	}
 }

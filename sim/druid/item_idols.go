@@ -9,6 +9,13 @@ import (
 
 // The idols' equip spells reach their spells by class flags.
 func init() {
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27851}, []shared.ItemVariant{
+		{ItemID: 22397, ItemName: "Idol of Ferocity"},
+	})
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 28855}, []shared.ItemVariant{
+		{ItemID: 23198, ItemName: "Idol of Brutality"},
+	})
+
 	core.NewItemEffect(263435, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1270490)

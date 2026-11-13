@@ -353,6 +353,7 @@ enum PseudoStat {
 	PseudoStatRangedHitRating = 34;
 	PseudoStatRangedCritRating = 35;
 	PseudoStatRangedCritSuppressionPercent = 36;
+	PseudoStatFeralCombatSkill = 37;
 }
 
 message UnitStats {
@@ -448,6 +449,7 @@ enum WeaponSkill {
 	WeaponSkillGuns = 13;
 	WeaponSkillThrown = 14;
 	WeaponSkillWands = 15;
+	WeaponSkillFeralCombat = 16;
 }
 
 message WeaponSkillValue {

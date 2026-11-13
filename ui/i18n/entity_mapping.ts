@@ -118,6 +118,7 @@ export const protoStatNameI18nKeys: Record<string, string> = {
 };
 
 export const pseudoStatI18nKeys: Record<PseudoStat, string> = {
+	[PseudoStat.PseudoStatFeralCombatSkill]: 'feral_combat_skill',
 	[PseudoStat.PseudoStatMainHandDps]: 'main_hand_dps',
 	[PseudoStat.PseudoStatOffHandDps]: 'off_hand_dps',
 	[PseudoStat.PseudoStatRangedDps]: 'ranged_dps',
@@ -398,6 +399,7 @@ export const weaponSkillI18nKeys: Record<WeaponSkill, string> = {
 	[WeaponSkill.WeaponSkillGuns]: 'guns',
 	[WeaponSkill.WeaponSkillThrown]: 'thrown',
 	[WeaponSkill.WeaponSkillWands]: 'wands',
+	[WeaponSkill.WeaponSkillFeralCombat]: 'feral_combat',
 };
 
 export const slotNamesI18nKeys: Record<ItemSlot, string> = {

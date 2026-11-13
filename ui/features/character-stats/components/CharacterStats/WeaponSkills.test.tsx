@@ -17,15 +17,16 @@ const KEY = 3;
 
 // The Player's own setters run against a seeded slice; its constructor needs a whole sim behind it.
 // Every paladin weapon skill is in the Melee group.
-const renderForPaladin = (
+const renderForClass = (
 	weaponSkills: Array<WeaponSkillValue> = [],
 	finalSkills?: Array<WeaponSkillValue>,
 	displayWeaponSkillGroups: Array<WeaponSkillGroup> = [WeaponSkillGroup.Melee],
+	playerClass: Class = Class.ClassPaladin,
 ) => {
 	const store = createSimStore();
 	const currentStats = finalSkills ? PlayerStats.create({ weaponSkills: finalSkills }) : undefined;
 	seedKeyed(store, 'players', KEY, { weaponSkills, currentStats, v: zeroVersions(PLAYER_FIELDS) } as unknown as PlayerSlice);
-	const player = Object.assign(Object.create(Player.prototype), { sim: { store }, storeKey: KEY, playerSpec: { classID: Class.ClassPaladin } });
+	const player = Object.assign(Object.create(Player.prototype), { sim: { store }, storeKey: KEY, playerSpec: { classID: playerClass } });
 	const view = renderWithHost(
 		<Accordion value={['weapon-skill']} onValueChange={() => {}}>
 			<WeaponSkills />
@@ -58,19 +59,19 @@ const commit = async (input: HTMLInputElement, text: string) => {
 
 describe('WeaponSkills', () => {
 	it('shows every weapon skill of the class at the level 60 maximum, untoned', () => {
-		renderForPaladin();
+		renderForClass();
 
 		for (const skill of getClassWeaponSkills(Class.ClassPaladin)) expect(shown(skill)).toEqual({ value: '300', tone: 'neutral' });
 	});
 
 	it('renders nothing when the spec weapon skill groups hold none of the class weapon skills', () => {
-		const { view } = renderForPaladin([], undefined, [WeaponSkillGroup.Wands]);
+		const { view } = renderForClass([], undefined, [WeaponSkillGroup.Wands]);
 
 		expect(view.queryByTestId('character-stats-group-weapon-skill')).toBeNull();
 	});
 
 	it("shows the sim's full skill once it has computed the stats, the gear's bonus on top of the stated one", () => {
-		renderForPaladin(
+		renderForClass(
 			[{ skill: WeaponSkill.WeaponSkillMaces, value: 302 }],
 			[
 				{ skill: WeaponSkill.WeaponSkillMaces, value: 306 },
@@ -88,7 +89,7 @@ describe('WeaponSkills', () => {
 		['60', 350, 'positive'],
 		['-400', 1, 'negative'],
 	])('stores a bonus of %s as a skill of %d, between 1 and 350', async (bonus, skill, tone) => {
-		const { stored } = renderForPaladin();
+		const { stored } = renderForClass();
 
 		await commit(await openBonus(WeaponSkill.WeaponSkillMaces), bonus);
 
@@ -97,7 +98,7 @@ describe('WeaponSkills', () => {
 	});
 
 	it('opens on the stored bonus, and drops the skill when its bonus goes back to 0', async () => {
-		const { stored } = renderForPaladin([
+		const { stored } = renderForClass([
 			{ skill: WeaponSkill.WeaponSkillMaces, value: 305 },
 			{ skill: WeaponSkill.WeaponSkillSwords, value: 290 },
 		]);
@@ -109,4 +110,13 @@ describe('WeaponSkills', () => {
 		expect(stored()).toEqual([{ skill: WeaponSkill.WeaponSkillSwords, value: 290 }]);
 		expect(shown(WeaponSkill.WeaponSkillMaces)).toEqual({ value: '300', tone: 'neutral' });
 	});
+});
+
+it('shows Feral Combat for Druids and stores its bonus independently', async () => {
+	const { stored } = renderForClass([], undefined, [WeaponSkillGroup.FeralCombat], Class.ClassDruid);
+	expect(shown(WeaponSkill.WeaponSkillFeralCombat)).toEqual({ value: '300', tone: 'neutral' });
+	expect(screen.queryByText(translateWeaponSkill(WeaponSkill.WeaponSkillStaves))).toBeNull();
+	await commit(await openBonus(WeaponSkill.WeaponSkillFeralCombat), '1');
+	expect(stored()).toEqual([{ skill: WeaponSkill.WeaponSkillFeralCombat, value: 301 }]);
+	expect(shown(WeaponSkill.WeaponSkillFeralCombat)).toEqual({ value: '301', tone: 'positive' });
 });
