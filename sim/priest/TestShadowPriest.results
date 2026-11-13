@@ -999,6 +999,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 749.07576
+  tps: 535.27487
+  dtps: 5.83127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-SecondWind-11819"
  value: {
   dps: 752.11659
@@ -1116,6 +1132,14 @@ dps_results: {
   dps: 751.82224
   tps: 537.34798
   dtps: 5.72274
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 719.85047
+  tps: 514.83001
+  dtps: 5.83127
  }
 }
 dps_results: {

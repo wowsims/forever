@@ -157,18 +157,24 @@ func weaponBound(s *spelldata.Spell, e *spelldata.Effect, stat string) string {
 }
 
 // A damage done aura under the rule spelldata.WeaponScope names for its row. While equipped, a melee
-// weapon also carries it to the melee-defense spells of the schools the mask leaves out.
+// weapon also carries it to the melee-defense spells of the schools the mask leaves out, and the
+// mask's schools past Physical skip heals and the spells flagged SpellFlagIgnoreWeaponSchoolBonus.
 func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
-	phrase := join(signedPercent(e), schoolName(core.SpellSchool(e.Misc)), "damage done")
+	mask := core.SpellSchool(e.Misc)
+	phrase := join(signedPercent(e), schoolName(mask), "damage done")
 	rule, scope := spelldata.WeaponScope(s, e)
 	switch rule {
 	case spelldata.WeaponRulePerWeapon:
 		return join(phrase+",", perWeapon(scope))
 	case spelldata.WeaponRuleWhileEquipped:
-		if scope.ProcMask.Matches(core.ProcMaskMelee) && core.SpellSchool(e.Misc) != allSchools {
-			phrase += " and on the melee-defense spells of the other schools"
+		if !scope.ProcMask.Matches(core.ProcMaskMelee) || mask == allSchools {
+			return whileEquippedPhrase(phrase, scope)
 		}
-		return whileEquippedPhrase(phrase, scope)
+		phrase = whileEquippedPhrase(phrase+" and on the melee-defense spells of the other schools", scope)
+		if others := mask &^ core.SpellSchoolPhysical; others != 0 {
+			phrase += "; the " + schoolName(others) + " part skips heals and the spells flagged SpellFlagIgnoreWeaponSchoolBonus"
+		}
+		return phrase
 	}
 	return phrase
 }

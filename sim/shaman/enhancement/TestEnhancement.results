@@ -135,6 +135,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-BiggerRockonBiggerStick-279480"
+ value: {
+  dps: 822.35877
+  tps: 853.40131
+  dtps: 8.15357
+  hps: 22.43444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BlackDragonMail"
  value: {
   dps: 756.81182
@@ -209,10 +218,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BloodvineGarb"
  value: {
-  dps: 778.84898
-  tps: 814.92105
-  dtps: 7.35058
-  hps: 36.24417
+  dps: 774.26593
+  tps: 810.35933
+  dtps: 7.39339
+  hps: 36.21028
  }
 }
 dps_results: {
@@ -1071,6 +1080,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 775.67583
+  tps: 811.92241
+  dtps: 7.64687
+  hps: 36.61694
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-MindtapTalisman-18371"
  value: {
   dps: 760.16516
@@ -1140,6 +1158,15 @@ dps_results: {
   tps: 811.85707
   dtps: 7.1787
   hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 757.56667
+  tps: 793.39061
+  dtps: 7.14266
+  hps: 36.48139
  }
 }
 dps_results: {
@@ -1220,6 +1247,24 @@ dps_results: {
   dps: 771.14222
   tps: 807.14611
   dtps: 7.2547
+  hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
+  hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 774.26707
+  tps: 810.76059
+  dtps: 7.36167
   hps: 36.49833
  }
 }
@@ -1305,6 +1350,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 762.80395
+  tps: 798.49029
+  dtps: 6.93498
+  hps: 36.27806
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-Stormcaller'sGarb"
  value: {
   dps: 813.02454
@@ -1325,10 +1379,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-StormshroudArmor"
  value: {
-  dps: 750.26267
-  tps: 785.99334
-  dtps: 7.60794
-  hps: 37.02361
+  dps: 756.18769
+  tps: 791.48539
+  dtps: 7.56372
+  hps: 36.78639
  }
 }
 dps_results: {
@@ -1689,6 +1743,15 @@ dps_results: {
   tps: 814.89329
   dtps: 7.36167
   hps: 36.49833
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-VolcanicArmor"
+ value: {
+  dps: 721.10088
+  tps: 756.30082
+  dtps: 7.09155
+  hps: 36.19333
  }
 }
 dps_results: {

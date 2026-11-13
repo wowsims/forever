@@ -281,10 +281,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodTigerHarness"
  value: {
-  dps: 431.71997
-  tps: 1438.92132
-  dtps: 310.11071
-  hps: 36.08944
+  dps: 428.14181
+  tps: 1428.2942
+  dtps: 310.88092
+  hps: 36.0725
  }
 }
 dps_results: {
@@ -317,8 +317,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodvineGarb"
  value: {
-  dps: 455.15064
-  tps: 1513.25039
+  dps: 455.10156
+  tps: 1513.1444
   dtps: 356.13708
   hps: 37.49583
  }
@@ -1260,6 +1260,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 420.47724
+  tps: 1413.26776
+  dtps: 289.38973
+  hps: 39.59694
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-JomGabbar-23570"
  value: {
   dps: 444.62534
@@ -1494,6 +1503,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 449.78504
+  tps: 1489.07615
+  dtps: 307.37879
+  hps: 36.63167
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-MawofMin'loth-274608"
  value: {
   dps: 444.0543
@@ -1554,6 +1572,15 @@ dps_results: {
   tps: 1458.96863
   dtps: 300.62067
   hps: 36.56389
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 445.16472
+  tps: 1472.05185
+  dtps: 308.63827
+  hps: 36.54694
  }
 }
 dps_results: {
@@ -1710,6 +1737,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Ripsaw-9478"
+ value: {
+  dps: 426.73454
+  tps: 1408.67892
+  dtps: 292.86699
+  hps: 35.615
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 444.62534
+  tps: 1468.23943
+  dtps: 294.753
+  hps: 36.66556
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 446.55076
@@ -1725,6 +1770,15 @@ dps_results: {
   tps: 1470.27406
   dtps: 297.05785
   hps: 36.6825
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 444.62534
+  tps: 1468.23943
+  dtps: 294.753
+  hps: 36.66556
  }
 }
 dps_results: {
@@ -1827,6 +1881,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 432.20047
+  tps: 1426.73591
+  dtps: 307.80678
+  hps: 36.53
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-StoneformShoulders-13955"
  value: {
   dps: 435.45516
@@ -1865,10 +1928,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-StormshroudArmor"
  value: {
-  dps: 441.80764
-  tps: 1458.96548
-  dtps: 338.49068
-  hps: 36.90972
+  dps: 443.3358
+  tps: 1455.03654
+  dtps: 337.5239
+  hps: 36.99444
  }
 }
 dps_results: {
@@ -2031,6 +2094,15 @@ dps_results: {
   tps: 1483.72933
   dtps: 316.01834
   hps: 36.75028
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheHandofAntu'sul-9639"
+ value: {
+  dps: 412.02487
+  tps: 1375.74684
+  dtps: 291.19958
+  hps: 35.34389
  }
 }
 dps_results: {
@@ -2247,6 +2319,15 @@ dps_results: {
   tps: 1463.37236
   dtps: 285.29065
   hps: 36.17417
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VolcanicArmor"
+ value: {
+  dps: 423.53628
+  tps: 1391.59492
+  dtps: 333.25055
+  hps: 36.05556
  }
 }
 dps_results: {

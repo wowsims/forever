@@ -643,6 +643,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 794.637
+  tps: 793.93069
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-JomGabbar-23570"
  value: {
   dps: 821.435
@@ -892,6 +899,20 @@ dps_results: {
  value: {
   dps: 897.10817
   tps: 895.11131
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 821.435
+  tps: 820.77139
  }
 }
 dps_results: {

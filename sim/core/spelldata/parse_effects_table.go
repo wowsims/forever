@@ -13,11 +13,12 @@ import (
 
 // The misc values the stat and school auras key on.
 const (
-	miscAllSchools  int32 = 127 // every school bit, which the sim states as one multiplier
-	miscMagicSchool int32 = 126 // every school but physical, which is what spell damage covers
-	miscArmor       int32 = 1   // A_MOD_RESISTANCE, A_MOD_ARMOR_NO_MODS and the two resistance percentages state armor as school 1
-	miscAllStats    int32 = -1  // A_MOD_STAT, A_MOD_PERCENT_STAT and A_MOD_TOTAL_STAT_PERCENTAGE: all five at once
-	miscDefense     int32 = 95  // A_MOD_SKILL on the Defense skill line
+	miscAllSchools  int32 = 127  // every school bit, which the sim states as one multiplier
+	miscMagicSchool int32 = 126  // every school but physical, which is what spell damage covers
+	miscArmor       int32 = 1    // A_MOD_RESISTANCE, A_MOD_ARMOR_NO_MODS and the two resistance percentages state armor as school 1
+	miscAllStats    int32 = -1   // A_MOD_STAT, A_MOD_PERCENT_STAT and A_MOD_TOTAL_STAT_PERCENTAGE: all five at once
+	miscDefense     int32 = 95   // A_MOD_SKILL on the Defense skill line
+	miscFeralCombat int32 = 3014 // A_MOD_SKILL on the Feral Combat skill line
 )
 
 // The weapon skill each of the game files' weapon skill lines is. Unarmed (162) is fist weapons: Devilsaur
@@ -154,7 +155,10 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 
 	// The damage the unit deals and takes, by school mask. A row that names ranged weapons alone is a
 	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped, and
-	// also reaches the melee-defense spells of the schools its mask leaves out.
+	// also reaches the melee-defense spells of the schools its mask leaves out. Such a row's schools
+	// past Physical are a mod, since a school multiplier cannot leave a spell out. The mod skips the
+	// spells flagged SpellFlagIgnoreWeaponSchoolBonus and the helpful ones, whose heals read the
+	// multiplier it raises.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
@@ -165,20 +169,37 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			return p.scopedMod("SpellMod_DamageDone_Pct", core.SpellMod_DamageDone_Pct, scope, v/100)
 		}
 
-		a := p.schoolMultiplier("damage-dealt", "DamageDealtMultiplier", e.Misc, core.MultiplierFromPercent(v),
-			&p.unit.PseudoStats.DamageDealtMultiplier, &p.unit.PseudoStats.SchoolDamageDealtMultiplier)
+		multiplier := func(mask int32) *attachment {
+			return p.schoolMultiplier("damage-dealt", "DamageDealtMultiplier", mask, core.MultiplierFromPercent(v),
+				&p.unit.PseudoStats.DamageDealtMultiplier, &p.unit.PseudoStats.SchoolDamageDealtMultiplier)
+		}
+		a := multiplier(e.Misc)
 		if a == nil || rule != WeaponRuleWhileEquipped {
 			return a
 		}
 		if !scope.ProcMask.Matches(core.ProcMaskMelee) || e.Misc&miscAllSchools == miscAllSchools {
 			return p.whileEquipped(scope.Equip(), a)
 		}
-		melee := p.modFloat("damage-dealt-melee", core.SpellModConfig{
+
+		parts := []*attachment{a}
+		physical := e.Misc & int32(core.SpellSchoolPhysical)
+		if others := e.Misc &^ physical; others != 0 {
+			parts = parts[:0]
+			if a := multiplier(physical); a != nil {
+				parts = append(parts, a)
+			}
+			parts = append(parts, p.modFloat("damage-dealt-weapon-schools", core.SpellModConfig{
+				Kind:              core.SpellMod_DamageDone_Pct,
+				MultiplierSchool:  core.SpellSchool(others),
+				SpellFlagsExclude: core.SpellFlagIgnoreWeaponSchoolBonus | core.SpellFlagHelpful,
+			}, v/100))
+		}
+		parts = append(parts, p.modFloat("damage-dealt-melee", core.SpellModConfig{
 			Kind:             core.SpellMod_DamageDone_Pct,
 			DefenseType:      core.DefenseTypeMelee,
 			MultiplierSchool: core.SpellSchool(miscAllSchools &^ e.Misc),
-		}, v/100)
-		return p.whileEquipped(scope.Equip(), combined(a.kind+"+"+melee.kind, a, melee))
+		}, v/100))
+		return p.whileEquipped(scope.Equip(), joined(parts...))
 	},
 	dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN: func(p *parser, e *Effect, v float64) *attachment {
 		return p.schoolMultiplier("damage-taken", "DamageTakenMultiplier", e.Misc, core.MultiplierFromPercent(v),
@@ -523,17 +544,23 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 		return p.statBuff(stats.ParryPercent, v)
 	},
 
-	// Skill points: Defense as defense rating, and a weapon skill on top of the skill the player states.
-	// A profession skill is skipped.
+	// Skill points: Defense as defense rating, a weapon skill on top of the skill the player states, and
+	// Feral Combat, which stands in for the weapon's skill in an animal form. A profession skill is skipped.
 	dbcenums.A_MOD_SKILL: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc == miscDefense {
 			return p.statBuff(stats.DefenseRating, v*core.DefenseRatingPerDefenseLevel)
 		}
-		skill, ok := weaponSkillLines[e.Misc]
-		if !ok || p.character == nil {
+		if p.character == nil {
 			return nil
 		}
-		return p.weaponSkill(skill, v)
+		if e.Misc == miscFeralCombat {
+			return p.skillPoints("FeralCombatSkill", &p.unit.PseudoStats.FeralCombatSkill, v)
+		}
+		skill, ok := weaponSkillLines[e.Misc]
+		if !ok {
+			return nil
+		}
+		return p.skillPoints(fmt.Sprintf("WeaponSkills%d", skill), &p.unit.PseudoStats.WeaponSkills[skill], v)
 	},
 
 	// The off-hand bonus is a damage modifier on the off-hand's own hits rather than on a family of
@@ -880,6 +907,11 @@ func (p *parser) scopedRatings(mask int32, scope core.SpellModConfig, v float64)
 	case 1:
 		return parts[0]
 	}
+	return joined(parts...)
+}
+
+// One attachment for parts that apply together, named after each of them.
+func joined(parts ...*attachment) *attachment {
 	kinds := make([]string, len(parts))
 	for i, part := range parts {
 		kinds[i] = part.kind
@@ -1284,9 +1316,9 @@ func (p *parser) pseudoAdd(kind string, key string, fields []*float64, v float64
 	return a
 }
 
-// Weapon skill, which the attack tables read when they are built, so a change rebuilds them.
-func (p *parser) weaponSkill(skill proto.WeaponSkill, v float64) *attachment {
-	a := p.pseudoAdd("weapon-skill", fmt.Sprintf("WeaponSkills%d", skill), []*float64{&p.unit.PseudoStats.WeaponSkills[skill]}, v)
+// Skill points, which the attack tables read when they are built, so a change rebuilds them.
+func (p *parser) skillPoints(key string, field *float64, v float64) *attachment {
+	a := p.pseudoAdd("weapon-skill", key, []*float64{field}, v)
 	set := a.set
 	character := p.character
 	a.set = func(sim *core.Simulation, level float64) {
