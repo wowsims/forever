@@ -1161,16 +1161,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-MarkoftheChampion-23207"
+ key: "TestDpsWarrior-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 505.19476
   tps: 436.76274
@@ -1395,15 +1386,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-SatchelofDarkIronBombs-285278"
  value: {
   dps: 495.95818
@@ -1419,15 +1401,6 @@ dps_results: {
   tps: 429.44305
   dtps: 2.94293
   hps: 40.07361
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 505.19476
-  tps: 436.76274
-  dtps: 2.94293
-  hps: 40.29389
  }
 }
 dps_results: {
@@ -1590,6 +1563,15 @@ dps_results: {
   tps: 432.69164
   dtps: 2.94293
   hps: 40.17528
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 424.09656
+  tps: 360.4481
+  dtps: 2.97628
+  hps: 20.68917
  }
 }
 dps_results: {

@@ -1287,16 +1287,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 823.61079
-  tps: 672.89029
-  dtps: 6.05497
-  hps: 23.54312
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-MarkoftheChampion-23207"
+ key: "TestRetribution-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 823.61079
   tps: 672.89029
@@ -1566,15 +1557,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 823.61079
-  tps: 672.89029
-  dtps: 6.05497
-  hps: 23.54312
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-SanctifiedOrb-20512"
  value: {
   dps: 829.38692
@@ -1590,15 +1572,6 @@ dps_results: {
   tps: 681.81196
   dtps: 5.63478
   hps: 23.75848
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 823.61079
-  tps: 672.89029
-  dtps: 6.05497
-  hps: 23.54312
  }
 }
 dps_results: {
@@ -1788,6 +1761,15 @@ dps_results: {
   tps: 665.03538
   dtps: 5.65064
   hps: 23.84371
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 785.8136
+  tps: 642.83679
+  dtps: 5.80775
+  hps: 23.96199
  }
 }
 dps_results: {

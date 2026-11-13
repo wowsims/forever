@@ -1126,15 +1126,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 868.92475
-  tps: 879.84881
-  dtps: 5.35885
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-MarkoftheChampion-23207"
+ key: "TestBalance-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 868.92475
   tps: 879.84881
@@ -1287,22 +1279,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-RuneofMetamorphosis-19340"
- value: {
-  dps: 868.92475
-  tps: 879.84881
-  dtps: 5.35885
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 868.92475
-  tps: 879.84881
-  dtps: 5.35885
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-SealoftheDawn-13209"
  value: {
   dps: 868.92475
   tps: 879.84881

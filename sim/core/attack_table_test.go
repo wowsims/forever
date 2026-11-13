@@ -441,6 +441,49 @@ func TestGearWeaponSkillFollowsTheItem(t *testing.T) {
 	}
 }
 
+// Attack power on gear against a creature type counts against a target of that type, and an item swap
+// takes it off and puts it back with the item.
+func TestGearMobTypeStatsFollowTheItem(t *testing.T) {
+	const humanoidRingID, plainRingID int32 = 990923, 990924
+	const ringAttackPower = 78.0
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: humanoidRingID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {MobTypeStats: []*proto.MobTypeStats{{
+				MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+				Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
+			}}},
+		}},
+		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
+	}})
+	equipped := WeaponTestSlots(WeaponTestDaggerID, 0, 0)
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: humanoidRingID}
+	swapped := WeaponTestSlots(0, 0, 0)
+	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, equipped, swapped, nil)
+	attack := character.AutoAttacks.MHAuto()
+	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
+		return func() { character.ItemSwap.SwapItems(sim, set, false) }
+	}
+
+	sim.CurrentTime = -time.Second // A ring swaps only before the pull.
+	for _, step := range []struct {
+		when  string
+		swap  func()
+		bonus float64
+	}{
+		{"the ring on", func() {}, ringAttackPower},
+		{"the ring swapped off", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"the ring swapped back on", swapTo(proto.APLActionItemSwap_Main), ringAttackPower},
+		{"the ring swapped off again", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, ringAttackPower},
+	} {
+		step.swap()
+		if got := character.GetAttackPowerValue(attack, character.CurrentTarget) - character.GetStat(stats.AttackPower); got != step.bonus {
+			t.Errorf("%s: attack power against the Humanoid target is %v over the sheet, want %v", step.when, got, step.bonus)
+		}
+	}
+}
+
 func TestAttackTableHandFollowsTheProcMask(t *testing.T) {
 	attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, 63)
 	table := NewAttackTable(attacker, defender)

@@ -823,15 +823,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-MarkoftheChampion-23207"
+ key: "TestDestruction-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 917.19972
   tps: 723.74083
@@ -956,22 +948,6 @@ dps_results: {
   dps: 902.94873
   tps: 711.27214
   dtps: 10.01537
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
- }
-}
-dps_results: {
- key: "TestDestruction-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 917.19972
-  tps: 723.74083
-  dtps: 9.91129
  }
 }
 dps_results: {

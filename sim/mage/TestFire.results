@@ -776,14 +776,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFire-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 821.435
-  tps: 820.77139
- }
-}
-dps_results: {
- key: "TestFire-AllItems-MarkoftheChampion-23207"
+ key: "TestFire-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 821.435
   tps: 820.77139
@@ -899,20 +892,6 @@ dps_results: {
  value: {
   dps: 897.10817
   tps: 895.11131
- }
-}
-dps_results: {
- key: "TestFire-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 821.435
-  tps: 820.77139
- }
-}
-dps_results: {
- key: "TestFire-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 821.435
-  tps: 820.77139
  }
 }
 dps_results: {

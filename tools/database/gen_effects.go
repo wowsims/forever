@@ -2003,10 +2003,11 @@ func (r *ProcRouting) ProcConstructor() string {
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
 // multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
-// attack power and spell damage against a creature type, none of which an item states as a stat. The
-// percents reach the item stats only through an equip spell that folds; an on-use or a weapon-scoped equip
-// spell applies them as an aura. An equip spell that folds drops its bonus against a creature type, so an
-// item stating one beside its stats registers it by hand, as Graverobber's Shovel does.
+// attack power and spell damage against a creature type. The percents reach the item stats only through an
+// equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura. An equip spell
+// that only restates a weapon skill or creature type stat the item's own stats state leaves the item
+// (dropRestatedItemStats). One that folds drops its bonus against a creature type, so an item that states
+// such a bonus on its equip spell and not in its stats registers it by hand, as Graverobber's Shovel does.
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,

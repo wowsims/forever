@@ -1252,21 +1252,12 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-MarkoftheChampion-23206"
+ key: "TestFeralBear-AllItems-MarkoftheChosen-17774"
  value: {
-  dps: 475.01745
-  tps: 2493.19943
-  dtps: 392.503
-  hps: 79.19405
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 475.01745
-  tps: 2493.19943
-  dtps: 392.503
-  hps: 79.19405
+  dps: 474.59829
+  tps: 2494.36907
+  dtps: 390.15645
+  hps: 78.91368
  }
 }
 dps_results: {
@@ -1433,24 +1424,6 @@ dps_results: {
 }
 dps_results: {
  key: "TestFeralBear-AllItems-RuneofMetamorphosis-19340"
- value: {
-  dps: 475.01745
-  tps: 2493.19943
-  dtps: 392.503
-  hps: 79.19405
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 475.01745
-  tps: 2493.19943
-  dtps: 392.503
-  hps: 79.19405
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-SealoftheDawn-13209"
  value: {
   dps: 475.01745
   tps: 2493.19943

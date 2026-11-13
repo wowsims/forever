@@ -503,9 +503,9 @@ var Spells = []Override{
 	{
 		SpellID: 9894,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 5 in game.
-		Reason:  "Rip Rank 5: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 5: attack power share per tick per combo point up to 4, 0.011365 to 0.011405, measured over 191 ticks (190 fit; the share on all 5 points fits none of 109)",
+		Source:  "Combat log, Bison-Plainsrunner levels 55–56, game build 1.60.1.70888, 2026-11-12",
 	},
 	{
 		SpellID: 9896,
@@ -559,16 +559,16 @@ var Spells = []Override{
 	{
 		SpellID: 9904,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
-		Reason:  "Rake Rank 4: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 4: measured direct hit share, 121 of 121 hits fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 55–56, game build 1.60.1.70888, 2026-11-12",
 	},
 	{
 		SpellID: 9904,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
-		Reason:  "Rake Rank 4: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 4: measured periodic share, 237 of 238 ticks fit",
+		Source:  "Combat log, Bison-Plainsrunner levels 55–56, game build 1.60.1.70888, 2026-11-12",
 	},
 	{
 		SpellID: 9007,
@@ -587,9 +587,9 @@ var Spells = []Override{
 	{
 		SpellID: 9826,
 		Field:   APCoefPeriodic,
-		Value:   0.025, // TODO: Measure Pounce Bleed Rank 3 in game.
-		Reason:  "Pounce Bleed Rank 3: Rank 1's measured periodic share",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 3: measured periodic share, 0.0248 to 0.0258 fits every one of 24 ticks; the game files state none",
+		Source:  "Combat log, Bison-Plainsrunner levels 55–56, game build 1.60.1.70888, 2026-11-12",
 	},
 	{
 		SpellID: 779,
