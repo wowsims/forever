@@ -186,6 +186,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "combat log, 2026-11-12",
 	},
 	{
+		ItemID:  287005,
+		SpellID: 1324687,
+		PPM:     0.6,
+		Reason:  "Sword of Dismemberment: no proc row; 247 procs on 6733 landed hits, 7 players, paladins' seal and judgement hits among them",
+		Source:  "wcl:KcCfFTjmbn1waBHN/11 and 12 more runs, combat log, 2026-11-13",
+	},
+	{
 		ItemID:  12798,
 		SpellID: 16928,
 		PPM:     1,
