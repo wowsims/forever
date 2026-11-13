@@ -105,10 +105,9 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 	return paw
 }
 
-// A bear's auto attack takes the two-hander rage factor: a combat log shows 11.25 rage a swing at the
-// bear's 2.5 seconds, 4.5 rage per second of swing. No druid row states a rage multiplier of its own.
-// TODO: Ingame test needed -- whether a bear holding a one-hander takes the one-hand factor instead, and
-// whether a bear's crit doubles the whole swing as a two-hand warrior's does (measured on warriors only).
+// A bear's auto attack takes the two-hander rage factor whatever it holds, 4.5 rage per second of the bear's
+// 2.5 second swing. In game at level 36, white hits gave 11.2 to 11.3 rage with a two-handed mace and with a
+// dagger, glancing blows included, and crits gave twice that. No druid row states a rage multiplier of its own.
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -154,7 +153,8 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
 	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
 	// In game, Bear Form's health is flat and follows the level: it adds 488 at level 36 whatever the
-	// maximum health, the passive's 20 plus 18 for each level above 10.
+	// maximum health, the passive's 20 plus 18 for each level above 10. Its 180% armor applies once and to
+	// the items' armor alone: at level 36, 621 armor from items gained 1118, with Mark of the Wild up or not.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -298,15 +298,18 @@ func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 
 // The tooltip's rule, priced with $m2: the energy left in Cat Form plus ${10*($m2/100)} for each
 // second spent outside Bear Form or Dire Bear Form, up to ${100*($m2/100)}. At 5/5 that is 10 a
-// second, the Cat Form rate. With the talent untaken the cat comes back with none.
+// second, the Cat Form rate. With the talent untaken the cat comes back with none. In game at 5/5 the cat
+// came back within 1 energy of the rule, after a shift and after cancelling Cat Form, and a stint in Bear
+// Form added nothing.
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
 	// The energy bar ticks outside the bear forms, so a first entry with no bear form before it keeps
 	// the pull's bar.
-	// TODO: Ingame research needed -- what death or cancelling the form does to the stored energy, and
-	// what a first entry later in the fight starts with.
+	// TODO: Ingame research needed -- what death does to the stored energy, and what a first entry starts
+	// with below 5/5: one at 1/5, the first Cat Form in a long while, came back at about 19, near the 1/5
+	// cap of 20, where this keeps the bar.
 	if !druid.furorStoredValid {
 		return
 	}
