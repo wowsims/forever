@@ -895,6 +895,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 721.65948
+  tps: 666.1295
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 721.65948
+  tps: 666.1295
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-SecondWind-11819"
  value: {
   dps: 729.16739
@@ -1025,6 +1039,13 @@ dps_results: {
  value: {
   dps: 777.83032
   tps: 716.38066
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 721.65948
+  tps: 666.1295
  }
 }
 dps_results: {

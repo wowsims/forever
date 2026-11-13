@@ -895,6 +895,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-SecondWind-11819"
  value: {
   dps: 754.19687
@@ -1025,6 +1039,13 @@ dps_results: {
  value: {
   dps: 815.6518
   tps: 840.57504
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
  }
 }
 dps_results: {
