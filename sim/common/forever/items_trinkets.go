@@ -70,27 +70,6 @@ func init() {
 		})
 	})
 
-	// Mark of the Champion (physical): +150 AP vs Undead and Demons.
-	core.NewItemEffect(23206, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Physical)",
-			ActionID: core.ActionID{ItemID: 23206},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.AttackPower: 150, stats.RangedAttackPower: 150},
-			proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23206, aura)
-	})
-
-	// Mark of the Champion (spell): +85 spell damage vs Undead and Demons.
-	core.NewItemEffect(23207, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Spell)",
-			ActionID: core.ActionID{ItemID: 23207},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: 85}, proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23207, aura)
-	})
-
 	// Lifegiving Gem: Gift of Life 23725 raises maximum health by 15% for 20 s (23782) and heals for as
 	// much (23783). Both are scripted: the dummy states neither, and 23782 states 0 for its
 	// A_MOD_INCREASE_HEALTH and is not in the spell store, so the 15% is the tooltip's and the 20 s is

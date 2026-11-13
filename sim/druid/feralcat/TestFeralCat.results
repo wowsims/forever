@@ -1046,22 +1046,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralCat-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 767.65846
-  tps: 570.35857
-  hps: 43.85222
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-MarkoftheChampion-23207"
- value: {
-  dps: 767.65846
-  tps: 570.35857
-  hps: 43.85222
- }
-}
-dps_results: {
  key: "TestFeralCat-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 759.45496
@@ -1210,22 +1194,6 @@ dps_results: {
  value: {
   dps: 767.47149
   tps: 566.95279
-  hps: 43.85222
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-RuneoftheDawn-19812"
- value: {
-  dps: 767.65846
-  tps: 570.35857
-  hps: 43.85222
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-SealoftheDawn-13209"
- value: {
-  dps: 767.65846
-  tps: 570.35857
   hps: 43.85222
  }
 }
