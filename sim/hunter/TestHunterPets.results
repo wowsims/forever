@@ -270,6 +270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 667.30813
+  tps: 422.58982
+  dtps: 0.97203
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BlueDragonMail"
  value: {
   dps: 673.17347
@@ -1197,6 +1205,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 693.75963
@@ -1417,6 +1433,22 @@ dps_results: {
   dps: 665.15417
   tps: 420.82888
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
  }
 }
 dps_results: {
@@ -1729,6 +1761,14 @@ dps_results: {
   dps: 702.42828
   tps: 449.84959
   dtps: 2.65797
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
  }
 }
 dps_results: {

@@ -823,6 +823,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 919.04057
@@ -940,6 +948,22 @@ dps_results: {
   dps: 919.04057
   tps: 739.48347
   dtps: 9.2996
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
  }
 }
 dps_results: {
@@ -1100,6 +1124,14 @@ dps_results: {
   dps: 921.25025
   tps: 740.25524
   dtps: 9.09805
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
  }
 }
 dps_results: {

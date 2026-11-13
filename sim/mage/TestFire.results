@@ -407,8 +407,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 884.96917
-  tps: 879.21701
+  dps: 884.67443
+  tps: 879.0738
  }
 }
 dps_results: {
@@ -776,6 +776,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 860.97702
@@ -885,6 +892,20 @@ dps_results: {
  value: {
   dps: 897.10817
   tps: 895.11131
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 821.435
+  tps: 820.77139
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 821.435
+  tps: 820.77139
  }
 }
 dps_results: {
@@ -1018,6 +1039,13 @@ dps_results: {
  value: {
   dps: 871.46789
   tps: 869.31114
+ }
+}
+dps_results: {
+ key: "TestFire-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 821.435
+  tps: 820.77139
  }
 }
 dps_results: {

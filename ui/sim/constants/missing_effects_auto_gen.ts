@@ -1194,6 +1194,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		15853, // Windreaper
+		[
+			"Inflicts 21 Nature damage every 2.0 sec for 10s.", // 20586 - https://www.wowhead.com/forever/spell=20586
+		]
+	],
+	[
 		16004, // Dark Iron Rifle
 		[
 			"Fires a Shadow Shot at the target for 26 Shadow damage.", // 29641 - https://www.wowhead.com/forever/spell=29641
@@ -1327,12 +1333,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17774, // Mark of the Chosen
-		[
-			"Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.", // 21970 - https://www.wowhead.com/forever/spell=21970
-		]
-	],
-	[
 		17780, // Blade of Eternal Darkness
 		[
 			"Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.", // 27860 - https://www.wowhead.com/forever/spell=27860
@@ -1348,6 +1348,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18324, // Waveslicer
 		[
 			"Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.", // 1302166 - https://www.wowhead.com/forever/spell=1302166
+		]
+	],
+	[
+		18348, // Quel'Serrar
+		[
+			"Grants the wielder 13 Defense, 300 Armor, 30 Attack Power, and 36 additional Attack Power against Dragonkin for 10s.", // 22850 - https://www.wowhead.com/forever/spell=22850
 		]
 	],
 	[
@@ -1438,6 +1444,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18639, // Ultra-Flash Shadow Reflector
 		[
 			"Reflects Shadow spells back at their caster for 5s.", // 23132 - https://www.wowhead.com/forever/spell=23132
+		]
+	],
+	[
+		18671, // Baron Charr's Sceptre
+		[
+			"Blasts a target for 90 Fire damage.", // 13442 - https://www.wowhead.com/forever/spell=13442
 		]
 	],
 	[
@@ -2736,6 +2748,18 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		284386, // Whipfang's Skinsearer
 		[
 			"Sear your target's flesh, dealing 84 Fire damage.", // 1316039 - https://www.wowhead.com/forever/spell=1316039
+		]
+	],
+	[
+		284667, // Flame Seared Sword
+		[
+			"Burns the target for 33 Fire damage every 3.0 sec for 15s.", // 1316865 - https://www.wowhead.com/forever/spell=1316865
+		]
+	],
+	[
+		285066, // Ooze Rummagers
+		[
+			"You have a small chance to find additional ore when mining Ooze Covered Thorium Veins.", // 1317446 - https://www.wowhead.com/forever/spell=1317446
 		]
 	],
 	[

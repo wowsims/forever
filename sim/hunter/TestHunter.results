@@ -297,6 +297,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 707.43395
+  tps: 731.51107
+  dtps: 8.63521
+  hps: 14.96194
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BlueDragonMail"
  value: {
   dps: 745.23282
@@ -1341,6 +1350,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-MarkoftheChosen-17774"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-MarkoftheDragonLord-13143"
  value: {
   dps: 769.44058
@@ -1590,6 +1608,24 @@ dps_results: {
   tps: 726.73924
   dtps: 8.82472
   hps: 14.55528
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
  }
 }
 dps_results: {
@@ -1941,6 +1977,15 @@ dps_results: {
   tps: 809.2453
   dtps: 9.09698
   hps: 15.01278
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 764.95681
+  tps: 788.6834
+  dtps: 8.82972
+  hps: 14.74167
  }
 }
 dps_results: {
