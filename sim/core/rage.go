@@ -63,8 +63,8 @@ const (
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
 	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
 	// halving included, for every rage user (the game files' Rule of Rage (DND) 1322574 states 100; the
-	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, and an
-	// off-hand crit at twice the off-hand's halved share.
+	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, a bear's swing
+	// with any weapon included, and an off-hand crit at twice the off-hand's halved share.
 	CritRageBonus = 1.0
 )
 
@@ -97,7 +97,8 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 	// Direct hits and periodic ticks from a unit grant rage alike.
 	// TODO: Ingame test needed -- the rule is measured on melee hits. Spells land at a multiple of it the logs do
 	// not explain yet: Immolate ticks, Shadow Bolt, Arcane Missiles and Lightning Bolt about 1 times, Fireball and
-	// Mortal Strike about 1.2 times, Cleave about 1.3 times, Poison ticks, Venom Sting and Lizard Bolt about 2 times.
+	// Mortal Strike about 1.2 times, Cleave about 1.3 times, which is the rule without its assumed armor, and Poison
+	// ticks, Venom Sting and Lizard Bolt about 2 times.
 	rageFromDamageTaken := func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
 		if unit.GetCurrentPowerBar() != RageBar {
 			return

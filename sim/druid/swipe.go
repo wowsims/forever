@@ -10,8 +10,7 @@ func (druid *Druid) registerSwipeBearSpell() {
 	rank := spellData.Swipe.Highest()
 	damageEffect := rank.DamageEffect()
 	base := damageEffect.Average()
-	// The row's three targets match the game: with four mobs in front at level 36, each of 21 casts struck
-	// three, a dodge or parry counting as one, and always its own target among them.
+	// The row's three targets match the game: with four mobs in front, each of 21 casts struck three.
 	targets := int32(damageEffect.ChainTargets)
 	if targets < 1 {
 		targets = int32(rank.MaxTargets)

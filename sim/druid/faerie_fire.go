@@ -6,8 +6,6 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
-// An instant cast leaves the swing timer running. In game, seven casts between a bear's swings at level 36
-// kept the gaps at 2.09 to 2.22 seconds, against 2.18 without a cast.
 func (druid *Druid) registerFaerieFireSpell() {
 	rank := spellData.FaerieFire.Highest()
 	druid.FaerieFireAuras = druid.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
