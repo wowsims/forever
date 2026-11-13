@@ -2793,12 +2793,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		287005, // Sword of Dismemberment
-		[
-			"Dismember the target, inflicting 670 Physical damage.", // 1324687 - https://www.wowhead.com/forever/spell=1324687
-		]
-	],
-	[
 		287025, // Enchantresses' Spire
 		[
 			"Reduces the cast time of Disenchant by 25%.", // 1324981 - https://www.wowhead.com/forever/spell=1324981
