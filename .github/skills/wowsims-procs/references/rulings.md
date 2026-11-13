@@ -29,7 +29,7 @@ Each line is the rule the code follows, where it lives, and the pull request tha
   land on 1 to 4 targets (3877 casts) and on 3.9% and 6.8% of the Cleaves that land on 1 and 2 (5601 casts). One roll
   a target predicts 4.0%, 7.8%, 11.5% and 15.1%, and 7.8% for Cleave on 2, while one roll a cast stays near 4%.
   Weaponmaster's sword roll is the measured exception and rolls once a cast.** `sim/core/aura_helpers.go`,
-  `matchesSpell`; `sim/warrior/talents_arms.go`, `core.OncePerCast`; PR #N.
+  `matchesSpell`; `sim/warrior/talents_arms.go`, `core.OncePerCast`; PR #986.
 - **The hit table decides a strike's mask, not its school (Bow of Searing Arrows is a ranged special); a strike's own
   re-cast during its cast goes one batch later.** `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and
   `procDamageHandler`, PR #352.
