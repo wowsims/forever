@@ -152,10 +152,8 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
 	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
-	// In game, the forms' health is flat and follows the level, whatever the maximum health: Bear Form's
-	// passive adds 20 plus 18 for each level above 10, up to 560 at 40, and Dire Bear Form's 600 plus 32 for
-	// each level above 40, 1240 at 60, measured at every level from 25 to 60. Like the rest of the maximum
-	// health, it takes a Tauren's 5% more.
+	// In game, the forms' health is flat and follows the level as their passives' rows state, measured at
+	// every level from 25 to 60.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -299,15 +297,14 @@ func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 
 // The tooltip's rule, priced with $m2: the energy left in Cat Form plus ${10*($m2/100)} for each
 // second spent outside Bear Form or Dire Bear Form, up to ${100*($m2/100)}. At 5/5 that is 10 a
-// second, the Cat Form rate. With the talent untaken the cat comes back with none. In game 5/5 follows
-// it within 1 energy, whether the cat left by a shift or by cancelling Cat Form.
+// second, the Cat Form rate. With the talent untaken the cat comes back with none. In game 0/5 and 5/5
+// follow it, whether the cat left by a shift or by cancelling Cat Form.
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
-	// Nothing is stored only for the starting Cat Form, which keeps the pull's bar since the cat was in Cat
-	// Form before the pull. In game every entry takes Furor's share, the first after a login included: 275 of
-	// 275 at 0/5 started at 0, and one at 1/5 came back near 20.
+	// Only the starting Cat Form finds nothing stored, and it keeps the pull's bar: the cat was in Cat Form
+	// before the pull. In game every entry takes Furor's share, the first after a login included.
 	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return

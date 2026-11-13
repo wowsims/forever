@@ -9,9 +9,8 @@ import (
 const lacerateHitSpellID = 414647
 
 // The tooltip's "Causes a high amount of threat", which the rows state no effect for: in game the hit and
-// the ticks each threaten for 10/3 of their damage, with no flat part, before the threat multiplier of the
-// form the druid is in when each lands. Measured on rank 2 in Bear Form and rank 4 in Dire Bear Form, and
-// ranks 3 and 5 fit it.
+// the ticks each threaten for 10/3 of their damage, with no flat part, before the form's threat multiplier.
+// Measured on rank 2 in Bear Form and rank 4 in Dire Bear Form, and ranks 3 and 5 fit it.
 const lacerateThreatMultiplier = 10.0 / 3
 
 func (druid *Druid) registerLacerateSpell() {
