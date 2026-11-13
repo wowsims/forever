@@ -8,7 +8,9 @@ import (
 // Attaches to a charged buff the listener that spends its charges, as the buff's row states it, and
 // returns that listener. A cast spends one charge however many targets it hits. The spells that
 // spend one are the ones the row's proc effect names; a row whose proc effect names none states them
-// on its spell modifiers instead, and the charge goes to the spells the buff modifies.
+// on its spell modifiers instead, and the charge goes to the spells the buff modifies. An option that
+// sets the trigger to CallbackOnCastComplete spends the charge as the cast completes, once its hits
+// have rolled.
 //
 // A channel is one cast: the charge stays up for every tick and every target, and is spent when the
 // channel ends. A channel the buff's class flags name spends it once the channel has started, even
@@ -52,7 +54,9 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 
 	buff.AttachProcTriggerCallback(&character.Unit, spender)
 
-	if !spender.ClassFlags.IsZero() {
+	// A buff holds one cast listener. A spender that hears casts reserves the charge for a channel's
+	// cast in its own condition.
+	if !spender.ClassFlags.IsZero() && !spender.Callback.Matches(core.CallbackOnCastComplete) {
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               name + " - Channel",
 			Callback:           core.CallbackOnCastComplete,

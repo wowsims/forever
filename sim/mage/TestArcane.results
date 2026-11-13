@@ -407,8 +407,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 819.18779
-  tps: 702.3636
+  dps: 812.79784
+  tps: 697.37111
  }
 }
 dps_results: {

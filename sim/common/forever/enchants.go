@@ -240,10 +240,20 @@ func init() {
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
 		// The charge goes to the next cast the crit modifier reaches, whatever its proc mask. A channel
-		// the mask names (Blizzard, a hunter's Volley) spends it.
+		// the mask names (Blizzard, a hunter's Volley) spends it. The mage's charge goes the moment that
+		// cast completes, after its hits have rolled: an area cast crits on every target, a missile keeps
+		// its crit in flight, and no other spell landing in the meantime takes the charge. Mage logs: 81
+		// of 84 charges go at the buffed cast's success and the other 3 expire. The other classes'
+		// charge goes with the cast's first hit, as the druid's does at the spell's impact.
+		// TODO: Pyroblast spends the mage's charge and crits in game, though the row's crit modifier
+		// names neither Pyroblast nor Fireball.
 		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
+				if character.Class == proto.Class_ClassMage {
+					trigger.Callback = core.CallbackOnCastComplete
+					trigger.TriggerImmediately = true
+				}
 			})
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1248806), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

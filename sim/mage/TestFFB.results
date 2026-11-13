@@ -407,8 +407,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 824.56109
-  tps: 849.7851
+  dps: 821.25376
+  tps: 846.33699
  }
 }
 dps_results: {
