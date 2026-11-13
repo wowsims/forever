@@ -46,8 +46,10 @@ func (druid *Druid) registerOmenOfClarity() {
 	}
 	druid.OmenOfClarityAura = druid.MakeProcTriggerAura(trigger)
 
-	// The Hurricane cast rolls it at the cast, once for each target its area reaches, on the same chance
-	// and cooldown; a proc ends the rolls. The buff comes a spell batch later, after the cast has paid
+	// Two kinds of cast roll it at the cast, on the same chance and cooldown: Hurricane once for each
+	// target its area reaches, a proc ending the rolls, and the helpful buffs Thorns and Innervate once,
+	// in Moonkin Form only. Mark of the Wild and Nature's Grasp roll as those do, and the sim casts
+	// neither; a shapeshift rolls nothing. The buff comes a spell batch later, after the cast has paid
 	// its cost or spent Clearcasting, so a proc never makes its own cast free.
 	icd := druid.OmenOfClarityAura.Icd
 	druid.MakeProcTriggerAura(core.ProcTrigger{
@@ -55,10 +57,17 @@ func (druid *Druid) registerOmenOfClarity() {
 		Callback: core.CallbackOnCastComplete,
 		Handler:  trigger.Handler,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			if !spellData.Hurricane.Contains(spell) || !icd.IsReady(sim) {
+			rolls := 0
+			switch {
+			case spellData.Hurricane.Contains(spell):
+				rolls = len(sim.Encounter.ActiveTargetUnits)
+			case (spellData.Thorns.Contains(spell) || spellData.Innervate.Contains(spell)) && druid.InForm(Moonkin):
+				rolls = 1
+			}
+			if rolls == 0 || !icd.IsReady(sim) {
 				return false
 			}
-			for range sim.Encounter.ActiveTargetUnits {
+			for range rolls {
 				if roll(sim, spell) {
 					icd.Set(sim.CurrentTime + druid.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
 					return true

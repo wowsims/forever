@@ -305,3 +305,62 @@ func TestHurricaneCastRollsOmenPerTarget(t *testing.T) {
 		t.Errorf("Hurricane procs Omen of Clarity %d of %d casts on five targets, %d on one; want about four times as often", five, casts, one)
 	}
 }
+
+// A helpful cast such as Thorns rolls Omen of Clarity in Moonkin Form, after it spends Clearcasting;
+// in caster form it rolls nothing, and neither does a shift into Moonkin Form.
+func TestHelpfulCastsRollOmenInMoonkinFormOnly(t *testing.T) {
+	const casts = 400
+	newDruid := func() (*core.Simulation, *BalanceDruid) {
+		sim, _ := balanceDruid(t, false, 0, 1)
+		sim.Cleanup()
+		sim.BaseDuration = casts * 10 * time.Second
+		sim.Reset()
+		return sim, sim.Raid.Parties[0].Players[0].(*BalanceDruid)
+	}
+	procsIn := func(moonkin bool) int {
+		sim, druid := newDruid()
+		if !moonkin {
+			druid.ClearForm(sim)
+		}
+		procs := 0
+		for range casts {
+			// The buff makes the cast free; the wait outlasts the proc's cooldown.
+			druid.ClearcastingAura.Activate(sim)
+			start := sim.CurrentTime
+			if !druid.Thorns.Cast(sim, &druid.Unit) {
+				t.Fatal("Thorns did not cast")
+			}
+			for sim.CurrentTime < start+100*time.Millisecond && !sim.Step() {
+			}
+			if druid.ClearcastingAura.IsActive() {
+				procs++
+			}
+			for sim.CurrentTime < start+10*time.Second && !sim.Step() {
+			}
+		}
+		return procs
+	}
+
+	if got := procsIn(true); got == 0 {
+		t.Errorf("Thorns never procs Omen of Clarity in Moonkin Form in %d casts", casts)
+	}
+	if got := procsIn(false); got != 0 {
+		t.Errorf("Thorns procs Omen of Clarity %d of %d casts in caster form, want none", got, casts)
+	}
+
+	sim, druid := newDruid()
+	// A free shift, so the mana lasts; a roll would start the proc's cooldown on the spot.
+	druid.MoonkinForm.Cost.PercentModifier = 0
+	for range casts {
+		druid.ClearForm(sim)
+		start := sim.CurrentTime
+		if !druid.MoonkinForm.Cast(sim, &druid.Unit) {
+			t.Fatal("Moonkin Form did not cast")
+		}
+		if !druid.OmenOfClarityAura.Icd.IsReady(sim) {
+			t.Fatal("a shift into Moonkin Form rolled Omen of Clarity")
+		}
+		for sim.CurrentTime < start+10*time.Second && !sim.Step() {
+		}
+	}
+}
