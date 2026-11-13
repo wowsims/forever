@@ -708,6 +708,30 @@ func TestUrsendrisReportedArmorMatchesCombat(t *testing.T) {
 	}
 }
 
+// Idol of Shifting Tides takes its flat amount off the mana cost of every shapeshift.
+func TestIdolOfShiftingTidesCheapensEveryShapeshift(t *testing.T) {
+	costs := func(idol int32) []float64 {
+		items := bearItemSlots()
+		items[proto.ItemSlot_ItemSlotRanged].Id = idol
+		_, bear := equippedBear(t, items)
+		var costs []float64
+		for _, form := range []*druid.DruidSpell{bear.CatForm, bear.BearForm, bear.DireBearForm} {
+			costs = append(costs, form.Cost.GetCurrentCost())
+		}
+		return costs
+	}
+	flat := spelldata.MustFind(1270470).EffectN(1).BaseValue()
+	if flat >= 0 {
+		t.Fatalf("the idol's row states %v, want a cost cut", flat)
+	}
+	without, with := costs(0), costs(263411)
+	for i := range without {
+		if want := without[i] + flat; with[i] != want {
+			t.Errorf("shapeshift %d costs %v with the idol, want %v", i, with[i], want)
+		}
+	}
+}
+
 func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	req := bearItemRequest()
 	player := req.Raid.Parties[0].Players[0]
