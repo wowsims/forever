@@ -227,9 +227,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BloodTigerHarness"
  value: {
-  dps: 395.41953
-  tps: 945.54561
-  dtps: 364.26442
+  dps: 392.1959
+  tps: 938.89192
+  dtps: 364.3288
   hps: 21.8075
  }
 }
@@ -254,8 +254,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BloodvineGarb"
  value: {
-  dps: 413.51846
-  tps: 995.9796
+  dps: 412.97082
+  tps: 994.65971
   dtps: 395.18058
   hps: 22.38361
  }
@@ -407,9 +407,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DeathboneGuardian"
  value: {
-  dps: 370.20548
-  tps: 898.34092
-  dtps: 321.92241
+  dps: 372.42373
+  tps: 904.24239
+  dtps: 321.79327
   hps: 21.57028
  }
 }
@@ -1440,6 +1440,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 387.47143
+  tps: 932.35187
+  dtps: 342.68527
+  hps: 21.67194
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-MawofMin'loth-274608"
  value: {
   dps: 386.5155
@@ -1500,6 +1509,15 @@ dps_results: {
   tps: 953.74447
   dtps: 347.75163
   hps: 21.8075
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 395.90308
+  tps: 954.55615
+  dtps: 348.6268
+  hps: 21.77361
  }
 }
 dps_results: {
@@ -1791,6 +1809,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 394.11332
+  tps: 944.57874
+  dtps: 355.35633
+  hps: 21.8075
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-SteadfastLibram-279247"
  value: {
   dps: 388.14471
@@ -1829,10 +1856,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-StormshroudArmor"
  value: {
-  dps: 402.61196
-  tps: 965.15357
-  dtps: 396.55033
-  hps: 22.14639
+  dps: 403.36297
+  tps: 965.8365
+  dtps: 396.02416
+  hps: 22.09556
  }
 }
 dps_results: {
@@ -1910,10 +1937,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheDarksoul"
  value: {
-  dps: 395.89239
-  tps: 954.41746
-  dtps: 327.83059
-  hps: 22.07861
+  dps: 398.16216
+  tps: 954.63882
+  dtps: 345.40736
+  hps: 22.4175
  }
 }
 dps_results: {
@@ -2193,6 +2220,15 @@ dps_results: {
   tps: 945.22093
   dtps: 387.6578
   hps: 21.63806
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-VolcanicArmor"
+ value: {
+  dps: 386.04153
+  tps: 927.04885
+  dtps: 384.81909
+  hps: 21.85833
  }
 }
 dps_results: {

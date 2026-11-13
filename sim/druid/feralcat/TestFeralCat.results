@@ -144,9 +144,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTigerHarness"
  value: {
-  dps: 739.90826
-  tps: 549.97775
-  hps: 44.08944
+  dps: 734.72642
+  tps: 546.32322
+  hps: 44.10639
  }
 }
 dps_results: {
@@ -491,6 +491,14 @@ dps_results: {
   dps: 767.65846
   tps: 570.35857
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 764.05884
+  tps: 566.56813
+  hps: 43.95389
  }
 }
 dps_results: {
@@ -1054,6 +1062,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 762.62561
+  tps: 566.77833
+  hps: 43.98778
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MindtapTalisman-18371"
  value: {
   dps: 769.99801
@@ -1091,6 +1107,14 @@ dps_results: {
   dps: 658.38968
   tps: 491.88758
   hps: 44.32667
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 756.2477
+  tps: 562.2264
+  hps: 44.0725
  }
 }
 dps_results: {
@@ -1230,6 +1254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 752.0619
+  tps: 559.07098
+  hps: 43.85222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 701.47946
@@ -1248,9 +1280,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-StormshroudArmor"
  value: {
-  dps: 708.22858
-  tps: 527.96529
-  hps: 43.80139
+  dps: 759.58634
+  tps: 564.48305
+  hps: 45.30944
  }
 }
 dps_results: {
@@ -1475,6 +1507,14 @@ dps_results: {
   dps: 773.50551
   tps: 574.52407
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VolcanicArmor"
+ value: {
+  dps: 698.32311
+  tps: 521.03341
+  hps: 43.90306
  }
 }
 dps_results: {

@@ -191,9 +191,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-BloodTigerHarness"
  value: {
-  dps: 881.79089
-  tps: 892.87245
-  dtps: 5.49954
+  dps: 875.93764
+  tps: 887.02134
+  dtps: 5.72111
  }
 }
 dps_results: {
@@ -531,6 +531,14 @@ dps_results: {
   dps: 960.16573
   tps: 971.13317
   dtps: 5.39812
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 913.79338
+  tps: 924.71744
+  dtps: 5.35885
  }
 }
 dps_results: {
@@ -1118,6 +1126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 900.01202
+  tps: 911.03609
+  dtps: 5.42675
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-MindtapTalisman-18371"
  value: {
   dps: 870.2181
@@ -1155,6 +1171,14 @@ dps_results: {
   dps: 856.6177
   tps: 867.51623
   dtps: 5.32282
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 889.20836
+  tps: 900.28187
+  dtps: 5.51363
  }
 }
 dps_results: {
@@ -1291,6 +1315,14 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.33002
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 888.59616
+  tps: 899.66717
+  dtps: 5.53359
  }
 }
 dps_results: {
@@ -1531,6 +1563,14 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-VolcanicArmor"
+ value: {
+  dps: 841.46618
+  tps: 852.65105
+  dtps: 5.11091
  }
 }
 dps_results: {

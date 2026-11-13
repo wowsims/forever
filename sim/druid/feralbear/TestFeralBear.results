@@ -210,10 +210,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodTigerHarness"
  value: {
-  dps: 468.18282
-  tps: 2461.81391
-  dtps: 416.66065
-  hps: 83.89656
+  dps: 462.97706
+  tps: 2433.52225
+  dtps: 416.79568
+  hps: 83.38819
  }
 }
 dps_results: {
@@ -228,10 +228,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BloodvineGarb"
  value: {
-  dps: 460.72222
-  tps: 2402.5849
-  dtps: 451.46443
-  hps: 78.18468
+  dps: 460.13889
+  tps: 2397.58154
+  dtps: 451.16749
+  hps: 78.19244
  }
 }
 dps_results: {
@@ -601,6 +601,15 @@ dps_results: {
   tps: 2499.41336
   dtps: 391.16418
   hps: 80.69264
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-EnragedIdol-272428"
+ value: {
+  dps: 480.47653
+  tps: 2518.86735
+  dtps: 391.00945
+  hps: 80.84963
  }
 }
 dps_results: {
@@ -1243,6 +1252,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Matriarch'sProwlers-286616"
+ value: {
+  dps: 477.04986
+  tps: 2504.19348
+  dtps: 396.74062
+  hps: 79.3699
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MindtapTalisman-18371"
  value: {
   dps: 467.82019
@@ -1285,6 +1303,15 @@ dps_results: {
   tps: 2281.37168
   dtps: 487.19673
   hps: 82.45718
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-OilskinLeggings-9414"
+ value: {
+  dps: 470.64796
+  tps: 2476.07161
+  dtps: 410.72691
+  hps: 78.79048
  }
 }
 dps_results: {
@@ -1441,6 +1468,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-SpiderchitinWrap-280016"
+ value: {
+  dps: 469.02819
+  tps: 2453.00367
+  dtps: 406.16752
+  hps: 81.99561
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 404.17448
@@ -1461,8 +1497,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-StormshroudArmor"
  value: {
-  dps: 456.90046
-  tps: 2407.13306
+  dps: 458.77049
+  tps: 2411.15363
   dtps: 428.19199
   hps: 78.57164
  }
@@ -1717,6 +1753,15 @@ dps_results: {
   tps: 2465.45867
   dtps: 393.12704
   hps: 80.69834
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-VolcanicArmor"
+ value: {
+  dps: 447.37091
+  tps: 2331.59827
+  dtps: 413.11712
+  hps: 81.34514
  }
 }
 dps_results: {
