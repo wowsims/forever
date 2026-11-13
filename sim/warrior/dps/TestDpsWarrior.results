@@ -1602,6 +1602,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-SwordofDismemberment-287005"
+ value: {
+  dps: 424.09656
+  tps: 360.4481
+  dtps: 2.97628
+  hps: 20.68917
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-SwordofZeal-6622"
  value: {
   dps: 529.9198

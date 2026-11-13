@@ -3971,19 +3971,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Dismember the target, inflicting 670 Physical damage.
-	// https://www.wowhead.com/forever/spell=1324687
-	// unsupported: states no rate
-	// trigger 1324687 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1324687, BuffSpellID: 1324687, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 287005, ItemName: "Sword of Dismemberment"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Reduces the cast time of Disenchant by 25%.
 	// https://www.wowhead.com/forever/spell=1324981
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4749,6 +4736,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318123, BuffSpellID: 1318121},
 		[]shared.ItemVariant{
 			{ItemID: 285278, ItemName: "Satchel of Dark Iron Bombs"},
+		})
+
+	// Dismember the target, inflicting 670 Physical damage.
+	// https://www.wowhead.com/forever/spell=1324687
+	// trigger 1324687 (0.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1324687, BuffSpellID: 1324687, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 287005, ItemName: "Sword of Dismemberment"},
 		})
 
 	// Skipped
