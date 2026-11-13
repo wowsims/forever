@@ -135,11 +135,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Beastmaster'sTreads-226881"
+ value: {
+  dps: 775.50316
+  tps: 798.98347
+  dtps: 8.5878
+  hps: 15.01278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BeastmasterArmor"
  value: {
-  dps: 768.08983
-  tps: 792.12178
-  dtps: 9.07849
+  dps: 770.44608
+  tps: 794.68475
+  dtps: 8.51613
   hps: 15.01278
  }
 }
