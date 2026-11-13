@@ -153,6 +153,8 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
 	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
+	// In game, Bear Form's health is flat and follows the level: it adds 488 at level 36 whatever the
+	// maximum health, the passive's 20 plus 18 for each level above 10.
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
