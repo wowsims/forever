@@ -109,10 +109,9 @@ func (parentAura *Aura) AttachMobTypeBonusStats(bonus stats.Stats, mobTypes ...p
 
 // The unit's bonuses against each mob type, leaving out a mob type with none. A bonus taken back off
 // can leave a rounding error, which counts as none.
-func (unit *Unit) mobTypeBonusesProto() ([]*proto.MobTypeStats, []*proto.MobTypeDamage) {
+func (unit *Unit) mobTypeBonusesProto() []*proto.MobTypeBonus {
 	const epsilon = 1e-9
-	var versusStats []*proto.MobTypeStats
-	var versusDamage []*proto.MobTypeDamage
+	var bonuses []*proto.MobTypeBonus
 	for _, mobType := range slices.Sorted(maps.Keys(unit.mobTypeBonuses)) {
 		bonus := unit.mobTypeBonuses[mobType]
 		statMap := map[int32]float64{}
@@ -121,16 +120,14 @@ func (unit *Unit) mobTypeBonusesProto() ([]*proto.MobTypeStats, []*proto.MobType
 				statMap[int32(stat)] = value
 			}
 		}
-		if len(statMap) > 0 {
-			versusStats = append(versusStats, &proto.MobTypeStats{MobTypes: []proto.MobType{mobType}, Stats: statMap})
-		}
-		if math.Abs(bonus.damageMultiplier-1) > epsilon || math.Abs(bonus.critMultiplier-1) > epsilon {
-			versusDamage = append(versusDamage, &proto.MobTypeDamage{
+		if len(statMap) > 0 || math.Abs(bonus.damageMultiplier-1) > epsilon || math.Abs(bonus.critMultiplier-1) > epsilon {
+			bonuses = append(bonuses, &proto.MobTypeBonus{
 				MobType:              mobType,
+				Stats:                statMap,
 				DamageMultiplier:     bonus.damageMultiplier,
 				CritDamageMultiplier: bonus.critMultiplier,
 			})
 		}
 	}
-	return versusStats, versusDamage
+	return bonuses
 }

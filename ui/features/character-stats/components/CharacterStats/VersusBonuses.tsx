@@ -6,18 +6,19 @@ import { useSimHost } from '@sim/context/SimHostContext';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
 import { UnitStat } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
-import { Table, TableCell, TableRow } from '@ui-kit/Table';
+import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { useStore } from 'zustand';
 
-export type VersusBonuses = Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats' | 'versusEffects'>;
+export type VersusBonusSet = Pick<PlayerStats, 'mobTypeBonuses' | 'areaStats' | 'versusEffects'>;
 
 export interface VersusBonusesViewProps {
-	bonuses: VersusBonuses;
+	bonuses: VersusBonusSet;
 	// The encounter's area types, whose stats the other groups already count.
 	areaTypes: ReadonlyArray<AreaType>;
 }
 
 interface VersusLine {
+	key: string;
 	label: string;
 	value: string;
 }
@@ -36,14 +37,19 @@ const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 	Object.entries(stats).map(([key, value]) => {
 		const stat = Number(key) as Stat;
 		const unitStat = UnitStat.fromStat(stat);
-		return { label: translateStat(stat), value: unitStat.isPercentRating() ? signed(unitStat.convertRatingToPercent(value)!, '%') : signed(value) };
+		return {
+			key: `stat-${stat}`,
+			label: translateStat(stat),
+			value: unitStat.isPercentRating() ? signed(unitStat.convertRatingToPercent(value)!, '%') : signed(value),
+		};
 	});
 
 const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>
-	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
+	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ key, label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
 
 const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 	effects.map(effect => ({
+		key: `item-${effect.itemId}`,
 		label: effect.itemName,
 		value: i18n.t(`sidebar.character_stats.versus.${effect.kind === VersusEffectKind.VersusEffectKindRestore ? 'effect_restore' : 'effect_damage'}`, {
 			factor: Number(effect.multiplier.toFixed(2)),
@@ -51,23 +57,22 @@ const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 	}));
 
 const versusGroups = ({ bonuses, areaTypes }: VersusBonusesViewProps): Array<VersusGroup> => {
-	const mobTypes = [
-		...new Set([
-			...bonuses.mobTypeStats.flatMap(entry => entry.mobTypes),
-			...bonuses.mobTypeDamage.map(entry => entry.mobType),
-			...bonuses.versusEffects.flatMap(effect => effect.mobTypes),
-		]),
-	];
+	const mobTypes = [...new Set([...bonuses.mobTypeBonuses.map(entry => entry.mobType), ...bonuses.versusEffects.flatMap(effect => effect.mobTypes)])];
 	const mobTypeGroups = mobTypes
 		.sort((a, b) => a - b)
 		.map(mobType => {
-			const damage = bonuses.mobTypeDamage.find(entry => entry.mobType === mobType);
+			const bonus = bonuses.mobTypeBonuses.find(entry => entry.mobType === mobType);
 			return {
 				key: `mob-type-${mobType}`,
 				label: translateMobType(mobType),
 				lines: [
-					...bonuses.mobTypeStats.filter(entry => entry.mobTypes.includes(mobType)).flatMap(entry => statLines(entry.stats)),
-					...(damage ? [...multiplierLines('damage', damage.damageMultiplier), ...multiplierLines('crit_damage', damage.critDamageMultiplier)] : []),
+					...(bonus
+						? [
+								...statLines(bonus.stats),
+								...multiplierLines('damage', bonus.damageMultiplier),
+								...multiplierLines('crit_damage', bonus.critDamageMultiplier),
+							]
+						: []),
 					...effectLines(bonuses.versusEffects.filter(effect => effect.mobTypes.includes(mobType))),
 				],
 				counted: false,
@@ -95,9 +100,9 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 		{versusGroups(props).map(group => (
 			<tbody key={group.key} className="data-current:text-success" data-current={group.counted || undefined} data-testid="character-stats-versus-group">
 				<TableRow className="ui-character-stats-row">
-					<TableCell className="ui-character-stats-label font-bold" colSpan={2}>
+					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-bold">
 						{group.label}
-					</TableCell>
+					</TableHeaderCell>
 				</TableRow>
 				{group.counted && (
 					<TableRow className="ui-character-stats-row">
@@ -107,7 +112,7 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 					</TableRow>
 				)}
 				{group.lines.map(line => (
-					<TableRow key={line.label} className="ui-character-stats-row">
+					<TableRow key={line.key} className="ui-character-stats-row">
 						<TableCell className="ui-character-stats-label pl-2">{line.label}</TableCell>
 						<TableCell className="ui-character-stats-value">{line.value}</TableCell>
 					</TableRow>
@@ -121,7 +126,7 @@ export const VersusBonuses = () => {
 	const host = useSimHost();
 	const bonuses = usePlayerStore('currentStats');
 	const areaTypes = useStore(host.sim.store, s => s.encounter.areaTypes);
-	if (!bonuses.mobTypeStats.length && !bonuses.mobTypeDamage.length && !bonuses.areaStats.length && !bonuses.versusEffects.length) return null;
+	if (!bonuses.mobTypeBonuses.length && !bonuses.areaStats.length && !bonuses.versusEffects.length) return null;
 
 	return (
 		<AccordionItem value="versus" title={i18n.t('sidebar.character_stats.versus.title')} panelClassName="pb-1" testId="character-stats-group-versus">

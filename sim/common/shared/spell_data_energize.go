@@ -142,12 +142,7 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
 		character := agent.GetCharacter()
 		var versus *core.VersusBonus
-		handler := firedSpellHandler(character, source.actionID(), trigger, func(result *core.SpellResult) float64 {
-			if result == nil {
-				return 1 // A cast listener hears no hit, so no target.
-			}
-			return versus.Against(result.Target)
-		})
+		handler := firedSpellHandler(character, source.actionID(), trigger, func(target *core.Unit) float64 { return versus.Against(target) })
 		if handler == nil {
 			return
 		}
@@ -198,8 +193,8 @@ func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *s
 	return firedSpellHandler(character, actionID, row, nil)
 }
 
-// The same, with the gain multiplied by factor of the hit where factor is set.
-func firedSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell, factor func(result *core.SpellResult) float64) core.ProcHandler {
+// The same, with the gain multiplied by factor of the hit's target where factor is set.
+func firedSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell, factor func(target *core.Unit) float64) core.ProcHandler {
 	fired := row.FiredSpell()
 	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
 		power := dbcenums.PowerType(gain.Misc)
@@ -209,8 +204,9 @@ func firedSpellHandler(character *core.Character, actionID core.ActionID, row *s
 		}
 		return func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			amount := gain.Roll(sim)
-			if factor != nil {
-				amount *= factor(result)
+			// A cast listener hears no hit, so no target.
+			if factor != nil && result != nil {
+				amount *= factor(result.Target)
 			}
 			bar.add(sim, barAmount(power, amount), bar.metrics)
 		}

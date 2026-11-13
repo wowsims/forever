@@ -661,7 +661,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
-	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger, damage)
+	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
 	attachProcDamage(character, &config, damageConfig)
 	source.registerTrigger(character, config)
 }

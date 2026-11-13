@@ -418,27 +418,27 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 	wantStats := map[proto.MobType]stats.Stats{
 		proto.MobType_MobTypeHumanoid: {stats.AttackPower: ringAttackPower},
 		proto.MobType_MobTypeUndead:   {stats.SpellDamage: auraSpellDamage},
+		proto.MobType_MobTypeBeast:    {},
 	}
-	if len(playerStats.MobTypeStats) != len(wantStats) {
-		t.Errorf("the sheet lists stats against %d mob types, want %d: %v", len(playerStats.MobTypeStats), len(wantStats), playerStats.MobTypeStats)
+	sheet := map[proto.MobType]*proto.MobTypeBonus{}
+	for _, bonus := range playerStats.MobTypeBonuses {
+		sheet[bonus.MobType] = bonus
 	}
-	for _, versus := range playerStats.MobTypeStats {
-		if len(versus.MobTypes) != 1 {
-			t.Fatalf("a stats entry names mob types %v, want one", versus.MobTypes)
-		}
-		if got, want := stats.FromProtoMap(versus.Stats), wantStats[versus.MobTypes[0]]; got != want {
-			t.Errorf("the sheet lists %v against %s, want %v", got, versus.MobTypes[0], want)
-		}
+	if len(playerStats.MobTypeBonuses) != len(wantStats) || len(sheet) != len(wantStats) {
+		t.Fatalf("the sheet lists bonuses %v, want one entry each against Humanoids, Undead and Beasts", playerStats.MobTypeBonuses)
 	}
-	if len(playerStats.MobTypeDamage) != 1 || playerStats.MobTypeDamage[0].MobType != proto.MobType_MobTypeBeast {
-		t.Fatalf("the sheet lists damage multipliers %v, want the racial's against Beasts alone", playerStats.MobTypeDamage)
+	if beast := sheet[proto.MobType_MobTypeBeast]; beast == nil || beast.DamageMultiplier <= 1 {
+		t.Fatalf("the sheet lists %v against Beasts, want the racial's damage multiplier", beast)
 	}
 	if len(playerStats.AreaStats) != 1 || playerStats.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland ||
 		stats.FromProtoMap(playerStats.AreaStats[0].Stats) != (stats.Stats{stats.AttackPower: ringAreaAttackPower}) {
 		t.Errorf("the sheet lists area stats %v, want the ring's attack power in Forest and Grassland", playerStats.AreaStats)
 	}
 
-	for _, mobType := range []proto.MobType{proto.MobType_MobTypeHumanoid, proto.MobType_MobTypeUndead, proto.MobType_MobTypeBeast} {
+	for mobType, bonus := range sheet {
+		if got := stats.FromProtoMap(bonus.Stats); got != wantStats[mobType] {
+			t.Errorf("the sheet lists %v against %s, want %v", got, mobType, wantStats[mobType])
+		}
 		encounter := weaponTestEncounter()
 		encounter.Targets[0].MobType = mobType
 		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: raid, Encounter: encounter}, simsignals.CreateSignals())
@@ -448,12 +448,8 @@ func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
 		if got := table.MobTypeBonusStats[mobType]; got != wantStats[mobType] {
 			t.Errorf("against %s the attack table holds %v, the sheet %v", mobType, got, wantStats[mobType])
 		}
-		wantMultiplier := 1.0
-		if mobType == proto.MobType_MobTypeBeast {
-			wantMultiplier = playerStats.MobTypeDamage[0].DamageMultiplier
-		}
-		if !WithinToleranceFloat64(table.DamageDealtMultiplier, wantMultiplier, 1e-9) {
-			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, wantMultiplier)
+		if !WithinToleranceFloat64(table.DamageDealtMultiplier, bonus.DamageMultiplier, 1e-9) {
+			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, bonus.DamageMultiplier)
 		}
 	}
 }

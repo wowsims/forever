@@ -42,12 +42,13 @@ func (character *Character) NewItemVersusBonus(itemID int32, kind proto.VersusEf
 func (character *Character) versusEffectsProto() []*proto.VersusEffect {
 	var effects []*proto.VersusEffect
 	for _, versus := range character.itemVersusBonuses {
-		if !slices.ContainsFunc(character.Equipment[:], func(item Item) bool { return item.ID == versus.itemID }) {
+		slot := slices.IndexFunc(character.Equipment[:], func(item Item) bool { return item.ID == versus.itemID })
+		if slot < 0 {
 			continue
 		}
 		effects = append(effects, &proto.VersusEffect{
 			ItemId:           versus.itemID,
-			ItemName:         GetItemByID(versus.itemID).Name,
+			ItemName:         character.Equipment[slot].Name,
 			MobTypes:         versus.bonus.MobTypes,
 			CreatureFamilies: versus.bonus.Families,
 			Multiplier:       versus.bonus.Multiplier,

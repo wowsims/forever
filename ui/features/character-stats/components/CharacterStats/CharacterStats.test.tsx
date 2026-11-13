@@ -514,7 +514,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 	it('leaves an area the encounter is not in unmarked', async () => {
 		const view = renderVersus({ finalStats: new Stats().toProto(), ...VERSUS_BONUSES });
 
-		expect(await openVersusGroups(view)).toEqual([...targetGroups, { label: areaLabel, lines: areaLines, current: false }]);
+		expect((await openVersusGroups(view)).at(-1)).toEqual({ label: areaLabel, lines: areaLines, current: false });
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

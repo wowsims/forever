@@ -1,4 +1,5 @@
-import { type MeleeCritCapInfo, type PlayerStats, VersusEffectKind } from '@generated/proto/api';
+import type { VersusBonusSet } from '@features/character-stats/components/CharacterStats/VersusBonuses';
+import { type MeleeCritCapInfo, VersusEffectKind } from '@generated/proto/api';
 import { AreaType, CreatureFamily, MobType, PseudoStat, RangedWeaponType, Stat } from '@generated/proto/common';
 import { UIItem } from '@generated/proto/ui';
 import { type StatAttribution, Stats, type UnitStat } from '@sim/proto/stats';
@@ -48,14 +49,21 @@ export const CRIT_CAP_INFO: MeleeCritCapInfo = {
 };
 
 /** A Troll with a Humanoid trinket and crit damage, a weapon stone against Undead, an area ring and three items whose spells deal or restore more against some targets. */
-export const VERSUS_BONUSES: Pick<PlayerStats, 'mobTypeStats' | 'mobTypeDamage' | 'areaStats' | 'versusEffects'> = {
-	mobTypeStats: [
-		{ mobTypes: [MobType.MobTypeHumanoid], stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 } },
-		{ mobTypes: [MobType.MobTypeUndead], stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 } },
-	],
-	mobTypeDamage: [
-		{ mobType: MobType.MobTypeBeast, damageMultiplier: 1.05, critDamageMultiplier: 1 },
-		{ mobType: MobType.MobTypeHumanoid, damageMultiplier: 1, critDamageMultiplier: 1.03 },
+export const VERSUS_BONUSES: VersusBonusSet = {
+	mobTypeBonuses: [
+		{ mobType: MobType.MobTypeBeast, stats: {}, damageMultiplier: 1.05, critDamageMultiplier: 1 },
+		{
+			mobType: MobType.MobTypeHumanoid,
+			stats: { [Stat.StatAttackPower]: 18, [Stat.StatRangedAttackPower]: 18 },
+			damageMultiplier: 1,
+			critDamageMultiplier: 1.03,
+		},
+		{
+			mobType: MobType.MobTypeUndead,
+			stats: { [Stat.StatAttackPower]: 99, [Stat.StatRangedAttackPower]: 99 },
+			damageMultiplier: 1,
+			critDamageMultiplier: 1,
+		},
 	],
 	areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 28, [Stat.StatHitRating]: 10 } }],
 	versusEffects: [
