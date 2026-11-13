@@ -108,7 +108,7 @@ export default defineSpec<Spec.SpecWarlock>({
 	excludeBuffDebuffInputs: [],
 	// Inputs to include in the 'Other' section on the settings tab.
 	otherInputs: {
-		inputs: [OtherInputs.InputDelay, OtherInputs.DistanceFromTarget],
+		inputs: [OtherInputs.InputDelay, OtherInputs.ChannelClipDelay, OtherInputs.DistanceFromTarget],
 	},
 	itemSwapSlots: [ItemSlot.ItemSlotMainHand, ItemSlot.ItemSlotOffHand, ItemSlot.ItemSlotTrinket1, ItemSlot.ItemSlotTrinket2],
 	encounterPicker: {
