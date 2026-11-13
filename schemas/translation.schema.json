@@ -1451,9 +1451,6 @@
 						"off_hand": {
 							"type": "string"
 						},
-						"windfury": {
-							"type": "string"
-						},
 						"boss": {
 							"type": "string"
 						},
@@ -1598,7 +1595,6 @@
 						"not_casting",
 						"main_hand",
 						"off_hand",
-						"windfury",
 						"boss",
 						"add",
 						"no_stacks",

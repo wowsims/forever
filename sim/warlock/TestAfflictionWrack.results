@@ -224,9 +224,10 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-DeathmistRaiment"
  value: {
-  dps: 905.9536
-  tps: 727.94221
-  dtps: 9.24814
+  dps: 891.77472
+  tps: 716.30627
+  dtps: 9.67785
+  hps: 6.66957
  }
 }
 dps_results: {
@@ -951,6 +952,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-SecondWind-11819"
  value: {
   dps: 936.30806
@@ -1108,6 +1125,14 @@ dps_results: {
   dps: 921.25025
   tps: 740.25524
   dtps: 9.09805
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 925.95829
+  tps: 743.54085
+  dtps: 9.13784
  }
 }
 dps_results: {

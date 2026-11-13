@@ -126,11 +126,19 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sTreads-226881"
+ value: {
+  dps: 703.99797
+  tps: 445.56743
+  dtps: 1.54019
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 694.53424
-  tps: 439.06077
-  dtps: 2.30276
+  dps: 701.89433
+  tps: 441.04352
+  dtps: 2.92129
  }
 }
 dps_results: {
@@ -267,6 +275,14 @@ dps_results: {
   dps: 663.75132
   tps: 417.85189
   dtps: 2.55574
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BloodyClawsofAttack-280068"
+ value: {
+  dps: 667.30813
+  tps: 422.58982
+  dtps: 0.97203
  }
 }
 dps_results: {
@@ -1428,6 +1444,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SecondWind-11819"
  value: {
   dps: 693.03169
@@ -1737,6 +1769,14 @@ dps_results: {
   dps: 702.42828
   tps: 449.84959
   dtps: 2.65797
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 693.04335
+  tps: 441.71179
+  dtps: 0.83027
  }
 }
 dps_results: {

@@ -243,9 +243,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 776.94842
-  tps: 630.47186
-  dtps: 8.19786
+  dps: 802.18471
+  tps: 652.60393
+  dtps: 8.22016
+  hps: 10.68079
  }
 }
 dps_results: {
@@ -1086,6 +1087,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SecondWind-11819"
  value: {
   dps: 756.82477
@@ -1260,6 +1279,15 @@ dps_results: {
   dps: 775.83594
   tps: 627.89833
   dtps: 8.43453
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
  }
 }
 dps_results: {

@@ -96,8 +96,9 @@ func newWindowSim(t *testing.T) (*core.Simulation, *dps.DpsWarrior, *core.Unit) 
 }
 
 const (
-	mainHandSlot = 14
-	crusader     = 1900
+	mainHandSlot        = 14
+	crusader            = 1900
+	windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
 )
 
 // A protection warrior with a main-hand Crusader, Windfury Totem in the party, the preraid shield and
@@ -669,7 +670,7 @@ func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit,
 
 // A shield's hit is a main-hand special, but a landed Shield Slam or Shield Bash never rolls the
 // main-hand weapon's combat enchant; the same casts without the shield requirement do. It never brings
-// a Windfury Totem attack either, since the shield rows carry neither bit the totem reads; the same
+// a Windfury Totem strike either, since the shield rows carry neither bit the totem reads; the same
 // casts with the main-hand bit added do bring one.
 func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 	for _, name := range []string{"Shield Bash", "Shield Slam"} {
@@ -680,13 +681,16 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 			landEveryCast(sim, war, target, spell)
 
 			holyStrength := war.GetAura("Holy Strength (MH)")
-			windfury := war.GetAura("Windfury Totem (External)")
+			windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 			if holyStrength == nil || windfury == nil {
 				t.Fatal("the main hand's Crusader or Windfury Totem registered no proc")
 			}
 			landed := func() int32 {
 				metrics := spell.SpellMetrics[target.UnitIndex]
 				return metrics.Hits + metrics.Crits
+			}
+			strikes := func() int32 {
+				return windfury.SpellMetrics[target.UnitIndex].Casts
 			}
 
 			// Each cast's procs go off by the end of its spell batch, and the auto attacks stay stopped
@@ -697,18 +701,15 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 			}
 
 			const casts = 1000
-			var crusaderProcs, windfuryProcs int
+			var crusaderProcs int
 			for range casts {
 				holyStrength.Deactivate(sim)
-				windfury.Deactivate(sim)
 				cast()
 				if holyStrength.IsActive() {
 					crusaderProcs++
 				}
-				if windfury.IsActive() {
-					windfuryProcs++
-				}
 			}
+			windfuryProcs := strikes()
 			if got := landed(); got != casts {
 				t.Fatalf("%d of %d casts landed, want all of them", got, casts)
 			}
@@ -728,10 +729,10 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 			}
 
 			spell.Flags |= core.SpellFlagRequiresMainHand
-			for i := 0; i < 200 && !windfury.IsActive(); i++ {
+			for i := 0; i < 200 && strikes() == 0; i++ {
 				cast()
 			}
-			if !windfury.IsActive() {
+			if strikes() == 0 {
 				t.Error("200 casts with the main-hand bit never procced Windfury Totem, so the check above proves nothing")
 			}
 		})
@@ -1146,11 +1147,10 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 	}
 }
 
-// Neither Sweeping Strikes' hits nor a Windfury Totem swing bring a Sword Specialization swing. The
+// Neither Sweeping Strikes' hits nor Windfury Totem's strike bring a Sword Specialization swing. The
 // warrior's own main-hand swing does bring them.
 func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
-	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
-	const sweepingStrikesHit = 12723  // The strike both of Sweeping Strikes' hits report under.
+	const sweepingStrikesHit = 12723 // The strike both of Sweeping Strikes' hits report under.
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
 	hits := func(spell *core.Spell) int32 {
@@ -1166,7 +1166,7 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	for _, id := range []core.ActionID{
 		{SpellID: sweepingStrikesHit},
 		{SpellID: sweepingStrikesHit, Tag: 1},
-		{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttack},
+		{SpellID: windfuryTotemStrike},
 	} {
 		spell := war.GetSpell(id)
 		if spell == nil {

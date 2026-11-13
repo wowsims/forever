@@ -74,13 +74,14 @@ func TestWindfuryWeaponStrikesNeverProcFlametongueTotemOrGlance(t *testing.T) {
 	}
 }
 
-// A main-hand swing spends a Flurry charge whatever its outcome, and so does a Windfury Weapon
-// strike; a Stormstrike spends none, and a hit in the same instant as a crit's gain spends none.
-func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
+// A main-hand swing spends a Flurry charge whatever its outcome, and so do a Windfury Weapon
+// strike and a Windfury Totem strike; a Stormstrike spends none, and a hit in the same instant as a
+// crit's gain spends none.
+func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
 	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
@@ -92,9 +93,10 @@ func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
 	trigger := sham.GetAura("Flurry - Trigger")
 	swing := sham.AutoAttacks.MHAuto()
 	strike := sham.GetSpell(windfuryWeaponStrike)
-	if flurry == nil || trigger == nil || strike == nil || sham.Stormstrike == nil {
-		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon's strike %v, Stormstrike %v; want all registered",
-			flurry, trigger, strike, sham.Stormstrike)
+	totemStrike := sham.GetSpell(core.ActionID{SpellID: spelldata.MustFind(10610).ID})
+	if flurry == nil || trigger == nil || strike == nil || totemStrike == nil || sham.Stormstrike == nil {
+		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v, Stormstrike %v; want all registered",
+			flurry, trigger, strike, totemStrike, sham.Stormstrike)
 	}
 	hit := func(spell *core.Spell, outcome core.HitOutcome) {
 		trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: target, Outcome: outcome, Damage: 100})
@@ -115,6 +117,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryWeaponStrikes(t *testing.T) {
 	}
 	expect("a dodged swing", swing, core.OutcomeDodge, true)
 	expect("a Windfury Weapon strike", strike, core.OutcomeHit, true)
+	expect("a Windfury Totem strike", totemStrike, core.OutcomeHit, true)
 	expect("a Stormstrike", sham.Stormstrike, core.OutcomeHit, false)
 
 	sim.CurrentTime += time.Second

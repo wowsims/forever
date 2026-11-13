@@ -90,6 +90,16 @@ func stepTo(t *testing.T, sim *core.Simulation, until time.Duration) {
 	}
 }
 
+func stepWhile(t *testing.T, sim *core.Simulation, cond func() bool) {
+	t.Helper()
+	for steps := 0; cond(); steps++ {
+		if steps > 1000 {
+			t.Fatal("the sim did not get there in 1000 steps")
+		}
+		sim.Step()
+	}
+}
+
 // Uses the item and returns its spell, after checking the major cooldown it is filed under and the
 // cooldowns its on-use effect states.
 func useTrinket(t *testing.T, sim *core.Simulation, character *core.Character, itemID int32, cdType core.CooldownType,
