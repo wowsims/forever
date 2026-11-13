@@ -68,15 +68,6 @@ func init() {
 			{ItemID: 272428, ItemName: "Enraged Idol"},
 		})
 
-	// Idol of Brutality
-	// https://www.wowhead.com/forever/item=23198/idol-of-brutality
-	//
-	// Reduces the Rage cost of Maul and Swipe by 2.
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 28855},
-		[]shared.ItemVariant{
-			{ItemID: 23198, ItemName: "Idol of Brutality"},
-		})
-
 	// Swarming Idol
 	// https://www.wowhead.com/forever/item=272430/swarming-idol
 	//

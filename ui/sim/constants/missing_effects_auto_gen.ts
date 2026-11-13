@@ -2041,6 +2041,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		23198, // Idol of Brutality
+		[
+			"Reduces the Rage cost of Maul and Swipe by 2.0.", // 28855 - https://www.wowhead.com/forever/spell=28855
+		]
+	],
+	[
 		23200, // Totem of Sustaining
 		[
 			"Increases the maximum number of charges on your Water Shield by 1.", // 28856 - https://www.wowhead.com/forever/spell=28856

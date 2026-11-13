@@ -747,27 +747,6 @@ func TestBearItemEffectsFollowEquipmentSwaps(t *testing.T) {
 	}
 }
 
-// Idol of Brutality's 28855 states a flat modifier on Maul's and Swipe's cost in tenths of rage, which
-// comes off both as whole rage.
-func TestIdolOfBrutalityCutsMaulAndSwipesRage(t *testing.T) {
-	cut := spelldata.MustFind(28855).EffectN(1).Tenths()
-	_, bare := equippedBear(t, bearItemSlots())
-	items := bearItemSlots()
-	items[proto.ItemSlot_ItemSlotRanged].Id = 23198
-	_, idol := equippedBear(t, items)
-	for _, c := range []struct {
-		name  string
-		spell func(*druid.Druid) *core.Spell
-	}{
-		{"Maul", func(bear *druid.Druid) *core.Spell { return bear.GetSpell(bear.Maul.ActionID.WithTag(1)) }},
-		{"Swipe", func(bear *druid.Druid) *core.Spell { return bear.Swipe.Spell }},
-	} {
-		if got, want := c.spell(idol).Cost.GetCurrentCost(), c.spell(bare).Cost.GetCurrentCost()+cut; got != want {
-			t.Errorf("with the idol, %s costs %v rage, want %v", c.name, got, want)
-		}
-	}
-}
-
 // Enraged Idol's 1291060 states its rage as a flat modifier on Enrage's first effect, the rage each tick
 // restores, in tenths of rage.
 func TestEnragedIdolRaisesEveryEnrageTick(t *testing.T) {

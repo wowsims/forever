@@ -991,15 +991,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-IdolofBrutality-23198"
- value: {
-  dps: 486.72524
-  tps: 2551.07752
-  dtps: 391.89867
-  hps: 81.03989
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-IdolofHealth-22399"
  value: {
   dps: 478.19014
