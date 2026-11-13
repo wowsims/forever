@@ -85,6 +85,14 @@ change.
   UI shows and takes it per 1%, through `UnitStat.storedEpToShown` and `shownEpToStored` (`ui/sim/proto/stats.ts`).
   Defense rating buys skill and has no percent, so its EP stays per point. A percent pseudo-stat's EP is stored and
   shown per percentage point.
+- Weapon skill is weighed per melee hand, per skill point: `PseudoStatMainHandWeaponSkill` and
+  `PseudoStatOffHandWeaponSkill` raise the skill of whatever weapon that hand holds. Stat weights run them five points
+  above the character's current skill, gear included, and above the baseline only, so the weight is the average per
+  point over the next five: one point changes too few attack rolls to measure cheaply, and items grant several. The EP
+  dialog adds a hand's row where a spec showing melee weapon skill weighs that hand's weapon DPS
+  (`withWeaponSkillEpPseudoStats`). Item EP in the gear picker (`Player.computeItemEP`) gives an item's weapon skill to each hand whose weapon uses that skill, at
+  that hand's weight; in a weapon slot the item itself is that hand's weapon. The optimizer leaves weapon skill out,
+  as no enchant grants it.
 - `enchantTieBreak` (twice for the slot's input enchant, none where the input enchant stays in the baseline) keeps
   the input enchant on an EP tie and fills a slot whose candidates are all worth 0. The solve passes an explicit
   `mipRelGap` far below HiGHS's default, which would otherwise swamp the tie-break.

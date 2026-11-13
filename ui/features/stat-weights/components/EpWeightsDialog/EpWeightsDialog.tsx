@@ -39,7 +39,7 @@ import {
 	epWeightsWithoutExcluded,
 	precisionRunOptions,
 } from '../../model/ep_math';
-import { epFilterScope } from '../../model/ep_unit_stats';
+import { epFilterScope, withWeaponSkillEpPseudoStats } from '../../model/ep_unit_stats';
 import { statsTableColumns } from '../../model/stats_table';
 import { PrecisionOptions } from '../PrecisionOptions';
 import { SavedEpWeights } from '../SavedEpWeights';
@@ -70,7 +70,10 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 
 	const epStats = individualConfig.epStats;
 	const epReferenceStat = individualConfig.epReferenceStat;
-	const epPseudoStats = useMemo(() => individualConfig.epPseudoStats || [], [individualConfig]);
+	const epPseudoStats = useMemo(
+		() => withWeaponSkillEpPseudoStats(individualConfig.epPseudoStats || [], individualConfig.displayWeaponSkillGroups),
+		[individualConfig],
+	);
 	const epStatSet = useMemo(() => ({ epStats, epPseudoStats }), [epStats, epPseudoStats]);
 	const scope = useMemo(() => epFilterScope(epStatSet), [epStatSet]);
 	const statFilter = useStatFilter('ep', scope);

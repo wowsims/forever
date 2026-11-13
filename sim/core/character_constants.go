@@ -192,7 +192,7 @@ var SpecCanDualWieldCapabilities = map[proto.Spec]bool{
 	proto.Spec_SpecProtectionWarrior: true,
 }
 
-var oneHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
+var OneHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
 	proto.WeaponType_WeaponTypeAxe:    proto.WeaponSkill_WeaponSkillAxes,
 	proto.WeaponType_WeaponTypeDagger: proto.WeaponSkill_WeaponSkillDaggers,
 	proto.WeaponType_WeaponTypeFist:   proto.WeaponSkill_WeaponSkillFistWeapons,
@@ -200,7 +200,7 @@ var oneHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
 	proto.WeaponType_WeaponTypeSword:  proto.WeaponSkill_WeaponSkillSwords,
 }
 
-var twoHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
+var TwoHandWeaponSkills = map[proto.WeaponType]proto.WeaponSkill{
 	proto.WeaponType_WeaponTypeAxe:     proto.WeaponSkill_WeaponSkillTwoHandedAxes,
 	proto.WeaponType_WeaponTypeMace:    proto.WeaponSkill_WeaponSkillTwoHandedMaces,
 	proto.WeaponType_WeaponTypePolearm: proto.WeaponSkill_WeaponSkillPolearms,
@@ -221,10 +221,10 @@ var rangedWeaponSkills = map[proto.RangedWeaponType]proto.WeaponSkill{
 func ClassWeaponSkills(class proto.Class) []proto.WeaponSkill {
 	var skills []proto.WeaponSkill
 	for weaponType, eligible := range ClassWeaponTypeCapabilities[class] {
-		if skill, ok := oneHandWeaponSkills[weaponType]; ok {
+		if skill, ok := OneHandWeaponSkills[weaponType]; ok {
 			skills = append(skills, skill)
 		}
-		if skill, ok := twoHandWeaponSkills[weaponType]; ok && eligible.CanUseTwoHand {
+		if skill, ok := TwoHandWeaponSkills[weaponType]; ok && eligible.CanUseTwoHand {
 			skills = append(skills, skill)
 		}
 	}

@@ -4,6 +4,7 @@ import { ErrorOutcomeType, type StatWeightsResult, StatWeightsTargetMetric } fro
 import { Class, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import type { PrecisionSettings } from '@sim/settings/precision';
 import { SimRuns } from '@sim/sim_runs';
@@ -416,6 +417,21 @@ describe('EpWeightsDialog', () => {
 			fireEvent.click(calculate());
 		});
 		expect(player.computeStatWeights.mock.calls[0][0]).toEqual([Stat.StatStrength, Stat.StatAgility, Stat.StatCritRating]);
+	});
+
+	it("shows and weights a hand's weapon skill where a spec showing melee weapon skill weights that hand's weapon DPS", async () => {
+		host.individualConfig.epPseudoStats = [PseudoStat.PseudoStatMainHandDps];
+		host.individualConfig.displayWeaponSkillGroups = [WeaponSkillGroup.Melee];
+		player.computeStatWeights.mockResolvedValue(weightsResult([[STRENGTH, 2]]));
+		renderDialog();
+
+		const mainHandSkill = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandWeaponSkill);
+		expect(rowFor(mainHandSkill.getWeightName(Class.ClassWarrior))).toBeDefined();
+		expect(rowFor(UnitStat.fromPseudoStat(PseudoStat.PseudoStatOffHandWeaponSkill).getWeightName(Class.ClassWarrior))).toBeUndefined();
+		await act(async () => {
+			fireEvent.click(calculate());
+		});
+		expect(player.computeStatWeights.mock.calls[0][1]).toEqual([PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatMainHandWeaponSkill]);
 	});
 
 	it('switches the table between EP and weight columns, and keeps that and the stat filter in step across a close and reopen', async () => {

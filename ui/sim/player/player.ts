@@ -70,8 +70,11 @@ import { WorkerProgressCallback } from '../workers/worker_pool';
 import { PlayerClass } from './player_class';
 import { PlayerSpec } from './player_spec';
 import { PlayerSpecs } from './specs';
+import { meleeWeaponSkillOf } from './weapon_skill_groups';
 
 export const MAX_WEAPON_SKILL = Mechanics.CHARACTER_LEVEL * 5;
+
+const HAND_WEAPON_SKILL_PSEUDO_STATS = [PseudoStat.PseudoStatMainHandWeaponSkill, PseudoStat.PseudoStatOffHandWeaponSkill];
 
 export const weaponSkillValue = (weaponSkills: ReadonlyArray<WeaponSkillValue>, skill: WeaponSkill): number =>
 	weaponSkills.find(entry => entry.skill == skill)?.value ?? MAX_WEAPON_SKILL;
@@ -1256,7 +1259,9 @@ export class Player<SpecType extends Spec> {
 		if (item == null) return 0;
 
 		const areaTypes = this.sim.encounter.getAreaTypes();
-		const cacheKey = `${item.id}-${areaTypes.join(',')}-${JSON.stringify(this.getEpWeights())}`;
+		const weaponSkills = item.scalingOptions[0]?.weaponSkills ?? [];
+		const handSkills = weaponSkills.length ? this.handWeaponSkills(item, slot) : [];
+		const cacheKey = `${item.id}-${areaTypes.join(',')}-${handSkills.join(',')}-${JSON.stringify(this.getEpWeights())}`;
 
 		const cached = this.itemEPCache[slot].get(cacheKey);
 		if (cached !== undefined) return cached;
@@ -1277,6 +1282,13 @@ export class Player<SpecType extends Spec> {
 
 		let ep = itemStats.computeEP(this.getEpWeights()) + maxSuffixEP;
 
+		// Weapon skill counts for each melee hand whose weapon uses it, at that hand's weight.
+		for (const { skill, value } of weaponSkills) {
+			HAND_WEAPON_SKILL_PSEUDO_STATS.forEach((pseudoStat, hand) => {
+				if (handSkills[hand] === skill) ep += value * this.getEpWeights().getPseudoStat(pseudoStat);
+			});
+		}
+
 		// unique items are slightly worse than non-unique because you can have only one.
 		if (item.unique) {
 			ep -= 0.01;
@@ -1284,6 +1296,20 @@ export class Player<SpecType extends Spec> {
 
 		this.itemEPCache[slot].set(cacheKey, ep);
 		return ep;
+	}
+
+	// The weapon skill of the main hand's and the off hand's weapon with the item in the slot. In a hand's own slot
+	// the item is that hand's weapon, and a two-hander there leaves the off hand empty; elsewhere it is the equipped one.
+	private handWeaponSkills(item: Item, slot: ItemSlot): Array<WeaponSkill | undefined> {
+		const equipped = (handSlot: ItemSlot) => this.getEquippedItem(handSlot)?.item;
+		const mainHand = slot === ItemSlot.ItemSlotMainHand ? item : equipped(ItemSlot.ItemSlotMainHand);
+		const offHand =
+			slot === ItemSlot.ItemSlotOffHand
+				? item
+				: slot === ItemSlot.ItemSlotMainHand && item.handType === HandType.HandTypeTwoHand
+					? undefined
+					: equipped(ItemSlot.ItemSlotOffHand);
+		return [meleeWeaponSkillOf(mainHand), meleeWeaponSkillOf(offHand)];
 	}
 
 	static ARMOR_SLOTS: Array<ItemSlot> = [

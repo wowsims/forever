@@ -550,6 +550,8 @@ type PseudoStats struct {
 	DodgeReduction      float64 // Used by Warrior talent 'Weapon Mastery' and SWP boss auras.
 
 	WeaponSkills       [proto.WeaponSkill_WeaponSkillWands + 1]float64 // Bonus skill over the level-based maximum per weapon skill, which a skill below it makes negative.
+	MHWeaponSkill      float64                                         // Bonus skill for whatever weapon the main hand holds, on top of its WeaponSkills entry.
+	OHWeaponSkill      float64                                         // Bonus skill for whatever weapon the off hand holds, on top of its WeaponSkills entry.
 	FeralCombatSkill   float64
 	FeralCombatEnabled bool // While set, FeralCombatSkill replaces the skill of the equipped weapon.
 

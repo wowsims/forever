@@ -282,6 +282,8 @@
 			"ranged_hit_rating": "Ranged Hit",
 			"ranged_crit_rating": "Ranged Crit",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
+			"main_hand_weapon_skill": "Main Hand Weapon Skill",
+			"off_hand_weapon_skill": "Off Hand Weapon Skill",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
 			"arcane_damage": "Arcane Spell Damage",

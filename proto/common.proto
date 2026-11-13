@@ -295,7 +295,7 @@ enum Stat {
 // between the UI and backend. It's also OK to include things here which aren't
 // in the PseudoStats struct.
 //
-// NextIndex: 42;
+// NextIndex: 39;
 enum PseudoStat {
 	PseudoStatMainHandDps = 0;
 	PseudoStatOffHandDps = 1;
@@ -346,6 +346,11 @@ enum PseudoStat {
 	PseudoStatRangedHitRating = 34;
 	PseudoStatRangedCritRating = 35;
 	PseudoStatRangedCritSuppressionPercent = 36;
+
+	// Weapon skill points for whatever weapon the hand holds, on top of that weapon's skill; a feral
+	// form ignores them. Only stat weights set them, to weigh weapon skill per hand.
+	PseudoStatMainHandWeaponSkill = 37;
+	PseudoStatOffHandWeaponSkill = 38;
 }
 
 message UnitStats {

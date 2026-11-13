@@ -1,5 +1,6 @@
 import type { StatFilterScope } from '@features/stat-filters/model/stat_filters';
 import { PseudoStat, Stat } from '@generated/proto/common';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { SCHOOL_HIT_PERCENT_PSEUDO_STATS, UnitStat } from '@sim/proto/stats';
 
 export type EpStatSet = {
@@ -19,6 +20,8 @@ const EP_PSEUDO_STATS = [
 	PseudoStat.PseudoStatRangedHitPercent,
 	PseudoStat.PseudoStatRangedCritPercent,
 	PseudoStat.PseudoStatExpertisePercent,
+	PseudoStat.PseudoStatMainHandWeaponSkill,
+	PseudoStat.PseudoStatOffHandWeaponSkill,
 ];
 
 export const EP_UNIT_STATS: UnitStat[] = UnitStat.getAll().filter(stat => {
@@ -28,6 +31,20 @@ export const EP_UNIT_STATS: UnitStat[] = UnitStat.getAll().filter(stat => {
 		return EP_PSEUDO_STATS.includes(stat.getPseudoStat());
 	}
 });
+
+const HAND_WEAPON_SKILLS: ReadonlyArray<[weaponDps: PseudoStat, weaponSkill: PseudoStat]> = [
+	[PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatMainHandWeaponSkill],
+	[PseudoStat.PseudoStatOffHandDps, PseudoStat.PseudoStatOffHandWeaponSkill],
+];
+
+/**
+ * The spec's EP pseudo stats with a weapon skill row for each hand whose weapon DPS it weighs, when it shows melee
+ * weapon skill. A feral spec shows none, as its forms ignore weapon skill, and a hunter weighs no melee weapon DPS.
+ */
+export const withWeaponSkillEpPseudoStats = (epPseudoStats: PseudoStat[], displayWeaponSkillGroups: ReadonlyArray<WeaponSkillGroup> = []): PseudoStat[] =>
+	displayWeaponSkillGroups.includes(WeaponSkillGroup.Melee)
+		? [...epPseudoStats, ...HAND_WEAPON_SKILLS.filter(([weaponDps]) => epPseudoStats.includes(weaponDps)).map(([, weaponSkill]) => weaponSkill)]
+		: epPseudoStats;
 
 export const isEpStat = (stat: UnitStat, { epStats, epPseudoStats }: EpStatSet): boolean => {
 	if (stat.isStat()) return epStats.includes(stat.getStat());
