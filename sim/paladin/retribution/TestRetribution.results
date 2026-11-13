@@ -1748,10 +1748,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-StormshroudArmor"
  value: {
-  dps: 786.50373
-  tps: 643.1793
-  dtps: 6.17855
-  hps: 23.47077
+  dps: 789.11586
+  tps: 645.29145
+  dtps: 6.2564
+  hps: 23.47992
  }
 }
 dps_results: {
@@ -2094,6 +2094,15 @@ dps_results: {
   tps: 678.20848
   dtps: 6.05497
   hps: 23.54312
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-VolcanicArmor"
+ value: {
+  dps: 755.53956
+  tps: 617.78665
+  dtps: 5.32595
+  hps: 23.22118
  }
 }
 dps_results: {

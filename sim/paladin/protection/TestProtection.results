@@ -407,9 +407,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DeathboneGuardian"
  value: {
-  dps: 370.20314
-  tps: 898.39553
-  dtps: 321.91241
+  dps: 372.42139
+  tps: 904.297
+  dtps: 321.78327
   hps: 21.57028
  }
 }
@@ -1892,10 +1892,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-StormshroudArmor"
  value: {
-  dps: 402.61195
-  tps: 964.9898
-  dtps: 396.4071
-  hps: 22.14639
+  dps: 403.38296
+  tps: 966.08967
+  dtps: 395.95302
+  hps: 22.09556
  }
 }
 dps_results: {
@@ -2256,6 +2256,15 @@ dps_results: {
   tps: 945.2251
   dtps: 387.62457
   hps: 21.63806
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-VolcanicArmor"
+ value: {
+  dps: 385.64704
+  tps: 925.95652
+  dtps: 384.63847
+  hps: 21.82444
  }
 }
 dps_results: {

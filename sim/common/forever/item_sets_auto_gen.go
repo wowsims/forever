@@ -6,8 +6,8 @@ import (
 )
 
 // The sets no hand-written set covers. A bonus is registered when every row it grants parses whole
-// onto the set bonus aura; the others are comments. A set written by hand leaves this file on the next
-// db run.
+// onto the set bonus aura or is a proc the set builds; the others are comments. A set written by
+// hand leaves this file on the next db run.
 func RegisterAllSetBonuses() {
 	// The Gladiator
 	// https://www.wowhead.com/forever/item-set=1
@@ -51,7 +51,7 @@ func RegisterAllSetBonuses() {
 	// shared.NewParsedItemSet(65, "Spider's Kiss", []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand, proto.ItemSlot_ItemSlotOffHand}, map[int32][]int32{
 	// 	// Chance on Hit: Immobilizes the target and lowers their armor by 100 for 10s.
 	// 	// https://www.wowhead.com/forever/spell=17332
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+	// 	// unsupported: effect 1 A_MOD_ROOT misc 0 is not parsed on an enemy, 17333 puts auras on an enemy
 	// 	2: {17332},
 	// })
 
@@ -74,7 +74,7 @@ func RegisterAllSetBonuses() {
 		// Falling below 25% health grants Return to Sender, reflecting the next spell cast on you within 6s. Can
 		// only occur once every 3 min.
 		// https://www.wowhead.com/forever/spell=1302380
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL, ProcTypeMask bit 31, effect 1 A_REFLECT_SPELLS misc 0 is not parsed on the wearer
 		// 4: {1302380},
 
 		// Improves your chance to hit by 1.0%.
@@ -93,7 +93,7 @@ func RegisterAllSetBonuses() {
 		//
 		// Harmful spell casts have a chance to steal 28 life from the target enemy.
 		// https://www.wowhead.com/forever/spell=1299737
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate
 		// 3: {1299737},
 
 		// +5 All Resistances.
@@ -115,7 +115,7 @@ func RegisterAllSetBonuses() {
 		//
 		// Grants your melee attacks a chance to wound the target, causing them to Bleed for 70 damage over 10s.
 		// https://www.wowhead.com/forever/spell=1299740
-		// unsupported: effect 1 lands on implicit target 6, effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate, effect 1 A_PERIODIC_DAMAGE misc 0 is not parsed on an enemy, 1299739 puts auras on an enemy
 		// 3: {1299740},
 
 		// +5 All Resistances.
@@ -132,15 +132,10 @@ func RegisterAllSetBonuses() {
 		// Increased Defense +3.
 		// https://www.wowhead.com/forever/spell=7516
 		2: {7516},
-
-		// TODO: Manual implementation required
-		//
 		// Grants a chance when struck in combat to increase damage and healing done by magical spells and effects
 		// by up to 70 for 10s.
 		// https://www.wowhead.com/forever/spell=1299743
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-		// 3: {1299743},
-
+		3: {1299743},
 		// +5 All Resistances.
 		// https://www.wowhead.com/forever/spell=18676
 		4: {18676},
@@ -153,34 +148,23 @@ func RegisterAllSetBonuses() {
 		// 5: {1213289},
 	})
 
-	// TODO: Manual implementation required
-	//
 	// Volcanic Armor
 	// https://www.wowhead.com/forever/item-set=141
-	// shared.NewParsedItemSet(141, "Volcanic Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
-	// 	// 5% chance of dealing 40 Fire damage on a successful melee attack.
-	// 	// https://www.wowhead.com/forever/spell=9233
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-	// 	3: {9233},
-	// })
+	shared.NewParsedItemSet(141, "Volcanic Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
+		// 5% chance of dealing 40 Fire damage on a successful melee attack.
+		// https://www.wowhead.com/forever/spell=9233
+		3: {9233},
+	})
 
 	// Stormshroud Armor
 	// https://www.wowhead.com/forever/item-set=142
 	shared.NewParsedItemSet(142, "Stormshroud Armor", []proto.ItemSlot{proto.ItemSlot_ItemSlotShoulder, proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotLegs}, map[int32][]int32{
-		// TODO: Manual implementation required
-		//
 		// 10% chance of dealing 20 Nature damage on a successful melee attack.
 		// https://www.wowhead.com/forever/spell=18979
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-		// 2: {18979},
-
-		// TODO: Manual implementation required
-		//
+		2: {18979},
 		// 4% chance on melee attack of restoring 30 energy.
 		// https://www.wowhead.com/forever/spell=23863
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
-		// 3: {23863},
-
+		3: {23863},
 		// +14 Attack Power.
 		// https://www.wowhead.com/forever/spell=9142
 		4: {9142},
@@ -217,7 +201,7 @@ func RegisterAllSetBonuses() {
 		// Grants your melee attacks a 5% chance when striking from behind to hit a vital point, causing the target
 		// to Bleed for 75 Physical damage over 5s.
 		// https://www.wowhead.com/forever/spell=1292028
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: effect 1 A_PERIODIC_DAMAGE misc 0 is not parsed on an enemy, 1292029 puts auras on an enemy
 		// 4: {1292028},
 
 		// Increased Daggers +1.
@@ -240,14 +224,14 @@ func RegisterAllSetBonuses() {
 		// Taking damage while at or below 25% health causes you to restore 100 health and mana over 5s. This effect
 		// can only trigger once every 5 min.
 		// https://www.wowhead.com/forever/spell=1291796
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL, ProcTypeMask bit 31, effect 1 A_PERIODIC_HEAL misc 0 is not parsed on the wearer, effect 2 A_PERIODIC_ENERGIZE misc 0 is not parsed on the wearer
 		// 4: {1291796},
 
 		// TODO: Manual implementation required
 		//
 		// Grants your melee attacks a chance to inflict Dream Venom, stunning the target for 1s.
 		// https://www.wowhead.com/forever/spell=1291807
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate, effect 1 A_MOD_STUN misc 0 is not parsed on an enemy, 1291806 puts auras on an enemy
 		// 5: {1291807},
 	})
 
@@ -266,7 +250,7 @@ func RegisterAllSetBonuses() {
 		// Taking damage has a 15% chance to grant Enraging Light for 10s, causing your melee attacks to deal 20
 		// Holy damage. Deals 3 times as much damage to Undead.
 		// https://www.wowhead.com/forever/spell=1293674
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed on the wearer
 		// 4: {1293674},
 
 		// Improves your chance to hit by 1.0%.
@@ -278,7 +262,7 @@ func RegisterAllSetBonuses() {
 		// Taking damage while at or below 20% health grants you a shield, absorbing 1 damage for 10s. This effect
 		// can only trigger once every 4 min.
 		// https://www.wowhead.com/forever/spell=1293670
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: ProcTypeMask TAKE_HELPFUL_SPELL, ProcTypeMask bit 31, effect 1 A_SCHOOL_ABSORB misc 127 is not parsed on the wearer
 		// 6: {1293670},
 	})
 
@@ -918,7 +902,7 @@ func RegisterAllSetBonuses() {
 	// shared.NewParsedItemSet(494, "Symbols of Unending Life", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
 	// 	// Your finishing moves now refund 30 energy on a Miss, Dodge, Block, or Parry.
 	// 	// https://www.wowhead.com/forever/spell=26107
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+	// 	// unsupported: names class family 7 and none of its spells
 	// 	3: {26107},
 	// })
 
@@ -957,7 +941,7 @@ func RegisterAllSetBonuses() {
 		// Your Lightning Bolt, Chain Lightning, and Shock spells have a 20% chance to grant up to 50 Nature damage
 		// to spells for 8s.
 		// https://www.wowhead.com/forever/spell=26119
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: names class family 11 and none of its spells
 		// 3: {26119},
 
 		// seconds on the casting time of your Chain Heal spell.
@@ -1002,7 +986,7 @@ func RegisterAllSetBonuses() {
 	// shared.NewParsedItemSet(506, "Battlegear of Eternal Justice", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
 	// 	// 20% chance to regain 100 mana when you cast a Judgement.
 	// 	// https://www.wowhead.com/forever/spell=26135
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+	// 	// unsupported: names class family 10 and none of its spells
 	// 	3: {26135},
 	// })
 
@@ -1097,14 +1081,14 @@ func RegisterAllSetBonuses() {
 		//
 		// Your normal melee swings have a chance to Invigorate you, healing you for 100.
 		// https://www.wowhead.com/forever/spell=28816
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: the trigger carries a class mask, states no rate, 28816 fires 28817, which neither deals damage at once, fills a bar nor only applies auras
 		// 2: {28816},
 
 		// TODO: Manual implementation required
 		//
 		// Your Backstab, Sinister Strike, and Hemorrhage critical hits cause you to regain 5 energy.
 		// https://www.wowhead.com/forever/spell=28812
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: the trigger carries a class mask
 		// 4: {28812},
 
 		// Reduces the threat from your Backstab, Sinister Strike, Hemorrhage, and Eviscerate abilities.
@@ -1352,7 +1336,7 @@ func RegisterAllSetBonuses() {
 	// 	// Your attacks have a chance to increase your Attack Power by 40 and your healing spells have a chance to
 	// 	// increase your Intellect by 20 for 15s.
 	// 	// https://www.wowhead.com/forever/spell=1294087
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+	// 	// unsupported: no callback in the proc mask
 	// 	2: {1294087},
 	// })
 
@@ -1775,7 +1759,7 @@ func RegisterAllSetBonuses() {
 	// shared.NewParsedItemSet(2131, "Partners in Crime", []proto.ItemSlot{proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2}, map[int32][]int32{
 	// 	// Chance on melee swing to become Angry, increasing Strength by 50 for 10s.
 	// 	// https://www.wowhead.com/forever/spell=1317039
-	// 	// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+	// 	// unsupported: states no rate
 	// 	// +22 Strength.
 	// 	// https://www.wowhead.com/forever/spell=1317038
 	// 	2: {1317039, 1317038},
@@ -1807,14 +1791,14 @@ func RegisterAllSetBonuses() {
 		// When your Mana falls below 15%, restore 200 Mana over 10s. Restores twice as much Mana in Haunted and
 		// Wasteland areas. May only occur once every 5 min.
 		// https://www.wowhead.com/forever/spell=1321560
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: ProcTypeMask bit 34, no callback in the proc mask, effect 1 A_PERIODIC_ENERGIZE misc 0 is not parsed on the wearer
 		// 4: {1321560},
 
 		// TODO: Manual implementation required
 		//
 		// Grants your healing spells a chance to heal for an additional 40 Health every 3.0 sec for 15s.
 		// https://www.wowhead.com/forever/spell=1321587
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate, effect 1 lands on implicit target 21
 		// 5: {1321587},
 	})
 
@@ -1833,14 +1817,14 @@ func RegisterAllSetBonuses() {
 		// Chance on damaging spell to allow 15% of your Mana regeneration to continue while casting for 15s. This
 		// Mana Regeneration is doubled in Strongholds and Cities.
 		// https://www.wowhead.com/forever/spell=1324318
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate, 1324318 fires 1324315, which neither deals damage at once, fills a bar nor only applies auras
 		// 4: {1324318},
 
 		// TODO: Manual implementation required
 		//
 		// Chance on damaging spell to summon an Arcane elemental to aid you in combat.
 		// https://www.wowhead.com/forever/spell=1324323
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: states no rate, 1324323 fires 1324322, which neither deals damage at once, fills a bar nor only applies auras
 		// 5: {1324323},
 	})
 
@@ -1865,7 +1849,7 @@ func RegisterAllSetBonuses() {
 		//
 		// Taking damage has a high chance to increase your Stamina by 1 for 30s, stacking up to 20 times.
 		// https://www.wowhead.com/forever/spell=1324309
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: effect 2 lands on implicit target 0, effect 3 A_TRIGGER_SPELL_ON_STACK_AMOUNT misc 20 is not parsed on the wearer
 		// 5: {1324309},
 	})
 
@@ -1887,7 +1871,7 @@ func RegisterAllSetBonuses() {
 		// Melee attacks have a chance to increase your Critical Strike chance by 2% for 20s. This effect is doubled
 		// in swamps.
 		// https://www.wowhead.com/forever/spell=1324684
-		// unsupported: effect 1 A_PROC_TRIGGER_SPELL misc 0 is not parsed
+		// unsupported: 1324684 fires 1324683, which neither deals damage at once, fills a bar nor only applies auras
 		// 5: {1324684},
 	})
 }

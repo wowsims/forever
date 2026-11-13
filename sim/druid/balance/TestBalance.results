@@ -1598,6 +1598,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-VolcanicArmor"
+ value: {
+  dps: 841.46618
+  tps: 852.65105
+  dtps: 5.11091
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-VolcanicHammer-12792"
  value: {
   dps: 844.95638

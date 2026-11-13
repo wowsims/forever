@@ -1312,9 +1312,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-StormshroudArmor"
  value: {
-  dps: 708.22858
-  tps: 528.31329
-  hps: 43.80139
+  dps: 759.58634
+  tps: 564.72945
+  hps: 45.30944
  }
 }
 dps_results: {
@@ -1539,6 +1539,14 @@ dps_results: {
   dps: 773.50551
   tps: 574.84652
   hps: 43.85222
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VolcanicArmor"
+ value: {
+  dps: 698.32311
+  tps: 521.29349
+  hps: 43.90306
  }
 }
 dps_results: {
