@@ -1447,6 +1447,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18538, // Treant's Bane
+		[
+			"Deal 175 Fire damage. Deals 3 times as much damage to Plants.", // 1302354 - https://www.wowhead.com/forever/spell=1302354
+		]
+	],
+	[
 		18634, // Gyrofreeze Ice Reflector
 		[
 			"Reflects Frost spells back at their caster for 5s.", // 23131 - https://www.wowhead.com/forever/spell=23131
