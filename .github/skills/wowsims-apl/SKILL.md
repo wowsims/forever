@@ -204,8 +204,7 @@ for another race's racial or an untaken talent.
   (`GetMatchingStatBuffSpells` in `sim/core/major_cooldown.go`). An on-use that marks the target, such as Blackhand's
   Breadth (13965), registers no buff, so in a rotation without Autocast Other Cooldowns it fires only from a Cast Spell
   line naming its item id. `Multiple CD Usages` cannot time it either: a target spell with no `RelatedSelfBuff` logs
-  "does not have a related self buff" and the value is dropped. The Fury and Arms presets write the end-of-fight
-  timing out with `Remaining Time`.
+  "does not have a related self buff" and the value is dropped.
 
 ## Keeping this skill true
 

@@ -168,9 +168,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 		);
 
 		// With this group shown (for Arms, with Stance Dance as well), the racials group casts Elune's Light only while
-		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain. The trinkets
-		// group casts Blackhand's Breadth on the same terms with 320 s and 35 s, so its 20 s mark runs out about when
-		// Recklessness starts.
+		// Recklessness is down, more than 15 s remain, and either more than 195 s or at most 30 s remain.
 		const recklessnessAction = rotation.priorityList.find(
 			action => action.action?.action.oneofKind === 'groupReference' && action.action.action.groupReference.groupName === 'Recklessness ON/OFF',
 		);
