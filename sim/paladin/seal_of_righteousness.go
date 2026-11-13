@@ -51,14 +51,15 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 	judgeDamage := judgeRank.DamageEffect()
 	perHit := judgeRank.EffectN(2)
 
-	// The judgement is Melee in SpellCategories and carries No Active Defense: it rolls hit and
-	// crit on the melee table and cannot be dodged, parried or blocked.
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	// The judgement is Ranged in SpellCategories and carries No Active Defense: it rolls hit and
+	// crit on the ranged table with the paladin's ranged hit chance, cannot be blocked, and is a
+	// ranged attack to every proc that listens for one.
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeRangedHitAndCrit)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
