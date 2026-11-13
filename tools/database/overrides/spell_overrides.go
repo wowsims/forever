@@ -504,7 +504,7 @@ var Spells = []Override{
 		SpellID: 9894,
 		Field:   APCoefPeriodic,
 		Value:   0.0114,
-		Reason:  "Rip Rank 5: attack power share per tick per combo point, 0.011365 to 0.011405, measured over 191 ticks (190 fit)",
+		Reason:  "Rip Rank 5: attack power share per tick per combo point up to 4, 0.011365 to 0.011405, measured over 191 ticks (190 fit; the share on all 5 points fits none of 109)",
 		Source:  "Combat log, Bison-Plainsrunner levels 55–56, game build 1.60.1.70888, 2026-11-12",
 	},
 	{

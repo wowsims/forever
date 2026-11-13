@@ -805,8 +805,10 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 			start := sim.CurrentTime
 			takeHit(t, sim, character, hit.spell(enemy))
 			if !buff.IsActive() || buff.Duration != duration {
-				t.Fatalf("a %s hit taken left the buff up %v for %v, want it up for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
+				t.Fatalf("after a %s hit taken the buff is active %v and lasts %v, want it active for the row's %v", hit.name, buff.IsActive(), buff.Duration, duration)
 			}
+			// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown after
+			// a hit taken, so the cooldown is crossed in 10 s legs.
 			for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
 				stepTo(t, sim, at)
 			}
