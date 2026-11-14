@@ -753,11 +753,10 @@ func windfuryRowAbilities(t *testing.T) (requires *core.Spell, nextSwing *core.S
 	return nil, nil, nil
 }
 
-// Windfury Totem's proc is the raid aura's: a main-hand hit that lands can fire
-// it, whether or not it deals damage, and no other hit can, a proc's hit
-// included. Every main-hand auto can; an ability can only where its row
-// requires a main-hand weapon or goes off in place of the next swing. Each
-// proc casts the strike, and the cooldown lets hits in one instant fire it once.
+// Windfury Totem's proc is the raid aura's: a main-hand melee swing or melee
+// ability that lands can fire it, whatever its row requires and whether or not
+// it deals damage. No other hit can, a proc's hit included. Each proc casts the
+// strike, and the cooldown lets hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	requiresMainHand, onNextSwing, lacksMainHand := windfuryRowAbilities(t)
 
@@ -772,13 +771,13 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 		{"an ability whose row requires a main-hand weapon", requiresMainHand, core.OutcomeHit, 100, true},
 		{"such an ability landing no damage", requiresMainHand, core.OutcomeHit, 0, true},
 		{"an ability whose row goes off on the next swing and does not require a main-hand weapon", onNextSwing, core.OutcomeHit, 100, true},
+		{"an ability whose row neither requires a main-hand weapon nor goes off on the next swing", lacksMainHand, core.OutcomeHit, 100, true},
 		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeMiss, 0, false},
 		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
 		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, Flags: requiresMainHand.Flags}, core.OutcomeHit, 100, false},
 		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
 		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
 		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
-		{"an ability whose row does not require a main-hand weapon", lacksMainHand, core.OutcomeHit, 100, false},
 		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: requiresMainHand.Flags | core.SpellFlagProc}, core.OutcomeHit, 100, false},
 	} {
 		t.Run(row.name, func(t *testing.T) {

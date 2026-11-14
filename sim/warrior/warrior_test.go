@@ -668,11 +668,10 @@ func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit,
 	hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
 }
 
-// A shield's hit is a main-hand special, but a landed Shield Slam or Shield Bash never rolls the
-// main-hand weapon's combat enchant; the same casts without the shield requirement do. It never brings
-// a Windfury Totem strike either, since the shield rows carry neither bit the totem reads; the same
-// casts with the main-hand bit added do bring one.
-func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
+// A shield's hit is a main-hand special, so a landed Shield Slam or Shield Bash rolls Windfury Totem
+// as any melee ability does. It never rolls the main-hand weapon's combat enchant; the same casts
+// without the shield requirement do.
+func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
 	for _, name := range []string{"Shield Bash", "Shield Slam"} {
 		t.Run(name, func(t *testing.T) {
 			sim, war, target := shieldTestSim(t)
@@ -699,13 +698,19 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 				spell.SkipCastAndApplyEffects(sim, target)
 				stepPastBatch(t, sim)
 			}
+			// The totem's strike is a main-hand weapon hit that rolls Crusader itself, so only a cast
+			// whose batch brought no strike shows Crusader rolling on the cast.
+			castProcsCrusader := func() bool {
+				holyStrength.Deactivate(sim)
+				before := strikes()
+				cast()
+				return holyStrength.IsActive() && strikes() == before
+			}
 
 			const casts = 1000
 			var crusaderProcs int
 			for range casts {
-				holyStrength.Deactivate(sim)
-				cast()
-				if holyStrength.IsActive() {
+				if castProcsCrusader() {
 					crusaderProcs++
 				}
 			}
@@ -716,24 +721,17 @@ func TestShieldHitsProcNeitherTheMainHandEnchantNorWindfuryTotem(t *testing.T) {
 			if crusaderProcs != 0 {
 				t.Errorf("%d of %d landed casts procced the main hand's Crusader, want none", crusaderProcs, casts)
 			}
-			if windfuryProcs != 0 {
-				t.Errorf("%d of %d landed casts procced Windfury Totem, want none", windfuryProcs, casts)
+			if windfuryProcs == 0 {
+				t.Errorf("none of %d landed casts procced Windfury Totem, want some", casts)
 			}
 
 			spell.CastRequirement.Shield = false
-			for i := 0; i < 1000 && !holyStrength.IsActive(); i++ {
-				cast()
+			procced := false
+			for i := 0; i < 1000 && !procced; i++ {
+				procced = castProcsCrusader()
 			}
-			if !holyStrength.IsActive() {
+			if !procced {
 				t.Error("1000 casts without the shield requirement never procced Crusader, so the check above proves nothing")
-			}
-
-			spell.Flags |= core.SpellFlagRequiresMainHand
-			for i := 0; i < 200 && strikes() == 0; i++ {
-				cast()
-			}
-			if strikes() == 0 {
-				t.Error("200 casts with the main-hand bit never procced Windfury Totem, so the check above proves nothing")
 			}
 		})
 	}
