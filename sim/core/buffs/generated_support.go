@@ -15,11 +15,10 @@ import (
 // The damage a damage shield deals back to whoever lands a melee hit, which
 // also scales with the wearer's spell power by bonusCoefficient; the generated
 // shields state none. category is the aura's own, which decides whether a
-// second copy of the shield can sit next to it. flags are added to the ones
-// every damage shield's spell carries.
+// second copy of the shield can sit next to it.
 func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, duration time.Duration, category string, singleAura bool,
-	school core.SpellSchool, damage float64, bonusCoefficient float64, flags core.SpellFlag) *core.Aura {
-	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown, 0, flags)
+	school core.SpellSchool, damage float64, bonusCoefficient float64) *core.Aura {
+	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown, 0)
 
 	aura := unit.GetOrRegisterAura(core.Aura{
 		Label:      label,
@@ -42,7 +41,7 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 // the ones the row's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
 // shield waits between two reflections; 0 answers every hit.
 func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) {
-	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout, 0))
+	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout))
 }
 
 // A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
@@ -57,9 +56,9 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 // protection warrior's combat logs Razorsteel Shoulders' shield answers 3,835 of 3,840 partial blocks
 // and 34 of 5,281 full blocks, and Thorns 1 of 8,334 full blocks.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
-	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration, flags core.SpellFlag) core.ProcTrigger {
+	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)
-	flags |= core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
+	flags := core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
 	if physical {
 		flags |= core.SpellFlagIgnoreResists
 	}

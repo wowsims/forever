@@ -156,9 +156,9 @@ func weaponBound(s *spelldata.Spell, e *spelldata.Effect, stat string) string {
 	return join(signedPercent(e), stat)
 }
 
-// A damage done aura under the rule spelldata.WeaponScope names for its row. While equipped, a melee
-// weapon also carries it to the melee-defense spells of the schools the mask leaves out, and the
-// mask's schools past Physical skip heals and the spells flagged SpellFlagIgnoreWeaponSchoolBonus.
+// A damage done aura under the rule spelldata.WeaponScope names for its row. While a melee weapon is
+// equipped, a mask short of every school gives its Physical as damage done and every other school
+// the percent on its melee-defense spells alone, the schools the mask names past Physical included.
 func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 	mask := core.SpellSchool(e.Misc)
 	phrase := join(signedPercent(e), schoolName(mask), "damage done")
@@ -167,14 +167,17 @@ func damageDonePhrase(s *spelldata.Spell, e *spelldata.Effect) string {
 	case spelldata.WeaponRulePerWeapon:
 		return join(phrase+",", perWeapon(scope))
 	case spelldata.WeaponRuleWhileEquipped:
-		if !scope.ProcMask.Matches(core.ProcMaskMelee) || mask == allSchools {
-			return whileEquippedPhrase(phrase, scope)
+		if scope.ProcMask.Matches(core.ProcMaskMelee) && mask != allSchools {
+			if physical := mask & core.SpellSchoolPhysical; physical == 0 {
+				phrase = join(signedPercent(e), "damage done on the melee-defense spells of every school")
+			} else {
+				phrase = join(signedPercent(e), schoolName(physical), "damage done and on the melee-defense spells of the other schools")
+				if named := mask &^ physical; named != 0 {
+					phrase += ", " + schoolName(named) + " included"
+				}
+			}
 		}
-		phrase = whileEquippedPhrase(phrase+" and on the melee-defense spells of the other schools", scope)
-		if others := mask &^ core.SpellSchoolPhysical; others != 0 {
-			phrase += "; the " + schoolName(others) + " part skips heals and the spells flagged SpellFlagIgnoreWeaponSchoolBonus"
-		}
-		return phrase
+		return whileEquippedPhrase(phrase, scope)
 	}
 	return phrase
 }
