@@ -9,6 +9,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -298,6 +299,17 @@ func TestHurricaneTicksRollNoOmenAndGrantNoNaturesGrace(t *testing.T) {
 			t.Error("a Hurricane tick crit granted Nature's Grace")
 		}
 	})
+}
+
+// A Hurricane tick is cast by the channel, so it is a proc, heard only by listeners that can proc from
+// procs, unless its row is flagged Not a Proc.
+func TestHurricaneTickIsAProcAsItsRowStates(t *testing.T) {
+	_, druid := newBalanceDruid(t, 1, 0)
+	tick := druid.Hurricane.RelatedDotSpell
+	row := spelldata.MustFind(tick.ActionID.SpellID)
+	if got := tick.Flags.Matches(core.SpellFlagProc); got != row.IsAProc() {
+		t.Errorf("the Hurricane tick is a proc: %v, want %v as its row states", got, row.IsAProc())
+	}
 }
 
 // The Hurricane cast rolls Omen of Clarity once for each target its area reaches, after it spends

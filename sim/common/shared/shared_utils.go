@@ -413,7 +413,8 @@ type SpellDataProc struct {
 
 	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
 	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
-	// procs per minute on the cast time of each spell hit's cast.
+	// procs per minute on the cast time of each spell hit's cast, and Draconic Infused Emblem only moves
+	// the row's cast listener to landed spell hits.
 	Rate spelldata.ProcOpt
 }
 

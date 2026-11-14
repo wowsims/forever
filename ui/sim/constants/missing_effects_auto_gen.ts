@@ -2017,12 +2017,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22458, // Moonshadow Stave
-		[
-			"Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.", // 1300435 - https://www.wowhead.com/forever/spell=1300435
-		]
-	],
-	[
 		22856, // Blood Guard's Leather Walkers
 		[
 			"Increases the duration of your Sprint ability by 3.0 sec.", // 23049 - https://www.wowhead.com/forever/spell=23049
@@ -2567,12 +2561,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		274647, // Farraki Kris
 		[
 			"Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0 sec for 6s.", // 1294645 - https://www.wowhead.com/forever/spell=1294645
-		]
-	],
-	[
-		274651, // Zealot Plate
-		[
-			"When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once every 15 sec.", // 1294666 - https://www.wowhead.com/forever/spell=1294666
 		]
 	],
 	[

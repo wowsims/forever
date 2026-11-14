@@ -358,6 +358,20 @@ var Spells = []Override{
 		Reason:  "Judgement of Wisdom Rank 3: Rank 1's measured chance",
 		Source:  "EV-0018",
 	},
+	{
+		SpellID: 1318931,
+		Field:   ProcChancePct,
+		Value:   8,
+		Reason:  "Draconic Infused Emblem: 8% on each landed harmful spell hit; column reads 100, tooltip says 'Chance on harmful spellcast'",
+		Source:  "EV-0115",
+	},
+	{
+		SpellID: 1294668,
+		Field:   ProcChancePct,
+		Value:   5,
+		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
+		Source:  "EV-0115",
+	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
 	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says
@@ -473,6 +487,13 @@ var Spells = []Override{
 		Value:   1.8,
 		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed spell hit's cast, at least 1.5 s; the game files state none",
 		Source:  "EV-0025",
+	},
+	{
+		SpellID: 1300435,
+		Field:   PPM,
+		Value:   1.5,
+		Reason:  "Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Source:  "EV-0115",
 	},
 	{
 		SpellID: 1079,

@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 674.31714
-  tps: 545.15358
+  dps: 657.27515
+  tps: 531.77297
   dtps: 8.1557
   hps: 7.19695
  }
@@ -1005,6 +1005,15 @@ dps_results: {
   tps: 527.2768
   dtps: 8.13067
   hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 660.5058
+  tps: 533.26795
+  dtps: 8.49523
+  hps: 7.35945
  }
 }
 dps_results: {
