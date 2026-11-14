@@ -262,8 +262,7 @@ const (
 // the damage, which the calculation set from the damage before the scaling.
 //
 // Landed warlock dots tick through spelldata's TickOutcome: they tested hit once, when applied,
-// so a tick rolls only the crit the row's Periodic Can Crit allows (the Forever beta log has no
-// SPELL_PERIODIC_MISSED). Area effects that tick, Hellfire and Rain of Fire, roll hit on every tick.
+// so a tick rolls only the crit the row's Periodic Can Crit allows (EV-0084). Area effects that tick, Hellfire and Rain of Fire, roll hit on every tick.
 func scaleResult(sim *core.Simulation, spell *core.Spell, result *core.SpellResult, multiplier float64) {
 	result.Damage *= multiplier
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, result.Damage, spell.Unit.AttackTables[result.Target.UnitIndex])

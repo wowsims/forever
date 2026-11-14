@@ -3,6 +3,6 @@
 - Skill: wowsims-core-mechanics
 - Code: `sim/core/mana.go`
 - Pull request: #249
-- Evidence: pending
+- Evidence: EV-0107
 
 Mana regenerates in 100 ms ticks; a paid channel holds regen until max(start + 5 s, end) and a free channel does not.

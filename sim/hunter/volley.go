@@ -15,7 +15,7 @@ var volleyWaveRank = volleyRank.Refs()[0]
 // the first a tick after the cast. Cast speed shortens the ticks and ranged haste does not. A wave
 // takes 3% of ranged attack power against its target, the share the cast row's first effect states
 // as a spell power coefficient, and rolls the ranged hit and crit tables. In game the missile's
-// flight delays the channel's aura but not the waves, so the channel starts at the cast.
+// flight delays the channel's aura but not the waves (EV-0105), so the channel starts at the cast.
 func (hunter *Hunter) registerVolley() {
 	waveBase := volleyWaveRank.DamageEffect().Average()
 	apShare := volleyRank.EffectN(1).Coeff()

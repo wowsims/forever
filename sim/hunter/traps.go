@@ -8,7 +8,7 @@ import (
 )
 
 // The rows state no attack power share. In game Explosive Trap's initial hit takes 10% of ranged
-// attack power and its ticks take none. TODO: In-game testing required for Immolation Trap, which the
+// attack power and its ticks take none (EV-0068). TODO: In-game testing required for Immolation Trap, which the
 // Forever notes give the same 10% over its whole duration, split evenly over the ticks and read at
 // each tick.
 const trapTotalAPShare = 0.10

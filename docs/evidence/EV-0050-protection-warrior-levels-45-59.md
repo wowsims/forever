@@ -1,0 +1,50 @@
+# EV-0050: Protection warrior levels 45 to 59, threat, Enrage, Rock on Stick, rage and damage shields
+
+- Claim: Shield Slam Ranks 2 and 3 and Cleave Rank 4 carry their own flat threat, Enrage rolls 25% on non-physical
+  spell hits taken, Rock on Stick procs 1.85 times a minute, damage taken rage holds near 38% through attacker level
+  59, and a damage shield reflects nothing on a block that takes the whole hit.
+- Sources: combat logs, ThreatLog and StatLedger of one protection warrior at levels 45 to 59
+- Game build: 1.60.1.70862 to 1.60.1.70938
+- Date: 2026-11-09 to 2026-11-13 per the pull request; the override rows read 2026-11-14
+- Pull request: #1008
+
+Flat threat, read as the spell's damage plus its own flat, added once on a crit; Cleave Rank 4 as a flat split over the
+targets it lands on:
+
+| Spell                      | Measured                                           |
+| -------------------------- | -------------------------------------------------- |
+| Shield Slam Rank 1 (23922) | 178.1 [177.8, 178.4], n 134                        |
+| Shield Slam Rank 2 (23923) | 202.85 [202.76, 202.94], n 379                     |
+| Shield Slam Rank 3 (23924) | 229.25 [229.10, 229.39], n 36                      |
+| Cleave Rank 4 (11609)      | 80.2 [79.5, 80.8], n 53; one target 80.3, two 79.8 |
+| Cleave Rank 3              | 62, n 17, too thin to set                          |
+| Heroic Strike Rank 8       | 144 to 145, n 4, too thin to set                   |
+
+178, 203 and 229 is not 4.45 a level and 62 and 80 is not 1.5 a level, so the ranks above them extend the measured
+line, Shield Slam Rank 4 to 255 at level 60 and Cleave Rank 5 at Rank 4's 1.6 a level, 96, until a level 60 log
+measures them.
+
+Enrage: ranks 1 to 5 proc on 3,439 of 11,773 swings taken (29.2%) and 236 of 812 physical spell hits (29.1%), but 268 of
+1,087 non-physical spell hits (24.7% [22.2, 27.3]); never on full blocks, avoided hits or ticks. Resists, absorbs,
+Enrage already being up and the matching window do not explain it (unresisted hits alone 24.9%; 25.0 to 25.2% at 100 to
+250 ms windows). The game files state 30% for all of them.
+
+Rock on Stick (Rock to the Face): 399 procs on 4,980 landed main-hand hits without extra attacks or haste, 1.85 procs a
+minute [1.68, 2.03] at 2.6 speed. White swings, specials and Sunder Armor casts roll it; Shield Slam (3 of 1,664),
+Shield Bash and Thunder Clap do not.
+
+Damage taken rage, k from rage using attackers' physical swings on landed damage:
+
+| Attacker level | n   | k                    |
+| -------------- | --- | -------------------- |
+| 55             | 281 | 1.550 [1.545, 1.555] |
+| 56             | 233 | 1.545 [1.539, 1.551] |
+| 57             | 186 | 1.551 [1.547, 1.556] |
+| 58             | 180 | 1.559 [1.550, 1.573] |
+| 59             | 38  | 1.544 [1.536, 1.551] |
+
+Attackers at level 60 to 62 are covered by no log.
+
+Damage shields: Razorsteel Shoulders' shield answered 15,042 of 15,069 hits and 3,835 of 3,840 partial blocks, and 34 of
+5,281 full blocks. Thorns answered 1 of 8,334 full blocks. Mithril Shield Spike and Scarlet Retribution, which fire on
+every block in game, go through the block proc path.

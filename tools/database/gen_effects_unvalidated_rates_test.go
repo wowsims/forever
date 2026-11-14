@@ -20,6 +20,7 @@ import (
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
 		"EV-0001":                             "",
+		"EV-0017, EV-0018":                    "",
 		"EV-1":                                "unknown",
 		"wcl:abc/1-2, 2026-01-01":             "",
 		"issue #1":                            "",

@@ -91,9 +91,7 @@ func (paladin *Paladin) applyRedoubt() {
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
 	// Every melee swing and melee ability aimed at the paladin rolls, whatever it resolves to, although
-	// the tooltip says "damaging": combat logs of about forty paladins show a gain after 10.9% of the
-	// swings that were dodged, parried, missed, fully blocked or fully absorbed (152 of 1394) and after
-	// 10.4% of the ones that dealt damage (364 of 3501). Ranged attacks roll nothing (0 of 62).
+	// the tooltip says "damaging". Ranged attacks roll nothing (EV-0023).
 	trigger.Outcome = core.OutcomeEmpty
 	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)
@@ -287,7 +285,7 @@ func (paladin *Paladin) applyIronCreed() {
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
 	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
-	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome.
+	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome (EV-0057).
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.IronCreed.Rank(paladin.Talents.IronCreed), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		ironCreed.Activate(sim)
 	})
@@ -307,9 +305,8 @@ func (paladin *Paladin) applyIronCreed() {
 // for 6 sec.
 //
 // Holy Shield and Shield Specialization read the talent where they register, and both need a Holy
-// Strike that lands: combat logs show no mana on 31 dodged, parried or missed strikes and no Holy
-// Shield damage on 12, against 141 of 143 and 50 of 52 that landed. The spell block comes with every
-// strike made with a shield, an avoided one too (61 of 61). It is the triggered row's
+// Strike that lands. The spell block comes with every strike made with a shield, an avoided one
+// too (EV-0023). It is the triggered row's
 // A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. While it is up, a melee swing of any
 // school rolls the paladin's block chance. Magic spells stay unblockable.
 func (paladin *Paladin) applyShieldsworn() {

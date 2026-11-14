@@ -12,7 +12,8 @@ that tracks the same numbers links the id.
   `Replaced by: EV-0057` line under its title, and every citation moves to the new id.
 - A comment cites the id after the rule it backs: `// A Pyroblast consumes every stack (EV-0005).` The rule stays in
   the comment; the counts, logs and method move here.
-- An override row's `Source` is the bare id: `Source: "EV-0003"`. The generator reads any `EV-` id as a measured rate.
+- An override row's `Source` is the bare id, or several separated by commas when two passes back the row:
+  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate.
 - A ruling in `docs/rulings/` lists the ids of its evidence.
 
 ## What counts as evidence

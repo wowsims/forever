@@ -45,15 +45,14 @@ type petModel struct {
 // A demon's own health, armor and weapon are fixed shares of the creature values for its level in the game
 // files (core.CreatureHealthMaxLevel, core.CreatureArmorMaxLevel, core.CreatureAutoAttackDpsMaxLevel), each
 // demon with its own shares.
-// TODO: The shares are read at levels 20 and 30 (the Voidwalker's at 30 only), not yet at 60.
+// TODO: The shares are read below level 60 only (EV-0075, EV-0076), not yet at 60.
 //
 // The Sayaad's average swing before attack power: 0.698 of the creature dps at 2.0 s. Its sheet's damage range
-// spans 22.8% either side of the average at level 20 and 20.7% at 30, so 21.5%.
+// spans 21.5% either side of the average (EV-0075).
 const sayaadSwingAverage = 0.698 * core.CreatureAutoAttackDpsMaxLevel * 2
 
 // The Voidwalker's average swing before attack power and before its melee is halved: 0.494 of the creature dps
-// at 2.0 s, spanning 26.4% either side. The best fit to three level 30 sheets at attack power 96, 108 and 116
-// (16-22, 17-23 and 17-24).
+// at 2.0 s, spanning 26.4% either side (EV-0076).
 const voidwalkerSwingAverage = 0.494 * core.CreatureAutoAttackDpsMaxLevel * 2
 
 // The sheet gives no crit from Agility or Intellect, and a demon's own stats give no regen. A demon has
@@ -92,13 +91,13 @@ var petModels = map[proto.WarlockOptions_Summon]petModel{
 		meleeMin:             voidwalkerSwingAverage * (1 - 0.264),
 		meleeMax:             voidwalkerSwingAverage * (1 + 0.264),
 		swingSpeed:           2,
-		// Its melee is halved: at level 30, +20 attack power moved its sheet's damage by half of 20 × 2 / 14.
+		// Its melee is halved (EV-0076).
 		damageMod: 0.5,
 	},
 	proto.WarlockOptions_Succubus: {
 		baseStats: meleeDemonStats(0.699 * core.CreatureHealthMaxLevel).Add(stats.Stats{
 			stats.Armor: 0.630 * core.CreatureArmorMaxLevel,
-			// TODO: 3 × level + 6, a line through levels 20 and 30, not yet read at 60.
+			// TODO: 3 × level + 6 (EV-0075), not yet read at 60.
 			stats.AttackPower: 186,
 		}),
 		healthPerStamina:     0,
@@ -108,8 +107,8 @@ var petModels = map[proto.WarlockOptions_Summon]petModel{
 		meleeMin:             sayaadSwingAverage * (1 - 0.215),
 		meleeMax:             sayaadSwingAverage * (1 + 0.215),
 		swingSpeed:           2,
-		// In the logs Lash of Pain deals (16 + 0.429 × Spell Damage) × 1.10 under 5/5 Unholy Power, with no
-		// multiplier of the Sayaad's own.
+		// Lash of Pain deals (16 + 0.429 × Spell Damage) × 1.10 under 5/5 Unholy Power, with no
+		// multiplier of the Sayaad's own (EV-0077).
 		damageMod: 1,
 	},
 	proto.WarlockOptions_Felhunter: {
@@ -146,10 +145,9 @@ func meleeDemonStats(baseHealth float64) stats.Stats {
 // which the server supplies, so the shares are hand-kept. The pet model sheet gives Stamina and Intellect
 // a share of 0, yet its totals give every demon more health and ~10,870 more mana than its own stats, all
 // from the warlock. Health is 2 a point of the warlock's Stamina, on top of the demon's own, from the Nov 3 patch
-// notes. Regen is each demon's share of the warlock's Intellect as MP5: at level 30 with 110 Intellect, the pet
-// panes read 33 for the Imp and 11 for the Voidwalker and Sayaad.
+// notes. Regen is each demon's share of the warlock's Intellect as MP5 (EV-0080).
 // TODO: Ingame test needed: confirm on live that demons gain 2 health a point of the warlock's Stamina.
-// TODO: The regen shares are read at level 30 only, and the Felhunter's not at all. The warlock's share of
+// TODO: The regen shares are read at one level only (EV-0080), and the Felhunter's not at all. The warlock's share of
 // mana; resistances and haste.
 func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
@@ -159,15 +157,14 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 		return stats.Stats{
 			stats.Health: ownerStats[stats.Stamina] * 2,
 			stats.MP5:    ownerStats[stats.Intellect] * mp5PerOwnerIntellect,
-			// Demon Armor included: a level 30 Imp's own armor is the level 20 share only with it.
-			// TODO: In game a demon's armor is fixed at the summon (it held when Demon Armor fell off),
-			// while its attack power and spell damage follow the warlock's.
+			// Demon Armor included: a level 30 Imp's own armor is the level 20 share only with it (EV-0078).
+			// TODO: In game a demon's armor is fixed at the summon (EV-0078), while its attack power and
+			// spell damage follow the warlock's.
 			stats.Armor:       ownerStats[stats.Armor] * 0.35,
 			stats.AttackPower: spellDamage * 0.17,
-			// A tenth: at 30 spell damage the warlock's tooltip reads "Increases your pet's Attack Power by 5
-			// and Spell Damage by 3", and in the logs a Sayaad's Spell Damage is a tenth of the warlock's, plus
-			// Demonic Knowledge's own share when taken.
-			// TODO: Measured on the Sayaad only.
+			// A tenth: a Sayaad's Spell Damage is a tenth of the warlock's, plus Demonic Knowledge's own share
+			// when taken (EV-0079).
+			// TODO: Measured on the Sayaad only (EV-0079).
 			stats.SpellDamage: spellDamage * 0.10,
 
 			// The warlock's spell hit whole, and 8/17 of it as melee hit:
@@ -178,8 +175,8 @@ func (warlock *Warlock) petStatInheritance(mp5PerOwnerIntellect float64) core.Pe
 
 			// A demon takes the warlock's spell crit as its melee and spell crit, with no crit of its own:
 			// https://github.com/ClassicWoWCommunity/forever-bugs/issues/331#issuecomment-6160342081
-			// TODO: Not live yet: in game a demon still has its own crit (melee ~0.7%) and takes only the
-			// warlock's "+X% critical strike" gear. Verify in game once the change ships.
+			// TODO: Not live yet: in game a demon still has its own crit and takes only the
+			// warlock's "+X% critical strike" gear (EV-0081). Verify in game once the change ships.
 			stats.PhysicalCritPercent: ownerStats[stats.SpellCritPercent],
 			stats.SpellCritPercent:    ownerStats[stats.SpellCritPercent],
 		}

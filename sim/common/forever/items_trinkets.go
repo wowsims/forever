@@ -279,8 +279,7 @@ func init() {
 			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
 		})
 		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; combat
-		// logs show Rend and Concussion Blow applications never proc it, so only a hit that dealt damage
-		// rolls.
+		// only a hit that dealt damage rolls (EV-0021).
 		trigger.RequireDamageDealt = true
 		trigger.Name = "Highborne Research Tablet"
 		trigger.ActionID = core.ActionID{ItemID: 260205}
@@ -415,9 +414,8 @@ func init() {
 	// activate this effect.
 	//
 	// The tooltip states the chance as ${$h/3}%. 15600's ProcChance is the chance against a Dwarf and its
-	// second effect, a dummy, is the "3 times as likely". Combat logs measure 12 extra attacks
-	// on 437 melee hits on Dark Iron dwarves (2.75%) and 106 on 10,977 on other targets (0.97%), outside
-	// the 2 s cooldown and whatever the wearer's race.
+	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
+	// the wearer's race (EV-0026).
 	core.NewItemEffect(11815, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 	})
@@ -427,9 +425,8 @@ func init() {
 	//
 	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
 	//
-	// 21969's ProcTypeMask also names helpful spells taken, but every proc in the combat logs followed a
-	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone. The logs measure 5
-	// procs on 392 landed hits taken (1.28%), in line with the row's 2%.
+	// 21969's ProcTypeMask also names helpful spells taken, but every measured proc followed a
+	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone (EV-0027).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
 		[]shared.ItemVariant{
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},

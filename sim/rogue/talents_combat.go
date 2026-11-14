@@ -99,7 +99,7 @@ func (rogue *Rogue) registerRiposte() {
 	}
 
 	// Only Riposte's cast spends the window. The row's one charge on any melee ability is not modelled: in game a
-	// Sinister Strike leaves Riposte usable.
+	// Sinister Strike leaves Riposte usable (EV-0099).
 	window := rogue.RegisterAura(spelldata.AuraConfig(riposteWindow))
 
 	trigger := spelldata.ProcTrigger(&rogue.Character, spellData.DefensiveState.Highest(),
@@ -272,8 +272,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// Windfury Totem's strike rolls it: 60 of 2,208 clean strikes brought a swing (2.7%), against 1.5%
-	// of white swings.
+	// Windfury Totem's strike rolls it (EV-0002).
 	// TODO: Ingame test needed: why the strike brings a swing about twice as often as a white swing does.
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{

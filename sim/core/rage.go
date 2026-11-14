@@ -20,19 +20,14 @@ const ThreatPerRageGained = 5
 const DamageTakenRageFactor = 2.5
 
 // Damage of a school other than physical, and every periodic tick whatever its school, grants twice the rage of a
-// physical direct hit. Measured on hits from rage-using mobs, with Defensive Stance divided out: arcane and fire melee
-// swings and Poison, Localized Toxin and Rend ticks read 3.75-3.86 in place of DamageTakenRageFactor * (1 - A), which
-// physical melee swings read as 1.96 and a physical Shoot as 2.08.
-// TODO: Ingame test needed -- a mob's physical Mortal Strike read about 1.2 times a melee swing, and Cleave about 1.3.
+// physical direct hit, in place of DamageTakenRageFactor * (1 - A) (EV-0052).
+// TODO: Ingame test needed -- a mob's physical Mortal Strike and Cleave read above a melee swing (EV-0052).
 const SpellDamageTakenRageMultiplier = 2.0
 
-// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
-// 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 to 59
-// it stays near 38%, on hundreds of hits a level to 51 and at 55-58, about 90 at 52-55 and 38 at 59; a protection
-// warrior's logs cover 47 to 59. The 40% at 63 is the top of the 20% to 40% range the game build's notes give; no log
-// covers 60-63.
-// Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
-// since a target has no power type.
+// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs
+// (EV-0051). The 40% at 63 is the top of the 20% to 40% range the game build's notes give; no log covers 60-63.
+// Attackers that use mana or energy give about half this rage in game (EV-0051, EV-0052). The sim gives every
+// attacker the full amount, since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
 	level     int32
 	reduction float64
@@ -73,8 +68,8 @@ const (
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
 	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
 	// halving included, for every rage user (the game files' Rule of Rage (DND) 1322574 states 100; the
-	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, a bear's swing
-	// with any weapon included, and an off-hand crit at twice the off-hand's halved share.
+	// spell store does not carry it). A two-hand crit gives twice the swing's rage, a bear's swing with any
+	// weapon included, and an off-hand crit twice the off-hand's halved share (EV-0053, EV-0037).
 	CritRageBonus = 1.0
 )
 

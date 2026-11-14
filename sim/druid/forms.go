@@ -106,8 +106,7 @@ func (druid *Druid) feralWeapon(swingSpeed float64) core.Weapon {
 }
 
 // A bear's auto attack takes the two-hander rage factor whatever it holds, 4.5 rage per second of the bear's
-// 2.5 second swing, as measured in game with a two-handed mace and with a dagger. No druid row states a rage
-// multiplier of its own.
+// 2.5 second swing (EV-0037). No druid row states a rage multiplier of its own.
 const BearRageIsTwoHanded = true
 
 func (druid *Druid) GetBearWeapon() core.Weapon {
@@ -152,8 +151,7 @@ func (druid *Druid) registerBearAura(form *spelldata.Spell, passive *spelldata.S
 	aura := druid.registerFormAura(form, starting)
 	aura.AttachStatDependency(druid.NewDynamicStatDependency(stats.FeralAttackPower, stats.AttackPower, 1))
 	// Armor from items, base and bonus, health, attack power and the Faerie Fire spell mods are parsed.
-	// In game, the forms' health is flat and follows the level as their passives' rows state, measured at
-	// every level from 25 to 60.
+	// In game, the forms' health is flat and follows the level as their passives' rows state (EV-0037).
 	// TODO: Ingame research needed -- effect 4 of Bear Form and Dire Bear Form is aura 668, which core
 	// does not name.
 	spelldata.ParseEffects(&druid.Character, aura, passive)
@@ -298,13 +296,13 @@ func (druid *Druid) pauseCatEnergy(sim *core.Simulation) {
 // The tooltip's rule, priced with $m2: the energy left in Cat Form plus ${10*($m2/100)} for each
 // second spent outside Bear Form or Dire Bear Form, up to ${100*($m2/100)}. At 5/5 that is 10 a
 // second, the Cat Form rate. With the talent untaken the cat comes back with none. In game 0/5 and 5/5
-// follow it, whether the cat left by a shift or by cancelling Cat Form.
+// follow it, whether the cat left by a shift or by cancelling Cat Form (EV-0037).
 func (druid *Druid) restoreCatEnergy(sim *core.Simulation) {
 	if !druid.HasEnergyBar() || druid.Env.MeasuringStats {
 		return
 	}
 	// Only the starting Cat Form finds nothing stored, and it keeps the pull's bar: the cat was in Cat Form
-	// before the pull. In game every entry takes Furor's share, the first after a login included.
+	// before the pull. In game every entry takes Furor's share, the first after a login included (EV-0037).
 	// TODO: Ingame research needed -- what death does to the stored energy.
 	if !druid.furorStoredValid {
 		return

@@ -84,9 +84,8 @@ func (paladin *Paladin) applyConviction() {
 // 68/136/204 for 30 sec.
 //
 // The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
-// the weapon's speed, measured on swings at 1.6 and 3.6 speed under Seal of Righteousness and Seal of
-// the Crusader. The row's proc mask also hears melee specials, which roll the same chance and were not
-// measured. The debuff is a magic spell of its own that can miss.
+// the weapon's speed (EV-0062). The row's proc mask also hears melee specials, which roll the same
+// chance and were not measured. The debuff is a magic spell of its own that can miss.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {
@@ -129,8 +128,7 @@ func (paladin *Paladin) applyVindication() {
 // same judgements and refunds too.
 //
 // The refund is a share of the seal's base cost, and the seal's percent cost cut goes on top of it
-// instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99, measured
-// in game at Benediction 0, 1, 3 and 5 with Sanctified Judgement 3/3.
+// instead of coming off: Benediction 5/5 makes a 90 mana seal cost 81 and refund 60% of 99 (EV-0063).
 func (paladin *Paladin) applySanctifiedJudgement() {
 	if paladin.Talents.SanctifiedJudgement == 0 {
 		return
@@ -230,10 +228,10 @@ func (paladin *Paladin) applySacredArbiter() {
 // The Holy part follows the defense type. In game the melee-defense Holy hits take it: the seal hits,
 // Holy Strike and Judgement of Command. Exorcism, Hammer of Wrath, Retribution Aura and the ranged
 // judgements are magic-defense or ranged-defense and take none, and Holy Wrath and Holy Shock, which
-// no log has measured under the talent, follow the same rule.
+// no log has measured under the talent, follow the same rule (EV-0064).
 //
 // Consecration is the one exception in game: its ticks are magic-defense and take the percent, so it
-// has a mod of its own, held while the row's weapon is equipped. The mod reads the effect by its
+// has a mod of its own, held while the row's weapon is equipped (EV-0064). The mod reads the effect by its
 // Physical and Holy mask, so a game build that takes Holy out of the row panics here.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
@@ -320,7 +318,7 @@ func (paladin *Paladin) applyChampionOfTheLight() {
 // Each copy is the Echo of its seal, one aura per seal, each read from its own row. A stored seal's
 // effect lands a batch window after the hit that consumes it, as a live seal's does. In game the
 // talent needs a weapon equipped, so swapping the main-hand weapon takes it off for a moment, and
-// every Echo goes with it.
+// every Echo goes with it (EV-0065).
 func (paladin *Paladin) applyUnsealedWrath() {
 	if !paladin.Talents.UnsealedWrath {
 		return

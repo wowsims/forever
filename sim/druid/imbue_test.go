@@ -175,7 +175,7 @@ func TestFeralEnchantsAndStonesAreIndependentOfWeaponSpeed(t *testing.T) {
 	}
 }
 
-// Base paw endpoints recovered from in-game measurements, before AP and flat weapon damage.
+// Base paw endpoints (EV-0041), before AP and flat weapon damage.
 func TestFeralPawDamageEndpoints(t *testing.T) {
 	for _, test := range []struct {
 		itemID                           int32

@@ -194,8 +194,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned: in Classic and Fresh logs every grenade and bomb with a stun
-	// comes back immune on a boss, its damage included.
+	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0089).
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their
@@ -506,7 +505,7 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		levelDiff := combatLevelDiff(attacker, defender)
 
 		table.BaseSpellMissChance = spellMissChance(levelDiff)
-		// Era logs show no aura crit suppression against targets 1 or 2 levels above.
+		// No aura crit suppression applies against targets 1 or 2 levels above (EV-0090).
 		if levelDiff >= 3 {
 			table.AuraCritSuppression = 0.018
 		}

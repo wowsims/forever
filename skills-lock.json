@@ -60,7 +60,7 @@
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "db54042579757fa5b6f51ebbc29d22e702e8ee72cab4d9a394d8df95791519f7"
+      "computedHash": "d84f9de91b00ddec16158b67df15ff44531713183babb1621ac4ca5d4da28105"
     },
     "wowsims-siml": {
       "source": "./.github/skills",

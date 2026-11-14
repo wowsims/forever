@@ -144,60 +144,60 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Lightcrest Hammer: no proc row",
 		Source:  "EV-0003",
 	},
-	// Measured the same way in combat logs of levelling players. A druid's Maul, Swipe, Claw and Lacerate hits
-	// are left out as well: 2 of 7736 gave a chance-on-hit weapon's proc (3 druids, 2 weapons). The chance a
-	// swing scales with the swing speed, as procs per minute do: Bigger Rock on Bigger Stick reads 11.7% at its
-	// own 3.4 speed, 8.6% at a bear's 2.5 and 2.5% at a cat's 1.0.
+	// Measured the same way in combat logs of levelling players (EV-0022). A druid's Maul, Swipe, Claw and
+	// Lacerate hits are left out as well, since they almost never give a chance-on-hit weapon's proc. The chance
+	// a swing scales with the swing speed, as procs per minute do.
 	{
 		ItemID:  9478,
 		SpellID: 1292573,
 		PPM:     2,
-		Reason:  "Ripsaw: no proc row; 185 procs on 2018 landed main-hand hits, 1 player",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "Ripsaw: no proc row",
+		Source:  "EV-0022",
 	},
 	{
 		ItemID:  9639,
 		SpellID: 13532,
 		PPM:     2,
-		Reason:  "The Hand of Antu'sul: no proc row; 91 procs on 991 landed hits, 1 player",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "The Hand of Antu'sul: no proc row",
+		Source:  "EV-0022",
 	},
 	{
 		ItemID:  11086,
 		SpellID: 11657,
 		PPM:     2.9,
-		Reason:  "Jang'thraze the Protector: no proc row; 181 procs on 1972 landed hits, 1 player",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "Jang'thraze the Protector: no proc row",
+		Source:  "EV-0022",
 	},
 	{
 		ItemID:  17705,
 		SpellID: 21919,
 		PPM:     1,
-		Reason:  "Thrash Blade: no proc row; 61 procs on 1425 landed main-hand hits, 1 player",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "Thrash Blade: no proc row",
+		Source:  "EV-0022",
 	},
 	{
 		ItemID:  279480,
 		SpellID: 1306816,
 		PPM:     2,
-		Reason:  "Bigger Rock on Bigger Stick: no proc row; 255 procs on 3130 landed white hits, 4 players, a bear and cat druid among them",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "Bigger Rock on Bigger Stick: no proc row",
+		Source:  "EV-0022",
 	},
 	{
 		ItemID:  279852,
 		SpellID: 1309967,
 		PPM:     1.85,
-		Reason:  "Rock on Stick: no proc row; 399 procs on 4,980 landed main-hand hits without extra attacks or haste, 1 player",
-		Source:  "combat log, 2026-11-14",
+		Reason:  "Rock on Stick: no proc row; measured on main-hand hits without extra attacks or haste",
+		Source:  "EV-0050",
 	},
-	// Measured the same way in WCL reports of dungeons below the end game, on players with no extra attacks, leaving
-	// out the hits made under an attack speed aura and every swing that came sooner than the weapon's speed.
+	// Measured the same way in reports of dungeons below the end game, on players with no extra attacks, leaving
+	// out the hits made under an attack speed aura and every swing that came sooner than the weapon's speed
+	// (EV-0024).
 	{
 		ItemID:  287005,
 		SpellID: 1324687,
 		PPM:     0.6,
-		Reason:  "Sword of Dismemberment: no proc row; 91 procs on 2333 landed hits, 3 paladins, seal and judgement hits among them",
-		Source:  "wcl:hWHgAPGmrNpDxwCR/1 and 4 more runs, 2026-11-13",
+		Reason:  "Sword of Dismemberment: no proc row",
+		Source:  "EV-0024",
 	},
 	{
 		ItemID:  12798,
@@ -385,8 +385,8 @@ var WeaponProcs = []WeaponProc{
 		ItemID:  10847,
 		SpellID: 13049,
 		PPM:     4.5,
-		Reason:  "Dragon's Call: no proc row; 41 procs in 220 landed main-hand hits outside the 45 s cooldown at a 2.5 s weapon, 18.6% a hit",
-		Source:  "combat log, 2026-11-12",
+		Reason:  "Dragon's Call: no proc row; measured on landed main-hand hits outside the 45 s cooldown",
+		Source:  "EV-0021",
 	},
 	{
 		ItemID:  11902,

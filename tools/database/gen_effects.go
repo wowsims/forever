@@ -628,8 +628,8 @@ var literalRates = []literalRate{
 	},
 }
 
-// A Source naming a measurement's file in docs/evidence.
-var evidenceID = regexp.MustCompile(`^EV-\d{4}$`)
+// A Source naming the files of its measurements in docs/evidence.
+var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
 
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
 func rateOrigin(source string) string {

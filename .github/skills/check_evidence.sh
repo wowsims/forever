@@ -10,7 +10,7 @@
 #   3. every file is cited outside itself, or carries a "Replaced by" line
 # and that every ruling states its evidence: EV- ids, pending, or not needed: <why>.
 #
-# Each folder's README.md and Go tests are skipped: their ids are examples.
+# Each folder's README.md and the hover test are skipped: their ids are examples.
 
 set -eu
 
@@ -29,7 +29,7 @@ check() {
 		fail=1
 	done
 
-	for id in $(git grep -hoE "$pattern" -- . ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!*_test.go' | sort -u); do
+	for id in $(git grep -hoE "$pattern" -- . ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!tools/spelldata/printer/lsp_hover_test.go' | sort -u); do
 		set -- "$folder/$id"-*.md
 		if [ ! -e "$1" ]; then
 			echo "$kind: $id is cited but $folder has no $id-*.md"
@@ -41,7 +41,7 @@ check() {
 		[ -e "$f" ] || continue
 		id=$(basename "$f" | grep -oE "^$prefix-[0-9]{4}")
 		grep -q '^Replaced by: ' "$f" && continue
-		if ! git grep -qE "$id\\b" -- . ":!$f" ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!*_test.go'; then
+		if ! git grep -qE "$id\\b" -- . ":!$f" ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!tools/spelldata/printer/lsp_hover_test.go'; then
 			echo "$kind: nothing cites $f"
 			fail=1
 		fi
