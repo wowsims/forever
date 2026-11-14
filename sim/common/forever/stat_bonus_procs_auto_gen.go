@@ -2737,6 +2737,21 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.
+	// https://www.wowhead.com/forever/spell=27853
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 22398, ItemName: "Idol of Rejuvenation"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces the Mana cost of Purify and Cleanse by 10%.
 	// https://www.wowhead.com/forever/spell=27850
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
