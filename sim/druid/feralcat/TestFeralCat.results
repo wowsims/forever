@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 705.6233
+  tps: 525.7947
+  hps: 44.0725
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 764.65506

@@ -118,6 +118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 565.36596
+  tps: 401.40983
+  hps: 56.52667
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 605.40791

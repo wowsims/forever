@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 900.45322
+  tps: 711.25633
+  dtps: 10.53099
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 900.04681

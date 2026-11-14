@@ -182,6 +182,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BladeofHanna-2801"
  value: {
   dps: 675.83172
