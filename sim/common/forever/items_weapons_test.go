@@ -361,7 +361,7 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	}
 }
 
-// The shortest cast time Blade of Eternal Darkness 17780 prices its chance on, measured in game.
+// The shortest cast time Blade of Eternal Darkness 17780 prices its chance on (EV-0025).
 const boedFloor = 1500 * time.Millisecond
 
 // The chance Blade of Eternal Darkness 17780 rolls on a hit whose cast took castTime: 21978's procs per

@@ -55,7 +55,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	judgement := paladin.RegisterSpell(judgementConfig)
 
 	// The shield is this share of the hit in the open world, which is what the sim gives every target
-	// (4077 of 4078 logged shields). Inside a dungeon the game scales it by the creature health the
+	// (EV-0022). Inside a dungeon the game scales it by the creature health the
 	// game files expect at a base level over the one at the mob's level (ExpectedStat.CreatureHealth),
 	// where the base is the dungeon's lowest mob level in Shadowfang Keep, the Stockade, Gnomeregan,
 	// Scarlet Monastery and Ruins of Lordaeron. The sim's targets carry no base level, so it models

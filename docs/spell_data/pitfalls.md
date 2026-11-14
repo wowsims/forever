@@ -40,7 +40,7 @@ lose Holy Strike's melee roll. See [Talents and auras](talents-and-auras.md).
 `E_NORMALIZED_WEAPON_DMG`, and Holy Strike's flat part sits there too. `DamageEffect()` answers the
 first weapon or school damage effect alike, so the read is the same either way. An
 `E_WEAPON_PERCENT_DAMAGE` on the same spell scales the flat part as well as the weapon damage: Holy
-Strike rank 1's 12 ± 1.5 at 25% shows in game as 2 to 4.
+Strike rank 1's 12 ± 1.5 at 25% shows in game as 2 to 4 (EV-0101).
 
 **Rage is stored on a 0-1000 bar.** Heroic Strike's cost reads 150 where the player sees 15.
 `PowerCost` and `Cost()` divide it through. Mana, energy and focus need no conversion. An `Energize`
@@ -57,7 +57,7 @@ two agree, and wrong in a different way where they do not.
 
 **`Average` keeps a damage or heal amount's fraction and floors every other, in float32.** In game
 the amount a hit or heal deals rounds up with a chance equal to its fraction, so it averages the exact
-value; a stat, a resource gain, an absorb or a threat is the whole number the tooltip shows. An effect
+value (EV-0095); a stat, a resource gain, an absorb or a threat is the whole number the tooltip shows. An effect
 whose `EffectBasePointsF` is fractional (about one in 55) keeps its fraction under the per-level gain
 either way, and `Min`/`Max` stay whole. Reading `BaseValue()` and doing the arithmetic in float64
 gives a different answer on those rows.
@@ -87,7 +87,7 @@ a fractional coefficient at all. Read the tooltip before you believe a coefficie
 row. On a physical row the column does mean something: core scales the caster's flat physical damage
 bonus by it, never spell power, per hit or per tick. In game Revenge's and Hamstring's school damage
 state 1 and take the bonus, and Thunder Clap's and Victory Rush's state 0 and Rend's ticks 0 and do
-not. `SpellConfig` hands a physical row's school damage coefficient to core
+not (EV-0045). `SpellConfig` hands a physical row's school damage coefficient to core
 (`SpellFlagPhysicalSchoolDamage`), and `DotConfig` a tick's. A weapon strike takes the bonus whole,
 whatever the column says.
 

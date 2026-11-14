@@ -8,4 +8,4 @@ repository = "https://github.com/wowsims/forever"
 
 [language_servers.wowsims-spelldata]
 name = "WoWSims Spelldata"
-languages = ["Go", "JSON", "TypeScript", "TSX"]
+languages = ["Go", "JSON", "TypeScript", "TSX", "Markdown"]

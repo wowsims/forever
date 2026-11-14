@@ -21,7 +21,7 @@ type ProcOpt func(*core.Character, *core.ProcTrigger)
 //
 // The trigger's internal cooldown is the proc category's recovery alone. On a proc trigger row,
 // RecoveryTime is a cooldown on casting the aura, which an item or enchant never casts: the shield
-// spikes state 5 s there and proc on every block in game. A damage shield is no proc trigger and
+// spikes state 5 s there and proc on every block in game (EV-0047). A damage shield is no proc trigger and
 // keeps its RecoveryTime as the wait between two reflections (DamageShieldLockout).
 //
 // ProcCharges is not a property of the trigger: it is how many times the buff acts before it drops,

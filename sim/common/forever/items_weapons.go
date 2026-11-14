@@ -246,11 +246,9 @@ func init() {
 	// (castTimePPM): an instant, a triggered spell such as an Arcane Missiles missile, and a cast that
 	// Presence of Mind or Heating Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground
 	// ticks are direct hits and roll it; damage over time ticks, Ignite, wand shots and damage
-	// shields never do. In game a harmful spell that deals no damage, such as Counterspell or the
-	// start of the Arcane Missiles channel, rolls it too, 11 of the 554 procs; the sim leaves those
-	// out. One mage's 554 procs in Forever dungeon logs fit 1.8 per minute (1.65 to 1.96); fitted per
-	// tier, 4.5% (4.1 to 5.0) on instants, triggered spells and 1.5 s casts and 9.1% (7.5 to 10.9) on
-	// 3 s casts. Misses are undetermined, with 2 in the sample, so only landed hits roll.
+	// shields never do. A harmful spell that deals no damage, such as Counterspell or the start of
+	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Whether a miss rolls is
+	// undetermined, so only landed hits roll (EV-0025).
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: castTimePPM(spelldata.MustFind(21978))},
 		[]shared.ItemVariant{

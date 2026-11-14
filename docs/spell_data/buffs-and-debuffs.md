@@ -235,7 +235,7 @@ constructor on each true pet's unit, so the pet's copy bids in the same categori
 three driven totems pass their pet copies to `inheritTotem` themselves: Mana Tide's copy of the
 external cooldown's aura, and the weapon totems' whole chain (totem aura, category bid and proc) on the
 pet's character, for a pet that melees. Flametongue Totem does nothing under Windfury Totem; Grace of
-Air stacks with it as of 1.60.1.70425.
+Air stacks with it (EV-0102).
 
 The exception is a totem whose aura spell sets the only on player bit of Attributes[3]
 (`ATTR_EX_3_ONLY_ON_PLAYER`, read by `Spell.OnlyOnPlayers`): a target that is not a player is invalid,

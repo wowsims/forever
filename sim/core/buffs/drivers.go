@@ -256,10 +256,9 @@ var windfuryTotemHoldsOver = []string{
 // class mask: weapon damage on the target, Not a Proc, main hand required. It
 // deals the main hand's weapon damage with the raid aura's attack power added,
 // on the weapon special's table of miss, dodge, parry and crit, never a
-// glancing blow, and it is reduced by armor as a white hit is. Combat logs
-// show rank 3 adding about 248 attack power and ranks 1 and 2 adding none;
-// the sim stands rank 3 only. A landed strike grants rage as a main-hand
-// swing does.
+// glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
+// attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
+// only. A landed strike grants rage as a main-hand swing does.
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
@@ -290,9 +289,9 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// row's mask names both hands, and the tooltip's main-hand rule is the
 	// server's. Ranged attacks and spells never roll it, and neither does the
 	// hit of a proc without Not a Proc, since the row lacks Can Proc From
-	// Procs. Combat logs show Holy Strike, Stormstrike, Shred, Rake, Ferocious
-	// Bite, Claw and bear Swipe rolling it, and triggered spells never: Seal
-	// of Fury, poisons, Consecration ticks. An auto attack, another proc's
+	// Procs. Holy Strike, Stormstrike, Shred, Rake, Ferocious Bite, Claw and
+	// bear Swipe roll it, and triggered spells never: Seal of Fury, poisons,
+	// Consecration ticks (EV-0008). An auto attack, another proc's
 	// extra swing included, always rolls it. The proc rolls off the hit's cast
 	// result, and the strike follows once that hit has been dealt, in the same
 	// instant. The strike requires a main hand, but it lands inside the 100 ms
@@ -311,11 +310,9 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
 	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon's
-	// strikes (28% a proc), Seal of Command (14%), Judgement of Command (22%) and
-	// Retaliation (17%). A hit with no defense type is no melee attack and never
-	// rolls it: Sweeping Strikes' copied hit 12723 (0 of 490). Its normalized hit
-	// 26654 rolls it once (63 of 119 Whirlwinds with one struck; 44.8 expected if
-	// it never rolled, 56.5 if once).
+	// strikes, Seal of Command, Judgement of Command and Retaliation (EV-0002).
+	// A hit with no defense type is no melee attack and never rolls it:
+	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 		return spell.DefenseType != core.DefenseTypeNone
 	}
@@ -351,7 +348,7 @@ func holdTotemAura(totemAura *core.Aura, category string, priority float64, proc
 // trigger column, so the proc is read by id.
 var flametongueTotemProc = spelldata.MustFind(16389)
 
-// The totem's hit logs in game as Flametongue Attack; 16389 only states its base points.
+// The totem's hit logs in game as Flametongue Attack (EV-0013); 16389 only states its base points.
 var flametongueTotemAttack = spelldata.MustFind(16368)
 
 // The totem's summon, which the hit reports under, tagged 1, so the results show the totem and its hits as one row.
