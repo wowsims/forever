@@ -1256,9 +1256,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 728.55355
-  tps: 521.22026
-  dtps: 5.17764
+  dps: 699.89756
+  tps: 499.95064
  }
 }
 dps_results: {

@@ -35,6 +35,19 @@ func RegisterAllProcs() {
 	//	{ItemID: 19024, ItemName: "Arena Grand Master"},
 	// })
 
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases your pet's armor by 10%.
+	// https://www.wowhead.com/forever/spell=27225
+	// unsupported: effect 1 A_MOD_BASE_RESISTANCE_PCT misc 1 is not parsed on a pet
+	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
+	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 22060, ItemName: "Beastmaster's Tunic"},
+	// })
+
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1325228
 	// equip: 1325228 (A_DAMAGE_SHIELD)
@@ -138,6 +151,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1300680},
 		[]shared.ItemVariant{
 			{ItemID: 20517, ItemName: "Razorsteel Shoulders"},
+		})
+
+	// Increases your pet's maximum health by 3%.
+	// https://www.wowhead.com/forever/spell=27038
+	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+		[]shared.ItemVariant{
+			{ItemID: 22013, ItemName: "Beastmaster's Cap"},
 		})
 
 	// Spell Damage received is reduced by 10.
