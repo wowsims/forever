@@ -305,8 +305,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 957.7719
-  tps: 754.7918
+  dps: 938.7996
+  tps: 740.12409
   dtps: 10.08324
  }
 }
@@ -880,6 +880,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 878.91054
+  tps: 692.94889
+  dtps: 9.96285
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Naglering-11669"
  value: {
   dps: 902.94873
@@ -1298,9 +1306,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 8696.57081
-  tps: 6816.84248
-  dtps: 3.99816
+  dps: 8009.35549
+  tps: 6253.81122
+  dtps: 8.49125
  }
 }
 dps_results: {
@@ -1343,9 +1351,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Human-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 8651.6098
-  tps: 6781.58402
-  dtps: 3.99816
+  dps: 7701.10412
+  tps: 6014.00672
+  dtps: 8.49732
  }
 }
 dps_results: {

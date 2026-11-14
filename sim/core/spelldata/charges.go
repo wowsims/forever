@@ -16,8 +16,10 @@ import (
 // channel ends. A channel the buff's class flags name spends it once the channel has started, even
 // when its cast lands nothing itself, and so does one already running when the charge comes. A
 // listener on the cast counts a channeled cast as the channel only while the channel runs, so one
-// that starts none spends the charge like any other cast. Wand Shoot is no such channel: each shot
-// spends a charge like any hit, and so do other hits while wanding.
+// that starts none spends the charge like any other cast. A tick that is a proc the row cannot proc
+// from is not heard, so a channel of such ticks the class flags do not name leaves the charge up.
+// Wand Shoot is no such channel: each shot spends a charge like any hit, and so do other hits while
+// wanding.
 // TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	classFlags := chargeClassFlags(character, s)
