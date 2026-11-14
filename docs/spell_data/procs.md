@@ -167,6 +167,13 @@ A damage row that also states an `E_ENERGIZE` on its caster puts that gain into 
 or energy with every proc, whether the damage lands or not, since the gain's target is the caster
 (`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
 
+A rate neither the item's entry nor the trigger's row can state comes in through `SpellDataProc.Rate`,
+which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
+case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed direct spell hit rolls
+21978's procs per minute on the cast time of the cast that launched it, at least 1.5 s. The time is
+read where the cast deals the hit's result, so a missile keeps it after the next cast starts. A
+manager on the main hand's speed would price every hit on the 1.5 s dagger.
+
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:
 `NewSpellDataAuraProc` parses the buff's row, whose multiplier works through a dynamic stat dependency

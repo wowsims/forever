@@ -410,6 +410,11 @@ type SpellDataProc struct {
 	// A "Chance on hit" item effect or a combat enchant. The game casts those off the hit itself
 	// without consulting a proc mask, so the row states no listener and the shape is stated here.
 	IsWeaponProc bool
+
+	// A rate neither the item's entry nor the trigger's row can state, in place of the one they give.
+	// It may reshape the listener the rate is priced on: Blade of Eternal Darkness rolls on each spell
+	// hit at a chance the hit's cast time sets.
+	Rate spelldata.ProcOpt
 }
 
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
@@ -491,9 +496,12 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 // item's own name and action, which are what the sim keys the rolls and the metrics by, and the rate
 // the item's effect entry states.
 func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell) core.ProcTrigger {
+	rate := cfg.Rate
+	if rate == nil {
+		rate = spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc())
+	}
 	config := spelldata.ProcTrigger(character, trigger, nil, spelldata.ItemProcChance(trigger),
-		weaponProcShape(cfg), spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc()),
-		statedWeaponProcChance(cfg.IsWeaponProc, source))
+		weaponProcShape(cfg), rate, statedWeaponProcChance(cfg.IsWeaponProc, source))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
 

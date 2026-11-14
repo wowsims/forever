@@ -2,6 +2,7 @@ package forever
 
 import (
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
@@ -233,6 +234,29 @@ func init() {
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(13040, character.MakeProcTriggerAura(trigger))
 	})
+
+	// Blade of Eternal Darkness
+	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
+	//
+	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
+	//
+	// Each direct spell hit that lands on an enemy rolls 21978, an area spell once for each enemy it
+	// lands on, and the row's 0.1 s cooldown lets one landing proc it once. The chance is the row's
+	// procs per minute on the cast time of the cast that launched the hit, at least 1.5 s
+	// (castTimePPM): an instant, a triggered spell such as an Arcane Missiles missile, and a cast that
+	// Presence of Mind or Heating Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground
+	// ticks are direct hits and roll it; damage over time ticks, Ignite, wand shots and damage
+	// shields never do. In game a harmful spell that deals no damage, such as Counterspell or the
+	// start of the Arcane Missiles channel, rolls it too, 11 of the 554 procs; the sim leaves those
+	// out. One mage's 554 procs in Forever dungeon logs fit 1.8 per minute (1.65 to 1.96): 4.5% (4.1
+	// to 5.0) on instants, triggered spells and 1.5 s casts, 9.1% (7.5 to 10.9) on 3 s casts. Misses
+	// are undetermined, with 2 in the sample, so only landed hits roll.
+	// Source: wcl:Nq3C7bVGnvmyh2Pw, cvRTFb1qhGBKNkCD and JK1z96cCrj28tpBV, 2026-11-14.
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
+		Rate: castTimePPM(spelldata.MustFind(21978))},
+		[]shared.ItemVariant{
+			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
+		})
 
 	// Spinal Reaper
 	// https://www.wowhead.com/forever/item=288901/spinal-reaper
@@ -506,4 +530,42 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 		return multiplier
 	}
 	return 1
+}
+
+// The row's procs per minute, rolled by each direct spell hit that deals damage on the cast time of the
+// cast that launched it, at least the global cooldown's 1.5 s. The cast time is read where the cast
+// deals the hit's result, which is the cast's end for a missile, so one still in flight keeps it when
+// the next cast of the spell starts. It is the time the cast took after talents, Presence of Mind and
+// cast speed. The chance depends on the hit, so Chance(1) leaves core no roll of its own and the
+// condition draws it after the cooldown check and before the cooldown starts.
+// TODO: Verify in game whether cast speed shortens the time the chance is priced on.
+func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {
+	return func(character *core.Character, trigger *core.ProcTrigger) {
+		castTimes := map[*core.SpellResult]time.Duration{}
+		core.MakePermanent(character.RegisterAura(core.Aura{
+			Label: row.Name + " Cast Times",
+			OnReset: func(_ *core.Aura, _ *core.Simulation) {
+				clear(castTimes)
+			},
+			OnCastResult: func(_ *core.Aura, _ *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				castTimes[result] = spell.CurCast.CastTime
+			},
+		}))
+
+		trigger.Callback = core.CallbackOnSpellHitDealt
+		trigger.Outcome = core.OutcomeLanded
+		trigger.RequireDamageDealt = true
+		trigger.RequireDamageComponent = false
+		flags := trigger.ProcSpellClassFlags
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			castTime, ok := castTimes[result]
+			if !ok {
+				castTime = spell.CurCast.CastTime
+			}
+			delete(castTimes, result)
+			chance := float64(row.RPPM) * max(castTime, core.GCDDefault).Seconds() / 60
+			return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
+		}
+		spelldata.Chance(1)(character, trigger)
+	}
 }
