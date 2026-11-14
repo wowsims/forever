@@ -20,6 +20,9 @@ func (warlock *Warlock) registerHellfire() {
 
 	// Fired by the channel; hits every enemy in range
 	effectConfig := spelldata.SpellConfig(&warlock.Unit, effectRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	if effectRow.IsAProc() {
+		effectConfig.Flags |= core.SpellFlagProc
+	}
 	effectConfig.ClassSpellMask = WarlockSpellHellfire
 	effectConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit

@@ -1461,9 +1461,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4012.2969
-  tps: 3831.74076
-  hps: 1.02341
+  dps: 3527.37625
+  tps: 3340.21392
+  dtps: 9.43134
+  hps: 1.49861
  }
 }
 dps_results: {
@@ -1511,9 +1512,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3985.85495
-  tps: 3803.59858
-  hps: 1.02341
+  dps: 3507.60191
+  tps: 3318.2283
+  dtps: 9.17917
+  hps: 1.37269
  }
 }
 dps_results: {

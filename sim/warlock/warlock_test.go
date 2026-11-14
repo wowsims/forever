@@ -11,6 +11,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -1208,5 +1209,53 @@ func TestSoulSiphonCountsCorruptionSiphonLifeAndAgony(t *testing.T) {
 	want := 1 + 3*spellData.SoulSiphon.FractionAt(3)
 	if got := warlock.DrainLife.ExpectedTickDamage(sim, target) / plain; math.Abs(got-want) > 1e-9 {
 		t.Errorf("Drain Life is %.4f times its plain tick with Corruption, Siphon Life and Bane of Agony on the target, want %.4f", got, want)
+	}
+}
+
+// Hellfire Effect and the Rain of Fire wave are cast by their channels, so Judgement of Wisdom on the target
+// hears their hits only when the hit's row is flagged Not a Proc or the judgement's row can proc from procs.
+// Searing Pain shows the judgement hears the warlock's own casts.
+func TestChannelEffectsReturnJudgementOfWisdomManaAsTheirRowsAllow(t *testing.T) {
+	raid := core.SinglePlayerRaidProto(warlockPlayer("Warlock", "", &proto.WarlockOptions{}), &proto.PartyBuffs{}, &proto.RaidBuffs{},
+		&proto.Debuffs{JudgementOfWisdom: true})
+	sim := newWarlockRaidSim(raid, core.MakeSingleTargetEncounter(0))
+	warlock := sim.Raid.Parties[0].Players[0].(*Warlock)
+	target := sim.Encounter.ActiveTargetUnits[0]
+	warlock.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	judgementHearsProcs := spelldata.MustFind(buffs.JudgementOfWisdomMaxRank.SpellID).CanProcFromProcs()
+
+	manaReturns := func(spell *core.Spell) int32 {
+		before := int32(0)
+		if warlock.JowManaMetrics != nil {
+			before = warlock.JowManaMetrics.Events
+		}
+		for range 100 {
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepFor(sim, 100*time.Millisecond)
+		}
+		if warlock.JowManaMetrics == nil {
+			return 0
+		}
+		return warlock.JowManaMetrics.Events - before
+	}
+
+	if manaReturns(warlock.SearingPain) == 0 {
+		t.Fatal("Searing Pain returned no Judgement of Wisdom mana")
+	}
+	var effects []*core.Spell
+	for _, spell := range warlock.Spellbook {
+		if spell.Matches(WarlockSpellHellfire|WarlockSpellRainOfFire) && spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+			effects = append(effects, spell)
+		}
+	}
+	if len(effects) != 2 {
+		t.Fatalf("found %d channel effects, want Hellfire Effect and the Rain of Fire wave", len(effects))
+	}
+	for _, spell := range effects {
+		row := spelldata.MustFind(spell.ActionID.SpellID)
+		want := !row.IsAProc() || judgementHearsProcs
+		if got := manaReturns(spell) > 0; got != want {
+			t.Errorf("%s returned Judgement of Wisdom mana: %v, want %v", row.Name, got, want)
+		}
 	}
 }

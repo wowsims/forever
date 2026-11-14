@@ -223,6 +223,39 @@ func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	}
 }
 
+// A Blizzard tick is cast by the channel, so it rolls Arcane Concentration only when the tick's row is
+// flagged Not a Proc or the talent's row can proc from procs.
+func TestBlizzardTickRollsArcaneConcentrationAsTheRowsAllow(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	var tick *core.Spell
+	for _, spell := range mage.Spellbook {
+		if spell.Matches(MageSpellBlizzard) && spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+			tick = spell
+		}
+	}
+	if tick == nil {
+		t.Fatal("the mage has no Blizzard tick spell")
+	}
+	row := spelldata.MustFind(tick.ActionID.SpellID)
+	want := !row.IsAProc() || spellData.ArcaneConcentration.Rank(mage.Talents.ArcaneConcentration).CanProcFromProcs()
+	mage.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+	gains := 0
+	mage.ClearCasting.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { gains++ })
+
+	for range 500 {
+		tick.Cast(sim, mage.CurrentTarget)
+		stepFor(sim, 1100*time.Millisecond)
+		mage.ClearCasting.Deactivate(sim)
+	}
+
+	if landed := tick.SpellMetrics[mage.CurrentTarget.UnitIndex]; landed.Hits+landed.Crits == 0 {
+		t.Fatal("no Blizzard tick landed")
+	}
+	if got := gains > 0; got != want {
+		t.Errorf("Blizzard ticks procced Clearcasting %d times in 500, want any: %v", gains, want)
+	}
+}
+
 // Each enemy a Flamestrike ground tick lands on rolls Revelation: against many enemies a tick procs it far
 // more often than against one.
 func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {

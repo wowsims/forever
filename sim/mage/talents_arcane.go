@@ -125,7 +125,8 @@ func (mage *Mage) registerArcaneConcentration() {
 		})
 	trigger.Name = "Arcane Concentration - Trigger"
 	trigger.ProcMask = core.ProcMaskSpellDamage
-	// An area spell, or one Blizzard or Flamestrike tick, rolls once however many targets it lands on.
+	// An area spell, or one Flamestrike tick, rolls once however many targets it lands on. A Blizzard
+	// tick is a proc the talent's row cannot proc from, so it never rolls.
 	// The condition runs just before the roll, so the first target to reach it takes the roll.
 	var rolledSpell *core.Spell
 	var rolledAt time.Duration

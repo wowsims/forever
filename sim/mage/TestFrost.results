@@ -1198,8 +1198,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6315.35925
-  tps: 5751.09155
+  dps: 5825.59437
+  tps: 5280.37542
  }
 }
 dps_results: {
@@ -1219,8 +1219,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2331.9072
-  tps: 2103.5398
+  dps: 2013.13084
+  tps: 1816.29118
  }
 }
 dps_results: {
@@ -1240,8 +1240,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6315.96975
-  tps: 5751.71451
+  dps: 5865.57787
+  tps: 5316.39878
  }
 }
 dps_results: {
@@ -1261,8 +1261,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2278.96619
-  tps: 2056.03396
+  dps: 2012.97204
+  tps: 1816.36276
  }
 }
 dps_results: {
@@ -1282,8 +1282,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6267.92056
-  tps: 5709.4562
+  dps: 5799.27163
+  tps: 5257.16722
  }
 }
 dps_results: {
@@ -1303,8 +1303,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2403.17771
-  tps: 2167.66564
+  dps: 2211.77277
+  tps: 1995.46811
  }
 }
 dps_results: {
@@ -1324,8 +1324,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6268.53106
-  tps: 5710.0783
+  dps: 5825.50905
+  tps: 5281.11805
  }
 }
 dps_results: {
@@ -1345,8 +1345,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2276.68423
-  tps: 2053.71726
+  dps: 2167.39223
+  tps: 1955.25845
  }
 }
 dps_results: {

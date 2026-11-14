@@ -112,6 +112,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   (`sim/druid/talents_balance.go`, PR #382).
 - **A `core.ProcTrigger` typed by hand with no chance fires on every qualifying hit.** Core turns a `ProcChance` of 0
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
+- **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves
+  `core.SpellFlagProc` off, so every trigger hears it. A spell the game triggers (a channel's tick, a wave, an item's
+  bolt) adds the flag from its row, `if row.IsAProc() { config.Flags |= core.SpellFlagProc }`, as Volley, Hellfire
+  Effect and Blizzard's tick do; a spell built on the player's own cast row leaves it off.
 
 ## Keeping this skill true
 

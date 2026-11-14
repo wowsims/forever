@@ -1752,8 +1752,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4617.90326
-  tps: 4647.91331
+  dps: 4613.33346
+  tps: 4618.80369
+  dtps: 5.49713
  }
 }
 dps_results: {
@@ -1795,8 +1796,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4120.84407
-  tps: 4151.61715
+  dps: 4101.75816
+  tps: 4107.68488
+  dtps: 5.51606
  }
 }
 dps_results: {
@@ -1817,8 +1819,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1795.29119
-  tps: 1795.29119
+  dps: 1798.34492
+  tps: 1798.34492
  }
 }
 dps_results: {
@@ -1838,8 +1840,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-p1-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4585.23035
-  tps: 4615.22846
+  dps: 4580.84152
+  tps: 4586.32896
+  dtps: 5.4592
  }
 }
 dps_results: {
@@ -1881,8 +1884,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4086.96231
-  tps: 4117.79627
+  dps: 4070.7531
+  tps: 4076.902
+  dtps: 5.90088
  }
 }
 dps_results: {
@@ -1903,8 +1907,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-NoBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 1763.1578
-  tps: 1763.1578
+  dps: 1766.6541
+  tps: 1766.6541
  }
 }
 dps_results: {

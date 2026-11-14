@@ -1298,9 +1298,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Gnome-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 8696.57081
-  tps: 6816.84248
-  dtps: 3.99816
+  dps: 8009.35549
+  tps: 6253.81122
+  dtps: 8.49125
  }
 }
 dps_results: {
@@ -1343,9 +1343,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-Settings-Human-raid-Destruction-destro-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 8651.6098
-  tps: 6781.58402
-  dtps: 3.99816
+  dps: 7701.10412
+  tps: 6014.00672
+  dtps: 8.49732
  }
 }
 dps_results: {
