@@ -1333,12 +1333,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17780, // Blade of Eternal Darkness
-		[
-			"Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.", // 27860 - https://www.wowhead.com/forever/spell=27860
-		]
-	],
-	[
 		18321, // Energetic Rod
 		[
 			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
@@ -4134,6 +4128,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[17182, { kind: 'ppm', origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
 	[17193, { kind: 'ppm', origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', origin: 'vanilla' }], // Thunderstrike
+	[17780, { kind: 'chance', origin: 'vanilla' }], // Blade of Eternal Darkness
 	[19019, { kind: 'ppm', origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', origin: 'vanilla' }], // Glacial Blade
 	[19100, { kind: 'ppm', origin: 'vanilla' }], // Electrified Dagger

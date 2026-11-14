@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 766.42748
+  tps: 625.06976
+  dtps: 8.48683
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 748.5363

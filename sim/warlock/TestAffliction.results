@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 679.18375
+  tps: 549.62906
+  dtps: 8.05107
+  hps: 7.49483
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 647.5621
