@@ -1,20 +1,21 @@
 # EV-0002: Windfury Totem's strike after the 2026-11-14 hotfix
 
-- Claim: after the 2026-11-14 02:00 UTC hotfix Windfury Totem's strike takes armor and the 100 ms cooldown, and an
-  extra attack proc, a paladin seal and an Execute cast hear it as they hear a white swing; Sweeping Strikes' copied hit
-  12723 never rolls it and its normalized hit 26654 rolls it once.
+- Claim: after the 2026-11-14 02:00 UTC hotfix Windfury Totem's strike takes armor and the 100 ms cooldown, and
+  extra attack procs and the Seals of Command, Fury, Righteousness and Wisdom proc off it; an Execute rolls the totem from
+  its cast attack and again from its landed damage; Sweeping Strikes' copied hit 12723 never rolls it and its normalized hit
+  26654 rolls it once.
 - Sources: Warcraft Logs reports uploaded after the 2026-11-14 02:00 UTC hotfix; report codes not recorded
 - Game build: not recorded
 - Date: 2026-11-14
 - Pull request: #1012
 
-Clean strikes only: the parent hit has no grant of its own, and nothing else happens within 150 ms. Each child is
+Only clean strikes count: the parent hit has no grant of its own, and nothing else happens within 150 ms. Each child is
 counted in its own measured lag window. The same window on parents with no strike expects 0.3 grants, and parents that
 cannot proc the item themselves still show grants after their strike: Thrash Blade 5 of 91 against 1 of 2,993, Hand of
 Justice 2 of 84 against 0 of 1,867. Before the hotfix the strike procced none (one protection warrior's raw logs:
 Thrash Blade 1 of 264).
 
-Extra attack procs, per clean strike against per white swing. Thrash Blade and Hack and Slash proc off the strike at
+The extra attack procs below are counted per clean strike against per white swing. Thrash Blade and Hack and Slash proc off the strike at
 about twice their white rate, which no rule explains yet.
 
 | Proc                 | Off the strike | Rate | White rate                            |
@@ -24,7 +25,7 @@ about twice their white rate, which no rule explains yet.
 | Sword Specialization | 8 of 198       | 4.0% | 4.8%                                  |
 | Hand of Justice      | 4 of 272       | 1.5% | 1.8%                                  |
 
-Paladin seals, per clean strike against per white swing:
+Paladin seals are counted the same way:
 
 | Seal                  | Off the strike | White swings   |
 | --------------------- | -------------- | -------------- |

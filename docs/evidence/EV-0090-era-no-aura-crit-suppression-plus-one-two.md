@@ -12,4 +12,4 @@
 | Level 62 to 63 targets | 2.20 ± 0.43 | 2.8                  | 1.6          |
 | Level 60 to 63 targets | 4.26 ± 0.35 | 4.8                  | 4.8          |
 
-The extra part appears at +3 only. Its size here (about 1.3%) is below the 1.8% a community test page measured, and the two raids differ by about 2 sigma, so the 1.8% value stays.
+At +3 the extra part measures about 1.3% here, below the 1.8% a community test page measured, and the two raids differ by about 2 sigma, so the 1.8% value stays.

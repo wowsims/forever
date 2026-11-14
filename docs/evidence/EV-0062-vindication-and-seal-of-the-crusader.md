@@ -28,5 +28,5 @@ The talent's row (9452) carries two dummy effects and a ProcChance column of 100
 - The target's debuff (440667) is Magic in SpellCategories and the log shows `SPELL_MISSED ... MISS` for it: 10 misses in
   305 rolls, none dodged or parried. The paladin's buff comes with every proc.
 
-Not measured: the talent's proc mask also hears melee specials (Holy Strike, Seal of Command's hits, the Judgements),
+Two parts are not measured: the talent's proc mask also hears melee specials (Holy Strike, Seal of Command's hits, the Judgements),
 which roll the same chance, and haste other than the seal is taken to leave the chance alone.

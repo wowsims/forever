@@ -640,14 +640,14 @@ var Spells = []Override{
 		Field:   APCoefDirect,
 		Value:   0.037,
 		Reason:  "Ferocious Bite Rank 2: attack power share per combo point, measured with Rank 3; the game files state none",
-		Source:  "EV-0033",
+		Source:  "EV-0032",
 	},
 	{
 		SpellID: 22827,
 		Field:   APCoefDirect,
 		Value:   0.037,
 		Reason:  "Ferocious Bite Rank 3: attack power share per combo point, measured with Rank 2; the game files state none",
-		Source:  "EV-0033",
+		Source:  "EV-0032",
 	},
 	{
 		SpellID: 22828,
@@ -661,14 +661,14 @@ var Spells = []Override{
 		Field:   APCoefDirect,
 		Value:   0.037, // TODO: Measure Ferocious Bite Rank 5 in game.
 		Reason:  "Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "EV-0032, EV-0033",
+		Source:  "EV-0032",
 	},
 	{
 		SpellID: 31018,
 		Field:   APCoefDirect,
 		Value:   0.037, // TODO: Measure Ferocious Bite Rank 6 in game.
 		Reason:  "Ferocious Bite Rank 6: Ranks 1 to 3's measured share per combo point; the game files state none",
-		Source:  "EV-0032, EV-0033",
+		Source:  "EV-0032",
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
@@ -933,7 +933,7 @@ var Spells = []Override{
 		Source:  "EV-0004",
 	},
 
-	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0046,
+	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0004,
 	// EV-0050). Rank 4 extends the line through Ranks 2 and 3 (4.33 a spell level from 48 to 54) to spell
 	// level 60, rounded to the nearest whole number.
 	{
@@ -941,7 +941,7 @@ var Spells = []Override{
 		Field:   FlatThreat,
 		Value:   178,
 		Reason:  "Shield Slam Rank 1: threat is the damage + 178, times the stance",
-		Source:  "EV-0046",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 23923,

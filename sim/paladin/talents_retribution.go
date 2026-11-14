@@ -228,10 +228,10 @@ func (paladin *Paladin) applySacredArbiter() {
 // The Holy part follows the defense type. In game the melee-defense Holy hits take it: the seal hits,
 // Holy Strike and Judgement of Command. Exorcism, Hammer of Wrath, Retribution Aura and the ranged
 // judgements are magic-defense or ranged-defense and take none, and Holy Wrath and Holy Shock, which
-// no log has measured under the talent, follow the same rule (EV-0064).
+// no log has measured under the talent, follow the same rule (EV-0064, EV-0022).
 //
 // Consecration is the one exception in game: its ticks are magic-defense and take the percent, so it
-// has a mod of its own, held while the row's weapon is equipped (EV-0064). The mod reads the effect by its
+// has a mod of its own, held while the row's weapon is equipped (EV-0022). The mod reads the effect by its
 // Physical and Holy mask, so a game build that takes Holy out of the row panics here.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {

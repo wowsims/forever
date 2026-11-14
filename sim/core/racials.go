@@ -410,7 +410,7 @@ func applyEureka(character *Character) {
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
 // of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
-// the cooldown (EV-0023).
+// the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {

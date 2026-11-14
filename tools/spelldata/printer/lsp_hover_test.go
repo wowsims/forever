@@ -128,8 +128,9 @@ func TestHoverEvidenceAndRulingIDs(t *testing.T) {
 	}
 
 	for _, id := range []string{"EV-9999", "R-9999"} {
-		if _, _, ok := hoverOn(t, newWorkspace(), "// "+id, "file:///tmp/a.go", id, 3); ok {
-			t.Errorf("%s with no file or bullet answered a hover", id)
+		_, trace, ok := hoverOn(t, newWorkspace(), "// "+id, "file:///tmp/a.go", id, 3)
+		if ok || !strings.HasSuffix(trace[len(trace)-1], "holds 0 files for "+id) {
+			t.Errorf("%s has no file and answered %v:\n%s", id, ok, strings.Join(trace, "\n"))
 		}
 	}
 }

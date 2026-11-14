@@ -13,9 +13,9 @@ type WeaponProc struct {
 	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover"
 }
 
-// Each rate is a carry-over unless its Source names its evidence, a combat log or WCL reports from this server. A hotfix
-// that adds back a weapon whose row was dropped needs the row restored from git history, or the database
-// tests that name the item fail the Update Items run.
+// Each rate is a carry-over unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
+// adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
+// the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
 	// Measured in end-game dungeon logs (EV-0003).
 	{

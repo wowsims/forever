@@ -1,6 +1,6 @@
 # EV-0001: Thrash Blade rolls once for each target an area strike lands on
 
-- Claim: a chance-on-hit weapon rolls once for each target a Whirlwind or Cleave lands on.
+- Claim: Thrash Blade rolls once for each target a Whirlwind or Cleave lands on.
 - Sources: the end-game dungeon events of the 2026-11-12 weapon rate sweep (EV-0003)
 - Game build: not recorded
 - Date: 2026-11-12

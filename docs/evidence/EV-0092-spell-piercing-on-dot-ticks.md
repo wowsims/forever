@@ -1,7 +1,7 @@
 # EV-0092: Spell Piercing on DoT ticks follows the spell
 
-- Claim: Spell Piercing on a tick follows the spell, not a tenth: Shadow Word: Pain, Corruption, Agony, Immolate, Fireball's and Frostfire Bolt's ticks bin 3 of 6,232, while Devouring Plague's, Pyroblast's and Starshards' ticks bin at the caster's direct rate.
-- Sources: casters with 7 to 15 Spell Piercing; 189 raw combat logs of casters with proven direct-hit piercing, and Warcraft Logs reports of Forever from 2026-11-07 to 2026-11-13 (about 420 API points)
+- Claim: Spell Piercing on a tick follows the spell: Shadow Word: Pain, Corruption, Agony, Immolate, Fireball's and Frostfire Bolt's ticks bin 3 of 6,232, while Devouring Plague's, Pyroblast's and Starshards' ticks bin at the caster's direct rate.
+- Sources: casters with 7 to 15 Spell Piercing; 189 raw combat logs of casters with proven direct-hit piercing, and Warcraft Logs reports of Forever from 2026-11-07 to 2026-11-13 (about 420 API points), one of them, cvRTFb1qhGBKNkCD, checked against a raw log
 - Game build: not recorded
 - Date: 2026-10-09 to 2026-11-13
 - Pull request: #1005

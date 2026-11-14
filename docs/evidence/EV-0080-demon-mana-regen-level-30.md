@@ -1,6 +1,6 @@
 # EV-0080: Demon mana regen is a share of the warlock's Intellect at level 30
 
-- Claim: a demon's mana regen is its share of the warlock's Intellect as MP5, 30% for the Imp and 10% for the Voidwalker, Sayaad and Felhunter, with nothing from the demon's own stats.
+- Claim: a demon's mana regen is its share of the warlock's Intellect as MP5, 30% for the Imp and 10% for the Voidwalker and Sayaad, with nothing from the demon's own stats.
 - Sources: in-game pet panes and tooltips of a level 30 warlock with 110 Intellect; nothing else recorded
 - Game build: not recorded
 - Date: not recorded

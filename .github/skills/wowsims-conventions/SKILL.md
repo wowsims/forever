@@ -40,8 +40,8 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
 - **Cite a measurement by its evidence id.** A comment states the rule and ends with the id of the measurement behind
   it, `(EV-<n>)`; the counts, logs and method live in that `docs/evidence/` file (`docs/evidence/README.md`). A rule
   measured in game with nothing recorded still gets a file saying so. An override row's `Source` is the bare id. A
-  cross-file rule is its own `docs/rulings/` file under an `R-` id (`docs/rulings/README.md`) and cites its evidence
-  the same way; code that follows it may cite `(R-<n>)`.
+  rule no single file owns goes into the subject skill, or into its own `docs/rulings/` file under an `R-` id
+  (`docs/rulings/README.md`) that cites its evidence the same way; code that follows it may cite `(R-<n>)`.
 - **Name a shared helper by its math.** A helper in `sim/core/utils.go` is named and documented by what it computes
   (`SymmetricMultiplierFromPercent`, `MultiplierFromPercent(-p)`), and the game meaning sits at the call site.
 

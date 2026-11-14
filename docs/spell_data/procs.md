@@ -109,7 +109,7 @@ target's auras have expired. A row that asks for an aura on the dying target ("a
 Vampiric Embrace dies") checks it in `ExtraCondition`, which runs inside `Die`. A proc whose damage or
 debuff a death casts goes to the current target while it is up and is not the one dying, else to the next
 target still up, and casts nothing when none is left (`procDamageTarget`). A rated trigger hears no
-death: in game a death rolls the row's plain chance, which a rated row leaves at 0 (EV-0103), so
+death: in game a death rolls the row's plain chance, which a rated row leaves at 0, so
 `spelldata.ProcTrigger` drops the death callbacks wherever it ends with a procs-per-minute manager, the
 row's or the caller's. A rated row that hears deaths alone is refused by `ItemProcUnsupportedWithRate`.
 

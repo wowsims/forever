@@ -1,6 +1,6 @@
 # EV-0035: Shifting Power and Blood Frenzy threat and Poised on avoided casts, druid levels 51 to 55
 
-- Claim: Shifting Power's energy and Blood Frenzy's rage threaten without the form's multiplier, and an avoided cast spends Poised.
+- Claim: Shifting Power's energy and Blood Frenzy's rage threaten without the form's multiplier, an avoided cast spends Poised, and the armor damage-taken rage assumes stays near 38% to attacker level 55.
 - Sources: StatLedger, ThreatLog and combat logs of a feral druid at levels 51 to 55 in Tanaris, Un'Goro and the Sunken Temple
 - Game build: 1.60.1.70888
 - Date: not recorded
@@ -13,4 +13,9 @@
 | An avoided cast spends Poised                               | with Poised up, 27 of 27 avoided Claws, Rakes, Pounces and Ravages (dodge, parry, miss, immune) spent it         |
 | Pounce's cast can miss (same logs)                          | 2 of 74 casts logged SPELL_MISSED MISS on Pounce 9823 right after the cast; 8 of the 40 cost spent               |
 | A Lacerate dose keeps the bleed's tick grid (same logs)     | first tick 3.0 s after a fresh application 258 of 258; tick gaps across a dose or refresh 3.0 ± 0.1 s 212 of 212 |
-| Damage-taken rage at attacker levels 50 to 55               | see EV-0051                                                                                                      |
+
+Damage-taken rage, the armor A the formula assumes (EV-0048) by attacker level, from melee hits of rage-using mobs:
+
+| Attacker level | Measured A                         | n                        | Table that stood before          |
+| -------------- | ---------------------------------- | ------------------------ | -------------------------------- |
+| 50 to 55       | .382, .381, .378, .379, .369, .381 | 244, 225, 33, 15, 17, 28 | the ramp to 63 read .383 to .388 |

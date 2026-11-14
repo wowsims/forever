@@ -194,7 +194,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0089).
+	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0088).
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their

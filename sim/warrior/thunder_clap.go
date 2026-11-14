@@ -8,7 +8,7 @@ import (
 
 var thunderClapRank = spellData.ThunderClap.Highest()
 
-// The Attack Power share (0.07) reads floor(0.99 * (55 + 0.07 * AP)) on Rank 4 (EV-0019, EV-0048).
+// The Attack Power share is 0.07: Rank 4 hits for floor(0.99 * (55 + 0.07 * AP)) (EV-0019, EV-0048).
 // TODO: Ranks 2, 3, 5 and 6 carry the same share unmeasured. Verify it on them once logs at their level exist.
 var thunderClapBaseDamage = thunderClapRank.DamageEffect().Average()
 var thunderClapAPCoeff = thunderClapRank.DamageEffect().APCoeff()

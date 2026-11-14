@@ -17,7 +17,7 @@ func (rogue *Rogue) registerEviscerate() {
 func (rogue *Rogue) registerEviscerateRank(rank *spelldata.Spell) {
 	eviscerateBaseDamage := rank.DamageEffect()
 	eviscerateDamagePerPoint := float64(rank.DamageEffect().PointsPerResource)
-	eviscerateApScalingPerPoint := 0.04 // Measured in game (EV-0086).
+	eviscerateApScalingPerPoint := 0.04 // Estimated from in-game tests (EV-0086).
 	config := spelldata.SpellConfig(&rogue.Unit, rank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 	config.ExtraCastCondition = rogue.FinisherExtraCastCondition
 	config.Flags |= SpellFlagFinisher | SpellFlagColdBlooded

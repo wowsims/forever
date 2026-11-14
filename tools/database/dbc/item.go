@@ -237,7 +237,7 @@ func (item *Item) GetHP5(itemLevel int) int32 {
 // item level budget with the allocations of the "of Magic" and "of Healing" bonus lists: 20000 spell
 // power, or on a healing weapon 37600 healing (1.88 times the spell power) and a third of that as spell
 // damage, each rounded down. It adds to the weapon's own stats; the rule reproduces the in-game tooltip
-// of every weapon with one of the two flags (EV-0104).
+// of every weapon with one of the two flags (EV-0112).
 const (
 	casterSpellPowerAllocation   = 20000
 	casterHealingPowerAllocation = 37600

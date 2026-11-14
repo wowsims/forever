@@ -6,11 +6,15 @@
 - Date: not recorded
 - Pull request: #990
 
-The charge. 81 of 84 mage charges go in the same millisecond as the buffed cast's success and the other 3 expire. Every
+## The mage charge
+
+81 of 84 mage charges go in the same millisecond as the buffed cast's success and the other 3 expire. Every
 enemy of the spending area cast crits (79 of 79), and one charge covers one cast. Both buffed Pyroblasts in the log spend
 the charge and crit, though the row's crit modifier names neither Pyroblast nor Fireball.
 
-The ticks. Each Flamestrike ground tick is a hit of the tick spell 1279990 on every enemy in the area. Revelation rolls on
+## Flamestrike's ground ticks
+
+Each Flamestrike ground tick is a hit of the tick spell 1279990 on every enemy in the area. Revelation rolls on
 20 of 230 non-crit tick hits (8.7% a hit; per tick it would be 22.5%), so it rolls per enemy. Other listeners against the
 ticks:
 
@@ -23,6 +27,6 @@ ticks:
 | Revelation's crit and charge   | ticks under the buff crit 16 of 76, as without it; no tick spends it    |
 | Combustion                     | no tick inside a Combustion window                                      |
 
-Ticks take no partial resist: 2 of 370 ticks show a resist, against 52 of 189 Scorch hits on the same mobs. The sim
-reading against the log: on a Flamestrike-only rotation on 5 targets (60 s), Revelation procs per fight go from 3.0 to
-8.6.
+Ticks take no partial resist: 2 of 370 ticks show a resist, against 52 of 189 Scorch hits on the same mobs. In the sim, a
+Flamestrike-only rotation on 5 targets (60 s) goes from 3.0 to 8.6 Revelation procs a fight once the ticks hit each
+enemy.

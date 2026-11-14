@@ -1,6 +1,6 @@
 # EV-0009: Maelstrom Weapon does not proc off Windfury Totem's strike
 
-- Claim: Windfury Totem's strike never adds a Maelstrom Weapon stack, while Windfury Weapon's strike, white swings and Stormstrike still do.
+- Claim: Windfury Totem's strike adds no Maelstrom Weapon stack, while white swings still do.
 - Sources: combat log, Enhancement shamans with Maelstrom Weapon 5/5 (rank 1 and 2 totem, then rank 3 totem), and a census of Warcraft Logs reports uploaded after the 2026-11-14 hotfix; report codes not recorded
 - Game build: after push 114060
 - Date: 2026-11-13 to 2026-11-14

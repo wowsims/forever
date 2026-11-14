@@ -676,7 +676,7 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 // The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
 // row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
 // gain targets the caster, so it comes with every proc whether the damage lands or not, a full
-// resist included (EV-0025).
+// resist included (EV-0108).
 func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
 	gain := damage.EnergizeEffect()
 	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {

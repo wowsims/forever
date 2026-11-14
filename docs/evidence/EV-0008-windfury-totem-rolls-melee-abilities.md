@@ -1,13 +1,14 @@
-# EV-0008: Windfury Totem rolls on melee abilities, never on triggered spells
+# EV-0008: Windfury Totem rolls on melee abilities, never on spells
 
 - Claim: Windfury Totem rolls on a main-hand melee swing or melee ability that lands, Holy Strike, Stormstrike, Shred,
-  Rake, Ferocious Bite, Claw and bear Swipe included, and never on triggered spells.
+  Rake, Ferocious Bite, Claw and bear Swipe included, and never on avoided hits, off-hand swings, DoT ticks or spells;
+  triggered hits whose rows carry Not a Proc all but never roll it.
 - Sources: combat logs after the hotfix, ranks 1 to 3 of the totem, seven players; report codes not recorded
-- Game build: not recorded; the pull request updates the items to 1.60.1.70938
+- Game build: not recorded
 - Date: 2026-11-13
 - Pull request: #1006
 
-Local combat logs taken after the hotfix of 2026-11-13. The rule that an ability rolled the totem only where its row
+Combat logs after the hotfix of 2026-11-13. The rule that an ability rolled the totem only where its row
 requires a main-hand weapon or goes off on the next swing came from logs before the hotfix.
 
 | Hit                                              | Rolls the totem                                      |
@@ -21,9 +22,9 @@ requires a main-hand weapon or goes off on the next swing came from logs before 
 | Extra attack swings                              | 34 of 216                                            |
 | Avoided hits, off-hand swings, DoT ticks, spells | never                                                |
 
-Before the hotfix Holy Strike read 0 of 115 and Stormstrike 0 of 111. Off-hand autos were checked as well (rogue 0 of
-2,406, Fury 0 of 1,318). Whirlwind's off-hand hit, ranged attacks, Thunder Clap, shouts, Consecration, seals other than
-Command, shocks, Deep Wound and poisons never roll it.
+Before the hotfix Holy Strike read 0 of 115 and Stormstrike 0 of 111. In the sim, off-hand autos
+(rogue 0 of 2,406, Fury 0 of 1,318), Whirlwind's off-hand hit, ranged attacks, Thunder Clap, shouts, Consecration, seals
+other than Command, shocks, Deep Wound and poisons never roll it.
 
 Triggered hits whose rows carry Not a Proc read all but never in these logs: Windfury Weapon 1 of 78 and 0 of 194 after
 the hotfix; Seal of Command 0 of 117, Judgement of Command 0 of 105, Retaliation 0 of 18 and Sweeping Strikes 0 of 166

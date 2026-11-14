@@ -1,6 +1,6 @@
-# EV-0010: Flurry charges spent by Windfury strikes, Stormstrike and spells
+# EV-0010: Flurry charges spent by Windfury strikes, Stormstrike and spells, and Searing Totem's first attack
 
-- Claim: a Windfury Weapon strike spends a Flurry charge and so does Windfury Totem's strike 10610; Stormstrike and spells spend none.
+- Claim: a Windfury Weapon strike spends a Flurry charge and so does Windfury Totem's strike 10610; Stormstrike and spells spend none; Searing Totem's first attack lands at the end of its first cast.
 - Sources: combat log, two level 60 Enhancement shamans (Blackrock Spire and Dire Maul)
 - Game build: 1.60.1
 - Date: 2026-11-11
@@ -13,3 +13,7 @@ Weapon's strikes leaves three charges, as in the log.
 
 A dodged or parried Windfury Weapon strike also spends in the sim, following the white swing rule; the logs have no clean
 case of it. Windfury Totem's strike 10610 spending a charge is read from the same logs; its count is not recorded.
+
+Searing Totem's first attack lands at the end of its 2.2 s cast; the attack's cast takes 2.204 s in the log, and
+from success to success the attacks read 2.472 ± 0.011 s (n 256), so a full 55 s drop holds 22 attacks. #949 recounts
+the wait between casts on a totem that keeps its target (EV-0011).

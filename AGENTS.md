@@ -58,5 +58,4 @@ effect, item or component owns is a comment at its implementation (the rule in p
 a rule no single file owns goes into the subject skill's body, or into its own `docs/rulings/` file under the next free
 `R-` id with a line in that skill's `references/rulings.md` index. A measurement behind a rule (log counts, rates,
 "checked in game") goes into its own `docs/evidence/` file under the next free `EV-` id, and the comment, override
-`Source` or ruling cites that id instead of the numbers. Each folder's `README.md` has the format, and
-`make skills-check` fails on an id with no file.
+`Source` or ruling cites that id instead of the numbers. Each folder's `README.md` has the format.

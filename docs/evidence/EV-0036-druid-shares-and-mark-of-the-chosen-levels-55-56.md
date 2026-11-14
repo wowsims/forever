@@ -1,10 +1,14 @@
-# EV-0036: Rip Rank 5, Rake Rank 4 and Pounce Bleed Rank 3 shares, druid levels 55 to 56
+# EV-0036: Rip Rank 5, Rake Rank 4 and Pounce Bleed Rank 3 shares and Mark of the Chosen, druid levels 55 to 56
 
-- Claim: Rip Rank 5 takes 0.0114 of attack power a tick per combo point up to 4, Rake Rank 4 0.065 on the hit and the tick, and Pounce Bleed Rank 3 0.025 a tick.
+- Claim: Rip Rank 5 takes 0.0114 of attack power a tick per combo point up to 4, Rake Rank 4 0.065 on the hit and the
+  tick, and Pounce Bleed Rank 3 0.025 a tick; Mark of the Chosen (item 17774, trigger 21969) procs only on the melee,
+  ranged and harmful spell hits taken, at about the row's 2%, and no helpful spell taken fired it.
 - Sources: combat logs and StatLedger of a druid at levels 55 to 56
 - Game build: 1.60.1.70888
 - Date: 2026-11-12
 - Pull request: #987
+
+## Attack power shares
 
 | Spell                                | Value                   | Fit                                                                                                                              |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -13,3 +17,12 @@
 | Rake Rank 4 (9904), periodic         | 0.065                   | 237 of 238 ticks                                                                                                                 |
 | Pounce Bleed Rank 3 (9826), periodic | 0.025                   | 24 of 24 ticks, c 0.0248 to 0.0258                                                                                               |
 | Ferocious Bite Rank 5 (22829)        | 0.037 fits its 25 bites | range 0.0354 to 0.0372, which does not pin it                                                                                    |
+
+## Mark of the Chosen
+
+The row's ProcTypeMask also names helpful spells taken, but every proc in the logs followed a hit taken.
+
+| Reading                             | Measured                                                           |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| Procs on eligible landed hits taken | 5 procs on 392 landed hits taken, 1.28%, 95% interval 0.55 to 2.95 |
+| Procs off a helpful spell taken     | none                                                               |

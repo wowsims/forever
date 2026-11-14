@@ -3,7 +3,7 @@
 - Claim: swapping the main-hand weapon removes every Echo, since the talent needs a weapon and the swap takes it off for
   a moment.
 - Sources: logs of a paladin at levels 20 to 35; report codes and counts not recorded
-- Game build: not recorded; the pull request moves the paladin spell data to 1.60.1.70862
+- Game build: not recorded
 - Date: 2026-11-06 to 2026-11-08
 - Pull request: #923
 

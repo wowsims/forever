@@ -50,8 +50,8 @@ constants that no generator reads.
 - **A measurement written inline.** A comment, override `Reason` or `Source`, or ruling the change adds that carries
   log counts, rates, report codes or "checked in game" is a finding: the numbers move to a `docs/evidence/` file and
   the text cites its `EV-` id (`wowsims-conventions` `## Comments`). A cross-file rule written into a skill's
-  `references/rulings.md` instead of its own `docs/rulings/` file is one too; `make skills-check` catches only ids
-  that point nowhere.
+  `references/rulings.md` instead of its own `docs/rulings/` file is one too; `make skills-check` checks the ids and
+  files, not where a rule was written.
 - **One copy of each rule.** Three channels differing only in their tick effect share one builder; a value
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is

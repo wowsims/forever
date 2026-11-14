@@ -104,8 +104,8 @@ it stopped (`✗ ...`).
 
 What a hover reads: a spell id in the shapes hand-written code states (`MustFind(n)`, `Find(n)`,
 `.ByID(n)`, `SpellID: n`, `"spellId": n`, `fromSpellId(n)`, `spellId: n`) in any file; an evidence id
-(`EV-<n>`, its `docs/evidence/` file as it stands on disk) or a ruling id (`R-<n>`, its `docs/rulings/`
-file) in any file, a comment or a string included; in a Go file
+(`EV-<n>`, its `docs/evidence/` file as the editor holds it, else as it stands on disk) or a ruling id (`R-<n>`, its
+`docs/rulings/` file) in any file, a Markdown file, a comment or a string included; in a Go file
 also a `spellData.<Family>` token, a name the package folder binds to a ladder chain with `var`, `=` or
 `:=` at package level, or the hovered function binds before the cursor (substituted through at most
 four names, cycles refused), one accessor of a chain anywhere in an expression, the chain inside such
@@ -132,7 +132,7 @@ Neovim (0.10 or later), in `init.lua`:
 
 ```lua
 vim.api.nvim_create_autocmd('FileType', {
-	pattern = { 'go', 'json', 'typescript', 'typescriptreact' },
+	pattern = { 'go', 'json', 'typescript', 'typescriptreact', 'markdown' },
 	callback = function(args)
 		local root = vim.fs.root(args.buf, 'go.mod')
 		if root and vim.uv.fs_stat(root .. '/tools/spelldata') then
@@ -171,6 +171,10 @@ language-servers = ["typescript-language-server", "wowsims-spelldata"]
 [[language]]
 name = "tsx"
 language-servers = ["typescript-language-server", "wowsims-spelldata"]
+
+[[language]]
+name = "markdown"
+language-servers = ["marksman", "wowsims-spelldata"]
 ```
 
 Helix starts the server in the root it finds for the file, which in this repository is its root - where

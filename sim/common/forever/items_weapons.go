@@ -247,8 +247,8 @@ func init() {
 	// Presence of Mind or Heating Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground
 	// ticks are direct hits and roll it; damage over time ticks, Ignite, wand shots and damage
 	// shields never do. A harmful spell that deals no damage, such as Counterspell or the start of
-	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Only landed hits roll
-	// (EV-0025).
+	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Whether a miss rolls is
+	// undetermined, so only landed hits roll (EV-0025).
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: castTimePPM(spelldata.MustFind(21978))},
 		[]shared.ItemVariant{

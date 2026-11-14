@@ -4,10 +4,11 @@
 #   sh .github/skills/check_evidence.sh
 #   make skills-check                    (runs it after the path checks)
 #
-# For each kind, EV- in docs/evidence and R- in docs/rulings, checks three things:
+# For each kind, EV- in docs/evidence and R- in docs/rulings, checks four things:
 #   1. no two files share a number
 #   2. every id a tracked file cites has its file
-#   3. every file is cited outside itself, or carries a "Replaced by" line
+#   3. every file is named <prefix>-NNNN-<slug>.md
+#   4. every file is cited outside itself, or carries a "Replaced by" line
 # and that every ruling states its evidence: EV- ids, pending, or not needed: <why>.
 #
 # Each folder's README.md and the hover test are skipped: their ids are examples.
@@ -22,14 +23,15 @@ fail=0
 # check <kind> <prefix> <folder>
 check() {
 	kind=$1 prefix=$2 folder=$3
-	pattern="\\b$prefix-[0-9]{4}\\b"
+	# Every citation outside the examples, as <file>:<id>.
+	cites=$(git grep -IowE "$prefix-[0-9]{4}" -- . ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!tools/spelldata/printer/lsp_hover_test.go' | sort -u)
 
 	for id in $(ls "$folder" | grep -oE "^$prefix-[0-9]{4}" | sort | uniq -d); do
 		echo "$kind: $id names more than one file in $folder"
 		fail=1
 	done
 
-	for id in $(git grep -hoE "$pattern" -- . ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!tools/spelldata/printer/lsp_hover_test.go' | sort -u); do
+	for id in $(printf '%s\n' "$cites" | sed 's/.*://' | sort -u); do
 		set -- "$folder/$id"-*.md
 		if [ ! -e "$1" ]; then
 			echo "$kind: $id is cited but $folder has no $id-*.md"
@@ -39,9 +41,14 @@ check() {
 
 	for f in "$folder/$prefix"-*.md; do
 		[ -e "$f" ] || continue
-		id=$(basename "$f" | grep -oE "^$prefix-[0-9]{4}")
+		if ! id=$(basename "$f" | grep -oE "^$prefix-[0-9]{4}-"); then
+			echo "$kind: $f is not named $prefix-NNNN-<slug>.md"
+			fail=1
+			continue
+		fi
+		id=${id%-}
 		grep -q '^Replaced by: ' "$f" && continue
-		if ! git grep -qE "$id\\b" -- . ":!$f" ':!docs/evidence/README.md' ':!docs/rulings/README.md' ':!tools/spelldata/printer/lsp_hover_test.go'; then
+		if ! printf '%s\n' "$cites" | grep -F ":$id" | grep -qvF "$f:"; then
 			echo "$kind: nothing cites $f"
 			fail=1
 		fi
@@ -59,4 +66,5 @@ for f in docs/rulings/R-*.md; do
 	fi
 done
 
-exit $fail
+[ "$fail" = 0 ] && echo "evidence and rulings: OK"
+exit "$fail"

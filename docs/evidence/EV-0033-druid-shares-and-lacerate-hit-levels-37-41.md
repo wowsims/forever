@@ -1,6 +1,6 @@
-# EV-0033: Rip, Rake, Pounce Bleed, Swipe and Ferocious Bite shares and Lacerate's weapon hit, druid levels 37 to 41
+# EV-0033: Rip, Rake, Pounce Bleed and Swipe shares and Lacerate's weapon hit, druid levels 37 to 41
 
-- Claim: Rip Rank 3, Rake Rank 2, Pounce Bleed Rank 1, Swipe Rank 3 and Ferocious Bite Ranks 2 and 3 take the measured attack power shares, and Lacerate's weapon hit 414647 follows a landed cast of the rank, which alone misses, is dodged, parried or immune.
+- Claim: Rip Rank 3, Rake Rank 2, Pounce Bleed Rank 1 and Swipe Rank 3 take the measured attack power shares, and Lacerate's weapon hit 414647 follows a landed cast of the rank, which alone misses, is dodged, parried or immune.
 - Sources: combat log with StatLedger, a Tauren feral druid at levels 37 to 41
 - Game build: 1.60.1.70862
 - Date: 2026-11-08
@@ -12,7 +12,6 @@
 | Rake Rank 2, ticks                                                | 1,157 of 1,232 ticks fit                                                                                                                                                                      |
 | Rip Rank 3 (9493) at 0.0114 × attack power × min(combo points, 4) | 210 of 237 ticks fit; 0.0091 fits 154                                                                                                                                                         |
 | Swipe Rank 3 (769) at 0.03                                        | 4,055 of 5,387 hits exact                                                                                                                                                                     |
-| Ferocious Bite Ranks 2 and 3 (22568, 22827)                       | 0.0367 to 0.0376 over 24 bites of the two ranks                                                                                                                                               |
 | Pounce Bleed Rank 1 (9007), 28 casts, 118 ticks                   | 118 of 118 ticks match floor(19 + c × attack power) for c in [0.02496, 0.02536); shifting form mid-dot changes the next tick                                                                  |
 | Rend and Tear on Pounce Bleed's ticks                             | without it every tick fits; with it no share fits more than 113 of 118; the level 37 ticks (Rend and Tear 3/5) and the caster form ticks reject it                                            |
 | Pounce Bleed counts as a bleed for other attacks' Rend and Tear   | with only Pounce Bleed on the target, Claw 3 of 3 and the Rake hit 25 of 25 took the talent                                                                                                   |
@@ -22,3 +21,5 @@
 | Lacerate's hit blocked                                            | 0 of 790 hits on 414647 blocked                                                                                                                                                               |
 
 The hit's class mask [0,0,0,8] lies outside Natural Instinct's [8624128,1344].
+
+The Ferocious Bite Ranks 2 and 3 reading of the same log is #933's (EV-0032).

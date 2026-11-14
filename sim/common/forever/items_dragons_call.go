@@ -18,7 +18,8 @@ type emeraldDragonWhelp struct {
 }
 
 // Health is 1.3 times the creature health for its level. Armor is the creature armor at
-// ExpectedStatMod 1's share in the game files, 0.51 (EV-0021).
+// ExpectedStatMod 1's share in the game files, 0.51. The attack power the whelp shows in game is left out; the
+// swing below carries all its damage (EV-0021).
 var whelpBaseStats = stats.Stats{
 	stats.Health: 1.3 * core.CreatureHealthMaxLevel,
 	stats.Armor:  0.51 * core.CreatureArmorMaxLevel,
@@ -26,12 +27,12 @@ var whelpBaseStats = stats.Stats{
 
 // The 2.0 s swing is fitted at level 57 (EV-0021): 2 s of the creature dps for the level at 0.73,
 // ExpectedStatMod 1's share, gives 83 ± 15%. That row is inferred from the whelp's armor matching its
-// 0.51. A smaller share plus the whelp's attack power fits as well (0.5 gives 82), so the log does not
+// 0.51. A smaller share plus the whelp's in-game attack power fits as well (0.5 gives 82), so the log does not
 // tell the two apart.
 //
-// The log glances far more often than the sim's attack table, which glances 10% at that level, and a
-// skill gap that gave the log's share would also give far more misses and parries than its 6% and 4%.
-// No rule explains it, so the table stays and the swings read high (EV-0021).
+// The log glances far more often than the sim's attack table, which glances 10% at that level, and a skill gap
+// that gave the log's glance share would also give far more misses and parries than the log shows. No rule
+// explains it, so the table stays and the swings read high (EV-0021).
 var whelpSwingAverage = 0.73 * core.CreatureAutoAttackDpsMaxLevel * 2.0
 var whelpSwing = core.Weapon{
 	BaseDamageMin: whelpSwingAverage * (1 - 0.15),

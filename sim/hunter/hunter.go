@@ -14,8 +14,9 @@ var autoShotRank = spellData.AutoShot.Highest()
 
 // In game Multi-Shot and Aimed Shot hit 9 harder than the rows' normalised weapon damage across the
 // whole weapon roll, and Auto Shot hits for its own; the game files state no such bonus (EV-0068).
-// Sniper Shot, the third normalised shot, takes none.
-// TODO: In-game testing required: whether the 9 is flat or grows with ranged attack power.
+// Sniper Shot, the third normalised shot, takes none here.
+// TODO: In-game testing required: whether the 9 is flat or grows with ranged attack power, and whether Sniper Shot,
+// which no log has shown, takes it too.
 const normalizedShotBonus = 9
 
 type Hunter struct {

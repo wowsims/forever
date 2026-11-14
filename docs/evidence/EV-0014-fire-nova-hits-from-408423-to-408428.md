@@ -1,6 +1,6 @@
 # EV-0014: Fire Nova's hits come from rows 408423 to 408428
 
-- Claim: Fire Nova Ranks 1 and 2 hit as 408423 and 408424, not as the rows their tooltips read (8349 and 8502), and the higher ranks follow with 408426, 408427 and 408428.
+- Claim: Fire Nova Ranks 1 and 2 hit as 408423 and 408424, not as the rows their tooltips read (8349 and 8502).
 - Sources: combat log, raw logs and Warcraft Logs reports of Fire Nova Ranks 1 and 2; report codes not recorded
 - Game build: not recorded
 - Date: 2026-10-07
@@ -18,6 +18,6 @@ they take the rows for levels 32, 42 and 52 as ranks 1 and 2 take theirs.
 | 408344 | 4    | 408427  | 42        | 11306       |
 | 408345 | 5    | 408428  | 52        | 11307       |
 
-Rank 5 at level 60 for reference: the tooltip's row 11307 reads 419 + 3.4 a level over 5 levels with a 0.143 spell power
+For reference, at level 60 Rank 5's tooltip row 11307 reads 419 + 3.4 a level over 5 levels with a 0.143 spell power
 share (436 + 0.143 spell power), and the logged row 408428 reads 403 + 3.4 a level over 5 levels with 0.214 (420 + 0.214
 spell power). The two agree at 225 spell power.

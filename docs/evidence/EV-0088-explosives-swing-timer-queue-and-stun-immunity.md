@@ -1,12 +1,20 @@
-# EV-0088: Throwing an explosive keeps the swing timer and drops the queued swing
+# EV-0088: Throwing an explosive keeps the swing timer, and stun explosives come back immune on raid bosses
 
-- Claim: an explosive throw leaves the melee swing timer running, so the next swing lands on its old schedule and a swing due during the cast lands in it; a cast of dynamite, grenades or bombs drops the attack queued for the next swing, and the instant sapper charge keeps it.
-- Sources: Forever combat logs of every explosive thrown by a player who was meleeing (six throwers across five logs), and Classic Era Warcraft Logs for the queue (Molten Core and Blackwing Lair, 50 reports, warrior throws, duplicate events removed), which come from outside Forever
-- Game build: not recorded
-- Date: the Forever logs dated 2026-10-01 to 2026-10-12 in their names, and one named WoWCombatLog-091826_120108; the Classic Era reports are not recorded
+- Claim: an explosive throw leaves the melee swing timer running, so the next swing lands on its old schedule and a swing
+  due during the cast lands in it; no swing landing in a dynamite or grenade cast was a queued attack; and Iron and
+  Thorium Grenade, whose spells state the stun mechanic, come back immune on a stun-immune target, their damage
+  included, while dynamite and sapper charges, which state no mechanic, hit the same bosses.
+- Sources: Forever combat logs of every explosive thrown by a player who was meleeing (six throwers across five logs);
+  Warcraft Logs from outside Forever: Classic Era Molten Core and Blackwing Lair (for the queue, 50 reports, warrior
+  throws, duplicate events removed), a Fresh Naxxramas report, and TBC Hyjal and Black Temple; report codes not recorded
+- Game build: not recorded for the Forever logs; not Forever for the rest
+- Date: the Forever logs dated 2026-10-01 to 2026-10-12 in their names, and one named WoWCombatLog-091826_120108; the
+  reports from outside Forever are not recorded
 - Pull request: #783
 
-The swing timer. Each throw is checked against two models: the timer running on (next swing = last swing + weapon speed)
+## The swing timer and the queue
+
+Each throw is checked against two models: the timer running on (next swing = last swing + weapon speed)
 or the cast restarting it (cast end + weapon speed). The explosive rows carry no Do Not Reset Combat Timers (attributes
 word 2 0x20000), so the sim had reset the swing on every throw.
 
@@ -23,8 +31,8 @@ No throw reset the swing, and six had a white swing land inside the 1 s cast, so
 The three late swings (+0.6 to +1.0 s) fit neither model; none is early. Sapper charges and instant explosives are not
 measured, since the logs hold no melee thrower of them.
 
-The queue. A combat log does not show the queue, but no swing that lands during an explosive's cast is a queued attack in
-the Classic Era logs, where a warrior's Heroic Strike or Cleave share over the same fights is 8 to 29%:
+A combat log does not show the queue. In the Classic Era logs no swing that lands during an explosive's cast is a queued
+attack, where a warrior's Heroic Strike or Cleave share over the same fights is 8 to 29%:
 
 | Explosive       | Throws | Swings during the cast | Of them Heroic Strike or Cleave | Expected if the queue survived |
 | --------------- | ------ | ---------------------- | ------------------------------- | ------------------------------ |
@@ -38,3 +46,12 @@ No warrior threw a bomb in the sample. The first swing after a throw is a queued
 (18%) as for the instant Goblin Sapper Charge (19%, 438 throws), since players queue again at once, so the logs cannot tell
 a dropped queue from a held one, nor what the sapper does. The rule that dynamite, grenades and bombs drop the queue and
 the sapper charge keeps it is the owner's ruling.
+
+## Stun explosives on stun-immune targets
+
+| Reading                                                        | Measured                |
+| -------------------------------------------------------------- | ----------------------- |
+| Thorium Grenade on bosses                                      | 7 of 7 immune, 0 damage |
+| Iron Grenade and Thorium Grenade on stun-immune Naxxramas mobs | 5 of 5 immune           |
+
+The level at which targets are stun-immune by default (63) is the owner's ruling.

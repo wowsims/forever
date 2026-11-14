@@ -11,4 +11,4 @@
 At 27 spell power, 5.52 of each proc came from spell power: 20.4%, against the 29% the coefficient states (0.29 x 0.7 =
 20.3%). The second report adds that Improved Seals raises the percent itself (the tooltip reads 80%, 70 x 1.15) and that
 the Holy damage the target takes extra, Judgement of the Crusader, still scales at 29% and is untouched by the talent.
-Those two halves are a reading of the mechanics rather than a measurement.
+Those two halves are the second tester's reading of the mechanics, with no measurement behind them.

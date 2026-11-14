@@ -13,7 +13,7 @@ func (warrior *Warrior) registerShieldBlock() {
 	spelldata.ParseEffects(&warrior.Character, aura, shieldBlockRank)
 
 	// The block that spends the last charge leaves the aura up to the end of its spell batch, so the
-	// other attacks landing in that batch are blocked too and spend nothing (EV-0047).
+	// other attacks landing in that batch are blocked too and spend nothing (EV-0047, EV-0004).
 	// Holy Shield spends charges on blocks the same way but is not measured, and it still ends at its last block.
 	lastChargeSpent := false
 	batchEnd := &core.PendingAction{

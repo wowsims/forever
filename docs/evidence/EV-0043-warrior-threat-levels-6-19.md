@@ -23,7 +23,7 @@ stance change, one mob. Intervals are 95%.
 | Shield Specialization rage threat      | 25 per 5 rage proc on 8 of 8 clean single mob Defensive windows; 45 (5 x 1.8) never appears |
 | Bloodrage rage ticks                   | Battle 3.97 [3.37, 4.57], n = 55; Defensive 9.00 [8.77, 9.23], n = 6                        |
 
-16.6, 27.6, 40 and 61 at spell levels 1, 8, 16 and 24 fit no single share per spell level. Not changed: Hamstring (5
+16.6, 27.6, 40 and 61 at spell levels 1, 8, 16 and 24 fit no single share per spell level. Two readings left the code unchanged: Hamstring (5
 threat per 4 damage hit fits a factor of 1.25 and +1 alike, n = 3), and a halving of every rage source's threat from
 about 14:05 on 2026-11-06 that nothing in gear, talents, group or zone explains. Defensive Stance's multiplier is 1.8
 and Battle Stance's 0.8 (Defensive Stance Passive 7376 went from +30 to +80 at 70790); Revenge 2.25, Thunder Clap, Rend,

@@ -3,7 +3,7 @@
 - Skill: wowsims-core-mechanics
 - Code: `sim/core/spell_result.go`; `sim/core/spelldata/effect.go` `RollAt`
 - Pull request: #267
-- Evidence: EV-0106
+- Evidence: EV-0106, EV-0045
 
 `EffectVariance` is the full roll width: spell hits and heals roll the whole amount, power included, by ±V/2
 (`Spell.DirectVariance` after power), and physical effects roll the base by ±V/2, rounded to a whole number, before

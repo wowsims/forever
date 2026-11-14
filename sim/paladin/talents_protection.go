@@ -91,7 +91,7 @@ func (paladin *Paladin) applyRedoubt() {
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
 	// Every melee swing and melee ability aimed at the paladin rolls, whatever it resolves to, although
-	// the tooltip says "damaging". Ranged attacks roll nothing (EV-0023).
+	// the tooltip says "damaging". Ranged attacks roll nothing (EV-0022).
 	trigger.Outcome = core.OutcomeEmpty
 	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)
@@ -306,7 +306,7 @@ func (paladin *Paladin) applyIronCreed() {
 //
 // Holy Shield and Shield Specialization read the talent where they register, and both need a Holy
 // Strike that lands. The spell block comes with every strike made with a shield, an avoided one
-// too (EV-0023). It is the triggered row's
+// too (EV-0022). It is the triggered row's
 // A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. While it is up, a melee swing of any
 // school rolls the paladin's block chance. Magic spells stay unblockable.
 func (paladin *Paladin) applyShieldsworn() {

@@ -3,7 +3,7 @@
 - Skill: wowsims-procs
 - Code: `sim/core/aura_helpers.go`, `canProcFrom`
 - Pull request: #958
-- Evidence: EV-0006
+- Evidence: EV-0021
 
 No weapon proc hears an ability whose row requires a shield (SpellEquippedItems), which strikes with the shield, or has
 magic DefenseType: a weapon's chance-on-hit item effect (ItemEffect TriggerType 2) and a combat enchant both skip its

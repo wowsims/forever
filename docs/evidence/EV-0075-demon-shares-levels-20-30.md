@@ -24,4 +24,6 @@ The Sayaad's average swing before attack power is 0.698 of the creature dps at 2
 
 The same logs and tooltips confirm the warlock's shares the sim already used: attack power 17% of the warlock's spell damage, armor 35% without Demon Armor, health 7.5 a point of Stamina (times 1.15 Fel Vitality), spell damage 10%.
 
-The shares are read at levels 20 and 30, not at 60. Level 60 is extrapolated, and the Sayaad's 186 attack power comes from a line through 66 and 96. The Imp's shares come from level 20 only. The level 30 armor share and the Demon Armor exclusion that this reading led to were replaced by the reading of EV-0078.
+In a Sayaad log of the same pass, when Demon Armor fell off (warlock armor 543 to 333) the Sayaad kept 955 armor through 65 swings and casts, while its attack power went 101 to 102 at its next action, 1.8 s after the warlock's spell damage went 30 to 36, with no re-summon.
+
+The shares are read at levels 20 and 30, and level 60 is extrapolated; the Sayaad's 186 attack power comes from a line through 66 and 96. The Imp's shares come from level 20 only. The level 30 armor share and the Demon Armor exclusion that this reading led to were replaced by the reading of EV-0078.

@@ -70,7 +70,7 @@ func TestRandomSuffixEquipSpellDodge(t *testing.T) {
 
 // A bonus list with an ITEM_BONUS_REDUCED_CASTER_DPS row marks its suffix, and a weapon offering one
 // carries the damage it deals with it, as Brutal War Axe (3210) with "of the Physician" (12911) does
-// (EV-0097). A weapon offering none, and the armor the lower lists sit on, carry no such range.
+// (EV-0110). A weapon offering none, and the armor the lower lists sit on, carry no such range.
 func TestReducedCasterDpsSuffixDamage(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()

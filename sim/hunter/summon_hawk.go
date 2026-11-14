@@ -33,9 +33,9 @@ func (hawk *HawkPet) ExecuteCustomRotation(sim *core.Simulation) {
 }
 
 // What a hawk is, read off combat logs: 5% of the creature health for its level and no armor or attack
-// power of its own; 80% of the owner's attack power and 30% of the owner's armor on top. The row that
-// scales a hawk, Hunter Guardian Hawk Pet Scaling 01 (1293586), is not in the store, so the swing below
-// is fitted to those logs (EV-0073).
+// power of its own; 80% of the owner's attack power and 30% of the owner's armor on top (EV-0074, EV-0073).
+// The row that scales a hawk, Hunter Guardian Hawk Pet Scaling 01 (1293586), is not in the store, so the
+// swing below is fitted to those logs (EV-0073).
 var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
@@ -46,7 +46,7 @@ const hawkOwnerBaseWeaponAP = 7.0
 const hawkOwnerAPPerWeaponDPS = 14.0
 
 // A swing before armor is 0.185 of the creature dps over the 2.5 s, spanning 0.22 either side, and 60
-// attack power a point of dps. Both are fitted, not stated in the game files, and were read with
+// attack power a point of dps. Both are fitted, as the game files state neither, and were read with
 // Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here is before them
 // (EV-0073).
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
@@ -64,7 +64,7 @@ var hawkSwing = core.Weapon{
 // it is up, a quiver's and Quick Shots' included; Berserking's attack speed does not reach it in
 // game. Its crit is half the tamed pet's, the higher of melee and ranged (inheritedCrit), with none
 // from Agility: with Ferocity 5/5 it reads 10 plus half the owner's crit, and with no Ferocity half the
-// tamed pet's. Its melee hit and expertise are the tamed pet's (EV-0074).
+// tamed pet's (EV-0074). Its melee hit and expertise are the tamed pet's.
 func (hunter *Hunter) newHawks() []*HawkPet {
 	if !hunter.Talents.SummonHawk {
 		return nil

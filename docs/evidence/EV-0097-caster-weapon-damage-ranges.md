@@ -1,10 +1,10 @@
 # EV-0097: Caster weapon damage ranges fit fixed shares of the damage table
 
-- Claim: a weapon flagged REDUCED_CASTER_DPS, or carrying a random suffix whose bonus list has an ITEM_BONUS_REDUCED_CASTER_DPS row, deals 2/3 (one-hand) or 29/39 (two-hand) of its item level damage table in game, while the game files' caster tables equal the regular ones.
+- Claim: a weapon flagged REDUCED_CASTER_DPS deals 2/3 (one-hand) or 29/39 (two-hand) of its item level damage table in game, while the game files' caster tables equal the regular ones.
 - Sources: in-game tooltip damage ranges of the flagged weapons, read against the generator's output; the tooltip is the measurement, so this file records a fit to tooltip ranges
-- Game build: 1.60.1.70245 (the local database at hotfix push 112486)
+- Game build: not recorded
 - Date: not recorded
-- Pull request: #298, with the suffix reading of #303
+- Pull request: #298
 
 ItemSparse Flags[4] bit 0x100 marks 165 weapons (81 one-hand, 84 two-hand), all of them caster weapons. Under the
 generator's min and max rounding, the shares reproduce the in-game damage range of all 165, including the four with a
@@ -21,6 +21,4 @@ weapons, the 160 the sim ships all match the in-game ranges after the change.
 
 The pull request left one check open: Death Speaker Scepter at 28 to 52 with 2.80 speed in game.
 
-A bonus list with an ITEM_BONUS_REDUCED_CASTER_DPS row marks its suffix, and a weapon offering one carries the damage it
-deals with it: Brutal War Axe (3210) shows 43 to 66 with "of the Physician" (12911) in game against 58 to 88 on its own.
-A weapon offering none, and the armor the lower lists sit on, carry no such range.
+The same shares on a weapon carrying a reducing random suffix are the reading of #403 (EV-0110).

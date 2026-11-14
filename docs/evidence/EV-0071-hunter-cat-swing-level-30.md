@@ -1,6 +1,6 @@
 # EV-0071: A level 30 Cat's swing before attack power
 
-- Claim: a tamed pet's swing is the creature dps less its own attack power over 14, and its logged hits are that swing plus attack power over 14, over the swing as sped up, with the Cat's +10% and happiness.
+- Claim: a level 30 Cat's swing is the creature dps less its own attack power over 14, and its logged hits are that swing plus attack power over 14, over the swing as sped up, with the Cat's +10% and happiness.
 - Sources: one combat log of a level 30 Cat, Scarlet Monastery Graveyard
 - Game build: not recorded
 - Date: 2026-10-20
@@ -19,4 +19,4 @@ Both models take the Cat's 10% and happiness's 25%. With the whole creature dps 
 
 A hawk checked the same way: its logged attack power is exactly 80% of the owner's ranged attack power with none of its own, and all 142 of its swings that are neither crits nor glancing blows land inside the range.
 
-Open points. It is one log, one pet, at level 30. The log has no talent data: Unleashed Fury 5/5 is the player's word and Focused Fire is assumed off. With Focused Fire 2/2 the fit comes out 2% high. The Cat's logged attack power (119 and 146) is lower than 30% of the creature dps plus 10% of the owner's ranged attack power gives (143 and 179), and it moves by 7.6% of the owner's ranged attack power between the two, where the pet sheets read 10%. In a log of 2026-10-09 it stays at 139 while the owner's ranged attack power goes from 876 to 1022.
+Several points stay open. It is one log, one pet, at level 30. The log has no talent data: Unleashed Fury 5/5 is the player's word and Focused Fire is assumed off. With Focused Fire 2/2 the fit comes out 2% high. The Cat's logged attack power (119 and 146) is lower than 30% of the creature dps plus 10% of the owner's ranged attack power gives (143 and 179), and it moves by 7.6% of the owner's ranged attack power between the two, where the pet sheets read 10%. In a log of 2026-10-09 it stays at 139 while the owner's ranged attack power goes from 876 to 1022.

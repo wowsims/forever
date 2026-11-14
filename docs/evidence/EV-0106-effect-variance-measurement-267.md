@@ -1,6 +1,6 @@
 # EV-0106: EffectVariance is the full roll width
 
-- Claim: EffectVariance is the full width of a roll: spell-school hits and heals roll the whole amount, power included, by ±V/2, and physical hits roll the base by ±V/2 before attack power.
+- Claim: EffectVariance is the full width of a roll: spell-school hits and heals roll the whole amount, power included, by ±V/2, and Revenge Rank 1, a physical hit, fits a roll of the base by ±V before attack power.
 - Sources: Forever combat logs and Warcraft Logs heal groups; report codes not recorded
 - Game build: not recorded
 - Date: not recorded
@@ -16,4 +16,5 @@ Each row compares the rule against the logged hit or heal width; "whole amount �
 
 Wrath and Flash of Light fit the whole amount ± V/2; Revenge, a physical hit, fits the base ± V. Moonfire's direct hit and the other heals point the same way. Over every Warcraft Logs heal group the log-likelihoods are whole −316, base-only half −429 and base-only full −469.
 
-The pull request leaves heals covered by the Flash of Light groups and a few druid heals, and Holy Strike unmeasured.
+The heals rest on the Flash of Light groups and a few druid heals, and Holy Strike is unmeasured. The physical roll of
+Revenge Rank 1 is read again by #906 (EV-0045), which rejects the base ± V and fits the base by half the Variance.

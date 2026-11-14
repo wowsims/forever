@@ -21,13 +21,13 @@ const DamageTakenRageFactor = 2.5
 
 // Damage of a school other than physical, and every periodic tick whatever its school, grants twice the rage of a
 // physical direct hit, in place of DamageTakenRageFactor * (1 - A) (EV-0052).
-// TODO: Ingame test needed -- a mob's physical Mortal Strike and Cleave read above a melee swing (EV-0052).
+// TODO: Ingame test needed -- a mob's physical Mortal Strike and Cleave read above a melee swing (EV-0052, EV-0037).
 const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs
-// (EV-0051). The 40% at 63 is the top of the 20% to 40% range the game build's notes give; no log covers 60-63.
-// Attackers that use mana or energy give about half this rage in game (EV-0051, EV-0052). The sim gives every
-// attacker the full amount, since a target has no power type.
+// (EV-0048, EV-0034, EV-0035, EV-0050). The 40% at 63 is the top of the 20% to 40% range the game build's notes
+// give; no log covers 60-63. Attackers that use mana or energy give about half this rage in game (EV-0048,
+// EV-0052). The sim gives every attacker the full amount, since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
 	level     int32
 	reduction float64

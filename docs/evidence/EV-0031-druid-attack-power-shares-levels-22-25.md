@@ -1,6 +1,6 @@
 # EV-0031: Rip, Rake and Swipe attack power shares and the failed Ferocious Bite refund, druid levels 22 to 25
 
-- Claim: Rip takes 0.0114 of attack power a tick per combo point, Rake's hit and ticks about 0.065, Swipe 3% on each hit, and a failed Ferocious Bite keeps its extra energy and combo points and gets 80% of its base cost back.
+- Claim: Rip Rank 1 takes 0.0114 of attack power a tick per combo point, Rake Rank 1's hit and ticks about 0.065, Swipe Ranks 1 and 2 3% on each hit, and a failed Ferocious Bite keeps its extra energy and combo points and gets 80% of its base cost back.
 - Sources: combat log with a character sheet export, a Tauren druid at levels 22 to 25, mostly in Cat Form
 - Game build: 1.60.1.70862
 - Date: 2026-11-07

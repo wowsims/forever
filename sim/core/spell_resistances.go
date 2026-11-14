@@ -82,7 +82,7 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
 	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.
-	// TODO: Ingame test needed -- Spell Piercing on ticks follows the spell, not a tenth (EV-0092). A DoT
+	// TODO: In-game testing required: Spell Piercing on ticks follows the spell, not a tenth (EV-0092). A DoT
 	// log at 10 or more piercing is needed before the tenth goes.
 	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) {
 		averageResist /= 10

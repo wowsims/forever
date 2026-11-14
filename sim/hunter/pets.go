@@ -46,8 +46,8 @@ const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
 // The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
 // attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
 // a Cat's logged swings before armor are this swing plus attack power over 14, over the swing as sped up,
-// with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves happiness out, so
-// its damage range is not the damage the pet deals.
+// with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves
+// happiness out, so its damage range is not the damage the pet deals.
 const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{

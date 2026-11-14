@@ -59,7 +59,7 @@ melee-defense spell of several schools takes the bonus once.
 
 A melee weapon's row with a mask short of every school reaches the schools past Physical by defense
 type, whether its mask names them or leaves them out: 20111 names Physical and Holy, and its Holy
-reaches the melee-defense Holy spells alone. What the logs show of each paladin spell (EV-0064), and
+reaches the melee-defense Holy spells alone. What the logs show of each paladin spell (EV-0064, EV-0022), and
 Consecration's exception to the rule, are at `applyTwoHandedWeaponSpecialization`
 (`sim/paladin/talents_retribution.go`).
 

@@ -1,13 +1,10 @@
-# EV-0021: Dragon's Call, its whelp and the Highborne Research Tablet at level 57
+# EV-0021: Dragon's Call, its whelp, the Highborne Research Tablet and weapon procs on shield hits, level 57
 
-- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs 2.6 times a minute off damaging hits only.
-- Sources: combat log, one level 57 Protection warrior with a 2.5 s main hand (Mount Hyjal, about 27 minutes in combat, StatLedger for gear and level)
-- Game build: 1.60.1.70888, push 114015
-- Date: 2026-11-12
+- Claim: Dragon's Call procs 4.5 times a minute behind a 45 s cooldown and summons a whelp that takes nothing from its owner; the Highborne Research Tablet procs 2.6 times a minute off damaging hits only; and Fiery Blaze, Rock on Stick and Dragon's Call do not proc off Shield Slam, Shield Bash or Thunder Clap, while equip procs still do.
+- Sources: combat log, one level 57 Protection warrior with a 2.5 s main hand (Mount Hyjal, about 27 minutes in combat, StatLedger for gear and level); Warcraft Logs FHqYCNcKntvDAjxg, WRa9p2xhPnQKVG8C and t6bL9xfVY3hXyvHT for Fiery Blaze (3 players)
+- Game build: not recorded
+- Date: 2026-11-12 for the combat log; not recorded for the Warcraft Logs reports
 - Pull request: #958
-
-The shield-hit counts of the same log, which show weapon procs skipping Shield Slam, Shield Bash and Thunder Clap, are
-recorded in EV-0006.
 
 ## Highborne Research Tablet (260205)
 
@@ -35,6 +32,22 @@ spell hit is unmeasured.
 Revenge, Heroic Strike, Cleave and Victory Rush proc it at the same rate as white hits, and so do Rend and Concussion Blow
 applications. Misses, dodges and parries do not. In the sim, 400 runs of 300 s gave 18.98% per landed hit outside the
 cooldown and a shortest gap of 45.000 s.
+
+## Weapon procs and the shield hits
+
+Fiery Blaze is counted on the three Warcraft Logs reports and Dragon's Call on the level 57 log; the pull request does
+not say which logs hold the other rows.
+
+| Proc                                | Kind           | Shield Slam                        | Shield Bash       | Thunder Clap | White hits  |
+| ----------------------------------- | -------------- | ---------------------------------- | ----------------- | ------------ | ----------- |
+| Fiery Blaze (enchant 36), 3 players | combat enchant | 0 of 617                           | 0 of 78           | 0 of 436     | 212 of 1517 |
+| Rock on Stick (279852)              | chance on hit  | 0 of 157                           |                   |              | 41 of 528   |
+| Dragon's Call (10847)               | chance on hit  | 1 of 50                            | 0 of 4            |              |             |
+| Dreadfrost Saber (274603)           | equip aura     | 60 of 105, and 54 of 80 in EV-0012 | 7 of 8 in EV-0012 |              | 208 of 311  |
+| Highborne Research Tablet (260205)  | equip aura     | about 11%                          |                   |              | about 10%   |
+
+Dragon's Call's one Shield Slam proc shares its millisecond with a white hit. Non-damaging Sunder Armor, Concussion
+Blow and Rend applications proc Fiery Blaze and Dragon's Call; Rend ticks proc neither.
 
 ## The Emerald Dragon Whelp (8776) and Acid Spit (9591)
 

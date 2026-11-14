@@ -25,8 +25,9 @@ import (
 //
 // The coefficient sits on the weapon-percent effect, and the percent applies to the paladin's own
 // spell power as well as the weapon (EV-0061). Improved Seals raises the percent itself (the tooltip
-// reads 80% with the talent, 70 * 1.15). The Holy damage the target takes extra, Judgement of the Crusader and the damage-against-mob-type gear, is added after the
-// percent at the full coefficient, so it scales at 29% whatever the talent.
+// reads 80% with the talent, 70 * 1.15). The Holy damage the target takes extra, Judgement of the Crusader and
+// the damage-against-mob-type gear, is added after the percent at the full coefficient, so it scales at 29%
+// whatever the talent.
 func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfCommand.Rank(rank.RankNumber())
 	judgeDamageRank := spellData.SealOfCommandTriggered.ByID(int32(judgeRank.EffectN(1).BaseValue()))
