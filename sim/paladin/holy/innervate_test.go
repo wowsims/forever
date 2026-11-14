@@ -10,7 +10,6 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 func innervatedPaladin(t *testing.T, talents string, individual *proto.IndividualBuffs, party *proto.PartyBuffs) (*core.Simulation, *core.Character) {
@@ -44,8 +43,8 @@ func runFor(sim *core.Simulation, d time.Duration) {
 	}
 }
 
-// Innervate lets all of the spirit regen continue while casting and multiplies all of the regen, MP5
-// included, by its row's mana regen factor, whatever share Reverence already lets through: with the
+// Innervate lets all of the spirit regen continue while casting and multiplies the spirit regen and
+// the gear's MP5 by its row's mana regen factor, whatever share Reverence already lets through: with the
 // standard talents' 2/2 Reverence it is the same regen, and Reverence's 30% is back once the aura falls
 // off. The mana bar's regen follows each change.
 func TestInnervateMultipliesTheFullRegen(t *testing.T) {
@@ -128,7 +127,7 @@ func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 				t.Fatalf("%s states no mana over time", c.name)
 			}
 			buffPerSecond := energize.Average() * 1000 / float64(energize.PeriodMs)
-			gearPerSecond := pally.GetStat(stats.MP5)/5 - buffPerSecond
+			gearPerSecond := pally.MP5ManaRegenPerSecond() - buffPerSecond
 			if gearPerSecond <= 0 {
 				t.Fatal("the paladin has no MP5 besides the buff")
 			}

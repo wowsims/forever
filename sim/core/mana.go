@@ -22,7 +22,7 @@ type manaBar struct {
 	currentMana float64
 
 	manaRegenMultiplier          float64
-	innervateManaRegenMultiplier float64 // Leaves the MP5 periodic energize auras tick unscaled.
+	innervateManaRegenMultiplier float64
 
 	spiritRegenBase      float64
 	spiritRegenPerSpirit float64
