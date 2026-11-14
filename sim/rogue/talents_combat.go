@@ -272,6 +272,9 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
+	// Windfury Totem's strike rolls it: 60 of 2,208 clean strikes brought a swing (2.7%), against 1.5%
+	// of white swings.
+	// TODO: Ingame test needed: why the strike brings a swing about twice as often as a white swing does.
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",
