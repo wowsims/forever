@@ -112,9 +112,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 900.45322
-  tps: 711.25633
-  dtps: 10.53099
+  dps: 883.54608
+  tps: 697.55799
+  dtps: 9.8354
  }
 }
 dps_results: {

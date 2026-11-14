@@ -119,10 +119,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 768.19227
-  tps: 654.54444
-  dtps: 10.11634
-  hps: 7.90759
+  dps: 775.86198
+  tps: 662.40556
+  dtps: 10.57837
+  hps: 7.82576
  }
 }
 dps_results: {

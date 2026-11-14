@@ -191,13 +191,6 @@ var Spells = []Override{
 		Reason:  "Frostbrand Weapon: enchant 1668 casts 16353 with 0 in its amount, and 16353 has no proc row",
 		Source:  "vanilla-carryover",
 	},
-	{
-		SpellID: 21978,
-		Field:   ProcChancePct,
-		Value:   10, // TODO: Vanilla value - verify in-game
-		Reason:  "Blade of Eternal Darkness: column reads 100, tooltip says 'Chance on landing a damaging spell'; the vanilla row states 10%",
-		Source:  "vanilla-carryover",
-	},
 
 	// A relic's lock stated under a bit no spell of its class is filed under.
 	{
@@ -478,6 +471,13 @@ var Spells = []Override{
 		Value:   2.6,
 		Reason:  "Highborne Research Tablet: 2.6 procs per minute, 70 procs in 647 landed damaging melee hits at a 2.5 s weapon; the game files state none",
 		Source:  "combat log, 2026-11-12",
+	},
+	{
+		SpellID: 21978,
+		Field:   PPM,
+		Value:   1.8,
+		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute (1.65 to 1.96) on the cast time of each landed spell hit's cast, at least 1.5 s, from one mage's 554 procs; the game files state none",
+		Source:  "wcl:Nq3C7bVGnvmyh2Pw, cvRTFb1qhGBKNkCD and JK1z96cCrj28tpBV, 2026-11-14",
 	},
 	{
 		SpellID: 1079,
