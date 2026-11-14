@@ -2082,35 +2082,35 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1123.99561
-  tps: 3946.91633
-  dtps: 7003.71102
-  hps: 129.31944
+  dps: 1182.00149
+  tps: 4192.39581
+  dtps: 7003.56991
+  hps: 129.11944
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 577.66491
-  tps: 2826.61489
-  dtps: 359.83526
-  hps: 90.43799
+  dps: 599.93092
+  tps: 2941.1695
+  dtps: 360.48133
+  hps: 89.01408
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 573.57217
-  tps: 2839.27914
-  dtps: 357.1157
-  hps: 176.26814
+  dps: 590.22855
+  tps: 2927.8143
+  dtps: 358.46212
+  hps: 173.26725
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 353.36876
-  tps: 1564.44189
+  dps: 386.8203
+  tps: 1701.43451
   dtps: 12204.31764
   hps: 32.29444
  }
@@ -2118,53 +2118,53 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 263.31179
-  tps: 1411.02345
-  dtps: 615.06006
-  hps: 27.9966
+  dps: 275.94506
+  tps: 1476.15335
+  dtps: 615.08426
+  hps: 27.15297
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 249.48457
-  tps: 1370.559
-  dtps: 604.18758
-  hps: 83.98979
+  dps: 261.02913
+  tps: 1429.6641
+  dtps: 606.36687
+  hps: 81.45892
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1080.6224
-  tps: 3838.60296
-  dtps: 7003.42439
-  hps: 125.23583
+  dps: 1115.08226
+  tps: 3995.26293
+  dtps: 7003.28328
+  hps: 125.03583
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 577.49964
-  tps: 2825.7158
-  dtps: 359.83526
-  hps: 90.43799
+  dps: 599.10455
+  tps: 2936.67407
+  dtps: 360.48133
+  hps: 89.01408
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 573.07635
-  tps: 2836.58188
-  dtps: 357.1157
-  hps: 176.26814
+  dps: 587.74944
+  tps: 2914.32799
+  dtps: 358.46212
+  hps: 173.26725
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 332.30423
-  tps: 1511.4672
+  dps: 351.01298
+  tps: 1593.22791
   dtps: 12204.31764
   hps: 32.29444
  }
@@ -2172,19 +2172,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 263.06792
-  tps: 1409.91117
-  dtps: 615.06006
-  hps: 27.9966
+  dps: 274.76411
+  tps: 1470.79784
+  dtps: 615.08426
+  hps: 27.15297
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-NightElf-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 248.75294
-  tps: 1367.22217
-  dtps: 604.18758
-  hps: 83.98979
+  dps: 257.48628
+  tps: 1413.59757
+  dtps: 606.36687
+  hps: 81.45892
  }
 }
 dps_results: {
@@ -2298,35 +2298,35 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1123.28214
-  tps: 3940.66578
-  dtps: 7147.40548
+  dps: 1182.40192
+  tps: 4191.49263
+  dtps: 7147.31965
   hps: 130.86472
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 576.93735
-  tps: 2831.85138
-  dtps: 367.49815
-  hps: 91.22024
+  dps: 595.9631
+  tps: 2924.60173
+  dtps: 367.82745
+  hps: 91.83937
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 568.70828
-  tps: 2811.52873
-  dtps: 368.22787
-  hps: 178.71657
+  dps: 574.92928
+  tps: 2882.04182
+  dtps: 368.6672
+  hps: 181.59061
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 351.88678
-  tps: 1560.76474
+  dps: 386.12761
+  tps: 1701.22179
   dtps: 12462.0747
   hps: 34.1425
  }
@@ -2334,53 +2334,53 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 264.0739
-  tps: 1418.05789
-  dtps: 623.51929
-  hps: 28.99862
+  dps: 279.14947
+  tps: 1492.14096
+  dtps: 624.0948
+  hps: 28.80602
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-BleedAssumed-adaptive-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 246.50263
-  tps: 1361.80285
-  dtps: 614.23442
-  hps: 86.99585
+  dps: 261.88513
+  tps: 1437.1257
+  dtps: 615.46658
+  hps: 86.41806
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 1080.73916
-  tps: 3836.32799
-  dtps: 7147.1946
+  dps: 1115.04681
+  tps: 3992.87007
+  dtps: 7147.10877
   hps: 126.76417
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 576.78422
-  tps: 2831.01877
-  dtps: 367.49815
-  hps: 91.22024
+  dps: 595.19904
+  tps: 2920.44995
+  dtps: 367.82745
+  hps: 91.83937
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 568.24891
-  tps: 2809.03091
-  dtps: 368.22787
-  hps: 178.71657
+  dps: 572.6371
+  tps: 2869.58647
+  dtps: 368.6672
+  hps: 181.59061
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-LongMultiTarget"
  value: {
-  dps: 331.31133
-  tps: 1509.18704
+  dps: 350.54708
+  tps: 1593.97086
   dtps: 12462.0747
   hps: 34.1425
  }
@@ -2388,19 +2388,19 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-LongSingleTarget"
  value: {
-  dps: 263.85677
-  tps: 1417.06884
-  dtps: 623.51929
-  hps: 28.99862
+  dps: 278.0911
+  tps: 1487.32905
+  dtps: 624.0948
+  hps: 28.80602
  }
 }
 dps_results: {
  key: "TestFeralBear-Settings-Tauren-default-Hybrid-Standard-adaptive-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
-  dps: 245.85125
-  tps: 1358.83572
-  dtps: 614.23442
-  hps: 86.99585
+  dps: 258.71001
+  tps: 1422.68999
+  dtps: 615.46658
+  hps: 86.41806
  }
 }
 dps_results: {
