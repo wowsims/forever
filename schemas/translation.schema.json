@@ -4517,10 +4517,28 @@
 								},
 								"duplicate": {
 									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"name_taken": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["current", "new", "dialog_new", "dialog_edit", "save", "edit", "delete", "delete_confirm", "duplicate"]
+							"required": [
+								"current",
+								"new",
+								"dialog_new",
+								"dialog_edit",
+								"save",
+								"edit",
+								"delete",
+								"delete_confirm",
+								"duplicate",
+								"name",
+								"name_taken"
+							]
 						},
 						"parts": {
 							"type": "object",
