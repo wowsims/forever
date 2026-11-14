@@ -1267,7 +1267,9 @@
 				"edit": "Edit {{bundle}}",
 				"delete": "Delete {{bundle}}",
 				"delete_confirm": "Delete {{bundle}}?",
-				"duplicate": "Same as {{bundle}}"
+				"duplicate": "Same as {{bundle}}",
+				"name": "Name",
+				"name_taken": "Name already used"
 			},
 			"parts": {
 				"encounter": "Encounter",
