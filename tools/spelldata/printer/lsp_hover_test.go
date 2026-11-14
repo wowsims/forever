@@ -102,6 +102,43 @@ func TestHoverSpellIDShapes(t *testing.T) {
 	}
 }
 
+// An evidence id shows its file and a ruling id its bullet, in any file type, a Source string included.
+func TestHoverEvidenceAndRulingIDs(t *testing.T) {
+	root, err := moduleRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	evidence, _ := filepath.Glob(filepath.Join(root, "docs", "evidence", "EV-0001-*.md"))
+	if len(evidence) != 1 {
+		t.Fatalf("docs/evidence holds %d files for EV-0001", len(evidence))
+	}
+	file, err := os.ReadFile(evidence[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, c := range []struct{ line, uri string }{
+		{"\t\tSource:  \"EV-0001\",", "a.go"},
+		{"// rolls once a target (EV-0001).", "a.ts"},
+	} {
+		markdown, trace, ok := hoverOn(t, newWorkspace(), c.line, "file:///tmp/"+c.uri, "EV-0001", 3)
+		if !ok || markdown != string(file) {
+			t.Errorf("%s answered %v %q:\n%s", c.line, ok, markdown, strings.Join(trace, "\n"))
+		}
+	}
+
+	markdown, trace, ok := hoverOn(t, newWorkspace(), "// (R-0043)", "file:///tmp/a.go", "R-0043", 2)
+	if !ok || !strings.HasPrefix(markdown, "### R-0043 · wowsims-procs\n\n**R-0043** **") || strings.Contains(markdown, "R-0044") {
+		t.Errorf("the ruling hover answered %v %q:\n%s", ok, markdown, strings.Join(trace, "\n"))
+	}
+
+	for _, id := range []string{"EV-9999", "R-9999"} {
+		if _, _, ok := hoverOn(t, newWorkspace(), "// "+id, "file:///tmp/a.go", id, 3); ok {
+			t.Errorf("%s with no file or bullet answered a hover", id)
+		}
+	}
+}
+
 // Columns are UTF-16 code units: the dash before the id is one unit and three bytes.
 func TestHoverColumnIsUTF16(t *testing.T) {
 	line := "// — spelldata.MustFind(11574)"

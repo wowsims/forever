@@ -628,10 +628,13 @@ var literalRates = []literalRate{
 	},
 }
 
+// A Source naming a measurement's file in docs/evidence.
+var evidenceID = regexp.MustCompile(`^EV-\d{4}$`)
+
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
 func rateOrigin(source string) string {
 	switch {
-	case strings.HasPrefix(source, "wcl:"), strings.HasPrefix(source, "issue #"), strings.HasPrefix(source, "combat log, "):
+	case evidenceID.MatchString(source), strings.HasPrefix(source, "wcl:"), strings.HasPrefix(source, "issue #"), strings.HasPrefix(source, "combat log, "):
 		return ""
 	case source == "vanilla-carryover":
 		return "vanilla"

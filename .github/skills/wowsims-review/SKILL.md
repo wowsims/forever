@@ -47,6 +47,10 @@ constants that no generator reads.
   commented out in place under `panic("To be implemented")` and a `// TODO:` naming what is missing, never a deletion
   or a silent return. Content Forever does not have is removed, not stubbed, once `tools/database/wowsims.db` shows no
   data for it. An aura registered with no effect, or a cooldown that does nothing, is a finding.
+- **A measurement written inline.** A comment, override `Reason` or `Source`, or rulings bullet the change adds that
+  carries log counts, rates, report codes or "checked in game" is a finding: the numbers move to a `docs/evidence/`
+  file and the text cites its `EV-` id (`wowsims-conventions` `## Comments`). A new rulings bullet without its `R-`
+  id is one too; `make skills-check` catches only ids that point nowhere.
 - **One copy of each rule.** Three channels differing only in their tick effect share one builder; a value
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is
