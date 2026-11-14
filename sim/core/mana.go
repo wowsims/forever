@@ -21,7 +21,8 @@ type manaBar struct {
 
 	currentMana float64
 
-	manaRegenMultiplier float64
+	manaRegenMultiplier          float64
+	innervateManaRegenMultiplier float64
 
 	spiritRegenBase      float64
 	spiritRegenPerSpirit float64
@@ -172,29 +173,26 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 	return unit.spiritRegenBase + unit.stats[stats.Spirit]*unit.spiritRegenPerSpirit
 }
 
+// Innervate multiplies Spirit regen and the MP5 from gear and other buffs, but a periodic energize aura
+// (Blessing of Wisdom, Mana Spring) ticks its own amount under it (EV-0114). Taking Innervate's surplus
+// on that share back off keeps a factor of 1 bit-exact. Skyborne Energized's multiplier scales all
+// of it.
+func (unit *Unit) multipliedManaRegen(spiritRegen float64) float64 {
+	innervate := unit.innervateManaRegenMultiplier
+	return ((unit.MP5ManaRegenPerSecond()+spiritRegen)*innervate - unit.PseudoStats.EnergizeMP5/5.0*(innervate-1)) * unit.manaRegenMultiplier
+}
+
 // Returns the rate of mana regen per second, assuming this unit is
 // considered to be casting.
 func (unit *Unit) ManaRegenPerSecondWhileCasting() float64 {
-	regenRate := unit.MP5ManaRegenPerSecond()
-
 	// The shares of spirit regen that continue while casting add up to at most all of it.
-	regenRate += unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier * min(unit.PseudoStats.SpiritRegenRateCasting, 1)
-
-	regenRate *= unit.manaRegenMultiplier
-
-	return regenRate
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier * min(unit.PseudoStats.SpiritRegenRateCasting, 1))
 }
 
 // Returns the rate of mana regen per second, assuming this unit is
 // considered to be not casting.
 func (unit *Unit) ManaRegenPerSecondWhileNotCasting() float64 {
-	regenRate := unit.MP5ManaRegenPerSecond()
-
-	regenRate += unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier
-
-	regenRate *= unit.manaRegenMultiplier
-
-	return regenRate
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier)
 }
 
 // Recomputes the regen rates the mana bar ticks at, after crediting the regen so far at the old ones.
@@ -209,6 +207,11 @@ func (unit *Unit) UpdateManaRegenRates(sim *Simulation) {
 
 func (unit *Unit) MultiplyManaRegenSpeed(sim *Simulation, multiplier float64) {
 	unit.manaRegenMultiplier *= multiplier
+	unit.UpdateManaRegenRates(sim)
+}
+
+func (unit *Unit) MultiplyInnervateManaRegenSpeed(sim *Simulation, multiplier float64) {
+	unit.innervateManaRegenMultiplier *= multiplier
 	unit.UpdateManaRegenRates(sim)
 }
 
@@ -327,6 +330,7 @@ func (mb *manaBar) reset() {
 	mb.currentMana = mb.unit.MaxMana()
 
 	mb.manaRegenMultiplier = 1.0
+	mb.innervateManaRegenMultiplier = 1.0
 
 	mb.oom = false
 	mb.paidBy = nil

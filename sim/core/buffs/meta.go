@@ -40,7 +40,7 @@ type Meta struct {
 	SkipAuras []dbcenums.EffectAuraType
 	// The finisher the raid config puts on the target is cast at full combo points.
 	FullComboPoints bool
-	// The mana regen percent multiplies all of the mana regen, MP5 included.
+	// The mana regen percent is Innervate's multiplier on the mana regen.
 	AllManaRegen bool
 }
 
