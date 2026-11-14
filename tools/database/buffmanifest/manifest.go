@@ -132,7 +132,7 @@ type BuffSpec struct {
 	Reason string
 	// A rank select's states: 0 is off and state N applies Ranks[N-1] in place of the row's SpellID.
 	Ranks []BuffRank
-	// The row's mana regen percent multiplies all of the mana regen, MP5 included, where it otherwise
+	// The row's mana regen percent is Innervate's multiplier on the mana regen, where it otherwise
 	// multiplies the Spirit regen only.
 	AllManaRegen bool
 }
