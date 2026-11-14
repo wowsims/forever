@@ -764,9 +764,9 @@ var Spells = []Override{
 	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
 	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
 	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's 2.5 a level.
-	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), and Ranks 3
-	// to 5 carry that share. Each rank's bonus is a whole number: a measured bonus rounds to the
-	// nearest one, and each share times its spell level is whole.
+	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), Rank 4 measures
+	// 80 at spell level 50, and Ranks 3 and 5 carry the 1.5. Each rank's bonus is a whole number: a
+	// measured bonus rounds to the nearest one, and each share times its spell level is whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -941,8 +941,8 @@ var Spells = []Override{
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
-	// held 177.7 over damage from 223 to 400. Ranks 2 to 4 carry Rank 1's 4.45 a spell level, rounded
-	// to the nearest whole number.
+	// held 177.7 over damage from 223 to 400, and Ranks 2 and 3 measure 203 and 229. Rank 4 carries Rank
+	// 1's 4.45 a spell level, rounded to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,

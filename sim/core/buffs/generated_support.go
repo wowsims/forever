@@ -54,8 +54,8 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 // missing it. A magic shield keeps the spell hit roll and the target's resistance.
 //
 // A hit the block takes whole reflects nothing, and a partial block reflects like a hit. In a
-// protection warrior's combat logs Razorsteel Shoulders' shield answers 15,042 of 15,069 hits, 3,835
-// of 3,840 partial blocks and 34 of 5,281 full blocks, and Thorns 1 of 8,334 full blocks.
+// protection warrior's combat logs Razorsteel Shoulders' shield answers 3,835 of 3,840 partial blocks
+// and 34 of 5,281 full blocks, and Thorns 1 of 8,334 full blocks.
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration, flags core.SpellFlag) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)
@@ -89,7 +89,7 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 		Outcome:  core.OutcomeLanded,
 		ICD:      lockout,
 		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-			return !result.DidBlock() || result.Damage > 0
+			return !result.BlockedInFull()
 		},
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.SpellSchool.Matches(core.SpellSchoolPhysical) {

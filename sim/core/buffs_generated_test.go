@@ -1172,7 +1172,7 @@ func TestGeneratedPartyWindfuryTotemHoldsOverOwnFlametongueTotem(t *testing.T) {
 }
 
 // A generated damage shield deals the game files' damage back to whoever lands a
-// melee hit, and nothing to a spell.
+// melee hit, and nothing to a spell or to a hit the block takes whole.
 func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{Thorns: true})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1211,36 +1211,19 @@ func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 1 {
 		t.Errorf("a shadow spell taken cast the shield %d times, want the shield to ignore it", got)
 	}
-}
 
-// A damage shield answers a partial block like a hit, and a hit the block takes whole not at all.
-func TestDamageShieldSkipsAFullBlock(t *testing.T) {
-	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{Thorns: true})
-	char := sim.Raid.Parties[0].Players[0].GetCharacter()
-	attacker := sim.Encounter.AllTargetUnits[0]
-	attacker.AutoAttacks.CancelAutoSwing(sim)
-
-	aura := char.GetAura("Thorns (External)")
-	if aura == nil {
-		t.Fatalf("no aura is labelled %q; the unit has %v", "Thorns (External)", auraLabels(char))
-	}
-	shield := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 1})
-	if shield == nil {
-		t.Fatal("the shield registered no spell to deal its damage with")
-	}
-
-	full := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit, BlockedDamage: 30}
+	full := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit}
 	aura.OnSpellHitTaken(aura, sim, attacker.AutoAttacks.MHAuto(), full)
 	sim.Step()
-	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 0 {
-		t.Errorf("a full block cast the shield %d times, want none", got)
+	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 1 {
+		t.Errorf("a full block cast the shield %d more times, want none", got-1)
 	}
 
-	partial := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit, Damage: 10, BlockedDamage: 30}
+	partial := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit, PostOutcomeDamage: 10}
 	aura.OnSpellHitTaken(aura, sim, attacker.AutoAttacks.MHAuto(), partial)
 	sim.Step()
-	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 1 {
-		t.Errorf("a partial block cast the shield %d times, want once", got)
+	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 2 {
+		t.Errorf("a partial block cast the shield %d more times, want once", got-1)
 	}
 }
 
