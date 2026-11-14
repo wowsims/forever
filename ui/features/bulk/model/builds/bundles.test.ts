@@ -28,6 +28,7 @@ import {
 	bulkBundleList,
 	type BulkBundleParts,
 	bulkBundleRuns,
+	bundleNameTaken,
 	bundleOptions,
 	type CurrentBundle,
 	pruneBulkBundles,
@@ -35,6 +36,7 @@ import {
 	replaceBulkBundle,
 	setBulkBundleChecked,
 	setBulkCurrentBundleChecked,
+	takenBundleLabels,
 } from './bundles';
 import { bulkGearSetEntries } from './gear_sets';
 import { bulkRotationEntries } from './rotations';
@@ -182,6 +184,40 @@ describe('bundle pickers and labels', () => {
 			'Current gear · Current talents · Current rotation · Current settings',
 		]);
 	});
+
+	it('labels a named bundle by its name, keeps its four parts, and names it for a later bundle with the same parts', () => {
+		const rows = bulkBundleList(CURRENT, PARTS, [{ ...FURY, name: 'Fury raid' }, FURY], true);
+
+		expect(rows.map(row => [row.label, row.duplicateOf])).toEqual([
+			['Fury raid', null],
+			[FURY_LABEL, 'Fury raid'],
+		]);
+		expect(rows[0].parts).toEqual({ gear: 'Pre-BiS (Fury)', talents: 'Fury', rotation: 'Fury APL', settings: 'Pre-BiS - Fury' });
+		expect(bulkBundleRuns(CURRENT, PARTS, [{ ...FURY, name: 'Fury raid' }, ARMS], true).map(run => run.name)).toEqual(['', 'Fury raid', '']);
+	});
+});
+
+describe('bundle names', () => {
+	it('takes the Current bundle’s label, every other listed bundle’s label and every other stored bundle’s name, listed or not', () => {
+		const hidden = bundle({ ...FURY_REFS, talents: talentRef('Gone') });
+		const bundles = [{ ...FURY, name: 'Fury raid' }, ARMS, { ...hidden, name: 'Hidden' }];
+		const rows = bulkBundleList(CURRENT, PARTS, bundles, true);
+		const armsLabel = 'Pre-BiS (Arms) · Arms · Arms APL · Pre-BiS - Arms';
+
+		expect(rows.map(row => row.index)).toEqual([0, 1]);
+		expect(takenBundleLabels(rows, bundles, null)).toEqual(['Current bundle', 'Fury raid', armsLabel, 'Fury raid', 'Hidden']);
+		// Editing a bundle leaves its own label and name out.
+		expect(takenBundleLabels(rows, bundles, 0)).toEqual(['Current bundle', armsLabel, 'Hidden']);
+	});
+
+	it('finds a name taken trimmed and whatever the case, and an empty one never', () => {
+		const taken = ['Current bundle', 'Fury raid'];
+
+		expect(bundleNameTaken('  fury RAID ', taken)).toBe(true);
+		expect(bundleNameTaken('current bundle', taken)).toBe(true);
+		expect(bundleNameTaken('Fury raid 2', taken)).toBe(false);
+		expect(bundleNameTaken('   ', [...taken, ''])).toBe(false);
+	});
 });
 
 describe('stored bundles', () => {
@@ -198,6 +234,9 @@ describe('stored bundles', () => {
 		]);
 		expect(loadStoredBulkBundles(player)!.bundles).toEqual(bulkState(player).bundles);
 		expect(bulkState(player).v.settings).toBe(settings);
+
+		addBulkBundle(player, { ...ARMS, name: 'Arms raid' });
+		expect(loadStoredBulkBundles(player)!.bundles[2].name).toBe('Arms raid');
 	});
 
 	it('replaces a bundle in place, keeping its checked state, and removes one by its index', () => {
@@ -310,6 +349,7 @@ describe('bulkBundleRuns', () => {
 		expect(runs.map(run => run.index)).toEqual([-1, 0, 2]);
 		expect(runs[0]).toEqual({
 			index: -1,
+			name: '',
 			gearSet: { name: '', gear: CURRENT.gear, bonusStats: CURRENT.bonusStats },
 			talents: { name: '', talentsString: LIVE_TALENTS, isCurrent: true },
 			rotation: { name: '', isCurrent: true, rotation: LIVE_ROTATION },

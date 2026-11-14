@@ -62,6 +62,18 @@ const tableProps = (entries: readonly BulkEncounterResults[], canDualWield: bool
 			rotation: settings ? rotationLabel(rotation) : null,
 			settings: settings ? settingsLabel(settings) : null,
 			gear: !set ? currentGearLabel() : set.gearSetup ? gearSetupLabel(set.gearSetup) : null,
+			bundle:
+				set?.gearSetup?.bundle && settings
+					? {
+							name: set.gearSetup.bundle,
+							parts: {
+								gear: gearSetupLabel(set.gearSetup),
+								talents: talentsLabel(talents),
+								rotation: rotationLabel(rotation),
+								settings: settingsLabel(settings),
+							},
+						}
+					: null,
 			changes: !set?.gearSetup && set && current ? changesOf(set.gear, current, canDualWield) : [],
 			enchants: set ? changedEnchantLabels(set) : [],
 			cells: cells.map(

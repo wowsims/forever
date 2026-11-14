@@ -79,6 +79,27 @@ describe('BulkResultRowView', () => {
 		expect(description(screen.getByTestId('bulk-enchants-differ'))).toBe('Back: Enchant Cloak - Greater Agility, Chest: Enchant Chest - Greater Stats');
 	});
 
+	it('names a named bundle’s row by its name in place of its four parts, which describe it', () => {
+		const talents = { label: 'Fury', talentsString: '-0505000540501', config: warriorTalentsConfig };
+		const parts = { gear: 'Pre-BiS (Fury)', talents: 'Fury', rotation: 'Fury APL', settings: 'Pre-BiS - Fury' };
+		renderRow({
+			gearSetup: parts.gear,
+			talents,
+			rotation: { label: parts.rotation },
+			settings: { label: parts.settings },
+			bundle: { name: 'Fury raid', parts },
+		});
+
+		const name = screen.getByTestId('bulk-result-bundle');
+		expect(name.textContent).toBe('Fury raid');
+		expect(document.getElementById(name.getAttribute('aria-describedby')!)!.textContent).toBe(
+			'bulk_tab.results.gear Pre-BiS (Fury), bulk_tab.results.talents Fury, bulk_tab.results.rotation Fury APL, bulk_tab.results.settings Pre-BiS - Fury',
+		);
+		for (const testId of ['bulk-result-gear-set', 'bulk-result-talents-anchor', 'bulk-result-rotation', 'bulk-result-settings']) {
+			expect(screen.queryByTestId(testId)).toBeNull();
+		}
+	});
+
 	it('renders the gear combo it is given and equips it from its button', () => {
 		const onEquip = renderRow();
 

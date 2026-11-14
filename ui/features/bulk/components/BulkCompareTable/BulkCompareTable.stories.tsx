@@ -30,8 +30,20 @@ const row = ({
 	rotation = null,
 	settings = null,
 	gear = null,
+	bundle = null,
 	enchants = [],
-}: Pick<StoryRow, 'key' | 'label' | 'cells'> & Partial<StoryRow>): StoryRow => ({ key, label, talents, rotation, settings, gear, changes, enchants, cells });
+}: Pick<StoryRow, 'key' | 'label' | 'cells'> & Partial<StoryRow>): StoryRow => ({
+	key,
+	label,
+	talents,
+	rotation,
+	settings,
+	gear,
+	bundle,
+	changes,
+	enchants,
+	cells,
+});
 
 const gainLabel = (gainPct: number) => `${gainPct > 0 ? '+' : ''}${gainPct.toFixed(2)}%`;
 
@@ -121,7 +133,8 @@ const GAIN_ROWS = [
 
 // A Builds batch over three encounters: each set names its gear setup in place of the items it changes, then its talents,
 // rotation and settings. S1 is P1 Fury with an enchant preset's cloak enchant, and S3 and S4 are two setups of the
-// current gear set, so each counts the enchants that differ from its gear set's own and lists them on hover.
+// current gear set, so each counts the enchants that differ from its gear set's own and lists them on hover. S2's bundle
+// is named, so the name stands for its parts, which its tooltip lists.
 const BUILD_COLUMNS = [
 	{ label: 'Short fight', length: '1:30' },
 	{ label: 'Current', length: '3:00' },
@@ -136,7 +149,14 @@ const FURY_BUILD = { gear: 'P1 Fury', talents: 'Fury', rotation: 'Fury', setting
 const BUILD_ROWS = [
 	row({ key: 'current', label: 'Current', cells: BUILD_COLUMNS.map(() => cell(0)), ...CURRENT_BUILD }),
 	row({ key: 'set-1', label: 'S1', cells: [cell(6.4, true), cell(5.1, true), cell(4.8, true)], ...FURY_BUILD, enchants: ['Back: Agility'] }),
-	row({ key: 'set-2', label: 'S2', cells: [cell(5.2), cell(4.4), null], ...FURY_BUILD, rotation: 'My APL' }),
+	row({
+		key: 'set-2',
+		label: 'S2',
+		cells: [cell(5.2), cell(4.4), null],
+		...FURY_BUILD,
+		rotation: 'My APL',
+		bundle: { name: 'Fury, my APL', parts: { ...FURY_BUILD, rotation: 'My APL' } },
+	}),
 	row({ key: 'set-3', label: 'S3', cells: [cell(1.9), cell(2.3), cell(2.6)], ...CURRENT_BUILD, enchants: ['Back: Agility', 'Main hand: Crusader'] }),
 	row({ key: 'set-4', label: 'S4', cells: [cell(1.2), cell(1.6), cell(1.4)], ...CURRENT_BUILD, enchants: ['Back: Agility'], settings: 'Tank healing' }),
 ];

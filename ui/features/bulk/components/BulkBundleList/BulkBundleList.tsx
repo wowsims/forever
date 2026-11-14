@@ -5,10 +5,15 @@ import { ConfirmPopover } from '@ui-kit/ConfirmPopover';
 import { Icon } from '@ui-kit/Icon';
 import { useId, useState } from 'react';
 
+import { type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
+
 export interface BulkBundleListProps {
 	current: { label: string; checked: boolean; onCheckedChange(checked: boolean): void };
-	/** A row with a `disabledReason` shows unchecked and cannot be ticked, whatever `checked` says. */
-	rows: ReadonlyArray<{ key: string; label: string; checked: boolean; disabledReason?: string }>;
+	/**
+	 * A row with a `disabledReason` shows unchecked and cannot be ticked, whatever `checked` says. A named row's label is
+	 * its name, and `parts` holds its four parts.
+	 */
+	rows: ReadonlyArray<{ key: string; label: string; checked: boolean; disabledReason?: string; parts?: BulkSetupLabels }>;
 	onCheckedChange(key: string, checked: boolean): void;
 	onEdit(key: string): void;
 	onDelete(key: string): void;
@@ -18,8 +23,8 @@ export interface BulkBundleListProps {
 const t = (key: string, bundle: string) => i18n.t(`bulk_tab.builds.bundles.${key}`, { bundle });
 
 // The Current bundle heads the list with no pencil and no ×. A disabled row is unchecked and its box stays in the tab
-// order. Its reason shows below the row on the label's hover and the box's focus, clear of the row's own buttons, and
-// describes the box and the row's buttons for keyboard and screen reader users.
+// order. Its reason, and a named row's parts after it, show below the row on the label's hover and the box's focus, clear
+// of the row's own buttons, and describe the box and the row's buttons for keyboard and screen reader users.
 export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelete, testIds }: BulkBundleListProps) => {
 	const idPrefix = useId();
 	const [confirming, setConfirming] = useState<string | null>(null);
@@ -36,7 +41,7 @@ export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelet
 				testId={testIds.current}
 			/>
 			{rows.map((row, index) => {
-				const reasonId = row.disabledReason ? `${idPrefix}-${index}-reason` : undefined;
+				const detailsId = row.disabledReason || row.parts ? `${idPrefix}-${index}-details` : undefined;
 				return (
 					<div key={row.key} className="flex items-center gap-2" data-testid={testIds.row}>
 						<BooleanPicker
@@ -44,22 +49,29 @@ export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelet
 							className="min-w-0 flex-1 wrap-anywhere"
 							label={row.label}
 							// An element, since a string tooltip is read as markup and this one quotes saved names.
-							labelTooltip={row.disabledReason && <>{row.disabledReason}</>}
+							labelTooltip={
+								detailsId && (
+									<>
+										{row.disabledReason && <span className="block">{row.disabledReason}</span>}
+										{row.parts && <BulkSetupLines labels={row.parts} />}
+									</>
+								)
+							}
 							labelTooltipPlace="bottom"
 							layout="inline"
 							size="xs"
 							value={row.disabledReason ? false : row.checked}
 							disabled={!!row.disabledReason}
 							focusableWhenDisabled
-							aria-describedby={reasonId}
+							aria-describedby={detailsId}
 							onChange={checked => onCheckedChange(row.key, checked)}
 						/>
-						{reasonId && (
-							<span id={reasonId} className="sr-only">
-								{row.disabledReason}
+						{detailsId && (
+							<span id={detailsId} className="sr-only">
+								{[row.disabledReason, row.parts && bulkSetupText(row.parts)].filter(Boolean).join('. ')}
 							</span>
 						)}
-						<Button iconOnly aria-label={t('edit', row.label)} aria-describedby={reasonId} onClick={() => onEdit(row.key)}>
+						<Button iconOnly aria-label={t('edit', row.label)} aria-describedby={detailsId} onClick={() => onEdit(row.key)}>
 							<Icon name="pencil" />
 						</Button>
 						<ConfirmPopover
@@ -67,7 +79,7 @@ export const BulkBundleList = ({ current, rows, onCheckedChange, onEdit, onDelet
 							onOpenChange={open => setConfirming(open ? row.key : null)}
 							trigger={<Icon name="xmark" />}
 							triggerClassName="text-link-danger"
-							triggerProps={{ 'aria-label': t('delete', row.label), 'aria-describedby': reasonId }}
+							triggerProps={{ 'aria-label': t('delete', row.label), 'aria-describedby': detailsId }}
 							confirmLabel={i18n.t('common.delete')}
 							onConfirm={() => onDelete(row.key)}>
 							{t('delete_confirm', row.label)}

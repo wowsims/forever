@@ -28,7 +28,7 @@ import { changedEnchantLabels } from '../../model/results/compare';
 import { formatBulkDps } from '../../model/results/format';
 import { type BulkEquipped, bulkResultKey, equipBulkResult } from '../../model/results/results';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
-import { BulkSetupLabel } from '../BulkSetupLabel';
+import { BulkSetupLabel, type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
 import { BulkTalentsGrid, bulkTalentsText } from '../BulkTalentsGrid';
 
 export interface BulkResultRowViewProps {
@@ -52,6 +52,8 @@ export interface BulkResultRowViewProps {
 	rotation?: { label: string } | null;
 	/** The row's settings; none in Gear mode. */
 	settings?: { label: string } | null;
+	/** A named bundle's row: its name shows in place of the four parts, which its tooltip lists. */
+	bundle?: { name: string; parts: BulkSetupLabels } | null;
 	/** The current gear with other talents, rotation or settings: says so in place of the gear cells. */
 	gearUnchanged?: boolean;
 	/** A tie group follows this row: its own border separates them, so the row draws no separator or padding. */
@@ -62,7 +64,8 @@ export interface BulkResultRowViewProps {
 
 const NO_ENCHANTS: readonly string[] = [];
 
-// The sr-only copy of the talents describes the talent pill for screen readers, which the tooltip does not reach.
+// The sr-only copies of the talents and of a bundle's parts describe their pills for screen readers, which the tooltips do
+// not reach.
 export const BulkResultRowView = ({
 	showDamage,
 	avg,
@@ -76,6 +79,7 @@ export const BulkResultRowView = ({
 	talents = null,
 	rotation = null,
 	settings = null,
+	bundle = null,
 	gearUnchanged = false,
 	beforeGroup = false,
 	onEquip,
@@ -84,6 +88,7 @@ export const BulkResultRowView = ({
 	const marginTooltipId = useId();
 	const deltaTooltipId = useId();
 	const talentsTooltipId = useId();
+	const bundleTooltipId = useId();
 
 	return (
 		<div
@@ -112,15 +117,32 @@ export const BulkResultRowView = ({
 				)}
 			</div>
 			<div className="flex min-w-0 flex-1 flex-wrap gap-1 max-md:order-last max-md:basis-full" data-testid="bulk-gear-combo">
-				{(gearSetup !== null || talents || rotation || settings) && (
+				{(gearSetup !== null || talents || rotation || settings || bundle) && (
 					<div className="flex basis-full flex-wrap items-center gap-2 text-sm wrap-break-word" data-testid="bulk-result-talents">
-						{gearSetup !== null && (
+						{bundle && (
+							<>
+								<Pill
+									rounded="xs"
+									tabIndex={0}
+									className="cursor-default focus-visible:focus-ring"
+									aria-describedby={`${bundleTooltipId}-text`}
+									testId="bulk-result-bundle"
+									{...tooltipAnchorProps(bundleTooltipId)}>
+									{bundle.name}
+								</Pill>
+								<span id={`${bundleTooltipId}-text`} className="sr-only">
+									{bulkSetupText(bundle.parts)}
+								</span>
+								<Tooltip id={bundleTooltipId} align="start" content={<BulkSetupLines labels={bundle.parts} />} />
+							</>
+						)}
+						{!bundle && gearSetup !== null && (
 							<Pill rounded="xs" testId="bulk-result-gear-set">
 								<BulkSetupLabel kind="gear" label={gearSetup} />
 							</Pill>
 						)}
 						{enchants.length > 0 && <BulkEnchantsDiffer enchants={enchants} />}
-						{talents && (
+						{!bundle && talents && (
 							<>
 								<Pill
 									rounded="xs"
@@ -141,12 +163,12 @@ export const BulkResultRowView = ({
 								/>
 							</>
 						)}
-						{rotation && (
+						{!bundle && rotation && (
 							<Pill rounded="xs" testId="bulk-result-rotation">
 								<BulkSetupLabel kind="rotation" label={rotation.label} />
 							</Pill>
 						)}
-						{settings && (
+						{!bundle && settings && (
 							<Pill rounded="xs" testId="bulk-result-settings">
 								<BulkSetupLabel kind="settings" label={settings.label} />
 							</Pill>
@@ -230,6 +252,19 @@ export const BulkResultRow = ({ result, results, beforeGroup, onActivateTab }: B
 			}
 			rotation={builds ? { label: rotationLabel(result.rotation) } : null}
 			settings={result.settings ? { label: settingsLabel(result.settings) } : null}
+			bundle={
+				result.gearSetup?.bundle && result.settings
+					? {
+							name: result.gearSetup.bundle,
+							parts: {
+								gear: gearSetupLabel(result.gearSetup),
+								talents: talentsLabel(result.talents),
+								rotation: rotationLabel(result.rotation),
+								settings: settingsLabel(result.settings),
+							},
+						}
+					: null
+			}
 			gearUnchanged={gearUnchanged}
 			beforeGroup={beforeGroup}
 			onEquip={() => {

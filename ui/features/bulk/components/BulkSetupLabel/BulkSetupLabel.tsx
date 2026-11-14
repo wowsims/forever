@@ -5,6 +5,11 @@ export type BulkSetupKind = 'gear' | 'talents' | 'rotation' | 'settings';
 
 const ICONS: Record<BulkSetupKind, IconName> = { gear: 'shirt', talents: 'book', rotation: 'list-check', settings: 'gear' };
 
+export const BULK_SETUP_KINDS: readonly BulkSetupKind[] = ['gear', 'talents', 'rotation', 'settings'];
+
+/** A build's four parts by kind, each its name or "Current ..." for the running one. */
+export type BulkSetupLabels = Readonly<Record<BulkSetupKind, string>>;
+
 export interface BulkSetupLabelProps {
 	kind: BulkSetupKind;
 	/** The setup's name, or "Current ..." for the running one. */
@@ -19,3 +24,15 @@ export const BulkSetupLabel = ({ kind, label }: BulkSetupLabelProps) => (
 		{label}
 	</>
 );
+
+// One line per part, for a named build's tooltip.
+export const BulkSetupLines = ({ labels }: { labels: BulkSetupLabels }) =>
+	BULK_SETUP_KINDS.map(kind => (
+		<span key={kind} className="flex items-center gap-1">
+			<BulkSetupLabel kind={kind} label={labels[kind]} />
+		</span>
+	));
+
+/** The parts as one line of text, which describes a named build for screen readers. */
+export const bulkSetupText = (labels: BulkSetupLabels): string =>
+	BULK_SETUP_KINDS.map(kind => `${i18n.t(`bulk_tab.results.${kind}`)} ${labels[kind]}`).join(', ');
