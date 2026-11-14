@@ -6,7 +6,11 @@ package core
 // dealt, in the same instant, and is lost if its target died before it swings. The returned OnInit
 // registers the copy, so it goes on the proc's aura: the main-hand swing is configured after procs
 // register, and a unit that never swings has none to copy, in which case the proc casts nothing. The
-// swing it grants is not a hit the proc hears, or one proc would swing forever.
+// swing it grants is not a hit the proc hears, or one proc would swing forever. Windfury Totem's
+// strike is one it hears: per clean strike against per white swing, Thrash Blade 30 of 1,003 (3.0%,
+// white 1.3%, or 2.5% with no off-hand weapon), Sword Specialization 8 of 198 (4.0%, white 4.8%) and
+// Hand of Justice 4 of 272 (1.5%, white 1.8%).
+// TODO: Ingame test needed: why Thrash Blade comes off the strike about twice as often as off a white swing.
 func (unit *Unit) ExtraAttackProc(trigger *ProcTrigger, tagSpellID int32, count int) OnInit {
 	var extraAttack *Spell
 	condition := trigger.ExtraCondition

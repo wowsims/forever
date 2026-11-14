@@ -100,8 +100,9 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,
 		Callback:        core.CallbackOnSpellHitDealt,
-		ProcMask:        core.ProcMaskMeleeWhiteHit,
+		ProcMask:        sealSwingMask,
 		Outcome:         core.OutcomeLanded,
+		ExtraCondition:  sealHearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			procSpell.Cast(sim, result.Target)
 		},
