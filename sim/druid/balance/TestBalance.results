@@ -1393,7 +1393,7 @@ dps_results: {
  key: "TestBalance-AllItems-StormshroudArmor"
  value: {
   dps: 851.53667
-  tps: 862.57533
+  tps: 862.58689
   dtps: 5.00299
  }
 }
@@ -1889,7 +1889,7 @@ dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
   dps: 774.50562
-  tps: 785.36363
+  tps: 785.38002
   dtps: 5.0411
  }
 }

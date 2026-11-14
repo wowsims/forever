@@ -10,7 +10,7 @@ import (
 // it: Innervate's 100% on top of a 30% talent is the regen the unit has while not casting.
 func TestSpiritRegenWhileCastingStopsAtAllOfIt(t *testing.T) {
 	unit := &Unit{PseudoStats: stats.NewPseudoStats()}
-	unit.manaRegenMultiplier = 1
+	unit.manaRegenMultiplier, unit.innervateManaRegenMultiplier = 1, 1
 	unit.spiritRegenBase, unit.spiritRegenPerSpirit = 7.5, 1.0/10
 	unit.stats[stats.Spirit] = 100
 
