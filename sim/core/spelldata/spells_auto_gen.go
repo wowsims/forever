@@ -13507,7 +13507,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 693528, SpellID: 16323, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 30, MaxLevel: 65, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 16329, Name: "Juju Might", School: 2, Attr: [17]uint32{0: 0x10100, 2: 0x80000, 15: 0x2000}, SpellLevel: 50, DurationMs: 600000, MaxRange: 20, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, InterruptFlags: 8, StanceMask: 0x8000000,
+	{ID: 16329, Name: "Juju Might", School: 2, Attr: [17]uint32{0: 0x10100, 2: 0x80100, 15: 0x2000}, SpellLevel: 50, DurationMs: 600000, MaxRange: 20, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648}}, InterruptFlags: 8, StanceMask: 0x8000000,
 		Effects: []Effect{
 			{ID: 693538, SpellID: 16329, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ATTACK_POWER, BasePoints: 40, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 			{ID: 870621, SpellID: 16329, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RANGED_ATTACK_POWER, BasePoints: 40, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
@@ -15616,7 +15616,7 @@ var generatedSpells = []Spell{
 			{ID: 694825, SpellID: 18124, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_REGEN, BasePoints: 358, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 694826, SpellID: 18124, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 18125, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 18125, Name: "Blessed Sunfruit", School: 1, Attr: [17]uint32{0: 0x28000000, 2: 0x80000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 600000, GCDMs: 1500, StartRecoveryCategory: 11, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6}, InterruptFlags: 8, StanceMask: 0x8000000, ProcChanceSource: ProcChanceAlways,
+	{ID: 18125, Name: "Blessed Sunfruit", School: 1, Attr: [17]uint32{0: 0x28000000, 2: 0x80100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 600000, GCDMs: 1500, StartRecoveryCategory: 11, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6}, InterruptFlags: 8, StanceMask: 0x8000000, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 694827, SpellID: 18125, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 10, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
@@ -15655,7 +15655,7 @@ var generatedSpells = []Spell{
 			{ID: 695159, SpellID: 18140, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_POWER_REGEN, BasePoints: 735, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 695160, SpellID: 18140, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 18141, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 18141, Name: "Blessed Sunfruit Juice", School: 1, Attr: [17]uint32{0: 0x28000000, 2: 0x80000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 600000, GCDMs: 1500, StartRecoveryCategory: 11, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6}, InterruptFlags: 8, StanceMask: 0x8000000, ProcChanceSource: ProcChanceAlways,
+	{ID: 18141, Name: "Blessed Sunfruit Juice", School: 1, Attr: [17]uint32{0: 0x28000000, 2: 0x80100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 600000, GCDMs: 1500, StartRecoveryCategory: 11, ProcChance: 101, ClassFlags: core.ClassFlags{Family: 6}, InterruptFlags: 8, StanceMask: 0x8000000, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 695161, SpellID: 18141, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
@@ -15756,7 +15756,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 694113, SpellID: 18264, Type: dbcenums.E_APPLY_AREA_AURA_PARTY, Aura: dbcenums.A_MOD_STAT, BasePoints: 20, PvpMult: 1, RadiusMax: 30, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 18265, Name: "Siphon Life", Rank: "Rank 1", School: 32, Attr: [17]uint32{0: 0x10000, 3: 0x80, 8: 0x200, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 38, DurationMs: 30000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{1: 1}}, InterruptFlags: 8, Labels: []int16{19}, ProcHint: core.ProcHintHeals,
+	{ID: 18265, Name: "Siphon Life", Rank: "Rank 1", School: 32, Attr: [17]uint32{0: 0x10000, 3: 0x80, 8: 0x200, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 30, BaseLevel: 30, MaxLevel: 38, DurationMs: 30000, MaxRange: 30, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{1: 1}}, InterruptFlags: 8, Labels: []int16{19}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 695794, SpellID: 18265, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_LEECH, BasePoints: 11, BaseLevel: 30, MaxLevel: 38, SPCoef: 0.05000000074505806, PvpMult: 1, Amplitude: 1, PeriodMs: 3000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
@@ -15892,6 +15892,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 695863, SpellID: 18499, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MECHANIC_IMMUNITY, BaseLevel: 30, PvpMult: 1, Misc: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 695864, SpellID: 18499, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MECHANIC_IMMUNITY, BaseLevel: 30, PvpMult: 1, Misc: 14, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1372182, SpellID: 18499, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MECHANIC_IMMUNITY, BaseLevel: 30, PvpMult: 1, Misc: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		},
 		Powers: []Power{{Type: 1}}},
 	{ID: 18530, Name: "Divine Fury", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 6}, StanceExclude: 0x8000000, Labels: []int16{18},
@@ -24534,7 +24535,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1071909, SpellID: 408025, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_INCREASE_HEALTH, BasePoints: 30, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 408120, Name: "Wild Growth", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 48, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 408120, Name: "Wild Growth", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 40, BaseLevel: 40, MaxLevel: 48, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 1237, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1072065, SpellID: 408120, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 40, PPL: 1, BaseLevel: 40, MaxLevel: 48, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1075729, SpellID: 408120, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 40, MaxLevel: 48, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
@@ -33162,13 +33163,13 @@ var generatedSpells = []Spell{
 			{ID: 1235171, SpellID: 1238122, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BasePoints: 5, BaseLevel: 20, SPCoef: 1, PvpMult: 1, TriggerID: 19675, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 50}}},
-	{ID: 1238214, Name: "Wild Growth", Rank: "Rank 2", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 58, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 1238214, Name: "Wild Growth", Rank: "Rank 2", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 58, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 1237, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1235327, SpellID: 1238214, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 60, PPL: 1.2999999523162842, BaseLevel: 50, MaxLevel: 58, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1235328, SpellID: 1238214, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 50, MaxLevel: 58, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 		},
 		Powers: []Power{{Cost: 755}}},
-	{ID: 1238215, Name: "Wild Growth", Rank: "Rank 3", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 68, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CooldownMs: 6000, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+	{ID: 1238215, Name: "Wild Growth", Rank: "Rank 3", School: 8, Attr: [17]uint32{0: 0x10000, 2: 0x80100, 3: 0x80, 4: 0x100000, 6: 0x4000000, 8: 0x1200, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 68, CastTimeMs: 3000, DurationMs: 7000, MaxRange: 40, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 1237, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{1: 67108864}}, InterruptFlags: 15, StanceMask: 0x2, StanceExclude: 0x40000000, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1235329, SpellID: 1238215, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 97, PPL: 1.600000023841858, BaseLevel: 60, MaxLevel: 68, SPCoef: 0.06599999964237213, PvpMult: 1, PeriodMs: 1000, RadiusMax: 43.5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
 			{ID: 1235330, SpellID: 1238215, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 60, MaxLevel: 68, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{132, 31}},
