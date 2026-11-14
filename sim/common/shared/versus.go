@@ -32,6 +32,16 @@ var versusFactors = map[int32]versusFactor{
 	1299631: {index: 1, mobTypes: []proto.MobType{proto.MobType_MobTypeUndead}},                        // Smite
 }
 
+// The effect whose base points are the row's factor against its targets, or NilEffect where the row
+// states none.
+func VersusFactorEffect(row *spelldata.Spell) *spelldata.Effect {
+	factor, ok := versusFactors[row.ID]
+	if !ok {
+		return spelldata.NilEffect
+	}
+	return row.EffectAtIndex(factor.index)
+}
+
 // The factor the row deals or restores against its targets, kept for the item on the stats sheet, or
 // nil where the row states none.
 func ItemVersusBonus(character *core.Character, itemID int32, kind proto.VersusEffectKind, row *spelldata.Spell) *core.VersusBonus {

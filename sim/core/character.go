@@ -394,7 +394,7 @@ func (character *Character) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 // Gear stats for the encounter's area types are on from the reset to the end of the fight. No build phase applies
 // them, so the sheet's totals leave them out.
 func (character *Character) registerAreaStatsAura() {
-	areaTypes := character.Party.areaTypes()
+	areaTypes := character.Env.Encounter.AreaTypes
 	if character.Equipment.areaStats(areaTypes) == (stats.Stats{}) && character.ItemSwap.swapEquip.areaStats(areaTypes) == (stats.Stats{}) {
 		return
 	}
@@ -414,7 +414,7 @@ func (character *Character) swapItemAreaStats(sim *Simulation, oldItem *Item, ne
 	if !character.areaStatsAura.IsActive() {
 		return
 	}
-	areaTypes := character.Party.areaTypes()
+	areaTypes := character.Env.Encounter.AreaTypes
 	character.AddStatsDynamic(sim, newItem.areaStats(areaTypes).Subtract(oldItem.areaStats(areaTypes)))
 }
 

@@ -404,13 +404,13 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1295744)
 	// 	tick := row.PeriodicDamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
+	// 	config.VersusBonus = character.NewItemVersusBonus(274963, proto.VersusEffectKind_VersusEffectKindDamage,
+	// 		core.VersusBonus{Multiplier: row.EffectN(2).BaseValue(), Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic}})
 	// 	config.Dot = spelldata.DotConfig(row, tick)
 	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 		amount := tick.Average() * creatureFamilyMultiplier(target, familyMultiplier, proto.CreatureFamily_CreatureFamilyAquatic)
-	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, amount, row.TickOutcome(dot))
+	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
 	// 	}
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
@@ -447,16 +447,16 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1317432)
 	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
 	// 	config.SpellSchool = core.SpellSchoolFire
 	// 	config.DefenseType = core.DefenseTypeMagic
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
+	// 	config.VersusBonus = character.NewItemVersusBonus(8708, proto.VersusEffectKind_VersusEffectKindDamage,
+	// 		core.VersusBonus{Multiplier: row.EffectN(2).BaseValue(), Families: []proto.CreatureFamily{
 	// 			proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental,
-	// 			proto.CreatureFamily_CreatureFamilyMountainGiant)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+	// 			proto.CreatureFamily_CreatureFamilyMountainGiant}})
+	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 	// 	}
 	// 	forgingStrike := character.RegisterSpell(config)
 	//

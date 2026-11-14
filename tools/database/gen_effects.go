@@ -1859,7 +1859,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		routing.Unsupported = append(routing.Unsupported, "the spell has no row in the store")
 	case direct != spelldata.NilEffect || periodic != spelldata.NilEffect:
 		routing.Shape = ShapeDamage
-		routing.Summary = onUseSummary(s, direct, periodic)
+		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{direct, periodic}, versusFactorModelled(s)...)...)
 		if direct != spelldata.NilEffect && !direct.StatesADamageAmount() {
 			routing.Unsupported = append(routing.Unsupported, fmt.Sprintf("the direct damage is %v rather than an amount", direct.Type))
 		}
@@ -1903,7 +1903,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 	case triggersDamagePeriodically(s):
 		periodic := s.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
 		routing.Shape = ShapePeriodicDamage
-		routing.Summary = fmt.Sprintf("%s; every %v for %v: %d (%s)", onUseSummary(s, periodic),
+		routing.Summary = fmt.Sprintf("%s; every %v for %v: %d (%s)", onUseSummary(s, append([]*spelldata.Effect{periodic}, versusFactorModelled(s)...)...),
 			periodic.Period(), s.Duration(), periodic.TriggerID, spellEffectKinds(instance, int(periodic.TriggerID)))
 		routing.Unsupported = append(routing.Unsupported, periodicDamageUnsupported(s, periodic)...)
 	default:
@@ -1954,6 +1954,17 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 	return slices.ContainsFunc(instance.ItemEffectsByParentID[itemID], func(e dbc.ItemEffect) bool {
 		return e.TriggerType == dbc.ITEM_SPELLTRIGGER_ON_USE && e.SpellID == spellID
 	})
+}
+
+// The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
+// damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
+// on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
+func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
+	e := shared.VersusFactorEffect(s)
+	if e == spelldata.NilEffect || (e.Type != dbcenums.E_NONE && e.Type != dbcenums.E_DUMMY) {
+		return nil
+	}
+	return []*spelldata.Effect{e}
 }
 
 func onUseSummary(s *spelldata.Spell, modelled ...*spelldata.Effect) string {
