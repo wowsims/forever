@@ -166,9 +166,8 @@ func (mage *Mage) registerIceBlock() {
 
 // "Increases the critical strike chance of all your spells against Frozen targets by 50%." The
 // amount is the talent's dummy effect, 17/33/50. Fingers of Frost's charges give Blizzard's ticks no
-// bonus: in the logs they crit at the same rate with charges up as without, while direct spells gain
-// it. Those charges are the only way a target is Frozen here, so the ticks are left out, and
-// Flamestrike's ground ticks with them.
+// bonus, while direct spells gain it (EV-0029). Those charges are the only way a target is Frozen here, so the
+// ticks are left out, and Flamestrike's ground ticks with them.
 func (mage *Mage) registerShatter() {
 	if mage.Talents.Shatter == 0 {
 		return
@@ -220,7 +219,7 @@ func (mage *Mage) registerFingersOfFrost() {
 	var grants int
 
 	// Every damage spell the rotation casts spends a charge, except a channel and the cast that
-	// granted them: in the logs, Blizzard casts made with charges up spent none. The charge goes a
+	// granted them (EV-0030). The charge goes a
 	// spell batch after the cast, so a spell queued in the same batch still reads the target as
 	// Frozen and spends the same charge. A grant inside that batch leaves the charges full: the
 	// spend came before it.

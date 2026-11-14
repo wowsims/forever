@@ -22,8 +22,7 @@ type focusBar struct {
 	focusRefundMetrics *ResourceMetrics
 }
 
-// Focus comes back at 10 a second, 1 every 0.1 s: a pet that spends all of it on 25 focus Claws casts
-// one every 2.43 s in combat logs, and its focus never shows above 100.
+// Focus comes back at 10 a second, 1 every 0.1 s, and never shows above 100 (EV-0072).
 func (unit *Unit) EnableFocusBar(focusRegenMultiplier float64) {
 	unit.SetCurrentPowerBar(FocusBar)
 

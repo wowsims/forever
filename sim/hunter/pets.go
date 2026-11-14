@@ -32,11 +32,9 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 // A tamed pet's own armor and health are the creature values for its level in the game files
 // (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
 // dps (core.CreatureAutoAttackDpsMaxLevel) as attack power, 14 a point of dps, with nothing from Strength:
-// 36, 61 and 103 on the sheets of a level 11 Carrion Bird, a level 17 Cat and a level 30 pet, each the
-// creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it.
-// TODO: Health is one reading, 550 with Great Stamina 2 at 35 owner Stamina, which the creature health
-// fits with ~1.1 health a point of the owner's Stamina, and half of it with the warlock's 7.5. The creature
-// health is kept until a second reading at another Stamina.
+// the creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it (EV-0070).
+// TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
+// Stamina.
 var petBaseStats = stats.Stats{
 	stats.Health:      core.CreatureHealthMaxLevel,
 	stats.Armor:       core.CreatureArmorMaxLevel,
@@ -47,10 +45,9 @@ const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
 
 // The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
 // attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
-// a level 30 Cat's logged swings before armor, 42-55 and 46-59 at 119 and 146 attack power, swinging at 1.2 s
-// with Unleashed Fury 5/5, are this swing plus attack power over 14, over the swing as sped up, with the Cat's
-// +10% and happiness. The pet sheet shows the whole creature dps as the weapon and leaves happiness out, so
-// its damage range is not the damage the pet deals.
+// a Cat's logged swings before armor are this swing plus attack power over 14, over the swing as sped up,
+// with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves
+// happiness out, so its damage range is not the damage the pet deals.
 const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
@@ -119,8 +116,8 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
 // them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
 // higher crit (inheritedCrit), the owner's ranged hit, 17/8 of it as spell hit, and the owner's
-// expertise, the armor, attack power and crit read on a level 17 pet sheet at two gear states. Not
-// linear, so the pet snapshots them; registerStatInheritance says when.
+// expertise. The armor, attack power and crit are not linear in the owner's (EV-0070), so the pet
+// snapshots them; registerStatInheritance says when.
 // TODO: The health a point of Stamina is not read; see petBaseStats.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
@@ -145,8 +142,8 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 // The higher of the melee and ranged crit the in-game character sheet shows, at least 0. Melee is the
 // owner's physical crit; ranged adds the ranged crit. Each loses 0.04% a point of its weapon's skill
 // below the level-based maximum.
-// TODO: A level 17 pet sheet read the owner's ranged crit whole at 84 of 85 bow skill, where this
-// takes 0.04% off; a reading at a skill well below the maximum decides.
+// TODO: A pet sheet read the owner's ranged crit whole at a bow skill just below the maximum
+// (EV-0070), where this takes 0.04% off; a reading at a skill well below the maximum decides.
 func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
 	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon())
 	rangedSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetRangedWeapon())
@@ -161,9 +158,9 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 }
 
 // The attack power and health the pet takes at the summon stay until it is dismissed; the rest follows
-// the owner. In a combat log the pet's attack power holds through 20 Aspect of the Hawk toggles and a
-// gear swap in one summon, its health through the owner's Stamina changes, and its armor follows
-// each gear swap.
+// the owner. The pet's attack power holds through Aspect of the Hawk toggles and a gear swap in one
+// summon, its health through the owner's Stamina changes, and its armor follows each gear swap
+// (EV-0072).
 func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
 	// The summon: Enable snapshots the owner before it marks the pet enabled.
 	if !hp.IsEnabled() {

@@ -47,6 +47,11 @@ constants that no generator reads.
   commented out in place under `panic("To be implemented")` and a `// TODO:` naming what is missing, never a deletion
   or a silent return. Content Forever does not have is removed, not stubbed, once `tools/database/wowsims.db` shows no
   data for it. An aura registered with no effect, or a cooldown that does nothing, is a finding.
+- **A measurement written inline.** A comment, override `Reason` or `Source`, or ruling the change adds that carries
+  log counts, rates, report codes or "checked in game" is a finding: the numbers move to a `docs/evidence/` file and
+  the text cites its `EV-` id (`wowsims-conventions` `## Comments`). A cross-file rule written into a skill's
+  `references/rulings.md` instead of its own `docs/rulings/` file is one too; `make skills-check` checks the ids and
+  files, not where a rule was written.
 - **One copy of each rule.** Three channels differing only in their tick effect share one builder; a value
   built each iteration that never changes is built at registration.
 - **Text.** Every comment, doc line, test message, commit message and PR text the change adds or rewrites is
@@ -205,5 +210,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

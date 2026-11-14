@@ -19,13 +19,13 @@ import (
 // A measured Source needs no notice; a carry-over names its version, and anything else is an estimate.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
-		"wcl:abc/1-2, 2026-01-01":             "",
-		"issue #1":                            "",
-		"combat log, Rend Rank 2, 2026-10-01": "",
-		"vanilla-carryover":                   "vanilla",
-		"tbc-carryover":                       "tbc",
-		"estimate":                            "unknown",
-		"owner decision":                      "unknown",
+		"EV-0001":           "",
+		"EV-0017, EV-0018":  "",
+		"EV-1":              "unknown",
+		"vanilla-carryover": "vanilla",
+		"tbc-carryover":     "tbc",
+		"estimate":          "unknown",
+		"owner decision":    "unknown",
 	} {
 		if got := rateOrigin(source); got != want {
 			t.Errorf("source %q reads as origin %q, want %q", source, got, want)
@@ -58,18 +58,18 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{ItemID: 30, SpellID: 1, PPM: 1, Source: "vanilla-carryover"},
 			{ItemID: 30, SpellID: 2, PPM: 2, Source: "vanilla-carryover"},
 			{ItemID: 10, SpellID: 3, PPM: 1, Source: "tbc-carryover"},
-			{ItemID: 20, SpellID: 4, PPM: 1, Source: "wcl:abc/1"},
+			{ItemID: 20, SpellID: 4, PPM: 1, Source: "EV-0001"},
 			{ItemID: 99, SpellID: 5, PPM: 1, Source: "vanilla-carryover"},
 		},
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
 			{SpellID: 7, Field: overrides.ProcChancePct, Value: 5, Source: "owner decision"},
-			{SpellID: 8, Field: overrides.PPM, Value: 1, Source: "issue #1"},
+			{SpellID: 8, Field: overrides.PPM, Value: 1, Source: "EV-0002"},
 			{SpellID: 9, Field: overrides.ICDMs, Value: 1000, Source: "tbc-carryover"},
 		},
 		EnchantProcs: []overrides.EnchantProc{
 			{EnchantID: 100, SpellID: 10, Kind: overrides.RateChance, Value: 0.1, Source: "vanilla-carryover"},
-			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "issue #2"},
+			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "EV-0003"},
 		},
 		Literals: []literalRate{
 			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Origin: "unknown"},

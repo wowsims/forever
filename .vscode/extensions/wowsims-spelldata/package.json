@@ -11,7 +11,8 @@
 		"onLanguage:go",
 		"onLanguage:json",
 		"onLanguage:typescript",
-		"onLanguage:typescriptreact"
+		"onLanguage:typescriptreact",
+		"onLanguage:markdown"
 	],
 	"contributes": {
 		"configuration": {

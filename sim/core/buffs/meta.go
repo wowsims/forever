@@ -225,7 +225,7 @@ func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32
 // game files rows carry no coefficient (every rank states EffectBonusCoefficient 0, and the damage
 // still moves with spell power in game). The coefficient is the 1.5 s cast-time floor over 3.5, the
 // AoE divisor because the shield hits every attacker, and the 0.42 penalty for the aura effect: 6% of
-// spell power, the ratio Blizzard states for Retribution Aura and the one measured for Thorns.
+// spell power, the ratio Blizzard states for Retribution Aura and the one measured for Thorns (EV-0067).
 const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
 
 // A damage shield that scales with its caster's spell power. The player's copy reads its own spell
