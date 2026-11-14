@@ -661,7 +661,29 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
 	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
+	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
+}
+
+// The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
+// row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
+// gain targets the caster, so it comes with every proc whether the damage lands or not: in game the
+// mana is logged at the proc, before the damage arrives, and both full resists among 499 logged
+// Engulfing Shadows hits still restored it.
+func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+	gain := damage.EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+		return handler
+	}
+	power := dbcenums.PowerType(gain.Misc)
+	bar, ok := energizedBarOf(character, power, core.ActionID{SpellID: damage.ID})
+	if !ok {
+		return handler
+	}
+	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		handler(sim, spell, result)
+		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	}
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
