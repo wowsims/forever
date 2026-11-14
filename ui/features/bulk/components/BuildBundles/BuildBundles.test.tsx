@@ -1,4 +1,5 @@
 import { EnchantPresetDialogView } from '@features/enchant-presets/components/EnchantPresets/EnchantPresetDialog';
+import { BulkBuildBundle, BulkGearSetRef, BulkRotationRef, BulkSettingsRef, BulkTalentRef } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -6,6 +7,8 @@ import { useRef, useState } from 'react';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import english from '../../../../../assets/locales/en/translation.json';
+import { CURRENT_REF } from '../../model/builds/bundles';
+import { BulkBundleDialog, type BulkBundleDialogProps } from '../BulkBundleDialog';
 import type { BulkBundleListProps } from '../BulkBundleList';
 import type { BulkCheckRow } from '../BulkCheckList';
 import { BuildBundlesView } from './BuildBundles';
@@ -125,5 +128,89 @@ describe('BuildBundlesView', () => {
 		await userEvent.click(screen.getByTestId('bulk-enchant-preset-save'));
 		expect(screen.queryByTestId('bulk-enchant-pick-new')).toBeNull();
 		await waitFor(() => expect(document.activeElement).toBe(screen.getByRole('checkbox', { name: 'Agility cloak' })));
+	});
+});
+
+const ref = (name: string, preset = true) => ({ name, preset });
+
+const OPTIONS: BulkBundleDialogProps['options'] = {
+	gearSets: [
+		{ ref: CURRENT_REF, label: 'Current gear' },
+		{ ref: { name: 'Pre-BiS', preset: true, group: 'Arms' }, label: 'Pre-BiS (Arms)' },
+	],
+	talents: [
+		{ ref: CURRENT_REF, label: 'Current talents' },
+		{ ref: ref('Arms'), label: 'Arms' },
+	],
+	rotations: [
+		{ ref: CURRENT_REF, label: 'Current rotation' },
+		{ ref: ref('Arms APL'), label: 'Arms APL' },
+	],
+	settings: [
+		{ ref: CURRENT_REF, label: 'Current settings' },
+		{ ref: ref('Pre-BiS - Arms'), label: 'Pre-BiS - Arms' },
+	],
+};
+
+const ARMS_BUNDLE = BulkBuildBundle.create({
+	gearSet: BulkGearSetRef.create({ name: 'Pre-BiS', preset: true, group: 'Arms' }),
+	talents: BulkTalentRef.create(ref('Arms')),
+	rotation: BulkRotationRef.create(ref('Arms APL')),
+	settings: BulkSettingsRef.create(ref('Pre-BiS - Arms')),
+	checked: true,
+	name: 'Arms raid',
+});
+
+const renderDialog = (props: Partial<BulkBundleDialogProps> = {}) => {
+	const onSave = vi.fn();
+	render(
+		<BulkBundleDialog open bundle={null} options={OPTIONS} takenLabels={['Current bundle', 'Fury raid']} onSave={onSave} onClose={vi.fn()} {...props} />,
+	);
+	return onSave;
+};
+
+const nameField = () => screen.getByRole('textbox', { name: 'Name' });
+
+describe('BulkBundleDialog names', () => {
+	it('shows the label the picks give the bundle as the name’s placeholder, following the picks', async () => {
+		renderDialog();
+
+		expect(nameField().getAttribute('placeholder')).toBe('Current gear · Current talents · Current rotation · Current settings');
+		await userEvent.click(screen.getByRole('combobox', { name: 'Talents' }));
+		await userEvent.click(await screen.findByRole('option', { name: 'Arms' }));
+		expect(nameField().getAttribute('placeholder')).toBe('Current gear · Arms · Current rotation · Current settings');
+	});
+
+	it('starts an edit from the bundle’s name', () => {
+		renderDialog({ bundle: ARMS_BUNDLE });
+
+		expect((nameField() as HTMLInputElement).value).toBe('Arms raid');
+		expect(screen.getByTestId('bulk-bundle-save').hasAttribute('disabled')).toBe(false);
+	});
+
+	it('keeps Save off while the name is another bundle’s label, whatever its case and spaces, and says so', async () => {
+		renderDialog({ bundle: ARMS_BUNDLE });
+		const save = screen.getByTestId('bulk-bundle-save');
+
+		await userEvent.clear(nameField());
+		await userEvent.type(nameField(), ' fury RAID ');
+
+		expect(save.hasAttribute('disabled')).toBe(true);
+		expect(nameField().getAttribute('aria-invalid')).toBe('true');
+		expect(screen.getByText('Name already used')).toBeTruthy();
+
+		await userEvent.type(nameField(), '2');
+
+		expect(save.hasAttribute('disabled')).toBe(false);
+		expect(screen.queryByText('Name already used')).toBeNull();
+	});
+
+	it('saves the name trimmed on Enter', async () => {
+		const onSave = renderDialog({ bundle: ARMS_BUNDLE });
+
+		await userEvent.clear(nameField());
+		await userEvent.type(nameField(), '  Arms main  {Enter}');
+
+		expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Arms main' }));
 	});
 });

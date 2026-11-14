@@ -71,7 +71,7 @@ describe('bulkResultsCsv', () => {
 	it('heads the file with the result columns, then four columns per gear slot', () => {
 		expect(lines(bulkResultsCsv([entry('', true, 1100)]))[0]).toBe(
 			[
-				'encounter,duration,variation,rank,current_gear,dps,dps_margin_95,diff,diff_pct,talents,talents_string,gear_set,changed_enchants,rotation,settings',
+				'encounter,duration,variation,rank,current_gear,dps,dps_margin_95,diff,diff_pct,talents,talents_string,gear_set,changed_enchants,rotation,settings,bundle',
 				'slots.head,slots.head wowhead,slots.head item id,slots.head enchant id',
 				'slots.main_hand,slots.main_hand wowhead,slots.main_hand item id,slots.main_hand enchant id',
 			].join(','),
@@ -167,7 +167,7 @@ describe('bulkResultsCsv', () => {
 		const talents = { name: formula, talentsString: ARMS, isCurrent: false };
 		const build = {
 			rotation: { name: formula, isCurrent: false, rotation: APLRotation.create() },
-			gearSetup: { gearSet: formula, gear: UPGRADE, gearSetGear: UPGRADE, bonusStats: new Stats() },
+			gearSetup: { gearSet: formula, gear: UPGRADE, gearSetGear: UPGRADE, bonusStats: new Stats(), bundle: formula },
 			settings: { name: formula, isCurrent: false, settings: SavedSettings.create() },
 		};
 		const named: BulkEncounterResults = {
@@ -184,7 +184,7 @@ describe('bulkResultsCsv', () => {
 		const [, row] = lines(bulkResultsCsv([named]));
 
 		expect(row.startsWith(`${quoted},180,5,1,`)).toBe(true);
-		expect(row).toContain(`,${quoted},${ARMS},${quoted},,${quoted},${quoted},`);
+		expect(row).toContain(`,${quoted},${ARMS},${quoted},,${quoted},${quoted},${quoted},`);
 	});
 
 	it('keeps negative numbers and a talents string that opens with a dash as they are', () => {
@@ -218,15 +218,15 @@ describe('bulkResultsCsv', () => {
 		expect(header.slice(10, 15)).toEqual(['talents_string', 'gear_set', 'changed_enchants', 'rotation', 'settings']);
 	});
 
-	it('writes each row’s gear set, changed enchants, rotation and settings, the current gear on the Builds reference row, none on a Gear-mode row', () => {
+	it('writes each row’s gear set, changed enchants, rotation, settings and bundle name, the current gear on the Builds reference row, none on Gear mode', () => {
 		const healer: BulkPlayerSettingsSetup = { name: 'Healer', isCurrent: false, settings: SavedSettings.create() };
 		const opener = { name: 'Opener', isCurrent: false, rotation: APLRotation.create() };
 		const enchantedUpgrade = gear(
 			equipped(10001, 'Helm', { name: 'Arcanum', effectId: 2545 }),
 			equipped(19364, 'Ashkandi', { name: 'Crusader', effectId: 1900 }),
 		);
-		const raid = { gearSet: 'Raid', gear: enchantedUpgrade, gearSetGear: UPGRADE, bonusStats: new Stats() };
-		const currentGearSet = { ...raid, gearSet: '', gear: CURRENT_GEAR, gearSetGear: CURRENT_GEAR };
+		const raid = { gearSet: 'Raid', gear: enchantedUpgrade, gearSetGear: UPGRADE, bonusStats: new Stats(), bundle: 'Healer raid' };
+		const currentGearSet = { gearSet: '', gear: CURRENT_GEAR, gearSetGear: CURRENT_GEAR, bonusStats: new Stats() };
 		const base = result(CURRENT_GEAR, 1000, 10, CURRENT_TALENT_SETUP, { ...GEAR_MODE, settings: CURRENT_SETTINGS_SETUP });
 		const builds: BulkEncounterResults = {
 			...entry('Patchwerk', false, 1100),
@@ -246,12 +246,12 @@ describe('bulkResultsCsv', () => {
 			.slice(1)
 			.map(row => row.split(','));
 
-		expect(rows.map(row => [row[0], ...row.slice(11, 15)])).toEqual([
-			['Patchwerk', 'Raid', 'slots.head: Arcanum; slots.main_hand: Crusader', 'Opener', 'Healer'],
-			['Patchwerk', 'bulk_tab.results.current_gear', '', 'bulk_tab.results.current_rotation', 'bulk_tab.results.current_settings'],
-			['Patchwerk', 'bulk_tab.results.current_gear', '', 'bulk_tab.results.current_rotation', 'bulk_tab.results.current_settings'],
-			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', ''],
-			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', ''],
+		expect(rows.map(row => [row[0], ...row.slice(11, 16)])).toEqual([
+			['Patchwerk', 'Raid', 'slots.head: Arcanum; slots.main_hand: Crusader', 'Opener', 'Healer', 'Healer raid'],
+			['Patchwerk', 'bulk_tab.results.current_gear', '', 'bulk_tab.results.current_rotation', 'bulk_tab.results.current_settings', ''],
+			['Patchwerk', 'bulk_tab.results.current_gear', '', 'bulk_tab.results.current_rotation', 'bulk_tab.results.current_settings', ''],
+			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', '', ''],
+			['bulk_tab.results.current', '', '', 'bulk_tab.results.current_rotation', '', ''],
 		]);
 	});
 });
