@@ -72,9 +72,10 @@ A row whose aura is a damage shield skips the parse outright: `newDamageShield` 
 `NewDamageShield` with the spell's school and `Value`.
 
 `sim/core/spelldata/buff.go` holds a second table, read only when a parse states `BuffAuras()`:
-`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, and `A_MOD_ATTACK_POWER_PCT` a percentage on
-attack power. Neither sits in the parse's shared table. Warrior rows carry them for a value the class
-wires itself (Bloodrage's rage tick is an `A_PERIODIC_ENERGIZE`, Berserker Stance Passive an
+`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, which also counts in `EnergizeMP5` so
+Innervate leaves it unscaled, and `A_MOD_ATTACK_POWER_PCT` a percentage on attack power. Neither
+sits in the parse's shared table. Warrior rows carry them for a value the class wires itself
+(Bloodrage's rage tick is an `A_PERIODIC_ENERGIZE`, Berserker Stance Passive an
 `A_MOD_ATTACK_POWER_PCT` of 0), and reading either off the shared table would change what those rows
 mean there.
 
@@ -137,7 +138,7 @@ placed anywhere but the end renumbers the rows after it. `buffmanifest.All()` pa
 | `Proto`          | an override of the derived proto type: for a flag that is a number (`retribution_aura_spell_power` is `ProtoDouble`), or for a row with more states than a tristate (`battle_shout` is `ProtoInt32`)                                                                                                                                                                                                                                                                                                                                     |
 | `Owner`          | the providing class, only for a spell no class family files: the Atiesh rows, pet abilities and talent-granted debuffs. A row whose spell a family files and that names an owner fails the pass                                                                                                                                                                                                                                                                                                                                          |
 | `Reason`         | what a `KindFlag` row is, which the shell it renders as carries. Required on a flag and refused on any other row                                                                                                                                                                                                                                                                                                                                                                                                                         |
-| `AllManaRegen`   | the row's mana regen percent multiplies all of the mana regen, MP5 included, where a row otherwise multiplies the Spirit regen only: Innervate's                                                                                                                                                                                                                                                                                                                                                                                         |
+| `AllManaRegen`   | the row's mana regen percent multiplies the Spirit regen and MP5, but no periodic energize MP5, where a row otherwise multiplies the Spirit regen only: Innervate's                                                                                                                                                                                                                                                                                                                                                                      |
 
 The last five are exceptions; most rows state none of them. The rest of a row is derived:
 
