@@ -34,8 +34,8 @@ var HandTriggers = []HandTrigger{
 		Reason: "Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies " +
 			"inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a " +
 			"Holy damage from caster mod whose points the server sets from the talent; the tooltip names the " +
-			"Consecration rank 20924 instead. In the log the mark lands at the cast and drops 0.6 sec after the last tick",
-		Source: "combat log, Consecration Rank 2 with Consecrated Ground 2/2, 2026-10-17",
+			"Consecration rank 20924 instead",
+		Source: "EV-0015",
 	},
 	{
 		Spell:    1323967,
@@ -55,44 +55,44 @@ var HandTriggers = []HandTrigger{
 	{
 		Spell:    16389,
 		Triggers: 16368,
-		Reason: "Flametongue Totem Proc is a dummy holding the base points, and the hit logs in game as 16368 " +
+		Reason: "Flametongue Totem Proc is a dummy holding the base points, and the hit logs as 16368 " +
 			"Flametongue Attack: fire school damage with the magic defense type and no bonus coefficient",
-		Source: "combat log, Flametongue Totem Rank 1, 2026-10-03",
+		Source: "EV-0013",
 	},
 	{
 		Spell:    408341,
 		Triggers: 408423,
 		Replaces: 8349,
 		Reason:   "Fire Nova Rank 1 hits for 408423, the level 12 Fire Nova Rank 1 row, not the 8349 its tooltip reads",
-		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
+		Source:   "EV-0014",
 	},
 	{
 		Spell:    408342,
 		Triggers: 408424,
 		Replaces: 8502,
 		Reason:   "Fire Nova Rank 2 hits for 408424, the level 22 Fire Nova Rank 2 row, not the 8502 its tooltip reads",
-		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
+		Source:   "EV-0014",
 	},
 	{
 		Spell:    408343,
 		Triggers: 408426,
 		Replaces: 8503,
 		Reason:   "Fire Nova Rank 3 hits for 408426, the level 32 Fire Nova Rank 3 row, as ranks 1 and 2 hit for theirs",
-		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
+		Source:   "EV-0014",
 	},
 	{
 		Spell:    408344,
 		Triggers: 408427,
 		Replaces: 11306,
 		Reason:   "Fire Nova Rank 4 hits for 408427, the level 42 Fire Nova Rank 4 row, as ranks 1 and 2 hit for theirs",
-		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
+		Source:   "EV-0014",
 	},
 	{
 		Spell:    408345,
 		Triggers: 408428,
 		Replaces: 11307,
 		Reason:   "Fire Nova Rank 5 hits for 408428, the level 52 Fire Nova Rank 5 row, as ranks 1 and 2 hit for theirs",
-		Source:   "combat log, Fire Nova Ranks 1 and 2, 2026-10-07",
+		Source:   "EV-0014",
 	},
 	{
 		Spell:    1252526,

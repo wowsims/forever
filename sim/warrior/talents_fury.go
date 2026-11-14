@@ -131,10 +131,8 @@ func (warrior *Warrior) registerEnrage() {
 
 	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
 	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
-	// though the game files state 30% for it too: combat logs of ranks 1 to 5 show 268 procs on
-	// 1,087 non-physical spell hits taken (24.7%, 95% 22.2 to 27.3) against 3,439 on 11,773 swings
-	// (29.2%) and 236 on 812 physical spell hits (29.1%). A swing rolls the row's rate whatever its
-	// school. Chance(1) leaves core no roll of its own, so the one draw is made here.
+	// though the game files state 30% for it too (EV-0050). A swing rolls the row's rate whatever
+	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here.
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -173,9 +171,7 @@ func (warrior *Warrior) registerFlurry() {
 	// tooltip says a melee critical strike, so the mask stays the caller's.
 	//
 	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
-	// whether it lands, is dodged or is parried. Logs of 97 Whirlwind casts by eight dual-wield Fury warriors: 16 of 18 off-hand-only
-	// crits gained Flurry at the cast (all 18 within 130 ms), and 12 casts with Flurry up and a landed
-	// off-hand strike lost no charge, nor did 4 avoided ones.
+	// whether it lands, is dodged or is parried (EV-0054).
 	//
 	// TODO: Ingame test needed: the Cleave miss follows the measured Heroic Strike miss; no log
 	// holds a missed Cleave yet.
@@ -233,12 +229,8 @@ func (warrior *Warrior) registerGoreDrinker() {
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
 	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
-	// target alike, until the charges run out. Measured in 82 clean Whirlwind casts: one per landed
-	// strike fits 76, one per cast only the 25 where the two coincide (two main-hand and two
-	// off-hand strikes landed at 3 charges gave 3 heals; a dodged main hand and one landed off-hand
-	// strike gave 1). Cleave: 2 landed strikes gave 2 heals at 3 charges (13 casts) and at 2 charges
-	// (10 casts). So the buff builds its own spender: spelldata.AttachChargeSpender spends one charge a
-	// cast.
+	// target alike, until the charges run out (EV-0054). So the buff builds its own spender:
+	// spelldata.AttachChargeSpender spends one charge a cast.
 	//
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,

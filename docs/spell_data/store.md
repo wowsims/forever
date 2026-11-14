@@ -120,8 +120,7 @@ the tooltip.
 A damage or heal amount keeps its fraction: a direct hit or heal, a weapon strike's flat damage, a
 leech, a periodic damage, heal or leech tick, and a damage shield. In game the amount dealt is the
 exact value, power and multipliers included, rounded up with a chance equal to its fraction and down
-otherwise, so it averages the exact value: Flame Shock rank 1's 20.8 at level 11 landed 21 on 21 of
-26 hits and 20 on the rest. Every other amount (a stat, a resource gain, an absorb, a threat, a dummy's value) is the whole
+otherwise, so it averages the exact value (EV-0095). Every other amount (a stat, a resource gain, an absorb, a threat, a dummy's value) is the whole
 number the tooltip shows, floored.
 
 `EffectVariance` is the full width of the roll, and what it spreads depends on the effect.
@@ -133,7 +132,7 @@ number the tooltip shows, floored.
   unrolled `Average()`; `Mean()` answers the same.
 - A physical hit rolls its base points alone by `|BasePoints| * Variance/2` either side and rounds the
   roll to a whole number, and attack power is added on top unspread: Revenge rank 1's 22 ± 1.69 lands
-  on 20 to 24 in game, the two ends rarer than the three between.
+  on 20 to 24 in game, the two ends rarer than the three between (EV-0045, EV-0106).
 - Any other effect (an energize, an absorb, an aura's amount) rolls its base points by
   `|BasePoints| * Variance/2` either side.
 

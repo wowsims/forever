@@ -27,7 +27,7 @@ type EnchantProc struct {
 	Kind      RateKind
 	Value     float64
 	Reason    string
-	Source    string // "tbc-carryover", "vanilla-carryover", "estimate", "wcl:<report>/<fight>", "issue #N"
+	Source    string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "estimate"
 }
 
 var EnchantProcs = []EnchantProc{
