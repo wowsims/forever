@@ -10,6 +10,7 @@ import (
 func RegisterAllEffects() {
 	forever.RegisterAllOnUseCds()
 	forever.RegisterAllProcs()
+	forever.RegisterAllSetBonuses()
 	forever.RegisterAllEnchants()
 	forever.RegisterAllExplosives()
 	forever.RegisterPotionsAndConjured()

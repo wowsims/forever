@@ -3,6 +3,7 @@ package database
 import (
 	"bytes"
 	"fmt"
+	"go/format"
 	"maps"
 	"slices"
 	"strings"
@@ -18,13 +19,13 @@ import (
 // A measured Source needs no notice; a carry-over names its version, and anything else is an estimate.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
-		"wcl:abc/1-2, 2026-01-01":             "",
-		"issue #1":                            "",
-		"combat log, Rend Rank 2, 2026-10-01": "",
-		"vanilla-carryover":                   "vanilla",
-		"tbc-carryover":                       "tbc",
-		"estimate":                            "unknown",
-		"owner decision":                      "unknown",
+		"EV-0001":           "",
+		"EV-0017, EV-0018":  "",
+		"EV-1":              "unknown",
+		"vanilla-carryover": "vanilla",
+		"tbc-carryover":     "tbc",
+		"estimate":          "unknown",
+		"owner decision":    "unknown",
 	} {
 		if got := rateOrigin(source); got != want {
 			t.Errorf("source %q reads as origin %q, want %q", source, got, want)
@@ -57,18 +58,18 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{ItemID: 30, SpellID: 1, PPM: 1, Source: "vanilla-carryover"},
 			{ItemID: 30, SpellID: 2, PPM: 2, Source: "vanilla-carryover"},
 			{ItemID: 10, SpellID: 3, PPM: 1, Source: "tbc-carryover"},
-			{ItemID: 20, SpellID: 4, PPM: 1, Source: "wcl:abc/1"},
+			{ItemID: 20, SpellID: 4, PPM: 1, Source: "EV-0001"},
 			{ItemID: 99, SpellID: 5, PPM: 1, Source: "vanilla-carryover"},
 		},
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
 			{SpellID: 7, Field: overrides.ProcChancePct, Value: 5, Source: "owner decision"},
-			{SpellID: 8, Field: overrides.PPM, Value: 1, Source: "issue #1"},
+			{SpellID: 8, Field: overrides.PPM, Value: 1, Source: "EV-0002"},
 			{SpellID: 9, Field: overrides.ICDMs, Value: 1000, Source: "tbc-carryover"},
 		},
 		EnchantProcs: []overrides.EnchantProc{
 			{EnchantID: 100, SpellID: 10, Kind: overrides.RateChance, Value: 0.1, Source: "vanilla-carryover"},
-			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "issue #2"},
+			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "EV-0003"},
 		},
 		Literals: []literalRate{
 			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Origin: "unknown"},
@@ -244,6 +245,104 @@ func TestMissingSetBonusesRender(t *testing.T) {
 		"])\n"
 	if !strings.Contains(rendered.String(), block) {
 		t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
+	}
+}
+
+// A set no registered set covers is generated with every piece count, and a bonus is supported only when
+// each of its rows registers: it parses whole, or it is a proc trigger the set builds. A set covered by id, or by name for a set registered with ID 0, and a
+// set with no items in the database stay out. The skill line the ItemSet row requires is the set's profession.
+func TestGeneratedSetsTakeTheSetsNoRegisteredSetCovers(t *testing.T) {
+	const hit, proc = 460230, 1321560 // +2% hit; a proc trigger whose mask states no listener
+	const lightning = 18979           // a 10% chance on melee hits to cast 18980's Nature damage
+	const leatherworking = 165
+	registered := []*core.ItemSet{{ID: 100, Name: "Set 100"}, {Name: "Set 300"}}
+	setSpells := map[int][]dbc.ItemSetSpell{
+		100: {{ItemSetID: 100, Threshold: 2, SpellID: hit}},
+		200: {
+			{ItemSetID: 200, Threshold: 4, SpellID: hit, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 4, SpellID: proc, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 2, SpellID: hit, RequiredSkill: leatherworking},
+			{ItemSetID: 200, Threshold: 3, SpellID: lightning, RequiredSkill: leatherworking},
+		},
+		300: {{ItemSetID: 300, Threshold: 2, SpellID: hit}},
+		400: {{ItemSetID: 400, Threshold: 2, SpellID: hit}},
+	}
+	db := rateTestDB(nil, nil, map[int32]int32{10: 100, 20: 200, 30: 300})
+
+	got := generatedSets(registered, setSpells, db, func(spellID int) string { return fmt.Sprintf("Tooltip %d", spellID) })
+
+	if len(got) != 1 || got[0].ID != 200 || got[0].Name != "Set 200" {
+		t.Fatalf("generated %+v, want set 200 alone", got)
+	}
+	if got[0].Profession != proto.Profession_Leatherworking {
+		t.Errorf("set 200's row requires Leatherworking (165), generated with profession %v", got[0].Profession)
+	}
+	type bonus struct {
+		pieces    int32
+		spells    []int32
+		supported bool
+	}
+	want := []bonus{{2, []int32{hit}, true}, {3, []int32{lightning}, true}, {4, []int32{hit, proc}, false}}
+	if !slices.EqualFunc(got[0].Bonuses, want, func(a GeneratedSetBonus, b bonus) bool {
+		return a.Pieces == b.pieces && slices.Equal(a.Spells, b.spells) && a.Supported() == b.supported
+	}) {
+		t.Errorf("generated bonuses %+v, want %+v", got[0].Bonuses, want)
+	}
+}
+
+// A set with a supported bonus is a registration whose other bonuses are TODO comments; a set with none
+// is commented out whole. A set with a profession registers gated on it.
+func TestGeneratedSetsRender(t *testing.T) {
+	sets := []GeneratedSet{
+		{ID: 1, Name: "Set", Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotHands}, Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{11}, Tooltips: []string{"Hit."}, Unsupported: [][]string{nil}},
+			{Pieces: 4, Spells: []int32{12}, Tooltips: []string{"Proc."}, Unsupported: [][]string{{"effect 1 is E_DUMMY"}}},
+		}},
+		{ID: 2, Name: "Other", Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{13}, Tooltips: []string{"Proc."}, Unsupported: [][]string{{"effect 1 is E_DUMMY"}}},
+		}},
+		{ID: 3, Name: "Crafted", Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotChest}, Profession: proto.Profession_Tailoring, Bonuses: []GeneratedSetBonus{
+			{Pieces: 2, Spells: []int32{14}, Tooltips: []string{"Crit."}, Unsupported: [][]string{nil}},
+		}},
+	}
+
+	got, err := format.Source(renderSetBonuses(sets))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, block := range []string{
+		"\tshared.NewParsedItemSet(1, \"Set\", []proto.ItemSlot{proto.ItemSlot_ItemSlotHands}, map[int32][]int32{\n" +
+			"\t\t// Hit.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=11\n" +
+			"\t\t2: {11},\n" +
+			"\n" +
+			"\t\t// TODO: Manual implementation required\n" +
+			"\t\t//\n" +
+			"\t\t// Proc.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=12\n" +
+			"\t\t// unsupported: effect 1 is E_DUMMY\n" +
+			"\t\t// 4: {12},\n" +
+			"\t})\n",
+		"\t// TODO: Manual implementation required\n" +
+			"\t//\n" +
+			"\t// Other\n" +
+			"\t// https://www.wowhead.com/forever/item-set=2\n" +
+			"\t// shared.NewParsedItemSet(2, \"Other\", []proto.ItemSlot{}, map[int32][]int32{\n" +
+			"\t// \t// Proc.\n" +
+			"\t// \t// https://www.wowhead.com/forever/spell=13\n" +
+			"\t// \t// unsupported: effect 1 is E_DUMMY\n" +
+			"\t// \t2: {13},\n" +
+			"\t// })\n",
+		"\tshared.NewParsedProfessionItemSet(3, \"Crafted\", proto.Profession_Tailoring, []proto.ItemSlot{proto.ItemSlot_ItemSlotChest}, map[int32][]int32{\n" +
+			"\t\t// Crit.\n" +
+			"\t\t// https://www.wowhead.com/forever/spell=14\n" +
+			"\t\t2: {14},\n" +
+			"\t})\n",
+	} {
+		if !strings.Contains(string(got), block) {
+			t.Errorf("the generated file holds no block\n%s\nin\n%s", block, got)
+		}
 	}
 }
 

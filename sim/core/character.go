@@ -185,6 +185,9 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 	}
 	character.PseudoStats.InFrontOfTarget = player.InFrontOfTarget
 	character.applyWeaponSkills(player.WeaponSkills)
+	for slot := range character.Equipment {
+		character.addItemWeaponSkills(&character.Equipment[slot], 1)
+	}
 
 	if player.EnableItemSwap && player.ItemSwap != nil {
 		character.enableItemSwap(player.ItemSwap)
@@ -387,6 +390,11 @@ func (character *Character) AddPartyBuffs(partyBuffs *proto.PartyBuffs) {
 func (character *Character) initialize(agent Agent) {
 	character.majorCooldownManager.initialize(character)
 	character.ItemSwap.initialize(character)
+	character.Env.RegisterPostFinalizeEffect(func() {
+		for slot := range character.Equipment {
+			character.addItemMobTypeStats(&character.Equipment[slot], 1)
+		}
+	})
 	character.RegisterWeaponChangeCallback(func(_ *Simulation) {
 		character.refilterEquipMods()
 	})

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -357,6 +358,129 @@ func TestItemSwapRecomputesTheHandEntries(t *testing.T) {
 		checkAttackTableValues(t, step.when, []attackTableValue{
 			{"main hand miss", table.MH.BaseMissChance, step.miss},
 		})
+	}
+}
+
+// Weapon skill on gear goes on top of the stated skill on the character sheet and in the attack table,
+// every copy worn adds its own, and an item swap takes it off and puts it back with the item.
+func TestGearWeaponSkillFollowsTheItem(t *testing.T) {
+	const daggerRingID, plainRingID, ringSkill int32 = 990921, 990922, 5
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: daggerRingID, Name: "Test Dagger Skill Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: ringSkill}}},
+		}},
+		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
+	}})
+	withRings := func(mainHand, first, second int32) []*proto.ItemSpec {
+		items := WeaponTestSlots(mainHand, 0, 0)
+		items[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: first}
+		items[proto.ItemSlot_ItemSlotFinger2] = &proto.ItemSpec{Id: second}
+		return items
+	}
+	sheetDaggerSkill := func(equipped []*proto.ItemSpec, stated int32) int32 {
+		raid := weaponTestRaid(proto.Race_RaceUndead, equipped, nil)
+		if stated != 0 {
+			raid.Parties[0].Players[0].WeaponSkills = []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: stated}}
+		}
+		result := ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: weaponTestEncounter()})
+		for _, skill := range result.RaidStats.Parties[0].Players[0].WeaponSkills {
+			if skill.Skill == proto.WeaponSkill_WeaponSkillDaggers {
+				return skill.Value
+			}
+		}
+		t.Fatal("the character sheet lists no dagger skill")
+		return 0
+	}
+
+	unskilled := sheetDaggerSkill(withRings(WeaponTestDaggerID, plainRingID, plainRingID), 0)
+	for _, tc := range []struct {
+		name          string
+		first, second int32
+		stated        int32 // The skill the player states, which the gear goes on top of; 0 states none.
+		bonus         int32
+	}{
+		{"no ring", plainRingID, plainRingID, 0, 0},
+		{"one ring", daggerRingID, plainRingID, 0, ringSkill},
+		{"two rings", daggerRingID, daggerRingID, 0, 2 * ringSkill},
+		{"one ring on a stated skill below the maximum", daggerRingID, plainRingID, unskilled - ringSkill, 0},
+	} {
+		if got := sheetDaggerSkill(withRings(WeaponTestDaggerID, tc.first, tc.second), tc.stated) - unskilled; got != tc.bonus {
+			t.Errorf("%s: the character sheet shows %d dagger skill over the maximum, want %d", tc.name, got, tc.bonus)
+		}
+		if tc.stated == 0 {
+			_, character := NewWeaponTestSim(t, proto.Race_RaceUndead, withRings(WeaponTestDaggerID, tc.first, tc.second), nil, nil)
+			if got := character.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillDaggers]; got != float64(tc.bonus) {
+				t.Errorf("%s: the sim reads %v dagger skill over the maximum, want %d", tc.name, got, tc.bonus)
+			}
+		}
+	}
+
+	swapped := WeaponTestSlots(0, 0, 0)
+	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, withRings(WeaponTestDaggerID, daggerRingID, plainRingID), swapped, nil)
+	table := character.AttackTables[character.CurrentTarget.UnitIndex]
+	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
+		return func() { character.ItemSwap.SwapItems(sim, set, false) }
+	}
+	sim.CurrentTime = -time.Second // A ring swaps only before the pull.
+	for _, step := range []struct {
+		when string
+		swap func()
+		miss float64 // Against a level 63 target: 0.08 at the maximum skill, 0.06 with the ring's 5 over it.
+	}{
+		{"the ring on", func() {}, 0.06},
+		{"the ring swapped off", swapTo(proto.APLActionItemSwap_Swap1), 0.08},
+		{"the ring swapped back on", swapTo(proto.APLActionItemSwap_Main), 0.06},
+		{"the ring swapped off again", swapTo(proto.APLActionItemSwap_Swap1), 0.08},
+		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, 0.06},
+	} {
+		step.swap()
+		checkAttackTableValues(t, step.when, []attackTableValue{
+			{"main hand miss", table.MH.BaseMissChance, step.miss},
+		})
+	}
+}
+
+// Attack power on gear against a creature type counts against a target of that type, and an item swap
+// takes it off and puts it back with the item.
+func TestGearMobTypeStatsFollowTheItem(t *testing.T) {
+	const humanoidRingID, plainRingID int32 = 990923, 990924
+	const ringAttackPower = 78.0
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: humanoidRingID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {MobTypeStats: []*proto.MobTypeStats{{
+				MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+				Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
+			}}},
+		}},
+		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
+	}})
+	equipped := WeaponTestSlots(WeaponTestDaggerID, 0, 0)
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: humanoidRingID}
+	swapped := WeaponTestSlots(0, 0, 0)
+	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, equipped, swapped, nil)
+	attack := character.AutoAttacks.MHAuto()
+	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
+		return func() { character.ItemSwap.SwapItems(sim, set, false) }
+	}
+
+	sim.CurrentTime = -time.Second // A ring swaps only before the pull.
+	for _, step := range []struct {
+		when  string
+		swap  func()
+		bonus float64
+	}{
+		{"the ring on", func() {}, ringAttackPower},
+		{"the ring swapped off", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"the ring swapped back on", swapTo(proto.APLActionItemSwap_Main), ringAttackPower},
+		{"the ring swapped off again", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, ringAttackPower},
+	} {
+		step.swap()
+		if got := character.GetAttackPowerValue(attack, character.CurrentTarget) - character.GetStat(stats.AttackPower); got != step.bonus {
+			t.Errorf("%s: attack power against the Humanoid target is %v over the sheet, want %v", step.when, got, step.bonus)
+		}
 	}
 }
 

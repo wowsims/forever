@@ -154,12 +154,25 @@ listener hears, how often it fires and its internal cooldown. The buff's row sup
 lasts and how it stacks. Only the stats come from the item's effect entry, where the sim's item level
 scaling lives. `IsWeaponProc` states the one shape no row describes: the game
 casts a chance-on-hit effect off the weapon's hit without consulting a proc mask, and there the 100/101
-sentinel is never a rate.
+sentinel is never a rate. An ability whose row requires a shield (Shield Slam, Shield Bash), has magic
+DefenseType (Thunder Clap) or has none (Sweeping Strikes' copied hit 12723) reaches equip procs and no
+chance-on-hit effect or combat enchant; auto attacks are exempt, so a wand's shots still cast them.
 
 The damage shape also takes a row that deals its damage through `E_HEALTH_LEECH`. The hit rolls the
 table of the row's defense type and takes armor or resistance like any other, and the wearer gains the
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
+
+A damage row that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
+or energy with every proc, whether the damage lands or not, since the gain's target is the caster
+(`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
+
+A rate priced on something neither the item's entry nor the trigger's row states comes in through
+`SpellDataProc.Rate`, which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
+case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed direct spell hit rolls
+21978's procs per minute on the cast time of the cast that launched it, at least 1.5 s. The time is
+read where the cast deals the hit's result, so a missile keeps it after the next cast starts. A
+manager on the main hand's speed would price every hit on the 1.5 s dagger.
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:

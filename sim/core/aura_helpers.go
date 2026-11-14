@@ -73,6 +73,7 @@ type ProcTrigger struct {
 	// (SpellItemEnchantment.Effect 1, e.g. Mongoose, Crusader, poisons, imbues).
 	// The game casts these off every melee or ranged hit that lacks SpellFlagSuppressWeaponProcs,
 	// whether or not that hit was itself a proc, so SpellFlagProc and CanProcFromProcs are ignored.
+	// An ability that requires a shield or has magic or no DefenseType is no weapon hit and casts none.
 	// A weapon proc's own strike is such a hit, unless an off-hand hit cast it.
 	// Which hand's hits qualify is still the DPM's or ProcMask's job.
 	IsWeaponProc bool
@@ -81,12 +82,24 @@ type ProcTrigger struct {
 // The game's rule for whether a hit may reach a listener at all, before the proc flags are
 // matched. Weapon procs (Player::CastItemCombatSpell) hear only melee and ranged hits, and of those
 // skip the spells with Suppress Weapon Procs; a hit with no melee or ranged mask, such as the damage
-// of a magic item proc, never casts them. Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered
-// spells that lack Not a Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra
-// attacks included, carry neither flag and so are always eligible.
+// of a magic item proc, never casts them. They also skip an ability that is no weapon hit: one whose
+// row requires a shield (SpellEquippedItems), which strikes with the shield, and one whose DefenseType
+// is magic or none. Auto attacks are exempt, since a wand's shots carry magic DefenseType and cast them.
+// No chance-on-hit effect or combat enchant hears Shield Slam, Shield Bash or Thunder Clap, while an
+// equip proc such as Dreadfrost Saber's hears Shield Slam (EV-0021). A special with no DefenseType,
+// such as Sweeping Strikes' copied hit 12723, is no weapon hit either, while its normalized hit 26654,
+// with melee DefenseType, is (EV-0007). Aura procs (Aura::IsProcTriggeredOnEvent) skip triggered spells that lack Not a
+// Proc, unless the listener carries Can Proc From Procs. Auto attacks, extra attacks included, carry
+// neither flag and so are always eligible.
 func (config *ProcTrigger) canProcFrom(spell *Spell) bool {
 	if config.IsWeaponProc {
-		return spell.ProcMask.Matches(ProcMaskMeleeOrRanged) && !spell.Flags.Matches(SpellFlagSuppressWeaponProcs)
+		if !spell.ProcMask.Matches(ProcMaskMeleeOrRanged) || spell.Flags.Matches(SpellFlagSuppressWeaponProcs) {
+			return false
+		}
+		if spell.ProcMask.Matches(ProcMaskWhiteHit) {
+			return true
+		}
+		return !spell.CastRequirement.Shield && (spell.DefenseType == DefenseTypeMelee || spell.DefenseType == DefenseTypeRanged)
 	}
 	return config.CanProcFromProcs || !spell.Flags.Matches(SpellFlagProc)
 }
@@ -907,7 +920,7 @@ func (parentAura *Aura) AttachPeriodicAction(config PeriodicActionOptions) *Aura
 			pa = NewPeriodicAction(sim, config)
 		}
 		pa.cancelled = false
-		pa.NextActionAt = sim.CurrentTime + TernaryDuration(tickImmediately, 0, config.Period)
+		pa.NextActionAt = sim.CurrentTime + TernaryDuration(tickImmediately, 0, TernaryDuration(config.FirstTickAfter != 0, config.FirstTickAfter, config.Period))
 		sim.AddPendingAction(pa)
 	})
 	parentAura.ApplyOnExpire(func(_ *Aura, sim *Simulation) {

@@ -14,9 +14,9 @@ do not state. One row per number:
 ```
 
 The next reader weighs the number against `Reason` and `Source`, and the generator refuses a row without
-a reason. `Source` names where the number came from: `tbc-carryover`, `tooltip`, `wcl:<report>/<fight>`,
-`issue #N`, `combat log, <spell and rank>, <date>`. A `wcl:`, `issue #` or `combat log` source is a
-measurement on Forever; a carry-over or an `estimate` is listed as unvalidated on the gear it reaches.
+a reason. `Source` names where the number came from: `vanilla-carryover`, `tbc-carryover`, `tooltip`, `owner decision`,
+`estimate`, or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`). Only an evidence id counts
+as measured; a carry-over or an `estimate` is listed as unvalidated on the gear it reaches.
 
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:
@@ -93,7 +93,8 @@ A consumable's spells take these overrides like any other spell's; the lists tha
 replace a consumable itself are in [Consumables](../consumables.md).
 
 `tools/database/overrides/extra_spells.go` is another hand-kept list: spells the generator
-force-includes although no class, item, enchant or set reaches them. It is empty today. Each entry
+force-includes although no class, item, enchant or set reaches them, such as a spell a server script
+casts or a summoned creature's own spell. Each entry
 states a reason and a source like an override, and the generator refuses one without a reason. The
 extras are added while the store renders, so adding one without regenerating fails the check rather
 than shipping a store that does not match its source.

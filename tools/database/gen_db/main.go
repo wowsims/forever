@@ -248,7 +248,11 @@ func main() {
 	if err := database.GenerateConsumablesTSFile(db); err != nil {
 		log.Fatalf("failed to generate the consumables TS file: %v", err)
 	}
-	if err := database.GenerateMissingEffectsFile(instance, db); err != nil {
+	generatedSets, err := database.GenerateSetBonuses(instance, db)
+	if err != nil {
+		log.Fatalf("failed to generate the set bonuses: %v", err)
+	}
+	if err := database.GenerateMissingEffectsFile(instance, db, generatedSets); err != nil {
 		log.Fatalf("failed to generate the missing effects TS file: %v", err)
 	}
 	database.GenerateItemEffectRandomPropPoints(instance, db)

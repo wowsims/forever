@@ -59,7 +59,7 @@ func (paladin *Paladin) applyToughness() {
 }
 
 // Redoubt - Damaging melee attacks against you have a 10% chance to increase your chance to block
-// by 6/12/18/24/30%. Lasts 10 sec or 5 blocks.
+// by 6/12/18/24/30%. Lasts 10 sec or 5 blocks. A proc while it is up refills the charges.
 func (paladin *Paladin) applyRedoubt() {
 	if paladin.Talents.Redoubt == 0 {
 		return
@@ -90,6 +90,10 @@ func (paladin *Paladin) applyRedoubt() {
 		redoubt.SetStacks(sim, redoubt.MaxStacks)
 	})
 	trigger.Name = "Redoubt - Trigger" + paladin.Label
+	// Every melee swing and melee ability aimed at the paladin rolls, whatever it resolves to, although
+	// the tooltip says "damaging". Ranged attacks roll nothing (EV-0022).
+	trigger.Outcome = core.OutcomeEmpty
+	trigger.RequireDamageDealt = false
 	paladin.MakeProcTriggerAura(trigger)
 }
 
@@ -281,7 +285,7 @@ func (paladin *Paladin) applyIronCreed() {
 	}).AttachMultiplicativePseudoStatBuff(&paladin.PseudoStats.DamageTakenMultiplier, multiplier)
 
 	// The row hears any melee special and names its ability only in the tooltip. In game a Holy
-	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome.
+	// Strike that misses or is avoided still grants the reduction, so the trigger hears every outcome (EV-0057).
 	trigger := spelldata.ProcTrigger(&paladin.Character, spellData.IronCreed.Rank(paladin.Talents.IronCreed), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 		ironCreed.Activate(sim)
 	})
@@ -300,12 +304,11 @@ func (paladin *Paladin) applyIronCreed() {
 // without consuming their charges or triggering their cooldowns, and allowing you to Block spells
 // for 6 sec.
 //
-// Holy Shield and Shield Specialization read the talent where they register. All three need a Holy
-// Strike that lands and a shield to strike with. The spell block is the triggered row's
+// Holy Shield and Shield Specialization read the talent where they register, and both need a Holy
+// Strike that lands. The spell block comes with every strike made with a shield, an avoided one
+// too (EV-0022). It is the triggered row's
 // A_ALLOW_BLOCKING_SPELLS, which the parser has no kind for. While it is up, a melee swing of any
 // school rolls the paladin's block chance. Magic spells stay unblockable.
-// TODO: Verify in game whether a Holy Strike that misses still triggers Holy Shield and Shield
-// Specialization; both here hear only a hit that lands.
 func (paladin *Paladin) applyShieldsworn() {
 	if !paladin.Talents.Shieldsworn {
 		return
@@ -326,7 +329,6 @@ func (paladin *Paladin) applyShieldsworn() {
 		Name:               "Shieldsworn - Trigger" + paladin.Label,
 		Callback:           core.CallbackOnSpellHitDealt,
 		ClassSpellMask:     SpellMaskHolyStrike,
-		Outcome:            core.OutcomeLanded,
 		ExtraCondition:     paladin.strikesWithShield,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {

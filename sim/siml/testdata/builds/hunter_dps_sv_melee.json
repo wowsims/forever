@@ -517,6 +517,7 @@
 		},
 		"reactionTimeMs": 150,
 		"reactionTimeMaxMs": 350,
+		"channelClipDelayMs": 100,
 		"distanceFromTarget": 5
 	},
 	"encounter": {

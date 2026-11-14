@@ -226,8 +226,7 @@ func NewTarget(options *proto.Target, targetIndex int32) *Target {
 	if target.Level == 0 {
 		target.Level = defaultRaidBossLevel
 	}
-	// A raid boss cannot be stunned: in Classic and Fresh logs every grenade and bomb with a stun
-	// comes back immune on a boss, its damage included.
+	// A raid boss cannot be stunned: a stun explosive comes back immune, its damage included (EV-0088).
 	target.StunImmune = target.Level >= defaultRaidBossLevel
 
 	// Default Crit chance for NPCs depends only on their level relative to the level of their
@@ -470,6 +469,7 @@ type AttackTable struct {
 	IgnoreArmor                 bool    // Ignore defender's armor for specifically this attacker's attacks
 	ArmorIgnoreFactor           float64 // Percentage of armor to ignore for this attacker's attacks
 	BonusSpellCritPercent       float64 // Analagous to Defender.PseudoStats.BonusSpellCritPercentTaken, but only for this attacker specifically
+	BonusCritPercent            float64 // The crit chance the defender's auras add to every attack of this attacker alone, as A_MOD_CRIT_CHANCE_FOR_CASTER does.
 	RangedDamageTakenMultiplier float64
 	// This is for "Apply Aura: Mod Damage Done By Caster" effects.
 	// If set, the damage taken multiplier is multiplied by the callbacks result.
@@ -505,7 +505,7 @@ func NewAttackTable(attacker *Unit, defender *Unit) *AttackTable {
 		levelDiff := combatLevelDiff(attacker, defender)
 
 		table.BaseSpellMissChance = spellMissChance(levelDiff)
-		// Era logs show no aura crit suppression against targets 1 or 2 levels above.
+		// No aura crit suppression applies against targets 1 or 2 levels above (EV-0090).
 		if levelDiff >= 3 {
 			table.AuraCritSuppression = 0.018
 		}

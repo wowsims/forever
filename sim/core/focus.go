@@ -15,7 +15,6 @@ type focusBar struct {
 	maxFocus          float64
 	currentFocus      float64
 	focusRegenPerTick float64
-	focusTickInterval float64
 	focusTickDuration time.Duration
 	nextFocusTick     time.Duration
 
@@ -23,15 +22,15 @@ type focusBar struct {
 	focusRefundMetrics *ResourceMetrics
 }
 
+// Focus comes back at 10 a second, 1 every 0.1 s, and never shows above 100 (EV-0072).
 func (unit *Unit) EnableFocusBar(focusRegenMultiplier float64) {
 	unit.SetCurrentPowerBar(FocusBar)
 
 	unit.focusBar = focusBar{
 		unit:               unit,
 		maxFocus:           100.0,
-		focusRegenPerTick:  25.0 * focusRegenMultiplier,
-		focusTickInterval:  5,
-		focusTickDuration:  time.Second * 5,
+		focusRegenPerTick:  1 * focusRegenMultiplier,
+		focusTickDuration:  time.Second / 10,
 		regenMetrics:       unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionFocusRegen}),
 		focusRefundMetrics: unit.NewFocusMetrics(ActionID{OtherID: proto.OtherAction_OtherActionRefund}),
 	}

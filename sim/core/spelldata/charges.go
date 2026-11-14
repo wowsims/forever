@@ -8,12 +8,16 @@ import (
 // Attaches to a charged buff the listener that spends its charges, as the buff's row states it, and
 // returns that listener. A cast spends one charge however many targets it hits. The spells that
 // spend one are the ones the row's proc effect names; a row whose proc effect names none states them
-// on its spell modifiers instead, and the charge goes to the spells the buff modifies.
+// on its spell modifiers instead, and the charge goes to the spells the buff modifies. An option that
+// sets the trigger to CallbackOnCastComplete spends the charge as the cast completes, once its hits
+// have rolled, so no spell landing after it takes the charge.
 //
 // A channel is one cast: the charge stays up for every tick and every target, and is spent when the
 // channel ends. A channel the buff's class flags name spends it once the channel has started, even
-// when its cast lands nothing itself, and so does one already running when the charge comes. Wand Shoot
-// is no such channel: each shot spends a charge like any hit, and so do other hits while wanding.
+// when its cast lands nothing itself, and so does one already running when the charge comes. A
+// listener on the cast counts a channeled cast as the channel only while the channel runs, so one
+// that starts none spends the charge like any other cast. Wand Shoot is no such channel: each shot
+// spends a charge like any hit, and so do other hits while wanding.
 // TODO: A tick that lands after its channel ends, a missile still in flight, misses the charge.
 func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, name string, opts ...ProcOpt) core.ProcTrigger {
 	classFlags := chargeClassFlags(character, s)
@@ -38,21 +42,29 @@ func AttachChargeSpender(character *core.Character, buff *core.Aura, s *Spell, n
 	}, opts...)
 	spender.Name = name
 	spender.ClassFlags = classFlags
+	onCast := spender.Callback.Matches(core.CallbackOnCastComplete)
+	if onCast {
+		spender.TriggerImmediately = true
+	}
 	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		// The channel's own hit lands before its dot starts, its ticks while it runs. A hit the wearer
-		// takes is not part of the channel.
+		// The channel's own hit lands before its dot starts, its ticks while it runs, and its cast
+		// completes once it runs. A hit the wearer takes is not part of the channel.
 		channel := character.ChanneledDot
 		inChannel := channel != nil && !character.Wand.IsShoot(channel.Spell)
-		if spell.Unit == &character.Unit && !character.Wand.IsShoot(spell) && (inChannel || spell.Flags.Matches(core.SpellFlagChanneled)) {
+		channelsOwnHit := !onCast && spell.Flags.Matches(core.SpellFlagChanneled)
+		if spell.Unit == &character.Unit && !character.Wand.IsShoot(spell) && (inChannel || channelsOwnHit) {
 			channelHit = true
 			return false
 		}
-		return firstHit(sim, spell)
+		// A cast completes once, so a listener on the cast needs no first-hit check.
+		return onCast || firstHit(sim, spell)
 	}
 
 	buff.AttachProcTriggerCallback(&character.Unit, spender)
 
-	if !spender.ClassFlags.IsZero() {
+	// A buff holds one cast listener. A spender that hears casts reserves the charge for a channel's
+	// cast in its own condition.
+	if !spender.ClassFlags.IsZero() && !onCast {
 		buff.AttachProcTriggerCallback(&character.Unit, core.ProcTrigger{
 			Name:               name + " - Channel",
 			Callback:           core.CallbackOnCastComplete,

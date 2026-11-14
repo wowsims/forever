@@ -61,8 +61,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(13544) // Spectral Essence - https://www.wowhead.com/forever/spell=1298497
 	// unsupported: 18264 deals no damage and heals no one (E_APPLY_AREA_AURA_PARTY)
 	// shared.NewSimpleStatActive(13937) // Headmaster's Charge - https://www.wowhead.com/forever/spell=18264
-	// unsupported: 1318944 deals no damage and heals no one (A_MOD_CRIT_CHANCE_FOR_CASTER)
-	// shared.NewSimpleStatActive(13965) // Blackhand's Breadth - https://www.wowhead.com/forever/spell=1318944
 	// on use: 18386 (E_HEAL)
 	// unsupported: the heal lands on implicit target 5, not the wearer
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
@@ -140,8 +138,12 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataAbsorbOnUse(10543) // Goblin Construction Helmet - https://www.wowhead.com/forever/spell=12561
 	// on use: 13234 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(10721) // Gnomish Harm Prevention Belt - https://www.wowhead.com/forever/spell=13234
+	// on use: 17252 (A_SCHOOL_ABSORB); not simulated: A_PERIODIC_ENERGIZE
+	shared.NewSpellDataAbsorbOnUse(13143) // Mark of the Dragon Lord - https://www.wowhead.com/forever/spell=17252
 	// on use: 21956 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(17759) // Mark of Resolution - https://www.wowhead.com/forever/spell=21956
+	// on use: 1301625 (A_SCHOOL_ABSORB)
+	shared.NewSpellDataAbsorbOnUse(18047) // Flame Walkers - https://www.wowhead.com/forever/spell=1301625
 	// on use: 1302362 (A_SCHOOL_ABSORB)
 	shared.NewSpellDataAbsorbOnUse(18340) // Eidolon Talisman - https://www.wowhead.com/forever/spell=1302362
 	// on use: 23506 (A_SCHOOL_ABSORB)
@@ -181,6 +183,7 @@ func RegisterAllOnUseCds() {
 	// ArmorNoMods
 	shared.NewSimpleStatActive(1447)  // Ring of Saviors - https://www.wowhead.com/forever/spell=18826
 	shared.NewSimpleStatActive(11811) // Smoking Heart of the Mountain - https://www.wowhead.com/forever/spell=1300752
+	shared.NewSimpleStatActive(12532) // Spire of the Stoneshaper - https://www.wowhead.com/forever/spell=16470
 	shared.NewSimpleStatActive(19345) // Aegis of Preservation - https://www.wowhead.com/forever/spell=23780
 
 	// ArmorPenetration
@@ -198,6 +201,7 @@ func RegisterAllOnUseCds() {
 	})
 
 	// AttackPower / RangedAttackPower
+	shared.NewSimpleStatActive(14554)  // Cloudkeeper Legplates - https://www.wowhead.com/forever/spell=18787
 	shared.NewSimpleStatActive(21180)  // Earthstrike - https://www.wowhead.com/forever/spell=25891
 	shared.NewSimpleStatActive(23041)  // Slayer's Crest - https://www.wowhead.com/forever/spell=28777
 	shared.NewSimpleStatActive(249470) // Molten Heart of the Mountain - https://www.wowhead.com/forever/spell=1249113
@@ -351,6 +355,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=12766
 	// Not simulated: Stealthblade: "Stealth" (1300180) - ignored aura type 16
 	// https://www.wowhead.com/forever/spell=1300180
+	// Not simulated: Book of the Dead: "Summon Skeleton" (17490) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=17490
 	// Not simulated: Cannonball Runner: "Summon Scarlet Cannon" (6251) - ignored effect type 28
 	// https://www.wowhead.com/forever/spell=6251
 	// Not simulated: Barov Peasant Caller: "Death by Peasant" (18307) - ignored effect type 28

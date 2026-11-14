@@ -12,14 +12,19 @@ import (
 )
 
 // Revelation's buff per class. Warriors and rogues have none.
-var revelationBuffs = map[proto.Class]int32{
-	proto.Class_ClassMage:    1248808,
-	proto.Class_ClassPriest:  1323377,
-	proto.Class_ClassWarlock: 1323392,
-	proto.Class_ClassDruid:   1323400,
-	proto.Class_ClassHunter:  1323410,
-	proto.Class_ClassShaman:  1323418,
-	proto.Class_ClassPaladin: 1323419,
+var revelationBuffs = map[proto.Class]revelationBuff{
+	proto.Class_ClassMage:    {id: 1248808, spendsAtCast: true},
+	proto.Class_ClassPriest:  {id: 1323377},
+	proto.Class_ClassWarlock: {id: 1323392},
+	proto.Class_ClassDruid:   {id: 1323400},
+	proto.Class_ClassHunter:  {id: 1323410},
+	proto.Class_ClassShaman:  {id: 1323418},
+	proto.Class_ClassPaladin: {id: 1323419},
+}
+
+type revelationBuff struct {
+	id           int32
+	spendsAtCast bool // The charge goes as the cast completes, not with its first hit.
 }
 
 func init() {
@@ -229,21 +234,27 @@ func init() {
 	// TODO: Verify in game that warriors and rogues get no buff.
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
-		buffID, ok := revelationBuffs[character.Class]
+		revelation, ok := revelationBuffs[character.Class]
 		if !ok {
 			return
 		}
 
-		row := spelldata.MustFind(buffID)
+		row := spelldata.MustFind(revelation.id)
 		buff := character.RegisterAura(spelldata.AuraConfig(row))
 		spelldata.ParseEffects(character, buff, row)
 		character.ItemSwap.RegisterWeaponEnchantBuff(buff, 8217)
 
 		// The charge goes to the next cast the crit modifier reaches, whatever its proc mask. A channel
-		// the mask names (Blizzard, a hunter's Volley) spends it.
+		// the mask names (Blizzard, a hunter's Volley) spends it. The mage's charge goes as the cast
+		// completes, the other classes' with the cast's first hit (EV-0028).
+		// TODO: Pyroblast spends the mage's charge and crits in game, though the row's crit modifier
+		// names neither Pyroblast nor Fireball.
 		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",
 			func(_ *core.Character, trigger *core.ProcTrigger) {
 				trigger.ProcMask = core.ProcMaskUnknown
+				if revelation.spendsAtCast {
+					trigger.Callback = core.CallbackOnCastComplete
+				}
 			})
 
 		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1248806), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
@@ -253,9 +264,10 @@ func init() {
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// The row's listener hears direct spells and heals. A ranged Shot the buff's class flags name
-		// rolls the same chance, which the hunter buff's Arcane Shot is.
-		// TODO: Verify in game that a hunter's Arcane Shot procs Revelation.
+		// The row's listener hears direct spells and heals. A ranged attack the buff's class flags name
+		// rolls the same chance: the hunter buff's Arcane Shot, and the paladin buff's Hammer of Wrath,
+		// Judgement of Righteousness and Judgement of Fury.
+		// TODO: Verify in game that a hunter's Arcane Shot and a paladin's judgement proc Revelation.
 		spellHits, classFlags := trigger.ProcMask, spender.ClassFlags
 		trigger.ProcMask = core.ProcMaskUnknown
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {

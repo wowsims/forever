@@ -64,8 +64,9 @@ func TestItemEffectTypesReadEveryEffectAndItsTriggerChain(t *testing.T) {
 		}
 	}
 
-	if _, mobTypes, _ := ItemEffectTypes(23206); !slices.Equal(mobTypes, tooltipMobTypes[23206]) {
-		t.Errorf("an item with no effect row got %v, want %v", mobTypes, tooltipMobTypes[23206])
+	dbcInstance.Items[int(plainItem)] = Item{BonusStat: []int{ITEM_MOD_ATTACK_POWER_VS_UNDEAD, ITEM_MOD_SPELL_DAMAGE_VS_DEMON, ITEM_MOD_STAMINA}}
+	if _, mobTypes, _ := ItemEffectTypes(plainItem); !slices.Equal(mobTypes, []proto.MobType{proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead}) {
+		t.Errorf("an item with no effect row and creature type stats got %v, want Demon and Undead", mobTypes)
 	}
 }
 

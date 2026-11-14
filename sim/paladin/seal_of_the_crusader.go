@@ -21,8 +21,8 @@ import (
 //
 // The game files state no number for the damage each attack loses. In game the seal swings the weapon
 // as a 1.4 times faster, lighter one: each white hit deals 1/1.4 of its damage, attack power's share
-// included, and Vindication's chance on each swing drops by the same 1.4, both measured at 1.6 and 3.6
-// speed. The white damage a second and the procs a minute hold.
+// included, and Vindication's chance on each swing drops by the same 1.4 (EV-0062).
+// The white damage a second and the procs a minute hold.
 func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell) {
 	judgementRank := spellData.SealOfTheCrusaderTriggered.ByID(int32(rank.EffectN(3).BaseValue()))
 	judgementAuras := paladin.newJudgementAuras(func(target *core.Unit) *core.Aura {
@@ -33,7 +33,7 @@ func (paladin *Paladin) registerSealOfTheCrusader(_ int32, rank *spelldata.Spell
 		})
 	})
 
-	// Melee in SpellCategories and Always Hit: the debuff lands without a roll.
+	// Ranged in SpellCategories and Always Hit: the debuff lands without a roll.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskEmpty), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfTheCrusader
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

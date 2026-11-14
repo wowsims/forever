@@ -103,12 +103,11 @@ func cloudDamageSpell(character *core.Character, itemID int32, row, cloud, damag
 // row states one. Only a character with the profession and skill the item requires can use it.
 //
 // Throwing one leaves the melee swing timer running, though no row states Do Not Reset Combat Timers:
-// in Forever combat logs the next swing lands on its old schedule after dynamite, copper bombs and
-// iron grenades alike, and a swing due during the 1 sec cast lands in it.
+// the next swing lands on its old schedule after dynamite, copper bombs and iron grenades alike, and
+// a swing due during the 1 sec cast lands in it (EV-0088).
 //
 // Starting the cast drops the attack queued for the next swing, which can be queued again once the
-// cast ends: dynamite, grenades and bombs. The instant sapper charge keeps it. A combat log does not
-// show the queue, but no swing that lands during the cast is a queued attack.
+// cast ends: dynamite, grenades and bombs. The instant sapper charge keeps it (EV-0088).
 //
 // A bomb or grenade whose row's mechanic is stun is a stun as a whole: a stun-immune target, such as a
 // raid boss, is immune to its damage too. Dynamite and sapper charges state no mechanic and hit it.

@@ -59,6 +59,12 @@ func init() {
 // warrior stand-in, or with a shaman the caster stand-in.
 func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return weaponWearerFor(t, class, itemID, targets, 180)
+}
+
+// weaponWearer's character in an encounter of the given seconds.
+func weaponWearerFor(t *testing.T, class proto.Class, itemID int32, targets int, duration float64) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -76,7 +82,7 @@ func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*
 	} else {
 		core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
 	}
-	encounter := &proto.Encounter{Duration: 180}
+	encounter := &proto.Encounter{Duration: duration}
 	for range targets {
 		encounter.Targets = append(encounter.Targets, &proto.Target{Name: "target", Level: 60})
 	}
@@ -355,6 +361,190 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 	}
 }
 
+// The shortest cast time Blade of Eternal Darkness 17780 prices its chance on (EV-0025).
+const boedFloor = 1500 * time.Millisecond
+
+// The chance Blade of Eternal Darkness 17780 rolls on a hit whose cast took castTime: 21978's procs per
+// minute on that time, at least boedFloor.
+func boedChance(t *testing.T, castTime time.Duration) float64 {
+	t.Helper()
+	ppm := float64(spelldata.MustFind(21978).RPPM)
+	if ppm <= 0 {
+		t.Fatal("21978 states no procs per minute, nothing to check")
+	}
+	return ppm * max(castTime, boedFloor).Seconds() / 60
+}
+
+// The caster stand-in wielding Blade of Eternal Darkness 17780 against the given enemies, with no auto
+// attacks, and the spell its proc casts.
+func boedWearer(t *testing.T, targets int) (*core.Simulation, *core.Character, *core.Spell) {
+	t.Helper()
+	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 17780, targets, 7200)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Blade of Eternal Darkness")
+	shadows := character.GetSpell(core.ActionID{SpellID: 27860})
+	if proc == nil || proc.Dpm != nil || shadows == nil {
+		t.Fatal("17780 registers no 27860, or no proc that rolls its own chance")
+	}
+	return sim, character, shadows
+}
+
+// How many times the proc has cast its spell, at any enemy.
+func procCasts(sim *core.Simulation, spell *core.Spell) int32 {
+	var casts int32
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		casts += spell.SpellMetrics[enemy.UnitIndex].Casts
+	}
+	return casts
+}
+
+// One landing of a spell cast in castTime on every enemy at once, as an area spell's. Each result is
+// dealt at the cast, and the hits land once the next cast, an instant, has started. The sim then steps
+// past the proc's cooldown.
+func landCastHits(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell, castTime time.Duration) {
+	t.Helper()
+	enemies := sim.Encounter.ActiveTargetUnits
+	results := make([]*core.SpellResult, len(enemies))
+	spell.CurCast.CastTime = castTime
+	for i, enemy := range enemies {
+		results[i] = &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}
+		character.OnCastResult(sim, spell, results[i])
+	}
+	spell.CurCast.CastTime = 0
+	for _, result := range results {
+		character.OnSpellHitDealt(sim, spell, result)
+	}
+	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(21978).ICD())
+}
+
+// Blade of Eternal Darkness 17780 rolls each landed spell hit at 21978's procs per minute on the cast
+// time of the hit's cast, at least boedFloor: an instant on the floor, a long cast on its own time. A
+// missile keeps the time of the cast that launched it after the next cast has started.
+func TestBladeOfEternalDarknessPricesEachHitOnItsCastTime(t *testing.T) {
+	sim, character, shadows := boedWearer(t, 1)
+	spell := fireSpell(&character.Unit)
+
+	const landings = 6000
+	for _, castTime := range []time.Duration{0, 2 * boedFloor} {
+		before := procCasts(sim, shadows)
+		for range landings {
+			landCastHits(t, sim, character, spell, castTime)
+		}
+		want := boedChance(t, castTime)
+		mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+		if got := float64(procCasts(sim, shadows) - before); math.Abs(got-mean) > 4*deviation {
+			t.Errorf("%d hits of a %v cast procced it %v times, want about %.0f", landings, castTime, got, mean)
+		}
+	}
+}
+
+// A long cast made instant, as Presence of Mind makes one, rolls Blade of Eternal Darkness 17780 on the
+// floor's chance, and the same cast as a hardcast on its own time.
+func TestBladeOfEternalDarknessPricesAnInstantLongCastOnTheFloor(t *testing.T) {
+	sim, character, shadows := boedWearer(t, 1)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	castTime := character.GetSpell(core.ActionID{SpellID: castTimeSpellID})
+	// Long enough that a hardcast procs on every hit.
+	castTime.DefaultCast.CastTime = time.Minute
+	if boedChance(t, castTime.DefaultCast.CastTime) < 1 {
+		t.Fatalf("a %v cast rolls %v, want a certain proc", castTime.DefaultCast.CastTime, boedChance(t, castTime.DefaultCast.CastTime))
+	}
+
+	castTime.Cast(sim, enemy)
+	stepTo(t, sim, character.Hardcast.Expires+time.Millisecond)
+	if got := procCasts(sim, shadows); got != 1 {
+		t.Errorf("a hardcast hit procced it %d times, want once", got)
+	}
+
+	instant := character.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_CastTime_Pct, FloatValue: -1})
+	instant.Activate()
+	const casts = 300
+	for range casts {
+		stepTo(t, sim, max(character.GCD.ReadyAt(), sim.CurrentTime+spelldata.MustFind(21978).ICD()))
+		castTime.Cast(sim, enemy)
+	}
+	want := boedChance(t, 0)
+	mean, deviation := want*casts, math.Sqrt(want*(1-want)*casts)
+	if got := float64(procCasts(sim, shadows) - 1); math.Abs(got-mean) > 4*deviation {
+		t.Errorf("%d instant hits of the long cast procced it %v times, want about %.0f", casts, got, mean)
+	}
+}
+
+// Each enemy an area spell lands on rolls Blade of Eternal Darkness 17780, and the row's cooldown lets
+// one landing proc it once.
+func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
+	const enemies = 5
+	sim, character, shadows := boedWearer(t, enemies)
+	spell := fireSpell(&character.Unit)
+
+	const certain = 50
+	for range certain {
+		landCastHits(t, sim, character, spell, time.Hour)
+	}
+	if got := procCasts(sim, shadows); got != certain {
+		t.Errorf("%d landings on %d enemies at a certain chance procced it %d times, want once a landing", certain, enemies, got)
+	}
+
+	const landings = 3000
+	for range landings {
+		landCastHits(t, sim, character, spell, 0)
+	}
+	want := 1 - math.Pow(1-boedChance(t, 0), enemies)
+	mean, deviation := want*landings, math.Sqrt(want*(1-want)*landings)
+	if got := float64(procCasts(sim, shadows) - certain); math.Abs(got-mean) > 4*deviation {
+		t.Errorf("%d landings on %d enemies procced it %v times, want about %.0f", landings, enemies, got, mean)
+	}
+}
+
+// A damage over time tick, a wand shot and a missed spell never roll Blade of Eternal Darkness 17780,
+// even at a chance that cannot fail.
+func TestBladeOfEternalDarknessIgnoresTicksShotsAndMisses(t *testing.T) {
+	sim, character, shadows := boedWearer(t, 1)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+
+	// Each result is dealt at an hour-long cast, as core deals a cast's result before its hit.
+	castResult := func(spell *core.Spell, result *core.SpellResult) *core.SpellResult {
+		spell.CurCast.CastTime = time.Hour
+		character.OnCastResult(sim, spell, result)
+		return result
+	}
+	tick := fireSpell(&character.Unit)
+	character.OnPeriodicDamageDealt(sim, tick, castResult(tick, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
+	shot := rangedShot(&character.Unit)
+	character.OnSpellHitDealt(sim, shot, castResult(shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
+	missed := fireSpell(&character.Unit)
+	character.OnSpellHitDealt(sim, missed, castResult(missed, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss}))
+	if got := procCasts(sim, shadows); got != 0 {
+		t.Errorf("a tick, a wand shot and a miss procced it %d times, want none", got)
+	}
+}
+
+// Each Blade of Eternal Darkness 17780 proc restores 27860's mana to the wearer.
+func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotMainHand, 17780)
+	want := spelldata.MustFind(27860).EnergizeEffect().Average()
+	if want <= 0 {
+		t.Fatal("27860 restores no mana, nothing to check")
+	}
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+
+	const procs = 3
+	for range procs {
+		landCastHits(t, sim, character, fireSpell(&character.Unit), time.Hour)
+	}
+	var gain float64
+	var events int32
+	for _, r := range character.Metrics.ToProto().Resources {
+		if r.Id.GetSpellId() == 27860 {
+			gain, events = r.Gain, r.Events
+		}
+	}
+	if events != procs || math.Abs(gain-procs*want) > 1e-6 {
+		t.Errorf("%d procs restored %v mana over %d gains, want %v each", procs, gain, events, want)
+	}
+}
+
 // A hand-written proc that runs at its item entry's procs per minute registers nothing while the entry
 // states none: Hand of Edward the Odd 2243 equips and swings with no Focus proc and no Focus aura.
 func TestAnEntryRateProcRegistersNothingWhileTheEntryStatesNoRate(t *testing.T) {
@@ -385,6 +575,136 @@ func TestThunderfuryProcsAtItsEntryRate(t *testing.T) {
 		t.Fatal("19019 registers no proc on a procs per minute rate")
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 19019, 21992)
+}
+
+// Dragon's Call 10847 casts 13049 at the procs per minute of the item's chance-on-hit entry, on the
+// sword's speed, off any landed main-hand hit, an application that deals no damage included. A miss
+// casts nothing, and no hit rolls during the row's category cooldown, which starts at the proc.
+func TestDragonsCallCastsOnLandedHitsOutsideItsCooldown(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Dragon's Call")
+	summon := character.GetSpell(core.ActionID{SpellID: 13049})
+	if proc == nil || proc.Dpm == nil || summon == nil {
+		t.Fatal("10847 registers no 13049 or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 10847, 13049)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 10847, 13049)
+	cooldown := spelldata.MustFind(13049).CategoryCooldown()
+	if cooldown <= 0 {
+		t.Fatalf("13049 states a category cooldown of %v, want one", cooldown)
+	}
+
+	// Every landed melee hit outside the cooldown now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee)
+	enemy := character.CurrentTarget
+	casts := func() int32 { return summon.SpellMetrics[enemy.UnitIndex].Casts }
+	hit := func(outcome core.HitOutcome, damage float64) {
+		character.OnSpellHitDealt(sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit},
+			&core.SpellResult{Target: enemy, Outcome: outcome, Damage: damage})
+	}
+
+	hit(core.OutcomeMiss, 0)
+	if got := casts(); got != 0 {
+		t.Errorf("a miss cast it %d times, want none", got)
+	}
+	start := sim.CurrentTime
+	hit(core.OutcomeHit, 0)
+	if got := casts(); got != 1 {
+		t.Errorf("a landed application that dealt no damage cast it %d times, want once", got)
+	}
+	stepTo(t, sim, start+cooldown-time.Millisecond)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 1 {
+		t.Errorf("a hit 1 ms before the cooldown ends cast it %d times in all, want once still", got)
+	}
+	stepTo(t, sim, start+cooldown)
+	hit(core.OutcomeHit, 100)
+	if got := casts(); got != 2 {
+		t.Errorf("a hit as the cooldown ends cast it %d times in all, want twice", got)
+	}
+}
+
+// The Emerald Dragon Whelp the wearer of Dragon's Call 10847 owns, or nil.
+func emeraldDragonWhelp(character *core.Character) *core.Pet {
+	for _, pet := range character.Pets {
+		if pet.Name == "Emerald Dragon Whelp" {
+			return pet
+		}
+	}
+	return nil
+}
+
+// Dragon's Call's 13049 summons the Emerald Dragon Whelp on the enemy for the row's duration, and the
+// whelp swings and casts Acid Spit 9591 while it is up.
+func TestDragonsCallSummonsTheWhelpForTheRowsDuration(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 10847, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	whelp := emeraldDragonWhelp(character)
+	if whelp == nil {
+		t.Fatal("the wearer of 10847 owns no Emerald Dragon Whelp")
+	}
+	enemy := character.CurrentTarget
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 13049}).Cast(sim, enemy)
+	duration := spelldata.MustFind(13049).Duration()
+	stepTo(t, sim, start+duration-time.Millisecond)
+	if !whelp.IsEnabled() {
+		t.Fatalf("the whelp is gone 1 ms before the row's %v run out", duration)
+	}
+	if got := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex].Casts; got == 0 {
+		t.Error("the whelp cast no Acid Spit on the enemy")
+	}
+	if got := whelp.AutoAttacks.MHAuto().SpellMetrics[enemy.UnitIndex].Casts; got == 0 {
+		t.Error("the whelp swung at the enemy no time")
+	}
+	stepTo(t, sim, start+duration)
+	if whelp.IsEnabled() {
+		t.Errorf("the whelp is still up as the row's %v run out", duration)
+	}
+}
+
+// Acid Spit 9591 states its base points as a percent of the creature auto attack dps for the caster's
+// level, which is the owner's. Its hits roll the row's variance, so their mean sits at that amount.
+func TestAcidSpitDealsItsPercentOfTheCreatureDpsAtTheOwnersLevel(t *testing.T) {
+	// Long enough for 100 summons a cooldown apart.
+	sim, character := weaponWearerFor(t, proto.Class_ClassWarrior, 10847, 1, 5000)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	whelp := emeraldDragonWhelp(character)
+	enemy := character.CurrentTarget
+	summon := character.GetSpell(core.ActionID{SpellID: 13049})
+	for range 100 {
+		stepTo(t, sim, summon.ReadyAt())
+		summon.Cast(sim, enemy)
+	}
+	stepTo(t, sim, sim.CurrentTime+spelldata.MustFind(13049).Duration())
+
+	metrics := whelp.GetSpell(core.ActionID{SpellID: 9591}).SpellMetrics[enemy.UnitIndex]
+	want := spelldata.MustFind(9591).EffectN(1).BaseValue() / 100 * core.CreatureAutoAttackDpsMaxLevel
+	got := (metrics.TotalDamage - metrics.TotalCritDamage) / float64(metrics.Hits)
+	if metrics.Hits < 200 || math.Abs(got-want) > 0.015*want {
+		t.Errorf("Acid Spit's %d hits average %.1f, want the row's percent of the creature dps at level %d, %.1f",
+			metrics.Hits, got, core.CharacterLevel, want)
+	}
+}
+
+// A character carrying Dragon's Call only in its item swap set owns the whelp too, and the proc's cast
+// summons it.
+func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
+	sim, character := stonedWarrior(t, &proto.ConsumesSpec{}, weaponSlots(10847, 0))
+	whelp := emeraldDragonWhelp(character)
+	if whelp == nil {
+		t.Fatal("a swap set holding 10847 gives its owner no Emerald Dragon Whelp")
+	}
+	character.GetSpell(core.ActionID{SpellID: 13049}).Cast(sim, character.CurrentTarget)
+	if !whelp.IsEnabled() {
+		t.Error("13049 cast from the swap set summons no whelp")
+	}
+
+	_, without := stonedWarrior(t, &proto.ConsumesSpec{}, nil)
+	if emeraldDragonWhelp(without) != nil {
+		t.Error("a character with no 10847 owns an Emerald Dragon Whelp")
+	}
 }
 
 // Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
@@ -455,6 +775,12 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Ironfoe 11684 rolls 1301046's ProcChance on each landed melee hit on an Orc, and on any other target
+// the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
+	expectLikelierAgainst(t, 11684, 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing

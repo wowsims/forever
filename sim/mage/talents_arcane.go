@@ -91,8 +91,8 @@ func (mage *Mage) registerMagicAbsorption() {
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
 // and is spent by the next cast. Arcane Missiles rolls it once as the channel starts and again as each
 // missile lands (the missile's row carries Not a Proc, so the listener hears it), all under the row's
-// 1 sec cooldown. In game the talent's chance is split evenly across those rolls, so each one takes
-// a sixth of it; the game files row states only the full chance.
+// 1 sec cooldown. The talent's chance is split evenly across those rolls, so each one takes
+// a sixth of it; the game files row states only the full chance (EV-0098).
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return
@@ -145,18 +145,7 @@ func (mage *Mage) registerArcaneConcentration() {
 		return true
 	}
 
-	triggerAura := mage.MakeProcTriggerAura(trigger)
-	// The row's proc flags hear no periodic damage, so Flamestrike's ground ticks (hits in game, see
-	// registerFlamestrikeSpell) reach the hit listener here.
-	onHit, onPeriodic := triggerAura.OnSpellHitDealt, triggerAura.OnPeriodicDamageDealt
-	triggerAura.OnPeriodicDamageDealt = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if onPeriodic != nil {
-			onPeriodic(aura, sim, spell, result)
-		}
-		if onHit != nil && spell.Matches(MageSpellFlamestrikeDot) {
-			onHit(aura, sim, spell, result)
-		}
-	}
+	mage.MakeProcTriggerAura(trigger)
 }
 
 // "Increases your Armor by an amount equal to 25/50/75% of your Intellect."

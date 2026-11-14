@@ -32,11 +32,9 @@ var petAttackSpeeds = map[proto.HunterOptions_PetAttackSpeed]spelldata.Ladder{
 // A tamed pet's own armor and health are the creature values for its level in the game files
 // (core.CreatureArmorMaxLevel, core.CreatureHealthMaxLevel), and its own attack power is 30% of the creature
 // dps (core.CreatureAutoAttackDpsMaxLevel) as attack power, 14 a point of dps, with nothing from Strength:
-// 36, 61 and 103 on the sheets of a level 11 Carrion Bird, a level 17 Cat and a level 30 pet, each the
-// creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it.
-// TODO: Health is one reading, 550 with Great Stamina 2 at 35 owner Stamina, which the creature health
-// fits with ~1.1 health a point of the owner's Stamina, and half of it with the warlock's 7.5. The creature
-// health is kept until a second reading at another Stamina.
+// the creature dps × 4.2 rounded down, with the owner's 10% rounded down beside it (EV-0070).
+// TODO: Health is one reading (EV-0070). The creature health is kept until a second reading at another
+// Stamina.
 var petBaseStats = stats.Stats{
 	stats.Health:      core.CreatureHealthMaxLevel,
 	stats.Armor:       core.CreatureArmorMaxLevel,
@@ -47,10 +45,9 @@ const petAttackPower = 0.3 * 14 * core.CreatureAutoAttackDpsMaxLevel
 
 // The creature dps is the pet's auto attack damage with its own attack power in it, so the swing before
 // attack power is the creature dps less that attack power over 14, over the 2.0 s, spanning 20% either side:
-// a level 30 Cat's logged swings before armor, 42-55 and 46-59 at 119 and 146 attack power, swinging at 1.2 s
-// with Unleashed Fury 5/5, are this swing plus attack power over 14, over the swing as sped up, with the Cat's
-// +10% and happiness. The pet sheet shows the whole creature dps as the weapon and leaves happiness out, so
-// its damage range is not the damage the pet deals.
+// a Cat's logged swings before armor are this swing plus attack power over 14, over the swing as sped up,
+// with the Cat's +10% and happiness (EV-0071). The pet sheet shows the whole creature dps as the weapon and leaves
+// happiness out, so its damage range is not the damage the pet deals.
 const petSwingAverage = (core.CreatureAutoAttackDpsMaxLevel - petAttackPower/14) * 2
 
 var petSwing = core.Weapon{
@@ -66,10 +63,13 @@ type HunterPet struct {
 	hunterOwner *Hunter
 	family      generatedPetFamily
 
-	// What the pet casts in melee range, longest cooldown first, and what it casts to close the
-	// distance when it is not.
+	// What the pet casts in melee range, longest cooldown first as a player orders the bar, and what
+	// it casts to close the distance when it is not.
 	abilities []*core.Spell
 	closers   []*core.Spell
+
+	summonAttackPower float64 // The attack power and health inherited at the summon, kept while the pet is out.
+	summonHealth      float64
 
 	uptimePercent float64
 }
@@ -81,18 +81,21 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	}
 
 	hp := &HunterPet{
-		Pet: core.NewPet(core.PetConfig{
-			Name:            family.Name,
-			Owner:           &hunter.Character,
-			BaseStats:       petBaseStats,
-			StatInheritance: hunter.makeStatInheritance(),
-			EnabledOnStart:  true,
-			// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
-			HasDynamicMeleeSpeedInheritance: true,
-		}),
 		hunterOwner: hunter,
 		family:      family,
 	}
+	inherit := hunter.makeStatInheritance()
+	hp.Pet = core.NewPet(core.PetConfig{
+		Name:      family.Name,
+		Owner:     &hunter.Character,
+		BaseStats: petBaseStats,
+		StatInheritance: func(ownerStats stats.Stats) stats.Stats {
+			return hp.keepSummonStats(inherit(ownerStats))
+		},
+		EnabledOnStart: true,
+		// Rapid Fire's melee haste reaches the pet this way; the owner's ranged haste does not.
+		HasDynamicMeleeSpeedInheritance: true,
+	})
 
 	// Bestial Discipline's effect 1 raises every effect of the pet's focus passive: +10% a rank.
 	hp.EnableFocusBar(spellData.BestialDiscipline.EffectAt(1).MultiplierAt(hunter.Talents.BestialDiscipline))
@@ -113,8 +116,8 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 // Hunter Pet Scaling (415429) states every inherited stat without an amount, the server pricing
 // them: 2 health a point of stamina, 30% of armor, 10% of the higher attack power, the owner's
 // higher crit (inheritedCrit), the owner's ranged hit, 17/8 of it as spell hit, and the owner's
-// expertise, the armor, attack power and crit read on a level 17 pet sheet at two gear states. Not
-// linear, so the pet snapshots them; registerStatInheritance says when.
+// expertise. The armor, attack power and crit are not linear in the owner's (EV-0070), so the pet
+// snapshots them; registerStatInheritance says when.
 // TODO: The health a point of Stamina is not read; see petBaseStats.
 func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 	return func(ownerStats stats.Stats) stats.Stats {
@@ -139,8 +142,8 @@ func (hunter *Hunter) makeStatInheritance() core.PetStatInheritance {
 // The higher of the melee and ranged crit the in-game character sheet shows, at least 0. Melee is the
 // owner's physical crit; ranged adds the ranged crit. Each loses 0.04% a point of its weapon's skill
 // below the level-based maximum.
-// TODO: A level 17 pet sheet read the owner's ranged crit whole at 84 of 85 bow skill, where this
-// takes 0.04% off; a reading at a skill well below the maximum decides.
+// TODO: A pet sheet read the owner's ranged crit whole at a bow skill just below the maximum
+// (EV-0070), where this takes 0.04% off; a reading at a skill well below the maximum decides.
 func (hunter *Hunter) inheritedCrit(ownerStats stats.Stats) float64 {
 	mhSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetMHWeapon())
 	rangedSkillBonus := core.GetWeaponSkill(&hunter.Unit, hunter.GetRangedWeapon())
@@ -154,8 +157,22 @@ func inheritedHit(ownerStats stats.Stats) float64 {
 	return max(0, ownerStats[stats.PhysicalHitPercent]+ownerStats[stats.RangedHitPercent])
 }
 
+// The attack power and health the pet takes at the summon stay until it is dismissed; the rest follows
+// the owner. The pet's attack power holds through Aspect of the Hawk toggles and a gear swap in one
+// summon, its health through the owner's Stamina changes, and its armor follows each gear swap
+// (EV-0072).
+func (hp *HunterPet) keepSummonStats(inherited stats.Stats) stats.Stats {
+	// The summon: Enable snapshots the owner before it marks the pet enabled.
+	if !hp.IsEnabled() {
+		hp.summonAttackPower, hp.summonHealth = inherited[stats.AttackPower], inherited[stats.Health]
+	}
+	inherited[stats.AttackPower] = hp.summonAttackPower
+	inherited[stats.Health] = hp.summonHealth
+	return inherited
+}
+
 // The server's HunterPetInheritance: the pet snapshots its owner's stats when summoned and again on
-// any action it takes, at most once every 2 s.
+// any action it takes, at most once every 2 s, keeping the summon's attack power and health.
 func (hp *HunterPet) registerStatInheritance() {
 	hp.MakeProcTriggerAura(core.ProcTrigger{
 		Name:     "Hunter Pet Inheritance",
@@ -179,17 +196,20 @@ func (hp *HunterPet) ApplyTalents() {
 
 	// An attack speed acts through a Simulation, which a static passive has none of, so these two
 	// are auras the pet is never without.
-	attackSpeed := petAttackSpeeds[opts.PetAttackSpeed].Highest()
-	hp.applyPassiveAura(attackSpeed)
-	if attackSpeed != spelldata.Nil {
-		// Normalized: a faster swing deals less a swing, the damage a second unchanged.
-		hp.AutoAttacks.MHConfig().DamageMultiplier /= 1 + attackSpeed.Effect(dbcenums.A_MOD_ATTACKSPEED, 0).Percent()
-	}
+	hp.applyAttackSpeed(petAttackSpeeds[opts.PetAttackSpeed].Highest())
+	// The same attack speed aura as Faster Attack: its "reduces damage" is the normalization.
 	if opts.CobraReflexes {
-		hp.applyPassiveAura(cobraReflexesRank)
-		// TODO: In-game testing required. "but reduces damage" states no number; TBC's 15% kept.
-		hp.AutoAttacks.MHConfig().DamageMultiplier *= 0.85
+		hp.applyAttackSpeed(cobraReflexesRank)
 	}
+}
+
+// A pet attack speed is normalized: a faster swing deals less a swing, the damage a second unchanged.
+func (hp *HunterPet) applyAttackSpeed(rank *spelldata.Spell) {
+	if rank == spelldata.Nil {
+		return
+	}
+	hp.applyPassiveAura(rank)
+	hp.AutoAttacks.MHConfig().DamageMultiplier /= 1 + rank.Effect(dbcenums.A_MOD_ATTACKSPEED, 0).Percent()
 }
 
 func (hp *HunterPet) applyPassiveAura(rank *spelldata.Spell) {
@@ -224,16 +244,13 @@ func (hp *HunterPet) OnEncounterStart(_ *core.Simulation) {
 
 func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 	target := hp.CurrentTarget
-	// The pet starts beside the hunter and walks in to melee range before it acts, closing with
-	// Charge, Dash or Dive when it has one.
+	// The pet starts beside the hunter and walks in to melee range, closing with Charge, Dash or Dive
+	// when it has one, and casting on the way what reaches from where it stands, e.g. Lightning Breath.
 	if hp.DistanceFromTarget > core.MaxMeleeRange {
-		for _, closer := range hp.closers {
-			if closer.CanCast(sim, target) {
-				closer.Cast(sim, target)
-				break
-			}
+		if !hp.castFirstReady(sim, target, hp.closers) {
+			hp.castFirstReady(sim, target, hp.abilities)
 		}
-		if !hp.Moving {
+		if !hp.Moving && hp.DistanceFromTarget > core.MaxMeleeRange {
 			hp.MoveTo(core.MaxMeleeRange-1, sim)
 		}
 		return
@@ -244,21 +261,23 @@ func (hp *HunterPet) ExecuteCustomRotation(sim *core.Simulation) {
 		return
 	}
 
-	for _, spell := range hp.abilities {
+	// Autocast never waits: an ability short of focus passes to the next one on the bar.
+	hp.castFirstReady(sim, target, hp.abilities)
+}
+
+func (hp *HunterPet) castFirstReady(sim *core.Simulation, target *core.Unit, spells []*core.Spell) bool {
+	for _, spell := range spells {
 		if spell.CanCast(sim, target) {
 			spell.Cast(sim, target)
-			return
-		}
-		// A cooldown that is up but short of focus is waited for rather than spent on a filler.
-		if (spell.CD.Duration > 0 || spell.SharedCD.Duration > 0) && spell.IsReady(sim) {
-			return
+			return true
 		}
 	}
+	return false
 }
 
 // An ability by its row's name in the game files, so the generated family table needs no hand list
-// beside it. A name not here stays unregistered: Cower, Growl, Prowl and Shell Shield change nothing
-// the sim measures, and the Boar's Charge is not modelled.
+// beside it. A name not here stays unregistered: Cower, Growl and Shell Shield change nothing the sim
+// measures, and Prowl's 40% slower walk in from the hunter costs more than its +50% first attack gains.
 func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 	var spell *core.Spell
 	switch rank.Name {
@@ -278,6 +297,9 @@ func (hp *HunterPet) registerAbility(rank *spelldata.Spell) {
 		spell = hp.registerSelfBuff(rank)
 	case "Dash", "Dive":
 		hp.closers = append(hp.closers, hp.registerSprint(rank))
+		return
+	case "Charge":
+		hp.closers = append(hp.closers, hp.registerCharge(rank))
 		return
 	default:
 		return
@@ -447,6 +469,26 @@ func (hp *HunterPet) registerFuriousHowl(rank *spelldata.Spell) *core.Spell {
 		for _, aura := range auras {
 			aura.Activate(sim)
 		}
+	}
+	return hp.RegisterSpell(config)
+}
+
+// The pet runs to the enemy at three times its speed, and its next swing or ability takes the row's
+// attack power. The stun the charge triggers changes nothing the sim measures.
+func (hp *HunterPet) registerCharge(rank *spelldata.Spell) *core.Spell {
+	buff := hp.RegisterAura(spelldata.AuraConfig(rank))
+	spelldata.ParseEffects(&hp.Character, buff, rank, spelldata.Effects(2))
+	buff.ApplyOnGain(func(aura *core.Aura, sim *core.Simulation) {
+		aura.SetStacks(sim, aura.MaxStacks)
+	})
+	spelldata.AttachChargeSpender(&hp.Character, buff, rank, "Charge - Spend")
+
+	config := hp.spellConfig(rank, spelldata.Flags(core.SpellFlagMovesToTarget))
+	run := core.MakeDashAura(&hp.Unit, "Charge - Run", config.ActionID, config.Cast.CD.Duration, nil)
+	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		buff.Activate(sim)
+		run.Activate(sim)
+		hp.MoveTo(core.MaxMeleeRange-1, sim)
 	}
 	return hp.RegisterSpell(config)
 }

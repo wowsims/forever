@@ -130,13 +130,23 @@ func (warrior *Warrior) registerEnrage() {
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
 	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
-	// is the proc chance column.
-	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Enrage.Rank(warrior.Talents.Enrage),
+	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
+	// though the game files state 30% for it too (EV-0050). A swing rolls the row's rate whatever
+	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here.
+	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
+	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.EnrageAura.Activate(sim)
 			warrior.activateGoreDrinker(sim)
-		})
+		}, spelldata.Chance(1))
 	trigger.Name = "Enrage - Trigger"
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		chance := row.StatedChance()
+		if spell.SpellSchool != core.SpellSchoolPhysical && !spell.ProcMask.Matches(core.ProcMaskWhiteHit) {
+			chance = 0.25
+		}
+		return sim.Proc(warrior.ModifiedProcChance(trigger.ProcSpellClassFlags, chance), trigger.Name)
+	}
 
 	warrior.MakeProcTriggerAura(trigger)
 }
@@ -160,14 +170,13 @@ func (warrior *Warrior) registerFlurry() {
 	// Cleave uses one only when it misses. The row's mask reaches ranged and spell hits too; the
 	// tooltip says a melee critical strike, so the mask stays the caller's.
 	//
+	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
+	// whether it lands, is dodged or is parried (EV-0054).
+	//
 	// TODO: Ingame test needed: the Cleave miss follows the measured Heroic Strike miss; no log
 	// holds a missed Cleave yet.
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			if spellData.Whirlwind.Contains(spell) && spell.ProcMask.Matches(core.ProcMaskMeleeOH) {
-				return
-			}
-
 			if result.Outcome.Matches(core.OutcomeCrit) {
 				flurryAura.Activate(sim)
 				flurryAura.SetStacks(sim, int32(flurryBuff.ProcCharges))
@@ -215,18 +224,15 @@ func (warrior *Warrior) registerGoreDrinker() {
 	}
 	heal := warrior.RegisterSpell(healConfig)
 
-	firstAoeHit, resetFirstAoeHit := core.OncePerCast()
-
 	buffConfig := spelldata.AuraConfig(goreDrinkerBuff)
 	buffConfig.MaxStacks = charges
-	buffConfig.OnReset = func(_ *core.Aura, _ *core.Simulation) {
-		resetFirstAoeHit()
-	}
 	warrior.GoreDrinkerAura = warrior.RegisterAura(buffConfig)
 
+	// Every landed strike of Whirlwind and Cleave spends a charge and heals once, each hand and each
+	// target alike, until the charges run out (EV-0054). So the buff builds its own spender:
+	// spelldata.AttachChargeSpender spends one charge a cast.
+	//
 	// TODO: Ingame test needed: a melee hit that deals no damage spends no charge.
-	// TODO: Ingame test needed: Cleave and Whirlwind spend one charge and heal once per cast, however
-	// many targets they hit.
 	consume := spelldata.ProcTrigger(&warrior.Character, goreDrinkerBuff,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
@@ -238,15 +244,6 @@ func (warrior *Warrior) registerGoreDrinker() {
 		})
 	consume.Name = "Gore Drinker - Heal"
 	consume.Outcome = core.OutcomeLanded
-	consume.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) {
-			return true
-		}
-		if !spellData.Cleave.Contains(spell) && !spellData.Whirlwind.Contains(spell) {
-			return true
-		}
-		return firstAoeHit(sim, spell)
-	}
 	warrior.GoreDrinkerAura.AttachProcTrigger(consume)
 
 	// The talent's effects name no spells, so the abilities are the tooltip's: Berserker Rage,

@@ -15,10 +15,6 @@ func parsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	}
 }
 
-// TODO: Sets without full game files data are not registered: the Feral T1 set 2115 (Grovekeeper
-// Ferocity, whose pieces have no ItemSparse rows), the Sanctuary PvP set and the Symbols of Unending
-// Life 3-piece bonus.
-
 var sixPieceSlots = []proto.ItemSlot{
 	proto.ItemSlot_ItemSlotHead,
 	proto.ItemSlot_ItemSlotShoulder,

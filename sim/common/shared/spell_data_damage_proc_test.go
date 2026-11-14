@@ -560,3 +560,54 @@ func TestWeaponProcDealingDamageOverTimeAloneAppliesIt(t *testing.T) {
 		t.Errorf("the damage over time ticked %d times, want the row's %d", ticks, wantTicks)
 	}
 }
+
+// Engulfing Shadows 27860 deals Shadow damage to the enemy and restores mana to its caster, cast here
+// off Blazefury Medallion 17111's 7711 on each melee hit. The wearer gains the row's mana with the
+// proc, whether the damage lands or misses.
+func TestDamageProcRestoresTheWearersManaLandedOrNot(t *testing.T) {
+	const trinketID, engulfingShadows int32 = 991632, 27860
+	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{{Id: trinketID, Name: "Test Engulfing Shadows",
+		Type: proto.ItemType_ItemTypeTrinket, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}}}})
+	registerSpellDataDamageProc(SpellDataProc{Name: "Test Engulfing Shadows", ItemID: trinketID,
+		TriggerSpellID: 7711, BuffSpellID: engulfingShadows})
+	want := spelldata.MustFind(engulfingShadows).EnergizeEffect().Average()
+	needAmount(t, "27860's mana", want)
+
+	for _, tc := range []struct {
+		name   string
+		hit    float64
+		landed bool
+	}{
+		{"landed", 100, true},
+		{"missed", -100, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			items := testHands(&proto.ItemSpec{}, &proto.ItemSpec{})
+			items[proto.ItemSlot_ItemSlotTrinket1] = &proto.ItemSpec{Id: trinketID}
+			sim := newTestCasterSimAgainst(items, nil, 1, func(player *proto.Player) {
+				player.Class, player.Race, player.Spec = proto.Class_ClassMage, proto.Race_RaceGnome, &proto.Player_Mage{}
+			})
+			caster := sim.Raid.Parties[0].Players[0].(*testCaster)
+			target := sim.Encounter.ActiveTargetUnits[0]
+			caster.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: tc.hit})
+
+			landMainHandSwing(sim, caster, target)
+			settleChains(t, sim)
+
+			metrics := mustGetSpell(t, caster, engulfingShadows).SpellMetrics[target.UnitIndex]
+			if landed := metrics.Misses == 0; metrics.Casts != 1 || landed != tc.landed {
+				t.Fatalf("the swing cast %d with %d misses, want one cast that landed: %v", metrics.Casts, metrics.Misses, tc.landed)
+			}
+			var gain float64
+			var events int32
+			for _, r := range caster.Metrics.ToProto().Resources {
+				if r.Id.GetSpellId() == engulfingShadows {
+					gain, events = r.Gain, r.Events
+				}
+			}
+			if events != 1 || gain != want {
+				t.Errorf("the proc restored %v mana over %d gains, want %v once", gain, events, want)
+			}
+		})
+	}
+}
