@@ -640,9 +640,8 @@ func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	}
 }
 
-// Thick Hide's level part is the level times the rank: a level 30 druid measured 30, 60 and 90 armor from
-// ranks 1 to 3 in Cat Form and 84, 168 and 252 in Bear Form. The game files' per-level formula (178 and 179
-// at level 60) is not what the game does. Dire Bear Form scales it by 360%, 4.6 times in all.
+// Thick Hide's level part is the level times the rank, not the game files' per-level formula (EV-0039).
+// Dire Bear Form scales it by 360%, 4.6 times in all.
 func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 	armorAt := func(rank int) float64 {
 		talents := "0000000000000000-00000" + string(rune('0'+rank)) + "00000000000000-0000000000000000"

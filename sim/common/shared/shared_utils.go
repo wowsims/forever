@@ -676,9 +676,8 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 
 // The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
 // row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
-// gain targets the caster, so it comes with every proc whether the damage lands or not: in game the
-// mana is logged at the proc, before the damage arrives, and both full resists among 499 logged
-// Engulfing Shadows hits still restored it.
+// gain targets the caster, so it comes with every proc whether the damage lands or not, a full
+// resist included (EV-0108).
 func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
 	gain := damage.EnergizeEffect()
 	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
@@ -1320,8 +1319,8 @@ func NewSpellDataHealOnUse(itemID int32) {
 }
 
 // An on-use item whose spell shields the wearer with an A_SCHOOL_ABSORB aura. The stats the item's
-// effect entry states beside the absorb are the shield's for as long as it holds: in game a used-up
-// absorb removes its whole aura, so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
+// effect entry states beside the absorb are the shield's for as long as it holds: a used-up
+// absorb removes its whole aura (EV-0100), so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
 func NewSpellDataAbsorbOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, absorb *spelldata.Spell) core.SpellConfig {
 		config := spellDataAbsorbSpell(character, absorb, itemID, false)

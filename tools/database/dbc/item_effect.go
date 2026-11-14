@@ -485,9 +485,9 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 
 // An equip spell that only restates weapon skills or creature type stats the item's own stats already
 // state adds nothing in game. Bloody Claws of Attack 280068 states +1 Fist Weapons as item stat 98 and
-// again as equip spell 1297442, A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1. Seal of
+// again as equip spell 1297442, A_MOD_SKILL on the Unarmed line, and its tooltip shows one +1 (EV-0104). Seal of
 // the Dawn 13209 states +78 Attack Power against Undead as item stat 128 and again as equip spell 23930,
-// melee and ranged attack power against Undead, and its tooltip shows one +78. The stat gives the bonus
+// melee and ranged attack power against Undead, and its tooltip shows one +78 (EV-0111). The stat gives the bonus
 // and the spell leaves the item: no database entry, no registration and no missing effect. A spell on an
 // item whose stats state no such bonus, or a spell that does more, stays.
 func (d *DBC) dropRestatedItemStats() {
