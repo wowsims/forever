@@ -1,27 +1,11 @@
 # Rulings
 
-Each bullet is one rule the code follows: its id, the rule, where it lives, the pull request that settled it, and the
-evidence that measured it (`docs/evidence/`). An id is never reused; a replaced rule keeps its bullet with a
-`Replaced by` note.
+Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
+request that settled it and its evidence. This index lists the ones this skill owns.
 
-- **R-0025** **Elixirs stack their stats across groups, but only the strongest elixir crit applies.**
-  `sim/common/shared/consumable_stats.go`, `consumableAura` with `spelldata.Exclusive(elixirCritCategory, false)` (the category `"ElixirCrit"`), PR #209.
-- **R-0026** **Holiday consumables (`Consumable.holiday`) sit in their own row above Miscellaneous, are not Well Fed and stack
-  with food; a Forever food's stats are the amount Nutritious Food's `A_PERIODIC_TRIGGER_SPELL_WITH_VALUE` hands Well
-  Fed.** `tools/database/gen_consumables.go`, `consumableHoliday`; `sim/common/shared/consumable_stats.go`,
-  `ConsumableSpells`, PR #207.
-- **R-0027** **A hand-written item effect only one class can use lives in `sim/<class>/item_<kind>.go` (sets, librams, idols,
-  totems, trinkets, weapons); class-agnostic items live in `sim/common/forever/items_*.go`. A set the game files open
-  to every class is shared, in `sim/common/forever/items_sets.go` with `agent.GetCharacter()`, and so are the dungeon
-  sets; Naxxramas tier 3 armor is class-locked through `ItemSetClasses` and coded in the class folders.**
-  `tools/database/overrides.go`, `ApplyItemSetClasses`, PR #316 and PR #539.
-- **R-0028** **A survival cooldown that adds no damage or mana has `DisableAutocast` set unless the character sits in a raid
-  Tanks slot, so Autocast Other Cooldowns uses it only at a cooldown timing; defensive on-use buffs count as Survival
-  and MP5 or Spirit ones as Mana; explicit APL casts are unaffected.**
-  `sim/core/major_cooldown.go`, PR #335.
-- **R-0029** **ItemSparse `REDUCED_CASTER_DPS` gives weapon DPS = damage table × 2/3 one-hand or × 29/39 two-hand, with
-  QualityModifier an additive offset; the shares are fitted to in-game ranges, not read from the game files.**
-  `tools/database/dbc/item_damage.go`, `reducedCasterDpsShare`, PR #298.
-- **R-0030** **`CASTER_SPELL_POWER` gives spell power ⌊20000 × budget / 10000⌋ and `CASTER_HEALING_POWER` gives healing
-  ⌊37600 × budget / 10000⌋ with spell damage ⌊healing / 3⌋, budget being RandPropPoints column 0.**
-  `tools/database/dbc/item.go`, `addCasterSpellPower`, PR #302.
+- **R-0025** Elixirs stack across groups but only the strongest elixir crit applies: `docs/rulings/R-0025-elixir-crit-strongest-only.md`
+- **R-0026** Holiday consumables sit in their own row, stack with food and are not Well Fed: `docs/rulings/R-0026-holiday-consumables-own-row.md`
+- **R-0027** A hand-written item effect lives in the folder of the classes that can use it: `docs/rulings/R-0027-item-effects-class-or-shared-folder.md`
+- **R-0028** A survival cooldown that adds no damage or mana disables autocast: `docs/rulings/R-0028-survival-cooldown-disables-autocast.md`
+- **R-0029** Reduced caster DPS gives weapon DPS from fitted shares of the damage table: `docs/rulings/R-0029-reduced-caster-dps-weapon-shares.md`
+- **R-0030** Caster spell power and healing power follow the item budget formulas: `docs/rulings/R-0030-caster-spell-power-budget-formulas.md`

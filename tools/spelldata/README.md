@@ -104,8 +104,8 @@ it stopped (`✗ ...`).
 
 What a hover reads: a spell id in the shapes hand-written code states (`MustFind(n)`, `Find(n)`,
 `.ByID(n)`, `SpellID: n`, `"spellId": n`, `fromSpellId(n)`, `spellId: n`) in any file; an evidence id
-(`EV-<n>`, its `docs/evidence/` file as it stands on disk) or a ruling id (`R-<n>`, its `references/rulings.md`
-bullet) in any file, a comment or a string included; in a Go file
+(`EV-<n>`, its `docs/evidence/` file as it stands on disk) or a ruling id (`R-<n>`, its `docs/rulings/`
+file) in any file, a comment or a string included; in a Go file
 also a `spellData.<Family>` token, a name the package folder binds to a ladder chain with `var`, `=` or
 `:=` at package level, or the hovered function binds before the cursor (substituted through at most
 four names, cycles refused), one accessor of a chain anywhere in an expression, the chain inside such

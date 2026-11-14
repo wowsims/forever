@@ -1,27 +1,14 @@
 # Rulings
 
-Each bullet is one rule the code follows: its id, the rule, where it lives, the pull request that settled it, and the
-evidence that measured it (`docs/evidence/`). An id is never reused; a replaced rule keeps its bullet with a
-`Replaced by` note.
+Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
+request that settled it and its evidence. This index lists the ones this skill owns.
 
-- **R-0031** **An APL aura condition reads an aura only once it is active: a ProcTrigger declares no pending aura, and a proc
-  that must land in the same batch as its hit sets `TriggerImmediately`, only with log proof.**
-  `sim/core/aura_helpers.go`, PR #638.
-- **R-0032** **The combat model is level 60 with target levels 58 to 63: attack tables come from the level difference, capped at
-  +3, and per-hand weapon skill.** `sim/core/target.go`, PR #70.
-- **R-0033** **`EffectVariance` is the full roll width: spell hits and heals roll the whole amount, power included, by ±V/2
-  (`Spell.DirectVariance` after power), and physical effects roll the base by ±V/2, rounded to a whole number,
-  before attack power.** `sim/core/spell_result.go`, PR #267; `sim/core/spelldata/effect.go` `RollAt`.
-- **R-0034** **Every DoT tick rolls its effect's amount.** `sim/core/spelldata/resolve_aura.go`, `PeriodicDamageTick`, PR #573.
-- **R-0035** **Tick misses count in `TargetedActionMetrics.tick_misses`, not `Misses`, and Consecration's own cast roll does not
-  count (`OutcomeTickMagicHitNoHitCounter`).** `sim/core/spell_outcome.go`, PR #570.
-- **R-0036** **Mana regenerates in 100 ms ticks; a paid channel holds regen until max(start + 5 s, end) and a free channel does
-  not.** `sim/core/mana.go`, PR #249.
-- **R-0037** **OOM runs while the highest-priority spell the APL wants (condition true, ready but for mana) is skipped for mana,
-  whatever casts instead; it starts at the first free rotation pass (GCD ready, no hardcast) that skips one and ends at
-  the first that skips none.** `sim/core/spell.go`, `meetsCost`, PR #371.
-- **R-0038** **Dynamic pets (demons, hawks) refresh their inherited stats from the owner's totals at the pet heartbeat instead of
-  running stat deltas through the inheritance.** `sim/core/pet.go`, PR #432.
-- **R-0039** **The sim is not live, so a change that breaks saved APLs or settings needs no migration, only a note in the PR body;
-  a removed proto field leaves no `reserved` line, new fields refill freed numbers and every `// NextIndex:` is the
-  highest used number + 1.** `proto/common.proto`, PR #149.
+- **R-0031** An APL aura condition reads an aura only once it is active: `docs/rulings/R-0031-apl-aura-condition-active-only.md`
+- **R-0032** The combat model is level 60 against targets of level 58 to 63: `docs/rulings/R-0032-combat-model-level-60-targets.md`
+- **R-0033** EffectVariance is the full roll width: `docs/rulings/R-0033-effect-variance-full-roll-width.md`
+- **R-0034** Every DoT tick rolls its effect's amount: `docs/rulings/R-0034-dot-tick-rolls-effect-amount.md`
+- **R-0035** Tick misses count in tick_misses and not in Misses: `docs/rulings/R-0035-tick-misses-own-counter.md`
+- **R-0036** Mana regenerates in 100 ms ticks and a paid channel holds regen: `docs/rulings/R-0036-mana-regen-ticks-channel-hold.md`
+- **R-0037** OOM runs while the highest-priority wanted spell is skipped for mana: `docs/rulings/R-0037-oom-skipped-spell-for-mana.md`
+- **R-0038** Dynamic pets refresh their inherited stats from the owner at the pet heartbeat: `docs/rulings/R-0038-dynamic-pets-refresh-inherited-stats.md`
+- **R-0039** The sim is not live, so breaking saved settings needs no migration: `docs/rulings/R-0039-sim-not-live-no-migration.md`

@@ -102,34 +102,29 @@ func TestHoverSpellIDShapes(t *testing.T) {
 	}
 }
 
-// An evidence id shows its file and a ruling id its bullet, in any file type, a Source string included.
+// An evidence or ruling id shows its file, in any file type, a Source string included.
 func TestHoverEvidenceAndRulingIDs(t *testing.T) {
 	root, err := moduleRoot()
 	if err != nil {
 		t.Fatal(err)
 	}
-	evidence, _ := filepath.Glob(filepath.Join(root, "docs", "evidence", "EV-0001-*.md"))
-	if len(evidence) != 1 {
-		t.Fatalf("docs/evidence holds %d files for EV-0001", len(evidence))
-	}
-	file, err := os.ReadFile(evidence[0])
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	for _, c := range []struct{ line, uri string }{
-		{"\t\tSource:  \"EV-0001\",", "a.go"},
-		{"// rolls once a target (EV-0001).", "a.ts"},
+	for _, c := range []struct{ line, uri, id, folder string }{
+		{"\t\tSource:  \"EV-0001\",", "a.go", "EV-0001", "evidence"},
+		{"// rolls once a target (EV-0001).", "a.ts", "EV-0001", "evidence"},
+		{"// (R-0043)", "a.go", "R-0043", "rulings"},
 	} {
-		markdown, trace, ok := hoverOn(t, newWorkspace(), c.line, "file:///tmp/"+c.uri, "EV-0001", 3)
+		files, _ := filepath.Glob(filepath.Join(root, "docs", c.folder, c.id+"-*.md"))
+		if len(files) != 1 {
+			t.Fatalf("docs/%s holds %d files for %s", c.folder, len(files), c.id)
+		}
+		file, err := os.ReadFile(files[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+		markdown, trace, ok := hoverOn(t, newWorkspace(), c.line, "file:///tmp/"+c.uri, c.id, 3)
 		if !ok || markdown != string(file) {
 			t.Errorf("%s answered %v %q:\n%s", c.line, ok, markdown, strings.Join(trace, "\n"))
 		}
-	}
-
-	markdown, trace, ok := hoverOn(t, newWorkspace(), "// (R-0043)", "file:///tmp/a.go", "R-0043", 2)
-	if !ok || !strings.HasPrefix(markdown, "### R-0043 · wowsims-procs\n\n**R-0043** **") || strings.Contains(markdown, "R-0044") {
-		t.Errorf("the ruling hover answered %v %q:\n%s", ok, markdown, strings.Join(trace, "\n"))
 	}
 
 	for _, id := range []string{"EV-9999", "R-9999"} {

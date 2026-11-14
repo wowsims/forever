@@ -13,7 +13,7 @@ that tracks the same numbers links the id.
 - A comment cites the id after the rule it backs: `// A Pyroblast consumes every stack (EV-0005).` The rule stays in
   the comment; the counts, logs and method move here.
 - An override row's `Source` is the bare id: `Source: "EV-0003"`. The generator reads any `EV-` id as a measured rate.
-- A `references/rulings.md` bullet ends with the ids of its evidence.
+- A ruling in `docs/rulings/` lists the ids of its evidence.
 
 ## What counts as evidence
 
