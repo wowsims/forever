@@ -89,8 +89,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
   tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
   `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, and a measured
-  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. The older `wcl:`, `issue #`
-  and `combat log, ` sources also show none until each moves to an evidence file. A gear rate kept as a literal in the sim is listed in
+  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none; any other text reads as unvalidated. A gear rate kept as a literal in the sim is listed in
   `literalRates` there, or the notice never names it.
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`

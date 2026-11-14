@@ -24,10 +24,10 @@ var whelpBaseStats = stats.Stats{
 	stats.Armor:  0.51 * core.CreatureArmorMaxLevel,
 }
 
-// The 2.0 s swing is fitted at level 57: 2 s of the creature dps for the level at 0.73,
+// The 2.0 s swing is fitted at level 57 (EV-0021): 2 s of the creature dps for the level at 0.73,
 // ExpectedStatMod 1's share, gives 83 ± 15%. That row is inferred from the whelp's armor matching its
-// 0.51. A smaller share plus the whelp's attack power fits as well, so the log does not tell the two
-// apart.
+// 0.51. A smaller share plus the whelp's attack power fits as well (0.5 gives 82), so the log does not
+// tell the two apart.
 //
 // The log glances far more often than the sim's attack table, which glances 10% at that level, and a
 // skill gap that gave the log's share would also give far more misses and parries than its 6% and 4%.

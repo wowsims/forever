@@ -10,7 +10,7 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N", "combat log, <date>"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover"
 }
 
 // Each rate is a carry-over unless its Source names its evidence, a combat log or WCL reports from this server. A hotfix
@@ -571,8 +571,8 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
-	// has been measured on this server. Replace each with a measured rate (Source wcl:<report>/<fight> or
-	// issue #N) when logs exist.
+	// has been measured on this server. Replace each with a measured rate, its Source the id of a
+	// docs/evidence file, when logs exist.
 	{
 		ItemID:  9651,
 		SpellID: 18081,
