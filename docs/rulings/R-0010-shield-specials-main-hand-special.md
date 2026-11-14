@@ -3,7 +3,7 @@
 - Skill: wowsims-abilities-auras
 - Code: `sim/warrior/shield_bash.go`, `sim/warrior/talents_protection.go`, `sim/warrior/thunder_clap.go`, `sim/core/buffs/drivers.go`
 - Pull request: none
-- Evidence: none
+- Evidence: pending
 
 Shield Bash and Shield Slam register as `ProcMaskMeleeMHSpecial`, though their rows require the shield: the main-hand
 weapon's equip procs hear them, and the main-hand weapon skill sets their miss and parry, as measured in game at

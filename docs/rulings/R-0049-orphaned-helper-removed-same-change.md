@@ -3,7 +3,7 @@
 - Skill: wowsims-review
 - Code: `tools/database/item_source_utils.go`
 - Pull request: #215
-- Evidence: none
+- Evidence: not needed: a repo process rule
 
 A helper, mask or empty body the change itself orphaned goes in the same change; a generic helper or empty extension
 table kept for a named upcoming use (core helpers, override maps, icon override tables, phase ladders such as

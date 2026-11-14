@@ -3,7 +3,7 @@
 - Skill: wowsims-procs
 - Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`
 - Pull request: #352
-- Evidence: none
+- Evidence: pending
 
 A weapon proc whose row has melee or ranged DefenseType (direct hits and DoT-only applications) is a special hit:
 triggered by a main-hand or ranged hit it chains to weapon procs (its own weapon included), combat enchants and oils;

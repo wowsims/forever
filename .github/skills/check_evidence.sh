@@ -8,6 +8,7 @@
 #   1. no two files share a number
 #   2. every id a tracked file cites has its file
 #   3. every file is cited outside itself, or carries a "Replaced by" line
+# and that every ruling states its evidence: EV- ids, pending, or not needed: <why>.
 #
 # Each folder's README.md and Go tests are skipped: their ids are examples.
 
@@ -49,5 +50,13 @@ check() {
 
 check evidence EV docs/evidence
 check rulings R docs/rulings
+
+for f in docs/rulings/R-*.md; do
+	[ -e "$f" ] || continue
+	if [ "$(grep -cE '^- Evidence: (EV-[0-9]{4}(, EV-[0-9]{4})*|pending|not needed: .+)$' "$f")" != 1 ]; then
+		echo "rulings: $f needs one Evidence line: EV- ids, pending, or not needed: <why>"
+		fail=1
+	fi
+done
 
 exit $fail

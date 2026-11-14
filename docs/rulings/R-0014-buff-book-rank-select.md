@@ -3,7 +3,7 @@
 - Skill: wowsims-abilities-auras
 - Code: `tools/database/buffmanifest/buffs.go`, `sim/core/buffs/meta.go`, `sim/core/buffs/priest.go`, `ui/features/inputs/icon_inputs.ts`
 - Pull request: #794
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 A raid or individual buff that a class book raises is a rank select: an int32 where 0 is off and 1 the trainer's top
 rank, listed in the manifest row's `Ranks`, from which the generators render the proto field, the apply block and the

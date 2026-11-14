@@ -3,7 +3,7 @@
 - Skill: wowsims-consumables-items
 - Code: `tools/database/overrides.go`, `ApplyItemSetClasses`
 - Pull request: #316, #539
-- Evidence: none
+- Evidence: not needed: a repo process rule
 
 A hand-written item effect only one class can use lives in `sim/<class>/item_<kind>.go` (sets, librams, idols, totems,
 trinkets, weapons); class-agnostic items live in `sim/common/forever/items_*.go`. A set the game files open to every

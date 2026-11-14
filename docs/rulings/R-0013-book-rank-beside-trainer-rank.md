@@ -3,7 +3,7 @@
 - Skill: wowsims-abilities-auras
 - Code: `ui/sim/proto/apl_utils.ts`, `sim/warrior/heroic_strike_cleave.go`, `sim/warrior/battle_shout.go`, `sim/warrior/revenge.go`, `sim/core/buffs/battle_shout.go`, `sim/core/buffs/drivers.go`, `sim/hunter/serpent_sting.go`, `sim/hunter/aspects.go`, `sim/shaman/totems.go`
 - Pull request: #736, #746, #794
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 A rank that only a class book teaches registers beside the trainer's top rank, and the rotation picks the rank by spell
 id. Each simple rotation rank toggle defaults off, which casts the trainer's top rank, and the ids swap through

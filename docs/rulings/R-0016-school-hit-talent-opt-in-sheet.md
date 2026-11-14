@@ -3,7 +3,7 @@
 - Skill: wowsims-abilities-auras
 - Code: `sim/core/spelldata/parse_effects.go`
 - Pull request: #285
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 A school hit talent (SPELLMOD_RESIST_MISS_CHANCE on class flags) shows on the sheet by opting in with
 `spelldata.ShowAsSchoolHit(schools)` and its tooltip's schools, never `SchoolBonusHitChance`; all-spell hit talents

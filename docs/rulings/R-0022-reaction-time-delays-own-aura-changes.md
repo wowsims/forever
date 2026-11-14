@@ -3,7 +3,7 @@
 - Skill: wowsims-apl
 - Code: `sim/core/apl_values_aura.go`
 - Pull request: #638, #640
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 Include Reaction Time delays every aura change the same way, the unit's own casts included; during a hardcast the cast's
 own aura reads as landed instead.

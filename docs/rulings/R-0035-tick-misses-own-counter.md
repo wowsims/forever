@@ -3,7 +3,7 @@
 - Skill: wowsims-core-mechanics
 - Code: `sim/core/spell_outcome.go`
 - Pull request: #570
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 Tick misses count in `TargetedActionMetrics.tick_misses`, not `Misses`, and Consecration's own cast roll does not count
 (`OutcomeTickMagicHitNoHitCounter`).

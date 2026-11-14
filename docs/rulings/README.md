@@ -20,10 +20,17 @@ the rulings it owns, and the spelldata hover shows the file over its id.
 - Skill: <the subject skill whose index lists it>
 - Code: <the files and symbols that follow the rule, in backticks>
 - Pull request: <#N, where the rule was settled>
-- Evidence: <EV- ids, or none>
+- Evidence: <one of the three states below>
 
 <The rule in full, present tense.>
 ```
 
-`make skills-check` fails when a cited id has no file, two files share a number, or a file nothing cites lacks a
-`Replaced by` line.
+The `Evidence` line takes one of three states:
+
+- `EV-0042, EV-0057`: the measurements behind the rule.
+- `pending`: the rule states how the game behaves and no measurement is recorded yet. These are the rulings to measure.
+- `not needed: <why>`: the rule needs no measurement, such as a sim design choice, a repo process rule, or a value
+  the game files or the tooltip state.
+
+`make skills-check` fails when a cited id has no file, two files share a number, a file nothing cites lacks a
+`Replaced by` line, or a ruling's `Evidence` line is not one of these states.

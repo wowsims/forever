@@ -3,7 +3,7 @@
 - Skill: wowsims-apl
 - Code: `sim/core/apl_values_spell.go`
 - Pull request: #608
-- Evidence: none
+- Evidence: not needed: a sim design choice
 
 `Is Hit Capped` and `Is Expertise Capped` are per spell, current target only and yes or no: melee caps at the
 special-attack soft cap without the dual-wield penalty, the table follows the spell's `DefenseType` (proc mask for
