@@ -25,8 +25,8 @@ const ROWS: BulkBundleListProps['rows'] = [
 	{ key: '1', label: 'Arms', checked: true },
 ];
 
-const StatefulBundles = ({ initialRows = ROWS }: { initialRows?: BulkBundleListProps['rows'] }) => {
-	const [rows, setRows] = useState(initialRows);
+const StatefulBundles = () => {
+	const [rows, setRows] = useState(ROWS);
 	return (
 		<BuildBundlesView
 			list={{
@@ -131,33 +131,6 @@ describe('BuildBundlesView', () => {
 	});
 });
 
-const ARMS_PARTS = { gear: 'Pre-BiS (Arms)', talents: 'Arms', rotation: 'Arms APL', settings: 'Pre-BiS - Arms' };
-const ARMS_TEXT = 'Gear: Pre-BiS (Arms), Talents: Arms, Rotation: Arms APL, Settings: Pre-BiS - Arms';
-
-const description = (element: HTMLElement) => {
-	const id = element.getAttribute('aria-describedby');
-	return id ? document.getElementById(id)!.textContent : null;
-};
-
-describe('BulkBundleList names', () => {
-	it('labels a named row by its name and describes it by its parts, after its reason when it is the same as another', () => {
-		render(
-			<StatefulBundles
-				initialRows={[
-					{ key: '0', label: 'Fury', checked: true },
-					{ key: '1', label: 'Arms raid', checked: true, parts: ARMS_PARTS },
-					{ key: '2', label: 'Arms again', checked: true, parts: ARMS_PARTS, disabledReason: 'Same as Arms raid' },
-				]}
-			/>,
-		);
-
-		expect(description(screen.getByRole('checkbox', { name: 'Fury' }))).toBeNull();
-		expect(description(screen.getByRole('checkbox', { name: 'Arms raid' }))).toBe(ARMS_TEXT);
-		expect(description(screen.getByRole('checkbox', { name: 'Arms again' }))).toBe(`Same as Arms raid. ${ARMS_TEXT}`);
-		expect(description(screen.getByRole('button', { name: 'Edit Arms raid' }))).toBe(ARMS_TEXT);
-	});
-});
-
 const ref = (name: string, preset = true) => ({ name, preset });
 
 const OPTIONS: BulkBundleDialogProps['options'] = {
@@ -232,12 +205,11 @@ describe('BulkBundleDialog names', () => {
 		expect(screen.queryByText('Name already used')).toBeNull();
 	});
 
-	it('saves the name trimmed', async () => {
+	it('saves the name trimmed on Enter', async () => {
 		const onSave = renderDialog({ bundle: ARMS_BUNDLE });
 
 		await userEvent.clear(nameField());
-		await userEvent.type(nameField(), '  Arms main  ');
-		await userEvent.click(screen.getByTestId('bulk-bundle-save'));
+		await userEvent.type(nameField(), '  Arms main  {Enter}');
 
 		expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Arms main' }));
 	});

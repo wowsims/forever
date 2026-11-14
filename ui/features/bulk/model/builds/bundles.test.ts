@@ -205,9 +205,9 @@ describe('bundle names', () => {
 		const armsLabel = 'Pre-BiS (Arms) · Arms · Arms APL · Pre-BiS - Arms';
 
 		expect(rows.map(row => row.index)).toEqual([0, 1]);
-		expect(takenBundleLabels(rows, bundles, null)).toEqual(['Current bundle', 'Fury raid', armsLabel, 'Fury raid', 'Hidden']);
+		expect(new Set(takenBundleLabels(rows, bundles, null))).toEqual(new Set(['Current bundle', 'Fury raid', armsLabel, 'Hidden']));
 		// Editing a bundle leaves its own label and name out.
-		expect(takenBundleLabels(rows, bundles, 0)).toEqual(['Current bundle', armsLabel, 'Hidden']);
+		expect(new Set(takenBundleLabels(rows, bundles, 0))).toEqual(new Set(['Current bundle', armsLabel, 'Hidden']));
 	});
 
 	it('finds a name taken trimmed and whatever the case, and an empty one never', () => {

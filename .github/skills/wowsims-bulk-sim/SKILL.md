@@ -205,7 +205,9 @@ and `ReforgeSettings` share; keep the two apart in request shaping and serializa
   by default; unticked, it is stored as `current_unchecked`. The user's bundles follow in stored order, each labelled
   by the name the user gave it (`BulkBuildBundle.name`) or, without one, from its parts (`bulkBundleList`: "<gear set> ·
   <talents> · <rotation> · <settings>", a Current part as "Current gear", "Current talents" and so on). A named row's
-  label tooltip lists the four parts, after the "Same as …" reason on a disabled row. Each row has a pencil that
+  label tooltip lists the four parts, after the "Same as …" reason on a disabled row. It opens on the label's hover, and
+  on the box's focus only when the row is disabled; the reason and the parts describe the box and the row's buttons for
+  keyboard and screen reader users either way. Each row has a pencil that
   reopens the dialog on its picks and name (saving replaces the row and keeps its checked state) and an × behind a
   confirm. The Current bundle has neither and cannot be named. New bundle opens `BulkBundleDialog` with an optional
   Name, whose placeholder is the label the picks give, over four pickers, Gear set, Talents, Rotation and Settings,

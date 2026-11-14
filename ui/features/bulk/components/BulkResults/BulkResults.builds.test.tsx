@@ -174,7 +174,11 @@ describe('BulkResults in Builds', () => {
 		expect(lineParts(arms)).toEqual([['bulk-result-bundle', 'Arms raid']]);
 		expect(lineParts(currentGear)[0]).toEqual(['bulk-result-gear-set', 'bulk_tab.results.gearbulk_tab.results.current_gear']);
 
-		fireEvent.mouseEnter(within(arms).getByTestId('bulk-result-bundle'));
+		const name = within(arms).getByTestId('bulk-result-bundle');
+		expect(document.getElementById(name.getAttribute('aria-describedby')!)!.textContent).toBe(
+			'bulk_tab.results.gear Raid, bulk_tab.results.talents Arms, bulk_tab.results.rotation Opener, bulk_tab.results.settings Healer',
+		);
+		fireEvent.mouseEnter(name);
 
 		const tooltip = await screen.findByRole('tooltip');
 		expect(tooltip.textContent).toBe('bulk_tab.results.gearRaidbulk_tab.results.talentsArmsbulk_tab.results.rotationOpenerbulk_tab.results.settingsHealer');

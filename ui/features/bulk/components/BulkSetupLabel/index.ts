@@ -1,9 +1,1 @@
-export {
-	BULK_SETUP_KINDS,
-	BulkSetupLabel,
-	BulkSetupLines,
-	bulkSetupText,
-	type BulkSetupKind,
-	type BulkSetupLabelProps,
-	type BulkSetupLabels,
-} from './BulkSetupLabel';
+export { BulkSetupLabel, BulkSetupLines, bulkSetupText, type BulkSetupLabelProps, type BulkSetupLabels } from './BulkSetupLabel';

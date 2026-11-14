@@ -72,10 +72,7 @@ export const Build: Story = {
 
 /** A named bundle's Builds row: the name in place of the four pills, its parts listed on hover, and the enchant count after it. */
 export const NamedBuild: Story = {
-	args: {
-		...Build.args,
-		bundle: { name: 'Arms opener', parts: { gear: 'P1 Fury', talents: 'Arms', rotation: 'Opener', settings: 'Pre-BiS - Fury' } },
-	},
+	args: { ...Build.args, bundle: 'Arms opener' },
 };
 
 /** A Builds row that wears the current gear with other talents: no gear changes, but a difference and an equip button for the build. */

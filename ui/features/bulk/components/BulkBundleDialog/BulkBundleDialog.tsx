@@ -61,6 +61,9 @@ export const BulkBundleDialogView = ({ open, onOpenChange, title, name, pickers,
 						aria-invalid={name.taken}
 						value={name.value}
 						onChange={event => name.onChange(event.target.value)}
+						onKeyDown={event => {
+							if (event.key === 'Enter' && canSave) onSave();
+						}}
 						data-testid="bulk-bundle-name"
 					/>
 				</Field>

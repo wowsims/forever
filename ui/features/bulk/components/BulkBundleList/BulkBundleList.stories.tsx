@@ -46,6 +46,9 @@ export const Default: Story = {
 		await expect(description(meta.args.rows[0].label)).toBeNull();
 		const named = description(NAMED_BUNDLE)!;
 		for (const part of ['Pre-BiS (Arms)', 'Arms', 'Arms APL', 'Pre-BiS - Arms']) await expect(named).toContain(part);
+		const namedBox = within(canvasElement).getByRole('checkbox', { name: NAMED_BUNDLE });
+		const [edit] = within(namedBox.closest<HTMLElement>('[data-testid="bulk-bundle"]')!).getAllByRole('button');
+		await expect(edit.getAttribute('aria-describedby')).toBe(namedBox.getAttribute('aria-describedby'));
 		const namedDuplicate = description(NAMED_DUPLICATE_BUNDLE)!;
 		await expect(namedDuplicate.startsWith(`${description(DUPLICATE_BUNDLE)}. `)).toBe(true);
 		await expect(namedDuplicate).toContain('Fury APL');

@@ -7,7 +7,7 @@ import { useId } from 'react';
 
 import type { GainTint } from '../../model/results/compare';
 import { BulkEnchantsDiffer } from '../BulkEnchantsDiffer';
-import { type BulkSetupKind, BulkSetupLabel, type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
+import { type BulkSetupLabels, BulkSetupLines, bulkSetupText } from '../BulkSetupLabel';
 
 export interface BulkCompareTableColumn {
 	label: string;
@@ -38,7 +38,7 @@ export interface BulkCompareTableRow {
 	/** A Builds set's gear setup, or "Current gear" on the current gear's row; null shows none. */
 	gear: string | null;
 	/** A named bundle's set: its name shows in place of the four parts, which its tooltip lists. */
-	bundle: { name: string; parts: BulkSetupLabels } | null;
+	bundle: string | null;
 	/** A Gear-mode set's lines under its name: the items it wears where the current gear wears something else. */
 	changes: readonly string[];
 	/** A Builds set's enchants that differ from its gear set's own, each as "Slot: Enchant"; empty shows no count. */
@@ -82,7 +82,6 @@ const TINT_CLASSES: Record<GainTint, string> = {
 	5: 'bg-success/40',
 };
 const TINTS: GainTint[] = [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5];
-const SETUP_KINDS: readonly BulkSetupKind[] = ['gear', 'talents', 'rotation', 'settings'];
 
 // From md up, the set column's width (its col's md:w-64) and each encounter column's narrowest, in spacing steps; past
 // that the table scrolls sideways.
@@ -191,18 +190,11 @@ export const BulkCompareTable = ({ columns, rows, legend, builds, againstBest = 
 									className={clsx(STICKY_CLASS, 'align-middle font-normal max-md:wrap-break-word max-md:hyphens-auto')}>
 									{row.label}
 									{row.bundle ? (
-										<BundleName id={`${tooltipId}-bundle-${rowIndex}`} {...row.bundle} />
+										<BundleName id={`${tooltipId}-bundle-${rowIndex}`} name={row.bundle} parts={row} />
 									) : (
-										SETUP_KINDS.map(kind => {
-											const label = row[kind];
-											return (
-												label !== null && (
-													<span key={kind} className="flex items-center gap-1 text-sm">
-														<BulkSetupLabel kind={kind} label={label} />
-													</span>
-												)
-											);
-										})
+										<div className="text-sm">
+											<BulkSetupLines labels={row} />
+										</div>
 									)}
 									{row.changes.map((item, index) => (
 										<span key={index} className="block text-xs text-muted md:truncate" title={item}>

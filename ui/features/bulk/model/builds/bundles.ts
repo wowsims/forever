@@ -62,7 +62,7 @@ export interface BulkBundleRun {
 }
 
 /** A bundle's four parts as the list names them. */
-export interface BulkBundlePartLabels {
+interface BulkBundlePartLabels {
 	gear: string;
 	talents: string;
 	rotation: string;

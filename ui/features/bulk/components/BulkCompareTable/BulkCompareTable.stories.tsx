@@ -155,7 +155,7 @@ const BUILD_ROWS = [
 		cells: [cell(5.2), cell(4.4), null],
 		...FURY_BUILD,
 		rotation: 'My APL',
-		bundle: { name: 'Fury, my APL', parts: { ...FURY_BUILD, rotation: 'My APL' } },
+		bundle: 'Fury, my APL',
 	}),
 	row({ key: 'set-3', label: 'S3', cells: [cell(1.9), cell(2.3), cell(2.6)], ...CURRENT_BUILD, enchants: ['Back: Agility', 'Main hand: Crusader'] }),
 	row({ key: 'set-4', label: 'S4', cells: [cell(1.2), cell(1.6), cell(1.4)], ...CURRENT_BUILD, enchants: ['Back: Agility'], settings: 'Tank healing' }),
