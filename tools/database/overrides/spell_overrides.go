@@ -764,9 +764,10 @@ var Spells = []Override{
 	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
 	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
 	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's 2.5 a level.
-	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), and Ranks 3
-	// to 5 carry that share. Each rank's bonus is a whole number: a measured bonus rounds to the
-	// nearest one, and each share times its spell level is whole.
+	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), Rank 4 measures
+	// 80 at spell level 50, Rank 3 carries the 1.5 and Rank 5 Rank 4's 1.6. Each rank's bonus is a
+	// whole number: a measured bonus rounds to the nearest one, and each share times its spell level is
+	// whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
@@ -853,17 +854,17 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11609,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Field:   FlatThreat,
+		Value:   80,
+		Reason:  "Cleave Rank 4: adds 80 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 20569,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Field:   FlatThreat,
+		Value:   96, // TODO: Measure Cleave Rank 5 in game.
+		Reason:  "Cleave Rank 5: Rank 4's measured 1.6 a spell level at spell level 60",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 
 	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
@@ -941,8 +942,9 @@ var Spells = []Override{
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
-	// held 177.7 over damage from 223 to 400. Ranks 2 to 4 carry Rank 1's 4.45 a spell level, rounded
-	// to the nearest whole number.
+	// held 177.7 over damage from 223 to 400, and Ranks 2 and 3 measure 203 and 229. Rank 4 extends the
+	// line through Ranks 2 and 3 (4.33 a spell level from 48 to 54) to spell level 60, rounded to the
+	// nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,
@@ -953,23 +955,23 @@ var Spells = []Override{
 	{
 		SpellID: 23923,
 		Field:   FlatThreat,
-		Value:   214, // TODO: Measure Shield Slam Rank 2 in game.
-		Reason:  "Shield Slam Rank 2: Rank 1's measured 4.45 per spell level at spell level 48",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Value:   203,
+		Reason:  "Shield Slam Rank 2: threat is the damage + 203, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 23924,
 		Field:   FlatThreat,
-		Value:   240, // TODO: Measure Shield Slam Rank 3 in game.
-		Reason:  "Shield Slam Rank 3: Rank 1's measured 4.45 per spell level at spell level 54",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Value:   229,
+		Reason:  "Shield Slam Rank 3: threat is the damage + 229, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 23925,
 		Field:   FlatThreat,
-		Value:   267, // TODO: Measure Shield Slam Rank 4 in game.
-		Reason:  "Shield Slam Rank 4: Rank 1's measured 4.45 per spell level at spell level 60",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Value:   255, // TODO: Measure Shield Slam Rank 4 in game.
+		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 }
 

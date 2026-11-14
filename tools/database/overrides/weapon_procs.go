@@ -185,6 +185,13 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row; 255 procs on 3130 landed white hits, 4 players, a bear and cat druid among them",
 		Source:  "combat log, 2026-11-12",
 	},
+	{
+		ItemID:  279852,
+		SpellID: 1309967,
+		PPM:     1.85,
+		Reason:  "Rock on Stick: no proc row; 399 procs on 4,980 landed main-hand hits without extra attacks or haste, 1 player",
+		Source:  "combat log, 2026-11-14",
+	},
 	// Measured the same way in WCL reports of dungeons below the end game, on players with no extra attacks, leaving
 	// out the hits made under an attack speed aura and every swing that came sooner than the weapon's speed.
 	{

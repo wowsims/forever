@@ -1359,6 +1359,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-RockonStick-279852"
+ value: {
+  dps: 676.12665
+  tps: 627.9397
+  dtps: 8.6245
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 703.97816

@@ -2673,12 +2673,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		279852, // Rock on Stick
-		[
-			"Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.", // 1309967 - https://www.wowhead.com/forever/spell=1309967
-		]
-	],
-	[
 		279891, // Guidance of Ursoc
 		[
 			"Movement speed increased by 2% in Forest and Grassland areas.", // 1308520 - https://www.wowhead.com/forever/spell=1308520
