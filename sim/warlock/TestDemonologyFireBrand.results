@@ -252,10 +252,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 802.18471
-  tps: 652.60393
-  dtps: 8.22016
-  hps: 10.68079
+  dps: 801.7298
+  tps: 651.17439
+  dtps: 8.04205
+  hps: 10.72055
  }
 }
 dps_results: {
@@ -1186,6 +1186,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 810.46273
+  tps: 658.30722
+  dtps: 8.8556
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 747.45673
@@ -1385,6 +1393,14 @@ dps_results: {
   dps: 713.00774
   tps: 575.68281
   dtps: 8.35872
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 767.59148
+  tps: 623.05421
+  dtps: 8.448
  }
 }
 dps_results: {

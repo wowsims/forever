@@ -1963,6 +1963,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22060, // Beastmaster's Tunic
+		[
+			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
+		]
+	],
+	[
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559

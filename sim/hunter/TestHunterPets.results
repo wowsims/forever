@@ -118,6 +118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sCap-22013"
+ value: {
+  dps: 705.64561
+  tps: 449.28378
+  dtps: 0.95396
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sGauntlets-226883"
  value: {
   dps: 694.77714
@@ -136,9 +144,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 701.89433
-  tps: 441.04352
-  dtps: 2.92129
+  dps: 716.24243
+  tps: 450.69045
+  dtps: 3.21509
  }
 }
 dps_results: {
@@ -397,6 +405,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-DarkmantleArmor"
+ value: {
+  dps: 705.03483
+  tps: 447.74021
+  dtps: 4.293
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 693.04335
@@ -426,6 +442,14 @@ dps_results: {
   dps: 675.83172
   tps: 429.29538
   dtps: 0.88475
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DeathmistRaiment"
+ value: {
+  dps: 628.78276
+  tps: 390.84714
+  dtps: 4.09542
  }
 }
 dps_results: {
@@ -754,6 +778,14 @@ dps_results: {
   dps: 693.04335
   tps: 441.71179
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-FeralheartRaiment"
+ value: {
+  dps: 644.09253
+  tps: 403.76765
+  dtps: 1.47154
  }
 }
 dps_results: {
@@ -1548,6 +1580,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 633.99477
+  tps: 393.3179
+  dtps: 2.96727
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 683.46805
@@ -1732,6 +1772,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-TheFiveThunders"
+ value: {
+  dps: 635.19823
+  tps: 391.45486
+  dtps: 3.77976
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-TheGladiator"
  value: {
   dps: 668.69048
@@ -1897,6 +1945,13 @@ dps_results: {
   dps: 616.64631
   tps: 381.84804
   dtps: 0.42211
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 618.29958
+  tps: 382.27324
  }
 }
 dps_results: {

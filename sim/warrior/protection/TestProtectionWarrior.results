@@ -128,10 +128,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BattlegearofHeroism"
  value: {
-  dps: 515.07606
-  tps: 1674.95391
-  dtps: 295.07756
-  hps: 38.25833
+  dps: 512.6941
+  tps: 1668.89024
+  dtps: 303.63863
+  hps: 37.80083
  }
 }
 dps_results: {
@@ -168,6 +168,24 @@ dps_results: {
   tps: 1608.95162
   dtps: 312.44429
   hps: 38.76667
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-Beastmaster'sCap-22013"
+ value: {
+  dps: 501.03578
+  tps: 1637.67603
+  dtps: 292.06694
+  hps: 38.86833
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-BeastmasterArmor"
+ value: {
+  dps: 483.8467
+  tps: 1583.04569
+  dtps: 333.55173
+  hps: 37.66528
  }
 }
 dps_results: {
@@ -477,6 +495,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-DarkmantleArmor"
+ value: {
+  dps: 517.74308
+  tps: 1676.29577
+  dtps: 354.06413
+  hps: 38.34306
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 514.55234
@@ -510,6 +537,15 @@ dps_results: {
   tps: 1532.0855
   dtps: 289.23996
   hps: 38.17361
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-DeathmistRaiment"
+ value: {
+  dps: 466.76352
+  tps: 1526.54933
+  dtps: 459.19638
+  hps: 38.27528
  }
 }
 dps_results: {
@@ -861,6 +897,15 @@ dps_results: {
   tps: 1678.20585
   dtps: 296.27286
   hps: 39.03778
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-FeralheartRaiment"
+ value: {
+  dps: 487.05448
+  tps: 1588.20018
+  dtps: 388.19506
+  hps: 37.12306
  }
 }
 dps_results: {
@@ -1890,6 +1935,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 462.28403
+  tps: 1508.80886
+  dtps: 460.25748
+  hps: 37.91944
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-SoulforgeArmor"
+ value: {
+  dps: 488.98176
+  tps: 1594.16983
+  dtps: 337.23755
+  hps: 37.39417
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 530.11406
@@ -2085,6 +2148,15 @@ dps_results: {
   tps: 1493.66877
   dtps: 399.90408
   hps: 37.64833
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-TheFiveThunders"
+ value: {
+  dps: 502.60421
+  tps: 1635.0811
+  dtps: 396.20946
+  hps: 38.34306
  }
 }
 dps_results: {
@@ -2310,6 +2382,15 @@ dps_results: {
   tps: 1469.95906
   dtps: 462.17035
   hps: 37.445
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 449.00609
+  tps: 1474.39532
+  dtps: 463.36852
+  hps: 37.34333
  }
 }
 dps_results: {

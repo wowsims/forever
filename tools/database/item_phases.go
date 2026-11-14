@@ -42,7 +42,8 @@ var futureItems = map[int32]bool{
 }
 
 // The highest item level phase 1 rewards outside its raids: its dungeons, Onyxia's quest rewards and Forever's own
-// crafted epics. An item above it is Future unless a phase 1 raid drops it or its faction's reputation buys it.
+// crafted epics. An item above it is Future unless a phase 1 raid drops it, its faction's reputation buys it, or every
+// other piece of its set is phase 1.
 const phase1MaxIlvl = 65
 
 // What InferPhases reads besides the database's items.
@@ -58,10 +59,27 @@ type PhaseInputs struct {
 func InferPhases(db *WowDatabase, inputs PhaseInputs) {
 	p := &phaser{db: db, inputs: inputs, future: map[int32]bool{}}
 	p.findFutureItems()
+	capped := map[int32]bool{}
 	for _, item := range db.Items {
 		item.Phase = phase1
-		if p.future[item.Id] || item.ScalingOptions[0].Ilvl > phase1MaxIlvl && !p.phase1RaidSource(item) {
+		if p.future[item.Id] {
 			item.Phase = FuturePhase
+		} else if item.ScalingOptions[0].Ilvl > phase1MaxIlvl && !p.phase1RaidSource(item) {
+			item.Phase = FuturePhase
+			capped[item.Id] = true
+		}
+	}
+	// A piece the item level alone makes Future follows its set when every other piece is phase 1, as the item level
+	// 66 legs of the dungeon set 0.5 sets do.
+	setPhase1 := map[int32]bool{}
+	for _, item := range db.Items {
+		if open, seen := setPhase1[item.SetId]; item.SetId != 0 && !capped[item.Id] && (open || !seen) {
+			setPhase1[item.SetId] = item.Phase == phase1
+		}
+	}
+	for id := range capped {
+		if setPhase1[db.Items[id].SetId] {
+			db.Items[id].Phase = phase1
 		}
 	}
 	// An item with no source is Future when every piece of its set that has one is, as the Edge of Madness charms of

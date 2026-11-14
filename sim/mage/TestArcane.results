@@ -222,6 +222,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-DeathmistRaiment"
+ value: {
+  dps: 784.57629
+  tps: 673.1715
+  hps: 15.78583
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 729.98599
@@ -974,8 +982,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 802.353
-  tps: 691.29551
+  dps: 814.22793
+  tps: 700.91185
  }
 }
 dps_results: {
@@ -1130,6 +1138,13 @@ dps_results: {
  value: {
   dps: 747.14052
   tps: 647.09993
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 779.84259
+  tps: 673.08875
  }
 }
 dps_results: {

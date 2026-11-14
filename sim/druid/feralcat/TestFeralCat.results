@@ -262,6 +262,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-DarkmantleArmor"
+ value: {
+  dps: 768.51189
+  tps: 571.58894
+  hps: 46.90222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 794.7351
@@ -283,6 +291,14 @@ dps_results: {
   dps: 803.99551
   tps: 597.11792
   hps: 46.73278
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-DeathmistRaiment"
+ value: {
+  dps: 614.30591
+  tps: 461.80202
+  hps: 46.86833
  }
 }
 dps_results: {
@@ -584,9 +600,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FeralheartRaiment"
  value: {
-  dps: 756.21729
-  tps: 562.84316
-  hps: 46.71583
+  dps: 707.40753
+  tps: 527.74561
+  hps: 46.74972
  }
 }
 dps_results: {
@@ -1310,6 +1326,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 622.50715
+  tps: 467.57208
+  hps: 46.90222
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 773.41731
@@ -1571,6 +1595,14 @@ dps_results: {
   dps: 609.41825
   tps: 458.14793
   hps: 46.78361
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 613.68363
+  tps: 461.02426
+  hps: 46.80056
  }
 }
 dps_results: {

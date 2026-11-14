@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BattlegearofHeroism"
+ value: {
+  dps: 776.76583
+  tps: 633.99469
+  dtps: 4.18628
+  hps: 23.45484
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BattlegearofUndeadSlaying"
  value: {
   dps: 875.08305
@@ -132,6 +141,24 @@ dps_results: {
   tps: 615.22248
   dtps: 4.3907
   hps: 22.96769
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Beastmaster'sCap-22013"
+ value: {
+  dps: 866.9379
+  tps: 706.10812
+  dtps: 3.77831
+  hps: 24.66416
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-BeastmasterArmor"
+ value: {
+  dps: 776.66355
+  tps: 633.58922
+  dtps: 3.70001
+  hps: 23.24574
  }
 }
 dps_results: {
@@ -351,6 +378,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-DarkmantleArmor"
+ value: {
+  dps: 808.89526
+  tps: 659.47499
+  dtps: 3.79404
+  hps: 24.16108
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 875.56766
@@ -393,6 +429,15 @@ dps_results: {
   tps: 641.39307
   dtps: 4.97764
   hps: 24.28546
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-DeathmistRaiment"
+ value: {
+  dps: 805.66228
+  tps: 656.61364
+  dtps: 3.60131
+  hps: 27.1081
  }
 }
 dps_results: {
@@ -717,6 +762,15 @@ dps_results: {
   tps: 712.84543
   dtps: 3.64825
   hps: 24.35645
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-FeralheartRaiment"
+ value: {
+  dps: 795.38315
+  tps: 647.28005
+  dtps: 2.88403
+  hps: 22.97531
  }
 }
 dps_results: {
@@ -1683,12 +1737,21 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 803.90244
+  tps: 655.09035
+  dtps: 3.45142
+  hps: 23.72714
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 859.51989
-  tps: 699.56786
-  dtps: 3.24127
-  hps: 24.66315
+  dps: 795.0151
+  tps: 646.69881
+  dtps: 3.09057
+  hps: 22.97379
  }
 }
 dps_results: {
@@ -1917,6 +1980,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-TheFiveThunders"
+ value: {
+  dps: 827.64896
+  tps: 673.70311
+  dtps: 3.33617
+  hps: 23.64191
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-TheGladiator"
  value: {
   dps: 790.76073
@@ -2103,6 +2175,15 @@ dps_results: {
   tps: 601.46526
   dtps: 2.87803
   hps: 22.94024
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 762.56259
+  tps: 620.2857
+  dtps: 2.88214
+  hps: 22.95498
  }
 }
 dps_results: {

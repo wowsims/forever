@@ -123,7 +123,9 @@ func ApplyItemSetClasses(db *WowDatabase) {
 	}
 }
 
-// Where two sets with items share a name, only the higher set id ships; an ItemAllowList item stays.
+// Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
+// its type, and then joins the higher set; an ItemAllowList item stays. The game files hold no head or chest of the
+// reissued dungeon set 0.5 sets, so the Classic ones complete them, and the set bonuses stay registered once.
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -131,12 +133,26 @@ func DropLowerSameNameSets(db *WowDatabase) {
 			highest[item.SetName] = item.SetId
 		}
 	}
+	type setPiece struct {
+		set      string
+		itemType proto.ItemType
+	}
+	reissued := map[setPiece]bool{}
+	for _, item := range db.Items {
+		if item.SetId > 0 && item.SetId == highest[item.SetName] {
+			reissued[setPiece{item.SetName, item.Type}] = true
+		}
+	}
 	for id, item := range db.Items {
 		if _, ok := ItemAllowList[id]; ok {
 			continue
 		}
 		if item.SetId > 0 && item.SetId < highest[item.SetName] {
-			delete(db.Items, id)
+			if reissued[setPiece{item.SetName, item.Type}] {
+				delete(db.Items, id)
+			} else {
+				item.SetId = highest[item.SetName]
+			}
 		}
 	}
 }

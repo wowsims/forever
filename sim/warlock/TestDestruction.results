@@ -232,9 +232,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 913.26162
-  tps: 722.49499
-  dtps: 9.96368
+  dps: 879.13278
+  tps: 695.20822
+  dtps: 9.99093
   hps: 9.83023
  }
 }
@@ -1040,6 +1040,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 896.42539
+  tps: 704.9657
+  dtps: 10.06049
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 875.89452
@@ -1221,6 +1229,14 @@ dps_results: {
   dps: 802.50977
   tps: 634.58464
   dtps: 10.06578
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 856.65184
+  tps: 674.40906
+  dtps: 10.1147
  }
 }
 dps_results: {

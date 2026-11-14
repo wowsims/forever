@@ -293,6 +293,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-DarkmantleArmor"
+ value: {
+  dps: 748.42554
+  tps: 759.11108
+  dtps: 4.3512
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 871.77882
@@ -314,6 +322,15 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-DeathmistRaiment"
+ value: {
+  dps: 858.40943
+  tps: 871.26559
+  dtps: 4.89277
+  hps: 9.92138
  }
 }
 dps_results: {
@@ -616,9 +633,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-FeralheartRaiment"
  value: {
-  dps: 843.08001
-  tps: 853.88932
-  dtps: 5.21459
+  dps: 782.83384
+  tps: 795.9098
+  dtps: 4.34136
  }
 }
 dps_results: {
@@ -1366,6 +1383,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 868.56983
+  tps: 882.05266
+  dtps: 4.92086
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 888.59616
@@ -1619,6 +1644,14 @@ dps_results: {
   dps: 776.40314
   tps: 789.07602
   dtps: 4.29619
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 828.71891
+  tps: 841.1487
+  dtps: 3.69889
  }
 }
 dps_results: {

@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-DarkmantleArmor"
+ value: {
+  dps: 637.11622
+  tps: 546.00534
+  dtps: 3.03963
+  hps: 47.32583
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 530.99528
@@ -348,6 +357,15 @@ dps_results: {
   tps: 473.14402
   dtps: 2.94293
   hps: 43.4625
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-DeathmistRaiment"
+ value: {
+  dps: 515.33907
+  tps: 446.42769
+  dtps: 3.04994
+  hps: 45.12306
  }
 }
 dps_results: {
@@ -717,6 +735,15 @@ dps_results: {
   tps: 458.95167
   dtps: 2.94293
   hps: 43.53028
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-FeralheartRaiment"
+ value: {
+  dps: 570.46773
+  tps: 490.32031
+  dtps: 3.03963
+  hps: 43.56417
  }
 }
 dps_results: {
@@ -1530,6 +1557,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 508.63686
+  tps: 441.58148
+  dtps: 3.07602
+  hps: 44.54694
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 540.25463
@@ -1851,6 +1887,15 @@ dps_results: {
   tps: 423.68712
   dtps: 3.03963
   hps: 43.20833
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 495.88332
+  tps: 432.20258
+  dtps: 3.03963
+  hps: 43.31
  }
 }
 dps_results: {

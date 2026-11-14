@@ -126,6 +126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-BattlegearofHeroism"
+ value: {
+  dps: 397.29216
+  tps: 930.62774
+  dtps: 319.56229
+  hps: 18.09667
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-BattlegearofUndeadSlaying"
  value: {
   dps: 405.3883
@@ -141,6 +150,24 @@ dps_results: {
   tps: 908.34191
   dtps: 335.67589
   hps: 17.96111
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-Beastmaster'sCap-22013"
+ value: {
+  dps: 392.25842
+  tps: 932.10062
+  dtps: 332.41457
+  hps: 17.97806
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-BeastmasterArmor"
+ value: {
+  dps: 386.23323
+  tps: 910.79573
+  dtps: 347.00463
+  hps: 18.02889
  }
 }
 dps_results: {
@@ -378,6 +405,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-DarkmantleArmor"
+ value: {
+  dps: 408.47974
+  tps: 962.59792
+  dtps: 375.85215
+  hps: 18.58806
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 407.31619
@@ -411,6 +447,15 @@ dps_results: {
   tps: 917.87264
   dtps: 316.22356
   hps: 18.19833
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-DeathmistRaiment"
+ value: {
+  dps: 404.74717
+  tps: 974.24441
+  dtps: 496.53672
+  hps: 21.64991
  }
 }
 dps_results: {
@@ -753,6 +798,15 @@ dps_results: {
   tps: 968.96915
   dtps: 345.05521
   hps: 18.28306
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-FeralheartRaiment"
+ value: {
+  dps: 404.45009
+  tps: 955.52401
+  dtps: 407.59561
+  hps: 17.85944
  }
 }
 dps_results: {
@@ -1854,12 +1908,21 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-Sorcerer'sRegalia"
+ value: {
+  dps: 405.25264
+  tps: 975.38207
+  dtps: 497.51637
+  hps: 18.53722
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-SoulforgeArmor"
  value: {
-  dps: 404.0302
-  tps: 961.75962
-  dtps: 338.63688
-  hps: 18.3
+  dps: 404.47645
+  tps: 953.02805
+  dtps: 348.49208
+  hps: 17.97806
  }
 }
 dps_results: {
@@ -2058,6 +2121,15 @@ dps_results: {
   tps: 930.9897
   dtps: 426.4622
   hps: 18.24917
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-TheFiveThunders"
+ value: {
+  dps: 418.99281
+  tps: 990.5624
+  dtps: 422.21894
+  hps: 18.77444
  }
 }
 dps_results: {
@@ -2273,6 +2345,15 @@ dps_results: {
   dps: 369.59358
   tps: 886.35122
   dtps: 501.59746
+  hps: 18.21528
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-VestmentsoftheVirtuous"
+ value: {
+  dps: 389.73182
+  tps: 936.53874
+  dtps: 498.17988
   hps: 18.21528
  }
 }

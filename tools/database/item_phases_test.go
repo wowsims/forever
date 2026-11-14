@@ -57,6 +57,10 @@ func TestInferPhases(t *testing.T) {
 		item(118, 1, 0, quest(602)),
 		item(119, 1, 0, quest(603)),
 		item(120, 1, 0, drop(futureQuestZone)),
+		item(121, phase1MaxIlvl+1, 3, drop(openWorld)),
+		item(122, 1, 3, drop(openWorld)),
+		item(123, phase1MaxIlvl+1, 4, drop(openWorld)),
+		item(124, phase1MaxIlvl+1, 4, drop(openWorld)),
 	} {
 		db.Items[item.Id] = item
 	}
@@ -110,6 +114,8 @@ func TestInferPhases(t *testing.T) {
 		118: {FuturePhase, "a quest filed under a zone whose quests phase 1 does not hold is Future"},
 		119: {FuturePhase, "a quest asking for an item of an event phase 1 does not hold is Future"},
 		120: {phase1, "a drop in that zone keeps its own phase"},
+		121: {phase1, "a piece above the item level cap follows its set when every other piece is phase 1"},
+		123: {FuturePhase, "a set whose every piece is above the item level cap stays Future"},
 	} {
 		if got := db.Items[id].Phase; got != want.phase {
 			t.Errorf("item %d has phase %d, want %d: %s", id, got, want.phase, want.why)
