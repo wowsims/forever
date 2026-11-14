@@ -411,9 +411,9 @@ type SpellDataProc struct {
 	// without consulting a proc mask, so the row states no listener and the shape is stated here.
 	IsWeaponProc bool
 
-	// A rate neither the item's entry nor the trigger's row can state, in place of the one they give.
-	// It may reshape the listener the rate is priced on: Blade of Eternal Darkness rolls on each spell
-	// hit at a chance the hit's cast time sets.
+	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
+	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
+	// procs per minute on the cast time of each spell hit's cast.
 	Rate spelldata.ProcOpt
 }
 

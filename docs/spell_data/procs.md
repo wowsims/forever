@@ -167,8 +167,8 @@ A damage row that also states an `E_ENERGIZE` on its caster puts that gain into 
 or energy with every proc, whether the damage lands or not, since the gain's target is the caster
 (`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
 
-A rate neither the item's entry nor the trigger's row can state comes in through `SpellDataProc.Rate`,
-which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
+A rate priced on something neither the item's entry nor the trigger's row states comes in through
+`SpellDataProc.Rate`, which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
 case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed direct spell hit rolls
 21978's procs per minute on the cast time of the cast that launched it, at least 1.5 s. The time is
 read where the cast deals the hit's result, so a missile keeps it after the next cast starts. A

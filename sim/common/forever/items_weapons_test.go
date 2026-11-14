@@ -503,15 +503,18 @@ func TestBladeOfEternalDarknessIgnoresTicksShotsAndMisses(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
 
+	// Each result is dealt at an hour-long cast, as core deals a cast's result before its hit.
+	castResult := func(spell *core.Spell, result *core.SpellResult) *core.SpellResult {
+		spell.CurCast.CastTime = time.Hour
+		character.OnCastResult(sim, spell, result)
+		return result
+	}
 	tick := fireSpell(&character.Unit)
-	tick.CurCast.CastTime = time.Hour
-	character.OnPeriodicDamageDealt(sim, tick, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	character.OnPeriodicDamageDealt(sim, tick, castResult(tick, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
 	shot := rangedShot(&character.Unit)
-	shot.CurCast.CastTime = time.Hour
-	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	character.OnSpellHitDealt(sim, shot, castResult(shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
 	missed := fireSpell(&character.Unit)
-	missed.CurCast.CastTime = time.Hour
-	character.OnSpellHitDealt(sim, missed, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	character.OnSpellHitDealt(sim, missed, castResult(missed, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss}))
 	if got := procCasts(sim, shadows); got != 0 {
 		t.Errorf("a tick, a wand shot and a miss procced it %d times, want none", got)
 	}
