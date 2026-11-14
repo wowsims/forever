@@ -36208,10 +36208,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1316155, SpellID: 1294666, Type: dbcenums.E_ENERGIZE, BasePoints: 88, Variance: 0.5, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1294668, Name: "Proc Self Energize 88", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 15000, RefIDs: []int32{1294666}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1294668, Name: "Proc Self Energize 88", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 5, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 15000, RefIDs: []int32{1294666},
 		Effects: []Effect{
 			{ID: 1316157, SpellID: 1294668, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, TriggerID: 1294666, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 5 -- Zealot Plate: column reads 100, tooltip says 'When struck in combat, has a chance'; 1,661 procs on 31,232 landed melee swings taken outside the 15 s cooldown, 40 paladins
 	{ID: 1294769, Name: "Increased Hit Chance - Ranged - 01", School: 1, Attr: [17]uint32{0: 0x400c0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, EquipClass: 2, EquipSubclass: 262156,
 		Effects: []Effect{
 			{ID: 1316376, SpellID: 1294769, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_HIT_CHANCE, BasePoints: 1, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

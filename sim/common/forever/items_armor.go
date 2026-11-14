@@ -287,6 +287,21 @@ func init() {
 		}))
 		character.ItemSwap.RegisterProc(13955, equip)
 	})
+
+	// Zealot Plate
+	// https://www.wowhead.com/forever/item=274651/zealot-plate
+	//
+	// When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more
+	// than once every 15 sec.
+	//
+	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it;
+	// 1294668 is the trigger that fires it off melee swings and abilities taken, with the 15 s cooldown.
+	// Its 5% is an override of the row's ProcChance: Forever dungeon logs measure 1,661 procs on 31,232
+	// landed melee swings taken outside the cooldown, from 40 paladins.
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
+		[]shared.ItemVariant{
+			{ItemID: 274651, ItemName: "Zealot Plate"},
+		})
 }
 
 // TODO: The game files state no rate for Depleted Eye of Influence's 1297085, and none is measured on

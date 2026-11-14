@@ -2439,6 +2439,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ZealotPlate-274651"
+ value: {
+  dps: 527.67263
+  tps: 1709.92714
+  dtps: 312.35314
+  hps: 39.34278
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-Average-Default"
  value: {
   dps: 523.46989
