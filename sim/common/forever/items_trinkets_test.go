@@ -842,9 +842,13 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 }
 
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
-// one that deals no damage too, and on nothing else: a cast with no hit, a miss and a damage over
-// time tick never roll.
+// one that deals no damage too, and on nothing else: a cast with no hit, a miss, a damage over time
+// tick and a spell fired as a proc never roll.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
+	const hellfireEffect, flamestrikeTick = 11683, 1279990
+	if !spelldata.MustFind(hellfireEffect).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
+		t.Fatalf("want %d's row a proc and %d's not one", hellfireEffect, flamestrikeTick)
+	}
 	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
 		t.Helper()
 		sim, character := trinketWarrior(t, 22268)
@@ -886,9 +890,6 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 		}
 	})
 
-	editSpellRow(t, 1318931, func(s *spelldata.Spell) {
-		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
-	})
 	for _, event := range []struct {
 		name string
 		want int
@@ -906,8 +907,25 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 		{"damage over time tick", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
 			character.OnPeriodicDamageDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 		}},
+		{"landed hit of a proc", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagProc
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: hellfireEffect}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is not one", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: flamestrikeTick}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
 	} {
 		t.Run(event.name, func(t *testing.T) {
+			editSpellRow(t, 1318931, func(s *spelldata.Spell) {
+				s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+			})
 			sim, character, buff := wearer(t)
 			spell := fireSpell(&character.Unit)
 			if got := procs(t, sim, buff, 1, func() { event.deal(sim, character, spell) }); got != event.want {

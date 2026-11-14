@@ -115,6 +115,8 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	if got := restored(t, meleeSwing(enemy)); got != 0 {
 		t.Errorf("a melee hit taken inside the cooldown restored %v mana, want none", got)
 	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
 	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
 		stepTo(t, sim, at)
 	}
