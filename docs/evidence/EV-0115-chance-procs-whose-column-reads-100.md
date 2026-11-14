@@ -1,4 +1,4 @@
-# EV-0114: Draconic Infused Emblem, Zealot Plate and Moonshadow Stave proc rates
+# EV-0115: Draconic Infused Emblem, Zealot Plate and Moonshadow Stave proc rates
 
 - Claim: Draconic Infused Emblem 22268 procs 8% on each landed harmful spell hit, Zealot Plate 274651 procs 5% on
   each landed melee swing taken outside its 15 s cooldown, and Moonshadow Stave 22458 procs 1.5 times a minute on the
@@ -66,7 +66,8 @@ Reports, 10 druids: 24kgnZAXbKTW89x6/1-2, 7cpTkjaFB3mz6VgM/272-492, VqZ38vXydB7g
 cvRTFb1qhGBKNkCD/1-24, f36RaB12wyDcTCGY/1-3, hCfYgdqVk7QDRZGN/1-3, rPpHYfq3tNnwJRMd/5-19, x3njCmpkVYf7WDgh/1-39,
 z1kHPnyGtX7g4QqC/3. Builds: 70888 (4 reports), 70938 (6).
 
-A proc counts each hit of 1300437 (Shadow) or 1300438 (Arcane), 359 in all. Both are projectiles, so a proc lands one
+A proc counts each hit of 1300437 (Shadow) or 1300438 (Arcane), 359 in all: 165 Shadow and 194 Arcane, an even split
+within chance (z = −1.5). Both are projectiles, so a proc lands one
 flight after the spell that rolled it; each is matched to its spell by target and Wrath's flight time to that target.
 The logs carry no positions. Two wearer windows end in long stretches with no proc (959 and 487 casts) and are cut at
 their last proc.

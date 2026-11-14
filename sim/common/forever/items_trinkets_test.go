@@ -845,9 +845,9 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 // one that deals no damage too, and on nothing else: a cast with no hit, a miss, a damage over time
 // tick and a spell fired as a proc never roll.
 func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
-	const hellfireEffect, flamestrikeTick = 11683, 1279990
-	if !spelldata.MustFind(hellfireEffect).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
-		t.Fatalf("want %d's row a proc and %d's not one", hellfireEffect, flamestrikeTick)
+	const hurricaneTick, flamestrikeTick = 1278759, 1279990
+	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
+		t.Fatalf("want %d's row a proc and %d's not one", hurricaneTick, flamestrikeTick)
 	}
 	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
 		t.Helper()
@@ -913,7 +913,7 @@ func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
 		}},
 		{"landed hit of a spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
 			spell.Flags |= core.SpellFlagPassiveSpell
-			spell.ActionID = core.ActionID{SpellID: hellfireEffect}
+			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
 			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
 		}},
 		{"landed hit of a spell fired as a proc whose row is not one", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {

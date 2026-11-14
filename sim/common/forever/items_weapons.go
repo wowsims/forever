@@ -261,14 +261,14 @@ func init() {
 	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
 	//
 	// 1300435 rolls once for each enemy a harmful spell lands on, a damage over time effect or a debuff
-	// that deals no damage included, apart from the curses and Hex of Weakness the sim registers with no
-	// proc mask, and its 10 ms cooldown lets one landing proc it once. The chance is
-	// the row's procs per minute on the cast time of the cast that launched the spell, at least 1.5 s
-	// (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
+	// that deals no damage included, apart from Curse of the Elements, Recklessness and Weakness and Hex
+	// of Weakness, which the sim registers with no proc mask, and its 10 ms cooldown lets one landing
+	// proc it once. The chance is the row's procs per minute on the cast time of the cast that launched
+	// the spell, at least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
 	// Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane 1300438, one
 	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
 	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
-	// enemy, so it rolls nothing (EV-0114).
+	// enemy, so it rolls nothing (EV-0115).
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -577,9 +577,10 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the
 // global cooldown's 1.5 s, and rolled by each direct spell hit that lands; with requireDamage, only by
 // one that deals damage. The cast time is read where the cast deals the hit's result, which is the
-// cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It is the time the cast took after talents,
-// Presence of Mind and cast speed. The chance depends on the hit, so Chance(1) leaves core no roll of
-// its own and the condition draws it after the cooldown check and before the cooldown starts.
+// cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
+// is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
+// hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
+// and before the cooldown starts.
 // TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
 // is priced on the unhasted time.
 func castTimePPM(row *spelldata.Spell, requireDamage bool) spelldata.ProcOpt {

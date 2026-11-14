@@ -362,7 +362,7 @@ func TestHandOfEdwardTheOddMakesTheNextCastInstant(t *testing.T) {
 }
 
 // The shortest cast time Blade of Eternal Darkness 17780 and Moonshadow Stave 22458 price their chance
-// on (EV-0025, EV-0114).
+// on (EV-0025, EV-0115).
 const castTimeFloor = 1500 * time.Millisecond
 
 // The chance a trigger priced on cast time rolls on a hit whose cast took castTime: the row's procs per
@@ -498,8 +498,8 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	}
 }
 
-// A damage over time tick, a wand shot and a missed spell never roll Blade of Eternal Darkness 17780,
-// even at a chance that cannot fail.
+// A damage over time tick, a wand shot, a missed spell and a landing that deals no damage never roll
+// Blade of Eternal Darkness 17780, even at a chance that cannot fail.
 func TestBladeOfEternalDarknessIgnoresTicksShotsAndMisses(t *testing.T) {
 	sim, character, shadows := boedWearer(t, 1)
 	enemy := sim.Encounter.ActiveTargetUnits[0]
@@ -516,8 +516,10 @@ func TestBladeOfEternalDarknessIgnoresTicksShotsAndMisses(t *testing.T) {
 	character.OnSpellHitDealt(sim, shot, castResult(shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
 	missed := fireSpell(&character.Unit)
 	character.OnSpellHitDealt(sim, missed, castResult(missed, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss}))
+	empty := fireSpell(&character.Unit)
+	character.OnSpellHitDealt(sim, empty, castResult(empty, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit}))
 	if got := procCasts(sim, shadows); got != 0 {
-		t.Errorf("a tick, a wand shot and a miss procced it %d times, want none", got)
+		t.Errorf("a tick, a wand shot, a miss and a landing that deals no damage procced it %d times, want none", got)
 	}
 }
 
@@ -551,9 +553,9 @@ func TestBladeOfEternalDarknessRestoresManaWithEachProc(t *testing.T) {
 // damage over time tick and a spell fired as a proc whose row is one never roll. Each proc casts
 // Shadow 1300437 or Arcane 1300438, one in two each.
 func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
-	const hellfireEffect, flamestrikeTick = 11683, 1279990
-	if !spelldata.MustFind(hellfireEffect).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
-		t.Fatalf("want %d's row a proc and %d's not one", hellfireEffect, flamestrikeTick)
+	const hurricaneTick, flamestrikeTick = 1278759, 1279990
+	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
+		t.Fatalf("want %d's row a proc and %d's not one", hurricaneTick, flamestrikeTick)
 	}
 	wearer := func(t *testing.T) (*core.Simulation, *core.Character, [2]*core.Spell) {
 		t.Helper()
@@ -619,7 +621,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 		}},
 		{"spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			spell.Flags |= core.SpellFlagPassiveSpell
-			spell.ActionID = core.ActionID{SpellID: hellfireEffect}
+			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
 		{"spell fired as a proc whose row is not one", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {

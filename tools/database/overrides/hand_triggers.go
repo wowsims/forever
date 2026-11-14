@@ -107,6 +107,6 @@ var HandTriggers = []HandTrigger{
 		Triggers: 1300438,
 		Reason: "Moonshadow Stave's dummy aura casts Shadow 1300437 or Arcane 1300438 on each proc; the tooltip names only " +
 			"1300437 and reads Arcane or Shadow damage, and both hit for the item's procs",
-		Source: "EV-0114",
+		Source: "EV-0115",
 	},
 }

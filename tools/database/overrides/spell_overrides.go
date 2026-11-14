@@ -363,14 +363,14 @@ var Spells = []Override{
 		Field:   ProcChancePct,
 		Value:   8,
 		Reason:  "Draconic Infused Emblem: 8% on each landed harmful spell hit; column reads 100, tooltip says 'Chance on harmful spellcast'",
-		Source:  "EV-0114",
+		Source:  "EV-0115",
 	},
 	{
 		SpellID: 1294668,
 		Field:   ProcChancePct,
 		Value:   5,
 		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
-		Source:  "EV-0114",
+		Source:  "EV-0115",
 	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
@@ -493,7 +493,7 @@ var Spells = []Override{
 		Field:   PPM,
 		Value:   1.5,
 		Reason:  "Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
-		Source:  "EV-0114",
+		Source:  "EV-0115",
 	},
 	{
 		SpellID: 1079,
