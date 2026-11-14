@@ -840,3 +840,97 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 		}
 	})
 }
+
+// Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
+// one that deals no damage too, and on nothing else: a cast with no hit, a miss, a damage over time
+// tick and a spell fired as a proc never roll.
+func TestDraconicInfusedEmblemRollsOnLandedSpellHits(t *testing.T) {
+	const hurricaneTick, flamestrikeTick = 1278759, 1279990
+	if !spelldata.MustFind(hurricaneTick).IsAProc() || spelldata.MustFind(flamestrikeTick).IsAProc() {
+		t.Fatalf("want %d's row a proc and %d's not one", hurricaneTick, flamestrikeTick)
+	}
+	wearer := func(t *testing.T) (*core.Simulation, *core.Character, *core.Aura) {
+		t.Helper()
+		sim, character := trinketWarrior(t, 22268)
+		buff := character.GetAuraByID(core.ActionID{SpellID: 1318930})
+		if buff == nil {
+			t.Fatal("22268 registers no 1318930")
+		}
+		return sim, character, buff
+	}
+	// How many of the given events put the buff up, taking it down before each.
+	procs := func(t *testing.T, sim *core.Simulation, buff *core.Aura, events int, event func()) int {
+		t.Helper()
+		var procs int
+		for range events {
+			buff.Deactivate(sim)
+			event()
+			stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+			if buff.IsActive() {
+				procs++
+			}
+		}
+		return procs
+	}
+
+	t.Run("chance", func(t *testing.T) {
+		sim, character, buff := wearer(t)
+		spell := fireSpell(&character.Unit)
+		want := spelldata.MustFind(1318931).StatedChance()
+		if want <= 0 || want >= 1 {
+			t.Fatalf("1318931 states a chance of %v, want one between none and certain", want)
+		}
+		const hits = 4000
+		got := procs(t, sim, buff, hits, func() {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		})
+		mean, deviation := want*hits, math.Sqrt(want*(1-want)*hits)
+		if math.Abs(float64(got)-mean) > 4*deviation {
+			t.Errorf("%d landed spell hits procced it %d times, want about %.0f", hits, got, mean)
+		}
+	})
+
+	for _, event := range []struct {
+		name string
+		want int
+		deal func(*core.Simulation, *core.Character, *core.Spell)
+	}{
+		{"landed hit with no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit})
+		}},
+		{"cast with no hit", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnCastComplete(sim, spell)
+		}},
+		{"miss", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeMiss})
+		}},
+		{"damage over time tick", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			character.OnPeriodicDamageDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a proc", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagProc
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is one", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: hurricaneTick}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+		{"landed hit of a spell fired as a proc whose row is not one", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell) {
+			spell.Flags |= core.SpellFlagPassiveSpell
+			spell.ActionID = core.ActionID{SpellID: flamestrikeTick}
+			character.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+		}},
+	} {
+		t.Run(event.name, func(t *testing.T) {
+			editSpellRow(t, 1318931, func(s *spelldata.Spell) {
+				s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+			})
+			sim, character, buff := wearer(t)
+			spell := fireSpell(&character.Unit)
+			if got := procs(t, sim, buff, 1, func() { event.deal(sim, character, spell) }); got != event.want {
+				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
+			}
+		})
+	}
+}
