@@ -853,10 +853,10 @@ var Spells = []Override{
 	},
 	{
 		SpellID: 11609,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Field:   FlatThreat,
+		Value:   80,
+		Reason:  "Cleave Rank 4: adds 80 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 20569,
@@ -953,16 +953,16 @@ var Spells = []Override{
 	{
 		SpellID: 23923,
 		Field:   FlatThreat,
-		Value:   214, // TODO: Measure Shield Slam Rank 2 in game.
-		Reason:  "Shield Slam Rank 2: Rank 1's measured 4.45 per spell level at spell level 48",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Value:   203,
+		Reason:  "Shield Slam Rank 2: threat is the damage + 203, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 23924,
 		Field:   FlatThreat,
-		Value:   240, // TODO: Measure Shield Slam Rank 3 in game.
-		Reason:  "Shield Slam Rank 3: Rank 1's measured 4.45 per spell level at spell level 54",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Value:   229,
+		Reason:  "Shield Slam Rank 3: threat is the damage + 229, times the stance",
+		Source:  "Combat log + ThreatLog, Tandoor-One levels 48–59, game builds 1.60.1.70862–70938, 2026-11-14",
 	},
 	{
 		SpellID: 23925,

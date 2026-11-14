@@ -8687,11 +8687,11 @@ var generatedSpells = []Spell{
 			{ID: 689145, SpellID: 11608, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 18, BaseLevel: 40, SPCoef: 1, PvpMult: 1, ChainTargets: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 200}}}, // override: ThreatPerSpellLevel 1.5 -- Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share
-	{ID: 11609, Name: "Cleave", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x200, 2: 0x1000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 75, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 4194304}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
+	{ID: 11609, Name: "Cleave", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50014, 1: 0x200, 2: 0x1000, 3: 0x400, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxRange: 5, DefenseType: 2, PreventionType: 2, FlatThreat: 80, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 4194304}}, EquipClass: 2, EquipSubclass: 173555, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 689873, SpellID: 11609, Type: dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, BasePoints: 32, BaseLevel: 50, SPCoef: 1, PvpMult: 1, ChainTargets: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}}, // override: ThreatPerSpellLevel 1.5 -- Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 80 -- Cleave Rank 4: adds 80 beyond its damage, split over the targets it lands on, times the stance
 	{ID: 11629, Name: "Potent Alcohol", School: 1, Attr: [17]uint32{0: 0x28000100, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CategoryCooldownMs: 10000, Category: 59, DefenseType: 1, ProcChance: 101, InterruptFlags: 8, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 689644, SpellID: 11629, Type: dbcenums.E_INEBRIATE, BasePoints: 50, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -20380,18 +20380,18 @@ var generatedSpells = []Spell{
 			{ID: 701767, SpellID: 23922, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 430, Variance: 0.043478261679410934, BaseLevel: 40, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 178 -- Shield Slam Rank 1: threat is the damage + 178, times the stance
-	{ID: 23923, Name: "Shield Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 214, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
+	{ID: 23923, Name: "Shield Slam", Rank: "Rank 2", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 48, BaseLevel: 48, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 203, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 696035, SpellID: 23923, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 48, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 696036, SpellID: 23923, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 505, Variance: 0.04444444552063942, BaseLevel: 48, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 214 -- Shield Slam Rank 2: Rank 1's measured 4.45 per spell level at spell level 48
-	{ID: 23924, Name: "Shield Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 240, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 203 -- Shield Slam Rank 2: threat is the damage + 203, times the stance
+	{ID: 23924, Name: "Shield Slam", Rank: "Rank 3", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 54, BaseLevel: 54, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 229, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 701791, SpellID: 23924, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 54, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 701792, SpellID: 23924, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 580, Variance: 0.04516129195690155, BaseLevel: 54, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
-		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 240 -- Shield Slam Rank 3: Rank 1's measured 4.45 per spell level at spell level 54
+		Powers: []Power{{Type: 1, Cost: 200}}}, // override: FlatThreat 229 -- Shield Slam Rank 3: threat is the damage + 229, times the stance
 	{ID: 23925, Name: "Shield Slam", Rank: "Rank 4", School: 1, Attr: [17]uint32{0: 0x50010, 1: 0x8000200, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 5, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 971, StartRecoveryCategory: 133, DefenseType: 2, PreventionType: 2, FlatThreat: 267, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 33554432, 1: 1}}, EquipClass: 4, EquipSubclass: 64, Labels: []int16{25},
 		Effects: []Effect{
 			{ID: 701793, SpellID: 23925, Type: dbcenums.E_DISPEL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
