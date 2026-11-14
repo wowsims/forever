@@ -1,5 +1,5 @@
 import { Class, ItemSlot } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -40,11 +40,8 @@ const ROW_CLASS = clsx(
 type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
-	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: 2, label: i18n.t('common.phases.2') },
-	{ value: 3, label: i18n.t('common.phases.3') },
-	{ value: 4, label: i18n.t('common.phases.4') },
-	{ value: 5, label: i18n.t('common.phases.5') },
+	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
+	{ value: ContentPhase.ContentPhaseUnknown, label: i18n.t('common.phases.unknown') },
 ];
 
 export interface ItemListToggle {

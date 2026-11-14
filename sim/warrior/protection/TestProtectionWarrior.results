@@ -128,10 +128,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BattlegearofHeroism"
  value: {
-  dps: 515.07606
-  tps: 1674.95391
-  dtps: 295.07756
-  hps: 38.25833
+  dps: 512.6941
+  tps: 1668.89024
+  dtps: 303.63863
+  hps: 37.80083
  }
 }
 dps_results: {
