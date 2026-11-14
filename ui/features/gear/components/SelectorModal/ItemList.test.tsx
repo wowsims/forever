@@ -1,6 +1,6 @@
 import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
-import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
 import { Sim } from '@sim/sim';
@@ -459,13 +459,13 @@ describe('ItemListToolbarView', () => {
 	});
 
 	it('shows the phase and writes a pick back', async () => {
-		const { props } = renderView({ phase: 3 });
+		const { props } = renderView({ phase: ContentPhase.ContentPhaseUnknown });
 		await userEvent.click(within(screen.getByTestId('selector-modal-phase-selector')).getByRole('combobox'));
 		const options = screen.getAllByRole('option');
-		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true', 'false', 'false']);
+		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);
 
-		await userEvent.click(options[4]);
-		expect(props.onPhaseChange).toHaveBeenCalledWith(5);
+		await userEvent.click(options[0]);
+		expect(props.onPhaseChange).toHaveBeenCalledWith(ContentPhase.ContentPhase1);
 	});
 
 	it('renders one checkbox per toggle, in order, under its own id and test id', () => {

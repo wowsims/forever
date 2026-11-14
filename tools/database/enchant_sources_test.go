@@ -25,7 +25,7 @@ func TestAddEnchantSources(t *testing.T) {
 	atlasDrop := &proto.UIItemSource{Source: &proto.UIItemSource_Drop{Drop: &proto.DropSource{NpcId: 1, ZoneId: 2017, Difficulty: proto.DungeonDifficulty_DifficultyDungeon}}}
 	atlasRep := &proto.UIItemSource{Source: &proto.UIItemSource_Rep{Rep: &proto.RepSource{RepFactionId: 59}}}
 
-	inputs := EnchantSourceInputs{
+	inputs := ItemSourceInputs{
 		Crafted: map[int][]*proto.CraftedSource{10: {crafted}},
 		Rep:     map[int][]*proto.RepSource{50: {rep}},
 		Atlas:   NewWowDatabase(),
