@@ -4612,14 +4612,6 @@ func RegisterAllProcs() {
 			{ItemID: 17766, ItemName: "Princess Theradras' Scepter"},
 		})
 
-	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
-	// https://www.wowhead.com/forever/spell=27860
-	// trigger 21978 (10%, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 27860
-	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860},
-		[]shared.ItemVariant{
-			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
-		})
-
 	// Chance on hit to restore 32 mana. Restores 3 times as much if attacking an Earth Elemental, Golem, or
 	// Titan-forged enemy.
 	//

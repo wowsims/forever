@@ -112,8 +112,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 747.73446
-  tps: 691.5612
+  dps: 752.77311
+  tps: 695.95518
  }
 }
 dps_results: {
