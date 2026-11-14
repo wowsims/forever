@@ -14,12 +14,25 @@ import (
 // an A_PERIODIC_ENERGIZE, and Berserker Stance states an attack power percentage of 0.
 var buffAuraTable = map[dbcenums.EffectAuraType]row{
 	// Mana over time, which the sim keeps as mana per five seconds. The game files' tick is whole;
-	// what the conversion makes of it is not, and it is not truncated.
+	// what the conversion makes of it is not, and it is not truncated. The tick is the same under
+	// Innervate, so the amount counts in EnergizeMP5 as well, which no mana regen multiplier scales.
 	dbcenums.A_PERIODIC_ENERGIZE: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc != int32(dbcenums.POWER_MANA) || e.PeriodMs <= 0 {
 			return nil
 		}
-		return p.statBuff(stats.MP5, v*5000/float64(e.PeriodMs))
+		mp5 := v * 5000 / float64(e.PeriodMs)
+		a := p.statBuff(stats.MP5, mp5)
+		// The whole and each part, whichever the buff's category applies, move EnergizeMP5 before
+		// the MP5, whose change recomputes the regen rates.
+		for _, part := range append([]*attachment{a}, a.parts...) {
+			energize := p.pseudoAdd("energize-mp5", "EnergizeMP5", []*float64{&p.unit.PseudoStats.EnergizeMP5}, mp5)
+			set := part.set
+			part.set = func(sim *core.Simulation, level float64) {
+				energize.set(sim, level)
+				set(sim, level)
+			}
+		}
+		return a
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER_PCT: func(p *parser, e *Effect, v float64) *attachment {

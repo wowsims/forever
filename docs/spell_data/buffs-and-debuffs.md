@@ -72,7 +72,8 @@ A row whose aura is a damage shield skips the parse outright: `newDamageShield` 
 `NewDamageShield` with the spell's school and `Value`.
 
 `sim/core/spelldata/buff.go` holds a second table, read only when a parse states `BuffAuras()`:
-`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, and `A_MOD_ATTACK_POWER_PCT` a percentage on
+`A_PERIODIC_ENERGIZE` on a mana row becomes MP5 there, which also counts in `EnergizeMP5` so no mana
+regen multiplier scales it, and `A_MOD_ATTACK_POWER_PCT` a percentage on
 attack power. Neither sits in the parse's shared table. Warrior rows carry them for a value the class
 wires itself (Bloodrage's rage tick is an `A_PERIODIC_ENERGIZE`, Berserker Stance Passive an
 `A_MOD_ATTACK_POWER_PCT` of 0), and reading either off the shared table would change what those rows

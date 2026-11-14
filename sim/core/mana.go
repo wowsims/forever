@@ -172,29 +172,25 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 	return unit.spiritRegenBase + unit.stats[stats.Spirit]*unit.spiritRegenPerSpirit
 }
 
+// A mana regen multiplier (Innervate) scales Spirit regen and the MP5 from gear and other buffs. A
+// periodic energize aura (Blessing of Wisdom, Mana Spring) ticks its own amount under it. Taking the
+// multiplier's surplus on that share back off keeps a multiplier of 1 bit-exact.
+func (unit *Unit) multipliedManaRegen(spiritRegen float64) float64 {
+	multiplier := unit.manaRegenMultiplier
+	return (unit.MP5ManaRegenPerSecond()+spiritRegen)*multiplier - unit.PseudoStats.EnergizeMP5/5.0*(multiplier-1)
+}
+
 // Returns the rate of mana regen per second, assuming this unit is
 // considered to be casting.
 func (unit *Unit) ManaRegenPerSecondWhileCasting() float64 {
-	regenRate := unit.MP5ManaRegenPerSecond()
-
 	// The shares of spirit regen that continue while casting add up to at most all of it.
-	regenRate += unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier * min(unit.PseudoStats.SpiritRegenRateCasting, 1)
-
-	regenRate *= unit.manaRegenMultiplier
-
-	return regenRate
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier * min(unit.PseudoStats.SpiritRegenRateCasting, 1))
 }
 
 // Returns the rate of mana regen per second, assuming this unit is
 // considered to be not casting.
 func (unit *Unit) ManaRegenPerSecondWhileNotCasting() float64 {
-	regenRate := unit.MP5ManaRegenPerSecond()
-
-	regenRate += unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier
-
-	regenRate *= unit.manaRegenMultiplier
-
-	return regenRate
+	return unit.multipliedManaRegen(unit.SpiritManaRegenPerSecond() * unit.PseudoStats.SpiritRegenMultiplier)
 }
 
 // Recomputes the regen rates the mana bar ticks at, after crediting the regen so far at the old ones.
