@@ -545,6 +545,8 @@ message BulkBuildBundle {
 	BulkRotationRef rotation = 3;
 	BulkSettingsRef settings = 4;
 	bool checked = 5;
+	// The name the user gave the bundle, trimmed; empty labels it by its four parts.
+	string name = 6;
 }
 
 // Local storage data for the bundles the bulk sim runs in Builds mode, in list order. The Current bundle is not stored

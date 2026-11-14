@@ -321,7 +321,8 @@ export const bulkBuildPlan = (plans: readonly BulkBundlePlan[], reference: BulkB
 		for (const key of sentKeys) {
 			if (!group.senders.has(key)) group.senders.set(key, bundle.index);
 		}
-		group.setups.push(...setups);
+		// Copies carry a named bundle's name to its result rows, since bundles with the same gear set share its setups.
+		group.setups.push(...(bundle.name ? setups.map(setup => ({ ...setup, bundle: bundle.name })) : setups));
 	}
 	return {
 		sameAs,
