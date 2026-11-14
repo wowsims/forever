@@ -332,12 +332,9 @@ func (warrior *Warrior) registerWeaponmaster() {
 	// they land on (7 extra attacks in 100 two-handed Whirlwinds; by landed targets 1 gave 0 in 7,
 	// 2 gave 1 in 26, 3 gave 5 in 44, 4 gave 1 in 23). Which target's hit takes that roll is not
 	// measured; here the first landed one
-	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike 10610,
-	// the spell the totem's raid aura 10612 procs (core/buffs/drivers.go), brings no extra swing;
-	// swings other procs grant (Hand of Justice, Thrash Blade) still bring one.
-	// TODO: Ingame test needed: the logs measured the totem's extra white swing bringing none; its
-	// strike, a main-hand special, is not measured yet.
-	windfuryTotemStrike := core.ActionID{SpellID: 10610}
+	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike rolls it
+	// as a white swing does: 8 of 198 clean strikes brought a swing (4.0%), against 4.8% of white
+	// swings. Swings other procs grant (Hand of Justice, Thrash Blade) bring one as well.
 	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)
 	// rolls its own chance; the sim gives both hands the cast's one roll. A dual-wield Weaponmaster
 	// 5/5 log with an off-hand sword, about 150 Whirlwinds on 2 or more targets, settles it.
@@ -352,7 +349,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 		ProcChance:      spellData.Weaponmaster.EffectAt(3).FractionAt(rank),
 		Duration:        core.NeverExpires,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID || spell.ActionID == windfuryTotemStrike {
+			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
 				return false
 			}
 			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && (spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell)) {

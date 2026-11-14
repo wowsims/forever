@@ -208,6 +208,11 @@ func driveManaTideTotems(char *core.Character, party *proto.PartyBuffs) {
 // The strike the totem's raid aura procs, the main hand's weapon damage.
 var windfuryTotemStrike = spelldata.MustFind(10610)
 
+// For the procs that hear the strike apart from other main-hand specials, as a paladin's seals do.
+func IsWindfuryTotemStrike(spell *core.Spell) bool {
+	return spell.SpellID == windfuryTotemStrike.ID
+}
+
 // The totem's summon, which names the totem aura in the metrics.
 var windfuryTotemCast = spelldata.MustFind(10614)
 
@@ -249,8 +254,10 @@ var windfuryTotemHoldsOver = []string{
 // class mask: weapon damage on the target, Not a Proc, main hand required. It
 // deals the main hand's weapon damage with the raid aura's attack power added,
 // on the weapon special's table of miss, dodge, parry and crit, never a
-// glancing blow. A landed strike grants rage as a main-hand swing does.
-// TODO: Ingame test needed: the attack power, the special table and no glancing blows follow 439440's log; no log after push 114060 shows the totem's strike yet.
+// glancing blow, and it is reduced by armor as a white hit is. Combat logs
+// show rank 3 adding about 248 attack power and ranks 1 and 2 adding none;
+// the sim stands rank 3 only. A landed strike grants rage as a main-hand
+// swing does.
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
@@ -301,8 +308,15 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
-	// TODO: Ingame test needed: every log so far shows triggered hits all but never rolling the totem, but their rows have Not a Proc, so they roll it here:
-	// Windfury Weapon strikes 439440 1/78 and 0/194 after the hotfix; Seal of Command 0/117, Judgement of Command 0/105, Retaliation 0/18, Sweeping Strikes 0/166 before it.
+	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon's
+	// strikes (28% a proc), Seal of Command (14%), Judgement of Command (22%) and
+	// Retaliation (17%). A hit with no defense type is no melee attack and never
+	// rolls it: Sweeping Strikes' copied hit 12723 (0 of 490). Its normalized hit
+	// 26654 rolls it once (63 of 119 Whirlwinds with one struck; 44.8 expected if
+	// it never rolled, 56.5 if once).
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.DefenseType != core.DefenseTypeNone
+	}
 	trigger.ProcMask &= core.ProcMaskMeleeMH
 	trigger.RequireDamageDealt = false
 	return char.MakeProcTriggerAura(trigger)

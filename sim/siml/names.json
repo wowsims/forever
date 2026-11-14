@@ -2432,6 +2432,7 @@
         "enrage": {"spellId": 12317, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "eureka": {"spellId": 1259813, "registeredBy": ["dps_warrior", "protection_warrior"]},
         "execute": {"spellId": 20662, "rank": 5, "registeredBy": ["dps_warrior", "protection_warrior"]},
+        "execute_tag1": {"spellId": 20662, "tag": 1, "registeredBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "flurry": {"spellId": 12319, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "focused_rage": {"spellId": 29787, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},
         "furious_precision": {"spellId": 1323963, "registeredBy": ["dps_warrior", "protection_warrior"], "talentOnlyBy": ["dps_warrior", "protection_warrior"], "uncastable": true},

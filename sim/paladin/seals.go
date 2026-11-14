@@ -4,11 +4,24 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // Only one seal is up at a time.
 const SealCategory = "PaladinSeal"
+
+// A seal that fires off white swings hears Windfury Totem's strike as one more swing. Per clean
+// strike against per white swing: Seal of Command 29 of 136 against 2,055 of 7,096 (24 of 101 when
+// the hit before the strike had not procced it), Seal of Fury 88 of 97 against 5,036 of 5,657, Seal
+// of Righteousness 32 of 38 against 1,503 of 1,948. Seal of Light and Seal of Wisdom hear melee
+// abilities through their rows, the strike among them (Seal of Wisdom 23 of 47 against 1,173 of
+// 2,721; Seal of Light unmeasured).
+const sealSwingMask = core.ProcMaskMeleeWhiteHit | core.ProcMaskMeleeMHSpecial
+
+func sealHearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+	return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || buffs.IsWindfuryTotemStrike(spell)
+}
 
 // One rank of one seal: the castable spell's row, the aura the cast puts up, the judgement it
 // unleashes, and the per-hit effect Unsealed Wrath's Echo can replay.

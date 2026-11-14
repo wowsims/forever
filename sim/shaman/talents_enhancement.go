@@ -287,7 +287,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 
 	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
 	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
-	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff.
+	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff. Windfury Totem's
+	// strike never procs it in game (0 of 261 landed strikes in combat logs), though Windfury
+	// Weapon's strike, whose row differs only in the class mask, does.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)
@@ -295,6 +297,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 		},
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskMelee
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return spell.SpellID != windfuryTotemStrike.ID
+			}
 		},
 		spelldata.PPM(maelstromWeaponPPM(rank)))
 	trigger.Name = "Maelstrom Weapon - Trigger"
