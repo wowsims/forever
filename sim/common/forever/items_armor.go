@@ -296,8 +296,8 @@ func init() {
 	//
 	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it;
 	// 1294668 is the trigger that fires it off melee swings and abilities taken, with the 15 s cooldown.
-	// Its 5% is an override of the row's ProcChance: Forever dungeon logs measure 1,661 procs on 31,232
-	// landed melee swings taken outside the cooldown, from 40 paladins.
+	// Each landed melee swing taken outside the cooldown rolls 5%, the row's ProcChance as an override
+	// sets it (EV-0114).
 	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
 		[]shared.ItemVariant{
 			{ItemID: 274651, ItemName: "Zealot Plate"},

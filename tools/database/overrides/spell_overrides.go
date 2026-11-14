@@ -362,15 +362,15 @@ var Spells = []Override{
 		SpellID: 1318931,
 		Field:   ProcChancePct,
 		Value:   8,
-		Reason:  "Draconic Infused Emblem: column reads 100, tooltip says 'Chance on harmful spellcast'; 435 procs on about 5,200 landed harmful spell hits, 2 mages, 2 warlocks and 1 priest",
-		Source:  "wcl:1ZyhaVDdFtTYWMcC, NRK61HZcDdJkrwXG, NXMZV9xjvWpB7GtP and T79gRkJz4QVGbyYW, 2026-11-14",
+		Reason:  "Draconic Infused Emblem: 8% on each landed harmful spell hit; column reads 100, tooltip says 'Chance on harmful spellcast'",
+		Source:  "EV-0114",
 	},
 	{
 		SpellID: 1294668,
 		Field:   ProcChancePct,
 		Value:   5,
-		Reason:  "Zealot Plate: column reads 100, tooltip says 'When struck in combat, has a chance'; 1,661 procs on 31,232 landed melee swings taken outside the 15 s cooldown, 40 paladins",
-		Source:  "wcl:2HMyR6kfbWKzBhtv, gBDMLv8J1K7nqkpd and 47 more reports, 2026-11-14",
+		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
+		Source:  "EV-0114",
 	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap

@@ -443,8 +443,8 @@ func init() {
 	// target and each Arcane Missiles missile on its own. A spell that applies a damage over time
 	// effect or a debuff rolls too, apart from the curses and Hex of Weakness the sim registers with no
 	// proc mask. Damage over time ticks never roll, and neither does a spell fired as a proc, such as
-	// Hellfire Effect. The 8% is the row's ProcChance, which an override sets from Forever dungeon
-	// logs; hardcasts and instants roll it alike. Misses are undetermined, so only landed spells roll.
+	// Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
+	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0114).
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt
