@@ -31,7 +31,7 @@ tables use (`game files`, `game-files-rows`, `Spell <id> description`, `owner de
 
 - Claim: <the rule the measurement settles, one sentence>
 - Sources: <Warcraft Logs report codes with fight ids, or "combat log" with class, levels and date>
-- Game build: <1.60.1.x, when known>
+- Game build: <the full build and the hotfix the logs ran on: "1.60.1.70938, after the 2026-11-14 02:00 UTC hotfix, relogged">
 - Date: <when the logs were taken>
 - Pull request: <#N, where the measurement was written up; the commit hash beside it when the reading is in a commit message>
 

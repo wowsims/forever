@@ -47,6 +47,11 @@
       "sourceType": "local",
       "computedHash": "906185c86278190c9765dc6e2048ee7f352db315bd50c0f120a8cc47bfdc4ced"
     },
+    "wowsims-evidence": {
+      "source": "./.github/skills",
+      "sourceType": "local",
+      "computedHash": "d5b15f097ecfec5e1b8391cdb0614439feead14af6dc34944862ce8004dc27fc"
+    },
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
