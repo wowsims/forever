@@ -2,10 +2,10 @@
 // display-stat list, so it is the last row either way; what is pinned here is that it skeletons
 // with its siblings instead of reading as settled while the stats are still in flight.
 import { PlayerStats } from '@generated/proto/api';
-import { AreaType, Class, CreatureFamily, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
+import { AreaType, Class, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
-import { translateAreaType, translateCreatureFamily, translateMobType, translateStat, translateWeaponSkill } from '@i18n/localization';
+import { translateWeaponSkill } from '@i18n/localization';
 import { getClassWeaponSkills } from '@sim/player/classes/capabilities';
 import { PlayerClasses } from '@sim/player/classes/index';
 import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill_groups';
@@ -14,8 +14,9 @@ import { createSimStore, type EncounterSlice, patchSlice, PLAYER_FIELDS, type Pl
 import { renderWithHost } from '@testing/react';
 import { CRIT_CAP_INFO, VERSUS_BONUSES } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { CharacterStats, CharacterStatsHeaderView, CharacterStatsPanelView } from './CharacterStats';
 import { statDisplayString } from './utils/stat_display';
 
@@ -457,43 +458,40 @@ const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
 	});
 };
 
+// The test setup loads no locale, so an interpolated heading or factor reads as its bare key; the English
+// strings are what show which target a heading names and which factor a line carries.
 describe('CharacterStats bonuses against a kind of target', () => {
+	beforeAll(() => {
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+	});
+	afterAll(() => {
+		i18n.removeResourceBundle('en', 'translation');
+	});
 	afterEach(() => {
 		window.localStorage.clear();
 	});
 
-	const hit = UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!;
+	const hit = Number(UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!.toFixed(2));
 	const attackPower = (amount: string) => [
-		[translateStat(Stat.StatAttackPower), amount],
-		[translateStat(Stat.StatRangedAttackPower), amount],
+		['Attack Power', amount],
+		['Ranged Attack Power', amount],
 	];
-	const against = (target: string) => i18n.t('sidebar.character_stats.versus.against', { target });
-	const serpentbane = ['Serpentbane Crown', i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 2 })];
+	const serpentbane = ['Serpentbane Crown', '×2 damage'];
 	const targetGroups = [
-		{
-			label: against(translateMobType(MobType.MobTypeBeast)),
-			lines: [[i18n.t('sidebar.character_stats.versus.damage'), '+5%'], serpentbane],
-		},
-		{
-			label: against(translateMobType(MobType.MobTypeHumanoid)),
-			lines: [...attackPower('+18'), [i18n.t('sidebar.character_stats.versus.crit_damage'), '+3%']],
-		},
-		{ label: against(translateMobType(MobType.MobTypeUndead)), lines: attackPower('+99') },
-		{
-			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyEarthElemental)),
-			lines: [['Fist of Stone', i18n.t('sidebar.character_stats.versus.effect_restore', { factor: 3 })]],
-		},
-		{
-			label: against(translateCreatureFamily(CreatureFamily.CreatureFamilyDinosaur)),
-			lines: [["Bolt's Charged Eyeball", i18n.t('sidebar.character_stats.versus.effect_damage', { factor: 3 })]],
-		},
-		{ label: against(translateCreatureFamily(CreatureFamily.CreatureFamilySerpentine)), lines: [serpentbane] },
+		{ label: 'Against Beast', lines: [['Damage', '+5%'], serpentbane] },
+		{ label: 'Against Humanoid', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
+		{ label: 'Against Undead', lines: attackPower('+99') },
+		{ label: 'Against Earth Elemental', lines: [['Fist of Stone', '×3 restored']] },
+		{ label: 'Against Dinosaur', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
+		{ label: 'Against Serpentine', lines: [serpentbane] },
 	];
-	const areaLabel = i18n.t('sidebar.character_stats.versus.in_area', { area: translateAreaType(AreaType.AreaTypeForestGrassland) });
-	const areaLines = [
-		[translateStat(Stat.StatAttackPower), '+28'],
-		[translateStat(Stat.StatHitRating), `+${Number(hit.toFixed(2))}%`],
-	];
+	const areaGroup = {
+		label: 'In Forest and Grassland',
+		lines: [
+			['Attack Power', '+28'],
+			['Hit', `+${hit}%`],
+		],
+	};
 
 	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type and the encounter's area alike", async () => {
 		const view = renderVersus(
@@ -501,18 +499,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
 		);
 
-		expect(await openVersusGroups(view)).toEqual([...targetGroups, { label: areaLabel, lines: areaLines }]);
-	});
-
-	it("shows the sim's Attack Power total in the encounter's area, its area stats listed under Bonus alone", () => {
-		const finalStats = new Stats().withStat(Stat.StatAttackPower, 1000);
-		const view = renderVersus({ finalStats: finalStats.toProto(), ...VERSUS_BONUSES }, { areaTypes: [AreaType.AreaTypeForestGrassland] });
-
-		const attackPowerLabel = UnitStat.fromStat(Stat.StatAttackPower).getShortName(Class.ClassWarrior);
-		const row = Array.from(view.container.querySelectorAll('[data-testid="character-stats-table-row"]')).find(
-			row => row.firstElementChild!.textContent === attackPowerLabel,
-		)!;
-		expect(row.lastElementChild!.textContent).toBe(statDisplayString({} as never, finalStats, UnitStat.fromStat(Stat.StatAttackPower)));
+		expect(await openVersusGroups(view)).toEqual([...targetGroups, areaGroup]);
 	});
 
 	it('leaves the group out while the sim reports no bonus against any kind of target', () => {

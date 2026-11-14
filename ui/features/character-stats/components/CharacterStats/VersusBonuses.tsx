@@ -3,7 +3,7 @@ import type { Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateCreatureFamily, translateMobType, translateStat } from '@i18n/localization';
 import { usePlayerStore } from '@sim/hooks/usePlayerStore';
-import { UnitStat } from '@sim/proto/stats';
+import { signedStatAmount } from '@sim/proto/stats';
 import { AccordionItem } from '@ui-kit/Accordion';
 import { Table, TableCell, TableHeaderCell, TableRow } from '@ui-kit/Table';
 
@@ -27,16 +27,10 @@ interface VersusGroup {
 
 const signed = (value: number, suffix = '') => `${value > 0 ? '+' : ''}${Number(value.toFixed(2))}${suffix}`;
 
-// A rating the game shows as a percent reads as that percent, as everywhere on the sheet.
 const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 	Object.entries(stats).map(([key, value]) => {
 		const stat = Number(key) as Stat;
-		const unitStat = UnitStat.fromStat(stat);
-		return {
-			key: `stat-${stat}`,
-			label: translateStat(stat),
-			value: unitStat.isPercentRating() ? signed(unitStat.convertRatingToPercent(value)!, '%') : signed(value),
-		};
+		return { key: `stat-${stat}`, label: translateStat(stat), value: signedStatAmount(stat, value) };
 	});
 
 const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>

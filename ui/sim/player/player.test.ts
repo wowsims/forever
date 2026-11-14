@@ -3,6 +3,7 @@ import { APLListItem, APLRotation, APLRotation_Type as APLRotationType } from '@
 import { Debuffs } from '@generated/proto/buffs';
 import {
 	ActionID as ActionIdProto,
+	AreaType,
 	ConsumesSpec,
 	ItemRandomSuffix,
 	ItemSlot,
@@ -290,5 +291,30 @@ describe('UnitMetadata ranks', () => {
 	it('counts one spell under two tags as two', async () => {
 		const ranks = { '25304|0': 0, '25304|1': 0 };
 		expect(await ranksOf([actionId(25304, 11), actionId(25304, 11, 1)])).toEqual({ spells: ranks, auras: ranks });
+	});
+});
+
+describe('Player.computeItemEP', () => {
+	it("prices an item at the stats it adds everywhere, those it adds in the encounter's area left out", () => {
+		const rune = Item.create({
+			id: 90010,
+			scalingOptions: {
+				0: {
+					ilvl: 60,
+					randPropPoints: 0,
+					weaponDamageMin: 0,
+					weaponDamageMax: 0,
+					stats: { [Stat.StatAttackPower]: 15 },
+					areaStats: [{ areaType: AreaType.AreaTypeForestGrassland, stats: { [Stat.StatAttackPower]: 29 } }],
+				},
+			},
+		});
+		const player = {
+			sim: { encounter: { getAreaTypes: () => [AreaType.AreaTypeForestGrassland] } },
+			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
+			getEpWeights: () => Stats.fromMap({ [Stat.StatAttackPower]: 1 }),
+		};
+
+		expect(Player.prototype.computeItemEP.call(player as unknown as Player<any>, rune, ItemSlot.ItemSlotFinger1)).toBe(15);
 	});
 });
