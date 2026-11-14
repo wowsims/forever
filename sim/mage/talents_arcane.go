@@ -91,8 +91,8 @@ func (mage *Mage) registerMagicAbsorption() {
 // Clearcasting state reduces the mana cost of your next damage spell by 100%." It procs on the hit
 // and is spent by the next cast. Arcane Missiles rolls it once as the channel starts and again as each
 // missile lands (the missile's row carries Not a Proc, so the listener hears it), all under the row's
-// 1 sec cooldown. In game the talent's chance is split evenly across those rolls, so each one takes
-// a sixth of it; the game files row states only the full chance.
+// 1 sec cooldown. The talent's chance is split evenly across those rolls, so each one takes
+// a sixth of it; the game files row states only the full chance (EV-0098).
 func (mage *Mage) registerArcaneConcentration() {
 	if mage.Talents.ArcaneConcentration == 0 {
 		return

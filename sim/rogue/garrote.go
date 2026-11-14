@@ -9,7 +9,7 @@ var garroteRank = spellData.Garrote.Highest()
 
 func (rogue *Rogue) registerGarrote() {
 	tick := garroteRank.PeriodicEffect()
-	apScaling := 0.03 // Estimated from in-game tests.
+	apScaling := 0.03 // Estimated from in-game tests (EV-0086).
 	comboPointGen := garroteRank.EnergizeEffect().Average()
 
 	config := spelldata.SpellConfig(&rogue.Unit, garroteRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))

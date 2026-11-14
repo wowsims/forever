@@ -1,6 +1,6 @@
 # Rulings
 
-- **A helper, mask or empty body the change itself orphaned goes in the same change; a generic helper or empty
-  extension table kept for a named upcoming use (core helpers, override maps, icon override tables) stays, with a
-  comment naming that use, and anything generic is asked about before removal.**
-  `tools/database/item_source_utils.go`, PR #215.
+Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
+request that settled it and its evidence. This index lists the ones this skill owns.
+
+- **R-0049** A helper the change orphaned goes in the same change: `docs/rulings/R-0049-orphaned-helper-removed-same-change.md`
