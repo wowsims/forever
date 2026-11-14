@@ -1128,9 +1128,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-MoonshadowStave-22458"
  value: {
-  dps: 716.89779
-  tps: 535.03794
-  hps: 46.71583
+  dps: 728.71214
+  tps: 543.13914
+  hps: 46.12278
  }
 }
 dps_results: {
