@@ -216,7 +216,7 @@ func (m *Meta) parsedAura(unit *core.Unit, isPlayer bool, label string, tag stri
 // Value as its damage.
 func newDamageShield(unit *core.Unit, m *Meta, isPlayer bool, talentPoints int32) *core.Aura {
 	aura := NewDamageShield(unit, m.label(isPlayer), m.actionID(isPlayer), m.Duration(talentPoints),
-		m.Category, m.SingleAura, m.Spell.School, m.Value(talentPoints), 0, 0)
+		m.Category, m.SingleAura, m.Spell.School, m.Value(talentPoints), 0)
 	joinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }
@@ -231,9 +231,8 @@ const DamageShieldSpellPowerCoefficient = 1.5 / 3.5 / 3 * 0.42
 // A damage shield that scales with its caster's spell power. The player's copy reads its own spell
 // power through the proc spell; the external copy cannot see the caster, so externalSpellPower
 // stands in for it, folded into the damage it bids and deals, and the recipient's own stats stay
-// out of the damage. flags are added to the ones every damage shield's spell carries.
-func newSpellPowerDamageShield(unit *core.Unit, m *Meta, isPlayer bool, damage float64, externalSpellPower float64,
-	flags core.SpellFlag) *core.Aura {
+// out of the damage.
+func newSpellPowerDamageShield(unit *core.Unit, m *Meta, isPlayer bool, damage float64, externalSpellPower float64) *core.Aura {
 	label := m.label(isPlayer)
 	if unit.HasAura(label) {
 		return unit.GetAura(label)
@@ -244,7 +243,7 @@ func newSpellPowerDamageShield(unit *core.Unit, m *Meta, isPlayer bool, damage f
 		damage, coefficient = damage+coefficient*externalSpellPower, 0
 	}
 	aura := NewDamageShield(unit, label, m.actionID(isPlayer), m.Duration(0), m.Category, m.SingleAura,
-		m.Spell.School, damage, coefficient, flags)
+		m.Spell.School, damage, coefficient)
 	joinSharedCategory(aura, m.SharedCategory, isPlayer)
 	return aura
 }
