@@ -130,13 +130,25 @@ func (warrior *Warrior) registerEnrage() {
 	warrior.EnrageAura.NewExclusiveEffect("Enrage", true, core.ExclusiveEffect{Priority: spellData.Enrage.ValueAt(warrior.Talents.Enrage)})
 
 	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
-	// is the proc chance column.
-	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Enrage.Rank(warrior.Talents.Enrage),
+	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
+	// though the game files state 30% for it too: combat logs of ranks 1 to 5 show 268 procs on
+	// 1,087 non-physical spell hits taken (24.7%, 95% 22.2 to 27.3) against 3,439 on 11,773 swings
+	// (29.2%) and 236 on 812 physical spell hits (29.1%). A swing rolls the row's rate whatever its
+	// school. Chance(1) leaves core no roll of its own, so the one draw is made here.
+	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
+	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.EnrageAura.Activate(sim)
 			warrior.activateGoreDrinker(sim)
-		})
+		}, spelldata.Chance(1))
 	trigger.Name = "Enrage - Trigger"
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		chance := row.StatedChance()
+		if spell.SpellSchool != core.SpellSchoolPhysical && !spell.ProcMask.Matches(core.ProcMaskWhiteHit) {
+			chance = 0.25
+		}
+		return sim.Proc(warrior.ModifiedProcChance(trigger.ProcSpellClassFlags, chance), trigger.Name)
+	}
 
 	warrior.MakeProcTriggerAura(trigger)
 }
