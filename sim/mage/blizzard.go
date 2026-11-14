@@ -33,6 +33,13 @@ func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	}
 	tickSpell := mage.RegisterSpell(tickConfig)
 
+	// The cast's dummy (effect 1) lands on every enemy in the area as the channel starts: a hit with no
+	// damage, which a listener on the enemy hears and a listener that needs damage does not. It reports
+	// under the cast's id with tag 1 and records no metrics or log lines. Arcane Concentration rolls at
+	// the cast itself, in registerArcaneConcentration (EV-0116).
+	landing := mage.RegisterSpell(spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage),
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs)))
+
 	config := spelldata.SpellConfig(&mage.Unit, castRank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = MageSpellBlizzard
 	config.Dot = spelldata.DotConfig(castRank, castRank.Effect(dbcenums.A_PERIODIC_DUMMY, 0))
@@ -42,6 +49,9 @@ func (mage *Mage) registerBlizzardRank(rank int32, castRank *spelldata.Spell) {
 	}
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
+		for _, target := range sim.Encounter.ActiveTargetUnits {
+			landing.CalcAndDealOutcome(sim, target, landing.OutcomeAlwaysHit)
+		}
 		spell.AOEDot().Apply(sim)
 	}
 

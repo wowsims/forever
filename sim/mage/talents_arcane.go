@@ -146,7 +146,30 @@ func (mage *Mage) registerArcaneConcentration() {
 		return true
 	}
 
-	mage.MakeProcTriggerAura(trigger)
+	talentAura := mage.MakeProcTriggerAura(trigger)
+
+	// A Blizzard cast rolls once as the channel starts, however many enemies stand in the area (EV-0116).
+	// Its landing deals no damage, which the hit trigger does not hear, so this trigger rolls at the
+	// cast. The buff comes a spell batch later, after the cast has spent Clearcasting.
+	// TODO: In game a cast gains the buff more often than one roll at the talent's chance gives, in a
+	// window at the cast and a second one 5 to 40 ms later, and has gained it twice and inside a second
+	// of an earlier gain; this roll shares the hit trigger's cooldown (EV-0116).
+	icd := talentAura.Icd
+	talentAura.AttachProcTrigger(core.ProcTrigger{
+		Name:     "Arcane Concentration - Cast Trigger",
+		Callback: core.CallbackOnCastComplete,
+		Handler:  trigger.Handler,
+		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			if !spellData.Blizzard.Contains(spell) || !icd.IsReady(sim) {
+				return false
+			}
+			if !sim.Proc(mage.ModifiedProcChance(trigger.ProcSpellClassFlags, trigger.ProcChance), trigger.Name) {
+				return false
+			}
+			icd.Set(sim.CurrentTime + mage.ModifiedProcCooldown(trigger.ProcSpellClassFlags, trigger.ICD))
+			return true
+		},
+	})
 }
 
 // "Increases your Armor by an amount equal to 25/50/75% of your Intellect."

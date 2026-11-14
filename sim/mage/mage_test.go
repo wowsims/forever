@@ -256,6 +256,40 @@ func TestBlizzardTickRollsArcaneConcentrationAsTheRowsAllow(t *testing.T) {
 	}
 }
 
+// A Blizzard cast rolls Arcane Concentration once as the channel starts, however many enemies stand in the
+// area, after it spends Clearcasting, so a cast that spends the buff can come out with a new one.
+func TestBlizzardCastRollsArcaneConcentrationOncePerCast(t *testing.T) {
+	const casts = 400
+	regainsAgainst := func(targets int) (regains int) {
+		sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(targets))
+		blizzard := mage.GetSpell(core.ActionID{SpellID: spellData.Blizzard.Highest().ID})
+		manaMetrics := mage.NewManaMetrics(blizzard.ActionID)
+		for range casts {
+			mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+			mage.ClearCasting.Activate(sim)
+			if !blizzard.Cast(sim, mage.CurrentTarget) {
+				t.Fatalf("Blizzard did not cast at %v", sim.CurrentTime)
+			}
+			stepFor(sim, 50*time.Millisecond)
+			if mage.ClearCasting.IsActive() {
+				regains++
+			}
+			blizzard.AOEDot().Deactivate(sim)
+			mage.ClearCasting.Deactivate(sim)
+			stepFor(sim, 1500*time.Millisecond)
+		}
+		return regains
+	}
+
+	one, five := regainsAgainst(1), regainsAgainst(5)
+	if one == 0 || one > casts/2 {
+		t.Fatalf("Blizzard spent Clearcasting and came out with a new one on %d of %d casts on one target, want some but not most", one, casts)
+	}
+	if five > 2*one {
+		t.Errorf("Blizzard came out with Clearcasting on %d of %d casts on five targets, %d on one; want about as often", five, casts, one)
+	}
+}
+
 // Each enemy a Flamestrike ground tick lands on rolls Revelation: against many enemies a tick procs it far
 // more often than against one.
 func TestFlamestrikeGroundTickRollsRevelationPerTarget(t *testing.T) {
