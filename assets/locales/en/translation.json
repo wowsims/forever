@@ -64,7 +64,7 @@
 			"3": "Phase 3",
 			"4": "Phase 4",
 			"5": "Phase 5",
-			"future": "Future"
+			"unknown": "Unknown"
 		},
 		"phase_names": {
 			"1": "Phase 1",

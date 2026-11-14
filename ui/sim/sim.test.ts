@@ -847,10 +847,10 @@ describe('Sim.runBulkSim', () => {
 });
 
 describe('Sim.fromProto', () => {
-	it('reads a saved phase past Future as Future', () => {
+	it('reads a saved phase past Unknown as Unknown', () => {
 		const sim = new Sim({ env: makeEnv() });
-		sim.fromProto(SimSettings.create({ phase: ContentPhase.ContentPhaseFuture + 3 }));
-		expect(sim.getPhase()).toBe(ContentPhase.ContentPhaseFuture);
+		sim.fromProto(SimSettings.create({ phase: ContentPhase.ContentPhaseUnknown + 3 }));
+		expect(sim.getPhase()).toBe(ContentPhase.ContentPhaseUnknown);
 	});
 });
 

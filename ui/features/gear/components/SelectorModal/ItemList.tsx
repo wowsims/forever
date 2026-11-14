@@ -41,7 +41,7 @@ type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
 	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
-	{ value: ContentPhase.ContentPhaseFuture, label: i18n.t('common.phases.future') },
+	{ value: ContentPhase.ContentPhaseUnknown, label: i18n.t('common.phases.unknown') },
 ];
 
 export interface ItemListToggle {

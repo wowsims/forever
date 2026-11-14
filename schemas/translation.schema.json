@@ -203,12 +203,12 @@
 						"5": {
 							"type": "string"
 						},
-						"future": {
+						"unknown": {
 							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["1", "2", "3", "4", "5", "future"]
+					"required": ["1", "2", "3", "4", "5", "unknown"]
 				},
 				"phase_names": {
 					"type": "object",

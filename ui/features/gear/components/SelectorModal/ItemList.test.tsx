@@ -459,7 +459,7 @@ describe('ItemListToolbarView', () => {
 	});
 
 	it('shows the phase and writes a pick back', async () => {
-		const { props } = renderView({ phase: ContentPhase.ContentPhaseFuture });
+		const { props } = renderView({ phase: ContentPhase.ContentPhaseUnknown });
 		await userEvent.click(within(screen.getByTestId('selector-modal-phase-selector')).getByRole('combobox'));
 		const options = screen.getAllByRole('option');
 		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);

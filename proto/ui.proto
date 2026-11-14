@@ -60,11 +60,11 @@ message UIFaction {
 }
 
 // The phase of an item or enchant (UIItem.phase, UIEnchant.phase) and of the gear picker's choice: phase 1 is what can
-// be had now, and Future holds the rest until the later phases are known.
+// be had now, and Unknown holds the rest until their phases are known.
 enum ContentPhase {
-	ContentPhaseUnknown = 0;
+	ContentPhaseNone = 0;
 	ContentPhase1 = 1;
-	ContentPhaseFuture = 2;
+	ContentPhaseUnknown = 2;
 }
 
 // Contains all information about an Item needed by the UI.
