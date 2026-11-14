@@ -71,14 +71,13 @@ and a Strict Multidot read the running Immolate as landed and wait.
 A line that reads an aura with another id, which the running cast will change when it lands, re-queues
 the same spell unless it is guarded with `not(Spell Is Casting(X))`:
 
-| Line                                                   | Why the guard                            |
-| ------------------------------------------------------ | ---------------------------------------- |
-| Searing Pain if Demonic Brand is down                  | the brand is a proc of the landing       |
-| Pyroblast at 3 Heating Up stacks                       | the landing Pyroblast spends the stacks  |
-| Scorch at 4 Fire Vulnerability stacks                  | the landing Scorch adds the fifth        |
-| Arcane Blast when its buff is about to run out         | the landing Arcane Blast refreshes it    |
-| Starfire on the last Eclipse stack                     | the landing Starfire spends it           |
-| Hamstring when Windfury is down, while Slam is casting | Slam's landing puts the Windfury proc up |
+| Line                                           | Why the guard                           |
+| ---------------------------------------------- | --------------------------------------- |
+| Searing Pain if Demonic Brand is down          | the brand is a proc of the landing      |
+| Pyroblast at 3 Heating Up stacks               | the landing Pyroblast spends the stacks |
+| Scorch at 4 Fire Vulnerability stacks          | the landing Scorch adds the fifth       |
+| Arcane Blast when its buff is about to run out | the landing Arcane Blast refreshes it   |
+| Starfire on the last Eclipse stack             | the landing Starfire spends it          |
 
 Lines that must re-queue the spell behind itself stay unguarded: a filler (Shadow Bolt after Shadow
 Bolt), Scorch while it builds the first four stacks, Arcane Blast while it builds its own stacks.
