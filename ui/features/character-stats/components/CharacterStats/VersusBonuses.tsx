@@ -92,7 +92,7 @@ export const VersusBonusesView = (props: VersusBonusesViewProps) => (
 		{versusGroups(props).map(group => (
 			<tbody key={group.key} data-testid="character-stats-versus-group">
 				<TableRow className="ui-character-stats-row">
-					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-bold">
+					<TableHeaderCell scope="rowgroup" colSpan={2} wrap className="ui-character-stats-label text-left font-medium">
 						{group.label}
 					</TableHeaderCell>
 				</TableRow>
