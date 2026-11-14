@@ -2985,6 +2985,7 @@
 {"id":215376,"name":"Crusader's Mace","icon":"inv_mace_03","type":13,"weaponType":4,"handType":1,"weaponSpeed":2.9,"reqLvl":26,"quality":1,"scalingOptions":{"0":{"weaponDamageMin":30,"weaponDamageMax":57,"unroundedDps":15.237281,"ilvl":31}}},
 {"id":216696,"name":"Hidden Pants","icon":"inv_pants_wolf","type":9,"reqLvl":1,"quality":2,"scalingOptions":{"0":{"randPropPoints":1,"ilvl":1}}},
 {"id":217315,"name":"Precision Bow","icon":"inv_weapon_bow_04","type":14,"rangedWeaponType":1,"weaponSpeed":2.6,"reqLvl":23,"quality":2,"scalingOptions":{"0":{"randPropPoints":3,"weaponDamageMin":20,"weaponDamageMax":37,"unroundedDps":11.021404,"stats":{"17":3},"ilvl":27}}},
+{"id":217727,"name":"Ward of the Dead","icon":"spell_totem_wardofdraining","type":12,"quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":1}}},
 {"id":221316,"name":"Premo's Poise-Demanding Uniform","icon":"inv_shirt_black_01","quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":55}}},
 {"id":223323,"name":"Shirt","icon":"inv_shirt_black_01","quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":55}}},
 {"id":226546,"name":"Desert Sonar","icon":"inv_misc_enggizmos_20","type":12,"reqLvl":1,"quality":1,"unique":true,"scalingOptions":{"0":{"ilvl":1}}},
