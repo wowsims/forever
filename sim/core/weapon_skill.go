@@ -6,8 +6,9 @@ import (
 	"github.com/wowsims/forever/sim/core/proto"
 )
 
-// GetWeaponSkill returns the unit's bonus weapon skill for the weapon, on top of its level-based skill.
-func GetWeaponSkill(unit *Unit, weapon *Item) float64 {
+// The unit's bonus weapon skill for the weapon held in the slot, on top of its level-based skill. A
+// main-hand or off-hand weapon adds that hand's bonus; an empty hand and a feral form take none.
+func GetWeaponSkill(unit *Unit, weapon *Item, slot proto.ItemSlot) float64 {
 	if unit.PseudoStats.FeralCombatEnabled {
 		return unit.PseudoStats.FeralCombatSkill
 	}
@@ -16,17 +17,24 @@ func GetWeaponSkill(unit *Unit, weapon *Item) float64 {
 		return 0
 	}
 
-	return unit.PseudoStats.WeaponSkills[weaponSkillOf(weapon)]
+	skill := unit.PseudoStats.WeaponSkills[weaponSkillOf(weapon)]
+	switch slot {
+	case proto.ItemSlot_ItemSlotMainHand:
+		skill += unit.PseudoStats.MHWeaponSkill
+	case proto.ItemSlot_ItemSlotOffHand:
+		skill += unit.PseudoStats.OHWeaponSkill
+	}
+	return skill
 }
 
 func weaponSkillOf(weapon *Item) proto.WeaponSkill {
 	if weapon.HandType == proto.HandType_HandTypeTwoHand {
-		return twoHandWeaponSkills[weapon.WeaponType]
+		return TwoHandWeaponSkills[weapon.WeaponType]
 	}
 	if weapon.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeUnknown {
 		return rangedWeaponSkills[weapon.RangedWeaponType]
 	}
-	return oneHandWeaponSkills[weapon.WeaponType]
+	return OneHandWeaponSkills[weapon.WeaponType]
 }
 
 // The full skill per weapon skill: the level-based maximum and every bonus on top of it.

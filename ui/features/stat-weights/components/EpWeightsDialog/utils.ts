@@ -38,13 +38,13 @@ const columnLabelTooltip = (column: StatsTableColumn): string => {
 	return `${column.labelTooltip} ${i18n.t('sidebar.buttons.stat_weights.modal.tooltips.normalized_by', { refStatName })}`;
 };
 
-export const buildEpColumns = (columns: StatsTableColumn[], onCopy: (weights: UnitStats | undefined) => void): EpColumn[] => {
+export const buildEpColumns = (columns: StatsTableColumn[], onCopy: (weights: UnitStats | undefined, column: StatsTableColumn) => void): EpColumn[] => {
 	const ratioIndexes = { ep: 0, weight: 0 };
 	return columns.map((column, index) => ({
 		...column,
 		id: `ep-col-${index}`,
 		ratioIndex: column.type === 'action' ? undefined : ratioIndexes[column.type]++,
 		labelTooltip: columnLabelTooltip(column),
-		onCopy: () => onCopy(column.getWeights()),
+		onCopy: () => onCopy(column.getWeights(), column),
 	}));
 };

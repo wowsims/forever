@@ -3,7 +3,15 @@ import { PseudoStat, Stat } from '@generated/proto/common';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { describe, expect, it } from 'vitest';
 
-import { calculateEp, combineScaledEpValues, combineScaledWeights, emptyStatWeightsResult, epWeightsWithoutExcluded, precisionRunOptions } from './ep_math';
+import {
+	calculateEp,
+	combineScaledEpValues,
+	combineScaledWeights,
+	emptyStatWeightsResult,
+	epWeightsWithoutExcluded,
+	precisionRunOptions,
+	withUnmeasuredWeaponSkillsKept,
+} from './ep_math';
 
 const AGILITY = UnitStat.fromStat(Stat.StatAgility);
 const MAIN_HAND_DPS = UnitStat.fromPseudoStat(PseudoStat.PseudoStatMainHandDps);
@@ -252,5 +260,29 @@ describe('epWeightsWithoutExcluded', () => {
 
 		expect(merged.getPseudoStat(PseudoStat.PseudoStatMainHandDps)).toBe(3);
 		expect(merged.getStat(Stat.StatStrength)).toBe(10);
+	});
+});
+
+describe('withUnmeasuredWeaponSkillsKept', () => {
+	const mhSkill = PseudoStat.PseudoStatMainHandWeaponSkill;
+	const ohSkill = PseudoStat.PseudoStatOffHandWeaponSkill;
+	const newWeights = Stats.fromMap({ [Stat.StatStrength]: 10 }, { [mhSkill]: 5, [ohSkill]: 0 });
+	const oldWeights = Stats.fromMap({ [Stat.StatStrength]: 1 }, { [mhSkill]: 2, [ohSkill]: 9 });
+
+	it('takes the new weight of a weapon skill the result stepped, and keeps the old one of a weapon skill it did not', () => {
+		const result = emptyStatWeightsResult();
+		result.stepAbove = new Stats().withPseudoStat(mhSkill, 5).toProto();
+		const merged = withUnmeasuredWeaponSkillsKept(newWeights, oldWeights, result);
+
+		expect(merged.getPseudoStat(mhSkill)).toBe(5);
+		expect(merged.getPseudoStat(ohSkill)).toBe(9);
+		expect(merged.getStat(Stat.StatStrength)).toBe(10);
+	});
+
+	it('keeps both weapon skills for a result with no steps', () => {
+		const merged = withUnmeasuredWeaponSkillsKept(newWeights, oldWeights, emptyStatWeightsResult());
+
+		expect(merged.getPseudoStat(mhSkill)).toBe(2);
+		expect(merged.getPseudoStat(ohSkill)).toBe(9);
 	});
 });

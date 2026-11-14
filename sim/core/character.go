@@ -169,6 +169,8 @@ func NewCharacter(party *Party, partyIndex int, player *proto.Player) Character 
 			character.bonusOHDps = ps[proto.PseudoStat_PseudoStatOffHandDps]
 			character.bonusRangedDps = ps[proto.PseudoStat_PseudoStatRangedDps]
 			character.PseudoStats.BaseReducedCritTakenPercent = ps[proto.PseudoStat_PseudoStatReducedCritTakenPercent] / 100
+			character.PseudoStats.MHWeaponSkill = stats.PseudoStatValue(ps, proto.PseudoStat_PseudoStatMainHandWeaponSkill)
+			character.PseudoStats.OHWeaponSkill = stats.PseudoStatValue(ps, proto.PseudoStat_PseudoStatOffHandWeaponSkill)
 			for school := stats.SchoolIndexArcane; school < stats.SchoolLen; school++ {
 				character.PseudoStats.SchoolBonusHitChance[school] = ps[SchoolHitPseudoStats[school]]
 			}

@@ -1,8 +1,9 @@
-import { PseudoStat, Stat } from '@generated/proto/common';
+import { ItemSlot, PseudoStat, Stat } from '@generated/proto/common';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { UnitStat } from '@sim/proto/stats';
 import { describe, expect, it } from 'vitest';
 
-import { EP_UNIT_STATS, epFilterScope, isEpStat } from './ep_unit_stats';
+import { EP_UNIT_STATS, epFilterScope, isEpStat, withWeaponSkillEpPseudoStats } from './ep_unit_stats';
 
 const names = (stats: ReadonlyArray<UnitStat>) => stats.map(stat => stat.getKey());
 
@@ -15,6 +16,32 @@ describe('EP_UNIT_STATS', () => {
 
 	it('drops a pseudo-stat that is not on the list', () => {
 		expect(EP_UNIT_STATS.some(stat => stat.isPseudoStat() && stat.getPseudoStat() === PseudoStat.PseudoStatMeleeSpeedMultiplier)).toBe(false);
+	});
+});
+
+describe('withWeaponSkillEpPseudoStats', () => {
+	const mhDps = PseudoStat.PseudoStatMainHandDps;
+	const ohDps = PseudoStat.PseudoStatOffHandDps;
+	const mhSkill = PseudoStat.PseudoStatMainHandWeaponSkill;
+	const ohSkill = PseudoStat.PseudoStatOffHandWeaponSkill;
+	const bothHands = () => true;
+
+	it("adds a hand's weapon skill where a spec showing melee weapon skill weighs that hand's weapon DPS", () => {
+		expect(withWeaponSkillEpPseudoStats([mhDps, ohDps], [WeaponSkillGroup.Melee], bothHands)).toEqual([mhDps, ohDps, mhSkill, ohSkill]);
+		expect(withWeaponSkillEpPseudoStats([mhDps], [WeaponSkillGroup.Melee], bothHands)).toEqual([mhDps, mhSkill]);
+	});
+
+	it('adds none without melee weapon skill shown or melee weapon DPS weighed', () => {
+		expect(withWeaponSkillEpPseudoStats([mhDps], undefined, bothHands)).toEqual([mhDps]);
+		expect(withWeaponSkillEpPseudoStats([PseudoStat.PseudoStatRangedDps], [WeaponSkillGroup.Melee, WeaponSkillGroup.Ranged], bothHands)).toEqual([
+			PseudoStat.PseudoStatRangedDps,
+		]);
+	});
+
+	it('adds none for a hand that holds no weapon', () => {
+		const mainHandOnly = (slot: ItemSlot) => slot === ItemSlot.ItemSlotMainHand;
+		expect(withWeaponSkillEpPseudoStats([mhDps, ohDps], [WeaponSkillGroup.Melee], mainHandOnly)).toEqual([mhDps, ohDps, mhSkill]);
+		expect(withWeaponSkillEpPseudoStats([mhDps, ohDps], [WeaponSkillGroup.Melee], () => false)).toEqual([mhDps, ohDps]);
 	});
 });
 

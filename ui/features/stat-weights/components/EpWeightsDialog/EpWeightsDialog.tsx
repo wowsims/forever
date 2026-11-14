@@ -1,7 +1,7 @@
 import { showsEpRatios } from '@features/results/model/sim_results';
 import { StatFilterPopover, useStatFilter } from '@features/stat-filters';
 import { ErrorOutcomeType, type ProgressMetrics, type StatWeightsResult } from '@generated/proto/api';
-import { Stat } from '@generated/proto/common';
+import { ItemSlot, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { useSimHost, useSpecConfig } from '@sim/context/SimHostContext';
 import { useDisplayMetrics } from '@sim/hooks/useDisplayMetrics';
@@ -12,7 +12,7 @@ import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Stats } from '@sim/proto/stats';
 import { precisionRunnable } from '@sim/settings/precision';
 import type { StatWeightActionSettings } from '@sim/settings/stat_weight_settings';
-import { subscribePlayerField, subscribeStatWeightsChange } from '@sim/state/subscriptions';
+import { subscribeAll, subscribePlayerField, subscribeStatWeightsChange } from '@sim/state/subscriptions';
 import { timeRemainingAtRate } from '@sim/utils/math';
 import { Button } from '@ui-kit/Button';
 import { ContentBlock } from '@ui-kit/ContentBlock';
@@ -38,8 +38,9 @@ import {
 	emptyStatWeightsResult,
 	epWeightsWithoutExcluded,
 	precisionRunOptions,
+	withUnmeasuredWeaponSkillsKept,
 } from '../../model/ep_math';
-import { epFilterScope } from '../../model/ep_unit_stats';
+import { epFilterScope, withWeaponSkillEpPseudoStats } from '../../model/ep_unit_stats';
 import { statsTableColumns } from '../../model/stats_table';
 import { PrecisionOptions } from '../PrecisionOptions';
 import { SavedEpWeights } from '../SavedEpWeights';
@@ -70,7 +71,16 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 
 	const epStats = individualConfig.epStats;
 	const epReferenceStat = individualConfig.epReferenceStat;
-	const epPseudoStats = useMemo(() => individualConfig.epPseudoStats || [], [individualConfig]);
+	const gearChange = subscribeAll([subscribePlayerField(player, 'gear'), subscribePlayerField(player, 'itemSwap')]);
+	const mainHandArmed = useStoreSubscribe(gearChange, () => player.holdsWeaponIn(ItemSlot.ItemSlotMainHand));
+	const offHandArmed = useStoreSubscribe(gearChange, () => player.holdsWeaponIn(ItemSlot.ItemSlotOffHand));
+	const epPseudoStats = useMemo(
+		() =>
+			withWeaponSkillEpPseudoStats(individualConfig.epPseudoStats || [], individualConfig.displayWeaponSkillGroups, slot =>
+				slot === ItemSlot.ItemSlotMainHand ? mainHandArmed : offHandArmed,
+			),
+		[individualConfig, mainHandArmed, offHandArmed],
+	);
 	const epStatSet = useMemo(() => ({ epStats, epPseudoStats }), [epStats, epPseudoStats]);
 	const scope = useMemo(() => epFilterScope(epStatSet), [epStatSet]);
 	const statFilter = useStatFilter('ep', scope);
@@ -126,6 +136,10 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 		(newWeights: Stats) => player.setEpWeights(epWeightsWithoutExcluded(newWeights, player.getEpWeights(), settings)),
 		[player, settings],
 	);
+	const applyResultWeights = useCallback(
+		(newWeights: Stats) => applyWeights(withUnmeasuredWeaponSkillsKept(newWeights, player.getEpWeights(), prevSimResult)),
+		[player, prevSimResult, applyWeights],
+	);
 
 	const columns = useMemo(
 		() =>
@@ -137,16 +151,16 @@ export const EpWeightsDialog = ({ open, onOpenChange, settings }: EpWeightsDialo
 					getHealEpRefStat: () => hpsReferenceStat,
 					getTankEpRefStat: () => refStats.tank ?? Stat.StatArmor,
 				}),
-				weights => applyWeights(Stats.fromProto(weights)),
+				(weights, column) => (column.type === 'action' ? applyWeights : applyResultWeights)(Stats.fromProto(weights)),
 			),
-		[prevSimResult, individualConfig, dpsReferenceStat, hpsReferenceStat, refStats, applyWeights],
+		[prevSimResult, individualConfig, dpsReferenceStat, hpsReferenceStat, refStats, applyWeights, applyResultWeights],
 	);
 	const visibleColumns = useMemo(() => columns.filter(column => !column.metric || displayMetrics[column.metric]), [columns, displayMetrics]);
 
 	const onComputeEp = useCallback(() => {
 		const combine = statsType === StatsType.Ep ? combineScaledEpValues : combineScaledWeights;
-		applyWeights(combine(prevSimResult, player.getEpRatios()));
-	}, [statsType, prevSimResult, player, applyWeights]);
+		applyResultWeights(combine(prevSimResult, player.getEpRatios()));
+	}, [statsType, prevSimResult, player, applyResultWeights]);
 
 	const handleOpenChange = useCallback(
 		(next: boolean) => {

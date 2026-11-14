@@ -218,7 +218,7 @@ func TestStatWeightsLeaveAnUnrequestedRatingAtZero(t *testing.T) {
 }
 
 // Hit and expertise, as ratings and as percents, are simulated above the baseline only, and every other
-// stat on both sides.
+// stat this request weighs on both sides.
 func TestStatWeightsSimulateHitAndExpertiseAboveTheBaselineOnly(t *testing.T) {
 	aboveOnly := []stats.UnitStat{
 		hitRatingUnitStat,
@@ -340,8 +340,8 @@ func TestStatWeightsStepEachPercentStatByOnePercent(t *testing.T) {
 	}
 }
 
-// Only a stat with a rating per percent or weapon DPS has a step to weigh it by; anything else, like a per-hand
-// value or reduced crit taken, panics.
+// Only a stat with a rating per percent, weapon DPS or a hand's weapon skill has a step to weigh it by; anything
+// else, like a per-hand sheet value or reduced crit taken, panics.
 func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	for _, pseudoStat := range []proto.PseudoStat{
 		proto.PseudoStat_PseudoStatMainHandHitRating,
@@ -363,6 +363,109 @@ func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 				PseudoStatsToWeigh: []proto.PseudoStat{pseudoStat},
 			})
 		})
+	}
+}
+
+// A hand's weapon skill is weighed per skill point from two points above the baseline. A hand that neither the
+// gear nor the item swap puts a weapon in, by the sim's rule, gets no run: an empty hand, a shield or a
+// held-in-off-hand item.
+func TestStatWeightsWeighEachHandsWeaponSkillPerPoint(t *testing.T) {
+	mhSkill := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatMainHandWeaponSkill)
+	ohSkill := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill)
+	const sword, shield, heldInOffHand = 900001, 900002, 900003
+	database := &proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: sword, WeaponType: proto.WeaponType_WeaponTypeSword},
+		{Id: shield, WeaponType: proto.WeaponType_WeaponTypeShield},
+		{Id: heldInOffHand, WeaponType: proto.WeaponType_WeaponTypeOffHand},
+	}}
+	gear := func(mainHand, offHand int32) []*proto.ItemSpec {
+		items := make([]*proto.ItemSpec, len(proto.ItemSlot_name))
+		for slot := range items {
+			items[slot] = &proto.ItemSpec{}
+		}
+		items[proto.ItemSlot_ItemSlotMainHand].Id = mainHand
+		items[proto.ItemSlot_ItemSlotOffHand].Id = offHand
+		return items
+	}
+	weaponSkillRequests := func(player *proto.Player) *proto.StatWeightRequestsData {
+		player.Database = database
+		return buildStatWeightRequests(&proto.StatWeightsRequest{
+			Player:             player,
+			Encounter:          &proto.Encounter{},
+			SimOptions:         &proto.SimOptions{Iterations: 10, RandomSeed: 1},
+			StatsToWeigh:       []proto.Stat{proto.Stat_StatAgility},
+			PseudoStatsToWeigh: []proto.PseudoStat{proto.PseudoStat_PseudoStatMainHandWeaponSkill, proto.PseudoStat_PseudoStatOffHandWeaponSkill},
+			EpReferenceStat:    proto.Stat_StatAgility,
+			HpsReferenceStat:   proto.Stat_StatAgility,
+		})
+	}
+
+	requests := weaponSkillRequests(&proto.Player{Equipment: &proto.EquipmentSpec{Items: gear(sword, sword)}})
+	for _, hand := range []struct {
+		name string
+		stat stats.UnitStat
+	}{{"main hand", mhSkill}, {"off hand", ohSkill}} {
+		i := slices.IndexFunc(requests.StatSimRequests, func(r *proto.StatWeightsStatRequestData) bool { return r.StatData.UnitStat == int32(hand.stat) })
+		if i < 0 {
+			t.Errorf("no run for the %s weapon skill", hand.name)
+			continue
+		}
+		request := requests.StatSimRequests[i]
+		if request.RequestLow != nil || request.StatData.ModHigh != 2 {
+			t.Errorf("%s weapon skill runs below the baseline = %v and steps by %v, want two points above it only", hand.name, request.RequestLow != nil, request.StatData.ModHigh)
+		}
+		if got := protoUnitStat(request.RequestHigh.Raid.Parties[0].Players[0].BonusStats, hand.stat); got != 2 {
+			t.Errorf("%s weapon skill run carries %v bonus points, want 2", hand.name, got)
+		}
+	}
+
+	dpsPerPoint := map[stats.UnitStat]float64{agilityUnitStat: 2, mhSkill: 7, ohSkill: 3}
+	var runs []statWeightStatRuns
+	for _, request := range requests.StatSimRequests {
+		stat := stats.UnitStatFromIdx(int(request.StatData.UnitStat))
+		statRuns := statWeightStatRuns{statData: request.StatData, high: statWeightResult(syntheticBaselineDps + dpsPerPoint[stat]*request.StatData.ModHigh)}
+		if request.RequestLow != nil {
+			statRuns.low = statWeightResult(syntheticBaselineDps + dpsPerPoint[stat]*request.StatData.ModLow)
+		}
+		runs = append(runs, statRuns)
+	}
+	result := computeStatWeights(pairedStatWeightCalc(requests, statWeightResult(syntheticBaselineDps), runs))
+	for _, c := range []struct {
+		name      string
+		got, want float64
+	}{
+		{"main hand weapon skill weight", protoUnitStat(result.Dps.Weights, mhSkill), 7},
+		{"main hand weapon skill EP", protoUnitStat(result.Dps.EpValues, mhSkill), 3.5},
+		{"off hand weapon skill weight", protoUnitStat(result.Dps.Weights, ohSkill), 3},
+		{"off hand weapon skill EP", protoUnitStat(result.Dps.EpValues, ohSkill), 1.5},
+	} {
+		if math.Abs(c.got-c.want) > 1e-9 {
+			t.Errorf("%s = %v, want %v per point", c.name, c.got, c.want)
+		}
+	}
+
+	for _, c := range []struct {
+		name          string
+		offHand       int32
+		swapOffHand   int32
+		swapEnabled   bool
+		weighsOffHand bool
+	}{
+		{"empty off hand", 0, 0, false, false},
+		{"shield", shield, 0, false, false},
+		{"held-in-off-hand item", heldInOffHand, 0, false, false},
+		{"shield with a swap shield", shield, shield, true, false},
+		{"shield with a swap weapon", shield, sword, true, true},
+		{"shield with a swap weapon, swap off", shield, sword, false, false},
+	} {
+		requests := weaponSkillRequests(&proto.Player{
+			Equipment:      &proto.EquipmentSpec{Items: gear(sword, c.offHand)},
+			EnableItemSwap: c.swapEnabled,
+			ItemSwap:       &proto.ItemSwap{Items: gear(0, c.swapOffHand)},
+		})
+		if got := simulatesStat(requests, ohSkill); got != c.weighsOffHand {
+			t.Errorf("%s: off hand weapon skill has a run = %v, want %v", c.name, got, c.weighsOffHand)
+		}
 	}
 }
 

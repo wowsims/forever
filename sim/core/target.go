@@ -559,9 +559,9 @@ type AttackTableHand struct {
 	BaseSpellMissChance  float64 // The spell table's miss with the level difference taken from the hand's skill.
 }
 
-func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTableHand {
+func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item, slot proto.ItemSlot) AttackTableHand {
 	levelDiff := combatLevelDiff(attacker, defender)
-	bonus := GetWeaponSkill(attacker, weapon)
+	bonus := GetWeaponSkill(attacker, weapon, slot)
 	skillDiff := float64(levelDiff*5) - bonus
 	// Parry, glance chance and crit suppression count skill only up to the level-based maximum.
 	baseSkillDiff := float64(levelDiff*5) - min(bonus, 0)
@@ -598,9 +598,9 @@ func newAttackTableHand(attacker *Unit, defender *Unit, weapon *Item) AttackTabl
 
 // Recomputes the hand entries against an enemy defender from the weapons in each hand.
 func (at *AttackTable) setWeapons(mh *Item, oh *Item, ranged *Item) {
-	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh)
-	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh)
-	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged)
+	at.MH = newAttackTableHand(at.Attacker, at.Defender, mh, proto.ItemSlot_ItemSlotMainHand)
+	at.OH = newAttackTableHand(at.Attacker, at.Defender, oh, proto.ItemSlot_ItemSlotOffHand)
+	at.Ranged = newAttackTableHand(at.Attacker, at.Defender, ranged, proto.ItemSlot_ItemSlotRanged)
 }
 
 // Hand returns the entry of the hand the spell attacks with.
