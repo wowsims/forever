@@ -1805,7 +1805,7 @@ dps_results: {
  key: "TestBalance-Settings-NightElf-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
   dps: 4101.75816
-  tps: 4107.68488
+  tps: 4107.69308
   dtps: 5.51606
  }
 }
@@ -1893,7 +1893,7 @@ dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongMultiTarget"
  value: {
   dps: 4070.7531
-  tps: 4076.902
+  tps: 4076.907
   dtps: 5.90088
  }
 }
