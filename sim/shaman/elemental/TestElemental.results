@@ -126,22 +126,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-Beastmaster'sCap-22013"
- value: {
-  dps: 706.0726
-  tps: 655.03091
-  dtps: 8.68885
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-BeastmasterArmor"
- value: {
-  dps: 587.19303
-  tps: 549.51037
-  dtps: 8.67566
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-BeaststalkerArmor"
  value: {
   dps: 583.84238
@@ -382,14 +366,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-DarkmantleArmor"
- value: {
-  dps: 574.50269
-  tps: 537.3666
-  dtps: 8.697
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 707.1798
@@ -411,15 +387,6 @@ dps_results: {
   dps: 703.97816
   tps: 653.59624
   dtps: 8.57576
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-DeathmistRaiment"
- value: {
-  dps: 696.09944
-  tps: 648.80911
-  dtps: 7.78891
-  hps: 9.87144
  }
 }
 dps_results: {
@@ -693,14 +660,6 @@ dps_results: {
   dps: 703.97816
   tps: 653.59624
   dtps: 8.57576
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-FeralheartRaiment"
- value: {
-  dps: 633.83393
-  tps: 595.44861
-  dtps: 8.06288
  }
 }
 dps_results: {
@@ -1504,14 +1463,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 698.76696
-  tps: 653.96336
-  dtps: 7.8414
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 698.86757
@@ -1917,14 +1868,6 @@ dps_results: {
   dps: 618.29421
   tps: 581.08784
   dtps: 6.00822
- }
-}
-dps_results: {
- key: "TestElemental-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 665.67968
-  tps: 623.78779
-  dtps: 6.05515
  }
 }
 dps_results: {

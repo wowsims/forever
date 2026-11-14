@@ -222,14 +222,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-DeathmistRaiment"
- value: {
-  dps: 834.419
-  tps: 859.29196
-  hps: 9.36154
- }
-}
-dps_results: {
  key: "TestFFB-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 750.39697
@@ -1138,13 +1130,6 @@ dps_results: {
  value: {
   dps: 746.14909
   tps: 773.27032
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 805.67674
-  tps: 831.91843
  }
 }
 dps_results: {

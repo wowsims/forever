@@ -343,15 +343,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-DarkmantleArmor"
- value: {
-  dps: 515.53015
-  tps: 2599.4312
-  dtps: 396.60439
-  hps: 85.06651
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 519.41606
@@ -376,15 +367,6 @@ dps_results: {
   tps: 2645.9099
   dtps: 397.20519
   hps: 84.84593
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-DeathmistRaiment"
- value: {
-  dps: 457.26374
-  tps: 2308.97545
-  dtps: 532.85403
-  hps: 89.77221
  }
 }
 dps_results: {
@@ -1549,15 +1531,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 460.08703
-  tps: 2322.83204
-  dtps: 534.88714
-  hps: 85.55016
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 523.00871
@@ -1852,15 +1825,6 @@ dps_results: {
   tps: 2230.45371
   dtps: 538.35591
   hps: 83.54985
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 445.71034
-  tps: 2259.95373
-  dtps: 529.91632
-  hps: 85.04963
  }
 }
 dps_results: {

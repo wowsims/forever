@@ -199,8 +199,13 @@ func TestParseQuestieData(t *testing.T) {
 		9010: {Zone: -364, Items: []int32{22361, 15407}},
 		9011: {},
 	}
-	if !reflect.DeepEqual(quests, wantQuests) {
-		t.Errorf("quests = %v, want the reward quests that have a row: %v", quests, wantQuests)
+	if len(quests) != len(wantQuests) {
+		t.Errorf("got %d quests, want the %d reward quests that have a row", len(quests), len(wantQuests))
+	}
+	for id, want := range wantQuests {
+		if !reflect.DeepEqual(quests[id], want) {
+			t.Errorf("quest %d = %+v, want %+v", id, quests[id], want)
+		}
 	}
 
 	want := map[int32][]*proto.UIItemSource{

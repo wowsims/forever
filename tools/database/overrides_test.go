@@ -5,6 +5,7 @@ package database
 // trusts. These run the merge on synthetic rows, so they need no game files database.
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -414,8 +415,8 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 }
 
 // Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
-// lower set's piece of a type the higher set lacks stays and joins the higher set, and a set alone under its name, an
-// item with no set and an ItemAllowList item of the lower set stay.
+// lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
+// under its name, an item with no set and an ItemAllowList item of the lower set stay.
 func TestLowerSameNameSetIsDropped(t *testing.T) {
 	var allowed int32
 	for id := range ItemAllowList {
@@ -430,7 +431,7 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 	for _, item := range []*proto.UIItem{
 		{Id: 1, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
 		{Id: 2, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
-		{Id: 3, SetId: 20, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
+		{Id: 3, SetId: 20, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs, ClassAllowlist: []proto.Class{proto.Class_ClassHunter}},
 		{Id: 4, SetId: 5, SetName: "Alone"},
 		{Id: 5},
 		{Id: 6, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeChest},
@@ -451,7 +452,7 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 			t.Errorf("item %d is dropped", id)
 		}
 	}
-	if got := db.Items[6].GetSetId(); got != 20 {
-		t.Errorf("item 6 of the lower set has set %d, want the higher set 20", got)
+	if got := db.Items[6]; got.GetSetId() != 20 || !slices.Equal(got.GetClassAllowlist(), []proto.Class{proto.Class_ClassHunter}) {
+		t.Errorf("item 6 of the lower set has set %d and classes %v, want the higher set 20 and its pieces' classes", got.GetSetId(), got.GetClassAllowlist())
 	}
 }

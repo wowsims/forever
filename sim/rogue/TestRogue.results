@@ -318,14 +318,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-DeathmistRaiment"
- value: {
-  dps: 509.88297
-  tps: 362.01691
-  hps: 52.05333
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 599.45547
@@ -619,14 +611,6 @@ dps_results: {
   dps: 599.45547
   tps: 425.61338
   hps: 51.81611
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-FeralheartRaiment"
- value: {
-  dps: 546.85602
-  tps: 388.26778
-  hps: 50.69778
  }
 }
 dps_results: {
@@ -1334,14 +1318,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 510.69839
-  tps: 362.59586
-  hps: 51.71444
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-SpiderchitinWrap-280016"
  value: {
   dps: 596.22798
@@ -1602,14 +1578,6 @@ dps_results: {
  value: {
   dps: 491.889
   tps: 349.24119
-  hps: 50.69778
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 495.54514
-  tps: 351.83705
   hps: 50.69778
  }
 }

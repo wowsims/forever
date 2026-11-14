@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/tools/database/dbc"
@@ -485,6 +486,14 @@ const (
 	sodItemIDMax = 244460
 )
 
+// The SQL condition that an item effect, its ItemXItemEffect row and its item's ItemSparse row teach the effect's spell
+// from an item the game files ship. Trigger type 6 is a learn effect; a Season of Discovery item or a placeholder ([PH])
+// item ships nothing.
+func shippedRecipeItem(effect, itemXEffect, sparse string) string {
+	return effect + ".TriggerType = 6 AND " + sparse + ".ID IS NOT NULL AND NOT " + sodItemID(itemXEffect+".ItemID") +
+		" AND " + notPlaceholderItemName(sparse+".Display_lang")
+}
+
 // The SQL condition that the item id in column is in the Season of Discovery range.
 func sodItemID(column string) string {
 	return column + ` BETWEEN ` + strconv.Itoa(sodItemIDMin) + ` AND ` + strconv.Itoa(sodItemIDMax)
@@ -562,8 +571,7 @@ func LoadAndWriteRawEnchants(dbHelper *DBHelper, inputsDir string) ([]dbc.Enchan
 			-- casts the spell on use. Joining through the effect id alone would hand a recipe to every slot
 			-- sharing the effect, as a boots recipe to the bracer enchant of the same stat.
 			COALESCE(group_concat(DISTINCT CASE
-				WHEN ie.TriggerType = 6 AND isp.ID IS NOT NULL AND NOT ` + sodItemID("ixie.ItemID") + `
-					AND ` + notPlaceholderItemName("isp.Display_lang") + `
+				WHEN ` + shippedRecipeItem("ie", "ixie", "isp") + `
 				THEN ixie.ItemID
 			END), '') AS RecipeItemIds
 		FROM SpellEffect se
@@ -2401,19 +2409,10 @@ func tabDisplayName(labels map[[2]int]string, classMask, tabIdx int, fallback st
 	return fallback
 }
 
-// LoadRaidZoneIDs returns the AreaTable ids of the raid zones: the zone a Map with InstanceType 2 names in
-// AreaTableID, and every area whose ContinentID is such a Map. The first path finds each vanilla raid,
-// Onyxia's Lair included, whose ContinentID is Kalimdor. The second adds the raids' sub-areas, such as
-// Zul'Gurub's and Ruins of Ahn'Qiraj's, and the raid maps that leave AreaTableID 0.
-func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
-	return loadIDSet(dbHelper, `
-		SELECT ID FROM AreaTable
-		WHERE ID IN (SELECT AreaTableID FROM Map WHERE InstanceType = 2)
-		OR ContinentID IN (SELECT ID FROM Map WHERE InstanceType = 2)
-	`, "raid zones")
-}
-
-// The raid map of each raid zone, the zones found the way LoadRaidZoneIDs finds them.
+// The raid map of each raid zone. A raid zone is the zone a Map with InstanceType 2 names in AreaTableID, or an area
+// whose ContinentID is such a Map. The first path finds each vanilla raid, Onyxia's Lair included, whose ContinentID
+// is Kalimdor. The second adds the raids' sub-areas, such as Zul'Gurub's and Ruins of Ahn'Qiraj's, and the raid maps
+// that leave AreaTableID 0.
 func LoadRaidZoneMaps(dbHelper *DBHelper) (map[int32]int32, error) {
 	return loadIDMap(dbHelper, `
 		SELECT at.ID, Map.ID FROM AreaTable AS at
@@ -2421,27 +2420,29 @@ func LoadRaidZoneMaps(dbHelper *DBHelper) (map[int32]int32, error) {
 	`, "raid zone maps")
 }
 
-// The reagent items of each spell.
+// The reagent items of each spell, read as the spell store reads them.
 func LoadSpellReagents(dbHelper *DBHelper) (map[int32][]int32, error) {
-	return loadIDLists(dbHelper, `
-		SELECT s.SpellID, item.value FROM SpellReagents AS s, json_each(s.Reagent) AS item
-		WHERE item.value != 0
-		ORDER BY s.SpellID, item.key
-	`, "spell reagents")
+	tables := newSpellTables()
+	if err := tables.loadReagents(dbHelper.db); err != nil {
+		return nil, fmt.Errorf("loading spell reagents: %w", err)
+	}
+	return core.MapMap(tables.Reagents, func(spell int32, reagents []storeReagent) (int32, []int32) {
+		return spell, core.MapSlice(reagents, func(reagent storeReagent) int32 { return reagent.Item })
+	}), nil
 }
 
-// The shipped items that teach each spell, chosen as LoadAndWriteRawEnchants chooses an enchant's recipes.
+// The shipped items that teach each spell.
 func LoadSpellRecipes(dbHelper *DBHelper) (map[int32][]int32, error) {
 	return loadIDLists(dbHelper, `
 		SELECT DISTINCT ie.SpellID, ixie.ItemID FROM ItemEffect AS ie
 		JOIN ItemXItemEffect AS ixie ON ixie.ItemEffectID = ie.ID
 		JOIN ItemSparse AS isp ON isp.ID = ixie.ItemID
-		WHERE ie.TriggerType = 6 AND NOT `+sodItemID("ixie.ItemID")+` AND `+notPlaceholderItemName("isp.Display_lang")+`
+		WHERE `+shippedRecipeItem("ie", "ixie", "isp")+`
 		ORDER BY ie.SpellID, ixie.ItemID
 	`, "spell recipes")
 }
 
-// The dungeons' zones, found the way LoadRaidZoneIDs finds the raids'.
+// The dungeons' zones, found the way LoadRaidZoneMaps finds the raids'.
 func LoadDungeonZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	return loadIDSet(dbHelper, `
 		SELECT ID FROM AreaTable

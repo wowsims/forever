@@ -246,15 +246,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-DeathmistRaiment"
- value: {
-  dps: 727.68401
-  tps: 523.2049
-  dtps: 5.12982
-  hps: 9.08683
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 745.10057
@@ -1077,14 +1068,6 @@ dps_results: {
   dps: 745.10057
   tps: 532.65413
   dtps: 5.64037
- }
-}
-dps_results: {
- key: "TestShadowPriest-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 731.66625
-  tps: 525.47474
-  dtps: 4.59916
  }
 }
 dps_results: {

@@ -1040,14 +1040,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAfflictionWrack-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 873.95331
-  tps: 703.45747
-  dtps: 9.66359
- }
-}
-dps_results: {
  key: "TestAfflictionWrack-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 884.24178
@@ -1229,14 +1221,6 @@ dps_results: {
   dps: 781.2091
   tps: 630.71148
   dtps: 8.99113
- }
-}
-dps_results: {
- key: "TestAfflictionWrack-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 844.81606
-  tps: 679.96667
-  dtps: 8.72893
  }
 }
 dps_results: {

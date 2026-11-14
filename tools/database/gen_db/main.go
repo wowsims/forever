@@ -119,7 +119,6 @@ func main() {
 		atlaslootDB     *database.WowDatabase
 		questieDB       *database.WowDatabase
 		questieQuests   map[int32]*database.QuestieQuest
-		raidZones       map[int32]bool
 		raidZoneMaps    map[int32]int32
 		spellReagents   map[int32][]int32
 		spellRecipes    map[int32][]int32
@@ -163,7 +162,6 @@ func main() {
 		questieQuests = database.ReadQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir))
 		return nil
 	})
-	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
 	g.Go(func() (err error) { raidZoneMaps, err = database.LoadRaidZoneMaps(helper); return })
 	g.Go(func() (err error) { spellReagents, err = database.LoadSpellReagents(helper); return })
 	g.Go(func() (err error) { spellRecipes, err = database.LoadSpellRecipes(helper); return })
@@ -174,6 +172,7 @@ func main() {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
 	}
 
+	raidZones := core.MapMap(raidZoneMaps, func(zone, _ int32) (int32, bool) { return zone, true })
 	pruneAtlasLootDrops(atlaslootDB, raidZones, areaNames)
 	database.PruneQuestieSources(questieDB, raidZones, dungeonZones, areaNames)
 
@@ -238,18 +237,20 @@ func main() {
 	for _, item := range db.Items {
 		database.InferPvpSource(item)
 	}
-	database.AddEnchantSources(db.Enchants, enchantRecipes, database.EnchantSourceInputs{
+	sourceInputs := database.ItemSourceInputs{
 		Crafted: craftingSources,
 		Rep:     repSources,
 		Atlas:   atlaslootDB,
 		Questie: questieDB,
-	})
+	}
+	database.AddEnchantSources(db.Enchants, enchantRecipes, sourceInputs)
 	database.InferPhases(db, database.PhaseInputs{
-		Sources:  database.PhaseSources(craftingSources, repSources, atlaslootDB, questieDB),
-		Reagents: spellReagents,
-		Recipes:  spellRecipes,
-		Quests:   questieQuests,
-		RaidMaps: raidZoneMaps,
+		Sources:        database.PhaseSources(sourceInputs),
+		Reagents:       spellReagents,
+		Recipes:        spellRecipes,
+		EnchantRecipes: enchantRecipes,
+		Quests:         questieQuests,
+		RaidMaps:       raidZoneMaps,
 	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)

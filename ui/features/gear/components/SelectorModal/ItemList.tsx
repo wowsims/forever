@@ -1,5 +1,5 @@
 import { Class, ItemSlot } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -8,7 +8,6 @@ import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUiStore } from '@sim/hooks/useUiStore';
 import type { EquippedItem } from '@sim/proto/equipped_item';
-import { FUTURE_PHASE } from '@sim/proto/sim_tables_auto_gen';
 import { subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
@@ -41,8 +40,8 @@ const ROW_CLASS = clsx(
 type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
-	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: FUTURE_PHASE, label: i18n.t('common.phases.future') },
+	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
+	{ value: ContentPhase.ContentPhaseFuture, label: i18n.t('common.phases.future') },
 ];
 
 export interface ItemListToggle {
@@ -99,8 +98,7 @@ export const ItemListToolbarView = ({
 				</>
 			)}
 			<div className="min-w-28" data-testid="selector-modal-phase-selector">
-				{/* A phase saved past the last one shows as Future, which lists the same items. */}
-				<ChoiceField options={phaseOptions()} value={Math.min(phase, FUTURE_PHASE)} onChange={onPhaseChange} />
+				<ChoiceField options={phaseOptions()} value={phase} onChange={onPhaseChange} />
 			</div>
 			{toggles.map(toggle => (
 				<BooleanPicker

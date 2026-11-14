@@ -2,6 +2,7 @@ package database
 
 import (
 	"regexp"
+	"slices"
 
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -124,8 +125,9 @@ func ApplyItemSetClasses(db *WowDatabase) {
 }
 
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
-// its type, and then joins the higher set; an ItemAllowList item stays. The game files hold no head or chest of the
-// reissued dungeon set 0.5 sets, so the Classic ones complete them, and the set bonuses stay registered once.
+// its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The game
+// files hold no head or chest of the reissued dungeon set 0.5 sets, so the Classic ones complete them. The Classic
+// pieces allow every class, while their quests and the reissued pieces name one.
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -138,9 +140,15 @@ func DropLowerSameNameSets(db *WowDatabase) {
 		itemType proto.ItemType
 	}
 	reissued := map[setPiece]bool{}
+	classes := map[string][]proto.Class{}
 	for _, item := range db.Items {
 		if item.SetId > 0 && item.SetId == highest[item.SetName] {
 			reissued[setPiece{item.SetName, item.Type}] = true
+			for _, class := range item.ClassAllowlist {
+				if !slices.Contains(classes[item.SetName], class) {
+					classes[item.SetName] = append(classes[item.SetName], class)
+				}
+			}
 		}
 	}
 	for id, item := range db.Items {
@@ -152,6 +160,9 @@ func DropLowerSameNameSets(db *WowDatabase) {
 				delete(db.Items, id)
 			} else {
 				item.SetId = highest[item.SetName]
+				if len(item.ClassAllowlist) == 0 {
+					item.ClassAllowlist = slices.Sorted(slices.Values(classes[item.SetName]))
+				}
 			}
 		}
 	}

@@ -14809,7 +14809,7 @@
       "divine_aegis": {"spellId": 431622, "registeredBy": ["dps_priest", "healer_priest"]},
       "increased_pet_crit_2": {"spellId": 27042, "registeredBy": []},
       "increased_pet_damage_3": {"spellId": 27205, "registeredBy": []},
-      "increased_pet_health_3": {"spellId": 27039, "registeredBy": ["warlock"]},
+      "increased_pet_health_3": {"spellId": 27039, "registeredBy": []},
       "inspiration": {"spellId": 14893, "registeredBy": ["dps_priest", "healer_priest"]},
       "lights_vigil": {"spellId": 1310909, "registeredBy": ["holy_paladin", "protection_paladin", "retribution_paladin"]},
       "lights_vigil_1311593": {"spellId": 1311593, "registeredBy": ["holy_paladin", "protection_paladin", "retribution_paladin"]},

@@ -49,6 +49,7 @@ import {
 	WeaponType,
 } from '@generated/proto/common';
 import {
+	ContentPhase,
 	DatabaseFilters,
 	RaidFilterOption,
 	SavedSettings,
@@ -1047,7 +1048,8 @@ export class Sim {
 	fromProto(proto: SimSettingsProto) {
 		batch(() => {
 			this.setIterations(proto.iterations || 12500);
-			this.setPhase(proto.phase || CURRENT_PHASE);
+			// A phase saved past Future, the last one the database holds, reads as Future, which lists the same items.
+			this.setPhase(Math.min(proto.phase || CURRENT_PHASE, ContentPhase.ContentPhaseFuture));
 			this.setFixedRngSeed(Number(proto.fixedRngSeed));
 			this.setShowDamageMetrics(proto.showDamageMetrics);
 			this.setShowThreatMetrics(proto.showThreatMetrics);

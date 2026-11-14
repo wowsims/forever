@@ -72,7 +72,7 @@ func WriteQuestieQuests(path string, quests map[int32]*QuestieQuest) {
 		if err != nil {
 			log.Fatalf("writing quest %d: %v", id, err)
 		}
-		lines = append(lines, fmt.Sprintf("%q:%s", strconv.Itoa(int(id)), quest))
+		lines = append(lines, fmt.Sprintf(`"%d":%s`, id, quest))
 	}
 	tools.WriteFile(path, "{\n"+strings.Join(lines, ",\n")+"\n}\n")
 }
@@ -191,10 +191,8 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 			if quest == nil {
 				continue
 			}
-			if _, ok := rewardQuests[int32(questID)]; !ok {
-				if rewardQuests[int32(questID)], err = readQuest(quest); err != nil {
-					return nil, nil, err
-				}
+			if rewardQuests[int32(questID)], err = readQuest(quest); err != nil {
+				return nil, nil, err
 			}
 			name, err := quest.text(questName)
 			if err != nil {
@@ -490,39 +488,39 @@ func (r *questieRow) integer(index int) (int64, error) {
 	}
 }
 
-// The value of a table field, stored under <key>-<index>; nil when the presence bits leave the field out.
-func (r *questieRow) table(index int) (any, string, error) {
-	key := fmt.Sprintf("%s-%d", r.key, index)
+// The ids a table field holds, as parse reads the value stored under <key>-<index>; none when the presence bits leave
+// the field out.
+func (r *questieRow) table(index int, parse func(any) ([]int, error)) ([]int, error) {
 	if r.presence&(1<<(index-1)) == 0 {
-		return nil, key, nil
+		return nil, nil
 	}
+	key := fmt.Sprintf("%s-%d", r.key, index)
 	value, err := r.store.value(key)
-	if err == nil && value == nil {
-		err = fmt.Errorf("%s: no value", key)
-	}
-	return value, key, err
-}
-
-func (r *questieRow) ids(index int) ([]int, error) {
-	value, key, err := r.table(index)
-	if err != nil || value == nil {
+	if err != nil {
 		return nil, err
 	}
-	ids, err := cborIDs(value)
+	if value == nil {
+		return nil, fmt.Errorf("%s: no value", key)
+	}
+	ids, err := parse(value)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", key, err)
 	}
 	return ids, nil
 }
 
+func (r *questieRow) ids(index int) ([]int, error) {
+	return r.table(index, cborIDs)
+}
+
+func (r *questieRow) objectiveItems(index int) ([]int, error) {
+	return r.table(index, cborObjectiveItems)
+}
+
 // The item ids of a quest's objectives. The field holds six positional groups (creature, object, item, reputation,
 // kill credit, spell) as a list, or as a map from group number when groups are missing; each item entry is a list
 // that opens with the item id.
-func (r *questieRow) objectiveItems(index int) ([]int, error) {
-	value, key, err := r.table(index)
-	if err != nil || value == nil {
-		return nil, err
-	}
+func cborObjectiveItems(value any) ([]int, error) {
 	var group any
 	switch value := value.(type) {
 	case []any:
@@ -532,24 +530,24 @@ func (r *questieRow) objectiveItems(index int) ([]int, error) {
 	case map[any]any:
 		group = value[int64(3)]
 	default:
-		return nil, fmt.Errorf("%s: %v is not the objectives", key, value)
+		return nil, fmt.Errorf("%v is not the objectives", value)
 	}
 	if group == nil {
 		return nil, nil
 	}
 	entries, ok := group.([]any)
 	if !ok {
-		return nil, fmt.Errorf("%s: %v is not a list of item objectives", key, group)
+		return nil, fmt.Errorf("%v is not a list of item objectives", group)
 	}
 	ids := make([]int, 0, len(entries))
 	for _, entry := range entries {
 		fields, ok := entry.([]any)
 		if !ok || len(fields) == 0 {
-			return nil, fmt.Errorf("%s: %v is not an item objective", key, entry)
+			return nil, fmt.Errorf("%v is not an item objective", entry)
 		}
 		id, ok := fields[0].(int64)
 		if !ok {
-			return nil, fmt.Errorf("%s: %v is not an item id", key, fields[0])
+			return nil, fmt.Errorf("%v is not an item id", fields[0])
 		}
 		ids = append(ids, int(id))
 	}

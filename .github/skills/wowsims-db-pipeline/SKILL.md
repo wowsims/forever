@@ -182,8 +182,8 @@ Reading another table once, what the tables hold and how a script reads them: `r
   repository is unchanged since May 2024; leave the file alone until the generator reads its files again.
 - An item's phase follows its sources (`InferPhases` in `tools/database/item_phases.go`), so a scrape or a
   regeneration that adds or removes a source can move phases in `db.json` with no phase rule changed. The phase reads
-  every source the inputs give an item, the ones the picker hides included. A raid that opens joins `phase1RaidMaps`
-  there by its `Map` id.
+  every source the inputs give an item, the ones the picker hides included. A raid opens when its row in `raids` there
+  is set open; the row holds its `Map` id and the factions whose reputation it gives.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
 - A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and

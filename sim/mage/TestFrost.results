@@ -222,14 +222,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFrost-AllItems-DeathmistRaiment"
- value: {
-  dps: 805.66075
-  tps: 742.15362
-  hps: 8.09715
- }
-}
-dps_results: {
  key: "TestFrost-AllItems-Defender'sGripStabilizer-272440"
  value: {
   dps: 721.65948
@@ -1138,13 +1130,6 @@ dps_results: {
  value: {
   dps: 750.17587
   tps: 693.43439
- }
-}
-dps_results: {
- key: "TestFrost-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 800.95316
-  tps: 739.36078
  }
 }
 dps_results: {

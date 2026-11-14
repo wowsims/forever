@@ -1186,14 +1186,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-Sorcerer'sRegalia"
- value: {
-  dps: 822.75978
-  tps: 697.06903
-  dtps: 10.43369
- }
-}
-dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 756.5088
@@ -1393,14 +1385,6 @@ dps_results: {
   dps: 717.68388
   tps: 605.97139
   dtps: 10.39943
- }
-}
-dps_results: {
- key: "TestDemonologyShadowBrand-AllItems-VestmentsoftheVirtuous"
- value: {
-  dps: 774.18256
-  tps: 656.08449
-  dtps: 10.78989
  }
 }
 dps_results: {
