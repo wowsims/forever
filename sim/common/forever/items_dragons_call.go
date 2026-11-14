@@ -9,10 +9,7 @@ import (
 )
 
 // The Emerald Dragon Whelp 8776 that Dragon's Call's 13049 summons: a guardian at its owner's level that
-// takes nothing from its owner. A combat log of a level 57 owner read the same health, armor and
-// attack power on all 40 summons while the owner's attack power ran from 981 to 1383, and its health,
-// armor and Acid Spit fit the creature values for level 57. It never crits: the log shows one crit in
-// 96 landed swings and none in 82 spits.
+// takes nothing from its owner, and never crits (EV-0021).
 type emeraldDragonWhelp struct {
 	core.Pet
 
@@ -20,23 +17,22 @@ type emeraldDragonWhelp struct {
 	nextSpitAt time.Duration
 }
 
-// Health is 1.3 times the creature health for its level, measured at level 57 (5082). Armor is the
-// creature armor at ExpectedStatMod 1's share in the game files, 0.51, which reads 1735 at level 57 as
-// the log does. The log shows 174 attack power, which the swing below leaves out.
+// Health is 1.3 times the creature health for its level. Armor is the creature armor at
+// ExpectedStatMod 1's share in the game files, 0.51. The attack power the whelp shows in game is left out; the
+// swing below carries all its damage (EV-0021).
 var whelpBaseStats = stats.Stats{
 	stats.Health: 1.3 * core.CreatureHealthMaxLevel,
 	stats.Armor:  0.51 * core.CreatureArmorMaxLevel,
 }
 
-// The 2.0 s swing is fitted at level 57, where the log's swings read 71 to 94 before armor, 80 on
-// average: 2 s of the creature dps for the level at 0.73, ExpectedStatMod 1's share, gives 83 ± 15%.
-// That row is inferred from the whelp's armor matching its 0.51. A smaller share plus the 174 attack
-// power fits as well (0.5 gives 82), so the log does not tell the two apart.
+// The 2.0 s swing is fitted at level 57 (EV-0021): 2 s of the creature dps for the level at 0.73,
+// ExpectedStatMod 1's share, gives 83 ± 15%. That row is inferred from the whelp's armor matching its
+// 0.51. A smaller share plus the whelp's in-game attack power fits as well (0.5 gives 82), so the log does not
+// tell the two apart.
 //
-// The log glances on 87 of 96 landed swings, and on 79% against targets at the whelp's own level, at
-// about 57% of a hit. The sim's attack table glances 10% at that level, and a skill gap that gave the
-// log's share would also give far more misses and parries than its 6% and 4%. No rule explains it, so
-// the table stays and the swings read high; they were 13% of the whelp's damage.
+// The log glances far more often than the sim's attack table, which glances 10% at that level, and a skill gap
+// that gave the log's glance share would also give far more misses and parries than the log shows. No rule
+// explains it, so the table stays and the swings read high (EV-0021).
 var whelpSwingAverage = 0.73 * core.CreatureAutoAttackDpsMaxLevel * 2.0
 var whelpSwing = core.Weapon{
 	BaseDamageMin: whelpSwingAverage * (1 - 0.15),
@@ -45,13 +41,9 @@ var whelpSwing = core.Weapon{
 	MaxRange:      core.MaxMeleeRange,
 }
 
-// The whelp's waits are uniform draws. In the log's 41 summons the first Acid Spit starts 0.00, 0.01,
-// 0.89 and 2.59 s after the summon at the 0, 25, 50 and 75% marks, so the first start is 0 to 1.8 s,
-// around that median. The waits from a cast's end to the next start (69) run 0.20, 0.58, 0.99 and
-// 1.88 s with a maximum of 6.9 s, all with the target alive. Each next wait is 0.2 to 3.5 s, whose
-// 1.85 s mean is the 1.86 s mean wait of the 16 summons that lasted 15 s with no target dying. A spit's
-// hardcast holds the swing, as in the log, where no swing lands inside a cast that reaches its end, so
-// the whelp swings only as it arrives and in the waits between casts.
+// The whelp's waits are uniform draws: the first Acid Spit starts 0 to 1.8 s after the summon, each
+// next wait is 0.2 to 3.5 s. A spit's hardcast holds the swing, as in the log, so the whelp swings
+// only as it arrives and in the waits between casts (EV-0021).
 const whelpFirstSpitMax = 1800 * time.Millisecond
 const whelpSpitIdleMin = 200 * time.Millisecond
 const whelpSpitIdleMax = 3500 * time.Millisecond
@@ -86,9 +78,9 @@ func (whelp *emeraldDragonWhelp) Reset(_ *core.Simulation)            {}
 func (whelp *emeraldDragonWhelp) OnEncounterStart(_ *core.Simulation) {}
 
 // Acid Spit 9591 deals its base points as a percent of the creature dps for the caster's level, which
-// is what the row's creature level scaling attribute (0x80000 on Attributes 0) means: 249.7 at level 57,
-// where the log's 82 hits averaged 250.6. Its 5340 mana at level 57 pays for more spits than a summon
-// lasts, so the cast takes no cost.
+// is what the row's creature level scaling attribute (0x80000 on Attributes 0) means: 249.7 at level 57
+// (EV-0021). Its 5340 mana at level 57 pays for more spits than a summon lasts, so the cast takes no
+// cost.
 func (whelp *emeraldDragonWhelp) Initialize() {
 	whelp.Pet.Initialize()
 

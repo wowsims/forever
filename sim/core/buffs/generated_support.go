@@ -47,14 +47,12 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 // A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
 // multipliers, a Dwarf's 5% against beasts among them. The flat school bonus on the unit it strikes
 // adds nothing: in game a rank 1 Retribution Aura hits a beast under the paladin's own Judgement of
-// the Crusader for 5 or 6, its flat 5 at the racial's 5%.
+// the Crusader for its flat 5 at the racial's 5% (EV-0066).
 //
 // A Physical shield's reflection is no attack: it lands whole, with no armor reducing it and no roll
 // missing it. A magic shield keeps the spell hit roll and the target's resistance.
 //
-// A hit the block takes whole reflects nothing, and a partial block reflects like a hit. In a
-// protection warrior's combat logs Razorsteel Shoulders' shield answers 3,835 of 3,840 partial blocks
-// and 34 of 5,281 full blocks, and Thorns 1 of 8,334 full blocks.
+// A hit the block takes whole reflects nothing, and a partial block reflects like a hit (EV-0050).
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)

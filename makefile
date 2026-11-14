@@ -382,7 +382,8 @@ spelldata-check:
 
 .PHONY: skills-check
 skills-check:
-	@fail=0; for d in .github/skills/*/; do sh .github/skills/check_paths.sh "$$d" || fail=1; done; exit $$fail
+	@fail=0; for d in .github/skills/*/; do sh .github/skills/check_paths.sh "$$d" || fail=1; done; \
+		sh .github/skills/check_evidence.sh || fail=1; exit $$fail
 
 .PHONY: fmt
 fmt: tsfmt

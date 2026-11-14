@@ -154,8 +154,8 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	// Whether the cast itself is the trigger. A mask of only the harmful-spell bit does not care
 	// whether the spell landed. Any other spell-bit mask is a cast on the tooltip's word alone. The
 	// two items that pin that down disagree despite carrying the identical mask: Memento of Tyrande
-	// procs off resists in logs, while Band of the Eternal Restorer does not proc on a miss or a
-	// full resist. What separates them is that the first names the cast as the trigger and the
+	// procs off resists, while Band of the Eternal Restorer does not proc on a miss or a
+	// full resist (EV-0094). What separates them is that the first names the cast as the trigger and the
 	// second does not, so for that pair the tooltip decides. The helpful bit alone is the same
 	// shape: Idol of Longevity's 28847 refunds mana "each time you cast Healing Touch", while Holy
 	// Power 28789 carries the bit with no cast tooltip and states no trigger at all.
