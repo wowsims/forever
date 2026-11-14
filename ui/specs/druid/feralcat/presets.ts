@@ -66,5 +66,5 @@ export const JVMES_APL = {
 	...PresetUtils.makePresetAPLRotation('Adaptive Cat', AdaptiveApl),
 	tooltip: 'Maintains Faerie Fire and bleeds, and uses optional consumables and racials. Supports an MCP opener from the weapon swap slot.',
 };
-export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050022-53200032123012124001-055' }));
-export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-50230332123110121011-055' }));
+export const CatTalents = PresetUtils.makePresetTalents('Cat', SavedTalents.create({ talentsString: '050021-53200032123012125001-055' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));
