@@ -28,8 +28,9 @@ const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs:
 // 21.8% at attackers 17-38, 23.9% at 42, 31% at 44, 36% at 46 and 37.7% at 47 on hundreds of hits each. From 47 to 55
-// it stays near 38%, on hundreds of hits a level to 51 and about 90 at 52-55. The 40% at 63 is the top of the 20% to
-// 40% range the game build's notes give; no log covers 56-63.
+// it stays near 38% through 59 on a protection warrior's logs, on hundreds of hits a level to 51 and at 55-58, about
+// 90 at 52-55 and 38 at 59. The 40% at 63 is the top of the 20% to 40% range the game build's notes give; no log
+// covers 60-63.
 // Attackers that use mana or energy give about half this rage in game. The sim gives every attacker the full amount,
 // since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
@@ -43,6 +44,7 @@ var damageTakenRageAssumedArmor = []struct {
 	{level: 47, reduction: 0.377},
 	{level: 50, reduction: 0.38},
 	{level: 55, reduction: 0.381},
+	{level: 59, reduction: 0.38},
 	{level: 63, reduction: 0.40},
 }
 
