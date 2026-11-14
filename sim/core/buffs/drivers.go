@@ -137,11 +137,9 @@ func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 		threshold = innervateManaThreshold(char)
 		// Spell 29166 states +400% mana regen on the mana bar (aura 110), Spirit and MP5 alike, which
 		// prices the mana the metrics record. MP5 runs while casting without Innervate and Spirit regen
-		// does not, so Innervate adds the whole multiplied Spirit regen and the MP5 above its own. A
-		// periodic energize aura's MP5 ticks the same under it and adds nothing.
+		// does not, so Innervate adds the whole multiplied Spirit regen and the MP5 above its own.
 		multiplier := core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
-		scaledMP5 := char.MP5ManaRegenPerSecond() - char.PseudoStats.EnergizeMP5/5
-		expectedMana = (char.SpiritManaRegenPerSecond()*multiplier + scaledMP5*(multiplier-1)) *
+		expectedMana = (char.SpiritManaRegenPerSecond()*multiplier + char.MP5ManaRegenPerSecond()*(multiplier-1)) *
 			aura.Duration.Seconds()
 	})
 

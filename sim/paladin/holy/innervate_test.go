@@ -15,7 +15,6 @@ import (
 
 func innervatedPaladin(t *testing.T, talents string, individual *proto.IndividualBuffs, party *proto.PartyBuffs) (*core.Simulation, *core.Character) {
 	t.Helper()
-	individual.Innervates = 1
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,
 		Race:          proto.Race_RaceHuman,
@@ -33,6 +32,18 @@ func innervatedPaladin(t *testing.T, talents string, individual *proto.Individua
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
+// Runs the sim's queued actions for d.
+func runFor(sim *core.Simulation, d time.Duration) {
+	done := false
+	sim.AddPendingAction(&core.PendingAction{
+		NextActionAt: sim.CurrentTime + d,
+		OnAction:     func(_ *core.Simulation) { done = true },
+	})
+	for !done {
+		sim.Step()
+	}
+}
+
 // Innervate lets all of the spirit regen continue while casting and multiplies all of the regen, MP5
 // included, by its row's mana regen factor, whatever share Reverence already lets through: with the
 // standard talents' 2/2 Reverence it is the same regen, and Reverence's 30% is back once the aura falls
@@ -43,7 +54,7 @@ func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 		talents string
 		share   float64
 	}{{"", 0}, {StandardTalents, 0.3}} {
-		sim, pally := innervatedPaladin(t, c.talents, &proto.IndividualBuffs{}, &proto.PartyBuffs{})
+		sim, pally := innervatedPaladin(t, c.talents, &proto.IndividualBuffs{Innervates: 1}, &proto.PartyBuffs{})
 		if got := pally.PseudoStats.SpiritRegenRateCasting; got != c.share {
 			t.Fatalf("share %v: the talents let %v of the spirit regen through while casting", c.share, got)
 		}
@@ -53,14 +64,7 @@ func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 		castingRegen := func() float64 {
 			pally.SpendMana(sim, pally.CurrentMana(), metrics)
 			pally.PseudoStats.FiveSecondRuleRefreshTime = sim.CurrentTime + time.Second*5
-			done := false
-			sim.AddPendingAction(&core.PendingAction{
-				NextActionAt: sim.CurrentTime + 2*time.Second,
-				OnAction:     func(_ *core.Simulation) { done = true },
-			})
-			for !done {
-				sim.Step()
-			}
+			runFor(sim, 2*time.Second)
 			return pally.CurrentMana()
 		}
 
@@ -101,7 +105,8 @@ func TestInnervateMultipliesTheFullRegen(t *testing.T) {
 
 // Innervate multiplies the Spirit regen and the MP5 from gear, but a periodic energize buff ticks its
 // own mana under it: over the whole Innervate the paladin gains the multiplied Spirit and gear regen
-// plus the buff's mana as it ticks without Innervate.
+// plus the buff's mana as it ticks without Innervate. Any other mana regen multiplier, such as Skyborne
+// Energized's, scales the buff's mana with the rest.
 func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 	factor := core.MultiplierFromPercent(spelldata.MustFind(29166).Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
 	for _, c := range []struct {
@@ -110,22 +115,16 @@ func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 		individual *proto.IndividualBuffs
 		party      *proto.PartyBuffs
 	}{
-		{"Greater Blessing of Wisdom", 25918, &proto.IndividualBuffs{GreaterBlessingOfWisdom: 2}, &proto.PartyBuffs{}},
-		{"Mana Spring Totem", 10494, &proto.IndividualBuffs{}, &proto.PartyBuffs{ManaSpringTotem: proto.TristateEffect_TristateEffectRegular}},
+		{"Greater Blessing of Wisdom", 25918, &proto.IndividualBuffs{Innervates: 1, GreaterBlessingOfWisdom: 2}, &proto.PartyBuffs{}},
+		{"Mana Spring Totem", 10494, &proto.IndividualBuffs{Innervates: 1}, &proto.PartyBuffs{ManaSpringTotem: proto.TristateEffect_TristateEffectRegular}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			sim, pally := innervatedPaladin(t, "", c.individual, c.party)
 			if pally.GetAuraByID(core.ActionID{SpellID: c.spellID, Tag: -1}) == nil {
 				t.Fatalf("the paladin has no %s", c.name)
 			}
-			row := spelldata.MustFind(c.spellID)
-			var energize *spelldata.Effect
-			for i := range row.Effects {
-				if row.Effects[i].Aura == dbcenums.A_PERIODIC_ENERGIZE {
-					energize = &row.Effects[i]
-				}
-			}
-			if energize == nil || energize.Average() == 0 {
+			energize := spelldata.MustFind(c.spellID).Effect(dbcenums.A_PERIODIC_ENERGIZE, int32(dbcenums.POWER_MANA))
+			if energize.Average() == 0 {
 				t.Fatalf("%s states no mana over time", c.name)
 			}
 			buffPerSecond := energize.Average() * 1000 / float64(energize.PeriodMs)
@@ -134,6 +133,13 @@ func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 				t.Fatal("the paladin has no MP5 besides the buff")
 			}
 
+			idle := pally.ManaRegenPerSecondWhileNotCasting()
+			pally.MultiplyManaRegenSpeed(sim, 2)
+			if got := pally.ManaRegenPerSecondWhileNotCasting(); got != 2*idle {
+				t.Errorf("a mana regen speed of 2 gives %v mana per second while not casting, want %v", got, 2*idle)
+			}
+			pally.MultiplyManaRegenSpeed(sim, 0.5)
+
 			aura := pally.GetAura("Innervates (External)")
 			if aura == nil {
 				t.Fatal("the paladin has no Innervates aura")
@@ -141,14 +147,7 @@ func TestInnervateLeavesEnergizeBuffsUnscaled(t *testing.T) {
 			aura.Activate(sim)
 			metrics := pally.NewManaMetrics(core.ActionID{SpellID: 29166, Tag: 2})
 			pally.SpendMana(sim, pally.CurrentMana(), metrics)
-			done := false
-			sim.AddPendingAction(&core.PendingAction{
-				NextActionAt: sim.CurrentTime + aura.Duration,
-				OnAction:     func(_ *core.Simulation) { done = true },
-			})
-			for !done {
-				sim.Step()
-			}
+			runFor(sim, aura.Duration)
 
 			spirit := pally.SpiritManaRegenPerSecond() * pally.PseudoStats.SpiritRegenMultiplier
 			want := (factor*(spirit+gearPerSecond) + buffPerSecond) * aura.Duration.Seconds()

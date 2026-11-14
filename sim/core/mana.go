@@ -21,7 +21,8 @@ type manaBar struct {
 
 	currentMana float64
 
-	manaRegenMultiplier float64
+	manaRegenMultiplier          float64
+	innervateManaRegenMultiplier float64 // Leaves the MP5 periodic energize auras tick unscaled.
 
 	spiritRegenBase      float64
 	spiritRegenPerSpirit float64
@@ -172,12 +173,13 @@ func (unit *Unit) SpiritManaRegenPerSecond() float64 {
 	return unit.spiritRegenBase + unit.stats[stats.Spirit]*unit.spiritRegenPerSpirit
 }
 
-// A mana regen multiplier (Innervate) scales Spirit regen and the MP5 from gear and other buffs. A
-// periodic energize aura (Blessing of Wisdom, Mana Spring) ticks its own amount under it. Taking the
-// multiplier's surplus on that share back off keeps a multiplier of 1 bit-exact.
+// Innervate multiplies Spirit regen and the MP5 from gear and other buffs, but a periodic energize aura
+// (Blessing of Wisdom, Mana Spring) ticks its own amount under it (EV-0114). Taking Innervate's surplus
+// on that share back off keeps a factor of 1 bit-exact. Skyborne Energized's multiplier scales all
+// of it.
 func (unit *Unit) multipliedManaRegen(spiritRegen float64) float64 {
-	multiplier := unit.manaRegenMultiplier
-	return (unit.MP5ManaRegenPerSecond()+spiritRegen)*multiplier - unit.PseudoStats.EnergizeMP5/5.0*(multiplier-1)
+	innervate := unit.innervateManaRegenMultiplier
+	return ((unit.MP5ManaRegenPerSecond()+spiritRegen)*innervate - unit.PseudoStats.EnergizeMP5/5.0*(innervate-1)) * unit.manaRegenMultiplier
 }
 
 // Returns the rate of mana regen per second, assuming this unit is
@@ -205,6 +207,11 @@ func (unit *Unit) UpdateManaRegenRates(sim *Simulation) {
 
 func (unit *Unit) MultiplyManaRegenSpeed(sim *Simulation, multiplier float64) {
 	unit.manaRegenMultiplier *= multiplier
+	unit.UpdateManaRegenRates(sim)
+}
+
+func (unit *Unit) MultiplyInnervateManaRegenSpeed(sim *Simulation, multiplier float64) {
+	unit.innervateManaRegenMultiplier *= multiplier
 	unit.UpdateManaRegenRates(sim)
 }
 
@@ -323,6 +330,7 @@ func (mb *manaBar) reset() {
 	mb.currentMana = mb.unit.MaxMana()
 
 	mb.manaRegenMultiplier = 1.0
+	mb.innervateManaRegenMultiplier = 1.0
 
 	mb.oom = false
 	mb.paidBy = nil

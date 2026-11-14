@@ -15,7 +15,8 @@ import (
 var buffAuraTable = map[dbcenums.EffectAuraType]row{
 	// Mana over time, which the sim keeps as mana per five seconds. The game files' tick is whole;
 	// what the conversion makes of it is not, and it is not truncated. The tick is the same under
-	// Innervate, so the amount counts in EnergizeMP5 as well, which no mana regen multiplier scales.
+	// Innervate, so the amount also counts in EnergizeMP5, the share Innervate leaves unscaled. It
+	// stays in MP5 for the character sheet and for the bid a buff category takes on MP5.
 	dbcenums.A_PERIODIC_ENERGIZE: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc != int32(dbcenums.POWER_MANA) || e.PeriodMs <= 0 {
 			return nil
@@ -42,8 +43,8 @@ var buffAuraTable = map[dbcenums.EffectAuraType]row{
 
 // The options every raid buff and debuff is parsed with: priced at core.CharacterLevel, with the
 // buff table's rows, less the auras skip names, and a finisher at full combo points where
-// fullComboPoints says so, and a mana regen percent that multiplies all of the mana regen where
-// allManaRegen says so.
+// fullComboPoints says so, and a mana regen percent read as Innervate's multiplier on the mana regen
+// where allManaRegen says so.
 func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints, allManaRegen bool) []ParseOpt {
 	opts := []ParseOpt{Level(core.CharacterLevel), BuffAuras()}
 	if len(skip) > 0 {
