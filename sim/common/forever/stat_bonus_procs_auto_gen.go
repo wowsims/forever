@@ -3836,19 +3836,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
-	// https://www.wowhead.com/forever/spell=1309967
-	// unsupported: states no rate
-	// trigger 1309967 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1309967, BuffSpellID: 1309967, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 279852, ItemName: "Rock on Stick"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Movement speed increased by 2% in Forest and Grassland areas.
 	// https://www.wowhead.com/forever/spell=1308520
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4816,6 +4803,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},
+		})
+
+	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
+	// https://www.wowhead.com/forever/spell=1309967
+	// trigger 1309967 (1.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1309967, BuffSpellID: 1309967, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 279852, ItemName: "Rock on Stick"},
 		})
 
 	// Thrown attacks explode on impact, causing 17 Fire damage to nearby enemies.

@@ -1701,6 +1701,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-RockonStick-279852"
+ value: {
+  dps: 394.15202
+  tps: 933.22943
+  dtps: 337.82213
+  hps: 17.58833
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 399.83616
