@@ -17,6 +17,7 @@ import {
 	replaceBulkBundle,
 	setBulkBundleChecked,
 	setBulkCurrentBundleChecked,
+	takenBundleLabels,
 } from '../../model/builds/bundles';
 import { bulkEnchantPickList, formatEnchantPickSummary, setBulkEnchantPickChecked } from '../../model/builds/enchant_picks';
 import { BulkBundleDialog } from '../BulkBundleDialog';
@@ -114,8 +115,8 @@ export const BuildBundles = () => {
 		if (ready) pruneBulkBundles(player, parts);
 	}, [player, ready, parts, bundles]);
 
+	const list = useMemo(() => bulkBundleList(current, parts, bundles, currentChecked), [current, parts, bundles, currentChecked]);
 	const rows = useMemo(() => {
-		const list = bulkBundleList(current, parts, bundles, currentChecked);
 		const labels = new Map<number, string>([[-1, i18n.t('bulk_tab.builds.bundles.current')], ...list.map(row => [row.index, row.label] as const)]);
 		return list.map(row => {
 			const earlier = sameAs.get(row.index);
@@ -125,9 +126,10 @@ export const BuildBundles = () => {
 				label: row.label,
 				checked: row.checked,
 				disabledReason: sameAsLabel === undefined ? undefined : i18n.t('bulk_tab.builds.bundles.duplicate', { bundle: sameAsLabel }),
+				parts: row.bundle.name ? row.parts : undefined,
 			};
 		});
-	}, [current, parts, bundles, currentChecked, sameAs]);
+	}, [list, sameAs]);
 	const options = useMemo(() => bundleOptions(parts), [parts]);
 
 	const enchantPickRows = useMemo(
@@ -170,6 +172,7 @@ export const BuildBundles = () => {
 						open
 						bundle={dialog.bundle}
 						options={options}
+						takenLabels={takenBundleLabels(list, bundles, editing)}
 						onSave={save}
 						onClose={() => setDialog(state => ({ ...state, open: false }))}
 					/>

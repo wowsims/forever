@@ -43,15 +43,35 @@ export const sameAsCurrentEncounterRow = (currentChecked: boolean): BulkCheckRow
 
 const FURY_BUNDLE = 'Pre-BiS (Fury) · Fury · Fury APL · Pre-BiS - Fury';
 
-/** The last row holds a saved copy of the Fury APL, so it sims what the first does. */
+/** The third row holds a saved copy of the Fury APL, so it sims what the first does. */
 export const DUPLICATE_BUNDLE = 'Pre-BiS (Fury) · Fury · My Fury APL · Pre-BiS - Fury';
+
+/** The second row's name, which stands for its Arms parts. */
+export const NAMED_BUNDLE = 'Arms raid';
+
+/** The last row's name: it has the first row's parts, so it is the same as that one too. */
+export const NAMED_DUPLICATE_BUNDLE = 'Fury again';
+
+const FURY_PARTS = { gear: 'Pre-BiS (Fury)', talents: 'Fury', rotation: 'Fury APL', settings: 'Pre-BiS - Fury' };
 
 export const bundleListProps = (overrides: Partial<BulkBundleListProps> = {}): BulkBundleListProps => ({
 	current: { label: i18n.t('bulk_tab.builds.bundles.current'), checked: true, onCheckedChange: fn() },
 	rows: [
 		{ key: '0', label: FURY_BUNDLE, checked: true },
-		{ key: '1', label: 'Pre-BiS (Arms) · Arms · Arms APL · Pre-BiS - Arms', checked: true },
+		{
+			key: '1',
+			label: NAMED_BUNDLE,
+			checked: true,
+			parts: { gear: 'Pre-BiS (Arms)', talents: 'Arms', rotation: 'Arms APL', settings: 'Pre-BiS - Arms' },
+		},
 		{ key: '2', label: DUPLICATE_BUNDLE, checked: true, disabledReason: i18n.t('bulk_tab.builds.bundles.duplicate', { bundle: FURY_BUNDLE }) },
+		{
+			key: '3',
+			label: NAMED_DUPLICATE_BUNDLE,
+			checked: true,
+			disabledReason: i18n.t('bulk_tab.builds.bundles.duplicate', { bundle: FURY_BUNDLE }),
+			parts: FURY_PARTS,
+		},
 	],
 	onCheckedChange: fn(),
 	onEdit: fn(),
@@ -87,11 +107,18 @@ const PICKER_OPTIONS: Record<BulkBundleDialogViewProps['pickers'][number]['id'],
 
 const PICKER_LABEL_KEYS = { gearSet: 'gear_set', talents: 'talents', rotation: 'rotation', settings: 'settings' } as const;
 
-/** `picks` holds the index of each picker's option, Current (0) when left out. */
+/** `picks` holds the index of each picker's option, Current (0) when left out; `taken` marks the name as another bundle's label. */
 export const bundleDialogProps = ({
 	title = i18n.t('bulk_tab.builds.bundles.dialog_new'),
 	picks = {},
-}: { title?: string; picks?: Partial<Record<keyof typeof PICKER_OPTIONS, number>> } = {}): BulkBundleDialogViewProps => {
+	name = '',
+	taken = false,
+}: {
+	title?: string;
+	picks?: Partial<Record<keyof typeof PICKER_OPTIONS, number>>;
+	name?: string;
+	taken?: boolean;
+} = {}): BulkBundleDialogViewProps => {
 	const pickers = (Object.keys(PICKER_OPTIONS) as Array<keyof typeof PICKER_OPTIONS>).map(id => ({
 		id,
 		label: i18n.t(`bulk_tab.builds.parts.${PICKER_LABEL_KEYS[id]}`),
@@ -103,8 +130,14 @@ export const bundleDialogProps = ({
 		open: true,
 		onOpenChange: fn(),
 		title,
+		name: {
+			value: name,
+			placeholder: pickers.map(picker => picker.options.find(option => option.value === picker.value)!.label).join(' · '),
+			taken,
+			onChange: fn(),
+		},
 		pickers,
-		canSave: pickers.some(picker => picker.value !== CURRENT),
+		canSave: !taken && pickers.some(picker => picker.value !== CURRENT),
 		onSave: fn(),
 	};
 };

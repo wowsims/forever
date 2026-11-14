@@ -196,8 +196,8 @@ func ShowAsSchoolHit(schools core.SpellSchool) ParseOpt {
 	}
 }
 
-// The row's mana regen percent (A_MOD_POWER_REGEN_PERCENT on mana) multiplies all of the unit's mana
-// regen, MP5 included, where the parse otherwise reads it as a Spirit regen multiplier.
+// The row's mana regen percent (A_MOD_POWER_REGEN_PERCENT on mana) is Innervate's multiplier on the
+// unit's mana regen, where the parse otherwise reads it as a Spirit regen multiplier.
 func AllManaRegen() ParseOpt {
 	return func(o *parseOptions) {
 		o.allManaRegen = true

@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 775.86198
+  tps: 662.40556
+  dtps: 10.57837
+  hps: 7.82576
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 764.21135
@@ -243,10 +252,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 809.87846
-  tps: 688.5753
-  dtps: 10.93801
-  hps: 8.99814
+  dps: 796.67916
+  tps: 674.0419
+  dtps: 10.9763
+  hps: 8.86662
  }
 }
 dps_results: {

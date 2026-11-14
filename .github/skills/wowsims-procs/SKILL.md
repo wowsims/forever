@@ -92,9 +92,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
   tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
-  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, a measured rate's
-  `wcl:`, `issue #` or `combat log, ` source shows none. A gear rate kept as a literal in the sim is listed in
-  `literalRates` there, or the notice never names it.
+  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, and a measured
+  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none; any other text reads as
+  unvalidated. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
+  it.
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
@@ -122,5 +123,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
-to this skill, not a second copy.
+`AGENTS.md` says: a comment at the code when one file owns the rule, otherwise this skill or a `docs/rulings/` file
+its `references/rulings.md` indexes. A memory file is a pointer to this skill, not a second copy.

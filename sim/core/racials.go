@@ -155,8 +155,7 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
-		// Endurance 20550 scales all health, flat health added later included: in game a Tauren's bear forms
-		// add 5% more than their rows, at every level from 25 to 60.
+		// Endurance 20550 scales all health, flat health added later included (EV-0037).
 		character.MultiplyStat(stats.Health, 1.05)
 	case proto.Race_RaceTroll:
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
@@ -410,8 +409,8 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health), chance and 15 s cooldown are the row's values, typed in here. Combat logs of 57
-// players agree with the cooldown: no two drains of one player are closer than 14.99 s.
+// of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
+// the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {

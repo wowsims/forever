@@ -7,7 +7,7 @@ import { ExecuteCommandRequest, LanguageClient, LanguageClientOptions, ServerOpt
 import { findGo } from '../../vscode-common/go';
 
 // The languages package.json activates the extension on.
-const LANGUAGES = ['go', 'json', 'typescript', 'typescriptreact'];
+const LANGUAGES = ['go', 'json', 'typescript', 'typescriptreact', 'markdown'];
 
 let client: LanguageClient | undefined;
 

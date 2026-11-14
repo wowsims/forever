@@ -133,9 +133,9 @@ func (shaman *Shaman) applyFlurry() {
 	// The row has no roll and the crit is the condition, read off the result here because the same
 	// listener has to see the swings that spend a charge. Any melee crit sets three charges,
 	// Stormstrike's and a Windfury Weapon strike's included. A white swing spends one whatever its
-	// outcome, as Warrior Flurry's does. 16257's proc flags name swings alone, but in the combat log
-	// a Windfury Weapon strike spends one too, and so does Windfury Totem's strike 10610, the same
-	// row; Stormstrike and spells spend none. A hit in the same instant as a gain spends none, so a
+	// outcome, as Warrior Flurry's does. 16257's proc flags name swings alone, but a Windfury
+	// Weapon strike spends one too, and so does Windfury Totem's strike 10610, the same row;
+	// Stormstrike and spells spend none (EV-0010). A hit in the same instant as a gain spends none, so a
 	// crit followed by Windfury Weapon's strikes leaves three charges.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.Flurry.Rank(shaman.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -287,7 +287,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 
 	// The tooltip's $s3 is the stack count, which the buff row's five also states. The row's chance
 	// column is the "no roll" 100; the tooltip prices the chance per hit on the main hand's speed,
-	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff.
+	// so the rate per minute is effect 2. A proc at five stacks refreshes the buff. Windfury Totem's
+	// strike never procs it (EV-0009), though Windfury Weapon's strike, whose row differs only in the
+	// class mask, does.
 	trigger := spelldata.ProcTrigger(&shaman.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			maelstromAura.Activate(sim)
@@ -295,6 +297,9 @@ func (shaman *Shaman) applyMaelstromWeapon() {
 		},
 		func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcMask = core.ProcMaskMelee
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return spell.SpellID != windfuryTotemStrike.ID
+			}
 		},
 		spelldata.PPM(maelstromWeaponPPM(rank)))
 	trigger.Name = "Maelstrom Weapon - Trigger"

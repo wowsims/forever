@@ -35,6 +35,19 @@ func RegisterAllProcs() {
 	//	{ItemID: 19024, ItemName: "Arena Grand Master"},
 	// })
 
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases your pet's armor by 10%.
+	// https://www.wowhead.com/forever/spell=27225
+	// unsupported: effect 1 A_MOD_BASE_RESISTANCE_PCT misc 1 is not parsed on a pet
+	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
+	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 22060, ItemName: "Beastmaster's Tunic"},
+	// })
+
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1325228
 	// equip: 1325228 (A_DAMAGE_SHIELD)
@@ -138,6 +151,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1300680},
 		[]shared.ItemVariant{
 			{ItemID: 20517, ItemName: "Razorsteel Shoulders"},
+		})
+
+	// Increases your pet's maximum health by 3%.
+	// https://www.wowhead.com/forever/spell=27038
+	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+		[]shared.ItemVariant{
+			{ItemID: 22013, ItemName: "Beastmaster's Cap"},
 		})
 
 	// Spell Damage received is reduced by 10.
@@ -1563,6 +1584,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Blasts a target for 105 Fire damage.
+	// https://www.wowhead.com/forever/spell=18833
+	// unsupported: states no rate
+	// trigger 18833 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18833, BuffSpellID: 18833, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 14555, ItemName: "Alcor's Sunrazor"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Corrupts the target, causing 84 damage over 9s.
 	// https://www.wowhead.com/forever/spell=18656
 	// unsupported: states no rate
@@ -1938,19 +1972,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
-	// https://www.wowhead.com/forever/spell=27860
-	// unsupported: states no rate
-	// trigger 21978 (no stated rate, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 27860
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Chance on landing a damaging spell to restore 48 mana to you.
 	// https://www.wowhead.com/forever/spell=1302191
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2134,6 +2155,19 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13442, BuffSpellID: 13442, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 18671, ItemName: "Baron Charr's Sceptre"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Deal 42 Fire damage over 3s.
+	// https://www.wowhead.com/forever/spell=1302343
+	// unsupported: states no rate
+	// trigger 1302343 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302343, BuffSpellID: 1302343, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 18755, ItemName: "Xorothian Firestick"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2697,6 +2731,21 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22397, ItemName: "Idol of Ferocity"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.
+	// https://www.wowhead.com/forever/spell=27853
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 22398, ItemName: "Idol of Rejuvenation"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3836,19 +3885,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
-	// https://www.wowhead.com/forever/spell=1309967
-	// unsupported: states no rate
-	// trigger 1309967 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1309967, BuffSpellID: 1309967, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 279852, ItemName: "Rock on Stick"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Movement speed increased by 2% in Forest and Grassland areas.
 	// https://www.wowhead.com/forever/spell=1308520
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4816,6 +4852,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},
+		})
+
+	// Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.
+	// https://www.wowhead.com/forever/spell=1309967
+	// trigger 1309967 (1.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1309967, BuffSpellID: 1309967, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 279852, ItemName: "Rock on Stick"},
 		})
 
 	// Thrown attacks explode on impact, causing 17 Fire damage to nearby enemies.

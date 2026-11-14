@@ -98,8 +98,7 @@ var RaceOffsets = map[proto.Race]stats.Stats{
 		stats.Spirit:    1,
 		stats.Stamina:   1,
 	},
-	// The two Skyborne variants carry their own offsets, read from level 1 naked character
-	// sheets (2026-11-06).
+	// The two Skyborne variants carry their own offsets (EV-0093).
 	proto.Race_RaceHighOrderSkyborne: {
 		stats.Agility:   4,
 		stats.Strength:  -3,

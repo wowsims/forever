@@ -200,6 +200,11 @@ for another race's racial or an untaken talent.
   Protection preset hides Autocast Other Cooldowns and the Fury and Arms presets have none. Autocast throws it just after
   a GCD starts (`getFirstReadyMCD` in `sim/core/major_cooldown.go`), a Cast Spell line at a GCD-ready look (§Timing), so
   the line's hardcast holds back the next ability.
+- **Cast All Stat Buff Cooldowns casts only a major cooldown whose `BuffAura` raises one of its stats**
+  (`GetMatchingStatBuffSpells` in `sim/core/major_cooldown.go`). An on-use that marks the target, such as Blackhand's
+  Breadth (13965), registers no buff, so in a rotation without Autocast Other Cooldowns it fires only from a Cast Spell
+  line naming its item id. `Multiple CD Usages` cannot time it either: a target spell with no `RelatedSelfBuff` logs
+  "does not have a related self buff" and the value is dropped.
 
 ## Keeping this skill true
 
@@ -207,5 +212,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

@@ -15,11 +15,10 @@ import (
 // The damage a damage shield deals back to whoever lands a melee hit, which
 // also scales with the wearer's spell power by bonusCoefficient; the generated
 // shields state none. category is the aura's own, which decides whether a
-// second copy of the shield can sit next to it. flags are added to the ones
-// every damage shield's spell carries.
+// second copy of the shield can sit next to it.
 func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, duration time.Duration, category string, singleAura bool,
-	school core.SpellSchool, damage float64, bonusCoefficient float64, flags core.SpellFlag) *core.Aura {
-	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown, 0, flags)
+	school core.SpellSchool, damage float64, bonusCoefficient float64) *core.Aura {
+	trigger := damageShieldTrigger(unit, label, actionID, school, damage, bonusCoefficient, core.ProcMaskUnknown, 0)
 
 	aura := unit.GetOrRegisterAura(core.Aura{
 		Label:      label,
@@ -42,20 +41,22 @@ func NewDamageShield(unit *core.Unit, label string, actionID core.ActionID, dura
 // the ones the row's proc flags name; ProcMaskUnknown answers every one. lockout is the time the
 // shield waits between two reflections; 0 answers every hit.
 func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64, bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) {
-	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout, 0))
+	aura.AttachProcTrigger(damageShieldTrigger(aura.Unit, aura.Label, aura.ActionID, school, damage, bonusCoefficient, hits, lockout))
 }
 
 // A damage shield's hit takes the wearer's spell power at its coefficient and the wearer's done
 // multipliers, a Dwarf's 5% against beasts among them. The flat school bonus on the unit it strikes
 // adds nothing: in game a rank 1 Retribution Aura hits a beast under the paladin's own Judgement of
-// the Crusader for 5 or 6, its flat 5 at the racial's 5%.
+// the Crusader for its flat 5 at the racial's 5% (EV-0066).
 //
 // A Physical shield's reflection is no attack: it lands whole, with no armor reducing it and no roll
 // missing it. A magic shield keeps the spell hit roll and the target's resistance.
+//
+// A hit the block takes whole reflects nothing, and a partial block reflects like a hit (EV-0050).
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
-	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration, flags core.SpellFlag) core.ProcTrigger {
+	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)
-	flags |= core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
+	flags := core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
 	if physical {
 		flags |= core.SpellFlagIgnoreResists
 	}
@@ -84,6 +85,9 @@ func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, 
 		ProcMask: hits,
 		Outcome:  core.OutcomeLanded,
 		ICD:      lockout,
+		ExtraCondition: func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+			return !result.BlockedInFull()
+		},
 		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			if spell.SpellSchool.Matches(core.SpellSchoolPhysical) {
 				procSpell.Cast(sim, spell.Unit)

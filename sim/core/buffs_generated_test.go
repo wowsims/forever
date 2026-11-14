@@ -716,51 +716,11 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 	return sim, owner, sim.Encounter.AllTargetUnits[0], trigger, strike
 }
 
-// The first melee ability in the store whose row requires a main-hand weapon
-// and does not go off on the next swing, the first that goes off on the next
-// swing without requiring one, and the first that does neither, each built
-// from its row as a main-hand ability is.
-func windfuryRowAbilities(t *testing.T) (requires *core.Spell, nextSwing *core.Spell, neither *core.Spell) {
-	t.Helper()
-	unit := &core.NewGeneratedBuffTestCharacter().Unit
-	for _, row := range spelldata.All() {
-		if row.DefenseType != core.DefenseTypeMelee {
-			continue
-		}
-		mainHand := spelldata.RequiredHand(row).Matches(core.ProcMaskMeleeMH)
-		onNextSwing := row.OnNextSwing()
-		var slot **core.Spell
-		switch {
-		case mainHand && !onNextSwing:
-			slot = &requires
-		case onNextSwing && !mainHand:
-			slot = &nextSwing
-		case !mainHand && !onNextSwing:
-			slot = &neither
-		default:
-			continue
-		}
-		if *slot == nil {
-			config := spelldata.SpellConfig(unit, row, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-			*slot = &core.Spell{ProcMask: config.ProcMask, Flags: config.Flags}
-		}
-		if requires != nil && nextSwing != nil && neither != nil {
-			return requires, nextSwing, neither
-		}
-	}
-	t.Fatalf("the store holds a melee row that requires a main-hand weapon %v, one that goes off on the next swing %v and one that does neither %v, want all three",
-		requires != nil, nextSwing != nil, neither != nil)
-	return nil, nil, nil
-}
-
-// Windfury Totem's proc is the raid aura's: a main-hand hit that lands can fire
-// it, whether or not it deals damage, and no other hit can, a proc's hit
-// included. Every main-hand auto can; an ability can only where its row
-// requires a main-hand weapon or goes off in place of the next swing. Each
-// proc casts the strike, and the cooldown lets hits in one instant fire it once.
+// Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
+// special that lands can fire it, whether or not it deals damage. No other hit
+// can, a proc's hit and a hit with no defense type included. Each proc casts
+// the strike, and the cooldown lets hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
-	requiresMainHand, onNextSwing, lacksMainHand := windfuryRowAbilities(t)
-
 	for _, row := range []struct {
 		name    string
 		spell   *core.Spell
@@ -768,18 +728,17 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 		damage  float64
 		procs   bool
 	}{
-		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeHit, 100, true},
-		{"an ability whose row requires a main-hand weapon", requiresMainHand, core.OutcomeHit, 100, true},
-		{"such an ability landing no damage", requiresMainHand, core.OutcomeHit, 0, true},
-		{"an ability whose row goes off on the next swing and does not require a main-hand weapon", onNextSwing, core.OutcomeHit, 100, true},
-		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeMiss, 0, false},
+		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 100, true},
+		{"a main-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 100, true},
+		{"a main-hand special landing no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 0, true},
+		{"a main-hand special with no defense type", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 100, false},
+		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeMiss, 0, false},
 		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
-		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, Flags: requiresMainHand.Flags}, core.OutcomeHit, 100, false},
+		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, core.OutcomeHit, 100, false},
 		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
 		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
 		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
-		{"an ability whose row does not require a main-hand weapon", lacksMainHand, core.OutcomeHit, 100, false},
-		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: requiresMainHand.Flags | core.SpellFlagProc}, core.OutcomeHit, 100, false},
+		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Flags: core.SpellFlagProc}, core.OutcomeHit, 100, false},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			sim, _, target, trigger, strike := windfuryTotemSim(t)
@@ -1069,7 +1028,7 @@ func TestGeneratedWindfuryTotemHoldsOverFlametongueTotem(t *testing.T) {
 	}
 	target := sim.Encounter.AllTargetUnits[0]
 	for i := 0; i < 200 && trigger.Icd.IsReady(sim); i++ {
-		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto},
+		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee},
 			&core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 	}
 	if trigger.Icd.IsReady(sim) {
@@ -1214,7 +1173,7 @@ func TestGeneratedPartyWindfuryTotemHoldsOverOwnFlametongueTotem(t *testing.T) {
 }
 
 // A generated damage shield deals the game files' damage back to whoever lands a
-// melee hit, and nothing to a spell.
+// melee hit, and nothing to a spell or to a hit the block takes whole.
 func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 	sim := setupFakeSimWithBuffs(&proto.RaidBuffs{}, &proto.PartyBuffs{}, &proto.IndividualBuffs{Thorns: true})
 	char := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1252,6 +1211,20 @@ func TestGeneratedThornsStrikesBackAtAMeleeHit(t *testing.T) {
 	sim.Step()
 	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 1 {
 		t.Errorf("a shadow spell taken cast the shield %d times, want the shield to ignore it", got)
+	}
+
+	full := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit}
+	aura.OnSpellHitTaken(aura, sim, attacker.AutoAttacks.MHAuto(), full)
+	sim.Step()
+	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 1 {
+		t.Errorf("a full block cast the shield %d more times, want none", got-1)
+	}
+
+	partial := &core.SpellResult{Target: &char.Unit, Outcome: core.OutcomeBlock | core.OutcomeHit, PostOutcomeDamage: 10}
+	aura.OnSpellHitTaken(aura, sim, attacker.AutoAttacks.MHAuto(), partial)
+	sim.Step()
+	if got := shield.SpellMetrics[attacker.UnitIndex].Casts; got != 2 {
+		t.Errorf("a partial block cast the shield %d more times, want once", got-1)
 	}
 }
 

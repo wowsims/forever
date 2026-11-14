@@ -110,6 +110,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 751.57403
+  tps: 650.56466
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 751.98304
@@ -967,8 +974,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 802.353
-  tps: 691.29551
+  dps: 814.22793
+  tps: 700.91185
  }
 }
 dps_results: {

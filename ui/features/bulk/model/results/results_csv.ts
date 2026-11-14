@@ -33,6 +33,7 @@ const COLUMNS = [
 	'changed_enchants',
 	'rotation',
 	'settings',
+	'bundle',
 ] as const;
 
 const slotHeaders = (slot: ItemSlot): string[] => {
@@ -75,6 +76,8 @@ export const bulkResultsCsv = (entries: readonly BulkEncounterResults[]): string
 				changedEnchantLabels(result).join('; '),
 				csvText(rotationLabel(result.rotation)),
 				result.settings ? csvText(settingsLabel(result.settings)) : '',
+				// The name the user gave the row's bundle; the columns before it name its parts either way.
+				csvText(result.gearSetup?.bundle ?? ''),
 				...slots.flatMap(slot => slotCells(result.gear.getEquippedItem(slot))),
 			];
 		});
