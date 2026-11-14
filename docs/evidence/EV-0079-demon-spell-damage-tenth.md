@@ -10,4 +10,4 @@
 At 30 spell damage the warlock's tooltip reads "Increases your pet's Attack Power by 5 and Spell Damage by 3". The Sayaad
 logged 3 Spell Damage at the warlock's 30 and 9 at about 96, and its Lash of Pain dealt 17.28 = 16 + 0.429 x 3. The 42
 at 126 that a third had been fitted to (EV-0077) is the tenth plus Demonic Knowledge 3/3 (+30 at level 30): 12.6 + 30 =
-42.6. The reading was made on the Sayaad only.
+42.6. The reading was made on the Sayaad only. The tenth stands, and the third #418 fitted is replaced by it.

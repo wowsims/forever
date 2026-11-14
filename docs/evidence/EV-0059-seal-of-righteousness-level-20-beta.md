@@ -24,3 +24,6 @@ proc = value/100 x speed x hand(speed) + coefficient x (spell power + Judgement 
 | Crits                     | double the unrounded total                                                                                                                                  |
 
 The full test log was kept in a write-up outside the repository.
+
+The spell power coefficients here are replaced by the 0.1 and 0.12 that EV-0060 read at level 30 on game build
+1.60.1.70425; the hand factors stand.

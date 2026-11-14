@@ -48,11 +48,10 @@ Execute and Sweeping Strikes, per landed or cast hit:
 | Sweeping Strikes' copied hit 12723  | 0 of 490                                           | never                                 |
 | Whirlwinds with a 26654, one struck | 63 of 119                                          | 44.8 if it never rolled, 56.5 if once |
 
-The attack power of rank 3 and the shares of the triggered hits that carry Not a Proc are recorded in the comments at the
-driver only, with no report or count:
+Rank 3 adds 246 attack power and ranks 1 and 2 add none, as EV-0008 reads it; the driver's comment once gave about 248.
 
-- Rank 3 adds about 248 attack power and ranks 1 and 2 add none.
-- Triggered hits with Not a Proc roll the totem at these shares a proc: Windfury Weapon's strikes 28%, Seal of
-  Command 14%, Judgement of Command 22% and Retaliation 17%.
+The shares of the triggered hits that carry Not a Proc are recorded in the comments at the driver only, with no report or
+count: Windfury Weapon's strikes 28%, Seal of Command 14%, Judgement of Command 22% and Retaliation 17%.
+
 - The strike takes armor as a white hit does, rolls the weapon special's table of miss, dodge, parry and crit, and never
   glances.

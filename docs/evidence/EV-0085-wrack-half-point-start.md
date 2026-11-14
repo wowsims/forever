@@ -1,6 +1,6 @@
 # EV-0085: Wrack ticks the half points of a dot from the channel's start
 
-- Claim: while Wrack is channelled the half points of an effect's tick grid tick too, from the instant the channel starts, and a channel that lands up to a short margin after a half point still ticks it.
+- Claim: while Wrack is channelled the half points of an effect's tick grid tick too, from the instant the channel starts, and a channel that lands up to 0.05 s after a half point may still tick it.
 - Sources: combat logs, two samples: two logs of one Affliction warlock (36 effects with Wrack channelled on their target, 329 ticks), and two more logs of another warlock and three others (270 effects, timed to about 0.05 s); report codes not recorded
 - Game build: not recorded
 - Date: not recorded
@@ -12,7 +12,7 @@ An effect ticks on a grid set by when it landed: Corruption and Siphon Life ever
 
 ## The start of a channel
 
-In the second sample a half point ticked in 56 of 57 cases when the channel landed before it, in 6 of 10 when it landed up to 0.05 s after, and in 0 of 29 beyond that. Wrack cast one global cooldown after Siphon Life ticked its 1.5 s half point in 13 of 16 openers. In a chained opener, Siphon Life then Wrack 1.29 s later, just ahead of the 1.5 s half point, the half point ticked: ticks at 1.46, 3.03, 4.47 and 5.94 s, and the target died at 7.23 s. The first sample read a half point ticking whenever the channel landed up to 0.03 s after it.
+In the second sample a half point ticked in 56 of 57 cases when the channel landed before it, in 6 of 10 when it landed up to 0.05 s after, and in 0 of 29 beyond that. Wrack cast one global cooldown after Siphon Life ticked its 1.5 s half point in 13 of 16 openers. In a chained opener, Siphon Life then Wrack 1.29 s later, just ahead of the 1.5 s half point, the half point ticked: ticks at 1.46, 3.03, 4.47 and 5.94 s, and the target died at 7.23 s. The first sample read a half point ticking whenever the channel landed up to 0.03 s after it; the second, larger sample's 0.05 s margin stands.
 
 Half points near a channel's start, by where the channel landed relative to the half point:
 
