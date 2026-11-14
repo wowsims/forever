@@ -2413,6 +2413,34 @@ func LoadRaidZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	`, "raid zones")
 }
 
+// The raid map of each raid zone, the zones found the way LoadRaidZoneIDs finds them.
+func LoadRaidZoneMaps(dbHelper *DBHelper) (map[int32]int32, error) {
+	return loadIDMap(dbHelper, `
+		SELECT at.ID, Map.ID FROM AreaTable AS at
+		JOIN Map ON Map.InstanceType = 2 AND (at.ID = Map.AreaTableID OR at.ContinentID = Map.ID)
+	`, "raid zone maps")
+}
+
+// The reagent items of each spell.
+func LoadSpellReagents(dbHelper *DBHelper) (map[int32][]int32, error) {
+	return loadIDLists(dbHelper, `
+		SELECT s.SpellID, item.value FROM SpellReagents AS s, json_each(s.Reagent) AS item
+		WHERE item.value != 0
+		ORDER BY s.SpellID, item.key
+	`, "spell reagents")
+}
+
+// The shipped items that teach each spell, chosen as LoadAndWriteRawEnchants chooses an enchant's recipes.
+func LoadSpellRecipes(dbHelper *DBHelper) (map[int32][]int32, error) {
+	return loadIDLists(dbHelper, `
+		SELECT DISTINCT ie.SpellID, ixie.ItemID FROM ItemEffect AS ie
+		JOIN ItemXItemEffect AS ixie ON ixie.ItemEffectID = ie.ID
+		JOIN ItemSparse AS isp ON isp.ID = ixie.ItemID
+		WHERE ie.TriggerType = 6 AND NOT `+sodItemID("ixie.ItemID")+` AND `+notPlaceholderItemName("isp.Display_lang")+`
+		ORDER BY ie.SpellID, ixie.ItemID
+	`, "spell recipes")
+}
+
 // The dungeons' zones, found the way LoadRaidZoneIDs finds the raids'.
 func LoadDungeonZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	return loadIDSet(dbHelper, `
@@ -2451,4 +2479,34 @@ func loadIDSet(dbHelper *DBHelper, query, what string) (map[int32]bool, error) {
 		set[id] = true
 	}
 	return set, nil
+}
+
+// The rows of a query that selects two ids.
+func loadIDPairs(dbHelper *DBHelper, query, what string) ([][2]int32, error) {
+	pairs, err := LoadRows(dbHelper.db, query, func(rows *sql.Rows) ([2]int32, error) {
+		var pair [2]int32
+		return pair, rows.Scan(&pair[0], &pair[1])
+	})
+	if err != nil {
+		return nil, fmt.Errorf("loading %s: %w", what, err)
+	}
+	return pairs, nil
+}
+
+func loadIDMap(dbHelper *DBHelper, query, what string) (map[int32]int32, error) {
+	pairs, err := loadIDPairs(dbHelper, query, what)
+	result := make(map[int32]int32, len(pairs))
+	for _, pair := range pairs {
+		result[pair[0]] = pair[1]
+	}
+	return result, err
+}
+
+func loadIDLists(dbHelper *DBHelper, query, what string) (map[int32][]int32, error) {
+	pairs, err := loadIDPairs(dbHelper, query, what)
+	result := make(map[int32][]int32)
+	for _, pair := range pairs {
+		result[pair[0]] = append(result[pair[0]], pair[1])
+	}
+	return result, err
 }

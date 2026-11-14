@@ -3,6 +3,7 @@ import { ItemEffect } from '@generated/proto/spell';
 import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { FUTURE_PHASE } from '@sim/proto/sim_tables_auto_gen';
 import { Sim } from '@sim/sim';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
@@ -458,14 +459,14 @@ describe('ItemListToolbarView', () => {
 		expect(screen.queryByTestId('selector-modal-filters-button')).toBeNull();
 	});
 
-	it('shows the phase and writes a pick back', async () => {
-		const { props } = renderView({ phase: 3 });
+	it('shows a phase past the last one as Future and writes a pick back', async () => {
+		const { props } = renderView({ phase: FUTURE_PHASE + 1 });
 		await userEvent.click(within(screen.getByTestId('selector-modal-phase-selector')).getByRole('combobox'));
 		const options = screen.getAllByRole('option');
-		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true', 'false', 'false']);
+		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);
 
-		await userEvent.click(options[4]);
-		expect(props.onPhaseChange).toHaveBeenCalledWith(5);
+		await userEvent.click(options[0]);
+		expect(props.onPhaseChange).toHaveBeenCalledWith(1);
 	});
 
 	it('renders one checkbox per toggle, in order, under its own id and test id', () => {

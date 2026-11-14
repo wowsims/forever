@@ -8,6 +8,7 @@ import { useSimStore } from '@sim/hooks/useSimStore';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { useUiStore } from '@sim/hooks/useUiStore';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { FUTURE_PHASE } from '@sim/proto/sim_tables_auto_gen';
 import { subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
@@ -41,10 +42,7 @@ type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
 	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: 2, label: i18n.t('common.phases.2') },
-	{ value: 3, label: i18n.t('common.phases.3') },
-	{ value: 4, label: i18n.t('common.phases.4') },
-	{ value: 5, label: i18n.t('common.phases.5') },
+	{ value: FUTURE_PHASE, label: i18n.t('common.phases.future') },
 ];
 
 export interface ItemListToggle {
@@ -101,7 +99,8 @@ export const ItemListToolbarView = ({
 				</>
 			)}
 			<div className="min-w-28" data-testid="selector-modal-phase-selector">
-				<ChoiceField options={phaseOptions()} value={phase} onChange={onPhaseChange} />
+				{/* A phase saved past the last one shows as Future, which lists the same items. */}
+				<ChoiceField options={phaseOptions()} value={Math.min(phase, FUTURE_PHASE)} onChange={onPhaseChange} />
 			</div>
 			{toggles.map(toggle => (
 				<BooleanPicker

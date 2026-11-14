@@ -75,7 +75,9 @@ func main() {
 		db.WriteJson(fmt.Sprintf("%s/atlasloot_db.json", inputsDir))
 		return
 	} else if *genAsset == "questie" {
-		database.ReadQuestieData().WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		questieDB, questieQuests := database.ReadQuestieData()
+		questieDB.WriteJson(fmt.Sprintf("%s/questie_db.json", inputsDir))
+		database.WriteQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir), questieQuests)
 		return
 	} else if *genAsset != "db" {
 		panic("Invalid gen value")
@@ -116,7 +118,11 @@ func main() {
 		factionNames    map[int32]string
 		atlaslootDB     *database.WowDatabase
 		questieDB       *database.WowDatabase
+		questieQuests   map[int32]*database.QuestieQuest
 		raidZones       map[int32]bool
+		raidZoneMaps    map[int32]int32
+		spellReagents   map[int32][]int32
+		spellRecipes    map[int32][]int32
 		dungeonZones    map[int32]bool
 		areaNames       map[int32]string
 		iconsMap        map[int]string
@@ -154,9 +160,13 @@ func main() {
 	})
 	g.Go(func() error {
 		questieDB = database.ReadDatabaseFromJson(tools.ReadFile(fmt.Sprintf("%s/questie_db.json", inputsDir)))
+		questieQuests = database.ReadQuestieQuests(fmt.Sprintf("%s/questie_quests.json", inputsDir))
 		return nil
 	})
 	g.Go(func() (err error) { raidZones, err = database.LoadRaidZoneIDs(helper); return })
+	g.Go(func() (err error) { raidZoneMaps, err = database.LoadRaidZoneMaps(helper); return })
+	g.Go(func() (err error) { spellReagents, err = database.LoadSpellReagents(helper); return })
+	g.Go(func() (err error) { spellRecipes, err = database.LoadSpellRecipes(helper); return })
 	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
 	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
@@ -234,6 +244,13 @@ func main() {
 		Atlas:   atlaslootDB,
 		Questie: questieDB,
 	})
+	database.InferPhases(db, database.PhaseInputs{
+		Sources:  database.PhaseSources(craftingSources, repSources, atlaslootDB, questieDB),
+		Reagents: spellReagents,
+		Recipes:  spellRecipes,
+		Quests:   questieQuests,
+		RaidMaps: raidZoneMaps,
+	})
 	leftovers := db.Clone()
 	ApplyNonSimmableFilters(leftovers)
 	applyRepSources(leftovers, factionNames)
@@ -307,9 +324,6 @@ func main() {
 				}
 			}
 		}
-
-		// Forever's content phases are not known yet, so every item is phase 1.
-		item.Phase = 1
 	}
 	addSpellIcons(db, craftedSpellIds, icons, iconsMap)
 
