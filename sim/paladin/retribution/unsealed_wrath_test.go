@@ -68,6 +68,7 @@ func unsealedWrathPaladinUnder(t *testing.T, raidBuffs *proto.RaidBuffs) (sim *c
 		ActionID:         unsealedWrathSwing,
 		SpellSchool:      core.SpellSchoolPhysical,
 		ProcMask:         core.ProcMaskMeleeMHAuto,
+		DefenseType:      core.DefenseTypeMelee,
 		Flags:            core.SpellFlagMeleeMetrics,
 		DamageMultiplier: 1,
 		ThreatMultiplier: 1,
@@ -126,7 +127,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 			for range 100 {
 				castSeal(t, sim, pal, c.seal)
 				pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
-				for end := sim.CurrentTime + 1100*time.Millisecond; sim.CurrentTime <= end && !sim.Step(); {
+				for end := sim.CurrentTime + time.Second + 2*core.SpellBatchWindow; sim.CurrentTime <= end && !sim.Step(); {
 				}
 			}
 			if procs() == 0 {

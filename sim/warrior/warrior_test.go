@@ -99,6 +99,7 @@ const (
 	mainHandSlot        = 14
 	crusader            = 1900
 	windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
+	sweepingStrikesHit  = 12723 // The spell both of Sweeping Strikes' hits report under.
 )
 
 // A protection warrior with a main-hand Crusader, Windfury Totem in the party, the preraid shield and
@@ -741,7 +742,6 @@ func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
 // chance-on-hit bolt nor the main-hand weapon's Crusader; the normalized hit 26654, a melee hit, rolls both.
 // The copied hit with melee DefenseType rolls them too.
 func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
-	const sweepingStrikesHit = 12723
 	sim, war, _ := swordSpecSim(t, 1, &proto.RaidBuffs{}, crusader)
 	target := war.CurrentTarget
 
@@ -789,7 +789,6 @@ func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 
 // Sweeping Strikes' copied hit never rolls Windfury Totem; its normalized hit does.
 func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
-	const sweepingStrikesHit = 12723
 	sim, war, _ := swordSpecSim(t, 2, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 	target := war.CurrentTarget
 	windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
@@ -1179,7 +1178,6 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 // Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swing and
 // Windfury Totem's strike do bring them.
 func TestSwordSpecializationSkipsSweepingStrikesHits(t *testing.T) {
-	const sweepingStrikesHit = 12723 // The strike both of Sweeping Strikes' hits report under.
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
 	hits := func(spell *core.Spell) int32 {

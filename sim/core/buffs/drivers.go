@@ -216,9 +216,6 @@ func IsWindfuryTotemStrike(spell *core.Spell) bool {
 // The totem's summon, which names the totem aura in the metrics.
 var windfuryTotemCast = spelldata.MustFind(10614)
 
-// The hit Sweeping Strikes copies onto a second target, which never rolls the totem.
-var sweepingStrikesCopiedHit = core.ActionID{SpellID: 12723}
-
 // The totem hands the proc out as its raid aura, whose row states the chance,
 // what it hears and its 100 ms cooldown. The driver keeps the strike the proc
 // lands, and the totem aura that holds the category.
@@ -313,13 +310,12 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.TriggerImmediately = true
 	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon's
 	// strikes (28% a proc), Seal of Command (14%), Judgement of Command (22%) and
-	// Retaliation (17%). Sweeping Strikes' copied hit 12723 never does (0 of 490).
-	// Its normalized hit 26654 rolls it once: Whirlwind casts with a landed 26654
-	// brought a strike 63 times in 119, against 44.8 expected if it never rolled
-	// and 56.5 if it rolled once, about 6 log-likelihood units better than never.
-	// Once and twice can't be told apart.
+	// Retaliation (17%). A hit with no defense type is no melee attack and never
+	// rolls it: Sweeping Strikes' copied hit 12723 (0 of 490). Its normalized hit
+	// 26654 rolls it once (63 of 119 Whirlwinds with one struck; 44.8 expected if
+	// it never rolled, 56.5 if once).
 	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.ActionID != sweepingStrikesCopiedHit
+		return spell.DefenseType != core.DefenseTypeNone
 	}
 	trigger.ProcMask &= core.ProcMaskMeleeMH
 	trigger.RequireDamageDealt = false

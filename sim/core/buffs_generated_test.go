@@ -718,8 +718,8 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 
 // Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
 // special that lands can fire it, whether or not it deals damage. No other hit
-// can, a proc's hit included. Each proc casts the strike, and the cooldown lets
-// hits in one instant fire it once.
+// can, a proc's hit and a hit with no defense type included. Each proc casts
+// the strike, and the cooldown lets hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 	for _, row := range []struct {
 		name    string
@@ -728,16 +728,17 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 		damage  float64
 		procs   bool
 	}{
-		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeHit, 100, true},
-		{"a main-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 100, true},
-		{"a main-hand special landing no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 0, true},
-		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeMiss, 0, false},
+		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 100, true},
+		{"a main-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 100, true},
+		{"a main-hand special landing no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, core.OutcomeHit, 0, true},
+		{"a main-hand special with no defense type", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 100, false},
+		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee}, core.OutcomeMiss, 0, false},
 		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
 		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, core.OutcomeHit, 100, false},
 		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
 		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
 		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
-		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagProc}, core.OutcomeHit, 100, false},
+		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Flags: core.SpellFlagProc}, core.OutcomeHit, 100, false},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			sim, _, target, trigger, strike := windfuryTotemSim(t)
@@ -1027,7 +1028,7 @@ func TestGeneratedWindfuryTotemHoldsOverFlametongueTotem(t *testing.T) {
 	}
 	target := sim.Encounter.AllTargetUnits[0]
 	for i := 0; i < 200 && trigger.Icd.IsReady(sim); i++ {
-		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto},
+		trigger.OnCastResult(trigger, sim, &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto, DefenseType: core.DefenseTypeMelee},
 			&core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 	}
 	if trigger.Icd.IsReady(sim) {
