@@ -83,6 +83,12 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
 	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.
+	// TODO: Ingame test needed -- Spell Piercing on ticks follows the spell, not a tenth. From casters with
+	// 7 to 15 piercing, Shadow Word: Pain, Corruption, Agony, Immolate, Fireball's and Frostfire Bolt's ticks
+	// bin 3 of 6,232, while Devouring Plague's and Pyroblast's ticks and Starshards' channel ticks bin at
+	// the caster's direct rate. At 7 to 8 piercing a tenth rounded to whole points also gives no bins, so a DoT
+	// log at 10 or more piercing is needed before the tenth goes. Mind Flay, a channel, binned at the full rate
+	// at 7 piercing (67 of 390) in one log and never at 8 piercing (0 of 1,738) in two later ones.
 	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) {
 		averageResist /= 10
 	}
