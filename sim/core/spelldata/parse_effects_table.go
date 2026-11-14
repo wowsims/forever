@@ -154,11 +154,11 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	},
 
 	// The damage the unit deals and takes, by school mask. A row that names ranged weapons alone is a
-	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped, and
-	// also reaches the melee-defense spells of the schools its mask leaves out. Such a row's schools
-	// past Physical are a mod, since a school multiplier cannot leave a spell out. The mod skips the
-	// spells flagged SpellFlagIgnoreWeaponSchoolBonus and the helpful ones, whose heals read the
-	// multiplier it raises.
+	// mod on the attacks made with them; one that names a melee weapon holds while it is equipped. A
+	// melee weapon's row of every school is one multiplier. Any other gives its Physical as a school
+	// multiplier and every other school the percent on its melee-defense spells only, whether the mask
+	// names that school or leaves it out, so a magic-defense or ranged-defense spell of a school past
+	// Physical takes none.
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE: func(p *parser, e *Effect, v float64) *attachment {
 		rule, scope, ok := p.weaponScope(e)
 		switch {
@@ -181,25 +181,17 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 			return p.whileEquipped(scope.Equip(), a)
 		}
 
-		parts := []*attachment{a}
 		physical := e.Misc & int32(core.SpellSchoolPhysical)
-		if others := e.Misc &^ physical; others != 0 {
-			parts = parts[:0]
-			if a := multiplier(physical); a != nil {
-				parts = append(parts, a)
-			}
-			parts = append(parts, p.modFloat("damage-dealt-weapon-schools", core.SpellModConfig{
-				Kind:              core.SpellMod_DamageDone_Pct,
-				MultiplierSchool:  core.SpellSchool(others),
-				SpellFlagsExclude: core.SpellFlagIgnoreWeaponSchoolBonus | core.SpellFlagHelpful,
-			}, v/100))
-		}
-		parts = append(parts, p.modFloat("damage-dealt-melee", core.SpellModConfig{
+		melee := p.modFloat("damage-dealt-melee", core.SpellModConfig{
 			Kind:             core.SpellMod_DamageDone_Pct,
 			DefenseType:      core.DefenseTypeMelee,
-			MultiplierSchool: core.SpellSchool(miscAllSchools &^ e.Misc),
-		}, v/100))
-		return p.whileEquipped(scope.Equip(), joined(parts...))
+			MultiplierSchool: core.SpellSchool(miscAllSchools &^ physical),
+		}, v/100)
+		school := multiplier(physical)
+		if school == nil {
+			return p.whileEquipped(scope.Equip(), melee)
+		}
+		return p.whileEquipped(scope.Equip(), joined(school, melee))
 	},
 	dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN: func(p *parser, e *Effect, v float64) *attachment {
 		return p.schoolMultiplier("damage-taken", "DamageTakenMultiplier", e.Misc, core.MultiplierFromPercent(v),

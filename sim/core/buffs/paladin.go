@@ -58,11 +58,10 @@ func NewSpellDataShadowResistanceAuraRank(char *core.Character, rank PaladinAura
 }
 
 // The aura on the unit the shield protects, at the rank the paladin cast. The external
-// (party-buff) copy takes the providing paladin's Holy spell power as externalSpellPower. In game
-// Two-Handed Weapon Specialization's Holy does not reach the shield's damage.
+// (party-buff) copy takes the providing paladin's Holy spell power as externalSpellPower.
 func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank PaladinAuraRank, externalSpellPower float64) *core.Aura {
 	return newSpellPowerDamageShield(&char.Unit, paladinAuraMeta(retributionAuraMeta, rank), isPlayer, rank.Value,
-		externalSpellPower, core.SpellFlagIgnoreWeaponSchoolBonus)
+		externalSpellPower)
 }
 
 // One rank of a judgement debuff: the spell the target shows and the number its row states. The

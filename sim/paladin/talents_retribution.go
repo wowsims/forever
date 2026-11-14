@@ -227,16 +227,36 @@ func (paladin *Paladin) applySacredArbiter() {
 // Two-Handed Weapon Specialization - Increases the Physical and Holy damage you deal by 2/4/6%, and
 // reduces all threat you generate by 7/14/20% while a two-handed melee weapon is equipped.
 //
-// In game the Holy part reaches none of Exorcism, Hammer of Wrath and Retribution Aura, which carry
-// SpellFlagIgnoreWeaponSchoolBonus. No log has measured Holy Wrath or Holy Shock under the talent,
-// and they keep it.
+// The Holy part follows the defense type. In game the melee-defense Holy hits take it: the seal hits,
+// Holy Strike and Judgement of Command. Exorcism, Hammer of Wrath, Retribution Aura and the ranged
+// judgements are magic-defense or ranged-defense and take none, and Holy Wrath and Holy Shock, which
+// no log has measured under the talent, follow the same rule.
+//
+// Consecration is the one exception in game: its ticks are magic-defense and take the percent, so it
+// has a mod of its own, held while the row's weapon is equipped. The mod reads the effect by its
+// Physical and Holy mask, so a game build that takes Holy out of the row panics here.
 func (paladin *Paladin) applyTwoHandedWeaponSpecialization() {
 	if paladin.Talents.TwoHandedWeaponSpecialization == 0 {
 		return
 	}
 
-	spelldata.ParseStatic(&paladin.Character,
-		spellData.TwoHandedWeaponSpecialization.Rank(paladin.Talents.TwoHandedWeaponSpecialization))
+	rank := spellData.TwoHandedWeaponSpecialization.Rank(paladin.Talents.TwoHandedWeaponSpecialization)
+	spelldata.ParseStatic(&paladin.Character, rank)
+
+	damage := rank.Effect(dbcenums.A_MOD_DAMAGE_PERCENT_DONE, int32(core.SpellSchoolPhysical|core.SpellSchoolHoly))
+	_, scope := spelldata.WeaponScope(rank, damage)
+	consecration := paladin.AddDynamicMod(core.SpellModConfig{
+		ClassMask:  SpellMaskConsecration,
+		Kind:       core.SpellMod_DamageDone_Pct,
+		FloatValue: damage.Percent(),
+	})
+	paladin.NewEquipGate(scope.Equip(), func(_ *core.Simulation, level float64) {
+		if level > 0 {
+			consecration.Activate()
+		} else {
+			consecration.Deactivate()
+		}
+	}).SetLevel(nil, 1)
 }
 
 // Vengeance - Increases your Physical and Holy damage dealt by 1/2/3% for 30 sec after landing a
