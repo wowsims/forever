@@ -2127,6 +2127,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Deal 42 Fire damage over 3s.
+	// https://www.wowhead.com/forever/spell=1302343
+	// unsupported: states no rate
+	// trigger 1302343 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302343, BuffSpellID: 1302343, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 18755, ItemName: "Xorothian Firestick"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// While equipped, the wearer suffers less damage from falls.
 	// https://www.wowhead.com/forever/spell=23409
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{

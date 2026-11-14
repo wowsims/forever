@@ -27979,6 +27979,16 @@ var generatedSpells = []Spell{
 			{ID: 1134938, SpellID: 440809, Index: 1, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 90, SPCoef: 0.1289999932050705, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{16, 0}},
 			{ID: 1134939, SpellID: 440809, Index: 2, Type: dbcenums.E_SCRIPT_EFFECT, PvpMult: 1, RadiusMax: 8, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{16, 0}},
 		}},
+	{ID: 440827, Name: "Throw Concoction", School: 1, Attr: [17]uint32{0: 0x10040010, 1: 0x420, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 2000, CooldownMs: 30000, InterruptFlags: 8, CasterAura: 440828, RequiredAreas: 8193,
+		Effects: []Effect{
+			{ID: 1134963, SpellID: 440827, Type: dbcenums.E_SEND_EVENT, BaseLevel: 60, PvpMult: 1, Misc: 90343, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1136033, SpellID: 440827, Index: 1, Type: dbcenums.E_DUMMY, BaseLevel: 60, PvpMult: 1, RadiusMax: 20, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
+		},
+		Reagents: []Reagent{{Item: 217716, Count: 1}}},
+	{ID: 440841, Name: "Ward of the Dead", School: 1, Attr: [17]uint32{1: 0x20, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1,
+		Effects: []Effect{
+			{ID: 1134980, SpellID: 440841, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 440859, Name: "Frozen Orb", School: 1, Attr: [17]uint32{0: 0x40, 8: 0x1000, 9: 0x400000, 10: 0x8000, 15: 0x2000}, SpellLevel: 1, ClassFlags: core.ClassFlags{Family: 3},
 		Effects: []Effect{
 			{ID: 1135011, SpellID: 440859, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_OVERRIDE_ACTIONBAR_SPELLS, BasePoints: 440802, PvpMult: 1, Misc: 417347, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -37277,6 +37287,10 @@ var generatedSpells = []Spell{
 	{ID: 1302342, Name: "Carved Mind", School: 64, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, DurationMs: 30000, MaxRange: 100, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, MaxStack: 5, ProcChance: 101, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintDamage,
 		Effects: []Effect{
 			{ID: 1327905, SpellID: 1302342, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_CASTING_SPEED_NOT_STACK, BasePoints: -10, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1302343, Name: "Xorothian Fire", School: 4, Speed: 30, Attr: [17]uint32{3: 0x10000, 4: 0x800000, 8: 0x200, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 3000, MaxRange: 100, CategoryCooldownMs: 1000, DefenseType: 3,
+		Effects: []Effect{
+			{ID: 1327906, SpellID: 1302343, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 14, BaseLevel: 60, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1302344, Name: "Hedgecutter", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 58, MaxRange: 100, DefenseType: 1,
 		Effects: []Effect{

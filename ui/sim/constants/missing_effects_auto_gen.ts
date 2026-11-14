@@ -1453,6 +1453,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		18755, // Xorothian Firestick
+		[
+			"Deal 42 Fire damage over 3s.", // 1302343 - https://www.wowhead.com/forever/spell=1302343
+		]
+	],
+	[
 		18951, // Evonice's Landin' Pilla
 		[
 			"While equipped, the wearer suffers less damage from falls.", // 23409 - https://www.wowhead.com/forever/spell=23409
