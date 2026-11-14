@@ -1563,6 +1563,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Blasts a target for 105 Fire damage.
+	// https://www.wowhead.com/forever/spell=18833
+	// unsupported: states no rate
+	// trigger 18833 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18833, BuffSpellID: 18833, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 14555, ItemName: "Alcor's Sunrazor"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Corrupts the target, causing 84 damage over 9s.
 	// https://www.wowhead.com/forever/spell=18656
 	// unsupported: states no rate
