@@ -787,6 +787,37 @@ func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
 	}
 }
 
+// Sweeping Strikes' copied hit never rolls Windfury Totem; its normalized hit does.
+func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
+	const sweepingStrikesHit = 12723
+	sim, war, _ := swordSpecSim(t, 2, &proto.RaidBuffs{WindfuryTotem: true}, 0)
+	target := war.CurrentTarget
+	windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	trigger := war.GetAura("Windfury Totem Trigger")
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	normalized := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit, Tag: 1})
+	if windfury == nil || trigger == nil || copied == nil || normalized == nil {
+		t.Fatal("the warrior lacks the Windfury Totem proc or a Sweeping Strikes hit")
+	}
+
+	strikes := func(spell *core.Spell) int32 {
+		t.Helper()
+		before := windfury.SpellMetrics[target.UnitIndex].Casts
+		for range 1000 {
+			trigger.Icd.Reset()
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepPastBatch(t, sim)
+		}
+		return windfury.SpellMetrics[target.UnitIndex].Casts - before
+	}
+	if got := strikes(copied); got != 0 {
+		t.Errorf("1000 copied hits brought %d Windfury Totem strikes, want 0", got)
+	}
+	if got := strikes(normalized); got == 0 {
+		t.Error("1000 normalized hits brought no Windfury Totem strike, so the check above proves nothing")
+	}
+}
+
 // Heroic Strike goes off on the next swing, which casts it directly, so the press that queues it is the
 // manual cast. A press whose swing never fires still counts.
 func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
@@ -1145,8 +1176,8 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 	}
 }
 
-// Neither Sweeping Strikes' hits nor Windfury Totem's strike bring a Sword Specialization swing. The
-// warrior's own main-hand swing does bring them.
+// Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swing and
+// Windfury Totem's strike do bring them.
 func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	const sweepingStrikesHit = 12723 // The strike both of Sweeping Strikes' hits report under.
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
@@ -1164,7 +1195,6 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	for _, id := range []core.ActionID{
 		{SpellID: sweepingStrikesHit},
 		{SpellID: sweepingStrikesHit, Tag: 1},
-		{SpellID: windfuryTotemStrike},
 	} {
 		spell := war.GetSpell(id)
 		if spell == nil {
@@ -1175,6 +1205,13 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 		}
 	}
 
+	strike := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	if strike == nil {
+		t.Fatal("the warrior has no Windfury Totem strike")
+	}
+	if got := hits(strike); got == 0 {
+		t.Error("2000 landed Windfury Totem strikes brought no Sword Specialization swing, want some")
+	}
 	if got := hits(war.AutoAttacks.MHAuto()); got == 0 {
 		t.Error("2000 landed main-hand swings brought no Sword Specialization swing, so the checks above prove nothing")
 	}
@@ -1400,6 +1437,41 @@ func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
 				t.Errorf("%s left %v of %v rage, want %v", c.name, got, before, want)
 			}
 		})
+	}
+}
+
+// Execute's cast makes an attack of its own before the damage, and that attack rolls Windfury Totem
+// when it lands, so a cast whose damage is dodged can still bring a strike.
+func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
+	const executeID = 20662 // The top rank.
+	sim, war, target := shieldTestSim(t)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	execute := war.GetSpell(core.ActionID{SpellID: executeID})
+	windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	trigger := war.GetAura("Windfury Totem Trigger")
+	if execute == nil || windfury == nil || trigger == nil {
+		t.Fatal("the warrior has no Execute or no Windfury Totem proc")
+	}
+	landEveryCast(sim, war, target, execute)
+	war.AttackTables[target.UnitIndex].Hand(execute).BaseDodgeChance = 0.5
+
+	var dodged, dodgedStrikes int32
+	for range 2000 {
+		trigger.Icd.Reset()
+		dodges := execute.SpellMetrics[target.UnitIndex].Dodges
+		strikes := windfury.SpellMetrics[target.UnitIndex].Casts
+		execute.SkipCastAndApplyEffects(sim, target)
+		stepPastBatch(t, sim)
+		if execute.SpellMetrics[target.UnitIndex].Dodges > dodges {
+			dodged++
+			dodgedStrikes += windfury.SpellMetrics[target.UnitIndex].Casts - strikes
+		}
+	}
+	if dodged == 0 {
+		t.Fatal("no Execute damage was dodged, so the check below proves nothing")
+	}
+	if dodgedStrikes == 0 {
+		t.Errorf("%d casts whose damage was dodged brought no Windfury Totem strike, want some from the cast's own attack", dodged)
 	}
 }
 
