@@ -1176,6 +1176,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		14555, // Alcor's Sunrazor
+		[
+			"Blasts a target for 105 Fire damage.", // 18833 - https://www.wowhead.com/forever/spell=18833
+		]
+	],
+	[
 		14576, // Ebon Hilt of Marduk
 		[
 			"Corrupts the target, causing 84 damage over 9s.", // 18656 - https://www.wowhead.com/forever/spell=18656
