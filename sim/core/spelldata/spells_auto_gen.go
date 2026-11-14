@@ -16220,6 +16220,11 @@ var generatedSpells = []Spell{
 			{ID: 695927, SpellID: 18832, Type: dbcenums.E_HEAL, BasePoints: 800, Variance: 0.25, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 695928, SpellID: 18832, Index: 1, Type: dbcenums.E_ENERGIZE, BasePoints: 1200, Variance: 0.5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 18833, Name: "Firebolt", School: 4, Attr: [17]uint32{15: 0x2000}, SpellLevel: 30, MaxRange: 50000, DefenseType: 1, ClassFlags: core.ClassFlags{Family: 3},
+		Effects: []Effect{
+			{ID: 696289, SpellID: 18833, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 105, Variance: 0.20000000298023224, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		},
+		Powers: []Power{{Cost: 80}}},
 	{ID: 18867, Name: "Shadowburn", Rank: "Rank 2", School: 32, Attr: [17]uint32{0: 0x10000, 13: 0x80, 14: 0x40, 15: 0x2000}, SpellLevel: 24, BaseLevel: 24, MaxLevel: 30, DurationMs: 8000, MaxRange: 30, CategoryCooldownMs: 15000, GCDMs: 1500, Category: 651, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 5, Mask: [4]uint32{0: 128}}, InterruptFlags: 8, Labels: []int16{19},
 		Effects: []Effect{
 			{ID: 694921, SpellID: 18867, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_CHANNEL_DEATH_ITEM, BasePoints: 1, BaseLevel: 24, MaxLevel: 30, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
