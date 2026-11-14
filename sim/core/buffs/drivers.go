@@ -282,12 +282,12 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	// server's. Ranged attacks and spells never roll it, and neither does the
 	// hit of a proc without Not a Proc, since the row lacks Can Proc From
 	// Procs. Combat logs show Holy Strike, Stormstrike, Shred, Rake, Ferocious
-	// Bite, Claw and bear Swipe rolling it at 15–30%, and triggered spells
-	// never: Seal of Fury, poisons, Consecration ticks. An auto attack, another
-	// proc's extra swing included, always rolls it. The proc rolls off the
-	// hit's cast result, and the strike follows once that hit has been dealt,
-	// in the same instant. The strike requires a main hand, but it lands inside
-	// the 100 ms cooldown its proc has just started, so it never rolls.
+	// Bite, Claw and bear Swipe rolling it, and triggered spells never: Seal
+	// of Fury, poisons, Consecration ticks. An auto attack, another proc's
+	// extra swing included, always rolls it. The proc rolls off the hit's cast
+	// result, and the strike follows once that hit has been dealt, in the same
+	// instant. The strike requires a main hand, but it lands inside the 100 ms
+	// cooldown its proc has just started, so it never rolls.
 	trigger := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 		target := result.Target
 		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
@@ -301,8 +301,8 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
 	trigger.TriggerImmediately = true
-	// TODO: Ingame test needed: every log so far shows triggered hits never rolling the totem, but their rows have Not a Proc, so they roll it here:
-	// Windfury Weapon strikes 439440 1/78 and 0/194 after the hotfix; Seal of Command 0/117, Retaliation 0/18, Sweeping Strikes 0/166 before it.
+	// TODO: Ingame test needed: every log so far shows triggered hits all but never rolling the totem, but their rows have Not a Proc, so they roll it here:
+	// Windfury Weapon strikes 439440 1/78 and 0/194 after the hotfix; Seal of Command 0/117, Judgement of Command 0/105, Retaliation 0/18, Sweeping Strikes 0/166 before it.
 	trigger.ProcMask &= core.ProcMaskMeleeMH
 	trigger.RequireDamageDealt = false
 	return char.MakeProcTriggerAura(trigger)

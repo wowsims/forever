@@ -716,50 +716,11 @@ func windfuryTotemSim(t *testing.T) (*core.Simulation, *petOwner, *core.Unit, *c
 	return sim, owner, sim.Encounter.AllTargetUnits[0], trigger, strike
 }
 
-// The first melee ability in the store whose row requires a main-hand weapon
-// and does not go off on the next swing, the first that goes off on the next
-// swing without requiring one, and the first that does neither, each built
-// from its row as a main-hand ability is.
-func windfuryRowAbilities(t *testing.T) (requires *core.Spell, nextSwing *core.Spell, neither *core.Spell) {
-	t.Helper()
-	unit := &core.NewGeneratedBuffTestCharacter().Unit
-	for _, row := range spelldata.All() {
-		if row.DefenseType != core.DefenseTypeMelee {
-			continue
-		}
-		mainHand := spelldata.RequiredHand(row).Matches(core.ProcMaskMeleeMH)
-		onNextSwing := row.OnNextSwing()
-		var slot **core.Spell
-		switch {
-		case mainHand && !onNextSwing:
-			slot = &requires
-		case onNextSwing && !mainHand:
-			slot = &nextSwing
-		case !mainHand && !onNextSwing:
-			slot = &neither
-		default:
-			continue
-		}
-		if *slot == nil {
-			config := spelldata.SpellConfig(unit, row, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
-			*slot = &core.Spell{ProcMask: config.ProcMask, Flags: config.Flags}
-		}
-		if requires != nil && nextSwing != nil && neither != nil {
-			return requires, nextSwing, neither
-		}
-	}
-	t.Fatalf("the store holds a melee row that requires a main-hand weapon %v, one that goes off on the next swing %v and one that does neither %v, want all three",
-		requires != nil, nextSwing != nil, neither != nil)
-	return nil, nil, nil
-}
-
-// Windfury Totem's proc is the raid aura's: a main-hand melee swing or melee
-// ability that lands can fire it, whatever its row requires and whether or not
-// it deals damage. No other hit can, a proc's hit included. Each proc casts the
-// strike, and the cooldown lets hits in one instant fire it once.
+// Windfury Totem's proc is the raid aura's: a main-hand auto or main-hand
+// special that lands can fire it, whether or not it deals damage. No other hit
+// can, a proc's hit included. Each proc casts the strike, and the cooldown lets
+// hits in one instant fire it once.
 func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
-	requiresMainHand, onNextSwing, lacksMainHand := windfuryRowAbilities(t)
-
 	for _, row := range []struct {
 		name    string
 		spell   *core.Spell
@@ -768,17 +729,15 @@ func TestGeneratedWindfuryTotemProcsOffMainHandHits(t *testing.T) {
 		procs   bool
 	}{
 		{"a main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeHit, 100, true},
-		{"an ability whose row requires a main-hand weapon", requiresMainHand, core.OutcomeHit, 100, true},
-		{"such an ability landing no damage", requiresMainHand, core.OutcomeHit, 0, true},
-		{"an ability whose row goes off on the next swing and does not require a main-hand weapon", onNextSwing, core.OutcomeHit, 100, true},
-		{"an ability whose row neither requires a main-hand weapon nor goes off on the next swing", lacksMainHand, core.OutcomeHit, 100, true},
+		{"a main-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 100, true},
+		{"a main-hand special landing no damage", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}, core.OutcomeHit, 0, true},
 		{"a missed main-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, core.OutcomeMiss, 0, false},
 		{"an off-hand auto", &core.Spell{ProcMask: core.ProcMaskMeleeOHAuto}, core.OutcomeHit, 100, false},
-		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial, Flags: requiresMainHand.Flags}, core.OutcomeHit, 100, false},
+		{"an off-hand special", &core.Spell{ProcMask: core.ProcMaskMeleeOHSpecial}, core.OutcomeHit, 100, false},
 		{"a ranged auto", &core.Spell{ProcMask: core.ProcMaskRangedAuto}, core.OutcomeHit, 100, false},
 		{"a ranged special", &core.Spell{ProcMask: core.ProcMaskRangedSpecial}, core.OutcomeHit, 100, false},
 		{"a spell", &core.Spell{ProcMask: core.ProcMaskSpellDamage}, core.OutcomeHit, 100, false},
-		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: requiresMainHand.Flags | core.SpellFlagProc}, core.OutcomeHit, 100, false},
+		{"a main-hand proc's hit", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagProc}, core.OutcomeHit, 100, false},
 	} {
 		t.Run(row.name, func(t *testing.T) {
 			sim, _, target, trigger, strike := windfuryTotemSim(t)
