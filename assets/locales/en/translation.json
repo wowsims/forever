@@ -63,7 +63,8 @@
 			"2": "Phase 2",
 			"3": "Phase 3",
 			"4": "Phase 4",
-			"5": "Phase 5"
+			"5": "Phase 5",
+			"unknown": "Unknown"
 		},
 		"phase_names": {
 			"1": "Phase 1",

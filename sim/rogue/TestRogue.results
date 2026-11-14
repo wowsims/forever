@@ -280,9 +280,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
-  dps: 612.26921
-  tps: 434.71114
-  hps: 52.29056
+  dps: 623.89687
+  tps: 442.96678
+  hps: 53.34111
  }
 }
 dps_results: {

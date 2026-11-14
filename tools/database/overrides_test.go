@@ -5,6 +5,7 @@ package database
 // trusts. These run the merge on synthetic rows, so they need no game files database.
 
 import (
+	"slices"
 	"strings"
 	"testing"
 
@@ -413,8 +414,9 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 	}
 }
 
-// Of two sets sharing a name, the lower set id's items go and the higher's stay; a set alone under its
-// name, an item with no set and an ItemAllowList item of the lower set stay.
+// Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
+// lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
+// under its name, an item with no set and an ItemAllowList item of the lower set stay.
 func TestLowerSameNameSetIsDropped(t *testing.T) {
 	var allowed int32
 	for id := range ItemAllowList {
@@ -427,12 +429,13 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 
 	db := NewWowDatabase()
 	for _, item := range []*proto.UIItem{
-		{Id: 1, SetId: 10, SetName: "Shared"},
-		{Id: 2, SetId: 10, SetName: "Shared"},
-		{Id: 3, SetId: 20, SetName: "Shared"},
+		{Id: 1, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
+		{Id: 2, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
+		{Id: 3, SetId: 20, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs, ClassAllowlist: []proto.Class{proto.Class_ClassHunter}},
 		{Id: 4, SetId: 5, SetName: "Alone"},
 		{Id: 5},
-		{Id: allowed, SetId: 10, SetName: "Shared"},
+		{Id: 6, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeChest},
+		{Id: allowed, SetId: 10, SetName: "Shared", Type: proto.ItemType_ItemTypeLegs},
 	} {
 		db.Items[item.Id] = item
 	}
@@ -444,9 +447,12 @@ func TestLowerSameNameSetIsDropped(t *testing.T) {
 			t.Errorf("item %d of the lower set ships", id)
 		}
 	}
-	for _, id := range []int32{3, 4, 5, allowed} {
+	for _, id := range []int32{3, 4, 5, 6, allowed} {
 		if _, ok := db.Items[id]; !ok {
 			t.Errorf("item %d is dropped", id)
 		}
+	}
+	if got := db.Items[6]; got.GetSetId() != 20 || !slices.Equal(got.GetClassAllowlist(), []proto.Class{proto.Class_ClassHunter}) {
+		t.Errorf("item 6 of the lower set has set %d and classes %v, want the higher set 20 and its pieces' classes", got.GetSetId(), got.GetClassAllowlist())
 	}
 }

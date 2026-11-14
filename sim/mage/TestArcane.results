@@ -974,8 +974,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 802.353
-  tps: 691.29551
+  dps: 814.22793
+  tps: 700.91185
  }
 }
 dps_results: {
