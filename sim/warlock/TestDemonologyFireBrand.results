@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 780.73435
-  tps: 638.23376
+  dps: 764.40549
+  tps: 624.44953
   dtps: 8.2264
   hps: 10.00951
  }
@@ -1005,6 +1005,15 @@ dps_results: {
   tps: 617.97769
   dtps: 8.17332
   hps: 10.00951
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 762.23834
+  tps: 624.35857
+  dtps: 8.39481
+  hps: 10.04926
  }
 }
 dps_results: {

@@ -2737,6 +2737,21 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.
+	// https://www.wowhead.com/forever/spell=27853
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 22398, ItemName: "Idol of Rejuvenation"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces the Mana cost of Purify and Cleanse by 10%.
 	// https://www.wowhead.com/forever/spell=27850
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2761,21 +2776,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22402, ItemName: "Libram of Grace"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
-	// https://www.wowhead.com/forever/spell=1300435
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22458, ItemName: "Moonshadow Stave"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3678,22 +3678,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 274647, ItemName: "Farraki Kris"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once
-	// every 15 sec.
-	// https://www.wowhead.com/forever/spell=1294666
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 274651, ItemName: "Zealot Plate"},
 	// })
 
 	// TODO: Manual implementation required
@@ -4739,15 +4723,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 25906, BuffSpellID: 25907},
 		[]shared.ItemVariant{
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
-		})
-
-	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10s. This spell
-	// damage increase is doubled against Dragonkin.
-	// https://www.wowhead.com/forever/spell=1318930
-	// trigger 1318931 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 1318930
-	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930},
-		[]shared.ItemVariant{
-			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
 		})
 
 	// Gain up to 25 mana each time you cast Healing Touch.

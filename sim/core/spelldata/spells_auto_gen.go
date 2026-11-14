@@ -22572,6 +22572,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704563, SpellID: 27851, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -2, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 14, ClassFlags: core.ClassFlags{Family: 7, Mask: [4]uint32{0: 4096}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 27853, Name: "Increased Regrowth Healing", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 7}, Labels: []int16{21}, ProcHint: core.ProcHintHeals,
+		Effects: []Effect{
+			{ID: 704565, SpellID: 27853, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 5, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 27855, Name: "Increased Lesser Healing Wave", School: 1, Attr: [17]uint32{0: 0x1d0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 11}, Labels: []int16{24}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 704648, SpellID: 27855, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_OVERRIDE_CLASS_SCRIPTS, BasePoints: 80, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 3736, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 128}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36208,10 +36212,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1316155, SpellID: 1294666, Type: dbcenums.E_ENERGIZE, BasePoints: 88, Variance: 0.5, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1294668, Name: "Proc Self Energize 88", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 15000, RefIDs: []int32{1294666}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1294668, Name: "Proc Self Energize 88", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 5, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 15000, RefIDs: []int32{1294666},
 		Effects: []Effect{
 			{ID: 1316157, SpellID: 1294668, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, TriggerID: 1294666, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 5 -- Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'
 	{ID: 1294769, Name: "Increased Hit Chance - Ranged - 01", School: 1, Attr: [17]uint32{0: 0x400c0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, EquipClass: 2, EquipSubclass: 262156,
 		Effects: []Effect{
 			{ID: 1316376, SpellID: 1294769, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_HIT_CHANCE, BasePoints: 1, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36697,13 +36701,17 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1324972, SpellID: 1300364, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DETECTED_RANGE, BasePoints: -10, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1300435, Name: "Moonshadow", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RefIDs: []int32{1300437}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1300435, Name: "Moonshadow", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, ICDMs: 10, RPPM: 1.5, RefIDs: []int32{1300437}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1325075, SpellID: 1300435, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, Variance: 0.6666666865348816, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1.5 -- Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'
 	{ID: 1300437, Name: "Moonshadow", School: 32, Speed: 20, Attr: [17]uint32{0: 0xad000010, 1: 0x20018088, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1325078, SpellID: 1300437, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 91, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1300438, Name: "Moonshadow", School: 64, Speed: 20, Attr: [17]uint32{0: 0xad000010, 1: 0x20018088, 2: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 1325079, SpellID: 1300438, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 91, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
 	{ID: 1300493, Name: "Devilsaur Glare", School: 1, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 2500, MaxRange: 50000, Mechanic: 7, PreventionType: 2, TargetCreatureType: 1,
 		Effects: []Effect{
@@ -39011,10 +39019,10 @@ var generatedSpells = []Spell{
 			{ID: 1352625, SpellID: 1318930, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_HEALING_DONE, BasePoints: 35, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1352626, SpellID: 1318930, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS, BasePoints: 35, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 2, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318931, Name: "Draconic Infused Emblem", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10000}, RefIDs: []int32{1318930}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
+	{ID: 1318931, Name: "Draconic Infused Emblem", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 8, ProcFlags: [2]uint32{0: 0x10000}, RefIDs: []int32{1318930}, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1352627, SpellID: 1318931, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, TriggerID: 1318930, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 8 -- Draconic Infused Emblem: 8% on each landed harmful spell hit; column reads 100, tooltip says 'Chance on harmful spellcast'
 	{ID: 1318938, Name: "Counterattack Lodestone", School: 1, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1352636, SpellID: 1318938, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ATTACK_POWER, BasePoints: 30, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -40051,6 +40059,7 @@ var generatedHandTriggers = map[int32][]int32{
 	408344:  {408427},  // Fire Nova Rank 4 hits for 408427, the level 42 Fire Nova Rank 4 row, as ranks 1 and 2 hit for theirs
 	408345:  {408428},  // Fire Nova Rank 5 hits for 408428, the level 52 Fire Nova Rank 5 row, as ranks 1 and 2 hit for theirs
 	1252526: {1252543}, // Caustic Smog Potion's cloud: 1252526's E_CREATE_AREATRIGGER (area trigger 39425) lasts 12 sec and puts 1252543 on the enemies inside it; the tooltip reads $1252543s1 Nature damage every $1252543t1 sec, and the potion's 1252525 names 1252543 among its tooltip references
+	1300435: {1300438}, // Moonshadow Stave's dummy aura casts Shadow 1300437 or Arcane 1300438 on each proc; the tooltip names only 1300437 and reads Arcane or Shadow damage, and both hit for the item's procs
 	1310905: {1280353}, // Consecrated Ground's talent aura (a dummy) rides the mark Consecration's ground puts on the first 4 enemies inside it, 1280353: same name and class set, the bonus damage's dummy with its 0.042 coefficient and a Holy damage from caster mod whose points the server sets from the talent; the tooltip names the Consecration rank 20924 instead
 	1311074: {1311077}, // Sanctified Judgement's talent aura (two dummies) casts the mana refund 1311077: same name and icon, a mana energize whose tooltip reads Judging restores a portion of the Judged Seal's Mana cost
 	1323967: {1323969}, // Gore Drinker's talent aura (two dummies) applies the buff its tooltip describes: same name, class set and icon, 3 charges heard on melee attacks, and its aura 231 casts the heal 1323968

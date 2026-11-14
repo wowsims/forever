@@ -375,8 +375,8 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 893.81109
-  tps: 904.73515
+  dps: 876.46342
+  tps: 887.38748
   dtps: 5.35885
  }
 }
@@ -1182,6 +1182,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 884.88504
+  tps: 895.8378
+  dtps: 5.09143
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Naglering-11669"
  value: {
   dps: 883.55179
@@ -1393,7 +1401,7 @@ dps_results: {
  key: "TestBalance-AllItems-StormshroudArmor"
  value: {
   dps: 851.53667
-  tps: 862.57533
+  tps: 862.58689
   dtps: 5.00299
  }
 }
@@ -1893,7 +1901,7 @@ dps_results: {
  key: "TestBalance-Settings-Tauren-prebis-Standard-default-FullBuffs-20.0yards-LongSingleTarget"
  value: {
   dps: 774.50562
-  tps: 785.36363
+  tps: 785.38002
   dtps: 5.0411
  }
 }

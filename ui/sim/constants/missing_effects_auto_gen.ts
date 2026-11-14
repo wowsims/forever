@@ -1999,6 +1999,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22398, // Idol of Rejuvenation
+		[
+			"Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.", // 27853 - https://www.wowhead.com/forever/spell=27853
+		]
+	],
+	[
 		22400, // Libram of Truth
 		[
 			"Reduces the Mana cost of Purify and Cleanse by 10%.", // 27850 - https://www.wowhead.com/forever/spell=27850
@@ -2008,12 +2014,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22402, // Libram of Grace
 		[
 			"Reduces the mana cost of your Cleanse spell by 25.", // 27847 - https://www.wowhead.com/forever/spell=27847
-		]
-	],
-	[
-		22458, // Moonshadow Stave
-		[
-			"Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.", // 1300435 - https://www.wowhead.com/forever/spell=1300435
 		]
 	],
 	[
@@ -2561,12 +2561,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		274647, // Farraki Kris
 		[
 			"Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0 sec for 6s.", // 1294645 - https://www.wowhead.com/forever/spell=1294645
-		]
-	],
-	[
-		274651, // Zealot Plate
-		[
-			"When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once every 15 sec.", // 1294666 - https://www.wowhead.com/forever/spell=1294666
 		]
 	],
 	[

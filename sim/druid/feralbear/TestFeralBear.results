@@ -1324,6 +1324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 440.18061
+  tps: 2244.89462
+  dtps: 399.10166
+  hps: 84.54557
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Naglering-11669"
  value: {
   dps: 529.52168

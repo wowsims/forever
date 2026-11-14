@@ -259,8 +259,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 742.38321
-  tps: 684.78086
+  dps: 726.68299
+  tps: 670.65066
  }
 }
 dps_results: {
@@ -829,6 +829,13 @@ dps_results: {
  value: {
   dps: 721.65948
   tps: 666.1295
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 736.57974
+  tps: 679.15158
  }
 }
 dps_results: {
