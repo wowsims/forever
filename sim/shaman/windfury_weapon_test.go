@@ -13,8 +13,11 @@ import (
 	"github.com/wowsims/forever/sim/shaman"
 )
 
-// The spell each Windfury Weapon strike reports under.
-var windfuryWeaponStrike = core.ActionID{SpellID: spelldata.MustFind(439440).ID}
+// The spells each Windfury Weapon strike and each Windfury Totem strike report under.
+var (
+	windfuryWeaponStrike = core.ActionID{SpellID: spelldata.MustFind(439440).ID}
+	windfuryTotemStrike  = core.ActionID{SpellID: spelldata.MustFind(10610).ID}
+)
 
 // Windfury Weapon's strikes are main-hand abilities: Flametongue Totem, which hears auto attacks
 // alone, procs once for each swing that lands and never off a strike, and the strikes roll the
@@ -93,7 +96,7 @@ func TestFlurrySpendsOnSwingsAndWindfuryStrikes(t *testing.T) {
 	trigger := sham.GetAura("Flurry - Trigger")
 	swing := sham.AutoAttacks.MHAuto()
 	strike := sham.GetSpell(windfuryWeaponStrike)
-	totemStrike := sham.GetSpell(core.ActionID{SpellID: spelldata.MustFind(10610).ID})
+	totemStrike := sham.GetSpell(windfuryTotemStrike)
 	if flurry == nil || trigger == nil || strike == nil || totemStrike == nil || sham.Stormstrike == nil {
 		t.Fatalf("Flurry %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v, Stormstrike %v; want all registered",
 			flurry, trigger, strike, totemStrike, sham.Stormstrike)

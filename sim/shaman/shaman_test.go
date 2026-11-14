@@ -376,12 +376,9 @@ func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
 func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 	player := windfuryShaman(&proto.APLRotation{})
 	player.TalentsString = enhancementTalents
-	// Each hit steps the sim to its next event, so the fight outlasts every hit's deferred stack.
-	encounter := core.MakeSingleTargetEncounter(0)
-	encounter.Duration = 3600
 	sim := core.NewSim(&proto.RaidSimRequest{
 		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
-		Encounter:  encounter,
+		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
 	sim.Reset()
@@ -390,7 +387,7 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 	maelstrom := sham.GetAuraByID(core.ActionID{SpellID: spelldata.MustFind(408505).ID})
 	trigger := sham.GetAura("Maelstrom Weapon - Trigger")
 	strike := sham.GetSpell(windfuryWeaponStrike)
-	totemStrike := sham.GetSpell(core.ActionID{SpellID: spelldata.MustFind(10610).ID})
+	totemStrike := sham.GetSpell(windfuryTotemStrike)
 	if maelstrom == nil || trigger == nil || strike == nil || totemStrike == nil {
 		t.Fatalf("Maelstrom Weapon %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v; want all registered",
 			maelstrom, trigger, strike, totemStrike)
@@ -398,14 +395,16 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 
 	sham.AutoAttacks.CancelAutoSwing(sim)
 
-	// The stack lands a spell batch window after its hit.
+	// The stack lands a spell batch window after its hit; a no-op action just past the window stops
+	// each step there.
 	procs := func(spell *core.Spell) int {
 		gains := 0
 		for range 300 {
 			maelstrom.Deactivate(sim)
 			trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: sham.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
-			for end, ended := sim.CurrentTime+core.SpellBatchWindow, false; sim.CurrentTime <= end && !ended; {
-				ended = sim.Step()
+			for at := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= at; {
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+				sim.Step()
 			}
 			if maelstrom.IsActive() {
 				gains++
