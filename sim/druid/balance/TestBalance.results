@@ -1270,6 +1270,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-RockonStick-279852"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-RuneofMetamorphosis-19340"
  value: {
   dps: 868.92475

@@ -999,6 +999,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-RockonStick-279852"
+ value: {
+  dps: 716.23713
+  tps: 512.46256
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 745.10057
