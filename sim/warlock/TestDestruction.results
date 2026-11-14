@@ -880,6 +880,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 878.91054
+  tps: 692.94889
+  dtps: 9.96285
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Naglering-11669"
  value: {
   dps: 902.94873

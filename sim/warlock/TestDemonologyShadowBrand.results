@@ -1008,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 755.67163
+  tps: 642.83179
+  dtps: 10.75856
+  hps: 7.82576
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Naglering-11669"
  value: {
   dps: 763.92565

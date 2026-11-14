@@ -832,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 750.63245
+  tps: 775.59422
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-Naglering-11669"
  value: {
   dps: 793.57301

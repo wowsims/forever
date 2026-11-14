@@ -1126,6 +1126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 716.89779
+  tps: 534.83581
+  hps: 46.71583
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Naglering-11669"
  value: {
   dps: 783.59995

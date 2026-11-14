@@ -2746,21 +2746,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
-	// https://www.wowhead.com/forever/spell=1300435
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22458, ItemName: "Moonshadow Stave"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases the duration of your Sprint ability by 3.0 sec.
 	// https://www.wowhead.com/forever/spell=23049
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{

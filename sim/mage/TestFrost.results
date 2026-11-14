@@ -832,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 736.57974
+  tps: 679.15158
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Naglering-11669"
  value: {
   dps: 774.38534

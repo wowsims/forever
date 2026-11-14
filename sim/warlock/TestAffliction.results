@@ -1008,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 660.5058
+  tps: 533.26795
+  dtps: 8.49523
+  hps: 7.35945
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-Naglering-11669"
  value: {
   dps: 644.31174
