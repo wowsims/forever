@@ -826,6 +826,21 @@ func (w *workspace) hover(text string, line, col int, uri string, picks *rankPic
 		return idMarkdown(s), trace.lines, true
 	}
 
+	if match := matchCovering(lineText, column, evidencePattern, rulingPattern); match != nil {
+		id := lineText[match[2]:match[3]]
+		trace.add("id %s", id)
+		read := w.evidenceMarkdown
+		if strings.HasPrefix(id, "R-") {
+			read = w.rulingMarkdown
+		}
+		markdown, err := read(id)
+		if err != nil {
+			return trace.fail("%v", err)
+		}
+		trace.add("✓ %s", id)
+		return markdown, trace.lines, true
+	}
+
 	if filepath.Ext(path) != ".go" {
 		return trace.fail("no spell id under the cursor")
 	}

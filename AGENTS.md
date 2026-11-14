@@ -55,4 +55,7 @@ Pull requests:
 
 A ruling, trap or workflow fact learned while working is written down in the same change. A rule one spell, aura
 effect, item or component owns is a comment at its implementation (the rule in present tense, no pull request number);
-a rule no single file owns goes into the subject skill, or its `references/rulings.md`.
+a rule no single file owns goes into the subject skill, or its `references/rulings.md`, as a bullet with the next free
+`R-` id. A measurement behind a rule (log counts, rates, "checked in game") goes into its own `docs/evidence/` file
+under the next free `EV-` id, and the comment, override `Source` or rulings bullet cites that id instead of the numbers;
+`docs/evidence/README.md` has the format, and `make skills-check` fails on an id with no file or bullet.

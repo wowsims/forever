@@ -10,141 +10,139 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N", "combat log, <date>"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "wcl:<report>/<fight>", "issue #N", "combat log, <date>"
 }
 
-// Each rate is a carry-over unless its Source names a combat log or WCL reports from this server. A hotfix
+// Each rate is a carry-over unless its Source names its evidence, a combat log or WCL reports from this server. A hotfix
 // that adds back a weapon whose row was dropped needs the row restored from git history, or the database
 // tests that name the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
-	// Measured in end-game dungeon logs: the procs over the landed hits of the weapon carrying them, white swings
-	// and specials alike, as the sim's weapon proc listens, at the weapon's speed (a druid's at the paw's). Shield
-	// Slam, Shield Bash and Shank hits are left out, since they roll a chance-on-hit weapon about once in a thousand.
+	// Measured in end-game dungeon logs (EV-0003).
 	{
 		ItemID:  9418,
 		SpellID: 12731,
 		PPM:     2.5,
-		Reason:  "Stoneslayer: no proc row; 619 procs on landed hits, 4 end-game dungeon runs, 1 player",
-		Source:  "wcl:NHa2RqtjxAvPFwLg/8 and 3 more runs, 2026-11-12",
+		Reason:  "Stoneslayer: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  10750,
 		SpellID: 1300356,
 		PPM:     1.5,
-		Reason:  "Lifeforce Dirk: no proc row; 161 procs on landed hits, 2 end-game dungeon runs, 2 players, off hand",
-		Source:  "wcl:jT7NDMWFfhKk1bdz/1 and 1 more run, 2026-11-12",
+		Reason:  "Lifeforce Dirk: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  11744,
 		SpellID: 16433,
 		PPM:     3.2,
-		Reason:  "Bloodfist: no proc row; 91 procs on landed hits, 3 end-game dungeon runs, 2 players, off hand",
-		Source:  "wcl:fFMPzh2LjnRTtaAk/1 and 2 more runs, 2026-11-12",
+		Reason:  "Bloodfist: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  11803,
 		SpellID: 18086,
 		PPM:     2,
-		Reason:  "Force of Magma: no proc row; 398 procs on landed hits, 3 end-game dungeon runs, 2 players",
-		Source:  "wcl:fgMRXWJKHzaLt2Gh/1 and 2 more runs, 2026-11-12",
+		Reason:  "Force of Magma: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  12463,
 		SpellID: 14118,
 		PPM:     1.5,
-		Reason:  "Drakefang Butcher: column reads 101; 146 procs on landed hits, 1 end-game dungeon run, 1 player",
-		Source:  "wcl:LQG6jWCnAP1gwvdt/1, 2026-11-12",
+		Reason:  "Drakefang Butcher: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  12582,
 		SpellID: 16528,
 		PPM:     1.7,
-		Reason:  "Keris of Zul'Serak: no proc row; 295 procs on landed hits, 6 end-game dungeon runs, 2 players, dual wielded",
-		Source:  "wcl:cvRTFb1qhGBKNkCD/45 and 5 more runs, 2026-11-12",
+		Reason:  "Keris of Zul'Serak: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  12969,
 		SpellID: 17196,
 		PPM:     0.9,
-		Reason:  "Seeping Willow: column reads 101; 78 procs on landed hits, 4 end-game dungeon runs, 2 players, cat form, at the 1.0 s paw",
-		Source:  "wcl:T79gRkJz4QVGbyYW/9 and 3 more runs, 2026-11-12",
+		Reason:  "Seeping Willow: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  13183,
 		SpellID: 18203,
 		PPM:     1.7,
-		Reason:  "Venomspitter: column reads 101; 157 procs on landed hits, 4 end-game dungeon runs, 3 players, dual wielded",
-		Source:  "wcl:6AX1yxVMGKT7zbqL/1 and 3 more runs, 2026-11-12",
+		Reason:  "Venomspitter: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  13348,
 		SpellID: 17483,
 		PPM:     1.1,
-		Reason:  "Demonshear: column reads 101; 67 procs on landed hits, 1 end-game dungeon run, 1 player",
-		Source:  "wcl:DpGg6kA8nyMQ1Hzh/1, 2026-11-12",
+		Reason:  "Demonshear: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  13983,
 		SpellID: 18289,
 		PPM:     1.9,
-		Reason:  "Gravestone War Axe: no proc row; 116 procs on landed hits, 3 end-game dungeon runs, 1 player",
-		Source:  "wcl:NRK61HZcDdJkrwXG/5 and 2 more runs, 2026-11-12",
+		Reason:  "Gravestone War Axe: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  17730,
 		SpellID: 21949,
 		PPM:     1.2,
-		Reason:  "Gatorbite Axe: column reads 101; 188 procs on landed hits, 11 end-game dungeon runs, 2 players",
-		Source:  "wcl:kW9V4CMKfmBbtrRH/3 and 10 more runs, 2026-11-12",
+		Reason:  "Gatorbite Axe: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  17753,
 		SpellID: 29655,
 		PPM:     3.5,
-		Reason:  "Verdant Keeper's Aim: no proc row; 6839 procs on landed ranged hits, 33 end-game dungeon runs, 14 players; melee hits do not roll it",
-		Source:  "wcl:DpGg6kA8nyMQ1Hzh/1 and 32 more runs, 2026-11-12",
+		Reason:  "Verdant Keeper's Aim: no proc row; melee hits do not roll it",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  17766,
 		SpellID: 21961,
 		PPM:     1.8,
-		Reason:  "Princess Theradras' Scepter: column reads 101; 307 procs on landed hits, 2 end-game dungeon runs, a shaman and a cat druid",
-		Source:  "wcl:x3qQt7yf9mAgbTrZ/1 and 1 more run, 2026-11-12",
+		Reason:  "Princess Theradras' Scepter: column reads 101",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  17943,
 		SpellID: 1294794,
 		PPM:     3.2,
-		Reason:  "Fist of Stone: equip trigger, column reads 100; 105 procs on 1086 landed autos, Holy Strikes and Judgements, 1 end-game dungeon run, 1 player",
-		Source:  "wcl:vQZLCzhPNatk7r3d/1, 2026-11-12",
+		Reason:  "Fist of Stone: equip trigger, column reads 100",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  18388,
 		SpellID: 1302279,
 		PPM:     1.7,
-		Reason:  "Stoneshatter: no proc row; 146 procs on landed hits, 3 end-game dungeon runs, 1 player",
-		Source:  "wcl:YH7n2xZqPKzWjQrR/6 and 2 more runs, 2026-11-12",
+		Reason:  "Stoneshatter: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  274270,
 		SpellID: 1293568,
 		PPM:     1.1,
-		Reason:  "Weed Whacker: no proc row; 119 procs on landed hits, 1 end-game dungeon run, 1 player",
-		Source:  "wcl:LQG6jWCnAP1gwvdt/1, 2026-11-12",
+		Reason:  "Weed Whacker: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  275441,
 		SpellID: 1297921,
 		PPM:     2.3,
-		Reason:  "Cremation Longbow: no proc row; 292 procs on landed hits, 3 end-game dungeon runs, 1 player",
-		Source:  "wcl:NgRFKH1PWzykqC9Q/12 and 2 more runs, 2026-11-12",
+		Reason:  "Cremation Longbow: no proc row",
+		Source:  "EV-0003",
 	},
 	{
 		ItemID:  276419,
 		SpellID: 1299631,
 		PPM:     3.6,
-		Reason:  "Lightcrest Hammer: no proc row; 148 procs on landed hits, 1 end-game dungeon run, 1 player, main hand while dual wielding",
-		Source:  "wcl:AHaVwhrgcm9NM2TZ/19, 2026-11-12",
+		Reason:  "Lightcrest Hammer: no proc row",
+		Source:  "EV-0003",
 	},
 	// Measured the same way in combat logs of levelling players. A druid's Maul, Swipe, Claw and Lacerate hits
 	// are left out as well: 2 of 7736 gave a chance-on-hit weapon's proc (3 druids, 2 weapons). The chance a

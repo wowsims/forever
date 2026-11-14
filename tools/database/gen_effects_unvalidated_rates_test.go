@@ -19,6 +19,8 @@ import (
 // A measured Source needs no notice; a carry-over names its version, and anything else is an estimate.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
+		"EV-0001":                             "",
+		"EV-1":                                "unknown",
 		"wcl:abc/1-2, 2026-01-01":             "",
 		"issue #1":                            "",
 		"combat log, Rend Rank 2, 2026-10-01": "",

@@ -794,7 +794,7 @@ var Spells = []Override{
 		Field:   FlatThreat,
 		Value:   60,
 		Reason:  "Heroic Strike Rank 4: threat is the damage + 60, times the stance",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11564,
@@ -808,28 +808,28 @@ var Spells = []Override{
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 6 in game.
 		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11566,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 7 in game.
 		Reason:  "Heroic Strike Rank 7: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11567,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 8 in game.
 		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 25286,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 9 in game.
 		Reason:  "Heroic Strike Rank 9: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 845,
@@ -868,77 +868,76 @@ var Spells = []Override{
 	},
 
 	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
-	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in. The share comes from
-	// four readings of Rank 1, none fully clean.
+	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in (EV-0004).
 	{
 		SpellID: 1240193,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 1 in game.
 		Reason:  "Slam Rank 1: threat is the damage + 30, times the stance",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1464,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 2 in game.
 		Reason:  "Slam Rank 2: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 8820,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 3 in game.
 		Reason:  "Slam Rank 3: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11604,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 4 in game.
 		Reason:  "Slam Rank 4: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11605,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 5 in game.
 		Reason:  "Slam Rank 5: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310196,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 1 in game.
 		Reason:  "Slam Rank 1 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310197,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 2 in game.
 		Reason:  "Slam Rank 2 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310198,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 3 in game.
 		Reason:  "Slam Rank 3 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310199,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 4 in game.
 		Reason:  "Slam Rank 4 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310200,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 5 in game.
 		Reason:  "Slam Rank 5 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 
 	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
