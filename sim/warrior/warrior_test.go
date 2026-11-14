@@ -1178,7 +1178,7 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 
 // Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swing and
 // Windfury Totem's strike do bring them.
-func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
+func TestSwordSpecializationSkipsSweepingStrikesHits(t *testing.T) {
 	const sweepingStrikesHit = 12723 // The strike both of Sweeping Strikes' hits report under.
 	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
