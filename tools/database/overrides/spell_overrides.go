@@ -363,6 +363,13 @@ var Spells = []Override{
 		Reason:  "Judgement of Wisdom Rank 3: Rank 1's measured chance",
 		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
 	},
+	{
+		SpellID: 1318931,
+		Field:   ProcChancePct,
+		Value:   8,
+		Reason:  "Draconic Infused Emblem: column reads 100, tooltip says 'Chance on harmful spellcast'; 435 procs on about 5,200 landed harmful spell hits, 2 mages, 2 warlocks and 1 priest",
+		Source:  "wcl:1ZyhaVDdFtTYWMcC, NRK61HZcDdJkrwXG, NXMZV9xjvWpB7GtP and T79gRkJz4QVGbyYW, 2026-11-14",
+	},
 
 	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from
 	// 99 to 154. Only Rend Rank 2 and Thunder Clap Rank 1 were measured; the other ranks carry the

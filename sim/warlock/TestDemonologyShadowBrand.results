@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 788.3099
-  tps: 672.37659
+  dps: 771.02862
+  tps: 657.1983
   dtps: 10.45093
   hps: 7.66513
  }

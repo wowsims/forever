@@ -259,8 +259,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 747.13967
-  tps: 643.99545
+  dps: 738.05952
+  tps: 636.64469
  }
 }
 dps_results: {

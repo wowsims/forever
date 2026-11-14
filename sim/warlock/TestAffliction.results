@@ -331,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 674.31714
-  tps: 545.15358
+  dps: 657.27515
+  tps: 531.77297
   dtps: 8.1557
   hps: 7.19695
  }

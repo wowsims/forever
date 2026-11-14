@@ -479,9 +479,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 416.19472
-  tps: 992.6311
-  dtps: 344.48824
+  dps: 408.12417
+  tps: 971.1207
+  dtps: 345.00478
   hps: 18.28306
  }
 }

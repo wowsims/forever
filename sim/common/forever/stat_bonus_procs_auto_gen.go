@@ -4720,15 +4720,6 @@ func RegisterAllProcs() {
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
 		})
 
-	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10s. This spell
-	// damage increase is doubled against Dragonkin.
-	// https://www.wowhead.com/forever/spell=1318930
-	// trigger 1318931 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellDamage) -> buff 1318930
-	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930},
-		[]shared.ItemVariant{
-			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
-		})
-
 	// Gain up to 25 mana each time you cast Healing Touch.
 	// https://www.wowhead.com/forever/spell=28847
 	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
