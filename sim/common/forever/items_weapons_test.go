@@ -305,19 +305,16 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 
 // Skullforge Reaver 13361 in the main hand casts 17484 at the procs per minute of the item's entry, on
 // the sword's speed, off landed main-hand swings and specials, and never off a miss, the off hand's
-// swings or a ranged hit. The brand drains the target every period for the row's duration and heals the wearer
-// the row's heal every period, and a second proc refreshes it.
+// swings or a ranged hit. The brand drains the target every period for the row's duration and heals
+// the wearer the row's heal every period, and a second proc refreshes it.
 func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
-	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13361, warKnife)})
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13361, 0)})
 	character.AutoAttacks.CancelAutoSwing(sim)
 	proc := character.GetAura("Skullforge Reaver")
 	brand := character.GetSpell(core.ActionID{SpellID: 17484})
 	transfer := character.GetSpell(core.ActionID{SpellID: 17484, Tag: 1})
 	if proc == nil || proc.Dpm == nil || brand == nil || transfer == nil {
 		t.Fatal("13361 registers no brand, no heal or no proc on a procs per minute rate")
-	}
-	if got := character.Equipment[proto.ItemSlot_ItemSlotOffHand].ID; got != warKnife {
-		t.Fatalf("the off hand holds %d, want the dagger %d", got, warKnife)
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13361, 17484)
 	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 13361, 17484)

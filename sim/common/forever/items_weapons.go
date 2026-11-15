@@ -250,10 +250,11 @@ func init() {
 	// the sword's speed. Landed white swings and melee specials of the hand that holds it roll it alike,
 	// Windfury Totem strikes too; the other hand's swings and ranged hits never do, and a proc on a
 	// branded target refreshes the brand (EV-0121). 17484's first effect drains the target and its
-	// second heals the wearer as a heal over time of its own.
+	// second heals the wearer as a heal over time of its own. Both crit, as the row's Periodic Can Crit says.
 	newEntryRateItemEffect(13361, 17484, func(character *core.Character, ppm float64) {
 		row := spelldata.MustFind(17484)
 		heal := row.FirstAura(dbcenums.A_PERIODIC_HEAL)
+		healCrits := row.PeriodicCanCrit() && !row.CannotCrit()
 
 		healConfig := procSpellConfig(character, row)
 		healConfig.ProcMask = core.ProcMaskSpellHealing
@@ -261,7 +262,11 @@ func init() {
 		healConfig.Hot = spelldata.DotConfig(row, heal)
 		healConfig.Hot.SelfOnly = true
 		healConfig.Hot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-			dot.Spell.CalcAndDealPeriodicHealing(sim, target, heal.Roll(sim), dot.OutcomeTick)
+			outcome := dot.OutcomeTick
+			if healCrits {
+				outcome = dot.Spell.OutcomeTickHealingCrit
+			}
+			dot.Spell.CalcAndDealPeriodicHealing(sim, target, heal.Roll(sim), outcome)
 		}
 		transfer := character.RegisterSpell(healConfig)
 

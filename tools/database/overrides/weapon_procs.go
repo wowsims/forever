@@ -269,7 +269,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  13361,
 		SpellID: 17484,
-		PPM:     1.85,
+		PPM:     1.95,
 		Reason:  "Skullforge Reaver: column reads 100",
 		Source:  "EV-0121",
 	},

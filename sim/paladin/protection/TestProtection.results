@@ -1811,10 +1811,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 414.39899
-  tps: 979.9185
-  dtps: 334.84418
-  hps: 28.27667
+  dps: 414.69712
+  tps: 980.18305
+  dtps: 334.63744
+  hps: 28.97083
  }
 }
 dps_results: {

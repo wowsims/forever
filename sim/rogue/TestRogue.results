@@ -1280,9 +1280,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 637.61034
-  tps: 452.70334
-  hps: 58.00028
+  dps: 637.65931
+  tps: 452.73811
+  hps: 59.19611
  }
 }
 dps_results: {

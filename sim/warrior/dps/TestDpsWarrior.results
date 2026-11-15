@@ -1487,10 +1487,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-SkullforgeReaver-13361"
  value: {
-  dps: 560.33501
-  tps: 482.77925
+  dps: 560.68887
+  tps: 483.16297
   dtps: 2.94293
-  hps: 50.40833
+  hps: 51.21625
  }
 }
 dps_results: {
