@@ -276,6 +276,7 @@ var auraTable = map[dbcenums.EffectAuraType]row{
 	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  mobTypeStatRow,
 	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: mobTypeStatRow,
 	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   mobTypeStatRow,
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       mobTypeStatRow,
 	dbcenums.A_MOD_DAMAGE_DONE_VERSUS:         damageVersusRow,
 	dbcenums.A_MOD_CRIT_PERCENT_VERSUS:        critDamageVersusRow,
 
@@ -1069,19 +1070,21 @@ func statShareRow(p *parser, e *Effect, v float64) *attachment {
 // A stat the unit has against the mob types a creature type mask names, which the sim keeps on the
 // attack tables.
 func mobTypeStatRow(p *parser, e *Effect, v float64) *attachment {
-	stat := versusStats[e.Aura]
 	mobTypes := MobTypes(e.Misc)
 	if len(mobTypes) == 0 {
 		return nil
 	}
 
-	a := additive("mob-type-stat "+stat.StatName(), v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
-		var bonus stats.Stats
-		bonus[stat] = delta
-		p.unit.AddMobTypeBonusStats(bonus, mobTypes...)
+	var names []string
+	for _, stat := range versusStats[e.Aura] {
+		names = append(names, stat.StatName())
+	}
+	name := strings.Join(names, "+")
+	a := additive("mob-type-stat "+name, v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
+		p.unit.AddMobTypeBonusStats(VersusBonus(e.Aura, delta), mobTypes...)
 	}))
 	// A bonus against other creature types does not compete with this one.
-	a.key = fmt.Sprintf("%sVersus%d", stat.StatName(), e.Misc)
+	a.key = fmt.Sprintf("%sVersus%d", name, e.Misc)
 	return a
 }
 

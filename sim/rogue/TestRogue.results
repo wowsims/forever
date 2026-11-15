@@ -542,6 +542,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 599.05234
@@ -664,9 +688,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
-  dps: 617.04274
-  tps: 438.10034
-  hps: 60.35611
+  dps: 613.47375
+  tps: 435.56636
+  hps: 60.00028
  }
 }
 dps_results: {
@@ -1275,6 +1299,14 @@ dps_results: {
   dps: 602.35446
   tps: 427.67167
   hps: 48.495
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 637.65931
+  tps: 452.73811
+  hps: 59.19611
  }
 }
 dps_results: {

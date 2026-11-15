@@ -223,6 +223,15 @@ func RegisterAllEnchants() {
 		BuffSpellID:    7447,
 	}, nil)
 
+	// Permanently enchant a Melee Weapon to do 2 additional points of damage to Beasts.
+	// https://www.wowhead.com/forever/spell=7786
+	// equip: 7784 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Minor Beastslayer",
+		EnchantID:      249,
+		TriggerSpellID: 7784,
+	}, nil)
+
 	// Attaches a Mithril Spike to your shield that deals damage every time you block with it.
 	// https://www.wowhead.com/forever/spell=9781
 	// trigger 9782 (every time, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial)
@@ -231,6 +240,24 @@ func RegisterAllEnchants() {
 		EnchantID:      463,
 		TriggerSpellID: 9782,
 		BuffSpellID:    9782,
+	}, nil)
+
+	// Permanently enchant a Melee Weapon to do 6 additional points of damage to Beasts.
+	// https://www.wowhead.com/forever/spell=13653
+	// equip: 13650 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Lesser Beastslayer",
+		EnchantID:      853,
+		TriggerSpellID: 13650,
+	}, nil)
+
+	// Permanently enchant a Melee Weapon to do 6 additional damage against Elementals.
+	// https://www.wowhead.com/forever/spell=13655
+	// equip: 13651 (A_MOD_DAMAGE_DONE_CREATURE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Lesser Elemental Slayer",
+		EnchantID:      854,
+		TriggerSpellID: 13651,
 	}, nil)
 
 	// Attaches a Thorium Spike to your shield that deals damage every time you block with it.

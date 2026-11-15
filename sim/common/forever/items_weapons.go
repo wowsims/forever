@@ -12,23 +12,6 @@ import (
 )
 
 func init() {
-	// Graverobber's Shovel
-	//
-	// Equip 1319047: 12 attack power and 12 ranged attack power, which the item's own stats carry,
-	// and effects 3 and 4, 12 of each against Undead.
-	core.NewItemEffect(273817, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		row := spelldata.MustFind(1319047)
-		config := spelldata.AuraConfig(row)
-		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
-		// two-handed, so only the main hand wears it.
-		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
-			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
-		aura := core.MakePermanent(character.RegisterAura(config))
-		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
-		character.ItemSwap.RegisterProc(273817, aura)
-	})
-
 	// Ravager
 	// https://www.wowhead.com/forever/item=7717/ravager
 	//
@@ -238,6 +221,60 @@ func init() {
 		trigger.ActionID = core.ActionID{ItemID: 13040}
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(13040, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Skullforge Reaver
+	// https://www.wowhead.com/forever/item=13361/skullforge-reaver
+	//
+	// Chance on hit: Drains target for 21 Shadow damage every 1 sec and transfers it to the caster.
+	// Lasts for 10 sec.
+	//
+	// The game files state no rate for 17484; the item's chance-on-hit entry carries it, measured on
+	// the sword's speed. Landed white swings and melee specials of the hand that holds it roll it alike,
+	// Windfury Totem strikes too; the other hand's swings and ranged hits never do, and a proc on a
+	// branded target refreshes the brand (EV-0121). 17484's first effect drains the target and its
+	// second heals the wearer as a heal over time of its own. Both crit, as the row's Periodic Can Crit says.
+	newEntryRateItemEffect(13361, 17484, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(17484)
+		heal := row.FirstAura(dbcenums.A_PERIODIC_HEAL)
+		healCrits := row.PeriodicCanCrit() && !row.CannotCrit()
+
+		healConfig := procSpellConfig(character, row)
+		healConfig.ProcMask = core.ProcMaskSpellHealing
+		healConfig.ActionID.Tag = 1
+		healConfig.Hot = spelldata.DotConfig(row, heal)
+		healConfig.Hot.SelfOnly = true
+		healConfig.Hot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
+			outcome := dot.OutcomeTick
+			if healCrits {
+				outcome = dot.Spell.OutcomeTickHealingCrit
+			}
+			dot.Spell.CalcAndDealPeriodicHealing(sim, target, heal.Roll(sim), outcome)
+		}
+		transfer := character.RegisterSpell(healConfig)
+
+		config := procSpellConfig(character, row)
+		config.Dot = spelldata.DotConfig(row, row.PeriodicDamageEffect())
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
+			if result.Landed() {
+				spell.Dot(target).Apply(sim)
+				transfer.SelfHot().Apply(sim)
+			}
+			spell.DealOutcome(sim, result)
+		}
+		brand := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			brand.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(13361, ppm, 0)
+		})
+		trigger.Name = "Skullforge Reaver"
+		trigger.ActionID = core.ActionID{ItemID: 13361}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(13361, character.MakeProcTriggerAura(trigger))
 	})
 
 	// Blade of Eternal Darkness

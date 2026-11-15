@@ -398,6 +398,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 787.27723
+  tps: 813.60305
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 787.27723
+  tps: 813.60305
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 787.27723
+  tps: 813.60305
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 787.27723
@@ -938,6 +959,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFFB-AllItems-ShortswordofVengeance-754"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-SkullforgeReaver-13361"
  value: {
   dps: 731.51579
   tps: 757.81126

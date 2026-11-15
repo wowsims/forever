@@ -6,17 +6,27 @@ import (
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
-// The stat each versus aura grants against the creature types its misc value masks.
-var versusStats = map[dbcenums.EffectAuraType]stats.Stat{
-	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  stats.AttackPower,
-	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: stats.RangedAttackPower,
-	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   stats.SpellDamage,
+// The stats each versus aura grants against the creature types its misc value masks. Flat damage done
+// against them reaches every school: Beastslayer 7784 adds its 2 to weapon hits and spells alike.
+var versusStats = map[dbcenums.EffectAuraType][]stats.Stat{
+	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS:  {stats.AttackPower},
+	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS: {stats.RangedAttackPower},
+	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS:   {stats.SpellDamage},
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE:       {stats.PhysicalDamage, stats.SpellDamage},
 }
 
-// The stat a versus aura grants, and whether the aura is one.
-func VersusStat(aura dbcenums.EffectAuraType) (stats.Stat, bool) {
-	stat, ok := versusStats[aura]
-	return stat, ok
+// The stats a versus aura grants; none when the aura is no versus aura.
+func VersusStats(aura dbcenums.EffectAuraType) []stats.Stat {
+	return versusStats[aura]
+}
+
+// Each stat a versus aura grants, at the amount; none when the aura is no versus aura.
+func VersusBonus(aura dbcenums.EffectAuraType, amount float64) stats.Stats {
+	var bonus stats.Stats
+	for _, stat := range versusStats[aura] {
+		bonus[stat] = amount
+	}
+	return bonus
 }
 
 // The mob type of each creature type a mask names by the bit 1 << (CreatureType - 1). Critter, 8, has

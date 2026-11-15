@@ -774,6 +774,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 885.22118
+  tps: 907.92396
+  dtps: 8.63929
+  hps: 14.01306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 885.22118
+  tps: 907.92396
+  dtps: 8.63929
+  hps: 14.01306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 885.22118
+  tps: 907.92396
+  dtps: 8.63929
+  hps: 14.01306
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 885.22118
@@ -929,10 +956,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FlurryAxe-871"
  value: {
-  dps: 740.49362
-  tps: 763.28292
-  dtps: 8.56731
-  hps: 15.62278
+  dps: 741.38741
+  tps: 764.13472
+  dtps: 8.50314
+  hps: 15.35167
  }
 }
 dps_results: {
@@ -1698,6 +1725,15 @@ dps_results: {
   tps: 819.05192
   dtps: 9.10464
   hps: 14.7925
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 789.76841
+  tps: 812.52137
+  dtps: 8.85321
+  hps: 21.26264
  }
 }
 dps_results: {
