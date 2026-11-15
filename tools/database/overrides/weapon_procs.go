@@ -265,6 +265,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Flurry Axe: column reads 101",
 		Source:  "EV-0120",
 	},
+	// Measured on main-hand white swings and melee casts of wearers holding it in the main hand (EV-0121).
+	{
+		ItemID:  13361,
+		SpellID: 17484,
+		PPM:     1.95,
+		Reason:  "Skullforge Reaver: column reads 100",
+		Source:  "EV-0121",
+	},
 	// Measured on a cat druid's white swings, priced on the 1.0 s paw (EV-0122).
 	{
 		ItemID:  274963,

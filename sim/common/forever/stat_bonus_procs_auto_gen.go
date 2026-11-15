@@ -1325,19 +1325,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Drains target for 21 Shadow damage every 1.0 sec and transfers it to the caster. Lasts for 10s.
-	// https://www.wowhead.com/forever/spell=17484
-	// unsupported: states no rate
-	// trigger 17484 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17484, BuffSpellID: 17484, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13361, ItemName: "Skullforge Reaver"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// https://www.wowhead.com/forever/spell=1300668
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
 	//	Callback:           core.CallbackEmpty,
