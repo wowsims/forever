@@ -273,6 +273,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Skullforge Reaver: column reads 100",
 		Source:  "EV-0121",
 	},
+	// Measured on a cat druid's white swings, priced on the 1.0 s paw (EV-0122).
+	{
+		ItemID:  274963,
+		SpellID: 1295744,
+		PPM:     1.45,
+		Reason:  "Rot-Covered Harpoon: column reads 101",
+		Source:  "EV-0122",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,
@@ -793,13 +801,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16784,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Darkblade: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  274963,
-	// 	SpellID: 1295744,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Rot-Covered Harpoon: column reads 101",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {
