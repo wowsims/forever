@@ -4201,7 +4201,7 @@ func RegisterAllProcs() {
 	// Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems,
 	// and Titan-forged.
 	// https://www.wowhead.com/forever/spell=12731
-	// trigger 12731 (2.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 12731 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 12731, BuffSpellID: 12731, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9418, ItemName: "Stoneslayer"},
@@ -4754,7 +4754,7 @@ func RegisterAllProcs() {
 
 	// Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.
 	// https://www.wowhead.com/forever/spell=1306816
-	// trigger 1306816 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1306816 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},

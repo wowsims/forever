@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 828.33103
-  tps: 677.21171
-  dtps: 5.40643
-  hps: 25.56442
+  dps: 823.17222
+  tps: 672.2097
+  dtps: 4.39845
+  hps: 25.54595
  }
 }
 dps_results: {
@@ -1694,10 +1694,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Stoneslayer-9418"
  value: {
-  dps: 879.97809
-  tps: 716.81902
-  dtps: 4.27605
-  hps: 24.33934
+  dps: 874.479
+  tps: 712.42942
+  dtps: 4.11939
+  hps: 24.54911
  }
 }
 dps_results: {
