@@ -1476,6 +1476,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Rot-CoveredHarpoon-274963"
+ value: {
+  dps: 750.36578
+  tps: 483.39668
+  dtps: 4.39452
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 755.82151

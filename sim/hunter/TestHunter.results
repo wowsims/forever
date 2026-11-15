@@ -1656,6 +1656,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Rot-CoveredHarpoon-274963"
+ value: {
+  dps: 795.31973
+  tps: 817.69633
+  dtps: 8.87512
+  hps: 14.67389
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-RuneoftheDawn-19812"
  value: {
   dps: 889.25689
