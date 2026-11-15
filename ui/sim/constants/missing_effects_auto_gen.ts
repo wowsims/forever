@@ -1993,12 +1993,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22397, // Idol of Ferocity
-		[
-			"Reduces the energy cost of Claw and Rake by 2.", // 27851 - https://www.wowhead.com/forever/spell=27851
-		]
-	],
-	[
 		22398, // Idol of Rejuvenation
 		[
 			"Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.", // 27853 - https://www.wowhead.com/forever/spell=27853
@@ -2038,12 +2032,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22870, // Blood Guard's Silk Handwraps
 		[
 			"Increases the damage absorbed by your Mana Shield by 285.", // 23037 - https://www.wowhead.com/forever/spell=23037
-		]
-	],
-	[
-		23198, // Idol of Brutality
-		[
-			"Reduces the Rage cost of Maul and Swipe by 2.0.", // 28855 - https://www.wowhead.com/forever/spell=28855
 		]
 	],
 	[

@@ -33,6 +33,8 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 const encounter = Encounter.defaultEncounterProto();
+encounter.duration = 180;
+encounter.durationVariation = 5;
 encounter.areaTypes = [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeMountainous];
 encounter.zoneId = 616;
 export const DefaultEncounter = PresetUtils.makePresetEncounter('Mount Hyjal', encounter);
@@ -45,7 +47,7 @@ export const OtherDefaults = {
 	reactionTime: 250,
 };
 
-// Leather at 60 with no set bonus and no proc. The stand-in the rotation was tuned on.
+// Leather at 60 with no set bonus and no proc.
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
 	devOnly: true,
 	tooltip: 'Leather at level 60 with no set bonus and no proc. Fist of Cenarius and the Howling Idol.',

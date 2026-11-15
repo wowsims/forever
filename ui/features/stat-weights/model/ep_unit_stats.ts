@@ -8,6 +8,7 @@ export type EpStatSet = {
 };
 
 const EP_PSEUDO_STATS = [
+	PseudoStat.PseudoStatFeralCombatSkill,
 	PseudoStat.PseudoStatMainHandDps,
 	PseudoStat.PseudoStatOffHandDps,
 	PseudoStat.PseudoStatRangedDps,
@@ -23,7 +24,7 @@ const EP_PSEUDO_STATS = [
 
 export const EP_UNIT_STATS: UnitStat[] = UnitStat.getAll().filter(stat => {
 	if (stat.isStat()) {
-		return true;
+		return stat.getStat() !== Stat.StatFeralAttackPower;
 	} else {
 		return EP_PSEUDO_STATS.includes(stat.getPseudoStat());
 	}
@@ -36,7 +37,7 @@ export const isEpStat = (stat: UnitStat, { epStats, epPseudoStats }: EpStatSet):
 
 export const epFilterScope = (statSet: EpStatSet): StatFilterScope => ({
 	defaults: EP_UNIT_STATS.filter(stat => isEpStat(stat, statSet)),
-	// Every Stat, but only the pseudo-stats the spec weights: a row's Current EP cell writes straight into the
+	// Every supported Stat, but only the pseudo-stats the spec weights: a row's Current EP cell writes straight into the
 	// player's EP weights, so an off-spec pseudo-stat row (Main Hand DPS on a caster) would let one entry skew
 	// every item and enchant EP in the gear picker.
 	universe: EP_UNIT_STATS.filter(stat => stat.isStat() || isEpStat(stat, statSet)),
