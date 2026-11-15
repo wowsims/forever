@@ -2559,12 +2559,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274963, // Rot-Covered Harpoon
-		[
-			"Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.", // 1295744 - https://www.wowhead.com/forever/spell=1295744
-		]
-	],
-	[
 		275009, // Emblem of Slamming
 		[
 			"Stuns target and yourself for 3s. Ogres are Stunned for 5s and refund 50% of the cooldown.", // 1315972 - https://www.wowhead.com/forever/spell=1315972

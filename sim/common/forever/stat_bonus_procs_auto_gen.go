@@ -3642,19 +3642,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.
-	// https://www.wowhead.com/forever/spell=1295744
-	// unsupported: states no rate
-	// trigger 1295744 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295744, BuffSpellID: 1295744, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 274963, ItemName: "Rot-Covered Harpoon"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blunderflame the target for 56 Fire damage.
 	// https://www.wowhead.com/forever/spell=1296730
 	// unsupported: states no rate
@@ -4711,6 +4698,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295064, BuffSpellID: 1295065},
 		[]shared.ItemVariant{
 			{ItemID: 274608, ItemName: "Maw of Min'loth"},
+		})
+
+	// Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.
+	// https://www.wowhead.com/forever/spell=1295744
+	// trigger 1295744 (1.45 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295744, BuffSpellID: 1295744, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 274963, ItemName: "Rot-Covered Harpoon"},
 		})
 
 	// Cremate the target for 56 Fire damage.
