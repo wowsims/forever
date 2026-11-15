@@ -98,6 +98,13 @@ type Spell struct {
 	AreaBonusGroups                        []int32
 	AreaMultiplier, AreaDurationMultiplier float32
 
+	// A factor against some targets from an override, read through VersusBonus: the effect whose base
+	// points are the factor, or a factor of the override's own, and the targets as proto.MobType and
+	// proto.CreatureFamily numbers.
+	VersusEffectIndex              uint8
+	VersusMultiplier               float32
+	VersusMobTypes, VersusFamilies []int32
+
 	// SpellClassOptions.SpellClassSet and SpellClassMask_0..3: the set of spells a talent effect
 	// naming this family reaches.
 	ClassFlags core.ClassFlags
