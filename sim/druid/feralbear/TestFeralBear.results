@@ -1306,15 +1306,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralBear-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 533.02499
-  tps: 2675.2932
-  dtps: 401.18465
-  hps: 84.57264
- }
-}
-dps_results: {
  key: "TestFeralBear-AllItems-MindtapTalisman-18371"
  value: {
   dps: 525.03648
@@ -1366,15 +1357,6 @@ dps_results: {
   tps: 2450.12352
   dtps: 488.65615
   hps: 86.15185
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 524.12777
-  tps: 2638.91094
-  dtps: 414.45654
-  hps: 83.82776
  }
 }
 dps_results: {
@@ -1555,15 +1537,6 @@ dps_results: {
   tps: 2655.85777
   dtps: 396.60004
   hps: 83.98802
- }
-}
-dps_results: {
- key: "TestFeralBear-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 517.30925
-  tps: 2609.15068
-  dtps: 407.47316
-  hps: 87.15985
  }
 }
 dps_results: {
