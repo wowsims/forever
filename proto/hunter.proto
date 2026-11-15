@@ -73,6 +73,7 @@ message HunterOptions {
 	enum QuiverBonus {
 		QuiverNone                = 0;
 		AncientSinewWrappedLamina = 18714;
+		RibblysQuiver             = 2662;
 		QuickdrawQuiver           = 8217;
 		HeavyQuiver               = 7371;
 		QuiverOfTheNightWatch     = 3605;
@@ -86,10 +87,12 @@ message HunterOptions {
 	enum Ammo {
 		AmmoNone           = 0;
 		SwiftfeatherArrow  = 274387;
+		Doomshot           = 12654;
 		ThoriumHeadedArrow = 18042;
 		IceThreadedArrow   = 19316;
 		ExplosiveArrow     = 10579;
 		JaggedArrow        = 11285;
+		PrecisionArrow     = 9399;
 		FeatheredArrow     = 3464;
 		RazorArrow         = 3030;
 		SharpArrow         = 2515;

@@ -181,6 +181,7 @@ type Unit struct {
 	dotRankGroups map[string]*dotRankGroup
 
 	AttackTables                 []*AttackTable
+	mobTypeBonuses               map[proto.MobType]*mobTypeBonus
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)
@@ -293,7 +294,7 @@ func (unit *Unit) LogLabel() string {
 	return "[" + unit.Label + "]"
 }
 
-func (unit *Unit) Log(sim *Simulation, message string, vals ...interface{}) {
+func (unit *Unit) Log(sim *Simulation, message string, vals ...any) {
 	sim.Log(unit.LogLabel()+" "+message, vals...)
 }
 
@@ -625,8 +626,8 @@ func (unit *Unit) Armor() float64 {
 }
 
 // A block takes off a whole number: in game every partial block takes exactly the sheet's block value,
-// floor(shield + max(0, Strength x 0.05 - 1)). Flooring the Strength part alone gives the same number while the
-// shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
+// floor(shield + max(0, Strength x 0.05 - 1)) (EV-0045). Flooring the Strength part alone gives the same number
+// while the shield's part is whole; the two differ only under a BlockValueMultiplier, where which one the game
 // floors is not measured, so the whole is floored.
 func (unit *Unit) BlockDamageReduction() float64 {
 	return math.Floor(max(0, unit.stats[stats.Strength]*unit.PseudoStats.BlockValuePerStrength-1) + unit.stats[stats.BlockValue]*unit.PseudoStats.BlockValueMultiplier)

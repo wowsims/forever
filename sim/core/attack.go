@@ -711,10 +711,7 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 		aa.mh.naturalReadyAt = 0
 
 		if aa.IsDualWielding {
-			aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
-			aa.oh.previousSwing = -aa.OffhandSwingSpeed()
-			aa.oh.swingAt = DurationFromSeconds(aa.oh.SwingSpeed / 2)
-			aa.oh.naturalReadyAt = aa.oh.swingAt
+			aa.resetOffHandSwing()
 		}
 
 		// Each enemy opens at its own point in its swing timer, so a pack does not swing in volleys.
@@ -745,6 +742,14 @@ func (aa *AutoAttacks) reset(sim *Simulation) {
 	}
 }
 
+// The off hand opens half its weapon speed into the fight, a full swing after its last one.
+func (aa *AutoAttacks) resetOffHandSwing() {
+	aa.oh.updateSwingDuration(aa.oh.unit.TotalMeleeHasteMultiplier())
+	aa.oh.previousSwing = -aa.OffhandSwingSpeed()
+	aa.oh.swingAt = DurationFromSeconds(aa.oh.SwingSpeed / 2)
+	aa.oh.naturalReadyAt = aa.oh.swingAt
+}
+
 func (aa *AutoAttacks) startPull(sim *Simulation) {
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
 		return
@@ -768,10 +773,6 @@ func (aa *AutoAttacks) startPull(sim *Simulation) {
 			if aa.oh.IsInRange() {
 				aa.oh.enabled = true
 				aa.oh.addWeaponAttack(sim, aa.oh.unit.TotalMeleeHasteMultiplier())
-			}
-			if aa.oh.swingAt == NeverExpires {
-				aa.oh.swingAt = DurationFromSeconds(aa.oh.curSwingSpeed / 2)
-				aa.oh.naturalReadyAt = aa.oh.swingAt
 			}
 		}
 
@@ -1268,7 +1269,7 @@ func (aa *AutoAttacks) PPMProc(sim *Simulation, ppm float64, procMask ProcMask, 
 }
 
 // The swing speed a procs-per-minute rate is measured against for an off-hand hit. A hit with no
-// off-hand weapon behind it, such as a shield's, is measured against the main hand.
+// off-hand weapon behind it is measured against the main hand.
 func (aa *AutoAttacks) offHandProcSpeed() float64 {
 	if aa.oh.SwingSpeed == 0 {
 		return aa.mh.SwingSpeed

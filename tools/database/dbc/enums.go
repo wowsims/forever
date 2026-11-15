@@ -304,12 +304,45 @@ const (
 	ITEM_MOD_SHADOW_DAMAGE = 88
 	ITEM_MOD_ARCANE_DAMAGE = 89
 
+	// Weapon skill, one id per skill, budgeted like the other stats. 18505 Mugger's Belt states 96 and its
+	// tooltip reads "Increased Daggers +1"; 14551 Edgemaster's Handguards states 93, 96 and 103 and reads +1
+	// Axes, Daggers and Swords. No item states 95, 97, 99 or 102, so their skills are unknown.
+	ITEM_MOD_TWO_HANDED_AXES_SKILL   = 90
+	ITEM_MOD_TWO_HANDED_MACES_SKILL  = 91
+	ITEM_MOD_TWO_HANDED_SWORDS_SKILL = 92
+	ITEM_MOD_AXES_SKILL              = 93
+	ITEM_MOD_BOWS_SKILL              = 94
+	ITEM_MOD_DAGGERS_SKILL           = 96
+	ITEM_MOD_FIST_WEAPONS_SKILL      = 98
+	ITEM_MOD_MACES_SKILL             = 100
+	ITEM_MOD_POLEARMS_SKILL          = 101
+	ITEM_MOD_SWORDS_SKILL            = 103
+
 	// Spell penetration on one school, in points of the target's resistance: 21516 Dagger of Spell
 	// Penetration - Fire 150 Resist (TEST) budgets 150 of 119, and 21518's Frost twin 150 of 121.
 	ITEM_MOD_FIRE_SPELL_PENETRATION  = 119
 	ITEM_MOD_FROST_SPELL_PENETRATION = 121
 
 	ITEM_MOD_ALL_RESISTANCES = 124
+
+	// Attack power against one creature type: 13209 Seal of the Dawn states 128 and reads "+78 Attack
+	// Power against Undead", the 78 its equip spell 23930 states for both melee and ranged attack power.
+	// No item states 130.
+	ITEM_MOD_ATTACK_POWER_VS_HUMANOID   = 125
+	ITEM_MOD_ATTACK_POWER_VS_ELEMENTAL  = 126
+	ITEM_MOD_ATTACK_POWER_VS_DEMON      = 127
+	ITEM_MOD_ATTACK_POWER_VS_UNDEAD     = 128
+	ITEM_MOD_ATTACK_POWER_VS_DRAGONKIN  = 129
+	ITEM_MOD_ATTACK_POWER_VS_BEAST      = 131
+	ITEM_MOD_ATTACK_POWER_VS_MECHANICAL = 132
+
+	// Spell damage against one creature type: 19812 Rune of the Dawn states 136 and reads "Increases
+	// damage done to Undead by magical spells and effects by up to 46", the 46 its equip spell 24198 states.
+	ITEM_MOD_SPELL_DAMAGE_VS_HUMANOID  = 133
+	ITEM_MOD_SPELL_DAMAGE_VS_ELEMENTAL = 134
+	ITEM_MOD_SPELL_DAMAGE_VS_DEMON     = 135
+	ITEM_MOD_SPELL_DAMAGE_VS_UNDEAD    = 136
+	ITEM_MOD_SPELL_DAMAGE_VS_DRAGONKIN = 137
 )
 
 type Race int

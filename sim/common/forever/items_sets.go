@@ -514,3 +514,20 @@ var ItemSetBattlegearOfHeroismReissue = core.NewItemSet(core.ItemSet{
 		6: shared.ParsedSetBonus(spelldata.MustFind(14492)), // +20 Strength
 	},
 })
+
+// Scholomance - Leather
+// https://www.wowhead.com/forever/item-set=121/cadaverous-garb
+//
+// The 3-piece bonus also shortens movement impairing effects on the wearer (1292546), which has no
+// place in the sim.
+var ItemSetCadaverousGarb = core.NewItemSet(core.ItemSet{
+	ID:   121,
+	Name: "Cadaverous Garb",
+	Slots: []proto.ItemSlot{proto.ItemSlot_ItemSlotChest, proto.ItemSlot_ItemSlotHands, proto.ItemSlot_ItemSlotWaist,
+		proto.ItemSlot_ItemSlotLegs, proto.ItemSlot_ItemSlotFeet},
+	Bonuses: map[int32]core.ApplySetBonus{
+		3: shared.ParsedSetBonus(spelldata.MustFind(9140)),   // +10 attack power
+		4: shared.ParsedSetBonus(spelldata.MustFind(18676)),  // +5 all resistances
+		5: shared.ParsedSetBonus(spelldata.MustFind(460230)), // 2% hit
+	},
+})

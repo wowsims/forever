@@ -294,7 +294,7 @@ export class SimHostObject<SpecType extends Spec> implements IndividualSimHost<S
 		return individualSimSettingsToProto(this.serializationContext(), exportCategories);
 	}
 
-	toLink(): string {
+	toLink(): Promise<string> {
 		return createLink(this);
 	}
 

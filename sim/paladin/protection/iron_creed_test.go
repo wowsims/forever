@@ -10,7 +10,7 @@ import (
 )
 
 // In game Iron Creed's damage reduction comes from making a Holy Strike, the way Reckoning's extra
-// attack comes from making a swing: a strike that misses, is dodged or is parried grants it too.
+// attack comes from making a swing: a strike that misses, is dodged or is parried grants it too (EV-0057).
 func TestIronCreedFromAnyHolyStrike(t *testing.T) {
 	player := core.WithSpec(&proto.Player{
 		Class:         proto.Class_ClassPaladin,

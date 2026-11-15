@@ -63,6 +63,10 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
 - **A cast listener on a proc that depends on the hit is a defect**: a dodged or missed cast still procs, for the
   reason in `wowsims-core-mechanics` `## Cast order`. `ProcTrigger` on the rank decodes the hit listener the row states.
 - **Read the chance off the effect the tooltip names**, never a look-alike effect whose ladder happens to fit.
+- **A weapon proc never hears an ability that requires a shield or has magic or no DefenseType.** Core keeps an
+  item's chance-on-hit effects and combat enchants from hearing Shield Slam, Shield Bash, Thunder Clap and Sweeping
+  Strikes' copied hit 12723. Equip procs still hear them, and auto attacks are exempt, so a wand's shots cast weapon
+  procs. The rulings are in `references/rulings.md`.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
@@ -75,6 +79,11 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 `wowsims-consumables-items`.
 
 - **A rate the game files lack**: `wowsims-db-pipeline` `## Overrides`.
+- **A row that deals or restores N times as much against some creatures** names them only in its tooltip; its row id,
+  effect index and the mob types or creature families go in `overrides.VersusBonuses`
+  (`tools/database/overrides/spell_overrides.go`, `docs/spell_data/overrides.md`), or the spell deals 1× and the
+  sheet's Bonus group leaves the item out. A factor no effect states is that row's `Multiplier`. A hand-written effect
+  sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the row.
 
 ## Measuring a rate
 
@@ -84,9 +93,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
   tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
-  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, a measured rate's
-  `wcl:`, `issue #` or `combat log, ` source shows none. A gear rate kept as a literal in the sim is listed in
-  `literalRates` there, or the notice never names it.
+  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, and a measured
+  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none; any other text reads as
+  unvalidated. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
+  it.
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
@@ -107,6 +117,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   (`sim/druid/talents_balance.go`, PR #382).
 - **A `core.ProcTrigger` typed by hand with no chance fires on every qualifying hit.** Core turns a `ProcChance` of 0
   into 1; only `spelldata.ProcTrigger` panics on a row that states no rate.
+- **`spelldata.Proc()` does not make a spell a proc.** It marks the spell passive with no cast or cost, and leaves
+  `core.SpellFlagProc` off, so every trigger hears it. A spell the game triggers (a channel's tick, a wave, an item's
+  bolt) adds the flag from its row, `if row.IsAProc() { config.Flags |= core.SpellFlagProc }`, as Volley, Hellfire
+  Effect and Blizzard's tick do; a spell built on the player's own cast row leaves it off.
 
 ## Keeping this skill true
 
@@ -114,5 +128,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
-to this skill, not a second copy.
+`AGENTS.md` says: a comment at the code when one file owns the rule, otherwise this skill or a `docs/rulings/` file
+its `references/rulings.md` indexes. A memory file is a pointer to this skill, not a second copy.

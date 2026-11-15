@@ -148,7 +148,7 @@ func TestWeaponProcHearsALandedHitThatDealsNoDamage(t *testing.T) {
 	aura.AttachProcTriggerCallback(&core.Unit{}, trigger)
 
 	sim := &core.Simulation{}
-	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial}
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}
 	for _, row := range []struct {
 		name    string
 		outcome core.HitOutcome

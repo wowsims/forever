@@ -3,6 +3,7 @@ package lsp
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"math"
 	"strconv"
 	"strings"
@@ -111,9 +112,7 @@ func row(action obj, condition any) obj {
 		return obj{"action": action}
 	}
 	merged := obj{"condition": condition}
-	for k, v := range action {
-		merged[k] = v
-	}
+	maps.Copy(merged, action)
 	return obj{"action": merged}
 }
 
@@ -402,9 +401,7 @@ func patternByID(id string) (pattern, bool) {
 // A pattern's values with the defaults filled in for those the reader left out.
 func withDefaults(p pattern, values map[string]any) map[string]any {
 	filled := map[string]any{}
-	for k, v := range values {
-		filled[k] = v
-	}
+	maps.Copy(filled, values)
 	for _, ph := range p.Placeholders {
 		if _, ok := filled[ph.Name]; !ok && ph.Default != nil {
 			filled[ph.Name] = ph.Default

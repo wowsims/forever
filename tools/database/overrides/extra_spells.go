@@ -15,7 +15,7 @@ var ExtraSpells = []Extra{
 	{SpellID: 414924, Reason: "Cat form Feral Charge", Source: "game files"},
 	{SpellID: 21178, Reason: "Bear Form (Passive2), the bear forms' threat; neither form's row names it", Source: "Spell 21178"},
 	{SpellID: 1328829, Reason: "Poised, the druid's Feral Combat passive; its subtext reads Passive, not Rank N, and its buff 1328827 follows through the $1328827s1 token", Source: "Spell 1328829"},
-	{SpellID: 414647, Reason: "Lacerate's weapon hit, which every rank casts by script; no row links it to the ranks", Source: "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08"},
+	{SpellID: 414647, Reason: "Lacerate's weapon hit, which every rank casts by script; no row links it to the ranks", Source: "EV-0033"},
 	{SpellID: 1293697, Reason: "Demonic Brand's Shadow damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293697 description"},
 	{SpellID: 1293698, Reason: "Demonic Brand's Fire damage when a demon consumes the brand; nothing links it to the talent", Source: "Spell 1293698 description"},
 	{SpellID: 1328570, Reason: "Holy Binding's self heal; nothing links it to the talent", Source: "Spell 1328570"},
@@ -35,6 +35,8 @@ var ExtraSpells = []Extra{
 	// Rockbiter Weapon Proc, the threat Rockbiter Weapon (Passive) adds to each melee hit: a script
 	// effect of the passive casts it, so no row names it.
 	{SpellID: 20871, Reason: "Rockbiter Weapon Proc, the threat of the shaman's Rockbiter Weapon", Source: "owner decision"},
+	{SpellID: 439440, Reason: "Windfury Weapon's extra attack, which the combat log reports each strike of the imbue under; the rank's 16361 casts it by script, and no row links it to the imbue", Source: "EV-0012"},
+	{SpellID: 9591, Reason: "Acid Spit, cast by the Emerald Dragon Whelp (creature 8776) that Dragon's Call 13049 summons; a creature's spells are on the server, so no row links it", Source: "EV-0021"},
 	{SpellID: 1311703, Reason: "Seal of Command's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311703"},
 	{SpellID: 1311704, Reason: "Seal of Righteousness's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311704"},
 	{SpellID: 1311705, Reason: "Seal of Justice's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311705"},

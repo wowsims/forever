@@ -21,7 +21,7 @@ export interface EncounterListViewProps {
 	onCheckedChange(ref: SavedRef, checked: boolean): void;
 }
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
 export const EncounterListView = ({ current, presets, saved, onCheckedChange }: EncounterListViewProps) => (
 	<BulkCheckList

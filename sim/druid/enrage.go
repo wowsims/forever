@@ -7,10 +7,11 @@ import (
 )
 
 // The tooltip's "reduces base armor by 27% in Bear Form and 16% in Dire Bear Form". The row carries the
-// penalty as effect 4, an A_DUMMY with no value. In Bear Form the game takes 27% of the sum of the item armor
-// after the form's multiplier and the 2 armor per Agility: 1206 armor drops to 962 on a sheet whose item and
-// Agility share is 904. Buff armor stays whole. Only Bear Form was measured; Dire Bear takes its 16% from the same
-// share. Bonus armor and Thick Hide's armor stay whole, as no measured druid had either.
+// penalty as effect 4, an A_DUMMY with no value. In Bear Form the game takes 27% of the item armor and the
+// items' bonus armor, both after the form's multiplier, and of the 2 armor per Agility (EV-0032, EV-0109).
+// Buff armor stays whole and the level adds nothing. Thick Hide's armor stays whole, as no measured druid had
+// it. Dire Bear Form takes its 16% from the same share: the item and bonus armor after the form's multiplier
+// and the Agility armor drop by 16% (EV-0034).
 const (
 	enrageBearArmorScale     = 0.73
 	enrageDireBearArmorScale = 0.84
@@ -23,8 +24,11 @@ func (druid *Druid) registerEnrageSpell() {
 	config.Flags |= core.SpellFlagAPL
 	config.Hot = spelldata.DotConfig(rank, periodic)
 	config.Hot.SelfOnly = true
-	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, _ *core.Dot) {
-		druid.AddRage(sim, periodic.Tenths(), druid.enrageMetrics())
+	// The periodic rage is the row's first effect, so a SPELLMOD_EFFECT1 on Enrage (Enraged Idol's
+	// 1291060) raises each tick. The parse puts that modifier on BonusBaseDamage, in the row's tenths of rage.
+	// The combat log writes no line for these ticks, though each threatens as any rage gained does.
+	config.Hot.OnTick = func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
+		druid.AddRage(sim, periodic.Tenths()+dot.Spell.BonusBaseDamage/10, druid.enrageMetrics())
 	}
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		if instant := rank.EnergizeEffect(); instant != spelldata.NilEffect {
@@ -46,10 +50,12 @@ func (druid *Druid) registerEnrageSpell() {
 		armorScale = core.TernaryFloat64(direBear, enrageDireBearArmorScale, enrageBearArmorScale)
 		agiArmor = core.Ternary(direBear, direBearAgiArmor, bearAgiArmor)
 		druid.ApplyDynamicEquipScaling(sim, stats.Armor, armorScale)
+		druid.ApplyDynamicEquipScaling(sim, stats.BonusArmor, armorScale)
 		druid.EnableBuildPhaseStatDep(sim, agiArmor)
 	})
 	druid.EnrageAura.ApplyOnExpire(func(_ *core.Aura, sim *core.Simulation) {
 		druid.RemoveDynamicEquipScaling(sim, stats.Armor, armorScale)
+		druid.RemoveDynamicEquipScaling(sim, stats.BonusArmor, armorScale)
 		druid.DisableBuildPhaseStatDep(sim, agiArmor)
 	})
 	for _, form := range []*core.Aura{druid.BearFormAura, druid.DireBearFormAura} {

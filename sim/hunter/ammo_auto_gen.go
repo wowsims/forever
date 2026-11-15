@@ -17,10 +17,12 @@ var arrows = map[string]generatedArrow{
 	"SharpArrow":         {Name: "Sharp Arrow", ItemID: 2515, DPS: 3.5},
 	"RazorArrow":         {Name: "Razor Arrow", ItemID: 3030, DPS: 7.5},
 	"FeatheredArrow":     {Name: "Feathered Arrow", ItemID: 3464, DPS: 9.5},
+	"PrecisionArrow":     {Name: "Precision Arrow", ItemID: 9399, DPS: 11.5},
 	"JaggedArrow":        {Name: "Jagged Arrow", ItemID: 11285, DPS: 13},
 	"ExplosiveArrow":     {Name: "Explosive Arrow", ItemID: 10579, DPS: 14.5},
 	"IceThreadedArrow":   {Name: "Ice Threaded Arrow", ItemID: 19316, DPS: 16.5},
 	"ThoriumHeadedArrow": {Name: "Thorium Headed Arrow", ItemID: 18042, DPS: 17.5},
+	"Doomshot":           {Name: "Doomshot", ItemID: 12654, DPS: 20},
 	"SwiftfeatherArrow":  {Name: "Swiftfeather Arrow", ItemID: 274387, DPS: 24.5},
 }
 
@@ -38,5 +40,6 @@ var quivers = map[string]generatedQuiver{
 	"QuiverOfTheNightWatch":     {Name: "Quiver of the Night Watch", ItemID: 3605, Haste: 11},
 	"HeavyQuiver":               {Name: "Heavy Quiver", ItemID: 7371, Haste: 12},
 	"QuickdrawQuiver":           {Name: "Quickdraw Quiver", ItemID: 8217, Haste: 13},
+	"RibblysQuiver":             {Name: "Ribbly's Quiver", ItemID: 2662, Haste: 14},
 	"AncientSinewWrappedLamina": {Name: "Ancient Sinew Wrapped Lamina", ItemID: 18714, Haste: 15},
 }

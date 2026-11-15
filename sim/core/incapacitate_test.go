@@ -13,7 +13,7 @@ func init() {
 		proto.Player_ProtectionWarrior{},
 		proto.Spec_SpecProtectionWarrior,
 		NewFakeFearWarrior,
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_ProtectionWarrior)
 			if !ok {
 				panic("Invalid spec value for Protection Warrior!")

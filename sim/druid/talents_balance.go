@@ -43,7 +43,8 @@ func (druid *Druid) applyImprovedWrath() {
 }
 
 // Periodic damage and healing on the spells its class flags name: Moonfire, Insect Swarm, Rip, Rake,
-// Pounce, Lacerate, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal.
+// Lacerate, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal. The flags name
+// Pounce too, but Pounce Bleed's lie outside them.
 func (druid *Druid) applyGenesis() {
 	druid.parseTalent(druid.Talents.Genesis, spellData.Genesis)
 }
@@ -122,13 +123,14 @@ func (druid *Druid) applyNaturesGrace() {
 	// The tooltip's "cast" hint decodes to a cast trigger, but it asks for a crit, which is known
 	// only once the hit resolves. The direct hit and heal callbacks leave the periodic ones out. The
 	// buff comes a spell batch after the crit, so a cast that starts as the crit lands, such as the
-	// one queued behind a Starfire, is not hasted.
-	// TODO: Ingame research needed once characters reach level 60 -- whether a Hurricane tick crit
-	// grants it. Each tick is its own direct hit here and procs it, the way Blizzard's ticks roll
-	// Fingers of Frost in the logs.
+	// one queued behind a Starfire, is not hasted. A Hurricane tick is its own direct hit here, and its
+	// crits grant nothing.
 	trigger.Name = "Nature's Grace - Trigger"
 	trigger.Callback = core.CallbackOnSpellHitDealt | core.CallbackOnHealDealt
 	trigger.Outcome = core.OutcomeCrit
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return !spellData.HurricaneTriggered.Contains(spell)
+	}
 
 	druid.MakeProcTriggerAura(trigger)
 }

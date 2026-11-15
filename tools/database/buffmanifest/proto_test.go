@@ -29,7 +29,7 @@ import "common.proto";
 	if !strings.HasPrefix(rendered, want) {
 		t.Errorf("rendered header is\n%s\nwant\n%s", rendered[:len(want)], want)
 	}
-	for _, line := range strings.Split(rendered, "\n") {
+	for line := range strings.SplitSeq(rendered, "\n") {
 		if strings.HasPrefix(line, " ") {
 			t.Errorf("line %q is space-indented; common.proto uses tabs", line)
 		}

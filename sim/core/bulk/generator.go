@@ -91,7 +91,7 @@ func (generator *bulkSimCandidateGenerator) buildCandidates() []*proto.BulkGearC
 	// so a few extra selections take it past anything that can be allocated for. Append
 	// grows geometrically from here anyway.
 	candidates := make([]*proto.BulkGearCandidate, 0, min(rawCombinations, maxBulkCandidatePreallocation))
-	for comboIdx := 0; comboIdx < rawCombinations; comboIdx++ {
+	for comboIdx := range rawCombinations {
 		candidates = append(candidates, &proto.BulkGearCandidate{
 			Index: int32(len(candidates)),
 			Gear:  table.gear(comboIdx),
@@ -129,7 +129,7 @@ func (generator *bulkSimCandidateGenerator) initFrozenSettings() {
 func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 	equippedItemsBySlot := make(map[proto.ItemSlot]*core.Item)
 	equippedCounts := make(map[itemSpecFingerprintKey]int)
-	for slot := proto.ItemSlot_ItemSlotHead; slot < core.NumItemSlots; slot++ {
+	for slot := range core.NumItemSlots {
 		equippedItem := generator.baseEquipment.GetItemBySlot(slot)
 		if equippedItem == nil || equippedItem.ID == 0 {
 			continue
@@ -193,7 +193,7 @@ func (generator *bulkSimCandidateGenerator) initSelectedItems() error {
 
 	// Swapping the worn weapons between the hands is a choice only once a weapon is selected;
 	// otherwise each stays in the hand it is worn in.
-	for slot := proto.ItemSlot_ItemSlotHead; slot < core.NumItemSlots; slot++ {
+	for slot := range core.NumItemSlots {
 		equippedItem := equippedItemsBySlot[slot]
 		if equippedItem == nil {
 			continue
@@ -280,7 +280,7 @@ func (generator *bulkSimCandidateGenerator) initGroupedSlotPairs() {
 			}
 		} else {
 			pairs = make([][2]bulkSimCandidateOption, 0, len(options)*(len(options)-1)/2)
-			for i := 0; i < len(options); i++ {
+			for i := range options {
 				// Wearing two copies of the same item is a valid input, but only when two copies
 				// were actually selected.
 				twoCopies := generator.hasTwoCopies(options[i], options[i].item)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -240,15 +241,56 @@ func TestFeralCombatSkillReplacesTheWeaponsSkillInAForm(t *testing.T) {
 	}{
 		{"feral skill at the maximum", true, 0, staff, 0},
 		{"no weapon in a form", true, -10, nil, -10},
-		{"out of a form", false, -10, staff, -20},
+		{"out of a form", false, -10, staff, -15},
 	} {
 		unit := &Unit{PseudoStats: stats.NewPseudoStats()}
 		unit.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillStaves] = -20
+		unit.PseudoStats.MHWeaponSkill = 5
 		unit.PseudoStats.FeralCombatEnabled = tc.inForm
 		unit.PseudoStats.FeralCombatSkill = tc.feralSkill
-		if got := GetWeaponSkill(unit, tc.weapon); got != tc.weaponSkill {
+		if got := GetWeaponSkill(unit, tc.weapon, proto.ItemSlot_ItemSlotMainHand); got != tc.weaponSkill {
 			t.Errorf("%s: weapon skill %v, want %v", tc.name, got, tc.weaponSkill)
 		}
+	}
+}
+
+// A hand's weapon skill bonus pseudo stat raises the skill of the weapon that hand holds and of no other hand;
+// an empty hand stays at the level-based skill.
+func TestHandWeaponSkillRaisesOnlyItsOwnHand(t *testing.T) {
+	sword := &Item{WeaponType: proto.WeaponType_WeaponTypeSword, HandType: proto.HandType_HandTypeOneHand}
+	mace := &Item{WeaponType: proto.WeaponType_WeaponTypeMace, HandType: proto.HandType_HandTypeOneHand}
+	bow := &Item{RangedWeaponType: proto.RangedWeaponType_RangedWeaponTypeBow}
+	// Against a level 63 target, miss is 8% at the level-based skill and 5.5% at 10 points above it.
+	const levelBasedMiss, raisedMiss = 0.08, 0.055
+	for _, tc := range []struct {
+		name           string
+		pseudoStat     proto.PseudoStat
+		mhMiss, ohMiss float64
+	}{
+		{"main hand", proto.PseudoStat_PseudoStatMainHandWeaponSkill, raisedMiss, levelBasedMiss},
+		{"off hand", proto.PseudoStat_PseudoStatOffHandWeaponSkill, levelBasedMiss, raisedMiss},
+	} {
+		pseudoStats := make([]float64, stats.PseudoStatsLen)
+		pseudoStats[tc.pseudoStat] = 10
+		character := NewCharacter(&Party{}, 0, &proto.Player{
+			Name:       "Hand Skill Tester",
+			Class:      proto.Class_ClassWarrior,
+			Race:       proto.Race_RaceUndead,
+			Spec:       &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}},
+			Equipment:  &proto.EquipmentSpec{},
+			BonusStats: &proto.UnitStats{PseudoStats: pseudoStats},
+		})
+		defender := &Unit{Type: EnemyUnit, Level: 63, PseudoStats: stats.NewPseudoStats()}
+		table := NewAttackTable(&character.Unit, defender)
+		table.setWeapons(sword, mace, bow)
+		values := []attackTableValue{
+			{"main hand miss", table.MH.BaseMissChance, tc.mhMiss},
+			{"off hand miss", table.OH.BaseMissChance, tc.ohMiss},
+			{"ranged miss", table.Ranged.BaseMissChance, levelBasedMiss},
+		}
+		table.setWeapons(sword, nil, bow)
+		values = append(values, attackTableValue{"empty off hand miss", table.OH.BaseMissChance, levelBasedMiss})
+		checkAttackTableValues(t, tc.name+" weapon skill bonus", values)
 	}
 }
 
@@ -360,6 +402,129 @@ func TestItemSwapRecomputesTheHandEntries(t *testing.T) {
 	}
 }
 
+// Weapon skill on gear goes on top of the stated skill on the character sheet and in the attack table,
+// every copy worn adds its own, and an item swap takes it off and puts it back with the item.
+func TestGearWeaponSkillFollowsTheItem(t *testing.T) {
+	const daggerRingID, plainRingID, ringSkill int32 = 990921, 990922, 5
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: daggerRingID, Name: "Test Dagger Skill Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: ringSkill}}},
+		}},
+		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
+	}})
+	withRings := func(mainHand, first, second int32) []*proto.ItemSpec {
+		items := WeaponTestSlots(mainHand, 0, 0)
+		items[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: first}
+		items[proto.ItemSlot_ItemSlotFinger2] = &proto.ItemSpec{Id: second}
+		return items
+	}
+	sheetDaggerSkill := func(equipped []*proto.ItemSpec, stated int32) int32 {
+		raid := weaponTestRaid(proto.Race_RaceUndead, equipped, nil)
+		if stated != 0 {
+			raid.Parties[0].Players[0].WeaponSkills = []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillDaggers, Value: stated}}
+		}
+		result := ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: weaponTestEncounter()})
+		for _, skill := range result.RaidStats.Parties[0].Players[0].WeaponSkills {
+			if skill.Skill == proto.WeaponSkill_WeaponSkillDaggers {
+				return skill.Value
+			}
+		}
+		t.Fatal("the character sheet lists no dagger skill")
+		return 0
+	}
+
+	unskilled := sheetDaggerSkill(withRings(WeaponTestDaggerID, plainRingID, plainRingID), 0)
+	for _, tc := range []struct {
+		name          string
+		first, second int32
+		stated        int32 // The skill the player states, which the gear goes on top of; 0 states none.
+		bonus         int32
+	}{
+		{"no ring", plainRingID, plainRingID, 0, 0},
+		{"one ring", daggerRingID, plainRingID, 0, ringSkill},
+		{"two rings", daggerRingID, daggerRingID, 0, 2 * ringSkill},
+		{"one ring on a stated skill below the maximum", daggerRingID, plainRingID, unskilled - ringSkill, 0},
+	} {
+		if got := sheetDaggerSkill(withRings(WeaponTestDaggerID, tc.first, tc.second), tc.stated) - unskilled; got != tc.bonus {
+			t.Errorf("%s: the character sheet shows %d dagger skill over the maximum, want %d", tc.name, got, tc.bonus)
+		}
+		if tc.stated == 0 {
+			_, character := NewWeaponTestSim(t, proto.Race_RaceUndead, withRings(WeaponTestDaggerID, tc.first, tc.second), nil, nil)
+			if got := character.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillDaggers]; got != float64(tc.bonus) {
+				t.Errorf("%s: the sim reads %v dagger skill over the maximum, want %d", tc.name, got, tc.bonus)
+			}
+		}
+	}
+
+	swapped := WeaponTestSlots(0, 0, 0)
+	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, withRings(WeaponTestDaggerID, daggerRingID, plainRingID), swapped, nil)
+	table := character.AttackTables[character.CurrentTarget.UnitIndex]
+	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
+		return func() { character.ItemSwap.SwapItems(sim, set, false) }
+	}
+	sim.CurrentTime = -time.Second // A ring swaps only before the pull.
+	for _, step := range []struct {
+		when string
+		swap func()
+		miss float64 // Against a level 63 target: 0.08 at the maximum skill, 0.06 with the ring's 5 over it.
+	}{
+		{"the ring on", func() {}, 0.06},
+		{"the ring swapped off", swapTo(proto.APLActionItemSwap_Swap1), 0.08},
+		{"the ring swapped back on", swapTo(proto.APLActionItemSwap_Main), 0.06},
+		{"the ring swapped off again", swapTo(proto.APLActionItemSwap_Swap1), 0.08},
+		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, 0.06},
+	} {
+		step.swap()
+		checkAttackTableValues(t, step.when, []attackTableValue{
+			{"main hand miss", table.MH.BaseMissChance, step.miss},
+		})
+	}
+}
+
+// Attack power on gear against a creature type counts against a target of that type, and an item swap
+// takes it off and puts it back with the item.
+func TestGearMobTypeStatsFollowTheItem(t *testing.T) {
+	const humanoidRingID, plainRingID int32 = 990923, 990924
+	const ringAttackPower = 78.0
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: humanoidRingID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {MobTypeStats: []*proto.MobTypeStats{{
+				MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+				Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
+			}}},
+		}},
+		{Id: plainRingID, Name: "Test Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: {}}},
+	}})
+	equipped := WeaponTestSlots(WeaponTestDaggerID, 0, 0)
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: humanoidRingID}
+	swapped := WeaponTestSlots(0, 0, 0)
+	swapped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: plainRingID}
+	sim, character := NewWeaponTestSim(t, proto.Race_RaceUndead, equipped, swapped, nil)
+	attack := character.AutoAttacks.MHAuto()
+	swapTo := func(set proto.APLActionItemSwap_SwapSet) func() {
+		return func() { character.ItemSwap.SwapItems(sim, set, false) }
+	}
+
+	sim.CurrentTime = -time.Second // A ring swaps only before the pull.
+	for _, step := range []struct {
+		when  string
+		swap  func()
+		bonus float64
+	}{
+		{"the ring on", func() {}, ringAttackPower},
+		{"the ring swapped off", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"the ring swapped back on", swapTo(proto.APLActionItemSwap_Main), ringAttackPower},
+		{"the ring swapped off again", swapTo(proto.APLActionItemSwap_Swap1), 0},
+		{"reset at the end of the iteration", func() { character.ItemSwap.reset(sim) }, ringAttackPower},
+	} {
+		step.swap()
+		if got := character.GetAttackPowerValue(attack, character.CurrentTarget) - character.GetStat(stats.AttackPower); got != step.bonus {
+			t.Errorf("%s: attack power against the Humanoid target is %v over the sheet, want %v", step.when, got, step.bonus)
+		}
+	}
+}
+
 func TestAttackTableHandFollowsTheProcMask(t *testing.T) {
 	attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, 63)
 	table := NewAttackTable(attacker, defender)
@@ -460,6 +625,50 @@ func TestWeaponSpecialBlockPreventsTheCrit(t *testing.T) {
 		} {
 			if math.Abs(check.got-check.want) > 0.005 {
 				t.Errorf("%s: %s %v of attacks, want %v", tc.name, check.name, check.got, check.want)
+			}
+		}
+	}
+}
+
+// A blocked crit moves one counted crit to the blocked crits and a blocked hit counts as a block. An outcome
+// that counts no hits counts neither, so its crits never go below zero.
+func TestBlocksCountOnlyWhereHitsCount(t *testing.T) {
+	attacker, defender := attackTableUnits(PlayerUnit, 60, EnemyUnit, 63)
+	attacker.PseudoStats.InFrontOfTarget = true
+	table := NewAttackTable(attacker, defender)
+	table.MH = AttackTableHand{BaseBlockChance: 1}
+	table.Ranged = AttackTableHand{BaseBlockChance: 1}
+
+	for _, tc := range []struct {
+		name     string
+		procMask ProcMask
+		outcome  func(*Spell, *Simulation, *SpellResult, *AttackTable)
+		counted  bool
+	}{
+		{"melee special", ProcMaskMeleeMHSpecial, (*Spell).OutcomeMeleeSpecialHitAndCrit, true},
+		{"melee special without hit counter", ProcMaskMeleeMHSpecial, (*Spell).OutcomeMeleeSpecialHitAndCritNoHitCounter, false},
+		{"ranged", ProcMaskRangedSpecial, (*Spell).OutcomeRangedHitAndCrit, true},
+		{"ranged without hit counter", ProcMaskRangedSpecial, (*Spell).OutcomeRangedHitAndCritNoHitCounter, false},
+		{"ranged crit only", ProcMaskRangedSpecial, (*Spell).OutcomeRangedCritOnly, true},
+		{"ranged crit only without hit counter", ProcMaskRangedSpecial, (*Spell).OutcomeRangedCritOnlyNoHitCounter, false},
+	} {
+		for _, crits := range []bool{true, false} {
+			attacker.stats[stats.PhysicalCritPercent] = Ternary(crits, 200.0, 0.0)
+			attacker.stats[stats.RangedCritPercent] = Ternary(crits, 200.0, 0.0)
+			sim := &Simulation{rand: NewSplitMix(42)}
+			defenseType := Ternary(tc.procMask.Matches(ProcMaskRanged), DefenseTypeRanged, DefenseTypeMelee)
+			spell := &Spell{Unit: attacker, ProcMask: tc.procMask, DefenseType: defenseType, CritMultiplierPct: 1, SpellMetrics: make([]SpellMetrics, 1)}
+			result := &SpellResult{Target: defender, Damage: 100}
+			tc.outcome(spell, sim, result, table)
+
+			if result.Outcome.Matches(OutcomeCrit) != crits || !result.Outcome.Matches(OutcomeBlock) {
+				t.Fatalf("%s: outcome %v, want a block that crits = %v", tc.name, result.Outcome, crits)
+			}
+			wantBlockedCrits := Ternary(tc.counted && crits, int32(1), 0)
+			wantBlocks := Ternary(tc.counted && !crits, int32(1), 0)
+			if m := spell.SpellMetrics[0]; m.Crits != 0 || m.BlockedCrits != wantBlockedCrits || m.Blocks != wantBlocks || m.Hits != 0 {
+				t.Errorf("%s, crits = %v: crits %d, blocked crits %d, blocks %d, hits %d, want 0, %d, %d, 0",
+					tc.name, crits, m.Crits, m.BlockedCrits, m.Blocks, m.Hits, wantBlockedCrits, wantBlocks)
 			}
 		}
 	}
@@ -575,6 +784,64 @@ func TestExpectedMeleeDamageBlocksNoMoreThanTheDamage(t *testing.T) {
 			if !(math.Abs(result.Damage-tc.want) <= 1e-9) {
 				t.Errorf("%s, %v block value against %v damage: expected damage %v, want %v", name, tc.blockValue, tc.damage, result.Damage, tc.want)
 			}
+		}
+	}
+}
+
+func TestFeralCombatSkillUsesSavedSkillWithoutChangingCasterSkill(t *testing.T) {
+	for _, value := range []int32{290, 300, 301, 308} {
+		character := NewCharacter(&Party{}, 0, &proto.Player{Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}}, Class: proto.Class_ClassDruid, Race: proto.Race_RaceTauren, Equipment: &proto.EquipmentSpec{}, WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: value}, {Skill: proto.WeaponSkill_WeaponSkillStaves, Value: 280}}})
+		staff := &Item{WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
+		character.SetFeralCombat(true)
+		if got := GetWeaponSkill(&character.Unit, staff, proto.ItemSlot_ItemSlotMainHand); got != float64(value-300) {
+			t.Errorf("Feral bonus %v, want %v", got, value-300)
+		}
+		character.SetFeralCombat(false)
+		if got := GetWeaponSkill(&character.Unit, staff, proto.ItemSlot_ItemSlotMainHand); got != -20 {
+			t.Errorf("Caster staff bonus %v, want -20", got)
+		}
+		found := false
+		for _, skill := range character.weaponSkillsProto() {
+			if skill.Skill == proto.WeaponSkill_WeaponSkillFeralCombat {
+				found = true
+				if skill.Value != value {
+					t.Errorf("Saved Feral skill %v, want %v", skill.Value, value)
+				}
+			}
+		}
+		if !found {
+			t.Fatal("Feral Combat missing from character stats")
+		}
+	}
+	character := NewCharacter(&Party{}, 0, &proto.Player{Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}}, Class: proto.Class_ClassDruid, Race: proto.Race_RaceTauren, Equipment: &proto.EquipmentSpec{}})
+	if character.PseudoStats.FeralCombatSkill != 0 {
+		t.Fatal("Missing Feral Combat setting changes the default skill")
+	}
+}
+
+func TestFeralSkillBonusAddsToSavedSkillOnlyForDruids(t *testing.T) {
+	for _, class := range []proto.Class{proto.Class_ClassDruid, proto.Class_ClassMage} {
+		bonus := make([]float64, stats.PseudoStatsLen)
+		bonus[proto.PseudoStat_PseudoStatFeralCombatSkill] = 1
+		player := &proto.Player{
+			Class: class, Race: proto.Race_RaceNightElf,
+			Spec:      &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}},
+			Equipment: &proto.EquipmentSpec{}, BonusStats: &proto.UnitStats{PseudoStats: bonus},
+			WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: 302}},
+		}
+		if class == proto.Class_ClassMage {
+			player.Spec = &proto.Player_Mage{Mage: &proto.Mage{}}
+		}
+		character := NewCharacter(&Party{}, 0, player)
+		want := 0.0
+		if class == proto.Class_ClassDruid {
+			want = 3
+		}
+		if got := character.PseudoStats.FeralCombatSkill; got != want {
+			t.Errorf("class %v skill %v, want %v", class, got, want)
+		}
+		if got := character.GetPseudoStatsProto()[proto.PseudoStat_PseudoStatFeralCombatSkill]; got != want {
+			t.Errorf("character sheet skill %v, want %v", got, want)
 		}
 	}
 }

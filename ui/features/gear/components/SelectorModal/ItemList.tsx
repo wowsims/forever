@@ -1,5 +1,5 @@
 import { Class, ItemSlot } from '@generated/proto/common';
-import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { SortDirection } from '@sim/constants/other';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
 
+import { activeFilterCount } from '../../model/active_filters';
 import { applyFavourite, isItemFavourited } from '../../model/favourites';
 import { getItemIdByItemType } from '../../model/item_ids';
 import { matchesSearch } from '../../model/item_search';
@@ -39,11 +40,8 @@ const ROW_CLASS = clsx(
 type FilterFlag = 'oneHandedWeapons' | 'twoHandedWeapons' | 'showAllEnchants';
 
 const phaseOptions = () => [
-	{ value: 1, label: i18n.t('common.phases.1') },
-	{ value: 2, label: i18n.t('common.phases.2') },
-	{ value: 3, label: i18n.t('common.phases.3') },
-	{ value: 4, label: i18n.t('common.phases.4') },
-	{ value: 5, label: i18n.t('common.phases.5') },
+	{ value: ContentPhase.ContentPhase1, label: i18n.t('common.phases.1') },
+	{ value: ContentPhase.ContentPhaseUnknown, label: i18n.t('common.phases.unknown') },
 ];
 
 export interface ItemListToggle {
@@ -60,6 +58,8 @@ export interface ItemListToolbarViewProps {
 	/** The filters dialog. The filters button renders only beside one. */
 	filtersMenu?: ReactNode;
 	onOpenFilters?: () => void;
+	/** How many filters narrow the list; above zero, the filters button shows it. */
+	activeFilters?: number;
 	phase: number;
 	onPhaseChange: (phase: number) => void;
 	toggles: ReadonlyArray<ItemListToggle>;
@@ -72,6 +72,7 @@ export const ItemListToolbarView = ({
 	onSearchChange,
 	filtersMenu,
 	onOpenFilters,
+	activeFilters = 0,
 	phase,
 	onPhaseChange,
 	toggles,
@@ -89,7 +90,9 @@ export const ItemListToolbarView = ({
 			{filtersMenu !== undefined && (
 				<>
 					<Button data-testid="selector-modal-filters-button" onClick={onOpenFilters}>
-						{i18n.t('gear_tab.gear_picker.filters_button')}
+						{activeFilters > 0
+							? i18n.t('gear_tab.gear_picker.filters_button_active', { active: activeFilters })
+							: i18n.t('gear_tab.gear_picker.filters_button')}
 					</Button>
 					{filtersMenu}
 				</>
@@ -226,6 +229,7 @@ export const ItemList = ({ tab, slot, equippedItem }: ItemListProps) => {
 				onSearchChange={setSearch}
 				filtersMenu={label === SelectorModalTabs.Items ? <FiltersMenu slot={slot} open={filtersOpen} onOpenChange={setFiltersOpen} /> : undefined}
 				onOpenFilters={() => setFiltersOpen(true)}
+				activeFilters={activeFilterCount(filters)}
 				phase={phase}
 				onPhaseChange={next => sim.setPhase(next)}
 				toggles={toggles}

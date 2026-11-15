@@ -13,7 +13,7 @@ func RegisterHealerPriest() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewHealerPriest(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_HealerPriest)
 			if !ok {
 				panic("Invalid spec value for Healer Priest!")

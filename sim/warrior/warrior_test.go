@@ -96,8 +96,10 @@ func newWindowSim(t *testing.T) (*core.Simulation, *dps.DpsWarrior, *core.Unit) 
 }
 
 const (
-	mainHandSlot = 14
-	crusader     = 1900
+	mainHandSlot        = 14
+	crusader            = 1900
+	windfuryTotemStrike = 10610 // The strike Windfury Totem's proc casts.
+	sweepingStrikesHit  = 12723 // The spell both of Sweeping Strikes' hits report under.
 )
 
 // A protection warrior with a main-hand Crusader, Windfury Totem in the party, the preraid shield and
@@ -510,6 +512,7 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	heroicStrike := core.ActionID{SpellID: 11567}
 	cleave := core.ActionID{SpellID: 20569}
+	whirlwindOffHand := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand)
 	cases := []struct {
 		name    string
 		spell   core.ActionID
@@ -530,6 +533,10 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
 		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
+		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
+		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
+		{"a landed off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeHit, 3, 3},
+		{"a dodged off-hand Whirlwind strike uses none", whirlwindOffHand, core.OutcomeDodge, 3, 3},
 	}
 
 	for _, c := range cases {
@@ -654,53 +661,159 @@ func TestTalentsReachTheirWeapons(t *testing.T) {
 	}
 }
 
-// A shield's hit is an off-hand hit: it never procs Windfury Totem or the main-hand weapon's
-// enchant, which a main-hand special does. The shield rows carry neither bit Windfury Totem reads, so
-// the test adds the main-hand flag to each hit and only the off-hand mask is under test.
-func TestShieldHitsNeverProcMainHandWeaponEffects(t *testing.T) {
-	sim, war, target := shieldTestSim(t)
-	mainHandSpecial := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagRequiresMainHand}
+// Takes miss, dodge, parry and block off the spell's casts on the target.
+func landEveryCast(sim *core.Simulation, war *core.Character, target *core.Unit, spell *core.Spell) {
+	war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+	hand := war.AttackTables[target.UnitIndex].Hand(spell)
+	hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+}
 
-	crusaderTrigger := war.GetAura("Enchant Weapon - Crusader")
-	if crusaderTrigger == nil || crusaderTrigger.Dpm == nil {
-		t.Fatal("the main hand's Crusader registered no proc manager")
+// A shield's hit is a main-hand special, so a landed Shield Slam or Shield Bash rolls Windfury Totem
+// as any melee ability does. It never rolls the main-hand weapon's combat enchant; the same casts
+// without the shield requirement do.
+func TestShieldHitsProcWindfuryTotemButNotTheMainHandEnchant(t *testing.T) {
+	for _, name := range []string{"Shield Bash", "Shield Slam"} {
+		t.Run(name, func(t *testing.T) {
+			sim, war, target := shieldTestSim(t)
+			spell := shieldSpells(t, war)[name]
+			war.AutoAttacks.CancelAutoSwing(sim)
+			landEveryCast(sim, war, target, spell)
+
+			holyStrength := war.GetAura("Holy Strength (MH)")
+			windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+			if holyStrength == nil || windfury == nil {
+				t.Fatal("the main hand's Crusader or Windfury Totem registered no proc")
+			}
+			landed := func() int32 {
+				metrics := spell.SpellMetrics[target.UnitIndex]
+				return metrics.Hits + metrics.Crits
+			}
+			strikes := func() int32 {
+				return windfury.SpellMetrics[target.UnitIndex].Casts
+			}
+
+			// Each cast's procs go off by the end of its spell batch, and the auto attacks stay stopped
+			// so that every proc comes from the casts.
+			cast := func() {
+				spell.SkipCastAndApplyEffects(sim, target)
+				stepPastBatch(t, sim)
+			}
+			// The totem's strike is a main-hand weapon hit that rolls Crusader itself, so only a cast
+			// whose batch brought no strike shows Crusader rolling on the cast.
+			castProcsCrusader := func() bool {
+				holyStrength.Deactivate(sim)
+				before := strikes()
+				cast()
+				return holyStrength.IsActive() && strikes() == before
+			}
+
+			const casts = 1000
+			var crusaderProcs int
+			for range casts {
+				if castProcsCrusader() {
+					crusaderProcs++
+				}
+			}
+			windfuryProcs := strikes()
+			if got := landed(); got != casts {
+				t.Fatalf("%d of %d casts landed, want all of them", got, casts)
+			}
+			if crusaderProcs != 0 {
+				t.Errorf("%d of %d landed casts procced the main hand's Crusader, want none", crusaderProcs, casts)
+			}
+			if windfuryProcs == 0 {
+				t.Errorf("none of %d landed casts procced Windfury Totem, want some", casts)
+			}
+
+			spell.CastRequirement.Shield = false
+			procced := false
+			for i := 0; i < 1000 && !procced; i++ {
+				procced = castProcsCrusader()
+			}
+			if !procced {
+				t.Error("1000 casts without the shield requirement never procced Crusader, so the check above proves nothing")
+			}
+		})
 	}
-	rollsCrusader := func(procMask core.ProcMask) bool {
+}
+
+// Sweeping Strikes' copied hit 12723 states no DefenseType, so it rolls neither Nightblade's
+// chance-on-hit bolt nor the main-hand weapon's Crusader; the normalized hit 26654, a melee hit, rolls both.
+// The copied hit with melee DefenseType rolls them too.
+func TestSweepingStrikesCopiedHitRollsNoWeaponProc(t *testing.T) {
+	sim, war, _ := swordSpecSim(t, 1, &proto.RaidBuffs{}, crusader)
+	target := war.CurrentTarget
+
+	// The copied hit carries both hands' special bits, so Crusader's handler can raise the off-hand
+	// buff; the normalized hit is the main hand's.
+	holyStrength := []*core.Aura{war.GetAura("Holy Strength (MH)"), war.GetAura("Holy Strength (OH)")}
+	shadowBolt := war.GetSpell(core.ActionID{SpellID: 18211})
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	normalized := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit, Tag: 1})
+	if holyStrength[0] == nil || holyStrength[1] == nil || shadowBolt == nil || copied == nil || normalized == nil {
+		t.Fatal("the warrior lacks Crusader, Nightblade's bolt or a Sweeping Strikes hit")
+	}
+
+	// Each hit's procs go off by the end of its spell batch.
+	procs := func(spell *core.Spell) (crusader, offHandCrusader int, bolts int32) {
+		t.Helper()
+		before := shadowBolt.SpellMetrics[target.UnitIndex].Casts
 		for range 1000 {
-			if crusaderTrigger.Dpm.Proc(sim, procMask, "Crusader Test") {
-				return true
+			for _, aura := range holyStrength {
+				aura.Deactivate(sim)
+			}
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepPastBatch(t, sim)
+			if holyStrength[0].IsActive() || holyStrength[1].IsActive() {
+				crusader++
+			}
+			if holyStrength[1].IsActive() {
+				offHandCrusader++
 			}
 		}
-		return false
-	}
-	if !rollsCrusader(mainHandSpecial.ProcMask) {
-		t.Fatal("1000 main-hand specials never procced Crusader, so the check below proves nothing")
+		return crusader, offHandCrusader, shadowBolt.SpellMetrics[target.UnitIndex].Casts - before
 	}
 
-	windfuryTrigger := war.GetAura("Windfury Totem Trigger")
-	windfury := war.GetAura("Windfury Totem (External)")
-	if windfuryTrigger == nil || windfury == nil {
-		t.Fatal("Windfury Totem registered no trigger or proc")
+	if crusader, _, bolts := procs(copied); crusader != 0 || bolts != 0 {
+		t.Errorf("1000 copied hits procced Crusader %d and Nightblade %d times, want neither", crusader, bolts)
+	}
+	if crusader, offHand, bolts := procs(normalized); crusader == 0 || offHand != 0 || bolts == 0 {
+		t.Errorf("1000 normalized hits procced Crusader %d (%d as the off hand's) and Nightblade %d times, want both, none as the off hand's", crusader, offHand, bolts)
+	}
+	copied.DefenseType = core.DefenseTypeMelee
+	if crusader, _, bolts := procs(copied); crusader == 0 || bolts == 0 {
+		t.Errorf("1000 copied hits with melee DefenseType procced Crusader %d and Nightblade %d times, want both, so the first check proves nothing", crusader, bolts)
+	}
+}
+
+// Sweeping Strikes' copied hit never rolls Windfury Totem; its normalized hit does.
+func TestSweepingStrikesCopiedHitRollsNoWindfuryTotem(t *testing.T) {
+	sim, war, _ := swordSpecSim(t, 2, &proto.RaidBuffs{WindfuryTotem: true}, 0)
+	target := war.CurrentTarget
+	windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	trigger := war.GetAura("Windfury Totem Trigger")
+	copied := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit})
+	normalized := war.GetSpell(core.ActionID{SpellID: sweepingStrikesHit, Tag: 1})
+	if windfury == nil || trigger == nil || copied == nil || normalized == nil {
+		t.Fatal("the warrior lacks the Windfury Totem proc or a Sweeping Strikes hit")
 	}
 
-	for name, spell := range shieldSpells(t, war) {
-		if rollsCrusader(spell.ProcMask) {
-			t.Errorf("%s procced the main hand's Crusader", name)
+	strikes := func(spell *core.Spell) int32 {
+		t.Helper()
+		before := windfury.SpellMetrics[target.UnitIndex].Casts
+		for range 1000 {
+			trigger.Icd.Reset()
+			spell.SkipCastAndApplyEffects(sim, target)
+			stepPastBatch(t, sim)
 		}
-		shieldHit := &core.Spell{ProcMask: spell.ProcMask, Flags: spell.Flags | core.SpellFlagRequiresMainHand}
-		for i := 0; i < 200 && !windfury.IsActive(); i++ {
-			windfuryTrigger.OnCastResult(windfuryTrigger, sim, shieldHit, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
-		}
-		if windfury.IsActive() {
-			t.Errorf("%s procced Windfury Totem", name)
-		}
+		return windfury.SpellMetrics[target.UnitIndex].Casts - before
 	}
-
-	for i := 0; i < 200 && !windfury.IsActive(); i++ {
-		windfuryTrigger.OnCastResult(windfuryTrigger, sim, mainHandSpecial, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+	if got := strikes(copied); got != 0 {
+		t.Errorf("1000 copied hits brought %d Windfury Totem strikes, want 0", got)
 	}
-	if !windfury.IsActive() {
-		t.Error("200 main-hand specials never procced Windfury Totem, so the check above proves nothing")
+	if got := strikes(normalized); got == 0 {
+		t.Error("1000 normalized hits brought no Windfury Totem strike, so the check above proves nothing")
 	}
 }
 
@@ -745,11 +858,11 @@ func TestHeroicStrikeCountsItsQueuingPressAsAManualCast(t *testing.T) {
 func stepPastBatch(t *testing.T, sim *core.Simulation) {
 	t.Helper()
 	at := sim.CurrentTime + core.SpellBatchWindow
+	sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 	for steps := 0; sim.CurrentTime <= at; steps++ {
 		if steps > 10000 {
 			t.Fatalf("the sim did not pass %v", at)
 		}
-		sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
 		sim.Step()
 	}
 }
@@ -978,13 +1091,14 @@ func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
 }
 
 // An Arms warrior with a two-handed sword, Nightblade, against the given number of targets, with
-// its auto attacks stopped so every swing the test counts comes from the hits it deals. The returned
+// its auto attacks stopped so every swing the test counts comes from the hits it deals. The main
+// hand carries the given enchant, 0 for none. The returned
 // func counts the Sword Specialization swings so far.
-func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+func swordSpecSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs, mainHandEnchant int32) (*core.Simulation, *dps.DpsWarrior, func() int32) {
 	t.Helper()
 
 	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_arms").GearSet).(*proto.EquipmentSpec)
-	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982}
+	gear.Items[mainHandSlot] = &proto.ItemSpec{Id: 1982, Enchant: mainHandEnchant}
 	encounter := core.MakeSingleTargetEncounter(0)
 	for len(encounter.Targets) < targets {
 		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
@@ -1037,7 +1151,7 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 		{"Cleave", core.ActionID{SpellID: 20569}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{})
+			sim, war, swings := swordSpecSim(t, 3, &proto.RaidBuffs{}, 0)
 			spell := war.GetSpell(c.spell)
 			if spell == nil {
 				t.Fatalf("the warrior has no %s", c.name)
@@ -1061,12 +1175,10 @@ func TestSwordSpecializationRollsOnceAWhirlwindOrCleave(t *testing.T) {
 	}
 }
 
-// Neither Sweeping Strikes' hits nor a Windfury Totem swing bring a Sword Specialization swing. The
-// warrior's own main-hand swing does bring them.
-func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
-	const windfuryTotemAttack = 10610 // The spell Windfury Totem's extra swing is tagged with.
-	const sweepingStrikesHit = 12723  // The strike both of Sweeping Strikes' hits report under.
-	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true})
+// Sweeping Strikes' hits bring no Sword Specialization swing. The warrior's own main-hand swing and
+// Windfury Totem's strike do bring them.
+func TestSwordSpecializationSkipsSweepingStrikesHits(t *testing.T) {
+	sim, war, swings := swordSpecSim(t, 1, &proto.RaidBuffs{WindfuryTotem: true}, 0)
 
 	hits := func(spell *core.Spell) int32 {
 		t.Helper()
@@ -1081,7 +1193,6 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 	for _, id := range []core.ActionID{
 		{SpellID: sweepingStrikesHit},
 		{SpellID: sweepingStrikesHit, Tag: 1},
-		{OtherID: proto.OtherAction_OtherActionAttack, Tag: windfuryTotemAttack},
 	} {
 		spell := war.GetSpell(id)
 		if spell == nil {
@@ -1092,6 +1203,13 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 		}
 	}
 
+	strike := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	if strike == nil {
+		t.Fatal("the warrior has no Windfury Totem strike")
+	}
+	if got := hits(strike); got == 0 {
+		t.Error("2000 landed Windfury Totem strikes brought no Sword Specialization swing, want some")
+	}
 	if got := hits(war.AutoAttacks.MHAuto()); got == 0 {
 		t.Error("2000 landed main-hand swings brought no Sword Specialization swing, so the checks above prove nothing")
 	}
@@ -1099,7 +1217,7 @@ func TestSwordSpecializationSwingsComeOnlyFromTheWarriorsOwnHits(t *testing.T) {
 
 // A Sword Specialization swing is lost when its target dies before it swings.
 func TestSwordSpecializationSwingIsLostWhenItsTargetDies(t *testing.T) {
-	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{})
+	sim, war, swings := swordSpecSim(t, 2, &proto.RaidBuffs{}, 0)
 	target := sim.Encounter.AllTargets[0]
 	hits := func() {
 		for range 2000 {
@@ -1250,11 +1368,8 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 		sim, war, target := shieldTestSim(t)
 		shieldSlam := shieldSpells(t, war)["Shield Slam"]
 		war.AddStatDynamic(sim, stats.BlockValue, extraBlockValue)
-		war.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
 		war.AddStatDynamic(sim, stats.PhysicalCritPercent, -200)
-		target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
-		hand := war.AttackTables[target.UnitIndex].Hand(shieldSlam)
-		hand.BaseDodgeChance, hand.BaseParryChance, hand.BaseBlockChance = 0, 0, 0
+		landEveryCast(sim, war, target, shieldSlam)
 
 		shieldSlam.SkipCastAndApplyEffects(sim, target)
 		if hits := shieldSlam.SpellMetrics[target.UnitIndex].Hits; hits != 1 {
@@ -1274,5 +1389,226 @@ func TestShieldSlamAddsTwiceTheBlockValue(t *testing.T) {
 	want := base.CalcDamage(sim, target, 2*added, base.OutcomeAlwaysHit).Damage
 	if math.Abs(got-want) > 1e-6 {
 		t.Errorf("%v more block value added %v damage, want %v for twice the block value", added, got, want)
+	}
+}
+
+// An Execute that misses, is dodged or is parried spends none of the rage above its cost and refunds
+// nothing; a landed one spends all of it. The casts skip the cost, so only the extra rage moves.
+func TestExecuteSpendsItsExtraRageOnlyWhenItLands(t *testing.T) {
+	const executeID = 20662 // The top rank.
+	for _, c := range []struct {
+		name    string
+		hand    core.AttackTableHand
+		outcome func(core.SpellMetrics) int32
+		lands   bool
+	}{
+		{"a miss", core.AttackTableHand{BaseMissChance: 2}, func(m core.SpellMetrics) int32 { return m.Misses }, false},
+		{"a dodge", core.AttackTableHand{BaseDodgeChance: 1}, func(m core.SpellMetrics) int32 { return m.Dodges }, false},
+		{"a parry", core.AttackTableHand{BaseParryChance: 1}, func(m core.SpellMetrics) int32 { return m.Parries }, false},
+		{"a landed hit", core.AttackTableHand{}, func(m core.SpellMetrics) int32 { return m.Hits + m.Crits }, true},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, target := newWindowSim(t)
+			execute := war.GetSpell(core.ActionID{SpellID: executeID})
+			if execute == nil {
+				t.Fatal("the warrior has no Execute")
+			}
+			war.PseudoStats.InFrontOfTarget = true
+			target.PseudoStats.BaseDodgeChance, target.PseudoStats.BaseParryChance, target.PseudoStats.BaseBlockChance = 0, 0, 0
+			*war.AttackTables[target.UnitIndex].Hand(execute) = c.hand
+
+			war.AddRage(sim, 30, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+			before := war.CurrentRage()
+			if before == 0 || before > war.MaximumRage()-execute.Cost.GetCurrentCost() {
+				t.Fatalf("the warrior holds %v rage, want some within what Execute can spend", before)
+			}
+
+			execute.SkipCastAndApplyEffects(sim, target)
+			if got := c.outcome(execute.SpellMetrics[target.UnitIndex]); got != 1 {
+				t.Fatalf("Execute counted %d of %s, want 1", got, c.name)
+			}
+			want := before
+			if c.lands {
+				want = 0
+			}
+			if got := war.CurrentRage(); got != want {
+				t.Errorf("%s left %v of %v rage, want %v", c.name, got, before, want)
+			}
+		})
+	}
+}
+
+// Execute's cast makes an attack of its own before the damage, and that attack rolls Windfury Totem
+// when it lands, so a cast whose damage is dodged can still bring a strike.
+func TestExecuteCastAttackRollsWindfuryTotem(t *testing.T) {
+	const executeID = 20662 // The top rank.
+	sim, war, target := shieldTestSim(t)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	execute := war.GetSpell(core.ActionID{SpellID: executeID})
+	windfury := war.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+	trigger := war.GetAura("Windfury Totem Trigger")
+	if execute == nil || windfury == nil || trigger == nil {
+		t.Fatal("the warrior has no Execute or no Windfury Totem proc")
+	}
+	landEveryCast(sim, war, target, execute)
+	war.AttackTables[target.UnitIndex].Hand(execute).BaseDodgeChance = 0.5
+
+	var dodged, dodgedStrikes int32
+	for range 2000 {
+		trigger.Icd.Reset()
+		dodges := execute.SpellMetrics[target.UnitIndex].Dodges
+		strikes := windfury.SpellMetrics[target.UnitIndex].Casts
+		execute.SkipCastAndApplyEffects(sim, target)
+		stepPastBatch(t, sim)
+		if execute.SpellMetrics[target.UnitIndex].Dodges > dodges {
+			dodged++
+			dodgedStrikes += windfury.SpellMetrics[target.UnitIndex].Casts - strikes
+		}
+	}
+	if dodged == 0 {
+		t.Fatal("no Execute damage was dodged, so the check below proves nothing")
+	}
+	if dodgedStrikes == 0 {
+		t.Errorf("%d casts whose damage was dodged brought no Windfury Totem strike, want some from the cast's own attack", dodged)
+	}
+}
+
+// Sweeping Strikes gives a landed Whirlwind one strike for one charge, against two targets or more.
+// Thunder Clap spends no charge and brings no strike, and Whirlwind against a single target spends none.
+func TestSweepingStrikesSpendsOneChargeAWhirlwindAndNoneAThunderClap(t *testing.T) {
+	const thunderClapID = 11581 // The top rank.
+	whirlwindID := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	for _, c := range []struct {
+		name    string
+		spell   core.ActionID
+		targets int
+		spends  bool
+	}{
+		{"Thunder Clap on three targets", core.ActionID{SpellID: thunderClapID}, 3, false},
+		{"Whirlwind on three targets", whirlwindID, 3, true},
+		{"Whirlwind on one target", whirlwindID, 1, false},
+	} {
+		t.Run(c.name, func(t *testing.T) {
+			sim, war, _ := swordSpecSim(t, c.targets, &proto.RaidBuffs{}, 0)
+			spell := war.GetSpell(c.spell)
+			sweepingStrikes := war.SweepingStrikesAura
+			if spell == nil || sweepingStrikes == nil {
+				t.Fatal("the warrior has no Sweeping Strikes or no spell to cast")
+			}
+			// No Sword Specialization swing follows the casts, so the charges and strikes counted are
+			// the casts' own.
+			war.GetAura("Weaponmaster (Sword)").Deactivate(sim)
+
+			sum := func(spell *core.Spell, count func(core.SpellMetrics) int32) int32 {
+				var total int32
+				for _, metrics := range spell.SpellMetrics {
+					total += count(metrics)
+				}
+				return total
+			}
+			landed := func() int32 { return sum(spell, func(m core.SpellMetrics) int32 { return m.Hits + m.Crits }) }
+			strikes := func() int32 {
+				return sum(war.SweepingStrikesNormalizedAttack, func(m core.SpellMetrics) int32 { return m.Casts })
+			}
+
+			var landedCasts int
+			for i := 0; i < 100 && landedCasts < 10; i++ {
+				sweepingStrikes.Activate(sim)
+				sweepingStrikes.SetStacks(sim, sweepingStrikes.MaxStacks)
+				landedBefore, strikesBefore := landed(), strikes()
+
+				spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+				stepPastBatch(t, sim)
+				if landed() == landedBefore {
+					continue
+				}
+				landedCasts++
+
+				var want int32
+				if c.spends {
+					want = 1
+				}
+				if spent := sweepingStrikes.MaxStacks - sweepingStrikes.GetStacks(); spent != want {
+					t.Fatalf("a landed %s spent %d charges, want %d", c.name, spent, want)
+				}
+				if got := strikes() - strikesBefore; got != want {
+					t.Fatalf("a landed %s brought %d strikes, want %d", c.name, got, want)
+				}
+			}
+			if landedCasts == 0 {
+				t.Fatal("100 casts never landed, so the checks above prove nothing")
+			}
+		})
+	}
+}
+
+// Every landed strike of Whirlwind and Cleave, each hand and each target, spends a Gore Drinker
+// charge and heals once, until the charges run out.
+func TestGoreDrinkerSpendsOneChargePerLandedStrike(t *testing.T) {
+	const goreDrinkerHeal = 1323968
+	whirlwind := core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	cases := []struct {
+		name      string
+		spell     core.ActionID
+		charges   int32
+		wantHeals int32
+	}{
+		{"Whirlwind, four landed strikes, three charges", whirlwind, 3, 3},
+		{"Whirlwind, four landed strikes, two charges", whirlwind, 2, 2},
+		{"Cleave, two landed strikes, three charges", core.ActionID{SpellID: 20569}, 3, 2},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			player := &proto.Player{
+				Name:          "Gore Drinker",
+				Race:          proto.Race_RaceOrc,
+				Class:         proto.Class_ClassWarrior,
+				Equipment:     core.GetGearSet("../../ui/specs/warrior/dps/gear_sets", "p1_fury").GearSet,
+				TalentsString: "30303003-050530355022120031", // furyTalents with Gore Drinker 2/2.
+				Spec:          dpsOptions,
+				Rotation:      &proto.APLRotation{},
+			}
+			encounter := core.MakeSingleTargetEncounter(0)
+			encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+			sim := core.NewSim(&proto.RaidSimRequest{
+				Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+				Encounter:  encounter,
+				SimOptions: &proto.SimOptions{RandomSeed: 1},
+			}, simsignals.CreateSignals())
+			sim.Reset()
+			war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+			war.AutoAttacks.CancelAutoSwing(sim)
+
+			spell := war.GetSpell(c.spell)
+			heal := war.GetSpell(core.ActionID{SpellID: goreDrinkerHeal})
+			gore := war.GoreDrinkerAura
+			if spell == nil || heal == nil || gore == nil {
+				t.Fatalf("spell %v, heal %v, Gore Drinker %v; want all registered", spell, heal, gore)
+			}
+			// Whirlwind's off-hand strike rolls on the off hand's attack table, which the main hand's
+			// spell leaves as it is.
+			offHand := war.GetSpell(core.ActionID{SpellID: c.spell.SpellID}.WithHand(proto.ItemSlot_ItemSlotOffHand))
+			for _, target := range sim.Encounter.AllTargetUnits {
+				landEveryCast(sim, &war.Character, target, spell)
+				if offHand != nil {
+					landEveryCast(sim, &war.Character, target, offHand)
+				}
+			}
+			gore.Activate(sim)
+			gore.SetStacks(sim, c.charges)
+			war.AddRage(sim, 100, war.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain}))
+
+			spell.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+			stepPastBatch(t, sim)
+
+			var heals int32
+			for _, metrics := range heal.SpellMetrics {
+				heals += metrics.Casts
+			}
+			if heals != c.wantHeals {
+				t.Errorf("%d heals, want %d", heals, c.wantHeals)
+			}
+		})
 	}
 }

@@ -34,7 +34,7 @@ export interface StatSweepHistoryProps {
 	onExportCsv?: () => void;
 }
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`sidebar.buttons.stat_sweep.${key}`, options);
 
 // A batch header names this many stats and counts the rest.
 const HEADER_STATS = 3;

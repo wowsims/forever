@@ -153,7 +153,7 @@ func (s *Spell) FiredSpell() *Spell {
 
 // A weapon strike's damage: its flat weapon-damage roll, the weapon damage and extra, all scaled by
 // the spell's weapon percent, or taken whole where it states none. In game the percent scales the
-// flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4.
+// flat part too: Holy Strike rank 1's 12 ± 1.5 at 25% shows as 2 to 4 (EV-0101).
 func (s *Spell) WeaponStrike(sim *core.Simulation, spell *core.Spell, weaponDamage, extra float64) float64 {
 	flat := s.firstOfType(dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL,
 		dbcenums.E_WEAPON_DAMAGE)
@@ -241,10 +241,8 @@ func (s *Spell) PeriodicEffect() *Effect {
 
 func (s *Spell) firstOfType(types ...dbcenums.SpellEffectType) *Effect {
 	for i := range s.Effects {
-		for _, t := range types {
-			if s.Effects[i].Type == t {
-				return &s.Effects[i]
-			}
+		if slices.Contains(types, s.Effects[i].Type) {
+			return &s.Effects[i]
 		}
 	}
 	return NilEffect
@@ -376,6 +374,15 @@ func (s *Spell) TickOutcome(dot *core.Dot) core.OutcomeApplier {
 	default:
 		return dot.OutcomeTick
 	}
+}
+
+// What a tick of a magic damage over time is expected to deal: the crit share counts where the row
+// states Periodic Can Crit, as the tick rolls it.
+func (s *Spell) ExpectedMagicTickOutcome(spell *core.Spell) core.OutcomeApplier {
+	if s.PeriodicCanCrit() {
+		return spell.OutcomeExpectedMagicCrit
+	}
+	return spell.OutcomeExpectedMagicAlwaysHit
 }
 
 // Which of the three ticks the two flags pick. Split out so the choice can be asserted without a Dot.

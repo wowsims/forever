@@ -50,8 +50,6 @@ func applyRaceEffects(agent Agent) {
 		applyExpansiveMind(character)
 		applyEureka(character)
 	case proto.Race_RaceHuman:
-		// TODO: The 26 October development notes set The Human Spirit 20598 to 10% and Ruthless 20597 to
-		// 1%; the game build still states 5% and 2%.
 		character.MultiplyStat(stats.Spirit, 1.1)
 		character.AddStats(stats.Stats{stats.PhysicalCritPercent: 1, stats.SpellCritPercent: 1})
 	case proto.Race_RaceNightElf:
@@ -90,8 +88,6 @@ func applyRaceEffects(agent Agent) {
 			{Stat: stats.HealingPower, Multiplier: 1.1},
 		})
 
-		// TODO: the 2 minute cooldown is from the 27 October development notes; the game build states 3
-		// minutes for 20572.
 		bloodFuryCD := Cooldown{
 			Timer:    character.NewTimer(),
 			Duration: time.Minute * 2,
@@ -159,14 +155,13 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
-		character.MultiplyStat(stats.Health, 1.05) // Endurance 20550
+		// Endurance 20550 scales all health, flat health added later included (EV-0037).
+		character.MultiplyStat(stats.Health, 1.05)
 	case proto.Race_RaceTroll:
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
 
 		actionID := ActionID{SpellID: 20554}
 
-		// TODO: the 15 s duration is from the 27 October development notes; the game build states 10 s
-		// for 20554.
 		berserkingAura := character.RegisterAura(Aura{
 			Label:    "Berserking",
 			ActionID: actionID,
@@ -202,8 +197,6 @@ func applyRaceEffects(agent Agent) {
 
 		// The sim tracks no health regeneration, so Energized raises mana regeneration only. Innervate
 		// takes its place: Read Leyline cannot be cast under it, and an Innervate that lands ends Energized.
-		// TODO: 15 s at +50% (+100% Attuned) is from the 26 October development notes; the game build
-		// states 30 s at +100% for 1270842.
 		energizedAura := registerSkyborneCasts(character, 1259705, time.Millisecond*500, Aura{Label: "Energized", ActionID: ActionID{SpellID: 1270842}}, 1.5, 2, func(sim *Simulation, multiplier float64) {
 			if character.HasManaBar() {
 				character.MultiplyManaRegenSpeed(sim, multiplier)
@@ -221,8 +214,7 @@ func applyRaceEffects(agent Agent) {
 	case proto.Race_RaceWindshaperSkyborne:
 		applySkyborneSharedRacials(character)
 
-		// TODO: 15 s at +15% (+30% Charged) is from the 26 October development notes; the game build
-		// states 30 s at +10% for 1259688.
+		// TODO: the 15 s is from the 26 October development notes; the game build states 30 s for 1259688.
 		registerSkyborneCasts(character, 1259686, time.Millisecond*500, Aura{Label: "Elemental Blessing", ActionID: ActionID{SpellID: 1259688}}, 1.15, 1.3, character.MultiplyMovementSpeed, nil)
 	}
 }
@@ -233,7 +225,6 @@ const innervateTag = "Innervate"
 func applySkyborneSharedRacials(character *Character) {
 	applyDamageVersus(character, proto.MobType_MobTypeElemental)
 
-	// TODO: Wind Blessed 1259710 is 2% in the 26 October development notes; the game build states 3%.
 	character.PseudoStats.AttackSpeedMultiplier *= 1.02
 	character.PseudoStats.CastSpeedMultiplier *= 1.02
 }
@@ -299,7 +290,7 @@ func applyCommand(character *Character) {
 
 // Beast Slaying 20557, Big Game Hunter 1259721 and Elemental Insight 1259707 state one effect, aura 168:
 // 5% damage against the creature type. Their rows carry no aura 547, the critical damage half that
-// Humanoid Slaying 19151 and Monster Slaying 24294 state.
+// Humanoid Slaying 19151 states.
 func applyDamageVersus(character *Character, mobType proto.MobType) {
 	character.Env.RegisterPostFinalizeEffect(func() {
 		character.MultiplyDamageVersus(1.05, mobType)
@@ -418,8 +409,8 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health) and chance are the row's values, typed in here.
-// TODO: the 15 s ICD is from the 27 October development notes; the game build states 25 s.
+// of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
+// the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {

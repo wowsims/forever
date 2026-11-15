@@ -20,7 +20,7 @@ type EncounterLength = Pick<BulkEncounterResults, 'duration' | 'durationVariatio
 
 type EncounterSummaryFields = Pick<Encounter, 'duration' | 'durationVariation' | 'targets'>;
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`bulk_tab.settings.encounters.${key}`, options);
 
 // "m:ss ±Ns", or "m:ss" alone when the variation is null.
 export const formatEncounterDuration = ({ duration, durationVariation }: EncounterLength): string => {

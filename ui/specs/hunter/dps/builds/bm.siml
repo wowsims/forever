@@ -2,7 +2,7 @@ siml 1
 spec hunter
 talents "5320001505101251-0052050301-4"
 use "../gear_sets/p1.gear.siml"
-use "../apls/turret.apl.siml"
+use "../apls/turret_hawk.apl.siml"
 
 settings:
   reaction_time 150ms 350ms

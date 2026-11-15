@@ -1,15 +1,17 @@
+// Runs as `node vite.build-workers.mts`, on Node's own type stripping: it resolves no `.mjs` name for an `.mts`
+// source and keeps an import that is only used as a type, so this file and everything it loads (`vite.config.mts`,
+// `tools/vite/*.mts`) name their `.mts` imports and mark their type imports with `type`.
 import fs from 'node:fs/promises';
 
 import { exec as syncExec } from 'child_process';
 import { createHash } from 'crypto';
-import { promisify } from 'util';
+import { parseArgs, promisify } from 'util';
 const execAsync = promisify(syncExec);
-import minimist from 'minimist';
-import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import path from 'path';
 import { build } from 'vite';
 
-import { BASE_PATH, OUT_DIR, getBaseConfig } from './vite.config.mjs';
+import { BASE_PATH, OUT_DIR, getBaseConfig } from './vite.config.mts';
 
 const WORKER_BASE_PATH = path.resolve(BASE_PATH, 'worker');
 
@@ -19,15 +21,14 @@ const workers = {
 	sim_worker: path.resolve(WORKER_BASE_PATH, 'sim_worker.ts'),
 };
 
-const args = minimist(process.argv.slice(2), { boolean: ['watch'] });
+const { values: args } = parseArgs({ options: { watch: { type: 'boolean' } } });
 
 // sim_worker.ts loads the HiGHS solver from the npm `highs` package but fetches its wasm by URL,
 // so the binary has to be copied next to the worker. It is taken straight from node_modules; the
 // copy committed at ui/worker/highs.wasm exists only because the Go backend go:embeds it, and is
 // checked here so the browser and the server can never end up on different HiGHS builds.
 const copyHighsWasm = async () => {
-	const require = createRequire(import.meta.url);
-	const npmWasmPath = require.resolve('highs/runtime');
+	const npmWasmPath = fileURLToPath(import.meta.resolve('highs/runtime'));
 	const embeddedWasmPath = path.resolve(WORKER_BASE_PATH, 'highs.wasm');
 
 	const [npmWasm, embeddedWasm] = await Promise.all([fs.readFile(npmWasmPath), fs.readFile(embeddedWasmPath)]);

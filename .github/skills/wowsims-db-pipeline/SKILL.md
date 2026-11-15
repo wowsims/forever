@@ -24,6 +24,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
 | `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
+| `assets/db_inputs/questie_quests.json`                                      | the zone and the asked-for items of every quest in `questie_db.json`, written beside it by `gen_db -gen=questie`; `-gen=db` reads them only for the phases                                                                                                                                            |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `assets/database/item_first_seen.json`                                      | when `gen_db -gen=db` first saw each item id, in unix seconds, one entry per line sorted by id; the UI marks items first seen in the last 7 days. `gen_db` keeps every line, an item no longer in `db.json` too, and stamps each new id with the run's time; never edit it by hand                    |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
@@ -137,6 +138,34 @@ the one date a cache gives is the `created` time of the file on raidbots, whose
 `https://www.raidbots.com/api/dbcache/verified` lists the newest 100 files across every version and does not page
 back. The first stamps in `item_first_seen.json` are such sightings (#913).
 
+A hotfix file need not hold every record up to its highest push, and two files at one push can differ, so a group's
+`Hotfixes` stamp does not prove it took them all. The classes stamped 113904 lacked Wild Growth's coefficient from
+push 113718 until a regeneration from a later file brought it in (#954). A hotfix the patch notes announce that no
+row shows stays out of the store until a file carries it.
+
+Every raidbots file up to push 114024 skips push 113722 (Stormstrike, Maelstrom Weapon, the imbue texts), which a
+logged-in game's own `_forever_/Cache/ADB/enUS/DBCache.bin` holds. When an announced change is in no raidbots file,
+read the local game's cache after a login, and regenerate from both: `--dbcache` repeats and combines the files.
+`DB2TOOL_FLAGS` given on the `make` line replaces the makefile's `--basedir "$(WOW_DIR)"`, so a local-install run
+names the install itself:
+
+```
+make db CLASSES=shaman SHARED=0 DB2TOOL_FLAGS="--basedir '<WoW install>' --dbcache <game DBCache.bin> --dbcache <raidbots DBCache.bin>"
+```
+
+The game writes that file when it exits, so quit the game before reading it; while it runs, the new records sit in a
+locked `DBCache.bin<pid>.tmp` beside it. A hotfix can also arrive under a push number below the committed stamp, as
+113722 did under 114015, so compare the records of the two files as well as their highest push. A named file of an
+older build than the install's is left out with no warning unless the run has `--carry-hotfixes`. With no `--dbcache`,
+a local `make db` reads every `DBCache.bin` under the install and every `.bin` in `tools/db2tool/caches`.
+
+The game's cache can reach a push past raidbots' newest, and the generators then refuse the Update Items runs
+(`RequireCommittedHotfixes`) until raidbots publishes a file at that push. That check compares the stamp with
+`BuildInfo.HotfixPush`, the highest push in the database. Once raidbots passes the stamp with a file that still skips
+records the game's cache gave, the next Update Items run writes the items without them. The run merges itself when
+the suites pass, and they fail only where a reverted row moves a `.results` line, so compare that run's item rows
+with master's when it opens.
+
 ## Tables the generator does not ship
 
 `wowsims.db` holds only the tables in `generator-settings.json`'s `Tables`; a name added there is extracted on every
@@ -148,14 +177,22 @@ Reading another table once, what the tables hold and how a script reads them: `r
 
 - `core.MinEffectItemLevel = 40` in `sim/core/item_effects.go` drops chance-on-hit items below item level 40 (Bloodpike),
   and the class suites' AllItems tests skip every item below it, hand-written effects included.
-- `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
+- `gen_db -gen=atlasloot` reads only the MoP fork's MoP files, so it writes 665 items over the 11,322 classic,
+  TBC and Wrath items `atlasloot_db.json` holds, which a scrape of the classic AtlasLoot repository wrote. That
+  repository is unchanged since May 2024; do not run the generator over the file until it reads those files
+  again. A wrong value in its classic entries is fixed by hand, with the same edit in `db.json` and `db.bin`
+  encoded from that `db.json`.
+- An item's phase follows its sources (`InferPhases` in `tools/database/item_phases.go`), so a scrape or a
+  regeneration that adds or removes a source can move phases in `db.json` with no phase rule changed. The phase reads
+  every source the inputs give an item, the ones the picker hides included. A raid opens when its row in `raids` there
+  is set open; the row holds its `Map` id and the factions whose reputation it gives.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
 - A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and
   `ParseEffects` then drops it without a word. When `.results` move after a regeneration, check the changed rows
   for one before taking the change as live; Missile Barrage's tick length is applied by hand for this reason.
 - When a regeneration drops spells from the store, `make db`'s `gen_db` step panics with `spell N is not in the
-store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
+  store`: it compiles the item registrations committed before the run, writes the new ones, then registers the old
   ones. Run `go run tools/database/gen_db/*.go -outDir=./assets -gen=db` again; the second run compiles the new files.
 - A talent tree that gains or loses a talent needs the class's `TalentTreeSizes` changed by hand (`sim/warrior/warrior.go`
   holds the warrior's). Nothing checks it against the tree file. With the old sizes the talents string fills the wrong

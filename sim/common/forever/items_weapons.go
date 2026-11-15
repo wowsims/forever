@@ -2,6 +2,7 @@ package forever
 
 import (
 	"slices"
+	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
@@ -18,7 +19,12 @@ func init() {
 	core.NewItemEffect(273817, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1319047)
-		aura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(row)))
+		config := spelldata.AuraConfig(row)
+		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
+		// two-handed, so only the main hand wears it.
+		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
+			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
+		aura := core.MakePermanent(character.RegisterAura(config))
 		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
 		character.ItemSwap.RegisterProc(273817, aura)
 	})
@@ -119,6 +125,49 @@ func init() {
 		character.ItemSwap.RegisterProc(2243, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Dragon's Call
+	// https://www.wowhead.com/forever/item=10847/dragons-call
+	//
+	// Chance on hit: Calls forth an Emerald Dragon Whelp to protect you in battle for a short period of
+	// time.
+	//
+	// The game files state no rate for 13049; the item's chance-on-hit entry carries the one measured on
+	// the sword's speed. Any landed hit rolls it, Rend's and Concussion Blow's applications included. The
+	// row's category cooldown starts at the proc, and no hit rolls while it runs. The cast summons the
+	// Emerald Dragon Whelp 8776 its E_SUMMON names, on the hit enemy, for the row's duration.
+	core.NewItemPet(10847, newEmeraldDragonWhelp)
+	newEntryRateItemEffect(10847, 13049, func(character *core.Character, ppm float64) {
+		var whelp *emeraldDragonWhelp
+		for _, pet := range character.PetAgents {
+			if w, ok := pet.(*emeraldDragonWhelp); ok {
+				whelp = w
+				break
+			}
+		}
+		row := spelldata.MustFind(13049)
+		config := spelldata.SpellConfig(&character.Unit, row, spelldata.Flags(core.SpellFlagNoOnCastComplete))
+		config.ProcMask = core.ProcMaskEmpty
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			whelp.CurrentTarget = target
+			whelp.EnableWithTimeout(sim, whelp, row.Duration())
+		}
+		dragonsCall := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			dragonsCall.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(10847, ppm, 0)
+		})
+		trigger.Name = "Dragon's Call"
+		trigger.ActionID = core.ActionID{ItemID: 10847}
+		trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) bool {
+			return dragonsCall.CD.IsReady(sim)
+		}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(10847, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Blade of Hanna
 	// https://www.wowhead.com/forever/item=2801/blade-of-hanna
 	//
@@ -191,6 +240,71 @@ func init() {
 		character.ItemSwap.RegisterProc(13040, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Blade of Eternal Darkness
+	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
+	//
+	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
+	//
+	// Each direct spell hit that lands on an enemy rolls 21978, an area spell once for each enemy it
+	// lands on, and the row's 0.1 s cooldown lets one landing proc it once. The chance is the row's
+	// procs per minute on the cast time of the cast that launched the hit, at least 1.5 s
+	// (castTimePPM): an instant, a triggered spell such as an Arcane Missiles missile, and a cast that
+	// Presence of Mind or Heating Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground
+	// ticks are direct hits and roll it; damage over time ticks, Ignite, wand shots and damage
+	// shields never do. A harmful spell that deals no damage, such as Counterspell or the start of
+	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Whether a miss rolls is
+	// undetermined, so only landed hits roll (EV-0025).
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
+		Rate: castTimePPM(spelldata.MustFind(21978), true)},
+		[]shared.ItemVariant{
+			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
+		})
+
+	// Moonshadow Stave
+	// https://www.wowhead.com/forever/item=22458/moonshadow-stave
+	//
+	// Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.
+	//
+	// 1300435 rolls once for each enemy a harmful spell lands on, a damage over time effect or a debuff
+	// that deals no damage included, apart from Curse of the Elements, Recklessness and Weakness and Hex
+	// of Weakness, which the sim registers with no proc mask, and its 10 ms cooldown lets one landing
+	// proc it once. The chance is the row's procs per minute on the cast time of the cast that launched
+	// the spell, at least 1.5 s (castTimePPM). Damage over time ticks, misses, helpful spells, melee and spells fired as a proc,
+	// Hurricane's ticks among them, never roll it. Each proc casts Shadow 1300437 or Arcane 1300438, one
+	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
+	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
+	// enemy, so it rolls nothing (EV-0115).
+	core.NewItemEffect(22458, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1300435)
+
+		var bolts [2]*core.Spell
+		for i, id := range []int32{1300437, 1300438} {
+			damage := spelldata.MustFind(id).DamageEffect()
+			config := procSpellConfig(character, spelldata.MustFind(id))
+			config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+				spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit))
+			}
+			bolts[i] = character.RegisterSpell(config)
+		}
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			bolt := bolts[0]
+			if sim.Proc(0.5, "Moonshadow Stave") {
+				bolt = bolts[1]
+			}
+			bolt.Cast(sim, result.Target)
+		}, castTimePPM(row, false))
+		priced := trigger.ExtraCondition
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			return !firedAsAProc(spell) && priced(sim, spell, result)
+		}
+		trigger.Name = "Moonshadow Stave"
+		trigger.ActionID = core.ActionID{ItemID: 22458}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(22458, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Spinal Reaper
 	// https://www.wowhead.com/forever/item=288901/spinal-reaper
 	//
@@ -226,6 +340,19 @@ func init() {
 		trigger.Name = "Spinal Reaper"
 		trigger.ActionID = core.ActionID{ItemID: 288901}
 		character.ItemSwap.RegisterProc(288901, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Ironfoe
+	// https://www.wowhead.com/forever/item=11684/ironfoe
+	//
+	// Attacks have a chance to grant 2 extra attacks on your next swing. Attacks against Orcs are 2 times
+	// as likely to activate this effect.
+	//
+	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
+	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
+	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
+	core.NewItemEffect(11684, func(agent core.Agent) {
+		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 	})
 
 	// Naga Heartpiercer
@@ -269,47 +396,47 @@ func init() {
 	//
 	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
 	//
-	// TODO: waiting for PPM data
+	// Landed wand shots roll it at the item entry's procs per minute on the wand's speed (EV-0119).
 	//
-	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell
-	// with a cost spends its one charge.
-	// core.NewItemEffect(274425, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	if !character.HasManaBar() {
-	// 		return
-	// 	}
-	// 	row := spelldata.MustFind(1294058)
-	// 	effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
-	// 	school := core.SpellSchool(effect.Misc)
-	//
-	// 	cheaper := character.AddDynamicMod(core.SpellModConfig{
-	// 		Kind:     core.SpellMod_PowerCost_Flat,
-	// 		School:   school,
-	// 		IntValue: int32(effect.Average()),
-	// 	})
-	// 	config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
-	// 	config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Activate()
-	// 	}
-	// 	config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Deactivate()
-	// 	}
-	// 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-	// 		if spell.Cost != nil && spell.SpellSchool.Matches(school) {
-	// 			aura.Deactivate(sim)
-	// 		}
-	// 	}
-	// 	whiteObsidian := character.RegisterAura(config)
-	//
-	// 	ppm := weaponProcPPM(274425, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-	// 		whiteObsidian.Activate(sim)
-	// 	}, spelldata.PPM(ppm))
-	// 	trigger.Name = "White Obsidian Wand"
-	// 	trigger.ActionID = core.ActionID{ItemID: 274425}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
-	// })
+	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
+	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
+	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
+	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
+	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
+		if !character.HasManaBar() {
+			return
+		}
+		row := spelldata.MustFind(1294058)
+		effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
+		school := core.SpellSchool(effect.Misc)
+
+		cheaper := character.AddDynamicMod(core.SpellModConfig{
+			Kind:     core.SpellMod_PowerCost_Flat,
+			School:   school,
+			IntValue: int32(effect.Average()),
+		})
+		config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
+		config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Activate()
+		}
+		config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Deactivate()
+		}
+		config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			if spell.Cost != nil && spell.CurCast.Cost > 0 && spell.SpellSchool.Matches(school) {
+				aura.Deactivate(sim)
+			}
+		}
+		whiteObsidian := character.RegisterAura(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			whiteObsidian.Activate(sim)
+		}, spelldata.PPM(ppm))
+		trigger.Name = "White Obsidian Wand - Trigger"
+		trigger.ActionID = core.ActionID{ItemID: 274425}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
+	})
 
 	// Rot-Covered Harpoon
 	// https://www.wowhead.com/forever/item=274963/rot-covered-harpoon
@@ -322,13 +449,12 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1295744)
 	// 	tick := row.PeriodicDamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 274963, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.Dot = spelldata.DotConfig(row, tick)
 	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 		amount := tick.Average() * creatureFamilyMultiplier(target, familyMultiplier, proto.CreatureFamily_CreatureFamilyAquatic)
-	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, amount, row.TickOutcome(dot))
+	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
 	// 	}
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
@@ -365,16 +491,13 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1317432)
 	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
 	// 	config.SpellSchool = core.SpellSchoolFire
 	// 	config.DefenseType = core.DefenseTypeMagic
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 8708, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-	// 			proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental,
-	// 			proto.CreatureFamily_CreatureFamilyMountainGiant)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 	// 	}
 	// 	forgingStrike := character.RegisterSpell(config)
 	//
@@ -418,11 +541,75 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 	return 0
 }
 
-// The multiplier an effect deals against the creature families it names, and 1 against any other
+// An item's extra attack proc whose row states the chance against one creature family in its
+// ProcChance column, and on its second effect how many times likelier a hit on that family is than
+// one on any other target. The extra attack is the spell the row's first effect triggers. A hit on
+// the family rolls the row's column and a hit on any other target the column divided by the second
+// effect; the condition draws that one roll per hit under the item's name, so the trigger's own
+// chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
+func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
+	row := spelldata.MustFind(rowID)
+	extraAttacks := row.EffectN(1).Trigger()
+	factor := row.EffectN(2).BasePoints
+	elsewhere := row.StatedChance() / factor
+
+	trigger := spelldata.ProcTrigger(character, row, nil)
+	trigger.Name = name
+	trigger.ActionID = core.ActionID{ItemID: itemID}
+	trigger.ProcChance = 1
+	trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+		return sim.Proc(elsewhere*creatureFamilyMultiplier(result.Target, factor, family), name)
+	}
+	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
+	aura := character.MakeProcTriggerAura(trigger)
+	aura.ApplyOnInit(onInit)
+	character.ItemSwap.RegisterProc(itemID, aura)
+}
+
+// The factor an effect applies against the creature families it names, and 1 against any other
 // target.
 func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ...proto.CreatureFamily) float64 {
 	if slices.Contains(families, target.CreatureFamily) {
 		return multiplier
 	}
 	return 1
+}
+
+// The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the
+// global cooldown's 1.5 s, and rolled by each direct spell hit that lands; with requireDamage, only by
+// one that deals damage. The cast time is read where the cast deals the hit's result, which is the
+// cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
+// is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
+// hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
+// and before the cooldown starts.
+// TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
+// is priced on the unhasted time.
+func castTimePPM(row *spelldata.Spell, requireDamage bool) spelldata.ProcOpt {
+	return func(character *core.Character, trigger *core.ProcTrigger) {
+		castTimes := map[*core.SpellResult]time.Duration{}
+		core.MakePermanent(character.RegisterAura(core.Aura{
+			Label: row.Name + " Cast Times",
+			OnReset: func(_ *core.Aura, _ *core.Simulation) {
+				clear(castTimes)
+			},
+			OnCastResult: func(_ *core.Aura, _ *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				castTimes[result] = spell.CurCast.CastTime
+			},
+		}))
+
+		trigger.Callback = core.CallbackOnSpellHitDealt
+		trigger.Outcome = core.OutcomeLanded
+		trigger.RequireDamageDealt = requireDamage
+		flags := trigger.ProcSpellClassFlags
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			castTime, ok := castTimes[result]
+			if !ok {
+				castTime = spell.CurCast.CastTime
+			}
+			delete(castTimes, result)
+			chance := float64(row.RPPM) * max(castTime, core.GCDDefault).Seconds() / 60
+			return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
+		}
+		spelldata.Chance(1)(character, trigger)
+	}
 }

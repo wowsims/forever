@@ -411,7 +411,7 @@ func TestErrorCasesCoverEveryCode(t *testing.T) {
 	text := string(spec)
 	table := text[strings.Index(text, "## 13. Diagnostics"):strings.Index(text, "**Recovery.**")]
 	codes := map[string]bool{}
-	for _, line := range strings.Split(table, "\n") {
+	for line := range strings.SplitSeq(table, "\n") {
 		if cells := strings.Split(line, "|"); strings.HasPrefix(line, "| `") {
 			for _, m := range regexp.MustCompile("`([a-z-]+)`").FindAllStringSubmatch(cells[1], -1) {
 				codes[m[1]] = true

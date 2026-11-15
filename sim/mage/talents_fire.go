@@ -192,7 +192,7 @@ func (mage *Mage) registerHeatingUp() {
 
 	config := spelldata.AuraConfig(heatingUpBuff)
 
-	// A Pyroblast consumes every stack, checked in game, unless Presence of Mind made it instant.
+	// A Pyroblast consumes every stack unless Presence of Mind made it instant (EV-0005).
 	// Presence of Mind may drop before or after this runs on the same cast, so the time it has been
 	// down tells both apart.
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {

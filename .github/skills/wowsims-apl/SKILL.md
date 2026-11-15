@@ -108,10 +108,11 @@ preset names:
 - **An unknown spell.** A Cast Spell, Multidot or value on a spell the unit lacks logs "does not know spell" and the line
   or value is dropped (`GetAPLSpell`). A `spellIsKnown` guard prunes the line, and the warning stays.
 - **An aura under another ActionID.** An `auraIsActive` or `auraNumStacks` naming a spell id core registers under
-  another ActionID logs "No aura found" and the value is dropped. An And drops that branch with a warning, an Or or a
-  Not drops it silently, and a condition with nothing left reads true and the line runs every time it is ready,
-  logging "Condition could not be resolved and will be treated as always true" (`sim/core/apl_action.go`); only the
-  branch inside an Or or a Not is silent. An `auraIsKnown` on such an id folds to false and the line never runs.
+  another ActionID logs "No aura found" and the value is dropped. An `auraIsKnown` on such an id folds to false and
+  the line never runs. An And drops that branch with a warning unless a constant false branch decides it, such as an
+  `auraIsKnown` guard on the same aura (`newValueAnd` in `sim/core/apl_values_operators.go`). An Or or a Not drops it
+  silently, so an Or reads it as false. A condition with nothing left reads true and the line runs every time it is
+  ready, logging "Condition could not be resolved and will be treated as always true" (`sim/core/apl_action.go`).
 - **A misspelled preset name in a suite.** `GetAplRotation` logs "no apl json file" and the suite runs no rotation
   (`GetTestBuildFromJSON` stops the run instead).
 
@@ -120,6 +121,12 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
 `core.GetTestBuildFromJSON`'s config), calls `core.ComputeStats`, and prints every `Validations` entry of
 `RotationStats`: `PrepullActions`, `PriorityList`, `Groups[i].Actions` and `UuidValidations`, as `bearAPLWarnings` in
 `sim/druid/feralbear/rotation_test.go` does. Run it as `wowsims-testing` §The gates says, then delete it.
+
+**Count the presets before a check starts to warn.** A change to which checks warn reaches every shipped rotation, and
+only the feral suites pin their validations. A throwaway line in the warning's path that appends the test binary and the
+dropped value to a file, and one run of the `with_db` suites over `./sim/...`, lists every preset the warning would
+reach. A warning on an Or that drops a branch reached the rogue and Protection warrior presets that way, on branches
+for another race's racial or an untaken talent.
 
 ## Timing
 
@@ -189,6 +196,15 @@ with `core.SinglePlayerRaidProto` and the rotation from the suite's loader (`cor
   (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
   Resource Potion line's rage check, and an offensive potion beside a rage potion in another slot still aligns with the
   cooldowns.
+- **A warrior explosive the Engineering group does not list never goes.** An explosive is a major cooldown, the
+  Protection preset hides Autocast Other Cooldowns and the Fury and Arms presets have none. Autocast throws it just after
+  a GCD starts (`getFirstReadyMCD` in `sim/core/major_cooldown.go`), a Cast Spell line at a GCD-ready look (§Timing), so
+  the line's hardcast holds back the next ability.
+- **Cast All Stat Buff Cooldowns casts only a major cooldown whose `BuffAura` raises one of its stats**
+  (`GetMatchingStatBuffSpells` in `sim/core/major_cooldown.go`). An on-use that marks the target, such as Blackhand's
+  Breadth (13965), registers no buff, so in a rotation without Autocast Other Cooldowns it fires only from a Cast Spell
+  line naming its item id. `Multiple CD Usages` cannot time it either: a target spell with no `RelatedSelfBuff` logs
+  "does not have a related self buff" and the value is dropped.
 
 ## Keeping this skill true
 
@@ -196,5 +212,5 @@ The code is right where this skill and the code disagree; fix the skill in the s
 re-derive each claim, the "You changed → Update" table and the path check are in `references/maintenance.md`.
 
 A ruling, trap or workflow fact learned while using this skill is written down in the same change that uses it, where
-`AGENTS.md` says: a comment at the code when one file owns the rule, this skill or its `references/rulings.md` otherwise. A memory file is a pointer
+`AGENTS.md` says: a comment at the code when one file owns the rule, this skill, or a `docs/rulings/` file its `references/rulings.md` indexes, otherwise. A memory file is a pointer
 to this skill, not a second copy.

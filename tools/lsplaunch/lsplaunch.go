@@ -83,8 +83,7 @@ func Run(server Server) int {
 	cmd.Cancel = func() error { return cmd.Process.Signal(syscall.SIGTERM) }
 	cmd.WaitDelay = 5 * time.Second // Windows cannot send SIGTERM; the server is killed instead.
 	err = cmd.Run()
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) {
+	if exitErr, ok := errors.AsType[*exec.ExitError](err); ok {
 		return max(exitErr.ExitCode(), 1)
 	}
 	if err != nil {

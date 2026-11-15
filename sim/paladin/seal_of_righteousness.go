@@ -34,31 +34,27 @@ var sealOfRighteousnessProcIDs = map[int32]int32{1: 25741, 2: 25740, 3: 25739, 4
 //	  two-hander:  hand = 1.2,                                  coefficient 0.12
 //	  one-hander:  hand = 0.85 - 0.2 * max(0, 2.0 - speed),     coefficient 0.1
 //
-// The hand factors were measured on the 1.60.1 beta at level 20, ranks 1-3, eighteen weapons from
-// 1.7 to 3.7 (2026-09-26). The two-hander line is exact from 2.6 to 3.7. One-handers sit on 0.85
-// from 2.0 up and lose a little per tenth of a second below that: 0.83 at 1.9, 0.81 at 1.8, 0.79
-// at 1.7, which is as fast as the test could reach; the straight line through those is one of two
-// shapes the data allows and they agree to a percent down to 1.5. The spell power part takes one
-// coefficient per hand type at every speed and rank, outside the fast-weapon penalty, and Judgement
-// of the Crusader counts as spell power at the same coefficient. A crit doubles the unrounded total.
+// The two-hander line is exact. One-handers sit on 0.85 from 2.0 up and lose a little per tenth of
+// a second below that; the straight line through the fast points is one of two shapes the data
+// allows (EV-0059). The spell power part takes one coefficient per hand type at every speed and
+// rank, outside the fast-weapon penalty, and Judgement of the Crusader counts as spell power at
+// the same coefficient. A crit doubles the unrounded total.
 //
-// The coefficients were measured on the 1.60.1.70425 beta at level 30, rank 4, at 0 and 50 spell
-// power (2026-10-16). One-handers at 1.8, 2.2 and 2.8 all fit 0.096 to 0.101, and two-handers at
-// 2.9 and 3.8 fit 0.117 to 0.124. The tooltip's 0.0765 fits none of the one-handers: it would put
-// a 1.8 hit at 13.5 and a 2.2 hit at 16.3, where they land at 14 to 15 and 17 to 18.
+// The tooltip's 0.0765 fits none of the one-handers, whose coefficient is 0.1 (EV-0060).
 func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spell) {
 	judgeRank := spellData.JudgementOfRighteousness.ByID(int32(rank.EffectN(2).BaseValue()))
 	judgeDamage := judgeRank.DamageEffect()
 	perHit := judgeRank.EffectN(2)
 
-	// The judgement is Melee in SpellCategories and carries No Active Defense: it rolls hit and
-	// crit on the melee table and cannot be dodged, parried or blocked.
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	// The judgement is Ranged in SpellCategories and carries No Active Defense: it rolls hit and
+	// crit on the ranged table with the paladin's ranged hit chance, cannot be blocked, and is a
+	// ranged attack to every proc that listens for one.
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfRighteousness
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgeDamage.Average(), spell.OutcomeRangedHitAndCrit)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
@@ -99,8 +95,9 @@ func (paladin *Paladin) registerSealOfRighteousness(_ int32, rank *spelldata.Spe
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,
 		Callback:        core.CallbackOnSpellHitDealt,
-		ProcMask:        core.ProcMaskMeleeWhiteHit,
+		ProcMask:        swingMask,
 		Outcome:         core.OutcomeLanded,
+		ExtraCondition:  hearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			procSpell.Cast(sim, result.Target)
 		},

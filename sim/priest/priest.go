@@ -138,10 +138,7 @@ func (priest *Priest) periodicDamageSpellConfig(rank *spelldata.Spell, classSpel
 	}
 
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		if rank.PeriodicCanCrit() {
-			return spell.CalcPeriodicDamage(sim, target, tick.Average(), spell.OutcomeExpectedMagicCrit)
-		}
-		return spell.CalcPeriodicDamage(sim, target, tick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		return spell.CalcPeriodicDamage(sim, target, tick.Average(), rank.ExpectedMagicTickOutcome(spell))
 	}
 
 	return config
@@ -233,7 +230,7 @@ func RegisterPriest() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewPriest(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_DpsPriest)
 			if !ok {
 				panic("Invalid spec value for Priest!")

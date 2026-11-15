@@ -5,12 +5,14 @@ import (
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
 // An on-use item whose spell restores the wearer's mana, rage or energy, at once or over time, on the
-// item's cooldowns with the cast time and global cooldown the row states. A character without that
-// bar does not register it. The cooldown manager uses it once the whole gain fits under the bar's
+// item's cooldowns with the cast time and global cooldown the row states. Each aura the spell
+// triggers on the wearer goes up with the gain (WearerAuraTriggers). A character without that bar
+// does not register it. The cooldown manager uses it once the whole gain fits under the bar's
 // maximum.
 func NewSpellDataEnergizeOnUse(itemID int32) {
 	registerSpellDataOnUseCooldown(itemID, func(character *core.Character, row *spelldata.Spell) (core.SpellConfig, core.MajorCooldown, bool) {
@@ -25,6 +27,19 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			return barAmount(power, effect.Roll(sim))
 		}
 
+		var triggered []*core.Aura
+		for _, trigger := range WearerAuraTriggers(row) {
+			buff := trigger.Trigger()
+			aura := character.RegisterAura(spelldata.AuraConfig(buff))
+			spelldata.ParseEffects(character, aura, buff)
+			triggered = append(triggered, aura)
+		}
+		activateTriggered := func(sim *core.Simulation) {
+			for _, aura := range triggered {
+				aura.Activate(sim)
+			}
+		}
+
 		config := spelldata.SpellConfig(&character.Unit, row)
 		ticks := 1.0
 		if effect.Aura == dbcenums.A_PERIODIC_ENERGIZE {
@@ -35,11 +50,13 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			}
 			config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 				spell.SelfHot().Apply(sim)
+				activateTriggered(sim)
 			}
 			ticks = float64(config.Hot.NumberOfTicks)
 		} else {
 			config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
 				bar.add(sim, amount(sim), bar.metrics)
+				activateTriggered(sim)
 			}
 		}
 
@@ -52,6 +69,19 @@ func NewSpellDataEnergizeOnUse(itemID int32) {
 			},
 		}, true
 	})
+}
+
+// The on-use row's E_TRIGGER_SPELL effects whose spell puts auras on the wearer: Mindtap Talisman's
+// 1302205 triggers Tapped Mind 1302206, which lowers Intellect for its own duration.
+func WearerAuraTriggers(row *spelldata.Spell) []*spelldata.Effect {
+	var triggers []*spelldata.Effect
+	for i := range row.Effects {
+		e := &row.Effects[i]
+		if e.Type == dbcenums.E_TRIGGER_SPELL && LandsOnTheUser(e) && putsAurasOnTheUser(e.Trigger()) {
+			triggers = append(triggers, e)
+		}
+	}
+	return triggers
 }
 
 // The bar a gain fills: the room left in it, the character's own gain on it metered under the item,
@@ -111,10 +141,13 @@ func registerSpellDataEnergizeProc(cfg SpellDataProc) {
 	refuses := func(trigger *spelldata.Spell) bool { return len(FiredSpellUnsupported(trigger)) > 0 }
 	registerSpellDataRowProc(cfg, refuses, func(agent core.Agent, source effectSource, trigger *spelldata.Spell, _ *spelldata.Spell) {
 		character := agent.GetCharacter()
-		handler := FiredSpellHandler(character, source.actionID(), trigger)
+		var versus *core.VersusBonus
+		handler := firedSpellHandler(character, source.actionID(), trigger, func(target *core.Unit) float64 { return versus.Against(target) })
 		if handler == nil {
 			return
 		}
+		// Kept for the stats sheet only once the wearer has the bar the gain fills.
+		versus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindRestore, trigger)
 		config := spellDataProcListener(character, cfg, source, trigger)
 		config.Handler = handler
 		source.registerTrigger(character, config)
@@ -157,6 +190,11 @@ func FiredSpellUnsupported(row *spelldata.Spell) []string {
 // its category's keeps its cooldown; the game files state a reduction as a negative time, Spark's
 // 1306610 -100000.
 func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell) core.ProcHandler {
+	return firedSpellHandler(character, actionID, row, nil)
+}
+
+// The same, with the gain multiplied by factor of the hit's target where factor is set.
+func firedSpellHandler(character *core.Character, actionID core.ActionID, row *spelldata.Spell, factor func(target *core.Unit) float64) core.ProcHandler {
 	fired := row.FiredSpell()
 	if gain := fired.EnergizeEffect(); gain != spelldata.NilEffect {
 		power := dbcenums.PowerType(gain.Misc)
@@ -164,8 +202,13 @@ func FiredSpellHandler(character *core.Character, actionID core.ActionID, row *s
 		if !ok {
 			return nil
 		}
-		return func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-			bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+		return func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			amount := gain.Roll(sim)
+			// A cast listener hears no hit, so no target.
+			if factor != nil && result != nil {
+				amount *= factor(result.Target)
+			}
+			bar.add(sim, barAmount(power, amount), bar.metrics)
 		}
 	}
 

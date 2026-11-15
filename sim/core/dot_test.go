@@ -14,7 +14,7 @@ func init() {
 		proto.Player_ElementalShaman{},
 		proto.Spec_SpecElementalShaman,
 		NewFakeElementalShaman,
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_ElementalShaman)
 			if !ok {
 				panic("Invalid spec value for Elemental Shaman!")

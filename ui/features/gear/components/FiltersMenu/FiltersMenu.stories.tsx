@@ -1,4 +1,4 @@
-import { ArmorType, Faction, ItemSlot, RangedWeaponType, WeaponType } from '@generated/proto/common';
+import { AreaType, ArmorType, CreatureFamily, Faction, ItemSlot, MobType, RangedWeaponType, WeaponType } from '@generated/proto/common';
 import { DatabaseFilters, SourceFilterOption } from '@generated/proto/ui';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
@@ -18,6 +18,9 @@ const meta = {
 		armorTypes: [ArmorType.ArmorTypeMail, ArmorType.ArmorTypePlate],
 		weaponTypes: [WeaponType.WeaponTypeAxe, WeaponType.WeaponTypeSword, WeaponType.WeaponTypeMace],
 		rangedWeaponTypes: [RangedWeaponType.RangedWeaponTypeBow, RangedWeaponType.RangedWeaponTypeGun],
+		areaTypes: [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert, AreaType.AreaTypeStrongholdsCities],
+		mobTypes: [MobType.MobTypeDemon, MobType.MobTypeHumanoid, MobType.MobTypeUndead],
+		creatureFamilies: [CreatureFamily.CreatureFamilyNaga, CreatureFamily.CreatureFamilyPlant, CreatureFamily.CreatureFamilyTroll],
 		canDualWield: true,
 		raceFaction: Faction.Horde,
 	},

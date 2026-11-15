@@ -30,7 +30,7 @@ func (paladin *Paladin) registerSealOfLight(_ int32, rank *spelldata.Spell) {
 		})
 	})
 
-	// Melee in SpellCategories and Always Hit: the debuff lands without a roll.
+	// Ranged in SpellCategories and Always Hit: the debuff lands without a roll.
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, spelldata.MustFind(judgementID), spelldata.Melee(core.ProcMaskEmpty), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfLight
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

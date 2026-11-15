@@ -25,7 +25,7 @@ func TestExcessEnergyHoldsBackThePendingRefreshes(t *testing.T) {
 		rake.Apply(sim)
 		sim.CurrentTime = rip.ExpiresAt() - time.Second
 		sim.Duration = sim.CurrentTime + fightLeft
-		cat.AddComboPoints(sim, comboPoints, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
+		cat.AddComboPoints(sim, cat.CurrentTarget, comboPoints, cat.NewComboPointMetrics(core.ActionID{SpellID: 1}))
 		cat.SpendEnergy(sim, cat.CurrentEnergy(), cat.NewEnergyMetrics(core.ActionID{SpellID: 1}))
 		cat.AddEnergy(sim, 40, cat.NewEnergyMetrics(core.ActionID{SpellID: 2}))
 		value := cat.NewAPLValue(nil, &proto.APLValue{Value: &proto.APLValue_DruidExcessEnergy{DruidExcessEnergy: &proto.APLValueDruidExcessEnergy{}}})

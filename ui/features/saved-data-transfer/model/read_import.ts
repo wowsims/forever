@@ -9,7 +9,7 @@ import { decodeSavedData, type SavedDataExport, SavedDataTextError, type SavedDa
 
 const MAX_IMPORT_ENTRIES = 500;
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`saved_data_transfer.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`saved_data_transfer.${key}`, options);
 
 const refusal = (key: string, options?: Record<string, unknown>) => new ImportProblems(t(`refused.${key}`, options), []);
 

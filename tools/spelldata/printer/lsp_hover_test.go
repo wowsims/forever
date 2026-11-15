@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -98,6 +99,39 @@ func TestHoverSpellIDShapes(t *testing.T) {
 	}
 	if _, _, ok := newWorkspace().hover("\tspelldata.Find(116) // the rank 1", 0, 30, "file:///tmp/a.ts", nil); ok {
 		t.Error("a column outside the match answered a hover")
+	}
+}
+
+// An evidence or ruling id shows its file, in any file type, a Source string included.
+func TestHoverEvidenceAndRulingIDs(t *testing.T) {
+	root, err := moduleRoot()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, c := range []struct{ line, uri, id, folder string }{
+		{"\t\tSource:  \"EV-0001\",", "a.go", "EV-0001", "evidence"},
+		{"// rolls once a target (EV-0001).", "a.ts", "EV-0001", "evidence"},
+		{"// (R-0043)", "a.go", "R-0043", "rulings"},
+	} {
+		files, _ := filepath.Glob(filepath.Join(root, "docs", c.folder, c.id+"-*.md"))
+		if len(files) != 1 {
+			t.Fatalf("docs/%s holds %d files for %s", c.folder, len(files), c.id)
+		}
+		file, err := os.ReadFile(files[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+		markdown, trace, ok := hoverOn(t, newWorkspace(), c.line, "file:///tmp/"+c.uri, c.id, 3)
+		if !ok || markdown != string(file) {
+			t.Errorf("%s answered %v %q:\n%s", c.line, ok, markdown, strings.Join(trace, "\n"))
+		}
+	}
+
+	for _, id := range []string{"EV-9999", "R-9999"} {
+		_, trace, ok := hoverOn(t, newWorkspace(), "// "+id, "file:///tmp/a.go", id, 3)
+		if ok || !strings.HasSuffix(trace[len(trace)-1], "holds 0 files for "+id) {
+			t.Errorf("%s has no file and answered %v:\n%s", id, ok, strings.Join(trace, "\n"))
+		}
 	}
 }
 
@@ -895,9 +929,7 @@ func rankRequest(t *testing.T, id int, method, needle string, offset int, extra 
 	line, col := positionOf(t, darkSacrificeGo, needle, offset)
 	at := map[string]any{"line": line, "character": col}
 	params := map[string]any{"textDocument": map[string]any{"uri": "$URI"}, "position": at, "range": map[string]any{"start": at, "end": at}}
-	for key, value := range extra {
-		params[key] = value
-	}
+	maps.Copy(params, extra)
 	return map[string]any{"jsonrpc": "2.0", "id": id, "method": method, "params": params}
 }
 

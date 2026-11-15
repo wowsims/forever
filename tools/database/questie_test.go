@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -93,6 +94,8 @@ const questieTestQuestMeta = `local meta = {
     ['name'] = 1,
     ['zoneOrSort'] = 2, -- int, <0: QuestSort.dbc ID
     ['requiredRaces'] = 3, -- Allowed-race bitmask.
+    ['objectives'] = 4,
+    ['requiredSourceItems'] = 5,
   },
 }`
 
@@ -122,8 +125,11 @@ func questieTestTOC() string {
 		questieChunks("Item-IDS", questieIDs(100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112), 3),
 		"## X-Item-111-S: " + questieValue(map[any]any{1: "Darkmantle Cap", "p": 1 << 1}),
 		"## X-Item-111-2: " + questieValue([]any{9004, 9010, 9011}),
-		"## X-Quest-9004-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 3: 4294967373}),
-		"## X-Quest-9010-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 3: 8589934770}),
+		"## X-Quest-9004-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 2: 3456, 3: 4294967373, "p": 1 << 3}),
+		"## X-Quest-9004-4: " + questieValue([]any{nil, nil, []any{[]any{22361, nil, 0}, []any{12360, "Bars"}}}),
+		"## X-Quest-9010-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 2: -364, 3: 8589934770, "p": 1<<3 | 1<<4}),
+		"## X-Quest-9010-4: " + questieValue(map[any]any{3: []any{[]any{22361}}}),
+		"## X-Quest-9010-5: " + questieValue([]any{15407}),
 		"## X-Quest-9011-S: " + questieValue(map[any]any{1: "Any Race", 3: 0}),
 		"## X-Item-112-S: " + questieValue(map[any]any{1: "Sold To Sides", "p": 1 << 2}),
 		"## X-Item-112-3: " + questieValue([]any{51, 52, 53, 54}),
@@ -181,9 +187,25 @@ func questieTestTOC() string {
 }
 
 func TestParseQuestieData(t *testing.T) {
-	db, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta)
+	db, quests, err := parseQuestieData(questieTestTOC(), questieTestItemMeta, questieTestQuestMeta, questieTestNpcMeta)
 	if err != nil {
 		t.Fatal(err)
+	}
+
+	// Objectives come as a list of groups or as a map from group number, and the items no objective names follow.
+	wantQuests := map[int32]*QuestieQuest{
+		8561: {Zone: -15},
+		9004: {Zone: 3456, Items: []int32{22361, 12360}},
+		9010: {Zone: -364, Items: []int32{22361, 15407}},
+		9011: {},
+	}
+	if len(quests) != len(wantQuests) {
+		t.Errorf("got %d quests, want the %d reward quests that have a row", len(quests), len(wantQuests))
+	}
+	for id, want := range wantQuests {
+		if !reflect.DeepEqual(quests[id], want) {
+			t.Errorf("quest %d = %+v, want %+v", id, quests[id], want)
+		}
 	}
 
 	want := map[int32][]*proto.UIItemSource{
@@ -248,16 +270,18 @@ func TestParseQuestieDataRejectsMalformedData(t *testing.T) {
 	toc := questieTestTOC()
 	vendorsPart := "## X-Item-101-3-2: "
 	for name, test := range map[string]struct{ toc, itemMeta string }{
-		"missing chunk":      {strings.Replace(toc, vendorsPart, "## X-Item-101-3-9: ", 1), questieTestItemMeta},
-		"bad base64":         {toc + "\n" + vendorsPart + "!", questieTestItemMeta},
-		"truncated CBOR":     {toc + "\n" + questieTestQuestRewards + questieValue([]any{8561, 9999})[:4], questieTestItemMeta},
-		"id is not a number": {toc + "\n" + questieTestQuestRewards + questieValue([]any{"8561"}), questieTestItemMeta},
-		"name is a number":   {toc + "\n" + questieTestQuestRow + questieValue([]any{8561}), questieTestItemMeta},
-		"missing key":        {toc, strings.Replace(questieTestItemMeta, "['vendors'] = 3,", "", 1)},
-		"no IDS":             {strings.Replace(toc, "## X-Npc-IDS: ", "## X-Npc-Ids: ", 1), questieTestItemMeta},
-		"bad field index":    {toc, strings.Replace(questieTestItemMeta, "['name'] = 1,", "['name'] = 64,", 1)},
+		"missing chunk":            {strings.Replace(toc, vendorsPart, "## X-Item-101-3-9: ", 1), questieTestItemMeta},
+		"bad base64":               {toc + "\n" + vendorsPart + "!", questieTestItemMeta},
+		"truncated CBOR":           {toc + "\n" + questieTestQuestRewards + questieValue([]any{8561, 9999})[:4], questieTestItemMeta},
+		"id is not a number":       {toc + "\n" + questieTestQuestRewards + questieValue([]any{"8561"}), questieTestItemMeta},
+		"name is a number":         {toc + "\n" + questieTestQuestRow + questieValue([]any{8561}), questieTestItemMeta},
+		"missing key":              {toc, strings.Replace(questieTestItemMeta, "['vendors'] = 3,", "", 1)},
+		"no IDS":                   {strings.Replace(toc, "## X-Npc-IDS: ", "## X-Npc-Ids: ", 1), questieTestItemMeta},
+		"bad field index":          {toc, strings.Replace(questieTestItemMeta, "['name'] = 1,", "['name'] = 64,", 1)},
+		"objectives are a number":  {toc + "\n## X-Quest-9004-4: " + questieValue(7), questieTestItemMeta},
+		"item objective has no id": {toc + "\n## X-Quest-9004-4: " + questieValue([]any{nil, nil, []any{[]any{"Bars"}}}), questieTestItemMeta},
 	} {
-		if _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
+		if _, _, err := parseQuestieData(test.toc, test.itemMeta, questieTestQuestMeta, questieTestNpcMeta); err == nil {
 			t.Errorf("%s: parsed without an error", name)
 		}
 	}

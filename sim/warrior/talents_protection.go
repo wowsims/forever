@@ -81,7 +81,7 @@ func (warrior *Warrior) registerRageOnAvoid(driver *spelldata.Spell, energize *s
 	rage := energize.EnergizeEffect().Tenths()
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: energize.ID})
 	// In game this rage makes 5 threat a rage in Battle and Defensive Stance alike, and Defiance does not
-	// scale it.
+	// scale it (EV-0045).
 	// TODO: Ingame test needed -- whether a threat buff scales it.
 	rageMetrics.UnscaledThreat = true
 
@@ -159,7 +159,7 @@ func (warrior *Warrior) registerImprovedShieldWall() {
 
 var concussionBlowRank = spellData.ConcussionBlow.Highest()
 
-// TODO: In-game testing if this generates threat
+// Concussion Blow generates no threat (EV-0048).
 func (warrior *Warrior) registerConcussionBlow() {
 	if !warrior.Talents.ConcussionBlow {
 		return
@@ -185,7 +185,9 @@ func (warrior *Warrior) registerShieldSlam() {
 		return
 	}
 
-	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeOHSpecial))
+	// A main-hand special, though the row requires the shield: the main-hand weapon skill sets its miss
+	// and parry, and core's canProcFrom decides which weapon procs hear it.
+	config := spelldata.SpellConfig(&warrior.Unit, shieldSlamRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial))
 
 	// The hit adds twice the block value to the roll, and the target's armor applies to the whole of it.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {

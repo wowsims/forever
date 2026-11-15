@@ -14,7 +14,7 @@ func RegisterProtectionWarrior() {
 		func(character *core.Character, options *proto.Player, _ *proto.Raid) core.Agent {
 			return NewProtectionWarrior(character, options)
 		},
-		func(player *proto.Player, spec interface{}) {
+		func(player *proto.Player, spec any) {
 			playerSpec, ok := spec.(*proto.Player_ProtectionWarrior)
 			if !ok {
 				panic("Invalid spec value for Protection Warrior!")

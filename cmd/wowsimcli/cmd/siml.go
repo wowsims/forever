@@ -242,7 +242,7 @@ func simlPrint(out, errOut io.Writer, args []string) error {
 		if *letters == "" {
 			return errors.New("-categories needs a category letter")
 		}
-		for _, c := range strings.Split(*letters, "") {
+		for c := range strings.SplitSeq(*letters, "") {
 			if !strings.Contains(categoryLetters, c) || slices.Contains(categories, c) {
 				return fmt.Errorf("-categories takes each of %s at most once, not %q", categoryLetters, *letters)
 			}

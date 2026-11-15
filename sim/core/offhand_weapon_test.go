@@ -6,7 +6,7 @@ import (
 )
 
 // A modifier on the off-hand's hits alone reaches an off-hand hit only while an off-hand weapon is
-// behind it. A modifier on both hands still reaches a shield's hit.
+// behind it. A modifier on both hands still reaches a hit with none.
 func TestOffHandModsNeedAnOffHandWeapon(t *testing.T) {
 	offHandHit := func(dualWielding bool) *Spell {
 		return &Spell{ProcMask: ProcMaskMeleeOHSpecial, Unit: &Unit{AutoAttacks: AutoAttacks{IsDualWielding: dualWielding}}}
@@ -19,9 +19,9 @@ func TestOffHandModsNeedAnOffHandWeapon(t *testing.T) {
 		want  bool
 	}{
 		{"an off-hand mod on an off-hand weapon's hit", &SpellMod{ProcMask: ProcMaskMeleeOH}, offHandHit(true), true},
-		{"an off-hand mod on a shield's hit", &SpellMod{ProcMask: ProcMaskMeleeOH}, offHandHit(false), false},
-		{"an off-hand special mod on a shield's hit", &SpellMod{ProcMask: ProcMaskMeleeOHSpecial}, offHandHit(false), false},
-		{"a melee mod on a shield's hit", &SpellMod{ProcMask: ProcMaskMelee}, offHandHit(false), true},
+		{"an off-hand mod on a hit with no off-hand weapon", &SpellMod{ProcMask: ProcMaskMeleeOH}, offHandHit(false), false},
+		{"an off-hand special mod on a hit with no off-hand weapon", &SpellMod{ProcMask: ProcMaskMeleeOHSpecial}, offHandHit(false), false},
+		{"a melee mod on a hit with no off-hand weapon", &SpellMod{ProcMask: ProcMaskMelee}, offHandHit(false), true},
 	}
 
 	for _, test := range tests {

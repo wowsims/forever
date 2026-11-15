@@ -20,6 +20,7 @@ import (
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
+	"github.com/wowsims/forever/sim/core/itemfit"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
@@ -514,7 +515,7 @@ func GenerateEffectsFile(groups []*Group, outFile string, templateString string)
 	}
 
 	var rendered bytes.Buffer
-	if err := tmpl.Execute(&rendered, map[string]interface{}{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
+	if err := tmpl.Execute(&rendered, map[string]any{"Groups": groups, "HasEntries": hasEntries, "HasStacking": hasStacking, "UsesCore": usesCore, "HasLive": hasLive}); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
@@ -604,8 +605,8 @@ var literalRates = []literalRate{
 		ID:     272432,
 		Kind:   overrides.RatePPM,
 		Origin: "unknown",
-		Reason: "Totem of the Storm: half of Maelstrom Weapon's rate per minute, which the shaman talent " +
-			"code keeps as its own literal; the item cannot carry it without the talent reading it from the item",
+		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
+			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the main hand's speed",
 	},
 	{
 		Gear:   "set bonus",
@@ -627,10 +628,13 @@ var literalRates = []literalRate{
 	},
 }
 
+// A Source naming the files of its measurements in docs/evidence.
+var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
+
 // The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
 func rateOrigin(source string) string {
 	switch {
-	case strings.HasPrefix(source, "wcl:"), strings.HasPrefix(source, "issue #"), strings.HasPrefix(source, "combat log, "):
+	case evidenceID.MatchString(source):
 		return ""
 	case source == "vanilla-carryover":
 		return "vanilla"
@@ -881,7 +885,166 @@ func setBonusTooltip(instance *dbc.DBC, spellID int) string {
 	return spell.NameLang
 }
 
-func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
+const setBonusesFileName = "sim/common/forever/item_sets_auto_gen.go"
+
+// A piece count of a generated set: the rows the game files grant at it, and what keeps each from
+// registering.
+type GeneratedSetBonus struct {
+	Pieces      int32
+	Spells      []int32
+	Tooltips    []string   // One per spell.
+	Unsupported [][]string // One per spell, empty where the row registers.
+}
+
+// Whether every row of the bonus registers, which is when the bonus does.
+func (bonus GeneratedSetBonus) Supported() bool {
+	return !slices.ContainsFunc(bonus.Unsupported, func(reasons []string) bool { return len(reasons) > 0 })
+}
+
+// A set no hand-written set covers, as gen_db writes it.
+type GeneratedSet struct {
+	ID         int32
+	Name       string
+	Slots      []proto.ItemSlot
+	Profession proto.Profession    // The profession the ItemSet row gates the bonuses on, if any.
+	Bonuses    []GeneratedSetBonus // In piece count order.
+}
+
+// Whether the set registers any of its bonuses.
+func (set GeneratedSet) Registers() bool {
+	return slices.ContainsFunc(set.Bonuses, GeneratedSetBonus.Supported)
+}
+
+// Every set with items in the database that no registered set covers, in set id order, with all of its
+// piece counts. A set registered with ID 0 covers the sets of its name.
+func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSpell, db *WowDatabase, tooltipOf func(spellID int) string) []GeneratedSet {
+	names := setNamesOf(db)
+	var sets []GeneratedSet
+	for _, setID := range slices.Sorted(maps.Keys(names)) {
+		name := names[setID]
+		if slices.ContainsFunc(registered, func(set *core.ItemSet) bool {
+			return set.ID == setID || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
+		}) {
+			continue
+		}
+
+		rows := setSpells[int(setID)]
+		byPieces := map[int32]*GeneratedSetBonus{}
+		for _, row := range rows {
+			pieces := int32(row.Threshold)
+			bonus, ok := byPieces[pieces]
+			if !ok {
+				bonus = &GeneratedSetBonus{Pieces: pieces}
+				byPieces[pieces] = bonus
+			}
+			bonus.Spells = append(bonus.Spells, int32(row.SpellID))
+			bonus.Tooltips = append(bonus.Tooltips, tooltipOf(row.SpellID))
+			bonus.Unsupported = append(bonus.Unsupported, shared.SetBonusUnsupported(spelldata.Find(int32(row.SpellID))))
+		}
+		if len(byPieces) == 0 {
+			continue
+		}
+
+		set := GeneratedSet{ID: setID, Name: name, Slots: setSlots(db, setID), Profession: dbc.GetProfession(rows[0].RequiredSkill)}
+		for _, pieces := range slices.Sorted(maps.Keys(byPieces)) {
+			set.Bonuses = append(set.Bonuses, *byPieces[pieces])
+		}
+		sets = append(sets, set)
+	}
+	return sets
+}
+
+// The slots the set's items in the database go in, in slot order.
+func setSlots(db *WowDatabase, setID int32) []proto.ItemSlot {
+	var slots []proto.ItemSlot
+	for _, item := range db.Items {
+		if item.SetId == setID {
+			slots = append(slots, itemfit.ItemSlots(itemfit.Item{
+				Type: item.Type, HandType: item.HandType, WeaponType: item.WeaponType, RangedType: item.RangedWeaponType,
+			})...)
+		}
+	}
+	slices.Sort(slots)
+	return slices.Compact(slots)
+}
+
+// The sets file, written the way the item files are: a registration for each set with a bonus whose rows
+// all register, and every other bonus as a comment naming what keeps it out.
+func renderSetBonuses(sets []GeneratedSet) []byte {
+	var b strings.Builder
+	b.WriteString("package forever\n\n")
+	if slices.ContainsFunc(sets, GeneratedSet.Registers) {
+		b.WriteString("import (\n\t\"github.com/wowsims/forever/sim/common/shared\"\n\t\"github.com/wowsims/forever/sim/core/proto\"\n)\n\n")
+	}
+	b.WriteString("// The sets no hand-written set covers. A bonus is registered when every row it grants parses whole\n")
+	b.WriteString("// onto the set bonus aura or is a proc the set builds; the others are comments. A set written by\n")
+	b.WriteString("// hand leaves this file on the next db run.\n")
+	b.WriteString("func RegisterAllSetBonuses() {\n")
+
+	for i, set := range sets {
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		indent := "\t"
+		if !set.Registers() {
+			b.WriteString("\t// TODO: Manual implementation required\n\t//\n")
+			indent = "\t// "
+		}
+		fmt.Fprintf(&b, "\t// %s\n\t// https://www.wowhead.com/forever/item-set=%d\n", set.Name, set.ID)
+		slots := core.MapSlice(set.Slots, func(slot proto.ItemSlot) string { return "proto.ItemSlot_" + slot.String() })
+		constructor, gate := "NewParsedItemSet", ""
+		if set.Profession != proto.Profession_ProfessionUnknown {
+			constructor, gate = "NewParsedProfessionItemSet", "proto.Profession_"+set.Profession.String()+", "
+		}
+		fmt.Fprintf(&b, "%sshared.%s(%d, %q, %s[]proto.ItemSlot{%s}, map[int32][]int32{\n",
+			indent, constructor, set.ID, set.Name, gate, strings.Join(slots, ", "))
+
+		for j, bonus := range set.Bonuses {
+			pad, code := indent+"\t", indent+"\t"
+			todo := !bonus.Supported() && set.Registers()
+			if j > 0 && set.Registers() && (todo || !set.Bonuses[j-1].Supported()) {
+				b.WriteString("\n")
+			}
+			if todo {
+				fmt.Fprintf(&b, "%s// TODO: Manual implementation required\n%s//\n", pad, pad)
+				code += "// "
+			}
+			for k, spellID := range bonus.Spells {
+				for _, text := range formatStrings(100, []string{bonus.Tooltips[k]}) {
+					fmt.Fprintf(&b, "%s// %s\n", pad, text)
+				}
+				fmt.Fprintf(&b, "%s// https://www.wowhead.com/forever/spell=%d\n", pad, spellID)
+				if len(bonus.Unsupported[k]) > 0 {
+					fmt.Fprintf(&b, "%s// unsupported: %s\n", pad, strings.Join(bonus.Unsupported[k], ", "))
+				}
+			}
+			ids := core.MapSlice(bonus.Spells, func(id int32) string { return strconv.Itoa(int(id)) })
+			fmt.Fprintf(&b, "%s%d: {%s},\n", code, bonus.Pieces, strings.Join(ids, ", "))
+		}
+		fmt.Fprintf(&b, "%s})\n", indent)
+	}
+
+	b.WriteString("}\n")
+	return []byte(b.String())
+}
+
+// Writes the sets no hand-written set covers, and answers them for the missing-effects list. gen_db runs it
+// before anything calls RegisterAllSetBonuses, so the registered sets are the hand-written ones.
+func GenerateSetBonuses(instance *dbc.DBC, db *WowDatabase) ([]GeneratedSet, error) {
+	sets := generatedSets(core.ItemSets(), instance.ItemSetSpells, db, func(spellID int) string {
+		return setBonusTooltip(instance, spellID)
+	})
+	out, err := format.Source(renderSetBonuses(sets))
+	if err != nil {
+		return nil, fmt.Errorf("generated %s is not valid Go: %w", setBonusesFileName, err)
+	}
+	if err := os.WriteFile(setBonusesFileName, out, 0644); err != nil {
+		return nil, fmt.Errorf("failed to write file %s: %w", setBonusesFileName, err)
+	}
+	return sets, nil
+}
+
+func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []GeneratedSet) error {
 	if _, err := os.Stat(missingEffectsFileName); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
 	}
@@ -890,7 +1053,17 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase) error {
 	if err != nil {
 		return err
 	}
-	setBonuses := missingSetBonuses(core.ItemSets(), instance.ItemSetSpells, db, func(spellID int) string {
+	registered := slices.Clone(core.ItemSets())
+	for _, set := range generated {
+		bonuses := map[int32]core.ApplySetBonus{}
+		for _, bonus := range set.Bonuses {
+			if bonus.Supported() {
+				bonuses[bonus.Pieces] = nil
+			}
+		}
+		registered = append(registered, &core.ItemSet{ID: set.ID, Name: set.Name, Bonuses: bonuses})
+	}
+	setBonuses := missingSetBonuses(registered, instance.ItemSetSpells, db, func(spellID int) string {
 		return setBonusTooltip(instance, spellID)
 	})
 
@@ -1167,6 +1340,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 	// Example loop over your items
 	for _, parsed := range db.Items {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
+		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
 		for _, itemEffect := range parsed.ItemEffects {
 			if !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
@@ -1265,10 +1439,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		for _, entry := range entries {
 			for _, variant := range entry.Variants {
 				if _, ok := needsStatPostfix[variant.Name]; ok {
-					item := db.Items[int32(variant.ID)]
-					for _, itemEffect := range item.ItemEffects {
-						variant.Name += " - " + GetEffectStatString(itemEffect)
-					}
+					variant.Name += " - " + variantPostfix(db.Items[int32(variant.ID)], variant.SpellID)
 				}
 
 				variant.Name += BuildItemNamePostfix(variant.ID, instance)
@@ -1334,6 +1505,20 @@ func GenerateItemEffectRandomPropPoints(instance *dbc.DBC, db *WowDatabase) {
 			RandPropPoints: allocMap[proto.ItemQuality_ItemQualityEpic][0],
 		}
 	}
+}
+
+// What tells one of an item's procs apart from the others in its name: the stats its own effect grants,
+// or, for a proc that grants none (Skullflame Shield's Drain Life and Flamestrike), the buff's name.
+func variantPostfix(item *proto.UIItem, spellID int) string {
+	for _, itemEffect := range item.ItemEffects {
+		if int(itemEffect.BuffId) != spellID {
+			continue
+		}
+		if stats := GetEffectStatString(itemEffect); stats != "" {
+			return stats
+		}
+	}
+	return spelldata.Find(int32(spellID)).Name
 }
 
 func BuildItemNamePostfix(itemId int, instance *dbc.DBC) string {
@@ -1484,8 +1669,11 @@ func TryParseEquipAuraEffect(parsed *proto.UIItem, itemEffect *proto.ItemEffect,
 		return EffectParseResultInvalid
 	}
 
+	// A proc effect (Stoneform Shoulders' 1298230 on entering combat, Force of Will's 15594 when struck)
+	// keeps nothing up while worn: its buff is the proc's, for its own duration, and the proc parser
+	// reads it.
 	effect := dbc.GetItemEffectForBuffID(int(parsed.Id), int(itemEffect.BuffId))
-	if effect == nil || effect.TriggerType != dbc.ITEM_SPELLTRIGGER_ON_EQUIP {
+	if itemEffect.GetProc() != nil || effect == nil || effect.TriggerType != dbc.ITEM_SPELLTRIGGER_ON_EQUIP {
 		return EffectParseResultInvalid
 	}
 
@@ -1671,7 +1859,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		routing.Unsupported = append(routing.Unsupported, "the spell has no row in the store")
 	case direct != spelldata.NilEffect || periodic != spelldata.NilEffect:
 		routing.Shape = ShapeDamage
-		routing.Summary = onUseSummary(s, direct, periodic)
+		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{direct, periodic}, versusFactorModelled(s)...)...)
 		if direct != spelldata.NilEffect && !direct.StatesADamageAmount() {
 			routing.Unsupported = append(routing.Unsupported, fmt.Sprintf("the direct damage is %v rather than an amount", direct.Type))
 		}
@@ -1693,8 +1881,12 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 		routing.Unsupported = append(routing.Unsupported, absorbUnsupported(s)...)
 	case energize != spelldata.NilEffect:
 		routing.Shape = ShapeEnergize
-		routing.Summary = onUseSummary(s, energize)
+		triggers := shared.WearerAuraTriggers(s)
+		routing.Summary = onUseSummary(s, append([]*spelldata.Effect{energize}, triggers...)...)
 		routing.Unsupported = append(routing.Unsupported, energizeUnsupported(s, energize)...)
+		for _, trigger := range triggers {
+			routing.Unsupported = append(routing.Unsupported, procAuraUnsupported(trigger.Trigger())...)
+		}
 	case len(s.SpeedEffects()) > 0:
 		routing.Shape = ShapeSpeed
 		routing.Summary = onUseSummary(s, s.SpeedEffects()...)
@@ -1711,7 +1903,7 @@ func routeOnUseSpell(itemID int, buffID int32, instance *dbc.DBC) *ProcRouting {
 	case triggersDamagePeriodically(s):
 		periodic := s.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
 		routing.Shape = ShapePeriodicDamage
-		routing.Summary = fmt.Sprintf("%s; every %v for %v: %d (%s)", onUseSummary(s, periodic),
+		routing.Summary = fmt.Sprintf("%s; every %v for %v: %d (%s)", onUseSummary(s, append([]*spelldata.Effect{periodic}, versusFactorModelled(s)...)...),
 			periodic.Period(), s.Duration(), periodic.TriggerID, spellEffectKinds(instance, int(periodic.TriggerID)))
 		routing.Unsupported = append(routing.Unsupported, periodicDamageUnsupported(s, periodic)...)
 	default:
@@ -1764,6 +1956,17 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 	})
 }
 
+// The row's factor against some targets where its effect does nothing else, an E_NONE or E_DUMMY: the
+// damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
+// on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
+func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
+	e := s.VersusFactorEffect()
+	if e == spelldata.NilEffect || (e.Type != dbcenums.E_NONE && e.Type != dbcenums.E_DUMMY) {
+		return nil
+	}
+	return []*spelldata.Effect{e}
+}
+
 func onUseSummary(s *spelldata.Spell, modelled ...*spelldata.Effect) string {
 	var cast, left []string
 	for i := range s.Effects {
@@ -1813,9 +2016,12 @@ func (r *ProcRouting) ProcConstructor() string {
 }
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
-// multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, and skill points, none
-// of which an item states as a stat. The percents reach the item stats only through an equip spell that
-// folds; an on-use or a weapon-scoped equip spell applies them as an aura.
+// multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
+// attack power and spell damage against a creature type. The percents reach the item stats only through an
+// equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura. An equip spell
+// that only restates a weapon skill or creature type stat the item's own stats state leaves the item
+// (dropRestatedItemStats). One that folds drops its bonus against a creature type, so an item that states
+// such a bonus on its equip spell and not in its stats registers it by hand, as Graverobber's Shovel does.
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -1836,6 +2042,9 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_DODGE_PERCENT,
 	dbcenums.A_MOD_PARRY_PERCENT,
 	dbcenums.A_MOD_SKILL,
+	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
+	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
+	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
 }
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
@@ -2183,6 +2392,10 @@ var procTriggerClauseMatcher = regexp.MustCompile(`(?i)melee|ranged|attack|swing
 // an additional 5%". The word the effect modifies sits within a clause of the chance either way.
 var increasedChanceMatcher = regexp.MustCompile(`(?i)increase[sd]?[^.]{0,40}?chance|chance[^.]{0,30}?increase[sd]?`)
 
+// "Has a chance" states the rate even in a sentence that also states a magnitude: Argent Defender's
+// 17350 "Has a chance when struck in combat to increase your chance to block".
+var hasAChanceMatcher = regexp.MustCompile(`(?i)\bhas a chance\b`)
+
 // Where one statement ends and the next begins. Crude on purpose: an abbreviation or a decimal
 // splits a sentence in two, and neither changes which half carries the trigger.
 var sentenceBreak = regexp.MustCompile(`[.!?](?:\s|$)|\r?\n`)
@@ -2199,7 +2412,7 @@ func tooltipStatesAnUnknownRate(description string) bool {
 		if !procTriggerClauseMatcher.MatchString(sentence) {
 			continue
 		}
-		if increasedChanceMatcher.MatchString(sentence) {
+		if increasedChanceMatcher.MatchString(sentence) && !hasAChanceMatcher.MatchString(sentence) {
 			continue
 		}
 

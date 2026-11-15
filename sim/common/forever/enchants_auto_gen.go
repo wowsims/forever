@@ -165,6 +165,21 @@ func RegisterAllEnchants() {
 	//	TriggerSpellID: 1294053,
 	// }, nil)
 
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Permanently enchants an item to allow the binding of ancient spirits to an unfinished masterwork.
+	//
+	// https://www.wowhead.com/forever/spell=1314331
+	// unsupported: no callback in the proc mask; states no rate; the enchant's effect entry resolves no stats from 1314330 (A_DUMMY)
+	// trigger 1314330 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataProc(shared.SpellDataProc{
+	//	Name:           "Arcanum of Binding",
+	//	EnchantID:      8726,
+	//	TriggerSpellID: 1314330,
+	// }, nil)
+
 	// Enchants a weapon to have a 15% chance to inflict 11 Fire damage to all enemies within 3 yards.
 	// https://www.wowhead.com/forever/spell=6296
 	// trigger 6297 (15%, core.CallbackEmpty, core.ProcMaskUnknown)

@@ -5,10 +5,12 @@ import (
 	"bytes"
 	"compress/zlib"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/fs"
 	"log"
+	"maps"
 	"regexp"
 	"slices"
 	"strconv"
@@ -23,7 +25,7 @@ import (
 // QuestieDB (github.com/Questie/QuestieDB, GPLv3) names each item's quest rewards, vendors and dropping NPCs, which
 // the game files do not hold. A release's baked Forever data has QuestieDB's Forever corrections applied; the
 // repository's data/Forever Lua files do not.
-const questieRelease = "v1.0.9"
+const questieRelease = "1.1.1"
 
 // An item with more dropping NPCs than this takes one source in their place, since a list can run to hundreds of mobs:
 // multipleNpcsName in their zone when they share one, else worldDropName. Only QuestieDB's list says so: an item with no
@@ -34,10 +36,16 @@ const (
 	multipleNpcsName      = "Multiple NPCs"
 )
 
+// A reward quest's zone and the items it asks for, which decide the phase of the items it rewards.
+type QuestieQuest struct {
+	Zone  int32   `json:"zone,omitempty"`  // An AreaTable id; a negative QuestSort id for a quest sorted by theme.
+	Items []int32 `json:"items,omitempty"` // The objectives' items, then the items it needs that are no objective.
+}
+
 // Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
-// the NPCs of the listed drops in Npcs.
-func ReadQuestieData() *WowDatabase {
-	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/" + questieRelease + "/QuestieDB-Forever.zip")
+// the NPCs of the listed drops in Npcs, and each of those reward quests by id.
+func ReadQuestieData() (*WowDatabase, map[int32]*QuestieQuest) {
+	archive := tools.ReadWebRequired("https://github.com/Questie/QuestieDB/releases/download/v" + questieRelease + "/QuestieDB-" + questieRelease + "-Forever.zip")
 	reader, err := zip.NewReader(strings.NewReader(archive), int64(len(archive)))
 	if err != nil {
 		log.Fatalf("opening the QuestieDB release: %v", err)
@@ -49,30 +57,51 @@ func ReadQuestieData() *WowDatabase {
 		}
 		return string(data)
 	}
-	db, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
+	db, quests, err := parseQuestieData(read("QuestieDB_Forever.toc"), read("src/meta/itemMeta.lua"), read("src/meta/questMeta.lua"), read("src/meta/npcMeta.lua"))
 	if err != nil {
 		log.Fatalf("parsing the QuestieDB data: %v", err)
 	}
-	return db
+	return db, quests
+}
+
+// Writes quests one per line, by id.
+func WriteQuestieQuests(path string, quests map[int32]*QuestieQuest) {
+	lines := make([]string, 0, len(quests))
+	for _, id := range slices.Sorted(maps.Keys(quests)) {
+		quest, err := json.Marshal(quests[id])
+		if err != nil {
+			log.Fatalf("writing quest %d: %v", id, err)
+		}
+		lines = append(lines, fmt.Sprintf(`"%d":%s`, id, quest))
+	}
+	tools.WriteFile(path, "{\n"+strings.Join(lines, ",\n")+"\n}\n")
+}
+
+func ReadQuestieQuests(path string) map[int32]*QuestieQuest {
+	quests := map[int32]*QuestieQuest{}
+	if err := json.Unmarshal([]byte(tools.ReadFile(path)), &quests); err != nil {
+		log.Fatalf("reading %s: %v", path, err)
+	}
+	return quests
 }
 
 // The baked data is the TOC's "## X-<entity>-<id>-<field>: <value>" lines; each meta file maps an entity's field
 // names to indexes.
-func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, error) {
+func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, map[int32]*QuestieQuest, error) {
 	store := readQuestieStore(toc)
 	items, err := newQuestieEntity(store, "Item", itemMeta)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	quests, err := newQuestieEntity(store, "Quest", questMeta)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	npcs, err := newQuestieEntity(store, "Npc", npcMeta)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	var questRewards, vendors, npcDrops, questName, questRaces, npcName, npcZone, npcFriendlyTo int
+	var questRewards, vendors, npcDrops, questName, questRaces, questZone, questObjectives, questSourceItems, npcName, npcZone, npcFriendlyTo int
 	for _, key := range []struct {
 		entity *questieEntity
 		name   string
@@ -83,15 +112,37 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 		{items, "npcDrops", &npcDrops},
 		{quests, "name", &questName},
 		{quests, "requiredRaces", &questRaces},
+		{quests, "zoneOrSort", &questZone},
+		{quests, "objectives", &questObjectives},
+		{quests, "requiredSourceItems", &questSourceItems},
 		{npcs, "name", &npcName},
 		{npcs, "zoneID", &npcZone},
 		{npcs, "friendlyToFaction", &npcFriendlyTo},
 	} {
 		index, ok := key.entity.keys[key.name]
 		if !ok {
-			return nil, fmt.Errorf("%s has no key %q", key.entity.name, key.name)
+			return nil, nil, fmt.Errorf("%s has no key %q", key.entity.name, key.name)
 		}
 		*key.index = index
+	}
+	readQuest := func(quest *questieRow) (*QuestieQuest, error) {
+		zone, err := quest.integer(questZone)
+		if err != nil {
+			return nil, err
+		}
+		objectiveItems, err := quest.objectiveItems(questObjectives)
+		if err != nil {
+			return nil, err
+		}
+		sourceItems, err := quest.ids(questSourceItems)
+		if err != nil {
+			return nil, err
+		}
+		read := &QuestieQuest{Zone: int32(zone)}
+		for _, id := range append(objectiveItems, sourceItems...) {
+			read.Items = append(read.Items, int32(id))
+		}
+		return read, nil
 	}
 
 	// Nil for an NPC with no row, with the side it is friendly to.
@@ -116,36 +167,40 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 	}
 
 	db := NewWowDatabase()
+	rewardQuests := map[int32]*QuestieQuest{}
 	for _, id := range items.ids {
 		item, err := items.row(id)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		questIDs, err := item.ids(questRewards)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		npcIDs, err := item.ids(vendors)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		var sources []*proto.UIItemSource
 		for _, questID := range questIDs {
 			quest, err := quests.row(questID)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if quest == nil {
 				continue
 			}
+			if rewardQuests[int32(questID)], err = readQuest(quest); err != nil {
+				return nil, nil, err
+			}
 			name, err := quest.text(questName)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			races, err := quest.integer(questRaces)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			sources = append(sources, &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{
 				Id:      int32(questID),
@@ -157,7 +212,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 		for _, npcID := range npcIDs {
 			npc, faction, err := readNpc(npcID)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			if npc == nil {
 				continue
@@ -176,7 +231,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 		if !soldInAZone {
 			drops, err := questieDropSources(db, item, npcDrops, readNpc)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			sources = append(sources, drops...)
 		}
@@ -184,7 +239,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, e
 			db.Items[int32(id)] = &proto.UIItem{Id: int32(id), Sources: sources}
 		}
 	}
-	return db, nil
+	return db, rewardQuests, nil
 }
 
 // The drop sources of an item's dropping NPCs, which are added to db.Npcs: one source per NPC in a zone, or one
@@ -277,7 +332,7 @@ type questieStore map[string]string
 
 func readQuestieStore(toc string) questieStore {
 	store := questieStore{}
-	for _, line := range strings.Split(toc, "\n") {
+	for line := range strings.SplitSeq(toc, "\n") {
 		if key, value, ok := strings.Cut(strings.TrimSuffix(line, "\r"), ": "); ok && strings.HasPrefix(key, "## X-") {
 			store[strings.TrimPrefix(key, "## X-")] = value
 		}
@@ -433,7 +488,9 @@ func (r *questieRow) integer(index int) (int64, error) {
 	}
 }
 
-func (r *questieRow) ids(index int) ([]int, error) {
+// The ids a table field holds, as parse reads the value stored under <key>-<index>; none when the presence bits leave
+// the field out.
+func (r *questieRow) table(index int, parse func(any) ([]int, error)) ([]int, error) {
 	if r.presence&(1<<(index-1)) == 0 {
 		return nil, nil
 	}
@@ -442,9 +499,57 @@ func (r *questieRow) ids(index int) ([]int, error) {
 	if err != nil {
 		return nil, err
 	}
-	ids, err := cborIDs(value)
+	if value == nil {
+		return nil, fmt.Errorf("%s: no value", key)
+	}
+	ids, err := parse(value)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", key, err)
+	}
+	return ids, nil
+}
+
+func (r *questieRow) ids(index int) ([]int, error) {
+	return r.table(index, cborIDs)
+}
+
+func (r *questieRow) objectiveItems(index int) ([]int, error) {
+	return r.table(index, cborObjectiveItems)
+}
+
+// The item ids of a quest's objectives. The field holds six positional groups (creature, object, item, reputation,
+// kill credit, spell) as a list, or as a map from group number when groups are missing; each item entry is a list
+// that opens with the item id.
+func cborObjectiveItems(value any) ([]int, error) {
+	var group any
+	switch value := value.(type) {
+	case []any:
+		if len(value) >= 3 {
+			group = value[2]
+		}
+	case map[any]any:
+		group = value[int64(3)]
+	default:
+		return nil, fmt.Errorf("%v is not the objectives", value)
+	}
+	if group == nil {
+		return nil, nil
+	}
+	entries, ok := group.([]any)
+	if !ok {
+		return nil, fmt.Errorf("%v is not a list of item objectives", group)
+	}
+	ids := make([]int, 0, len(entries))
+	for _, entry := range entries {
+		fields, ok := entry.([]any)
+		if !ok || len(fields) == 0 {
+			return nil, fmt.Errorf("%v is not an item objective", entry)
+		}
+		id, ok := fields[0].(int64)
+		if !ok {
+			return nil, fmt.Errorf("%v is not an item id", fields[0])
+		}
+		ids = append(ids, int(id))
 	}
 	return ids, nil
 }

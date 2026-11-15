@@ -410,6 +410,12 @@ type SpellDataProc struct {
 	// A "Chance on hit" item effect or a combat enchant. The game casts those off the hit itself
 	// without consulting a proc mask, so the row states no listener and the shape is stated here.
 	IsWeaponProc bool
+
+	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
+	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
+	// procs per minute on the cast time of each spell hit's cast, and Draconic Infused Emblem only moves
+	// the row's cast listener to landed spell hits.
+	Rate spelldata.ProcOpt
 }
 
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
@@ -491,9 +497,12 @@ func applySpellDataProc(agent core.Agent, cfg SpellDataProc, source effectSource
 // item's own name and action, which are what the sim keys the rolls and the metrics by, and the rate
 // the item's effect entry states.
 func spellDataProcListener(character *core.Character, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell) core.ProcTrigger {
+	rate := cfg.Rate
+	if rate == nil {
+		rate = spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc())
+	}
 	config := spelldata.ProcTrigger(character, trigger, nil, spelldata.ItemProcChance(trigger),
-		weaponProcShape(cfg), spellDataProcRate(source, trigger, source.procEntry(cfg, trigger).GetProc()),
-		statedWeaponProcChance(cfg.IsWeaponProc, source))
+		weaponProcShape(cfg), rate, statedWeaponProcChance(cfg.IsWeaponProc, source))
 	config.Name = cfg.Name
 	config.ActionID = source.actionID()
 
@@ -660,8 +669,31 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
+	damageConfig := spellDataProcDamageSpell(character, damage, true)
+	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	attachProcDamage(character, &config, damageConfig)
+	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
+}
+
+// The handler followed by the damage row's own gain into the wearer's mana, rage or energy, where the
+// row states one on its caster: Engulfing Shadows 27860 deals Shadow damage and restores mana. The
+// gain targets the caster, so it comes with every proc whether the damage lands or not, a full
+// resist included (EV-0108).
+func withProcEnergize(character *core.Character, damage *spelldata.Spell, handler core.ProcHandler) core.ProcHandler {
+	gain := damage.EnergizeEffect()
+	if gain == spelldata.NilEffect || gain.Target[0] != dbcenums.TARGET_UNIT_CASTER {
+		return handler
+	}
+	power := dbcenums.PowerType(gain.Misc)
+	bar, ok := energizedBarOf(character, power, core.ActionID{SpellID: damage.ID})
+	if !ok {
+		return handler
+	}
+	return func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+		handler(sim, spell, result)
+		bar.add(sim, barAmount(power, gain.Roll(sim)), bar.metrics)
+	}
 }
 
 // The spell the proc casts, as its row states it: school, defense type, spell power share, travel
@@ -1250,7 +1282,11 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 // An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage
 // over time it applies, or both.
 func NewSpellDataDamageOnUse(itemID int32) {
-	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, spellDataOnUseDamageSpell)
+	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
+		config := spellDataOnUseDamageSpell(character, damage)
+		config.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, damage)
+		return config
+	})
 }
 
 // The proc's damage spell, cast as a spell of its own rather than a proc's.
@@ -1265,7 +1301,9 @@ func spellDataOnUseDamageSpell(character *core.Character, damage *spelldata.Spel
 func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
-		damage := character.RegisterSpell(spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true))
+		damageConfig := spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true)
+		damageConfig.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		damage := character.RegisterSpell(damageConfig)
 
 		config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
 		config.ProcMask = core.ProcMaskEmpty
@@ -1289,8 +1327,8 @@ func NewSpellDataHealOnUse(itemID int32) {
 }
 
 // An on-use item whose spell shields the wearer with an A_SCHOOL_ABSORB aura. The stats the item's
-// effect entry states beside the absorb are the shield's for as long as it holds: in game a used-up
-// absorb removes its whole aura, so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
+// effect entry states beside the absorb are the shield's for as long as it holds: a used-up
+// absorb removes its whole aura (EV-0100), so Blazing Emblem's 33 Fire resistance goes with its 465 Fire absorb.
 func NewSpellDataAbsorbOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeSurvival, func(character *core.Character, absorb *spelldata.Spell) core.SpellConfig {
 		config := spellDataAbsorbSpell(character, absorb, itemID, false)

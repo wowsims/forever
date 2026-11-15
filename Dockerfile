@@ -7,7 +7,7 @@
 #
 #   docker build --target prod -t wowsimforever .
 ##############################################################################
-FROM golang:1.25 AS build
+FROM golang:1.27 AS build
 
 # Several makefile recipes rely on bash features, so make `sh` point at bash.
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -24,7 +24,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Node, matching .nvmrc, installed from the official static tarball.
-ENV NODE_VERSION=22.17.1
+ENV NODE_VERSION=26.13.0
 RUN curl -fsSL "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz" -o /tmp/node.tar.xz \
  && tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 \
  && rm /tmp/node.tar.xz \
@@ -74,7 +74,7 @@ CMD ["--usefs=false", "--launch=false", "--nvc", "--host=:8080"]
 # the DEFAULT target, so the existing `docker build -t wowsims-forever .` workflow
 # in docs/installation.md is unchanged.
 ##############################################################################
-FROM golang:1.25 AS dev
+FROM golang:1.27 AS dev
 
 WORKDIR /forever
 
@@ -90,7 +90,7 @@ RUN apt-get update \
 	&& go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
 	&& curl -sSfL https://raw.githubusercontent.com/cosmtrek/air/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin
 
-ENV NODE_VERSION=22.17.1
+ENV NODE_VERSION=26.13.0
 ENV NVM_DIR="/root/.nvm"
 
 # Install all Frontend dependencies

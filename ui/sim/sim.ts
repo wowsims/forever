@@ -49,6 +49,7 @@ import {
 	WeaponType,
 } from '@generated/proto/common';
 import {
+	ContentPhase,
 	DatabaseFilters,
 	RaidFilterOption,
 	SavedSettings,
@@ -84,6 +85,7 @@ import { batch } from './state/batch';
 import type { Env } from './state/env';
 import { Emitter } from './state/events';
 import { makeReforgeConfigRequestFields } from './state/reforge_request';
+import { tryParseUrlLocation, type UrlParseData } from './state/sim_links';
 import { createSimStore, patchSlice, SimSettingsSlice, UISlice } from './state/sim_store';
 import { subscribeStatsInputs, subscribeUiField } from './state/subscriptions';
 import { normalizedTalentsString } from './talents/factory';
@@ -144,6 +146,9 @@ export class Sim {
 	readonly encounter: Encounter;
 
 	private db_: Database | null = null;
+	// The settings the page's link carries, decoded before `waitForInit` resolves so that the settings load
+	// at its first callback stays synchronous: callbacks registered after it expect the settings applied.
+	linkedSettings: UrlParseData | null = null;
 
 	// The Zustand store backing this sim's state (see state/sim_store.ts).
 	// Declared before the facades that write it.
@@ -198,10 +203,16 @@ export class Sim {
 		this.signalManager = new SimSignalManager();
 		this.runs = new SimRuns(this.store, this.signalManager);
 
-		this._initPromise = Database.get().then(async db => {
-			this.db_ = db;
-			await this.resolveIsNative();
-		});
+		this._initPromise = Promise.all([
+			Database.get().then(async db => {
+				this.db_ = db;
+				await this.resolveIsNative();
+			}),
+			tryParseUrlLocation(this.env.location).then(
+				linked => (this.linkedSettings = linked),
+				(e: unknown) => console.warn('Failed to parse link settings: ' + e),
+			),
+		]);
 
 		this.raid = new Raid(this);
 		this.encounter = new Encounter(this);
@@ -1037,7 +1048,8 @@ export class Sim {
 	fromProto(proto: SimSettingsProto) {
 		batch(() => {
 			this.setIterations(proto.iterations || 12500);
-			this.setPhase(proto.phase || CURRENT_PHASE);
+			// A phase saved past Unknown, the last one the database holds, reads as Unknown, which lists the same items.
+			this.setPhase(Math.min(proto.phase || CURRENT_PHASE, ContentPhase.ContentPhaseUnknown));
 			this.setFixedRngSeed(Number(proto.fixedRngSeed));
 			this.setShowDamageMetrics(proto.showDamageMetrics);
 			this.setShowThreatMetrics(proto.showThreatMetrics);

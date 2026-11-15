@@ -26,7 +26,8 @@ what the game files mean by an unmasked class modifier.
 **Call `ParseEffects` before the aura activates.** It attaches through `ApplyOnGain` and
 `ApplyOnExpire`. The parse catches up an aura that is already active the same way core's `Attach`
 helpers do, with one exception. The rows that need a `Simulation` to act (the cast, melee, ranged and
-attack speed multipliers and the energy regen multiplier) stay off until the aura is applied again.
+attack speed multipliers, the energy regen multiplier and the `AllManaRegen` mana regen multiplier)
+stay off until the aura is applied again.
 
 **An aura that several ranks share takes a modifier once**, however many of those ranks the modifier's
 mask names, because the mod is attached to the aura and not to each spell pointing at it.
@@ -39,10 +40,11 @@ mask names, because the mod is attached to the aura and not to each spell pointi
 | `IgnoreStacks()`             | the values do not follow the aura's stacks, which is what a row stating charges rather than cumulative stacks means |
 | `FromCaster(unit, i, total)` | the unit that cast a debuff, for the rows that reach only its attacks, in slot `i` of `total` on its attack table   |
 | `ShowAsSchoolHit(schools)`   | the schools whose hit the character sheet shows the row's `SPELLMOD_RESIST_MISS_CHANCE` hit in                      |
+| `AllManaRegen()`             | the row's mana regen percent multiplies the Spirit regen and the MP5 but no energize tick (Innervate)               |
 
 **A debuff that reaches only its caster's attacks** sits on the target and is parsed onto the target's
 aura with `FromCaster`: Shadow Weaving's shadow damage (`A_MOD_SCHOOL_MASK_DAMAGE_FROM_CASTER`, by the
-school mask in its misc value), Hemorrhage's Rupture and Wrack's other shadow dots
+school mask in its misc value), Hemorrhage's Rupture and Garrote
 (`A_MOD_SPELL_DAMAGE_FROM_CASTER`) and Winter's Chill's crit on Frostbolt and Ice Lance
 (`A_MOD_CRIT_CHANCE_FOR_CASTER_WITH_ABILITIES`). The last two pick their spells by the effect's class
 flags, as a modifier does. Each is a percentage applied once per stack, so Shadow Weaving at three
@@ -167,10 +169,17 @@ rows, and 635 `A_IGNORE_FOG_OF_WAR` after Enchanted Flare 1221416, which has not
 Innervate 29166 states both mana regen auras. `A_MOD_MANA_REGEN_INTERRUPT` adds its share to
 `SpiritRegenRateCasting`, and core caps the sum at the full spirit regen, so Innervate's 100% on top
 of Reverence's 30% gives the regen the character has while not casting. `A_MOD_POWER_REGEN_PERCENT`
-multiplies `SpiritRegenMultiplier` on the mana bar (Innervate's +400%) and the energy regen speed on an
-energy bar. Innervate's regen comes from the generated aura. No flag forces full spirit regen, and its
-driver keeps only the timing and the metrics. The energy row asks the unit for its bar at parse time and is
-skipped on a unit without one, so a rogue enables the bar before it parses Adrenaline Rush 13750.
+multiplies `SpiritRegenMultiplier` on the mana bar and the energy regen speed on an energy bar.
+Under `AllManaRegen` the mana row multiplies the Spirit regen and MP5 instead: Innervate's +400%
+does, so its regen is five times the Spirit regen and MP5 together, the same inside the five-second
+rule as outside it. The MP5 a periodic energize buff ticks (Blessing of Wisdom, Mana Spring) is the
+exception: the tick keeps its amount under Innervate (EV-0114), so that share also counts in
+`EnergizeMP5` and goes into the regen unscaled (`sim/core/mana.go`). Skyborne Energized's multiplier
+scales all of the regen, that share included. Innervate's buff manifest row sets `AllManaRegen`,
+which the generated `Meta` passes to the parse; the other rows with a mana regen percent keep the
+Spirit reading. No flag forces full spirit regen, and its driver keeps only the timing and the
+metrics. The energy row asks the unit for its bar at parse time and is skipped on a unit without
+one, so a rogue enables the bar before it parses Adrenaline Rush 13750.
 
 A maximum power row raises the bar its misc value names, through `SetMaximumRage` or
 `SetMaximumEnergy`. A raised maximum grants nothing. When an aura carrying one drops, the power above
@@ -225,7 +234,8 @@ cost rows are, and gives the cost back exactly when it drops.
 Anything the table has no row for is skipped and reported; the parse does not guess a value for it. That covers the dummies the game files use
 for "a script does this", the proc-driver auras (a proc is a `ProcTrigger`, not a modifier), the
 crowd-control auras (stun, fear, root, silence) and `A_MOD_SKILL` on a profession skill; Defense reads
-as defense rating and a weapon skill adds to the skill the player states. Those are named in the report
+as defense rating, Feral Combat adds to the skill a druid's animal forms attack with, and a weapon skill
+adds to the skill the player states. Those are named in the report
 rather than numbered, so a port can see at a glance which ones are its own work.
 
 The shape of the parse also skips some rows the table does know. A value the sim keeps as one number

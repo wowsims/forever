@@ -34,7 +34,7 @@ func (priest *Priest) registerHolyNovaSpell(_ int32, rank *spelldata.Spell) {
 			targets = append(targets, &member.GetCharacter().Unit)
 		}
 		healCount := min(int(priest.HolyNovaHealTargets), len(targets))
-		for i := 0; i < healCount; i++ {
+		for i := range healCount {
 			j := i + int(sim.RandomFloat("Holy Nova heal target selection")*float64(len(targets)-i))
 			targets[i], targets[j] = targets[j], targets[i]
 		}

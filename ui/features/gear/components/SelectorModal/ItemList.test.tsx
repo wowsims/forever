@@ -1,8 +1,9 @@
 import { Class, Faction, ItemQuality, ItemSlot, ItemType, Race, ScalingItemProperties, Stat } from '@generated/proto/common';
 import { ItemEffect } from '@generated/proto/spell';
-import { DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
+import { ContentPhase, DatabaseFilters, UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import type { EquippedItem } from '@sim/proto/equipped_item';
+import { Sim } from '@sim/sim';
 import type { IndividualSimHost } from '@sim/sim_host';
 import { createSimStore, patchKeyed, patchSlice, PLAYER_FIELDS, seedKeyed, type SimStore, zeroVersions } from '@sim/state/sim_store';
 import { storeSource as store } from '@testing/gear';
@@ -171,6 +172,18 @@ describe('ItemList', () => {
 		const enchants = setup({ label: SelectorModalTabs.Enchants });
 		expect(enchants.container.querySelector('[data-testid="selector-modal-filters-button"]')).toBeNull();
 		expect(enchants.container.querySelector('[data-filters-menu]')).toBeNull();
+	});
+
+	it('shows the count of filters off their default on the filters button, and none while all stand on it', () => {
+		const button = (container: HTMLElement) => container.querySelector('[data-testid="selector-modal-filters-button"]')!.textContent;
+		const defaults = { sources: Sim.ALL_SOURCES.slice(), raids: Sim.ALL_RAIDS.slice() };
+		filters = DatabaseFilters.create(defaults);
+		const plain = setup();
+		expect(button(plain.container)).toBe('gear_tab.gear_picker.filters_button');
+		plain.unmount();
+
+		filters = DatabaseFilters.create({ ...defaults, raids: defaults.raids.slice(2), newlyDiscoveredOnly: true });
+		expect(button(setup().container)).toBe('gear_tab.gear_picker.filters_button_active');
 	});
 
 	it('opens the filters dialog from the filters button', () => {
@@ -446,13 +459,13 @@ describe('ItemListToolbarView', () => {
 	});
 
 	it('shows the phase and writes a pick back', async () => {
-		const { props } = renderView({ phase: 3 });
+		const { props } = renderView({ phase: ContentPhase.ContentPhaseUnknown });
 		await userEvent.click(within(screen.getByTestId('selector-modal-phase-selector')).getByRole('combobox'));
 		const options = screen.getAllByRole('option');
-		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true', 'false', 'false']);
+		expect(options.map(option => option.getAttribute('aria-selected'))).toEqual(['false', 'true']);
 
-		await userEvent.click(options[4]);
-		expect(props.onPhaseChange).toHaveBeenCalledWith(5);
+		await userEvent.click(options[0]);
+		expect(props.onPhaseChange).toHaveBeenCalledWith(ContentPhase.ContentPhase1);
 	});
 
 	it('renders one checkbox per toggle, in order, under its own id and test id', () => {

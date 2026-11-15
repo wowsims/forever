@@ -127,6 +127,12 @@ func (result *SpellResult) DidBlock() bool {
 	return result.Outcome.Matches(OutcomeBlock)
 }
 
+// A block that takes the whole hit. A block whose remainder an absorb takes is not one, so this reads
+// the damage the block left, before absorbs.
+func (result *SpellResult) BlockedInFull() bool {
+	return result.DidBlock() && result.PostOutcomeDamage == 0
+}
+
 func (result *SpellResult) DidBlockCrit() bool {
 	return result.Outcome.Matches(OutcomeBlock) && result.Outcome.Matches(OutcomeCrit)
 }
@@ -158,6 +164,7 @@ func (result *SpellResult) HealingString() string {
 	return fmt.Sprintf("%s for %0.3f healing", result.Outcome.String(), result.Damage)
 }
 
+// A hit or tick takes the threat multiplier in force when it lands (EV-0037).
 func (spell *Spell) ThreatFromDamage(sim *Simulation, outcome HitOutcome, damage float64, attackTable *AttackTable) float64 {
 	if outcome.Matches(OutcomeLanded) {
 		bonus := spell.FlatThreatBonus
@@ -205,7 +212,7 @@ func (spell *Spell) PhysicalCritChance(attackTable *AttackTable) float64 {
 // The crit chance before the floor at 0, with extraCritPercent more crit on the spell.
 func (spell *Spell) physicalCritChanceUnclamped(attackTable *AttackTable, extraCritPercent float64) float64 {
 	critPercent := spell.Unit.stats[stats.PhysicalCritPercent] + spell.BonusCritPercent +
-		attackTable.critChanceByCaster(spell) + extraCritPercent
+		attackTable.BonusCritPercent + attackTable.critChanceByCaster(spell) + extraCritPercent
 
 	if spell.ProcMask.Matches(ProcMaskRanged) {
 		critPercent += spell.Unit.stats[stats.RangedCritPercent]
@@ -304,6 +311,7 @@ func (spell *Spell) SpellCritChance(target *Unit) float64 {
 	critPercent := spell.Unit.stats[stats.SpellCritPercent] +
 		spell.BonusCritPercent +
 		attackTable.BonusSpellCritPercent +
+		attackTable.BonusCritPercent +
 		attackTable.critChanceByCaster(spell)
 	// Reduced crit taken, like Defense, lowers the chance to be crit by melee and ranged attacks only.
 	return max(critPercent/100, 0)
@@ -437,6 +445,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(spell.Unit.AttackTables[target.UnitIndex], false)
+	baseDamage *= spell.VersusBonus.Against(target)
 	// A weapon strike takes the caster's flat physical damage bonus whole; a physical row that deals
 	// school damage takes it at the row's coefficient.
 	if spell.BonusCoefficient > 0 {
@@ -455,6 +464,7 @@ func (spell *Spell) CalcDamage(sim *Simulation, target *Unit, baseDamage float64
 func (spell *Spell) CalcPeriodicDamage(sim *Simulation, target *Unit, baseDamage float64, outcomeApplier OutcomeApplier) *SpellResult {
 	attackTable := spell.Unit.AttackTables[target.UnitIndex]
 	attackerMultiplier := spell.AttackerDamageMultiplier(attackTable, true)
+	baseDamage *= spell.VersusBonus.Against(target)
 
 	var dot *Dot
 	if spell.aoeDot != nil {
@@ -807,7 +817,7 @@ func (spell *Spell) dealHealingInternal(sim *Simulation, isPeriodic bool, result
 		healed = max(0, min(healed, result.Target.MaxHealth()-result.Target.CurrentHealth()))
 	}
 	result.Threat = spell.ThreatFromDamage(sim, result.Outcome, healed*ThreatPerHealingDone, spell.Unit.AttackTables[result.Target.UnitIndex])
-	spell.applySplitThreat(sim, result.Threat)
+	spell.ApplySplitThreat(sim, result.Threat)
 	kind := proto.HitKind_HitKindHeal
 	switch {
 	case isPeriodic && result.DidCrit():
@@ -908,9 +918,12 @@ func (spell *Spell) attackerDamageMultiplierInternal(attackTable *AttackTable) f
 		return 1
 	}
 
-	return spell.Unit.PseudoStats.DamageDealtMultiplier *
-		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex] *
-		attackTable.DamageDealtMultiplier
+	multiplier := spell.Unit.PseudoStats.DamageDealtMultiplier *
+		spell.Unit.PseudoStats.SchoolDamageDealtMultiplier[spell.SchoolIndex]
+	if !spell.Flags.Matches(SpellFlagNoDamageVersus) {
+		multiplier *= attackTable.DamageDealtMultiplier
+	}
+	return multiplier
 }
 
 func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, attackTable *AttackTable, isPeriodic bool) float64 {

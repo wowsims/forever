@@ -73,8 +73,8 @@ func TestSpellStoreMirrorNamesEveryField(t *testing.T) {
 func exportedFields(v any) []string {
 	var fields []string
 	typ := reflect.TypeOf(v)
-	for i := 0; i < typ.NumField(); i++ {
-		if field := typ.Field(i); field.IsExported() {
+	for field := range typ.Fields() {
+		if field.IsExported() {
 			fields = append(fields, field.Name)
 		}
 	}

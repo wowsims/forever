@@ -469,7 +469,7 @@ func (runtime *highsWasmRuntime) fdRead(module api.Module, fd int32, iovsPtr int
 	}
 	memory := moduleMemoryBytes(module)
 	bytesRead := int32(0)
-	for iovIdx := int32(0); iovIdx < iovsLen; iovIdx++ {
+	for iovIdx := range iovsLen {
 		iovPtr := int(iovsPtr + 8*iovIdx)
 		bufferPtr := int32(binary.LittleEndian.Uint32(memory[iovPtr:]))
 		bufferLen := int32(binary.LittleEndian.Uint32(memory[iovPtr+4:]))
@@ -492,7 +492,7 @@ func (runtime *highsWasmRuntime) fdRead(module api.Module, fd int32, iovsPtr int
 func (runtime *highsWasmRuntime) fdWrite(module api.Module, fd int32, iovsPtr int32, iovsLen int32, nwrittenPtr int32) int32 {
 	memory := moduleMemoryBytes(module)
 	bytesWritten := int32(0)
-	for iovIdx := int32(0); iovIdx < iovsLen; iovIdx++ {
+	for iovIdx := range iovsLen {
 		iovPtr := int(iovsPtr + 8*iovIdx)
 		bufferPtr := int32(binary.LittleEndian.Uint32(memory[iovPtr:]))
 		bufferLen := int32(binary.LittleEndian.Uint32(memory[iovPtr+4:]))

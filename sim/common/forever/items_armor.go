@@ -94,6 +94,37 @@ func init() {
 		character.ItemSwap.RegisterProc(10760, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Gloves of Holy Might
+	// https://www.wowhead.com/forever/item=867/gloves-of-holy-might
+	//
+	// Smite your target for 112 Holy damage. Damage is tripled against Undead.
+	//
+	// 1330855 casts 1325229 on a hit, and the rows deal its Holy damage the same to any target: no
+	// second effect, creature type restriction or aura states the tripling, only the tooltip. The row
+	// states no power coefficient, so tripling the amount triples the hit. Its defense type is ranged,
+	// so it rolls on the ranged hit table.
+	core.NewItemEffect(867, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1325229)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		// The tooltip's tripling, which no row states, is an override on 1325229.
+		config.VersusBonus = shared.ItemVersusBonus(character, 867, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeRangedHitAndCrit)
+		}
+		smite := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1330855), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			smite.Cast(sim, result.Target)
+		})
+		trigger.Name = "Gloves of Holy Might"
+		trigger.ActionID = core.ActionID{ItemID: 867}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(867, character.MakeProcTriggerAura(trigger))
+	})
+
 	// Thick Obsidian Breastplate
 	// https://www.wowhead.com/forever/item=22196/thick-obsidian-breastplate
 	//
@@ -220,6 +251,55 @@ func init() {
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(12628, character.MakeProcTriggerAura(trigger))
 	})
+
+	// Stoneform Shoulders
+	// https://www.wowhead.com/forever/item=13955/stoneform-shoulders
+	//
+	// After entering combat, reduce the next instance of Physical damage taken within 20s by 60.
+	//
+	// 1298230 applies 1298231 on entering combat, which is the encounter start in the sim. 1298231
+	// states the 60 as flat Physical damage taken and no charges: the first Physical hit taken that
+	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off and removes it.
+	core.NewItemEffect(13955, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1298231)
+		buff := character.RegisterAura(spelldata.AuraConfig(row))
+		spelldata.ParseEffects(character, buff, row)
+
+		spend := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			buff.Deactivate(sim)
+		})
+		spend.Name = "Stoneform Shoulders - Spend"
+		spend.TriggerImmediately = true
+		spend.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+			return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
+		}
+		buff.AttachProcTriggerCallback(&character.Unit, spend)
+
+		equip := core.MakePermanent(character.RegisterAura(core.Aura{
+			Label:    "Stoneform Shoulders - Enter Combat",
+			ActionID: core.ActionID{ItemID: 13955},
+			OnEncounterStart: func(_ *core.Aura, sim *core.Simulation) {
+				buff.Activate(sim)
+			},
+		}))
+		character.ItemSwap.RegisterProc(13955, equip)
+	})
+
+	// Zealot Plate
+	// https://www.wowhead.com/forever/item=274651/zealot-plate
+	//
+	// When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more
+	// than once every 15 sec.
+	//
+	// The item's effect names Zealotry 1294666, the mana gain, so the stat-bonus route cannot build it;
+	// 1294668 is the trigger that fires it off melee swings and abilities taken, with the 15 s cooldown.
+	// Each landed melee swing taken outside the cooldown rolls 5%, the row's ProcChance as an override
+	// sets it (EV-0115).
+	shared.NewSpellDataEnergizeProc(shared.SpellDataProc{TriggerSpellID: 1294668},
+		[]shared.ItemVariant{
+			{ItemID: 274651, ItemName: "Zealot Plate"},
+		})
 }
 
 // TODO: The game files state no rate for Depleted Eye of Influence's 1297085, and none is measured on

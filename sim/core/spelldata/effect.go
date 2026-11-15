@@ -56,8 +56,8 @@ func (e *Effect) Trigger() *Spell {
 //
 // A damage or heal amount keeps the fraction: in game the amount dealt rounds up with a chance equal
 // to the fraction of the whole amount, power and multipliers included, so it averages the exact
-// value. Every other amount, a stat, a resource, an absorb or a threat, is the whole number the
-// tooltip shows, the floor.
+// value (EV-0095). Every other amount, a stat, a resource, an absorb or a threat, is the whole
+// number the tooltip shows, the floor.
 //
 // float32 is load-bearing: EffectRealPointsPerLevel is a float32 widened into the DB
 // (3.79999995231628), and multiplying in float64 moves the result off the tooltip on six rows.
@@ -100,10 +100,7 @@ func (e *Effect) levelGain(level int32) float32 {
 		lvl = int32(e.MaxLevel)
 	}
 
-	delta := lvl - int32(e.BaseLevel)
-	if delta < 0 {
-		delta = 0
-	}
+	delta := max(lvl-int32(e.BaseLevel), 0)
 
 	return float32(float32(delta) * float32(e.PPL))
 }

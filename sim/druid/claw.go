@@ -11,7 +11,7 @@ func (druid *Druid) registerClawSpell() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		result := spell.CalcAndDealDamage(sim, target, druid.weaponSpecialDamage(sim, spell, target, rank), spell.OutcomeMeleeWeaponSpecialHitAndCrit)
 		if result.Landed() {
-			druid.awardComboPoints(sim, spell, rank)
+			druid.awardComboPoints(sim, target, spell, rank)
 		}
 		druid.refundOnMiss(sim, spell, result)
 	}

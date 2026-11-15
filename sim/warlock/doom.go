@@ -18,7 +18,6 @@ func (warlock *Warlock) registerBaneOfDoom() {
 
 	// Tick the row's average, rolling only the crit: the hit was rolled when the dot landed
 	config.Dot = spelldata.DotConfig(rankedSpell, doomTick)
-	config.Dot.Aura.Tag = "Affliction"
 	config.Dot.OnTick = spelldata.PeriodicDamageTick(doomTick, rankedSpell.TickOutcome)
 
 	// Roll to hit and apply as dot in place of any other Bane
@@ -33,7 +32,7 @@ func (warlock *Warlock) registerBaneOfDoom() {
 
 	// Calculate expected damage from the row's average tick
 	config.ExpectedTickDamage = func(sim *core.Simulation, target *core.Unit, spell *core.Spell, _ bool) *core.SpellResult {
-		return spell.CalcPeriodicDamage(sim, target, doomTick.Average(), spell.OutcomeExpectedMagicAlwaysHit)
+		return spell.CalcPeriodicDamage(sim, target, doomTick.Average(), rankedSpell.ExpectedMagicTickOutcome(spell))
 	}
 
 	warlock.BaneOfDoom = warlock.RegisterSpell(config)

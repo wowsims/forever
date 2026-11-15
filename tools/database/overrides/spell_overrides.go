@@ -7,7 +7,10 @@
 // shares with the SQL overrides is read for *.sql alone.
 package overrides
 
-import "github.com/wowsims/forever/sim/core"
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
+)
 
 // Which field of the row the value belongs on. Every one of them names a rule the generator checks
 // before it writes the value, so an override outlives its reason no longer than the next
@@ -108,7 +111,7 @@ type Override struct {
 	Field   Field
 	Value   float64
 	Reason  string
-	Source  string // "tbc-carryover", "tooltip", "wcl:<report>/<fight>", "issue #N", "combat log, <spell and rank>, <date>"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "tooltip", "owner decision", "estimate"
 }
 
 // Tooltip-only area bonuses ("doubled in X areas"). Groups are AreaGroup ids; any counts.
@@ -161,6 +164,130 @@ var AreaBonuses = []AreaBonus{
 		DurationMultiplier: 1,
 		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
 		Source:             "tooltip",
+	},
+}
+
+// A factor a row deals or restores against some targets, which only its tooltip names ("Deals $s2
+// times as much damage to Plants"). A target of any of the mob types or families counts.
+type VersusBonus struct {
+	SpellID     int32
+	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
+	Multiplier  float64 // A factor no effect states; 0 reads EffectIndex's base points.
+	MobTypes    []proto.MobType
+	Families    []proto.CreatureFamily
+	Reason      string
+	Source      string
+}
+
+// No CreatureFamily holds Golems or Titan-forged, which the tooltips of 12731, 1302279 and 1294794
+// name, so those rows count Earth Elementals alone.
+var VersusBonuses = []VersusBonus{
+	{
+		SpellID:     12731,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Strength of Stone: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1302279,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Stoneshatter: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294794,
+		EffectIndex: 0,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Fist of Stone: 'Restores $s1 times as much if attacking an Earth Elemental, Golem, or Titan-forged enemy'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1293568,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Grass Killer: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     12257,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Breath of Fire: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     17283,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Smokey's Lighter: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1295270,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Prototype Pathcarver: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1295039,
+		EffectIndex: 2,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeBeast},
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySerpentine},
+		Reason:      "Serpentbane: 'Inflicts $s3 times as much damage to Beast and Serpentine targets'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1318159,
+		EffectIndex: 0,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr},
+		Reason:      "Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1311505,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDinosaur},
+		Reason:      "Grounded Electroshocks: 'Deals $s2 times as much damage to Dinosaurs'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     14118,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeDragonkin},
+		Reason:      "Rend: 'Deals $s2 times as much damage to Dragonkin'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1299631,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Smite: 'Deals $s2 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:    1325229,
+		Multiplier: 3,
+		MobTypes:   []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:     "Gloves of Holy Might: 'Damage is tripled against Undead'; neither 1325229 nor 1330855 states the 3",
+		Source:     "tooltip",
+	},
+	{
+		SpellID:     1295744,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Rot: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1317432,
+		EffectIndex: 1,
+		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental,
+			proto.CreatureFamily_CreatureFamilyFireElemental, proto.CreatureFamily_CreatureFamilyMountainGiant},
+		Reason: "Forging Strike: 'Deals $s2 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants'",
+		Source: "tooltip",
 	},
 }
 
@@ -242,8 +369,8 @@ var Spells = []Override{
 		SpellID: 350026,
 		Field:   ICDMs,
 		Value:   10000,
-		Reason:  "Shadow Oil: no proc on 425 landed hits within 10 s of the last one, 80 on 633 after; procs at least 10.26 s apart, none on hits from 9.98 s",
-		Source:  "wcl:Y4mTwRvPtqAn36CB/1-9, 2026-10-07",
+		Reason:  "Shadow Oil: no proc on a hit within 10 s of the last one",
+		Source:  "EV-0016",
 	},
 
 	// A spell-power coefficient the damage effect does not state.
@@ -255,387 +382,445 @@ var Spells = []Override{
 		Source:  "tbc-carryover",
 	},
 
-	// Seal of Light and Judgement of Light, measured in game at level 30 on Rank 1 across two combat
-	// logs, one with a 1.6 s weapon and one with a 3.7 s one. The seal healed on 463 of 1101 and 509
-	// of 554 landed melee hits while it was up, which only a per-minute rate fits, and the judgement
-	// on 825 of the 1693 landed while it was up, 534 of 1090 at 1.6 s and 256 of 537 at 3.7 s, which
-	// is a flat chance. Neither fired on a dodge, a parry or a miss. A level 41 log with a 2.6 s weapon
-	// measured the same rate on Seal of Light Rank 2 and the same chance on Judgement of Light Rank 2. The
-	// ranks no log has measured carry the nearest measured rank's numbers until one at their level says
-	// otherwise.
+	// Seal of Light procs 15 a minute and Judgement of Light rolls a flat 50% (EV-0017, EV-0018). Neither
+	// fires on a dodge, a parry or a miss. The ranks no log has measured carry the nearest measured rank's
+	// numbers until one at their level says otherwise.
 	{
 		SpellID: 20165,
 		Field:   PPM,
 		Value:   15,
-		Reason:  "Seal of Light Rank 1: 463 of 1101 landed hits at 1.6 s and 509 of 554 at 3.7 s; 15 per minute fits both, 14 fits neither and 16 fails the 3.7 s log",
-		Source:  "combat log, Seal of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Seal of Light Rank 1: a per-minute rate fits both weapon speeds",
+		Source:  "EV-0017",
 	},
 	{
 		SpellID: 20347,
 		Field:   PPM,
 		Value:   15,
-		Reason:  "Seal of Light Rank 2: 90 of 129 landed melee hits at 2.6 s, where 15 per minute gives 0.65",
-		Source:  "combat log, Seal of Light Rank 2, 2026-11-09",
+		Reason:  "Seal of Light Rank 2: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20348,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Light Rank 3 in game.
 		Reason:  "Seal of Light Rank 3: Ranks 1 and 2's measured rate",
-		Source:  "combat log, Seal of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
+		Source:  "EV-0017, EV-0018",
 	},
 	{
 		SpellID: 20349,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Light Rank 4 in game.
 		Reason:  "Seal of Light Rank 4: Ranks 1 and 2's measured rate",
-		Source:  "combat log, Seal of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
+		Source:  "EV-0017, EV-0018",
 	},
-	// Seal of Wisdom Rank 1 measured the same rate as Seal of Light, and its other ranks carry it until a
-	// log at their level says otherwise.
+	// Seal of Wisdom Rank 1 measured the same rate as Seal of Light (EV-0018), and its other ranks carry it
+	// until a log at their level says otherwise.
 	{
 		SpellID: 20166,
 		Field:   PPM,
 		Value:   15,
-		Reason:  "Seal of Wisdom Rank 1: 187 of 269 landed melee hits at 2.6 s, where 15 per minute gives 0.65",
-		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
+		Reason:  "Seal of Wisdom Rank 1: the measured rate, not a per-swing share of 15 per minute",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20356,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Wisdom Rank 2 in game.
 		Reason:  "Seal of Wisdom Rank 2: Rank 1's measured rate",
-		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20357,
 		Field:   PPM,
 		Value:   15, // TODO: Measure Seal of Wisdom Rank 3 in game.
 		Reason:  "Seal of Wisdom Rank 3: Rank 1's measured rate",
-		Source:  "combat log, Seal of Wisdom Rank 1, 2026-11-09",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20185,
 		Field:   ProcChancePct,
 		Value:   50,
-		Reason:  "Judgement of Light Rank 1: 825 of 1693 landed hits, 534 of 1090 at 1.6 s and 256 of 537 at 3.7 s",
-		Source:  "combat log, Judgement of Light Rank 1, 2026-10-14 and 2026-10-15",
+		Reason:  "Judgement of Light Rank 1: a flat chance on every landed hit, whatever the weapon speed",
+		Source:  "EV-0017",
 	},
 	{
 		SpellID: 20344,
 		Field:   ProcChancePct,
 		Value:   50,
-		Reason:  "Judgement of Light Rank 2: 59 of 123 landed melee swings; ranged and spell hits never heal",
-		Source:  "combat log, Judgement of Light Rank 2, 2026-11-09",
+		Reason:  "Judgement of Light Rank 2: the measured chance on landed melee swings; ranged and spell hits never heal",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20345,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Light Rank 3 in game.
 		Reason:  "Judgement of Light Rank 3: Ranks 1 and 2's measured chance",
-		Source:  "combat log, Judgement of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
+		Source:  "EV-0017, EV-0018",
 	},
 	{
 		SpellID: 20346,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Light Rank 4 in game.
 		Reason:  "Judgement of Light Rank 4: Ranks 1 and 2's measured chance",
-		Source:  "combat log, Judgement of Light Ranks 1 and 2, 2026-10-14, 2026-10-15 and 2026-11-09",
+		Source:  "EV-0017, EV-0018",
 	},
 	{
 		SpellID: 20186,
 		Field:   ProcChancePct,
 		Value:   50,
-		Reason:  "Judgement of Wisdom Rank 1: 164 of 336 landed melee swings, 59 of 116 direct spells and 44 of 102 ranged shots; 1 of 52 misses, 3 of 401 dot ticks and 0 of 33 damage shield hits",
-		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
+		Reason:  "Judgement of Wisdom Rank 1: the measured chance on landed melee swings, direct spells and ranged shots",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20354,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Wisdom Rank 2 in game.
 		Reason:  "Judgement of Wisdom Rank 2: Rank 1's measured chance",
-		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
+		Source:  "EV-0018",
 	},
 	{
 		SpellID: 20355,
 		Field:   ProcChancePct,
 		Value:   50, // TODO: Measure Judgement of Wisdom Rank 3 in game.
 		Reason:  "Judgement of Wisdom Rank 3: Rank 1's measured chance",
-		Source:  "combat log, Judgement of Wisdom Rank 1, 2026-11-09",
+		Source:  "EV-0018",
+	},
+	{
+		SpellID: 1318931,
+		Field:   ProcChancePct,
+		Value:   8,
+		Reason:  "Draconic Infused Emblem: 8% on each landed harmful spell hit; column reads 100, tooltip says 'Chance on harmful spellcast'",
+		Source:  "EV-0115",
+	},
+	{
+		SpellID: 1294668,
+		Field:   ProcChancePct,
+		Value:   5,
+		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
+		Source:  "EV-0115",
 	},
 
-	// Attack Power shares measured in game at levels 13 and 14, against the sheet's Attack Power from
-	// 99 to 154. Only Rend Rank 2 and Thunder Clap Rank 1 were measured; the other ranks carry the
-	// same share until a log at their level says otherwise.
+	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
+	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says
+	// otherwise (EV-0019, EV-0048).
 	{
 		SpellID: 772,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
 		Reason:  "Rend Rank 1: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 6546,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
 		Reason:  "Rend Rank 2: ticks average 7 + 0.02 x Attack Power, read on every tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 6547,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
 		Reason:  "Rend Rank 3: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 6548,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 4: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Reason:  "Rend Rank 4: ticks take 0.02 x Attack Power, read on every tick",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11572,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
-		Reason:  "Rend Rank 5: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Reason:  "Rend Rank 5: ticks take 0.02 x Attack Power, read on every tick",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11573,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
 		Reason:  "Rend Rank 6: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 11574,
 		Field:   APCoefPeriodic,
 		Value:   0.02,
 		Reason:  "Rend Rank 7: Rank 2's measured share per tick",
-		Source:  "combat log, Rend Rank 2, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 6343,
 		Field:   APCoefDirect,
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 1: hits deal 10 + 0.07 x Attack Power, rounded down, before armor",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 8198,
 		Field:   APCoefDirect,
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 2: Rank 1's measured share",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 8204,
 		Field:   APCoefDirect,
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 3: Rank 1's measured share",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 8205,
 		Field:   APCoefDirect,
 		Value:   0.07,
-		Reason:  "Thunder Clap Rank 4: Rank 1's measured share",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Reason:  "Thunder Clap Rank 4: hits deal 0.07 x Attack Power, measured",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11580,
 		Field:   APCoefDirect,
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 5: Rank 1's measured share",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 11581,
 		Field:   APCoefDirect,
 		Value:   0.07,
 		Reason:  "Thunder Clap Rank 6: Rank 1's measured share",
-		Source:  "combat log, Thunder Clap Rank 1, 2026-10-01",
+		Source:  "EV-0019",
 	},
 	{
 		SpellID: 16864,
 		Field:   PPM,
 		Value:   2,
-		Reason:  "Omen of Clarity: 2.0 procs per minute, measured in combat logs; the game files state none",
-		Source:  "issue #225",
+		Reason:  "Omen of Clarity: 2.0 procs per minute, measured; the game files state none",
+		Source:  "EV-0020",
+	},
+	{
+		SpellID: 1318159,
+		Field:   PPM,
+		Value:   2.6,
+		Reason:  "Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none",
+		Source:  "EV-0021",
+	},
+	{
+		SpellID: 21978,
+		Field:   PPM,
+		Value:   1.8,
+		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed spell hit's cast, at least 1.5 s; the game files state none",
+		Source:  "EV-0025",
+	},
+	{
+		SpellID: 1300435,
+		Field:   PPM,
+		Value:   1.5,
+		Reason:  "Moonshadow Stave: 1.5 procs per minute on the cast time of the cast behind each landed harmful spell, at least 1.5 s; column reads 100, tooltip says 'Harmful spell casts have a chance'",
+		Source:  "EV-0115",
 	},
 	{
 		SpellID: 1079,
 		Field:   APCoefPeriodic,
 		Value:   0.0114,
-		Reason:  "Rip Rank 1: attack power share per tick per combo point, measured over 17 ticks at 3 and 4 combo points and 192 to 239 attack power",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Reason:  "Rip Rank 1: attack power share per tick per combo point, measured",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 9492,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 2 in game.
-		Reason:  "Rip Rank 2: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 2: 0.0114 * attack power * min(combo points, 4) per tick",
+		Source:  "EV-0032",
 	},
 	{
 		SpellID: 9493,
 		Field:   APCoefPeriodic,
 		Value:   0.0114,
-		Reason:  "Rip Rank 3: attack power share per tick per combo point up to 4, measured over 237 ticks (210 fit; 0.0091 fits 154)",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Reason:  "Rip Rank 3: attack power share per tick per combo point up to 4",
+		Source:  "EV-0033",
 	},
 	{
 		SpellID: 9752,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 4 in game.
-		Reason:  "Rip Rank 4: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 4: attack power share per tick per combo point up to 4, not on all 5 points",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 9894,
 		Field:   APCoefPeriodic,
-		Value:   0.0114, // TODO: Measure Rip Rank 5 in game.
-		Reason:  "Rip Rank 5: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.0114,
+		Reason:  "Rip Rank 5: attack power share per tick per combo point up to 4, not on all 5 points",
+		Source:  "EV-0036",
 	},
 	{
 		SpellID: 9896,
 		Field:   APCoefPeriodic,
 		Value:   0.0114, // TODO: Measure Rip Rank 6 in game.
 		Reason:  "Rip Rank 6: Rank 1's measured share per tick per combo point",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 1822,
 		Field:   APCoefDirect,
 		Value:   0.065,
-		Reason:  "Rake Rank 1: measured direct hit share, 0.0648 fitted; one share fits the hit and the tick",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Reason:  "Rake Rank 1: measured direct hit share; one share fits the hit and the tick",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 1822,
 		Field:   APCoefPeriodic,
 		Value:   0.065,
-		Reason:  "Rake Rank 1: measured periodic share, 0.0652 fitted; one share fits the hit and the tick",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Reason:  "Rake Rank 1: measured periodic share; one share fits the hit and the tick",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 1823,
 		Field:   APCoefDirect,
 		Value:   0.065,
-		Reason:  "Rake Rank 2: measured direct hit share, 514 of 530 hits fit",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Reason:  "Rake Rank 2: measured direct hit share",
+		Source:  "EV-0033",
 	},
 	{
 		SpellID: 1823,
 		Field:   APCoefPeriodic,
 		Value:   0.065,
-		Reason:  "Rake Rank 2: measured periodic share, 1,157 of 1,232 ticks fit",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Reason:  "Rake Rank 2: measured periodic share",
+		Source:  "EV-0033",
 	},
 	{
 		SpellID: 1824,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
-		Reason:  "Rake Rank 3: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 3: measured direct hit share",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 1824,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 3 in game.
-		Reason:  "Rake Rank 3: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 3: measured periodic share",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 9904,
 		Field:   APCoefDirect,
-		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
-		Reason:  "Rake Rank 4: Rank 1's measured direct hit share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 4: measured direct hit share",
+		Source:  "EV-0036",
 	},
 	{
 		SpellID: 9904,
 		Field:   APCoefPeriodic,
-		Value:   0.065, // TODO: Measure Rake Rank 4 in game.
-		Reason:  "Rake Rank 4: Rank 1's measured periodic share",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.065,
+		Reason:  "Rake Rank 4: measured periodic share",
+		Source:  "EV-0036",
 	},
 	{
 		SpellID: 9007,
 		Field:   APCoefPeriodic,
 		Value:   0.025,
-		Reason:  "Pounce Bleed Rank 1: measured periodic share, 0.02496 to 0.02536 fits every tick; the game files state none",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Reason:  "Pounce Bleed Rank 1: measured periodic share, fits every tick; the game files state none",
+		Source:  "EV-0033",
 	},
 	{
 		SpellID: 9824,
 		Field:   APCoefPeriodic,
-		Value:   0.025, // TODO: Measure Pounce Bleed Rank 2 in game.
-		Reason:  "Pounce Bleed Rank 2: Rank 1's measured periodic share",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 2: measured periodic share, fits every tick; the game files state none",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 9826,
 		Field:   APCoefPeriodic,
-		Value:   0.025, // TODO: Measure Pounce Bleed Rank 3 in game.
-		Reason:  "Pounce Bleed Rank 3: Rank 1's measured periodic share",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Value:   0.025,
+		Reason:  "Pounce Bleed Rank 3: measured periodic share, fits every tick; the game files state none",
+		Source:  "EV-0036",
 	},
 	{
 		SpellID: 779,
 		Field:   APCoefDirect,
 		Value:   0.03,
 		Reason:  "Swipe Rank 1: 3% of attack power on each hit, measured; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 780,
 		Field:   APCoefDirect,
 		Value:   0.03,
 		Reason:  "Swipe Rank 2: 3% of attack power on each hit, measured; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Source:  "EV-0031",
 	},
 	{
 		SpellID: 769,
 		Field:   APCoefDirect,
 		Value:   0.03,
-		Reason:  "Swipe Rank 3: 3% of attack power on each hit, measured, 4,055 of 5,387 hits exact; the game files state none",
-		Source:  "Combat log, Bison-Plainsrunner levels 37–41, game build 1.60.1.70862, 2026-11-08",
+		Reason:  "Swipe Rank 3: 3% of attack power on each hit, measured; the game files state none",
+		Source:  "EV-0033",
 	},
 	{
 		SpellID: 9754,
 		Field:   APCoefDirect,
-		Value:   0.03, // TODO: Measure Swipe Rank 4 in game.
-		Reason:  "Swipe Rank 4: the 3% share measured at ranks 1, 2, 3 and 5; the game files state none",
-		Source:  "Combat log, Oskar-Beefheart levels 22–25, game build 1.60.1.70862, 2026-11-07",
+		Value:   0.03,
+		Reason:  "Swipe Rank 4: 3% of attack power on each hit, measured; the game files state none",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 9908,
 		Field:   APCoefDirect,
 		Value:   0.03,
 		Reason:  "Swipe Rank 5: 3% of attack power on each hit; the game files state none",
-		Source:  "Aus and Chalkie, Rake and swipe AP scaling tests, 2026-10-01; PR #149 evidence notes",
+		Source:  "EV-0038",
+	},
+	{
+		SpellID: 1328618,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 1: attack power share per combo point, measured; the game files state none",
+		Source:  "EV-0032",
+	},
+	{
+		SpellID: 22568,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 2: attack power share per combo point, measured with Rank 3; the game files state none",
+		Source:  "EV-0032",
+	},
+	{
+		SpellID: 22827,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 3: attack power share per combo point, measured with Rank 2; the game files state none",
+		Source:  "EV-0032",
+	},
+	{
+		SpellID: 22828,
+		Field:   APCoefDirect,
+		Value:   0.037,
+		Reason:  "Ferocious Bite Rank 4: attack power share per combo point, measured; the game files state none",
+		Source:  "EV-0034",
 	},
 	{
 		SpellID: 22829,
 		Field:   APCoefDirect,
-		Value:   0.0375,
-		Reason:  "Placeholder: Ferocious Bite attack power per combo point, raised 25% for the November 2 development notes (about 25%); the game files state none",
-		Source:  "classic-carryover; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.037, // TODO: Measure Ferocious Bite Rank 5 in game.
+		Reason:  "Ferocious Bite Rank 5: Ranks 1 to 3's measured share per combo point; the game files state none",
+		Source:  "EV-0032",
 	},
 	{
 		SpellID: 31018,
 		Field:   APCoefDirect,
-		Value:   0.0375,
-		Reason:  "Placeholder: Ferocious Bite attack power per combo point, as rank 5, raised 25% for the November 2 development notes (about 25%); the game files state none",
-		Source:  "classic-carryover; WoW Forever development notes, 2026-11-02, https://us.forums.blizzard.com/en/wow/t/wow-forever-beta-development-notes-–-updated-november-2/2360696/9",
+		Value:   0.037, // TODO: Measure Ferocious Bite Rank 6 in game.
+		Reason:  "Ferocious Bite Rank 6: Ranks 1 to 3's measured share per combo point; the game files state none",
+		Source:  "EV-0032",
 	},
 
 	// Revenge's Attack Power share, the $APR its tooltip states: 0.225 in Defensive Stance is the stance's
-	// own 10%, which stays out of these values. Combat logs on Ranks 1 and 2 taken before that tooltip fit 0.28.
+	// own 10%, which stays out of these values. Logs on Ranks 1 and 2 taken before that tooltip fit 0.28 (EV-0049).
 	{
 		SpellID: 6572,
 		Field:   APCoefDirect,
@@ -660,9 +845,9 @@ var Spells = []Override{
 	{
 		SpellID: 11600,
 		Field:   APCoefDirect,
-		Value:   0.25, // TODO: Measure Revenge Rank 4 in game.
-		Reason:  "Revenge Rank 4: the tooltip's $APR outside Defensive Stance",
-		Source:  "tooltip",
+		Value:   0.25,
+		Reason:  "Revenge Rank 4: 0.25 of attack power outside Defensive Stance, measured",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11601,
@@ -679,234 +864,253 @@ var Spells = []Override{
 		Source:  "tooltip",
 	},
 
-	// Sunder Armor's threat grows with the sheet's Attack Power: measured on Rank 1 at 132, 158, 170 and
-	// 180 Attack Power, in Battle and Defensive Stance. The other ranks carry its share until a capture
-	// at their level says otherwise.
+	// Sunder Armor's threat grows with the sheet's Attack Power (EV-0042). The other ranks carry its share
+	// until a capture at their level says otherwise.
 	{
 		SpellID: 7386,
 		Field:   APCoefThreat,
 		Value:   0.05,
 		Reason:  "Sunder Armor Rank 1: threat is 34 + 0.05 x Attack Power, times the stance, rounded down",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Source:  "EV-0042",
 	},
 	{
 		SpellID: 7405,
 		Field:   APCoefThreat,
 		Value:   0.05, // TODO: Measure Sunder Armor Rank 2 in game.
 		Reason:  "Sunder Armor Rank 2: Rank 1's measured share",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Source:  "EV-0042",
 	},
 	{
 		SpellID: 8380,
 		Field:   APCoefThreat,
-		Value:   0.05, // TODO: Measure Sunder Armor Rank 3 in game.
-		Reason:  "Sunder Armor Rank 3: Rank 1's measured share",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Value:   0.05,
+		Reason:  "Sunder Armor Rank 3: measured 117 + 0.05 * sheet attack power",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11596,
 		Field:   APCoefThreat,
 		Value:   0.05, // TODO: Measure Sunder Armor Rank 4 in game.
 		Reason:  "Sunder Armor Rank 4: Rank 1's measured share",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Source:  "EV-0042",
 	},
 	{
 		SpellID: 11597,
 		Field:   APCoefThreat,
 		Value:   0.05, // TODO: Measure Sunder Armor Rank 5 in game.
 		Reason:  "Sunder Armor Rank 5: Rank 1's measured share",
-		Source:  "threat capture, Sunder Armor Rank 1, 2026-10-07",
+		Source:  "EV-0042",
 	},
 
-	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power: Heroic
-	// Strike Rank 3 held its bonus from 132 to 170 Attack Power. The bonus is multiplied by the stance
-	// with the damage, and Cleave splits it between the targets it hits. Heroic Strike Ranks 1 to 4's
-	// measured bonuses fit no single share per spell level; Ranks 5 to 9 carry Rank 4's 2.5 a level.
-	// Cleave's measured Ranks 1 and 2 fit 1.5 a level (30 at spell level 20, 46 at 30), and Ranks 3
-	// to 5 carry that share. Each rank's bonus is a whole number: a measured bonus rounds to the
-	// nearest one, and each share times its spell level is whole.
+	// Heroic Strike and Cleave add flat threat beyond their damage, and none with Attack Power (EV-0042).
+	// The bonus is multiplied by the stance with the damage, and Cleave splits it between the targets it
+	// hits. Heroic Strike Ranks 1 to 4's measured bonuses fit no single share per spell level (EV-0043);
+	// Ranks 5 to 9 carry Rank 4's 2.5 a level. Cleave's measured Ranks 1 and 2 fit 1.5 a level (EV-0042,
+	// EV-0045), Rank 3 carries the 1.5 and Rank 5 Rank 4's measured 1.6 (EV-0050). Each rank's bonus is a
+	// whole number: a measured bonus rounds to the nearest one, and each share times its spell level is
+	// whole.
 	{
 		SpellID: 78,
 		Field:   FlatThreat,
 		Value:   17,
-		Reason:  "Heroic Strike Rank 1: threat is the damage + 16.6, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 1, 2026-11-06",
+		Reason:  "Heroic Strike Rank 1: threat is the damage plus a measured flat bonus, times the stance",
+		Source:  "EV-0043",
 	},
 	{
 		SpellID: 284,
 		Field:   FlatThreat,
 		Value:   28,
-		Reason:  "Heroic Strike Rank 2: threat is the damage + 27.6, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 2, 2026-11-06",
+		Reason:  "Heroic Strike Rank 2: threat is the damage plus a measured flat bonus, times the stance",
+		Source:  "EV-0043",
 	},
 	{
 		SpellID: 285,
 		Field:   FlatThreat,
 		Value:   40,
 		Reason:  "Heroic Strike Rank 3: threat is the damage + 40, times the stance",
-		Source:  "threat capture, Heroic Strike Rank 3, 2026-11-06",
+		Source:  "EV-0043",
 	},
 	{
 		SpellID: 1608,
 		Field:   FlatThreat,
 		Value:   60,
 		Reason:  "Heroic Strike Rank 4: threat is the damage + 60, times the stance",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11564,
 		Field:   ThreatPerSpellLevel,
-		Value:   2.5, // TODO: Measure Heroic Strike Rank 5 in game.
-		Reason:  "Heroic Strike Rank 5: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Value:   2.5,
+		Reason:  "Heroic Strike Rank 5: Rank 4's share per spell level, measured",
+		Source:  "EV-0048",
 	},
 	{
 		SpellID: 11565,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 6 in game.
 		Reason:  "Heroic Strike Rank 6: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11566,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 7 in game.
 		Reason:  "Heroic Strike Rank 7: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11567,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 8 in game.
 		Reason:  "Heroic Strike Rank 8: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 25286,
 		Field:   ThreatPerSpellLevel,
 		Value:   2.5, // TODO: Measure Heroic Strike Rank 9 in game.
 		Reason:  "Heroic Strike Rank 9: Rank 4's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 845,
 		Field:   FlatThreat,
 		Value:   30,
-		Reason:  "Cleave Rank 1: adds 30 beyond its damage on one target, ~15 on each of two, times the stance",
-		Source:  "threat capture, Cleave Rank 1, 2026-11-07",
+		Reason:  "Cleave Rank 1: adds 30 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "EV-0045",
 	},
 	{
 		SpellID: 7369,
 		Field:   FlatThreat,
 		Value:   46,
-		Reason:  "Cleave Rank 2: adds ~46 beyond its damage at spell level 30 on one target, ~23 on each of two, times the stance",
-		Source:  "threat capture, Cleave Rank 2, 2026-10-07",
+		Reason:  "Cleave Rank 2: adds 46 beyond its damage at spell level 30, split over the targets it lands on, times the stance",
+		Source:  "EV-0042",
 	},
 	{
 		SpellID: 11608,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Cleave Rank 3 in game.
 		Reason:  "Cleave Rank 3: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Source:  "EV-0042, EV-0045",
 	},
 	{
 		SpellID: 11609,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 4 in game.
-		Reason:  "Cleave Rank 4: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Field:   FlatThreat,
+		Value:   80,
+		Reason:  "Cleave Rank 4: adds 80 beyond its damage, split over the targets it lands on, times the stance",
+		Source:  "EV-0050",
 	},
 	{
 		SpellID: 20569,
-		Field:   ThreatPerSpellLevel,
-		Value:   1.5, // TODO: Measure Cleave Rank 5 in game.
-		Reason:  "Cleave Rank 5: the 1.5 a spell level Ranks 1 and 2 share",
-		Source:  "threat capture, Cleave Rank 1 and Rank 2, 2026-10-07 and 2026-11-07",
+		Field:   FlatThreat,
+		Value:   96, // TODO: Measure Cleave Rank 5 in game.
+		Reason:  "Cleave Rank 5: Rank 4's measured 1.6 a spell level at spell level 60",
+		Source:  "EV-0050",
 	},
 
 	// Slam adds flat threat beyond its damage, times the stance: Rank 1's 30 at spell level 20, carried
-	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in. The share comes from
-	// four readings of Rank 1, none fully clean.
+	// as 1.5 a level to every rank and to the instant ranks Improved Slam swaps in (EV-0004).
 	{
 		SpellID: 1240193,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 1 in game.
 		Reason:  "Slam Rank 1: threat is the damage + 30, times the stance",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1464,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 2 in game.
 		Reason:  "Slam Rank 2: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 8820,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 3 in game.
 		Reason:  "Slam Rank 3: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11604,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 4 in game.
 		Reason:  "Slam Rank 4: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 11605,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Slam Rank 5 in game.
 		Reason:  "Slam Rank 5: Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310196,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 1 in game.
 		Reason:  "Slam Rank 1 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310197,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 2 in game.
 		Reason:  "Slam Rank 2 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310198,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 3 in game.
 		Reason:  "Slam Rank 3 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310199,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 4 in game.
 		Reason:  "Slam Rank 4 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 	{
 		SpellID: 1310200,
 		Field:   ThreatPerSpellLevel,
 		Value:   1.5, // TODO: Measure Improved Slam's Rank 5 in game.
 		Reason:  "Slam Rank 5 under Improved Slam: Slam Rank 1's measured share per spell level",
-		Source:  "Combat log + ThreatLog, Donky-Zug levels 24–26, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
 	},
 
-	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too: Rank 1
-	// held 177.7 over damage from 223 to 400.
-	// TODO: Measure Shield Slam Ranks 2–4's threat in game.
+	// Shield Slam adds flat threat beyond its damage, times the stance, once on a crit too (EV-0004,
+	// EV-0050). Rank 4 extends the line through Ranks 2 and 3 (4.33 a spell level from 48 to 54) to spell
+	// level 60, rounded to the nearest whole number.
 	{
 		SpellID: 23922,
 		Field:   FlatThreat,
 		Value:   178,
 		Reason:  "Shield Slam Rank 1: threat is the damage + 178, times the stance",
-		Source:  "Combat log + ThreatLog, Cute-War levels 40–42, game build 1.60.1.70862, 2026-11-08",
+		Source:  "EV-0004",
+	},
+	{
+		SpellID: 23923,
+		Field:   FlatThreat,
+		Value:   203,
+		Reason:  "Shield Slam Rank 2: threat is the damage + 203, times the stance",
+		Source:  "EV-0050",
+	},
+	{
+		SpellID: 23924,
+		Field:   FlatThreat,
+		Value:   229,
+		Reason:  "Shield Slam Rank 3: threat is the damage + 229, times the stance",
+		Source:  "EV-0050",
+	},
+	{
+		SpellID: 23925,
+		Field:   FlatThreat,
+		Value:   255, // TODO: Measure Shield Slam Rank 4 in game.
+		Reason:  "Shield Slam Rank 4: the line through the measured Ranks 2 and 3 at spell level 60",
+		Source:  "EV-0050",
 	},
 }
 

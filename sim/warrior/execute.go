@@ -25,21 +25,40 @@ func (warrior *Warrior) registerExecute() {
 		return target.IsExecutePhase20()
 	}
 
+	// The cast makes an attack of its own before the damage: a miss, dodge and parry roll that deals
+	// nothing, after which the damage rolls the table again. Each one that lands rolls Windfury Totem (EV-0002).
+	// Only the listeners on a cast result hear the cast's attack.
+	castAttack := warrior.RegisterSpell(core.SpellConfig{
+		ActionID:         core.ActionID{SpellID: executeRank.ID, Tag: 1},
+		SpellSchool:      core.SpellSchoolPhysical,
+		ProcMask:         core.ProcMaskMeleeMHSpecial,
+		DefenseType:      core.DefenseTypeMelee,
+		Flags:            core.SpellFlagNoMetrics | core.SpellFlagNoLogs | core.SpellFlagPassiveSpell,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+	})
+
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		castResult := castAttack.CalcOutcome(sim, target, castAttack.OutcomeMeleeSpecialHit)
+		castAttack.DealCastResult(sim, castResult)
+		castAttack.DisposeResult(castResult)
+
 		extraRage := spell.Unit.CurrentRage()
 		maxRage := warrior.MaximumRage() - spell.Cost.GetCurrentCost()
 		if extraRage > maxRage {
 			extraRage = maxRage
 		}
-		warrior.SpendRage(sim, extraRage, rageMetrics)
-		rageMetrics.Events--
 
 		baseDamage := executeBaseDamage + executeDamagePerRage*extraRage
-		result := spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
 
-		if !result.Landed() {
-			spell.IssueRefund(sim)
+		// A miss, dodge or parry costs the base rage alone: the extra rage stays, and none of the base
+		// cost comes back.
+		if result.Landed() {
+			warrior.SpendRage(sim, extraRage, rageMetrics)
+			rageMetrics.Events--
 		}
+		spell.DealDamage(sim, result)
 	}
 
 	spell := warrior.RegisterSpell(config)

@@ -17,6 +17,9 @@ func (druid *Druid) registerHurricaneSpell() {
 
 	tickConfig := spelldata.SpellConfig(&druid.Unit, hurricaneTickRank,
 		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	if hurricaneTickRank.IsAProc() {
+		tickConfig.Flags |= core.SpellFlagProc
+	}
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit
 		if cannotCrit {

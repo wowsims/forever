@@ -23,8 +23,7 @@ func ParseRequest(req *proto.SimlParseRequest, names *Names) (result *proto.Siml
 		return &proto.SimlParseResult{Error: err.Error()}
 	}
 	f, err := Parse(req.Path, []byte(req.Text), names, nil)
-	var diags Diagnostics
-	if errors.As(err, &diags) {
+	if diags, ok := errors.AsType[Diagnostics](err); ok {
 		return &proto.SimlParseResult{Spec: f.Spec, Diagnostics: diagnosticProtos(diags)}
 	} else if err != nil {
 		return &proto.SimlParseResult{Error: err.Error()}
@@ -49,8 +48,7 @@ func PrintRequest(req *proto.SimlPrintRequest, names *Names) (result *proto.Siml
 	}
 	text := Print(kind, req.Spec, req.Settings, req.Categories, names)
 	_, err = Parse(path, text, names, nil)
-	var diags Diagnostics
-	if errors.As(err, &diags) {
+	if diags, ok := errors.AsType[Diagnostics](err); ok {
 		return &proto.SimlPrintResult{Diagnostics: diagnosticProtos(diags)}
 	} else if err != nil {
 		return &proto.SimlPrintResult{Error: err.Error()}

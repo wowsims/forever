@@ -602,12 +602,12 @@ lists every property with its arguments, written from the schema (`wowsimcli sim
 
 These rules are in §8.3; the v1 instances are listed for reference.
 
-| Form            | Rule                                                           | v1 instances                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| bare word       | a kind with no fields                                          | `current_time`, `current_time_percent`, `remaining_time`, `remaining_time_percent`, `number_targets`, `current_rage`, `current_energy`, `current_combo_points`, `current_generic_resource`, `current_mana_regen`, `max_health`, `max_mana`, `max_combo_points`, `max_energy`, `max_rage`, `time_to_next_energy_tick`, `gcd_is_ready`, `gcd_time_to_ready`, `channel_clip_delay`, `input_delay`, `front_of_target`, `protection_paladin_damage_taken_last_global` |
-| unit prefix     | a value kind whose only field is a `UnitReference`: `[u.]kind` | `current_health`, `current_health_percent`, `current_mana`, `current_mana_percent`, `unit_is_moving`, `unit_distance`, `boss_current_target`, `warlock_assigned_curse_is_active`                                                                                                                                                                                                                                                                                 |
-| plain arguments | a kind whose only field is repeated                            | `max(a, b)`, `min(a, b)`, `and(x)`, `or(x)`, `strict_sequence(a, b)`                                                                                                                                                                                                                                                                                                                                                                                             |
-| generic         | any other kind                                                 | `is_execute_phase(e20)`, `auto_time_to_next(main_hand_auto)`, `auto_time_since_last(main_hand_auto)`, `action_group_used("Stance Dance ON/OFF")`, `multiple_cd_usages(x, target_spell_id=y, offset=2s)`, `selected_potion(x)`, `energy_time_to_target(50)`, `totem_remaining_time(air)`                                                                                                                                                                          |
+| Form            | Rule                                                           | v1 instances                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| bare word       | a kind with no fields                                          | `current_time`, `current_time_percent`, `remaining_time`, `remaining_time_percent`, `number_targets`, `current_rage`, `current_energy`, `current_generic_resource`, `current_mana_regen`, `max_health`, `max_mana`, `max_combo_points`, `max_energy`, `max_rage`, `time_to_next_energy_tick`, `gcd_is_ready`, `gcd_time_to_ready`, `channel_clip_delay`, `input_delay`, `front_of_target`, `protection_paladin_damage_taken_last_global` |
+| unit prefix     | a value kind whose only field is a `UnitReference`: `[u.]kind` | `current_health`, `current_health_percent`, `current_mana`, `current_mana_percent`, `current_combo_points`, `unit_is_moving`, `unit_distance`, `boss_current_target`, `warlock_assigned_curse_is_active`                                                                                                                                                                                                                                 |
+| plain arguments | a kind whose only field is repeated                            | `max(a, b)`, `min(a, b)`, `and(x)`, `or(x)`, `strict_sequence(a, b)`                                                                                                                                                                                                                                                                                                                                                                     |
+| generic         | any other kind                                                 | `is_execute_phase(e20)`, `auto_time_to_next(main_hand_auto)`, `auto_time_since_last(main_hand_auto)`, `action_group_used("Stance Dance ON/OFF")`, `multiple_cd_usages(x, target_spell_id=y, offset=2s)`, `selected_potion(x)`, `energy_time_to_target(50)`, `totem_remaining_time(air)`                                                                                                                                                  |
 
 ### 6.9 `when` blocks
 
@@ -1924,7 +1924,6 @@ priority:
       if action_group_used("Hamstring Weave ON/OFF")
       and aura(windfury_totem_proc).is_known
       and not is_execute_phase(e20)
-      and aura(windfury_totem_buff).is_inactive
   cast execute if is_execute_phase(e20)
   cast battle_stance
       if action_group_used("Stance Dance ON/OFF")
@@ -1992,10 +1991,11 @@ Some notes on this file:
 - **The tagged spells.** `heroic_strike`, `cleave` and `whirlwind` are the tag-1 spells, the queued or main-hand
   versions the sim casts from the APL, since those are castable (§7.4). A bare `cast heroic_strike` therefore
   queues the trainer's rank, and the tag-0 Heroic Strikes are `heroic_strike_rank8` and `heroic_strike_rank9`.
-- **The Windfury Totem auras** the warrior reads are all external (tag −1) and share a game name, so the
-  generator would tell them apart only by id. Their pinned names say what each does instead:
-  `windfury_totem_proc` is 10612, the party aura that rolls the proc; `windfury_totem_buff` is 10610, the attack
-  power a proc grants; `windfury_totem_aura` is 10614, which the sim holds while the party's totem stands.
+- **The Windfury Totem auras** are all external (tag −1) and share a game name, so the generator would tell them
+  apart only by id. Their pinned names say what each does instead: `windfury_totem_proc` is 10612, the party aura
+  that rolls the proc, which the warrior reads; `windfury_totem_aura` is 10614, which the sim holds while the
+  party's totem stands. `windfury_totem_buff` is pinned to 10610, the strike the proc lands, and no build registers
+  an aura under it.
 - **Items and spells.** The trinkets and engineering items are cast with `item.`. Jom Gabbar's on-use is the
   spell 29602, a shared name (§7.1) that every class reads.
 - **Strength.** In `cast_all_stat_buff_cooldowns(stat_type2=…)`, `stat_type1` is strength, `Stat` 0. That is

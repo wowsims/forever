@@ -32,8 +32,7 @@ func newCat(t *testing.T, talents string, consumes *proto.ConsumesSpec) (*core.S
 	return newCatWearing(t, talents, consumes, nil)
 }
 
-func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
-	t.Helper()
+func catPlayer(name, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) *proto.Player {
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -45,23 +44,37 @@ func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, w
 	if consumes == nil {
 		consumes = &proto.ConsumesSpec{}
 	}
+	return &proto.Player{
+		Name: name, Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
+		TalentsString: talents,
+		Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
+			Options: &proto.FeralCatDruid_Options{},
+		}},
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: consumes,
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+}
+
+func newCatWearing(t *testing.T, talents string, consumes *proto.ConsumesSpec, worn map[proto.ItemSlot]int32) (*core.Simulation, *FeralDruid) {
+	t.Helper()
+	return newCatAgainst(t, catPlayer("Cat", talents, consumes, worn), 1)
+}
+
+func newCatAgainst(t *testing.T, player *proto.Player, numTargets int) (*core.Simulation, *FeralDruid) {
+	t.Helper()
+	targets := make([]*proto.Target, numTargets)
+	for i := range targets {
+		targets[i] = &proto.Target{Name: "target", Level: 60}
+	}
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1, Iterations: 1},
 		Raid: &proto.Raid{Parties: []*proto.Party{{
-			Players: []*proto.Player{{
-				Name: "Cat", Class: proto.Class_ClassDruid, Race: proto.Race_RaceNightElf,
-				TalentsString: talents,
-				Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{
-					Options: &proto.FeralCatDruid_Options{},
-				}},
-				Equipment:   &proto.EquipmentSpec{Items: items},
-				Consumables: consumes,
-				Buffs:       &proto.IndividualBuffs{},
-				Rotation:    &proto.APLRotation{},
-			}},
-			Buffs: &proto.PartyBuffs{},
+			Players: []*proto.Player{player},
+			Buffs:   &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 60},
+		Encounter: &proto.Encounter{Targets: targets, Duration: 60},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].(*FeralDruid)
@@ -374,7 +387,7 @@ func TestFaerieFireFormCooldown(t *testing.T) {
 				t.Fatal("leaving form cleared the active Faerie Fire cooldown")
 			}
 			sim.CurrentTime = expires
-			for cast := 0; cast < 2; cast++ {
+			for cast := range 2 {
 				fillResource(sim, cat)
 				if !cat.FaerieFire.Cast(sim, cat.CurrentTarget) {
 					t.Fatalf("humanoid Faerie Fire cast %d failed", cast+1)
@@ -432,6 +445,31 @@ func TestShiftingPowerTradesManaForEnergy(t *testing.T) {
 	// 55% of base mana, the shapeshift's own price.
 	if got, want := mana-cat.CurrentMana(), float64(int32(55*cat.BaseMana)/100); got != want {
 		t.Errorf("mana spent = %v, want %v", got, want)
+	}
+}
+
+// Shifting Power's energy threatens for half a point an energy gained, which Cat Form's threat multiplier
+// does not scale, split between the targets in combat.
+func TestShiftingPowerEnergyThreatensUnscaled(t *testing.T) {
+	sim, cat := newCatAgainst(t, catPlayer("Cat", shiftingPowerTalents, nil, nil), 2)
+	if !cat.InForm(druid.Cat) || cat.PseudoStats.ThreatMultiplier == 1 {
+		t.Fatalf("in cat form %v with threat multiplier %v, want cat form and a multiplier other than 1", cat.InForm(druid.Cat), cat.PseudoStats.ThreatMultiplier)
+	}
+	fillResource(sim, cat)
+	emptyEnergy(sim, cat)
+	if !cat.ShiftingPower.Cast(sim, cat.CurrentTarget) {
+		t.Fatal("shifting power did not cast")
+	}
+	gained := cat.CurrentEnergy()
+	targets := sim.Encounter.ActiveTargetUnits
+	if gained <= 0 || len(targets) != 2 {
+		t.Fatalf("gained %v energy against %d targets, want energy against 2", gained, len(targets))
+	}
+	want := gained * 0.5 / 2
+	for _, target := range targets {
+		if got := cat.ShiftingPower.SpellMetrics[target.UnitIndex].TotalThreat; math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s: shifting power threatened for %v, want %v", target.Label, got, want)
+		}
 	}
 }
 
@@ -535,7 +573,7 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	fillResource(sim, cat)
 	var landed bool
 	for range 15 {
-		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints() > 0 {
+		if cat.Claw.Cast(sim, cat.CurrentTarget) && cat.ComboPoints(cat.CurrentTarget) > 0 {
 			landed = true
 			break
 		}
@@ -545,13 +583,13 @@ func TestClawAwardsComboPointsAndRipSpendsThem(t *testing.T) {
 	if !landed {
 		t.Fatal("claw never awarded a combo point")
 	}
-	points := cat.ComboPoints()
+	points := cat.ComboPoints(cat.CurrentTarget)
 	fillResource(sim, cat)
 	sim.CurrentTime += 2 * time.Second
 	if !cat.Rip.Cast(sim, cat.CurrentTarget) {
 		t.Fatal("rip did not cast")
 	}
-	if got := cat.ComboPoints(); got != 0 {
+	if got := cat.ComboPoints(cat.CurrentTarget); got != 0 {
 		t.Errorf("combo points after rip = %d, want 0 (spent %d)", got, points)
 	}
 	if !cat.Rip.Dot(cat.CurrentTarget).IsActive() {
@@ -573,7 +611,7 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 		for range 15 {
 			fillResource(sim, cat)
 			spell.Cast(sim, cat.CurrentTarget)
-			// The charge goes a batch window after the hit lands.
+			// The charge goes a batch window after the cast.
 			until := sim.CurrentTime + 2*time.Second
 			for poised.IsActive() && sim.CurrentTime < until && !sim.Step() {
 			}
@@ -588,6 +626,58 @@ func TestPoisedLowersTheFirstCatAbilityOnly(t *testing.T) {
 		if got := spell.Cost.GetCurrentCost() - withPoised; got != 10 {
 			t.Errorf("%s costs %v more once poised is spent, want 10", name, got)
 		}
+	}
+}
+
+// A missed, dodged or parried Claw spends Poised as a landed one does, and pays the lowered cost less the
+// row's miss refund.
+func TestAvoidedClawSpendsPoised(t *testing.T) {
+	for _, c := range []struct {
+		avoid string
+		setup func(*core.Simulation, *FeralDruid, *core.Unit)
+	}{
+		{"miss", func(_ *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AttackTables[target.UnitIndex].Hand(cat.Claw.Spell).BaseMissChance = 1
+		}},
+		{"dodge", func(sim *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			target.PseudoStats.BaseDodgeChance = 1
+		}},
+		{"parry", func(sim *core.Simulation, cat *FeralDruid, target *core.Unit) {
+			cat.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+			cat.PseudoStats.InFrontOfTarget = true
+			target.PseudoStats.BaseDodgeChance = 0
+			target.PseudoStats.BaseParryChance = 1
+		}},
+	} {
+		avoid := c.avoid
+		t.Run(avoid, func(t *testing.T) {
+			sim, cat := newCat(t, "", nil)
+			target := cat.CurrentTarget
+			c.setup(sim, cat, target)
+			poised := cat.GetAuraByID(core.ActionID{SpellID: 1328827})
+			if poised == nil || !poised.IsActive() {
+				t.Fatal("poised is not up at the start")
+			}
+			cost := cat.Claw.Cost.GetCurrentCost()
+			want := cat.CurrentEnergy() - cost*(1-spelldata.MustFind(cat.Claw.ActionID.SpellID).MissRefund())
+			if !cat.Claw.Cast(sim, target) {
+				t.Fatal("claw did not cast")
+			}
+			if m := cat.Claw.SpellMetrics[target.UnitIndex]; m.Misses+m.Dodges+m.Parries != 1 {
+				t.Fatalf("claw missed %d, was dodged %d and parried %d times, want one avoided cast", m.Misses, m.Dodges, m.Parries)
+			}
+			if got := cat.CurrentEnergy(); math.Abs(got-want) > 1e-9 {
+				t.Errorf("energy=%g, want %g from the lowered cost %g", got, want, cost)
+			}
+			// The charge goes a batch window after the cast.
+			until := sim.CurrentTime + 100*time.Millisecond
+			for poised.IsActive() && sim.CurrentTime < until && !sim.Step() {
+			}
+			if poised.IsActive() {
+				t.Errorf("the %s claw left poised up", avoid)
+			}
+		})
 	}
 }
 
@@ -811,7 +901,7 @@ func TestPrepullClearcastingStartsTheFightClearcasting(t *testing.T) {
 			t.Fatal(result.Error.Message)
 		}
 		got := false
-		for _, line := range strings.Split(result.Logs, "\n") {
+		for line := range strings.SplitSeq(result.Logs, "\n") {
 			got = got || strings.HasPrefix(line, "[-1.50]") && strings.Contains(line, "Aura gained: {SpellID: 16870}")
 		}
 		if got != on {
@@ -924,7 +1014,7 @@ func TestFaerieFireOmenEligibilityByForm(t *testing.T) {
 			procs := 0
 			cat.AutoAttacks.CancelAutoSwing(sim)
 			cat.ClearcastingAura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) { procs++ })
-			for i := 0; i < 400; i++ {
+			for i := range 400 {
 				sim.AddPendingAction(&core.PendingAction{NextActionAt: time.Duration(i+1) * 100 * time.Millisecond, OnAction: func(sim *core.Simulation) {
 					cat.ClearcastingAura.Deactivate(sim)
 					cat.OmenOfClarityAura.Icd.Set(0)
@@ -957,7 +1047,7 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 						sim.Cleanup()
 						sim.Reset()
 					}
-					cat.AddComboPoints(sim, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
+					cat.AddComboPoints(sim, cat.CurrentTarget, points, cat.NewComboPointMetrics(core.ActionID{SpellID: 9896}))
 					dot := cat.Rip.Dot(cat.CurrentTarget)
 					dot.Apply(sim)
 					want := row.Duration()
@@ -1005,7 +1095,7 @@ func TestIdolOfTheDreamExtendsRipWithoutChangingItsTicks(t *testing.T) {
 
 func TestCatChargeRunIn(t *testing.T) {
 	sim, cat := newCat(t, withFeralDigit(powershiftTalents, 8, '1'), nil)
-	for i := 0; i < 2; i++ {
+	for i := range 2 {
 		if i > 0 {
 			sim.Cleanup()
 			sim.Reset()

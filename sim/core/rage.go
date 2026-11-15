@@ -8,27 +8,41 @@ import (
 
 // Booked in AddRage at gain time. Rage from white hits, hits taken and refunds carries
 // ResourceMetrics.NoThreat and makes none; a new rage source that comes from damage sets NoThreat too.
-// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage)
-// makes it without the unit's threat multiplier.
+// A source marked ResourceMetrics.UnscaledThreat (Shield Specialization, Master of Defense, Bloodrage's instant rage,
+// Blood Frenzy) makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
-// Damage taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after the defender's
-// damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor, resistances, flat damage
-// taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level (230.6 at 60) and A is the
-// armor reduction the game assumes in place of the defender's own. The defender's level, health and armor play no part.
+// A physical melee auto attack taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit
+// after the defender's damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor,
+// resistances, flat damage taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level
+// (230.6 at 60) and A is the armor reduction the game assumes in place of the defender's own. The defender's level,
+// health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
-// A by the attacker's level: 20% up to level 42, 30% at 44, 36% at 46 and 38% at 50, measured on combat logs, and
-// 40% at 63, the top of the 20% to 40% range the game build's notes give. Levels between two rows interpolate; no
-// log covers 43, 45, 47-49 or 61-63.
+// Damage of a school other than physical, and every periodic tick whatever its school, grants twice a physical melee
+// auto attack's rage on the same damage (EV-0052). Every other physical direct hit (Shoot, Throw, Shield Slam, Mortal
+// Strike, a ranged auto attack) grants twice that rule too, read on the damage left after armor, damage taken
+// multipliers, flat damage taken bonuses and the block, before absorbs (EV-0118).
+// TODO: Ingame test needed -- the logs behind EV-0118 hold no absorbed special and no attacker above level 40, so
+// whether an absorb takes rage off and whether the landed reading keeps the (1 - A) of higher attackers is not measured.
+const SpellDamageTakenRageMultiplier = 2.0
+
+// A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs
+// (EV-0048, EV-0034, EV-0035, EV-0050). The 40% at 63 is the top of the 20% to 40% range the game build's notes
+// give; no log covers 60-63. Attackers that use mana or energy give about half this rage in game (EV-0048,
+// EV-0052). The sim gives every attacker the full amount, since a target has no power type.
 var damageTakenRageAssumedArmor = []struct {
 	level     int32
 	reduction float64
 }{
-	{level: 42, reduction: 0.20},
-	{level: 44, reduction: 0.30},
+	{level: 38, reduction: 0.218},
+	{level: 42, reduction: 0.239},
+	{level: 44, reduction: 0.31},
 	{level: 46, reduction: 0.36},
+	{level: 47, reduction: 0.377},
 	{level: 50, reduction: 0.38},
+	{level: 55, reduction: 0.381},
+	{level: 59, reduction: 0.38},
 	{level: 63, reduction: 0.40},
 }
 
@@ -57,8 +71,8 @@ const (
 	TwoHandRageMultiplier = TwoHandRageHitFactor / BaseRageHitFactor
 	// A critical auto attack adds this share of its whole rage, the two-hand multiplier and the off-hand
 	// halving included, for every rage user (the game files' Rule of Rage (DND) 1322574 states 100; the
-	// spell store does not carry it). Combat logs show a two-hand crit at twice the swing's rage, and an
-	// off-hand crit at twice the off-hand's halved share.
+	// spell store does not carry it). A two-hand crit gives twice the swing's rage, a bear's swing with any
+	// weapon included, and an off-hand crit twice the off-hand's halved share (EV-0053, EV-0037).
 	CritRageBonus = 1.0
 )
 
@@ -88,26 +102,32 @@ type RageBarOptions struct {
 func (unit *Unit) EnableRageBar(options RageBarOptions) {
 	rageFromDamageTakenMetrics := unit.NewRageMetrics(ActionID{OtherID: proto.OtherAction_OtherActionDamageTaken})
 	rageFromDamageTakenMetrics.NoThreat = true
-	// Direct hits and periodic ticks from a unit grant rage alike.
-	// TODO: Ingame test needed -- the rule is measured on melee hits. Spells land at a multiple of it the logs do
-	// not explain yet: Immolate ticks, Shadow Bolt and Arcane Missiles about 1 times, Fireball and Mortal Strike
-	// about 1.2 times, Poison ticks, Venom Sting and Lizard Bolt about 2 times.
-	rageFromDamageTaken := func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+	rageFromDamageTaken := func(sim *Simulation, spell *Spell, result *SpellResult, periodic bool) {
 		if unit.GetCurrentPowerBar() != RageBar {
 			return
 		}
 		if !result.Landed() {
 			return
 		}
-		// A hit blocked in full grants none. A block whose remainder an absorb takes still grants rage,
-		// so the check reads the damage the block left, before absorbs.
-		if result.DidBlock() && result.PostOutcomeDamage == 0 {
+		// A hit blocked in full grants none.
+		if result.BlockedInFull() {
 			return
 		}
 
+		damage := result.PreArmorDamage
+		multiplier := 1.0
+		switch {
+		case periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical):
+			multiplier = SpellDamageTakenRageMultiplier
+		case !spell.ProcMask.Matches(ProcMaskMeleeWhiteHit):
+			// A flat damage taken reduction, as Stoneskin Totem's, can take a weak hit below zero.
+			damage = max(0, result.PostOutcomeDamage)
+			multiplier = SpellDamageTakenRageMultiplier
+		}
+
 		attackerLevel := spell.Unit.Level
-		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreArmorDamage /
-			rageConversion(attackerLevel) * unit.rageBar.damageTakenRageMultiplier
+		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * damage /
+			rageConversion(attackerLevel) * multiplier * unit.rageBar.damageTakenRageMultiplier
 
 		unit.AddRage(sim, generatedRage, rageFromDamageTakenMetrics)
 	}
@@ -131,10 +151,10 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			handMultiplier := 1.0
 			var weapon *Weapon
 
-			switch spell.ProcMask {
-			case ProcMaskMeleeMHAuto:
+			switch {
+			case spell.ProcMask == ProcMaskMeleeMHAuto, spell.Flags.Matches(SpellFlagSwingRage):
 				weapon = unit.AutoAttacks.MH()
-			case ProcMaskMeleeOHAuto:
+			case spell.ProcMask == ProcMaskMeleeOHAuto:
 				// OH hits generate 50% of the rage they would if they were MH hits
 				hitFactor /= 2
 				handMultiplier = unit.rageBar.offHandRageMultiplier
@@ -164,8 +184,12 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			}
 			unit.AddRage(sim, generatedRage, metrics)
 		},
-		OnSpellHitTaken:       rageFromDamageTaken,
-		OnPeriodicDamageTaken: rageFromDamageTaken,
+		OnSpellHitTaken: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+			rageFromDamageTaken(sim, spell, result, false)
+		},
+		OnPeriodicDamageTaken: func(aura *Aura, sim *Simulation, spell *Spell, result *SpellResult) {
+			rageFromDamageTaken(sim, spell, result, true)
+		},
 	})
 
 	// Not a real spell, just holds metrics from rage gain threat.
@@ -281,7 +305,7 @@ func (rb *rageBar) addRageGainThreat(sim *Simulation, gain float64, metrics *Res
 	if !metrics.UnscaledThreat {
 		threat *= rb.rageGainSpell.unitThreatMultiplier()
 	}
-	rb.rageGainSpell.applySplitThreat(sim, threat)
+	rb.rageGainSpell.ApplySplitThreat(sim, threat)
 	rb.rageGainSpell.SpellMetrics[0].Casts++
 }
 

@@ -202,10 +202,13 @@
 						},
 						"5": {
 							"type": "string"
+						},
+						"unknown": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["1", "2", "3", "4", "5"]
+					"required": ["1", "2", "3", "4", "5", "unknown"]
 				},
 				"phase_names": {
 					"type": "object",
@@ -330,10 +333,63 @@
 						},
 						"swine": {
 							"type": "string"
+						},
+						"plant": {
+							"type": "string"
+						},
+						"troll": {
+							"type": "string"
+						},
+						"orc": {
+							"type": "string"
+						},
+						"ogre": {
+							"type": "string"
+						},
+						"wolf": {
+							"type": "string"
+						},
+						"worgen": {
+							"type": "string"
+						},
+						"murloc": {
+							"type": "string"
+						},
+						"furbolg": {
+							"type": "string"
+						},
+						"dwarf": {
+							"type": "string"
+						},
+						"dinosaur": {
+							"type": "string"
+						},
+						"serpentine": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["unknown", "naga", "satyr", "aquatic", "earth_elemental", "fire_elemental", "mountain_giant", "swine"]
+					"required": [
+						"unknown",
+						"naga",
+						"satyr",
+						"aquatic",
+						"earth_elemental",
+						"fire_elemental",
+						"mountain_giant",
+						"swine",
+						"plant",
+						"troll",
+						"orc",
+						"ogre",
+						"wolf",
+						"worgen",
+						"murloc",
+						"furbolg",
+						"dwarf",
+						"dinosaur",
+						"serpentine"
+					]
 				},
 				"area_types": {
 					"type": "object",
@@ -586,6 +642,9 @@
 						},
 						"wands": {
 							"type": "string"
+						},
+						"feral_combat": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -605,7 +664,8 @@
 						"crossbows",
 						"guns",
 						"thrown",
-						"wands"
+						"wands",
+						"feral_combat"
 					]
 				},
 				"spell_schools": {
@@ -803,6 +863,7 @@
 						"mp5": {
 							"type": "string"
 						},
+						"feral_combat_skill": { "type": "string" },
 						"main_hand_dps": {
 							"type": "string"
 						},
@@ -897,6 +958,12 @@
 							"type": "string"
 						},
 						"ranged_crit_suppression": {
+							"type": "string"
+						},
+						"main_hand_weapon_skill": {
+							"type": "string"
+						},
+						"off_hand_weapon_skill": {
 							"type": "string"
 						},
 						"healing_power": {
@@ -995,6 +1062,7 @@
 						"mana",
 						"mp5",
 						"main_hand_dps",
+						"feral_combat_skill",
 						"off_hand_dps",
 						"ranged_dps",
 						"block",
@@ -1026,6 +1094,8 @@
 						"ranged_hit_rating",
 						"ranged_crit_rating",
 						"ranged_crit_suppression",
+						"main_hand_weapon_skill",
+						"off_hand_weapon_skill",
 						"healing_power",
 						"spell_damage",
 						"arcane_damage",
@@ -1392,9 +1462,6 @@
 						"off_hand": {
 							"type": "string"
 						},
-						"windfury": {
-							"type": "string"
-						},
 						"boss": {
 							"type": "string"
 						},
@@ -1539,7 +1606,6 @@
 						"not_casting",
 						"main_hand",
 						"off_hand",
-						"windfury",
 						"boss",
 						"add",
 						"no_stacks",
@@ -1949,6 +2015,24 @@
 								"raids": {
 									"type": "string"
 								},
+								"newly_discovered": {
+									"type": "string"
+								},
+								"bonus": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"area": { "type": "string" },
+										"mob_type": { "type": "string" },
+										"creature": { "type": "string" },
+										"any": { "type": "string" },
+										"empty": { "type": "string" },
+										"remove": { "type": "string" },
+										"open": { "type": "string" }
+									},
+									"required": ["title", "area", "mob_type", "creature", "any", "empty", "remove", "open"],
+									"additionalProperties": false
+								},
 								"faction_labels": {
 									"type": "object",
 									"properties": {
@@ -1976,6 +2060,8 @@
 								"faction_restrictions",
 								"source",
 								"raids",
+								"newly_discovered",
+								"bonus",
 								"faction_labels"
 							]
 						},
@@ -2032,6 +2118,9 @@
 							"type": "string"
 						},
 						"filters_button": {
+							"type": "string"
+						},
+						"filters_button_active": {
 							"type": "string"
 						},
 						"unequip_item": {
@@ -2146,6 +2235,7 @@
 						"cooldowns",
 						"ep_tooltip",
 						"filters_button",
+						"filters_button_active",
 						"unequip_item",
 						"table_headers",
 						"sorted_ascending",
@@ -4441,10 +4531,28 @@
 								},
 								"duplicate": {
 									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"name_taken": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["current", "new", "dialog_new", "dialog_edit", "save", "edit", "delete", "delete_confirm", "duplicate"]
+							"required": [
+								"current",
+								"new",
+								"dialog_new",
+								"dialog_edit",
+								"save",
+								"edit",
+								"delete",
+								"delete_confirm",
+								"duplicate",
+								"name",
+								"name_taken"
+							]
 						},
 						"parts": {
 							"type": "object",
@@ -12285,6 +12393,34 @@
 						"weapon_skill": {
 							"type": "string"
 						},
+						"versus": {
+							"type": "object",
+							"properties": {
+								"title": {
+									"type": "string"
+								},
+								"in_area": {
+									"type": "string"
+								},
+								"against": {
+									"type": "string"
+								},
+								"damage": {
+									"type": "string"
+								},
+								"crit_damage": {
+									"type": "string"
+								},
+								"effect_damage": {
+									"type": "string"
+								},
+								"effect_restore": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore"]
+						},
 						"tooltip": {
 							"type": "object",
 							"properties": {
@@ -12473,6 +12609,7 @@
 						"hands",
 						"melee_crit_cap",
 						"weapon_skill",
+						"versus",
 						"tooltip",
 						"attack_table",
 						"crit_cap",

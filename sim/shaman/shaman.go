@@ -65,9 +65,6 @@ type Shaman struct {
 	rockbiterWeaponMultiplier    float64
 	spiritWeaponsRockbiterThreat float64
 
-	// Windfury Weapon's extra strikes, which spend no Flurry charge.
-	windfuryWeaponStrike *core.Spell
-
 	// The equipped main hand and the swap set's, which the imbue options name.
 	mainHandID     int32
 	swapMainHandID int32
@@ -109,8 +106,8 @@ type Shaman struct {
 	// Always nil: its registrar is commented out in totems.go, upstream of the fork.
 	HealingStreamTotem *core.Spell
 
-	// The aura of the totem standing in each element's slot, indexed like TotemExpirations.
-	TotemAuras [4]*core.Aura
+	// The cast that stood the totem in each element's slot, indexed like TotemExpirations; its aura is RelatedSelfBuff.
+	TotemSpells [4]*core.Spell
 }
 
 // Implemented by each Shaman spec.
@@ -143,6 +140,7 @@ func (shaman *Shaman) Initialize() {
 	shaman.registerStrengthOfEarthTotemSpell()
 	shaman.registerGraceOfAirTotemSpell()
 	shaman.registerManaSpringTotemSpell()
+	shaman.registerTotemicRecallSpell()
 	shaman.registerShocks()
 
 	// In Initialize so that the imbues read the multipliers the talents set.

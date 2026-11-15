@@ -183,8 +183,6 @@ func inserted(t *testing.T, names *siml.Names, apl any, p pattern, values map[st
 	return read
 }
 
-func index(i int) *int { return &i }
-
 func TestPatternsAreWellFormed(t *testing.T) {
 	ids := map[string]bool{}
 	for _, p := range patterns {
@@ -214,7 +212,7 @@ func TestEveryPatternInsertsAValidRotation(t *testing.T) {
 				t.Errorf("%s: no value for %s", p.ID, ph.Name)
 			}
 		}
-		places := []placement{{index: index(1)}, {list: []any{"groups", 0, "actions"}}}
+		places := []placement{{index: new(1)}, {list: []any{"groups", 0, "actions"}}}
 		if p.Target == "condition" {
 			places = []placement{{condition: []any{"priorityList", 0, "action"}}, {condition: []any{"priorityList", 1, "action"}}}
 		}
@@ -236,7 +234,7 @@ func TestEveryPatternInsertsAValidRotation(t *testing.T) {
 func TestPatternIntoARotationWithNoLists(t *testing.T) {
 	names := tableNames(t)
 	for _, p := range patterns {
-		place := placement{index: index(0)}
+		place := placement{index: new(0)}
 		if p.Target == "condition" {
 			place = placement{}
 		}
@@ -355,9 +353,9 @@ func TestPlacement(t *testing.T) {
 		target string
 		want   placement
 	}{
-		{[]any{"priorityList", 3, "action", "castSpell"}, "row", placement{list: []any{"priorityList"}, index: index(4)}},
-		{[]any{"groups", 1, "actions", 0}, "row", placement{list: []any{"groups", 1, "actions"}, index: index(1)}},
-		{[]any{"groups", 0, "actions", -1}, "row", placement{list: []any{"groups", 0, "actions"}, index: index(0)}}, // The start of an empty group.
+		{[]any{"priorityList", 3, "action", "castSpell"}, "row", placement{list: []any{"priorityList"}, index: new(4)}},
+		{[]any{"groups", 1, "actions", 0}, "row", placement{list: []any{"groups", 1, "actions"}, index: new(1)}},
+		{[]any{"groups", 0, "actions", -1}, "row", placement{list: []any{"groups", 0, "actions"}, index: new(0)}}, // The start of an empty group.
 		{[]any{"priorityList", 3}, "condition", placement{condition: []any{"priorityList", 3, "action"}}},
 		{[]any{"groups", 0, "actions", -1}, "condition", placement{}}, // An empty group has no row.
 		{[]any{"prepullActions", 0}, "condition", placement{}},        // The sim does not read a prepull row's condition.

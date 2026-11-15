@@ -84,6 +84,48 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
 }
 
+// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, and nothing on
+// a spell taken. It then rests for the row's cooldown.
+func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
+	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+	})
+	gain := spelldata.MustFind(1294666).EnergizeEffect()
+	cooldown := spelldata.MustFind(1294668).ICD()
+	if gain.Min() <= 0 || cooldown <= 0 {
+		t.Fatalf("1294666 restores %v to %v mana and 1294668 rests %v, want a gain and a cooldown", gain.Min(), gain.Max(), cooldown)
+	}
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotChest, 274651)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	character.SpendMana(sim, 4*gain.Max(), character.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	restored := func(t *testing.T, spell *core.Spell) float64 {
+		t.Helper()
+		before := character.CurrentMana()
+		takeHit(t, sim, character, spell)
+		return character.CurrentMana() - before
+	}
+
+	if got := restored(t, fireSpell(enemy)); got != 0 {
+		t.Errorf("a spell hit taken restored %v mana, want none", got)
+	}
+	start := sim.CurrentTime
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() || got > gain.Max() {
+		t.Errorf("a melee hit taken restored %v mana, want the row's %v to %v", got, gain.Min(), gain.Max())
+	}
+	if got := restored(t, meleeSwing(enemy)); got != 0 {
+		t.Errorf("a melee hit taken inside the cooldown restored %v mana, want none", got)
+	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
+	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+		stepTo(t, sim, at)
+	}
+	stepTo(t, sim, start+cooldown)
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() {
+		t.Errorf("a melee hit taken as the cooldown ends restored %v mana, want at least %v", got, gain.Min())
+	}
+}
+
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and
 // nothing on a spell; a wearer without mana registers nothing.
 func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {
@@ -152,6 +194,36 @@ func TestSwineFistsDealDamageOnlyToSwine(t *testing.T) {
 	}
 	if got := damage.SpellMetrics[aquatic.UnitIndex]; got.Casts != 0 || got.TotalDamage != 0 {
 		t.Errorf("a hit on the Aquatic target cast the damage %d times for %v, want none", got.Casts, got.TotalDamage)
+	}
+}
+
+// Gloves of Holy Might 867's 1330855 casts 1325229's Holy damage on a hit, tripled against an Undead
+// target. Both wearers roll from the same seed, so the target's creature type is all that differs.
+func TestGlovesOfHolyMightTripleDamageAgainstUndead(t *testing.T) {
+	smite := func(mobType proto.MobType) core.SpellMetrics {
+		sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotHands, 867)
+		character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.SpellHitPercent: 100})
+		target := character.CurrentTarget
+		target.MobType = mobType
+		damage := character.GetSpell(core.ActionID{SpellID: 1325229})
+		if damage == nil {
+			t.Fatal("867 registers no damage spell")
+		}
+		for hits := 0; damage.SpellMetrics[target.UnitIndex].Casts == 0; hits++ {
+			if hits > 200 {
+				t.Fatal("200 hits cast no damage")
+			}
+			dealHit(t, sim, character, meleeSwing(&character.Unit))
+		}
+		return damage.SpellMetrics[target.UnitIndex]
+	}
+
+	undead, humanoid := smite(proto.MobType_MobTypeUndead), smite(proto.MobType_MobTypeHumanoid)
+	if humanoid.TotalDamage <= 0 {
+		t.Fatalf("the proc dealt %v to a Humanoid, want some damage", humanoid.TotalDamage)
+	}
+	if math.Abs(undead.TotalDamage-3*humanoid.TotalDamage) > 1e-6 {
+		t.Errorf("the proc dealt %v to an Undead target, want 3 times the %v it dealt to a Humanoid", undead.TotalDamage, humanoid.TotalDamage)
 	}
 }
 
@@ -428,5 +500,30 @@ func TestBlockedHitsDealTheRowsDamageToTheAttacker(t *testing.T) {
 				t.Errorf("a second block right after cast the damage %d times in all, want 2", got)
 			}
 		})
+	}
+}
+
+// Stoneform Shoulders 13955 put up 1298231's flat Physical damage taken at the encounter start, and the
+// first Physical hit taken that deals damage spends it: a spell hit and a dodged attack leave it up.
+func TestStoneformShouldersReduceOnlyTheNextPhysicalHit(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotShoulder, 13955)
+	reduction := spelldata.MustFind(1298231).EffectN(1).BasePoints
+	before := character.PseudoStats.BonusPhysicalDamageTaken
+
+	character.OnEncounterStart(sim)
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; reduction >= 0 || got != reduction {
+		t.Fatalf("the encounter start changed the flat Physical damage taken by %v, want the row's %v", got, reduction)
+	}
+
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	takeHit(t, sim, character, fireSpell(enemy))
+	dodgeSwing(t, sim, character, enemy)
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; got != reduction {
+		t.Fatalf("after a spell hit and a dodge the flat Physical damage taken is %v off, want %v still", got, reduction)
+	}
+
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := character.PseudoStats.BonusPhysicalDamageTaken - before; got != 0 {
+		t.Errorf("after a Physical hit taken the flat Physical damage taken is %v off, want 0", got)
 	}
 }

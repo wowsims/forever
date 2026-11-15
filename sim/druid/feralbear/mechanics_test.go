@@ -210,14 +210,19 @@ const (
 	naturalInstinctTalents = "0000000000000000-00000000000100020000-0000000000000000" // Feral talents taking Lacerate and Natural Instinct 2/2.
 )
 
-// The hit's class flags lie outside Natural Instinct's mask, so it crits at the melee base, while a
-// tick of the bleed takes the talent's crit damage.
-func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
+// Natural Instinct's mask covers the hit's class flags and the rank's, so the hit and a tick of the
+// bleed both crit for the talent's crit damage on top of the melee base.
+func TestLacerateHitCritsWithNaturalInstinct(t *testing.T) {
 	sim, bear := newBearWithTalents(t, naturalInstinctTalents)
 	if !bear.Talents.Lacerate || bear.Talents.NaturalInstinct != 2 {
 		t.Fatalf("talents give Lacerate %v and Natural Instinct %d, want true and 2", bear.Talents.Lacerate, bear.Talents.NaturalInstinct)
 	}
 	const meleeCrit = 2.0
+	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
+	if bonus <= 0 {
+		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
+	}
+	want := 1 + (meleeCrit-1)*(1+bonus)
 	// One landed cast on a fresh sim of the same seed, so a crit and a normal hit roll the same weapon damage.
 	cast := func(critPercent float64) (damage float64, crits int32) {
 		sim, bear := newBearWithTalents(t, naturalInstinctTalents)
@@ -237,15 +242,11 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	if normalCrits != 0 || crits != 1 || normal <= 0 {
 		t.Fatalf("the casts crit %d and %d times for %v and %v, want 0 and 1 and damage", normalCrits, crits, normal, crit)
 	}
-	if got := crit / normal; math.Abs(got-meleeCrit) > 1e-9 {
-		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, meleeCrit)
+	if got := crit / normal; math.Abs(got-want) > 1e-9 {
+		t.Errorf("Lacerate's hit crits ×%v (%v over %v), want ×%v", got, crit, normal, want)
 	}
 
 	target := bear.CurrentTarget
-	bonus := spelldata.Talent(1223242, 2).Rank(bear.Talents.NaturalInstinct).EffectN(1).Percent()
-	if bonus <= 0 {
-		t.Fatalf("Natural Instinct's crit damage bonus %v, want a positive percent", bonus)
-	}
 	tick := func(critPercent float64) float64 {
 		bear.AddStatDynamic(sim, stats.PhysicalCritPercent, critPercent)
 		defer bear.AddStatDynamic(sim, stats.PhysicalCritPercent, -critPercent)
@@ -257,7 +258,7 @@ func TestLacerateHitCritsWithoutNaturalInstinct(t *testing.T) {
 	bear.Lacerate.Dot(target).Apply(sim)
 	bear.Lacerate.Dot(target).SetStacks(sim, 1)
 	normalTick, critTick := tick(-200), tick(200)
-	if want := 1 + (meleeCrit-1)*(1+bonus); normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
+	if normalTick <= 0 || math.Abs(critTick/normalTick-want) > 1e-9 {
 		t.Errorf("a Lacerate tick crits ×%v (%v over %v), want ×%v", critTick/normalTick, critTick, normalTick, want)
 	}
 }
@@ -393,6 +394,141 @@ func TestBearFormsRaiseThreatByTheirPassive(t *testing.T) {
 	}
 }
 
+// A landed Faerie Fire in Dire Bear Form threatens for twice the caster's level, which the form's threat
+// multiplier raises. In Cat Form it threatens for none.
+func TestFaerieFireThreatensInBearFormOnly(t *testing.T) {
+	cast := func(level int32, inCat bool) (threat, multiplier float64) {
+		sim, bear := newBear(t)
+		bear.Level = level
+		if inCat {
+			bear.DireBearFormAura.Deactivate(sim)
+			bear.CatFormAura.Activate(sim)
+			bear.AddEnergy(sim, bear.MaximumEnergy(), bear.NewEnergyMetrics(core.ActionID{SpellID: 1}))
+		}
+		target := bear.CurrentTarget
+		bear.AddStatDynamic(sim, stats.SpellHitPercent, 100)
+		bear.AddMana(sim, bear.MaxMana(), bear.NewManaMetrics(core.ActionID{SpellID: 1}))
+		if !bear.FaerieFire.Cast(sim, target) {
+			t.Fatalf("level %d: faerie fire did not cast", level)
+		}
+		if !bear.FaerieFireAuras.Get(target).IsActive() {
+			t.Fatalf("level %d: faerie fire did not land", level)
+		}
+		multiplier = bear.PseudoStats.ThreatMultiplier * bear.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexNature]
+		return bear.FaerieFire.SpellMetrics[target.UnitIndex].TotalThreat, multiplier
+	}
+	for _, level := range []int32{60, 40} {
+		threat, multiplier := cast(level, false)
+		if want := 2 * float64(level) * multiplier; math.Abs(threat-want) > 1e-9 {
+			t.Errorf("level %d: faerie fire in Dire Bear Form threatens for %g, want %g", level, threat, want)
+		}
+	}
+	if threat, _ := cast(60, true); threat != 0 {
+		t.Errorf("faerie fire in Cat Form threatens for %g, want 0", threat)
+	}
+}
+
+// Lacerate's hit and each tick of its bleed threaten for 10/3 of their damage, which the form's threat
+// multiplier raises.
+func TestLacerateThreatensForTenThirdsOfItsDamage(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("lacerate did not cast")
+	}
+	multiplier := 10.0 / 3 * bear.PseudoStats.ThreatMultiplier * bear.PseudoStats.SchoolThreatMultiplier[stats.SchoolIndexPhysical]
+	hit := bear.GetSpell(core.ActionID{SpellID: lacerateHitID}).SpellMetrics[target.UnitIndex]
+	if hit.TotalDamage <= 0 || math.Abs(hit.TotalThreat-hit.TotalDamage*multiplier) > 1e-6 {
+		t.Errorf("the hit dealt %g and threatened for %g, want %g", hit.TotalDamage, hit.TotalThreat, hit.TotalDamage*multiplier)
+	}
+	metric := &bear.Lacerate.SpellMetrics[target.UnitIndex]
+	damage, threat := metric.TotalDamage, metric.TotalThreat
+	bear.Lacerate.Dot(target).TickOnce(sim)
+	tickDamage, tickThreat := metric.TotalDamage-damage, metric.TotalThreat-threat
+	if tickDamage <= 0 || math.Abs(tickThreat-tickDamage*multiplier) > 1e-6 {
+		t.Errorf("a tick dealt %g and threatened for %g, want %g", tickDamage, tickThreat, tickDamage*multiplier)
+	}
+}
+
+// A Lacerate dose between two ticks keeps the tick grid of the first application and ends the bleed the
+// rank's duration after the dose.
+func TestLacerateDoseKeepsTheTickGrid(t *testing.T) {
+	sim, bear := newBear(t)
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("the first lacerate did not cast")
+	}
+	dot := bear.Lacerate.Dot(target)
+	period := dot.TickPeriod()
+	first := dot.NextTickAt()
+	if first != sim.CurrentTime+period {
+		t.Fatalf("the first tick is due at %v, want one period after the application at %v", first, sim.CurrentTime)
+	}
+	for sim.CurrentTime < first+period/2 && !sim.Step() {
+	}
+	if (sim.CurrentTime-first)%period == 0 {
+		t.Fatalf("the dose at %v falls on a tick", sim.CurrentTime)
+	}
+	next := dot.NextTickAt()
+	bear.AddRage(sim, bear.MaximumRage(), bear.NewRageMetrics(core.ActionID{SpellID: 1}))
+	if !bear.Lacerate.Cast(sim, target) {
+		t.Fatal("the dose did not cast")
+	}
+	if dot.GetStacks() != 2 {
+		t.Fatalf("lacerate holds %d stacks after the dose, want 2", dot.GetStacks())
+	}
+	if got := dot.NextTickAt(); got != next {
+		t.Errorf("the dose at %v moved the next tick from %v to %v", sim.CurrentTime, next, got)
+	}
+	duration := spelldata.MustFind(bear.Lacerate.ActionID.SpellID).Duration()
+	if got, want := dot.ExpiresAt(), sim.CurrentTime+duration; got != want {
+		t.Errorf("the bleed ends at %v, want %v, its duration after the dose", got, want)
+	}
+}
+
+// Blood Frenzy's rage threatens for the rage gained at the rage rate, which the bear form's threat
+// multiplier does not scale.
+func TestBloodFrenzyRageThreatIsUnscaled(t *testing.T) {
+	sim, bear := newBearWithTalents(t, naturalReactionTalents)
+	chance := spelldata.Talent(16958, 2).Rank(bear.Talents.BloodFrenzy).EffectN(1).Percent()
+	if bear.Talents.BloodFrenzy == 0 || chance != 1 || bear.PseudoStats.ThreatMultiplier == 1 {
+		t.Fatalf("Blood Frenzy %d with chance %v and threat multiplier %v, want the talent at a sure chance and a multiplier other than 1",
+			bear.Talents.BloodFrenzy, chance, bear.PseudoStats.ThreatMultiplier)
+	}
+	target := bear.CurrentTarget
+	target.PseudoStats.BaseDodgeChance = 0
+	target.PseudoStats.BaseParryChance = 0
+	bear.AddStatDynamic(sim, stats.PhysicalHitPercent, 100)
+	bear.AddStatDynamic(sim, stats.PhysicalCritPercent, 200)
+	bear.AutoAttacks.CancelAutoSwing(sim)
+	// Rage up to the Swipe's cost only, so the cast leaves the bar empty and the rage gained is not capped.
+	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
+	bear.SpendRage(sim, bear.CurrentRage(), metrics)
+	bear.AddRage(sim, bear.Swipe.Cost.GetCurrentCost(), metrics)
+	gain := bear.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionRageGain})
+	before := gain.SpellMetrics[target.UnitIndex].TotalThreat
+	if !bear.Swipe.Cast(sim, target) {
+		t.Fatal("swipe did not cast")
+	}
+	if m := bear.Swipe.SpellMetrics[target.UnitIndex]; m.Crits != 1 {
+		t.Fatalf("swipe crit %d times, want 1", m.Crits)
+	}
+	until := sim.CurrentTime + 100*time.Millisecond
+	for sim.CurrentTime < until && !sim.Step() {
+	}
+	rage := spelldata.MustFind(16959).EnergizeEffect().Tenths()
+	got := gain.SpellMetrics[target.UnitIndex].TotalThreat - before
+	if want := rage * core.ThreatPerRageGained; rage <= 0 || math.Abs(got-want) > 1e-9 {
+		t.Errorf("Blood Frenzy's %v rage threatened for %v, want %v", rage, got, want)
+	}
+}
+
 // Natural Reaction 5/5, which the Bear preset leaves out.
 const naturalReactionTalents = "0500220000000000-50200322123102125510-0500000000000000"
 
@@ -461,9 +597,9 @@ func TestBearFormsScaleBonusArmorAndThickHideDefense(t *testing.T) {
 	}
 }
 
-// Enrage takes its share of the item armor after the form's multiplier and of the 2 armor per Agility, and
-// gives it back when it ends.
-func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
+// Enrage takes its share of the item armor and bonus armor after the form's multiplier and of the 2 armor per
+// Agility, and gives it back when it ends.
+func TestEnrageReducesItemBonusAndAgilityArmor(t *testing.T) {
 	for _, c := range []struct {
 		form         druid.DruidForm
 		multiplier   float64
@@ -478,20 +614,21 @@ func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
 			bear.ClearForm(sim)
 			itemArmor := bear.EquipStats()[stats.Armor]
+			bonusArmor := bear.EquipStats()[stats.BonusArmor]
 			if c.form == druid.Bear {
 				bear.BearFormAura.Activate(sim)
 			} else {
 				bear.DireBearFormAura.Activate(sim)
 			}
 			agility := math.Floor(bear.GetStat(stats.Agility))
-			if itemArmor == 0 || agility == 0 {
-				t.Fatal("the bear has no item armor or Agility")
+			if itemArmor == 0 || bonusArmor == 0 || agility == 0 {
+				t.Fatal("the bear has no item armor, bonus armor or Agility")
 			}
 			before := bear.GetStat(stats.Armor)
 			if !bear.Enrage.Cast(sim, bear.CurrentTarget) {
 				t.Fatal("Enrage did not cast")
 			}
-			want := c.armorPenalty * (c.multiplier*itemArmor + 2*agility)
+			want := c.armorPenalty * (c.multiplier*(itemArmor+bonusArmor) + 2*agility)
 			if got := before - bear.GetStat(stats.Armor); math.Abs(got-want) > 1e-6 {
 				t.Errorf("Enrage takes %g armor, want %g", got, want)
 			}
@@ -503,9 +640,8 @@ func TestEnrageReducesItemAndAgilityArmor(t *testing.T) {
 	}
 }
 
-// Thick Hide's level part is the level times the rank: a level 30 druid measured 30, 60 and 90 armor from
-// ranks 1 to 3 in Cat Form and 84, 168 and 252 in Bear Form. The game files' per-level formula (178 and 179
-// at level 60) is not what the game does. Dire Bear Form scales it by 360%, 4.6 times in all.
+// Thick Hide's level part is the level times the rank, not the game files' per-level formula (EV-0039).
+// Dire Bear Form scales it by 360%, 4.6 times in all.
 func TestThickHideArmorIsLevelTimesRank(t *testing.T) {
 	armorAt := func(rank int) float64 {
 		talents := "0000000000000000-00000" + string(rune('0'+rank)) + "00000000000000-0000000000000000"
@@ -564,8 +700,8 @@ func TestMaulFallsBackWhenTheQueuedSwingIsUnaffordable(t *testing.T) {
 	}
 }
 
-// Maul procs Omen of Clarity at half the rate of the other specials.
-func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
+// Maul procs Omen of Clarity at the rate of the other specials, the 2 per minute at the 2.5 s paw.
+func TestMaulProcsOmenOfClarityAtTheSpecialRate(t *testing.T) {
 	const hits = 1000
 	procRate := func(spellOf func(bear *GuardianDruid) *core.Spell) float64 {
 		sim, bear := newBear(t)
@@ -588,29 +724,9 @@ func TestMaulProcsOmenOfClarityAtHalfTheSpecialRate(t *testing.T) {
 		return bear.GetSpell(bear.Maul.ActionID.WithTag(1))
 	})
 	claw := procRate(func(bear *GuardianDruid) *core.Spell { return bear.Claw.Spell })
-	if claw < 0.05 || claw > 0.12 || maul < 0.35*claw || maul > 0.65*claw {
-		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want about half the special rate on Maul", maul, claw)
+	if claw == 0 || maul/claw < 0.8 || maul/claw > 1.25 {
+		t.Errorf("Omen of Clarity procs on %.3f of Mauls and %.3f of Claws, want the same rate", maul, claw)
 	}
-}
-
-func TestLacerateApplicationRestartsTheTickClock(t *testing.T) {
-	sim, bear := newBear(t)
-	target := bear.CurrentTarget
-	dot := bear.Lacerate.Dot(target)
-	metrics := bear.NewRageMetrics(core.ActionID{SpellID: 1})
-	for range 30 {
-		before := dot.GetStacks()
-		bear.AddRage(sim, 50, metrics)
-		bear.Lacerate.Cast(sim, target)
-		if before > 0 && dot.GetStacks() > before {
-			if got := dot.NextTickAt(); got != sim.CurrentTime+dot.TickPeriod() {
-				t.Fatalf("next Lacerate tick %s, want %s", got, sim.CurrentTime+dot.TickPeriod())
-			}
-			return
-		}
-		sim.CurrentTime += 1500 * time.Millisecond
-	}
-	t.Fatal("two Lacerates did not land")
 }
 
 func TestSapperPreservesFormsAndResources(t *testing.T) {
@@ -659,7 +775,7 @@ func TestBearChargeMovement(t *testing.T) {
 			player.DistanceFromTarget = distance
 			sim := core.NewSim(req, simsignals.CreateSignals())
 			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
-			for iteration := 0; iteration < 2; iteration++ {
+			for range 2 {
 				sim.Reset()
 				speed := bear.GetMovementSpeed()
 				bear.AddRage(sim, 20, bear.NewRageMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionRefund}))

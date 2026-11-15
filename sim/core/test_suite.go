@@ -201,7 +201,7 @@ func RunTestSuite(t *testing.T, suiteName string, generators []TestGenerator) {
 	Each(generators, func(generator TestGenerator) {
 		stopTest := false
 		numTests := generator.NumTests()
-		for i := 0; i < numTests; i++ {
+		for i := range numTests {
 			if stopTest {
 				break
 			}

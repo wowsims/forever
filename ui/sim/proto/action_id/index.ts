@@ -117,9 +117,6 @@ export class ActionId {
 				const hand = weaponHandName(this.tag);
 				if (hand) {
 					name += ` (${hand})`;
-				} else if (this.tag == 10610) {
-					// Windfury Totem's swings, tagged with 10610, the spell that grants them.
-					name += ` (${i18n.t('common.action_tags.windfury')})`;
 				} else if (this.tag == 99999) {
 					name += ` (${i18n.t('common.action_tags.boss')})`;
 				} else if (this.tag == 99998) {
@@ -584,10 +581,9 @@ export class ActionId {
 				}
 				break;
 			case 'Windfury Totem':
-				// The totem, its raid aura and the attack power its proc grants (10610) share one name.
+				// The totem, its raid aura and the strike its proc lands (10610) share one name.
 				if (this.spellId === 10610) {
-					const attackPower = i18n.t('common.stats.attack_power');
-					name += tag === -1 ? ` (${attackPower} - ${i18n.t('common.action_tags.external')})` : ` (${attackPower})`;
+					name += ` (${i18n.t('common.action_names.attack')})`;
 				} else if (tag === -1) {
 					name += ` (${i18n.t('common.action_tags.external')})`;
 				}

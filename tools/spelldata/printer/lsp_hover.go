@@ -325,8 +325,8 @@ func calledFunctionName(call *ast.CallExpr) string {
 }
 
 func enclosingBody(nodes []ast.Node) *ast.BlockStmt {
-	for i := len(nodes) - 1; i >= 0; i-- {
-		switch fn := nodes[i].(type) {
+	for _, node := range slices.Backward(nodes) {
+		switch fn := node.(type) {
 		case *ast.FuncDecl:
 			return fn.Body
 		case *ast.FuncLit:
@@ -824,6 +824,17 @@ func (w *workspace) hover(text string, line, col int, uri string, picks *rankPic
 		}
 		trace.add("✓ %s", title(s))
 		return idMarkdown(s), trace.lines, true
+	}
+
+	if match := matchCovering(lineText, column, idFilePattern); match != nil {
+		id := lineText[match[2]:match[3]]
+		trace.add("id %s", id)
+		markdown, err := w.idFileMarkdown(id)
+		if err != nil {
+			return trace.fail("%v", err)
+		}
+		trace.add("✓ %s", id)
+		return markdown, trace.lines, true
 	}
 
 	if filepath.Ext(path) != ".go" {

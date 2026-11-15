@@ -15,7 +15,7 @@ import { buildMovementRun, castsGoneOff, castsUnderWay, type MovementRun, positi
 import type { SimResultData } from '../../model/result_data';
 import { paintField, paintStrip, type Palette, readPalette } from './paint';
 
-const t = (key: string, options?: Record<string, unknown>) => i18n.t(`results_tab.details.movement.${key}`, options);
+const t = (key: string, options: Record<string, unknown> = {}) => i18n.t(`results_tab.details.movement.${key}`, options);
 
 const SPEEDS = ['0.5', '1', '2', '4'] as const;
 type Speed = (typeof SPEEDS)[number];

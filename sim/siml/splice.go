@@ -421,9 +421,9 @@ func (e *lineEdits) changes(from, to int, lines []string) []lineChange {
 	}
 	width := len(lines) + 1
 	common := make([]int32, (len(old)+1)*width) // The longest common run of old[i:] and lines[j:], at i*width+j.
-	for i := len(old) - 1; i >= 0; i-- {
-		for j := len(lines) - 1; j >= 0; j-- {
-			if old[i] == lines[j] {
+	for i, o := range slices.Backward(old) {
+		for j, line := range slices.Backward(lines) {
+			if o == line {
 				common[i*width+j] = common[(i+1)*width+j+1] + 1
 			} else {
 				common[i*width+j] = max(common[(i+1)*width+j], common[i*width+j+1])

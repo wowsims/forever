@@ -70,27 +70,6 @@ func init() {
 		})
 	})
 
-	// Mark of the Champion (physical): +150 AP vs Undead and Demons.
-	core.NewItemEffect(23206, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Physical)",
-			ActionID: core.ActionID{ItemID: 23206},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.AttackPower: 150, stats.RangedAttackPower: 150},
-			proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23206, aura)
-	})
-
-	// Mark of the Champion (spell): +85 spell damage vs Undead and Demons.
-	core.NewItemEffect(23207, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		aura := core.MakePermanent(character.RegisterAura(core.Aura{
-			Label:    "Mark of the Champion (Spell)",
-			ActionID: core.ActionID{ItemID: 23207},
-		})).AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: 85}, proto.MobType_MobTypeUndead, proto.MobType_MobTypeDemon)
-		character.ItemSwap.RegisterProc(23207, aura)
-	})
-
 	// Lifegiving Gem: Gift of Life 23725 raises maximum health by 15% for 20 s (23782) and heals for as
 	// much (23783). Both are scripted: the dummy states neither, and 23782 states 0 for its
 	// A_MOD_INCREASE_HEALTH and is not in the spell store, so the 15% is the tooltip's and the 20 s is
@@ -276,32 +255,103 @@ func init() {
 	//
 	// Chance on hit to deal 69 to 81 Arcane damage. Deals 2 times as much damage to Naga and Satyrs.
 	//
-	// TODO: waiting for PPM data
-	//
 	// The 2 times is the trigger 1318159's own value; 1265634 states only the damage.
-	// core.NewItemEffect(260205, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1265634)
-	// 	triggerRow := spelldata.MustFind(1318159)
-	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := triggerRow.Effects[0].BaseValue()
+	core.NewItemEffect(260205, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1265634)
+		triggerRow := spelldata.MustFind(1318159)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 260205, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+		}
+		ancientPower := character.RegisterSpell(config)
+
+		// The row's harmful-spell bit makes spell hits roll its procs per minute too, on the main hand's
+		// speed. The chance on a spell hit is unmeasured in game.
+		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			ancientPower.Cast(sim, result.Target)
+		}, func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
+		})
+		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
+		// only a hit that dealt damage rolls (EV-0021).
+		trigger.RequireDamageDealt = true
+		trigger.Name = "Highborne Research Tablet"
+		trigger.ActionID = core.ActionID{ItemID: 260205}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
+	})
+
+	// Blackhand's Breadth
+	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
 	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-	// 			proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
-	// 	}
-	// 	ancientPower := character.RegisterSpell(config)
+	// Use: Marks your target, increasing your Critical Strike chance against them by 5% for 20 sec. This
+	// effect is doubled against Orcs and Ogres.
 	//
-	// 	trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		ancientPower.Cast(sim, result.Target)
-	// 	}, spelldata.Chance(highborneResearchTabletChance))
-	// 	trigger.Name = "Highborne Research Tablet"
-	// 	trigger.ActionID = core.ActionID{ItemID: 260205}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
-	// })
+	// 1318944's A_MOD_CRIT_CHANCE_FOR_CASTER raises the crit chance of the wearer's attacks and spells
+	// against the marked target, and no one else's. The doubling is the tooltip's alone: the equip dummy
+	// 1318945 states no amount.
+	core.NewItemEffect(13965, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1318944)
+		crit := row.EffectN(1).BaseValue()
+
+		marks := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+			var bonus float64
+			return target.RegisterAura(core.Aura{
+				Label:    fmt.Sprintf("%s %s", row.Name, character.Label),
+				ActionID: core.ActionID{SpellID: row.ID},
+				Duration: row.Duration(),
+				OnGain: func(aura *core.Aura, _ *core.Simulation) {
+					bonus = crit * creatureFamilyMultiplier(aura.Unit, 2, proto.CreatureFamily_CreatureFamilyOrc, proto.CreatureFamily_CreatureFamilyOgre)
+					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent += bonus
+				},
+				OnExpire: func(aura *core.Aura, _ *core.Simulation) {
+					character.AttackTables[aura.Unit.UnitIndex].BonusCritPercent -= bonus
+				},
+			})
+		})
+
+		registerItemOnUse(character, 13965, core.CooldownTypeDPS, nil, func(sim *core.Simulation, target *core.Unit, _ *core.Spell) {
+			marks.Get(target).Activate(sim)
+		})
+	})
+
+	// Bolt's Charged Eyeball
+	// https://www.wowhead.com/forever/item=280032/bolts-charged-eyeball
+	//
+	// Equip: Dealing damage has a chance to deal 60 Nature damage to you or your current target. Deals 3
+	// times as much damage to Dinosaurs.
+	//
+	// 1311505's first effect casts 1315996, and its second holds the 3.
+	// TODO: The game files state no split between the wearer and the target. The sim gives the wearer one
+	// shock in two, and a shock on the wearer deals nothing the sim counts; a combat log would settle it.
+	core.NewItemEffect(280032, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1315996)
+		triggerRow := spelldata.MustFind(1311505)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.VersusBonus = shared.ItemVersusBonus(character, 280032, proto.VersusEffectKind_VersusEffectKindDamage, triggerRow)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
+		}
+		shock := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			if sim.Proc(0.5, "Bolt's Charged Eyeball") {
+				shock.Cast(sim, result.Target)
+			}
+		})
+		trigger.Name = "Bolt's Charged Eyeball"
+		trigger.ActionID = core.ActionID{ItemID: 280032}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(280032, character.MakeProcTriggerAura(trigger))
+	})
 
 	// Dormant Heart of the Mountain
 	// https://www.wowhead.com/forever/item=249473/dormant-heart-of-the-mountain
@@ -329,10 +379,94 @@ func init() {
 		character.AddStatProcBuff(249473, &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}, false,
 			character.ItemSwap.EligibleSlotsForItem(249473))
 	})
+
+	// Vigilance Charm
+	// https://www.wowhead.com/forever/item=18370/vigilance-charm
+	//
+	// Use: Increases your chance to Dodge by 20% for 20s or until you Dodge 3 attacks.
+	//
+	// Vigilant 1302264 goes up with its 3 charges, and each attack the wearer dodges spends one. Its
+	// ProcTypeMask names the melee and ranged attacks taken and no outcome; the dodge is the tooltip's.
+	core.NewItemEffect(18370, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		row := spelldata.MustFind(1302264)
+		buff := character.RegisterAura(spelldata.AuraConfig(row))
+		parsed := spelldata.ParseEffects(character, buff, row)
+		spelldata.AttachChargeSpender(character, buff, row, buff.Label+" Charge", func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Outcome = core.OutcomeDodge
+			trigger.RequireDamageDealt = false
+		})
+
+		statBuff := &core.StatBuffAura{Aura: buff, BuffedStatTypes: parsed.Stats()}
+		registerItemOnUse(character, 18370, statBuff.InferCDType(), statBuff, func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+			buff.Activate(sim)
+			buff.SetStacks(sim, buff.MaxStacks)
+		})
+	})
+
+	// Hand of Justice
+	// https://www.wowhead.com/forever/item=11815/hand-of-justice
+	//
+	// 1% chance on Melee hit to gain 1 extra attack. Attacks against Dwarves are 3 times as likely to
+	// activate this effect.
+	//
+	// The tooltip states the chance as ${$h/3}%. 15600's ProcChance is the chance against a Dwarf and its
+	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
+	// the wearer's race (EV-0007).
+	core.NewItemEffect(11815, func(agent core.Agent) {
+		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+	})
+
+	// Mark of the Chosen
+	// https://www.wowhead.com/forever/item=17774/mark-of-the-chosen
+	//
+	// Has a 2% chance when struck in combat of increasing all stats by 21 for 1min.
+	//
+	// 21969's ProcTypeMask also names helpful spells taken, but every measured proc followed a
+	// hit taken, so it hears the melee, ranged and harmful spell hits taken alone (EV-0036).
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
+		[]shared.ItemVariant{
+			{ItemID: 17774, ItemName: "Mark of the Chosen"},
+		})
+
+	// Draconic Infused Emblem
+	// https://www.wowhead.com/forever/item=22268/draconic-infused-emblem
+	//
+	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10 sec.
+	// This spell damage increase is doubled against Dragonkin.
+	//
+	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
+	// by hand: 1318931 rolls once for each enemy a harmful spell lands on, an area spell once per
+	// target and each Arcane Missiles missile on its own. A spell that applies a damage over time
+	// effect or a debuff rolls too, apart from Curse of the Elements, Recklessness and Weakness and Hex
+	// of Weakness, which the sim registers with no proc mask. Damage over time ticks never roll, and
+	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
+	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
+		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnSpellHitDealt
+			trigger.Outcome = core.OutcomeLanded
+			trigger.RequireDamageDealt = false
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return !firedAsAProc(spell)
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
+		})
 }
 
-// TODO: The game files state no rate for these procs, and none is measured on Forever.
-// const highborneResearchTabletChance = 0 // TODO: waiting for PPM data
+// Whether the spell is one the sim fires as a proc (spelldata.Proc marks it passive) and whose row
+// lacks "not a proc", the spells a trigger without "can proc from procs" never hears in game:
+// Hellfire Effect, Rain of Fire's waves and Blizzard's ticks among them. The class code
+// leaves SpellFlagProc off them, so the item listener asks the row itself.
+func firedAsAProc(spell *core.Spell) bool {
+	if !spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+		return false
+	}
+	row := spelldata.Find(spell.ActionID.SpellID)
+	return row != nil && row.IsAProc()
+}
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.
 var eternalPowerHeals = []spelldata.Ladder{

@@ -5,62 +5,72 @@
       "source": "blader/humanizer",
       "sourceType": "github",
       "skillPath": "SKILL.md",
-      "computedHash": "1e67c3a4a675bd0c961b1fd8ebb718174f9a61a547d9bedad2ade5eb99cce831"
+      "computedHash": "99d9195cec720ebe9ae29956e710d7e278991bdd54366503cf1ff7b03f8de45c"
     },
     "wowsims-abilities-auras": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0273eeaa2836cde419b44e1bae9ba905f66665eb53e18ea56c773c3afe2ecd55"
+      "computedHash": "dc1362876b4acc78af1a13680a235316f63408ce39a3555bb661bd30acdc8877"
     },
     "wowsims-apl": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "bf1c3657827d580ec9348673681c22fd822c50f26615cef84122579bfe0ec870"
+      "computedHash": "51423518324a3d29bcc25a7eadfa76771a189d3d880434fcc83ccc02f5f222f6"
     },
     "wowsims-bulk-sim": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "c2314aa2d9764fb414373163a8c8ee22872dfd67f5ad172208272330cb320da8"
+      "computedHash": "ed5640ccc79ad922fa21010fcdc4c183df1b67e81574f863e12a4c943124b12e"
     },
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "223fb6b06ade3720eddf219627cf7916e4c408049772e7527a234d974babdeb4"
+      "computedHash": "9f39dcb72ce89071644b7b650fd59e99d47a6a997d8f6fdc4fda20f5d43a50ad"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "8cf2feb9ed12d50e1494333a4ecd0dbd9179b166b16822a0684adafa162992fa"
+      "computedHash": "863ceb86145756968433962cda75ddc6055370754b175752f5db6d83a6736ab3"
     },
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "bdea2566d352cb4c4aa60caea568dfadb5a3963ebd632761a1d3ad68c3039905"
+      "computedHash": "17d125a0ce5603d197736a874b61c90db5cc2bd3de6c442bd22ddaea43c7942b"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "d059af80a933b8c72ae0d704068c7882c14dcf1e387012d54e107c32b517bccb"
+      "computedHash": "b5aae719121077ca954e92c50bc5289ea7fddef2f99c9401c69d794888b4fea6"
+    },
+    "wowsims-dependencies": {
+      "source": "./.github/skills",
+      "sourceType": "local",
+      "computedHash": "906185c86278190c9765dc6e2048ee7f352db315bd50c0f120a8cc47bfdc4ced"
+    },
+    "wowsims-evidence": {
+      "source": "./.github/skills",
+      "sourceType": "local",
+      "computedHash": "d5b15f097ecfec5e1b8391cdb0614439feead14af6dc34944862ce8004dc27fc"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "50f39e2065b12e4c3566993145c794de87f2ea958c058c0b55ba030bd43dc2c0"
+      "computedHash": "9ec862c1a7f9b636d5dd0a2121bc5ce84244669df7f497e3f3d142cd3e8e7f27"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "e042312f725abff45f31e04ba7ac1aa8d7c3a9a560b107c355e464b63608b815"
+      "computedHash": "1461dde1673ef21dde99737b0a2cb69cd26c2e053e84d95183ff706cc031ea06"
     },
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "6b11433e6fe71f70cbbe4cbd8105759fae9808914fd1f0c66d11d8f07691050d"
+      "computedHash": "1b6818c1c9cf7ba9802d1f414da66594405e701cf96d72b37b229863433dbd9a"
     },
     "wowsims-siml": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "0a4322a507acec70080a42896b8c82f0599adc18c5de1aa1e5d9c64b52971a72"
+      "computedHash": "47acbb75acb0854cc485155ba26d3456fabcec87ef013ef7ce4c9ec8c5d4dffd"
     },
     "wowsims-spec-implementation": {
       "source": "./.github/skills",
@@ -85,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "3d8156d344dc8b6fbbb2c90ee29d920c0cabb00b3e17e0fb74e02bcdb086f518"
+      "computedHash": "13d151bbfc9b2afdae0d08fa7ef1a14b6f4447011fda7f8a2d1289ddd4a081c1"
     }
   }
 }

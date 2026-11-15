@@ -64,9 +64,7 @@ func (druid *Druid) applyThickHide() {
 	// Effect 2 prices armor as the level times its base points: 60, 120 or 180 at level 60. Effect 1 /
 	// 100 is base armor per point of defense skill beyond five times the level, which is the defense the
 	// gear and buffs add (one rating is one skill point). Both are base armor, which the bear forms scale.
-	// A level 30 character measured 30, 60 and 90 armor from ranks 1 to 3 in Cat Form and 84, 168 and 252 in Bear
-	// Form, so ranks 1 and 2 follow the level times the base points, not the game files' per-level formula
-	// (178 and 179 at level 60).
+	// Ranks 1 and 2 follow the level times the base points, not the game files' per-level formula (EV-0039).
 	bonus := float64(druid.level()) * row.EffectN(2).BaseValue()
 	perDefense := row.EffectN(1).BaseValue() / 100 / core.DefenseRatingPerDefenseLevel
 	for _, form := range []struct {
@@ -130,6 +128,8 @@ func (druid *Druid) applyBloodFrenzy() {
 	comboChance := row.EffectN(2).Percent() // $m2, the combo point in Cat Form
 	rageSpell := spellData.BloodFrenzyTriggered.Highest()
 	metrics := druid.NewRageMetrics(core.ActionID{SpellID: rageSpell.ID})
+	// In game its rage threatens without the form's threat multiplier (EV-0035).
+	metrics.UnscaledThreat = true
 	combo := druid.NewComboPointMetrics(core.ActionID{SpellID: row.ID})
 	druid.MakeProcTriggerAura(spelldata.ProcTrigger(&druid.Character, row, func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 		if !result.Outcome.Matches(core.OutcomeCrit) {
@@ -141,10 +141,10 @@ func (druid *Druid) applyBloodFrenzy() {
 			}
 			return
 		}
-		// TODO: Ingame research needed -- the triggered spell restores rage in bear form. The cat's
-		// extra combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
+		// Blood Frenzy 2/2 in Bear Form restores 5 rage on every non-periodic crit, once per Swipe target.
+		// The cat's extra combo point on a non-periodic builder crit is the tooltip, not an effect on the row.
 		if druid.InForm(Cat) && druid.isComboBuilder(spell) && sim.Proc(comboChance, "Blood Frenzy Combo Point") {
-			druid.AddComboPoints(sim, 1, combo)
+			druid.AddComboPoints(sim, result.Target, 1, combo)
 		}
 	}, spelldata.Chance(1)))
 }

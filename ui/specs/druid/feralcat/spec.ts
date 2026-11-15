@@ -5,6 +5,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import { ItemSlot, ItemSpec, ItemSwap, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
@@ -19,6 +20,9 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
 	warnings: [],
+	displayWeaponSkillGroups: [WeaponSkillGroup.FeralCombat],
+
+	epRatios: [Presets.DefaultEp.getStat(Stat.StatStrength), 0, 0, 0, 0, 0],
 
 	// Extra stats shown in consumables picker (beyond epStats).
 	consumableStats: [Stat.StatHasteRating, Stat.StatMana, Stat.StatSpirit, Stat.StatMP5, Stat.StatIntellect, Stat.StatStamina, Stat.StatArmor],
@@ -28,7 +32,6 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		Stat.StatStrength,
 		Stat.StatAgility,
 		Stat.StatAttackPower,
-		Stat.StatFeralAttackPower,
 		Stat.StatPhysicalDamage,
 		Stat.StatHitRating,
 		Stat.StatExpertiseRating,
@@ -36,9 +39,8 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		Stat.StatHasteRating,
 		Stat.StatArmorPenetration,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatMainHandDps],
-	// Reference stat against which to calculate EP. I think all classes use either spell power or attack power.
-	epReferenceStat: Stat.StatAgility,
+	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatFeralCombatSkill],
+	epReferenceStat: Stat.StatStrength,
 	// Which stats to display in the Character Stats section, at the bottom of the left-hand sidebar.
 	displayStats: UnitStat.createDisplayStatArray(
 		[
@@ -78,10 +80,6 @@ export default defineSpec<Spec.SpecFeralCatDruid>({
 		rotationType: APLRotationType.TypeAPL,
 		aplRotation: Presets.JVMES_APL.rotation.rotation!,
 		encounter: Presets.DefaultEncounter,
-		// Genesis, nature's majesty, nature's reach, ferocity, furor, feral swiftness, shredding attacks,
-		// savage fury, feral charge, sharpened claws, predatory strikes, predatory discipline, blood frenzy, leader of
-		// the pack, natural instinct, rend and tear, shifting power, heart of the wild, naturalist.
-		// Shifting Power is absent until that talent is taken.
 		talents: Presets.CatTalents.data,
 		// Default spec-specific settings.
 		specOptions: Presets.DefaultOptions,

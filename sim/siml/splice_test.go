@@ -138,7 +138,7 @@ func TestSplice(t *testing.T) {
 	check := func(t *testing.T, got, want []lineEdit) {
 		t.Helper()
 		if !slices.Equal(got, want) {
-			t.Errorf("got %q\nwant %q", got, want)
+			t.Errorf("got %+v\nwant %+v", got, want)
 		}
 	}
 

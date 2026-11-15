@@ -63,7 +63,8 @@
 			"2": "Phase 2",
 			"3": "Phase 3",
 			"4": "Phase 4",
-			"5": "Phase 5"
+			"5": "Phase 5",
+			"unknown": "Unknown"
 		},
 		"phase_names": {
 			"1": "Phase 1",
@@ -104,7 +105,18 @@
 			"earth_elemental": "Earth Elemental",
 			"fire_elemental": "Fire Elemental",
 			"mountain_giant": "Mountain Giant",
-			"swine": "Swine"
+			"swine": "Swine",
+			"plant": "Plant",
+			"troll": "Troll",
+			"orc": "Orc",
+			"ogre": "Ogre",
+			"wolf": "Wolf",
+			"worgen": "Worgen",
+			"murloc": "Murloc",
+			"furbolg": "Furbolg",
+			"dwarf": "Dwarf",
+			"dinosaur": "Dinosaur",
+			"serpentine": "Serpentine"
 		},
 		"area_types": {
 			"unknown": "None",
@@ -183,7 +195,8 @@
 			"crossbows": "Crossbows",
 			"guns": "Guns",
 			"thrown": "Thrown",
-			"wands": "Wands"
+			"wands": "Wands",
+			"feral_combat": "Feral Combat"
 		},
 		"spell_schools": {
 			"physical": "Physical",
@@ -240,6 +253,7 @@
 			"mana": "Mana",
 			"mp5": "MP5",
 			"main_hand_dps": "Main Hand DPS",
+			"feral_combat_skill": "Feral Combat Skill",
 			"off_hand_dps": "Off Hand DPS",
 			"ranged_dps": "Ranged DPS",
 			"block": "Block",
@@ -271,6 +285,8 @@
 			"ranged_hit_rating": "Ranged Hit",
 			"ranged_crit_rating": "Ranged Crit",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
+			"main_hand_weapon_skill": "Main Hand Weapon Skill",
+			"off_hand_weapon_skill": "Off Hand Weapon Skill",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
 			"arcane_damage": "Arcane Spell Damage",
@@ -395,7 +411,6 @@
 			"not_casting": "Not Casting",
 			"main_hand": "Main Hand",
 			"off_hand": "Off Hand",
-			"windfury": "Windfury",
 			"boss": "Boss",
 			"add": "Add",
 			"no_stacks": "No Stacks",
@@ -535,8 +550,19 @@
 				"min_ilvl": "Min Item Level",
 				"max_ilvl": "Max Item Level",
 				"faction_restrictions": "Faction Restrictions",
+				"newly_discovered": "Newly discovered only",
 				"source": "Source",
 				"raids": "Raids",
+				"bonus": {
+					"title": "Bonus",
+					"area": "In area",
+					"mob_type": "Against mob type",
+					"creature": "Against creature",
+					"any": "Any",
+					"empty": "No match",
+					"remove": "Remove",
+					"open": "Show all"
+				},
 				"faction_labels": {
 					"none": "Any",
 					"alliance_only": "Alliance only",
@@ -560,6 +586,7 @@
 			},
 			"ep_tooltip": "EP (Equivalence Points) is way of comparing items by multiplying the raw stats of an item with your current stat weights. More EP does not necessarily mean more DPS, as EP doesn't take into account stat caps and non-linear stat calculations.",
 			"filters_button": "Filters",
+			"filters_button_active": "Filters ({{active}})",
 			"unequip_item": "Unequip Item",
 			"table_headers": {
 				"ilvl": "ILvl",
@@ -1244,7 +1271,9 @@
 				"edit": "Edit {{bundle}}",
 				"delete": "Delete {{bundle}}",
 				"delete_confirm": "Delete {{bundle}}?",
-				"duplicate": "Same as {{bundle}}"
+				"duplicate": "Same as {{bundle}}",
+				"name": "Name",
+				"name_taken": "Name already used"
 			},
 			"parts": {
 				"encounter": "Encounter",
@@ -1923,7 +1952,7 @@
 				},
 				"current_combo_points": {
 					"label": "Current Combo Points",
-					"tooltip": "Amount of currently available Combo Points."
+					"tooltip": "Amount of Combo Points on the target, the current target unless another is chosen. A target that does not hold them reads 0."
 				},
 				"max_combo_points": {
 					"label": "Max Combo Points",
@@ -2151,7 +2180,7 @@
 				},
 				"druid_bleed_is_active": {
 					"label": "Bleed Is Active",
-					"tooltip": "<b>True</b> if one of your bleeds is on the target, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
+					"tooltip": "<b>True</b> if a bleed is on the target, yours or another player's, or if <b>Assume Bleed Always Active</b> is enabled, otherwise <b>False</b>."
 				},
 				"druid_excess_energy": {
 					"label": "Excess Energy",
@@ -2928,7 +2957,8 @@
 			},
 			"custom_metrics": {
 				"group": "Spec metrics",
-				"divine_aegis": "Divine Aegis shield"
+				"divine_aegis": "Divine Aegis shield",
+				"wrack": "From Wrack"
 			},
 			"unit": "Unit",
 			"damage_result": {
@@ -3618,6 +3648,15 @@
 			},
 			"melee_crit_cap": "Melee Crit Cap",
 			"weapon_skill": "Weapon Skill",
+			"versus": {
+				"title": "Bonus",
+				"in_area": "In {{area}}",
+				"against": "Against {{target}}",
+				"damage": "Damage",
+				"crit_damage": "Critical Strike Damage",
+				"effect_damage": "×{{factor}} damage",
+				"effect_restore": "×{{factor}} restored"
+			},
 			"tooltip": {
 				"base": "Base:",
 				"gear": "Gear:",

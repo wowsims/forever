@@ -174,8 +174,8 @@ func createOrUpdateProtoFile(filePath string, data ClassData) error {
 func updateGeneratedProtoSection(fileContent, newContent string) (string, error) {
 	const beginMarker = "// BEGIN GENERATED"
 	const endMarker = "// END GENERATED"
-	beginIdx := strings.Index(fileContent, beginMarker)
-	if beginIdx == -1 {
+	before, _, ok := strings.Cut(fileContent, beginMarker)
+	if !ok {
 		return "", fmt.Errorf("begin marker %q not found in the file", beginMarker)
 	}
 	endIdx := strings.LastIndex(fileContent, endMarker)
@@ -184,7 +184,7 @@ func updateGeneratedProtoSection(fileContent, newContent string) (string, error)
 	}
 	endIdx += len(endMarker)
 	newBlock := fmt.Sprintf("%s\n%s\n%s", beginMarker, newContent, endMarker)
-	updatedContent := fileContent[:beginIdx] + newBlock + fileContent[endIdx:]
+	updatedContent := before + newBlock + fileContent[endIdx:]
 	return updatedContent, nil
 }
 
@@ -492,7 +492,7 @@ func GenerateProtos(dbcData *dbc.DBC, db *WowDatabase, only SpellDataGroups) {
 func toSnakeCase(s string) string {
 	var words []string
 	// Split by whitespace.
-	for _, w := range strings.Fields(s) {
+	for w := range strings.FieldsSeq(s) {
 		var b strings.Builder
 		for _, r := range w {
 			switch {

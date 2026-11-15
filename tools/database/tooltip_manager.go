@@ -3,6 +3,7 @@ package database
 import (
 	"fmt"
 	"log"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -66,9 +67,7 @@ func (tm *TooltipManager) Fetch(minId, maxId int32, otherIds []string) {
 	idsToFetch = append(idsToFetch, otherIds...)
 	newTooltips := tm.FetchFromWeb(idsToFetch)
 
-	for k, v := range newTooltips {
-		strDB[k] = v
-	}
+	maps.Copy(strDB, newTooltips)
 
 	tools.WriteMapSortByIntKey(tm.FilePath, strDB)
 }
