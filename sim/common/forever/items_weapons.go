@@ -345,7 +345,7 @@ func init() {
 	//
 	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
 	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
-	// TODO: Measure the rate in game, against Orcs and against other targets.
+	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 	})

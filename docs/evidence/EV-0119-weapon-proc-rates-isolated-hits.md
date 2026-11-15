@@ -4,6 +4,7 @@
   Stoneslayer 2 and White Obsidian Wand 3.75 (on wand shots); Ravager 1, The Black Knight 0.65 and Heartseeking
   Crossbow 3 hold. A melee-type hit cast directly or flagged Not a Proc rolls an on-hit weapon proc, Windfury Totem
   strikes included; a ranged-type hit never does, and a Judgement of Command rolls it twice.
+  Ironfoe's chance is 3% against other targets and 6% against Orcs.
 - Sources: 709 public reports on forever.warcraftlogs.com (zone 3000 listing, 2026-11-14 17:49 to 2026-11-15 07:00
   UTC) that list one of the procs; the codes behind each rate are listed under its table.
 - Game build: 1.60.1.70938. The hotfix pushes inside the window (2026-11-14 19:52 to 2026-11-15 06:22 UTC) add 29
@@ -147,3 +148,19 @@ Reports (5; every fight the item was worn): XtFzCQ93xfPk1BqD, daT4FcQgCYw2WBq6, 
 | Warrior | white | 270 / 3474            | 7.8%   | 1.37 [1.22, 1.54] | 7       |
 
 Reports (76; every fight the item was worn): 17RQWNTLJAgGBhrx, 1PcrGTyatDAFx8Yk, 49dLXZ3g7NhzqABb, 6H1QkhV2qANXvKFc, 7AmNxqPcC8LdZWtD, 7dWytj1K24G6ckJ9, 8ndg4zGq9mfVWvQk, 9rPwVnazMdWYxj8X, BLXHnFRfrhPGYa76, BcDaTm9KbgyXZJLC, C64x3BnYWMQZkA8T, CRgvLNQYd8y3c2m6, FXaN14xP7VhbDpQM, Fx94JmkLncTXBPQy, G7KxnMVrJw19gv2q, GTJw7YXampLrWcgM, GjmZfc8aLPFQVXKN, GyZmK2b8c9LMtDdw, L7VBmjgyHRCzqYa2, LQvTgHXDf3Vq1zYA, LyjHDc4nCYmBMRNX, PCW1JNXVx2B8nDyh, PDT2yACNzd4LMZ98, QHjqK4G3pzgRWaN6, QajbfyAcJdRCkP92, QxRZFwrkKgJPdB82, RmTM8XL4aBJY12Ak, RtZaGw26kvVcAjK8, TFYgK8vGyQc1MzrL, TkfYVFdKBth9C3mR, VThFn29CGbX713cy, WbfQZpaPAkL8tzdv, XvjpYan3qxF9WRgz, XyPY7tNcdb1fFDCZ, YAVgyZp9FNMKCh4D, YBDwzFPf9WH7pgv8, YHXAcJxWG89pMFgf, YXgt6fkMdBTKDrAn, Z4w7HKFPvcrTWd3M, ZH7zNkqT9j3G1Qm4, Za21hDrqWXn6Rz3M, avm98fMJj3Zc7hP1, b2YKZcFzWPtkxfpg, bcLyFrwNCaH4f9DZ, c6DWA1CV2tdmRFqL, cHMQhVq76BR9YFNm, cdFkXVKH1xm2JhpW, cmnDzYT96jLbRyPV, d6TMB1P784WZHVhF, dJa2G7PHZg9wt6QX, dYzgZkCNJFQAXtBP, fLyrVbpZAWxzQFYk, fgw1ckK8HTAvQ3pq, garVmPTCWnAh2HfG, grjxzfTdLQKbnBwZ, hRZr7VPfazMjxJym, hatJzXGTk7qjmLPf, hf1pF42aPHMv9kLX, j2FY7nBLCcakV9TK, j39RX7DxTqgzWHmB, k26rdYnGDNZ3b81P, m3Fjgrt124A7advV, mpRWCjLgVDxZb9Tr, nfLmGxNDqJpyXB6k, ngAGhLYavywCM2F3, ntaAc893bkmBd1Cg, nvXGCNxKYDHrPgjc, pb7dQrAw8CGWjMk4, qKzDTJjwvXM264Q7, qP2MRFvJ16NBZGgm, qyVW9rhmwbnpfc4x, tpWza62JNFrTm9hH, v6hC8nkRyQjbgJHX, yYnGv1tHqWDV8bMA, zH3TmcCQRb4Pa8tk, zvkWdnQb3t7yCmKZ
+
+## Ironfoe
+
+Ironfoe's extra attacks log as 15494 (Fury of Forgewright), one `extraattacks` event of 2 per proc. Two
+protection warriors wore it in the main hand with a shield and no Hand of Justice, in Blackrock Spire, Dire Maul and
+Blackmaw Hold (BDFj9VNrfXhxwQT3, bzwY28XH6Vfc4Zpg; every fight). Hits are white swings, cast melee abilities and
+Windfury Totem strikes; Shield Slam, Shield Bash, Thunder Clap and the swings within 600 ms after a proc are left out.
+Hits within 50 ms of each other form a group; a group of k hits on targets of one race has a 1 - (1 - p)^k chance to
+proc, and p is fitted per race by maximum likelihood (95% interval from the likelihood ratio). Targets are Orcs by
+name: Scarshield, Blackhand, Firebrand and Bloodaxe (not their worgs), Quartermaster Zigris, Overlord Wyrmthalak and
+Warchief Rend Blackhand. Groups that mix races (25 of 157 procs) are left out.
+
+| Targets  | Hits  | Procs | Chance [95%]       | Log-likelihood below the best fit at 3% / 6% |
+| -------- | ----- | ----- | ------------------ | -------------------------------------------- |
+| Not Orcs | 1,846 | 61    | 3.34% [2.58, 4.22] | 0.34 / 13.57                                 |
+| Orcs     | 1,385 | 71    | 5.22% [4.12, 6.48] | 9.46 / 0.77                                  |
