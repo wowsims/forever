@@ -1957,12 +1957,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22060, // Beastmaster's Tunic
-		[
-			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
-		]
-	],
-	[
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559
@@ -2080,6 +2074,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		221315, // Traveler's Symbols
 		[
 			"Place a Traveler's Sign that lasts for 1 min. A message can be written on the sign, causing it to last for 1 hour and making it visible to other players.", // 1306267 - https://www.wowhead.com/forever/spell=1306267
+		]
+	],
+	[
+		226886, // Beastmaster's Tunic
+		[
+			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
 		]
 	],
 	[
@@ -2550,12 +2550,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		274952, // Jom-jom's Gabbar
 		[
 			"Launch a boulder, dealing 98 Physical damage.", // 1295736 - https://www.wowhead.com/forever/spell=1295736
-		]
-	],
-	[
-		274963, // Rot-Covered Harpoon
-		[
-			"Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.", // 1295744 - https://www.wowhead.com/forever/spell=1295744
 		]
 	],
 	[

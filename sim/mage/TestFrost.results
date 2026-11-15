@@ -187,6 +187,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 763.16206
+  tps: 704.35118
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 761.93743
@@ -995,8 +1002,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 758.47488
-  tps: 701.23041
+  dps: 768.56791
+  tps: 710.53495
  }
 }
 dps_results: {

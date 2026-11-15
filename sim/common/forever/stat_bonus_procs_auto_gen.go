@@ -45,7 +45,7 @@ func RegisterAllProcs() {
 	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
 	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
 	//	[]shared.ItemVariant{
-	//	{ItemID: 22060, ItemName: "Beastmaster's Tunic"},
+	//	{ItemID: 226886, ItemName: "Beastmaster's Tunic"},
 	// })
 
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
@@ -54,6 +54,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1325228},
 		[]shared.ItemVariant{
 			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
+	// Deals 7 Fire damage to anyone who strikes you with a melee attack.
+	// https://www.wowhead.com/forever/spell=21142
+	// equip: 21142 (A_DAMAGE_SHIELD)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 21142},
+		[]shared.ItemVariant{
+			{ItemID: 3475, ItemName: "Cloak of Flames"},
 		})
 
 	// When struck in combat inflicts 3 Arcane damage to the attacker.
@@ -145,14 +153,6 @@ func RegisterAllProcs() {
 			{ItemID: 20517, ItemName: "Razorsteel Shoulders"},
 		})
 
-	// Increases your pet's maximum health by 3%.
-	// https://www.wowhead.com/forever/spell=27038
-	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
-		[]shared.ItemVariant{
-			{ItemID: 22013, ItemName: "Beastmaster's Cap"},
-		})
-
 	// Spell Damage received is reduced by 10.
 	// https://www.wowhead.com/forever/spell=27518
 	// equip: 27518 (A_MOD_DAMAGE_TAKEN)
@@ -175,6 +175,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
 		[]shared.ItemVariant{
 			{ItemID: 226883, ItemName: "Beastmaster's Gauntlets"},
+		})
+
+	// Increases your pet's maximum health by 3%.
+	// https://www.wowhead.com/forever/spell=27038
+	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+		[]shared.ItemVariant{
+			{ItemID: 226887, ItemName: "Beastmaster's Cap"},
 		})
 
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
@@ -3629,19 +3637,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.
-	// https://www.wowhead.com/forever/spell=1295744
-	// unsupported: states no rate
-	// trigger 1295744 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295744, BuffSpellID: 1295744, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 274963, ItemName: "Rot-Covered Harpoon"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blunderflame the target for 56 Fire damage.
 	// https://www.wowhead.com/forever/spell=1296730
 	// unsupported: states no rate
@@ -4700,6 +4695,14 @@ func RegisterAllProcs() {
 			{ItemID: 274608, ItemName: "Maw of Min'loth"},
 		})
 
+	// Diseases target for 24 Nature damage every 1.0 sec for 7s. Deals 2 times as much damage to Aquatic enemies.
+	// https://www.wowhead.com/forever/spell=1295744
+	// trigger 1295744 (1.45 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295744, BuffSpellID: 1295744, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 274963, ItemName: "Rot-Covered Harpoon"},
+		})
+
 	// Cremate the target for 56 Fire damage.
 	// https://www.wowhead.com/forever/spell=1297921
 	// trigger 1297921 (2.3 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4841,6 +4844,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Darkmantle Cap: "Stealth 08" (27037) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=1293068
 	// Not simulated: Medal of Valor: "Resist Fear 02" (1324578) - ignored aura type 117

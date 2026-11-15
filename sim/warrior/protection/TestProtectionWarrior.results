@@ -423,6 +423,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 522.52247
+  tps: 1703.58559
+  dtps: 299.41544
+  hps: 39.00389
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-CloudkeeperLegplates-14554"
  value: {
   dps: 505.83378

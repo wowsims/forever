@@ -254,6 +254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 599.21366
+  tps: 425.4417
+  hps: 52.05333
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 596.00462
@@ -280,9 +288,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
-  dps: 615.18003
-  tps: 436.77782
-  hps: 53.68
+  dps: 617.9865
+  tps: 438.77041
+  hps: 53.13778
  }
 }
 dps_results: {

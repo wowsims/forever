@@ -254,6 +254,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 800.87242
+  tps: 594.80957
+  hps: 46.41083
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 808.36912
