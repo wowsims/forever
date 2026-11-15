@@ -1,5 +1,8 @@
 # EV-0052: Non-physical and periodic damage taken grants twice the rage of a physical hit
 
+EV-0118 replaces the Physical Shoot (direct special) row, whose reading near one melee swing counted 7 partly blocked
+Shoots among the unblocked ones, and the Mortal Strike paragraph below.
+
 - Claim: damage of a school other than physical, and every periodic tick whatever its school, grants twice the damage-taken rage of a physical direct hit.
 - Sources: combat logs of a warrior at levels 27 to 38, hits from rage-using mobs, Defensive Stance divided out
 - Game build: 1.60.1.70862, 1.60.1.70888 and 1.60.1.70938
