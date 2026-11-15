@@ -741,10 +741,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Felstriker-12590"
  value: {
-  dps: 501.21016
-  tps: 2547.93252
-  dtps: 396.55748
-  hps: 84.09382
+  dps: 491.54422
+  tps: 2497.08537
+  dtps: 393.96531
+  hps: 83.83188
  }
 }
 dps_results: {

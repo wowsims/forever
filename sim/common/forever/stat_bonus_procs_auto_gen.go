@@ -4262,7 +4262,7 @@ func RegisterAllProcs() {
 
 	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
 	// https://www.wowhead.com/forever/spell=16551
-	// trigger 16551 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16551 (0.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12590, ItemName: "Felstriker"},

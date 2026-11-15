@@ -648,9 +648,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Felstriker-12590"
  value: {
-  dps: 627.42027
-  tps: 445.46839
-  hps: 54.06972
+  dps: 615.52811
+  tps: 437.02496
+  hps: 53.78167
  }
 }
 dps_results: {
