@@ -1960,7 +1960,7 @@ func castsOnUse(itemID int, spellID int, instance *dbc.DBC) bool {
 // damage on-use builders apply it (shared.ItemVersusBonus). Breath of Fire's 12257 states its factor
 // on the E_TRIGGER_SPELL that casts Strong Alcohol, which stays not simulated.
 func versusFactorModelled(s *spelldata.Spell) []*spelldata.Effect {
-	e := shared.VersusFactorEffect(s)
+	e := s.VersusFactorEffect()
 	if e == spelldata.NilEffect || (e.Type != dbcenums.E_NONE && e.Type != dbcenums.E_DUMMY) {
 		return nil
 	}

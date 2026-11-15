@@ -451,8 +451,7 @@ func init() {
 	// 	tick := row.PeriodicDamageEffect()
 	//
 	// 	config := procSpellConfig(character, row)
-	// 	config.VersusBonus = character.NewItemVersusBonus(274963, proto.VersusEffectKind_VersusEffectKindDamage,
-	// 		core.VersusBonus{Multiplier: row.EffectN(2).BaseValue(), Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic}})
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 274963, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.Dot = spelldata.DotConfig(row, tick)
 	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
 	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
@@ -496,10 +495,7 @@ func init() {
 	// 	config := procSpellConfig(character, row)
 	// 	config.SpellSchool = core.SpellSchoolFire
 	// 	config.DefenseType = core.DefenseTypeMagic
-	// 	config.VersusBonus = character.NewItemVersusBonus(8708, proto.VersusEffectKind_VersusEffectKindDamage,
-	// 		core.VersusBonus{Multiplier: row.EffectN(2).BaseValue(), Families: []proto.CreatureFamily{
-	// 			proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental,
-	// 			proto.CreatureFamily_CreatureFamilyMountainGiant}})
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 8708, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 	// 	}
