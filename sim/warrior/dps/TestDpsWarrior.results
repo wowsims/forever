@@ -297,6 +297,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 543.02438
+  tps: 468.3329
+  dtps: 2.89629
+  hps: 44.27583
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 530.99528

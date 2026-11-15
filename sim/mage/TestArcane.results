@@ -187,6 +187,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 752.02238
+  tps: 649.53823
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 753.58294
@@ -995,8 +1002,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 760.42035
-  tps: 657.39095
+  dps: 766.27273
+  tps: 661.77946
  }
 }
 dps_results: {
