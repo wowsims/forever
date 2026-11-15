@@ -1264,6 +1264,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 929.11998
+  tps: 746.31865
+  dtps: 9.27669
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-WrathofCenarius-21190"
  value: {
   dps: 937.56391
