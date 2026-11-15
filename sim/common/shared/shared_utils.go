@@ -605,9 +605,25 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// this aura's business.
 	aura.MaxStacks = int32(buff.ProcCharges)
 
-	return character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
+	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
+	attachVersusStats(procAura.Aura, buff)
+	return procAura
+}
+
+// The stats the buff grants against some creature types, which the item effect entry leaves out:
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+	for _, effect := range buff.Effects {
+		stat, ok := spelldata.VersusStat(effect.Aura)
+		if !ok {
+			continue
+		}
+		var bonus stats.Stats
+		bonus[stat] = effect.Average()
+		aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+	}
 }
 
 // How long the buff lasts. The game files leave it off the buff's own row on a fair few procs and

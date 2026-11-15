@@ -25,6 +25,26 @@ func addAreaStats(opts *proto.ScalingItemProperties, areaType proto.AreaType, st
 	opts.AreaStats = append(opts.AreaStats, &proto.AreaStats{AreaType: areaType, Stats: maps.Clone(statMap)})
 }
 
+// The stats a folded equip spell grants against creature types, one entry per mob type as the item's
+// own stats state them: Counterattack Lodestone 18537's 1318938 adds its attack power a second time
+// against Mechanical targets.
+func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
+	for _, effect := range spelldata.MustFind(int32(spellID)).Effects {
+		stat, ok := spelldata.VersusStat(effect.Aura)
+		if !ok {
+			continue
+		}
+		for _, mobType := range spelldata.MobTypes(effect.Misc) {
+			index := slices.IndexFunc(opts.MobTypeStats, func(entry *proto.MobTypeStats) bool { return entry.MobTypes[0] == mobType })
+			if index < 0 {
+				opts.MobTypeStats = append(opts.MobTypeStats, &proto.MobTypeStats{MobTypes: []proto.MobType{mobType}, Stats: map[int32]float64{}})
+				index = len(opts.MobTypeStats) - 1
+			}
+			opts.MobTypeStats[index].Stats[int32(stat)] += effect.Average()
+		}
+	}
+}
+
 // ItemEffect represents an item effect in the game.
 type ItemEffect struct {
 	ID                   int // Effect ID
@@ -447,6 +467,7 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 				for stat, value := range equipStats.ToProtoMap() {
 					parsed.ScalingOptions[0].Stats[stat] += value
 				}
+				addEquipSpellMobTypeStats(parsed.ScalingOptions[0], baseEff.SpellID)
 				continue
 			}
 		} else if baseEff.TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT && baseEff.CoolDownMSec <= 0 {

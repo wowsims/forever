@@ -2020,8 +2020,8 @@ func (r *ProcRouting) ProcConstructor() string {
 // attack power and spell damage against a creature type. The percents reach the item stats only through an
 // equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura. An equip spell
 // that only restates a weapon skill or creature type stat the item's own stats state leaves the item
-// (dropRestatedItemStats). One that folds drops its bonus against a creature type, so an item that states
-// such a bonus on its equip spell and not in its stats registers it by hand, as Graverobber's Shovel does.
+// (dropRestatedItemStats). One that folds carries its bonus against a creature type into the item's mob
+// type stats (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
