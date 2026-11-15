@@ -30,7 +30,5 @@ ruled out: 11 or fewer of 463 has a chance of 0.15 (exact one-sided binomial). E
 Tazzik, 07:05:00 on a Twilight Champion, 07:58:13 on a Twilight Subjugator.
 
 Rot ticks 7 times, 1 s apart. Every tick on a creature that did not crit dealt 24 (45 of 45), the row's amount, against
-the 25 of the tooltip. 9 of the 60 ticks crit, for 36 (×1.5). Rot is not a bleed: Claw (3 of 3) and Rake (2 of 2) on a
+the 25 of the tooltip. 8 of the 53 ticks on creatures crit, for 36 (×1.5). Rot is not a bleed: Claw (3 of 3) and Rake (2 of 2) on a
 target with only Rot up deal the damage they deal without Rend and Tear.
-
-The counts come from the local proc research scripts and tables under `feral-bear/scripts/` and `feral-bear/tables/`.
