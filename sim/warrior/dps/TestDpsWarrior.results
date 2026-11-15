@@ -146,10 +146,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 490.56677
-  tps: 415.66143
+  dps: 484.41628
+  tps: 409.21888
   dtps: 2.97628
-  hps: 24.73889
+  hps: 24.705
  }
 }
 dps_results: {
@@ -1523,10 +1523,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneslayer-9418"
  value: {
-  dps: 500.79649
-  tps: 422.55967
+  dps: 497.91798
+  tps: 420.54285
   dtps: 2.97628
-  hps: 23.01056
+  hps: 23.07833
  }
 }
 dps_results: {

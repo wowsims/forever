@@ -169,13 +169,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0022",
 	},
 	{
-		ItemID:  279480,
-		SpellID: 1306816,
-		PPM:     2,
-		Reason:  "Bigger Rock on Bigger Stick: no proc row",
-		Source:  "EV-0022",
-	},
-	{
 		ItemID:  279852,
 		SpellID: 1309967,
 		PPM:     1.85,
@@ -197,7 +190,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6220,
 		SpellID: 1292152,
-		PPM:     1.5,
+		PPM:     1.55,
 		Reason:  "Meteor Shard: no proc row",
 		Source:  "EV-0119",
 	},
@@ -211,7 +204,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6904,
 		SpellID: 8313,
-		PPM:     1.5,
+		PPM:     1.45,
 		Reason:  "Bite of Serra'kis: column reads 101",
 		Source:  "EV-0119",
 	},
@@ -225,7 +218,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  9418,
 		SpellID: 12731,
-		PPM:     2,
+		PPM:     1.95,
 		Reason:  "Stoneslayer: no proc row",
 		Source:  "EV-0119",
 	},
@@ -239,14 +232,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  12974,
 		SpellID: 14106,
-		PPM:     0.65,
+		PPM:     0.6,
 		Reason:  "The Black Knight: no proc row",
 		Source:  "EV-0119",
 	},
 	{
 		ItemID:  13040,
 		SpellID: 29626,
-		PPM:     3,
+		PPM:     2.7,
 		Reason:  "Heartseeking Crossbow: equip trigger, column reads 100",
 		Source:  "EV-0119",
 	},
@@ -255,6 +248,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1294055,
 		PPM:     3.75,
 		Reason:  "White Obsidian Wand: equip trigger, column reads 100; wand shots roll it",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  279480,
+		SpellID: 1306816,
+		PPM:     1.5,
+		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0119",
 	},
 	{
