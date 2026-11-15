@@ -552,6 +552,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Felstriker-12590"
+ value: {
+  dps: 849.92555
+  tps: 684.53388
+  dtps: 9.07236
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 933.56553

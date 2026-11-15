@@ -535,6 +535,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-Felstriker-12590"
+ value: {
+  dps: 716.23713
+  tps: 512.46256
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 745.10057

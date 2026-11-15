@@ -1082,19 +1082,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
-	// https://www.wowhead.com/forever/spell=16551
-	// unsupported: states no rate
-	// trigger 16551 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 12590, ItemName: "Felstriker"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
 	// https://www.wowhead.com/forever/spell=16603
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4271,6 +4258,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16528, BuffSpellID: 16528, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12582, ItemName: "Keris of Zul'Serak"},
+		})
+
+	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	// https://www.wowhead.com/forever/spell=16551
+	// trigger 16551 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 12590, ItemName: "Felstriker"},
 		})
 
 	// Adds 4 Fire damage to your weapon attack.

@@ -797,6 +797,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Felstriker-12590"
+ value: {
+  dps: 735.34632
+  tps: 472.38775
+  dtps: 4.33851
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Ferra'sCollar-18355"
  value: {
   dps: 759.51759

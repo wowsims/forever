@@ -256,9 +256,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-CloakofFlames-3475"
  value: {
-  dps: 599.21366
-  tps: 425.4417
-  hps: 52.05333
+  dps: 593.30687
+  tps: 421.24787
+  hps: 52.29056
  }
 }
 dps_results: {
@@ -288,9 +288,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DarkmantleArmor"
  value: {
-  dps: 617.9865
-  tps: 438.77041
-  hps: 53.13778
+  dps: 611.24492
+  tps: 433.98389
+  hps: 53.44278
  }
 }
 dps_results: {
@@ -643,6 +643,14 @@ dps_results: {
   dps: 596.00462
   tps: 423.16328
   hps: 51.95167
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-Felstriker-12590"
+ value: {
+  dps: 627.42027
+  tps: 445.46839
+  hps: 54.06972
  }
 }
 dps_results: {

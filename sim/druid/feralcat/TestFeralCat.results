@@ -614,6 +614,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Felstriker-12590"
+ value: {
+  dps: 783.25923
+  tps: 581.85051
+  hps: 46.2075
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-FeralheartRaiment"
  value: {
   dps: 723.37214

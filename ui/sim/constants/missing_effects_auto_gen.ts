@@ -888,12 +888,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12590, // Felstriker
-		[
-			"All attacks are guaranteed to land and will be critical strikes for the next 3s.", // 16551 - https://www.wowhead.com/forever/spell=16551
-		]
-	],
-	[
 		12621, // Demonfork
 		[
 			"Transfers 10 health every 1.0 seconds from the target to the caster for 5s.", // 16603 - https://www.wowhead.com/forever/spell=16603
@@ -4059,6 +4053,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
 	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
 	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
+	[12590, { kind: 'ppm', origin: 'vanilla' }], // Felstriker
 	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', origin: 'vanilla' }], // Arcanite Champion
 	[12792, { kind: 'ppm', origin: 'vanilla' }], // Volcanic Hammer
