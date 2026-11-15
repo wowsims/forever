@@ -518,6 +518,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 774.3872
+  tps: 660.07936
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 774.3872
+  tps: 660.07936
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 774.3872
+  tps: 660.07936
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 774.3872

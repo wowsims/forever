@@ -12,23 +12,6 @@ import (
 )
 
 func init() {
-	// Graverobber's Shovel
-	//
-	// Equip 1319047: 12 attack power and 12 ranged attack power, which the item's own stats carry,
-	// and effects 3 and 4, 12 of each against Undead.
-	core.NewItemEffect(273817, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		row := spelldata.MustFind(1319047)
-		config := spelldata.AuraConfig(row)
-		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
-		// two-handed, so only the main hand wears it.
-		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
-			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
-		aura := core.MakePermanent(character.RegisterAura(config))
-		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
-		character.ItemSwap.RegisterProc(273817, aura)
-	})
-
 	// Ravager
 	// https://www.wowhead.com/forever/item=7717/ravager
 	//

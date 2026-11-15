@@ -502,6 +502,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 808.36912
+  tps: 599.88174
+  hps: 45.98722
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 808.36912
+  tps: 599.88174
+  hps: 45.98722
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 808.36912
+  tps: 599.88174
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 808.36912

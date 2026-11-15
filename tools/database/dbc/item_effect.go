@@ -25,6 +25,24 @@ func addAreaStats(opts *proto.ScalingItemProperties, areaType proto.AreaType, st
 	opts.AreaStats = append(opts.AreaStats, &proto.AreaStats{AreaType: areaType, Stats: maps.Clone(statMap)})
 }
 
+// The stats a folded equip spell grants against creature types, one entry per mob type as the item's
+// own stats state them: Counterattack Lodestone 18537's 1318938 adds its attack power a second time
+// against Mechanical targets.
+func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
+	for _, effect := range spelldata.MustFind(int32(spellID)).Effects {
+		granted := spelldata.VersusStats(effect.Aura)
+		if len(granted) == 0 {
+			continue
+		}
+		for _, mobType := range spelldata.MobTypes(effect.Misc) {
+			bonus := mobTypeEntryStats(&opts.MobTypeStats, mobType)
+			for _, stat := range granted {
+				bonus[int32(stat)] += effect.Average()
+			}
+		}
+	}
+}
+
 // ItemEffect represents an item effect in the game.
 type ItemEffect struct {
 	ID                   int // Effect ID
@@ -447,6 +465,7 @@ func MergeItemEffectsForAllStates(parsed *proto.UIItem) []*proto.ItemEffect {
 				for stat, value := range equipStats.ToProtoMap() {
 					parsed.ScalingOptions[0].Stats[stat] += value
 				}
+				addEquipSpellMobTypeStats(parsed.ScalingOptions[0], baseEff.SpellID)
 				continue
 			}
 		} else if baseEff.TriggerType != ITEM_SPELLTRIGGER_CHANCE_ON_HIT && baseEff.CoolDownMSec <= 0 {
@@ -565,13 +584,11 @@ func restatedBonuses(effect SpellEffect) []statedBonus {
 		}
 		return nil
 	}
-	stat, ok := spelldata.VersusStat(effect.EffectAura)
-	if !ok {
-		return nil
-	}
 	var bonuses []statedBonus
-	for _, mobType := range spelldata.MobTypes(misc) {
-		bonuses = append(bonuses, statedBonus{mobType: mobType, stat: proto.Stat(stat)})
+	for _, stat := range spelldata.VersusStats(effect.EffectAura) {
+		for _, mobType := range spelldata.MobTypes(misc) {
+			bonuses = append(bonuses, statedBonus{mobType: mobType, stat: proto.Stat(stat)})
+		}
 	}
 	return bonuses
 }

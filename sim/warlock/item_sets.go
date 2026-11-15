@@ -183,8 +183,8 @@ var ItemSetDemonheartRaiment = core.NewItemSet(core.ItemSet{
 	Slots: sixPieceSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: parsedSetBonus(demonheartHit),
-		// A_MOD_DAMAGE_DONE_CREATURE has no row in the parse table, so the bonus is the spell damage
-		// the sim keeps against the mob types the effect's mask names.
+		// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this bonus
+		// keeps the spell damage the sim holds against the mob types the effect's mask names.
 		4: func(agent core.Agent, setBonusAura *core.Aura) {
 			warlock := agent.(WarlockAgent).GetWarlock()
 			effect := demonheartDemons.EffectN(1)
