@@ -1,0 +1,34 @@
+siml 1
+spec hunter
+use "weave_common.apl.siml"
+
+// The weave of a steady player: the shots come first, and I walk in only once Aimed Shot and Arcane Shot are both
+// cooling and Auto Shot has just gone off. Once in, I stay until no melee cooldown comes up soon. It weaves less than
+// the default weave, which gives a dual wielder's off hand the time to swing.
+def melee_cooldowns_off =
+    spell(strider_kick).time_to_ready > 1.5s
+    and spell(immolation_trap).time_to_ready > 1.5s
+    and (aura(expose_prey).is_inactive or spell(mongoose_bite).time_to_ready > 1.5s)
+
+priority:
+  autocast_other_cooldowns
+  cast hunters_mark if not target.aura(hunters_mark).is_active
+  cast aimed_shot
+  cast serpent_sting if not dot(serpent_sting).is_active
+  cast arcane_shot if spell(aimed_shot).time_to_ready > 0.5s
+  start_attack
+  cast raptor_strike
+  cast strider_kick
+  cast mongoose_bite
+  cast immolation_trap if in_melee
+  /// Wing Clip only when no other melee cooldown comes up soon.
+  cast wing_clip if melee_cooldowns_off
+  /// Start of the fight, before the first weave: get to my spot without losing an Auto Shot.
+  group "Walk in" if self.unit_distance != $shoot_spot and $not_weaving_yet
+  /// Aimed Shot and Arcane Shot are cooling and Auto Shot has just gone off: walk in.
+  move $melee_spot
+      if spell(aimed_shot).time_to_ready > 1.5s
+      and spell(arcane_shot).time_to_ready > 1.5s
+      and auto_time_since_last(ranged_auto) <= 1s
+  /// No melee cooldown comes up soon: walk out to my spot and shoot.
+  move $shoot_spot if melee_cooldowns_off

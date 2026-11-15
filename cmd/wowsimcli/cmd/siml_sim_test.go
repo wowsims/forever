@@ -70,8 +70,8 @@ func TestCharacterFromRepoReadsTheSpecDefaults(t *testing.T) {
 	if c.info.Source != filepath.Join(root, "ui/specs/hunter/dps/defaults.siml") || !slices.Equal(c.info.Warnings, []string{"builds mm.siml, sv.siml all use this file; simmed on the defaults"}) {
 		t.Errorf("source %q, warnings %q", c.info.Source, c.info.Warnings)
 	}
-	if p.TalentsString != "-00530501114-530200230050220151" || p.Race != proto.Race_RaceOrc || c.info.Gear != "p1" {
-		t.Errorf("got talents %q, race %v and gear %q, want the SV Weave talents, an orc and the P1 set", p.TalentsString, p.Race, c.info.Gear)
+	if p.TalentsString != "-00530501114-530200230050220151" || p.Race != proto.Race_RaceOrc || c.info.Gear != "prebis_weave" {
+		t.Errorf("got talents %q, race %v and gear %q, want the SV Weave talents, an orc and the Pre-BiS weave set", p.TalentsString, p.Race, c.info.Gear)
 	}
 	if p.Consumables.GetResourcePotId() == 0 || p.GetHunter().GetOptions().GetClassOptions().GetAmmo() == proto.HunterOptions_AmmoNone {
 		t.Errorf("consumables %v, options %v", p.Consumables, p.GetHunter().GetOptions())
@@ -91,7 +91,7 @@ func TestCharacterFromRepoLoadsTheBuildOfTheRotation(t *testing.T) {
 	if want := filepath.Join(root, "ui/specs/hunter/dps/builds/sv_melee.siml") + " over " + filepath.Join(root, "ui/specs/hunter/dps/defaults.siml"); c.info.Source != want {
 		t.Errorf("source %q", c.info.Source)
 	}
-	if p.TalentsString != "53200005001-005005-5302002300500221" || c.info.Gear != "p1_melee" || p.DistanceFromTarget != 5 {
+	if p.TalentsString != "53200005001-004-530200230050022151" || c.info.Gear != "prebis_melee" || p.DistanceFromTarget != 5 {
 		t.Errorf("got talents %q, gear %q and distance %v, want the SV Melee build's", p.TalentsString, c.info.Gear, p.DistanceFromTarget)
 	}
 	if p.GetHunter().GetOptions().GetClassOptions().GetPetType() != proto.HunterOptions_Raptor {
@@ -284,7 +284,7 @@ func TestSettingsFileSuppliesTheCharacter(t *testing.T) {
 	build := filepath.Join(root, "ui/specs/hunter/dps/builds/sv.siml")
 	fromBuild := runSimlSim(context.Background(), root, simlSimRequest{SIML: text, Path: apl, Iterations: 10, SettingsFile: build})
 	if want := build + " over " + defaults; fromBuild.Error != "" || fromBuild.Character.Source != want || fromBuild.Character.Race != "RaceOrc" ||
-		fromBuild.Character.Talents != "1-00530501114-52225303000021005" || !slices.Contains(fromBuild.Character.Warnings, build+" is a preset build: simmed over "+defaults) {
+		fromBuild.Character.Talents != "3-00510503113-52225303000021004" || !slices.Contains(fromBuild.Character.Warnings, build+" is a preset build: simmed over "+defaults) {
 		t.Errorf("from a preset build: %s, character %+v", fromBuild.Error, fromBuild.Character)
 	}
 	_, warrior := printedAPL(t, "warrior/dps", "arms", proto.Spec_SpecDpsWarrior)

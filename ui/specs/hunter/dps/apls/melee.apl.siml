@@ -4,6 +4,8 @@ use "common.apl.siml"
 
 var ${Melee range} = 5.00
 var ${Use Summon Hawk} = true
+// Where I stop running out for Serpent Sting: past the dead zone by a reaction's overshoot, as in the weave.
+var ${Shoot spot} = 13.19
 
 prepull:
   -22s cast hunters_mark
@@ -14,7 +16,12 @@ priority:
   autocast_other_cooldowns if current_time >= 5s
   cast raptor_strike
   cast hunters_mark if not target.aura(hunters_mark).is_active
-  /// Start of the fight: walk into melee, shooting on the way without losing an Auto Shot.
+  /// Strider Kick's speed is up, Serpent Sting is down and I have mana to spare: run out past the dead zone and sting.
+  move $shoot_spot
+      if aura(strider_kick).is_active
+      and not dot(serpent_sting).is_active
+      and current_mana_percent > 30%
+  /// Start of the fight and back from the Sting: walk into melee, shooting on the way without losing an Auto Shot.
   group "Walk in" if self.unit_distance > $melee_range
   cast mongoose_bite
   cast strider_kick

@@ -281,12 +281,15 @@ test('Insert Pattern puts no condition on a prepull row, whose condition the sim
 
 test('the panel does not open on a gear set, and says the server still serves the file', async () => {
 	const gear = await stand.vscode.workspace.openTextDocument(
-		stand.vscode.Uri.file(fileURLToPath(new URL('../../../ui/specs/hunter/dps/gear_sets/p1.gear.siml', import.meta.url))),
+		stand.vscode.Uri.file(fileURLToPath(new URL('../../../ui/specs/hunter/dps/gear_sets/prebis_weave.gear.siml', import.meta.url))),
 	);
 	const panels = stand.state.panels.length;
 	await stand.state.commands.get('wowsims-apl.openToSide')(gear.uri);
 	assert.equal(stand.state.panels.length, panels);
-	assert.match(stand.state.messages.at(-1).message, /opens on \.apl\.siml rotations only, and p1\.gear\.siml is not one\. The SIML server still checks/);
+	assert.match(
+		stand.state.messages.at(-1).message,
+		/opens on \.apl\.siml rotations only, and prebis_weave\.gear\.siml is not one\. The SIML server still checks/,
+	);
 	stand.close(gear);
 });
 

@@ -535,7 +535,7 @@ func everywhere(home *Doc, key occurrence, from *Doc) []foundOccurrence {
 var useWord = regexp.MustCompile(`\buse\b`)
 
 // The .siml files near a file, which use names by a short path from its folder: those in its folder and the folder
-// above, and in the folders those hold (../gear_sets/p1.gear.siml from an apls folder). The file itself is left out.
+// above, and in the folders those hold (../gear_sets/prebis_weave.gear.siml from an apls folder). The file itself is left out.
 func nearbyFiles(path string) []string {
 	folder := filepath.Dir(path)
 	var files []string
