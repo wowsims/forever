@@ -2393,8 +2393,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1115.82294
-  tps: 1133.98269
+  dps: 1105.31119
+  tps: 1123.47093
   dtps: 2.97829
   hps: 15.31778
  }
@@ -2402,8 +2402,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 888.35668
-  tps: 904.97326
+  dps: 875.33513
+  tps: 891.95171
   dtps: 3.17144
   hps: 15.16528
  }
@@ -2411,37 +2411,37 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 904.63122
-  tps: 919.19302
+  dps: 905.60585
+  tps: 920.16765
   hps: 14.64
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 312.01332
-  tps: 312.01332
+  dps: 311.50644
+  tps: 311.50644
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 299.78929
-  tps: 299.78929
+  dps: 296.58485
+  tps: 296.58485
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 466.03389
-  tps: 466.03389
+  dps: 463.97844
+  tps: 463.97844
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1115.82294
-  tps: 1133.98269
+  dps: 1105.31119
+  tps: 1123.47093
   dtps: 2.97829
   hps: 15.31778
  }
@@ -2449,8 +2449,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 888.35668
-  tps: 904.97326
+  dps: 875.33513
+  tps: 891.95171
   dtps: 3.17144
   hps: 15.16528
  }
@@ -2458,37 +2458,37 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 904.63122
-  tps: 919.19302
+  dps: 905.60585
+  tps: 920.16765
   hps: 14.64
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 312.01332
-  tps: 312.01332
+  dps: 311.50644
+  tps: 311.50644
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 299.78929
-  tps: 299.78929
+  dps: 296.58485
+  tps: 296.58485
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 466.03389
-  tps: 466.03389
+  dps: 463.97844
+  tps: 463.97844
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1131.88618
-  tps: 1150.11476
+  dps: 1121.5169
+  tps: 1139.74549
   dtps: 2.97829
   hps: 15.31778
  }
@@ -2496,8 +2496,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 904.22495
-  tps: 920.87563
+  dps: 891.407
+  tps: 908.05768
   dtps: 3.17144
   hps: 15.16528
  }
@@ -2505,30 +2505,30 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 920.42789
-  tps: 935.05544
+  dps: 921.4614
+  tps: 936.08895
   hps: 14.64
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 314.94762
-  tps: 314.94762
+  dps: 314.04842
+  tps: 314.04842
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 302.61757
-  tps: 302.61757
+  dps: 301.27928
+  tps: 301.27928
  }
 }
 dps_results: {
  key: "TestHunter-Settings-NightElf-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 474.52474
-  tps: 474.52474
+  dps: 473.36975
+  tps: 473.36975
  }
 }
 dps_results: {
@@ -2675,8 +2675,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1156.9611
-  tps: 1175.93804
+  dps: 1143.96641
+  tps: 1162.94334
   dtps: 2.95366
   hps: 14.92806
  }
@@ -2684,8 +2684,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 883.8166
-  tps: 900.52511
+  dps: 872.17394
+  tps: 888.88245
   dtps: 3.15151
   hps: 14.74167
  }
@@ -2693,37 +2693,37 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 888.93803
-  tps: 903.19246
+  dps: 891.28883
+  tps: 905.54325
   hps: 14.7925
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 308.20605
-  tps: 308.20605
+  dps: 307.59084
+  tps: 307.59084
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 295.73225
-  tps: 295.73225
+  dps: 293.04019
+  tps: 293.04019
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-clean_weave-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 455.38466
-  tps: 455.38466
+  dps: 453.03361
+  tps: 453.03361
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1156.9611
-  tps: 1175.93804
+  dps: 1143.96641
+  tps: 1162.94334
   dtps: 2.95366
   hps: 14.92806
  }
@@ -2731,8 +2731,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 883.8166
-  tps: 900.52511
+  dps: 872.17394
+  tps: 888.88245
   dtps: 3.15151
   hps: 14.74167
  }
@@ -2740,37 +2740,37 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 888.93803
-  tps: 903.19246
+  dps: 891.28883
+  tps: 905.54325
   hps: 14.7925
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 308.20605
-  tps: 308.20605
+  dps: 307.59084
+  tps: 307.59084
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 295.73225
-  tps: 295.73225
+  dps: 293.04019
+  tps: 293.04019
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 455.38466
-  tps: 455.38466
+  dps: 453.03361
+  tps: 453.03361
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 1172.88094
-  tps: 1191.90095
+  dps: 1159.86567
+  tps: 1178.88568
   dtps: 2.95366
   hps: 14.92806
  }
@@ -2778,8 +2778,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 899.34849
-  tps: 916.08383
+  dps: 887.78841
+  tps: 904.52375
   dtps: 3.15151
   hps: 14.74167
  }
@@ -2787,30 +2787,30 @@ dps_results: {
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-FullBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 905.58225
-  tps: 919.94607
+  dps: 907.73743
+  tps: 922.10125
   hps: 14.7925
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-LongMultiTarget"
  value: {
-  dps: 312.00226
-  tps: 312.00226
+  dps: 310.5247
+  tps: 310.5247
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-LongSingleTarget"
  value: {
-  dps: 298.0184
-  tps: 298.0184
+  dps: 295.62565
+  tps: 295.62565
  }
 }
 dps_results: {
  key: "TestHunter-Settings-Orc-prebis_weave-SV-Default-default_book_ranks-NoBuffs-12.0yards-ShortSingleTarget"
  value: {
-  dps: 463.85541
-  tps: 463.85541
+  dps: 462.53741
+  tps: 462.53741
  }
 }
 dps_results: {

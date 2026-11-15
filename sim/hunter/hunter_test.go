@@ -319,9 +319,9 @@ func TestPetHitIsTheHuntersRangedHit(t *testing.T) {
 	}
 }
 
-// Lacerating Strikes refreshes the way Deep Wounds does: a bite while the bleed is up adds the unticked
-// damage to the new bleed and keeps the first bite's tick timer.
-func TestLaceratingStrikesRollsItsUntickedDamageIntoTheNextBite(t *testing.T) {
+// A bite while Lacerating Strikes bleeds replaces the bleed: the unticked damage is lost, and the new bite's
+// share starts a full set of ticks on a new timer, even when it ticks for less.
+func TestLaceratingStrikesReplacesTheBleedOnTheNextBite(t *testing.T) {
 	player := &proto.Player{
 		Name:          "Lacerate",
 		Race:          proto.Race_RaceOrc,
@@ -366,18 +366,17 @@ func TestLaceratingStrikesRollsItsUntickedDamageIntoTheNextBite(t *testing.T) {
 	landBite(700)
 	ticks := bleed.RemainingTicks()
 	stepUntil("the first tick", func() bool { return bleed.RemainingTicks() < ticks })
-	owed := bleed.OutstandingDmg()
-	nextTick := bleed.NextTickAt()
+	firstTimer := bleed.NextTickAt()
 
-	landBite(700)
-	if got, want := bleed.OutstandingDmg(), owed+700*share; math.Abs(got-want) > 1e-6 {
-		t.Errorf("a second bite left %v owed on the bleed, want the %v unticked plus %v", got, owed, 700*share)
+	landBite(300)
+	if got, want := bleed.OutstandingDmg(), 300*share; math.Abs(got-want) > 1e-6 {
+		t.Errorf("a second bite left %v owed on the bleed, want only its own %v", got, want)
 	}
 	if got := bleed.RemainingTicks(); got != ticks {
 		t.Errorf("a second bite left %d ticks on the bleed, want a full %d", got, ticks)
 	}
-	if got := bleed.NextTickAt(); got != nextTick {
-		t.Errorf("a second bite moved the next tick to %v, want it kept at %v", got, nextTick)
+	if got, want := bleed.NextTickAt(), sim.CurrentTime+bleed.TickPeriod(); got != want || got == firstTimer {
+		t.Errorf("a second bite left the next tick at %v, want a new timer at %v", got, want)
 	}
 }
 
