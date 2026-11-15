@@ -199,6 +199,10 @@ func (paladin *Paladin) applyPursuitOfJustice() {
 
 // Sacred Arbiter - Increases the damage of your Holy Strike ability by 20% and causes it to refresh
 // all Judgement effects on the target.
+//
+// The trigger follows the tooltip. In game a Holy Strike under the talent writes no refresh line in
+// the combat log (EV-0117).
+// TODO: Ingame test needed: whether Holy Strike under Sacred Arbiter extends the judgement debuffs without a refresh line.
 func (paladin *Paladin) applySacredArbiter() {
 	if !paladin.Talents.SacredArbiter {
 		return

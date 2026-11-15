@@ -1264,6 +1264,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 931.36097
+  tps: 734.35821
+  dtps: 10.61792
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-WrathofCenarius-21190"
  value: {
   dps: 925.50941

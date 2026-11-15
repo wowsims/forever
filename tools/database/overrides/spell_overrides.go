@@ -7,7 +7,10 @@
 // shares with the SQL overrides is read for *.sql alone.
 package overrides
 
-import "github.com/wowsims/forever/sim/core"
+import (
+	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/proto"
+)
 
 // Which field of the row the value belongs on. Every one of them names a rule the generator checks
 // before it writes the value, so an override outlives its reason no longer than the next
@@ -161,6 +164,130 @@ var AreaBonuses = []AreaBonus{
 		DurationMultiplier: 1,
 		Reason:             "Toy Soldier: 'This effect is doubled in Strongholds and Cities'; no companion row",
 		Source:             "tooltip",
+	},
+}
+
+// A factor a row deals or restores against some targets, which only its tooltip names ("Deals $s2
+// times as much damage to Plants"). A target of any of the mob types or families counts.
+type VersusBonus struct {
+	SpellID     int32
+	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
+	Multiplier  float64 // A factor no effect states; 0 reads EffectIndex's base points.
+	MobTypes    []proto.MobType
+	Families    []proto.CreatureFamily
+	Reason      string
+	Source      string
+}
+
+// No CreatureFamily holds Golems or Titan-forged, which the tooltips of 12731, 1302279 and 1294794
+// name, so those rows count Earth Elementals alone.
+var VersusBonuses = []VersusBonus{
+	{
+		SpellID:     12731,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Strength of Stone: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1302279,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Stoneshatter: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294794,
+		EffectIndex: 0,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental},
+		Reason:      "Fist of Stone: 'Restores $s1 times as much if attacking an Earth Elemental, Golem, or Titan-forged enemy'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1293568,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Grass Killer: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     12257,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Breath of Fire: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     17283,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Smokey's Lighter: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1295270,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant},
+		Reason:      "Prototype Pathcarver: 'Deals $s2 times as much damage to Plants'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1295039,
+		EffectIndex: 2,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeBeast},
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilySerpentine},
+		Reason:      "Serpentbane: 'Inflicts $s3 times as much damage to Beast and Serpentine targets'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1318159,
+		EffectIndex: 0,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyNaga, proto.CreatureFamily_CreatureFamilySatyr},
+		Reason:      "Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1311505,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDinosaur},
+		Reason:      "Grounded Electroshocks: 'Deals $s2 times as much damage to Dinosaurs'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     14118,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeDragonkin},
+		Reason:      "Rend: 'Deals $s2 times as much damage to Dragonkin'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1299631,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Smite: 'Deals $s2 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:    1325229,
+		Multiplier: 3,
+		MobTypes:   []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:     "Gloves of Holy Might: 'Damage is tripled against Undead'; neither 1325229 nor 1330855 states the 3",
+		Source:     "tooltip",
+	},
+	{
+		SpellID:     1295744,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Rot: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1317432,
+		EffectIndex: 1,
+		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental,
+			proto.CreatureFamily_CreatureFamilyFireElemental, proto.CreatureFamily_CreatureFamilyMountainGiant},
+		Reason: "Forging Strike: 'Deals $s2 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants'",
+		Source: "tooltip",
 	},
 }
 

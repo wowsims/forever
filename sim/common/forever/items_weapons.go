@@ -19,7 +19,12 @@ func init() {
 	core.NewItemEffect(273817, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1319047)
-		aura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(row)))
+		config := spelldata.AuraConfig(row)
+		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
+		// two-handed, so only the main hand wears it.
+		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
+			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
+		aura := core.MakePermanent(character.RegisterAura(config))
 		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
 		character.ItemSwap.RegisterProc(273817, aura)
 	})
@@ -345,7 +350,7 @@ func init() {
 	//
 	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
 	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
-	// TODO: Measure the rate in game, against Orcs and against other targets.
+	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 	})
@@ -391,47 +396,47 @@ func init() {
 	//
 	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
 	//
-	// TODO: waiting for PPM data
+	// Landed wand shots roll it at the item entry's procs per minute on the wand's speed (EV-0119).
 	//
-	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell
-	// with a cost spends its one charge.
-	// core.NewItemEffect(274425, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	if !character.HasManaBar() {
-	// 		return
-	// 	}
-	// 	row := spelldata.MustFind(1294058)
-	// 	effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
-	// 	school := core.SpellSchool(effect.Misc)
-	//
-	// 	cheaper := character.AddDynamicMod(core.SpellModConfig{
-	// 		Kind:     core.SpellMod_PowerCost_Flat,
-	// 		School:   school,
-	// 		IntValue: int32(effect.Average()),
-	// 	})
-	// 	config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
-	// 	config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Activate()
-	// 	}
-	// 	config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Deactivate()
-	// 	}
-	// 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-	// 		if spell.Cost != nil && spell.SpellSchool.Matches(school) {
-	// 			aura.Deactivate(sim)
-	// 		}
-	// 	}
-	// 	whiteObsidian := character.RegisterAura(config)
-	//
-	// 	ppm := weaponProcPPM(274425, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-	// 		whiteObsidian.Activate(sim)
-	// 	}, spelldata.PPM(ppm))
-	// 	trigger.Name = "White Obsidian Wand"
-	// 	trigger.ActionID = core.ActionID{ItemID: 274425}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
-	// })
+	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
+	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
+	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
+	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
+	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
+		if !character.HasManaBar() {
+			return
+		}
+		row := spelldata.MustFind(1294058)
+		effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
+		school := core.SpellSchool(effect.Misc)
+
+		cheaper := character.AddDynamicMod(core.SpellModConfig{
+			Kind:     core.SpellMod_PowerCost_Flat,
+			School:   school,
+			IntValue: int32(effect.Average()),
+		})
+		config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
+		config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Activate()
+		}
+		config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Deactivate()
+		}
+		config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			if spell.Cost != nil && spell.CurCast.Cost > 0 && spell.SpellSchool.Matches(school) {
+				aura.Deactivate(sim)
+			}
+		}
+		whiteObsidian := character.RegisterAura(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			whiteObsidian.Activate(sim)
+		}, spelldata.PPM(ppm))
+		trigger.Name = "White Obsidian Wand - Trigger"
+		trigger.ActionID = core.ActionID{ItemID: 274425}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
+	})
 
 	// Rot-Covered Harpoon
 	// https://www.wowhead.com/forever/item=274963/rot-covered-harpoon
@@ -444,13 +449,12 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1295744)
 	// 	tick := row.PeriodicDamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 274963, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.Dot = spelldata.DotConfig(row, tick)
 	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 		amount := tick.Average() * creatureFamilyMultiplier(target, familyMultiplier, proto.CreatureFamily_CreatureFamilyAquatic)
-	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, amount, row.TickOutcome(dot))
+	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
 	// 	}
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
@@ -487,16 +491,13 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1317432)
 	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
 	// 	config.SpellSchool = core.SpellSchoolFire
 	// 	config.DefenseType = core.DefenseTypeMagic
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 8708, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-	// 			proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental,
-	// 			proto.CreatureFamily_CreatureFamilyMountainGiant)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 	// 	}
 	// 	forgingStrike := character.RegisterSpell(config)
 	//

@@ -1,7 +1,8 @@
 // The loading state of the sheet. The crit-cap row is the last row of the Physical group for this
 // display-stat list, so it is the last row either way; what is pinned here is that it skeletons
 // with its siblings instead of reading as settled while the stats are still in flight.
-import { Class, PseudoStat, Race, Stat, WeaponSkill } from '@generated/proto/common';
+import { PlayerStats } from '@generated/proto/api';
+import { AreaType, Class, MobType, PseudoStat, Race, Stat, Target, WeaponSkill } from '@generated/proto/common';
 import { DatabaseFilters } from '@generated/proto/ui';
 import i18n from '@i18n/config';
 import { translateWeaponSkill } from '@i18n/localization';
@@ -9,12 +10,13 @@ import { getClassWeaponSkills } from '@sim/player/classes/capabilities';
 import { PlayerClasses } from '@sim/player/classes/index';
 import { WeaponSkillGroup, weaponSkillsInGroups } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
-import { createSimStore, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
+import { createSimStore, type EncounterSlice, patchSlice, PLAYER_FIELDS, type PlayerSlice, seedKeyed, zeroVersions } from '@sim/state/sim_store';
 import { renderWithHost } from '@testing/react';
-import { CRIT_CAP_INFO } from '@testing/storybook/fixtures/character-stats';
+import { CRIT_CAP_INFO, VERSUS_BONUSES } from '@testing/storybook/fixtures/character-stats';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
+import english from '../../../../../assets/locales/en/translation.json';
 import { CharacterStats, CharacterStatsHeaderView, CharacterStatsPanelView } from './CharacterStats';
 import { statDisplayString } from './utils/stat_display';
 
@@ -31,11 +33,13 @@ interface SheetSetup {
 	displayWeaponSkillGroups?: Array<WeaponSkillGroup>;
 	currentStats: object;
 	inFrontOfTarget?: boolean;
+	encounter?: Partial<EncounterSlice>;
 	player: Record<string, unknown>;
 }
 
-const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inFrontOfTarget = false, player }: SheetSetup) => {
+const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inFrontOfTarget = false, encounter = {}, player }: SheetSetup) => {
 	const store = createSimStore();
+	patchSlice(store, 'encounter', encounter);
 	seedKeyed(store, 'players', KEY, {
 		name: 'P',
 		race: Race.RaceOrc,
@@ -43,7 +47,7 @@ const renderSheet = ({ displayStats, displayWeaponSkillGroups, currentStats, inF
 		bonusStats: new Stats(),
 		inFrontOfTarget,
 		weaponSkills: [],
-		currentStats,
+		currentStats: PlayerStats.create(currentStats),
 		v: zeroVersions(PLAYER_FIELDS),
 	} as unknown as PlayerSlice);
 
@@ -430,6 +434,78 @@ describe('CharacterStats combined melee hand rows', () => {
 		fireEvent.mouseEnter(links[index]);
 		expect((await screen.findByTestId('character-stats-tooltip-hand')).textContent).toBe(label);
 		expect((await screen.findAllByText(value)).length).toBeGreaterThan(1);
+	});
+});
+
+const renderVersus = (currentStats: object, encounter: Partial<EncounterSlice> = {}) =>
+	renderSheet({
+		displayStats: DISPLAY_STATS,
+		currentStats,
+		encounter,
+		player: { getPlayerSpec: () => ({ isTankSpec: false, isMeleeDpsSpec: false }) },
+	}).view;
+
+const openVersusGroups = async (view: ReturnType<typeof renderVersus>) => {
+	await act(async () => {
+		fireEvent.click(view.getByTestId('character-stats-group-versus-trigger'));
+	});
+	return Array.from(view.container.querySelectorAll<HTMLTableSectionElement>('[data-testid="character-stats-versus-group"]')).map(group => {
+		const [heading, ...lines] = Array.from(group.querySelectorAll('tr'));
+		return {
+			label: heading.textContent,
+			lines: lines.map(line => Array.from(line.querySelectorAll('td')).map(cell => cell.textContent)),
+		};
+	});
+};
+
+// The test setup loads no locale, so an interpolated heading or factor reads as its bare key; the English
+// strings are what show which target a heading names and which factor a line carries.
+describe('CharacterStats bonuses against a kind of target', () => {
+	beforeAll(() => {
+		i18n.addResourceBundle('en', 'translation', english, true, true);
+	});
+	afterAll(() => {
+		i18n.removeResourceBundle('en', 'translation');
+	});
+	afterEach(() => {
+		window.localStorage.clear();
+	});
+
+	const hit = Number(UnitStat.fromStat(Stat.StatHitRating).convertRatingToPercent(10)!.toFixed(2));
+	const attackPower = (amount: string) => [
+		['Attack Power', amount],
+		['Ranged Attack Power', amount],
+	];
+	const serpentbane = ['Serpentbane Crown', '×2 damage'];
+	const targetGroups = [
+		{ label: 'Against Beast', lines: [['Damage', '+5%'], serpentbane] },
+		{ label: 'Against Humanoid', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
+		{ label: 'Against Undead', lines: attackPower('+99') },
+		{ label: 'Against Earth Elemental', lines: [['Fist of Stone', '×3 restored']] },
+		{ label: 'Against Dinosaur', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
+		{ label: 'Against Serpentine', lines: [serpentbane] },
+	];
+	const areaGroup = {
+		label: 'In Forest and Grassland',
+		lines: [
+			['Attack Power', '+28'],
+			['Hit', `+${hit}%`],
+		],
+	};
+
+	it("lists each mob type, creature family and area the sim reports a bonus against, one line per item factor, the target's mob type and the encounter's area alike", async () => {
+		const view = renderVersus(
+			{ finalStats: new Stats().toProto(), ...VERSUS_BONUSES },
+			{ targets: [Target.create({ mobType: MobType.MobTypeHumanoid })], areaTypes: [AreaType.AreaTypeForestGrassland] },
+		);
+
+		expect(await openVersusGroups(view)).toEqual([...targetGroups, areaGroup]);
+	});
+
+	it('leaves the group out while the sim reports no bonus against any kind of target', () => {
+		const view = renderVersus({ finalStats: new Stats().toProto() });
+
+		expect(view.queryByTestId('character-stats-group-versus')).toBeNull();
 	});
 });
 

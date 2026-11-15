@@ -79,7 +79,7 @@ export default defineSpec<Spec.SpecMage>({
 
 	defaults: {
 		// Default equipped gear.
-		gear: Presets.P1ArcaneGear.gear,
+		gear: Presets.PreRaidGear.gear,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
 		statCaps: (() => {
@@ -136,7 +136,7 @@ export default defineSpec<Spec.SpecMage>({
 			Presets.SkyborneFireGT180Talents,
 		],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.P1ArcaneGear],
+		gear: [Presets.PreRaidGear],
 		builds: [Presets.ArcaneBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostIncinBuild, Presets.FrostMedBuild],
 	},
 

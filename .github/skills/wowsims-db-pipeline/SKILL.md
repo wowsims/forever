@@ -179,7 +179,9 @@ Reading another table once, what the tables hold and how a script reads them: `r
   and the class suites' AllItems tests skip every item below it, hand-written effects included.
 - `gen_db -gen=atlasloot` reads only the MoP fork's MoP files, so it writes 665 items over the 11,322 classic,
   TBC and Wrath items `atlasloot_db.json` holds, which a scrape of the classic AtlasLoot repository wrote. That
-  repository is unchanged since May 2024; leave the file alone until the generator reads its files again.
+  repository is unchanged since May 2024; do not run the generator over the file until it reads those files
+  again. A wrong value in its classic entries is fixed by hand, with the same edit in `db.json` and `db.bin`
+  encoded from that `db.json`.
 - An item's phase follows its sources (`InferPhases` in `tools/database/item_phases.go`), so a scrape or a
   regeneration that adds or removes a source can move phases in `db.json` with no phase rule changed. The phase reads
   every source the inputs give an item, the ones the picker hides included. A raid opens when its row in `raids` there

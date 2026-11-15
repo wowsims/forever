@@ -9,12 +9,14 @@ import (
 
 	_ "github.com/wowsims/forever/sim/common/classic" // registers Thunderfury and Enchant Weapon - Crusader.
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/core/testagent"
 	"github.com/wowsims/forever/sim/druid"
+	"github.com/wowsims/forever/sim/priest"
 )
 
 // The caster stand-in's spells: a 2 s cast and an instant, both on the global cooldown.
@@ -935,5 +937,83 @@ func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	}
 	if got := perfect.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
 		t.Errorf("Perfected Form cast %d times by the end, want once", got)
+	}
+}
+
+// White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots at the procs per minute of the
+// item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up, a
+// missed one does not, and Shoot leaves it up. The next spell of a school the row names that pays mana
+// costs the row's amount less and spends it; a free cast keeps it.
+func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T) {
+	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 274425})
+	character := &wearer.Character
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	proc := character.GetAura("White Obsidian Wand - Trigger")
+	buff := character.GetAura("White Obsidian Wand")
+	shoot := character.GetSpell(core.ActionID{SpellID: 5019})
+	shot := character.GetSpell(core.ActionID{SpellID: 5019, Tag: 1})
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged || proc == nil || proc.Dpm == nil || buff == nil || shoot == nil || shot == nil {
+		t.Fatal("the priest swings an auto attack, or has no Shoot, or 274425 registers no buff or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 274425, 1294058)
+	if got := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); got != 0 {
+		t.Errorf("a spell hit rolls the proc at %v, want never", got)
+	}
+	row := spelldata.MustFind(1294058)
+	effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
+	smite := character.GetSpell(core.ActionID{SpellID: priest.SmiteRankMap.Highest().ID})
+	if effect == nil || effect.Average() >= 0 || smite == nil || smite.Cost == nil || !smite.SpellSchool.Matches(core.SpellSchool(effect.Misc)) {
+		t.Fatal("1294058 states no cost reduction, or the priest has no Smite with a cost in a school it names")
+	}
+
+	// Every wand shot procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRangedAuto)
+	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100})
+
+	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if buff.IsActive() {
+		t.Fatal("a missed shot put the buff up, want only a landed one")
+	}
+
+	if !shoot.Cast(sim, enemy) {
+		t.Fatal("Shoot could not be cast")
+	}
+	stepTo(t, sim, sim.CurrentTime+3*time.Second)
+	if got := shot.SpellMetrics[enemy.UnitIndex]; got.Hits+got.Crits != 1 || !buff.IsActive() {
+		t.Fatalf("Shoot landed %d shots and the buff is up %v, want one landed shot and the buff up", got.Hits+got.Crits, buff.IsActive())
+	}
+	if buff.Duration != row.Duration() {
+		t.Errorf("the buff lasts %v, want the row's %v", buff.Duration, row.Duration())
+	}
+	stepTo(t, sim, max(sim.CurrentTime, character.GCD.ReadyAt()))
+	if !shoot.Cast(sim, enemy) || !buff.IsActive() {
+		t.Fatal("Shoot could not be cast under the buff, or spent it, want the buff left up")
+	}
+	stepTo(t, sim, sim.CurrentTime+3*time.Second)
+
+	manaSpent := smite.Cost.ResourceCostImpl.(*core.ManaCost).ResourceMetrics
+	castSmite := func() float64 {
+		t.Helper()
+		stepTo(t, sim, max(sim.CurrentTime, character.GCD.ReadyAt()))
+		before := manaSpent.Gain
+		if !smite.Cast(sim, enemy) {
+			t.Fatal("Smite could not be cast")
+		}
+		stepTo(t, sim, character.Hardcast.Expires+core.SpellBatchWindow)
+		return before - manaSpent.Gain
+	}
+	free := character.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, School: smite.SpellSchool, FloatValue: -1})
+	free.Activate()
+	if paid := castSmite(); paid != 0 || !buff.IsActive() {
+		t.Fatalf("a free Smite paid %v and left the buff up %v, want it to pay nothing and leave the buff up", paid, buff.IsActive())
+	}
+	free.Deactivate()
+	cheaper := castSmite()
+	if buff.IsActive() {
+		t.Error("the Smite after the proc left the buff up, want it spent")
+	}
+	if full := castSmite(); cheaper <= 0 || full-cheaper != -effect.Average() {
+		t.Errorf("Smite cost %v under the buff and %v after it, want the row's %v less under it", cheaper, full, -effect.Average())
 	}
 }
