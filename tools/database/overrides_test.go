@@ -414,6 +414,119 @@ func TestShippedAreaBonusesAreWellFormed(t *testing.T) {
 	}
 }
 
+func TestVersusBonusesBakeOntoTheRow(t *testing.T) {
+	dummy := func(index uint8, points float64) storeEffect {
+		return storeEffect{Index: index, Type: dbcenums.E_DUMMY, BasePoints: points}
+	}
+	damage := storeEffect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100}
+	procTrigger := storeEffect{Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 112}
+	rows := []storeSpell{{ID: 10, Effects: []storeEffect{damage, dummy(1, 3)}}, {ID: 11, Effects: []storeEffect{damage, procTrigger}}, {ID: 12}}
+	list := []overrides.VersusBonus{
+		{SpellID: 10, EffectIndex: 1, Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}, Reason: "tooltip"},
+		{SpellID: 11, Multiplier: 3, MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}, Reason: "tooltip"},
+	}
+	if err := applyVersusBonuses(rows, list); err != nil {
+		t.Fatalf("%v", err)
+	}
+	if got := rows[0]; got.VersusEffectIndex != 1 || got.VersusMultiplier != 0 || len(got.VersusFamilies) != 1 ||
+		got.VersusFamilies[0] != int32(proto.CreatureFamily_CreatureFamilyPlant) || len(got.VersusMobTypes) != 0 {
+		t.Errorf("row 10 carries effect %d x%v against %v and %v", got.VersusEffectIndex, got.VersusMultiplier, got.VersusMobTypes, got.VersusFamilies)
+	}
+	if len(rows[0].overrideNotes) != 1 || !strings.Contains(rows[0].overrideNotes[0], "VersusBonus x3 ($s2) against CreatureFamilyPlant") {
+		t.Errorf("row 10's notes read %v", rows[0].overrideNotes)
+	}
+	if got := rows[1]; got.VersusMultiplier != 3 || len(got.VersusMobTypes) != 1 || got.VersusMobTypes[0] != int32(proto.MobType_MobTypeUndead) {
+		t.Errorf("row 11 carries x%v against %v", got.VersusMultiplier, got.VersusMobTypes)
+	}
+	if len(rows[2].VersusFamilies) != 0 || len(rows[2].overrideNotes) != 0 {
+		t.Errorf("row 12 was written to: %v", rows[2])
+	}
+
+	plant := []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyPlant}
+	for _, tc := range []struct {
+		name  string
+		rows  []storeSpell
+		list  []overrides.VersusBonus
+		wants string
+	}{
+		{
+			name:  "no reason",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant}},
+			wants: "states no reason",
+		},
+		{
+			name:  "a spell the store does not carry",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 12, Families: plant, Reason: "tooltip"}},
+			wants: "which the store does not carry",
+		},
+		{
+			name: "two bonuses on one spell",
+			rows: []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list: []overrides.VersusBonus{
+				{SpellID: 10, Families: plant, Reason: "tooltip"},
+				{SpellID: 10, MobTypes: []proto.MobType{proto.MobType_MobTypeUndead}, Reason: "tooltip"},
+			},
+			wants: "two versus bonuses",
+		},
+		{
+			name:  "no target",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Reason: "tooltip"}},
+			wants: "names no mob type or creature family",
+		},
+		{
+			name:  "an index the row does not have",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, EffectIndex: 1, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "an effect that acts on its points",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{damage}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "a factor of 1",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{dummy(0, 1)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Families: plant, Reason: "tooltip"}},
+			wants: "no longer holds a factor",
+		},
+		{
+			name:  "a factor of its own on a row that now states one",
+			rows:  []storeSpell{{ID: 10, Effects: []storeEffect{damage, dummy(1, 3)}}},
+			list:  []overrides.VersusBonus{{SpellID: 10, Multiplier: 3, Families: plant, Reason: "tooltip"}},
+			wants: "now states a factor of 3",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			err := applyVersusBonuses(tc.rows, tc.list)
+			if err == nil {
+				t.Fatalf("the merge accepted %s", tc.name)
+			}
+			if !strings.Contains(err.Error(), tc.wants) {
+				t.Errorf("the error reads %q, which does not name %q", err, tc.wants)
+			}
+		})
+	}
+}
+
+func TestShippedVersusBonusesAreWellFormed(t *testing.T) {
+	if len(overrides.VersusBonuses) == 0 {
+		t.Fatal("the versus bonus table is empty, so nothing below checked anything")
+	}
+	for _, b := range overrides.VersusBonuses {
+		if b.Reason == "" || b.Source == "" {
+			t.Errorf("spell %d's versus bonus states reason %q and source %q", b.SpellID, b.Reason, b.Source)
+		}
+		if len(b.MobTypes) == 0 && len(b.Families) == 0 {
+			t.Errorf("spell %d's versus bonus names no target", b.SpellID)
+		}
+	}
+}
+
 // Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
 // lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
 // under its name, an item with no set and an ItemAllowList item of the lower set stay.

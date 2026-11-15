@@ -56,14 +56,6 @@ func RegisterAllProcs() {
 			{ItemID: 1204, ItemName: "The Green Tower"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 9414, ItemName: "Oilskin Leggings"},
-		})
-
 	// When struck in combat inflicts 3 Arcane damage to the attacker.
 	// https://www.wowhead.com/forever/spell=15438
 	// equip: 15438 (A_DAMAGE_SHIELD)
@@ -201,14 +193,6 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
-		})
-
 	// Increased Fist Weapons +1.
 	// https://www.wowhead.com/forever/spell=1297442
 	// equip: 1297442 (A_MOD_SKILL)
@@ -223,14 +207,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1312955},
 		[]shared.ItemVariant{
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
-		})
-
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
 		})
 
 	// Procs
@@ -3597,21 +3573,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
-	// https://www.wowhead.com/forever/spell=1294058
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 274425, ItemName: "White Obsidian Wand"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.
 	// https://www.wowhead.com/forever/spell=1294065
 	// unsupported: states no rate
@@ -4225,7 +4186,7 @@ func RegisterAllProcs() {
 	// Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems,
 	// and Titan-forged.
 	// https://www.wowhead.com/forever/spell=12731
-	// trigger 12731 (2.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 12731 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 12731, BuffSpellID: 12731, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9418, ItemName: "Stoneslayer"},
@@ -4778,7 +4739,7 @@ func RegisterAllProcs() {
 
 	// Bash the target in the face, causing 14 Physical damage every 2.0 sec for 20 sec.
 	// https://www.wowhead.com/forever/spell=1306816
-	// trigger 1306816 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1306816 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1306816, BuffSpellID: 1306816, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 279480, ItemName: "Bigger Rock on Bigger Stick"},

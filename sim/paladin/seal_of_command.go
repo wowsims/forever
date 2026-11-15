@@ -90,9 +90,9 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 		Duration: sealDuration,
 	}).AttachProcTrigger(core.ProcTrigger{
 		Callback:       core.CallbackOnSpellHitDealt,
-		ProcMask:       sealSwingMask,
+		ProcMask:       swingMask,
 		Outcome:        core.OutcomeLanded,
-		ExtraCondition: sealHearsSwing,
+		ExtraCondition: hearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			if icd.IsReady(sim) && rollProc(sim) {
 				procSpell.Cast(sim, result.Target)

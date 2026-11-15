@@ -285,6 +285,8 @@
 			"ranged_hit_rating": "Ranged Hit",
 			"ranged_crit_rating": "Ranged Crit",
 			"ranged_crit_suppression": "Ranged Crit Suppression",
+			"main_hand_weapon_skill": "Main Hand Weapon Skill",
+			"off_hand_weapon_skill": "Off Hand Weapon Skill",
 			"healing_power": "Healing Power",
 			"spell_damage": "Spell Damage",
 			"arcane_damage": "Arcane Spell Damage",
@@ -3651,6 +3653,15 @@
 			},
 			"melee_crit_cap": "Melee Crit Cap",
 			"weapon_skill": "Weapon Skill",
+			"versus": {
+				"title": "Bonus",
+				"in_area": "In {{area}}",
+				"against": "Against {{target}}",
+				"damage": "Damage",
+				"crit_damage": "Critical Strike Damage",
+				"effect_damage": "×{{factor}} damage",
+				"effect_restore": "×{{factor}} restored"
+			},
 			"tooltip": {
 				"base": "Base:",
 				"gear": "Gear:",

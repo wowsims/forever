@@ -9115,11 +9115,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 689792, SpellID: 12179, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 17, MaxLevel: 65, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 12257, Name: "Breath of Fire", School: 4, Attr: [17]uint32{0: 0x800, 15: 0x2000}, SpellLevel: 1, DurationMs: 5000, DefenseType: 1, RefIDs: []int32{12278},
+	{ID: 12257, Name: "Breath of Fire", School: 4, Attr: [17]uint32{0: 0x800, 15: 0x2000}, SpellLevel: 1, DurationMs: 5000, DefenseType: 1, VersusEffectIndex: 1, VersusFamilies: []int32{8}, RefIDs: []int32{12278},
 		Effects: []Effect{
 			{ID: 690457, SpellID: 12257, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, PeriodMs: 1000, TriggerID: 12278, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 690458, SpellID: 12257, Index: 1, Type: dbcenums.E_TRIGGER_SPELL, BasePoints: 2, PvpMult: 1, TriggerID: 11009, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyPlant -- Breath of Fire: 'Deals $s2 times as much damage to Plants'
 	{ID: 12278, Name: "Breath of Fire", School: 4, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 1, DefenseType: 1, RefIDs: []int32{12257},
 		Effects: []Effect{
 			{ID: 689855, SpellID: 12278, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 75, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{24, 0}},
@@ -9396,11 +9396,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 689405, SpellID: 12708, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_TARGET_TRIGGER, BasePoints: 40, BaseLevel: 1, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 8}}, TriggerID: 12705, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 12731, Name: "Strength of Stone", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 2,
+	{ID: 12731, Name: "Strength of Stone", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 2, VersusEffectIndex: 1, VersusFamilies: []int32{4},
 		Effects: []Effect{
 			{ID: 690755, SpellID: 12731, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 196, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315096, SpellID: 12731, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyEarthElemental -- Strength of Stone: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'
 	{ID: 12733, Name: "Fearless", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, SpellLevel: 1, DurationMs: 30000,
 		Effects: []Effect{
 			{ID: 690568, SpellID: 12733, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MECHANIC_IMMUNITY, PvpMult: 1, Misc: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -10469,11 +10469,11 @@ var generatedSpells = []Spell{
 			{ID: 690985, SpellID: 14113, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 18, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 268558336}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1348781, SpellID: 14113, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 50, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 14118, Name: "Rend", School: 1, Attr: [17]uint32{0: 0x40000, 8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 7000, MaxRange: 100, DefenseType: 2, Mechanic: 15, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 14118, Name: "Rend", School: 1, Attr: [17]uint32{0: 0x40000, 8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 7000, MaxRange: 100, DefenseType: 2, Mechanic: 15, ProcChance: 101, VersusEffectIndex: 1, VersusMobTypes: []int32{3}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 691227, SpellID: 14118, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 23, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1324263, SpellID: 14118, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against MobTypeDragonkin -- Rend: 'Deals $s2 times as much damage to Dragonkin'
 	{ID: 14119, Name: "Lightning Bolt", Rank: "Rank 1", School: 8, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 30, CastTimeMs: 1600, MaxRange: 30, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 691228, SpellID: 14119, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 35, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -14418,11 +14418,11 @@ var generatedSpells = []Spell{
 			{ID: 694011, SpellID: 17275, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DAMAGE_SHIELD, BasePoints: 20, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 694012, SpellID: 17275, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RESISTANCE, BasePoints: 20, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 17283, Name: "Smokey's Lighter", School: 4, Attr: [17]uint32{1: 0x10000000, 15: 0x2000}, DefenseType: 1,
+	{ID: 17283, Name: "Smokey's Lighter", School: 4, Attr: [17]uint32{1: 0x10000000, 15: 0x2000}, DefenseType: 1, VersusEffectIndex: 1, VersusFamilies: []int32{8},
 		Effects: []Effect{
 			{ID: 694143, SpellID: 17283, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 210, PvpMult: 1, RadiusMax: 15, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{24, 0}},
 			{ID: 1351940, SpellID: 17283, Index: 1, BasePoints: 2, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyPlant -- Smokey's Lighter: 'Deals $s2 times as much damage to Plants'
 	{ID: 17291, Name: "Stratholme Holy Water", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 10, ProcChance: 101, TargetCreatureType: 32, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 695686, SpellID: 17291, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 500, Variance: 0.24799999594688416, BaseLevel: 60, PvpMult: 1, RadiusMax: 5, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{16, 0}},
@@ -35915,11 +35915,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1314285, SpellID: 1293544, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 2, BaseLevel: 60, PvpMult: 1, Misc: 7, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{0: 8192}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1293568, Name: "Grass Killer", School: 8, Attr: [17]uint32{15: 0x2000}, SpellLevel: 58, MaxRange: 30, DefenseType: 1, DispelType: 4,
+	{ID: 1293568, Name: "Grass Killer", School: 8, Attr: [17]uint32{15: 0x2000}, SpellLevel: 58, MaxRange: 30, DefenseType: 1, DispelType: 4, VersusEffectIndex: 1, VersusFamilies: []int32{8},
 		Effects: []Effect{
 			{ID: 1314320, SpellID: 1293568, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 126, Variance: 0.41999998688697815, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1314321, SpellID: 1293568, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyPlant -- Grass Killer: 'Deals $s2 times as much damage to Plants'
 	{ID: 1293653, Name: "Frost Blast", School: 16, Speed: 30, Attr: [17]uint32{15: 0x2000}, SpellLevel: 30, MaxRange: 30, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1314524, SpellID: 1293653, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 63, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -36228,10 +36228,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1316403, SpellID: 1294786, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MECHANIC_RESISTANCE, BasePoints: 5, BaseLevel: 60, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1294794, Name: "Fist of Stone", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 53, MaxRange: 5, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, RefIDs: []int32{21951}, ProcChanceSource: ProcChanceAlways,
+	{ID: 1294794, Name: "Fist of Stone", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 53, MaxRange: 5, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, VersusFamilies: []int32{4}, RefIDs: []int32{21951}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1316417, SpellID: 1294794, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, PvpMult: 1, TriggerID: 21951, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s1) against CreatureFamilyEarthElemental -- Fist of Stone: 'Restores $s1 times as much if attacking an Earth Elemental, Golem, or Titan-forged enemy'
 	{ID: 1294877, Name: "Boosted", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, SpellLevel: 1, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1316546, SpellID: 1294877, Type: dbcenums.E_DUMMY, BasePoints: 23, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36256,12 +36256,12 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1316648, SpellID: 1294940, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 1, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1295039, Name: "Serpentbane", School: 4, Speed: 30, Attr: [17]uint32{8: 0x1200, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 1500, DurationMs: 10000, MaxRange: 30, DefenseType: 1,
+	{ID: 1295039, Name: "Serpentbane", School: 4, Speed: 30, Attr: [17]uint32{8: 0x1200, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 1500, DurationMs: 10000, MaxRange: 30, DefenseType: 1, VersusEffectIndex: 2, VersusMobTypes: []int32{1}, VersusFamilies: []int32{18},
 		Effects: []Effect{
 			{ID: 1316823, SpellID: 1295039, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Variance: 0.23000000417232513, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1353171, SpellID: 1295039, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 45, BaseLevel: 60, PvpMult: 1, PeriodMs: 2000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1353172, SpellID: 1295039, Index: 2, BasePoints: 2, BaseLevel: 60, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: VersusBonus x2 ($s3) against MobTypeBeast, CreatureFamilySerpentine -- Serpentbane: 'Inflicts $s3 times as much damage to Beast and Serpentine targets'
 	{ID: 1295064, Name: "Maw of Min'loth", School: 1, Attr: [17]uint32{0: 0x40}, SpellLevel: 60, BaseLevel: 60, ProcChance: 10, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 3000, RefIDs: []int32{1295065},
 		Effects: []Effect{
 			{ID: 1316865, SpellID: 1295064, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 1295065, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36279,12 +36279,12 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1317197, SpellID: 1295267, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1295270, Name: "Prototype Pathcarver", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 8, DefenseType: 1, PreventionType: 1, MaxTargets: 5, SplitsDamage: true,
+	{ID: 1295270, Name: "Prototype Pathcarver", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 8, DefenseType: 1, PreventionType: 1, VersusEffectIndex: 1, VersusFamilies: []int32{8}, MaxTargets: 5, SplitsDamage: true,
 		Effects: []Effect{
 			{ID: 1317202, SpellID: 1295270, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 607, BaseLevel: 60, PvpMult: 1, RadiusMax: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{53, 16}},
 			{ID: 1317763, SpellID: 1295270, Index: 1, BasePoints: 2, BaseLevel: 60, PvpMult: 1, ChainAmp: 1},
 			{ID: 1318007, SpellID: 1295270, Index: 2, BasePoints: 4, BaseLevel: 60, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyPlant -- Prototype Pathcarver: 'Deals $s2 times as much damage to Plants'
 	{ID: 1295271, Name: "Everlook Delivery Bot", School: 1, Attr: [17]uint32{0: 0x10, 2: 0x10000000, 3: 0x30280, 4: 0x800000, 6: 0x4, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 20000, MaxRange: 30, MaxStack: 99, ProcChance: 101, ProcFlags: [2]uint32{0: 0x222a8}, RefIDs: []int32{1295633}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1317203, SpellID: 1295271, Type: dbcenums.E_DUMMY, BasePoints: 6, BaseLevel: 60, PvpMult: 1, ChainAmp: 1},
@@ -36327,11 +36327,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1317973, SpellID: 1295736, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 98, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1295744, Name: "Rot", School: 8, Attr: [17]uint32{8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 7000, MaxRange: 100, DefenseType: 1, DispelType: 3, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
+	{ID: 1295744, Name: "Rot", School: 8, Attr: [17]uint32{8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 7000, MaxRange: 100, DefenseType: 1, DispelType: 3, ProcChance: 101, VersusEffectIndex: 1, VersusFamilies: []int32{3}, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1317984, SpellID: 1295744, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 24, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1317985, SpellID: 1295744, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyAquatic -- Rot: 'Deals $s2 times as much damage to Aquatic enemies'
 	{ID: 1296202, Name: "Rat Familiar", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 3000, DurationMs: 3600000, CategoryCooldownMs: 1500, Category: 133, InterruptFlags: 15,
 		Effects: []Effect{
 			{ID: 1318702, SpellID: 1296202, Type: dbcenums.E_SUMMON, BasePoints: 1, BaseLevel: 60, PvpMult: 1, Amplitude: 1000, Misc: 266025, Misc2: 6722, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},
@@ -36593,11 +36593,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1323694, SpellID: 1299448, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: 30, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1299631, Name: "Smite", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 30, MaxRange: 100, DefenseType: 1,
+	{ID: 1299631, Name: "Smite", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 30, MaxRange: 100, DefenseType: 1, VersusEffectIndex: 1, VersusMobTypes: []int32{8},
 		Effects: []Effect{
 			{ID: 1323965, SpellID: 1299631, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 105, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1323966, SpellID: 1299631, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against MobTypeUndead -- Smite: 'Deals $s2 times as much damage to Undead'
 	{ID: 1299734, Name: "Increased Hit Chance 00.5", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1324115, SpellID: 1299734, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RATING, BasePoints: 5, BaseLevel: 60, PvpMult: 1, Misc: 224, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -37211,11 +37211,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1327799, SpellID: 1302264, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DODGE_PERCENT, BasePoints: 20, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1302279, Name: "Stoneshatter", School: 1, Attr: [17]uint32{3: 0x10000, 4: 0x800000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, CategoryCooldownMs: 1000, DefenseType: 3,
+	{ID: 1302279, Name: "Stoneshatter", School: 1, Attr: [17]uint32{3: 0x10000, 4: 0x800000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, CategoryCooldownMs: 1000, DefenseType: 3, VersusEffectIndex: 1, VersusFamilies: []int32{4},
 		Effects: []Effect{
 			{ID: 1327820, SpellID: 1302279, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 49, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1327821, SpellID: 1302279, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyEarthElemental -- Stoneshatter: 'Deals $s2 times as much damage to Earth Elementals, Golems, and Titan-forged'
 	{ID: 1302283, Name: "Imbue Frost", School: 64, Attr: [17]uint32{1: 0x400, 2: 0x2000, 15: 0x2000}, SpellLevel: 1, CastTimeMs: 3000, DefenseType: 1, DispelType: 1, PreventionType: 1, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 1024, RefIDs: []int32{1306518},
 		Effects: []Effect{
 			{ID: 1327825, SpellID: 1302283, Type: dbcenums.E_360, PvpMult: 1, Misc: 8709, ChainAmp: 1},
@@ -38231,11 +38231,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1341138, SpellID: 1311087, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 20, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 32768}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1311505, Name: "Grounded Electroshocks", School: 1, Attr: [17]uint32{0: 0x40}, SpellLevel: 60, BaseLevel: 60, ProcChance: 15, ProcFlags: [2]uint32{0: 0x51154}, ICDMs: 3000, RefIDs: []int32{1315996},
+	{ID: 1311505, Name: "Grounded Electroshocks", School: 1, Attr: [17]uint32{0: 0x40}, SpellLevel: 60, BaseLevel: 60, ProcChance: 15, ProcFlags: [2]uint32{0: 0x51154}, ICDMs: 3000, VersusEffectIndex: 1, VersusFamilies: []int32{17}, RefIDs: []int32{1315996},
 		Effects: []Effect{
 			{ID: 1341855, SpellID: 1311505, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BaseLevel: 60, PvpMult: 1, TriggerID: 1315996, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1351835, SpellID: 1311505, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyDinosaur -- Grounded Electroshocks: 'Deals $s2 times as much damage to Dinosaurs'
 	{ID: 1311590, Name: "Light's Vigil", Rank: "Rank 2", School: 2, Attr: [17]uint32{0: 0x50000, 5: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 50, BaseLevel: 50, MaxLevel: 59, CastTimeMs: 1500, MaxRange: 40, CategoryCooldownMs: 6000, GCDMs: 1500, Category: 2576, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 10, Mask: [4]uint32{3: 67108864}}, InterruptFlags: 15, Labels: []int16{26}, RefIDs: []int32{1311593, 1311591}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1341986, SpellID: 1311590, Type: dbcenums.E_DUMMY, BaseLevel: 50, MaxLevel: 59, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
@@ -38751,11 +38751,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1350488, SpellID: 1317424, Type: dbcenums.E_HEAL, BasePoints: 720, Variance: 0.20000000298023224, PvpMult: 1, Amplitude: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{21, 0}},
 		}},
-	{ID: 1317432, Name: "Forging Strike", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 2,
+	{ID: 1317432, Name: "Forging Strike", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxRange: 100, DefenseType: 2, VersusEffectIndex: 1, VersusFamilies: []int32{4, 5, 6},
 		Effects: []Effect{
 			{ID: 1350500, SpellID: 1317432, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 112, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1350501, SpellID: 1317432, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 3, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyEarthElemental, CreatureFamilyFireElemental, CreatureFamilyMountainGiant -- Forging Strike: 'Deals $s2 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants'
 	{ID: 1317441, Name: "Rune of Duty", School: 1, Attr: [17]uint32{0: 0x9800140, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, RefIDs: []int32{1317442},
 		Effects: []Effect{
 			{ID: 1350512, SpellID: 1317441, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RESISTANCE, BasePoints: 3, PvpMult: 1, Misc: 126, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -38927,10 +38927,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1351443, SpellID: 1318132, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_POWER_REGEN, BasePoints: 10, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.6, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
+	{ID: 1318159, Name: "Ancient Power", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 2.6, VersusFamilies: []int32{1, 2}, RefIDs: []int32{1265634}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1351486, SpellID: 1318159, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 2, BaseLevel: 60, PvpMult: 1, TriggerID: 1265634, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 2.6 -- Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none
+		}}, // override: PPM 2.6 -- Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none // override: VersusBonus x2 ($s1) against CreatureFamilyNaga, CreatureFamilySatyr -- Ancient Power: 'Deals $s1 times as much damage to Naga and Satyrs'
 	{ID: 1318163, Name: "Concussed", School: 1, Attr: [17]uint32{0: 0x10, 3: 0x10000, 4: 0x800000, 6: 0x200000, 15: 0x2000}, SpellLevel: 30, DurationMs: 6000, MaxRange: 100, DefenseType: 2, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1351492, SpellID: 1318163, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -20, PvpMult: 1, ChainAmp: 1, Mechanic: 11, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -39343,10 +39343,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1362423, SpellID: 1325228, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DAMAGE_SHIELD, BasePoints: 3, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1325229, Name: "Gloves of Holy Might", School: 2, Attr: [17]uint32{0: 0x10, 15: 0x2000}, SpellLevel: 1, MaxRange: 50000, DefenseType: 3,
+	{ID: 1325229, Name: "Gloves of Holy Might", School: 2, Attr: [17]uint32{0: 0x10, 15: 0x2000}, SpellLevel: 1, MaxRange: 50000, DefenseType: 3, VersusMultiplier: 3, VersusMobTypes: []int32{8},
 		Effects: []Effect{
 			{ID: 1362432, SpellID: 1325229, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 112, Variance: 0.20000000298023224, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x3 against MobTypeUndead -- Gloves of Holy Might: 'Damage is tripled against Undead'; neither 1325229 nor 1330855 states the 3
 	{ID: 1325256, Name: "Mana Tide Totem", Rank: "Rank 4", School: 16, Attr: [17]uint32{0: 0x10000, 7: 0x20, 14: 0x40, 15: 0x2000}, SpellLevel: 58, BaseLevel: 58, DurationMs: 13000, CategoryCooldownMs: 300000, GCDMs: 1000, Category: 591, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{0: 536870912}}, Labels: []int16{24}, RefIDs: []int32{1325257}, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1362474, SpellID: 1325256, Type: dbcenums.E_SUMMON, BasePoints: 5, BaseLevel: 58, PvpMult: 1, Misc: 277993, Misc2: 82, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{42, 0}},

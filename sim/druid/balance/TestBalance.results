@@ -1166,14 +1166,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestBalance-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 900.01202
-  tps: 911.03609
-  dtps: 5.42675
- }
-}
-dps_results: {
  key: "TestBalance-AllItems-MindtapTalisman-18371"
  value: {
   dps: 870.2181
@@ -1219,14 +1211,6 @@ dps_results: {
   dps: 856.6177
   tps: 867.51623
   dtps: 5.32282
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 889.20836
-  tps: 900.28187
-  dtps: 5.51363
  }
 }
 dps_results: {
@@ -1387,14 +1371,6 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.33002
- }
-}
-dps_results: {
- key: "TestBalance-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 888.59616
-  tps: 899.66717
-  dtps: 5.53359
  }
 }
 dps_results: {

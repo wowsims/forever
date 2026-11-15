@@ -256,15 +256,15 @@ func RegisterAllOnUseCds() {
 	shared.NewSpellDataDamageOnUse(8348) // Helm of Fire - https://www.wowhead.com/forever/spell=10578
 	// on use: 15712 (E_SCHOOL_DAMAGE); not simulated: E_TRIGGER_SPELL, E_TRIGGER_SPELL
 	shared.NewSpellDataDamageOnUse(11905) // Linken's Boomerang - https://www.wowhead.com/forever/spell=15712
-	// on use: 17283 (E_SCHOOL_DAMAGE); not simulated: E_NONE
+	// on use: 17283 (E_SCHOOL_DAMAGE, E_NONE)
 	shared.NewSpellDataDamageOnUse(13171) // Smokey's Lighter - https://www.wowhead.com/forever/spell=17283
 	// on use: 18364 (A_PERIODIC_TRIGGER_SPELL); every 5s for 15s: 18374 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataPeriodicDamageOnUse(14134) // Cloak of Fire - https://www.wowhead.com/forever/spell=18364
 	// on use: 26789 (E_SCHOOL_DAMAGE)
 	shared.NewSpellDataDamageOnUse(21891) // Shard of the Fallen Star - https://www.wowhead.com/forever/spell=26789
-	// on use: 1295039 (E_SCHOOL_DAMAGE, A_PERIODIC_DAMAGE); not simulated: E_NONE
+	// on use: 1295039 (E_SCHOOL_DAMAGE, A_PERIODIC_DAMAGE, E_NONE)
 	shared.NewSpellDataDamageOnUse(274609) // Serpentbane Crown - https://www.wowhead.com/forever/spell=1295039
-	// on use: 1295270 (E_SCHOOL_DAMAGE); not simulated: E_NONE, E_NONE
+	// on use: 1295270 (E_SCHOOL_DAMAGE, E_NONE); not simulated: E_NONE
 	shared.NewSpellDataDamageOnUse(274759) // Everlook Pathcarver - https://www.wowhead.com/forever/spell=1295270
 
 	// FrostDamage / ShadowDamage

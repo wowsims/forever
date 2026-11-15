@@ -76,7 +76,7 @@ func (env *Environment) construct(raidProto *proto.Raid, encounterProto *proto.E
 	env.Encounter = NewEncounter(encounterProto)
 	env.BaseDuration = env.Encounter.Duration
 	env.DurationVariation = env.Encounter.DurationVariation
-	env.Raid = NewRaid(raidProto, env.Encounter.AreaTypes)
+	env.Raid = NewRaid(raidProto)
 
 	env.Raid.updatePlayersAndPets()
 
