@@ -30,10 +30,11 @@ export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', Pr
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Vambraces of the Sadist and Crest of Retribution drop in Stratholme, Blackstone Ring in Maraudon and Riphook in
-// Lower Blackrock Spire; Royal Seal of Eldre'Thalas is a Dire Maul quest reward and Mark of Fordring the reward for In
-// Dreams. Howler's Furs, Valiant's Waistguard, Cutthroat's Signet and Adaptive Combat Assistant are sold by the
-// Undermine Trader. Spaulders of Containment, Gauntlets of Heroism, Furbolg Berserker's Boots, the Dawn Armor pattern
-// and its Pristine Scale and Fel Leather have no source in the item database.
+// Lower Blackrock Spire; Mark of Fordring is the reward for In Dreams and Blackhand's Breadth for General Drakkisath's
+// Demise or For The Horde!. Howler's Furs, Cutthroat's Signet and Adaptive Combat Assistant are sold by the Undermine
+// Trader; the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar and Ironforge.
+// Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in the item
+// database.
 export const PreBiSThreatGear = PresetUtils.makePresetGear('Pre-BiS (Threat)', PreBiSThreatGearJson, { devOnly: true });
 
 export const ProtectionTalents = PresetUtils.makePresetTalents('Protection', SavedTalents.create({ talentsString: '05-05050005-150531120300001351' }));
@@ -48,24 +49,24 @@ export const PreBiSEpWeights = PresetUtils.makePresetEpWeights(
 		{
 			[Stat.StatStamina]: 1.15,
 			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.53,
+			[Stat.StatAgility]: 0.51,
 			[Stat.StatAttackPower]: 0.27,
-			[Stat.StatHitRating]: 0.03,
-			[Stat.StatCritRating]: 0.44,
-			[Stat.StatHasteRating]: 0.2,
-			[Stat.StatExpertiseRating]: 2.13,
+			[Stat.StatHitRating]: 0.04,
+			[Stat.StatCritRating]: 0.43,
+			[Stat.StatHasteRating]: 0.19,
+			[Stat.StatExpertiseRating]: 2.22,
 			[Stat.StatArmorPenetration]: 0.11,
-			[Stat.StatDefenseRating]: 0.22,
+			[Stat.StatDefenseRating]: 0.2,
 			[Stat.StatBlockRating]: 0.02,
-			[Stat.StatBlockValue]: 0.62,
-			[Stat.StatDodgeRating]: 0.16,
-			[Stat.StatParryRating]: 0.16,
+			[Stat.StatBlockValue]: 0.61,
+			[Stat.StatDodgeRating]: 0.14,
+			[Stat.StatParryRating]: 0.15,
 			[Stat.StatArmor]: 0.04,
 			[Stat.StatBonusArmor]: 0.04,
 			[Stat.StatArmorNoMods]: 0.04,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 1.28,
+			[PseudoStat.PseudoStatMainHandDps]: 1.33,
 		},
 	),
 );
@@ -76,24 +77,24 @@ export const PreBiSThreatEpWeights = PresetUtils.makePresetEpWeights(
 		{
 			[Stat.StatStamina]: 1.15,
 			[Stat.StatStrength]: 0.62,
-			[Stat.StatAgility]: 0.5,
+			[Stat.StatAgility]: 0.52,
 			[Stat.StatAttackPower]: 0.27,
-			[Stat.StatHitRating]: 0.04,
-			[Stat.StatCritRating]: 0.43,
-			[Stat.StatHasteRating]: 0.22,
-			[Stat.StatExpertiseRating]: 2.19,
-			[Stat.StatArmorPenetration]: 0.11,
-			[Stat.StatDefenseRating]: 0.29,
-			[Stat.StatBlockRating]: 0.03,
-			[Stat.StatBlockValue]: 0.61,
-			[Stat.StatDodgeRating]: 0.13,
-			[Stat.StatParryRating]: 0.14,
-			[Stat.StatArmor]: 0.04,
-			[Stat.StatBonusArmor]: 0.04,
-			[Stat.StatArmorNoMods]: 0.04,
+			[Stat.StatHitRating]: 0.05,
+			[Stat.StatCritRating]: 0.44,
+			[Stat.StatHasteRating]: 0.25,
+			[Stat.StatExpertiseRating]: 2.55,
+			[Stat.StatArmorPenetration]: 0.12,
+			[Stat.StatDefenseRating]: 0.31,
+			[Stat.StatBlockRating]: 0.01,
+			[Stat.StatBlockValue]: 0.62,
+			[Stat.StatDodgeRating]: 0.14,
+			[Stat.StatParryRating]: 0.15,
+			[Stat.StatArmor]: 0.05,
+			[Stat.StatBonusArmor]: 0.05,
+			[Stat.StatArmorNoMods]: 0.05,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 1.3,
+			[PseudoStat.PseudoStatMainHandDps]: 1.35,
 		},
 	),
 );
@@ -127,8 +128,8 @@ export const DefaultConsumables = ConsumesSpec.create({
 });
 
 // Classic Era Molten Core logs: the healing that lands on the main tank, overhealing included, comes to 2.4 x
-// its damage taken, in heals about 0.3 s apart, 1.5% of it as absorbs. The HPS is 2.4 x the 315 damage taken per
-// second of the Pre-BiS (Defense Cap) gear against the default target, rounded down to 750; the Inspiration uptime is
+// its damage taken, in heals about 0.3 s apart, 1.5% of it as absorbs. The HPS is 2.4 x the 321 damage taken per
+// second of the Pre-BiS (Defense Cap) gear against the default target, rounded down to 770; the Inspiration uptime is
 // not from the logs.
 export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 	profession1: Profession.Engineering,
@@ -136,7 +137,7 @@ export const OtherDefaults: Partial<SimUIOtherDefaults> = {
 	race: Race.RaceOrc,
 	distanceFromTarget: 0,
 	healingModel: HealingModel.create({
-		hps: 750,
+		hps: 770,
 		cadenceSeconds: 0.3,
 		cadenceVariation: 0.64,
 		absorbFrac: 0.015,

@@ -65,30 +65,30 @@ const ARMS_PRESET_OPTIONS = {
 // Dungeon and world drops, quest rewards, vendor items and crafted items whose reagents include no raid
 // materials; no raid, raid quest, reputation or PvP rewards. The cloak, the belt and the first ring are sold by the
 // Undermine Trader in Stranglethorn Vale. The Dawn Armor pattern and its Pristine Scale and Fel Leather have no
-// known source, and neither do the Gauntlets and Battleboots of Heroism.
+// known source. The off hand, Flurry Axe, is a rare world-drop epic.
 export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGearJson, { ...FURY_PRESET_OPTIONS, devOnly: true });
 
 // The Fury build for fights of 60 to 240 s. Enrage takes no points: with no tank assigned the boss attacks no
 // one, so the sim gives it no value.
 export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-350530005122100231-1' }));
 
-// Measured on the Pre-BiS Fury gear with the Fury talents.
+// Measured on the Pre-BiS Fury gear with the Fury talents. Hit is its value below the 8% cap, where the gear sits.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury',
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.91,
+			[Stat.StatAgility]: 1.7,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.4,
-			[Stat.StatHitRating]: 2,
-			[Stat.StatHasteRating]: 1.97,
-			[Stat.StatCritRating]: 2.49,
-			[Stat.StatExpertiseRating]: 2.14,
+			[Stat.StatArmorPenetration]: 0.39,
+			[Stat.StatHitRating]: 1.86,
+			[Stat.StatHasteRating]: 1.76,
+			[Stat.StatCritRating]: 2.26,
+			[Stat.StatExpertiseRating]: 2.35,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 11.48,
-			[PseudoStat.PseudoStatOffHandDps]: 3.26,
+			[PseudoStat.PseudoStatMainHandDps]: 12.59,
+			[PseudoStat.PseudoStatOffHandDps]: 2.66,
 		},
 	),
 );
@@ -108,16 +108,16 @@ export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.72,
+			[Stat.StatAgility]: 1.73,
 			[Stat.StatAttackPower]: 1,
-			[Stat.StatArmorPenetration]: 0.44,
-			[Stat.StatHitRating]: 4.09,
-			[Stat.StatHasteRating]: 1.36,
-			[Stat.StatCritRating]: 2.24,
-			[Stat.StatExpertiseRating]: 1.67,
+			[Stat.StatArmorPenetration]: 0.45,
+			[Stat.StatHitRating]: 4.58,
+			[Stat.StatHasteRating]: 1.45,
+			[Stat.StatCritRating]: 2.25,
+			[Stat.StatExpertiseRating]: 1.42,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 17.63,
+			[PseudoStat.PseudoStatMainHandDps]: 17.42,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),
