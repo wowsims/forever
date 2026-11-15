@@ -59,11 +59,12 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 	return &dpm
 }
 
-// A procs-per-minute rate that spell hits roll as well. The hits NewLegacyPPMManager measures on a
-// swing keep that swing's speed. Every other hit of the mask except a ranged auto attack rolls on the
-// main-hand weapon's own speed, read at the roll, whether or not the character swings it. Those are a
-// caster's spells, and a spell on the ranged hit table with no ranged swing behind it, such as Thunder
-// Clap or Hammer of Wrath. With no main-hand weapon it is the sim's unarmed weapon's speed.
+// A procs-per-minute rate that spell hits roll as well. The hits NewLegacyPPMManager measures keep
+// its speeds: a swing's, and with no auto attack the wand's for a ranged hit. Every other hit of the
+// mask except a ranged auto attack rolls on the main-hand weapon's own speed, read at the roll,
+// whether or not the character swings it. Those are a caster's spells, and a spell on the ranged hit
+// table with no ranged swing or wand behind it, such as Thunder Clap or Hammer of Wrath. With no
+// main-hand weapon it is the sim's unarmed weapon's speed.
 func (character *Character) NewLegacyPPMManagerWithSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
 	build := func() DynamicProcManager {
 		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)
@@ -185,8 +186,11 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	}
 
 	aa := character.AutoAttacks
+	rangedSpeed := aa.ranged.SwingSpeed
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
-		return DynamicProcManager{}
+		// With no auto attack, only ranged hits roll, on the ranged slot's weapon speed: a caster's wand shots.
+		procMask &= ProcMaskRanged
+		rangedSpeed = character.WeaponFromRanged().SwingSpeed
 	}
 
 	dpm := DynamicProcManager{procMasks: make([]ProcMask, 0, 2), procChances: []DynamicProc{}}
@@ -210,7 +214,7 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 
 	mergeOrAppend(aa.mh.SwingSpeed, procMask&^ProcMaskRanged&^ProcMaskMeleeOH) // "everything else", even if not explicitly flagged MH
 	mergeOrAppend(aa.offHandProcSpeed(), procMask&ProcMaskMeleeOH)
-	mergeOrAppend(aa.ranged.SwingSpeed, procMask&ProcMaskRanged)
+	mergeOrAppend(rangedSpeed, procMask&ProcMaskRanged)
 
 	for i := range chances {
 		if fixedProcChance != 0 {

@@ -2528,12 +2528,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274425, // White Obsidian Wand
-		[
-			"Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.", // 1294058 - https://www.wowhead.com/forever/spell=1294058
-		]
-	],
-	[
 		274430, // Rock Sentinel Slicer
 		[
 			"While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.", // 1294065 - https://www.wowhead.com/forever/spell=1294065
@@ -4088,16 +4082,11 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[2912, { kind: 'ppm', origin: 'vanilla' }], // Claw of the Shadowmancer
 	[2942, { kind: 'ppm', origin: 'vanilla' }], // Iron Knuckles
 	[4090, { kind: 'ppm', origin: 'vanilla' }], // Mug O' Hurt
-	[6220, { kind: 'ppm', origin: 'vanilla' }], // Meteor Shard
-	[6472, { kind: 'ppm', origin: 'vanilla' }], // Stinging Viper
 	[6622, { kind: 'ppm', origin: 'vanilla' }], // Sword of Zeal
 	[6660, { kind: 'ppm', origin: 'vanilla' }], // Julie's Dagger
-	[6904, { kind: 'ppm', origin: 'vanilla' }], // Bite of Serra'kis
-	[7717, { kind: 'ppm', origin: 'vanilla' }], // Ravager
 	[7730, { kind: 'ppm', origin: 'vanilla' }], // Cobalt Crusher
 	[7961, { kind: 'ppm', origin: 'vanilla' }], // Phantom Blade
 	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
-	[9453, { kind: 'ppm', origin: 'vanilla' }], // Toxic Revenger
 	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
 	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
 	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
@@ -4107,12 +4096,10 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12795, { kind: 'ppm', origin: 'vanilla' }], // Blood Talon
 	[12797, { kind: 'ppm', origin: 'vanilla' }], // Frostguard
 	[12798, { kind: 'ppm', origin: 'tbc' }], // Annihilator
-	[12974, { kind: 'ppm', origin: 'vanilla' }], // The Black Knight
 	[12992, { kind: 'ppm', origin: 'vanilla' }], // Searing Blade
 	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
 	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
 	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
-	[13040, { kind: 'ppm', origin: 'vanilla' }], // Heartseeking Crossbow
 	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
 	[13053, { kind: 'ppm', origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper

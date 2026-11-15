@@ -18,8 +18,7 @@ type PickerGroups = Map<BulkSimItemSlot, readonly BulkPickerEntry[]>;
 const isSecondaryBulkSlot = (slot: ItemSlot, playerCanDualWield: boolean) =>
 	isSecondaryItemSlot(slot) || (playerCanDualWield && slot === ItemSlot.ItemSlotOffHand);
 
-const lookupItem = (player: Player<any>, item: ItemSpec): EquippedItem | null =>
-	player.sim.db.lookupItemSpec(item)?.withDynamicStats(player.sim.encounter.getAreaTypes()) ?? null;
+const lookupItem = (player: Player<any>, item: ItemSpec): EquippedItem | null => player.sim.db.lookupItemSpec(item)?.withDynamicStats() ?? null;
 
 /**
  * The bulk slots an item can be batched into, one entry each. Finger1/Finger2 - and both hands

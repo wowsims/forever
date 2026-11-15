@@ -1136,10 +1136,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HeartseekingCrossbow-13040"
  value: {
-  dps: 892.45972
-  tps: 915.10007
-  dtps: 9.20444
-  hps: 14.84333
+  dps: 892.14929
+  tps: 914.81017
+  dtps: 9.24761
+  hps: 14.80944
  }
 }
 dps_results: {
@@ -1404,15 +1404,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 881.85379
-  tps: 904.28867
-  dtps: 8.94036
-  hps: 13.79278
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-MindtapTalisman-18371"
  value: {
   dps: 877.512
@@ -1490,15 +1481,6 @@ dps_results: {
   dps: 886.38067
   tps: 908.77114
   dtps: 8.55278
-  hps: 13.79278
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 880.16553
-  tps: 902.60041
-  dtps: 8.94036
   hps: 13.79278
  }
 }
@@ -1746,15 +1728,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 861.54535
-  tps: 883.95909
-  dtps: 8.54329
-  hps: 13.79278
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-SpireoftheStoneshaper-12532"
  value: {
   dps: 861.30411
@@ -1775,10 +1748,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Stoneslayer-9418"
  value: {
-  dps: 891.17261
-  tps: 913.78444
-  dtps: 9.36576
-  hps: 13.92833
+  dps: 884.45532
+  tps: 907.02674
+  dtps: 9.05686
+  hps: 13.97917
  }
 }
 dps_results: {

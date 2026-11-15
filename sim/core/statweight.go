@@ -116,13 +116,46 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 	}
 }
 
-// Hit, expertise and skill are measured upward to preserve caps and the next-point interval.
+// Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
+// player already has and overstates the next ones. A weapon skill point's value moves with the skill, and
+// its weight is the average of the next points'. Feral Combat skill counts the same way.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
-	if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+	if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
 		return true
 	}
 	rating, _, hasRating := ratingBehindStat(stat)
 	return hasRating && (rating == stats.HitRating || rating == stats.ExpertiseRating)
+}
+
+func isHandWeaponSkill(stat stats.UnitStat) bool {
+	return stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatMainHandWeaponSkill) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill)
+}
+
+// Whether the request's gear or enabled item swap puts a weapon in the hand that weapon skill pseudo stat
+// raises, by GetMHWeapon's and GetOHWeapon's rule; without one its runs would repeat the baseline. An item
+// neither the request's database nor the loaded one knows counts as a weapon.
+func handHoldsWeapon(player *proto.Player, stat stats.UnitStat) bool {
+	slot := proto.ItemSlot_ItemSlotMainHand
+	if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatOffHandWeaponSkill) {
+		slot = proto.ItemSlot_ItemSlotOffHand
+	}
+	isWeapon := func(id int32) bool {
+		if slot != proto.ItemSlot_ItemSlotOffHand {
+			return true
+		}
+		weaponType := proto.WeaponType_WeaponTypeUnknown
+		requestItems := player.GetDatabase().GetItems()
+		if i := slices.IndexFunc(requestItems, func(item *proto.SimItem) bool { return item.Id == id }); i >= 0 {
+			weaponType = requestItems[i].WeaponType
+		} else if item := GetItemByID(id); item != nil {
+			weaponType = item.WeaponType
+		}
+		return weaponType != proto.WeaponType_WeaponTypeShield && weaponType != proto.WeaponType_WeaponTypeOffHand
+	}
+	holds := func(items []*proto.ItemSpec) bool {
+		return int(slot) < len(items) && items[slot].GetId() != 0 && isWeapon(items[slot].GetId())
+	}
+	return holds(player.GetEquipment().GetItems()) || (player.GetEnableItemSwap() && holds(player.GetItemSwap().GetItems()))
 }
 
 func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightRequestsData {
@@ -207,10 +240,16 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+		if _, _, hasRating := ratingBehindStat(stat); hasRating {
 			statMod = 1
-		} else if _, _, hasRating := ratingBehindStat(stat); hasRating {
-			statMod = 1
+		} else if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			if isHandWeaponSkill(stat) && !handHoldsWeapon(swr.Player, stat) {
+				continue
+			}
+			// One skill point changes too few attack rolls to measure cheaply, and most items grant one or two
+			// points, so the step is 2 points and the weight their average per point. A wider step would average
+			// over breakpoints past what an item reaches.
+			statMod = 2
 		} else if strings.Contains(statName, "Dps") {
 			statMod *= 0.5
 		} else {
