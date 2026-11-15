@@ -1195,6 +1195,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 610.87393
+  tps: 495.11504
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 651.54232

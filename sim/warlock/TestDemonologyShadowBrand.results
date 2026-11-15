@@ -1195,6 +1195,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 764.43425
