@@ -45,14 +45,11 @@ func addUnparsedStats(id int32, consumable *proto.Consumable, row *spelldata.Spe
 		if e.Type != dbcenums.E_APPLY_AURA {
 			continue
 		}
-		if stat, ok := spelldata.VersusStat(e.Aura); ok {
+		if bonus := spelldata.VersusBonus(e.Aura, e.Average()); bonus != (stats.Stats{}) {
 			if mobTypes := spelldata.MobTypes(e.Misc); len(mobTypes) > 0 {
-				consumable.MobTypeStats = append(consumable.MobTypeStats, &proto.MobTypeStats{
-					MobTypes: mobTypes,
-					Stats:    map[int32]float64{int32(stat): e.Average()},
-				})
+				consumable.MobTypeStats = append(consumable.MobTypeStats, &proto.MobTypeStats{MobTypes: mobTypes, Stats: bonus.ToProtoMap()})
 			} else {
-				versus[stat] += e.Average()
+				versus = versus.Add(bonus)
 			}
 		}
 		switch e.Aura {

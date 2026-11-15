@@ -398,6 +398,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 774.11492
+  tps: 714.13376
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 774.11492
+  tps: 714.13376
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 774.11492
+  tps: 714.13376
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 774.11492
