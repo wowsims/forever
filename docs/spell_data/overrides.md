@@ -89,6 +89,15 @@ against the encounter's area set. The override is stale once the row states a `R
 own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
 tooltip says is doubled has no reader yet.
 
+`overrides.VersusBonuses` is the third, for a row whose tooltip says it deals or restores N times as much
+against some creatures ("Deals $s2 times as much damage to Plants"), which no column names. A row names
+the mob types and creature families and the effect whose base points are the factor, or a `Multiplier`
+of its own where no effect states one (Gloves of Holy Might's tripling). These go onto
+`Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and
+`row.VersusBonus()` reads them; `shared.ItemVersusBonus` hands it to a spell and the stats sheet. The
+generator refuses a row whose effect no longer holds a factor above 1 on an `E_NONE`, `E_DUMMY`,
+`A_DUMMY` or trigger effect, and a `Multiplier` once the row states a factor on one of those.
+
 A consumable's spells take these overrides like any other spell's; the lists that add, remove or
 replace a consumable itself are in [Consumables](../consumables.md).
 

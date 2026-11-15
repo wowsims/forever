@@ -48,7 +48,7 @@ func (character *Character) enableItemSwap(itemSwap *proto.ItemSwap) {
 	for idx, itemSpec := range itemSwap.Items {
 		itemSlot := proto.ItemSlot(idx)
 		hasItemSwap[itemSlot] = itemSpec != nil && itemSpec.Id != 0
-		swapItems[itemSlot] = toItem(itemSpec).inArea(character.Party.areaTypes())
+		swapItems[itemSlot] = toItem(itemSpec)
 	}
 	swapConsumables := character.Consumables
 	applyTemporaryEnchants(swapConsumables.SwapMhImbueId, swapConsumables.SwapOhImbueId, swapConsumables.SwapMhWeaponImbueId, swapConsumables.SwapOhWeaponImbueId, &swapItems)
@@ -436,6 +436,7 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 	character.addItemWeaponSkills(&character.Equipment[slot], 1)
 	character.addItemMobTypeStats(&oldItem, -1)
 	character.addItemMobTypeStats(&character.Equipment[slot], 1)
+	character.swapItemAreaStats(sim, &oldItem, &character.Equipment[slot])
 
 	switch slot {
 	case proto.ItemSlot_ItemSlotRanged:
