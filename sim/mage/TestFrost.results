@@ -965,6 +965,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 721.06159
+  tps: 666.46075
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 761.93743

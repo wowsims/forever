@@ -1540,6 +1540,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 735.34632
+  tps: 472.38775
+  dtps: 4.33851
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 778.48841

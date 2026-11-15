@@ -1872,6 +1872,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 514.37118
+  tps: 1677.96697
+  dtps: 297.41221
+  hps: 46.46139
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 540.12774
