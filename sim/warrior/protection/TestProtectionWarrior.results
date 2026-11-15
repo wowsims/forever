@@ -785,28 +785,28 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-LesserBeastslayer-853"
  value: {
-  dps: 506.46166
-  tps: 1640.39109
-  dtps: 294.17073
-  hps: 39.22417
+  dps: 514.87953
+  tps: 1683.4768
+  dtps: 299.02344
+  hps: 39.13944
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-LesserElementalSlayer-854"
  value: {
-  dps: 506.46166
-  tps: 1640.39109
-  dtps: 294.17073
-  hps: 39.22417
+  dps: 514.87953
+  tps: 1683.4768
+  dtps: 299.02344
+  hps: 39.13944
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
-  dps: 506.46166
-  tps: 1640.39109
-  dtps: 294.17073
-  hps: 39.22417
+  dps: 514.87953
+  tps: 1683.4768
+  dtps: 299.02344
+  hps: 39.13944
  }
 }
 dps_results: {
