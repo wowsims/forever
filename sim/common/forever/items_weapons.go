@@ -391,47 +391,45 @@ func init() {
 	//
 	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
 	//
-	// TODO: the item's entry carries the rate wand shots roll it at (EV-0119), but the procs per minute
-	// managers read the speed of an auto attack weapon, and a mage, priest or warlock swings none, so a
-	// rate on a wand rolls 0. The effect stays off until a manager reads the wand's speed.
+	// Landed wand shots roll it at the item entry's procs per minute on the wand's speed (EV-0119).
 	//
 	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell
 	// with a cost spends its one charge.
-	// newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
-	// 	if !character.HasManaBar() {
-	// 		return
-	// 	}
-	// 	row := spelldata.MustFind(1294058)
-	// 	effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
-	// 	school := core.SpellSchool(effect.Misc)
-	//
-	// 	cheaper := character.AddDynamicMod(core.SpellModConfig{
-	// 		Kind:     core.SpellMod_PowerCost_Flat,
-	// 		School:   school,
-	// 		IntValue: int32(effect.Average()),
-	// 	})
-	// 	config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
-	// 	config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Activate()
-	// 	}
-	// 	config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
-	// 		cheaper.Deactivate()
-	// 	}
-	// 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-	// 		if spell.Cost != nil && spell.SpellSchool.Matches(school) {
-	// 			aura.Deactivate(sim)
-	// 		}
-	// 	}
-	// 	whiteObsidian := character.RegisterAura(config)
-	//
-	// 	trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-	// 		whiteObsidian.Activate(sim)
-	// 	}, spelldata.PPM(ppm))
-	// 	trigger.Name = "White Obsidian Wand - Trigger"
-	// 	trigger.ActionID = core.ActionID{ItemID: 274425}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
-	// })
+	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
+		if !character.HasManaBar() {
+			return
+		}
+		row := spelldata.MustFind(1294058)
+		effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
+		school := core.SpellSchool(effect.Misc)
+
+		cheaper := character.AddDynamicMod(core.SpellModConfig{
+			Kind:     core.SpellMod_PowerCost_Flat,
+			School:   school,
+			IntValue: int32(effect.Average()),
+		})
+		config := spelldata.AuraConfig(row, spelldata.Label("White Obsidian Wand"))
+		config.OnGain = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Activate()
+		}
+		config.OnExpire = func(_ *core.Aura, _ *core.Simulation) {
+			cheaper.Deactivate()
+		}
+		config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
+			if spell.Cost != nil && spell.SpellSchool.Matches(school) {
+				aura.Deactivate(sim)
+			}
+		}
+		whiteObsidian := character.RegisterAura(config)
+
+		trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
+			whiteObsidian.Activate(sim)
+		}, spelldata.PPM(ppm))
+		trigger.Name = "White Obsidian Wand - Trigger"
+		trigger.ActionID = core.ActionID{ItemID: 274425}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
+	})
 
 	// Rot-Covered Harpoon
 	// https://www.wowhead.com/forever/item=274963/rot-covered-harpoon

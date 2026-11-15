@@ -185,8 +185,10 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	}
 
 	aa := character.AutoAttacks
+	mhSpeed, ohSpeed, rangedSpeed := aa.mh.SwingSpeed, aa.offHandProcSpeed(), aa.ranged.SwingSpeed
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
-		return DynamicProcManager{}
+		// With no auto attack the only weapon hits are a wand's shots, which roll on the wand's own speed.
+		mhSpeed, ohSpeed, rangedSpeed = 0, 0, character.WeaponFromRanged().SwingSpeed
 	}
 
 	dpm := DynamicProcManager{procMasks: make([]ProcMask, 0, 2), procChances: []DynamicProc{}}
@@ -208,9 +210,9 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 		chances = append(chances, staticProc{chance: speed})
 	}
 
-	mergeOrAppend(aa.mh.SwingSpeed, procMask&^ProcMaskRanged&^ProcMaskMeleeOH) // "everything else", even if not explicitly flagged MH
-	mergeOrAppend(aa.offHandProcSpeed(), procMask&ProcMaskMeleeOH)
-	mergeOrAppend(aa.ranged.SwingSpeed, procMask&ProcMaskRanged)
+	mergeOrAppend(mhSpeed, procMask&^ProcMaskRanged&^ProcMaskMeleeOH) // "everything else", even if not explicitly flagged MH
+	mergeOrAppend(ohSpeed, procMask&ProcMaskMeleeOH)
+	mergeOrAppend(rangedSpeed, procMask&ProcMaskRanged)
 
 	for i := range chances {
 		if fixedProcChance != 0 {
