@@ -30,8 +30,8 @@ export const PreBiSGear = PresetUtils.makePresetGear('Pre-BiS (Defense Cap)', Pr
 
 // The same sources with no defense floor: the most threat that survives the default target on the default healing.
 // Vambraces of the Sadist and Crest of Retribution drop in Stratholme, Blackstone Ring in Maraudon and Riphook in
-// Lower Blackrock Spire; Mark of Fordring is the reward for In Dreams and Blackhand's Breadth for General Drakkisath's
-// Demise or For The Horde!. Howler's Furs, Cutthroat's Signet and Adaptive Combat Assistant are sold by the Undermine
+// Lower Blackrock Spire; Blackhand's Breadth is the reward for General Drakkisath's Demise or For The Horde! and Mark
+// of Fordring for In Dreams. Howler's Furs, Cutthroat's Signet and Adaptive Combat Assistant are sold by the Undermine
 // Trader; the Breastplate and Gauntlets of Heroism by the Battlegear of Heroism vendors in Orgrimmar and Ironforge.
 // Spaulders of Containment, Girdle of Extracted Answers and Furbolg Berserker's Boots have no source in the item
 // database.
