@@ -956,10 +956,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FlurryAxe-871"
  value: {
-  dps: 740.49362
-  tps: 763.28292
-  dtps: 8.56731
-  hps: 15.62278
+  dps: 741.38741
+  tps: 764.13472
+  dtps: 8.50314
+  hps: 15.35167
  }
 }
 dps_results: {
