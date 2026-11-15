@@ -12,16 +12,19 @@ import (
 // Blood Frenzy) makes it without the unit's threat multiplier.
 const ThreatPerRageGained = 5
 
-// A physical direct hit taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit after
-// the defender's damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor, resistances,
-// flat damage taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level (230.6 at 60)
-// and A is the armor reduction the game assumes in place of the defender's own. The defender's level, health and armor
-// play no part.
+// A physical melee auto attack taken grants DamageTakenRageFactor * (1 - A) * damage / c rage, where damage is the hit
+// after the defender's damage taken multipliers (Defensive Stance's 10% less, a debuff's more) and before armor,
+// resistances, flat damage taken bonuses, block and absorbs, c is the rage conversion value at the attacker's level
+// (230.6 at 60) and A is the armor reduction the game assumes in place of the defender's own. The defender's level,
+// health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
-// Damage of a school other than physical, and every periodic tick whatever its school, grants twice the rage of a
-// physical direct hit, in place of DamageTakenRageFactor * (1 - A) (EV-0052).
-// TODO: Ingame test needed -- a mob's physical Mortal Strike and Cleave read above a melee swing (EV-0052, EV-0037).
+// Damage of a school other than physical, and every periodic tick whatever its school, grants twice a physical melee
+// auto attack's rage on the same damage (EV-0052). Every other physical direct hit (Shoot, Throw, Shield Slam, Mortal
+// Strike, a ranged auto attack) grants twice that rule too, read on the damage left after armor, damage taken
+// multipliers, flat damage taken bonuses and the block, before absorbs (EV-0118).
+// TODO: Ingame test needed -- the logs behind EV-0118 hold no absorbed special and no attacker above level 40, so
+// whether an absorb takes rage off and whether the landed reading keeps the (1 - A) of higher attackers is not measured.
 const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs
@@ -111,12 +114,20 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			return
 		}
 
-		attackerLevel := spell.Unit.Level
-		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * result.PreArmorDamage /
-			rageConversion(attackerLevel) * unit.rageBar.damageTakenRageMultiplier
-		if periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical) {
-			generatedRage *= SpellDamageTakenRageMultiplier
+		damage := result.PreArmorDamage
+		multiplier := 1.0
+		switch {
+		case periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical):
+			multiplier = SpellDamageTakenRageMultiplier
+		case !spell.ProcMask.Matches(ProcMaskMeleeWhiteHit):
+			// A flat damage taken reduction, as Stoneskin Totem's, can take a weak hit below zero.
+			damage = max(0, result.PostOutcomeDamage)
+			multiplier = SpellDamageTakenRageMultiplier
 		}
+
+		attackerLevel := spell.Unit.Level
+		generatedRage := DamageTakenRageFactor * (1 - damageTakenRageArmorReduction(attackerLevel)) * damage /
+			rageConversion(attackerLevel) * multiplier * unit.rageBar.damageTakenRageMultiplier
 
 		unit.AddRage(sim, generatedRage, rageFromDamageTakenMetrics)
 	}
