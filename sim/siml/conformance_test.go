@@ -372,7 +372,7 @@ func TestSpecExamples(t *testing.T) {
 		"ui/specs/hunter/dps/apls/default.apl.siml",
 		"ui/specs/hunter/dps/apls/default_2.apl.siml",
 		"arms.apl.siml",
-		"ui/specs/hunter/dps/gear_sets/p1.gear.siml",
+		"ui/specs/hunter/dps/gear_sets/prebis_weave.gear.siml",
 		"example.siml",
 	}
 	if !slices.Equal(paths, want) {
