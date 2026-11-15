@@ -13,12 +13,15 @@ import (
 func (paladin *Paladin) registerJudgement() {
 	paladin.Judgement = paladin.RegisterSpell(paladin.judgementConfig(spellData.Judgement.Highest(), SpellMaskJudgement))
 
-	// Every melee strike that lands refreshes the judgement debuffs on its target.
+	// A white swing that lands refreshes the judgement debuffs on its target, and so does Windfury
+	// Totem's strike. Seal of Command's hit and the judgements refresh none, and Holy Strike refreshes
+	// them only through Sacred Arbiter's own trigger (EV-0117).
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Judgement Refresh" + paladin.Label,
 		Callback:           core.CallbackOnSpellHitDealt,
-		ProcMask:           core.ProcMaskMelee,
+		ProcMask:           swingMask,
 		Outcome:            core.OutcomeLanded,
+		ExtraCondition:     hearsSwing,
 		TriggerImmediately: true,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			paladin.refreshJudgements(sim, result.Target)
