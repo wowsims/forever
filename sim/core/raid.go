@@ -46,13 +46,6 @@ func (party *Party) Size() int {
 	return len(party.Players)
 }
 
-func (party *Party) areaTypes() []proto.AreaType {
-	if party.Raid == nil {
-		return nil
-	}
-	return party.Raid.AreaTypes
-}
-
 func (party *Party) IsFull() bool {
 	return party.Size() >= 5
 }
@@ -127,9 +120,6 @@ func (party *Party) GetMetrics() *proto.PartyMetrics {
 type Raid struct {
 	Parties []*Party
 
-	// The encounter's areas, needed while equipment is built.
-	AreaTypes []proto.AreaType
-
 	dpsMetrics DistributionMetrics
 	hpsMetrics DistributionMetrics
 
@@ -175,14 +165,13 @@ func (raid *Raid) GetLowestHealthAllyUnit() *Unit {
 }
 
 // Makes a new raid.
-func NewRaid(raidConfig *proto.Raid, areaTypes []proto.AreaType) *Raid {
+func NewRaid(raidConfig *proto.Raid) *Raid {
 	numParties := int(raidConfig.NumActiveParties)
 	if numParties == 0 {
 		numParties = len(raidConfig.Parties)
 	}
 
 	raid := &Raid{
-		AreaTypes:    areaTypes,
 		dpsMetrics:   NewDistributionMetrics(),
 		hpsMetrics:   NewDistributionMetrics(),
 		nextPetIndex: int32(numParties) * 5,

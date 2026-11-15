@@ -19,7 +19,12 @@ func init() {
 	core.NewItemEffect(273817, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1319047)
-		aura := core.MakePermanent(character.RegisterAura(spelldata.AuraConfig(row)))
+		config := spelldata.AuraConfig(row)
+		// Worn from the start, the aura is part of the gear the character sheet shows. The shovel is
+		// two-handed, so only the main hand wears it.
+		config.BuildPhase = core.Ternary(character.HasItemEquipped(273817, []proto.ItemSlot{proto.ItemSlot_ItemSlotMainHand}),
+			core.CharacterBuildPhaseGear, core.CharacterBuildPhaseNone)
+		aura := core.MakePermanent(character.RegisterAura(config))
 		spelldata.ParseEffects(character, aura, row, spelldata.Effects(3, 4))
 		character.ItemSwap.RegisterProc(273817, aura)
 	})
@@ -444,13 +449,12 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1295744)
 	// 	tick := row.PeriodicDamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 274963, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.Dot = spelldata.DotConfig(row, tick)
 	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 		amount := tick.Average() * creatureFamilyMultiplier(target, familyMultiplier, proto.CreatureFamily_CreatureFamilyAquatic)
-	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, amount, row.TickOutcome(dot))
+	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
 	// 	}
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
@@ -487,16 +491,13 @@ func init() {
 	// 	character := agent.GetCharacter()
 	// 	row := spelldata.MustFind(1317432)
 	// 	damage := row.DamageEffect()
-	// 	familyMultiplier := row.Effects[1].BaseValue()
 	//
 	// 	config := procSpellConfig(character, row)
 	// 	config.SpellSchool = core.SpellSchoolFire
 	// 	config.DefenseType = core.DefenseTypeMagic
+	// 	config.VersusBonus = shared.ItemVersusBonus(character, 8708, proto.VersusEffectKind_VersusEffectKindDamage, row)
 	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		amount := damage.DirectAmount(sim) * creatureFamilyMultiplier(target, familyMultiplier,
-	// 			proto.CreatureFamily_CreatureFamilyEarthElemental, proto.CreatureFamily_CreatureFamilyFireElemental,
-	// 			proto.CreatureFamily_CreatureFamilyMountainGiant)
-	// 		spell.CalcAndDealDamage(sim, target, amount, spell.OutcomeMagicHitAndCrit)
+	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
 	// 	}
 	// 	forgingStrike := character.RegisterSpell(config)
 	//
