@@ -11,11 +11,12 @@ import (
 // Only one seal is up at a time.
 const SealCategory = "PaladinSeal"
 
-// A seal that fires off white swings hears Windfury Totem's strike as one more swing (EV-0002).
-// Seal of Light and Seal of Wisdom hear melee abilities through their rows, the strike among them.
-const sealSwingMask = core.ProcMaskMeleeWhiteHit | core.ProcMaskMeleeMHSpecial
+// What fires off white swings hears Windfury Totem's strike as one more swing: the seals (EV-0002)
+// and the judgement refresh (EV-0117). Seal of Light and Seal of Wisdom hear melee abilities
+// through their rows, the strike among them.
+const swingMask = core.ProcMaskMeleeWhiteHit | core.ProcMaskMeleeMHSpecial
 
-func sealHearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+func hearsSwing(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 	return spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || buffs.IsWindfuryTotemStrike(spell)
 }
 
@@ -135,7 +136,7 @@ func afterBatch(sim *core.Simulation, priority core.ActionPriority, onAction fun
 	}))
 }
 
-// The judgement debuffs Light, Wisdom and the Crusader put up: the paladin's melee strikes
+// The judgement debuffs Light, Wisdom and the Crusader put up: the paladin's white swings
 // refresh them, and Judgement has to find the aura for the target it judges.
 func (paladin *Paladin) newJudgementAuras(makeAura func(target *core.Unit) *core.Aura) core.AuraArray {
 	auras := paladin.NewEnemyAuraArray(makeAura)
@@ -143,8 +144,7 @@ func (paladin *Paladin) newJudgementAuras(makeAura func(target *core.Unit) *core
 	return auras
 }
 
-// Refreshes every judgement debuff this paladin has on the target, which the game does on every
-// melee strike that lands.
+// Refreshes every judgement debuff this paladin has on the target.
 func (paladin *Paladin) refreshJudgements(sim *core.Simulation, target *core.Unit) {
 	for _, auras := range paladin.JudgementAuras {
 		if aura := auras.Get(target); aura.IsActive() {
