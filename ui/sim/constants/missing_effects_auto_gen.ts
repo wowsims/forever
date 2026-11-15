@@ -4070,7 +4070,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
 	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
-	[871, { kind: 'ppm', origin: 'vanilla' }], // Flurry Axe
 	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
 	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear

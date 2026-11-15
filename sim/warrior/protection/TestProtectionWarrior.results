@@ -938,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FlurryAxe-871"
  value: {
-  dps: 509.20474
-  tps: 1699.48214
-  dtps: 303.76316
-  hps: 48.08611
+  dps: 507.41116
+  tps: 1692.43327
+  dtps: 302.64586
+  hps: 47.98444
  }
 }
 dps_results: {
