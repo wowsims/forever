@@ -599,6 +599,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 681.68133
+  tps: 628.85942
+  dtps: 8.62138
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 681.68133
+  tps: 628.85942
+  dtps: 8.62138
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 681.68133
+  tps: 628.85942
+  dtps: 8.62138
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 681.68133

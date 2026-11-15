@@ -56,24 +56,60 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 }
 
 // Seal of the Dawn 13209 and Rune of the Dawn 19812 state their bonus against Undead as item stats 128 and
-// 136, which the sim adds to the attack table of an Undead target alone, at the value their equip spells
-// 23930 and 24198 state.
-func TestDawnTrinketsGrantTheirBonusAgainstUndeadAlone(t *testing.T) {
+// 136, at the value their equip spells 23930 and 24198 state. Counterattack Lodestone 18537 and Royal Seal
+// of Eldre'Thalas 18467 fold equip spells 1318938 and 1318479 into their stats, the bonus against Mechanical
+// and Demon targets with them. The sim adds each bonus to the attack table of a target of that mob type
+// alone.
+func TestTrinketsGrantTheirBonusAgainstTheirMobTypeAlone(t *testing.T) {
 	seal, rune := spelldata.MustFind(23930), spelldata.MustFind(24198)
+	lodestone, royalSeal := spelldata.MustFind(1318938), spelldata.MustFind(1318479)
 	for _, c := range []struct {
-		item int32
-		want stats.Stats
+		item    int32
+		against proto.MobType
+		want    stats.Stats
 	}{
-		{13209, stats.Stats{stats.AttackPower: seal.EffectN(1).Average(), stats.RangedAttackPower: seal.EffectN(2).Average()}},
-		{19812, stats.Stats{stats.SpellDamage: rune.EffectN(1).Average()}},
+		{13209, proto.MobType_MobTypeUndead, stats.Stats{stats.AttackPower: seal.EffectN(1).Average(), stats.RangedAttackPower: seal.EffectN(2).Average()}},
+		{19812, proto.MobType_MobTypeUndead, stats.Stats{stats.SpellDamage: rune.EffectN(1).Average()}},
+		{18537, proto.MobType_MobTypeMechanical, stats.Stats{stats.AttackPower: lodestone.EffectN(3).Average(), stats.RangedAttackPower: lodestone.EffectN(4).Average()}},
+		{18467, proto.MobType_MobTypeDemon, stats.Stats{stats.SpellDamage: royalSeal.EffectN(3).Average()}},
 	} {
-		_, againstUndead := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeUndead)
-		if got := bonusAgainstTarget(againstUndead); got != c.want || c.want == (stats.Stats{}) {
-			t.Errorf("%d: the bonus against Undead is %v, want the row's %v", c.item, got, c.want)
+		_, against := trinketWarriorFacing(t, c.item, 0, 0, c.against)
+		if got := bonusAgainstTarget(against); got != c.want || c.want == (stats.Stats{}) {
+			t.Errorf("%d: the bonus against %v is %v, want the row's %v", c.item, c.against, got, c.want)
 		}
-		_, againstDemons := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeDemon)
-		if got := bonusAgainstTarget(againstDemons); got != (stats.Stats{}) {
-			t.Errorf("%d: the bonus against Demons is %v, want none", c.item, got)
+		_, againstBeasts := trinketWarriorFacing(t, c.item, 0, 0, proto.MobType_MobTypeBeast)
+		if got := bonusAgainstTarget(againstBeasts); got != (stats.Stats{}) {
+			t.Errorf("%d: the bonus against Beasts is %v, want none", c.item, got)
+		}
+	}
+}
+
+// Draconic Infused Emblem 22268's buff 1318930 adds its spell damage a second time against Dragonkin
+// while it is up, and nothing against other targets.
+func TestDraconicInfusedEmblemBuffGrantsSpellDamageAgainstDragonkin(t *testing.T) {
+	row := spelldata.MustFind(1318930)
+	for _, c := range []struct {
+		against proto.MobType
+		want    stats.Stats
+	}{
+		{proto.MobType_MobTypeDragonkin, stats.Stats{stats.SpellDamage: row.EffectN(3).Average()}},
+		{proto.MobType_MobTypeBeast, stats.Stats{}},
+	} {
+		sim, character := trinketWarriorFacing(t, 22268, 0, 0, c.against)
+		buff := character.GetAuraByID(core.ActionID{SpellID: 1318930})
+		if buff == nil {
+			t.Fatal("22268 registers no 1318930")
+		}
+		if got := bonusAgainstTarget(character); got != (stats.Stats{}) {
+			t.Errorf("against %v the bonus before the buff is %v, want none", c.against, got)
+		}
+		buff.Activate(sim)
+		if got := bonusAgainstTarget(character); got != c.want {
+			t.Errorf("against %v the bonus with the buff up is %v, want %v", c.against, got, c.want)
+		}
+		buff.Deactivate(sim)
+		if got := bonusAgainstTarget(character); got != (stats.Stats{}) {
+			t.Errorf("against %v the bonus after the buff is %v, want none", c.against, got)
 		}
 	}
 }

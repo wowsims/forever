@@ -50,6 +50,11 @@ func itemSpecWearer(t *testing.T, class proto.Class, slot proto.ItemSlot, item *
 
 func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return itemWearerFacing(t, class, equipment, proto.MobType_MobTypeUnknown)
+}
+
+func itemWearerFacing(t *testing.T, class proto.Class, equipment *proto.EquipmentSpec, mobType proto.MobType) (*core.Simulation, *core.Character) {
+	t.Helper()
 	player := &proto.Player{
 		Name: "Wearer", Class: class, Race: proto.Race_RaceHuman,
 		Equipment:   equipment,
@@ -72,7 +77,7 @@ func itemWearerWithEquipment(t *testing.T, class proto.Class, equipment *proto.E
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()

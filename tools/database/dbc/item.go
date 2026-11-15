@@ -2,7 +2,6 @@ package dbc
 
 import (
 	"math"
-	"slices"
 
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -211,16 +210,24 @@ func (item *Item) GetMobTypeStats(itemLevel int) []*proto.MobTypeStats {
 		if value == 0 {
 			continue
 		}
-		index := slices.IndexFunc(out, func(entry *proto.MobTypeStats) bool { return entry.MobTypes[0] == versus.mobType })
-		if index < 0 {
-			out = append(out, &proto.MobTypeStats{MobTypes: []proto.MobType{versus.mobType}, Stats: map[int32]float64{}})
-			index = len(out) - 1
-		}
+		bonus := mobTypeEntryStats(&out, versus.mobType)
 		for _, granted := range versus.stats {
-			out[index].Stats[int32(granted)] += value
+			bonus[int32(granted)] += value
 		}
 	}
 	return out
+}
+
+// The stats of the entry for the mob type, appending one when the entries hold none.
+func mobTypeEntryStats(entries *[]*proto.MobTypeStats, mobType proto.MobType) map[int32]float64 {
+	for _, entry := range *entries {
+		if entry.MobTypes[0] == mobType {
+			return entry.Stats
+		}
+	}
+	entry := &proto.MobTypeStats{MobTypes: []proto.MobType{mobType}, Stats: map[int32]float64{}}
+	*entries = append(*entries, entry)
+	return entry.Stats
 }
 
 func (item *Item) GetHP5(itemLevel int) int32 {
