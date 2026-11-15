@@ -544,25 +544,25 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-LesserBeastslayer-853"
  value: {
-  dps: 599.05234
-  tps: 425.32716
-  hps: 52.05333
+  dps: 593.40869
+  tps: 421.32017
+  hps: 52.29056
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-LesserElementalSlayer-854"
  value: {
-  dps: 599.05234
-  tps: 425.32716
-  hps: 52.05333
+  dps: 593.40869
+  tps: 421.32017
+  hps: 52.29056
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-MinorBeastslayer-249"
  value: {
-  dps: 599.05234
-  tps: 425.32716
-  hps: 52.05333
+  dps: 593.40869
+  tps: 421.32017
+  hps: 52.29056
  }
 }
 dps_results: {
@@ -688,9 +688,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
-  dps: 613.47375
-  tps: 435.56636
-  hps: 60.00028
+  dps: 613.51222
+  tps: 435.59367
+  hps: 60.27139
  }
 }
 dps_results: {
