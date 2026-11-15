@@ -303,7 +303,7 @@ func TestPreArmorDamage(t *testing.T) {
 	// a 10% damage taken reduction, a crit, a 100 block and a 300 absorb:
 	// (1000 * 0.5 + 50) * 0.9 * 2 - 100 - 300 = 590 taken. A swing's rage reads the damage that keeps the crit
 	// and the 10% reduction and drops the rest, 1000 * 0.9 * 2 = 1800: 2.5 * 0.6 * 1800 / 243.64 = 11.082.
-	// A special's reads the 890 the block left, absorb included, twice: 2 * 2.5 * 0.6 * 890 / 243.64 = 10.959.
+	// A special's reads the 890 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 890 / 243.64 = 10.959.
 	tests := []struct {
 		name     string
 		special  bool
@@ -351,16 +351,33 @@ func TestPreArmorDamage(t *testing.T) {
 				t.Fatalf("Damage before armor: Expected: %0.3f, Actual: %0.3f", 1800.0, result.PreArmorDamage)
 			}
 			if !WithinToleranceFloat64(test.wantRage, gained, 0.001) {
-				t.Fatalf("Rage from the %s: Expected: %0.3f, Actual: %0.3f", test.name, test.wantRage, gained)
+				t.Fatalf("Rage from the hit: Expected: %0.3f, Actual: %0.3f", test.wantRage, gained)
 			}
 		})
+	}
+}
+
+func TestFlatReductionBelowZeroGivesNoRage(t *testing.T) {
+	// A flat physical reduction larger than the hit leaves a special nothing to read: no rage, and no panic.
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
+	fw.stats[stats.Armor] = 0
+	fw.PseudoStats.BonusPhysicalDamageTaken = -30
+	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+
+	rageBefore := fw.CurrentRage()
+	spell.DealDamage(sim, spell.calcDamageInternal(sim, &fw.Unit, 20, 1, false, hit))
+
+	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
+		t.Fatalf("Rage from a hit the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
 	}
 }
 
 func TestFullBlockGivesNoRage(t *testing.T) {
 	// A 1000 hit from a level 63 attacker on a defender without armor. A swing gives 2.5 * 0.6 * 1000 / 243.64
 	// = 6.157 when anything gets past the block, even when an absorb takes the rest. A special gives twice the
-	// rule on the 900 a 100 block leaves, absorb included: 2 * 2.5 * 0.6 * 900 / 243.64 = 11.082. Neither gives
+	// rule on the 900 a 100 block leaves, before any absorb: 2 * 2.5 * 0.6 * 900 / 243.64 = 11.082. Neither gives
 	// any when the block takes it all.
 	tests := []struct {
 		name       string

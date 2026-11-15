@@ -19,11 +19,12 @@ const ThreatPerRageGained = 5
 // health and armor play no part.
 const DamageTakenRageFactor = 2.5
 
-// Damage of a school other than physical, and every periodic tick whatever its school, grants twice an auto attack's
-// rage on the same damage (EV-0052). Every other physical direct hit (Shoot, Throw, Shield Slam, Mortal Strike, a
-// ranged auto attack) grants twice the rule as well, read on the damage that lands after armor, damage taken
-// multipliers, flat damage taken bonuses and the block; a partly blocked hit counts the part the block left (EV-0118).
-// Absorbs take nothing off it.
+// Damage of a school other than physical, and every periodic tick whatever its school, grants twice a physical melee
+// auto attack's rage on the same damage (EV-0052). Every other physical direct hit (Shoot, Throw, Shield Slam, Mortal
+// Strike, a ranged auto attack) grants twice that rule too, read on the damage left after armor, damage taken
+// multipliers, flat damage taken bonuses and the block, before absorbs (EV-0118).
+// TODO: Ingame test needed -- the logs behind EV-0118 hold no absorbed special and no attacker above level 40, so
+// whether an absorb takes rage off and whether the landed reading keeps the (1 - A) of higher attackers is not measured.
 const SpellDamageTakenRageMultiplier = 2.0
 
 // A by the attacker's level, measured on combat logs of warriors and bears taking melee hits from rage-using mobs
@@ -119,7 +120,8 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 		case periodic || !spell.SpellSchool.Matches(SpellSchoolPhysical):
 			multiplier = SpellDamageTakenRageMultiplier
 		case !spell.ProcMask.Matches(ProcMaskMeleeWhiteHit):
-			damage = result.PostOutcomeDamage
+			// A flat damage taken reduction, as Stoneskin Totem's, can take a weak hit below zero.
+			damage = max(0, result.PostOutcomeDamage)
 			multiplier = SpellDamageTakenRageMultiplier
 		}
 
