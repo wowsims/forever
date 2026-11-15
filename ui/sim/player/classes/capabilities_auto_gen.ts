@@ -73,3 +73,19 @@ export const SPEC_CAN_DUAL_WIELD = new Set<Spec>([
 	Spec.SpecDpsWarrior,
 	Spec.SpecProtectionWarrior,
 ]);
+
+export const ONE_HAND_WEAPON_SKILLS: Partial<Record<WeaponType, WeaponSkill>> = {
+	[WeaponType.WeaponTypeAxe]: WeaponSkill.WeaponSkillAxes,
+	[WeaponType.WeaponTypeDagger]: WeaponSkill.WeaponSkillDaggers,
+	[WeaponType.WeaponTypeFist]: WeaponSkill.WeaponSkillFistWeapons,
+	[WeaponType.WeaponTypeMace]: WeaponSkill.WeaponSkillMaces,
+	[WeaponType.WeaponTypeSword]: WeaponSkill.WeaponSkillSwords,
+};
+
+export const TWO_HAND_WEAPON_SKILLS: Partial<Record<WeaponType, WeaponSkill>> = {
+	[WeaponType.WeaponTypeAxe]: WeaponSkill.WeaponSkillTwoHandedAxes,
+	[WeaponType.WeaponTypeMace]: WeaponSkill.WeaponSkillTwoHandedMaces,
+	[WeaponType.WeaponTypePolearm]: WeaponSkill.WeaponSkillPolearms,
+	[WeaponType.WeaponTypeStaff]: WeaponSkill.WeaponSkillStaves,
+	[WeaponType.WeaponTypeSword]: WeaponSkill.WeaponSkillTwoHandedSwords,
+};

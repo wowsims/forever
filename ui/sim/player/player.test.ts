@@ -4,9 +4,11 @@ import { Debuffs } from '@generated/proto/buffs';
 import {
 	ActionID as ActionIdProto,
 	ConsumesSpec,
+	HandType,
 	ItemRandomSuffix,
 	ItemSlot,
 	PseudoStat,
+	ScalingItemProperties,
 	Stat,
 	WeaponSkill,
 	WeaponSkillValue,
@@ -151,6 +153,98 @@ describe('Player.getRandomSuffixes', () => {
 
 	it('skips an option missing from the database', () => {
 		expect(suffixesOf([1, 100, 2]).map(suffix => suffix.id)).toEqual([1, 2]);
+	});
+});
+
+describe('Player.computeItemEP on weapon skill', () => {
+	const MH_WEIGHT = 10;
+	const OH_WEIGHT = 4;
+	const weights = Stats.fromMap({}, { [PseudoStat.PseudoStatMainHandWeaponSkill]: MH_WEIGHT, [PseudoStat.PseudoStatOffHandWeaponSkill]: OH_WEIGHT });
+	const skill = (weaponSkill: WeaponSkill, value: number) => [WeaponSkillValue.create({ skill: weaponSkill, value })];
+	const item = (id: number, weaponSkills: WeaponSkillValue[], weaponType = WeaponType.WeaponTypeUnknown, handType = HandType.HandTypeUnknown) =>
+		Item.create({ id, weaponType, handType, scalingOptions: { 0: ScalingItemProperties.create({ weaponSkills }) } });
+	const oneHand = (id: number, weaponType: WeaponType, weaponSkills: WeaponSkillValue[] = []) => item(id, weaponSkills, weaponType, HandType.HandTypeOneHand);
+	const sword = oneHand(1, WeaponType.WeaponTypeSword);
+	const mace = oneHand(2, WeaponType.WeaponTypeMace);
+	const twoHandedSword = item(3, [], WeaponType.WeaponTypeSword, HandType.HandTypeTwoHand);
+	const swordGloves = item(10, skill(WeaponSkill.WeaponSkillSwords, 5));
+
+	// A player wearing `equipped`, which a test may change between calls to the same player.
+	const playerWearing = (equipped: Partial<Record<ItemSlot, Item>>) =>
+		Object.assign(Object.create(Player.prototype), {
+			sim: { encounter: { getAreaTypes: () => [] } },
+			itemEPCache: Array.from({ length: ItemSlot.ItemSlotRanged + 1 }, () => new Map<string, number>()),
+			getEpWeights: () => weights,
+			getEquippedItem: (slot: ItemSlot) => (equipped[slot] ? new EquippedItem({ item: equipped[slot] }) : null),
+		}) as Player<any>;
+	const itemEP = (gear: Item, slot: ItemSlot, equipped: Partial<Record<ItemSlot, Item>>) => playerWearing(equipped).computeItemEP(gear, slot);
+
+	it("values the skill at each hand's weight where that hand's weapon uses it", () => {
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, { [ItemSlot.ItemSlotMainHand]: sword, [ItemSlot.ItemSlotOffHand]: sword })).toBeCloseTo(
+			5 * MH_WEIGHT + 5 * OH_WEIGHT,
+		);
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, { [ItemSlot.ItemSlotMainHand]: sword, [ItemSlot.ItemSlotOffHand]: mace })).toBeCloseTo(
+			5 * MH_WEIGHT,
+		);
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, { [ItemSlot.ItemSlotMainHand]: mace, [ItemSlot.ItemSlotOffHand]: sword })).toBeCloseTo(
+			5 * OH_WEIGHT,
+		);
+	});
+
+	it('gives the skill nothing where no weapon uses it, a two-hander using its own two-handed skill', () => {
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, { [ItemSlot.ItemSlotMainHand]: mace, [ItemSlot.ItemSlotOffHand]: mace })).toBe(0);
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, { [ItemSlot.ItemSlotMainHand]: twoHandedSword })).toBe(0);
+		expect(itemEP(swordGloves, ItemSlot.ItemSlotHands, {})).toBe(0);
+	});
+
+	it("takes the item itself as the weapon of its own hand's slot", () => {
+		const swordOfSwords = oneHand(20, WeaponType.WeaponTypeSword, skill(WeaponSkill.WeaponSkillSwords, 5));
+		const equipped = { [ItemSlot.ItemSlotMainHand]: mace, [ItemSlot.ItemSlotOffHand]: sword };
+		expect(itemEP(swordOfSwords, ItemSlot.ItemSlotMainHand, equipped)).toBeCloseTo(5 * MH_WEIGHT + 5 * OH_WEIGHT);
+		expect(itemEP(swordOfSwords, ItemSlot.ItemSlotOffHand, { [ItemSlot.ItemSlotMainHand]: mace })).toBeCloseTo(5 * OH_WEIGHT);
+	});
+
+	it('leaves the off hand empty for a two-hander in the main hand slot', () => {
+		const twoHanderOfSwords = item(21, skill(WeaponSkill.WeaponSkillSwords, 5), WeaponType.WeaponTypeMace, HandType.HandTypeTwoHand);
+		expect(itemEP(twoHanderOfSwords, ItemSlot.ItemSlotMainHand, { [ItemSlot.ItemSlotOffHand]: sword })).toBe(0);
+	});
+
+	it('values the skill again after the equipped weapons change', () => {
+		const equipped: Partial<Record<ItemSlot, Item>> = { [ItemSlot.ItemSlotMainHand]: sword };
+		const player = playerWearing(equipped);
+		expect(player.computeItemEP(swordGloves, ItemSlot.ItemSlotHands)).toBeCloseTo(5 * MH_WEIGHT);
+		equipped[ItemSlot.ItemSlotMainHand] = mace;
+		expect(player.computeItemEP(swordGloves, ItemSlot.ItemSlotHands)).toBe(0);
+	});
+});
+
+describe('Player.holdsWeaponIn', () => {
+	const sword = Item.create({ id: 1, weaponType: WeaponType.WeaponTypeSword });
+	const shield = Item.create({ id: 2, weaponType: WeaponType.WeaponTypeShield });
+	const heldInOffHand = Item.create({ id: 3, weaponType: WeaponType.WeaponTypeOffHand });
+	const holdsOffHandWeapon = (offHand: Item | undefined, swapOffHand?: Item, swapEnabled = false) =>
+		Player.prototype.holdsWeaponIn.call(
+			{
+				getEquippedItem: () => (offHand ? new EquippedItem({ item: offHand }) : null),
+				itemSwapSettings: {
+					getEnableItemSwap: () => swapEnabled,
+					getItem: () => (swapOffHand ? new EquippedItem({ item: swapOffHand }) : null),
+				},
+			} as unknown as Player<any>,
+			ItemSlot.ItemSlotOffHand,
+		);
+
+	it('counts a weapon in the off hand, and no shield, held-in-off-hand item or empty hand', () => {
+		expect(holdsOffHandWeapon(sword)).toBe(true);
+		expect(holdsOffHandWeapon(shield)).toBe(false);
+		expect(holdsOffHandWeapon(heldInOffHand)).toBe(false);
+		expect(holdsOffHandWeapon(undefined)).toBe(false);
+	});
+
+	it('counts a weapon the item swap holds only while the item swap is on', () => {
+		expect(holdsOffHandWeapon(shield, sword, true)).toBe(true);
+		expect(holdsOffHandWeapon(shield, sword, false)).toBe(false);
+		expect(holdsOffHandWeapon(shield, shield, true)).toBe(false);
 	});
 });
 
