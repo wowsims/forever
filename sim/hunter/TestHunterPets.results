@@ -1292,6 +1292,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 684.11493
+  tps: 432.99726
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Naglering-11669"
  value: {
   dps: 693.75963

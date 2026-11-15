@@ -428,6 +428,44 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},
 		})
+
+	// Draconic Infused Emblem
+	// https://www.wowhead.com/forever/item=22268/draconic-infused-emblem
+	//
+	// Chance on harmful spellcast to increase your spell damage and healing by up to 35 for 10 sec.
+	// This spell damage increase is doubled against Dragonkin.
+	//
+	// The row's lone harmful-spell bit decodes to a cast, so the listener is moved to landed spell hits
+	// by hand: 1318931 rolls once for each enemy a harmful spell lands on, an area spell once per
+	// target and each Arcane Missiles missile on its own. A spell that applies a damage over time
+	// effect or a debuff rolls too, apart from Curse of the Elements, Recklessness and Weakness and Hex
+	// of Weakness, which the sim registers with no proc mask. Damage over time ticks never roll, and
+	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
+	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
+		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnSpellHitDealt
+			trigger.Outcome = core.OutcomeLanded
+			trigger.RequireDamageDealt = false
+			trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				return !firedAsAProc(spell)
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 22268, ItemName: "Draconic Infused Emblem"},
+		})
+}
+
+// Whether the spell is one the sim fires as a proc (spelldata.Proc marks it passive) and whose row
+// lacks "not a proc", the spells a trigger without "can proc from procs" never hears in game:
+// Hellfire Effect, Rain of Fire's waves and Blizzard's ticks among them. The class code
+// leaves SpellFlagProc off them, so the item listener asks the row itself.
+func firedAsAProc(spell *core.Spell) bool {
+	if !spell.Flags.Matches(core.SpellFlagPassiveSpell) {
+		return false
+	}
+	row := spelldata.Find(spell.ActionID.SpellID)
+	return row != nil && row.IsAProc()
 }
 
 // The ranks of the four heals Dormant Heart of the Mountain answers.

@@ -642,6 +642,9 @@
 						},
 						"wands": {
 							"type": "string"
+						},
+						"feral_combat": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
@@ -661,7 +664,8 @@
 						"crossbows",
 						"guns",
 						"thrown",
-						"wands"
+						"wands",
+						"feral_combat"
 					]
 				},
 				"spell_schools": {
@@ -859,6 +863,7 @@
 						"mp5": {
 							"type": "string"
 						},
+						"feral_combat_skill": { "type": "string" },
 						"main_hand_dps": {
 							"type": "string"
 						},
@@ -1051,6 +1056,7 @@
 						"mana",
 						"mp5",
 						"main_hand_dps",
+						"feral_combat_skill",
 						"off_hand_dps",
 						"ranged_dps",
 						"block",

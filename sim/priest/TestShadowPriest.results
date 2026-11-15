@@ -288,8 +288,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 761.70095
-  tps: 544.2744
+  dps: 749.41669
+  tps: 535.67541
   dtps: 5.76127
  }
 }
@@ -924,6 +924,14 @@ dps_results: {
   dps: 745.10057
   tps: 532.65413
   dtps: 5.64037
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 743.52949
+  tps: 531.78803
+  dtps: 4.8787
  }
 }
 dps_results: {

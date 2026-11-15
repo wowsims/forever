@@ -340,8 +340,7 @@ func TestStatWeightsStepEachPercentStatByOnePercent(t *testing.T) {
 	}
 }
 
-// Only a stat with a rating per percent or weapon DPS has a step to weigh it by; anything else, like a per-hand
-// value or reduced crit taken, panics.
+// Pseudo-stats without a defined measurement step, such as per-hand display values, are refused.
 func TestStatWeightsRefuseAnUnsupportedPseudoStat(t *testing.T) {
 	for _, pseudoStat := range []proto.PseudoStat{
 		proto.PseudoStat_PseudoStatMainHandHitRating,
@@ -1137,4 +1136,25 @@ func TestStatWeightsRefuseAStatRunLongerThanTheBaseline(t *testing.T) {
 	if plan := planStatWeightTopUp(&proto.StatWeightsTopUpRequest{Calc: calc, Target: &proto.StatWeightsTarget{EpCi: 1e-9}}); len(plan.Stats) != 0 {
 		t.Errorf("plan = %v, want no stats", plan)
 	}
+}
+
+func TestStatWeightsMeasureTheNextFeralSkillPointWithOlderArrays(t *testing.T) {
+	old := make([]float64, int(proto.PseudoStat_PseudoStatFeralCombatSkill))
+	old[proto.PseudoStat_PseudoStatMainHandDps] = 2
+	requests := buildStatWeightRequests(&proto.StatWeightsRequest{Player: &proto.Player{BonusStats: &proto.UnitStats{PseudoStats: old}}, Encounter: &proto.Encounter{}, SimOptions: &proto.SimOptions{Iterations: 2, RandomSeed: 1}, PseudoStatsToWeigh: []proto.PseudoStat{proto.PseudoStat_PseudoStatFeralCombatSkill}})
+	unitStat := stats.UnitStatFromPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill)
+	for _, request := range requests.StatSimRequests {
+		if request.StatData.UnitStat != int32(unitStat) {
+			continue
+		}
+		if request.RequestLow != nil || request.StatData.ModLow != 0 || request.StatData.ModHigh != 1 {
+			t.Fatal("Feral skill must measure only the next point")
+		}
+		ps := request.RequestHigh.Raid.Parties[0].Players[0].BonusStats.PseudoStats
+		if ps[proto.PseudoStat_PseudoStatFeralCombatSkill] != 1 || ps[proto.PseudoStat_PseudoStatMainHandDps] != 2 {
+			t.Fatal("Skill perturbation did not preserve older bonus stats")
+		}
+		return
+	}
+	t.Fatal("Feral skill request missing")
 }
