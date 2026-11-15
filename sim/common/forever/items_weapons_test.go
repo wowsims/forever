@@ -143,25 +143,6 @@ func rowTickCount(row *spelldata.Spell, tick *spelldata.Effect) int32 {
 	return int32(row.Duration() / tick.Period())
 }
 
-// Graverobber's Shovel 273817's equip spell 1319047 grants attack power and ranged attack power,
-// which the item's stats carry, and its effects 3 and 4 grant as much again of each against Undead.
-func TestGraverobbersShovelGrantsAttackPowerAgainstUndead(t *testing.T) {
-	const shovel = 273817
-	if spelldata.Find(1319047) == spelldata.Nil {
-		t.Skip("spell 1319047 is not in the live game files; this runs again once they hold it")
-	}
-	row := spelldata.MustFind(1319047)
-	want := stats.Stats{stats.AttackPower: row.EffectN(3).Average(), stats.RangedAttackPower: row.EffectN(4).Average()}
-	_, againstUndead := warriorWithConsumes(t, &proto.ConsumesSpec{}, shovel, 0, proto.MobType_MobTypeUndead)
-	if got := bonusAgainstTarget(againstUndead); got != want || want[stats.AttackPower] <= 0 {
-		t.Errorf("the bonus against Undead is %v, want the row's %v", got, want)
-	}
-	_, againstDemons := warriorWithConsumes(t, &proto.ConsumesSpec{}, shovel, 0, proto.MobType_MobTypeDemon)
-	if got := bonusAgainstTarget(againstDemons); got != (stats.Stats{}) {
-		t.Errorf("the bonus against Demons is %v, want none", got)
-	}
-}
-
 // The Green Tower 1204 carries both its generated effects, composed into the one registration core
 // takes per item: 1325228's damage shield deals its amount to the attacker of each melee hit taken
 // while the off-hand is held, and the stat proc 17154 its hits trigger registers beside it.

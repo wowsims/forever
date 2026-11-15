@@ -1856,17 +1856,14 @@ Some notes on this file:
 - `$shoot_spot` folds to `Shoot spot`, which a used file declares, while the proto keeps the exact names that
   `ui/specs/hunter/dps/spec.ts` sets.
 
-The two variable presets are one-line files:
+A variable preset is a one-line file. This is `apls/turret_multi.apl.siml`:
 
 ```
 siml 1
 spec hunter
 
-use "default.apl.siml" with $use_summon_hawk = true
+use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true
 ```
-
-This is `apls/default_hawks.apl.siml`. `apls/turret_multi.apl.siml` is
-`use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true`.
 
 ### 16.2 `arms.apl.siml` (warrior, arms; the warrior's presets are JSON, and this is how its rotation reads in SIML)
 

@@ -3802,12 +3802,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2098, // Manaflare Regalia
 		new Map([
 			[
-				4,
-				[
-					"Increases damage done by your spells and effects by up to 21 when fighting Elementals.", // 1301079 - https://www.wowhead.com/forever/spell=1301079
-				],
-			],
-			[
 				5,
 				[
 					"Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger Fingers of Frost.", // 1301488 - https://www.wowhead.com/forever/spell=1301488
@@ -3905,17 +3899,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Increases the radius of effect of your beneficial Air and Earth totems by 10 yds.", // 1301051 - https://www.wowhead.com/forever/spell=1301051
-				],
-			],
-		]),
-	],
-	[
-		2111, // The Spiritcaller's Storm
-		new Map([
-			[
-				4,
-				[
-					"Increases damage done by your spells and effects by up to 21 when fighting Elementals.", // 1301092 - https://www.wowhead.com/forever/spell=1301092
 				],
 			],
 		]),

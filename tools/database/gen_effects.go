@@ -1159,9 +1159,10 @@ func storeUnmappedSpeedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *p
 }
 
 // An equip spell whose weapon requirement dbc.EquipSpellFolds leaves to run time reaches no enchant
-// field, so the enchant registers the spell's auras as an equip aura, kept up while the enchant is
-// worn. One the rows cannot build, and one whose enchant already registers a proc, is listed as
-// missing its effect unless it is implemented by hand.
+// field, and neither does one that only grants stats against creature types, such as Beastslayer 7784.
+// The enchant registers the spell's auras as an equip aura, kept up while the enchant is worn. One the
+// rows cannot build, and one whose enchant already registers a proc, is listed as missing its effect
+// unless it is implemented by hand.
 func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *proto.UIEnchant, enchantSpellEffects map[int]*dbc.SpellEffect, groupMapProc map[string]Group) {
 	grant, ok := enchantSpellEffects[int(parsed.EffectId)]
 	if !ok || core.HasEnchantEffect(parsed.EffectId) {
@@ -1169,12 +1170,12 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 	}
 
 	for spellID := range enchantEquipSpellIDs(enchant) {
-		if dbc.EquipSpellFolds(spellID) {
+		equip := spelldata.Find(int32(spellID))
+		if dbc.EquipSpellFolds(spellID) && !grantsOnlyVersusStats(equip) {
 			continue
 		}
 
 		rendered := renderSpellTooltip(instance, grant.SpellID)
-		equip := spelldata.Find(int32(spellID))
 		row := spelldata.EquipAuraRow(equip)
 		if !keepsAnEquipAura(row) {
 			StoreMissingEffect("EnchantEffects", parsed.Name, Variant{
@@ -2017,11 +2018,11 @@ func (r *ProcRouting) ProcConstructor() string {
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
 // multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
-// attack power and spell damage against a creature type. The percents reach the item stats only through an
-// equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura. An equip spell
-// that only restates a weapon skill or creature type stat the item's own stats state leaves the item
-// (dropRestatedItemStats). One that folds drops its bonus against a creature type, so an item that states
-// such a bonus on its equip spell and not in its stats registers it by hand, as Graverobber's Shovel does.
+// attack power, spell damage and damage done against a creature type. The percents reach the item stats
+// only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura.
+// An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
+// the item (dropRestatedItemStats). One that folds carries its bonus against a creature type into the
+// item's mob type stats (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -2045,12 +2046,20 @@ var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS,
 	dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS,
 	dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS,
+	dbcenums.A_MOD_DAMAGE_DONE_CREATURE,
 }
 
 // The auras an item's or an enchant's equip spell is emitted as an aura for, beside itemAuraKinds: a
 // damage shield kept up while it is worn. A proc's damage shield row is left out: its proc flags state
 // when the shield deals damage, which the proc shapes would read as when it is applied.
 var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIELD)
+
+// Whether every effect of the spell is a stat against creature types.
+func grantsOnlyVersusStats(row *spelldata.Spell) bool {
+	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
+		return len(spelldata.VersusStats(e.Aura)) == 0
+	})
+}
 
 func keepsAnEquipAura(row *spelldata.Spell) bool {
 	return row.FirstAura(equipAuraKinds...) != spelldata.NilEffect

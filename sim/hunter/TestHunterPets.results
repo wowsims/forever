@@ -693,6 +693,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 747.55349
+  tps: 482.03074
+  dtps: 4.33851
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 747.55349
+  tps: 482.03074
+  dtps: 4.33851
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 747.55349
+  tps: 482.03074
+  dtps: 4.33851
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 747.55349
