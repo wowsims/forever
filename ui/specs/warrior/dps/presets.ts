@@ -94,8 +94,7 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 );
 
 // The same sources as the Pre-BiS Fury gear. The shoulders are a world-drop green with the "of the Tiger" suffix,
-// and the weapon, Arcanite Champion, is a Blacksmithing craft whose plans drop in Upper Blackrock
-// Spire.
+// and the weapon, Arcanite Champion, is a Blacksmithing craft whose plans drop in Upper Blackrock Spire.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
