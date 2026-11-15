@@ -596,6 +596,10 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// effect entry takes the higher of them, so this does too: Idol of the Huntress keeps its 200
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
+		// A stacking buff's bonus against creature types would need adding per stack.
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
+		}
 		aura.MaxStacks = int32(stacks)
 		return core.MakeStackingAura(character, core.StackingStatAura{Aura: aura, BonusPerStack: buffStats})
 	}
@@ -605,9 +609,21 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// this aura's business.
 	aura.MaxStacks = int32(buff.ProcCharges)
 
-	return character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
+	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
+	attachVersusStats(procAura.Aura, buff)
+	return procAura
+}
+
+// The stats the buff grants against some creature types, which the item effect entry leaves out:
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+	for _, effect := range buff.Effects {
+		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
+			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+		}
+	}
 }
 
 // How long the buff lasts. The game files leave it off the buff's own row on a fair few procs and
@@ -669,7 +685,9 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
-	attachProcDamage(character, &config, spellDataProcDamageSpell(character, damage, true))
+	damageConfig := spellDataProcDamageSpell(character, damage, true)
+	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	attachProcDamage(character, &config, damageConfig)
 	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
 }
@@ -1280,7 +1298,11 @@ func CarriedProcUnsupported(row *spelldata.Spell) []string {
 // An on-use item whose spell deals damage to its target: the direct damage its row rolls, the damage
 // over time it applies, or both.
 func NewSpellDataDamageOnUse(itemID int32) {
-	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, spellDataOnUseDamageSpell)
+	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, damage *spelldata.Spell) core.SpellConfig {
+		config := spellDataOnUseDamageSpell(character, damage)
+		config.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, damage)
+		return config
+	})
 }
 
 // The proc's damage spell, cast as a spell of its own rather than a proc's.
@@ -1295,7 +1317,9 @@ func spellDataOnUseDamageSpell(character *core.Character, damage *spelldata.Spel
 func NewSpellDataPeriodicDamageOnUse(itemID int32) {
 	registerSpellDataOnUse(itemID, core.CooldownTypeDPS, func(character *core.Character, row *spelldata.Spell) core.SpellConfig {
 		periodic := row.FirstAura(dbcenums.A_PERIODIC_TRIGGER_SPELL)
-		damage := character.RegisterSpell(spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true))
+		damageConfig := spellDataProcDamageSpell(character, spelldata.MustFind(periodic.TriggerID), true)
+		damageConfig.VersusBonus = ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindDamage, row)
+		damage := character.RegisterSpell(damageConfig)
 
 		config := spelldata.SpellConfig(&character.Unit, row, castBy(false))
 		config.ProcMask = core.ProcMaskEmpty

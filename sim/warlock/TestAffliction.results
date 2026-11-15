@@ -518,6 +518,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 659.22827
+  tps: 533.02007
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 659.22827
+  tps: 533.02007
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 659.22827
+  tps: 533.02007
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 659.22827
@@ -1420,6 +1447,15 @@ dps_results: {
   tps: 537.25519
   dtps: 8.21867
   hps: 7.28225
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 663.14889
+  tps: 536.09404
+  dtps: 8.25732
+  hps: 7.27415
  }
 }
 dps_results: {

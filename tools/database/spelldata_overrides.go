@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"slices"
+	"strings"
 
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
@@ -233,6 +234,76 @@ func applyAreaBonuses(rows []storeSpell, list []overrides.AreaBonus) error {
 				num(b.Multiplier), num(b.DurationMultiplier), b.Groups, b.Reason))
 	}
 	return nil
+}
+
+// Stale once the effect holding the factor turns into one that acts on its base points, or no longer
+// holds a factor above 1; a factor of the override's own is stale once the row states one.
+func applyVersusBonuses(rows []storeSpell, list []overrides.VersusBonus) error {
+	byID := map[int32]*storeSpell{}
+	for i := range rows {
+		byID[rows[i].ID] = &rows[i]
+	}
+
+	seen := map[int32]bool{}
+	for _, b := range list {
+		if b.Reason == "" {
+			return fmt.Errorf("the versus bonus of spell %d states no reason", b.SpellID)
+		}
+		if seen[b.SpellID] {
+			return fmt.Errorf("spell %d carries two versus bonuses", b.SpellID)
+		}
+		seen[b.SpellID] = true
+		if len(b.MobTypes) == 0 && len(b.Families) == 0 {
+			return fmt.Errorf("the versus bonus of spell %d names no mob type or creature family", b.SpellID)
+		}
+
+		row, ok := byID[b.SpellID]
+		if !ok {
+			return fmt.Errorf("the versus bonus names spell %d, which the store does not carry", b.SpellID)
+		}
+
+		factor := num(b.Multiplier)
+		if b.Multiplier == 0 {
+			i := slices.IndexFunc(row.Effects, func(e storeEffect) bool { return e.Index == b.EffectIndex })
+			if i < 0 || !holdsVersusFactor(&row.Effects[i]) || row.Effects[i].BasePoints <= 1 {
+				return fmt.Errorf("spell %d's effect %d no longer holds a factor above 1 on an effect that does nothing else, so its versus bonus is stale",
+					b.SpellID, b.EffectIndex)
+			}
+			factor = fmt.Sprintf("%s ($s%d)", num(row.Effects[i].BasePoints), b.EffectIndex+1)
+		} else if i := slices.IndexFunc(row.Effects, func(e storeEffect) bool { return valueOnly(&e) && e.BasePoints > 1 }); i >= 0 {
+			return fmt.Errorf("spell %d's effect %d now states a factor of %s, so its hand-supplied versus factor is stale",
+				b.SpellID, row.Effects[i].Index, num(row.Effects[i].BasePoints))
+		}
+
+		var targets []string
+		for _, mobType := range b.MobTypes {
+			row.VersusMobTypes = append(row.VersusMobTypes, int32(mobType))
+			targets = append(targets, mobType.String())
+		}
+		for _, family := range b.Families {
+			row.VersusFamilies = append(row.VersusFamilies, int32(family))
+			targets = append(targets, family.String())
+		}
+		row.VersusEffectIndex, row.VersusMultiplier = b.EffectIndex, b.Multiplier
+		row.overrideNotes = append(row.overrideNotes,
+			fmt.Sprintf("override: VersusBonus x%s against %s -- %s", factor, strings.Join(targets, ", "), b.Reason))
+	}
+	return nil
+}
+
+// The effects whose base points can carry a tooltip's factor: a value-only effect, or a trigger, whose
+// points the spell it casts does not read (Breath of Fire's 12257 and Ancient Power's 1318159). A
+// trigger's points can also be any other tooltip number (1330855's 112), so only a value-only effect
+// counts as a row stating a factor of its own.
+func holdsVersusFactor(e *storeEffect) bool {
+	return valueOnly(e) || e.Type == dbcenums.E_TRIGGER_SPELL ||
+		e.Type == dbcenums.E_APPLY_AURA && e.Aura == dbcenums.A_PROC_TRIGGER_SPELL
+}
+
+// An effect that does nothing with its base points: E_NONE, E_DUMMY or A_DUMMY.
+func valueOnly(e *storeEffect) bool {
+	return e.Type == dbcenums.E_NONE || e.Type == dbcenums.E_DUMMY ||
+		e.Type == dbcenums.E_APPLY_AURA && e.Aura == dbcenums.A_DUMMY
 }
 
 // The ticking effect: a periodic aura, or the damage effect the rank's dummy times, which is how

@@ -1,5 +1,7 @@
 # EV-0003: Chance-on-hit weapon rates from end-game dungeon logs
 
+EV-0119 replaces the Stoneslayer row, which counted each paladin Judgement of Command hit as one roll.
+
 - Claim: the procs per minute of 18 chance-on-hit weapons whose game files state no rate.
 - Sources: Warcraft Logs, the report and fight of each row's first run in the table
 - Game build: not recorded

@@ -24,17 +24,17 @@ func passUnsealedWrathCooldown(sim *core.Simulation) {
 // swing that always lands, and a count of the Seal of Righteousness hits cast so far under one tag.
 func unsealedWrathPaladin(t *testing.T) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
 	t.Helper()
-	return unsealedWrathPaladinUnder(t, &proto.RaidBuffs{})
+	return unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{})
 }
 
-func unsealedWrathPaladinUnder(t *testing.T, raidBuffs *proto.RaidBuffs) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
+func unsealedWrathPaladinWith(t *testing.T, talents string, raidBuffs *proto.RaidBuffs) (sim *core.Simulation, pal *paladin.Paladin, swing func(), righteousnessHits func(tag int32) int32) {
 	t.Helper()
 	player := &proto.Player{
 		Name:           "Unsealed Wrath",
 		Race:           proto.Race_RaceHuman,
 		Class:          proto.Class_ClassPaladin,
 		Equipment:      core.GetGearSet("../../../ui/specs/paladin/retribution/gear_sets", "default").GearSet,
-		TalentsString:  UnsealedWrathTalents,
+		TalentsString:  talents,
 		EnableItemSwap: true,
 		ItemSwap:       core.GetItemSwapGearSet("../../../ui/specs/paladin/retribution/gear_sets", "holy_shock_item_swap").ItemSwap,
 		Spec: &proto.Player_RetributionPaladin{RetributionPaladin: &proto.RetributionPaladin{
@@ -108,7 +108,7 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 		{"Seal of Light", paladin.SealOfLightRankMap.Highest().ID, paladin.SpellMaskSealOfLightProc},
 	} {
 		t.Run(c.name, func(t *testing.T) {
-			sim, pal, _, _ := unsealedWrathPaladinUnder(t, &proto.RaidBuffs{WindfuryTotem: true})
+			sim, pal, _, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 			strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 			if strike == nil {
 				t.Fatal("the paladin has no Windfury Totem strike")
@@ -137,11 +137,81 @@ func TestSealsHearWindfuryTotemsStrike(t *testing.T) {
 	}
 }
 
+var noSacredArbiterTalents = "050250002-501-15233011200301351" // The Unsealed Wrath build with Sacred Arbiter's point in Deflection.
+
+// A landed white swing refreshes Judgement of the Crusader on its target, and so does Windfury
+// Totem's strike. Seal of Command's hit and Judgement of Command leave it running down, and so does
+// Holy Strike unless Sacred Arbiter is taken (EV-0117).
+func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing.T) {
+	for _, build := range []struct {
+		name          string
+		talents       string
+		sacredArbiter bool
+	}{
+		{"without Sacred Arbiter", noSacredArbiterTalents, false},
+		{"with Sacred Arbiter", UnsealedWrathTalents, true},
+	} {
+		t.Run(build.name, func(t *testing.T) {
+			sim, pal, _, _ := unsealedWrathPaladinWith(t, build.talents, &proto.RaidBuffs{WindfuryTotem: true})
+			if pal.Talents.SacredArbiter != build.sacredArbiter || !pal.Talents.SealOfCommand {
+				t.Fatalf("the talents take Sacred Arbiter: %v, want %v, or lack Seal of Command", pal.Talents.SacredArbiter, build.sacredArbiter)
+			}
+			target := pal.CurrentTarget
+			byMask := func(mask int64) *core.Spell {
+				for _, spell := range pal.Spellbook {
+					if spell.Matches(mask) && spell.ActionID.Tag == 0 {
+						return spell
+					}
+				}
+				return nil
+			}
+
+			castSeal(t, sim, pal, paladin.SealOfTheCrusaderRankMap.Highest().ID)
+			judgement := byMask(paladin.SpellMaskJudgementOfTheCrusader)
+			if judgement == nil {
+				t.Fatal("Judgement of the Crusader is not registered")
+			}
+			judgement.SkipCastAndApplyEffects(sim, target)
+			var debuff *core.Aura
+			for _, auras := range pal.JudgementAuras {
+				if aura := auras.Get(target); aura.IsActive() {
+					debuff = aura
+				}
+			}
+			if debuff == nil {
+				t.Fatal("the judgement left no debuff on the target")
+			}
+
+			for _, hit := range []struct {
+				name      string
+				spell     *core.Spell
+				refreshes bool
+			}{
+				{"a white swing", pal.AutoAttacks.MHAuto(), true},
+				{"Windfury Totem's strike", pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike}), true},
+				{"Holy Strike", pal.GetSpell(core.ActionID{SpellID: paladin.HolyStrikeRankMap.Highest().ID}), build.sacredArbiter},
+				{"Seal of Command's hit", byMask(paladin.SpellMaskSealOfCommandProc), false},
+				{"Judgement of Command", byMask(paladin.SpellMaskJudgementOfCommand), false},
+			} {
+				if hit.spell == nil {
+					t.Fatalf("%s is not registered", hit.name)
+				}
+				passUnsealedWrathCooldown(sim)
+				before := debuff.ExpiresAt()
+				pal.OnSpellHitDealt(sim, hit.spell, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+				if got := debuff.ExpiresAt() > before; got != hit.refreshes {
+					t.Errorf("%s landing refreshed the judgement debuff: %v, want %v", hit.name, got, hit.refreshes)
+				}
+			}
+		})
+	}
+}
+
 // Windfury Totem's strike neither stores nor spends an Echo, though the seals hear it as a white
 // swing: Unsealed Wrath hears white swings only. Each landed swing stores one copy whether or not a
 // strike follows.
 func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
-	sim, pal, swing, _ := unsealedWrathPaladinUnder(t, &proto.RaidBuffs{WindfuryTotem: true})
+	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
 	echo := pal.GetAuraByID(core.ActionID{SpellID: 1311704})
 	if strike == nil || echo == nil {

@@ -61,6 +61,11 @@ type storeSpell struct {
 	AreaBonusGroups                        []int32
 	AreaMultiplier, AreaDurationMultiplier float64
 
+	// A factor against some targets, from an override.
+	VersusEffectIndex              uint8
+	VersusMultiplier               float64
+	VersusMobTypes, VersusFamilies []int32
+
 	ClassFlags core.ClassFlags
 
 	InterruptFlags                  uint32

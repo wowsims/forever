@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 828.33103
-  tps: 677.21171
-  dtps: 5.40643
-  hps: 25.56442
+  dps: 823.17222
+  tps: 672.2097
+  dtps: 4.39845
+  hps: 25.54595
  }
 }
 dps_results: {
@@ -644,6 +644,33 @@ dps_results: {
   dps: 859.59653
   tps: 699.68683
   dtps: 3.34659
+  hps: 24.67179
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 859.59615
+  tps: 700.11303
+  dtps: 3.51022
+  hps: 24.67179
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 859.59615
+  tps: 700.11303
+  dtps: 3.51022
+  hps: 24.67179
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 859.59615
+  tps: 700.11303
+  dtps: 3.51022
   hps: 24.67179
  }
 }
@@ -1323,15 +1350,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 876.8385
-  tps: 713.85535
-  dtps: 3.45217
-  hps: 24.66721
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-MindtapTalisman-18371"
  value: {
   dps: 874.68861
@@ -1401,15 +1419,6 @@ dps_results: {
   tps: 713.45447
   dtps: 3.38133
   hps: 24.66518
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 848.87431
-  tps: 692.08797
-  dtps: 4.80894
-  hps: 24.31596
  }
 }
 dps_results: {
@@ -1692,15 +1701,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 861.71419
-  tps: 701.76203
-  dtps: 3.45217
-  hps: 24.66315
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-SteadfastLibram-279247"
  value: {
   dps: 886.00053
@@ -1721,10 +1721,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Stoneslayer-9418"
  value: {
-  dps: 879.97809
-  tps: 716.81902
-  dtps: 4.27605
-  hps: 24.33934
+  dps: 874.479
+  tps: 712.42942
+  dtps: 4.11939
+  hps: 24.54911
  }
 }
 dps_results: {

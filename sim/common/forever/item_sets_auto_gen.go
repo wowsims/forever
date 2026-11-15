@@ -1573,13 +1573,9 @@ func RegisterAllSetBonuses() {
 		// Reduces the cooldown of your Counterspell by 5 sec.
 		// https://www.wowhead.com/forever/spell=1301013
 		3: {1301013},
-
-		// TODO: Manual implementation required
-		//
 		// Increases damage done by your spells and effects by up to 21 when fighting Elementals.
 		// https://www.wowhead.com/forever/spell=1301079
-		// unsupported: effect 1 A_MOD_DAMAGE_DONE_CREATURE misc 8 is not parsed
-		// 4: {1301079},
+		4: {1301079},
 
 		// TODO: Manual implementation required
 		//
@@ -1661,14 +1657,9 @@ func RegisterAllSetBonuses() {
 		// Reduces the cooldown of your Earthbind Totem spell by 2 sec.
 		// https://www.wowhead.com/forever/spell=1301053
 		3: {1301053},
-
-		// TODO: Manual implementation required
-		//
 		// Increases damage done by your spells and effects by up to 21 when fighting Elementals.
 		// https://www.wowhead.com/forever/spell=1301092
-		// unsupported: effect 1 A_MOD_DAMAGE_DONE_CREATURE misc 8 is not parsed
-		// 4: {1301092},
-
+		4: {1301092},
 		// Reduces the cooldown of your Lava Burst spell by 1 sec.
 		// https://www.wowhead.com/forever/spell=1301711
 		5: {1301711},

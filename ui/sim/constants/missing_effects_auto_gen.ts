@@ -2528,12 +2528,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274425, // White Obsidian Wand
-		[
-			"Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.", // 1294058 - https://www.wowhead.com/forever/spell=1294058
-		]
-	],
-	[
 		274430, // Rock Sentinel Slicer
 		[
 			"While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.", // 1294065 - https://www.wowhead.com/forever/spell=1294065
@@ -3814,12 +3808,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		2098, // Manaflare Regalia
 		new Map([
 			[
-				4,
-				[
-					"Increases damage done by your spells and effects by up to 21 when fighting Elementals.", // 1301079 - https://www.wowhead.com/forever/spell=1301079
-				],
-			],
-			[
 				5,
 				[
 					"Your Frostfire Bolt spell has a 10% increased chance to trigger Missile Barrage, gains 10% increased critical strike chance while your Combustion spell is active, and has a 10% increased chance to trigger Fingers of Frost.", // 1301488 - https://www.wowhead.com/forever/spell=1301488
@@ -3917,17 +3905,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				3,
 				[
 					"Increases the radius of effect of your beneficial Air and Earth totems by 10 yds.", // 1301051 - https://www.wowhead.com/forever/spell=1301051
-				],
-			],
-		]),
-	],
-	[
-		2111, // The Spiritcaller's Storm
-		new Map([
-			[
-				4,
-				[
-					"Increases damage done by your spells and effects by up to 21 when fighting Elementals.", // 1301092 - https://www.wowhead.com/forever/spell=1301092
 				],
 			],
 		]),
@@ -4076,7 +4053,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
 	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
-	[871, { kind: 'ppm', origin: 'vanilla' }], // Flurry Axe
 	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
 	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear
@@ -4088,16 +4064,11 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[2912, { kind: 'ppm', origin: 'vanilla' }], // Claw of the Shadowmancer
 	[2942, { kind: 'ppm', origin: 'vanilla' }], // Iron Knuckles
 	[4090, { kind: 'ppm', origin: 'vanilla' }], // Mug O' Hurt
-	[6220, { kind: 'ppm', origin: 'vanilla' }], // Meteor Shard
-	[6472, { kind: 'ppm', origin: 'vanilla' }], // Stinging Viper
 	[6622, { kind: 'ppm', origin: 'vanilla' }], // Sword of Zeal
 	[6660, { kind: 'ppm', origin: 'vanilla' }], // Julie's Dagger
-	[6904, { kind: 'ppm', origin: 'vanilla' }], // Bite of Serra'kis
-	[7717, { kind: 'ppm', origin: 'vanilla' }], // Ravager
 	[7730, { kind: 'ppm', origin: 'vanilla' }], // Cobalt Crusher
 	[7961, { kind: 'ppm', origin: 'vanilla' }], // Phantom Blade
 	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
-	[9453, { kind: 'ppm', origin: 'vanilla' }], // Toxic Revenger
 	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
 	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
 	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
@@ -4107,12 +4078,10 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12795, { kind: 'ppm', origin: 'vanilla' }], // Blood Talon
 	[12797, { kind: 'ppm', origin: 'vanilla' }], // Frostguard
 	[12798, { kind: 'ppm', origin: 'tbc' }], // Annihilator
-	[12974, { kind: 'ppm', origin: 'vanilla' }], // The Black Knight
 	[12992, { kind: 'ppm', origin: 'vanilla' }], // Searing Blade
 	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
 	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
 	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
-	[13040, { kind: 'ppm', origin: 'vanilla' }], // Heartseeking Crossbow
 	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
 	[13053, { kind: 'ppm', origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper

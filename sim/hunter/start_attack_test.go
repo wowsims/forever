@@ -17,7 +17,7 @@ func newStartAttackSim(t *testing.T, rotation *proto.APLRotation) (*core.Simulat
 		Name:               "Weaver",
 		Race:               proto.Race_RaceOrc,
 		Class:              proto.Class_ClassHunter,
-		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1_melee").GearSet,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_melee").GearSet,
 		TalentsString:      DefaultSVTalents,
 		Spec:               DefaultOptions,
 		Rotation:           rotation,
@@ -32,7 +32,7 @@ func newStartAttackSim(t *testing.T, rotation *proto.APLRotation) (*core.Simulat
 	sim.PrePull()
 	hunter := sim.Raid.Parties[0].Players[0].(*Hunter)
 	if !hunter.AutoAttacks.IsDualWielding {
-		t.Fatal("the p1_melee hunter does not dual wield")
+		t.Fatal("the prebis_melee hunter does not dual wield")
 	}
 	stepTo := func(at time.Duration) {
 		t.Helper()

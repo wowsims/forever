@@ -146,10 +146,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 490.56677
-  tps: 415.66143
+  dps: 484.41628
+  tps: 409.21888
   dtps: 2.97628
-  hps: 24.73889
+  hps: 24.705
  }
 }
 dps_results: {
@@ -639,6 +639,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 530.99528
+  tps: 458.95167
+  dtps: 2.94293
+  hps: 43.53028
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 530.99528
+  tps: 458.95167
+  dtps: 2.94293
+  hps: 43.53028
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 530.99528
+  tps: 458.95167
+  dtps: 2.94293
+  hps: 43.53028
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 530.99528
@@ -776,10 +803,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FlurryAxe-871"
  value: {
-  dps: 518.79791
-  tps: 450.85139
+  dps: 520.22235
+  tps: 452.15015
   dtps: 2.94293
-  hps: 49.95222
+  hps: 50.20639
  }
 }
 dps_results: {
@@ -1206,15 +1233,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 524.4279
-  tps: 453.5322
-  dtps: 2.94293
-  hps: 43.49639
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-MindtapTalisman-18371"
  value: {
   dps: 530.99528
@@ -1275,15 +1293,6 @@ dps_results: {
   tps: 449.83085
   dtps: 2.97628
   hps: 24.14583
- }
-}
-dps_results: {
- key: "TestDpsWarrior-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 532.72844
-  tps: 460.81746
-  dtps: 2.94293
-  hps: 44.10639
  }
 }
 dps_results: {
@@ -1530,15 +1539,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestDpsWarrior-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 540.25463
-  tps: 466.20051
-  dtps: 3.05866
-  hps: 43.53028
- }
-}
-dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneshatter-18388"
  value: {
   dps: 531.1606
@@ -1550,10 +1550,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneslayer-9418"
  value: {
-  dps: 508.52481
-  tps: 428.12236
+  dps: 497.91798
+  tps: 420.54285
   dtps: 2.97628
-  hps: 22.79028
+  hps: 23.07833
  }
 }
 dps_results: {

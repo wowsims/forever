@@ -181,6 +181,7 @@ type Unit struct {
 	dotRankGroups map[string]*dotRankGroup
 
 	AttackTables                 []*AttackTable
+	mobTypeBonuses               map[proto.MobType]*mobTypeBonus
 	DynamicDamageTakenModifiers  []DynamicDamageTakenModifier
 	DynamicHealingTakenModifiers []DynamicHealingTakenModifier
 	Blockhandler                 func(sim *Simulation, spell *Spell, result *SpellResult)

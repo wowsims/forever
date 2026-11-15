@@ -1,5 +1,7 @@
 # EV-0022: Weapon rates, paladin procs and Two-Handed Weapon Specialization's Holy reach from a levelling log corpus
 
+EV-0119 replaces the Bigger Rock on Bigger Stick row with a count on isolated hits of non-feral wearers.
+
 - Claim: the procs per minute of Ripsaw, The Hand of Antu'sul, Jang'thraze the Protector, Thrash Blade and Bigger Rock on
   Bigger Stick, and that a druid's form specials roll no chance-on-hit weapon; Redoubt rolls on every melee swing taken,
   Shieldsworn's spell block comes with every Holy Strike while its mana and Holy Shield damage need a landed strike, Seal

@@ -542,6 +542,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 593.40869
@@ -664,9 +688,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
-  dps: 612.31747
-  tps: 434.7454
-  hps: 60.42389
+  dps: 613.47375
+  tps: 435.56636
+  hps: 60.00028
  }
 }
 dps_results: {
@@ -1078,14 +1102,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 597.45667
-  tps: 424.19424
-  hps: 52.29056
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-MindtapTalisman-18371"
  value: {
   dps: 596.00462
@@ -1123,14 +1139,6 @@ dps_results: {
   dps: 530.64159
   tps: 376.75553
   hps: 52.47694
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 590.5299
-  tps: 419.27623
-  hps: 52.29056
  }
 }
 dps_results: {
@@ -1315,14 +1323,6 @@ dps_results: {
   dps: 596.00462
   tps: 423.16328
   hps: 51.95167
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 590.58148
-  tps: 419.31285
-  hps: 52.29056
  }
 }
 dps_results: {

@@ -117,7 +117,7 @@ type simlSimResult struct {
 //	  "timeline": [{"timeMs": -1500, "path": "prepullActions/0", "label": "Cast Spell(Hunter's Mark)"},
 //	               {"timeMs": 0, "path": "groups/0/actions/1", "label": "...", "via": "priorityList/2"}],
 //	  "character": {"source": "ui/specs/hunter/dps/builds/mm.siml over ui/specs/hunter/dps/defaults.siml",
-//	                "race": "RaceOrc", "talents": "...", "gear": "p1", "warnings": []},
+//	                "race": "RaceOrc", "talents": "...", "gear": "prebis_turret", "warnings": []},
 //	  "compare": {...},               // the same fields for compare, without character
 //	  "error": "..."                  // set instead of the results when the sim cannot run; a text that does not
 //	                                  // parse gives its diagnostics, one "path:line:col code message" per line

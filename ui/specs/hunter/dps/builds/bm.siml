@@ -1,7 +1,7 @@
 siml 1
 spec hunter
-talents "5320001505101251-0052050301-4"
-use "../gear_sets/p1.gear.siml"
+talents "5320001505101251-00530502014"
+use "../gear_sets/prebis_turret.gear.siml"
 use "../apls/turret_hawk.apl.siml"
 
 settings:

@@ -801,11 +801,11 @@ func TestFeralCombatSkillOnGearRaisesTheFormsSkill(t *testing.T) {
 	items[proto.ItemSlot_ItemSlotChest].Id = 280016
 	sim, bear := equippedBear(t, items)
 	mh := bear.GetMHWeapon()
-	if got := core.GetWeaponSkill(&bear.Unit, mh); got != skill {
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != skill {
 		t.Errorf("in Dire Bear Form the skill bonus is %v, want %v", got, skill)
 	}
 	bear.ClearForm(sim)
-	if got := core.GetWeaponSkill(&bear.Unit, mh); got != 0 {
+	if got := core.GetWeaponSkill(&bear.Unit, mh, proto.ItemSlot_ItemSlotMainHand); got != 0 {
 		t.Errorf("out of form the skill bonus is %v, want the weapon's own 0", got)
 	}
 }

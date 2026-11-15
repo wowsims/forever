@@ -608,3 +608,28 @@ func TestRetricutionerKeepsItsDamageShieldUp(t *testing.T) {
 		t.Errorf("after a ranged shot and a spell hit taken the shield cast %d times, want 2 still", got)
 	}
 }
+
+// Enchant Weapon - Lesser Beastslayer 853 keeps 13650 up while worn: its damage done against Beasts
+// adds to weapon hits and spells alike against a Beast, and to nothing against other targets.
+func TestLesserBeastslayerAddsDamageAgainstBeasts(t *testing.T) {
+	const beastslayer, weapon = 853, 1613
+	amount := spelldata.MustFind(13650).EffectN(1).Average()
+	for _, c := range []struct {
+		against proto.MobType
+		want    float64
+	}{
+		{proto.MobType_MobTypeBeast, amount},
+		{proto.MobType_MobTypeDemon, 0},
+	} {
+		items := weaponSlots(weapon, 0)
+		items[proto.ItemSlot_ItemSlotMainHand].Enchant = beastslayer
+		sim, character := itemWearerFacing(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: items}, c.against)
+		if got, want := bonusAgainstTarget(character), (stats.Stats{stats.PhysicalDamage: c.want, stats.SpellDamage: c.want}); got != want || amount <= 0 {
+			t.Errorf("the bonus against %v is %v, want %v", c.against, got, want)
+		}
+		attackTable := character.AttackTables[sim.Encounter.ActiveTargetUnits[0].UnitIndex]
+		if got, want := character.AutoAttacks.MHAuto().BonusDamage(attackTable), character.GetStat(stats.PhysicalDamage)+c.want; got != want {
+			t.Errorf("a main-hand swing at a target of %v deals %v bonus damage, want %v", c.against, got, want)
+		}
+	}
+}
