@@ -1503,15 +1503,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtectionWarrior-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 501.44925
-  tps: 1633.78065
-  dtps: 306.61654
-  hps: 38.64806
- }
-}
-dps_results: {
  key: "TestProtectionWarrior-AllItems-MawofMin'loth-274608"
  value: {
   dps: 518.8993
@@ -1572,15 +1563,6 @@ dps_results: {
   tps: 1750.08624
   dtps: 313.04432
   hps: 39.35972
- }
-}
-dps_results: {
- key: "TestProtectionWarrior-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 490.83076
-  tps: 1599.21214
-  dtps: 301.29601
-  hps: 38.49556
  }
 }
 dps_results: {
@@ -1887,15 +1869,6 @@ dps_results: {
   tps: 1678.20585
   dtps: 296.23842
   hps: 39.03778
- }
-}
-dps_results: {
- key: "TestProtectionWarrior-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 530.11406
-  tps: 1716.88586
-  dtps: 320.2109
-  hps: 39.35972
  }
 }
 dps_results: {

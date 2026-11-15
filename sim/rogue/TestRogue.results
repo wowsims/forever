@@ -1078,14 +1078,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRogue-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 603.12835
-  tps: 428.22113
-  hps: 52.05333
- }
-}
-dps_results: {
  key: "TestRogue-AllItems-MindtapTalisman-18371"
  value: {
   dps: 599.45547
@@ -1123,14 +1115,6 @@ dps_results: {
   dps: 536.85809
   tps: 381.16925
   hps: 52.3075
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 596.42339
-  tps: 423.46061
-  hps: 52.05333
  }
 }
 dps_results: {
@@ -1315,14 +1299,6 @@ dps_results: {
   dps: 599.45547
   tps: 425.61338
   hps: 51.81611
- }
-}
-dps_results: {
- key: "TestRogue-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 596.22798
-  tps: 423.32187
-  hps: 52.05333
  }
 }
 dps_results: {

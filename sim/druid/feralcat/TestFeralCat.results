@@ -1110,14 +1110,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFeralCat-AllItems-Matriarch'sProwlers-286616"
- value: {
-  dps: 799.7351
-  tps: 593.98267
-  hps: 46.10583
- }
-}
-dps_results: {
  key: "TestFeralCat-AllItems-MindtapTalisman-18371"
  value: {
   dps: 807.62556
@@ -1163,14 +1155,6 @@ dps_results: {
   dps: 687.0102
   tps: 512.97308
   hps: 46.055
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-OilskinLeggings-9414"
- value: {
-  dps: 793.57107
-  tps: 589.47741
-  hps: 46.15667
  }
 }
 dps_results: {
@@ -1331,14 +1315,6 @@ dps_results: {
   dps: 808.36912
   tps: 599.88174
   hps: 45.98722
- }
-}
-dps_results: {
- key: "TestFeralCat-AllItems-SpiderchitinWrap-280016"
- value: {
-  dps: 781.3473
-  tps: 580.53749
-  hps: 45.56361
  }
 }
 dps_results: {
