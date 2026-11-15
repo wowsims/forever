@@ -93,9 +93,8 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// The same sources as the Pre-BiS Fury gear, with one exception: the weapon, the Premier High Warlord's
-// Greatsword, a PvP reward. The shoulders are a world-drop green with the "of the Tiger" suffix. An epic
-// two-hander puts the set on even terms with the Fury set's epic Persuader.
+// The same sources as the Pre-BiS Fury gear. The shoulders are a world-drop green with the "of the Tiger" suffix,
+// and the weapon, Arcanite Champion, is a Blacksmithing craft whose plans drop in Upper Blackrock Spire.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
@@ -108,16 +107,16 @@ export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatStrength]: 2.2,
-			[Stat.StatAgility]: 1.73,
+			[Stat.StatAgility]: 1.71,
 			[Stat.StatAttackPower]: 1,
 			[Stat.StatArmorPenetration]: 0.45,
-			[Stat.StatHitRating]: 4.58,
-			[Stat.StatHasteRating]: 1.45,
-			[Stat.StatCritRating]: 2.25,
-			[Stat.StatExpertiseRating]: 1.42,
+			[Stat.StatHitRating]: 4.7,
+			[Stat.StatHasteRating]: 1.19,
+			[Stat.StatCritRating]: 2.23,
+			[Stat.StatExpertiseRating]: 1.46,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 17.42,
+			[PseudoStat.PseudoStatMainHandDps]: 16.63,
 			[PseudoStat.PseudoStatOffHandDps]: 0,
 		},
 	),
