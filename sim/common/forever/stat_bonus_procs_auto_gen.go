@@ -4201,7 +4201,7 @@ func RegisterAllProcs() {
 	// Rend earth and stone, dealing 196 Physical damage. Deals 3 times as much damage to Earth Elementals, Golems,
 	// and Titan-forged.
 	// https://www.wowhead.com/forever/spell=12731
-	// trigger 12731 (2.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 12731 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 12731, BuffSpellID: 12731, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9418, ItemName: "Stoneslayer"},

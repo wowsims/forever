@@ -19,13 +19,6 @@ type WeaponProc struct {
 var WeaponProcs = []WeaponProc{
 	// Measured in end-game dungeon logs (EV-0003).
 	{
-		ItemID:  9418,
-		SpellID: 12731,
-		PPM:     2.5,
-		Reason:  "Stoneslayer: no proc row",
-		Source:  "EV-0003",
-	},
-	{
 		ItemID:  10750,
 		SpellID: 1300356,
 		PPM:     1.5,
@@ -199,6 +192,71 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Sword of Dismemberment: no proc row",
 		Source:  "EV-0024",
 	},
+	// Measured on isolated hits in end-game and levelling dungeon reports: landed hits with no other hit of the
+	// wearer close enough to have rolled the proc, from wearers with no off-hand weapon (EV-0119).
+	{
+		ItemID:  6220,
+		SpellID: 1292152,
+		PPM:     1.5,
+		Reason:  "Meteor Shard: no proc row",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  6472,
+		SpellID: 1291663,
+		PPM:     1.75,
+		Reason:  "Stinging Viper: column reads 101",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  6904,
+		SpellID: 8313,
+		PPM:     1.5,
+		Reason:  "Bite of Serra'kis: column reads 101",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  7717,
+		SpellID: 9632,
+		PPM:     1,
+		Reason:  "Ravager: no proc row",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  9418,
+		SpellID: 12731,
+		PPM:     2,
+		Reason:  "Stoneslayer: no proc row",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  9453,
+		SpellID: 11790,
+		PPM:     1.8,
+		Reason:  "Toxic Revenger: column reads 101",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  12974,
+		SpellID: 14106,
+		PPM:     0.65,
+		Reason:  "The Black Knight: no proc row",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  13040,
+		SpellID: 29626,
+		PPM:     3,
+		Reason:  "Heartseeking Crossbow: equip trigger, column reads 100",
+		Source:  "EV-0119",
+	},
+	{
+		ItemID:  274425,
+		SpellID: 1294055,
+		PPM:     3.75,
+		Reason:  "White Obsidian Wand: equip trigger, column reads 100; wand shots roll it",
+		Source:  "EV-0119",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,
@@ -319,20 +377,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
-		ItemID:  6220,
-		SpellID: 1292152,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Meteor Shard: no proc row",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  6472,
-		SpellID: 1291663,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Stinging Viper: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
 		ItemID:  6622,
 		SpellID: 8191,
 		PPM:     1.8, // TODO: Vanilla value - verify in-game
@@ -344,13 +388,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 8348,
 		PPM:     1, // TODO: Vanilla value - verify in-game
 		Reason:  "Julie's Dagger: column reads 100",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  6904,
-		SpellID: 8313,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Bite of Serra'kis: column reads 101",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -375,13 +412,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
-		ItemID:  9453,
-		SpellID: 11790,
-		PPM:     0.8, // TODO: Vanilla value - verify in-game
-		Reason:  "Toxic Revenger: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
 		ItemID:  10847,
 		SpellID: 13049,
 		PPM:     4.5,
@@ -400,13 +430,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16921,
 		PPM:     0.5, // TODO: Vanilla value - verify in-game
 		Reason:  "Masterwork Stormhammer: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  12974,
-		SpellID: 14106,
-		PPM:     0.65, // TODO: Vanilla value - verify in-game
-		Reason:  "The Black Knight: no proc row",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -563,13 +586,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bow of Searing Arrows: no proc row",
 		Source:  "vanilla-carryover",
 	},
-	{
-		ItemID:  7717,
-		SpellID: 9632,
-		PPM:     1, // TODO: Vanilla value - verify in-game
-		Reason:  "Ravager: no proc row",
-		Source:  "vanilla-carryover",
-	},
 	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
 	// has been measured on this server. Replace each with a measured rate, its Source the id of a
 	// docs/evidence file, when logs exist.
@@ -620,13 +636,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 17511,
 		PPM:     1, // TODO: Vanilla value - verify in-game
 		Reason:  "Serpent Slicer: column reads 101",
-		Source:  "vanilla-carryover",
-	},
-	{
-		ItemID:  13040,
-		SpellID: 29626,
-		PPM:     3, // TODO: Vanilla value - verify in-game
-		Reason:  "Heartseeking Crossbow: equip trigger, column reads 100",
 		Source:  "vanilla-carryover",
 	},
 	{
@@ -775,13 +784,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16784,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Darkblade: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  274425,
-	// 	SpellID: 1294055,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "White Obsidian Wand: equip trigger, column reads 100",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

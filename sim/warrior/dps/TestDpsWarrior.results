@@ -1523,10 +1523,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Stoneslayer-9418"
  value: {
-  dps: 508.52481
-  tps: 428.12236
+  dps: 500.79649
+  tps: 422.55967
   dtps: 2.97628
-  hps: 22.79028
+  hps: 23.01056
  }
 }
 dps_results: {

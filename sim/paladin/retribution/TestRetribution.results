@@ -1694,10 +1694,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Stoneslayer-9418"
  value: {
-  dps: 879.97809
-  tps: 716.81902
-  dtps: 4.27605
-  hps: 24.33934
+  dps: 876.72552
+  tps: 714.13753
+  dtps: 4.06236
+  hps: 24.76346
  }
 }
 dps_results: {
