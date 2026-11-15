@@ -324,6 +324,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 789.27923
+  tps: 826.06682
+  dtps: 7.38666
+  hps: 37.19306
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 779.98182

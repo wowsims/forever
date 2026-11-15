@@ -126,11 +126,11 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-Beastmaster'sCap-22013"
+ key: "TestHunterPets-AllItems-Beastmaster'sCap-226887"
  value: {
-  dps: 752.71426
-  tps: 486.0925
-  dtps: 4.09296
+  dps: 753.53389
+  tps: 486.71756
+  dtps: 4.18908
  }
 }
 dps_results: {
@@ -152,8 +152,8 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 706.17618
-  tps: 450.44598
+  dps: 707.38312
+  tps: 451.34059
   dtps: 3.86112
  }
 }
@@ -371,6 +371,14 @@ dps_results: {
   dps: 746.745
   tps: 481.26534
   dtps: 4.33851
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 753.98033
+  tps: 485.53202
+  dtps: 4.28912
  }
 }
 dps_results: {
