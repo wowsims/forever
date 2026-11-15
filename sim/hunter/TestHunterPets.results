@@ -1015,9 +1015,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-HeartseekingCrossbow-13040"
  value: {
-  dps: 673.57214
-  tps: 431.32878
-  dtps: 1.32725
+  dps: 671.50543
+  tps: 429.24455
+  dtps: 0.78607
  }
 }
 dps_results: {

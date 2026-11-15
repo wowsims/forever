@@ -350,7 +350,7 @@ func init() {
 	//
 	// The tooltip states no chance. It follows Hand of Justice's shape: 1301046's ProcChance is the
 	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
-	// TODO: Measure the rate in game, against Orcs and against other targets.
+	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
 		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 	})
@@ -396,12 +396,13 @@ func init() {
 	//
 	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
 	//
-	// TODO: waiting for PPM data
+	// TODO: the item's entry carries the rate wand shots roll it at (EV-0119), but the procs per minute
+	// managers read the speed of an auto attack weapon, and a mage, priest or warlock swings none, so a
+	// rate on a wand rolls 0. The effect stays off until a manager reads the wand's speed.
 	//
 	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell
 	// with a cost spends its one charge.
-	// core.NewItemEffect(274425, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
+	// newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 	// 	if !character.HasManaBar() {
 	// 		return
 	// 	}
@@ -428,11 +429,10 @@ func init() {
 	// 	}
 	// 	whiteObsidian := character.RegisterAura(config)
 	//
-	// 	ppm := weaponProcPPM(274425, row.ID)
 	// 	trigger := spelldata.ProcTrigger(character, spelldata.MustFind(1294055), func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 	// 		whiteObsidian.Activate(sim)
 	// 	}, spelldata.PPM(ppm))
-	// 	trigger.Name = "White Obsidian Wand"
+	// 	trigger.Name = "White Obsidian Wand - Trigger"
 	// 	trigger.ActionID = core.ActionID{ItemID: 274425}
 	// 	trigger.TriggerImmediately = true
 	// 	character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))

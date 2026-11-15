@@ -1136,9 +1136,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HeartseekingCrossbow-13040"
  value: {
-  dps: 757.97023
-  tps: 780.83606
-  dtps: 8.1459
+  dps: 760.19509
+  tps: 783.26212
+  dtps: 8.03909
   hps: 14.55528
  }
 }
@@ -1757,10 +1757,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Stoneslayer-9418"
  value: {
-  dps: 790.12304
-  tps: 813.2475
-  dtps: 8.49699
-  hps: 14.74167
+  dps: 783.03824
+  tps: 806.14017
+  dtps: 8.89598
+  hps: 14.69083
  }
 }
 dps_results: {
