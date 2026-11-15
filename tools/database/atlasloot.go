@@ -114,7 +114,9 @@ func readAtlasLootDungeonData(db *WowDatabase, expansion proto.Expansion, srcUrl
 				}
 				panic("No npc match: " + npcSplit)
 			}
-			npcName := npcMatch[2]
+			// In AL["Mor Grayhoof"].." - "..format(AL["Tier %s Sets"], "0.5"), the capture runs on to the label's
+			// closing bracket, the first one a comma follows, so the name is cut at its own.
+			npcName, _, _ := strings.Cut(npcMatch[2], `"]`)
 			npcID := 0
 			if len(npcMatch) > 3 {
 				npcID, _ = strconv.Atoi(npcMatch[4])
