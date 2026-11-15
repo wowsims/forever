@@ -56,14 +56,6 @@ func RegisterAllProcs() {
 			{ItemID: 1204, ItemName: "The Green Tower"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 9414, ItemName: "Oilskin Leggings"},
-		})
-
 	// When struck in combat inflicts 3 Arcane damage to the attacker.
 	// https://www.wowhead.com/forever/spell=15438
 	// equip: 15438 (A_DAMAGE_SHIELD)
@@ -201,14 +193,6 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
-		})
-
 	// Increased Fist Weapons +1.
 	// https://www.wowhead.com/forever/spell=1297442
 	// equip: 1297442 (A_MOD_SKILL)
@@ -223,14 +207,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1312955},
 		[]shared.ItemVariant{
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
-		})
-
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
 		})
 
 	// Procs
@@ -2722,21 +2698,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Reduces the energy cost of Claw and Rake by 2.
-	// https://www.wowhead.com/forever/spell=27851
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22397, ItemName: "Idol of Ferocity"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.
 	// https://www.wowhead.com/forever/spell=27853
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2836,21 +2797,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22870, ItemName: "Blood Guard's Silk Handwraps"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Reduces the Rage cost of Maul and Swipe by 2.0.
-	// https://www.wowhead.com/forever/spell=28855
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 23198, ItemName: "Idol of Brutality"},
 	// })
 
 	// TODO: Manual implementation required
