@@ -475,46 +475,6 @@ func init() {
 		character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
 	})
 
-	// Rot-Covered Harpoon
-	// https://www.wowhead.com/forever/item=274963/rot-covered-harpoon
-	//
-	// Chance on hit: Diseases target for 25 Nature damage every 1 sec for 7 sec. Deals 2 times as much
-	// damage to Aquatic enemies.
-	//
-	// TODO: waiting for PPM data
-	// core.NewItemEffect(274963, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1295744)
-	// 	tick := row.PeriodicDamageEffect()
-	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.VersusBonus = shared.ItemVersusBonus(character, 274963, proto.VersusEffectKind_VersusEffectKindDamage, row)
-	// 	config.Dot = spelldata.DotConfig(row, tick)
-	// 	config.Dot.OnTick = func(sim *core.Simulation, target *core.Unit, dot *core.Dot) {
-	// 		dot.Spell.CalcAndDealPeriodicDamage(sim, target, tick.Average(), row.TickOutcome(dot))
-	// 	}
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		result := spell.CalcOutcome(sim, target, spell.OutcomeMagicHit)
-	// 		if result.Landed() {
-	// 			spell.Dot(target).Apply(sim)
-	// 		}
-	// 		spell.DealOutcome(sim, result)
-	// 	}
-	// 	rot := character.RegisterSpell(config)
-	//
-	// 	ppm := weaponProcPPM(274963, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		rot.Cast(sim, result.Target)
-	// 	}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
-	// 		trigger.ProcChance = 0
-	// 		trigger.DPM = character.NewDynamicLegacyProcForWeapon(274963, ppm, 0)
-	// 	})
-	// 	trigger.Name = "Rot-Covered Harpoon"
-	// 	trigger.ActionID = core.ActionID{ItemID: 274963}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(274963, character.MakeProcTriggerAura(trigger))
-	// })
-
 	// Hammer of Expertise
 	// https://www.wowhead.com/forever/item=8708/hammer-of-expertise
 	//
