@@ -1,7 +1,7 @@
 siml 1
 spec hunter
 talents "5-0053452511522051-5"
-use "../gear_sets/p1.gear.siml"
+use "../gear_sets/prebis_turret.gear.siml"
 use "../apls/turret.apl.siml"
 
 // No pet: Lone Wolf wants none out.
