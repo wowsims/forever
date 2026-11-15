@@ -285,6 +285,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 915.31048
+  tps: 926.24894
+  dtps: 4.90838
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 868.92475

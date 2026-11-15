@@ -205,6 +205,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 771.96505
+  tps: 629.39139
+  dtps: 8.24509
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 756.63914
@@ -252,10 +261,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 801.7298
-  tps: 651.17439
-  dtps: 8.04205
-  hps: 10.72055
+  dps: 803.02915
+  tps: 653.27495
+  dtps: 7.93437
+  hps: 10.80034
  }
 }
 dps_results: {
