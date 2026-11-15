@@ -5,17 +5,13 @@ import { Stats } from '@sim/proto/stats';
 
 import CleanWeaveAPL from './apls/clean_weave.apl.siml';
 import WeaveAPL from './apls/default.apl.siml';
-import WeaveHawkAPL from './apls/default_hawks.apl.siml';
-import WeaveMmAPL from './apls/default_mm.apl.siml';
 import MeleeAPL from './apls/melee.apl.siml';
 import NormalWeaveAPL from './apls/normal_weave.apl.siml';
 import TurretAPL from './apls/turret.apl.siml';
 import TurretHawkAPL from './apls/turret_hawk.apl.siml';
 import TurretMultiAPL from './apls/turret_multi.apl.siml';
 import BmBuild from './builds/bm.siml';
-import BmWeaveBuild from './builds/bm_weave.siml';
 import MmBuild from './builds/mm.siml';
-import MmWeaveBuild from './builds/mm_weave.siml';
 import SvBuild from './builds/sv.siml';
 import SvMeleeBuild from './builds/sv_melee.siml';
 import SvWeaveBuild from './builds/sv_weave.siml';
@@ -121,8 +117,6 @@ export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (
 // for the melee cooldowns, which suits a dual wielder.
 export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Max)', WeaveAPL);
 export const NormalWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Normal)', NormalWeaveAPL);
-export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', WeaveHawkAPL);
-export const WeaveMmAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (MM)', WeaveMmAPL);
 // The weave with no toggles: every shot goes ahead of the weave, which walks in once Auto Shot has gone off and back
 // out once the hunter has swung.
 export const CleanWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Clean Weave', CleanWeaveAPL);
@@ -136,11 +130,10 @@ export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spe
 const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild =>
 	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecHunter, json, { gear });
 
-// Gear, talents, rotation, pet and distance together, one per tree and playstyle, each with its playstyle's Pre-BiS set.
+// Gear, talents, rotation, pet and distance together, each with its playstyle's Pre-BiS set. Only Survival has a weave
+// build: Beast Mastery deals more damage shooting from range, and a weave's talents put most points into Survival.
 export const Builds = [
 	build('SV Weave', SvWeaveBuild, PreBisWeaveGear),
-	build('MM Weave', MmWeaveBuild, PreBisWeaveGear),
-	build('BM Weave', BmWeaveBuild, PreBisWeaveGear),
 	build('MM', MmBuild, PreBisTurretGear),
 	build('BM', BmBuild, PreBisTurretGear),
 	build('SV', SvBuild, PreBisTurretGear),
