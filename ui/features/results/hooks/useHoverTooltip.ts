@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 const VIEWPORT_PADDING = 8;
 const CURSOR_OFFSET = 12;
@@ -40,9 +40,9 @@ export interface HoverTooltip<T> {
 /**
  * A tooltip anchored to a point rather than to an element: what the timeline's chart and its rotation
  * both need, because neither anchor is a stable element — one is a caret on a canvas, the other is one
- * of hundreds of bars that come and go as the window moves.
+ * of hundreds of bars that come and go as the window moves. `owner` is the element whose items open it.
  */
-export const useHoverTooltip = <T>(): HoverTooltip<T> => {
+export const useHoverTooltip = <T>(owner: RefObject<HTMLElement | null>): HoverTooltip<T> => {
 	const ref = useRef<HTMLDivElement>(null);
 	const anchor = useRef({ x: 0, y: 0 });
 	const [content, setContent] = useState<T | null>(null);
@@ -64,6 +64,22 @@ export const useHoverTooltip = <T>(): HoverTooltip<T> => {
 	}, []);
 
 	const hide = useCallback(() => setContent(null), []);
+
+	// The point it was opened at moves with a scroll, and a tap opens it with no `mouseleave` to follow, so a scroll or a
+	// press outside the owner closes it. A press inside the owner is left to the item it lands on.
+	const open = content !== null;
+	useEffect(() => {
+		if (!open) return;
+		const onPointerDown = (event: PointerEvent) => {
+			if (!(event.target instanceof Node && owner.current?.contains(event.target))) hide();
+		};
+		document.addEventListener('scroll', hide, { capture: true, passive: true });
+		document.addEventListener('pointerdown', onPointerDown, { capture: true, passive: true });
+		return () => {
+			document.removeEventListener('scroll', hide, { capture: true });
+			document.removeEventListener('pointerdown', onPointerDown, { capture: true });
+		};
+	}, [open, hide, owner]);
 
 	return { ref, content, show, moveTo, hide };
 };

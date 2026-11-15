@@ -9,7 +9,7 @@ import { subscribeSimSettingsChange } from '@sim/state/subscriptions';
 import { isDevMode } from '@sim/utils/env';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
-import { useLocalStorageState } from '@ui-kit/hooks/useLocalStorageState';
+import { parseFlag, useLocalStorageState } from '@ui-kit/hooks/useLocalStorageState';
 import { useStickyToolbar } from '@ui-kit/hooks/useStickyToolbar';
 import { TabPanels } from '@ui-kit/TabNav';
 import clsx from 'clsx';
@@ -39,8 +39,6 @@ import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResul
 // The viewer's choice, shared by every spec page.
 const GROUP_RANKS_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-group-ranks.v1`;
 const SHOW_APM_BREAKDOWN_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-apm-breakdown.v1`;
-
-const parseFlag = (value: unknown): boolean | undefined => (typeof value === 'boolean' ? value : undefined);
 
 export interface DetailedResultsViewProps {
 	tabs: ReadonlyArray<DetailedResultsTabConfig>;
@@ -100,7 +98,7 @@ export const DetailedResultsView = ({
 					value={activeId}
 					onValueChange={next => onActiveIdChange(String(next))}>
 					<div ref={toolbarRef} data-testid="dr-toolbar" className={clsx(stickyToolbarClassName, 'flex-col')} data-stuck={stuck ? '' : undefined}>
-						<div data-testid="dr-toolbar-row" className="flex min-h-0 w-full items-center">
+						<div data-testid="dr-toolbar-row" className="flex min-h-0 w-full items-center max-lg:flex-wrap">
 							<div data-testid="results-filter" className="flex min-h-0 items-center">
 								{targetPicker}
 								{activeTab?.groupsRanks && (

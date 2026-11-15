@@ -5,6 +5,8 @@ import { Button } from '@ui-kit/Button';
 import { Icon } from '@ui-kit/Icon';
 import { WowheadIcon } from '@ui-kit/WowheadIcon';
 
+import { useShowNames } from '../../context/ShowNamesContext';
+
 export interface MetricsActionCellProps {
 	name: string;
 	actionId: ActionId;
@@ -17,20 +19,23 @@ export interface MetricsActionCellProps {
 export const MetricsActionCell = ({ name, actionId, useBuffAura, expandable, expanded, onToggle }: MetricsActionCellProps) => {
 	const { iconUrl, href } = useActionId(actionId);
 	const wowhead = useActionIdWowheadDataset(actionId, useBuffAura);
+	const showNames = useShowNames();
 
 	return (
 		<div data-testid="metrics-action" className="flex items-center gap-2 whitespace-normal">
 			<WowheadIcon
 				testId="metrics-action-icon"
-				className="z-1 mr-1 h-6 w-6 align-middle"
+				className="z-1 mr-1 h-6 w-6 shrink-0 align-middle"
 				label={name}
 				href={href || undefined}
 				iconUrl={iconUrl}
 				wowhead={wowhead}
 			/>
-			<span data-testid="metrics-action-name" className="truncate">
-				{name}
-			</span>
+			{showNames && (
+				<span data-testid="metrics-action-name" className="truncate max-lg:line-clamp-2 max-lg:max-w-32 max-lg:whitespace-normal">
+					{name}
+				</span>
+			)}
 			{expandable && (
 				<Button
 					variant="unstyled"

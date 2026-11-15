@@ -16,7 +16,7 @@
 	}
 
 	.ui-dialog {
-		@apply relative flex flex-col border border-surface-border bg-background bg-clip-padding text-sm outline-0 transition-transform duration-300 ease-out motion-reduce:transition-none;
+		@apply relative flex flex-col border border-surface-border bg-background bg-clip-padding text-sm outline-0 transition-transform duration-300 ease-out motion-reduce:transition-none max-lg:h-dvh max-lg:w-full max-lg:border-0;
 
 		.ui-field-label,
 		.ui-help-text {
@@ -62,7 +62,7 @@
 	}
 
 	.ui-dialog-body {
-		@apply @container relative flex flex-1 flex-col gap-4 p-4;
+		@apply @container relative flex flex-1 flex-col gap-4 p-4 max-lg:min-h-0 max-lg:overflow-y-auto;
 	}
 
 	.ui-dialog-footer {
@@ -70,12 +70,12 @@
 	}
 
 	.ui-dialog-top {
-		@apply mx-auto my-6;
+		@apply mx-auto my-(--modal-margin);
 		@apply data-ending-style:transform-(--modal-fade-transform) data-starting-style:transform-(--modal-fade-transform);
 	}
 
 	.ui-dialog-centered {
-		@apply top-1/2 left-1/2 m-0 -translate-x-1/2 -translate-y-1/2;
+		@apply top-1/2 left-1/2 m-0 -translate-x-1/2 -translate-y-1/2 max-lg:inset-0 max-lg:translate-none;
 	}
 
 	.ui-dialog-scroll {

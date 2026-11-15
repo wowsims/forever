@@ -1,4 +1,16 @@
 @layer components {
+	.ui-metrics-table-scroll {
+		@apply overflow-x-auto;
+
+		& > .ui-table > * > .ui-table-row > :first-child {
+			@apply max-lg:sticky max-lg:left-0 max-lg:z-1 max-lg:bg-background max-lg:after:absolute max-lg:after:inset-y-0 max-lg:after:right-0 max-lg:after:w-px max-lg:after:bg-white/20;
+		}
+
+		& > .ui-table[data-striped=''] > tbody > .ui-table-row:nth-child(even) > :first-child {
+			@apply max-lg:bg-linear-to-r max-lg:from-white/5 max-lg:to-white/5;
+		}
+	}
+
 	.ui-metrics-table tbody td:first-child {
 		@apply text-left;
 	}

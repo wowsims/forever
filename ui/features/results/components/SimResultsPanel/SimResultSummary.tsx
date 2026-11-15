@@ -30,7 +30,7 @@ export interface SimResultSummaryViewProps {
 	onOpenBreakdown?: () => void;
 }
 
-const FRESHNESS_TEXT: Record<NonNullable<ResultFreshness>, string> = {
+export const FRESHNESS_TEXT: Record<NonNullable<ResultFreshness>, string> = {
 	fresh: 'text-success',
 	stale: 'text-link-warning',
 };

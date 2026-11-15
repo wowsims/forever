@@ -1,11 +1,21 @@
+import i18n from '@i18n/config';
+import { LOCAL_STORAGE_PREFIX } from '@sim/constants/other';
 import type { SortDirection } from '@tanstack/react-table';
 import { Button } from '@ui-kit/Button';
+import { parseFlag } from '@ui-kit/hooks/useLocalStorageState';
+import { useTypedLocalStorage } from '@ui-kit/hooks/useTypedLocalStorage';
+import { useWideLayout } from '@ui-kit/hooks/useWideLayout';
+import { Icon } from '@ui-kit/Icon';
 import { Table, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
 
+import { ShowNamesContext } from '../../context/ShowNamesContext';
 import { type MetricsColumnDef, useMetricsTable } from '../../hooks/useMetricsTable';
 import type { MetricRow } from '../../model/grouping';
 import { MetricsTableRow } from './MetricsTableRow';
+
+// Below `lg` the Name column shows only the icons until its header folds the names out, in every table at once.
+const SHOW_NAMES_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-names.v1`;
 
 const ariaSort = (direction: false | SortDirection) => (direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none');
 
@@ -22,46 +32,72 @@ export interface MetricsTableProps<T> {
 
 export const MetricsTable = <T,>({ rootTestId, columns, rows, sortColumnId, hasResult, rowThreatOnly }: MetricsTableProps<T>) => {
 	const table = useMetricsTable({ columns, rows, sortColumnId });
+	const wide = useWideLayout();
+	const [showNames = false, setShowNames] = useTypedLocalStorage(SHOW_NAMES_STORAGE_KEY, parseFlag);
 
 	if (hasResult && !rows.length) return null;
 
 	return (
-		<Table striped hover className="ui-metrics-table" testId={rootTestId}>
-			<thead data-testid="metrics-table-header">
-				{table.getHeaderGroups().map(headerGroup => (
-					<TableRow testId="metrics-table-header-row" key={headerGroup.id}>
-						{headerGroup.headers.map(header => (
-							<TableHeaderCell
-								key={header.id}
-								testId="metrics-table-header-cell"
-								data-primary-metric={header.column.columnDef.meta?.primaryColumn ? '' : undefined}
-								className={[
-									'ui-metrics-header-cell',
-									'p-0',
-									header.column.columnDef.meta?.columnClass,
-									header.column.columnDef.meta?.headerCellClass,
-								]}
-								aria-sort={ariaSort(header.column.getIsSorted())}
-								{...tooltipAnchorProps(header.column.columnDef.meta?.headerTooltipId, header.column.columnDef.meta?.headerTooltip)}>
-								<Button
-									data-testid="metrics-table-sort"
-									variant="unstyled"
-									className="flex h-full w-full items-center justify-center px-2 py-1 text-inherit [font:inherit] focus-visible:focus-ring"
-									onClick={header.column.getToggleSortingHandler()}>
-									<span>
-										<table.FlexRender header={header} />
-									</span>
-								</Button>
-							</TableHeaderCell>
+		<div className="ui-metrics-table-scroll">
+			<Table striped hover className="ui-metrics-table" testId={rootTestId}>
+				<thead data-testid="metrics-table-header">
+					{table.getHeaderGroups().map(headerGroup => (
+						<TableRow testId="metrics-table-header-row" key={headerGroup.id}>
+							{headerGroup.headers.map((header, index) => {
+								const sort = (
+									<Button
+										data-testid="metrics-table-sort"
+										variant="unstyled"
+										className="flex h-full w-full items-center justify-center px-2 py-1 text-inherit [font:inherit] focus-visible:focus-ring"
+										onClick={header.column.getToggleSortingHandler()}>
+										<span>
+											<table.FlexRender header={header} />
+										</span>
+									</Button>
+								);
+								return (
+									<TableHeaderCell
+										key={header.id}
+										testId="metrics-table-header-cell"
+										data-primary-metric={header.column.columnDef.meta?.primaryColumn ? '' : undefined}
+										className={[
+											'ui-metrics-header-cell',
+											'p-0',
+											header.column.columnDef.meta?.columnClass,
+											header.column.columnDef.meta?.headerCellClass,
+										]}
+										aria-sort={ariaSort(header.column.getIsSorted())}
+										{...tooltipAnchorProps(header.column.columnDef.meta?.headerTooltipId, header.column.columnDef.meta?.headerTooltip)}>
+										{index > 0 || wide ? (
+											sort
+										) : (
+											<div className="flex items-center">
+												{showNames && sort}
+												<Button
+													iconOnly
+													data-testid="metrics-names-toggle"
+													className="self-stretch px-2"
+													aria-label={i18n.t('results_tab.details.show_names')}
+													aria-pressed={showNames}
+													onClick={() => setShowNames(!showNames)}>
+													<Icon name={showNames ? 'chevron-left' : 'chevron-right'} />
+												</Button>
+											</div>
+										)}
+									</TableHeaderCell>
+								);
+							})}
+						</TableRow>
+					))}
+				</thead>
+				<ShowNamesContext value={wide || showNames}>
+					<tbody data-testid="metrics-table-body">
+						{table.getRowModel().rows.map(row => (
+							<MetricsTableRow key={row.id} row={row} rowThreatOnly={rowThreatOnly} />
 						))}
-					</TableRow>
-				))}
-			</thead>
-			<tbody data-testid="metrics-table-body">
-				{table.getRowModel().rows.map(row => (
-					<MetricsTableRow key={row.id} row={row} rowThreatOnly={rowThreatOnly} />
-				))}
-			</tbody>
-		</Table>
+					</tbody>
+				</ShowNamesContext>
+			</Table>
+		</div>
 	);
 };

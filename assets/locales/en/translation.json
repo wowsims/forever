@@ -2678,6 +2678,7 @@
 			"target_number": "Target {{number}}",
 			"group_ranks": "Group ranks",
 			"show_apm_breakdown": "Show APM breakdown",
+			"show_names": "Show names",
 			"pets": "Pets",
 			"damage": {
 				"dps_histogram": "DPS Histogram"
@@ -3461,6 +3462,10 @@
 					"target_ci_tooltip": "Keeps simulating each stat until the 90% ± behind its EP is at most this value per point. A stat shown per 1% stops at this value times the points in 1%: 10 times for hit, haste and expertise, 14 times for crit.",
 					"max_multiplier_tooltip": "The most iterations a stat may run, as a multiple of the automatic first pass. Empty sets no cap."
 				}
+			},
+			"presets": {
+				"title": "Presets",
+				"builds": "Builds"
 			},
 			"stat_sweep": {
 				"title": "Stat sweep",

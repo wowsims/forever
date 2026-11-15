@@ -83,7 +83,7 @@ export const ItemListRowView = ({
 			{notice}
 		</div>
 		{source !== undefined && (
-			<div className="w-64" data-testid="selector-modal-list-item-source-container">
+			<div className="w-64 max-md:hidden" data-testid="selector-modal-list-item-source-container">
 				{source}
 			</div>
 		)}

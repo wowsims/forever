@@ -36,6 +36,10 @@ html {
 	height: 100%;
 	color-scheme: dark;
 	font-size: var(--font-size-root);
+
+	@variant max-lg {
+		overscroll-behavior: none;
+	}
 }
 
 * {
@@ -74,6 +78,10 @@ body {
 	overflow-x: hidden;
 	opacity: 0;
 	transition: opacity 0.25s linear;
+
+	@variant max-lg {
+		margin-right: 0;
+	}
 
 	&[data-ready] {
 		opacity: 1;

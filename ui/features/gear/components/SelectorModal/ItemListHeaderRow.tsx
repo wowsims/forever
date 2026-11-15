@@ -39,7 +39,7 @@ export const ItemListHeaderRow = ({ label, ep, sortBy, sortDirection, onSort }: 
 				{columnHeaderLabel(label, getTranslatedTabLabel)}
 			</h6>
 			{tabHasSource(label) && (
-				<h6 className="w-64" data-testid="source-label">
+				<h6 className="w-64 max-md:hidden" data-testid="source-label">
 					{i18n.t('gear_tab.gear_picker.table_headers.source')}
 				</h6>
 			)}
