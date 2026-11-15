@@ -940,67 +940,35 @@ func TestBladeOfHannaPerfectsItsFormAtThirtyStacks(t *testing.T) {
 	}
 }
 
-// A troll priest, a caster with no auto attack, wearing White Obsidian Wand 274425 against a level 60
-// target.
-func whiteObsidianWearer(t *testing.T) (*core.Simulation, *core.Character) {
-	t.Helper()
-	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
-	for i := range items {
-		items[i] = &proto.ItemSpec{}
-	}
-	items[proto.ItemSlot_ItemSlotRanged].Id = 274425
-	player := &proto.Player{
-		Name: "Wearer", Class: proto.Class_ClassPriest, Race: proto.Race_RaceTroll,
-		Equipment:   &proto.EquipmentSpec{Items: items},
-		Consumables: &proto.ConsumesSpec{},
-		Buffs:       &proto.IndividualBuffs{},
-		Rotation:    &proto.APLRotation{},
-	}
-	core.WithSpec(player, &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{}})
-	sim := core.NewSim(&proto.RaidSimRequest{
-		SimOptions: &proto.SimOptions{RandomSeed: 1},
-		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
-	}, simsignals.CreateSignals())
-	sim.Reset()
-	character := sim.Raid.Parties[0].Players[0].GetCharacter()
-	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
-		t.Fatal("the priest swings an auto attack, want a caster with none")
-	}
-	return sim, character
-}
-
 // White Obsidian Wand 274425 rolls 1294058 on a caster's wand shots at the procs per minute of the
-// item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up and a
-// missed one does not; the next spell of a school the row names costs the row's amount less and spends it.
+// item's chance-on-hit entry, on the wand's speed, and on nothing else. A landed shot puts it up, a
+// missed one does not, and Shoot leaves it up. The next spell of a school the row names that pays mana
+// costs the row's amount less and spends it; a free cast keeps it.
 func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T) {
-	sim, character := whiteObsidianWearer(t)
+	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 274425})
+	character := &wearer.Character
+	enemy := sim.Encounter.ActiveTargetUnits[0]
 	proc := character.GetAura("White Obsidian Wand - Trigger")
-	if proc == nil || proc.Dpm == nil {
-		t.Fatal("274425 registers no proc on a procs per minute rate")
+	buff := character.GetAura("White Obsidian Wand")
+	shoot := character.GetSpell(core.ActionID{SpellID: 5019})
+	shot := character.GetSpell(core.ActionID{SpellID: 5019, Tag: 1})
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged || proc == nil || proc.Dpm == nil || buff == nil || shoot == nil || shot == nil {
+		t.Fatal("the priest swings an auto attack, or has no Shoot, or 274425 registers no buff or no proc on a procs per minute rate")
 	}
 	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 274425, 1294058)
 	if got := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); got != 0 {
 		t.Errorf("a spell hit rolls the proc at %v, want never", got)
 	}
-
-	// Every wand shot now procs it.
-	withEntryPPM(t, 274425, 1294058, 60/core.GetItemByID(274425).SwingSpeed)
-	sim, character = whiteObsidianWearer(t)
-	enemy := sim.Encounter.ActiveTargetUnits[0]
-	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100})
-	buff := character.GetAura("White Obsidian Wand")
-	shoot := character.GetSpell(core.ActionID{SpellID: 5019})
-	shot := character.GetSpell(core.ActionID{SpellID: 5019, Tag: 1})
-	if buff == nil || shoot == nil || shot == nil {
-		t.Fatal("the priest has no White Obsidian Wand buff, or no Shoot")
-	}
 	row := spelldata.MustFind(1294058)
 	effect := row.FirstAura(dbcenums.A_MOD_POWER_COST_SCHOOL)
 	smite := character.GetSpell(core.ActionID{SpellID: priest.SmiteRankMap.Highest().ID})
 	if effect == nil || effect.Average() >= 0 || smite == nil || smite.Cost == nil || !smite.SpellSchool.Matches(core.SpellSchool(effect.Misc)) {
-		t.Fatalf("1294058 states no cost reduction, or the priest has no Smite with a cost in a school it names")
+		t.Fatal("1294058 states no cost reduction, or the priest has no Smite with a cost in a school it names")
 	}
+
+	// Every wand shot procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRangedAuto)
+	character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100})
 
 	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
@@ -1018,6 +986,11 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 	if buff.Duration != row.Duration() {
 		t.Errorf("the buff lasts %v, want the row's %v", buff.Duration, row.Duration())
 	}
+	stepTo(t, sim, max(sim.CurrentTime, character.GCD.ReadyAt()))
+	if !shoot.Cast(sim, enemy) || !buff.IsActive() {
+		t.Fatal("Shoot could not be cast under the buff, or spent it, want the buff left up")
+	}
+	stepTo(t, sim, sim.CurrentTime+3*time.Second)
 
 	manaSpent := smite.Cost.ResourceCostImpl.(*core.ManaCost).ResourceMetrics
 	castSmite := func() float64 {
@@ -1030,6 +1003,12 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 		stepTo(t, sim, character.Hardcast.Expires+core.SpellBatchWindow)
 		return before - manaSpent.Gain
 	}
+	free := character.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, School: smite.SpellSchool, FloatValue: -1})
+	free.Activate()
+	if paid := castSmite(); paid != 0 || !buff.IsActive() {
+		t.Fatalf("a free Smite paid %v and left the buff up %v, want it to pay nothing and leave the buff up", paid, buff.IsActive())
+	}
+	free.Deactivate()
 	cheaper := castSmite()
 	if buff.IsActive() {
 		t.Error("the Smite after the proc left the buff up, want it spent")

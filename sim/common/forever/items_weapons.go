@@ -398,8 +398,10 @@ func init() {
 	//
 	// Landed wand shots roll it at the item entry's procs per minute on the wand's speed (EV-0119).
 	//
-	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell
-	// with a cost spends its one charge.
+	// 1294058 lowers the cost of a spell of the schools its mask names, and the next such spell that
+	// pays mana spends its one charge. A free cast keeps it, and so does one the reduction itself
+	// brings to 0. The listener is hand-written: the row's proc flag, cast successful, decodes to no
+	// listener, and spelldata.AttachChargeSpender on cast complete would spend the charge on Shoot.
 	newEntryRateItemEffect(274425, 1294058, func(character *core.Character, ppm float64) {
 		if !character.HasManaBar() {
 			return
@@ -421,7 +423,7 @@ func init() {
 			cheaper.Deactivate()
 		}
 		config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-			if spell.Cost != nil && spell.SpellSchool.Matches(school) {
+			if spell.Cost != nil && spell.CurCast.Cost > 0 && spell.SpellSchool.Matches(school) {
 				aura.Deactivate(sim)
 			}
 		}
