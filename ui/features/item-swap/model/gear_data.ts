@@ -6,6 +6,6 @@ import { subscribePlayerField } from '@sim/state/subscriptions';
 
 export const createItemSwapGearData = (player: Player<any>, slot: ItemSlot): GearData => ({
 	equipItem: (equippedItem: EquippedItem | null) => player.itemSwapSettings.equipItem(slot, equippedItem),
-	getEquippedItem: () => player.itemSwapSettings.getItem(slot)?.withDynamicStats(player.sim.encounter.getAreaTypes()) || null,
+	getEquippedItem: () => player.itemSwapSettings.getItem(slot)?.withDynamicStats() || null,
 	subscribe: subscribePlayerField(player, 'itemSwap'),
 });

@@ -306,6 +306,9 @@ func renderStore(in *storeInputs, namer *rankEnumNamer) ([]byte, error) {
 		if err := applyAreaBonuses(rows, overrides.AreaBonuses); err != nil {
 			return nil, err
 		}
+		if err := applyVersusBonuses(rows, overrides.VersusBonuses); err != nil {
+			return nil, err
+		}
 	}
 
 	return renderStoreFile(rows, curves, hand, namer)

@@ -305,6 +305,32 @@ func TestGeneratedAreaBonus(t *testing.T) {
 	}
 }
 
+// Versus bonuses come from the override table: a factor on one of the row's effects, or one of the
+// override's own.
+func TestGeneratedVersusBonus(t *testing.T) {
+	withGeneratedStore(t)
+
+	stone := MustFind(12731)
+	if bonus, ok := stone.VersusBonus(); !ok || bonus.Multiplier != stone.EffectAtIndex(1).BaseValue() || len(bonus.MobTypes) != 0 ||
+		!slices.Equal(bonus.Families, []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental}) {
+		t.Errorf("Strength of Stone's versus bonus reads %v (%v), want effect 1's points against Earth Elementals", bonus, ok)
+	}
+	if e := stone.VersusFactorEffect(); e.Index != 1 || e.Type != dbcenums.E_DUMMY {
+		t.Errorf("Strength of Stone's factor is on effect %d (%v), want the E_DUMMY at 1", e.Index, e.Type)
+	}
+	gloves := MustFind(1325229)
+	if bonus, ok := gloves.VersusBonus(); !ok || bonus.Multiplier != 3 || len(bonus.Families) != 0 ||
+		!slices.Equal(bonus.MobTypes, []proto.MobType{proto.MobType_MobTypeUndead}) {
+		t.Errorf("Gloves of Holy Might's versus bonus reads %v (%v), want x3 against Undead", bonus, ok)
+	}
+	if e := gloves.VersusFactorEffect(); e != NilEffect {
+		t.Errorf("Gloves of Holy Might's factor is on effect %d, want none", e.Index)
+	}
+	if _, ok := MustFind(1330855).VersusBonus(); ok {
+		t.Error("Gloves of Holy Might's trigger 1330855 reads a versus bonus, want none")
+	}
+}
+
 // Arcane Missiles rank 2: a periodic trigger reaches its tick spell through the effect.
 func TestGeneratedTriggerResolves(t *testing.T) {
 	withGeneratedStore(t)
