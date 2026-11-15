@@ -257,6 +257,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Bigger Rock on Bigger Stick: no proc row",
 		Source:  "EV-0119",
 	},
+	// Measured on main-hand white swings and melee casts of wearers holding it in the main hand (EV-0121).
+	{
+		ItemID:  13361,
+		SpellID: 17484,
+		PPM:     1.85,
+		Reason:  "Skullforge Reaver: column reads 100",
+		Source:  "EV-0121",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,

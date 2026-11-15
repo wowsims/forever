@@ -1032,12 +1032,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13361, // Skullforge Reaver
-		[
-			"Drains target for 21 Shadow damage every 1.0 sec and transfers it to the caster. Lasts for 10s.", // 17484 - https://www.wowhead.com/forever/spell=17484
-		]
-	],
-	[
 		13379, // Piccolo of the Flaming Fire
 		[
 			"Causes nearby players to dance.", // 18400 - https://www.wowhead.com/forever/spell=18400

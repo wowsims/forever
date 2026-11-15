@@ -1024,6 +1024,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 846.46901
+  tps: 668.25892
+  dtps: 10.29114
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 930.48948
