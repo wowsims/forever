@@ -542,6 +542,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 599.05234
+  tps: 425.32716
+  hps: 52.05333
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 599.05234

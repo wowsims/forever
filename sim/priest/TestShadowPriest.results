@@ -439,6 +439,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 740.43698
+  tps: 529.40245
+  dtps: 5.76127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 740.43698
+  tps: 529.40245
+  dtps: 5.76127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 740.43698
+  tps: 529.40245
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 740.43698

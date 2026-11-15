@@ -613,6 +613,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 537.63252
+  tps: 2709.30528
+  dtps: 397.0579
+  hps: 85.57888
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 537.63252
+  tps: 2709.30528
+  dtps: 397.0579
+  hps: 85.57888
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 537.63252
+  tps: 2709.30528
+  dtps: 397.0579
+  hps: 85.57888
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 533.19874

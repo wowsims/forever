@@ -456,6 +456,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 937.44979
+  tps: 752.80072
+  dtps: 9.29193
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 937.44979
+  tps: 752.80072
+  dtps: 9.29193
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 937.44979
+  tps: 752.80072
+  dtps: 9.29193
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 937.44979
