@@ -1,13 +1,13 @@
 # EV-0117: Judgement debuffs refresh on white swings and Windfury Totem's strike
 
-- Claim: a paladin's landed white swing and Windfury Totem's strike refresh the paladin's judgement debuffs on their
-  target. Holy Strike, Seal of Command's hit, Judgement of Command, Judgement of Righteousness, Judgement of Fury and
-  Hammer of Wrath refresh none.
-- Sources: combat log, Retribution paladin with a two-handed mace, levels 43 to 46, two logs: the open world, and a
-  five-player dungeon under a rank 2 Windfury Totem
+- Claim: a paladin's landed white swing and Windfury Totem's strike refresh the paladin's Judgement of the Crusader,
+  Judgement of Light and Judgement of Wisdom on their target, and Holy Strike, Seal of Command's hit, Judgement of
+  Command, Judgement of Righteousness, Judgement of Fury and Hammer of Wrath refresh none.
+- Sources: combat log, Retribution paladin with a two-handed mace, levels 43 to 46, two logs: the open world, with three
+  rank 1 Windfury Totem strikes, and a five-player dungeon under a rank 2 Windfury Totem
 - Game build: 1.60.1.70938, after the 2026-11-14 02:00 UTC hotfix, relogged
 - Date: 2026-11-14
-- Pull request: #1023
+- Pull request: #1024
 
 A refresh is a `SPELL_AURA_REFRESH` line of the paladin's own Judgement of the Crusader, Judgement of Light or Judgement
 of Wisdom on the hit's target, within 120 ms of the hit. A target counts when it had carried the debuff for 0.2 seconds
@@ -15,16 +15,16 @@ and kept it for 0.2 seconds more. A hit is lone when the paladin landed nothing 
 side; a white swing's own Seal of Righteousness and Seal of Fury hits do not count against it. Judgement of Fury's own
 debuff is its taunt, which no hit refreshes, and is left out.
 
-| Hit                                                         | First log                | Second log |
-| ----------------------------------------------------------- | ------------------------ | ---------- |
-| Lone white swing                                            | 396 of 404               | 12 of 12   |
-| Lone Holy Strike                                            | 0 of 173                 | 0 of 13    |
-| Lone Judgement of Command                                   | 0 of 69                  | 0 of 3     |
-| Lone Judgement of Righteousness                             | 0 of 75                  | 0 of 7     |
-| Lone Judgement of Fury                                      | 0 of 23                  | none cast  |
-| Lone Hammer of Wrath                                        | 0 of 2                   | 0 of 6     |
-| White swing with Seal of Command hits and nothing else      | 136 of 137 show one line | 12 of 12   |
-| Windfury Totem's strike, a line later than the strike's own | not separable            | 13 of 13   |
+| Hit                                                      | First log                | Second log |
+| -------------------------------------------------------- | ------------------------ | ---------- |
+| Lone white swing                                         | 396 of 404               | 12 of 12   |
+| Lone Holy Strike                                         | 0 of 173                 | 0 of 13    |
+| Lone Judgement of Command                                | 0 of 69                  | 0 of 3     |
+| Lone Judgement of Righteousness                          | 0 of 75                  | 0 of 7     |
+| Lone Judgement of Fury                                   | 0 of 23                  | none cast  |
+| Lone Hammer of Wrath                                     | 0 of 2                   | 0 of 6     |
+| White swing with Seal of Command hits and nothing else   | 136 of 137 show one line | 12 of 12   |
+| Windfury Totem's strike, a refresh line after the strike | not separable            | 13 of 13   |
 
 Of the 8 white swings with no line inside the window, 2 show one 120 to 600 ms later. A white swing that Seal of Command
 hits follow never shows a second line, the 14 swings with two or three hits from Echo of Command among them.
