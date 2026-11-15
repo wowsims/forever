@@ -137,10 +137,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 836.98644
-  tps: 868.45321
-  dtps: 8.55407
-  hps: 23.23083
+  dps: 825.44262
+  tps: 857.20545
+  dtps: 8.38658
+  hps: 23.04444
  }
 }
 dps_results: {
