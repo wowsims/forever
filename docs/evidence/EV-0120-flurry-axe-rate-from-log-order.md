@@ -12,7 +12,7 @@
 - Game build: 1.60.1.70888 and 1.60.1.70938, by report date (6 reports before 2026-11-13, 15 after); hotfix state and
   relogs not recorded. No hotfix changed 18797, the item's on-hit entry or its 1.5 s speed on these builds.
 - Date: 2026-11-12 to 2026-11-15
-- Pull request: not recorded
+- Pull request: #1039
 
 A wearer is a player whose combatant info lists the item in the worn fights; runs that two players logged count once.
 The extraattacks event of 18797 is logged inside the hit that rolled it: before that hit's damage event, in the same
