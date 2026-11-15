@@ -333,6 +333,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 880.54624
+  tps: 716.81897
+  dtps: 3.40213
+  hps: 24.66518
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-CloudkeeperLegplates-14554"
  value: {
   dps: 862.32178
@@ -1694,10 +1703,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 781.04978
-  tps: 636.3548
-  dtps: 3.64654
-  hps: 22.97379
+  dps: 772.5692
+  tps: 630.61505
+  dtps: 4.55194
+  hps: 23.12544
  }
 }
 dps_results: {

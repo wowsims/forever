@@ -190,6 +190,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 921.8122
+  tps: 740.19108
+  dtps: 10.39835
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 930.48948
@@ -232,9 +240,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 879.13278
-  tps: 695.20822
-  dtps: 9.99093
+  dps: 879.5601
+  tps: 695.14748
+  dtps: 9.84993
   hps: 9.83023
  }
 }

@@ -350,6 +350,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 719.8314
+  tps: 681.18095
+  dtps: 8.76871
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 703.97816

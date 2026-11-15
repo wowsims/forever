@@ -334,6 +334,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 541.37984
+  tps: 2703.29987
+  dtps: 408.59814
+  hps: 85.50479
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 525.03648
