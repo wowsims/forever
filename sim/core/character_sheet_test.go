@@ -384,3 +384,149 @@ func TestSheetHasNoMeleeCritCapWithoutMainHandAuto(t *testing.T) {
 		t.Errorf("melee crit cap %v, want none without a main-hand auto", info)
 	}
 }
+
+// The sheet lists the bonuses against every mob type, the target's or not: gear, a build-phase aura and
+// a racial, each as the attack table against a target of that type holds it once the sim resets. It
+// lists the gear's area stats per area type, in an area or not.
+func TestSheetListsBonusesAgainstEveryMobType(t *testing.T) {
+	const ringID int32 = 990925
+	const ringAttackPower, ringAreaAttackPower, auraSpellDamage = 78.0, 29.0, 21.0
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		{Id: ringID, Name: "Test Humanoid Slaying Ring", Type: proto.ItemType_ItemTypeFinger, ScalingOptions: map[int32]*proto.ScalingItemProperties{
+			0: {
+				MobTypeStats: []*proto.MobTypeStats{{
+					MobTypes: []proto.MobType{proto.MobType_MobTypeHumanoid},
+					Stats:    map[int32]float64{int32(stats.AttackPower): ringAttackPower},
+				}},
+				AreaStats: []*proto.AreaStats{{
+					AreaType: proto.AreaType_AreaTypeForestGrassland,
+					Stats:    map[int32]float64{int32(stats.AttackPower): ringAreaAttackPower},
+				}},
+			},
+		}},
+	}})
+	weaponTestTalents = func(character *Character) {
+		MakePermanent(character.RegisterAura(Aura{Label: "Test Undead Bane", BuildPhase: CharacterBuildPhaseTalents})).
+			AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: auraSpellDamage}, proto.MobType_MobTypeUndead)
+	}
+	defer func() { weaponTestTalents = nil }()
+	equipped := WeaponTestSlots(WeaponTestSwordID, 0, 0)
+	equipped[proto.ItemSlot_ItemSlotFinger1] = &proto.ItemSpec{Id: ringID}
+	raid := weaponTestRaid(proto.Race_RaceTroll, equipped, nil)
+	playerStats := ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: weaponTestEncounter()}).RaidStats.Parties[0].Players[0]
+
+	wantStats := map[proto.MobType]stats.Stats{
+		proto.MobType_MobTypeHumanoid: {stats.AttackPower: ringAttackPower},
+		proto.MobType_MobTypeUndead:   {stats.SpellDamage: auraSpellDamage},
+		proto.MobType_MobTypeBeast:    {},
+	}
+	sheet := map[proto.MobType]*proto.MobTypeBonus{}
+	for _, bonus := range playerStats.MobTypeBonuses {
+		sheet[bonus.MobType] = bonus
+	}
+	if len(playerStats.MobTypeBonuses) != len(wantStats) || len(sheet) != len(wantStats) {
+		t.Fatalf("the sheet lists bonuses %v, want one entry each against Humanoids, Undead and Beasts", playerStats.MobTypeBonuses)
+	}
+	if beast := sheet[proto.MobType_MobTypeBeast]; beast == nil || beast.DamageMultiplier <= 1 {
+		t.Fatalf("the sheet lists %v against Beasts, want the racial's damage multiplier", beast)
+	}
+	if len(playerStats.AreaStats) != 1 || playerStats.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland ||
+		stats.FromProtoMap(playerStats.AreaStats[0].Stats) != (stats.Stats{stats.AttackPower: ringAreaAttackPower}) {
+		t.Errorf("the sheet lists area stats %v, want the ring's attack power in Forest and Grassland", playerStats.AreaStats)
+	}
+
+	for mobType, bonus := range sheet {
+		if got := stats.FromProtoMap(bonus.Stats); got != wantStats[mobType] {
+			t.Errorf("the sheet lists %v against %s, want %v", got, mobType, wantStats[mobType])
+		}
+		encounter := weaponTestEncounter()
+		encounter.Targets[0].MobType = mobType
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: raid, Encounter: encounter}, simsignals.CreateSignals())
+		sim.Reset()
+		character := sim.Raid.Parties[0].Players[0].GetCharacter()
+		table := character.AttackTables[character.CurrentTarget.UnitIndex]
+		if got := table.MobTypeBonusStats[mobType]; got != wantStats[mobType] {
+			t.Errorf("against %s the attack table holds %v, the sheet %v", mobType, got, wantStats[mobType])
+		}
+		if !WithinToleranceFloat64(table.DamageDealtMultiplier, bonus.DamageMultiplier, 1e-9) {
+			t.Errorf("against %s the attack table multiplies damage by %v, the sheet by %v", mobType, table.DamageDealtMultiplier, bonus.DamageMultiplier)
+		}
+	}
+}
+
+// Gear stats for the encounter's area are out of the sheet's totals and join the character's stats at the reset,
+// with their dependencies, max health and max mana, as the same stats on the item itself do. A swap trades them
+// with the weapon that carries them, and the next reset starts from the main set again.
+func TestAreaStatsJoinTheStatsAtTheReset(t *testing.T) {
+	const areaSwordID, plainSwordID int32 = 990926, 990927
+	bonus := stats.Stats{stats.Strength: 20, stats.Stamina: 30, stats.Intellect: 40, stats.AttackPower: 29}.ToProtoMap()
+	sword := func(id int32, scaling *proto.ScalingItemProperties) *proto.SimItem {
+		scaling.WeaponDamageMin, scaling.WeaponDamageMax = 50, 90
+		return &proto.SimItem{Id: id, Name: "Test Area Sword", Type: proto.ItemType_ItemTypeWeapon, WeaponType: proto.WeaponType_WeaponTypeSword,
+			HandType: proto.HandType_HandTypeOneHand, WeaponSpeed: 2.6, ScalingOptions: map[int32]*proto.ScalingItemProperties{0: scaling}}
+	}
+	AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{
+		sword(areaSwordID, &proto.ScalingItemProperties{AreaStats: []*proto.AreaStats{{AreaType: proto.AreaType_AreaTypeForestGrassland, Stats: bonus}}}),
+		sword(plainSwordID, &proto.ScalingItemProperties{Stats: bonus}),
+	}})
+	weaponTestTalents = func(character *Character) { character.EnableManaBar() }
+	defer func() { weaponTestTalents = nil }()
+
+	inForest := weaponTestEncounter()
+	inForest.AreaTypes = []proto.AreaType{proto.AreaType_AreaTypeForestGrassland}
+	areaSword := WeaponTestSlots(areaSwordID, 0, 0)
+	testSword := WeaponTestSlots(WeaponTestSwordID, 0, 0)
+	reset := func(raid *proto.Raid, encounter *proto.Encounter) (*Simulation, *Character) {
+		sim := NewSim(&proto.RaidSimRequest{SimOptions: &proto.SimOptions{RandomSeed: 1}, Raid: raid, Encounter: encounter}, simsignals.CreateSignals())
+		sim.Reset()
+		return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+	}
+	_, withBonus := reset(weaponTestRaid(proto.Race_RaceHuman, WeaponTestSlots(plainSwordID, 0, 0), nil), weaponTestEncounter())
+	_, withoutBonus := reset(weaponTestRaid(proto.Race_RaceHuman, testSword, nil), inForest)
+	// A swap moves max health and max mana, and leaves current health and mana as any stat change in combat does.
+	wantStats := func(name string, character *Character, want *Character) {
+		t.Helper()
+		if got := character.GetStats(); got != want.GetStats() {
+			t.Errorf("%s: stats %v, want %v", name, got.FlatString(), want.GetStats().FlatString())
+		}
+		if character.MaxHealth() != want.MaxHealth() || character.MaxMana() != want.MaxMana() {
+			t.Errorf("%s: max health %v and mana %v, want %v and %v", name, character.MaxHealth(), character.MaxMana(), want.MaxHealth(), want.MaxMana())
+		}
+	}
+	wantReset := func(name string, character *Character, want *Character) {
+		t.Helper()
+		wantStats(name, character, want)
+		if character.CurrentHealth() != want.CurrentHealth() || character.CurrentMana() != want.CurrentMana() {
+			t.Errorf("%s: health %v and mana %v, want %v and %v", name, character.CurrentHealth(), character.CurrentMana(), want.CurrentHealth(), want.CurrentMana())
+		}
+	}
+
+	raid := weaponTestRaid(proto.Race_RaceHuman, areaSword, testSword)
+	sheet := ComputeStats(&proto.ComputeStatsRequest{Raid: raid, Encounter: inForest}).RaidStats.Parties[0].Players[0]
+	plainSheet := ComputeStats(&proto.ComputeStatsRequest{Raid: weaponTestRaid(proto.Race_RaceHuman, testSword, nil), Encounter: inForest}).RaidStats.Parties[0].Players[0]
+	if got, want := stats.FromUnitStatsProto(sheet.FinalStats), stats.FromUnitStatsProto(plainSheet.FinalStats); got != want {
+		t.Errorf("the sheet's totals in the area %v, want %v, the area stats left out", got.FlatString(), want.FlatString())
+	}
+	if len(sheet.AreaStats) != 1 || sheet.AreaStats[0].AreaType != proto.AreaType_AreaTypeForestGrassland || stats.FromProtoMap(sheet.AreaStats[0].Stats) != stats.FromProtoMap(bonus) {
+		t.Errorf("the sheet lists area stats %v, want the sword's in Forest and Grassland", sheet.AreaStats)
+	}
+
+	sim, character := reset(raid, inForest)
+	wantReset("worn in the area", character, withBonus)
+	character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	wantStats("swapped off", character, withoutBonus)
+	character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Main, false)
+	wantStats("swapped back on", character, withBonus)
+	character.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	sim.Cleanup()
+	sim.Reset()
+	wantReset("the next iteration after ending swapped off", character, withBonus)
+
+	_, outside := reset(raid, weaponTestEncounter())
+	wantReset("worn outside the area", outside, withoutBonus)
+
+	sim, swapOnly := reset(weaponTestRaid(proto.Race_RaceHuman, testSword, areaSword), inForest)
+	wantReset("in the swap set", swapOnly, withoutBonus)
+	swapOnly.ItemSwap.SwapItems(sim, proto.APLActionItemSwap_Swap1, false)
+	wantStats("swapped on from the swap set", swapOnly, withBonus)
+}

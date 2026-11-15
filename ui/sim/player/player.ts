@@ -1256,16 +1256,15 @@ export class Player<SpecType extends Spec> {
 	computeItemEP(item: Item, slot: ItemSlot): number {
 		if (item == null) return 0;
 
-		const areaTypes = this.sim.encounter.getAreaTypes();
 		const epWeights = this.getEpWeights();
 		const weaponSkills = item.scalingOptions[0]?.weaponSkills ?? [];
 		const handSkills = weaponSkills.length ? this.handWeaponSkills(item, slot) : [];
-		const cacheKey = `${item.id}-${areaTypes.join(',')}-${handSkills.join(',')}-${JSON.stringify(epWeights)}`;
+		const cacheKey = `${item.id}-${handSkills.join(',')}-${JSON.stringify(epWeights)}`;
 
 		const cached = this.itemEPCache[slot].get(cacheKey);
 		if (cached !== undefined) return cached;
 
-		const equippedItem = new EquippedItem({ item }).withDynamicStats(areaTypes);
+		const equippedItem = new EquippedItem({ item }).withDynamicStats();
 		const itemStats = equippedItem.calcStats(slot);
 
 		// For random suffix items, use the suffix option with the highest EP for the purposes of ranking items in the picker.
