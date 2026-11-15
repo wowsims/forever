@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // The unit's bonus weapon skill for the weapon held in the slot, on top of its level-based skill. A
@@ -64,11 +65,15 @@ func (character *Character) applyWeaponSkills(weaponSkills []*proto.WeaponSkillV
 }
 
 // An item's weapon skill goes on top of the stated skill, and every copy worn counts; sign -1 takes it off.
+// A druid's item Feral Combat skill goes on top of the stated Feral Combat skill the same way.
 func (character *Character) addItemWeaponSkills(item *Item, sign float64) {
 	for _, weaponSkill := range item.ScalingOptions[0].GetWeaponSkills() {
 		if character.keepsWeaponSkill(weaponSkill.Skill) {
 			character.PseudoStats.WeaponSkills[weaponSkill.Skill] += sign * float64(weaponSkill.Value)
 		}
+	}
+	if character.Class == proto.Class_ClassDruid {
+		character.PseudoStats.FeralCombatSkill += sign * stats.PseudoStatValue(item.PseudoStats, proto.PseudoStat_PseudoStatFeralCombatSkill)
 	}
 }
 

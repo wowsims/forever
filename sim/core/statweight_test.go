@@ -1242,7 +1242,7 @@ func TestStatWeightsRefuseAStatRunLongerThanTheBaseline(t *testing.T) {
 	}
 }
 
-func TestStatWeightsMeasureTheNextFeralSkillPointWithOlderArrays(t *testing.T) {
+func TestStatWeightsMeasureTheNextFeralSkillPointsWithOlderArrays(t *testing.T) {
 	old := make([]float64, int(proto.PseudoStat_PseudoStatFeralCombatSkill))
 	old[proto.PseudoStat_PseudoStatMainHandDps] = 2
 	requests := buildStatWeightRequests(&proto.StatWeightsRequest{Player: &proto.Player{BonusStats: &proto.UnitStats{PseudoStats: old}}, Encounter: &proto.Encounter{}, SimOptions: &proto.SimOptions{Iterations: 2, RandomSeed: 1}, PseudoStatsToWeigh: []proto.PseudoStat{proto.PseudoStat_PseudoStatFeralCombatSkill}})
@@ -1251,11 +1251,11 @@ func TestStatWeightsMeasureTheNextFeralSkillPointWithOlderArrays(t *testing.T) {
 		if request.StatData.UnitStat != int32(unitStat) {
 			continue
 		}
-		if request.RequestLow != nil || request.StatData.ModLow != 0 || request.StatData.ModHigh != 1 {
-			t.Fatal("Feral skill must measure only the next point")
+		if request.RequestLow != nil || request.StatData.ModLow != 0 || request.StatData.ModHigh != 2 {
+			t.Fatal("Feral skill must measure only the next two points")
 		}
 		ps := request.RequestHigh.Raid.Parties[0].Players[0].BonusStats.PseudoStats
-		if ps[proto.PseudoStat_PseudoStatFeralCombatSkill] != 1 || ps[proto.PseudoStat_PseudoStatMainHandDps] != 2 {
+		if ps[proto.PseudoStat_PseudoStatFeralCombatSkill] != 2 || ps[proto.PseudoStat_PseudoStatMainHandDps] != 2 {
 			t.Fatal("Skill perturbation did not preserve older bonus stats")
 		}
 		return

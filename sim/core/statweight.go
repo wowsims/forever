@@ -118,7 +118,7 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones. A weapon skill point's value moves with the skill, and
-// its weight is the average of the next points'. Feral combat skill is measured upward the same way.
+// its weight is the average of the next points'. Feral Combat skill counts the same way.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
 	if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
 		return true
@@ -240,12 +240,10 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+		if _, _, hasRating := ratingBehindStat(stat); hasRating {
 			statMod = 1
-		} else if _, _, hasRating := ratingBehindStat(stat); hasRating {
-			statMod = 1
-		} else if isHandWeaponSkill(stat) {
-			if !handHoldsWeapon(swr.Player, stat) {
+		} else if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			if isHandWeaponSkill(stat) && !handHoldsWeapon(swr.Player, stat) {
 				continue
 			}
 			// One skill point changes too few attack rolls to measure cheaply, and most items grant one or two
