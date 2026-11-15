@@ -284,6 +284,76 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	}
 }
 
+// Skullforge Reaver 13361 in the main hand casts 17484 at the procs per minute of the item's entry, on
+// the sword's speed, off landed main-hand swings and specials, and never off a miss, the off hand's
+// swings or a ranged hit. The brand drains the target every period for the row's duration and heals
+// the wearer the row's heal every period, and a second proc refreshes it.
+func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13361, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Skullforge Reaver")
+	brand := character.GetSpell(core.ActionID{SpellID: 17484})
+	transfer := character.GetSpell(core.ActionID{SpellID: 17484, Tag: 1})
+	if proc == nil || proc.Dpm == nil || brand == nil || transfer == nil {
+		t.Fatal("13361 registers no brand, no heal or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13361, 17484)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 13361, 17484)
+	for _, mask := range []core.ProcMask{core.ProcMaskMeleeOHAuto, core.ProcMaskMeleeOHSpecial, core.ProcMaskRangedAuto} {
+		if got := proc.Dpm.Chance(mask, sim); got != 0 {
+			t.Errorf("a hit of mask %v rolls %v, want no roll off the main hand", mask, got)
+		}
+	}
+
+	// Every main-hand hit now procs it, and every brand lands.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	character.RemoveHealth(sim, character.MaxHealth()/2)
+	row := spelldata.MustFind(17484)
+	drain := row.PeriodicDamageEffect()
+	heal := row.FirstAura(dbcenums.A_PERIODIC_HEAL)
+	ticks := rowTickCount(row, drain)
+	if ticks < 2 || rowTickCount(row, heal) != ticks || drain.Min() <= 0 || heal.Min() <= 0 {
+		t.Fatalf("17484 drains %v %d times and heals %v %d times, want an amount each at least twice, as many heals as drains",
+			drain.Min(), ticks, heal.Min(), rowTickCount(row, heal))
+	}
+	enemy := character.CurrentTarget
+
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if got := brand.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+		t.Errorf("a missed swing cast %d brands, want none", got)
+	}
+	start := sim.CurrentTime
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !brand.Dot(enemy).IsActive() || !transfer.SelfHot().IsActive() {
+		t.Fatal("a main-hand swing applied no brand to the target or no heal to the wearer")
+	}
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+	if brand.Dot(enemy).IsActive() || transfer.SelfHot().IsActive() {
+		t.Errorf("the brand is still up after the row's %v", row.Duration())
+	}
+	drained := brand.SpellMetrics[enemy.UnitIndex]
+	if drained.Casts != 1 || drained.Ticks != ticks || drained.TotalDamage < float64(ticks)*drain.Min() || drained.TotalDamage > float64(ticks)*drain.Max() {
+		t.Errorf("one proc cast %d brands that drained %v over %d ticks, want one that drains %d ticks of the row's %v to %v",
+			drained.Casts, drained.TotalDamage, drained.Ticks, ticks, drain.Min(), drain.Max())
+	}
+	healed := transfer.SpellMetrics[character.UnitIndex]
+	if healed.Ticks != ticks || healed.TotalHealing < float64(ticks)*heal.Min() || healed.TotalHealing > float64(ticks)*heal.Max() {
+		t.Errorf("the brand healed the wearer %v over %d ticks, want %d ticks of the row's %v to %v",
+			healed.TotalHealing, healed.Ticks, ticks, heal.Min(), heal.Max())
+	}
+
+	dealHit(t, sim, character, &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &character.Unit})
+	if got := brand.SpellMetrics[enemy.UnitIndex].Casts; got != 2 {
+		t.Errorf("a main-hand special cast %d brands in all, want 2", got)
+	}
+	stepTo(t, sim, sim.CurrentTime+drain.Period())
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	if got := brand.Dot(enemy).RemainingDuration(sim); got != row.Duration() {
+		t.Errorf("a proc on a branded target leaves the brand %v, want the row's full %v", got, row.Duration())
+	}
+}
+
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
 // entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
 // global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
