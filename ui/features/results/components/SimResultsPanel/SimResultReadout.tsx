@@ -34,8 +34,7 @@ export interface SimResultReadoutViewProps {
 
 /** Two short lines for the bottom bar: the run in progress, else the finished run's primary metric, else the label of what the bar opens. */
 export const SimResultReadoutView = ({ metric, freshness, run }: SimResultReadoutViewProps) => (
-	<span className="flex min-w-0 items-center gap-2 text-left font-bold" data-testid="sim-result-readout">
-		<Icon name="chevron-up" size="xs" className="shrink-0 text-link" />
+	<span className="flex min-w-0 items-center text-left font-bold" data-testid="sim-result-readout">
 		{run ? (
 			<span className="flex min-w-0 flex-col tabular-nums" data-testid="sim-result-readout-run">
 				<span className="truncate">

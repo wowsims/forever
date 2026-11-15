@@ -26,9 +26,9 @@ export const ItemListHeaderRow = ({ label, ep, sortBy, sortDirection, onSort }: 
 	const ilvlSortedLabel = sortedLabel(sortBy, sortDirection, ItemListSortBy.ILVL);
 	const epSortedLabel = sortedLabel(sortBy, sortDirection, ItemListSortBy.EP);
 	return (
-		<div className="mr-4 flex justify-between gap-4 pr-2 text-md max-xl:mr-0" data-testid="selector-modal-list-labels">
+		<div className="mr-4 flex justify-between gap-4 px-2 text-md max-xl:mr-0" data-testid="selector-modal-list-labels">
 			{tabHasLevel(label) && (
-				<h6 className="w-12 select-none" data-testid="ilvl-label">
+				<h6 className="w-12 text-center select-none" data-testid="ilvl-label">
 					<Button variant="unstyled" className="text-inherit [font:inherit] focus-visible:focus-ring" onClick={() => onSort(ItemListSortBy.ILVL)}>
 						{i18n.t('gear_tab.gear_picker.table_headers.ilvl')}
 						{ilvlSortedLabel && <span className="sr-only">, {ilvlSortedLabel}</span>}

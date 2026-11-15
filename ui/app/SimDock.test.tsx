@@ -54,6 +54,19 @@ describe('SimDock', () => {
 		expect(screen.getAllByTestId('dps-action')).toHaveLength(1);
 	});
 
+	it('points the chevron down while the sheet is open', () => {
+		renderDock();
+		const toggle = screen.getByTestId('sim-dock-toggle');
+		const chevron = () => toggle.querySelector('[data-icon]')?.getAttribute('data-icon');
+		expect(chevron()).toBe('chevron-up');
+
+		fireEvent.click(toggle);
+		expect(chevron()).toBe('chevron-down');
+
+		fireEvent.click(toggle);
+		expect(chevron()).toBe('chevron-up');
+	});
+
 	it('keeps the sheet open through a press on the bar, and closes it on a press elsewhere', () => {
 		renderDock();
 		fireEvent.click(screen.getByTestId('sim-dock-toggle'));

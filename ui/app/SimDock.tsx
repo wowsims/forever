@@ -4,6 +4,7 @@ import type { PlayerSpec } from '@sim/player/player_spec';
 import type { Sim } from '@sim/sim';
 import { Button } from '@ui-kit/Button';
 import { Drawer } from '@ui-kit/Drawer';
+import { Icon } from '@ui-kit/Icon';
 import { SidebarIconAction } from '@ui-kit/SidebarIconAction';
 import { useRef, useState } from 'react';
 
@@ -46,7 +47,8 @@ export const SimDock = ({ host, sim, spec, simReady }: SimDockProps) => {
 							className="bottom-sim-dock z-sidebar max-h-4/5 shadow-popup"
 							testId="sim-dock-sheet"
 							trigger={
-								<Button variant="unstyled" className="flex h-full min-w-0 flex-1 items-center" data-testid="sim-dock-toggle">
+								<Button variant="unstyled" className="flex h-full min-w-0 flex-1 items-center gap-2" data-testid="sim-dock-toggle">
+									<Icon name={open ? 'chevron-down' : 'chevron-up'} size="xs" className="shrink-0 text-link" />
 									<SimResultReadout panel={host.resultsPanel} results={host.raidSimResultsManager} />
 								</Button>
 							}>
