@@ -4033,7 +4033,7 @@ func RegisterAllProcs() {
 
 	// Grants 1 extra attack on your next swing.
 	// https://www.wowhead.com/forever/spell=18797
-	// trigger 18797 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18797 (1.65 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataExtraAttackProc(shared.SpellDataProc{TriggerSpellID: 18797, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 871, ItemName: "Flurry Axe"},
