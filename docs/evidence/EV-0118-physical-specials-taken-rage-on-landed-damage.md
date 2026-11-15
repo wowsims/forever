@@ -8,7 +8,7 @@
   2026-11-05 07:01 UTC hotfix (wowsims/gamedata #74) through the 2026-11-14 05:02 UTC hotfix (#294); #295 to #297
   landed during the last session without a relog. The rule reads the same in every log.
 - Date: 2026-11-05 to 2026-11-14
-- Pull request: #TBD
+- Pull request: #1029
 
 The rage of a hit is the tenths of rage on the hit's own line minus the warrior's previous line. A pair counts only when
 no other attack lands within 20 ms, no absorb takes part of the hit, rage stays below the cap and nothing spends or loses
