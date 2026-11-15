@@ -56,14 +56,6 @@ func RegisterAllProcs() {
 			{ItemID: 1204, ItemName: "The Green Tower"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 9414, ItemName: "Oilskin Leggings"},
-		})
-
 	// When struck in combat inflicts 3 Arcane damage to the attacker.
 	// https://www.wowhead.com/forever/spell=15438
 	// equip: 15438 (A_DAMAGE_SHIELD)
@@ -201,14 +193,6 @@ func RegisterAllProcs() {
 			{ItemID: 275833, ItemName: "Bristlecone Cloak"},
 		})
 
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 280016, ItemName: "Spiderchitin Wrap"},
-		})
-
 	// Increased Fist Weapons +1.
 	// https://www.wowhead.com/forever/spell=1297442
 	// equip: 1297442 (A_MOD_SKILL)
@@ -223,14 +207,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1312955},
 		[]shared.ItemVariant{
 			{ItemID: 282080, ItemName: "Flame Seared Signet"},
-		})
-
-	// Increases Feral Combat +1.
-	// https://www.wowhead.com/forever/spell=1320726
-	// equip: 1320726 (A_MOD_SKILL)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 1320726},
-		[]shared.ItemVariant{
-			{ItemID: 286616, ItemName: "Matriarch's Prowlers"},
 		})
 
 	// Procs

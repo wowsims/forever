@@ -241,15 +241,56 @@ func TestFeralCombatSkillReplacesTheWeaponsSkillInAForm(t *testing.T) {
 	}{
 		{"feral skill at the maximum", true, 0, staff, 0},
 		{"no weapon in a form", true, -10, nil, -10},
-		{"out of a form", false, -10, staff, -20},
+		{"out of a form", false, -10, staff, -15},
 	} {
 		unit := &Unit{PseudoStats: stats.NewPseudoStats()}
 		unit.PseudoStats.WeaponSkills[proto.WeaponSkill_WeaponSkillStaves] = -20
+		unit.PseudoStats.MHWeaponSkill = 5
 		unit.PseudoStats.FeralCombatEnabled = tc.inForm
 		unit.PseudoStats.FeralCombatSkill = tc.feralSkill
-		if got := GetWeaponSkill(unit, tc.weapon); got != tc.weaponSkill {
+		if got := GetWeaponSkill(unit, tc.weapon, proto.ItemSlot_ItemSlotMainHand); got != tc.weaponSkill {
 			t.Errorf("%s: weapon skill %v, want %v", tc.name, got, tc.weaponSkill)
 		}
+	}
+}
+
+// A hand's weapon skill bonus pseudo stat raises the skill of the weapon that hand holds and of no other hand;
+// an empty hand stays at the level-based skill.
+func TestHandWeaponSkillRaisesOnlyItsOwnHand(t *testing.T) {
+	sword := &Item{WeaponType: proto.WeaponType_WeaponTypeSword, HandType: proto.HandType_HandTypeOneHand}
+	mace := &Item{WeaponType: proto.WeaponType_WeaponTypeMace, HandType: proto.HandType_HandTypeOneHand}
+	bow := &Item{RangedWeaponType: proto.RangedWeaponType_RangedWeaponTypeBow}
+	// Against a level 63 target, miss is 8% at the level-based skill and 5.5% at 10 points above it.
+	const levelBasedMiss, raisedMiss = 0.08, 0.055
+	for _, tc := range []struct {
+		name           string
+		pseudoStat     proto.PseudoStat
+		mhMiss, ohMiss float64
+	}{
+		{"main hand", proto.PseudoStat_PseudoStatMainHandWeaponSkill, raisedMiss, levelBasedMiss},
+		{"off hand", proto.PseudoStat_PseudoStatOffHandWeaponSkill, levelBasedMiss, raisedMiss},
+	} {
+		pseudoStats := make([]float64, stats.PseudoStatsLen)
+		pseudoStats[tc.pseudoStat] = 10
+		character := NewCharacter(&Party{}, 0, &proto.Player{
+			Name:       "Hand Skill Tester",
+			Class:      proto.Class_ClassWarrior,
+			Race:       proto.Race_RaceUndead,
+			Spec:       &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}},
+			Equipment:  &proto.EquipmentSpec{},
+			BonusStats: &proto.UnitStats{PseudoStats: pseudoStats},
+		})
+		defender := &Unit{Type: EnemyUnit, Level: 63, PseudoStats: stats.NewPseudoStats()}
+		table := NewAttackTable(&character.Unit, defender)
+		table.setWeapons(sword, mace, bow)
+		values := []attackTableValue{
+			{"main hand miss", table.MH.BaseMissChance, tc.mhMiss},
+			{"off hand miss", table.OH.BaseMissChance, tc.ohMiss},
+			{"ranged miss", table.Ranged.BaseMissChance, levelBasedMiss},
+		}
+		table.setWeapons(sword, nil, bow)
+		values = append(values, attackTableValue{"empty off hand miss", table.OH.BaseMissChance, levelBasedMiss})
+		checkAttackTableValues(t, tc.name+" weapon skill bonus", values)
 	}
 }
 
@@ -752,11 +793,11 @@ func TestFeralCombatSkillUsesSavedSkillWithoutChangingCasterSkill(t *testing.T) 
 		character := NewCharacter(&Party{}, 0, &proto.Player{Spec: &proto.Player_FeralCatDruid{FeralCatDruid: &proto.FeralCatDruid{}}, Class: proto.Class_ClassDruid, Race: proto.Race_RaceTauren, Equipment: &proto.EquipmentSpec{}, WeaponSkills: []*proto.WeaponSkillValue{{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: value}, {Skill: proto.WeaponSkill_WeaponSkillStaves, Value: 280}}})
 		staff := &Item{WeaponType: proto.WeaponType_WeaponTypeStaff, HandType: proto.HandType_HandTypeTwoHand}
 		character.SetFeralCombat(true)
-		if got := GetWeaponSkill(&character.Unit, staff); got != float64(value-300) {
+		if got := GetWeaponSkill(&character.Unit, staff, proto.ItemSlot_ItemSlotMainHand); got != float64(value-300) {
 			t.Errorf("Feral bonus %v, want %v", got, value-300)
 		}
 		character.SetFeralCombat(false)
-		if got := GetWeaponSkill(&character.Unit, staff); got != -20 {
+		if got := GetWeaponSkill(&character.Unit, staff, proto.ItemSlot_ItemSlotMainHand); got != -20 {
 			t.Errorf("Caster staff bonus %v, want -20", got)
 		}
 		found := false
