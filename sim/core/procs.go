@@ -187,7 +187,7 @@ func (character *Character) newDynamicWeaponProcManager(ppm float64, fixedProcCh
 	aa := character.AutoAttacks
 	mhSpeed, ohSpeed, rangedSpeed := aa.mh.SwingSpeed, aa.offHandProcSpeed(), aa.ranged.SwingSpeed
 	if !aa.AutoSwingMelee && !aa.AutoSwingRanged {
-		// With no auto attack the only weapon hits are a wand's shots, which roll on the wand's own speed.
+		// With no auto attack only ranged hits roll, a caster's wand shots, on the ranged slot's weapon speed.
 		mhSpeed, ohSpeed, rangedSpeed = 0, 0, character.WeaponFromRanged().SwingSpeed
 	}
 
