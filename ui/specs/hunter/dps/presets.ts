@@ -7,6 +7,7 @@ import WeaveAPL from './apls/default.apl.siml';
 import WeaveHawkAPL from './apls/default_hawks.apl.siml';
 import WeaveMmAPL from './apls/default_mm.apl.siml';
 import MeleeAPL from './apls/melee.apl.siml';
+import NormalWeaveAPL from './apls/normal_weave.apl.siml';
 import TurretAPL from './apls/turret.apl.siml';
 import TurretHawkAPL from './apls/turret_hawk.apl.siml';
 import TurretMultiAPL from './apls/turret_multi.apl.siml';
@@ -18,16 +19,28 @@ import SvBuild from './builds/sv.siml';
 import SvMeleeBuild from './builds/sv_melee.siml';
 import SvWeaveBuild from './builds/sv_weave.siml';
 import DefaultsJson from './defaults.siml';
-import P1GearJson from './gear_sets/p1.gear.siml';
-import P1MeleeGearJson from './gear_sets/p1_melee.gear.siml';
+import PreBisMeleeGearJson from './gear_sets/prebis_melee.gear.siml';
+import PreBisMeleeCheapGearJson from './gear_sets/prebis_melee_cheap.gear.siml';
+import PreBisTurretGearJson from './gear_sets/prebis_turret.gear.siml';
+import PreBisTurretCheapGearJson from './gear_sets/prebis_turret_cheap.gear.siml';
+import PreBisWeaveGearJson from './gear_sets/prebis_weave.gear.siml';
+import PreBisWeaveCheapGearJson from './gear_sets/prebis_weave_cheap.gear.siml';
 
 // The spec's defaults, from defaults.siml.
 export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecHunter, DefaultsJson);
 
-// The same armor twice, with the weapons each playstyle swings: a two-hander to weave with, which
-// is also the better pair of stats at range, and two one-handers to stand in melee with.
-export const P1Gear = PresetUtils.makePresetGear('P1', P1GearJson, { devOnly: true });
-export const P1MeleeGear = PresetUtils.makePresetGear('P1 Dual Wield', P1MeleeGearJson, { devOnly: true });
+// The best Phase 1 gear outside raids for each playstyle, from batch sims of the SV Weave, MM and SV Melee builds.
+// Cheap leaves out exalted reputation, battleground quartermaster gear, epic crafts, the Beastmaster vendor pieces and
+// world drops other than random-suffix ones. Neither takes Warsong Gulch or Alterac Valley gear that needs Exalted.
+// The weave's two-hander and bow come as a pair: the melee swing resets Auto Shot, so each weave lasts as long as the
+// slower of the two swings, and a slow two-hander only pays with a slow bow. The turret sets keep a two-hander for its
+// stats and a fast bow, so under the Auto rotation, which weaves with any two-hander, they need a turret rotation.
+export const PreBisWeaveGear = PresetUtils.makePresetGear('Pre-BiS', PreBisWeaveGearJson, { group: 'Weave' });
+export const PreBisWeaveCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisWeaveCheapGearJson, { group: 'Weave' });
+export const PreBisTurretGear = PresetUtils.makePresetGear('Pre-BiS', PreBisTurretGearJson, { group: 'Turret' });
+export const PreBisTurretCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisTurretCheapGearJson, { group: 'Turret' });
+export const PreBisMeleeGear = PresetUtils.makePresetGear('Pre-BiS', PreBisMeleeGearJson, { group: 'Melee' });
+export const PreBisMeleeCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisMeleeCheapGearJson, { group: 'Melee' });
 
 // The priority list of each playstyle. Their "Use ..." variables are the simple rotation's toggles.
 export const PlaystyleAPLs: Record<Playstyle, any> = {
@@ -41,7 +54,10 @@ export const TurretHawkPlaystyleAPL: any = TurretHawkAPL;
 export const TurretAPLRotation = PresetUtils.makePresetAPLRotation('Turret', TurretAPL);
 export const TurretMultiAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Multi-Shot)', TurretMultiAPL);
 export const TurretHawkAPLRotation = PresetUtils.makePresetAPLRotation('Turret (Hawks)', TurretHawkAPL);
-export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave', WeaveAPL);
+// The max weave walks in after every Auto Shot; the normal weave walks in only once the shots are cooling and stays
+// for the melee cooldowns, which suits a dual wielder.
+export const WeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Max)', WeaveAPL);
+export const NormalWeaveAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Normal)', NormalWeaveAPL);
 export const WeaveHawkAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (Hawks)', WeaveHawkAPL);
 export const WeaveMmAPLRotation = PresetUtils.makePresetAPLRotation('Melee Weave (MM)', WeaveMmAPL);
 // The weave with no toggles: every shot goes ahead of the weave, which walks in once Auto Shot has gone off and back
@@ -57,16 +73,15 @@ export const SimpleRotation = PresetUtils.makePresetSimpleRotation('Simple', Spe
 const build = (name: string, json: any, gear: PresetUtils.PresetGear): PresetUtils.PresetBuild =>
 	PresetUtils.makePresetBuildFromSiml(name, Spec.SpecHunter, json, { gear });
 
-// Gear, talents, rotation, pet and distance together, one per tree and playstyle: the best build found for each on
-// the P1 gear over a three minute fight.
+// Gear, talents, rotation, pet and distance together, one per tree and playstyle, each with its playstyle's Pre-BiS set.
 export const Builds = [
-	build('SV Weave', SvWeaveBuild, P1Gear),
-	build('MM Weave', MmWeaveBuild, P1Gear),
-	build('BM Weave', BmWeaveBuild, P1Gear),
-	build('MM', MmBuild, P1Gear),
-	build('BM', BmBuild, P1Gear),
-	build('SV', SvBuild, P1Gear),
-	build('SV Melee', SvMeleeBuild, P1MeleeGear),
+	build('SV Weave', SvWeaveBuild, PreBisWeaveGear),
+	build('MM Weave', MmWeaveBuild, PreBisWeaveGear),
+	build('BM Weave', BmWeaveBuild, PreBisWeaveGear),
+	build('MM', MmBuild, PreBisTurretGear),
+	build('BM', BmBuild, PreBisTurretGear),
+	build('SV', SvBuild, PreBisTurretGear),
+	build('SV Melee', SvMeleeBuild, PreBisMeleeGear),
 ];
 
 // Each build's talents, under its name.

@@ -122,6 +122,7 @@ export default defineSpec<Spec.SpecHunter>({
 		rotations: [
 			Presets.SimpleRotation,
 			Presets.WeaveAPLRotation,
+			Presets.NormalWeaveAPLRotation,
 			Presets.WeaveHawkAPLRotation,
 			Presets.WeaveMmAPLRotation,
 			Presets.CleanWeaveAPLRotation,
@@ -131,7 +132,14 @@ export default defineSpec<Spec.SpecHunter>({
 			Presets.MeleeAPLRotation,
 		],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.P1Gear, Presets.P1MeleeGear],
+		gear: [
+			Presets.PreBisWeaveGear,
+			Presets.PreBisWeaveCheapGear,
+			Presets.PreBisTurretGear,
+			Presets.PreBisTurretCheapGear,
+			Presets.PreBisMeleeGear,
+			Presets.PreBisMeleeCheapGear,
+		],
 		builds: Presets.Builds,
 	},
 

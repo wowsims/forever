@@ -38,7 +38,7 @@ func TestHunter(t *testing.T) {
 			Class:      proto.Class_ClassHunter,
 			Race:       proto.Race_RaceOrc,
 			OtherRaces: []proto.Race{proto.Race_RaceNightElf},
-			GearSet:    core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1"),
+			GearSet:    core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave"),
 			Talents:    DefaultMMTalents,
 			OtherTalentSets: []core.TalentsCombo{
 				{Label: "SV", Talents: DefaultSVTalents},
@@ -108,7 +108,7 @@ func TestHunterPets(t *testing.T) {
 		{
 			Class:            proto.Class_ClassHunter,
 			Race:             proto.Race_RaceOrc,
-			GearSet:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1"),
+			GearSet:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave"),
 			Talents:          DefaultBMTalents,
 			Consumables:      DefaultConsumables,
 			SpecOptions:      families[0],
@@ -122,7 +122,7 @@ func TestHunterPets(t *testing.T) {
 }
 
 // Auto Shot needs the bow, gun or crossbow its row names: a thrown weapon in the ranged slot fires
-// none and starts no windup, the p1 bow fires them.
+// none and starts no windup, the weave set's bow fires them.
 func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	const thrown = 20814 // Master's Throwing Dagger
 	if item := core.GetItemByID(thrown); item == nil || item.RangedWeaponType != proto.RangedWeaponType_RangedWeaponTypeThrown {
@@ -131,7 +131,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	windup := "Casting " + core.ActionID{OtherID: proto.OtherAction_OtherActionShoot}.String()
 
 	autoShots := func(rangedID int32) (casts int32, windups int) {
-		gear := googleProto.Clone(core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet).(*proto.EquipmentSpec)
+		gear := googleProto.Clone(core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet).(*proto.EquipmentSpec)
 		if rangedID != 0 {
 			gear.Items[proto.ItemSlot_ItemSlotRanged] = &proto.ItemSpec{Id: rangedID}
 		}
@@ -164,7 +164,7 @@ func TestAutoShotNeedsABowGunOrCrossbow(t *testing.T) {
 	}
 
 	if casts, windups := autoShots(0); casts == 0 || windups == 0 {
-		t.Errorf("the p1 bow fired %d Auto Shots after %d windups, want some", casts, windups)
+		t.Errorf("the weave set's bow fired %d Auto Shots after %d windups, want some", casts, windups)
 	}
 	if casts, windups := autoShots(thrown); casts != 0 || windups != 0 {
 		t.Errorf("a thrown weapon fired %d Auto Shots after %d windups, want none", casts, windups)
@@ -186,7 +186,7 @@ func TestSniperShotExtendsAutoShotRange(t *testing.T) {
 			Name:               "Sniper Shot",
 			Race:               proto.Race_RaceOrc,
 			Class:              proto.Class_ClassHunter,
-			Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+			Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet,
 			TalentsString:      DefaultMMTalents,
 			Spec:               DefaultOptions,
 			Rotation:           rotation,
@@ -439,7 +439,7 @@ var minorSpeedRun = 7 * (1 + spelldata.MustFind(13889).EffectN(1).Percent())
 
 // Enchant Boots - Minor Speed, the boots enchant Forever offers, runs the hunter faster by its row's share.
 func TestMinorSpeedBootsRunFaster(t *testing.T) {
-	gear := core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet
+	gear := core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet
 	gear = googleProto.Clone(gear).(*proto.EquipmentSpec)
 	gear.Items[proto.ItemSlot_ItemSlotFeet].Enchant = 911
 	player := &proto.Player{
@@ -505,7 +505,7 @@ func TestAutoShotWindsUpWhenTheMoveEnds(t *testing.T) {
 		Name:               "Shot",
 		Race:               proto.Race_RaceOrc,
 		Class:              proto.Class_ClassHunter,
-		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet,
 		TalentsString:      DefaultMMTalents,
 		Spec:               DefaultOptions,
 		Rotation:           &proto.APLRotation{},
@@ -543,7 +543,7 @@ func TestAutoShotWaitsAReactionWhenTheWalkEndsOnTheMinimumRange(t *testing.T) {
 		Name:               "Line",
 		Race:               proto.Race_RaceOrc,
 		Class:              proto.Class_ClassHunter,
-		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet,
 		TalentsString:      DefaultMMTalents,
 		Spec:               DefaultOptions,
 		Rotation:           &proto.APLRotation{},
@@ -591,7 +591,7 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 		Name:               "Swing",
 		Race:               proto.Race_RaceOrc,
 		Class:              proto.Class_ClassHunter,
-		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet,
+		Equipment:          core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet,
 		TalentsString:      DefaultMMTalents,
 		Spec:               DefaultOptions,
 		Rotation:           &proto.APLRotation{},
@@ -622,7 +622,7 @@ func TestMeleeSwingRestartsAutoShot(t *testing.T) {
 // Minor Speed and Strider Kick are both A_MOD_INCREASE_SPEED, of which only the highest counts: with
 // both the hunter runs at Strider Kick's share, and back at the boots' once the kick runs out.
 func TestMinorSpeedDoesNotStackWithStriderKick(t *testing.T) {
-	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "p1").GearSet).(*proto.EquipmentSpec)
+	gear := googleProto.Clone(core.GetGearSet("../../ui/specs/hunter/dps/gear_sets", "prebis_weave").GearSet).(*proto.EquipmentSpec)
 	gear.Items[proto.ItemSlot_ItemSlotFeet].Enchant = 911
 	player := &proto.Player{
 		Name:               "Boots and Kick",

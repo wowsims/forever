@@ -102,7 +102,7 @@ func TestUsePathIsALink(t *testing.T) {
 	for _, l := range links {
 		targets = append(targets, strings.TrimPrefix(l.Target, pathURI(repository)+"/"))
 	}
-	if want := []string{"ui/specs/hunter/dps/gear_sets/p1.gear.siml", "ui/specs/hunter/dps/apls/turret.apl.siml"}; !reflect.DeepEqual(targets, want) {
+	if want := []string{"ui/specs/hunter/dps/gear_sets/prebis_turret.gear.siml", "ui/specs/hunter/dps/apls/turret.apl.siml"}; !reflect.DeepEqual(targets, want) {
 		t.Errorf("links = %v, want %v", targets, want)
 	}
 }

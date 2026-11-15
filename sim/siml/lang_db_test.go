@@ -534,7 +534,7 @@ func TestUseLinks(t *testing.T) {
 		rel, _ := filepath.Rel(langRoot, l.Path)
 		got = append(got, link{l.Range.Start.Line - 1, filepath.ToSlash(rel)})
 	}
-	want := []link{{3, "ui/specs/hunter/dps/gear_sets/p1.gear.siml"}, {4, "ui/specs/hunter/dps/apls/turret.apl.siml"}}
+	want := []link{{3, "ui/specs/hunter/dps/gear_sets/prebis_turret.gear.siml"}, {4, "ui/specs/hunter/dps/apls/turret.apl.siml"}}
 	if !slices.Equal(got, want) {
 		t.Fatalf("links %v, want %v", got, want)
 	}
