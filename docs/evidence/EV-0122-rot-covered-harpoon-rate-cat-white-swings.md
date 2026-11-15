@@ -7,7 +7,7 @@
 - Game build: 1.60.1.70938. Which hotfix push the session ran on and whether the player relogged is not recorded. The
   item updates committed on 2026-11-14 and 2026-11-15, through push 114102, change neither item 274963 nor spell 1295744.
 - Date: 2026-11-14 23:42 to 2026-11-15 07:58, the player's local time
-- Pull request: not yet opened
+- Pull request: #1044
 
 The harpoon is in the main hand from 23:42:07. A proc is one application or refresh of Rot 1295744 on a creature: 11 of
 the 12 in the logs. The twelfth landed on a player after a Dire Bear Form swing and is left out. Each Rot lands in the
