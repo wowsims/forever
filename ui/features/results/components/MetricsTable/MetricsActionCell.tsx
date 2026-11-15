@@ -19,7 +19,7 @@ export interface MetricsActionCellProps {
 export const MetricsActionCell = ({ name, actionId, useBuffAura, expandable, expanded, onToggle }: MetricsActionCellProps) => {
 	const { iconUrl, href } = useActionId(actionId);
 	const wowhead = useActionIdWowheadDataset(actionId, useBuffAura);
-	const showNames = useShowNames();
+	const { shown } = useShowNames();
 
 	return (
 		<div data-testid="metrics-action" className="flex items-center gap-2 whitespace-normal">
@@ -31,7 +31,7 @@ export const MetricsActionCell = ({ name, actionId, useBuffAura, expandable, exp
 				iconUrl={iconUrl}
 				wowhead={wowhead}
 			/>
-			{showNames && (
+			{shown && (
 				<span data-testid="metrics-action-name" className="truncate max-lg:line-clamp-2 max-lg:max-w-32 max-lg:whitespace-normal">
 					{name}
 				</span>

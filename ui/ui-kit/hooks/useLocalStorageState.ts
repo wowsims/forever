@@ -2,8 +2,6 @@ import { useState } from 'react';
 
 import { type LocalStorageParser, useTypedLocalStorage } from './useTypedLocalStorage';
 
-export const parseFlag: LocalStorageParser<boolean> = value => (typeof value === 'boolean' ? value : undefined);
-
 export const parseStringArray: LocalStorageParser<string[]> = value =>
 	Array.isArray(value) && value.every(entry => typeof entry === 'string') ? (value as string[]) : undefined;
 

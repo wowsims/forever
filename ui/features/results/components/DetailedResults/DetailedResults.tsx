@@ -9,8 +9,9 @@ import { subscribeSimSettingsChange } from '@sim/state/subscriptions';
 import { isDevMode } from '@sim/utils/env';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
 import { Button } from '@ui-kit/Button';
-import { parseFlag, useLocalStorageState } from '@ui-kit/hooks/useLocalStorageState';
+import { useLocalStorageState } from '@ui-kit/hooks/useLocalStorageState';
 import { useStickyToolbar } from '@ui-kit/hooks/useStickyToolbar';
+import { useWideLayout } from '@ui-kit/hooks/useWideLayout';
 import { TabPanels } from '@ui-kit/TabNav';
 import clsx from 'clsx';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -18,6 +19,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { trackEvent } from '../../../../tracking/utils';
 import { GroupRanksContext } from '../../context/GroupRanksContext';
 import { ShowApmBreakdownContext } from '../../context/ShowApmBreakdownContext';
+import { NAMES_SHOWN, ShowNamesContext } from '../../context/ShowNamesContext';
 import { useSimResult } from '../../hooks/useSimResult';
 import type { SimResultsManager } from '../../model/results_manager';
 import { AuraMetricsTable } from '../AuraMetricsTable';
@@ -39,6 +41,10 @@ import { DEFAULT_DETAILED_RESULTS_TAB, DETAILED_RESULTS_TABS, type DetailedResul
 // The viewer's choice, shared by every spec page.
 const GROUP_RANKS_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-group-ranks.v1`;
 const SHOW_APM_BREAKDOWN_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-apm-breakdown.v1`;
+// Below `lg` the metrics tables show only the icons until a Name header folds the names out, in every table at once.
+const SHOW_NAMES_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-names.v1`;
+
+const parseFlag = (value: unknown): boolean | undefined => (typeof value === 'boolean' ? value : undefined);
 
 export interface DetailedResultsViewProps {
 	tabs: ReadonlyArray<DetailedResultsTabConfig>;
@@ -172,6 +178,8 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	const [target, setTarget] = useState(ALL_UNITS);
 	const [groupRanks, setGroupRanks] = useLocalStorageState(GROUP_RANKS_STORAGE_KEY, parseFlag, () => true);
 	const [showApmBreakdown, setShowApmBreakdown] = useLocalStorageState(SHOW_APM_BREAKDOWN_STORAGE_KEY, parseFlag, () => false);
+	const [showNames, setShowNames] = useLocalStorageState(SHOW_NAMES_STORAGE_KEY, parseFlag, () => false);
+	const wide = useWideLayout();
 	const hasResults = useSimResult() !== null;
 
 	// `updateResults` is bound to the emitter, not to the filter, so the selection it reads is a ref.
@@ -281,72 +289,74 @@ export const DetailedResults = ({ resultsManager }: DetailedResultsProps) => {
 	};
 
 	return (
-		<DetailedResultsView
-			tabs={visibleTabs}
-			activeId={activeId}
-			onActiveIdChange={setActiveId}
-			hasResults={hasResults}
-			iterationDisabled={host.disabled}
-			deathDisabled={deathDisabled}
-			onSimulateIteration={() => {
-				trackEvent({ action: 'sim', category: 'simulate', label: 'once' });
-				void host.runSingleIteration();
-			}}
-			onSimulateDeath={onSimulateDeath}
-			targetPicker={
-				<ResultsFilter
-					target={target}
-					onTargetChange={next => {
-						targetRef.current = next;
-						setTarget(next);
-					}}
-				/>
-			}
-			groupRanks={groupRanks}
-			onGroupRanksChange={setGroupRanks}
-			showApmBreakdown={showApmBreakdown}
-			onShowApmBreakdownChange={setShowApmBreakdown}>
-			{showDamage && (
-				<DetailedResultsPane id="damageTab" className="[&_.ui-metrics-table]:text-xs" topline histogram>
-					<DamageMetricsTable />
+		<ShowNamesContext.Provider value={wide ? NAMES_SHOWN : { shown: showNames, toggle: () => setShowNames(!showNames) }}>
+			<DetailedResultsView
+				tabs={visibleTabs}
+				activeId={activeId}
+				onActiveIdChange={setActiveId}
+				hasResults={hasResults}
+				iterationDisabled={host.disabled}
+				deathDisabled={deathDisabled}
+				onSimulateIteration={() => {
+					trackEvent({ action: 'sim', category: 'simulate', label: 'once' });
+					void host.runSingleIteration();
+				}}
+				onSimulateDeath={onSimulateDeath}
+				targetPicker={
+					<ResultsFilter
+						target={target}
+						onTargetChange={next => {
+							targetRef.current = next;
+							setTarget(next);
+						}}
+					/>
+				}
+				groupRanks={groupRanks}
+				onGroupRanksChange={setGroupRanks}
+				showApmBreakdown={showApmBreakdown}
+				onShowApmBreakdownChange={setShowApmBreakdown}>
+				{showDamage && (
+					<DetailedResultsPane id="damageTab" className="[&_.ui-metrics-table]:text-xs" topline histogram>
+						<DamageMetricsTable />
+					</DetailedResultsPane>
+				)}
+				{showThreat && (
+					<DetailedResultsPane id="threatTab" className="[&_.ui-metrics-table]:text-xs" topline>
+						<ThreatMetricsTable />
+					</DetailedResultsPane>
+				)}
+				{showHealing && (
+					<DetailedResultsPane id="healingTab" className="[&_.ui-metrics-table]:text-xs" topline>
+						<HealingMetricsTable />
+					</DetailedResultsPane>
+				)}
+				{showThreat && (
+					<DetailedResultsPane id="damageTakenTab" topline>
+						<DtpsMetricsTable />
+					</DetailedResultsPane>
+				)}
+				<DetailedResultsPane id="buffsTab">
+					<AuraMetricsTable useDebuffs={false} />
 				</DetailedResultsPane>
-			)}
-			{showThreat && (
-				<DetailedResultsPane id="threatTab" className="[&_.ui-metrics-table]:text-xs" topline>
-					<ThreatMetricsTable />
+				<DetailedResultsPane id="debuffsTab">
+					<AuraMetricsTable useDebuffs={true} />
 				</DetailedResultsPane>
-			)}
-			{showHealing && (
-				<DetailedResultsPane id="healingTab" className="[&_.ui-metrics-table]:text-xs" topline>
-					<HealingMetricsTable />
+				<DetailedResultsPane id="castsTab">
+					<CastMetricsTable />
 				</DetailedResultsPane>
-			)}
-			{showThreat && (
-				<DetailedResultsPane id="damageTakenTab" topline>
-					<DtpsMetricsTable />
+				<DetailedResultsPane id="resourcesTab">
+					<ResourceMetricsTable />
 				</DetailedResultsPane>
-			)}
-			<DetailedResultsPane id="buffsTab">
-				<AuraMetricsTable useDebuffs={false} />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="debuffsTab">
-				<AuraMetricsTable useDebuffs={true} />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="castsTab">
-				<CastMetricsTable />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="resourcesTab">
-				<ResourceMetricsTable />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="timelineTab" filling>
-				<Timeline active={activeId === 'timelineTab'} />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="movementTab">
-				<Movement active={activeId === 'movementTab'} />
-			</DetailedResultsPane>
-			<DetailedResultsPane id="logTab">
-				<LogRunner active={activeId === 'logTab'} />
-			</DetailedResultsPane>
-		</DetailedResultsView>
+				<DetailedResultsPane id="timelineTab" filling>
+					<Timeline active={activeId === 'timelineTab'} />
+				</DetailedResultsPane>
+				<DetailedResultsPane id="movementTab">
+					<Movement active={activeId === 'movementTab'} />
+				</DetailedResultsPane>
+				<DetailedResultsPane id="logTab">
+					<LogRunner active={activeId === 'logTab'} />
+				</DetailedResultsPane>
+			</DetailedResultsView>
+		</ShowNamesContext.Provider>
 	);
 };

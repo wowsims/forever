@@ -1,8 +1,9 @@
 import { ActionId } from '@sim/proto/action_id';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
+import { type ShowNames, ShowNamesContext } from '../../context/ShowNamesContext';
 import { createMetricsColumnHelper } from '../../hooks/useMetricsTable';
 import type { MetricRow } from '../../model/grouping';
 import { MetricsActionCell } from './MetricsActionCell';
@@ -261,12 +262,7 @@ describe('MetricsTable rows with an action cell', () => {
 	});
 });
 
-describe('MetricsTable below lg', () => {
-	afterEach(() => {
-		vi.unstubAllGlobals();
-		localStorage.clear();
-	});
-
+describe('MetricsTable names', () => {
 	const actionColumns = helper.columns([
 		helper.accessor(row => row.metric.name, {
 			id: 'name',
@@ -278,24 +274,41 @@ describe('MetricsTable below lg', () => {
 		helper.accessor(row => row.metric.value, { id: 'value', header: 'Value', cell: info => String(info.getValue()) }),
 	]);
 
-	it('shows only the icons until a Name header folds the names out of every table', async () => {
-		vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }));
-		const props = { columns: actionColumns, rows: [{ metric: metric('Alpha', 10) }], sortColumnId: 'value', hasResult: true };
-		render(
-			<>
-				<MetricsTable rootTestId="first-metrics-root" {...props} />
-				<MetricsTable rootTestId="second-metrics-root" {...props} />
-			</>,
+	const renderNames = (names?: ShowNames) => {
+		const metricsTable = (
+			<MetricsTable
+				rootTestId="test-metrics-root"
+				columns={actionColumns}
+				rows={[{ metric: metric('Alpha', 10) }]}
+				sortColumnId="value"
+				hasResult={true}
+			/>
 		);
-		const pressed = () => screen.getAllByTestId('metrics-names-toggle').map(toggle => toggle.getAttribute('aria-pressed'));
-		expect(pressed()).toEqual(['false', 'false']);
-		expect(screen.queryAllByTestId('metrics-action-name')).toHaveLength(0);
+		return render(names ? <ShowNamesContext.Provider value={names}>{metricsTable}</ShowNamesContext.Provider> : metricsTable);
+	};
+
+	it('names every action and sorts by Name, with no toggle, outside a results pane', () => {
+		renderNames();
+		expect(screen.getByTestId('metrics-action-name').textContent).toBe('Alpha');
 		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(2);
+		expect(screen.queryByTestId('metrics-names-toggle')).toBeNull();
+	});
 
-		await userEvent.click(screen.getAllByTestId('metrics-names-toggle')[1]);
+	it('shows only the icons while the names are folded, and folds them out from the Name header', async () => {
+		const toggle = vi.fn();
+		renderNames({ shown: false, toggle });
+		expect(screen.queryByTestId('metrics-action-name')).toBeNull();
+		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(1);
+		expect(screen.getByTestId('metrics-names-toggle').getAttribute('aria-pressed')).toBe('false');
 
-		expect(pressed()).toEqual(['true', 'true']);
-		expect(screen.getAllByTestId('metrics-action-name').map(name => name.textContent)).toEqual(['Alpha', 'Alpha']);
-		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(4);
+		await userEvent.click(screen.getByTestId('metrics-names-toggle'));
+		expect(toggle).toHaveBeenCalledOnce();
+	});
+
+	it('keeps the Name sort and the toggle once the names are out', () => {
+		renderNames({ shown: true, toggle: () => {} });
+		expect(screen.getByTestId('metrics-action-name').textContent).toBe('Alpha');
+		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(2);
+		expect(screen.getByTestId('metrics-names-toggle').getAttribute('aria-pressed')).toBe('true');
 	});
 });

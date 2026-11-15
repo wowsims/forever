@@ -1,6 +1,14 @@
 import { createContext, useContext } from 'react';
 
-/** Whether a metrics table names each action next to its icon: always from `lg` up, below it once the viewer folds the names out. */
-export const ShowNamesContext = createContext(true);
+export interface ShowNames {
+	/** Whether the metrics tables name each action next to its icon. */
+	shown: boolean;
+	/** Folds the names out or back in. Absent from `lg` up, where the names always show. */
+	toggle?: () => void;
+}
 
-export const useShowNames = (): boolean => useContext(ShowNamesContext);
+export const NAMES_SHOWN: ShowNames = { shown: true };
+
+export const ShowNamesContext = createContext<ShowNames>(NAMES_SHOWN);
+
+export const useShowNames = (): ShowNames => useContext(ShowNamesContext);

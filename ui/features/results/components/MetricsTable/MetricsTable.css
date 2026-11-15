@@ -1,13 +1,21 @@
 @layer components {
 	.ui-metrics-table-scroll {
-		@apply overflow-x-auto;
+		@apply max-lg:overflow-x-auto;
 
 		& > .ui-table > * > .ui-table-row > :first-child {
-			@apply max-lg:sticky max-lg:left-0 max-lg:z-1 max-lg:bg-background max-lg:after:absolute max-lg:after:inset-y-0 max-lg:after:right-0 max-lg:after:w-px max-lg:after:bg-white/20;
+			@apply max-lg:sticky! max-lg:left-0 max-lg:z-1 max-lg:bg-background max-lg:before:absolute max-lg:before:inset-x-0 max-lg:before:bottom-0 max-lg:before:border-b max-lg:before:border-white/20 max-lg:after:absolute max-lg:after:inset-y-0 max-lg:after:right-0 max-lg:after:w-px max-lg:after:bg-white/20;
+		}
+
+		& > .ui-table > thead > .ui-table-row > :first-child {
+			@apply max-lg:before:border-b-2 max-lg:before:border-white/80;
 		}
 
 		& > .ui-table[data-striped=''] > tbody > .ui-table-row:nth-child(even) > :first-child {
 			@apply max-lg:bg-linear-to-r max-lg:from-white/5 max-lg:to-white/5;
+		}
+
+		& > .ui-table[data-hover] > tbody > .ui-table-row:hover > :first-child {
+			@apply max-lg:bg-linear-to-r max-lg:from-scrim max-lg:to-scrim;
 		}
 	}
 

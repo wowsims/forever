@@ -1,21 +1,14 @@
 import i18n from '@i18n/config';
-import { LOCAL_STORAGE_PREFIX } from '@sim/constants/other';
 import type { SortDirection } from '@tanstack/react-table';
 import { Button } from '@ui-kit/Button';
-import { parseFlag } from '@ui-kit/hooks/useLocalStorageState';
-import { useTypedLocalStorage } from '@ui-kit/hooks/useTypedLocalStorage';
-import { useWideLayout } from '@ui-kit/hooks/useWideLayout';
 import { Icon } from '@ui-kit/Icon';
 import { Table, TableHeaderCell, TableRow } from '@ui-kit/Table';
 import { tooltipAnchorProps } from '@ui-kit/Tooltip';
 
-import { ShowNamesContext } from '../../context/ShowNamesContext';
+import { useShowNames } from '../../context/ShowNamesContext';
 import { type MetricsColumnDef, useMetricsTable } from '../../hooks/useMetricsTable';
 import type { MetricRow } from '../../model/grouping';
 import { MetricsTableRow } from './MetricsTableRow';
-
-// Below `lg` the Name column shows only the icons until its header folds the names out, in every table at once.
-const SHOW_NAMES_STORAGE_KEY = `${LOCAL_STORAGE_PREFIX}_results-show-names.v1`;
 
 const ariaSort = (direction: false | SortDirection) => (direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none');
 
@@ -32,8 +25,7 @@ export interface MetricsTableProps<T> {
 
 export const MetricsTable = <T,>({ rootTestId, columns, rows, sortColumnId, hasResult, rowThreatOnly }: MetricsTableProps<T>) => {
 	const table = useMetricsTable({ columns, rows, sortColumnId });
-	const wide = useWideLayout();
-	const [showNames = false, setShowNames] = useTypedLocalStorage(SHOW_NAMES_STORAGE_KEY, parseFlag);
+	const names = useShowNames();
 
 	if (hasResult && !rows.length) return null;
 
@@ -68,19 +60,19 @@ export const MetricsTable = <T,>({ rootTestId, columns, rows, sortColumnId, hasR
 										]}
 										aria-sort={ariaSort(header.column.getIsSorted())}
 										{...tooltipAnchorProps(header.column.columnDef.meta?.headerTooltipId, header.column.columnDef.meta?.headerTooltip)}>
-										{index > 0 || wide ? (
+										{index > 0 || !names.toggle ? (
 											sort
 										) : (
 											<div className="flex items-center">
-												{showNames && sort}
+												{names.shown && sort}
 												<Button
 													iconOnly
 													data-testid="metrics-names-toggle"
 													className="self-stretch px-2"
 													aria-label={i18n.t('results_tab.details.show_names')}
-													aria-pressed={showNames}
-													onClick={() => setShowNames(!showNames)}>
-													<Icon name={showNames ? 'chevron-left' : 'chevron-right'} />
+													aria-pressed={names.shown}
+													onClick={names.toggle}>
+													<Icon name={names.shown ? 'chevron-left' : 'chevron-right'} />
 												</Button>
 											</div>
 										)}
@@ -90,13 +82,11 @@ export const MetricsTable = <T,>({ rootTestId, columns, rows, sortColumnId, hasR
 						</TableRow>
 					))}
 				</thead>
-				<ShowNamesContext value={wide || showNames}>
-					<tbody data-testid="metrics-table-body">
-						{table.getRowModel().rows.map(row => (
-							<MetricsTableRow key={row.id} row={row} rowThreatOnly={rowThreatOnly} />
-						))}
-					</tbody>
-				</ShowNamesContext>
+				<tbody data-testid="metrics-table-body">
+					{table.getRowModel().rows.map(row => (
+						<MetricsTableRow key={row.id} row={row} rowThreatOnly={rowThreatOnly} />
+					))}
+				</tbody>
 			</Table>
 		</div>
 	);
