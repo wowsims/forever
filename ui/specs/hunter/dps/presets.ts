@@ -1,6 +1,7 @@
 import * as PresetUtils from '@app/preset_utils';
-import { Spec } from '@generated/proto/common';
+import { PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { Hunter_Rotation_Playstyle as Playstyle } from '@generated/proto/hunter';
+import { Stats } from '@sim/proto/stats';
 
 import CleanWeaveAPL from './apls/clean_weave.apl.siml';
 import WeaveAPL from './apls/default.apl.siml';
@@ -41,6 +42,68 @@ export const PreBisTurretGear = PresetUtils.makePresetGear('Pre-BiS', PreBisTurr
 export const PreBisTurretCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisTurretCheapGearJson, { group: 'Turret' });
 export const PreBisMeleeGear = PresetUtils.makePresetGear('Pre-BiS', PreBisMeleeGearJson, { group: 'Melee' });
 export const PreBisMeleeCheapGear = PresetUtils.makePresetGear('Pre-BiS (Cheap)', PreBisMeleeCheapGearJson, { group: 'Melee' });
+
+// Measured in Agility on each playstyle's Pre-BiS set and build (SV Weave, MM, SV Melee) over a three minute fight. The
+// sets sit at the 8% hit cap, so hit is measured with 20 hit rating taken off, for its value below the cap. Intellect
+// is mana and, through Careful Aim, attack power and ranged attack power.
+export const WeaveEpWeights = PresetUtils.makePresetEpWeights(
+	'Weave',
+	Stats.fromMap(
+		{
+			[Stat.StatAgility]: 1,
+			[Stat.StatStrength]: 0.21,
+			[Stat.StatIntellect]: 0.43,
+			[Stat.StatAttackPower]: 0.19,
+			[Stat.StatRangedAttackPower]: 0.2,
+			[Stat.StatHitRating]: 1.35,
+			[Stat.StatCritRating]: 0.8,
+			[Stat.StatHasteRating]: 0.51,
+			[Stat.StatMP5]: 0.07,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 2.75,
+			[PseudoStat.PseudoStatRangedDps]: 1.72,
+		},
+	),
+);
+export const TurretEpWeights = PresetUtils.makePresetEpWeights(
+	'Turret',
+	Stats.fromMap(
+		{
+			[Stat.StatAgility]: 1,
+			[Stat.StatIntellect]: 0.42,
+			[Stat.StatRangedAttackPower]: 0.34,
+			[Stat.StatHitRating]: 1.14,
+			[Stat.StatCritRating]: 0.84,
+			[Stat.StatHasteRating]: 0.8,
+			[Stat.StatMP5]: 0.14,
+		},
+		{
+			[PseudoStat.PseudoStatRangedDps]: 2.87,
+		},
+	),
+);
+export const MeleeEpWeights = PresetUtils.makePresetEpWeights(
+	'Melee',
+	Stats.fromMap(
+		{
+			[Stat.StatAgility]: 1,
+			[Stat.StatStrength]: 0.34,
+			[Stat.StatIntellect]: 0.11,
+			[Stat.StatAttackPower]: 0.31,
+			[Stat.StatRangedAttackPower]: 0.13,
+			[Stat.StatHitRating]: 1.93,
+			[Stat.StatCritRating]: 0.92,
+			[Stat.StatHasteRating]: 0.66,
+			[Stat.StatMP5]: 0.22,
+		},
+		{
+			[PseudoStat.PseudoStatMainHandDps]: 3.28,
+			[PseudoStat.PseudoStatOffHandDps]: 0.97,
+			[PseudoStat.PseudoStatRangedDps]: 0.77,
+		},
+	),
+);
 
 // The priority list of each playstyle. Their "Use ..." variables are the simple rotation's toggles.
 export const PlaystyleAPLs: Record<Playstyle, any> = {

@@ -9,7 +9,7 @@ import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import * as AplUtils from '@sim/proto/apl_utils';
 import { SpecRotation } from '@sim/proto/spec_types';
-import { StatCap, Stats, UnitStat } from '@sim/proto/stats';
+import { StatCap, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
 import * as HunterInputs from './inputs';
@@ -38,7 +38,13 @@ export default defineSpec<Spec.SpecHunter>({
 		Stat.StatExpertiseRating,
 		Stat.StatPhysicalDamage,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatRangedHitPercent, PseudoStat.PseudoStatRangedCritPercent, PseudoStat.PseudoStatRangedDps],
+	epPseudoStats: [
+		PseudoStat.PseudoStatRangedHitPercent,
+		PseudoStat.PseudoStatRangedCritPercent,
+		PseudoStat.PseudoStatMainHandDps,
+		PseudoStat.PseudoStatOffHandDps,
+		PseudoStat.PseudoStatRangedDps,
+	],
 	consumableStats: [Stat.StatStamina, Stat.StatHealth, Stat.StatMana],
 	// Reference stat against which to calculate EP.
 	epReferenceStat: Stat.StatAgility,
@@ -71,7 +77,7 @@ export default defineSpec<Spec.SpecHunter>({
 	defaults: {
 		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
-		epWeights: new Stats(),
+		epWeights: Presets.WeaveEpWeights.epWeights,
 		softCapBreakpoints: [
 			StatCap.fromPseudoStat(PseudoStat.PseudoStatRangedHitPercent, {
 				breakpoints: [8],
@@ -115,7 +121,7 @@ export default defineSpec<Spec.SpecHunter>({
 	},
 
 	presets: {
-		epWeights: [],
+		epWeights: [Presets.WeaveEpWeights, Presets.TurretEpWeights, Presets.MeleeEpWeights],
 		// Preset talents that the user can quickly select.
 		talents: Presets.BuildTalents,
 		// Preset rotations that the user can quickly select.
