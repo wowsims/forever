@@ -1,1 +1,1 @@
-export { BulkSetupLabel, type BulkSetupKind, type BulkSetupLabelProps } from './BulkSetupLabel';
+export { BulkSetupLabel, BulkSetupLines, bulkSetupText, type BulkSetupLabelProps, type BulkSetupLabels } from './BulkSetupLabel';

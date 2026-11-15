@@ -324,6 +324,25 @@ const (
 	ITEM_MOD_FROST_SPELL_PENETRATION = 121
 
 	ITEM_MOD_ALL_RESISTANCES = 124
+
+	// Attack power against one creature type: 13209 Seal of the Dawn states 128 and reads "+78 Attack
+	// Power against Undead", the 78 its equip spell 23930 states for both melee and ranged attack power.
+	// No item states 130.
+	ITEM_MOD_ATTACK_POWER_VS_HUMANOID   = 125
+	ITEM_MOD_ATTACK_POWER_VS_ELEMENTAL  = 126
+	ITEM_MOD_ATTACK_POWER_VS_DEMON      = 127
+	ITEM_MOD_ATTACK_POWER_VS_UNDEAD     = 128
+	ITEM_MOD_ATTACK_POWER_VS_DRAGONKIN  = 129
+	ITEM_MOD_ATTACK_POWER_VS_BEAST      = 131
+	ITEM_MOD_ATTACK_POWER_VS_MECHANICAL = 132
+
+	// Spell damage against one creature type: 19812 Rune of the Dawn states 136 and reads "Increases
+	// damage done to Undead by magical spells and effects by up to 46", the 46 its equip spell 24198 states.
+	ITEM_MOD_SPELL_DAMAGE_VS_HUMANOID  = 133
+	ITEM_MOD_SPELL_DAMAGE_VS_ELEMENTAL = 134
+	ITEM_MOD_SPELL_DAMAGE_VS_DEMON     = 135
+	ITEM_MOD_SPELL_DAMAGE_VS_UNDEAD    = 136
+	ITEM_MOD_SPELL_DAMAGE_VS_DRAGONKIN = 137
 )
 
 type Race int

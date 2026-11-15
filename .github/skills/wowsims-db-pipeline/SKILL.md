@@ -24,6 +24,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
 | `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
+| `assets/db_inputs/questie_quests.json`                                      | the zone and the asked-for items of every quest in `questie_db.json`, written beside it by `gen_db -gen=questie`; `-gen=db` reads them only for the phases                                                                                                                                            |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `assets/database/item_first_seen.json`                                      | when `gen_db -gen=db` first saw each item id, in unix seconds, one entry per line sorted by id; the UI marks items first seen in the last 7 days. `gen_db` keeps every line, an item no longer in `db.json` too, and stamps each new id with the run's time; never edit it by hand                    |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
@@ -176,7 +177,13 @@ Reading another table once, what the tables hold and how a script reads them: `r
 
 - `core.MinEffectItemLevel = 40` in `sim/core/item_effects.go` drops chance-on-hit items below item level 40 (Bloodpike),
   and the class suites' AllItems tests skip every item below it, hand-written effects included.
-- `InferPhase` in `tools/database/item_source_utils.go` has no callers and stays: `gen_db` stamps every item phase 1.
+- `gen_db -gen=atlasloot` reads only the MoP fork's MoP files, so it writes 665 items over the 11,322 classic,
+  TBC and Wrath items `atlasloot_db.json` holds, which a scrape of the classic AtlasLoot repository wrote. That
+  repository is unchanged since May 2024; leave the file alone until the generator reads its files again.
+- An item's phase follows its sources (`InferPhases` in `tools/database/item_phases.go`), so a scrape or a
+  regeneration that adds or removes a source can move phases in `db.json` with no phase rule changed. The phase reads
+  every source the inputs give an item, the ones the picker hides included. A raid opens when its row in `raids` there
+  is set open; the row holds its `Map` id and the factions whose reputation it gives.
 - A test that assumes one build across every spell data group breaks once a partial update mixes the builds.
 - `make buffs-proto` needs the compiled protos; on a fresh checkout run `make sim/core/proto/api.pb.go` first.
 - A hotfix that turns an effect into an `A_DUMMY` with its value kept usually moves it into a server script, and

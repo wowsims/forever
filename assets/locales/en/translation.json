@@ -63,7 +63,8 @@
 			"2": "Phase 2",
 			"3": "Phase 3",
 			"4": "Phase 4",
-			"5": "Phase 5"
+			"5": "Phase 5",
+			"unknown": "Unknown"
 		},
 		"phase_names": {
 			"1": "Phase 1",
@@ -194,7 +195,8 @@
 			"crossbows": "Crossbows",
 			"guns": "Guns",
 			"thrown": "Thrown",
-			"wands": "Wands"
+			"wands": "Wands",
+			"feral_combat": "Feral Combat"
 		},
 		"spell_schools": {
 			"physical": "Physical",
@@ -251,6 +253,7 @@
 			"mana": "Mana",
 			"mp5": "MP5",
 			"main_hand_dps": "Main Hand DPS",
+			"feral_combat_skill": "Feral Combat Skill",
 			"off_hand_dps": "Off Hand DPS",
 			"ranged_dps": "Ranged DPS",
 			"block": "Block",
@@ -408,7 +411,6 @@
 			"not_casting": "Not Casting",
 			"main_hand": "Main Hand",
 			"off_hand": "Off Hand",
-			"windfury": "Windfury",
 			"boss": "Boss",
 			"add": "Add",
 			"no_stacks": "No Stacks",
@@ -1269,7 +1271,9 @@
 				"edit": "Edit {{bundle}}",
 				"delete": "Delete {{bundle}}",
 				"delete_confirm": "Delete {{bundle}}?",
-				"duplicate": "Same as {{bundle}}"
+				"duplicate": "Same as {{bundle}}",
+				"name": "Name",
+				"name_taken": "Name already used"
 			},
 			"parts": {
 				"encounter": "Encounter",

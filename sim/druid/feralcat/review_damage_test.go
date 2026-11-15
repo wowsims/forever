@@ -284,7 +284,7 @@ func TestRakeHitScalesWithAttackPower(t *testing.T) {
 	}
 }
 
-// Neither Rake's initial hit nor its ticks are reduced by armor in game.
+// Neither Rake's initial hit nor its ticks are reduced by armor in game (EV-0038).
 func TestRakeIgnoresArmor(t *testing.T) {
 	sim, cat := newCat(t, "", nil)
 	target := cat.CurrentTarget

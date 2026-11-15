@@ -54,8 +54,8 @@ func (shaman *Shaman) registerFireTotem(rank *spelldata.Spell, mask int64, perio
 }
 
 // The totem casts its attack, 10436, at its target. The first lands at the end of the first 2.2 s
-// cast, and in the combat log the totem waits 0.225 s after each cast ends before it starts the next
-// while it keeps its target: one attack every 2.425 s.
+// cast, and the totem waits 0.225 s after each cast ends before it starts the next while it keeps its
+// target: one attack every 2.425 s (EV-0011).
 var searingTotemPeriod = searingAttackRank.CastTime() + 225*time.Millisecond
 
 func (shaman *Shaman) registerSearingTotemSpell() {

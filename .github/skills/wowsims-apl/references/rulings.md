@@ -1,18 +1,10 @@
 # Rulings
 
-Each line is the rule the code follows, where it lives, and the pull request that settled it.
+Each ruling is its own file in `docs/rulings/` (`docs/rulings/README.md`): the rule, the code that follows it, the pull
+request that settled it and its evidence. This index lists the ones this skill owns.
 
-- **At a player's hardcast end the rotation picks at the cast-end timestamp, before the cast's outcome applies, and a
-  pushback re-queues the pick; the major cooldowns that go ahead of it and the units that look after the landing are
-  `docs/rotation.md` §The flow.** `sim/core/gcd.go`, PR #640.
-- **During the hardcast the pick reads the cast's own dot, own-id aura, cooldown and mana as landed; the full reading
-  and the lines that need `Spell Is Casting` are `docs/rotation.md`.** `sim/core/apl_values_aura.go`, PR #640.
-- **Include Reaction Time delays every aura change the same way, the unit's own casts included; during a hardcast the
-  cast's own aura reads as landed instead.** `sim/core/apl_values_aura.go`, PR #638, PR #640.
-- **An APL value reads `unit.ReactionTime` when it runs, never a copy taken when the rotation is built: with a reaction
-  range (`reaction_time_max_ms`) each rotation pass draws a new one.** `sim/core/gcd.go` `drawReactionTime`,
-  `sim/core/apl_values_aura.go`, PR #848.
-- **`Is Hit Capped` and `Is Expertise Capped` are per spell, current target only and yes or no: melee caps at the
-  special-attack soft cap without the dual-wield penalty, the table follows the spell's `DefenseType` (proc mask for
-  none), auto shots roll the ranged table, and the 1e-9 tolerance stays in the APL values.**
-  `sim/core/apl_values_spell.go`, PR #608.
+- **R-0020** At a hardcast end the rotation picks before the cast's outcome applies: `docs/rulings/R-0020-hardcast-end-pick-before-outcome.md`
+- **R-0021** During a hardcast the pick reads the cast's own state as landed: `docs/rulings/R-0021-hardcast-pick-reads-own-state-landed.md`
+- **R-0022** Include Reaction Time delays every aura change, the unit's own casts included: `docs/rulings/R-0022-reaction-time-delays-own-aura-changes.md`
+- **R-0023** An APL value reads the unit's reaction time when it runs: `docs/rulings/R-0023-apl-value-reads-reaction-time-live.md`
+- **R-0024** Is Hit Capped and Is Expertise Capped are per spell on the current target: `docs/rulings/R-0024-hit-expertise-capped-per-spell.md`

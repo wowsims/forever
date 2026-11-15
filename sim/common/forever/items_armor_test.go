@@ -84,6 +84,48 @@ func damageInRange(metrics core.SpellMetrics, effect *spelldata.Effect) bool {
 	return metrics.Crits == 0 && metrics.TotalDamage >= casts*effect.Min() && metrics.TotalDamage <= casts*effect.Max()
 }
 
+// Zealot Plate 274651's 1294668 restores 1294666's mana when a melee swing taken lands, and nothing on
+// a spell taken. It then rests for the row's cooldown.
+func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
+	editSpellRow(t, 1294668, func(s *spelldata.Spell) {
+		s.ProcChance, s.ProcChanceSource = 100, spelldata.ProcChanceColumn
+	})
+	gain := spelldata.MustFind(1294666).EnergizeEffect()
+	cooldown := spelldata.MustFind(1294668).ICD()
+	if gain.Min() <= 0 || cooldown <= 0 {
+		t.Fatalf("1294666 restores %v to %v mana and 1294668 rests %v, want a gain and a cooldown", gain.Min(), gain.Max(), cooldown)
+	}
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotChest, 274651)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	character.SpendMana(sim, 4*gain.Max(), character.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+	restored := func(t *testing.T, spell *core.Spell) float64 {
+		t.Helper()
+		before := character.CurrentMana()
+		takeHit(t, sim, character, spell)
+		return character.CurrentMana() - before
+	}
+
+	if got := restored(t, fireSpell(enemy)); got != 0 {
+		t.Errorf("a spell hit taken restored %v mana, want none", got)
+	}
+	start := sim.CurrentTime
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() || got > gain.Max() {
+		t.Errorf("a melee hit taken restored %v mana, want the row's %v to %v", got, gain.Min(), gain.Max())
+	}
+	if got := restored(t, meleeSwing(enemy)); got != 0 {
+		t.Errorf("a melee hit taken inside the cooldown restored %v mana, want none", got)
+	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
+	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+		stepTo(t, sim, at)
+	}
+	stepTo(t, sim, start+cooldown)
+	if got := restored(t, meleeSwing(enemy)); got < gain.Min() {
+		t.Errorf("a melee hit taken as the cooldown ends restored %v mana, want at least %v", got, gain.Min())
+	}
+}
+
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and
 // nothing on a spell; a wearer without mana registers nothing.
 func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {

@@ -155,7 +155,8 @@ func applyRaceEffects(agent Agent) {
 			Type:  CooldownTypeSurvival,
 		})
 	case proto.Race_RaceTauren:
-		character.MultiplyStat(stats.Health, 1.05) // Endurance 20550
+		// Endurance 20550 scales all health, flat health added later included (EV-0037).
+		character.MultiplyStat(stats.Health, 1.05)
 	case proto.Race_RaceTroll:
 		applyDamageVersus(character, proto.MobType_MobTypeBeast)
 
@@ -408,8 +409,8 @@ func applyEureka(character *Character) {
 }
 
 // The drain takes no downrank scaling from a low-level trigger and no Shadow modifiers. Its amount (5%
-// of max health) and chance are the row's values, typed in here.
-// TODO: the 15 s ICD is from the 27 October development notes; the game build states 25 s.
+// of max health), chance and 15 s cooldown are the row's values, typed in here; the logs agree with
+// the cooldown (EV-0022).
 func applyTouchOfTheGrave(character *Character) {
 	auraID, procChance := int32(1260201), 0.3
 	switch character.Class {

@@ -13,6 +13,7 @@ var (
 	windfuryWeaponPassive    = spelldata.MustFind(439431)
 	windfuryWeaponAttack     = spellData.WindfuryWeapon.Highest().Refs()[0]
 	windfuryWeaponStrike     = spelldata.MustFind(439440)
+	windfuryTotemStrike      = spelldata.MustFind(10610)
 	flametongueWeaponPassive = spelldata.MustFind(436519)
 	flametongueWeaponProc    = spellData.FlametongueWeapon.Highest().Refs()[0]
 	flametongueWeaponAttack  = spellData.FlametongueWeapon.Highest().Refs()[1]
@@ -128,7 +129,7 @@ func (shaman *Shaman) imbueProcManager(imbue proto.ShamanImbue, ppm float64, cha
 	return &dpm
 }
 
-// Each strike is 439440, the main-hand ability the combat log reports it under, dealing the main
+// Each strike is 439440, a main-hand ability (EV-0012), dealing the main
 // hand's weapon damage with 16361's attack power added. It rolls the weapon special's table of miss,
 // dodge, parry and crit and never glances, and listeners hear it as an ability: Flametongue Totem,
 // whose row hears swings alone, procs off the swing that brought the strikes and off none of them.

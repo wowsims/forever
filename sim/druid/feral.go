@@ -14,9 +14,8 @@ func (druid *Druid) rendAndTearMultiplier(target *core.Unit) float64 {
 	if druid.Talents.RendAndTear == 0 || !druid.targetIsBleeding(target) {
 		return 1
 	}
-	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. A
-	// tester's table on PR #149 shows Rake and Rip ticks, the Rake hit and Claw rising by the talent's
-	// percent with a bleed on the target, and the Rake hit staying put without one.
+	// Melee special attacks and bleed ticks against a bleeding target; white swings are not raised. Rake and
+	// Rip ticks, the Rake hit and Claw rise by the talent's percent with a bleed on the target (EV-0038).
 	return 1 + spellData.RendAndTear.Rank(druid.Talents.RendAndTear).EffectN(1).Percent()
 }
 
@@ -71,8 +70,8 @@ func (druid *Druid) BehindTarget() bool {
 }
 
 // Whether the target is bleeding, for Rend and Tear and the Bleed Is Active APL value: any caster's bleed
-// is up on it, a weapon proc's included, or the druid assumes one from a player outside the sim. Swipe
-// took the bonus on 861 of 874 hits with only other players' bleeds up. A bleed-immune target never is.
+// is up on it, a weapon proc's included, or the druid assumes one from a player outside the sim (EV-0034).
+// A bleed-immune target never is.
 func (druid *Druid) targetIsBleeding(target *core.Unit) bool {
 	if target.BleedImmune {
 		return false
@@ -129,7 +128,8 @@ func itemOnUseRow(itemID int32) *spelldata.Spell {
 }
 
 // Hits up to count active targets starting from target, prices each hit on its own target, and deals
-// them together once all are rolled. results is the caller's own buffer, reused across casts.
+// them together once all are rolled. A miss, dodge or parry takes one of the count, as Swipe's do in
+// game. results is the caller's own buffer, reused across casts.
 func cleave(sim *core.Simulation, target *core.Unit, spell *core.Spell, count int32, results *core.SpellResultSlice, hit func(target *core.Unit) *core.SpellResult) {
 	*results = (*results)[:0]
 	for range min(count, sim.Environment.ActiveTargetCount()) {

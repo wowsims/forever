@@ -19,12 +19,6 @@ var versusAuras = []EffectAuraType{
 	dbcenums.A_MOD_CRIT_PERCENT_VERSUS,
 }
 
-// The items with no item effect row, whose mob types only the item tooltip states.
-var tooltipMobTypes = map[int32][]proto.MobType{
-	23206: {proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead}, // Mark of the Champion: attack power "when fighting Undead and Demons"
-	23207: {proto.MobType_MobTypeDemon, proto.MobType_MobTypeUndead}, // Mark of the Champion: spell damage "against Undead and Demons"
-}
-
 // What a spell tooltip calls the creatures an effect counts against, each also read with a plural s.
 // A name that holds another comes first, so "Earth Elementals" is no Elemental.
 var tooltipTargetNames = []struct {
@@ -125,12 +119,12 @@ func tooltipTargets(tooltip string) (mobTypes []proto.MobType, families []proto.
 	return mobTypes, families
 }
 
-// The terrain areas, mob types and creature groups an item's effects state a bonus in or against,
-// which the gear picker filters by: the areas a spell requires or is stronger in and the mob types a
-// versus aura counts against. A tooltip states the rest, the creature groups among them, which no row
-// holds (tooltipTargets). Every item effect counts, whatever triggers it, with each spell its trigger
-// chain reaches. A spell that requires a single zone names no terrain area, and one that can only
-// hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
+// The terrain areas, mob types and creature groups an item's effects and stats state a bonus in or
+// against, which the gear picker filters by: the areas a spell requires or is stronger in, the mob types
+// a versus aura or a creature type stat counts against. A tooltip states the rest, the creature groups
+// among them, which no row holds (tooltipTargets). Every item effect counts, whatever triggers it, with
+// each spell its trigger chain reaches. A spell that requires a single zone names no terrain area, and
+// one that can only hit a mob type (TargetCreatureType: a stun, a charm) states no bonus against it.
 func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.CreatureFamily) {
 	var areaTypes []proto.AreaType
 	var mobTypes []proto.MobType
@@ -170,7 +164,11 @@ func ItemEffectTypes(itemID int32) ([]proto.AreaType, []proto.MobType, []proto.C
 	for _, itemEffect := range dbcInstance.ItemEffectsByParentID[int(itemID)] {
 		visit(itemEffect.SpellID)
 	}
-	mobTypes = append(mobTypes, tooltipMobTypes[itemID]...)
+	for _, stat := range dbcInstance.Items[int(itemID)].BonusStat {
+		if versus, ok := mobTypeStatByBonusStat[stat]; ok {
+			mobTypes = append(mobTypes, versus.mobType)
+		}
+	}
 
 	slices.Sort(areaTypes)
 	slices.Sort(mobTypes)

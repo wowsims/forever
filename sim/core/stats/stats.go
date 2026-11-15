@@ -536,6 +536,7 @@ type PseudoStats struct {
 	SpiritRegenRateCasting    float64       // percentage of spirit regen allowed during casting
 
 	SpiritRegenMultiplier float64 // Multiplier on spirit portion of mana regen.
+	EnergizeMP5           float64 // The share of MP5 that periodic energize auras tick, which Innervate leaves unscaled.
 
 	// If true, allows block/parry.
 	InFrontOfTarget bool

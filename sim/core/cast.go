@@ -285,6 +285,7 @@ func (spell *Spell) makeCastFunc(config CastConfig) CastSuccessFunc {
 			return true
 		}
 
+		// An instant cast leaves the swing timer running (EV-0037).
 		if sim.Log != nil && !spell.Flags.Matches(SpellFlagNoLogs) {
 			spell.Unit.Log(sim, "Casting %s (Cost = %0.03f, Cast Time = %s, GCD = %s, Effective Time = %s)%s",
 				spell.ActionID, max(0, spell.CurCast.Cost), spell.CurCast.CastTime, max(0, spell.CurCast.GCDTime()), spell.CurCast.EffectiveTime(), spell.aplEntrySuffix())

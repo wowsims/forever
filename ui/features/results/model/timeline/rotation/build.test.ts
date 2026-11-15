@@ -98,16 +98,11 @@ describe('buffs section', () => {
 			return build([], ids.map(aura)).rows.filter((r): r is AuraRow => r.kind === 'aura');
 		};
 
-		it('leaves the standing totem to the row of the aura that rolls its proc, and the attack power on a row of its own', async () => {
-			const rows = await auraRows([10614, 10612, 10610]);
-			const external = i18n.t('common.action_tags.external');
-			expect(rows.map(row => [row.actionId.spellId, row.label, row.items.length])).toEqual(
-				expect.arrayContaining([
-					[10612, `Windfury Totem (${external})`, 1],
-					[10610, `Windfury Totem (${i18n.t('common.stats.attack_power')} - ${external})`, 1],
-				]),
-			);
-			expect(rows).toHaveLength(2);
+		it('leaves the standing totem to the row of the aura that rolls its proc', async () => {
+			const rows = await auraRows([10614, 10612]);
+			expect(rows.map(row => [row.actionId.spellId, row.label, row.items.length])).toEqual([
+				[10612, `Windfury Totem (${i18n.t('common.action_tags.external')})`, 1],
+			]);
 		});
 
 		it('keeps the standing totem on a row of its own without the aura that rolls the proc', async () => {

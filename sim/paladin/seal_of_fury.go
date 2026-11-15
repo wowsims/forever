@@ -42,18 +42,24 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		paladin.sealOfFuryTaunt = paladin.RegisterSpell(tauntSpellConfig)
 	}
 
-	// Melee in SpellCategories with No Active Defense: hit and crit on the melee table, never
-	// dodged, parried or blocked.
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	// Ranged in SpellCategories with No Active Defense: hit and crit on the ranged table, never
+	// blocked, and a ranged attack to procs.
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
 	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeMeleeSpecialHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeRangedHitAndCrit)
 		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
+	// The shield is this share of the hit in the open world, which is what the sim gives every target
+	// (EV-0022). Inside a dungeon the game scales it by the creature health the
+	// game files expect at a base level over the one at the mob's level (ExpectedStat.CreatureHealth),
+	// where the base is the dungeon's lowest mob level in Shadowfang Keep, the Stockade, Gnomeregan,
+	// Scarlet Monastery and Ruins of Lordaeron. The sim's targets carry no base level, so it models
+	// none of that.
 	shieldShare := rank.EffectN(2).Percent()
 	var pendingShield float64
 	shield := paladin.NewDamageAbsorptionAura(core.AbsorptionAuraConfig{
@@ -97,8 +103,9 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 		MetricsActionID: core.ActionID{SpellID: rank.ID},
 		Duration:        sealDuration,
 		Callback:        core.CallbackOnSpellHitDealt,
-		ProcMask:        core.ProcMaskMeleeWhiteHit,
+		ProcMask:        sealSwingMask,
 		Outcome:         core.OutcomeLanded,
+		ExtraCondition:  sealHearsSwing,
 		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			procSpell.Cast(sim, result.Target)
 		},

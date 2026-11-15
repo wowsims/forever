@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 657.348
+  tps: 531.66791
+  dtps: 8.78679
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 647.5621
@@ -243,9 +252,10 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DeathmistRaiment"
  value: {
-  dps: 668.84637
-  tps: 538.21056
-  dtps: 8.36221
+  dps: 698.78792
+  tps: 561.76496
+  dtps: 8.59103
+  hps: 8.50699
  }
 }
 dps_results: {
@@ -321,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 674.31714
-  tps: 545.15358
+  dps: 657.27515
+  tps: 531.77297
   dtps: 8.1557
   hps: 7.19695
  }
@@ -794,6 +804,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 610.87393
+  tps: 495.11504
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-JomGabbar-23570"
  value: {
   dps: 651.54232
@@ -935,16 +954,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestAffliction-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 651.54232
-  tps: 527.27866
-  dtps: 8.1557
-  hps: 7.19695
- }
-}
-dps_results: {
- key: "TestAffliction-AllItems-MarkoftheChampion-23207"
+ key: "TestAffliction-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 651.54232
   tps: 527.27866
@@ -995,6 +1005,15 @@ dps_results: {
   tps: 527.2768
   dtps: 8.13067
   hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 660.5058
+  tps: 533.26795
+  dtps: 8.49523
+  hps: 7.35945
  }
 }
 dps_results: {
@@ -1083,6 +1102,24 @@ dps_results: {
   tps: 521.42425
   dtps: 8.49892
   hps: 7.27415
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 651.54232
+  tps: 527.27866
+  dtps: 8.1557
+  hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 651.54232
+  tps: 527.27866
+  dtps: 8.1557
+  hps: 7.19695
  }
 }
 dps_results: {
@@ -1260,6 +1297,15 @@ dps_results: {
   dps: 681.52338
   tps: 548.56539
   dtps: 8.41497
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 651.54232
+  tps: 527.27866
+  dtps: 8.1557
+  hps: 7.19695
  }
 }
 dps_results: {

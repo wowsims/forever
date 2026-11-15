@@ -50,6 +50,8 @@ export interface CurrentBundle {
 export interface BulkBundleRun {
 	/** The stored index, -1 for the Current bundle. */
 	index: number;
+	/** The name the user gave the bundle, empty for none and for the Current bundle. */
+	name: string;
 	/** Named '' for the current gear. */
 	gearSet: BulkGearSetPick;
 	talents: BulkTalentSetup;
@@ -59,11 +61,21 @@ export interface BulkBundleRun {
 	buildKey: string;
 }
 
+/** A bundle's four parts as the list names them. */
+interface BulkBundlePartLabels {
+	gear: string;
+	talents: string;
+	rotation: string;
+	settings: string;
+}
+
 interface BulkBundleRow {
 	/** In the stored list. */
 	index: number;
 	bundle: BulkBuildBundle;
+	/** The bundle's name, or its parts' labels joined when it has none. */
 	label: string;
+	parts: BulkBundlePartLabels;
 	checked: boolean;
 	duplicateOf: string | null;
 }
@@ -96,18 +108,17 @@ const resolveBundle = (parts: BulkBundleParts, bundle: BulkBuildBundle): Resolve
 
 const gearSetLabel = ({ isCurrent, name }: BulkPart): string => (isCurrent ? i18n.t('bulk_tab.results.current_gear') : name);
 
-const bundleLabel = (parts: Record<'gearSet' | 'talents' | 'rotation' | 'settings', BulkPart>): string =>
-	[gearSetLabel(parts.gearSet), talentsLabel(parts.talents), rotationLabel(parts.rotation), settingsLabel(parts.settings)].join(' · ');
+/** The label of a bundle with no name. */
+export const bundleLabel = ({ gear, talents, rotation, settings }: BulkBundlePartLabels): string => [gear, talents, rotation, settings].join(' · ');
 
 const part = (entry: { name: string } | null): BulkPart => (entry === null ? CURRENT_PART : { isCurrent: false, name: entry.name });
 
-const resolvedLabel = ({ gearSet, talents, rotation, settings }: ResolvedBundle): string =>
-	bundleLabel({
-		gearSet: gearSet === null ? CURRENT_PART : { isCurrent: false, name: bulkGearSetName(gearSet) },
-		talents: part(talents),
-		rotation: part(rotation),
-		settings: part(settings),
-	});
+const resolvedParts = ({ gearSet, talents, rotation, settings }: ResolvedBundle): BulkBundlePartLabels => ({
+	gear: gearSetLabel(gearSet === null ? CURRENT_PART : { isCurrent: false, name: bulkGearSetName(gearSet) }),
+	talents: talentsLabel(part(talents)),
+	rotation: rotationLabel(part(rotation)),
+	settings: settingsLabel(part(settings)),
+});
 
 const options = <E extends { ref: SavedRef; name: string }>(
 	entries: readonly E[],
@@ -145,26 +156,29 @@ const flaggedBundles = (current: CurrentBundle, parts: BulkBundleParts, bundles:
 		const resolved = resolveBundle(parts, bundle);
 		if (!resolved) return [];
 		const content = contentKey(current, resolved);
-		const label = resolvedLabel(resolved);
+		const partLabels = resolvedParts(resolved);
+		const label = bundle.name || bundleLabel(partLabels);
 		const duplicateOf = picked.get(content) ?? null;
 		if (duplicateOf === null && bundle.checked) picked.set(content, label);
-		return [{ index, bundle, resolved, label, duplicateOf }];
+		return [{ index, bundle, resolved, label, parts: partLabels, duplicateOf }];
 	});
 };
 
 export const bulkBundleList = (current: CurrentBundle, parts: BulkBundleParts, bundles: readonly BulkBuildBundle[], currentChecked: boolean): BulkBundleRow[] =>
-	flaggedBundles(current, parts, bundles, currentChecked).map(({ index, bundle, label, duplicateOf }) => ({
+	flaggedBundles(current, parts, bundles, currentChecked).map(({ index, bundle, label, parts: partLabels, duplicateOf }) => ({
 		index,
 		bundle,
 		label,
+		parts: partLabels,
 		checked: bundle.checked,
 		duplicateOf,
 	}));
 
 const refKey = (entry: { ref: SavedRef } | null) => (entry === null ? [CURRENT_REF.name, CURRENT_REF.preset] : [entry.ref.name, entry.ref.preset]);
 
-const bundleRun = (current: CurrentBundle, index: number, { gearSet, talents, rotation, settings }: ResolvedBundle): BulkBundleRun => ({
+const bundleRun = (current: CurrentBundle, index: number, name: string, { gearSet, talents, rotation, settings }: ResolvedBundle): BulkBundleRun => ({
 	index,
+	name,
 	gearSet:
 		gearSet === null
 			? { name: '', gear: current.gear, bonusStats: current.bonusStats }
@@ -187,11 +201,25 @@ export const bulkBundleRuns = (
 	bundles: readonly BulkBuildBundle[],
 	currentChecked: boolean,
 ): BulkBundleRun[] => [
-	...(currentChecked ? [bundleRun(current, -1, CURRENT_PARTS)] : []),
+	...(currentChecked ? [bundleRun(current, -1, '', CURRENT_PARTS)] : []),
 	...flaggedBundles(current, parts, bundles, currentChecked)
 		.filter(({ bundle, duplicateOf }) => bundle.checked && duplicateOf === null)
-		.map(({ index, resolved }) => bundleRun(current, index, resolved)),
+		.map(({ index, bundle, resolved }) => bundleRun(current, index, bundle.name, resolved)),
 ];
+
+// The labels a bundle's name may not take: the Current bundle's, every other listed bundle's, and the name of every other
+// stored bundle, listed or not. `index` is the bundle being edited, null for a new one.
+export const takenBundleLabels = (rows: readonly BulkBundleRow[], bundles: readonly BulkBuildBundle[], index: number | null): string[] => [
+	i18n.t('bulk_tab.builds.bundles.current'),
+	...rows.flatMap(row => (row.index === index ? [] : [row.label])),
+	...bundles.flatMap((bundle, i) => (i === index || !bundle.name ? [] : [bundle.name])),
+];
+
+// Matches trimmed and whatever the case; an empty name takes no label.
+export const bundleNameTaken = (name: string, taken: readonly string[]): boolean => {
+	const trimmed = name.trim().toLocaleLowerCase();
+	return trimmed !== '' && taken.some(label => label.toLocaleLowerCase() === trimmed);
+};
 
 // No `settings` bump: the bundles change neither the Gear mode's combination count nor the stored BulkSettings.
 const setBundles = (player: Player<any>, bundles: BulkBuildBundle[], currentBundleChecked = bulkState(player).currentBundleChecked) => {

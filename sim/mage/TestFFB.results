@@ -110,6 +110,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 767.62271
+  tps: 793.5376
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 774.37608
@@ -252,8 +259,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 773.64948
-  tps: 798.25436
+  dps: 756.56265
+  tps: 781.16753
  }
 }
 dps_results: {
@@ -407,8 +414,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 824.56109
-  tps: 849.7851
+  dps: 821.25376
+  tps: 846.33699
  }
 }
 dps_results: {
@@ -643,6 +650,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Jang'thrazetheProtector-11086"
+ value: {
+  dps: 725.96828
+  tps: 750.95679
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
   dps: 750.39697
@@ -769,14 +783,7 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23206"
- value: {
-  dps: 750.39697
-  tps: 775.00185
- }
-}
-dps_results: {
- key: "TestFFB-AllItems-MarkoftheChampion-23207"
+ key: "TestFFB-AllItems-MarkoftheChosen-17774"
  value: {
   dps: 750.39697
   tps: 775.00185
@@ -822,6 +829,13 @@ dps_results: {
  value: {
   dps: 750.39697
   tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 750.63245
+  tps: 775.59422
  }
 }
 dps_results: {
@@ -895,6 +909,20 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-SealoftheDawn-13209"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-SecondWind-11819"
  value: {
   dps: 754.19687
@@ -953,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 800.37339
-  tps: 825.01635
+  dps: 844.00008
+  tps: 871.61017
  }
 }
 dps_results: {
@@ -1025,6 +1053,13 @@ dps_results: {
  value: {
   dps: 815.6518
   tps: 840.57504
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TheLionHornofStormwind-14557"
+ value: {
+  dps: 750.39697
+  tps: 775.00185
  }
 }
 dps_results: {

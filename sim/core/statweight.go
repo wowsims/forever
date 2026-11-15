@@ -118,9 +118,9 @@ func (swr *StatWeightsResult) ToProto() *proto.StatWeightsResult {
 
 // Hit and expertise stop counting at a cap, so a run below the baseline near one measures points the
 // player already has and overstates the next ones. A weapon skill point's value moves with the skill, and
-// its weight is the average of the next points'.
+// its weight is the average of the next points'. Feral combat skill is measured upward the same way.
 func weighedAboveBaselineOnly(stat stats.UnitStat) bool {
-	if isHandWeaponSkill(stat) {
+	if isHandWeaponSkill(stat) || stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
 		return true
 	}
 	rating, _, hasRating := ratingBehindStat(stat)
@@ -165,9 +165,8 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	if swr.Player.BonusStats.Stats == nil {
 		swr.Player.BonusStats.Stats = make([]float64, stats.ProtoStatsLen)
 	}
-	// Saved settings may carry a pseudo stat array shorter than the enum, which the steps index past.
-	if missing := stats.PseudoStatsLen - len(swr.Player.BonusStats.PseudoStats); missing > 0 {
-		swr.Player.BonusStats.PseudoStats = append(swr.Player.BonusStats.PseudoStats, make([]float64, missing)...)
+	if len(swr.Player.BonusStats.PseudoStats) < stats.PseudoStatsLen {
+		swr.Player.BonusStats.PseudoStats = append(swr.Player.BonusStats.PseudoStats, make([]float64, stats.PseudoStatsLen-len(swr.Player.BonusStats.PseudoStats))...)
 	}
 
 	raidProto := SinglePlayerRaidProto(swr.Player, swr.PartyBuffs, swr.RaidBuffs, swr.Debuffs)
@@ -208,7 +207,7 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 	}
 
 	// Do half the iterations with a positive, and half with a negative value for better accuracy.
-	// Hit, expertise and weapon skill keep only the positive half.
+	// Forward-only stats keep the positive half.
 	const defaultStatMod = 10.0
 	statMods := make([]float64, stats.UnitStatsLen)
 
@@ -241,7 +240,9 @@ func buildStatWeightRequests(swr *proto.StatWeightsRequest) *proto.StatWeightReq
 		// Scale down the stat increment depending on the type of PseudoStat
 		statMod := defaultStatMod
 
-		if _, _, hasRating := ratingBehindStat(stat); hasRating {
+		if stat.EqualsPseudoStat(proto.PseudoStat_PseudoStatFeralCombatSkill) {
+			statMod = 1
+		} else if _, _, hasRating := ratingBehindStat(stat); hasRating {
 			statMod = 1
 		} else if isHandWeaponSkill(stat) {
 			if !handHoldsWeapon(swr.Player, stat) {

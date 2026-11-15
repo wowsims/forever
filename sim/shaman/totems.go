@@ -111,7 +111,7 @@ func (shaman *Shaman) registerWeaponTotem(rank *spelldata.Spell, slot int, categ
 // its 30% and 12% over their untalented values, so nothing applies the talent.
 func (shaman *Shaman) registerWindfuryTotemSpell() {
 	shaman.WindfuryTotem = shaman.registerWeaponTotem(windfuryTotemRank, AirTotem, buffs.WindfuryTotemCategory,
-		buffs.WindfuryTotemValue(0), buffs.NewWindfuryTotemProcTrigger(&shaman.Character))
+		buffs.WindfuryTotemPriority(), buffs.NewWindfuryTotemProcTrigger(&shaman.Character))
 	buffs.HoldOverWindfuryTotemRivals(shaman.WindfuryTotem.RelatedSelfBuff)
 }
 

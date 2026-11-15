@@ -101,7 +101,7 @@ func InitDBC() error {
 	dbcInstance.LoadSpellScaling()
 	dbcInstance.LoadShieldBlockValues()
 	dbcInstance.indexSpellEffects()
-	dbcInstance.dropRestatedWeaponSkills()
+	dbcInstance.dropRestatedItemStats()
 	return nil
 }
 

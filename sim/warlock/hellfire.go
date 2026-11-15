@@ -8,7 +8,8 @@ import (
 
 // A channel on the caster: each second it fires Hellfire Effect at every enemy nearby, and burns the caster
 // for the same, spell power included. An area effect that ticks rolls hit on every tick, and crit unless
-// Hellfire Effect's row bars it.
+// Hellfire Effect's row bars it. Every effect of the cast's row targets the caster, so the cast lands on
+// no enemy and Judgement of Wisdom never hears it (EV-0116).
 func (warlock *Warlock) registerHellfire() {
 	rankedSpell := spellData.Hellfire.ByID(11684)
 	channelTick := rankedSpell.PeriodicEffect()
@@ -20,6 +21,9 @@ func (warlock *Warlock) registerHellfire() {
 
 	// Fired by the channel; hits every enemy in range
 	effectConfig := spelldata.SpellConfig(&warlock.Unit, effectRow, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc())
+	if effectRow.IsAProc() {
+		effectConfig.Flags |= core.SpellFlagProc
+	}
 	effectConfig.ClassSpellMask = WarlockSpellHellfire
 	effectConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		outcome := spell.OutcomeMagicHitAndCrit

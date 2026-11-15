@@ -126,7 +126,7 @@ func applyFixedUptimeAura(aura *core.Aura, uptime float64, tickLength time.Durat
 }
 
 // A druid innervates a character who is nearly out of mana, so that every other
-// mana cooldown is spent first. The row's auras raise the spirit regen while it
+// mana cooldown is spent first. The row's auras raise the mana regen while it
 // is up, and the metrics record what the character gains from it.
 func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 	aura := NewSpellDataInnervatesAura(&char.Unit, false, 0)
@@ -135,10 +135,11 @@ func driveInnervates(char *core.Character, individual *proto.IndividualBuffs) {
 	threshold, expectedMana := 0.0, 0.0
 	char.Env.RegisterPostFinalizeEffect(func() {
 		threshold = innervateManaThreshold(char)
-		// Spell 29166 states +400% spirit regen on the mana bar (aura 110), which prices the mana the
-		// metrics record.
-		expectedMana = char.SpiritManaRegenPerSecond() *
-			core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue()) *
+		// Spell 29166 states +400% mana regen on the mana bar (aura 110), Spirit and MP5 alike, which
+		// prices the mana the metrics record. MP5 runs while casting without Innervate and Spirit regen
+		// does not, so Innervate adds the whole multiplied Spirit regen and the MP5 above its own.
+		multiplier := core.MultiplierFromPercent(innervatesSpell.Effect(dbcenums.A_MOD_POWER_REGEN_PERCENT, int32(dbcenums.POWER_MANA)).BaseValue())
+		expectedMana = (char.SpiritManaRegenPerSecond()*multiplier + char.MP5ManaRegenPerSecond()*(multiplier-1)) *
 			aura.Duration.Seconds()
 	})
 
@@ -204,18 +205,22 @@ func driveManaTideTotems(char *core.Character, party *proto.PartyBuffs) {
 	})
 }
 
-// The raid aura the totem puts up, a Proc Trigger Spell aura that names 10610.
-var windfuryTotemRaidAura = spelldata.MustFind(10612)
+// The strike the totem's raid aura procs, the main hand's weapon damage.
+var windfuryTotemStrike = spelldata.MustFind(10610)
+
+// For the procs that hear the strike apart from other main-hand specials, as a paladin's seals do.
+func IsWindfuryTotemStrike(spell *core.Spell) bool {
+	return spell.SpellID == windfuryTotemStrike.ID
+}
 
 // The totem's summon, which names the totem aura in the metrics.
 var windfuryTotemCast = spelldata.MustFind(10614)
 
-// The totem's aura is the attack power a windfury proc grants. The totem hands
-// the proc out as the raid aura 10612, whose row states the chance, what it
-// hears and its 100 ms cooldown. The driver keeps the extra attack the proc
+// The totem hands the proc out as its raid aura, whose row states the chance,
+// what it hears and its 100 ms cooldown. The driver keeps the strike the proc
 // lands, and the totem aura that holds the category.
 func driveWindfuryTotem(char *core.Character, _ *proto.RaidBuffs) {
-	inheritWeaponTotem(char, windfuryTotemRaidAura, standWindfuryTotem)
+	inheritWeaponTotem(char, windfuryTotemSpell, standWindfuryTotem)
 }
 
 func standWindfuryTotem(char *core.Character) *core.Aura {
@@ -225,9 +230,15 @@ func standWindfuryTotem(char *core.Character) *core.Aura {
 		Label:    "Windfury Totem",
 		ActionID: core.ActionID{SpellID: windfuryTotemCast.ID, Tag: -1},
 	})
-	holdTotemAura(totemAura, WindfuryTotemCategory, WindfuryTotemValue(0), procTrigger)
+	holdTotemAura(totemAura, WindfuryTotemCategory, WindfuryTotemPriority(), procTrigger)
 	HoldOverWindfuryTotemRivals(totemAura)
 	return totemAura
+}
+
+// A Windfury Totem bids the attack power its strike adds, the raid aura's
+// dummy effect, for the category.
+func WindfuryTotemPriority() float64 {
+	return windfuryTotemSpell.Effect(dbcenums.A_DUMMY, 0).BaseValue()
 }
 
 const windfuryTotemTriggerLabel = "Windfury Totem Trigger"
@@ -239,6 +250,29 @@ var windfuryTotemHoldsOver = []string{
 	FlametongueTotemCategory,
 }
 
+// The strike's row is Windfury Weapon's strike 439440 in every column but the
+// class mask: weapon damage on the target, Not a Proc, main hand required. It
+// deals the main hand's weapon damage with the raid aura's attack power added,
+// on the weapon special's table of miss, dodge, parry and crit, never a
+// glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
+// attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
+// only. A landed strike grants rage as a main-hand swing does.
+func newWindfuryTotemStrike(char *core.Character) *core.Spell {
+	attackPower := WindfuryTotemPriority()
+	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
+		spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(),
+		spelldata.Flags(core.SpellFlagSwingRage))
+	if windfuryTotemStrike.IsAProc() {
+		config.Flags |= core.SpellFlagProc
+	}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		weaponDamage := char.MHWeaponDamage(sim, spell.MeleeAttackPower(target)+attackPower)
+		baseDamage := windfuryTotemStrike.WeaponStrike(sim, spell, weaponDamage, 0)
+		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
+	}
+	return char.RegisterSpell(config)
+}
+
 // The Windfury Totem proc on the character's main hand, inactive until a totem
 // aura holding WindfuryTotemCategory turns it on. A character under both the
 // party buff and a totem of its own casting has one proc, built once.
@@ -246,75 +280,43 @@ func NewWindfuryTotemProcTrigger(char *core.Character) *core.Aura {
 	if procTrigger := char.GetAura(windfuryTotemTriggerLabel); procTrigger != nil {
 		return procTrigger
 	}
+	strike := newWindfuryTotemStrike(char)
 
-	procAura := NewSpellDataWindfuryTotemAura(&char.Unit, false, 0)
-	// The attack power is only there for a moment after a proc, so it is not
-	// part of the stats the character sheet is measured with.
-	procAura.BuildPhase = core.CharacterBuildPhaseNone
-
-	// The row's own proc flags say what spends a charge: every auto attack, in
-	// either hand, since the column's chance is the raid aura's roll. A missed
-	// swing spends one as a landed one does. The hit that fired the proc spends
-	// none. The attack power stays until the charges are gone or the row's
-	// duration runs out.
-	// TODO: a dodged or parried auto spends a charge here as a miss does; verify in game, the logs only show misses (8/8).
-	procAura.MaxStacks = int32(windfuryTotemSpell.ProcCharges)
-	spender := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
-		procAura.RemoveStack(sim)
-	}, spelldata.Chance(1))
-	spender.Name = "Windfury Totem Charges"
-	spender.TriggerImmediately = true
-	spender.Outcome = core.OutcomeEmpty
-	spender.RequireDamageDealt = false
-	// The auto that fires the proc is dealt in the same instant as its cast
-	// result and spends nothing. Another swing in that instant, such as the off
-	// hand's, still spends, and an auto that is never dealt leaves nothing to
-	// skip; an ability's hit never reaches the spender.
-	var procSwing *core.Spell
-	var procAt time.Duration
-	spender.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		if spell == procSwing && sim.CurrentTime == procAt {
-			procSwing = nil
-			return false
-		}
-		return true
-	}
-	procAura.AttachProcTriggerCallback(&char.Unit, spender)
-	procAura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
-		procSwing = nil
-	})
-
-	// The row hears auto attacks and melee abilities, so the hit of a proc
-	// without Not a Proc does not reach it. The mask names both hands; the
-	// main-hand rule the tooltip states is the server's, and so is the rule
-	// that an ability rolls the totem only where its row requires a main-hand
-	// weapon or goes off in place of the next swing, as Maul does. A triggered
-	// spell with Not a Proc and neither bit never rolls it: Seal of Command's
-	// strike 0/117 while the same paladins' swings roll 18.3%, Sweeping Strikes
-	// 0/166, Retaliation 0/18. An auto attack, another proc's extra swing
-	// included, always rolls it. A landed hit rolls it whether or not it deals
-	// damage, Sunder Armor and a Rend application among them. The proc rolls
-	// off the hit's cast result and puts the attack power up with every charge;
-	// the hit's damage, rolled before the proc, does not gain it.
-	trigger := spelldata.ProcTrigger(char, windfuryTotemRaidAura, func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-		procSwing = nil
-		if spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) {
-			procSwing, procAt = spell, sim.CurrentTime
-		}
-		procAura.Activate(sim)
-		procAura.SetStacks(sim, procAura.MaxStacks)
+	// The totem rolls on what the raid aura's row hears: a main-hand melee
+	// swing or melee ability that lands, whether or not it deals damage. The
+	// row's mask names both hands, and the tooltip's main-hand rule is the
+	// server's. Ranged attacks and spells never roll it, and neither does the
+	// hit of a proc without Not a Proc, since the row lacks Can Proc From
+	// Procs. Holy Strike, Stormstrike, Shred, Rake, Ferocious Bite, Claw and
+	// bear Swipe roll it, and triggered spells never: Seal of Fury, poisons,
+	// Consecration ticks (EV-0008). An auto attack, another proc's
+	// extra swing included, always rolls it. The proc rolls off the hit's cast
+	// result, and the strike follows once that hit has been dealt, in the same
+	// instant. The strike requires a main hand, but it lands inside the 100 ms
+	// cooldown its proc has just started, so it never rolls.
+	trigger := spelldata.ProcTrigger(char, windfuryTotemSpell, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		target := result.Target
+		sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
+			if target.IsEnabled() {
+				strike.Cast(sim, target)
+			}
+		})
 	})
 	trigger.Name = windfuryTotemTriggerLabel
-	trigger.MetricsActionID = core.ActionID{SpellID: windfuryTotemRaidAura.ID, Tag: -1}
+	trigger.MetricsActionID = core.ActionID{SpellID: windfuryTotemSpell.ID, Tag: -1}
 	trigger.Duration = core.NeverExpires
 	trigger.Callback = core.CallbackOnCastResult
+	trigger.TriggerImmediately = true
+	// Triggered hits with Not a Proc roll it as abilities do: Windfury Weapon's
+	// strikes, Seal of Command, Judgement of Command and Retaliation (EV-0002).
+	// A hit with no defense type is no melee attack and never rolls it:
+	// Sweeping Strikes' copied hit 12723. Its normalized hit 26654 rolls it once.
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return spell.DefenseType != core.DefenseTypeNone
+	}
 	trigger.ProcMask &= core.ProcMaskMeleeMH
 	trigger.RequireDamageDealt = false
-	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || spell.Flags.Matches(core.SpellFlagRequiresMainHand|core.SpellFlagOnNextSwing)
-	}
-	onInit := char.ExtraAttackProc(&trigger, windfuryTotemSpell.ID, 1)
-	return char.MakeProcTriggerAura(trigger).ApplyOnInit(onInit)
+	return char.MakeProcTriggerAura(trigger)
 }
 
 // A standing Windfury Totem, the raid's or the shaman's own, outbids its rivals.
@@ -344,7 +346,7 @@ func holdTotemAura(totemAura *core.Aura, category string, priority float64, proc
 // trigger column, so the proc is read by id.
 var flametongueTotemProc = spelldata.MustFind(16389)
 
-// The totem's hit logs in game as Flametongue Attack; 16389 only states its base points.
+// The totem's hit logs in game as Flametongue Attack (EV-0013); 16389 only states its base points.
 var flametongueTotemAttack = spelldata.MustFind(16368)
 
 // The totem's summon, which the hit reports under, tagged 1, so the results show the totem and its hits as one row.

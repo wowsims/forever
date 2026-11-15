@@ -434,6 +434,8 @@ func (swap *ItemSwap) swapItem(sim *Simulation, slot proto.ItemSlot, isPrepull b
 	character := swap.character
 	character.addItemWeaponSkills(&oldItem, -1)
 	character.addItemWeaponSkills(&character.Equipment[slot], 1)
+	character.addItemMobTypeStats(&oldItem, -1)
+	character.addItemMobTypeStats(&character.Equipment[slot], 1)
 
 	switch slot {
 	case proto.ItemSlot_ItemSlotRanged:

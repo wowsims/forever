@@ -127,6 +127,12 @@ func (result *SpellResult) DidBlock() bool {
 	return result.Outcome.Matches(OutcomeBlock)
 }
 
+// A block that takes the whole hit. A block whose remainder an absorb takes is not one, so this reads
+// the damage the block left, before absorbs.
+func (result *SpellResult) BlockedInFull() bool {
+	return result.DidBlock() && result.PostOutcomeDamage == 0
+}
+
 func (result *SpellResult) DidBlockCrit() bool {
 	return result.Outcome.Matches(OutcomeBlock) && result.Outcome.Matches(OutcomeCrit)
 }
@@ -158,6 +164,7 @@ func (result *SpellResult) HealingString() string {
 	return fmt.Sprintf("%s for %0.3f healing", result.Outcome.String(), result.Damage)
 }
 
+// A hit or tick takes the threat multiplier in force when it lands (EV-0037).
 func (spell *Spell) ThreatFromDamage(sim *Simulation, outcome HitOutcome, damage float64, attackTable *AttackTable) float64 {
 	if outcome.Matches(OutcomeLanded) {
 		bonus := spell.FlatThreatBonus

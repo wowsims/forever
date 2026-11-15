@@ -14,12 +14,26 @@ import (
 // an A_PERIODIC_ENERGIZE, and Berserker Stance states an attack power percentage of 0.
 var buffAuraTable = map[dbcenums.EffectAuraType]row{
 	// Mana over time, which the sim keeps as mana per five seconds. The game files' tick is whole;
-	// what the conversion makes of it is not, and it is not truncated.
+	// what the conversion makes of it is not, and it is not truncated. The tick is the same under
+	// Innervate, so the amount also counts in EnergizeMP5, the share Innervate leaves unscaled. It
+	// stays in MP5 for the character sheet and for the bid a buff category takes on MP5.
 	dbcenums.A_PERIODIC_ENERGIZE: func(p *parser, e *Effect, v float64) *attachment {
 		if e.Misc != int32(dbcenums.POWER_MANA) || e.PeriodMs <= 0 {
 			return nil
 		}
-		return p.statBuff(stats.MP5, v*5000/float64(e.PeriodMs))
+		mp5 := v * 5000 / float64(e.PeriodMs)
+		a := p.statBuff(stats.MP5, mp5)
+		// The whole and each part, whichever the buff's category applies, move EnergizeMP5 before
+		// the MP5, whose change recomputes the regen rates.
+		for _, part := range append([]*attachment{a}, a.parts...) {
+			energize := p.pseudoAdd("energize-mp5", "EnergizeMP5", []*float64{&p.unit.PseudoStats.EnergizeMP5}, mp5)
+			set := part.set
+			part.set = func(sim *core.Simulation, level float64) {
+				energize.set(sim, level)
+				set(sim, level)
+			}
+		}
+		return a
 	},
 
 	dbcenums.A_MOD_ATTACK_POWER_PCT: func(p *parser, e *Effect, v float64) *attachment {
@@ -29,14 +43,18 @@ var buffAuraTable = map[dbcenums.EffectAuraType]row{
 
 // The options every raid buff and debuff is parsed with: priced at core.CharacterLevel, with the
 // buff table's rows, less the auras skip names, and a finisher at full combo points where
-// fullComboPoints says so.
-func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints bool) []ParseOpt {
+// fullComboPoints says so, and a mana regen percent read as Innervate's multiplier on the mana regen
+// where allManaRegen says so.
+func RaidBuffOptions(skip []dbcenums.EffectAuraType, fullComboPoints, allManaRegen bool) []ParseOpt {
 	opts := []ParseOpt{Level(core.CharacterLevel), BuffAuras()}
 	if len(skip) > 0 {
 		opts = append(opts, SkipAuras(skip...))
 	}
 	if fullComboPoints {
 		opts = append(opts, FullComboPoints())
+	}
+	if allManaRegen {
+		opts = append(opts, AllManaRegen())
 	}
 	return opts
 }

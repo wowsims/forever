@@ -59,6 +59,14 @@ message UIFaction {
 	string name = 2;
 }
 
+// The phase of an item or enchant (UIItem.phase, UIEnchant.phase) and of the gear picker's choice: phase 1 is what can
+// be had now, and Unknown holds the rest until their phases are known.
+enum ContentPhase {
+	ContentPhaseNone = 0;
+	ContentPhase1 = 1;
+	ContentPhaseUnknown = 2;
+}
+
 // Contains all information about an Item needed by the UI.
 // Generally this will include everything needed by the sim, plus some
 // additional data for displaying / filtering.
@@ -537,6 +545,8 @@ message BulkBuildBundle {
 	BulkRotationRef rotation = 3;
 	BulkSettingsRef settings = 4;
 	bool checked = 5;
+	// The name the user gave the bundle, trimmed; empty labels it by its four parts.
+	string name = 6;
 }
 
 // Local storage data for the bundles the bulk sim runs in Builds mode, in list order. The Current bundle is not stored

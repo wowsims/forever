@@ -370,3 +370,52 @@ func TestTotemicRecallReturnsAShareOfTheStandingTotemsBaseCosts(t *testing.T) {
 		}
 	}
 }
+
+// Maelstrom Weapon procs off main-hand swings and Windfury Weapon's strike, never off Windfury
+// Totem's strike.
+func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
+	player := windfuryShaman(&proto.APLRotation{})
+	player.TalentsString = enhancementTalents
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{WindfuryTotem: true}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	maelstrom := sham.GetAuraByID(core.ActionID{SpellID: spelldata.MustFind(408505).ID})
+	trigger := sham.GetAura("Maelstrom Weapon - Trigger")
+	strike := sham.GetSpell(windfuryWeaponStrike)
+	totemStrike := sham.GetSpell(windfuryTotemStrike)
+	if maelstrom == nil || trigger == nil || strike == nil || totemStrike == nil {
+		t.Fatalf("Maelstrom Weapon %v, its trigger %v, Windfury Weapon's strike %v, Windfury Totem's strike %v; want all registered",
+			maelstrom, trigger, strike, totemStrike)
+	}
+
+	sham.AutoAttacks.CancelAutoSwing(sim)
+
+	// The stack lands a spell batch window after its hit; a no-op action just past the window stops
+	// each step there.
+	procs := func(spell *core.Spell) int {
+		gains := 0
+		for range 300 {
+			maelstrom.Deactivate(sim)
+			trigger.OnSpellHitDealt(trigger, sim, spell, &core.SpellResult{Target: sham.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+			for at := sim.CurrentTime + core.SpellBatchWindow; sim.CurrentTime <= at; {
+				sim.AddPendingAction(&core.PendingAction{NextActionAt: at + 1, OnAction: func(*core.Simulation) {}})
+				sim.Step()
+			}
+			if maelstrom.IsActive() {
+				gains++
+			}
+		}
+		return gains
+	}
+	if got := procs(totemStrike); got != 0 {
+		t.Errorf("Windfury Totem's strike procced Maelstrom Weapon %d times in 300 hits, want none", got)
+	}
+	if procs(sham.AutoAttacks.MHAuto()) == 0 || procs(strike) == 0 {
+		t.Error("a main-hand swing or Windfury Weapon's strike never procced Maelstrom Weapon in 300 hits, so the check above proves nothing")
+	}
+}
