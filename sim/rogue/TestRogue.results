@@ -664,9 +664,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FlurryAxe-871"
  value: {
-  dps: 617.04274
-  tps: 438.10034
-  hps: 60.35611
+  dps: 613.47375
+  tps: 435.56636
+  hps: 60.00028
  }
 }
 dps_results: {

@@ -79,7 +79,7 @@ func rateOutcome(t *testing.T, itemID int, spellID int32, got EffectParseResult)
 }
 
 // A chance-on-hit spell that grants extra attacks routes to the extra-attack shape: Flurry Axe 871's
-// 18797 grants the wearer extra attacks, at the override's 1.9 PPM, so it registers.
+// 18797 grants the wearer extra attacks, at the override's rate, so it registers.
 func TestChanceOnHitExtraAttackRoutes(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
