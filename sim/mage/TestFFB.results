@@ -1168,6 +1168,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 800.62173
+  tps: 825.56097
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-WrathofCenarius-21190"
  value: {
   dps: 812.59281

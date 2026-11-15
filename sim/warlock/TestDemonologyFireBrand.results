@@ -1423,6 +1423,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 768.00648
+  tps: 627.38069
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-WrathofCenarius-21190"
  value: {
   dps: 773.68045

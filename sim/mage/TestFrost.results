@@ -1168,6 +1168,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 783.78103
+  tps: 721.64481
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-WrathofCenarius-21190"
  value: {
   dps: 789.92264

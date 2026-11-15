@@ -1168,6 +1168,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 773.23888
+  tps: 665.77109
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-WrathofCenarius-21190"
  value: {
   dps: 785.67662

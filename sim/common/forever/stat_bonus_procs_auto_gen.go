@@ -3573,21 +3573,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Chance on hit to reduce the mana cost of your next spell cast within 10s by 24.
-	// https://www.wowhead.com/forever/spell=1294058
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 274425, ItemName: "White Obsidian Wand"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// While in combat, your healing spells have a chance to grant an ally 300 armor for 10s.
 	// https://www.wowhead.com/forever/spell=1294065
 	// unsupported: states no rate

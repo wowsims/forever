@@ -1309,6 +1309,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-WhiteObsidianWand-274425"
+ value: {
+  dps: 750.08979
+  tps: 536.15942
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-WrathofCenarius-21190"
  value: {
   dps: 754.65064
