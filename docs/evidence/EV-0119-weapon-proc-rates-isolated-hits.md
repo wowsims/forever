@@ -10,7 +10,7 @@
   items and change housing and profession spells only, none of the items or proc spells measured here; whether the
   players relogged is not recorded.
 - Date: 2026-11-14 and 2026-11-15
-- Pull request: not recorded
+- Pull request: #1032
 
 A wearer is a player whose combatant info lists the item in the worn fights; runs that two players logged count once.
 A proc is one event of the proc spell's main event (its damage, its aura application or refresh, or its extra
