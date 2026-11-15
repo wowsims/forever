@@ -156,8 +156,8 @@ var ItemSetRaimentsOfConviction = core.NewItemSet(core.ItemSet{
 		2: parsedSetBonus(1300955), // Improves your chance to hit by 1%.
 		4: func(_ core.Agent, setBonusAura *core.Aura) {
 			// Increases damage done by your spells and effects by up to 21 when fighting Undead.
-			// A_MOD_DAMAGE_DONE_CREATURE has no row in the parse table, so the amount and the
-			// creature types it names come off the effect by hand.
+			// The parse table reads A_MOD_DAMAGE_DONE_CREATURE as physical and spell damage; this
+			// bonus keeps the spell damage alone, its amount and creature types read off the effect.
 			effect := convictionUndeadDamage.EffectN(1)
 			setBonusAura.
 				AttachMobTypeBonusStats(stats.Stats{stats.SpellDamage: effect.BaseValue()}, spelldata.MobTypes(effect.Misc)...).

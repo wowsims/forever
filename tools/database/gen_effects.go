@@ -1170,12 +1170,12 @@ func storeWeaponScopedEnchant(instance *dbc.DBC, enchant dbc.Enchant, parsed *pr
 	}
 
 	for spellID := range enchantEquipSpellIDs(enchant) {
-		if dbc.EquipSpellFolds(spellID) && !grantsOnlyVersusStats(spelldata.Find(int32(spellID))) {
+		equip := spelldata.Find(int32(spellID))
+		if dbc.EquipSpellFolds(spellID) && !grantsOnlyVersusStats(equip) {
 			continue
 		}
 
 		rendered := renderSpellTooltip(instance, grant.SpellID)
-		equip := spelldata.Find(int32(spellID))
 		row := spelldata.EquipAuraRow(equip)
 		if !keepsAnEquipAura(row) {
 			StoreMissingEffect("EnchantEffects", parsed.Name, Variant{
@@ -2018,11 +2018,11 @@ func (r *ProcRouting) ProcConstructor() string {
 
 // The auras the item aura shape is emitted for: the damage, healing, cost, armor, health, stat and threat
 // multipliers, the flat damage taken, the hit, crit, block, dodge and parry percents, skill points, and the
-// attack power, spell damage and damage done against a creature type. The percents reach the item stats only through an
-// equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura. An equip spell
-// that only restates a weapon skill or creature type stat the item's own stats state leaves the item
-// (dropRestatedItemStats). One that folds carries its bonus against a creature type into the item's mob
-// type stats (addEquipSpellMobTypeStats).
+// attack power, spell damage and damage done against a creature type. The percents reach the item stats
+// only through an equip spell that folds; an on-use or a weapon-scoped equip spell applies them as an aura.
+// An equip spell that only restates a weapon skill or creature type stat the item's own stats state leaves
+// the item (dropRestatedItemStats). One that folds carries its bonus against a creature type into the
+// item's mob type stats (addEquipSpellMobTypeStats).
 var itemAuraKinds = []dbcenums.EffectAuraType{
 	dbcenums.A_MOD_THREAT,
 	dbcenums.A_MOD_DAMAGE_PERCENT_DONE,
@@ -2056,15 +2056,9 @@ var equipAuraKinds = append(slices.Clone(itemAuraKinds), dbcenums.A_DAMAGE_SHIEL
 
 // Whether every effect of the spell is a stat against creature types.
 func grantsOnlyVersusStats(row *spelldata.Spell) bool {
-	if len(row.Effects) == 0 {
-		return false
-	}
-	for _, effect := range row.Effects {
-		if len(spelldata.VersusStats(effect.Aura)) == 0 {
-			return false
-		}
-	}
-	return true
+	return len(row.Effects) > 0 && !slices.ContainsFunc(row.Effects, func(e spelldata.Effect) bool {
+		return len(spelldata.VersusStats(e.Aura)) == 0
+	})
 }
 
 func keepsAnEquipAura(row *spelldata.Spell) bool {

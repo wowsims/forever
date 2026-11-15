@@ -20,6 +20,15 @@ func VersusStats(aura dbcenums.EffectAuraType) []stats.Stat {
 	return versusStats[aura]
 }
 
+// Each stat a versus aura grants, at the amount; none when the aura is no versus aura.
+func VersusBonus(aura dbcenums.EffectAuraType, amount float64) stats.Stats {
+	var bonus stats.Stats
+	for _, stat := range versusStats[aura] {
+		bonus[stat] = amount
+	}
+	return bonus
+}
+
 // The mob type of each creature type a mask names by the bit 1 << (CreatureType - 1). Critter, 8, has
 // no mob type.
 var creatureTypeMobTypes = [...]proto.MobType{

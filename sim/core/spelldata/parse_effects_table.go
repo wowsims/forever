@@ -1070,23 +1070,18 @@ func statShareRow(p *parser, e *Effect, v float64) *attachment {
 // A stat the unit has against the mob types a creature type mask names, which the sim keeps on the
 // attack tables.
 func mobTypeStatRow(p *parser, e *Effect, v float64) *attachment {
-	granted := versusStats[e.Aura]
 	mobTypes := MobTypes(e.Misc)
 	if len(mobTypes) == 0 {
 		return nil
 	}
 
 	var names []string
-	for _, stat := range granted {
+	for _, stat := range versusStats[e.Aura] {
 		names = append(names, stat.StatName())
 	}
 	name := strings.Join(names, "+")
 	a := additive("mob-type-stat "+name, v, p.onAttackTables(func(_ *core.Simulation, delta float64) {
-		var bonus stats.Stats
-		for _, stat := range granted {
-			bonus[stat] = delta
-		}
-		p.unit.AddMobTypeBonusStats(bonus, mobTypes...)
+		p.unit.AddMobTypeBonusStats(VersusBonus(e.Aura, delta), mobTypes...)
 	}))
 	// A bonus against other creature types does not compete with this one.
 	a.key = fmt.Sprintf("%sVersus%d", name, e.Misc)

@@ -596,6 +596,10 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// effect entry takes the higher of them, so this does too: Idol of the Huntress keeps its 200
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
+		// A stacking buff's bonus against creature types would need adding per stack.
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
+		}
 		aura.MaxStacks = int32(stacks)
 		return core.MakeStackingAura(character, core.StackingStatAura{Aura: aura, BonusPerStack: buffStats})
 	}
@@ -616,11 +620,7 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 // Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
 func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
 	for _, effect := range buff.Effects {
-		var bonus stats.Stats
-		for _, stat := range spelldata.VersusStats(effect.Aura) {
-			bonus[stat] = effect.Average()
-		}
-		if bonus != (stats.Stats{}) {
+		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
 			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
 		}
 	}

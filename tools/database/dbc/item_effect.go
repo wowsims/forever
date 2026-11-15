@@ -35,13 +35,9 @@ func addEquipSpellMobTypeStats(opts *proto.ScalingItemProperties, spellID int) {
 			continue
 		}
 		for _, mobType := range spelldata.MobTypes(effect.Misc) {
-			index := slices.IndexFunc(opts.MobTypeStats, func(entry *proto.MobTypeStats) bool { return entry.MobTypes[0] == mobType })
-			if index < 0 {
-				opts.MobTypeStats = append(opts.MobTypeStats, &proto.MobTypeStats{MobTypes: []proto.MobType{mobType}, Stats: map[int32]float64{}})
-				index = len(opts.MobTypeStats) - 1
-			}
+			bonus := mobTypeEntryStats(&opts.MobTypeStats, mobType)
 			for _, stat := range granted {
-				opts.MobTypeStats[index].Stats[int32(stat)] += effect.Average()
+				bonus[int32(stat)] += effect.Average()
 			}
 		}
 	}
