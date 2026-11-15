@@ -110,6 +110,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 751.57403
+  tps: 650.56466
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 751.98304
@@ -252,8 +259,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 747.13967
-  tps: 643.99545
+  dps: 738.05952
+  tps: 636.64469
  }
 }
 dps_results: {
@@ -825,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 728.57907
+  tps: 629.07827
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Naglering-11669"
  value: {
   dps: 760.59255
@@ -967,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 802.353
-  tps: 691.29551
+  dps: 814.22793
+  tps: 700.91185
  }
 }
 dps_results: {

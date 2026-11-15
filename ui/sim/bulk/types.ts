@@ -67,6 +67,8 @@ export interface BulkGearSetup {
 	/** The gear set's own gear, before the enchant presets' enchants. */
 	gearSetGear?: Gear;
 	bonusStats: Stats;
+	/** The name the user gave the Builds bundle that sends it; absent when that bundle has none. */
+	bundle?: string;
 }
 
 export interface BulkRotationSetup {

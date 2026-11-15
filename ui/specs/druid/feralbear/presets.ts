@@ -12,7 +12,7 @@ import Level60GearJson from './gear_sets/default.gear.json';
 export const ROTATION_ADAPTIVE = PresetUtils.makePresetAPLRotation('Adaptive Bear', AdaptiveApl);
 
 export const BearTalents = PresetUtils.makePresetTalents('Bear', SavedTalents.create({ talentsString: '050022-5023030212310112501-055' }));
-export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050022-50220302123110125011-055' }));
+export const HybridTalents = PresetUtils.makePresetTalents('Hybrid', SavedTalents.create({ talentsString: '050012-50230302123110125011-055' }));
 
 export const Level60Gear = PresetUtils.makePresetGear('Level 60', Level60GearJson, {
 	devOnly: true,

@@ -96,6 +96,7 @@ const TANK_SETTINGS: BulkPlayerSettingsSetup = { name: 'Tank', isCurrent: false,
 const gearSetOf = (name: string, gear: Gear, bonusStats = NO_BONUS): BulkGearSetPick => ({ name, gear, bonusStats });
 
 interface BundleParts {
+	name: string;
 	gearSet: BulkGearSetPick;
 	talents: BulkTalentSetup;
 	rotation: BulkRotationSetup;
@@ -105,9 +106,16 @@ interface BundleParts {
 // As `bulkBundleRuns` gives them; the build key stands in for the picks by their names, which no two picks here share.
 const bundleOf = (
 	index: number,
-	{ gearSet = gearSetOf('', CURRENT_GEAR), talents = CURRENT_TALENTS, rotation = CURRENT_ROTATION, settings = CURRENT_SETTINGS }: Partial<BundleParts> = {},
+	{
+		name = '',
+		gearSet = gearSetOf('', CURRENT_GEAR),
+		talents = CURRENT_TALENTS,
+		rotation = CURRENT_ROTATION,
+		settings = CURRENT_SETTINGS,
+	}: Partial<BundleParts> = {},
 ): BulkBundleRun => ({
 	index,
+	name,
 	gearSet,
 	talents,
 	rotation,
@@ -400,6 +408,34 @@ describe('bulkBuildPlan', () => {
 			[0, ['Stamina ring']],
 		]);
 		expect(bulkBuildPlan(plans, referenceOf(), resolve).sameAs).toEqual(new Map());
+	});
+
+	it('carries each named bundle’s name on the setups it sends, the first sender’s on a setup two bundles send, and leaves the shared setups as they are', () => {
+		const staminaGear = gearOf(4, 2, RING_STAMINA);
+		const agilityGear = gearOf(4, 2, RING_AGILITY);
+		const raid = setupOf('Raid set', staminaGear);
+		const agility = setupOf('Agility ring', agilityGear);
+		const twoHand = setupOf('Two-hand', TWO_HAND_GEAR);
+		const arms = { talents: ARMS_TALENTS, rotation: CUSTOM_ROTATION };
+		const plans = [
+			planOf(bundleOf(0, { ...arms, name: 'Arms raid', gearSet: gearSetOf('Raid set', staminaGear) }), [raid]),
+			planOf(bundleOf(1, { ...arms, name: 'Arms both', gearSet: gearSetOf('Both', agilityGear) }), [raid, agility]),
+			planOf(bundleOf(2, { ...arms, gearSet: gearSetOf('Two-hand', TWO_HAND_GEAR) }), [twoHand]),
+			planOf(bundleOf(3, { name: 'Fury raid', gearSet: gearSetOf('Raid set', staminaGear), talents: FURY_TALENTS, rotation: CUSTOM_ROTATION }), [raid]),
+		];
+
+		const plan = bulkBuildPlan(plans, referenceOf(), resolve);
+
+		expect(plan.groups.map(({ requests }) => requests.flatMap(sentSetups).map(setup => [setup.gearSet, setup.bundle]))).toEqual([
+			[
+				['Raid set', 'Arms raid'],
+				['Agility ring', 'Arms both'],
+				['Two-hand', undefined],
+			],
+			[['Raid set', 'Fury raid']],
+		]);
+		expect(plan.groups[0].requests.flatMap(sentSetups)[2]).toBe(twoHand);
+		expect([raid, agility].map(setup => setup.bundle)).toEqual([undefined, undefined]);
 	});
 
 	it('names the running bundle for a twin of a bundle that does not run', () => {

@@ -25,6 +25,7 @@ storybook-static
 sim/web/__debug_bin
 /wowsimcli*
 /wowsimforever*
+/wasm
 
 # temporary files
 *.results.tmp

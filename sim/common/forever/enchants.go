@@ -246,8 +246,7 @@ func init() {
 
 		// The charge goes to the next cast the crit modifier reaches, whatever its proc mask. A channel
 		// the mask names (Blizzard, a hunter's Volley) spends it. The mage's charge goes as the cast
-		// completes, the other classes' with the cast's first hit. Mage logs: 81 of 84 charges go at the
-		// buffed cast's success and the other 3 expire.
+		// completes, the other classes' with the cast's first hit (EV-0028).
 		// TODO: Pyroblast spends the mage's charge and crits in game, though the row's crit modifier
 		// names neither Pyroblast nor Fireball.
 		spender := spelldata.AttachChargeSpender(character, buff, row, "Revelation Charge",
@@ -265,9 +264,10 @@ func init() {
 		trigger.Name = "Enchant Weapon - Revelation"
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
-		// The row's listener hears direct spells and heals. A ranged Shot the buff's class flags name
-		// rolls the same chance, which the hunter buff's Arcane Shot is.
-		// TODO: Verify in game that a hunter's Arcane Shot procs Revelation.
+		// The row's listener hears direct spells and heals. A ranged attack the buff's class flags name
+		// rolls the same chance: the hunter buff's Arcane Shot, and the paladin buff's Hammer of Wrath,
+		// Judgement of Righteousness and Judgement of Fury.
+		// TODO: Verify in game that a hunter's Arcane Shot and a paladin's judgement proc Revelation.
 		spellHits, classFlags := trigger.ProcMask, spender.ClassFlags
 		trigger.ProcMask = core.ProcMaskUnknown
 		trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {

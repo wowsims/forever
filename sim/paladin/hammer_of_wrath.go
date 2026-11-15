@@ -12,15 +12,11 @@ var HammerOfWrathRankMap = spellData.HammerOfWrath
 //
 // Hurls a hammer that strikes an enemy for 489 to 538 Holy damage. Only usable on enemies that have
 // 20% or less health.
-//
-// In game Two-Handed Weapon Specialization's Holy does not reach Hammer of Wrath: one paladin's 77
-// hammers read 0.991 of the damage without the talent, where 3/3 would read 1.06.
 func (paladin *Paladin) registerHammerOfWrath(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
 	config := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskRangedSpecial))
 	config.ClassSpellMask = SpellMaskHammerOfWrath
-	config.Flags |= core.SpellFlagIgnoreWeaponSchoolBonus
 	// The game files' 1s GCD sits at core's floor, so it is named as the floor too or GCDTime clamps
 	// it.
 	config.Cast.DefaultCast.GCDMin = rank.GCD()

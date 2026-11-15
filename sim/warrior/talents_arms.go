@@ -256,7 +256,7 @@ func (warrior *Warrior) registerBloodthrill() {
 	// cast consumes it. The tooltip's $s1 names an effect, so the row's own ProcChanceEffectN
 	// reads the rate ladder. Main-hand white swings, extra attacks included, and the on-next-swing
 	// Heroic Strike and Cleave proc it on a target with the warrior's Rend; the row's melee-ability
-	// bit would also admit the instant specials, which in game do not proc it.
+	// bit would also admit the instant specials, which in game do not proc it (EV-0056).
 	trigger := spelldata.ProcTrigger(&warrior.Character, talent,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.OverpowerAura.Activate(sim)
@@ -327,17 +327,12 @@ func (warrior *Warrior) registerWeaponmaster() {
 	}
 
 	// 1290261 states no proc flags at all, so the row decodes to a listener that hears nothing:
-	// the shape, the mask and the rate's effect are all the caller's. Measured in game, Sweeping
-	// Strikes' hits never roll it, and Whirlwind and Cleave roll it once a cast however many targets
-	// they land on (7 extra attacks in 100 two-handed Whirlwinds; by landed targets 1 gave 0 in 7,
-	// 2 gave 1 in 26, 3 gave 5 in 44, 4 gave 1 in 23). Which target's hit takes that roll is not
-	// measured; here the first landed one
-	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike 10610,
-	// the spell the totem's raid aura 10612 procs (core/buffs/drivers.go), brings no extra swing;
-	// swings other procs grant (Hand of Justice, Thrash Blade) still bring one.
-	// TODO: Ingame test needed: the logs measured the totem's extra white swing bringing none; its
-	// strike, a main-hand special, is not measured yet.
-	windfuryTotemStrike := core.ActionID{SpellID: 10610}
+	// the shape, the mask and the rate's effect are all the caller's. Sweeping Strikes' hits never
+	// roll it, and Whirlwind and Cleave roll it once a cast however many targets they land on
+	// (EV-0054). Which target's hit takes that roll is not measured; here the first landed one
+	// does, since a hit that is avoided never reaches the condition. Windfury Totem's strike rolls it
+	// as a white swing does (EV-0002). Swings other procs grant (Hand of Justice, Thrash Blade) bring
+	// one as well.
 	// TODO: Ingame test needed: whether Whirlwind's off-hand strike (its own spell, 462891 in game)
 	// rolls its own chance; the sim gives both hands the cast's one roll. A dual-wield Weaponmaster
 	// 5/5 log with an off-hand sword, about 150 Whirlwinds on 2 or more targets, settles it.
@@ -352,7 +347,7 @@ func (warrior *Warrior) registerWeaponmaster() {
 		ProcChance:      spellData.Weaponmaster.EffectAt(3).FractionAt(rank),
 		Duration:        core.NeverExpires,
 		ExtraCondition: func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID || spell.ActionID == windfuryTotemStrike {
+			if !spell.ProcMask.Matches(swordMask) || spell.ActionID.SpellID == sweepingStrikesHitID {
 				return false
 			}
 			if spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) && (spellData.Whirlwind.Contains(spell) || spellData.Cleave.Contains(spell)) {
@@ -438,7 +433,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 
 	var copyDamage float64
 	// 12723 has no SpellCategories row and so no DefenseType: no chance-on-hit effect or combat
-	// enchant hears the copied hit. Equip procs still hear it; no log measures them on 12723.
+	// enchant hears the copied hit (EV-0007). Equip procs still hear it; no log measures them on 12723.
 	hitSpell := warrior.RegisterSpell(core.SpellConfig{
 		ActionID:    actionID,
 		ClassFlags:  SpellFlagsSweepingStrikes,
@@ -483,7 +478,7 @@ func (warrior *Warrior) registerSweepingStrikes() {
 			}
 
 			// Whirlwind brings its one strike through CastNormalizedSweepingStrikesAttack, from the main
-			// hand's results: one hit and one charge a cast, measured in 43 casts at 2 to 4 targets.
+			// hand's results: one hit and one charge a cast (EV-0054).
 			// TODO: Ingame test needed: whether Whirlwind's off-hand strike brings a hit of its own.
 			if spell == hitSpell || spell == warrior.SweepingStrikesNormalizedAttack || spellData.ThunderClap.Contains(spell) || spellData.Whirlwind.Contains(spell) {
 				return

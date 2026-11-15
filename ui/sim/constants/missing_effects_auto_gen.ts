@@ -1176,6 +1176,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		14555, // Alcor's Sunrazor
+		[
+			"Blasts a target for 105 Fire damage.", // 18833 - https://www.wowhead.com/forever/spell=18833
+		]
+	],
+	[
 		14576, // Ebon Hilt of Marduk
 		[
 			"Corrupts the target, causing 84 damage over 9s.", // 18656 - https://www.wowhead.com/forever/spell=18656
@@ -1333,12 +1339,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17780, // Blade of Eternal Darkness
-		[
-			"Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.", // 27860 - https://www.wowhead.com/forever/spell=27860
-		]
-	],
-	[
 		18321, // Energetic Rod
 		[
 			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
@@ -1456,6 +1456,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18706, // Arena Master
 		[
 			"Reduces your damage taken by 5% in the Battle Ring and The Maul.", // 1317285 - https://www.wowhead.com/forever/spell=1317285
+		]
+	],
+	[
+		18755, // Xorothian Firestick
+		[
+			"Deal 42 Fire damage over 3s.", // 1302343 - https://www.wowhead.com/forever/spell=1302343
 		]
 	],
 	[
@@ -1957,6 +1963,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22060, // Beastmaster's Tunic
+		[
+			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
+		]
+	],
+	[
 		22198, // Jagged Obsidian Shield
 		[
 			"When struck by a harmful spell, the caster of that spell has a 5% chance to be silenced for 3s.", // 27559 - https://www.wowhead.com/forever/spell=27559
@@ -1981,6 +1993,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22398, // Idol of Rejuvenation
+		[
+			"Increases the initial healing of Regrowth by 5% when cast on a target affected by your Rejuvenation.", // 27853 - https://www.wowhead.com/forever/spell=27853
+		]
+	],
+	[
 		22400, // Libram of Truth
 		[
 			"Reduces the Mana cost of Purify and Cleanse by 10%.", // 27850 - https://www.wowhead.com/forever/spell=27850
@@ -1990,12 +2008,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22402, // Libram of Grace
 		[
 			"Reduces the mana cost of your Cleanse spell by 25.", // 27847 - https://www.wowhead.com/forever/spell=27847
-		]
-	],
-	[
-		22458, // Moonshadow Stave
-		[
-			"Harmful spell casts have a chance to deal 91 Arcane or Shadow damage.", // 1300435 - https://www.wowhead.com/forever/spell=1300435
 		]
 	],
 	[
@@ -2540,12 +2552,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274651, // Zealot Plate
-		[
-			"When struck in combat, has a chance to energize you for 88 mana. This effect cannot occur more than once every 15 sec.", // 1294666 - https://www.wowhead.com/forever/spell=1294666
-		]
-	],
-	[
 		274761, // Parachute-Priest Pager
 		[
 			"Page Everlook Emergency Services for a Parachute-Priest that will assist in healing allies for 15s.", // 1295272 - https://www.wowhead.com/forever/spell=1295272
@@ -2619,6 +2625,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		276632, // Wit's Edge
+		[
+			"Melee attacks have a 15% chance to grant a Clearcasting state, reducing the mana cost of your next damage spell by 100%.", // 1300140 - https://www.wowhead.com/forever/spell=1300140
+		]
+	],
+	[
 		276743, // Fingerbreaker Stamp
 		[
 			"Increases Strength by 38 while affected by a Bleed.", // 1314784 - https://www.wowhead.com/forever/spell=1314784
@@ -2652,12 +2664,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		277950, // Wastewanderer Rations
 		[
 			"Your Well Fed buffs metabolize 50% slower. This effect is increased by an additional 50% in Wasteland areas.", // 1302968 - https://www.wowhead.com/forever/spell=1302968
-		]
-	],
-	[
-		279852, // Rock on Stick
-		[
-			"Bash the target in the face, causing 7 Physical damage every 2.0 sec for 20 sec.", // 1309967 - https://www.wowhead.com/forever/spell=1309967
 		]
 	],
 	[

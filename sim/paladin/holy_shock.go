@@ -44,7 +44,7 @@ func (paladin *Paladin) registerHolyShockRank(_ int32, rank *spelldata.Spell) {
 	healConfig := paladin.holyShockConfig(rank, healRow.ID, healRow, heal, core.ProcMaskSpellHealing)
 	healConfig.Flags |= core.SpellFlagHelpful
 	healConfig.ClassSpellMask = SpellMaskHolyShockHeal
-	// In game the heal makes 0.25 threat a point healed, as Holy Light does. The damage makes full threat.
+	// In game the heal makes 0.25 threat a point healed, as Holy Light does (EV-0058). The damage makes full threat.
 	healConfig.ThreatMultiplier = 0.5
 	// Boundless Light: more crit on an ally without the paladin's Oath of Light.
 	boundlessLight := 0.0

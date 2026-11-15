@@ -23,8 +23,7 @@ func (mage *Mage) registerFlamestrikeSpells() {
 //
 // Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on. The
 // tick's row is outside the class flags of Revelation's crit and charge, and it costs nothing, so it
-// neither takes nor spends Revelation or Clearcasting. A tick takes no partial resist: in game, mobs
-// that partially resist about a quarter of Scorch and Fire Blast hits resist almost no ticks.
+// neither takes nor spends Revelation or Clearcasting. A tick takes no partial resist (EV-0028).
 // TODO: Verify in game whether a tick rolls a partial resist, and whether Spell Piercing beyond a
 // target's resistance adds to it.
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {

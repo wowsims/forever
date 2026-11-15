@@ -75,14 +75,15 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 		piercing := attacker.stats[stats.SpellPiercing] + attacker.PseudoStats.SchoolSpellPiercing[spell.SchoolIndex]
 		resistance = max(0, unit.GetStat(stat)) - piercing
 	}
-	// TODO: 8L + 19 is a fit to the Spell Piercing logs from level 20 to 50 and to mobs near level 38
-	// casting at players of known resistance (#76). ExpectedStat's ArmorConstant × 0.088 fits them nearly
-	// as well; at 60 the two give 499 and 484, 21.9% and 22.5% of hits binned at 15 piercing, which a
-	// level 60 log tells apart only with some 15,000 direct hits.
+	// TODO: 8L + 19 is a fit to Spell Piercing logs and to mobs casting at players of known resistance
+	// (EV-0091). ExpectedStat's ArmorConstant × 0.088 fits them nearly as well; a level 60 log tells the
+	// two apart only with a large sample of direct hits.
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
 	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.
+	// TODO: In-game testing required: Spell Piercing on ticks follows the spell, not a tenth (EV-0092). A DoT
+	// log at 10 or more piercing is needed before the tenth goes.
 	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) {
 		averageResist /= 10
 	}

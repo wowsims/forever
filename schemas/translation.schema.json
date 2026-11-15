@@ -202,10 +202,13 @@
 						},
 						"5": {
 							"type": "string"
+						},
+						"unknown": {
+							"type": "string"
 						}
 					},
 					"additionalProperties": false,
-					"required": ["1", "2", "3", "4", "5"]
+					"required": ["1", "2", "3", "4", "5", "unknown"]
 				},
 				"phase_names": {
 					"type": "object",
@@ -4520,10 +4523,28 @@
 								},
 								"duplicate": {
 									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"name_taken": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["current", "new", "dialog_new", "dialog_edit", "save", "edit", "delete", "delete_confirm", "duplicate"]
+							"required": [
+								"current",
+								"new",
+								"dialog_new",
+								"dialog_edit",
+								"save",
+								"edit",
+								"delete",
+								"delete_confirm",
+								"duplicate",
+								"name",
+								"name_taken"
+							]
 						},
 						"parts": {
 							"type": "object",

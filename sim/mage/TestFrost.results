@@ -110,6 +110,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 752.77311
+  tps: 695.95518
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 761.55198
@@ -252,8 +259,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 742.38321
-  tps: 684.78086
+  dps: 726.68299
+  tps: 670.65066
  }
 }
 dps_results: {
@@ -825,6 +832,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 736.57974
+  tps: 679.15158
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Naglering-11669"
  value: {
   dps: 774.38534
@@ -967,8 +981,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 815.35364
-  tps: 752.44507
+  dps: 832.50472
+  tps: 768.04625
  }
 }
 dps_results: {
@@ -1191,8 +1205,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6315.35925
-  tps: 5751.09155
+  dps: 6315.78871
+  tps: 5743.12499
  }
 }
 dps_results: {
@@ -1212,8 +1226,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2331.9072
-  tps: 2103.5398
+  dps: 2041.48696
+  tps: 1841.56559
  }
 }
 dps_results: {
@@ -1233,8 +1247,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6315.96975
-  tps: 5751.71451
+  dps: 6316.46043
+  tps: 5743.76316
  }
 }
 dps_results: {
@@ -1254,8 +1268,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-Gnome-p1Arcane-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2278.96619
-  tps: 2056.03396
+  dps: 2039.94832
+  tps: 1840.30745
  }
 }
 dps_results: {
@@ -1275,8 +1289,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6267.92056
-  tps: 5709.4562
+  dps: 6267.50321
+  tps: 5700.47655
  }
 }
 dps_results: {
@@ -1296,8 +1310,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2403.17771
-  tps: 2167.66564
+  dps: 2188.80816
+  tps: 1974.62142
  }
 }
 dps_results: {
@@ -1317,8 +1331,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 6268.53106
-  tps: 5710.0783
+  dps: 6268.1988
+  tps: 5701.12964
  }
 }
 dps_results: {
@@ -1338,8 +1352,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-Settings-HighOrderSkyborne-p1Arcane-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
-  dps: 2276.68423
-  tps: 2053.71726
+  dps: 2187.29449
+  tps: 1973.1801
  }
 }
 dps_results: {

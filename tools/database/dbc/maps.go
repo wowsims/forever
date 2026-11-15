@@ -141,10 +141,9 @@ func MapBonusStatIndexToStat(index int) (proto.Stat, bool) {
 	}
 }
 
-// allResistanceStats is what ItemModType 124 ("All Resistances") expands to. Confirmed
-// from three independent tooltips: 22197 Heavy Obsidian Belt and 22198 Jagged Obsidian
-// Shield both read "+5 All Resistances", and 12252 Staff of Protection spells out
-// "+6 Arcane/Fire/Nature/Frost/Shadow".
+// allResistanceStats is what ItemModType 124 ("All Resistances") expands to. Measured in game
+// (EV-0113): 22197 Heavy Obsidian Belt and 22198 Jagged Obsidian Shield both read "+5 All
+// Resistances", and 12252 Staff of Protection spells out "+6 Arcane/Fire/Nature/Frost/Shadow".
 var allResistanceStats = []proto.Stat{
 	proto.Stat_StatArcaneResistance,
 	proto.Stat_StatFireResistance,

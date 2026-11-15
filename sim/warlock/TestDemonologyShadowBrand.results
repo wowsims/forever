@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 775.86198
+  tps: 662.40556
+  dtps: 10.57837
+  hps: 7.82576
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 764.21135
@@ -243,10 +252,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 809.87846
-  tps: 688.5753
-  dtps: 10.93801
-  hps: 8.99814
+  dps: 796.67916
+  tps: 674.0419
+  dtps: 10.9763
+  hps: 8.86662
  }
 }
 dps_results: {
@@ -322,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 788.3099
-  tps: 672.37659
+  dps: 771.02862
+  tps: 657.1983
   dtps: 10.45093
   hps: 7.66513
  }
@@ -999,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 755.67163
+  tps: 642.83179
+  dtps: 10.75856
+  hps: 7.82576
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-Naglering-11669"
  value: {
   dps: 763.92565
@@ -1452,9 +1470,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Human-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 4012.2969
-  tps: 3831.74076
-  hps: 1.02341
+  dps: 3527.37625
+  tps: 3340.21392
+  dtps: 9.43134
+  hps: 1.49861
  }
 }
 dps_results: {
@@ -1502,9 +1521,10 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-Settings-Orc-preraid-Shadow Brand-demo_shadow_brand-FullBuffs-20.0yards-LongMultiTarget"
  value: {
-  dps: 3985.85495
-  tps: 3803.59858
-  hps: 1.02341
+  dps: 3507.60191
+  tps: 3318.2283
+  dtps: 9.17917
+  hps: 1.37269
  }
 }
 dps_results: {

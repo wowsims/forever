@@ -118,6 +118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sCap-22013"
+ value: {
+  dps: 705.64561
+  tps: 449.28378
+  dtps: 0.95396
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sGauntlets-226883"
  value: {
   dps: 694.77714
@@ -136,9 +144,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 701.89433
-  tps: 441.04352
-  dtps: 2.92129
+  dps: 716.24243
+  tps: 450.69045
+  dtps: 3.21509
  }
 }
 dps_results: {
@@ -179,6 +187,14 @@ dps_results: {
   dps: 702.79269
   tps: 448.10013
   dtps: 0.80333
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 663.3017
+  tps: 419.37007
+  dtps: 0.88475
  }
 }
 dps_results: {
@@ -1273,6 +1289,13 @@ dps_results: {
   dps: 695.04127
   tps: 443.55161
   dtps: 0.83027
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 684.11493
+  tps: 432.99726
  }
 }
 dps_results: {

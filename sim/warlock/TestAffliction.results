@@ -117,6 +117,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
+ value: {
+  dps: 657.348
+  tps: 531.66791
+  dtps: 8.78679
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-BlazefuryMedallion-17111"
  value: {
   dps: 647.5621
@@ -243,10 +252,10 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DeathmistRaiment"
  value: {
-  dps: 688.48162
-  tps: 554.43583
-  dtps: 8.55624
-  hps: 8.46905
+  dps: 698.78792
+  tps: 561.76496
+  dtps: 8.59103
+  hps: 8.50699
  }
 }
 dps_results: {
@@ -322,8 +331,8 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-DraconicInfusedEmblem-22268"
  value: {
-  dps: 674.31714
-  tps: 545.15358
+  dps: 657.27515
+  tps: 531.77297
   dtps: 8.1557
   hps: 7.19695
  }
@@ -996,6 +1005,15 @@ dps_results: {
   tps: 527.2768
   dtps: 8.13067
   hps: 7.19695
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-MoonshadowStave-22458"
+ value: {
+  dps: 660.5058
+  tps: 533.26795
+  dtps: 8.49523
+  hps: 7.35945
  }
 }
 dps_results: {
