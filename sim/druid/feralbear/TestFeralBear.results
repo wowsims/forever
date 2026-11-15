@@ -174,10 +174,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 475.90063
-  tps: 2395.41554
-  dtps: 398.67938
-  hps: 83.20439
+  dps: 476.74414
+  tps: 2393.84571
+  dtps: 398.96877
+  hps: 84.78531
  }
 }
 dps_results: {

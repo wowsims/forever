@@ -112,9 +112,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 756.04962
-  tps: 562.68816
-  hps: 45.73306
+  dps: 753.67583
+  tps: 561.14943
+  hps: 45.76694
  }
 }
 dps_results: {
