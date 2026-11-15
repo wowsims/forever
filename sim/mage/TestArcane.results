@@ -965,6 +965,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 717.16176
+  tps: 621.10354
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 753.58294

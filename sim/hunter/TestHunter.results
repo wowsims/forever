@@ -1728,6 +1728,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-SkullforgeReaver-13361"
+ value: {
+  dps: 789.76841
+  tps: 812.52137
+  dtps: 8.85321
+  hps: 21.26264
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-Slayer'sCrest-23041"
  value: {
   dps: 922.47357
