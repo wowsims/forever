@@ -960,6 +960,12 @@
 						"ranged_crit_suppression": {
 							"type": "string"
 						},
+						"main_hand_weapon_skill": {
+							"type": "string"
+						},
+						"off_hand_weapon_skill": {
+							"type": "string"
+						},
 						"healing_power": {
 							"type": "string"
 						},
@@ -1088,6 +1094,8 @@
 						"ranged_hit_rating",
 						"ranged_crit_rating",
 						"ranged_crit_suppression",
+						"main_hand_weapon_skill",
+						"off_hand_weapon_skill",
 						"healing_power",
 						"spell_damage",
 						"arcane_damage",
