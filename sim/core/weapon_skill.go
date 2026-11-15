@@ -38,13 +38,18 @@ func (character *Character) weaponSkillsProto() []*proto.WeaponSkillValue {
 			Value: character.Level*5 + int32(math.Round(character.PseudoStats.WeaponSkills[skill])),
 		})
 	}
+	if character.Class == proto.Class_ClassDruid {
+		skills = append(skills, &proto.WeaponSkillValue{Skill: proto.WeaponSkill_WeaponSkillFeralCombat, Value: character.Level*5 + int32(math.Round(character.PseudoStats.FeralCombatSkill))})
+	}
 	return skills
 }
 
 // Sets each listed skill's bonus over the level-based skill; a skill the list leaves out stays at the maximum.
 func (character *Character) applyWeaponSkills(weaponSkills []*proto.WeaponSkillValue) {
 	for _, weaponSkill := range weaponSkills {
-		if character.keepsWeaponSkill(weaponSkill.Skill) {
+		if weaponSkill.Skill == proto.WeaponSkill_WeaponSkillFeralCombat && character.Class == proto.Class_ClassDruid {
+			character.PseudoStats.FeralCombatSkill = float64(weaponSkill.Value - character.Level*5)
+		} else if character.keepsWeaponSkill(weaponSkill.Skill) {
 			character.PseudoStats.WeaponSkills[weaponSkill.Skill] = float64(weaponSkill.Value - character.Level*5)
 		}
 	}

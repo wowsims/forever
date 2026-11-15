@@ -5,6 +5,7 @@ import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/prot
 import { ItemSlot, ItemSpec, ItemSwap, PseudoStat, Spec, Stat, TristateEffect } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
+import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
 import { Stats, UnitStat } from '@sim/proto/stats';
 import { defineSpec } from '@sim/spec_config';
 
@@ -20,15 +21,15 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
 	warnings: [],
+	displayWeaponSkillGroups: [WeaponSkillGroup.FeralCombat],
 
-	epRatios: [0, 0, 0.6, 0, 1.0, 0],
+	epRatios: [0.4860504938346992, 0, 0, 0.0, 0.1726976328525934, 0],
 	// All stats for which EP should be calculated.
 	epStats: [
 		Stat.StatStamina,
 		Stat.StatAgility,
 		Stat.StatStrength,
 		Stat.StatAttackPower,
-		Stat.StatFeralAttackPower,
 		Stat.StatArmor,
 		Stat.StatBonusArmor,
 		Stat.StatArmorNoMods,
@@ -41,9 +42,9 @@ export default defineSpec<Spec.SpecFeralBearDruid>({
 		Stat.StatPhysicalDamage,
 		Stat.StatArmorPenetration,
 	],
-	epPseudoStats: [PseudoStat.PseudoStatMainHandDps],
-	epReferenceStat: Stat.StatAgility,
-	tankRefStat: Stat.StatStamina,
+	epPseudoStats: [PseudoStat.PseudoStatMainHandDps, PseudoStat.PseudoStatFeralCombatSkill],
+	epReferenceStat: Stat.StatStrength,
+	tankRefStat: Stat.StatArmor,
 	displayStats: UnitStat.createDisplayStatArray(
 		[
 			Stat.StatHealth,
