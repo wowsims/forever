@@ -1,4 +1,4 @@
-# EV-0120: Flurry Axe's rate from off-hand white swings, procs given to the hit logged after them
+# EV-0120: Flurry Axe's rate from off-hand white swings, matched by log order
 
 - Claim: Flurry Axe 871 grants its extra attack (18797) at 1.65 procs per minute.
 - Sources: public reports on forever.warcraftlogs.com (zone 3000), the fights each wearer had the item on:
@@ -15,17 +15,17 @@
 - Pull request: #1039
 
 A wearer is a player whose combatant info lists the item in the worn fights; runs that two players logged count once.
-The extraattacks event of 18797 is logged inside the hit that rolled it: before that hit's damage event, in the same
-millisecond, and the granted swing follows it. So each proc goes to the first landed hit logged after it within 30 ms,
-or failing that the last landed hit before it within 50 ms: 2,443 of 2,775 procs land at 0 ms, 309 at 10 to 29 ms, 22
-before the proc, and 27 on no hit. An isolated-hit count (EV-0119) is biased low for an extra attack, since the granted
-swing always sits next to the hit that rolled it.
+The extraattacks event of 18797 is logged in the same millisecond as the hit that rolled it, before that hit's damage
+event, and the granted swing follows. So each proc goes to the first landed hit logged after it within 30 ms, or
+failing that the last landed hit before it within 50 ms: of 2,802 procs, 2,443 match a hit 0 to 9 ms later, 310 one 10
+to 30 ms later, 22 one before the proc, and 27 no hit. An isolated-hit count (EV-0119) is biased low for an extra
+attack, since the granted swing always sits next to the hit that rolled it.
 
 The rate comes from the wearers with the axe in the off hand, whose off-hand white swings are told from the main hand's
-by damage: a two-group split per run on the log of the damage before armor, which the log gives before the critical
-strike bonus too. Off-hand swings outnumber the main hand's by the two weapons' speed ratio (1.87 for a 2.8 s main hand
-against at most 1.87). Main-hand white swings and specials of these wearers give 3 and 2 procs in about 22,000 and
-20,000. PPM = chance × 60 / 1.5 s.
+by damage: a two-group split per run on the logarithm of the damage before armor, which the combat log gives before the
+critical strike bonus too. The split matches the weapons' speeds: one warrior run counts 1.87 off-hand swings per
+main-hand swing, where a 2.8 s main hand against the 1.5 s axe gives at most 1.87. Main-hand white swings and specials
+of these wearers give 3 and 2 procs in about 22,000 and 20,000. PPM = chance × 60 / 1.5 s.
 
 | Wearer class | Procs / landed off-hand white swings | Procs per minute |
 | ------------ | -----------------------------------: | ---------------: |
@@ -36,17 +36,18 @@ against at most 1.87). Main-hand white swings and specials of these wearers give
 | Hunter       |                           99 / 2,440 |             1.62 |
 | All          |               1,187 / 28,418 (4.18%) |             1.67 |
 
-The pooled rate is 1.67 (count interval 1.58 to 1.77, wearer bootstrap 1.60 to 1.72), rounded to the nearest 0.05 step.
+The pooled rate, 1.67 (count interval 1.58 to 1.77, wearer bootstrap 1.60 to 1.72), rounds to 1.65 at the nearest
+0.05 step.
 
 ## Other hits
 
-| Hit                                                         | Count                                                                                           |
-| ----------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| Off-hand Whirlwind hit of a Warrior wearing it off hand     | 196 / 6,707 per target hit (2.9%)                                                               |
-| Paladin white swing, no Seal of Fury up                     | 51 / 1,447 (3.5%, 1.41 per minute, interval 1.08 to 1.84)                                       |
-| Paladin natural swing with Seal of Fury up, against without | a proc within 30 ms on 10.9% of 10,257 swings, against 6.3% of 1,165 under another seal or none |
-| Holy Strike                                                 | 96 / 2,503 (3.8%)                                                                               |
-| Windfury Totem strike after a paladin wearer's swing        | 1 / 244, where 10.5 were expected at the white swing's chance                                   |
+| Hit                                                         | Count                                                                                                                                                  |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Off-hand Whirlwind hit of a Warrior wearing it off hand     | 196 / 6,707 per target hit (2.9%)                                                                                                                      |
+| Paladin white swing, no Seal of Fury up                     | matched by log order: 51 / 1,447 landed swings (3.5%, 1.41 per minute, interval 1.08 to 1.84)                                                          |
+| Paladin natural swing with Seal of Fury up, against without | any proc within 30 ms of a swing with no other swing in the 300 ms before it: 10.9% of 10,257 swings, against 6.3% of 1,165 under another seal or none |
+| Holy Strike                                                 | 96 / 2,503 (3.8%)                                                                                                                                      |
+| Windfury Totem strike after a paladin wearer's swing        | 1 / 244, where 10.5 were expected at 4.3%, the paladins' white swing chance by log order                                                               |
 
 A Seal of Fury hit is logged in the white swing's millisecond and its damage rows carry no Not a Proc flag; with the
 seal up a swing procs the axe more often, so the seal's hit rolls it too. These counts settle no rule the sim follows.
