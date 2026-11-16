@@ -648,6 +648,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 875.86748
+  tps: 713.2243
+  dtps: 3.64267
+  hps: 24.69924
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 862.9738

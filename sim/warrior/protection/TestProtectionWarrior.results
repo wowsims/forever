@@ -792,6 +792,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 521.83811
+  tps: 1709.36215
+  dtps: 297.46023
+  hps: 39.08861
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 514.87953
