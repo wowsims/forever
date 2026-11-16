@@ -27,6 +27,7 @@ func init() {
 
 // The fixtures mirror the spec suites' Default* fixtures.
 var furyTalents = "30303003-050530355022100031"
+var recklessSwingsTalents = "30303003-050530355122100031"
 var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
@@ -566,17 +567,20 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	}
 }
 
-// A Cleave uses one Flurry charge and a Whirlwind one Reckless Swings charge, however many targets
-// the cast hits.
-func TestMultiTargetCastsSpendOneChargePerCast(t *testing.T) {
+// A Cleave uses one Flurry charge and one Reckless Swings charge however many targets it hits, and
+// Whirlwind and Bloodthirst use no Reckless Swings charge.
+func TestChargesSpentPerCast(t *testing.T) {
 	cases := []struct {
 		name    string
 		aura    string
 		spell   core.ActionID
 		talents string
+		want    int32
 	}{
-		{"Cleave on Flurry", "Flurry", core.ActionID{SpellID: 20569}, furyTalents},
-		{"Whirlwind on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), "30303003-050530355122100031"},
+		{"Cleave on Flurry", "Flurry", core.ActionID{SpellID: 20569}, furyTalents, 1},
+		{"Cleave on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 20569}, recklessSwingsTalents, 1},
+		{"Whirlwind on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), recklessSwingsTalents, 0},
+		{"Bloodthirst on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 23894}, recklessSwingsTalents, 0},
 	}
 
 	for _, c := range cases {
@@ -588,7 +592,7 @@ func TestMultiTargetCastsSpendOneChargePerCast(t *testing.T) {
 				if aura == nil || spell == nil {
 					t.Fatalf("%s %v, spell %v; want both registered", c.aura, aura, spell)
 				}
-				// The rotation would cast Reckless Swings again as the rage comes in.
+				// The rotation casts Reckless Swings as soon as it is ready, which sets the charges again.
 				if recklessSwings := warrior.GetSpell(core.ActionID{SpellID: 1329555}); recklessSwings != nil {
 					recklessSwings.CD.Set(time.Minute)
 				}
@@ -601,27 +605,28 @@ func TestMultiTargetCastsSpendOneChargePerCast(t *testing.T) {
 				return aura.GetStacks()
 			}
 
-			none, one, three := chargesAfter(0), chargesAfter(1), chargesAfter(3)
-			if one != none-1 {
-				t.Errorf("one hit left %s at %d charges, want %d", c.aura, one, none-1)
+			none := chargesAfter(0)
+			if got := none - chargesAfter(1); got != c.want {
+				t.Errorf("one hit spent %d %s charges, want %d", got, c.aura, c.want)
 			}
-			if three != one {
-				t.Errorf("one cast hitting 3 targets left %s at %d charges, want %d as for one hit", c.aura, three, one)
+			if got := none - chargesAfter(3); got != c.want {
+				t.Errorf("one cast hitting 3 targets spent %d %s charges, want %d", got, c.aura, c.want)
 			}
 		})
 	}
 }
 
-// Windfury Totem's strike uses a Flurry charge as a white swing does, landed or not, and a critical
-// strike sets the charges again.
-func TestWindfuryTotemsStrikeUsesAFlurryCharge(t *testing.T) {
+// Windfury Totem's strike uses no Flurry charge, landed or not, and a critical strike sets the
+// charges again.
+func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 	for _, c := range []struct {
 		outcome core.HitOutcome
+		start   int32
 		want    int32
 	}{
-		{core.OutcomeHit, 2},
-		{core.OutcomeDodge, 2},
-		{core.OutcomeCrit, 3},
+		{core.OutcomeHit, 3, 3},
+		{core.OutcomeDodge, 3, 3},
+		{core.OutcomeCrit, 1, 3},
 	} {
 		sim, warrior := orcWarriorSimWith(t, "p1_fury", furyTalents, &proto.RaidBuffs{WindfuryTotem: true})
 		flurry := warrior.GetAura("Flurry")
@@ -630,7 +635,7 @@ func TestWindfuryTotemsStrikeUsesAFlurryCharge(t *testing.T) {
 			t.Fatalf("Flurry %v, Windfury Totem's strike %v; want both registered", flurry, strike)
 		}
 		flurry.Activate(sim)
-		flurry.SetStacks(sim, 3)
+		flurry.SetStacks(sim, c.start)
 
 		warrior.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
 
@@ -1142,7 +1147,7 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 // Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
-	sim, war := orcWarriorSim(t, "p1_fury", "30303003-050530355122100031")
+	sim, war := orcWarriorSim(t, "p1_fury", recklessSwingsTalents)
 
 	for _, id := range []int32{1329555, 2687} {
 		spell := war.GetSpell(core.ActionID{SpellID: id})
