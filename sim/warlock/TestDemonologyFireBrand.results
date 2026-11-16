@@ -814,6 +814,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 756.63914
+  tps: 617.97769
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HeartoftheScale-13164"
  value: {
   dps: 756.63914

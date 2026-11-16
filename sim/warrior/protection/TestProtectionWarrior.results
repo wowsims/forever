@@ -1224,6 +1224,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 526.63199
+  tps: 1707.43988
+  dtps: 298.78119
+  hps: 38.83444
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-HeartoftheScale-13164"
  value: {
   dps: 520.17776

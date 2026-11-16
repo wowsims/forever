@@ -2610,19 +2610,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.
-	// https://www.wowhead.com/forever/spell=27655
-	// unsupported: states no rate
-	// trigger 27656 (no stated rate, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 27655
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 27656, BuffSpellID: 27655},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 22321, ItemName: "Heart of Wyrmthalak"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases the damage of your Shock spells by 2%.
 	// https://www.wowhead.com/forever/spell=27859
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4612,6 +4599,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 25906, BuffSpellID: 25907},
 		[]shared.ItemVariant{
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
+		})
+
+	// Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.
+	// https://www.wowhead.com/forever/spell=27655
+	// trigger 27656 (2 ppm, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 27655
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 27656, BuffSpellID: 27655},
+		[]shared.ItemVariant{
+			{ItemID: 22321, ItemName: "Heart of Wyrmthalak"},
 		})
 
 	// Gain up to 25 mana each time you cast Healing Touch.
