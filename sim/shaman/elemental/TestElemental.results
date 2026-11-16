@@ -118,6 +118,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-AxeofInevitableRuin-274484"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 707.03703
@@ -131,6 +139,14 @@ dps_results: {
   dps: 706.50132
   tps: 654.43223
   dtps: 8.8047
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Bashguuder-13204"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -171,6 +187,14 @@ dps_results: {
   dps: 694.78374
   tps: 647.11653
   dtps: 8.699
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BlackMenace-6831"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -278,6 +302,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BonechillHammer-14487"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BrainHacker-1263"
  value: {
   dps: 674.04962
@@ -299,6 +331,14 @@ dps_results: {
   dps: 702.76639
   tps: 665.42297
   dtps: 8.62795
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BrushCutter-274265"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -350,6 +390,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-ClawofCelebras-17738"
+ value: {
+  dps: 720.86635
+  tps: 668.21602
+  dtps: 8.44206
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-CleverHat-18308"
  value: {
   dps: 693.8165
@@ -382,6 +430,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-CrestofRetribution-13375"
  value: {
   dps: 720.86635
@@ -411,6 +467,22 @@ dps_results: {
   dps: 707.03703
   tps: 655.48099
   dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Darrowspike-13984"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -508,6 +580,14 @@ dps_results: {
   dps: 707.03703
   tps: 655.48099
   dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-EateroftheDead-10805"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -719,6 +799,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-Felstriker-12590"
  value: {
   dps: 674.71073
@@ -776,6 +864,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-FistofStone-17943"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-FistoftheDamned-10804"
  value: {
   dps: 674.71073
   tps: 627.28654
@@ -847,6 +943,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-GarboftheUndeadSlayer"
  value: {
   dps: 691.41039
@@ -892,6 +996,14 @@ dps_results: {
   dps: 701.62535
   tps: 652.35002
   dtps: 8.55474
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Glutton'sCleaver-10772"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -960,6 +1072,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-GutRipper-2164"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-HammerofExpertise-8708"
  value: {
   dps: 674.71073
   tps: 627.28654
@@ -1071,6 +1191,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Jom-jom'sGabbar-274952"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-JomGabbar-23570"
  value: {
   dps: 707.03703
@@ -1084,6 +1212,14 @@ dps_results: {
   dps: 674.71073
   tps: 627.28654
   dtps: 8.52294
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-KangtheDecapitator-2291"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
  }
 }
 dps_results: {
@@ -1335,6 +1471,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-PendulumofDoom-9425"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-PetrifiedScarab-21685"
  value: {
   dps: 707.03703
@@ -1372,6 +1516,14 @@ dps_results: {
   dps: 707.03703
   tps: 655.48099
   dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Pyromancer'sBaton-286650"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -1423,6 +1575,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Rivenspike-13286"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-RockonStick-279852"
  value: {
   dps: 674.71073
@@ -1432,6 +1592,22 @@ dps_results: {
 }
 dps_results: {
  key: "TestElemental-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 707.03703
+  tps: 655.48099
+  dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-ScentedRunewoodBrooch-269741"
  value: {
   dps: 707.03703
   tps: 655.48099
@@ -1476,6 +1652,14 @@ dps_results: {
   dps: 675.19029
   tps: 627.81436
   dtps: 8.65936
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Shadowblade-2163"
+ value: {
+  dps: 681.02857
+  tps: 631.41897
+  dtps: 8.80236
  }
 }
 dps_results: {
@@ -1631,11 +1815,43 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TaranIcebreaker-2915"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheBlackrockSlicer-13285"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 707.03703
   tps: 655.48099
   dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 672.49538
+  tps: 625.44413
+  dtps: 8.93493
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TheCruelHandofTimmy-13401"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -1855,6 +2071,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Toofbreaker-286430"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TotemofFlowingWater-23005"
  value: {
   dps: 697.51936
@@ -1884,6 +2108,14 @@ dps_results: {
   dps: 707.03703
   tps: 655.48099
   dtps: 8.647
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-TwilightForgehammer-281665"
+ value: {
+  dps: 674.71073
+  tps: 627.28654
+  dtps: 8.52294
  }
 }
 dps_results: {
@@ -1996,6 +2228,14 @@ dps_results: {
   dps: 717.33574
   tps: 667.80853
   dtps: 8.15965
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-Waveslicer-18324"
+ value: {
+  dps: 674.04962
+  tps: 626.90629
+  dtps: 8.69861
  }
 }
 dps_results: {

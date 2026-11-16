@@ -38981,10 +38981,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1351731, SpellID: 1318318, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_TAKEN, BasePoints: -6, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1318323, Name: "Scented Runewood Brooch", School: 1, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RefIDs: []int32{1318324}, ProcChanceSource: ProcChancePPM,
+	{ID: 1318323, Name: "Scented Runewood Brooch", School: 1, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x10154}, RPPM: 1.2, RefIDs: []int32{1318324}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 1351739, SpellID: 1318323, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 1318324, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1.2 -- Scented Runewood Brooch: 1.2 procs per minute on landed hits against Furbolg, a log fit not yet validated (EV-0136); the game files state none
 	{ID: 1318324, Name: "Scented Runewood Brooch", School: 8, Speed: 25, Attr: [17]uint32{15: 0x2000}, MaxRange: 100, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 1351740, SpellID: 1318324, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 105, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

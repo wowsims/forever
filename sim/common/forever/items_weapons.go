@@ -511,6 +511,86 @@ func init() {
 	// 	trigger.TriggerImmediately = true
 	// 	character.ItemSwap.RegisterProc(8708, character.MakeProcTriggerAura(trigger))
 	// })
+
+	// Iceblade Hacker
+	// https://www.wowhead.com/forever/item=13952/iceblade-hacker
+	//
+	// Melee attacks with this weapon deal 41 Frost damage. Chance on hit: Deal an additional 105 Frost
+	// damage and slow movement speed by 50% for 5s.
+	//
+	// Core takes one effect per item, so both procs are written here. 1298413 casts 1298414 on each landed
+	// main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
+	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
+	// the entry states none; its slow is movement the sim leaves out.
+	EntryRateProcs[13952] = 1298416
+	core.NewItemEffect(13952, func(agent core.Agent) {
+		character := agent.GetCharacter()
+
+		chillRow := spelldata.MustFind(1298414)
+		chill := chillRow.DamageEffect()
+		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
+		if chillRow.IsAProc() {
+			chillConfig.Flags |= core.SpellFlagProc
+		}
+		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit))
+		}
+		chillSpell := character.RegisterSpell(chillConfig)
+
+		chillTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(1298413), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			chillSpell.Cast(sim, result.Target)
+		})
+		chillTrigger.Name = "Iceblade Hacker"
+		chillTrigger.ActionID = core.ActionID{ItemID: 13952}
+		chillTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(13952, character.MakeProcTriggerAura(chillTrigger))
+
+		ppm := weaponProcPPM(13952, 1298416)
+		if ppm == 0 {
+			return
+		}
+		boltRow := spelldata.MustFind(1298416)
+		bolt := boltRow.DamageEffect()
+		boltConfig := procSpellConfig(character, boltRow)
+		boltConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, bolt.DirectAmount(sim), spell.OutcomeMagicHitAndCrit))
+		}
+		frostbolt := character.RegisterSpell(boltConfig)
+
+		boltTrigger := spelldata.ProcTrigger(character, boltRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			frostbolt.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(13952, ppm, 0)
+		})
+		boltTrigger.Name = "Iceblade Hacker - Frostbolt"
+		boltTrigger.ActionID = core.ActionID{ItemID: 13952}
+		boltTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(13952, character.MakeProcTriggerAura(boltTrigger))
+	})
+
+	// Mana Channeling Wand
+	// https://www.wowhead.com/forever/item=18483/mana-channeling-wand
+	//
+	// Chance on hit to restore 65 mana.
+	//
+	// Landed wand shots roll 1302348 at the procs per minute of the item's entry on the wand's speed
+	// (EV-0136), and each proc restores the mana of 1302350, the spell 1302348 fires. A wearer with no
+	// mana bar registers nothing.
+	// TODO: Verify in game how much mana a proc restores: the tooltip quotes 1302348's 65, and
+	// 1302350 states 28.
+	newEntryRateItemEffect(18483, 1302350, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(1302348)
+		handler := shared.FiredSpellHandler(character, core.ActionID{ItemID: 18483}, row)
+		if handler == nil {
+			return
+		}
+		trigger := spelldata.ProcTrigger(character, row, handler, spelldata.PPM(ppm))
+		trigger.Name = "Mana Channeling Wand"
+		trigger.ActionID = core.ActionID{ItemID: 18483}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(18483, character.MakeProcTriggerAura(trigger))
+	})
 }
 
 // The spell each hand-written proc reads its item's procs per minute for, by item id. The generator

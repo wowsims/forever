@@ -288,6 +288,26 @@ func init() {
 		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Scented Runewood Brooch
+	// https://www.wowhead.com/forever/item=269741/scented-runewood-brooch
+	//
+	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
+	//
+	// 1318323 rolls the procs per minute an override puts on the row on the landed melee, ranged and
+	// harmful spell hits its row names, and casts 1318324 on the target (EV-0136). As with the generated
+	// item procs, a spell hit rolls on the main hand's speed while the wearer swings, and a wearer with no
+	// auto attack rolls none of its spell hits. Only a hit on a Furbolg rolls it: no row limits the
+	// target, the tooltip does.
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
+		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
+			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+				return result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
+		})
+
 	// Blackhand's Breadth
 	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
 	//

@@ -654,6 +654,13 @@ var Spells = []Override{
 		Source:  "EV-0133",
 	},
 	{
+		SpellID: 1318323,
+		Field:   PPM,
+		Value:   1.2,
+		Reason:  "Scented Runewood Brooch: 1.2 procs per minute on landed hits against Furbolg, a log fit not yet validated (EV-0136); the game files state none",
+		Source:  "observed",
+	},
+	{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,

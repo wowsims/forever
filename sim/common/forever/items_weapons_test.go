@@ -1408,3 +1408,81 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 		t.Errorf("Smite cost %v under the buff and %v after it, want the row's %v less under it", cheaper, full, -effect.Average())
 	}
 }
+
+// Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
+// target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
+// and casts its Frostbolt. A missed swing casts neither. While the entry states no rate, the swing's
+// damage stays and the Frostbolt registers nothing.
+func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Iceblade Hacker - Frostbolt")
+	chill := character.GetSpell(core.ActionID{SpellID: 1298414})
+	frostbolt := character.GetSpell(core.ActionID{SpellID: 1298416})
+	if character.GetAura("Iceblade Hacker") == nil || proc == nil || proc.Dpm == nil || chill == nil || frostbolt == nil {
+		t.Fatal("13952 registers no swing damage, no Frostbolt or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13952, 1298416)
+
+	// Every main-hand hit now rolls a Frostbolt.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	enemy := character.CurrentTarget
+	casts := func(spell *core.Spell) int32 { return spell.SpellMetrics[enemy.UnitIndex].Casts }
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if casts(chill) != 0 || casts(frostbolt) != 0 {
+		t.Errorf("a missed swing cast the swing damage %d and the Frostbolt %d times, want neither", casts(chill), casts(frostbolt))
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if casts(chill) != 1 || casts(frostbolt) != 1 {
+		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
+	}
+
+	withEntryPPM(t, 13952, 1298416, 0)
+	_, unrated := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
+	if unrated.GetAura("Iceblade Hacker") == nil || unrated.GetAura("Iceblade Hacker - Frostbolt") != nil {
+		t.Error("with no rate on the entry, want the swing damage registered and no Frostbolt")
+	}
+}
+
+// Mana Channeling Wand 18483 rolls 1302348 on a caster's landed wand shots at the procs per minute of
+// the item's chance-on-hit entry, on the wand's speed, and on nothing else. Each proc restores the
+// mana of 1302350, the spell 1302348 fires; a missed shot restores none.
+func TestManaChannelingWandRestoresManaOnLandedShots(t *testing.T) {
+	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 18483})
+	character := &wearer.Character
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	proc := character.GetAura("Mana Channeling Wand")
+	shot := character.GetSpell(core.ActionID{SpellID: 5019, Tag: 1})
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged || proc == nil || proc.Dpm == nil || shot == nil {
+		t.Fatal("the priest swings an auto attack, or has no Shoot, or 18483 registers no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 18483, 1302350)
+	if got := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); got != 0 {
+		t.Errorf("a spell hit rolls the proc at %v, want never", got)
+	}
+
+	gain := spelldata.MustFind(1302350).EnergizeEffect().Average()
+	restored := func() float64 {
+		for _, r := range character.Metrics.ToProto().Resources {
+			if r.Id.GetItemId() == 18483 {
+				return r.Gain
+			}
+		}
+		return 0
+	}
+	character.SpendMana(sim, 4*gain, character.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+
+	// Every wand shot now rolls a proc.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRangedAuto)
+	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := restored(); got != 0 {
+		t.Errorf("a missed shot restored %v mana, want none", got)
+	}
+	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := restored(); gain <= 0 || got != gain {
+		t.Errorf("a landed shot restored %v mana, want the row's %v", got, gain)
+	}
+}

@@ -99,6 +99,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-AxeofInevitableRuin-274484"
+ value: {
+  dps: 811.11673
+  tps: 843.10498
+  dtps: 7.74012
+  hps: 25.4675
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 792.75278
@@ -767,10 +776,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 836.21329
-  tps: 867.08144
-  dtps: 8.28445
-  hps: 22.12944
+  dps: 835.78706
+  tps: 866.76366
+  dtps: 8.38584
+  hps: 22.16333
  }
 }
 dps_results: {
@@ -999,6 +1008,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-KangtheDecapitator-2291"
+ value: {
+  dps: 857.04131
+  tps: 887.9403
+  dtps: 8.12279
+  hps: 22.21417
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-KissoftheSpider-22954"
  value: {
   dps: 796.99578
@@ -1215,6 +1233,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-PendulumofDoom-9425"
+ value: {
+  dps: 835.08265
+  tps: 865.25361
+  dtps: 8.06103
+  hps: 20.70611
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-PetrifiedScarab-21685"
  value: {
   dps: 779.98182
@@ -1288,6 +1315,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 779.98182
+  tps: 816.60533
+  dtps: 7.56907
+  hps: 37.22694
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ScentedRunewoodBrooch-269741"
  value: {
   dps: 779.98182
   tps: 816.60533
@@ -1482,6 +1518,24 @@ dps_results: {
   tps: 823.92595
   dtps: 7.56907
   hps: 37.22694
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TaranIcebreaker-2915"
+ value: {
+  dps: 857.80857
+  tps: 889.06005
+  dtps: 8.93772
+  hps: 21.45167
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TheBlackrockSlicer-13285"
+ value: {
+  dps: 879.20539
+  tps: 909.94468
+  dtps: 8.60424
+  hps: 20.80778
  }
 }
 dps_results: {
@@ -1824,6 +1878,15 @@ dps_results: {
   tps: 816.15361
   dtps: 7.24464
   hps: 37.21
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-Waveslicer-18324"
+ value: {
+  dps: 846.93755
+  tps: 879.33918
+  dtps: 8.22745
+  hps: 25.06083
  }
 }
 dps_results: {
