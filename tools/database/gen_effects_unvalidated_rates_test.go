@@ -16,7 +16,7 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// A measured Source needs no notice; a carry-over names its version, and anything else is an estimate.
+// A measured Source needs no notice; a carry-over names its version, an observed fit says so, and anything else is an estimate.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
 		"EV-0001":           "",
@@ -374,7 +374,7 @@ func TestRegisteredSetBonusesSitOnGameFilesThresholds(t *testing.T) {
 	}
 }
 
-// What holds for any shipped rate: its Source is a carry-over, an estimate or a measurement, a literal
+// What holds for any shipped rate: its Source is a carry-over, an observed fit, an estimate or a measurement, a literal
 // names an origin the notices know, every row names gear the game files carry, and no measured rate is listed.
 func TestShippedRatesAreWellFormed(t *testing.T) {
 	withDBCInputs(t)
@@ -388,7 +388,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	var measuredItems, measuredEnchants []int32
 	for _, row := range in.WeaponProcs {
 		if !knownSource(row.Source) {
-			t.Errorf("item %d's rate states source %q, want a carry-over, an estimate or a measurement", row.ItemID, row.Source)
+			t.Errorf("item %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.ItemID, row.Source)
 		}
 		if _, ok := instance.Items[int(row.ItemID)]; !ok {
 			t.Errorf("item %d's rate names an item the game files do not carry", row.ItemID)
@@ -400,7 +400,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	}
 	for _, row := range in.EnchantProcs {
 		if !knownSource(row.Source) {
-			t.Errorf("enchant %d's rate states source %q, want a carry-over, an estimate or a measurement", row.EnchantID, row.Source)
+			t.Errorf("enchant %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.EnchantID, row.Source)
 		}
 		enchant, ok := instance.EnchantsByEffectId[int(row.EnchantID)]
 		if !ok || !slices.Contains(enchant.EffectArgs, int(row.SpellID)) {
@@ -413,7 +413,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	}
 	for _, row := range in.Spells {
 		if spellRateKind(row) != 0 && !knownSource(row.Source) {
-			t.Errorf("spell %d's rate states source %q, want a carry-over, an estimate or a measurement", row.SpellID, row.Source)
+			t.Errorf("spell %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.SpellID, row.Source)
 		}
 		for _, itemID := range in.SpellItems[row.SpellID] {
 			if spellRateKind(row) != 0 && rateOrigin(row.Source) == "" {

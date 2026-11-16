@@ -14,7 +14,8 @@ measurement; an issue or a research note that tracks the same numbers links the 
 - A comment cites the id after the rule it backs: `// A Pyroblast consumes every stack (EV-0005).` The rule stays in
   the comment; the counts, logs and method move here.
 - An override row's `Source` is the bare id, or several separated by commas when two passes back the row:
-  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate.
+  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate. A rate fitted
+  from too few logs to call final has the Source `observed`, and its `Reason` cites the id.
 
 ## What counts as evidence
 

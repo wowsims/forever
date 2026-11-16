@@ -13,7 +13,7 @@ type WeaponProc struct {
 	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "observed", "estimate"
 }
 
-// Each rate is a carry-over or an estimate unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
+// Each rate is a carry-over, an observed fit or an estimate unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
 // adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
 // the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{

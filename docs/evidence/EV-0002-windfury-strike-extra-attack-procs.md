@@ -2,7 +2,8 @@
 
 EV-0128 replaces the white rates of Thrash Blade and Hack and Slash below and the reading that the strike procs them at
 about twice their white rate: those white rates mix both hands' swings and drop the swings whose granted swing was
-avoided, and per main-hand hit the strike procs them at the white chance. The rest stands.
+avoided, and per main-hand hit the strike procs them at the white chance. EV-0128 also reads strikes rolling weapon
+procs from about 2026-11-13 18:10 UTC, before the hotfix, against the 1 of 264 below. The rest stands.
 
 - Claim: after the 2026-11-14 02:00 UTC hotfix Windfury Totem's strike takes armor and the 100 ms cooldown, and
   extra attack procs and the Seals of Command, Fury, Righteousness and Wisdom proc off it; an Execute rolls the totem from

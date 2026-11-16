@@ -1,7 +1,8 @@
 # EV-0129: Revelation's proc chance per non-crit hit
 
 - Claim: Revelation (enchant 8217, proc spell 1248806) rolls about 8% on each non-crit, non-periodic damage or heal hit
-  at 8.5 to 13.4% sheet crit; crits and aura-only applications never roll it, and it can roll while the buff is up.
+  at 8.5 to 10.1% sheet crit, and 6.8% in the level 30 logs at 13.42%; crits and aura-only applications never roll it,
+  and it can roll while the buff is up.
 - Sources: combat logs, a druid (ten logs) and a mage (one log).
 - Game build: 1.60.1.70938 for the mage's log; not recorded for the druid's, which predate that build
 - Date: 2026-10-03 to 2026-10-06 (druid) and 2026-11-13 (mage)
@@ -46,7 +47,3 @@ The mage's 100 procs are 84 applications and 16 refreshes.
 
 The sim uses 8%: the owner's round figure between the druid pool (8.5%) and the mage (7.4%), inside the 8.5 to 10% crit
 band. How the chance falls as crit rises is not modelled, so the sim rolls the same 8% at any crit.
-
-Checked for this file: the 94/1,277 and 6/66 mage counts and the druid per-log counts above were recounted from the raw
-logs with the research scripts (`analyze.py`, `mage_aoe.py`); each matches the Revelation section of the mechanics notes,
-except the 2026-10-03 druid log, which recounts to 360 hits (the pool of 2,233 uses that figure).

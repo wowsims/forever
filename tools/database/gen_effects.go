@@ -574,7 +574,7 @@ func jsString(s string) string {
 
 const missingEffectsFileName = "ui/sim/constants/missing_effects_auto_gen.ts"
 
-// A proc rate on gear that the game files do not state and nobody has measured on Forever.
+// A proc rate on gear that the game files do not state and no measurement on Forever has settled.
 type UnvalidatedRate struct {
 	ID     int32 // The item id, the enchant effect id or the set id.
 	Pieces int32 // The set bonus's piece count; 0 on an item or an enchant.
