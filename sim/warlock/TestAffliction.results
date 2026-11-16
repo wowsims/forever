@@ -635,6 +635,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-Felstriker-12590"
+ value: {
+  dps: 610.87393
+  tps: 495.11504
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 651.54232

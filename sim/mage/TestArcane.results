@@ -496,6 +496,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-Felstriker-12590"
+ value: {
+  dps: 717.16176
+  tps: 621.10354
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 753.58294

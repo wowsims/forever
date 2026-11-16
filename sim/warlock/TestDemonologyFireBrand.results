@@ -635,6 +635,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-Felstriker-12590"
+ value: {
+  dps: 712.25983
+  tps: 580.50129
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 756.63914

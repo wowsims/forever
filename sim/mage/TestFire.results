@@ -496,6 +496,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-Felstriker-12590"
+ value: {
+  dps: 802.54436
+  tps: 801.47616
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 852.40734
