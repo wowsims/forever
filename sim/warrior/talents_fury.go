@@ -176,8 +176,8 @@ func (warrior *Warrior) registerFlurry() {
 	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
 	// whether it lands, is dodged or is parried (EV-0054).
 	//
-	// TODO: Ingame test needed: whether a Heroic Strike or Cleave that crits also uses a charge of
-	// the Flurry it starts; here it does not, as a white crit does not.
+	// A Heroic Strike or Cleave that crits spends its charge before the crit sets the charges again,
+	// so it ends with all of them, as the crit branch leaves it (EV-0138).
 	firstHit, resetFirstHit := core.OncePerCast()
 	warrior.RegisterResetEffect(func(_ *core.Simulation) {
 		resetFirstHit()

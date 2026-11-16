@@ -46,6 +46,17 @@ refreshed it (5 clean, 9 with another crit nearby). The 79 strikes that did not 
 Not settled: the same refresh and removal pair follows Whirlwind crits (24 cases), so Whirlwind may spend a Flurry
 charge on a crit.
 
+A Heroic Strike or Cleave that crits spends its charge in the cast's ms, before its damage lines, and the crit then
+sets Flurry to 3 charges, so the cast ends with 3. Clean casts, with no other own hit within 70 ms either side:
+
+| Cast                | Flurry before | Flurry lines after the cast | Casts |
+| ------------------- | ------------: | --------------------------- | ----: |
+| Cleave, crit        |             0 | applied                     |     2 |
+| Cleave, crit        |             1 | removed, applied            |     1 |
+| Cleave, crit        |             2 | removed to 1, set to 3      |     5 |
+| Cleave, crit        |             3 | removed to 2, set to 3      |     2 |
+| Heroic Strike, crit |             2 | removed to 1, set to 3      |     1 |
+
 ## Reckless Swings
 
 The log holds 141 Reckless Swings energizes, each with a stack removal (143 removals).
