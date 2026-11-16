@@ -825,9 +825,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 765.97418
-  tps: 652.6412
-  dtps: 11.04977
+  dps: 768.49923
+  tps: 654.75639
+  dtps: 10.78822
   hps: 7.66513
  }
 }

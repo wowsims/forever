@@ -659,8 +659,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 770.29761
-  tps: 796.37098
+  dps: 767.92549
+  tps: 794.03081
  }
 }
 dps_results: {

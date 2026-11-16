@@ -825,9 +825,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 759.09553
-  tps: 619.78195
-  dtps: 8.01512
+  dps: 763.29399
+  tps: 624.32031
+  dtps: 8.33829
   hps: 10.00951
  }
 }
