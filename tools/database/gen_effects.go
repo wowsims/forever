@@ -7,6 +7,7 @@ import (
 	"io"
 	"iter"
 	"maps"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -573,13 +574,27 @@ func jsString(s string) string {
 
 const missingEffectsFileName = "ui/sim/constants/missing_effects_auto_gen.ts"
 
-// A proc rate on gear that the game files do not state and nobody has measured on Forever.
+// A proc rate on gear that the game files do not state and no measurement on Forever has settled.
 type UnvalidatedRate struct {
 	ID     int32 // The item id, the enchant effect id or the set id.
 	Pieces int32 // The set bonus's piece count; 0 on an item or an enchant.
 	Name   string
 	Kind   overrides.RateKind
-	Origin string // "vanilla", "tbc" or "unknown".
+	Rate   float64 // What the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance; 0 where no single rate applies.
+	Origin string  // "vanilla", "tbc" or "observed".
+}
+
+// The rate and origin of the notice's TypeScript object, with no rate where none applies.
+func (r UnvalidatedRate) Fields() string {
+	if r.Rate == 0 {
+		return fmt.Sprintf("kind: '%s', origin: '%s'", r.Kind, r.Origin)
+	}
+	return fmt.Sprintf("kind: '%s', rate: %s, origin: '%s'", r.Kind, strconv.FormatFloat(r.Rate, 'f', -1, 64), r.Origin)
+}
+
+// A chance of 0 to 1 as the percent the notices show, free of float noise.
+func chancePercent(chance float64) float64 {
+	return math.Round(chance*100*1e6) / 1e6
 }
 
 type UnvalidatedRates struct {
@@ -595,25 +610,19 @@ type literalRate struct {
 	ID     int32
 	Pieces int32
 	Kind   overrides.RateKind
+	Rate   float64 // 0 where the rate varies with something the notice cannot state.
 	Origin string
 	Reason string
 }
 
 var literalRates = []literalRate{
 	{
-		Gear:   "item",
-		ID:     272432,
-		Kind:   overrides.RatePPM,
-		Origin: "unknown",
-		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
-			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the main hand's speed",
-	},
-	{
 		Gear:   "set bonus",
 		ID:     184,
 		Pieces: 5,
 		Kind:   overrides.RatePPM,
-		Origin: "unknown",
+		Rate:   1,
+		Origin: "vanilla",
 		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
 	},
@@ -622,7 +631,8 @@ var literalRates = []literalRate{
 		ID:     1676,
 		Pieces: 4,
 		Kind:   overrides.RatePPM,
-		Origin: "unknown",
+		Rate:   1,
+		Origin: "vanilla",
 		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
 	},
@@ -631,17 +641,20 @@ var literalRates = []literalRate{
 // A Source naming the files of its measurements in docs/evidence.
 var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
 
-// The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
-func rateOrigin(source string) string {
+// The origin a rate's Source names, or "" for one measured on Forever, which needs no notice. A rate's Source
+// must be an evidence id, a carry-over ("vanilla-carryover" or "tbc-carryover") or "observed"; any other is an error.
+func rateOrigin(source string) (string, error) {
 	switch {
 	case evidenceID.MatchString(source):
-		return ""
+		return "", nil
 	case source == "vanilla-carryover":
-		return "vanilla"
+		return "vanilla", nil
 	case source == "tbc-carryover":
-		return "tbc"
+		return "tbc", nil
+	case source == "observed":
+		return "observed", nil
 	}
-	return "unknown"
+	return "", fmt.Errorf("rate Source %q: a rate's Source must be an evidence id, a carry-over or observed", source)
 }
 
 // The hand-kept rates the notices weigh, and the gear casting each spell a spell rate sits on.
@@ -711,7 +724,11 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	enchants := map[int32]UnvalidatedRate{}
 	setBonuses := map[[2]int32]UnvalidatedRate{}
 	var conflict error
-	check := func(listed UnvalidatedRate, ok bool, rate UnvalidatedRate) {
+	// Two rates on one piece of gear that differ leave it with no single rate to state.
+	check := func(listed UnvalidatedRate, ok bool, rate *UnvalidatedRate) {
+		if ok && listed.Rate != rate.Rate {
+			rate.Rate = 0
+		}
 		if ok && (listed.Kind != rate.Kind || listed.Origin != rate.Origin) && conflict == nil {
 			conflict = fmt.Errorf("%s (%d) carries two rates, a %s %s one and a %s %s one",
 				rate.Name, rate.ID, listed.Origin, listed.Kind, rate.Origin, rate.Kind)
@@ -719,13 +736,13 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	}
 	put := func(list map[int32]UnvalidatedRate, rate UnvalidatedRate) {
 		listed, ok := list[rate.ID]
-		check(listed, ok, rate)
+		check(listed, ok, &rate)
 		list[rate.ID] = rate
 	}
 	putSetBonus := func(rate UnvalidatedRate) {
 		key := [2]int32{rate.ID, rate.Pieces}
 		listed, ok := setBonuses[key]
-		check(listed, ok, rate)
+		check(listed, ok, &rate)
 		setBonuses[key] = rate
 	}
 	enchantByEffectID := map[int32]*proto.UIEnchant{}
@@ -736,42 +753,61 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 
 	for _, proc := range in.WeaponProcs {
 		item, ok := db.Items[proc.ItemID]
-		if origin := rateOrigin(proc.Source); origin != "" && ok {
-			put(items, UnvalidatedRate{ID: item.Id, Name: item.Name, Kind: overrides.RatePPM, Origin: origin})
+		origin, err := rateOrigin(proc.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("weapon proc on item %d: %w", proc.ItemID, err)
+		}
+		if origin != "" && ok {
+			put(items, UnvalidatedRate{ID: item.Id, Name: item.Name, Kind: overrides.RatePPM, Rate: proc.PPM, Origin: origin})
 		}
 	}
 
 	for _, o := range in.Spells {
-		kind, origin := spellRateKind(o), rateOrigin(o.Source)
-		if kind == 0 || origin == "" {
+		kind := spellRateKind(o)
+		if kind == 0 {
+			continue
+		}
+		origin, err := rateOrigin(o.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("spell %d rate: %w", o.SpellID, err)
+		}
+		if origin == "" {
 			continue
 		}
 		for _, itemID := range in.SpellItems[o.SpellID] {
 			if item, ok := db.Items[itemID]; ok {
-				put(items, UnvalidatedRate{ID: itemID, Name: item.Name, Kind: kind, Origin: origin})
+				put(items, UnvalidatedRate{ID: itemID, Name: item.Name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 		for _, effectID := range in.SpellEnchants[o.SpellID] {
 			if enchant, ok := enchantByEffectID[effectID]; ok {
-				put(enchants, UnvalidatedRate{ID: effectID, Name: enchant.Name, Kind: kind, Origin: origin})
+				put(enchants, UnvalidatedRate{ID: effectID, Name: enchant.Name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 		for _, bonus := range in.SpellSets[o.SpellID] {
 			if name, ok := setNames[bonus[0]]; ok {
-				putSetBonus(UnvalidatedRate{ID: bonus[0], Pieces: bonus[1], Name: name, Kind: kind, Origin: origin})
+				putSetBonus(UnvalidatedRate{ID: bonus[0], Pieces: bonus[1], Name: name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 	}
 
 	for _, proc := range in.EnchantProcs {
 		enchant, ok := enchantByEffectID[proc.EnchantID]
-		if origin := rateOrigin(proc.Source); origin != "" && ok {
-			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Origin: origin})
+		origin, err := rateOrigin(proc.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("enchant %d rate: %w", proc.EnchantID, err)
+		}
+		if origin != "" && ok {
+			rate := proc.Value
+			if proc.Kind == overrides.RateChance {
+				rate = chancePercent(rate)
+			}
+			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Rate: rate, Origin: origin})
 		}
 	}
 
 	for _, literal := range in.Literals {
-		rate := UnvalidatedRate{ID: literal.ID, Pieces: literal.Pieces, Kind: literal.Kind, Origin: literal.Origin}
+		rate := UnvalidatedRate{ID: literal.ID, Pieces: literal.Pieces, Kind: literal.Kind, Rate: literal.Rate, Origin: literal.Origin}
 		switch literal.Gear {
 		case "item":
 			if item, ok := db.Items[literal.ID]; ok {
@@ -1344,7 +1380,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
 		for _, itemEffect := range parsed.ItemEffects {
-			if !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
+			if !implementedByHand(parsed.Id) && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
 				// Commented into the generated file rather than dropped. These are deliberately
 				// out of scope - summons, teleports, created items - but an item whose only
 				// effect is skipped otherwise vanished with no trace, while a sibling marker

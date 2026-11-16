@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 802.54436
+  tps: 801.47616
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 933.60769
@@ -435,8 +442,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 873.09246
-  tps: 868.23146
+  dps: 868.85037
+  tps: 863.78828
  }
 }
 dps_results: {
@@ -652,8 +659,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 842.98405
-  tps: 840.81297
+  dps: 843.57248
+  tps: 841.19833
  }
 }
 dps_results: {

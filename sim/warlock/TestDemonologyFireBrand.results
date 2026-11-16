@@ -90,6 +90,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 712.25983
+  tps: 580.50129
+  dtps: 8.2264
+  hps: 10.00951
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 756.63914
@@ -565,8 +574,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 782.50931
-  tps: 641.82809
+  dps: 781.51096
+  tps: 640.86967
   dtps: 8.2264
   hps: 10.00951
  }
@@ -816,9 +825,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 759.09553
-  tps: 619.78195
-  dtps: 8.01512
+  dps: 763.29399
+  tps: 624.32031
+  dtps: 8.33829
   hps: 10.00951
  }
 }

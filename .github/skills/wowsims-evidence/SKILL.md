@@ -42,7 +42,8 @@ else; a count outside the buff's window or across two seals explains most surpri
 | a value change in the sim                                     | the EV- file first, then the change with its `.results` in its own pull request                                           |
 
 The counts live in the EV- file alone. A comment, an override `Reason` and a ruling state the rule and cite the id; an
-override's `Source` is the id itself.
+override's `Source` is the id itself, or `observed` for a rate fitted from too few logs to call final, whose `Reason`
+cites the id.
 
 An owner statement is a ruling: it holds whether or not a log backs it, and the evidence file records only what was
 measured. Never change sim code on an owner statement whose scope you had to guess.

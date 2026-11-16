@@ -14,9 +14,11 @@ do not state. One row per number:
 ```
 
 The next reader weighs the number against `Reason` and `Source`, and the generator refuses a row without
-a reason. `Source` names where the number came from: `vanilla-carryover`, `tbc-carryover`, `tooltip`, `owner decision`,
-`estimate`, or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`). Only an evidence id counts
-as measured; a carry-over or an `estimate` is listed as unvalidated on the gear it reaches.
+a reason. `Source` names where the number came from: `tooltip`, `owner decision` or another note for a value that is not a proc
+rate, and for a hand-kept proc rate one of `vanilla-carryover`, `tbc-carryover`, `observed` (measured here from too few
+logs to call final) or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`); the generator refuses
+any other `Source` on a rate. Only an evidence id counts as measured; a carry-over or an `observed` rate is listed as
+unvalidated on the gear it reaches.
 
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:
@@ -89,8 +91,9 @@ against the encounter's area set. The override is stale once the row states a `R
 own. The on-use stat actives that `shared.NewSimpleStatActive` registers read it; a proc chance the
 tooltip says is doubled has no reader yet.
 
-`overrides.VersusBonuses` is the third, for a row whose tooltip says it deals or restores N times as much
-against some creatures ("Deals $s2 times as much damage to Plants"), which no column names. A row names
+`overrides.VersusBonuses` is the third, for a row whose tooltip says it deals, restores or procs N times as
+much against some creatures ("Deals $s2 times as much damage to Plants", "Attacks against Dwarves are $s2
+times as likely to activate this effect"), which no column names. A row names
 the mob types and creature families and the effect whose base points are the factor, or a `Multiplier`
 of its own where no effect states one (Gloves of Holy Might's tripling). These go onto
 `Spell.VersusEffectIndex`, `VersusMultiplier`, `VersusMobTypes` and `VersusFamilies`, and

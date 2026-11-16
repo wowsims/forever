@@ -90,6 +90,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAffliction-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 610.87393
+  tps: 495.11504
+  dtps: 8.25732
+  hps: 7.27415
+ }
+}
+dps_results: {
  key: "TestAffliction-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 651.54232
@@ -565,9 +574,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 703.59902
-  tps: 568.46646
-  dtps: 8.31496
+  dps: 694.88991
+  tps: 561.64472
+  dtps: 8.30658
   hps: 7.27415
  }
 }
@@ -816,9 +825,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 647.27967
-  tps: 524.11679
-  dtps: 8.02522
+  dps: 650.77963
+  tps: 526.84201
+  dtps: 8.00998
   hps: 7.28225
  }
 }
