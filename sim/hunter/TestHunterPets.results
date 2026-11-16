@@ -344,9 +344,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BrainHacker-1263"
  value: {
-  dps: 760.94576
-  tps: 489.19264
-  dtps: 4.09973
+  dps: 699.80826
+  tps: 487.31611
+  dtps: 4.46696
  }
 }
 dps_results: {
@@ -519,9 +519,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Destiny-647"
  value: {
-  dps: 754.99698
-  tps: 485.08811
-  dtps: 4.12832
+  dps: 694.38051
+  tps: 483.83564
+  dtps: 4.44393
  }
 }
 dps_results: {
@@ -719,9 +719,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-FieryWeapon-803"
  value: {
-  dps: 753.22749
-  tps: 484.64144
-  dtps: 4.18477
+  dps: 693.13995
+  tps: 482.63696
+  dtps: 4.44393
  }
 }
 dps_results: {
@@ -1087,9 +1087,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-HeartofWyrmthalak-22321"
  value: {
-  dps: 770.72059
-  tps: 498.11823
-  dtps: 4.67066
+  dps: 709.77688
+  tps: 497.08357
+  dtps: 5.13745
  }
 }
 dps_results: {
