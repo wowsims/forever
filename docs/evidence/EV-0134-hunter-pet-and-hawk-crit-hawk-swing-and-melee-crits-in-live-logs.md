@@ -211,36 +211,78 @@ vpFrJRb71fNAatmL, vwCXzhMQ2drgpRxD, yAYRmxqgXkTwr6Bz, z2BJcmAP6frjMV8w, z9XbfMRh
 
 ## Crit multipliers of melee abilities
 
-| Ability       | Predator's Edge | Reports | Crits | Multiplier (median) | 95%, reports   | 1 + (1 + share)^n |
-| ------------- | --------------- | ------- | ----- | ------------------- | -------------- | ----------------- |
-| Raptor Strike | 0               | 62      | 324   | 1.998               | 1.995 to 2.000 | 2.000, n = 2      |
-| Raptor Strike | 3               | 3       | 16    | 2.393               | 2.346 to 2.394 | 2.392, n = 2      |
-| Raptor Strike | 4               | 1       | 23    | 2.529               |                | 2.538, n = 2      |
-| Raptor Strike | 5               | 15      | 265   | 2.690               | 2.689 to 2.692 | 2.690, n = 2      |
-| Mongoose Bite | 5               | 8       | 65    | 2.301               | 2.299 to 2.301 | 2.300, n = 1      |
-| Strider Kick  | 3               | 3       | 18    | 2.180               | 2.177 to 2.182 | 2.180, n = 1      |
-| Strider Kick  | 5               | 18      | 295   | 2.300               | 2.299 to 2.301 | 2.300, n = 1      |
+Two readings of each crit. Method A: the crit's amount over its `unmitigatedAmount` times the target's armor factor
+(above). Method B: the mean crit over the mean normal hit of the same ability on the same target within 60 s, both as
+dealt, with neither `unmitigatedAmount` nor an armor factor. Predator's Edge's share is 6% a rank.
 
-Savage Strikes changes none of these: Raptor Strike reads 2.00 with Savage Strikes 2/2 and no Predator's Edge. Wing
+| Ability       | Predator's Edge | Savage Strikes | Reports | Crits | A, median | A, 95% reports | B crits | B     | Once | Twice |
+| ------------- | --------------- | -------------- | ------- | ----- | --------- | -------------- | ------- | ----- | ---- | ----- |
+| Raptor Strike | 0               | 0              | 222     | 613   | 1.998     | 1.995 to 1.999 | 44      | 1.981 | 2.00 | 2.000 |
+| Raptor Strike | 0               | 2              | 17      | 97    | 1.998     | 1.980 to 2.002 | 15      | 1.924 | 2.00 | 2.000 |
+| Raptor Strike | 3               | 2              | 5       | 31    | 2.392     | 2.376 to 2.394 | 5       | 2.355 | 2.18 | 2.392 |
+| Raptor Strike | 4               | 2              | 3       | 37    | 2.531     | 2.528 to 2.541 | 13      | 2.464 | 2.24 | 2.538 |
+| Raptor Strike | 5               | 2              | 30      | 497   | 2.690     | 2.689 to 2.691 | 67      | 2.661 | 2.30 | 2.690 |
+| Mongoose Bite | 0               | 0              | 33      | 38    | 1.995     | 1.993 to 2.001 |         |       | 2.00 | 2.000 |
+| Mongoose Bite | 4               | 2              | 2       | 8     | 2.247     | 2.239 to 2.247 | 2       | 1.937 | 2.24 | 2.538 |
+| Mongoose Bite | 5               | 2              | 27      | 144   | 2.300     | 2.299 to 2.301 | 11      | 2.283 | 2.30 | 2.690 |
+| Strider Kick  | 3               | 2              | 4       | 30    | 2.180     | 2.177 to 2.182 | 4       | 2.184 | 2.18 | 2.392 |
+| Strider Kick  | 4               | 2              | 2       | 16    | 2.245     | 2.245 to 2.250 | 3       | 2.260 | 2.24 | 2.538 |
+| Strider Kick  | 5               | 2              | 31      | 518   | 2.300     | 2.300 to 2.301 | 57      | 2.287 | 2.30 | 2.690 |
+
+"Once" is 2 plus the share, "twice" 1 + (1 + share)². The same hunters' Mongoose Bite and Strider Kick read once and
+their Raptor Strike twice, at Predator's Edge 3, 4 and 5. Every Predator's Edge hunter in these reports took Savage
+Strikes 2/2, which reaches the same three abilities, and without Predator's Edge it leaves Raptor Strike at 2.00. Wing
 Clip hits for so little that rounding spreads its multiplier from 1.9 to 3.0, so it is left out.
 
-Reports (87):
+Reports (278):
 
-19KWay63j2HvGdgQ, 1zMFQx6RYwkgDXTh, 3C26abGgdcQKATJt, 3grN8Rct9Xzknm1H, 468rLCt1gBdXzRQY, 4WtzXrnhyZpcRVCY,
-7QtfGD3ArVhH8qdw, 8jzXTaqr732V9DxJ, 9JxanDLbZqC18YPg, 9Y3JvDkrKBL8NMHQ, 9Z6yrfgDLjPahGAV, AvNwTdyBbDncFf2h,
-BVgtPkXmAcJwM21Q, CLBtcNZgqYb8zQhd, CXvjmgaJ6YqKzD4k, D9tWGCxNHRawZ8Bz, G2QDqn9gc1mRXByC, J4nGFVKWD1Aygkaj,
-Jd6WanvfBV4M2zAk, Jyw9hD1bmKWCN3XH, L6GvARYBpNQy1hk3, LjvDknrWTVP1xAaz, M4aF6w9Pz7JmrXgW, Mw6q32gCaKB8Hjnf,
-NKM174PyfxjTXRv3, NRJG9M1wF7ng4BdC, NXMZV9xjvWpB7GtP, NbmjagBQMYLC8t6z, Nby7FHqDhWcBLYXd, QAgrxLyh1CVwcf6k,
-QRCgnhck3KVq6vBT, QXFd74zDW8JZMmKx, Qb1yWxa8vHCGL7Yr, RBaWwNzPf81x3gcY, RTkzcFndwNYjVMP7, RVgGFynN3KCYJHcA,
-TNAXzyxRPQZW3pq2, TxX4AqCgafhyn6zc, VK83G7MdBhLRFAfa, VhqB8wZJzRP34cAM, WQ3fqPhAVRrcn7Bb, WaHFDqN2c37hGx6v,
-X6Hp4gDwv7zftxMC, Xam2g1pGyjvzM8ZP, XdFYRDafB7cjhgJb, YL6pQKrq7ZXCbHdV, YaBQZ2tbVFJMrAhk, YakBLWFpjnrdhGb3,
-a4ZdvYKyhcLGnFRP, aLYv7r1kDFpxXJVG, aRFzTnCLAtqHNdB8, bmZcqx1pW4LGFfKB, btAc341MaWNQH8RL, c14qPbJdkhX6a3vK,
-cDxNAW6Zr3hvC2QG, cGYvJnm1TfNVxqgA, cb9gzXjCK3BfH7qM, ctChBVNr23xnkfTY, dvkzFtPH3WR9C4Km, f8TKwNhrJqyBjx73,
-fn2Dc941K63CNvmj, g3dYGjzy19w2qfXB, gBDMLv8J1K7nqkpd, gzrAwTqCWPm7xvpD, h8aVABn6zKPyMwD4, hPNgqjA4vkTxXwG1,
-j6XFRzHxTC1kvVpy, jMWpNJLtkVPHy93z, jryFckzCJax34KQb, k7gmfZ69awYr3Dct, kvPydcGVa3Lh6gFA, mXvcxNnBrtgGyq8b,
-mbZcgPavhdG7fKDW, pQbkWJAnqFgHxDzV, qVvZxP3gNp12KWyb, rB41vNC2npYbz7Zy, rq4vtxVnZw21kLCX, v41rYANj2zBWkb8n,
-vk9HJZwrfhmCayMY, wFbHKCBdJj6Z8DzL, wyMJYRVm2Qf7dThv, x9jFAkqb6PcWTfR2, xhDAKtcGBJ1yfM4b, xra2mpXtqAc9YdvN,
-xz7YCK2qgAnZjk61, zL8QNrFp1PHWacbv, zmDY4LVX7N8vh9aR
+19KWay63j2HvGdgQ, 1L8q9d3zKTxMwDnA, 1aBhkzdDMZKGtb37, 1rYynxW6AGfcQz9t, 1xqBcj4CZQXV38Pv, 1zMFQx6RYwkgDXTh,
+1zdqMb3QnryZL2j7, 291tprnTRC3aVPzW, 2ACDTKkcpWbNfRJ9, 2kV73aphdFrCQq9D, 2mL3ZCv9WKTQ18by, 2xhVyXGW7gaDjA4J,
+3ABMTH9n8rqRb71z, 3BQyvXG7rRdfh9pa, 3C26abGgdcQKATJt, 3GT4tz8gxnphcbkD, 3grN8Rct9Xzknm1H, 468rLCt1gBdXzRQY,
+47Qx1fcW69RwHMqN, 4L7DBHTV2jA6gkQW, 4WtzXrnhyZpcRVCY, 4ZgCL2mBQYVPDTR9, 4dakVPwbnc6QKjvh, 4xpYMZ9c3jJQ6kw8,
+6QgzZWmDLHY2Afx3, 6gHJhvyLzDBrk9Q3, 74YybNVPDg1MpJG8, 78PAmbnVxYfMTD2a, 7QrBbPty6kvMjhXA, 7QtfGD3ArVhH8qdw,
+7Yj1a2RW9JCvDbHp, 7vy4PqthX8NTKjRw, 82xByG3PDcrYmVMq, 8Ax6VHb3CMypWztX, 8CzwkcFWrA91QaxG, 8DNHZ9GaFrWw4pmq,
+8bZC3Dh4fMztqVwy, 8jzXTaqr732V9DxJ, 97pV3KgNWFkqaGtd, 9JxanDLbZqC18YPg, 9VDYZBhfkCwdqb86, 9Y3JvDkrKBL8NMHQ,
+9YJM6y2PdRxZarK3, 9Z6yrfgDLjPahGAV, 9hX7qPQvZnAz8c2k, A7WRvYrB8ahMxwcK, ATQt1vrpZjKmCnJ4, AjGZkD6CXKM2cdPf,
+AvMqTmDyG3VrZNY2, AvNwTdyBbDncFf2h, BVgtPkXmAcJwM21Q, BnPXHVWwTrCYNtMh, C3r6TRtDnxzVPF9j, CLBtcNZgqYb8zQhd,
+CXvjmgaJ6YqKzD4k, CbVw9y3XZPnLvzR8, CyN68LDZPxkFtQYB, D9tWGCxNHRawZ8Bz, DBW4dcNKPMJzYAw2, F1W6PZ8z7QjKcN2D,
+F4vnwxfra8WKcpMZ, G4akXpft3gNhCJ19, GNp7bXWgfjr3yAcm, GRTmQn3VDpwZKbCA, GWabBnwjVk16xTyf, GyRvNBmT82YKqFxC,
+H2LPzQA4a7Nyr3jb, HMc3fnaA1bJmPt8W, Hwq97xLh6gv8ZPrY, J4nGFVKWD1Aygkaj, JNzyAj6aXwfRvZqG, JQjR4Xp9FwMxymcb,
+JVy7a8hrgRMZv6Xz, Jcx8g4CXq1QBpzVP, Jd6WanvfBV4M2zAk, Jyw9hD1bmKWCN3XH, KbhdJBtAm3McFpZr, KcdpBWTJyX1xLFfh,
+L6GvARYBpNQy1hk3, LRqc8tNbC1Hf7Vwn, LaJzMkFfhmpc2DbH, LjvDknrWTVP1xAaz, M4aF6w9Pz7JmrXgW, M6kJfn7a3r2KFRgd,
+MGHXxrBkF7fbzjCm, MjfT3pQKRWcVG4gY, MpvYxC276TLmAfrQ, Mvgf4d7JFLmj1cwV, Mw6q32gCaKB8Hjnf, N9wbQgfC82zGDWnY,
+NBZcz6JXg4GQhy72, NFD1RP4LdQrhfw3W, NHLVxbT9hgPZnGwp, NKM174PyfxjTXRv3, NRJG9M1wF7ng4BdC, NXMZV9xjvWpB7GtP,
+NY6dCGJWTMfb3XVZ, NbmjagBQMYLC8t6z, Nby7FHqDhWcBLYXd, NhbHc2YzqRtPK68J, NydpC9jWtq31DXmn, PB6zGcVNtTZrMKXb,
+PkWRr8jZp9ATL7N4, Ppd7C9MWXFkr2Tga, PtHFravgBqMzhmxZ, Ptckm8HKbAVMWzrY, QAgrxLyh1CVwcf6k, QRCgnhck3KVq6vBT,
+QXFd74zDW8JZMmKx, Qb1yWxa8vHCGL7Yr, QmNYMtxwG7Py9Ajv, Qn1VKrPTJRbMat9C, QqbhvMX12Y3ZPBVG, QvDAW3czJBVa6Ngx,
+R8AkzPmyLQcnxYM6, RBaWwNzPf81x3gcY, RTkzcFndwNYjVMP7, RVgGFynN3KCYJHcA, Rng4WYf9cCxKzdpG, TNAXzyxRPQZW3pq2,
+TcZCRJNXPwxHzD2L, TqZ39QgVkdF6WRDr, TxX4AqCgafhyn6zc, VK83G7MdBhLRFAfa, VhqB8wZJzRP34cAM, W2qHFNwj7BtbgQnD,
+WBVwmaXxh1JfPvKC, WFBMqdAVDmJYy2Q9, WKqhakHcDtMmAdb8, WQ3fqPhAVRrcn7Bb, WaHFDqN2c37hGx6v, WjqbYgzcXw4ATBQV,
+X6Hp4gDwv7zftxMC, X8z9dgD6HRTZ24Vc, XBbarKyLTcJfNxj3, XC98wFY2nPLcby3k, XHczYZgmf76t9Jrk, XHk7W3h1NDbpL4PV,
+XJ1V4FxwjZTzLW8A, Xam2g1pGyjvzM8ZP, Xb2wpK7FtTgck8C4, XdFYRDafB7cjhgJb, Xwxna4t6pmvYFAyH, Y1RjTQmJAW7pzHqN,
+YCm7yQkZM2wvTaP1, YL6pQKrq7ZXCbHdV, YRpy3CjaqAnT4Bv7, YaBQZ2tbVFJMrAhk, YakBLWFpjnrdhGb3, YcRVPMyFfqAgbQ3N,
+YwRmDTC3xHtKMfLc, ZCxbgkvRn4zWDwhf, Zcjan4PWJq3GLwYT, ZfDykLVKgBP4YQGA, a4ZdvYKyhcLGnFRP, aA67j34DCwZztKfM,
+aFq1fMXx8mZ6H7pQ, aGZdpgD3mfvRBQht, aHwCztFpYhVXKdNR, aLYv7r1kDFpxXJVG, aQtBFdm14wGhPxqJ, aRFzTnCLAtqHNdB8,
+aVX9hAZ2ryGCwqKz, b1jA7LXFrZfmGMCR, b9f8DLFVqa1MTvdN, bH6GZhykAPqgQ3mt, bYDR4tgJ9PVjQCcr, bYaT9KXtGwqvV6d4,
+bavD2gBYZHkqK7Ct, bmZcqx1pW4LGFfKB, btAc341MaWNQH8RL, c14qPbJdkhX6a3vK, cDxNAW6Zr3hvC2QG, cGYvJnm1TfNVxqgA,
+cGrfRLdNmqyKZpFP, cKChLPz39GTX74wm, cVAgLDX4qapRGFy6, cb9gzXjCK3BfH7qM, ctChBVNr23xnkfTY, d31BQFCaAXKD8bJr,
+dNT6DXyhHFRjZLaq, dP8LDZ7z4tTk3xA9, dPXqjcwTzFCHfYmb, dvkzFtPH3WR9C4Km, f8TKwNhrJqyBjx73, f9tYwV6MkjBp2z41,
+fLKYjJNVRCgxcwQT, fMzdjKNYm2bGpZkV, fPbAGZk8qwyJ1mpt, fn2Dc941K63CNvmj, g3dYGjzy19w2qfXB, gBDMLv8J1K7nqkpd,
+gNAMtb7K3GXV6JmC, gPxrZVY4JQ2Fm1Nd, gRmxdjCHt6XDMBpa, gRtBKzxVFjMJwQCm, gXBhbVRYL2GtJymw, gjAQxFmzMtq3d9Za,
+gr9zjCAX3mY41aqf, gzrAwTqCWPm7xvpD, h8aVABn6zKPyMwD4, hAb6yN8xnqBpWj3D, hPNgqjA4vkTxXwG1, htKPAwxrDdXV9znQ,
+j6XFRzHxTC1kvVpy, jMWpNJLtkVPHy93z, jYVvXCw4QANH1Ffn, jhGZM8bFmY6HtgVc, jryFckzCJax34KQb, k4DvNfBJC3wL7MRc,
+k7gmfZ69awYr3Dct, kbZYPcw3t9jNa4mz, kjRYLXvzgbJyFGKD, kvPydcGVa3Lh6gFA, kwKaVT1GWrg4PD7m, mHkvNhbc1Ja7XfTA,
+mLyzDVbC86d3cJQk, mXvcxNnBrtgGyq8b, mbZcgPavhdG7fKDW, mktbNn2jzBJR8CgA, mpXk9g8PzctZNJda, nB7qNVpyZvLPXCJY,
+nFvHyDjrCxLdA6k7, npbfVjrQdDLhtRWY, nr4qJHp3tQaxzyTW, p64tbL13MyRCFrgv, pQb9KrmqfFYaZn4J, pQbkWJAnqFgHxDzV,
+pqWQCzaDkbgyXBTh, qDKRc3AxpVkgCWwf, qHjYVC2AGQ67dr38, qQgj2MWBcD4Gd9an, qTnGKAYkRXHBMDQJ, qVvZxP3gNp12KWyb,
+qW9njb3hXp27gMRT, qWtC7YxLH2G1FRQj, qtgFPfWdMxrZ6hYA, qzaj7ynDXchFdrWK, r6mNXwVKZhpGjvbf, rB41vNC2npYbz7Zy,
+rdKzHqAk4BYZL82y, rfbM3m29KY1RAwaJ, rp1xdXQfkwnCD6TY, rq4vtxVnZw21kLCX, rwxQgM38abAcmRVv, t2W3kaqMxzFPBDjL,
+tCzP4jWxdNLHcgp9, tNyVBr63KhADdCFL, v41rYANj2zBWkb8n, vTFcMtGgh3fYWCKR, vk9HJZwrfhmCayMY, vpFrJRb71fNAatmL,
+wFbHKCBdJj6Z8DzL, wJCmzRy4GHgDTA8F, wJDCrmcnPXja1QbW, wMRNLvP8CBrgd4x7, wgJaW3LPCTGX8bQ6, wyMJYRVm2Qf7dThv,
+x6g2PMwjvLdWFZfT, x9jFAkqb6PcWTfR2, xd7Kvg1tLzVbjcRF, xfg2Qh1zMjrJp68d, xhDAKtcGBJ1yfM4b, xpJdXyYCVm9zg16a,
+xra2mpXtqAc9YdvN, xz7YCK2qgAnZjk61, yCA1rNbBHntcMqxF, yRChfAvDqYwxBkFr, z1VCfZFJYPwHagpL, z2BJcmAP6frjMV8w,
+z9XbfMRh21Fg7QjN, zL8QNrFp1PHWacbv, zTVDd2Y639Pta7hk, zXjGRNDmB8YVK2ry, zdv2nL6XxaBm1Z8A, zgQGKwYaDXjnxTc9,
+zmDY4LVX7N8vh9aR, ztamxJTvkp82GK6h
 
 ## Explosive Trap first hit
 
