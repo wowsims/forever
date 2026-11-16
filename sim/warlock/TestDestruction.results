@@ -88,8 +88,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 846.46901
-  tps: 668.25892
+  dps: 844.51942
+  tps: 666.73043
   dtps: 10.29114
  }
 }
@@ -714,9 +714,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 913.88468
-  tps: 719.64125
-  dtps: 10.30817
+  dps: 915.15932
+  tps: 721.12491
+  dtps: 10.12837
  }
 }
 dps_results: {

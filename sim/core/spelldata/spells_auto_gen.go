@@ -14518,7 +14518,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 693246, SpellID: 17350, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 17351, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1322502, SpellID: 17350, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 0.5 -- Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'
+		}}, // override: PPM 0.5 -- Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'; a log fit not yet validated (EV-0126)
 	{ID: 17351, Name: "Argent Dawn", School: 1, Attr: [17]uint32{0: 0x50000, 15: 0x2000}, SpellLevel: 55, DurationMs: 10000, Category: 56, DefenseType: 1, InterruptFlags: 15,
 		Effects: []Effect{
 			{ID: 693224, SpellID: 17351, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_BLOCK_PERCENT, BasePoints: 18, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

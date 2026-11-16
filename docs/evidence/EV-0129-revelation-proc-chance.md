@@ -3,7 +3,7 @@
 - Claim: Revelation (enchant 8217, proc spell 1248806) rolls about 8% on each non-crit, non-periodic damage or heal hit
   at 8.5 to 13.4% sheet crit; crits and aura-only applications never roll it, and it can roll while the buff is up.
 - Sources: combat logs, a druid (ten logs) and a mage (one log).
-- Game build: not recorded
+- Game build: 1.60.1.70938 for the mage's log; not recorded for the druid's, which predate that build
 - Date: 2026-10-03 to 2026-10-06 (druid) and 2026-11-13 (mage)
 - Pull request: #1051
 

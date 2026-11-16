@@ -499,13 +499,14 @@ var Spells = []Override{
 		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
 		Source:  "EV-0115",
 	},
-	// Measured on landed melee hits taken that deal damage; the owner rules 0.5 from the pooled fit (EV-0126).
+	// Fitted from logs on landed melee hits taken that deal damage; the owner rules 0.5 from the pooled
+	// fit (EV-0126). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
 		SpellID: 17350,
 		Field:   PPM,
 		Value:   0.5,
-		Reason:  "Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'",
-		Source:  "EV-0126",
+		Reason:  "Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'; a log fit not yet validated (EV-0126)",
+		Source:  "observed",
 	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap

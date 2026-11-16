@@ -104,9 +104,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-ArgentDefender-13243"
  value: {
-  dps: 720.70568
-  tps: 668.03794
-  dtps: 8.68885
+  dps: 720.86635
+  tps: 668.21602
+  dtps: 8.44206
  }
 }
 dps_results: {
@@ -1009,9 +1009,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 714.45482
-  tps: 663.81523
-  dtps: 8.72919
+  dps: 712.9763
+  tps: 663.73518
+  dtps: 8.52791
  }
 }
 dps_results: {

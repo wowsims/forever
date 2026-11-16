@@ -290,13 +290,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
 		Source:  "observed",
 	},
-	// Measured on a sword-and-board warrior's weapon hits; the owner rounds it to 1 (EV-0126).
+	// Fitted from logs on a sword-and-board warrior's weapon hits and rounded to 1 by the owner (EV-0126).
+	// The "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  13246,
 		SpellID: 17352,
 		PPM:     1,
-		Reason:  "Argent Avenger: no proc row",
-		Source:  "EV-0126",
+		Reason:  "Argent Avenger: no proc row; a log fit not yet validated (EV-0126)",
+		Source:  "observed",
 	},
 	{
 		ItemID:  12798,

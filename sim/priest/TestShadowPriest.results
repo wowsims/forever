@@ -737,9 +737,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 748.34509
-  tps: 535.29899
-  dtps: 4.81766
+  dps: 750.1727
+  tps: 536.56137
+  dtps: 4.90236
  }
 }
 dps_results: {

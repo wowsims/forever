@@ -4060,6 +4060,8 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[13053, { kind: 'ppm', rate: 0.75, origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', rate: 0.87, origin: 'vanilla' }], // Grim Reaper
 	[13060, { kind: 'ppm', rate: 3, origin: 'vanilla' }], // The Needler
+	[13243, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Argent Defender
+	[13246, { kind: 'ppm', rate: 1, origin: 'observed' }], // Argent Avenger
 	[15814, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hameya's Slayer
 	[17073, { kind: 'ppm', rate: 2.1, origin: 'vanilla' }], // Earthshaker
 	[17182, { kind: 'ppm', rate: 0.7, origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros

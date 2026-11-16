@@ -13,7 +13,7 @@
   fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8.
 - Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
 - Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
-- Pull request: #1052
+- Pull request: #1051, written up in #1052
 
 ## Argent Avenger
 
