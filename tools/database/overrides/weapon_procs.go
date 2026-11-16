@@ -299,13 +299,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Argent Avenger: no proc row; a log fit not yet validated (EV-0126)",
 		Source:  "observed",
 	},
-	// Measured on every landed melee hit, triggered hits included; the owner rounds it to 1.2 (EV-0132).
+	// Measured on every landed melee hit, triggered hits included; the owner rounds it to 1.2 (EV-0132,
+	// EV-0136).
 	{
 		ItemID:  647,
 		SpellID: 17152,
 		PPM:     1.2,
 		Reason:  "Destiny: no proc row",
-		Source:  "EV-0132",
+		Source:  "EV-0132, EV-0136",
 	},
 	// Fitted from one wearer's landed melee hits; the owner rounds it to 1 (EV-0132). The "observed"
 	// Source keeps the gear tab's notice up until more wearers validate it.
@@ -367,6 +368,20 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
+		ItemID:  6469,
+		SpellID: 29653,
+		PPM:     2.05,
+		Reason:  "Venomstrike: no proc row",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  6831,
+		SpellID: 1293407,
+		PPM:     2,
+		Reason:  "Black Menace: no proc row",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  6953,
 		SpellID: 1322218,
 		PPM:     2.2,
@@ -409,6 +424,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
+		ItemID:  9467,
+		SpellID: 3742,
+		PPM:     2.1,
+		Reason:  "Gahz'rilla Fang: no proc row",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  9477,
 		SpellID: 1294339,
 		PPM:     1,
@@ -423,6 +445,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
+		ItemID:  10761,
+		SpellID: 1293790,
+		PPM:     2.85,
+		Reason:  "Coldrage Dagger: column reads 101",
+		Source:  "EV-0136",
+	},
+	{
 		ItemID:  11817,
 		SpellID: 15602,
 		PPM:     2.1,
@@ -434,6 +463,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1298416,
 		PPM:     1.9,
 		Reason:  "Iceblade Hacker: column reads 101",
+		Source:  "EV-0136",
+	},
+	{
+		ItemID:  17752,
+		SpellID: 1292155,
+		PPM:     2.1,
+		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice",
 		Source:  "EV-0136",
 	},
 	{
@@ -621,13 +657,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  6469,
-		SpellID: 29653,
-		PPM:     2.05,
-		Reason:  "Venomstrike: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  6660,
 		SpellID: 8348,
 		PPM:     0.85,
@@ -639,13 +668,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1293183,
 		PPM:     3.75,
 		Reason:  "Thornspike: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  6831,
-		SpellID: 1293407,
-		PPM:     2,
-		Reason:  "Black Menace: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -712,13 +734,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  9467,
-		SpellID: 3742,
-		PPM:     2.1,
-		Reason:  "Gahz'rilla Fang: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  9485,
 		SpellID: 1293005,
 		PPM:     1,
@@ -744,13 +759,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1293787,
 		PPM:     2.1,
 		Reason:  "X'caliboar: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  10761,
-		SpellID: 1293790,
-		PPM:     2.85,
-		Reason:  "Coldrage Dagger: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -933,13 +941,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 21952,
 		PPM:     2.45,
 		Reason:  "Claw of Celebras: column reads 101; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  17752,
-		SpellID: 1292155,
-		PPM:     2.1,
-		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -1265,7 +1266,7 @@ var WeaponProcs = []WeaponProc{
 	// 	ItemID:  3854,
 	// 	SpellID: 13439,
 	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Frost Tiger Blade: column reads 101; Hammer of the Northern Wind casts the same spell at 4.6 PPM",
+	// 	Reason:  "Frost Tiger Blade: column reads 101; Hammer of the Northern Wind casts the same spell (EV-0136)",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

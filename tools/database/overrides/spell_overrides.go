@@ -682,6 +682,13 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 450587,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Battlegear of Valor 5-piece, Battlegear of Heroism 4-piece: 1 proc per minute on landed white swings, a log fit not yet validated (EV-0136); the game files state none",
+		Source:  "observed",
+	},
+	{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,

@@ -1,9 +1,11 @@
-# EV-0136: Proc rates of 103 items from the Warcraft Logs sweep
+# EV-0136: Proc rates of 103 items and a set bonus from the Warcraft Logs sweep
 
-- Claim: each item below procs at the rate its section gives, priced on each landed hit's weapon base speed; a rate whose
-  item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one observed.
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each item's table names; 715 reports
-  in all
+- Claim: each item and set bonus below procs at the rate its section gives, priced on each landed hit's weapon base speed;
+  a rate whose item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one
+  observed; and Windfury Totem's strike counts as a melee swing for the procs whose rows hear melee swings, Unsealed
+  Wrath excepted, while in game it grants no rage.
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 721
+  reports in all for the rates, and the 209 reports the Windfury Totem section lists
 - Game build: 1.60.1.70425 to 1.60.1.70938 by report date; each item's section gives its date span, and the hotfix each
   player ran is not recorded
 - Date: 2026-10-08 to 2026-11-16
@@ -29,9 +31,9 @@ The method reproduces Destiny (EV-0132, 1.18), Heart of Wyrmthalak (EV-0133, 1.9
 (EV-0121, 1.98 against 1.95) and the Highborne Research Tablet's weapon hits (EV-0131, 2.70 against 2.71). It reads
 Flurry Axe 1.79 against EV-0120's 1.65: the warriors' off-hand Whirlwind hits roll the axe and are not counted as hits
 here, which raises their runs to 2.17 and 2.83 (the others read 1.57 to 1.76), so no item rolled mostly by the off hand
-counts as measured. Against clean damage splits the timing split agrees on 86% of swings and puts the main hand's share a
-median 0.025 from the weapon speeds' share. Items with fewer
-than 50 procs, or one wearer with fewer than 100, are left out.
+counts as measured, except Satyr's Lash, whose hits fall half in each hand, by the owner's ruling. Against clean damage
+splits the timing split agrees on 86% of swings and puts the main hand's share a median 0.025 from the weapon speeds'
+share. Items with fewer than 50 procs, or one wearer with fewer than 100, are left out.
 
 Each table lists every run looked at; a run left out names why. PPM is the run's procs over its expected procs at 1 PPM.
 
@@ -59,6 +61,96 @@ Read from the same wearers' streams, to check what the rows state before the sim
 - The Chief's Enforcer (9477), 13 wearers: 416 strikes applied or refreshed the stun, which also landed on 20 of 26
   dodged strikes, 6 of 12 parried ones and 3 of 5 misses; 56 stuns were immune, 2 resisted, and 305 of 389 lasted the full
   1.5 s.
+
+## Windfury Totem's strike as a swing
+
+- Reports from 2026-11-11 to 2026-11-16; the reports are listed at the end of the section
+- Scripts: `chain.py` for procs and `charges.py` for spent charges, run by `run_all.sh`; `reckoning.py` for Reckoning's
+  extra attacks, `swingtimer.py` for the swing timer, and `paired.py` for rage
+
+A strike counted here is a landed Windfury Totem strike (10610 and the lower ranks 10608 and 8516) that follows a landed
+melee ability (melee DefenseType) within 60 ms, where the wearer lands no other melee hit in the 100 ms before the
+ability or in the 100 ms after it. Its proc is an event of the proc's spell in the 100 ms after the ability. A melee
+ability alone almost never procs these rows, so the rate after an ability and a strike is the strike's own; the
+ability-alone rate is in the table beside it. The white swing rate is the same count after a landed white swing with no
+other hit within 100 ms. A charge spend is counted only while the charged aura is up, and for both Flurries only where
+neither the hit nor the strike crit, since a crit sets the charges again. Intervals are Wilson intervals per hit.
+
+| Proc                                      | Row     | Wearers | Strikes | With proc | Per strike        | After an ability alone | Per white swing   |
+| ----------------------------------------- | ------- | ------: | ------: | --------: | ----------------- | ---------------------- | ----------------- |
+| Unbridled Wrath, rage                     | 12322   |      78 |  11,785 |     6,418 | 54.5% (53.6–55.4) | 0.26%                  | 55.1% (54.8–55.4) |
+| Flurry (warrior), a charge spent          | 12966   |      36 |   1,880 |     1,861 | 99.0% (98.4–99.4) | 0.56%                  | 98.3% (98.1–98.5) |
+| Reckless Swings, rage and a charge        | 1329555 |      46 |   1,475 |     1,469 | 99.6% (99.1–99.8) | 0.47%                  | 97.5% (97.1–97.8) |
+| Quick Strikes (Aspect of the Beast)       | 1299447 |      16 |     727 |        62 | 8.5% (6.7–10.8)   | 0.24%                  | 8.6% (8.1–9.1)    |
+| Rogue Armor Energize (rogues)             | 27787   |       5 |     737 |        15 | 2.0% (1.2–3.3)    | 0.05%                  | 2.5% (2.2–2.8)    |
+| Rogue Armor Energize (druid)              | 27787   |       1 |      79 |         1 | 1.3% (0.2–6.8)    | 0 of 334               | 1.8% (1.1–3.1)    |
+| Reckoning, the stored charges spent       | 1326084 |      18 |      25 |        25 | 100% (86.7–100)   | 0.36%                  | 80.4% (74.4–85.3) |
+| Battlegear of Valor, heal                 | 450587  |       9 |   1,299 |        37 | 2.85% (2.04–3.87) | 0.03%                  | 2.68% (2.28–3.14) |
+| Flurry (shaman), a charge spent (EV-0010) | 16257   |      55 |     357 |       286 | 80.1% (75.7–83.9) | 4.1%                   | 94.3% (93.9–94.8) |
+| Seal of Command                           | seal    |      37 |   1,043 |       313 | 30.0% (27.3–32.9) | 0.73%                  | 25.7% (24.9–26.4) |
+| Seal of Fury                              | seal    |      50 |   1,450 |     1,095 | 75.5% (73.2–77.7) | 1.5%                   | 69.1% (68.6–69.6) |
+| Seal of Righteousness                     | seal    |      36 |     821 |       255 | 31.1% (28.0–34.3) | 0.89%                  | 39.3% (38.6–40.1) |
+| Unsealed Wrath, an Echo stored            | 1310735 |      26 |     519 |        10 | 1.9% (1.1–3.5)    | 1.0%                   | 66.6% (65.5–67.7) |
+| Bloodthrill                               | 1289682 |       9 |   1,633 |        10 | 0.61% (0.33–1.12) | 0.74%                  | 3.5% (3.1–4.0)    |
+| Lightforge Armor, Crusader's Wrath        | 450625  |       2 |      33 |         0 | 0% (0–10.4)       | 0 of 375               | 3.4% (2.1–5.4)    |
+
+Every row whose proc flags hear melee swings and nothing else rolls the strike as a main-hand swing. Unbridled Wrath,
+the warrior's Flurry, Reckless Swings, Quick Strikes, Rogue Armor Energize and Battlegear of Valor roll it at the rate
+a white swing does; the shaman's Flurry and Reckoning hear it too. A seal's row is each rank's own. Unsealed Wrath is the
+exception: a strike stores an Echo no more often than the ability before it does alone. Bloodthrill, whose row also hears abilities but which procs on Heroic Strike and Cleave alone (EV-0056),
+does not hear it either. Lightforge Armor's two wearers are too few to say. The seals hear the strike as the sim has
+them.
+
+A strike spends Reckoning's stored charges, landed (101 spends) or avoided (87), but it brings no extra attack: none of
+the 26 spends by a strike that followed an ability logs Reckoning's extra attacks 20178. A strike that follows a white
+swing, which may spend the charges itself, logs them on 74 of 160 spends, so those are left out.
+
+A white swing that a strike follows spends 1.97 warrior Flurry charges and 1.96 Reckless Swings charges, against 0.99
+and 0.98 for a white swing alone.
+
+The strike does not reset the swing timer: the gap between the swings before and after an ability and a strike is a
+median 1.002 of the wearer's median swing gap (3,314 such gaps), against 1.001 after an ability alone (26,063).
+
+In game the strike grants no rage. Cast events carry the warrior's rage before the cast's cost, so the gain between two
+casts is read straight off them. Over gaps under 600 ms with no damage taken and no resource change, 88 of 90 strikes
+from 13 warriors added nothing over the same warrior's gaps opened by the same ability without a strike. The strikes
+dealt 1 to 509 damage, median 204, where a white swing of about 200 damage gives 10 to 19 rage. The owner calls this a
+known game issue that is to be fixed, so the sim keeps the strike's rage as a main-hand swing's. Those runs are
+DGFd8KtQk19hXabN fight 5, rfg8k3Nw1P7TAHx6 6, AfJ6DYbh9dmkgHZL 7, cgMGCdPJQ84wzaBV 5 and 183, xRK37aCvtVfj26kL 4,
+FN8krKfCb3BXWmwV 3, JRQqNL6DkvWKYdPB 2, 4Tc3yBNVYn7wW8RJ 63, 7fy93LdcwQhvF2gP 5, 1JLq46yg7wYNhan9 1,
+jXTVfy3ApWKPYwDG 3 and 4YVTAqgG3dtmD8C9 4.
+
+The reports of the proc and charge counts: 123jYCvkVGrHfXWt 176QTFWR8PtdfGZB 1CYTfP3pFDcaRrJm 1DbXf9pPdZWKQTam
+1FNGzPgAaX6wDpBt 1FV3WyfXGCcPrT9b 1HTPQGZya7pAz3qh 1JLq46yg7wYNhan9 1NBKq2mDWghwR69z 1PcrGTyatDAFx8Yk 1QpP6DrkacvCjdYy
+1TZvYG2tfR9wVPNH 1WHqx7bPa8mkGydJ 1nLR3XCxjcAdpKtB 1q2tTDcaFMnfzvkB 1qjDRYwtHxyJPfQn 1qpQ6FW8fxD9gC4G 1rYynxW6AGfcQz9t
+1z4vRDqGdM2cVPXk 214ndcFyjpPM8wah 28AhM3VGnvFcJ4rD 2AvFk4PJmBhyb89n 2FkYRHB1dWhra8vt 2WH4jLt3FADy8fnh 2Z4G3r9pfqJtCM6W
+2b3Tf7QGKHA1WMxD 2wMznDRvmkpbtHxA 3B8AcaGNRKmdgPDj 3JbjLGXVzctAmfaD 3PAwV6XFaB7hqDgz 3mwdt9jJF6Tyb1q2 3qfDVTZ1J29zPChn
+3zTJ2VXvQ8GCyFbc 49dLXZ3g7NhzqABb 4C28YPXqgTMQJxB7 4HC91qxpR6hzKWdF 4LrMDtG6T8AVRJzQ 4Qm6MgZWBTx78Lvp 4RVqrpXkh7dKftAC
+4Tc3yBNVYn7wW8RJ 4bqYVtkjL6aKdwQM 4f2ygdYCzFAvqc6K 4h1PjwkaKX9q8mgT 4wTtzhPfDqnQWNy7 61Hx8DgwhdbWaN9C 61VcxvhfQF2DRAGd
+6kN78G2xfqy3vwTP 6kf3tMF4wCPNcRnh 6vFAMDQZ2RmaxC7n 6vKFBQNC1fMqR3Wa 6xHzpKd8wCna37Lb 6yHgkT8LqP42NmxY 7AxaTpFZMqGb9wNd
+7M3gGcH6bprxKqZY 7c21XafhWTAdqNGY 7cpmjq6DTBNLwFhG 7fy93LdcwQhvF2gP 7fz9Kk8rY6jyQAbL 7kxNnWGw2FzfLJtR 7n6rKTfk1vhzgXyF
+7rGZbTJtpAqnBh2Y 7rzAygVjwH2C69Tv 7tLY1pVK9wRWPABX 8WfLRh1qTpFxJgra 8cVPaCpAMmv93bkD 8frHF64GzAhBxDyb 8n6w19TGyhZtmKfd
+8yPRmZdrq4QhcGn1 9MwvzA3QN7CtHcyg 9Z473MfXLYqcyWPg 9hywC8jMTLV36Pxd 9nJGwhXTd8pvraxb 9zMva8xTVhFkHPAt 9zxHaWbYT3gqDQvF
+A3hT8CQBPJXWmtZM APgTZrbzNvykx1JG ARFXzbqHDpBLJdhy AdfMXDLW29k6pGy1 AfJ6DYbh9dmkgHZL AvNwTdyBbDncFf2h B9gTmLcFW3R7GAHt
+BMJxG63gcbQX8tWh BQnXb3hTC4rmJ2pd Br2pycwj4zLC1ZP7 Bz8CAjZnNyXhgTtH C8Hk1q3rpN27YWam CWhG6LyXk3PBHdMQ CfHvwytKJ6P4q7ag
+CtMF9BgnAmWkTbfd D463FZBX1C9maJ7b DGFd8KtQk19hXabN DH3dT6tYLKmMrNz8 DNfvpnLRcPJyMKQA DW9YkdvyrjtMBQnf DWfMg7hzPF4d1mQ6
+Dfa6GMQ2pmX8cBNz DpVmH4WRxL72nGwd FHqYCNcKntvDAjxg FHz1nBG8rhgMqaxW FMaAjHcwCQLkpV32 FN8krKfCb3BXWmwV FVqQab31p7KXAJzt
+GRnMHmK69BXfWVTj Gyw2T3LjptRW6vH9 H2GvZtVYNy4QzqLw H2T7NDqBgm6LxGYK HXg2W4bTFDjcRJ87 HmF9nyBdrvAL1wKt HwqzG1dpaPXNQAFg
+HxCQat38vmjnkpb6 JMnDtLGxf4FqCV6w JRQqNL6DkvWKYdPB KYmwz2q1tG8yAcdP LMdRqJGhV17XwWyT LPQd7pfbjDkYZyRz Lg82ZFDyQ4MvRm9p
+LxdYWR47ZFbTNBhM Lxy1kqgVvFc24aPr MWrPDAVFCBXzh8Z6 MZRgJXdTb9mKLqcv MwVH1KQmak73NPd8 N3Y1mFkJ9Dwr74bA NXMZV9xjvWpB7GtP
+NdTXJzkWHLZrVQYm NrpM7DJQBKWqbzVF P1LGvYV9FdmR8x3n PYQf86cTrZ1GjdKx Pjz8kK2XvxyQrTCB PtmYHjkDrqhdR9MA QRCgnhck3KVq6vBT
+QTt29xVHrZa8mDBw Qb1yWxa8vHCGL7Yr RfT7K4v2jhY9FAzD RpFQn1ftYCAgMW47 RvGHZ6wnXpCyq3dB RvcrA3P9jznxhHVQ TacY2wkjAgXynNHJ
+Td2y9DjVvn1YgaHr V3L7kJDzTGg4QqCF VYBjgJx8aZtRhmpy VYb6f27NazpmCch3 WYFZHxvL7zg6ydnQ Wf8ghC6TtQKrkXdv WygY76wT4zqbvCM2
+X186Gx2gRBZChbVA X4QvgN2caZBbfnwF XWfw2PzpNcBhbayY YFtvD87kznr1CThg YWZm7NKhFvqbMfgy YZ6NdFDRQKL2CTmv Z78jbgTL9V1Yfahq
+ZDWyQGqFBvagT7kA ZNyPLR2vkjMGptCJ ZqghBpkcy7xtPfmH aAcjGPbyZXNTzR1K acpjMDfJkLPABvxT b12KD98fndF4hMq3 bnRJKL9FTMq2zkQG
+cFRpkf1jWTaHrgL3 cLkwmZbzFDKdPhYn cgMGCdPJQ84wzaBV cr6qMtj1vCTPHVfw dBNfgVDLMmnc8h4v dV2cFGtPM8ZajTYX daT4FcQgCYw2WBq6
+fywmzq86PRtjDJra fz2HQxXk96ywVYv7 g8b1MkJnKtyfzvPa gBDMLv8J1K7nqkpd gmKvNqHFJLZXfdnP gtNvbhF9aZCXyzVk hCPLc2G7KAVX8Bby
+jJWt7Dnm4qc9rzQd jLTw4rQd1BKgMkhy jXTVfy3ApWKPYwDG kv32zprHjRfnZPh9 mCqj9fpbthFNGgkc mRxb9L2wNkMJTWXY mdXkc6xwP8Y9pR47
+mg3MBw6rcNtZpjbA mqzgv4rPVxA3JHGf nCKwNLGVhPMFjq9Y nJDNV6Md3bqpXZT9 nX1qbatTzGZ3CAwB nyMqbY64tL7HhKQJ q23Tz8hnZGkvbLx6
+q68xzRHYhCpFLjfJ qcrKJGPvkfhAtdjQ rAFM4QTbC8jHypZL rfg8k3Nw1P7TAHx6 rnfRqHt9Vk8g1JB7 rphdM14FbnTBaj3V rwxQgM38abAcmRVv
+tpNByDzWPvrVwYx6 v8Zp2QF7An4d9xMj vwCXzhMQ2drgpRxD wJtPdpxFGQCM9f3c waZyxVKk43BzGLN6 xRK37aCvtVfj26kL xVCyPt4A9HYL7MRc
+xXWkB3fqAjt9NJGH yHRFJ8kn9vQA4YLr yhW9cLwxnHNDP2jF ynVw7ZgMx4tjF3fQ zFXxNAn69HBGRaqg zLacx86Thr3AMtqn zbg1wFp2L8hWHZva
+zmDY4LVX7N8vh9aR
 
 ## Axe of Inevitable Ruin (274484)
 
@@ -111,6 +203,45 @@ Read from the same wearers' streams, to check what the rows state before the sim
 | v8Zp2QF7An4d9xMj | 1-10   | Warrior | oh   | timing + otsu for 71 swings         |   117 | 1662 | 2.35 |          |
 | xXWkB3fqAjt9NJGH | 1-5    | Warrior | oh   | timing + otsu for 129 swings        |   100 |  659 | 5.06 |          |
 
+## Battlegear of Valor (set 189)
+
+- Proc: 5-piece set bonus proc 450587, logged as 450589; rolls on melee swings
+- Sim rate: 1 PPM, observed; measured 0.88 PPM [0.74, 1.00], 9 wearers, 9 runs, 201 procs on 5895 hits
+- Reports from 2026-11-14 to 2026-11-16, game build 1.60.1.70938
+- Counted apart from the sweep, on the same pricing: the hits are landed white swings of either hand and Windfury Totem
+  strikes, each on its hand's weapon base speed; a dual wielder's swings are split between the hands by damage (Otsu),
+  and the interval is 4,000 bootstrap draws of whole wearers
+- The Battlegear of Heroism reissue's 4-piece bonus is the same row; no wearer with it active was measured, and the sim
+  gives it this rate
+
+Landed white swings and Windfury Totem strikes roll it, the strike as a melee swing (§Windfury Totem's strike as a
+swing). Of the strikes that
+follow a melee ability with no other hit within 100 ms, 37 of 1,299 procced it (2.85%, 95% 2.04 to 3.87), against 2.68%
+(2.28 to 3.14) on isolated white swings. None of 230 landed Heroic Strikes or 1,864 landed Cleaves is
+followed by a proc, and Whirlwind, Shield Slam and Revenge are followed by one about 0.1% of the time, as chance would
+put a proc next to them. The heal logs about 20 ms after its swing, and two procs logged in the same millisecond, so
+there is no cooldown. The chance per swing rises with the weapon's speed: 2.5% on the single-weapon wearers' 1.8 to
+2.2 s main hands, 4.3% on their 2.7 and 2.8 s ones, so the rate is per minute. The six wearers who mixed the two sets
+(four Valor pieces and one Heroism piece, or three and two either way) never procced.
+
+| Report           | Fights            | Class   | Slot | Hand split | Procs | Hits |  PPM | Left out           |
+| ---------------- | ----------------- | ------- | ---- | ---------- | ----: | ---: | ---: | ------------------ |
+| 1JLq46yg7wYNhan9 | 1, 3-17           | Warrior | set  |            |     0 |      |      | 4 Valor, 1 Heroism |
+| 2wMznDRvmkpbtHxA | 7                 | Warrior | set  |            |    15 |  437 | 1.14 |                    |
+| 7fz9Kk8rY6jyQAbL | 1-2               | Warrior | set  | otsu       |    30 |  667 | 1.20 |                    |
+| ARFXzbqHDpBLJdhy | 1                 | Warrior | set  |            |     0 |      |      | 2 Valor, 3 Heroism |
+| AfJ6DYbh9dmkgHZL | 1                 | Warrior | set  | otsu       |    43 | 1281 | 0.91 |                    |
+| D463FZBX1C9maJ7b | 7                 | Warrior | set  |            |     5 |  316 | 0.43 |                    |
+| DGFd8KtQk19hXabN | 1-2               | Warrior | set  |            |    33 |  741 | 0.95 |                    |
+| FN8krKfCb3BXWmwV | 1, 3-4, 9         | Warrior | set  |            |    24 |  987 | 0.66 |                    |
+| NdTXJzkWHLZrVQYm | 1                 | Warrior | set  |            |     0 |      |      | 4 Valor, 1 Heroism |
+| VtjvpP8bwcgCYTXF | 3, 5-18           | Warrior | set  |            |     0 |      |      | 4 Valor, 1 Heroism |
+| YFtvD87kznr1CThg | 1, 4              | Warrior | set  |            |     0 |      |      | 3 Valor, 2 Heroism |
+| cgMGCdPJQ84wzaBV | 3, 5-6, 8, 10, 12 | Warrior | set  |            |     0 |      |      | 4 Valor, 1 Heroism |
+| dBNfgVDLMmnc8h4v | 10                | Warrior | set  |            |    12 |  520 | 0.66 |                    |
+| rfg8k3Nw1P7TAHx6 | 1, 3              | Warrior | set  |            |    28 |  635 | 0.98 |                    |
+| rnfRqHt9Vk8g1JB7 | 1-2               | Warrior | set  |            |    11 |  311 | 0.76 |                    |
+
 ## Black Duskwood Staff (937)
 
 - Proc: weapon proc 18138, logged as 18138; rolls on main hand
@@ -144,7 +275,7 @@ Read from the same wearers' streams, to check what the rows state before the sim
 ## Black Menace (6831)
 
 - Proc: weapon proc 1293407, logged as 1293407; rolls on main hand, off hand
-- Sim rate: 2 PPM, observed; measured 2.01 PPM [1.82, 2.21], 15 wearers, 15 runs, 792 procs on 15762 hits
+- Sim rate: 2 PPM, measured; measured 2.01 PPM [1.82, 2.21], 15 wearers, 15 runs, 792 procs on 15762 hits
 - Reports from 2026-11-14 to 2026-11-16
 
 | Report           | Fights              | Class   | Slot | Hand split                  | Procs | Hits |  PPM | Left out |
@@ -361,7 +492,7 @@ Read from the same wearers' streams, to check what the rows state before the sim
 ## Coldrage Dagger (10761)
 
 - Proc: weapon proc 1293790, logged as 1293790; rolls on main hand, off hand
-- Sim rate: 2.85 PPM, observed; measured 2.87 PPM [2.62, 3.09], 16 wearers, 16 runs, 1258 procs on 17529 hits
+- Sim rate: 2.85 PPM, measured; measured 2.87 PPM [2.62, 3.09], 16 wearers, 16 runs, 1258 procs on 17529 hits
 - Reports from 2026-11-14 to 2026-11-16
 
 | Report           | Fights    | Class  | Slot | Hand split                   | Procs | Hits |  PPM | Left out  |
@@ -694,7 +825,7 @@ Read from the same wearers' streams, to check what the rows state before the sim
 ## Gahz'rilla Fang (9467)
 
 - Proc: weapon proc 3742, logged as 3742; rolls on main hand, off hand
-- Sim rate: 2.1 PPM, observed; measured 2.12 PPM [1.97, 2.27], 14 wearers, 14 runs, 700 procs on 11026 hits
+- Sim rate: 2.1 PPM, measured; measured 2.12 PPM [1.97, 2.27], 14 wearers, 14 runs, 700 procs on 11026 hits
 - Reports from 2026-11-14 to 2026-11-16
 - Notes: swap noise: the swap drop moved PPM 1.73 -> 2.16 (144 active minutes, 20% of hits, in 5 runs)
 
@@ -1284,7 +1415,7 @@ Read from the same wearers' streams, to check what the rows state before the sim
 ## Satyr's Lash (17752)
 
 - Proc: weapon proc 1292155, logged as 1292155; rolls on main hand, off hand
-- Sim rate: 2.1 PPM, observed; measured 2.09 PPM [1.90, 2.30], 9 wearers, 9 runs, 393 procs on 6621 hits
+- Sim rate: 2.1 PPM, measured; measured 2.09 PPM [1.90, 2.30], 9 wearers, 9 runs, 393 procs on 6621 hits
 - Reports from 2026-11-13 to 2026-11-16
 
 | Report           | Fights   | Class   | Slot | Hand split                         | Procs | Hits |  PPM | Left out |
@@ -1304,6 +1435,8 @@ Read from the same wearers' streams, to check what the rows state before the sim
 - Proc: equip proc 1318323, logged as 1318324; rolls on harmful spells, melee abilities, melee swings, ranged abilities, ranged auto attacks
 - Only against Furbolg targets (its tooltip); counted on hits against Blackmaw creatures, melee, ranged and spell hits alike
 - Sim rate: 1.2 PPM, observed; measured 1.13 PPM [0.79, 2.17], 5 wearers, 5 runs, 235 procs on 4140 hits
+- Spell hits are priced on the main-hand weapon's speed by the owner's ruling, in the table as in the sim: the Mage's and
+  the Priest's rows read 3.0 s and 3.3 s a hit, their staves' speeds. These logs do not settle how a spell hit is priced
 - Reports from 2026-11-13 to 2026-11-15
 
 | Report           | Fights               | Class   | Slot    | Hand split | Procs | Hits |  PPM | Left out |
@@ -1761,7 +1894,7 @@ Read from the same wearers' streams, to check what the rows state before the sim
 ## Venomstrike (6469)
 
 - Proc: weapon proc 29653, logged as 29653; rolls on ranged
-- Sim rate: 2.05 PPM, observed; measured 2.05 PPM [1.88, 2.23], 19 wearers, 23 runs, 667 procs on 8127 hits
+- Sim rate: 2.05 PPM, measured; measured 2.05 PPM [1.88, 2.23], 19 wearers, 23 runs, 667 procs on 8127 hits
 - Reports from 2026-11-06 to 2026-11-16
 - Notes: swap noise: the swap drop moved PPM 1.53 -> 2.05 (113 active minutes, 26% of hits, in 4 runs)
 

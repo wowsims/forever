@@ -228,19 +228,24 @@ func (paladin *Paladin) applyReckoning() {
 	})
 
 	// The next main-hand swing spends every stored charge as a copy of itself, tagged with
-	// Reckoning, at the same target. The copies spend none.
+	// Reckoning, at the same target. The copies spend none. Windfury Totem's strike, landed or
+	// avoided, spends the stored charges as a swing does but swings no copy (EV-0136).
 	var extraAttack *core.Spell
 	paladin.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Reckoning - Swing" + paladin.Label,
 		Callback:           core.CallbackOnSpellHitDealt,
 		ProcMask:           core.ProcMaskMeleeMHAuto,
+		HearsCountedSwings: true,
 		TriggerImmediately: true,
 		ExtraCondition: func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
 			return extraAttack != nil && spell != extraAttack && stored.IsActive()
 		},
-		Handler: func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+		Handler: func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			count := stored.GetStacks()
 			stored.Deactivate(sim)
+			if spell.Flags.Matches(core.SpellFlagCountsAsSwing) {
+				return
+			}
 			target := result.Target
 			sim.RunAfterCurrentEvent(func(sim *core.Simulation) {
 				mainHand := paladin.AutoAttacks.MHAuto()

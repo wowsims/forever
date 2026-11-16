@@ -28438,10 +28438,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1150584, SpellID: 450585, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 300, SPCoef: 1, PvpMult: 1, TriggerID: 450583, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 450587, Name: "S03 - Warrior Armor Heal Trigger - Battlegear of Valor", School: 2, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 50, StartRecoveryCategory: 133, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4}, RefIDs: []int32{450589}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintHeals,
+	{ID: 450587, Name: "S03 - Warrior Armor Heal Trigger - Battlegear of Valor", School: 2, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 50, StartRecoveryCategory: 133, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4}, RPPM: 1, RefIDs: []int32{450589}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150590, SpellID: 450587, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, SPCoef: 1, PvpMult: 1, TriggerID: 450589, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 1 -- Battlegear of Valor 5-piece, Battlegear of Heroism 4-piece: 1 proc per minute on landed white swings, a log fit not yet validated (EV-0136); the game files state none
 	{ID: 450589, Name: "Warrior's Resolve", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 50, StartRecoveryCategory: 133,
 		Effects: []Effect{
 			{ID: 1150593, SpellID: 450589, Type: dbcenums.E_HEAL, BasePoints: 110, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

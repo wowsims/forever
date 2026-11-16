@@ -295,8 +295,10 @@ func init() {
 	//
 	// 1318323 rolls the procs per minute an override puts on the row on the landed melee, ranged and
 	// harmful spell hits its row names, and casts 1318324 on the target (EV-0136). A weapon hit rolls on
-	// its weapon's speed, and a spell hit on the main-hand weapon's speed, a caster's who never swings
-	// included. Only a hit on a Furbolg rolls it: no row limits the target, the tooltip does.
+	// its weapon's speed. A spell hit rolls on the main-hand weapon's speed, a caster's who never swings
+	// included, by the owner's ruling: the logs do not settle how a spell hit is priced. Only a hit on a
+	// Furbolg rolls it: no row limits the target, the tooltip does. Its on-use, Irresistible Scent
+	// 1296664, charms the target, which the sim does not model.
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcChance = 0

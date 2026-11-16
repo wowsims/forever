@@ -1456,9 +1456,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ShadowcraftArmor"
  value: {
-  dps: 748.23078
-  tps: 556.81613
-  hps: 46.42778
+  dps: 753.00654
+  tps: 560.28746
+  hps: 46.5125
  }
 }
 dps_results: {

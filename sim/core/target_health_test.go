@@ -41,7 +41,7 @@ func TestPlainExecuteCrossingsFollowTheProportions(t *testing.T) {
 		want35 := time.Duration((1 - tc.p35) * float64(sim.Duration))
 		want20 := time.Duration((1 - tc.p20) * float64(sim.Duration))
 		want25 := want35 + (want20-want35)*2/3
-		if got := target.executeAt25; got < want35 || got > want20 || math.Abs(float64(got-want25)) > 1 {
+		if got := target.executeAt25; math.Abs(float64(got-want25)) > 1 {
 			t.Errorf("%v s with %v/%v: 25%% at %v, want %v, two thirds of the way from 35%% to 20%%", tc.duration, tc.p35, tc.p20, got, want25)
 		}
 		if got := target.executeAt35; got != want35 {

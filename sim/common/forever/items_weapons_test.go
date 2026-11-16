@@ -286,6 +286,39 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	}
 }
 
+// Naga Heartpiercer 3078's 1292647 procs at the procs per minute of the item's entry, on the bow's
+// speed, off the cast result of a ranged shot that lands, and Pierce Heart strikes then. A missed shot
+// casts none, and the shot's hit, dealt later, rolls no second one.
+func TestNagaHeartpiercerStrikesOffLandedShots(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassRogue, proto.ItemSlot_ItemSlotRanged, 3078)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	proc := character.GetAura("Naga Heartpiercer")
+	pierceHeart := character.GetSpell(core.ActionID{SpellID: 1292647})
+	if proc == nil || proc.Dpm == nil || pierceHeart == nil {
+		t.Fatal("3078 registers no Pierce Heart or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 3078, 1292647)
+	// Every ranged hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRanged)
+	casts := func() int32 { return pierceHeart.SpellMetrics[enemy.UnitIndex].Casts }
+
+	shot := rangedShot(&character.Unit)
+	character.OnCastResult(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if got := casts(); got != 0 {
+		t.Errorf("a missed shot cast Pierce Heart %d times, want none", got)
+	}
+	landed := &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}
+	character.OnCastResult(sim, shot, landed)
+	if got := casts(); got != 1 {
+		t.Errorf("a landed shot's cast result cast Pierce Heart %d times, want once then", got)
+	}
+	character.OnSpellHitDealt(sim, shot, landed)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := casts(); got != 1 {
+		t.Errorf("the landed shot's hit brought Pierce Heart to %d casts, want it left at one", got)
+	}
+}
+
 // Skullforge Reaver 13361 in the main hand casts 17484 at the procs per minute of the item's entry, on
 // the sword's speed, off landed main-hand swings and specials, and never off a miss, the off hand's
 // swings or a ranged hit. The brand drains the target every period for the row's duration and heals
@@ -1593,9 +1626,7 @@ func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
 		var total float64
 		var landed int
 		for range 400 {
-			before := wound.SpellMetrics[enemy.UnitIndex].TotalDamage
-			wound.Cast(sim, enemy)
-			if dealt := wound.SpellMetrics[enemy.UnitIndex].TotalDamage - before; dealt > 0 {
+			if dealt := castDamage(sim, wound, enemy); dealt > 0 {
 				total += dealt
 				landed++
 			}
@@ -1736,17 +1767,11 @@ func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
 	if fang == nil || static == nil {
 		t.Fatal("9467 registers no damage spell or no Static Electricity")
 	}
-	strike := func() float64 {
-		before := fang.SpellMetrics[enemy.UnitIndex].TotalDamage
-		fang.Cast(sim, enemy)
-		return fang.SpellMetrics[enemy.UnitIndex].TotalDamage - before
-	}
-
-	plain := strike()
+	plain := castDamage(sim, fang, enemy)
 	const stacks = 10
 	static.Activate(sim)
 	static.SetStacks(sim, stacks)
-	charged := strike()
+	charged := castDamage(sim, fang, enemy)
 	want := 1 + stacks*spelldata.MustFind(1294477).EffectN(1).Average()/100
 	if plain <= 0 || want <= 1 || math.Abs(charged/plain-want) > 1e-6 {
 		t.Errorf("with %d stacks it dealt %v against %v with none, a ratio of %v, want %v", stacks, charged, plain, charged/plain, want)
@@ -1754,7 +1779,7 @@ func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
 	if got := static.GetStacks(); got != 1 {
 		t.Errorf("the proc left %d stacks, want 1", got)
 	}
-	strike()
+	castDamage(sim, fang, enemy)
 	if got := static.GetStacks(); got != 1 {
 		t.Errorf("a proc on 1 stack left %d, want 1", got)
 	}

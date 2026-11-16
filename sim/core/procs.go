@@ -55,11 +55,11 @@ type hitDynamicProc interface {
 	ChanceOn(sim *Simulation, spell *Spell, result *SpellResult) float64
 }
 
-// The chance for this hit from the entry its proc mask matches, asked about the hit itself when the
-// entry prices on it, and whether any entry hears it.
-func (dpm *DynamicProcManager) chanceOn(sim *Simulation, spell *Spell, result *SpellResult) (float64, bool) {
+// The chance for this hit from the entry the proc mask the listener hears it with matches, asked
+// about the hit itself when the entry prices on it, and whether any entry hears it.
+func (dpm *DynamicProcManager) chanceOn(sim *Simulation, procMask ProcMask, spell *Spell, result *SpellResult) (float64, bool) {
 	for i, m := range dpm.procMasks {
-		if m.Matches(spell.ProcMask) {
+		if m.Matches(procMask) {
 			if hit, ok := dpm.procChances[i].(hitDynamicProc); ok {
 				return hit.ChanceOn(sim, spell, result), true
 			}
@@ -158,20 +158,7 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 // behind it, such as Thunder Clap or Hammer of Wrath. With no main-hand weapon it is the sim's
 // unarmed weapon's speed.
 func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spellChance float64, procMask ProcMask) *DynamicProcManager {
-	weaponHits := procMask &^ ProcMaskSpellDamage
-	build := func() DynamicProcManager {
-		dpm := character.newDynamicWeaponProcManager(ppm, 0, weaponHits)
-		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage, weaponHits&^ProcMaskRangedAuto)
-		dpm.procChances = append(dpm.procChances, staticProc{chance: spellChance}, mainHandWeaponSpeedProc{character: character, ppm: ppm})
-		return dpm
-	}
-	dpm := build()
-
-	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, slot proto.ItemSlot) {
-		dpm = build()
-	})
-
-	return &dpm
+	return character.legacyPPMManagerWithSpells(ppm, procMask, staticProc{chance: spellChance})
 }
 
 // A procs-per-minute rate for weapon hits beside the same rate for every other hit of the mask, on
@@ -181,10 +168,17 @@ func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spel
 // whether or not the character swings it. With no main-hand weapon it is the sim's unarmed weapon's
 // speed.
 func (character *Character) NewLegacyPPMManagerWithMainHandSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+	return character.legacyPPMManagerWithSpells(ppm, procMask, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+}
+
+// The weapon hits of the mask on NewLegacyPPMManager's speeds, spell hits on spells, and every
+// other hit of the mask except a ranged auto attack on the main-hand weapon's speed.
+func (character *Character) legacyPPMManagerWithSpells(ppm float64, procMask ProcMask, spells DynamicProc) *DynamicProcManager {
+	weaponHits := procMask &^ ProcMaskSpellDamage
 	build := func() DynamicProcManager {
-		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask&^ProcMaskSpellDamage)
-		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto)
-		dpm.procChances = append(dpm.procChances, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, weaponHits)
+		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage, weaponHits&^ProcMaskRangedAuto)
+		dpm.procChances = append(dpm.procChances, spells, mainHandWeaponSpeedProc{character: character, ppm: ppm})
 		return dpm
 	}
 	dpm := build()

@@ -138,17 +138,17 @@ dps_results: {
  key: "TestRetribution-AllItems-BattlegearofValor"
  value: {
   dps: 753.29441
-  tps: 615.22248
+  tps: 615.27806
   dtps: 4.3907
-  hps: 22.96769
+  hps: 25.66871
  }
 }
 dps_results: {
  key: "TestRetribution-AllItems-BeaststalkerArmor"
  value: {
-  dps: 752.63139
-  tps: 613.87035
-  dtps: 3.27147
+  dps: 752.63017
+  tps: 613.79597
+  dtps: 3.07936
   hps: 22.99615
  }
 }
@@ -209,9 +209,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BladeofHanna-2801"
  value: {
-  dps: 811.82229
-  tps: 670.77679
-  dtps: 6.98863
+  dps: 817.51666
+  tps: 675.77568
+  dtps: 7.11546
   hps: 33.784
  }
 }

@@ -148,12 +148,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		3078, // Naga Heartpiercer
-		[
-			"Wounds the target for 42 damage. Naga are Stunned for 2s.", // 1292647 - https://www.wowhead.com/forever/spell=1292647
-		]
-	],
-	[
 		3194, // Black Malice
 		[
 			"Sends a shadowy bolt at the enemy causing 70 Shadow damage.", // 1292155 - https://www.wowhead.com/forever/spell=1292155
@@ -2843,12 +2837,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				5,
-				[
-					"Chance on melee attack to heal for 110 and generate 10 Rage", // 450587 - https://www.wowhead.com/forever/spell=450587
-				],
-			],
-			[
 				6,
 				[
 					"Restores 15 health per 5 sec.", // 21347 - https://www.wowhead.com/forever/spell=21347
@@ -3345,12 +3333,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				4,
-				[
-					"Chance on melee attack to heal for 110 and generate 10 Rage", // 450587 - https://www.wowhead.com/forever/spell=450587
-				],
-			],
-			[
 				5,
 				[
 					"When struck in combat, has a 10% chance to remove a Disarm effect from yourself. Can only occur once every 60 sec.", // 1302721 - https://www.wowhead.com/forever/spell=1302721
@@ -3762,11 +3744,9 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[5197, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Cookie's Tenderizer
 	[5243, { kind: 'ppm', rate: 3.85, origin: 'observed' }], // Firebelcher
 	[5756, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Sliverblade
-	[6469, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Venomstrike
 	[6622, { kind: 'ppm', rate: 1.8, origin: 'vanilla' }], // Sword of Zeal
 	[6660, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Julie's Dagger
 	[6681, { kind: 'ppm', rate: 3.75, origin: 'observed' }], // Thornspike
-	[6831, { kind: 'ppm', rate: 2, origin: 'observed' }], // Black Menace
 	[6909, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Strike of the Hydra
 	[7710, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Loksey's Training Stick
 	[7730, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Cobalt Crusher
@@ -3776,12 +3756,10 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[8190, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Hanzo Sword
 	[8708, { kind: 'ppm', rate: 2, origin: 'observed' }], // Hammer of Expertise
 	[9379, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Sang'thraze the Deflector
-	[9467, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Gahz'rilla Fang
 	[9485, { kind: 'ppm', rate: 1, origin: 'observed' }], // Vibroblade
 	[9486, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Supercharger Battle Axe
 	[9651, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Gryphon Rider's Stormhammer
 	[10758, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // X'caliboar
-	[10761, { kind: 'ppm', rate: 2.85, origin: 'observed' }], // Coldrage Dagger
 	[10772, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Glutton's Cleaver
 	[10797, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Firebreather
 	[10803, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Blade of the Wretched
@@ -3824,7 +3802,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[17193, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', rate: 1.5, origin: 'vanilla' }], // Thunderstrike
 	[17738, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Claw of Celebras
-	[17752, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Satyr's Lash
 	[18324, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Waveslicer
 	[18483, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Mana Channeling Wand
 	[19019, { kind: 'ppm', rate: 6, origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
@@ -3863,9 +3840,21 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 	[
+		189, // Battlegear of Valor
+		new Map([
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
 		1676, // Darkmantle Armor
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+		]),
+	],
+	[
+		1778, // Battlegear of Heroism
+		new Map([
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 ])

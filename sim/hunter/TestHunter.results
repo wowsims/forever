@@ -191,9 +191,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BeaststalkerArmor"
  value: {
-  dps: 788.22216
-  tps: 811.51702
-  dtps: 8.631
+  dps: 788.27923
+  tps: 811.58607
+  dtps: 8.61043
   hps: 13.35222
  }
 }
@@ -254,10 +254,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BladeofHanna-2801"
  value: {
-  dps: 784.57811
-  tps: 806.92228
+  dps: 786.54475
+  tps: 808.94932
   dtps: 9.28956
-  hps: 14.67389
+  hps: 14.65694
  }
 }
 dps_results: {

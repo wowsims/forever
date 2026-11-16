@@ -399,36 +399,34 @@ func init() {
 	//
 	// Chance on hit: Wounds the target for 42 damage. Naga are Stunned for 2 sec.
 	//
-	// TODO: waiting for PPM data
-	//
-	// Pierce Heart rolls on the cast result of a shot that lands, at the shot's release, and strikes
-	// then. 1292647 is physical on the melee table. The stun on Naga is crowd control the sim leaves out.
+	// An Auto Shot or ranged special that lands rolls it at the procs per minute of the item's
+	// chance-on-hit entry, on the bow's speed (EV-0136). The roll comes on the shot's cast result at its
+	// release, and Pierce Heart strikes then. 1292647 is physical on the melee table. The stun on Naga
+	// is crowd control the sim leaves out.
 	// TODO: Ingame test needed: whether a missed shot rolls it too.
-	// core.NewItemEffect(3078, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1292647)
-	// 	damage := row.DamageEffect()
-	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
-	// 	}
-	// 	pierceHeart := character.RegisterSpell(config)
-	//
-	// 	ppm := weaponProcPPM(3078, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		pierceHeart.Cast(sim, result.Target)
-	// 	}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
-	// 		trigger.Callback = core.CallbackOnCastResult
-	// 		trigger.Outcome = core.OutcomeLanded
-	// 		trigger.ProcChance = 0
-	// 		trigger.DPM = character.NewDynamicLegacyProcForWeapon(3078, ppm, 0)
-	// 	})
-	// 	trigger.Name = "Naga Heartpiercer"
-	// 	trigger.ActionID = core.ActionID{ItemID: 3078}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(3078, character.MakeProcTriggerAura(trigger))
-	// })
+	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(1292647)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
+		}
+		pierceHeart := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			pierceHeart.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnCastResult
+			trigger.Outcome = core.OutcomeLanded
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(3078, ppm, 0)
+		})
+		trigger.Name = "Naga Heartpiercer"
+		trigger.ActionID = core.ActionID{ItemID: 3078}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(3078, character.MakeProcTriggerAura(trigger))
+	})
 
 	// White Obsidian Wand
 	// https://www.wowhead.com/forever/item=274425/white-obsidian-wand
@@ -489,7 +487,7 @@ func init() {
 	// can crit, as its row states. The Trolls factor 1294430 states is the Lash's alone, so the Rage
 	// hands its versus bonus over.
 	shared.DamageProcExtras[9372] = func(character *core.Character, config *core.SpellConfig) {
-		row := spelldata.MustFind(1294431)
+		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(4).Trigger()
 		lashConfig := procSpellConfig(character, row)
 		lashConfig.VersusBonus, config.VersusBonus = config.VersusBonus, nil
 		lashConfig.Dot = spelldata.DotConfig(row, row.PeriodicDamageEffect())
@@ -523,14 +521,17 @@ func init() {
 		row := spelldata.MustFind(10373)
 		bonus := 1 + row.EffectN(2).Average()/100
 		health := int32(row.EffectN(3).Average())
+		switch health {
+		case 35, 25, 20:
+		default:
+			panic(fmt.Sprintf("Pendulum of Doom: %d's third effect states %d%% health, which starts no execute phase", row.ID, health))
+		}
 		deal := config.ApplyEffects
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if !target.IsBelowExecuteHealth(health) {
-				deal(sim, target, spell)
-				return
-			}
 			multiplier := spell.DamageMultiplier
-			spell.DamageMultiplier *= bonus
+			if target.IsBelowExecuteHealth(health) {
+				spell.DamageMultiplier *= bonus
+			}
 			deal(sim, target, spell)
 			spell.DamageMultiplier = multiplier
 		}
@@ -542,11 +543,12 @@ func init() {
 	// Chance on hit: Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops
 	// the caster with a Fire Shield for 15s.
 	//
-	// Each proc also puts 16560 on the wearer for its duration, a later proc refreshing it (EV-0136):
-	// it raises Fire resistance and deals its damage shield's amount to each attacker that strikes
-	// the wearer.
+	// 16559's second effect casts 16560, the tooltip's Fire Shield, on the wearer. The generated damage
+	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
+	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
+	// that strikes the wearer.
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
-		row := spelldata.MustFind(16560)
+		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
 		spelldata.ParseEffects(character, shield, row, spelldata.Effects(spelldata.ItemAuraParsedOn(row, spelldata.AuraOnWearer)...))
 		for _, effect := range spelldata.ItemAuraDamageShields(row) {
@@ -630,8 +632,8 @@ func init() {
 	// Melee attacks with this weapon deal 41 Frost damage. Chance on hit: Deal an additional 105 Frost
 	// damage and slow movement speed by 50% for 5s.
 	//
-	// Core takes one effect per item, so both procs are written here. 1298413 casts 1298414 on each landed
-	// main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
+	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
+	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
 	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
 	// the entry states none; its slow is movement the sim leaves out.
 	EntryRateProcs[13952] = 1298416

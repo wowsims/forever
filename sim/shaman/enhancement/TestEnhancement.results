@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BeaststalkerArmor"
  value: {
-  dps: 710.05573
-  tps: 746.40569
-  dtps: 6.9268
+  dps: 709.41883
+  tps: 746.70195
+  dtps: 7.21188
   hps: 36.43056
  }
 }
