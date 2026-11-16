@@ -666,6 +666,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 875.86748
+  tps: 713.2243
+  dtps: 3.64267
+  hps: 24.69924
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 862.9738
@@ -1041,6 +1050,15 @@ dps_results: {
   tps: 717.40756
   dtps: 3.93061
   hps: 24.6379
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 890.41172
+  tps: 724.65158
+  dtps: 3.67299
+  hps: 24.36357
  }
 }
 dps_results: {

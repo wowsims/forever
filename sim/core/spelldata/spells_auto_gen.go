@@ -22419,11 +22419,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704558, SpellID: 27655, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 140, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 27656, Name: "Flame Lash", School: 4, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x154}, RefIDs: []int32{27655}, ProcChanceSource: ProcChancePPM,
+	{ID: 27656, Name: "Flame Lash", School: 4, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x154}, RPPM: 2, VersusEffectIndex: 1, VersusFamilies: []int32{10}, RefIDs: []int32{27655}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 704437, SpellID: 27656, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, PvpMult: 1, TriggerID: 27655, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1351927, SpellID: 27656, Index: 1, BasePoints: 3, PvpMult: 1, ChainAmp: 1},
-		}},
+		}}, // override: PPM 2 -- Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none // override: VersusBonus x3 ($s2) against CreatureFamilyOrc -- Flame Lash: 'Deals 3 times as much damage to Orcs'
 	{ID: 27681, Name: "Prayer of Spirit", Rank: "Rank 1", School: 2, Attr: [17]uint32{0: 0x10000, 1: 0x20000, 2: 0x80000, 3: 0x100, 14: 0x40, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, MaxLevel: 70, DurationMs: 3600000, MaxRange: 40, GCDMs: 1500, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 2147483648, 1: 4194304}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18},
 		Effects: []Effect{
 			{ID: 701842, SpellID: 27681, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 40, BaseLevel: 60, MaxLevel: 70, PvpMult: 1, RadiusMax: 100, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{56, 0}},

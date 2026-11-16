@@ -666,6 +666,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 538.92627
+  tps: 465.29646
+  dtps: 2.94293
+  hps: 43.53028
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 530.99528
@@ -1023,6 +1032,15 @@ dps_results: {
   tps: 450.34702
   dtps: 2.94293
   hps: 49.27444
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 548.38669
+  tps: 472.96732
+  dtps: 2.85155
+  hps: 43.37778
  }
 }
 dps_results: {

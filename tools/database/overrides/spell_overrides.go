@@ -276,6 +276,13 @@ var VersusBonuses = []VersusBonus{
 		Source:     "tooltip",
 	},
 	{
+		SpellID:     27656,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Flame Lash: 'Deals 3 times as much damage to Orcs'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1295744,
 		EffectIndex: 1,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
@@ -638,6 +645,13 @@ var Spells = []Override{
 		Value:   2.6,
 		Reason:  "Highborne Research Tablet: 2.6 procs per minute on landed damaging melee hits; the game files state none",
 		Source:  "EV-0021",
+	},
+	{
+		SpellID: 27656,
+		Field:   PPM,
+		Value:   2,
+		Reason:  "Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
+		Source:  "EV-0133",
 	},
 	{
 		SpellID: 21978,

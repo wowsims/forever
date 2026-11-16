@@ -398,6 +398,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 774.11492
+  tps: 714.13376
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 790.54432
@@ -637,6 +644,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFrost-AllItems-Hazza'rah'sCharmofMagic-19959"
+ value: {
+  dps: 761.93743
+  tps: 703.17401
+ }
+}
+dps_results: {
+ key: "TestFrost-AllItems-HeartofWyrmthalak-22321"
  value: {
   dps: 761.93743
   tps: 703.17401
