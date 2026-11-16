@@ -143,7 +143,8 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 
 // Argent Defender 13243's 17350 rolls the row's procs per minute on each landed melee hit taken,
 // priced on the attacker's time between its own swings, a dual wielder's two hands together, and
-// doubled by the row's second effect when an Undead strikes. Each case counts the procs of many hits
+// doubled by the row's second effect when an Undead strikes, and states that chance against its
+// current target. Each case counts the procs of many hits
 // on a row copy that rests no cooldown and carries a higher rate, so the cases sit far apart, within
 // five standard deviations of the count.
 func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
@@ -172,6 +173,13 @@ func TestArgentDefenderPricesTheAttackersSwings(t *testing.T) {
 			enemy := sim.Encounter.ActiveTargetUnits[0]
 			if got := enemy.AutoAttacks.MainhandSwingSpeed().Seconds(); got != attacker.target.SwingSpeed {
 				t.Fatalf("the attacker swings every %v s, want the target's %v s", got, attacker.target.SwingSpeed)
+			}
+			trigger := character.GetAura("Argent Defender")
+			if trigger == nil || trigger.Dpm == nil {
+				t.Fatal("13243 registers no proc on a procs per minute rate")
+			}
+			if got := trigger.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); math.Abs(got-want) > 1e-9 {
+				t.Errorf("the stated chance against the current target is %v, want %v", got, want)
 			}
 			const hits = 4000
 			procs := 0

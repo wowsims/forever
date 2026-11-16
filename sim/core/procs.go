@@ -48,6 +48,68 @@ func (dpm *DynamicProcManager) chanceFor(procMask ProcMask, sim *Simulation) (fl
 	return 0, false
 }
 
+// A chance that depends on the hit being rolled. A trigger asks it about each hit; Chance answers
+// without one.
+type hitDynamicProc interface {
+	DynamicProc
+	ChanceOn(sim *Simulation, spell *Spell) float64
+}
+
+// The chance for this hit from the entry its proc mask matches, asked about the hit itself when the
+// entry prices on it, and whether any entry hears it.
+func (dpm *DynamicProcManager) chanceOn(sim *Simulation, spell *Spell) (float64, bool) {
+	for i, m := range dpm.procMasks {
+		if m.Matches(spell.ProcMask) {
+			if hit, ok := dpm.procChances[i].(hitDynamicProc); ok {
+				return hit.ChanceOn(sim, spell), true
+			}
+			return dpm.procChances[i].Chance(sim), true
+		}
+	}
+
+	return 0, false
+}
+
+// A procs-per-minute rate on hits taken, priced on the attacker's time between its own swings at
+// the hit, slows included: its main hand's interval, or both hands together when it dual-wields. An
+// attacker with no melee auto attack has no interval and never procs it. scale multiplies the chance
+// per attacker. Read without a hit, the chance is the one against the wearer's current target.
+func (character *Character) NewAttackerSwingPPMManager(ppm float64, procMask ProcMask, scale func(attacker *Unit) float64) *DynamicProcManager {
+	return &DynamicProcManager{
+		procMasks:   []ProcMask{procMask},
+		procChances: []DynamicProc{attackerSwingProc{character: character, ppm: ppm, scale: scale}},
+	}
+}
+
+type attackerSwingProc struct {
+	character *Character
+	ppm       float64
+	scale     func(attacker *Unit) float64
+}
+
+func (ap attackerSwingProc) Reset() {}
+func (ap attackerSwingProc) Chance(_ *Simulation) float64 {
+	if ap.character.CurrentTarget == nil {
+		return 0
+	}
+	return ap.chanceAgainst(ap.character.CurrentTarget)
+}
+func (ap attackerSwingProc) ChanceOn(_ *Simulation, spell *Spell) float64 {
+	return ap.chanceAgainst(spell.Unit)
+}
+func (ap attackerSwingProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(ap.Chance(sim), label)
+}
+
+func (ap attackerSwingProc) chanceAgainst(attacker *Unit) float64 {
+	attacks := &attacker.AutoAttacks
+	interval := attacks.MainhandSwingSpeed().Seconds()
+	if attacks.IsDualWielding {
+		interval = 1 / (1/interval + 1/attacks.OffhandSwingSpeed().Seconds())
+	}
+	return ap.ppm * interval / 60 * ap.scale(attacker)
+}
+
 // PPMManager for static ProcMasks
 func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) *DynamicProcManager {
 	dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)

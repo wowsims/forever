@@ -316,19 +316,13 @@ func init() {
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)
 			undead := row.EffectN(2).BasePoints
-			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-				attacks := &spell.Unit.AutoAttacks
-				interval := attacks.MainhandSwingSpeed().Seconds()
-				if attacks.IsDualWielding {
-					interval = 1 / (1/interval + 1/attacks.OffhandSwingSpeed().Seconds())
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewAttackerSwingPPMManager(float64(row.RPPM), trigger.ProcMask, func(attacker *core.Unit) float64 {
+				if attacker.MobType == proto.MobType_MobTypeUndead {
+					return undead
 				}
-				chance := float64(row.RPPM) * interval / 60
-				if spell.Unit.MobType == proto.MobType_MobTypeUndead {
-					chance *= undead
-				}
-				return sim.Proc(chance, "Argent Defender")
-			}
-			spelldata.Chance(1)(character, trigger)
+				return 1
+			})
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 13243, ItemName: "Argent Defender"},
