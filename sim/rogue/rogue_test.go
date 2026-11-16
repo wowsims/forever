@@ -25,7 +25,7 @@ func TestBookRanksBesideTrainerRanks(t *testing.T) {
 		player := core.WithSpec(&proto.Player{
 			Class:     proto.Class_ClassRogue,
 			Race:      proto.Race_RaceHuman,
-			Equipment: core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1_muti").GearSet,
+			Equipment: core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
 			Rotation:  &proto.APLRotation{},
 		}, DefaultOptions)
 		sim := core.NewSim(&proto.RaidSimRequest{
@@ -270,7 +270,7 @@ func newTankSim(t *testing.T, talents string) (*core.Simulation, *Rogue, []*core
 		Name:          "Tank",
 		Race:          proto.Race_RaceHuman,
 		Class:         proto.Class_ClassRogue,
-		Equipment:     core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1_muti").GearSet,
+		Equipment:     core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti").GearSet,
 		TalentsString: talents,
 		Spec:          DefaultOptions,
 		Rotation:      &proto.APLRotation{},
