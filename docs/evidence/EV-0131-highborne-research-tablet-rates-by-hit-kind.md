@@ -1,4 +1,4 @@
-# EV-0127: Highborne Research Tablet rates on melee, ranged and spell hits
+# EV-0131: Highborne Research Tablet rates on melee, ranged and spell hits
 
 - Claim: Highborne Research Tablet (260205) procs about 2.6 times a minute on a weapon hit's own weapon speed, Auto
   Shot included, and at a flat chance of about 7% on a landed spell hit whatever the main hand's speed; periodic ticks

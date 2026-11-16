@@ -17,7 +17,7 @@
 
 The rate is the same on white hits, Shield Slam and Revenge. Rend and Concussion Blow applications, Rend ticks and damage
 shields never proc it, so only a hit that deals damage rolls. An Auto Shot from a hunter procced it too. The chance on a
-spell hit is unmeasured here; EV-0127 measures it, with the ranged and off-hand rates, in 55 Warcraft Logs reports.
+spell hit is unmeasured here; EV-0131 measures it, with the ranged and off-hand rates, in 55 Warcraft Logs reports.
 
 ## Dragon's Call (10847)
 

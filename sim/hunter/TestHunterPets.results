@@ -112,9 +112,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-ArgentAvenger-13246"
  value: {
-  dps: 738.10278
-  tps: 474.5652
-  dtps: 4.33851
+  dps: 743.71491
+  tps: 477.14279
+  dtps: 4.18477
  }
 }
 dps_results: {
@@ -200,9 +200,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BlackbladeofShahram-12592"
  value: {
-  dps: 750.36578
-  tps: 483.39668
-  dtps: 4.39452
+  dps: 754.99698
+  tps: 485.08811
+  dtps: 4.12832
  }
 }
 dps_results: {
