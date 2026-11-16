@@ -862,6 +862,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 818.1177
+  tps: 606.81942
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-HeartoftheScale-13164"
  value: {
   dps: 808.36912

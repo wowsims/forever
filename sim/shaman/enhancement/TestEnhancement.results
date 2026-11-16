@@ -909,6 +909,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 793.67949
+  tps: 830.39071
+  dtps: 7.73711
+  hps: 37.07444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 779.98182

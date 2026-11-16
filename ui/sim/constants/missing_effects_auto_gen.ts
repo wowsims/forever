@@ -1945,12 +1945,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22321, // Heart of Wyrmthalak
-		[
-			"Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.", // 27655 - https://www.wowhead.com/forever/spell=27655
-		]
-	],
-	[
 		22395, // Totem of Rage
 		[
 			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
