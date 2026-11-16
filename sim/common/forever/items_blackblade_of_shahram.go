@@ -2,12 +2,14 @@ package forever
 
 import (
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
+	"github.com/wowsims/forever/sim/core/stats"
 )
 
 // Shahram 10718, whom 16602 summons, casts one of his six spells and nothing else, picked by these
@@ -31,9 +33,9 @@ var shahramPicks = []struct {
 const shahramCastStartMin = 1030 * time.Millisecond
 const shahramCastStartMax = 1830 * time.Millisecond
 
-// How many Will of Shahram copies the wearer can carry at once. Each summon's Will is a copy of its
-// own on its own timer (EV-0125); with every copy up, a new one renews the copy closest to fading.
-const shahramWillCopies = 5
+// The most Will of Shahram stacks the wearer can carry. The game files state no cap, so this one is
+// the sim's own. With every stack up, a new Will replaces the stack closest to fading.
+const shahramWillMaxStacks = 5
 
 func init() {
 	// Blackblade of Shahram
@@ -121,29 +123,52 @@ func registerFlamesOfShahram(character *core.Character) *core.Spell {
 	return character.RegisterSpell(config)
 }
 
-// Will of Shahram 16598 lands on Shahram's master, the wearer, as a copy of its own.
+// Will of Shahram 16598 lands on Shahram's master, the wearer, as one more stack of the row's stats.
+// Each stack fades the row's duration after its own landing (EV-0125), and the aura lasts until the
+// latest one does.
 func registerWillOfShahram(character *core.Character) *core.Spell {
 	row := spelldata.MustFind(16598)
-	copies := make([]*core.Aura, shahramWillCopies)
-	for i := range copies {
-		copies[i] = character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label(fmt.Sprintf("%s %d", row.Name, i+1))))
-		spelldata.ParseEffects(character, copies[i], row)
+	effect := row.EffectN(1)
+	var perStack stats.Stats
+	for _, stat := range effect.FlatStats() {
+		perStack[stat] = effect.MeanAt(character.Level)
 	}
-	config := shahramSpellConfig(character, row)
-	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
-		renewed := copies[0]
-		for _, aura := range copies {
-			if !aura.IsActive() {
-				renewed = aura
-				break
-			}
-			if aura.RemainingDuration(sim) < renewed.RemainingDuration(sim) {
-				renewed = aura
-			}
+	config := spelldata.AuraConfig(row)
+	config.MaxStacks = shahramWillMaxStacks
+	aura := core.MakeStackingAura(character, core.StackingStatAura{Aura: config, BonusPerStack: perStack})
+
+	// When each stack fades, oldest first. A stack's fade is a pending action of its own, which drops
+	// every stack due by then, so the action of a stack already replaced or expired drops nothing.
+	var fades []time.Duration
+	aura.ApplyOnReset(func(_ *core.Aura, _ *core.Simulation) {
+		fades = fades[:0]
+	}).ApplyOnExpire(func(_ *core.Aura, _ *core.Simulation) {
+		fades = fades[:0]
+	})
+	fade := func(sim *core.Simulation) {
+		for len(fades) > 0 && fades[0] <= sim.CurrentTime {
+			fades = slices.Delete(fades, 0, 1)
+			aura.RemoveStack(sim)
 		}
-		renewed.Activate(sim)
 	}
-	return character.RegisterSpell(config)
+
+	spell := shahramSpellConfig(character, row)
+	spell.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, _ *core.Spell) {
+		if len(fades) == shahramWillMaxStacks {
+			fades = slices.Delete(fades, 0, 1)
+		}
+		fades = append(fades, sim.CurrentTime+row.Duration())
+		aura.Activate(sim)
+		aura.AddStack(sim)
+
+		pa := sim.GetConsumedPendingActionFromPool()
+		pa.NextActionAt = sim.CurrentTime + row.Duration()
+		// A stack fades before the rotation acts at the same instant, the way an aura's expiry does.
+		pa.Priority = core.ActionPriorityDOT
+		pa.OnAction = fade
+		sim.AddPendingAction(pa)
+	}
+	return character.RegisterSpell(spell)
 }
 
 // Curse of Shahram 16597 slows the attacks of every enemy around Shahram it lands on; the movement

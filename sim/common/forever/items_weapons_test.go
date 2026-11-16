@@ -953,23 +953,41 @@ func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 	}
 }
 
-// Each Will of Shahram 16598 is a copy of its own: a second one adds the row's stats again, and each
-// fades on its own timer.
-func TestWillOfShahramCopiesStackAndFadeOneByOne(t *testing.T) {
+// The Will of Shahram 16598 aura on a wearer whose auto attacks are off, and a check that its stacks,
+// and the row's stats once per stack, are what a moment of the test expects.
+func willOfShahramWearer(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, *core.Aura, func(string, int32)) {
+	t.Helper()
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
 	character.AutoAttacks.CancelAutoSwing(sim)
 	row := spelldata.MustFind(16598)
-	amount, duration := row.EffectN(1).Average(), row.Duration()
-	if amount <= 0 || duration <= 0 {
-		t.Fatalf("16598 grants %v stats for %v, want an amount and a duration", amount, duration)
+	amount := row.EffectN(1).Average()
+	if amount <= 0 {
+		t.Fatalf("16598 grants %v stats, want an amount", amount)
 	}
-	will := character.GetSpell(core.ActionID{SpellID: 16598})
+	aura := character.GetAuraByID(core.ActionID{SpellID: 16598})
+	if aura == nil {
+		t.Fatal("the wearer has no aura of 16598")
+	}
 	base := character.GetStat(stats.Strength)
-	expect := func(when string, copies float64) {
+	expect := func(when string, stacks int32) {
 		t.Helper()
-		if got, want := character.GetStat(stats.Strength), base+copies*amount; math.Abs(got-want) > 1e-6 {
+		if got, want := character.GetStat(stats.Strength), base+float64(stacks)*amount; math.Abs(got-want) > 1e-6 {
 			t.Errorf("%s the wearer's Strength is %v, want %v", when, got, want)
 		}
+		if aura.IsActive() != (stacks > 0) || aura.GetStacks() != stacks {
+			t.Errorf("%s the aura is active %v with %d stacks, want %d", when, aura.IsActive(), aura.GetStacks(), stacks)
+		}
+	}
+	return sim, character, character.GetSpell(core.ActionID{SpellID: 16598}), aura, expect
+}
+
+// Each Will of Shahram 16598 adds a stack worth the row's stats to one aura. Each stack fades on its
+// own timer, the aura stays up while any stack does, and its remaining time is the latest stack's.
+func TestWillOfShahramStacksAndFadeOneByOne(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration := spelldata.MustFind(16598).Duration()
+	if duration <= 0 {
+		t.Fatalf("16598 lasts %v, want a duration", duration)
 	}
 
 	start := sim.CurrentTime
@@ -978,45 +996,66 @@ func TestWillOfShahramCopiesStackAndFadeOneByOne(t *testing.T) {
 	stepTo(t, sim, start+duration/2)
 	will.Cast(sim, character.CurrentTarget)
 	expect("after a second Will", 2)
+	if got := aura.RemainingDuration(sim); got != duration {
+		t.Errorf("after a second Will the aura has %v left, want the second Will's %v", got, duration)
+	}
 	stepTo(t, sim, start+duration+time.Millisecond)
 	expect("past the first Will's duration", 1)
 	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
 	expect("past the second Will's duration", 0)
+
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a Will once every stack has faded", 1)
 }
 
-// With every copy of Will of Shahram 16598 up, a new Will renews the copy closest to fading, so the
-// bonus stays at the most copies the wearer can carry.
-func TestWillOfShahramRenewsTheOldestCopyWhenAllAreUp(t *testing.T) {
-	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
-	character.AutoAttacks.CancelAutoSwing(sim)
-	row := spelldata.MustFind(16598)
-	amount, duration := row.EffectN(1).Average(), row.Duration()
-	if amount <= 0 || duration <= 10*time.Second {
-		t.Fatalf("16598 grants %v stats for %v, want an amount and a duration over 10 s", amount, duration)
-	}
-	will := character.GetSpell(core.ActionID{SpellID: 16598})
-	base := character.GetStat(stats.Strength)
-	expect := func(when string, copies float64) {
-		t.Helper()
-		if got, want := character.GetStat(stats.Strength), base+copies*amount; math.Abs(got-want) > 1e-6 {
-			t.Errorf("%s the wearer's Strength is %v, want %v", when, got, want)
-		}
+// Will of Shahram 16598 forgets its stacks when its aura ends, so a stack that lands afterwards fades
+// on its own timer, and not on one of the stacks that ended with the aura.
+func TestWillOfShahramForgetsItsStacksWhenTheAuraEnds(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration := spelldata.MustFind(16598).Duration()
+	if duration <= 0 {
+		t.Fatalf("16598 lasts %v, want a duration", duration)
 	}
 
 	start := sim.CurrentTime
-	const full = 5
+	will.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+duration/2)
+	will.Cast(sim, character.CurrentTarget)
+	aura.Deactivate(sim)
+	expect("after the aura ends", 0)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a Will once the aura has ended", 1)
+	stepTo(t, sim, start+duration+time.Millisecond)
+	expect("past the duration of the first Will before the aura ended", 1)
+	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
+	expect("past the new Will's duration", 0)
+}
+
+// With every stack of Will of Shahram 16598 up, a new Will replaces the stack closest to fading, so the
+// bonus stays at the most stacks the wearer can carry and the aura lasts until the new stack fades.
+func TestWillOfShahramReplacesTheOldestStackWhenAllAreUp(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration, full := spelldata.MustFind(16598).Duration(), aura.MaxStacks
+	if full < 2 || duration <= time.Duration(full)*time.Second {
+		t.Fatalf("16598 lasts %v and the aura holds %d stacks, want more than one stack, each lasting longer than a second per stack", duration, full)
+	}
+
+	start := sim.CurrentTime
 	for i := range full {
 		stepTo(t, sim, start+time.Duration(i)*time.Second)
 		will.Cast(sim, character.CurrentTarget)
 	}
-	expect("with every copy up", full)
-	stepTo(t, sim, start+full*time.Second)
+	expect("with every stack up", full)
+	stepTo(t, sim, start+time.Duration(full)*time.Second)
 	will.Cast(sim, character.CurrentTarget)
-	expect("after a sixth Will", full)
+	expect("after one Will more than the aura holds", full)
+	if got := aura.RemainingDuration(sim); got != duration {
+		t.Errorf("after one Will more than the aura holds it has %v left, want the new Will's %v", got, duration)
+	}
 	stepTo(t, sim, start+duration+500*time.Millisecond)
-	expect("past the first copy's first duration", full)
+	expect("past the first stack's duration", full)
 	stepTo(t, sim, start+duration+time.Second+500*time.Millisecond)
-	expect("past the second copy's duration", full-1)
+	expect("past the second stack's duration", full-1)
 }
 
 // Curse of Shahram 16597 slows the attacks of every enemy by the row's share for the row's duration.
