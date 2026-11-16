@@ -93,7 +93,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
   tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
-  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, and a measured
+  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a rate measured on this server from too few logs to call final (the gear tab still warns), and a measured
   rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none; any other text reads as
   unvalidated. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
   it.

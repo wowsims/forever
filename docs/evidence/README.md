@@ -21,7 +21,7 @@ measurement; an issue or a research note that tracks the same numbers links the 
 A number a larger sample could change while the code stays the same: proc counts, rates, threat readings, hit counts,
 "checked in game". A value the code implements stays in the code. These are not evidence and keep their own text:
 a TODO to measure something, a value read from the game files, and the `Source` values `tooltip`, `owner decision`,
-`Spell <id>`, `estimate`, `vanilla-carryover` and `tbc-carryover`, and the other non-measurement `Source` values the
+`Spell <id>`, `estimate`, `observed`, `vanilla-carryover` and `tbc-carryover`, and the other non-measurement `Source` values the
 tables use (`game files`, `game-files-rows`, `Spell <id> description`, `owner decision, PR #99`).
 
 ## A file

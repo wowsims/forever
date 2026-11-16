@@ -581,7 +581,7 @@ type UnvalidatedRate struct {
 	Name   string
 	Kind   overrides.RateKind
 	Rate   float64 // What the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance; 0 where no single rate applies.
-	Origin string  // "vanilla", "tbc" or "unknown".
+	Origin string  // "vanilla", "tbc", "observed" or "unknown".
 }
 
 // The rate and origin of the notice's TypeScript object, with no rate where none applies.
@@ -658,6 +658,8 @@ func rateOrigin(source string) string {
 		return "vanilla"
 	case source == "tbc-carryover":
 		return "tbc"
+	case source == "observed":
+		return "observed"
 	}
 	return "unknown"
 }

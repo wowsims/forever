@@ -81,19 +81,23 @@ const unvalidatedRateText = ({ kind, rate, origin }: UnvalidatedRate): string =>
 		const options = { rate: formatRate(rate) };
 		if (kind === 'ppm') {
 			if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate', options);
+			if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed_rate', options);
 			if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_unknown_rate', options);
 			return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate', options);
 		}
 		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla_rate', options);
+		if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed_rate', options);
 		if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_unknown_rate', options);
 		return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc_rate', options);
 	}
 	if (kind === 'ppm') {
 		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla');
+		if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed');
 		if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_unknown');
 		return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc');
 	}
 	if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla');
+	if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed');
 	if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_unknown');
 	return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc');
 };

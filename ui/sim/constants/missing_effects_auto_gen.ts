@@ -4031,7 +4031,7 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 // A proc rate the game files do not state and nobody has measured on Forever, and where it comes from.
 // The rate is the one the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance.
 // It is left out where the gear has no single rate.
-export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'unknown' }
+export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'observed' | 'unknown' }
 
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[754, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Shortsword of Vengeance
@@ -4056,7 +4056,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[9651, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Gryphon Rider's Stormhammer
 	[11902, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Linken's Sword of Mastery
 	[12590, { kind: 'ppm', rate: 0.6, origin: 'vanilla' }], // Felstriker
-	[12592, { kind: 'ppm', rate: 1.1, origin: 'unknown' }], // Blackblade of Shahram
+	[12592, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Blackblade of Shahram
 	[12777, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Arcanite Champion
 	[12792, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Volcanic Hammer

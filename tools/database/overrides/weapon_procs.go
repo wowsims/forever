@@ -10,7 +10,7 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "estimate"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "observed", "estimate"
 }
 
 // Each rate is a carry-over or an estimate unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
@@ -281,14 +281,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
-	// The rate is fitted from logs (EV-0125). Its Source keeps the gear tab's notice up until more
-	// wearers validate it.
+	// The rate is fitted from logs (EV-0125), too few to call final. The "observed" Source keeps the
+	// gear tab's notice up until more wearers validate it.
 	{
 		ItemID:  12592,
 		SpellID: 16602,
 		PPM:     1.1,
 		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
-		Source:  "estimate",
+		Source:  "observed",
 	},
 	{
 		ItemID:  12798,

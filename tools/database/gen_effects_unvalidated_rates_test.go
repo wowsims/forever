@@ -24,6 +24,7 @@ func TestRateOriginReadsTheSource(t *testing.T) {
 		"EV-1":              "unknown",
 		"vanilla-carryover": "vanilla",
 		"tbc-carryover":     "tbc",
+		"observed":          "observed",
 		"estimate":          "unknown",
 		"owner decision":    "unknown",
 	} {
@@ -60,6 +61,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{ItemID: 10, SpellID: 3, PPM: 1, Source: "tbc-carryover"},
 			{ItemID: 20, SpellID: 4, PPM: 1, Source: "EV-0001"},
 			{ItemID: 99, SpellID: 5, PPM: 1, Source: "vanilla-carryover"},
+			{ItemID: 60, SpellID: 12, PPM: 1.1, Source: "observed"},
 		},
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
@@ -112,6 +114,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{40, 0, overrides.RatePPM, 1, "tbc"},
 			{45, 0, overrides.RateChance, 5, "unknown"},
 			{50, 0, overrides.RatePPM, 1.5, "unknown"},
+			{60, 0, overrides.RatePPM, 1.1, "observed"},
 		}},
 		{"enchants", rates.Enchants, []entry{
 			{100, 0, overrides.RateChance, 10, "vanilla"}, // A chance of 0.1 is 10 percent.
@@ -379,7 +382,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	in := shippedRateInputs(instance)
 
 	knownSource := func(source string) bool {
-		return source == "vanilla-carryover" || source == "tbc-carryover" || source == "estimate" || rateOrigin(source) == ""
+		return source == "vanilla-carryover" || source == "tbc-carryover" || source == "observed" || source == "estimate" || rateOrigin(source) == ""
 	}
 	db := NewWowDatabase()
 	var measuredItems, measuredEnchants []int32
@@ -422,7 +425,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	for _, literal := range in.Literals {
 		_, isItem := instance.Items[int(literal.ID)]
 		_, isEnchant := instance.EnchantsByEffectId[int(literal.ID)]
-		if !slices.Contains([]string{"vanilla", "tbc", "unknown"}, literal.Origin) || literal.Reason == "" ||
+		if !slices.Contains([]string{"vanilla", "tbc", "observed", "unknown"}, literal.Origin) || literal.Reason == "" ||
 			literal.Gear == "item" && !isItem || literal.Gear == "enchant" && !isEnchant {
 			t.Errorf("the literal %+v names gear the game files do not carry, no reason or an origin the notices do not know", literal)
 		}

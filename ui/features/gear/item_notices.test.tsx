@@ -41,6 +41,10 @@ vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 		[7, { kind: 'ppm', rate: 1.1, origin: 'unknown' }],
 		[8, { kind: 'chance', rate: 9, origin: 'unknown' }],
 		[10, { kind: 'ppm', origin: 'unknown' }],
+		[11, { kind: 'ppm', rate: 1.1, origin: 'observed' }],
+		[12, { kind: 'chance', rate: 4, origin: 'observed' }],
+		[13, { kind: 'ppm', origin: 'observed' }],
+		[14, { kind: 'chance', origin: 'observed' }],
 	]),
 	UNVALIDATED_RATE_ENCHANTS: new Map([
 		[2, { kind: 'ppm', rate: 2, origin: 'tbc' }],
@@ -91,6 +95,10 @@ describe('the item notice table', () => {
 		['a rate per minute of no known origin', 7, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown_rate 1.1'],
 		['a chance of no known origin', 8, 'gear_tab.item_notices.unvalidated_rate.chance_unknown_rate 9'],
 		['a rate with no single value', 10, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown'],
+		['an observed rate per minute', 11, 'gear_tab.item_notices.unvalidated_rate.ppm_observed_rate 1.1'],
+		['an observed chance', 12, 'gear_tab.item_notices.unvalidated_rate.chance_observed_rate 4'],
+		['an observed rate per minute with no single value', 13, 'gear_tab.item_notices.unvalidated_rate.ppm_observed'],
+		['an observed chance with no single value', 14, 'gear_tab.item_notices.unvalidated_rate.chance_observed'],
 	])('warns that %s needs validating on an item with no other notice', (_, id, warning) => {
 		expect(paragraphs(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([warning]);
 	});

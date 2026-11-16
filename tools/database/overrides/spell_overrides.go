@@ -111,7 +111,7 @@ type Override struct {
 	Field   Field
 	Value   float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "tooltip", "owner decision", "estimate"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "observed", "tooltip", "owner decision", "estimate"
 }
 
 // Tooltip-only area bonuses ("doubled in X areas"). Groups are AreaGroup ids; any counts.
