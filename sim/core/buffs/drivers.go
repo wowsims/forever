@@ -257,9 +257,7 @@ var windfuryTotemHoldsOver = []string{
 // glancing blow, and it is reduced by armor as a white hit is. Rank 3 adds
 // attack power and ranks 1 and 2 add none (EV-0002); the sim stands rank 3
 // only. It counts as a main-hand swing for the procs that hear melee swings
-// (EV-0136). A landed strike grants the rage a main-hand swing does by the
-// owner's ruling: in game it grants none, a known issue the owner expects to
-// be fixed (EV-0136).
+// (EV-0136). A landed strike grants the rage a main-hand swing does (EV-0138).
 func newWindfuryTotemStrike(char *core.Character) *core.Spell {
 	attackPower := WindfuryTotemPriority()
 	config := spelldata.SpellConfig(&char.Unit, windfuryTotemStrike,
