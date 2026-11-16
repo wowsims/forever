@@ -146,6 +146,11 @@ row shows stays out of the store until a file carries it.
 Every raidbots file up to push 114024 skips push 113722 (Stormstrike, Maelstrom Weapon, the imbue texts), which a
 logged-in game's own `_forever_/Cache/ADB/enUS/DBCache.bin` holds. When an announced change is in no raidbots file,
 read the local game's cache after a login, and regenerate from both: `--dbcache` repeats and combines the files.
+Items go missing the same way, since a cache holds only the rows its game has fetched: at build 70938 and the same
+highest push, raidbots' file lacks the `Item` and `ItemSparse` records of eight items the game's cache holds
+(Huntsman's Harpoon, Belt of the Trickster, Pendant of Celerity among them) and holds 21 the game's cache lacks. An
+item with no `ItemSparse` record has no stats and is left out of `db.json`, so compare the record ids of the two files
+per table before an items run, and run it on both files when they differ.
 `DB2TOOL_FLAGS` given on the `make` line replaces the makefile's `--basedir "$(WOW_DIR)"`, so a local-install run
 names the install itself:
 

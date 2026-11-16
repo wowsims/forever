@@ -2661,6 +2661,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		282700, // Shadow Scalper
+		[
+			"Unleash a shadow bolt volley at all nearby targets, inflicting 33 damage to each enemy struck.", // 1314274 - https://www.wowhead.com/forever/spell=1314274
+		]
+	],
+	[
 		284040, // Cliff Jumpers
 		[
 			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150

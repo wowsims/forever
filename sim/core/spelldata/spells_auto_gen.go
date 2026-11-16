@@ -37179,6 +37179,14 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1326962, SpellID: 1301722, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -30000, PvpMult: 1, Misc: 11, ClassFlags: core.ClassFlags{Family: 4, Mask: [4]uint32{0: 8192}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 1302108, Name: "Necromancy", School: 1, Attr: [17]uint32{0: 0x1c0, 15: 0x2000}, SpellLevel: 1, ProcChance: 5, ProcFlags: [2]uint32{0: 0x2}, ICDMs: 120000, RefIDs: []int32{1302109},
+		Effects: []Effect{
+			{ID: 1327564, SpellID: 1302108, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, Variance: 0.6666666865348816, PvpMult: 1, TriggerID: 1302109, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1302109, Name: "Necromancy", School: 32, Attr: [17]uint32{0: 0x100, 2: 0x1, 15: 0x2000}, MaxLevel: 60, DurationMs: 120000, MaxRange: 100,
+		Effects: []Effect{
+			{ID: 1327565, SpellID: 1302109, Type: dbcenums.E_SUMMON, BasePoints: 1, MaxLevel: 60, PvpMult: 1, Amplitude: 1e+16, Misc: 268677, Misc2: 6792, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{63, 0}},
+		}},
 	{ID: 1302113, Name: "Trail Snack", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 1, MaxLevel: 255, DurationMs: 750, CategoryCooldownMs: 1800000, Category: 1, StartRecoveryCategory: 133, DefenseType: 1, PreventionType: 1,
 		Effects: []Effect{
 			{ID: 1327571, SpellID: 1302113, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SPEED_NOT_STACK, BasePoints: 60, MaxLevel: 255, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -38484,6 +38492,10 @@ var generatedSpells = []Spell{
 	{ID: 1314143, Name: "Ancestor's Vengeance", School: 1, Attr: [17]uint32{0: 0xc0, 10: 0x800000, 13: 0x10000000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 5, ProcFlags: [2]uint32{0: 0x14}, ICDMs: 60000,
 		Effects: []Effect{
 			{ID: 1345888, SpellID: 1314143, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 16939, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1314274, Name: "Shadow Bolt Volley", School: 32, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, SpellLevel: 30, MaxRange: 30, DefenseType: 1,
+		Effects: []Effect{
+			{ID: 1346033, SpellID: 1314274, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 33, PvpMult: 1, Amplitude: 1, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
 		}},
 	{ID: 1314305, Name: "Puncture", School: 1, Speed: 20, Attr: [17]uint32{0: 0x10000, 15: 0x2000}, MaxRange: 10, DefenseType: 2,
 		Effects: []Effect{
