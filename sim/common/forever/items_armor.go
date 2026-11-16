@@ -310,7 +310,7 @@ func init() {
 	// 17350 rolls on each landed melee hit taken outside its 20 s cooldown. Its ProcChance, which an
 	// override sets, is the chance when an Undead strikes, and its second effect, a dummy, is the "2
 	// times": any other attacker rolls the column divided by it. The condition draws that one roll, so
-	// the trigger's own chance is 1 and the cooldown starts only on a proc (EV-0125).
+	// the trigger's own chance is 1 and the cooldown starts only on a proc (EV-0126).
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
 		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)

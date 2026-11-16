@@ -1,4 +1,4 @@
-# EV-0125: Argent Avenger's and Argent Defender's proc rates
+# EV-0126: Argent Avenger's and Argent Defender's proc rates
 
 - Claim: Argent Avenger's 17352 rolls about 1 proc per minute on the wearer's landed weapon hits, specials included.
   Argent Defender's 17350 procs on about 1.6% of the landed melee swings taken outside its 20 s cooldown, and more often
@@ -9,8 +9,7 @@
   QHXdBJRj2GPpC3n1 fight 1; QxGpKz7knDvjWmYb fight 31; VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 116;
   9zxHaWbYT3gqDQvF fight 17; z6LMfrpbwhyVCAJK fight 16; RGnyYzMgqCNdVwkT fight 21, left out below. Argent Defender:
   VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107; 7tLY1pVK9wRWPABX fights 15, 20; MWrPDAVFCBXzh8Z6 fights 1, 3, 8.
-- Game build: not recorded; the reports were not checked against a build, and the hotfix state and relogs were not
-  recorded either.
+- Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
 - Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
 - Pull request: #1052
 

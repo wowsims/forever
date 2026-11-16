@@ -504,7 +504,7 @@ var Spells = []Override{
 		Field:   ProcChancePct,
 		Value:   3,
 		Reason:  "Argent Defender: the owner's 3% on each landed melee hit taken from an Undead, outside the 20 s cooldown, and half that from any other attacker; column reads 100, tooltip says 'Has a chance when struck'",
-		Source:  "EV-0125",
+		Source:  "EV-0126",
 	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
