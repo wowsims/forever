@@ -79,6 +79,14 @@ parry, a miss or a block needs it false. Where the tooltip named that outcome, t
 wording yielded no hint, such as the Battlegear of Wrath consume 23547, has to be cleared by hand. Which
 outcome it is stays the caller's, except the block, since no `ProcTypeMask` has a bit for any of them.
 
+The melee swing bit (`PROC_FLAG_DEAL_MELEE_SWING`, 0x4) also sets `HearsCountedSwings`, which
+`spelldata.ProcTrigger` copies onto the trigger: a hit flagged `SpellFlagCountsAsSwing`, which is
+Windfury Totem's strike, reaches a listener whose mask would not hear it as a main-hand auto attack,
+and a procs-per-minute manager prices it on the main hand's speed (EV-0136). `WeaponProc()` clears it,
+since a weapon proc hears the strike by its own rule. A caller whose row hears swings but not the
+strike clears it by hand, as Unsealed Wrath does (`sim/paladin/talents_retribution.go`). A
+`core.ProcTrigger` typed by hand hears the strike only if it sets the field, as Reckoning's spend does.
+
 The mask states which hits reach the listener; it cannot state the condition around them, so the
 generator reads that off the tooltip into `core.ProcHint`:
 
@@ -172,7 +180,20 @@ A rate priced on something neither the item's entry nor the trigger's row states
 case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed direct spell hit rolls
 21978's procs per minute on the cast time of the cast that launched it, at least 1.5 s. The time is
 read where the cast deals the hit's result, so a missile keeps it after the next cast starts. A
-manager on the main hand's speed would price every hit on the 1.5 s dagger.
+manager on the main hand's speed would price every hit on the 1.5 s dagger. Scented Runewood Brooch
+269741 goes through `Rate` for the other case: `NewLegacyPPMManagerWithMainHandSpells` prices its
+weapon hits on their weapons and its spell hits on the main-hand weapon's speed, read at the roll, for a
+caster who never swings too.
+
+What a generated damage proc does beyond the spell the generator builds from its row (a delayed second
+hit, an execute bonus, a shield on the wearer, a stun cast beside the strike) goes into
+`shared.DamageProcExtras` under the item id, from `init` in `sim/common/forever`, as Sul'thraze the
+Lasher 9372, Pendulum of Doom 9425, Flame Wrath 11809, Gahz'rilla Fang 9467 and The Chief's Enforcer
+9477 do. The item stays generated, so the
+generator keeps listing its other effects no code simulates. A hand-written registration on the id
+would hide them, since it turns every generated effect of the item off. The variant's `ItemName` is the
+listener's name, and in a test run each roll label draws its own random stream, so renaming it moves
+the item's `AllItems` rows even where nothing else changed.
 
 An effect entry carries flat stats only, so a buff the game files state as a percentage of a stat
 (`A_MOD_PERCENT_STAT`, misc the stat index, -1 all five) has none, and the generator routes it as auras:

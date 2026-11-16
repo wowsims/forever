@@ -202,32 +202,31 @@ func TestItemProcCarriesOnlyARolledChance(t *testing.T) {
 }
 
 // Two weapons sharing a trigger spell each carry their own rate on their item effect: The Needler and
-// Hanzo Sword both cast Wound 16405, at 3 and 1 PPM, and each registers on its own.
+// Hanzo Sword both cast Wound 16405, each at its own WeaponProcs rate, and each registers on its own.
 func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
 
-	for _, tc := range []struct {
-		itemID int
-		ppm    float64
-	}{
-		{13060, 3},
-		{8190, 1},
-	} {
-		t.Run(fmt.Sprint(tc.itemID), func(t *testing.T) {
-			skipWithoutItem(t, instance, tc.itemID)
-			parsed, effect := parsedItem(t, instance, tc.itemID, 16405)
-			if got := effect.GetProc().GetPpm(); got != tc.ppm {
-				t.Errorf("item %d's effect states %v PPM, want %v", tc.itemID, got, tc.ppm)
+	const needler, hanzo = 13060, 8190
+	if overrides.WeaponProcPPM(needler, 16405) == overrides.WeaponProcPPM(hanzo, 16405) {
+		t.Fatal("the two weapons share a rate, want two rates")
+	}
+	for _, itemID := range []int{needler, hanzo} {
+		t.Run(fmt.Sprint(itemID), func(t *testing.T) {
+			skipWithoutItem(t, instance, itemID)
+			ppm := overrides.WeaponProcPPM(int32(itemID), 16405)
+			parsed, effect := parsedItem(t, instance, itemID, 16405)
+			if got := effect.GetProc().GetPpm(); got != ppm {
+				t.Errorf("item %d's effect states %v PPM, want its own %v", itemID, got, ppm)
 			}
 
 			groups := map[string]Group{}
 			if got := TryParseProcEffect(parsed, effect, instance, groups); got != EffectParseResultSuccess {
-				t.Fatalf("item %d parsed as %v, want %v", tc.itemID, got, EffectParseResultSuccess)
+				t.Fatalf("item %d parsed as %v, want %v", itemID, got, EffectParseResultSuccess)
 			}
 			r := groups["Procs"].Entries[0].Proc
-			if r.ItemPPM != tc.ppm || len(r.Unsupported) != 0 || !strings.Contains(r.Summary, fmt.Sprintf("%v ppm on the item", tc.ppm)) {
-				t.Errorf("item %d routed with %v PPM, unsupported %q, summary %q", tc.itemID, r.ItemPPM, r.Unsupported, r.Summary)
+			if r.ItemPPM != ppm || len(r.Unsupported) != 0 || !strings.Contains(r.Summary, fmt.Sprintf("%v ppm on the item", ppm)) {
+				t.Errorf("item %d routed with %v PPM, unsupported %q, summary %q", itemID, r.ItemPPM, r.Unsupported, r.Summary)
 			}
 		})
 	}

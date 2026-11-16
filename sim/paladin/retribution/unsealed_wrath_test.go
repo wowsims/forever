@@ -208,8 +208,8 @@ func TestJudgementDebuffRefreshesOnWhiteSwingsAndWindfuryTotemsStrike(t *testing
 }
 
 // Windfury Totem's strike neither stores nor spends an Echo, though the seals hear it as a white
-// swing: Unsealed Wrath hears white swings only. Each landed swing stores one copy whether or not a
-// strike follows.
+// swing and other rows' melee swing bit hears it as a main-hand swing. Each landed swing stores one
+// copy whether or not a strike follows, and a strike landing past the proc cooldown stores none.
 func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 	sim, pal, swing, _ := unsealedWrathPaladinWith(t, UnsealedWrathTalents, &proto.RaidBuffs{WindfuryTotem: true})
 	strike := pal.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
@@ -232,6 +232,13 @@ func TestUnsealedWrathStoresNoCopyFromWindfuryTotemsStrike(t *testing.T) {
 	}
 	if struck == 0 {
 		t.Fatal("300 swings brought no Windfury Totem strike, so the check above proves nothing")
+	}
+
+	echo.Deactivate(sim)
+	passUnsealedWrathCooldown(sim)
+	pal.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: pal.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+	if got := echo.GetStacks(); got != 0 {
+		t.Errorf("a strike past the proc cooldown stored %d copies of the seal, want none", got)
 	}
 }
 

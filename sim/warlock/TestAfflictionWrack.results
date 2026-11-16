@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-BlackMenace-6831"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 930.139
@@ -123,6 +131,14 @@ dps_results: {
   dps: 922.1371
   tps: 741.49926
   dtps: 9.36148
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-BladeoftheWretched-10803"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
  }
 }
 dps_results: {
@@ -143,6 +159,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestAfflictionWrack-AllItems-BlazingRapier-12777"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Bloodrazor-809"
  value: {
   dps: 872.58615
   tps: 702.04267
@@ -214,6 +238,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-Dal'Rend'sArms"
  value: {
   dps: 861.81021
@@ -242,6 +274,30 @@ dps_results: {
  value: {
   dps: 926.16923
   tps: 744.0518
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Darrowspike-13984"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-DazzlingLongsword-869"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
   dtps: 9.29175
  }
 }
@@ -576,6 +632,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-Felstriker-12590"
  value: {
   dps: 872.58615
@@ -605,6 +669,14 @@ dps_results: {
   dps: 886.38392
   tps: 711.41754
   dtps: 9.30554
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Firebreather-10797"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
  }
 }
 dps_results: {
@@ -645,6 +717,14 @@ dps_results: {
   dps: 937.26177
   tps: 752.25296
   dtps: 9.07055
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
  }
 }
 dps_results: {
@@ -784,6 +864,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Jom-jom'sGabbar-274952"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-JomGabbar-23570"
  value: {
   dps: 926.16923
@@ -872,6 +960,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-LordGeneral'sSword-11817"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-LuckyShovelnoseTuft-280060"
  value: {
   dps: 926.16923
@@ -893,6 +989,14 @@ dps_results: {
   dps: 926.16923
   tps: 744.0518
   dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-ManaChannelingWand-18483"
+ value: {
+  dps: 932.42808
+  tps: 748.9008
+  dtps: 9.27597
  }
 }
 dps_results: {
@@ -1056,6 +1160,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-Sang'thrazetheDeflector-9379"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-ScentedRunewoodBrooch-269741"
+ value: {
+  dps: 926.16923
+  tps: 744.0518
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-SealoftheDawn-13209"
  value: {
   dps: 926.16923
@@ -1085,6 +1213,14 @@ dps_results: {
   dps: 872.58615
   tps: 702.04267
   dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-Shadowblade-2163"
+ value: {
+  dps: 880.66836
+  tps: 707.88373
+  dtps: 9.27233
  }
 }
 dps_results: {
@@ -1213,6 +1349,14 @@ dps_results: {
   dps: 926.16923
   tps: 744.0518
   dtps: 9.29175
+ }
+}
+dps_results: {
+ key: "TestAfflictionWrack-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 853.30476
+  tps: 687.54099
+  dtps: 9.22987
  }
 }
 dps_results: {
