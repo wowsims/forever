@@ -132,7 +132,8 @@ func (warrior *Warrior) registerEnrage() {
 	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
 	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
 	// though the game files state 30% for it too (EV-0050). A swing rolls the row's rate whatever
-	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here.
+	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here. Only a hit
+	// that deals damage rolls it: misses, dodges, parries, full blocks and ticks never proc it (EV-0123).
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
