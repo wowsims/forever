@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-BrainHacker-1263"
+ value: {
+  dps: 865.41214
+  tps: 896.9774
+  dtps: 8.21004
+  hps: 22.62083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BristleconeCloak-275833"
  value: {
   dps: 771.50338
@@ -576,6 +585,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 778.37438
+  tps: 814.85817
+  dtps: 7.50949
+  hps: 37.04056
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 764.9477
@@ -632,10 +650,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 813.44468
-  tps: 850.19943
-  dtps: 7.45814
-  hps: 37.3625
+  dps: 810.59216
+  tps: 847.33639
+  dtps: 7.48193
+  hps: 37.34556
  }
 }
 dps_results: {
@@ -909,6 +927,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 793.67949
+  tps: 830.39071
+  dtps: 7.73711
+  hps: 37.07444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 779.98182
@@ -938,10 +965,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 782.94313
-  tps: 818.842
-  dtps: 7.21898
-  hps: 37.17611
+  dps: 788.85118
+  tps: 824.79387
+  dtps: 7.17462
+  hps: 37.21
  }
 }
 dps_results: {

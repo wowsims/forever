@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 721.06159
+  tps: 666.46075
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 859.49748
@@ -391,6 +398,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 774.11492
+  tps: 714.13376
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 790.54432
@@ -435,8 +449,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 794.36606
-  tps: 732.35978
+  dps: 791.63517
+  tps: 729.90198
  }
 }
 dps_results: {
@@ -636,6 +650,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 761.93743
+  tps: 703.17401
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-HeartoftheScale-13164"
  value: {
   dps: 761.93743
@@ -652,8 +673,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 763.23564
-  tps: 704.98615
+  dps: 765.01375
+  tps: 706.63317
  }
 }
 dps_results: {

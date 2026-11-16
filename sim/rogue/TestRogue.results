@@ -86,6 +86,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 627.99442
+  tps: 445.87604
+  hps: 50.07083
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 612.8422
@@ -534,6 +542,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 601.68347
+  tps: 427.19526
+  hps: 52.29056
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 593.40869
@@ -851,6 +867,14 @@ dps_results: {
   dps: 605.73452
   tps: 430.07151
   hps: 58.94972
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 613.08401
+  tps: 435.28965
+  hps: 51.95167
  }
 }
 dps_results: {

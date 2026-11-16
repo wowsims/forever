@@ -89,6 +89,8 @@ func (hunter *Hunter) registerExplosiveTrap() {
 		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagPassiveSpell))
 	config.DamageMultiplier = 1
 	config.ThreatMultiplier = 1
+	// The hit rolls its base once, below, and the attack power share not at all (EV-0134).
+	config.DirectVariance = 0
 
 	config.Dot = core.DotConfig{
 		IsAOE: true,

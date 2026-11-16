@@ -99,6 +99,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 512.67994
+  tps: 1679.76928
+  dtps: 297.67257
+  hps: 40.32556
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-ArgentDefender-13243"
+ value: {
+  dps: 525.6401
+  tps: 1716.7984
+  dtps: 301.90505
+  hps: 39.07167
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 529.68918
@@ -774,6 +792,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 521.83811
+  tps: 1709.36215
+  dtps: 297.46023
+  hps: 39.08861
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 514.87953
@@ -1194,6 +1221,15 @@ dps_results: {
   tps: 1702.67057
   dtps: 306.78625
   hps: 46.27306
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 526.63199
+  tps: 1707.43988
+  dtps: 298.78119
+  hps: 38.83444
  }
 }
 dps_results: {

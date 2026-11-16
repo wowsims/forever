@@ -99,6 +99,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 410.62881
+  tps: 979.5076
+  dtps: 336.29278
+  hps: 19.24889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-ArgentDefender-13243"
+ value: {
+  dps: 397.59378
+  tps: 950.87255
+  dtps: 348.49158
+  hps: 18.19833
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Avenger'sBattlegear"
  value: {
   dps: 441.81826
@@ -666,6 +684,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 414.17093
+  tps: 972.3404
+  dtps: 333.51951
+  hps: 18.23222
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 405.29515
@@ -722,8 +749,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 413.18695
-  tps: 982.20075
+  dps: 412.50328
+  tps: 980.47312
   dtps: 334.23901
   hps: 18.18139
  }
@@ -1086,6 +1113,15 @@ dps_results: {
   tps: 1008.66649
   dtps: 344.8826
   hps: 25.33194
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 414.39704
+  tps: 977.28858
+  dtps: 345.7085
+  hps: 18.31694
  }
 }
 dps_results: {

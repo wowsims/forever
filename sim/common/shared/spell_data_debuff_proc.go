@@ -25,7 +25,7 @@ func registerSpellDataDebuffProc(cfg SpellDataProc) {
 
 func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, debuff *spelldata.Spell) {
 	character := agent.GetCharacter()
-	debuffs := enemyDebuffAuras(character, debuff, debuff.Duration(), debuff.DebuffEffects())
+	debuffs := EnemyDebuffAuras(character, debuff, debuff.Duration(), debuff.DebuffEffects())
 
 	config := spellDataProcListener(character, cfg, source, trigger)
 	callback := config.Callback
@@ -53,7 +53,7 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 // category, attacks Thunder Clap's and casts Slow's, where only the strongest applies; every other
 // effect applies to the target as the row states it, per stack. A row a raid debuff reads is that
 // debuff's player copy instead, which bids in the raid debuff's category beside the raid's copy.
-func enemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration time.Duration, effects []int32) core.AuraArray {
+func EnemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration time.Duration, effects []int32) core.AuraArray {
 	config := spelldata.AuraConfig(row, spelldata.Label(fmt.Sprintf("%s %d", row.Name, row.ID)))
 	config.Duration = duration
 	slows := row.SlowEffects()
@@ -96,7 +96,7 @@ func debuffOnLanding(character *core.Character, row *spelldata.Spell) afterDealt
 		return nil
 	}
 
-	debuffs := enemyDebuffAuras(character, row, row.Duration(), effects)
+	debuffs := EnemyDebuffAuras(character, row, row.Duration(), effects)
 	return func(sim *core.Simulation, _ *core.Spell, target *core.Unit, results core.SpellResultSlice) {
 		if len(results) == 0 {
 			applyDebuff(sim, debuffs.Get(target))

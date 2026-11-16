@@ -556,9 +556,9 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 }
 
 // Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
-// speed for every landed hit that deals damage, and casts 1265634 on the target. A spell rolls on the
-// main hand's speed too, and so does a ranged special with no ranged swing behind it (Thunder Clap).
-// A hit that deals none (an application) never rolls.
+// speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
+// special with no ranged weapon behind it (Thunder Clap) rolls on the main hand's speed too. A hit
+// that deals none (an application) never rolls.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
 	proc := character.GetAura("Highborne Research Tablet")
@@ -576,7 +576,6 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 		mask core.ProcMask
 	}{
 		{"main hand swing", core.ProcMaskMeleeMHAuto},
-		{"spell", core.ProcMaskSpellDamage},
 		{"ranged special", core.ProcMaskRangedSpecial},
 	} {
 		if chance := proc.Dpm.Chance(hit.mask, sim); math.Abs(chance-want) > 1e-9 {
@@ -596,12 +595,18 @@ func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	}
 }
 
-// A caster who never swings rolls Highborne Research Tablet 260205's procs per minute on each damaging
-// spell hit, on the speed of the weapon in its main hand.
-func TestHighborneResearchTabletProcsOnACastersSpells(t *testing.T) {
-	const weapon = 810
-	sim, character := wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
-		map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 260205, proto.ItemSlot_ItemSlotMainHand: weapon})
+// Highborne Research Tablet 260205 rolls one chance on each damaging spell hit whatever the weapon in
+// the main hand, for a caster who never swings and for a warrior who does.
+func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
+	const slow, fast = 810, 776
+	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
+		t.Fatal("the two weapons share a speed, want two speeds")
+	}
+	casterWielding := func(weapon int32) (*core.Simulation, *core.Character) {
+		return wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
+			map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 260205, proto.ItemSlot_ItemSlotMainHand: weapon})
+	}
+	sim, character := casterWielding(slow)
 	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
 		t.Fatal("the caster stand-in swings, want no auto attacks")
 	}
@@ -610,9 +615,23 @@ func TestHighborneResearchTabletProcsOnACastersSpells(t *testing.T) {
 	if proc == nil || proc.Dpm == nil || damage == nil {
 		t.Fatal("260205 registers no proc on a procs per minute rate")
 	}
-	want := float64(spelldata.MustFind(1318159).RPPM) * core.GetItemByID(weapon).SwingSpeed / 60
-	if chance := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); want <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
-		t.Errorf("the chance on a spell hit is %v, want the row's procs per minute on the main-hand weapon's speed, %v", chance, want)
+	want := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim)
+	if want <= 0 || want >= 1 {
+		t.Fatalf("the chance on a spell hit is %v, want a chance between none and certain", want)
+	}
+	fastSim, fastCaster := casterWielding(fast)
+	warriorSim, warrior := trinketWarriorWielding(t, 260205, fast, 0)
+	for _, other := range []struct {
+		name   string
+		sim    *core.Simulation
+		wearer *core.Character
+	}{
+		{"caster with a faster weapon", fastSim, fastCaster},
+		{"warrior who swings", warriorSim, warrior},
+	} {
+		if chance := other.wearer.GetAura("Highborne Research Tablet").Dpm.Chance(core.ProcMaskSpellDamage, other.sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a spell hit for a %s is %v, want the same %v", other.name, chance, want)
+		}
 	}
 
 	const hits = 2000
@@ -739,11 +758,12 @@ func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulatio
 	return sim, character, func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
 }
 
-// Checks registerLikelierExtraAttack's rule for an item: on a target of the family it rolls the row's
-// column, on any other target the column divided by the factor. Each case counts the procs of many
+// Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the row's
+// column, on any other target the column divided by the factor, and states that chance against its
+// current target. Each case counts the procs of many
 // landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
 // hit rolls.
-func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto.CreatureFamily) {
+func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	t.Helper()
 	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
 	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
@@ -759,6 +779,13 @@ func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto
 			sim, character, procs := extraAttackWearer(t, itemID, rowID)
 			enemy := character.CurrentTarget
 			enemy.CreatureFamily = target.family
+			trigger := character.GetAura(name)
+			if trigger == nil || trigger.Dpm == nil {
+				t.Fatalf("%d registers no proc on a chance manager", itemID)
+			}
+			if got := trigger.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); math.Abs(got-target.want) > 1e-9 {
+				t.Errorf("the stated chance against the current target is %v, want %v", got, target.want)
+			}
 			swing := meleeSwing(&character.Unit)
 			const hits = 40000
 			for range hits {
@@ -774,9 +801,9 @@ func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto
 }
 
 // Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and on any other
-// target the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+// target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
-	expectLikelierAgainst(t, 11815, 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and

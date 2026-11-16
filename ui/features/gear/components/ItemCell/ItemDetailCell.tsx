@@ -63,6 +63,8 @@ export interface ItemDetailCellViewProps extends Pick<ItemCellProps, 'border' | 
 	onOpen?: (tab: SelectorModalTabs) => void;
 	/** Rendered beside the name. */
 	notice?: ReactNode;
+	/** Rendered beside the enchant. */
+	enchantNotice?: ReactNode;
 	action?: ReactNode;
 	/** Anchors the enchant label at a tooltip — the gear picker's quick-swap popover. */
 	enchantTooltipId?: string;
@@ -88,6 +90,7 @@ export const ItemDetailCellView = ({
 	className,
 	onOpen,
 	notice,
+	enchantNotice,
 	action,
 	enchantTooltipId,
 	extraLabels,
@@ -136,13 +139,16 @@ export const ItemDetailCellView = ({
 		}
 		labels={
 			<>
-				<EnchantLabel
-					className="ui-item-picker-label-muted tracking-normal"
-					testId="item-picker-enchant"
-					enchant={item?.enchant}
-					onActivate={onOpen && (() => onOpen(SelectorModalTabs.Enchants))}
-					tooltipId={enchantTooltipId}
-				/>
+				<div className="flex items-center gap-1" data-testid="item-picker-enchant-row">
+					<EnchantLabel
+						className="ui-item-picker-label-muted tracking-normal"
+						testId="item-picker-enchant"
+						enchant={item?.enchant}
+						onActivate={onOpen && (() => onOpen(SelectorModalTabs.Enchants))}
+						tooltipId={enchantTooltipId}
+					/>
+					{enchantNotice}
+				</div>
 				{extraLabels}
 			</>
 		}
@@ -150,9 +156,9 @@ export const ItemDetailCellView = ({
 	/>
 );
 
-export type ItemDetailCellProps = Omit<ItemDetailCellViewProps, 'iconUrl' | 'href' | 'wowhead' | 'notice'>;
+export type ItemDetailCellProps = Omit<ItemDetailCellViewProps, 'iconUrl' | 'href' | 'wowhead' | 'notice' | 'enchantNotice'>;
 
-/** Resolves the equipped item's icon, link, wowhead tooltip and notice for `ItemDetailCellView`. */
+/** Resolves the equipped item's icon, link, wowhead tooltip and notices for `ItemDetailCellView`. */
 export const ItemDetailCell = (props: ItemDetailCellProps) => {
 	const { item } = props;
 
@@ -170,11 +176,11 @@ export const ItemDetailCell = (props: ItemDetailCellProps) => {
 				!!item && (
 					<ItemNoticeIcon
 						itemId={item.item.id}
-						enchantId={item.enchant?.effectId}
 						additionalNotice={item.hasRandomSuffixOptions() && !item.randomSuffix ? MISSING_RANDOM_SUFFIX_WARNING : undefined}
 					/>
 				)
 			}
+			enchantNotice={!!item?.enchant && <ItemNoticeIcon enchantId={item.enchant.effectId} />}
 		/>
 	);
 };

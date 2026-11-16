@@ -36,11 +36,17 @@ const statLines = (stats: { [key: number]: number }): Array<VersusLine> =>
 const multiplierLines = (key: string, multiplier: number): Array<VersusLine> =>
 	Math.abs(multiplier - 1) < 1e-9 ? [] : [{ key, label: i18n.t(`sidebar.character_stats.versus.${key}`), value: signed((multiplier - 1) * 100, '%') }];
 
+const effectKeys: Record<VersusEffectKind, string> = {
+	[VersusEffectKind.VersusEffectKindDamage]: 'effect_damage',
+	[VersusEffectKind.VersusEffectKindRestore]: 'effect_restore',
+	[VersusEffectKind.VersusEffectKindProcChance]: 'effect_proc_chance',
+};
+
 const effectLines = (effects: Array<VersusEffect>): Array<VersusLine> =>
 	effects.map(effect => ({
 		key: `item-${effect.itemId}`,
 		label: effect.itemName,
-		value: i18n.t(`sidebar.character_stats.versus.${effect.kind === VersusEffectKind.VersusEffectKindRestore ? 'effect_restore' : 'effect_damage'}`, {
+		value: i18n.t(`sidebar.character_stats.versus.${effectKeys[effect.kind]}`, {
 			factor: Number(effect.multiplier.toFixed(2)),
 		}),
 	}));

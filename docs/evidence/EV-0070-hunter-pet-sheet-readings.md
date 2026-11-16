@@ -1,5 +1,7 @@
 # EV-0070: Tamed pet attack power, health and inherited stats from pet sheets
 
+EV-0134 shows the pet's white swings take none of the crit it inherits and its abilities take all of it.
+
 - Claim: a tamed pet's own attack power is the creature dps × 4.2 rounded down with nothing from Strength, its health is one reading that the creature health fits, and its armor, attack power and crit are not linear in the owner's.
 - Sources: pet sheets read in game at levels 11, 17 and 30; nothing else recorded
 - Game build: not recorded

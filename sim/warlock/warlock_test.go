@@ -21,28 +21,28 @@ func init() {
 }
 
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the gear set named.
+// its talents, demons, consumables and rotation, on the gear set of the same name, its own race and the one named.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
 }
 
 func TestDestruction(t *testing.T) {
-	runBuildSuite(t, "Destruction", "destro", "raid", proto.Race_RaceGnome)
+	runBuildSuite(t, "Destruction", "destro", proto.Race_RaceGnome)
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
 }
 
 func TestAfflictionWrack(t *testing.T) {
-	runBuildSuite(t, "Wrack", "aff_wrack", "raid", proto.Race_RaceHuman)
+	runBuildSuite(t, "Wrack", "aff_wrack", proto.Race_RaceOrc)
 }
 
-func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string, otherRace proto.Race) {
+func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto.Race) {
 	build := core.GetTestBuildFromJSON(proto.Class_ClassWarlock, "../../ui/specs/warlock/dps/builds", buildFile, core.ItemFilter{}, nil, nil)
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
@@ -50,7 +50,7 @@ func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string,
 			Race:        build.Race,
 			OtherRaces:  []proto.Race{otherRace},
 			SpecOptions: core.SpecOptionsCombo{Label: label, SpecOptions: build.SpecOptions.SpecOptions},
-			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", gearSet),
+			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", buildFile),
 			Talents:     build.Talents,
 			Consumables: build.Consumables,
 			Profession1: build.Profession1,
