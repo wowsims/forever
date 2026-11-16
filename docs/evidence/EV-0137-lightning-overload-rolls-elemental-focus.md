@@ -10,7 +10,7 @@
 - Game build: 1.60.1.70938 for both logs; the 2026-11-13 log ran from 22:26 to 00:12 UTC, before the 2026-11-14
   02:00 UTC hotfix. The hotfix each log ran on is not recorded.
 - Date: 2026-11-13 and 2026-11-15
-- Pull request: #TBD
+- Pull request: #1066
 
 ## Elemental Focus on the overload
 
