@@ -431,6 +431,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 740.43698
+  tps: 529.40245
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 752.61057
