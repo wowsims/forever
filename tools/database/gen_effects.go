@@ -581,7 +581,7 @@ type UnvalidatedRate struct {
 	Name   string
 	Kind   overrides.RateKind
 	Rate   float64 // What the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance; 0 where no single rate applies.
-	Origin string  // "vanilla", "tbc", "observed" or "unknown".
+	Origin string  // "vanilla", "tbc" or "observed".
 }
 
 // The rate and origin of the notice's TypeScript object, with no rate where none applies.
@@ -617,20 +617,12 @@ type literalRate struct {
 
 var literalRates = []literalRate{
 	{
-		Gear:   "item",
-		ID:     272432,
-		Kind:   overrides.RatePPM,
-		Origin: "unknown", // The rate follows the Maelstrom Weapon rank, so the notice states none.
-		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
-			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the main hand's speed",
-	},
-	{
 		Gear:   "set bonus",
 		ID:     184,
 		Pieces: 5,
 		Kind:   overrides.RatePPM,
 		Rate:   1,
-		Origin: "unknown",
+		Origin: "vanilla",
 		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
 	},
@@ -640,7 +632,7 @@ var literalRates = []literalRate{
 		Pieces: 4,
 		Kind:   overrides.RatePPM,
 		Rate:   1,
-		Origin: "unknown",
+		Origin: "vanilla",
 		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
 	},
@@ -649,19 +641,20 @@ var literalRates = []literalRate{
 // A Source naming the files of its measurements in docs/evidence.
 var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
 
-// The origin a rate's Source names, or "" for one measured on Forever, which needs no notice.
-func rateOrigin(source string) string {
+// The origin a rate's Source names, or "" for one measured on Forever, which needs no notice. A rate's Source
+// must be an evidence id, a carry-over ("vanilla-carryover" or "tbc-carryover") or "observed"; any other is an error.
+func rateOrigin(source string) (string, error) {
 	switch {
 	case evidenceID.MatchString(source):
-		return ""
+		return "", nil
 	case source == "vanilla-carryover":
-		return "vanilla"
+		return "vanilla", nil
 	case source == "tbc-carryover":
-		return "tbc"
+		return "tbc", nil
 	case source == "observed":
-		return "observed"
+		return "observed", nil
 	}
-	return "unknown"
+	return "", fmt.Errorf("rate Source %q: a rate's Source must be an evidence id, a carry-over or observed", source)
 }
 
 // The hand-kept rates the notices weigh, and the gear casting each spell a spell rate sits on.
@@ -760,14 +753,25 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 
 	for _, proc := range in.WeaponProcs {
 		item, ok := db.Items[proc.ItemID]
-		if origin := rateOrigin(proc.Source); origin != "" && ok {
+		origin, err := rateOrigin(proc.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("weapon proc on item %d: %w", proc.ItemID, err)
+		}
+		if origin != "" && ok {
 			put(items, UnvalidatedRate{ID: item.Id, Name: item.Name, Kind: overrides.RatePPM, Rate: proc.PPM, Origin: origin})
 		}
 	}
 
 	for _, o := range in.Spells {
-		kind, origin := spellRateKind(o), rateOrigin(o.Source)
-		if kind == 0 || origin == "" {
+		kind := spellRateKind(o)
+		if kind == 0 {
+			continue
+		}
+		origin, err := rateOrigin(o.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("spell %d rate: %w", o.SpellID, err)
+		}
+		if origin == "" {
 			continue
 		}
 		for _, itemID := range in.SpellItems[o.SpellID] {
@@ -789,7 +793,11 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 
 	for _, proc := range in.EnchantProcs {
 		enchant, ok := enchantByEffectID[proc.EnchantID]
-		if origin := rateOrigin(proc.Source); origin != "" && ok {
+		origin, err := rateOrigin(proc.Source)
+		if err != nil {
+			return UnvalidatedRates{}, fmt.Errorf("enchant %d rate: %w", proc.EnchantID, err)
+		}
+		if origin != "" && ok {
 			rate := proc.Value
 			if proc.Kind == overrides.RateChance {
 				rate = chancePercent(rate)

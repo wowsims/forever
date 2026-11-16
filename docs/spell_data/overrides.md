@@ -14,9 +14,11 @@ do not state. One row per number:
 ```
 
 The next reader weighs the number against `Reason` and `Source`, and the generator refuses a row without
-a reason. `Source` names where the number came from: `vanilla-carryover`, `tbc-carryover`, `observed` (measured here from too few logs to call final), `tooltip`, `owner decision`,
-`estimate`, or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`). Only an evidence id counts
-as measured; a carry-over, an `observed` rate or an `estimate` is listed as unvalidated on the gear it reaches.
+a reason. `Source` names where the number came from: `tooltip`, `owner decision` or another note for a value that is not a proc
+rate, and for a hand-kept proc rate one of `vanilla-carryover`, `tbc-carryover`, `observed` (measured here from too few
+logs to call final) or the id of a measurement on Forever, `EV-<n>` (`docs/evidence/README.md`); the generator refuses
+any other `Source` on a rate. Only an evidence id counts as measured; a carry-over or an `observed` rate is listed as
+unvalidated on the gear it reaches.
 
 Every field names a rule the generator checks before it writes the value, so a stale override lasts
 until the next regeneration at most:

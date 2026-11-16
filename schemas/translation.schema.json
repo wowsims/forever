@@ -2337,9 +2337,6 @@
 								"ppm_observed": {
 									"type": "string"
 								},
-								"ppm_unknown": {
-									"type": "string"
-								},
 								"chance_vanilla": {
 									"type": "string"
 								},
@@ -2347,9 +2344,6 @@
 									"type": "string"
 								},
 								"chance_observed": {
-									"type": "string"
-								},
-								"chance_unknown": {
 									"type": "string"
 								},
 								"ppm_vanilla_rate": {
@@ -2361,9 +2355,6 @@
 								"ppm_observed_rate": {
 									"type": "string"
 								},
-								"ppm_unknown_rate": {
-									"type": "string"
-								},
 								"chance_vanilla_rate": {
 									"type": "string"
 								},
@@ -2372,28 +2363,21 @@
 								},
 								"chance_observed_rate": {
 									"type": "string"
-								},
-								"chance_unknown_rate": {
-									"type": "string"
 								}
 							},
 							"required": [
 								"ppm_vanilla",
 								"ppm_tbc",
 								"ppm_observed",
-								"ppm_unknown",
 								"chance_vanilla",
 								"chance_tbc",
 								"chance_observed",
-								"chance_unknown",
 								"ppm_vanilla_rate",
 								"ppm_tbc_rate",
 								"ppm_observed_rate",
-								"ppm_unknown_rate",
 								"chance_vanilla_rate",
 								"chance_tbc_rate",
-								"chance_observed_rate",
-								"chance_unknown_rate"
+								"chance_observed_rate"
 							],
 							"additionalProperties": false
 						},

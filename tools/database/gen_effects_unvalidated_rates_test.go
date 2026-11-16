@@ -16,20 +16,23 @@ import (
 	"github.com/wowsims/forever/tools/database/overrides"
 )
 
-// A measured Source needs no notice; a carry-over names its version, an observed fit says so, and anything else is an estimate.
+// A measured Source needs no notice; a carry-over names its version, an observed fit says so, and anything else is an error.
 func TestRateOriginReadsTheSource(t *testing.T) {
 	for source, want := range map[string]string{
 		"EV-0001":           "",
 		"EV-0017, EV-0018":  "",
-		"EV-1":              "unknown",
 		"vanilla-carryover": "vanilla",
 		"tbc-carryover":     "tbc",
 		"observed":          "observed",
-		"estimate":          "unknown",
-		"owner decision":    "unknown",
 	} {
-		if got := rateOrigin(source); got != want {
-			t.Errorf("source %q reads as origin %q, want %q", source, got, want)
+		got, err := rateOrigin(source)
+		if err != nil || got != want {
+			t.Errorf("source %q reads as origin %q with error %v, want %q and no error", source, got, err, want)
+		}
+	}
+	for _, source := range []string{"EV-1", "estimate", "owner decision"} {
+		if got, err := rateOrigin(source); err == nil {
+			t.Errorf("source %q reads as origin %q, want an error", source, got)
 		}
 	}
 }
@@ -65,7 +68,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 		},
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
-			{SpellID: 7, Field: overrides.ProcChancePct, Value: 5, Source: "owner decision"},
+			{SpellID: 7, Field: overrides.ProcChancePct, Value: 5, Source: "tbc-carryover"},
 			{SpellID: 8, Field: overrides.PPM, Value: 1, Source: "EV-0002"},
 			{SpellID: 9, Field: overrides.ICDMs, Value: 1000, Source: "tbc-carryover"},
 		},
@@ -74,7 +77,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "EV-0003"},
 		},
 		Literals: []literalRate{
-			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Rate: 1.5, Origin: "unknown"},
+			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Rate: 1.5, Origin: "vanilla"},
 			{Gear: "set bonus", ID: 7000, Pieces: 4, Kind: overrides.RateChance, Rate: 25, Origin: "tbc"},
 			{Gear: "set bonus", ID: 7000, Pieces: 2, Kind: overrides.RatePPM, Rate: 2, Origin: "vanilla"},
 			{Gear: "set bonus", ID: 8000, Pieces: 2, Kind: overrides.RatePPM, Origin: "vanilla"},
@@ -112,8 +115,8 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{10, 0, overrides.RatePPM, 1, "tbc"},
 			{30, 0, overrides.RatePPM, 0, "vanilla"}, // Two procs at 1 and 2 per minute: no single rate.
 			{40, 0, overrides.RatePPM, 1, "tbc"},
-			{45, 0, overrides.RateChance, 5, "unknown"},
-			{50, 0, overrides.RatePPM, 1.5, "unknown"},
+			{45, 0, overrides.RateChance, 5, "tbc"},
+			{50, 0, overrides.RatePPM, 1.5, "vanilla"},
 			{60, 0, overrides.RatePPM, 1.1, "observed"},
 		}},
 		{"enchants", rates.Enchants, []entry{
@@ -146,6 +149,14 @@ func TestUnvalidatedRatesRefuseTwoOriginsOnOneItem(t *testing.T) {
 	}
 }
 
+// A rate whose Source is no evidence id, carry-over or observed fit stops the lists.
+func TestUnvalidatedRatesRefuseAnUnknownSource(t *testing.T) {
+	in := rateInputs{WeaponProcs: []overrides.WeaponProc{{ItemID: 10, SpellID: 1, PPM: 1, Source: "estimate"}}}
+	if _, err := unvalidatedRates(in, rateTestDB([]int32{10}, nil, nil)); err == nil {
+		t.Error("a rate with the source \"estimate\" was listed, want an error")
+	}
+}
+
 // Each list renders one entry per line with its kind, origin and name, and a set's bonuses render
 // under the set by piece count.
 func TestUnvalidatedRatesRender(t *testing.T) {
@@ -153,7 +164,7 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 		Items:    []UnvalidatedRate{{ID: 1, Name: "Blade", Kind: overrides.RatePPM, Rate: 1.1, Origin: "vanilla"}},
 		Enchants: []UnvalidatedRate{{ID: 2, Name: "Enchant", Kind: overrides.RateChance, Rate: 9, Origin: "tbc"}},
 		SetBonuses: []UnvalidatedRate{
-			{ID: 3, Pieces: 2, Name: "Set", Kind: overrides.RateChance, Origin: "unknown"},
+			{ID: 3, Pieces: 2, Name: "Set", Kind: overrides.RateChance, Origin: "vanilla"},
 			{ID: 3, Pieces: 4, Name: "Set", Kind: overrides.RatePPM, Rate: 0.5, Origin: "tbc"},
 		},
 	}
@@ -173,7 +184,7 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 			"\t[\n" +
 			"\t\t3, // Set\n" +
 			"\t\tnew Map([\n" +
-			"\t\t\t[2, { kind: 'chance', origin: 'unknown' }],\n" +
+			"\t\t\t[2, { kind: 'chance', origin: 'vanilla' }],\n" +
 			"\t\t\t[4, { kind: 'ppm', rate: 0.5, origin: 'tbc' }],\n" +
 			"\t\t]),\n" +
 			"\t],\n" +
@@ -374,7 +385,7 @@ func TestRegisteredSetBonusesSitOnGameFilesThresholds(t *testing.T) {
 	}
 }
 
-// What holds for any shipped rate: its Source is a carry-over, an observed fit, an estimate or a measurement, a literal
+// What holds for any shipped rate: its Source is a carry-over, an observed fit or a measurement, a literal
 // names an origin the notices know, every row names gear the game files carry, and no measured rate is listed.
 func TestShippedRatesAreWellFormed(t *testing.T) {
 	withDBCInputs(t)
@@ -382,41 +393,42 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	in := shippedRateInputs(instance)
 
 	knownSource := func(source string) bool {
-		return source == "vanilla-carryover" || source == "tbc-carryover" || source == "observed" || source == "estimate" || rateOrigin(source) == ""
+		_, err := rateOrigin(source)
+		return err == nil
 	}
 	db := NewWowDatabase()
 	var measuredItems, measuredEnchants []int32
 	for _, row := range in.WeaponProcs {
 		if !knownSource(row.Source) {
-			t.Errorf("item %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.ItemID, row.Source)
+			t.Errorf("item %d's rate states source %q, want a carry-over, an observed fit or a measurement", row.ItemID, row.Source)
 		}
 		if _, ok := instance.Items[int(row.ItemID)]; !ok {
 			t.Errorf("item %d's rate names an item the game files do not carry", row.ItemID)
 		}
-		if rateOrigin(row.Source) == "" {
+		if origin, _ := rateOrigin(row.Source); origin == "" {
 			measuredItems = append(measuredItems, row.ItemID)
 		}
 		db.Items[row.ItemID] = &proto.UIItem{Id: row.ItemID}
 	}
 	for _, row := range in.EnchantProcs {
 		if !knownSource(row.Source) {
-			t.Errorf("enchant %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.EnchantID, row.Source)
+			t.Errorf("enchant %d's rate states source %q, want a carry-over, an observed fit or a measurement", row.EnchantID, row.Source)
 		}
 		enchant, ok := instance.EnchantsByEffectId[int(row.EnchantID)]
 		if !ok || !slices.Contains(enchant.EffectArgs, int(row.SpellID)) {
 			t.Errorf("enchant %d's rate names spell %d, which no slot of an enchant the game files carry casts", row.EnchantID, row.SpellID)
 		}
-		if rateOrigin(row.Source) == "" {
+		if origin, _ := rateOrigin(row.Source); origin == "" {
 			measuredEnchants = append(measuredEnchants, row.EnchantID)
 		}
 		db.Enchants[EnchantDBKey{EffectID: row.EnchantID}] = &proto.UIEnchant{EffectId: row.EnchantID}
 	}
 	for _, row := range in.Spells {
 		if spellRateKind(row) != 0 && !knownSource(row.Source) {
-			t.Errorf("spell %d's rate states source %q, want a carry-over, an observed fit, an estimate or a measurement", row.SpellID, row.Source)
+			t.Errorf("spell %d's rate states source %q, want a carry-over, an observed fit or a measurement", row.SpellID, row.Source)
 		}
 		for _, itemID := range in.SpellItems[row.SpellID] {
-			if spellRateKind(row) != 0 && rateOrigin(row.Source) == "" {
+			if origin, _ := rateOrigin(row.Source); spellRateKind(row) != 0 && origin == "" {
 				measuredItems = append(measuredItems, itemID)
 			}
 			db.Items[itemID] = &proto.UIItem{Id: itemID}
@@ -425,7 +437,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	for _, literal := range in.Literals {
 		_, isItem := instance.Items[int(literal.ID)]
 		_, isEnchant := instance.EnchantsByEffectId[int(literal.ID)]
-		if !slices.Contains([]string{"vanilla", "tbc", "observed", "unknown"}, literal.Origin) || literal.Reason == "" ||
+		if !slices.Contains([]string{"vanilla", "tbc", "observed"}, literal.Origin) || literal.Reason == "" ||
 			literal.Gear == "item" && !isItem || literal.Gear == "enchant" && !isEnchant {
 			t.Errorf("the literal %+v names gear the game files do not carry, no reason or an origin the notices do not know", literal)
 		}
