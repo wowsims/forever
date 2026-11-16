@@ -223,19 +223,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Increases Strength by 200 for 12s.
-	// https://www.wowhead.com/forever/spell=17152
-	// unsupported: states no rate
-	// trigger 17152 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17152, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 647, ItemName: "Destiny"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Wounds the target causing them to bleed for 155 damage over 15s.
 	// https://www.wowhead.com/forever/spell=17504
 	// unsupported: states no rate
@@ -282,20 +269,6 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18816, BuffSpellID: 18818},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 1168, ItemName: "Skullflame Shield - Flamestrike"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by
-	// 30% for 30s.
-	// https://www.wowhead.com/forever/spell=17148
-	// unsupported: states no rate
-	// trigger 17148 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17148, BuffSpellID: 17148, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 1263, ItemName: "Brain Hacker"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3949,6 +3922,14 @@ func RegisterAllProcs() {
 	//	{ItemID: 287043, ItemName: "Predaceous Band"},
 	// })
 
+	// Increases Strength by 200 for 12s.
+	// https://www.wowhead.com/forever/spell=17152
+	// trigger 17152 (1.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17152, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 647, ItemName: "Destiny"},
+		})
+
 	// Smites an enemy for 30 Holy damage.
 	// https://www.wowhead.com/forever/spell=13519
 	// trigger 13519 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4006,6 +3987,15 @@ func RegisterAllProcs() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 18097, BuffSpellID: 17154},
 		[]shared.ItemVariant{
 			{ItemID: 1204, ItemName: "The Green Tower"},
+		})
+
+	// Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by
+	// 30% for 30s.
+	// https://www.wowhead.com/forever/spell=17148
+	// trigger 17148 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17148, BuffSpellID: 17148, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 1263, ItemName: "Brain Hacker"},
 		})
 
 	// When struck in combat has a 3% chance to encase the caster in bone, increasing armor by 150 for 20s.

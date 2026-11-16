@@ -243,6 +243,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-BrainHacker-1263"
+ value: {
+  dps: 865.41214
+  tps: 896.9774
+  dtps: 8.21004
+  hps: 22.62083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BristleconeCloak-275833"
  value: {
   dps: 771.50338
