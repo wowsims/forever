@@ -1523,8 +1523,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 870.44116
-  tps: 709.41436
+  dps: 871.71974
+  tps: 710.43722
   dtps: 4.35763
   hps: 24.5891
  }

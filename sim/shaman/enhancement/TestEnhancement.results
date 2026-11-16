@@ -1235,8 +1235,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 836.89989
-  tps: 867.07086
+  dps: 837.50855
+  tps: 867.67951
   dtps: 8.06103
   hps: 20.70611
  }

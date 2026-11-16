@@ -2282,11 +2282,11 @@ var generatedSpells = []Spell{
 			{ID: 682996, SpellID: 3716, Type: dbcenums.E_THREAT, BasePoints: 70, PPL: 3, BaseLevel: 10, MaxLevel: 15, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		},
 		Powers: []Power{{Cost: 20}}},
-	{ID: 3742, Name: "Gahz'rilla Fang", School: 8, Attr: [17]uint32{0: 0x40000, 15: 0x2000}, SpellLevel: 45, MaxRange: 100, DefenseType: 1, RefIDs: []int32{1294477},
+	{ID: 3742, Name: "Gahz'rilla Fang", School: 8, Attr: [17]uint32{0: 0x40000, 15: 0x2000}, SpellLevel: 45, MaxRange: 100, DefenseType: 1, VersusEffectIndex: 1, VersusFamilies: []int32{3}, RefIDs: []int32{1294477},
 		Effects: []Effect{
 			{ID: 681414, SpellID: 3742, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 84, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315872, SpellID: 3742, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyAquatic -- Gahz'rilla Fang: 'Deals $s2 times as much damage to Aquatic enemies'
 	{ID: 3747, Name: "Power Word: Shield", Rank: "Rank 4", School: 2, Attr: [17]uint32{0: 0x50000, 2: 0x280000, 4: 0x100000, 6: 0x200000, 8: 0x1000, 14: 0x40, 15: 0x2000, 16: 0x10}, SpellLevel: 24, BaseLevel: 24, MaxLevel: 29, DurationMs: 30000, MaxRange: 40, CategoryCooldownMs: 4000, GCDMs: 1500, Category: 56, StartRecoveryCategory: 133, DefenseType: 1, DispelType: 1, Mechanic: 19, PreventionType: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 1}}, InterruptFlags: 8, StanceMask: 0x8000000, Labels: []int16{18}, RefIDs: []int32{6788}, ProcHint: core.ProcHintCastTrigger,
 		Effects: []Effect{
 			{ID: 680737, SpellID: 3747, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_SCHOOL_ABSORB, BasePoints: 226, PPL: 2, BaseLevel: 24, MaxLevel: 29, SPCoef: 0.10000000149011612, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{57, 0}},
@@ -36175,11 +36175,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1315519, SpellID: 1294258, Type: dbcenums.E_SUMMON, BasePoints: 1, MaxLevel: 60, PvpMult: 1, Amplitude: 1e+16, Misc: 265223, Misc2: 6698, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},
 		}},
-	{ID: 1294339, Name: "Farraki Enforcement", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, MaxRange: 100, DefenseType: 2, RefIDs: []int32{1294340},
+	{ID: 1294339, Name: "Farraki Enforcement", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, MaxRange: 100, DefenseType: 2, VersusEffectIndex: 1, VersusFamilies: []int32{9}, RefIDs: []int32{1294340},
 		Effects: []Effect{
 			{ID: 1315660, SpellID: 1294339, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 294, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315661, SpellID: 1294339, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyTroll -- Farraki Enforcement: 'Trolls take $s2 times as much damage and stun duration'
 	{ID: 1294340, Name: "Farraki Enforcement", School: 1, Attr: [17]uint32{0: 0x10, 15: 0x2000}, DurationMs: 1500, MaxRange: 100, DefenseType: 1, Mechanic: 12,
 		Effects: []Effect{
 			{ID: 1315662, SpellID: 1294340, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
@@ -36188,14 +36188,14 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1315767, SpellID: 1294426, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 11, PvpMult: 1, PeriodMs: 1000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1294430, Name: "Rage of Sul'thraze", School: 32, Speed: 30, Attr: [17]uint32{15: 0x2000}, SpellLevel: 50, DurationMs: 15000, MaxRange: 100, DefenseType: 1, DispelType: 1, RefIDs: []int32{1294431},
+	{ID: 1294430, Name: "Rage of Sul'thraze", School: 32, Speed: 30, Attr: [17]uint32{15: 0x2000}, SpellLevel: 50, DurationMs: 15000, MaxRange: 100, DefenseType: 1, DispelType: 1, VersusEffectIndex: 4, VersusFamilies: []int32{9}, RefIDs: []int32{1294431},
 		Effects: []Effect{
 			{ID: 1315781, SpellID: 1294430, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 159, Variance: 0.800000011920929, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315782, SpellID: 1294430, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ATTACK_POWER, BasePoints: -180, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315783, SpellID: 1294430, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RANGED_ATTACK_POWER, BasePoints: -180, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315784, SpellID: 1294430, Index: 3, Type: dbcenums.E_TRIGGER_SPELL, PvpMult: 1, TriggerID: 1294431, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 1315810, SpellID: 1294430, Index: 4, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s5) against CreatureFamilyTroll -- Rage of Sul'thraze: 'This additional Shadow damage deals $s5 times as much damage to Trolls'; Shadow Lash 1294431 deals it
 	{ID: 1294431, Name: "Shadow Lash", School: 32, Speed: 30, Attr: [17]uint32{3: 0x40000, 8: 0x200, 15: 0x2000}, SpellLevel: 50, DurationMs: 5000, MaxRange: 100, DefenseType: 1, DispelType: 1,
 		Effects: []Effect{
 			{ID: 1315785, SpellID: 1294431, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 159, PvpMult: 1, PeriodMs: 5000, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},

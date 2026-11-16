@@ -290,6 +290,27 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     3742,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Gahz'rilla Fang: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294430,
+		EffectIndex: 4,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Rage of Sul'thraze: 'This additional Shadow damage deals $s5 times as much damage to Trolls'; Shadow Lash 1294431 deals it",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294339,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Farraki Enforcement: 'Trolls take $s2 times as much damage and stun duration'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1317432,
 		EffectIndex: 1,
 		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental,

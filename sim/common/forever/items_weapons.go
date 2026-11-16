@@ -486,10 +486,12 @@ func init() {
 	// A landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the target, which deals its damage
 	// once, when its 5 s run out. A Rage that lands while a Shadow Lash is still running puts up no
 	// second one and leaves the running one's time alone (EV-0136). The Lash rolls no hit of its own and
-	// can crit, as its row states.
+	// can crit, as its row states. The Trolls factor 1294430 states is the Lash's alone, so the Rage
+	// hands its versus bonus over.
 	shared.DamageProcExtras[9372] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294431)
 		lashConfig := procSpellConfig(character, row)
+		lashConfig.VersusBonus, config.VersusBonus = config.VersusBonus, nil
 		lashConfig.Dot = spelldata.DotConfig(row, row.PeriodicDamageEffect())
 		lashConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 			spell.Dot(target).Apply(sim)
@@ -514,15 +516,16 @@ func init() {
 	// targets below 25% health.
 	//
 	// Fatal Wound 10373 deals the percent its second dummy states more to a target below the health
-	// percent its third states. Hits of 1.5 times the plain range land late in a target's life, but the
-	// logs state no health, so the threshold is the row's alone (EV-0136). The sim knows a target's
-	// health only at 35% and 20%, so the bonus applies from 20%.
-	// TODO: Give the bonus between 25% and 20% once the sim states a target's health there.
+	// percent its third states, which the sim's execute phases track. Hits of 1.5 times the plain range
+	// land late in a target's life, but the logs state no health, so the threshold is the row's alone
+	// (EV-0136).
 	shared.DamageProcExtras[9425] = func(_ *core.Character, config *core.SpellConfig) {
-		bonus := 1 + spelldata.MustFind(10373).EffectN(2).Average()/100
+		row := spelldata.MustFind(10373)
+		bonus := 1 + row.EffectN(2).Average()/100
+		health := int32(row.EffectN(3).Average())
 		deal := config.ApplyEffects
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			if !target.IsExecutePhase20() {
+			if !target.IsBelowExecuteHealth(health) {
 				deal(sim, target, spell)
 				return
 			}
@@ -592,15 +595,17 @@ func init() {
 	//
 	// Every proc also casts 1294340 at the target, which rolls the spell hit table on its own and stuns
 	// for its duration: a dodged, parried or missed strike stuns all the same (EV-0136). A stun-immune
-	// target, a raid boss among them, takes none.
+	// target, a raid boss among them, takes none. The strike's versus factor, Trolls', lengthens the
+	// stun on them as well.
 	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(1294340)
 		label := fmt.Sprintf("%s %d", row.Name, row.ID)
+		versus := config.VersusBonus
 		stuns := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			if aura := target.GetAura(label); aura != nil {
 				return aura
 			}
-			return target.RegisterStunAura(label, core.ActionID{SpellID: row.ID}, row.Duration())
+			return target.RegisterStunAura(label, core.ActionID{SpellID: row.ID}, time.Duration(float64(row.Duration())*versus.Against(target)))
 		})
 		stunConfig := procSpellConfig(character, row)
 		if row.IsStun() {

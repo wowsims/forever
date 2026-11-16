@@ -5,6 +5,7 @@ package forever_test
 import (
 	"fmt"
 	"math"
+	"slices"
 	"testing"
 	"time"
 
@@ -1488,10 +1489,10 @@ func TestManaChannelingWandRestoresManaOnLandedShots(t *testing.T) {
 	}
 }
 
-// A warrior holding the item in the main hand against one target with no armor, whose execute20
-// share of the encounter's end it spends below 20% health. Its auto attacks are off, every hit lands
-// and none crits, and the item's proc fires on every main-hand hit.
-func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto.Target, execute20 float64) (*core.Simulation, *core.Character) {
+// A warrior holding the item in the main hand against one target with no armor, which spends the
+// execute35 and execute20 shares of the encounter's end below 35% and 20% health. Its auto attacks
+// are off, every hit lands and none crits, and the item's proc fires on every main-hand hit.
+func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto.Target, execute35, execute20 float64) (*core.Simulation, *core.Character) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
@@ -1509,7 +1510,7 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
-		Encounter:  &proto.Encounter{Duration: 180, ExecuteProportion_20: execute20, Targets: []*proto.Target{target}},
+		Encounter:  &proto.Encounter{Duration: 180, ExecuteProportion_35: execute35, ExecuteProportion_20: execute20, Targets: []*proto.Target{target}},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	character := sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1532,7 +1533,7 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 // target, which deals its damage when its duration runs out. A Rage that lands while the Lash runs puts
 // up no second one and leaves its time alone; a missed Rage puts up none.
 func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
-	sim, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", &proto.Target{Name: "target", Level: 60}, 0)
+	sim, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget
 	rage := character.GetSpell(core.ActionID{SpellID: 1294430})
 	lash := character.GetSpell(core.ActionID{SpellID: 1294431})
@@ -1567,14 +1568,21 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	}
 }
 
-// Pendulum of Doom 9425's Fatal Wound 10373 deals the percent its row states more to a target in the
-// sim's 20% execute phase, and its plain damage to a target above it.
+// Pendulum of Doom 9425's Fatal Wound 10373 deals the percent its row states more to a target below
+// the health percent its row states, from that phase's start, and its plain damage to a target above
+// it.
 func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
-	meanHit := func(execute20 float64) float64 {
-		sim, character := procWeaponWearer(t, 9425, "Pendulum of Doom - Fatal Wound", &proto.Target{Name: "target", Level: 60}, execute20)
+	row := spelldata.MustFind(10373)
+	health := int32(row.EffectN(3).Average())
+	if health != 25 {
+		t.Fatalf("the row's threshold is %d%%, outside the case the test covers", health)
+	}
+	meanHit := func(execute35, execute20 float64, at time.Duration, below bool) float64 {
+		sim, character := procWeaponWearer(t, 9425, "Pendulum of Doom - Fatal Wound", &proto.Target{Name: "target", Level: 60}, execute35, execute20)
 		enemy := character.CurrentTarget
-		if got := enemy.IsExecutePhase20(); got != (execute20 == 1) {
-			t.Fatalf("with %v of the fight below 20%% the target is in the phase %v", execute20, got)
+		stepTo(t, sim, at)
+		if got := enemy.IsBelowExecuteHealth(health); got != below {
+			t.Fatalf("at %v with %v and %v of the fight below 35%% and 20%%, the target below %d%% reads %v, want %v", at, execute35, execute20, health, got, below)
 		}
 		wound := character.GetSpell(core.ActionID{SpellID: 10373})
 		if wound == nil {
@@ -1597,10 +1605,16 @@ func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
 		}
 		return total / float64(landed)
 	}
-	want := 1 + spelldata.MustFind(10373).EffectN(2).Average()/100
-	plain, execute := meanHit(0), meanHit(1)
-	if ratio := execute / plain; want <= 1 || math.Abs(ratio-want) > 0.05*want {
-		t.Errorf("Fatal Wound averages %v in the execute phase and %v above it, a ratio of %v, want the row's %v", execute, plain, ratio, want)
+	want := 1 + row.EffectN(2).Average()/100
+	plain := meanHit(0, 0, time.Second, false)
+	// Below 35% from the start and 20% only at the end: the target crosses 25% two thirds of the way.
+	justBelow := meanHit(1, 0, 121*time.Second, true)
+	if ratio := justBelow / plain; want <= 1 || math.Abs(ratio-want) > 0.05*want {
+		t.Errorf("Fatal Wound averages %v just below %d%% and %v above it, a ratio of %v, want the row's %v", justBelow, health, plain, ratio, want)
+	}
+	aboveRow := meanHit(1, 0, 119*time.Second, false)
+	if ratio := aboveRow / plain; math.Abs(ratio-1) > 0.05 {
+		t.Errorf("Fatal Wound averages %v above %d%% but below 35%%, a ratio of %v to the plain hit, want 1", aboveRow, health, ratio)
 	}
 }
 
@@ -1608,7 +1622,7 @@ func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
 // resistance by the row's amount, and a melee hit taken then casts the shield's damage at the
 // attacker. A later proc refreshes it.
 func TestFlameWrathPutsUpItsFireShield(t *testing.T) {
-	sim, character := procWeaponWearer(t, 11809, "Flame Wrath", &proto.Target{Name: "target", Level: 60}, 0)
+	sim, character := procWeaponWearer(t, 11809, "Flame Wrath", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget
 	row := spelldata.MustFind(16560)
 	shieldAura := character.GetAura("Flame Wrath Fire Shield")
@@ -1639,10 +1653,83 @@ func TestFlameWrathPutsUpItsFireShield(t *testing.T) {
 	}
 }
 
+// The damage one cast of the spell deals to the target.
+func castDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit) float64 {
+	before := spell.SpellMetrics[target.UnitIndex].TotalDamage
+	spell.Cast(sim, target)
+	return spell.SpellMetrics[target.UnitIndex].TotalDamage - before
+}
+
+// The factor each item's row states against its tooltip's creatures, read through the row's versus
+// bonus: Gahz'rilla Fang 9467's 3742 against Aquatic enemies, The Chief's Enforcer 9477's 1294339
+// against Trolls, and Sul'thraze the Lasher 9372's Shadow Lash 1294431 against Trolls, which its
+// Rage of Sul'thraze 1294430 states and leaves its own hit without.
+func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
+	for _, tc := range []struct {
+		itemID         int32
+		procName       string
+		rowID, spellID int32
+		family         proto.CreatureFamily
+	}{
+		{9467, "Gahz'rilla Fang - Gahz'rilla Fang", 3742, 3742, proto.CreatureFamily_CreatureFamilyAquatic},
+		{9477, "The Chief's Enforcer", 1294339, 1294339, proto.CreatureFamily_CreatureFamilyTroll},
+		{9372, "Sul'thraze the Lasher", 1294430, 1294431, proto.CreatureFamily_CreatureFamilyTroll},
+	} {
+		bonus, ok := spelldata.MustFind(tc.rowID).VersusBonus()
+		if !ok || bonus.Multiplier <= 1 || !slices.Contains(bonus.Families, tc.family) {
+			t.Fatalf("%d states no factor above 1 against %v", tc.rowID, tc.family)
+		}
+		dealt := func(family proto.CreatureFamily) float64 {
+			sim, character := procWeaponWearer(t, tc.itemID, tc.procName, &proto.Target{Name: "target", Level: 60, CreatureFamily: family}, 0, 0)
+			*character.GetAura(tc.procName).Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
+			spell := character.GetSpell(core.ActionID{SpellID: tc.spellID})
+			if spell == nil {
+				t.Fatalf("%d registers no %d", tc.itemID, tc.spellID)
+			}
+			if spell.Dot(character.CurrentTarget) == nil {
+				// The first cast that is not dodged or parried.
+				for range 50 {
+					if damage := castDamage(sim, spell, character.CurrentTarget); damage > 0 {
+						return damage
+					}
+				}
+				t.Fatalf("50 casts of %d dealt no damage", tc.spellID)
+			}
+			spell.Cast(sim, character.CurrentTarget)
+			stepTo(t, sim, spell.Dot(character.CurrentTarget).ExpiresAt()+core.SpellBatchWindow)
+			return spell.SpellMetrics[character.CurrentTarget.UnitIndex].TotalDamage
+		}
+		plain, against := dealt(proto.CreatureFamily_CreatureFamilyUnknown), dealt(tc.family)
+		if plain <= 0 || math.Abs(against/plain-bonus.Multiplier) > 1e-6 {
+			t.Errorf("%d's %d deals %v against %v and %v against others, want the row's %v times", tc.itemID, tc.spellID, against, tc.family, plain, bonus.Multiplier)
+		}
+	}
+
+	troll := &proto.Target{Name: "target", Level: 60, CreatureFamily: proto.CreatureFamily_CreatureFamilyTroll}
+	_, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", troll, 0, 0)
+	if rage := character.GetSpell(core.ActionID{SpellID: 1294430}); rage == nil || rage.VersusBonus != nil {
+		t.Error("Rage of Sul'thraze carries a versus bonus of its own, want the Lash alone to carry it")
+	}
+
+	// The Chief's Enforcer's stun lasts the strike's factor longer on a Troll.
+	stun := spelldata.MustFind(1294340)
+	factor, _ := spelldata.MustFind(1294339).VersusBonus()
+	for _, family := range []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyUnknown, proto.CreatureFamily_CreatureFamilyTroll} {
+		_, character := procWeaponWearer(t, 9477, "The Chief's Enforcer", &proto.Target{Name: "target", Level: 60, CreatureFamily: family}, 0, 0)
+		want := stun.Duration()
+		if family == proto.CreatureFamily_CreatureFamilyTroll {
+			want = time.Duration(float64(want) * factor.Multiplier)
+		}
+		if aura := character.CurrentTarget.GetAura(fmt.Sprintf("%s %d", stun.Name, stun.ID)); aura == nil || aura.Duration != want {
+			t.Errorf("against %v the stun is registered %v, want it lasting %v", family, aura, want)
+		}
+	}
+}
+
 // Gahz'rilla Fang 9467's 3742 deals the percent Static Electricity 1294477 states more for each
 // stack on the wearer, and spends all of them but one.
 func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
-	sim, character := procWeaponWearer(t, 9467, "Gahz'rilla Fang - Gahz'rilla Fang", &proto.Target{Name: "target", Level: 60}, 0)
+	sim, character := procWeaponWearer(t, 9467, "Gahz'rilla Fang - Gahz'rilla Fang", &proto.Target{Name: "target", Level: 60}, 0, 0)
 	enemy := character.CurrentTarget
 	fang := character.GetSpell(core.ActionID{SpellID: 3742})
 	static := character.GetAuraByID(core.ActionID{SpellID: 1294477})
@@ -1685,7 +1772,7 @@ func TestTheChiefsEnforcerStunsWhetherOrNotTheStrikeLands(t *testing.T) {
 		{60, true},
 		{63, false},
 	} {
-		sim, character := procWeaponWearer(t, 9477, "The Chief's Enforcer", &proto.Target{Name: "target", Level: tc.level}, 0)
+		sim, character := procWeaponWearer(t, 9477, "The Chief's Enforcer", &proto.Target{Name: "target", Level: tc.level}, 0, 0)
 		enemy := character.CurrentTarget
 		strike := character.GetSpell(core.ActionID{SpellID: 1294339})
 		stunSpell := character.GetSpell(core.ActionID{SpellID: 1294340})
