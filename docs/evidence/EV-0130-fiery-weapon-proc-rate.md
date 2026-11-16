@@ -1,7 +1,7 @@
 # EV-0130: Fiery Weapon's proc rate on two two-handed weapons
 
-- Claim: Enchant Weapon - Fiery Weapon 803 rolls its strike 13897 at 6 procs per minute on the enchanted weapon's speed,
-  on the hits that roll a chance-on-hit weapon proc.
+- Claim: Enchant Weapon - Fiery Weapon 803 rolls its strike 13897 at 6 procs per minute on two two-handed weapons, on
+  the hits that roll a chance-on-hit weapon proc. Their two speeds do not tell procs per minute from a flat chance.
 - Sources: combat log, Retribution paladin, levels 46 and 47, with the enchant on a two-handed mace of speed 3.4 and on
   a two-handed sword of speed 3.9; three logs: the open world, and twice the open world followed by a five-player
   dungeon under a rank 2 Windfury Totem
@@ -29,13 +29,25 @@ Both intervals hold 6 procs per minute, the vanilla carry-over value. The two sp
 a flat chance: on the units with no weapon proc line the two chances differ by 2.0 points, where 6 procs per minute
 asks for 5.0 and a flat chance for none, with a standard error of 2.1. One-handers and the off hand were not measured.
 
-Of 1,401 strikes in the three logs none missed and none was fully resisted, and 2 were reflected. The targets were at
-most one level above the paladin, whose spell hit modifier was 1. The paladin's Consecration (1,996 ticks), Seal of
-Righteousness (944 hits), Judgement of Righteousness (246) and Hammer of Wrath (173) missed nothing either. Other
-players' Hellfire, Searing Pain and Rain of Fire missed 22 times in 792 in the same logs.
+Of the 1,401 strikes in the three logs, in a counted unit or not, none missed and none was fully resisted, and 2 were
+reflected. The count does not show whether the strike can miss. The paladin's spell hit modifier was 1%, and 1,080 of
+the strikes were on targets three or more levels below the paladin, where the sim's spell miss is 0 as well. The rest:
+
+| Target's level less the paladin's | Strikes | Missed | The sim's spell miss at that hit |
+| --------------------------------- | ------- | ------ | -------------------------------- |
+| -2                                | 167     | 0      | 1%                               |
+| -1                                | 69      | 0      | 2%                               |
+| 0                                 | 47      | 0      | 3%                               |
+| +1                                | 38      | 0      | 4%                               |
+
+On these 321 the sim's table asks for 6.0 misses, and none comes 0.2% of the time. The paladin's Consecration, also a
+magic spell with no Always Hit on its row, missed none of 576 ticks at the same four differences, where the table asks
+for 9.3. No target was more than one level above the paladin. Another player's Hellfire, Searing Pain and Rain of Fire
+missed 22 times in 780 on the level 42 to 48 targets of the same logs; the log does not carry that player's level.
 
 A landed proc of the weapon itself (the mace's bleed 1306816, the sword's strike 12731) brings a further strike: 9 of
-1,833 units show more strikes or weapon procs than their rolls allow, each with the weapon's proc in it. The further
+1,833 units, those with a killing blow among them, show more strikes or weapon procs than their rolls allow, each with
+the weapon's proc in it. The further
 roll's chance is fitted on the units with a landed weapon proc, one more roll for each, with the base chance from the
 first table and a bootstrap interval over units. The last column refits one chance for every roll over every unit, with
 and without the further roll, and gives how much worse the fit with it is, as twice the log-likelihood.

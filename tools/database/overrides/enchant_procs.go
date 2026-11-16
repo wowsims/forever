@@ -35,7 +35,7 @@ var EnchantProcs = []EnchantProc{
 		EnchantID: 803,
 		SpellID:   13897,
 		Kind:      RatePPM,
-		Value:     6,
+		Value:     6, // TODO: Measure on a one-hander and in the off hand; EV-0130 has two two-handers.
 		Reason:    "Fiery Weapon: 13897 states no proc chance, and the tooltip says 'often'",
 		Source:    "EV-0130",
 	},
