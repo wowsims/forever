@@ -2199,6 +2199,10 @@
 					"label": "Excess Energy",
 					"tooltip": "Your current Energy minus what you need to keep for your upcoming Rip and Rake refreshes, after counting the Energy you will regenerate before each one. Spend on a builder only while it covers the builder's cost."
 				},
+				"hunter_active_hawks": {
+					"label": "Active Hawks",
+					"tooltip": "How many of your hawks are up, from 0 to 2. A hawk counts from the moment your Summon Hawk dive lands, 1 second after the cast."
+				},
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
@@ -2385,6 +2389,7 @@
 				"sequences": "Sequences",
 				"misc": "Misc",
 				"feral_druid": "Feral Druid",
+				"hunter": "Hunter",
 				"shaman": "Shaman",
 				"warlock": "Warlock",
 				"mage": "Mage",
