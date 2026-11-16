@@ -540,11 +540,9 @@ func TestRevelationDruidSpendsTheChargeAtImpact(t *testing.T) {
 	}
 }
 
-// A warrior with the enchant on the weapon in its main hand, at the start of a fight.
-func enchantedWarrior(t *testing.T, weapon, enchant int32) (*core.Simulation, *core.Character) {
+// A warrior wearing the items, at the start of a fight.
+func enchantedWarrior(t *testing.T, items []*proto.ItemSpec) (*core.Simulation, *core.Character) {
 	t.Helper()
-	items := weaponSlots(weapon, 0)
-	items[proto.ItemSlot_ItemSlotMainHand].Enchant = enchant
 	player := &proto.Player{
 		Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceTauren,
 		Equipment: &proto.EquipmentSpec{Items: items},
@@ -561,9 +559,9 @@ func enchantedWarrior(t *testing.T, weapon, enchant int32) (*core.Simulation, *c
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
 }
 
-// Checks the proc rolls the procs per minute the enchant's entry states for the spell on the
-// weapon's speed, a chance between none and certain.
-func expectEnchantRate(t *testing.T, sim *core.Simulation, proc *core.Aura, enchant, spell, weapon int32) {
+// Checks a hit under the mask rolls the procs per minute the enchant's entry states for the spell on
+// the weapon's speed, a chance between none and certain.
+func expectEnchantRate(t *testing.T, sim *core.Simulation, proc *core.Aura, mask core.ProcMask, enchant, spell, weapon int32) {
 	t.Helper()
 	var ppm float64
 	for _, effect := range core.GetEnchantByEffectID(enchant).EnchantEffects {
@@ -575,8 +573,8 @@ func expectEnchantRate(t *testing.T, sim *core.Simulation, proc *core.Aura, ench
 	if proc == nil || proc.Dpm == nil {
 		t.Fatalf("%d registers no proc on a procs per minute rate", enchant)
 	}
-	if got := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
-		t.Errorf("%d rolls %v on a main-hand hit, want the entry's procs per minute on the weapon's speed, %v", enchant, got, want)
+	if got := proc.Dpm.Chance(mask, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
+		t.Errorf("%d rolls %v on a hit of weapon %d, want the entry's procs per minute on the weapon's speed, %v", enchant, got, weapon, want)
 	}
 }
 
@@ -584,16 +582,37 @@ func expectEnchantRate(t *testing.T, sim *core.Simulation, proc *core.Aura, ench
 // 20007 on the enchanted weapon's speed.
 func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 	const crusader, holyStrength, weapon = 1900, 20007, 1613
-	sim, character := enchantedWarrior(t, weapon, crusader)
-	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Crusader"), crusader, holyStrength, weapon)
+	items := weaponSlots(weapon, 0)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = crusader
+	sim, character := enchantedWarrior(t, items)
+	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Crusader"), core.ProcMaskMeleeMHAuto, crusader, holyStrength, weapon)
 }
 
 // Enchant Weapon - Fiery Weapon 803 rolls the procs per minute its enchant entry states for its strike
 // 13897 on the enchanted weapon's speed.
 func TestFieryWeaponProcsAtItsEntryRate(t *testing.T) {
 	const fieryWeapon, strike, weapon = 803, 13897, 1613
-	sim, character := enchantedWarrior(t, weapon, fieryWeapon)
-	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Fiery Weapon"), fieryWeapon, strike, weapon)
+	items := weaponSlots(weapon, 0)
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = fieryWeapon
+	sim, character := enchantedWarrior(t, items)
+	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Fiery Weapon"), core.ProcMaskMeleeMHAuto, fieryWeapon, strike, weapon)
+}
+
+// Fiery Weapon on the off hand alone rolls on that weapon's hits at that weapon's speed, and a hit of
+// the main hand without the enchant rolls nothing.
+func TestFieryWeaponRollsOnTheHandThatCarriesIt(t *testing.T) {
+	const fieryWeapon, strike, mainHand, offHand = 803, 13897, 2244, 871
+	if core.GetItemByID(mainHand).SwingSpeed == core.GetItemByID(offHand).SwingSpeed {
+		t.Fatalf("%d and %d swing at one speed, so the test cannot tell the hands apart", mainHand, offHand)
+	}
+	items := weaponSlots(mainHand, offHand)
+	items[proto.ItemSlot_ItemSlotOffHand].Enchant = fieryWeapon
+	sim, character := enchantedWarrior(t, items)
+	proc := character.GetAura("Enchant Weapon - Fiery Weapon")
+	expectEnchantRate(t, sim, proc, core.ProcMaskMeleeOHAuto, fieryWeapon, strike, offHand)
+	if got := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); got != 0 {
+		t.Errorf("a main-hand hit rolls %v with the enchant on the off hand alone, want 0", got)
+	}
 }
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read
