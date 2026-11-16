@@ -47,7 +47,7 @@ for 9.3. No target was more than one level above the paladin.
 
 Other players' magic spells with no Always Hit missed 60 times in 2,974 direct hits in the same logs, unevenly. Of the
 seven casters with 100 hits or more, one missed 28 of 791, two missed 1 each of 395 and 100, and four missed none of
-636. The log does not carry a player's level, so their counts cannot be laid against the sim's table.
+their 636. The log does not carry a player's level, so their counts cannot be laid against the sim's table.
 
 A landed proc of the weapon itself (the mace's bleed 1306816, the sword's strike 12731) brings a further strike: 9 of
 1,833 units, those with a killing blow among them, show more strikes or weapon procs than their rolls allow, each with
