@@ -7,7 +7,7 @@
 - Game build: 1.60.1.70425 to 1.60.1.70938 by report date; each item's section gives its date span, and the hotfix each
   player ran is not recorded
 - Date: 2026-10-08 to 2026-11-16
-- Pull request: not yet opened
+- Pull request: #1065
 
 ## Method
 
