@@ -1,6 +1,6 @@
 # EV-0120: Flurry Axe's rate from off-hand white swings, matched by log order
 
-EV-0127 replaces the Windfury Totem strike row below: those 244 strikes come from one paladin with Seal of Fury up, and
+EV-0128 replaces the Windfury Totem strike row below: those 244 strikes come from one paladin with Seal of Fury up, and
 the row settles neither way whether the strike rolls the axe. The rest stands.
 
 - Claim: Flurry Axe 871 grants its extra attack (18797) at 1.65 procs per minute.

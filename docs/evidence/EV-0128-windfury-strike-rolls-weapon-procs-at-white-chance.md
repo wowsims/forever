@@ -1,4 +1,4 @@
-# EV-0127: Windfury Totem's strike rolls main-hand weapon procs at a white swing's chance
+# EV-0128: Windfury Totem's strike rolls main-hand weapon procs at a white swing's chance
 
 - Claim: a landed Windfury Totem strike rolls the main-hand weapon's chance-on-hit procs, Thrash Blade and Hack and
   Slash included, at the chance a main-hand white swing or melee ability has, and an avoided strike rolls none.

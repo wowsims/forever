@@ -7,7 +7,7 @@ package core
 // registers the copy, so it goes on the proc's aura: the main-hand swing is configured after procs
 // register, and a unit that never swings has none to copy, in which case the proc casts nothing. The
 // swing it grants is not a hit the proc hears, or one proc would swing forever. Windfury Totem's
-// strike is one it hears, at a white swing's chance (EV-0002, EV-0127).
+// strike is one it hears, at a white swing's chance (EV-0002, EV-0128).
 func (unit *Unit) ExtraAttackProc(trigger *ProcTrigger, tagSpellID int32, count int) OnInit {
 	var extraAttack *Spell
 	condition := trigger.ExtraCondition

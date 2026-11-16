@@ -1,6 +1,6 @@
 # EV-0119: Weapon proc rates from isolated hits in end-game and levelling dungeon logs
 
-EV-0127 replaces the Windfury Totem strike count below (×2.08), which looked for the strike within 20 ms of its hit; the
+EV-0128 replaces the Windfury Totem strike count below (×2.08), which looked for the strike within 20 ms of its hit; the
 strike logs about 33 ms after it. The rule that the strike rolls on-hit weapon procs stands, as does the rest.
 
 - Claim: Stinging Viper rolls 1.75 procs per minute, Toxic Revenger 1.8, Meteor Shard 1.55, Bite of Serra'kis 1.45,

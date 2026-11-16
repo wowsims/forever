@@ -1,6 +1,6 @@
 # EV-0002: Windfury Totem's strike after the 2026-11-14 hotfix
 
-EV-0127 replaces the white rates of Thrash Blade and Hack and Slash below and the reading that the strike procs them at
+EV-0128 replaces the white rates of Thrash Blade and Hack and Slash below and the reading that the strike procs them at
 about twice their white rate: those white rates mix both hands' swings and drop the swings whose granted swing was
 avoided, and per main-hand hit the strike procs them at the white chance. The rest stands.
 
