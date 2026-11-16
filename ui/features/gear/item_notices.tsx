@@ -122,7 +122,7 @@ export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 			[Spec.SpecUnknown]: TENTATIVE_IMPLEMENTATION_WARNING,
 		},
 	]),
-	[18082, { [Spec.SpecUnknown]: <ZumrahsVexingCaneNotice /> }],
+	[18082, { [Spec.SpecUnknown]: <ZumrahsVexingCaneNotice /> }], // The cane's zombie adds below 1 DPS (EV-0124).
 	...[...MISSING_ITEM_EFFECTS].map(([itemID, tooltips]): [number, ItemNoticeData] => [itemID, missingEffectNotice('item', tooltips)]),
 ]);
 
