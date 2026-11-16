@@ -7620,6 +7620,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"hunter_active_hawks": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
@@ -8165,6 +8178,7 @@
 								"dot_is_active",
 								"druid_bleed_is_active",
 								"druid_excess_energy",
+								"hunter_active_hawks",
 								"dot_is_active_on_all_targets",
 								"dot_is_active_on_any_target",
 								"dot_remaining_time",
@@ -8373,6 +8387,9 @@
 								"feral_druid": {
 									"type": "string"
 								},
+								"hunter": {
+									"type": "string"
+								},
 								"shaman": {
 									"type": "string"
 								},
@@ -8501,6 +8518,7 @@
 								"sequences",
 								"misc",
 								"feral_druid",
+								"hunter",
 								"shaman",
 								"warlock",
 								"mage",
