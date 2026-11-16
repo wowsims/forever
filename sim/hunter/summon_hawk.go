@@ -45,12 +45,12 @@ var hawkBaseStats = stats.Stats{
 const hawkOwnerBaseWeaponAP = 7.0
 const hawkOwnerAPPerWeaponDPS = 14.0
 
-// A swing before armor is 0.185 of the creature dps over the 2.5 s, spanning 0.22 either side, and 60
-// attack power a point of dps. Both are fitted, as the game files state neither, and were read with
-// Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here is before them
-// (EV-0073).
+// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side
+// (EV-0132), and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
+// neither, and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the
+// swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
-var hawkSwingAverage = 0.185 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
+var hawkSwingAverage = 0.153 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
 
 var hawkSwing = core.Weapon{
 	BaseDamageMin:     hawkSwingAverage * (1 - 0.22),
