@@ -45,7 +45,8 @@ single weapon, cast melee abilities for a dual wielder, whose white lines mix bo
 against 1,861.5. Avoided strikes: 9 credits in 2,963. A test with no crediting gives the same answer: a white swing or
 melee ability with nothing else around it is followed by 1.98 times the procs when a landed strike follows it, and 1.00
 times when an avoided strike does. EV-0119's test of swings followed by a strike, rerun with the strike placed 10 to 60
-ms after its hit: 674 procs credited to 15,855 strikes against 673.6 expected.
+ms after its hit: 674 procs credited to 15,855 strikes against 673.6 expected. The table holds every item with 400 or
+more landed strikes.
 
 | Item                        | Proc                 | Landed strikes | Credited | Expected per class | If strikes never rolled |
 | --------------------------- | -------------------- | -------------: | -------: | -----------------: | ----------------------: |
@@ -56,10 +57,14 @@ ms after its hit: 674 procs credited to 15,855 strikes against 673.6 expected.
 | Rock on Stick               | debuff on the target |          3,070 |      177 |              184.0 |                     9.0 |
 | Ripsaw                      | damage               |          1,049 |       69 |               80.5 |                     3.1 |
 | Stoneslayer                 | damage               |            820 |       89 |               85.7 |                     2.4 |
+| The Hand of Antu'sul        | debuff on the target |            851 |       53 |               38.3 |                     2.5 |
 | Toxic Revenger              | debuff on the target |            754 |       40 |               38.3 |                     2.2 |
 | Fist of Stone               | mana                 |            653 |       44 |               55.7 |                     1.9 |
 | Ironfoe                     | extra attack         |            616 |       20 |               14.6 |                     1.8 |
+| Rivenspike                  | debuff on the target |            555 |       25 |               28.4 |                     1.6 |
+| Stinging Viper              | debuff on the target |            508 |       35 |               37.4 |                     1.5 |
 | Argent Avenger              | aura on the wearer   |            453 |       19 |               19.2 |                     1.3 |
+| Bite of Serra'kis           | debuff on the target |            409 |       15 |               11.8 |                     1.2 |
 
 Strikes roll on both sides of the 2026-11-14 02:00 UTC hotfix: before it, Thrash Blade 30 credited to 653 strikes and
 Fist of Stone 39 to 590. Nightblade, Meteor Shard and The Black Knight, whose damage logs late, are not settled here.
@@ -75,19 +80,29 @@ Fist of Stone 39 to 590. Nightblade, Meteor Shard and The Black Knight, whose da
 | Hunter, dual wield     | 16 / 544 (2.94%)    | 0 / 23         | both hands             | 107 / 3,739 (2.86%)    |
 
 Single weapon: 275 credited to 7,212 strikes, 282.7 expected at the white chance. Dual wield: 353 to 10,847, 339.1
-expected at the cast chance.
+expected at the cast chance. The warriors' dual-wield cast chance holds one of Whirlwind's two damage lines, which reads
+4 of 10,647; without it their cast melee abilities read 439 of 13,060 (3.36%) and their strikes expect 98.9, which puts
+dual wield at 353 against 383.0 and Thrash Blade at 628 against 665.7. Up to 24 more procs log before a landed strike
+within 20 ms but go to a hit logged between them.
 
 EV-0002 read 30 of 1,003 clean strikes (3.0%) against 106 of 7,884 clean white swings (1.3%). Its script, rerun with
-the swings split by the gear at the time, gives the reason: 6,345 of those white swings belong to wearers with an
-off-hand weapon, whose white lines mix the blade's swings with the off hand's, which never roll it. Those read 76
-(1.2%); the 1,126 swings with no off-hand weapon read 30 (2.7%), and the strikes 11 of 305 (3.6%) for the same wearers.
+the swings split by the gear at the time, gives two reasons:
+
+- 6,345 of those white swings belong to wearers with an off-hand weapon, whose white lines mix the blade's swings with
+  the off hand's, which never roll it. Those read 76 (1.2%); the 1,126 swings with no off-hand weapon read 30 (2.7%),
+  and the strikes 11 of 305 (3.6%) for the same wearers.
+- A swing counts only when it is the first line in its millisecond, and in a millisecond an avoided line sorts before a
+  landed one. A swing whose granted swing was avoided in that millisecond drops out, and each of those swings procced.
+  Taking the landed line first gives 131 of 7,947 (1.6%).
+
 The same script on a later scan (36 more reports with a Thrash Blade wearer): strikes of single-weapon wearers 69 of
-1,891 (3.6%), their white swings 293 of 7,973 (3.7%).
+1,891 (3.6%), their white swings 293 of 7,973 (3.7%), or 318 of 7,998 (4.0%) with the landed line first.
 
 ## Hack and Slash by setup
 
 Rogues, events after the 2026-11-14 02:00 UTC hotfix, log order as above; "sword" is a sword or an axe. The expected
-count takes each rogue's own chance on cast melee abilities, which are main-hand hits, so it covers talent ranks.
+count takes each rogue's own chance on cast melee abilities, which are main-hand hits, so it covers talent ranks; it
+counts only rogues with 200 or more of them.
 
 | Sword in       | Strike              | Avoided strike | Cast melee ability   | White swings, both hands | Credited / expected on strikes |
 | -------------- | ------------------- | -------------- | -------------------- | ------------------------ | ------------------------------ |
@@ -95,10 +110,15 @@ count takes each rogue's own chance on cast melee abilities, which are main-hand
 | main hand only | 189 / 6,774 (2.79%) | 0 / 296        | 834 / 25,577 (3.26%) | 839 / 59,833 (1.40%)     | 187 / 213.2                    |
 | off hand only  | 0 / 2,428           | 0 / 72         | 0 / 10,542           | 458 / 23,923 (1.91%)     | -                              |
 
+Dual-wield strikes read about 0.88 of the cast chance in each cut: Hack and Slash with the sword in the main hand only
+187 against 213.2, Thrash Blade on these streams 160 against 185.5, and the rogues above 235 against 268.5.
+
 EV-0002 read 60 of 2,208 clean strikes (2.7%) against 327 of 21,185 clean white swings (1.5%). By setup, 11,457 of
 those swings belong to rogues with the sword in the main hand only, whose off-hand swings cannot roll it (155, 1.4%),
-and 3,801 to rogues with it in the off hand only (62, 1.6%), whose strikes cannot roll it (0 of 424). The main-hand-only
-group's strikes read 0.88 of their expectation, 1.8 standard deviations under it.
+and 3,801 to rogues with it in the off hand only (62, 1.6%), whose strikes cannot roll it (0 of 424). With the sword in
+both hands its script reads strikes 19 of 681 (2.8%) against white swings 110 of 5,927 (1.9%), and 142 of 5,975 (2.4%)
+with the landed line first; on the later scan 80 of 2,049 (3.9%) against 471 of 19,767 (2.4%), and 608 of 19,979
+(3.0%). Log order reads both at 2.95% for these rogues; what keeps the later scan's clean strikes higher is not known.
 
 ## Flurry Axe
 
@@ -107,8 +127,8 @@ strikes: one paladin (kpy279HLf1VWgPdx/1-6) with Seal of Fury up, whose seal hit
 with no seal hit in their batch: 0 of 54, where 2.3 were expected at the paladin's white chance without a seal hit (65
 of 1,509, 4.3%); that reading has a 10% chance if the strike rolls. Strikes with a seal hit: 17 of 190 (8.9%); white
 swings with one: 32 of 140 (22.9%). The report index (5,800 reports to 2026-11-15 14:09 UTC) and 1,000 reports from the
-2026-11-16 listing, up to 08:16 UTC, hold no other main-hand wearer with strikes, so the axe's strike chance is not
-measured.
+2026-11-16 listing, up to 08:16 UTC, hold no other main-hand wearer with strikes whose gear the logs show, so the
+axe's strike chance is not measured.
 
 ## Logs
 
