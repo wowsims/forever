@@ -51,7 +51,7 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 	}
 
 	if effects := spelldata.ItemAuraParsedOn(row, spelldata.AuraOnEnemy); len(effects) > 0 {
-		auras.enemies = enemyDebuffAuras(character, row, config.Duration, effects)
+		auras.enemies = EnemyDebuffAuras(character, row, config.Duration, effects)
 	}
 
 	return auras

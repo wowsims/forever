@@ -72,14 +72,29 @@ const WillNotBeImplementedWarning = () => <>{i18n.t('gear_tab.item_notices.will_
 
 const WILL_NOT_BE_IMPLEMENTED_WARNING = <WillNotBeImplementedWarning />;
 
-const unvalidatedRateText = ({ kind, origin }: UnvalidatedRate): string => {
+// Up to 2 decimals without trailing zeros.
+const formatRate = (rate: number): string => String(Math.round(rate * 100) / 100);
+
+// The sim's rate is stated where the gear has a single one: procs per minute for a ppm, a percent for a chance.
+const unvalidatedRateText = ({ kind, rate, origin }: UnvalidatedRate): string => {
+	if (rate !== undefined) {
+		const options = { rate: formatRate(rate) };
+		if (kind === 'ppm') {
+			if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate', options);
+			if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed_rate', options);
+			return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate', options);
+		}
+		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla_rate', options);
+		if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed_rate', options);
+		return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc_rate', options);
+	}
 	if (kind === 'ppm') {
 		if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_vanilla');
-		if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_unknown');
+		if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_observed');
 		return i18n.t('gear_tab.item_notices.unvalidated_rate.ppm_tbc');
 	}
 	if (origin === 'vanilla') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_vanilla');
-	if (origin === 'unknown') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_unknown');
+	if (origin === 'observed') return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_observed');
 	return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc');
 };
 

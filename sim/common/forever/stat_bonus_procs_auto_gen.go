@@ -1240,33 +1240,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike
-	// you are 2 times as likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=17351
-	// unsupported: states no rate
-	// trigger 17350 (no stated rate, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 17351
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13243, ItemName: "Argent Defender"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
-	// https://www.wowhead.com/forever/spell=17352
-	// unsupported: states no rate
-	// trigger 17352 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13246, ItemName: "Argent Avenger"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blasts a target for 700 Fire damage.
 	// https://www.wowhead.com/forever/spell=18112
 	// unsupported: states no rate
@@ -4404,6 +4377,14 @@ func RegisterAllProcs() {
 			{ItemID: 13183, ItemName: "Venomspitter"},
 		})
 
+	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
+	// https://www.wowhead.com/forever/spell=17352
+	// trigger 17352 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13246, ItemName: "Argent Avenger"},
+		})
+
 	// Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.
 	// https://www.wowhead.com/forever/spell=17483
 	// trigger 17483 (1.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4781,16 +4762,12 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Tooth of Eranikus: "Resist Sleep 03" (1300001) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300001
-	// Not simulated: Dragon's Call: "Dragon's Call" (13049) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=13049
 	// Not simulated: Carrot on a Stick: "Mount Speed" (13587) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=13587
 	// Not simulated: Savage Gladiator Chain: "Resist Fear 04" (1292574) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1292574
 	// Not simulated: High Priestess Boots: "Resist Charm 10" (1300925) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300925
-	// Not simulated: Blackblade of Shahram: "Shahram" (16602) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=16602
 	// Not simulated: Stronghold Gauntlets: "Immune to Disarm" (7219) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Tome of Knowledge: "Stealth 05" (1293068) - ignored aura type 154
