@@ -67,12 +67,11 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 // behind it, such as Thunder Clap or Hammer of Wrath. With no main-hand weapon it is the sim's
 // unarmed weapon's speed.
 func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spellChance float64, procMask ProcMask) *DynamicProcManager {
+	weaponHits := procMask &^ ProcMaskSpellDamage
 	build := func() DynamicProcManager {
-		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask&^ProcMaskSpellDamage)
-		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage)
-		dpm.procChances = append(dpm.procChances, staticProc{chance: spellChance})
-		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto&^ProcMaskSpellDamage)
-		dpm.procChances = append(dpm.procChances, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, weaponHits)
+		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage, weaponHits&^ProcMaskRangedAuto)
+		dpm.procChances = append(dpm.procChances, staticProc{chance: spellChance}, mainHandWeaponSpeedProc{character: character, ppm: ppm})
 		return dpm
 	}
 	dpm := build()

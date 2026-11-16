@@ -21,7 +21,7 @@
 
 ## Method
 
-The reports hold 76 wearer streams, 73 runs once one player's runs in two reports are merged, and 14,699 Ancient
+The reports hold 76 wearer streams, 73 runs once a run logged in two reports is counted once, and 14,699 Ancient
 Power (1265634) damage events. A run counts from the first fight its gear shows the tablet in. A stretch of more than
 5 minutes of combat with no proc is left out as the tablet swapped away (63 of 2,851 combat minutes; one run stops
 proccing after 10 minutes with no gear change logged).
@@ -32,6 +32,11 @@ wearer and no Ancient Power within 400 ms of it (melee) or 1,200 ms (ranged and 
 Power lands inside that window after it. Which hit a proc belongs to then has one answer, and a hit's timing does not
 depend on its roll. Dual wielders' white swings are split by hand on their damage before crits. Druid melee is taken at
 the form's speed, 1.0 s in Cat Form and 2.5 s in Bear Form, told apart by the white swing interval.
+
+Only the wearer's own cast hits on their first target count as spells. Left out are an area spell's pulses (Volley,
+Blizzard, Consecration, Rain of Fire, Arcane Explosion, Chain Lightning and the like), a second target of the same hit
+within 10 ms, a hit with no cast event of its own, and Windfury, Seal and poison hits. An area spell's chance per target
+is unmeasured.
 
 Each rate carries two 95% intervals: one from the hits (Wilson for a chance, profile likelihood for a rate per minute)
 and one from 2,000 draws of whole wearers, which also carries how much wearers differ. The margin is the wider half.
@@ -61,7 +66,7 @@ spans too few speeds to tell the two apart.
 
 ## Auto Shot and haste
 
-Hunters shot 10 to 25% faster than their bow's speed. Over 2,415 Auto Shots fired in an unbroken string (each 0.5 to
+Hunters shot faster than their bow's speed, three in four Auto Shots 10 to 50% faster. Over 2,415 Auto Shots fired in an unbroken string (each 0.5 to
 1.15 times the bow's speed after the one before), a rate on the bow's speed (2.54 PPM, 95% 2.27 to 2.82), a rate on the
 hasted interval (3.06 PPM, 95% 2.74 to 3.40) and a flat 12.1% fit equally well, within 0.2 of each other in
 log-likelihood. Most wearers shoot a 2.8 s bow, so the speeds span too little to tell them apart.
@@ -77,4 +82,4 @@ log-likelihood. Most wearers shoot a 2.8 s bow, so the speeds span too little to
 
 Ancient Power crits at the wearer's own rate, 12.4% over all procs and from 5.5% for warriors to 16.2% for druids, and
 2.7% of procs miss or are resisted. The median hit per class runs from 70 to 81 against the row's 69 to 81, and a
-mage's is no higher than a warrior's, so spell power adds nothing.
+mage's (77) sits inside the row's range as a warrior's (70) does, so spell power adds nothing.

@@ -556,9 +556,9 @@ func TestDarkmoonCardHeroismHealsOnMeleeHits(t *testing.T) {
 }
 
 // Highborne Research Tablet 260205's 1318159 rolls its row's procs per minute on the main hand's
-// speed for every landed weapon hit that deals damage, and casts 1265634 on the target. A ranged
-// special with no ranged swing behind it (Thunder Clap) rolls on the main hand's speed too. A hit that
-// deals none (an application) never rolls.
+// speed for a landed main-hand hit that deals damage, and casts 1265634 on the target. A ranged
+// special with no ranged weapon behind it (Thunder Clap) rolls on the main hand's speed too. A hit
+// that deals none (an application) never rolls.
 func TestHighborneResearchTabletProcsOnLandedDamagingHits(t *testing.T) {
 	sim, character := trinketWarriorWielding(t, 260205, 810, 0)
 	proc := character.GetAura("Highborne Research Tablet")
