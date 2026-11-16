@@ -660,6 +660,9 @@
 				"dreadnaughts_battlegear_8": "only heals a healer casts in the sim take the bonus, not the incoming healing the tank sim models.",
 				"battleplate_of_glory_3": "the sim does not cast Intervene, so the bonus changes nothing."
 			},
+			"partial_item": {
+				"zumrahs_vexing_cane": "Proc: Pet not modelled, adds below 1 DPS"
+			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
 			"area_stats": "Only while the encounter is in one of these areas:",
