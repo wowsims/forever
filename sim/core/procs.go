@@ -59,16 +59,19 @@ func (character *Character) NewLegacyPPMManager(ppm float64, procMask ProcMask) 
 	return &dpm
 }
 
-// A procs-per-minute rate that spell hits roll as well. The hits NewLegacyPPMManager measures keep
-// its speeds: a swing's, and with no auto attack the wand's for a ranged hit. Every other hit of the
-// mask except a ranged auto attack rolls on the main-hand weapon's own speed, read at the roll,
-// whether or not the character swings it. Those are a caster's spells, and a spell on the ranged hit
-// table with no ranged swing or wand behind it, such as Thunder Clap or Hammer of Wrath. With no
-// main-hand weapon it is the sim's unarmed weapon's speed.
-func (character *Character) NewLegacyPPMManagerWithSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+// A procs-per-minute rate for weapon hits beside a flat chance for spell hits. The weapon hits
+// NewLegacyPPMManager measures keep its speeds: a swing's, and with no auto attack the wand's for a
+// ranged hit. A spell hit rolls spellChance whatever the weapons. Every other hit of the mask except
+// a ranged auto attack rolls the rate on the main-hand weapon's own speed, read at the roll, whether
+// or not the character swings it: a spell on the ranged hit table with no ranged swing or wand
+// behind it, such as Thunder Clap or Hammer of Wrath. With no main-hand weapon it is the sim's
+// unarmed weapon's speed.
+func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spellChance float64, procMask ProcMask) *DynamicProcManager {
 	build := func() DynamicProcManager {
-		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask)
-		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto)
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask&^ProcMaskSpellDamage)
+		dpm.procMasks = append(dpm.procMasks, procMask&ProcMaskSpellDamage)
+		dpm.procChances = append(dpm.procChances, staticProc{chance: spellChance})
+		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto&^ProcMaskSpellDamage)
 		dpm.procChances = append(dpm.procChances, mainHandWeaponSpeedProc{character: character, ppm: ppm})
 		return dpm
 	}

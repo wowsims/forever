@@ -269,12 +269,14 @@ func init() {
 		}
 		ancientPower := character.RegisterSpell(config)
 
-		// The row's harmful-spell bit makes spell hits roll its procs per minute too, on the main hand's
-		// speed. The chance on a spell hit is unmeasured in game.
+		// Weapon hits roll the row's procs per minute on their weapon's speed, Auto Shot and ranged
+		// specials on the ranged weapon's. The row's harmful-spell bit makes spell hits roll too, at a
+		// flat chance per landed spell hit that the main hand's speed leaves alone (EV-0127).
+		const spellHitChance = 0.07
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
-			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
+			trigger.DPM = character.NewLegacyPPMManagerWithSpellChance(float64(triggerRow.RPPM), spellHitChance, trigger.ProcMask)
 		})
 		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
 		// only a hit that dealt damage rolls (EV-0021).

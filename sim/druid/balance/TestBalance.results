@@ -928,9 +928,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 875.42554
-  tps: 886.59764
-  dtps: 5.19642
+  dps: 875.10512
+  tps: 886.16864
+  dtps: 5.07548
  }
 }
 dps_results: {
