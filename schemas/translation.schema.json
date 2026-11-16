@@ -2388,6 +2388,16 @@
 							],
 							"additionalProperties": false
 						},
+						"partial_item": {
+							"type": "object",
+							"properties": {
+								"zumrahs_vexing_cane": {
+									"type": "string"
+								}
+							},
+							"required": ["zumrahs_vexing_cane"],
+							"additionalProperties": false
+						},
 						"set_bonus_warnings": {
 							"type": "string"
 						},
@@ -2431,6 +2441,7 @@
 						"not_yet_implemented",
 						"not_fully_supported",
 						"partial_set_bonus",
+						"partial_item",
 						"set_bonus_warnings",
 						"set_bonus_piece",
 						"area_stats",
