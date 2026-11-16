@@ -106,6 +106,18 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 		AutoSwingMelee: true,
 	})
 
+	// The white swing takes none of the owner's crit the pet inherits; the pet's abilities take all of
+	// it (EV-0134). Each swing takes the current inherited crit back off, by the change since the last.
+	whiteSwing := hp.AutoAttacks.MHConfig()
+	applyWhiteSwing := whiteSwing.ApplyEffects
+	inheritedCritTakenOff := 0.0
+	whiteSwing.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		inheritedCrit := hp.GetInheritedStats()[stats.PhysicalCritPercent]
+		spell.BonusCritPercent += inheritedCritTakenOff - inheritedCrit
+		inheritedCritTakenOff = inheritedCrit
+		applyWhiteSwing(sim, target, spell)
+	}
+
 	// Happiness
 	hp.PseudoStats.DamageDealtMultiplier *= 1.25
 
