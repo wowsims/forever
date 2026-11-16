@@ -18,7 +18,7 @@
   zrALwGH82WM6Jcbx
 - Game build: 1.60.1.70862 to 1.60.1.70938 by the report dates; the hotfix state and relogs were not recorded.
 - Date: 2026-11-10 to 2026-11-15
-- Pull request: not recorded
+- Pull request: #1049
 
 The 74 reports were drawn at random from the zone's reports that log Enrage, and hold 100 warriors who gain it. For each
 warrior, every hit taken is set against their Enrage applybuff and refreshbuff lines. A hit counts only when no other
