@@ -342,6 +342,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BrainHacker-1263"
+ value: {
+  dps: 699.80826
+  tps: 487.31611
+  dtps: 4.46696
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BristleconeCloak-275833"
  value: {
   dps: 691.9886
@@ -504,6 +512,14 @@ dps_results: {
  key: "TestHunterPets-AllItems-Demonshear-13348"
  value: {
   dps: 694.35446
+  tps: 483.83564
+  dtps: 4.44393
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Destiny-647"
+ value: {
+  dps: 694.38051
   tps: 483.83564
   dtps: 4.44393
  }

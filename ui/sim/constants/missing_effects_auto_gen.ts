@@ -4,12 +4,6 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
-		647, // Destiny
-		[
-			"Increases Strength by 200 for 12s.", // 17152 - https://www.wowhead.com/forever/spell=17152
-		]
-	],
-	[
 		809, // Bloodrazor
 		[
 			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
@@ -49,12 +43,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		1168, // Skullflame Shield
 		[
 			"When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.", // 18818 - https://www.wowhead.com/forever/spell=18818
-		]
-	],
-	[
-		1263, // Brain Hacker
-		[
-			"Wounds the target's head, dealing 250 Physical damage, and increasing the casting time of all spells by 30% for 30s.", // 17148 - https://www.wowhead.com/forever/spell=17148
 		]
 	],
 	[
@@ -3999,10 +3987,12 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'observed' }
 
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
+	[647, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Destiny
 	[754, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Shortsword of Vengeance
 	[810, { kind: 'ppm', rate: 3.5, origin: 'vanilla' }], // Hammer of the Northern Wind
 	[870, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Fiery War Axe
 	[937, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Black Duskwood Staff
+	[1263, { kind: 'ppm', rate: 1, origin: 'observed' }], // Brain Hacker
 	[1481, { kind: 'ppm', rate: 1.25, origin: 'vanilla' }], // Grimclaw
 	[1726, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Poison-tipped Bone Spear
 	[1982, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Nightblade
@@ -4058,7 +4048,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 ])
 
 export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
-	[1900, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Enchant Weapon - Crusader
 	[8217, { kind: 'chance', rate: 8, origin: 'observed' }], // Enchant Weapon - Revelation
 ])
 
