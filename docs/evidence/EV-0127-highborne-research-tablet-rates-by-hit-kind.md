@@ -17,7 +17,7 @@
   and 1.60.1.70938 for the 48 from 2026-11-13 to 2026-11-15, across the hotfixes from 113890 to 114102; the hotfix
   each player ran is not recorded
 - Date: 2026-11-10 to 2026-11-15
-- Pull request: not yet opened
+- Pull request: #1053
 
 ## Method
 
