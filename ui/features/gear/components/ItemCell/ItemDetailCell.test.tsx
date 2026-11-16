@@ -48,9 +48,14 @@ describe('ItemDetailCellView', () => {
 		expect([icon(), name()].map(anchor => anchor.dataset.wowhead)).toEqual(['item=19019', 'item=19019']);
 	});
 
-	it('renders the notice beside the name and the extra labels after the enchant', () => {
-		renderCell({ notice: <span data-testid="notice-marker" />, extraLabels: <span data-testid="extra-marker" /> });
+	it('renders the notice beside the name, the enchant notice beside the enchant and the extra labels after them', () => {
+		renderCell({
+			notice: <span data-testid="notice-marker" />,
+			enchantNotice: <span data-testid="enchant-notice-marker" />,
+			extraLabels: <span data-testid="extra-marker" />,
+		});
 		expect(screen.getByTestId('item-picker-name-row').querySelector('[data-testid="notice-marker"]')).not.toBeNull();
+		expect(screen.getByTestId('item-picker-enchant-row').querySelector('[data-testid="enchant-notice-marker"]')).not.toBeNull();
 		expect(screen.getByTestId('item-picker-labels-container').lastElementChild!.getAttribute('data-testid')).toBe('extra-marker');
 	});
 
