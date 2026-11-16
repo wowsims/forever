@@ -62,11 +62,8 @@ var IgnoreMissingEffectBySpellID = map[int]string{
 }
 
 // Absorbs a server script restricts to spells the game files do not list, keyed by spell ID with the
-// reason the generated file gives. 1287808, Onyxia Blood Talisman's, states 10000000000 beside the
-// A_DUMMY that names the Dragon Breath spells.
-var UnsupportedAbsorbBySpellID = map[int32]string{
-	1287808: "the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list",
-}
+// reason the generated file gives.
+var UnsupportedAbsorbBySpellID = map[int32]string{}
 
 // Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
 // level 60 character still uses them.

@@ -510,8 +510,7 @@ func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	}
 }
 
-// Every white swing uses a Flurry charge whatever its outcome, and a Heroic Strike or Cleave uses
-// one only when it misses.
+// Every white swing, Heroic Strike and Cleave uses a Flurry charge whatever its outcome.
 func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
@@ -532,11 +531,12 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a dodged off-hand swing uses a charge", offHand, core.OutcomeDodge, 3, 2},
 		{"a parried off-hand swing uses a charge", offHand, core.OutcomeParry, 3, 2},
 		{"a missed Heroic Strike uses a charge", heroicStrike, core.OutcomeMiss, 3, 2},
-		{"a dodged Heroic Strike uses none", heroicStrike, core.OutcomeDodge, 3, 3},
-		{"a parried Heroic Strike uses none", heroicStrike, core.OutcomeParry, 3, 3},
-		{"a landed Heroic Strike uses none", heroicStrike, core.OutcomeHit, 3, 3},
+		{"a dodged Heroic Strike uses a charge", heroicStrike, core.OutcomeDodge, 3, 2},
+		{"a parried Heroic Strike uses a charge", heroicStrike, core.OutcomeParry, 3, 2},
+		{"a landed Heroic Strike uses a charge", heroicStrike, core.OutcomeHit, 3, 2},
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
-		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
+		{"a dodged Cleave uses a charge", cleave, core.OutcomeDodge, 3, 2},
+		{"a landed Cleave uses a charge", cleave, core.OutcomeHit, 3, 2},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
 		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
 		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
@@ -561,6 +561,52 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 
 			if got := flurry.GetStacks(); got != c.want {
 				t.Errorf("Flurry holds %d charges, want %d", got, c.want)
+			}
+		})
+	}
+}
+
+// A Cleave uses one Flurry charge and a Whirlwind one Reckless Swings charge, however many targets
+// the cast hits.
+func TestMultiTargetCastsSpendOneChargePerCast(t *testing.T) {
+	cases := []struct {
+		name    string
+		aura    string
+		spell   core.ActionID
+		talents string
+	}{
+		{"Cleave on Flurry", "Flurry", core.ActionID{SpellID: 20569}, furyTalents},
+		{"Whirlwind on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), "30303003-050530355122100031"},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			chargesAfter := func(hits int) int32 {
+				sim, warrior := orcWarriorSim(t, "p1_fury", c.talents)
+				aura := warrior.GetAura(c.aura)
+				spell := warrior.GetSpell(c.spell)
+				if aura == nil || spell == nil {
+					t.Fatalf("%s %v, spell %v; want both registered", c.aura, aura, spell)
+				}
+				// The rotation would cast Reckless Swings again as the rage comes in.
+				if recklessSwings := warrior.GetSpell(core.ActionID{SpellID: 1329555}); recklessSwings != nil {
+					recklessSwings.CD.Set(time.Minute)
+				}
+				aura.Activate(sim)
+				aura.SetStacks(sim, 3)
+				for range hits {
+					warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+				}
+				stepPastBatch(t, sim)
+				return aura.GetStacks()
+			}
+
+			none, one, three := chargesAfter(0), chargesAfter(1), chargesAfter(3)
+			if one != none-1 {
+				t.Errorf("one hit left %s at %d charges, want %d", c.aura, one, none-1)
+			}
+			if three != one {
+				t.Errorf("one cast hitting 3 targets left %s at %d charges, want %d as for one hit", c.aura, three, one)
 			}
 		})
 	}

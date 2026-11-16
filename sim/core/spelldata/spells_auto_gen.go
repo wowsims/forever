@@ -20209,11 +20209,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 700646, SpellID: 23684, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 150, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 4, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 23686, Name: "Lightning Strike", School: 8, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, RPPM: 1, RefIDs: []int32{23687}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
+	{ID: 23686, Name: "Lightning Strike", School: 8, Attr: [17]uint32{0: 0xc0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, DefenseType: 1, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14}, RPPM: 1, VersusEffectIndex: 1, VersusFamilies: []int32{3}, RefIDs: []int32{23687}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintDamage,
 		Effects: []Effect{
 			{ID: 699862, SpellID: 23686, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, PvpMult: 1, TriggerID: 23687, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1372164, SpellID: 23686, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1 -- Darkmoon Card: Maelstrom: column reads 100, tooltip says 'Chance to strike' // override: Hint 256 -- Darkmoon Card: Maelstrom: fires on hits with a damage component
+		}}, // override: PPM 1 -- Darkmoon Card: Maelstrom: column reads 100, tooltip says 'Chance to strike' // override: Hint 256 -- Darkmoon Card: Maelstrom: fires on hits with a damage component // override: VersusBonus x2 ($s2) against CreatureFamilyAquatic -- Darkmoon Card: Maelstrom: 'Deals $s2 times as much damage to Aquatic enemies'
 	{ID: 23687, Name: "Lightning Strike", School: 8, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, MaxRange: 20, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 699545, SpellID: 23687, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 250, Variance: 0.4000000059604645, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
