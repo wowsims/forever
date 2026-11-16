@@ -12,7 +12,7 @@
 - Game build: not recorded; the reports were not checked against a build, and the hotfix state and relogs were not
   recorded either.
 - Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
-- Pull request: not recorded yet
+- Pull request: #1052
 
 ## Argent Avenger
 
