@@ -1270,9 +1270,9 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 }
 
 // Ironfoe 11684 rolls 1301046's ProcChance on each landed melee hit on an Orc, and on any other target
-// the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+// the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
-	expectLikelierAgainst(t, 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
+	expectExtraAttackVersus(t, 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing

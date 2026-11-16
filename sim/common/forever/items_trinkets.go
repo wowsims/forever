@@ -417,7 +417,7 @@ func init() {
 	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
 	// the wearer's race (EV-0007).
 	core.NewItemEffect(11815, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600)
+		registerExtraAttackVersus(agent.GetCharacter(), 11815, "Hand of Justice", 15600)
 	})
 
 	// Mark of the Chosen

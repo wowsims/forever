@@ -758,12 +758,12 @@ func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulatio
 	return sim, character, func() int32 { return extraAttack.SpellMetrics[enemy.UnitIndex].Casts / perProc }
 }
 
-// Checks registerLikelierExtraAttack's rule for an item: on a target of the family it rolls the row's
+// Checks registerExtraAttackVersus's rule for an item: on a target of the family it rolls the row's
 // column, on any other target the column divided by the factor, and states that chance against its
 // current target. Each case counts the procs of many
 // landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
 // hit rolls.
-func expectLikelierAgainst(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
+func expectExtraAttackVersus(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	t.Helper()
 	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
 	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
@@ -801,9 +801,9 @@ func expectLikelierAgainst(t *testing.T, itemID int32, name string, rowID int32,
 }
 
 // Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and on any other
-// target the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+// target the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
-	expectLikelierAgainst(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+	expectExtraAttackVersus(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and

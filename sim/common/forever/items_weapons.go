@@ -390,7 +390,7 @@ func init() {
 	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
 	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046)
+		registerExtraAttackVersus(agent.GetCharacter(), 11684, "Ironfoe", 1301046)
 	})
 
 	// Naga Heartpiercer
@@ -543,19 +543,19 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 // ProcChance column, and in its versus bonus how many times likelier a hit on them is than one on any
 // other target. The extra attack is the spell the row's first effect triggers. A hit on a versus
 // target rolls the row's column and a hit on any other target the column divided by the factor.
-func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32) {
+func registerExtraAttackVersus(character *core.Character, itemID int32, name string, rowID int32) {
 	row := spelldata.MustFind(rowID)
 	extraAttacks := row.EffectN(1).Trigger()
 
 	trigger := spelldata.ProcTrigger(character, row, nil)
 	trigger.Name = name
 	trigger.ActionID = core.ActionID{ItemID: itemID}
-	likelier := shared.ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindProcChance, row)
-	if likelier == nil {
-		panic(fmt.Sprintf("%d states no versus bonus for %s's likelier targets", rowID, name))
+	versus := shared.ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindProcChance, row)
+	if versus == nil {
+		panic(fmt.Sprintf("%d states no versus bonus for %s", rowID, name))
 	}
 	trigger.ProcChance = 0
-	trigger.DPM = character.NewTargetScaledChanceManager(row.StatedChance()/likelier.Multiplier, trigger.ProcMask, likelier.Against)
+	trigger.DPM = character.NewTargetScaledChanceManager(row.StatedChance()/versus.Multiplier, trigger.ProcMask, versus.Against)
 	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 	aura := character.MakeProcTriggerAura(trigger)
 	aura.ApplyOnInit(onInit)
