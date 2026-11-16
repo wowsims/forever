@@ -876,8 +876,8 @@ dps_results: {
  key: "TestRetribution-AllItems-FlameWrath-11809"
  value: {
   dps: 867.34391
-  tps: 708.53369
-  dtps: 5.81632
+  tps: 708.49738
+  dtps: 5.69476
   hps: 25.67659
  }
 }
@@ -1523,8 +1523,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 867.64863
-  tps: 707.18033
+  dps: 870.44116
+  tps: 709.41436
   dtps: 4.35763
   hps: 24.5891
  }
@@ -1865,9 +1865,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 819.67418
-  tps: 673.71073
-  dtps: 6.87467
+  dps: 828.8929
+  tps: 681.0541
+  dtps: 6.93304
   hps: 29.32931
  }
 }

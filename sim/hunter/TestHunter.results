@@ -1129,7 +1129,7 @@ dps_results: {
  value: {
   dps: 894.56028
   tps: 916.95057
-  dtps: 8.86902
+  dtps: 8.70218
   hps: 14.40278
  }
 }
@@ -1775,8 +1775,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 890.00071
-  tps: 912.26221
+  dps: 890.96635
+  tps: 913.22785
   dtps: 8.73311
   hps: 13.77583
  }
@@ -2144,9 +2144,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 823.09888
-  tps: 845.92887
-  dtps: 8.88575
+  dps: 827.8581
+  tps: 850.69397
+  dtps: 9.14143
   hps: 14.41972
  }
 }

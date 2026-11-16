@@ -1532,8 +1532,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 488.78046
-  tps: 412.71844
+  dps: 491.60848
+  tps: 414.98086
   dtps: 2.97628
   hps: 22.1125
  }
@@ -1847,8 +1847,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 497.05264
-  tps: 421.72339
+  dps: 505.0236
+  tps: 428.10016
   dtps: 2.97628
   hps: 28.80556
  }

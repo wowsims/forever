@@ -174,6 +174,28 @@ func (character *Character) NewLegacyPPMManagerWithSpellChance(ppm float64, spel
 	return &dpm
 }
 
+// A procs-per-minute rate for weapon hits beside the same rate for every other hit of the mask, on
+// the main-hand weapon's own speed read at the roll. The weapon hits NewLegacyPPMManager measures keep
+// its speeds: a swing's, and with no auto attack the wand's for a ranged hit. A spell hit, and any
+// hit no swing prices except a ranged auto attack, rolls the rate on the main-hand weapon's speed
+// whether or not the character swings it. With no main-hand weapon it is the sim's unarmed weapon's
+// speed.
+func (character *Character) NewLegacyPPMManagerWithMainHandSpells(ppm float64, procMask ProcMask) *DynamicProcManager {
+	build := func() DynamicProcManager {
+		dpm := character.newDynamicWeaponProcManager(ppm, 0, procMask&^ProcMaskSpellDamage)
+		dpm.procMasks = append(dpm.procMasks, procMask&^ProcMaskRangedAuto)
+		dpm.procChances = append(dpm.procChances, mainHandWeaponSpeedProc{character: character, ppm: ppm})
+		return dpm
+	}
+	dpm := build()
+
+	character.RegisterItemSwapCallback(AllWeaponSlots(), func(sim *Simulation, slot proto.ItemSlot) {
+		dpm = build()
+	})
+
+	return &dpm
+}
+
 type mainHandWeaponSpeedProc struct {
 	character *Character
 	ppm       float64
