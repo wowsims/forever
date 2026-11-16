@@ -4281,15 +4281,16 @@ func RegisterAllProcs() {
 			{ItemID: 19170, ItemName: "Ebon Hand"},
 		})
 
-	// 2% chance on successful spellcast to increase your Spirit by 150 for 15s.
+	// 3% chance on successful spellcast to increase your Spirit by 150 for 15s.
 	// https://www.wowhead.com/forever/spell=23684
-	// trigger 23688 (2%, core.CallbackOnCastComplete, core.ProcMaskSpellDamage | core.ProcMaskSpellHealing) -> buff 23684
+	// trigger 23688 (3%, core.CallbackOnCastComplete, core.ProcMaskSpellDamage | core.ProcMaskSpellHealing) -> buff 23684
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 23688, BuffSpellID: 23684},
 		[]shared.ItemVariant{
 			{ItemID: 19288, ItemName: "Darkmoon Card: Blue Dragon"},
 		})
 
-	// Chance to strike your melee target with lightning for 250 Nature damage.
+	// Chance to strike your melee target with lightning for 250 Nature damage. Deals 2 times as much damage
+	// to Aquatic enemies.
 	// https://www.wowhead.com/forever/spell=23687
 	// trigger 23686 (1 ppm, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 23687
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 23686, BuffSpellID: 23687},
@@ -4633,12 +4634,12 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Sad-Sack Sandals: "Resist Fear 08" (1301126) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1301126
-	// Not simulated: Xorothian Footwraps: "Mount Speed" (1314065) - ignored aura type 32
+	// Not simulated: Xorothian Footwraps: "Mount Speed" (1314065) - ignored aura type 172
 	// https://www.wowhead.com/forever/spell=1314065
 	// Not simulated: Wintersaber Hide Lined Gloves: "Mount Speed" (1315778) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=1315778
 	// Not simulated: Ankle Slicers: "Sliced Ankle" (1316346) - ignored aura type 33
 	// https://www.wowhead.com/forever/spell=1316346
-	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 32
+	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 172
 	// https://www.wowhead.com/forever/spell=1314065
 }

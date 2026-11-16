@@ -1133,12 +1133,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		18406, // Onyxia Blood Talisman
-		[
-			"Reduces your magic damage taken from Dragon Breath spells by 33% for 15s.", // 1287808 - https://www.wowhead.com/forever/spell=1287808
-		]
-	],
-	[
 		18410, // Sprinter's Sword
 		[
 			"Increases run speed by 35% for 10s.", // 22863 - https://www.wowhead.com/forever/spell=22863
