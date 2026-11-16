@@ -14,6 +14,14 @@ func (hunter *Hunter) registerRaptorStrike() {
 	// The APL queues it through the tag 1 spell below; the next swing casts it.
 	config.Flags &^= core.SpellFlagAPL
 
+	// Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded: the bonus is
+	// (1 + rank share)² of the base, 2.69x at 5/5. Its spell mod adds the share once; this adds the
+	// rest (EV-0132).
+	if rank := hunter.Talents.PredatorsEdge; rank > 0 {
+		share := spellData.PredatorsEdge.Rank(rank).EffectN(1).Percent()
+		config.CritMultiplierAdditive += share * (1 + share)
+	}
+
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := raptorStrikeRank.WeaponStrike(sim, spell, hunter.MHWeaponDamage(sim, spell.MeleeAttackPower(target)), 0)
 		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeWeaponSpecialHitAndCrit)
