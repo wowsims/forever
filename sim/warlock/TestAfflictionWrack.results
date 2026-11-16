@@ -86,6 +86,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 872.58615
+  tps: 702.04267
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 926.16923
@@ -448,6 +456,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 937.70412
+  tps: 754.16092
+  dtps: 9.21927
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 953.94374
@@ -498,8 +514,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 939.81371
-  tps: 755.96636
+  dps: 940.172
+  tps: 756.24726
   dtps: 9.41215
  }
 }
@@ -704,6 +720,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 926.16923
+  tps: 744.0518
+  dtps: 9.29175
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-HeartoftheScale-13164"
  value: {
   dps: 926.16923
@@ -722,9 +746,9 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 924.90969
-  tps: 742.92369
-  dtps: 9.0256
+  dps: 924.53249
+  tps: 742.63931
+  dtps: 9.02079
  }
 }
 dps_results: {

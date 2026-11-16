@@ -5,6 +5,7 @@ import { makeUIEnchant } from '@testing/storybook/fixtures/protos';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { SelectorModalTabs } from '../../types';
+import { ItemNoticeIconView } from '../GearPicker/ItemNoticeIcon';
 import { ItemDetailCellView } from './ItemDetailCell';
 
 const meta = {
@@ -18,7 +19,13 @@ const meta = {
 		href: '',
 		onOpen: fn(),
 	},
-	argTypes: { item: { control: false }, notice: { control: false }, extraLabels: { control: false }, action: { control: false } },
+	argTypes: {
+		item: { control: false },
+		notice: { control: false },
+		enchantNotice: { control: false },
+		extraLabels: { control: false },
+		action: { control: false },
+	},
 	decorators: [
 		Story => (
 			<div className="ui-gear-picker w-120">
@@ -53,5 +60,13 @@ export const RightColumn: Story = {
 
 export const Enchanted: Story = {
 	args: { item: makeEquippedItem({ enchant: makeUIEnchant() }) },
+	parameters: { smoke: false, smokeReason: 'The enchant label fetches /forever/assets/enchants/descriptions.json' },
+};
+
+export const EnchantWithNotice: Story = {
+	args: {
+		item: makeEquippedItem({ enchant: makeUIEnchant() }),
+		enchantNotice: <ItemNoticeIconView level="warning">The enchant's proc rate is not validated.</ItemNoticeIconView>,
+	},
 	parameters: { smoke: false, smokeReason: 'The enchant label fetches /forever/assets/enchants/descriptions.json' },
 };

@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 717.16176
+  tps: 621.10354
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 829.69547
@@ -391,6 +398,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 763.89244
+  tps: 658.55459
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 788.8189
@@ -435,8 +449,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 802.74662
-  tps: 687.62469
+  dps: 801.45471
+  tps: 686.64073
  }
 }
 dps_results: {
@@ -636,6 +650,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 753.58294
+  tps: 650.25856
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-HeartoftheScale-13164"
  value: {
   dps: 753.58294
@@ -652,8 +673,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 762.22669
-  tps: 657.44374
+  dps: 757.30526
+  tps: 653.1699
  }
 }
 dps_results: {

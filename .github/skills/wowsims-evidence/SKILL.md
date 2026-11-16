@@ -42,10 +42,22 @@ else; a count outside the buff's window or across two seals explains most surpri
 | a value change in the sim                                     | the EV- file first, then the change with its `.results` in its own pull request                                           |
 
 The counts live in the EV- file alone. A comment, an override `Reason` and a ruling state the rule and cite the id; an
-override's `Source` is the id itself.
+override's `Source` is the id itself, or `observed` for a rate fitted from too few logs to call final, whose `Reason`
+cites the id.
 
 An owner statement is a ruling: it holds whether or not a log backs it, and the evidence file records only what was
 measured. Never change sim code on an owner statement whose scope you had to guess.
+
+## Proc rates and issue #964
+
+Issue [#964](https://github.com/wowsims/forever/issues/964) is the table of every proc rate and proc chance the sim
+uses or lacks, for abilities, items by gear type, enchants and consumables. A pull request that adds or changes a proc
+rate, or records a measurement of one, says `Refs #964` in its body and updates the issue's row in the same pass: the
+sim rate, the measurement and its interval, the evidence id, the notes, and the status, which is ✅ for a rate measured
+on Forever (an EV- id) or stated by the game files, ⏳ for an `observed` rate, and ❌ for a carry-over or a rate nobody
+knows. A proc the table lacks gets a row in its section, and the section's count in the contents list moves with it.
+GitHub gives an issue's headings no anchors, so each section has an `<a id="...">` above its heading and the contents
+link points at `#user-content-...`.
 
 ## Ids
 

@@ -494,6 +494,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 816.05262
+  tps: 605.34483
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 808.36912
@@ -859,6 +867,14 @@ dps_results: {
   dps: 711.83888
   tps: 530.08465
   hps: 45.00444
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 818.1177
+  tps: 606.81942
+  hps: 45.98722
  }
 }
 dps_results: {

@@ -10,10 +10,10 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover" or "observed"
 }
 
-// Each rate is a carry-over unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
+// Each rate is a carry-over or an observed fit unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
 // adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
 // the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
@@ -280,6 +280,42 @@ var WeaponProcs = []WeaponProc{
 		PPM:     1.45,
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
+	},
+	// The rate is fitted from logs (EV-0125), too few to call final. The "observed" Source keeps the
+	// gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  12592,
+		SpellID: 16602,
+		PPM:     1.1,
+		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
+		Source:  "observed",
+	},
+	// Fitted from logs on a sword-and-board warrior's weapon hits and rounded to 1 by the owner (EV-0126).
+	// The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  13246,
+		SpellID: 17352,
+		PPM:     1,
+		Reason:  "Argent Avenger: no proc row; a log fit not yet validated (EV-0126)",
+		Source:  "observed",
+	},
+	// Fitted from logs on every landed melee hit, triggered hits included; the owner rounds it to 1.2
+	// (EV-0132). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  647,
+		SpellID: 17152,
+		PPM:     1.2,
+		Reason:  "Destiny: no proc row; a log fit not yet validated (EV-0132)",
+		Source:  "observed",
+	},
+	// Fitted from one wearer's landed melee hits; the owner rounds it to 1 (EV-0132). The "observed"
+	// Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  1263,
+		SpellID: 17148,
+		PPM:     1,
+		Reason:  "Brain Hacker: column reads 101; a log fit not yet validated (EV-0132)",
+		Source:  "observed",
 	},
 	{
 		ItemID:  12798,
