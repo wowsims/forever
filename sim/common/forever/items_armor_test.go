@@ -137,7 +137,7 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 // of the count.
 func TestArgentDefenderIsLikelierWhenUndeadStrike(t *testing.T) {
 	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs = 0 })
-	column, factor := row.StatedChance(), row.EffectN(2).BasePoints
+	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
 	if column <= 0 || factor <= 1 {
 		t.Fatalf("17350 states a chance of %v and a factor of %v, want a chance and a factor above 1 to tell the two apart", column, factor)
 	}
