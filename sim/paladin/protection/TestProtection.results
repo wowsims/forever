@@ -462,9 +462,9 @@ dps_results: {
  key: "TestProtection-AllItems-DarkmoonCard:Heroism-19287"
  value: {
   dps: 405.37216
-  tps: 973.29076
+  tps: 976.20551
   dtps: 344.4021
-  hps: 25.66784
+  hps: 28.1123
  }
 }
 dps_results: {

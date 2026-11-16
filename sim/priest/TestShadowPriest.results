@@ -264,9 +264,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 745.2109
-  tps: 532.68699
-  dtps: 4.91696
+  dps: 745.2767
+  tps: 532.5843
+  dtps: 5.18822
  }
 }
 dps_results: {

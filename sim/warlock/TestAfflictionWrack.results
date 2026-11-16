@@ -257,7 +257,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 926.16923
-  tps: 744.1068
+  tps: 744.1618
   dtps: 9.29175
  }
 }

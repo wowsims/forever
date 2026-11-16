@@ -256,9 +256,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 930.00693
-  tps: 766.94116
-  dtps: 11.22808
+  dps: 938.87996
+  tps: 775.72059
+  dtps: 11.19182
  }
 }
 dps_results: {

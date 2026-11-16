@@ -362,9 +362,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 780.19579
-  tps: 816.63597
-  dtps: 7.43291
+  dps: 780.43315
+  tps: 816.91108
+  dtps: 7.17292
   hps: 37.22694
  }
 }
@@ -374,7 +374,7 @@ dps_results: {
   dps: 779.98182
   tps: 816.60533
   dtps: 7.56907
-  hps: 50.98151
+  hps: 55.38298
  }
 }
 dps_results: {

@@ -399,10 +399,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-DarkmoonCard:Heroism-19287"
  value: {
-  dps: 526.59004
-  tps: 2680.15147
-  dtps: 398.67404
-  hps: 97.79554
+  dps: 525.56501
+  tps: 2680.50058
+  dtps: 398.86649
+  hps: 102.06627
  }
 }
 dps_results: {
@@ -822,10 +822,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FeralheartRaiment"
  value: {
-  dps: 502.82138
-  tps: 2540.92084
-  dtps: 398.33468
-  hps: 86.62305
+  dps: 504.48937
+  tps: 2546.08753
+  dtps: 372.01818
+  hps: 87.77371
  }
 }
 dps_results: {

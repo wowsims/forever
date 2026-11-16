@@ -552,9 +552,9 @@ dps_results: {
  key: "TestHunter-AllItems-DarkmoonCard:Heroism-19287"
  value: {
   dps: 889.25689
-  tps: 912.19231
+  tps: 912.20577
   dtps: 9.11703
-  hps: 23.26343
+  hps: 26.22356
  }
 }
 dps_results: {
