@@ -4,7 +4,7 @@
 - Sources: five combat logs with advanced logging, hunters of levels 27 to 48: one group log of 2026-11-07, one log of 2026-11-08, and three logs of one level 48 Beast Mastery hunter of 2026-11-11; report codes not recorded
 - Game build: 1.60.1 (the log headers name no build number); the 2026-11-07 and 2026-11-08 logs ran before the 2026-11-10 hotfix, the 2026-11-11 logs after it
 - Date: 2026-11-07, 2026-11-08 and 2026-11-11
-- Pull request: not opened yet
+- Pull request: #1055
 
 For each `SPELL_SUMMON` of the Hawk creature (264850), the gap back to its summoner's last `SPELL_CAST_SUCCESS` of
 Summon Hawk (1293241, 1293525, 1293526 or 1293527), and the gap forward to the hawk's first `SWING_DAMAGE` or
