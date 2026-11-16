@@ -706,6 +706,39 @@ func TestTrainerRanksBesideBookRanks(t *testing.T) {
 	}
 }
 
+// Under Aspect of the Beast and Deadly Aspects, Windfury Totem's strike rolls Quick Strikes as a melee
+// swing does, and a main-hand special that is no counted swing never does.
+func TestWindfuryTotemsStrikeRollsQuickStrikes(t *testing.T) {
+	sim, hunter := newTalentSim("5", proto.HunterOptions_PetNone)
+	quickStrikesAura := hunter.GetAuraByID(core.ActionID{SpellID: quickStrikes.ID})
+	if hunter.Talents.DeadlyAspects == 0 || quickStrikesAura == nil {
+		t.Fatal("the hunter has no Deadly Aspects or no Quick Strikes")
+	}
+	hunter.AspectOfTheBeastAura.Activate(sim)
+
+	procs := func(spell *core.Spell) int {
+		count := 0
+		for range 500 {
+			quickStrikesAura.Deactivate(sim)
+			hunter.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: hunter.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+			for end := sim.CurrentTime + 2*core.SpellBatchWindow; sim.CurrentTime < end && !sim.Step(); {
+			}
+			if quickStrikesAura.IsActive() {
+				count++
+			}
+		}
+		return count
+	}
+	strike := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, Flags: core.SpellFlagCountsAsSwing, DefenseType: core.DefenseTypeMelee, Unit: &hunter.Unit}
+	special := &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee, Unit: &hunter.Unit}
+	if got := procs(strike); got == 0 {
+		t.Error("500 Windfury Totem strikes procced no Quick Strikes")
+	}
+	if got := procs(special); got != 0 {
+		t.Errorf("500 main-hand specials procced Quick Strikes %d times, want none", got)
+	}
+}
+
 // One combo per pet family, fully trained.
 // The default rotation with its "Melee weave" variable turned off: the hunter stays at range.
 func stopWeaving(rotation *proto.APLRotation) {

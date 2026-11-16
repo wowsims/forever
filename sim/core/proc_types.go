@@ -70,6 +70,7 @@ func (h ProcHint) Matches(other ProcHint) bool {
 type ProcTypeInfo struct {
 	Callback           AuraCallback
 	ProcMask           ProcMask
+	HearsCountedSwings bool
 	Outcome            HitOutcome
 	RequireDamageDealt bool
 	// The hit must deal damage or come from a spell with a DoT; see ProcTrigger.
@@ -87,8 +88,11 @@ func DecodeProcTypeMask(mask [2]uint32, hint ProcHint) ProcTypeInfo {
 	info := ProcTypeInfo{RequireDamageDealt: true}
 	word := mask[0]
 
+	// Windfury Totem's strike counts as a melee swing for the swing bit, priced as a main-hand one
+	// (EV-0136).
 	if word&dbcenums.PROC_FLAG_DEAL_MELEE_SWING != 0 {
 		info.ProcMask |= ProcMaskMeleeWhiteHit
+		info.HearsCountedSwings = true
 	}
 
 	if word&dbcenums.PROC_FLAG_DEAL_MELEE_ABILITY != 0 {

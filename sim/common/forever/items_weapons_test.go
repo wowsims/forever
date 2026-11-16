@@ -3,7 +3,9 @@
 package forever_test
 
 import (
+	"fmt"
 	"math"
+	"slices"
 	"testing"
 	"time"
 
@@ -281,6 +283,39 @@ func TestHeartseekingCrossbowStrikesWithAShadowbolt(t *testing.T) {
 	if metrics.Casts != 1 || metrics.Hits != 1 || metrics.TotalDamage < damage.Min() || metrics.TotalDamage > damage.Max() {
 		t.Errorf("a ranged hit cast the Shadowbolt %d times for %v from %d hits, want one hit for the row's %v to %v",
 			metrics.Casts, metrics.TotalDamage, metrics.Hits, damage.Min(), damage.Max())
+	}
+}
+
+// Naga Heartpiercer 3078's 1292647 procs at the procs per minute of the item's entry, on the bow's
+// speed, off the cast result of a ranged shot that lands, and Pierce Heart strikes then. A missed shot
+// casts none, and the shot's hit, dealt later, rolls no second one.
+func TestNagaHeartpiercerStrikesOffLandedShots(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassRogue, proto.ItemSlot_ItemSlotRanged, 3078)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	proc := character.GetAura("Naga Heartpiercer")
+	pierceHeart := character.GetSpell(core.ActionID{SpellID: 1292647})
+	if proc == nil || proc.Dpm == nil || pierceHeart == nil {
+		t.Fatal("3078 registers no Pierce Heart or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 3078, 1292647)
+	// Every ranged hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRanged)
+	casts := func() int32 { return pierceHeart.SpellMetrics[enemy.UnitIndex].Casts }
+
+	shot := rangedShot(&character.Unit)
+	character.OnCastResult(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if got := casts(); got != 0 {
+		t.Errorf("a missed shot cast Pierce Heart %d times, want none", got)
+	}
+	landed := &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}
+	character.OnCastResult(sim, shot, landed)
+	if got := casts(); got != 1 {
+		t.Errorf("a landed shot's cast result cast Pierce Heart %d times, want once then", got)
+	}
+	character.OnSpellHitDealt(sim, shot, landed)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := casts(); got != 1 {
+		t.Errorf("the landed shot's hit brought Pierce Heart to %d casts, want it left at one", got)
 	}
 }
 
@@ -1406,5 +1441,385 @@ func TestWhiteObsidianWandProcsOnLandedShotsAndCheapensTheNextSpell(t *testing.T
 	}
 	if full := castSmite(); cheaper <= 0 || full-cheaper != -effect.Average() {
 		t.Errorf("Smite cost %v under the buff and %v after it, want the row's %v less under it", cheaper, full, -effect.Average())
+	}
+}
+
+// Iceblade Hacker 13952 carries both its procs: every landed main-hand swing casts 1298414 on the
+// target, and 1298416 rolls the procs per minute of the item's chance-on-hit entry on the axe's speed
+// and casts its Frostbolt. A missed swing casts neither. While the entry states no rate, the swing's
+// damage stays and the Frostbolt registers nothing.
+func TestIcebladeHackerCarriesBothProcs(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Iceblade Hacker - Frostbolt")
+	chill := character.GetSpell(core.ActionID{SpellID: 1298414})
+	frostbolt := character.GetSpell(core.ActionID{SpellID: 1298416})
+	if character.GetAura("Iceblade Hacker") == nil || proc == nil || proc.Dpm == nil || chill == nil || frostbolt == nil {
+		t.Fatal("13952 registers no swing damage, no Frostbolt or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13952, 1298416)
+
+	// Every main-hand hit now rolls a Frostbolt.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	enemy := character.CurrentTarget
+	casts := func(spell *core.Spell) int32 { return spell.SpellMetrics[enemy.UnitIndex].Casts }
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if casts(chill) != 0 || casts(frostbolt) != 0 {
+		t.Errorf("a missed swing cast the swing damage %d and the Frostbolt %d times, want neither", casts(chill), casts(frostbolt))
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if casts(chill) != 1 || casts(frostbolt) != 1 {
+		t.Errorf("a landed swing cast the swing damage %d and the Frostbolt %d times, want each once", casts(chill), casts(frostbolt))
+	}
+
+	withEntryPPM(t, 13952, 1298416, 0)
+	_, unrated := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13952, 0)})
+	if unrated.GetAura("Iceblade Hacker") == nil || unrated.GetAura("Iceblade Hacker - Frostbolt") != nil {
+		t.Error("with no rate on the entry, want the swing damage registered and no Frostbolt")
+	}
+}
+
+// Mana Channeling Wand 18483 rolls 1302348 on a caster's landed wand shots at the procs per minute of
+// the item's chance-on-hit entry, on the wand's speed, and on nothing else. Each proc restores the
+// mana of 1302350, the spell 1302348 fires; a missed shot restores none.
+func TestManaChannelingWandRestoresManaOnLandedShots(t *testing.T) {
+	sim, wearer := priestWearing(t, map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotRanged: 18483})
+	character := &wearer.Character
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	proc := character.GetAura("Mana Channeling Wand")
+	shot := character.GetSpell(core.ActionID{SpellID: 5019, Tag: 1})
+	if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged || proc == nil || proc.Dpm == nil || shot == nil {
+		t.Fatal("the priest swings an auto attack, or has no Shoot, or 18483 registers no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskRangedAuto, 18483, 1302350)
+	if got := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); got != 0 {
+		t.Errorf("a spell hit rolls the proc at %v, want never", got)
+	}
+
+	gain := spelldata.MustFind(1302350).EnergizeEffect().Average()
+	restored := func() float64 {
+		for _, r := range character.Metrics.ToProto().Resources {
+			if r.Id.GetItemId() == 18483 {
+				return r.Gain
+			}
+		}
+		return 0
+	}
+	character.SpendMana(sim, 4*gain, character.NewManaMetrics(core.ActionID{OtherID: proto.OtherAction_OtherActionManaRegen}))
+
+	// Every wand shot now rolls a proc.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskRangedAuto)
+	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := restored(); got != 0 {
+		t.Errorf("a missed shot restored %v mana, want none", got)
+	}
+	character.OnSpellHitDealt(sim, shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if got := restored(); gain <= 0 || got != gain {
+		t.Errorf("a landed shot restored %v mana, want the row's %v", got, gain)
+	}
+}
+
+// A warrior holding the item in the main hand against one target with no armor, which spends the
+// execute35 and execute20 shares of the encounter's end below 35% and 20% health. Its auto attacks
+// are off, every hit lands and none crits, and the item's proc fires on every main-hand hit.
+func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto.Target, execute35, execute20 float64) (*core.Simulation, *core.Character) {
+	t.Helper()
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = itemID
+	player := &proto.Player{
+		Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceTauren,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{},
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+	}
+	core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter:  &proto.Encounter{Duration: 180, ExecuteProportion_35: execute35, ExecuteProportion_20: execute20, Targets: []*proto.Target{target}},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	character.AutoAttacks.CancelAutoSwing(sim)
+	stepTo(t, sim, core.SpellBatchWindow)
+	character.AddStatsDynamic(sim, stats.Stats{
+		stats.PhysicalHitPercent: 100, stats.SpellHitPercent: 100,
+		stats.PhysicalCritPercent: -character.GetStat(stats.PhysicalCritPercent) - 100,
+		stats.SpellCritPercent:    -character.GetStat(stats.SpellCritPercent) - 100,
+	})
+	proc := character.GetAura(procName)
+	if proc == nil || proc.Dpm == nil {
+		t.Fatalf("%d registers no proc named %q on a procs per minute rate", itemID, procName)
+	}
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	return sim, character
+}
+
+// Sul'thraze the Lasher 9372: a landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the
+// target, which deals its damage when its duration runs out. A Rage that lands while the Lash runs puts
+// up no second one and leaves its time alone; a missed Rage puts up none.
+func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
+	sim, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", &proto.Target{Name: "target", Level: 60}, 0, 0)
+	enemy := character.CurrentTarget
+	rage := character.GetSpell(core.ActionID{SpellID: 1294430})
+	lash := character.GetSpell(core.ActionID{SpellID: 1294431})
+	if rage == nil || lash == nil {
+		t.Fatal("9372 registers no Rage of Sul'thraze or no Shadow Lash")
+	}
+	casts := func() int32 { return lash.SpellMetrics[enemy.UnitIndex].Casts }
+
+	character.OnSpellHitDealt(sim, rage, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss})
+	if casts() != 0 {
+		t.Fatalf("a missed Rage put up %d Lashes, want none", casts())
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	stepTo(t, sim, sim.CurrentTime+time.Second)
+	dot := lash.Dot(enemy)
+	if casts() != 1 || !dot.IsActive() {
+		t.Fatalf("a landed Rage put up %d Lashes, the Lash running %v, want one running", casts(), dot.IsActive())
+	}
+	expires := dot.ExpiresAt()
+	if want := spelldata.MustFind(1294431).Duration(); dot.ExpectedTickCount() != 1 || dot.TickPeriod() != want {
+		t.Errorf("the Lash ticks %d times every %v, want once after the row's %v", dot.ExpectedTickCount(), dot.TickPeriod(), want)
+	}
+
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	stepTo(t, sim, sim.CurrentTime+time.Second)
+	if casts() != 1 || dot.ExpiresAt() != expires {
+		t.Errorf("a Rage landing on a running Lash cast %d Lashes and moved its end from %v to %v, want one Lash and the end kept", casts(), expires, dot.ExpiresAt())
+	}
+	stepTo(t, sim, expires+core.SpellBatchWindow)
+	if dot.IsActive() || lash.SpellMetrics[enemy.UnitIndex].TotalDamage <= 0 {
+		t.Errorf("at the Lash's end it is running %v and has dealt %v, want it done and its damage dealt", dot.IsActive(), lash.SpellMetrics[enemy.UnitIndex].TotalDamage)
+	}
+}
+
+// Pendulum of Doom 9425's Fatal Wound 10373 deals the percent its row states more to a target below
+// the health percent its row states, from that phase's start, and its plain damage to a target above
+// it.
+func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
+	row := spelldata.MustFind(10373)
+	health := int32(row.EffectN(3).Average())
+	if health != 25 {
+		t.Fatalf("the row's threshold is %d%%, outside the case the test covers", health)
+	}
+	meanHit := func(execute35, execute20 float64, at time.Duration, below bool) float64 {
+		sim, character := procWeaponWearer(t, 9425, "Pendulum of Doom - Fatal Wound", &proto.Target{Name: "target", Level: 60}, execute35, execute20)
+		enemy := character.CurrentTarget
+		stepTo(t, sim, at)
+		if got := enemy.IsBelowExecuteHealth(health); got != below {
+			t.Fatalf("at %v with %v and %v of the fight below 35%% and 20%%, the target below %d%% reads %v, want %v", at, execute35, execute20, health, got, below)
+		}
+		wound := character.GetSpell(core.ActionID{SpellID: 10373})
+		if wound == nil {
+			t.Fatal("9425 registers no Fatal Wound")
+		}
+		// A Fatal Wound is a main-hand special that rolls the proc again, so the proc stays off here.
+		*character.GetAura("Pendulum of Doom - Fatal Wound").Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
+		var total float64
+		var landed int
+		for range 400 {
+			if dealt := castDamage(sim, wound, enemy); dealt > 0 {
+				total += dealt
+				landed++
+			}
+		}
+		if landed < 300 {
+			t.Fatalf("%d of 400 Fatal Wounds dealt damage, want most", landed)
+		}
+		return total / float64(landed)
+	}
+	want := 1 + row.EffectN(2).Average()/100
+	plain := meanHit(0, 0, time.Second, false)
+	// Below 35% from the start and 20% only at the end: the target crosses 25% two thirds of the way.
+	justBelow := meanHit(1, 0, 121*time.Second, true)
+	if ratio := justBelow / plain; want <= 1 || math.Abs(ratio-want) > 0.05*want {
+		t.Errorf("Fatal Wound averages %v just below %d%% and %v above it, a ratio of %v, want the row's %v", justBelow, health, plain, ratio, want)
+	}
+	aboveRow := meanHit(1, 0, 119*time.Second, false)
+	if ratio := aboveRow / plain; math.Abs(ratio-1) > 0.05 {
+		t.Errorf("Fatal Wound averages %v above %d%% but below 35%%, a ratio of %v to the plain hit, want 1", aboveRow, health, ratio)
+	}
+}
+
+// Flame Wrath 11809's proc puts 16560 on the wearer for the row's duration, raising its Fire
+// resistance by the row's amount, and a melee hit taken then casts the shield's damage at the
+// attacker. A later proc refreshes it.
+func TestFlameWrathPutsUpItsFireShield(t *testing.T) {
+	sim, character := procWeaponWearer(t, 11809, "Flame Wrath", &proto.Target{Name: "target", Level: 60}, 0, 0)
+	enemy := character.CurrentTarget
+	row := spelldata.MustFind(16560)
+	shieldAura := character.GetAura("Flame Wrath Fire Shield")
+	resistance := row.FirstAura(dbcenums.A_MOD_RESISTANCE)
+	if shieldAura == nil || resistance == nil {
+		t.Fatal("11809 registers no fire shield, or 16560 states no resistance")
+	}
+	shield, _ := damageShield(t, character, 16560)
+
+	before := character.GetStat(stats.FireResistance)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !shieldAura.IsActive() || shieldAura.Duration != row.Duration() {
+		t.Fatalf("a proc left the shield up %v for %v, want it up for the row's %v", shieldAura.IsActive(), shieldAura.Duration, row.Duration())
+	}
+	if got := character.GetStat(stats.FireResistance) - before; got != resistance.Average() {
+		t.Errorf("the shield raised Fire resistance by %v, want the row's %v", got, resistance.Average())
+	}
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := shield.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+		t.Errorf("a melee hit taken cast the shield's damage %d times, want once", got)
+	}
+
+	expires := shieldAura.ExpiresAt()
+	stepTo(t, sim, sim.CurrentTime+5*time.Second)
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if shieldAura.ExpiresAt() <= expires {
+		t.Errorf("a second proc left the shield's end at %v, want it later than %v", shieldAura.ExpiresAt(), expires)
+	}
+}
+
+// The damage one cast of the spell deals to the target.
+func castDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit) float64 {
+	before := spell.SpellMetrics[target.UnitIndex].TotalDamage
+	spell.Cast(sim, target)
+	return spell.SpellMetrics[target.UnitIndex].TotalDamage - before
+}
+
+// The factor each item's row states against its tooltip's creatures, read through the row's versus
+// bonus: Gahz'rilla Fang 9467's 3742 against Aquatic enemies, The Chief's Enforcer 9477's 1294339
+// against Trolls, and Sul'thraze the Lasher 9372's Shadow Lash 1294431 against Trolls, which its
+// Rage of Sul'thraze 1294430 states and leaves its own hit without.
+func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
+	for _, tc := range []struct {
+		itemID         int32
+		procName       string
+		rowID, spellID int32
+		family         proto.CreatureFamily
+	}{
+		{9467, "Gahz'rilla Fang - Gahz'rilla Fang", 3742, 3742, proto.CreatureFamily_CreatureFamilyAquatic},
+		{9477, "The Chief's Enforcer", 1294339, 1294339, proto.CreatureFamily_CreatureFamilyTroll},
+		{9372, "Sul'thraze the Lasher", 1294430, 1294431, proto.CreatureFamily_CreatureFamilyTroll},
+	} {
+		bonus, ok := spelldata.MustFind(tc.rowID).VersusBonus()
+		if !ok || bonus.Multiplier <= 1 || !slices.Contains(bonus.Families, tc.family) {
+			t.Fatalf("%d states no factor above 1 against %v", tc.rowID, tc.family)
+		}
+		dealt := func(family proto.CreatureFamily) float64 {
+			sim, character := procWeaponWearer(t, tc.itemID, tc.procName, &proto.Target{Name: "target", Level: 60, CreatureFamily: family}, 0, 0)
+			*character.GetAura(tc.procName).Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
+			spell := character.GetSpell(core.ActionID{SpellID: tc.spellID})
+			if spell == nil {
+				t.Fatalf("%d registers no %d", tc.itemID, tc.spellID)
+			}
+			if spell.Dot(character.CurrentTarget) == nil {
+				// The first cast that is not dodged or parried.
+				for range 50 {
+					if damage := castDamage(sim, spell, character.CurrentTarget); damage > 0 {
+						return damage
+					}
+				}
+				t.Fatalf("50 casts of %d dealt no damage", tc.spellID)
+			}
+			spell.Cast(sim, character.CurrentTarget)
+			stepTo(t, sim, spell.Dot(character.CurrentTarget).ExpiresAt()+core.SpellBatchWindow)
+			return spell.SpellMetrics[character.CurrentTarget.UnitIndex].TotalDamage
+		}
+		plain, against := dealt(proto.CreatureFamily_CreatureFamilyUnknown), dealt(tc.family)
+		if plain <= 0 || math.Abs(against/plain-bonus.Multiplier) > 1e-6 {
+			t.Errorf("%d's %d deals %v against %v and %v against others, want the row's %v times", tc.itemID, tc.spellID, against, tc.family, plain, bonus.Multiplier)
+		}
+	}
+
+	troll := &proto.Target{Name: "target", Level: 60, CreatureFamily: proto.CreatureFamily_CreatureFamilyTroll}
+	_, character := procWeaponWearer(t, 9372, "Sul'thraze the Lasher", troll, 0, 0)
+	if rage := character.GetSpell(core.ActionID{SpellID: 1294430}); rage == nil || rage.VersusBonus != nil {
+		t.Error("Rage of Sul'thraze carries a versus bonus of its own, want the Lash alone to carry it")
+	}
+
+	// The Chief's Enforcer's stun lasts the strike's factor longer on a Troll.
+	stun := spelldata.MustFind(1294340)
+	factor, _ := spelldata.MustFind(1294339).VersusBonus()
+	for _, family := range []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyUnknown, proto.CreatureFamily_CreatureFamilyTroll} {
+		_, character := procWeaponWearer(t, 9477, "The Chief's Enforcer", &proto.Target{Name: "target", Level: 60, CreatureFamily: family}, 0, 0)
+		want := stun.Duration()
+		if family == proto.CreatureFamily_CreatureFamilyTroll {
+			want = time.Duration(float64(want) * factor.Multiplier)
+		}
+		if aura := character.CurrentTarget.GetAura(fmt.Sprintf("%s %d", stun.Name, stun.ID)); aura == nil || aura.Duration != want {
+			t.Errorf("against %v the stun is registered %v, want it lasting %v", family, aura, want)
+		}
+	}
+}
+
+// Gahz'rilla Fang 9467's 3742 deals the percent Static Electricity 1294477 states more for each
+// stack on the wearer, and spends all of them but one.
+func TestGahzrillaFangGrowsWithStaticElectricity(t *testing.T) {
+	sim, character := procWeaponWearer(t, 9467, "Gahz'rilla Fang - Gahz'rilla Fang", &proto.Target{Name: "target", Level: 60}, 0, 0)
+	enemy := character.CurrentTarget
+	fang := character.GetSpell(core.ActionID{SpellID: 3742})
+	static := character.GetAuraByID(core.ActionID{SpellID: 1294477})
+	if fang == nil || static == nil {
+		t.Fatal("9467 registers no damage spell or no Static Electricity")
+	}
+	plain := castDamage(sim, fang, enemy)
+	const stacks = 10
+	static.Activate(sim)
+	static.SetStacks(sim, stacks)
+	charged := castDamage(sim, fang, enemy)
+	want := 1 + stacks*spelldata.MustFind(1294477).EffectN(1).Average()/100
+	if plain <= 0 || want <= 1 || math.Abs(charged/plain-want) > 1e-6 {
+		t.Errorf("with %d stacks it dealt %v against %v with none, a ratio of %v, want %v", stacks, charged, plain, charged/plain, want)
+	}
+	if got := static.GetStacks(); got != 1 {
+		t.Errorf("the proc left %d stacks, want 1", got)
+	}
+	castDamage(sim, fang, enemy)
+	if got := static.GetStacks(); got != 1 {
+		t.Errorf("a proc on 1 stack left %d, want 1", got)
+	}
+}
+
+// The Chief's Enforcer 9477's proc casts 1294340 at the target with each strike, which stuns it for
+// the row's duration even when the strike misses. A stun-immune target takes no stun.
+func TestTheChiefsEnforcerStunsWhetherOrNotTheStrikeLands(t *testing.T) {
+	row := spelldata.MustFind(1294340)
+	label := fmt.Sprintf("%s %d", row.Name, row.ID)
+	for _, tc := range []struct {
+		level   int32
+		stunned bool
+	}{
+		{60, true},
+		{63, false},
+	} {
+		sim, character := procWeaponWearer(t, 9477, "The Chief's Enforcer", &proto.Target{Name: "target", Level: tc.level}, 0, 0)
+		enemy := character.CurrentTarget
+		strike := character.GetSpell(core.ActionID{SpellID: 1294339})
+		stunSpell := character.GetSpell(core.ActionID{SpellID: 1294340})
+		if strike == nil || stunSpell == nil {
+			t.Fatal("9477 registers no strike or no stun")
+		}
+		// The strike misses and is dodged at the plain rates again.
+		character.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: -character.GetStat(stats.PhysicalHitPercent)})
+		for range 100 {
+			dealHit(t, sim, character, meleeSwing(&character.Unit))
+		}
+		metrics := strike.SpellMetrics[enemy.UnitIndex]
+		if metrics.Hits+metrics.Crits >= metrics.Casts || stunSpell.SpellMetrics[enemy.UnitIndex].Casts != metrics.Casts {
+			t.Fatalf("against level %d the proc cast %d strikes, landed %d and cast %d stuns, want some strikes missed and a stun with each",
+				tc.level, metrics.Casts, metrics.Hits+metrics.Crits, stunSpell.SpellMetrics[enemy.UnitIndex].Casts)
+		}
+		stun := enemy.GetAura(label)
+		if got := stun != nil && stun.IsActive(); got != tc.stunned {
+			t.Errorf("against level %d the target is stunned %v, want %v", tc.level, got, tc.stunned)
+		}
+		if tc.stunned && (stun.Duration != row.Duration() || !enemy.PseudoStats.Stunned) {
+			t.Errorf("the stun lasts %v and marks the target stunned %v, want the row's %v and stunned", stun.Duration, enemy.PseudoStats.Stunned, row.Duration())
+		}
 	}
 }

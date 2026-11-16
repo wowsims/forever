@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-BlackMenace-6831"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 907.17111
@@ -123,6 +131,14 @@ dps_results: {
   dps: 903.6529
   tps: 711.61413
   dtps: 9.83109
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-BladeoftheWretched-10803"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
  }
 }
 dps_results: {
@@ -143,6 +159,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestDestruction-AllItems-BlazingRapier-12777"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Bloodrazor-809"
  value: {
   dps: 842.36384
   tps: 663.69979
@@ -214,6 +238,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Dal'Rend'sArms"
  value: {
   dps: 834.01592
@@ -243,6 +275,30 @@ dps_results: {
   dps: 901.96434
   tps: 710.75572
   dtps: 10.11541
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Darrowspike-13984"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-DazzlingLongsword-869"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
  }
 }
 dps_results: {
@@ -560,6 +616,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-Felstriker-12590"
  value: {
   dps: 842.36384
@@ -589,6 +653,14 @@ dps_results: {
   dps: 865.54993
   tps: 680.4479
   dtps: 10.54893
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Firebreather-10797"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
  }
 }
 dps_results: {
@@ -629,6 +701,14 @@ dps_results: {
   dps: 909.15432
   tps: 715.67534
   dtps: 10.23769
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
  }
 }
 dps_results: {
@@ -768,6 +848,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Jom-jom'sGabbar-274952"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-JomGabbar-23570"
  value: {
   dps: 901.96434
@@ -856,6 +944,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-LordGeneral'sSword-11817"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-LuckyShovelnoseTuft-280060"
  value: {
   dps: 902.32458
@@ -877,6 +973,14 @@ dps_results: {
   dps: 901.96434
   tps: 710.75572
   dtps: 10.11541
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-ManaChannelingWand-18483"
+ value: {
+  dps: 896.09437
+  tps: 705.5575
+  dtps: 10.51704
  }
 }
 dps_results: {
@@ -1040,6 +1144,30 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-Sang'thrazetheDeflector-9379"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 842.36384
+  tps: 663.69979
+  dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-ScentedRunewoodBrooch-269741"
+ value: {
+  dps: 901.96434
+  tps: 710.75572
+  dtps: 10.11541
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-SealoftheDawn-13209"
  value: {
   dps: 901.96434
@@ -1069,6 +1197,14 @@ dps_results: {
   dps: 842.36384
   tps: 663.69979
   dtps: 9.98156
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-Shadowblade-2163"
+ value: {
+  dps: 857.3623
+  tps: 675.33644
+  dtps: 10.00249
  }
 }
 dps_results: {
@@ -1197,6 +1333,14 @@ dps_results: {
   dps: 901.96434
   tps: 710.75572
   dtps: 10.11541
+ }
+}
+dps_results: {
+ key: "TestDestruction-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 825.56718
+  tps: 650.72244
+  dtps: 9.98156
  }
 }
 dps_results: {
