@@ -51,13 +51,14 @@ measured. Never change sim code on an owner statement whose scope you had to gue
 ## Proc rates and issue #964
 
 Issue [#964](https://github.com/wowsims/forever/issues/964) is the table of every proc rate and proc chance the sim
-uses or lacks, for abilities, items by gear type, enchants and consumables. A pull request that adds or changes a proc
-rate, or records a measurement of one, says `Refs #964` in its body and updates the issue's row in the same pass: the
-sim rate, the measurement and its interval, the evidence id, the notes, and the status, which is ✅ for a rate measured
-on Forever (an EV- id) or stated by the game files, ⏳ for an `observed` rate, and ❌ for a carry-over or a rate nobody
-knows. A proc the table lacks gets a row in its section, and the section's count in the contents list moves with it.
-GitHub gives an issue's headings no anchors, so each section has an `<a id="...">` above its heading and the contents
-link points at `#user-content-...`.
+uses or lacks, for abilities, items by gear type, enchants and consumables. Each section is one comment on the issue,
+and the issue body holds the status legend and a contents list linking every section comment with its row counts. A pull
+request that adds or changes a proc rate, or records a measurement of one, says `Refs #964` in its body and edits the
+section comment's row in the same pass: the sim rate, the measurement and its interval, the evidence id, the notes, and
+the status, which is ✅ for a rate measured on Forever (an EV- id) or stated by the game files, ⏳ for an `observed`
+rate, and ❌ for a carry-over or a rate nobody knows. A proc the table lacks gets a row in its section, and the
+section's counts in the body's contents list move with it. A comment holds at most 65,536 characters; a section that
+outgrows it splits into two comments.
 
 ## Ids
 

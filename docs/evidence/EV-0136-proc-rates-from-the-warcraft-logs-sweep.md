@@ -30,6 +30,31 @@ than 50 procs, or one wearer with fewer than 100, are left out.
 
 Each table lists every run looked at; a run left out names why. PPM is the run's procs over its expected procs at 1 PPM.
 
+## What the procs do beyond their rate
+
+Read from the same wearers' streams, to check what the rows state before the sim models it.
+
+- Mana Channeling Wand (18483): all 211 procs of 1302350 restore 28 mana, the row's amount; the tooltip's 65 is the
+  trigger 1302348's.
+- Hammer of Expertise (8708): Forging Strike (1317432) is Physical on the melee attack table, as its row states: of 614
+  hits, 501 hit, 73 crit, 14 were dodged, 11 parried, 12 blocked and 3 missed, and 49 show armor mitigation.
+- Sul'thraze the Lasher (9372), 7 wearers, 958 landed Rage hits: all 487 timed Shadow Lash hits landed 5.0 s after the
+  Lash went up or refreshed; 46 of 511 Lash damage events crit and 2 were immune. Of 111 Rages landing while a Lash was
+  running, 99 put up no new Lash, 83 of them followed by the running Lash's damage at its 5 s. No missed Rage (22) put
+  up a Lash.
+- Pendulum of Doom (9425), 7 wearers, 615 landed hits: 469 sit in the plain damage range and 146 at about 1.5 times it
+  (per wearer 1.38 to 1.50); the larger ones land a median 1.7 s before the wearer's last hit on that target, against
+  15.1 s for plain ones. The logs hold no target health, so the threshold is the row's.
+- Flame Wrath (11809), 8 wearers, 421 procs: the fire shield went up 297 times and refreshed 130 times, 195 windows lasted
+  exactly 15 s, and it dealt damage 2,292 times inside its windows and 47 outside, never a crit. 8 procs came 0 to 1 s
+  apart, so the row's 5 s category cooldown does not lock out procs.
+- Gahz'rilla Fang (9467), 14 wearers, 594 non-crit hits: the damage fits 85.8 plus 1.97% per Static Electricity stack
+  (the row: 84 times 1 plus 2% a stack), and 95 procs at 50 stacks dealt a median 168. 581 stack removals left exactly 1
+  stack, 564 of them at a proc's timestamp. Single-stack gains came 50 ms to over 3 s apart, with no steady cadence.
+- The Chief's Enforcer (9477), 13 wearers: 416 strikes applied or refreshed the stun, which also landed on 20 of 26
+  dodged strikes, 6 of 12 parried ones and 3 of 5 misses; 56 stuns were immune, 2 resisted, and 305 of 389 lasted the full
+  1.5 s.
+
 ## Axe of Inevitable Ruin (274484)
 
 - Proc: weapon proc 1294226, logged as 1294226; rolls on main hand
