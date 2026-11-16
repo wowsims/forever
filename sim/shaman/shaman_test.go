@@ -1,6 +1,7 @@
 package shaman_test
 
 import (
+	"math"
 	"testing"
 	"time"
 
@@ -11,16 +12,21 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 	"github.com/wowsims/forever/sim/shaman"
+	"github.com/wowsims/forever/sim/shaman/elemental"
 	"github.com/wowsims/forever/sim/shaman/enhancement"
 )
 
 func init() {
+	elemental.RegisterElementalShaman()
 	enhancement.RegisterEnhancementShaman()
 	common.RegisterAllEffects()
 }
 
 // The Enhancement suite's talents, which take Elemental Devastation.
 const enhancementTalents = "053503102-053030310051012251"
+
+// The Elemental suite's talents, which take Elemental Focus and Lightning Overload.
+const elementalTalents = "5500331023001351-05500001-053"
 
 // The raid of one Enhancement shaman with the given talents.
 func enhancementRaid(talents string) *proto.Raid {
@@ -417,5 +423,108 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 	}
 	if procs(sham.AutoAttacks.MHAuto()) == 0 || procs(strike) == 0 {
 		t.Error("a main-hand swing or Windfury Weapon's strike never procced Maelstrom Weapon in 300 hits, so the check above proves nothing")
+	}
+}
+
+// A Lightning Overload's launch rolls Elemental Focus once, a Chain Lightning overload's included
+// however many targets it hits. The Chain Lightning that launched the overload keeps the charge the
+// overload procced as it completes, and an Earth Shock in that instant spends it. A Lightning Bolt
+// overload launches after its bolt's cast has completed, so a Lightning Bolt of the same rank in that
+// instant spends the charge.
+func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig())
+	player := &proto.Player{
+		Name:          "Elemental",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassShaman,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: elementalTalents,
+		Spec:          &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{Options: &proto.ElementalShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	target := sham.CurrentTarget
+	const boltRank, chainRank = 15208, 10605
+	clearcasting := sham.GetAuraByID(core.ActionID{SpellID: 16246})
+	bolt := sham.GetSpell(core.ActionID{SpellID: boltRank})
+	chainLightning := sham.GetSpell(core.ActionID{SpellID: chainRank})
+	boltOverload := sham.GetSpell(core.ActionID{SpellID: boltRank, Tag: shaman.CastTagLightningOverload})
+	chainOverload := sham.GetSpell(core.ActionID{SpellID: chainRank, Tag: shaman.CastTagLightningOverload})
+	if clearcasting == nil || bolt == nil || chainLightning == nil || boltOverload == nil || chainOverload == nil {
+		t.Fatalf("Clearcasting %v, Lightning Bolt %v, Chain Lightning %v, the overloads %v and %v; want all registered",
+			clearcasting, bolt, chainLightning, boltOverload, chainOverload)
+	}
+
+	// A roll per hit would gain about three times as often off a Chain Lightning overload that hits
+	// three targets.
+	chance := spelldata.MustFind(16164).StatedChance()
+	const launches = 2000
+	tolerance := 4 * math.Sqrt(chance*(1-chance)/launches)
+	for _, overload := range []*core.Spell{boltOverload, chainOverload} {
+		gains := 0
+		for range launches {
+			clearcasting.Deactivate(sim)
+			overload.Proc(sim, target)
+			if clearcasting.IsActive() {
+				gains++
+			}
+		}
+		if rate := float64(gains) / launches; math.Abs(rate-chance) > tolerance {
+			t.Errorf("%v gained Clearcasting on %v of its launches, want the row's %v within %v", overload.ActionID, rate, chance, tolerance)
+		}
+	}
+
+	// The overload launches inside the cast's effects, before the cast completes.
+	gainedAtLaunch := false
+	launch := chainOverload.ApplyEffects
+	chainOverload.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		launch(sim, target, spell)
+		gainedAtLaunch = clearcasting.IsActive()
+	}
+	// Earth Shock's own roll can refresh the charge it spends, so one spend over the loop is enough.
+	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
+	kept, spent := 0, false
+	for range launches {
+		clearcasting.Deactivate(sim)
+		gainedAtLaunch = false
+		chainLightning.Proc(sim, target)
+		if !gainedAtLaunch {
+			continue
+		}
+		kept++
+		if !clearcasting.IsActive() {
+			t.Fatal("the Chain Lightning that launched an overload spent the charge the overload procced")
+		}
+		earthShock.Proc(sim, target)
+		spent = spent || !clearcasting.IsActive()
+	}
+	if kept == 0 {
+		t.Errorf("no Chain Lightning overload procced Clearcasting in %d casts, so the check above proves nothing", launches)
+	}
+	if !spent {
+		t.Error("an Earth Shock in the instant a Chain Lightning overload procced Clearcasting never spent the charge")
+	}
+
+	// The bolt's own roll can refresh the charge too.
+	boltSpent := false
+	for range launches {
+		clearcasting.Deactivate(sim)
+		boltOverload.Proc(sim, target)
+		if !clearcasting.IsActive() {
+			continue
+		}
+		bolt.Proc(sim, target)
+		boltSpent = boltSpent || !clearcasting.IsActive()
+	}
+	if !boltSpent {
+		t.Error("a Lightning Bolt in the instant a Lightning Bolt overload procced Clearcasting never spent the charge")
 	}
 }
