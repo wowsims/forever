@@ -2,8 +2,10 @@
 
 - Claim: a tamed pet's white swings take none of the crit it inherits from its owner, while its abilities take all of
   it; after the 2026-11-10 hotfix a hawk's swing before armor at level 60 is 0.153 of the creature dps over 2.5 s plus
-  2.5/60 of its attack power; Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded; Explosive
-  Trap's first hit rolls its base once and its attack power share not at all.
+  2.5/60 of its attack power; the attack power a hunter's log shows, which the hawk takes 80% of, is the ranged attack
+  power plus 14 a point of the main hand's dps, while the pet takes its 10% of the ranged attack power alone;
+  Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded; Explosive Trap's first hit rolls its
+  base once and its attack power share not at all.
 - Sources: Warcraft Logs, the reports of the hunters on the Forever servers that the sections below name; all fights
 - Game build: 1.60.1.70888 for the reports from 2026-11-10 to 2026-11-12 and 1.60.1.70938 for those from 2026-11-13 to
   2026-11-16, as in EV-0131; the build of the reports from 2026-11-05 to 2026-11-09 is not recorded. The hawk's swing
@@ -167,6 +169,45 @@ mtXxyZRfgAhLP7rc, n1WgqK3GMVLT7pA6, nFvHyDjrCxLdA6k7, nxpWmkQJXhtPHdF9, q7MvX6Vd
 qTnGKAYkRXHBMDQJ, qVvZxP3gNp12KWyb, qvbXATzmk6Gha1Ny, raBGY1z29kVctF37, rkzFZMhRByHDtT8q, tkHwWYF1C8LTfhQg,
 vQZLCzhPNatk7r3d, vfQr1GhC8HjdNZ7L, vk9HJZwrfhmCayMY, vnLtQck7gF9PamD4, vwCXzhMQ2drgpRxD, wJCmzRy4GHgDTA8F,
 wPYdtLC7f8Xbc2qy, wp7Wx3jJVmtyn9qY, x8kcqNDnBtG3TYM1, xgCF4fVbKcTmpaN6, yCA1rNbBHntcMqxF, z9XbfMRh21Fg7QjN
+
+## The weapon part of the owner's attack power
+
+A hunter's logged attack power is the ranged attack power plus a weapon part. Battle Shout, which raises only melee
+attack power, leaves it where it is, and Aspect of the Hawk moves it by its whole bonus. The weapon part is read on the
+same hunter's gear snapshots inside one report: when the weapons differ between two snapshots, the change in the logged
+attack power on the first cast after each, less the change the snapshots' own stats explain (2 a point of Agility, gear
+ranged attack power, Careful Aim's share of Intellect, 2 a level) and with Aspect of the Hawk's state taken from the buff
+events, is the weapon part's change. Only swaps between items the sim's database knows, with no level gained between.
+
+| Weapon that changed | Swaps | Change in the weapon part, per 14 x the dps change | 95%, swaps    |
+| ------------------- | ----- | -------------------------------------------------- | ------------- |
+| Main hand alone     | 17    | 1.01                                               | 0.84 to 1.13  |
+| Ranged weapon alone | 12    | 0.21                                               | 0.00 to 0.62  |
+| Off hand alone      | 9     | -0.02                                              | -0.05 to 0.01 |
+
+Swaps from a ranged weapon the database does not know (taken as 0 dps) move the weapon part by -10 to +10 for a new
+ranged weapon of 10 to 21 dps. Across 19 main-hand swaps of hunters with a hawk out, the hawk's own attack power moves
+by 0.97 times 0.8 x 14 x the main hand's dps change.
+
+The pet takes its 10% of the ranged attack power alone. Over 102 summons of 23 level-60 hunters, the pet's attack
+power less 0.1 x the logged attack power falls by 0.100 a point of 14 x the main hand's dps; less 0.1 x the logged
+attack power without the weapon part, it is flat (slope 0.000) at a median of 258.9, the pet's own 0.3 x 14 x the
+creature dps of 253.9 and its talents.
+
+Reports (72):
+
+1HTPQGZya7pAz3qh, 1aBhkzdDMZKGtb37, 1zMFQx6RYwkgDXTh, 3R69PBjxZvcfbnX8, 3wdx94CkMQVGmayv, 4WtzXrnhyZpcRVCY,
+6NRLznh1jgfwqrvb, 7cpTkjaFB3mz6VgM, 7fz9Kk8rY6jyQAbL, 813rPaLtcdpHy67q, 8jzXTaqr732V9DxJ, 9wVj3Kgz6abqNDt1,
+AGWhn4CV8Yrjbpf6, AvNwTdyBbDncFf2h, C3r6TRtDnxzVPF9j, DBRqygp13jPC6c82, DLZPJbMwAvTfY4BC, HL38fnFjNXGTmRCa,
+JLfYA2drVCZ3aMnv, Jjmv6drycNXpDxW8, JmWKjCcgfXv4GVHP, JnVckZDLTwAgGKaQ, KcdpBWTJyX1xLFfh, MpcVyhTHnqCJvDFx,
+NHLVxbT9hgPZnGwp, NXMZV9xjvWpB7GtP, P6HcTpZXdqAkQBYh, PB6zGcVNtTZrMKXb, Pjd9MWAXgCYTcn7Z, QAgrxLyh1CVwcf6k,
+QDadybK3XVPRvwLh, QRCgnhck3KVq6vBT, QXFd74zDW8JZMmKx, TA3pLxKFXQ9Ckm41, V4v6h23bHLaT9Kxj, VK83G7MdBhLRFAfa,
+WGgVMc3B69TrZwzN, XBbarKyLTcJfNxj3, YH7n2xZqPKzWjQrR, YLNxvdDn96TjA3R8, aMF1JcGxkDpjnYH9, bYaT9KXtGwqvV6d4,
+bavD2gBYZHkqK7Ct, bmZcqx1pW4LGFfKB, cb9gzXjCK3BfH7qM, dvkzFtPH3WR9C4Km, f36RaB12wyDcTCGY, fVaTmnXZvPcA7gxy,
+fVvLCrnhpykHjQJ4, g3dYGjzy19w2qfXB, gBDMLv8J1K7nqkpd, gPxrZVY4JQ2Fm1Nd, gzrAwTqCWPm7xvpD, mak9vPD1KCtHW3n4,
+nFvHyDjrCxLdA6k7, qNVWc2yZJT6k8mvh, qQgj2MWBcD4Gd9an, qVvZxP3gNp12KWyb, qa3hCjJ1w9yzgZYc, rB41vNC2npYbz7Zy,
+rfkDTHnR8CBAwhz4, t2W3kaqMxzFPBDjL, tbC9yvQdpY7FnXmJ, tfX7HL9PmDdwkGja, v41rYANj2zBWkb8n, vMn4tpwVxA3Q71dL,
+vpFrJRb71fNAatmL, vwCXzhMQ2drgpRxD, yAYRmxqgXkTwr6Bz, z2BJcmAP6frjMV8w, z9XbfMRh21Fg7QjN, zmDY4LVX7N8vh9aR
 
 ## Crit multipliers of melee abilities
 

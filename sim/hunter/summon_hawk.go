@@ -40,10 +40,11 @@ var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
-// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the ranged weapon
-// adds to it in game, 14 a point of its dps on a base of 7 (EV-0073).
-const hawkOwnerBaseWeaponAP = 7.0
-const hawkOwnerAPPerWeaponDPS = 14.0
+// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
+// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing
+// (EV-0132). With no main-hand weapon it adds 7 (EV-0073).
+const hawkOwnerAPPerMainHandDPS = 14.0
+const hawkOwnerUnarmedWeaponAP = 7.0
 
 // A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side
 // (EV-0132), and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
@@ -110,7 +111,11 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 }
 
 func (hunter *Hunter) hawkWeaponAP() float64 {
-	return hawkOwnerBaseWeaponAP + hawkOwnerAPPerWeaponDPS*hunter.AutoAttacks.Ranged().DPS()
+	if hunter.GetMHWeapon() == nil {
+		return hawkOwnerUnarmedWeaponAP
+	}
+	mainHand := hunter.WeaponFromMainHand()
+	return hawkOwnerAPPerMainHandDPS * mainHand.DPS()
 }
 
 // The tamed pet and the hawks: what the talents that name pets and hawks reach.
