@@ -2808,12 +2808,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 
 export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
 	[
-		803, // Enchant Weapon - Fiery Weapon
-		[
-			"Permanently enchant a melee weapon to often strike for 40 additional fire damage.", // 13897 - https://www.wowhead.com/forever/spell=13897
-		]
-	],
-	[
 		912, // Enchant Weapon - Demonslaying
 		[
 			"Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.", // 13907 - https://www.wowhead.com/forever/spell=13907

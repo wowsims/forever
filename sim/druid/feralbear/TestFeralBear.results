@@ -604,6 +604,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 548.42975
+  tps: 2732.51933
+  dtps: 397.0579
+  hps: 85.57888
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 537.63252

@@ -599,6 +599,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 681.68133
+  tps: 628.85942
+  dtps: 8.62138
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 696.90131

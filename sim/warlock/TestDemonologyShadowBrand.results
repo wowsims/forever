@@ -518,6 +518,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 774.3872
+  tps: 660.07936
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 793.13639
