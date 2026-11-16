@@ -107,12 +107,7 @@ const WILL_NOT_BE_IMPLEMENTED_ITEMS: number[] = [];
 
 const TENTATIVE_IMPLEMENTATION_ITEMS: number[] = [];
 
-// Items whose effect the sim leaves out on purpose, by item id, with what is left out.
-const PARTLY_IMPLEMENTED_ITEMS = new Map<number, () => string>([
-	[18082, () => i18n.t('gear_tab.item_notices.partial_item.zumrahs_vexing_cane')], // Zum'rah's Vexing Cane
-]);
-
-const PartlyImplementedItem = ({ text }: { text: () => string }) => <p className="mb-0">{text()}</p>;
+const ZumrahsVexingCaneNotice = () => <p className="mb-0">{i18n.t('gear_tab.item_notices.partial_item.zumrahs_vexing_cane')}</p>;
 
 export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 	...WILL_NOT_BE_IMPLEMENTED_ITEMS.map((itemID): [number, ItemNoticeData] => [
@@ -127,12 +122,7 @@ export const ITEM_NOTICES = new Map<number, ItemNoticeData>([
 			[Spec.SpecUnknown]: TENTATIVE_IMPLEMENTATION_WARNING,
 		},
 	]),
-	...[...PARTLY_IMPLEMENTED_ITEMS].map(([itemID, text]): [number, ItemNoticeData] => [
-		itemID,
-		{
-			[Spec.SpecUnknown]: <PartlyImplementedItem text={text} />,
-		},
-	]),
+	[18082, { [Spec.SpecUnknown]: <ZumrahsVexingCaneNotice /> }],
 	...[...MISSING_ITEM_EFFECTS].map(([itemID, tooltips]): [number, ItemNoticeData] => [itemID, missingEffectNotice('item', tooltips)]),
 ]);
 
