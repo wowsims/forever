@@ -1,6 +1,6 @@
 import * as OtherInputs from '@features/settings/model/other_inputs';
 import { APLRotation } from '@generated/proto/apl';
-import { EquipmentSpec, ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
+import { ItemSlot, PseudoStat, Spec, Stat } from '@generated/proto/common';
 import { PlayerClasses } from '@sim/player/classes';
 import { Player } from '@sim/player/player';
 import { WeaponSkillGroup } from '@sim/player/weapon_skill_groups';
@@ -55,8 +55,8 @@ export default defineSpec<Spec.SpecWarlock>({
 	displayWeaponSkillGroups: [WeaponSkillGroup.Wands],
 
 	defaults: {
-		// Default equipped gear.
-		gear: EquipmentSpec.create(),
+		// Default equipped gear, that of the default simple rotation's build.
+		gear: Presets.DemoFireBrandGear.gear,
 
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: new Stats(),
@@ -124,7 +124,7 @@ export default defineSpec<Spec.SpecWarlock>({
 		rotations: [Presets.DEMO_FIRE_BRAND_APL, Presets.DEMO_SHADOW_BRAND_APL, Presets.DESTRO_APL, Presets.SM_RUIN_APL, Presets.AFF_WRACK_APL],
 
 		// Preset gear configurations that the user can quickly select.
-		gear: [],
+		gear: [Presets.DemoFireBrandGear, Presets.DemoShadowBrandGear, Presets.DestroGear, Presets.SmRuinGear, Presets.AffWrackGear],
 		// Talents, demons and rotation together, one per build.
 		builds: Presets.Builds,
 	},
