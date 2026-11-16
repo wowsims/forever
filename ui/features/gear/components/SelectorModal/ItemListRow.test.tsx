@@ -152,7 +152,7 @@ describe('ItemListRow', () => {
 		expect(marker?.getAttribute('data-source-count')).toBe('1');
 	});
 
-	it('looks the notice up by enchant id on the enchants tab and by item id elsewhere', () => {
+	it('looks the notice up by enchant id on the enchants tab and by item id on the items tab', () => {
 		const enchants = renderRow({ label: SelectorModalTabs.Enchants, itemData: makeItemData({ id: 1894 }) });
 		const enchantNotice = enchants.container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(enchantNotice.getAttribute('data-enchant-id')).toBe('1894');
@@ -162,6 +162,14 @@ describe('ItemListRow', () => {
 		const itemNotice = items.container.querySelector('[data-testid="item-notice-marker"]')!;
 		expect(itemNotice.getAttribute('data-item-id')).toBe('17182');
 		expect(itemNotice.hasAttribute('data-enchant-id')).toBe(false);
+	});
+
+	// Suffix 13057 "of Arcane Wrath" shares its id with item 13057, Bloodpike.
+	it('looks no notice up by the suffix id on the random suffix tab', () => {
+		const suffixes = renderRow({ label: SelectorModalTabs.RandomSuffixes, itemData: makeItemData({ id: 13057 }) });
+		const suffixNotice = suffixes.container.querySelector('[data-testid="item-notice-marker"]')!;
+		expect(suffixNotice.hasAttribute('data-item-id')).toBe(false);
+		expect(suffixNotice.hasAttribute('data-enchant-id')).toBe(false);
 	});
 
 	describe('the discovered dot', () => {
