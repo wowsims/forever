@@ -8,7 +8,7 @@
   yHRFJ8kn9vQA4YLr. All fights.
 - Game build: 1.60.1.70938; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-16
-- Pull request: not yet opened
+- Pull request: #1059
 
 ## Method
 
