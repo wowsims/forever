@@ -43,9 +43,9 @@ var EnchantProcs = []EnchantProc{
 		EnchantID: 1900,
 		SpellID:   20007,
 		Kind:      RatePPM,
-		Value:     1, // TODO: Vanilla value - verify in-game
-		Reason:    "Crusader: 20007 states no proc chance, and 458112's 100 is the sentinel beside 'often'",
-		Source:    "vanilla-carryover",
+		Value:     1,
+		Reason:    "Crusader: 20007 states no proc chance, and 458112's 100 is the sentinel beside 'often'; measured on the enchanted hands' landed melee hits",
+		Source:    "EV-0135",
 	},
 	{
 		EnchantID: 8217,

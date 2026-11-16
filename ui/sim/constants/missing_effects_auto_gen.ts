@@ -4059,7 +4059,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 ])
 
 export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
-	[1900, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Enchant Weapon - Crusader
 	[8217, { kind: 'chance', rate: 8, origin: 'observed' }], // Enchant Weapon - Revelation
 ])
 
