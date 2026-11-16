@@ -496,6 +496,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-Felstriker-12590"
+ value: {
+  dps: 721.06159
+  tps: 666.46075
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-FetishofChitinousSpikes-21488"
  value: {
   dps: 761.93743
