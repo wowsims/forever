@@ -300,6 +300,39 @@ func init() {
 		[]shared.ItemVariant{
 			{ItemID: 274651, ItemName: "Zealot Plate"},
 		})
+
+	// Argent Defender
+	// https://www.wowhead.com/forever/item=13243/argent-defender
+	//
+	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that
+	// strike you are 2 times as likely to activate this effect.
+	//
+	// 17350 rolls on each landed melee hit taken that deals damage, outside its 20 s cooldown. The
+	// procs per minute an override puts on the row are priced on the attacker's time between its own
+	// swings at the hit, slows included: its main hand's interval, or both hands together when it
+	// dual-wields. An attacker with no melee auto attack has no interval and never procs it. The row's
+	// second effect, a dummy, is the tooltip's "2 times" when an Undead strikes (EV-0126).
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			row := spelldata.MustFind(17350)
+			undead := row.EffectN(2).BasePoints
+			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+				attacks := &spell.Unit.AutoAttacks
+				interval := attacks.MainhandSwingSpeed().Seconds()
+				if attacks.IsDualWielding {
+					interval = 1 / (1/interval + 1/attacks.OffhandSwingSpeed().Seconds())
+				}
+				chance := float64(row.RPPM) * interval / 60
+				if spell.Unit.MobType == proto.MobType_MobTypeUndead {
+					chance *= undead
+				}
+				return sim.Proc(chance, "Argent Defender")
+			}
+			spelldata.Chance(1)(character, trigger)
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 13243, ItemName: "Argent Defender"},
+		})
 }
 
 // TODO: The game files state no rate for Depleted Eye of Influence's 1297085, and none is measured on

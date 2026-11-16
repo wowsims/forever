@@ -1240,33 +1240,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike
-	// you are 2 times as likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=17351
-	// unsupported: states no rate
-	// trigger 17350 (no stated rate, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 17351
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13243, ItemName: "Argent Defender"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
-	// https://www.wowhead.com/forever/spell=17352
-	// unsupported: states no rate
-	// trigger 17352 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13246, ItemName: "Argent Avenger"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Blasts a target for 700 Fire damage.
 	// https://www.wowhead.com/forever/spell=18112
 	// unsupported: states no rate
@@ -4402,6 +4375,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18203, BuffSpellID: 18203, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13183, ItemName: "Venomspitter"},
+		})
+
+	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
+	// https://www.wowhead.com/forever/spell=17352
+	// trigger 17352 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13246, ItemName: "Argent Avenger"},
 		})
 
 	// Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.

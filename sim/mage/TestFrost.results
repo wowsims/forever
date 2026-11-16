@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 721.06159
+  tps: 666.46075
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 859.49748

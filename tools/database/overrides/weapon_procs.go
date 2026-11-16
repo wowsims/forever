@@ -290,6 +290,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
 		Source:  "observed",
 	},
+	// Measured on a sword-and-board warrior's weapon hits; the owner rounds it to 1 (EV-0126).
+	{
+		ItemID:  13246,
+		SpellID: 17352,
+		PPM:     1,
+		Reason:  "Argent Avenger: no proc row",
+		Source:  "EV-0126",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,

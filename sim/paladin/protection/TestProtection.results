@@ -99,6 +99,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 410.62881
+  tps: 979.5076
+  dtps: 336.29278
+  hps: 19.24889
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-ArgentDefender-13243"
+ value: {
+  dps: 397.59378
+  tps: 950.87255
+  dtps: 348.49158
+  hps: 18.19833
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-Avenger'sBattlegear"
  value: {
   dps: 441.81826
