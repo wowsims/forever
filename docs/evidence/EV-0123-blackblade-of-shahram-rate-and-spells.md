@@ -7,7 +7,7 @@
   NXMZV9xjvWpB7GtP fight 13 and D463FZBX1C9maJ7b fight 7.
 - Game build: 1.60.1.70938; the hotfix state and relogs were not recorded.
 - Date: 2026-11-13 (NXMZV9xjvWpB7GtP) and 2026-11-14 (D463FZBX1C9maJ7b)
-- Pull request: not recorded
+- Pull request: #1051
 
 A proc is one summon line of 16602 by the wearer. A hit is a landed damage line of the wearer on an enemy (hit, crit,
 block, glance or crush), or a melee cast that lands with no damage line, counted at its debuff. The sword's chain and
