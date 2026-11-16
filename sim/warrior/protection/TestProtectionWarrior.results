@@ -571,7 +571,7 @@ dps_results: {
  key: "TestProtectionWarrior-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 429.32726
-  tps: 1382.89148
+  tps: 1382.8914
   dtps: 292.6518
   hps: 57.54526
  }
@@ -1776,10 +1776,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-Average-Default"
  value: {
-  dps: 439.94214
-  tps: 1392.82196
-  dtps: 291.76532
-  hps: 37.15802
+  dps: 439.93587
+  tps: 1392.79035
+  dtps: 291.76226
+  hps: 37.15751
  }
 }
 dps_results: {

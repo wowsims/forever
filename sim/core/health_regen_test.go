@@ -1,6 +1,7 @@
 package core_test
 
 import (
+	"math"
 	"slices"
 	"testing"
 	"time"
@@ -47,6 +48,23 @@ func prepullMoveAt(doAt string) *proto.APLPrepullAction {
 	}
 }
 
+// The health 10 HP5 credits a tick: HP5 / 5 a second over the 2.02 s tick.
+const tenHP5Tick = 10 * 2.02 / 5
+
+// The health n ticks of 10 HP5 credit, one entry per n.
+func tenHP5Ticks(n ...float64) []float64 {
+	health := make([]float64, len(n))
+	for i, ticks := range n {
+		health[i] = ticks * tenHP5Tick
+	}
+	return health
+}
+
+// Whether each gain matches its wanted health, within float error.
+func healthGainsMatch(gained, want []float64) bool {
+	return slices.EqualFunc(gained, want, func(a, b float64) bool { return math.Abs(a-b) < 1e-9 })
+}
+
 // The health the unit gains from now up to each time, read once everything else due then has run.
 func recordHealthGained(sim *core.Simulation, unit *core.Unit, times ...time.Duration) []float64 {
 	start := unit.CurrentHealth()
@@ -83,14 +101,14 @@ func setupHealthRegenSimWithAura(t *testing.T, hp5 float64, name string, spellID
 	return sim, owner, aura
 }
 
-// 10 HP5 credits 4 health on each 2.02 s tick, the first at 2.02 s.
+// 10 HP5 credits 4.04 health on each 2.02 s tick, the first at 2.02 s.
 func TestHealthRegenTicksEvery2020Milliseconds(t *testing.T) {
 	sim, owner := setupHealthRegenSim(t, 10)
 	owner.RemoveHealth(sim, owner.CurrentHealth()/2)
 
 	gained := recordHealthGained(sim, &owner.Unit, healthRegenTick-time.Millisecond, healthRegenTick, 2*healthRegenTick-time.Millisecond, 2*healthRegenTick)
 	stepTo(t, sim, 5*time.Second)
-	if want := []float64{0, 4, 4, 8}; !slices.Equal(gained, want) {
+	if want := tenHP5Ticks(0, 1, 1, 2); !healthGainsMatch(gained, want) {
 		t.Errorf("health gained by 2.019 s, 2.02 s, 4.039 s and 4.04 s: %v, want %v", gained, want)
 	}
 
@@ -98,8 +116,8 @@ func TestHealthRegenTicksEvery2020Milliseconds(t *testing.T) {
 	if metrics == nil {
 		t.Fatal("no Health Regen health metric")
 	}
-	if metrics.Type != proto.ResourceType_ResourceTypeHealth || metrics.Events != 2 || metrics.ActualGain != 8 {
-		t.Errorf("Health Regen metric: %v events of %v %v, want 2 events of 8 health", metrics.Events, metrics.ActualGain, metrics.Type)
+	if metrics.Type != proto.ResourceType_ResourceTypeHealth || metrics.Events != 2 || !healthGainsMatch([]float64{metrics.ActualGain}, tenHP5Ticks(2)) {
+		t.Errorf("Health Regen metric: %v events of %v %v, want 2 events of %v health", metrics.Events, metrics.ActualGain, metrics.Type, 2*tenHP5Tick)
 	}
 }
 
@@ -115,7 +133,7 @@ func TestHealthRegenNoneBeforeCombat(t *testing.T) {
 
 		gained := recordHealthGained(sim, &owner.Unit, 0, time.Second, 2*time.Second, healthRegenTick-time.Millisecond, healthRegenTick)
 		stepTo(t, sim, 3*time.Second)
-		if want := []float64{0, 0, 0, 0, 4}; !slices.Equal(gained, want) {
+		if want := tenHP5Ticks(0, 0, 0, 0, 1); !healthGainsMatch(gained, want) {
 			t.Errorf("prepull from %v, health gained by 0 s, 1 s, 2 s, 2.019 s and 2.02 s: %v, want %v", start, gained, want)
 		}
 	}
@@ -157,7 +175,7 @@ func TestHealthRegenStartsWhenHP5Gained(t *testing.T) {
 	stepTo(t, sim, 3*time.Second)
 	aura.Activate(sim)
 	stepTo(t, sim, 7*time.Second)
-	if want := []float64{0, 0, 4, 8}; !slices.Equal(gained, want) {
+	if want := tenHP5Ticks(0, 0, 1, 2); !healthGainsMatch(gained, want) {
 		t.Errorf("health gained by 3 s, 4.039 s, 4.04 s and 6.06 s: %v, want %v", gained, want)
 	}
 }
@@ -174,7 +192,7 @@ func TestHealthRegenSleepsWhenHP5Lost(t *testing.T) {
 	stepTo(t, sim, 5*time.Second)
 	aura.Activate(sim)
 	stepTo(t, sim, 7*time.Second)
-	if want := []float64{4, 4, 4, 4, 4, 8}; !slices.Equal(gained, want) {
+	if want := tenHP5Ticks(1, 1, 1, 1, 1, 2); !healthGainsMatch(gained, want) {
 		t.Errorf("health gained by 2.02 s, 3 s, 4.04 s, 5 s, 6.059 s and 6.06 s: %v, want %v", gained, want)
 	}
 }
@@ -193,7 +211,7 @@ func TestHealthRegenDisabledPet(t *testing.T) {
 	summoned := recordHealthGained(sim, &owner.pet.Unit, healthRegenTick, 2*healthRegenTick)
 	away := recordHealthGained(sim, &owner.dynamic.Unit, healthRegenTick, 2*healthRegenTick)
 	stepTo(t, sim, 5*time.Second)
-	if want := []float64{4, 8}; !slices.Equal(summoned, want) {
+	if want := tenHP5Ticks(1, 2); !healthGainsMatch(summoned, want) {
 		t.Errorf("the summoned pet gained %v health by 2.02 s and 4.04 s, want %v", summoned, want)
 	}
 	if want := []float64{0, 0}; !slices.Equal(away, want) {
@@ -213,7 +231,7 @@ func TestHealthRegenPetSummonedMidFight(t *testing.T) {
 
 	gained := recordHealthGained(sim, &pet.Unit, 3*healthRegenTick-time.Millisecond, 3*healthRegenTick, 4*healthRegenTick)
 	stepTo(t, sim, 9*time.Second)
-	if want := []float64{0, 4, 8}; !slices.Equal(gained, want) {
+	if want := tenHP5Ticks(0, 1, 2); !healthGainsMatch(gained, want) {
 		t.Errorf("the pet summoned at 5 s gained %v health by 6.059 s, 6.06 s and 8.08 s, want %v", gained, want)
 	}
 }
@@ -266,7 +284,7 @@ func TestHealthRegenWakesWhenHurt(t *testing.T) {
 		tc.hurt(sim, owner)
 		gained := recordHealthGained(sim, &owner.Unit, 2*healthRegenTick-time.Millisecond, 2*healthRegenTick)
 		stepTo(t, sim, 5*time.Second)
-		if want := []float64{0, 4}; !slices.Equal(gained, want) {
+		if want := tenHP5Ticks(0, 1); !healthGainsMatch(gained, want) {
 			t.Errorf("hurt by %s at 3 s, health gained by 4.039 s and 4.04 s: %v, want %v", tc.name, gained, want)
 		}
 	}

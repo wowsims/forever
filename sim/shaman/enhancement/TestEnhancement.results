@@ -688,7 +688,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-Lifestone-833"
  value: {
   dps: 864.17702
-  tps: 899.43433
+  tps: 899.4317
   dtps: 7.63296
   hps: 33.05861
  }
@@ -904,7 +904,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-RingofSaviors-1447"
  value: {
   dps: 862.47232
-  tps: 897.67783
+  tps: 897.67583
   dtps: 7.207
   hps: 33.02472
  }
@@ -1165,7 +1165,7 @@ dps_results: {
  key: "TestEnhancement-AllItems-ToySoldier-274386"
  value: {
   dps: 864.17702
-  tps: 899.41654
+  tps: 899.4137
   dtps: 7.63296
   hps: 33.05861
  }

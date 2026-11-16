@@ -274,7 +274,7 @@ dps_results: {
  key: "TestAfflictionWrack-AllItems-DreadmistRaiment"
  value: {
   dps: 769.63408
-  tps: 619.47944
+  tps: 619.47896
   dtps: 9.11809
   hps: 5.22196
  }

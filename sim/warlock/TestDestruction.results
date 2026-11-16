@@ -274,7 +274,7 @@ dps_results: {
  key: "TestDestruction-AllItems-DreadmistRaiment"
  value: {
   dps: 801.02896
-  tps: 636.43393
+  tps: 636.43287
   dtps: 9.84673
   hps: 9.05673
  }
