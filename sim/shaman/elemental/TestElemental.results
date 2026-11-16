@@ -278,6 +278,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-BrainHacker-1263"
+ value: {
+  dps: 674.04962
+  tps: 626.90629
+  dtps: 8.69861
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BramblebarkBarrier-275649"
  value: {
   dps: 720.86635
