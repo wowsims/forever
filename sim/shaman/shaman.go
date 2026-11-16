@@ -108,9 +108,6 @@ type Shaman struct {
 
 	// The cast that stood the totem in each element's slot, indexed like TotemExpirations; its aura is RelatedSelfBuff.
 	TotemSpells [4]*core.Spell
-
-	// Rolls Elemental Focus for a Lightning Overload's launch; nil without the talent.
-	rollElementalFocus func(sim *core.Simulation, overload *core.Spell)
 }
 
 // Implemented by each Shaman spec.

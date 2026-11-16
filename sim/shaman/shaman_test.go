@@ -427,8 +427,10 @@ func TestMaelstromWeaponSkipsTheWindfuryTotemStrike(t *testing.T) {
 }
 
 // A Lightning Overload's launch rolls Elemental Focus once, a Chain Lightning overload's included
-// however many targets it hits, and the Chain Lightning that launched the overload keeps the charge
-// the overload procced as it completes. Another cast in that instant spends it.
+// however many targets it hits. The Chain Lightning that launched the overload keeps the charge the
+// overload procced as it completes, and an Earth Shock in that instant spends it. A Lightning Bolt
+// overload launches after its bolt's cast has completed, so a Lightning Bolt of the same rank in that
+// instant spends the charge.
 func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 	encounter := core.MakeSingleTargetEncounter(0)
 	encounter.Targets = append(encounter.Targets, core.FreshDefaultTargetConfig(), core.FreshDefaultTargetConfig())
@@ -450,17 +452,15 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 
 	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
 	target := sham.CurrentTarget
-	if !sham.Talents.ElementalFocus || sham.Talents.LightningOverload == 0 {
-		t.Fatalf("talents %q lack Elemental Focus or Lightning Overload", elementalTalents)
-	}
 	const boltRank, chainRank = 15208, 10605
 	clearcasting := sham.GetAuraByID(core.ActionID{SpellID: 16246})
+	bolt := sham.GetSpell(core.ActionID{SpellID: boltRank})
 	chainLightning := sham.GetSpell(core.ActionID{SpellID: chainRank})
 	boltOverload := sham.GetSpell(core.ActionID{SpellID: boltRank, Tag: shaman.CastTagLightningOverload})
 	chainOverload := sham.GetSpell(core.ActionID{SpellID: chainRank, Tag: shaman.CastTagLightningOverload})
-	if clearcasting == nil || chainLightning == nil || boltOverload == nil || chainOverload == nil {
-		t.Fatalf("Clearcasting %v, Chain Lightning %v, the overloads %v and %v; want all registered",
-			clearcasting, chainLightning, boltOverload, chainOverload)
+	if clearcasting == nil || bolt == nil || chainLightning == nil || boltOverload == nil || chainOverload == nil {
+		t.Fatalf("Clearcasting %v, Lightning Bolt %v, Chain Lightning %v, the overloads %v and %v; want all registered",
+			clearcasting, bolt, chainLightning, boltOverload, chainOverload)
 	}
 
 	// A roll per hit would gain about three times as often off a Chain Lightning overload that hits
@@ -489,7 +489,9 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 		launch(sim, target, spell)
 		gainedAtLaunch = clearcasting.IsActive()
 	}
-	kept := 0
+	// Earth Shock's own roll can refresh the charge it spends, so one spend over the loop is enough.
+	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
+	kept, spent := 0, false
 	for range launches {
 		clearcasting.Deactivate(sim)
 		gainedAtLaunch = false
@@ -501,30 +503,28 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 		if !clearcasting.IsActive() {
 			t.Fatal("the Chain Lightning that launched an overload spent the charge the overload procced")
 		}
+		earthShock.Proc(sim, target)
+		spent = spent || !clearcasting.IsActive()
 	}
 	if kept == 0 {
 		t.Errorf("no Chain Lightning overload procced Clearcasting in %d casts, so the check above proves nothing", launches)
 	}
-
-	// An instant Earth Shock completes in the instant a hardcast Lightning Bolt ends.
-	bolt := sham.GetSpell(core.ActionID{SpellID: boltRank})
-	earthShock := sham.EarthShock[len(sham.EarthShock)-1]
-	if bolt == nil {
-		t.Fatal("Lightning Bolt is not registered")
+	if !spent {
+		t.Error("an Earth Shock in the instant a Chain Lightning overload procced Clearcasting never spent the charge")
 	}
-	spent := false
+
+	// The bolt's own roll can refresh the charge too.
+	boltSpent := false
 	for range launches {
 		clearcasting.Deactivate(sim)
-		bolt.Proc(sim, target)
+		boltOverload.Proc(sim, target)
 		if !clearcasting.IsActive() {
 			continue
 		}
-		earthShock.Proc(sim, target)
-		if spent = !clearcasting.IsActive(); spent {
-			break
-		}
+		bolt.Proc(sim, target)
+		boltSpent = boltSpent || !clearcasting.IsActive()
 	}
-	if !spent {
-		t.Error("an Earth Shock in the instant a Lightning Bolt procced Clearcasting never spent the charge")
+	if !boltSpent {
+		t.Error("a Lightning Bolt in the instant a Lightning Bolt overload procced Clearcasting never spent the charge")
 	}
 }

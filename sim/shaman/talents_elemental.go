@@ -122,7 +122,7 @@ func (shaman *Shaman) applyElementalFocus() {
 		aura.SetStacks(sim, aura.MaxStacks)
 	}
 	config.OnCastComplete = func(aura *core.Aura, sim *core.Simulation, spell *core.Spell) {
-		if !consumes.Reaches(spell) || (spell.ActionID.SpellID == procSpellID && sim.CurrentTime == procTime) {
+		if !consumes.Reaches(spell) || (spell.SpellID == procSpellID && sim.CurrentTime == procTime) {
 			return
 		}
 		aura.RemoveStack(sim)
@@ -133,7 +133,12 @@ func (shaman *Shaman) applyElementalFocus() {
 	// The row rolls its own 10%. The tooltip limits it to Fire, Frost and Nature damage spells.
 	trigger := spelldata.ProcTrigger(&shaman.Character, spellData.ElementalFocus.Highest(),
 		func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-			procSpellID, procTime = spell.ActionID.SpellID, sim.CurrentTime
+			procSpellID, procTime = spell.SpellID, sim.CurrentTime
+			// A Lightning Bolt overload launches at the bolt's impact, after the bolt's cast has
+			// completed, so no cast of that instant keeps the charge.
+			if spell.Matches(SpellMaskLightningBoltOverload) {
+				procSpellID = 0
+			}
 			clearcastingAura.Activate(sim)
 		})
 	trigger.Name = "Elemental Focus - Trigger"
@@ -149,9 +154,16 @@ func (shaman *Shaman) applyElementalFocus() {
 	// A Lightning Overload's launch rolls once too, since Elemental Focus's row can proc from procs
 	// (EV-0137). No cast listener hears an overload, so its launch calls the trigger's cast listener.
 	triggerAura := shaman.MakeProcTriggerAura(trigger)
-	shaman.rollElementalFocus = func(sim *core.Simulation, overload *core.Spell) {
-		triggerAura.OnCastComplete(triggerAura, sim, overload)
-	}
+	shaman.OnSpellRegistered(func(spell *core.Spell) {
+		if !spell.Matches(SpellMaskOverload) {
+			return
+		}
+		applyEffects := spell.ApplyEffects
+		spell.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			applyEffects(sim, target, spell)
+			triggerAura.OnCastComplete(triggerAura, sim, spell)
+		}
+	})
 }
 
 func (shaman *Shaman) applyElementalAlacrity() {

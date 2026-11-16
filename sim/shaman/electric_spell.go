@@ -19,14 +19,6 @@ func (shaman *Shaman) registerWithOverloads(ranks, overloads spelldata.Ladder, n
 	ranks.Each(func(_ int32, rank *spelldata.Spell) {
 		overloadConfig := newConfig(overloads.Rank(rank.RankNumber()), nil)
 		overloadConfig.ActionID = core.ActionID{SpellID: rank.ID, Tag: CastTagLightningOverload}
-		// The launch rolls Elemental Focus, as a cast does.
-		applyEffects := overloadConfig.ApplyEffects
-		overloadConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-			applyEffects(sim, target, spell)
-			if shaman.rollElementalFocus != nil {
-				shaman.rollElementalFocus(sim, spell)
-			}
-		}
 		overload := shaman.RegisterSpell(overloadConfig)
 		shaman.RegisterSpell(newConfig(rank, overload))
 	})
