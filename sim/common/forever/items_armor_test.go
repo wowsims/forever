@@ -131,6 +131,92 @@ func TestZealotPlateRestoresManaOnMeleeHitsTakenAndRests(t *testing.T) {
 	}
 }
 
+// Argent Defender 13243's 17350 rolls its ProcChance on each landed melee hit taken from an Undead,
+// and on one from any other attacker the column divided by its second effect's value. Each case
+// counts the procs of many hits on a row copy that rests no cooldown, within five standard deviations
+// of the count.
+func TestArgentDefenderIsLikelierWhenUndeadStrike(t *testing.T) {
+	row := editSpellRow(t, 17350, func(s *spelldata.Spell) { s.ICDMs = 0 })
+	column, factor := row.StatedChance(), row.EffectN(2).BasePoints
+	if column <= 0 || factor <= 1 {
+		t.Fatalf("17350 states a chance of %v and a factor of %v, want a chance and a factor above 1 to tell the two apart", column, factor)
+	}
+
+	for _, attacker := range []struct {
+		mobType proto.MobType
+		want    float64
+	}{{proto.MobType_MobTypeUndead, column}, {proto.MobType_MobTypeHumanoid, column / factor}} {
+		t.Run(attacker.mobType.String(), func(t *testing.T) {
+			sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 13243)
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			enemy.MobType = attacker.mobType
+			buff := character.GetAuraByID(core.ActionID{SpellID: 17351})
+			if buff == nil {
+				t.Fatal("13243 registers no 17351 buff")
+			}
+			const hits = 8000
+			procs := 0
+			for range hits {
+				takeHit(t, sim, character, meleeSwing(enemy))
+				if buff.IsActive() {
+					procs++
+					buff.Deactivate(sim)
+				}
+			}
+
+			if spread := 5 * math.Sqrt(hits*attacker.want*(1-attacker.want)); math.Abs(float64(procs)-hits*attacker.want) > spread {
+				t.Errorf("%d of %d landed melee hits taken procced it, want %v within %v", procs, hits, hits*attacker.want, spread)
+			}
+		})
+	}
+}
+
+// Argent Defender 13243 raises the block chance by 17351's amount when a melee hit taken lands, and
+// nothing on a spell taken. It then rests for 17350's cooldown. The row copy procs on every hit.
+func TestArgentDefenderRaisesBlockAndRests(t *testing.T) {
+	editSpellRow(t, 17350, func(s *spelldata.Spell) {
+		s.ProcChance = 100
+		s.EffectN(2).BasePoints = 1
+	})
+	block := float64(spelldata.MustFind(17351).EffectN(1).BasePoints)
+	cooldown := spelldata.MustFind(17350).ICD()
+	if block <= 0 || cooldown <= 0 {
+		t.Fatalf("17351 raises the block chance by %v and 17350 rests %v, want both", block, cooldown)
+	}
+	sim, character := itemWearer(t, proto.Class_ClassWarrior, proto.ItemSlot_ItemSlotOffHand, 13243)
+	enemy := sim.Encounter.ActiveTargetUnits[0]
+	buff := character.GetAuraByID(core.ActionID{SpellID: 17351})
+	if buff == nil {
+		t.Fatal("13243 registers no 17351 buff")
+	}
+
+	takeHit(t, sim, character, fireSpell(enemy))
+	if buff.IsActive() {
+		t.Error("a spell hit taken raised the block chance, want nothing")
+	}
+	start := sim.CurrentTime
+	before := character.GetStats()
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if got := gained(character, before, stats.BlockPercent); !buff.IsActive() || !statNear(got, block) {
+		t.Errorf("a melee hit taken raised the block chance by %v, want the row's %v", got, block)
+	}
+	buff.Deactivate(sim)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if buff.IsActive() {
+		t.Error("a melee hit taken inside the cooldown raised the block chance, want nothing")
+	}
+	// stepTo stops after 10,000 steps, fewer than the sim takes to cross the whole cooldown, so the
+	// cooldown is crossed in 10 s legs.
+	for at := start + 10*time.Second; at < start+cooldown; at += 10 * time.Second {
+		stepTo(t, sim, at)
+	}
+	stepTo(t, sim, start+cooldown)
+	takeHit(t, sim, character, meleeSwing(enemy))
+	if !buff.IsActive() {
+		t.Error("a melee hit taken as the cooldown ends raised no block chance")
+	}
+}
+
 // Black Grasp of the Destroyer 22194 restores 29471's mana on each landed melee or ranged hit, and
 // nothing on a spell; a wearer without mana registers nothing.
 func TestBlackGraspOfTheDestroyerRestoresManaPerHit(t *testing.T) {

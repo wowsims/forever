@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 717.16176
+  tps: 621.10354
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 829.69547

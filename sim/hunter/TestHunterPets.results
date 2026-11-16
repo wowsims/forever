@@ -110,6 +110,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 738.10278
+  tps: 474.5652
+  dtps: 4.33851
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 763.84945

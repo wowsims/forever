@@ -281,6 +281,14 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
+	// Measured on a sword-and-board warrior's weapon hits; the owner rounds it to 1 (EV-0125).
+	{
+		ItemID:  13246,
+		SpellID: 17352,
+		PPM:     1,
+		Reason:  "Argent Avenger: no proc row",
+		Source:  "EV-0125",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,

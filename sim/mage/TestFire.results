@@ -82,6 +82,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFire-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 802.54436
+  tps: 801.47616
+ }
+}
+dps_results: {
  key: "TestFire-AllItems-Atiesh,GreatstaffoftheGuardian-22589"
  value: {
   dps: 933.60769

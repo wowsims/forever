@@ -499,6 +499,13 @@ var Spells = []Override{
 		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
 		Source:  "EV-0115",
 	},
+	{
+		SpellID: 17350,
+		Field:   ProcChancePct,
+		Value:   3,
+		Reason:  "Argent Defender: the owner's 3% on each landed melee hit taken from an Undead, outside the 20 s cooldown, and half that from any other attacker; column reads 100, tooltip says 'Has a chance when struck'",
+		Source:  "EV-0125",
+	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
 	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says

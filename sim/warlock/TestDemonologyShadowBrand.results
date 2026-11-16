@@ -90,6 +90,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 723.15724
+  tps: 615.06489
+  dtps: 10.45093
+  hps: 7.74233
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 764.43425
