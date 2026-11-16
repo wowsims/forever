@@ -30,7 +30,7 @@ export const TALENTS_COMBAT_SS = {
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '005203002-3203130202012321351-005',
+		talentsString: '005303002-3203030202012321351-005',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
