@@ -1,5 +1,5 @@
 import { APLRotation } from '@generated/proto/apl';
-import { Cooldowns, Spec } from '@generated/proto/common';
+import { Cooldowns, EquipmentSpec, Spec } from '@generated/proto/common';
 import { Warlock_Rotation, WarlockRotation } from '@generated/proto/warlock';
 import type { Player } from '@sim/player/player';
 import { describe, expect, it } from 'vitest';
@@ -9,6 +9,11 @@ import DemoFireBrandBuildJson from './builds/demo_fire_brand.build.json';
 import DemoShadowBrandBuildJson from './builds/demo_shadow_brand.build.json';
 import DestroBuildJson from './builds/destro.build.json';
 import SmRuinBuildJson from './builds/sm_ruin.build.json';
+import AffWrackGearJson from './gear_sets/aff_wrack.gear.json';
+import DemoFireBrandGearJson from './gear_sets/demo_fire_brand.gear.json';
+import DemoShadowBrandGearJson from './gear_sets/demo_shadow_brand.gear.json';
+import DestroGearJson from './gear_sets/destro.gear.json';
+import SmRuinGearJson from './gear_sets/sm_ruin.gear.json';
 import spec from './spec';
 
 // The generator reads nothing from the player.
@@ -18,6 +23,8 @@ const generate = (simple: Partial<Warlock_Rotation>) =>
 	APLRotation.toJson(
 		spec.simpleRotation!(player, Warlock_Rotation.create({ rotation: WarlockRotation.WarlockRotationDemoFireBrand, ...simple }), Cooldowns.create()),
 	);
+
+const gearOf = (json: unknown) => EquipmentSpec.fromJson(json as any);
 
 const buildRotation = (json: { player: { rotation: unknown } }) => APLRotation.toJson(APLRotation.fromJson(json.player.rotation as any));
 
@@ -58,5 +65,17 @@ describe('Warlock simple rotation', () => {
 	it('casts only the trainer ranks by default', () => {
 		const rotation = generate({ rotation: WarlockRotation.WarlockRotationDemoShadowBrand });
 		expect([25307, 25309, 25311].map(id => count(rotation, id))).toEqual([0, 0, 0]);
+	});
+});
+
+describe('Warlock builds', () => {
+	it.each([
+		['demo_fire_brand', DemoFireBrandBuildJson, DemoFireBrandGearJson],
+		['demo_shadow_brand', DemoShadowBrandBuildJson, DemoShadowBrandGearJson],
+		['destro', DestroBuildJson, DestroGearJson],
+		['sm_ruin', SmRuinBuildJson, SmRuinGearJson],
+		['aff_wrack', AffWrackBuildJson, AffWrackGearJson],
+	])('%s holds the gear of its gear set', (_name, build, gear) => {
+		expect(gearOf(build.player.equipment)).toEqual(gearOf(gear));
 	});
 });
