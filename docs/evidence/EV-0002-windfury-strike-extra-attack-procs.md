@@ -1,5 +1,9 @@
 # EV-0002: Windfury Totem's strike after the 2026-11-14 hotfix
 
+EV-0127 replaces the white rates of Thrash Blade and Hack and Slash below and the reading that the strike procs them at
+about twice their white rate: those white rates mix both hands' swings, and per main-hand hit the strike procs them at
+the white chance. The rest stands.
+
 - Claim: after the 2026-11-14 02:00 UTC hotfix Windfury Totem's strike takes armor and the 100 ms cooldown, and
   extra attack procs and the Seals of Command, Fury, Righteousness and Wisdom proc off it; an Execute rolls the totem from
   its cast attack and again from its landed damage; Sweeping Strikes' copied hit 12723 never rolls it and its normalized hit

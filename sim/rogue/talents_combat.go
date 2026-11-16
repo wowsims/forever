@@ -272,8 +272,7 @@ func (rogue *Rogue) registerHackAndSlash() {
 		}
 	}
 
-	// Windfury Totem's strike rolls it (EV-0002).
-	// TODO: Ingame test needed: why the strike brings a swing about twice as often as a white swing does.
+	// Windfury Totem's strike rolls it at a main-hand hit's chance (EV-0002, EV-0127).
 	var extraAttack *core.Spell
 	swordAura := rogue.MakeProcTriggerAura(core.ProcTrigger{
 		Name:               "Hack and Slash (Axe/Sword)",
