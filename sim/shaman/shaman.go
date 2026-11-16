@@ -108,6 +108,9 @@ type Shaman struct {
 
 	// The cast that stood the totem in each element's slot, indexed like TotemExpirations; its aura is RelatedSelfBuff.
 	TotemSpells [4]*core.Spell
+
+	// Rolls Elemental Focus for a Lightning Overload's launch; nil without the talent.
+	rollElementalFocus func(sim *core.Simulation, overload *core.Spell)
 }
 
 // Implemented by each Shaman spec.
@@ -167,8 +170,8 @@ func (shaman *Shaman) OnEncounterStart(sim *core.Simulation) {
 	shaman.startShieldProcPeriodicAction(sim)
 }
 
-// The chance is the talent's ranked dummy, 3/7/10, which the tooltip of 408438 reads as $m1; the
-// effect's base points, 30, are what the talent's ranks replace.
+// The chance is the talent's ranked dummy, 10/20/30 (the logs fit rank 3, EV-0137), which the tooltip
+// of 408438 reads as $m1; the effect's base points, 30, are what the talent's ranks replace.
 func (shaman *Shaman) GetOverloadChance() float64 {
 	return spellData.LightningOverload.FractionAt(shaman.Talents.LightningOverload)
 }
