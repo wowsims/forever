@@ -299,6 +299,24 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Argent Avenger: no proc row; a log fit not yet validated (EV-0126)",
 		Source:  "observed",
 	},
+	// Fitted from logs on every landed melee hit, triggered hits included; the owner rounds it to 1.2
+	// (EV-0132). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  647,
+		SpellID: 17152,
+		PPM:     1.2,
+		Reason:  "Destiny: no proc row; a log fit not yet validated (EV-0132)",
+		Source:  "observed",
+	},
+	// Fitted from one wearer's landed melee hits; the owner rounds it to 1 (EV-0132). The "observed"
+	// Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  1263,
+		SpellID: 17148,
+		PPM:     1,
+		Reason:  "Brain Hacker: no proc row; a log fit not yet validated (EV-0132)",
+		Source:  "observed",
+	},
 	{
 		ItemID:  12798,
 		SpellID: 16928,
