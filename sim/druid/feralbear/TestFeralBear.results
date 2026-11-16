@@ -822,10 +822,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FeralheartRaiment"
  value: {
-  dps: 504.48937
-  tps: 2546.08753
-  dtps: 372.01818
-  hps: 87.77371
+  dps: 506.8599
+  tps: 2538.80519
+  dtps: 439.84502
+  hps: 81.14793
  }
 }
 dps_results: {

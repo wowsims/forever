@@ -1613,10 +1613,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 777.88823
-  tps: 813.64828
-  dtps: 7.09646
-  hps: 37.00667
+  dps: 740.10909
+  tps: 774.28888
+  dtps: 7.02942
+  hps: 35.88833
  }
 }
 dps_results: {

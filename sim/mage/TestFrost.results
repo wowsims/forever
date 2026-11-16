@@ -1149,8 +1149,8 @@ dps_results: {
 dps_results: {
  key: "TestFrost-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 768.56791
-  tps: 710.53495
+  dps: 746.44466
+  tps: 690.70144
  }
 }
 dps_results: {

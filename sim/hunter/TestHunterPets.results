@@ -142,6 +142,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sBoots-226903"
+ value: {
+  dps: 699.97483
+  tps: 484.05309
+  dtps: 4.30809
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sCap-226887"
  value: {
   dps: 698.96312
@@ -158,6 +166,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sGloves-226902"
+ value: {
+  dps: 700.18253
+  tps: 482.17472
+  dtps: 4.12388
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-Beastmaster'sHelm-226901"
+ value: {
+  dps: 698.18043
+  tps: 486.00707
+  dtps: 4.12205
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Beastmaster'sTreads-226881"
  value: {
   dps: 701.30166
@@ -168,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 658.30837
-  tps: 445.87189
-  dtps: 3.38255
+  dps: 654.09943
+  tps: 442.44082
+  dtps: 3.61082
  }
 }
 dps_results: {

@@ -1802,10 +1802,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 772.5692
-  tps: 630.61505
-  dtps: 4.55194
-  hps: 23.12544
+  dps: 810.16603
+  tps: 658.56187
+  dtps: 2.88248
+  hps: 22.98243
  }
 }
 dps_results: {
