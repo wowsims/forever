@@ -983,6 +983,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 707.03703
+  tps: 655.48099
+  dtps: 8.647
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-HeartoftheScale-13164"
  value: {
   dps: 707.03703
