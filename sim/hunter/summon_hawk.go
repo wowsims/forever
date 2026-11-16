@@ -125,8 +125,10 @@ func (hunter *Hunter) pets() []*core.Pet {
 	return pets
 }
 
-// The dive's damage, then a hawk for 18 s. The hawks take turns, so one past the count replaces
-// the one with the least time left.
+// The dive's damage, then a hawk for 18 s. The dive flies the row's minimum of 1 s at any distance
+// in range, and the hawk appears as it lands and swings at once, on a fresh swing timer when it
+// replaces another (EV-0127). The hawks take turns, so one past the count replaces the one with the
+// least time left.
 func (hunter *Hunter) registerSummonHawk() {
 	if !hunter.Talents.SummonHawk {
 		return
@@ -136,14 +138,18 @@ func (hunter *Hunter) registerSummonHawk() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := summonHawkBaseDamage + summonHawkAPShare*spell.RangedAttackPower(target)
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedCritOnly)
-		spell.DealDamageAfterTravel(sim, result)
+		spell.DealCastResult(sim, result)
+		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
+			spell.DealDamage(sim, result)
 
-		hawk := hunter.Hawks[hunter.nextHawk]
-		hunter.nextHawk = (hunter.nextHawk + 1) % len(hunter.Hawks)
-		if hawk.IsEnabled() {
-			hawk.Disable(sim)
-		}
-		hawk.EnableWithTimeout(sim, hawk, hawkSummon.Duration())
+			hawk := hunter.Hawks[hunter.nextHawk]
+			hunter.nextHawk = (hunter.nextHawk + 1) % len(hunter.Hawks)
+			if hawk.IsEnabled() {
+				hawk.Disable(sim)
+			}
+			hawk.EnableWithTimeout(sim, hawk, hawkSummon.Duration())
+			hawk.AutoAttacks.StopMeleeUntil(sim, sim.CurrentTime-hawk.AutoAttacks.MainhandSwingSpeed())
+		})
 	}
 
 	hunter.RegisterSpell(config)

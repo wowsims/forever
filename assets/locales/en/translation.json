@@ -645,10 +645,16 @@
 			"unvalidated_rate": {
 				"ppm_vanilla": "In-game validation needed. Currently using Vanilla PPM values",
 				"ppm_tbc": "In-game validation needed. Currently using TBC PPM values",
-				"ppm_unknown": "In-game validation needed. Currently using an estimated proc rate",
+				"ppm_observed": "In-game validation needed. Currently using an observed non-final proc rate",
 				"chance_vanilla": "In-game validation needed. Currently using a Vanilla proc chance",
 				"chance_tbc": "In-game validation needed. Currently using a TBC proc chance",
-				"chance_unknown": "In-game validation needed. Currently using an estimated proc chance"
+				"chance_observed": "In-game validation needed. Currently using an observed non-final proc chance",
+				"ppm_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc rate of {{rate}} PPM.",
+				"ppm_tbc_rate": "In-game validation needed. Currently using a TBC proc rate of {{rate}} PPM.",
+				"ppm_observed_rate": "In-game validation needed. Currently using an observed non-final rate of {{rate}} PPM.",
+				"chance_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc chance of {{rate}}%.",
+				"chance_tbc_rate": "In-game validation needed. Currently using a TBC proc chance of {{rate}}%.",
+				"chance_observed_rate": "In-game validation needed. Currently using an observed non-final chance of {{rate}}%."
 			},
 			"not_yet_implemented": "Not yet implemented",
 			"not_fully_supported": "Not fully supported:",
@@ -2189,6 +2195,10 @@
 					"label": "Excess Energy",
 					"tooltip": "Your current Energy minus what you need to keep for your upcoming Rip and Rake refreshes, after counting the Energy you will regenerate before each one. Spend on a builder only while it covers the builder's cost."
 				},
+				"hunter_active_hawks": {
+					"label": "Active Hawks",
+					"tooltip": "How many of your hawks are up, from 0 to 2. A hawk counts from the moment your Summon Hawk dive lands, 1 second after the cast."
+				},
 				"dot_is_active_on_all_targets": {
 					"label": "Dot Is Active On All Targets",
 					"tooltip": "<b>True</b> if the specified dot is currently ticking on all targets, otherwise <b>False</b>."
@@ -2375,6 +2385,7 @@
 				"sequences": "Sequences",
 				"misc": "Misc",
 				"feral_druid": "Feral Druid",
+				"hunter": "Hunter",
 				"shaman": "Shaman",
 				"warlock": "Warlock",
 				"mage": "Mage",
@@ -3658,7 +3669,8 @@
 				"damage": "Damage",
 				"crit_damage": "Critical Strike Damage",
 				"effect_damage": "×{{factor}} damage",
-				"effect_restore": "×{{factor}} restored"
+				"effect_restore": "×{{factor}} restored",
+				"effect_proc_chance": "×{{factor}} proc chance"
 			},
 			"tooltip": {
 				"base": "Base:",
