@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bashguuder-13204"
  value: {
-  dps: 760.76815
-  tps: 565.95596
+  dps: 760.34107
+  tps: 565.65273
   hps: 46.24139
  }
 }
@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BlackMenace-6831"
  value: {
-  dps: 723.48709
-  tps: 539.43844
+  dps: 723.38357
+  tps: 539.36494
   hps: 46.15667
  }
 }
@@ -296,8 +296,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 721.40272
-  tps: 537.95748
+  dps: 721.24857
+  tps: 537.84804
   hps: 46.15667
  }
 }
@@ -744,8 +744,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 739.09039
-  tps: 550.57201
+  dps: 739.20332
+  tps: 550.65493
   hps: 46.25833
  }
 }
@@ -792,8 +792,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 729.569
-  tps: 543.77728
+  dps: 729.42784
+  tps: 543.67705
   hps: 46.24139
  }
 }
@@ -904,9 +904,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GutRipper-2164"
  value: {
-  dps: 734.01273
-  tps: 546.93868
-  hps: 46.12278
+  dps: 733.61542
+  tps: 546.65765
+  hps: 46.13972
  }
 }
 dps_results: {
@@ -920,8 +920,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 745.64057
-  tps: 555.20068
+  dps: 745.48106
+  tps: 555.08743
   hps: 46.12278
  }
 }

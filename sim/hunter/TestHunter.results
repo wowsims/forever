@@ -227,8 +227,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BlackMenace-6831"
  value: {
-  dps: 731.26912
-  tps: 753.66449
+  dps: 730.88147
+  tps: 753.27685
   dtps: 8.37186
   hps: 14.89417
  }
@@ -434,9 +434,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BrushCutter-274265"
  value: {
-  dps: 791.16624
-  tps: 813.50969
-  dtps: 8.92713
+  dps: 791.40784
+  tps: 813.81269
+  dtps: 8.94197
   hps: 14.65694
  }
 }
@@ -506,9 +506,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 729.4362
-  tps: 751.80361
-  dtps: 8.66459
+  dps: 729.0981
+  tps: 751.48839
+  dtps: 8.64056
   hps: 14.89417
  }
 }
@@ -1181,8 +1181,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 748.04036
-  tps: 769.53759
+  dps: 747.98672
+  tps: 769.48395
   dtps: 9.05799
   hps: 14.65694
  }
@@ -1262,10 +1262,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 749.77403
-  tps: 772.1924
-  dtps: 8.71751
-  hps: 14.58917
+  dps: 749.48814
+  tps: 771.93097
+  dtps: 8.80126
+  hps: 14.55528
  }
 }
 dps_results: {
@@ -1343,10 +1343,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 756.00547
-  tps: 778.43381
-  dtps: 8.80071
-  hps: 14.69083
+  dps: 757.23733
+  tps: 779.65256
+  dtps: 8.79678
+  hps: 14.67389
  }
 }
 dps_results: {
@@ -1361,8 +1361,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HanzoSword-8190"
  value: {
-  dps: 731.95614
-  tps: 754.53019
+  dps: 731.87885
+  tps: 754.4529
   dtps: 8.9188
   hps: 14.96194
  }
@@ -1424,9 +1424,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 780.06837
-  tps: 802.53915
-  dtps: 8.78773
+  dps: 780.39543
+  tps: 802.86982
+  dtps: 8.78422
   hps: 14.72472
  }
 }
@@ -1577,9 +1577,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 749.76787
-  tps: 771.32635
-  dtps: 8.6108
+  dps: 748.94984
+  tps: 770.42847
+  dtps: 8.48819
   hps: 14.65694
  }
 }
@@ -1910,8 +1910,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Rivenspike-13286"
  value: {
-  dps: 826.62361
-  tps: 849.12263
+  dps: 826.07743
+  tps: 848.57644
   dtps: 8.99531
   hps: 14.38583
  }
@@ -1991,9 +1991,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 777.10619
-  tps: 799.5439
-  dtps: 8.88566
+  dps: 776.94304
+  tps: 799.32668
+  dtps: 8.7939
   hps: 14.67389
  }
 }

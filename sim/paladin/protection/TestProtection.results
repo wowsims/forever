@@ -146,8 +146,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bashguuder-13204"
  value: {
-  dps: 414.59221
-  tps: 991.60098
+  dps: 414.56856
+  tps: 991.56952
   dtps: 340.69081
   hps: 21.99389
  }
@@ -353,9 +353,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-BrushCutter-274265"
  value: {
-  dps: 403.65538
-  tps: 955.23559
-  dtps: 337.30951
+  dps: 402.85478
+  tps: 952.71142
+  dtps: 337.40147
   hps: 16.87667
  }
 }
@@ -947,8 +947,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 410.27408
-  tps: 980.42236
+  dps: 410.57119
+  tps: 980.80764
   dtps: 337.15917
   hps: 21.14667
  }
@@ -1082,10 +1082,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 405.20679
-  tps: 972.97908
-  dtps: 337.68475
-  hps: 20.79083
+  dps: 405.77028
+  tps: 974.48789
+  dtps: 337.7749
+  hps: 20.74
  }
 }
 dps_results: {
@@ -1163,10 +1163,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 404.48063
-  tps: 967.61788
-  dtps: 341.50216
-  hps: 20.53667
+  dps: 405.56559
+  tps: 972.00374
+  dtps: 342.35127
+  hps: 20.55361
  }
 }
 dps_results: {
@@ -1181,9 +1181,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 413.72653
-  tps: 980.72714
-  dtps: 338.56886
+  dps: 413.29324
+  tps: 979.60534
+  dtps: 338.50925
   hps: 19.96056
  }
 }
@@ -1208,9 +1208,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
-  dps: 416.27784
-  tps: 1009.82297
-  dtps: 344.44401
+  dps: 416.20109
+  tps: 1010.0237
+  dtps: 344.54307
   hps: 25.33194
  }
 }
@@ -1271,9 +1271,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 420.66925
-  tps: 987.54365
-  dtps: 351.17107
+  dps: 421.02454
+  tps: 989.29756
+  dtps: 351.18339
   hps: 20.51972
  }
 }
@@ -1514,8 +1514,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 414.11877
-  tps: 989.12624
+  dps: 413.32759
+  tps: 987.70286
   dtps: 341.14678
   hps: 22.07861
  }
@@ -1874,8 +1874,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Rivenspike-13286"
  value: {
-  dps: 401.44769
-  tps: 948.48657
+  dps: 401.38892
+  tps: 948.40841
   dtps: 338.98398
   hps: 16.50389
  }
@@ -1973,9 +1973,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 395.5845
-  tps: 946.27776
-  dtps: 334.68104
+  dps: 395.23708
+  tps: 945.03465
+  dtps: 334.93922
   hps: 17.87639
  }
 }

@@ -3739,14 +3739,14 @@ export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: '
 
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[809, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Bloodrazor
-	[810, { kind: 'ppm', rate: 4.6, origin: 'observed' }], // Hammer of the Northern Wind
+	[810, { kind: 'ppm', rate: 4.55, origin: 'observed' }], // Hammer of the Northern Wind
 	[870, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Fiery War Axe
-	[934, { kind: 'ppm', rate: 1.35, origin: 'observed' }], // Stalvan's Reaper
+	[934, { kind: 'ppm', rate: 1.4, origin: 'observed' }], // Stalvan's Reaper
 	[937, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Black Duskwood Staff
 	[1263, { kind: 'ppm', rate: 1, origin: 'observed' }], // Brain Hacker
 	[1265, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Scorpion Sting
 	[1318, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Night Reaver
-	[1481, { kind: 'ppm', rate: 2.2, origin: 'observed' }], // Grimclaw
+	[1481, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Grimclaw
 	[1726, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Poison-tipped Bone Spear
 	[1727, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Sword of Decay
 	[2163, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Shadowblade
@@ -3754,11 +3754,9 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[2256, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Skeletal Club
 	[2291, { kind: 'ppm', rate: 1, origin: 'observed' }], // Kang the Decapitator
 	[2299, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Burning War Axe
-	[2825, { kind: 'ppm', rate: 5.4, origin: 'observed' }], // Bow of Searing Arrows
 	[2912, { kind: 'ppm', rate: 1, origin: 'observed' }], // Claw of the Shadowmancer
 	[2915, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Taran Icebreaker
 	[2942, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Iron Knuckles
-	[3078, { kind: 'ppm', rate: 2.2, origin: 'observed' }], // Naga Heartpiercer
 	[3194, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Black Malice
 	[4090, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Mug O' Hurt
 	[5197, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Cookie's Tenderizer
@@ -3767,34 +3765,31 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[6469, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Venomstrike
 	[6622, { kind: 'ppm', rate: 1.8, origin: 'vanilla' }], // Sword of Zeal
 	[6660, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Julie's Dagger
-	[6681, { kind: 'ppm', rate: 3.85, origin: 'observed' }], // Thornspike
-	[6831, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Black Menace
+	[6681, { kind: 'ppm', rate: 3.75, origin: 'observed' }], // Thornspike
+	[6831, { kind: 'ppm', rate: 2, origin: 'observed' }], // Black Menace
 	[6909, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Strike of the Hydra
 	[7710, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Loksey's Training Stick
 	[7730, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Cobalt Crusher
 	[7753, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Bloodspiller
 	[7961, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Phantom Blade
-	[8006, { kind: 'ppm', rate: 3.7, origin: 'observed' }], // The Ziggler
-	[8190, { kind: 'ppm', rate: 1.25, origin: 'observed' }], // Hanzo Sword
+	[8006, { kind: 'ppm', rate: 3.6, origin: 'observed' }], // The Ziggler
+	[8190, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Hanzo Sword
 	[8708, { kind: 'ppm', rate: 2, origin: 'observed' }], // Hammer of Expertise
 	[9379, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Sang'thraze the Deflector
-	[9412, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Galgann's Fireblaster
-	[9446, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Electrocutioner Leg
-	[9467, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Gahz'rilla Fang
+	[9467, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Gahz'rilla Fang
 	[9485, { kind: 'ppm', rate: 1, origin: 'observed' }], // Vibroblade
 	[9486, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Supercharger Battle Axe
 	[9651, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Gryphon Rider's Stormhammer
-	[10567, { kind: 'ppm', rate: 2.9, origin: 'observed' }], // Quillshooter
 	[10758, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // X'caliboar
-	[10761, { kind: 'ppm', rate: 2.95, origin: 'observed' }], // Coldrage Dagger
-	[10772, { kind: 'ppm', rate: 2.3, origin: 'observed' }], // Glutton's Cleaver
+	[10761, { kind: 'ppm', rate: 2.85, origin: 'observed' }], // Coldrage Dagger
+	[10772, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Glutton's Cleaver
 	[10797, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Firebreather
 	[10803, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Blade of the Wretched
-	[10804, { kind: 'ppm', rate: 3.45, origin: 'observed' }], // Fist of the Damned
+	[10804, { kind: 'ppm', rate: 3.5, origin: 'observed' }], // Fist of the Damned
 	[10805, { kind: 'ppm', rate: 1.65, origin: 'observed' }], // Eater of the Dead
 	[11121, { kind: 'ppm', rate: 3.3, origin: 'observed' }], // Darkwater Talwar
 	[11809, { kind: 'ppm', rate: 5.3, origin: 'observed' }], // Flame Wrath
-	[11902, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Linken's Sword of Mastery
+	[11902, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Linken's Sword of Mastery
 	[12590, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Felstriker
 	[12592, { kind: 'ppm', rate: 1.15, origin: 'observed' }], // Blackblade of Shahram
 	[12777, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blazing Rapier
@@ -3806,29 +3801,29 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12798, { kind: 'ppm', rate: 1, origin: 'tbc' }], // Annihilator
 	[12992, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Searing Blade
 	[13016, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Killmaim
-	[13032, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Sword of Corruption
-	[13035, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Serpent Slicer
+	[13032, { kind: 'ppm', rate: 1, origin: 'observed' }], // Sword of Corruption
+	[13035, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Serpent Slicer
 	[13051, { kind: 'ppm', rate: 1, origin: 'observed' }], // Witchfury
 	[13053, { kind: 'ppm', rate: 0.75, origin: 'vanilla' }], // Doombringer
 	[13054, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Grim Reaper
 	[13060, { kind: 'ppm', rate: 3, origin: 'vanilla' }], // The Needler
-	[13204, { kind: 'ppm', rate: 3.3, origin: 'observed' }], // Bashguuder
-	[13218, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Fang of the Crystal Spider
+	[13204, { kind: 'ppm', rate: 3.2, origin: 'observed' }], // Bashguuder
+	[13218, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Fang of the Crystal Spider
 	[13243, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Argent Defender
 	[13246, { kind: 'ppm', rate: 1, origin: 'observed' }], // Argent Avenger
 	[13285, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // The Blackrock Slicer
-	[13286, { kind: 'ppm', rate: 1.65, origin: 'observed' }], // Rivenspike
+	[13286, { kind: 'ppm', rate: 1.6, origin: 'observed' }], // Rivenspike
 	[13401, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // The Cruel Hand of Timmy
 	[13984, { kind: 'ppm', rate: 2.2, origin: 'observed' }], // Darrowspike
-	[14024, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Frightalon
+	[14024, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Frightalon
 	[14145, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Cursed Felblade
 	[14487, { kind: 'ppm', rate: 1.8, origin: 'observed' }], // Bonechill Hammer
-	[15814, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Hameya's Slayer
+	[15814, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Hameya's Slayer
 	[17073, { kind: 'ppm', rate: 2.1, origin: 'vanilla' }], // Earthshaker
 	[17182, { kind: 'ppm', rate: 0.7, origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
 	[17193, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', rate: 1.5, origin: 'vanilla' }], // Thunderstrike
-	[17738, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Claw of Celebras
+	[17738, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Claw of Celebras
 	[17752, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Satyr's Lash
 	[18324, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Waveslicer
 	[18483, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Mana Channeling Wand
@@ -3844,12 +3839,10 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[21134, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // Dark Edge of Insanity
 	[21670, { kind: 'ppm', rate: 10, origin: 'tbc' }], // Badge of the Swarmguard
 	[269741, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Scented Runewood Brooch
-	[272999, { kind: 'ppm', rate: 3.45, origin: 'observed' }], // Barbaric Crossbow
 	[273819, { kind: 'ppm', rate: 2.8, origin: 'observed' }], // Boneslicer
 	[273841, { kind: 'ppm', rate: 1.75, origin: 'observed' }], // Twilight Maul
-	[274265, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Brush Cutter
+	[274265, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Brush Cutter
 	[274271, { kind: 'ppm', rate: 2, origin: 'observed' }], // Deadhead Blade
-	[274293, { kind: 'ppm', rate: 1, origin: 'observed' }], // Spellsever Crossbow
 	[274484, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Axe of Inevitable Ruin
 	[274952, { kind: 'ppm', rate: 1.75, origin: 'observed' }], // Jom-jom's Gabbar
 	[281665, { kind: 'ppm', rate: 3.15, origin: 'observed' }], // Twilight Forgehammer

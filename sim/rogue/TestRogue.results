@@ -112,8 +112,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bashguuder-13204"
  value: {
-  dps: 624.94113
-  tps: 443.7082
+  dps: 624.79464
+  tps: 443.60419
   hps: 52.29056
  }
 }
@@ -128,8 +128,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BlackMenace-6831"
  value: {
-  dps: 575.2005
-  tps: 408.39236
+  dps: 575.06455
+  tps: 408.29583
   hps: 57.06889
  }
 }
@@ -272,8 +272,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BrushCutter-274265"
  value: {
-  dps: 616.0255
-  tps: 437.3781
+  dps: 616.37564
+  tps: 437.6267
   hps: 46.52944
  }
 }
@@ -296,8 +296,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-ClawofCelebras-17738"
  value: {
-  dps: 590.96413
-  tps: 419.58453
+  dps: 591.12788
+  tps: 419.70079
   hps: 50.13861
  }
 }
@@ -336,8 +336,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 572.27921
-  tps: 406.31824
+  dps: 572.16585
+  tps: 406.23775
   hps: 57.06889
  }
 }
@@ -824,8 +824,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 602.34928
-  tps: 427.66799
+  dps: 602.46278
+  tps: 427.74858
   hps: 51.0875
  }
 }
@@ -880,8 +880,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 580.13968
-  tps: 411.89917
+  dps: 580.16103
+  tps: 411.91433
   hps: 52.29056
  }
 }
@@ -920,9 +920,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 598.23624
-  tps: 424.74773
-  hps: 51.83306
+  dps: 597.86388
+  tps: 424.48335
+  hps: 51.78222
  }
 }
 dps_results: {
@@ -976,17 +976,17 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GutRipper-2164"
  value: {
-  dps: 587.96528
-  tps: 417.45535
-  hps: 52.18889
+  dps: 587.97055
+  tps: 417.45909
+  hps: 52.17194
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 605.22088
-  tps: 429.70682
-  hps: 51.56194
+  dps: 606.69037
+  tps: 430.75016
+  hps: 51.52806
  }
 }
 dps_results: {
@@ -1000,8 +1000,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 612.18793
-  tps: 434.65343
+  dps: 612.408
+  tps: 434.80968
   hps: 49.35917
  }
 }
@@ -1024,9 +1024,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HanzoSword-8190"
  value: {
-  dps: 606.16331
-  tps: 430.37595
-  hps: 58.83111
+  dps: 606.19427
+  tps: 430.39793
+  hps: 58.89889
  }
 }
 dps_results: {
@@ -1088,8 +1088,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-IcebladeHacker-13952"
  value: {
-  dps: 633.60934
-  tps: 449.86263
+  dps: 633.46058
+  tps: 449.75701
   hps: 51.76528
  }
 }
@@ -1216,9 +1216,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Linken'sSwordofMastery-11902"
  value: {
-  dps: 612.64398
-  tps: 434.97723
-  hps: 54.05278
+  dps: 611.94278
+  tps: 434.47938
+  hps: 54.03583
  }
 }
 dps_results: {
@@ -1440,8 +1440,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Rivenspike-13286"
  value: {
-  dps: 635.36496
-  tps: 451.10912
+  dps: 634.98049
+  tps: 450.83615
   hps: 46.00417
  }
 }
@@ -1528,8 +1528,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-SerpentSlicer-13035"
  value: {
-  dps: 603.85937
-  tps: 428.74015
+  dps: 603.81454
+  tps: 428.70832
   hps: 48.32556
  }
 }

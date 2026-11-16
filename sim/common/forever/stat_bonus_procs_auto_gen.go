@@ -3382,7 +3382,7 @@ func RegisterAllProcs() {
 
 	// Launches a bolt of frost at the enemy causing 50 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=13439
-	// trigger 13439 (4.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 13439 (4.55 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 13439, BuffSpellID: 13439, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 810, ItemName: "Hammer of the Northern Wind"},
@@ -3482,7 +3482,7 @@ func RegisterAllProcs() {
 
 	// Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to targets below 25% health
 	// https://www.wowhead.com/forever/spell=18107
-	// trigger 18107 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18107 (1.55 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18107, BuffSpellID: 18107, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2164, ItemName: "Gut Ripper"},
@@ -3546,7 +3546,7 @@ func RegisterAllProcs() {
 
 	// Sends a shadowy bolt at the enemy causing 77 Shadow damage.
 	// https://www.wowhead.com/forever/spell=1293407
-	// trigger 1293407 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1293407 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293407, BuffSpellID: 1293407, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 6831, ItemName: "Black Menace"},
@@ -3586,7 +3586,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target for 75 damage.
 	// https://www.wowhead.com/forever/spell=16405
-	// trigger 16405 (1.25 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16405 (1.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16405, BuffSpellID: 16405, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 8190, ItemName: "Hanzo Sword"},
@@ -3647,7 +3647,7 @@ func RegisterAllProcs() {
 	// Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2 times as much damage to
 	// Aquatic enemies.
 	// https://www.wowhead.com/forever/spell=3742
-	// trigger 3742 (2.15 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 3742 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 3742, BuffSpellID: 3742, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9467, ItemName: "Gahz'rilla Fang - Gahz'rilla Fang"},
@@ -3704,7 +3704,7 @@ func RegisterAllProcs() {
 
 	// Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=1293790
-	// trigger 1293790 (2.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1293790 (2.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293790, BuffSpellID: 1293790, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10761, ItemName: "Coldrage Dagger"},
@@ -3712,7 +3712,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target causing them to bleed for 70 damage over 7s.
 	// https://www.wowhead.com/forever/spell=18075
-	// trigger 18075 (2.3 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18075 (2.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18075, BuffSpellID: 18075, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10772, ItemName: "Glutton's Cleaver"},
@@ -3736,7 +3736,7 @@ func RegisterAllProcs() {
 
 	// Steals 56 life from target enemy.
 	// https://www.wowhead.com/forever/spell=18084
-	// trigger 18084 (3.45 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18084 (3.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18084, BuffSpellID: 18084, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10804, ItemName: "Fist of the Damned"},
@@ -3810,7 +3810,7 @@ func RegisterAllProcs() {
 
 	// Blasts a target for 98 Nature damage.
 	// https://www.wowhead.com/forever/spell=18089
-	// trigger 18089 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18089 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18089, BuffSpellID: 18089, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11902, ItemName: "Linken's Sword of Mastery"},
@@ -3931,7 +3931,7 @@ func RegisterAllProcs() {
 
 	// Poisons target for 8 Nature damage every 2.0 sec for 20s.
 	// https://www.wowhead.com/forever/spell=17511
-	// trigger 17511 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17511 (1.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 17511, BuffSpellID: 17511, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13035, ItemName: "Serpent Slicer"},
@@ -3979,7 +3979,7 @@ func RegisterAllProcs() {
 
 	// Punctures target's armor lowering it by 100. Can be applied up to 3 times.
 	// https://www.wowhead.com/forever/spell=17315
-	// trigger 17315 (3.3 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17315 (3.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17315, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13204, ItemName: "Bashguuder"},
@@ -3987,7 +3987,7 @@ func RegisterAllProcs() {
 
 	// Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.
 	// https://www.wowhead.com/forever/spell=17331
-	// trigger 17331 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17331 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17331, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13218, ItemName: "Fang of the Crystal Spider"},
@@ -4011,7 +4011,7 @@ func RegisterAllProcs() {
 
 	// Punctures target's armor lowering it by 100. Can be applied up to 3 times.
 	// https://www.wowhead.com/forever/spell=17315
-	// trigger 17315 (1.65 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17315 (1.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17315, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13286, ItemName: "Rivenspike"},
@@ -4084,7 +4084,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target causing them to bleed for 80 damage over 30s.
 	// https://www.wowhead.com/forever/spell=16406
-	// trigger 16406 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16406 (1.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16406, BuffSpellID: 16406, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 15814, ItemName: "Hameya's Slayer"},
@@ -4140,7 +4140,7 @@ func RegisterAllProcs() {
 
 	// Poisons target for 13 Nature damage every 1.0 sec for 7s.
 	// https://www.wowhead.com/forever/spell=21952
-	// trigger 21952 (2.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 21952 (2.45 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21952, BuffSpellID: 21952, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 17738, ItemName: "Claw of Celebras"},
@@ -4328,7 +4328,7 @@ func RegisterAllProcs() {
 
 	// Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.
 	// https://www.wowhead.com/forever/spell=1293518
-	// trigger 1293518 (2.25 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1293518 (2.35 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293518, BuffSpellID: 1293518, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 274265, ItemName: "Brush Cutter"},

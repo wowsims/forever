@@ -165,8 +165,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Bashguuder-13204"
  value: {
-  dps: 478.70166
-  tps: 2426.79105
+  dps: 478.62795
+  tps: 2426.44101
   dtps: 395.95949
   hps: 83.03903
  }
@@ -192,8 +192,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-BlackMenace-6831"
  value: {
-  dps: 438.672
-  tps: 2218.50064
+  dps: 438.53453
+  tps: 2218.20508
   dtps: 395.95949
   hps: 83.03903
  }
@@ -381,8 +381,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 435.18706
-  tps: 2206.6789
+  dps: 435.05363
+  tps: 2206.39203
   dtps: 395.95949
   hps: 83.03903
  }
@@ -885,8 +885,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 458.99473
-  tps: 2306.82345
+  dps: 458.99675
+  tps: 2306.82779
   dtps: 394.7583
   hps: 83.15488
  }
@@ -939,8 +939,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Gahz'rillaFang-9467"
  value: {
-  dps: 445.60321
-  tps: 2250.73599
+  dps: 445.26912
+  tps: 2250.01768
   dtps: 395.95949
   hps: 83.03903
  }
@@ -1065,10 +1065,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-GutRipper-2164"
  value: {
-  dps: 450.84331
-  tps: 2275.30354
-  dtps: 398.77928
-  hps: 84.13209
+  dps: 450.04413
+  tps: 2270.53434
+  dtps: 400.18476
+  hps: 84.22263
  }
 }
 dps_results: {
@@ -1083,8 +1083,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HammeroftheNorthernWind-810"
  value: {
-  dps: 468.27761
-  tps: 2352.92313
+  dps: 468.15783
+  tps: 2352.66561
   dtps: 395.95949
   hps: 83.03903
  }
