@@ -167,8 +167,9 @@ var AreaBonuses = []AreaBonus{
 	},
 }
 
-// A factor a row deals or restores against some targets, which only its tooltip names ("Deals $s2
-// times as much damage to Plants"). A target of any of the mob types or families counts.
+// A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
+// $s2 times as much damage to Plants", "Attacks against Dwarves are $s2 times as likely to activate
+// this effect"). A target of any of the mob types or families counts.
 type VersusBonus struct {
 	SpellID     int32
 	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
@@ -288,6 +289,27 @@ var VersusBonuses = []VersusBonus{
 			proto.CreatureFamily_CreatureFamilyFireElemental, proto.CreatureFamily_CreatureFamilyMountainGiant},
 		Reason: "Forging Strike: 'Deals $s2 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants'",
 		Source: "tooltip",
+	},
+	{
+		SpellID:     15600,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDwarf},
+		Reason:      "Hand of Justice: 'Attacks against Dwarves are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1301046,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Fury of Forgewright: 'Attacks against Orcs are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     17350,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Argent Defender: 'Undead that strike you are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
 	},
 }
 

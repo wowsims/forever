@@ -759,10 +759,11 @@ func extraAttackWearer(t *testing.T, itemID int32, rowID int32) (*core.Simulatio
 }
 
 // Checks registerLikelierExtraAttack's rule for an item: on a target of the family it rolls the row's
-// column, on any other target the column divided by the factor. Each case counts the procs of many
+// column, on any other target the column divided by the factor, and states that chance against its
+// current target. Each case counts the procs of many
 // landed melee hits, within five standard deviations of the count. The row rests no cooldown, so every
 // hit rolls.
-func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto.CreatureFamily) {
+func expectLikelierAgainst(t *testing.T, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	t.Helper()
 	row := editSpellRow(t, rowID, func(s *spelldata.Spell) { s.ICDMs = 0 })
 	column, factor := float64(row.ProcChance)/100, row.EffectN(2).BasePoints
@@ -778,6 +779,13 @@ func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto
 			sim, character, procs := extraAttackWearer(t, itemID, rowID)
 			enemy := character.CurrentTarget
 			enemy.CreatureFamily = target.family
+			trigger := character.GetAura(name)
+			if trigger == nil || trigger.Dpm == nil {
+				t.Fatalf("%d registers no proc on a chance manager", itemID)
+			}
+			if got := trigger.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); math.Abs(got-target.want) > 1e-9 {
+				t.Errorf("the stated chance against the current target is %v, want %v", got, target.want)
+			}
 			swing := meleeSwing(&character.Unit)
 			const hits = 40000
 			for range hits {
@@ -795,7 +803,7 @@ func expectLikelierAgainst(t *testing.T, itemID int32, rowID int32, family proto
 // Hand of Justice 11815 rolls 15600's ProcChance on each landed melee hit on a Dwarf, and on any other
 // target the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
 func TestHandOfJusticeIsLikelierAgainstDwarves(t *testing.T) {
-	expectLikelierAgainst(t, 11815, 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+	expectLikelierAgainst(t, 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
 }
 
 // Hand of Justice 11815 grants nothing on a landed melee hit inside 15600's cooldown after a proc, and

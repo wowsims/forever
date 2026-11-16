@@ -311,18 +311,13 @@ func init() {
 	// procs per minute an override puts on the row are priced on the attacker's time between its own
 	// swings at the hit, slows included: its main hand's interval, or both hands together when it
 	// dual-wields. An attacker with no melee auto attack has no interval and never procs it. The row's
-	// second effect, a dummy, is the tooltip's "2 times" when an Undead strikes (EV-0126).
+	// versus bonus is the tooltip's "2 times" when an Undead strikes (EV-0126).
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			row := spelldata.MustFind(17350)
-			undead := row.EffectN(2).BasePoints
+			undead := shared.ItemVersusBonus(character, 13243, proto.VersusEffectKind_VersusEffectKindProcChance, row)
 			trigger.ProcChance = 0
-			trigger.DPM = character.NewAttackerSwingPPMManager(float64(row.RPPM), trigger.ProcMask, func(attacker *core.Unit) float64 {
-				if attacker.MobType == proto.MobType_MobTypeUndead {
-					return undead
-				}
-				return 1
-			})
+			trigger.DPM = character.NewAttackerSwingPPMManager(float64(row.RPPM), trigger.ProcMask, undead.Against)
 		}},
 		[]shared.ItemVariant{
 			{ItemID: 13243, ItemName: "Argent Defender"},

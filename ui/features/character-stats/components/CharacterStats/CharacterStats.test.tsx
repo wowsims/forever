@@ -482,6 +482,7 @@ describe('CharacterStats bonuses against a kind of target', () => {
 		{ label: 'Against Humanoid', lines: [...attackPower('+18'), ['Critical Strike Damage', '+3%']] },
 		{ label: 'Against Undead', lines: attackPower('+99') },
 		{ label: 'Against Earth Elemental', lines: [['Fist of Stone', '×3 restored']] },
+		{ label: 'Against Dwarf', lines: [['Hand of Justice', '×3 proc chance']] },
 		{ label: 'Against Dinosaur', lines: [["Bolt's Charged Eyeball", '×3 damage']] },
 		{ label: 'Against Serpentine', lines: [serpentbane] },
 	];

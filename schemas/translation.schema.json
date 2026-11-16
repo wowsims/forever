@@ -12492,10 +12492,13 @@
 								},
 								"effect_restore": {
 									"type": "string"
+								},
+								"effect_proc_chance": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore"]
+							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore", "effect_proc_chance"]
 						},
 						"tooltip": {
 							"type": "object",

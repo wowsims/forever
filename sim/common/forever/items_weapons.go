@@ -1,6 +1,7 @@
 package forever
 
 import (
+	"fmt"
 	"slices"
 	"time"
 
@@ -389,7 +390,7 @@ func init() {
 	// chance against an Orc and its second effect, a dummy, is the "2 times as likely".
 	// Logs fit that reading: half the column against other targets, the column against Orcs (EV-0119).
 	core.NewItemEffect(11684, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
+		registerLikelierExtraAttack(agent.GetCharacter(), 11684, "Ironfoe", 1301046)
 	})
 
 	// Naga Heartpiercer
@@ -538,45 +539,27 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 	return 0
 }
 
-// An item's extra attack proc whose row states the chance against one creature family in its
-// ProcChance column, and on its second effect how many times likelier a hit on that family is than
-// one on any other target. The extra attack is the spell the row's first effect triggers. A hit on
-// the family rolls the row's column and a hit on any other target the column divided by the second
-// effect.
-func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
+// An item's extra attack proc whose row states the chance against its versus targets in its
+// ProcChance column, and in its versus bonus how many times likelier a hit on them is than one on any
+// other target. The extra attack is the spell the row's first effect triggers. A hit on a versus
+// target rolls the row's column and a hit on any other target the column divided by the factor.
+func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32) {
 	row := spelldata.MustFind(rowID)
 	extraAttacks := row.EffectN(1).Trigger()
 
 	trigger := spelldata.ProcTrigger(character, row, nil)
 	trigger.Name = name
 	trigger.ActionID = core.ActionID{ItemID: itemID}
-	likelierProc(rowID, name, func(_ *core.Spell, result *core.SpellResult) bool {
-		return result.Target.CreatureFamily == family
-	})(character, &trigger)
+	likelier := shared.ItemVersusBonus(character, itemID, proto.VersusEffectKind_VersusEffectKindProcChance, row)
+	if likelier == nil {
+		panic(fmt.Sprintf("%d states no versus bonus for %s's likelier targets", rowID, name))
+	}
+	trigger.ProcChance = 0
+	trigger.DPM = character.NewTargetScaledChanceManager(row.StatedChance()/likelier.Multiplier, trigger.ProcMask, likelier.Against)
 	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 	aura := character.MakeProcTriggerAura(trigger)
 	aura.ApplyOnInit(onInit)
 	character.ItemSwap.RegisterProc(itemID, aura)
-}
-
-// The roll of a row whose ProcChance column is the chance on the hits likelier picks out and whose
-// second effect, a dummy, says how many times likelier those are: any other hit rolls the column
-// divided by it. The condition draws that one roll per hit under the item's name, so the trigger's
-// own chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
-func likelierProc(rowID int32, name string, likelier func(spell *core.Spell, result *core.SpellResult) bool) spelldata.ProcOpt {
-	return func(_ *core.Character, trigger *core.ProcTrigger) {
-		row := spelldata.MustFind(rowID)
-		factor := row.EffectN(2).BasePoints
-		elsewhere := row.StatedChance() / factor
-		trigger.ProcChance = 1
-		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
-			chance := elsewhere
-			if likelier(spell, result) {
-				chance *= factor
-			}
-			return sim.Proc(chance, name)
-		}
-	}
 }
 
 // The factor an effect applies against the creature families it names, and 1 against any other

@@ -52,16 +52,16 @@ func (dpm *DynamicProcManager) chanceFor(procMask ProcMask, sim *Simulation) (fl
 // without one.
 type hitDynamicProc interface {
 	DynamicProc
-	ChanceOn(sim *Simulation, spell *Spell) float64
+	ChanceOn(sim *Simulation, spell *Spell, result *SpellResult) float64
 }
 
 // The chance for this hit from the entry its proc mask matches, asked about the hit itself when the
 // entry prices on it, and whether any entry hears it.
-func (dpm *DynamicProcManager) chanceOn(sim *Simulation, spell *Spell) (float64, bool) {
+func (dpm *DynamicProcManager) chanceOn(sim *Simulation, spell *Spell, result *SpellResult) (float64, bool) {
 	for i, m := range dpm.procMasks {
 		if m.Matches(spell.ProcMask) {
 			if hit, ok := dpm.procChances[i].(hitDynamicProc); ok {
-				return hit.ChanceOn(sim, spell), true
+				return hit.ChanceOn(sim, spell, result), true
 			}
 			return dpm.procChances[i].Chance(sim), true
 		}
@@ -94,7 +94,7 @@ func (ap attackerSwingProc) Chance(_ *Simulation) float64 {
 	}
 	return ap.chanceAgainst(ap.character.CurrentTarget)
 }
-func (ap attackerSwingProc) ChanceOn(_ *Simulation, spell *Spell) float64 {
+func (ap attackerSwingProc) ChanceOn(_ *Simulation, spell *Spell, _ *SpellResult) float64 {
 	return ap.chanceAgainst(spell.Unit)
 }
 func (ap attackerSwingProc) Proc(sim *Simulation, label string) bool {
@@ -108,6 +108,35 @@ func (ap attackerSwingProc) chanceAgainst(attacker *Unit) float64 {
 		interval = 1 / (1/interval + 1/attacks.OffhandSwingSpeed().Seconds())
 	}
 	return ap.ppm * interval / 60 * ap.scale(attacker)
+}
+
+// A fixed chance per hit, multiplied by scale for the hit's target. Read without a hit, the chance is
+// the one against the wearer's current target.
+func (character *Character) NewTargetScaledChanceManager(chance float64, procMask ProcMask, scale func(target *Unit) float64) *DynamicProcManager {
+	return &DynamicProcManager{
+		procMasks:   []ProcMask{procMask},
+		procChances: []DynamicProc{targetScaledProc{character: character, chance: chance, scale: scale}},
+	}
+}
+
+type targetScaledProc struct {
+	character *Character
+	chance    float64
+	scale     func(target *Unit) float64
+}
+
+func (tp targetScaledProc) Reset() {}
+func (tp targetScaledProc) Chance(_ *Simulation) float64 {
+	if tp.character.CurrentTarget == nil {
+		return 0
+	}
+	return tp.chance * tp.scale(tp.character.CurrentTarget)
+}
+func (tp targetScaledProc) ChanceOn(_ *Simulation, _ *Spell, result *SpellResult) float64 {
+	return tp.chance * tp.scale(result.Target)
+}
+func (tp targetScaledProc) Proc(sim *Simulation, label string) bool {
+	return sim.Proc(tp.Chance(sim), label)
 }
 
 // PPMManager for static ProcMasks
