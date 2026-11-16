@@ -110,9 +110,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-ArgentDefender-13243"
  value: {
-  dps: 397.17822
-  tps: 949.33026
-  dtps: 348.95436
+  dps: 397.59378
+  tps: 950.87255
+  dtps: 348.49158
   hps: 18.19833
  }
 }
