@@ -91,19 +91,19 @@ func TestRogue(t *testing.T) {
 			Class:         proto.Class_ClassRogue,
 			Race:          proto.Race_RaceHuman,
 			OtherRaces:    []proto.Race{proto.Race_RaceOrc},
-			GearSet:       core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1_muti"),
+			GearSet:       core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "muti"),
 			OtherGearSets: []core.GearSetCombo{
 				//core.GetGearSet("../../ui/specs/rogue/dps/gear_sets", "p1"),
 			},
 			Talents: DefaultTalents,
 			OtherTalentSets: []core.TalentsCombo{
 				{
-					Label:   "Subtlety BS",
-					Talents: "005303202-3203-0352330313210011",
+					Label:   "Combat SS",
+					Talents: "00530320201-3200132202012321551",
 				},
 				{
-					Label:   "Asn Muti",
-					Talents: "00530320251511031-30230322000103",
+					Label:   "Mutilate",
+					Talents: "00530311231251031-32030302020103-001",
 				},
 			},
 			Consumables: DefaultConsumables,
@@ -140,7 +140,7 @@ var DefaultOptions = &proto.Player_Rogue{
 	},
 }
 
-var DefaultTalents = "005303202014-3203032201012321501"
+var DefaultTalents = "00530301-320003-305230031321001151"
 
 var DefaultConsumables = &proto.ConsumesSpec{
 	FlaskId:         274274, // Flask of Natural Aggression
