@@ -8,9 +8,9 @@
 - Sources: public reports on forever.warcraftlogs.com, the fights whose combatant info lists the item on the wearer.
   Argent Avenger: ZfbY6RgWjx9hmpGz fights 1, 4, 9, 12, 13; 1z4vRDqGdM2cVPXk fight 1; Lpr76Vd3DbKWZqnh fights 1, 3;
   QHXdBJRj2GPpC3n1 fight 1; QxGpKz7knDvjWmYb fight 31; VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 116;
-  9zxHaWbYT3gqDQvF fight 17; z6LMfrpbwhyVCAJK fight 16; RGnyYzMgqCNdVwkT fight 21, left out below. Argent Defender:
-  VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107; 7tLY1pVK9wRWPABX fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6
-  fights 1 to 8.
+  9zxHaWbYT3gqDQvF fight 17; z6LMfrpbwhyVCAJK fight 16; RGnyYzMgqCNdVwkT fight 21, left out below. Argent Defender,
+  where a fight with no gear record counts too: VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107; 7tLY1pVK9wRWPABX
+  fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8.
 - Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
 - Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
 - Pull request: #1052
@@ -106,7 +106,8 @@ swings at the wearer, measured from the logs: the mode of the gaps between its s
 gaps within 12% of it, with swings 100 ms apart merged as extra attacks. 81 of the 106 NPCs with a clean speed swing
 every 2.0 s. Swings within 30 s of the warrior's Thunder Clap slow from 2.0 to 2.4 s and are left out of the speeds.
 16 NPCs dual-wield, told apart by hits that alternate high and low and by gap pairs that sum to one hand's speed.
-Trials whose attacker has no speed (48) are left out of every model, so the models count 85 of the 86 procs.
+The 48 trials whose attacker has no speed, one proc among them, are left out of the wearer table's trials and every
+fit; the wearer table's procs and the table of what rolls count them.
 
 ### Fits
 
@@ -154,16 +155,16 @@ Expected procs under each fitted model, k = 2:
 
 ### What neither model explains
 
-- **Dual-wielding attackers** drew 2 procs in 689 trials. Flat expects 14.0 (P ≤ 1e-4), procs per minute on each
-  hand's speed 12.6 (P = 3e-4), and procs per minute on the attacker's per-swing gap 6.8 (P = 0.03). The last reading
-  fits best of the speed models (β = 1.43 [0.62, 2.40], logL 6.4 above flat), so the speed that matters is the
-  attacker's time between its own swings. The shortfall holds at every damage size and every density of incoming hits.
-- **Pack size.** The chance per hit falls as more attackers hit the wearer: 2.75% with one attacker in the 5 s before
-  the hit, 1.54% with two, 1.32% with three and 1.17% with four or more. As n^η it fits η = -0.50 [-0.90, -0.12] with
-  speed in the model, and -0.35 [-0.78, 0.08] within trash. The time since the wearer's previous hit hardly matters
-  (δ = 0.15 [0.00, 0.30]), which rules out a cap on the wearer's procs per minute. The cause is open.
-- **The wearer.** Per-wearer rates against one pooled rate give p ≈ 0.11 (flat) and 0.22 (procs per minute). The
-  wearers' own weapon speeds run against their rates, so the wearer's swing speed is not the speed that matters.
+- Dual-wielding attackers drew 2 procs in 689 trials. Flat expects 14.0 (P ≤ 1e-4), procs per minute on each hand's
+  speed 12.6 (P = 3e-4), and procs per minute on the attacker's per-swing gap 6.8 (P = 0.03). The last reading fits best
+  of the speed models (β = 1.43 [0.62, 2.40], logL 6.4 above flat), so the speed that matters is the attacker's time
+  between its own swings. The shortfall holds at every damage size and every density of incoming hits.
+- The chance per hit falls as more attackers hit the wearer: 2.75% with one attacker in the 5 s before the hit, 1.54%
+  with two, 1.32% with three and 1.17% with four or more. As n^η it fits η = -0.50 [-0.90, -0.12] with speed in the
+  model, and -0.35 [-0.78, 0.08] within trash. The time since the wearer's previous hit hardly matters (δ = 0.15 [0.00,
+  0.30]), which rules out a cap on the wearer's procs per minute. The cause is open.
+- Per-wearer rates against one pooled rate give p ≈ 0.11 (flat) and 0.22 (procs per minute). The wearers' own weapon
+  speeds run against their rates, which rules out the wearer's swing speed.
 
 The owner rules 0.5 procs per minute on the attacker's swing interval, from the pooled fit, with the Undead factor of
 2 the row states and the 20 s cooldown.
