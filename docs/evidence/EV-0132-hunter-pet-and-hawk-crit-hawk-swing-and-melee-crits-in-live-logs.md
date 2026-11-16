@@ -10,7 +10,7 @@
   counts only reports from 2026-11-12 on, after the 2026-11-10 hotfix had reached every realm. The hotfix each player
   ran and whether they relogged are not recorded.
 - Date: 2026-11-05 to 2026-11-16
-- Pull request: #PRNUM
+- Pull request: #1059
 
 ## Method
 
