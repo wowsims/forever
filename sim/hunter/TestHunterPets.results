@@ -160,9 +160,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BeastmasterArmor"
  value: {
-  dps: 658.23607
-  tps: 445.95281
-  dtps: 4.42885
+  dps: 658.30837
+  tps: 445.87189
+  dtps: 3.38255
  }
 }
 dps_results: {
