@@ -101,8 +101,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(260821) // EZ and SAF Field Transporter: Mt. Hyjal - https://www.wowhead.com/forever/spell=1269339
 	// unsupported: 1270941 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260824) // Gnomish Poultryizer - https://www.wowhead.com/forever/spell=1270941
-	// unsupported: 1296664 deals no damage and heals no one (A_MOD_CHARM)
-	// shared.NewSimpleStatActive(269741) // Scented Runewood Brooch - https://www.wowhead.com/forever/spell=1296664
 	// unsupported: 1295272 deals no damage and heals no one (E_TRIGGER_MISSILE)
 	// shared.NewSimpleStatActive(274761) // Parachute-Priest Pager - https://www.wowhead.com/forever/spell=1295272
 	// unsupported: 1315972 deals no damage and heals no one (A_MOD_STUN, A_MOD_STUN, A_DUMMY)

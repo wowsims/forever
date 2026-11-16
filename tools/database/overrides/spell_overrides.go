@@ -290,6 +290,27 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     3742,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Gahz'rilla Fang: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294430,
+		EffectIndex: 4,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Rage of Sul'thraze: 'This additional Shadow damage deals $s5 times as much damage to Trolls'; Shadow Lash 1294431 deals it",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294339,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Farraki Enforcement: 'Trolls take $s2 times as much damage and stun duration'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1317432,
 		EffectIndex: 1,
 		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental,
@@ -652,6 +673,20 @@ var Spells = []Override{
 		Value:   2,
 		Reason:  "Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
 		Source:  "EV-0133",
+	},
+	{
+		SpellID: 1318323,
+		Field:   PPM,
+		Value:   1.2,
+		Reason:  "Scented Runewood Brooch: 1.2 procs per minute on landed hits against Furbolg, a log fit not yet validated (EV-0136); the game files state none",
+		Source:  "observed",
+	},
+	{
+		SpellID: 450587,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Battlegear of Valor 5-piece, Battlegear of Heroism 4-piece: 1 proc per minute on landed white swings, a log fit not yet validated (EV-0136); the game files state none",
+		Source:  "observed",
 	},
 	{
 		SpellID: 21978,

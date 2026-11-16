@@ -644,6 +644,97 @@ func TestHighborneResearchTabletProcsOnSpellsWhateverTheWeapon(t *testing.T) {
 	}
 }
 
+// Scented Runewood Brooch 269741's 1318323 rolls its row's procs per minute on the main hand's speed
+// for a landed main-hand swing and a landed spell hit alike, and casts 1318324 on the target, but only
+// when the target is a Furbolg. A hit on any other target never casts it.
+func TestScentedRunewoodBroochProcsOnlyAgainstFurbolg(t *testing.T) {
+	sim, character := trinketWarriorWielding(t, 269741, 810, 0)
+	proc := character.GetAura("Scented Runewood Brooch")
+	damage := character.GetSpell(core.ActionID{SpellID: 1318324})
+	if proc == nil || proc.Dpm == nil || damage == nil {
+		t.Fatal("269741 registers no damage spell or no proc on a procs per minute rate")
+	}
+	ppm := float64(spelldata.MustFind(1318323).RPPM)
+	want := ppm * character.AutoAttacks.MH().SwingSpeed / 60
+	if ppm <= 0 || want >= 1 {
+		t.Fatalf("the row's %v procs per minute on the main hand give %v, want a chance between none and certain", ppm, want)
+	}
+	for _, hit := range []struct {
+		name string
+		mask core.ProcMask
+	}{
+		{"main hand swing", core.ProcMaskMeleeMHAuto},
+		{"spell hit", core.ProcMaskSpellDamage},
+	} {
+		if chance := proc.Dpm.Chance(hit.mask, sim); math.Abs(chance-want) > 1e-9 {
+			t.Errorf("the chance on a %s is %v, want the row's procs per minute on the main hand's speed, %v", hit.name, chance, want)
+		}
+	}
+
+	// Every hit now rolls a proc.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMelee|core.ProcMaskSpellDamage)
+	enemy := character.CurrentTarget
+	casts := func() int32 { return damage.SpellMetrics[enemy.UnitIndex].Casts }
+	if enemy.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg {
+		t.Fatal("the target is a Furbolg before the test makes it one")
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	dealHit(t, sim, character, fireSpell(&character.Unit))
+	if got := casts(); got != 0 {
+		t.Errorf("a swing and a spell hit on another target cast it %d times, want none", got)
+	}
+
+	enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if got := casts(); got != 1 {
+		t.Errorf("a swing on a Furbolg cast it %d times, want once", got)
+	}
+	dealHit(t, sim, character, fireSpell(&character.Unit))
+	if got := casts(); got != 2 {
+		t.Errorf("a swing and a spell hit on a Furbolg cast it %d times, want twice", got)
+	}
+}
+
+// Scented Runewood Brooch 269741 rolls its row's procs per minute on a caster's spell hits at the
+// main-hand weapon's speed though the caster never swings it, and a spell hit casts 1318324 only on
+// a Furbolg.
+func TestScentedRunewoodBroochProcsOnACastersSpellsOnTheMainHandsSpeed(t *testing.T) {
+	const slow, fast = 810, 776
+	if core.GetItemByID(slow).SwingSpeed == core.GetItemByID(fast).SwingSpeed {
+		t.Fatal("the two weapons share a speed, want two speeds")
+	}
+	ppm := float64(spelldata.MustFind(1318323).RPPM)
+	for _, weapon := range []int32{slow, fast} {
+		sim, character := wearing(t, proto.Class_ClassWarlock, &proto.Player_Warlock{Warlock: &proto.Warlock{}},
+			map[proto.ItemSlot]int32{proto.ItemSlot_ItemSlotTrinket1: 269741, proto.ItemSlot_ItemSlotMainHand: weapon})
+		if character.AutoAttacks.AutoSwingMelee || character.AutoAttacks.AutoSwingRanged {
+			t.Fatal("the caster stand-in swings, want no auto attacks")
+		}
+		proc := character.GetAura("Scented Runewood Brooch")
+		damage := character.GetSpell(core.ActionID{SpellID: 1318324})
+		if proc == nil || proc.Dpm == nil || damage == nil {
+			t.Fatal("269741 registers no damage spell or no proc on a procs per minute rate")
+		}
+		want := ppm * core.GetItemByID(weapon).SwingSpeed / 60
+		if chance := proc.Dpm.Chance(core.ProcMaskSpellDamage, sim); ppm <= 0 || want >= 1 || math.Abs(chance-want) > 1e-9 {
+			t.Errorf("with %d in the main hand a spell hit rolls %v, want the row's procs per minute on its speed, %v", weapon, chance, want)
+		}
+
+		// Every spell hit now rolls a proc.
+		*proc.Dpm = *character.NewTargetScaledChanceManager(1, core.ProcMaskSpellDamage, func(*core.Unit) float64 { return 1 })
+		enemy := character.CurrentTarget
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+		if got := damage.SpellMetrics[enemy.UnitIndex].Casts; got != 0 {
+			t.Errorf("a spell hit on another target cast it %d times, want none", got)
+		}
+		enemy.CreatureFamily = proto.CreatureFamily_CreatureFamilyFurbolg
+		dealHit(t, sim, character, fireSpell(&character.Unit))
+		if got := damage.SpellMetrics[enemy.UnitIndex].Casts; got != 1 {
+			t.Errorf("a spell hit on a Furbolg cast it %d times, want once", got)
+		}
+	}
+}
+
 // Dormant Heart of the Mountain 249473's 1249118 answers a heal of any rank of Greater Heal, Healing
 // Touch, Healing Wave or Holy Light with 1249119: the row's healing and spell damage for its
 // duration. Another heal, such as Flash of Light, does not.

@@ -124,10 +124,17 @@ func ApplyItemSetClasses(db *WowDatabase) {
 	}
 }
 
+// The Classic set a reissued set's pieces count toward in game, keyed by the reissued set's id. The reissued set's
+// ItemSet row lists item ids no piece carries.
+var ReissuedSetCountsAs = map[int32]int32{
+	1669: 515, // Beastmaster Armor
+}
+
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
 // its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The game
 // files hold no head or chest of the reissued dungeon set 0.5 sets, so the Classic ones complete them. The Classic
-// pieces allow every class, while their quests and the reissued pieces name one.
+// pieces allow every class, while their quests and the reissued pieces name one. A set in ReissuedSetCountsAs then
+// hands its pieces to the Classic set.
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -164,6 +171,11 @@ func DropLowerSameNameSets(db *WowDatabase) {
 					item.ClassAllowlist = slices.Sorted(slices.Values(classes[item.SetName]))
 				}
 			}
+		}
+	}
+	for _, item := range db.Items {
+		if set, ok := ReissuedSetCountsAs[item.SetId]; ok {
+			item.SetId = set
 		}
 	}
 }

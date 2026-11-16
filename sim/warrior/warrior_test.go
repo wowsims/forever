@@ -55,6 +55,11 @@ var protectionOptions = &proto.Player_ProtectionWarrior{
 
 func orcWarriorSim(t *testing.T, gearSet string, talents string) (*core.Simulation, *dps.DpsWarrior) {
 	t.Helper()
+	return orcWarriorSimWith(t, gearSet, talents, &proto.RaidBuffs{})
+}
+
+func orcWarriorSimWith(t *testing.T, gearSet string, talents string, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior) {
+	t.Helper()
 	player := &proto.Player{
 		Name:          "Weapon Scope",
 		Race:          proto.Race_RaceOrc,
@@ -65,7 +70,7 @@ func orcWarriorSim(t *testing.T, gearSet string, talents string) (*core.Simulati
 		Rotation:      core.GetAplRotation("../../ui/specs/warrior/dps/apls", "fury").Rotation,
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
@@ -558,6 +563,34 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 				t.Errorf("Flurry holds %d charges, want %d", got, c.want)
 			}
 		})
+	}
+}
+
+// Windfury Totem's strike uses a Flurry charge as a white swing does, landed or not, and a critical
+// strike sets the charges again.
+func TestWindfuryTotemsStrikeUsesAFlurryCharge(t *testing.T) {
+	for _, c := range []struct {
+		outcome core.HitOutcome
+		want    int32
+	}{
+		{core.OutcomeHit, 2},
+		{core.OutcomeDodge, 2},
+		{core.OutcomeCrit, 3},
+	} {
+		sim, warrior := orcWarriorSimWith(t, "p1_fury", furyTalents, &proto.RaidBuffs{WindfuryTotem: true})
+		flurry := warrior.GetAura("Flurry")
+		strike := warrior.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+		if flurry == nil || strike == nil {
+			t.Fatalf("Flurry %v, Windfury Totem's strike %v; want both registered", flurry, strike)
+		}
+		flurry.Activate(sim)
+		flurry.SetStacks(sim, 3)
+
+		warrior.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
+
+		if got := flurry.GetStacks(); got != c.want {
+			t.Errorf("a strike with outcome %v left Flurry at %d charges, want %d", c.outcome, got, c.want)
+		}
 	}
 }
 

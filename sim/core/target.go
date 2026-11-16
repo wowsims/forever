@@ -155,6 +155,7 @@ type Target struct {
 	Schedule TargetSchedule // Set by the AI that spawns and despawns the target, nil for none.
 
 	executeAt35 time.Duration // When the target reaches 35% health in this iteration.
+	executeAt25 time.Duration // When the target reaches 25% health in this iteration.
 	executeAt20 time.Duration // When the target reaches 20% health in this iteration.
 
 	raidDebuffsLanding PendingAction // Puts the raid's debuffs on at the time ApplyRaidDebuffsAt gave.

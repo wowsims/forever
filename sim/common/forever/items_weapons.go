@@ -7,6 +7,7 @@ import (
 
 	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
+	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
@@ -398,36 +399,34 @@ func init() {
 	//
 	// Chance on hit: Wounds the target for 42 damage. Naga are Stunned for 2 sec.
 	//
-	// TODO: waiting for PPM data
-	//
-	// Pierce Heart rolls on the cast result of a shot that lands, at the shot's release, and strikes
-	// then. 1292647 is physical on the melee table. The stun on Naga is crowd control the sim leaves out.
+	// An Auto Shot or ranged special that lands rolls it at the procs per minute of the item's
+	// chance-on-hit entry, on the bow's speed (EV-0136). The roll comes on the shot's cast result at its
+	// release, and Pierce Heart strikes then. 1292647 is physical on the melee table. The stun on Naga
+	// is crowd control the sim leaves out.
 	// TODO: Ingame test needed: whether a missed shot rolls it too.
-	// core.NewItemEffect(3078, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1292647)
-	// 	damage := row.DamageEffect()
-	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
-	// 	}
-	// 	pierceHeart := character.RegisterSpell(config)
-	//
-	// 	ppm := weaponProcPPM(3078, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		pierceHeart.Cast(sim, result.Target)
-	// 	}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
-	// 		trigger.Callback = core.CallbackOnCastResult
-	// 		trigger.Outcome = core.OutcomeLanded
-	// 		trigger.ProcChance = 0
-	// 		trigger.DPM = character.NewDynamicLegacyProcForWeapon(3078, ppm, 0)
-	// 	})
-	// 	trigger.Name = "Naga Heartpiercer"
-	// 	trigger.ActionID = core.ActionID{ItemID: 3078}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(3078, character.MakeProcTriggerAura(trigger))
-	// })
+	newEntryRateItemEffect(3078, 1292647, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(1292647)
+		damage := row.DamageEffect()
+
+		config := procSpellConfig(character, row)
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit)
+		}
+		pierceHeart := character.RegisterSpell(config)
+
+		trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			pierceHeart.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.Callback = core.CallbackOnCastResult
+			trigger.Outcome = core.OutcomeLanded
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(3078, ppm, 0)
+		})
+		trigger.Name = "Naga Heartpiercer"
+		trigger.ActionID = core.ActionID{ItemID: 3078}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(3078, character.MakeProcTriggerAura(trigger))
+	})
 
 	// White Obsidian Wand
 	// https://www.wowhead.com/forever/item=274425/white-obsidian-wand
@@ -476,41 +475,234 @@ func init() {
 		character.ItemSwap.RegisterProc(274425, character.MakeProcTriggerAura(trigger))
 	})
 
-	// Hammer of Expertise
-	// https://www.wowhead.com/forever/item=8708/hammer-of-expertise
+	// Sul'thraze the Lasher
+	// https://www.wowhead.com/forever/item=9372/sulthraze-the-lasher
 	//
-	// Chance on hit: Deal 112 Fire damage. Deals 3 times as much damage to Earth Elementals, Fire
-	// Elementals, and Mountain Giants.
+	// Chance on hit: Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for
+	// 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage.
 	//
-	// TODO: waiting for PPM data
+	// A landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the target, which deals its damage
+	// once, when its 5 s run out. A Rage that lands while a Shadow Lash is still running puts up no
+	// second one and leaves the running one's time alone (EV-0136). The Lash rolls no hit of its own and
+	// can crit, as its row states. The Trolls factor 1294430 states is the Lash's alone, so the Rage
+	// hands its versus bonus over.
+	shared.DamageProcExtras[9372] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(4).Trigger()
+		lashConfig := procSpellConfig(character, row)
+		lashConfig.VersusBonus, config.VersusBonus = config.VersusBonus, nil
+		lashConfig.Dot = spelldata.DotConfig(row, row.PeriodicDamageEffect())
+		lashConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.Dot(target).Apply(sim)
+		}
+		lash := character.RegisterSpell(lashConfig)
+
+		rage := config.ActionID
+		core.MakePermanent(character.RegisterAura(core.Aura{
+			Label: "Sul'thraze the Lasher - Shadow Lash",
+			OnSpellHitDealt: func(_ *core.Aura, sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				if spell.ActionID == rage && result.Landed() && !lash.Dot(result.Target).IsActive() {
+					lash.Cast(sim, result.Target)
+				}
+			},
+		}))
+	}
+
+	// Pendulum of Doom
+	// https://www.wowhead.com/forever/item=9425/pendulum-of-doom
 	//
-	// 1317432 states Physical on the melee table; the tooltip's Fire is a spell hit.
-	// core.NewItemEffect(8708, func(agent core.Agent) {
-	// 	character := agent.GetCharacter()
-	// 	row := spelldata.MustFind(1317432)
-	// 	damage := row.DamageEffect()
+	// Chance on hit: Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to
+	// targets below 25% health.
 	//
-	// 	config := procSpellConfig(character, row)
-	// 	config.SpellSchool = core.SpellSchoolFire
-	// 	config.DefenseType = core.DefenseTypeMagic
-	// 	config.VersusBonus = shared.ItemVersusBonus(character, 8708, proto.VersusEffectKind_VersusEffectKindDamage, row)
-	// 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-	// 		spell.CalcAndDealDamage(sim, target, damage.DirectAmount(sim), spell.OutcomeMagicHitAndCrit)
-	// 	}
-	// 	forgingStrike := character.RegisterSpell(config)
+	// Fatal Wound 10373 deals the percent its second dummy states more to a target below the health
+	// percent its third states, which the sim's execute phases track. Hits of 1.5 times the plain range
+	// land late in a target's life, but the logs state no health, so the threshold is the row's alone
+	// (EV-0136).
+	shared.DamageProcExtras[9425] = func(_ *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(10373)
+		bonus := 1 + row.EffectN(2).Average()/100
+		health := int32(row.EffectN(3).Average())
+		switch health {
+		case 35, 25, 20:
+		default:
+			panic(fmt.Sprintf("Pendulum of Doom: %d's third effect states %d%% health, which starts no execute phase", row.ID, health))
+		}
+		deal := config.ApplyEffects
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			multiplier := spell.DamageMultiplier
+			if target.IsBelowExecuteHealth(health) {
+				spell.DamageMultiplier *= bonus
+			}
+			deal(sim, target, spell)
+			spell.DamageMultiplier = multiplier
+		}
+	}
+
+	// Flame Wrath
+	// https://www.wowhead.com/forever/item=11809/flame-wrath
 	//
-	// 	ppm := weaponProcPPM(8708, row.ID)
-	// 	trigger := spelldata.ProcTrigger(character, row, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
-	// 		forgingStrike.Cast(sim, result.Target)
-	// 	}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
-	// 		trigger.ProcChance = 0
-	// 		trigger.DPM = character.NewDynamicLegacyProcForWeapon(8708, ppm, 0)
-	// 	})
-	// 	trigger.Name = "Hammer of Expertise"
-	// 	trigger.ActionID = core.ActionID{ItemID: 8708}
-	// 	trigger.TriggerImmediately = true
-	// 	character.ItemSwap.RegisterProc(8708, character.MakeProcTriggerAura(trigger))
-	// })
+	// Chance on hit: Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops
+	// the caster with a Fire Shield for 15s.
+	//
+	// 16559's second effect casts 16560, the tooltip's Fire Shield, on the wearer. The generated damage
+	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
+	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
+	// that strikes the wearer.
+	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
+		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
+		spelldata.ParseEffects(character, shield, row, spelldata.Effects(spelldata.ItemAuraParsedOn(row, spelldata.AuraOnWearer)...))
+		for _, effect := range spelldata.ItemAuraDamageShields(row) {
+			buffs.AttachDamageShield(shield, row.SpellSchool(), effect.Average(), effect.Coeff(), spelldata.DamageShieldHits(row), spelldata.DamageShieldLockout(row))
+		}
+		deal := config.ApplyEffects
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			deal(sim, target, spell)
+			shield.Activate(sim)
+		}
+	}
+
+	// Gahz'rilla Fang
+	// https://www.wowhead.com/forever/item=9467/gahzrilla-fang
+	//
+	// Chance on hit: Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2
+	// times as much damage to Aquatic enemies.
+	//
+	// 3742 deals the percent Static Electricity 1294477 states more for each stack of it on the wearer,
+	// and each proc spends all of them but one (EV-0136).
+	// TODO: Static Electricity builds while the wearer moves, at a rate no row states and the logs do
+	// not settle in time between stacks; measure how far the wearer moves for a stack. Until then the
+	// sim gives no stacks.
+	shared.DamageProcExtras[9467] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(1294477)
+		perStack := row.EffectN(1).Average() / 100
+		static := character.RegisterAura(spelldata.AuraConfig(row))
+		deal := config.ApplyEffects
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			stacks := static.GetStacks()
+			multiplier := spell.DamageMultiplier
+			spell.DamageMultiplier *= 1 + perStack*float64(stacks)
+			deal(sim, target, spell)
+			spell.DamageMultiplier = multiplier
+			if stacks > 1 {
+				static.SetStacks(sim, 1)
+			}
+		}
+	}
+
+	// The Chief's Enforcer
+	// https://www.wowhead.com/forever/item=9477/the-chiefs-enforcer
+	//
+	// Chance on hit: Deal 294 Physical damage and stun for 1.5s. Trolls take 2 times as much damage
+	// and stun duration.
+	//
+	// Every proc also casts 1294340 at the target, which rolls the spell hit table on its own and stuns
+	// for its duration: a dodged, parried or missed strike stuns all the same (EV-0136). A stun-immune
+	// target, a raid boss among them, takes none. The strike's versus factor, Trolls', lengthens the
+	// stun on them as well.
+	shared.DamageProcExtras[9477] = func(character *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(1294340)
+		label := fmt.Sprintf("%s %d", row.Name, row.ID)
+		versus := config.VersusBonus
+		stuns := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
+			if aura := target.GetAura(label); aura != nil {
+				return aura
+			}
+			return target.RegisterStunAura(label, core.ActionID{SpellID: row.ID}, time.Duration(float64(row.Duration())*versus.Against(target)))
+		})
+		stunConfig := procSpellConfig(character, row)
+		if row.IsStun() {
+			stunConfig.Flags |= core.SpellFlagStun
+		}
+		stunConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			if spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit).Landed() {
+				core.ApplyStun(sim, stuns.Get(target))
+			}
+		}
+		stun := character.RegisterSpell(stunConfig)
+		deal := config.ApplyEffects
+		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			deal(sim, target, spell)
+			stun.Cast(sim, target)
+		}
+	}
+
+	// Iceblade Hacker
+	// https://www.wowhead.com/forever/item=13952/iceblade-hacker
+	//
+	// Melee attacks with this weapon deal 41 Frost damage. Chance on hit: Deal an additional 105 Frost
+	// damage and slow movement speed by 50% for 5s.
+	//
+	// The generator keeps one proc per item, so both procs are written here. 1298413 casts 1298414 on
+	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
+	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
+	// the entry states none; its slow is movement the sim leaves out.
+	EntryRateProcs[13952] = 1298416
+	core.NewItemEffect(13952, func(agent core.Agent) {
+		character := agent.GetCharacter()
+
+		chillRow := spelldata.MustFind(1298414)
+		chill := chillRow.DamageEffect()
+		chillConfig := spelldata.SpellConfig(&character.Unit, chillRow, spelldata.Melee(core.ProcMaskEmpty), spelldata.Proc())
+		if chillRow.IsAProc() {
+			chillConfig.Flags |= core.SpellFlagProc
+		}
+		chillConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, chill.DirectAmount(sim), spell.OutcomeMeleeSpecialHitAndCrit))
+		}
+		chillSpell := character.RegisterSpell(chillConfig)
+
+		chillTrigger := spelldata.ProcTrigger(character, spelldata.MustFind(1298413), func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			chillSpell.Cast(sim, result.Target)
+		})
+		chillTrigger.Name = "Iceblade Hacker"
+		chillTrigger.ActionID = core.ActionID{ItemID: 13952}
+		chillTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(13952, character.MakeProcTriggerAura(chillTrigger))
+
+		ppm := weaponProcPPM(13952, 1298416)
+		if ppm == 0 {
+			return
+		}
+		boltRow := spelldata.MustFind(1298416)
+		bolt := boltRow.DamageEffect()
+		boltConfig := procSpellConfig(character, boltRow)
+		boltConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			spell.DealDamageAfterTravel(sim, spell.CalcDamage(sim, target, bolt.DirectAmount(sim), spell.OutcomeMagicHitAndCrit))
+		}
+		frostbolt := character.RegisterSpell(boltConfig)
+
+		boltTrigger := spelldata.ProcTrigger(character, boltRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
+			frostbolt.Cast(sim, result.Target)
+		}, spelldata.WeaponProc(), func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewDynamicLegacyProcForWeapon(13952, ppm, 0)
+		})
+		boltTrigger.Name = "Iceblade Hacker - Frostbolt"
+		boltTrigger.ActionID = core.ActionID{ItemID: 13952}
+		boltTrigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(13952, character.MakeProcTriggerAura(boltTrigger))
+	})
+
+	// Mana Channeling Wand
+	// https://www.wowhead.com/forever/item=18483/mana-channeling-wand
+	//
+	// Chance on hit to restore 65 mana.
+	//
+	// Landed wand shots roll 1302348 at the procs per minute of the item's entry on the wand's speed,
+	// and each proc restores the mana of 1302350, the spell 1302348 fires, not the 65 the tooltip
+	// quotes from 1302348 (EV-0136). A wearer with no mana bar registers nothing.
+	newEntryRateItemEffect(18483, 1302350, func(character *core.Character, ppm float64) {
+		row := spelldata.MustFind(1302348)
+		handler := shared.FiredSpellHandler(character, core.ActionID{ItemID: 18483}, row)
+		if handler == nil {
+			return
+		}
+		trigger := spelldata.ProcTrigger(character, row, handler, spelldata.PPM(ppm))
+		trigger.Name = "Mana Channeling Wand"
+		trigger.ActionID = core.ActionID{ItemID: 18483}
+		trigger.TriggerImmediately = true
+		character.ItemSwap.RegisterProc(18483, character.MakeProcTriggerAura(trigger))
+	})
 }
 
 // The spell each hand-written proc reads its item's procs per minute for, by item id. The generator
