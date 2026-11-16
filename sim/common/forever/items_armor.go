@@ -309,22 +309,11 @@ func init() {
 	//
 	// 17350 rolls on each landed melee hit taken outside its 20 s cooldown. Its ProcChance, which an
 	// override sets, is the chance when an Undead strikes, and its second effect, a dummy, is the "2
-	// times": any other attacker rolls the column divided by it. The condition draws that one roll, so
-	// the trigger's own chance is 1 and the cooldown starts only on a proc (EV-0126).
+	// times": any other attacker rolls the column divided by it (EV-0126).
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351,
-		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
-			row := spelldata.MustFind(17350)
-			factor := row.EffectN(2).BasePoints
-			elsewhere := row.StatedChance() / factor
-			trigger.ProcChance = 1
-			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-				chance := elsewhere
-				if spell.Unit.MobType == proto.MobType_MobTypeUndead {
-					chance *= factor
-				}
-				return sim.Proc(chance, "Argent Defender")
-			}
-		}},
+		Rate: likelierProc(17350, "Argent Defender", func(spell *core.Spell, _ *core.SpellResult) bool {
+			return spell.Unit.MobType == proto.MobType_MobTypeUndead
+		})},
 		[]shared.ItemVariant{
 			{ItemID: 13243, ItemName: "Argent Defender"},
 		})

@@ -542,25 +542,41 @@ func weaponProcPPM(itemID int32, spellID int32) float64 {
 // ProcChance column, and on its second effect how many times likelier a hit on that family is than
 // one on any other target. The extra attack is the spell the row's first effect triggers. A hit on
 // the family rolls the row's column and a hit on any other target the column divided by the second
-// effect; the condition draws that one roll per hit under the item's name, so the trigger's own
-// chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
+// effect.
 func registerLikelierExtraAttack(character *core.Character, itemID int32, name string, rowID int32, family proto.CreatureFamily) {
 	row := spelldata.MustFind(rowID)
 	extraAttacks := row.EffectN(1).Trigger()
-	factor := row.EffectN(2).BasePoints
-	elsewhere := row.StatedChance() / factor
 
 	trigger := spelldata.ProcTrigger(character, row, nil)
 	trigger.Name = name
 	trigger.ActionID = core.ActionID{ItemID: itemID}
-	trigger.ProcChance = 1
-	trigger.ExtraCondition = func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
-		return sim.Proc(elsewhere*creatureFamilyMultiplier(result.Target, factor, family), name)
-	}
+	likelierProc(rowID, name, func(_ *core.Spell, result *core.SpellResult) bool {
+		return result.Target.CreatureFamily == family
+	})(character, &trigger)
 	onInit := character.ExtraAttackProc(&trigger, extraAttacks.ID, int(extraAttacks.ExtraAttacksEffect().BasePoints))
 	aura := character.MakeProcTriggerAura(trigger)
 	aura.ApplyOnInit(onInit)
 	character.ItemSwap.RegisterProc(itemID, aura)
+}
+
+// The roll of a row whose ProcChance column is the chance on the hits likelier picks out and whose
+// second effect, a dummy, says how many times likelier those are: any other hit rolls the column
+// divided by it. The condition draws that one roll per hit under the item's name, so the trigger's
+// own chance is 1 and draws nothing, and the row's cooldown starts only on a proc.
+func likelierProc(rowID int32, name string, likelier func(spell *core.Spell, result *core.SpellResult) bool) spelldata.ProcOpt {
+	return func(_ *core.Character, trigger *core.ProcTrigger) {
+		row := spelldata.MustFind(rowID)
+		factor := row.EffectN(2).BasePoints
+		elsewhere := row.StatedChance() / factor
+		trigger.ProcChance = 1
+		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+			chance := elsewhere
+			if likelier(spell, result) {
+				chance *= factor
+			}
+			return sim.Proc(chance, name)
+		}
+	}
 }
 
 // The factor an effect applies against the creature families it names, and 1 against any other
