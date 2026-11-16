@@ -614,6 +614,13 @@ var WeaponProcs = []WeaponProc{
 		Source:  "vanilla-carryover",
 	},
 	{
+		ItemID:  12590,
+		SpellID: 16551,
+		PPM:     0.6, // TODO: SoD value - verify in-game
+		Reason:  "Felstriker: no proc row",
+		Source:  "vanilla-carryover",
+	},
+	{
 		ItemID:  12777,
 		SpellID: 16898,
 		PPM:     1, // TODO: Vanilla value - verify in-game

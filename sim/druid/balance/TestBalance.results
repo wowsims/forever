@@ -646,6 +646,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Felstriker-12590"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-FeralheartRaiment"
  value: {
   dps: 760.35844
