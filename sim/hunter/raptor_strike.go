@@ -16,7 +16,7 @@ func (hunter *Hunter) registerRaptorStrike() {
 
 	// Predator's Edge reaches Raptor Strike's crit damage bonus twice, compounded: the bonus is
 	// (1 + rank share)² of the base, 2.69x at 5/5. Its spell mod adds the share once; this adds the
-	// rest (EV-0132).
+	// rest (EV-0134).
 	if rank := hunter.Talents.PredatorsEdge; rank > 0 {
 		share := spellData.PredatorsEdge.Rank(rank).EffectN(1).Percent()
 		config.CritMultiplierAdditive += share * (1 + share)

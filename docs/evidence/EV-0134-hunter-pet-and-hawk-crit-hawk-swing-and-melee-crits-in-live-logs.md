@@ -1,4 +1,4 @@
-# EV-0132: Tamed pet and hawk crit, the hawk's swing at level 60, and hunter crit and trap rolls in live logs
+# EV-0134: Tamed pet and hawk crit, the hawk's swing at level 60, and hunter crit and trap rolls in live logs
 
 - Claim: a tamed pet's white swings take none of the crit it inherits from its owner, while its abilities take all of
   it; after the 2026-11-10 hotfix a hawk's swing before armor at level 60 is 0.153 of the creature dps over 2.5 s plus
@@ -12,7 +12,7 @@
   counts only reports from 2026-11-12 on, after the 2026-11-10 hotfix had reached every realm. The hotfix each player
   ran and whether they relogged are not recorded.
 - Date: 2026-11-05 to 2026-11-16
-- Pull request: #1059
+- Pull request: #1060
 
 ## Method
 

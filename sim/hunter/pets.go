@@ -107,7 +107,7 @@ func (hunter *Hunter) NewHunterPet() *HunterPet {
 	})
 
 	// The white swing takes none of the owner's crit the pet inherits; the pet's abilities take all of
-	// it (EV-0132). Each swing takes the current inherited crit back off, by the change since the last.
+	// it (EV-0134). Each swing takes the current inherited crit back off, by the change since the last.
 	whiteSwing := hp.AutoAttacks.MHConfig()
 	applyWhiteSwing := whiteSwing.ApplyEffects
 	inheritedCritTakenOff := 0.0
