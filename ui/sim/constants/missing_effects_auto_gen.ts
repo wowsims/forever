@@ -4,21 +4,9 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
-		809, // Bloodrazor
-		[
-			"Wounds the target causing them to bleed for 155 damage over 15s.", // 17504 - https://www.wowhead.com/forever/spell=17504
-		]
-	],
-	[
 		811, // Axe of the Deep Woods
 		[
 			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
-		]
-	],
-	[
-		869, // Dazzling Longsword
-		[
-			"Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.", // 13752 - https://www.wowhead.com/forever/spell=13752
 		]
 	],
 	[
@@ -118,18 +106,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		2099, // Dwarven Hand Cannon
-		[
-			"Fires a Flaming Cannonball at your target for 49 Fire damage.", // 29639 - https://www.wowhead.com/forever/spell=29639
-		]
-	],
-	[
-		2163, // Shadowblade
-		[
-			"Sends a shadowy bolt at the enemy causing 125 Shadow damage.", // 18138 - https://www.wowhead.com/forever/spell=18138
-		]
-	],
-	[
 		2205, // Duskbringer
 		[
 			"Sends a shadowy bolt at the enemy causing 98 Shadow damage.", // 18217 - https://www.wowhead.com/forever/spell=18217
@@ -145,12 +121,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		2280, // Kam's Walking Stick
 		[
 			"Reduces the duration of all movement impairing effects on you by 10%.", // 1292546 - https://www.wowhead.com/forever/spell=1292546
-		]
-	],
-	[
-		2291, // Kang the Decapitator
-		[
-			"Wounds the target causing them to bleed for 500 damage over 15s.", // 17153 - https://www.wowhead.com/forever/spell=17153
 		]
 	],
 	[
@@ -172,21 +142,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		2915, // Taran Icebreaker
-		[
-			"Hurls a fiery ball that causes 300 Fire damage and an additional 100 damage over 8s.", // 16415 - https://www.wowhead.com/forever/spell=16415
-		]
-	],
-	[
 		2942, // Iron Knuckles
 		[
 			"Pummel the target for 25 damage and interrupt the spell being cast for 5s.", // 13491 - https://www.wowhead.com/forever/spell=13491
-		]
-	],
-	[
-		3078, // Naga Heartpiercer
-		[
-			"Wounds the target for 42 damage. Naga are Stunned for 2s.", // 1292647 - https://www.wowhead.com/forever/spell=1292647
 		]
 	],
 	[
@@ -352,12 +310,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		6831, // Black Menace
-		[
-			"Sends a shadowy bolt at the enemy causing 77 Shadow damage.", // 1293407 - https://www.wowhead.com/forever/spell=1293407
-		]
-	],
-	[
 		6898, // Orb of Soran'ruk
 		[
 			"Restores 48 health every 3.0 sec for 30s.", // 18956 - https://www.wowhead.com/forever/spell=18956
@@ -490,24 +442,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		8708, // Hammer of Expertise
-		[
-			"Deal 112 Fire damage. Deals 3 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants.", // 1317432 - https://www.wowhead.com/forever/spell=1317432
-		]
-	],
-	[
-		9372, // Sul'thraze the Lasher
-		[
-			"Lash the enemy with the rage of Sul'thraze, reducing their attack power by 180 for 15s and dealing 159 Shadow damage. After 5s, the target suffers an additional 159 Shadow damage. This additional Shadow damage deals 2 times as much damage to Trolls.", // 1294430 - https://www.wowhead.com/forever/spell=1294430
-		]
-	],
-	[
-		9379, // Sang'thraze the Deflector
-		[
-			"Increases your chance to Parry attacks by 2% for 9s.", // 1294243 - https://www.wowhead.com/forever/spell=1294243
-		]
-	],
-	[
 		9386, // Excavator's Brand
 		[
 			"Hurls a fiery ball that causes 51 Fire damage and an additional 12 damage over 6s.", // 13438 - https://www.wowhead.com/forever/spell=13438
@@ -532,12 +466,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9412, // Galgann's Fireblaster
-		[
-			"Strike your ranged target with a Fire Blast for 28 Fire damage.", // 29644 - https://www.wowhead.com/forever/spell=29644
-		]
-	],
-	[
 		9419, // Galgann's Firehammer
 		[
 			"Chance on harmful spell cast to blast a target for 77 Fire damage.", // 18083 - https://www.wowhead.com/forever/spell=18083
@@ -552,7 +480,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		9425, // Pendulum of Doom
 		[
-			"Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.", // 10373 - https://www.wowhead.com/forever/spell=10373
 			"Each swing alternates your attack speed between 100% faster and 50% slower.", // 1293881 - https://www.wowhead.com/forever/spell=1293881
 		]
 	],
@@ -590,19 +517,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		9467, // Gahz'rilla Fang
 		[
 			"Movement can generate Static Electricity.", // 1294477 - https://www.wowhead.com/forever/spell=1294477
-			"Deal 84 Nature damage, increased by 2% per stack of Static Electricity. Deals 2 times as much damage to Aquatic enemies.", // 3742 - https://www.wowhead.com/forever/spell=3742
 		]
 	],
 	[
 		9475, // Diabolic Skiver
 		[
 			"Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to targets below 25% health.", // 18206 - https://www.wowhead.com/forever/spell=18206
-		]
-	],
-	[
-		9477, // The Chief's Enforcer
-		[
-			"Deal 294 Physical damage and stun for 1s. Trolls take 2 times as much damage and stun duration.", // 1294339 - https://www.wowhead.com/forever/spell=1294339
 		]
 	],
 	[
@@ -702,51 +622,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		10758, // X'caliboar
-		[
-			"Unleash a mighty swing, dealing 42 Holy damage. Deals 3 times as much damage to Undead and Swine.", // 1293787 - https://www.wowhead.com/forever/spell=1293787
-		]
-	],
-	[
-		10761, // Coldrage Dagger
-		[
-			"Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.", // 1293790 - https://www.wowhead.com/forever/spell=1293790
-		]
-	],
-	[
-		10772, // Glutton's Cleaver
-		[
-			"Wounds the target causing them to bleed for 70 damage over 7s.", // 18075 - https://www.wowhead.com/forever/spell=18075
-		]
-	],
-	[
 		10776, // Silky Spider Cape
 		[
 			"Reduces the duration of all movement impairing effects on you by 7%.", // 1293819 - https://www.wowhead.com/forever/spell=1293819
-		]
-	],
-	[
-		10797, // Firebreather
-		[
-			"Hurls a fiery ball that causes 77 Fire damage and an additional 14 damage over 7s.", // 16413 - https://www.wowhead.com/forever/spell=16413
-		]
-	],
-	[
-		10803, // Blade of the Wretched
-		[
-			"Corrupts the target, causing 90 damage over 3s.", // 18088 - https://www.wowhead.com/forever/spell=18088
-		]
-	],
-	[
-		10804, // Fist of the Damned
-		[
-			"Steals 56 life from target enemy.", // 18084 - https://www.wowhead.com/forever/spell=18084
-		]
-	],
-	[
-		10805, // Eater of the Dead
-		[
-			"Steals 21 life from the target enemy. Deals 3 times as much damage to Undead.", // 1299869 - https://www.wowhead.com/forever/spell=1299869
 		]
 	],
 	[
@@ -804,12 +682,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11809, // Flame Wrath
-		[
-			"Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops the caster with a Fire Shield for 15s.", // 16559 - https://www.wowhead.com/forever/spell=16559
-		]
-	],
-	[
 		11810, // Force of Will
 		[
 			"When struck in combat has a chance to reduce all damage taken by 51 for 10s.", // 15595 - https://www.wowhead.com/forever/spell=15595
@@ -819,12 +691,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11816, // Angerforge's Battle Axe
 		[
 			"Deal 109 Physical damage. Trolls and Orcs take 2 times as much damage and are horrified for 4s.", // 1300783 - https://www.wowhead.com/forever/spell=1300783
-		]
-	],
-	[
-		11817, // Lord General's Sword
-		[
-			"Increases attack power by 84 for 10s.", // 15602 - https://www.wowhead.com/forever/spell=15602
 		]
 	],
 	[
@@ -960,39 +826,15 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13204, // Bashguuder
-		[
-			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
-		]
-	],
-	[
 		13213, // Smolderweb's Eye
 		[
 			"Remove 1 Disarm effect from target ally.", // 1308917 - https://www.wowhead.com/forever/spell=1308917
 		]
 	],
 	[
-		13218, // Fang of the Crystal Spider
-		[
-			"Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.", // 17331 - https://www.wowhead.com/forever/spell=17331
-		]
-	],
-	[
 		13262, // Ashbringer
 		[
 			"Blasts a target for 700 Fire damage.", // 18112 - https://www.wowhead.com/forever/spell=18112
-		]
-	],
-	[
-		13285, // The Blackrock Slicer
-		[
-			"Wounds the target for 100 damage and deals an additional 13 damage every 1.0 sec for 10s.", // 17407 - https://www.wowhead.com/forever/spell=17407
-		]
-	],
-	[
-		13286, // Rivenspike
-		[
-			"Punctures target's armor lowering it by 100. Can be applied up to 3 times.", // 17315 - https://www.wowhead.com/forever/spell=17315
 		]
 	],
 	[
@@ -1026,12 +868,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13401, // The Cruel Hand of Timmy
-		[
-			"Steals 85 life from target enemy.", // 17505 - https://www.wowhead.com/forever/spell=17505
-		]
-	],
-	[
 		13408, // Soul Breaker
 		[
 			"Target enemy loses 10 health and mana every 1.0 sec for 10s.", // 17506 - https://www.wowhead.com/forever/spell=17506
@@ -1062,12 +898,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13952, // Iceblade Hacker
-		[
-			"Deal an additional 105 Frost damage and slow movement speed by 50% for 5s.", // 1298416 - https://www.wowhead.com/forever/spell=1298416
-		]
-	],
-	[
 		13953, // Silent Fang
 		[
 			"Silences an enemy, preventing it from casting spells for 6s.", // 1293654 - https://www.wowhead.com/forever/spell=1293654
@@ -1077,12 +907,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13968, // Eye of the Beast
 		[
 			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
-		]
-	],
-	[
-		13984, // Darrowspike
-		[
-			"Blasts a target for 105 Frost damage.", // 18276 - https://www.wowhead.com/forever/spell=18276
 		]
 	],
 	[
@@ -1119,12 +943,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		14154, // Truefaith Vestments
 		[
 			"Reduces the cooldown of your Fade ability by 2.0 sec.", // 18388 - https://www.wowhead.com/forever/spell=18388
-		]
-	],
-	[
-		14487, // Bonechill Hammer
-		[
-			"Blasts a target for 105 Frost damage.", // 18276 - https://www.wowhead.com/forever/spell=18276
 		]
 	],
 	[
@@ -1284,12 +1102,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17738, // Claw of Celebras
-		[
-			"Poisons target for 13 Nature damage every 1.0 sec for 7s.", // 21952 - https://www.wowhead.com/forever/spell=21952
-		]
-	],
-	[
 		17744, // Heart of Noxxion
 		[
 			"Reduces the duration of all poison effects applied to you by 10%.", // 1294777 - https://www.wowhead.com/forever/spell=1294777
@@ -1297,21 +1109,9 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		17752, // Satyr's Lash
-		[
-			"Sends a shadowy bolt at the enemy causing 70 Shadow damage.", // 1292155 - https://www.wowhead.com/forever/spell=1292155
-		]
-	],
-	[
 		18321, // Energetic Rod
 		[
 			"Chance on landing a damaging spell to restore 48 mana to you.", // 1302191 - https://www.wowhead.com/forever/spell=1302191
-		]
-	],
-	[
-		18324, // Waveslicer
-		[
-			"Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.", // 1302166 - https://www.wowhead.com/forever/spell=1302166
 		]
 	],
 	[
@@ -1366,12 +1166,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18470, // Royal Seal of Eldre'Thalas
 		[
 			"Increases Spirit by 16 in Forest and Grassland areas.", // 1318478 - https://www.wowhead.com/forever/spell=1318478
-		]
-	],
-	[
-		18483, // Mana Channeling Wand
-		[
-			"Chance on hit to restore 65 mana.", // 1302350 - https://www.wowhead.com/forever/spell=1302350
 		]
 	],
 	[
@@ -2107,13 +1901,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		269741, // Scented Runewood Brooch
-		[
-			"Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.", // 1318324 - https://www.wowhead.com/forever/spell=1318324
-			"Charm target Furbolg for 20s. Only works on targets not in combat.", // 1296664 - https://www.wowhead.com/forever/spell=1296664
-		]
-	],
-	[
 		271718, // Linken's Boots of Iron
 		[
 			"", // 1289404 - https://www.wowhead.com/forever/spell=1289404
@@ -2462,18 +2249,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274265, // Brush Cutter
-		[
-			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
-		]
-	],
-	[
-		274271, // Deadhead Blade
-		[
-			"Assault the target with a dangerous toxin, dealing 63 Nature damage. Deals 3 times as much damage to Plants.", // 1293518 - https://www.wowhead.com/forever/spell=1293518
-		]
-	],
-	[
 		274290, // Painwalker Buckler
 		[
 			"17% chance when struck in combat to gain 12 mana per 5 sec for 10s.", // 1293700 - https://www.wowhead.com/forever/spell=1293700
@@ -2492,12 +2267,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		274484, // Axe of Inevitable Ruin
-		[
-			"Wounds the target for 168 damage.", // 1294226 - https://www.wowhead.com/forever/spell=1294226
-		]
-	],
-	[
 		274647, // Farraki Kris
 		[
 			"Chance on harmful spell cast to afflict the target with a draining ritual, leeching 19 health every 2.0 sec for 6s.", // 1294645 - https://www.wowhead.com/forever/spell=1294645
@@ -2508,12 +2277,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		[
 			"Page Everlook Emergency Services for a Parachute-Priest that will assist in healing allies for 15s.", // 1295272 - https://www.wowhead.com/forever/spell=1295272
 			"", // 1318317 - https://www.wowhead.com/forever/spell=1318317
-		]
-	],
-	[
-		274952, // Jom-jom's Gabbar
-		[
-			"Launch a boulder, dealing 98 Physical damage.", // 1295736 - https://www.wowhead.com/forever/spell=1295736
 		]
 	],
 	[
@@ -2643,12 +2406,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		281665, // Twilight Forgehammer
-		[
-			"Blast the target with the fires of a forge, inflicting 51 Fire damage.", // 1312176 - https://www.wowhead.com/forever/spell=1312176
-		]
-	],
-	[
 		282561, // Siegebreaker's Blaster
 		[
 			"Strike the target with a Flaming Shell, inflicting 7 Fire damage every 3 sec for 9 sec.", // 1314040 - https://www.wowhead.com/forever/spell=1314040
@@ -2721,12 +2478,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		286430, // Toofbreaker
-		[
-			"Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.", // 1320269 - https://www.wowhead.com/forever/spell=1320269
-		]
-	],
-	[
 		286556, // Winds of Tanaris
 		[
 			"Slows nearby enemies by 50% for 10s, increased to 80% in Desert areas.", // 1320579 - https://www.wowhead.com/forever/spell=1320579
@@ -2736,12 +2487,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		286646, // Gill's Gills
 		[
 			"Underwater Breath lasts 50% longer than normal.", // 11789 - https://www.wowhead.com/forever/spell=11789
-		]
-	],
-	[
-		286650, // Pyromancer's Baton
-		[
-			"Burns the target for 30 Fire damage every 3.0 sec for 9s.", // 1320925 - https://www.wowhead.com/forever/spell=1320925
 		]
 	],
 	[
@@ -3089,12 +2834,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"When struck in combat, has a 10% chance to remove a Disarm effect from yourself. Can only occur once every 60 sec.", // 1302721 - https://www.wowhead.com/forever/spell=1302721
-				],
-			],
-			[
-				5,
-				[
-					"Chance on melee attack to heal for 110 and generate 10 Rage", // 450587 - https://www.wowhead.com/forever/spell=450587
 				],
 			],
 			[
@@ -3594,12 +3333,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				],
 			],
 			[
-				4,
-				[
-					"Chance on melee attack to heal for 110 and generate 10 Rage", // 450587 - https://www.wowhead.com/forever/spell=450587
-				],
-			],
-			[
 				5,
 				[
 					"When struck in combat, has a 10% chance to remove a Disarm effect from yourself. Can only occur once every 60 sec.", // 1302721 - https://www.wowhead.com/forever/spell=1302721
@@ -3987,31 +3720,56 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'observed' }
 
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
-	[647, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Destiny
-	[754, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Shortsword of Vengeance
-	[810, { kind: 'ppm', rate: 3.5, origin: 'vanilla' }], // Hammer of the Northern Wind
-	[870, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Fiery War Axe
-	[937, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Black Duskwood Staff
+	[809, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Bloodrazor
+	[810, { kind: 'ppm', rate: 4.55, origin: 'observed' }], // Hammer of the Northern Wind
+	[870, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Fiery War Axe
+	[934, { kind: 'ppm', rate: 1.4, origin: 'observed' }], // Stalvan's Reaper
+	[937, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Black Duskwood Staff
 	[1263, { kind: 'ppm', rate: 1, origin: 'observed' }], // Brain Hacker
-	[1481, { kind: 'ppm', rate: 1.25, origin: 'vanilla' }], // Grimclaw
-	[1726, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Poison-tipped Bone Spear
-	[1982, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Nightblade
-	[2164, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Gut Ripper
+	[1265, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Scorpion Sting
+	[1318, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Night Reaver
+	[1481, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Grimclaw
+	[1726, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Poison-tipped Bone Spear
+	[1727, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Sword of Decay
+	[2163, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Shadowblade
 	[2243, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hand of Edward the Odd
-	[2256, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Skeletal Club
-	[2825, { kind: 'ppm', rate: 3.35, origin: 'vanilla' }], // Bow of Searing Arrows
-	[2912, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Claw of the Shadowmancer
-	[2942, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Iron Knuckles
+	[2256, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Skeletal Club
+	[2291, { kind: 'ppm', rate: 1, origin: 'observed' }], // Kang the Decapitator
+	[2299, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Burning War Axe
+	[2912, { kind: 'ppm', rate: 1, origin: 'observed' }], // Claw of the Shadowmancer
+	[2915, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Taran Icebreaker
+	[2942, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Iron Knuckles
+	[3194, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Black Malice
 	[4090, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Mug O' Hurt
+	[5197, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Cookie's Tenderizer
+	[5243, { kind: 'ppm', rate: 3.85, origin: 'observed' }], // Firebelcher
+	[5756, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Sliverblade
 	[6622, { kind: 'ppm', rate: 1.8, origin: 'vanilla' }], // Sword of Zeal
-	[6660, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Julie's Dagger
-	[7730, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Cobalt Crusher
-	[7961, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Phantom Blade
-	[8190, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hanzo Sword
-	[9651, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Gryphon Rider's Stormhammer
-	[11902, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Linken's Sword of Mastery
-	[12590, { kind: 'ppm', rate: 0.6, origin: 'vanilla' }], // Felstriker
-	[12592, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Blackblade of Shahram
+	[6660, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Julie's Dagger
+	[6681, { kind: 'ppm', rate: 3.75, origin: 'observed' }], // Thornspike
+	[6909, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Strike of the Hydra
+	[7710, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Loksey's Training Stick
+	[7730, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Cobalt Crusher
+	[7753, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Bloodspiller
+	[7961, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Phantom Blade
+	[8006, { kind: 'ppm', rate: 3.6, origin: 'observed' }], // The Ziggler
+	[8190, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Hanzo Sword
+	[8708, { kind: 'ppm', rate: 2, origin: 'observed' }], // Hammer of Expertise
+	[9379, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Sang'thraze the Deflector
+	[9485, { kind: 'ppm', rate: 1, origin: 'observed' }], // Vibroblade
+	[9486, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Supercharger Battle Axe
+	[9651, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Gryphon Rider's Stormhammer
+	[10758, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // X'caliboar
+	[10772, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Glutton's Cleaver
+	[10797, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Firebreather
+	[10803, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Blade of the Wretched
+	[10804, { kind: 'ppm', rate: 3.5, origin: 'observed' }], // Fist of the Damned
+	[10805, { kind: 'ppm', rate: 1.65, origin: 'observed' }], // Eater of the Dead
+	[11121, { kind: 'ppm', rate: 3.3, origin: 'observed' }], // Darkwater Talwar
+	[11809, { kind: 'ppm', rate: 5.3, origin: 'observed' }], // Flame Wrath
+	[11902, { kind: 'ppm', rate: 1.95, origin: 'observed' }], // Linken's Sword of Mastery
+	[12590, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Felstriker
+	[12592, { kind: 'ppm', rate: 1.15, origin: 'observed' }], // Blackblade of Shahram
 	[12777, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Arcanite Champion
 	[12792, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Volcanic Hammer
@@ -4019,21 +3777,33 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12795, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blood Talon
 	[12797, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Frostguard
 	[12798, { kind: 'ppm', rate: 1, origin: 'tbc' }], // Annihilator
-	[12992, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Searing Blade
-	[13016, { kind: 'ppm', rate: 0.85, origin: 'vanilla' }], // Killmaim
-	[13032, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sword of Corruption
-	[13035, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Serpent Slicer
-	[13051, { kind: 'ppm', rate: 1.25, origin: 'vanilla' }], // Witchfury
+	[12992, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Searing Blade
+	[13016, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Killmaim
+	[13032, { kind: 'ppm', rate: 1, origin: 'observed' }], // Sword of Corruption
+	[13035, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Serpent Slicer
+	[13051, { kind: 'ppm', rate: 1, origin: 'observed' }], // Witchfury
 	[13053, { kind: 'ppm', rate: 0.75, origin: 'vanilla' }], // Doombringer
-	[13054, { kind: 'ppm', rate: 0.87, origin: 'vanilla' }], // Grim Reaper
+	[13054, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Grim Reaper
 	[13060, { kind: 'ppm', rate: 3, origin: 'vanilla' }], // The Needler
+	[13204, { kind: 'ppm', rate: 3.2, origin: 'observed' }], // Bashguuder
+	[13218, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Fang of the Crystal Spider
 	[13243, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Argent Defender
 	[13246, { kind: 'ppm', rate: 1, origin: 'observed' }], // Argent Avenger
-	[15814, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hameya's Slayer
+	[13285, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // The Blackrock Slicer
+	[13286, { kind: 'ppm', rate: 1.6, origin: 'observed' }], // Rivenspike
+	[13401, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // The Cruel Hand of Timmy
+	[13984, { kind: 'ppm', rate: 2.2, origin: 'observed' }], // Darrowspike
+	[14024, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Frightalon
+	[14145, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Cursed Felblade
+	[14487, { kind: 'ppm', rate: 1.8, origin: 'observed' }], // Bonechill Hammer
+	[15814, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Hameya's Slayer
 	[17073, { kind: 'ppm', rate: 2.1, origin: 'vanilla' }], // Earthshaker
 	[17182, { kind: 'ppm', rate: 0.7, origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
 	[17193, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', rate: 1.5, origin: 'vanilla' }], // Thunderstrike
+	[17738, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Claw of Celebras
+	[18324, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Waveslicer
+	[18483, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Mana Channeling Wand
 	[19019, { kind: 'ppm', rate: 6, origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', rate: 1.4, origin: 'vanilla' }], // Glacial Blade
 	[19100, { kind: 'ppm', rate: 1.4, origin: 'vanilla' }], // Electrified Dagger
@@ -4045,6 +3815,16 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[19324, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // The Lobotomizer
 	[21134, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // Dark Edge of Insanity
 	[21670, { kind: 'ppm', rate: 10, origin: 'tbc' }], // Badge of the Swarmguard
+	[269741, { kind: 'ppm', rate: 1.2, origin: 'observed' }], // Scented Runewood Brooch
+	[273819, { kind: 'ppm', rate: 2.8, origin: 'observed' }], // Boneslicer
+	[273841, { kind: 'ppm', rate: 1.75, origin: 'observed' }], // Twilight Maul
+	[274265, { kind: 'ppm', rate: 2.35, origin: 'observed' }], // Brush Cutter
+	[274271, { kind: 'ppm', rate: 2, origin: 'observed' }], // Deadhead Blade
+	[274484, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Axe of Inevitable Ruin
+	[274952, { kind: 'ppm', rate: 1.75, origin: 'observed' }], // Jom-jom's Gabbar
+	[281665, { kind: 'ppm', rate: 3.15, origin: 'observed' }], // Twilight Forgehammer
+	[285332, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Puncturing Spear
+	[286650, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Pyromancer's Baton
 ])
 
 export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
@@ -4060,9 +3840,21 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 	[
+		189, // Battlegear of Valor
+		new Map([
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
 		1676, // Darkmantle Armor
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+		]),
+	],
+	[
+		1778, // Battlegear of Heroism
+		new Map([
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 ])

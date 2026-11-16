@@ -152,7 +152,7 @@ func (unit *Unit) EnableRageBar(options RageBarOptions) {
 			var weapon *Weapon
 
 			switch {
-			case spell.ProcMask == ProcMaskMeleeMHAuto, spell.Flags.Matches(SpellFlagSwingRage):
+			case spell.ProcMask == ProcMaskMeleeMHAuto, spell.Flags.Matches(SpellFlagCountsAsSwing):
 				weapon = unit.AutoAttacks.MH()
 			case spell.ProcMask == ProcMaskMeleeOHAuto:
 				// OH hits generate 50% of the rage they would if they were MH hits

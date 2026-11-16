@@ -157,6 +157,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Bashguuder-13204"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-BehemothBones-280065"
  value: {
   dps: 868.92475
@@ -170,6 +178,14 @@ dps_results: {
   dps: 826.30948
   tps: 837.19759
   dtps: 5.52896
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-BlackMenace-6831"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -226,6 +242,14 @@ dps_results: {
   dps: 874.69611
   tps: 885.40343
   dtps: 5.11008
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-BonechillHammer-14487"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -301,6 +325,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
   dps: 871.77882
@@ -322,6 +354,22 @@ dps_results: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Darrowspike-13984"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -654,6 +702,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Felstriker-12590"
  value: {
   dps: 844.95638
@@ -718,6 +774,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-FistoftheDamned-10804"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-FlameSearedSignet-282080"
  value: {
   dps: 887.81633
@@ -763,6 +827,14 @@ dps_results: {
   dps: 898.40883
   tps: 909.3563
   dtps: 5.45381
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -871,6 +943,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-GutRipper-2164"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-HammerofExpertise-8708"
  value: {
   dps: 844.95638
   tps: 855.89566
@@ -1031,6 +1111,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestBalance-AllItems-Ironfoe-11684"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Jom-jom'sGabbar-274952"
  value: {
   dps: 844.95638
   tps: 855.89566
@@ -1310,6 +1398,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Pyromancer'sBaton-286650"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-RaggedJohn'sNeverendingCup-15873"
  value: {
   dps: 868.92475
@@ -1358,6 +1454,22 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-ScentedRunewoodBrooch-269741"
+ value: {
+  dps: 868.92475
+  tps: 879.84881
+  dtps: 5.35885
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-SealoftheDawn-13209"
  value: {
   dps: 868.92475
@@ -1387,6 +1499,14 @@ dps_results: {
   dps: 873.67647
   tps: 884.5071
   dtps: 5.23757
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-Shadowblade-2163"
+ value: {
+  dps: 852.5998
+  tps: 863.52399
+  dtps: 5.1059
  }
 }
 dps_results: {
@@ -1534,11 +1654,35 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-TaranIcebreaker-2915"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 826.30948
+  tps: 837.19759
+  dtps: 5.52896
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-TheCruelHandofTimmy-13401"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {
@@ -1638,11 +1782,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-Toofbreaker-286430"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-ToySoldier-274386"
  value: {
   dps: 868.92475
   tps: 879.84881
   dtps: 5.35885
+ }
+}
+dps_results: {
+ key: "TestBalance-AllItems-TwilightForgehammer-281665"
+ value: {
+  dps: 844.95638
+  tps: 855.89566
+  dtps: 5.42761
  }
 }
 dps_results: {

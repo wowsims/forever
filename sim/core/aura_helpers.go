@@ -43,6 +43,7 @@ type ProcTrigger struct {
 	Callback           AuraCallback
 	ProcMask           ProcMask
 	ProcMaskExclude    ProcMask
+	HearsCountedSwings bool // A hit flagged SpellFlagCountsAsSwing that the mask would not hear reaches it, and the manager, as a main-hand auto attack.
 	SpellFlags         SpellFlag
 	SpellFlagsExclude  SpellFlag
 	Outcome            HitOutcome
@@ -125,13 +126,25 @@ func (config *ProcTrigger) matchesSpell(spell *Spell) bool {
 	if config.ClassSpellsOnly && spell.ClassSpellMask == 0 && spell.ClassFlags.IsZero() {
 		return false
 	}
-	if config.ProcMaskExclude != ProcMaskUnknown && spell.ProcMask.Matches(config.ProcMaskExclude) {
+	procMask := config.procMaskOf(spell)
+	if config.ProcMaskExclude != ProcMaskUnknown && procMask.Matches(config.ProcMaskExclude) {
 		return false
 	}
-	if config.ProcMask != ProcMaskUnknown && !spell.ProcMask.Matches(config.ProcMask) {
+	if config.ProcMask != ProcMaskUnknown && !procMask.Matches(config.ProcMask) {
 		return false
 	}
 	return true
+}
+
+// The proc mask the listener hears a hit with: a counted swing its mask would not hear is a main-hand
+// auto attack to a listener that hears counted swings, so a procs-per-minute manager prices it on the
+// main hand's speed. A listener whose mask hears the hit already takes it as it is.
+func (config *ProcTrigger) procMaskOf(spell *Spell) ProcMask {
+	if config.HearsCountedSwings && spell.Flags.Matches(SpellFlagCountsAsSwing) &&
+		config.ProcMask != ProcMaskUnknown && !spell.ProcMask.Matches(config.ProcMask) {
+		return ProcMaskMeleeMHAuto
+	}
+	return spell.ProcMask
 }
 
 // Whether the trigger's rolls let a hit of this proc mask through. The stated chance draws unless it
@@ -154,7 +167,7 @@ func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcMa
 		return true
 	}
 
-	chance, heard := dpm.chanceOn(sim, spell, result)
+	chance, heard := dpm.chanceOn(sim, config.procMaskOf(spell), spell, result)
 	return heard && sim.Proc(unit.ModifiedProcChance(config.ProcSpellClassFlags, chance), config.Name)
 }
 
