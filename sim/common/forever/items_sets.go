@@ -454,18 +454,20 @@ var ItemSetDarkmantleArmorReissue = core.NewItemSet(core.ItemSet{
 	},
 })
 
-// Dungeon Set 2, Season of Discovery reissue
+// Dungeon Set 2
+// https://www.wowhead.com/forever/item-set=515/beastmaster-armor
 //
-// The 5-piece bonus removes a root when struck, which has no place in the sim.
-var ItemSetBeastmasterArmorReissue = core.NewItemSet(core.ItemSet{
-	ID:    1669,
+// The reissued pieces count toward this set too. A generated set refuses the 4-piece row, which names
+// class family 10 and none of its spells; the row hears Auto Shot alone.
+var ItemSetBeastmasterArmor = core.NewItemSet(core.ItemSet{
+	ID:    515,
 	Name:  "Beastmaster Armor",
 	Slots: shared.EightPieceSlots,
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
-		3: shared.ParsedSetBonus(dungeonManaRegen),
-		4: suddenInsightMana(beaststalkerManaProc, "Beastmaster Armor - 4PC"),
+		4: shared.ParsedSetBonus(spelldata.MustFind(27785)), // 4% on Auto Shot to restore 200 mana
 		6: shared.ParsedSetBonus(dungeonTwoAttack),
+		8: shared.ParsedSetBonus(spelldata.MustFind(14803)), // +200 armor
 	},
 })
 
