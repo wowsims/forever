@@ -281,14 +281,13 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
 	},
-	// Measured on two paladin wearers' landed main-hand hits, a Judgement of Command as two rolls
-	// (EV-0123). Two players are too few to call it validated, so its Source keeps the gear tab's
-	// notice up.
+	// The rate is fitted from logs (EV-0125). Its Source keeps the gear tab's notice up until more
+	// wearers validate it.
 	{
 		ItemID:  12592,
 		SpellID: 16602,
 		PPM:     1.1,
-		Reason:  "Blackblade of Shahram: no proc row; measured on two paladins (EV-0123)",
+		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125)",
 		Source:  "estimate",
 	},
 	{

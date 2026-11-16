@@ -1,4 +1,4 @@
-# EV-0123: Blackblade of Shahram's rate and what Shahram casts
+# EV-0125: Blackblade of Shahram's rate and what Shahram casts
 
 - Claim: Blackblade of Shahram 12592 summons Shahram (16602) about 1.1 times a minute on landed main-hand hits. Each
   Shahram casts exactly one of his six spells, starts its hardcast 1.03 to 1.83 s after the summon, and every copy of

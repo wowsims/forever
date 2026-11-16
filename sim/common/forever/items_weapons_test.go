@@ -923,13 +923,13 @@ func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T)
 	}
 }
 
-// Flames of Shahram 16596 burns every enemy within the row's range. Shahram's spells take nothing from
-// the wearer's damage modifiers, spell damage or crit chance and put no threat on the wearer.
-func TestFlamesOfShahramBurnsEveryEnemyWithinTheRowsRange(t *testing.T) {
+// Flames of Shahram 16596 burns every enemy. Shahram's spells take nothing from the wearer's damage
+// modifiers or crit chance and put no threat on the wearer.
+func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
 	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
 	character.AutoAttacks.CancelAutoSwing(sim)
 	character.PseudoStats.DamageDealtMultiplier *= 2
-	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100, stats.SpellDamage: 1000})
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100})
 	flames := character.GetSpell(core.ActionID{SpellID: 16596})
 	damage := spelldata.MustFind(16596).DamageEffect()
 	if damage.Min() <= 0 || damage.Max() <= damage.Min() {
@@ -982,6 +982,41 @@ func TestWillOfShahramCopiesStackAndFadeOneByOne(t *testing.T) {
 	expect("past the first Will's duration", 1)
 	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
 	expect("past the second Will's duration", 0)
+}
+
+// With every copy of Will of Shahram 16598 up, a new Will renews the copy closest to fading, so the
+// bonus stays at the most copies the wearer can carry.
+func TestWillOfShahramRenewsTheOldestCopyWhenAllAreUp(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	row := spelldata.MustFind(16598)
+	amount, duration := row.EffectN(1).Average(), row.Duration()
+	if amount <= 0 || duration <= 10*time.Second {
+		t.Fatalf("16598 grants %v stats for %v, want an amount and a duration over 10 s", amount, duration)
+	}
+	will := character.GetSpell(core.ActionID{SpellID: 16598})
+	base := character.GetStat(stats.Strength)
+	expect := func(when string, copies float64) {
+		t.Helper()
+		if got, want := character.GetStat(stats.Strength), base+copies*amount; math.Abs(got-want) > 1e-6 {
+			t.Errorf("%s the wearer's Strength is %v, want %v", when, got, want)
+		}
+	}
+
+	start := sim.CurrentTime
+	const full = 5
+	for i := range full {
+		stepTo(t, sim, start+time.Duration(i)*time.Second)
+		will.Cast(sim, character.CurrentTarget)
+	}
+	expect("with every copy up", full)
+	stepTo(t, sim, start+full*time.Second)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a sixth Will", full)
+	stepTo(t, sim, start+duration+500*time.Millisecond)
+	expect("past the first copy's first duration", full)
+	stepTo(t, sim, start+duration+time.Second+500*time.Millisecond)
+	expect("past the second copy's duration", full-1)
 }
 
 // Curse of Shahram 16597 slows the attacks of every enemy by the row's share for the row's duration.
@@ -1063,6 +1098,65 @@ func TestBlessingOfShahramRestoresManaForEachBlessing(t *testing.T) {
 	}
 	if events != 2*ticks || math.Abs(gain-float64(2*ticks)*mana.Average()) > 1e-6 {
 		t.Errorf("two Blessings restored %v mana over %d ticks, want %d ticks of %v", gain, events, 2*ticks, mana.Average())
+	}
+}
+
+// Blessing of Shahram 16599 restores mana to every member of the wearer's party with a mana bar.
+func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 12592
+	newPaladin := func(name string, equipment []*proto.ItemSpec) *proto.Player {
+		player := &proto.Player{
+			Name: name, Class: proto.Class_ClassPaladin, Race: proto.Race_RaceHuman,
+			Equipment:   &proto.EquipmentSpec{Items: equipment},
+			Consumables: &proto.ConsumesSpec{},
+			Buffs:       &proto.IndividualBuffs{},
+			Rotation:    &proto.APLRotation{},
+		}
+		core.WithSpec(player, &proto.Player_HolyPaladin{HolyPaladin: &proto.HolyPaladin{}})
+		return player
+	}
+	bare := make([]*proto.ItemSpec, len(items))
+	for i := range bare {
+		bare[i] = &proto.ItemSpec{}
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{
+			Players: []*proto.Player{newPaladin("Wearer", items), newPaladin("Friend", bare)},
+			Buffs:   &proto.PartyBuffs{},
+		}}},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	wearer := sim.Raid.Parties[0].Players[0].GetCharacter()
+	friend := sim.Raid.Parties[0].Players[1].GetCharacter()
+
+	row := spelldata.MustFind(16599)
+	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	ticks := int32(row.Duration() / mana.Period())
+	for _, member := range []*core.Character{wearer, friend} {
+		member.SpendMana(sim, member.CurrentMana(), member.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+	}
+
+	start := sim.CurrentTime
+	wearer.GetSpell(core.ActionID{SpellID: 16599}).Cast(sim, wearer.CurrentTarget)
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+
+	for _, member := range []*core.Character{wearer, friend} {
+		var gain float64
+		var events int32
+		for _, r := range member.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == 16599 {
+				gain, events = r.Gain, r.Events
+			}
+		}
+		if events != ticks || math.Abs(gain-float64(ticks)*mana.Average()) > 1e-6 {
+			t.Errorf("%s gained %v mana over %d ticks, want %d ticks of %v", member.Name, gain, events, ticks, mana.Average())
+		}
 	}
 }
 

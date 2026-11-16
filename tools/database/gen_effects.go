@@ -1344,19 +1344,16 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
 		for _, itemEffect := range parsed.ItemEffects {
-			if !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
-				// Commented into the generated file rather than dropped, unless a hand-written
-				// effect covers the item. These are deliberately out of scope - summons,
-				// teleports, created items - but an item whose only effect is skipped otherwise
-				// vanished with no trace, while a sibling marker aura on the same item got
-				// reported as missing instead.
+			if !implementedByHand(parsed.Id) && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
+				// Commented into the generated file rather than dropped. These are deliberately
+				// out of scope - summons, teleports, created items - but an item whose only
+				// effect is skipped otherwise vanished with no trace, while a sibling marker
+				// aura on the same item got reported as missing instead.
 				skippedGroup := groupMapProc
 				if itemEffect.GetOnUse() != nil {
 					skippedGroup = groupMapOnUse
 				}
-				if !implementedByHand(parsed.Id) {
-					storeSkippedEffect(parsed.Id, parsed.Name, itemEffect.BuffId, instance, skippedGroup)
-				}
+				storeSkippedEffect(parsed.Id, parsed.Name, itemEffect.BuffId, instance, skippedGroup)
 				continue
 			}
 

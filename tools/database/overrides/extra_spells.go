@@ -39,12 +39,12 @@ var ExtraSpells = []Extra{
 	{SpellID: 9591, Reason: "Acid Spit, cast by the Emerald Dragon Whelp (creature 8776) that Dragon's Call 13049 summons; a creature's spells are on the server, so no row links it", Source: "EV-0021"},
 	// The spells Shahram (creature 10718) casts once per summon by Blackblade of Shahram's 16602; a
 	// creature's spells are on the server, so no row links them.
-	{SpellID: 16596, Reason: "Flames of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
-	{SpellID: 16597, Reason: "Curse of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
-	{SpellID: 16598, Reason: "Will of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
-	{SpellID: 16599, Reason: "Blessing of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
-	{SpellID: 16600, Reason: "Might of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
-	{SpellID: 16601, Reason: "Fist of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0123"},
+	{SpellID: 16596, Reason: "Flames of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
+	{SpellID: 16597, Reason: "Curse of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
+	{SpellID: 16598, Reason: "Will of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
+	{SpellID: 16599, Reason: "Blessing of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
+	{SpellID: 16600, Reason: "Might of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
+	{SpellID: 16601, Reason: "Fist of Shahram, cast by Shahram (creature 10718) that Blackblade of Shahram 16602 summons", Source: "EV-0125"},
 	{SpellID: 1311703, Reason: "Seal of Command's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311703"},
 	{SpellID: 1311704, Reason: "Seal of Righteousness's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311704"},
 	{SpellID: 1311705, Reason: "Seal of Justice's Echo for Unsealed Wrath; the talent's tooltip names only Echo of Fury", Source: "Spell 1311705"},
