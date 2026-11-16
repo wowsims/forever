@@ -3771,6 +3771,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Unleash a shadow bolt volley at all nearby targets, inflicting 33 damage to each enemy struck.
+	// https://www.wowhead.com/forever/spell=1314274
+	// unsupported: states no rate
+	// trigger 1314274 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1314274, BuffSpellID: 1314274, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 282700, ItemName: "Shadow Scalper"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces damage from falling.
 	// https://www.wowhead.com/forever/spell=1292150
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4797,6 +4810,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=26208
 	// Not simulated: Bloodclot Band: "Resist Bleed 10" (1300755) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300755
+	// Not simulated: Blade of Necromancy: "Necromancy" (1302109) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1302109
 	// Not simulated: Blood Guard's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
