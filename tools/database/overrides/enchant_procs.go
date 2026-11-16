@@ -32,6 +32,14 @@ type EnchantProc struct {
 
 var EnchantProcs = []EnchantProc{
 	{
+		EnchantID: 803,
+		SpellID:   13897,
+		Kind:      RatePPM,
+		Value:     6,
+		Reason:    "Fiery Weapon: 13897 states no proc chance, and the tooltip says 'often'",
+		Source:    "EV-0130",
+	},
+	{
 		EnchantID: 1900,
 		SpellID:   20007,
 		Kind:      RatePPM,

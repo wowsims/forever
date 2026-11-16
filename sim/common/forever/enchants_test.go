@@ -540,12 +540,11 @@ func TestRevelationDruidSpendsTheChargeAtImpact(t *testing.T) {
 	}
 }
 
-// Enchant Weapon - Crusader 1900 rolls the procs per minute its enchant entry states for Holy Strength
-// 20007 on the enchanted weapon's speed, a chance between none and certain.
-func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
-	const crusader, holyStrength, weapon = 1900, 20007, 1613
+// A warrior with the enchant on the weapon in its main hand, at the start of a fight.
+func enchantedWarrior(t *testing.T, weapon, enchant int32) (*core.Simulation, *core.Character) {
+	t.Helper()
 	items := weaponSlots(weapon, 0)
-	items[proto.ItemSlot_ItemSlotMainHand].Enchant = crusader
+	items[proto.ItemSlot_ItemSlotMainHand].Enchant = enchant
 	player := &proto.Player{
 		Name: "Wearer", Class: proto.Class_ClassWarrior, Race: proto.Race_RaceTauren,
 		Equipment: &proto.EquipmentSpec{Items: items},
@@ -559,22 +558,42 @@ func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
 		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
 	}, simsignals.CreateSignals())
 	sim.Reset()
-	character := sim.Raid.Parties[0].Players[0].GetCharacter()
+	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
+}
 
+// Checks the proc rolls the procs per minute the enchant's entry states for the spell on the
+// weapon's speed, a chance between none and certain.
+func expectEnchantRate(t *testing.T, sim *core.Simulation, proc *core.Aura, enchant, spell, weapon int32) {
+	t.Helper()
 	var ppm float64
-	for _, effect := range core.GetEnchantByEffectID(crusader).EnchantEffects {
-		if effect.BuffId == holyStrength {
+	for _, effect := range core.GetEnchantByEffectID(enchant).EnchantEffects {
+		if effect.BuffId == spell {
 			ppm = effect.GetProc().GetPpm()
 		}
 	}
 	want := ppm * core.GetItemByID(weapon).SwingSpeed / 60
-	proc := character.GetAura("Enchant Weapon - Crusader")
 	if proc == nil || proc.Dpm == nil {
-		t.Fatal("1900 registers no proc on a procs per minute rate")
+		t.Fatalf("%d registers no proc on a procs per minute rate", enchant)
 	}
 	if got := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim); want <= 0 || want >= 1 || math.Abs(got-want) > 1e-9 {
-		t.Errorf("Crusader rolls %v on a main-hand hit, want the entry's procs per minute on the weapon's speed, %v", got, want)
+		t.Errorf("%d rolls %v on a main-hand hit, want the entry's procs per minute on the weapon's speed, %v", enchant, got, want)
 	}
+}
+
+// Enchant Weapon - Crusader 1900 rolls the procs per minute its enchant entry states for Holy Strength
+// 20007 on the enchanted weapon's speed.
+func TestCrusaderProcsAtItsEntryRate(t *testing.T) {
+	const crusader, holyStrength, weapon = 1900, 20007, 1613
+	sim, character := enchantedWarrior(t, weapon, crusader)
+	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Crusader"), crusader, holyStrength, weapon)
+}
+
+// Enchant Weapon - Fiery Weapon 803 rolls the procs per minute its enchant entry states for its strike
+// 13897 on the enchanted weapon's speed.
+func TestFieryWeaponProcsAtItsEntryRate(t *testing.T) {
+	const fieryWeapon, strike, weapon = 803, 13897, 1613
+	sim, character := enchantedWarrior(t, weapon, fieryWeapon)
+	expectEnchantRate(t, sim, character.GetAura("Enchant Weapon - Fiery Weapon"), fieryWeapon, strike, weapon)
 }
 
 // Enchant Chest - Retricutioner 7223 keeps 435901's damage shield up while the enchant is worn, read

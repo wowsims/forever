@@ -685,6 +685,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 747.55349
+  tps: 482.03074
+  dtps: 4.33851
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 747.55349
