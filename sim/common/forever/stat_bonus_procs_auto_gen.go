@@ -1082,19 +1082,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
-	// https://www.wowhead.com/forever/spell=16551
-	// unsupported: states no rate
-	// trigger 16551 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 12590, ItemName: "Felstriker"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Transfers 10 health every 1.0 seconds from the target to the caster for 5s.
 	// https://www.wowhead.com/forever/spell=16603
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -1247,33 +1234,6 @@ func RegisterAllProcs() {
 	// shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 17331, IsWeaponProc: true},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 13218, ItemName: "Fang of the Crystal Spider"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike
-	// you are 2 times as likely to activate this effect.
-	// https://www.wowhead.com/forever/spell=17351
-	// unsupported: states no rate
-	// trigger 17350 (no stated rate, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 17351
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17350, BuffSpellID: 17351},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13243, ItemName: "Argent Defender"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
-	// https://www.wowhead.com/forever/spell=17352
-	// unsupported: states no rate
-	// trigger 17352 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 13246, ItemName: "Argent Avenger"},
 	// })
 
 	// TODO: Manual implementation required
@@ -2644,19 +2604,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22198, ItemName: "Jagged Obsidian Shield"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.
-	// https://www.wowhead.com/forever/spell=27655
-	// unsupported: states no rate
-	// trigger 27656 (no stated rate, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 27655
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 27656, BuffSpellID: 27655},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 22321, ItemName: "Heart of Wyrmthalak"},
 	// })
 
 	// TODO: Manual implementation required
@@ -4273,6 +4220,14 @@ func RegisterAllProcs() {
 			{ItemID: 12582, ItemName: "Keris of Zul'Serak"},
 		})
 
+	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
+	// https://www.wowhead.com/forever/spell=16551
+	// trigger 16551 (0.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 12590, ItemName: "Felstriker"},
+		})
+
 	// Adds 4 Fire damage to your weapon attack.
 	// https://www.wowhead.com/forever/spell=7714
 	// trigger 7721 (every time, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 7714
@@ -4407,6 +4362,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18203, BuffSpellID: 18203, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 13183, ItemName: "Venomspitter"},
+		})
+
+	// Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.
+	// https://www.wowhead.com/forever/spell=17352
+	// trigger 17352 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17352, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13246, ItemName: "Argent Avenger"},
 		})
 
 	// Sends a shadowy bolt at the enemy causing 150 Shadow damage and dealing 34 damage every 2.0 sec for 6s.
@@ -4638,6 +4601,14 @@ func RegisterAllProcs() {
 			{ItemID: 21190, ItemName: "Wrath of Cenarius"},
 		})
 
+	// Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.
+	// https://www.wowhead.com/forever/spell=27655
+	// trigger 27656 (2 ppm, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial) -> buff 27655
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 27656, BuffSpellID: 27655},
+		[]shared.ItemVariant{
+			{ItemID: 22321, ItemName: "Heart of Wyrmthalak"},
+		})
+
 	// Gain up to 25 mana each time you cast Healing Touch.
 	// https://www.wowhead.com/forever/spell=28847
 	// trigger 28847 (every time, core.CallbackOnCastComplete, core.ProcMaskSpellHealing)
@@ -4786,16 +4757,12 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Tooth of Eranikus: "Resist Sleep 03" (1300001) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300001
-	// Not simulated: Dragon's Call: "Dragon's Call" (13049) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=13049
 	// Not simulated: Carrot on a Stick: "Mount Speed" (13587) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=13587
 	// Not simulated: Savage Gladiator Chain: "Resist Fear 04" (1292574) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1292574
 	// Not simulated: High Priestess Boots: "Resist Charm 10" (1300925) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300925
-	// Not simulated: Blackblade of Shahram: "Shahram" (16602) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=16602
 	// Not simulated: Stronghold Gauntlets: "Immune to Disarm" (7219) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Tome of Knowledge: "Stealth 05" (1293068) - ignored aura type 154

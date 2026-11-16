@@ -138,7 +138,7 @@ func (config *ProcTrigger) matchesSpell(spell *Spell) bool {
 // is 1 or more; a manager then rolls its own chance for the mask, and a mask none of its masks hears
 // fails without a draw. The unit's proc chance mods raise the manager's chance where there is one and
 // the stated chance otherwise. The cast and apply-effects listeners roll no manager.
-func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcManager, procMask ProcMask) bool {
+func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcManager, spell *Spell, result *SpellResult) bool {
 	if config.Caster != nil {
 		unit = config.Caster
 	}
@@ -154,7 +154,7 @@ func (config *ProcTrigger) rolls(sim *Simulation, unit *Unit, dpm *DynamicProcMa
 		return true
 	}
 
-	chance, heard := dpm.chanceFor(procMask, sim)
+	chance, heard := dpm.chanceOn(sim, spell, result)
 	return heard && sim.Proc(unit.ModifiedProcChance(config.ProcSpellClassFlags, chance), config.Name)
 }
 
@@ -257,7 +257,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 		if config.ExtraCondition != nil && !config.ExtraCondition(sim, spell, result) {
 			return
 		}
-		if !config.rolls(sim, unit, dpm, spell.ProcMask) {
+		if !config.rolls(sim, unit, dpm, spell, result) {
 			return
 		}
 
@@ -296,7 +296,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			if config.ExtraCondition != nil && !config.ExtraCondition(sim, spell, nil) {
 				return
 			}
-			if !config.rolls(sim, unit, nil, ProcMaskUnknown) {
+			if !config.rolls(sim, unit, nil, nil, nil) {
 				return
 			}
 
@@ -317,7 +317,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			if config.ExtraCondition != nil && !config.ExtraCondition(sim, spell, emptyResult) {
 				return
 			}
-			if !config.rolls(sim, unit, nil, ProcMaskUnknown) {
+			if !config.rolls(sim, unit, nil, nil, nil) {
 				return
 			}
 
@@ -345,7 +345,7 @@ func (procAura *Aura) AttachProcTriggerCallback(unit *Unit, config ProcTrigger) 
 			if config.ExtraCondition != nil && !config.ExtraCondition(sim, nil, deathResult) {
 				return
 			}
-			if !config.rolls(sim, unit, nil, ProcMaskUnknown) {
+			if !config.rolls(sim, unit, nil, nil, nil) {
 				return
 			}
 

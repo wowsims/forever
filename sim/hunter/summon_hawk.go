@@ -40,17 +40,18 @@ var hawkBaseStats = stats.Stats{
 	stats.Health: 0.05 * core.CreatureHealthMaxLevel,
 }
 
-// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the ranged weapon
-// adds to it in game, 14 a point of its dps on a base of 7 (EV-0073).
-const hawkOwnerBaseWeaponAP = 7.0
-const hawkOwnerAPPerWeaponDPS = 14.0
+// The attack power a hawk takes its 80% of is the owner's ranged attack power and what the main-hand
+// weapon adds to it in game, 14 a point of its dps; the ranged weapon and the off hand add nothing
+// (EV-0134). With no main-hand weapon it adds 7 (EV-0073).
+const hawkOwnerAPPerMainHandDPS = 14.0
+const hawkOwnerUnarmedWeaponAP = 7.0
 
-// A swing before armor is 0.185 of the creature dps over the 2.5 s, spanning 0.22 either side, and 60
-// attack power a point of dps. Both are fitted, as the game files state neither, and were read with
-// Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the swing here is before them
-// (EV-0073).
+// A swing before armor is 0.153 of the creature dps over the 2.5 s at level 60, spanning 0.22 either side
+// (EV-0134), and 60 attack power a point of dps (EV-0073). Both are fitted, as the game files state
+// neither, and were read with Unleashed Fury 5/5 and Focused Fire 2/2, which reach the hawks, so the
+// swing here is before them.
 var hawkLogDamageMultiplier = spellData.UnleashedFury.MultiplierAt(5) * spellData.FocusedFire.MultiplierAt(2)
-var hawkSwingAverage = 0.185 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
+var hawkSwingAverage = 0.153 * core.CreatureAutoAttackDpsMaxLevel * 2.5 / hawkLogDamageMultiplier
 
 var hawkSwing = core.Weapon{
 	BaseDamageMin:     hawkSwingAverage * (1 - 0.22),
@@ -110,7 +111,11 @@ func (hunter *Hunter) newHawks() []*HawkPet {
 }
 
 func (hunter *Hunter) hawkWeaponAP() float64 {
-	return hawkOwnerBaseWeaponAP + hawkOwnerAPPerWeaponDPS*hunter.AutoAttacks.Ranged().DPS()
+	if hunter.GetMHWeapon() == nil {
+		return hawkOwnerUnarmedWeaponAP
+	}
+	mainHand := hunter.WeaponFromMainHand()
+	return hawkOwnerAPPerMainHandDPS * mainHand.DPS()
 }
 
 // The tamed pet and the hawks: what the talents that name pets and hawks reach.
@@ -125,8 +130,10 @@ func (hunter *Hunter) pets() []*core.Pet {
 	return pets
 }
 
-// The dive's damage, then a hawk for 18 s. The hawks take turns, so one past the count replaces
-// the one with the least time left.
+// The dive's damage, then a hawk for 18 s. The dive flies the row's minimum of 1 s at any distance
+// in range, and the hawk appears as it lands and swings at once, on a fresh swing timer when it
+// replaces another (EV-0127). The hawks take turns, so one past the count replaces the one with the
+// least time left.
 func (hunter *Hunter) registerSummonHawk() {
 	if !hunter.Talents.SummonHawk {
 		return
@@ -136,14 +143,18 @@ func (hunter *Hunter) registerSummonHawk() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := summonHawkBaseDamage + summonHawkAPShare*spell.RangedAttackPower(target)
 		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeRangedCritOnly)
-		spell.DealDamageAfterTravel(sim, result)
+		spell.DealCastResult(sim, result)
+		spell.WaitTravelTime(sim, func(sim *core.Simulation) {
+			spell.DealDamage(sim, result)
 
-		hawk := hunter.Hawks[hunter.nextHawk]
-		hunter.nextHawk = (hunter.nextHawk + 1) % len(hunter.Hawks)
-		if hawk.IsEnabled() {
-			hawk.Disable(sim)
-		}
-		hawk.EnableWithTimeout(sim, hawk, hawkSummon.Duration())
+			hawk := hunter.Hawks[hunter.nextHawk]
+			hunter.nextHawk = (hunter.nextHawk + 1) % len(hunter.Hawks)
+			if hawk.IsEnabled() {
+				hawk.Disable(sim)
+			}
+			hawk.EnableWithTimeout(sim, hawk, hawkSummon.Duration())
+			hawk.AutoAttacks.StopMeleeUntil(sim, sim.CurrentTime-hawk.AutoAttacks.MainhandSwingSpeed())
+		})
 	}
 
 	hunter.RegisterSpell(config)

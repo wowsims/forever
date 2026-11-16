@@ -14,14 +14,15 @@ measurement; an issue or a research note that tracks the same numbers links the 
 - A comment cites the id after the rule it backs: `// A Pyroblast consumes every stack (EV-0005).` The rule stays in
   the comment; the counts, logs and method move here.
 - An override row's `Source` is the bare id, or several separated by commas when two passes back the row:
-  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate.
+  `Source: "EV-0003"`, `Source: "EV-0017, EV-0018"`. The generator reads such a Source as a measured rate. A rate fitted
+  from too few logs to call final has the Source `observed`, and its `Reason` cites the id.
 
 ## What counts as evidence
 
 A number a larger sample could change while the code stays the same: proc counts, rates, threat readings, hit counts,
 "checked in game". A value the code implements stays in the code. These are not evidence and keep their own text:
 a TODO to measure something, a value read from the game files, and the `Source` values `tooltip`, `owner decision`,
-`Spell <id>`, `estimate`, `vanilla-carryover` and `tbc-carryover`, and the other non-measurement `Source` values the
+`Spell <id>`, `observed`, `vanilla-carryover` and `tbc-carryover`, and the other non-measurement `Source` values the
 tables use (`game files`, `game-files-rows`, `Spell <id> description`, `owner decision, PR #99`).
 
 ## A file

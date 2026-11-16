@@ -604,6 +604,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 548.42975
+  tps: 2732.51933
+  dtps: 397.0579
+  hps: 85.57888
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 537.63252
@@ -736,6 +745,15 @@ dps_results: {
   tps: 2655.85777
   dtps: 396.65513
   hps: 83.98802
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-Felstriker-12590"
+ value: {
+  dps: 491.54422
+  tps: 2497.08537
+  dtps: 393.96531
+  hps: 83.83188
  }
 }
 dps_results: {
@@ -1006,6 +1024,15 @@ dps_results: {
   tps: 2448.58121
   dtps: 399.93304
   hps: 84.31747
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 538.7459
+  tps: 2685.33304
+  dtps: 396.56195
+  hps: 83.98802
  }
 }
 dps_results: {

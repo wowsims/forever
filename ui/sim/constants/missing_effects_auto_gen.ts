@@ -888,12 +888,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12590, // Felstriker
-		[
-			"All attacks are guaranteed to land and will be critical strikes for the next 3s.", // 16551 - https://www.wowhead.com/forever/spell=16551
-		]
-	],
-	[
 		12621, // Demonfork
 		[
 			"Transfers 10 health every 1.0 seconds from the target to the caster for 5s.", // 16603 - https://www.wowhead.com/forever/spell=16603
@@ -993,18 +987,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13218, // Fang of the Crystal Spider
 		[
 			"Slows target enemy's casting speed and increases the time between melee and ranged attacks by 9% for 10s.", // 17331 - https://www.wowhead.com/forever/spell=17331
-		]
-	],
-	[
-		13243, // Argent Defender
-		[
-			"Has a chance when struck in combat to increase your chance to block by 18% for 10s. Undead that strike you are 2 times as likely to activate this effect.", // 17351 - https://www.wowhead.com/forever/spell=17351
-		]
-	],
-	[
-		13246, // Argent Avenger
-		[
-			"Increases Attack Power by 100, and Attack Power against Undead by an additional 100 for 10s.", // 17352 - https://www.wowhead.com/forever/spell=17352
 		]
 	],
 	[
@@ -1963,12 +1945,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22321, // Heart of Wyrmthalak
-		[
-			"Melee and Ranged attacks have a chance to deal 140 Fire damage. Deals 3 times as much damage to Orcs.", // 27655 - https://www.wowhead.com/forever/spell=27655
-		]
-	],
-	[
 		22395, // Totem of Rage
 		[
 			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
@@ -2825,12 +2801,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 ])
 
 export const MISSING_ENCHANT_EFFECTS = new Map<number, string[]>([
-	[
-		803, // Enchant Weapon - Fiery Weapon
-		[
-			"Permanently enchant a melee weapon to often strike for 40 additional fire damage.", // 13897 - https://www.wowhead.com/forever/spell=13897
-		]
-	],
 	[
 		912, // Enchant Weapon - Demonslaying
 		[
@@ -4023,68 +3993,73 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	],
 ])
 
-// A proc rate the game files do not state and nobody has measured on Forever, and where it comes from.
-export type UnvalidatedRate = { kind: 'ppm' | 'chance'; origin: 'vanilla' | 'tbc' | 'unknown' }
+// A proc rate the game files do not state and no measurement on Forever has settled, and where it comes from.
+// The rate is the one the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance.
+// It is left out where the gear has no single rate.
+export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'observed' }
 
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
-	[754, { kind: 'ppm', origin: 'vanilla' }], // Shortsword of Vengeance
-	[810, { kind: 'ppm', origin: 'vanilla' }], // Hammer of the Northern Wind
-	[870, { kind: 'ppm', origin: 'vanilla' }], // Fiery War Axe
-	[937, { kind: 'ppm', origin: 'vanilla' }], // Black Duskwood Staff
-	[1481, { kind: 'ppm', origin: 'vanilla' }], // Grimclaw
-	[1726, { kind: 'ppm', origin: 'vanilla' }], // Poison-tipped Bone Spear
-	[1982, { kind: 'ppm', origin: 'vanilla' }], // Nightblade
-	[2164, { kind: 'ppm', origin: 'vanilla' }], // Gut Ripper
-	[2243, { kind: 'ppm', origin: 'vanilla' }], // Hand of Edward the Odd
-	[2256, { kind: 'ppm', origin: 'vanilla' }], // Skeletal Club
-	[2825, { kind: 'ppm', origin: 'vanilla' }], // Bow of Searing Arrows
-	[2912, { kind: 'ppm', origin: 'vanilla' }], // Claw of the Shadowmancer
-	[2942, { kind: 'ppm', origin: 'vanilla' }], // Iron Knuckles
-	[4090, { kind: 'ppm', origin: 'vanilla' }], // Mug O' Hurt
-	[6622, { kind: 'ppm', origin: 'vanilla' }], // Sword of Zeal
-	[6660, { kind: 'ppm', origin: 'vanilla' }], // Julie's Dagger
-	[7730, { kind: 'ppm', origin: 'vanilla' }], // Cobalt Crusher
-	[7961, { kind: 'ppm', origin: 'vanilla' }], // Phantom Blade
-	[8190, { kind: 'ppm', origin: 'vanilla' }], // Hanzo Sword
-	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
-	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
-	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
-	[12790, { kind: 'ppm', origin: 'vanilla' }], // Arcanite Champion
-	[12792, { kind: 'ppm', origin: 'vanilla' }], // Volcanic Hammer
-	[12794, { kind: 'ppm', origin: 'vanilla' }], // Masterwork Stormhammer
-	[12795, { kind: 'ppm', origin: 'vanilla' }], // Blood Talon
-	[12797, { kind: 'ppm', origin: 'vanilla' }], // Frostguard
-	[12798, { kind: 'ppm', origin: 'tbc' }], // Annihilator
-	[12992, { kind: 'ppm', origin: 'vanilla' }], // Searing Blade
-	[13016, { kind: 'ppm', origin: 'vanilla' }], // Killmaim
-	[13032, { kind: 'ppm', origin: 'vanilla' }], // Sword of Corruption
-	[13035, { kind: 'ppm', origin: 'vanilla' }], // Serpent Slicer
-	[13051, { kind: 'ppm', origin: 'vanilla' }], // Witchfury
-	[13053, { kind: 'ppm', origin: 'vanilla' }], // Doombringer
-	[13054, { kind: 'ppm', origin: 'vanilla' }], // Grim Reaper
-	[13060, { kind: 'ppm', origin: 'vanilla' }], // The Needler
-	[15814, { kind: 'ppm', origin: 'vanilla' }], // Hameya's Slayer
-	[17073, { kind: 'ppm', origin: 'vanilla' }], // Earthshaker
-	[17182, { kind: 'ppm', origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
-	[17193, { kind: 'ppm', origin: 'vanilla' }], // Sulfuron Hammer
-	[17223, { kind: 'ppm', origin: 'vanilla' }], // Thunderstrike
-	[19019, { kind: 'ppm', origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
-	[19099, { kind: 'ppm', origin: 'vanilla' }], // Glacial Blade
-	[19100, { kind: 'ppm', origin: 'vanilla' }], // Electrified Dagger
-	[19169, { kind: 'ppm', origin: 'vanilla' }], // Nightfall
-	[19170, { kind: 'ppm', origin: 'vanilla' }], // Ebon Hand
-	[19287, { kind: 'ppm', origin: 'vanilla' }], // Darkmoon Card: Heroism
-	[19289, { kind: 'ppm', origin: 'tbc' }], // Darkmoon Card: Maelstrom
-	[19323, { kind: 'ppm', origin: 'vanilla' }], // The Unstoppable Force
-	[19324, { kind: 'ppm', origin: 'vanilla' }], // The Lobotomizer
-	[21134, { kind: 'ppm', origin: 'vanilla' }], // Dark Edge of Insanity
-	[21670, { kind: 'ppm', origin: 'tbc' }], // Badge of the Swarmguard
-	[272432, { kind: 'ppm', origin: 'unknown' }], // Totem of the Storm
+	[754, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Shortsword of Vengeance
+	[810, { kind: 'ppm', rate: 3.5, origin: 'vanilla' }], // Hammer of the Northern Wind
+	[870, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Fiery War Axe
+	[937, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Black Duskwood Staff
+	[1481, { kind: 'ppm', rate: 1.25, origin: 'vanilla' }], // Grimclaw
+	[1726, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Poison-tipped Bone Spear
+	[1982, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Nightblade
+	[2164, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Gut Ripper
+	[2243, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hand of Edward the Odd
+	[2256, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Skeletal Club
+	[2825, { kind: 'ppm', rate: 3.35, origin: 'vanilla' }], // Bow of Searing Arrows
+	[2912, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Claw of the Shadowmancer
+	[2942, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Iron Knuckles
+	[4090, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Mug O' Hurt
+	[6622, { kind: 'ppm', rate: 1.8, origin: 'vanilla' }], // Sword of Zeal
+	[6660, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Julie's Dagger
+	[7730, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Cobalt Crusher
+	[7961, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Phantom Blade
+	[8190, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hanzo Sword
+	[9651, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Gryphon Rider's Stormhammer
+	[11902, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Linken's Sword of Mastery
+	[12590, { kind: 'ppm', rate: 0.6, origin: 'vanilla' }], // Felstriker
+	[12592, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Blackblade of Shahram
+	[12777, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blazing Rapier
+	[12790, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Arcanite Champion
+	[12792, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Volcanic Hammer
+	[12794, { kind: 'ppm', rate: 0.5, origin: 'vanilla' }], // Masterwork Stormhammer
+	[12795, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blood Talon
+	[12797, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Frostguard
+	[12798, { kind: 'ppm', rate: 1, origin: 'tbc' }], // Annihilator
+	[12992, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Searing Blade
+	[13016, { kind: 'ppm', rate: 0.85, origin: 'vanilla' }], // Killmaim
+	[13032, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sword of Corruption
+	[13035, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Serpent Slicer
+	[13051, { kind: 'ppm', rate: 1.25, origin: 'vanilla' }], // Witchfury
+	[13053, { kind: 'ppm', rate: 0.75, origin: 'vanilla' }], // Doombringer
+	[13054, { kind: 'ppm', rate: 0.87, origin: 'vanilla' }], // Grim Reaper
+	[13060, { kind: 'ppm', rate: 3, origin: 'vanilla' }], // The Needler
+	[13243, { kind: 'ppm', rate: 0.5, origin: 'observed' }], // Argent Defender
+	[13246, { kind: 'ppm', rate: 1, origin: 'observed' }], // Argent Avenger
+	[15814, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Hameya's Slayer
+	[17073, { kind: 'ppm', rate: 2.1, origin: 'vanilla' }], // Earthshaker
+	[17182, { kind: 'ppm', rate: 0.7, origin: 'vanilla' }], // Sulfuras, Hand of Ragnaros
+	[17193, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sulfuron Hammer
+	[17223, { kind: 'ppm', rate: 1.5, origin: 'vanilla' }], // Thunderstrike
+	[19019, { kind: 'ppm', rate: 6, origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
+	[19099, { kind: 'ppm', rate: 1.4, origin: 'vanilla' }], // Glacial Blade
+	[19100, { kind: 'ppm', rate: 1.4, origin: 'vanilla' }], // Electrified Dagger
+	[19169, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Nightfall
+	[19170, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // Ebon Hand
+	[19287, { kind: 'ppm', rate: 2, origin: 'vanilla' }], // Darkmoon Card: Heroism
+	[19289, { kind: 'ppm', rate: 1, origin: 'tbc' }], // Darkmoon Card: Maelstrom
+	[19323, { kind: 'ppm', rate: 0.5, origin: 'vanilla' }], // The Unstoppable Force
+	[19324, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // The Lobotomizer
+	[21134, { kind: 'ppm', rate: 0.4, origin: 'vanilla' }], // Dark Edge of Insanity
+	[21670, { kind: 'ppm', rate: 10, origin: 'tbc' }], // Badge of the Swarmguard
 ])
 
 export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
-	[1900, { kind: 'ppm', origin: 'vanilla' }], // Enchant Weapon - Crusader
-	[8217, { kind: 'chance', origin: 'unknown' }], // Enchant Weapon - Revelation
+	[1900, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Enchant Weapon - Crusader
+	[8217, { kind: 'chance', rate: 8, origin: 'observed' }], // Enchant Weapon - Revelation
 ])
 
 // Keyed by set id, then by the bonus's piece count.
@@ -4092,13 +4067,13 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 	[
 		184, // Shadowcraft Armor
 		new Map([
-			[5, { kind: 'ppm', origin: 'unknown' }],
+			[5, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
 		]),
 	],
 	[
 		1676, // Darkmantle Armor
 		new Map([
-			[4, { kind: 'ppm', origin: 'unknown' }],
+			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
 		]),
 	],
 ])

@@ -12,22 +12,6 @@ func RegisterAllEnchants() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
-	// https://www.wowhead.com/forever/spell=13898
-	// unsupported: states no rate
-	// trigger 13897 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{
-	//	Name:           "Enchant Weapon - Fiery Weapon",
-	//	EnchantID:      803,
-	//	TriggerSpellID: 13897,
-	//	BuffSpellID:    13897,
-	//	IsWeaponProc:   true,
-	// }, nil)
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Permanently enchant a melee weapon to have a chance of stunning and doing heavy damage to demons.
 	// https://www.wowhead.com/forever/spell=13915
 	// unsupported: states no rate; the damage spell hits demons (TargetCreatureType 4) only

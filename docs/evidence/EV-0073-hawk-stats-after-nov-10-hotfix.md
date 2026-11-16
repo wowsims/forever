@@ -1,5 +1,7 @@
 # EV-0073: Summon Hawk health, attack power and swing after the November 10 hotfix
 
+EV-0134 replaces the swing's roll, read off live logs from level 20 to 60 after the hotfix had reached every realm, and the weapon behind the owner's attack power: the main hand's dps, not the ranged weapon's.
+
 - Claim: at level 48 after the 2026-11-10 hotfix a hawk takes 80% of the owner's attack power as the log shows it, and swings for 0.185 of the creature dps over 2.5 s, 22% either side, with 60 attack power a point of dps.
 - Sources: three combat logs of one level 48 hunter taken after the 2026-11-10 hotfix (naked; geared; geared with Aspect of the Hawk), 357 swings in all; report codes not recorded
 - Game build: not recorded

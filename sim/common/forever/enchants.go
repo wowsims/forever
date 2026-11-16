@@ -29,6 +29,19 @@ type revelationBuff struct {
 
 func init() {
 
+	// Enchant Weapon - Fiery Weapon
+	// EffectID: 803, Proc SpellID: 13897
+	// Permanently enchant a melee weapon to often strike for 40 additional fire damage.
+	// https://www.wowhead.com/forever/spell=13898
+	// The game files state no rate; the enchant's effect entry carries its procs per minute (EV-0130).
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{
+		Name:           "Enchant Weapon - Fiery Weapon",
+		EnchantID:      803,
+		TriggerSpellID: 13897,
+		BuffSpellID:    13897,
+		IsWeaponProc:   true,
+	}, nil)
+
 	// Felsteel Shield Spike
 	// EffectID: 2714, Proc SpellID: 29455
 	// Permanently attaches a felsteel spike to your shield that deals 26 to 38 damage to attackers whose melee attacks you block.
