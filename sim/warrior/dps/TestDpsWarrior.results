@@ -108,6 +108,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 556.12942
+  tps: 477.34628
+  dtps: 2.94293
+  hps: 42.88639
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 538.54356
@@ -150,6 +159,15 @@ dps_results: {
   tps: 409.21888
   dtps: 2.97628
   hps: 24.705
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-BlackbladeofShahram-12592"
+ value: {
+  dps: 540.07403
+  tps: 452.09692
+  dtps: 2.97628
+  hps: 24.4
  }
 }
 dps_results: {

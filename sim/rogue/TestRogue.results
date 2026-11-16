@@ -86,6 +86,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-ArgentAvenger-13246"
+ value: {
+  dps: 627.99442
+  tps: 445.87604
+  hps: 50.07083
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 612.8422

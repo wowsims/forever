@@ -641,10 +641,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 813.44468
-  tps: 850.19943
-  dtps: 7.45814
-  hps: 37.3625
+  dps: 810.59216
+  tps: 847.33639
+  dtps: 7.48193
+  hps: 37.34556
  }
 }
 dps_results: {
@@ -947,10 +947,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 782.94313
-  tps: 818.842
-  dtps: 7.21898
-  hps: 37.17611
+  dps: 788.85118
+  tps: 824.79387
+  dtps: 7.17462
+  hps: 37.21
  }
 }
 dps_results: {

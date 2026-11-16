@@ -27,7 +27,7 @@ type EnchantProc struct {
 	Kind      RateKind
 	Value     float64
 	Reason    string
-	Source    string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "estimate"
+	Source    string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "observed", "estimate"
 }
 
 var EnchantProcs = []EnchantProc{
@@ -51,10 +51,11 @@ var EnchantProcs = []EnchantProc{
 		EnchantID: 8217,
 		SpellID:   1248806,
 		Kind:      RateChance,
-		Value:     0.09, // TODO: Measure the rate and how it falls with the wearer's crit chance, which the sim does not model.
+		Value:     0.08, // TODO: Measure and model how the chance falls as the wearer's crit chance rises (EV-0129).
 		Reason: "Revelation: 1248806's 100 is the sentinel; the tooltip says the chance is diminished as the " +
-			"wearer's critical strike chance increases, and states no number",
-		Source: "estimate",
+			"wearer's critical strike chance increases, and states no number; the rate is the owner's round " +
+			"figure from logs (EV-0129)",
+		Source: "observed",
 	},
 }
 

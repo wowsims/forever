@@ -13001,11 +13001,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 692889, SpellID: 15595, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_TAKEN, BasePoints: -51, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 15600, Name: "Hand of Justice", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 3, ProcFlags: [2]uint32{0: 0x14}, ICDMs: 2000,
+	{ID: 15600, Name: "Hand of Justice", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 3, ProcFlags: [2]uint32{0: 0x14}, ICDMs: 2000, VersusEffectIndex: 1, VersusFamilies: []int32{16},
 		Effects: []Effect{
 			{ID: 693890, SpellID: 15600, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 15601, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1325832, SpellID: 15600, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 3, PvpMult: 1, TriggerID: 15601, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x3 ($s2) against CreatureFamilyDwarf -- Hand of Justice: 'Attacks against Dwarves are $s2 times as likely to activate this effect'
 	{ID: 15601, Name: "Hand of Justice", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60,
 		Effects: []Effect{
 			{ID: 693067, SpellID: 15601, Type: dbcenums.E_ADD_EXTRA_ATTACKS, BasePoints: 1, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -13727,6 +13727,32 @@ var generatedSpells = []Spell{
 	{ID: 16589, Name: "Noggenfogger Elixir", School: 1, Attr: [17]uint32{0: 0x28000000, 15: 0x2000}, DefenseType: 1, ProcChance: 101, InterruptFlags: 8, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 694470, SpellID: 16589, Type: dbcenums.E_DUMMY, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 16596, Name: "Flames of Shahram", School: 4, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, MaxRange: 30, DefenseType: 1, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 692766, SpellID: 16596, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 125, Variance: 0.5600000023841858, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+		}},
+	{ID: 16597, Name: "Curse of Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 10000, MaxRange: 30, DefenseType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 693034, SpellID: 16597, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -50, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+			{ID: 693035, SpellID: 16597, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: -25, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+		}},
+	{ID: 16598, Name: "Will of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 20000, MaxRange: 30, DefenseType: 1, DispelType: 1, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 691847, SpellID: 16598, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 50, SPCoef: 1, PvpMult: 1, Misc: -1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{27, 0}},
+		}},
+	{ID: 16599, Name: "Blessing of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 20000, MaxRange: 30, DefenseType: 1, DispelType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 691775, SpellID: 16599, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 50, SPCoef: 1, PvpMult: 1, PeriodMs: 5000, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{20, 0}},
+			{ID: 691776, SpellID: 16599, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 50, SPCoef: 1, PvpMult: 1, PeriodMs: 5000, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{20, 0}},
+		}},
+	{ID: 16600, Name: "Might of Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 5000, MaxRange: 30, DefenseType: 1, Mechanic: 12, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 691610, SpellID: 16600, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
+		}},
+	{ID: 16601, Name: "Fist of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 8000, MaxRange: 30, DefenseType: 1, DispelType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 693406, SpellID: 16601, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: 30, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 	{ID: 16602, Name: "Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, DurationMs: -1, DefenseType: 1,
 		Effects: []Effect{
@@ -14488,11 +14514,11 @@ var generatedSpells = []Spell{
 			{ID: 693438, SpellID: 17333, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ROOT, PvpMult: 1, ChainAmp: 1, Mechanic: 7, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 			{ID: 693439, SpellID: 17333, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_ARMOR_NO_MODS, BasePoints: -100, PvpMult: 1, Misc: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 17350, Name: "Argent Dawn", School: 1, Attr: [17]uint32{0: 0x1c0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 55, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 20000, RefIDs: []int32{17351}, ProcChanceSource: ProcChancePPM,
+	{ID: 17350, Name: "Argent Dawn", School: 1, Attr: [17]uint32{0: 0x1c0, 1: 0x10000000, 15: 0x2000}, SpellLevel: 55, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ICDMs: 20000, RPPM: 0.5, VersusEffectIndex: 1, VersusMobTypes: []int32{8}, RefIDs: []int32{17351}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 693246, SpellID: 17350, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 17351, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1322502, SpellID: 17350, Index: 1, Type: dbcenums.E_DUMMY, BasePoints: 2, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 0.5 -- Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'; a log fit not yet validated (EV-0126) // override: VersusBonus x2 ($s2) against MobTypeUndead -- Argent Defender: 'Undead that strike you are $s2 times as likely to activate this effect'
 	{ID: 17351, Name: "Argent Dawn", School: 1, Attr: [17]uint32{0: 0x50000, 15: 0x2000}, SpellLevel: 55, DurationMs: 10000, Category: 56, DefenseType: 1, InterruptFlags: 15,
 		Effects: []Effect{
 			{ID: 693224, SpellID: 17351, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_BLOCK_PERCENT, BasePoints: 18, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -36926,11 +36952,11 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1325969, SpellID: 1301045, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: 10000, PvpMult: 1, Misc: 1, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{1: 67108864}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1301046, Name: "Fury of Forgewright", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 6, ProcFlags: [2]uint32{0: 0x14, 1: 0x20}, ICDMs: 100, RefIDs: []int32{15494},
+	{ID: 1301046, Name: "Fury of Forgewright", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 60, ProcChance: 6, ProcFlags: [2]uint32{0: 0x14, 1: 0x20}, ICDMs: 100, VersusEffectIndex: 1, VersusFamilies: []int32{10}, RefIDs: []int32{15494},
 		Effects: []Effect{
 			{ID: 1325971, SpellID: 1301046, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, PvpMult: 1, TriggerID: 15494, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1325972, SpellID: 1301046, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_DUMMY, BasePoints: 2, PvpMult: 1, TriggerID: 15601, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: VersusBonus x2 ($s2) against CreatureFamilyOrc -- Fury of Forgewright: 'Attacks against Orcs are $s2 times as likely to activate this effect'
 	{ID: 1301047, Name: "1.60.0 - Item - Tier 1 - Rogue 3P Bonus - Kidney Shot", School: 1, Attr: [17]uint32{0: 0x150, 2: 0x100, 15: 0x2000}, SpellLevel: 1, ClassFlags: core.ClassFlags{Family: 8}, ProcHint: core.ProcHintNamedAbility,
 		Effects: []Effect{
 			{ID: 1325973, SpellID: 1301047, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_FLAT_MODIFIER, BasePoints: -3000, PvpMult: 1, Misc: 11, ClassFlags: core.ClassFlags{Family: 8, Mask: [4]uint32{0: 2097152}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

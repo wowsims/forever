@@ -747,6 +747,7 @@ message VersusEffect {
 enum VersusEffectKind {
 	VersusEffectKindDamage = 0;
 	VersusEffectKindRestore = 1; // The mana, rage or energy the spell restores.
+	VersusEffectKindProcChance = 2; // How likely the item's proc is.
 }
 message PartyStats {
 	repeated PlayerStats players = 1;

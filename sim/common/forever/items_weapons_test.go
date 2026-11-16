@@ -859,6 +859,346 @@ func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
 	}
 }
 
+// The spells Shahram can land for the wearer; Fist of Shahram 16601 lands nothing.
+var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600}
+
+// Blackblade of Shahram 12592 casts 16602 at the procs per minute of the item's chance-on-hit entry,
+// on the sword's speed, off main-hand hits. Each summon lands one of Shahram's spells, none of them
+// before its row's hardcast has run, or nothing when he picks Fist of Shahram.
+func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T) {
+	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 12592, 1, 6000)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Blackblade of Shahram")
+	summon := character.GetSpell(core.ActionID{SpellID: 16602})
+	if proc == nil || proc.Dpm == nil || summon == nil {
+		t.Fatal("12592 registers no 16602 or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 12592, 16602)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 12592, 16602)
+
+	enemy := character.CurrentTarget
+	hardcast := time.Duration(math.MaxInt64)
+	casts := func(id int32) int32 {
+		return character.GetSpell(core.ActionID{SpellID: id}).SpellMetrics[enemy.UnitIndex].Casts
+	}
+	landed := func() (n int32) {
+		for _, id := range shahramSpellIDs {
+			n += casts(id)
+		}
+		return n
+	}
+	for _, id := range shahramSpellIDs {
+		hardcast = min(hardcast, spelldata.MustFind(id).CastTime())
+	}
+	if hardcast <= 0 {
+		t.Fatalf("a Shahram spell states a hardcast of %v, want one", hardcast)
+	}
+
+	// Each summon gets longer than the longest of his spells to land and run out.
+	const summons, apart = 200, 25 * time.Second
+	nothing := 0
+	for range summons {
+		start, before := sim.CurrentTime, landed()
+		summon.Cast(sim, enemy)
+		stepTo(t, sim, start+hardcast)
+		if got := landed(); got != before {
+			t.Fatalf("a summon landed %d spells within the shortest hardcast, %v, want none yet", got-before, hardcast)
+		}
+		stepTo(t, sim, start+apart)
+		switch landed() - before {
+		case 0:
+			nothing++
+		case 1:
+		default:
+			t.Fatalf("a summon landed %d spells, want one at most", landed()-before)
+		}
+	}
+	for _, id := range shahramSpellIDs {
+		if casts(id) == 0 {
+			t.Errorf("%d summons never landed %d", summons, id)
+		}
+	}
+	if nothing == 0 {
+		t.Errorf("each of %d summons landed a spell, want some to pick Fist of Shahram and land nothing", summons)
+	}
+}
+
+// Flames of Shahram 16596 burns every enemy. Shahram's spells take nothing from the wearer's damage
+// modifiers or crit chance and put no threat on the wearer.
+func TestFlamesOfShahramBurnsEveryEnemy(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.PseudoStats.DamageDealtMultiplier *= 2
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100})
+	flames := character.GetSpell(core.ActionID{SpellID: 16596})
+	damage := spelldata.MustFind(16596).DamageEffect()
+	if damage.Min() <= 0 || damage.Max() <= damage.Min() {
+		t.Fatalf("16596 deals %v to %v, want a range", damage.Min(), damage.Max())
+	}
+
+	const casts = 100
+	for range casts {
+		flames.Cast(sim, character.CurrentTarget)
+	}
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		metrics := flames.SpellMetrics[enemy.UnitIndex]
+		average := metrics.TotalDamage / float64(metrics.Hits)
+		if metrics.Hits != casts || metrics.Crits != 0 || average < damage.Min() || average > damage.Max() {
+			t.Errorf("%d casts hit %s %d times with %d crits for %.1f on average, want every cast to hit with no crit within %v to %v",
+				casts, enemy.Label, metrics.Hits, metrics.Crits, average, damage.Min(), damage.Max())
+		}
+		if metrics.TotalThreat != 0 {
+			t.Errorf("the hits on %s put %v threat on the wearer, want none", enemy.Label, metrics.TotalThreat)
+		}
+	}
+}
+
+// The Will of Shahram 16598 aura on a wearer whose auto attacks are off, and a check that its stacks,
+// and the row's stats once per stack, are what a moment of the test expects.
+func willOfShahramWearer(t *testing.T) (*core.Simulation, *core.Character, *core.Spell, *core.Aura, func(string, int32)) {
+	t.Helper()
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	row := spelldata.MustFind(16598)
+	amount := row.EffectN(1).Average()
+	if amount <= 0 {
+		t.Fatalf("16598 grants %v stats, want an amount", amount)
+	}
+	aura := character.GetAuraByID(core.ActionID{SpellID: 16598})
+	if aura == nil {
+		t.Fatal("the wearer has no aura of 16598")
+	}
+	base := character.GetStat(stats.Strength)
+	expect := func(when string, stacks int32) {
+		t.Helper()
+		if got, want := character.GetStat(stats.Strength), base+float64(stacks)*amount; math.Abs(got-want) > 1e-6 {
+			t.Errorf("%s the wearer's Strength is %v, want %v", when, got, want)
+		}
+		if aura.IsActive() != (stacks > 0) || aura.GetStacks() != stacks {
+			t.Errorf("%s the aura is active %v with %d stacks, want %d", when, aura.IsActive(), aura.GetStacks(), stacks)
+		}
+	}
+	return sim, character, character.GetSpell(core.ActionID{SpellID: 16598}), aura, expect
+}
+
+// Each Will of Shahram 16598 adds a stack worth the row's stats to one aura. Each stack fades on its
+// own timer, the aura stays up while any stack does, and its remaining time is the latest stack's.
+func TestWillOfShahramStacksAndFadeOneByOne(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration := spelldata.MustFind(16598).Duration()
+	if duration <= 0 {
+		t.Fatalf("16598 lasts %v, want a duration", duration)
+	}
+
+	start := sim.CurrentTime
+	will.Cast(sim, character.CurrentTarget)
+	expect("after one Will", 1)
+	stepTo(t, sim, start+duration/2)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a second Will", 2)
+	if got := aura.RemainingDuration(sim); got != duration {
+		t.Errorf("after a second Will the aura has %v left, want the second Will's %v", got, duration)
+	}
+	stepTo(t, sim, start+duration+time.Millisecond)
+	expect("past the first Will's duration", 1)
+	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
+	expect("past the second Will's duration", 0)
+
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a Will once every stack has faded", 1)
+}
+
+// Will of Shahram 16598 forgets its stacks when its aura ends, so a stack that lands afterwards fades
+// on its own timer, and not on one of the stacks that ended with the aura.
+func TestWillOfShahramForgetsItsStacksWhenTheAuraEnds(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration := spelldata.MustFind(16598).Duration()
+	if duration <= 0 {
+		t.Fatalf("16598 lasts %v, want a duration", duration)
+	}
+
+	start := sim.CurrentTime
+	will.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+duration/2)
+	will.Cast(sim, character.CurrentTarget)
+	aura.Deactivate(sim)
+	expect("after the aura ends", 0)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a Will once the aura has ended", 1)
+	stepTo(t, sim, start+duration+time.Millisecond)
+	expect("past the duration of the first Will before the aura ended", 1)
+	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
+	expect("past the new Will's duration", 0)
+}
+
+// With every stack of Will of Shahram 16598 up, a new Will replaces the stack closest to fading, so the
+// bonus stays at the most stacks the wearer can carry and the aura lasts until the new stack fades.
+func TestWillOfShahramReplacesTheOldestStackWhenAllAreUp(t *testing.T) {
+	sim, character, will, aura, expect := willOfShahramWearer(t)
+	duration, full := spelldata.MustFind(16598).Duration(), aura.MaxStacks
+	if full < 2 || duration <= time.Duration(full)*time.Second {
+		t.Fatalf("16598 lasts %v and the aura holds %d stacks, want more than one stack, each lasting longer than a second per stack", duration, full)
+	}
+
+	start := sim.CurrentTime
+	for i := range full {
+		stepTo(t, sim, start+time.Duration(i)*time.Second)
+		will.Cast(sim, character.CurrentTarget)
+	}
+	expect("with every stack up", full)
+	stepTo(t, sim, start+time.Duration(full)*time.Second)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after one Will more than the aura holds", full)
+	if got := aura.RemainingDuration(sim); got != duration {
+		t.Errorf("after one Will more than the aura holds it has %v left, want the new Will's %v", got, duration)
+	}
+	stepTo(t, sim, start+duration+500*time.Millisecond)
+	expect("past the first stack's duration", full)
+	stepTo(t, sim, start+duration+time.Second+500*time.Millisecond)
+	expect("past the second stack's duration", full-1)
+}
+
+// Curse of Shahram 16597 slows the attacks of every enemy by the row's share for the row's duration.
+func TestCurseOfShahramSlowsEveryEnemysAttacks(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16597)
+	slowed := 1 / core.MultiplierFromPercent(-row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3).Average())
+	if slowed >= 1 || row.Duration() <= 0 {
+		t.Fatalf("16597 leaves attacks at %v of their speed for %v, want a slow", slowed, row.Duration())
+	}
+	enemies := sim.Encounter.ActiveTargetUnits
+	expect := func(when string, want float64) {
+		t.Helper()
+		for _, enemy := range enemies {
+			if got := enemy.TotalMeleeHasteMultiplier(); math.Abs(got-want) > 1e-9 {
+				t.Errorf("%s %s attacks at %v of its speed, want %v", when, enemy.Label, got, want)
+			}
+		}
+	}
+
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 16597}).Cast(sim, character.CurrentTarget)
+	expect("cursed,", slowed)
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+	expect("past the row's duration", 1)
+}
+
+// Might of Shahram 16600 stuns every enemy for the row's duration, and a stun-immune enemy not at all.
+func TestMightOfShahramStunsEveryEnemyThatCanBeStunned(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16600)
+	if row.Duration() <= 0 {
+		t.Fatal("16600 states no duration")
+	}
+	stunnable, immune := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	immune.StunImmune = true
+
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 16600}).Cast(sim, character.CurrentTarget)
+	if !stunnable.PseudoStats.Stunned || immune.PseudoStats.Stunned {
+		t.Errorf("after the cast %s is stunned: %v, the stun-immune %s: %v; want only the first",
+			stunnable.Label, stunnable.PseudoStats.Stunned, immune.Label, immune.PseudoStats.Stunned)
+	}
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+	if stunnable.PseudoStats.Stunned {
+		t.Errorf("%s is still stunned past the row's %v", stunnable.Label, row.Duration())
+	}
+}
+
+// Blessing of Shahram 16599 restores the row's mana each period for the row's duration, and two
+// Blessings tick side by side.
+func TestBlessingOfShahramRestoresManaForEachBlessing(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotMainHand, 12592)
+	row := spelldata.MustFind(16599)
+	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	ticks := int32(row.Duration() / mana.Period())
+	if mana.Average() <= 0 || ticks < 2 {
+		t.Fatalf("16599 restores %v mana over %d ticks, want an amount at least twice", mana.Average(), ticks)
+	}
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+
+	blessing := character.GetSpell(core.ActionID{SpellID: 16599})
+	start := sim.CurrentTime
+	blessing.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+mana.Period()/2)
+	blessing.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+mana.Period()/2+row.Duration()+time.Millisecond)
+
+	var gain float64
+	var events int32
+	for _, r := range character.Metrics.ToProto().Resources {
+		if r.Id.GetSpellId() == 16599 {
+			gain, events = r.Gain, r.Events
+		}
+	}
+	if events != 2*ticks || math.Abs(gain-float64(2*ticks)*mana.Average()) > 1e-6 {
+		t.Errorf("two Blessings restored %v mana over %d ticks, want %d ticks of %v", gain, events, 2*ticks, mana.Average())
+	}
+}
+
+// Blessing of Shahram 16599 restores mana to every member of the wearer's party with a mana bar.
+func TestBlessingOfShahramRestoresManaForPartyMembers(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 12592
+	newPaladin := func(name string, equipment []*proto.ItemSpec) *proto.Player {
+		player := &proto.Player{
+			Name: name, Class: proto.Class_ClassPaladin, Race: proto.Race_RaceHuman,
+			Equipment:   &proto.EquipmentSpec{Items: equipment},
+			Consumables: &proto.ConsumesSpec{},
+			Buffs:       &proto.IndividualBuffs{},
+			Rotation:    &proto.APLRotation{},
+		}
+		core.WithSpec(player, &proto.Player_HolyPaladin{HolyPaladin: &proto.HolyPaladin{}})
+		return player
+	}
+	bare := make([]*proto.ItemSpec, len(items))
+	for i := range bare {
+		bare[i] = &proto.ItemSpec{}
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid: &proto.Raid{Parties: []*proto.Party{{
+			Players: []*proto.Player{newPaladin("Wearer", items), newPaladin("Friend", bare)},
+			Buffs:   &proto.PartyBuffs{},
+		}}},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 180},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	wearer := sim.Raid.Parties[0].Players[0].GetCharacter()
+	friend := sim.Raid.Parties[0].Players[1].GetCharacter()
+
+	row := spelldata.MustFind(16599)
+	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	ticks := int32(row.Duration() / mana.Period())
+	for _, member := range []*core.Character{wearer, friend} {
+		member.SpendMana(sim, member.CurrentMana(), member.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+	}
+
+	start := sim.CurrentTime
+	wearer.GetSpell(core.ActionID{SpellID: 16599}).Cast(sim, wearer.CurrentTarget)
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+
+	for _, member := range []*core.Character{wearer, friend} {
+		var gain float64
+		var events int32
+		for _, r := range member.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == 16599 {
+				gain, events = r.Gain, r.Events
+			}
+		}
+		if events != ticks || math.Abs(gain-float64(ticks)*mana.Average()) > 1e-6 {
+			t.Errorf("%s gained %v mana over %d ticks, want %d ticks of %v", member.Name, gain, events, ticks, mana.Average())
+		}
+	}
+}
+
 // Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
 // mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
 // death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing
@@ -930,9 +1270,9 @@ func TestSpinalReaperRestoresPowerOnAKillingBlow(t *testing.T) {
 }
 
 // Ironfoe 11684 rolls 1301046's ProcChance on each landed melee hit on an Orc, and on any other target
-// the column divided by its second effect's value (the rule registerLikelierExtraAttack states).
+// the column divided by its second effect's value (the rule registerExtraAttackVersus states).
 func TestIronfoeIsLikelierAgainstOrcs(t *testing.T) {
-	expectLikelierAgainst(t, 11684, 1301046, proto.CreatureFamily_CreatureFamilyOrc)
+	expectExtraAttackVersus(t, 11684, "Ironfoe", 1301046, proto.CreatureFamily_CreatureFamilyOrc)
 }
 
 // Blade of Hanna 2801 adds a stack of Improving Form 1325509 on each main-hand swing. Only the swing
