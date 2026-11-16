@@ -7,7 +7,7 @@
   dungeon under a rank 2 Windfury Totem
 - Game build: 1.60.1.70938, after the hotfix pushes up to 2026-11-15 06:22 UTC that EV-0119 names, logged in after them
 - Date: 2026-11-15
-- Pull request: #1055
+- Pull request: #1056
 
 A unit is the paladin's melee-type hits, avoided hits and proc lines with no gap over 150 ms between neighbours. Its
 rolls are one for a white swing, a Holy Strike, a Seal of Command hit, each Seal of Righteousness hit and a Windfury
