@@ -7,6 +7,7 @@ import (
 	"io"
 	"iter"
 	"maps"
+	"math"
 	"os"
 	"regexp"
 	"slices"
@@ -579,7 +580,21 @@ type UnvalidatedRate struct {
 	Pieces int32 // The set bonus's piece count; 0 on an item or an enchant.
 	Name   string
 	Kind   overrides.RateKind
-	Origin string // "vanilla", "tbc" or "unknown".
+	Rate   float64 // What the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance; 0 where no single rate applies.
+	Origin string  // "vanilla", "tbc" or "unknown".
+}
+
+// The rate and origin of the notice's TypeScript object, with no rate where none applies.
+func (r UnvalidatedRate) Fields() string {
+	if r.Rate == 0 {
+		return fmt.Sprintf("kind: '%s', origin: '%s'", r.Kind, r.Origin)
+	}
+	return fmt.Sprintf("kind: '%s', rate: %s, origin: '%s'", r.Kind, strconv.FormatFloat(r.Rate, 'f', -1, 64), r.Origin)
+}
+
+// A chance of 0 to 1 as the percent the notices show, free of float noise.
+func chancePercent(chance float64) float64 {
+	return math.Round(chance*100*1e6) / 1e6
 }
 
 type UnvalidatedRates struct {
@@ -595,6 +610,7 @@ type literalRate struct {
 	ID     int32
 	Pieces int32
 	Kind   overrides.RateKind
+	Rate   float64 // 0 where the rate varies with something the notice cannot state.
 	Origin string
 	Reason string
 }
@@ -604,7 +620,7 @@ var literalRates = []literalRate{
 		Gear:   "item",
 		ID:     272432,
 		Kind:   overrides.RatePPM,
-		Origin: "unknown",
+		Origin: "unknown", // The rate follows the Maelstrom Weapon rank, so the notice states none.
 		Reason: "Totem of the Storm: half of the rate per minute Maelstrom Weapon's row states; the game files " +
 			"do not state what a Lightning Bolt's chance is priced on, and the sim prices it on the main hand's speed",
 	},
@@ -613,6 +629,7 @@ var literalRates = []literalRate{
 		ID:     184,
 		Pieces: 5,
 		Kind:   overrides.RatePPM,
+		Rate:   1,
 		Origin: "unknown",
 		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
@@ -622,6 +639,7 @@ var literalRates = []literalRate{
 		ID:     1676,
 		Pieces: 4,
 		Kind:   overrides.RatePPM,
+		Rate:   1,
 		Origin: "unknown",
 		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
 			"so the sim keeps 1 per minute as a literal",
@@ -711,7 +729,11 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	enchants := map[int32]UnvalidatedRate{}
 	setBonuses := map[[2]int32]UnvalidatedRate{}
 	var conflict error
-	check := func(listed UnvalidatedRate, ok bool, rate UnvalidatedRate) {
+	// Two rates on one piece of gear that differ leave it with no single rate to state.
+	check := func(listed UnvalidatedRate, ok bool, rate *UnvalidatedRate) {
+		if ok && listed.Rate != rate.Rate {
+			rate.Rate = 0
+		}
 		if ok && (listed.Kind != rate.Kind || listed.Origin != rate.Origin) && conflict == nil {
 			conflict = fmt.Errorf("%s (%d) carries two rates, a %s %s one and a %s %s one",
 				rate.Name, rate.ID, listed.Origin, listed.Kind, rate.Origin, rate.Kind)
@@ -719,13 +741,13 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	}
 	put := func(list map[int32]UnvalidatedRate, rate UnvalidatedRate) {
 		listed, ok := list[rate.ID]
-		check(listed, ok, rate)
+		check(listed, ok, &rate)
 		list[rate.ID] = rate
 	}
 	putSetBonus := func(rate UnvalidatedRate) {
 		key := [2]int32{rate.ID, rate.Pieces}
 		listed, ok := setBonuses[key]
-		check(listed, ok, rate)
+		check(listed, ok, &rate)
 		setBonuses[key] = rate
 	}
 	enchantByEffectID := map[int32]*proto.UIEnchant{}
@@ -737,7 +759,7 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	for _, proc := range in.WeaponProcs {
 		item, ok := db.Items[proc.ItemID]
 		if origin := rateOrigin(proc.Source); origin != "" && ok {
-			put(items, UnvalidatedRate{ID: item.Id, Name: item.Name, Kind: overrides.RatePPM, Origin: origin})
+			put(items, UnvalidatedRate{ID: item.Id, Name: item.Name, Kind: overrides.RatePPM, Rate: proc.PPM, Origin: origin})
 		}
 	}
 
@@ -748,17 +770,17 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 		}
 		for _, itemID := range in.SpellItems[o.SpellID] {
 			if item, ok := db.Items[itemID]; ok {
-				put(items, UnvalidatedRate{ID: itemID, Name: item.Name, Kind: kind, Origin: origin})
+				put(items, UnvalidatedRate{ID: itemID, Name: item.Name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 		for _, effectID := range in.SpellEnchants[o.SpellID] {
 			if enchant, ok := enchantByEffectID[effectID]; ok {
-				put(enchants, UnvalidatedRate{ID: effectID, Name: enchant.Name, Kind: kind, Origin: origin})
+				put(enchants, UnvalidatedRate{ID: effectID, Name: enchant.Name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 		for _, bonus := range in.SpellSets[o.SpellID] {
 			if name, ok := setNames[bonus[0]]; ok {
-				putSetBonus(UnvalidatedRate{ID: bonus[0], Pieces: bonus[1], Name: name, Kind: kind, Origin: origin})
+				putSetBonus(UnvalidatedRate{ID: bonus[0], Pieces: bonus[1], Name: name, Kind: kind, Rate: o.Value, Origin: origin})
 			}
 		}
 	}
@@ -766,12 +788,16 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	for _, proc := range in.EnchantProcs {
 		enchant, ok := enchantByEffectID[proc.EnchantID]
 		if origin := rateOrigin(proc.Source); origin != "" && ok {
-			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Origin: origin})
+			rate := proc.Value
+			if proc.Kind == overrides.RateChance {
+				rate = chancePercent(rate)
+			}
+			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Rate: rate, Origin: origin})
 		}
 	}
 
 	for _, literal := range in.Literals {
-		rate := UnvalidatedRate{ID: literal.ID, Pieces: literal.Pieces, Kind: literal.Kind, Origin: literal.Origin}
+		rate := UnvalidatedRate{ID: literal.ID, Pieces: literal.Pieces, Kind: literal.Kind, Rate: literal.Rate, Origin: literal.Origin}
 		switch literal.Gear {
 		case "item":
 			if item, ok := db.Items[literal.ID]; ok {

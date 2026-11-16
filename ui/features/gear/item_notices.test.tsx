@@ -11,6 +11,12 @@ vi.mock('@i18n/localization', () => ({
 	translateStat: (value: number) => `stat-${value}`,
 }));
 
+// The real translator returns the key when no bundle is loaded, which would hide the rate; this one
+// appends the interpolation values it was given.
+vi.mock('@i18n/config', () => ({
+	default: { t: (key: string, options?: { rate?: string }) => (options?.rate ? `${key} ${options.rate}` : key) },
+}));
+
 vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 	MISSING_ITEM_EFFECTS: new Map([
 		[1, ['Does a thing.']],
@@ -27,33 +33,34 @@ vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 		],
 	]),
 	UNVALIDATED_RATE_ITEMS: new Map([
-		[1, { kind: 'ppm', origin: 'vanilla' }],
-		[3, { kind: 'ppm', origin: 'vanilla' }],
-		[4, { kind: 'ppm', origin: 'tbc' }],
-		[5, { kind: 'chance', origin: 'vanilla' }],
-		[6, { kind: 'chance', origin: 'tbc' }],
-		[7, { kind: 'ppm', origin: 'unknown' }],
-		[8, { kind: 'chance', origin: 'unknown' }],
+		[1, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+		[3, { kind: 'ppm', rate: 0.855, origin: 'vanilla' }],
+		[4, { kind: 'ppm', rate: 1.5, origin: 'tbc' }],
+		[5, { kind: 'chance', rate: 5, origin: 'vanilla' }],
+		[6, { kind: 'chance', rate: 12.5, origin: 'tbc' }],
+		[7, { kind: 'ppm', rate: 1.1, origin: 'unknown' }],
+		[8, { kind: 'chance', rate: 9, origin: 'unknown' }],
+		[10, { kind: 'ppm', origin: 'unknown' }],
 	]),
 	UNVALIDATED_RATE_ENCHANTS: new Map([
-		[2, { kind: 'ppm', origin: 'tbc' }],
-		[9, { kind: 'chance', origin: 'vanilla' }],
+		[2, { kind: 'ppm', rate: 2, origin: 'tbc' }],
+		[9, { kind: 'chance', rate: 10, origin: 'vanilla' }],
 	]),
 	UNVALIDATED_RATE_SET_BONUSES: new Map([
 		[
 			9999,
 			new Map([
-				[2, { kind: 'chance', origin: 'tbc' }],
-				[4, { kind: 'ppm', origin: 'vanilla' }],
+				[2, { kind: 'chance', rate: 25, origin: 'tbc' }],
+				[4, { kind: 'ppm', rate: 3, origin: 'vanilla' }],
 			]),
 		],
 	]),
 }));
 
-const VANILLA_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_vanilla';
-const TBC_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_tbc';
-const VANILLA_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_vanilla';
-const TBC_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_tbc';
+const VANILLA_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate 1';
+const TBC_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate 2';
+const VANILLA_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_vanilla_rate 10';
+const TBC_CHANCE_WARNING = 'gear_tab.item_notices.unvalidated_rate.chance_tbc_rate 25';
 
 const notice = (node: ReactNode) => {
 	const { container } = render(<>{node}</>);
@@ -77,12 +84,13 @@ describe('the item notice table', () => {
 	});
 
 	it.each([
-		['a vanilla rate per minute', 3, VANILLA_PPM_WARNING],
-		['a TBC rate per minute', 4, TBC_PPM_WARNING],
-		['a vanilla chance', 5, VANILLA_CHANCE_WARNING],
-		['a TBC chance', 6, TBC_CHANCE_WARNING],
-		['a rate per minute of no known origin', 7, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown'],
-		['a chance of no known origin', 8, 'gear_tab.item_notices.unvalidated_rate.chance_unknown'],
+		['a vanilla rate per minute, rounded to 2 decimals', 3, 'gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate 0.86'],
+		['a TBC rate per minute', 4, 'gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate 1.5'],
+		['a vanilla chance', 5, 'gear_tab.item_notices.unvalidated_rate.chance_vanilla_rate 5'],
+		['a TBC chance', 6, 'gear_tab.item_notices.unvalidated_rate.chance_tbc_rate 12.5'],
+		['a rate per minute of no known origin', 7, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown_rate 1.1'],
+		['a chance of no known origin', 8, 'gear_tab.item_notices.unvalidated_rate.chance_unknown_rate 9'],
+		['a rate with no single value', 10, 'gear_tab.item_notices.unvalidated_rate.ppm_unknown'],
 	])('warns that %s needs validating on an item with no other notice', (_, id, warning) => {
 		expect(paragraphs(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([warning]);
 	});
@@ -133,7 +141,7 @@ describe('registerSetBonusNotices', () => {
 					text: `gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.not_yet_implemented ${TBC_CHANCE_WARNING}`,
 					tooltips: ['Grants a bonus.'],
 				},
-				{ text: `gear_tab.item_notices.set_bonus_piece ${VANILLA_PPM_WARNING}`, tooltips: [] },
+				{ text: `gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate 3`, tooltips: [] },
 				{
 					text: 'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.not_yet_implemented',
 					tooltips: ['Grants another.', 'And a third.'],

@@ -648,7 +648,13 @@
 				"ppm_unknown": "In-game validation needed. Currently using an estimated proc rate",
 				"chance_vanilla": "In-game validation needed. Currently using a Vanilla proc chance",
 				"chance_tbc": "In-game validation needed. Currently using a TBC proc chance",
-				"chance_unknown": "In-game validation needed. Currently using an estimated proc chance"
+				"chance_unknown": "In-game validation needed. Currently using an estimated proc chance",
+				"ppm_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc rate of {{rate}} PPM.",
+				"ppm_tbc_rate": "In-game validation needed. Currently using a TBC proc rate of {{rate}} PPM.",
+				"ppm_unknown_rate": "In-game validation needed. Currently using an estimated proc rate of {{rate}} PPM.",
+				"chance_vanilla_rate": "In-game validation needed. Currently using a Vanilla proc chance of {{rate}}%.",
+				"chance_tbc_rate": "In-game validation needed. Currently using a TBC proc chance of {{rate}}%.",
+				"chance_unknown_rate": "In-game validation needed. Currently using an estimated proc chance of {{rate}}%."
 			},
 			"not_yet_implemented": "Not yet implemented",
 			"not_fully_supported": "Not fully supported:",

@@ -72,9 +72,9 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{EnchantID: 200, SpellID: 11, Kind: overrides.RatePPM, Value: 1, Source: "EV-0003"},
 		},
 		Literals: []literalRate{
-			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Origin: "unknown"},
-			{Gear: "set bonus", ID: 7000, Pieces: 4, Kind: overrides.RateChance, Origin: "tbc"},
-			{Gear: "set bonus", ID: 7000, Pieces: 2, Kind: overrides.RatePPM, Origin: "vanilla"},
+			{Gear: "item", ID: 50, Kind: overrides.RatePPM, Rate: 1.5, Origin: "unknown"},
+			{Gear: "set bonus", ID: 7000, Pieces: 4, Kind: overrides.RateChance, Rate: 25, Origin: "tbc"},
+			{Gear: "set bonus", ID: 7000, Pieces: 2, Kind: overrides.RatePPM, Rate: 2, Origin: "vanilla"},
 			{Gear: "set bonus", ID: 8000, Pieces: 2, Kind: overrides.RatePPM, Origin: "vanilla"},
 		},
 		SpellItems:    map[int32][]int32{6: {40, 98}, 7: {45}, 8: {20}, 9: {45}},
@@ -91,12 +91,13 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 	type entry struct {
 		id, pieces int32
 		kind       overrides.RateKind
+		rate       float64
 		origin     string
 	}
 	entries := func(list []UnvalidatedRate) []entry {
 		var got []entry
 		for _, rate := range list {
-			got = append(got, entry{rate.ID, rate.Pieces, rate.Kind, rate.Origin})
+			got = append(got, entry{rate.ID, rate.Pieces, rate.Kind, rate.Rate, rate.Origin})
 		}
 		return got
 	}
@@ -106,20 +107,20 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 		want []entry
 	}{
 		{"items", rates.Items, []entry{
-			{10, 0, overrides.RatePPM, "tbc"},
-			{30, 0, overrides.RatePPM, "vanilla"},
-			{40, 0, overrides.RatePPM, "tbc"},
-			{45, 0, overrides.RateChance, "unknown"},
-			{50, 0, overrides.RatePPM, "unknown"},
+			{10, 0, overrides.RatePPM, 1, "tbc"},
+			{30, 0, overrides.RatePPM, 0, "vanilla"}, // Two procs at 1 and 2 per minute: no single rate.
+			{40, 0, overrides.RatePPM, 1, "tbc"},
+			{45, 0, overrides.RateChance, 5, "unknown"},
+			{50, 0, overrides.RatePPM, 1.5, "unknown"},
 		}},
 		{"enchants", rates.Enchants, []entry{
-			{100, 0, overrides.RateChance, "vanilla"},
-			{300, 0, overrides.RatePPM, "tbc"},
+			{100, 0, overrides.RateChance, 10, "vanilla"}, // A chance of 0.1 is 10 percent.
+			{300, 0, overrides.RatePPM, 1, "tbc"},
 		}},
 		{"set bonuses", rates.SetBonuses, []entry{
-			{7000, 2, overrides.RatePPM, "vanilla"},
-			{7000, 4, overrides.RateChance, "tbc"},
-			{7000, 6, overrides.RatePPM, "tbc"},
+			{7000, 2, overrides.RatePPM, 2, "vanilla"},
+			{7000, 4, overrides.RateChance, 25, "tbc"},
+			{7000, 6, overrides.RatePPM, 1, "tbc"},
 		}},
 	} {
 		if got := entries(tc.got); !slices.Equal(got, tc.want) {
@@ -146,11 +147,11 @@ func TestUnvalidatedRatesRefuseTwoOriginsOnOneItem(t *testing.T) {
 // under the set by piece count.
 func TestUnvalidatedRatesRender(t *testing.T) {
 	rates := UnvalidatedRates{
-		Items:    []UnvalidatedRate{{ID: 1, Name: "Blade", Kind: overrides.RatePPM, Origin: "vanilla"}},
-		Enchants: []UnvalidatedRate{{ID: 2, Name: "Enchant", Kind: overrides.RateChance, Origin: "tbc"}},
+		Items:    []UnvalidatedRate{{ID: 1, Name: "Blade", Kind: overrides.RatePPM, Rate: 1.1, Origin: "vanilla"}},
+		Enchants: []UnvalidatedRate{{ID: 2, Name: "Enchant", Kind: overrides.RateChance, Rate: 9, Origin: "tbc"}},
 		SetBonuses: []UnvalidatedRate{
 			{ID: 3, Pieces: 2, Name: "Set", Kind: overrides.RateChance, Origin: "unknown"},
-			{ID: 3, Pieces: 4, Name: "Set", Kind: overrides.RatePPM, Origin: "tbc"},
+			{ID: 3, Pieces: 4, Name: "Set", Kind: overrides.RatePPM, Rate: 0.5, Origin: "tbc"},
 		},
 	}
 	var rendered bytes.Buffer
@@ -160,17 +161,17 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 
 	for _, block := range []string{
 		"export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([\n" +
-			"\t[1, { kind: 'ppm', origin: 'vanilla' }], // Blade\n" +
+			"\t[1, { kind: 'ppm', rate: 1.1, origin: 'vanilla' }], // Blade\n" +
 			"])\n",
 		"export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([\n" +
-			"\t[2, { kind: 'chance', origin: 'tbc' }], // Enchant\n" +
+			"\t[2, { kind: 'chance', rate: 9, origin: 'tbc' }], // Enchant\n" +
 			"])\n",
 		"export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, UnvalidatedRate>>([\n" +
 			"\t[\n" +
 			"\t\t3, // Set\n" +
 			"\t\tnew Map([\n" +
 			"\t\t\t[2, { kind: 'chance', origin: 'unknown' }],\n" +
-			"\t\t\t[4, { kind: 'ppm', origin: 'tbc' }],\n" +
+			"\t\t\t[4, { kind: 'ppm', rate: 0.5, origin: 'tbc' }],\n" +
 			"\t\t]),\n" +
 			"\t],\n" +
 			"])\n",
