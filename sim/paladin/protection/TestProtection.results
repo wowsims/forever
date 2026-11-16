@@ -462,9 +462,9 @@ dps_results: {
  key: "TestProtection-AllItems-DarkmoonCard:Heroism-19287"
  value: {
   dps: 405.37216
-  tps: 973.29076
+  tps: 976.20551
   dtps: 344.4021
-  hps: 25.66784
+  hps: 28.1123
  }
 }
 dps_results: {
@@ -2063,10 +2063,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SoulforgeArmor"
  value: {
-  dps: 394.08293
-  tps: 928.16105
-  dtps: 324.9518
-  hps: 18.41861
+  dps: 411.53397
+  tps: 972.33292
+  dtps: 368.49997
+  hps: 18.1475
  }
 }
 dps_results: {

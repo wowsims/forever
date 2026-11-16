@@ -210,6 +210,9 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 		}
 		soldInAZone := false
 		for _, npcID := range npcIDs {
+			if _, ok := NotVendorNpcs[int32(npcID)]; ok {
+				continue
+			}
 			npc, faction, err := readNpc(npcID)
 			if err != nil {
 				return nil, nil, err

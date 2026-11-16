@@ -27,6 +27,7 @@ func init() {
 
 // The fixtures mirror the spec suites' Default* fixtures.
 var furyTalents = "30303003-050530355022100031"
+var recklessSwingsTalents = "30303003-050530355122100031"
 var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
@@ -510,8 +511,7 @@ func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	}
 }
 
-// Every white swing uses a Flurry charge whatever its outcome, and a Heroic Strike or Cleave uses
-// one only when it misses.
+// Every white swing, Heroic Strike and Cleave uses a Flurry charge whatever its outcome.
 func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
@@ -532,11 +532,12 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a dodged off-hand swing uses a charge", offHand, core.OutcomeDodge, 3, 2},
 		{"a parried off-hand swing uses a charge", offHand, core.OutcomeParry, 3, 2},
 		{"a missed Heroic Strike uses a charge", heroicStrike, core.OutcomeMiss, 3, 2},
-		{"a dodged Heroic Strike uses none", heroicStrike, core.OutcomeDodge, 3, 3},
-		{"a parried Heroic Strike uses none", heroicStrike, core.OutcomeParry, 3, 3},
-		{"a landed Heroic Strike uses none", heroicStrike, core.OutcomeHit, 3, 3},
+		{"a dodged Heroic Strike uses a charge", heroicStrike, core.OutcomeDodge, 3, 2},
+		{"a parried Heroic Strike uses a charge", heroicStrike, core.OutcomeParry, 3, 2},
+		{"a landed Heroic Strike uses a charge", heroicStrike, core.OutcomeHit, 3, 2},
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
-		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
+		{"a dodged Cleave uses a charge", cleave, core.OutcomeDodge, 3, 2},
+		{"a landed Cleave uses a charge", cleave, core.OutcomeHit, 3, 2},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
 		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
 		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
@@ -566,16 +567,66 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	}
 }
 
-// Windfury Totem's strike uses a Flurry charge as a white swing does, landed or not, and a critical
-// strike sets the charges again.
-func TestWindfuryTotemsStrikeUsesAFlurryCharge(t *testing.T) {
-	for _, c := range []struct {
-		outcome core.HitOutcome
+// A Cleave uses one Flurry charge and one Reckless Swings charge however many targets it hits, and
+// Whirlwind and Bloodthirst use no Reckless Swings charge.
+func TestChargesSpentPerCast(t *testing.T) {
+	cases := []struct {
+		name    string
+		aura    string
+		spell   core.ActionID
+		talents string
 		want    int32
 	}{
-		{core.OutcomeHit, 2},
-		{core.OutcomeDodge, 2},
-		{core.OutcomeCrit, 3},
+		{"Cleave on Flurry", "Flurry", core.ActionID{SpellID: 20569}, furyTalents, 1},
+		{"Cleave on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 20569}, recklessSwingsTalents, 1},
+		{"Whirlwind on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), recklessSwingsTalents, 0},
+		{"Bloodthirst on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 23894}, recklessSwingsTalents, 0},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			chargesAfter := func(hits int) int32 {
+				sim, warrior := orcWarriorSim(t, "p1_fury", c.talents)
+				aura := warrior.GetAura(c.aura)
+				spell := warrior.GetSpell(c.spell)
+				if aura == nil || spell == nil {
+					t.Fatalf("%s %v, spell %v; want both registered", c.aura, aura, spell)
+				}
+				// The rotation casts Reckless Swings as soon as it is ready, which sets the charges again.
+				if recklessSwings := warrior.GetSpell(core.ActionID{SpellID: 1329555}); recklessSwings != nil {
+					recklessSwings.CD.Set(time.Minute)
+				}
+				aura.Activate(sim)
+				aura.SetStacks(sim, 3)
+				for range hits {
+					warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+				}
+				stepPastBatch(t, sim)
+				return aura.GetStacks()
+			}
+
+			none := chargesAfter(0)
+			if got := none - chargesAfter(1); got != c.want {
+				t.Errorf("one hit spent %d %s charges, want %d", got, c.aura, c.want)
+			}
+			if got := none - chargesAfter(3); got != c.want {
+				t.Errorf("one cast hitting 3 targets spent %d %s charges, want %d", got, c.aura, c.want)
+			}
+		})
+	}
+}
+
+// Windfury Totem's strike uses no Flurry charge, landed or not, and a critical strike sets the
+// charges again.
+func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
+	for _, c := range []struct {
+		outcome core.HitOutcome
+		start   int32
+		want    int32
+	}{
+		{core.OutcomeHit, 3, 3},
+		{core.OutcomeDodge, 3, 3},
+		{core.OutcomeCrit, 1, 3},
 	} {
 		sim, warrior := orcWarriorSimWith(t, "p1_fury", furyTalents, &proto.RaidBuffs{WindfuryTotem: true})
 		flurry := warrior.GetAura("Flurry")
@@ -584,7 +635,7 @@ func TestWindfuryTotemsStrikeUsesAFlurryCharge(t *testing.T) {
 			t.Fatalf("Flurry %v, Windfury Totem's strike %v; want both registered", flurry, strike)
 		}
 		flurry.Activate(sim)
-		flurry.SetStacks(sim, 3)
+		flurry.SetStacks(sim, c.start)
 
 		warrior.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
 
@@ -1096,7 +1147,7 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 // Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
-	sim, war := orcWarriorSim(t, "p1_fury", "30303003-050530355122100031")
+	sim, war := orcWarriorSim(t, "p1_fury", recklessSwingsTalents)
 
 	for _, id := range []int32{1329555, 2687} {
 		spell := war.GetSpell(core.ActionID{SpellID: id})

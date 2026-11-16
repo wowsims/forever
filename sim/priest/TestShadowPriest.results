@@ -264,9 +264,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 745.2109
-  tps: 532.68699
-  dtps: 4.91696
+  dps: 745.2767
+  tps: 532.5843
+  dtps: 5.18822
  }
 }
 dps_results: {
@@ -1480,9 +1480,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-VestmentsoftheVirtuous"
  value: {
-  dps: 691.1035
-  tps: 494.2226
-  dtps: 0.87525
+  dps: 696.35185
+  tps: 497.46797
  }
 }
 dps_results: {

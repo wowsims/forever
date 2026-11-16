@@ -256,9 +256,9 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 906.29666
-  tps: 714.4427
-  dtps: 10.31883
+  dps: 908.11611
+  tps: 716.05692
+  dtps: 10.12425
  }
 }
 dps_results: {
@@ -304,10 +304,10 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 869.42341
-  tps: 685.61977
-  dtps: 10.13521
-  hps: 9.83023
+  dps: 850.95231
+  tps: 670.53091
+  dtps: 10.00457
+  hps: 9.75384
  }
 }
 dps_results: {

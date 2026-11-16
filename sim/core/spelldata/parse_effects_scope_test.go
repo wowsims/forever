@@ -232,7 +232,7 @@ func TestParseRatingWithRangedWeaponsIsRangedMod(t *testing.T) {
 	}
 }
 
-// 16255: A_MOD_CRIT_PCT with any melee weapon is physical and spell crit while one is equipped, on
+// A_MOD_CRIT_PCT with any melee weapon is physical and spell crit while one is equipped, on
 // every spell and attack, and no mod on the weapon's attacks.
 func TestParseCritPctWithAMeleeWeaponHoldsWhileEquipped(t *testing.T) {
 	row := &Spell{ID: 16255, Name: "Thundering Strikes", EquipClass: 2, EquipSubclass: 173555,

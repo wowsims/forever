@@ -174,7 +174,7 @@ func TestProcHealCritsUnlessTheRowRulesItOut(t *testing.T) {
 	}
 }
 
-// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL 150 with a 0.4 spread, which the proc
+// Darkmoon Card: Heroism's 23682 states its heal as E_HEAL 198 with a 0.4 spread, which the proc
 // rolls rather than reading as a share of maximum health.
 func TestProcHealRollsAStatedAmount(t *testing.T) {
 	const fixedHeal int32 = 23682

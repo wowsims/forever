@@ -43,8 +43,7 @@ func (druid *Druid) applyImprovedWrath() {
 }
 
 // Periodic damage and healing on the spells its class flags name: Moonfire, Insect Swarm, Rip, Rake,
-// Lacerate, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal. The flags name
-// Pounce too, but Pounce Bleed's lie outside them.
+// Lacerate, Pounce Bleed, Entangling Roots, Rejuvenation, Regrowth and Wild Growth, and Swiftmend's heal.
 func (druid *Druid) applyGenesis() {
 	druid.parseTalent(druid.Talents.Genesis, spellData.Genesis)
 }
