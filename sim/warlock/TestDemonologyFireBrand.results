@@ -565,8 +565,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 782.50931
-  tps: 641.82809
+  dps: 781.51096
+  tps: 640.86967
   dtps: 8.2264
   hps: 10.00951
  }

@@ -565,8 +565,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 806.97506
-  tps: 691.34145
+  dps: 803.83661
+  tps: 688.32854
   dtps: 10.45093
   hps: 7.74233
  }

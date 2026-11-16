@@ -576,9 +576,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 960.16573
-  tps: 971.13317
-  dtps: 5.39812
+  dps: 958.63425
+  tps: 969.58437
+  dtps: 5.34142
  }
 }
 dps_results: {
