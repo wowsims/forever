@@ -66,9 +66,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
 	// unsupported: 21954 deals no damage and heals no one (E_DISPEL)
 	// shared.NewSimpleStatActive(17744) // Heart of Noxxion - https://www.wowhead.com/forever/spell=21954
-	// on use: 1287808 (A_SCHOOL_ABSORB); not simulated: A_DUMMY
-	// unsupported: the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list
-	// shared.NewSpellDataAbsorbOnUse(18406) // Onyxia Blood Talisman - https://www.wowhead.com/forever/spell=1287808
 	// unsupported: 1302356 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(18537) // Counterattack Lodestone - https://www.wowhead.com/forever/spell=1302356
 	// unsupported: 23131 deals no damage and heals no one (A_REFLECT_SPELLS_SCHOOL)

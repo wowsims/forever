@@ -314,7 +314,7 @@ dps_results: {
  value: {
   dps: 808.36912
   tps: 599.88174
-  hps: 54.73234
+  hps: 57.53077
  }
 }
 dps_results: {
@@ -688,8 +688,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FeralheartRaiment"
  value: {
-  dps: 723.37214
-  tps: 538.59754
+  dps: 716.0646
+  tps: 533.22417
   hps: 45.69917
  }
 }

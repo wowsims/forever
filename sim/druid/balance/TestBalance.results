@@ -335,9 +335,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 871.77882
-  tps: 882.71446
-  dtps: 5.28192
+  dps: 872.05349
+  tps: 882.92025
+  dtps: 5.53011
  }
 }
 dps_results: {
@@ -720,9 +720,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-FeralheartRaiment"
  value: {
-  dps: 760.35844
-  tps: 773.44289
-  dtps: 4.51166
+  dps: 801.99909
+  tps: 814.90223
+  dtps: 4.69132
  }
 }
 dps_results: {

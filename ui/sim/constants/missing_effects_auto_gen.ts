@@ -1133,12 +1133,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		18406, // Onyxia Blood Talisman
-		[
-			"Reduces your magic damage taken from Dragon Breath spells by 33% for 15s.", // 1287808 - https://www.wowhead.com/forever/spell=1287808
-		]
-	],
-	[
 		18410, // Sprinter's Sword
 		[
 			"Increases run speed by 35% for 10s.", // 22863 - https://www.wowhead.com/forever/spell=22863
@@ -1751,6 +1745,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22401, // Libram of Hope
+		[
+			"Increases the duration of your Seal spells by 4 sec.", // 27848 - https://www.wowhead.com/forever/spell=27848
+		]
+	],
+	[
 		22402, // Libram of Grace
 		[
 			"Reduces the mana cost of your Cleanse spell by 25.", // 27847 - https://www.wowhead.com/forever/spell=27847
@@ -1836,6 +1836,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	],
 	[
 		226886, // Beastmaster's Tunic
+		[
+			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
+		]
+	],
+	[
+		226904, // Beastmaster's Chest
 		[
 			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
 		]
@@ -2415,6 +2421,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		282632, // Scalding Staff
 		[
 			"Blast the enemy, inflicting 70 Fire damage.", // 1314069 - https://www.wowhead.com/forever/spell=1314069
+		]
+	],
+	[
+		282700, // Shadow Scalper
+		[
+			"Unleash a shadow bolt volley at all nearby targets, inflicting 33 damage to each enemy struck.", // 1314274 - https://www.wowhead.com/forever/spell=1314274
 		]
 	],
 	[

@@ -223,7 +223,7 @@ func init() {
 	// Darkmoon Card: Heroism
 	// https://www.wowhead.com/forever/item=19287/darkmoon-card-heroism
 	//
-	// Sometimes heals bearer of 120 to 180 damage when damaging an enemy in melee.
+	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee.
 	//
 	// The game files state no rate for 23689; the item's entry carries it.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {

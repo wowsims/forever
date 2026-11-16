@@ -362,9 +362,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 780.19579
-  tps: 816.63597
-  dtps: 7.43291
+  dps: 780.43315
+  tps: 816.91108
+  dtps: 7.17292
   hps: 37.22694
  }
 }
@@ -374,7 +374,7 @@ dps_results: {
   dps: 779.98182
   tps: 816.60533
   dtps: 7.56907
-  hps: 50.98151
+  hps: 55.38298
  }
 }
 dps_results: {
@@ -1613,10 +1613,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 777.88823
-  tps: 813.64828
-  dtps: 7.09646
-  hps: 37.00667
+  dps: 740.10909
+  tps: 774.28888
+  dtps: 7.02942
+  hps: 35.88833
  }
 }
 dps_results: {

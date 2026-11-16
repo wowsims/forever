@@ -297,6 +297,13 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     23686,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Darkmoon Card: Maelstrom: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1294430,
 		EffectIndex: 4,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
