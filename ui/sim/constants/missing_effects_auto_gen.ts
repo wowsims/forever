@@ -3501,17 +3501,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
-		1669, // Beastmaster Armor
-		new Map([
-			[
-				5,
-				[
-					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
-				],
-			],
-		]),
-	],
-	[
 		1671, // Sorcerer's Regalia
 		new Map([
 			[
