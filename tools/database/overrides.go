@@ -111,6 +111,12 @@ var ItemSetClasses = map[int32]proto.Class{
 	530: proto.Class_ClassHunter,  // Cryptstalker Armor
 }
 
+// NPCs QuestieDB lists as vendors that sell nothing in game, keyed by NPC id.
+var NotVendorNpcs = map[int32]string{
+	230565: "Ironforge Guard",
+	230566: "Kor'kron Elite",
+}
+
 // Every item of a set in ItemSetClasses gets that class as its whole allowlist. It replaces the list
 // rather than merging, so the ring, which already names the class, does not name it twice.
 func ApplyItemSetClasses(db *WowDatabase) {
