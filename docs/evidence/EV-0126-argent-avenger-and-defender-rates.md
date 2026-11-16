@@ -32,13 +32,14 @@ The cleanest wearer is a warrior with the sword and a shield, in two reports, 13
 | Cleave, per target                                               | 23 / 837            | 2.7%   | 0.75         |
 | Sunder Armor, casts                                              | 14 / 478            | 2.9%   | 0.80         |
 | Heroic Strike                                                    | 2 / 36              | 5.6%   | –            |
-| Windfury Totem strikes                                           | 2 / 446             | 0.4%   | –            |
 | Shield Slam                                                      | 0 / 498             | 0%     | –            |
 | Thunder Clap                                                     | 0 / 597             | 0%     | –            |
 | Weapon hits: white, Revenge, Cleave, Sunder Armor, Heroic Strike | 110 / 3,079         | 3.6%   | 0.97         |
 
 Sunder Armor counts casts, so its chance is a floor. Warrior off hands also procced on Whirlwind's off-hand hit (25
-procs). Windfury Totem strikes did not roll it, where EV-0119 records them rolling other weapons' procs.
+procs). Windfury Totem strikes roll it as EV-0119 records: a proc a strike rolled logs 6 to 20 ms before the strike's
+damage, outside the 5 ms window above, and crediting within 20 ms gives 19 procs on 453 landed strikes across all
+wearers, where 21.5 are expected at the white chance.
 
 White swings alone, by class and hand:
 
