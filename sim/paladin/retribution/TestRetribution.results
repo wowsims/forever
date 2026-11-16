@@ -288,6 +288,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BrainHacker-1263"
+ value: {
+  dps: 881.07918
+  tps: 718.71403
+  dtps: 5.10011
+  hps: 25.38583
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-BristleconeCloak-275833"
  value: {
   dps: 879.66907
@@ -474,6 +483,15 @@ dps_results: {
   tps: 724.06984
   dtps: 3.54226
   hps: 24.67281
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-Destiny-647"
+ value: {
+  dps: 913.54221
+  tps: 744.13849
+  dtps: 4.35967
+  hps: 25.34855
  }
 }
 dps_results: {
