@@ -7,7 +7,7 @@
 - Game build: 1.60.1.70938 by report date; the strike set runs from 2026-11-13 18:10 UTC across the 2026-11-14 02:00 UTC
   hotfix, and the Hack and Slash set is after it. Hotfix state per player and relogs not recorded.
 - Date: 2026-11-13 to 2026-11-16
-- Pull request: not recorded
+- Pull request: #1054
 
 ## Method
 
