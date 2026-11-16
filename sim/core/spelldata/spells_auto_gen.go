@@ -13728,6 +13728,32 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 694470, SpellID: 16589, Type: dbcenums.E_DUMMY, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 16596, Name: "Flames of Shahram", School: 4, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, MaxRange: 30, DefenseType: 1, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 692766, SpellID: 16596, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 125, Variance: 0.5600000023841858, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+		}},
+	{ID: 16597, Name: "Curse of Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 10000, MaxRange: 30, DefenseType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 693034, SpellID: 16597, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -50, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+			{ID: 693035, SpellID: 16597, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: -25, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{18, 16}},
+		}},
+	{ID: 16598, Name: "Will of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 20000, MaxRange: 30, DefenseType: 1, DispelType: 1, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 691847, SpellID: 16598, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STAT, BasePoints: 50, SPCoef: 1, PvpMult: 1, Misc: -1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{27, 0}},
+		}},
+	{ID: 16599, Name: "Blessing of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 20000, MaxRange: 30, DefenseType: 1, DispelType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 691775, SpellID: 16599, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_HEAL, BasePoints: 50, SPCoef: 1, PvpMult: 1, PeriodMs: 5000, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{20, 0}},
+			{ID: 691776, SpellID: 16599, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_ENERGIZE, BasePoints: 50, SPCoef: 1, PvpMult: 1, PeriodMs: 5000, RadiusMax: 30, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{20, 0}},
+		}},
+	{ID: 16600, Name: "Might of Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 5000, MaxRange: 30, DefenseType: 1, Mechanic: 12, ProcChance: 101, InterruptFlags: 31, ProcChanceSource: ProcChanceAlways,
+		Effects: []Effect{
+			{ID: 691610, SpellID: 16600, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STUN, SPCoef: 1, PvpMult: 1, RadiusMax: 10, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{22, 15}},
+		}},
+	{ID: 16601, Name: "Fist of Shahram", School: 64, Attr: [17]uint32{15: 0x2000}, SpellLevel: 20, CastTimeMs: 1000, DurationMs: 8000, MaxRange: 30, DefenseType: 1, DispelType: 1, InterruptFlags: 31,
+		Effects: []Effect{
+			{ID: 693406, SpellID: 16601, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MELEE_HASTE_3, BasePoints: 30, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 16602, Name: "Shahram", School: 64, Attr: [17]uint32{1: 0x88, 15: 0x2000}, SpellLevel: 60, DurationMs: -1, DefenseType: 1,
 		Effects: []Effect{
 			{ID: 691643, SpellID: 16602, Type: dbcenums.E_SUMMON, BasePoints: 1, PvpMult: 1, RadiusMax: 3, Misc: 10718, Misc2: 5121, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{32, 0}},

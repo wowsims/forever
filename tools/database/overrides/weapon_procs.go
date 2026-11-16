@@ -10,10 +10,10 @@ type WeaponProc struct {
 	SpellID int32
 	PPM     float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "estimate"
 }
 
-// Each rate is a carry-over unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
+// Each rate is a carry-over or an estimate unless its Source is the docs/evidence id of a measurement on this server. A hotfix that
 // adds back a weapon whose row was dropped needs the row restored from git history, or the database tests that name
 // the item fail the Update Items run.
 var WeaponProcs = []WeaponProc{
@@ -280,6 +280,16 @@ var WeaponProcs = []WeaponProc{
 		PPM:     1.45,
 		Reason:  "Rot-Covered Harpoon: column reads 101",
 		Source:  "EV-0122",
+	},
+	// Measured on two paladin wearers' landed main-hand hits, a Judgement of Command as two rolls
+	// (EV-0123). Two players are too few to call it validated, so its Source keeps the gear tab's
+	// notice up.
+	{
+		ItemID:  12592,
+		SpellID: 16602,
+		PPM:     1.1,
+		Reason:  "Blackblade of Shahram: no proc row; measured on two paladins (EV-0123)",
+		Source:  "estimate",
 	},
 	{
 		ItemID:  12798,

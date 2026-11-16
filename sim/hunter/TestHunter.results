@@ -207,6 +207,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-BlackbladeofShahram-12592"
+ value: {
+  dps: 899.12329
+  tps: 922.23467
+  dtps: 10.01943
+  hps: 14.38583
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BladeofEternalDarkness-17780"
  value: {
   dps: 727.4358

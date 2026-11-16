@@ -4781,16 +4781,12 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Tooth of Eranikus: "Resist Sleep 03" (1300001) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300001
-	// Not simulated: Dragon's Call: "Dragon's Call" (13049) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=13049
 	// Not simulated: Carrot on a Stick: "Mount Speed" (13587) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=13587
 	// Not simulated: Savage Gladiator Chain: "Resist Fear 04" (1292574) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1292574
 	// Not simulated: High Priestess Boots: "Resist Charm 10" (1300925) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300925
-	// Not simulated: Blackblade of Shahram: "Shahram" (16602) - ignored effect type 28
-	// https://www.wowhead.com/forever/spell=16602
 	// Not simulated: Stronghold Gauntlets: "Immune to Disarm" (7219) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=7219
 	// Not simulated: Tome of Knowledge: "Stealth 05" (1293068) - ignored aura type 154

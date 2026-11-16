@@ -180,6 +180,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-BlackbladeofShahram-12592"
+ value: {
+  dps: 880.17685
+  tps: 720.05169
+  dtps: 7.80571
+  hps: 25.38803
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 885.03804

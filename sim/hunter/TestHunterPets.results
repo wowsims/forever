@@ -190,6 +190,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-BlackbladeofShahram-12592"
+ value: {
+  dps: 750.36578
+  tps: 483.39668
+  dtps: 4.39452
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BladeofEternalDarkness-17780"
  value: {
   dps: 735.34632

@@ -859,6 +859,213 @@ func TestDragonsCallInTheSwapSetOwnsTheWhelp(t *testing.T) {
 	}
 }
 
+// The spells Shahram can land for the wearer; Fist of Shahram 16601 lands nothing.
+var shahramSpellIDs = []int32{16596, 16597, 16598, 16599, 16600}
+
+// Blackblade of Shahram 12592 casts 16602 at the procs per minute of the item's chance-on-hit entry,
+// on the sword's speed, off main-hand hits. Each summon lands one of Shahram's spells, none of them
+// before its row's hardcast has run, or nothing when he picks Fist of Shahram.
+func TestBlackbladeOfShahramLandsOneSpellPerSummonAfterItsHardcast(t *testing.T) {
+	sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 12592, 1, 6000)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Blackblade of Shahram")
+	summon := character.GetSpell(core.ActionID{SpellID: 16602})
+	if proc == nil || proc.Dpm == nil || summon == nil {
+		t.Fatal("12592 registers no 16602 or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 12592, 16602)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 12592, 16602)
+
+	enemy := character.CurrentTarget
+	hardcast := time.Duration(math.MaxInt64)
+	casts := func(id int32) int32 {
+		return character.GetSpell(core.ActionID{SpellID: id}).SpellMetrics[enemy.UnitIndex].Casts
+	}
+	landed := func() (n int32) {
+		for _, id := range shahramSpellIDs {
+			n += casts(id)
+		}
+		return n
+	}
+	for _, id := range shahramSpellIDs {
+		hardcast = min(hardcast, spelldata.MustFind(id).CastTime())
+	}
+	if hardcast <= 0 {
+		t.Fatalf("a Shahram spell states a hardcast of %v, want one", hardcast)
+	}
+
+	// Each summon gets longer than the longest of his spells to land and run out.
+	const summons, apart = 200, 25 * time.Second
+	nothing := 0
+	for range summons {
+		start, before := sim.CurrentTime, landed()
+		summon.Cast(sim, enemy)
+		stepTo(t, sim, start+hardcast)
+		if got := landed(); got != before {
+			t.Fatalf("a summon landed %d spells within the shortest hardcast, %v, want none yet", got-before, hardcast)
+		}
+		stepTo(t, sim, start+apart)
+		switch landed() - before {
+		case 0:
+			nothing++
+		case 1:
+		default:
+			t.Fatalf("a summon landed %d spells, want one at most", landed()-before)
+		}
+	}
+	for _, id := range shahramSpellIDs {
+		if casts(id) == 0 {
+			t.Errorf("%d summons never landed %d", summons, id)
+		}
+	}
+	if nothing == 0 {
+		t.Errorf("each of %d summons landed a spell, want some to pick Fist of Shahram and land nothing", summons)
+	}
+}
+
+// Flames of Shahram 16596 burns every enemy within the row's range. Shahram's spells take nothing from
+// the wearer's damage modifiers, spell damage or crit chance and put no threat on the wearer.
+func TestFlamesOfShahramBurnsEveryEnemyWithinTheRowsRange(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 3)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.PseudoStats.DamageDealtMultiplier *= 2
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100, stats.SpellCritPercent: 100, stats.SpellDamage: 1000})
+	flames := character.GetSpell(core.ActionID{SpellID: 16596})
+	damage := spelldata.MustFind(16596).DamageEffect()
+	if damage.Min() <= 0 || damage.Max() <= damage.Min() {
+		t.Fatalf("16596 deals %v to %v, want a range", damage.Min(), damage.Max())
+	}
+
+	const casts = 100
+	for range casts {
+		flames.Cast(sim, character.CurrentTarget)
+	}
+	for _, enemy := range sim.Encounter.ActiveTargetUnits {
+		metrics := flames.SpellMetrics[enemy.UnitIndex]
+		average := metrics.TotalDamage / float64(metrics.Hits)
+		if metrics.Hits != casts || metrics.Crits != 0 || average < damage.Min() || average > damage.Max() {
+			t.Errorf("%d casts hit %s %d times with %d crits for %.1f on average, want every cast to hit with no crit within %v to %v",
+				casts, enemy.Label, metrics.Hits, metrics.Crits, average, damage.Min(), damage.Max())
+		}
+		if metrics.TotalThreat != 0 {
+			t.Errorf("the hits on %s put %v threat on the wearer, want none", enemy.Label, metrics.TotalThreat)
+		}
+	}
+}
+
+// Each Will of Shahram 16598 is a copy of its own: a second one adds the row's stats again, and each
+// fades on its own timer.
+func TestWillOfShahramCopiesStackAndFadeOneByOne(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 1)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	row := spelldata.MustFind(16598)
+	amount, duration := row.EffectN(1).Average(), row.Duration()
+	if amount <= 0 || duration <= 0 {
+		t.Fatalf("16598 grants %v stats for %v, want an amount and a duration", amount, duration)
+	}
+	will := character.GetSpell(core.ActionID{SpellID: 16598})
+	base := character.GetStat(stats.Strength)
+	expect := func(when string, copies float64) {
+		t.Helper()
+		if got, want := character.GetStat(stats.Strength), base+copies*amount; math.Abs(got-want) > 1e-6 {
+			t.Errorf("%s the wearer's Strength is %v, want %v", when, got, want)
+		}
+	}
+
+	start := sim.CurrentTime
+	will.Cast(sim, character.CurrentTarget)
+	expect("after one Will", 1)
+	stepTo(t, sim, start+duration/2)
+	will.Cast(sim, character.CurrentTarget)
+	expect("after a second Will", 2)
+	stepTo(t, sim, start+duration+time.Millisecond)
+	expect("past the first Will's duration", 1)
+	stepTo(t, sim, start+duration/2+duration+time.Millisecond)
+	expect("past the second Will's duration", 0)
+}
+
+// Curse of Shahram 16597 slows the attacks of every enemy by the row's share for the row's duration.
+func TestCurseOfShahramSlowsEveryEnemysAttacks(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16597)
+	slowed := 1 / core.MultiplierFromPercent(-row.FirstAura(dbcenums.A_MOD_MELEE_HASTE_3).Average())
+	if slowed >= 1 || row.Duration() <= 0 {
+		t.Fatalf("16597 leaves attacks at %v of their speed for %v, want a slow", slowed, row.Duration())
+	}
+	enemies := sim.Encounter.ActiveTargetUnits
+	expect := func(when string, want float64) {
+		t.Helper()
+		for _, enemy := range enemies {
+			if got := enemy.TotalMeleeHasteMultiplier(); math.Abs(got-want) > 1e-9 {
+				t.Errorf("%s %s attacks at %v of its speed, want %v", when, enemy.Label, got, want)
+			}
+		}
+	}
+
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 16597}).Cast(sim, character.CurrentTarget)
+	expect("cursed,", slowed)
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+	expect("past the row's duration", 1)
+}
+
+// Might of Shahram 16600 stuns every enemy for the row's duration, and a stun-immune enemy not at all.
+func TestMightOfShahramStunsEveryEnemyThatCanBeStunned(t *testing.T) {
+	sim, character := weaponWearer(t, proto.Class_ClassWarrior, 12592, 2)
+	character.AutoAttacks.CancelAutoSwing(sim)
+	character.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	row := spelldata.MustFind(16600)
+	if row.Duration() <= 0 {
+		t.Fatal("16600 states no duration")
+	}
+	stunnable, immune := sim.Encounter.ActiveTargetUnits[0], sim.Encounter.ActiveTargetUnits[1]
+	immune.StunImmune = true
+
+	start := sim.CurrentTime
+	character.GetSpell(core.ActionID{SpellID: 16600}).Cast(sim, character.CurrentTarget)
+	if !stunnable.PseudoStats.Stunned || immune.PseudoStats.Stunned {
+		t.Errorf("after the cast %s is stunned: %v, the stun-immune %s: %v; want only the first",
+			stunnable.Label, stunnable.PseudoStats.Stunned, immune.Label, immune.PseudoStats.Stunned)
+	}
+	stepTo(t, sim, start+row.Duration()+time.Millisecond)
+	if stunnable.PseudoStats.Stunned {
+		t.Errorf("%s is still stunned past the row's %v", stunnable.Label, row.Duration())
+	}
+}
+
+// Blessing of Shahram 16599 restores the row's mana each period for the row's duration, and two
+// Blessings tick side by side.
+func TestBlessingOfShahramRestoresManaForEachBlessing(t *testing.T) {
+	sim, character := itemWearer(t, proto.Class_ClassPaladin, proto.ItemSlot_ItemSlotMainHand, 12592)
+	row := spelldata.MustFind(16599)
+	mana := row.FirstAura(dbcenums.A_PERIODIC_ENERGIZE)
+	ticks := int32(row.Duration() / mana.Period())
+	if mana.Average() <= 0 || ticks < 2 {
+		t.Fatalf("16599 restores %v mana over %d ticks, want an amount at least twice", mana.Average(), ticks)
+	}
+	character.SpendMana(sim, character.CurrentMana(), character.NewManaMetrics(core.ActionID{SpellID: instantSpellID}))
+
+	blessing := character.GetSpell(core.ActionID{SpellID: 16599})
+	start := sim.CurrentTime
+	blessing.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+mana.Period()/2)
+	blessing.Cast(sim, character.CurrentTarget)
+	stepTo(t, sim, start+mana.Period()/2+row.Duration()+time.Millisecond)
+
+	var gain float64
+	var events int32
+	for _, r := range character.Metrics.ToProto().Resources {
+		if r.Id.GetSpellId() == 16599 {
+			gain, events = r.Gain, r.Events
+		}
+	}
+	if events != 2*ticks || math.Abs(gain-float64(2*ticks)*mana.Average()) > 1e-6 {
+		t.Errorf("two Blessings restored %v mana over %d ticks, want %d ticks of %v", gain, events, 2*ticks, mana.Average())
+	}
+}
+
 // Spinal Reaper 288901's 21185 hears a killing blow and fires 21186. A wearer with a mana bar gains the
 // mana 21186's effect 1 states, one with only a rage bar the rage its effect 2 states in tenths. A
 // death with no kill credit gives nothing, and a second kill inside the row's cooldown gives nothing

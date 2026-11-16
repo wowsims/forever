@@ -4054,6 +4054,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[9651, { kind: 'ppm', origin: 'vanilla' }], // Gryphon Rider's Stormhammer
 	[11902, { kind: 'ppm', origin: 'vanilla' }], // Linken's Sword of Mastery
 	[12590, { kind: 'ppm', origin: 'vanilla' }], // Felstriker
+	[12592, { kind: 'ppm', origin: 'unknown' }], // Blackblade of Shahram
 	[12777, { kind: 'ppm', origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', origin: 'vanilla' }], // Arcanite Champion
 	[12792, { kind: 'ppm', origin: 'vanilla' }], // Volcanic Hammer

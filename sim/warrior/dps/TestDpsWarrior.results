@@ -153,6 +153,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-BlackbladeofShahram-12592"
+ value: {
+  dps: 540.07403
+  tps: 452.09692
+  dtps: 2.97628
+  hps: 24.4
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 551.65601
