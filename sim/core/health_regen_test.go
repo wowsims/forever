@@ -86,7 +86,7 @@ func setupHealthRegenSimWithAura(t *testing.T, hp5 float64, name string, spellID
 // 10 HP5 credits 4 health on each 2.02 s tick, the first at 2.02 s.
 func TestHealthRegenTicksEvery2020Milliseconds(t *testing.T) {
 	sim, owner := setupHealthRegenSim(t, 10)
-	owner.SetCurrentHealthPercent(0.5)
+	owner.RemoveHealth(sim, owner.CurrentHealth()/2)
 
 	gained := recordHealthGained(sim, &owner.Unit, healthRegenTick-time.Millisecond, healthRegenTick, 2*healthRegenTick-time.Millisecond, 2*healthRegenTick)
 	stepTo(t, sim, 5*time.Second)
@@ -166,7 +166,7 @@ func TestHealthRegenStartsWhenHP5Gained(t *testing.T) {
 func TestHealthRegenSleepsWhenHP5Lost(t *testing.T) {
 	sim, owner, aura := setupHealthRegenSimWithAura(t, 0, "Test HP5", 910701, stats.Stats{stats.HP5: 10})
 	aura.Activate(sim)
-	owner.SetCurrentHealthPercent(0.5)
+	owner.RemoveHealth(sim, owner.CurrentHealth()/2)
 
 	gained := recordHealthGained(sim, &owner.Unit, healthRegenTick, 3*time.Second, 2*healthRegenTick, 5*time.Second, 3*healthRegenTick-time.Millisecond, 3*healthRegenTick)
 	stepTo(t, sim, 3*time.Second)
@@ -209,7 +209,7 @@ func TestHealthRegenPetSummonedMidFight(t *testing.T) {
 
 	stepTo(t, sim, 5*time.Second)
 	pet.Enable(sim, pet)
-	pet.SetCurrentHealthPercent(0.5)
+	pet.RemoveHealth(sim, pet.CurrentHealth()/2)
 
 	gained := recordHealthGained(sim, &pet.Unit, 3*healthRegenTick-time.Millisecond, 3*healthRegenTick, 4*healthRegenTick)
 	stepTo(t, sim, 9*time.Second)
@@ -218,23 +218,57 @@ func TestHealthRegenPetSummonedMidFight(t *testing.T) {
 	}
 }
 
-// At full health a tick credits nothing and records no event; the first tick after damage credits.
-func TestHealthRegenSkipsTicksAtFullHealth(t *testing.T) {
+// At full health the ticks sleep, so none is an advance point: with the pets, whose rotations step
+// every 10 ms, sent away, an aura due to expire at 3 s runs its expiry at the next thing the sim does,
+// here at 10 s.
+func TestHealthRegenSleepsAtFullHealth(t *testing.T) {
+	var aura *core.Aura
+	expiredAt := time.Duration(-1)
+	ownerSetup = func(owner *petOwner) {
+		aura = owner.RegisterAura(core.Aura{
+			Label:    "Test Expiry",
+			ActionID: core.ActionID{SpellID: 910704},
+			Duration: 3 * time.Second,
+			OnExpire: func(_ *core.Aura, sim *core.Simulation) { expiredAt = sim.CurrentTime },
+		})
+	}
+	defer func() { ownerSetup = nil }()
 	sim, owner := setupHealthRegenSim(t, 10)
+	owner.pet.Disable(sim)
+	owner.guardian.Disable(sim)
+	aura.Activate(sim)
 
-	stepTo(t, sim, 7*time.Second)
+	stepTo(t, sim, 10*time.Second)
+	if expiredAt != 10*time.Second {
+		t.Errorf("the aura due at 3 s expired at %v, want 10 s with no tick in between", expiredAt)
+	}
 	if metrics := otherActionMetrics(&owner.Unit, proto.OtherAction_OtherActionHealthRegen); metrics != nil {
-		t.Errorf("Health Regen metric at full health through 6.06 s: %v events, want none", metrics.Events)
+		t.Errorf("Health Regen metric at full health through 10 s: %v events, want none", metrics.Events)
 	}
+}
 
-	owner.RemoveHealth(sim, 100)
-	gained := recordHealthGained(sim, &owner.Unit, 4*healthRegenTick-time.Millisecond, 4*healthRegenTick)
-	stepTo(t, sim, 9*time.Second)
-	if want := []float64{0, 4}; !slices.Equal(gained, want) {
-		t.Errorf("health gained by 8.079 s and 8.08 s: %v, want %v", gained, want)
-	}
-	if metrics := otherActionMetrics(&owner.Unit, proto.OtherAction_OtherActionHealthRegen); metrics == nil || metrics.Events != 1 || metrics.ActualGain != 4 {
-		t.Errorf("Health Regen metric %v, want 1 event of 4 health", metrics)
+// Health lost at 3 s, to damage, a self cost or a raised maximum, wakes the ticks at 4.04 s.
+func TestHealthRegenWakesWhenHurt(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		hurt func(*core.Simulation, *petOwner)
+	}{
+		{"damage taken", func(sim *core.Simulation, owner *petOwner) { owner.RemoveHealth(sim, 100) }},
+		{"a self cost", func(sim *core.Simulation, owner *petOwner) {
+			owner.SpendHealth(sim, 100, owner.NewHealthMetrics(core.ActionID{SpellID: 910705}))
+		}},
+		{"a raised maximum", func(sim *core.Simulation, owner *petOwner) {
+			owner.AddStatsDynamic(sim, stats.Stats{stats.Health: 100})
+		}},
+	} {
+		sim, owner := setupHealthRegenSim(t, 10)
+		stepTo(t, sim, 3*time.Second)
+		tc.hurt(sim, owner)
+		gained := recordHealthGained(sim, &owner.Unit, 2*healthRegenTick-time.Millisecond, 2*healthRegenTick)
+		stepTo(t, sim, 5*time.Second)
+		if want := []float64{0, 4}; !slices.Equal(gained, want) {
+			t.Errorf("hurt by %s at 3 s, health gained by 4.039 s and 4.04 s: %v, want %v", tc.name, gained, want)
+		}
 	}
 }
 
@@ -258,13 +292,13 @@ func TestHealthRegenAfterMaxHealthDrops(t *testing.T) {
 	}
 }
 
-// A raise of 3000 maximum health that fades takes 3000 from current health once, then lowers the
-// maximum: at full health the unit ends at its old maximum; hit for 2000 in between, it ends 2000 below it.
+// A raise of 3000 maximum health that fades caps current health at the old maximum and books no damage
+// taken: hit for 0 or 2000 in between, the unit ends at its old maximum; hit for 3500, 500 below it.
 func TestHealthRegenMaxHealthRaiseFades(t *testing.T) {
 	for _, tc := range []struct {
-		hit    float64
-		events int32
-	}{{0, 1}, {2000, 2}} {
+		hit   float64
+		below float64
+	}{{0, 0}, {2000, 0}, {3500, 500}} {
 		sim, owner := setupHealthRegenSim(t, 0)
 		metrics := owner.NewHealthMetrics(core.ActionID{SpellID: 910703})
 		baseMax := owner.MaxHealth()
@@ -278,12 +312,15 @@ func TestHealthRegenMaxHealthRaiseFades(t *testing.T) {
 		}
 
 		owner.UpdateMaxHealth(sim, -3000, metrics)
-		if got, want := owner.CurrentHealth(), baseMax-tc.hit; got != want || owner.MaxHealth() != baseMax {
+		if got, want := owner.CurrentHealth(), baseMax-tc.below; got != want || owner.MaxHealth() != baseMax {
 			t.Errorf("hit for %v, health %v of %v once the raise fades, want %v of %v", tc.hit, got, owner.MaxHealth(), want, baseMax)
 		}
 		taken := otherActionMetrics(&owner.Unit, proto.OtherAction_OtherActionDamageTaken)
-		if taken == nil || taken.Events != tc.events || taken.Gain != -(3000+tc.hit) {
-			t.Errorf("hit for %v, damage taken metric %v, want %v events totalling %v", tc.hit, taken, tc.events, 3000+tc.hit)
+		if tc.hit == 0 && taken != nil {
+			t.Errorf("never hit, damage taken metric %v once the raise fades, want none", taken)
+		}
+		if tc.hit > 0 && (taken == nil || taken.Events != 1 || taken.Gain != -tc.hit) {
+			t.Errorf("hit for %v, damage taken metric %v once the raise fades, want the hit alone", tc.hit, taken)
 		}
 	}
 }

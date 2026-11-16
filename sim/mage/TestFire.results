@@ -751,8 +751,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-RingofSaviors-1447"
  value: {
-  dps: 859.30557
-  tps: 857.17493
+  dps: 859.32568
+  tps: 857.19503
  }
 }
 dps_results: {

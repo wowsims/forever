@@ -438,11 +438,11 @@ func (unit *Unit) processDynamicBonus(sim *Simulation, bonus *stats.Stats) {
 		unit.UpdateManaRegenRates(sim)
 	}
 	if unit.HasHealthBar() {
-		if bonus[stats.HP5] != 0 {
-			unit.wakeHealthRegen(sim)
-		}
 		if bonus[stats.Health] != 0 {
 			unit.currentHealth = min(unit.currentHealth, unit.MaxHealth())
+		}
+		if bonus[stats.HP5] != 0 || bonus[stats.Health] != 0 {
+			unit.wakeHealthRegen(sim)
 		}
 	}
 	if bonus[stats.Mana] != 0 && unit.HasManaBar() {

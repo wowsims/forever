@@ -1106,8 +1106,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-Average-Default"
  value: {
-  dps: 912.34943
-  tps: 731.62616
+  dps: 912.3495
+  tps: 731.62621
   dtps: 9.76428
  }
 }

@@ -37,20 +37,22 @@ func (hb *healthBar) RunTask(sim *Simulation) time.Duration {
 	if sim.CurrentTime < hb.nextHealthTick {
 		return hb.nextHealthTick
 	}
-	if !hb.canRegenerate() {
-		hb.nextHealthTick = NeverExpires
-		return hb.nextHealthTick
-	}
-	if hb.currentHealth < hb.MaxHealth() {
+	if hb.canRegenerate() {
 		hb.GainHealth(sim, hb.unit.GetStat(stats.HP5)*2/5, hb.healthRegenMetrics)
 	}
-	hb.nextHealthTick += healthRegenTickDuration
+	// A tick is an advance point for aura expiry, so one that has nothing to heal sleeps.
+	if hb.canRegenerate() {
+		hb.nextHealthTick += healthRegenTickDuration
+	} else {
+		hb.nextHealthTick = NeverExpires
+	}
 	return hb.nextHealthTick
 }
 
-// A unit regenerates while it has HP5, is enabled (a pet is summoned) and is alive.
+// A unit regenerates while it has HP5, is enabled (a pet is summoned), is alive and is below its
+// maximum health.
 func (hb *healthBar) canRegenerate() bool {
-	return hb.unit.GetStat(stats.HP5) > 0 && hb.unit.IsEnabled() && !hb.unit.Metrics.Died
+	return hb.unit.GetStat(stats.HP5) > 0 && hb.unit.IsEnabled() && !hb.unit.Metrics.Died && hb.currentHealth < hb.MaxHealth()
 }
 
 // Starts the ticks asleep and wakes them at the pull's first tick if the unit can regenerate.
@@ -60,8 +62,9 @@ func (hb *healthBar) enable(sim *Simulation) {
 }
 
 // Wakes sleeping ticks at the next tick boundary; the part of a tick before it earns nothing. The
-// unit joins the sim's tasks at its first wake of an iteration, so a unit without HP5 adds none. A
-// wake can come while the sim resets, before enableHealthTicks, so the check is against the tasks.
+// unit joins the sim's tasks at its first wake of an iteration, so a unit without HP5 or never hurt
+// adds none. A wake can come while the sim resets, before enableHealthTicks, so the check is against
+// the tasks.
 func (hb *healthBar) wakeHealthRegen(sim *Simulation) {
 	if hb.nextHealthTick != NeverExpires || !hb.canRegenerate() {
 		return
@@ -105,7 +108,8 @@ func (hb *healthBar) CurrentHealthPercent() float64 {
 }
 
 // Puts current health at a share of the maximum with no healing or damage, so no metrics or TMI entry
-// move. A druid's change of form moves the maximum and keeps the share.
+// move. A druid's change of form moves the maximum and keeps the share. It wakes no sleeping regen
+// ticks, so health it puts below the maximum regenerates only after the next loss.
 func (hb *healthBar) SetCurrentHealthPercent(percent float64) {
 	hb.currentHealth = percent * hb.MaxHealth()
 }
@@ -160,6 +164,7 @@ func (hb *healthBar) SpendHealth(sim *Simulation, amount float64, metrics *Resou
 	}
 
 	hb.currentHealth = newHealth
+	hb.wakeHealthRegen(sim)
 }
 
 // The base health a "% of base health" cost reads: the class base plus the health of the base Stamina,
@@ -170,15 +175,12 @@ func (character *Character) BaseHealth() float64 {
 	return character.baseStats[stats.Health] + 20 + (stamina-20)*10
 }
 
-// Used for dynamic updates to maximum health from "Last Stand" effects
+// A raise of maximum health ("Last Stand" effects) heals by its amount. Its fade only caps current health
+// at the lower maximum, with no damage taken, so it never kills.
 func (hb *healthBar) UpdateMaxHealth(sim *Simulation, bonusHealth float64, metrics *ResourceMetrics) {
+	hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
 	if bonusHealth >= 0 {
-		hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
 		hb.GainHealth(sim, bonusHealth, metrics)
-	} else {
-		// The health goes before the maximum drops, so the cap at the lower maximum does not take it twice.
-		hb.RemoveHealth(sim, max(0, min(-bonusHealth, hb.currentHealth-1))) // Last Stand effects always leave the player with at least 1 HP when they expire
-		hb.unit.AddStatsDynamic(sim, stats.Stats{stats.Health: bonusHealth})
 	}
 }
 
