@@ -870,6 +870,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 613.08401
+  tps: 435.28965
+  hps: 51.95167
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-HeartoftheScale-13164"
  value: {
   dps: 596.00462

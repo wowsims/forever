@@ -727,6 +727,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 744.49066
+  tps: 532.2272
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-HeartoftheScale-13164"
  value: {
   dps: 744.49066

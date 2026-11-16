@@ -650,6 +650,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 772.50464
+  tps: 798.78783
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-HeartoftheScale-13164"
  value: {
   dps: 772.50464
