@@ -110,6 +110,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-BlackMenace-6831"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-Blackhand'sBreadth-13965"
  value: {
   dps: 784.15565
@@ -121,6 +128,13 @@ dps_results: {
  value: {
   dps: 793.54937
   tps: 821.22699
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-BladeoftheWretched-10803"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
  }
 }
 dps_results: {
@@ -139,6 +153,13 @@ dps_results: {
 }
 dps_results: {
  key: "TestFFB-AllItems-BlazingRapier-12777"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Bloodrazor-809"
  value: {
   dps: 731.51579
   tps: 757.81126
@@ -208,6 +229,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-ColdrageDagger-10761"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-Dal'Rend'sArms"
  value: {
   dps: 727.69143
@@ -233,6 +261,27 @@ dps_results: {
  value: {
   dps: 772.50464
   tps: 798.78783
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Darrowspike-13984"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-DazzlingLongsword-869"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-DeadheadBlade-274271"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
  }
 }
 dps_results: {
@@ -510,6 +559,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-FangoftheCrystalSpider-13218"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-Felstriker-12590"
  value: {
   dps: 731.51579
@@ -535,6 +591,13 @@ dps_results: {
  value: {
   dps: 742.20484
   tps: 766.55112
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Firebreather-10797"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
  }
 }
 dps_results: {
@@ -584,6 +647,13 @@ dps_results: {
  value: {
   dps: 774.18229
   tps: 800.42191
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Gahz'rillaFang-9467"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
  }
 }
 dps_results: {
@@ -706,6 +776,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Jom-jom'sGabbar-274952"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-JomGabbar-23570"
  value: {
   dps: 772.50464
@@ -783,6 +860,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-LordGeneral'sSword-11817"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-LordSakrasis'Scepter-5028"
  value: {
   dps: 826.67527
@@ -808,6 +892,13 @@ dps_results: {
  value: {
   dps: 772.50464
   tps: 798.78783
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ManaChannelingWand-18483"
+ value: {
+  dps: 780.1063
+  tps: 806.41827
  }
 }
 dps_results: {
@@ -958,6 +1049,27 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-Sang'thrazetheDeflector-9379"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Satyr'sLash-17752"
+ value: {
+  dps: 731.51579
+  tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-ScentedRunewoodBrooch-269741"
+ value: {
+  dps: 772.50464
+  tps: 798.78783
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-SealoftheDawn-13209"
  value: {
   dps: 772.50464
@@ -983,6 +1095,13 @@ dps_results: {
  value: {
   dps: 731.51579
   tps: 757.81126
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-Shadowblade-2163"
+ value: {
+  dps: 733.70018
+  tps: 759.9683
  }
 }
 dps_results: {
@@ -1095,6 +1214,13 @@ dps_results: {
  value: {
   dps: 772.50464
   tps: 798.78783
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-TheChief'sEnforcer-9477"
+ value: {
+  dps: 727.69143
+  tps: 753.92715
  }
 }
 dps_results: {

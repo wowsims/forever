@@ -37,6 +37,7 @@ func ProcTrigger(character *core.Character, s *Spell, handler core.ProcHandler, 
 		ActionID:            core.ActionID{SpellID: s.ID},
 		Callback:            decoded.Callback,
 		ProcMask:            decoded.ProcMask,
+		HearsCountedSwings:  decoded.HearsCountedSwings,
 		Outcome:             decoded.Outcome,
 		RequireDamageDealt:  decoded.RequireDamageDealt,
 		ICD:                 s.ICD(),
@@ -102,6 +103,7 @@ func WeaponProc() ProcOpt {
 	return func(_ *core.Character, trigger *core.ProcTrigger) {
 		trigger.Callback = core.CallbackOnSpellHitDealt
 		trigger.ProcMask = core.ProcMaskUnknown
+		trigger.HearsCountedSwings = false
 		trigger.RequireDamageDealt = false
 		trigger.RequireDamageComponent = false
 		trigger.CanProcFromProcs = false

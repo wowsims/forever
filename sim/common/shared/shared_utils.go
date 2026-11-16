@@ -418,6 +418,12 @@ type SpellDataProc struct {
 	Rate spelldata.ProcOpt
 }
 
+// What an item adds to the spell its NewSpellDataDamageProc proc casts where the rows leave it to a
+// script, by item id, given the spell's config before it registers: Pendulum of Doom's execute bonus,
+// Sul'thraze the Lasher's delayed Shadow Lash. Hand-written code fills it from init, so the item's
+// effect stays generated and the generator still lists the item's other effects no code simulates.
+var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
+
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
 	forEachSpellDataVariant(cfg, variants, registerSpellDataProc)
@@ -687,6 +693,9 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	config := spellDataProcListener(character, cfg, source, trigger)
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
 	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {
+		extra(character, &damageConfig)
+	}
 	attachProcDamage(character, &config, damageConfig)
 	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
