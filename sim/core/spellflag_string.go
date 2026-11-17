@@ -43,25 +43,25 @@ func _() {
 	_ = x[SpellFlagSwapped-4294967296]
 	_ = x[SpellFlagCastWhileIncapacitated-8589934592]
 	_ = x[SpellFlagFullResistanceTicks-17179869184]
-	_ = x[SpellFlagPushback-34359738368]
-	_ = x[SpellFlagNoPartialResist-68719476736]
-	_ = x[SpellFlagKeepsSwingTimer-137438953472]
-	_ = x[SpellFlagDropsQueuedSwing-274877906944]
-	_ = x[SpellFlagBleed-549755813888]
-	_ = x[SpellFlagStun-1099511627776]
-	_ = x[SpellFlagMovesToTarget-2199023255552]
-	_ = x[SpellFlagPhysicalSchoolDamage-4398046511104]
-	_ = x[SpellFlagIgnoreTargetSchoolBonus-8796093022208]
-	_ = x[SpellFlagNoDamageVersus-17592186044416]
-	_ = x[SpellFlagCountsAsSwing-35184372088832]
-	_ = x[SpellFlagTenthResistance-70368744177664]
+	_ = x[SpellFlagTenthResistance-34359738368]
+	_ = x[SpellFlagPushback-68719476736]
+	_ = x[SpellFlagNoPartialResist-137438953472]
+	_ = x[SpellFlagKeepsSwingTimer-274877906944]
+	_ = x[SpellFlagDropsQueuedSwing-549755813888]
+	_ = x[SpellFlagBleed-1099511627776]
+	_ = x[SpellFlagStun-2199023255552]
+	_ = x[SpellFlagMovesToTarget-4398046511104]
+	_ = x[SpellFlagPhysicalSchoolDamage-8796093022208]
+	_ = x[SpellFlagIgnoreTargetSchoolBonus-17592186044416]
+	_ = x[SpellFlagNoDamageVersus-35184372088832]
+	_ = x[SpellFlagCountsAsSwing-70368744177664]
 	_ = x[SpellFlagAgentReserved1-140737488355328]
 	_ = x[SpellFlagAgentReserved2-281474976710656]
 	_ = x[SpellFlagAgentReserved3-562949953421312]
 	_ = x[SpellFlagAgentReserved4-1125899906842624]
 }
 
-const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagNoActiveDefenseSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagDropsQueuedSwingSpellFlagBleedSpellFlagStunSpellFlagMovesToTargetSpellFlagPhysicalSchoolDamageSpellFlagIgnoreTargetSchoolBonusSpellFlagNoDamageVersusSpellFlagCountsAsSwingSpellFlagTenthResistanceSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
+const _SpellFlag_name = "SpellFlagNoneSpellFlagIgnoreResistsSpellFlagIgnoreTargetModifiersSpellFlagIgnoreAttackerModifiersSpellFlagApplyArmorReductionSpellFlagNoActiveDefenseSpellFlagIncludeTargetBonusDamageSpellFlagBinarySpellFlagChanneledSpellFlagDiseaseSpellFlagPoisonSpellFlagHauntSESpellFlagHelpfulSpellFlagMeleeMetricsSpellFlagNoOnCastCompleteSpellFlagNoMetricsSpellFlagNoLogsSpellFlagAPLSpellFlagMCDSpellFlagReactiveSpellFlagNoOnDamageDealtSpellFlagPrepullOnlySpellFlagEncounterOnlySpellFlagPotionSpellFlagConjuredSpellFlagExplosiveSpellFlagNoSpellModsSpellFlagCanCastWhileMovingSpellFlagPassiveSpellSpellFlagSuppressWeaponProcsSpellFlagProcSpellFlagSupressDoTApplySpellFlagSwappedSpellFlagCastWhileIncapacitatedSpellFlagFullResistanceTicksSpellFlagTenthResistanceSpellFlagPushbackSpellFlagNoPartialResistSpellFlagKeepsSwingTimerSpellFlagDropsQueuedSwingSpellFlagBleedSpellFlagStunSpellFlagMovesToTargetSpellFlagPhysicalSchoolDamageSpellFlagIgnoreTargetSchoolBonusSpellFlagNoDamageVersusSpellFlagCountsAsSwingSpellFlagAgentReserved1SpellFlagAgentReserved2SpellFlagAgentReserved3SpellFlagAgentReserved4"
 
 var _SpellFlag_map = map[SpellFlag]string{
 	0:                _SpellFlag_name[0:13],
@@ -99,18 +99,18 @@ var _SpellFlag_map = map[SpellFlag]string{
 	4294967296:       _SpellFlag_name[647:663],
 	8589934592:       _SpellFlag_name[663:694],
 	17179869184:      _SpellFlag_name[694:722],
-	34359738368:      _SpellFlag_name[722:739],
-	68719476736:      _SpellFlag_name[739:763],
+	34359738368:      _SpellFlag_name[722:746],
+	68719476736:      _SpellFlag_name[746:763],
 	137438953472:     _SpellFlag_name[763:787],
-	274877906944:     _SpellFlag_name[787:812],
-	549755813888:     _SpellFlag_name[812:826],
-	1099511627776:    _SpellFlag_name[826:839],
-	2199023255552:    _SpellFlag_name[839:861],
-	4398046511104:    _SpellFlag_name[861:890],
-	8796093022208:    _SpellFlag_name[890:922],
-	17592186044416:   _SpellFlag_name[922:945],
-	35184372088832:   _SpellFlag_name[945:967],
-	70368744177664:   _SpellFlag_name[967:991],
+	274877906944:     _SpellFlag_name[787:811],
+	549755813888:     _SpellFlag_name[811:836],
+	1099511627776:    _SpellFlag_name[836:850],
+	2199023255552:    _SpellFlag_name[850:863],
+	4398046511104:    _SpellFlag_name[863:885],
+	8796093022208:    _SpellFlag_name[885:914],
+	17592186044416:   _SpellFlag_name[914:946],
+	35184372088832:   _SpellFlag_name[946:969],
+	70368744177664:   _SpellFlag_name[969:991],
 	140737488355328:  _SpellFlag_name[991:1014],
 	281474976710656:  _SpellFlag_name[1014:1037],
 	562949953421312:  _SpellFlag_name[1037:1060],
