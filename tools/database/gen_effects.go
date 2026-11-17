@@ -773,12 +773,6 @@ func itemProcRowChance(row *spelldata.Spell) float64 {
 	return row.StatedChance()
 }
 
-// Whether a generated set bonus builds the row as a proc: its one effect triggers a spell, as
-// shared.ParsedSetBonus reads it.
-func isSetProcRow(row *spelldata.Spell) bool {
-	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
-}
-
 // The shipped tables, with the items, enchants and set bonuses the game files have casting each rated spell.
 // gen_db reads them before anything calls sim.RegisterAll, so the effects and sets registered by then are
 // the hand-written ones: the generated files register theirs in their RegisterAll functions.
@@ -832,7 +826,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 			continue
 		}
 		for _, row := range rows {
-			if spell := spelldata.Find(int32(row.SpellID)); isSetProcRow(spell) && !rated[int32(row.SpellID)] {
+			if spell := spelldata.Find(int32(row.SpellID)); shared.IsSetBonusProc(spell) && !rated[int32(row.SpellID)] {
 				bonus := [2]int32{int32(setID), int32(row.Threshold)}
 				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
 			}
@@ -854,7 +848,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 	for _, literal := range in.Literals {
 		// A plain trigger rolls the stated chance and the item proc builders the column where
 		// ItemProcRollsTheColumn picks it, so a row where the two differ has no chance to state.
-		if row := spelldata.Find(literal.SpellID); row != nil && !row.ItemProcRollsTheColumn() {
+		if row := spelldata.Find(literal.SpellID); row != spelldata.Nil && !row.ItemProcRollsTheColumn() {
 			in.SpellChances[literal.SpellID] = chancePercent(itemProcRowChance(row))
 		}
 	}

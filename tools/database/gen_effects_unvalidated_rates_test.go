@@ -625,7 +625,7 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 			literal.Gear == "item" && !isItem || literal.Gear == "enchant" && !isEnchant {
 			t.Errorf("the literal %+v names gear the game files do not carry, no reason or an origin the notices do not know", literal)
 		}
-		if literal.SpellID != 0 && spelldata.Find(literal.SpellID) == nil || literal.SpellID == 0 && literal.Origin == "" && literal.Rate == 0 {
+		if literal.SpellID != 0 && spelldata.Find(literal.SpellID) == spelldata.Nil || literal.SpellID == 0 && literal.Origin == "" && literal.Rate == 0 {
 			t.Errorf("the literal %+v names a spell the spell store lacks, or is known and states neither a spell nor a rate", literal)
 		}
 	}
