@@ -174,10 +174,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Bashguuder-13204"
  value: {
-  dps: 461.60237
-  tps: 2347.50947
-  dtps: 396.28421
-  hps: 82.9882
+  dps: 463.92582
+  tps: 2334.5071
+  dtps: 400.02426
+  hps: 83.33881
  }
 }
 dps_results: {

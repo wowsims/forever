@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bashguuder-13204"
  value: {
-  dps: 535.19548
-  tps: 463.29218
+  dps: 534.37477
+  tps: 463.40527
   dtps: 2.94293
-  hps: 45.69917
+  hps: 45.71611
  }
 }
 dps_results: {
@@ -1505,10 +1505,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Mutilator-12469"
  value: {
-  dps: 475.5627
-  tps: 408.36203
+  dps: 465.64653
+  tps: 400.71674
   dtps: 2.97628
-  hps: 29.60194
+  hps: 29.31389
  }
 }
 dps_results: {
@@ -1685,10 +1685,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Rivenspike-13286"
  value: {
-  dps: 562.06182
-  tps: 482.0356
+  dps: 567.79086
+  tps: 487.87685
   dtps: 2.94293
-  hps: 39.51444
+  hps: 39.85333
  }
 }
 dps_results: {

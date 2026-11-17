@@ -1748,10 +1748,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Mutilator-12469"
  value: {
-  dps: 810.2894
-  tps: 832.41038
-  dtps: 8.71016
-  hps: 14.67389
+  dps: 812.30967
+  tps: 834.56668
+  dtps: 8.59254
+  hps: 14.65694
  }
 }
 dps_results: {
@@ -1955,10 +1955,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Rivenspike-13286"
  value: {
-  dps: 825.34208
-  tps: 847.80454
-  dtps: 8.50072
-  hps: 14.38583
+  dps: 827.87277
+  tps: 850.27934
+  dtps: 8.74772
+  hps: 14.30111
  }
 }
 dps_results: {

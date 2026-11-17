@@ -112,8 +112,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bashguuder-13204"
  value: {
-  dps: 742.53501
-  tps: 553.05051
+  dps: 742.96779
+  tps: 553.38597
   hps: 46.2075
  }
 }

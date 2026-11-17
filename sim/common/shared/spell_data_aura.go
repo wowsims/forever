@@ -58,14 +58,19 @@ func newSpellDataAuras(character *core.Character, row *spelldata.Spell, config c
 }
 
 func (auras *spellDataAuras) activate(sim *core.Simulation, target *core.Unit) {
+	auras.activateOwn(sim)
+	if auras.enemies != nil && target != nil {
+		applyDebuff(sim, auras.enemies.Get(target))
+	}
+}
+
+// The wearer's and the pets' auras, which no hit roll decides.
+func (auras *spellDataAuras) activateOwn(sim *core.Simulation) {
 	auras.wearer.Activate(sim)
 	for _, aura := range auras.pets {
 		if aura.Unit.IsEnabled() {
 			aura.Activate(sim)
 		}
-	}
-	if auras.enemies != nil && target != nil {
-		applyDebuff(sim, auras.enemies.Get(target))
 	}
 }
 
@@ -87,9 +92,20 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 		if proc.ICD == 0 && buff.ID != trigger.ID {
 			proc.ICD = buff.CategoryCooldown()
 		}
-		callback := proc.Callback
-		proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			auras.activate(sim, procDamageTarget(character, callback, spell, result))
+		if auras.enemies != nil && debuffStrikes(cfg, buff) {
+			attachDebuffStrike(character, &proc, buff, func(sim *core.Simulation, target *core.Unit) {
+				applyDebuff(sim, auras.enemies.Get(target))
+			})
+			strike := proc.Handler
+			proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				auras.activateOwn(sim)
+				strike(sim, spell, result)
+			}
+		} else {
+			callback := proc.Callback
+			proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+				auras.activate(sim, procDamageTarget(character, callback, spell, result))
+			}
 		}
 
 		triggerAura := source.registerTrigger(character, proc)

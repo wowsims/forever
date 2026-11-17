@@ -1469,10 +1469,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Mutilator-12469"
  value: {
-  dps: 775.37119
-  tps: 638.91927
-  dtps: 7.03355
-  hps: 30.04369
+  dps: 774.73659
+  tps: 638.38313
+  dtps: 6.95727
+  hps: 29.90627
  }
 }
 dps_results: {

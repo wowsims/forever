@@ -28,15 +28,58 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 	debuffs := EnemyDebuffAuras(character, debuff, debuff.Duration(), debuff.DebuffEffects())
 
 	config := spellDataProcListener(character, cfg, source, trigger)
-	callback := config.Callback
-	config.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-		if target := procDamageTarget(character, callback, spell, result); target != nil {
+	if debuffStrikes(cfg, debuff) {
+		attachDebuffStrike(character, &config, debuff, func(sim *core.Simulation, target *core.Unit) {
 			applyDebuff(sim, debuffs.Get(target))
+		})
+	} else {
+		callback := config.Callback
+		config.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			if target := procDamageTarget(character, callback, spell, result); target != nil {
+				applyDebuff(sim, debuffs.Get(target))
+			}
 		}
+		config.TriggerImmediately = true
 	}
-	config.TriggerImmediately = true
 
 	source.registerTrigger(character, config)
+}
+
+// Whether a weapon proc casts its debuff row as a strike. A row on the melee or ranged hit table rolls
+// that table, and its debuff lands only where the roll does: 12.2% of Mutilator's Lacerations 10370
+// miss or are avoided (EV-0145). A row on the magic table or on none lands with the proc.
+func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
+	if !cfg.IsWeaponProc {
+		return false
+	}
+	defenseType := row.DefenseTypeCore()
+	return defenseType == core.DefenseTypeMelee || defenseType == core.DefenseTypeRanged
+}
+
+// Sets the trigger to cast the row as a strike that deals no damage: one roll on the row's hit table,
+// without a crit, and land for the enemy that roll lands on once the strike has arrived. The strike
+// carries a weapon strike's mask, so it is heard as one (R-0040).
+func attachDebuffStrike(character *core.Character, trigger *core.ProcTrigger, row *spelldata.Spell, land func(sim *core.Simulation, target *core.Unit)) {
+	config := spelldata.SpellConfig(&character.Unit, row, damageShape(row), castBy(true))
+	application := damageOutcome(config.DefenseType, true, OutcomeDefault)
+	after := func(sim *core.Simulation, _ *core.Spell, _ *core.Unit, results core.SpellResultSlice) {
+		if results[0].Landed() {
+			land(sim, results[0].Target)
+		}
+	}
+
+	// Bound once per spell: binding the outcome per cast would allocate.
+	var boundSpell *core.Spell
+	var outcome core.OutcomeApplier
+	single := make(core.SpellResultSlice, 1)
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		if boundSpell != spell {
+			boundSpell, outcome = spell, GetOutcome(spell, application)
+		}
+		single[0] = spell.CalcOutcome(sim, target, outcome)
+		dealOneOnArrival(sim, spell, target, single, after)
+	}
+	attachProcDamage(character, trigger, config)
 }
 
 // A re-application refreshes the duration and, on a row that stacks, adds a stack up to its count.

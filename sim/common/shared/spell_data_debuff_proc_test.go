@@ -501,3 +501,67 @@ func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 		t.Error("Armor Shatter 16928 registered as a stat buff on the wearer")
 	}
 }
+
+// Two weapon procs whose rows apply a debuff alone on the melee hit table: Mutilator 12469's
+// Lacerations 10370, which raises the physical damage its target takes and registers as an aura proc,
+// and Bashguuder 13204's Puncture Armor 17315, a debuff proc. Each casts its row as a main-hand
+// strike that deals no damage: the debuff goes on with a strike that lands, and a strike that misses
+// leaves the target as it was (EV-0145).
+func TestMeleeDebuffWeaponProcRollsItsOwnHit(t *testing.T) {
+	const lacerations, punctureArmor int32 = 10370, 17315
+	for _, tc := range []struct {
+		name     string
+		row      int32
+		weaponID int32
+		register func(SpellDataProc)
+		applied  func(target *core.Unit) float64
+	}{
+		{"Lacerations", lacerations, 991710, registerSpellDataAuraProc,
+			func(target *core.Unit) float64 { return target.PseudoStats.BonusPhysicalDamageTaken }},
+		{"Puncture Armor", punctureArmor, 991712, registerSpellDataDebuffProc,
+			func(target *core.Unit) float64 { return -target.GetStat(stats.Armor) }},
+	} {
+		for i, landing := range []struct {
+			name  string
+			lands bool
+		}{
+			{"a strike that lands", true},
+			{"a strike that misses", false},
+		} {
+			t.Run(tc.name+", "+landing.name, func(t *testing.T) {
+				editRow(t, tc.row, func(s *spelldata.Spell) {
+					alwaysProcs(s)
+					s.RPPM = 0
+				})
+				sim, caster, target := newSlowProcSim(t, tc.weaponID+int32(i), tc.register, tc.row, nil)
+				if landing.lands {
+					caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
+				} else {
+					caster.AttackTables[target.UnitIndex].MH.BaseMissChance = 1
+				}
+				strike := mustGetSpell(t, caster, tc.row)
+				if !strike.ProcMask.Matches(core.ProcMaskMeleeMHSpecial) || !strike.Flags.Matches(core.SpellFlagProc) {
+					t.Fatalf("the strike's mask is %v and its flags %v, want a proc with a main-hand special's mask", strike.ProcMask, strike.Flags)
+				}
+				before := tc.applied(target)
+
+				landMainHandSwing(sim, caster, target)
+				metrics := strike.SpellMetrics[target.UnitIndex]
+				if metrics.Casts != 1 {
+					t.Fatalf("the swing cast %d strikes, want 1", metrics.Casts)
+				}
+				if metrics.TotalDamage != 0 {
+					t.Errorf("the strike dealt %v damage, want none", metrics.TotalDamage)
+				}
+				avoided := metrics.Misses + metrics.Dodges + metrics.Parries
+				gained := tc.applied(target) - before
+				switch {
+				case landing.lands && (avoided != 0 || gained <= 0):
+					t.Errorf("%d strikes were avoided and the debuff added %v, want the strike to land and the debuff on", avoided, gained)
+				case !landing.lands && (avoided != 1 || gained != 0):
+					t.Errorf("%d strikes were avoided and the debuff added %v, want the strike avoided and no debuff", avoided, gained)
+				}
+			})
+		}
+	}
+}

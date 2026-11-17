@@ -136,9 +136,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bashguuder-13204"
  value: {
-  dps: 797.78176
-  tps: 566.42505
-  hps: 56.12
+  dps: 800.80944
+  tps: 568.5747
+  hps: 56.20472
  }
 }
 dps_results: {
@@ -1464,9 +1464,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Rivenspike-13286"
  value: {
-  dps: 806.91928
-  tps: 572.91269
-  hps: 47.95278
+  dps: 809.93892
+  tps: 575.05663
+  hps: 48.08833
  }
 }
 dps_results: {

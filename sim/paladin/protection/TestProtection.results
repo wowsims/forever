@@ -155,10 +155,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bashguuder-13204"
  value: {
-  dps: 410.00177
-  tps: 986.3898
-  dtps: 340.46851
-  hps: 22.02778
+  dps: 412.23764
+  tps: 991.76571
+  dtps: 342.60817
+  hps: 21.89222
  }
 }
 dps_results: {
@@ -1892,10 +1892,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Rivenspike-13286"
  value: {
-  dps: 396.80973
-  tps: 941.45218
-  dtps: 338.48255
-  hps: 16.40222
+  dps: 400.37334
+  tps: 950.63933
+  dtps: 339.59969
+  hps: 16.47
  }
 }
 dps_results: {
