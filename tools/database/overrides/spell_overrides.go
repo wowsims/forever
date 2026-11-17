@@ -696,17 +696,24 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 27787,
+		Field:   PPM,
+		Value:   0.8,
+		Reason:  "Shadowcraft Armor 5-piece, Darkmantle Armor reissue 4-piece: 0.8 procs per minute on landed white swings, a log fit not yet validated (EV-0144); the game files state none",
+		Source:  "observed",
+	},
+	{
 		SpellID: 450625,
 		Field:   PPM,
 		Value:   1,
-		Reason:  "Lightforge Armor 5-piece, Soulforge Armor reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none",
+		Reason:  "Lightforge Armor 5-piece, Soulforge Armor reissue 4-piece: 1 proc per minute on landed white swings and on spell casts, the rate its casts fit and its swings fall a little short of, a cast priced on its cast time as The Furious Storm's is, not yet validated (EV-0144); the game files state none",
 		Source:  "observed",
 	},
 	{
 		SpellID: 450626,
 		Field:   PPM,
 		Value:   1,
-		Reason:  "The Elements 5-piece, The Five Thunders reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit from four wearers not yet validated (EV-0144); the game files state none",
+		Reason:  "The Elements 5-piece, The Five Thunders reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none",
 		Source:  "observed",
 	},
 	{

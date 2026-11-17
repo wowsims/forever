@@ -22510,10 +22510,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 704637, SpellID: 27786, Type: dbcenums.E_ENERGIZE, BasePoints: 200, BaseLevel: 60, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 27787, Name: "Rogue Armor Energize", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4}, ClassFlags: core.ClassFlags{Family: 10}, Labels: []int16{20}, ProcChanceSource: ProcChancePPM,
+	{ID: 27787, Name: "Rogue Armor Energize", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x4}, RPPM: 0.8, ClassFlags: core.ClassFlags{Family: 10}, Labels: []int16{20}, ProcChanceSource: ProcChancePPM,
 		Effects: []Effect{
 			{ID: 704546, SpellID: 27787, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 1, BaseLevel: 60, PvpMult: 1, TriggerID: 27788, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: PPM 0.8 -- Shadowcraft Armor 5-piece, Darkmantle Armor reissue 4-piece: 0.8 procs per minute on landed white swings, a log fit not yet validated (EV-0144); the game files state none
 	{ID: 27788, Name: "Rogue Armor Energize", School: 2, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DefenseType: 1, DispelType: 1,
 		Effects: []Effect{
 			{ID: 704542, SpellID: 27788, Type: dbcenums.E_ENERGIZE, BasePoints: 20, BaseLevel: 60, SPCoef: 1, PvpMult: 1, Misc: 3, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
@@ -28463,11 +28463,11 @@ var generatedSpells = []Spell{
 	{ID: 450625, Name: "Item - Crusader's Wrath Proc - Lightforge Armor", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14004}, RPPM: 1, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150643, SpellID: 450625, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27499, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1 -- Lightforge Armor 5-piece, Soulforge Armor reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none
+		}}, // override: PPM 1 -- Lightforge Armor 5-piece, Soulforge Armor reissue 4-piece: 1 proc per minute on landed white swings and on spell casts, the rate its casts fit and its swings fall a little short of, a cast priced on its cast time as The Furious Storm's is, not yet validated (EV-0144); the game files state none
 	{ID: 450626, Name: "Item - The Furious Storm Proc", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14004}, RPPM: 1, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150644, SpellID: 450626, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27775, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}}, // override: PPM 1 -- The Elements 5-piece, The Five Thunders reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit from four wearers not yet validated (EV-0144); the game files state none
+		}}, // override: PPM 1 -- The Elements 5-piece, The Five Thunders reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none
 	{ID: 453622, Name: "Feral Combat Specialization", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1155621, SpellID: 453622, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL_TALENT, BasePoints: 5, BaseLevel: 60, PvpMult: 1, Misc: 134, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

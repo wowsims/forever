@@ -615,28 +615,8 @@ type literalRate struct {
 	Reason string
 }
 
-var literalRates = []literalRate{
-	{
-		Gear:   "set bonus",
-		ID:     184,
-		Pieces: 5,
-		Kind:   overrides.RatePPM,
-		Rate:   0.8,
-		Origin: "observed",
-		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
-			"so the sim keeps the 0.8 per minute the logs show as a literal (EV-0144)",
-	},
-	{
-		Gear:   "set bonus",
-		ID:     1676,
-		Pieces: 4,
-		Kind:   overrides.RatePPM,
-		Rate:   0.8,
-		Origin: "observed",
-		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
-			"so the sim keeps the 0.8 per minute the logs show as a literal (EV-0144)",
-	},
-}
+// Empty while every gear rate is an override row; a rate that has to stay a literal in the sim goes here.
+var literalRates []literalRate
 
 // A Source naming the files of its measurements in docs/evidence.
 var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)

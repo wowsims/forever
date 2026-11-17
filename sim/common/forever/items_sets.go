@@ -285,7 +285,7 @@ var (
 func wildheartEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		// TODO: A landed melee swing also restores energy over 5 s (27784, whose row restores mana) and
-		// a melee hit taken 10 rage (27783). One wearer shows both, too few for a rate (EV-0144).
+		// a melee hit taken 10 rage (27783). Neither has a measured rate (EV-0144).
 		character := agent.GetCharacter()
 		mana := wildheartMana.EnergizeEffect().Average()
 		manaMetrics := character.NewManaMetrics(core.ActionID{SpellID: wildheartMana.ID})
@@ -438,9 +438,9 @@ var (
 	rogueArmorEnergy     = spelldata.MustFind(27788) // the energy it restores
 )
 
-// The energy proc of the two rogue dungeon sets. The row states 100% on every melee swing and no rate per
-// minute, so the sim keeps the 0.8 per minute the logs show as a literal (EV-0144). Windfury Totem's
-// strike rolls it as a main-hand swing (EV-0136). A wearer with no energy bar gets nothing.
+// The energy proc of the two rogue dungeon sets, at the procs per minute an override puts on the row
+// (EV-0144). Windfury Totem's strike rolls it as a main-hand swing (EV-0136). A wearer with no energy
+// bar gets nothing.
 func rogueArmorEnergize(name string) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
@@ -449,7 +449,7 @@ func rogueArmorEnergize(name string) core.ApplySetBonus {
 			return
 		}
 
-		trigger := spelldata.ProcTrigger(character, rogueArmorEnergyProc, gain, spelldata.PPM(0.8))
+		trigger := spelldata.ProcTrigger(character, rogueArmorEnergyProc, gain)
 		trigger.Name = name
 		setBonusAura.AttachProcTrigger(trigger)
 	}

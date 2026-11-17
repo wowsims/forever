@@ -1496,9 +1496,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-LightforgeArmor"
  value: {
-  dps: 393.87347
-  tps: 926.20794
-  dtps: 362.36679
+  dps: 394.48206
+  tps: 927.80545
+  dtps: 362.34738
   hps: 18.09667
  }
 }
@@ -2063,9 +2063,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SoulforgeArmor"
  value: {
-  dps: 415.04479
-  tps: 981.66331
-  dtps: 368.22131
+  dps: 415.86528
+  tps: 983.80279
+  dtps: 368.18363
   hps: 18.1475
  }
 }
@@ -2261,9 +2261,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
-  dps: 390.06195
-  tps: 934.47256
-  dtps: 428.34176
+  dps: 390.67907
+  tps: 936.16662
+  dtps: 428.30065
   hps: 18.24917
  }
 }
@@ -2586,7 +2586,7 @@ dps_results: {
  key: "TestProtection-AllItems-WildheartRaiment"
  value: {
   dps: 374.13175
-  tps: 892.54828
+  tps: 892.76743
   dtps: 478.03324
   hps: 18.1475
  }

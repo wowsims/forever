@@ -13,14 +13,16 @@
 
 A wearer is a player whose gear snapshot in the log holds enough pieces of a set for the proc: 5 of a dungeon set 1,
 4 of a reissued dungeon set 2. A fight is cut at each gear snapshot, and a stretch counts while the latest snapshot
-holds enough pieces. A proc is an event of the proc's spell on the wearer (an aura applied or refreshed, a heal, a
-resource gain), counted once when one proc logs several events within 50 ms. The wearer's own damage, heal and cast
-events and the hits the wearer takes are grouped where less than 40 ms apart, and a proc is credited to the nearest
-group, from 300 ms before it to 60 ms after it.
+holds enough pieces. A run two reports hold, logged or uploaded twice, counts once: where two reports show one player
+over the same stretch of time, the report with more events stays. A proc is an event of the proc's spell on the wearer
+(an aura applied or refreshed, a heal, a resource gain), counted once when one proc logs several events within 50 ms.
+The wearer's own damage, heal and cast events and the hits the wearer takes are grouped where less than 40 ms apart,
+and a proc is credited to the nearest group, from 300 ms before it to 60 ms after it.
 
 A swing is a landed white swing or a landed Windfury Totem strike in a group with no spell cast, priced on the base
 speed of the main-hand weapon in the snapshot, or on the harmonic mean of both hands' speeds for a dual wielder, whose
-swings are not split by hand. A cast is a group holding exactly one cast of a spell with the magic defense type and no
+swings are not split by hand. A druid swings a form's paw whatever the weapon, so the one druid in Shadowcraft Armor is
+left out of the swing rates. A cast is a group holding exactly one cast of a spell with the magic defense type and no
 swing, priced on the time between its `begincast` and `cast` events and at least 1.5 s. The rate is the procs over the
 sum of those times over 60. An interval on a rate is 2,000 bootstrap draws of whole wearer-reports, and one on a
 percentage is a Wilson interval per roll. No stretch is dropped as swapped away; dropping the gaps a wearer at 0.8 a
@@ -30,14 +32,14 @@ The scripts are `extract.py`, `rates.py`, `stretch.py`, `set_rows.py` and `evtab
 
 ## Which set a reissued piece counts toward
 
-Every player in the 19,699 indexed reports who wears a dungeon set 2 piece wears a reissued one: 580 wearers of the
-ids 226772 to 227023, none of the Classic ids 21994 to 22113 and none of the 72 pieces the reissued `ItemSet` rows
-list (226815 to 227040). The wearers of 4 or more pieces fire the reissued row's bonuses at its piece counts:
+Every player in the indexed reports who wears a dungeon set 2 piece wears a reissued one: 586 wearers of the ids
+226772 to 227023 across the 20,191 reports with gear snapshots, none of the Classic ids 21994 to 22113 and none of the
+72 pieces the reissued `ItemSet` rows list (226815 to 227040). The wearers of 4 or more pieces fire the reissued row's
+bonuses at its piece counts:
 
 | Set (reissued id)                | Report           | Fights                                  | Date  | Pieces | Events of the set proc spells                       |
 | -------------------------------- | ---------------- | --------------------------------------- | ----- | ------ | --------------------------------------------------- |
 | Battlegear of Heroism (1778)     | vYpj9gc1tk6zGFRX | 1, 4-8, 10                              | 11-14 | 4      | 89 of 450589                                        |
-| Battlegear of Heroism (1778)     | GW1vdX2rKMVPaL78 | 1                                       | 11-15 | 4      | 25 of 450589                                        |
 | Battlegear of Heroism (1778)     | 4Tc3yBNVYn7wW8RJ | 1, 8, 12, 14-16, 19-20, 22, 25, 28, 31  | 11-15 | 4      | 160 of 450589                                       |
 | Battlegear of Heroism (1778)     | VtjvpP8bwcgCYTXF | 1                                       | 11-16 | 4      | 36 of 450589                                        |
 | Battlegear of Heroism (1778)     | aDHTPGq6htJFx8Nw | 1                                       | 11-16 | 4      | 29 of 450589                                        |
@@ -66,35 +68,39 @@ Darkmantle rows, so its three wearers do not tell the rows apart, and no Deathmi
 
 | Proc                                           | Row    | Wearers | Swing procs | Swings | Per swing         | Swing PPM         | Cast procs | Casts | Per cast          | Cast PPM          |
 | ---------------------------------------------- | ------ | ------: | ----------: | -----: | ----------------- | ----------------- | ---------: | ----: | ----------------- | ----------------- |
-| Crusader's Wrath (Lightforge, Soulforge)       | 450625 |      12 |         357 | 10,105 | 3.53% (3.19–3.91) | 0.86 [0.78, 0.95] |        204 | 7,585 | 2.69% (2.35–3.08) | 1.06 [0.81, 1.21] |
-| The Furious Storm (Elements, Thunders)         | 450626 |       4 |          55 |  1,398 | 3.93% (3.03–5.09) | 0.66 [0.59, 1.29] |         70 | 2,654 | 2.64% (2.09–3.32) | 0.96 [0.81, 1.01] |
-| Nature's Bounty, mana (Wildheart)              | 450608 |       7 |           0 |    622 | 0% (0–0.61)       |                   |         64 | 2,827 | 2.26% (1.78–2.88) | 0.81 [0.55, 1.04] |
-| Warrior's Resolve (Valor, Heroism)             | 450587 |      16 |         741 | 22,487 | 3.30% (3.07–3.54) | 0.94 [0.87, 1.00] |          1 | 4,227 | 0.02%             |                   |
-| Rogue Armor Energize (Shadowcraft, Darkmantle) | 27787  |      27 |       2,065 | 77,414 | 2.67% (2.56–2.78) | 0.82 [0.77, 0.85] |          0 | 1,148 | 0%                |                   |
+| Crusader's Wrath (Lightforge, Soulforge)       | 450625 |      12 |         334 |  9,299 | 3.59% (3.23–3.99) | 0.85 [0.76, 0.95] |        193 | 7,217 | 2.67% (2.33–3.07) | 1.06 [0.77, 1.22] |
+| The Furious Storm (Elements, Thunders)         | 450626 |       4 |          55 |  1,398 | 3.93% (3.03–5.09) | 0.66 [0.59, 1.29] |         70 | 2,654 | 2.64% (2.09–3.32) | 0.96 [0.78, 1.01] |
+| Nature's Bounty, mana (Wildheart, Feralheart)  | 450608 |       7 |           0 |    622 | 0% (0–0.61)       |                   |         64 | 2,827 | 2.26% (1.78–2.88) | 0.81 [0.56, 1.04] |
+| Warrior's Resolve (Valor, Heroism)             | 450587 |      16 |         720 | 21,667 | 3.32% (3.09–3.57) | 0.94 [0.87, 1.01] |          1 | 4,204 | 0.02%             |                   |
+| Rogue Armor Energize (Shadowcraft, Darkmantle) | 27787  |      26 |       1,900 | 70,840 | 2.68% (2.57–2.80) | 0.83 [0.80, 0.86] |          0 | 1,012 | 0%                |                   |
 
 The rows are procs per minute and no flat chance. On swings the chance rises with the weapon's speed while the rate
-holds: Crusader's Wrath rolls 2.80% on weapons under 2.2 s (0.92 a minute), 2.87% from 2.2 to 2.9 s (0.73), 4.75% from
+holds: Crusader's Wrath rolls 2.79% on weapons under 2.2 s (0.92 a minute), 2.87% from 2.2 to 2.9 s (0.73), 4.75% from
 2.9 to 3.4 s (0.89) and 4.61% above (0.80); Rogue Armor Energize 0.84 a minute under 2.2 s and 0.81 from 2.2 to 2.9 s.
 On casts the chance rises with the cast time: Nature's Bounty restores mana on 1.85% of instants (36 of 1,943), 2.49%
 of casts under 2 s (13 of 523), 3.75% of casts from 2 to 2.75 s (9 of 240) and 4.96% of longer ones (6 of 121); The
 Furious Storm on 2.39% of instants (50 of 2,089) and 4.35% of casts from 2 to 2.75 s (13 of 299). An instant at 1 a
-minute on 1.5 s is 2.5%. Crusader's Wrath shows no such rise on its few hardcasts: 2.77% of instants (194 of 7,013)
-and 1.29% of casts under 2 s (6 of 464, 95% 0.59 to 2.79), nearly all Flash of Light.
+minute on 1.5 s is 2.5%. Crusader's Wrath shows no such rise on its few hardcasts: 2.75% of instants (183 of 6,655)
+and 1.31% of casts under 2 s (6 of 458, 95% 0.60 to 2.83), nearly all Flash of Light.
 
-Melee and ranged abilities roll neither spell row: none of 2,952 Holy Strikes and 562 Hammers of Wrath is followed by
-Crusader's Wrath, and none of 444 Stormstrikes by The Furious Storm. Hits taken and avoided swings roll nothing
-(0 of 3,546 and 0 of 885 for Crusader's Wrath). Buff casts roll Crusader's Wrath as damaging ones do: a seal 2.0% to
-3.3%, Holy Shield 4.06%, Cleanse 3.55%, beside Judgement's 2.36% and Consecration's 3.18%.
+A cast on the global cooldown rolls the spell rows whether or not it deals damage. On the Lightforge wearers a seal
+cast is followed by Crusader's Wrath 2.0% to 3.3% of the time (Seal of Command 31 of 941, Seal of Righteousness 25 of
+839, Seal of Fury 13 of 437), Holy Shield 4.42% (18 of 407) and Cleanse 3.91% (7 of 179), beside Consecration's 3.02%
+(50 of 1,658) and Judgement's 2.36% (66 of 2,800). The Furious Storm follows 2.80% of Magma Totems (4 of 143) and
+2 of 57 Windfury Totems. Melee and ranged abilities roll neither row: none of 2,796 Holy Strikes and 561 Hammers of
+Wrath is followed by Crusader's Wrath, and none of 444 Stormstrikes by The Furious Storm. Nor do the casts off the
+global cooldown the wearers made: Swift Judgement 0 of 65, Sanctified Orb 0 of 35. Hits taken and avoided swings roll
+nothing (0 of 3,010 and 0 of 811 for Crusader's Wrath).
 
-The sets whose rows state a chance fire at it. Sudden Insight follows 4.99% of Auto Shots fired (637 of 12,758,
-95% 4.63 to 5.38) and 4.73% of landed white swings (246 of 5,201) on the Beaststalker and Beastmaster wearers, whose
-row 450577 states 5%, and Vestments of the Devout's 450576 restores mana on 4.90% of Renews (232 of 4,731) and 5.00%
-of Flash Heals (65 of 1,301).
+The sets whose rows state a chance fire at it. Sudden Insight follows 5.00% of Auto Shots fired (610 of 12,208,
+95% 4.62 to 5.40) and 4.75% of landed white swings (245 of 5,163) on the Beaststalker and Beastmaster wearers, whose
+row 450577 states 5%, and Vestments of the Devout's 450576 restores mana on 4.91% of Renews (188 of 3,832) and 4.73%
+of Flash Heals (47 of 994).
 
 ## Crusader's Wrath (sets 188 and 1673)
 
 - Proc: 450625, logged as the buff 27499; Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece
-- Sim rate: 1 PPM, observed
+- Sim rate: 1 PPM, observed. The casts fit it (1.06) and the swings fall short of it (0.85 [0.76, 0.95])
 
 | Report           | Fights                                             | Date  | Class   | Set              | Swing procs | Swings | Swing PPM | Speeds        | Cast procs | Casts | Cast PPM |
 | ---------------- | -------------------------------------------------- | ----- | ------- | ---------------- | ----------: | -----: | --------: | ------------- | ---------: | ----: | -------: |
@@ -105,7 +111,6 @@ of Flash Heals (65 of 1,301).
 | zp9yVrtfTNZJCv7g | 9                                                  | 11-15 | Paladin | Lightforge Armor |           8 |    248 |      0.57 | 3.4           |         12 |   245 |     1.96 |
 | LR9WfMTdbr3ZNBFH | 1                                                  | 11-15 | Paladin | Lightforge Armor |          14 |    294 |      0.87 | 3.3           |          3 |   298 |     0.40 |
 | dnDg7j9kRw6WtbML | 5, 10, 26, 35-36, 48-49, 52, 55, 58, 61, 64, 67-68 | 11-16 | Paladin | Lightforge Armor |         150 |   4454 |      0.86 | 1.8, 3.3      |         92 |  2967 |     1.23 |
-| xXWkB3fqAjt9NJGH | 5, 10, 26, 35                                      | 11-16 | Paladin | Lightforge Armor |          23 |    806 |      0.95 | 1.8           |         11 |   368 |     1.19 |
 | DNc6QALhxmGbCH3Y | 1                                                  | 11-16 | Paladin | Lightforge Armor |           0 |      6 |      0.00 | 2.7           |          7 |   530 |     0.49 |
 | 79QPzLcgZCKbJBkH | 1                                                  | 11-16 | Paladin | Lightforge Armor |          14 |    227 |      1.23 | 3             |         11 |   200 |     2.20 |
 | zM4Dd8QKwBATnJR9 | 1, 3                                               | 11-17 | Paladin | Lightforge Armor |          15 |    647 |      0.60 | 2.3           |          4 |   344 |     0.46 |
@@ -148,13 +153,12 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 ## Warrior's Resolve on Battlegear of Heroism (set 1778)
 
 - Proc: 450587, logged as 450589, the 4-piece of the reissue; EV-0136 measured it on Battlegear of Valor
-- Sim rate: 1 PPM, observed; measured 0.93 PPM [0.85, 1.01] on one Heroism wearer, 420 procs on 13,839 swings, and
-  0.94 PPM [0.87, 1.00] with the 15 Valor wearers of these dates
+- Sim rate: 1 PPM, observed; measured 0.94 PPM [0.87, 1.02] on one Heroism wearer, 399 procs on 13,019 swings, and
+  0.94 PPM [0.87, 1.01] with the 15 Valor wearers of these dates
 
 | Report           | Fights                                 | Date  | Class   | Set                   | Swing procs | Swings | Swing PPM | Speeds                 | Cast procs | Casts | Cast PPM |
 | ---------------- | -------------------------------------- | ----- | ------- | --------------------- | ----------: | -----: | --------: | ---------------------- | ---------: | ----: | -------: |
 | vYpj9gc1tk6zGFRX | 1, 4-8, 10                             | 11-14 | Warrior | Battlegear of Heroism |          82 |   2332 |      1.08 | 1.95 (both hands)      |          0 |    73 |     0.00 |
-| GW1vdX2rKMVPaL78 | 1                                      | 11-15 | Warrior | Battlegear of Heroism |          21 |    820 |      0.79 | 1.95 (both hands)      |          0 |    23 |     0.00 |
 | 4Tc3yBNVYn7wW8RJ | 1, 8, 12, 14-16, 19-20, 22, 25, 28, 31 | 11-15 | Warrior | Battlegear of Heroism |         132 |   4468 |      0.91 | 1.95 (both hands)      |          0 |   170 |     0.00 |
 | VtjvpP8bwcgCYTXF | 1                                      | 11-16 | Warrior | Battlegear of Heroism |          33 |   1014 |      1.00 | 1.95 (both hands)      |          0 |   201 |     0.00 |
 | aDHTPGq6htJFx8Nw | 1                                      | 11-16 | Warrior | Battlegear of Heroism |          21 |    911 |      0.71 | 1.95 (both hands)      |          1 |    68 |     0.59 |
@@ -178,10 +182,10 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 ## Rogue Armor Energize (sets 184 and 1676)
 
 - Proc: 27787, logged as 27788; Shadowcraft Armor's 5-piece and the Darkmantle Armor reissue's 4-piece
-- Sim rate: 0.8 PPM, observed; measured 0.82 PPM [0.77, 0.85], 27 wearers, 2,065 procs on 77,414 swings
+- Sim rate: 0.8 PPM, observed; measured 0.83 PPM [0.80, 0.86], 26 wearers, 1,900 procs on 70,840 swings
 
-Every wearer dual-wields, and the swings are priced on both hands' speeds together, with no split by hand. The same
-pricing reads Warrior's Resolve at 0.94.
+Every rogue here dual-wields, and the swings are priced on both hands' speeds together, with no split by hand. The
+same pricing reads Warrior's Resolve at 0.94.
 
 | Report           | Fights                                                         | Date  | Class | Set               | Swing procs | Swings | Swing PPM | Speeds                        | Cast procs | Casts | Cast PPM |
 | ---------------- | -------------------------------------------------------------- | ----- | ----- | ----------------- | ----------: | -----: | --------: | ----------------------------- | ---------: | ----: | -------: |
@@ -197,12 +201,9 @@ pricing reads Warrior's Resolve at 0.94.
 | pNW7aGKnzHP1MftT | 3                                                              | 11-14 | Rogue | Shadowcraft Armor |           4 |    314 |      0.31 | 2.46 (both hands)             |          0 |     1 |     0.00 |
 | 1z4vRDqGdM2cVPXk | 1, 7-8                                                         | 11-14 | Rogue | Shadowcraft Armor |          45 |   1634 |      0.76 | 2.09, 2.34 (both hands)       |          0 |    17 |     0.00 |
 | CfHvwytKJ6P4q7ag | 1, 3, 7, 17, 21                                                | 11-14 | Rogue | Shadowcraft Armor |         103 |   3929 |      0.78 | 2.02 (both hands)             |          0 |    41 |     0.00 |
-| RN79rHGJpKdv2z3B | 1, 3, 7, 17, 21                                                | 11-14 | Rogue | Shadowcraft Armor |         103 |   3929 |      0.78 | 2.02 (both hands)             |          0 |    41 |     0.00 |
-| vwYF4Z2C38cfKTDB | 1, 3, 7                                                        | 11-14 | Rogue | Shadowcraft Armor |          46 |   1601 |      0.85 | 2.02 (both hands)             |          0 |    31 |     0.00 |
 | Z3nAqFVzTrmcHQWN | 1                                                              | 11-14 | Rogue | Shadowcraft Armor |           5 |    203 |      1.06 | 1.4 (both hands)              |          0 |     2 |     0.00 |
 | wPtHK4F6BYd8GVNq | 1                                                              | 11-15 | Rogue | Shadowcraft Armor |          17 |    676 |      0.69 | 2.19 (both hands)             |          0 |     0 |     0.00 |
 | 2Z4G3r9pfqJtCM6W | 7                                                              | 11-15 | Rogue | Shadowcraft Armor |          17 |    793 |      0.59 | 2.19 (both hands)             |          0 |     4 |     0.00 |
-| H2T7NDqBgm6LxGYK | 1                                                              | 11-15 | Druid | Shadowcraft Armor |          16 |   1044 |      0.26 | 3.6                           |          0 |    64 |     0.00 |
 | VjBTMHXxFvbthkw2 | 1                                                              | 11-15 | Rogue | Shadowcraft Armor |          25 |   1174 |      0.81 | 1.58 (both hands)             |          0 |     0 |     0.00 |
 | 2wMznDRvmkpbtHxA | 1, 5, 7                                                        | 11-15 | Rogue | Shadowcraft Armor |          64 |   2265 |      0.83 | 2.02, 2.09 (both hands)       |          0 |    29 |     0.00 |
 | XLvj723CgZTJGy4h | 1                                                              | 11-15 | Rogue | Shadowcraft Armor |          29 |   1298 |      0.91 | 1.47 (both hands)             |          0 |     2 |     0.00 |

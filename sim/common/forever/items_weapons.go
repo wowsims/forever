@@ -795,8 +795,7 @@ func castTimePPM(row *spelldata.Spell, requireDamage bool) spelldata.ProcOpt {
 				castTime = spell.CurCast.CastTime
 			}
 			delete(castTimes, result)
-			chance := float64(row.RPPM) * max(castTime, core.GCDDefault).Seconds() / 60
-			return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
+			return shared.RollCastTimePPM(sim, character, row, flags, castTime)
 		}
 		spelldata.Chance(1)(character, trigger)
 	}

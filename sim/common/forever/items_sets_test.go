@@ -195,24 +195,16 @@ func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
 	}
 }
 
-// How many of casts spell casts of castTime fired the proc. fired reports a proc since it was last asked.
-func castProcs(t *testing.T, sim *core.Simulation, character *core.Character, castTime time.Duration, casts int, fired func() bool) float64 {
+// One cast of spell that took castTime, and the spell batch window the listener resolves after.
+func completeCast(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell, castTime time.Duration) {
 	t.Helper()
-	spell := fireSpell(&character.Unit)
-	procs := 0.0
-	for range casts {
-		spell.CurCast.CastTime = castTime
-		character.OnCastComplete(sim, spell)
-		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
-		if fired() {
-			procs++
-		}
-	}
-	return procs
+	spell.CurCast.CastTime = castTime
+	character.OnCastComplete(sim, spell)
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
 }
 
-// Fails unless procs of casts spell casts of castTime is about the row's procs per minute on that time, at
-// least castTimeFloor.
+// Fails unless procs is within four standard deviations of what casts casts of castTime give at the row's
+// procs per minute, a cast priced on its time and at least castTimeFloor.
 func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Duration, casts int, procs float64) {
 	t.Helper()
 	want := castTimeChance(t, rowID, castTime)
@@ -225,9 +217,9 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 // Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece share 450625, The Elements' 5-piece
 // and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
 // per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
-// and at least castTimeFloor, and a spell's hit rolls nothing.
+// and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast on the global
+// cooldown rolls as a spell does; a cast off it and a melee ability roll nothing.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
-	const mainHand = northernShortsword
 	for _, tc := range []struct {
 		name   string
 		row    int32
@@ -235,56 +227,82 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 	}{
 		{"Lightforge Armor 5P", 450625, map[proto.ItemSlot]int32{
 			proto.ItemSlot_ItemSlotHead: 16727, proto.ItemSlot_ItemSlotShoulder: 16729, proto.ItemSlot_ItemSlotChest: 16726,
-			proto.ItemSlot_ItemSlotWrist: 16722, proto.ItemSlot_ItemSlotHands: 16724,
+			proto.ItemSlot_ItemSlotWrist: 16722, proto.ItemSlot_ItemSlotHands: 16724, proto.ItemSlot_ItemSlotMainHand: northernShortsword,
 		}},
 		{"Soulforge Armor 4P", 450625, map[proto.ItemSlot]int32{
 			proto.ItemSlot_ItemSlotShoulder: 226969, proto.ItemSlot_ItemSlotWrist: 226970, proto.ItemSlot_ItemSlotWaist: 226971,
-			proto.ItemSlot_ItemSlotLegs: 226972,
+			proto.ItemSlot_ItemSlotLegs: 226972, proto.ItemSlot_ItemSlotMainHand: northernShortsword,
 		}},
 		{"The Elements 5P", 450626, map[proto.ItemSlot]int32{
 			proto.ItemSlot_ItemSlotHead: 16667, proto.ItemSlot_ItemSlotShoulder: 16669, proto.ItemSlot_ItemSlotChest: 16666,
-			proto.ItemSlot_ItemSlotWrist: 16671, proto.ItemSlot_ItemSlotHands: 16672,
+			proto.ItemSlot_ItemSlotWrist: 16671, proto.ItemSlot_ItemSlotHands: 16672, proto.ItemSlot_ItemSlotMainHand: northernShortsword,
 		}},
 		{"The Five Thunders 4P", 450626, map[proto.ItemSlot]int32{
 			proto.ItemSlot_ItemSlotShoulder: 227003, proto.ItemSlot_ItemSlotWrist: 227001, proto.ItemSlot_ItemSlotWaist: 227008,
-			proto.ItemSlot_ItemSlotLegs: 227005,
+			proto.ItemSlot_ItemSlotLegs: 227005, proto.ItemSlot_ItemSlotMainHand: northernShortsword,
 		}},
 	} {
 		row := spelldata.MustFind(tc.row)
-		pieces := maps.Clone(tc.pieces)
-		pieces[proto.ItemSlot_ItemSlotMainHand] = mainHand
 		// The warrior stand-in swings its main hand, which a healer's stand-in does not.
-		sim, wearer := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
+		sim, wearer := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(tc.pieces))
 		proc := wearer.GetAura(tc.name)
 		buff := wearer.GetAuraByID(core.ActionID{SpellID: row.FiredSpell().ID})
 		if proc == nil || proc.Dpm == nil || buff == nil || row.RPPM <= 0 {
 			t.Fatalf("%s registers no proc on a procs per minute rate or no buff, or %d carries no rate", tc.name, tc.row)
 		}
-		if got, want := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim), float64(row.RPPM)*core.GetItemByID(mainHand).SwingSpeed/60; math.Abs(got-want) > 1e-9 {
+		if got, want := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim), float64(row.RPPM)*core.GetItemByID(northernShortsword).SwingSpeed/60; math.Abs(got-want) > 1e-9 {
 			t.Errorf("%s rolls %v on a main-hand swing, want the row's procs per minute on the weapon's speed, %v", tc.name, got, want)
 		}
 
-		// With the swing listener's manager certain on every hit it could hear, a spell's hit still
-		// rolls nothing and a white swing puts the buff up.
-		*proc.Dpm = *wearer.NewFixedProcChanceManager(1, core.ProcMaskMeleeWhiteHit|core.ProcMaskSpellDamage)
+		// With the swing listener's manager certain on every hit it could hear, a spell's hit and a
+		// heal's landing still roll nothing and a white swing puts the buff up.
+		*proc.Dpm = *wearer.NewFixedProcChanceManager(1, core.ProcMaskMeleeWhiteHit|core.ProcMaskSpellDamage|core.ProcMaskSpellHealing)
 		dealHit(t, sim, wearer, fireSpell(&wearer.Unit))
+		dealHeal(t, sim, wearer, healSpell(&wearer.Unit))
 		if buff.IsActive() {
-			t.Errorf("%s: a spell's hit put %d up, want only its cast to roll", tc.name, buff.ActionID.SpellID)
+			t.Errorf("%s: a spell's hit or a heal's landing put %d up, want only its cast to roll", tc.name, buff.ActionID.SpellID)
 		}
 		dealHit(t, sim, wearer, meleeSwing(&wearer.Unit))
 		if !buff.IsActive() {
 			t.Errorf("%s: a landed white swing on a certain roll put no %d up", tc.name, buff.ActionID.SpellID)
 		}
+		buff.Deactivate(sim)
 
-		const casts = 6000
-		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
-			buff.Deactivate(sim)
-			procs := castProcs(t, sim, wearer, castTime, casts, func() bool {
-				up := buff.IsActive()
-				buff.Deactivate(sim)
-				return up
-			})
-			wantCastTimeRate(t, tc.name, tc.row, castTime, casts, procs)
+		// Six rounds of casts, one spell batch window each, fit the stand-in's fight.
+		const casts = 2000
+		castProcs := func(spell *core.Spell, castTime time.Duration) float64 {
+			procs := 0.0
+			for range casts {
+				completeCast(t, sim, wearer, spell, castTime)
+				if buff.IsActive() {
+					procs++
+					buff.Deactivate(sim)
+				}
+			}
+			return procs
+		}
+		onGCD := core.Cast{GCD: core.GCDDefault}
+		for _, cast := range []struct {
+			spell    *core.Spell
+			castTime time.Duration
+		}{
+			{fireSpell(&wearer.Unit), 0},
+			{fireSpell(&wearer.Unit), 2 * castTimeFloor},
+			{healSpell(&wearer.Unit), 0},
+			{&core.Spell{ProcMask: core.ProcMaskEmpty, DefaultCast: onGCD, Unit: &wearer.Unit}, 0},
+		} {
+			wantCastTimeRate(t, tc.name, tc.row, cast.castTime, casts, castProcs(cast.spell, cast.castTime))
+		}
+		for _, cast := range []struct {
+			name  string
+			spell *core.Spell
+		}{
+			{"a cast off the global cooldown", &core.Spell{ProcMask: core.ProcMaskEmpty, Unit: &wearer.Unit}},
+			{"a melee ability on the global cooldown", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, DefaultCast: onGCD, Unit: &wearer.Unit}},
+		} {
+			if procs := castProcs(cast.spell, 0); procs != 0 {
+				t.Errorf("%s: %s procced it %v times in %d casts, want none", tc.name, cast.name, procs, casts)
+			}
 		}
 	}
 }
@@ -304,7 +322,10 @@ func TestWildheartRaimentRestoresManaOnCastsPricedOnTheirTime(t *testing.T) {
 	const casts = 6000
 	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
 		before := spellGain(druid, 27782)
-		castProcs(t, sim, druid, castTime, casts, func() bool { return false })
+		spell := fireSpell(&druid.Unit)
+		for range casts {
+			completeCast(t, sim, druid, spell, castTime)
+		}
 		after := spellGain(druid, 27782)
 		procs := float64(after.Events - before.Events)
 		wantCastTimeRate(t, "Wildheart Raiment 5P", 450608, castTime, casts, procs)
