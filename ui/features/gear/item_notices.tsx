@@ -129,9 +129,10 @@ const addUnvalidatedRateNotices = (notices: Map<number, ItemNoticeData>, rates: 
 	}
 };
 
-// The rate each item and enchant carries; an item's also gains the rates of the set bonuses it belongs to.
+// Each item's own rate line.
 const OWN_ITEM_RATE_NOTICES = new Map<number, ReactNode>([...PROC_RATE_ITEMS].map(([id, rate]) => [id, <KnownRateLine rate={rate} />]));
 
+// Each item's rate lines: its own, then those of the set bonuses it belongs to.
 export const ITEM_RATE_NOTICES = new Map<number, ReactNode>(OWN_ITEM_RATE_NOTICES);
 
 export const ENCHANT_RATE_NOTICES = new Map<number, ReactNode>([...PROC_RATE_ENCHANTS].map(([id, rate]) => [id, <KnownRateLine rate={rate} />]));
@@ -220,7 +221,7 @@ addSetBonusNotices(PARTLY_IMPLEMENTED_SET_BONUSES, text => <PartlyImplementedBon
 addSetBonusNotices(UNVALIDATED_RATE_SET_BONUSES, rate => <UnvalidatedRateText rate={rate} />);
 
 // A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
-// notice it already has.
+// notice it already has. Each set bonus rate also goes after the piece's own rate line in ITEM_RATE_NOTICES.
 export const registerSetBonusNotices = (db: Database) => {
 	PROC_RATE_SET_BONUSES.forEach((setRates, setID) => {
 		const lines = [...setRates]

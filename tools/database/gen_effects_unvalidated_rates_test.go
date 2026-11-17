@@ -204,7 +204,8 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 // the spell its gear rolls takes the gear's own rate override for that spell, else the spell's rate override,
 // else its row's chance. Hand-written gear with no literal, gear with no single rate, a proc stating no rate
 // that no override fills, a carried-over override, an unvalidated rate and a missing set bonus stay out, and
-// so does a set the database lacks. Generated gear counts only where its procs register, and a row's rate
+// so does a set the database lacks. A literal whose gear carries an unmeasured rate of its own for the spell
+// gets none. Generated gear counts only where its procs register, and a row's rate
 // only where they read the rows. Each piece is listed once, in id order.
 func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	procs := func(rates ...*proto.ProcEffect) []*proto.ItemEffect {
@@ -220,7 +221,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44}, []int32{200, 201, 202, 203, 204, 205, 206}, map[int32]int32{70: 7000})
+	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -246,12 +247,18 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 2, Source: "EV-0001"},
 			{SpellID: 40, Field: overrides.PPM, Value: 1.8, Source: "EV-0005"},
-			{SpellID: 41, Field: overrides.ProcChancePct, Value: 6, Source: "EV-0006"},
+			{SpellID: 41, Field: overrides.ProcChancePct, Value: 6, Source: "EV-0011"},
 			{SpellID: 42, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
 			{SpellID: 50, Field: overrides.PPM, Value: 1.4, Source: "EV-0007"},
 			{SpellID: 52, Field: overrides.ProcChancePct, Value: 9, Source: "tbc-carryover"},
+			{SpellID: 57, Field: overrides.PPM, Value: 3, Source: "EV-0010"},
+			{SpellID: 58, Field: overrides.PPM, Value: 1.2, Source: "EV-0012"},
+			{SpellID: 59, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
 		},
-		WeaponProcs:  []overrides.WeaponProc{{ItemID: 43, SpellID: 53, PPM: 2.2, Source: "EV-0008"}},
+		WeaponProcs: []overrides.WeaponProc{
+			{ItemID: 43, SpellID: 53, PPM: 2.2, Source: "EV-0008"},
+			{ItemID: 45, SpellID: 57, PPM: 1, Source: "vanilla-carryover"}, // Its own rate for the spell comes first and is unmeasured.
+		},
 		EnchantProcs: []overrides.EnchantProc{{EnchantID: 206, SpellID: 55, Kind: overrides.RateChance, Value: 0.08, Source: "EV-0009"}},
 		Literals: []literalRate{
 			{Gear: "item", ID: 22, Kind: overrides.RateChance, Rate: 7},
@@ -261,12 +268,14 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{Gear: "item", ID: 42, SpellID: 52},
 			{Gear: "item", ID: 43, SpellID: 53},
 			{Gear: "item", ID: 44, SpellID: 54},
+			{Gear: "item", ID: 45, SpellID: 57},
 			{Gear: "enchant", ID: 206, SpellID: 55},
 			{Gear: "set bonus", ID: 7000, Pieces: 8, SpellID: 56},
 		},
 		SpellChances:   map[int32]float64{51: 6, 52: 9, 54: 0, 56: 5},
-		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}},
-		HandItems:      map[int32]bool{22: true, 23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true},
+		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}, 58: {{9000, 4}}, 59: {{9100, 2}}},
+		HandItems:      map[int32]bool{22: true, 23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true, 45: true},
+		HandSets:       map[int32]bool{9000: true},
 		HandEnchants:   map[int32]bool{201: true, 206: true},
 		SetChances:     map[[2]int32][]float64{{7000, 4}: {4}, {7000, 2}: {3}, {8000, 2}: {5}},
 		SpellItems:     map[int32][]int32{40: {30, 31, 35, 36}, 41: {32}, 42: {33}},

@@ -644,9 +644,9 @@ type KnownRates struct {
 	SetBonuses []KnownRate
 }
 
-// A rate the sim keeps as a literal in code, outside the override tables, which the notices still
-// have to name, or the spell whose rate hand-written gear rolls. Gear is "item", "enchant" or "set bonus".
-// With no Origin it is a known rate, and a literal naming a spell takes that spell's rate on its gear.
+// A gear rate the sim keeps as a literal in code outside the override tables, or the spell whose rate
+// hand-written gear rolls, for the notices to state. Gear is "item", "enchant" or "set bonus". A literal
+// with no Origin is a known rate, and one naming a spell takes that spell's rate on its gear.
 type literalRate struct {
 	Gear    string
 	ID      int32
@@ -699,6 +699,10 @@ var literalRates = []literalRate{
 	{Gear: "set bonus", ID: 526, Pieces: 6, SpellID: 28771, Reason: "Frostfire Regalia (sim/mage/items.go): the row's chance"},
 	{Gear: "set bonus", ID: 526, Pieces: 8, SpellID: 28761, Reason: "Frostfire Regalia (sim/mage/items.go): the row's chance"},
 	{Gear: "set bonus", ID: 525, Pieces: 8, SpellID: 28802, Reason: "Vestments of Faith (sim/priest/item_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 184, Pieces: 5, SpellID: 27787, Reason: "Shadowcraft Armor (sim/common/forever/items_sets.go): the row's procs per minute"},
+	{Gear: "set bonus", ID: 1676, Pieces: 4, SpellID: 27787, Reason: "Darkmantle Armor (sim/common/forever/items_sets.go): the row's procs per minute"},
+	{Gear: "set bonus", ID: 189, Pieces: 5, SpellID: 450587, Reason: "Battlegear of Valor (sim/common/forever/items_sets.go): the row's procs per minute"},
+	{Gear: "set bonus", ID: 1778, Pieces: 4, SpellID: 450587, Reason: "Battlegear of Heroism (sim/common/forever/items_sets.go): the row's procs per minute"},
 }
 
 // A Source naming the files of its measurements in docs/evidence.
@@ -731,9 +735,10 @@ type rateInputs struct {
 	SpellSets      map[int32][][2]int32   // The set id and piece count of each set bonus granting the spell, by spell id.
 	HandItems      map[int32]bool         // The items whose effect is written by hand, which may roll another rate than their rows.
 	HandEnchants   map[int32]bool         // The enchant effect ids whose effect is written by hand.
+	HandSets       map[int32]bool         // The set ids registered by hand.
 	SetChances     map[[2]int32][]float64 // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
 	EnchantChances map[int32][]float64    // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
-	SpellChances   map[int32]float64      // The chance in percent the row of each spell a literal names rolls, 0 where it states none or where an item proc rolls another than a plain trigger, by spell id.
+	SpellChances   map[int32]float64      // The row chance of each spell a literal names, in percent, by spell id; 0 where the row states none or where an item proc builder would roll its ProcChance column instead.
 	LiveItems      map[int32]LiveProcs    // The generated item procs that register, by item id.
 	LiveEnchants   map[int32]LiveProcs    // The generated enchant procs that register, by enchant effect id.
 }
@@ -788,6 +793,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		SpellSets:      map[int32][][2]int32{},
 		HandItems:      map[int32]bool{},
 		HandEnchants:   map[int32]bool{},
+		HandSets:       map[int32]bool{},
 		SetChances:     map[[2]int32][]float64{},
 		EnchantChances: map[int32][]float64{},
 		SpellChances:   map[int32]float64{},
@@ -822,6 +828,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		if slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
 			return set.ID == int32(setID) || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
 		}) {
+			in.HandSets[int32(setID)] = true
 			continue
 		}
 		for _, row := range rows {
@@ -1018,11 +1025,12 @@ func procRate(proc *proto.ProcEffect) KnownRate {
 
 // Every proc rate the sim uses on an item, an enchant or a set bonus in the database, once per piece of gear
 // and in id order. A known literal is the piece's rate, and one naming a spell the rate that spell rolls on
-// it. Gear written by hand with no literal has none, since its code may not roll what its rows state. An item or enchant takes the procs on its database effects and
-// the measured rate overrides on the spells it casts, an enchant also the chances of its proc spells, and a
-// set bonus its rate overrides and the chances of its proc rows. A piece whose rates differ, one with a
-// proc that states no rate and no row rate fills, and one listed as unvalidated or missing its set bonus
-// are left out.
+// it. Gear written by hand with no literal has none, since its code may not roll what its rows state. An
+// item or enchant takes the procs on its database effects and the measured rate overrides on the spells it
+// casts, an enchant also the chances of its proc spells, and a set bonus its measured rate overrides and the
+// chances of its proc rows. Generated gear counts only where its procs register, and a row's rate only where
+// they read the rows. A piece whose rates differ, one with a proc that states no rate and no row rate fills,
+// and one listed as unvalidated or missing its set bonus are left out.
 func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
 	// A rate a measurement settles, and none for one whose Source is no measurement.
 	measured := func(source string, rate KnownRate) KnownRate {
@@ -1164,11 +1172,12 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 
 	setRates := map[[2]int32][]KnownRate{}
-	// A hand-written set takes these too: its code reads the overridden row through spelldata.ProcTrigger.
 	for _, o := range in.Spells {
 		if kind := spellRateKind(o); kind != 0 {
 			for _, bonus := range in.SpellSets[o.SpellID] {
-				setRates[bonus] = append(setRates[bonus], KnownRate{Kind: kind, Rate: o.Value})
+				if !in.HandSets[bonus[0]] {
+					setRates[bonus] = append(setRates[bonus], measured(o.Source, KnownRate{Kind: kind, Rate: o.Value}))
+				}
 			}
 		}
 	}
