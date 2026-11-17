@@ -342,43 +342,63 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 // and Mutilator's Lacerations 10370 applies a debuff alone; each is rolled at 100% in the main hand
 // by a wielder whose strikes always land. A main-hand white swing casts two strikes, the second off
 // the first. A main-hand ability, and a strike that counts as a swing the way Windfury Totem's does,
-// cast one each (EV-0145).
+// cast one each. A listener built as a weapon enchant's hears the first strike of a white swing and
+// no other (EV-0145).
 func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
 	const lacerations int32 = 10370
 	for _, tc := range []struct {
 		name     string
 		row      int32
 		weaponID int32
+		neckID   int32
 		register func(SpellDataProc)
 	}{
-		{"Forging Strike", forgingStrike, 991714, registerSpellDataDamageProc},
-		{"Lacerations", lacerations, 991715, registerSpellDataAuraProc},
+		{"Forging Strike", forgingStrike, 991714, 991716, registerSpellDataDamageProc},
+		{"Lacerations", lacerations, 991715, 991717, registerSpellDataAuraProc},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			editRow(t, tc.row, func(s *spelldata.Spell) {
 				alwaysProcs(s)
 				s.RPPM = 0
 			})
-			sim, caster, target := newSlowProcSim(t, tc.weaponID, tc.register, tc.row, nil)
+			withAuraItem(tc.neckID, proto.ItemType_ItemTypeNeck)
+			heard := 0
+			core.NewItemEffect(tc.neckID, func(agent core.Agent) {
+				character := agent.GetCharacter()
+				enchant := spelldata.ProcTrigger(character, spelldata.MustFind(tc.row),
+					func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+						if spell.ActionID.SpellID == tc.row {
+							heard++
+						}
+					}, spelldata.WeaponProc(), spelldata.Chance(1))
+				enchant.Name = "Test Enchant"
+				enchant.TriggerImmediately = true
+				character.MakeProcTriggerAura(enchant)
+			})
+			sim, caster, target := newSlowProcSim(t, tc.weaponID, tc.register, tc.row, &proto.ItemSpec{Id: tc.neckID})
 			caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
 			strike := mustGetSpell(t, caster, tc.row)
 			metrics := &strike.SpellMetrics[target.UnitIndex]
 
 			for _, hit := range []struct {
-				name string
-				cast *core.Spell
-				want int32
+				name      string
+				cast      *core.Spell
+				want      int32
+				wantHeard int
 			}{
-				{"a main-hand white swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, 2},
-				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, 1},
+				{"a main-hand white swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, 2, 1},
+				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, 1, 0},
 				{"a strike that counts as a swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee,
-					Flags: core.SpellFlagCountsAsSwing}, 1},
+					Flags: core.SpellFlagCountsAsSwing}, 1, 0},
 			} {
-				before := metrics.Casts
+				before, heardBefore := metrics.Casts, heard
 				caster.OnSpellHitDealt(sim, hit.cast, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 				settleChains(t, sim)
 				if got := metrics.Casts - before; got != hit.want {
 					t.Errorf("%s cast %d strikes, want %d", hit.name, got, hit.want)
+				}
+				if got := heard - heardBefore; got != hit.wantHeard {
+					t.Errorf("a weapon enchant heard %d of the strikes %s cast, want %d", got, hit.name, hit.wantHeard)
 				}
 			}
 		})
