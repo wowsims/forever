@@ -26,7 +26,7 @@ func trinketWarriorWielding(t *testing.T, trinketID int32, mainHand int32, neck 
 	return trinketWarriorFacing(t, trinketID, mainHand, neck, proto.MobType_MobTypeUnknown)
 }
 
-func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck int32, mobType proto.MobType) (*core.Simulation, *core.Character) {
+func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck int32, mobType proto.MobType, areas ...proto.AreaType) (*core.Simulation, *core.Character) {
 	t.Helper()
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotMainHand+1)
 	for i := range items {
@@ -49,7 +49,7 @@ func trinketWarriorFacing(t *testing.T, trinketID int32, mainHand int32, neck in
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180},
+		Encounter: &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60, MobType: mobType}}, Duration: 180, AreaTypes: areas},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -1004,6 +1004,49 @@ func TestMarkOfTheChosenProcsOnHitsTakenAndRests(t *testing.T) {
 			t.Error("a spell hit taken as the cooldown ends left the buff down, want it up")
 		}
 	})
+}
+
+// The Lion Horn of Stormwind 14557 rolls half of 20847's column on a melee hit taken, and the whole
+// column when the encounter is in Strongholds and Cities. Each case counts the procs of many hits
+// taken, within four standard deviations of the count. The row copy rests no cooldown, so every hit
+// rolls.
+func TestLionHornOfStormwindDoublesItsChanceInStrongholdsAndCities(t *testing.T) {
+	row := editSpellRow(t, 20847, func(s *spelldata.Spell) { s.ICDMs = 0 })
+	column := row.StatedChance()
+	if row.ICD() != 0 || column <= 0 || column >= 1 {
+		t.Fatalf("20847's copy rests %v and states a chance of %v, want no cooldown and a chance between none and certain", row.ICD(), column)
+	}
+
+	for _, tc := range []struct {
+		name  string
+		areas []proto.AreaType
+		want  float64
+	}{
+		{"outside Strongholds and Cities", nil, column / 2},
+		{"in Strongholds and Cities", []proto.AreaType{proto.AreaType_AreaTypeStrongholdsCities}, column},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			sim, character := trinketWarriorFacing(t, 14557, 0, 0, proto.MobType_MobTypeUnknown, tc.areas...)
+			buff := character.GetAura("The Lion Horn of Stormwind Proc")
+			if buff == nil {
+				t.Fatal("14557 registers no proc buff")
+			}
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			const hits = 4000
+			var procs int
+			for range hits {
+				buff.Deactivate(sim)
+				takeHit(t, sim, character, meleeSwing(enemy))
+				if buff.IsActive() {
+					procs++
+				}
+			}
+			mean, deviation := tc.want*hits, math.Sqrt(tc.want*(1-tc.want)*hits)
+			if math.Abs(float64(procs)-mean) > 4*deviation {
+				t.Errorf("%d melee hits taken %s procced it %d times, want about %.0f", hits, tc.name, procs, mean)
+			}
+		})
+	}
 }
 
 // Draconic Infused Emblem 22268's 1318931 rolls its row's chance on every landed harmful spell hit,
