@@ -168,8 +168,8 @@ func (warrior *Warrior) registerFlurry() {
 
 	// The proc shape with no roll: 12319 states its rate as "always" and the crit is the
 	// condition, which this handler reads off the result because the same listener hears every
-	// melee result. Every white swing uses a charge whatever its outcome; Windfury Totem's strike
-	// uses none. A Heroic Strike or Cleave uses one charge per cast whatever its outcome, however
+	// melee result. Every white swing, an extra attack's among them, uses a charge whatever its
+	// outcome; Windfury Totem's strike uses none, and its crit starts Flurry (EV-0140). A Heroic Strike or Cleave uses one charge per cast whatever its outcome, however
 	// many targets a Cleave hits (EV-0138). The row's mask reaches ranged and spell hits too; the tooltip
 	// says a melee critical strike, so the mask stays the caller's.
 	//
