@@ -2079,6 +2079,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TotemofRage-22395"
+ value: {
+  dps: 858.85652
+  tps: 789.22201
+  dtps: 6.63826
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TotemofThunder-228176"
  value: {
   dps: 860.06442

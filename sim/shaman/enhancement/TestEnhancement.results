@@ -1764,6 +1764,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TotemofRage-22395"
+ value: {
+  dps: 776.82537
+  tps: 813.33107
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TotemofThunder-228176"
  value: {
   dps: 772.82489

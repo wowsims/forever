@@ -1715,12 +1715,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22395, // Totem of Rage
-		[
-			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
-		]
-	],
-	[
 		22396, // Totem of Life
 		[
 			"Increases healing done by Lesser Healing Wave by up to 80.", // 27855 - https://www.wowhead.com/forever/spell=27855
