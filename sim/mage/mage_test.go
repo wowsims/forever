@@ -12,7 +12,11 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	goproto "google.golang.org/protobuf/proto"
 )
+
+// Enchant Weapon - Revelation.
+const revelationEnchant = 8217
 
 func init() {
 	RegisterMage()
@@ -377,10 +381,19 @@ func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	}
 }
 
+// The suite's gear loses Enchant Weapon - Revelation: it rolls on each Fire Blast that does not crit and its
+// charge crits the next Blizzard, so Shatter's Fire Blast crits would move Blizzard's.
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {
 	tickID := spellData.BlizzardTriggered.Highest().ID
 	directID := spellData.FireBlast.Highest().ID
-	metrics := runMageRotation(frostSuite(), talents, 40, directID, spellData.Blizzard.Highest().ID)
+	suite := frostSuite()
+	suite.GearSet.GearSet = goproto.Clone(suite.GearSet.GearSet).(*proto.EquipmentSpec)
+	for _, item := range suite.GearSet.GearSet.Items {
+		if item.Enchant == revelationEnchant {
+			item.Enchant = 0
+		}
+	}
+	metrics := runMageRotation(suite, talents, 40, directID, spellData.Blizzard.Highest().ID)
 	for _, action := range metrics.Actions {
 		for _, target := range action.Targets {
 			switch action.Id.GetSpellId() {
@@ -466,7 +479,7 @@ func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulat
 	for slot := range items {
 		items[slot] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: 8217}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: revelationEnchant}
 	sim, mage := newMageSimWearing(talents, longEncounter(targets), &proto.EquipmentSpec{Items: items})
 	buff := mage.GetAura("Revelation")
 	if buff == nil {
