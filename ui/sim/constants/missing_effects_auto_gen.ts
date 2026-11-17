@@ -2814,12 +2814,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"When struck in melee combat, has a 5% chance of Disarming the attacker for 4s. Can only occur once every 60 sec.", // 1302718 - https://www.wowhead.com/forever/spell=1302718
 				],
 			],
-			[
-				5,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450626 - https://www.wowhead.com/forever/spell=450626
-				],
-			],
 		]),
 	],
 	[
@@ -3310,12 +3304,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		1679, // The Five Thunders
 		new Map([
-			[
-				4,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450626 - https://www.wowhead.com/forever/spell=450626
-				],
-			],
 			[
 				5,
 				[
@@ -3852,6 +3840,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 	[
+		187, // The Elements
+		new Map([
+			[5, { kind: 'chance', rate: 4, origin: 'vanilla' }],
+		]),
+	],
+	[
 		189, // Battlegear of Valor
 		new Map([
 			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
@@ -3861,6 +3855,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		1676, // Darkmantle Armor
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+		]),
+	],
+	[
+		1679, // The Five Thunders
+		new Map([
+			[4, { kind: 'chance', rate: 4, origin: 'vanilla' }],
 		]),
 	],
 	[

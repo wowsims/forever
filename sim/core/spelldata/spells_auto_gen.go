@@ -28460,10 +28460,10 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1150643, SpellID: 450625, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27499, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 450626, Name: "Item - The Furious Storm Proc", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 100, ProcFlags: [2]uint32{0: 0x14004}, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcChanceSource: ProcChancePPM, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
+	{ID: 450626, Name: "Item - The Furious Storm Proc", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ProcChance: 4, ProcFlags: [2]uint32{0: 0x14004}, ClassFlags: core.ClassFlags{Family: 10}, RefIDs: []int32{27499}, ProcHint: core.ProcHintCastTrigger | core.ProcHintHeals,
 		Effects: []Effect{
 			{ID: 1150644, SpellID: 450626, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BaseLevel: 60, PvpMult: 1, TriggerID: 27775, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
+		}}, // override: ProcChancePct 4 -- The Five Thunders reissue 4-piece, The Elements 5-piece and its reissue's 6-piece: the game files state no chance; the original Five Thunders proc 27774 states 4% on spell casts
 	{ID: 453622, Name: "Feral Combat Specialization", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
 			{ID: 1155621, SpellID: 453622, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL_TALENT, BasePoints: 5, BaseLevel: 60, PvpMult: 1, Misc: 134, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},

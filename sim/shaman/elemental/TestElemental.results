@@ -1897,16 +1897,16 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheElements"
  value: {
-  dps: 753.48926
-  tps: 695.74468
+  dps: 760.82581
+  tps: 702.29012
   dtps: 5.66202
  }
 }
 dps_results: {
  key: "TestElemental-AllItems-TheFiveThunders"
  value: {
-  dps: 751.66911
-  tps: 693.34659
+  dps: 758.37286
+  tps: 699.33859
   dtps: 5.27155
  }
 }
