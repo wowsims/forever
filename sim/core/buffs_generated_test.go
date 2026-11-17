@@ -1323,9 +1323,10 @@ func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 }
 
 // The druid's own Thorns takes none of the druid's spell power against the attacker's creature type,
-// while the druid's damage multiplier against that type still reaches the hit.
+// while the druid's other spell power and the damage multiplier against that type still reach the hit.
 func TestThornsPlayerCopyTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
 	sim, char := newTotemSim(t, &proto.RaidBuffs{}, func(c *core.Character) {
+		c.AddStat(stats.SpellDamage, 100)
 		buffs.NewSpellDataThornsAuraWithSpellPower(&c.Unit, true, 0)
 	})
 	shield := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 2})
@@ -1341,6 +1342,9 @@ func TestThornsPlayerCopyTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
 	}
 
 	without := hit()
+	if want := damage + buffs.DamageShieldSpellPowerCoefficient*100; without != want {
+		t.Errorf("under 100 spell power the shield deals %v, want %v", without, want)
+	}
 	char.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: 100}, attacker.MobType)
 	if with := hit(); with != without {
 		t.Errorf("under 100 spell power against the attacker's type the shield deals %v, want the %v it deals without", with, without)
