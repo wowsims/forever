@@ -1715,6 +1715,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		22345, // Totem of Tides
+		[
+			"Reduces the Mana cost of Riptide by 5%.", // 27797 - https://www.wowhead.com/forever/spell=27797
+		]
+	],
+	[
 		22396, // Totem of Life
 		[
 			"Increases healing done by Lesser Healing Wave by up to 80.", // 27855 - https://www.wowhead.com/forever/spell=27855

@@ -43,13 +43,17 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	}
 
 	// Ranged in SpellCategories with No Active Defense: hit and crit on the ranged table, never
-	// blocked, and a ranged attack to procs.
+	// blocked, and a ranged attack to procs. The seal's hit and the judgement set no BonusCoefficient:
+	// they take no spell damage against the target's creature type (EV-0143), so they add their
+	// spell power by hand, and core adds Judgement of the Crusader at the coefficient after the done
+	// multipliers.
+	judgementCoefficient := judgementDamage.Coeff()
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
-	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
+	judgementConfig.TakenBonusCoefficient = judgementCoefficient
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeRangedHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average()+judgementCoefficient*spell.SpellDamage(target), spell.OutcomeRangedHitAndCrit)
 		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
@@ -75,13 +79,15 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	})
 
 	damage := procDamage.Mean()
+	procCoefficient := procDamage.Coeff()
 	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no
 	// Suppress Weapon Procs, so a weapon's "Chance on hit" rolls on the seal's hit too.
+	// No BonusCoefficient, as on the judgement below.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc))
 	procConfig.ClassSpellMask = SpellMaskSealOfFuryProc
-	procConfig.BonusCoefficient = procDamage.Coeff()
+	procConfig.TakenBonusCoefficient = procCoefficient
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialCritOnly)
+		result := spell.CalcDamage(sim, target, damage+procCoefficient*spell.SpellDamage(target), spell.OutcomeMeleeSpecialCritOnly)
 		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
 			DoAt:     sim.CurrentTime + core.SpellBatchWindow,
 			Priority: core.ActionPriorityLow,

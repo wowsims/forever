@@ -6,7 +6,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var ConsecrationRankMap = spellData.Consecration
@@ -73,18 +72,21 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
-		// The bonus scales on its own coefficient, so it is added to the base damage here rather than
-		// through the dot's, which is the base tick's and states none: the spell power and the Holy
-		// damage the target takes extra both sit inside the tick's base. The marked enemies take it.
+		// The marked enemies take the bonus and its coefficient in the same hit: the dot's coefficient
+		// is raised for their hit alone, so core adds their spell damage under the done multipliers and
+		// Judgement of the Crusader after them (EV-0143).
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			markTargets(sim, dot.RemainingDuration(sim))
+			coefficient := dot.BonusCoefficient
 			for _, target := range sim.Encounter.ActiveTargetUnits {
 				damage := tick.Average()
 				if paladin.consecrationMarks.Get(target).IsActive() {
-					damage += bonus.Average() + bonus.Coeff()*(dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])+
-						target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly])
+					damage += bonus.Average()
+					dot.BonusCoefficient += bonus.Coeff()
 				}
-				dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				result := dot.Spell.CalcPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				dot.BonusCoefficient = coefficient
+				dot.Spell.DealPeriodicDamage(sim, result)
 			}
 		},
 	}

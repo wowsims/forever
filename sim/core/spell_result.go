@@ -239,7 +239,10 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
 		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.PhysicalDamage]
 	} else {
-		bonusDamage += spell.SpellDamage(attackTable.Defender) + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		bonusDamage += spell.SpellDamage(attackTable.Defender)
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
+			bonusDamage += attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		}
 	}
 
 	return bonusDamage
@@ -951,8 +954,8 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 }
 
 // The coefficient the target's flat school bonus is taken at: a tick's dot coefficient, the
-// spell's own, or the one a spell states for it when its spell power goes through a weapon percent
-// and so sets no BonusCoefficient.
+// spell's own, or the one a spell states for it when it adds its spell power by hand and so sets
+// no BonusCoefficient.
 func (spell *Spell) takenBonusCoefficient(target *Unit, isPeriodic bool) float64 {
 	if isPeriodic {
 		dot := spell.aoeDot
