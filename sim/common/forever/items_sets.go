@@ -340,9 +340,9 @@ var ItemSetBeaststalkerArmor = core.NewItemSet(core.ItemSet{
 // Dungeon Set 1
 // https://www.wowhead.com/forever/item-set=187/the-elements
 //
-// TODO: The 5-piece bonus (450626) buffs spell damage and healing on a melee autoattack or a spell
-// cast, but the game files state no chance or rate for it, so it is not modelled. The 4-piece bonus
-// disarms an attacker when struck, which a boss fight does not test.
+// The 5-piece bonus (450626) buffs spell damage and healing on a melee autoattack or a spell cast, at
+// the chance an override puts on its row. The 4-piece bonus disarms an attacker when struck, which a
+// boss fight does not test.
 var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	ID:    187,
 	Name:  "The Elements",
@@ -350,6 +350,7 @@ var ItemSetTheElements = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonSpellDamage),
+		5: shared.ParsedSetBonus(spelldata.MustFind(450626)), // The Furious Storm
 		6: shared.ParsedSetBonus(dungeonManaRegen),
 	},
 })
@@ -524,8 +525,8 @@ var ItemSetSoulforgeArmorReissue = core.NewItemSet(core.ItemSet{
 
 // Dungeon Set 2, Season of Discovery reissue
 //
-// TODO: The 4-piece bonus is The Elements' 5-piece proc (450626), which is not modelled for want of a
-// rate. The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
+// The 4-piece bonus is The Elements' 5-piece proc (450626), at the chance an override puts on its row.
+// The 5-piece bonus disarms an attacker when struck, which a boss fight does not test.
 var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	ID:    1679,
 	Name:  "The Five Thunders",
@@ -533,6 +534,7 @@ var ItemSetTheFiveThundersReissue = core.NewItemSet(core.ItemSet{
 	Bonuses: map[int32]core.ApplySetBonus{
 		2: shared.ParsedSetBonus(dungeonResistances),
 		3: shared.ParsedSetBonus(dungeonManaRegen),
+		4: shared.ParsedSetBonus(spelldata.MustFind(450626)), // The Furious Storm
 		6: shared.ParsedSetBonus(dungeonTwoDamage),
 	},
 })

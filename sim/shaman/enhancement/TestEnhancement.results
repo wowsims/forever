@@ -1604,8 +1604,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
-  dps: 724.60138
-  tps: 759.94561
+  dps: 729.83815
+  tps: 765.18238
   dtps: 7.27054
   hps: 36.32889
  }
@@ -1613,8 +1613,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 740.10909
-  tps: 774.28888
+  dps: 745.26927
+  tps: 779.44906
   dtps: 7.02942
   hps: 35.88833
  }

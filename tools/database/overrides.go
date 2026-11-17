@@ -58,7 +58,8 @@ var IgnoreSpellEffectBySpellEffectType = map[dbc.SpellEffectType][]int{
 // Medallion, Thick Obsidian Breastplate and Ashtongue Talisman of Zeal. That rule removed 48
 // entries here and only a handful of them were noise.
 var IgnoreMissingEffectBySpellID = map[int]string{
-	16372: "Seal of Ascension - no tooltip and no mechanic",
+	16372:   "Seal of Ascension - no tooltip and no mechanic",
+	1318846: "Eye of the Beast - no tooltip and no mechanic; the item's crit and its on-use are its other two effects",
 }
 
 // Absorbs a server script restricts to spells the game files do not list, keyed by spell ID with the

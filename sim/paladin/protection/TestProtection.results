@@ -2261,9 +2261,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-TheElements"
  value: {
-  dps: 386.74
-  tps: 925.67585
-  dtps: 428.58044
+  dps: 390.21605
+  tps: 934.8821
+  dtps: 428.32463
   hps: 18.24917
  }
 }

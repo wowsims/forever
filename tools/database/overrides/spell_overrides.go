@@ -696,6 +696,13 @@ var Spells = []Override{
 		Source:  "observed",
 	},
 	{
+		SpellID: 450626,
+		Field:   ProcChancePct,
+		Value:   4, // TODO: Vanilla value - verify in-game
+		Reason:  "The Five Thunders reissue 4-piece, The Elements 5-piece and its reissue's 6-piece: the game files state no chance; the original Five Thunders proc 27774 states 4% on spell casts",
+		Source:  "vanilla-carryover",
+	},
+	{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,

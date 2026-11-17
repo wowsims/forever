@@ -2045,8 +2045,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheElements"
  value: {
-  dps: 769.47968
-  tps: 626.54545
+  dps: 773.20386
+  tps: 629.52479
   dtps: 3.09119
   hps: 23.13815
  }
