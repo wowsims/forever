@@ -6,18 +6,6 @@ import (
 )
 
 func init() {
-
-	// 	aura := core.MakePermanent(character.RegisterAura(core.Aura{
-	// 		Label: "Increased Shock Damage",
-	// 	}).AttachSpellMod(core.SpellModConfig{
-	// 		Kind:       core.SpellMod_BaseDamage_Flat,
-	// 		FloatValue: 30.0,
-	// 		ClassMask:  SpellMaskShock,
-	// 	}))
-
-	// 	character.ItemSwap.RegisterProc(22395, aura)
-	// })
-
 	// Totem of the Storm
 	core.NewItemEffect(23199, func(agent core.Agent) {
 		character := agent.GetCharacter()
