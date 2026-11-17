@@ -14,7 +14,7 @@
 - Game build: 1.60.1.70938 for the Stratholme log, before the 2026-11-14 02:00 UTC hotfix; the hotfix it ran on is not
   recorded. The game build and hotfix of the other logs and reports are not recorded.
 - Date: 2026-09-26 to 2026-11-16
-- Pull request: #TBD
+- Pull request: #1082
 
 ## Creature types
 
