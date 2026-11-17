@@ -2079,6 +2079,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-TotemofThunder-228176"
+ value: {
+  dps: 835.32708
+  tps: 766.59783
+  dtps: 8.44248
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-TotemofUrgency-279249"
  value: {
   dps: 833.87387
