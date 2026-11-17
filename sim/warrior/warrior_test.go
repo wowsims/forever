@@ -645,6 +645,89 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 	}
 }
 
+// A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
+// crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
+func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
+	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}
+	var want float64
+	for _, c := range []struct {
+		name    string
+		spell   core.ActionID
+		offHand bool
+	}{
+		{"main-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotMainHand), false},
+		{"off-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, false},
+	} {
+		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		spell := war.GetSpell(c.spell)
+		if bleed == nil || spell == nil {
+			t.Fatalf("Deep Wound %v, %s %v; want both registered", bleed, c.name, spell)
+		}
+		if mh, oh := war.AutoAttacks.MH().AverageDamage(), war.AutoAttacks.OH().AverageDamage(); mh == oh {
+			t.Fatalf("both hands average %0.1f damage; the test needs two different weapons", mh)
+		}
+
+		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+		weapon := war.AutoAttacks.MH()
+		if c.offHand {
+			weapon = war.AutoAttacks.OH()
+		}
+		got := bleed.Dot(war.CurrentTarget).SnapshotBaseDamage / weapon.AverageDamage()
+		if want == 0 {
+			if got <= 0 {
+				t.Fatalf("a crit from the %s ticks %0.4f of its weapon's average damage, want a positive share", c.name, got)
+			}
+			want = got
+		} else if math.Abs(got-want) > 1e-9 {
+			t.Errorf("a crit from the %s ticks %0.4f of its weapon's average damage, want %0.4f as the main hand's", c.name, got, want)
+		}
+	}
+}
+
+// A Thunder Clap crit rolls on the magic hit table and starts no Deep Wounds bleed.
+func TestThunderClapCritStartsNoDeepWounds(t *testing.T) {
+	sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+	bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+	clap := war.GetSpell(core.ActionID{SpellID: 11581})
+	if bleed == nil || clap == nil {
+		t.Fatalf("Deep Wound %v, Thunder Clap %v; want both registered", bleed, clap)
+	}
+
+	war.OnSpellHitDealt(sim, clap, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+	if bleed.Dot(war.CurrentTarget).IsActive() {
+		t.Error("a Thunder Clap crit started Deep Wounds, want no bleed")
+	}
+}
+
+// The warrior's physical damage bonuses, the multiplier Death Wish and Enrage raise, leave a Deep Wounds tick unchanged.
+func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
+	tickDamage := func(bonus float64) float64 {
+		sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		swing := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand))
+		if bleed == nil || swing == nil {
+			t.Fatalf("Deep Wound %v, main-hand swing %v; want both registered", bleed, swing)
+		}
+		war.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= bonus
+		war.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+		bleed.Dot(war.CurrentTarget).TickOnce(sim)
+		return bleed.SpellMetrics[war.CurrentTarget.UnitIndex].TotalDamage
+	}
+
+	plain, boosted := tickDamage(1), tickDamage(1.2)
+	if plain <= 0 {
+		t.Fatalf("a Deep Wounds tick dealt %0.2f damage, want some", plain)
+	}
+	if math.Abs(boosted-plain) > 1e-9 {
+		t.Errorf("a tick under a 20%% physical damage bonus dealt %0.2f, want %0.2f as without it", boosted, plain)
+	}
+}
+
 // Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {
