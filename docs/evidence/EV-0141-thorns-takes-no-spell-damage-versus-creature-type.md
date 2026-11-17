@@ -3,10 +3,13 @@
 - Claim: an item's spell damage against a creature type (Courier's Clasp 279833, +10 against Humanoids) reaches every
   damage spell and tick of a Balance druid's except Thorns, whose hits take the druid's other spell power at Thorns'
   coefficient and none of the bonus; an Elemental shaman's Lightning Shield orbs take it like the shaman's other spells.
-  Only Thorns is measured; the sim applies the rule to every damage shield, as it does the target's flat school bonus.
+  A Protection paladin's own Retribution Aura takes none of it either, while the same paladin's Consecration and Holy
+  Shield take all of it on the same targets; the sim applies the rule to every damage shield, as it does the target's
+  flat school bonus.
 - Sources: combat log, a Tauren Balance druid, levels 54 to 56, Courier's Clasp worn all day, 2026-11-16 06:53 to 17:40
   and 22:21 to 22:48 (two logs); combat log, an Orc Elemental shaman, levels 50 and 51, Courier's Clasp worn from 19:11,
-  2026-11-16 17:01 to 2026-11-17 00:37. Times are the player's local time.
+  2026-11-16 17:01 to 2026-11-17 00:37; combat log, a level 60 Protection paladin in Stratholme wearing Courier's Clasp
+  in every combatant info line, 2026-11-13 14:26 to 16:12. Times are the player's local time.
 - Game build: 1.60.1.70938 for the druid's logs; the shaman's log states only 1.60.1. The hotfix each log ran on, and
   whether the player relogged after it, is not recorded.
 - Date: 2026-11-16
@@ -48,3 +51,12 @@ Hits on Humanoids after the clasp went on read 10.8 spell power more than the lo
 with no other group debuff on the target: Earth Shock 10.3, Flame Shock ticks 10.6, Frost Shock 9.6, Lightning Bolt
 11.3 and Lightning Shield's orbs 10.5. Beasts, elementals, golems and spiders read 0 ± 1.5, and Humanoids before the
 clasp went on read 1.00 of the expected amount.
+
+## Paladin
+
+The paladin's own Retribution Aura hits fit floor(20 + 0.06 × spell power) at the logged spell power. On Humanoids, 5 of
+the 206 hits where +0 and +10 spell power predict different amounts fit +10 (2.4%, 95% interval 1.0 to 5.6%); on Undead,
+the control, 9 of 750 do. On the same targets in the same log, Consecration's spell power ticks fit +10 on 266 of 266
+discriminating ticks and Holy Shield 1239570 on 168 of 168, so the clasp counts there and the targets are Humanoids.
+Creature types come from the NPC tooltips, since the game files list only companions.
+
