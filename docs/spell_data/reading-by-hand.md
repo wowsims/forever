@@ -171,20 +171,22 @@ bonusTargets := int(dummy.Average())
 tickLength := dummy.Period()
 numberOfTicks := int32(rank.Duration() / tickLength)
 
-// The bonus scales on its own coefficient, so it is added to the base damage here rather than
-// through the dot's, which is the base tick's. Consecrated Ground marks the same targets.
-dealTick := func(sim *core.Simulation, dot *core.Dot, firstTick bool) {
-	for i, target := range sim.Encounter.ActiveTargetUnits {
+// The marked enemies take the bonus in the same hit, and with it the bonus's coefficient: the
+// tick's coefficient is raised by it for their hit alone.
+OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
+	markTargets(sim, dot.RemainingDuration(sim))
+	coefficient := dot.BonusCoefficient
+	for _, target := range sim.Encounter.ActiveTargetUnits {
 		damage := tick.Average()
-		if i < bonusTargets {
-			damage += bonus.Average() + bonus.Coeff()*dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])
-			if firstTick && paladin.consecratedGroundAuras != nil {
-				paladin.consecratedGroundAuras.Get(target).Activate(sim)
-			}
+		if paladin.consecrationMarks.Get(target).IsActive() {
+			damage += bonus.Average()
+			dot.BonusCoefficient += bonus.Coeff()
 		}
-		dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicCrit)
+		result := dot.Spell.CalcPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+		dot.BonusCoefficient = coefficient
+		dot.Spell.DealPeriodicDamage(sim, result)
 	}
-}
+},
 ```
 
 There is no `OnSnapshot`: every tick reads `tick.Average()` on the stats in force when it lands.
