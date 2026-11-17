@@ -81,6 +81,7 @@ func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 			{Gear: "set bonus", ID: 7000, Pieces: 4, Kind: overrides.RateChance, Rate: 25, Origin: "tbc"},
 			{Gear: "set bonus", ID: 7000, Pieces: 2, Kind: overrides.RatePPM, Rate: 2, Origin: "vanilla"},
 			{Gear: "set bonus", ID: 8000, Pieces: 2, Kind: overrides.RatePPM, Origin: "vanilla"},
+			{Gear: "item", ID: 20, Kind: overrides.RatePPM, Rate: 2}, // A known literal, which no notice warns about.
 		},
 		SpellItems:    map[int32][]int32{6: {40, 98}, 7: {45}, 8: {20}, 9: {45}},
 		SpellEnchants: map[int32][]int32{6: {300}},
@@ -169,7 +170,7 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 		},
 	}
 	var rendered bytes.Buffer
-	if err := renderMissingEffects(&rendered, rates, nil); err != nil {
+	if err := renderMissingEffects(&rendered, rates, KnownRates{}, nil); err != nil {
 		t.Fatal(err)
 	}
 
@@ -186,6 +187,144 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 			"\t\tnew Map([\n" +
 			"\t\t\t[2, { kind: 'chance', origin: 'vanilla' }],\n" +
 			"\t\t\t[4, { kind: 'ppm', rate: 0.5, origin: 'tbc' }],\n" +
+			"\t\t]),\n" +
+			"\t],\n" +
+			"])\n",
+	} {
+		if !strings.Contains(rendered.String(), block) {
+			t.Errorf("the generated file holds no block\n%s\nin\n%s", block, rendered.String())
+		}
+	}
+}
+
+// Each settled rate lands on its piece of gear: the rate on an item's or an enchant's effects, a chance
+// as a percent, a measured rate override on the spell an item, enchant or set bonus casts, an enchant's and
+// a set bonus's row chance, and a known literal over the effects of gear written by hand. Hand-written gear
+// with no literal, gear with no single rate, a proc stating no rate that no override fills, a carried-over
+// override, an unvalidated rate and a missing set bonus stay out, and so does a set the database lacks.
+// Each piece is listed once, in id order.
+func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
+	procs := func(rates ...*proto.ProcEffect) []*proto.ItemEffect {
+		var effects []*proto.ItemEffect
+		for _, rate := range rates {
+			effects = append(effects, &proto.ItemEffect{Effect: &proto.ItemEffect_Proc{Proc: rate}})
+		}
+		return effects
+	}
+	ppm := func(rate float64) *proto.ProcEffect {
+		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_Ppm{Ppm: rate}}
+	}
+	chance := func(rate float64) *proto.ProcEffect {
+		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
+	}
+	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33}, []int32{200, 201, 202, 203}, map[int32]int32{70: 7000})
+	for id, effects := range map[int32][]*proto.ItemEffect{
+		20: procs(ppm(1.5)),
+		21: procs(chance(0.05)),
+		22: procs(chance(0.05)),
+		23: procs(chance(0.05)),
+		24: procs(ppm(1), ppm(2)),
+		25: procs(ppm(1), chance(0.05)),
+		26: procs(ppm(1)),
+		27: procs(ppm(1), &proto.ProcEffect{}),
+		32: procs(&proto.ProcEffect{}),
+	} {
+		db.Items[id].ItemEffects = effects
+	}
+	db.Enchants[EnchantDBKey{EffectID: 200}].EnchantEffects = procs(chance(0.1))
+	db.Enchants[EnchantDBKey{EffectID: 201}].EnchantEffects = procs(chance(0.08))
+	in := rateInputs{
+		Spells: []overrides.Override{
+			{SpellID: 6, Field: overrides.PPM, Value: 2, Source: "EV-0001"},
+			{SpellID: 40, Field: overrides.PPM, Value: 1.8, Source: "EV-0005"},
+			{SpellID: 41, Field: overrides.ProcChancePct, Value: 6, Source: "EV-0006"},
+			{SpellID: 42, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
+		},
+		Literals:       []literalRate{{Gear: "item", ID: 22, Kind: overrides.RateChance, Rate: 7}},
+		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}},
+		HandItems:      map[int32]bool{22: true, 23: true, 31: true},
+		HandEnchants:   map[int32]bool{201: true},
+		SetChances:     map[[2]int32][]float64{{7000, 4}: {4}, {7000, 2}: {3}, {8000, 2}: {5}},
+		SpellItems:     map[int32][]int32{40: {30, 31}, 41: {32}, 42: {33}},
+		EnchantChances: map[int32][]float64{202: {3}, 203: {5, 0}},
+	}
+	unvalidated := UnvalidatedRates{Items: []UnvalidatedRate{{ID: 26, Kind: overrides.RatePPM, Rate: 1, Origin: "vanilla"}}}
+	missingSets := []MissingSetBonus{{ID: 7000, Pieces: 2, Name: "Set 7000"}}
+
+	rates := knownRates(in, db, unvalidated, missingSets)
+
+	type entry struct {
+		id, pieces int32
+		kind       overrides.RateKind
+		rate       float64
+	}
+	entries := func(list []KnownRate) []entry {
+		var got []entry
+		for _, rate := range list {
+			got = append(got, entry{rate.ID, rate.Pieces, rate.Kind, rate.Rate})
+		}
+		return got
+	}
+	for _, tc := range []struct {
+		name string
+		got  []KnownRate
+		want []entry
+	}{
+		{"items", rates.Items, []entry{
+			{20, 0, overrides.RatePPM, 1.5},
+			{21, 0, overrides.RateChance, 5}, // A chance of 0.05 is 5 percent.
+			{22, 0, overrides.RateChance, 7}, // The literal, not the row's 5.
+			{30, 0, overrides.RatePPM, 1.8},
+			{32, 0, overrides.RateChance, 6}, // The override states the rate its effect leaves out.
+		}},
+		{"enchants", rates.Enchants, []entry{
+			{200, 0, overrides.RateChance, 10},
+			{202, 0, overrides.RateChance, 3},
+		}},
+		{"set bonuses", rates.SetBonuses, []entry{
+			{7000, 4, overrides.RateChance, 4},
+			{7000, 6, overrides.RatePPM, 2},
+		}},
+	} {
+		if got := entries(tc.got); !slices.Equal(got, tc.want) {
+			t.Errorf("%s listed %v, want %v", tc.name, got, tc.want)
+		}
+	}
+	if rates.Items[0].Name != db.Items[20].Name || rates.Enchants[0].Name != "Enchant 200" || rates.SetBonuses[0].Name != db.Items[70].SetName {
+		t.Errorf("entries carry the names %q, %q and %q, want the database's", rates.Items[0].Name, rates.Enchants[0].Name, rates.SetBonuses[0].Name)
+	}
+}
+
+// Each list renders one entry per line with its kind, rate and name, and a set's bonuses render under
+// the set by piece count.
+func TestKnownRatesRender(t *testing.T) {
+	known := KnownRates{
+		Items:    []KnownRate{{ID: 1, Name: "Blade", Kind: overrides.RatePPM, Rate: 1.5}},
+		Enchants: []KnownRate{{ID: 2, Name: "Enchant", Kind: overrides.RateChance, Rate: 10}},
+		SetBonuses: []KnownRate{
+			{ID: 3, Pieces: 2, Name: "Set", Kind: overrides.RateChance, Rate: 4},
+			{ID: 3, Pieces: 4, Name: "Set", Kind: overrides.RatePPM, Rate: 0.5},
+		},
+	}
+	var rendered bytes.Buffer
+	if err := renderMissingEffects(&rendered, UnvalidatedRates{}, known, nil); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, block := range []string{
+		"export type KnownRate = { kind: 'ppm' | 'chance'; rate: number }\n",
+		"export const PROC_RATE_ITEMS = new Map<number, KnownRate>([\n" +
+			"\t[1, { kind: 'ppm', rate: 1.5 }], // Blade\n" +
+			"])\n",
+		"export const PROC_RATE_ENCHANTS = new Map<number, KnownRate>([\n" +
+			"\t[2, { kind: 'chance', rate: 10 }], // Enchant\n" +
+			"])\n",
+		"export const PROC_RATE_SET_BONUSES = new Map<number, Map<number, KnownRate>>([\n" +
+			"\t[\n" +
+			"\t\t3, // Set\n" +
+			"\t\tnew Map([\n" +
+			"\t\t\t[2, { kind: 'chance', rate: 4 }],\n" +
+			"\t\t\t[4, { kind: 'ppm', rate: 0.5 }],\n" +
 			"\t\t]),\n" +
 			"\t],\n" +
 			"])\n",
@@ -234,7 +373,7 @@ func TestMissingSetBonusesRender(t *testing.T) {
 		{ID: 3, Pieces: 4, Name: "Set", Spells: []int32{12, 13}, Tooltips: []string{"One.", "Two."}},
 	}
 	var rendered bytes.Buffer
-	if err := renderMissingEffects(&rendered, UnvalidatedRates{}, bonuses); err != nil {
+	if err := renderMissingEffects(&rendered, UnvalidatedRates{}, KnownRates{}, bonuses); err != nil {
 		t.Fatal(err)
 	}
 

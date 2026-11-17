@@ -431,4 +431,33 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 	],
 {{- end }}
 ])
+
+// The proc rate the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance.
+export type KnownRate = { kind: 'ppm' | 'chance'; rate: number }
+
+export const PROC_RATE_ITEMS = new Map<number, KnownRate>([
+{{- range .ProcRateItems }}
+	[{{.ID}}, { {{.Fields}} }], // {{ .Name }}
+{{- end }}
+])
+
+export const PROC_RATE_ENCHANTS = new Map<number, KnownRate>([
+{{- range .ProcRateEnchants }}
+	[{{.ID}}, { {{.Fields}} }], // {{ .Name }}
+{{- end }}
+])
+
+// Keyed by set id, then by the bonus's piece count.
+export const PROC_RATE_SET_BONUSES = new Map<number, Map<number, KnownRate>>([
+{{- range .ProcRateSetBonuses }}
+	[
+		{{(index . 0).ID}}, // {{ (index . 0).Name }}
+		new Map([
+			{{- range . }}
+			[{{.Pieces}}, { {{.Fields}} }],
+			{{- end }}
+		]),
+	],
+{{- end }}
+])
 `

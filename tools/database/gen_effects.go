@@ -603,6 +603,26 @@ type UnvalidatedRates struct {
 	SetBonuses []UnvalidatedRate
 }
 
+// A settled proc rate the sim uses on a piece of gear.
+type KnownRate struct {
+	ID     int32 // The item id, the enchant effect id or the set id.
+	Pieces int32 // The set bonus's piece count; 0 on an item or an enchant.
+	Name   string
+	Kind   overrides.RateKind
+	Rate   float64 // Procs per minute for a ppm, a percent from 0 to 100 for a chance.
+}
+
+// The kind and rate of the TypeScript object.
+func (r KnownRate) Fields() string {
+	return fmt.Sprintf("kind: '%s', rate: %s", r.Kind, strconv.FormatFloat(r.Rate, 'f', -1, 64))
+}
+
+type KnownRates struct {
+	Items      []KnownRate
+	Enchants   []KnownRate
+	SetBonuses []KnownRate
+}
+
 // A rate the sim keeps as a literal in code, outside the override tables, which the notices still
 // have to name. Gear is "item", "enchant" or "set bonus".
 type literalRate struct {
@@ -639,13 +659,17 @@ func rateOrigin(source string) (string, error) {
 
 // The hand-kept rates the notices weigh, and the gear casting each spell a spell rate sits on.
 type rateInputs struct {
-	WeaponProcs   []overrides.WeaponProc
-	Spells        []overrides.Override
-	EnchantProcs  []overrides.EnchantProc
-	Literals      []literalRate
-	SpellItems    map[int32][]int32    // The items casting each spell, by spell id.
-	SpellEnchants map[int32][]int32    // The enchant effect ids casting each spell, by spell id.
-	SpellSets     map[int32][][2]int32 // The set id and piece count of each set bonus granting the spell, by spell id.
+	WeaponProcs    []overrides.WeaponProc
+	Spells         []overrides.Override
+	EnchantProcs   []overrides.EnchantProc
+	Literals       []literalRate
+	SpellItems     map[int32][]int32      // The items casting each spell, by spell id.
+	SpellEnchants  map[int32][]int32      // The enchant effect ids casting each spell, by spell id.
+	SpellSets      map[int32][][2]int32   // The set id and piece count of each set bonus granting the spell, by spell id.
+	HandItems      map[int32]bool         // The items whose effect is written by hand, which may roll another rate than their rows.
+	HandEnchants   map[int32]bool         // The enchant effect ids whose effect is written by hand.
+	SetChances     map[[2]int32][]float64 // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
+	EnchantChances map[int32][]float64    // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
 }
 
 // A spell override's rate kind, or 0 for an override that is not a rate.
@@ -659,17 +683,92 @@ func spellRateKind(o overrides.Override) overrides.RateKind {
 	return 0
 }
 
+// The chance an item, enchant or set bonus proc row rolls with spelldata.ItemProcChance: the ProcChance
+// column where ItemProcRollsTheColumn picks it, and its stated chance otherwise. 0 for a row that states no
+// chance and for one that fires whenever its condition is met.
+func itemProcRowChance(row *spelldata.Spell) float64 {
+	switch {
+	case row.ProcChanceSource == spelldata.ProcChanceAlways:
+		return 0
+	case row.ItemProcRollsTheColumn():
+		return float64(row.ProcChance) / 100
+	}
+	return row.StatedChance()
+}
+
+// Whether a generated set bonus builds the row as a proc: its one effect triggers a spell, as
+// shared.ParsedSetBonus reads it.
+func isSetProcRow(row *spelldata.Spell) bool {
+	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
+}
+
 // The shipped tables, with the items, enchants and set bonuses the game files have casting each rated spell.
+// gen_db reads them before anything calls sim.RegisterAll, so the effects and sets registered by then are
+// the hand-written ones: the generated files register theirs in their RegisterAll functions.
 func shippedRateInputs(instance *dbc.DBC) rateInputs {
 	in := rateInputs{
-		WeaponProcs:   overrides.WeaponProcs,
-		Spells:        overrides.Spells,
-		EnchantProcs:  overrides.EnchantProcs,
-		Literals:      literalRates,
-		SpellItems:    map[int32][]int32{},
-		SpellEnchants: map[int32][]int32{},
-		SpellSets:     map[int32][][2]int32{},
+		WeaponProcs:    overrides.WeaponProcs,
+		Spells:         overrides.Spells,
+		EnchantProcs:   overrides.EnchantProcs,
+		Literals:       literalRates,
+		SpellItems:     map[int32][]int32{},
+		SpellEnchants:  map[int32][]int32{},
+		SpellSets:      map[int32][][2]int32{},
+		HandItems:      map[int32]bool{},
+		HandEnchants:   map[int32]bool{},
+		SetChances:     map[[2]int32][]float64{},
+		EnchantChances: map[int32][]float64{},
 	}
+	for itemID := range instance.Items {
+		if implementedByHand(int32(itemID)) {
+			in.HandItems[int32(itemID)] = true
+		}
+	}
+	for effectID := range instance.EnchantsByEffectId {
+		if core.HasEnchantEffect(int32(effectID)) {
+			in.HandEnchants[int32(effectID)] = true
+		}
+	}
+
+	rated := map[int32]bool{}
+	for _, o := range overrides.Spells {
+		if spellRateKind(o) != 0 {
+			rated[o.SpellID] = true
+		}
+	}
+	setNames := map[int]string{}
+	for _, item := range instance.Items {
+		if item.ItemSetId != 0 {
+			setNames[item.ItemSetId] = item.ItemSetName
+		}
+	}
+	for setID, rows := range instance.ItemSetSpells {
+		name := setNames[setID]
+		if slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
+			return set.ID == int32(setID) || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
+		}) {
+			continue
+		}
+		for _, row := range rows {
+			if spell := spelldata.Find(int32(row.SpellID)); isSetProcRow(spell) && !rated[int32(row.SpellID)] {
+				bonus := [2]int32{int32(setID), int32(row.Threshold)}
+				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
+			}
+		}
+	}
+	for effectID, enchant := range instance.EnchantsByEffectId {
+		if in.HandEnchants[int32(effectID)] {
+			continue
+		}
+		for _, slot := range enchant.ProcSlots() {
+			if !rated[int32(slot.SpellID)] && !slices.ContainsFunc(overrides.EnchantProcs, func(o overrides.EnchantProc) bool {
+				return o.EnchantID == int32(effectID) && o.SpellID == int32(slot.SpellID)
+			}) {
+				in.EnchantChances[int32(effectID)] = append(in.EnchantChances[int32(effectID)], chancePercent(itemProcRowChance(spelldata.Find(int32(slot.SpellID)))))
+			}
+		}
+	}
+
 	for _, o := range overrides.Spells {
 		if spellRateKind(o) == 0 {
 			continue
@@ -787,6 +886,9 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	}
 
 	for _, literal := range in.Literals {
+		if literal.Origin == "" {
+			continue
+		}
 		rate := UnvalidatedRate{ID: literal.ID, Pieces: literal.Pieces, Kind: literal.Kind, Rate: literal.Rate, Origin: literal.Origin}
 		switch literal.Gear {
 		case "item":
@@ -818,6 +920,156 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 		Enchants:   byID(slices.Collect(maps.Values(enchants))),
 		SetBonuses: byID(slices.Collect(maps.Values(setBonuses))),
 	}, conflict
+}
+
+// The rate a database effect's proc states, or none where it states neither procs per minute nor a chance.
+func procRate(proc *proto.ProcEffect) KnownRate {
+	switch {
+	case proc.GetPpm() > 0:
+		return KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm()}
+	case proc.GetProcChance() > 0:
+		return KnownRate{Kind: overrides.RateChance, Rate: chancePercent(proc.GetProcChance())}
+	}
+	return KnownRate{}
+}
+
+// Every proc rate the sim uses on an item, an enchant or a set bonus in the database, once per piece of gear
+// and in id order. A known literal is the piece's rate. Gear written by hand with no literal has none, since
+// its code may not roll what its rows state. An item or enchant takes the procs on its database effects and
+// the measured rate overrides on the spells it casts, an enchant also the chances of its proc spells, and a
+// set bonus its rate overrides and the chances of its proc rows. A piece whose rates differ, one with a
+// proc that states no rate and no row rate fills, and one listed as unvalidated or missing its set bonus
+// are left out.
+func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
+	literals := map[string]map[[2]int32][]KnownRate{"item": {}, "enchant": {}, "set bonus": {}}
+	for _, literal := range in.Literals {
+		if literal.Origin == "" {
+			key := [2]int32{literal.ID, literal.Pieces}
+			literals[literal.Gear][key] = append(literals[literal.Gear][key], KnownRate{Kind: literal.Kind, Rate: literal.Rate})
+		}
+	}
+	left := map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}}
+	for gear, list := range map[string][]UnvalidatedRate{"item": unvalidated.Items, "enchant": unvalidated.Enchants, "set bonus": unvalidated.SetBonuses} {
+		for _, rate := range list {
+			left[gear][[2]int32{rate.ID, rate.Pieces}] = true
+		}
+	}
+	for _, bonus := range missingSets {
+		left["set bonus"][[2]int32{bonus.ID, bonus.Pieces}] = true
+	}
+
+	// The piece's one rate, where every rate found on it agrees and states one.
+	settle := func(gear string, id, pieces int32, name string, found []KnownRate) (KnownRate, bool) {
+		key := [2]int32{id, pieces}
+		if literal, ok := literals[gear][key]; ok {
+			found = literal
+		}
+		if len(found) == 0 || left[gear][key] || slices.ContainsFunc(found, func(rate KnownRate) bool {
+			return rate.Rate == 0 || rate.Kind != found[0].Kind || rate.Rate != found[0].Rate
+		}) {
+			return KnownRate{}, false
+		}
+		return KnownRate{ID: id, Pieces: pieces, Name: name, Kind: found[0].Kind, Rate: found[0].Rate}, true
+	}
+	// The rates on the gear's database effects, with the rates its rows state beside them. A row's rate
+	// fills in a proc whose effect states none, as an override on a column of 0, 100 or 101 does; a proc
+	// that no row rate fills leaves the gear with no rate to state.
+	gearRates := func(effects []*proto.ItemEffect, rowRates []KnownRate) []KnownRate {
+		found := slices.Clone(rowRates)
+		unstated := 0
+		for _, effect := range effects {
+			if proc := effect.GetProc(); proc != nil {
+				if rate := procRate(proc); rate.Rate > 0 {
+					found = append(found, rate)
+				} else {
+					unstated++
+				}
+			}
+		}
+		if unstated > len(rowRates) {
+			found = append(found, KnownRate{})
+		}
+		return found
+	}
+	itemRowRates := map[int32][]KnownRate{}
+	enchantRowRates := map[int32][]KnownRate{}
+	for _, o := range in.Spells {
+		kind := spellRateKind(o)
+		if origin, err := rateOrigin(o.Source); kind == 0 || err != nil || origin != "" {
+			continue
+		}
+		for _, id := range in.SpellItems[o.SpellID] {
+			itemRowRates[id] = append(itemRowRates[id], KnownRate{Kind: kind, Rate: o.Value})
+		}
+		for _, id := range in.SpellEnchants[o.SpellID] {
+			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: kind, Rate: o.Value})
+		}
+	}
+	for id, chances := range in.EnchantChances {
+		for _, chance := range chances {
+			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: overrides.RateChance, Rate: chance})
+		}
+	}
+
+	var known KnownRates
+	for id, item := range db.Items {
+		var found []KnownRate
+		if !in.HandItems[id] {
+			found = gearRates(item.ItemEffects, itemRowRates[id])
+		}
+		if rate, ok := settle("item", id, 0, item.Name, found); ok {
+			known.Items = append(known.Items, rate)
+		}
+	}
+
+	enchantNames := map[int32]string{}
+	enchantRates := map[int32][]KnownRate{}
+	for _, enchant := range db.Enchants {
+		id := enchant.EffectId
+		if name, ok := enchantNames[id]; !ok || enchant.Name < name {
+			enchantNames[id] = enchant.Name
+		}
+		if !in.HandEnchants[id] {
+			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, enchantRowRates[id])...)
+		}
+	}
+	for id, name := range enchantNames {
+		if rate, ok := settle("enchant", id, 0, name, enchantRates[id]); ok {
+			known.Enchants = append(known.Enchants, rate)
+		}
+	}
+
+	setRates := map[[2]int32][]KnownRate{}
+	for _, o := range in.Spells {
+		if kind := spellRateKind(o); kind != 0 {
+			for _, bonus := range in.SpellSets[o.SpellID] {
+				setRates[bonus] = append(setRates[bonus], KnownRate{Kind: kind, Rate: o.Value})
+			}
+		}
+	}
+	for bonus, chances := range in.SetChances {
+		for _, chance := range chances {
+			setRates[bonus] = append(setRates[bonus], KnownRate{Kind: overrides.RateChance, Rate: chance})
+		}
+	}
+	for bonus, literal := range literals["set bonus"] {
+		setRates[bonus] = literal
+	}
+	setNames := setNamesOf(db)
+	for bonus, found := range setRates {
+		if name, ok := setNames[bonus[0]]; ok {
+			if rate, ok := settle("set bonus", bonus[0], bonus[1], name, found); ok {
+				known.SetBonuses = append(known.SetBonuses, rate)
+			}
+		}
+	}
+
+	for _, list := range [][]KnownRate{known.Items, known.Enchants, known.SetBonuses} {
+		sort.Slice(list, func(i, j int) bool {
+			return list[i].ID < list[j].ID || list[i].ID == list[j].ID && list[i].Pieces < list[j].Pieces
+		})
+	}
+	return known
 }
 
 // A set bonus the game files grant at a piece count the sim registers no effect for.
@@ -1065,7 +1317,8 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
 	}
 
-	rates, err := unvalidatedRates(shippedRateInputs(instance), db)
+	in := shippedRateInputs(instance)
+	rates, err := unvalidatedRates(in, db)
 	if err != nil {
 		return err
 	}
@@ -1082,6 +1335,19 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 	setBonuses := missingSetBonuses(registered, instance.ItemSetSpells, db, func(spellID int) string {
 		return setBonusTooltip(instance, spellID)
 	})
+	// An item or enchant missing its effect rolls nothing, and neither does a generated item whose proc
+	// the generator skips as not simulated.
+	known := knownRates(in, db, rates, setBonuses)
+	known.Items = slices.DeleteFunc(known.Items, func(rate KnownRate) bool {
+		_, missing := missingEffectsMap["ItemEffects"][rate.ID]
+		return missing || !in.HandItems[rate.ID] && slices.ContainsFunc(db.Items[rate.ID].ItemEffects, func(effect *proto.ItemEffect) bool {
+			return effect.GetProc() != nil && !ItemEffectIsSupported(instance, int(effect.BuffId))
+		})
+	})
+	known.Enchants = slices.DeleteFunc(known.Enchants, func(rate KnownRate) bool {
+		_, missing := missingEffectsMap["EnchantEffects"][rate.ID]
+		return missing
+	})
 
 	f, err := os.Create(missingEffectsFileName)
 	if err != nil {
@@ -1089,10 +1355,10 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 	}
 	defer f.Close()
 
-	return renderMissingEffects(f, rates, setBonuses)
+	return renderMissingEffects(f, rates, known, setBonuses)
 }
 
-func renderMissingEffects(w io.Writer, rates UnvalidatedRates, setBonuses []MissingSetBonus) error {
+func renderMissingEffects(w io.Writer, rates UnvalidatedRates, known KnownRates, setBonuses []MissingSetBonus) error {
 	funcMap := map[string]any{
 		"asCoreCallback": asCoreCallback,
 		"asCoreProcMask": asCoreProcMask,
@@ -1110,6 +1376,9 @@ func renderMissingEffects(w io.Writer, rates UnvalidatedRates, setBonuses []Miss
 		"UnvalidatedRateItems":      rates.Items,
 		"UnvalidatedRateEnchants":   rates.Enchants,
 		"UnvalidatedRateSetBonuses": sets,
+		"ProcRateItems":             known.Items,
+		"ProcRateEnchants":          known.Enchants,
+		"ProcRateSetBonuses":        groupBySet(known.SetBonuses, func(r KnownRate) int32 { return r.ID }),
 	}
 	if err := tmpl.Execute(w, data); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
