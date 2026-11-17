@@ -574,7 +574,7 @@ func mageSuite(talents string, apl string) core.CharacterSuiteConfig {
 		Consumables: DefaultConsumables,
 		Profession1: proto.Profession_Engineering,
 		Profession2: proto.Profession_Tailoring,
-		GearSet:     core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "preraidAlly"),
+		GearSet:     core.GetGearSet("../../ui/specs/mage/dps/gear_sets", "preraid"),
 		Talents:     talents,
 		Rotation:    core.GetAplRotation("../../ui/specs/mage/dps/apls", apl),
 		ItemFilter: core.ItemFilter{

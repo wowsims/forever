@@ -1357,168 +1357,168 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 864.44335
   tps: 745.23353
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 864.44335
   tps: 745.23353
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 1003.9683
   tps: 869.67219
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 396.48979
   tps: 341.51142
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 396.48979
   tps: 341.51142
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 625.02849
   tps: 537.24703
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 887.44728
   tps: 761.33628
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 887.44728
   tps: 761.33628
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 1030.52765
   tps: 888.26374
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 409.57875
   tps: 350.67369
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 409.57875
   tps: 350.67369
  }
 }
 dps_results: {
- key: "TestArcane-Settings-Gnome-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-Gnome-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 645.09655
   tps: 551.29467
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 847.44839
   tps: 727.00827
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 847.44839
   tps: 727.00827
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 960.91418
   tps: 828.00375
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 383.14238
   tps: 327.40572
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 383.14238
   tps: 327.40572
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 594.77713
   tps: 509.0063
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 870.22203
   tps: 742.94982
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 870.22203
   tps: 742.94982
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 986.98599
   tps: 846.25401
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 396.37643
   tps: 336.66955
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 396.37643
   tps: 336.66955
  }
 }
 dps_results: {
- key: "TestArcane-Settings-HighOrderSkyborne-preraidAlly-Default-arcane_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestArcane-Settings-HighOrderSkyborne-preraid-Default-arcane_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 614.40114
   tps: 522.7431

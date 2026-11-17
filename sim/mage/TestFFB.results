@@ -1357,84 +1357,84 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 893.03356
   tps: 920.82327
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 893.03356
   tps: 920.82327
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 965.98588
   tps: 1005.93315
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 325.22097
   tps: 334.59703
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 325.22097
   tps: 334.59703
  }
 }
 dps_results: {
- key: "TestFFB-Settings-Gnome-preraidAlly-Default-ffb-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFFB-Settings-Gnome-preraid-Default-ffb-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 585.27307
   tps: 603.1476
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 898.19842
   tps: 926.79812
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 898.19842
   tps: 926.79812
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 957.37799
   tps: 998.61835
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 345.0721
   tps: 354.59947
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 345.0721
   tps: 354.59947
  }
 }
 dps_results: {
- key: "TestFFB-Settings-HighOrderSkyborne-preraidAlly-Default-ffb-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFFB-Settings-HighOrderSkyborne-preraid-Default-ffb-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 534.76695
   tps: 552.35454

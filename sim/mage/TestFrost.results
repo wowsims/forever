@@ -1357,168 +1357,168 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 6641.18165
   tps: 6037.59724
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-FullBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 837.68446
   tps: 773.67901
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-FullBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 876.28258
   tps: 809.7676
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 2280.95601
   tps: 2060.25885
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-NoBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-NoBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 377.4022
   tps: 346.60729
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost-NoBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost-NoBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 576.47732
   tps: 534.64146
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 6641.80738
   tps: 6038.21279
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 863.62423
   tps: 797.1201
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 923.34503
   tps: 853.83616
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 2289.34572
   tps: 2068.01763
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 378.77371
   tps: 347.91788
  }
 }
 dps_results: {
- key: "TestFrost-Settings-Gnome-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-Gnome-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 614.69019
   tps: 569.01541
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-FullBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 6590.43055
   tps: 5993.44627
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-FullBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 839.59132
   tps: 775.53167
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-FullBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 875.91503
   tps: 810.08472
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-NoBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 2310.04342
   tps: 2086.31362
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-NoBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-NoBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 374.86751
   tps: 344.59024
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost-NoBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost-NoBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 576.91865
   tps: 535.12199
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 6591.01908
   tps: 5994.00918
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 863.47464
   tps: 796.99525
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-FullBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-FullBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 922.85687
   tps: 856.15941
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongMultiTarget"
  value: {
   dps: 2267.72866
   tps: 2048.07962
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-LongSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-LongSingleTarget"
  value: {
   dps: 381.80534
   tps: 350.90758
  }
 }
 dps_results: {
- key: "TestFrost-Settings-HighOrderSkyborne-preraidAlly-Default-frost_book_ranks-NoBuffs-30.0yards-ShortSingleTarget"
+ key: "TestFrost-Settings-HighOrderSkyborne-preraid-Default-frost_book_ranks-NoBuffs-30.0yards-ShortSingleTarget"
  value: {
   dps: 614.15062
   tps: 568.61313

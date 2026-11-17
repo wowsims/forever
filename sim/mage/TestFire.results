@@ -1357,168 +1357,168 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 981.20905
   tps: 978.26644
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 981.20905
   tps: 978.26644
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 1018.0175
   tps: 1017.89909
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 466.18005
   tps: 462.27739
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 466.18005
   tps: 462.27739
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 691.2784
   tps: 690.25566
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 993.86577
   tps: 989.15478
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 993.86577
   tps: 989.15478
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 1029.0779
   tps: 1027.25818
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 470.4446
   tps: 465.40079
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 470.4446
   tps: 465.40079
  }
 }
 dps_results: {
- key: "TestFire-Settings-Gnome-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-Gnome-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 701.03141
   tps: 698.32615
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 965.17349
   tps: 963.14379
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 965.17349
   tps: 963.14379
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 989.29417
   tps: 992.04016
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 487.86643
   tps: 484.24772
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 487.86643
   tps: 484.24772
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 665.85714
   tps: 667.2262
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 977.7578
   tps: 973.62906
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 977.7578
   tps: 973.62906
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-FullBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 999.95302
   tps: 1001.09548
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongMultiTarget"
  value: {
   dps: 491.94896
   tps: 487.77422
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-LongSingleTarget"
  value: {
   dps: 491.94896
   tps: 487.77422
  }
 }
 dps_results: {
- key: "TestFire-Settings-HighOrderSkyborne-preraidAlly-Default-deepFire_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
+ key: "TestFire-Settings-HighOrderSkyborne-preraid-Default-deepFire_book_ranks-NoBuffs-0.0yards-ShortSingleTarget"
  value: {
   dps: 675.18548
   tps: 675.1387
