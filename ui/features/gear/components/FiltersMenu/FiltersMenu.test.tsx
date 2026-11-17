@@ -42,7 +42,7 @@ describe('FiltersMenu', () => {
 	let setFilters: ReturnType<typeof vi.fn>;
 	let raceFaction: Faction;
 	let items: UIItem[];
-	let suffixes: Record<number, ItemRandomSuffix[]>;
+	let suffixes: Record<number, ItemRandomSuffix>;
 	let rootElem: HTMLElement;
 
 	const setup = (
@@ -60,12 +60,11 @@ describe('FiltersMenu', () => {
 				sim: {
 					getFilters: () => DatabaseFilters.clone(filters),
 					setFilters,
-					db: { getAllItems: () => items },
+					db: { getAllItems: () => items, getRandomSuffixById: (id: number) => suffixes[id] },
 				},
 				getPlayerClass: () => ({ armorTypes, weaponTypes: weaponTypes.map(weaponType => ({ weaponType })), rangedWeaponTypes }),
 				getPlayerSpec: () => ({ canDualWield }),
 				getFaction: () => raceFaction,
-				getRandomSuffixes: (item: UIItem) => suffixes[item.id] ?? [],
 			},
 		});
 
@@ -135,10 +134,10 @@ describe('FiltersMenu', () => {
 		];
 		const agility = new Array<number>(Stat.StatAgility + 1).fill(0);
 		agility[Stat.StatAgility] = 5;
-		suffixes = { 2: [ItemRandomSuffix.create({ id: 7, stats: agility })] };
+		suffixes = { 7: ItemRandomSuffix.create({ id: 7, stats: agility }) };
 		setup();
 
-		expect(bonusOptions('filters-stats')).toEqual(['StatStrength', 'StatAgility', 'StatStamina']);
+		expect(bonusOptions('filters-item-stats')).toEqual(['StatStrength', 'StatAgility', 'StatStamina']);
 	});
 
 	it('portals into the sim root for the spec theme, writes a source toggle and a faction pick back through the sim, and closes on its own close button', async () => {
@@ -206,7 +205,7 @@ const renderView = (props: Partial<FiltersMenuViewProps> = {}) => {
 			areaTypes={[]}
 			mobTypes={[]}
 			creatureFamilies={[]}
-			stats={[]}
+			itemStats={[]}
 			canDualWield={false}
 			raceFaction={Faction.Horde}
 			{...props}
@@ -266,7 +265,10 @@ describe('FiltersMenuView', () => {
 	});
 
 	it('puts the stat picker after the general section and writes the picks into the stats list', () => {
-		const { lastEdit } = renderView({ stats: [Stat.StatStrength, Stat.StatStamina], filters: DatabaseFilters.create({ stats: [Stat.StatStamina] }) });
+		const { lastEdit } = renderView({
+			itemStats: [Stat.StatStrength, Stat.StatStamina],
+			filters: DatabaseFilters.create({ itemStats: [Stat.StatStamina] }),
+		});
 		expect(viewSections().slice(0, 3)).toEqual([
 			'gear_tab.gear_picker.filters.general',
 			'gear_tab.gear_picker.filters.stats.title',
@@ -274,8 +276,8 @@ describe('FiltersMenuView', () => {
 		]);
 		expect(screen.getAllByTestId('multi-combo-box-chip').map(chip => chip.textContent)).toEqual(['StatStamina']);
 
-		pickBonus('filters-stats', 'StatStrength');
-		expect(lastEdit(DatabaseFilters.create({ stats: [Stat.StatStamina] })).stats).toEqual([Stat.StatStamina, Stat.StatStrength]);
+		pickBonus('filters-item-stats', 'StatStrength');
+		expect(lastEdit(DatabaseFilters.create({ itemStats: [Stat.StatStamina] })).itemStats).toEqual([Stat.StatStamina, Stat.StatStrength]);
 	});
 
 	it('leaves the stat section out when no item carries a stat and none is stored', () => {

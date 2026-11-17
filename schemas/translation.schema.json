@@ -2022,10 +2022,9 @@
 									"type": "object",
 									"properties": {
 										"title": { "type": "string" },
-										"label": { "type": "string" },
-										"any": { "type": "string" }
+										"label": { "type": "string" }
 									},
-									"required": ["title", "label", "any"],
+									"required": ["title", "label"],
 									"additionalProperties": false
 								},
 								"bonus": {

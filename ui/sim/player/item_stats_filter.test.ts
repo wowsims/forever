@@ -25,13 +25,13 @@ const ITEMS = [
 	Item.create({ id: 5, scalingOptions: { 0: { stats: { [Stat.StatStamina]: 6 } } }, randomSuffixOptions: [101] }),
 ];
 
-describe('Player.filterItemData stat filter', () => {
+describe('Player.filterItemData item stats filter', () => {
 	const setup = async () => {
 		const { sim, player } = await makeIndividualSim();
 		sim.applyDefaults(false, false);
 		vi.spyOn(sim.db, 'getRandomSuffixById').mockImplementation(id => SUFFIXES[id]);
 		const listed = (stats: Stat[]) => {
-			sim.setFilters({ ...sim.getFilters(), stats });
+			sim.setFilters({ ...sim.getFilters(), itemStats: stats });
 			return player
 				.filterItemData(
 					ITEMS.map(item => Item.clone(item)),

@@ -1348,14 +1348,10 @@ export class Player<SpecType extends Spec> {
 		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
 	}
 
-	// The stats an item adds by itself, at its base item level: those of its first scaling option, or its stats array
-	// when it has none.
+	// The stats an item adds by itself, at its base item level (scaling option 0).
 	static ownStatsOf(item: Item): Set<Stat> {
-		const scaled = item.scalingOptions?.[0]?.stats;
-		const values = scaled
-			? Object.entries(scaled).map(([stat, value]) => [Number(stat), value] as const)
-			: item.stats.map((value, stat) => [stat, value] as const);
-		return new Set(values.filter(([, value]) => value > 0).map(([stat]) => stat as Stat));
+		const stats = Object.entries(item.scalingOptions[0]?.stats ?? {});
+		return new Set(stats.filter(([, value]) => value > 0).map(([stat]) => Number(stat) as Stat));
 	}
 
 	// Whether the item carries every one of the stats: by itself, or together with one of the random suffixes it can roll.
@@ -1393,8 +1389,8 @@ export class Player<SpecType extends Spec> {
 			);
 		}
 
-		if (filters.stats.length) {
-			itemData = filterItems(itemData, item => Player.carriesStats(item, this.getRandomSuffixes(item), filters.stats));
+		if (filters.itemStats.length) {
+			itemData = filterItems(itemData, item => Player.carriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
 		}
 
 		if (filters.newlyDiscoveredOnly) {

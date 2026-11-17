@@ -21,7 +21,7 @@ const meta = {
 		areaTypes: [AreaType.AreaTypeForestGrassland, AreaType.AreaTypeDesert, AreaType.AreaTypeStrongholdsCities],
 		mobTypes: [MobType.MobTypeDemon, MobType.MobTypeHumanoid, MobType.MobTypeUndead],
 		creatureFamilies: [CreatureFamily.CreatureFamilyNaga, CreatureFamily.CreatureFamilyPlant, CreatureFamily.CreatureFamilyTroll],
-		stats: [Stat.StatStrength, Stat.StatAgility, Stat.StatStamina, Stat.StatIntellect, Stat.StatSpirit],
+		itemStats: [Stat.StatStrength, Stat.StatAgility, Stat.StatStamina, Stat.StatIntellect, Stat.StatSpirit],
 		canDualWield: true,
 		raceFaction: Faction.Horde,
 	},

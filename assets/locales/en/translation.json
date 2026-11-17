@@ -555,8 +555,7 @@
 				"raids": "Raids",
 				"stats": {
 					"title": "Stats",
-					"label": "Has every stat",
-					"any": "Any"
+					"label": "Has every stat"
 				},
 				"bonus": {
 					"title": "Bonus",

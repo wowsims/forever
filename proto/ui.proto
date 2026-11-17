@@ -323,7 +323,7 @@ message DatabaseFilters {
 	bool newly_discovered_only = 32;
 	// With any set, the item list shows only the items that carry every one of these stats, from their own stats or
 	// from one of their random suffixes. Empty hides none.
-	repeated Stat stats = 33;
+	repeated Stat item_stats = 33;
 	// The enchant picker also lists enchants worth nothing to the spec's stat weights.
 	bool show_all_enchants = 25;
 	// The stats each panel shows; see StatFilters.
