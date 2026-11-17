@@ -7,7 +7,7 @@
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
-- Pull request: #PRNUMBER
+- Pull request: #1086
 
 ## Method
 
