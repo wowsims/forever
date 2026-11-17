@@ -3851,3 +3851,205 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 ])
+
+// The proc rate the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance.
+export type KnownRate = { kind: 'ppm' | 'chance'; rate: number }
+
+export const PROC_RATE_ITEMS = new Map<number, KnownRate>([
+	[647, { kind: 'ppm', rate: 1.2 }], // Destiny
+	[754, { kind: 'ppm', rate: 1 }], // Shortsword of Vengeance
+	[867, { kind: 'chance', rate: 15 }], // Gloves of Holy Might
+	[869, { kind: 'ppm', rate: 2.8 }], // Dazzling Longsword
+	[871, { kind: 'ppm', rate: 1.65 }], // Flurry Axe
+	[942, { kind: 'chance', rate: 1 }], // Freezing Band
+	[1204, { kind: 'chance', rate: 1 }], // The Green Tower
+	[1979, { kind: 'chance', rate: 3 }], // Wall of the Dead
+	[1982, { kind: 'ppm', rate: 2 }], // Nightblade
+	[2099, { kind: 'ppm', rate: 4.3 }], // Dwarven Hand Cannon
+	[2164, { kind: 'ppm', rate: 1.55 }], // Gut Ripper
+	[2825, { kind: 'ppm', rate: 5.4 }], // Bow of Searing Arrows
+	[3078, { kind: 'ppm', rate: 2.2 }], // Naga Heartpiercer
+	[6831, { kind: 'ppm', rate: 2 }], // Black Menace
+	[7717, { kind: 'ppm', rate: 1 }], // Ravager
+	[7747, { kind: 'chance', rate: 5 }], // Vile Protector
+	[7939, { kind: 'chance', rate: 3 }], // Truesilver Breastplate
+	[9372, { kind: 'ppm', rate: 1.5 }], // Sul'thraze the Lasher
+	[9412, { kind: 'ppm', rate: 4.25 }], // Galgann's Fireblaster
+	[9418, { kind: 'ppm', rate: 1.95 }], // Stoneslayer
+	[9477, { kind: 'ppm', rate: 1 }], // The Chief's Enforcer
+	[9478, { kind: 'ppm', rate: 2 }], // Ripsaw
+	[9639, { kind: 'ppm', rate: 2 }], // The Hand of Antu'sul
+	[10750, { kind: 'ppm', rate: 1.5 }], // Lifeforce Dirk
+	[10761, { kind: 'ppm', rate: 2.85 }], // Coldrage Dagger
+	[10847, { kind: 'ppm', rate: 4.5 }], // Dragon's Call
+	[11086, { kind: 'ppm', rate: 2.9 }], // Jang'thraze the Protector
+	[11302, { kind: 'chance', rate: 4 }], // Uther's Strength
+	[11744, { kind: 'ppm', rate: 3.2 }], // Bloodfist
+	[11803, { kind: 'ppm', rate: 2 }], // Force of Magma
+	[11817, { kind: 'ppm', rate: 2.1 }], // Lord General's Sword
+	[11861, { kind: 'chance', rate: 1 }], // Girdle of Reprisal
+	[12463, { kind: 'ppm', rate: 1.5 }], // Drakefang Butcher
+	[12582, { kind: 'ppm', rate: 1.7 }], // Keris of Zul'Serak
+	[12628, { kind: 'chance', rate: 3 }], // Demon Forged Breastplate
+	[12802, { kind: 'chance', rate: 5 }], // Darkspear
+	[12805, { kind: 'chance', rate: 1 }], // Orb of Fire
+	[12969, { kind: 'ppm', rate: 0.9 }], // Seeping Willow
+	[13040, { kind: 'ppm', rate: 2.7 }], // Heartseeking Crossbow
+	[13183, { kind: 'ppm', rate: 1.7 }], // Venomspitter
+	[13348, { kind: 'ppm', rate: 1.1 }], // Demonshear
+	[13361, { kind: 'ppm', rate: 1.95 }], // Skullforge Reaver
+	[13983, { kind: 'ppm', rate: 1.9 }], // Gravestone War Axe
+	[14557, { kind: 'chance', rate: 10 }], // The Lion Horn of Stormwind
+	[17705, { kind: 'ppm', rate: 1 }], // Thrash Blade
+	[17730, { kind: 'ppm', rate: 1.2 }], // Gatorbite Axe
+	[17752, { kind: 'ppm', rate: 2.1 }], // Satyr's Lash
+	[17753, { kind: 'ppm', rate: 3.5 }], // Verdant Keeper's Aim
+	[17766, { kind: 'ppm', rate: 1.8 }], // Princess Theradras' Scepter
+	[17774, { kind: 'chance', rate: 2 }], // Mark of the Chosen
+	[17780, { kind: 'ppm', rate: 1.8 }], // Blade of Eternal Darkness
+	[17943, { kind: 'ppm', rate: 3.2 }], // Fist of Stone
+	[18388, { kind: 'ppm', rate: 1.7 }], // Stoneshatter
+	[18825, { kind: 'chance', rate: 5 }], // Grand Marshal's Aegis
+	[18826, { kind: 'chance', rate: 5 }], // High Warlord's Shield Wall
+	[19288, { kind: 'chance', rate: 3 }], // Darkmoon Card: Blue Dragon
+	[21190, { kind: 'chance', rate: 5 }], // Wrath of Cenarius
+	[22196, { kind: 'chance', rate: 30 }], // Thick Obsidian Breastplate
+	[22268, { kind: 'chance', rate: 8 }], // Draconic Infused Emblem
+	[22321, { kind: 'ppm', rate: 2 }], // Heart of Wyrmthalak
+	[22458, { kind: 'ppm', rate: 1.5 }], // Moonshadow Stave
+	[249441, { kind: 'chance', rate: 50 }], // Talons of Wrath
+	[272591, { kind: 'chance', rate: 5 }], // Premier High Warlord's Shield Wall
+	[272838, { kind: 'chance', rate: 5 }], // Premier Grand Marshal's Aegis
+	[274270, { kind: 'ppm', rate: 1.1 }], // Weed Whacker
+	[274425, { kind: 'ppm', rate: 3.75 }], // White Obsidian Wand
+	[274608, { kind: 'chance', rate: 10 }], // Maw of Min'loth
+	[274651, { kind: 'chance', rate: 5 }], // Zealot Plate
+	[274963, { kind: 'ppm', rate: 1.45 }], // Rot-Covered Harpoon
+	[275441, { kind: 'ppm', rate: 2.3 }], // Cremation Longbow
+	[276419, { kind: 'ppm', rate: 3.6 }], // Lightcrest Hammer
+	[279251, { kind: 'chance', rate: 10 }], // Idol of the Ursine Twins
+	[279480, { kind: 'ppm', rate: 1.5 }], // Bigger Rock on Bigger Stick
+	[279852, { kind: 'ppm', rate: 1.85 }], // Rock on Stick
+	[286430, { kind: 'ppm', rate: 1.95 }], // Toofbreaker
+	[287005, { kind: 'ppm', rate: 0.6 }], // Sword of Dismemberment
+])
+
+export const PROC_RATE_ENCHANTS = new Map<number, KnownRate>([
+	[36, { kind: 'chance', rate: 15 }], // Enchant: Fiery Blaze
+	[44, { kind: 'chance', rate: 2 }], // Enchant Chest - Minor Absorption
+	[63, { kind: 'chance', rate: 5 }], // Enchant Chest - Lesser Absorption
+	[803, { kind: 'ppm', rate: 6 }], // Enchant Weapon - Fiery Weapon
+	[1900, { kind: 'ppm', rate: 1 }], // Enchant Weapon - Crusader
+	[7941, { kind: 'chance', rate: 7 }], // Enchant 2H Weapon - Grand Arcanist
+	[7942, { kind: 'chance', rate: 7 }], // Enchant Weapon - Grand Sorcerer
+	[8216, { kind: 'chance', rate: 35 }], // Enchant Weapon - Insight
+	[8220, { kind: 'chance', rate: 25 }], // Enchant Chest - Absorption
+])
+
+// Keyed by set id, then by the bonus's piece count.
+export const PROC_RATE_SET_BONUSES = new Map<number, Map<number, KnownRate>>([
+	[
+		124, // Deathbone Guardian
+		new Map([
+			[3, { kind: 'chance', rate: 15 }],
+		]),
+	],
+	[
+		141, // Volcanic Armor
+		new Map([
+			[3, { kind: 'chance', rate: 10 }],
+		]),
+	],
+	[
+		142, // Stormshroud Armor
+		new Map([
+			[2, { kind: 'chance', rate: 10 }],
+			[3, { kind: 'chance', rate: 4 }],
+		]),
+	],
+	[
+		181, // Magister's Regalia
+		new Map([
+			[5, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		182, // Vestments of the Devout
+		new Map([
+			[5, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		183, // Dreadmist Raiment
+		new Map([
+			[5, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		184, // Shadowcraft Armor
+		new Map([
+			[5, { kind: 'ppm', rate: 0.8 }],
+		]),
+	],
+	[
+		186, // Beaststalker Armor
+		new Map([
+			[5, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		189, // Battlegear of Valor
+		new Map([
+			[5, { kind: 'ppm', rate: 1 }],
+		]),
+	],
+	[
+		525, // Vestments of Faith
+		new Map([
+			[8, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		526, // Frostfire Regalia
+		new Map([
+			[6, { kind: 'chance', rate: 20 }],
+			[8, { kind: 'chance', rate: 15 }],
+		]),
+	],
+	[
+		1669, // Beastmaster Armor
+		new Map([
+			[4, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		1671, // Sorcerer's Regalia
+		new Map([
+			[4, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		1675, // Vestments of the Virtuous
+		new Map([
+			[4, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		1676, // Darkmantle Armor
+		new Map([
+			[4, { kind: 'ppm', rate: 0.8 }],
+		]),
+	],
+	[
+		1681, // Deathmist Raiment
+		new Map([
+			[4, { kind: 'chance', rate: 5 }],
+		]),
+	],
+	[
+		1778, // Battlegear of Heroism
+		new Map([
+			[4, { kind: 'ppm', rate: 1 }],
+		]),
+	],
+])
