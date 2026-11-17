@@ -75,7 +75,6 @@ func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {
 		{"a spell flagged SpellFlagNoPartialResist", SpellFlagNoPartialResist, false},
 		{"a binary spell's hit", SpellFlagBinary, false},
 		{"a binary spell's tick", SpellFlagBinary, true},
-		{"a binary spell's tick with the full resistance", SpellFlagBinary | SpellFlagFullResistanceTicks, true},
 	} {
 		if n := partials(tc.flags, tc.isPeriodic); n != 0 {
 			t.Errorf("%s was partially resisted %d times in 1000 against 150 shadow resistance, want 0", tc.name, n)

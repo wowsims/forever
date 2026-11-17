@@ -120,10 +120,12 @@ func (s *Spell) FindEffect(typ dbcenums.SpellEffectType, aura dbcenums.EffectAur
 // multiplier or a flat bonus rather than an amount.
 // An E_HEALTH_LEECH deals its amount as damage too.
 func (s *Spell) DamageEffect() *Effect {
-	return s.firstOfType(dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
-		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
-		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
+	return s.firstOfType(directDamageEffects...)
 }
+
+var directDamageEffects = []dbcenums.SpellEffectType{dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_WEAPON_DAMAGE,
+	dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG,
+	dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH}
 
 // Whether the spell resists all or nothing: a magic row on the magic hit table that deals damage and,
 // beside the damage, applies an aura other than a dummy to an enemy, interrupts, or carries a dummy,
@@ -151,9 +153,7 @@ func (s *Spell) IsBinary() bool {
 
 // Whether the effect deals damage, directly or as a damage aura.
 func dealsDamage(e *Effect) bool {
-	switch e.Type {
-	case dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_HEALTH_LEECH, dbcenums.E_POWER_BURN, dbcenums.E_WEAPON_DAMAGE,
-		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL:
+	if e.Type == dbcenums.E_POWER_BURN || slices.Contains(directDamageEffects, e.Type) {
 		return true
 	}
 	if !AppliesAura(e.Type) {

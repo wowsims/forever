@@ -56,7 +56,7 @@ func AttachDamageShield(aura *core.Aura, school core.SpellSchool, damage float64
 func damageShieldTrigger(unit *core.Unit, label string, actionID core.ActionID, school core.SpellSchool, damage float64,
 	bonusCoefficient float64, hits core.ProcMask, lockout time.Duration) core.ProcTrigger {
 	physical := school.Matches(core.SpellSchoolPhysical)
-	flags := core.SpellFlagBinary | core.SpellFlagNoPartialResist | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
+	flags := core.SpellFlagBinary | core.SpellFlagPassiveSpell | core.SpellFlagIgnoreTargetSchoolBonus
 	if physical {
 		flags |= core.SpellFlagIgnoreResists
 	}
