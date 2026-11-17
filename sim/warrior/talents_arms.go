@@ -163,7 +163,8 @@ func (warrior *Warrior) registerDeepWounds() {
 	warrior.DeepWounds = warrior.RegisterSpell(config)
 
 	// The proc shape with no roll: 12834 states its rate as "always" and its crit hint carries the
-	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's.
+	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's. A crit
+	// on the magic hit table, Thunder Clap's, starts no bleed (EV-0139).
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -177,7 +178,7 @@ func (warrior *Warrior) registerDeepWounds() {
 	trigger.Name = "Deep Wounds - Trigger"
 	trigger.TriggerImmediately = true
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
+		return spell.SpellSchool.Matches(core.SpellSchoolPhysical) && spell.DefenseType != core.DefenseTypeMagic
 	}
 
 	warrior.MakeProcTriggerAura(trigger)

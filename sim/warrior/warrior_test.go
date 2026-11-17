@@ -688,6 +688,22 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 	}
 }
 
+// A Thunder Clap crit rolls on the magic hit table and starts no Deep Wounds bleed.
+func TestThunderClapCritStartsNoDeepWounds(t *testing.T) {
+	sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+	bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+	clap := war.GetSpell(core.ActionID{SpellID: 11581})
+	if bleed == nil || clap == nil {
+		t.Fatalf("Deep Wound %v, Thunder Clap %v; want both registered", bleed, clap)
+	}
+
+	war.OnSpellHitDealt(sim, clap, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+	if bleed.Dot(war.CurrentTarget).IsActive() {
+		t.Error("a Thunder Clap crit started Deep Wounds, want no bleed")
+	}
+}
+
 // The warrior's physical damage bonuses, the multiplier Death Wish and Enrage raise, leave a Deep Wounds tick unchanged.
 func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
 	tickDamage := func(bonus float64) float64 {

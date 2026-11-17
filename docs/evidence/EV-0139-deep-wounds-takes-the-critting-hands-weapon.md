@@ -2,10 +2,10 @@
 
 - Claim: an off-hand crit starts Deep Wounds, and the bleed is sized from the off hand's average weapon damage without
   the off-hand damage penalty; main-hand swings, main-hand abilities and Windfury Totem's strike size it from the main
-  hand. Attack Power does not count.
+  hand. Attack Power and the warrior's damage bonuses do not count. A Thunder Clap crit starts no bleed.
 - Sources: combat logs. A level 60 dual-wield Fury warrior in an Upper Blackrock Spire group with Windfury Totem
   (2026-11-16); a level 30 dual-wield warrior in Duskwood (2026-10-13); bystander warriors in the logger's own logs
-  2026-11-08 to 2026-11-16.
+  2026-11-08 to 2026-11-16. Thunder Clap: 24 Warcraft Logs reports, listed in its section.
 - Game build: 1.60.1 as the log header states it; the build number and hotfix were not recorded.
 - Date: 2026-10-13 and 2026-11-08 to 2026-11-16
 - Pull request: #1077
@@ -50,7 +50,8 @@ When both of a Whirlwind's strikes crit in one batch the two amounts add up: the
 against 17.2 + 15.7 = 32.9. The main-hand swing that ticked 26 is not explained.
 
 The level 30 warrior (main hand average 46.5, off hand 4.7): main-hand crits tick 6 (n 26), off-hand crits 1 (n 14 of
-15). The main-hand rule would give 6 for both.
+15). The main-hand rule would give 6 for both. The off hand's share is 0.7 a tick, which logs as 1, so how the game
+rounds a tick below 1 is not settled.
 
 ## Damage bonuses
 
@@ -67,5 +68,22 @@ One bleed ticked 45 and 45 across Death Wish ending between the two ticks.
 Enrage, from four other warriors' logs (2026-11-11 to 2026-11-16), reads the same but on ticks of 3 to 42, too small a
 sample to rule on its own: across Enrage starting or ending between two ticks of one bleed, 15 and 15, 13 and 13, 42
 and 42, 25 and 25; a fresh main-hand bleed ticks 6 under Enrage against 4, 6 and 6 without; an off-hand one 3 under
-Enrage against 3 without. The off hand's share is 0.7 a tick, which logs as 1, so how the game
-rounds a tick below 1 is not settled.
+Enrage against 3 without.
+
+## Thunder Clap
+
+A Thunder Clap crit starts no bleed. Warcraft Logs wearer streams of 25 warriors who apply Deep Wound, in 24 reports
+from 2026-11-10 to 2026-11-16. A crit counts when its target had no Deep Wound event from the warrior in the 12 s
+before, took Deep Wound from that warrior at some point in the report, did not die to the crit, and took no other crit
+from the warrior within 150 ms. The control is the same warriors' white swing crits within 20 s of a counted Thunder
+Clap crit; it stays below 100% because the logs drop aura events of targets out of the logger's range.
+
+| Crit                                    | Deep Wound applied within 150 ms |
+| --------------------------------------- | -------------------------------- |
+| Thunder Clap                            | 0 / 79                           |
+| White swing, within 20 s of those claps | 70 / 94                          |
+
+Reports: 176QTFWR8PtdfGZB, 1mRKL7Tb8qwjkgv3, 1yjwF8MxXqvtD4bT, 214ndcFyjpPM8wah, 2wMznDRvmkpbtHxA, 2ywhMnJq4Y3zaWtg,
+3yM21KdFP7LnrBvx, 6v4wTWQkjb3Xd7mM, 9pMcvgxrQNfLZ7hd, CRDXNJwfamHWTx2K, FN8krKfCb3BXWmwV, Fz2wJmfGKPnvTy9h,
+HmF9nyBdrvAL1wKt, HtQr7kYaNq9MGgvZ, MB1yTdQ9xmRXPaK8, MwVH1KQmak73NPd8, NXMZV9xjvWpB7GtP, P1yKzX3Q8NgFYxZH,
+VLz78BfZyWa3Cxr2, VtjvpP8bwcgCYTXF, b1Lmt96A8wRxzKQT, mRxb9L2wNkMJTWXY, rnfRqHt9Vk8g1JB7, vZqVmLYQa6jwP3A9.
