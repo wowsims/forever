@@ -205,8 +205,8 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 // else its row's chance. Hand-written gear with no literal, gear with no single rate, a proc stating no rate
 // that no override fills, a carried-over override, an unvalidated rate and a missing set bonus stay out, and
 // so does a set the database lacks. A literal whose gear carries an unmeasured rate of its own for the spell
-// gets none. Generated gear counts only where its procs register, and a row's rate
-// only where they read the rows. Each piece is listed once, in id order.
+// gets none. Generated gear counts only where its procs register, and a row's rate only where they read the
+// rows. Each piece is listed once, in id order.
 func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	procs := func(rates ...*proto.ProcEffect) []*proto.ItemEffect {
 		var effects []*proto.ItemEffect
