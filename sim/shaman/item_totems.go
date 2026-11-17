@@ -19,6 +19,15 @@ func init() {
 			{ItemID: 228176, ItemName: "Totem of Thunder"},
 		})
 
+	// Totem of Rage
+	// https://www.wowhead.com/forever/item=22395/totem-of-rage
+	//
+	// Increases the damage of your Shock spells by 2%.
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27859},
+		[]shared.ItemVariant{
+			{ItemID: 22395, ItemName: "Totem of Rage"},
+		})
+
 	// Polished Driftwood Icon
 	// https://www.wowhead.com/forever/item=249398/polished-driftwood-icon
 	//
