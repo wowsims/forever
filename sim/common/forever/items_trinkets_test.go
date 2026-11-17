@@ -251,6 +251,17 @@ func fireSpell(unit *core.Unit) *core.Spell {
 	return &core.Spell{ProcMask: core.ProcMaskSpellDamage, SpellSchool: core.SpellSchoolFire, DefenseType: core.DefenseTypeMagic, Unit: unit}
 }
 
+func healSpell(unit *core.Unit) *core.Spell {
+	return &core.Spell{ProcMask: core.ProcMaskSpellHealing, SpellSchool: core.SpellSchoolHoly, DefenseType: core.DefenseTypeMagic, Unit: unit}
+}
+
+// A landed heal on the character, and the spell batch window the listener resolves after.
+func dealHeal(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
+	t.Helper()
+	character.OnHealDealt(sim, spell, &core.SpellResult{Target: &character.Unit, Outcome: core.OutcomeHit, Damage: 100})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+}
+
 // A landed hit taken, and the spell batch window the listener resolves after.
 func takeHit(t *testing.T, sim *core.Simulation, character *core.Character, spell *core.Spell) {
 	t.Helper()

@@ -1829,12 +1829,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		226904, // Beastmaster's Chest
-		[
-			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
-		]
-	],
-	[
 		249443, // Totem of Ancestral Protection
 		[
 			"Reduces the cooldown of Grounding Totem by 1 sec.", // 1249011 - https://www.wowhead.com/forever/spell=1249011
@@ -2813,12 +2807,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"When struck by a harmful spell, has a 7% chance of Silencing the caster for 3s. Can only occur once every 60 sec.", // 1302716 - https://www.wowhead.com/forever/spell=1302716
 				],
 			],
-			[
-				5,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450625 - https://www.wowhead.com/forever/spell=450625
-				],
-			],
 		]),
 	],
 	[
@@ -3234,6 +3222,17 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
+		1669, // Beastmaster Armor
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
+				],
+			],
+		]),
+	],
+	[
 		1671, // Sorcerer's Regalia
 		new Map([
 			[
@@ -3247,12 +3246,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		1673, // Soulforge Armor
 		new Map([
-			[
-				4,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450625 - https://www.wowhead.com/forever/spell=450625
-				],
-			],
 			[
 				5,
 				[
@@ -3822,37 +3815,37 @@ export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
 // Keyed by set id, then by the bonus's piece count.
 export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, UnvalidatedRate>>([
 	[
-		184, // Shadowcraft Armor
-		new Map([
-			[5, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
-		]),
-	],
-	[
-		187, // The Elements
-		new Map([
-			[5, { kind: 'chance', rate: 4, origin: 'vanilla' }],
-		]),
-	],
-	[
-		189, // Battlegear of Valor
+		185, // Wildheart Raiment
 		new Map([
 			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 	[
-		1676, // Darkmantle Armor
+		187, // The Elements
 		new Map([
-			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
+		188, // Lightforge Armor
+		new Map([
+			[5, { kind: 'ppm', rate: 0.9, origin: 'observed' }],
+		]),
+	],
+	[
+		1667, // Feralheart Raiment
+		new Map([
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
+		1673, // Soulforge Armor
+		new Map([
+			[4, { kind: 'ppm', rate: 0.9, origin: 'observed' }],
 		]),
 	],
 	[
 		1679, // The Five Thunders
-		new Map([
-			[4, { kind: 'chance', rate: 4, origin: 'vanilla' }],
-		]),
-	],
-	[
-		1778, // Battlegear of Heroism
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),

@@ -1114,8 +1114,8 @@ dps_results: {
 dps_results: {
  key: "TestFire-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 869.43914
-  tps: 869.36472
+  dps: 901.45232
+  tps: 900.43812
  }
 }
 dps_results: {
