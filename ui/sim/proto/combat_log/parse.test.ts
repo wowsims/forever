@@ -55,15 +55,15 @@ describe('parseAll on sim log lines', () => {
 		expect(log.resist).toBe(0);
 	});
 
-	it('reads a partial resist off a hit', async () => {
-		// flags.go:156 appends the resist to a glance, crit or hit.
+	it.each([50, 75])('reads a %d%% partial resist off a hit', async resist => {
+		// flags.go:147 appends the resist to a glance, crit or hit.
 		const log = (await parseLine(
-			'[5.00] [Player (#1)] [Target 1] {SpellID: 25368} Hit (50% Resist) for 1234.500 damage (SpellSchool: 4). (Threat: 100.000)',
+			`[5.00] [Player (#1)] [Target 1] {SpellID: 25368} Hit (${resist}% Resist) for 1234.500 damage (SpellSchool: 4). (Threat: 100.000)`,
 		)) as DamageLog;
 		expect(log.kind).toBe('damage');
 		expect(log.outcome).toBe('hit');
 		expect(log.amount).toBe(1234.5);
-		expect(log.resist).toBe(50);
+		expect(log.resist).toBe(resist);
 	});
 
 	it('reads an auto attack delay', async () => {

@@ -663,9 +663,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-DreadmistRaiment"
  value: {
-  dps: 571.55724
-  tps: 383.12028
-  dtps: 1.39117
+  dps: 571.3151
+  tps: 382.87815
+  dtps: 1.33291
  }
 }
 dps_results: {
@@ -903,9 +903,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EyeofMoam-21473"
  value: {
-  dps: 701.12094
-  tps: 488.47278
-  dtps: 4.55834
+  dps: 700.79748
+  tps: 488.14932
+  dtps: 4.54082
  }
 }
 dps_results: {
@@ -1439,9 +1439,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Magister'sRegalia"
  value: {
-  dps: 580.03514
-  tps: 391.38912
-  dtps: 3.08803
+  dps: 579.83036
+  tps: 391.18434
+  dtps: 2.99626
  }
 }
 dps_results: {
@@ -2046,9 +2046,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-TheElements"
  value: {
-  dps: 575.99134
-  tps: 387.14099
-  dtps: 1.81007
+  dps: 575.77873
+  tps: 386.92839
+  dtps: 1.76593
  }
 }
 dps_results: {

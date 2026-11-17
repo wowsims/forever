@@ -162,7 +162,7 @@ func (druid *Druid) applyEclipse() {
 	}
 
 	// Each Wrath whose hit roll lands grants the charges with its cast result, at its cast, so a
-	// Starfire queued behind it takes one. A miss or a full resist grants none.
+	// Starfire queued behind it takes one. A miss grants none.
 	trigger := spelldata.ProcTrigger(&druid.Character, rank,
 		func(sim *core.Simulation, _ *core.Spell, _ *core.SpellResult) {
 			aura.Activate(sim)
