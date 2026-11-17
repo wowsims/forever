@@ -6,7 +6,6 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/spelldata"
-	"github.com/wowsims/forever/sim/core/stats"
 )
 
 var ConsecrationRankMap = spellData.Consecration
@@ -73,18 +72,23 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
-		// The bonus scales on its own coefficient, so it is added to the base damage here rather than
-		// through the dot's, which is the base tick's and states none: the spell power and the Holy
-		// damage the target takes extra both sit inside the tick's base. The marked enemies take it.
+		// The marked enemies take the bonus in the same hit, and with it the bonus's coefficient: the
+		// tick's coefficient is raised by it for their hit alone, so core adds the spell power and the
+		// spell damage against the target's creature type under the done multipliers, and the Holy
+		// damage the target takes extra after them, which no done multiplier scales (EV-0143). The
+		// base tick states no coefficient, so the other enemies take neither.
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			markTargets(sim, dot.RemainingDuration(sim))
+			coefficient := dot.BonusCoefficient
 			for _, target := range sim.Encounter.ActiveTargetUnits {
 				damage := tick.Average()
 				if paladin.consecrationMarks.Get(target).IsActive() {
-					damage += bonus.Average() + bonus.Coeff()*(dot.Spell.BonusDamage(dot.Spell.Unit.AttackTables[target.UnitIndex])+
-						target.PseudoStats.SchoolBonusSpellDamage[stats.SchoolIndexHoly])
+					damage += bonus.Average()
+					dot.BonusCoefficient += bonus.Coeff()
 				}
-				dot.Spell.CalcAndDealPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				result := dot.Spell.CalcPeriodicDamage(sim, target, damage, dot.Spell.OutcomeTickMagicHitAndCrit)
+				dot.BonusCoefficient = coefficient
+				dot.Spell.DealPeriodicDamage(sim, result)
 			}
 		},
 	}

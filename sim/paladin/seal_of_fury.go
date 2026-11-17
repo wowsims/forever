@@ -43,13 +43,16 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	}
 
 	// Ranged in SpellCategories with No Active Defense: hit and crit on the ranged table, never
-	// blocked, and a ranged attack to procs.
+	// blocked, and a ranged attack to procs. No BonusCoefficient, as on the seal's hit: the
+	// judgement takes no spell damage against the target's creature type (EV-0143) and adds its
+	// spell power by hand, and core adds the Holy damage the target takes extra at the coefficient.
+	judgementCoefficient := judgementDamage.Coeff()
 	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
-	judgementConfig.BonusCoefficient = judgementDamage.Coeff()
+	judgementConfig.TakenBonusCoefficient = judgementCoefficient
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		spell.CalcAndDealDamage(sim, target, judgementDamage.Average(), spell.OutcomeRangedHitAndCrit)
+		spell.CalcAndDealDamage(sim, target, judgementDamage.Average()+judgementCoefficient*spell.SpellDamage(target), spell.OutcomeRangedHitAndCrit)
 		paladin.sealOfFuryTaunt.Cast(sim, target)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
@@ -75,13 +78,18 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	})
 
 	damage := procDamage.Mean()
+	procCoefficient := procDamage.Coeff()
 	// The damage spells carry the same flags as Seal of Righteousness's: procs themselves, and no
 	// Suppress Weapon Procs, so a weapon's "Chance on hit" rolls on the seal's hit too.
+	// No BonusCoefficient: the hit takes the paladin's spell power but none of the spell damage
+	// against the target's creature type (EV-0143), so the proc adds the spell power by hand. The
+	// Holy damage the target takes extra is taken at the coefficient after the done multipliers,
+	// where core adds it.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, procRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial), spelldata.Proc(), spelldata.Flags(core.SpellFlagProc))
 	procConfig.ClassSpellMask = SpellMaskSealOfFuryProc
-	procConfig.BonusCoefficient = procDamage.Coeff()
+	procConfig.TakenBonusCoefficient = procCoefficient
 	procConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		result := spell.CalcDamage(sim, target, damage, spell.OutcomeMeleeSpecialCritOnly)
+		result := spell.CalcDamage(sim, target, damage+procCoefficient*spell.SpellDamage(target), spell.OutcomeMeleeSpecialCritOnly)
 		sim.AddPendingAction(core.NewDelayedAction(core.DelayedActionOptions{
 			DoAt:     sim.CurrentTime + core.SpellBatchWindow,
 			Priority: core.ActionPriorityLow,
