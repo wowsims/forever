@@ -1829,12 +1829,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		221315, // Traveler's Symbols
-		[
-			"Place a Traveler's Sign that lasts for 1 min. A message can be written on the sign, causing it to last for 1 hour and making it visible to other players.", // 1306267 - https://www.wowhead.com/forever/spell=1306267
-		]
-	],
-	[
 		226886, // Beastmaster's Tunic
 		[
 			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225

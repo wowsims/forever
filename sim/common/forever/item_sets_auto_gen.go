@@ -1599,7 +1599,7 @@ func RegisterAllSetBonuses() {
 		// +36 Attack Power against Humanoids.
 		// https://www.wowhead.com/forever/spell=1301088
 		4: {1301088},
-		// Reduces the cost of your Envenom and Eviscerate abilities by 5 Energy.
+		// Reduces the cost of your Eviscerate and Death Mark abilities by 5 Energy.
 		// https://www.wowhead.com/forever/spell=1301708
 		5: {1301708},
 	})
