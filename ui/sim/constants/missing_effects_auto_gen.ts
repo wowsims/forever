@@ -904,12 +904,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13968, // Eye of the Beast
-		[
-			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
-		]
-	],
-	[
 		14022, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
