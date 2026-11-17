@@ -61,7 +61,7 @@ func NewSpellDataShadowResistanceAuraRank(char *core.Character, rank PaladinAura
 // (party-buff) copy takes the providing paladin's Holy spell power as externalSpellPower.
 func NewSpellDataRetributionAuraRank(char *core.Character, isPlayer bool, rank PaladinAuraRank, externalSpellPower float64) *core.Aura {
 	return newSpellPowerDamageShield(&char.Unit, paladinAuraMeta(retributionAuraMeta, rank), isPlayer, rank.Value,
-		externalSpellPower)
+		externalSpellPower, 0)
 }
 
 // One rank of a judgement debuff: the spell the target shows and the number its row states. The
