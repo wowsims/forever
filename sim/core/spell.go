@@ -57,7 +57,7 @@ type SpellConfig struct {
 	BonusBaseDamage       float64 // Certain items can increase the base damage of a spell e.g. https://www.wowhead.com/forever/item=28248/totem-of-the-void
 	BonusCoefficient      float64 // EffectBonusCoefficient in the game files' SpellEffect table, "SP mod" on Wowhead (not necessarily shown there even if > 0)
 	DirectVariance        float64 // EffectVariance of a spell-school hit or a heal: the direct amount, power included, lands within ±DirectVariance/2 of itself.
-	TakenBonusCoefficient float64 // The coefficient the target's flat school bonus is taken at by a spell that sets no BonusCoefficient because it adds its spell power by hand: through a weapon percent, or without the spell damage against the target's creature type.
+	TakenBonusCoefficient float64 // The coefficient the target's flat school bonus is taken at by a spell that sets no BonusCoefficient because it adds its spell power by hand.
 	VersusBonus           *VersusBonus
 
 	ThreatMultiplier float64
@@ -192,7 +192,7 @@ type Spell struct {
 	BonusBaseDamage       float64 // Certain items can increase the base damage of a spell e.g. https://www.wowhead.com/forever/item=28248/totem-of-the-void
 	BonusCoefficient      float64 // EffectBonusCoefficient in the game files' SpellEffect table, "SP mod" on Wowhead (not necessarily shown there even if > 0)
 	DirectVariance        float64 // EffectVariance of a spell-school hit or a heal: the direct amount, power included, lands within ±DirectVariance/2 of itself.
-	TakenBonusCoefficient float64 // The coefficient the target's flat school bonus is taken at by a spell that sets no BonusCoefficient because it adds its spell power by hand: through a weapon percent, or without the spell damage against the target's creature type.
+	TakenBonusCoefficient float64 // The coefficient the target's flat school bonus is taken at by a spell that sets no BonusCoefficient because it adds its spell power by hand.
 
 	VersusBonus *VersusBonus // Multiplies the base damage, before power and flat bonuses are added, against the targets it names.
 

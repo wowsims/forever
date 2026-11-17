@@ -3,6 +3,7 @@
 package retribution
 
 import (
+	"maps"
 	"math"
 	"strings"
 	"testing"
@@ -88,22 +89,6 @@ func judgementOfTheCrusaderShare(t *testing.T, find func(*core.Character) *core.
 	return (with - without) / landed, bonus
 }
 
-// Holy Strike takes Judgement of the Crusader at its coefficient after its done multipliers, so a
-// crit doubles the judgement's share and Sacred Arbiter never scales it.
-func TestHolyStrikeTakesJudgementOfTheCrusaderAfterDoneMultipliers(t *testing.T) {
-	rank := paladin.HolyStrikeRankMap.Highest()
-	find := func(character *core.Character) *core.Spell {
-		return character.GetSpell(core.ActionID{SpellID: rank.ID})
-	}
-	share, bonus := judgementOfTheCrusaderShare(t, find, 1)
-	if want := rank.DamageEffect().Coeff() * bonus; math.Abs(share-want) > 1e-6 {
-		t.Errorf("a hit takes %v of the judgement, want %v", share, want)
-	}
-	if raised, _ := judgementOfTheCrusaderShare(t, find, 1.2); math.Abs(raised-share) > 1e-6 {
-		t.Errorf("under a 1.2 done multiplier a hit takes %v of the judgement, want the %v it takes without", raised, share)
-	}
-}
-
 // The Seal of Righteousness proc takes Judgement of the Crusader inside its base, with the spell
 // power, so its done multipliers scale it.
 func TestSealOfRighteousnessProcTakesJudgementOfTheCrusaderUnderDoneMultipliers(t *testing.T) {
@@ -117,10 +102,12 @@ func TestSealOfRighteousnessProcTakesJudgementOfTheCrusaderUnderDoneMultipliers(
 	}
 }
 
-// Seal of Fury's hit and its judgement take Judgement of the Crusader at their coefficient after
-// their done multipliers, though they take no spell damage against the target's creature type.
-func TestSealOfFuryTakesJudgementOfTheCrusaderAfterDoneMultipliers(t *testing.T) {
-	for name, mask := range sealOfFuryHits {
+// Holy Strike, Seal of Fury's hit and its judgement take Judgement of the Crusader at their
+// coefficient after their done multipliers, so a crit doubles its share and no multiplier scales it.
+func TestJudgementOfTheCrusaderLandsAfterDoneMultipliers(t *testing.T) {
+	hits := maps.Clone(sealOfFuryHits)
+	hits["Holy Strike"] = paladin.SpellMaskHolyStrike
+	for name, mask := range hits {
 		t.Run(name, func(t *testing.T) {
 			var coefficient float64
 			find := func(character *core.Character) *core.Spell {
@@ -198,7 +185,8 @@ func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t
 
 	for _, multiplier := range []float64{1, 1.2} {
 		without, landed := run(false, 0, multiplier)
-		with, judgedLanded := run(true, 0, multiplier)
+		judged, judgedLanded := run(true, 0, multiplier)
+		versused, _ := run(false, versus, multiplier)
 		if bonus == 0 {
 			t.Fatal("no Judgement of the Crusader debuff raised Holy damage taken")
 		}
@@ -206,26 +194,15 @@ func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t
 			if landed[i] == 0 || landed[i] != judgedLanded[i] {
 				t.Fatalf("the ticks on enemy %d landed %v and %v, want the same on the same seed", i, landed[i], judgedLanded[i])
 			}
-			want := coefficient * bonus
+			wantJudgement, wantVersus := coefficient*bonus, coefficient*versus*multiplier
 			if i == len(landed)-1 {
-				want = 0
+				wantJudgement, wantVersus = 0, 0
 			}
-			if got := (with[i] - without[i]) / landed[i]; math.Abs(got-want) > 1e-6 {
-				t.Errorf("under a %v done multiplier a tick on enemy %d takes %v of the judgement, want %v", multiplier, i, got, want)
+			if got := (judged[i] - without[i]) / landed[i]; math.Abs(got-wantJudgement) > 1e-6 {
+				t.Errorf("under a %v done multiplier a tick on enemy %d takes %v of the judgement, want %v", multiplier, i, got, wantJudgement)
 			}
-		}
-	}
-
-	for _, multiplier := range []float64{1, 1.2} {
-		without, landed := run(false, 0, multiplier)
-		with, _ := run(false, versus, multiplier)
-		for i := range landed {
-			want := coefficient * versus * multiplier
-			if i == len(landed)-1 {
-				want = 0
-			}
-			if got := (with[i] - without[i]) / landed[i]; math.Abs(got-want) > 1e-6 {
-				t.Errorf("under %v spell power against Undead and a %v done multiplier a tick on enemy %d takes %v of it, want %v", versus, multiplier, i, got, want)
+			if got := (versused[i] - without[i]) / landed[i]; math.Abs(got-wantVersus) > 1e-6 {
+				t.Errorf("under %v spell power against Undead and a %v done multiplier a tick on enemy %d takes %v of it, want %v", versus, multiplier, i, got, wantVersus)
 			}
 		}
 	}

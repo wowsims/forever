@@ -72,11 +72,9 @@ func (paladin *Paladin) registerConsecration(n int32, rank *spelldata.Spell) {
 		NumberOfTicks:    numberOfTicks,
 		TickLength:       tickLength,
 		BonusCoefficient: tick.Coeff(),
-		// The marked enemies take the bonus in the same hit, and with it the bonus's coefficient: the
-		// tick's coefficient is raised by it for their hit alone, so core adds the spell power and the
-		// spell damage against the target's creature type under the done multipliers, and the Holy
-		// damage the target takes extra after them, which no done multiplier scales (EV-0143). The
-		// base tick states no coefficient, so the other enemies take neither.
+		// The marked enemies take the bonus and its coefficient in the same hit: the dot's coefficient
+		// is raised for their hit alone, so core adds their spell damage under the done multipliers and
+		// Judgement of the Crusader after them (EV-0143).
 		OnTick: func(sim *core.Simulation, _ *core.Unit, dot *core.Dot) {
 			markTargets(sim, dot.RemainingDuration(sim))
 			coefficient := dot.BonusCoefficient
