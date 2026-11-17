@@ -1604,8 +1604,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
-  dps: 729.83815
-  tps: 765.18238
+  dps: 729.88659
+  tps: 765.23082
   dtps: 7.27054
   hps: 36.32889
  }
@@ -1613,8 +1613,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 745.26927
-  tps: 779.44906
+  dps: 745.21154
+  tps: 779.39134
   dtps: 7.02942
   hps: 35.88833
  }
@@ -1919,9 +1919,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-WildheartRaiment"
  value: {
-  dps: 706.87529
-  tps: 743.25185
-  dtps: 7.35176
+  dps: 706.0581
+  tps: 741.35033
+  dtps: 7.05577
   hps: 35.71889
  }
 }

@@ -6,6 +6,7 @@ import (
 	"maps"
 	"math"
 	"testing"
+	"time"
 
 	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/core"
@@ -191,6 +192,147 @@ func TestWarriorsResolveHealsAndRestoresRageOnSwings(t *testing.T) {
 	_, wearer := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(mixed))
 	if wearer.GetAura("Battlegear of Valor 5P") != nil || wearer.GetAura("Battlegear of Heroism 4P") != nil {
 		t.Error("four Valor pieces and a Heroism piece carry a proc, want none")
+	}
+}
+
+// How many of casts spell casts of castTime fired the proc. fired reports a proc since it was last asked.
+func castProcs(t *testing.T, sim *core.Simulation, character *core.Character, castTime time.Duration, casts int, fired func() bool) float64 {
+	t.Helper()
+	spell := fireSpell(&character.Unit)
+	procs := 0.0
+	for range casts {
+		spell.CurCast.CastTime = castTime
+		character.OnCastComplete(sim, spell)
+		stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+		if fired() {
+			procs++
+		}
+	}
+	return procs
+}
+
+// Fails unless procs of casts spell casts of castTime is about the row's procs per minute on that time, at
+// least castTimeFloor.
+func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Duration, casts int, procs float64) {
+	t.Helper()
+	want := castTimeChance(t, rowID, castTime)
+	mean, deviation := want*float64(casts), math.Sqrt(want*(1-want)*float64(casts))
+	if math.Abs(procs-mean) > 4*deviation {
+		t.Errorf("%s: %d casts of %v procced it %v times, want about %.0f", name, casts, castTime, procs, mean)
+	}
+}
+
+// Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece share 450625, The Elements' 5-piece
+// and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
+// per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
+// and at least castTimeFloor, and a spell's hit rolls nothing.
+func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
+	const mainHand = northernShortsword
+	for _, tc := range []struct {
+		name   string
+		row    int32
+		pieces map[proto.ItemSlot]int32
+	}{
+		{"Lightforge Armor 5P", 450625, map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotHead: 16727, proto.ItemSlot_ItemSlotShoulder: 16729, proto.ItemSlot_ItemSlotChest: 16726,
+			proto.ItemSlot_ItemSlotWrist: 16722, proto.ItemSlot_ItemSlotHands: 16724,
+		}},
+		{"Soulforge Armor 4P", 450625, map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotShoulder: 226969, proto.ItemSlot_ItemSlotWrist: 226970, proto.ItemSlot_ItemSlotWaist: 226971,
+			proto.ItemSlot_ItemSlotLegs: 226972,
+		}},
+		{"The Elements 5P", 450626, map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotHead: 16667, proto.ItemSlot_ItemSlotShoulder: 16669, proto.ItemSlot_ItemSlotChest: 16666,
+			proto.ItemSlot_ItemSlotWrist: 16671, proto.ItemSlot_ItemSlotHands: 16672,
+		}},
+		{"The Five Thunders 4P", 450626, map[proto.ItemSlot]int32{
+			proto.ItemSlot_ItemSlotShoulder: 227003, proto.ItemSlot_ItemSlotWrist: 227001, proto.ItemSlot_ItemSlotWaist: 227008,
+			proto.ItemSlot_ItemSlotLegs: 227005,
+		}},
+	} {
+		row := spelldata.MustFind(tc.row)
+		pieces := maps.Clone(tc.pieces)
+		pieces[proto.ItemSlot_ItemSlotMainHand] = mainHand
+		// The warrior stand-in swings its main hand, which a healer's stand-in does not.
+		sim, wearer := itemWearerWithEquipment(t, proto.Class_ClassWarrior, setPieces(pieces))
+		proc := wearer.GetAura(tc.name)
+		buff := wearer.GetAuraByID(core.ActionID{SpellID: row.FiredSpell().ID})
+		if proc == nil || proc.Dpm == nil || buff == nil || row.RPPM <= 0 {
+			t.Fatalf("%s registers no proc on a procs per minute rate or no buff, or %d carries no rate", tc.name, tc.row)
+		}
+		if got, want := proc.Dpm.Chance(core.ProcMaskMeleeMHAuto, sim), float64(row.RPPM)*core.GetItemByID(mainHand).SwingSpeed/60; math.Abs(got-want) > 1e-9 {
+			t.Errorf("%s rolls %v on a main-hand swing, want the row's procs per minute on the weapon's speed, %v", tc.name, got, want)
+		}
+
+		// With the swing listener's manager certain on every hit it could hear, a spell's hit still
+		// rolls nothing and a white swing puts the buff up.
+		*proc.Dpm = *wearer.NewFixedProcChanceManager(1, core.ProcMaskMeleeWhiteHit|core.ProcMaskSpellDamage)
+		dealHit(t, sim, wearer, fireSpell(&wearer.Unit))
+		if buff.IsActive() {
+			t.Errorf("%s: a spell's hit put %d up, want only its cast to roll", tc.name, buff.ActionID.SpellID)
+		}
+		dealHit(t, sim, wearer, meleeSwing(&wearer.Unit))
+		if !buff.IsActive() {
+			t.Errorf("%s: a landed white swing on a certain roll put no %d up", tc.name, buff.ActionID.SpellID)
+		}
+
+		const casts = 6000
+		for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+			buff.Deactivate(sim)
+			procs := castProcs(t, sim, wearer, castTime, casts, func() bool {
+				up := buff.IsActive()
+				buff.Deactivate(sim)
+				return up
+			})
+			wantCastTimeRate(t, tc.name, tc.row, castTime, casts, procs)
+		}
+	}
+}
+
+// Wildheart Raiment's 5-piece 450608 restores 27782's mana on spell casts at the row's procs per minute, a
+// cast priced on the time it took and at least castTimeFloor.
+func TestWildheartRaimentRestoresManaOnCastsPricedOnTheirTime(t *testing.T) {
+	mana := spelldata.MustFind(27782).EnergizeEffect().Average()
+	if mana <= 0 {
+		t.Fatal("27782 restores no mana, nothing to check")
+	}
+	sim, druid := itemWearerWithEquipment(t, proto.Class_ClassDruid, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotHead: 16720, proto.ItemSlot_ItemSlotShoulder: 16718, proto.ItemSlot_ItemSlotChest: 16706,
+		proto.ItemSlot_ItemSlotWrist: 16714, proto.ItemSlot_ItemSlotHands: 16717,
+	}))
+
+	const casts = 6000
+	for _, castTime := range []time.Duration{0, 2 * castTimeFloor} {
+		before := spellGain(druid, 27782)
+		castProcs(t, sim, druid, castTime, casts, func() bool { return false })
+		after := spellGain(druid, 27782)
+		procs := float64(after.Events - before.Events)
+		wantCastTimeRate(t, "Wildheart Raiment 5P", 450608, castTime, casts, procs)
+		if got := after.Gain - before.Gain; got != procs*mana {
+			t.Errorf("%v procs restored %v mana, want the row's %v each", procs, got, mana)
+		}
+	}
+}
+
+// The reissued Beastmaster Armor's 4-piece is Beaststalker Armor's 5-piece proc 450577: a landed melee or
+// ranged autoattack restores 450554's mana at the row's chance.
+func TestBeastmasterArmorReissueRestoresManaOnAutoattacks(t *testing.T) {
+	row := spelldata.MustFind(450577)
+	mana := spelldata.MustFind(450554).EnergizeEffect().Average()
+	sim, hunter := itemWearerWithEquipment(t, proto.Class_ClassHunter, setPieces(map[proto.ItemSlot]int32{
+		proto.ItemSlot_ItemSlotFeet: 226881, proto.ItemSlot_ItemSlotShoulder: 226884, proto.ItemSlot_ItemSlotWrist: 226885,
+		proto.ItemSlot_ItemSlotWaist: 226888,
+	}))
+	proc := hunter.GetAura("Beastmaster Armor 4P")
+	if proc == nil || mana <= 0 || row.StatedChance() <= 0 || row.StatedChance() >= 1 {
+		t.Fatal("four reissued Beastmaster pieces register no 4-piece proc, or 450577 states no chance to roll")
+	}
+	for _, hit := range []*core.Spell{meleeSwing(&hunter.Unit), rangedShot(&hunter.Unit)} {
+		before := spellGain(hunter, 450554)
+		hitUntil(t, func() { dealHit(t, sim, hunter, hit) }, func() bool { return spellGain(hunter, 450554).Events > before.Events })
+		if got := spellGain(hunter, 450554).Gain - before.Gain; got != mana {
+			t.Errorf("a proc on a %v hit restored %v mana, want the row's %v", hit.ProcMask, got, mana)
+		}
 	}
 }
 

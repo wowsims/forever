@@ -621,20 +621,20 @@ var literalRates = []literalRate{
 		ID:     184,
 		Pieces: 5,
 		Kind:   overrides.RatePPM,
-		Rate:   1,
-		Origin: "vanilla",
+		Rate:   0.8,
+		Origin: "observed",
 		Reason: "Shadowcraft Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
-			"so the sim keeps 1 per minute as a literal",
+			"so the sim keeps the 0.8 per minute the logs show as a literal (EV-0144)",
 	},
 	{
 		Gear:   "set bonus",
 		ID:     1676,
 		Pieces: 4,
 		Kind:   overrides.RatePPM,
-		Rate:   1,
-		Origin: "vanilla",
+		Rate:   0.8,
+		Origin: "observed",
 		Reason: "Darkmantle Armor: the energy proc's row states 100% on every melee hit with no rate per minute, " +
-			"so the sim keeps 1 per minute as a literal",
+			"so the sim keeps the 0.8 per minute the logs show as a literal (EV-0144)",
 	},
 }
 

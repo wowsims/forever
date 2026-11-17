@@ -89,10 +89,19 @@ func SetBonusUnsupported(row *spelldata.Spell) []string {
 }
 
 // The proc of a row isSetBonusProc names, kept to the set bonus aura: the row's listener, chance and
-// cooldown, firing what its spell does.
+// cooldown, firing what its spell does. A row that hears melee swings and spell casts at procs per
+// minute gets a listener for each: the swings roll the rate on the weapon's speed and the casts on
+// their cast time (SpellCastPPMTrigger).
 func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row *spelldata.Spell) {
 	fired := row.FiredSpell()
-	trigger := spelldata.ProcTrigger(character, row, nil, spelldata.ItemProcChance(row))
+	castsRollTheRate := false
+	trigger := spelldata.ProcTrigger(character, row, nil, spelldata.ItemProcChance(row),
+		func(_ *core.Character, trigger *core.ProcTrigger) {
+			if row.RPPM > 0 && trigger.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) && trigger.ProcMask.Matches(core.ProcMaskSpellDamage) {
+				castsRollTheRate = true
+				trigger.ProcMask &^= core.ProcMaskSpellDamage
+			}
+		})
 	switch shapeOfSetBonusProc(row) {
 	case setBonusProcDamage:
 		attachProcDamage(character, &trigger, spellDataProcDamageSpell(character, fired, true))
@@ -112,6 +121,30 @@ func attachSetBonusProc(character *core.Character, setBonusAura *core.Aura, row 
 		panic(fmt.Sprintf("set bonus %d fires %d, which no set bonus proc builds", row.ID, fired.ID))
 	}
 	setBonusAura.AttachProcTrigger(trigger)
+	if castsRollTheRate {
+		setBonusAura.AttachProcTrigger(SpellCastPPMTrigger(character, row, trigger.Handler))
+	}
+}
+
+// A listener for the row's procs per minute on spell casts: each cast of a damaging or healing spell
+// rolls once, on the time the cast took and at least the global cooldown's 1.5 s, so an instant rolls
+// 2.5% at 1 a minute and a 3 s cast 5% (EV-0144). In game a buff cast on the global cooldown rolls too,
+// a seal, Holy Shield or Cleanse, and so does Judgement; the sim leaves out a cast of neither mask. The
+// chance depends on the cast, so Chance(1) leaves core no roll of its own and the condition draws it.
+func SpellCastPPMTrigger(character *core.Character, row *spelldata.Spell, handler core.ProcHandler) core.ProcTrigger {
+	trigger := spelldata.ProcTrigger(character, row, handler, spelldata.Chance(1))
+	trigger.Name = row.Name + " - Cast"
+	trigger.Callback = core.CallbackOnCastComplete
+	trigger.ProcMask = core.ProcMaskSpellDamage | core.ProcMaskSpellHealing
+	trigger.Outcome = core.OutcomeEmpty
+	trigger.HearsCountedSwings = false
+	trigger.RequireDamageDealt = false
+	flags := trigger.ProcSpellClassFlags
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		chance := float64(row.RPPM) * max(spell.CurCast.CastTime, core.GCDDefault).Seconds() / 60
+		return sim.Proc(character.ModifiedProcChance(flags, chance), row.Name)
+	}
+	return trigger
 }
 
 // A set gen_db registers from the game files, each piece count's bonus parsed from its rows. A set

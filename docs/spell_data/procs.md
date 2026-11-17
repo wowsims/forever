@@ -185,6 +185,13 @@ manager on the main hand's speed would price every hit on the 1.5 s dagger. Scen
 weapon hits on their weapons and its spell hits on the main-hand weapon's speed, read at the roll, for a
 caster who never swings too.
 
+A set bonus proc whose row hears melee swings and spell casts at procs per minute gets a listener for each
+(`attachSetBonusProc` in `sim/common/shared/item_sets.go`). The swings roll the rate on their weapon's
+speed. A cast of a damaging or healing spell rolls it once on the time the cast took, at least 1.5 s
+(`shared.SpellCastPPMTrigger`), and its hits roll nothing. Lightforge Armor's Crusader's Wrath 450625 and
+The Elements' The Furious Storm 450626 are the cases, and Wildheart Raiment's 450608 takes the cast
+listener alone (EV-0144).
+
 What a generated damage proc does beyond the spell the generator builds from its row (a delayed second
 hit, an execute bonus, a shield on the wearer, a stun cast beside the strike) goes into
 `shared.DamageProcExtras` under the item id, from `init` in `sim/common/forever`, as Sul'thraze the

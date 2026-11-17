@@ -2813,12 +2813,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"When struck by a harmful spell, has a 7% chance of Silencing the caster for 3s. Can only occur once every 60 sec.", // 1302716 - https://www.wowhead.com/forever/spell=1302716
 				],
 			],
-			[
-				5,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450625 - https://www.wowhead.com/forever/spell=450625
-				],
-			],
 		]),
 	],
 	[
@@ -3234,6 +3228,17 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 		]),
 	],
 	[
+		1669, // Beastmaster Armor
+		new Map([
+			[
+				5,
+				[
+					"When struck in combat, has a 8% chance to remove a Root effect from yourself. Can only occur once every 60 sec.", // 1302712 - https://www.wowhead.com/forever/spell=1302712
+				],
+			],
+		]),
+	],
+	[
 		1671, // Sorcerer's Regalia
 		new Map([
 			[
@@ -3247,12 +3252,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		1673, // Soulforge Armor
 		new Map([
-			[
-				4,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450625 - https://www.wowhead.com/forever/spell=450625
-				],
-			],
 			[
 				5,
 				[
@@ -3824,13 +3823,25 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 	[
 		184, // Shadowcraft Armor
 		new Map([
-			[5, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+			[5, { kind: 'ppm', rate: 0.8, origin: 'observed' }],
+		]),
+	],
+	[
+		185, // Wildheart Raiment
+		new Map([
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 	[
 		187, // The Elements
 		new Map([
-			[5, { kind: 'chance', rate: 4, origin: 'vanilla' }],
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
+		188, // Lightforge Armor
+		new Map([
+			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 	[
@@ -3840,15 +3851,27 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 	[
+		1667, // Feralheart Raiment
+		new Map([
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
+		1673, // Soulforge Armor
+		new Map([
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
+		]),
+	],
+	[
 		1676, // Darkmantle Armor
 		new Map([
-			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+			[4, { kind: 'ppm', rate: 0.8, origin: 'observed' }],
 		]),
 	],
 	[
 		1679, // The Five Thunders
 		new Map([
-			[4, { kind: 'chance', rate: 4, origin: 'vanilla' }],
+			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),
 	],
 	[

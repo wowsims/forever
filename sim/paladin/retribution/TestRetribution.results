@@ -1316,8 +1316,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-LightforgeArmor"
  value: {
-  dps: 780.84474
-  tps: 635.92985
+  dps: 785.96356
+  tps: 640.02491
   dtps: 3.27951
   hps: 23.22253
  }
@@ -1802,8 +1802,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 808.88295
-  tps: 657.53541
+  dps: 814.29211
+  tps: 661.86273
   dtps: 2.88248
   hps: 22.98243
  }
@@ -2045,8 +2045,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheElements"
  value: {
-  dps: 771.93029
-  tps: 628.50594
+  dps: 773.7676
+  tps: 629.97579
   dtps: 3.09119
   hps: 23.13815
  }
@@ -2325,7 +2325,7 @@ dps_results: {
  key: "TestRetribution-AllItems-WildheartRaiment"
  value: {
   dps: 747.88085
-  tps: 609.07493
+  tps: 608.89335
   dtps: 2.87748
   hps: 22.94024
  }
