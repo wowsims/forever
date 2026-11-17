@@ -47,6 +47,15 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 	}
 }
 
+// Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Puncture
+// Armor (Bashguuder and Rivenspike's 17315, Vibroblade's 1293005) shares Curse of Recklessness and
+// Faerie Fire's slot: it never lands while either is on the target, and either one landing removes
+// it (EV-0147).
+var debuffProcCategories = map[int32]string{
+	17315:   buffs.FaerieFireCategory,
+	1293005: buffs.FaerieFireCategory,
+}
+
 // The row's debuff on each enemy, carrying the effects at the given positions, for the duration given.
 // The aura is the row's rather than the wearer's, so every character applying the row refreshes one
 // debuff on the target, and the first to register it parses it. Each slow takes its exclusive
@@ -82,7 +91,11 @@ func EnemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration 
 			}
 		}
 		if len(parsed) > 0 {
-			spelldata.ParseEffects(nil, aura, row, spelldata.Effects(parsed...))
+			opts := []spelldata.ParseOpt{spelldata.Effects(parsed...)}
+			if category, ok := debuffProcCategories[row.ID]; ok {
+				opts = append(opts, spelldata.Exclusive(category, false))
+			}
+			spelldata.ParseEffects(nil, aura, row, opts...)
 		}
 		return aura
 	})

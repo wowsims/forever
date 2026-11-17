@@ -644,11 +644,13 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// Annihilator's proc keeps the stacks up, so the raid's copy holds all three from the start.
+	// Annihilator's proc keeps the stacks up, so the raid's copy holds all three from the start. It
+	// shares Curse of Recklessness and Faerie Fire's slot: it never lands while either is on the
+	// target, and either one landing removes it (EV-0147).
 	{
 		Field:    "armor_shatter",
 		SpellID:  16928,
-		Category: "ArmorShatter",
+		Category: "MinorArmorReduction",
 		Driver:   true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,

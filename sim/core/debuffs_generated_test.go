@@ -331,6 +331,17 @@ func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 		})
 }
 
+// Armor Shatter shares Faerie Fire's armor reduction slot (EV-0147): at its full stacks it is on the
+// target beside Faerie Fire, and the target takes the stronger of the two once.
+func TestGeneratedArmorShatterSharesFaerieFiresSlot(t *testing.T) {
+	stacks := float64(spelldata.MustFind(16928).MaxStack)
+	checkOneReductionApplies(t, &proto.Debuffs{ArmorShatter: true, FaerieFire: true},
+		buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
+			"Armor Shatter (External)": armorAmount(t, 16928) * stacks,
+			"Faerie Fire (External)":   armorAmount(t, 9907),
+		})
+}
+
 func TestGeneratedThunderClapSlowsTheTarget(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 

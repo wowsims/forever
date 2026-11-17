@@ -83,8 +83,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Annihilator-12798"
  value: {
-  dps: 825.26026
-  tps: 847.86016
+  dps: 813.4258
+  tps: 836.0257
   dtps: 8.81597
   hps: 14.7925
  }
@@ -1910,8 +1910,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Rivenspike-13286"
  value: {
-  dps: 833.20648
-  tps: 855.66894
+  dps: 825.34208
+  tps: 847.80454
   dtps: 8.50072
   hps: 14.38583
  }

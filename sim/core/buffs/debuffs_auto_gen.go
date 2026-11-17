@@ -354,7 +354,7 @@ func NewSpellDataDustCloudAura(unit *core.Unit, isPlayer bool, talentPoints int3
 }
 
 // Armor Shatter
-var ArmorShatterCategory = "ArmorShatter"
+var ArmorShatterCategory = "MinorArmorReduction"
 var armorShatterSpell = spelldata.MustFind(16928)
 var armorShatterMeta = &Meta{
 	Label:    "Armor Shatter",
