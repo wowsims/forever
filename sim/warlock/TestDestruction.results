@@ -304,10 +304,10 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-DeathmistRaiment"
  value: {
-  dps: 845.1688
-  tps: 666.02954
-  dtps: 9.94951
-  hps: 9.75384
+  dps: 854.88209
+  tps: 674.17423
+  dtps: 10.01151
+  hps: 9.83023
  }
 }
 dps_results: {

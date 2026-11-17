@@ -688,9 +688,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FeralheartRaiment"
  value: {
-  dps: 716.0646
-  tps: 533.22417
-  hps: 45.69917
+  dps: 727.28289
+  tps: 542.182
+  hps: 45.61444
  }
 }
 dps_results: {
@@ -1456,9 +1456,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ShadowcraftArmor"
  value: {
-  dps: 753.00654
-  tps: 560.28746
-  hps: 46.5125
+  dps: 751.12361
+  tps: 558.84194
+  hps: 46.46167
  }
 }
 dps_results: {
@@ -1857,7 +1857,7 @@ dps_results: {
  key: "TestFeralCat-AllItems-WildheartRaiment"
  value: {
   dps: 640.05148
-  tps: 479.27921
+  tps: 479.64032
   hps: 45.5975
  }
 }

@@ -1114,8 +1114,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-Sorcerer'sRegalia"
  value: {
-  dps: 792.10613
-  tps: 819.25784
+  dps: 829.35588
+  tps: 857.0424
  }
 }
 dps_results: {

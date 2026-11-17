@@ -128,15 +128,10 @@ func ApplyItemSetClasses(db *WowDatabase) {
 	}
 }
 
-// The Classic set a reissued set's pieces count toward in game, keyed by the reissued set's id.
-var ReissuedSetCountsAs = map[int32]int32{
-	1669: 515, // Beastmaster Armor
-}
-
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
 // its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The
-// Classic pieces allow every class, while their quests and the reissued pieces name one. A set in ReissuedSetCountsAs then
-// hands its pieces to the Classic set.
+// Classic pieces allow every class, while their quests and the reissued pieces name one. In game a reissued piece counts
+// toward its own set and takes that row's bonuses, never the Classic set's (EV-0144).
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
 	for _, item := range db.Items {
@@ -175,9 +170,29 @@ func DropLowerSameNameSets(db *WowDatabase) {
 			}
 		}
 	}
-	for _, item := range db.Items {
-		if set, ok := ReissuedSetCountsAs[item.SetId]; ok {
-			item.SetId = set
+}
+
+// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The row
+// of each reissued dungeon set 2 lists eight pieces no player wears, beside the pieces players wear, which carry the
+// set's id and are not on its list (EV-0144). A set whose row lists the pieces it ships loses nothing, so this drops
+// nothing once the game files list the worn pieces.
+func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]bool) {
+	type setPiece struct {
+		set      int32
+		itemType proto.ItemType
+	}
+	unlisted := map[setPiece]bool{}
+	for id, item := range db.Items {
+		if item.SetId > 0 && !listed[id] {
+			unlisted[setPiece{item.SetId, item.Type}] = true
+		}
+	}
+	for id, item := range db.Items {
+		if _, ok := ItemAllowList[id]; ok {
+			continue
+		}
+		if item.SetId > 0 && listed[id] && unlisted[setPiece{item.SetId, item.Type}] {
+			delete(db.Items, id)
 		}
 	}
 }

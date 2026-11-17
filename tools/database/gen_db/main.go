@@ -124,6 +124,7 @@ func main() {
 		spellRecipes    map[int32][]int32
 		dungeonZones    map[int32]bool
 		areaNames       map[int32]string
+		setListedItems  map[int32]bool
 		iconsMap        map[int]string
 		icons           map[int]database.SpellIcon
 	)
@@ -167,6 +168,7 @@ func main() {
 	g.Go(func() (err error) { spellRecipes, err = database.LoadSpellRecipes(helper); return })
 	g.Go(func() (err error) { dungeonZones, err = database.LoadDungeonZoneIDs(helper); return })
 	g.Go(func() (err error) { areaNames, err = database.LoadAreaTableNames(helper); return })
+	g.Go(func() (err error) { setListedItems, err = database.LoadItemSetListedItems(helper); return })
 	g.Go(func() (err error) { iconsMap, err = database.LoadArtTexturePaths(database.ListfilePath); return })
 	if err := g.Wait(); err != nil {
 		panic(fmt.Sprintf("Error loading DBC data %v", err))
@@ -232,6 +234,7 @@ func main() {
 	database.ApplyItemSetClasses(db)
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
+	database.DropListedSetPiecesBesideUnlistedOnes(db, setListedItems)
 	database.AddConsumableIcons(db, consumables, instance, iconsMap)
 	// The PvP source follows from the item's name, so the names must be final here.
 	for _, item := range db.Items {
