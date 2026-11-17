@@ -22523,6 +22523,10 @@ var generatedSpells = []Spell{
 			{ID: 704461, SpellID: 27789, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 5, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 1048704}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 704462, SpellID: 27789, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: 10, BaseLevel: 60, PvpMult: 1, Misc: 6, ClassFlags: core.ClassFlags{Family: 6, Mask: [4]uint32{0: 138412544}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 27797, Name: "Reduced Riptide Cost", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, ClassFlags: core.ClassFlags{Family: 11}, Labels: []int16{24},
+		Effects: []Effect{
+			{ID: 704732, SpellID: 27797, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_ADD_PCT_MODIFIER, BasePoints: -5, BaseLevel: 60, PvpMult: 1, Misc: 14, ClassFlags: core.ClassFlags{Family: 11, Mask: [4]uint32{2: 16}}, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 27798, Name: "Nature's Bounty", School: 64, Attr: [17]uint32{0: 0x180, 15: 0x2000}, SpellLevel: 60, DispelType: 1, ProcChance: 101, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 704139, SpellID: 27798, Type: dbcenums.E_DUMMY, SPCoef: 1, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
