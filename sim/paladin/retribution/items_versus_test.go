@@ -17,6 +17,15 @@ import (
 
 func paladinAgainstUndead(t *testing.T, equipped map[proto.ItemSlot]int32) (*core.Simulation, *core.Character) {
 	t.Helper()
+	return paladinAgainstUndeadTargets(t, equipped, 1)
+}
+
+func paladinAgainstUndeadTargets(t *testing.T, equipped map[proto.ItemSlot]int32, count int) (*core.Simulation, *core.Character) {
+	t.Helper()
+	targets := make([]*proto.Target, count)
+	for i := range targets {
+		targets[i] = &proto.Target{Name: "target", Level: 63, MobType: proto.MobType_MobTypeUndead}
+	}
 	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
 	for i := range items {
 		items[i] = &proto.ItemSpec{}
@@ -38,8 +47,7 @@ func paladinAgainstUndead(t *testing.T, equipped map[proto.ItemSlot]int32) (*cor
 			}},
 			Buffs: &proto.PartyBuffs{},
 		}}},
-		Encounter: &proto.Encounter{Duration: 180, Targets: []*proto.Target{
-			{Name: "target", Level: 63, MobType: proto.MobType_MobTypeUndead}}},
+		Encounter: &proto.Encounter{Duration: 180, Targets: targets},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	return sim, sim.Raid.Parties[0].Players[0].GetCharacter()
@@ -138,5 +146,29 @@ func TestPremierLuminousGlovesRaiseFlashOfLightCrit(t *testing.T) {
 				t.Errorf("with gloves %d another spell's bonus crit moved from %v to %v", gloves, baseOthers[i], others[i])
 			}
 		}
+	}
+}
+
+// Seal of Fury's hit and its judgement take the paladin's spell power but none of the spell damage
+// against the target's creature type (EV-0143).
+func TestSealOfFuryTakesNoSpellDamageAgainstTheTargetsType(t *testing.T) {
+	for name, mask := range sealOfFuryHits {
+		t.Run(name, func(t *testing.T) {
+			damage := func(general, versus float64) float64 {
+				damage, _ := twentyCasts(t, spellWithMask(mask), func(sim *core.Simulation, character *core.Character, _ *core.Spell) {
+					character.AddStatDynamic(sim, stats.SpellDamage, general)
+					character.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: versus}, proto.MobType_MobTypeUndead)
+				})
+				return damage
+			}
+
+			base := damage(0, 0)
+			if got := damage(100, 0); got <= base {
+				t.Errorf("under 100 spell power the casts deal %v, want more than the %v they deal without", got, base)
+			}
+			if got := damage(0, 100); got != base {
+				t.Errorf("under 100 spell power against Undead the casts deal %v, want the %v they deal without", got, base)
+			}
+		})
 	}
 }
