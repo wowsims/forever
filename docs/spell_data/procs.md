@@ -189,8 +189,8 @@ A set bonus proc whose row hears melee swings and spell casts at procs per minut
 (`attachSetBonusProc` in `sim/common/shared/item_sets.go`). The swings roll the rate on their weapon's
 speed. A cast rolls it once on the time it took, at least 1.5 s (`shared.SpellCastPPMTrigger`), and a
 spell's hit or a heal's landing rolls nothing. The casts that roll are those of a damaging or healing
-spell and every other cast on the global cooldown that is no melee or ranged ability, a seal or a totem
-among them. Lightforge Armor's Crusader's Wrath 450625 and The Elements' The Furious Storm 450626 are the
+spell and every other cast that costs its caster a resource and is no melee or ranged ability: a seal,
+a totem, the paladin's Judgement. A cast that costs nothing rolls nothing. Lightforge Armor's Crusader's Wrath 450625 and The Elements' The Furious Storm 450626 are the
 cases, and Wildheart Raiment's 450608 takes the cast listener alone (EV-0144). `shared.RollCastTimePPM`
 is the price both this listener and `castTimePPM` roll.
 

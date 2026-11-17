@@ -217,8 +217,9 @@ func wantCastTimeRate(t *testing.T, name string, rowID int32, castTime time.Dura
 // Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece share 450625, The Elements' 5-piece
 // and The Five Thunders reissue's 4-piece 450626. Each row hears melee swings and spell casts at its procs
 // per minute: a landed white swing rolls the rate on its weapon's speed, a spell cast on the time it took
-// and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast on the global
-// cooldown rolls as a spell does; a cast off it and a melee ability roll nothing.
+// and at least castTimeFloor, and a spell's hit or a heal's landing rolls nothing. A buff cast that costs
+// its caster a resource rolls as a spell does, off the global cooldown too; a cast that costs nothing and a
+// melee ability roll nothing.
 func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.T) {
 	for _, tc := range []struct {
 		name   string
@@ -268,7 +269,7 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 		}
 		buff.Deactivate(sim)
 
-		// Six rounds of casts, one spell batch window each, fit the stand-in's fight.
+		// Seven rounds of casts, one spell batch window each, fit the stand-in's fight.
 		const casts = 2000
 		castProcs := func(spell *core.Spell, castTime time.Duration) float64 {
 			procs := 0.0
@@ -281,7 +282,7 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			}
 			return procs
 		}
-		onGCD := core.Cast{GCD: core.GCDDefault}
+		onGCD, costly := core.Cast{GCD: core.GCDDefault}, &core.SpellCost{BaseCost: 1}
 		for _, cast := range []struct {
 			spell    *core.Spell
 			castTime time.Duration
@@ -289,7 +290,8 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			{fireSpell(&wearer.Unit), 0},
 			{fireSpell(&wearer.Unit), 2 * castTimeFloor},
 			{healSpell(&wearer.Unit), 0},
-			{&core.Spell{ProcMask: core.ProcMaskEmpty, DefaultCast: onGCD, Unit: &wearer.Unit}, 0},
+			{&core.Spell{ProcMask: core.ProcMaskEmpty, Cost: costly, DefaultCast: onGCD, Unit: &wearer.Unit}, 0},
+			{&core.Spell{ProcMask: core.ProcMaskEmpty, Cost: costly, Unit: &wearer.Unit}, 0},
 		} {
 			wantCastTimeRate(t, tc.name, tc.row, cast.castTime, casts, castProcs(cast.spell, cast.castTime))
 		}
@@ -297,8 +299,8 @@ func TestSwingAndCastSetProcsPriceASwingOnItsWeaponAndACastOnItsTime(t *testing.
 			name  string
 			spell *core.Spell
 		}{
-			{"a cast off the global cooldown", &core.Spell{ProcMask: core.ProcMaskEmpty, Unit: &wearer.Unit}},
-			{"a melee ability on the global cooldown", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, DefaultCast: onGCD, Unit: &wearer.Unit}},
+			{"a cast that costs nothing", &core.Spell{ProcMask: core.ProcMaskEmpty, DefaultCast: onGCD, Unit: &wearer.Unit}},
+			{"a melee ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, SpellSchool: core.SpellSchoolPhysical, Cost: costly, DefaultCast: onGCD, Unit: &wearer.Unit}},
 		} {
 			if procs := castProcs(cast.spell, 0); procs != 0 {
 				t.Errorf("%s: %s procced it %v times in %d casts, want none", tc.name, cast.name, procs, casts)

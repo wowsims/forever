@@ -83,14 +83,19 @@ Furious Storm on 2.39% of instants (50 of 2,089) and 4.35% of casts from 2 to 2.
 minute on 1.5 s is 2.5%. Crusader's Wrath shows no such rise on its few hardcasts: 2.75% of instants (183 of 6,655)
 and 1.31% of casts under 2 s (6 of 458, 95% 0.60 to 2.83), nearly all Flash of Light.
 
-A cast on the global cooldown rolls the spell rows whether or not it deals damage. On the Lightforge wearers a seal
-cast is followed by Crusader's Wrath 2.0% to 3.3% of the time (Seal of Command 31 of 941, Seal of Righteousness 25 of
-839, Seal of Fury 13 of 437), Holy Shield 4.42% (18 of 407) and Cleanse 3.91% (7 of 179), beside Consecration's 3.02%
-(50 of 1,658) and Judgement's 2.36% (66 of 2,800). The Furious Storm follows 2.80% of Magma Totems (4 of 143) and
-2 of 57 Windfury Totems. Melee and ranged abilities roll neither row: none of 2,796 Holy Strikes and 561 Hammers of
-Wrath is followed by Crusader's Wrath, and none of 444 Stormstrikes by The Furious Storm. Nor do the casts off the
-global cooldown the wearers made: Swift Judgement 0 of 65, Sanctified Orb 0 of 35. Hits taken and avoided swings roll
-nothing (0 of 3,010 and 0 of 811 for Crusader's Wrath).
+A cast that costs mana rolls the spell rows whether or not it deals damage. On the Lightforge wearers a seal cast is
+followed by Crusader's Wrath 2.0% to 3.3% of the time (Seal of Command 31 of 941, Seal of Righteousness 25 of 839,
+Seal of Fury 13 of 437), Holy Shield 4.42% (18 of 407) and Cleanse 3.91% (7 of 179), beside Consecration's 3.02%
+(50 of 1,658). One Judgement rolls once, off the global cooldown: 2.36% (66 of 2,800), an instant's chance. The
+Furious Storm follows 2.80% of Magma Totems (4 of 143) and 2 of 57 Windfury Totems. A cast that costs nothing rolls
+nothing, on the global cooldown or off it: Swift Judgement 0 of 65, Sanctified Orb 0 of 35, Water Shield 0 of 75.
+Melee and ranged abilities roll neither row: none of 2,796 Holy Strikes and 561 Hammers of Wrath is followed by
+Crusader's Wrath, and none of 444 Stormstrikes by The Furious Storm. Hits taken and avoided swings roll nothing
+(0 of 3,010 and 0 of 811 for Crusader's Wrath).
+
+The rows that state a chance draw the same line. On the Magister's Regalia wearers Sudden Insight follows 6.99% of
+Counterspells (10 of 143), which cost mana off the global cooldown, and none of 160 Arcane Powers, 146 Presences of
+Mind, 141 casts of Eureka! or 91 Evocations, which cost nothing; Evocation is on the global cooldown.
 
 The sets whose rows state a chance fire at it. Sudden Insight follows 5.00% of Auto Shots fired (610 of 12,208,
 95% 4.62 to 5.40) and 4.75% of landed white swings (245 of 5,163) on the Beaststalker and Beastmaster wearers, whose
