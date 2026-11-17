@@ -67,12 +67,12 @@ export const TurretEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatAgility]: 1,
-			[Stat.StatIntellect]: 0.42,
+			[Stat.StatIntellect]: 0.38,
 			[Stat.StatRangedAttackPower]: 0.34,
 			[Stat.StatHitRating]: 1.14,
 			[Stat.StatCritRating]: 0.84,
 			[Stat.StatHasteRating]: 0.8,
-			[Stat.StatMP5]: 0.14,
+			[Stat.StatMP5]: 0.04,
 		},
 		{
 			[PseudoStat.PseudoStatRangedDps]: 2.87,
@@ -84,19 +84,19 @@ export const MeleeEpWeights = PresetUtils.makePresetEpWeights(
 	Stats.fromMap(
 		{
 			[Stat.StatAgility]: 1,
-			[Stat.StatStrength]: 0.34,
-			[Stat.StatIntellect]: 0.11,
-			[Stat.StatAttackPower]: 0.31,
-			[Stat.StatRangedAttackPower]: 0.13,
-			[Stat.StatHitRating]: 1.93,
-			[Stat.StatCritRating]: 0.92,
-			[Stat.StatHasteRating]: 0.66,
-			[Stat.StatMP5]: 0.22,
+			[Stat.StatStrength]: 0.4,
+			[Stat.StatIntellect]: 0.7,
+			[Stat.StatAttackPower]: 0.37,
+			[Stat.StatRangedAttackPower]: 0.15,
+			[Stat.StatHitRating]: 2.41,
+			[Stat.StatCritRating]: 0.98,
+			[Stat.StatHasteRating]: 0.96,
+			[Stat.StatMP5]: 0.28,
 		},
 		{
-			[PseudoStat.PseudoStatMainHandDps]: 3.28,
-			[PseudoStat.PseudoStatOffHandDps]: 0.97,
-			[PseudoStat.PseudoStatRangedDps]: 0.77,
+			[PseudoStat.PseudoStatMainHandDps]: 4.53,
+			[PseudoStat.PseudoStatOffHandDps]: 1.19,
+			[PseudoStat.PseudoStatRangedDps]: 0.27,
 		},
 	),
 );
