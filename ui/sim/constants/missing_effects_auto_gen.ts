@@ -904,12 +904,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		13968, // Eye of the Beast
-		[
-			"", // 1318846 - https://www.wowhead.com/forever/spell=1318846
-		]
-	],
-	[
 		14022, // Barov Peasant Caller
 		[
 			"", // 1298508 - https://www.wowhead.com/forever/spell=1298508
@@ -1130,12 +1124,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		18396, // Mind Carver
 		[
 			"Chance on landing a damaging spell to assault the target's mind, increasing the casting time of all spells by 10% for 30s. Stacks up to 5 times.", // 1302342 - https://www.wowhead.com/forever/spell=1302342
-		]
-	],
-	[
-		18406, // Onyxia Blood Talisman
-		[
-			"Reduces your magic damage taken from Dragon Breath spells by 33% for 15s.", // 1287808 - https://www.wowhead.com/forever/spell=1287808
 		]
 	],
 	[
@@ -1727,12 +1715,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		22395, // Totem of Rage
-		[
-			"Increases the damage of your Shock spells by 2%.", // 27859 - https://www.wowhead.com/forever/spell=27859
-		]
-	],
-	[
 		22396, // Totem of Life
 		[
 			"Increases healing done by Lesser Healing Wave by up to 80.", // 27855 - https://www.wowhead.com/forever/spell=27855
@@ -1748,6 +1730,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		22400, // Libram of Truth
 		[
 			"Reduces the Mana cost of Purify and Cleanse by 10%.", // 27850 - https://www.wowhead.com/forever/spell=27850
+		]
+	],
+	[
+		22401, // Libram of Hope
+		[
+			"Increases the duration of your Seal spells by 4 sec.", // 27848 - https://www.wowhead.com/forever/spell=27848
 		]
 	],
 	[
@@ -1829,13 +1817,13 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		221315, // Traveler's Symbols
+		226886, // Beastmaster's Tunic
 		[
-			"Place a Traveler's Sign that lasts for 1 min. A message can be written on the sign, causing it to last for 1 hour and making it visible to other players.", // 1306267 - https://www.wowhead.com/forever/spell=1306267
+			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
 		]
 	],
 	[
-		226886, // Beastmaster's Tunic
+		226904, // Beastmaster's Chest
 		[
 			"Increases your pet's armor by 10%.", // 27225 - https://www.wowhead.com/forever/spell=27225
 		]
@@ -2418,6 +2406,12 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
+		282700, // Shadow Scalper
+		[
+			"Unleash a shadow bolt volley at all nearby targets, inflicting 33 damage to each enemy struck.", // 1314274 - https://www.wowhead.com/forever/spell=1314274
+		]
+	],
+	[
 		284040, // Cliff Jumpers
 		[
 			"Reduces damage from falling.", // 1292150 - https://www.wowhead.com/forever/spell=1292150
@@ -2800,12 +2794,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				4,
 				[
 					"When struck in melee combat, has a 5% chance of Disarming the attacker for 4s. Can only occur once every 60 sec.", // 1302718 - https://www.wowhead.com/forever/spell=1302718
-				],
-			],
-			[
-				5,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450626 - https://www.wowhead.com/forever/spell=450626
 				],
 			],
 		]),
@@ -3298,12 +3286,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	[
 		1679, // The Five Thunders
 		new Map([
-			[
-				4,
-				[
-					"Chance on melee autoattack and spellcast to increase your damage and healing done by magical spells and effects by up to 65 for 10s.", // 450626 - https://www.wowhead.com/forever/spell=450626
-				],
-			],
 			[
 				5,
 				[
@@ -3840,6 +3822,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		]),
 	],
 	[
+		187, // The Elements
+		new Map([
+			[5, { kind: 'chance', rate: 4, origin: 'vanilla' }],
+		]),
+	],
+	[
 		189, // Battlegear of Valor
 		new Map([
 			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
@@ -3849,6 +3837,12 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 		1676, // Darkmantle Armor
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
+		]),
+	],
+	[
+		1679, // The Five Thunders
+		new Map([
+			[4, { kind: 'chance', rate: 4, origin: 'vanilla' }],
 		]),
 	],
 	[

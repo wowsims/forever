@@ -58,15 +58,13 @@ var IgnoreSpellEffectBySpellEffectType = map[dbc.SpellEffectType][]int{
 // Medallion, Thick Obsidian Breastplate and Ashtongue Talisman of Zeal. That rule removed 48
 // entries here and only a handful of them were noise.
 var IgnoreMissingEffectBySpellID = map[int]string{
-	16372: "Seal of Ascension - no tooltip and no mechanic",
+	16372:   "Seal of Ascension - no tooltip and no mechanic",
+	1318846: "Eye of the Beast - no tooltip and no mechanic; the item's crit and its on-use are its other two effects",
 }
 
 // Absorbs a server script restricts to spells the game files do not list, keyed by spell ID with the
-// reason the generated file gives. 1287808, Onyxia Blood Talisman's, states 10000000000 beside the
-// A_DUMMY that names the Dragon Breath spells.
-var UnsupportedAbsorbBySpellID = map[int32]string{
-	1287808: "the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list",
-}
+// reason the generated file gives.
+var UnsupportedAbsorbBySpellID = map[int32]string{}
 
 // Items below core.MinEffectItemLevel whose effects are generated anyway, keyed by item ID with the reason a
 // level 60 character still uses them.
@@ -114,6 +112,12 @@ var ItemSetClasses = map[int32]proto.Class{
 	530: proto.Class_ClassHunter,  // Cryptstalker Armor
 }
 
+// NPCs QuestieDB lists as vendors that sell nothing in game, keyed by NPC id.
+var NotVendorNpcs = map[int32]string{
+	230565: "Ironforge Guard",
+	230566: "Kor'kron Elite",
+}
+
 // Every item of a set in ItemSetClasses gets that class as its whole allowlist. It replaces the list
 // rather than merging, so the ring, which already names the class, does not name it twice.
 func ApplyItemSetClasses(db *WowDatabase) {
@@ -124,16 +128,14 @@ func ApplyItemSetClasses(db *WowDatabase) {
 	}
 }
 
-// The Classic set a reissued set's pieces count toward in game, keyed by the reissued set's id. The reissued set's
-// ItemSet row lists item ids no piece carries.
+// The Classic set a reissued set's pieces count toward in game, keyed by the reissued set's id.
 var ReissuedSetCountsAs = map[int32]int32{
 	1669: 515, // Beastmaster Armor
 }
 
 // Where two sets with items share a name, a piece of the lower set id ships only when the higher set has no piece of
-// its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The game
-// files hold no head or chest of the reissued dungeon set 0.5 sets, so the Classic ones complete them. The Classic
-// pieces allow every class, while their quests and the reissued pieces name one. A set in ReissuedSetCountsAs then
+// its type, and then joins the higher set and takes the classes its pieces allow; an ItemAllowList item stays. The
+// Classic pieces allow every class, while their quests and the reissued pieces name one. A set in ReissuedSetCountsAs then
 // hands its pieces to the Classic set.
 func DropLowerSameNameSets(db *WowDatabase) {
 	highest := map[string]int32{}
@@ -556,7 +558,6 @@ var ItemDenyList = map[int32]struct{}{
 	227862: {}, // Incandescent Mooncloth Boots
 	227888: {}, // Argent Elite Shoulders
 	227947: {}, // Golem Fitted Pauldrons
-	228176: {}, // Totem of Thunder
 	228190: {}, // Knowledge of the Timbermaw
 	231530: {}, // Warlord's Plate Armor
 	231531: {}, // General's Plate Boots

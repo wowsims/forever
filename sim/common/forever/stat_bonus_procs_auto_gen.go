@@ -48,6 +48,19 @@ func RegisterAllProcs() {
 	//	{ItemID: 226886, ItemName: "Beastmaster's Tunic"},
 	// })
 
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases your pet's armor by 10%.
+	// https://www.wowhead.com/forever/spell=27225
+	// unsupported: effect 1 A_MOD_BASE_RESISTANCE_PCT misc 1 is not parsed on a pet
+	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
+	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 226904, ItemName: "Beastmaster's Chest"},
+	// })
+
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1325228
 	// equip: 1325228 (A_DAMAGE_SHIELD)
@@ -183,6 +196,30 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
 		[]shared.ItemVariant{
 			{ItemID: 226887, ItemName: "Beastmaster's Cap"},
+		})
+
+	// Increases your pet's maximum health by 3%.
+	// https://www.wowhead.com/forever/spell=27038
+	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
+		[]shared.ItemVariant{
+			{ItemID: 226901, ItemName: "Beastmaster's Helm"},
+		})
+
+	// Increases your pet's critical strike chance by 2%.
+	// https://www.wowhead.com/forever/spell=27043
+	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
+		[]shared.ItemVariant{
+			{ItemID: 226902, ItemName: "Beastmaster's Gloves"},
+		})
+
+	// Increases damage dealt by your pet by 3%.
+	// https://www.wowhead.com/forever/spell=27206
+	// equip: 27206 keeps 27205 up (A_MOD_DAMAGE_PERCENT_DONE)
+	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27206},
+		[]shared.ItemVariant{
+			{ItemID: 226903, ItemName: "Beastmaster's Boots"},
 		})
 
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
@@ -2121,21 +2158,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Increases the damage of your Shock spells by 2%.
-	// https://www.wowhead.com/forever/spell=27859
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22395, ItemName: "Totem of Rage"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases healing done by Lesser Healing Wave by up to 80.
 	// https://www.wowhead.com/forever/spell=27855
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -2175,6 +2197,21 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 22400, ItemName: "Libram of Truth"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
+	// Increases the duration of your Seal spells by 4 sec.
+	// https://www.wowhead.com/forever/spell=27848
+	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
+	//	Callback:           core.CallbackEmpty,
+	//	ProcMask:           core.ProcMaskUnknown,
+	//	Outcome:            core.OutcomeEmpty,
+	//	RequireDamageDealt: false
+	// }, []shared.ItemVariant{
+	//	{ItemID: 22401, ItemName: "Libram of Hope"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3231,6 +3268,19 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
+	// Unleash a shadow bolt volley at all nearby targets, inflicting 33 damage to each enemy struck.
+	// https://www.wowhead.com/forever/spell=1314274
+	// unsupported: states no rate
+	// trigger 1314274 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
+	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1314274, BuffSpellID: 1314274, IsWeaponProc: true},
+	//	[]shared.ItemVariant{
+	//	{ItemID: 282700, ItemName: "Shadow Scalper"},
+	// })
+
+	// TODO: Manual implementation required
+	//       This can be ignored if the effect has already been implemented.
+	//       With next db run the item will be removed if implemented.
+	//
 	// Reduces damage from falling.
 	// https://www.wowhead.com/forever/spell=1292150
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -4253,15 +4303,16 @@ func RegisterAllProcs() {
 			{ItemID: 19170, ItemName: "Ebon Hand"},
 		})
 
-	// 2% chance on successful spellcast to increase your Spirit by 150 for 15s.
+	// 3% chance on successful spellcast to increase your Spirit by 150 for 15s.
 	// https://www.wowhead.com/forever/spell=23684
-	// trigger 23688 (2%, core.CallbackOnCastComplete, core.ProcMaskSpellDamage | core.ProcMaskSpellHealing) -> buff 23684
+	// trigger 23688 (3%, core.CallbackOnCastComplete, core.ProcMaskSpellDamage | core.ProcMaskSpellHealing) -> buff 23684
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 23688, BuffSpellID: 23684},
 		[]shared.ItemVariant{
 			{ItemID: 19288, ItemName: "Darkmoon Card: Blue Dragon"},
 		})
 
-	// Chance to strike your melee target with lightning for 250 Nature damage.
+	// Chance to strike your melee target with lightning for 250 Nature damage. Deals 2 times as much damage
+	// to Aquatic enemies.
 	// https://www.wowhead.com/forever/spell=23687
 	// trigger 23686 (1 ppm, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 23687
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 23686, BuffSpellID: 23687},
@@ -4548,6 +4599,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=26208
 	// Not simulated: Bloodclot Band: "Resist Bleed 10" (1300755) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1300755
+	// Not simulated: Blade of Necromancy: "Necromancy" (1302109) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1302109
 	// Not simulated: Blood Guard's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
@@ -4556,6 +4609,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=1293068
+	// Not simulated: Darkmantle Boots: "Stealth 08" (27037) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Medal of Valor: "Resist Fear 02" (1324578) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1324578
 	// Not simulated: Premier Kodohide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type 17
@@ -4603,12 +4658,12 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Sad-Sack Sandals: "Resist Fear 08" (1301126) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1301126
-	// Not simulated: Xorothian Footwraps: "Mount Speed" (1314065) - ignored aura type 32
+	// Not simulated: Xorothian Footwraps: "Mount Speed" (1314065) - ignored aura type 172
 	// https://www.wowhead.com/forever/spell=1314065
 	// Not simulated: Wintersaber Hide Lined Gloves: "Mount Speed" (1315778) - ignored aura type 130
 	// https://www.wowhead.com/forever/spell=1315778
 	// Not simulated: Ankle Slicers: "Sliced Ankle" (1316346) - ignored aura type 33
 	// https://www.wowhead.com/forever/spell=1316346
-	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 32
+	// Not simulated: Outrider's Gloves: "Mount Speed" (1314065) - ignored aura type 172
 	// https://www.wowhead.com/forever/spell=1314065
 }

@@ -362,9 +362,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 780.19579
-  tps: 816.63597
-  dtps: 7.43291
+  dps: 780.43315
+  tps: 816.91108
+  dtps: 7.17292
   hps: 37.22694
  }
 }
@@ -374,7 +374,7 @@ dps_results: {
   dps: 779.98182
   tps: 816.60533
   dtps: 7.56907
-  hps: 50.98151
+  hps: 55.38298
  }
 }
 dps_results: {
@@ -1604,8 +1604,8 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
-  dps: 724.60138
-  tps: 759.94561
+  dps: 729.83815
+  tps: 765.18238
   dtps: 7.27054
   hps: 36.32889
  }
@@ -1613,10 +1613,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 777.88823
-  tps: 813.64828
-  dtps: 7.09646
-  hps: 37.00667
+  dps: 745.26927
+  tps: 779.44906
+  dtps: 7.02942
+  hps: 35.88833
  }
 }
 dps_results: {
@@ -1759,6 +1759,24 @@ dps_results: {
  value: {
   dps: 772.68561
   tps: 809.19131
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TotemofRage-22395"
+ value: {
+  dps: 776.82537
+  tps: 813.33107
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TotemofThunder-228176"
+ value: {
+  dps: 772.82489
+  tps: 809.33059
   dtps: 7.41788
   hps: 37.12528
  }

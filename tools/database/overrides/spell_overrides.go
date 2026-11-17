@@ -297,6 +297,13 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     23686,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Darkmoon Card: Maelstrom: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1294430,
 		EffectIndex: 4,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
@@ -687,6 +694,13 @@ var Spells = []Override{
 		Value:   1,
 		Reason:  "Battlegear of Valor 5-piece, Battlegear of Heroism 4-piece: 1 proc per minute on landed white swings, a log fit not yet validated (EV-0136); the game files state none",
 		Source:  "observed",
+	},
+	{
+		SpellID: 450626,
+		Field:   ProcChancePct,
+		Value:   4, // TODO: Vanilla value - verify in-game
+		Reason:  "The Five Thunders reissue 4-piece, The Elements 5-piece and its reissue's 6-piece: the game files state no chance; the original Five Thunders proc 27774 states 4% on spell casts",
+		Source:  "vanilla-carryover",
 	},
 	{
 		SpellID: 21978,

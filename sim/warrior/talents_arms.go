@@ -121,9 +121,10 @@ func (warrior *Warrior) registerDeepWounds() {
 
 	// A crit casts the bleed, but it does not take spelldata.Proc(): that marks the spell passive,
 	// and the metrics aggregator counts no cast for a passive spell, while the sim reports every
-	// application as a cast.
+	// application as a cast. The caster's damage bonuses, Death Wish among them, never scale the
+	// ticks (EV-0139).
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
-		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc)) // 12162 and 412609 lack Not a Proc.
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
 
 	// The tick is a share of weapon damage, not the row's amount or its coefficient, which is why the
@@ -142,14 +143,14 @@ func (warrior *Warrior) registerDeepWounds() {
 		},
 	}
 
+	var application float64
+
 	// A crit while the bleed is up adds the unticked damage to the new application and spreads the sum
 	// over a full set of ticks; the ticks keep the first application's timer.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHitNoHitCounter)
 		dot := spell.Dot(target)
-		// One application is the share of the main hand's average weapon damage, without Attack Power,
-		// whichever hand crit.
-		totalDamage := dot.OutstandingDmg() + warrior.AutoAttacks.MH().AverageDamage()*share
+		totalDamage := dot.OutstandingDmg() + application
 
 		if dot.IsActive() {
 			dot.DurationExtend(sim, deepWoundsBleed.Duration())
@@ -162,16 +163,22 @@ func (warrior *Warrior) registerDeepWounds() {
 	warrior.DeepWounds = warrior.RegisterSpell(config)
 
 	// The proc shape with no roll: 12834 states its rate as "always" and its crit hint carries the
-	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's.
+	// tooltip's condition. The physical school the tooltip's melee weapon means is the caller's. A crit
+	// on the magic hit table, Thunder Clap's, starts no bleed (EV-0139).
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// One application is the share of the critting hand's average weapon damage, without Attack Power:
+			// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
+			// other crit the main hand's (EV-0139).
+			weapon := core.Ternary(spell.IsOH() && !spell.IsMH(), warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
+			application = weapon.AverageDamage() * share
 			warrior.DeepWounds.Cast(sim, result.Target)
 		})
 	trigger.Name = "Deep Wounds - Trigger"
 	trigger.TriggerImmediately = true
 	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
-		return spell.SpellSchool.Matches(core.SpellSchoolPhysical)
+		return spell.SpellSchool.Matches(core.SpellSchoolPhysical) && spell.DefenseType != core.DefenseTypeMagic
 	}
 
 	warrior.MakeProcTriggerAura(trigger)

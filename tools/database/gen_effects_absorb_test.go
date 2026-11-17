@@ -33,10 +33,8 @@ func skipWithoutItem(t *testing.T, instance *dbc.DBC, itemID int) {
 }
 
 // An on-use whose spell puts an A_SCHOOL_ABSORB on the wearer registers through the absorb shape:
-// Mark of Resolution 17759's 21956, a physical absorb. Onyxia Blood Talisman 18406's 1287808 states
-// an absorb beside the A_DUMMY its tooltip reads as Dragon Breath spells, which the game files do not
-// list, and is refused for the reason UnsupportedAbsorbBySpellID gives and listed. Adaptive Combat
-// Assistant 272437's 1291097 names the Nature damage 1291099 its shield deals when broken early, which
+// Mark of Resolution 17759's 21956, a physical absorb. Adaptive Combat Assistant 272437's 1291097 names
+// the Nature damage 1291099 its shield deals when broken early, which
 // the absorb shape deals with it.
 func TestOnUseAbsorbRoutesFromTheSpellItCasts(t *testing.T) {
 	withDBCInputs(t)
@@ -49,7 +47,6 @@ func TestOnUseAbsorbRoutesFromTheSpellItCasts(t *testing.T) {
 		reasons []string
 	}{
 		{17759, 21956, EffectParseResultSuccess, nil},
-		{18406, 1287808, EffectParseResultRefused, []string{UnsupportedAbsorbBySpellID[1287808]}},
 		{272437, 1291097, EffectParseResultSuccess, nil},
 	} {
 		parsed, effect := parsedItem(t, instance, tc.itemID, tc.spellID)

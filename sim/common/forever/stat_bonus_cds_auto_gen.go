@@ -66,9 +66,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSpellDataHealOnUse(14153) // Robe of the Void - https://www.wowhead.com/forever/spell=18386
 	// unsupported: 21954 deals no damage and heals no one (E_DISPEL)
 	// shared.NewSimpleStatActive(17744) // Heart of Noxxion - https://www.wowhead.com/forever/spell=21954
-	// on use: 1287808 (A_SCHOOL_ABSORB); not simulated: A_DUMMY
-	// unsupported: the absorb of 10000000000 beside an A_DUMMY absorbs only the spells a script names, which the game files do not list
-	// shared.NewSpellDataAbsorbOnUse(18406) // Onyxia Blood Talisman - https://www.wowhead.com/forever/spell=1287808
 	// unsupported: 1302356 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(18537) // Counterattack Lodestone - https://www.wowhead.com/forever/spell=1302356
 	// unsupported: 23131 deals no damage and heals no one (A_REFLECT_SPELLS_SCHOOL)
@@ -93,8 +90,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(21181) // Grace of Earth - https://www.wowhead.com/forever/spell=25892
 	// unsupported: 26467 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(21625) // Scarab Brooch - https://www.wowhead.com/forever/spell=26467
-	// unsupported: 1306267 deals no damage and heals no one (E_FORCE_CAST_2)
-	// shared.NewSimpleStatActive(221315) // Traveler's Symbols - https://www.wowhead.com/forever/spell=1306267
 	// unsupported: 23453 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260819) // EZ-Thro Field Transporter: Gadgetzan - https://www.wowhead.com/forever/spell=23453
 	// unsupported: 1269339 deals no damage and heals no one (E_DUMMY)
@@ -433,6 +428,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=5579
 	// Not simulated: Insignia of the Horde: "Immune Root/Snare/Stun" (5579) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=5579
+	// Not simulated: Traveler's Symbols: "Traveler's Mark" (1306267) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1306267
 	// Not simulated: SAF-T Emergency Ripper: Everlook: "Everlook Transporter" (23442) - ignored effect type 252
 	// https://www.wowhead.com/forever/spell=23442
 	// Not simulated: Defender of the Barkskin: "Defender of the Barkskin" (1294063) - ignored effect type 28

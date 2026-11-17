@@ -256,9 +256,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 911.23352
-  tps: 716.45326
-  dtps: 8.25869
+  dps: 911.08981
+  tps: 716.44591
+  dtps: 8.28432
  }
 }
 dps_results: {
@@ -304,9 +304,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-DeathmistRaiment"
  value: {
-  dps: 875.08318
-  tps: 689.68417
-  dtps: 8.84267
+  dps: 865.4428
+  tps: 682.98281
+  dtps: 8.83958
   hps: 10.67354
  }
 }
