@@ -10,7 +10,7 @@ export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalS
 
 export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultBuildJson.player.rotation);
 
-export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment, { devOnly: true });
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment);
 
 export const DefaultBuild = PresetUtils.makePresetBuildFromJSON('Default', Spec.SpecElementalShaman, DefaultBuildJson, { gear: DefaultGear });
 
