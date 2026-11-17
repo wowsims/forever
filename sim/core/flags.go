@@ -224,7 +224,7 @@ const (
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. Windfury Totem's strike.
-	SpellFlagTenthResistance                                // Its hits meet a tenth of the target's resistance, as most ticks do, e.g. Flamestrike's ground ticks.
+	SpellFlagTenthResistance                                // Its hits roll their partial resist against a tenth of the target's average resist, as most ticks do, and take no Spell Piercing bonus, e.g. Flamestrike's ground ticks.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

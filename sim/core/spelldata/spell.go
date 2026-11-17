@@ -406,7 +406,7 @@ func (s *Spell) Triggered() []*Spell {
 
 // A tick of a damage over time. The hit is rolled once, when the dot is applied, so the tick rolls
 // none: a crit only where the row states Periodic Can Crit, on the crit of the dot spell's defense
-// type, and the partial resist its school takes.
+// type, and the partial resist its school takes unless the spell is binary.
 func (s *Spell) TickOutcome(dot *core.Dot) core.OutcomeApplier {
 	switch tickOutcomeKind(s.PeriodicCanCrit(), dot.Spell.DefenseType == core.DefenseTypeMagic) {
 	case tickOutcomeMagicCrit:
