@@ -658,6 +658,7 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 	}{
 		{"main-hand swing", mainHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
 		{"off-hand swing", offHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.OH() }},
+		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.OH() }},
 		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
 	} {
 		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})

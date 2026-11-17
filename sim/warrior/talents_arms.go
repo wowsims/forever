@@ -149,8 +149,9 @@ func (warrior *Warrior) registerDeepWounds() {
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHitNoHitCounter)
 		dot := spell.Dot(target)
-		// One application is the share of the critting weapon's average damage, without Attack Power;
-		// an off-hand crit takes the off hand's average without the off-hand damage penalty (EV-0139).
+		// One application is the share of the critting hand's average weapon damage, without Attack Power:
+		// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
+		// other crit the main hand's (EV-0139).
 		totalDamage := dot.OutstandingDmg() + critWeapon.AverageDamage()*share
 
 		if dot.IsActive() {
@@ -168,10 +169,8 @@ func (warrior *Warrior) registerDeepWounds() {
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			critWeapon = warrior.AutoAttacks.MH()
-			if spell.IsOH() {
-				critWeapon = warrior.AutoAttacks.OH()
-			}
+			offHand := spell.IsOH() && !spell.IsMH()
+			critWeapon = core.Ternary(offHand, warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
 			warrior.DeepWounds.Cast(sim, result.Target)
 		})
 	trigger.Name = "Deep Wounds - Trigger"
