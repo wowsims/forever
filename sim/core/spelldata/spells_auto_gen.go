@@ -37508,9 +37508,9 @@ var generatedSpells = []Spell{
 			{ID: 1345030, SpellID: 1306128, Type: dbcenums.E_LEARN_TRANSMOG_SET, BaseLevel: 60, PvpMult: 1, Misc: 5914, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1345031, SpellID: 1306128, Index: 1, Type: dbcenums.E_QUEST_COMPLETE, BaseLevel: 60, PvpMult: 1, Misc: 97984, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
-	{ID: 1306267, Name: "Traveler's Mark", School: 1, Attr: [17]uint32{0: 0x80000000, 1: 0xc00, 2: 0x10000080, 3: 0x40000, 6: 0x4, 7: 0x2000000, 9: 0x1, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 3000, MaxRange: 60, CooldownMs: 1800000, InterruptFlags: 1, AuraInterrupt: [2]uint32{0: 0x8},
+	{ID: 1306267, Name: "Traveler's Mark", School: 1, Attr: [17]uint32{0: 0x80000000, 1: 0xc00, 2: 0x10000080, 3: 0x40000, 6: 0x4, 7: 0x2000000, 9: 0x1, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 3000, DurationMs: 60000, MaxRange: 2, CooldownMs: 1800000, InterruptFlags: 1, AuraInterrupt: [2]uint32{0: 0x8},
 		Effects: []Effect{
-			{ID: 1333627, SpellID: 1306267, Type: dbcenums.E_FORCE_CAST_2, BaseLevel: 60, PvpMult: 1, TriggerID: 1308883, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1333627, SpellID: 1306267, Type: dbcenums.E_SUMMON, BaseLevel: 60, PvpMult: 1, Misc: 257480, Misc2: 3077, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{87, 0}},
 		}},
 	{ID: 1306410, Name: "Restore Mathystral Amulet", School: 1, Attr: [17]uint32{0: 0x29800180, 1: 0x420, 2: 0x10484005, 3: 0x10130200, 4: 0xa00080, 5: 0x60008, 6: 0x3200, 9: 0x100000, 10: 0x1, 12: 0x100000}, SpellLevel: 60, BaseLevel: 60,
 		Effects: []Effect{
@@ -37881,10 +37881,6 @@ var generatedSpells = []Spell{
 	{ID: 1308777, Name: "Shield Spike", School: 1, Attr: [17]uint32{0: 0x40, 1: 0x10000000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CooldownMs: 5000, ProcChance: 100, ProcFlags: [2]uint32{0: 0x28}, ProcChanceSource: ProcChanceAlways, ProcHint: core.ProcHintBlocked,
 		Effects: []Effect{
 			{ID: 1337499, SpellID: 1308777, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_DAMAGE, BasePoints: 25, Variance: 0.4000000059604645, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
-		}},
-	{ID: 1308883, Name: "Create", School: 1, Attr: [17]uint32{15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 60000, InterruptFlags: 1, AuraInterrupt: [2]uint32{0: 0x8},
-		Effects: []Effect{
-			{ID: 1337676, SpellID: 1308883, Type: dbcenums.E_SUMMON, BaseLevel: 60, PvpMult: 1, Misc: 257480, Misc2: 3077, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{47, 0}},
 		}},
 	{ID: 1308913, Name: "Manablade", School: 1, Attr: [17]uint32{0: 0x80}, SpellLevel: 60, BaseLevel: 60, DurationMs: -1, MaxRange: 5, ProcChance: 20, ProcFlags: [2]uint32{0: 0x14}, ICDMs: 3000,
 		Effects: []Effect{
