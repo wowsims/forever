@@ -221,7 +221,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
+	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -236,6 +236,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		35: procs(chance(0.04)),
 		36: procs(&proto.ProcEffect{}),
 		37: procs(ppm(1), ppm(1)),
+		38: procs(chance(0.05)),
 		41: procs(chance(0.05)),
 	} {
 		db.Items[id].ItemEffects = effects
@@ -282,9 +283,10 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		EnchantChances: map[int32][]float64{202: {3}, 203: {5, 0}, 205: {9}},
 		LiveItems: map[int32]LiveProcs{
 			20: {1, true}, 21: {1, true}, 24: {2, true}, 25: {2, true}, 26: {1, true}, 27: {2, true}, 30: {1, true},
-			32: {1, true}, 33: {1, true}, 35: {1, false}, 36: {1, false}, 37: {1, true},
+			32: {1, true}, 33: {1, true}, 35: {1, false}, 36: {1, false}, 37: {1, true}, 38: {1, true},
 		},
 		LiveEnchants: map[int32]LiveProcs{200: {1, true}, 202: {1, true}, 203: {2, true}, 205: {1, false}},
+		TargetScaled: map[string]map[[2]int32]bool{"item": {{38, 0}: true}}, // Its rate varies by target type, so none is listed.
 	}
 	unvalidated := UnvalidatedRates{Items: []UnvalidatedRate{{ID: 26, Kind: overrides.RatePPM, Rate: 1, Origin: "vanilla"}}}
 	missingSets := []MissingSetBonus{{ID: 7000, Pieces: 2, Name: "Set 7000"}}

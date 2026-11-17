@@ -3899,7 +3899,6 @@ export const PROC_RATE_ITEMS = new Map<number, KnownRate>([
 	[13348, { kind: 'ppm', rate: 1.1 }], // Demonshear
 	[13361, { kind: 'ppm', rate: 1.95 }], // Skullforge Reaver
 	[13983, { kind: 'ppm', rate: 1.9 }], // Gravestone War Axe
-	[14557, { kind: 'chance', rate: 10 }], // The Lion Horn of Stormwind
 	[17705, { kind: 'ppm', rate: 1 }], // Thrash Blade
 	[17730, { kind: 'ppm', rate: 1.2 }], // Gatorbite Axe
 	[17752, { kind: 'ppm', rate: 2.1 }], // Satyr's Lash

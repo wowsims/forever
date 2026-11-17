@@ -730,17 +730,18 @@ type rateInputs struct {
 	Spells         []overrides.Override
 	EnchantProcs   []overrides.EnchantProc
 	Literals       []literalRate
-	SpellItems     map[int32][]int32      // The items casting each spell, by spell id.
-	SpellEnchants  map[int32][]int32      // The enchant effect ids casting each spell, by spell id.
-	SpellSets      map[int32][][2]int32   // The set id and piece count of each set bonus granting the spell, by spell id.
-	HandItems      map[int32]bool         // The items whose effect is written by hand, which may roll another rate than their rows.
-	HandEnchants   map[int32]bool         // The enchant effect ids whose effect is written by hand.
-	HandSets       map[int32]bool         // The set ids registered by hand.
-	SetChances     map[[2]int32][]float64 // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
-	EnchantChances map[int32][]float64    // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
-	SpellChances   map[int32]float64      // The row chance of each spell a literal names, in percent, by spell id; 0 where the row states none or where an item proc builder would roll its ProcChance column instead.
-	LiveItems      map[int32]LiveProcs    // The generated item procs that register, by item id.
-	LiveEnchants   map[int32]LiveProcs    // The generated enchant procs that register, by enchant effect id.
+	SpellItems     map[int32][]int32            // The items casting each spell, by spell id.
+	SpellEnchants  map[int32][]int32            // The enchant effect ids casting each spell, by spell id.
+	SpellSets      map[int32][][2]int32         // The set id and piece count of each set bonus granting the spell, by spell id.
+	HandItems      map[int32]bool               // The items whose effect is written by hand, which may roll another rate than their rows.
+	HandEnchants   map[int32]bool               // The enchant effect ids whose effect is written by hand.
+	HandSets       map[int32]bool               // The set ids registered by hand.
+	SetChances     map[[2]int32][]float64       // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
+	EnchantChances map[int32][]float64          // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
+	SpellChances   map[int32]float64            // The row chance of each spell a literal names, in percent, by spell id; 0 where the row states none or where an item proc builder would roll its ProcChance column instead.
+	LiveItems      map[int32]LiveProcs          // The generated item procs that register, by item id.
+	LiveEnchants   map[int32]LiveProcs          // The generated enchant procs that register, by enchant effect id.
+	TargetScaled   map[string]map[[2]int32]bool // The gear whose rate varies by target type, by kind ("item", "enchant" or "set bonus"), id and piece count (0 for an item or enchant).
 }
 
 // The generated procs of one item or enchant that register.
@@ -793,6 +794,30 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		SpellChances:   map[int32]float64{},
 		LiveItems:      liveItemProcs,
 		LiveEnchants:   liveEnchantProcs,
+		TargetScaled:   map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}},
+	}
+	// The rate varies by target type where the tooltip prints the chance as a fraction of the column
+	// (${$h/2}%): the row's chance is the full effect against the bonus target type, so the gear states no
+	// single rate.
+	scaled := func(spellID int) bool {
+		return strings.Contains(instance.Spells[spellID].Description, "$h/")
+	}
+	for itemID, effects := range instance.ItemEffectsByParentID {
+		if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return scaled(e.SpellID) }) {
+			in.TargetScaled["item"][[2]int32{int32(itemID), 0}] = true
+		}
+	}
+	for effectID, enchant := range instance.EnchantsByEffectId {
+		if slices.ContainsFunc(enchant.EffectArgs, scaled) {
+			in.TargetScaled["enchant"][[2]int32{int32(effectID), 0}] = true
+		}
+	}
+	for setID, rows := range instance.ItemSetSpells {
+		for _, row := range rows {
+			if scaled(row.SpellID) {
+				in.TargetScaled["set bonus"][[2]int32{int32(setID), int32(row.Threshold)}] = true
+			}
+		}
 	}
 	for itemID := range instance.Items {
 		if implementedByHand(int32(itemID)) {
@@ -1024,7 +1049,7 @@ func procRate(proc *proto.ProcEffect) KnownRate {
 // casts, an enchant also the chances of its proc spells, and a set bonus its measured rate overrides and the
 // chances of its proc rows. Generated gear counts only where its procs register, and a row's rate only where
 // they read the rows. A piece whose rates differ, one with a proc that states no rate and no row rate fills,
-// and one listed as unvalidated or missing its set bonus are left out.
+// one whose rate varies by target type, and one listed as unvalidated or missing its set bonus are left out.
 func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
 	// A rate a measurement settles, and none for one whose Source is no measurement.
 	measured := func(source string, rate KnownRate) KnownRate {
@@ -1077,6 +1102,11 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 	for _, bonus := range missingSets {
 		left["set bonus"][[2]int32{bonus.ID, bonus.Pieces}] = true
+	}
+	for gear, keys := range in.TargetScaled {
+		for key := range keys {
+			left[gear][key] = true
+		}
 	}
 
 	// The piece's one rate, where every rate found on it agrees and states one.
