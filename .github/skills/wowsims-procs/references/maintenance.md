@@ -9,7 +9,8 @@ Re-derive a claim before repeating it:
 - the bleed call sites: `grep -rn 'ProcMask = core.ProcMaskUnknown' sim/`
 - the spender and extra attacks: `grep -rn 'func AttachChargeSpender\|ExtraAttackProc(' sim/core/`
 - the override tables: `grep -nE '^var (WeaponProcs|EnchantProcs)' tools/database/overrides/*.go`
-- the notice's origins and literals: `grep -n 'func rateOrigin\|var literalRates' tools/database/gen_effects.go`
+- the notice's origins: `grep -n 'func rateOrigin' tools/database/gen_effects.go`
+- the hand-written procs whose rate the gear tab states: `grep -rn 'RollsSpellRate(\|RollsEntryRate(' sim/`
 
 | You changed…                                                | Update                                                                       |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------- |
@@ -17,7 +18,7 @@ Re-derive a claim before repeating it:
 | `DecodeProcTypeMask` or a `ProcHint`                        | "Traps", `docs/spell_data/procs.md` §The decoder and the tooltip hints       |
 | `AttachChargeSpender` or `ExtraAttackProc`                  | "Building a trigger from a row"                                              |
 | a `NewSpellData*Proc` builder or an override table's fields | "Item and enchant procs", `docs/spell_data/procs.md` §Item and enchant procs |
-| `rateOrigin`, `literalRates` or `item_notices.tsx`          | "Measuring a rate", the carry-over ruling in `references/rulings.md`         |
+| `rateOrigin`, `shared.GearProcs` or `item_notices.tsx`      | "Measuring a rate", the carry-over ruling in `references/rulings.md`         |
 | a ruling's code or its measured number                      | `references/rulings.md`                                                      |
 
 Then run the shared path check:

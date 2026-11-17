@@ -245,6 +245,7 @@ func init() {
 	// nothing, such as a channel's start or an aura's application, does not. The spell a channel
 	// casts each tick (Blizzard's) rolls it too.
 	// TODO: Verify in game that warriors and rogues get no buff.
+	shared.EnchantRollsSpellRate(8217, 1248806)
 	core.NewEnchantEffect(8217, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		revelation, ok := revelationBuffs[character.Class]

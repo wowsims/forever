@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -37,6 +38,7 @@ func init() {
 	// it heals for 75 to 125 and increases Strength by 100 for 15 sec.
 	// The game files state no rate: 20007 has no proc chance and 458112's ProcChance 100 is the
 	// sentinel beside "often". The enchant's effect entry carries it.
+	shared.EnchantRollsSpellRate(1900, 20007)
 	core.NewEnchantEffect(1900, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		duration := time.Second * 15

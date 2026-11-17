@@ -414,7 +414,8 @@ type SpellDataProc struct {
 	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
 	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
 	// procs per minute on the cast time of each spell hit's cast, and Draconic Infused Emblem only moves
-	// the row's cast listener to landed spell hits.
+	// the row's cast listener to landed spell hits. The builder records no GearProcs entry for a proc with
+	// one; code whose option keeps the rate records it.
 	Rate spelldata.ProcOpt
 }
 
@@ -1158,6 +1159,14 @@ func registerSpellDataRowProc(cfg SpellDataProc, refuses func(row *spelldata.Spe
 	source.registerEffect(func(agent core.Agent) {
 		apply(agent, source, trigger, row)
 	})
+	if cfg.Rate != nil {
+		return
+	}
+	if source.isEnchant {
+		EnchantRollsSpellRate(source.id, trigger.ID)
+		return
+	}
+	ItemRollsSpellRate(source.id, trigger.ID)
 }
 
 func applySpellDataSelfProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, spellConfig core.SpellConfig) {

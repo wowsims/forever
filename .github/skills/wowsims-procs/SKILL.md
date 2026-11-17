@@ -101,12 +101,14 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
   `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a rate measured on this server from too few logs to call final (the gear tab still warns), and a measured
   rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is
-  one of those four, and the generator refuses any other. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
-  it.
+  one of those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
 - **The gear tab's info line states every settled rate**, from the `PROC_RATE_*` tables in
-  `ui/sim/constants/missing_effects_auto_gen.ts`. Gear whose effect is written by hand gets one from a
-  `literalRates` entry with no `Origin` (a `Rate`, or the `SpellID` whose rate its code rolls unchanged), and a
-  proc registered through `newEntryRateItemEffect` from its item's entry. Any other hand-written proc shows no rate.
+  `ui/sim/constants/missing_effects_auto_gen.ts`. Gear whose effect is written by hand gets one only from
+  `shared.GearProcs` (`sim/common/shared/proc_rates.go`), which registration fills from `init`. A `NewSpellData*Proc`
+  builder records its trigger where no `Rate` option replaces the rate, and `newEntryRateItemEffect` records its
+  item's entry. Bespoke code whose proc rolls a spell's rate unchanged calls `shared.ItemRollsSpellRate`,
+  `EnchantRollsSpellRate` or `SetBonusRollsSpellRate` beside its registration. A proc whose code scales the rate by
+  target type, halves it by area or rolls another rate than the spell's records nothing and shows no rate.
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of

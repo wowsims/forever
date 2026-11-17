@@ -566,3 +566,18 @@ var ItemSetCadaverousGarb = core.NewItemSet(core.ItemSet{
 		5: shared.ParsedSetBonus(spelldata.MustFind(460230)), // 2% hit
 	},
 })
+
+func init() {
+	shared.SetBonusRollsSpellRate(ItemSetMagistersRegalia.ID, 5, magisterManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetSorcerersRegaliaReissue.ID, 4, magisterManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetBeaststalkerArmor.ID, 5, beaststalkerManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetBeastmasterArmorReissue.ID, 4, beaststalkerManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetVestmentsOfTheDevout.ID, 5, devoutManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetVestmentsOfTheVirtuousReissue.ID, 4, devoutManaProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetDreadmistRaiment.ID, 5, dreadmistHealProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetDeathmistRaimentReissue.ID, 4, dreadmistHealProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetShadowcraftArmor.ID, 5, rogueArmorEnergyProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetDarkmantleArmorReissue.ID, 4, rogueArmorEnergyProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetBattlegearOfValor.ID, 5, warriorsResolveProc.ID)
+	shared.SetBonusRollsSpellRate(ItemSetBattlegearOfHeroismReissue.ID, 4, warriorsResolveProc.ID)
+}

@@ -299,6 +299,7 @@ func init() {
 	// included, by the owner's ruling: the logs do not settle how a spell hit is priced. Only a hit on a
 	// Furbolg rolls it: no row limits the target, the tooltip does. Its on-use, Irresistible Scent
 	// 1296664, charms the target, which the sim does not model.
+	shared.ItemRollsSpellRate(269741, 1318323)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
 			trigger.ProcChance = 0
@@ -488,6 +489,7 @@ func init() {
 	// of Weakness, which the sim registers with no proc mask. Damage over time ticks never roll, and
 	// neither does a spell fired as a proc, such as Hellfire Effect. The 8% is the row's ProcChance, which an override sets; hardcasts and instants
 	// roll it alike. Misses are undetermined, so only landed spells roll (EV-0115).
+	shared.ItemRollsSpellRate(22268, 1318931)
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 1318931, BuffSpellID: 1318930,
 		Rate: func(_ *core.Character, trigger *core.ProcTrigger) {
 			trigger.Callback = core.CallbackOnSpellHitDealt

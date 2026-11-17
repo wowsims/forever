@@ -137,6 +137,11 @@ var ItemSetFrostfireRegalia = core.NewItemSet(core.ItemSet{
 	},
 })
 
+func init() {
+	shared.SetBonusRollsSpellRate(ItemSetFrostfireRegalia.ID, 6, frostfireVulnerability.ID)
+	shared.SetBonusRollsSpellRate(ItemSetFrostfireRegalia.ID, 8, frostfireNotThere.ID)
+}
+
 var (
 	illusionistSpellDamage = spelldata.MustFind(9417)  // 2pc: +12 spell damage
 	illusionistFlamestrike = spelldata.MustFind(24491) // 5pc: Flamestrike casts 0.5 sec faster

@@ -1,6 +1,7 @@
 package druid
 
 import (
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
@@ -33,6 +34,7 @@ func init() {
 
 	// Talons of Wrath. The proc row names no spell; the tooltip names Wrath, whose class flags no other
 	// druid spell shares.
+	shared.ItemRollsSpellRate(249441, 1248996)
 	core.NewItemEffect(249441, func(agent core.Agent) {
 		druid := agent.(DruidAgent).GetDruid()
 		row := spelldata.MustFind(1248996)

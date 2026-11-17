@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wowsims/forever/sim/common/forever"
+	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -235,7 +235,8 @@ func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 // A hand-written proc that runs at its item entry's procs per minute leaves the item missing its effect
 // while that entry states no rate, and not once it states one; an entry for another spell never does.
 func TestHandProcWithNoRateOnItsEntryIsMissing(t *testing.T) {
-	if len(forever.EntryRateProcs) == 0 {
+	entryProcs := slices.DeleteFunc(slices.Clone(shared.GearProcs), func(proc shared.GearProc) bool { return !proc.FromEntry })
+	if len(entryProcs) == 0 {
 		t.Fatal("no hand-written proc reads its rate off its item's entry")
 	}
 	proc := func(spellID int32, rate *proto.ProcEffect_Ppm) *proto.ItemEffect {
@@ -245,7 +246,8 @@ func TestHandProcWithNoRateOnItsEntryIsMissing(t *testing.T) {
 		}
 		return &proto.ItemEffect{BuffId: spellID, Effect: &proto.ItemEffect_Proc{Proc: effect}}
 	}
-	for itemID, spellID := range forever.EntryRateProcs {
+	for _, entry := range entryProcs {
+		itemID, spellID := entry.ID, entry.SpellID
 		parsed := &proto.UIItem{Id: itemID}
 		if !handProcStatesNoRate(parsed, proc(spellID, nil)) {
 			t.Errorf("item %d with no rate on its entry for %d is not missing its effect", itemID, spellID)
