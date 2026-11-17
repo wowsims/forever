@@ -6,6 +6,7 @@ import {
 	ItemSlot,
 	type MobType,
 	type RangedWeaponType,
+	type Stat,
 	type WeaponType,
 } from '@generated/proto/common';
 import { type DatabaseFilters, FactionFilter } from '@generated/proto/ui';
@@ -18,6 +19,7 @@ import {
 	translateRaidFilter,
 	translateRangedWeaponType,
 	translateSourceFilter,
+	translateStat,
 	translateWeaponType,
 } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
@@ -59,6 +61,8 @@ export interface FiltersMenuViewProps {
 	areaTypes: ReadonlyArray<AreaType>;
 	mobTypes: ReadonlyArray<MobType>;
 	creatureFamilies: ReadonlyArray<CreatureFamily>;
+	/** The stats some item carries, by itself or with a random suffix; picking several narrows the list to the items with all of them. */
+	stats: ReadonlyArray<Stat>;
 	canDualWield: boolean;
 	/** The player's race's faction, which names the faction filter's default option. */
 	raceFaction: Faction;
@@ -76,6 +80,7 @@ export const FiltersMenuView = ({
 	areaTypes,
 	mobTypes,
 	creatureFamilies,
+	stats,
 	canDualWield,
 	raceFaction,
 }: FiltersMenuViewProps) => {
@@ -141,6 +146,8 @@ export const FiltersMenuView = ({
 		);
 	};
 	const bonusCount = (field: 'areaTypes' | 'mobTypes' | 'creatureFamilies', types: ReadonlyArray<number>) => types.length + filters[field].length;
+	// As with the bonus pickers, a stored stat no item carries stays on offer so its chip can be removed.
+	const offeredStats = [...new Set([...stats, ...filters.stats])].sort((a, b) => a - b);
 
 	return (
 		<Dialog
@@ -187,6 +194,27 @@ export const FiltersMenuView = ({
 					/>
 				</div>
 			</MenuSection>
+			{offeredStats.length > 0 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.stats.title')}>
+					<MultiComboBox
+						id="filters-stats"
+						label={i18n.t('gear_tab.gear_picker.filters.stats.label')}
+						className="min-w-0 flex-col items-stretch"
+						placeholder={i18n.t('gear_tab.gear_picker.filters.stats.any')}
+						emptyText={i18n.t('gear_tab.gear_picker.filters.bonus.empty')}
+						removeLabel={i18n.t('gear_tab.gear_picker.filters.bonus.remove')}
+						openLabel={i18n.t('gear_tab.gear_picker.filters.bonus.open')}
+						values={offeredStats.map(stat => ({ name: translateStat(stat), value: stat }))}
+						value={filters.stats}
+						onChange={picked =>
+							onFiltersChange(next => {
+								next.stats = picked;
+							})
+						}
+						testId="filters-stats"
+					/>
+				</MenuSection>
+			)}
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_SOURCES.map(source => {
 					const label = translateSourceFilter(source);
@@ -302,15 +330,19 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
 	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
-	const { areaTypes, mobTypes, creatureFamilies } = useMemo(() => {
+	const { areaTypes, mobTypes, creatureFamilies, stats } = useMemo(() => {
 		const items = sim.db.getAllItems();
 		const listed = <T extends number>(typesOf: (item: (typeof items)[number]) => Array<T>) => [...new Set(items.flatMap(typesOf))].sort((a, b) => a - b);
 		return {
 			areaTypes: listed(item => item.areaTypes),
 			mobTypes: listed(item => item.mobTypes),
 			creatureFamilies: listed(item => item.creatureFamilies),
+			stats: listed(item => [
+				...Player.ownStatsOf(item),
+				...player.getRandomSuffixes(item).flatMap(suffix => suffix.stats.flatMap((value, stat) => (value > 0 ? [stat as Stat] : []))),
+			]),
 		};
-	}, [sim.db]);
+	}, [sim.db, player]);
 
 	return (
 		<FiltersMenuView
@@ -329,6 +361,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 			areaTypes={areaTypes}
 			mobTypes={mobTypes}
 			creatureFamilies={creatureFamilies}
+			stats={stats}
 			canDualWield={player.getPlayerSpec().canDualWield}
 			raceFaction={raceFaction}
 		/>

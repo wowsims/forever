@@ -1348,6 +1348,23 @@ export class Player<SpecType extends Spec> {
 		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
 	}
 
+	// The stats an item adds by itself, at its base item level: those of its first scaling option, or its stats array
+	// when it has none.
+	static ownStatsOf(item: Item): Set<Stat> {
+		const scaled = item.scalingOptions?.[0]?.stats;
+		const values = scaled
+			? Object.entries(scaled).map(([stat, value]) => [Number(stat), value] as const)
+			: item.stats.map((value, stat) => [stat, value] as const);
+		return new Set(values.filter(([, value]) => value > 0).map(([stat]) => stat as Stat));
+	}
+
+	// Whether the item carries every one of the stats: by itself, or together with one of the random suffixes it can roll.
+	private static carriesStats(item: Item, suffixes: ReadonlyArray<ItemRandomSuffix>, stats: ReadonlyArray<Stat>): boolean {
+		const own = Player.ownStatsOf(item);
+		const covers = (suffixStats: ReadonlyArray<number>) => stats.every(stat => own.has(stat) || (suffixStats[stat] ?? 0) > 0);
+		return suffixes.length ? suffixes.some(suffix => covers(suffix.stats)) : covers([]);
+	}
+
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1374,6 +1391,10 @@ export class Player<SpecType extends Spec> {
 					item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) ||
 					item.creatureFamilies.some(family => filters.creatureFamilies.includes(family)),
 			);
+		}
+
+		if (filters.stats.length) {
+			itemData = filterItems(itemData, item => Player.carriesStats(item, this.getRandomSuffixes(item), filters.stats));
 		}
 
 		if (filters.newlyDiscoveredOnly) {
