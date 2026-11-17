@@ -59,4 +59,3 @@ the 206 hits where +0 and +10 spell power predict different amounts fit +10 (2.4
 the control, 9 of 750 do. On the same targets in the same log, Consecration's spell power ticks fit +10 on 266 of 266
 discriminating ticks and Holy Shield 1239570 on 168 of 168, so the clasp counts there and the targets are Humanoids.
 Creature types come from the NPC tooltips, since the game files list only companions.
-
