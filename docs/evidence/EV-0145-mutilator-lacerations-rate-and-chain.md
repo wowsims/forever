@@ -1,7 +1,7 @@
 # EV-0145: Mutilator's Lacerations rate, its own hit roll and its chain
 
-- Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand melee hits, 4.8 procs per minute on its
-  2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them miss or are avoided; a Lacerations a
+- Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand white swings, 4.8 procs per minute on
+  its 2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a Lacerations a
   white swing cast rolls the weapon once more at the same chance, and one cast by anything else rolls nothing; Fiery
   Weapon 803 rolls on a weapon proc's strike under the same rule.
 - Sources: Warcraft Logs reports `AnPHcV64wg8DThzZ` (fights 1, 11, 12), `q62VRcw1m8fyHN4T` (fight 1),
@@ -59,7 +59,7 @@ damage event beside it.
 
 Judgement of Command (122 of 344), Execute (14 of 36), Overpower (12 of 35) and Rend's application (33 of 103) read
 above the white swing's chance. Judgement of Command and Execute show two attempts on one cast 12 times, which fits
-two rolls a cast; the logs do not separate that from a chain.
+two rolls a cast; the logs do not separate that from a chain. Raptor Strike reads below it (0 of 21, at most 15.5%).
 
 ## The hit roll of Lacerations
 

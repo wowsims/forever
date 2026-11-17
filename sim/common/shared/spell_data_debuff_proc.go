@@ -46,8 +46,8 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 }
 
 // Whether a weapon proc casts its debuff row as a strike. A row on the melee or ranged hit table rolls
-// that table, and its debuff lands only where the roll does: 12.2% of Mutilator's Lacerations 10370
-// miss or are avoided (EV-0145). A row on the magic table or on none lands with the proc.
+// that table, and its debuff lands only where the roll does, as Mutilator's Lacerations 10370 does
+// (EV-0145). A row on the magic table or on none lands with the proc.
 func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
 	if !cfg.IsWeaponProc {
 		return false

@@ -20,7 +20,7 @@ value. "not recorded" is what you write after the user says they do not know.
 | Field            | Where it can be read                                                                                      | Ask when                                                                                                                                                                                                                     |
 | ---------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Date and time    | a local log's file name, the player's local time: `WoWCombatLog-111326_201455.txt` is 2026-11-13 20:14:55 | the user names a day ("last night") or gives no log                                                                                                                                                                          |
-| Game build       | nowhere in a log: its header states only `BUILD_VERSION,1.60.1`                                           | always, for the full build (`1.60.1.70938`), unless the user or the pull request states it                                                                                                                                   |
+| Game build       | nowhere in a log: its header states only `BUILD_VERSION,1.60.1`                                           | always, for the full build (`1.60.1.70938`), unless the user or the pull request states it or the report's date gives it                                                                                                     |
 | Hotfix state     | nowhere in a log                                                                                          | always: which hotfix the session ran on, by date and time (UTC), and whether the player relogged after it; a hotfix reaches a running game only after a relog                                                                |
 | Sources          | a report URL gives the code; the fights come from the user                                                | a report has no fight ids, or a local log has no class and levels                                                                                                                                                            |
 | What was counted | the user's description                                                                                    | the denominator is unclear: landed hits or all swings, main hand only, swings inside the buff's window, extra attacks and haste left out (a weapon's PPM leaves out Windfury, Sword Specialization, Flurry and swing resets) |
@@ -81,13 +81,13 @@ stands.
 
 These thoughts mean stop and ask first:
 
-| Thought                                                        | Reality                                                                        |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| "The questions are not blocking, I'll write and fill in later" | Nobody fills in later. Ask, wait, then write once.                             |
-| "The log says 1.60.1, that's the build"                        | That is the major version. The build number and the hotfix come from the user. |
-| "Today's hotfix must be the one they mean"                     | Ask which one, and whether they relogged after it.                             |
-| "'Every melee class' obviously means classes with this talent" | Ask what the rule covers before writing a ruling or changing code.             |
-| "The count fits the sim, nothing to ask"                       | The build, the hotfix and what was counted still belong in the file.           |
+| Thought                                                        | Reality                                                                                                  |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| "The questions are not blocking, I'll write and fill in later" | Nobody fills in later. Ask, wait, then write once.                                                       |
+| "The log says 1.60.1, that's the build"                        | That is the major version. The build comes from the user or the report's date, the hotfix from the user. |
+| "Today's hotfix must be the one they mean"                     | Ask which one, and whether they relogged after it.                                                       |
+| "'Every melee class' obviously means classes with this talent" | Ask what the rule covers before writing a ruling or changing code.                                       |
+| "The count fits the sim, nothing to ask"                       | The build, the hotfix and what was counted still belong in the file.                                     |
 
 ## Before committing
 
