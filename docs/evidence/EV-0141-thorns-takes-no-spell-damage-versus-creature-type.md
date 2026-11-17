@@ -1,4 +1,4 @@
-# EV-0139: Thorns takes no spell damage against a creature type
+# EV-0141: Thorns takes no spell damage against a creature type
 
 - Claim: an item's spell damage against a creature type (Courier's Clasp 279833, +10 against Humanoids) reaches every
   damage spell and tick of a Balance druid's except Thorns, whose hits take the druid's other spell power at Thorns'
