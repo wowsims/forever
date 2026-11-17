@@ -520,9 +520,72 @@ func raidHasClass(raid *proto.Raid, class proto.Class) bool {
 	return false
 }
 
-// Annihilator procs often enough to keep all three stacks on the target.
+const annihilatorItemID = 12798
+
+// The weapon each state of the raid's Puncture Armor names, from 1, and the debuff its proc lands:
+// Bashguuder and Rivenspike land the row's 17315, Vibroblade its own 1293005.
+var punctureArmorWeapons = []struct {
+	itemID int32
+	meta   *Meta
+}{
+	{13204, punctureArmorMeta},
+	{13286, punctureArmorMeta},
+	{9485, punctureArmorMeta.atState(spelldata.MustFind(1293005), punctureArmorMeta.Label)},
+}
+
 func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {
-	holdMaxStacks(core.MakePermanent(NewSpellDataArmorShatterAura(target, false, 0)))
+	rollOnEverySwing(NewSpellDataArmorShatterAura(target, false, 0), annihilatorItemID)
+}
+
+func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, _ *proto.Raid) {
+	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
+	rollOnEverySwing(newDebuff(target, weapon.meta, false, 0), weapon.itemID)
+}
+
+// A weapon's proc debuff from one wielder, who swings the item at its base speed from the pull and
+// lands every swing, with nothing else rolling the proc. Every target the raid's debuffs land on has
+// a wielder of its own. Each swing lands the aura at the item's procs per minute, a chance of
+// PPM × speed / 60, which refreshes its duration and adds a stack up to its max, so the stacks fall
+// off when the procs come slower than the duration. A landing of the raid's debuffs
+// (Target.ApplyRaidDebuffsAt) starts the swings over, and a swing on a target with the raid's
+// debuffs disabled rolls nothing.
+func rollOnEverySwing(aura *core.Aura, itemID int32) {
+	item := core.GetItemByID(itemID)
+	if item == nil {
+		panic(fmt.Sprintf("the raid's %s reads the swing speed and procs per minute of item %d, which the sim's item database lacks; the request's database must carry it", aura.Label, itemID))
+	}
+	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
+
+	var swings *core.PendingAction
+	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
+		if swings != nil {
+			swings.Cancel(sim)
+		}
+		swings = core.StartPeriodicAction(sim, core.PeriodicActionOptions{
+			Period:          core.DurationFromSeconds(item.SwingSpeed),
+			TickImmediately: true,
+			Priority:        core.ActionPriorityDOT,
+			OnAction: func(sim *core.Simulation) {
+				if aura.Unit.RaidDebuffsDisabled() || sim.RandomFloat(aura.Label) >= chance {
+					return
+				}
+				aura.Activate(sim)
+				if aura.MaxStacks > 0 {
+					aura.AddStack(sim)
+				}
+			},
+		})
+	}
+}
+
+// The procs per minute the item's chance-on-hit entry for the spell states.
+func itemProcPPM(item *core.Item, spellID int32) float64 {
+	for _, effect := range item.ItemEffects {
+		if effect.BuffId == spellID && effect.GetProc().GetPpm() > 0 {
+			return effect.GetProc().GetPpm()
+		}
+	}
+	panic(fmt.Sprintf("item %d states no procs per minute for spell %d", item.ID, spellID))
 }
 
 // The game files state one stack, so the raid's copy takes it as soon as it lands.

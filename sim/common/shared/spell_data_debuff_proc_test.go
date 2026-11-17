@@ -1,6 +1,7 @@
 package shared
 
 import (
+	"fmt"
 	"math"
 	"slices"
 	"testing"
@@ -236,9 +237,9 @@ func TestAnnihilatorShattersTheTargetsArmor(t *testing.T) {
 	expectArmor("past the refreshed duration", targetArmor)
 }
 
-// The raid's Armor Shatter holds its full stacks from the start, and the wielder's own procs land
-// Annihilator's copy beside it in the same category: both are on the target, and its armor drops
-// by the stronger of the two once.
+// With the raid's Armor Shatter at its full stacks, the wielder's own procs land Annihilator's copy
+// beside it in the same category: both are on the target, and its armor drops by the stronger of the
+// two once.
 func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 	const armorShatter, weaponID int32 = 16928, 991409
 	editRow(t, armorShatter, func(s *spelldata.Spell) {
@@ -283,9 +284,11 @@ func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 		t.Fatalf("16928 stacks to %d, nothing to bid at full stacks", stacks)
 	}
 	raids := target.GetAura("Armor Shatter (External)")
-	if raids == nil || !raids.IsActive() || raids.GetStacks() != stacks {
-		t.Fatalf("the raid's Armor Shatter is %v, want it on the target at %d stacks", raids, stacks)
+	if raids == nil {
+		t.Fatalf("the target carries no raid Armor Shatter")
 	}
+	raids.Activate(sim)
+	raids.SetStacks(sim, stacks)
 	shattered := target.GetStat(stats.Armor)
 	raids.Deactivate(sim)
 	base := target.GetStat(stats.Armor)
@@ -316,87 +319,98 @@ func TestAnnihilatorBidsBesideTheRaidsArmorShatter(t *testing.T) {
 	}
 }
 
-// Bashguuder and Rivenspike's Puncture Armor 17315 bids in Faerie Fire's slot: under the raid's
-// Faerie Fire the wielder's procs land and the target keeps Faerie Fire's armor alone, and with
-// Faerie Fire gone Puncture Armor's stacks count. Under Sunder Armor both count.
+// Puncture Armor bids in Faerie Fire's slot, Bashguuder and Rivenspike's 17315 as the raid row's
+// player copy and Vibroblade's 1293005 through the proc debuff table: under the raid's Faerie Fire
+// the wielder's procs land and the target keeps Faerie Fire's armor alone, and with Faerie Fire gone
+// Puncture Armor's stacks count. Under Sunder Armor both count.
 func TestPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
-	const punctureArmor, weaponID int32 = 17315, 991410
-	editRow(t, punctureArmor, func(s *spelldata.Spell) {
-		alwaysProcs(s)
-		s.RPPM = 0
-	})
-	core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(weaponID)}})
-	registerSpellDataDebuffProc(SpellDataProc{Name: "Test Bashguuder", ItemID: weaponID,
-		TriggerSpellID: punctureArmor, BuffSpellID: punctureArmor, IsWeaponProc: true})
+	for _, weapon := range []struct {
+		name                    string
+		punctureArmor, weaponID int32
+	}{
+		{"Bashguuder", 17315, 991410},
+		{"Vibroblade", 1293005, 991411},
+	} {
+		t.Run(weapon.name, func(t *testing.T) {
+			punctureArmor, weaponID := weapon.punctureArmor, weapon.weaponID
+			editRow(t, punctureArmor, func(s *spelldata.Spell) {
+				alwaysProcs(s)
+				s.RPPM = 0
+			})
+			core.AddToDatabase(&proto.SimDatabase{Items: []*proto.SimItem{testOneHander(weaponID)}})
+			registerSpellDataDebuffProc(SpellDataProc{Name: "Test " + weapon.name, ItemID: weaponID,
+				TriggerSpellID: punctureArmor, BuffSpellID: punctureArmor, IsWeaponProc: true})
 
-	run := func(debuffs *proto.Debuffs, raidLabel string) (*core.Simulation, *testCaster, *core.Unit, *core.Aura) {
-		t.Helper()
-		sim := core.NewSim(&proto.RaidSimRequest{
-			SimOptions: &proto.SimOptions{RandomSeed: 1},
-			Raid: &proto.Raid{
-				Parties: []*proto.Party{{
-					Players: []*proto.Player{{
-						Name:      "Caster",
-						Class:     proto.Class_ClassShaman,
-						Race:      proto.Race_RaceTroll,
-						Buffs:     &proto.IndividualBuffs{},
-						Spec:      &proto.Player_EnhancementShaman{},
-						Equipment: &proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: weaponID}, &proto.ItemSpec{})},
-					}},
-					Buffs: &proto.PartyBuffs{},
-				}},
-				Debuffs: debuffs,
-			},
-			Encounter: &proto.Encounter{
-				Targets:  []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
-				Duration: 180,
-			},
-		}, simsignals.CreateSignals())
-		sim.Reset()
-		caster := sim.Raid.Parties[0].Players[0].(*testCaster)
-		caster.AutoAttacks.CancelAutoSwing(sim)
-		target := sim.Encounter.ActiveTargetUnits[0]
-		// The raid's Sunder Armor builds its stacks a global cooldown apart.
-		stepPast(t, sim, 10*time.Second)
-		raids := target.GetAura(raidLabel)
-		if raids == nil || !raids.IsActive() {
-			t.Fatalf("the raid's %s is %v, want it on the target", raidLabel, raids)
-		}
-		return sim, caster, target, raids
+			run := func(debuffs *proto.Debuffs, raidLabel string) (*core.Simulation, *testCaster, *core.Unit, *core.Aura) {
+				t.Helper()
+				sim := core.NewSim(&proto.RaidSimRequest{
+					SimOptions: &proto.SimOptions{RandomSeed: 1},
+					Raid: &proto.Raid{
+						Parties: []*proto.Party{{
+							Players: []*proto.Player{{
+								Name:      "Caster",
+								Class:     proto.Class_ClassShaman,
+								Race:      proto.Race_RaceTroll,
+								Buffs:     &proto.IndividualBuffs{},
+								Spec:      &proto.Player_EnhancementShaman{},
+								Equipment: &proto.EquipmentSpec{Items: testHands(&proto.ItemSpec{Id: weaponID}, &proto.ItemSpec{})},
+							}},
+							Buffs: &proto.PartyBuffs{},
+						}},
+						Debuffs: debuffs,
+					},
+					Encounter: &proto.Encounter{
+						Targets:  []*proto.Target{{Name: "target", Level: 60, MobType: proto.MobType_MobTypeDemon}},
+						Duration: 180,
+					},
+				}, simsignals.CreateSignals())
+				sim.Reset()
+				caster := sim.Raid.Parties[0].Players[0].(*testCaster)
+				caster.AutoAttacks.CancelAutoSwing(sim)
+				target := sim.Encounter.ActiveTargetUnits[0]
+				// The raid's Sunder Armor builds its stacks a global cooldown apart.
+				stepPast(t, sim, 10*time.Second)
+				raids := target.GetAura(raidLabel)
+				if raids == nil || !raids.IsActive() {
+					t.Fatalf("the raid's %s is %v, want it on the target", raidLabel, raids)
+				}
+				return sim, caster, target, raids
+			}
+
+			row := spelldata.MustFind(punctureArmor)
+			stacks := max(int32(row.MaxStack), 1)
+			perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(60)
+			needAmount(t, fmt.Sprintf("%d's armor", punctureArmor), perStack)
+			punctured := perStack * float64(stacks)
+
+			t.Run("Faerie Fire", func(t *testing.T) {
+				sim, caster, target, faerieFire := run(&proto.Debuffs{FaerieFire: true}, "Faerie Fire (External)")
+				withFaerieFire := target.GetStat(stats.Armor)
+				for range stacks {
+					landMainHandSwing(sim, caster, target)
+				}
+				if got := target.GetStat(stats.Armor); got != withFaerieFire {
+					t.Errorf("under Faerie Fire the target's armor is %v, want Faerie Fire's %v alone", got, withFaerieFire)
+				}
+				faerieFire.Deactivate(sim)
+				base := withFaerieFire + -spelldata.MustFind(9907).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
+				if got, want := target.GetStat(stats.Armor), base-punctured; got != want {
+					t.Errorf("with Faerie Fire gone the target's armor is %v, want %v from %d stacks of Puncture Armor", got, want, stacks)
+				}
+			})
+
+			t.Run("Sunder Armor", func(t *testing.T) {
+				sim, caster, target, _ := run(&proto.Debuffs{SunderArmor: true}, "Sunder Armor (External)")
+				sundered := target.GetStat(stats.Armor)
+				for range stacks {
+					landMainHandSwing(sim, caster, target)
+				}
+				if got, want := target.GetStat(stats.Armor), sundered-punctured; got != want {
+					t.Errorf("under Sunder Armor the target's armor is %v, want %v with Puncture Armor's stacks beside it", got, want)
+				}
+			})
+		})
 	}
-
-	row := spelldata.MustFind(punctureArmor)
-	stacks := int32(row.MaxStack)
-	perStack := -row.FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(60)
-	needAmount(t, "17315's armor", perStack)
-	punctured := perStack * float64(stacks)
-
-	t.Run("Faerie Fire", func(t *testing.T) {
-		sim, caster, target, faerieFire := run(&proto.Debuffs{FaerieFire: true}, "Faerie Fire (External)")
-		withFaerieFire := target.GetStat(stats.Armor)
-		for range stacks {
-			landMainHandSwing(sim, caster, target)
-		}
-		if got := target.GetStat(stats.Armor); got != withFaerieFire {
-			t.Errorf("under Faerie Fire the target's armor is %v, want Faerie Fire's %v alone", got, withFaerieFire)
-		}
-		faerieFire.Deactivate(sim)
-		base := withFaerieFire + -spelldata.MustFind(9907).FirstAura(dbcenums.A_MOD_ARMOR_NO_MODS).MeanAt(target.Level)
-		if got, want := target.GetStat(stats.Armor), base-punctured; got != want {
-			t.Errorf("with Faerie Fire gone the target's armor is %v, want %v from %d stacks of Puncture Armor", got, want, stacks)
-		}
-	})
-
-	t.Run("Sunder Armor", func(t *testing.T) {
-		sim, caster, target, _ := run(&proto.Debuffs{SunderArmor: true}, "Sunder Armor (External)")
-		sundered := target.GetStat(stats.Armor)
-		for range stacks {
-			landMainHandSwing(sim, caster, target)
-		}
-		if got, want := target.GetStat(stats.Armor), sundered-punctured; got != want {
-			t.Errorf("under Sunder Armor the target's armor is %v, want %v with Puncture Armor's stacks beside it", got, want)
-		}
-	})
 }
 
 // Depleted Eye of Influence 275630's Eye of Influence 1297082 states A_MOD_ATTACK_POWER and

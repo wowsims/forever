@@ -1,5 +1,7 @@
+import { Debuffs } from '@generated/proto/buffs';
 import { Class, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
+import type { Player } from '@sim/player/player';
 import { ActionId } from '@sim/proto/action_id';
 import { describe, expect, it } from 'vitest';
 
@@ -76,8 +78,18 @@ describe('the buff registries', () => {
 			'Curse of the Elements',
 			'Curse of Weakness',
 			['settings_tab.debuffs.major_armor_reduction', ['Sunder Armor', 'Expose Armor']],
-			['settings_tab.debuffs.minor_armor_reduction', ['Faerie Fire', 'Curse of Recklessness', 'Dust Cloud']],
-			'Armor Shatter',
+			[
+				'settings_tab.debuffs.minor_armor_reduction',
+				[
+					'Faerie Fire',
+					'Curse of Recklessness',
+					'Dust Cloud',
+					'Armor Shatter',
+					'Puncture Armor (Bashguuder)',
+					'Puncture Armor (Rivenspike)',
+					'Puncture Armor (Vibroblade)',
+				],
+			],
 			'Gift of Arthas',
 			[
 				'settings_tab.debuffs.attack_power_reduction',
@@ -121,6 +133,31 @@ describe('the buff registries', () => {
 		expect(input.states).toBe(ranks.length + 1);
 		expect([input.actionId, input.improvedId].map(id => id?.spellId)).toEqual(ranks);
 		expect(input.labelTooltip).toBe('settings_tab.raid_buffs.rank_select_tooltip');
+	});
+
+	// The field's state is the weapon: each weapon's icon writes its own state, so the three behave as one pick.
+	it('offers Puncture Armor as one item icon per weapon, each writing its state', () => {
+		let debuffs = Debuffs.create();
+		const player = {
+			getRaid: () => ({ getDebuffs: () => Debuffs.clone(debuffs), setDebuffs: (next: Debuffs) => (debuffs = next) }),
+		} as unknown as Player<any>;
+		const weapons = [
+			[BuffDebuffInputs.PunctureArmorBashguuder, 13204],
+			[BuffDebuffInputs.PunctureArmorRivenspike, 13286],
+			[BuffDebuffInputs.PunctureArmorVibroblade, 9485],
+		] as const;
+		expect(weapons.map(([input]) => input.actionId.itemId)).toEqual(weapons.map(([, itemId]) => itemId));
+
+		weapons.forEach(([input], index) => {
+			input.setValue(player, true);
+			expect(debuffs.punctureArmor).toBe(index + 1);
+			expect(weapons.map(([other]) => other.getValue(player))).toEqual(weapons.map((_, i) => i === index));
+		});
+
+		BuffDebuffInputs.PunctureArmorRivenspike.setValue(player, false);
+		expect(debuffs.punctureArmor).toBe(3);
+		BuffDebuffInputs.PunctureArmorVibroblade.setValue(player, false);
+		expect(debuffs.punctureArmor).toBe(0);
 	});
 
 	it('gives the generated rows their owner class, so the settings tab can mark them external', () => {

@@ -1,10 +1,12 @@
 package core_test
 
 import (
+	"fmt"
 	"math"
 	"os"
 	"regexp"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -12,6 +14,7 @@ import (
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
@@ -284,12 +287,16 @@ func TestGeneratedRaidsSunderStacksUnderExposeArmor(t *testing.T) {
 // Every debuff in a shared category is on the target, but only the one holding the stat's slot in it
 // applies its reduction, the strongest; taking that one off hands the reduction to the next. values
 // maps each debuff's label to its reduction.
-func checkOneReductionApplies(t *testing.T, debuffs *proto.Debuffs, category string, stat stats.Stat, values map[string]float64) {
+func checkOneReductionApplies(t *testing.T, debuffs *proto.Debuffs, category string, stat stats.Stat, values map[string]float64,
+	prepare ...func(*core.Simulation, *core.Unit)) {
 	t.Helper()
 	target := core.NewGeneratedDebuffTestTarget()
 	base := target.GetStats()[stat]
 
 	sim := applyGeneratedTestDebuffs(target, debuffs)
+	for _, p := range prepare {
+		p(sim, target)
+	}
 
 	want := math.Inf(1)
 	for label, value := range values {
@@ -334,12 +341,31 @@ func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 // Armor Shatter shares Faerie Fire's armor reduction slot (EV-0147): at its full stacks it is on the
 // target beside Faerie Fire, and the target takes the stronger of the two once.
 func TestGeneratedArmorShatterSharesFaerieFiresSlot(t *testing.T) {
-	stacks := float64(spelldata.MustFind(16928).MaxStack)
+	stacks := spelldata.MustFind(16928).MaxStack
 	checkOneReductionApplies(t, &proto.Debuffs{ArmorShatter: true, FaerieFire: true},
 		buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
-			"Armor Shatter (External)": armorAmount(t, 16928) * stacks,
+			"Armor Shatter (External)": armorAmount(t, 16928) * float64(stacks),
 			"Faerie Fire (External)":   armorAmount(t, 9907),
+		}, func(sim *core.Simulation, target *core.Unit) {
+			target.GetAura("Armor Shatter (External)").SetStacks(sim, int32(stacks))
 		})
+}
+
+// Puncture Armor shares Faerie Fire's armor reduction slot (EV-0147) at whichever weapon's spell
+// the state names.
+func TestGeneratedPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
+	for state, spellID := range map[int32]int32{1: 17315, 3: 1293005} {
+		stacks := max(spelldata.MustFind(spellID).MaxStack, 1)
+		checkOneReductionApplies(t, &proto.Debuffs{PunctureArmor: state, FaerieFire: true},
+			buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
+				"Puncture Armor (External)": armorAmount(t, spellID) * float64(stacks),
+				"Faerie Fire (External)":    armorAmount(t, 9907),
+			}, func(sim *core.Simulation, target *core.Unit) {
+				if aura := target.GetAura("Puncture Armor (External)"); aura.MaxStacks > 0 {
+					aura.SetStacks(sim, aura.MaxStacks)
+				}
+			})
+	}
 }
 
 func TestGeneratedThunderClapSlowsTheTarget(t *testing.T) {
@@ -647,18 +673,186 @@ func TestGeneratedScorpidStingAndInsectSwarmDoNotStack(t *testing.T) {
 		})
 }
 
-// The raid's Annihilator keeps every stack the row allows up.
-func TestGeneratedArmorShatterHoldsEveryStack(t *testing.T) {
+// The raid's Armor Shatter is worth the row's armor once per stack, up to the stacks the row allows.
+func TestGeneratedArmorShatterPricesEveryStack(t *testing.T) {
 	target := core.NewGeneratedDebuffTestTarget()
 	base := target.GetStats()[stats.ArmorNoMods]
-	applyGeneratedTestDebuffs(target, &proto.Debuffs{ArmorShatter: true})
-	maxStacks := spelldata.MustFind(16928).MaxStack
-	if maxStacks < 1 {
+	sim := applyGeneratedTestDebuffs(target, &proto.Debuffs{ArmorShatter: true})
+	maxStacks := int32(spelldata.MustFind(16928).MaxStack)
+	if maxStacks < 2 {
 		t.Fatalf("Armor Shatter states %d stacks, want a stacking row", maxStacks)
 	}
+	shatter := target.GetAura("Armor Shatter (External)")
 	perStack := armorAmount(t, 16928)
-	if got, want := target.GetStats()[stats.ArmorNoMods]-base, float64(maxStacks)*perStack; got != want {
-		t.Errorf("armor moved by %v, want %d stacks of the game files' %v", got, maxStacks, perStack)
+	for _, stacks := range []int32{1, maxStacks, maxStacks + 1} {
+		shatter.SetStacks(sim, stacks)
+		want := float64(min(stacks, maxStacks)) * perStack
+		if got := target.GetStats()[stats.ArmorNoMods] - base; got != want {
+			t.Errorf("at %d stacks armor moved by %v, want %v", stacks, got, want)
+		}
+	}
+}
+
+// A raid's weapon proc debuff and the weapon one wielder procs it with.
+type swingProcDebuff struct {
+	name    string
+	debuffs *proto.Debuffs
+	itemID  int32
+	spellID int32
+}
+
+var swingProcDebuffs = []swingProcDebuff{
+	{"Armor Shatter", &proto.Debuffs{ArmorShatter: true}, 12798, 16928},
+	{"Puncture Armor 1", &proto.Debuffs{PunctureArmor: 1}, 13204, 17315},
+	{"Puncture Armor 2", &proto.Debuffs{PunctureArmor: 2}, 13286, 17315},
+	{"Puncture Armor 3", &proto.Debuffs{PunctureArmor: 3}, 9485, 1293005},
+}
+
+// The weapon's procs per minute, as the item database states them.
+func swingProcPPM(t *testing.T, debuff swingProcDebuff) float64 {
+	t.Helper()
+	item := core.GetItemByID(debuff.itemID)
+	if item == nil {
+		t.Fatalf("the item database has no item %d", debuff.itemID)
+	}
+	for _, effect := range item.ItemEffects {
+		if ppm := effect.GetProc().GetPpm(); effect.BuffId == debuff.spellID && ppm > 0 {
+			return ppm
+		}
+	}
+	t.Fatalf("item %d states no procs per minute for spell %d", debuff.itemID, debuff.spellID)
+	return 0
+}
+
+// A raid of one with the raid's weapon proc debuff on, its database the one the request carries.
+func swingProcDebuffRaid(debuff swingProcDebuff, db *proto.SimDatabase) *proto.Raid {
+	return core.SinglePlayerRaidProto(&proto.Player{
+		Name:      "Caster",
+		Class:     proto.Class_ClassShaman,
+		Buffs:     &proto.IndividualBuffs{},
+		Spec:      &proto.Player_ElementalShaman{},
+		Equipment: &proto.EquipmentSpec{},
+		Database:  db,
+	}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuff.debuffs)
+}
+
+// The raid's copy of a weapon proc debuff is one wielder's proc rolled on every swing: over a long
+// fight it lands, a fresh debuff or a refresh, at the weapon's procs per minute, on the spell the
+// state names.
+func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
+	const iterations, seconds = 2000, 300
+	for _, debuff := range swingProcDebuffs {
+		t.Run(debuff.name, func(t *testing.T) {
+			ppm := swingProcPPM(t, debuff)
+			result := core.RunRaidSim(&proto.RaidSimRequest{
+				SimOptions: &proto.SimOptions{RandomSeed: 7, Iterations: iterations},
+				Raid:       swingProcDebuffRaid(debuff, nil),
+				Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: seconds},
+			})
+			if result.Error != nil {
+				t.Fatalf("the sim failed: %s", result.Error.Message)
+			}
+			var procs float64
+			found := false
+			for _, aura := range result.EncounterMetrics.Targets[0].Auras {
+				if aura.Id.GetSpellId() == debuff.spellID {
+					procs, found = aura.ProcsAvg, true
+				}
+			}
+			if !found {
+				t.Fatalf("the target carries no aura of spell %d", debuff.spellID)
+			}
+			want := ppm * seconds / 60
+			if math.Abs(procs-want) > 0.1*want {
+				t.Errorf("the raid's copy landed %.2f times a fight, want %.2f within 10%% (%v procs per minute over %d s)", procs, want, ppm, seconds)
+			}
+		})
+	}
+}
+
+// Steps the sim to the time given, or to the end of the fight, checking each step.
+func stepChecking(sim *core.Simulation, until time.Duration, check func()) {
+	for sim.CurrentTime < until && !sim.Step() {
+		check()
+	}
+}
+
+// The raid's Puncture Armor adds one stack a landing, up to the row's max, and falls off when no
+// swing lands it for its duration. While the raid's debuffs are disabled no swing lands it, and once
+// they land again the swings start over.
+func TestGeneratedPunctureArmorStacksAndFallsOff(t *testing.T) {
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 7},
+		Raid:       swingProcDebuffRaid(swingProcDebuffs[1], nil),
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 1200},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	target := sim.Encounter.AllTargets[0]
+	aura := target.GetAura("Puncture Armor (External)")
+	if aura == nil || aura.MaxStacks < 2 {
+		t.Fatalf("the raid's Puncture Armor is %v, want a stacking aura on the target", aura)
+	}
+	base := target.GetStats()[stats.ArmorNoMods]
+	perStack := armorAmount(t, 17315)
+
+	landed, fellOff, wasActive := false, false, false
+	stepChecking(sim, 600*time.Second, func() {
+		if aura.IsActive() && !landed {
+			landed = true
+			if got, want := target.GetStats()[stats.ArmorNoMods]-base, perStack; aura.GetStacks() != 1 || got != want {
+				t.Errorf("the first landing left %d stacks and moved armor by %v, want 1 stack worth %v", aura.GetStacks(), got, want)
+			}
+		}
+		if aura.GetStacks() > aura.MaxStacks {
+			t.Fatalf("Puncture Armor holds %d stacks, past the row's %d", aura.GetStacks(), aura.MaxStacks)
+		}
+		fellOff = fellOff || wasActive && !aura.IsActive()
+		wasActive = aura.IsActive()
+	})
+	if !landed || !fellOff {
+		t.Fatalf("over the fight Puncture Armor landed: %v, fell off: %v; want both", landed, fellOff)
+	}
+
+	target.DisableRaidDebuffs(sim)
+	stepChecking(sim, sim.CurrentTime+180*time.Second, func() {
+		if aura.IsActive() {
+			t.Fatalf("Puncture Armor landed at %v with the raid's debuffs disabled", sim.CurrentTime)
+		}
+	})
+	target.ApplyRaidDebuffsAt(sim, sim.CurrentTime)
+	relanded := false
+	stepChecking(sim, sim.CurrentTime+180*time.Second, func() {
+		relanded = relanded || aura.IsActive()
+	})
+	if !relanded {
+		t.Error("Puncture Armor never landed in the 180 s after the raid's debuffs landed again, want it back")
+	}
+}
+
+// Without the full item database the sim knows only the items the request carries. The raid's
+// weapon proc debuff reads its weapon from there, and stops on a message naming the item when the
+// request lacks it.
+func TestSwingProcDebuffsReadTheWeaponTheRequestCarries(t *testing.T) {
+	for _, debuff := range swingProcDebuffs {
+		t.Run(debuff.name, func(t *testing.T) {
+			item := requestItem(t, debuff.itemID)
+			restore := core.KeepOnlyItems(nil)
+			defer restore()
+
+			message := func() (message string) {
+				defer func() { message = fmt.Sprint(recover()) }()
+				core.ComputeStats(&proto.ComputeStatsRequest{Raid: swingProcDebuffRaid(debuff, nil), SkipRotation: true})
+				return
+			}()
+			if !strings.Contains(message, fmt.Sprintf("item %d", debuff.itemID)) {
+				t.Errorf("without its weapon the raid's debuff stopped on %q, want a message naming item %d", message, debuff.itemID)
+			}
+
+			raid := swingProcDebuffRaid(debuff, &proto.SimDatabase{Items: []*proto.SimItem{item}})
+			if result := core.ComputeStats(&proto.ComputeStatsRequest{Raid: raid, SkipRotation: true}); result.ErrorResult != "" {
+				t.Errorf("with its weapon in the request, ComputeStats failed: %s", result.ErrorResult)
+			}
+		})
 	}
 }
 

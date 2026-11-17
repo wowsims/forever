@@ -47,12 +47,11 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 	}
 }
 
-// Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Puncture
-// Armor (Bashguuder and Rivenspike's 17315, Vibroblade's 1293005) shares Curse of Recklessness and
-// Faerie Fire's slot: it never lands while either is on the target, and either one landing removes
-// it (EV-0147).
+// Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Vibroblade's
+// Puncture Armor 1293005 shares Curse of Recklessness and Faerie Fire's slot: it never lands while
+// either is on the target, and either one landing removes it (EV-0147). Bashguuder and Rivenspike's
+// 17315 is the raid's Puncture Armor row, whose player copy bids there already.
 var debuffProcCategories = map[int32]string{
-	17315:   buffs.FaerieFireCategory,
 	1293005: buffs.FaerieFireCategory,
 }
 

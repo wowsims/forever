@@ -407,6 +407,8 @@ export const ArmorShatter = makeBooleanDebuffInput({
 	label: 'Armor Shatter',
 });
 
+// puncture_armor: the hand-written inputs are the three weapons, one item icon per state, which no manifest row carries.
+
 export const Vindication = makeBooleanDebuffInput({
 	actionId: ActionId.fromSpellId(9452),
 	fieldName: 'vindication',

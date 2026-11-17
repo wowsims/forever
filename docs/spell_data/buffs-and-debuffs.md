@@ -226,6 +226,17 @@ message, Flametongue Totem can read `raid.WindfuryTotem`. The driver builds the 
 `NewSpellData...` constructor and adds what the game files do not state: a proc trigger, a cooldown, a
 delay, the metrics of a regen. The row compiles once the function is declared.
 
+A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one wielder swinging the weapon:
+`rollOnEverySwing` rolls the item's procs per minute on every swing at the item's base speed, and a
+landed roll refreshes the aura and adds a stack. The driver reads the speed and the rate off the
+item database, and without the full database the sim knows only the items the request carries, so
+the weapon goes into `DEBUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts` (`PARTY_BUFF_ITEM_IDS` for a
+party buff such as Darkspear). A driver that reads an item the request lacks panics naming it.
+`puncture_armor` states `Proto: ProtoInt32` for its weapon: 1 Bashguuder, 2 Rivenspike, 3
+Vibroblade. Its settings inputs are hand-written (`manualBuffInputs`): one boolean input per weapon
+with its item icon, each bound to the field by its state through `makeBooleanDebuffInput`'s `value`,
+so picking one clears the others.
+
 ## Totems on pets
 
 A true pet stands under every totem its owner does whose aura a pet may carry, with the same

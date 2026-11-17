@@ -644,14 +644,27 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// Annihilator's proc keeps the stacks up, so the raid's copy holds all three from the start. It
-	// shares Curse of Recklessness and Faerie Fire's slot: it never lands while either is on the
+	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on every swing.
+	// It shares Curse of Recklessness and Faerie Fire's slot: it never lands while either is on the
 	// target, and either one landing removes it (EV-0147).
 	{
 		Field:    "armor_shatter",
 		SpellID:  16928,
 		Category: "MinorArmorReduction",
 		Driver:   true,
+		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
+		},
+	},
+	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
+	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. It shares
+	// Faerie Fire's slot as Armor Shatter does (EV-0147).
+	{
+		Field:    "puncture_armor",
+		SpellID:  17315,
+		Category: "MinorArmorReduction",
+		Driver:   true,
+		Proto:    ProtoInt32,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
 		},
