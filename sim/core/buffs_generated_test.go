@@ -1322,6 +1322,39 @@ func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 	}
 }
 
+// A damage shield takes none of its owner's spell power against the attacker's creature type, while
+// the owner's other spell power and the damage multiplier against that type still reach the hit.
+func TestDamageShieldTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
+	sim, char := newTotemSim(t, &proto.RaidBuffs{}, func(c *core.Character) {
+		c.AddStat(stats.SpellDamage, 100)
+		buffs.NewSpellDataThornsAuraWithSpellPower(&c.Unit, true, 0)
+	})
+	shield := char.GetSpell(core.ActionID{SpellID: 9910, Tag: 2})
+	if shield == nil {
+		t.Fatal("the druid's own Thorns registered no spell to deal its damage with")
+	}
+	attacker := sim.Encounter.AllTargetUnits[0]
+	damage := rowAmount(t, 9910, dbcenums.A_DAMAGE_SHIELD)
+	hit := func() float64 {
+		result := shield.CalcDamage(sim, attacker, damage, shield.OutcomeAlwaysHit)
+		defer shield.DisposeResult(result)
+		return result.Damage
+	}
+
+	without := hit()
+	if want := damage + buffs.DamageShieldSpellPowerCoefficient*100; without != want {
+		t.Errorf("under 100 spell power the shield deals %v, want %v", without, want)
+	}
+	char.AddMobTypeBonusStats(stats.Stats{stats.SpellDamage: 100}, attacker.MobType)
+	if with := hit(); with != without {
+		t.Errorf("under 100 spell power against the attacker's type the shield deals %v, want the %v it deals without", with, without)
+	}
+	char.MultiplyDamageVersus(2, attacker.MobType)
+	if got, want := hit(), 2*without; got != want {
+		t.Errorf("under a double damage multiplier against the attacker's type the shield deals %v, want %v", got, want)
+	}
+}
+
 // A whole environment, because an external cooldown registers a spell, a timer
 // per source and a major cooldown, none of which a bare Character has.
 func setupFakeSimWithBuffs(raid *proto.RaidBuffs, party *proto.PartyBuffs, individual *proto.IndividualBuffs) *core.Simulation {
