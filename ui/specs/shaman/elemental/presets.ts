@@ -1,23 +1,23 @@
 import * as PresetUtils from '@app/preset_utils';
-import * as Consumables from '@features/settings/model/consumables_auto_gen';
-import { Debuffs, IndividualBuffs, PartyBuffs, RaidBuffs } from '@generated/proto/buffs';
-import { ConsumesSpec, Profession, Race, Spec, Stat } from '@generated/proto/common';
-import { ElementalShaman_Options as ElementalShamanOptions } from '@generated/proto/shaman';
+import { Spec, Stat } from '@generated/proto/common';
 import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
-import TestingBuildJson from './builds/testing.build.json';
+import DefaultBuildJson from './builds/default.build.json';
 
-export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', TestingBuildJson.player.rotation);
+// The spec's defaults, from the Default build.
+export const Defaults = PresetUtils.specDefaultsFromSettings(Spec.SpecElementalShaman, DefaultBuildJson);
 
-export const DefaultGear = PresetUtils.makePresetGear('Testing', TestingBuildJson.player.equipment, { devOnly: true });
+export const ROTATION_PRESET_DEFAULT = PresetUtils.makePresetAPLRotation('Default', DefaultBuildJson.player.rotation);
 
-export const TestingBuild = PresetUtils.makePresetBuildFromJSON('Testing', Spec.SpecElementalShaman, TestingBuildJson, { gear: DefaultGear });
+export const DefaultGear = PresetUtils.makePresetGear('Default', DefaultBuildJson.player.equipment, { devOnly: true });
 
-// Measured on the Testing gear with the Standard talents over a three minute fight. Hit is its value below the
+export const DefaultBuild = PresetUtils.makePresetBuildFromJSON('Default', Spec.SpecElementalShaman, DefaultBuildJson, { gear: DefaultGear });
+
+// Measured on the earlier Testing gear with the Standard talents over a three minute fight. Hit is its value below the
 // 17% cap.
 export const DefaultEpWeights = PresetUtils.makePresetEpWeights(
-	'Testing',
+	'Default',
 	Stats.fromMap({
 		[Stat.StatIntellect]: 0.19,
 		[Stat.StatSpirit]: 0.02,
@@ -35,54 +35,8 @@ export const DefaultEpWeights = PresetUtils.makePresetEpWeights(
 export const StandardTalents = {
 	name: 'Standard',
 	data: SavedTalents.create({
-		talentsString: TestingBuildJson.player.talentsString,
+		talentsString: DefaultBuildJson.player.talentsString,
 	}),
 };
 
 export const ManaTideTalents = PresetUtils.makePresetTalents('Mana Tide', SavedTalents.create({ talentsString: '5500331013001351-04-053150001001' }));
-
-export const DefaultOptions = ElementalShamanOptions.create({
-	classOptions: {
-		shieldProcrate: 0,
-	},
-});
-
-export const OtherDefaults = {
-	distanceFromTarget: 20,
-	profession1: Profession.Leatherworking,
-	profession2: Profession.Enchanting,
-	race: Race.RaceTroll,
-};
-
-export const DefaultRaidBuffs = RaidBuffs.create({
-	arcaneIntellect: true,
-	markOfTheWild: true,
-	powerWordFortitude: true,
-	prayerOfSpirit: true,
-	moonkinAura: true,
-});
-
-export const DefaultPartyBuffs = PartyBuffs.create({});
-
-export const DefaultIndividualBuffs = IndividualBuffs.create({
-	greaterBlessingOfKings: true,
-	greaterBlessingOfWisdom: 1,
-});
-
-export const DefaultDebuffs = Debuffs.create({
-	curseOfElements: true,
-	curseOfRecklessness: true,
-	exposeArmor: true,
-	faerieFire: true,
-	giftOfArthas: true,
-	judgementOfWisdom: true,
-	sunderArmor: true,
-});
-
-export const DefaultConsumables = ConsumesSpec.create({
-	conjuredId: Consumables.DemonicRune.id,
-	flaskId: Consumables.FlaskOfSupremePower.id,
-	foodId: Consumables.NightfinSoup.id,
-	mhImbueId: Consumables.BrilliantWizardOil.id,
-	offensivePotId: Consumables.MajorSpellblastingPotion.id,
-});
