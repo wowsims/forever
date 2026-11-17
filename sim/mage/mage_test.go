@@ -203,6 +203,42 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	}
 }
 
+// The missiles of the Arcane Missiles channel are hits, so each rolls its partial resist against the
+// target's whole average resist where a channel's ticks roll against a tenth of it (EV-0142).
+func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	// An average resist of 300 / (300 + 8 * 60 + 19) leaves no unresisted step at the full share, and
+	// about seven in ten unresisted at a tenth.
+	target.AddStatDynamic(sim, stats.ArcaneResistance, 300)
+	channel := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	missile := core.ActionID{SpellID: arcaneMissilesBookRank.PeriodicEffect().TriggerID}.String() + " "
+	manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	landed, unresisted := 0, 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if !strings.Contains(line, missile) || !strings.Contains(line, " damage") {
+			return
+		}
+		landed++
+		if !strings.Contains(line, "% Resist)") {
+			unresisted++
+		}
+	}
+
+	for range 40 {
+		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+		if !channel.Cast(sim, target) {
+			t.Fatalf("Arcane Missiles did not cast at %v", sim.CurrentTime)
+		}
+		stepFor(sim, 6*time.Second)
+	}
+
+	if landed < 100 || unresisted != 0 {
+		t.Errorf("%d of %d landed missiles took no partial resist, want none of at least 100", unresisted, landed)
+	}
+}
+
 // One Flamestrike ground tick rolls Arcane Concentration once, however many enemies stand in it.
 func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))

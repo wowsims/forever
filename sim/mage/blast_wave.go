@@ -13,10 +13,7 @@ func (mage *Mage) registerBlastWaveSpell() {
 
 // The daze (effect 2) does nothing to a boss.
 func (mage *Mage) registerBlastWaveRank(_ int32, rank *spelldata.Spell) {
-	// Binary: a spell with a non-damage effect (the daze) is resisted whole or not at all, which the
-	// row does not state.
-	config := spelldata.SpellConfig(&mage.Unit, rank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagBinary))
+	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = MageSpellBlastWave
 
 	config.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {

@@ -13,10 +13,7 @@ func (mage *Mage) registerConeOfColdSpell() {
 
 // The slow (effect 1) does nothing to a boss.
 func (mage *Mage) registerConeOfColdRank(_ int32, rank *spelldata.Spell) {
-	// Binary: a spell with a non-damage effect (the slow) is resisted whole or not at all, which the
-	// row does not state.
-	config := spelldata.SpellConfig(&mage.Unit, rank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Flags(core.SpellFlagBinary))
+	config := spelldata.SpellConfig(&mage.Unit, rank, spelldata.Magic(core.ProcMaskSpellDamage))
 	config.ClassSpellMask = MageSpellConeOfCold
 
 	damage := rank.DamageEffect()
