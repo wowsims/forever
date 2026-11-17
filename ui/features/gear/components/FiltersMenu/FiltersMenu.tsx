@@ -25,6 +25,7 @@ import {
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
+import { itemOwnStats } from '@sim/proto/items';
 import { Sim } from '@sim/sim';
 import { subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
@@ -312,7 +313,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 		const items = sim.db.getAllItems();
 		const listed = <T extends number>(typesOf: (item: (typeof items)[number]) => Array<T>) => [...new Set(items.flatMap(typesOf))].sort((a, b) => a - b);
 		// Each random suffix is read once, however many items can roll it.
-		const carried = new Set<Stat>(items.flatMap(item => [...Player.ownStatsOf(item)]));
+		const carried = new Set<Stat>(items.flatMap(item => [...itemOwnStats(item)]));
 		for (const id of new Set(items.flatMap(item => item.randomSuffixOptions))) {
 			sim.db.getRandomSuffixById(id)?.stats.forEach((value, stat) => {
 				if (value > 0) carried.add(stat);

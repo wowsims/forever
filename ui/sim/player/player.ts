@@ -52,7 +52,7 @@ import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
 import { isNewlyDiscovered } from '../proto/item_first_seen';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem, itemCarriesStats } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
@@ -1348,19 +1348,6 @@ export class Player<SpecType extends Spec> {
 		return ilvl >= Mechanics.CHARACTER_LEVEL ? Mechanics.CHARACTER_LEVEL : Math.max(1, ilvl - 5);
 	}
 
-	// The stats an item adds by itself, at its base item level (scaling option 0).
-	static ownStatsOf(item: Item): Set<Stat> {
-		const stats = Object.entries(item.scalingOptions[0]?.stats ?? {});
-		return new Set(stats.filter(([, value]) => value > 0).map(([stat]) => Number(stat) as Stat));
-	}
-
-	// Whether the item carries every one of the stats: by itself, or together with one of the random suffixes it can roll.
-	private static carriesStats(item: Item, suffixes: ReadonlyArray<ItemRandomSuffix>, stats: ReadonlyArray<Stat>): boolean {
-		const own = Player.ownStatsOf(item);
-		const covers = (suffixStats: ReadonlyArray<number>) => stats.every(stat => own.has(stat) || (suffixStats[stat] ?? 0) > 0);
-		return suffixes.length ? suffixes.some(suffix => covers(suffix.stats)) : covers([]);
-	}
-
 	filterItemData<T>(itemData: Array<T>, getItemFunc: (val: T) => Item, slot: ItemSlot): Array<T> {
 		const filters = this.sim.getFilters();
 
@@ -1390,7 +1377,7 @@ export class Player<SpecType extends Spec> {
 		}
 
 		if (filters.itemStats.length) {
-			itemData = filterItems(itemData, item => Player.carriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
+			itemData = filterItems(itemData, item => itemCarriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
 		}
 
 		if (filters.newlyDiscoveredOnly) {
