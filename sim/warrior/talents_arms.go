@@ -142,17 +142,14 @@ func (warrior *Warrior) registerDeepWounds() {
 		},
 	}
 
-	var critWeapon *core.Weapon
+	var application float64
 
 	// A crit while the bleed is up adds the unticked damage to the new application and spreads the sum
 	// over a full set of ticks; the ticks keep the first application's timer.
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealOutcome(sim, target, spell.OutcomeAlwaysHitNoHitCounter)
 		dot := spell.Dot(target)
-		// One application is the share of the critting hand's average weapon damage, without Attack Power:
-		// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
-		// other crit the main hand's (EV-0139).
-		totalDamage := dot.OutstandingDmg() + critWeapon.AverageDamage()*share
+		totalDamage := dot.OutstandingDmg() + application
 
 		if dot.IsActive() {
 			dot.DurationExtend(sim, deepWoundsBleed.Duration())
@@ -169,8 +166,11 @@ func (warrior *Warrior) registerDeepWounds() {
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.DeepWounds.Rank(warrior.Talents.DeepWounds),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
-			offHand := spell.IsOH() && !spell.IsMH()
-			critWeapon = core.Ternary(offHand, warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
+			// One application is the share of the critting hand's average weapon damage, without Attack Power:
+			// an off-hand crit takes the off hand's average without the off-hand damage penalty, and every
+			// other crit the main hand's (EV-0139).
+			weapon := core.Ternary(spell.IsOH() && !spell.IsMH(), warrior.AutoAttacks.OH(), warrior.AutoAttacks.MH())
+			application = weapon.AverageDamage() * share
 			warrior.DeepWounds.Cast(sim, result.Target)
 		})
 	trigger.Name = "Deep Wounds - Trigger"

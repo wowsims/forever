@@ -648,18 +648,17 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 // A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
 // crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
 func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
-	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
-	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
-	shares := map[string]float64{}
+	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}
+	var want float64
 	for _, c := range []struct {
-		name   string
-		spell  core.ActionID
-		weapon func(*dps.DpsWarrior) *core.Weapon
+		name    string
+		spell   core.ActionID
+		offHand bool
 	}{
-		{"main-hand swing", mainHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
-		{"off-hand swing", offHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.OH() }},
-		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.OH() }},
-		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
+		{"main-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotMainHand), false},
+		{"off-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, false},
 	} {
 		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})
 		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
@@ -673,16 +672,18 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 
 		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
 
-		shares[c.name] = bleed.Dot(war.CurrentTarget).SnapshotBaseDamage / c.weapon(war).AverageDamage()
-	}
-
-	want := shares["main-hand swing"]
-	if want <= 0 {
-		t.Fatalf("a main-hand crit ticks %0.4f of the weapon's average damage, want a positive share", want)
-	}
-	for name, got := range shares {
-		if math.Abs(got-want) > 1e-9 {
-			t.Errorf("a crit from the %s ticks %0.4f of its weapon's average damage, want %0.4f as the main hand's", name, got, want)
+		weapon := war.AutoAttacks.MH()
+		if c.offHand {
+			weapon = war.AutoAttacks.OH()
+		}
+		got := bleed.Dot(war.CurrentTarget).SnapshotBaseDamage / weapon.AverageDamage()
+		if want == 0 {
+			if got <= 0 {
+				t.Fatalf("a crit from the %s ticks %0.4f of its weapon's average damage, want a positive share", c.name, got)
+			}
+			want = got
+		} else if math.Abs(got-want) > 1e-9 {
+			t.Errorf("a crit from the %s ticks %0.4f of its weapon's average damage, want %0.4f as the main hand's", c.name, got, want)
 		}
 	}
 }
