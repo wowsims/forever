@@ -8,7 +8,7 @@
   2026-11-08 to 2026-11-16.
 - Game build: 1.60.1 as the log header states it; the build number and hotfix were not recorded.
 - Date: 2026-10-13 and 2026-11-08 to 2026-11-16
-- Pull request: not recorded
+- Pull request: #1077
 
 `SWING_DAMAGE` has no hand field, so a swing's hand comes from its base damage: a dual wielder's swings fall in two
 clusters, and the `SWING_MISSED` lines, which do carry the off-hand flag, confirm the warrior dual-wields. A crit counts
