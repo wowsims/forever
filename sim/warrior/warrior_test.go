@@ -688,6 +688,30 @@ func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
 	}
 }
 
+// The warrior's physical damage bonuses, the multiplier Death Wish and Enrage raise, leave a Deep Wounds tick unchanged.
+func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
+	tickDamage := func(bonus float64) float64 {
+		sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		swing := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand))
+		if bleed == nil || swing == nil {
+			t.Fatalf("Deep Wound %v, main-hand swing %v; want both registered", bleed, swing)
+		}
+		war.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= bonus
+		war.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+		bleed.Dot(war.CurrentTarget).TickOnce(sim)
+		return bleed.SpellMetrics[war.CurrentTarget.UnitIndex].TotalDamage
+	}
+
+	plain, boosted := tickDamage(1), tickDamage(1.2)
+	if plain <= 0 {
+		t.Fatalf("a Deep Wounds tick dealt %0.2f damage, want some", plain)
+	}
+	if math.Abs(boosted-plain) > 1e-9 {
+		t.Errorf("a tick under a 20%% physical damage bonus dealt %0.2f, want %0.2f as without it", boosted, plain)
+	}
+}
+
 // Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {

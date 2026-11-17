@@ -50,5 +50,22 @@ When both of a Whirlwind's strikes crit in one batch the two amounts add up: the
 against 17.2 + 15.7 = 32.9. The main-hand swing that ticked 26 is not explained.
 
 The level 30 warrior (main hand average 46.5, off hand 4.7): main-hand crits tick 6 (n 26), off-hand crits 1 (n 14 of
-15). The main-hand rule would give 6 for both. The off hand's share is 0.7 a tick, which logs as 1, so how the game
+15). The main-hand rule would give 6 for both.
+
+## Damage bonuses
+
+Death Wish (12328, +20% physical damage done) does not scale the ticks, neither at the application nor while the bleed
+ticks. The level 60 warrior's first ticks, single-crit applications as above, with Death Wish up at the application:
+
+| Started by     | Without Death Wish | Under Death Wish | +20% |
+| -------------- | ------------------ | ---------------- | ---- |
+| Main-hand crit | 17 (n 28)          | 17 (n 6, one 15) | 20.6 |
+| Off-hand crit  | 15 (n 31)          | 15 (n 5)         | 18.8 |
+
+One bleed ticked 45 and 45 across Death Wish ending between the two ticks.
+
+Enrage, from four other warriors' logs (2026-11-11 to 2026-11-16), reads the same but on ticks of 3 to 42, too small a
+sample to rule on its own: across Enrage starting or ending between two ticks of one bleed, 15 and 15, 13 and 13, 42
+and 42, 25 and 25; a fresh main-hand bleed ticks 6 under Enrage against 4, 6 and 6 without; an off-hand one 3 under
+Enrage against 3 without. The off hand's share is 0.7 a tick, which logs as 1, so how the game
 rounds a tick below 1 is not settled.

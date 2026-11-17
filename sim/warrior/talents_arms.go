@@ -121,9 +121,10 @@ func (warrior *Warrior) registerDeepWounds() {
 
 	// A crit casts the bleed, but it does not take spelldata.Proc(): that marks the spell passive,
 	// and the metrics aggregator counts no cast for a passive spell, while the sim reports every
-	// application as a cast.
+	// application as a cast. The caster's damage bonuses, Death Wish among them, never scale the
+	// ticks (EV-0139).
 	config := spelldata.SpellConfig(&warrior.Unit, deepWoundsBleed,
-		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc)) // 12162 and 412609 lack Not a Proc.
+		spelldata.Flags(core.SpellFlagNoOnCastComplete|core.SpellFlagIgnoreResists|core.SpellFlagProc|core.SpellFlagIgnoreAttackerModifiers)) // 12162 and 412609 lack Not a Proc.
 	config.ProcMask = core.ProcMaskEmpty
 
 	// The tick is a share of weapon damage, not the row's amount or its coefficient, which is why the
