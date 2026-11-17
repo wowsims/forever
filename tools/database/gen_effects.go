@@ -645,19 +645,61 @@ type KnownRates struct {
 }
 
 // A rate the sim keeps as a literal in code, outside the override tables, which the notices still
-// have to name. Gear is "item", "enchant" or "set bonus".
+// have to name, or the spell whose rate hand-written gear rolls. Gear is "item", "enchant" or "set bonus".
+// With no Origin it is a known rate, and a literal naming a spell takes that spell's rate on its gear.
 type literalRate struct {
-	Gear   string
-	ID     int32
-	Pieces int32
-	Kind   overrides.RateKind
-	Rate   float64 // 0 where the rate varies with something the notice cannot state.
-	Origin string
-	Reason string
+	Gear    string
+	ID      int32
+	Pieces  int32
+	Kind    overrides.RateKind
+	Rate    float64 // 0 where the rate varies with something the notice cannot state.
+	SpellID int32   // The spell whose rate the gear's code rolls unchanged, in place of a Kind and Rate.
+	Origin  string
+	Reason  string
 }
 
-// Empty while every gear rate is an override row; a rate that has to stay a literal in the sim goes here.
-var literalRates []literalRate
+// The rates of gear whose effect is written by hand, which the generator cannot read off the rows: a rate
+// that has to stay a literal in the sim, and the spell whose rate the code rolls unchanged. A rate that
+// varies with the target, the wearer or the hit gets no entry.
+var literalRates = []literalRate{
+	{Gear: "item", ID: 7717, SpellID: 9632, Reason: "Ravager (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 2243, SpellID: 18803, Reason: "Hand of Edward the Odd (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 10847, SpellID: 13049, Reason: "Dragon's Call (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 13040, SpellID: 29626, Reason: "Heartseeking Crossbow (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 13361, SpellID: 17484, Reason: "Skullforge Reaver (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 17780, SpellID: 21978, Reason: "Blade of Eternal Darkness (sim/common/forever/items_weapons.go): the row's procs per minute on each cast's cast time"},
+	{Gear: "item", ID: 22458, SpellID: 1300435, Reason: "Moonshadow Stave (sim/common/forever/items_weapons.go): the row's procs per minute on each cast's cast time"},
+	{Gear: "item", ID: 3078, SpellID: 1292647, Reason: "Naga Heartpiercer (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 274425, SpellID: 1294055, Reason: "White Obsidian Wand (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 18483, SpellID: 1302348, Reason: "Mana Channeling Wand (sim/common/forever/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 12592, SpellID: 16602, Reason: "Blackblade of Shahram (sim/common/forever/items_blackblade_of_shahram.go): its entry's procs per minute"},
+	{Gear: "item", ID: 19019, SpellID: 21992, Reason: "Thunderfury, Blessed Blade of the Windseeker (sim/common/classic/items_weapons.go): its entry's procs per minute"},
+	{Gear: "item", ID: 19287, SpellID: 23689, Reason: "Darkmoon Card: Heroism (sim/common/forever/items_trinkets.go): its entry's procs per minute"},
+	{Gear: "item", ID: 269741, SpellID: 1318323, Reason: "Scented Runewood Brooch (sim/common/forever/items_trinkets.go): the row's procs per minute"},
+	{Gear: "item", ID: 17774, SpellID: 21969, Reason: "Mark of the Chosen (sim/common/forever/items_trinkets.go): the row's chance"},
+	{Gear: "item", ID: 22268, SpellID: 1318931, Reason: "Draconic Infused Emblem (sim/common/forever/items_trinkets.go): the row's chance"},
+	{Gear: "item", ID: 867, SpellID: 1330855, Reason: "Gloves of Holy Might (sim/common/forever/items_armor.go): the row's chance"},
+	{Gear: "item", ID: 22196, SpellID: 27539, Reason: "Thick Obsidian Breastplate (sim/common/forever/items_armor.go): the row's chance"},
+	{Gear: "item", ID: 12628, SpellID: 16611, Reason: "Demon Forged Breastplate (sim/common/forever/items_armor.go): the row's chance"},
+	{Gear: "item", ID: 274651, SpellID: 1294668, Reason: "Zealot Plate (sim/common/forever/items_armor.go): the row's chance"},
+	{Gear: "item", ID: 12802, SpellID: 1314143, Reason: "Darkspear (sim/common/forever/items_party.go): the row's chance"},
+	{Gear: "item", ID: 279251, SpellID: 1306483, Reason: "Idol of the Ursine Twins (sim/druid/item_idols.go): the row's chance"},
+	{Gear: "item", ID: 249441, SpellID: 1248996, Reason: "Talons of Wrath (sim/druid/items.go): the row's chance"},
+	{Gear: "enchant", ID: 803, SpellID: 13897, Reason: "Fiery Weapon (sim/common/forever/enchants.go): its entry's procs per minute"},
+	{Gear: "enchant", ID: 1900, SpellID: 20007, Reason: "Crusader (sim/common/classic/enchants.go): its entry's procs per minute"},
+	{Gear: "enchant", ID: 8217, SpellID: 1248806, Reason: "Revelation (sim/common/forever/enchants.go): its entry's chance"},
+	{Gear: "set bonus", ID: 181, Pieces: 5, SpellID: 450527, Reason: "Magister's Regalia (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 1671, Pieces: 4, SpellID: 450527, Reason: "Sorcerer's Regalia (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 186, Pieces: 5, SpellID: 450577, Reason: "Beaststalker Armor (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 1669, Pieces: 4, SpellID: 450577, Reason: "Beastmaster Armor (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 182, Pieces: 5, SpellID: 450576, Reason: "Vestments of the Devout (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 1675, Pieces: 4, SpellID: 450576, Reason: "Vestments of the Virtuous (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 183, Pieces: 5, SpellID: 450585, Reason: "Dreadmist Raiment (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 1681, Pieces: 4, SpellID: 450585, Reason: "Deathmist Raiment (sim/common/forever/items_sets.go): the row's chance"},
+	{Gear: "set bonus", ID: 526, Pieces: 6, SpellID: 28771, Reason: "Frostfire Regalia (sim/mage/items.go): the row's chance"},
+	{Gear: "set bonus", ID: 526, Pieces: 8, SpellID: 28761, Reason: "Frostfire Regalia (sim/mage/items.go): the row's chance"},
+	{Gear: "set bonus", ID: 525, Pieces: 8, SpellID: 28802, Reason: "Vestments of Faith (sim/priest/item_sets.go): the row's chance"},
+}
 
 // A Source naming the files of its measurements in docs/evidence.
 var evidenceID = regexp.MustCompile(`^EV-\d{4}(, EV-\d{4})*$`)
@@ -691,6 +733,7 @@ type rateInputs struct {
 	HandEnchants   map[int32]bool         // The enchant effect ids whose effect is written by hand.
 	SetChances     map[[2]int32][]float64 // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
 	EnchantChances map[int32][]float64    // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
+	SpellChances   map[int32]float64      // The chance in percent the row of each spell a literal names rolls, 0 where it states none or where an item proc rolls another than a plain trigger, by spell id.
 	LiveItems      map[int32]LiveProcs    // The generated item procs that register, by item id.
 	LiveEnchants   map[int32]LiveProcs    // The generated enchant procs that register, by enchant effect id.
 }
@@ -747,6 +790,7 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		HandEnchants:   map[int32]bool{},
 		SetChances:     map[[2]int32][]float64{},
 		EnchantChances: map[int32][]float64{},
+		SpellChances:   map[int32]float64{},
 		LiveItems:      liveItemProcs,
 		LiveEnchants:   liveEnchantProcs,
 	}
@@ -797,6 +841,14 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 			}) {
 				in.EnchantChances[int32(effectID)] = append(in.EnchantChances[int32(effectID)], chancePercent(itemProcRowChance(spelldata.Find(int32(slot.SpellID)))))
 			}
+		}
+	}
+
+	for _, literal := range in.Literals {
+		// A plain trigger rolls the stated chance and the item proc builders the column where
+		// ItemProcRollsTheColumn picks it, so a row where the two differ has no chance to state.
+		if row := spelldata.Find(literal.SpellID); row != nil && !row.ItemProcRollsTheColumn() {
+			in.SpellChances[literal.SpellID] = chancePercent(itemProcRowChance(row))
 		}
 	}
 
@@ -965,19 +1017,54 @@ func procRate(proc *proto.ProcEffect) KnownRate {
 }
 
 // Every proc rate the sim uses on an item, an enchant or a set bonus in the database, once per piece of gear
-// and in id order. A known literal is the piece's rate. Gear written by hand with no literal has none, since
-// its code may not roll what its rows state. An item or enchant takes the procs on its database effects and
+// and in id order. A known literal is the piece's rate, and one naming a spell the rate that spell rolls on
+// it. Gear written by hand with no literal has none, since its code may not roll what its rows state. An item or enchant takes the procs on its database effects and
 // the measured rate overrides on the spells it casts, an enchant also the chances of its proc spells, and a
 // set bonus its rate overrides and the chances of its proc rows. A piece whose rates differ, one with a
 // proc that states no rate and no row rate fills, and one listed as unvalidated or missing its set bonus
 // are left out.
 func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
+	// A rate a measurement settles, and none for one whose Source is no measurement.
+	measured := func(source string, rate KnownRate) KnownRate {
+		if origin, err := rateOrigin(source); err != nil || origin != "" {
+			return KnownRate{}
+		}
+		return rate
+	}
+	// The rate a literal's spell rolls on its gear: the gear's own rate override for the spell, else the
+	// spell's rate override, else its row's chance. The sim reads them in that order.
+	spellRate := func(literal literalRate) KnownRate {
+		for _, proc := range in.WeaponProcs {
+			if literal.Gear == "item" && proc.ItemID == literal.ID && proc.SpellID == literal.SpellID {
+				return measured(proc.Source, KnownRate{Kind: overrides.RatePPM, Rate: proc.PPM})
+			}
+		}
+		for _, proc := range in.EnchantProcs {
+			if literal.Gear == "enchant" && proc.EnchantID == literal.ID && proc.SpellID == literal.SpellID {
+				rate := proc.Value
+				if proc.Kind == overrides.RateChance {
+					rate = chancePercent(rate)
+				}
+				return measured(proc.Source, KnownRate{Kind: proc.Kind, Rate: rate})
+			}
+		}
+		for _, o := range in.Spells {
+			if kind := spellRateKind(o); kind != 0 && o.SpellID == literal.SpellID {
+				return measured(o.Source, KnownRate{Kind: kind, Rate: o.Value})
+			}
+		}
+		return KnownRate{Kind: overrides.RateChance, Rate: in.SpellChances[literal.SpellID]}
+	}
 	literals := map[string]map[[2]int32][]KnownRate{"item": {}, "enchant": {}, "set bonus": {}}
 	for _, literal := range in.Literals {
 		// unvalidatedRates names nothing for gear it does not know either.
 		if literal.Origin == "" && literals[literal.Gear] != nil {
+			rate := KnownRate{Kind: literal.Kind, Rate: literal.Rate}
+			if literal.SpellID != 0 {
+				rate = spellRate(literal)
+			}
 			key := [2]int32{literal.ID, literal.Pieces}
-			literals[literal.Gear][key] = append(literals[literal.Gear][key], KnownRate{Kind: literal.Kind, Rate: literal.Rate})
+			literals[literal.Gear][key] = append(literals[literal.Gear][key], rate)
 		}
 	}
 	left := map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}}
