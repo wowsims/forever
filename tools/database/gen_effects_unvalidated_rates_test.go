@@ -202,6 +202,7 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 // a set bonus's row chance, and a known literal over the effects of gear written by hand. Hand-written gear
 // with no literal, gear with no single rate, a proc stating no rate that no override fills, a carried-over
 // override, an unvalidated rate and a missing set bonus stay out, and so does a set the database lacks.
+// Generated gear counts only where its procs register, and a row's rate only where they read the rows.
 // Each piece is listed once, in id order.
 func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	procs := func(rates ...*proto.ProcEffect) []*proto.ItemEffect {
@@ -217,7 +218,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33}, []int32{200, 201, 202, 203}, map[int32]int32{70: 7000})
+	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37}, []int32{200, 201, 202, 203, 204, 205}, map[int32]int32{70: 7000})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -228,11 +229,16 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		26: procs(ppm(1)),
 		27: procs(ppm(1), &proto.ProcEffect{}),
 		32: procs(&proto.ProcEffect{}),
+		34: procs(ppm(1)),
+		35: procs(chance(0.04)),
+		36: procs(&proto.ProcEffect{}),
+		37: procs(ppm(1), ppm(1)),
 	} {
 		db.Items[id].ItemEffects = effects
 	}
 	db.Enchants[EnchantDBKey{EffectID: 200}].EnchantEffects = procs(chance(0.1))
 	db.Enchants[EnchantDBKey{EffectID: 201}].EnchantEffects = procs(chance(0.08))
+	db.Enchants[EnchantDBKey{EffectID: 204}].EnchantEffects = procs(chance(0.06))
 	in := rateInputs{
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 2, Source: "EV-0001"},
@@ -240,13 +246,21 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{SpellID: 41, Field: overrides.ProcChancePct, Value: 6, Source: "EV-0006"},
 			{SpellID: 42, Field: overrides.PPM, Value: 1, Source: "tbc-carryover"},
 		},
-		Literals:       []literalRate{{Gear: "item", ID: 22, Kind: overrides.RateChance, Rate: 7}},
+		Literals: []literalRate{
+			{Gear: "item", ID: 22, Kind: overrides.RateChance, Rate: 7},
+			{Gear: "trinket", ID: 20, Kind: overrides.RatePPM, Rate: 9}, // Gear the notices do not know names nothing.
+		},
 		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}},
 		HandItems:      map[int32]bool{22: true, 23: true, 31: true},
 		HandEnchants:   map[int32]bool{201: true},
 		SetChances:     map[[2]int32][]float64{{7000, 4}: {4}, {7000, 2}: {3}, {8000, 2}: {5}},
-		SpellItems:     map[int32][]int32{40: {30, 31}, 41: {32}, 42: {33}},
-		EnchantChances: map[int32][]float64{202: {3}, 203: {5, 0}},
+		SpellItems:     map[int32][]int32{40: {30, 31, 35, 36}, 41: {32}, 42: {33}},
+		EnchantChances: map[int32][]float64{202: {3}, 203: {5, 0}, 205: {9}},
+		LiveItems: map[int32]LiveProcs{
+			20: {1, true}, 21: {1, true}, 24: {2, true}, 25: {2, true}, 26: {1, true}, 27: {2, true}, 30: {1, true},
+			32: {1, true}, 33: {1, true}, 35: {1, false}, 36: {1, false}, 37: {1, true},
+		},
+		LiveEnchants: map[int32]LiveProcs{200: {1, true}, 202: {1, true}, 203: {2, true}, 205: {1, false}},
 	}
 	unvalidated := UnvalidatedRates{Items: []UnvalidatedRate{{ID: 26, Kind: overrides.RatePPM, Rate: 1, Origin: "vanilla"}}}
 	missingSets := []MissingSetBonus{{ID: 7000, Pieces: 2, Name: "Set 7000"}}
@@ -276,6 +290,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{22, 0, overrides.RateChance, 7}, // The literal, not the row's 5.
 			{30, 0, overrides.RatePPM, 1.8},
 			{32, 0, overrides.RateChance, 6}, // The override states the rate its effect leaves out.
+			{35, 0, overrides.RateChance, 4}, // Its registration reads the effect, never the row's override.
 		}},
 		{"enchants", rates.Enchants, []entry{
 			{200, 0, overrides.RateChance, 10},

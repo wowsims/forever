@@ -446,6 +446,27 @@ var missingEffectsMap = map[string]map[int32]MissingItemEffect{
 	"ItemEffects":    {},
 }
 
+// The generated item and enchant procs that register, which GenerateItemEffects and GenerateEnchantEffects
+// record as they write them, by item id and enchant effect id.
+var liveItemProcs = map[int32]LiveProcs{}
+var liveEnchantProcs = map[int32]LiveProcs{}
+
+// Records the procs of the group's entries that register, as written: after refuseFoldingProcs and the
+// variant merge, which can each leave an entry out.
+func recordLiveProcs(grp *Group, live map[int32]LiveProcs) {
+	for _, entry := range grp.Entries {
+		if !entry.Supported || entry.Skipped {
+			continue
+		}
+		for _, variant := range entry.Variants {
+			procs, ok := live[int32(variant.ID)]
+			procs.RowBuilt = (!ok || procs.RowBuilt) && entry.Proc != nil
+			procs.Count++
+			live[int32(variant.ID)] = procs
+		}
+	}
+}
+
 type EffectParseResult byte
 
 const (
@@ -670,6 +691,14 @@ type rateInputs struct {
 	HandEnchants   map[int32]bool         // The enchant effect ids whose effect is written by hand.
 	SetChances     map[[2]int32][]float64 // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
 	EnchantChances map[int32][]float64    // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
+	LiveItems      map[int32]LiveProcs    // The generated item procs that register, by item id.
+	LiveEnchants   map[int32]LiveProcs    // The generated enchant procs that register, by enchant effect id.
+}
+
+// The generated procs of one item or enchant that register.
+type LiveProcs struct {
+	Count    int  // How many register.
+	RowBuilt bool // Whether every one resolves its rate from the rows at run time, where a rate override on the row reaches it.
 }
 
 // A spell override's rate kind, or 0 for an override that is not a rate.
@@ -718,6 +747,8 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		HandEnchants:   map[int32]bool{},
 		SetChances:     map[[2]int32][]float64{},
 		EnchantChances: map[int32][]float64{},
+		LiveItems:      liveItemProcs,
+		LiveEnchants:   liveEnchantProcs,
 	}
 	for itemID := range instance.Items {
 		if implementedByHand(int32(itemID)) {
@@ -943,7 +974,8 @@ func procRate(proc *proto.ProcEffect) KnownRate {
 func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
 	literals := map[string]map[[2]int32][]KnownRate{"item": {}, "enchant": {}, "set bonus": {}}
 	for _, literal := range in.Literals {
-		if literal.Origin == "" {
+		// unvalidatedRates names nothing for gear it does not know either.
+		if literal.Origin == "" && literals[literal.Gear] != nil {
 			key := [2]int32{literal.ID, literal.Pieces}
 			literals[literal.Gear][key] = append(literals[literal.Gear][key], KnownRate{Kind: literal.Kind, Rate: literal.Rate})
 		}
@@ -971,14 +1003,19 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}
 		return KnownRate{ID: id, Pieces: pieces, Name: name, Kind: found[0].Kind, Rate: found[0].Rate}, true
 	}
-	// The rates on the gear's database effects, with the rates its rows state beside them. A row's rate
-	// fills in a proc whose effect states none, as an override on a column of 0, 100 or 101 does; a proc
-	// that no row rate fills leaves the gear with no rate to state.
-	gearRates := func(effects []*proto.ItemEffect, rowRates []KnownRate) []KnownRate {
+	// The rates of generated gear whose procs register: the rates on its database effects, and the rates its
+	// rows state where its registrations read the rows. A row's rate fills in a proc whose effect states
+	// none, as an override on a column of 0, 100 or 101 does; a proc that no row rate fills, or one more
+	// than register, leaves the gear with no rate to state. The fill matches by count, not by spell.
+	gearRates := func(effects []*proto.ItemEffect, live LiveProcs, rowRates []KnownRate) []KnownRate {
+		if !live.RowBuilt {
+			rowRates = nil
+		}
 		found := slices.Clone(rowRates)
-		unstated := 0
+		procs, unstated := 0, 0
 		for _, effect := range effects {
 			if proc := effect.GetProc(); proc != nil {
+				procs++
 				if rate := procRate(proc); rate.Rate > 0 {
 					found = append(found, rate)
 				} else {
@@ -986,7 +1023,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 				}
 			}
 		}
-		if unstated > len(rowRates) {
+		if unstated > len(rowRates) || procs > live.Count {
 			found = append(found, KnownRate{})
 		}
 		return found
@@ -1014,8 +1051,8 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	var known KnownRates
 	for id, item := range db.Items {
 		var found []KnownRate
-		if !in.HandItems[id] {
-			found = gearRates(item.ItemEffects, itemRowRates[id])
+		if live, ok := in.LiveItems[id]; ok && !in.HandItems[id] {
+			found = gearRates(item.ItemEffects, live, itemRowRates[id])
 		}
 		if rate, ok := settle("item", id, 0, item.Name, found); ok {
 			known.Items = append(known.Items, rate)
@@ -1029,8 +1066,8 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		if name, ok := enchantNames[id]; !ok || enchant.Name < name {
 			enchantNames[id] = enchant.Name
 		}
-		if !in.HandEnchants[id] {
-			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, enchantRowRates[id])...)
+		if live, ok := in.LiveEnchants[id]; ok && !in.HandEnchants[id] {
+			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, live, enchantRowRates[id])...)
 		}
 	}
 	for id, name := range enchantNames {
@@ -1040,6 +1077,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 
 	setRates := map[[2]int32][]KnownRate{}
+	// A hand-written set takes these too: its code reads the overridden row through spelldata.ProcTrigger.
 	for _, o := range in.Spells {
 		if kind := spellRateKind(o); kind != 0 {
 			for _, bonus := range in.SpellSets[o.SpellID] {
@@ -1335,14 +1373,11 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 	setBonuses := missingSetBonuses(registered, instance.ItemSetSpells, db, func(spellID int) string {
 		return setBonusTooltip(instance, spellID)
 	})
-	// An item or enchant missing its effect rolls nothing, and neither does a generated item whose proc
-	// the generator skips as not simulated.
+	// An item or enchant missing an effect rolls nothing for it.
 	known := knownRates(in, db, rates, setBonuses)
 	known.Items = slices.DeleteFunc(known.Items, func(rate KnownRate) bool {
 		_, missing := missingEffectsMap["ItemEffects"][rate.ID]
-		return missing || !in.HandItems[rate.ID] && slices.ContainsFunc(db.Items[rate.ID].ItemEffects, func(effect *proto.ItemEffect) bool {
-			return effect.GetProc() != nil && !ItemEffectIsSupported(instance, int(effect.BuffId))
-		})
+		return missing
 	})
 	known.Enchants = slices.DeleteFunc(known.Enchants, func(rate KnownRate) bool {
 		_, missing := missingEffectsMap["EnchantEffects"][rate.ID]
@@ -1411,6 +1446,12 @@ func GenerateEnchantEffects(instance *dbc.DBC, db *WowDatabase) {
 	var procGroups []*Group
 	for _, grp := range groupMapProc {
 		procGroups = append(procGroups, &grp)
+	}
+
+	for _, grp := range procGroups {
+		if grp.Name == "Enchants" {
+			recordLiveProcs(grp, liveEnchantProcs)
+		}
 	}
 
 	GenerateEffectsFile(procGroups, "sim/common/forever/enchants_auto_gen.go", TmplStrEnchant)
@@ -1740,6 +1781,12 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 
 	for _, grp := range procGroups {
 		updateNames(grp.Entries)
+	}
+
+	for _, grp := range procGroups {
+		if grp.Name == "Procs" {
+			recordLiveProcs(grp, liveItemProcs)
+		}
 	}
 
 	GenerateEffectsFile(onUseGroups, "sim/common/forever/stat_bonus_cds_auto_gen.go", TmplStrOnUse)
