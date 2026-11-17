@@ -6,14 +6,19 @@
   landed hit or tick takes no partial resist. The Spell Piercing bonus is the negative side of the partial resist roll:
   a binary spell takes none, nor does a hit or tick at a tenth of the share, while a hit or tick at the full share takes
   it whole. Devouring Plague's and Pyroblast's ticks meet the target's full resistance, and Flamestrike's ground ticks a
-  tenth of it. No partial resist takes more than 75% of a hit.
+  tenth of it. A channel's ticks meet a tenth like a DoT's, Starshards' excepted, which meet the full resistance; the
+  missiles of Arcane Missiles are hits and meet it in full. No partial resist takes more than 75% of a hit.
 - Sources: 213 combat logs from 2026-09-27 to 2026-11-16, casters of every class; 17 beta-realm logs and 36 live-realm
   logs have hits on mobs with a resistance. The player streams of 992 Warcraft Logs reports of Forever (zone 3000) from
   2026-10-14 to 2026-11-16, of which 147 have hits on mobs with a resistance: 1 from the beta realms, 2 on 70862, 16 on
   70888, 86 on 70938 and 42 after push 114115; one report was checked line by line against a combat log of the same run.
   For the binary rule, 2,158 further caster streams from 706 live-realm reports (2026-11-06 to 2026-11-17) that the first
   pass never read, with the rules written down before they were fetched. For Spell Piercing, the combat logs and the
-  report streams of 20 casters with piercing, on targets with no resistance in the spell's school
+  report streams of 20 casters with piercing, on targets with no resistance in the spell's school. For the channels'
+  tick shares, two studies whose predictions were written down first, both of 2026-11-17: the drain study
+  (`forever-resist-drain-bombs-1117`, RESULTS.md) over the 1,322 live-realm reports with a control or test hit among the
+  first pass's reports, the 706 held-out reports and 3 more, and the tick share study (`forever-resist-dispel-1117`, RESULTS.md) over the 706
+  held-out reports and 866 more fetched for it
 - Game build: beta realms to 2026-10-20; live realms from 2026-11-05 on 1.60.1.70862, 1.60.1.70888 from 2026-11-10 and
   1.60.1.70938 from 2026-11-13, the last reports after the 2026-11-16 hotfix push 114115 and possibly the 2026-11-17 push
   114122; the hotfix a run was on and relogs are not recorded
@@ -120,6 +125,28 @@ expected).
 | Pyroblast's DoT          | logs 9 of 9, reports 20 of 20                                      | 1.09                                                       |
 | Flamestrike ground ticks | reports 57 of 235, logs 12 of 109 (16.9 at a tenth)                | 0.09 on 70888 and on 70938; no RESIST in 235               |
 | Other DoT ticks          | logs 435 of 1,495 (359 at a tenth), reports 1,522 of 4,464 (1,382) | Flame Shock 0.10 and 0.09, Shadow Word: Pain 0.11 and 0.08 |
+
+### Channels
+
+Each line but the Corruption one takes landed ticks or hits on pairs of caster and mob with a ≥ 0.1, and a is the
+caster's own share on the mob from control nukes of the school, else the share of every caster in the report, else the
+mob's share over every live-realm report; Drain Life's RESIST count uses the mob's share alone, and Arcane Missiles' line
+the caster's own share alone. The tick lines take ticks of at least 10 damage before the resist. The Corruption line
+needs no share: it sets each warlock's Drain Life ticks against that warlock's Corruption ticks on the same mob in the
+same report, over ticks of any size. Expected counts are at a tenth of a and at a.
+
+| Hits                                    | With a partial resist (at a tenth, at the full share)                                                                                                                                                                  | Resisted share over the target's a |
+| --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| Drain Life ticks                        | 23 of 79 (25.3, 79); no full RESIST in 31 casts (13.0 if binary)                                                                                                                                                       | 0.087                              |
+| Drain Life beside Corruption            | on 1,462 sets of report, warlock and mob with both, 31 of 13,525 Drain Life ticks against 42.7 at the rate of the warlock's own Corruption, at least 170.9 in full; 31 of 13,496 against 42.7 with ticks of 10 or more | share free                         |
+| Wrack ticks                             | 284 of 967 (336, 967)                                                                                                                                                                                                  | 0.082                              |
+| Starshards ticks                        | 232 of 237 (64.2, 230); they take the Spell Piercing bonus at the full rate (EV-0092)                                                                                                                                  | 1.19                               |
+| Arcane Missiles' missiles, own controls | 4,257 of 4,899 (1,166, 4,688); no full RESIST in 4,899                                                                                                                                                                 | 1.19                               |
+
+Drain Life's and Wrack's ticks take a tenth and Starshards' the full share, and all three are channels, so being a
+channel does not set a tick's share. As with the DoTs, no row field found tells the two groups apart, so the full share
+is set per spell. Mind Flay (above) and Drain Soul are binary (Drain Soul 0 partials in 2,144 landed ticks, full RESIST
+46 of 106 against 46.9), so their share does not matter.
 
 ## The 75% step
 

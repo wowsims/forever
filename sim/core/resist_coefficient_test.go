@@ -26,8 +26,9 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 		{"no resistance, tick", 0, true, 0, 0},
 		{"100 resistance", 100, false, 0, 100.0 / (100 + 499)},
 		{"100 resistance, tick", 100, true, 0, 100.0 / (100 + 499) / 10},
-		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / (100 + 499)},
+		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / (100 + 499) / 10},
 		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
+		{"100 resistance, channel tick with full resistance", 100, true, SpellFlagChanneled | SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
 		{"100 resistance, hit flagged for a tenth", 100, false, SpellFlagTenthResistance, 100.0 / (100 + 499) / 10},
 	} {
 		spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: tc.flags}
@@ -71,7 +72,8 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 		{"a tick at a tenth", 0, true, 0},
 		{"a hit flagged for a tenth", SpellFlagTenthResistance, false, 0},
 		{"a tick at the full share", SpellFlagFullResistanceTicks, true, -a},
-		{"a channel tick", SpellFlagChanneled, true, -a},
+		{"a channel tick", SpellFlagChanneled, true, 0},
+		{"a channel tick at the full share", SpellFlagChanneled | SpellFlagFullResistanceTicks, true, -a},
 	} {
 		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: tc.flags}
 		if got := defender.averageResist(spell, attacker, tc.isPeriodic); math.Abs(got-tc.want) > 1e-12 {

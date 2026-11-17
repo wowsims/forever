@@ -94,12 +94,12 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
-	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the share, as do the
-	// hits of a spell flagged for it, and takes no Spell Piercing bonus. A tick at the full share takes
-	// the bonus in full (EV-0092, EV-0142).
+	// A periodic tick, a hybrid's or a channel's included, rolls its partial resist against a tenth of the
+	// share, as do the hits of a spell flagged for it, and takes no Spell Piercing bonus. A tick at the
+	// full share takes the bonus in full (EV-0092, EV-0142).
 	// TODO: In-game testing required: whether piercing still lowers a positive resistance on a tick at a
 	// tenth; the sim lets it.
-	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) ||
+	if isPeriodic && !spell.Flags.Matches(SpellFlagFullResistanceTicks) ||
 		spell.Flags.Matches(SpellFlagTenthResistance) {
 		averageResist = max(0, averageResist) / 10
 	}
