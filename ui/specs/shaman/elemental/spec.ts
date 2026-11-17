@@ -56,25 +56,12 @@ export default defineSpec<Spec.SpecElementalShaman>({
 		[PseudoStat.PseudoStatSpellCritPercent, PseudoStat.PseudoStatSpellHastePercent, PseudoStat.PseudoStatSpellHitPercent],
 	),
 	defaults: {
-		// Default equipped gear.
-		gear: Presets.DefaultGear.gear,
+		...Presets.Defaults,
 		// Default EP weights for sorting gear in the gear picker.
 		epWeights: Presets.DefaultEpWeights.epWeights,
 		statCaps: (() => {
 			return new Stats().withPseudoStat(PseudoStat.PseudoStatSchoolHitPercentNature, 17);
 		})(),
-		// Default consumes settings.
-		consumables: Presets.DefaultConsumables,
-		// Default talents.
-		talents: Presets.StandardTalents.data,
-		// Default spec-specific settings.
-		specOptions: Presets.DefaultOptions,
-		other: Presets.OtherDefaults,
-		// Default raid/party buffs settings.
-		raidBuffs: Presets.DefaultRaidBuffs,
-		partyBuffs: Presets.DefaultPartyBuffs,
-		individualBuffs: Presets.DefaultIndividualBuffs,
-		debuffs: Presets.DefaultDebuffs,
 	},
 	// IconInputs to include in the 'Player' section on the settings tab.
 	playerIconInputs: [],
@@ -100,7 +87,7 @@ export default defineSpec<Spec.SpecElementalShaman>({
 		// Preset gear configurations that the user can quickly select.
 		gear: [Presets.DefaultGear],
 		// Preset builds that the user can quickly select.
-		builds: [Presets.TestingBuild],
+		builds: [Presets.DefaultBuild],
 	},
 
 	autoRotation: (_player: Player<Spec.SpecElementalShaman>): APLRotation => {
