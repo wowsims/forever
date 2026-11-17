@@ -240,7 +240,7 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.PhysicalDamage]
 	} else {
 		bonusDamage += spell.SpellDamage(attackTable.Defender)
-		if !spell.Flags.Matches(SpellFlagNoSpellPowerVersus) {
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
 			bonusDamage += attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
 		}
 	}

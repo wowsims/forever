@@ -1322,9 +1322,9 @@ func TestThornsPlayerCopyScalesWithTheCastersSpellPower(t *testing.T) {
 	}
 }
 
-// The druid's own Thorns takes none of the druid's spell power against the attacker's creature type,
-// while the druid's other spell power and the damage multiplier against that type still reach the hit.
-func TestThornsPlayerCopyTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
+// A damage shield takes none of its owner's spell power against the attacker's creature type, while
+// the owner's other spell power and the damage multiplier against that type still reach the hit.
+func TestDamageShieldTakesNoSpellPowerVersusTheAttacker(t *testing.T) {
 	sim, char := newTotemSim(t, &proto.RaidBuffs{}, func(c *core.Character) {
 		c.AddStat(stats.SpellDamage, 100)
 		buffs.NewSpellDataThornsAuraWithSpellPower(&c.Unit, true, 0)

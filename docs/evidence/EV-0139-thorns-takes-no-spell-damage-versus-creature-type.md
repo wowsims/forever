@@ -3,6 +3,7 @@
 - Claim: an item's spell damage against a creature type (Courier's Clasp 279833, +10 against Humanoids) reaches every
   damage spell and tick of a Balance druid's except Thorns, whose hits take the druid's other spell power at Thorns'
   coefficient and none of the bonus; an Elemental shaman's Lightning Shield orbs take it like the shaman's other spells.
+  Only Thorns is measured; the sim applies the rule to every damage shield, as it does the target's flat school bonus.
 - Sources: combat log, a Tauren Balance druid, levels 54 to 56, Courier's Clasp worn all day, 2026-11-16 06:53 to 17:40
   and 22:21 to 22:48 (two logs); combat log, an Orc Elemental shaman, levels 50 and 51, Courier's Clasp worn from 19:11,
   2026-11-16 17:01 to 2026-11-17 00:37. Times are the player's local time.
