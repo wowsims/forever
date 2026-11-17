@@ -2063,10 +2063,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SoulforgeArmor"
  value: {
-  dps: 415.86528
-  tps: 983.80279
-  dtps: 368.18363
-  hps: 18.1475
+  dps: 398.3268
+  tps: 939.43405
+  dtps: 324.65488
+  hps: 18.41861
  }
 }
 dps_results: {

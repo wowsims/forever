@@ -720,9 +720,9 @@ dps_results: {
 dps_results: {
  key: "TestBalance-AllItems-FeralheartRaiment"
  value: {
-  dps: 803.12903
-  tps: 815.04937
-  dtps: 4.59857
+  dps: 738.05788
+  tps: 750.19711
+  dtps: 4.87945
  }
 }
 dps_results: {

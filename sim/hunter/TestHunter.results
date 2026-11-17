@@ -153,15 +153,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sBoots-226903"
- value: {
-  dps: 899.50012
-  tps: 922.19467
-  dtps: 8.62231
-  hps: 13.79278
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-Beastmaster'sCap-226887"
  value: {
   dps: 901.04689
@@ -180,24 +171,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sGloves-226902"
- value: {
-  dps: 893.31595
-  tps: 916.0798
-  dtps: 8.79404
-  hps: 14.01306
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-Beastmaster'sHelm-226901"
- value: {
-  dps: 899.99202
-  tps: 922.97976
-  dtps: 8.87512
-  hps: 14.1825
- }
-}
-dps_results: {
  key: "TestHunter-AllItems-Beastmaster'sTreads-226881"
  value: {
   dps: 901.42904
@@ -209,9 +182,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BeastmasterArmor"
  value: {
-  dps: 826.25497
-  tps: 850.09521
-  dtps: 8.69111
+  dps: 832.63577
+  tps: 856.51204
+  dtps: 8.66058
   hps: 13.53861
  }
 }

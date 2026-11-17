@@ -172,6 +172,31 @@ func DropLowerSameNameSets(db *WowDatabase) {
 	}
 }
 
+// Where a set ships a piece its ItemSet row does not list, a piece the row does list for that slot is dropped. The row
+// of each reissued dungeon set 2 lists eight pieces no player wears, beside the pieces players wear, which carry the
+// set's id and are not on its list (EV-0144). A set whose row lists the pieces it ships loses nothing, so this drops
+// nothing once the game files list the worn pieces.
+func DropListedSetPiecesBesideUnlistedOnes(db *WowDatabase, listed map[int32]bool) {
+	type setPiece struct {
+		set      int32
+		itemType proto.ItemType
+	}
+	unlisted := map[setPiece]bool{}
+	for id, item := range db.Items {
+		if item.SetId > 0 && !listed[id] {
+			unlisted[setPiece{item.SetId, item.Type}] = true
+		}
+	}
+	for id, item := range db.Items {
+		if _, ok := ItemAllowList[id]; ok {
+			continue
+		}
+		if item.SetId > 0 && listed[id] && unlisted[setPiece{item.SetId, item.Type}] {
+			delete(db.Items, id)
+		}
+	}
+}
+
 // Keep these sorted by item ID.
 var ItemAllowList = map[int32]struct{}{
 	1168:  {}, // Skullflame Shield

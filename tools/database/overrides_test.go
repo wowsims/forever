@@ -529,6 +529,42 @@ func TestShippedVersusBonusesAreWellFormed(t *testing.T) {
 
 // Of two sets sharing a name, the lower set id's pieces of a type the higher set has go and the higher's stay; the
 // lower set's piece of a type the higher set lacks stays and joins the higher set with its classes, and a set alone
+// A piece a set's ItemSet row lists is dropped where the set ships a piece of that slot the row does not list. A
+// listed piece with no unlisted one in its slot stays, as do a set with only listed pieces and an ItemAllowList item.
+func TestListedSetPieceIsDroppedBesideAnUnlistedOne(t *testing.T) {
+	var allowed int32
+	for id := range ItemAllowList {
+		allowed = id
+		break
+	}
+	if allowed == 0 {
+		t.Fatal("ItemAllowList is empty")
+	}
+
+	db := NewWowDatabase()
+	for _, item := range []*proto.UIItem{
+		{Id: 1, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 2, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 3, SetId: 10, Type: proto.ItemType_ItemTypeChest},
+		{Id: 4, SetId: 20, Type: proto.ItemType_ItemTypeLegs},
+		{Id: 5, Type: proto.ItemType_ItemTypeLegs},
+		{Id: allowed, SetId: 10, Type: proto.ItemType_ItemTypeLegs},
+	} {
+		db.Items[item.Id] = item
+	}
+
+	DropListedSetPiecesBesideUnlistedOnes(db, map[int32]bool{2: true, 3: true, 4: true, 5: true, allowed: true})
+
+	if _, ok := db.Items[2]; ok {
+		t.Error("the listed piece ships beside an unlisted piece of its set and slot")
+	}
+	for _, id := range []int32{1, 3, 4, 5, allowed} {
+		if _, ok := db.Items[id]; !ok {
+			t.Errorf("item %d is dropped", id)
+		}
+	}
+}
+
 // under its name, an item with no set and an ItemAllowList item of the lower set stay.
 func TestLowerSameNameSetIsDropped(t *testing.T) {
 	var allowed int32
