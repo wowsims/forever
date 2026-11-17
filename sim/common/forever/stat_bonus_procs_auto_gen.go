@@ -48,19 +48,6 @@ func RegisterAllProcs() {
 	//	{ItemID: 226886, ItemName: "Beastmaster's Tunic"},
 	// })
 
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Increases your pet's armor by 10%.
-	// https://www.wowhead.com/forever/spell=27225
-	// unsupported: effect 1 A_MOD_BASE_RESISTANCE_PCT misc 1 is not parsed on a pet
-	// equip: 27225 keeps 27208 up (A_MOD_BASE_RESISTANCE_PCT)
-	// shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27225},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 226904, ItemName: "Beastmaster's Chest"},
-	// })
-
 	// When struck in combat, inflicts 3 Physical damage to the attacker.
 	// https://www.wowhead.com/forever/spell=1325228
 	// equip: 1325228 (A_DAMAGE_SHIELD)
@@ -196,30 +183,6 @@ func RegisterAllProcs() {
 	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
 		[]shared.ItemVariant{
 			{ItemID: 226887, ItemName: "Beastmaster's Cap"},
-		})
-
-	// Increases your pet's maximum health by 3%.
-	// https://www.wowhead.com/forever/spell=27038
-	// equip: 27038 keeps 27039 up (A_MOD_INCREASE_HEALTH_PERCENT)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27038},
-		[]shared.ItemVariant{
-			{ItemID: 226901, ItemName: "Beastmaster's Helm"},
-		})
-
-	// Increases your pet's critical strike chance by 2%.
-	// https://www.wowhead.com/forever/spell=27043
-	// equip: 27043 keeps 27042 up (A_MOD_WEAPON_CRIT_PERCENT)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27043},
-		[]shared.ItemVariant{
-			{ItemID: 226902, ItemName: "Beastmaster's Gloves"},
-		})
-
-	// Increases damage dealt by your pet by 3%.
-	// https://www.wowhead.com/forever/spell=27206
-	// equip: 27206 keeps 27205 up (A_MOD_DAMAGE_PERCENT_DONE)
-	shared.NewSpellDataEquipAura(shared.SpellDataProc{TriggerSpellID: 27206},
-		[]shared.ItemVariant{
-			{ItemID: 226903, ItemName: "Beastmaster's Boots"},
 		})
 
 	// When struck in combat, inflicts 3 Nature damage to the attacker.
@@ -4624,8 +4587,6 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=1293068
-	// Not simulated: Darkmantle Boots: "Stealth 08" (27037) - ignored aura type 154
-	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Medal of Valor: "Resist Fear 02" (1324578) - ignored aura type 117
 	// https://www.wowhead.com/forever/spell=1324578
 	// Not simulated: Premier Kodohide Gauntlets: "Stealth Detection 10" (23217) - ignored aura type 17
