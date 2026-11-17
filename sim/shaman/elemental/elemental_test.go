@@ -28,12 +28,12 @@ func TestElemental(t *testing.T) {
 					},
 				},
 			}},
-			GearSet:     testingBuild.GearSet,
+			GearSet:     defaultBuild.GearSet,
 			Talents:     DefaultTalents,
-			Consumables: DefaultConsumables,
+			Consumables: defaultBuild.Consumables,
 			Profession1: proto.Profession_Leatherworking,
 			Profession2: proto.Profession_Enchanting,
-			Rotation:    core.RotationCombo{Label: "default", Rotation: testingBuild.Rotation.Rotation},
+			Rotation:    core.RotationCombo{Label: "default", Rotation: defaultBuild.Rotation.Rotation},
 			ItemFilter: core.ItemFilter{
 				WeaponTypes:       DefaultWeaponTypes,
 				ArmorType:         DefaultArmorType,
@@ -43,21 +43,11 @@ func TestElemental(t *testing.T) {
 	}))
 }
 
-// The Testing build's gear, talents and rotation, which the UI's Testing gear set, Standard talents and
-// Default rotation read too.
-var testingBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/elemental/builds", "testing",
+// The Default build's gear, talents, consumables and rotation, which the UI's defaults read too.
+var defaultBuild = core.GetTestBuildFromJSON(proto.Class_ClassShaman, "../../../ui/specs/shaman/elemental/builds", "default",
 	core.ItemFilter{}, nil, nil)
 
-var DefaultTalents = testingBuild.Talents
-
-// The UI's Elemental defaults: Major Mana Potion, Flask of Supreme Power, Demonic Rune and Brilliant
-// Wizard Oil.
-var DefaultConsumables = &proto.ConsumesSpec{
-	ResourcePotId: 13444,
-	FlaskId:       13512,
-	ConjuredId:    12662,
-	MhImbueId:     20749,
-}
+var DefaultTalents = defaultBuild.Talents
 
 const DefaultArmorType = proto.ArmorType_ArmorTypeMail
 

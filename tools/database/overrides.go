@@ -557,7 +557,6 @@ var ItemDenyList = map[int32]struct{}{
 	227862: {}, // Incandescent Mooncloth Boots
 	227888: {}, // Argent Elite Shoulders
 	227947: {}, // Golem Fitted Pauldrons
-	228176: {}, // Totem of Thunder
 	228190: {}, // Knowledge of the Timbermaw
 	231530: {}, // Warlord's Plate Armor
 	231531: {}, // General's Plate Boots
