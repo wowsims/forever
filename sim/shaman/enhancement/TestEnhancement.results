@@ -1901,10 +1901,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Waveslicer-18324"
  value: {
-  dps: 846.93755
-  tps: 879.33918
-  dtps: 8.22745
-  hps: 25.06083
+  dps: 848.06452
+  tps: 880.48077
+  dtps: 8.47
+  hps: 25.01
  }
 }
 dps_results: {

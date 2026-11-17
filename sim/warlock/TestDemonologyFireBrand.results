@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 863.52603
+  tps: 676.13894
+  dtps: 8.52991
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BehemothBones-280065"
  value: {
   dps: 906.36806

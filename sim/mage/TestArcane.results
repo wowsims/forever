@@ -103,6 +103,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 743.36541
+  tps: 640.97878
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-BehemothBones-280065"
  value: {
   dps: 834.91674

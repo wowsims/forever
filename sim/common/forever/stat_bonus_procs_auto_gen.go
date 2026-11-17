@@ -223,19 +223,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Blasts a target for 126 Nature damage.
-	// https://www.wowhead.com/forever/spell=18104
-	// unsupported: states no rate
-	// trigger 18104 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18104, BuffSpellID: 18104, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 811, ItemName: "Axe of the Deep Woods"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// When struck in combat has a 2% chance of dealing 115 Fire damage to all targets around you.
 	// https://www.wowhead.com/forever/spell=18818
 	// unsupported: a second proc of the item would fold under the first's listener
@@ -805,20 +792,6 @@ func RegisterAllProcs() {
 	//	RequireDamageDealt: false
 	// }, []shared.ItemVariant{
 	//	{ItemID: 12781, ItemName: "Serenity"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
-	// Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied
-	// while behind the target.
-	// https://www.wowhead.com/forever/spell=1300787
-	// unsupported: states no rate
-	// trigger 1300787 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1300787, BuffSpellID: 1300787, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 12791, ItemName: "Barman Shanker"},
 	// })
 
 	// TODO: Manual implementation required
@@ -3045,19 +3018,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Blunderflame the target for 56 Fire damage.
-	// https://www.wowhead.com/forever/spell=1296730
-	// unsupported: states no rate
-	// trigger 1296730 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1296730, BuffSpellID: 1296730, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 275439, ItemName: "Blunderflame Bone Bow"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Chance on harmful spell cast to reduce target's attack power by 60 for 30s.
 	//
 	// https://www.wowhead.com/forever/spell=1297082
@@ -3416,6 +3376,14 @@ func RegisterAllProcs() {
 			{ItemID: 810, ItemName: "Hammer of the Northern Wind"},
 		})
 
+	// Blasts a target for 126 Nature damage.
+	// https://www.wowhead.com/forever/spell=18104
+	// trigger 18104 (1.7 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18104, BuffSpellID: 18104, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 811, ItemName: "Axe of the Deep Woods"},
+		})
+
 	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=13752
 	// trigger 13752 (2.8 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -3566,7 +3534,7 @@ func RegisterAllProcs() {
 
 	// Heals wielder of 78 damage over 12s.
 	// https://www.wowhead.com/forever/spell=8348
-	// trigger 8348 (0.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 8348 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataHealProc(shared.SpellDataProc{TriggerSpellID: 8348, BuffSpellID: 8348, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 6660, ItemName: "Julie's Dagger"},
@@ -3901,6 +3869,15 @@ func RegisterAllProcs() {
 			{ItemID: 12790, ItemName: "Arcanite Champion"},
 		})
 
+	// Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied
+	// while behind the target.
+	// https://www.wowhead.com/forever/spell=1300787
+	// trigger 1300787 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1300787, BuffSpellID: 1300787, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 12791, ItemName: "Barman Shanker"},
+		})
+
 	// Hurls a fiery ball that causes 228 Fire damage and an additional 36 damage over 6s.
 	// https://www.wowhead.com/forever/spell=18082
 	// trigger 18082 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -4210,7 +4187,7 @@ func RegisterAllProcs() {
 
 	// Slice the target, dealing 70 Nature damage. Deals 3 times as much damage to Aquatic enemies.
 	// https://www.wowhead.com/forever/spell=1302166
-	// trigger 1302166 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1302166 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1302166, BuffSpellID: 1302166, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 18324, ItemName: "Waveslicer"},
@@ -4418,6 +4395,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1295744, BuffSpellID: 1295744, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 274963, ItemName: "Rot-Covered Harpoon"},
+		})
+
+	// Blunderflame the target for 56 Fire damage.
+	// https://www.wowhead.com/forever/spell=1296730
+	// trigger 1296730 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1296730, BuffSpellID: 1296730, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 275439, ItemName: "Blunderflame Bone Bow"},
 		})
 
 	// Cremate the target for 56 Fire damage.

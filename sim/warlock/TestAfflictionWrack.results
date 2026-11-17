@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 873.39328
+  tps: 702.61752
+  dtps: 9.57023
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-BehemothBones-280065"
  value: {
   dps: 926.76371

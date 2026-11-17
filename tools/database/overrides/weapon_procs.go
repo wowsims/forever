@@ -507,6 +507,45 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Toofbreaker: no proc row",
 		Source:  "EV-0136",
 	},
+	// Measured the same way with the reports up to 2026-11-17 added (EV-0146).
+	{
+		ItemID:  13016,
+		SpellID: 13318,
+		PPM:     1,
+		Reason:  "Killmaim: column reads 101",
+		Source:  "EV-0146",
+	},
+	{
+		ItemID:  18324,
+		SpellID: 1302166,
+		PPM:     1.95,
+		Reason:  "Waveslicer: no proc row",
+		Source:  "EV-0146",
+	},
+	// Fitted the same way from the reports up to 2026-11-17, from too few wearers or too wide an interval
+	// to call final (EV-0146). The "observed" Source keeps the gear tab's notice up until more wearers
+	// validate it.
+	{
+		ItemID:  811,
+		SpellID: 18104,
+		PPM:     1.7,
+		Reason:  "Axe of the Deep Woods: no proc row; a log fit not yet validated (EV-0146)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12791,
+		SpellID: 1300787,
+		PPM:     2.05,
+		Reason:  "Barman Shanker: column reads 101; a log fit not yet validated (EV-0146)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  275439,
+		SpellID: 1296730,
+		PPM:     2.1,
+		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
+		Source:  "observed",
+	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{
@@ -659,8 +698,8 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6660,
 		SpellID: 8348,
-		PPM:     0.85,
-		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0136)",
+		PPM:     1.05,
+		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
 	{
@@ -832,13 +871,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  13016,
-		SpellID: 13318,
-		PPM:     0.95,
-		Reason:  "Killmaim: column reads 101; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
 		ItemID:  13032,
 		SpellID: 17510,
 		PPM:     1,
@@ -941,13 +973,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 21952,
 		PPM:     2.45,
 		Reason:  "Claw of Celebras: column reads 101; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  18324,
-		SpellID: 1302166,
-		PPM:     1.9,
-		Reason:  "Waveslicer: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{

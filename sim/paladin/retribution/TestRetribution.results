@@ -2297,9 +2297,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Waveslicer-18324"
  value: {
-  dps: 838.85022
-  tps: 686.60347
-  dtps: 5.89218
+  dps: 839.12161
+  tps: 686.93477
+  dtps: 5.92794
   hps: 26.72783
  }
 }
