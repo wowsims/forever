@@ -2018,6 +2018,15 @@
 								"newly_discovered": {
 									"type": "string"
 								},
+								"stats": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"label": { "type": "string" }
+									},
+									"required": ["title", "label"],
+									"additionalProperties": false
+								},
 								"bonus": {
 									"type": "object",
 									"properties": {
@@ -2061,6 +2070,7 @@
 								"source",
 								"raids",
 								"newly_discovered",
+								"stats",
 								"bonus",
 								"faction_labels"
 							]
