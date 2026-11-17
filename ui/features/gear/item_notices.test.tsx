@@ -4,7 +4,15 @@ import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ENCHANT_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES, registerAreaStatsNotices, registerSetBonusNotices } from './item_notices';
+import {
+	ENCHANT_NOTICES,
+	ENCHANT_RATE_NOTICES,
+	ITEM_INFO_NOTICES,
+	ITEM_NOTICES,
+	ITEM_RATE_NOTICES,
+	registerAreaStatsNotices,
+	registerSetBonusNotices,
+} from './item_notices';
 
 vi.mock('@i18n/localization', () => ({
 	translateAreaType: (value: number) => `area-${value}`,
@@ -53,6 +61,17 @@ vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 			new Map([
 				[2, { kind: 'chance', rate: 25, origin: 'tbc' }],
 				[4, { kind: 'ppm', rate: 3, origin: 'vanilla' }],
+			]),
+		],
+	]),
+	PROC_RATE_ITEMS: new Map([[1, { kind: 'ppm', rate: 1.5 }]]),
+	PROC_RATE_ENCHANTS: new Map([[2, { kind: 'chance', rate: 5 }]]),
+	PROC_RATE_SET_BONUSES: new Map([
+		[
+			9998,
+			new Map([
+				[4, { kind: 'ppm', rate: 1 }],
+				[2, { kind: 'chance', rate: 7.5 }],
 			]),
 		],
 	]),
@@ -106,6 +125,47 @@ describe('the item notice table', () => {
 
 	it('warns that an enchant rate needs validating on an enchant with no other notice', () => {
 		expect(paragraphs(ENCHANT_NOTICES.get(9)?.[Spec.SpecUnknown])).toEqual([VANILLA_CHANCE_WARNING]);
+	});
+});
+
+describe('the proc rate notices', () => {
+	it('states a ppm at two decimals and a chance as a percent', () => {
+		expect(paragraphs(ITEM_RATE_NOTICES.get(1))).toEqual(['gear_tab.item_notices.proc_rate 1.50']);
+		expect(paragraphs(ENCHANT_RATE_NOTICES.get(2))).toEqual(['gear_tab.item_notices.proc_chance 5']);
+	});
+});
+
+describe('the proc rate notices of a set', () => {
+	const SET_ID = 9998;
+	const PIECES = [90020, 1];
+	const ownRate = ITEM_RATE_NOTICES.get(1);
+	const register = () => registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? PIECES : []) } as unknown as Database);
+
+	afterEach(() => {
+		ITEM_RATE_NOTICES.delete(90020);
+		ITEM_RATE_NOTICES.set(1, ownRate!);
+	});
+
+	it('adds each set bonus rate to every piece of the set', () => {
+		register();
+
+		expect(paragraphs(ITEM_RATE_NOTICES.get(90020))).toEqual([
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_chance 7.5',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_rate 1.00',
+		]);
+		expect(paragraphs(ITEM_RATE_NOTICES.get(1))).toEqual([
+			'gear_tab.item_notices.proc_rate 1.50',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_chance 7.5',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_rate 1.00',
+		]);
+	});
+
+	it('gives the same notices when it runs twice', () => {
+		register();
+		const once = PIECES.map(id => paragraphs(ITEM_RATE_NOTICES.get(id)));
+		register();
+
+		expect(PIECES.map(id => paragraphs(ITEM_RATE_NOTICES.get(id)))).toEqual(once);
 	});
 });
 

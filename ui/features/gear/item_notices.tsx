@@ -2,9 +2,13 @@ import { Spec } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { translateAreaType, translateStat } from '@i18n/localization';
 import {
+	type KnownRate,
 	MISSING_ENCHANT_EFFECTS,
 	MISSING_ITEM_EFFECTS,
 	MISSING_SET_BONUSES,
+	PROC_RATE_ENCHANTS,
+	PROC_RATE_ITEMS,
+	PROC_RATE_SET_BONUSES,
 	UNVALIDATED_RATE_ENCHANTS,
 	UNVALIDATED_RATE_ITEMS,
 	UNVALIDATED_RATE_SET_BONUSES,
@@ -98,6 +102,13 @@ const unvalidatedRateText = ({ kind, rate, origin }: UnvalidatedRate): string =>
 	return i18n.t('gear_tab.item_notices.unvalidated_rate.chance_tbc');
 };
 
+const knownRateText = ({ kind, rate }: KnownRate): string =>
+	kind === 'ppm'
+		? i18n.t('gear_tab.item_notices.proc_rate', { rate: rate.toFixed(2) })
+		: i18n.t('gear_tab.item_notices.proc_chance', { rate: formatRate(rate) });
+
+const KnownRateLine = ({ rate }: { rate: KnownRate }) => <p className="mb-0">{knownRateText(rate)}</p>;
+
 const UnvalidatedRateText = ({ rate }: { rate: UnvalidatedRate }) => <>{unvalidatedRateText(rate)}</>;
 
 // Gear with an unvalidated rate can also miss an effect, so the rate warning joins the notice it already has.
@@ -117,6 +128,13 @@ const addUnvalidatedRateNotices = (notices: Map<number, ItemNoticeData>, rates: 
 		});
 	}
 };
+
+// The rate each item and enchant carries; an item's also gains the rates of the set bonuses it belongs to.
+const OWN_ITEM_RATE_NOTICES = new Map<number, ReactNode>([...PROC_RATE_ITEMS].map(([id, rate]) => [id, <KnownRateLine rate={rate} />]));
+
+export const ITEM_RATE_NOTICES = new Map<number, ReactNode>(OWN_ITEM_RATE_NOTICES);
+
+export const ENCHANT_RATE_NOTICES = new Map<number, ReactNode>([...PROC_RATE_ENCHANTS].map(([id, rate]) => [id, <KnownRateLine rate={rate} />]));
 
 const WILL_NOT_BE_IMPLEMENTED_ITEMS: number[] = [];
 
@@ -204,6 +222,26 @@ addSetBonusNotices(UNVALIDATED_RATE_SET_BONUSES, rate => <UnvalidatedRateText ra
 // A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
 // notice it already has.
 export const registerSetBonusNotices = (db: Database) => {
+	PROC_RATE_SET_BONUSES.forEach((setRates, setID) => {
+		const lines = [...setRates]
+			.sort(([a], [b]) => a - b)
+			.map(([pieceCount, rate]) => (
+				<p key={pieceCount} className="mb-0">
+					{i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} {knownRateText(rate)}
+				</p>
+			));
+
+		for (const id of db.getItemIdsForSet(setID)) {
+			ITEM_RATE_NOTICES.set(
+				id,
+				<>
+					{OWN_ITEM_RATE_NOTICES.get(id)}
+					{lines}
+				</>,
+			);
+		}
+	});
+
 	SET_BONUS_NOTICES.forEach((bonuses, setID) => {
 		const noticeContent = (
 			<>
