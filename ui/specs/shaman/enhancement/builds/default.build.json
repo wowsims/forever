@@ -25,34 +25,34 @@
   "player": {
     "apiVersion": 2,
     "name": "Player",
-    "race": "RaceWindshaperSkyborne",
+    "race": "RaceDwarf",
     "class": "ClassShaman",
     "equipment": {
       "items": [
-        {"id":252604,"enchant":1509},
-        {"id":22149,"enchant":8218},
-        {"id":19050},
-        {"id":279270,"enchant":849},
-        {"id":21183,"enchant":1893},
-        {"id":21186,"enchant":1901},
-        {"id":12632,"enchant":8213},
-        {"id":18405},
-        {"id":252486,"enchant":1509},
-        {"id":275621,"enchant":8492},
-        {"id":275972},
+        {"id":227021,"enchant":2543},
+        {"id":15411,"enchant":856},
+        {"id":227019},
+        {"id":272411,"enchant":7667},
+        {"id":252484,"enchant":1891},
+        {"id":227017,"enchant":1885},
+        {"id":14615,"enchant":931},
+        {"id":227018},
+        {"id":252606,"enchant":2543},
+        {"id":14616,"enchant":1887},
+        {"id":22433},
         {"id":272406},
-        {"id":272438},
-        {"id":249469},
-        {"id":9449,"enchant":8211},
+        {"id":11815},
+        {"id":13965},
+        {"id":280056,"enchant":1900},
         {},
-        {"id":23199}
+        {"id":22395}
       ]
     },
     "consumables": {
       "flaskId": 13512,
-      "foodId": 13935,
+      "foodId": 20452,
       "conjuredId": 12662,
-      "mhImbueId": 20750,
+      "mhImbueId": 12404,
       "potions": [
         1072,
         2455,
@@ -109,7 +109,7 @@
       ],
       "extraIds": [
         12217,
-        8423
+        8410
       ],
       "elixirIds": [
         250343,
@@ -121,16 +121,15 @@
         250341,
         12820
       ],
-      "swapMhImbueId": 20750,
-      "resourcePotId": 13444
+      "resourcePotId": 13444,
+      "offensivePotId": 250937
     },
     "bonusStats": {
       "apiVersion": 2,
       "stats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+      "pseudoStats": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     },
-    "enableItemSwap": true,
-    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{"id":250617,"enchant":8211},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
+    "itemSwap": {"items":[{},{},{},{},{},{},{},{},{},{},{},{},{},{},{"id":19323,"enchant":1900},{},{}],"prepullBonusStats":{"apiVersion":2,"stats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"pseudoStats":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]}},
     "buffs": {
       "greaterBlessingOfKings": true,
       "greaterBlessingOfMight": 1,
@@ -139,12 +138,11 @@
     "enhancementShaman": {
       "options": {
         "classOptions": {
-          "imbueMh": "FlametongueWeapon",
-          "imbueMhSwap": "FlametongueWeapon"
+          "imbueMh": "WindfuryWeapon"
         }
       }
     },
-    "talentsString": "053303102-053030310051002251-03",
+    "talentsString": "053303102-053030310051012251-02",
     "profession1": "Engineering",
     "profession2": "Leatherworking",
     "cooldowns": {
