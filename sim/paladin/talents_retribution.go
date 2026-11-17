@@ -168,7 +168,7 @@ func (paladin *Paladin) applyEyeForAnEye() {
 
 	var reflected float64
 	config := spelldata.SpellConfig(&paladin.Unit, eyeForAnEyeDamage, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagBinary|core.SpellFlagIgnoreModifiers))
+		spelldata.Flags(core.SpellFlagIgnoreModifiers))
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealDamage(sim, target, reflected, spell.OutcomeAlwaysHit)
 	}

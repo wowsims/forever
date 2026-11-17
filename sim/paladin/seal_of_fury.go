@@ -48,7 +48,7 @@ func (paladin *Paladin) registerSealOfFury(_ int32, rank *spelldata.Spell) {
 	// spell power by hand, and core adds Judgement of the Crusader at the coefficient after the done
 	// multipliers.
 	judgementCoefficient := judgementDamage.Coeff()
-	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL), spelldata.Flags(core.SpellFlagBinary))
+	judgementConfig := spelldata.SpellConfig(&paladin.Unit, judgementRank, spelldata.Melee(core.ProcMaskRangedSpecial), spelldata.RemoveFlags(core.SpellFlagAPL))
 	judgementConfig.ClassSpellMask = SpellMaskJudgementOfFury
 	judgementConfig.TakenBonusCoefficient = judgementCoefficient
 	judgementConfig.DirectVariance = judgementDamage.DirectVariance()

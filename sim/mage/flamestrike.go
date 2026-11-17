@@ -23,9 +23,8 @@ func (mage *Mage) registerFlamestrikeSpells() {
 //
 // Each tick is a direct hit of the tick spell, so a hit listener hears every enemy it lands on. The
 // tick's row is outside the class flags of Revelation's crit and charge, and it costs nothing, so it
-// neither takes nor spends Revelation or Clearcasting. A tick takes no partial resist (EV-0028).
-// TODO: Verify in game whether a tick rolls a partial resist, and whether Spell Piercing beyond a
-// target's resistance adds to it.
+// neither takes nor spends Revelation or Clearcasting. A tick rolls its partial resist against a tenth of
+// the target's share, as a DoT's tick does, and takes no Spell Piercing bonus (EV-0142).
 func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell) {
 	tickRank := spellData.FlamestrikeTriggered.Rank(rank)
 	cannotCrit := tickRank.CannotCrit()
@@ -47,7 +46,7 @@ func (mage *Mage) registerFlamestrikeSpell(rank int32, castRank *spelldata.Spell
 	dotSpell := mage.RegisterSpell(dotConfig)
 
 	tickConfig := spelldata.SpellConfig(&mage.Unit, tickRank, spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(),
-		spelldata.Flags(core.SpellFlagNoPartialResist))
+		spelldata.Flags(core.SpellFlagTenthResistance))
 	tickConfig.ActionID = dotSpell.ActionID
 	tickConfig.ClassSpellMask = MageSpellFlamestrikeDot
 	tickConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {

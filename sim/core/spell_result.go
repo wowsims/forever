@@ -382,7 +382,7 @@ func (spell *Spell) missesImmune(target *Unit) bool {
 		spell.Flags.Matches(SpellFlagStun) && target.stunImmune()
 }
 
-// A miss with no hit or crit roll, as a full resist or a bleed on a bleed-immune target is.
+// A miss with no hit or crit roll, as a bleed on a bleed-immune target is.
 func (spell *Spell) missInFull(result *SpellResult) {
 	result.Outcome = OutcomeMiss
 	result.Damage = 0
@@ -409,8 +409,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 		partialOutcome = result.Outcome & OutcomePartial
 	}
 
-	// A full resist is a miss, as a binary spell's resist is: it rolls no hit or crit and lands nothing.
-	if partialOutcome.ResistedTenths() == 10 || (!isPeriodic && spell.missesImmune(target)) {
+	if !isPeriodic && spell.missesImmune(target) {
 		partialOutcome = OutcomeEmpty
 		spell.missInFull(result)
 	} else {
