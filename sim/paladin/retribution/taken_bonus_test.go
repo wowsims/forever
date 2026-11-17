@@ -107,14 +107,7 @@ func TestHolyStrikeTakesJudgementOfTheCrusaderAfterDoneMultipliers(t *testing.T)
 // The Seal of Righteousness proc takes Judgement of the Crusader inside its base, with the spell
 // power, so its done multipliers scale it.
 func TestSealOfRighteousnessProcTakesJudgementOfTheCrusaderUnderDoneMultipliers(t *testing.T) {
-	find := func(character *core.Character) *core.Spell {
-		for _, spell := range character.Spellbook {
-			if spell.Matches(paladin.SpellMaskSealOfRighteousnessProc) {
-				return spell
-			}
-		}
-		return nil
-	}
+	find := spellWithMask(paladin.SpellMaskSealOfRighteousnessProc)
 	share, _ := judgementOfTheCrusaderShare(t, find, 1)
 	if share == 0 {
 		t.Fatal("the proc takes none of the judgement")
@@ -223,15 +216,17 @@ func TestConsecrationMarkedTickTakesJudgementOfTheCrusaderAfterDoneMultipliers(t
 		}
 	}
 
-	without, landed := run(false, 0, 1)
-	with, _ := run(false, versus, 1)
-	for i := range landed {
-		want := coefficient * versus
-		if i == len(landed)-1 {
-			want = 0
-		}
-		if got := (with[i] - without[i]) / landed[i]; math.Abs(got-want) > 1e-6 {
-			t.Errorf("under %v spell power against Undead a tick on enemy %d takes %v of it, want %v", versus, i, got, want)
+	for _, multiplier := range []float64{1, 1.2} {
+		without, landed := run(false, 0, multiplier)
+		with, _ := run(false, versus, multiplier)
+		for i := range landed {
+			want := coefficient * versus * multiplier
+			if i == len(landed)-1 {
+				want = 0
+			}
+			if got := (with[i] - without[i]) / landed[i]; math.Abs(got-want) > 1e-6 {
+				t.Errorf("under %v spell power against Undead and a %v done multiplier a tick on enemy %d takes %v of it, want %v", versus, multiplier, i, got, want)
+			}
 		}
 	}
 }
