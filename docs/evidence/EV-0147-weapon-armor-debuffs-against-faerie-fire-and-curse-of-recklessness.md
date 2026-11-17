@@ -8,7 +8,7 @@
   the reports and fights each example names
 - Game build: 1.60.1.70888 to 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-08 to 2026-11-17
-- Pull request: #PRNUM
+- Pull request: #1092
 
 ## Method
 
