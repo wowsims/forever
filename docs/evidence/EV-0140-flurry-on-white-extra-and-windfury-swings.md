@@ -6,7 +6,7 @@
   Totem rank 3 (strike 10610), 2026-11-16 21:30 to 21:56 UTC
 - Game build: 1.60.1.70938, hotfixes up to push 114115, relogged
 - Date: 2026-11-16
-- Pull request: #1080
+- Pull request: #1079
 
 The log is the one EV-0138 counts. A swing counts when Flurry was up and the warrior had no other own hit from 5 ms
 before to 60 ms after it. A Flurry charge a swing spends logs 0 to 47 ms after it.
