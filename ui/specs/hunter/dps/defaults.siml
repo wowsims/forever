@@ -26,7 +26,7 @@ consumables:
       juju_might,
       dragonbreath_chili,
       ground_scorpok_assay
-  elixir elixir_of_the_mongoose, greater_mageblood_elixir
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir, elixir_of_greater_intellect
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion
 

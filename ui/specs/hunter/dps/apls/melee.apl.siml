@@ -23,9 +23,9 @@ priority:
       and current_mana_percent > 30%
   /// Start of the fight and back from the Sting: walk into melee, shooting on the way without losing an Auto Shot.
   group "Walk in" if self.unit_distance > $melee_range
+  cast immolation_trap
   cast mongoose_bite
   cast strider_kick
-  cast immolation_trap
   cast summon_hawk if $use_summon_hawk
   cast wing_clip
 
