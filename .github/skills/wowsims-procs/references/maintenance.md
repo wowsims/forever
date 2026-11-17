@@ -10,7 +10,8 @@ Re-derive a claim before repeating it:
 - the spender and extra attacks: `grep -rn 'func AttachChargeSpender\|ExtraAttackProc(' sim/core/`
 - the override tables: `grep -nE '^var (WeaponProcs|EnchantProcs)' tools/database/overrides/*.go`
 - the notice's origins: `grep -n 'func rateOrigin' tools/database/gen_effects.go`
-- the hand-written procs whose rate the gear tab states: `grep -rn 'RollsSpellRate(\|RollsEntryRate(' sim/`
+- the hand-written procs whose rate the gear tab states: `grep -rn 'RollsSpellRate(\|RollsEntryRate(' sim/`, and every
+  `NewSpellData*Proc` call outside `*_auto_gen.go` with no `Rate:`
 
 | You changed…                                                | Update                                                                       |
 | ----------------------------------------------------------- | ---------------------------------------------------------------------------- |

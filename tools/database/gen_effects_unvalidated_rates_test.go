@@ -54,10 +54,10 @@ func rateTestDB(itemIDs []int32, enchantIDs []int32, sets map[int32]int32) *WowD
 	return db
 }
 
-// Each unmeasured rate lands on its piece of gear with the kind and origin of its row: a weapon rate
-// on its item, a spell rate on every item, enchant and set bonus casting the spell, an enchant rate on its
-// enchant. A measured rate, a row that is not a rate, and
-// gear the database does not carry stay out. Each piece is listed once, in id order.
+// Each unmeasured rate lands on its piece of gear with the kind and origin of its row: a weapon rate on its
+// item, a spell rate on every item, enchant and set bonus casting the spell, an enchant rate on its
+// enchant. A measured rate, a row that is not a rate, and gear the database does not carry stay out. Each
+// piece is listed once, in id order.
 func TestUnvalidatedRatesListEachUnmeasuredRateOnItsGear(t *testing.T) {
 	in := rateInputs{
 		WeaponProcs: []overrides.WeaponProc{
@@ -663,12 +663,25 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 			db.Items[itemID] = &proto.UIItem{Id: itemID}
 		}
 	}
+	setNames := map[int32]string{}
+	for _, item := range instance.Items {
+		if item.ItemSetId != 0 {
+			setNames[int32(item.ItemSetId)] = item.ItemSetName
+		}
+	}
 	for _, proc := range in.GearProcs {
 		_, isItem := instance.Items[int(proc.ID)]
 		_, isEnchant := instance.EnchantsByEffectId[int(proc.ID)]
 		isSetBonus := slices.ContainsFunc(instance.ItemSetSpells[int(proc.ID)], func(row dbc.ItemSetSpell) bool { return int32(row.Threshold) == proc.Pieces })
 		if proc.Gear == "item" && !isItem || proc.Gear == "enchant" && !isEnchant || proc.Gear == "set bonus" && !isSetBonus {
 			t.Errorf("the hand-written proc %+v names gear the game files do not carry", proc)
+		}
+		registered := slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
+			_, ok := set.Bonuses[proc.Pieces]
+			return ok && coversSet(set, proc.ID, setNames[proc.ID])
+		})
+		if proc.Gear == "set bonus" && !registered {
+			t.Errorf("the hand-written proc %+v names a set bonus the sim does not register", proc)
 		}
 		if spelldata.Find(proc.SpellID) == spelldata.Nil {
 			t.Errorf("the hand-written proc %+v names a spell the spell store lacks", proc)

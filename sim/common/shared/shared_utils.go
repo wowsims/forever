@@ -1159,7 +1159,7 @@ func registerSpellDataRowProc(cfg SpellDataProc, refuses func(row *spelldata.Spe
 	source.registerEffect(func(agent core.Agent) {
 		apply(agent, source, trigger, row)
 	})
-	if cfg.Rate != nil {
+	if cfg.Rate != nil || generating {
 		return
 	}
 	if source.isEnchant {
