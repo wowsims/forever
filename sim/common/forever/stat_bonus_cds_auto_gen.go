@@ -90,8 +90,6 @@ func RegisterAllOnUseCds() {
 	// shared.NewSimpleStatActive(21181) // Grace of Earth - https://www.wowhead.com/forever/spell=25892
 	// unsupported: 26467 deals no damage and heals no one (A_PROC_TRIGGER_SPELL)
 	// shared.NewSimpleStatActive(21625) // Scarab Brooch - https://www.wowhead.com/forever/spell=26467
-	// unsupported: 1306267 deals no damage and heals no one (E_FORCE_CAST_2)
-	// shared.NewSimpleStatActive(221315) // Traveler's Symbols - https://www.wowhead.com/forever/spell=1306267
 	// unsupported: 23453 deals no damage and heals no one (E_DUMMY)
 	// shared.NewSimpleStatActive(260819) // EZ-Thro Field Transporter: Gadgetzan - https://www.wowhead.com/forever/spell=23453
 	// unsupported: 1269339 deals no damage and heals no one (E_DUMMY)
@@ -430,6 +428,8 @@ func RegisterAllOnUseCds() {
 	// https://www.wowhead.com/forever/spell=5579
 	// Not simulated: Insignia of the Horde: "Immune Root/Snare/Stun" (5579) - ignored aura type 77
 	// https://www.wowhead.com/forever/spell=5579
+	// Not simulated: Traveler's Symbols: "Traveler's Mark" (1306267) - ignored effect type 28
+	// https://www.wowhead.com/forever/spell=1306267
 	// Not simulated: SAF-T Emergency Ripper: Everlook: "Everlook Transporter" (23442) - ignored effect type 252
 	// https://www.wowhead.com/forever/spell=23442
 	// Not simulated: Defender of the Barkskin: "Defender of the Barkskin" (1294063) - ignored effect type 28
