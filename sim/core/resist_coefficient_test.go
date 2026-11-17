@@ -28,6 +28,7 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 		{"100 resistance, tick", 100, true, 0, 100.0 / (100 + 499) / 10},
 		{"100 resistance, channel tick", 100, true, SpellFlagChanneled, 100.0 / (100 + 499)},
 		{"100 resistance, tick with full resistance", 100, true, SpellFlagFullResistanceTicks, 100.0 / (100 + 499)},
+		{"100 resistance, hit flagged for a tenth", 100, false, SpellFlagTenthResistance, 100.0 / (100 + 499) / 10},
 	} {
 		spell := &Spell{SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow, Flags: tc.flags}
 		if got := target(tc.resistance).averageResist(spell, attacker, tc.tick); math.Abs(got-tc.want) > 1e-12 {
@@ -42,7 +43,8 @@ func TestAverageResistIgnoresTargetLevel(t *testing.T) {
 }
 
 // Spell Piercing beyond the target's resistance is a negative average resist, which the roll pays out
-// as bonus damage in 10% steps, and never as a resisted outcome.
+// as bonus damage in 10% steps, and never as a resisted outcome. A hit at a tenth of the share takes no
+// bonus, and one at the full share takes it whole.
 func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attacker.stats[stats.SpellPiercing] = 15
@@ -58,6 +60,23 @@ func TestSpellPiercingBeyondResistanceAddsDamage(t *testing.T) {
 	debuffed.stats[stats.ArcaneResistance] = -75
 	if got := debuffed.averageResist(spell, attacker, false); math.Abs(got+a) > 1e-12 {
 		t.Errorf("average resist with 15 piercing against -75 resistance = %v, want %v as against 0", got, -a)
+	}
+
+	for _, tc := range []struct {
+		name       string
+		flags      SpellFlag
+		isPeriodic bool
+		want       float64
+	}{
+		{"a tick at a tenth", 0, true, 0},
+		{"a hit flagged for a tenth", SpellFlagTenthResistance, false, 0},
+		{"a tick at the full share", SpellFlagFullResistanceTicks, true, -a},
+		{"a channel tick", SpellFlagChanneled, true, -a},
+	} {
+		spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolArcane, SchoolIndex: stats.SchoolIndexArcane, Flags: tc.flags}
+		if got := defender.averageResist(spell, attacker, tc.isPeriodic); math.Abs(got-tc.want) > 1e-12 {
+			t.Errorf("average resist of %s with 15 piercing and no resistance = %v, want %v", tc.name, got, tc.want)
+		}
 	}
 
 	sim := &Simulation{rand: NewSplitMix(1)}
@@ -94,7 +113,7 @@ func TestPartialResistRollSteps(t *testing.T) {
 		sim := &Simulation{rand: NewSplitMix(7)}
 		counts := map[int]int{}
 		for range 100000 {
-			counts[rollResistTenths(sim, tc.a)]++
+			counts[rollResistTenths(sim, resistTenthsChances(tc.a))]++
 		}
 		for tenths, want := range tc.want {
 			if got := float64(counts[tenths]) / 100000; math.Abs(got-want) > 0.005 {
@@ -109,17 +128,20 @@ func TestPartialResistRollSteps(t *testing.T) {
 	}
 }
 
-func TestPartialResistOutcomeCarriesTheTenths(t *testing.T) {
-	for tenths := 1; tenths <= 10; tenths++ {
-		outcome := OutcomeHit | partialResistOutcome(tenths)
-		if got := outcome.ResistedTenths(); got != tenths {
-			t.Errorf("ResistedTenths of a %d0%% resist = %d", tenths, got)
+func TestPartialResistOutcomeCarriesThePercent(t *testing.T) {
+	for _, percent := range []int{10, 20, 30, 40, 50, 60, 70, 75} {
+		outcome := OutcomeHit | partialResistOutcome(float64(percent)/100)
+		if got := outcome.ResistedPercent(); got != percent {
+			t.Errorf("ResistedPercent of a %d%% resist = %d", percent, got)
 		}
 		if !outcome.Matches(OutcomePartial) || !outcome.Matches(OutcomeHit) {
-			t.Errorf("a %d0%% resist outcome lost its bits: %b", tenths, outcome)
+			t.Errorf("a %d%% resist outcome lost its bits: %b", percent, outcome)
 		}
 	}
-	if got := (OutcomeCrit | partialResistOutcome(3)).String(); got != "Crit (30% Resist)" {
+	if got := (OutcomeCrit | partialResistOutcome(0.3)).String(); got != "Crit (30% Resist)" {
 		t.Errorf("a 30%% resisted crit reads %q", got)
+	}
+	if got := (OutcomeHit | partialResistOutcome(0.75)).String(); got != "Hit (75% Resist)" {
+		t.Errorf("a 75%% resisted hit reads %q", got)
 	}
 }

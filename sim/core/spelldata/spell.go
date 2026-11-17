@@ -125,6 +125,48 @@ func (s *Spell) DamageEffect() *Effect {
 		dbcenums.E_WEAPON_DAMAGE_NOSCHOOL, dbcenums.E_HEALTH_LEECH)
 }
 
+// Whether the spell resists all or nothing: a magic row on the magic hit table that deals damage and,
+// beside the damage, applies an aura other than a dummy to an enemy, interrupts, or carries a dummy,
+// script, energize or area trigger effect on any target. Its hit roll resists it in full at the
+// target's average resist, and a hit or tick that lands takes no partial resist (EV-0142).
+func (s *Spell) IsBinary() bool {
+	if s.School == 0 || s.School.Matches(core.SpellSchoolPhysical) || s.DefenseType != core.DefenseTypeMagic {
+		return false
+	}
+	damage, beside := false, false
+	for i := range s.Effects {
+		e := &s.Effects[i]
+		switch {
+		case dealsDamage(e):
+			damage = true
+		case e.Type == dbcenums.E_INTERRUPT_CAST, e.Type == dbcenums.E_DUMMY, e.Type == dbcenums.E_SCRIPT_EFFECT,
+			e.Type == dbcenums.E_ENERGIZE, e.Type == dbcenums.E_CREATE_AREATRIGGER:
+			beside = true
+		case AppliesAura(e.Type) && e.Aura != dbcenums.A_DUMMY && e.Aura != dbcenums.A_PERIODIC_DUMMY && e.HitsAnEnemy():
+			beside = true
+		}
+	}
+	return damage && beside
+}
+
+// Whether the effect deals damage, directly or as a damage aura.
+func dealsDamage(e *Effect) bool {
+	switch e.Type {
+	case dbcenums.E_SCHOOL_DAMAGE, dbcenums.E_HEALTH_LEECH, dbcenums.E_POWER_BURN, dbcenums.E_WEAPON_DAMAGE,
+		dbcenums.E_WEAPON_PERCENT_DAMAGE, dbcenums.E_NORMALIZED_WEAPON_DMG, dbcenums.E_WEAPON_DAMAGE_NOSCHOOL:
+		return true
+	}
+	if !AppliesAura(e.Type) {
+		return false
+	}
+	switch e.Aura {
+	case dbcenums.A_PERIODIC_DAMAGE, dbcenums.A_PERIODIC_LEECH, dbcenums.A_PERIODIC_DAMAGE_PERCENT,
+		dbcenums.A_DAMAGE_SHIELD, dbcenums.A_PROC_TRIGGER_DAMAGE, dbcenums.A_PERIODIC_MANA_LEECH, dbcenums.A_POWER_BURN:
+		return true
+	}
+	return false
+}
+
 // The effect a proc deals its damage through: the row's damage effect, or the A_PROC_TRIGGER_DAMAGE
 // aura of a proc that deals its amount off its own trigger, with no spell below it: the shield
 // spikes' 20 to 30.

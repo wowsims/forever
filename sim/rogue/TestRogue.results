@@ -512,8 +512,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DreadmistRaiment"
  value: {
-  dps: 640.70468
-  tps: 454.90032
+  dps: 640.66837
+  tps: 454.87454
   hps: 51.34167
  }
 }
@@ -760,8 +760,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-EyeofMoam-21473"
  value: {
-  dps: 829.11053
-  tps: 588.66847
+  dps: 829.08722
+  tps: 588.65193
   hps: 58.13639
  }
 }
@@ -1248,8 +1248,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Magister'sRegalia"
  value: {
-  dps: 640.34645
-  tps: 454.64598
+  dps: 640.30342
+  tps: 454.61543
   hps: 51.27389
  }
 }

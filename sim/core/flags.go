@@ -1,6 +1,7 @@
 package core
 
 import (
+	"math"
 	"strconv"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -115,7 +116,7 @@ const (
 	OutcomeCrit
 	OutcomeCrush
 
-	// The tenths of the damage a partial resist took (1 to 10), as a 4-bit number.
+	// The damage a partial resist took in 5% units (2 to 15), as a 4-bit number.
 	OutcomePartial1
 	OutcomePartial2
 	OutcomePartial4
@@ -151,17 +152,19 @@ func (ho HitOutcome) String() string {
 	}
 }
 
-func partialResistOutcome(tenths int) HitOutcome {
-	return HitOutcome(tenths) * OutcomePartial1
+// The outcome of a partial resist that took the given share of the damage.
+func partialResistOutcome(share float64) HitOutcome {
+	return HitOutcome(math.Round(share*20)) * OutcomePartial1
 }
 
-func (ho HitOutcome) ResistedTenths() int {
-	return int((ho & OutcomePartial) / OutcomePartial1)
+// The percent of the damage a partial resist took, 0 for none.
+func (ho HitOutcome) ResistedPercent() int {
+	return 5 * int((ho&OutcomePartial)/OutcomePartial1)
 }
 
 func (ho HitOutcome) PartialResistString() string {
-	if tenths := ho.ResistedTenths(); tenths > 0 {
-		return " (" + strconv.Itoa(tenths*10) + "% Resist)"
+	if percent := ho.ResistedPercent(); percent > 0 {
+		return " (" + strconv.Itoa(percent) + "% Resist)"
 	}
 	return ""
 }
@@ -182,7 +185,7 @@ const (
 	SpellFlagApplyArmorReduction                            // Forces damage reduction from armor to apply, even if it otherwise wouldn't.
 	SpellFlagNoActiveDefense                                // The physical hit roll skips dodge, parry and block.
 	SpellFlagIncludeTargetBonusDamage                       // Spell benefits from Gift of Arthas and Hemorrhage.
-	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist; a physical one is blocked whole.
+	SpellFlagBinary                                         // The hit roll resists it in full at the target's average resist, and a landed one takes no partial resist; a physical one is blocked whole. spelldata.SpellConfig sets it from the row.
 	SpellFlagChanneled                                      // Spell is channeled
 	SpellFlagDisease                                        // Spell is categorized as disease
 	SpellFlagPoison                                         // Spell is categorized as poison
@@ -209,7 +212,7 @@ const (
 	SpellFlagSupressDoTApply                                // If present this spell will not apply dots (Used for DTR dot supression)
 	SpellFlagSwapped                                        // Indicates that this spell is not useable because it is from a currently swapped item
 	SpellFlagCastWhileIncapacitated                         // Allows the cast while the unit is incapacitated, e.g. Berserker Rage breaking a Fear.
-	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits and channel ticks do, where other ticks meet a tenth (Insect Swarm).
+	SpellFlagFullResistanceTicks                            // Its ticks meet the target's full resistance, as direct hits and channel ticks do, where other ticks meet a tenth (Devouring Plague).
 	SpellFlagPushback                                       // Damage taken while hardcasting pushes the cast back: SpellInterrupts.InterruptFlags 0x2.
 	SpellFlagNoPartialResist                                // The spell's hits never lose damage to a partial resist, e.g. a wand's shots.
 	SpellFlagKeepsSwingTimer                                // Completing a cast of the spell leaves the melee swing timer running: Do Not Reset Combat Timers (Attributes[2] 0x20000), or an explosive.
@@ -221,6 +224,7 @@ const (
 	SpellFlagIgnoreTargetSchoolBonus                        // The target's flat school bonus (Judgement of the Crusader) adds nothing to the spell's hits, though its spell power coefficient applies: a damage shield.
 	SpellFlagNoDamageVersus                                 // The caster's damage against a creature type (aura 168, e.g. Beast Slaying) adds nothing to the spell's hits, though its other damage done multipliers apply: a totem's attack.
 	SpellFlagCountsAsSwing                                  // Its hits count as main-hand melee swings: landed ones grant rage as an auto attack's do, and a listener with HearsCountedSwings hears them, e.g. Windfury Totem's strike.
+	SpellFlagTenthResistance                                // Its hits meet a tenth of the target's resistance, as most ticks do, e.g. Flamestrike's ground ticks.
 
 	// Used to let agents categorize their spells.
 	SpellFlagAgentReserved1

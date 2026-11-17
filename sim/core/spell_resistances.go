@@ -31,9 +31,9 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return attackTable.GetArmorDamageModifier(spell), OutcomeEmpty
 	}
 
-	// Magical resistance. A binary spell's hit roll already took its full resist, and the damage of
-	// one that lands rolls a partial resist like any other.
-	if spell.Flags.Matches(SpellFlagNoPartialResist) {
+	// Magical resistance. A binary spell's hit roll takes its whole resist, so one that lands loses no
+	// damage to a partial resist and gains none from Spell Piercing, on its hits and its ticks (EV-0142).
+	if spell.Flags.Matches(SpellFlagBinary | SpellFlagNoPartialResist) {
 		return 1, OutcomeEmpty
 	}
 
@@ -42,19 +42,32 @@ func (spell *Spell) ResistanceMultiplier(sim *Simulation, isPeriodic bool, attac
 		return 1, OutcomeEmpty
 	}
 
-	// The roll's mean is the average resist, so an expected-damage call uses it without drawing.
+	chances := resistTenthsChances(math.Abs(averageResist))
+
+	// An expected-damage call takes the roll's mean and draws nothing.
 	if spell.expecting {
-		return 1 - averageResist, OutcomeEmpty
+		share := 0.0
+		for tenths, chance := range chances {
+			share += chance * resistedShare(tenths)
+		}
+		return 1 - math.Copysign(share, averageResist), OutcomeEmpty
 	}
 
-	tenths := rollResistTenths(sim, math.Abs(averageResist))
+	tenths := rollResistTenths(sim, chances)
 	if tenths == 0 {
 		return 1, OutcomeEmpty
 	}
+	share := resistedShare(tenths)
 	if averageResist < 0 {
-		return 1 + 0.1*float64(tenths), OutcomeEmpty
+		return 1 + share, OutcomeEmpty
 	}
-	return 1 - 0.1*float64(tenths), partialResistOutcome(tenths)
+	return 1 - share, partialResistOutcome(share)
+}
+
+// A partial resist never takes more than 75% of a hit: the roll's 80, 90 and 100% steps land on 75%
+// (EV-0142).
+func resistedShare(tenths int) float64 {
+	return min(0.1*float64(tenths), 0.75)
 }
 
 func (at *AttackTable) GetBinaryHitChance(spell *Spell) float64 {
@@ -81,11 +94,14 @@ func (unit *Unit) averageResist(spell *Spell, attacker *Unit, isPeriodic bool) f
 	resistanceConstant := 8*float64(attacker.Level) + 19
 	averageResist := resistance / (math.Abs(resistance) + resistanceConstant)
 
-	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the resistance.
-	// TODO: In-game testing required: Spell Piercing on ticks follows the spell, not a tenth (EV-0092). A DoT
-	// log at 10 or more piercing is needed before the tenth goes.
-	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) {
-		averageResist /= 10
+	// A DoT's tick, a hybrid's included, rolls its partial resist against a tenth of the share, as do the
+	// hits of a spell flagged for it, and takes no Spell Piercing bonus. A tick at the full share takes
+	// the bonus in full (EV-0092, EV-0142).
+	// TODO: In-game testing required: whether piercing still lowers a positive resistance on a tick at a
+	// tenth; the sim lets it.
+	if isPeriodic && !spell.Flags.Matches(SpellFlagChanneled|SpellFlagFullResistanceTicks) ||
+		spell.Flags.Matches(SpellFlagTenthResistance) {
+		averageResist = max(0, averageResist) / 10
 	}
 
 	return averageResist
@@ -96,35 +112,28 @@ func (unit *Unit) binaryHitChance(spell *Spell, attacker *Unit) float64 {
 	return 1 - max(0, unit.averageResist(spell, attacker, false))
 }
 
-// The partial resist roll, in tenths of the damage, around the average share a. Up to a = 10% it gives
-// 0, 1 or 2 tenths at 1 - 7.5a, 5a and 2.5a; from 90% the same mirrored from 10 tenths; in between each
-// 10% step x within 20% of a at 0.5 - 2.5|x - a|.
-func rollResistTenths(sim *Simulation, a float64) int {
-	roll := sim.RandomFloat("Partial Resist")
-	if a <= 0.1 {
-		switch {
-		case roll < 1-7.5*a:
-			return 0
-		case roll < 1-2.5*a:
-			return 1
-		default:
-			return 2
+// The chance of each step of the partial resist roll, in tenths of the damage, around the average
+// share a. Up to a = 10% it gives 0, 1 or 2 tenths at 1 - 7.5a, 5a and 2.5a; from 90% the same mirrored
+// from 10 tenths; in between each 10% step x within 20% of a at 0.5 - 2.5|x - a|.
+func resistTenthsChances(a float64) (chances [11]float64) {
+	switch {
+	case a <= 0.1:
+		chances[0], chances[1], chances[2] = 1-7.5*a, 5*a, 2.5*a
+	case a >= 0.9:
+		chances[10], chances[9], chances[8] = 1-7.5*(1-a), 5*(1-a), 2.5*(1-a)
+	default:
+		for tenths := range chances {
+			chances[tenths] = max(0, 0.5-2.5*math.Abs(float64(tenths)/10-a))
 		}
 	}
-	if a >= 0.9 {
-		switch {
-		case roll < 1-7.5*(1-a):
-			return 10
-		case roll < 1-2.5*(1-a):
-			return 9
-		default:
-			return 8
-		}
-	}
+	return chances
+}
 
+// One draw of the roll, taking the steps from 0 up.
+func rollResistTenths(sim *Simulation, chances [11]float64) int {
+	roll := sim.RandomFloat("Partial Resist")
 	cumulative, last := 0.0, 0
-	for tenths := 0; tenths <= 10; tenths++ {
-		chance := 0.5 - 2.5*math.Abs(float64(tenths)/10-a)
+	for tenths, chance := range chances {
 		if chance <= 0 {
 			continue
 		}

@@ -15,12 +15,13 @@ func (mage *Mage) registerPyroblastSpell() {
 // https://www.wowhead.com/forever/spell=18809
 //
 // The periodic damage is a separate spell (MageSpellPyroblastDot) so that class-mask mods can
-// tell it from the hit.
+// tell it from the hit. Its ticks meet the target's full resistance (EV-0142).
 func (mage *Mage) registerPyroblastRank(_ int32, rank *spelldata.Spell) {
 	damage := rank.DamageEffect()
 
 	dotConfig := spelldata.SpellConfig(&mage.Unit, rank,
-		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
+		spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1),
+		spelldata.Flags(core.SpellFlagFullResistanceTicks))
 	dotConfig.ClassSpellMask = MageSpellPyroblastDot
 
 	tick := rank.PeriodicEffect()
