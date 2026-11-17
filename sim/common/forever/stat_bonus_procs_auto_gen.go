@@ -2158,21 +2158,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Increases the damage of your Shock spells by 2%.
-	// https://www.wowhead.com/forever/spell=27859
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 22395, ItemName: "Totem of Rage"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Increases healing done by Lesser Healing Wave by up to 80.
 	// https://www.wowhead.com/forever/spell=27855
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
