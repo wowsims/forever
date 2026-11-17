@@ -9,7 +9,7 @@
 - Game build: 1.60.1.70938 for the druid's logs; the shaman's log states only 1.60.1. The hotfix each log ran on, and
   whether the player relogged after it, is not recorded.
 - Date: 2026-11-16
-- Pull request: not recorded
+- Pull request: #1078
 
 ## Method
 
