@@ -1496,9 +1496,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-LightforgeArmor"
  value: {
-  dps: 394.44041
-  tps: 927.69132
-  dtps: 362.34053
+  dps: 394.2061
+  tps: 927.07991
+  dtps: 362.36222
   hps: 18.09667
  }
 }
@@ -2063,9 +2063,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-SoulforgeArmor"
  value: {
-  dps: 398.37534
-  tps: 939.55911
-  dtps: 324.63318
+  dps: 398.08452
+  tps: 938.79684
+  dtps: 324.65373
   hps: 18.41861
  }
 }

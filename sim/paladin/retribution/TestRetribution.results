@@ -1316,8 +1316,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-LightforgeArmor"
  value: {
-  dps: 787.88094
-  tps: 641.55881
+  dps: 787.42002
+  tps: 641.19008
   dtps: 3.27951
   hps: 23.22253
  }
@@ -1802,8 +1802,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 778.20664
-  tps: 635.12501
+  dps: 777.74489
+  tps: 634.75561
   dtps: 4.55194
   hps: 23.12544
  }

@@ -3815,12 +3815,6 @@ export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
 // Keyed by set id, then by the bonus's piece count.
 export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, UnvalidatedRate>>([
 	[
-		184, // Shadowcraft Armor
-		new Map([
-			[5, { kind: 'ppm', rate: 0.8, origin: 'observed' }],
-		]),
-	],
-	[
 		185, // Wildheart Raiment
 		new Map([
 			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
@@ -3835,13 +3829,7 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 	[
 		188, // Lightforge Armor
 		new Map([
-			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
-		]),
-	],
-	[
-		189, // Battlegear of Valor
-		new Map([
-			[5, { kind: 'ppm', rate: 1, origin: 'observed' }],
+			[5, { kind: 'ppm', rate: 0.9, origin: 'observed' }],
 		]),
 	],
 	[
@@ -3853,23 +3841,11 @@ export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, Unvalida
 	[
 		1673, // Soulforge Armor
 		new Map([
-			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
-		]),
-	],
-	[
-		1676, // Darkmantle Armor
-		new Map([
-			[4, { kind: 'ppm', rate: 0.8, origin: 'observed' }],
+			[4, { kind: 'ppm', rate: 0.9, origin: 'observed' }],
 		]),
 	],
 	[
 		1679, // The Five Thunders
-		new Map([
-			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
-		]),
-	],
-	[
-		1778, // Battlegear of Heroism
 		new Map([
 			[4, { kind: 'ppm', rate: 1, origin: 'observed' }],
 		]),

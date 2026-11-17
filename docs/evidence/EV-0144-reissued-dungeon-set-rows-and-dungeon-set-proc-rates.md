@@ -2,8 +2,9 @@
 
 - Claim: a reissued dungeon set 2 piece (226772 to 227023) counts toward its reissued set (1667 to 1681, 1778) and
   fires that row's bonuses, never the Classic set's (511 to 519); and the dungeon set procs whose rows state 100% and
-  no rate fire at about 1 proc per minute, a white swing priced on its weapon's base speed and a spell cast on its cast
-  time, Rogue Armor Energize at about 0.8.
+  no rate fire at procs per minute, a white swing priced on its weapon's base speed and a spell cast on its cast time:
+  Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
+  Bounty's mana at about 1.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
@@ -28,7 +29,7 @@ sum of those times over 60. An interval on a rate is 2,000 bootstrap draws of wh
 percentage is a Wilson interval per roll. No stretch is dropped as swapped away; dropping the gaps a wearer at 0.8 a
 minute would see less than once in a thousand moves no rate by more than 0.02, Darkmantle's 0.74 to 0.81 excepted.
 
-The scripts are `extract.py`, `rates.py`, `stretch.py`, `set_rows.py` and `evtables.py`.
+The scripts are `extract.py`, `rates.py`, `stretch.py`, `hastesplit.py`, `set_rows.py` and `evtables.py`.
 
 ## Which set a reissued piece counts toward
 
@@ -97,6 +98,15 @@ The rows that state a chance draw the same line. On the Magister's Regalia weare
 Counterspells (10 of 143), which cost mana off the global cooldown, and none of 160 Arcane Powers, 146 Presences of
 Mind, 141 casts of Eureka! or 91 Evocations, which cost nothing; Evocation is on the global cooldown.
 
+Haste leaves the chance alone, so the rate is priced on the weapon's base speed. Warrior's Resolve reads 0.93 a
+minute [0.84, 1.07] on swings under Flurry (331 of 10,777) and 0.95 [0.83, 1.05] without it (389 of 10,890); Rogue
+Armor Energize 0.84 [0.80, 0.88] under Slice and Dice (1,504 of 56,399) and 0.81 [0.73, 0.90] without it (396 of
+14,441).
+
+Crusader's Wrath's swings read below its casts, 0.85 against 1.06. The gap, 0.20, has a 95% interval of -0.11 to 0.37
+over whole wearer-reports, and five of the twelve read the other way, so the logs do not show two rates. One rate
+fitted to the swings and the casts together is 0.92 [0.79, 0.99].
+
 The sets whose rows state a chance fire at it. Sudden Insight follows 5.00% of Auto Shots fired (610 of 12,208,
 95% 4.62 to 5.40) and 4.75% of landed white swings (245 of 5,163) on the Beaststalker and Beastmaster wearers, whose
 row 450577 states 5%, and Vestments of the Devout's 450576 restores mana on 4.91% of Renews (188 of 3,832) and 4.73%
@@ -105,7 +115,8 @@ of Flash Heals (47 of 994).
 ## Crusader's Wrath (sets 188 and 1673)
 
 - Proc: 450625, logged as the buff 27499; Lightforge Armor's 5-piece and the Soulforge Armor reissue's 4-piece
-- Sim rate: 1 PPM, observed. The casts fit it (1.06) and the swings fall short of it (0.85 [0.76, 0.95])
+- Sim rate: 0.9 PPM, observed: one rate fitted to the swings and the casts reads 0.92 [0.79, 0.99], an interval
+  wider than 10% of it below
 
 | Report           | Fights                                             | Date  | Class   | Set              | Swing procs | Swings | Swing PPM | Speeds        | Cast procs | Casts | Cast PPM |
 | ---------------- | -------------------------------------------------- | ----- | ------- | ---------------- | ----------: | -----: | --------: | ------------- | ---------: | ----: | -------: |
@@ -158,8 +169,8 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 ## Warrior's Resolve on Battlegear of Heroism (set 1778)
 
 - Proc: 450587, logged as 450589, the 4-piece of the reissue; EV-0136 measured it on Battlegear of Valor
-- Sim rate: 1 PPM, observed; measured 0.94 PPM [0.87, 1.02] on one Heroism wearer, 399 procs on 13,019 swings, and
-  0.94 PPM [0.87, 1.01] with the 15 Valor wearers of these dates
+- Sim rate: 1 PPM; measured 0.94 PPM [0.87, 1.01], 16 wearers, 720 procs on 21,667 swings, of which one Heroism
+  wearer 0.94 PPM [0.87, 1.02], 399 procs on 13,019 swings
 
 | Report           | Fights                                 | Date  | Class   | Set                   | Swing procs | Swings | Swing PPM | Speeds                 | Cast procs | Casts | Cast PPM |
 | ---------------- | -------------------------------------- | ----- | ------- | --------------------- | ----------: | -----: | --------: | ---------------------- | ---------: | ----: | -------: |
@@ -187,7 +198,7 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 ## Rogue Armor Energize (sets 184 and 1676)
 
 - Proc: 27787, logged as 27788; Shadowcraft Armor's 5-piece and the Darkmantle Armor reissue's 4-piece
-- Sim rate: 0.8 PPM, observed; measured 0.83 PPM [0.80, 0.86], 26 wearers, 1,900 procs on 70,840 swings
+- Sim rate: 0.8 PPM; measured 0.83 PPM [0.80, 0.86], 26 wearers, 1,900 procs on 70,840 swings
 
 Every rogue here dual-wields, and the swings are priced on both hands' speeds together, with no split by hand. The
 same pricing reads Warrior's Resolve at 0.94.
