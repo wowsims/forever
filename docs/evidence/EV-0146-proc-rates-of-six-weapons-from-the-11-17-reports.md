@@ -7,7 +7,7 @@
   reports in all
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-13 to 2026-11-17
-- Pull request: #PRNUM
+- Pull request: #1091
 
 ## Method
 
