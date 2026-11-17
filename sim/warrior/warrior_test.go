@@ -645,6 +645,47 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 	}
 }
 
+// A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
+// crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
+func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
+	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
+	shares := map[string]float64{}
+	for _, c := range []struct {
+		name   string
+		spell  core.ActionID
+		weapon func(*dps.DpsWarrior) *core.Weapon
+	}{
+		{"main-hand swing", mainHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
+		{"off-hand swing", offHand, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.OH() }},
+		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, func(w *dps.DpsWarrior) *core.Weapon { return w.AutoAttacks.MH() }},
+	} {
+		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		spell := war.GetSpell(c.spell)
+		if bleed == nil || spell == nil {
+			t.Fatalf("Deep Wound %v, %s %v; want both registered", bleed, c.name, spell)
+		}
+		if mh, oh := war.AutoAttacks.MH().AverageDamage(), war.AutoAttacks.OH().AverageDamage(); mh == oh {
+			t.Fatalf("both hands average %0.1f damage; the test needs two different weapons", mh)
+		}
+
+		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+		shares[c.name] = bleed.Dot(war.CurrentTarget).SnapshotBaseDamage / c.weapon(war).AverageDamage()
+	}
+
+	want := shares["main-hand swing"]
+	if want <= 0 {
+		t.Fatalf("a main-hand crit ticks %0.4f of the weapon's average damage, want a positive share", want)
+	}
+	for name, got := range shares {
+		if math.Abs(got-want) > 1e-9 {
+			t.Errorf("a crit from the %s ticks %0.4f of its weapon's average damage, want %0.4f as the main hand's", name, got, want)
+		}
+	}
+}
+
 // Death Wish takes the global cooldown its row states and does not hold the rotation beyond it, so
 // an off-GCD ability can follow it at once.
 func TestDeathWishLeavesTheRotationFree(t *testing.T) {
