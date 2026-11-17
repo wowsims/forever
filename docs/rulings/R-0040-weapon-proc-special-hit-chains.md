@@ -3,7 +3,7 @@
 - Skill: wowsims-procs
 - Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and `procDamageHandler`;
   `sim/common/shared/spell_data_debuff_proc.go`, `attachDebuffStrike`
-- Pull request: #352
+- Pull request: #352, #1088
 - Evidence: EV-0145
 
 A weapon proc whose row has melee or ranged DefenseType is a special hit, whether the row deals a direct hit, applies

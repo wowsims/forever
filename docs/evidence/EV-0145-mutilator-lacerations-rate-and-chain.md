@@ -15,7 +15,7 @@
   10370 (spell, name, effect, misc, categories, aura options, levels) or the item's effect entry. The combat log ran
   1.60.1.70938 after the hotfix pushes EV-0130 names.
 - Date: 2026-11-11 to 2026-11-15
-- Pull request: pending
+- Pull request: #1088
 
 ## Method
 
