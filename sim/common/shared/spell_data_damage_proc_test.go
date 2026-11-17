@@ -114,12 +114,33 @@ func weaponProcListener(name string, mask core.ProcMask, handler core.ProcHandle
 	}
 }
 
-// Two weapon procs' strikes on the melee table: Hameya's Slayer 15814's Rend 16406, a bleed with no
-// hit, and Hammer of Expertise 8708's Forging Strike 1317432, a hit.
+// Weapon procs' strikes on the melee table: Hameya's Slayer 15814's Rend 16406, a bleed with no hit,
+// Hammer of Expertise 8708's Forging Strike 1317432, a hit, and Mutilator 12469's Lacerations 10370,
+// a debuff alone.
 const (
 	rendStrike    int32 = 16406
 	forgingStrike int32 = 1317432
+	lacerations   int32 = 10370
 )
+
+// A neck whose listener is built as a weapon enchant's or an oil's, counting the row's strikes it
+// hears.
+func strikeListenerNeck(neckID int32, name string, row int32, heard *int) *proto.ItemSpec {
+	withAuraItem(neckID, proto.ItemType_ItemTypeNeck)
+	core.NewItemEffect(neckID, func(agent core.Agent) {
+		character := agent.GetCharacter()
+		listener := spelldata.ProcTrigger(character, spelldata.MustFind(row),
+			func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
+				if spell.ActionID.SpellID == row {
+					*heard++
+				}
+			}, spelldata.WeaponProc(), spelldata.Chance(1))
+		listener.Name = name
+		listener.TriggerImmediately = true
+		character.MakeProcTriggerAura(listener)
+	})
+	return &proto.ItemSpec{Id: neckID}
+}
 
 // Rend and Forging Strike at a chance below 1, on both hands. A strike a main-hand swing cast is a
 // main-hand special: the main hand's weapon procs hear it, immediate and deferred alike, and its own
@@ -345,7 +366,6 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 // cast one each. A listener built as a weapon enchant's hears the first strike of a white swing and
 // no other (EV-0145).
 func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
-	const lacerations int32 = 10370
 	for _, tc := range []struct {
 		name     string
 		row      int32
@@ -361,21 +381,9 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 				alwaysProcs(s)
 				s.RPPM = 0
 			})
-			withAuraItem(tc.neckID, proto.ItemType_ItemTypeNeck)
 			heard := 0
-			core.NewItemEffect(tc.neckID, func(agent core.Agent) {
-				character := agent.GetCharacter()
-				enchant := spelldata.ProcTrigger(character, spelldata.MustFind(tc.row),
-					func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-						if spell.ActionID.SpellID == tc.row {
-							heard++
-						}
-					}, spelldata.WeaponProc(), spelldata.Chance(1))
-				enchant.Name = "Test Enchant"
-				enchant.TriggerImmediately = true
-				character.MakeProcTriggerAura(enchant)
-			})
-			sim, caster, target := newSlowProcSim(t, tc.weaponID, tc.register, tc.row, &proto.ItemSpec{Id: tc.neckID})
+			neck := strikeListenerNeck(tc.neckID, "Test Enchant", tc.row, &heard)
+			sim, caster, target := newSlowProcSim(t, tc.weaponID, tc.register, tc.row, neck)
 			caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
 			strike := mustGetSpell(t, caster, tc.row)
 			metrics := &strike.SpellMetrics[target.UnitIndex]
@@ -417,21 +425,9 @@ func TestWeaponProcStrikeChainAppliesEachLandedBleed(t *testing.T) {
 		s.DurationMs = 12000
 	})
 	duration := spelldata.MustFind(rend).Duration()
-	withAuraItem(neckID, proto.ItemType_ItemTypeNeck)
 	landed := 0
-	core.NewItemEffect(neckID, func(agent core.Agent) {
-		character := agent.GetCharacter()
-		oil := spelldata.ProcTrigger(character, spelldata.MustFind(rend),
-			func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) {
-				if spell.ActionID.SpellID == rend {
-					landed++
-				}
-			}, spelldata.WeaponProc(), spelldata.Chance(1))
-		oil.Name = "Test Oil"
-		oil.TriggerImmediately = true
-		character.MakeProcTriggerAura(oil)
-	})
-	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, rend, &proto.ItemSpec{Id: neckID})
+	neck := strikeListenerNeck(neckID, "Test Oil", rend, &landed)
+	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, rend, neck)
 	strike := mustGetSpell(t, caster, rend)
 
 	for range swings {

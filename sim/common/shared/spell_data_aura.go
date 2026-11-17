@@ -93,9 +93,7 @@ func registerSpellDataAuraProc(cfg SpellDataProc) {
 			proc.ICD = buff.CategoryCooldown()
 		}
 		if auras.enemies != nil && debuffStrikes(cfg, buff) {
-			attachDebuffStrike(character, &proc, buff, func(sim *core.Simulation, target *core.Unit) {
-				applyDebuff(sim, auras.enemies.Get(target))
-			})
+			attachDebuffStrike(character, &proc, buff, auras.enemies)
 			strike := proc.Handler
 			proc.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 				auras.activateOwn(sim)

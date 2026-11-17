@@ -29,9 +29,7 @@ func applySpellDataDebuffProc(agent core.Agent, cfg SpellDataProc, source effect
 
 	config := spellDataProcListener(character, cfg, source, trigger)
 	if debuffStrikes(cfg, debuff) {
-		attachDebuffStrike(character, &config, debuff, func(sim *core.Simulation, target *core.Unit) {
-			applyDebuff(sim, debuffs.Get(target))
-		})
+		attachDebuffStrike(character, &config, debuff, debuffs)
 	} else {
 		callback := config.Callback
 		config.Handler = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -57,29 +55,25 @@ func debuffStrikes(cfg SpellDataProc, row *spelldata.Spell) bool {
 }
 
 // Sets the trigger to cast the row as a strike that deals no damage: one roll on the row's hit table,
-// without a crit, and land for the enemy that roll lands on once the strike has arrived. The strike
-// carries a weapon strike's mask, so it is heard as one (R-0040).
-func attachDebuffStrike(character *core.Character, trigger *core.ProcTrigger, row *spelldata.Spell, land func(sim *core.Simulation, target *core.Unit)) {
+// without a crit, and the debuff on the enemy that roll lands on once the strike has arrived. The
+// strike carries a weapon strike's mask, so it is heard as one (R-0040).
+func attachDebuffStrike(character *core.Character, trigger *core.ProcTrigger, row *spelldata.Spell, debuffs core.AuraArray) {
 	config := spelldata.SpellConfig(&character.Unit, row, damageShape(row), castBy(true))
 	application := damageOutcome(config.DefenseType, true, OutcomeDefault)
 	after := func(sim *core.Simulation, _ *core.Spell, _ *core.Unit, results core.SpellResultSlice) {
 		if results[0].Landed() {
-			land(sim, results[0].Target)
+			applyDebuff(sim, debuffs.Get(results[0].Target))
 		}
 	}
 
-	// Bound once per spell: binding the outcome per cast would allocate.
-	var boundSpell *core.Spell
+	// Bound once, to the registered spell: binding the outcome per cast would allocate.
 	var outcome core.OutcomeApplier
 	single := make(core.SpellResultSlice, 1)
 	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-		if boundSpell != spell {
-			boundSpell, outcome = spell, GetOutcome(spell, application)
-		}
 		single[0] = spell.CalcOutcome(sim, target, outcome)
 		dealOneOnArrival(sim, spell, target, single, after)
 	}
-	attachProcDamage(character, trigger, config)
+	outcome = GetOutcome(attachProcDamage(character, trigger, config), application)
 }
 
 // A re-application refreshes the duration and, on a row that stacks, adds a stack up to its count.

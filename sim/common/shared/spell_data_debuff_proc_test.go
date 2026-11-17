@@ -508,7 +508,7 @@ func TestAnEnemyAuraIsNeverAWearerBuff(t *testing.T) {
 // strike that deals no damage: the debuff goes on with a strike that lands, and a strike that misses
 // leaves the target as it was (EV-0145).
 func TestMeleeDebuffWeaponProcRollsItsOwnHit(t *testing.T) {
-	const lacerations, punctureArmor int32 = 10370, 17315
+	const punctureArmor int32 = 17315
 	for _, tc := range []struct {
 		name     string
 		row      int32
