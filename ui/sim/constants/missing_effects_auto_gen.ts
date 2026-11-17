@@ -712,12 +712,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12469, // Mutilator
-		[
-			"Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.", // 10370 - https://www.wowhead.com/forever/spell=10370
-		]
-	],
-	[
 		12528, // The Judge's Gavel
 		[
 			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56

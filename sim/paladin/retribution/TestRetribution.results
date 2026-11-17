@@ -1467,6 +1467,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Mutilator-12469"
+ value: {
+  dps: 775.37119
+  tps: 638.91927
+  dtps: 7.03355
+  hps: 30.04369
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Naglering-11669"
  value: {
   dps: 864.41573

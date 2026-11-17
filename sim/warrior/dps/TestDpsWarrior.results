@@ -1503,6 +1503,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Mutilator-12469"
+ value: {
+  dps: 475.5627
+  tps: 408.36203
+  dtps: 2.97628
+  hps: 29.60194
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-Naglering-11669"
  value: {
   dps: 535.96396

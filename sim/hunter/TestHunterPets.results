@@ -1556,6 +1556,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Mutilator-12469"
+ value: {
+  dps: 693.31259
+  tps: 487.37329
+  dtps: 5.13745
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-Naglering-11669"
  value: {
   dps: 696.65293
