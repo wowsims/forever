@@ -660,21 +660,12 @@ type literalRate struct {
 
 // The rates of gear whose effect is written by hand, which the generator cannot read off the rows: a rate
 // that has to stay a literal in the sim, and the spell whose rate the code rolls unchanged. A rate that
-// varies with the target, the wearer or the hit gets no entry.
+// varies with the target, the wearer or the hit gets no entry, and neither does a proc in
+// forever.EntryRateProcs, whose rate knownRates reads off its item's entry.
 var literalRates = []literalRate{
-	{Gear: "item", ID: 7717, SpellID: 9632, Reason: "Ravager (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 2243, SpellID: 18803, Reason: "Hand of Edward the Odd (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 10847, SpellID: 13049, Reason: "Dragon's Call (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 13040, SpellID: 29626, Reason: "Heartseeking Crossbow (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 13361, SpellID: 17484, Reason: "Skullforge Reaver (sim/common/forever/items_weapons.go): its entry's procs per minute"},
 	{Gear: "item", ID: 17780, SpellID: 21978, Reason: "Blade of Eternal Darkness (sim/common/forever/items_weapons.go): the row's procs per minute on each cast's cast time"},
 	{Gear: "item", ID: 22458, SpellID: 1300435, Reason: "Moonshadow Stave (sim/common/forever/items_weapons.go): the row's procs per minute on each cast's cast time"},
-	{Gear: "item", ID: 3078, SpellID: 1292647, Reason: "Naga Heartpiercer (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 274425, SpellID: 1294055, Reason: "White Obsidian Wand (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 18483, SpellID: 1302348, Reason: "Mana Channeling Wand (sim/common/forever/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 12592, SpellID: 16602, Reason: "Blackblade of Shahram (sim/common/forever/items_blackblade_of_shahram.go): its entry's procs per minute"},
 	{Gear: "item", ID: 19019, SpellID: 21992, Reason: "Thunderfury, Blessed Blade of the Windseeker (sim/common/classic/items_weapons.go): its entry's procs per minute"},
-	{Gear: "item", ID: 19287, SpellID: 23689, Reason: "Darkmoon Card: Heroism (sim/common/forever/items_trinkets.go): its entry's procs per minute"},
 	{Gear: "item", ID: 269741, SpellID: 1318323, Reason: "Scented Runewood Brooch (sim/common/forever/items_trinkets.go): the row's procs per minute"},
 	{Gear: "item", ID: 17774, SpellID: 21969, Reason: "Mark of the Chosen (sim/common/forever/items_trinkets.go): the row's chance"},
 	{Gear: "item", ID: 22268, SpellID: 1318931, Reason: "Draconic Infused Emblem (sim/common/forever/items_trinkets.go): the row's chance"},
@@ -737,11 +728,13 @@ type rateInputs struct {
 	HandEnchants   map[int32]bool               // The enchant effect ids whose effect is written by hand.
 	HandSets       map[int32]bool               // The set ids registered by hand.
 	SetChances     map[[2]int32][]float64       // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
-	EnchantChances map[int32][]float64          // The chance in percent each proc spell of an enchant not written by hand rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
+	EnchantChances map[int32][]float64          // The chance in percent each proc spell of an enchant rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
 	SpellChances   map[int32]float64            // The row chance of each spell a literal names, in percent, by spell id; 0 where the row states none or where an item proc builder would roll its ProcChance column instead.
+	EntryRates     map[int32]int32              // The spell each hand-written proc reads its item's entry's procs per minute for, by item id (forever.EntryRateProcs).
 	LiveItems      map[int32]LiveProcs          // The generated item procs that register, by item id.
 	LiveEnchants   map[int32]LiveProcs          // The generated enchant procs that register, by enchant effect id.
 	TargetScaled   map[string]map[[2]int32]bool // The gear whose rate varies by target type, by kind ("item", "enchant" or "set bonus"), id and piece count (0 for an item or enchant).
+	Missing        map[string]map[int32]bool    // The items and enchants missing an effect, which roll nothing for it, by kind ("item" or "enchant") and id.
 }
 
 // The generated procs of one item or enchant that register.
@@ -777,7 +770,7 @@ func itemProcRowChance(row *spelldata.Spell) float64 {
 // The shipped tables, with the items, enchants and set bonuses the game files have casting each rated spell.
 // gen_db reads them before anything calls sim.RegisterAll, so the effects and sets registered by then are
 // the hand-written ones: the generated files register theirs in their RegisterAll functions.
-func shippedRateInputs(instance *dbc.DBC) rateInputs {
+func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 	in := rateInputs{
 		WeaponProcs:    overrides.WeaponProcs,
 		Spells:         overrides.Spells,
@@ -792,9 +785,17 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		SetChances:     map[[2]int32][]float64{},
 		EnchantChances: map[int32][]float64{},
 		SpellChances:   map[int32]float64{},
+		EntryRates:     forever.EntryRateProcs,
 		LiveItems:      liveItemProcs,
 		LiveEnchants:   liveEnchantProcs,
 		TargetScaled:   map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}},
+		Missing:        map[string]map[int32]bool{"item": {}, "enchant": {}},
+	}
+	for id := range missingEffectsMap["ItemEffects"] {
+		in.Missing["item"][id] = true
+	}
+	for id := range missingEffectsMap["EnchantEffects"] {
+		in.Missing["enchant"][id] = true
 	}
 	// The rate varies by target type where the tooltip prints the chance as a fraction of the column
 	// (${$h/2}%): the row's chance is the full effect against the bonus target type, so the gear states no
@@ -802,70 +803,68 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 	scaled := func(spellID int) bool {
 		return strings.Contains(instance.Spells[spellID].Description, "$h/")
 	}
-	for itemID, effects := range instance.ItemEffectsByParentID {
-		if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return scaled(e.SpellID) }) {
-			in.TargetScaled["item"][[2]int32{int32(itemID), 0}] = true
+	var rateOverrides []overrides.Override
+	rated := map[int32]bool{}
+	for _, o := range overrides.Spells {
+		if spellRateKind(o) != 0 {
+			rateOverrides = append(rateOverrides, o)
+			rated[o.SpellID] = true
 		}
 	}
-	for effectID, enchant := range instance.EnchantsByEffectId {
-		if slices.ContainsFunc(enchant.EffectArgs, scaled) {
-			in.TargetScaled["enchant"][[2]int32{int32(effectID), 0}] = true
-		}
-	}
-	for setID, rows := range instance.ItemSetSpells {
-		for _, row := range rows {
-			if scaled(row.SpellID) {
-				in.TargetScaled["set bonus"][[2]int32{int32(setID), int32(row.Threshold)}] = true
-			}
-		}
-	}
+
 	for itemID := range instance.Items {
 		if implementedByHand(int32(itemID)) {
 			in.HandItems[int32(itemID)] = true
 		}
 	}
-	for effectID := range instance.EnchantsByEffectId {
-		if core.HasEnchantEffect(int32(effectID)) {
-			in.HandEnchants[int32(effectID)] = true
+	for itemID, effects := range instance.ItemEffectsByParentID {
+		if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return scaled(e.SpellID) }) {
+			in.TargetScaled["item"][[2]int32{int32(itemID), 0}] = true
 		}
-	}
-
-	rated := map[int32]bool{}
-	for _, o := range overrides.Spells {
-		if spellRateKind(o) != 0 {
-			rated[o.SpellID] = true
-		}
-	}
-	setNames := map[int]string{}
-	for _, item := range instance.Items {
-		if item.ItemSetId != 0 {
-			setNames[item.ItemSetId] = item.ItemSetName
-		}
-	}
-	for setID, rows := range instance.ItemSetSpells {
-		name := setNames[setID]
-		if slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
-			return set.ID == int32(setID) || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
-		}) {
-			in.HandSets[int32(setID)] = true
-			continue
-		}
-		for _, row := range rows {
-			if spell := spelldata.Find(int32(row.SpellID)); shared.IsSetBonusProc(spell) && !rated[int32(row.SpellID)] {
-				bonus := [2]int32{int32(setID), int32(row.Threshold)}
-				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
+		for _, o := range rateOverrides {
+			if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return e.SpellID == int(o.SpellID) }) {
+				in.SpellItems[o.SpellID] = append(in.SpellItems[o.SpellID], int32(itemID))
 			}
 		}
 	}
 	for effectID, enchant := range instance.EnchantsByEffectId {
-		if in.HandEnchants[int32(effectID)] {
-			continue
+		id := int32(effectID)
+		if core.HasEnchantEffect(id) {
+			in.HandEnchants[id] = true
+		}
+		if slices.ContainsFunc(enchant.EffectArgs, scaled) {
+			in.TargetScaled["enchant"][[2]int32{id, 0}] = true
+		}
+		for _, o := range rateOverrides {
+			if slices.Contains(enchant.EffectArgs, int(o.SpellID)) {
+				in.SpellEnchants[o.SpellID] = append(in.SpellEnchants[o.SpellID], id)
+			}
 		}
 		for _, slot := range enchant.ProcSlots() {
-			if !rated[int32(slot.SpellID)] && !slices.ContainsFunc(overrides.EnchantProcs, func(o overrides.EnchantProc) bool {
-				return o.EnchantID == int32(effectID) && o.SpellID == int32(slot.SpellID)
-			}) {
-				in.EnchantChances[int32(effectID)] = append(in.EnchantChances[int32(effectID)], chancePercent(itemProcRowChance(spelldata.Find(int32(slot.SpellID)))))
+			if !rated[int32(slot.SpellID)] && overrides.EnchantProcRate(id, int32(slot.SpellID)) == nil {
+				in.EnchantChances[id] = append(in.EnchantChances[id], chancePercent(itemProcRowChance(spelldata.Find(int32(slot.SpellID)))))
+			}
+		}
+	}
+	setNames := setNamesOf(db)
+	for setID, rows := range instance.ItemSetSpells {
+		id := int32(setID)
+		hand := slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool { return coversSet(set, id, setNames[id]) })
+		if hand {
+			in.HandSets[id] = true
+		}
+		for _, row := range rows {
+			bonus := [2]int32{id, int32(row.Threshold)}
+			if scaled(row.SpellID) {
+				in.TargetScaled["set bonus"][bonus] = true
+			}
+			for _, o := range rateOverrides {
+				if row.SpellID == int(o.SpellID) {
+					in.SpellSets[o.SpellID] = append(in.SpellSets[o.SpellID], bonus)
+				}
+			}
+			if spell := spelldata.Find(int32(row.SpellID)); !hand && shared.IsSetBonusProc(spell) && !rated[int32(row.SpellID)] {
+				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
 			}
 		}
 	}
@@ -875,29 +874,6 @@ func shippedRateInputs(instance *dbc.DBC) rateInputs {
 		// ItemProcRollsTheColumn picks it, so a row where the two differ has no chance to state.
 		if row := spelldata.Find(literal.SpellID); row != spelldata.Nil && !row.ItemProcRollsTheColumn() {
 			in.SpellChances[literal.SpellID] = chancePercent(itemProcRowChance(row))
-		}
-	}
-
-	for _, o := range overrides.Spells {
-		if spellRateKind(o) == 0 {
-			continue
-		}
-		for itemID, effects := range instance.ItemEffectsByParentID {
-			if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return e.SpellID == int(o.SpellID) }) {
-				in.SpellItems[o.SpellID] = append(in.SpellItems[o.SpellID], int32(itemID))
-			}
-		}
-		for effectID, enchant := range instance.EnchantsByEffectId {
-			if slices.Contains(enchant.EffectArgs, int(o.SpellID)) {
-				in.SpellEnchants[o.SpellID] = append(in.SpellEnchants[o.SpellID], int32(effectID))
-			}
-		}
-		for setID, spells := range instance.ItemSetSpells {
-			for _, spell := range spells {
-				if spell.SpellID == int(o.SpellID) {
-					in.SpellSets[o.SpellID] = append(in.SpellSets[o.SpellID], [2]int32{int32(setID), int32(spell.Threshold)})
-				}
-			}
 		}
 	}
 	return in
@@ -1044,12 +1020,13 @@ func procRate(proc *proto.ProcEffect) KnownRate {
 
 // Every proc rate the sim uses on an item, an enchant or a set bonus in the database, once per piece of gear
 // and in id order. A known literal is the piece's rate, and one naming a spell the rate that spell rolls on
-// it. Gear written by hand with no literal has none, since its code may not roll what its rows state. An
-// item or enchant takes the procs on its database effects and the measured rate overrides on the spells it
-// casts, an enchant also the chances of its proc spells, and a set bonus its measured rate overrides and the
-// chances of its proc rows. Generated gear counts only where its procs register, and a row's rate only where
-// they read the rows. A piece whose rates differ, one with a proc that states no rate and no row rate fills,
-// one whose rate varies by target type, and one listed as unvalidated or missing its set bonus are left out.
+// it; a hand-written proc reading its item's entry takes the rate the entry states. Gear written by hand with
+// neither has none, since its code may not roll what its rows state. An item or enchant takes the procs on
+// its database effects and the measured rate overrides on the spells it casts, an enchant also the chances of
+// its proc spells, and a set bonus its measured rate overrides and the chances of its proc rows. Generated
+// gear counts only where its procs register, and a row's rate only where they read the rows. A piece whose
+// rates differ, one with a proc that states no rate and no row rate fills, one whose rate varies by target
+// type, and one listed as unvalidated or missing its effect or set bonus are left out.
 func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, missingSets []MissingSetBonus) KnownRates {
 	// A rate a measurement settles, and none for one whose Source is no measurement.
 	measured := func(source string, rate KnownRate) KnownRate {
@@ -1094,6 +1071,32 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 			literals[literal.Gear][key] = append(literals[literal.Gear][key], rate)
 		}
 	}
+	// A hand-written proc reading its item's entry rolls the procs per minute that entry states for the spell it
+	// registers. Another proc on the item leaves it no single rate, and so does an unmeasured weapon rate on
+	// it, matched by item since it names the spell the entry triggers.
+	for id, spellID := range in.EntryRates {
+		item, ok := db.Items[id]
+		if !ok {
+			continue
+		}
+		var rates []KnownRate
+		for _, effect := range item.ItemEffects {
+			if proc := effect.GetProc(); proc != nil && effect.BuffId == spellID {
+				rates = append(rates, KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm()})
+			} else if proc != nil {
+				rates = append(rates, KnownRate{})
+			}
+		}
+		for _, proc := range in.WeaponProcs {
+			if proc.ItemID == id {
+				for i := range rates {
+					rates[i] = measured(proc.Source, rates[i])
+				}
+			}
+		}
+		key := [2]int32{id, 0}
+		literals["item"][key] = append(literals["item"][key], rates...)
+	}
 	left := map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}}
 	for gear, list := range map[string][]UnvalidatedRate{"item": unvalidated.Items, "enchant": unvalidated.Enchants, "set bonus": unvalidated.SetBonuses} {
 		for _, rate := range list {
@@ -1106,6 +1109,11 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	for gear, keys := range in.TargetScaled {
 		for key := range keys {
 			left[gear][key] = true
+		}
+	}
+	for gear, ids := range in.Missing {
+		for id := range ids {
+			left[gear][[2]int32{id, 0}] = true
 		}
 	}
 
@@ -1149,16 +1157,26 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 	itemRowRates := map[int32][]KnownRate{}
 	enchantRowRates := map[int32][]KnownRate{}
+	setRates := map[[2]int32][]KnownRate{}
 	for _, o := range in.Spells {
 		kind := spellRateKind(o)
-		if origin, err := rateOrigin(o.Source); kind == 0 || err != nil || origin != "" {
+		if kind == 0 {
+			continue
+		}
+		r := measured(o.Source, KnownRate{Kind: kind, Rate: o.Value})
+		for _, bonus := range in.SpellSets[o.SpellID] {
+			if !in.HandSets[bonus[0]] {
+				setRates[bonus] = append(setRates[bonus], r)
+			}
+		}
+		if r.Rate == 0 {
 			continue
 		}
 		for _, id := range in.SpellItems[o.SpellID] {
-			itemRowRates[id] = append(itemRowRates[id], KnownRate{Kind: kind, Rate: o.Value})
+			itemRowRates[id] = append(itemRowRates[id], r)
 		}
 		for _, id := range in.SpellEnchants[o.SpellID] {
-			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: kind, Rate: o.Value})
+			enchantRowRates[id] = append(enchantRowRates[id], r)
 		}
 	}
 	for id, chances := range in.EnchantChances {
@@ -1195,23 +1213,16 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}
 	}
 
-	setRates := map[[2]int32][]KnownRate{}
-	for _, o := range in.Spells {
-		if kind := spellRateKind(o); kind != 0 {
-			for _, bonus := range in.SpellSets[o.SpellID] {
-				if !in.HandSets[bonus[0]] {
-					setRates[bonus] = append(setRates[bonus], measured(o.Source, KnownRate{Kind: kind, Rate: o.Value}))
-				}
-			}
-		}
-	}
 	for bonus, chances := range in.SetChances {
 		for _, chance := range chances {
 			setRates[bonus] = append(setRates[bonus], KnownRate{Kind: overrides.RateChance, Rate: chance})
 		}
 	}
-	for bonus, literal := range literals["set bonus"] {
-		setRates[bonus] = literal
+	// settle takes a literal over the rates found, so a bonus with a literal only needs listing.
+	for bonus := range literals["set bonus"] {
+		if _, ok := setRates[bonus]; !ok {
+			setRates[bonus] = nil
+		}
 	}
 	setNames := setNamesOf(db)
 	for bonus, found := range setRates {
@@ -1246,7 +1257,7 @@ func missingSetBonuses(registered []*core.ItemSet, setSpells map[int][]dbc.ItemS
 	for setID, name := range setNamesOf(db) {
 		implemented := map[int32]bool{}
 		for _, set := range registered {
-			if set.ID == setID || set.ID == 0 && (set.Name == name || set.AlternativeName == name) {
+			if coversSet(set, setID, name) {
 				for pieces := range set.Bonuses {
 					implemented[pieces] = true
 				}
@@ -1275,6 +1286,12 @@ func missingSetBonuses(registered []*core.ItemSet, setSpells map[int][]dbc.ItemS
 		return missing[i].ID < missing[j].ID || missing[i].ID == missing[j].ID && missing[i].Pieces < missing[j].Pieces
 	})
 	return missing
+}
+
+// Whether the registered set covers the set of this id and name: by id, or by name where it is registered
+// with ID 0.
+func coversSet(set *core.ItemSet, id int32, name string) bool {
+	return set.ID == id || set.ID == 0 && name != "" && (set.Name == name || set.AlternativeName == name)
 }
 
 // The name of every set with an item in the database, by set id.
@@ -1348,9 +1365,7 @@ func generatedSets(registered []*core.ItemSet, setSpells map[int][]dbc.ItemSetSp
 	var sets []GeneratedSet
 	for _, setID := range slices.Sorted(maps.Keys(names)) {
 		name := names[setID]
-		if slices.ContainsFunc(registered, func(set *core.ItemSet) bool {
-			return set.ID == setID || set.ID == 0 && (set.Name == name || set.AlternativeName == name)
-		}) {
+		if slices.ContainsFunc(registered, func(set *core.ItemSet) bool { return coversSet(set, setID, name) }) {
 			continue
 		}
 
@@ -1475,7 +1490,7 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
 	}
 
-	in := shippedRateInputs(instance)
+	in := shippedRateInputs(instance, db)
 	rates, err := unvalidatedRates(in, db)
 	if err != nil {
 		return err
@@ -1493,16 +1508,7 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 	setBonuses := missingSetBonuses(registered, instance.ItemSetSpells, db, func(spellID int) string {
 		return setBonusTooltip(instance, spellID)
 	})
-	// An item or enchant missing an effect rolls nothing for it.
 	known := knownRates(in, db, rates, setBonuses)
-	known.Items = slices.DeleteFunc(known.Items, func(rate KnownRate) bool {
-		_, missing := missingEffectsMap["ItemEffects"][rate.ID]
-		return missing
-	})
-	known.Enchants = slices.DeleteFunc(known.Enchants, func(rate KnownRate) bool {
-		_, missing := missingEffectsMap["EnchantEffects"][rate.ID]
-		return missing
-	})
 
 	f, err := os.Create(missingEffectsFileName)
 	if err != nil {

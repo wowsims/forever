@@ -203,8 +203,8 @@ func TestUnvalidatedRatesRender(t *testing.T) {
 // a set bonus's row chance, and a known literal over the effects of gear written by hand. A literal naming
 // the spell its gear rolls takes the gear's own rate override for that spell, else the spell's rate override,
 // else its row's chance. Hand-written gear with no literal, gear with no single rate, a proc stating no rate
-// that no override fills, a carried-over override, an unvalidated rate and a missing set bonus stay out, and
-// so does a set the database lacks. A literal whose gear carries an unmeasured rate of its own for the spell
+// that no override fills, a carried-over override, an unvalidated rate, an item or enchant missing an effect
+// and a missing set bonus stay out, and so does a set the database lacks. A literal whose gear carries an unmeasured rate of its own for the spell
 // gets none. Generated gear counts only where its procs register, and a row's rate only where they read the
 // rows. Each piece is listed once, in id order.
 func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
@@ -221,7 +221,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
+	db := rateTestDB([]int32{20, 21, 22, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206, 207}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -237,6 +237,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		36: procs(&proto.ProcEffect{}),
 		37: procs(ppm(1), ppm(1)),
 		38: procs(chance(0.05)),
+		39: procs(ppm(1)),
 		41: procs(chance(0.05)),
 	} {
 		db.Items[id].ItemEffects = effects
@@ -244,6 +245,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	db.Enchants[EnchantDBKey{EffectID: 200}].EnchantEffects = procs(chance(0.1))
 	db.Enchants[EnchantDBKey{EffectID: 201}].EnchantEffects = procs(chance(0.08))
 	db.Enchants[EnchantDBKey{EffectID: 204}].EnchantEffects = procs(chance(0.06))
+	db.Enchants[EnchantDBKey{EffectID: 207}].EnchantEffects = procs(chance(0.1))
 	in := rateInputs{
 		Spells: []overrides.Override{
 			{SpellID: 6, Field: overrides.PPM, Value: 2, Source: "EV-0001"},
@@ -283,10 +285,11 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		EnchantChances: map[int32][]float64{202: {3}, 203: {5, 0}, 205: {9}},
 		LiveItems: map[int32]LiveProcs{
 			20: {1, true}, 21: {1, true}, 24: {2, true}, 25: {2, true}, 26: {1, true}, 27: {2, true}, 30: {1, true},
-			32: {1, true}, 33: {1, true}, 35: {1, false}, 36: {1, false}, 37: {1, true}, 38: {1, true},
+			32: {1, true}, 33: {1, true}, 35: {1, false}, 36: {1, false}, 37: {1, true}, 38: {1, true}, 39: {1, true},
 		},
-		LiveEnchants: map[int32]LiveProcs{200: {1, true}, 202: {1, true}, 203: {2, true}, 205: {1, false}},
+		LiveEnchants: map[int32]LiveProcs{200: {1, true}, 202: {1, true}, 203: {2, true}, 205: {1, false}, 207: {1, true}},
 		TargetScaled: map[string]map[[2]int32]bool{"item": {{38, 0}: true}}, // Its rate varies by target type, so none is listed.
+		Missing:      map[string]map[int32]bool{"item": {39: true}, "enchant": {207: true}},
 	}
 	unvalidated := UnvalidatedRates{Items: []UnvalidatedRate{{ID: 26, Kind: overrides.RatePPM, Rate: 1, Origin: "vanilla"}}}
 	missingSets := []MissingSetBonus{{ID: 7000, Pieces: 2, Name: "Set 7000"}}
@@ -338,6 +341,52 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	}
 	if rates.Items[0].Name != db.Items[20].Name || rates.Enchants[0].Name != "Enchant 200" || rates.SetBonuses[0].Name != db.Items[70].SetName {
 		t.Errorf("entries carry the names %q, %q and %q, want the database's", rates.Items[0].Name, rates.Enchants[0].Name, rates.SetBonuses[0].Name)
+	}
+}
+
+// A hand-written proc reading its item's entry takes the procs per minute the entry states for the spell it
+// registers, also where the item's measured weapon rate names the spell the entry triggers. An entry stating
+// none, an unmeasured weapon rate on the item, and a second proc on it leave the item with no rate; an
+// effect that is no proc does not.
+func TestKnownRatesTakeTheEntryRateOfAHandWrittenProc(t *testing.T) {
+	entry := func(spellID int32, proc *proto.ProcEffect) *proto.ItemEffect {
+		effect := &proto.ItemEffect{BuffId: spellID}
+		if proc != nil {
+			effect.Effect = &proto.ItemEffect_Proc{Proc: proc}
+		}
+		return effect
+	}
+	ppm := func(rate float64) *proto.ProcEffect {
+		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_Ppm{Ppm: rate}}
+	}
+	db := rateTestDB([]int32{10, 11, 12, 13, 14, 15}, nil, nil)
+	for id, effects := range map[int32][]*proto.ItemEffect{
+		10: {entry(100, ppm(2.7))},
+		11: {entry(101, ppm(1))},
+		12: {entry(102, &proto.ProcEffect{})},
+		13: {entry(103, &proto.ProcEffect{}), entry(104, ppm(1.9))},
+		14: {entry(105, ppm(4.5)), entry(106, nil)},
+	} {
+		db.Items[id].ItemEffects = effects
+	}
+	in := rateInputs{
+		WeaponProcs: []overrides.WeaponProc{
+			{ItemID: 10, SpellID: 99, PPM: 2.7, Source: "EV-0001"},
+			{ItemID: 11, SpellID: 101, PPM: 1, Source: "vanilla-carryover"},
+			{ItemID: 13, SpellID: 104, PPM: 1.9, Source: "EV-0002"},
+		},
+		EntryRates: map[int32]int32{10: 100, 11: 101, 12: 102, 13: 104, 14: 105, 15: 107},
+		HandItems:  map[int32]bool{10: true, 11: true, 12: true, 13: true, 14: true, 15: true},
+	}
+
+	rates := knownRates(in, db, UnvalidatedRates{}, nil)
+
+	want := []KnownRate{
+		{ID: 10, Name: "Item 10", Kind: overrides.RatePPM, Rate: 2.7},
+		{ID: 14, Name: "Item 14", Kind: overrides.RatePPM, Rate: 4.5},
+	}
+	if !slices.Equal(rates.Items, want) {
+		t.Errorf("listed %+v, want %+v", rates.Items, want)
 	}
 }
 
@@ -576,13 +625,13 @@ func TestRegisteredSetBonusesSitOnGameFilesThresholds(t *testing.T) {
 func TestShippedRatesAreWellFormed(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
-	in := shippedRateInputs(instance)
+	db := NewWowDatabase()
+	in := shippedRateInputs(instance, db)
 
 	knownSource := func(source string) bool {
 		_, err := rateOrigin(source)
 		return err == nil
 	}
-	db := NewWowDatabase()
 	var measuredItems, measuredEnchants []int32
 	for _, row := range in.WeaponProcs {
 		if !knownSource(row.Source) {

@@ -104,9 +104,9 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   one of those four, and the generator refuses any other. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
   it.
 - **The gear tab's info line states every settled rate**, from the `PROC_RATE_*` tables in
-  `ui/sim/constants/missing_effects_auto_gen.ts`. Gear whose effect is written by hand gets one only from a
-  `literalRates` entry with no `Origin`: a `Rate`, or the `SpellID` whose rate its code rolls unchanged. A
-  hand-written proc with no entry shows no rate.
+  `ui/sim/constants/missing_effects_auto_gen.ts`. Gear whose effect is written by hand gets one from a
+  `literalRates` entry with no `Origin` (a `Rate`, or the `SpellID` whose rate its code rolls unchanged), and a
+  proc registered through `newEntryRateItemEffect` from its item's entry. Any other hand-written proc shows no rate.
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of

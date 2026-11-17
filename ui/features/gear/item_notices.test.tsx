@@ -135,11 +135,17 @@ describe('the proc rate notices', () => {
 	});
 });
 
+// A database holding only the given pieces of one set.
+const setDatabase = (setID: number, itemIDs: number[]) => {
+	const items = new Map(itemIDs.map(id => [id, { id, setId: setID }]));
+	return { getAllItemIds: () => [...items.keys()], getItemById: (id: number) => items.get(id) } as unknown as Database;
+};
+
 describe('the proc rate notices of a set', () => {
 	const SET_ID = 9998;
 	const PIECES = [90020, 1];
 	const ownRate = ITEM_RATE_NOTICES.get(1);
-	const register = () => registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? PIECES : []) } as unknown as Database);
+	const register = () => registerSetBonusNotices(setDatabase(SET_ID, PIECES));
 
 	afterEach(() => {
 		ITEM_RATE_NOTICES.delete(90020);
@@ -195,7 +201,7 @@ describe('registerSetBonusNotices', () => {
 	};
 
 	it('names each piece count with its missing effects and rate warnings on every item of the set', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID, ITEM_IDS));
 
 		for (const id of ITEM_IDS) {
 			expect(setBonusPieces(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([
@@ -213,7 +219,7 @@ describe('registerSetBonusNotices', () => {
 	});
 
 	it('keeps the missing item effect notice of a set piece and adds the set notice after it', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? [PIECE_WITH_EFFECT] : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID, [PIECE_WITH_EFFECT]));
 
 		const node = ITEM_NOTICES.get(PIECE_WITH_EFFECT)?.[Spec.SpecUnknown];
 		expect(paragraphs(node).map(text => text?.trim())).toEqual([
@@ -226,7 +232,7 @@ describe('registerSetBonusNotices', () => {
 
 	it('names what a partly implemented bonus leaves out', () => {
 		const GROVEKEEPER_ECLIPSE = 2114;
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === GROVEKEEPER_ECLIPSE ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(GROVEKEEPER_ECLIPSE, ITEM_IDS));
 
 		expect(setBonusPieces(ITEM_NOTICES.get(ITEM_IDS[0])?.[Spec.SpecUnknown])).toEqual([
 			{
@@ -237,7 +243,7 @@ describe('registerSetBonusNotices', () => {
 	});
 
 	it('writes no notice on the items of a set the list does not name', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID + 1 ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID + 1, ITEM_IDS));
 
 		for (const id of ITEM_IDS) {
 			expect(ITEM_NOTICES.has(id)).toBe(false);

@@ -107,7 +107,12 @@ const knownRateText = ({ kind, rate }: KnownRate): string =>
 		? i18n.t('gear_tab.item_notices.proc_rate', { rate: rate.toFixed(2) })
 		: i18n.t('gear_tab.item_notices.proc_chance', { rate: formatRate(rate) });
 
-const KnownRateLine = ({ rate }: { rate: KnownRate }) => <p className="mb-0">{knownRateText(rate)}</p>;
+const KnownRateLine = ({ rate, prefix }: { rate: KnownRate; prefix?: string }) => (
+	<p className="mb-0">
+		{prefix && `${prefix} `}
+		{knownRateText(rate)}
+	</p>
+);
 
 const UnvalidatedRateText = ({ rate }: { rate: UnvalidatedRate }) => <>{unvalidatedRateText(rate)}</>;
 
@@ -223,16 +228,20 @@ addSetBonusNotices(UNVALIDATED_RATE_SET_BONUSES, rate => <UnvalidatedRateText ra
 // A set piece can also miss an item effect or carry a rate of its own, so the set notice joins the
 // notice it already has. Each set bonus rate also goes after the piece's own rate line in ITEM_RATE_NOTICES.
 export const registerSetBonusNotices = (db: Database) => {
+	const itemIdsBySet = new Map<number, number[]>();
+	for (const id of db.getAllItemIds()) {
+		const setID = db.getItemById(id)!.setId;
+		if (setID) itemIdsBySet.set(setID, [...(itemIdsBySet.get(setID) ?? []), id]);
+	}
+
 	PROC_RATE_SET_BONUSES.forEach((setRates, setID) => {
 		const lines = [...setRates]
 			.sort(([a], [b]) => a - b)
 			.map(([pieceCount, rate]) => (
-				<p key={pieceCount} className="mb-0">
-					{i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} {knownRateText(rate)}
-				</p>
+				<KnownRateLine key={pieceCount} rate={rate} prefix={i18n.t('gear_tab.item_notices.set_bonus_piece', { pieces: pieceCount.toFixed(0) })} />
 			));
 
-		for (const id of db.getItemIdsForSet(setID)) {
+		for (const id of itemIdsBySet.get(setID) ?? []) {
 			ITEM_RATE_NOTICES.set(
 				id,
 				<>
@@ -265,7 +274,7 @@ export const registerSetBonusNotices = (db: Database) => {
 			</>
 		);
 
-		for (const id of db.getItemIdsForSet(setID)) {
+		for (const id of itemIdsBySet.get(setID) ?? []) {
 			const notice = ITEM_NOTICES.get(id);
 			ITEM_NOTICES.set(id, {
 				...notice,

@@ -706,7 +706,8 @@ func init() {
 }
 
 // The spell each hand-written proc reads its item's procs per minute for, by item id. The generator
-// lists an item whose entry states no rate for that spell as missing its effect.
+// lists an item whose entry states no rate for that spell as missing its effect, and states the rate of one
+// whose entry does on the gear tab.
 var EntryRateProcs = map[int32]int32{}
 
 // Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
