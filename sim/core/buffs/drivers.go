@@ -536,7 +536,7 @@ var punctureArmorWeapons = []struct {
 // With the player wielding Annihilator, the raid's copy is the player's own, which the player's procs
 // stack and refresh, so the target carries one stack count as with Sunder Armor.
 func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
-	rollOnEverySwing(NewSpellDataArmorShatterAura(target, playerWields(raid, annihilatorItemID), 0), annihilatorItemID)
+	rollWielderHits(NewSpellDataArmorShatterAura(target, playerWields(raid, annihilatorItemID), 0), annihilatorItemID)
 }
 
 // Bashguuder and Rivenspike both land 17315, so with the player wielding either, the raid's copy of
@@ -546,7 +546,7 @@ func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
 func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
 	isPlayer := weapon.meta == punctureArmorMeta && playerWields(raid, 13204, 13286)
-	rollOnEverySwing(newDebuff(target, weapon.meta, isPlayer, 0), weapon.itemID)
+	rollWielderHits(newDebuff(target, weapon.meta, isPlayer, 0), weapon.itemID)
 }
 
 // Whether the simmed player carries one of the items, equipped or in an enabled item swap, where its
@@ -563,22 +563,26 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
 }
 
-// A weapon's proc debuff from one wielder, who swings the item at its base speed from the pull and
-// lands every swing. Every target the raid's debuffs land on has a wielder of its own, and the player
-// wielding the weapon stacks the same aura. Each swing lands the aura at the item's procs
-// per minute, a chance of PPM × speed / 60, which refreshes its duration and adds a stack up to its
-// max, so the stacks fall off when the procs come slower than the duration. A landing of the raid's debuffs
-// (Target.ApplyRaidDebuffsAt) starts the swings over, and a swing on a target with the raid's
-// debuffs disabled rolls nothing.
-func rollOnEverySwing(aura *core.Aura, itemID int32) {
+// The landed hits a minute a main-hand wielder makes beside its own swings: specials, Windfury strikes
+// and Whirlwind, each of which rolls the weapon's proc (EV-0147).
+const wielderOtherHitsPerMinute = 48
+
+// A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
+// wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
+// swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
+// procs per minute, a chance of PPM × speed / 60, which refreshes the aura and adds a stack up to its
+// max. A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) starts the rolls over, and a roll on
+// a target with the raid's debuffs disabled lands nothing.
+func rollWielderHits(aura *core.Aura, itemID int32) {
 	item := core.GetItemByID(itemID)
 	if item == nil {
 		panic(fmt.Sprintf("the raid's %s reads the swing speed and procs per minute of item %d, which the sim's item database lacks; the request's database must carry it", aura.Label, itemID))
 	}
 	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
+	hitsPerMinute := 60/item.SwingSpeed + wielderOtherHitsPerMinute
 
 	scheduledAura(aura, core.PeriodicActionOptions{
-		Period:          core.DurationFromSeconds(item.SwingSpeed),
+		Period:          core.DurationFromSeconds(60 / hitsPerMinute),
 		TickImmediately: true,
 		Priority:        core.ActionPriorityDOT,
 		OnAction: func(sim *core.Simulation) {

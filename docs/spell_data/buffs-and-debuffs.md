@@ -226,9 +226,9 @@ message, Flametongue Totem can read `raid.WindfuryTotem`. The driver builds the 
 `NewSpellData...` constructor and adds what the game files do not state: a proc trigger, a cooldown, a
 delay, the metrics of a regen. The row compiles once the function is declared.
 
-A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one wielder swinging the weapon:
-`rollOnEverySwing` rolls the item's procs per minute on every swing at the item's base speed, and a
-landed roll refreshes the aura and adds a stack. With the player wielding a weapon whose proc lands
+A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one main-hand wielder: `rollWielderHits`
+rolls the item's procs per minute on its swings at the item's base speed and on 48 more landed hits a
+minute (EV-0147), and a landed roll refreshes the aura and adds a stack. With the player wielding a weapon whose proc lands
 the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
 warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
 count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the

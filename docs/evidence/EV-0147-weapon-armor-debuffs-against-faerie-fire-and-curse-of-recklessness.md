@@ -3,7 +3,8 @@
 - Claim: Armor Shatter (Annihilator) and Puncture Armor (Bashguuder, Rivenspike, Vibroblade) never land while Faerie Fire
   or Curse of Recklessness is on the target, and either one landing removes them in the same millisecond; they stay
   beside Sunder Armor. Corrosive Poison (Strike of the Hydra), Phantom Strike (Phantom Blade) and Wound (Princess
-  Theradras' Scepter) stay beside all three. The druid's Faerie Fire removes Dazzling Longsword's Faerie Fire.
+  Theradras' Scepter) stay beside all three. The druid's Faerie Fire removes Dazzling Longsword's Faerie Fire. A
+  main-hand wielder in the sim lands about 48 hits a minute beside its swings, each rolling the weapon's proc.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), 178 reports with a wearer of one of the eight weapons;
   the reports and fights each example names
 - Game build: 1.60.1.70888 to 1.60.1.70938 by report date; the hotfix each player ran is not recorded
@@ -86,3 +87,22 @@ Proc landings per landed melee hit of the wearer, by which class armor debuff wa
 - **Shares a target with Sunder Armor** (713×): [qprynNbXtRZV4DHP fight 1 69:44.530](https://forever.warcraftlogs.com/reports/qprynNbXtRZV4DHP?fight=1&type=summary&view=events&start=4462371&end=4527420) (60.0 s), [cgMGCdPJQ84wzaBV fight 12 26:52.212](https://forever.warcraftlogs.com/reports/cgMGCdPJQ84wzaBV?fight=12&type=summary&view=events&start=15005262&end=15061761) (51.5 s), [kr3AzhZ9FVB1nG2D fight 4 14:39.179](https://forever.warcraftlogs.com/reports/kr3AzhZ9FVB1nG2D?fight=4&type=summary&view=events&start=2924400&end=2980432) (51.0 s)
 - **Shares a target with Faerie Fire** (784×): [Hm2Yx9zLQVJqDW6v fight 13 25:05.932](https://forever.warcraftlogs.com/reports/Hm2Yx9zLQVJqDW6v?fight=13&type=summary&view=events&start=7361489&end=7428569) (62.1 s), [cgMGCdPJQ84wzaBV fight 12 26:50.462](https://forever.warcraftlogs.com/reports/cgMGCdPJQ84wzaBV?fight=12&type=summary&view=events&start=15003512&end=15061761) (53.2 s), [mkywZBCNJV2QbPjd fight 1 33:00.539](https://forever.warcraftlogs.com/reports/mkywZBCNJV2QbPjd?fight=1&type=summary&view=events&start=2597654&end=2652211) (49.6 s)
 - **Shares a target with Curse of Recklessness** (10×): [9gJ1KcWkwn7dQpmP fight 1 13:01.767](https://forever.warcraftlogs.com/reports/9gJ1KcWkwn7dQpmP?fight=1&type=summary&view=events&start=824663&end=850638) (21.0 s)
+
+## A main-hand wielder's landed hits in the sim
+
+The raid's copy stands for one main-hand wielder. Measured with `wowsimcli` on #1092's branch (180 s, one level 63
+target from behind, 5,000 iterations, the raid's armor debuffs off but Sunder Armor): the pre-BiS Fury warrior with each
+weapon in the main hand and the Combat rogue with Rivenspike. The hits a minute are the debuff's procs a minute over the
+chance a hit, PPM × speed / 60, and match the summed landed hits of the warrior's Annihilator and the rogue's Rivenspike
+within 4%.
+
+| Wielder                    | Procs a minute | Landed hits a minute | Swings a minute at base speed | Other hits a minute |
+| -------------------------- | -------------: | -------------------: | ----------------------------: | ------------------: |
+| Warrior, Annihilator (1.0) |           2.94 |                 73.5 |                          25.0 |                48.5 |
+| Warrior, Bashguuder (3.2)  |           8.00 |                 83.4 |                          33.3 |                50.1 |
+| Warrior, Rivenspike (1.6)  |           5.20 |                 67.3 |                          20.7 |                46.6 |
+| Rogue, Rivenspike (1.6)    |           5.20 |                 67.2 |                          20.7 |                46.5 |
+
+The other hits (specials, Windfury strikes, Whirlwind, extra attacks) come to about 48 a minute whatever the weapon's
+speed, so the raid's copy rolls on its swings and 48 more hits a minute. The logs show fewer procs than this for a
+main-hand wielder (Rivenspike about 1.7 a minute, Bashguuder about 0.8); the owner chose the sim's wielder as the model.

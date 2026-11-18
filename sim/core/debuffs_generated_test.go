@@ -727,14 +727,20 @@ func swingProcDebuffRaid(debuff swingProcDebuff, db *proto.SimDatabase) *proto.R
 	}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuff.debuffs)
 }
 
-// The raid's copy of a weapon proc debuff is one wielder's proc rolled on every swing: over a long
-// fight it lands, a fresh debuff or a refresh, at the weapon's procs per minute, on the spell the
-// state names.
+// The landed hits a minute a main-hand wielder makes beside its swings, as the driver models them
+// (EV-0147).
+const wielderOtherHitsPerMinute = 48
+
+// The raid's copy of a weapon proc debuff is one main-hand wielder's proc, rolled on its swings and its
+// other landed hits: over a long fight it lands, a fresh debuff or a refresh, at the weapon's procs per
+// minute times its rolls per base-speed swing, on the spell the state names.
 func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 	const iterations, seconds = 2000, 300
 	for _, debuff := range swingProcDebuffs {
 		t.Run(debuff.name, func(t *testing.T) {
 			ppm := swingProcPPM(t, debuff)
+			speed := core.GetItemByID(debuff.itemID).SwingSpeed
+			ppm *= 1 + wielderOtherHitsPerMinute*speed/60
 			result := core.RunRaidSim(&proto.RaidSimRequest{
 				SimOptions: &proto.SimOptions{RandomSeed: 7, Iterations: iterations},
 				Raid:       swingProcDebuffRaid(debuff, nil),
@@ -755,7 +761,7 @@ func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 			}
 			want := ppm * seconds / 60
 			if math.Abs(procs-want) > 0.1*want {
-				t.Errorf("the raid's copy landed %.2f times a fight, want %.2f within 10%% (%v procs per minute over %d s)", procs, want, ppm, seconds)
+				t.Errorf("the raid's copy landed %.2f times a fight, want %.2f within 10%% (%.2f procs a minute over %d s)", procs, want, ppm, seconds)
 			}
 		})
 	}
@@ -774,8 +780,8 @@ func stepChecking(sim *core.Simulation, until time.Duration, check func()) {
 func TestGeneratedPunctureArmorStacksAndFallsOff(t *testing.T) {
 	sim := core.NewSim(&proto.RaidSimRequest{
 		SimOptions: &proto.SimOptions{RandomSeed: 7},
-		Raid:       swingProcDebuffRaid(swingProcDebuffs[1], nil),
-		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 1200},
+		Raid:       swingProcDebuffRaid(swingProcDebuffs[2], nil),
+		Encounter:  &proto.Encounter{Targets: []*proto.Target{{Name: "target", Level: 60}}, Duration: 1500},
 	}, simsignals.CreateSignals())
 	sim.Reset()
 	target := sim.Encounter.AllTargets[0]
@@ -787,7 +793,7 @@ func TestGeneratedPunctureArmorStacksAndFallsOff(t *testing.T) {
 	perStack := armorAmount(t, 17315)
 
 	landed, fellOff, wasActive := false, false, false
-	stepChecking(sim, 600*time.Second, func() {
+	stepChecking(sim, 1100*time.Second, func() {
 		if aura.IsActive() && !landed {
 			landed = true
 			if got, want := target.GetStats()[stats.ArmorNoMods]-base, perStack; aura.GetStacks() != 1 || got != want {
