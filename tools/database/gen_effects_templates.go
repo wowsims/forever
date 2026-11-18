@@ -400,35 +400,4 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	],
 {{- end }}
 ])
-
-// A proc rate the game files do not state and no measurement on Forever has settled, and where it comes from.
-// The rate is the one the sim uses: procs per minute for a ppm, a percent from 0 to 100 for a chance.
-// It is left out where the gear has no single rate.
-export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: 'vanilla' | 'tbc' | 'observed' }
-
-export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
-{{- range .UnvalidatedRateItems }}
-	[{{.ID}}, { {{.Fields}} }], // {{ .Name }}
-{{- end }}
-])
-
-export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
-{{- range .UnvalidatedRateEnchants }}
-	[{{.ID}}, { {{.Fields}} }], // {{ .Name }}
-{{- end }}
-])
-
-// Keyed by set id, then by the bonus's piece count.
-export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, UnvalidatedRate>>([
-{{- range .UnvalidatedRateSetBonuses }}
-	[
-		{{(index . 0).ID}}, // {{ (index . 0).Name }}
-		new Map([
-			{{- range . }}
-			[{{.Pieces}}, { {{.Fields}} }],
-			{{- end }}
-		]),
-	],
-{{- end }}
-])
 `

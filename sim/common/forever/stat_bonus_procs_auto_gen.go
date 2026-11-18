@@ -4078,15 +4078,6 @@ func RegisterAllProcs() {
 			{ItemID: 14487, ItemName: "Bonechill Hammer"},
 		})
 
-	// When struck in combat has a 5% chance of increasing all party member's armor by 725 for 30s. This chance
-	// is doubled in Strongholds and Cities.
-	// https://www.wowhead.com/forever/spell=18946
-	// trigger 20847 (10%, core.CallbackOnSpellHitTaken, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial) -> buff 18946
-	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946},
-		[]shared.ItemVariant{
-			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
-		})
-
 	// Wounds the target causing them to bleed for 80 damage over 30s.
 	// https://www.wowhead.com/forever/spell=16406
 	// trigger 16406 (1.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)

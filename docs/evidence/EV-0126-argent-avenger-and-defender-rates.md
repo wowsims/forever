@@ -56,6 +56,8 @@ explain the gap between the classes: both swing about 1.2 to 1.3 times as often 
 priced on the base speed. Why rogues proc less is open. The owner sets the rate to 1 proc per minute, from the
 sword-and-shield warrior's weapon hits.
 
+EV-0148 reads this rate again from a sword-and-shield warrior's combat log.
+
 ## Argent Defender
 
 17350 states a ProcChance of 100, a ProcTypeMask of 0x28 (melee hits taken) and a 20 s ProcCategoryRecovery, and its

@@ -2445,6 +2445,12 @@
 						"set_bonus_piece": {
 							"type": "string"
 						},
+						"proc_rate": {
+							"type": "string"
+						},
+						"proc_chance": {
+							"type": "string"
+						},
 						"area_stats": {
 							"type": "string"
 						},
@@ -2485,6 +2491,8 @@
 						"partial_item",
 						"set_bonus_warnings",
 						"set_bonus_piece",
+						"proc_rate",
+						"proc_chance",
 						"area_stats",
 						"discovered_within_hour",
 						"discovered_ago",
