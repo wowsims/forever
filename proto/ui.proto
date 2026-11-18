@@ -40,6 +40,7 @@ message UIDatabase {
 
 	repeated Consumable consumables = 13;
 	repeated SpellEffect spell_effects = 14;
+	repeated SetBonusProcRate set_bonus_proc_rates = 17;
 }
 
 message UIZone {
@@ -70,7 +71,7 @@ enum ContentPhase {
 // Contains all information about an Item needed by the UI.
 // Generally this will include everything needed by the sim, plus some
 // additional data for displaying / filtering.
-// Next tag: 37.
+// Next tag: 41.
 message UIItem {
 	int32 id = 1;
 	string name = 2;
@@ -131,6 +132,7 @@ message UIItem {
 	repeated AreaType area_types = 37;
 	repeated MobType mob_types = 38;
 	repeated CreatureFamily creature_families = 39;
+	ProcRate proc_rate = 40;
 }
 
 enum Expansion {
@@ -231,6 +233,36 @@ message UIEnchant {
 	repeated ItemEffect enchant_effects = 14;
 	EnchantProcKind proc_kind = 18;
 	repeated UIItemSource sources = 19; // Of the enchant's own item and the items that teach it.
+	ProcRate proc_rate = 20;
+}
+
+enum ProcRateKind {
+	ProcRateKindUnknown = 0;
+	ProcRateKindPpm = 1;
+	ProcRateKindChance = 2;
+}
+
+// How sure the sim is of the rate. The gear tab shows Measured and GameFiles as a line, and the rest as a warning.
+enum ProcRateStatus {
+	ProcRateStatusUnknown = 0;
+	ProcRateStatusMeasured = 1;
+	ProcRateStatusGameFiles = 2;
+	ProcRateStatusObserved = 3;
+	ProcRateStatusTbcCarryover = 4;
+	ProcRateStatusVanillaCarryover = 5;
+}
+
+// The proc rate the sim rolls on a piece of gear, for display only.
+message ProcRate {
+	ProcRateKind kind = 1;
+	double rate = 2; // Procs per minute, or a percent from 0 to 100 for a chance; 0 where the gear has no single rate.
+	ProcRateStatus status = 3;
+}
+
+message SetBonusProcRate {
+	int32 set_id = 1;
+	int32 pieces = 2;
+	ProcRate rate = 3;
 }
 
 
@@ -286,7 +318,7 @@ message StatFilters {
 	StatSelection consumables = 5;
 }
 
-// NextIndex: 28
+// NextIndex: 34
 message DatabaseFilters {
 	repeated ArmorType armor_types = 1;
 	repeated WeaponType weapon_types = 2;
@@ -321,6 +353,9 @@ message DatabaseFilters {
 	repeated CreatureFamily creature_families = 31;
 	// Shows only the items the sim's database first held within the last week, the ones the item list marks.
 	bool newly_discovered_only = 32;
+	// With any set, the item list shows only the items that carry every one of these stats, from their own stats or
+	// from one of their random suffixes. Empty hides none.
+	repeated Stat item_stats = 33;
 	// The enchant picker also lists enchants worth nothing to the spec's stat weights.
 	bool show_all_enchants = 25;
 	// The stats each panel shows; see StatFilters.

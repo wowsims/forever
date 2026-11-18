@@ -1,5 +1,8 @@
 # EV-0028: Revelation's mage charge and Flamestrike's ticks at level 60
 
+EV-0142 replaces what this file says of the ticks' partial resist: they roll it against a tenth of the target's
+resistance.
+
 - Claim: the mage's Revelation charge goes as the buffed cast completes, and Flamestrike's ground ticks are hits on each enemy that take no partial resist.
 - Sources: combat log, one level 60 mage with 10% sheet crit (Stratholme, area pulls)
 - Game build: not recorded

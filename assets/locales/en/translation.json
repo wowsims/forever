@@ -553,6 +553,10 @@
 				"newly_discovered": "Newly discovered only",
 				"source": "Source",
 				"raids": "Raids",
+				"stats": {
+					"title": "Stats",
+					"label": "Has every stat"
+				},
 				"bonus": {
 					"title": "Bonus",
 					"area": "In area",
@@ -671,6 +675,8 @@
 			},
 			"set_bonus_warnings": "This item set has the following warnings:",
 			"set_bonus_piece": "{{pieces}}-piece:",
+			"proc_rate": "Proc rate: {{rate}} PPM",
+			"proc_chance": "Proc chance: {{rate}}%",
 			"area_stats": "Only while the encounter is in one of these areas:",
 			"discovered_within_hour": "Discovered less than an hour ago",
 			"discovered_ago": "Discovered {{when}}",

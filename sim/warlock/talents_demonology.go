@@ -266,7 +266,7 @@ func (warlock *Warlock) applyDecimation() {
 	noReagent := decimationRow.Effect(dbcenums.A_NO_REAGENT_USE, 0)
 	warlock.reagentWaivers = append(warlock.reagentWaivers, reagentWaiver{aura: decimationAura, flags: noReagent.ClassFlags})
 
-	// The buff comes with the cast, and only when its hit lands: a miss or a full resist grants nothing.
+	// The buff comes with the cast, and only when its hit lands: a miss grants nothing.
 	// Shadow Bolt and Searing Pain roll their hit at the cast, so the trigger reads its cast result, before a
 	// bolt lands.
 	warlock.MakeProcTriggerAura(core.ProcTrigger{

@@ -1,10 +1,20 @@
 import { Spec, Stat } from '@generated/proto/common';
+import { type ProcRate, ProcRateKind, ProcRateStatus, type SetBonusProcRate } from '@generated/proto/ui';
 import type { Database } from '@sim/proto/database';
 import { render } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { ENCHANT_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES, registerAreaStatsNotices, registerSetBonusNotices } from './item_notices';
+import {
+	ENCHANT_NOTICES,
+	ENCHANT_RATE_NOTICES,
+	ITEM_INFO_NOTICES,
+	ITEM_NOTICES,
+	ITEM_RATE_NOTICES,
+	registerAreaStatsNotices,
+	registerProcRateNotices,
+	registerSetBonusNotices,
+} from './item_notices';
 
 vi.mock('@i18n/localization', () => ({
 	translateAreaType: (value: number) => `area-${value}`,
@@ -32,31 +42,44 @@ vi.mock('@sim/constants/missing_effects_auto_gen', () => ({
 			]),
 		],
 	]),
-	UNVALIDATED_RATE_ITEMS: new Map([
-		[1, { kind: 'ppm', rate: 1, origin: 'vanilla' }],
-		[3, { kind: 'ppm', rate: 0.855, origin: 'vanilla' }],
-		[4, { kind: 'ppm', rate: 1.5, origin: 'tbc' }],
-		[5, { kind: 'chance', rate: 5, origin: 'vanilla' }],
-		[6, { kind: 'chance', rate: 12.5, origin: 'tbc' }],
-		[11, { kind: 'ppm', rate: 1.1, origin: 'observed' }],
-		[12, { kind: 'chance', rate: 4, origin: 'observed' }],
-		[13, { kind: 'ppm', origin: 'observed' }],
-		[14, { kind: 'chance', origin: 'observed' }],
-	]),
-	UNVALIDATED_RATE_ENCHANTS: new Map([
-		[2, { kind: 'ppm', rate: 2, origin: 'tbc' }],
-		[9, { kind: 'chance', rate: 10, origin: 'vanilla' }],
-	]),
-	UNVALIDATED_RATE_SET_BONUSES: new Map([
-		[
-			9999,
-			new Map([
-				[2, { kind: 'chance', rate: 25, origin: 'tbc' }],
-				[4, { kind: 'ppm', rate: 3, origin: 'vanilla' }],
-			]),
-		],
-	]),
 }));
+
+const { ProcRateKindPpm: PPM, ProcRateKindChance: CHANCE } = ProcRateKind;
+const { ProcRateStatusMeasured: MEASURED, ProcRateStatusGameFiles: GAME_FILES, ProcRateStatusObserved: OBSERVED } = ProcRateStatus;
+const { ProcRateStatusTbcCarryover: TBC, ProcRateStatusVanillaCarryover: VANILLA } = ProcRateStatus;
+const rate = (kind: ProcRateKind, value: number, status: ProcRateStatus): ProcRate => ({ kind, rate: value, status });
+
+const ITEM_RATES = new Map<number, ProcRate>([
+	[1, rate(PPM, 1, VANILLA)],
+	[3, rate(PPM, 0.855, VANILLA)],
+	[4, rate(PPM, 1.5, TBC)],
+	[5, rate(CHANCE, 5, VANILLA)],
+	[6, rate(CHANCE, 12.5, TBC)],
+	[7, rate(PPM, 1.5, MEASURED)],
+	[11, rate(PPM, 1.1, OBSERVED)],
+	[12, rate(CHANCE, 4, OBSERVED)],
+	[13, rate(PPM, 0, OBSERVED)],
+	[14, rate(CHANCE, 0, OBSERVED)],
+]);
+// Two enchants share effect id 8, and an enchant with no rate shares effect id 2.
+const ENCHANTS = [
+	{ effectId: 2, procRate: rate(PPM, 2, TBC) },
+	{ effectId: 2 },
+	{ effectId: 8, procRate: rate(CHANCE, 5, GAME_FILES) },
+	{ effectId: 8, procRate: rate(CHANCE, 5, GAME_FILES) },
+	{ effectId: 9, procRate: rate(CHANCE, 10, VANILLA) },
+];
+const SET_RATES: SetBonusProcRate[] = [
+	{ setId: 9998, pieces: 4, rate: rate(PPM, 1, MEASURED) },
+	{ setId: 9998, pieces: 2, rate: rate(CHANCE, 7.5, GAME_FILES) },
+	{ setId: 9999, pieces: 2, rate: rate(CHANCE, 25, TBC) },
+	{ setId: 9999, pieces: 4, rate: rate(PPM, 3, VANILLA) },
+];
+
+registerProcRateNotices({
+	getAllItems: () => [...ITEM_RATES].map(([id, procRate]) => ({ id, procRate })),
+	getAllEnchants: () => ENCHANTS,
+} as unknown as Database);
 
 const VANILLA_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_vanilla_rate 1';
 const TBC_PPM_WARNING = 'gear_tab.item_notices.unvalidated_rate.ppm_tbc_rate 2';
@@ -107,6 +130,67 @@ describe('the item notice table', () => {
 	it('warns that an enchant rate needs validating on an enchant with no other notice', () => {
 		expect(paragraphs(ENCHANT_NOTICES.get(9)?.[Spec.SpecUnknown])).toEqual([VANILLA_CHANCE_WARNING]);
 	});
+
+	it('gives no warning for a measured rate or one the game files state', () => {
+		expect(ITEM_NOTICES.has(7)).toBe(false);
+		expect(ENCHANT_NOTICES.has(8)).toBe(false);
+	});
+});
+
+describe('the proc rate notices', () => {
+	it('states a ppm at two decimals and a chance as a percent', () => {
+		expect(paragraphs(ITEM_RATE_NOTICES.get(7))).toEqual(['gear_tab.item_notices.proc_rate 1.50']);
+		expect(paragraphs(ENCHANT_RATE_NOTICES.get(8))).toEqual(['gear_tab.item_notices.proc_chance 5']);
+	});
+
+	it('states no rate line for an unvalidated rate', () => {
+		expect(ITEM_RATE_NOTICES.has(1)).toBe(false);
+		expect(ENCHANT_RATE_NOTICES.has(2)).toBe(false);
+	});
+});
+
+// A database holding only the given pieces of one set, and the set bonus rates.
+const setDatabase = (setID: number, itemIDs: number[]) => {
+	const items = new Map(itemIDs.map(id => [id, { id, setId: setID }]));
+	return {
+		getAllItemIds: () => [...items.keys()],
+		getItemById: (id: number) => items.get(id),
+		getSetBonusProcRates: () => SET_RATES,
+	} as unknown as Database;
+};
+
+describe('the proc rate notices of a set', () => {
+	const SET_ID = 9998;
+	const PIECES = [90020, 7];
+	const ownRate = ITEM_RATE_NOTICES.get(7);
+	const register = () => registerSetBonusNotices(setDatabase(SET_ID, PIECES));
+
+	afterEach(() => {
+		ITEM_RATE_NOTICES.delete(90020);
+		ITEM_RATE_NOTICES.set(7, ownRate!);
+	});
+
+	it('adds each set bonus rate to every piece of the set', () => {
+		register();
+
+		expect(paragraphs(ITEM_RATE_NOTICES.get(90020))).toEqual([
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_chance 7.5',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_rate 1.00',
+		]);
+		expect(paragraphs(ITEM_RATE_NOTICES.get(7))).toEqual([
+			'gear_tab.item_notices.proc_rate 1.50',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_chance 7.5',
+			'gear_tab.item_notices.set_bonus_piece gear_tab.item_notices.proc_rate 1.00',
+		]);
+	});
+
+	it('gives the same notices when it runs twice', () => {
+		register();
+		const once = PIECES.map(id => paragraphs(ITEM_RATE_NOTICES.get(id)));
+		register();
+
+		expect(PIECES.map(id => paragraphs(ITEM_RATE_NOTICES.get(id)))).toEqual(once);
+	});
 });
 
 describe('registerSetBonusNotices', () => {
@@ -135,7 +219,7 @@ describe('registerSetBonusNotices', () => {
 	};
 
 	it('names each piece count with its missing effects and rate warnings on every item of the set', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID, ITEM_IDS));
 
 		for (const id of ITEM_IDS) {
 			expect(setBonusPieces(ITEM_NOTICES.get(id)?.[Spec.SpecUnknown])).toEqual([
@@ -153,7 +237,7 @@ describe('registerSetBonusNotices', () => {
 	});
 
 	it('keeps the missing item effect notice of a set piece and adds the set notice after it', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID ? [PIECE_WITH_EFFECT] : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID, [PIECE_WITH_EFFECT]));
 
 		const node = ITEM_NOTICES.get(PIECE_WITH_EFFECT)?.[Spec.SpecUnknown];
 		expect(paragraphs(node).map(text => text?.trim())).toEqual([
@@ -166,7 +250,7 @@ describe('registerSetBonusNotices', () => {
 
 	it('names what a partly implemented bonus leaves out', () => {
 		const GROVEKEEPER_ECLIPSE = 2114;
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === GROVEKEEPER_ECLIPSE ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(GROVEKEEPER_ECLIPSE, ITEM_IDS));
 
 		expect(setBonusPieces(ITEM_NOTICES.get(ITEM_IDS[0])?.[Spec.SpecUnknown])).toEqual([
 			{
@@ -177,7 +261,7 @@ describe('registerSetBonusNotices', () => {
 	});
 
 	it('writes no notice on the items of a set the list does not name', () => {
-		registerSetBonusNotices({ getItemIdsForSet: (setId: number) => (setId === SET_ID + 1 ? ITEM_IDS : []) } as unknown as Database);
+		registerSetBonusNotices(setDatabase(SET_ID + 1, ITEM_IDS));
 
 		for (const id of ITEM_IDS) {
 			expect(ITEM_NOTICES.has(id)).toBe(false);

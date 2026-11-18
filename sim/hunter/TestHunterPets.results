@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 680.29031
+  tps: 476.51037
+  dtps: 5.13745
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 707.51207
@@ -138,6 +146,14 @@ dps_results: {
  value: {
   dps: 694.60696
   tps: 484.58892
+  dtps: 5.13745
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 678.52014
+  tps: 476.51037
   dtps: 5.13745
  }
 }
@@ -355,6 +371,14 @@ dps_results: {
   dps: 647.51843
   tps: 446.32116
   dtps: 4.53731
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-BlunderflameBoneBow-275439"
+ value: {
+  dps: 696.55625
+  tps: 483.52853
+  dtps: 4.11486
  }
 }
 dps_results: {
@@ -663,9 +687,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-DreadmistRaiment"
  value: {
-  dps: 571.55724
-  tps: 383.12028
-  dtps: 1.39117
+  dps: 571.3151
+  tps: 382.87815
+  dtps: 1.33291
  }
 }
 dps_results: {
@@ -903,9 +927,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-EyeofMoam-21473"
  value: {
-  dps: 701.12094
-  tps: 488.47278
-  dtps: 4.55834
+  dps: 700.79748
+  tps: 488.14932
+  dtps: 4.54082
  }
 }
 dps_results: {
@@ -1439,9 +1463,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-Magister'sRegalia"
  value: {
-  dps: 580.03514
-  tps: 391.38912
-  dtps: 3.08803
+  dps: 579.83036
+  tps: 391.18434
+  dtps: 2.99626
  }
 }
 dps_results: {
@@ -1681,6 +1705,14 @@ dps_results: {
   dps: 702.61415
   tps: 488.76065
   dtps: 4.4149
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 667.01998
+  tps: 464.65813
+  dtps: 4.47636
  }
 }
 dps_results: {
@@ -2046,9 +2078,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-TheElements"
  value: {
-  dps: 575.99134
-  tps: 387.14099
-  dtps: 1.81007
+  dps: 575.77873
+  tps: 386.92839
+  dtps: 1.76593
  }
 }
 dps_results: {

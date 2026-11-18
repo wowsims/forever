@@ -1,6 +1,7 @@
 package core
 
 import (
+	"math"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
@@ -42,12 +43,12 @@ func TestSchoolSpellPiercingLowersOnlyItsSchool(t *testing.T) {
 	}
 }
 
-// Against 150 resistance a plain spell is often partially resisted, as are a binary spell's hits and
-// ticks once it lands, and one flagged SpellFlagNoPartialResist never is, binary or not.
-func TestNoPartialResistKeepsTheWholeHit(t *testing.T) {
+// Against 150 resistance a plain spell is often partially resisted. A binary spell's hits and ticks never
+// are once it lands, and gain no Spell Piercing bonus either; nor does a spell flagged
+// SpellFlagNoPartialResist.
+func TestBinaryAndNoPartialResistKeepTheWholeHit(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
-	defender.stats[stats.ShadowResistance] = 150
 	attackTable := NewAttackTable(attacker, defender)
 
 	partials := func(flags SpellFlag, isPeriodic bool) int {
@@ -62,69 +63,93 @@ func TestNoPartialResistKeepsTheWholeHit(t *testing.T) {
 		return n
 	}
 
+	defender.stats[stats.ShadowResistance] = 150
 	if n := partials(0, false); n == 0 {
 		t.Errorf("a plain shadow spell was never partially resisted in 1000 hits against 150 shadow resistance")
 	}
-	if n := partials(SpellFlagNoPartialResist, false); n != 0 {
-		t.Errorf("a spell flagged SpellFlagNoPartialResist was partially resisted %d times in 1000 hits, want 0", n)
+	for _, tc := range []struct {
+		name       string
+		flags      SpellFlag
+		isPeriodic bool
+	}{
+		{"a spell flagged SpellFlagNoPartialResist", SpellFlagNoPartialResist, false},
+		{"a binary spell's hit", SpellFlagBinary, false},
+		{"a binary spell's tick", SpellFlagBinary, true},
+	} {
+		if n := partials(tc.flags, tc.isPeriodic); n != 0 {
+			t.Errorf("%s was partially resisted %d times in 1000 against 150 shadow resistance, want 0", tc.name, n)
+		}
 	}
-	if n := partials(SpellFlagBinary, false); n == 0 {
-		t.Errorf("a binary spell's direct hit was never partially resisted in 1000 against 150 shadow resistance")
+
+	defender.stats[stats.ShadowResistance] = 0
+	attacker.stats[stats.SpellPiercing] = 100
+	if n := partials(0, false); n == 0 {
+		t.Errorf("a plain shadow spell never gained a Spell Piercing bonus in 1000 hits at 100 piercing")
 	}
-	if n := partials(SpellFlagBinary, true); n == 0 {
-		t.Errorf("a binary spell's tick was never partially resisted in 1000 against 150 shadow resistance")
-	}
-	if n := partials(SpellFlagBinary|SpellFlagNoPartialResist, false); n != 0 {
-		t.Errorf("a binary spell flagged SpellFlagNoPartialResist was partially resisted %d times in 1000 hits, want 0", n)
+	if n := partials(SpellFlagBinary, false); n != 0 {
+		t.Errorf("a binary spell's hit gained a Spell Piercing bonus %d times in 1000 at 100 piercing, want 0", n)
 	}
 }
 
-// A hit the target resists in full is a miss: it is not landed, counts as a miss, and no hit or crit is counted.
-func TestFullResistIsAMiss(t *testing.T) {
+// Against a resistance far above the caster's level a plain hit always lands and loses 75%, the top step,
+// and its expected damage is a quarter of the unresisted one. A binary spell's hit roll resists it whole:
+// a miss with no hit or crit counted, and no expected damage.
+func TestPartialResistStopsAt75PercentAndBinaryResistsWhole(t *testing.T) {
 	sim, fw := setupFakeWarlockSim(proto.Race_RaceHuman, &proto.IndividualBuffs{})
 	target := fw.CurrentTarget
 	spell := fw.Corruption
-	target.stats[stats.ShadowResistance] = 1e12
+	expected := func() float64 {
+		return spell.expectedDamage(sim, target, func(sim *Simulation, target *Unit, spell *Spell, _ bool) *SpellResult {
+			return spell.CalcDamage(sim, target, 100, spell.OutcomeExpectedMagicHitAndCrit)
+		}, false)
+	}
 
+	unresisted := expected()
+	target.stats[stats.ShadowResistance] = 1e12
+	for range 200 {
+		result := spell.CalcDamage(sim, target, 100, spell.OutcomeAlwaysHit)
+		if !result.Landed() || result.Outcome.ResistedPercent() != 75 || result.ArmorAndResistanceMultiplier != 0.25 {
+			t.Fatalf("a plain hit against a resistance of 1e12 landed %v, resisted %d%% with multiplier %v, want a landed hit losing 75%%",
+				result.Landed(), result.Outcome.ResistedPercent(), result.ArmorAndResistanceMultiplier)
+		}
+	}
+	if got := expected(); !WithinToleranceFloat64(0.25*unresisted, got, 1e-9) {
+		t.Errorf("the expected damage of a plain hit against a resistance of 1e12 is %v, want a quarter of %v", got, unresisted)
+	}
+
+	spell.Flags |= SpellFlagBinary
+	before := spell.SpellMetrics[target.UnitIndex]
 	for range 200 {
 		result := spell.CalcDamage(sim, target, 100, spell.OutcomeMagicHitAndCrit)
 		if result.Landed() || result.Outcome != OutcomeMiss || result.Damage != 0 {
-			t.Fatalf("a fully resisted hit landed %v with outcome %v and %v damage, want a miss with none",
+			t.Fatalf("a binary hit against a resistance of 1e12 landed %v with outcome %v and %v damage, want a miss with none",
 				result.Landed(), result.Outcome, result.Damage)
 		}
 	}
-	metrics := spell.SpellMetrics[target.UnitIndex]
-	if metrics.Misses != 200 || metrics.Hits != 0 || metrics.Crits != 0 || metrics.ResistedHits != 0 {
-		t.Errorf("200 fully resisted hits counted %d misses, %d hits, %d crits and %d resisted hits, want 200 misses only",
-			metrics.Misses, metrics.Hits, metrics.Crits, metrics.ResistedHits)
+	after := spell.SpellMetrics[target.UnitIndex]
+	if after.Misses-before.Misses != 200 || after.Hits != before.Hits || after.Crits != before.Crits || after.ResistedHits != before.ResistedHits {
+		t.Errorf("200 fully resisted binary hits added %d misses, %d hits, %d crits and %d resisted hits, want 200 misses only",
+			after.Misses-before.Misses, after.Hits-before.Hits, after.Crits-before.Crits, after.ResistedHits-before.ResistedHits)
 	}
-
-	expected := spell.expectedDamage(sim, target, func(sim *Simulation, target *Unit, spell *Spell, _ bool) *SpellResult {
-		return spell.CalcDamage(sim, target, 100, spell.OutcomeExpectedMagicHitAndCrit)
-	}, false)
-	if expected > 1e-6 {
-		t.Errorf("the expected damage of a fully resisted hit is %v, want 0 up to the average resist left at 1e12", expected)
-	}
-	if got := spell.SpellMetrics[target.UnitIndex].Misses; got != 200 {
-		t.Errorf("an expected-damage call against a full resist counted %d misses, want 200 and none added", got)
+	if got := expected(); got > 1e-6 {
+		t.Errorf("the expected damage of a binary hit against a resistance of 1e12 is %v, want 0 up to the average resist left", got)
 	}
 }
 
-// An expected-damage call takes the average resist as the multiplier and draws no random number, so
-// the next real roll is the one it would have been without the call. A real hit still rolls.
-func TestExpectedDamageUsesAverageResistWithoutRolling(t *testing.T) {
+// An expected-damage call takes the mean of the roll, the 75% top step included, and draws no random
+// number, so the next real roll is the one it would have been without the call. A real hit still rolls.
+func TestExpectedDamageUsesTheRollsMeanWithoutRolling(t *testing.T) {
 	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
 	attackTable := NewAttackTable(attacker, defender)
 	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow}
 
-	for _, resistance := range []float64{150, 499, 5000, -100} {
+	for _, resistance := range []float64{150, 499, 1500, 5000, -100} {
 		defender.stats[stats.ShadowResistance] = max(resistance, 0)
 		attacker.stats[stats.SpellPiercing] = 0
 		if resistance < 0 {
 			attacker.stats[stats.SpellPiercing] = -resistance
 		}
-		average := defender.averageResist(spell, attacker, false)
 
 		withCall := &Simulation{rand: NewSplitMix(7)}
 		without := &Simulation{rand: NewSplitMix(7)}
@@ -132,20 +157,52 @@ func TestExpectedDamageUsesAverageResistWithoutRolling(t *testing.T) {
 		spell.expecting = true
 		multiplier, outcome := spell.ResistanceMultiplier(withCall, false, attackTable)
 		spell.expecting = false
-		if !WithinToleranceFloat64(1-average, multiplier, 1e-12) || outcome != OutcomeEmpty {
-			t.Errorf("resistance %v: expected multiplier %v with outcome %v, want %v and none", resistance, multiplier, outcome, 1-average)
+		if outcome != OutcomeEmpty {
+			t.Errorf("resistance %v: an expected-damage call came with outcome %v, want none", resistance, outcome)
 		}
 		if got, want := withCall.RandomFloat("Partial Resist"), without.RandomFloat("Partial Resist"); got != want {
 			t.Errorf("resistance %v: an expected-damage call moved the random stream, next roll %v, want %v", resistance, got, want)
 		}
 
-		distinct := map[float64]bool{}
-		for range 200 {
+		sum, distinct := 0.0, map[float64]bool{}
+		for range 100000 {
 			real, _ := spell.ResistanceMultiplier(withCall, false, attackTable)
+			sum += real
 			distinct[real] = true
 		}
-		if len(distinct) < 2 && average != 0 && average < 0.9 {
+		if mean := sum / 100000; math.Abs(mean-multiplier) > 0.002 {
+			t.Errorf("resistance %v: expected multiplier %v, want the mean of the real rolls %v", resistance, multiplier, mean)
+		}
+		if len(distinct) < 2 && resistance < 1500 {
 			t.Errorf("resistance %v: a real hit rolled only %v", resistance, distinct)
+		}
+	}
+}
+
+// Around an average resist of 74% the roll's 80 and 90% steps land on 75%, the top step, beside the
+// 60 and 70% the triangle gives.
+func TestPartialResistAbove70PercentLandsOn75(t *testing.T) {
+	attacker := &Unit{Type: PlayerUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	defender := &Unit{Type: EnemyUnit, Level: 60, PseudoStats: stats.NewPseudoStats()}
+	defender.stats[stats.ShadowResistance] = 0.74 * 499 / 0.26
+	attackTable := NewAttackTable(attacker, defender)
+	spell := &Spell{Unit: attacker, SpellSchool: SpellSchoolShadow, SchoolIndex: stats.SchoolIndexShadow}
+
+	sim := &Simulation{rand: NewSplitMix(3)}
+	counts := map[int]int{}
+	for range 100000 {
+		_, outcome := spell.ResistanceMultiplier(sim, false, attackTable)
+		counts[outcome.ResistedPercent()]++
+	}
+	want := map[int]float64{60: 0.15, 70: 0.40, 75: 0.45}
+	for percent, share := range want {
+		if got := float64(counts[percent]) / 100000; math.Abs(got-share) > 0.005 {
+			t.Errorf("share of %d%% resists = %.4f, want %.4f", percent, got, share)
+		}
+	}
+	for percent := range counts {
+		if _, ok := want[percent]; !ok {
+			t.Errorf("rolled a %d%% resist, outside 60, 70 and 75%%", percent)
 		}
 	}
 }

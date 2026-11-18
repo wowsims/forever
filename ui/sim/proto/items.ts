@@ -5,11 +5,13 @@ import {
 	EnchantType,
 	EquipmentSpec,
 	HandType,
+	ItemRandomSuffix,
 	ItemSlot,
 	ItemType,
 	Profession,
 	RangedWeaponType,
 	Spec,
+	Stat,
 	WeaponType,
 } from '@generated/proto/common';
 import { UIEnchant as Enchant, UIItem as Item } from '@generated/proto/ui';
@@ -68,6 +70,19 @@ export function canEquipItem<SpecType extends Spec>(item: Item, playerSpec: Play
 
 	// At this point, we know the item is an armor piece (feet, chest, legs, etc).
 	return playerClass.armorTypes[0] >= item.armorType;
+}
+
+// The stats an item adds by itself, at its base item level (scaling option 0).
+export function itemOwnStats(item: Item): Set<Stat> {
+	const stats = Object.entries(item.scalingOptions[0]?.stats ?? {});
+	return new Set(stats.filter(([, value]) => value > 0).map(([stat]) => Number(stat) as Stat));
+}
+
+// Whether the item carries every one of the stats: by itself, or together with one of the random suffixes it can roll.
+export function itemCarriesStats(item: Item, suffixes: ReadonlyArray<ItemRandomSuffix>, stats: ReadonlyArray<Stat>): boolean {
+	const own = itemOwnStats(item);
+	const covers = (suffixStats: ReadonlyArray<number>) => stats.every(stat => own.has(stat) || (suffixStats[stat] ?? 0) > 0);
+	return suffixes.length ? suffixes.some(suffix => covers(suffix.stats)) : covers([]);
 }
 
 export function getEligibleItemSlots(item: Item): Array<ItemSlot> {

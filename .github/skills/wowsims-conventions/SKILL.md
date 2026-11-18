@@ -43,6 +43,9 @@ These apply to every file and every piece of GitHub text, in Go and TypeScript a
   logs to call final, whose `Reason` cites the id. A
   rule no single file owns goes into the subject skill, or into its own `docs/rulings/` file under an `R-` id
   (`docs/rulings/README.md`) that cites its evidence the same way; code that follows it may cite `(R-<n>)`.
+- **A hand-written item, set or enchant effect's comment describes the effect.** Below the name and Wowhead link it
+  gives the tooltip and a line or two on what the sim does, ending with the evidence id; which spells roll, the rates
+  per tier and the cases the logs settled stay in the evidence file. Only a ruling no evidence file holds is added.
 - **Name a shared helper by its math.** A helper in `sim/core/utils.go` is named and documented by what it computes
   (`SymmetricMultiplierFromPercent`, `MultiplierFromPercent(-p)`), and the game meaning sits at the call site.
 

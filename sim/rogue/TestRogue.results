@@ -80,8 +80,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Annihilator-12798"
  value: {
-  dps: 828.81534
-  tps: 588.45889
+  dps: 810.80363
+  tps: 575.67058
   hps: 50.81639
  }
 }
@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 823.19016
+  tps: 584.46501
+  hps: 48.81694
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 840.71077
@@ -118,10 +126,18 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 832.4023
+  tps: 591.00563
+  hps: 54.12056
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-Bashguuder-13204"
  value: {
-  dps: 811.57013
-  tps: 576.21479
+  dps: 797.78176
+  tps: 566.42505
   hps: 56.12
  }
 }
@@ -235,6 +251,14 @@ dps_results: {
   dps: 815.27159
   tps: 578.84283
   hps: 49.2575
+ }
+}
+dps_results: {
+ key: "TestRogue-AllItems-BlunderflameBoneBow-275439"
+ value: {
+  dps: 839.84467
+  tps: 596.28972
+  hps: 56.79778
  }
 }
 dps_results: {
@@ -512,8 +536,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-DreadmistRaiment"
  value: {
-  dps: 640.70468
-  tps: 454.90032
+  dps: 640.66837
+  tps: 454.87454
   hps: 51.34167
  }
 }
@@ -760,8 +784,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-EyeofMoam-21473"
  value: {
-  dps: 831.22251
-  tps: 590.16799
+  dps: 831.22012
+  tps: 590.16629
   hps: 57.89917
  }
 }
@@ -1138,7 +1162,7 @@ dps_results: {
  value: {
   dps: 801.50803
   tps: 569.0707
-  hps: 66.14722
+  hps: 66.45778
  }
 }
 dps_results: {
@@ -1248,8 +1272,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Magister'sRegalia"
  value: {
-  dps: 640.34645
-  tps: 454.64598
+  dps: 640.30342
+  tps: 454.61543
   hps: 51.27389
  }
 }
@@ -1414,6 +1438,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 805.02712
+  tps: 571.56926
+  hps: 47.98667
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-RingofSaviors-1447"
  value: {
   dps: 833.51582
@@ -1432,8 +1464,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Rivenspike-13286"
  value: {
-  dps: 818.28446
-  tps: 580.98197
+  dps: 806.91928
+  tps: 572.91269
   hps: 47.95278
  }
 }

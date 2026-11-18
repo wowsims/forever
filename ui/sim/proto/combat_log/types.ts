@@ -58,15 +58,15 @@ export class Entity {
 	}
 }
 
-// Every token sim/core/flags.go:130 prints, one per damage line. 'critical-block' is the sim's
+// Every token sim/core/flags.go:131 prints, one per damage line. 'critical-block' is the sim's
 // BlockedCrit.
 export const OUTCOMES = ['hit', 'crit', 'crush', 'miss', 'dodge', 'parry', 'glance', 'block', 'critical-block'] as const;
 
 export type Outcome = (typeof OUTCOMES)[number];
 
-// sim/core/flags.go's PartialResistString appends " (10% Resist)" up to " (100% Resist)", in 10% steps,
-// to a glance, crit or hit.
-export type PartialResist = 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 80 | 90 | 100;
+// sim/core/flags.go's PartialResistString appends " (10% Resist)" up to " (70% Resist)", in 10% steps, or
+// " (75% Resist)", the top step, to a glance, crit or hit.
+export type PartialResist = 0 | 10 | 20 | 30 | 40 | 50 | 60 | 70 | 75;
 
 /** Avoidance: the attack never landed, so there is no amount to render and nothing to add to a total. */
 const AVOIDED_OUTCOMES: ReadonlyArray<Outcome> = ['miss', 'dodge', 'parry'];

@@ -25,22 +25,22 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "9f39dcb72ce89071644b7b650fd59e99d47a6a997d8f6fdc4fda20f5d43a50ad"
+      "computedHash": "bb48dbaf42dc8f9ce1c732e5589824c66bb256f0bba47ec6420b8372c0074a39"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "9fb8d8685b37158193c85df2e83ab22ffd5c2f472c6e2b4983d27d4b27febd5a"
+      "computedHash": "9d222b3aac748e370fc3d9d91ffcf78049127311535cb1ba8e5cb702f1137a81"
     },
     "wowsims-core-mechanics": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "76ad2b3bc560ddf965a58a78ae55afb1bdcd6b2ffa4c59438cdfa19708b43dae"
+      "computedHash": "830f353ecd77030eae03a1a0f598fe159609309040ab88146c468b4d30addee6"
     },
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "b5aae719121077ca954e92c50bc5289ea7fddef2f99c9401c69d794888b4fea6"
+      "computedHash": "f5283fc759b5caabdb24c90a29251e6af3c732a780b074fdc51d7d2d071123c5"
     },
     "wowsims-dependencies": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "213cf2117f07f42f067a4762cd37021923d86e7d24032d3337be42df8f79e9b1"
+      "computedHash": "26a3d5e3a5606fa8406bee3c2099b950c20f3c3ce07a7800592ea6dd9170ce5a"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -65,7 +65,7 @@
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "1b6818c1c9cf7ba9802d1f414da66594405e701cf96d72b37b229863433dbd9a"
+      "computedHash": "18050a6fd7da5822f0e3d45fedf201953ff2963b0db684ac50c4c048b2b4e8dc"
     },
     "wowsims-siml": {
       "source": "./.github/skills",
@@ -95,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "13d151bbfc9b2afdae0d08fa7ef1a14b6f4447011fda7f8a2d1289ddd4a081c1"
+      "computedHash": "0968f9223cb08826a42254614ba6b46eda769548d662b7d09cd229c1810fa70a"
     }
   }
 }

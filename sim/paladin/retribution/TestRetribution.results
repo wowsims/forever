@@ -1647,6 +1647,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 727.41049
+  tps: 744.77944
+  dtps: 6.46524
+  hps: 28.89807
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 864.54156
@@ -1802,10 +1811,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 777.74489
-  tps: 634.75561
+  dps: 771.22514
+  tps: 629.54062
   dtps: 4.55194
-  hps: 23.12544
+  hps: 23.13357
  }
 }
 dps_results: {
@@ -2297,9 +2306,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Waveslicer-18324"
  value: {
-  dps: 838.85022
-  tps: 686.60347
-  dtps: 5.89218
+  dps: 839.12161
+  tps: 686.93477
+  dtps: 5.92794
   hps: 26.72783
  }
 }
@@ -2453,27 +2462,27 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongMultiTarget"
  value: {
-  dps: 1851.60431
-  tps: 1500.81268
-  dtps: 6.97284
+  dps: 1851.51215
+  tps: 1500.70543
+  dtps: 6.60547
   hps: 22.31549
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongSingleTarget"
  value: {
-  dps: 808.20227
-  tps: 665.88511
-  dtps: 6.68518
+  dps: 808.16476
+  tps: 665.85504
+  dtps: 6.66287
   hps: 22.21281
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Human-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-ShortSingleTarget"
  value: {
-  dps: 834.85742
-  tps: 685.90956
-  dtps: 8.61895
+  dps: 834.64393
+  tps: 685.75441
+  dtps: 8.65808
   hps: 25.83452
  }
 }
@@ -2549,27 +2558,27 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongMultiTarget"
  value: {
-  dps: 1848.3743
-  tps: 1497.50205
-  dtps: 7.21081
+  dps: 1848.36757
+  tps: 1497.52408
+  dtps: 7.27348
   hps: 22.31549
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-LongSingleTarget"
  value: {
-  dps: 815.23164
-  tps: 671.09925
-  dtps: 7.27715
+  dps: 815.23163
+  tps: 671.08885
+  dtps: 7.27619
   hps: 22.21078
  }
 }
 dps_results: {
  key: "TestRetribution-Settings-Undead-holy_shock-HolyShock-holy_shock-FullBuffs-25.0yards-ShortSingleTarget"
  value: {
-  dps: 842.58087
-  tps: 690.96204
-  dtps: 8.97099
+  dps: 842.54704
+  tps: 690.93157
+  dtps: 8.92638
   hps: 25.82842
  }
 }

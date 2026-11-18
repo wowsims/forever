@@ -7,6 +7,7 @@ import (
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
 )
 
@@ -30,23 +31,17 @@ func init() {
 			return aura
 		})
 
-		singleTargetSpell := character.RegisterSpell(core.SpellConfig{
-			ActionID:    procActionID.WithTag(1),
-			SpellSchool: core.SpellSchoolNature,
-			DefenseType: core.DefenseTypeMagic,
-			ProcMask:    core.ProcMaskSpellDamage,
-			Flags:       core.SpellFlagProc,
-
-			DamageMultiplier: 1,
-			ThreatMultiplier: 0.5,
-
-			ApplyEffects: func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
-				result := spell.CalcAndDealDamage(sim, target, 300, spell.OutcomeMagicHitAndCrit)
-				if result.Landed() {
-					attackSpeedDebuffAura.Get(result.Target).Activate(sim)
-				}
-			},
-		})
+		singleTargetConfig := spelldata.SpellConfig(&character.Unit, spelldata.MustFind(procActionID.SpellID),
+			spelldata.Magic(core.ProcMaskSpellDamage), spelldata.Proc(), spelldata.Tag(1))
+		singleTargetConfig.Flags |= core.SpellFlagProc
+		singleTargetConfig.ThreatMultiplier = 0.5
+		singleTargetConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+			result := spell.CalcAndDealDamage(sim, target, 300, spell.OutcomeMagicHitAndCrit)
+			if result.Landed() {
+				attackSpeedDebuffAura.Get(result.Target).Activate(sim)
+			}
+		}
+		singleTargetSpell := character.RegisterSpell(singleTargetConfig)
 
 		resistanceDebuffAura := character.NewEnemyAuraArray(func(target *core.Unit) *core.Aura {
 			return target.GetOrRegisterAura(core.Aura{
