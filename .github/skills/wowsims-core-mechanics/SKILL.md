@@ -162,8 +162,8 @@ rulings the code follows are in `references/rulings.md`; text here follows `wows
   breaks every branch built on it.
 - **No proto3 `optional` field**: the `npx protoc` behind `make ui/generated/proto/api.ts` rejects it. "Unset means X"
   is a plain field whose zero value means none or the default, or a message-typed field.
-- **No `reserved` line before launch**, and a breaking change needs no migration; the full ruling is in
-  `references/rulings.md`.
+- **A new field takes the next free number at the end of its message**, and no field is dropped, moved or reused: the
+  sim is live in alpha and saved settings carry the numbers. The full ruling is in `references/rulings.md`.
 
 ## Keeping this skill true
 

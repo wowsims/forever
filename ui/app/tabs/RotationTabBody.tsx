@@ -31,8 +31,8 @@ const PANE_BODIES: Record<AplPaneId, ComponentType> = {
 	'apl-variables': VariablesList,
 };
 
-/** Preset picker, saved rotations and the rotation as SIML, repeated in all three sub-tabs. */
-const RotationSidebar = () => (
+/** Preset picker, saved rotations and the rotation as SIML, repeated in all three sub-tabs and in the narrow screen's presets dialog. */
+export const RotationSidebar = () => (
 	<>
 		<PresetConfigurationPicker categories={ROTATION_PRESETS} />
 		<SavedRotation />

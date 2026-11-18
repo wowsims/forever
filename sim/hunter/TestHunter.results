@@ -83,8 +83,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Annihilator-12798"
  value: {
-  dps: 825.26026
-  tps: 847.86016
+  dps: 813.4258
+  tps: 836.0257
   dtps: 8.81597
   hps: 14.7925
  }
@@ -135,6 +135,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 825.97347
+  tps: 848.50006
+  dtps: 8.76199
+  hps: 14.75861
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 903.14393
@@ -150,6 +159,15 @@ dps_results: {
   tps: 914.38241
   dtps: 8.83116
   hps: 14.01306
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 774.37443
+  tps: 796.78626
+  dtps: 8.55666
+  hps: 14.67389
  }
 }
 dps_results: {
@@ -393,6 +411,15 @@ dps_results: {
   tps: 852.282
   dtps: 9.09435
   hps: 13.53861
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-BlunderflameBoneBow-275439"
+ value: {
+  dps: 869.45758
+  tps: 892.59029
+  dtps: 9.23117
+  hps: 16.0125
  }
 }
 dps_results: {
@@ -1479,9 +1506,9 @@ dps_results: {
  key: "TestHunter-AllItems-Julie'sDagger-6660"
  value: {
   dps: 723.75732
-  tps: 746.09142
+  tps: 746.10497
   dtps: 8.05416
-  hps: 15.32458
+  hps: 15.42569
  }
 }
 dps_results: {
@@ -1890,6 +1917,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 804.49561
+  tps: 826.89969
+  dtps: 8.71461
+  hps: 14.69083
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-RingofSaviors-1447"
  value: {
   dps: 895.3993
@@ -1910,8 +1946,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Rivenspike-13286"
  value: {
-  dps: 833.20648
-  tps: 855.66894
+  dps: 825.34208
+  tps: 847.80454
   dtps: 8.50072
   hps: 14.38583
  }
@@ -2540,9 +2576,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Waveslicer-18324"
  value: {
-  dps: 875.45988
-  tps: 897.88849
-  dtps: 9.4249
+  dps: 874.76937
+  tps: 897.21107
+  dtps: 9.53497
   hps: 14.40278
  }
 }

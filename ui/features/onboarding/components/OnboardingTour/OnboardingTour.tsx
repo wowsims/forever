@@ -33,12 +33,12 @@ export interface OnboardingTourProps<S extends TourStep<never>> {
 	onEnd: (end: TourEnd<S>) => void;
 }
 
-// A hidden element still matches its selector, with an empty box.
-const findTarget = (selector: string): Element | null => {
-	const element = document.querySelector(selector);
-	const rect = element?.getBoundingClientRect();
-	return rect && rect.width > 0 && rect.height > 0 ? element : null;
-};
+// A hidden element still matches its selector, with an empty box. A selector list rings the first of its matches the page shows.
+const findTarget = (selector: string): Element | null =>
+	[...document.querySelectorAll(selector)].find(element => {
+		const rect = element.getBoundingClientRect();
+		return rect.width > 0 && rect.height > 0;
+	}) ?? null;
 
 const missingHere = (candidate: TourStep<never>, from: TourStep<never>): boolean =>
 	!!candidate.optional && !!candidate.target && candidate.tab === from.tab && !document.querySelector(candidate.press ?? candidate.target);

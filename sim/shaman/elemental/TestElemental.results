@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 831.34423
+  tps: 764.19841
+  dtps: 6.15687
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 867.23351
@@ -139,6 +147,14 @@ dps_results: {
   dps: 855.10751
   tps: 785.47856
   dtps: 7.17467
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 831.34423
+  tps: 764.19841
+  dtps: 6.15687
  }
 }
 dps_results: {
@@ -1327,6 +1343,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 812.59117
+  tps: 747.56472
+  dtps: 6.15687
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-MarkofResolution-17759"
  value: {
   dps: 867.23351
@@ -1548,6 +1572,14 @@ dps_results: {
   dps: 849.64509
   tps: 780.07522
   dtps: 7.62467
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 794.03048
+  tps: 745.01822
+  dtps: 6.59508
  }
 }
 dps_results: {

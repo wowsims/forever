@@ -11,7 +11,9 @@ export interface ForeverNoticeViewProps {
 }
 
 export const ForeverNoticeView = ({ onRestoreDefaults }: ForeverNoticeViewProps) => (
-	<div className="flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-overlay p-4 text-center" data-testid="forever-notice">
+	<div
+		className="flex w-full flex-wrap items-center justify-center gap-x-4 gap-y-2 bg-overlay p-4 text-center max-lg:flex-nowrap max-lg:p-2 max-lg:text-left max-lg:text-xs"
+		data-testid="forever-notice">
 		<Notice level="warning">{i18n.t('info.forever_notice')}</Notice>
 		<Button variant="outline-primary" size="sm" disabled={!onRestoreDefaults} onClick={onRestoreDefaults}>
 			{i18n.t('info.options.restore_defaults.button')}

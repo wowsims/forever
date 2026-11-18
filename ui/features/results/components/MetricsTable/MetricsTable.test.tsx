@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
+import { type ShowNames, ShowNamesContext } from '../../context/ShowNamesContext';
 import { createMetricsColumnHelper } from '../../hooks/useMetricsTable';
 import type { MetricRow } from '../../model/grouping';
 import { MetricsActionCell } from './MetricsActionCell';
@@ -258,5 +259,56 @@ describe('MetricsTable rows with an action cell', () => {
 
 		const leaves = table(document.body).rows.filter(row => !row.hasAttribute('data-parent'));
 		expect(leaves.map(row => row.querySelector('[data-testid="fake-link"]'))).toEqual(leaves.map(() => null));
+	});
+});
+
+describe('MetricsTable names', () => {
+	const actionColumns = helper.columns([
+		helper.accessor(row => row.metric.name, {
+			id: 'name',
+			header: 'Name',
+			cell: info => (
+				<MetricsActionCell name={info.getValue()} actionId={ActionId.empty(info.getValue())} expandable={false} expanded={false} onToggle={() => {}} />
+			),
+		}),
+		helper.accessor(row => row.metric.value, { id: 'value', header: 'Value', cell: info => String(info.getValue()) }),
+	]);
+
+	const renderNames = (names?: ShowNames) => {
+		const metricsTable = (
+			<MetricsTable
+				rootTestId="test-metrics-root"
+				columns={actionColumns}
+				rows={[{ metric: metric('Alpha', 10) }]}
+				sortColumnId="value"
+				hasResult={true}
+			/>
+		);
+		return render(names ? <ShowNamesContext.Provider value={names}>{metricsTable}</ShowNamesContext.Provider> : metricsTable);
+	};
+
+	it('names every action and sorts by Name, with no toggle, outside a results pane', () => {
+		renderNames();
+		expect(screen.getByTestId('metrics-action-name').textContent).toBe('Alpha');
+		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(2);
+		expect(screen.queryByTestId('metrics-names-toggle')).toBeNull();
+	});
+
+	it('shows only the icons while the names are folded, and folds them out from the Name header', async () => {
+		const toggle = vi.fn();
+		renderNames({ shown: false, toggle });
+		expect(screen.queryByTestId('metrics-action-name')).toBeNull();
+		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(1);
+		expect(screen.getByTestId('metrics-names-toggle').getAttribute('aria-pressed')).toBe('false');
+
+		await userEvent.click(screen.getByTestId('metrics-names-toggle'));
+		expect(toggle).toHaveBeenCalledOnce();
+	});
+
+	it('keeps the Name sort and the toggle once the names are out', () => {
+		renderNames({ shown: true, toggle: () => {} });
+		expect(screen.getByTestId('metrics-action-name').textContent).toBe('Alpha');
+		expect(screen.getAllByTestId('metrics-table-sort')).toHaveLength(2);
+		expect(screen.getByTestId('metrics-names-toggle').getAttribute('aria-pressed')).toBe('true');
 	});
 });

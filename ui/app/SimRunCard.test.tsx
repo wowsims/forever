@@ -3,7 +3,7 @@ import { fireEvent, render } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { SimHostObject } from './individual_sim_ui';
-import { SimRunCard } from './SimRunCard';
+import { SimRunActions, SimRunCard } from './SimRunCard';
 
 vi.mock('@features/results/components/IterationsPicker', () => ({ IterationsPicker: () => <div data-testid="iterations-picker" /> }));
 vi.mock('@features/results/components/SimulateAction', () => ({ SimulateAction: () => <button data-testid="dps-action" /> }));
@@ -24,7 +24,7 @@ const renderCard = (value: SimHostObject<any> | null, activate = vi.fn()) => ({
 	activate,
 	...render(
 		<TabActivationContext value={activate}>
-			<SimRunCard host={value} sim={{} as never} />
+			<SimRunCard host={value} sim={{} as never} actions={value && <SimRunActions host={value} sim={{} as never} />} />
 		</TabActivationContext>,
 	),
 });
@@ -51,12 +51,13 @@ describe('SimRunCard', () => {
 		expect(queryByTestId('run-card-loading')).toBeNull();
 	});
 
-	it('puts stat weights beside Simulate, the spec actions under them, and the last run under the divider', () => {
+	it('puts stat weights, the spec actions and then Simulate on one row under the iterations, and the last run under them', () => {
 		const { getByTestId } = renderCard(host());
 
-		expect(ids(getByTestId('run-card-controls'))).toEqual(['iterations-picker', 'sim-run-card-run-row', 'sim-run-card-actions']);
-		expect(ids(getByTestId('sim-run-card-run-row'))).toEqual(['dps-action', 'ep-weights-action']);
-		expect(ids(getByTestId('sim-run-card-actions'))).toEqual(['registry-actions']);
+		expect(ids(getByTestId('run-card-controls'))).toEqual(['iterations-picker', 'sim-run-card-run-row']);
+		const row = getByTestId('sim-run-card-run-row');
+		expect(ids(row).slice(0, 2)).toEqual(['ep-weights-action', 'registry-actions']);
+		expect(row.lastElementChild!.contains(getByTestId('dps-action'))).toBe(true);
 		expect(ids(getByTestId('run-card-body'))).toEqual(['results-viewer']);
 	});
 
@@ -70,7 +71,7 @@ describe('SimRunCard', () => {
 	it('keeps stat weights without Simulate, and no breakdown link, for a sim that never runs', () => {
 		const { getByTestId, queryByTestId } = renderCard(host({ simDisabled: true }));
 
-		expect(ids(getByTestId('sim-run-card-run-row'))).toEqual(['ep-weights-action']);
+		expect(ids(getByTestId('sim-run-card-run-row'))).toEqual(['ep-weights-action', 'registry-actions']);
 		expect(queryByTestId('results-open-breakdown')).toBeNull();
 	});
 

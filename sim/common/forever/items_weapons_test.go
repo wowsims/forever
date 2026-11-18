@@ -389,6 +389,43 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Malown's Slam 13393 puts Surge of Strength 17499 on the wearer at the procs per minute of the item's
+// entry for 17500, on the mace's speed, off landed main-hand swings and specials and never off a miss.
+// The buff raises Strength by the row's amount for the row's duration.
+func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13393, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Malown's Slam")
+	surge := character.GetAuraByID(core.ActionID{SpellID: 17499})
+	if proc == nil || proc.Dpm == nil || surge == nil {
+		t.Fatal("13393 registers no Surge of Strength or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13393, 17500)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 13393, 17500)
+
+	// Every main-hand hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	row := spelldata.MustFind(17499)
+	amount := row.FirstAura(dbcenums.A_MOD_STAT).Min()
+	before := character.GetStats()
+
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if surge.IsActive() {
+		t.Error("a missed swing put up Surge of Strength")
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !surge.IsActive() {
+		t.Fatal("a main-hand swing put up no Surge of Strength")
+	}
+	if got := gained(character, before, stats.Strength); amount <= 0 || !statNear(got, amount) {
+		t.Errorf("Surge of Strength adds %v Strength, want the row's %v", got, amount)
+	}
+	if got := surge.RemainingDuration(sim); got != row.Duration() {
+		t.Errorf("Surge of Strength went up for %v, want the row's %v", got, row.Duration())
+	}
+}
+
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
 // entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
 // global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the
@@ -1675,6 +1712,28 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 	}
 	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
 	return sim, character
+}
+
+// Barman Shanker 12791's Rend 1300787, applied from behind the target, ticks for the multiple of its
+// periodic damage its second effect states.
+func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
+	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60}, 0, 0)
+	if character.PseudoStats.InFrontOfTarget {
+		t.Fatal("the wearer stands in front of the target")
+	}
+	enemy := character.CurrentTarget
+	rend := character.GetSpell(core.ActionID{SpellID: 1300787})
+	if rend == nil {
+		t.Fatal("12791 registers no Rend")
+	}
+	row := spelldata.MustFind(1300787)
+	multiple := row.EffectN(2).Average()
+	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple
+	rend.Cast(sim, enemy)
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Second)
+	if got := rend.SpellMetrics[enemy.UnitIndex].TotalDamage; multiple <= 1 || math.Abs(got-want) > 0.5 {
+		t.Errorf("a Rend from behind dealt %v, want the row's ticks times %v, %v", got, multiple, want)
+	}
 }
 
 // Sul'thraze the Lasher 9372: a landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the

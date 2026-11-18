@@ -4,12 +4,6 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
-		811, // Axe of the Deep Woods
-		[
-			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
-		]
-	],
-	[
 		934, // Stalvan's Reaper
 		[
 			"Lowers the Attack Power of the target by 40 for 1min.", // 13524 - https://www.wowhead.com/forever/spell=13524
@@ -766,12 +760,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		12791, // Barman Shanker
-		[
-			"Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied while behind the target.", // 1300787 - https://www.wowhead.com/forever/spell=1300787
-		]
-	],
-	[
 		12796, // Hammer of the Titans
 		[
 			"Stuns target for 3s.", // 56 - https://www.wowhead.com/forever/spell=56
@@ -853,12 +841,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		13382, // Cannonball Runner
 		[
 			"", // 1300668 - https://www.wowhead.com/forever/spell=1300668
-		]
-	],
-	[
-		13393, // Malown's Slam
-		[
-			"Knocks target silly for 2s and increases Strength by 53 for 20s.", // 17500 - https://www.wowhead.com/forever/spell=17500
 		]
 	],
 	[
@@ -2280,12 +2262,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		275439, // Blunderflame Bone Bow
-		[
-			"Blunderflame the target for 56 Fire damage.", // 1296730 - https://www.wowhead.com/forever/spell=1296730
-		]
-	],
-	[
 		275630, // Depleted Eye of Influence
 		[
 			"Chance on harmful spell cast to reduce target's attack power by 60 for 30s. ", // 1297082 - https://www.wowhead.com/forever/spell=1297082
@@ -2432,7 +2408,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		284262, // Howling Hide
 		[
-			"Reduces the target enemy's attack power by 60 for 30s.", // 1315767 - https://www.wowhead.com/forever/spell=1315767
+			"Reduces the target enemy's attack power by 60 for 30s.", // 1330916 - https://www.wowhead.com/forever/spell=1330916
 		]
 	],
 	[
@@ -3598,12 +3574,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.", // 1315080 - https://www.wowhead.com/forever/spell=1315080
-				],
-			],
-			[
-				3,
-				[
-					"Chance on melee attack to lash the target, inflicting 140 Shadow damage.", // 1315077 - https://www.wowhead.com/forever/spell=1315077
 				],
 			],
 		]),

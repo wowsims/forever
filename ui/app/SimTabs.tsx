@@ -1,7 +1,7 @@
 import { Tabs } from '@base-ui/react/tabs';
 import { TabActivationContext } from '@features/hooks/useActivateTab';
 import { childProps } from '@ui-kit/child_props';
-import { TabNav } from '@ui-kit/TabNav';
+import { TabNav, type TabNavProps } from '@ui-kit/TabNav';
 import { createContext, type ReactNode, use, useCallback, useMemo, useState } from 'react';
 
 import { trackPageView } from '../tracking/utils';
@@ -17,6 +17,10 @@ interface SimTabsListContextValue {
 }
 
 const SimTabsListContext = createContext<SimTabsListContextValue | null>(null);
+const SimActiveTabContext = createContext<string | null>(null);
+
+/** The open tab's id, apart from the list so that a tab change re-renders only what follows it. */
+export const useActiveSimTab = () => use(SimActiveTabContext);
 
 // `Tabs.Root` is the one React ancestor the strip, the panels and the sidebar's tab links all need; the
 // shell renders it around the whole sim container, so a pane is a plain child of `main`. It mounts with no
@@ -46,17 +50,30 @@ export const SimTabs = ({ defs, children }: SimTabsProps) => {
 	return (
 		<TabActivationContext value={activate}>
 			<Tabs.Root className="contents" value={value} onValueChange={next => activate(String(next))}>
-				<SimTabsListContext value={listContextValue}>{children}</SimTabsListContext>
+				<SimTabsListContext value={listContextValue}>
+					<SimActiveTabContext value={value}>{children}</SimActiveTabContext>
+				</SimTabsListContext>
 			</Tabs.Root>
 		</TabActivationContext>
 	);
 };
 
-export const SimTabsStrip = () => {
+export interface SimTabsStripProps {
+	placement?: TabNavProps['placement'];
+	className?: string;
+}
+
+export const SimTabsStrip = ({ placement, className }: SimTabsStripProps) => {
 	const list = use(SimTabsListContext);
 	if (!list?.tabs.length) return null;
 	return (
-		<TabNav variant="sim" testId="sim-tabs" tabs={list.tabs.map(tab => ({ id: tab.id, label: tab.title, badge: tab.badge, renderTab: tab.renderTab }))} />
+		<TabNav
+			variant="sim"
+			placement={placement}
+			className={className}
+			testId="sim-tabs"
+			tabs={list.tabs.map(tab => ({ id: tab.id, label: tab.title, badge: tab.badge, renderTab: tab.renderTab }))}
+		/>
 	);
 };
 
