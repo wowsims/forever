@@ -126,6 +126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 557.12274
+  tps: 479.00251
+  dtps: 2.94293
+  hps: 39.88722
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 545.20287
@@ -294,6 +303,15 @@ dps_results: {
   tps: 477.11931
   dtps: 2.94293
   hps: 40.64972
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-BlunderflameBoneBow-275439"
+ value: {
+  dps: 531.61686
+  tps: 459.51132
+  dtps: 2.94293
+  hps: 43.10667
  }
 }
 dps_results: {
@@ -2243,8 +2261,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Waveslicer-18324"
  value: {
-  dps: 518.29409
-  tps: 440.36332
+  dps: 518.39881
+  tps: 440.4471
   dtps: 2.97628
   hps: 25.95889
  }

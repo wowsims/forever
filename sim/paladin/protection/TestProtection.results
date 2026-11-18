@@ -126,6 +126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtection-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 411.43678
+  tps: 964.50897
+  dtps: 337.02389
+  hps: 17.06306
+ }
+}
+dps_results: {
  key: "TestProtection-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 407.22335

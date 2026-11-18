@@ -103,6 +103,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 755.39912
+  tps: 699.71773
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-BehemothBones-280065"
  value: {
   dps: 824.26107

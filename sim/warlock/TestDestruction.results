@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 840.3758
+  tps: 662.14117
+  dtps: 9.81267
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-BehemothBones-280065"
  value: {
   dps: 895.55296

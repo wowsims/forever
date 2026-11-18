@@ -157,6 +157,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBalance-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 844.75443
+  tps: 855.69371
+  dtps: 5.37323
+ }
+}
+dps_results: {
  key: "TestBalance-AllItems-Bashguuder-13204"
  value: {
   dps: 844.75443

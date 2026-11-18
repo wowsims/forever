@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 715.65472
+  tps: 512.05487
+  dtps: 5.76127
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-Bashguuder-13204"
  value: {
   dps: 715.65472

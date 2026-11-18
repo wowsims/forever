@@ -126,6 +126,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 831.34423
+  tps: 764.19841
+  dtps: 6.15687
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 885.88053
@@ -139,6 +147,14 @@ dps_results: {
   dps: 866.15161
   tps: 794.76216
   dtps: 6.92284
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 831.34423
+  tps: 764.19841
+  dtps: 6.15687
  }
 }
 dps_results: {

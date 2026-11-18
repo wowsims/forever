@@ -4,12 +4,6 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
-		811, // Axe of the Deep Woods
-		[
-			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
-		]
-	],
-	[
 		934, // Stalvan's Reaper
 		[
 			"Lowers the Attack Power of the target by 40 for 1min.", // 13524 - https://www.wowhead.com/forever/spell=13524
@@ -763,12 +757,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12781, // Serenity
 		[
 			"Dispels a magic effect on the current foe.", // 16908 - https://www.wowhead.com/forever/spell=16908
-		]
-	],
-	[
-		12791, // Barman Shanker
-		[
-			"Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied while behind the target.", // 1300787 - https://www.wowhead.com/forever/spell=1300787
 		]
 	],
 	[
@@ -2277,12 +2265,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		275347, // Lichbane
 		[
 			"Stuns target Undead for 6s.", // 1296564 - https://www.wowhead.com/forever/spell=1296564
-		]
-	],
-	[
-		275439, // Blunderflame Bone Bow
-		[
-			"Blunderflame the target for 56 Fire damage.", // 1296730 - https://www.wowhead.com/forever/spell=1296730
 		]
 	],
 	[
