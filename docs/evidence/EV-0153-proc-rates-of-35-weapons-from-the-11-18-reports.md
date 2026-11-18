@@ -8,7 +8,7 @@
   reports in all for the rates, and the 60 reports the section on melee abilities lists
 - Game build: 1.60.1.70790 to 1.60.1.70959 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-05 to 2026-11-18
-- Pull request: #TBD
+- Pull request: #1108
 
 This replaces the rates EV-0136 gives for 26 of these weapons and EV-0146's Killmaim rate.
 
