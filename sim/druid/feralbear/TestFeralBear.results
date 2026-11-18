@@ -163,10 +163,19 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 462.21196
+  tps: 2311.56698
+  dtps: 399.07885
+  hps: 83.93635
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-Bashguuder-13204"
  value: {
-  dps: 478.62795
-  tps: 2426.44101
+  dps: 462.21629
+  tps: 2350.21864
   dtps: 395.95949
   hps: 83.03903
  }
@@ -1290,10 +1299,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Julie'sDagger-6660"
  value: {
-  dps: 449.23664
-  tps: 2288.49355
-  dtps: 394.8849
-  hps: 83.81455
+  dps: 449.29511
+  tps: 2290.77931
+  dtps: 396.18501
+  hps: 84.38095
  }
 }
 dps_results: {
@@ -1591,6 +1600,15 @@ dps_results: {
   tps: 2636.96824
   dtps: 410.4147
   hps: 84.84002
+ }
+}
+dps_results: {
+ key: "TestFeralBear-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 477.67914
+  tps: 2415.75589
+  dtps: 422.50516
+  hps: 82.80032
  }
 }
 dps_results: {

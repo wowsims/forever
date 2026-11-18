@@ -83,8 +83,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Annihilator-12798"
  value: {
-  dps: 566.7678
-  tps: 485.00977
+  dps: 542.45234
+  tps: 465.97661
   dtps: 2.94293
   hps: 41.09028
  }
@@ -126,6 +126,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-AxeoftheDeepWoods-811"
+ value: {
+  dps: 557.12274
+  tps: 479.00251
+  dtps: 2.94293
+  hps: 39.88722
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 545.20287
@@ -146,8 +155,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bashguuder-13204"
  value: {
-  dps: 554.26128
-  tps: 478.21092
+  dps: 535.19548
+  tps: 463.29218
   dtps: 2.94293
   hps: 45.69917
  }
@@ -294,6 +303,15 @@ dps_results: {
   tps: 477.11931
   dtps: 2.94293
   hps: 40.64972
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-BlunderflameBoneBow-275439"
+ value: {
+  dps: 531.61686
+  tps: 459.51132
+  dtps: 2.94293
+  hps: 43.10667
  }
 }
 dps_results: {
@@ -1620,6 +1638,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 580.78183
+  tps: 496.60018
+  dtps: 2.94293
+  hps: 40.49722
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-RingofSaviors-1447"
  value: {
   dps: 535.96396
@@ -1640,8 +1667,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Rivenspike-13286"
  value: {
-  dps: 579.24241
-  tps: 495.51116
+  dps: 562.06182
+  tps: 482.0356
   dtps: 2.94293
   hps: 39.51444
  }
@@ -2234,8 +2261,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Waveslicer-18324"
  value: {
-  dps: 518.29409
-  tps: 440.36332
+  dps: 518.39881
+  tps: 440.4471
   dtps: 2.97628
   hps: 25.95889
  }

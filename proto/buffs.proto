@@ -65,7 +65,7 @@ message IndividualBuffs {
 	double thorns_spell_power = 9;
 }
 
-// Next index: 23
+// Next index: 24
 message Debuffs {
 	bool hunters_mark = 1;
 	bool judgement_of_the_crusader = 2;
@@ -89,4 +89,5 @@ message Debuffs {
 	bool armor_shatter = 20;
 	bool vindication = 21;
 	bool thunderfury = 22;
+	int32 puncture_armor = 23;
 }
