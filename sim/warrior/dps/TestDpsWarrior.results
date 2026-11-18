@@ -1413,6 +1413,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDpsWarrior-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 522.7257
+  tps: 441.70682
+  dtps: 2.97628
+  hps: 22.875
+ }
+}
+dps_results: {
  key: "TestDpsWarrior-AllItems-MarkofResolution-17759"
  value: {
   dps: 535.96396

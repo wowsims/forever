@@ -897,21 +897,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Knocks target silly for 2s and increases Strength by 53 for 20s.
-	// https://www.wowhead.com/forever/spell=17500
-	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
-	//	Callback:           core.CallbackEmpty,
-	//	ProcMask:           core.ProcMaskUnknown,
-	//	Outcome:            core.OutcomeEmpty,
-	//	RequireDamageDealt: false
-	// }, []shared.ItemVariant{
-	//	{ItemID: 13393, ItemName: "Malown's Slam"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Wounds the target, causing them to bleed for 140 damage over 14s.
 	// https://www.wowhead.com/forever/spell=1320824
 	// unsupported: states no rate
