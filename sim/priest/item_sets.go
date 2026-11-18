@@ -127,10 +127,6 @@ var ItemSetVestmentsOfFaith = core.NewItemSet(core.ItemSet{
 	},
 })
 
-func init() {
-	shared.SetBonusRollsSpellRate(ItemSetVestmentsOfFaith.ID, 8, faithEpiphanyProc.ID)
-}
-
 var convictionUndeadDamage = spelldata.MustFind(1301087) // Shadow 4pc: spell damage against Undead
 
 // Tier 1 - Discipline and Holy

@@ -10,10 +10,8 @@ import (
 	"testing"
 
 	_ "github.com/wowsims/forever/sim" // Registers every item set the sim implements.
-	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/proto"
-	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/tools/database/dbc"
 	"github.com/wowsims/forever/tools/database/overrides"
 	googleProto "google.golang.org/protobuf/proto"
@@ -211,13 +209,14 @@ func TestStampProcRatesPutsEachRateOnItsGear(t *testing.T) {
 
 // Each settled rate lands on its piece of gear: the rate on an item's or an enchant's effects, a chance
 // as a percent, a measured rate override on the spell an item, enchant or set bonus casts, an enchant's and
-// a set bonus's row chance. A hand-written proc rolling a spell's rate unchanged takes, over the effects of
-// its gear, the gear's own rate override for that spell, else the spell's rate override, else its row's
-// chance. Hand-written gear with no such proc, gear with no single rate, a proc stating no rate that no
-// override fills, a carried-over override, an unvalidated rate, an item or enchant missing an effect and a
-// missing set bonus stay out, and so does a set the database lacks. A hand-written proc whose gear carries an
-// unmeasured rate of its own for the spell gets none. Generated gear counts only where its procs register, and a row's rate only where they read the
-// rows. Each piece is listed once, in id order.
+// a set bonus's row chance. Each proc row of hand-written gear takes, over the effects of its gear, the gear's
+// own rate override for its spell, else the spell's rate override, else what the row states, and a gear rate
+// override replaces them all: one with no kind leaves the gear with none, one with a kind states its rate with
+// the status its Source gives. Gear with no single rate, a proc stating no rate that no override fills, a
+// carried-over override, an unvalidated rate, an item or enchant missing an effect and a missing set bonus stay
+// out, and so does a set the database lacks. A hand-written proc whose gear carries an unmeasured rate of its
+// own for the spell gets none. Generated gear counts only where its procs register, and a row's rate only where
+// they read the rows. Each piece is listed once, in id order.
 func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	procs := func(rates ...*proto.ProcEffect) []*proto.ItemEffect {
 		var effects []*proto.ItemEffect
@@ -232,7 +231,10 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	db := rateTestDB([]int32{20, 21, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45}, []int32{200, 201, 202, 203, 204, 205, 206, 207}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
+	rowChance := func(percent float64) KnownRate {
+		return KnownRate{Kind: overrides.RateChance, Rate: percent, Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+	}
+	db := rateTestDB([]int32{20, 21, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49}, []int32{200, 201, 202, 203, 204, 205, 206, 207}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -273,19 +275,29 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{ItemID: 45, SpellID: 57, PPM: 1, Source: "vanilla-carryover"}, // Its own rate for the spell comes first and is unmeasured.
 		},
 		EnchantProcs: []overrides.EnchantProc{{EnchantID: 206, SpellID: 55, Kind: overrides.RateChance, Value: 0.08, Source: "EV-0009"}},
-		GearProcs: []shared.GearProc{
-			{Gear: "item", ID: 40, SpellID: 50},
-			{Gear: "item", ID: 41, SpellID: 51},
-			{Gear: "item", ID: 42, SpellID: 52},
-			{Gear: "item", ID: 43, SpellID: 53},
-			{Gear: "item", ID: 44, SpellID: 54},
-			{Gear: "item", ID: 45, SpellID: 57},
-			{Gear: "enchant", ID: 206, SpellID: 55},
-			{Gear: "set bonus", ID: 7000, Pieces: 8, SpellID: 56},
+		HandProcs: map[string]map[[2]int32][]HandProc{
+			"item": {
+				{40, 0}: {{SpellID: 50, Row: rowChance(3)}},
+				{41, 0}: {{SpellID: 51, Row: rowChance(6)}},
+				{42, 0}: {{SpellID: 52, Row: rowChance(9)}},
+				{43, 0}: {{SpellID: 53}},
+				{44, 0}: {{SpellID: 54}},
+				{45, 0}: {{SpellID: 57}},
+				{46, 0}: {{SpellID: 60, Row: rowChance(6)}},
+				{47, 0}: {{SpellID: 61, Row: rowChance(6)}},
+				{48, 0}: {{SpellID: 62}},
+				{49, 0}: {{SpellID: 63, Row: rowChance(3)}, {SpellID: 64, Row: rowChance(5)}}, // Two rows at two chances: no single rate.
+			},
+			"enchant":   {{206, 0}: {{SpellID: 55}}},
+			"set bonus": {{7000, 8}: {{SpellID: 56, Row: rowChance(5)}}},
 		},
-		SpellChances:   map[int32]float64{51: 6, 52: 9, 54: 0, 56: 5},
+		GearProcRates: []overrides.GearProcRate{
+			{Gear: overrides.GearItem, ID: 46, Source: "tooltip"},
+			{Gear: overrides.GearItem, ID: 47, Kind: overrides.RateChance, Rate: 0.04, Source: "tooltip"},
+			{Gear: overrides.GearItem, ID: 48, Kind: overrides.RatePPM, Rate: 2, Source: "EV-0013"},
+		},
 		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}, 58: {{9000, 4}}, 59: {{9100, 2}}},
-		HandItems:      map[int32]bool{23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true, 45: true},
+		HandItems:      map[int32]bool{23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true, 45: true, 46: true, 47: true, 48: true, 49: true},
 		HandSets:       map[int32]bool{9000: true},
 		HandEnchants:   map[int32]bool{201: true, 206: true},
 		SetChances:     map[[2]int32][]float64{{7000, 4}: {4}, {7000, 2}: {3}, {8000, 2}: {5}},
@@ -332,6 +344,8 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{40, 0, overrides.RatePPM, 1.4, measured},
 			{41, 0, overrides.RateChance, 6, gameFiles}, // The row's chance, not the effect's 5.
 			{43, 0, overrides.RatePPM, 2.2, measured},
+			{47, 0, overrides.RateChance, 4, gameFiles}, // A tooltip's rate is the game files'.
+			{48, 0, overrides.RatePPM, 2, measured},
 		}},
 		{"enchants", rates.Enchants, []entry{
 			{200, 0, overrides.RateChance, 10, gameFiles},
@@ -347,59 +361,6 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		if got := entries(tc.got); !slices.Equal(got, tc.want) {
 			t.Errorf("%s listed %v, want %v", tc.name, got, tc.want)
 		}
-	}
-}
-
-// A hand-written proc reading its item's entry takes the procs per minute the entry states for the spell it
-// registers, also where the item's measured weapon rate names the spell the entry triggers. An entry stating
-// none, an unmeasured weapon rate on the item, and a second proc on it leave the item with no rate; an
-// effect that is no proc does not.
-func TestKnownRatesTakeTheEntryRateOfAHandWrittenProc(t *testing.T) {
-	entry := func(spellID int32, proc *proto.ProcEffect) *proto.ItemEffect {
-		effect := &proto.ItemEffect{BuffId: spellID}
-		if proc != nil {
-			effect.Effect = &proto.ItemEffect_Proc{Proc: proc}
-		}
-		return effect
-	}
-	ppm := func(rate float64) *proto.ProcEffect {
-		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_Ppm{Ppm: rate}}
-	}
-	db := rateTestDB([]int32{10, 11, 12, 13, 14, 15}, nil, nil)
-	for id, effects := range map[int32][]*proto.ItemEffect{
-		10: {entry(100, ppm(2.7))},
-		11: {entry(101, ppm(1))},
-		12: {entry(102, &proto.ProcEffect{})},
-		13: {entry(103, &proto.ProcEffect{}), entry(104, ppm(1.9))},
-		14: {entry(105, ppm(4.5)), entry(106, nil)},
-	} {
-		db.Items[id].ItemEffects = effects
-	}
-	in := rateInputs{
-		WeaponProcs: []overrides.WeaponProc{
-			{ItemID: 10, SpellID: 99, PPM: 2.7, Source: "EV-0001"},
-			{ItemID: 11, SpellID: 101, PPM: 1, Source: "vanilla-carryover"},
-			{ItemID: 13, SpellID: 104, PPM: 1.9, Source: "EV-0002"},
-		},
-		GearProcs: []shared.GearProc{
-			{Gear: "item", ID: 10, SpellID: 100, FromEntry: true},
-			{Gear: "item", ID: 11, SpellID: 101, FromEntry: true},
-			{Gear: "item", ID: 12, SpellID: 102, FromEntry: true},
-			{Gear: "item", ID: 13, SpellID: 104, FromEntry: true},
-			{Gear: "item", ID: 14, SpellID: 105, FromEntry: true},
-			{Gear: "item", ID: 15, SpellID: 107, FromEntry: true},
-		},
-		HandItems: map[int32]bool{10: true, 11: true, 12: true, 13: true, 14: true, 15: true},
-	}
-
-	rates := knownRates(in, db, UnvalidatedRates{}, nil)
-
-	want := []KnownRate{
-		{ID: 10, Kind: overrides.RatePPM, Rate: 2.7, Status: proto.ProcRateStatus_ProcRateStatusMeasured},
-		{ID: 14, Kind: overrides.RatePPM, Rate: 4.5, Status: proto.ProcRateStatus_ProcRateStatusMeasured},
-	}
-	if !slices.Equal(rates.Items, want) {
-		t.Errorf("listed %+v, want %+v", rates.Items, want)
 	}
 }
 
@@ -592,9 +553,8 @@ func TestRegisteredSetBonusesSitOnGameFilesThresholds(t *testing.T) {
 	}
 }
 
-// What holds for any shipped rate: its Source is a carry-over, an observed fit or a measurement, a
-// hand-written proc names a spell the store carries, every row names gear the game files carry, and no
-// measured rate is listed.
+// What holds for any shipped rate: its Source is a carry-over, an observed fit or a measurement, every row
+// names gear the game files carry, and no measured rate is listed.
 func TestShippedRatesAreWellFormed(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -642,30 +602,6 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 			db.Items[itemID] = &proto.UIItem{Id: itemID}
 		}
 	}
-	setNames := map[int32]string{}
-	for _, item := range instance.Items {
-		if item.ItemSetId != 0 {
-			setNames[int32(item.ItemSetId)] = item.ItemSetName
-		}
-	}
-	for _, proc := range in.GearProcs {
-		_, isItem := instance.Items[int(proc.ID)]
-		_, isEnchant := instance.EnchantsByEffectId[int(proc.ID)]
-		isSetBonus := slices.ContainsFunc(instance.ItemSetSpells[int(proc.ID)], func(row dbc.ItemSetSpell) bool { return int32(row.Threshold) == proc.Pieces })
-		if proc.Gear == "item" && !isItem || proc.Gear == "enchant" && !isEnchant || proc.Gear == "set bonus" && !isSetBonus {
-			t.Errorf("the hand-written proc %+v names gear the game files do not carry", proc)
-		}
-		registered := slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
-			_, ok := set.Bonuses[proc.Pieces]
-			return ok && coversSet(set, proc.ID, setNames[proc.ID])
-		})
-		if proc.Gear == "set bonus" && !registered {
-			t.Errorf("the hand-written proc %+v names a set bonus the sim does not register", proc)
-		}
-		if spelldata.Find(proc.SpellID) == spelldata.Nil {
-			t.Errorf("the hand-written proc %+v names a spell the spell store lacks", proc)
-		}
-	}
 
 	rates, err := unvalidatedRates(in, db)
 	if err != nil {
@@ -679,6 +615,49 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	for _, rate := range rates.Enchants {
 		if slices.Contains(measuredEnchants, rate.ID) {
 			t.Errorf("enchant %d carries a measured rate and is listed as unvalidated", rate.ID)
+		}
+	}
+}
+
+// Each gear proc rate names gear the sim registers by hand, states a Reason and a Source the gear tab reads,
+// and a rate only with a kind. The check refuses Bonechill Hammer 14487, whose proc the generated files
+// register.
+func TestGearProcRatesNameHandWrittenGear(t *testing.T) {
+	withDBCInputs(t)
+	instance := dbc.GetDBC()
+	setNames := map[int32]string{}
+	for _, item := range instance.Items {
+		if item.ItemSetId != 0 {
+			setNames[int32(item.ItemSetId)] = item.ItemSetName
+		}
+	}
+	handWritten := func(o overrides.GearProcRate) bool {
+		switch o.Gear {
+		case overrides.GearItem:
+			return o.Pieces == 0 && implementedByHand(o.ID)
+		case overrides.GearEnchant:
+			return o.Pieces == 0 && core.HasEnchantEffect(o.ID)
+		case overrides.GearSetBonus:
+			return slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool {
+				_, ok := set.Bonuses[o.Pieces]
+				return ok && coversSet(set, o.ID, setNames[o.ID])
+			})
+		}
+		return false
+	}
+	if handWritten(overrides.GearProcRate{Gear: overrides.GearItem, ID: 14487}) {
+		t.Fatal("Bonechill Hammer 14487, whose proc the generated files register, reads as written by hand")
+	}
+
+	for _, o := range overrides.GearProcRates {
+		if !handWritten(o) {
+			t.Errorf("the %s %d (%d pieces) rate names gear the sim does not register by hand", o.Gear, o.ID, o.Pieces)
+		}
+		if _, err := gearProcRateStatus(o.Source); o.Reason == "" || err != nil {
+			t.Errorf("the %s %d rate states reason %q and source %q", o.Gear, o.ID, o.Reason, o.Source)
+		}
+		if o.Kind == 0 && o.Rate != 0 || o.Kind != 0 && (o.Kind.String() == "unknown rate kind" || o.Rate <= 0) {
+			t.Errorf("the %s %d rate is a %s of %v", o.Gear, o.ID, o.Kind, o.Rate)
 		}
 	}
 }

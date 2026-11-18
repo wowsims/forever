@@ -18,7 +18,6 @@ func init() {
 	//
 	// 1314143 states the 5% chance on melee swings and abilities and the 60 s between procs; the buff is
 	// 16939, 4% crit for 20 s.
-	shared.ItemRollsSpellRate(12802, 1314143)
 	core.NewItemEffect(12802, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		buff := buffs.NewSpellDataDarkspearAura(&character.Unit, true, 0)

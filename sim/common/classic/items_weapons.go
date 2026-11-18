@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/wowsims/forever/sim/common/shared"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/buffs"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -16,7 +15,6 @@ func init() {
 	// Thunderfury, Blessed Blade of the Windseeker
 	//
 	// The game files state no rate; the item's chance-on-hit entry carries it.
-	shared.ItemRollsSpellRate(19019, 21992)
 	core.NewItemEffect(19019, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		procActionID := core.ActionID{SpellID: 21992}

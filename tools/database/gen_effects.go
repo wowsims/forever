@@ -42,12 +42,30 @@ func implementedByHand(itemID int32) bool {
 	return core.HasItemEffect(itemID) || slices.Contains(core.AlchStoneItemIDs, itemID)
 }
 
-// Whether the entry is the one a hand-written proc reads its procs per minute from, and it states none.
-// That effect then registers nothing (shared.ItemRollsEntryRate), so the item is missing its effect.
-func handProcStatesNoRate(parsed *proto.UIItem, itemEffect *proto.ItemEffect) bool {
-	return itemEffect.GetProc().GetPpm() == 0 && slices.ContainsFunc(shared.GearProcs, func(proc shared.GearProc) bool {
-		return proc.FromEntry && proc.ID == parsed.Id && proc.SpellID == itemEffect.BuffId
-	})
+// Whether an item's effect is a proc: a chance-on-hit entry, or an equip spell whose row has proc flags.
+func isItemProcEffect(effect dbc.ItemEffect) bool {
+	return effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT ||
+		effect.TriggerType == dbc.ITEM_SPELLTRIGGER_ON_EQUIP && spelldata.Find(int32(effect.SpellID)).ProcFlags != [2]uint32{}
+}
+
+// Whether a spell carries a procs per minute or chance override.
+func hasSpellRateOverride(spellID int32) bool {
+	return slices.ContainsFunc(overrides.Spells, func(o overrides.Override) bool { return o.SpellID == spellID && spellRateKind(o) != 0 })
+}
+
+// Whether a hand-written item's proc effect has no rate to roll: no weapon rate or spell rate override covers
+// it, and its row states none. A chance-on-hit entry rolls its ProcChance column, which states a chance from 1
+// to 99; an equip spell states a chance or procs per minute. Such an item is missing its effect.
+func handProcStatesNoRate(itemID int32, effect dbc.ItemEffect) bool {
+	spellID := int32(effect.SpellID)
+	if !isItemProcEffect(effect) || overrides.WeaponProcPPM(itemID, spellID) > 0 || hasSpellRateOverride(spellID) {
+		return false
+	}
+	row := spelldata.Find(spellID)
+	if effect.TriggerType == dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT {
+		return row.ProcChance < 1 || row.ProcChance > 99
+	}
+	return row.StatedChance() == 0 && row.RPPM == 0
 }
 
 // Enchantment IDs at or below this are not generated.
@@ -656,20 +674,26 @@ type rateInputs struct {
 	WeaponProcs    []overrides.WeaponProc
 	Spells         []overrides.Override
 	EnchantProcs   []overrides.EnchantProc
-	GearProcs      []shared.GearProc            // The hand-written procs rolling a spell's rate unchanged or their item entry's procs per minute (shared.GearProcs).
-	SpellItems     map[int32][]int32            // The items casting each spell, by spell id.
-	SpellEnchants  map[int32][]int32            // The enchant effect ids casting each spell, by spell id.
-	SpellSets      map[int32][][2]int32         // The set id and piece count of each set bonus granting the spell, by spell id.
-	HandItems      map[int32]bool               // The items whose effect is written by hand, which may roll another rate than their rows.
-	HandEnchants   map[int32]bool               // The enchant effect ids whose effect is written by hand.
-	HandSets       map[int32]bool               // The set ids registered by hand.
-	SetChances     map[[2]int32][]float64       // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
-	EnchantChances map[int32][]float64          // The chance in percent each proc spell of an enchant rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
-	SpellChances   map[int32]float64            // The row chance of each spell a hand-written proc rolls, in percent, by spell id; 0 where the row states none or where an item proc builder would roll its ProcChance column instead.
-	LiveItems      map[int32]LiveProcs          // The generated item procs that register, by item id.
-	LiveEnchants   map[int32]LiveProcs          // The generated enchant procs that register, by enchant effect id.
-	TargetScaled   map[string]map[[2]int32]bool // The gear whose rate varies by target type, by kind ("item", "enchant" or "set bonus"), id and piece count (0 for an item or enchant).
-	Missing        map[string]map[int32]bool    // The items and enchants missing an effect, which roll nothing for it, by kind ("item" or "enchant") and id.
+	GearProcRates  []overrides.GearProcRate           // The rates that replace what a hand-written piece's rows state.
+	HandProcs      map[string]map[[2]int32][]HandProc // The proc rows of hand-written gear, by kind ("item", "enchant" or "set bonus"), id and piece count (0 for an item or enchant).
+	SpellItems     map[int32][]int32                  // The items casting each spell, by spell id.
+	SpellEnchants  map[int32][]int32                  // The enchant effect ids casting each spell, by spell id.
+	SpellSets      map[int32][][2]int32               // The set id and piece count of each set bonus granting the spell, by spell id.
+	HandItems      map[int32]bool                     // The items whose effect is written by hand, which may roll another rate than their rows.
+	HandEnchants   map[int32]bool                     // The enchant effect ids whose effect is written by hand.
+	HandSets       map[int32]bool                     // The set ids registered by hand.
+	SetChances     map[[2]int32][]float64             // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
+	EnchantChances map[int32][]float64                // The chance in percent each proc spell of an enchant rolls, 0 where it states none, by enchant effect id; spells with a rate override left out.
+	LiveItems      map[int32]LiveProcs                // The generated item procs that register, by item id.
+	LiveEnchants   map[int32]LiveProcs                // The generated enchant procs that register, by enchant effect id.
+	TargetScaled   map[string]map[[2]int32]bool       // The gear whose rate varies by target type, by kind ("item", "enchant" or "set bonus"), id and piece count (0 for an item or enchant).
+	Missing        map[string]map[int32]bool          // The items and enchants missing an effect, which roll nothing for it, by kind ("item" or "enchant") and id.
+}
+
+// A proc row of hand-written gear.
+type HandProc struct {
+	SpellID int32
+	Row     KnownRate // The rate the row states, none where it states none.
 }
 
 // The generated procs of one item or enchant that register.
@@ -710,7 +734,8 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 		WeaponProcs:    overrides.WeaponProcs,
 		Spells:         overrides.Spells,
 		EnchantProcs:   overrides.EnchantProcs,
-		GearProcs:      shared.GearProcs,
+		GearProcRates:  overrides.GearProcRates,
+		HandProcs:      map[string]map[[2]int32][]HandProc{"item": {}, "enchant": {}, "set bonus": {}},
 		SpellItems:     map[int32][]int32{},
 		SpellEnchants:  map[int32][]int32{},
 		SpellSets:      map[int32][][2]int32{},
@@ -719,7 +744,6 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 		HandSets:       map[int32]bool{},
 		SetChances:     map[[2]int32][]float64{},
 		EnchantChances: map[int32][]float64{},
-		SpellChances:   map[int32]float64{},
 		LiveItems:      liveItemProcs,
 		LiveEnchants:   liveEnchantProcs,
 		TargetScaled:   map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}},
@@ -755,6 +779,14 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 		if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return scaled(e.SpellID) }) {
 			in.TargetScaled["item"][[2]int32{int32(itemID), 0}] = true
 		}
+		if in.HandItems[int32(itemID)] {
+			for _, effect := range effects {
+				if isItemProcEffect(effect) {
+					key := [2]int32{int32(itemID), 0}
+					in.HandProcs["item"][key] = append(in.HandProcs["item"][key], HandProc{SpellID: int32(effect.SpellID), Row: rowRate(spelldata.Find(int32(effect.SpellID)))})
+				}
+			}
+		}
 		for _, o := range rateOverrides {
 			if slices.ContainsFunc(effects, func(e dbc.ItemEffect) bool { return e.SpellID == int(o.SpellID) }) {
 				in.SpellItems[o.SpellID] = append(in.SpellItems[o.SpellID], int32(itemID))
@@ -774,18 +806,40 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 				in.SpellEnchants[o.SpellID] = append(in.SpellEnchants[o.SpellID], id)
 			}
 		}
-		for _, slot := range enchant.ProcSlots() {
+		slots := enchant.ProcSlots()
+		for _, slot := range slots {
 			if !rated[int32(slot.SpellID)] && overrides.EnchantProcRate(id, int32(slot.SpellID)) == nil {
 				in.EnchantChances[id] = append(in.EnchantChances[id], chancePercent(itemProcRowChance(spelldata.Find(int32(slot.SpellID)))))
 			}
+			// An equip slot that triggers another slot's combat spell is that proc's carrier, as Crusader's
+			// 458112 is for 20007, so the combat slot alone states the rate.
+			carrier := !slot.IsCombatSpell && slices.ContainsFunc(slots, func(other dbc.EnchantProcSlot) bool {
+				return other.IsCombatSpell && other.SpellID == slot.AppliesSpellID
+			})
+			if !in.HandEnchants[id] || carrier {
+				continue
+			}
+			row := rowRate(spelldata.Find(int32(slot.SpellID)))
+			if slot.ChancePct > 0 {
+				row = KnownRate{Kind: overrides.RateChance, Rate: float64(slot.ChancePct), Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+			}
+			key := [2]int32{id, 0}
+			in.HandProcs["enchant"][key] = append(in.HandProcs["enchant"][key], HandProc{SpellID: int32(slot.SpellID), Row: row})
 		}
 	}
 	setNames := setNamesOf(db)
 	for setID, rows := range instance.ItemSetSpells {
 		id := int32(setID)
-		hand := slices.ContainsFunc(core.ItemSets(), func(set *core.ItemSet) bool { return coversSet(set, id, setNames[id]) })
+		covering := slices.DeleteFunc(slices.Clone(core.ItemSets()), func(set *core.ItemSet) bool { return !coversSet(set, id, setNames[id]) })
+		hand := len(covering) > 0
 		if hand {
 			in.HandSets[id] = true
+		}
+		registered := func(pieces int32) bool {
+			return slices.ContainsFunc(covering, func(set *core.ItemSet) bool {
+				_, ok := set.Bonuses[pieces]
+				return ok
+			})
 		}
 		for _, row := range rows {
 			bonus := [2]int32{id, int32(row.Threshold)}
@@ -799,18 +853,40 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 			}
 			if spell := spelldata.Find(int32(row.SpellID)); !hand && shared.IsSetBonusProc(spell) && !rated[int32(row.SpellID)] {
 				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
+			} else if hand && registered(bonus[1]) && shared.IsSetBonusProc(spell) {
+				in.HandProcs["set bonus"][bonus] = append(in.HandProcs["set bonus"][bonus], HandProc{SpellID: int32(row.SpellID), Row: rowRate(spell)})
 			}
 		}
 	}
-
-	for _, proc := range in.GearProcs {
-		// A plain trigger rolls the stated chance and the item proc builders the column where
-		// ItemProcRollsTheColumn picks it, so a row where the two differ has no chance to state.
-		if row := spelldata.Find(proc.SpellID); !proc.FromEntry && row != spelldata.Nil && !row.ItemProcRollsTheColumn() {
-			in.SpellChances[proc.SpellID] = chancePercent(itemProcRowChance(row))
-		}
-	}
 	return in
+}
+
+// The rate a proc row states: its procs per minute, else the chance itemProcRowChance reads; none where it
+// states neither.
+func rowRate(row *spelldata.Spell) KnownRate {
+	if row.RPPM > 0 {
+		return KnownRate{Kind: overrides.RatePPM, Rate: float64(row.RPPM), Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+	}
+	if chance := chancePercent(itemProcRowChance(row)); chance > 0 {
+		return KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+	}
+	return KnownRate{}
+}
+
+// The status the gear tab shows for a GearProcRate's Source: a rate the tooltip states is the game files',
+// a measurement's is measured, and a carry-over or an observed fit says so.
+func gearProcRateStatus(source string) (proto.ProcRateStatus, error) {
+	if source == "tooltip" {
+		return proto.ProcRateStatus_ProcRateStatusGameFiles, nil
+	}
+	origin, err := rateOrigin(source)
+	if err != nil {
+		return 0, fmt.Errorf("%w, or tooltip", err)
+	}
+	if origin == "" {
+		return proto.ProcRateStatus_ProcRateStatusMeasured, nil
+	}
+	return originStatus[origin], nil
 }
 
 // Every hand-kept proc rate reaching an item, an enchant or a set bonus in the database whose Source
@@ -931,9 +1007,8 @@ func procRate(proc *proto.ProcEffect, chanceStatus proto.ProcRateStatus) KnownRa
 }
 
 // Every proc rate the sim uses on an item, an enchant or a set bonus in the database, once per piece of gear
-// and in id order. A hand-written proc rolling a spell's rate unchanged takes the rate that spell rolls on
-// its gear, and one reading its item's entry the rate the entry states. Gear written by hand with neither
-// has none, since its code may not roll what its rows state. An item or enchant takes the procs on
+// and in id order. Hand-written gear takes the rate each of its proc rows rolls on it, and a GearProcRate
+// replaces those where its code rolls something its rows do not state. An item or enchant takes the procs on
 // its database effects and the measured rate overrides on the spells it casts, an enchant also the chances of
 // its proc spells, and a set bonus its measured rate overrides and the chances of its proc rows. Generated
 // gear counts only where its procs register, and a row's rate only where they read the rows. A piece whose
@@ -948,16 +1023,16 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		rate.Status = proto.ProcRateStatus_ProcRateStatusMeasured
 		return rate
 	}
-	// The rate a hand-written proc's spell rolls on its gear: the gear's own rate override for the spell,
-	// else the spell's rate override, else its row's chance. The sim reads them in that order.
-	spellRate := func(gear shared.GearProc) KnownRate {
+	// The rate a hand-written proc row rolls on its gear: the gear's own rate override for the spell, else the
+	// spell's rate override, else what its row states. The sim reads them in that order.
+	handRate := func(gear string, id int32, row HandProc) KnownRate {
 		for _, proc := range in.WeaponProcs {
-			if gear.Gear == "item" && proc.ItemID == gear.ID && proc.SpellID == gear.SpellID {
+			if gear == "item" && proc.ItemID == id && proc.SpellID == row.SpellID {
 				return measured(proc.Source, KnownRate{Kind: overrides.RatePPM, Rate: proc.PPM})
 			}
 		}
 		for _, proc := range in.EnchantProcs {
-			if gear.Gear == "enchant" && proc.EnchantID == gear.ID && proc.SpellID == gear.SpellID {
+			if gear == "enchant" && proc.EnchantID == id && proc.SpellID == row.SpellID {
 				rate := proc.Value
 				if proc.Kind == overrides.RateChance {
 					rate = chancePercent(rate)
@@ -966,45 +1041,30 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 			}
 		}
 		for _, o := range in.Spells {
-			if kind := spellRateKind(o); kind != 0 && o.SpellID == gear.SpellID {
+			if kind := spellRateKind(o); kind != 0 && o.SpellID == row.SpellID {
 				return measured(o.Source, KnownRate{Kind: kind, Rate: o.Value})
 			}
 		}
-		return KnownRate{Kind: overrides.RateChance, Rate: in.SpellChances[gear.SpellID], Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
-	}
-	// A hand-written proc reading its item's entry rolls the procs per minute that entry states for the spell it
-	// registers, which a rate override puts there. Another proc on the item leaves it no single rate, and so does
-	// an unmeasured weapon rate on it, matched by item since it names the spell the entry triggers.
-	entryRates := func(gear shared.GearProc) []KnownRate {
-		item, ok := db.Items[gear.ID]
-		if !ok {
-			return nil
-		}
-		var rates []KnownRate
-		for _, effect := range item.ItemEffects {
-			if proc := effect.GetProc(); proc != nil && effect.BuffId == gear.SpellID {
-				rates = append(rates, KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm(), Status: proto.ProcRateStatus_ProcRateStatusMeasured})
-			} else if proc != nil {
-				rates = append(rates, KnownRate{})
-			}
-		}
-		for _, proc := range in.WeaponProcs {
-			if proc.ItemID == gear.ID {
-				for i := range rates {
-					rates[i] = measured(proc.Source, rates[i])
-				}
-			}
-		}
-		return rates
+		return row.Row
 	}
 	hand := map[string]map[[2]int32][]KnownRate{"item": {}, "enchant": {}, "set bonus": {}}
-	for _, gear := range in.GearProcs {
-		key := [2]int32{gear.ID, gear.Pieces}
-		if gear.FromEntry {
-			hand[gear.Gear][key] = append(hand[gear.Gear][key], entryRates(gear)...)
-		} else {
-			hand[gear.Gear][key] = append(hand[gear.Gear][key], spellRate(gear))
+	for gear, pieces := range in.HandProcs {
+		for key, rows := range pieces {
+			for _, row := range rows {
+				hand[gear][key] = append(hand[gear][key], handRate(gear, key[0], row))
+			}
 		}
+	}
+	// A GearProcRate replaces what the rows state. One with no Kind states no rate, so its gear shows none.
+	for _, o := range in.GearProcRates {
+		var rate KnownRate
+		if status, err := gearProcRateStatus(o.Source); err == nil && o.Kind != 0 {
+			rate = KnownRate{Kind: o.Kind, Rate: o.Rate, Status: status}
+			if o.Kind == overrides.RateChance {
+				rate.Rate = chancePercent(o.Rate)
+			}
+		}
+		hand[o.Gear.String()][[2]int32{o.ID, o.Pieces}] = []KnownRate{rate}
 	}
 	left := map[string]map[[2]int32]bool{"item": {}, "enchant": {}, "set bonus": {}}
 	for gear, list := range map[string][]UnvalidatedRate{"item": unvalidated.Items, "enchant": unvalidated.Enchants, "set bonus": unvalidated.SetBonuses} {
@@ -1775,6 +1835,17 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
 		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
+		if implementedByHand(parsed.Id) {
+			for _, effect := range instance.ItemEffectsByParentID[int(parsed.Id)] {
+				if !handProcStatesNoRate(parsed.Id, effect) {
+					continue
+				}
+				if tooltip, rendered := renderItemEffectTooltip(parsed, &proto.ItemEffect{BuffId: int32(effect.SpellID)}, instance); rendered {
+					StoreMissingEffect("ItemEffects", parsed.Name, Variant{ID: int(parsed.Id), Name: tooltip, SpellID: effect.SpellID})
+				}
+			}
+		}
+
 		for _, itemEffect := range parsed.ItemEffects {
 			if !implementedByHand(parsed.Id) && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
 				// Commented into the generated file rather than dropped. These are deliberately
@@ -1786,13 +1857,6 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 					skippedGroup = groupMapOnUse
 				}
 				storeSkippedEffect(parsed.Id, parsed.Name, itemEffect.BuffId, instance, skippedGroup)
-				continue
-			}
-
-			if handProcStatesNoRate(parsed, itemEffect) {
-				if tooltip, rendered := renderItemEffectTooltip(parsed, itemEffect, instance); rendered {
-					StoreMissingEffect("ItemEffects", parsed.Name, Variant{ID: int(parsed.Id), Name: tooltip, SpellID: int(itemEffect.BuffId)})
-				}
 				continue
 			}
 

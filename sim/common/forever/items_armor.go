@@ -103,7 +103,6 @@ func init() {
 	// second effect, creature type restriction or aura states the tripling, only the tooltip. The row
 	// states no power coefficient, so tripling the amount triples the hit. Its defense type is ranged,
 	// so it rolls on the ranged hit table.
-	shared.ItemRollsSpellRate(867, 1330855)
 	core.NewItemEffect(867, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1325229)
@@ -135,7 +134,6 @@ func init() {
 	// 27539 is a scripted dummy carrying the chance, the 10 s internal cooldown and the spell hits
 	// taken it hears. The shield is one row per school; only the Fire one, 27533, is in the spell
 	// store, and the other five state the same absorb, roll and duration on their own school.
-	shared.ItemRollsSpellRate(22196, 27539)
 	core.NewItemEffect(22196, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		fire := spelldata.MustFind(27533)
@@ -224,7 +222,6 @@ func init() {
 	// https://www.wowhead.com/forever/item=12628/demon-forged-breastplate
 	//
 	// When struck has a 3% chance of stealing 240 life from the attacker over 4s.
-	shared.ItemRollsSpellRate(12628, 16611)
 	core.NewItemEffect(12628, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(16608)

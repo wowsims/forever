@@ -293,7 +293,6 @@ func init() {
 	// shields never do. A harmful spell that deals no damage, such as Counterspell or the start of
 	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Whether a miss rolls is
 	// undetermined, so only landed hits roll (EV-0025).
-	shared.ItemRollsSpellRate(17780, 21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: castTimePPM(spelldata.MustFind(21978), true)},
 		[]shared.ItemVariant{
@@ -314,7 +313,6 @@ func init() {
 	// in two each, and both fly to the target. In game a Hurricane cast rolls once for each enemy its
 	// area reaches until one procs; the sim's Hurricane cast only starts its channel and lands on no
 	// enemy, so it rolls nothing (EV-0115).
-	shared.ItemRollsSpellRate(22458, 1300435)
 	core.NewItemEffect(22458, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1300435)
@@ -638,7 +636,6 @@ func init() {
 	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
 	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
 	// the entry states none; its slow is movement the sim leaves out.
-	shared.ItemRollsEntryRate(13952, 1298416)
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 
@@ -710,10 +707,8 @@ func init() {
 // Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
 // states for spellID, since the game files state no rate for it. While the entry states none, the
 // effect registers nothing and the item keeps only its stats; no rate is made up for the proc. The
-// generator lists such an item as missing its effect, and states the entry's rate of one that has it
-// on the gear tab (shared.ItemRollsEntryRate).
+// generator lists such an item as missing its effect.
 func newEntryRateItemEffect(itemID int32, spellID int32, apply func(character *core.Character, ppm float64)) {
-	shared.ItemRollsEntryRate(itemID, spellID)
 	core.NewItemEffect(itemID, func(agent core.Agent) {
 		if ppm := weaponProcPPM(itemID, spellID); ppm > 0 {
 			apply(agent.GetCharacter(), ppm)

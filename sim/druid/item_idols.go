@@ -28,7 +28,6 @@ func init() {
 		character.ItemSwap.RegisterProc(263435, core.MakePermanent(aura))
 	})
 
-	shared.ItemRollsSpellRate(279251, 1306483)
 	core.NewItemEffect(279251, func(agent core.Agent) {
 		druid := agent.(DruidAgent).GetDruid()
 		row := spelldata.MustFind(1306483)

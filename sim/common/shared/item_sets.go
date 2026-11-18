@@ -38,7 +38,7 @@ const (
 	setBonusProcAuras                      // auras on the wearer for the spell's duration
 )
 
-// IsSetBonusProc reports whether a row is one whose one effect triggers another spell off the row's own proc flags.
+// A row whose one effect triggers another spell off the row's own proc flags.
 func IsSetBonusProc(row *spelldata.Spell) bool {
 	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
 }

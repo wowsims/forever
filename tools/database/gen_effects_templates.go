@@ -246,9 +246,6 @@ import (
 {{- end }}
 
 func RegisterAllEnchants() {
-{{- if .HasLive }}
-	defer shared.Generated()()
-{{- end }}
 {{- range .Groups }}
 
 	// {{ .Name }}

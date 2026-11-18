@@ -5,7 +5,6 @@ import (
 )
 
 func RegisterAllEnchants() {
-	defer shared.Generated()()
 
 	// Enchants
 
