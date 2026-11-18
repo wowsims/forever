@@ -5,8 +5,10 @@ import (
 	"github.com/wowsims/forever/sim/core/spelldata"
 )
 
+var lightningBoltRanks = castableRanks(spellData.LightningBolt)
+
 func (shaman *Shaman) registerLightningBoltSpell() {
-	shaman.registerWithOverloads(spellData.LightningBolt, lightningBoltOverloadRanks, shaman.newLightningBoltSpellConfig)
+	shaman.registerWithOverloads(lightningBoltRanks, lightningBoltOverloadRanks, shaman.newLightningBoltSpellConfig)
 }
 
 // The cast, with the overload it may trigger; the overload itself, from its own row, where overload is nil.
