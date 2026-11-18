@@ -629,6 +629,19 @@ func chancePercent(chance float64) float64 {
 	return math.Round(chance*100*1e6) / 1e6
 }
 
+// An override's rate as the notices show it: a chance as a percent, procs per minute as they are.
+func overridePercent(kind overrides.RateKind, value float64) float64 {
+	if kind == overrides.RateChance {
+		return chancePercent(value)
+	}
+	return value
+}
+
+// A chance in percent the game files state.
+func gameFilesChance(percent float64) KnownRate {
+	return KnownRate{Kind: overrides.RateChance, Rate: percent, Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+}
+
 type UnvalidatedRates struct {
 	Items      []UnvalidatedRate
 	Enchants   []UnvalidatedRate
@@ -679,7 +692,7 @@ type rateInputs struct {
 	SpellItems     map[int32][]int32                  // The items casting each spell, by spell id.
 	SpellEnchants  map[int32][]int32                  // The enchant effect ids casting each spell, by spell id.
 	SpellSets      map[int32][][2]int32               // The set id and piece count of each set bonus granting the spell, by spell id.
-	HandItems      map[int32]bool                     // The items whose effect is written by hand, which may roll another rate than their rows.
+	HandItems      map[int32]bool                     // The items whose effect is written by hand.
 	HandEnchants   map[int32]bool                     // The enchant effect ids whose effect is written by hand.
 	HandSets       map[int32]bool                     // The set ids registered by hand.
 	SetChances     map[[2]int32][]float64             // The chance in percent each proc row of a generated set bonus rolls, 0 where it states none, by set id and piece count; rows with a rate override left out.
@@ -821,7 +834,7 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 			}
 			row := rowRate(spelldata.Find(int32(slot.SpellID)))
 			if slot.ChancePct > 0 {
-				row = KnownRate{Kind: overrides.RateChance, Rate: float64(slot.ChancePct), Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+				row = gameFilesChance(float64(slot.ChancePct))
 			}
 			key := [2]int32{id, 0}
 			in.HandProcs["enchant"][key] = append(in.HandProcs["enchant"][key], HandProc{SpellID: int32(slot.SpellID), Row: row})
@@ -853,7 +866,7 @@ func shippedRateInputs(instance *dbc.DBC, db *WowDatabase) rateInputs {
 			}
 			if spell := spelldata.Find(int32(row.SpellID)); !hand && shared.IsSetBonusProc(spell) && !rated[int32(row.SpellID)] {
 				in.SetChances[bonus] = append(in.SetChances[bonus], chancePercent(itemProcRowChance(spell)))
-			} else if hand && registered(bonus[1]) && shared.IsSetBonusProc(spell) {
+			} else if registered(bonus[1]) && shared.IsSetBonusProc(spell) {
 				in.HandProcs["set bonus"][bonus] = append(in.HandProcs["set bonus"][bonus], HandProc{SpellID: int32(row.SpellID), Row: rowRate(spell)})
 			}
 		}
@@ -868,7 +881,7 @@ func rowRate(row *spelldata.Spell) KnownRate {
 		return KnownRate{Kind: overrides.RatePPM, Rate: float64(row.RPPM), Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
 	}
 	if chance := chancePercent(itemProcRowChance(row)); chance > 0 {
-		return KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
+		return gameFilesChance(chance)
 	}
 	return KnownRate{}
 }
@@ -972,11 +985,7 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 			return UnvalidatedRates{}, fmt.Errorf("enchant %d rate: %w", proc.EnchantID, err)
 		}
 		if origin != "" && ok {
-			rate := proc.Value
-			if proc.Kind == overrides.RateChance {
-				rate = chancePercent(rate)
-			}
-			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Rate: rate, Origin: origin})
+			put(enchants, UnvalidatedRate{ID: proc.EnchantID, Name: enchant.Name, Kind: proc.Kind, Rate: overridePercent(proc.Kind, proc.Value), Origin: origin})
 		}
 	}
 
@@ -1033,11 +1042,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}
 		for _, proc := range in.EnchantProcs {
 			if gear == "enchant" && proc.EnchantID == id && proc.SpellID == row.SpellID {
-				rate := proc.Value
-				if proc.Kind == overrides.RateChance {
-					rate = chancePercent(rate)
-				}
-				return measured(proc.Source, KnownRate{Kind: proc.Kind, Rate: rate})
+				return measured(proc.Source, KnownRate{Kind: proc.Kind, Rate: overridePercent(proc.Kind, proc.Value)})
 			}
 		}
 		for _, o := range in.Spells {
@@ -1059,10 +1064,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	for _, o := range in.GearProcRates {
 		var rate KnownRate
 		if status, err := gearProcRateStatus(o.Source); err == nil && o.Kind != 0 {
-			rate = KnownRate{Kind: o.Kind, Rate: o.Rate, Status: status}
-			if o.Kind == overrides.RateChance {
-				rate.Rate = chancePercent(o.Rate)
-			}
+			rate = KnownRate{Kind: o.Kind, Rate: overridePercent(o.Kind, o.Rate), Status: status}
 		}
 		hand[o.Gear.String()][[2]int32{o.ID, o.Pieces}] = []KnownRate{rate}
 	}
@@ -1087,7 +1089,8 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 
 	// The piece's one rate, where every rate found on it agrees and states one. A rate a row states and a
-	// measurement settles at the same value is measured.
+	// measurement settles at the same value is measured; with no measurement, an observed or carried-over one
+	// keeps its status.
 	settle := func(gear string, id, pieces int32, found []KnownRate) (KnownRate, bool) {
 		key := [2]int32{id, pieces}
 		if rates, ok := hand[gear][key]; ok {
@@ -1101,6 +1104,8 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		status := proto.ProcRateStatus_ProcRateStatusGameFiles
 		if slices.ContainsFunc(found, func(rate KnownRate) bool { return rate.Status == proto.ProcRateStatus_ProcRateStatusMeasured }) {
 			status = proto.ProcRateStatus_ProcRateStatusMeasured
+		} else if i := slices.IndexFunc(found, func(rate KnownRate) bool { return rate.Status > proto.ProcRateStatus_ProcRateStatusGameFiles }); i >= 0 {
+			status = found[i].Status
 		}
 		return KnownRate{ID: id, Pieces: pieces, Kind: found[0].Kind, Rate: found[0].Rate, Status: status}, true
 	}
@@ -1156,7 +1161,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 	for id, chances := range in.EnchantChances {
 		for _, chance := range chances {
-			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles})
+			enchantRowRates[id] = append(enchantRowRates[id], gameFilesChance(chance))
 		}
 	}
 
@@ -1201,7 +1206,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 
 	for bonus, chances := range in.SetChances {
 		for _, chance := range chances {
-			setRates[bonus] = append(setRates[bonus], KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles})
+			setRates[bonus] = append(setRates[bonus], gameFilesChance(chance))
 		}
 	}
 	// settle takes a hand-written proc's rate over the rates found, so a bonus with one only needs listing.
@@ -1835,7 +1840,8 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		parsed.ItemEffects = dbc.MergeItemEffectsForAllStates(parsed)
 		parsed.AreaTypes, parsed.MobTypes, parsed.CreatureFamilies = dbc.ItemEffectTypes(parsed.Id)
 
-		if implementedByHand(parsed.Id) {
+		hand := implementedByHand(parsed.Id)
+		if hand {
 			for _, effect := range instance.ItemEffectsByParentID[int(parsed.Id)] {
 				if !handProcStatesNoRate(parsed.Id, effect) {
 					continue
@@ -1847,7 +1853,7 @@ func GenerateItemEffects(instance *dbc.DBC, db *WowDatabase) {
 		}
 
 		for _, itemEffect := range parsed.ItemEffects {
-			if !implementedByHand(parsed.Id) && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
+			if !hand && !ItemEffectIsSupported(instance, int(itemEffect.BuffId)) {
 				// Commented into the generated file rather than dropped. These are deliberately
 				// out of scope - summons, teleports, created items - but an item whose only
 				// effect is skipped otherwise vanished with no trace, while a sibling marker

@@ -707,7 +707,8 @@ func init() {
 // Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
 // states for spellID, since the game files state no rate for it. While the entry states none, the
 // effect registers nothing and the item keeps only its stats; no rate is made up for the proc. The
-// generator lists such an item as missing its effect.
+// generator lists such an item as missing its effect. The rate goes in overrides.WeaponProcs, never in a
+// Spells PPM override: the entry carries only the first, while the missing check counts either as a rate.
 func newEntryRateItemEffect(itemID int32, spellID int32, apply func(character *core.Character, ppm float64)) {
 	core.NewItemEffect(itemID, func(agent core.Agent) {
 		if ppm := weaponProcPPM(itemID, spellID); ppm > 0 {

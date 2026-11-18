@@ -231,10 +231,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 	chance := func(rate float64) *proto.ProcEffect {
 		return &proto.ProcEffect{ProcRate: &proto.ProcEffect_ProcChance{ProcChance: rate}}
 	}
-	rowChance := func(percent float64) KnownRate {
-		return KnownRate{Kind: overrides.RateChance, Rate: percent, Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
-	}
-	db := rateTestDB([]int32{20, 21, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49}, []int32{200, 201, 202, 203, 204, 205, 206, 207}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
+	db := rateTestDB([]int32{20, 21, 23, 24, 25, 26, 27, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50}, []int32{200, 201, 202, 203, 204, 205, 206, 207}, map[int32]int32{70: 7000, 71: 9000, 72: 9100})
 	for id, effects := range map[int32][]*proto.ItemEffect{
 		20: procs(ppm(1.5)),
 		21: procs(chance(0.05)),
@@ -277,27 +274,28 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		EnchantProcs: []overrides.EnchantProc{{EnchantID: 206, SpellID: 55, Kind: overrides.RateChance, Value: 0.08, Source: "EV-0009"}},
 		HandProcs: map[string]map[[2]int32][]HandProc{
 			"item": {
-				{40, 0}: {{SpellID: 50, Row: rowChance(3)}},
-				{41, 0}: {{SpellID: 51, Row: rowChance(6)}},
-				{42, 0}: {{SpellID: 52, Row: rowChance(9)}},
+				{40, 0}: {{SpellID: 50, Row: gameFilesChance(3)}},
+				{41, 0}: {{SpellID: 51, Row: gameFilesChance(6)}},
+				{42, 0}: {{SpellID: 52, Row: gameFilesChance(9)}},
 				{43, 0}: {{SpellID: 53}},
 				{44, 0}: {{SpellID: 54}},
 				{45, 0}: {{SpellID: 57}},
-				{46, 0}: {{SpellID: 60, Row: rowChance(6)}},
-				{47, 0}: {{SpellID: 61, Row: rowChance(6)}},
+				{46, 0}: {{SpellID: 60, Row: gameFilesChance(6)}},
+				{47, 0}: {{SpellID: 61, Row: gameFilesChance(6)}},
 				{48, 0}: {{SpellID: 62}},
-				{49, 0}: {{SpellID: 63, Row: rowChance(3)}, {SpellID: 64, Row: rowChance(5)}}, // Two rows at two chances: no single rate.
+				{49, 0}: {{SpellID: 63, Row: gameFilesChance(3)}, {SpellID: 64, Row: gameFilesChance(5)}}, // Two rows at two chances: no single rate.
 			},
 			"enchant":   {{206, 0}: {{SpellID: 55}}},
-			"set bonus": {{7000, 8}: {{SpellID: 56, Row: rowChance(5)}}},
+			"set bonus": {{7000, 8}: {{SpellID: 56, Row: gameFilesChance(5)}}},
 		},
 		GearProcRates: []overrides.GearProcRate{
 			{Gear: overrides.GearItem, ID: 46, Source: "tooltip"},
 			{Gear: overrides.GearItem, ID: 47, Kind: overrides.RateChance, Rate: 0.04, Source: "tooltip"},
 			{Gear: overrides.GearItem, ID: 48, Kind: overrides.RatePPM, Rate: 2, Source: "EV-0013"},
+			{Gear: overrides.GearItem, ID: 50, Kind: overrides.RatePPM, Rate: 1.5, Source: "observed"},
 		},
 		SpellSets:      map[int32][][2]int32{6: {{7000, 6}}, 58: {{9000, 4}}, 59: {{9100, 2}}},
-		HandItems:      map[int32]bool{23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true, 45: true, 46: true, 47: true, 48: true, 49: true},
+		HandItems:      map[int32]bool{23: true, 31: true, 40: true, 41: true, 42: true, 43: true, 44: true, 45: true, 46: true, 47: true, 48: true, 49: true, 50: true},
 		HandSets:       map[int32]bool{9000: true},
 		HandEnchants:   map[int32]bool{201: true, 206: true},
 		SetChances:     map[[2]int32][]float64{{7000, 4}: {4}, {7000, 2}: {3}, {8000, 2}: {5}},
@@ -329,7 +327,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 		}
 		return got
 	}
-	const measured, gameFiles = proto.ProcRateStatus_ProcRateStatusMeasured, proto.ProcRateStatus_ProcRateStatusGameFiles
+	const measured, gameFiles, observed = proto.ProcRateStatus_ProcRateStatusMeasured, proto.ProcRateStatus_ProcRateStatusGameFiles, proto.ProcRateStatus_ProcRateStatusObserved
 	for _, tc := range []struct {
 		name string
 		got  []KnownRate
@@ -346,6 +344,7 @@ func TestKnownRatesListEachSettledRateOnItsGear(t *testing.T) {
 			{43, 0, overrides.RatePPM, 2.2, measured},
 			{47, 0, overrides.RateChance, 4, gameFiles}, // A tooltip's rate is the game files'.
 			{48, 0, overrides.RatePPM, 2, measured},
+			{50, 0, overrides.RatePPM, 1.5, observed},
 		}},
 		{"enchants", rates.Enchants, []entry{
 			{200, 0, overrides.RateChance, 10, gameFiles},
@@ -619,9 +618,10 @@ func TestShippedRatesAreWellFormed(t *testing.T) {
 	}
 }
 
-// Each gear proc rate names gear the sim registers by hand, states a Reason and a Source the gear tab reads,
-// and a rate only with a kind. The check refuses Bonechill Hammer 14487, whose proc the generated files
-// register.
+// Each gear proc rate names gear the sim registers by hand, once, and states a Reason. A rate comes only with
+// a kind and a Source the gear tab reads, a chance is at most 1, and a row with no kind may leave Source empty.
+// A row whose gear's tooltip prints the chance as a fraction of the column states no kind, since that gear
+// shows no rate. The check refuses Bonechill Hammer 14487, whose proc the generated files register.
 func TestGearProcRatesNameHandWrittenGear(t *testing.T) {
 	withDBCInputs(t)
 	instance := dbc.GetDBC()
@@ -649,15 +649,25 @@ func TestGearProcRatesNameHandWrittenGear(t *testing.T) {
 		t.Fatal("Bonechill Hammer 14487, whose proc the generated files register, reads as written by hand")
 	}
 
+	in := shippedRateInputs(instance, NewWowDatabase())
+	seen := map[[3]int32]bool{}
 	for _, o := range overrides.GearProcRates {
+		key := [3]int32{int32(o.Gear), o.ID, o.Pieces}
+		if seen[key] {
+			t.Errorf("the %s %d (%d pieces) rate has two rows", o.Gear, o.ID, o.Pieces)
+		}
+		seen[key] = true
 		if !handWritten(o) {
 			t.Errorf("the %s %d (%d pieces) rate names gear the sim does not register by hand", o.Gear, o.ID, o.Pieces)
 		}
-		if _, err := gearProcRateStatus(o.Source); o.Reason == "" || err != nil {
+		if _, err := gearProcRateStatus(o.Source); o.Reason == "" || (o.Kind != 0 || o.Source != "") && err != nil {
 			t.Errorf("the %s %d rate states reason %q and source %q", o.Gear, o.ID, o.Reason, o.Source)
 		}
-		if o.Kind == 0 && o.Rate != 0 || o.Kind != 0 && (o.Kind.String() == "unknown rate kind" || o.Rate <= 0) {
+		if o.Kind == 0 && o.Rate != 0 || o.Kind != 0 && (o.Kind > overrides.RateChance || o.Rate <= 0) || o.Kind == overrides.RateChance && o.Rate > 1 {
 			t.Errorf("the %s %d rate is a %s of %v", o.Gear, o.ID, o.Kind, o.Rate)
+		}
+		if o.Kind != 0 && in.TargetScaled[o.Gear.String()][[2]int32{o.ID, o.Pieces}] {
+			t.Errorf("the %s %d rate states a %s, which its gear never shows: its tooltip prints the chance as a fraction of the column", o.Gear, o.ID, o.Kind)
 		}
 	}
 }

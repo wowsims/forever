@@ -24,8 +24,9 @@ func (g GearKind) String() string {
 // The rate the gear tab shows for hand-written gear whose code rolls something its rows do not state: it
 // scales the chance by target type, halves it by area, adds a flat chance or splits the procs. The generator
 // reads the gear's rate from its proc rows, and a row here replaces it. With no Kind the gear states no single
-// rate and shows none; with one it shows Rate. Only the generator reads this table; the sim rolls what its
-// code rolls. Reason and Source weigh the same as an Override's.
+// rate and shows none; with one it shows Rate, though gear listed unvalidated or missing its effect still shows
+// none. Only the generator reads this table; the sim rolls what its code rolls. Reason and Source weigh the
+// same as an Override's.
 type GearProcRate struct {
 	Gear   GearKind
 	ID     int32    // The item id, the enchant effect id or the set id.
@@ -33,7 +34,7 @@ type GearProcRate struct {
 	Kind   RateKind // 0 where the gear states no single rate.
 	Rate   float64  // Procs per minute, or a chance from 0 to 1.
 	Reason string
-	Source string // "EV-<n>" (docs/evidence), "tooltip", "tbc-carryover", "vanilla-carryover" or "observed"
+	Source string // "EV-<n>" (docs/evidence), "tooltip", "tbc-carryover", "vanilla-carryover" or "observed"; empty only with no Kind.
 }
 
 var GearProcRates = []GearProcRate{
@@ -45,6 +46,12 @@ var GearProcRates = []GearProcRate{
 	},
 	{
 		Gear:   GearItem,
+		ID:     13243,
+		Reason: "Argent Defender: 0.5 ppm on the attacker's swing interval, or twice that when an Undead strikes (NewAttackerSwingPPMManager)",
+		Source: "EV-0126",
+	},
+	{
+		Gear:   GearItem,
 		ID:     260205,
 		Reason: "Highborne Research Tablet: 2.6 ppm on weapon hits plus a flat 7% per spell hit",
 		Source: "EV-0131",
@@ -53,6 +60,5 @@ var GearProcRates = []GearProcRate{
 		Gear:   GearItem,
 		ID:     280032,
 		Reason: "Bolt's Charged Eyeball: 15%, and half the procs land on the wearer",
-		Source: "tooltip",
 	},
 }
