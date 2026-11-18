@@ -582,6 +582,10 @@ func init() {
 	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
 	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
 	// that strikes the wearer.
+	//
+	// TODO: in Cat and Bear Form only the white swing rolls 16559 (EV-0151), while the generated weapon proc hears
+	// every landed melee hit, Maul and the form's other attacks included. Whether a form keeps every chance-on-hit
+	// weapon to the white swing is not settled.
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))
