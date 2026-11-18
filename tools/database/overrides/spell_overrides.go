@@ -111,7 +111,7 @@ type Override struct {
 	Field   Field
 	Value   float64
 	Reason  string
-	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "tooltip", "owner decision", "estimate"
+	Source  string // "EV-<n>" (docs/evidence), "tbc-carryover", "vanilla-carryover", "observed", "tooltip", "owner decision", "estimate"
 }
 
 // Tooltip-only area bonuses ("doubled in X areas"). Groups are AreaGroup ids; any counts.
@@ -167,8 +167,9 @@ var AreaBonuses = []AreaBonus{
 	},
 }
 
-// A factor a row deals or restores against some targets, which only its tooltip names ("Deals $s2
-// times as much damage to Plants"). A target of any of the mob types or families counts.
+// A factor a row deals, restores or procs against some targets, which only its tooltip names ("Deals
+// $s2 times as much damage to Plants", "Attacks against Dwarves are $s2 times as likely to activate
+// this effect"). A target of any of the mob types or families counts.
 type VersusBonus struct {
 	SpellID     int32
 	EffectIndex uint8   // The effect whose base points are the factor: the tooltip's $s<index+1>.
@@ -275,10 +276,45 @@ var VersusBonuses = []VersusBonus{
 		Source:     "tooltip",
 	},
 	{
+		SpellID:     27656,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Flame Lash: 'Deals 3 times as much damage to Orcs'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1295744,
 		EffectIndex: 1,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
 		Reason:      "Rot: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     3742,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Gahz'rilla Fang: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     23686,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyAquatic},
+		Reason:      "Darkmoon Card: Maelstrom: 'Deals $s2 times as much damage to Aquatic enemies'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294430,
+		EffectIndex: 4,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Rage of Sul'thraze: 'This additional Shadow damage deals $s5 times as much damage to Trolls'; Shadow Lash 1294431 deals it",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1294339,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
+		Reason:      "Farraki Enforcement: 'Trolls take $s2 times as much damage and stun duration'",
 		Source:      "tooltip",
 	},
 	{
@@ -288,6 +324,27 @@ var VersusBonuses = []VersusBonus{
 			proto.CreatureFamily_CreatureFamilyFireElemental, proto.CreatureFamily_CreatureFamilyMountainGiant},
 		Reason: "Forging Strike: 'Deals $s2 times as much damage to Earth Elementals, Fire Elementals, and Mountain Giants'",
 		Source: "tooltip",
+	},
+	{
+		SpellID:     15600,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyDwarf},
+		Reason:      "Hand of Justice: 'Attacks against Dwarves are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1301046,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Fury of Forgewright: 'Attacks against Orcs are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     17350,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Argent Defender: 'Undead that strike you are $s2 times as likely to activate this effect'",
+		Source:      "tooltip",
 	},
 }
 
@@ -499,6 +556,15 @@ var Spells = []Override{
 		Reason:  "Zealot Plate: 5% on each landed melee swing taken outside the 15 s cooldown; column reads 100, tooltip says 'When struck in combat, has a chance'",
 		Source:  "EV-0115",
 	},
+	// Fitted from logs on landed melee hits taken that deal damage; the owner rules 0.5 from the pooled
+	// fit (EV-0126). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		SpellID: 17350,
+		Field:   PPM,
+		Value:   0.5,
+		Reason:  "Argent Defender: the owner's 0.5 procs per minute on the attacker's swing interval, twice that when an Undead strikes, outside the 20 s cooldown; column reads 100, tooltip says 'Has a chance when struck'; a log fit not yet validated (EV-0126)",
+		Source:  "observed",
+	},
 
 	// Attack Power shares measured against the sheet's Attack Power. Rend Ranks 2, 4 and 5 and Thunder Clap
 	// Ranks 1 and 4 were measured; the other ranks carry the same share until a log at their level says
@@ -609,10 +675,59 @@ var Spells = []Override{
 		Source:  "EV-0021",
 	},
 	{
+		SpellID: 27656,
+		Field:   PPM,
+		Value:   2,
+		Reason:  "Heart of Wyrmthalak: 2.0 procs per minute on landed melee and ranged hits, on the attacking weapon's speed; the game files state none",
+		Source:  "EV-0133",
+	},
+	{
+		SpellID: 1318323,
+		Field:   PPM,
+		Value:   1.2,
+		Reason:  "Scented Runewood Brooch: 1.2 procs per minute on landed hits against Furbolg, a log fit not yet validated (EV-0136); the game files state none",
+		Source:  "observed",
+	},
+	{
+		SpellID: 450587,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Battlegear of Valor 5-piece, Battlegear of Heroism 4-piece: 1 proc per minute on landed white swings; the game files state none",
+		Source:  "EV-0136, EV-0144",
+	},
+	{
+		SpellID: 27787,
+		Field:   PPM,
+		Value:   0.8,
+		Reason:  "Shadowcraft Armor 5-piece, Darkmantle Armor reissue 4-piece: 0.8 procs per minute on landed white swings; the game files state none",
+		Source:  "EV-0144",
+	},
+	{
+		SpellID: 450625,
+		Field:   PPM,
+		Value:   0.9,
+		Reason:  "Lightforge Armor 5-piece, Soulforge Armor reissue 4-piece: 0.9 procs per minute on landed white swings and on spell casts priced on their cast time, the one rate that fits both, a log fit not yet validated (EV-0144); the game files state none",
+		Source:  "observed",
+	},
+	{
+		SpellID: 450626,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "The Elements 5-piece, The Five Thunders reissue 4-piece: 1 proc per minute on landed white swings and on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none",
+		Source:  "observed",
+	},
+	{
+		SpellID: 450608,
+		Field:   PPM,
+		Value:   1,
+		Reason:  "Wildheart Raiment 5-piece, Feralheart Raiment reissue 4-piece: 1 proc per minute on spell casts priced on their cast time, a log fit not yet validated (EV-0144); the game files state none and the dummy effect's 5 is no chance",
+		Source:  "observed",
+	},
+	{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,
-		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed spell hit's cast, at least 1.5 s; the game files state none",
+		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed harmful spell's cast, at least 1.5 s; the game files state none",
 		Source:  "EV-0025",
 	},
 	{

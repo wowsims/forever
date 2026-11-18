@@ -99,6 +99,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-AxeofInevitableRuin-274484"
+ value: {
+  dps: 811.11673
+  tps: 843.10498
+  dtps: 7.74012
+  hps: 25.4675
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BadgeoftheSwarmguard-21670"
  value: {
   dps: 792.75278
@@ -119,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BeaststalkerArmor"
  value: {
-  dps: 710.05573
-  tps: 746.40569
-  dtps: 6.9268
+  dps: 709.41883
+  tps: 746.70195
+  dtps: 7.21188
   hps: 36.43056
  }
 }
@@ -243,6 +252,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-BrainHacker-1263"
+ value: {
+  dps: 865.41214
+  tps: 896.9774
+  dtps: 8.21004
+  hps: 22.62083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-BristleconeCloak-275833"
  value: {
   dps: 771.50338
@@ -324,6 +342,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-CloakofFlames-3475"
+ value: {
+  dps: 789.27923
+  tps: 826.06682
+  dtps: 7.38666
+  hps: 37.19306
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-ColdBasiliskEye-5079"
  value: {
   dps: 779.98182
@@ -335,9 +362,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DarkmoonCard:BlueDragon-19288"
  value: {
-  dps: 780.19579
-  tps: 816.63597
-  dtps: 7.43291
+  dps: 780.43315
+  tps: 816.91108
+  dtps: 7.17292
   hps: 37.22694
  }
 }
@@ -347,7 +374,7 @@ dps_results: {
   dps: 779.98182
   tps: 816.60533
   dtps: 7.56907
-  hps: 50.98151
+  hps: 55.38298
  }
 }
 dps_results: {
@@ -443,9 +470,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-DreadmistRaiment"
  value: {
-  dps: 708.75302
-  tps: 743.7698
-  dtps: 6.74475
+  dps: 708.07047
+  tps: 743.18251
+  dtps: 6.93526
   hps: 42.45038
  }
 }
@@ -567,6 +594,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-FieryWeapon-803"
+ value: {
+  dps: 778.37438
+  tps: 814.85817
+  dtps: 7.50949
+  hps: 37.04056
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-GrandSorcerer-7942"
  value: {
   dps: 764.9477
@@ -585,6 +621,33 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-LesserBeastslayer-853"
+ value: {
+  dps: 761.77569
+  tps: 798.28139
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-LesserElementalSlayer-854"
+ value: {
+  dps: 761.77569
+  tps: 798.28139
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-EnchantWeapon-MinorBeastslayer-249"
+ value: {
+  dps: 761.77569
+  tps: 798.28139
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Recovery-8721"
  value: {
   dps: 761.77569
@@ -596,10 +659,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EnchantWeapon-Revelation-8217"
  value: {
-  dps: 813.44468
-  tps: 850.19943
-  dtps: 7.45814
-  hps: 37.3625
+  dps: 810.59216
+  tps: 847.33639
+  dtps: 7.48193
+  hps: 37.34556
  }
 }
 dps_results: {
@@ -641,9 +704,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-EyeofMoam-21473"
  value: {
-  dps: 793.48388
-  tps: 830.11928
-  dtps: 7.59286
+  dps: 789.96822
+  tps: 826.59129
+  dtps: 7.56821
   hps: 37.22694
  }
 }
@@ -713,10 +776,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 836.21329
-  tps: 867.08144
-  dtps: 8.28445
-  hps: 22.12944
+  dps: 835.78706
+  tps: 866.76366
+  dtps: 8.38584
+  hps: 22.16333
  }
 }
 dps_results: {
@@ -873,6 +936,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-HeartofWyrmthalak-22321"
+ value: {
+  dps: 793.67949
+  tps: 830.39071
+  dtps: 7.73711
+  hps: 37.07444
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-HeartoftheScale-13164"
  value: {
   dps: 779.98182
@@ -902,10 +974,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-HighborneResearchTablet-260205"
  value: {
-  dps: 782.94313
-  tps: 818.842
-  dtps: 7.21898
-  hps: 37.17611
+  dps: 788.85118
+  tps: 824.79387
+  dtps: 7.17462
+  hps: 37.21
  }
 }
 dps_results: {
@@ -933,6 +1005,15 @@ dps_results: {
   tps: 830.89993
   dtps: 7.56907
   hps: 37.22694
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-KangtheDecapitator-2291"
+ value: {
+  dps: 857.04131
+  tps: 887.9403
+  dtps: 8.12279
+  hps: 22.21417
  }
 }
 dps_results: {
@@ -1010,9 +1091,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Magister'sRegalia"
  value: {
-  dps: 720.0992
-  tps: 756.2043
-  dtps: 7.06043
+  dps: 719.46826
+  tps: 755.4814
+  dtps: 6.89662
   hps: 36.05778
  }
 }
@@ -1152,6 +1233,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-PendulumofDoom-9425"
+ value: {
+  dps: 837.50855
+  tps: 867.67951
+  dtps: 8.06103
+  hps: 20.70611
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-PetrifiedScarab-21685"
  value: {
   dps: 779.98182
@@ -1215,6 +1305,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 771.91718
+  tps: 804.6259
+  dtps: 8.13886
+  hps: 27.58556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-RingofSaviors-1447"
  value: {
   dps: 766.261
@@ -1225,6 +1324,15 @@ dps_results: {
 }
 dps_results: {
  key: "TestEnhancement-AllItems-RuneoftheDawn-19812"
+ value: {
+  dps: 779.98182
+  tps: 816.60533
+  dtps: 7.56907
+  hps: 37.22694
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-ScentedRunewoodBrooch-269741"
  value: {
   dps: 779.98182
   tps: 816.60533
@@ -1325,9 +1433,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-Stormcaller'sGarb"
  value: {
-  dps: 815.0765
-  tps: 850.6649
-  dtps: 7.30323
+  dps: 814.29272
+  tps: 849.90933
+  dtps: 7.35963
   hps: 37.12528
  }
 }
@@ -1422,6 +1530,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TaranIcebreaker-2915"
+ value: {
+  dps: 857.80857
+  tps: 889.06005
+  dtps: 8.93772
+  hps: 21.45167
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TheBlackrockSlicer-13285"
+ value: {
+  dps: 879.20539
+  tps: 909.94468
+  dtps: 8.60424
+  hps: 20.80778
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TheBurrower'sShell-23558"
  value: {
   dps: 779.98182
@@ -1487,17 +1613,17 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheElements"
  value: {
-  dps: 724.60138
-  tps: 759.94561
-  dtps: 7.27054
+  dps: 728.4188
+  tps: 763.84114
+  dtps: 7.42678
   hps: 36.32889
  }
 }
 dps_results: {
  key: "TestEnhancement-AllItems-TheFiveThunders"
  value: {
-  dps: 777.88823
-  tps: 813.64828
+  dps: 783.01755
+  tps: 818.7776
   dtps: 7.09646
   hps: 37.00667
  }
@@ -1647,6 +1773,24 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-TotemofRage-22395"
+ value: {
+  dps: 776.82537
+  tps: 813.33107
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
+ key: "TestEnhancement-AllItems-TotemofThunder-228176"
+ value: {
+  dps: 772.82489
+  tps: 809.33059
+  dtps: 7.41788
+  hps: 37.12528
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-TotemofUrgency-279249"
  value: {
   dps: 772.68561
@@ -1764,6 +1908,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Waveslicer-18324"
+ value: {
+  dps: 848.06452
+  tps: 880.48077
+  dtps: 8.47
+  hps: 25.01
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-WeedWhacker-274270"
  value: {
   dps: 828.74124
@@ -1775,10 +1928,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-WildheartRaiment"
  value: {
-  dps: 706.87529
-  tps: 743.25185
-  dtps: 7.35176
-  hps: 35.71889
+  dps: 707.59879
+  tps: 742.93
+  dtps: 7.10865
+  hps: 35.73583
  }
 }
 dps_results: {

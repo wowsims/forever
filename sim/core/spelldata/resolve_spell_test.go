@@ -420,6 +420,49 @@ func TestSpellConfigFlagsFromTheRow(t *testing.T) {
 	}
 }
 
+// A magic damage row on the magic hit table is binary when it carries, beside the damage, an aura other
+// than a dummy on an enemy, an interrupt, or a dummy, script, energize or area trigger effect on any
+// target. A dummy aura on the enemy, an aura on the caster, E_NONE, a row with no damage, a physical row
+// and a row on another hit table are not.
+func TestSpellConfigBinaryFromTheRow(t *testing.T) {
+	enemy := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_TARGET_ENEMY, 0}
+	caster := [2]dbcenums.ImplicitTarget{dbcenums.TARGET_UNIT_CASTER, 0}
+	damage := Effect{Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 100, Target: enemy}
+	dot := Effect{Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PERIODIC_DAMAGE, BasePoints: 10, Target: enemy}
+	aura := func(a dbcenums.EffectAuraType, target [2]dbcenums.ImplicitTarget) Effect {
+		return Effect{Type: dbcenums.E_APPLY_AURA, Aura: a, Target: target}
+	}
+	beside := func(e dbcenums.SpellEffectType) Effect { return Effect{Type: e} }
+
+	for _, tc := range []struct {
+		name        string
+		school      core.SpellSchool
+		defenseType core.DefenseType
+		effects     []Effect
+		want        bool
+	}{
+		{"a slow on the enemy", core.SpellSchoolFrost, core.DefenseTypeMagic, []Effect{damage, aura(dbcenums.A_MOD_DECREASE_SPEED, enemy)}, true},
+		{"a periodic damage beside a slow", core.SpellSchoolShadow, core.DefenseTypeMagic, []Effect{dot, aura(dbcenums.A_MOD_DECREASE_SPEED, enemy)}, true},
+		{"an interrupt", core.SpellSchoolNature, core.DefenseTypeMagic, []Effect{damage, beside(dbcenums.E_INTERRUPT_CAST)}, true},
+		{"a dummy effect with no target", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, beside(dbcenums.E_DUMMY)}, true},
+		{"a script effect", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, dot, beside(dbcenums.E_SCRIPT_EFFECT)}, true},
+		{"an energize", core.SpellSchoolShadow, core.DefenseTypeMagic, []Effect{damage, beside(dbcenums.E_ENERGIZE)}, true},
+		{"an area trigger", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, beside(dbcenums.E_CREATE_AREATRIGGER)}, true},
+		{"the damage alone", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, dot}, false},
+		{"a dummy aura on the enemy", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, dot, aura(dbcenums.A_DUMMY, enemy)}, false},
+		{"an aura on the caster", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, aura(dbcenums.A_MOD_DECREASE_SPEED, caster)}, false},
+		{"E_NONE", core.SpellSchoolFire, core.DefenseTypeMagic, []Effect{damage, beside(dbcenums.E_NONE)}, false},
+		{"a dummy effect with no damage", core.SpellSchoolNature, core.DefenseTypeMagic, []Effect{beside(dbcenums.E_DUMMY), aura(dbcenums.A_MOD_DECREASE_SPEED, enemy)}, false},
+		{"a physical slow", core.SpellSchoolPhysical, core.DefenseTypeMagic, []Effect{damage, aura(dbcenums.A_MOD_DECREASE_SPEED, enemy)}, false},
+		{"a dummy effect on the ranged table", core.SpellSchoolHoly, core.DefenseTypeRanged, []Effect{damage, beside(dbcenums.E_DUMMY)}, false},
+	} {
+		withRows(t, []Spell{{ID: 1, Name: "Row", School: tc.school, DefenseType: tc.defenseType, Effects: tc.effects}})
+		if got := SpellConfig(testUnit(), Find(1)).Flags.Matches(core.SpellFlagBinary); got != tc.want {
+			t.Errorf("a damage row with %s resolved binary %v, want %v", tc.name, got, tc.want)
+		}
+	}
+}
+
 func TestSpellConfigMeleeOption(t *testing.T) {
 	withRows(t, resolverRows())
 	config := SpellConfig(testUnit(), Find(100), Melee(core.ProcMaskMeleeMHSpecial))

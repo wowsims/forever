@@ -2451,6 +2451,14 @@ func LoadDungeonZoneIDs(dbHelper *DBHelper) (map[int32]bool, error) {
 	`, "dungeon zones")
 }
 
+// The item ids the ItemSet rows list as their sets' pieces.
+func LoadItemSetListedItems(dbHelper *DBHelper) (map[int32]bool, error) {
+	return loadIDSet(dbHelper, `
+		SELECT piece.value FROM ItemSet, json_each(ItemSet.ItemID) piece
+		WHERE piece.value > 0
+	`, "item set pieces")
+}
+
 // Every AreaTable id in the game files, with its name.
 func LoadAreaTableNames(dbHelper *DBHelper) (map[int32]string, error) {
 	areas, err := LoadRows(dbHelper.db, `SELECT ID, AreaName_lang FROM AreaTable`, func(rows *sql.Rows) (*proto.UIZone, error) {

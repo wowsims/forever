@@ -91,5 +91,13 @@ export const VERSUS_BONUSES: VersusBonusSet = {
 			multiplier: 3,
 			kind: VersusEffectKind.VersusEffectKindRestore,
 		},
+		{
+			itemId: 11815,
+			itemName: 'Hand of Justice',
+			mobTypes: [],
+			creatureFamilies: [CreatureFamily.CreatureFamilyDwarf],
+			multiplier: 3,
+			kind: VersusEffectKind.VersusEffectKindProcChance,
+		},
 	],
 };

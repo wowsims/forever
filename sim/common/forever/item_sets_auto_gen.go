@@ -1573,13 +1573,9 @@ func RegisterAllSetBonuses() {
 		// Reduces the cooldown of your Counterspell by 5 sec.
 		// https://www.wowhead.com/forever/spell=1301013
 		3: {1301013},
-
-		// TODO: Manual implementation required
-		//
 		// Increases damage done by your spells and effects by up to 21 when fighting Elementals.
 		// https://www.wowhead.com/forever/spell=1301079
-		// unsupported: effect 1 A_MOD_DAMAGE_DONE_CREATURE misc 8 is not parsed
-		// 4: {1301079},
+		4: {1301079},
 
 		// TODO: Manual implementation required
 		//
@@ -1603,7 +1599,7 @@ func RegisterAllSetBonuses() {
 		// +36 Attack Power against Humanoids.
 		// https://www.wowhead.com/forever/spell=1301088
 		4: {1301088},
-		// Reduces the cost of your Envenom and Eviscerate abilities by 5 Energy.
+		// Reduces the cost of your Eviscerate and Death Mark abilities by 5 Energy.
 		// https://www.wowhead.com/forever/spell=1301708
 		5: {1301708},
 	})
@@ -1661,14 +1657,9 @@ func RegisterAllSetBonuses() {
 		// Reduces the cooldown of your Earthbind Totem spell by 2 sec.
 		// https://www.wowhead.com/forever/spell=1301053
 		3: {1301053},
-
-		// TODO: Manual implementation required
-		//
 		// Increases damage done by your spells and effects by up to 21 when fighting Elementals.
 		// https://www.wowhead.com/forever/spell=1301092
-		// unsupported: effect 1 A_MOD_DAMAGE_DONE_CREATURE misc 8 is not parsed
-		// 4: {1301092},
-
+		4: {1301092},
 		// Reduces the cooldown of your Lava Burst spell by 1 sec.
 		// https://www.wowhead.com/forever/spell=1301711
 		5: {1301711},
@@ -1737,20 +1728,20 @@ func RegisterAllSetBonuses() {
 		5: {1301247},
 	})
 
-	// TODO: Manual implementation required
-	//
 	// Rider of the Plaguelands
 	// https://www.wowhead.com/forever/item-set=2130
-	// shared.NewParsedItemSet(2130, "Rider of the Plaguelands", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
-	// 	// Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.
-	// 	// https://www.wowhead.com/forever/spell=1315080
-	// 	// unsupported: the row applies only in area group 9317, effect 1 A_MOD_MOUNTED_SPEED_ALWAYS misc 0 is not parsed
-	// 	2: {1315080},
-	// 	// Chance on melee attack to lash the target, inflicting 140 Shadow damage.
-	// 	// https://www.wowhead.com/forever/spell=1315077
-	// 	// unsupported: effect 1 is E_SCHOOL_DAMAGE
-	// 	3: {1315077},
-	// })
+	shared.NewParsedItemSet(2130, "Rider of the Plaguelands", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
+		// TODO: Manual implementation required
+		//
+		// Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.
+		// https://www.wowhead.com/forever/spell=1315080
+		// unsupported: the row applies only in area group 9317, effect 1 A_MOD_MOUNTED_SPEED_ALWAYS misc 0 is not parsed
+		// 2: {1315080},
+
+		// Chance on melee attack to lash the target, inflicting 140 Shadow damage.
+		// https://www.wowhead.com/forever/spell=1330858
+		3: {1330858},
+	})
 
 	// TODO: Manual implementation required
 	//

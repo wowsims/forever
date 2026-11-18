@@ -1322,7 +1322,7 @@ The schema lists each field of `Player`'s `spec` oneof with:
 ## 9. Composition: `use`
 
 ```
-use "../gear_sets/p1.gear.siml"
+use "../gear_sets/prebis_weave.gear.siml"
 use "default.apl.siml" with $use_summon_hawk = true
 ```
 
@@ -1856,17 +1856,14 @@ Some notes on this file:
 - `$shoot_spot` folds to `Shoot spot`, which a used file declares, while the proto keeps the exact names that
   `ui/specs/hunter/dps/spec.ts` sets.
 
-The two variable presets are one-line files:
+A variable preset is a one-line file. This is `apls/turret_multi.apl.siml`:
 
 ```
 siml 1
 spec hunter
 
-use "default.apl.siml" with $use_summon_hawk = true
+use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true
 ```
-
-This is `apls/default_hawks.apl.siml`. `apls/turret_multi.apl.siml` is
-`use "turret.apl.siml" with $use_aimed_shot = false, $use_multi_shot = true`.
 
 ### 16.2 `arms.apl.siml` (warrior, arms; the warrior's presets are JSON, and this is how its rotation reads in SIML)
 
@@ -2005,28 +2002,27 @@ Some notes on this file:
 - **The `when` block.** The two Slam rows read with `not is_execute_phase(e20)` first in their `and` (§6.9), as the
   flat rows wrote it.
 
-### 16.3 `ui/specs/hunter/dps/gear_sets/p1.gear.siml` (hunter, P1 gear)
+### 16.3 `ui/specs/hunter/dps/gear_sets/prebis_weave.gear.siml` (hunter, Pre-BiS weave gear)
 
 ```
 siml 1
 
-// The armor both playstyles share, with the two-hander to weave with.
-head       beaststalkers_cap
-neck       maelstroms_tendril + necklace_agility
-shoulder   beaststalkers_mantle
-back       shifting_cloak + cloak_lesser_agility
-chest      beaststalkers_tunic + chest_greater_stats
-wrist      beaststalkers_bindings + bracer_agility_7656
-hands      beaststalkers_gloves + gloves_superior_agility
-waist      beaststalkers_belt
-legs       beaststalkers_pants + forceful_rugged_armor_kit
-feet       beaststalkers_boots + boots_greater_agility
+head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
+neck       mark_of_fordring + necklace_agility
+shoulder   darkspear_epaulets
+back       cape_of_the_black_baron + cloak_agility
+chest      dawn_armor + chest_greater_stats
+wrist      beastmasters_bindings_ilvl65 + bracer_agility_7656
+hands      raider_gloves + gloves_superior_agility
+waist      rangers_belt
+legs       plaguehound_leggings + lesser_arcane_amalgamation_1508
+feet       windreaver_greaves + boots_greater_agility
 finger1    cutthroats_signet
-finger2    selenium_loop of_agility
-trinket1   adaptive_combat_assistant
-trinket2   rune_of_the_guard_captain
-main_hand  legionite_glaive + enchant_2h_weapon_agility
-ranged     fahrads_reloading_repeater + biznicks_247x128_accurascope
+finger2    tarnished_elven_ring
+trinket1   blackhands_breadth
+trinket2   highborne_research_tablet
+main_hand  arcanite_reaper + enchant_2h_weapon_agility
+ranged     bloodseeker + saf_t_ultra_precision_scope
 ```
 
 Some notes on this file:
@@ -2041,7 +2037,7 @@ Some notes on this file:
 ### 16.4 The hunter defaults as one full `.siml`
 
 This is `ui/specs/hunter/dps/defaults.siml`, which `ui/specs/hunter/dps/spec.ts` takes its `defaults` from, as one
-self-contained file: the committed file has `use "gear_sets/p1.gear.siml"` under its talents line in place of the
+self-contained file: the committed file has `use "gear_sets/prebis_weave.gear.siml"` under its talents line in place of the
 `gear:` section. A site export of the same setup is its printed form (§12), with the sections and entries in the
 printer's order (`resource_pot` after the elixirs, `encounter:` before `sim:`, `pull_range` last), and also:
 
@@ -2068,22 +2064,22 @@ settings:
   pet_attack_speed faster_attack_ii
 
 gear:
-  head       beaststalkers_cap
-  neck       maelstroms_tendril + necklace_agility
-  shoulder   beaststalkers_mantle
-  back       shifting_cloak + cloak_lesser_agility
-  chest      beaststalkers_tunic + chest_greater_stats
-  wrist      beaststalkers_bindings + bracer_agility_7656
-  hands      beaststalkers_gloves + gloves_superior_agility
-  waist      beaststalkers_belt
-  legs       beaststalkers_pants + forceful_rugged_armor_kit
-  feet       beaststalkers_boots + boots_greater_agility
+  head       black_dragonscale_helm + lesser_arcane_amalgamation_1508
+  neck       mark_of_fordring + necklace_agility
+  shoulder   darkspear_epaulets
+  back       cape_of_the_black_baron + cloak_agility
+  chest      dawn_armor + chest_greater_stats
+  wrist      beastmasters_bindings_ilvl65 + bracer_agility_7656
+  hands      raider_gloves + gloves_superior_agility
+  waist      rangers_belt
+  legs       plaguehound_leggings + lesser_arcane_amalgamation_1508
+  feet       windreaver_greaves + boots_greater_agility
   finger1    cutthroats_signet
-  finger2    selenium_loop of_agility
-  trinket1   adaptive_combat_assistant
-  trinket2   rune_of_the_guard_captain
-  main_hand  legionite_glaive + enchant_2h_weapon_agility
-  ranged     fahrads_reloading_repeater + biznicks_247x128_accurascope
+  finger2    tarnished_elven_ring
+  trinket1   blackhands_breadth
+  trinket2   highborne_research_tablet
+  main_hand  arcanite_reaper + enchant_2h_weapon_agility
+  ranged     bloodseeker + saf_t_ultra_precision_scope
 
 consumables:
   flask flask_of_natural_aggression

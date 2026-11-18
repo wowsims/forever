@@ -2018,6 +2018,15 @@
 								"newly_discovered": {
 									"type": "string"
 								},
+								"stats": {
+									"type": "object",
+									"properties": {
+										"title": { "type": "string" },
+										"label": { "type": "string" }
+									},
+									"required": ["title", "label"],
+									"additionalProperties": false
+								},
 								"bonus": {
 									"type": "object",
 									"properties": {
@@ -2061,6 +2070,7 @@
 								"source",
 								"raids",
 								"newly_discovered",
+								"stats",
 								"bonus",
 								"faction_labels"
 							]
@@ -2334,7 +2344,7 @@
 								"ppm_tbc": {
 									"type": "string"
 								},
-								"ppm_unknown": {
+								"ppm_observed": {
 									"type": "string"
 								},
 								"chance_vanilla": {
@@ -2343,11 +2353,42 @@
 								"chance_tbc": {
 									"type": "string"
 								},
-								"chance_unknown": {
+								"chance_observed": {
+									"type": "string"
+								},
+								"ppm_vanilla_rate": {
+									"type": "string"
+								},
+								"ppm_tbc_rate": {
+									"type": "string"
+								},
+								"ppm_observed_rate": {
+									"type": "string"
+								},
+								"chance_vanilla_rate": {
+									"type": "string"
+								},
+								"chance_tbc_rate": {
+									"type": "string"
+								},
+								"chance_observed_rate": {
 									"type": "string"
 								}
 							},
-							"required": ["ppm_vanilla", "ppm_tbc", "ppm_unknown", "chance_vanilla", "chance_tbc", "chance_unknown"],
+							"required": [
+								"ppm_vanilla",
+								"ppm_tbc",
+								"ppm_observed",
+								"chance_vanilla",
+								"chance_tbc",
+								"chance_observed",
+								"ppm_vanilla_rate",
+								"ppm_tbc_rate",
+								"ppm_observed_rate",
+								"chance_vanilla_rate",
+								"chance_tbc_rate",
+								"chance_observed_rate"
+							],
 							"additionalProperties": false
 						},
 						"not_yet_implemented": {
@@ -2388,10 +2429,26 @@
 							],
 							"additionalProperties": false
 						},
+						"partial_item": {
+							"type": "object",
+							"properties": {
+								"zumrahs_vexing_cane": {
+									"type": "string"
+								}
+							},
+							"required": ["zumrahs_vexing_cane"],
+							"additionalProperties": false
+						},
 						"set_bonus_warnings": {
 							"type": "string"
 						},
 						"set_bonus_piece": {
+							"type": "string"
+						},
+						"proc_rate": {
+							"type": "string"
+						},
+						"proc_chance": {
 							"type": "string"
 						},
 						"area_stats": {
@@ -2431,8 +2488,11 @@
 						"not_yet_implemented",
 						"not_fully_supported",
 						"partial_set_bonus",
+						"partial_item",
 						"set_bonus_warnings",
 						"set_bonus_piece",
+						"proc_rate",
+						"proc_chance",
 						"area_stats",
 						"discovered_within_hour",
 						"discovered_ago",
@@ -7609,6 +7669,19 @@
 									"additionalProperties": false,
 									"required": ["label", "tooltip"]
 								},
+								"hunter_active_hawks": {
+									"type": "object",
+									"properties": {
+										"label": {
+											"type": "string"
+										},
+										"tooltip": {
+											"type": "string"
+										}
+									},
+									"additionalProperties": false,
+									"required": ["label", "tooltip"]
+								},
 								"dot_is_active_on_any_target": {
 									"type": "object",
 									"properties": {
@@ -8154,6 +8227,7 @@
 								"dot_is_active",
 								"druid_bleed_is_active",
 								"druid_excess_energy",
+								"hunter_active_hawks",
 								"dot_is_active_on_all_targets",
 								"dot_is_active_on_any_target",
 								"dot_remaining_time",
@@ -8362,6 +8436,9 @@
 								"feral_druid": {
 									"type": "string"
 								},
+								"hunter": {
+									"type": "string"
+								},
 								"shaman": {
 									"type": "string"
 								},
@@ -8490,6 +8567,7 @@
 								"sequences",
 								"misc",
 								"feral_druid",
+								"hunter",
 								"shaman",
 								"warlock",
 								"mage",
@@ -12429,10 +12507,13 @@
 								},
 								"effect_restore": {
 									"type": "string"
+								},
+								"effect_proc_chance": {
+									"type": "string"
 								}
 							},
 							"additionalProperties": false,
-							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore"]
+							"required": ["title", "in_area", "against", "damage", "crit_damage", "effect_damage", "effect_restore", "effect_proc_chance"]
 						},
 						"tooltip": {
 							"type": "object",

@@ -169,7 +169,7 @@ for another race's racial or an untaken talent.
 - **`Is Execute Phase` takes a target**, the current target when none is set (`sim/core/apl_values_encounter.go`). An
   enemy has no health bar, so `Current Health` and `Current Health %` on one warn and do not resolve. Fights are
   time-based: a fight lasts its rolled duration, and every target of a plain encounter crosses 35% and 20% at the
-  encounter's execute proportions.
+  encounter's execute proportions. The 25% phase between them has no APL threshold; item code reads it.
 - **Multidot and Strict Multidot count active targets**: a disabled or dead target is skipped, so `max_dots` dots the
   first targets still up (`sim/core/apl_actions_casting.go`).
 

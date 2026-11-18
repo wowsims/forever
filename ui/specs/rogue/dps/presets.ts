@@ -6,10 +6,10 @@ import { SavedTalents } from '@generated/proto/ui';
 import { Stats } from '@sim/proto/stats';
 
 import DefaultAPL from './apls/default.apl.json';
-import P1BsCombatGear from './gear_sets/p1_bscombat.gear.json';
-import P1BsSubGear from './gear_sets/p1_bssub.gear.json';
-import P1MutiGear from './gear_sets/p1_muti.gear.json';
-import P1SlowMhGear from './gear_sets/p1_slowmh.gear.json';
+import BackstabGear from './gear_sets/backstab.gear.json';
+import HemoGear from './gear_sets/hemo.gear.json';
+import MutiGear from './gear_sets/muti.gear.json';
+import SinisterGear from './gear_sets/sinister.gear.json';
 
 // Preset options for this spec.
 // Eventually we will import these values for the raid sim too, so its good to
@@ -30,7 +30,7 @@ export const TALENTS_COMBAT_SS = {
 export const TALENTS_COMBAT_BS = {
 	name: 'Combat BS',
 	data: SavedTalents.create({
-		talentsString: '005203002-3203130202012321351-005',
+		talentsString: '005303002-3203030202012321351-005',
 	}),
 };
 export const TALENTS_SUB_HEMO = {
@@ -45,6 +45,12 @@ export const TALENTS_COMBAT_VENOM = {
 		talentsString: '00530320241001-320013220201232115',
 	}),
 };
+export const TALENTS_HEMO_SF = {
+	name: 'Hemo Seal Fate',
+	data: SavedTalents.create({
+		talentsString: '0053031121135102-02-0352000313210001',
+	}),
+};
 
 export const DEFAULT_APL = PresetUtils.makePresetAPLRotation('Direct APL', DefaultAPL);
 
@@ -56,10 +62,10 @@ const SIMPLE_BACKSTAB_BUILD_ROTATION = PresetUtils.makePresetSimpleRotation(
 	RogueRotation.create({ useBackstab: true, useExposeArmor: false }),
 );
 
-export const P1_BS_COMBAT_GEAR = PresetUtils.makePresetGear('Backstab Combat', P1BsCombatGear, { devOnly: true });
-export const P1_MUTI_GEAR = PresetUtils.makePresetGear('Mutilate', P1MutiGear, { devOnly: true });
-export const P1_SLOW_MH_GEAR = PresetUtils.makePresetGear('Slow Main Hand', P1SlowMhGear, { devOnly: true });
-export const P1_BS_SUB_GEAR = PresetUtils.makePresetGear('Backstab Subtlety', P1BsSubGear, { devOnly: true });
+export const BACKSTAB_GEAR = PresetUtils.makePresetGear('Backstab Combat', BackstabGear);
+export const MUTI_GEAR = PresetUtils.makePresetGear('Mutilate', MutiGear);
+export const SINISTER_GEAR = PresetUtils.makePresetGear('Slow Main Hand', SinisterGear);
+export const HEMO_GEAR = PresetUtils.makePresetGear('Backstab Subtlety', HemoGear);
 
 // Preset options for EP weights
 export const EP_PRESET_COMBAT_SINISTER = PresetUtils.makePresetEpWeights(
@@ -187,7 +193,7 @@ const _DP_MH_Settings = {
 export const PRESET_BUILD_MUTILATE_ASN = PresetUtils.makePresetBuild('Asn Muti', {
 	talents: TALENTS_MUTILATE_ASN,
 	rotation: SIMPLE_ROTATION,
-	gear: P1_MUTI_GEAR,
+	gear: MUTI_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_ASSASSINATION,
 });
@@ -195,7 +201,7 @@ export const PRESET_BUILD_MUTILATE_ASN = PresetUtils.makePresetBuild('Asn Muti',
 export const PRESET_BUILD_COMBAT_SS = PresetUtils.makePresetBuild('Combat SS', {
 	talents: TALENTS_COMBAT_SS,
 	rotation: SIMPLE_ROTATION,
-	gear: P1_SLOW_MH_GEAR,
+	gear: SINISTER_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_COMBAT_SINISTER,
 });
@@ -203,7 +209,7 @@ export const PRESET_BUILD_COMBAT_SS = PresetUtils.makePresetBuild('Combat SS', {
 export const PRESET_BUILD_COMBAT_BS = PresetUtils.makePresetBuild('Combat BS', {
 	talents: TALENTS_COMBAT_BS,
 	rotation: SIMPLE_BACKSTAB_BUILD_ROTATION,
-	gear: P1_BS_COMBAT_GEAR,
+	gear: BACKSTAB_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_COMBAT_DAGS,
 });
@@ -211,7 +217,7 @@ export const PRESET_BUILD_COMBAT_BS = PresetUtils.makePresetBuild('Combat BS', {
 export const PRESET_BUILD_SUB_HEMO = PresetUtils.makePresetBuild('Subtlety Hemo', {
 	talents: TALENTS_SUB_HEMO,
 	rotation: SIMPLE_ROTATION,
-	gear: P1_SLOW_MH_GEAR,
+	gear: HEMO_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_SUBTLETY,
 });
@@ -219,9 +225,17 @@ export const PRESET_BUILD_SUB_HEMO = PresetUtils.makePresetBuild('Subtlety Hemo'
 export const PRESET_BUILD_COM_VEN = PresetUtils.makePresetBuild('Combat Venom', {
 	talents: TALENTS_COMBAT_VENOM,
 	rotation: SIMPLE_ROTATION,
-	gear: P1_BS_SUB_GEAR,
+	gear: SINISTER_GEAR,
 	settings: IP_MH_Settings,
 	epWeights: EP_PRESET_COMBAT_SINISTER,
+});
+
+export const PRESET_BUILD_HEMO_SF = PresetUtils.makePresetBuild('Hemo Seal Fate', {
+	talents: TALENTS_HEMO_SF,
+	rotation: SIMPLE_ROTATION,
+	gear: HEMO_GEAR,
+	settings: IP_MH_Settings,
+	epWeights: EP_PRESET_SUBTLETY,
 });
 
 export const OtherDefaults = {

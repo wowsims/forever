@@ -67,6 +67,10 @@ The four `ProcChanceSource` shapes, the decoder, the proc-chance talents and eve
   item's chance-on-hit effects and combat enchants from hearing Shield Slam, Shield Bash, Thunder Clap and Sweeping
   Strikes' copied hit 12723. Equip procs still hear them, and auto attacks are exempt, so a wand's shots cast weapon
   procs. The rulings are in `references/rulings.md`.
+- **Windfury Totem's strike is a main-hand swing to a row's melee swing bit** (`HearsCountedSwings`, EV-0136), though
+  its mask is a main-hand special's. A `core.ProcTrigger` typed by hand on white hits does not hear it until it sets
+  that field, and a handler that tells swings apart by mask checks `core.SpellFlagCountsAsSwing` too.
+  `docs/spell_data/procs.md` §The decoder and the tooltip hints has the rule and its exceptions.
 - **A spell's own proc mask decides which listeners hear it**, and the hit table decides the mask, not the school.
   The cases (a weapon proc's strike off either hand, oils) are in `references/rulings.md`.
 - **A death listener (`CallbackOnKill`, `CallbackOnTargetDies`) gets a nil spell**, and a rated trigger hears no
@@ -79,24 +83,45 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 `wowsims-consumables-items`.
 
 - **A rate the game files lack**: `wowsims-db-pipeline` `## Overrides`.
-- **A row that deals or restores N times as much against some creatures** names them only in its tooltip; its row id,
-  effect index and the mob types or creature families go in `overrides.VersusBonuses`
+- **A row that deals, restores or procs N times as much against some creatures** names them only in its tooltip; its
+  row id, effect index and the mob types or creature families go in `overrides.VersusBonuses`
   (`tools/database/overrides/spell_overrides.go`, `docs/spell_data/overrides.md`), or the spell deals 1× and the
   sheet's Bonus group leaves the item out. A factor no effect states is that row's `Multiplier`. A hand-written effect
-  sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the row.
+  sets `SpellConfig.VersusBonus` through `shared.ItemVersusBonus` on the row. A proc that is N times as likely against
+  them (Hand of Justice, Ironfoe, Argent Defender) takes the bonus with `VersusEffectKindProcChance` and passes
+  its `Against` to `NewTargetScaledChanceManager` or `NewAttackerSwingPPMManager` as the scale.
 
 ## Measuring a rate
 
 - **Read the tooltip before the column.** The tooltip decides which `ProcChanceSource` shape a row is (the opening
   table of `procs.md`); 101 usually means no proc at all. A rate the game files lack
   is an override onto the row's `RPPM` first (`Field: PPM` in `spell_overrides.go`, Omen of Clarity is the case) or
-  an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
-- **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
-  tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
-  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, and a measured
-  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none; any other text reads as
-  unvalidated. A gear rate kept as a literal in the sim is listed in `literalRates` there, or the notice never names
-  it.
+  an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits. An item whose code
+  reads its rate from its chance-on-hit entry (`newEntryRateItemEffect`) takes it in `WeaponProcs`, never in a `Spells`
+  PPM override: the entry carries only the first, while the generator's missing check counts either as a rate.
+- **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
+  `ProcRateStatus` (`proto/ui.proto`, set by `rateOrigin` and `knownRates` in `tools/database/gen_effects.go`), which the gear tab's notice shows
+  (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
+  rate measured on this server from too few logs to call final (the gear tab still warns), and a measured rate's
+  `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is one of
+  those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
+- **The gear tab states the rate the sim rolls** from the `proc_rate` `gen_db` writes on each item and enchant in
+  `db.json` and the database's `set_bonus_proc_rates` (`proto/ui.proto`); the sim never reads them. For hand-written
+  gear the generator reads the rate from its rows (`shippedRateInputs` and `knownRates` in
+  `tools/database/gen_effects.go`). Each proc row (an item's chance-on-hit entry or equip spell with proc flags, an
+  enchant's proc slot, a set bonus row `shared.IsSetBonusProc` names) takes the gear's own `WeaponProcs` or
+  `EnchantProcs` rate for its spell, else the spell's rate override, else the row's procs per minute or chance. A
+  piece whose rows disagree or state none shows no rate, and so does one whose tooltip prints the chance as a fraction
+  of the column (`${$h/2}%`, The Lion Horn of Stormwind).
+- **Hand-written code that rolls something its rows do not state takes a row** in
+  `tools/database/overrides/gear_proc_rates.go`: code that scales the chance by target (Ironfoe), halves it by area,
+  adds a flat chance (Highborne Research Tablet) or splits the procs (Bolt's Charged Eyeball). A row with no `Kind`
+  leaves the gear with no rate and may leave `Source` empty; one with a `Kind` states its `Rate`, with the status its
+  `Source` gives (`tooltip` is the game files'), though gear listed unvalidated or missing its effect still shows none
+  and the test refuses a `Kind` on gear whose tooltip prints a fraction of the column. Its `Reason` names what the code
+  rolls. Without the row the gear tab shows a number the sim does
+  not roll, and no test fails; `wowsims-review` step 4 checks for it.
+
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of

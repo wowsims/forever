@@ -412,11 +412,17 @@ type SpellDataProc struct {
 	IsWeaponProc bool
 
 	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
-	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
-	// procs per minute on the cast time of each spell hit's cast, and Draconic Infused Emblem only moves
-	// the row's cast listener to landed spell hits.
+	// something neither states. It may reshape the listener: Blade of Eternal Darkness hears every landed
+	// harmful spell and prices the row's procs per minute on its cast's time, and Draconic Infused Emblem
+	// only moves the row's cast listener to landed spell hits.
 	Rate spelldata.ProcOpt
 }
+
+// What an item adds to the spell its NewSpellDataDamageProc proc casts where the rows leave it to a
+// script, by item id, given the spell's config before it registers: Pendulum of Doom's execute bonus,
+// Sul'thraze the Lasher's delayed Shadow Lash. Hand-written code fills it from init, so the item's
+// effect stays generated and the generator still lists the item's other effects no code simulates.
+var DamageProcExtras = map[int32]func(character *core.Character, config *core.SpellConfig){}
 
 // Registers the same effect once per item that carries it, the way the stat-bonus constructors do it.
 func NewSpellDataProc(cfg SpellDataProc, variants []ItemVariant) {
@@ -596,6 +602,10 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// effect entry takes the higher of them, so this does too: Idol of the Huntress keeps its 200
 	// on the trigger while the buff it applies states none.
 	if stacks := max(buff.MaxStack, trigger.MaxStack); stacks > 0 {
+		// A stacking buff's bonus against creature types would need adding per stack.
+		if slices.ContainsFunc(buff.Effects, func(e spelldata.Effect) bool { return len(spelldata.VersusStats(e.Aura)) > 0 }) {
+			panic(fmt.Sprintf("%s (%d): a stacking proc grants stats against creature types, which only a single buff carries", cfg.Name, cfg.ItemID))
+		}
 		aura.MaxStacks = int32(stacks)
 		return core.MakeStackingAura(character, core.StackingStatAura{Aura: aura, BonusPerStack: buffStats})
 	}
@@ -605,9 +615,21 @@ func spellDataProcAura(character *core.Character, cfg SpellDataProc, trigger *sp
 	// this aura's business.
 	aura.MaxStacks = int32(buff.ProcCharges)
 
-	return character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
+	procAura := character.NewTemporaryStatsAuraWrapped(aura.Label, aura.ActionID, buffStats, aura.Duration, func(config *core.Aura) {
 		config.MaxStacks = aura.MaxStacks
 	})
+	attachVersusStats(procAura.Aura, buff)
+	return procAura
+}
+
+// The stats the buff grants against some creature types, which the item effect entry leaves out:
+// Draconic Infused Emblem's 1318930 adds its spell damage a second time against Dragonkin.
+func attachVersusStats(aura *core.Aura, buff *spelldata.Spell) {
+	for _, effect := range buff.Effects {
+		if bonus := spelldata.VersusBonus(effect.Aura, effect.Average()); bonus != (stats.Stats{}) {
+			aura.AttachMobTypeBonusStats(bonus, spelldata.MobTypes(effect.Misc)...)
+		}
+	}
 }
 
 // How long the buff lasts. The game files leave it off the buff's own row on a fair few procs and
@@ -671,6 +693,9 @@ func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effect
 	config := spellDataProcListener(character, cfg, source, trigger)
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
 	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
+	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {
+		extra(character, &damageConfig)
+	}
 	attachProcDamage(character, &config, damageConfig)
 	config.Handler = withProcEnergize(character, damage, config.Handler)
 	source.registerTrigger(character, config)
@@ -1947,8 +1972,8 @@ var generatedItemEffects = map[int32][]core.ApplyEffect{}
 var generating bool
 
 // Marks the registrations that run until the returned function is called as the generated files':
-// each RegisterAll function of sim/common/forever defers it on its first line. A class file's call
-// to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
+// RegisterAllProcs and RegisterAllOnUseCds in sim/common/forever defer it on their first line. A class
+// file's call to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
 func Generated() func() {
 	generating = true
 	return func() { generating = false }

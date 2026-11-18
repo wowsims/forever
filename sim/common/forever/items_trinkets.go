@@ -223,7 +223,7 @@ func init() {
 	// Darkmoon Card: Heroism
 	// https://www.wowhead.com/forever/item=19287/darkmoon-card-heroism
 	//
-	// Sometimes heals bearer of 120 to 180 damage when damaging an enemy in melee.
+	// Sometimes heals bearer of 158 to 238 damage when damaging an enemy in melee.
 	//
 	// The game files state no rate for 23689; the item's entry carries it.
 	newEntryRateItemEffect(19287, 23682, func(character *core.Character, ppm float64) {
@@ -269,12 +269,15 @@ func init() {
 		}
 		ancientPower := character.RegisterSpell(config)
 
-		// The row's harmful-spell bit makes spell hits roll its procs per minute too, on the main hand's
-		// speed. The chance on a spell hit is unmeasured in game.
+		// Weapon hits roll the row's procs per minute on their weapon's speed, Auto Shot and ranged
+		// specials on the ranged weapon's. The row's harmful-spell bit makes spell hits roll too, at a flat
+		// 7% per landed spell hit whatever the main hand's speed. An area spell rolls it once per target,
+		// which is unmeasured (EV-0131).
+		const spellHitChance = 0.07
 		trigger := spelldata.ProcTrigger(character, triggerRow, func(sim *core.Simulation, _ *core.Spell, result *core.SpellResult) {
 			ancientPower.Cast(sim, result.Target)
 		}, func(character *core.Character, trigger *core.ProcTrigger) {
-			trigger.DPM = character.NewLegacyPPMManagerWithSpells(float64(triggerRow.RPPM), trigger.ProcMask)
+			trigger.DPM = character.NewLegacyPPMManagerWithSpellChance(float64(triggerRow.RPPM), spellHitChance, trigger.ProcMask)
 		})
 		// The row's harmful-spell bit lets any landed hit roll, one that deals no damage included; in game
 		// only a hit that dealt damage rolls (EV-0021).
@@ -284,6 +287,29 @@ func init() {
 		trigger.TriggerImmediately = true
 		character.ItemSwap.RegisterProc(260205, character.MakeProcTriggerAura(trigger))
 	})
+
+	// Scented Runewood Brooch
+	// https://www.wowhead.com/forever/item=269741/scented-runewood-brooch
+	//
+	// Harmful spell casts and attacks against Furbolg have a chance to deal 105 Nature damage.
+	//
+	// 1318323 rolls the procs per minute an override puts on the row on the landed melee, ranged and
+	// harmful spell hits its row names, and casts 1318324 on the target (EV-0136). A weapon hit rolls on
+	// its weapon's speed. A spell hit rolls on the main-hand weapon's speed, a caster's who never swings
+	// included, by the owner's ruling: the logs do not settle how a spell hit is priced. Only a hit on a
+	// Furbolg rolls it: no row limits the target, the tooltip does. Its on-use, Irresistible Scent
+	// 1296664, charms the target, which the sim does not model.
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1318323, BuffSpellID: 1318324,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			trigger.ProcChance = 0
+			trigger.DPM = character.NewLegacyPPMManagerWithMainHandSpells(float64(spelldata.MustFind(1318323).RPPM), trigger.ProcMask)
+			trigger.ExtraCondition = func(_ *core.Simulation, _ *core.Spell, result *core.SpellResult) bool {
+				return result.Target.CreatureFamily == proto.CreatureFamily_CreatureFamilyFurbolg
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 269741, ItemName: "Scented Runewood Brooch"},
+		})
 
 	// Blackhand's Breadth
 	// https://www.wowhead.com/forever/item=13965/blackhands-breadth
@@ -414,7 +440,7 @@ func init() {
 	// second effect, a dummy, is the "3 times as likely". The chance against a Dwarf holds whatever
 	// the wearer's race (EV-0007).
 	core.NewItemEffect(11815, func(agent core.Agent) {
-		registerLikelierExtraAttack(agent.GetCharacter(), 11815, "Hand of Justice", 15600, proto.CreatureFamily_CreatureFamilyDwarf)
+		registerExtraAttackVersus(agent.GetCharacter(), 11815, "Hand of Justice", 15600)
 	})
 
 	// Mark of the Chosen
@@ -427,6 +453,26 @@ func init() {
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 21969, BuffSpellID: 21970},
 		[]shared.ItemVariant{
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},
+		})
+
+	// The Lion Horn of Stormwind
+	// https://www.wowhead.com/forever/item=14557/the-lion-horn-of-stormwind
+	//
+	// When struck in combat has a 5% chance of increasing all party member's armor by 725 for 30s. This
+	// chance is doubled in Strongholds and Cities.
+	//
+	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
+	// and Cities, so by the owner's ruling an encounter there rolls the whole column and any other
+	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
+	// the trigger is built.
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			if !character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
+				trigger.ProcChance /= 2
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
 		})
 
 	// Draconic Infused Emblem

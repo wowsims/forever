@@ -1,7 +1,7 @@
 siml 1
 spec hunter
 talents "-00530501114-530200230050220151"
-use "gear_sets/p1.gear.siml"
+use "gear_sets/prebis_weave.gear.siml"
 
 settings:
   race orc
@@ -26,7 +26,7 @@ consumables:
       juju_might,
       dragonbreath_chili,
       ground_scorpok_assay
-  elixir elixir_of_the_mongoose, greater_mageblood_elixir
+  elixir elixir_of_the_mongoose, greater_mageblood_elixir, elixir_of_greater_intellect
   resource_pot major_mana_potion
   offensive_pot major_frenzy_potion
 

@@ -400,33 +400,4 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 	],
 {{- end }}
 ])
-
-// A proc rate the game files do not state and nobody has measured on Forever, and where it comes from.
-export type UnvalidatedRate = { kind: 'ppm' | 'chance'; origin: 'vanilla' | 'tbc' | 'unknown' }
-
-export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
-{{- range .UnvalidatedRateItems }}
-	[{{.ID}}, { kind: '{{.Kind}}', origin: '{{.Origin}}' }], // {{ .Name }}
-{{- end }}
-])
-
-export const UNVALIDATED_RATE_ENCHANTS = new Map<number, UnvalidatedRate>([
-{{- range .UnvalidatedRateEnchants }}
-	[{{.ID}}, { kind: '{{.Kind}}', origin: '{{.Origin}}' }], // {{ .Name }}
-{{- end }}
-])
-
-// Keyed by set id, then by the bonus's piece count.
-export const UNVALIDATED_RATE_SET_BONUSES = new Map<number, Map<number, UnvalidatedRate>>([
-{{- range .UnvalidatedRateSetBonuses }}
-	[
-		{{(index . 0).ID}}, // {{ (index . 0).Name }}
-		new Map([
-			{{- range . }}
-			[{{.Pieces}}, { kind: '{{.Kind}}', origin: '{{.Origin}}' }],
-			{{- end }}
-		]),
-	],
-{{- end }}
-])
 `

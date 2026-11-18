@@ -47,12 +47,12 @@ import { CURRENT_API_VERSION } from '../constants/other';
 import { SimSettingCategories } from '../constants/sim_settings';
 import type { PresetEpWeights } from '../presets/types';
 import { ActionId } from '../proto/action_id';
-import { addPartyBuffItems } from '../proto/buff_items';
+import { addDebuffItems, addPartyBuffItems } from '../proto/buff_items';
 import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
 import { isNewlyDiscovered } from '../proto/item_first_seen';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem, itemCarriesStats } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
@@ -1376,6 +1376,10 @@ export class Player<SpecType extends Spec> {
 			);
 		}
 
+		if (filters.itemStats.length) {
+			itemData = filterItems(itemData, item => itemCarriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
+		}
+
 		if (filters.newlyDiscoveredOnly) {
 			itemData = filterItems(itemData, item => {
 				const firstSeen = this.sim.db.getItemFirstSeen(item.id);
@@ -1490,6 +1494,7 @@ export class Player<SpecType extends Spec> {
 		const dbItemSwapGear = this.itemSwapSettings.getGear().toDatabase(this.sim.db);
 		const database = Database.mergeSimDatabases(dbGear, dbItemSwapGear);
 		addPartyBuffItems(database, this.sim.db, this.getParty()?.getBuffs());
+		addDebuffItems(database, this.sim.db, this.sim.raid.getDebuffs());
 		return database;
 	}
 

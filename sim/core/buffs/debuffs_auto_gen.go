@@ -354,7 +354,7 @@ func NewSpellDataDustCloudAura(unit *core.Unit, isPlayer bool, talentPoints int3
 }
 
 // Armor Shatter
-var ArmorShatterCategory = "ArmorShatter"
+var ArmorShatterCategory = "MinorArmorReduction"
 var armorShatterSpell = spelldata.MustFind(16928)
 var armorShatterMeta = &Meta{
 	Label:    "Armor Shatter",
@@ -411,6 +411,25 @@ func NewSpellDataThunderfuryAura(unit *core.Unit, isPlayer bool, talentPoints in
 	return newDebuff(unit, thunderfuryMeta, isPlayer, talentPoints)
 }
 
+// Puncture Armor
+var PunctureArmorCategory = "MinorArmorReduction"
+var punctureArmorSpell = spelldata.MustFind(17315)
+var punctureArmorMeta = &Meta{
+	Label:    "Puncture Armor",
+	Spell:    punctureArmorSpell,
+	Category: PunctureArmorCategory,
+}
+
+func PunctureArmorValue(talentPoints int32) float64 {
+	return punctureArmorMeta.Value(talentPoints)
+}
+func PunctureArmorDuration(talentPoints int32) time.Duration {
+	return punctureArmorMeta.Duration(talentPoints)
+}
+func NewSpellDataPunctureArmorAura(unit *core.Unit, isPlayer bool, talentPoints int32) *core.Aura {
+	return newDebuff(unit, punctureArmorMeta, isPlayer, talentPoints)
+}
+
 // The generated debuffs by the spell they read.
 var debuffMetas = map[int32]*Meta{
 	14325:   huntersMarkMeta,
@@ -434,6 +453,7 @@ var debuffMetas = map[int32]*Meta{
 	16928:   armorShatterMeta,
 	440667:  vindicationMeta,
 	21992:   thunderfuryMeta,
+	17315:   punctureArmorMeta,
 }
 
 func applyGeneratedDebuffs(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
@@ -499,5 +519,8 @@ func applyGeneratedDebuffs(target *core.Unit, debuffs *proto.Debuffs, raid *prot
 	}
 	if debuffs.Thunderfury {
 		driveThunderfury(target, debuffs, raid)
+	}
+	if debuffs.PunctureArmor > 0 {
+		drivePunctureArmor(target, debuffs, raid)
 	}
 }

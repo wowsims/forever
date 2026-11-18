@@ -12,7 +12,11 @@ import (
 	"github.com/wowsims/forever/sim/core/simsignals"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
+	goproto "google.golang.org/protobuf/proto"
 )
+
+// Enchant Weapon - Revelation.
+const revelationEnchant = 8217
 
 func init() {
 	RegisterMage()
@@ -203,6 +207,42 @@ func TestArcaneMissilesChannelStartProcsClearcasting(t *testing.T) {
 	}
 }
 
+// The missiles of the Arcane Missiles channel are hits, so each rolls its partial resist against the
+// target's whole average resist where a channel's ticks roll against a tenth of it (EV-0142).
+func TestArcaneMissilesMeetTheTargetsFullResistance(t *testing.T) {
+	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(1))
+	target := mage.CurrentTarget
+	// An average resist of 300 / (300 + 8 * 60 + 19) leaves no unresisted step at the full share, and
+	// about seven in ten unresisted at a tenth.
+	target.AddStatDynamic(sim, stats.ArcaneResistance, 300)
+	channel := mage.GetSpell(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	missile := core.ActionID{SpellID: arcaneMissilesBookRank.PeriodicEffect().TriggerID}.String() + " "
+	manaMetrics := mage.NewManaMetrics(core.ActionID{SpellID: arcaneMissilesBookRank.ID})
+	landed, unresisted := 0, 0
+	sim.Log = func(message string, vals ...any) {
+		line := fmt.Sprintf(message, vals...)
+		if !strings.Contains(line, missile) || !strings.Contains(line, " damage") {
+			return
+		}
+		landed++
+		if !strings.Contains(line, "% Resist)") {
+			unresisted++
+		}
+	}
+
+	for range 40 {
+		mage.AddMana(sim, mage.MaxMana(), manaMetrics)
+		if !channel.Cast(sim, target) {
+			t.Fatalf("Arcane Missiles did not cast at %v", sim.CurrentTime)
+		}
+		stepFor(sim, 6*time.Second)
+	}
+
+	if landed < 100 || unresisted != 0 {
+		t.Errorf("%d of %d landed missiles took no partial resist, want none of at least 100", unresisted, landed)
+	}
+}
+
 // One Flamestrike ground tick rolls Arcane Concentration once, however many enemies stand in it.
 func TestFlamestrikeGroundTickProcsClearcastingOnce(t *testing.T) {
 	sim, mage := newMageSimAgainst(ArcaneTalents, longEncounter(3))
@@ -341,10 +381,19 @@ func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	}
 }
 
+// The suite's gear loses Enchant Weapon - Revelation: it rolls on each Fire Blast that does not crit and its
+// charge crits the next Blizzard, so Shatter's Fire Blast crits would move Blizzard's.
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {
 	tickID := spellData.BlizzardTriggered.Highest().ID
 	directID := spellData.FireBlast.Highest().ID
-	metrics := runMageRotation(frostSuite(), talents, 40, directID, spellData.Blizzard.Highest().ID)
+	suite := frostSuite()
+	suite.GearSet.GearSet = goproto.Clone(suite.GearSet.GearSet).(*proto.EquipmentSpec)
+	for _, item := range suite.GearSet.GearSet.Items {
+		if item.Enchant == revelationEnchant {
+			item.Enchant = 0
+		}
+	}
+	metrics := runMageRotation(suite, talents, 40, directID, spellData.Blizzard.Highest().ID)
 	for _, action := range metrics.Actions {
 		for _, target := range action.Targets {
 			switch action.Id.GetSpellId() {
@@ -430,7 +479,7 @@ func newRevelationMage(t *testing.T, talents string, targets int) (*core.Simulat
 	for slot := range items {
 		items[slot] = &proto.ItemSpec{}
 	}
-	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: 8217}
+	items[proto.ItemSlot_ItemSlotMainHand] = &proto.ItemSpec{Id: staff, Enchant: revelationEnchant}
 	sim, mage := newMageSimWearing(talents, longEncounter(targets), &proto.EquipmentSpec{Items: items})
 	buff := mage.GetAura("Revelation")
 	if buff == nil {
@@ -574,4 +623,34 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	MhImbueId:       20749,  // Brilliant Wizard Oil
 	MhWeaponImbueId: 277502, // Scroll of Imbue Precision
 	ResourcePotId:   13444,  // Major Mana Potion
+}
+
+// A Counterspell that lands deals its outcome, so a listener for landed harmful spells hears it:
+// Blade of Eternal Darkness 17780 procs off it.
+func TestCounterspellLandingIsHeard(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 17780
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 36000
+	sim, mage := newMageSimWearing("", encounter, &proto.EquipmentSpec{Items: items})
+	counterspell := mage.GetSpell(core.ActionID{SpellID: counterspellRank.ID})
+	shadows := mage.GetSpell(core.ActionID{SpellID: 27860})
+	target := sim.Encounter.ActiveTargetUnits[0]
+	mage.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, FloatValue: -1}).Activate()
+
+	for range 1000 {
+		stepFor(sim, max(counterspell.TimeToReady(sim), mage.GCD.TimeToReady(sim), core.SpellBatchWindow))
+		counterspell.Cast(sim, target)
+	}
+	stepFor(sim, core.SpellBatchWindow)
+
+	if casts := counterspell.SpellMetrics[target.UnitIndex].Casts; casts != 1000 {
+		t.Fatalf("%d Counterspells cast, want 1000", casts)
+	}
+	if shadows == nil || shadows.SpellMetrics[target.UnitIndex].Casts == 0 {
+		t.Error("no landed Counterspell procced Blade of Eternal Darkness")
+	}
 }

@@ -419,6 +419,8 @@ export const Thunderfury = makeBooleanDebuffInput({
 	label: 'Thunderfury',
 });
 
+// puncture_armor: the hand-written inputs are the three weapons, one item icon per state, which no manifest row carries.
+
 export const GENERATED_RAID_BUFFS_CONFIG: RenderableStatOptions[] = [
 	{
 		config: ArcaneIntellect,

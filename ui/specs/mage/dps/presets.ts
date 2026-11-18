@@ -6,14 +6,15 @@ import { Mage_Options as MageOptions, MageArmor } from '@generated/proto/mage';
 import { SavedTalents } from '@generated/proto/ui';
 import type { PresetSettings } from '@sim/presets/types';
 
+import { Phase } from '../../../sim/constants/other';
 import arcane from './apls/arcane.apl.json';
 import arcaneFire from './apls/arcaneFireFill.apl.json';
 import deepFire from './apls/deepFire.apl.json';
 import ffb from './apls/ffb.apl.json';
 import frost from './apls/frost.apl.json';
-import PreRaidGearJson from './gear_sets/preraid.gear.json';
+import PreRaidArcaneGearJson from './gear_sets/preraid.gear.json';
 
-export const PreRaidGear = PresetUtils.makePresetGear('Preraid', PreRaidGearJson, { devOnly: true });
+export const PreRaidArcaneGear = PresetUtils.makePresetGear('Preraid', PreRaidArcaneGearJson, { group: 'Arcane', phase: Phase.Phase1 });
 
 export const ArcaneAplPreset = PresetUtils.makePresetAPLRotation('Arcane', arcane);
 export const ArcaneFireAplPreset = PresetUtils.makePresetAPLRotation('Arcane Fire', arcaneFire);
@@ -106,7 +107,7 @@ export const DefaultSettings: PresetSettings = {
 
 export const ArcaneBuild = PresetUtils.makePresetBuild('Arcane', {
 	group: 'Arcane',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: ArcaneTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: ArcaneAplPreset,
@@ -115,7 +116,7 @@ export const ArcaneBuild = PresetUtils.makePresetBuild('Arcane', {
 
 export const ArcaneFireBuild = PresetUtils.makePresetBuild('Arcane Fire', {
 	group: 'Arcane',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: ArcaneFireTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: ArcaneFireAplPreset,
@@ -124,7 +125,7 @@ export const ArcaneFireBuild = PresetUtils.makePresetBuild('Arcane Fire', {
 
 export const FFBBuild = PresetUtils.makePresetBuild('FFB', {
 	group: 'FFB',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: FFBTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FFBAplPreset,
@@ -133,7 +134,7 @@ export const FFBBuild = PresetUtils.makePresetBuild('FFB', {
 
 export const FireBuild = PresetUtils.makePresetBuild('Fire', {
 	group: 'Fire',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: FireTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FireAplPreset,
@@ -149,7 +150,7 @@ export const FrostSettings: PresetSettings = {
 
 export const FrostIncinBuild = PresetUtils.makePresetBuild('Frost Incin', {
 	group: 'Frost',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: FrostIncinTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FrostAplPreset,
@@ -158,7 +159,7 @@ export const FrostIncinBuild = PresetUtils.makePresetBuild('Frost Incin', {
 
 export const FrostMedBuild = PresetUtils.makePresetBuild('Frost Med', {
 	group: 'Frost',
-	gear: PreRaidGear,
+	gear: PreRaidArcaneGear,
 	talents: FrostMedTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FrostAplPreset,

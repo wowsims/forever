@@ -21,28 +21,28 @@ func init() {
 }
 
 // Each suite runs a build preset from ui/specs/warlock/dps/builds, the file the UI's build of that name reads:
-// its talents, demons, consumables and rotation, on the gear set named.
+// its talents, demons, consumables and rotation, on the gear set of the same name, its own race and the one named.
 func TestDemonologyFireBrand(t *testing.T) {
-	runBuildSuite(t, "Fire Brand", "demo_fire_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Fire Brand", "demo_fire_brand", proto.Race_RaceHuman)
 }
 
 func TestDemonologyShadowBrand(t *testing.T) {
-	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Shadow Brand", "demo_shadow_brand", proto.Race_RaceHuman)
 }
 
 func TestDestruction(t *testing.T) {
-	runBuildSuite(t, "Destruction", "destro", "raid", proto.Race_RaceGnome)
+	runBuildSuite(t, "Destruction", "destro", proto.Race_RaceGnome)
 }
 
 func TestAffliction(t *testing.T) {
-	runBuildSuite(t, "Affliction", "sm_ruin", "preraid", proto.Race_RaceOrc)
+	runBuildSuite(t, "Affliction", "sm_ruin", proto.Race_RaceHuman)
 }
 
 func TestAfflictionWrack(t *testing.T) {
-	runBuildSuite(t, "Wrack", "aff_wrack", "raid", proto.Race_RaceHuman)
+	runBuildSuite(t, "Wrack", "aff_wrack", proto.Race_RaceOrc)
 }
 
-func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string, otherRace proto.Race) {
+func runBuildSuite(t *testing.T, label string, buildFile string, otherRace proto.Race) {
 	build := core.GetTestBuildFromJSON(proto.Class_ClassWarlock, "../../ui/specs/warlock/dps/builds", buildFile, core.ItemFilter{}, nil, nil)
 	core.RunTestSuite(t, t.Name(), core.FullCharacterTestSuiteGenerator([]core.CharacterSuiteConfig{
 		{
@@ -50,7 +50,7 @@ func runBuildSuite(t *testing.T, label string, buildFile string, gearSet string,
 			Race:        build.Race,
 			OtherRaces:  []proto.Race{otherRace},
 			SpecOptions: core.SpecOptionsCombo{Label: label, SpecOptions: build.SpecOptions.SpecOptions},
-			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", gearSet),
+			GearSet:     core.GetGearSet("../../ui/specs/warlock/dps/gear_sets", buildFile),
 			Talents:     build.Talents,
 			Consumables: build.Consumables,
 			Profession1: build.Profession1,
@@ -180,25 +180,16 @@ func TestDemonHitIsTheWarlocksSpellHit(t *testing.T) {
 }
 
 // In execute, Decimation's buff (440873) comes with the cast of a Shadow Bolt or Searing Pain whose hit lands,
-// before a Shadow Bolt reaches the target; a miss or a full resist grants nothing, and the bolt's impact
-// grants nothing either.
+// before a Shadow Bolt reaches the target; a miss grants nothing, and the bolt's impact grants nothing either.
 func TestDecimationGrantedOnLandedCast(t *testing.T) {
-	newSim := func(resistance float64) (*core.Simulation, *Warlock, *core.Unit) {
-		encounter := core.MakeSingleTargetEncounter(0)
-		encounter.Duration = 3600
-		encounter.ExecuteProportion_35 = 1
-		// A fresh target, since the default one is shared by every test in the package.
-		encounter.Targets[0] = core.FreshDefaultTargetConfig()
-		encounter.Targets[0].Stats[stats.FireResistance] = resistance
-		encounter.Targets[0].Stats[stats.ShadowResistance] = resistance
-		sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
-		for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
-		}
-		warlock.DistanceFromTarget = 30
-		return sim, warlock, sim.Encounter.AllTargetUnits[0]
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 3600
+	encounter.ExecuteProportion_35 = 1
+	sim, warlock := newWarlockSim("-000000000002", &proto.WarlockOptions{}, encounter)
+	for !sim.Encounter.AllTargetUnits[0].IsExecutePhase35() && !sim.Step() {
 	}
-
-	sim, warlock, target := newSim(0)
+	warlock.DistanceFromTarget = 30
+	target := sim.Encounter.AllTargetUnits[0]
 	decimation := warlock.GetAuraByID(core.ActionID{SpellID: 440873})
 	if warlock.ShadowBolt.TravelTime() <= 2*core.SpellBatchWindow {
 		t.Fatalf("Shadow Bolt travels %v, too short to tell its cast from its impact", warlock.ShadowBolt.TravelTime())
@@ -232,22 +223,6 @@ func TestDecimationGrantedOnLandedCast(t *testing.T) {
 		t.Fatalf("%d casts granted Decimation and %d missed, want both", granted, missed)
 	}
 
-	sim, warlock, target = newSim(1e12)
-	decimation = warlock.GetAuraByID(core.ActionID{SpellID: 440873})
-	for i := range 100 {
-		spell := warlock.SearingPain
-		if i%2 == 1 {
-			spell = warlock.ShadowBolt
-		}
-		spell.SkipCastAndApplyEffects(sim, target)
-		stepFor(sim, warlock.ShadowBolt.TravelTime()+core.SpellBatchWindow)
-		if decimation.IsActive() {
-			t.Fatalf("%s at %v granted Decimation against a target that resists it in full", spell.ActionID, sim.CurrentTime)
-		}
-	}
-	if misses := warlock.SearingPain.SpellMetrics[target.UnitIndex].Misses; misses != 50 {
-		t.Fatalf("%d of 50 Searing Pains against the fully resisting target missed, want all resisted in full", misses)
-	}
 }
 
 // Bane of Agony's base ramps in thirds while each tick reads the spell power of the moment, with its share

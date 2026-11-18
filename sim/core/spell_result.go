@@ -237,9 +237,12 @@ func (spell *Spell) BonusDamage(attackTable *AttackTable) float64 {
 	bonusDamage := spell.BonusBaseDamage
 
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) {
-		bonusDamage += spell.Unit.stats[stats.PhysicalDamage]
+		bonusDamage += spell.Unit.stats[stats.PhysicalDamage] + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.PhysicalDamage]
 	} else {
-		bonusDamage += spell.SpellDamage(attackTable.Defender) + attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		bonusDamage += spell.SpellDamage(attackTable.Defender)
+		if !spell.Flags.Matches(SpellFlagIgnoreTargetSchoolBonus) {
+			bonusDamage += attackTable.MobTypeBonusStats[attackTable.Defender.MobType][stats.SpellDamage]
+		}
 	}
 
 	return bonusDamage
@@ -379,7 +382,7 @@ func (spell *Spell) missesImmune(target *Unit) bool {
 		spell.Flags.Matches(SpellFlagStun) && target.stunImmune()
 }
 
-// A miss with no hit or crit roll, as a full resist or a bleed on a bleed-immune target is.
+// A miss with no hit or crit roll, as a bleed on a bleed-immune target is.
 func (spell *Spell) missInFull(result *SpellResult) {
 	result.Outcome = OutcomeMiss
 	result.Damage = 0
@@ -406,8 +409,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 		partialOutcome = result.Outcome & OutcomePartial
 	}
 
-	// A full resist is a miss, as a binary spell's resist is: it rolls no hit or crit and lands nothing.
-	if partialOutcome.ResistedTenths() == 10 || (!isPeriodic && spell.missesImmune(target)) {
+	if !isPeriodic && spell.missesImmune(target) {
 		partialOutcome = OutcomeEmpty
 		spell.missInFull(result)
 	} else {
@@ -952,8 +954,8 @@ func (result *SpellResult) applyTargetModifiers(sim *Simulation, spell *Spell, a
 }
 
 // The coefficient the target's flat school bonus is taken at: a tick's dot coefficient, the
-// spell's own, or the one a spell states for it when its spell power goes through a weapon percent
-// and so sets no BonusCoefficient.
+// spell's own, or the one a spell states for it when it adds its spell power by hand and so sets
+// no BonusCoefficient.
 func (spell *Spell) takenBonusCoefficient(target *Unit, isPeriodic bool) float64 {
 	if isPeriodic {
 		dot := spell.aoeDot

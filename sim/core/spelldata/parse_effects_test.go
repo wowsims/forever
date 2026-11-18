@@ -647,6 +647,7 @@ func TestEveryTableRow(t *testing.T) {
 		{dbcenums.A_MOD_MELEE_ATTACK_POWER_VERSUS, 4, 185, "mob-type-stat AttackPower", 185, true},
 		{dbcenums.A_MOD_RANGED_ATTACK_POWER_VERSUS, 32, 99, "mob-type-stat RangedAttackPower", 99, true},
 		{dbcenums.A_MOD_FLAT_SPELL_DAMAGE_VERSUS, 32, 58, "mob-type-stat SpellDamage", 58, true},
+		{dbcenums.A_MOD_DAMAGE_DONE_CREATURE, 8, 21, "mob-type-stat PhysicalDamage+SpellDamage", 21, true},
 		{dbcenums.A_MOD_DAMAGE_DONE_VERSUS, 32, 1, "damage-dealt-versus", 1.01, false},
 		{dbcenums.A_MOD_CRIT_PERCENT_VERSUS, 64, 3, "crit-damage-versus", 1.03, false},
 		{dbcenums.A_SPELL_AURA_MOD_ARMOR_PENETRATION_PCT, 0, 9, "armor-ignore", 0.09, false},

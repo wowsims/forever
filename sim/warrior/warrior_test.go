@@ -27,6 +27,7 @@ func init() {
 
 // The fixtures mirror the spec suites' Default* fixtures.
 var furyTalents = "30303003-050530355022100031"
+var recklessSwingsTalents = "30303003-050530355122100031"
 var armsTalents = "30303213032215201-05050034"
 var protectionTalents = "05--255533121331021351"
 
@@ -55,6 +56,11 @@ var protectionOptions = &proto.Player_ProtectionWarrior{
 
 func orcWarriorSim(t *testing.T, gearSet string, talents string) (*core.Simulation, *dps.DpsWarrior) {
 	t.Helper()
+	return orcWarriorSimWith(t, gearSet, talents, &proto.RaidBuffs{})
+}
+
+func orcWarriorSimWith(t *testing.T, gearSet string, talents string, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior) {
+	t.Helper()
 	player := &proto.Player{
 		Name:          "Weapon Scope",
 		Race:          proto.Race_RaceOrc,
@@ -65,7 +71,7 @@ func orcWarriorSim(t *testing.T, gearSet string, talents string) (*core.Simulati
 		Rotation:      core.GetAplRotation("../../ui/specs/warrior/dps/apls", "fury").Rotation,
 	}
 	sim := core.NewSim(&proto.RaidSimRequest{
-		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
 		Encounter:  core.MakeSingleTargetEncounter(0),
 		SimOptions: &proto.SimOptions{RandomSeed: 1},
 	}, simsignals.CreateSignals())
@@ -505,8 +511,7 @@ func TestRetaliationCounterattackSpendsNoFlurryCharge(t *testing.T) {
 	}
 }
 
-// Every white swing uses a Flurry charge whatever its outcome, and a Heroic Strike or Cleave uses
-// one only when it misses.
+// Every white swing, Heroic Strike and Cleave uses a Flurry charge whatever its outcome.
 func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 	mainHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
 	offHand := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotOffHand)
@@ -527,11 +532,12 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 		{"a dodged off-hand swing uses a charge", offHand, core.OutcomeDodge, 3, 2},
 		{"a parried off-hand swing uses a charge", offHand, core.OutcomeParry, 3, 2},
 		{"a missed Heroic Strike uses a charge", heroicStrike, core.OutcomeMiss, 3, 2},
-		{"a dodged Heroic Strike uses none", heroicStrike, core.OutcomeDodge, 3, 3},
-		{"a parried Heroic Strike uses none", heroicStrike, core.OutcomeParry, 3, 3},
-		{"a landed Heroic Strike uses none", heroicStrike, core.OutcomeHit, 3, 3},
+		{"a dodged Heroic Strike uses a charge", heroicStrike, core.OutcomeDodge, 3, 2},
+		{"a parried Heroic Strike uses a charge", heroicStrike, core.OutcomeParry, 3, 2},
+		{"a landed Heroic Strike uses a charge", heroicStrike, core.OutcomeHit, 3, 2},
 		{"a missed Cleave uses a charge", cleave, core.OutcomeMiss, 3, 2},
-		{"a dodged Cleave uses none", cleave, core.OutcomeDodge, 3, 3},
+		{"a dodged Cleave uses a charge", cleave, core.OutcomeDodge, 3, 2},
+		{"a landed Cleave uses a charge", cleave, core.OutcomeHit, 3, 2},
 		{"a missed swing does not start Flurry", mainHand, core.OutcomeMiss, 0, 0},
 		{"a critical off-hand Whirlwind strike starts Flurry", whirlwindOffHand, core.OutcomeCrit, 0, 3},
 		{"a critical off-hand Whirlwind strike refreshes Flurry", whirlwindOffHand, core.OutcomeCrit, 1, 3},
@@ -558,6 +564,291 @@ func TestFlurryChargesFollowTheSwingOutcome(t *testing.T) {
 				t.Errorf("Flurry holds %d charges, want %d", got, c.want)
 			}
 		})
+	}
+}
+
+// A Cleave uses one Flurry charge and one Reckless Swings charge however many targets it hits, and
+// Whirlwind and Bloodthirst use no Reckless Swings charge.
+func TestChargesSpentPerCast(t *testing.T) {
+	cases := []struct {
+		name    string
+		aura    string
+		spell   core.ActionID
+		talents string
+		want    int32
+	}{
+		{"Cleave on Flurry", "Flurry", core.ActionID{SpellID: 20569}, furyTalents, 1},
+		{"Cleave on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 20569}, recklessSwingsTalents, 1},
+		{"Whirlwind on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), recklessSwingsTalents, 0},
+		{"Bloodthirst on Reckless Swings", "Reckless Swings", core.ActionID{SpellID: 23894}, recklessSwingsTalents, 0},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			chargesAfter := func(hits int) int32 {
+				sim, warrior := orcWarriorSim(t, "p1_fury", c.talents)
+				aura := warrior.GetAura(c.aura)
+				spell := warrior.GetSpell(c.spell)
+				if aura == nil || spell == nil {
+					t.Fatalf("%s %v, spell %v; want both registered", c.aura, aura, spell)
+				}
+				// The rotation casts Reckless Swings as soon as it is ready, which sets the charges again.
+				if recklessSwings := warrior.GetSpell(core.ActionID{SpellID: 1329555}); recklessSwings != nil {
+					recklessSwings.CD.Set(time.Minute)
+				}
+				aura.Activate(sim)
+				aura.SetStacks(sim, 3)
+				for range hits {
+					warrior.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: core.OutcomeHit, Damage: 100})
+				}
+				stepPastBatch(t, sim)
+				return aura.GetStacks()
+			}
+
+			none := chargesAfter(0)
+			if got := none - chargesAfter(1); got != c.want {
+				t.Errorf("one hit spent %d %s charges, want %d", got, c.aura, c.want)
+			}
+			if got := none - chargesAfter(3); got != c.want {
+				t.Errorf("one cast hitting 3 targets spent %d %s charges, want %d", got, c.aura, c.want)
+			}
+		})
+	}
+}
+
+// Windfury Totem's strike uses no Flurry charge, landed or not, and a critical strike sets the
+// charges again.
+func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
+	for _, c := range []struct {
+		outcome core.HitOutcome
+		start   int32
+		want    int32
+	}{
+		{core.OutcomeHit, 3, 3},
+		{core.OutcomeDodge, 3, 3},
+		{core.OutcomeCrit, 1, 3},
+	} {
+		sim, warrior := orcWarriorSimWith(t, "p1_fury", furyTalents, &proto.RaidBuffs{WindfuryTotem: true})
+		flurry := warrior.GetAura("Flurry")
+		strike := warrior.GetSpell(core.ActionID{SpellID: windfuryTotemStrike})
+		if flurry == nil || strike == nil {
+			t.Fatalf("Flurry %v, Windfury Totem's strike %v; want both registered", flurry, strike)
+		}
+		flurry.Activate(sim)
+		flurry.SetStacks(sim, c.start)
+
+		warrior.OnSpellHitDealt(sim, strike, &core.SpellResult{Target: warrior.CurrentTarget, Outcome: c.outcome})
+
+		if got := flurry.GetStacks(); got != c.want {
+			t.Errorf("a strike with outcome %v left Flurry at %d charges, want %d", c.outcome, got, c.want)
+		}
+	}
+}
+
+const unbridledWrathEnergize = 12964 // The rage Unbridled Wrath's proc grants.
+
+// A Fury warrior with no gear and no rotation against the given number of targets, its auto attacks
+// stopped, so every Unbridled Wrath proc comes from the hits the test deals. The returned func counts
+// the procs so far.
+func unbridledWrathSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+	t.Helper()
+
+	encounter := core.MakeSingleTargetEncounter(0)
+	for len(encounter.Targets) < targets {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	player := &proto.Player{
+		Name:          "Unbridled",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: furyTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	stepPastBatch(t, sim)
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	if war.Talents.UnbridledWrath == 0 {
+		t.Fatal("the fixture's talents take no Unbridled Wrath")
+	}
+
+	procs := func() int32 {
+		for _, r := range war.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == unbridledWrathEnergize {
+				return r.Events
+			}
+		}
+		return 0
+	}
+	if got := procs(); got != 0 {
+		t.Fatalf("Unbridled Wrath procced %d times before the test dealt a hit", got)
+	}
+	return sim, war, procs
+}
+
+// Unbridled Wrath rolls on landed white swings, Windfury Totem's strike, Heroic Strike and Cleave, and
+// on no other melee ability.
+func TestUnbridledWrathRollsOnSwingsAlone(t *testing.T) {
+	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	cases := []struct {
+		name    string
+		spell   core.ActionID
+		outcome core.HitOutcome
+		rolls   bool
+	}{
+		{"a landed main-hand swing", swing, core.OutcomeHit, true},
+		{"a dodged main-hand swing", swing, core.OutcomeDodge, false},
+		{"Windfury Totem's strike", core.ActionID{SpellID: windfuryTotemStrike}, core.OutcomeHit, true},
+		{"Heroic Strike", core.ActionID{SpellID: 11567}, core.OutcomeHit, true},
+		{"Cleave", core.ActionID{SpellID: 20569}, core.OutcomeHit, true},
+		{"Bloodthirst", core.ActionID{SpellID: 23894}, core.OutcomeHit, false},
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), core.OutcomeHit, false},
+		{"Revenge", core.ActionID{SpellID: 11601}, core.OutcomeHit, false},
+		{"Hamstring", core.ActionID{SpellID: 7373}, core.OutcomeHit, false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			// Windfury Totem joins only for its own strike: a strike rolled off an ability would roll
+			// Unbridled Wrath itself.
+			raidBuffs := &proto.RaidBuffs{WindfuryTotem: c.spell.SpellID == windfuryTotemStrike}
+			sim, war, procs := unbridledWrathSim(t, 1, raidBuffs)
+			spell := war.GetSpell(c.spell)
+			if spell == nil {
+				t.Fatalf("the warrior has no %s", c.name)
+			}
+
+			const hits = 100
+			for range hits {
+				war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: c.outcome, Damage: 100})
+			}
+			stepPastBatch(t, sim)
+
+			got := procs()
+			if c.rolls && got == 0 {
+				t.Errorf("%d hits procced Unbridled Wrath none of the time, want some", hits)
+			}
+			if !c.rolls && got != 0 {
+				t.Errorf("%d hits procced Unbridled Wrath %d times, want none", hits, got)
+			}
+		})
+	}
+}
+
+// Unbridled Wrath rolls once for each target a Cleave lands on.
+func TestUnbridledWrathRollsOnEachCleaveTarget(t *testing.T) {
+	sim, war, procs := unbridledWrathSim(t, 2, &proto.RaidBuffs{})
+	for _, target := range sim.Encounter.AllTargetUnits {
+		landEveryCast(sim, war.GetCharacter(), target, war.Cleave)
+	}
+
+	const casts = 50
+	var castsWithTwo int
+	for range casts {
+		before := procs()
+		war.Cleave.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+		stepPastBatch(t, sim)
+		got := procs() - before
+		if got > 2 {
+			t.Fatalf("a Cleave on 2 targets procced Unbridled Wrath %d times, want at most 2", got)
+		}
+		if got == 2 {
+			castsWithTwo++
+		}
+	}
+
+	if castsWithTwo == 0 {
+		t.Errorf("none of %d Cleaves on 2 targets procced Unbridled Wrath twice, want some", casts)
+	}
+}
+
+// A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
+// crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
+func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {
+	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}
+	var want float64
+	for _, c := range []struct {
+		name    string
+		spell   core.ActionID
+		offHand bool
+	}{
+		{"main-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotMainHand), false},
+		{"off-hand swing", swing.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"off-hand Whirlwind strike", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotOffHand), true},
+		{"Windfury Totem strike", core.ActionID{SpellID: windfuryTotemStrike}, false},
+	} {
+		sim, war := orcWarriorSimWith(t, "p1_fury", armsTalents, &proto.RaidBuffs{WindfuryTotem: true})
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		spell := war.GetSpell(c.spell)
+		if bleed == nil || spell == nil {
+			t.Fatalf("Deep Wound %v, %s %v; want both registered", bleed, c.name, spell)
+		}
+		if mh, oh := war.AutoAttacks.MH().AverageDamage(), war.AutoAttacks.OH().AverageDamage(); mh == oh {
+			t.Fatalf("both hands average %0.1f damage; the test needs two different weapons", mh)
+		}
+
+		war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+		weapon := war.AutoAttacks.MH()
+		if c.offHand {
+			weapon = war.AutoAttacks.OH()
+		}
+		got := bleed.Dot(war.CurrentTarget).SnapshotBaseDamage / weapon.AverageDamage()
+		if want == 0 {
+			if got <= 0 {
+				t.Fatalf("a crit from the %s ticks %0.4f of its weapon's average damage, want a positive share", c.name, got)
+			}
+			want = got
+		} else if math.Abs(got-want) > 1e-9 {
+			t.Errorf("a crit from the %s ticks %0.4f of its weapon's average damage, want %0.4f as the main hand's", c.name, got, want)
+		}
+	}
+}
+
+// A Thunder Clap crit rolls on the magic hit table and starts no Deep Wounds bleed.
+func TestThunderClapCritStartsNoDeepWounds(t *testing.T) {
+	sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+	bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+	clap := war.GetSpell(core.ActionID{SpellID: 11581})
+	if bleed == nil || clap == nil {
+		t.Fatalf("Deep Wound %v, Thunder Clap %v; want both registered", bleed, clap)
+	}
+
+	war.OnSpellHitDealt(sim, clap, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+
+	if bleed.Dot(war.CurrentTarget).IsActive() {
+		t.Error("a Thunder Clap crit started Deep Wounds, want no bleed")
+	}
+}
+
+// The warrior's physical damage bonuses, the multiplier Death Wish and Enrage raise, leave a Deep Wounds tick unchanged.
+func TestDeepWoundsTicksIgnoreTheWarriorsDamageBonuses(t *testing.T) {
+	tickDamage := func(bonus float64) float64 {
+		sim, war := orcWarriorSim(t, "p1_fury", armsTalents)
+		bleed := war.GetSpell(core.ActionID{SpellID: 412609})
+		swing := war.GetSpell(core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand))
+		if bleed == nil || swing == nil {
+			t.Fatalf("Deep Wound %v, main-hand swing %v; want both registered", bleed, swing)
+		}
+		war.PseudoStats.SchoolDamageDealtMultiplier[stats.SchoolIndexPhysical] *= bonus
+		war.OnSpellHitDealt(sim, swing, &core.SpellResult{Target: war.CurrentTarget, Outcome: core.OutcomeCrit})
+		bleed.Dot(war.CurrentTarget).TickOnce(sim)
+		return bleed.SpellMetrics[war.CurrentTarget.UnitIndex].TotalDamage
+	}
+
+	plain, boosted := tickDamage(1), tickDamage(1.2)
+	if plain <= 0 {
+		t.Fatalf("a Deep Wounds tick dealt %0.2f damage, want some", plain)
+	}
+	if math.Abs(boosted-plain) > 1e-9 {
+		t.Errorf("a tick under a 20%% physical damage bonus dealt %0.2f, want %0.2f as without it", boosted, plain)
 	}
 }
 
@@ -1063,7 +1354,7 @@ func TestRageThreatFollowsItsSource(t *testing.T) {
 // Reckless Swings and Bloodrage each cost their row's share of base health, booked under their own
 // action and not as damage taken.
 func TestHealthCostsSpendAShareOfBaseHealthUnderTheirOwnAction(t *testing.T) {
-	sim, war := orcWarriorSim(t, "p1_fury", "30303003-050530355122100031")
+	sim, war := orcWarriorSim(t, "p1_fury", recklessSwingsTalents)
 
 	for _, id := range []int32{1329555, 2687} {
 		spell := war.GetSpell(core.ActionID{SpellID: id})

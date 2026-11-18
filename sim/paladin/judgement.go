@@ -29,11 +29,12 @@ func (paladin *Paladin) registerJudgement() {
 	})
 }
 
-// A cast that unleashes the active seal's judgement, the one Judgement and Swift Judgement share. It
-// fires no on-cast callbacks, so listeners hear the judgement it unleashes.
+// A cast that unleashes the active seal's judgement, the one Judgement and Swift Judgement share. A
+// cast listener hears this cast and the judgement it unleashes; a listener that rolls on spell casts
+// takes this one, as the game does (EV-0144).
 func (paladin *Paladin) judgementConfig(rank *spelldata.Spell, classMask int64) core.SpellConfig {
 	config := spelldata.SpellConfig(&paladin.Unit, rank,
-		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPassiveSpell|core.SpellFlagNoOnCastComplete))
+		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagPassiveSpell))
 	config.ProcMask = core.ProcMaskEmpty
 	config.ClassSpellMask = classMask
 	config.DamageMultiplier = 1

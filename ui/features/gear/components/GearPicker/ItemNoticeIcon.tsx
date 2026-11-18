@@ -4,7 +4,7 @@ import { usePlayer } from '@sim/context/SimHostContext';
 import { NoticeIcon, type NoticeLevel } from '@ui-kit/Notice';
 import type { ReactNode } from 'react';
 
-import { ENCHANT_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES } from '../../item_notices';
+import { ENCHANT_NOTICES, ENCHANT_RATE_NOTICES, ITEM_INFO_NOTICES, ITEM_NOTICES, ITEM_RATE_NOTICES } from '../../item_notices';
 
 export interface ItemNoticeIconViewProps {
 	level: NoticeLevel;
@@ -39,7 +39,10 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 	const ownEnchantNotice = enchantNotice?.[spec] || enchantNotice?.[Spec.SpecUnknown];
 	const infoNotice = itemId ? ITEM_INFO_NOTICES.get(itemId) : undefined;
 
-	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice) return null;
+	const itemRateNotice = itemId ? ITEM_RATE_NOTICES.get(itemId) : undefined;
+	const enchantRateNotice = enchantId ? ENCHANT_RATE_NOTICES.get(enchantId) : undefined;
+
+	if (!ownNotice && !ownEnchantNotice && !additionalNotice && !infoNotice && !itemRateNotice && !enchantRateNotice) return null;
 
 	const warns = !!ownNotice || !!ownEnchantNotice || !!additionalNotice;
 
@@ -49,6 +52,8 @@ export const ItemNoticeIcon = ({ itemId, enchantId, additionalNotice }: ItemNoti
 			{ownEnchantNotice}
 			{additionalNotice}
 			{infoNotice}
+			{itemRateNotice}
+			{enchantRateNotice}
 		</ItemNoticeIconView>
 	);
 };

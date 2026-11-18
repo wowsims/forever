@@ -69,13 +69,22 @@ func (warrior *Warrior) registerUnbridledWrath() {
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
 
-	// The rate is the effect ladder the tooltip's $m1 names - 12/24/36/48/60 by rank, where the
-	// proc chance column reads 100 - and the row's mask is the white hits the tooltip means.
-	warrior.MakeProcTriggerAura(spelldata.ProcTrigger(&warrior.Character,
+	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
+	// chance column reads 100. Landed white swings roll it, Windfury Totem's strike among them as a
+	// main-hand swing (EV-0136), and so do Heroic Strike and each target a Cleave hits (EV-0148,
+	// EV-0138). The row's mask also hears melee abilities, but no other ability rolls it; Shield
+	// Slam, Revenge, Thunder Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured
+	// (EV-0148, EV-0138).
+	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.AddRage(sim, unbridledWrathRage, rageMetrics)
-		}))
+		})
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) || spell.Flags.Matches(core.SpellFlagCountsAsSwing) ||
+			spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)
+	}
+	warrior.MakeProcTriggerAura(trigger)
 }
 
 func (warrior *Warrior) registerFuriousPrecision() {
@@ -132,7 +141,8 @@ func (warrior *Warrior) registerEnrage() {
 	// The rate is the shape where the tooltip carries $h%: a real 30% roll on damage taken, which
 	// is the proc chance column. A landed spell hit of any school but physical rolls 25% instead,
 	// though the game files state 30% for it too (EV-0050). A swing rolls the row's rate whatever
-	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here.
+	// its school. Chance(1) leaves core no roll of its own, so the one draw is made here. Only a hit
+	// that deals damage rolls it: misses, dodges, parries, full blocks and ticks never proc it (EV-0123).
 	row := spellData.Enrage.Rank(warrior.Talents.Enrage)
 	trigger := spelldata.ProcTrigger(&warrior.Character, row,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
@@ -166,17 +176,26 @@ func (warrior *Warrior) registerFlurry() {
 
 	// The proc shape with no roll: 12319 states its rate as "always" and the crit is the
 	// condition, which this handler reads off the result because the same listener hears every
-	// melee result. Every white swing uses a charge whatever its outcome, and a Heroic Strike or
-	// Cleave uses one only when it misses. The row's mask reaches ranged and spell hits too; the
-	// tooltip says a melee critical strike, so the mask stays the caller's.
+	// melee result. Every white swing, an extra attack's among them, uses a charge whatever its
+	// outcome (EV-0140). Windfury Totem's strike uses none and its crit starts Flurry, and a Heroic
+	// Strike or Cleave uses one charge per cast whatever its outcome, however many targets a Cleave
+	// hits (EV-0138). The row's mask reaches ranged and spell hits too; the tooltip says a melee
+	// critical strike, so the mask stays the caller's.
 	//
 	// Whirlwind's off-hand strike starts Flurry on a crit like any melee hit and uses no charge
 	// whether it lands, is dodged or is parried (EV-0054).
 	//
-	// TODO: Ingame test needed: the Cleave miss follows the measured Heroic Strike miss; no log
-	// holds a missed Cleave yet.
+	// A Heroic Strike or Cleave that crits spends its charge before the crit sets the charges again,
+	// so it ends with all of them, as the crit branch leaves it (EV-0138).
+	firstHit, resetFirstHit := core.OncePerCast()
+	warrior.RegisterResetEffect(func(_ *core.Simulation) {
+		resetFirstHit()
+	})
 	trigger := spelldata.ProcTrigger(&warrior.Character, spellData.Flurry.Rank(warrior.Talents.Flurry),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			spendsForCast := (spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)) &&
+				firstHit(sim, spell)
+
 			if result.Outcome.Matches(core.OutcomeCrit) {
 				flurryAura.Activate(sim)
 				flurryAura.SetStacks(sim, int32(flurryBuff.ProcCharges))
@@ -187,9 +206,7 @@ func (warrior *Warrior) registerFlurry() {
 				return
 			}
 
-			if spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) ||
-				(result.Outcome.Matches(core.OutcomeMiss) &&
-					(spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell))) {
+			if spell.ProcMask.Matches(core.ProcMaskMeleeWhiteHit) || spendsForCast {
 				flurryAura.RemoveStack(sim)
 			}
 		})
@@ -366,12 +383,29 @@ func (warrior *Warrior) registerRecklessSwings() {
 
 	aura := warrior.RegisterAura(spelldata.AuraConfig(recklessSwingsRank))
 
+	// Each melee swing spends a charge for its rage, Windfury Totem's strike among them (EV-0136).
+	// The row also hears melee abilities, but of those only Heroic Strike and Cleave spend one, once
+	// per cast however many targets a Cleave hits; Whirlwind and Bloodthirst spend none (EV-0138).
+	firstAbilityHit, resetFirstAbilityHit := core.OncePerCast()
+	aura.ApplyOnGain(func(_ *core.Aura, _ *core.Simulation) {
+		resetFirstAbilityHit()
+	})
 	trigger := spelldata.ProcTrigger(&warrior.Character, recklessSwingsRank,
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
+			// The hits of one spell batch each queue a handler, which can outnumber the charges left.
+			if !aura.IsActive() {
+				return
+			}
 			warrior.AddRage(sim, rage, rageMetrics)
 			aura.RemoveStack(sim)
 		})
 	trigger.Name = "Reckless Swings - Trigger"
+	trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		if !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) || spell.Flags.Matches(core.SpellFlagCountsAsSwing) {
+			return true
+		}
+		return (spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)) && firstAbilityHit(sim, spell)
+	}
 	aura.AttachProcTriggerCallback(&warrior.Unit, trigger)
 
 	config := spelldata.SpellConfig(&warrior.Unit, recklessSwingsRank, spelldata.Flags(core.SpellFlagAPL))

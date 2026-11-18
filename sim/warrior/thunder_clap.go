@@ -44,7 +44,7 @@ func (warrior *Warrior) registerThunderClap() {
 	// which melee swings and abilities do. Its ranged mask reaches equip procs that hear ranged
 	// abilities, and core's canProcFrom decides which weapon procs hear it.
 	config := spelldata.SpellConfig(&warrior.Unit, thunderClapRank,
-		spelldata.Flags(core.SpellFlagAPL|core.SpellFlagBinary))
+		spelldata.Flags(core.SpellFlagAPL))
 	config.ProcMask = core.ProcMaskRangedSpecial
 	config.DamageMultiplier = 1
 	// Threat is 1 times the damage with no flat bonus, at 1 to 4 targets, Improved Thunder Clap included.
