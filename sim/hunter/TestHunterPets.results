@@ -1708,6 +1708,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 667.01998
+  tps: 464.65813
+  dtps: 4.47636
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-RingofSaviors-1447"
  value: {
   dps: 696.65293

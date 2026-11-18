@@ -2414,7 +2414,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		284262, // Howling Hide
 		[
-			"Reduces the target enemy's attack power by 60 for 30s.", // 1315767 - https://www.wowhead.com/forever/spell=1315767
+			"Reduces the target enemy's attack power by 60 for 30s.", // 1330916 - https://www.wowhead.com/forever/spell=1330916
 		]
 	],
 	[
@@ -3580,12 +3580,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 				2,
 				[
 					"Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.", // 1315080 - https://www.wowhead.com/forever/spell=1315080
-				],
-			],
-			[
-				3,
-				[
-					"Chance on melee attack to lash the target, inflicting 140 Shadow damage.", // 1315077 - https://www.wowhead.com/forever/spell=1315077
 				],
 			],
 		]),

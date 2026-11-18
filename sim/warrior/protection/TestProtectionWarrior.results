@@ -1944,6 +1944,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestProtectionWarrior-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 511.51857
+  tps: 1656.88839
+  dtps: 303.45271
+  hps: 37.58056
+ }
+}
+dps_results: {
  key: "TestProtectionWarrior-AllItems-RingofSaviors-1447"
  value: {
   dps: 526.65977

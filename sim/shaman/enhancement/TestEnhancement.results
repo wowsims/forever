@@ -1305,6 +1305,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 771.91718
+  tps: 804.6259
+  dtps: 8.13886
+  hps: 27.58556
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-RingofSaviors-1447"
  value: {
   dps: 766.261

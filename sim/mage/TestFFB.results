@@ -105,8 +105,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-BarmanShanker-12791"
  value: {
-  dps: 758.34575
-  tps: 786.90289
+  dps: 808.8024
+  tps: 837.47287
  }
 }
 dps_results: {
@@ -1025,6 +1025,13 @@ dps_results: {
  value: {
   dps: 859.20039
   tps: 887.81234
+ }
+}
+dps_results: {
+ key: "TestFFB-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 769.14639
+  tps: 797.58216
  }
 }
 dps_results: {

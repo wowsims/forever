@@ -1136,6 +1136,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDestruction-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 808.07288
+  tps: 650.48022
+  dtps: 9.92581
+ }
+}
+dps_results: {
  key: "TestDestruction-AllItems-RingofSaviors-1447"
  value: {
   dps: 885.24102

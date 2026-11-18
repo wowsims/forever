@@ -3248,10 +3248,10 @@ func RegisterAllProcs() {
 	//       With next db run the item will be removed if implemented.
 	//
 	// Reduces the target enemy's attack power by 60 for 30s.
-	// https://www.wowhead.com/forever/spell=1315767
-	// unsupported: states no rate
-	// trigger 1315767 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 1315767, IsWeaponProc: true},
+	// https://www.wowhead.com/forever/spell=1330916
+	// unsupported: the debuff states no duration
+	// trigger 1330916 (10%, core.CallbackOnSpellHitDealt, core.ProcMaskMeleeMHAuto | core.ProcMaskMeleeOHAuto | core.ProcMaskMeleeMHSpecial | core.ProcMaskMeleeOHSpecial | core.ProcMaskRangedAuto | core.ProcMaskRangedSpecial | core.ProcMaskSpellDamage)
+	// shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 1330916},
 	//	[]shared.ItemVariant{
 	//	{ItemID: 284262, ItemName: "Howling Hide"},
 	// })

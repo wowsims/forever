@@ -1136,6 +1136,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 846.48807
+  tps: 709.14862
+  dtps: 11.23644
+ }
+}
+dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-RingofSaviors-1447"
  value: {
   dps: 916.53687

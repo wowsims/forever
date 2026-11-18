@@ -1374,6 +1374,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 747.1632
+  tps: 556.26512
+  hps: 45.86861
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-RingofSaviors-1447"
  value: {
   dps: 792.43336

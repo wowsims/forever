@@ -1438,6 +1438,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRogue-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 805.02712
+  tps: 571.56926
+  hps: 47.98667
+ }
+}
+dps_results: {
  key: "TestRogue-AllItems-RingofSaviors-1447"
  value: {
   dps: 833.51582
