@@ -567,8 +567,9 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 // and Whirlwind, each of which rolls the weapon's proc (EV-0147).
 const wielderOtherHitsPerMinute = 48
 
-// The share of its proc's strikes a wielder's target dodges. The wielder stands behind a target three
-// levels above it with no weapon skill past its level's, and its strikes never miss (EV-0152).
+// The share of its proc's strikes a wielder's target dodges, whatever the target's level: the hit table's
+// dodge for an attacker behind a target three levels above it, with no weapon skill past its level's. The
+// wielder has the hit its strikes need to never miss, as the sim's pre-BiS Fury warrior has (EV-0152).
 const wielderStrikeDodgeChance = 0.065
 
 // A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a

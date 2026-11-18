@@ -1,9 +1,9 @@
 # EV-0152: Puncture Armor's failed hit rolls, and the raid's wielder against the sim's own
 
 - Claim: Puncture Armor 17315 (Bashguuder, Rivenspike) and 1293005 (Vibroblade) roll the melee hit table in game and
-  fail on a miss, a dodge or a parry. In the sim a main-hand wielder's Puncture Armor strike never misses and is dodged
-  about 6.5% of the time, and the raid's copy with that dodge chance and one more roll off a swing lands within 2.4%
-  of it.
+  fail on a miss, a dodge, a parry or an immunity. Against a level 63 target in the sim, the pre-BiS Fury warrior's
+  Puncture Armor strike never misses and is dodged 6.5% of the time, the Combat rogue's 4.6%, and the raid's copy with
+  a 6.5% dodge and one more roll off a swing lands within 2.4% of either wielder.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), 48 reports with a wearer of Bashguuder or Rivenspike
   and 29 reports with a player who sources 1293005; the sim on master 4122e3519a
 - Game build: 1.60.1.70862 to 1.60.1.70959 by report date; the hotfix each player ran is not recorded
@@ -14,7 +14,8 @@
 
 An attempt of Puncture Armor is what EV-0145 counts as one: a debuff applied, a stack added, a refresh that is not a
 stack event's own, or the spell's 0-amount damage event, which is how a missed, dodged or parried one is logged. The
-weapon and its hand come from the wearer's latest gear snapshot. The reports are the ones EV-0145 reads, downloaded by
+weapon and its hand come from the wearer's last gear snapshot before the attempt, or its first where none comes
+before. The reports are the ones EV-0145 reads, downloaded by
 2026-11-18. Vibroblade's are every report in which a player sources 1293005, counted whatever the hand.
 
 | Weapon                | Reports | Wearers | Attempts | Landed | Missed | Dodged | Parried | Immune | Failed |
@@ -35,10 +36,11 @@ missed one in `DW9YkdvyrjtMBQnf`, fight 1, at 23:47.100.
 
 EV-0147 took the sim's own main-hand wielder as the model of the raid's copy, and read it while the player's proc
 landed with no roll of its own. The player's proc is a strike with its own hit roll, and one a main-hand white swing
-cast rolls the weapon once more (R-0040). Measured the way EV-0147 did, on master 4122e3519a: 180 s, one level 63
-target from behind, 5,000 iterations, the raid's and party's buffs on, the raid's armor debuffs off but Sunder Armor.
-The warrior is the pre-BiS Fury set with the weapon in the main hand, the rogue the Combat talents on the Sinister
-Strike set.
+cast rolls the weapon once more (R-0040). Measured on master 4122e3519a with a Go test kept out of the repository, on
+EV-0147's fight: 180 s, one level 63 target from behind, 5,000 iterations, the raid's, party's and individual buffs and
+the suites' consumables on, and every raid debuff off but Sunder Armor. The strike's casts, landings, misses and dodges
+come from the action metrics. The warrior is an orc on the pre-BiS Fury set with the weapon in the main hand, the
+rogue a human with the Combat talents on the Sinister Strike set.
 
 | Wielder              | Strikes a minute | Landed a minute | Missed | Dodged |
 | -------------------- | ---------------: | --------------: | -----: | -----: |
@@ -50,7 +52,8 @@ Strike set.
 Annihilator's Armor Shatter 16928 is on the magic table and is no strike, so its row is the landings alone; EV-0147
 read 2.94. The warrior's 6.4% and 6.5% are the hit table's dodge for a target three levels above an attacker with its
 level's weapon skill. The warrior's Bashguuder strikes come to 85.4 rolls a minute at the weapon's chance: 82.9 landed
-main-hand hits, where EV-0147 read 83.4, and 2.5 rolls off the landed strikes of its main-hand swings.
+main-hand hits, where EV-0147 read 83.4, and 2.5 rolls off the landed strikes of its main-hand swings. Its Rivenspike
+strikes come to 68.6 rolls a minute: 67.3 landed main-hand hits, as EV-0147 read, and 1.3 off its swings.
 
 The raid's copy in landings a minute, as `rollWielderHits` gives them: the swings at the weapon's base speed and 48
 more hits, each at PPM × speed / 60.
