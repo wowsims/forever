@@ -1836,15 +1836,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestProtection-AllItems-RazorsteelShoulders-20517"
- value: {
-  dps: 411.47552
-  tps: 973.29547
-  dtps: 334.18075
-  hps: 18.50333
- }
-}
-dps_results: {
  key: "TestProtection-AllItems-RedemptionArmor"
  value: {
   dps: 369.59885

@@ -24,7 +24,7 @@ pages below hold the detail, and this skill carries the traps and commands they 
 | `tools/database/overrides.go`                                               | item, enchant and consumable overrides, allow and deny lists, `ItemSetClasses`                                                                                                                                                                                                                        |
 | `assets/db_inputs/spell_store_inputs.json`                                  | the rows the store was built from, with each group's `Builds` and `Hotfixes`; gzipped despite the name (`zcat`)                                                                                                                                                                                       |
 | `assets/db_inputs/questie_db.json`                                          | quest, vendor and NPC drop sources, written by `gen_db -gen=questie` from the baked Forever data of the QuestieDB release pinned in `tools/database/questie.go`; `-gen=db` adds them after an item's drop, craft and reputation sources, before its PvP source, its drops only with no AtlasLoot drop |
-| `assets/db_inputs/questie_quests.json`                                      | the zone and the asked-for items of every quest in `questie_db.json`, written beside it by `gen_db -gen=questie`; `-gen=db` reads them only for the phases                                                                                                                                            |
+| `assets/db_inputs/questie_quests.json`                                      | the zone, the asked-for items and the class bits of every quest in `questie_db.json`, written beside it by `gen_db -gen=questie`; `-gen=db` reads them for the phases and the quest class allowlists                                                                                                  |
 | `assets/database/db.json`, `assets/database/db.bin`                         | one `proto.UIDatabase` written twice by `gen_db`; the sim embeds the binary, the UI fetches JSON                                                                                                                                                                                                      |
 | `assets/database/item_first_seen.json`                                      | when `gen_db -gen=db` first saw each item id, in unix seconds, one entry per line sorted by id; the UI marks items first seen in the last 7 days. `gen_db` keeps every line, an item no longer in `db.json` too, and stamps each new id with the run's time; never edit it by hand                    |
 | `.github/workflows/check_hotfixes.yml`, `update_items.yml`, `update_db.yml` | the hourly hotfix check, the items-only regeneration it dispatches, the full one run by hand                                                                                                                                                                                                          |
@@ -96,6 +96,11 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
   bits, and a vendor's `friendlyToFaction`; both sides, none or no data is `Unknown`. `ItemSource` leaves the other side's
   out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
   source.
+- **A class quest's reward takes the quest's classes.** The game files open many class quest rewards to every class
+  (the Sunken Temple and Silithus class quests). `parseQuestieData` reads a quest's `requiredClasses`, and
+  `ApplyQuestClasses` gives a bind-on-pickup item with no allowlist of its own the classes of its quests, when every
+  source it has is a quest that names classes; a craft or a drop beside the quest keeps it open, and so do quests that
+  together allow every class.
 
 ## Overrides
 

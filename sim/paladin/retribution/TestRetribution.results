@@ -1638,15 +1638,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestRetribution-AllItems-RazorsteelShoulders-20517"
- value: {
-  dps: 879.35024
-  tps: 715.86474
-  dtps: 3.45217
-  hps: 24.66721
- }
-}
-dps_results: {
  key: "TestRetribution-AllItems-RedemptionArmor"
  value: {
   dps: 742.04831
