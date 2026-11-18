@@ -158,7 +158,8 @@ export const levelConfig = ({ encounter, targetIndex, getTarget }: TargetFieldCo
 
 export const mobTypeConfig = ({ encounter, targetIndex, getTarget }: TargetFieldContext): ChoiceFieldConfig<null> => ({
 	id: targetId(targetIndex, 'mob-type'),
-	label: i18n.t('settings_tab.encounter.mob_type'),
+	label: i18n.t('settings_tab.encounter.mob_type.label'),
+	labelTooltip: i18n.t('settings_tab.encounter.mob_type.tooltip'),
 	values: mobTypeEnumValues,
 	storeSubscribe: onTargets(encounter),
 	getValue: () => getTarget().mobType,

@@ -1159,10 +1159,13 @@
 				"tooltip": "Determines the target's ability rotation. Note that most rotations are not yet implemented."
 			},
 			"level": "Level",
-			"mob_type": "Mob Type",
+			"mob_type": {
+				"label": "Mob Type",
+				"tooltip": "The target's creature type. It decides which groups the Creature Family field offers, such as Troll for Humanoid or Plant for Elemental."
+			},
 			"creature_family": {
 				"label": "Creature Family",
-				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to one group, such as Trolls, Plants, Naga or Earth Elementals. The mob type decides which groups are offered."
+				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to one group, such as Trolls, Plants, Naga or Earth Elementals."
 			},
 			"tanked_by": {
 				"label": "Tanked By",
