@@ -3,6 +3,7 @@ package buffs
 import (
 	"fmt"
 	"math"
+	"slices"
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
@@ -81,7 +82,6 @@ func scheduledAura(aura *core.Aura, options core.PeriodicActionOptions) {
 		}
 	}
 	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
-		aura.Duration = core.NeverExpires
 		if schedule != nil {
 			schedule.Cancel(sim)
 		}
@@ -533,20 +533,44 @@ var punctureArmorWeapons = []struct {
 	{9485, punctureArmorMeta.atState(spelldata.MustFind(1293005), punctureArmorMeta.Label)},
 }
 
-func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, _ *proto.Raid) {
-	rollOnEverySwing(NewSpellDataArmorShatterAura(target, false, 0), annihilatorItemID)
+// With a player in the raid wielding Annihilator, the raid's copy is the player's own, which that
+// player's procs stack and refresh, so the target carries one stack count as with Sunder Armor.
+func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
+	rollOnEverySwing(NewSpellDataArmorShatterAura(target, raidWields(raid, annihilatorItemID), 0), annihilatorItemID)
 }
 
-func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, _ *proto.Raid) {
+// Bashguuder and Rivenspike both land 17315, so with a player in the raid wielding either, the raid's
+// copy of either is the player's own, which that player's procs stack and refresh. Vibroblade's copy
+// stays the raid's: its 1293005 shares the label, so a player copy of it would take the 17315 procs
+// on a row they do not land.
+func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
-	rollOnEverySwing(newDebuff(target, weapon.meta, false, 0), weapon.itemID)
+	isPlayer := weapon.meta == punctureArmorMeta && raidWields(raid, 13204, 13286)
+	rollOnEverySwing(newDebuff(target, weapon.meta, isPlayer, 0), weapon.itemID)
+}
+
+// Whether a player in the raid carries one of the items, equipped or in an enabled item swap, where
+// its procs are registered as well.
+func raidWields(raid *proto.Raid, itemIDs ...int32) bool {
+	for _, party := range raid.GetParties() {
+		for _, player := range party.GetPlayers() {
+			items := player.GetEquipment().GetItems()
+			if player.GetEnableItemSwap() {
+				items = slices.Concat(items, player.GetItemSwap().GetItems())
+			}
+			if slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) }) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // A weapon's proc debuff from one wielder, who swings the item at its base speed from the pull and
-// lands every swing, with nothing else rolling the proc. Every target the raid's debuffs land on has
-// a wielder of its own. Each swing lands the aura at the item's procs per minute, a chance of
-// PPM × speed / 60, which refreshes its duration and adds a stack up to its max, so the stacks fall
-// off when the procs come slower than the duration. A landing of the raid's debuffs
+// lands every swing. Every target the raid's debuffs land on has a wielder of its own, and a player
+// in the raid wielding the weapon stacks the same aura. Each swing lands the aura at the item's procs
+// per minute, a chance of PPM × speed / 60, which refreshes its duration and adds a stack up to its
+// max, so the stacks fall off when the procs come slower than the duration. A landing of the raid's debuffs
 // (Target.ApplyRaidDebuffsAt) starts the swings over, and a swing on a target with the raid's
 // debuffs disabled rolls nothing.
 func rollOnEverySwing(aura *core.Aura, itemID int32) {
@@ -556,26 +580,19 @@ func rollOnEverySwing(aura *core.Aura, itemID int32) {
 	}
 	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
 
-	var swings *core.PendingAction
-	aura.OnReset = func(aura *core.Aura, sim *core.Simulation) {
-		if swings != nil {
-			swings.Cancel(sim)
-		}
-		swings = core.StartPeriodicAction(sim, core.PeriodicActionOptions{
-			Period:          core.DurationFromSeconds(item.SwingSpeed),
-			TickImmediately: true,
-			Priority:        core.ActionPriorityDOT,
-			OnAction: func(sim *core.Simulation) {
-				if aura.Unit.RaidDebuffsDisabled() || sim.RandomFloat(aura.Label) >= chance {
-					return
-				}
+	scheduledAura(aura, core.PeriodicActionOptions{
+		Period:          core.DurationFromSeconds(item.SwingSpeed),
+		TickImmediately: true,
+		Priority:        core.ActionPriorityDOT,
+		OnAction: func(sim *core.Simulation) {
+			if sim.RandomFloat(aura.Label) < chance {
 				aura.Activate(sim)
 				if aura.MaxStacks > 0 {
 					aura.AddStack(sim)
 				}
-			},
-		})
-	}
+			}
+		},
+	})
 }
 
 // The procs per minute the item's chance-on-hit entry for the spell states.

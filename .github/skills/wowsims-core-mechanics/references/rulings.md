@@ -11,4 +11,4 @@ request that settled it and its evidence. This index lists the ones this skill o
 - **R-0036** Mana regenerates in 100 ms ticks and a paid channel holds regen: `docs/rulings/R-0036-mana-regen-ticks-channel-hold.md`
 - **R-0037** OOM runs while the highest-priority wanted spell is skipped for mana: `docs/rulings/R-0037-oom-skipped-spell-for-mana.md`
 - **R-0038** Dynamic pets refresh their inherited stats from the owner at the pet heartbeat: `docs/rulings/R-0038-dynamic-pets-refresh-inherited-stats.md`
-- **R-0039** The sim is not live, so breaking saved settings needs no migration: `docs/rulings/R-0039-sim-not-live-no-migration.md`
+- **R-0050** Saved settings carry proto field numbers, so a new field takes the next free number: `docs/rulings/R-0050-proto-fields-append-live-alpha.md`

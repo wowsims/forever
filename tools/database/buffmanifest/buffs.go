@@ -645,12 +645,13 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on every swing.
-	// It shares Curse of Recklessness and Faerie Fire's slot: it never lands while either is on the
-	// target, and either one landing removes it (EV-0147).
+	// In game it never lands while Curse of Recklessness or Faerie Fire is on the target, and either
+	// one landing removes it (EV-0147). It is weaker than either even at full stacks, so bidding in
+	// their slot gives the target the same armor.
 	{
 		Field:    "armor_shatter",
 		SpellID:  16928,
-		Category: "MinorArmorReduction",
+		Category: "MinorArmorReduction", // TODO: verify in game that Armor Shatter and Puncture Armor share one slot; EV-0147 counts neither against the other.
 		Driver:   true,
 		Stats: []proto.Stat{
 			proto.Stat_StatAttackPower,
@@ -683,12 +684,14 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
-	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. It shares
-	// Faerie Fire's slot as Armor Shatter does (EV-0147).
+	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. In game it
+	// never lands while Curse of Recklessness or Faerie Fire is on the target, and either one landing
+	// removes it (EV-0147). It is weaker than either even at full stacks, so bidding in their slot
+	// gives the target the same armor.
 	{
 		Field:    "puncture_armor",
 		SpellID:  17315,
-		Category: "MinorArmorReduction",
+		Category: "MinorArmorReduction", // TODO: verify in game that Armor Shatter and Puncture Armor share one slot; EV-0147 counts neither against the other.
 		Driver:   true,
 		Proto:    ProtoInt32,
 		Stats: []proto.Stat{

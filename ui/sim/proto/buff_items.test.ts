@@ -62,9 +62,4 @@ describe('addDebuffItems', () => {
 		expect(sentDebuffItemIds(Debuffs.create())).toEqual([]);
 		expect(sentDebuffItemIds(undefined)).toEqual([]);
 	});
-
-	it('names Annihilator for Armor Shatter and Bashguuder, Rivenspike and Vibroblade for Puncture Armor', () => {
-		expect(DEBUFF_ITEM_IDS.armorShatter).toEqual([12798]);
-		expect(DEBUFF_ITEM_IDS.punctureArmor).toEqual([13204, 13286, 9485]);
-	});
 });

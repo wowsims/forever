@@ -338,33 +338,24 @@ func TestGeneratedCurseOfRecklessnessAndFaerieFireDoNotStack(t *testing.T) {
 		})
 }
 
-// Armor Shatter shares Faerie Fire's armor reduction slot (EV-0147): at its full stacks it is on the
-// target beside Faerie Fire, and the target takes the stronger of the two once.
-func TestGeneratedArmorShatterSharesFaerieFiresSlot(t *testing.T) {
-	stacks := spelldata.MustFind(16928).MaxStack
-	checkOneReductionApplies(t, &proto.Debuffs{ArmorShatter: true, FaerieFire: true},
-		buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
-			"Armor Shatter (External)": armorAmount(t, 16928) * float64(stacks),
-			"Faerie Fire (External)":   armorAmount(t, 9907),
-		}, func(sim *core.Simulation, target *core.Unit) {
-			target.GetAura("Armor Shatter (External)").SetStacks(sim, int32(stacks))
-		})
-}
-
-// Puncture Armor shares Faerie Fire's armor reduction slot (EV-0147) at whichever weapon's spell
-// the state names.
-func TestGeneratedPunctureArmorSharesFaerieFiresSlot(t *testing.T) {
-	for state, spellID := range map[int32]int32{1: 17315, 3: 1293005} {
-		stacks := max(spelldata.MustFind(spellID).MaxStack, 1)
-		checkOneReductionApplies(t, &proto.Debuffs{PunctureArmor: state, FaerieFire: true},
-			buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
-				"Puncture Armor (External)": armorAmount(t, spellID) * float64(stacks),
-				"Faerie Fire (External)":    armorAmount(t, 9907),
+// Armor Shatter and Puncture Armor share Faerie Fire's armor reduction slot (EV-0147): each weapon's
+// debuff at full stacks is on the target beside Faerie Fire, and the target takes the stronger of the
+// two once.
+func TestGeneratedSwingProcDebuffsShareFaerieFiresSlot(t *testing.T) {
+	for _, debuff := range swingProcDebuffs {
+		t.Run(debuff.name, func(t *testing.T) {
+			debuffs := proto.Debuffs{ArmorShatter: debuff.debuffs.ArmorShatter, PunctureArmor: debuff.debuffs.PunctureArmor, FaerieFire: true}
+			label := spelldata.MustFind(debuff.spellID).Name + " (External)"
+			stacks := max(spelldata.MustFind(debuff.spellID).MaxStack, 1)
+			checkOneReductionApplies(t, &debuffs, buffs.FaerieFireCategory, stats.ArmorNoMods, map[string]float64{
+				label:                    armorAmount(t, debuff.spellID) * float64(stacks),
+				"Faerie Fire (External)": armorAmount(t, 9907),
 			}, func(sim *core.Simulation, target *core.Unit) {
-				if aura := target.GetAura("Puncture Armor (External)"); aura.MaxStacks > 0 {
+				if aura := target.GetAura(label); aura.MaxStacks > 0 {
 					aura.SetStacks(sim, aura.MaxStacks)
 				}
 			})
+		})
 	}
 }
 

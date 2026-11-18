@@ -2,6 +2,7 @@ import { makeBooleanDebuffInput, makeBooleanPartyBuffInput, makeMultistateRaidBu
 import { Class, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
+import { DEBUFF_ITEM_IDS } from '@sim/proto/buff_items';
 import { Party } from '@sim/raid/party';
 
 import * as Generated from './buffs_debuffs_auto_gen';
@@ -43,10 +44,10 @@ const punctureArmorWeapon = (value: number, itemId: number, weapon: string) =>
 		value,
 		label: `Puncture Armor (${weapon})`,
 	});
-export const PunctureArmorBashguuder = punctureArmorWeapon(1, 13204, 'Bashguuder');
-export const PunctureArmorRivenspike = punctureArmorWeapon(2, 13286, 'Rivenspike');
-export const PunctureArmorVibroblade = punctureArmorWeapon(3, 9485, 'Vibroblade');
-const PunctureArmorOptions: IconPickerStatOption[] = [PunctureArmorBashguuder, PunctureArmorRivenspike, PunctureArmorVibroblade].map(config => ({
+const PunctureArmorWeapons = ['Bashguuder', 'Rivenspike', 'Vibroblade'].map((weapon, index) =>
+	punctureArmorWeapon(index + 1, DEBUFF_ITEM_IDS.punctureArmor![index], weapon),
+);
+const PunctureArmorOptions: IconPickerStatOption[] = PunctureArmorWeapons.map(config => ({
 	config,
 	stats: [Stat.StatAttackPower],
 }));
@@ -129,9 +130,7 @@ export const DEBUFFS_CONFIG = inDisplayOrder(
 			Generated.CurseOfRecklessness,
 			Generated.DustCloud,
 			Generated.ArmorShatter,
-			PunctureArmorBashguuder,
-			PunctureArmorRivenspike,
-			PunctureArmorVibroblade,
+			...PunctureArmorWeapons,
 		]),
 		Generated.GiftOfArthas,
 		statOptionGroup(i18n.t('settings_tab.debuffs.attack_power_reduction'), [

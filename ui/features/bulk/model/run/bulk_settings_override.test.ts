@@ -49,6 +49,7 @@ const RING = UIItem.create({ id: 40, name: 'Band', type: ItemType.ItemTypeFinger
 const RING_ENCHANT = UIEnchant.create({ effectId: 2930, itemId: 4, name: 'Enchant Ring - Striking', type: ItemType.ItemTypeFinger });
 const SWAP_HELM = UIItem.create({ id: 50, name: 'Swap helm', type: ItemType.ItemTypeHead, scalingOptions });
 const DARKSPEAR_ITEM = UIItem.create({ id: 12802, name: 'Darkspear item', type: ItemType.ItemTypeTrinket, scalingOptions });
+const RIVENSPIKE = UIItem.create({ id: 13286, name: 'Rivenspike', type: ItemType.ItemTypeWeapon, scalingOptions });
 const ORC_POTION = Consumable.create({ id: 60, name: 'Orc draught', type: ConsumableType.ConsumableTypePotion, raceAllowlist: [Race.RaceOrc] });
 const ENGINEER_POTION = Consumable.create({
 	id: 61,
@@ -81,7 +82,7 @@ const ENTRY = SavedSettings.create({
 beforeAll(() =>
 	serveDatabase(
 		UIDatabase.create({
-			items: [RING, SWAP_HELM, DARKSPEAR_ITEM, ...weaponsDatabase().items],
+			items: [RING, SWAP_HELM, DARKSPEAR_ITEM, RIVENSPIKE, ...weaponsDatabase().items],
 			enchants: [RING_ENCHANT],
 			consumables: [ORC_POTION, ENGINEER_POTION, PLAIN_POTION, FLASK],
 		}),
@@ -219,6 +220,17 @@ describe('Sim.runBulkSim with a saved settings entry', () => {
 		expect(sentPlayer.itemSwap!.items[0].id).toBe(SWAP_HELM.id);
 		expect(database.items.map(item => item.id)).toEqual(expect.arrayContaining([SWAP_HELM.id, DARKSPEAR_ITEM.id]));
 		expect(database.consumables.map(consumable => consumable.id)).toEqual(expect.arrayContaining([FLASK.id]));
+	});
+
+	it('ships the weapon a raid debuff the entry turns on reads', async () => {
+		const { sim } = await setup();
+		const entry = SavedSettings.create({ debuffs: Debuffs.create({ punctureArmor: 2 }) });
+
+		const liveItemIds = (await run(sim)).parties[0].players[0].database!.items.map(item => item.id);
+		const entryItemIds = (await run(sim, { settings: entry })).parties[0].players[0].database!.items.map(item => item.id);
+
+		expect(liveItemIds).not.toContain(RIVENSPIKE.id);
+		expect(entryItemIds).toContain(RIVENSPIKE.id);
 	});
 
 	it('fills a healing spec’s zero healing model from the pair’s boss, as setHealingModel does', async () => {

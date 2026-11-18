@@ -458,6 +458,7 @@ export class Sim {
 		const swapDatabase = itemSwapGear.toDatabase(this.db);
 		player.database = player.database ? Database.mergeSimDatabases(player.database, swapDatabase) : swapDatabase;
 		addPartyBuffItems(player.database, this.db, party.buffs);
+		addDebuffItems(player.database, this.db, raid.debuffs);
 		extendPlayerProtoWithMissingEffects(player, this.db);
 	}
 

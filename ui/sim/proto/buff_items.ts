@@ -11,7 +11,7 @@ export const PARTY_BUFF_ITEM_IDS: Partial<Record<keyof PartyBuffs, readonly numb
 };
 
 // The weapons whose swing speed and procs per minute the sim reads for a raid debuff, carried the same way. Puncture
-// Armor carries all three weapons its states name.
+// Armor carries all three weapons its states name, in the order of the states from 1.
 export const DEBUFF_ITEM_IDS: Partial<Record<keyof Debuffs, readonly number[]>> = {
 	armorShatter: [12798],
 	punctureArmor: [13204, 13286, 9485],

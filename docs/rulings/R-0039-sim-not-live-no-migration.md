@@ -1,5 +1,7 @@
 # R-0039: The sim is not live, so breaking saved settings needs no migration
 
+Replaced by: R-0050
+
 - Skill: wowsims-core-mechanics
 - Code: `proto/common.proto`
 - Pull request: #149

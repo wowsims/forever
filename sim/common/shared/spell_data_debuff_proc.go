@@ -48,9 +48,11 @@ func applyDebuff(sim *core.Simulation, aura *core.Aura) {
 }
 
 // Proc debuffs that bid in a raid debuff's category though no raid debuff reads their row. Vibroblade's
-// Puncture Armor 1293005 shares Curse of Recklessness and Faerie Fire's slot: it never lands while
-// either is on the target, and either one landing removes it (EV-0147). Bashguuder and Rivenspike's
-// 17315 is the raid's Puncture Armor row, whose player copy bids there already.
+// Puncture Armor 1293005 is here for when its wielder proc is registered, which no item does yet. In
+// game it never lands while Curse of Recklessness or Faerie Fire is on the target, and either one
+// landing removes it (EV-0147); it is weaker than either, so bidding in their slot gives the target
+// the same armor. Bashguuder and Rivenspike's 17315 is the raid's Puncture Armor row, whose player
+// copy bids there already.
 var debuffProcCategories = map[int32]string{
 	1293005: buffs.FaerieFireCategory,
 }
@@ -60,7 +62,9 @@ var debuffProcCategories = map[int32]string{
 // debuff on the target, and the first to register it parses it. Each slow takes its exclusive
 // category, attacks Thunder Clap's and casts Slow's, where only the strongest applies; every other
 // effect applies to the target as the row states it, per stack. A row a raid debuff reads is that
-// debuff's player copy instead, which bids in the raid debuff's category beside the raid's copy.
+// debuff's player copy instead, which bids in the raid debuff's category beside the raid's copy, or
+// is the raid's copy where the raid's driver makes it the player's own, as Armor Shatter and Puncture
+// Armor do with their weapon's wielder in the raid.
 func EnemyDebuffAuras(character *core.Character, row *spelldata.Spell, duration time.Duration, effects []int32) core.AuraArray {
 	config := spelldata.AuraConfig(row, spelldata.Label(fmt.Sprintf("%s %d", row.Name, row.ID)))
 	config.Duration = duration

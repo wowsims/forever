@@ -228,7 +228,10 @@ delay, the metrics of a regen. The row compiles once the function is declared.
 
 A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one wielder swinging the weapon:
 `rollOnEverySwing` rolls the item's procs per minute on every swing at the item's base speed, and a
-landed roll refreshes the aura and adds a stack. The driver reads the speed and the rate off the
+landed roll refreshes the aura and adds a stack. With a player in the raid wielding a weapon whose
+proc lands the same row (`raidWields`), the raid's copy is the player's own, as Sunder Armor's is
+with a warrior in the raid, so that player's procs stack and refresh it and the target carries one
+stack count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
 item database, and without the full database the sim knows only the items the request carries, so
 the weapon goes into `DEBUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts` (`PARTY_BUFF_ITEM_IDS` for a
 party buff such as Darkspear). A driver that reads an item the request lacks panics naming it.
@@ -316,10 +319,10 @@ parsed onto the stance aura through the shared table (`sim/warrior/stances.go`),
 reports it because the shared table names no row for it. A shared-table entry for either aura would
 attach a stat change there instead and change what the class's own row means.
 
-**Dropping a row renumbers the ones after it.** Each scope's numbers are dense from 1, which
-`TestScopeNumbersAreDense` holds, so a field that goes away shifts every later number down by one.
+**Dropping a row renumbers the ones after it.** A row's field number is its place in its scope's
+slice, from 1 (`buffmanifest.All`), so a field that goes away shifts every later number down by one.
 The sim is live in alpha and saved settings carry these numbers, so a new row goes at the end of its
-slice and no row is dropped or moved.
+slice and no row is dropped or moved (R-0050).
 
 **A proto change here breaks whatever a browser holds.** Nothing migrates a saved payload: a field the
 manifest retypes makes `fromJson` throw on the enum name an older save spells out. Every `fromJson` of

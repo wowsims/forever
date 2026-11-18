@@ -141,22 +141,22 @@ describe('the buff registries', () => {
 		const player = {
 			getRaid: () => ({ getDebuffs: () => Debuffs.clone(debuffs), setDebuffs: (next: Debuffs) => (debuffs = next) }),
 		} as unknown as Player<any>;
-		const weapons = [
-			[BuffDebuffInputs.PunctureArmorBashguuder, 13204],
-			[BuffDebuffInputs.PunctureArmorRivenspike, 13286],
-			[BuffDebuffInputs.PunctureArmorVibroblade, 9485],
-		] as const;
-		expect(weapons.map(([input]) => input.actionId.itemId)).toEqual(weapons.map(([, itemId]) => itemId));
+		const minorArmorGroup = groupWith(BuffDebuffInputs.DEBUFFS_CONFIG, BuffDebuffInputs.ArmorShatter);
+		const weapons = (minorArmorGroup && isMultiIconOption(minorArmorGroup) ? (minorArmorGroup.members ?? []) : [])
+			.map(member => member.config)
+			.filter(config => config.label?.startsWith('Puncture Armor'));
+		expect(weapons.map(input => input.actionId.itemId)).toEqual([13204, 13286, 9485]);
 
-		weapons.forEach(([input], index) => {
+		weapons.forEach((input, index) => {
 			input.setValue(player, true);
 			expect(debuffs.punctureArmor).toBe(index + 1);
-			expect(weapons.map(([other]) => other.getValue(player))).toEqual(weapons.map((_, i) => i === index));
+			expect(weapons.map(other => other.getValue(player))).toEqual(weapons.map((_, i) => i === index));
 		});
 
-		BuffDebuffInputs.PunctureArmorRivenspike.setValue(player, false);
+		const [, rivenspike, vibroblade] = weapons;
+		rivenspike.setValue(player, false);
 		expect(debuffs.punctureArmor).toBe(3);
-		BuffDebuffInputs.PunctureArmorVibroblade.setValue(player, false);
+		vibroblade.setValue(player, false);
 		expect(debuffs.punctureArmor).toBe(0);
 	});
 
