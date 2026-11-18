@@ -284,19 +284,8 @@ func init() {
 	//
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
-	// Each harmful spell that lands on an enemy rolls 21978, an area spell once for each enemy it
-	// lands on, and the row's 0.1 s cooldown lets one landing proc it once. A landing that deals no
-	// damage rolls too: a curse or a damage over time effect applied, Counterspell, the start of the
-	// Arcane Missiles or Wrack channel, Rain of Fire's landing. A spell that deals damage and applies
-	// an effect lands once and rolls once. The chance is the row's procs per minute on the cast time
-	// of the cast that launched the spell, at least 1.5 s (castTimePPM): an instant, a channel, a
-	// triggered spell such as an Arcane Missiles missile, and a cast that Presence of Mind or Heating
-	// Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground ticks are direct hits and roll
-	// it; damage over time ticks, Ignite, wand shots and damage shields never do. A spell the sim
-	// registers with no proc mask rolls when its DefenseType is magic, its school is not Physical and
-	// the wearer cast it, as Counterspell, Curse of the Elements and Curse of Recklessness are; a
-	// Physical taunt, shout or roar rolls nothing. Whether a miss rolls is undetermined, so only
-	// landings roll (EV-0025).
+	// Every harmful spell that lands on an enemy rolls it, damage or not, once a target, on the cast time
+	// of the cast that launched it (EV-0025). Physical taunts, shouts and roars are not spells and roll nothing.
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
