@@ -290,10 +290,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bloodrazor-809"
  value: {
-  dps: 404.63599
-  tps: 956.33355
-  dtps: 336.67938
-  hps: 17.11389
+  dps: 403.22114
+  tps: 954.29455
+  dtps: 337.92261
+  hps: 17.01222
  }
 }
 dps_results: {
@@ -488,8 +488,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 394.6777
-  tps: 943.50837
+  dps: 394.6767
+  tps: 943.50705
   dtps: 336.38131
   hps: 17.48667
  }
@@ -956,9 +956,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 410.73105
-  tps: 981.58612
-  dtps: 336.00998
+  dps: 409.967
+  tps: 980.89826
+  dtps: 336.27787
   hps: 21.045
  }
 }
@@ -1091,10 +1091,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 403.02759
-  tps: 966.62126
-  dtps: 339.30162
-  hps: 20.62139
+  dps: 403.15706
+  tps: 969.8308
+  dtps: 339.57138
+  hps: 20.50278
  }
 }
 dps_results: {
@@ -1217,10 +1217,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
-  dps: 415.91971
-  tps: 1010.7791
-  dtps: 343.63509
-  hps: 25.23028
+  dps: 414.48521
+  tps: 1009.28782
+  dtps: 344.88499
+  hps: 25.17944
  }
 }
 dps_results: {
@@ -1541,8 +1541,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 402.60021
-  tps: 956.98641
+  dps: 402.48267
+  tps: 956.80858
   dtps: 336.38131
   hps: 17.48667
  }
@@ -1739,8 +1739,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 406.76017
-  tps: 989.04652
+  dps: 406.68799
+  tps: 988.95052
   dtps: 341.0316
   hps: 23.92556
  }
@@ -1928,10 +1928,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 406.26977
-  tps: 986.88897
-  dtps: 330.6428
-  hps: 22.95972
+  dps: 406.13928
+  tps: 987.73488
+  dtps: 332.19941
+  hps: 22.875
  }
 }
 dps_results: {

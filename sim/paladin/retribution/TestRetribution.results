@@ -63,6 +63,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 820.3149
+  tps: 674.49566
+  dtps: 7.28811
+  hps: 29.29949
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-AnkhofLife-1713"
  value: {
   dps: 874.26477
@@ -510,6 +519,15 @@ dps_results: {
   tps: 708.54751
   dtps: 4.39346
   hps: 24.80718
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-DiabolicSkiver-9475"
+ value: {
+  dps: 817.96803
+  tps: 670.69958
+  dtps: 6.06297
+  hps: 27.83803
  }
 }
 dps_results: {
@@ -1496,9 +1514,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
-  dps: 840.57333
-  tps: 686.01692
-  dtps: 5.33231
+  dps: 842.07445
+  tps: 687.11966
+  dtps: 5.11339
   hps: 25.39566
  }
 }
@@ -1982,9 +2000,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 886.13394
-  tps: 721.32928
-  dtps: 3.86007
+  dps: 886.4259
+  tps: 721.56864
+  dtps: 3.85488
   hps: 24.71381
  }
 }

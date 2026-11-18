@@ -822,10 +822,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Felstriker-12590"
  value: {
-  dps: 486.27234
-  tps: 2471.98488
-  dtps: 392.58165
-  hps: 83.66059
+  dps: 491.54422
+  tps: 2497.08537
+  dtps: 393.96531
+  hps: 83.83188
  }
 }
 dps_results: {
@@ -894,8 +894,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 458.99675
-  tps: 2306.82779
+  dps: 458.14638
+  tps: 2304.99951
   dtps: 394.7583
   hps: 83.15488
  }
@@ -1659,8 +1659,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 450.16922
-  tps: 2268.32646
+  dps: 449.76843
+  tps: 2267.46478
   dtps: 394.92731
   hps: 83.26138
  }
@@ -1884,8 +1884,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 503.02473
-  tps: 2495.09257
+  dps: 503.41772
+  tps: 2495.9375
   dtps: 396.67792
   hps: 83.95195
  }

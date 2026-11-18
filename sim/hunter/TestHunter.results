@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 818.8762
+  tps: 841.40718
+  dtps: 8.88386
+  hps: 14.40278
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-AnkhofLife-1713"
  value: {
   dps: 889.2801
@@ -371,10 +380,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Bloodrazor-809"
  value: {
-  dps: 822.18389
-  tps: 844.91412
-  dtps: 8.76939
-  hps: 14.86028
+  dps: 818.94357
+  tps: 841.76859
+  dtps: 8.50915
+  hps: 14.87722
  }
 }
 dps_results: {
@@ -434,10 +443,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 846.12095
-  tps: 869.27394
-  dtps: 9.02887
-  hps: 15.7075
+  dps: 846.70768
+  tps: 869.911
+  dtps: 9.10562
+  hps: 15.69056
  }
 }
 dps_results: {
@@ -614,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 793.74888
-  tps: 816.38545
+  dps: 793.70639
+  tps: 816.34295
   dtps: 9.16892
   hps: 14.41972
  }
@@ -699,6 +708,15 @@ dps_results: {
   tps: 923.50419
   dtps: 8.9881
   hps: 14.1825
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-DiabolicSkiver-9475"
+ value: {
+  dps: 856.92923
+  tps: 879.31572
+  dtps: 8.51879
+  hps: 14.30111
  }
 }
 dps_results: {
@@ -1073,8 +1091,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Felstriker-12590"
  value: {
-  dps: 765.89693
-  tps: 788.46871
+  dps: 769.1125
+  tps: 791.68429
   dtps: 8.81644
   hps: 14.91111
  }
@@ -1289,10 +1307,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 763.7588
-  tps: 786.13859
-  dtps: 8.46672
-  hps: 14.55528
+  dps: 760.11143
+  tps: 782.5882
+  dtps: 8.44901
+  hps: 14.64
  }
 }
 dps_results: {
@@ -1388,10 +1406,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HanzoSword-8190"
  value: {
-  dps: 739.3858
-  tps: 761.99958
-  dtps: 8.58961
-  hps: 14.89417
+  dps: 739.69118
+  tps: 762.27035
+  dtps: 8.68614
+  hps: 14.84333
  }
 }
 dps_results: {
@@ -1622,8 +1640,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 799.66484
-  tps: 822.3014
+  dps: 799.44613
+  tps: 822.0827
   dtps: 9.16892
   hps: 14.41972
  }
@@ -1775,9 +1793,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Nightblade-1982"
  value: {
-  dps: 891.25582
-  tps: 913.79783
-  dtps: 8.6067
+  dps: 892.65871
+  tps: 915.12562
+  dtps: 8.56948
   hps: 14.38583
  }
 }
@@ -1829,8 +1847,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PhantomBlade-7961"
  value: {
-  dps: 740.73307
-  tps: 762.74858
+  dps: 740.57551
+  tps: 762.59102
   dtps: 9.0244
   hps: 14.21639
  }
@@ -1991,9 +2009,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 752.42051
-  tps: 775.25159
-  dtps: 9.12034
+  dps: 752.83497
+  tps: 775.63244
+  dtps: 8.68581
   hps: 14.91111
  }
 }

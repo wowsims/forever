@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 842.34709
+  tps: 875.28312
+  dtps: 7.30766
+  hps: 28.77167
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-AnkhofLife-1713"
  value: {
   dps: 780.65408
@@ -1541,9 +1550,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 857.80857
-  tps: 889.06005
-  dtps: 8.93772
+  dps: 859.25224
+  tps: 890.62585
+  dtps: 8.70224
   hps: 21.45167
  }
 }

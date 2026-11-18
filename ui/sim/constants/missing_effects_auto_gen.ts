@@ -514,12 +514,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		9475, // Diabolic Skiver
-		[
-			"Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to targets below 25% health.", // 18206 - https://www.wowhead.com/forever/spell=18206
-		]
-	],
-	[
 		9483, // Flaming Incinerator
 		[
 			"Chance on hit to light the target ablaze, dealing 12 Fire damage over 3s.", // 1294537 - https://www.wowhead.com/forever/spell=1294537
@@ -679,12 +673,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		11810, // Force of Will
 		[
 			"When struck in combat has a chance to reduce all damage taken by 51 for 10s.", // 15595 - https://www.wowhead.com/forever/spell=15595
-		]
-	],
-	[
-		11816, // Angerforge's Battle Axe
-		[
-			"Deal 109 Physical damage. Trolls and Orcs take 2 times as much damage and are horrified for 4s.", // 1300783 - https://www.wowhead.com/forever/spell=1300783
 		]
 	],
 	[

@@ -353,10 +353,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 511.46316
-  tps: 1670.36008
-  dtps: 295.85526
-  hps: 37.86861
+  dps: 509.71733
+  tps: 1668.25287
+  dtps: 295.57604
+  hps: 37.71611
  }
 }
 dps_results: {
@@ -605,8 +605,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 503.04501
-  tps: 1635.04841
+  dps: 502.95666
+  tps: 1634.79392
   dtps: 296.75138
   hps: 38.15667
  }
@@ -1082,9 +1082,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 502.46087
-  tps: 1676.75338
-  dtps: 298.84237
+  dps: 500.94884
+  tps: 1667.85707
+  dtps: 299.24516
   hps: 42.68083
  }
 }
@@ -1235,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 495.44463
-  tps: 1649.03666
-  dtps: 302.09752
-  hps: 41.715
+  dps: 497.50486
+  tps: 1661.33997
+  dtps: 302.66179
+  hps: 41.79972
  }
 }
 dps_results: {
@@ -1361,10 +1361,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 507.00757
-  tps: 1694.76088
-  dtps: 307.96257
-  hps: 46.37472
+  dps: 508.48706
+  tps: 1702.41282
+  dtps: 304.62522
+  hps: 46.34083
  }
 }
 dps_results: {
@@ -1622,8 +1622,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 508.75619
-  tps: 1648.34315
+  dps: 508.45327
+  tps: 1647.4151
   dtps: 296.75138
   hps: 38.15667
  }
@@ -1820,8 +1820,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 506.00236
-  tps: 1695.49543
+  dps: 505.58532
+  tps: 1694.28411
   dtps: 303.60889
   hps: 45.20556
  }
@@ -2000,9 +2000,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 500.41018
-  tps: 1678.69671
-  dtps: 298.86089
+  dps: 500.07914
+  tps: 1678.29392
+  dtps: 299.62089
   hps: 44.47694
  }
 }
