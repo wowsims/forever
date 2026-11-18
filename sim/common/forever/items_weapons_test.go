@@ -1787,53 +1787,49 @@ func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
 		{9475, 18206, "Diabolic Skiver"},
 	} {
 		t.Run(item.procName, func(t *testing.T) {
-			fatalWoundDealsMoreBelowTheExecuteHealth(t, item.itemID, item.spellID, item.procName)
-		})
-	}
-}
-
-func fatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T, itemID, spellID int32, procName string) {
-	row := spelldata.MustFind(spellID)
-	health := int32(row.EffectN(3).Average())
-	if health != 25 {
-		t.Fatalf("the row's threshold is %d%%, outside the case the test covers", health)
-	}
-	meanHit := func(execute35, execute20 float64, at time.Duration, below bool) float64 {
-		sim, character := procWeaponWearer(t, itemID, procName, &proto.Target{Name: "target", Level: 60}, execute35, execute20)
-		enemy := character.CurrentTarget
-		stepTo(t, sim, at)
-		if got := enemy.IsBelowExecuteHealth(health); got != below {
-			t.Fatalf("at %v with %v and %v of the fight below 35%% and 20%%, the target below %d%% reads %v, want %v", at, execute35, execute20, health, got, below)
-		}
-		wound := character.GetSpell(core.ActionID{SpellID: spellID})
-		if wound == nil {
-			t.Fatalf("%d registers no Fatal Wound", itemID)
-		}
-		// A Fatal Wound is a main-hand special that rolls the proc again, so the proc stays off here.
-		*character.GetAura(procName).Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
-		var total float64
-		var landed int
-		for range 400 {
-			if dealt := castDamage(sim, wound, enemy); dealt > 0 {
-				total += dealt
-				landed++
+			row := spelldata.MustFind(item.spellID)
+			health := int32(row.EffectN(3).Average())
+			if health != 25 {
+				t.Fatalf("the row's threshold is %d%%, outside the case the test covers", health)
 			}
-		}
-		if landed < 300 {
-			t.Fatalf("%d of 400 Fatal Wounds dealt damage, want most", landed)
-		}
-		return total / float64(landed)
-	}
-	want := 1 + row.EffectN(2).Average()/100
-	plain := meanHit(0, 0, time.Second, false)
-	// Below 35% from the start and 20% only at the end: the target crosses 25% two thirds of the way.
-	justBelow := meanHit(1, 0, 121*time.Second, true)
-	if ratio := justBelow / plain; want <= 1 || math.Abs(ratio-want) > 0.05*want {
-		t.Errorf("Fatal Wound averages %v just below %d%% and %v above it, a ratio of %v, want the row's %v", justBelow, health, plain, ratio, want)
-	}
-	aboveRow := meanHit(1, 0, 119*time.Second, false)
-	if ratio := aboveRow / plain; math.Abs(ratio-1) > 0.05 {
-		t.Errorf("Fatal Wound averages %v above %d%% but below 35%%, a ratio of %v to the plain hit, want 1", aboveRow, health, ratio)
+			meanHit := func(execute35, execute20 float64, at time.Duration, below bool) float64 {
+				sim, character := procWeaponWearer(t, item.itemID, item.procName, &proto.Target{Name: "target", Level: 60}, execute35, execute20)
+				enemy := character.CurrentTarget
+				stepTo(t, sim, at)
+				if got := enemy.IsBelowExecuteHealth(health); got != below {
+					t.Fatalf("at %v with %v and %v of the fight below 35%% and 20%%, the target below %d%% reads %v, want %v", at, execute35, execute20, health, got, below)
+				}
+				wound := character.GetSpell(core.ActionID{SpellID: item.spellID})
+				if wound == nil {
+					t.Fatalf("%d registers no Fatal Wound", item.itemID)
+				}
+				// A Fatal Wound is a main-hand special that rolls the proc again, so the proc stays off here.
+				*character.GetAura(item.procName).Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
+				var total float64
+				var landed int
+				for range 400 {
+					if dealt := castDamage(sim, wound, enemy); dealt > 0 {
+						total += dealt
+						landed++
+					}
+				}
+				if landed < 300 {
+					t.Fatalf("%d of 400 Fatal Wounds dealt damage, want most", landed)
+				}
+				return total / float64(landed)
+			}
+			want := 1 + row.EffectN(2).Average()/100
+			plain := meanHit(0, 0, time.Second, false)
+			// Below 35% from the start and 20% only at the end: the target crosses 25% two thirds of the way.
+			justBelow := meanHit(1, 0, 121*time.Second, true)
+			if ratio := justBelow / plain; want <= 1 || math.Abs(ratio-want) > 0.05*want {
+				t.Errorf("Fatal Wound averages %v just below %d%% and %v above it, a ratio of %v, want the row's %v", justBelow, health, plain, ratio, want)
+			}
+			aboveRow := meanHit(1, 0, 119*time.Second, false)
+			if ratio := aboveRow / plain; math.Abs(ratio-1) > 0.05 {
+				t.Errorf("Fatal Wound averages %v above %d%% but below 35%%, a ratio of %v to the plain hit, want 1", aboveRow, health, ratio)
+			}
+		})
 	}
 }
 
