@@ -40,12 +40,12 @@ const mobTypeEnumValues = [
 	MobType.MobTypeUndead,
 ].map(value => ({ name: translateMobType(value), value }));
 
-// The families each mob type holds; Aquatic spans beasts, elementals and humanoids, Troll humanoids and undead.
-// Serpentine sits under Humanoid alone, since the items that count it count every Beast too.
+// The families each mob type holds; Aquatic spans beasts, elementals and humanoids, Serpentine beasts and humanoids, Troll humanoids and undead.
 const creatureFamiliesByMobType: Partial<Record<MobType, ReadonlyArray<CreatureFamily>>> = {
 	[MobType.MobTypeBeast]: [
 		CreatureFamily.CreatureFamilyAquatic,
 		CreatureFamily.CreatureFamilyDinosaur,
+		CreatureFamily.CreatureFamilySerpentine,
 		CreatureFamily.CreatureFamilySwine,
 		CreatureFamily.CreatureFamilyWolf,
 	],
