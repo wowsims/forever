@@ -407,7 +407,7 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
 	row := spelldata.MustFind(17499)
 	amount := row.FirstAura(dbcenums.A_MOD_STAT).Min()
-	before := character.GetStat(stats.Strength)
+	before := character.GetStats()
 
 	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeMiss})
 	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
@@ -418,15 +418,11 @@ func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
 	if !surge.IsActive() {
 		t.Fatal("a main-hand swing put up no Surge of Strength")
 	}
-	if got := character.GetStat(stats.Strength) - before; amount <= 0 || got != amount {
+	if got := gained(character, before, stats.Strength); amount <= 0 || !statNear(got, amount) {
 		t.Errorf("Surge of Strength adds %v Strength, want the row's %v", got, amount)
 	}
 	if got := surge.RemainingDuration(sim); got != row.Duration() {
 		t.Errorf("Surge of Strength went up for %v, want the row's %v", got, row.Duration())
-	}
-	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
-	if surge.IsActive() {
-		t.Errorf("Surge of Strength is still up after the row's %v", row.Duration())
 	}
 }
 

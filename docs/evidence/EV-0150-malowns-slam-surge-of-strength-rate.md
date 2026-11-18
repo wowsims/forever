@@ -1,7 +1,7 @@
-# EV-0150: Malown's Slam puts Surge of Strength on the wearer with each proc, about 12% of landed weapon hits
+# EV-0150: Malown's Slam puts Surge of Strength on the wearer with each proc, about 11% of landed weapon hits
 
-- Claim: Malown's Slam 13393 procs on landed white swings and melee specials alike, at about 12% of each landed hit
-  on its 3.8 s speed (about 1.8 procs per minute), with no cooldown. Each proc casts 17500 on the target and puts
+- Claim: Malown's Slam 13393 procs on landed white swings and melee specials alike, at about 11% of each landed hit
+  on its 3.8 s speed (1.8 procs per minute), with no cooldown. Each proc casts 17500 on the target and puts
   Surge of Strength 17499 on the wearer, a stun the target is immune to or a killing hit included. A proc never rolls
   another, and spells roll none.
 - Sources: Warcraft Logs reports (forever.warcraftlogs.com) HYmf1vTW6hVDPytK fights 15 and 16, NXMZV9xjvWpB7GtP
@@ -11,7 +11,7 @@
   (HYmf1vTW6hVDPytK), dated by when the CDN first listed each build against the log times; the combat log 1.60.1.70959
   by the same dating. The hotfix each log ran on is not recorded
 - Date: the reports 2026-11-14 16:07 to 2026-11-18 05:08 UTC; the combat log 2026-11-18
-- Pull request: not opened yet
+- Pull request: #1101
 
 ## Method
 
@@ -25,7 +25,7 @@ it to 40 ms after it; in the combat log 17499 logs 1 ms before its hit and 17500
 from 20 ms before it to 5 ms after. The same window shifted 0.3 to 0.9 s later counts chance coincidence.
 
 Two other shamans wore the mace for a few swings only and a druid tank swapped weapons through the log, so they are
-left out. Every wearer counted swung the 3.8 s mace, so these hits fit a flat 12% chance as well as a rate in procs
+left out. Every wearer counted swung the 3.8 s mace, so these hits fit a flat 11% chance as well as a rate in procs
 per minute.
 
 ## Reports
@@ -67,6 +67,10 @@ Isolated landed hits:
 
 Judgement of Command is two rolls a cast. Two procs logged at one millisecond, and the next shortest gap between
 procs on separate hits was 0.94 s. Every pair of procs within 200 ms is a white swing and a Seal of Command strike.
+
+The paladin's specials fall short of the rate the reports give: 1.8 procs per minute expects 14 of the 125 Holy
+Strikes (7 seen, a 2% tail) and 25 of the 117 Judgements at two rolls (17 seen, 4%). The claim that specials roll it
+alike rests on the reports' Stormstrikes.
 
 ## Rate
 
