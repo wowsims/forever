@@ -56,7 +56,7 @@ effect landing with no direct damage.
 | Trigger                      | Pjd9MWAXgCYTcn7Z | VRrgQJFbdXckaZq7 | NTJzVdMZBQDaqG83 |
 | ---------------------------- | ---------------: | ---------------: | ---------------: |
 | Corruption cast              |               11 |                  |                  |
-| Curse of Agony cast          |                7 |                  |                  |
+| Bane of Agony cast           |                7 |                  |                  |
 | Wrack cast                   |                5 |                2 |                  |
 | Curse of Recklessness cast   |                4 |                  |                  |
 | Siphon Life cast             |                2 |                  |                  |
@@ -81,7 +81,7 @@ apart.
 | --------------------- | -------: | ----: | ---: |
 | Wrack                 |      280 |     7 | 2.5% |
 | Corruption            |      268 |    12 | 4.5% |
-| Curse of Agony        |      221 |     7 | 3.2% |
+| Bane of Agony         |      221 |     7 | 3.2% |
 | Curse of Recklessness |       81 |     4 | 4.9% |
 | Curse of the Elements |       58 |     2 | 3.4% |
 | Siphon Life           |       55 |     2 | 3.6% |

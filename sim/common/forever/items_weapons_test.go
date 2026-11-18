@@ -589,9 +589,9 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 // A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage, a
 // spell with no proc mask too when its DefenseType is magic, its school is not Physical and the
 // wearer cast it. A damage over time tick, a wand shot, a miss, a melee ability or a Physical taunt
-// with no proc mask, a spell fired as a proc with no proc mask and a landing on the wearer never roll
-// it. Each is dealt at an hour-long cast, a chance
-// that cannot fail, as core deals a cast's result before its hit.
+// with no proc mask, a spell fired as a proc or cast by an item with no proc mask and a landing on the
+// wearer never roll it. Each is dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result
+// before its hit.
 func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
 	for _, event := range []struct {
 		name string
@@ -633,6 +633,11 @@ func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
 		{"spell fired as a proc with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
 			spell.ProcMask = core.ProcMaskEmpty
 			spell.Flags |= core.SpellFlagPassiveSpell
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"spell an item casts with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.ActionID = core.ActionID{ItemID: 10646}
 			character.OnSpellHitDealt(sim, spell, result)
 		}},
 		{"landing on the wearer", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {

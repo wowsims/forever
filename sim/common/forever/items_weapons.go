@@ -284,8 +284,9 @@ func init() {
 	//
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
-	// Every harmful spell that lands on an enemy rolls it, damage or not, once a target, on the cast time
-	// of the cast that launched it (EV-0025). Physical taunts, shouts and roars are not spells and roll nothing.
+	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
+	// time of the cast that launched it (EV-0025). Physical taunts, shouts and roars and spells an item
+	// casts are not the wearer's spells and roll nothing.
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -294,8 +295,9 @@ func init() {
 			trigger.ProcMask = core.ProcMaskUnknown
 			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 				harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
-					spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic && spell.SpellSchool != core.SpellSchoolPhysical &&
-						!spell.Flags.Matches(core.SpellFlagPassiveSpell)
+					(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
+						spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
+						spell.ActionID.ItemID == 0)
 				return harmful && character.IsOpponent(result.Target) && priced(sim, spell, result)
 			}
 		}},
