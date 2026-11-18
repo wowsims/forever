@@ -1562,6 +1562,28 @@ func procWeaponWearer(t *testing.T, itemID int32, procName string, target *proto
 	return sim, character
 }
 
+// Barman Shanker 12791's Rend 1300787, applied from behind the target, ticks for the multiple of its
+// periodic damage its second effect states.
+func TestBarmanShankerRendDealsItsMultipleFromBehind(t *testing.T) {
+	sim, character := procWeaponWearer(t, 12791, "Barman Shanker", &proto.Target{Name: "target", Level: 60}, 0, 0)
+	if character.PseudoStats.InFrontOfTarget {
+		t.Fatal("the wearer stands in front of the target")
+	}
+	enemy := character.CurrentTarget
+	rend := character.GetSpell(core.ActionID{SpellID: 1300787})
+	if rend == nil {
+		t.Fatal("12791 registers no Rend")
+	}
+	row := spelldata.MustFind(1300787)
+	multiple := row.EffectN(2).Average()
+	want := row.EffectN(1).Average() * float64(rowTickCount(row, row.EffectN(1))) * multiple
+	rend.Cast(sim, enemy)
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Second)
+	if got := rend.SpellMetrics[enemy.UnitIndex].TotalDamage; multiple <= 1 || math.Abs(got-want) > 0.5 {
+		t.Errorf("a Rend from behind dealt %v, want the row's ticks times %v, %v", got, multiple, want)
+	}
+}
+
 // Sul'thraze the Lasher 9372: a landed Rage of Sul'thraze 1294430 puts Shadow Lash 1294431 on the
 // target, which deals its damage when its duration runs out. A Rage that lands while the Lash runs puts
 // up no second one and leaves its time alone; a missed Rage puts up none.

@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BarmanShanker-12791"
  value: {
-  dps: 745.07294
-  tps: 554.7452
+  dps: 751.60083
+  tps: 559.38497
   hps: 46.00417
  }
 }

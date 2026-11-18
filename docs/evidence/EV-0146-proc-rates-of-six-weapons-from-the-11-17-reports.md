@@ -1,8 +1,9 @@
 # EV-0146: Proc rates of six weapons from the 2026-11-17 Warcraft Logs reports
 
 - Claim: Killmaim procs at 1 and Waveslicer at 1.95 procs per minute; Julie's Dagger at about 1.05, Axe of the Deep
-  Woods at about 1.7, Barman Shanker at about 2.05 and Blunderflame Bone Bow at about 2.1, too few wearers or too wide an
-  interval to call final; each priced on each landed hit's weapon base speed.
+  Woods at about 1.7, Barman Shanker at about 2.05 and Blunderflame Bone Bow at about 2.1, too few wearers, too wide
+  an interval or wearers of one class only to call final; each priced on each landed hit's weapon base speed. Barman
+  Shanker's Rend deals twice its damage when applied from behind the target.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each section's table names; 66
   reports in all
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
@@ -17,15 +18,18 @@ hand (white swings, melee-defense abilities, seals and Windfury Totem strikes on
 hand; Auto Shot and ranged-defense hits on the ranged weapon); a dual wielder's swings are split between the hands by
 swing timing; a run logged in two reports counts once and a stretch where the item was swapped away is dropped. The
 interval is the wider of the per-hit Wilson interval and 2,000 bootstrap draws of whole wearers. A rate is measured when
-5 or more wearers give it and its interval lies within 10% of it either side, and observed otherwise.
+5 or more wearers of more than one class give it and its interval lies within 10% of it either side, and observed
+otherwise. The hits a dual wielder's split gives are fractional, so each table's rows are rounded and sum to within a
+few hits of its total.
 
 Julie's Dagger leaves out its one warrior run, since a warrior's off-hand Whirlwind rolls the dagger and is not counted
 as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods reads 1.94 on its rogue and hunter runs and
-1.50 on its warrior runs. Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
+1.55 on its warrior runs. Barman Shanker has only rogue wearers and Blunderflame Bone Bow only hunters.
 
 ## Killmaim (item 13016, spell 13318): 1, measured
 
-700 procs on 12,890 landed hits, 32 runs: 1.02 [0.94, 1.10].
+700 procs on 12,890 landed hits, 29 wearers, 32 runs: 1.02 [0.94, 1.10]. Dropping the stretches where it was swapped
+away (2,194 hits in 8 runs) moves the rate from 0.87 to 1.02.
 
 | Report           | Fights    | Class   | Hand      | Procs |  Hits | Rate |
 | ---------------- | --------- | ------- | --------- | ----: | ----: | ---: |
@@ -64,7 +68,7 @@ as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods read
 
 ## Waveslicer (item 18324, spell 1302166): 1.95, measured
 
-1,688 procs on 16,901 landed hits, 7 runs: 1.93 [1.84, 2.04].
+1,688 procs on 16,901 landed hits, 5 wearers, 7 runs: 1.93 [1.84, 2.04].
 
 | Report           | Fights | Class   | Hand      | Procs |  Hits | Rate |
 | ---------------- | ------ | ------- | --------- | ----: | ----: | ---: |
@@ -78,7 +82,8 @@ as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods read
 
 ## Julie's Dagger (item 6660, spell 8348): 1.05, observed
 
-218 procs on 9,524 landed hits, 9 runs, the warrior run left out (its off-hand Whirlwind rolls the dagger): 1.06 [0.92, 1.20].
+218 procs on 9,524 landed hits, 9 wearers, 9 runs, the warrior run left out (its off-hand Whirlwind rolls the
+dagger): 1.06 [0.92, 1.20], the per-hit interval.
 
 | Report           | Fights  | Class              | Hand     | Procs |  Hits | Rate |
 | ---------------- | ------- | ------------------ | -------- | ----: | ----: | ---: |
@@ -95,7 +100,7 @@ as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods read
 
 ## Axe of the Deep Woods (item 811, spell 18104): 1.7, observed
 
-867 procs on 11,417 landed hits, 7 runs: 1.69 [1.55, 1.98].
+867 procs on 11,417 landed hits, 6 wearers, 7 runs: 1.69 [1.55, 1.98].
 
 | Report           | Fights                 | Class   | Hand      | Procs |  Hits | Rate |
 | ---------------- | ---------------------- | ------- | --------- | ----: | ----: | ---: |
@@ -109,7 +114,11 @@ as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods read
 
 ## Barman Shanker (item 12791, spell 1300787): 2.05, observed
 
-681 procs on 9,923 landed hits, 5 runs: 2.06 [1.88, 2.23].
+681 procs on 9,923 landed hits, 5 wearers, 5 runs: 2.06 [1.88, 2.23]. Observed, since every wearer is a rogue.
+
+Its Rend ticks before mitigation fall in two groups, 12 to 14 and 26 to 28: 669 and 761 ticks in GbNrpkt9fVKv74wQ,
+9zxHaWbYT3gqDQvF and zp9yVrtfTNZJCv7g. The doubled ticks are the Rends applied from behind the target, as 1300787's
+second effect states.
 
 | Report           | Fights    | Class | Hand      | Procs |  Hits | Rate |
 | ---------------- | --------- | ----- | --------- | ----: | ----: | ---: |
@@ -121,7 +130,7 @@ as a hit here (EV-0136); with it the rate reads 1.10. Axe of the Deep Woods read
 
 ## Blunderflame Bone Bow (item 275439, spell 1296730): 2.1, observed
 
-376 procs on 3,874 landed hits, 6 runs: 2.08 [1.87, 2.37].
+376 procs on 3,874 landed hits, 5 wearers, 6 runs: 2.08 [1.87, 2.37].
 
 | Report           | Fights   | Class  | Hand   | Procs |  Hits | Rate |
 | ---------------- | -------- | ------ | ------ | ----: | ----: | ---: |

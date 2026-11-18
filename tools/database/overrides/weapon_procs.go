@@ -522,14 +522,21 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Waveslicer: no proc row",
 		Source:  "EV-0146",
 	},
-	// Fitted the same way from the reports up to 2026-11-17, from too few wearers or too wide an interval
-	// to call final (EV-0146). The "observed" Source keeps the gear tab's notice up until more wearers
+	// Fitted the same way from the reports up to 2026-11-17, from too few wearers, too wide an interval
+	// or wearers of one class only to call final (EV-0146). The "observed" Source keeps the gear tab's notice up until more wearers
 	// validate it.
 	{
 		ItemID:  811,
 		SpellID: 18104,
 		PPM:     1.7,
 		Reason:  "Axe of the Deep Woods: no proc row; a log fit not yet validated (EV-0146)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  6660,
+		SpellID: 8348,
+		PPM:     1.05,
+		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
 	{
@@ -693,13 +700,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1293653,
 		PPM:     2.25,
 		Reason:  "Sliverblade: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  6660,
-		SpellID: 8348,
-		PPM:     1.05,
-		Reason:  "Julie's Dagger: column reads 100; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
 	{
@@ -1362,13 +1362,6 @@ var WeaponProcs = []WeaponProc{
 	// 	SpellID: 16784,
 	// 	PPM:     0, // TODO: waiting for PPM data
 	// 	Reason:  "Darkblade: column reads 101",
-	// 	Source:  "vanilla-carryover",
-	// },
-	// {
-	// 	ItemID:  275439,
-	// 	SpellID: 1296730,
-	// 	PPM:     0, // TODO: waiting for PPM data
-	// 	Reason:  "Blunderflame Bone Bow: no proc row",
 	// 	Source:  "vanilla-carryover",
 	// },
 	// {

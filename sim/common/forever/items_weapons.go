@@ -537,6 +537,20 @@ func init() {
 		}
 	}
 
+	// Barman Shanker
+	// https://www.wowhead.com/forever/item=12791/barman-shanker
+	//
+	// Chance on hit: Wounds the target causing them to bleed for 98 damage over 7 sec. Deals 2 times as
+	// much damage if applied while behind the target.
+	//
+	// Rend 1300787's second effect, a dummy, states the multiplier a Rend applied from behind the target
+	// deals its ticks with (EV-0146).
+	shared.DamageProcExtras[12791] = func(character *core.Character, config *core.SpellConfig) {
+		if !character.PseudoStats.InFrontOfTarget {
+			config.DamageMultiplier *= spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Average()
+		}
+	}
+
 	// Flame Wrath
 	// https://www.wowhead.com/forever/item=11809/flame-wrath
 	//
