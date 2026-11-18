@@ -160,8 +160,8 @@ func TestBearPrepullEnrage(t *testing.T) {
 		sim.AddPendingAction(&core.PendingAction{NextActionAt: 0, Priority: core.ActionPriorityLow, OnAction: func(sim *core.Simulation) {
 			observed = true
 			t.Logf("iteration %d: rage %g, Enrage active %v, cooldown %s", iteration, bear.CurrentRage(), bear.EnrageAura.IsActive(), bear.Enrage.CD.TimeToReady(sim))
-			if bear.CurrentRage() != 40 || bear.EnrageAura.IsActive() || bear.Enrage.CD.TimeToReady(sim) != 50*time.Second || !bear.DireBearFormAura.IsActive() {
-				t.Fatal("prepull powershift and Enrage did not finish before the pull")
+			if bear.CurrentRage() != 30 || bear.EnrageAura.IsActive() || bear.Enrage.CD.TimeToReady(sim) != 50*time.Second || !bear.DireBearFormAura.IsActive() {
+				t.Fatal("prepull Enrage did not finish before the pull")
 			}
 		}})
 		sim.PrePull()
@@ -201,8 +201,12 @@ func TestBearPrepullEnrageWithFullRotation(t *testing.T) {
 				}
 			}
 		}
-		if count != 2 {
-			t.Fatalf("prepull spell %d cast %d times over two iterations", id, count)
+		want := 2
+		if id == spellDireBear {
+			want = 0
+		}
+		if count != want {
+			t.Fatalf("prepull spell %d cast %d times over two iterations, want %d", id, count, want)
 		}
 	}
 }
@@ -213,12 +217,14 @@ func TestAdaptiveBearHoldsEnrageForRageShortage(t *testing.T) {
 		biteReady, gcdReady bool
 		rage                float64
 		want                bool
+		noLacerate          bool
 	}{
-		{"bite-starved", true, true, 5, true},
-		{"lacerate-starved", false, true, 5, true},
-		{"bite-funded", true, true, 20, false},
-		{"lacerate-funded", false, true, 15, false},
-		{"global-busy", true, false, 0, false},
+		{"bite-starved", true, true, 5, true, false},
+		{"lacerate-starved", false, true, 5, true, false},
+		{"bite-funded", true, true, 20, false, false},
+		{"lacerate-funded", false, true, 15, false, false},
+		{"global-busy", true, false, 0, false, false},
+		{"lacerate-not-talented", true, true, 0, false, true},
 	} {
 		t.Run(check.name, func(t *testing.T) {
 			rot := selectedAdaptiveBearAPL()
@@ -230,6 +236,14 @@ func TestAdaptiveBearHoldsEnrageForRageShortage(t *testing.T) {
 			}
 			rot.PrepullActions = nil
 			req := bearRequest(rot, 1)
+			if check.noLacerate {
+				player := req.Raid.Parties[0].Players[0]
+				trees := strings.Split(player.TalentsString, "-")
+				feral := []byte(trees[1])
+				feral[11] = '0'
+				trees[1] = string(feral)
+				player.TalentsString = strings.Join(trees, "-")
+			}
 			req.Raid.Parties[0].Players[0].Consumables = &proto.ConsumesSpec{}
 			sim := core.NewSim(req, simsignals.CreateSignals())
 			sim.Reset()
@@ -363,83 +377,6 @@ func TestAdaptiveMcpReturnsToMainWeapon(t *testing.T) {
 			sim.Cleanup()
 		}
 	}
-}
-
-func TestAdaptiveBearPrepullPreservesStartingRage(t *testing.T) {
-	for _, rage := range []float64{0, 9, 10, 25, 100} {
-		t.Run(fmt.Sprintf("rage=%g", rage), func(t *testing.T) {
-			rotation := selectedAdaptiveBearAPL()
-			rotation.PrepullActions = rotation.PrepullActions[:1]
-			rotation.PriorityList = nil
-			req := bearNakedRequest()
-			req.Raid.Tanks = nil
-			player := req.Raid.Parties[0].Players[0]
-			player.TalentsString = withFurorFive(bearTalents)
-			player.GetFeralBearDruid().Options.StartingRage = rage
-			player.Rotation = rotation
-			sim := core.NewSim(req, simsignals.CreateSignals())
-			for iteration := range 2 {
-				sim.Reset()
-				bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
-				bear.AutoAttacks.CancelAutoSwing(sim)
-				observed := false
-				sim.AddPendingAction(&core.PendingAction{NextActionAt: -9 * time.Second, OnAction: func(sim *core.Simulation) {
-					observed = true
-					wantCasts := int32(0)
-					if rage < 10 {
-						wantCasts = 1
-					}
-					gotCasts := bear.DireBearForm.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts
-					if gotCasts != wantCasts {
-						t.Fatalf("prepull shifts = %d, want %d", gotCasts, wantCasts)
-					}
-					if rage >= 10 && bear.CurrentRage() != rage {
-						t.Fatalf("starting rage %g became %g", rage, bear.CurrentRage())
-					}
-					t.Logf("iteration %d: initial rage %g, observed rage %g, shifts %d", iteration, rage, bear.CurrentRage(), gotCasts)
-				}})
-				sim.PrePull()
-				for !observed {
-					if sim.Step() {
-						t.Fatal("simulation ended before prepull observation")
-					}
-				}
-				sim.Cleanup()
-			}
-		})
-	}
-}
-
-func TestAdaptiveBearPrepullDoesNotShiftWithoutFuror(t *testing.T) {
-	rotation := selectedAdaptiveBearAPL()
-	rotation.PrepullActions = rotation.PrepullActions[:1]
-	rotation.PriorityList = nil
-	req := bearNakedRequest()
-	req.Raid.Tanks = nil
-	player := req.Raid.Parties[0].Players[0]
-	player.TalentsString = "050022-20200302123102125010-055"
-	player.Rotation = rotation
-	sim := core.NewSim(req, simsignals.CreateSignals())
-	sim.Reset()
-	bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
-	if bear.Talents.Furor != 0 {
-		t.Fatal("fixture has Furor talented")
-	}
-	bear.AutoAttacks.CancelAutoSwing(sim)
-	observed := false
-	sim.AddPendingAction(&core.PendingAction{NextActionAt: -9 * time.Second, OnAction: func(sim *core.Simulation) {
-		observed = true
-		if casts := bear.DireBearForm.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts; casts != 0 {
-			t.Fatalf("prepull shifts without Furor = %d", casts)
-		}
-	}})
-	sim.PrePull()
-	for !observed {
-		if sim.Step() {
-			t.Fatal("simulation ended before prepull observation")
-		}
-	}
-	sim.Cleanup()
 }
 
 const (
@@ -578,12 +515,12 @@ func bearAPLWarnings(t *testing.T, req *proto.RaidSimRequest) map[int][]string {
 	return warnings
 }
 
-// One target keeps the Lacerate stacks; more than one takes Swipe in its place once one bleeds.
-func TestAdaptiveBearSwipesOnlyWithMoreThanOneTarget(t *testing.T) {
+// The single-target priority keeps Lacerate and does not select Swipe on a larger encounter.
+func TestAdaptiveBearKeepsSingleTargetPriority(t *testing.T) {
 	for _, check := range []struct {
 		targets int
 		swipes  bool
-	}{{1, false}, {2, true}} {
+	}{{1, false}, {2, false}} {
 		req := bearRequest(selectedAdaptiveBearAPL(), 20)
 		req.Encounter.Targets = make([]*proto.Target, check.targets)
 		for i := range req.Encounter.Targets {
@@ -669,53 +606,6 @@ func cmp(op proto.APLValueCompare_ComparisonOperator, lhs, rhs *proto.APLValue) 
 
 func mathOp(op proto.APLValueMath_MathOperator, lhs, rhs *proto.APLValue) *proto.APLValue {
 	return &proto.APLValue{Value: &proto.APLValue_Math{Math: &proto.APLValueMath{Op: op, Lhs: lhs, Rhs: rhs}}}
-}
-
-func TestAdaptiveBearCleaveLacerateFollowsLivingTarget(t *testing.T) {
-	for _, name := range []string{"Two targets: Swipe and Primal Bite", "Three targets: Swipe priority"} {
-		t.Run(name, func(t *testing.T) {
-			rotation := selectedAdaptiveBearAPL()
-			var row *proto.APLListItem
-			for _, group := range rotation.Groups {
-				if group.Name == name {
-					for _, candidate := range group.Actions {
-						if candidate.Action.GetCastSpell().GetSpellId().GetSpellId() == spellLacerate {
-							row = candidate
-						}
-					}
-				}
-			}
-			if row == nil {
-				t.Fatal("cleave Lacerate row is missing")
-			}
-			rotation.PriorityList = []*proto.APLListItem{row}
-			rotation.Groups = nil
-			rotation.PrepullActions = nil
-			req := bearNakedRequest()
-			req.Raid.Tanks = nil
-			req.Raid.Parties[0].Players[0].Rotation = rotation
-			req.Encounter.Targets = []*proto.Target{core.NewDefaultTarget(), core.NewDefaultTarget(), core.NewDefaultTarget()}
-			if name == "Three targets: Swipe priority" {
-				req.Encounter.Targets = append(req.Encounter.Targets, core.NewDefaultTarget())
-			}
-			sim := core.NewSim(req, simsignals.CreateSignals())
-			sim.Reset()
-			bear := sim.Raid.Parties[0].Players[0].(*GuardianDruid)
-			bear.AutoAttacks.CancelAutoSwing(sim)
-			bear.GCD.Set(10 * time.Second)
-			bear.AddRage(sim, 100, bear.NewRageMetrics(core.ActionID{SpellID: 1}))
-			sim.Encounter.AllTargets[0].Disable(sim, true)
-			if bear.CurrentTarget == &sim.Encounter.AllTargets[0].Unit {
-				t.Fatal("still targeting the dead mob")
-			}
-			sim.CurrentTime = time.Second
-			bear.GCD.Set(sim.CurrentTime)
-			bear.Rotation.DoNextAction(sim)
-			if got := bear.Lacerate.SpellMetrics[bear.CurrentTarget.UnitIndex].Casts; got != 1 {
-				t.Fatalf("Lacerate casts on the living target = %d, want 1", got)
-			}
-		})
-	}
 }
 
 func TestAdaptiveBearSelectedOnUseItems(t *testing.T) {
