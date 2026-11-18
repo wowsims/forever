@@ -1021,6 +1021,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFrost-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 727.49227
+  tps: 674.60143
+ }
+}
+dps_results: {
  key: "TestFrost-AllItems-RingofSaviors-1447"
  value: {
   dps: 808.84365

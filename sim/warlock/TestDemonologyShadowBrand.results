@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 931.73577
-  tps: 768.03556
-  dtps: 11.30197
+  dps: 931.13559
+  tps: 767.90496
+  dtps: 11.25983
  }
 }
 dps_results: {
@@ -1125,6 +1125,14 @@ dps_results: {
   dps: 923.40692
   tps: 759.46131
   dtps: 11.27209
+ }
+}
+dps_results: {
+ key: "TestDemonologyShadowBrand-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 846.48807
+  tps: 709.14862
+  dtps: 11.23644
  }
 }
 dps_results: {

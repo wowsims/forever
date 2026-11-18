@@ -1647,6 +1647,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 727.41049
+  tps: 744.77944
+  dtps: 6.46524
+  hps: 28.89807
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-RingofSaviors-1447"
  value: {
   dps: 864.54156
@@ -1802,10 +1811,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-SoulforgeArmor"
  value: {
-  dps: 777.74489
-  tps: 634.75561
+  dps: 771.22514
+  tps: 629.54062
   dtps: 4.55194
-  hps: 23.12544
+  hps: 23.13357
  }
 }
 dps_results: {

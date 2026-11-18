@@ -104,6 +104,8 @@ is registered. Items and enchants work differently:
   its own package, so a shared set left in a class folder never reaches the other classes' AllItems suites;
   `TestGearSetsHoldOnlyTheirClassItems` in `sim/item_class_allowlist_test.go` fails a preset wearing another class's
   locked item.
+- **The gear tab reads a hand-written proc's rate from its rows.** Code that rolls something else takes a row in
+  `tools/database/overrides/gear_proc_rates.go`; `wowsims-procs` `## Measuring a rate`.
 - **Three aura lists route the generated item auras** (`tools/database/gen_effects.go`). `itemAuraKinds` is shared
   by on-use and equip spells, so an aura type added there, a class-mask modifier say, flips every equip item that
   states it into the item aura shape; equip-only types go in `equipAuraKinds` and on-use-only ones in

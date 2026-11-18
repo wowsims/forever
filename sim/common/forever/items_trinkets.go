@@ -455,6 +455,26 @@ func init() {
 			{ItemID: 17774, ItemName: "Mark of the Chosen"},
 		})
 
+	// The Lion Horn of Stormwind
+	// https://www.wowhead.com/forever/item=14557/the-lion-horn-of-stormwind
+	//
+	// When struck in combat has a 5% chance of increasing all party member's armor by 725 for 30s. This
+	// chance is doubled in Strongholds and Cities.
+	//
+	// The tooltip states the chance as ${$h/2}%: 20847's ProcChance is the chance doubled in Strongholds
+	// and Cities, so by the owner's ruling an encounter there rolls the whole column and any other
+	// encounter half of it. The sim fixes the encounter's area for the run, so the chance is fixed when
+	// the trigger is built.
+	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 20847, BuffSpellID: 18946,
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			if !character.Env.Encounter.InArea(proto.AreaType_AreaTypeStrongholdsCities) {
+				trigger.ProcChance /= 2
+			}
+		}},
+		[]shared.ItemVariant{
+			{ItemID: 14557, ItemName: "The Lion Horn of Stormwind"},
+		})
+
 	// Draconic Infused Emblem
 	// https://www.wowhead.com/forever/item=22268/draconic-infused-emblem
 	//

@@ -126,8 +126,8 @@ dps_results: {
 dps_results: {
  key: "TestArcane-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 843.65432
-  tps: 724.27567
+  dps: 846.26473
+  tps: 726.72883
  }
 }
 dps_results: {
@@ -1018,6 +1018,13 @@ dps_results: {
  value: {
   dps: 823.1385
   tps: 704.4839
+ }
+}
+dps_results: {
+ key: "TestArcane-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 764.24266
+  tps: 656.54996
  }
 }
 dps_results: {

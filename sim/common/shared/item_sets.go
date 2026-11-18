@@ -18,7 +18,7 @@ func ParsedSetBonus(rows ...*spelldata.Spell) core.ApplySetBonus {
 	return func(agent core.Agent, setBonusAura *core.Aura) {
 		character := agent.GetCharacter()
 		for _, row := range rows {
-			if isSetBonusProc(row) {
+			if IsSetBonusProc(row) {
 				attachSetBonusProc(character, setBonusAura, row)
 				continue
 			}
@@ -39,7 +39,7 @@ const (
 )
 
 // A row whose one effect triggers another spell off the row's own proc flags.
-func isSetBonusProc(row *spelldata.Spell) bool {
+func IsSetBonusProc(row *spelldata.Spell) bool {
 	return len(row.Effects) == 1 && row.Effects[0].Aura == dbcenums.A_PROC_TRIGGER_SPELL && row.FiredSpell() != spelldata.Nil
 }
 
@@ -65,7 +65,7 @@ func shapeOfSetBonusProc(row *spelldata.Spell) setBonusProcShape {
 // Unending Life's 26107 refunds on finishing moves that miss, Stormcaller's Garb's 26119 on three shaman
 // spells).
 func SetBonusUnsupported(row *spelldata.Spell) []string {
-	if !isSetBonusProc(row) {
+	if !IsSetBonusProc(row) {
 		return spelldata.SetBonusUnsupported(row)
 	}
 
@@ -89,7 +89,7 @@ func SetBonusUnsupported(row *spelldata.Spell) []string {
 	return unsupported
 }
 
-// The proc of a row isSetBonusProc names, kept to the set bonus aura: the row's listener, chance and
+// The proc of a row IsSetBonusProc names, kept to the set bonus aura: the row's listener, chance and
 // cooldown, firing what its spell does. A row whose tooltip names the cast as a trigger and that hears
 // melee swings and spells at procs per minute gets a listener for each: the swings roll the rate on the
 // weapon's speed and the casts on their cast time (SpellCastPPMTrigger). The pair shares no cooldown,

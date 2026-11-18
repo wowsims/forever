@@ -144,9 +144,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 746.27165
-  tps: 533.82093
-  dtps: 4.85194
+  dps: 747.87793
+  tps: 535.42268
+  dtps: 5.10235
  }
 }
 dps_results: {
@@ -1156,6 +1156,14 @@ dps_results: {
   dps: 743.60896
   tps: 531.62284
   dtps: 5.76127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 694.16796
+  tps: 497.11255
+  dtps: 5.10391
  }
 }
 dps_results: {

@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestAffliction-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 810.32853
-  tps: 635.87788
-  dtps: 8.32159
+  dps: 803.39169
+  tps: 630.43219
+  dtps: 8.4807
  }
 }
 dps_results: {
@@ -1125,6 +1125,14 @@ dps_results: {
   dps: 813.79531
   tps: 637.70469
   dtps: 8.27755
+ }
+}
+dps_results: {
+ key: "TestAffliction-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 728.99551
+  tps: 584.18877
+  dtps: 8.25333
  }
 }
 dps_results: {

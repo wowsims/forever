@@ -245,9 +245,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 732.43088
-  tps: 754.76651
-  dtps: 9.2306
+  dps: 732.7683
+  tps: 755.0857
+  dtps: 8.90096
   hps: 14.89417
  }
 }
@@ -1887,6 +1887,15 @@ dps_results: {
   tps: 925.56072
   dtps: 11.02171
   hps: 14.13167
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 804.49561
+  tps: 826.89969
+  dtps: 8.71461
+  hps: 14.69083
  }
 }
 dps_results: {
