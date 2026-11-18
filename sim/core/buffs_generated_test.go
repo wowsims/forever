@@ -599,12 +599,12 @@ func darkspearRaid(db *proto.SimDatabase) *proto.Raid {
 	}
 }
 
-// The Darkspear row as a browser request carries it: the UI database's item, cut down to the
-// fields the sim reads.
-func darkspearRequestItem(t *testing.T) *proto.SimItem {
+// An item as a browser request carries it: the UI database's item, cut down to the fields the sim
+// reads.
+func requestItem(t *testing.T, itemID int32) *proto.SimItem {
 	t.Helper()
 	for _, item := range database.Load().Items {
-		if item.Id != darkspearItemID {
+		if item.Id != itemID {
 			continue
 		}
 		data, err := protojson.Marshal(item)
@@ -617,7 +617,7 @@ func darkspearRequestItem(t *testing.T) *proto.SimItem {
 		}
 		return simItem
 	}
-	t.Fatalf("the database has no item %d", darkspearItemID)
+	t.Fatalf("the database has no item %d", itemID)
 	return nil
 }
 
@@ -639,7 +639,7 @@ func TestPartyDarkspearNamesTheItemTheRequestMustCarry(t *testing.T) {
 
 // A request that carries the Darkspear item computes stats with the party's Darkspear on.
 func TestPartyDarkspearReadsTheItemTheRequestCarries(t *testing.T) {
-	item := darkspearRequestItem(t)
+	item := requestItem(t, darkspearItemID)
 	restore := core.KeepOnlyItems(nil)
 	defer restore()
 

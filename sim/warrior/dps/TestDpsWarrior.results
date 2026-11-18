@@ -83,8 +83,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Annihilator-12798"
  value: {
-  dps: 566.7678
-  tps: 485.00977
+  dps: 542.45234
+  tps: 465.97661
   dtps: 2.94293
   hps: 41.09028
  }
@@ -155,8 +155,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Bashguuder-13204"
  value: {
-  dps: 554.26128
-  tps: 478.21092
+  dps: 535.19548
+  tps: 463.29218
   dtps: 2.94293
   hps: 45.69917
  }
@@ -1667,8 +1667,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Rivenspike-13286"
  value: {
-  dps: 579.24241
-  tps: 495.51116
+  dps: 562.06182
+  tps: 482.0356
   dtps: 2.94293
   hps: 39.51444
  }

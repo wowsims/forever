@@ -80,8 +80,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Annihilator-12798"
  value: {
-  dps: 828.81534
-  tps: 588.45889
+  dps: 810.80363
+  tps: 575.67058
   hps: 50.81639
  }
 }
@@ -136,8 +136,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bashguuder-13204"
  value: {
-  dps: 811.57013
-  tps: 576.21479
+  dps: 797.78176
+  tps: 566.42505
   hps: 56.12
  }
 }
@@ -1464,8 +1464,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Rivenspike-13286"
  value: {
-  dps: 818.28446
-  tps: 580.98197
+  dps: 806.91928
+  tps: 572.91269
   hps: 47.95278
  }
 }
