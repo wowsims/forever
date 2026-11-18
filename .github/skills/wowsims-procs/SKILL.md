@@ -97,18 +97,32 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   table of `procs.md`); 101 usually means no proc at all. A rate the game files lack
   is an override onto the row's `RPPM` first (`Field: PPM` in `spell_overrides.go`, Omen of Clarity is the case) or
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
-- **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` drives the gear
-  tab's notice for an unvalidated rate (`rateOrigin` in `tools/database/gen_effects.go`,
-  `ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a rate measured on this server from too few logs to call final (the gear tab still warns), and a measured
-  rate's `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is
-  one of those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
-- **The gear tab's info line states every settled rate**, from the `PROC_RATE_*` tables in
-  `ui/sim/constants/missing_effects_auto_gen.ts`. Gear whose effect is written by hand gets one only from
-  `shared.GearProcs` (`sim/common/shared/proc_rates.go`), which registration fills from `init`. A `NewSpellData*Proc`
-  builder records its trigger where no `Rate` option replaces the rate, and `newEntryRateItemEffect` records its
-  item's entry. Bespoke code whose proc rolls a spell's rate unchanged calls `shared.ItemRollsSpellRate`,
-  `EnchantRollsSpellRate` or `SetBonusRollsSpellRate` beside its registration. A proc whose code scales the rate by
-  target type, halves it by area or rolls another rate than the spell's records nothing and shows no rate.
+- **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
+  `ProcRateStatus` (`proto/ui.proto`, read in `tools/database/gen_effects.go`), which the gear tab's notice shows
+  (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
+  rate measured on this server from too few logs to call final (the gear tab still warns), and a measured rate's
+  `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is one of
+  those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
+- **The gear tab states the rate the sim rolls** from the `proc_rate` `gen_db` writes on each item and enchant in
+  `db.json` and the database's `set_bonus_proc_rates` (`proto/ui.proto`); the sim never reads them. The generator sees
+  what the generated registrations roll, and those record nothing. Hand-written gear gets a line only from
+  `shared.GearProcs` (`sim/common/shared/proc_rates.go`), which it fills from `init`:
+    - a `NewSpellData*Proc` builder records its trigger itself where no `Rate` option is set
+      (`registerSpellDataRowProc`), and `newEntryRateItemEffect` records its item's entry, so neither takes a call;
+    - bespoke code whose trigger rolls its spell's rate unchanged (the gear's own `WeaponProcs` or `EnchantProcs` rate
+      for the spell, else the spell's rate override, else its row's chance) calls `shared.ItemRollsSpellRate`,
+      `EnchantRollsSpellRate` or `SetBonusRollsSpellRate` with the trigger's spell id next to its trigger, and code
+      rolling the procs per minute of its item's chance-on-hit entry calls `ItemRollsEntryRate`. A builder whose `Rate`
+      option keeps the rate and only moves the listener takes the call too, as Draconic Infused Emblem does
+      (`sim/common/forever/items_trinkets.go`), and a hand-written set calls `SetBonusRollsSpellRate` even for a proc
+      row it builds through `shared.ParsedSetBonus`;
+    - code that scales, halves or replaces the rate, or picks it by target or area, calls none. The Lion Horn of
+      Stormwind halves its chance outside Strongholds and Cities and shows no rate, since a wrong number is worse than
+      none.
+
+    A proc that rolls its spell's rate and records nothing shows no line on the gear tab, and no test fails;
+    `wowsims-review` step 4 checks for it.
+
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
   `## When a sim number disagrees with the game files`, and the outcome is a comment at the proc's code: Omen of
