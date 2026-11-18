@@ -128,17 +128,17 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BarmanShanker-12791"
  value: {
-  dps: 832.4023
-  tps: 591.00563
-  hps: 54.12056
+  dps: 829.7166
+  tps: 589.09879
+  hps: 53.96806
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Bashguuder-13204"
  value: {
-  dps: 800.80944
-  tps: 568.5747
-  hps: 56.20472
+  dps: 800.22923
+  tps: 568.16275
+  hps: 56.39111
  }
 }
 dps_results: {
@@ -208,9 +208,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-BloodTalon-12795"
  value: {
-  dps: 798.62397
-  tps: 567.02302
-  hps: 64.21944
+  dps: 799.02595
+  tps: 567.30843
+  hps: 64.18556
  }
 }
 dps_results: {
@@ -224,17 +224,17 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Bloodfist-11744"
  value: {
-  dps: 802.70509
-  tps: 569.92061
-  hps: 60.66111
+  dps: 798.79343
+  tps: 567.14334
+  hps: 60.28833
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Bloodrazor-809"
  value: {
-  dps: 823.63742
-  tps: 584.78257
-  hps: 48.93556
+  dps: 820.24997
+  tps: 582.37748
+  hps: 49.02028
  }
 }
 dps_results: {
@@ -952,9 +952,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 779.6158
-  tps: 553.52722
-  hps: 53.42583
+  dps: 780.33941
+  tps: 554.04098
+  hps: 53.62917
  }
 }
 dps_results: {
@@ -1008,24 +1008,24 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GutRipper-2164"
  value: {
-  dps: 810.69761
-  tps: 575.5953
-  hps: 56.45889
+  dps: 811.37182
+  tps: 576.07399
+  hps: 56.44194
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 790.32849
-  tps: 561.13323
-  hps: 53.78167
+  dps: 793.55237
+  tps: 563.42218
+  hps: 53.88333
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 807.04301
-  tps: 573.00054
+  dps: 802.32358
+  tps: 569.64974
   hps: 52.62944
  }
 }
@@ -1048,8 +1048,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-HanzoSword-8190"
  value: {
-  dps: 790.68374
-  tps: 561.38546
+  dps: 791.4557
+  tps: 561.93354
   hps: 60.42389
  }
 }
@@ -1456,25 +1456,25 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Ripsaw-9478"
  value: {
-  dps: 807.13
-  tps: 573.0623
-  hps: 49.18972
+  dps: 802.85869
+  tps: 570.02967
+  hps: 49.17278
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-Rivenspike-13286"
  value: {
-  dps: 809.93892
-  tps: 575.05663
-  hps: 48.08833
+  dps: 806.53583
+  tps: 572.64044
+  hps: 48.02056
  }
 }
 dps_results: {
  key: "TestRogue-AllItems-RockonStick-279852"
  value: {
-  dps: 794.29631
-  tps: 563.95038
-  hps: 49.35917
+  dps: 799.11208
+  tps: 567.36958
+  hps: 49.47778
  }
 }
 dps_results: {
@@ -1840,9 +1840,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Toofbreaker-286430"
  value: {
-  dps: 782.95801
-  tps: 555.90019
-  hps: 54.88306
+  dps: 782.71298
+  tps: 555.72621
+  hps: 54.69667
  }
 }
 dps_results: {

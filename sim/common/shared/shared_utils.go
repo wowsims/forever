@@ -983,11 +983,11 @@ func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 	return spelldata.Magic(core.ProcMaskEmpty)
 }
 
-// What a proc's damage lands on, for both damage constructors. A cast the spell's own hit asks for
-// while the spell is still casting, a weapon's strike rolling its own weapon again, goes one spell
-// batch later: inline it would recurse for as long as the rolls succeed, without end where the
-// chance cannot fail. A melee strike an off-hand hit cast carries Suppress Weapon Procs for that cast
-// (weaponProcStrikeMask).
+// What a proc's damage lands on, for both damage constructors. A melee strike rolls weapon procs only
+// where a main-hand white swing cast it. One cast by an ability, a seal's or Windfury Totem's strike,
+// an off-hand hit or another strike carries Suppress Weapon Procs for that cast (R-0040, EV-0145). A
+// strike a white swing cast therefore rolls its own weapon once more. The strike that roll asks for
+// comes while the first is still casting, so it goes one spell batch later, and it rolls nothing.
 func procDamageHandler(character *core.Character, damageSpell *core.Spell, callback core.AuraCallback) core.ProcHandler {
 	meleeStrike := damageSpell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial)
 	casting := false
@@ -1011,7 +1011,7 @@ func procDamageHandler(character *core.Character, damageSpell *core.Spell, callb
 			return
 		}
 		flags := core.SpellFlagNone
-		if meleeStrike && spell != nil && spell.ProcMask.Matches(core.ProcMaskMeleeOH) && !spell.ProcMask.Matches(core.ProcMaskMeleeMH) {
+		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto)) {
 			flags = core.SpellFlagSuppressWeaponProcs
 		}
 		cast(sim, target, flags)
@@ -1039,11 +1039,12 @@ func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg 
 // The mask a proc's damage spell casts with. A weapon proc's spell of melee defense is a weapon's
 // strike, a main-hand special as a triggered melee spell is; one of ranged defense is a ranged
 // special. The weapon procs, combat enchants and oils that hear those hits hear it, its own weapon
-// included, and a listener on auto attacks alone does not. A melee strike an off-hand hit cast is
-// heard by no weapon proc, combat enchant or oil on either hand: that cast carries Suppress Weapon
-// Procs, through its flight where it has one, and its damage and bleed are those of any other cast.
-// Only a spell flagged as a proc is a strike: any aura on melee specials would hear one without the
-// flag, so it keeps no mask, as any other proc's damage does.
+// included, and a listener on auto attacks alone does not. A melee strike anything but a main-hand
+// white swing cast is heard by no weapon proc, combat enchant or oil on either hand
+// (procDamageHandler): that cast carries Suppress Weapon Procs, through its flight where it has one,
+// and its damage and bleed are those of any other cast. Only a spell flagged as a proc is a strike:
+// any aura on melee specials would hear one without the flag, so it keeps no mask, as any other
+// proc's damage does.
 func weaponProcStrikeMask(defenseType core.DefenseType, flags core.SpellFlag, isWeaponProc bool) core.ProcMask {
 	if !isWeaponProc || !flags.Matches(core.SpellFlagProc) {
 		return core.ProcMaskEmpty

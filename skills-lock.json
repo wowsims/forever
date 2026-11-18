@@ -50,12 +50,12 @@
     "wowsims-evidence": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "4cff9ff8194226b5ebb90cf82643dcabff919436ad1efdfc05b2b8873adc001e"
+      "computedHash": "df48cac153385a9ea9bf3da9df242da6df14fac15b10eb5d04979318760a3bcd"
     },
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "fb185c1b4112bea9373d069eb935b44e05f9174f9685723bc22d942dfd94826f"
+      "computedHash": "e61300f0b7f87bb08c98914acd95a98ff05563d9777d1ac40c22eb153111ef07"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",

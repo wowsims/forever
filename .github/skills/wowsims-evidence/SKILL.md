@@ -29,6 +29,13 @@ value. "not recorded" is what you write after the user says they do not know.
 The game build and the hotfix go on the `Game build` line together: `1.60.1.70938, after the 2026-11-14 02:00 UTC hotfix,
 relogged`.
 
+A Warcraft Logs report's build can be dated from its start time and region, which spares the user that question.
+`curl -s 'https://blizztrack.com/api/manifest/wowf/seqn?file=versions'` lists every revision of the `wowf` version
+file with its UTC time, and a revision's `refs.versions` link gives the build each region was on from then. The US and
+the EU can differ for a day (1.60.1.70888: US 2026-11-10 15:11, EU 2026-11-11 02:19). The hotfix records a build holds
+up to a push are in the raidbots cache an Update Items pull request names in its body; its header region is 91. Neither
+says which push a player ran or whether they relogged, so that question still goes to the user.
+
 When the count already disagrees with the sim or with an evidence file, ask about the counting method before anything
 else; a count outside the buff's window or across two seals explains most surprises.
 

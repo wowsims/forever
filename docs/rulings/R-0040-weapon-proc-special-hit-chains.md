@@ -1,11 +1,24 @@
-# R-0040: A weapon proc with melee or ranged DefenseType is a special hit that chains to weapon procs
+# R-0040: A weapon proc's strike a main-hand white swing cast rolls weapon procs once more
 
 - Skill: wowsims-procs
-- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`
+- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask` and `procDamageHandler`;
+  `sim/common/shared/spell_data_debuff_proc.go`, `attachDebuffStrike`
 - Pull request: #352
-- Evidence: pending
+- Evidence: EV-0145
 
-A weapon proc whose row has melee or ranged DefenseType (direct hits and DoT-only applications) is a special hit:
-triggered by a main-hand or ranged hit it chains to weapon procs (its own weapon included), combat enchants and oils;
-triggered by an off-hand hit it is heard by none (main hand chains, off hand nothing). Magic weapon procs stay
-`ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears them.
+A weapon proc whose row has melee or ranged DefenseType is a special hit, whether the row deals a direct hit, applies
+damage over time alone or applies a debuff alone. It rolls the hit table of its DefenseType, and what it applies lands
+only where that roll does.
+
+A melee strike a weapon proc casts off a main-hand white swing is heard by weapon procs, its own weapon included, by
+combat enchants and by oils. One it casts off anything else is heard by none of them: an ability, a seal's strike,
+Windfury Totem's strike, an off-hand hit, or another strike. A strike a white swing cast therefore rolls its weapon
+once more, and the strike that roll casts rolls nothing.
+
+Magic weapon procs stay `ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears
+a strike.
+
+The measurement covers the weapon's own proc and Fiery Weapon. The same flag decides for the other combat enchants,
+oils and the off hand, which no log has counted. A ranged strike rolls ranged weapon procs whatever cast it, an extra
+attack's swing is a white swing, and the strike each tick of Ravager's Bladestorm casts rolls the other weapon procs;
+none of the three is measured.

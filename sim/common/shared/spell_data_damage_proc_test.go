@@ -86,7 +86,7 @@ func TestItemDamageProcCritsReachListenersThatHearProcs(t *testing.T) {
 // Windfury Weapon's passive 439431 hears melee auto attacks and abilities, without Can Proc From Procs.
 const windfuryWeaponPassive int32 = 439431
 
-// The deferred re-rolls of the strikes the swings so far cast, which a chance below 1 ends.
+// The deferred second roll of each strike the swings so far cast.
 func settleChains(t *testing.T, sim *core.Simulation) {
 	t.Helper()
 	stepPast(t, sim, sim.CurrentTime+time.Second)
@@ -309,9 +309,10 @@ func TestWeaponProcStrikeRollsOnlyTheMainHandWeapon(t *testing.T) {
 	}
 }
 
-// A strike whose own weapon procs on every hit and that always lands chains for as long as it is
-// rolled, each re-roll one spell batch after the strike that asked for it rather than inside it.
-func TestWeaponProcStrikeThatAlwaysProcsChainsOneBatchApart(t *testing.T) {
+// A strike whose own weapon procs on every hit and that always lands, cast by a main-hand white swing:
+// it rolls its weapon once more, one spell batch after the strike that asked for it, and the strike
+// that roll casts rolls nothing however long the fight runs (EV-0145).
+func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 	const weaponID int32 = 991616
 	const batches = 5
 	editRow(t, forgingStrike, alwaysProcs)
@@ -322,14 +323,65 @@ func TestWeaponProcStrikeThatAlwaysProcsChainsOneBatchApart(t *testing.T) {
 
 	landMainHandSwing(sim, caster, target)
 	if metrics.Casts != 1 {
-		t.Fatalf("the swing cast %d strikes at once, want 1: a re-roll waits a batch", metrics.Casts)
+		t.Fatalf("the swing cast %d strikes at once, want 1: the second roll waits a batch", metrics.Casts)
+	}
+	stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
+	if metrics.Casts != 2 {
+		t.Fatalf("one batch after the swing %d strikes were cast, want 2", metrics.Casts)
 	}
 	stepPast(t, sim, sim.CurrentTime+batches*core.SpellBatchWindow+time.Millisecond)
-	if metrics.Casts != 1+batches {
-		t.Errorf("%d batches after the swing %d strikes were cast, want %d", batches, metrics.Casts, 1+batches)
+	if metrics.Casts != 2 {
+		t.Errorf("%d batches later %d strikes were cast, want 2: the second strike rolls nothing", batches, metrics.Casts)
 	}
 	if avoided := metrics.Misses + metrics.Dodges + metrics.Parries; avoided != 0 {
 		t.Errorf("%d strikes were avoided, want every one to land", avoided)
+	}
+}
+
+// What cast the strike decides whether it rolls its weapon again. Forging Strike 1317432 deals a hit
+// and Mutilator's Lacerations 10370 applies a debuff alone; each is rolled at 100% in the main hand
+// by a wielder whose strikes always land. A main-hand white swing casts two strikes, the second off
+// the first. A main-hand ability, and a strike that counts as a swing the way Windfury Totem's does,
+// cast one each (EV-0145).
+func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
+	const lacerations int32 = 10370
+	for _, tc := range []struct {
+		name     string
+		row      int32
+		weaponID int32
+		register func(SpellDataProc)
+	}{
+		{"Forging Strike", forgingStrike, 991714, registerSpellDataDamageProc},
+		{"Lacerations", lacerations, 991715, registerSpellDataAuraProc},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			editRow(t, tc.row, func(s *spelldata.Spell) {
+				alwaysProcs(s)
+				s.RPPM = 0
+			})
+			sim, caster, target := newSlowProcSim(t, tc.weaponID, tc.register, tc.row, nil)
+			caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
+			strike := mustGetSpell(t, caster, tc.row)
+			metrics := &strike.SpellMetrics[target.UnitIndex]
+
+			for _, hit := range []struct {
+				name string
+				cast *core.Spell
+				want int32
+			}{
+				{"a main-hand white swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHAuto}, 2},
+				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, 1},
+				{"a strike that counts as a swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee,
+					Flags: core.SpellFlagCountsAsSwing}, 1},
+			} {
+				before := metrics.Casts
+				caster.OnSpellHitDealt(sim, hit.cast, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
+				settleChains(t, sim)
+				if got := metrics.Casts - before; got != hit.want {
+					t.Errorf("%s cast %d strikes, want %d", hit.name, got, hit.want)
+				}
+			}
+		})
 	}
 }
 
@@ -403,7 +455,7 @@ func newOffHandProcSim(t *testing.T, weaponID, row int32, neck *proto.ItemSpec) 
 }
 
 // Rend rolled at 100% in the off hand: the strike an off-hand swing casts puts its bleed on the
-// target and rolls its own weapon no more, where a roll that cannot fail would chain.
+// target and rolls its own weapon no more.
 func TestOffHandWeaponProcStrikeAppliesItsBleed(t *testing.T) {
 	const weaponID, rend int32 = 991617, rendStrike
 	editRow(t, rend, alwaysProcs)
