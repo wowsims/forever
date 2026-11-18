@@ -36,10 +36,12 @@ const (
 	multipleNpcsName      = "Multiple NPCs"
 )
 
-// A reward quest's zone and the items it asks for, which decide the phase of the items it rewards.
+// A reward quest's zone and the items it asks for, which decide the phase of the items it rewards, and the classes
+// that may take it.
 type QuestieQuest struct {
-	Zone  int32   `json:"zone,omitempty"`  // An AreaTable id; a negative QuestSort id for a quest sorted by theme.
-	Items []int32 `json:"items,omitempty"` // The objectives' items, then the items it needs that are no objective.
+	Zone    int32   `json:"zone,omitempty"`    // An AreaTable id; a negative QuestSort id for a quest sorted by theme.
+	Items   []int32 `json:"items,omitempty"`   // The objectives' items, then the items it needs that are no objective.
+	Classes int32   `json:"classes,omitempty"` // The game's class bits; 0 is every class.
 }
 
 // Every item QuestieDB lists a reward quest, a vendor or a dropping NPC for, as Quest, SoldBy and Drop sources, with
@@ -101,7 +103,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 	if err != nil {
 		return nil, nil, err
 	}
-	var questRewards, vendors, npcDrops, questName, questRaces, questZone, questObjectives, questSourceItems, npcName, npcZone, npcFriendlyTo int
+	var questRewards, vendors, npcDrops, questName, questRaces, questClasses, questZone, questObjectives, questSourceItems, npcName, npcZone, npcFriendlyTo int
 	for _, key := range []struct {
 		entity *questieEntity
 		name   string
@@ -112,6 +114,7 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 		{items, "npcDrops", &npcDrops},
 		{quests, "name", &questName},
 		{quests, "requiredRaces", &questRaces},
+		{quests, "requiredClasses", &questClasses},
 		{quests, "zoneOrSort", &questZone},
 		{quests, "objectives", &questObjectives},
 		{quests, "requiredSourceItems", &questSourceItems},
@@ -138,7 +141,11 @@ func parseQuestieData(toc, itemMeta, questMeta, npcMeta string) (*WowDatabase, m
 		if err != nil {
 			return nil, err
 		}
-		read := &QuestieQuest{Zone: int32(zone)}
+		classes, err := quest.integer(questClasses)
+		if err != nil {
+			return nil, err
+		}
+		read := &QuestieQuest{Zone: int32(zone), Classes: int32(classes)}
 		for _, id := range append(objectiveItems, sourceItems...) {
 			read.Items = append(read.Items, int32(id))
 		}
@@ -327,6 +334,27 @@ func AppendQuestieSources(db, questie *WowDatabase) {
 		if item, ok := db.Items[id]; ok {
 			item.Sources = append(slices.Clip(item.Sources), questieSourcesBeside(item.Sources, questieItem.GetSources())...)
 		}
+	}
+}
+
+// A bind-on-pickup item whose every source is a quest some classes alone may take is open to those classes alone: the
+// game files open the Sunken Temple class quests' rewards to every class. An item another source reaches, a craft or a
+// drop, stays open, as does one the game files already restrict.
+func ApplyQuestClasses(db *WowDatabase, quests map[int32]*QuestieQuest, items map[int]dbc.Item) {
+	for _, item := range db.Items {
+		if len(item.ClassAllowlist) > 0 || len(item.Sources) == 0 || items[int(item.Id)].Bonding != dbc.BIND_ON_ACQUIRE {
+			continue
+		}
+		mask := 0
+		for _, source := range item.Sources {
+			quest := quests[source.GetQuest().GetId()]
+			if source.GetQuest() == nil || quest == nil || quest.Classes == 0 {
+				mask = 0
+				break
+			}
+			mask |= int(quest.Classes)
+		}
+		item.ClassAllowlist = dbc.GetClassesFromClassMask(mask)
 	}
 }
 
