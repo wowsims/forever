@@ -645,6 +645,138 @@ func TestWindfuryTotemsStrikeUsesNoFlurryCharge(t *testing.T) {
 	}
 }
 
+const unbridledWrathEnergize = 12964 // The rage Unbridled Wrath's proc grants.
+
+// A Fury warrior with no gear and no rotation against the given number of targets, its auto attacks
+// stopped, so every Unbridled Wrath proc comes from the hits the test deals. The returned func counts
+// the procs so far.
+func unbridledWrathSim(t *testing.T, targets int, raidBuffs *proto.RaidBuffs) (*core.Simulation, *dps.DpsWarrior, func() int32) {
+	t.Helper()
+
+	encounter := core.MakeSingleTargetEncounter(0)
+	for len(encounter.Targets) < targets {
+		encounter.Targets = append(encounter.Targets, core.NewDefaultTarget())
+	}
+	player := &proto.Player{
+		Name:          "Unbridled",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassWarrior,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: furyTalents,
+		Spec:          dpsOptions,
+		Rotation:      &proto.APLRotation{},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, raidBuffs, &proto.Debuffs{}),
+		Encounter:  encounter,
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	stepPastBatch(t, sim)
+	war := sim.Raid.Parties[0].Players[0].(*dps.DpsWarrior)
+	war.AutoAttacks.CancelAutoSwing(sim)
+	if war.Talents.UnbridledWrath == 0 {
+		t.Fatal("the fixture's talents take no Unbridled Wrath")
+	}
+
+	procs := func() int32 {
+		for _, r := range war.Metrics.ToProto().Resources {
+			if r.Id.GetSpellId() == unbridledWrathEnergize {
+				return r.Events
+			}
+		}
+		return 0
+	}
+	if got := procs(); got != 0 {
+		t.Fatalf("Unbridled Wrath procced %d times before the test dealt a hit", got)
+	}
+	return sim, war, procs
+}
+
+// Unbridled Wrath rolls on landed white swings, Windfury Totem's strike, Heroic Strike and Cleave, and
+// on no other melee ability.
+func TestUnbridledWrathRollsOnSwingsAlone(t *testing.T) {
+	swing := core.ActionID{OtherID: proto.OtherAction_OtherActionAttack}.WithHand(proto.ItemSlot_ItemSlotMainHand)
+	cases := []struct {
+		name    string
+		spell   core.ActionID
+		outcome core.HitOutcome
+		rolls   bool
+	}{
+		{"a landed main-hand swing", swing, core.OutcomeHit, true},
+		{"a dodged main-hand swing", swing, core.OutcomeDodge, false},
+		{"Windfury Totem's strike", core.ActionID{SpellID: windfuryTotemStrike}, core.OutcomeHit, true},
+		{"Heroic Strike", core.ActionID{SpellID: 11567}, core.OutcomeHit, true},
+		{"Cleave", core.ActionID{SpellID: 20569}, core.OutcomeHit, true},
+		{"Bloodthirst", core.ActionID{SpellID: 23894}, core.OutcomeHit, false},
+		{"Whirlwind", core.ActionID{SpellID: 1680}.WithHand(proto.ItemSlot_ItemSlotMainHand), core.OutcomeHit, false},
+		{"Revenge", core.ActionID{SpellID: 11601}, core.OutcomeHit, false},
+		{"Hamstring", core.ActionID{SpellID: 7373}, core.OutcomeHit, false},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			// Windfury Totem joins only for its own strike: a strike rolled off an ability would roll
+			// Unbridled Wrath itself.
+			raidBuffs := &proto.RaidBuffs{WindfuryTotem: c.spell.SpellID == windfuryTotemStrike}
+			sim, war, procs := unbridledWrathSim(t, 1, raidBuffs)
+			spell := war.GetSpell(c.spell)
+			if spell == nil {
+				t.Fatalf("the warrior has no %s", c.spell)
+			}
+
+			const hits = 100
+			for range hits {
+				war.OnSpellHitDealt(sim, spell, &core.SpellResult{Target: war.CurrentTarget, Outcome: c.outcome, Damage: 100})
+			}
+			stepPastBatch(t, sim)
+
+			got := procs()
+			if c.rolls && got == 0 {
+				t.Errorf("%d hits procced Unbridled Wrath none of the time, want some", hits)
+			}
+			if !c.rolls && got != 0 {
+				t.Errorf("%d hits procced Unbridled Wrath %d times, want none", hits, got)
+			}
+		})
+	}
+}
+
+// Unbridled Wrath rolls once for each target a Cleave lands on.
+func TestUnbridledWrathRollsOnEachCleaveTarget(t *testing.T) {
+	sim, war, procs := unbridledWrathSim(t, 2, &proto.RaidBuffs{})
+	for _, target := range sim.Encounter.AllTargetUnits {
+		landEveryCast(sim, war.GetCharacter(), target, war.Cleave)
+	}
+
+	const casts = 50
+	var castsWithTwo int
+	for range casts {
+		before := procs()
+		war.Cleave.SkipCastAndApplyEffects(sim, war.CurrentTarget)
+		stepPastBatch(t, sim)
+		got := procs() - before
+		if got > 2 {
+			t.Fatalf("a Cleave on 2 targets procced Unbridled Wrath %d times, want at most 2", got)
+		}
+		if got == 2 {
+			castsWithTwo++
+		}
+	}
+
+	landed := 0
+	for _, target := range sim.Encounter.AllTargetUnits {
+		metrics := war.Cleave.SpellMetrics[target.UnitIndex]
+		landed += int(metrics.Hits + metrics.Crits)
+	}
+	if landed != 2*casts {
+		t.Fatalf("%d of %d Cleave hits landed, want all of them", landed, 2*casts)
+	}
+	if castsWithTwo == 0 {
+		t.Errorf("none of %d Cleaves on 2 targets procced Unbridled Wrath twice, want some", casts)
+	}
+}
+
 // A Deep Wounds application is sized from the average damage of the weapon whose crit cast it, so an off-hand
 // crit ticks for the off hand's share and Windfury Totem's strike for the main hand's.
 func TestDeepWoundsTakesTheCrittingHandsWeapon(t *testing.T) {

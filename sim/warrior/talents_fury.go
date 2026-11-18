@@ -69,14 +69,21 @@ func (warrior *Warrior) registerUnbridledWrath() {
 
 	rageMetrics := warrior.NewRageMetrics(core.ActionID{SpellID: unbridledWrathRank.ID})
 
-	// The rate is the effect ladder the tooltip's $m1 names - 12/24/36/48/60 by rank, where the
-	// proc chance column reads 100 - and the row's mask is the white hits and melee abilities, with
-	// Windfury Totem's strike rolling it as a main-hand swing (EV-0136, EV-0138).
-	warrior.MakeProcTriggerAura(spelldata.ProcTrigger(&warrior.Character,
+	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
+	// chance column reads 100. Landed white swings roll it, Windfury Totem's strike among them as a
+	// main-hand swing, and so do Heroic Strike and each target a Cleave hits. The row's mask also
+	// hears melee abilities, but no other ability rolls it: Shield Slam, Revenge, Thunder Clap,
+	// Whirlwind and the rest (EV-0148, EV-0138, EV-0136).
+	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {
 			warrior.AddRage(sim, unbridledWrathRage, rageMetrics)
-		}))
+		})
+	trigger.ExtraCondition = func(_ *core.Simulation, spell *core.Spell, _ *core.SpellResult) bool {
+		return !spell.ProcMask.Matches(core.ProcMaskMeleeSpecial) || spell.Flags.Matches(core.SpellFlagCountsAsSwing) ||
+			spellData.HeroicStrike.Contains(spell) || spellData.Cleave.Contains(spell)
+	}
+	warrior.MakeProcTriggerAura(trigger)
 }
 
 func (warrior *Warrior) registerFuriousPrecision() {
