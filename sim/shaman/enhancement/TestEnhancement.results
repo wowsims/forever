@@ -101,9 +101,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-AxeofInevitableRuin-274484"
  value: {
-  dps: 811.11673
-  tps: 843.10498
-  dtps: 7.74012
+  dps: 810.50162
+  tps: 842.08972
+  dtps: 7.58521
   hps: 25.4675
  }
 }
@@ -146,10 +146,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 825.44262
-  tps: 857.20545
-  dtps: 8.38658
-  hps: 23.04444
+  dps: 818.88608
+  tps: 850.38495
+  dtps: 8.27034
+  hps: 23.0275
  }
 }
 dps_results: {
@@ -254,10 +254,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-BrainHacker-1263"
  value: {
-  dps: 865.41214
-  tps: 896.9774
-  dtps: 8.21004
-  hps: 22.62083
+  dps: 868.96205
+  tps: 900.26172
+  dtps: 8.44635
+  hps: 22.60389
  }
 }
 dps_results: {
@@ -839,10 +839,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 837.14207
-  tps: 868.97568
-  dtps: 7.93696
-  hps: 24.28139
+  dps: 829.35673
+  tps: 861.31495
+  dtps: 7.75831
+  hps: 24.2475
  }
 }
 dps_results: {
@@ -1010,10 +1010,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 857.04131
-  tps: 887.9403
-  dtps: 8.12279
-  hps: 22.21417
+  dps: 857.40749
+  tps: 888.40824
+  dtps: 7.92352
+  hps: 22.28194
  }
 }
 dps_results: {
@@ -1244,10 +1244,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 837.50855
-  tps: 867.67951
-  dtps: 8.06103
-  hps: 20.70611
+  dps: 835.98003
+  tps: 866.52525
+  dtps: 8.91788
+  hps: 20.57056
  }
 }
 dps_results: {
@@ -1262,10 +1262,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PrincessTheradras'Scepter-17766"
  value: {
-  dps: 853.43898
-  tps: 885.20373
-  dtps: 8.10711
-  hps: 23.26472
+  dps: 855.8011
+  tps: 887.19083
+  dtps: 7.86
+  hps: 23.31556
  }
 }
 dps_results: {
@@ -1550,10 +1550,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 879.20539
-  tps: 909.94468
-  dtps: 8.60424
-  hps: 20.80778
+  dps: 877.4406
+  tps: 908.24267
+  dtps: 8.68935
+  hps: 20.5875
  }
 }
 dps_results: {

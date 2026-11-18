@@ -146,9 +146,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bashguuder-13204"
  value: {
-  dps: 503.49939
-  tps: 1677.14658
-  dtps: 304.56451
+  dps: 505.98119
+  tps: 1691.24632
+  dtps: 301.12606
   hps: 43.30778
  }
 }
@@ -317,10 +317,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BloodTalon-12795"
  value: {
-  dps: 504.9558
-  tps: 1705.20144
-  dtps: 307.62894
-  hps: 49.28917
+  dps: 506.3197
+  tps: 1706.78776
+  dtps: 307.72766
+  hps: 49.22139
  }
 }
 dps_results: {
@@ -335,10 +335,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodfist-11744"
  value: {
-  dps: 500.9654
-  tps: 1675.55677
-  dtps: 308.89752
-  hps: 46.39167
+  dps: 504.18811
+  tps: 1691.0827
+  dtps: 308.8062
+  hps: 46.42556
  }
 }
 dps_results: {
@@ -353,10 +353,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Bloodrazor-809"
  value: {
-  dps: 510.64491
-  tps: 1671.80357
-  dtps: 296.11364
-  hps: 37.83472
+  dps: 511.46316
+  tps: 1670.36008
+  dtps: 295.85526
+  hps: 37.86861
  }
 }
 dps_results: {
@@ -1235,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 494.59586
-  tps: 1635.37816
-  dtps: 302.01188
-  hps: 41.74889
+  dps: 495.44463
+  tps: 1649.03666
+  dtps: 302.09752
+  hps: 41.715
  }
 }
 dps_results: {
@@ -1316,19 +1316,19 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Hameya'sSlayer-15814"
  value: {
-  dps: 499.98406
-  tps: 1659.07384
-  dtps: 300.33176
+  dps: 500.40864
+  tps: 1649.34014
+  dtps: 300.54453
   hps: 41.74889
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 502.42291
-  tps: 1656.49026
-  dtps: 300.45478
-  hps: 40.96944
+  dps: 506.01753
+  tps: 1674.68808
+  dtps: 300.02517
+  hps: 41.22361
  }
 }
 dps_results: {
@@ -1361,10 +1361,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 507.27142
-  tps: 1700.16351
-  dtps: 306.98069
-  hps: 46.39167
+  dps: 507.00757
+  tps: 1694.76088
+  dtps: 307.96257
+  hps: 46.37472
  }
 }
 dps_results: {
@@ -1964,28 +1964,28 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Ripsaw-9478"
  value: {
-  dps: 498.90866
-  tps: 1625.082
-  dtps: 296.44954
-  hps: 37.69917
+  dps: 504.88055
+  tps: 1643.02757
+  dtps: 295.7734
+  hps: 37.88556
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Rivenspike-13286"
  value: {
-  dps: 498.17123
-  tps: 1613.49172
-  dtps: 295.90159
-  hps: 36.86889
+  dps: 506.6943
+  tps: 1642.2423
+  dtps: 297.38497
+  hps: 37.05528
  }
 }
 dps_results: {
  key: "TestProtectionWarrior-AllItems-RockonStick-279852"
  value: {
-  dps: 497.80749
-  tps: 1620.8512
-  dtps: 301.67157
-  hps: 38.27528
+  dps: 494.60094
+  tps: 1613.99657
+  dtps: 298.09096
+  hps: 38.08889
  }
 }
 dps_results: {
@@ -2513,10 +2513,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 491.97457
-  tps: 1646.95364
-  dtps: 300.95151
-  hps: 42.40972
+  dps: 496.07032
+  tps: 1667.59308
+  dtps: 299.95305
+  hps: 42.52833
  }
 }
 dps_results: {
