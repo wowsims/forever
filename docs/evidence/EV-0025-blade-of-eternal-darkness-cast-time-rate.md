@@ -11,7 +11,7 @@
   1.60.1, hotfix not recorded
 - Date: 2026-11-14 for the mage reports and Pjd9MWAXgCYTcn7Z; 2026-11-17 for VRrgQJFbdXckaZq7, NTJzVdMZBQDaqG83 and the
   combat log
-- Pull request: #1007; the harmful spells that deal no damage, #TBD
+- Pull request: #1007; the harmful spells that deal no damage, #1097
 
 On the three mage reports the blade is confirmed in the main hand by combatant info in 12 fights; the other fights with
 procs are inferred from those procs. There are 554 procs, each tied to the event at its timestamp.
