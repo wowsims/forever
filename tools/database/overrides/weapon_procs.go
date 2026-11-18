@@ -855,9 +855,9 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  11809,
 		SpellID: 16559,
-		PPM:     5.3,
-		Reason:  "Flame Wrath: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
+		PPM:     1.9,
+		Reason:  "Flame Wrath: no proc row",
+		Source:  "EV-0151",
 	},
 	{
 		ItemID:  11902,
