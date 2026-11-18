@@ -51,7 +51,7 @@ var EnchantProcs = []EnchantProc{
 		EnchantID: 8217,
 		SpellID:   1248806,
 		Kind:      RateChance,
-		Value:     0.08, // TODO: Measure and model how the chance falls as the wearer's crit chance rises (EV-0129).
+		Value:     0.08, // TODO: Model how the chance falls as the wearer's crit from gear and intellect rises, and how it differs by class (EV-0149).
 		Reason: "Revelation: 1248806's 100 is the sentinel; the tooltip says the chance is diminished as the " +
 			"wearer's critical strike chance increases, and states no number; the rate is the owner's round " +
 			"figure from logs (EV-0129)",
