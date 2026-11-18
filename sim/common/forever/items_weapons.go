@@ -300,9 +300,9 @@ func init() {
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
-	// time of the cast that launched it. A spell fired as a proc never rolls it, so Hellfire Effect, whose
-	// row lacks Not a Proc, does not (EV-0025). Physical taunts, shouts and roars and spells an item casts
-	// are not the wearer's spells and roll nothing.
+	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
+	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
