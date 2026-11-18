@@ -1,5 +1,8 @@
 # EV-0147: Weapon armor debuffs against Faerie Fire, Curse of Recklessness and Sunder Armor
 
+EV-0152 replaces the Bashguuder and Rivenspike rows of the sim's wielder table below, read again with the player's
+Puncture Armor as a strike that has a hit roll of its own. The 48 hits a minute stand.
+
 - Claim: Armor Shatter (Annihilator) and Puncture Armor (Bashguuder, Rivenspike, Vibroblade) never land while Faerie Fire
   or Curse of Recklessness is on the target, and either one landing removes them in the same millisecond; they stay
   beside Sunder Armor. Corrosive Poison (Strike of the Hydra), Phantom Strike (Phantom Blade) and Wound (Princess

@@ -727,20 +727,28 @@ func swingProcDebuffRaid(debuff swingProcDebuff, db *proto.SimDatabase) *proto.R
 	}, &proto.PartyBuffs{}, &proto.RaidBuffs{}, debuff.debuffs)
 }
 
-// The landed hits a minute a main-hand wielder makes beside its swings, as the driver models them
-// (EV-0147).
+// The landed hits a minute a main-hand wielder makes beside its swings and the share of its proc's
+// strikes the target dodges, as the driver models them (EV-0147, EV-0152).
 const wielderOtherHitsPerMinute = 48
+const wielderStrikeDodgeChance = 0.065
 
 // The raid's copy of a weapon proc debuff is one main-hand wielder's proc, rolled on its swings and its
-// other landed hits: over a long fight it lands, a fresh debuff or a refresh, at the weapon's procs per
-// minute times its rolls per base-speed swing, on the spell the state names.
+// other landed hits: over a long fight it lands, a fresh debuff or a refresh, at the weapon's chance a
+// hit times its landed hits a minute, on the spell the state names. A row on the melee hit table is a
+// strike: the target dodges its share of them, and one that lands off a swing rolls once more.
 func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
-	const iterations, seconds = 2000, 300
+	const iterations, seconds = 10000, 300
 	for _, debuff := range swingProcDebuffs {
 		t.Run(debuff.name, func(t *testing.T) {
-			ppm := swingProcPPM(t, debuff)
 			speed := core.GetItemByID(debuff.itemID).SwingSpeed
-			ppm *= 1 + wielderOtherHitsPerMinute*speed/60
+			chance := swingProcPPM(t, debuff) * speed / 60
+			swings := 60 / speed
+			hits := swings + wielderOtherHitsPerMinute
+			perMinute := hits * chance
+			if spelldata.MustFind(debuff.spellID).DefenseTypeCore() == core.DefenseTypeMelee {
+				landed := chance * (1 - wielderStrikeDodgeChance)
+				perMinute = hits * landed * (1 + swings/hits*landed)
+			}
 			result := core.RunRaidSim(&proto.RaidSimRequest{
 				SimOptions: &proto.SimOptions{RandomSeed: 7, Iterations: iterations},
 				Raid:       swingProcDebuffRaid(debuff, nil),
@@ -759,9 +767,9 @@ func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 			if !found {
 				t.Fatalf("the target carries no aura of spell %d", debuff.spellID)
 			}
-			want := ppm * seconds / 60
-			if math.Abs(procs-want) > 0.1*want {
-				t.Errorf("the raid's copy landed %.2f times a fight, want %.2f within 10%% (%.2f procs a minute over %d s)", procs, want, ppm, seconds)
+			want := perMinute * seconds / 60
+			if math.Abs(procs-want) > 0.015*want {
+				t.Errorf("the raid's copy landed %.2f times a fight, want %.2f within 1.5%% (%.2f landings a minute over %d s)", procs, want, perMinute, seconds)
 			}
 		})
 	}
