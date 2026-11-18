@@ -912,8 +912,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GutRipper-2164"
  value: {
-  dps: 731.83617
-  tps: 545.48952
+  dps: 733.15238
+  tps: 546.42403
   hps: 46.17361
  }
 }

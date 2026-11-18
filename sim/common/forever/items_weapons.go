@@ -540,7 +540,13 @@ func init() {
 	// Chance on hit: Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to
 	// targets below 25% health.
 	//
-	// Fatal Wound 10373 and 18206 deal the percent their second dummy states more to a target below the
+	// Gut Ripper
+	// https://www.wowhead.com/forever/item=2164/gut-ripper
+	//
+	// Chance on hit: Delivers a fatal wound for 105 Physical damage. Deals 100% increased damage to
+	// targets below 25% health.
+	//
+	// Fatal Wound 10373, 18206 and Wound 18107 deal the percent their second dummy states more to a target below the
 	// health percent their third states, which the sim's execute phases track. 10373's hits of 1.5 times
 	// the plain range land late in a target's life, but the logs state no health, so the threshold is the
 	// row's alone (EV-0136).
@@ -565,6 +571,7 @@ func init() {
 	}
 	shared.DamageProcExtras[9425] = fatalWound
 	shared.DamageProcExtras[9475] = fatalWound
+	shared.DamageProcExtras[2164] = fatalWound
 
 	// Barman Shanker
 	// https://www.wowhead.com/forever/item=12791/barman-shanker

@@ -1379,8 +1379,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GutRipper-2164"
  value: {
-  dps: 757.79537
-  tps: 779.26036
+  dps: 758.77404
+  tps: 780.23903
   dtps: 8.6807
   hps: 14.62306
  }

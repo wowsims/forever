@@ -1008,8 +1008,8 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-GutRipper-2164"
  value: {
-  dps: 811.37182
-  tps: 576.07399
+  dps: 813.00383
+  tps: 577.23272
   hps: 56.44194
  }
 }
