@@ -224,6 +224,16 @@ which no other proc in the table does. Two Toofbreak events in a row of one wear
 100 ms apart 5 times in 36,381. Strength of Stone's sit that close 2,896 times in 27,242 and Ripsaw's Wound 1,962
 times in 39,297, through the chain and through hits on two targets.
 
+### Barman Shanker
+
+Barman Shanker 12791 took its rate after the 27 were chosen (EV-0146), and its Rend 1300787 follows the same rule in
+the sim. It is counted here on its own, the same way, and is in neither the table nor the totals above. The 11
+reports downloaded by 2026-11-18 that show it run from 2026-11-13 to 2026-11-17, and every wearer is a rogue with it
+in the main hand. A lone white swing brings 6 seconds on 125 landed firsts, 4.8% (2.2% to 10.1%), against 6.9% a
+landed hit in EV-0146, and no third. A lone ability brings none on 41 landed firsts, where two or three would be
+there if an ability chained, so the abilities are too few to settle it for this weapon alone. A white swing with two
+Rend is in `p6mVRBzvWMqnQZFc`, fight 2, at 21:44.354.
+
 ## Fiery Weapon on a weapon proc's strike
 
 The combat log of EV-0130 has Fiery Weapon 803 on a two-handed mace whose proc is the bleed 1306816 and on a
