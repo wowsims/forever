@@ -47,22 +47,30 @@ func TestRevelationReachesHolyLight(t *testing.T) {
 		t.Errorf("Holy Light's crit chance is %v with Revelation up and %v without", got, baseCrit)
 	}
 
-	// A proc's handler runs one spell batch window after the heal, so each cast is followed by
-	// stepping past that window.
+	// The charge goes as the cast completes, and a proc's handler runs one spell batch window after the
+	// heal, so each cast is stepped through to its end and past that window.
 	castAndStep := func(spell *core.Spell) {
-		spell.SkipCastAndApplyEffects(sim, &pally.Unit)
-		for at := sim.CurrentTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
+		for !pally.GCD.IsReady(sim) {
 			sim.Step()
 		}
-	}
-
-	castAndStep(layOnHands)
-	if !buff.IsActive() {
-		t.Fatal("Lay on Hands, which the buff's mask does not name, spent its charge")
+		if !spell.Cast(sim, &pally.Unit) {
+			t.Fatalf("%s could not be cast", spell.ActionID)
+		}
+		for at := sim.CurrentTime + spell.CurCast.CastTime; sim.CurrentTime <= at+core.SpellBatchWindow; {
+			sim.Step()
+		}
 	}
 
 	castAndStep(holyLight)
 	if buff.IsActive() {
 		t.Error("Holy Light did not spend Revelation's charge")
+	}
+
+	// Lay on Hands takes all the paladin's mana, so it goes last.
+	buff.Activate(sim)
+	buff.SetStacks(sim, buff.MaxStacks)
+	castAndStep(layOnHands)
+	if !buff.IsActive() {
+		t.Error("Lay on Hands, which the buff's mask does not name, spent its charge")
 	}
 }
