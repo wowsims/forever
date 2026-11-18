@@ -389,6 +389,47 @@ func TestSkullforgeReaverBrandsOnMainHandHitsAndHealsTheWearer(t *testing.T) {
 	}
 }
 
+// Malown's Slam 13393 puts Surge of Strength 17499 on the wearer at the procs per minute of the item's
+// entry for 17500, on the mace's speed, off landed main-hand swings and specials and never off a miss.
+// The buff raises Strength by the row's amount for the row's duration.
+func TestMalownsSlamRaisesStrengthOnMainHandHits(t *testing.T) {
+	sim, character := itemWearerWithEquipment(t, proto.Class_ClassWarrior, &proto.EquipmentSpec{Items: weaponSlots(13393, 0)})
+	character.AutoAttacks.CancelAutoSwing(sim)
+	proc := character.GetAura("Malown's Slam")
+	surge := character.GetAuraByID(core.ActionID{SpellID: 17499})
+	if proc == nil || proc.Dpm == nil || surge == nil {
+		t.Fatal("13393 registers no Surge of Strength or no proc on a procs per minute rate")
+	}
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHAuto, 13393, 17500)
+	expectWeaponRate(t, sim, proc, core.ProcMaskMeleeMHSpecial, 13393, 17500)
+
+	// Every main-hand hit now procs it.
+	*proc.Dpm = *character.NewFixedProcChanceManager(1, core.ProcMaskMeleeMH)
+	row := spelldata.MustFind(17499)
+	amount := row.FirstAura(dbcenums.A_MOD_STAT).Min()
+	before := character.GetStat(stats.Strength)
+
+	character.OnSpellHitDealt(sim, meleeSwing(&character.Unit), &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeMiss})
+	stepTo(t, sim, sim.CurrentTime+core.SpellBatchWindow)
+	if surge.IsActive() {
+		t.Error("a missed swing put up Surge of Strength")
+	}
+	dealHit(t, sim, character, meleeSwing(&character.Unit))
+	if !surge.IsActive() {
+		t.Fatal("a main-hand swing put up no Surge of Strength")
+	}
+	if got := character.GetStat(stats.Strength) - before; amount <= 0 || got != amount {
+		t.Errorf("Surge of Strength adds %v Strength, want the row's %v", got, amount)
+	}
+	if got := surge.RemainingDuration(sim); got != row.Duration() {
+		t.Errorf("Surge of Strength went up for %v, want the row's %v", got, row.Duration())
+	}
+	stepTo(t, sim, sim.CurrentTime+row.Duration()+time.Millisecond)
+	if surge.IsActive() {
+		t.Errorf("Surge of Strength is still up after the row's %v", row.Duration())
+	}
+}
+
 // Hand of Edward the Odd 2243 procs Focus 18803 at the procs per minute of the item's chance-on-hit
 // entry, which the test states. Focus makes the next spell with a cast time instant, on its whole
 // global cooldown, and that cast spends it; an instant leaves it up, and unspent it fades after the

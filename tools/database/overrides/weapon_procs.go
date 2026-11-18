@@ -290,6 +290,17 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blackblade of Shahram: no proc row; a log fit not yet validated (EV-0125, EV-0136)",
 		Source:  "observed",
 	},
+	// Fitted from logs on the landed white swings and specials of the mace's wearers and rounded to 1.8 by the
+	// owner (EV-0150). The "observed" Source keeps the gear tab's notice up until more wearers validate it: every
+	// wearer swung at the mace's own speed, so a flat chance fits the same hits, and a druid in a form, who swings
+	// the paw, would tell the two apart.
+	{
+		ItemID:  13393,
+		SpellID: 17500,
+		PPM:     1.8,
+		Reason:  "Malown's Slam: no proc row; a log fit not yet validated (EV-0150)",
+		Source:  "observed",
+	},
 	// Fitted from logs on a sword-and-board warrior's weapon hits and rounded to 1 by the owner (EV-0126).
 	// The "observed" Source keeps the gear tab's notice up until more wearers validate it.
 	{

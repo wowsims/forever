@@ -1377,6 +1377,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 889.41141
+  tps: 723.92243
+  dtps: 3.45217
+  hps: 24.67179
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-MarkofResolution-17759"
  value: {
   dps: 874.26477

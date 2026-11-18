@@ -1107,6 +1107,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 863.56637
+  tps: 895.07145
+  dtps: 8.90285
+  hps: 21.40083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-MarkofResolution-17759"
  value: {
   dps: 779.98182
