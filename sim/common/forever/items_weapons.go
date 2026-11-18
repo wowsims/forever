@@ -284,17 +284,23 @@ func init() {
 	//
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
-	// Each direct spell hit that lands on an enemy rolls 21978, an area spell once for each enemy it
-	// lands on, and the row's 0.1 s cooldown lets one landing proc it once. The chance is the row's
-	// procs per minute on the cast time of the cast that launched the hit, at least 1.5 s
-	// (castTimePPM): an instant, a triggered spell such as an Arcane Missiles missile, and a cast that
-	// Presence of Mind or Heating Up cut short roll 4.5%, a 3 s Fireball 9%. Flamestrike's ground
-	// ticks are direct hits and roll it; damage over time ticks, Ignite, wand shots and damage
-	// shields never do. A harmful spell that deals no damage, such as Counterspell or the start of
-	// the Arcane Missiles channel, rolls it too; the sim leaves those out. Whether a miss rolls is
-	// undetermined, so only landed hits roll (EV-0025).
+	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
+	// time of the cast that launched it (EV-0025). Physical taunts, shouts and roars and spells an item
+	// casts are not the wearer's spells and roll nothing.
+	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
-		Rate: castTimePPM(spelldata.MustFind(21978), true)},
+		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
+			castTimePPM(row)(character, trigger)
+			priced := trigger.ExtraCondition
+			trigger.ProcMask = core.ProcMaskUnknown
+			trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
+				harmful := spell.ProcMask.Matches(core.ProcMaskSpellDamage) ||
+					(spell.ProcMask == core.ProcMaskEmpty && spell.DefenseType == core.DefenseTypeMagic &&
+						spell.SpellSchool != core.SpellSchoolPhysical && !spell.Flags.Matches(core.SpellFlagPassiveSpell) &&
+						spell.ActionID.ItemID == 0)
+				return harmful && character.IsOpponent(result.Target) && priced(sim, spell, result)
+			}
+		}},
 		[]shared.ItemVariant{
 			{ItemID: 17780, ItemName: "Blade of Eternal Darkness"},
 		})
@@ -333,7 +339,7 @@ func init() {
 				bolt = bolts[1]
 			}
 			bolt.Cast(sim, result.Target)
-		}, castTimePPM(row, false))
+		}, castTimePPM(row))
 		priced := trigger.ExtraCondition
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			return !firedAsAProc(spell) && priced(sim, spell, result)
@@ -760,15 +766,15 @@ func creatureFamilyMultiplier(target *core.Unit, multiplier float64, families ..
 }
 
 // The row's procs per minute, priced on the cast time of the cast that launched the hit, at least the
-// global cooldown's 1.5 s, and rolled by each direct spell hit that lands; with requireDamage, only by
-// one that deals damage. The cast time is read where the cast deals the hit's result, which is the
+// global cooldown's 1.5 s, and rolled by each direct spell hit that lands, one that deals no damage
+// included. The cast time is read where the cast deals the hit's result, which is the
 // cast's end for a missile, so one still in flight keeps it when the next cast of the spell starts. It
 // is the time the cast took after talents, Presence of Mind and cast speed. The chance depends on the
 // hit, so Chance(1) leaves core no roll of its own and the condition draws it after the cooldown check
 // and before the cooldown starts.
 // TODO: Verify in game whether cast speed shortens the time the chance is priced on; Omen of Clarity's
 // is priced on the unhasted time.
-func castTimePPM(row *spelldata.Spell, requireDamage bool) spelldata.ProcOpt {
+func castTimePPM(row *spelldata.Spell) spelldata.ProcOpt {
 	return func(character *core.Character, trigger *core.ProcTrigger) {
 		castTimes := map[*core.SpellResult]time.Duration{}
 		core.MakePermanent(character.RegisterAura(core.Aura{
@@ -783,7 +789,7 @@ func castTimePPM(row *spelldata.Spell, requireDamage bool) spelldata.ProcOpt {
 
 		trigger.Callback = core.CallbackOnSpellHitDealt
 		trigger.Outcome = core.OutcomeLanded
-		trigger.RequireDamageDealt = requireDamage
+		trigger.RequireDamageDealt = false
 		flags := trigger.ProcSpellClassFlags
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			castTime, ok := castTimes[result]

@@ -586,28 +586,143 @@ func TestBladeOfEternalDarknessRollsEachEnemyOfALandingOnce(t *testing.T) {
 	}
 }
 
-// A damage over time tick, a wand shot, a missed spell and a landing that deals no damage never roll
-// Blade of Eternal Darkness 17780, even at a chance that cannot fail.
-func TestBladeOfEternalDarknessIgnoresTicksShotsAndMisses(t *testing.T) {
-	sim, character, shadows := boedWearer(t, 1)
-	enemy := sim.Encounter.ActiveTargetUnits[0]
-
-	// Each result is dealt at an hour-long cast, as core deals a cast's result before its hit.
-	castResult := func(spell *core.Spell, result *core.SpellResult) *core.SpellResult {
-		spell.CurCast.CastTime = time.Hour
-		character.OnCastResult(sim, spell, result)
-		return result
+// A landed harmful spell rolls Blade of Eternal Darkness 17780 whether or not it deals damage, a
+// spell with no proc mask too when its DefenseType is magic, its school is not Physical and the
+// wearer cast it. A damage over time tick, a wand shot, a miss, a melee ability or a Physical taunt
+// with no proc mask, a spell fired as a proc or cast by an item with no proc mask and a landing on the
+// wearer never roll it. Each is dealt at an hour-long cast, a chance that cannot fail, as core deals a cast's result
+// before its hit.
+func TestBladeOfEternalDarknessRollsLandedHarmfulSpellsOnly(t *testing.T) {
+	for _, event := range []struct {
+		name string
+		want int32
+		deal func(*core.Simulation, *core.Character, *core.Spell, *core.SpellResult)
+	}{
+		{"spell landing that deals no damage", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"magic spell with no proc mask", 1, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"damage over time tick", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			result.Damage = 100
+			character.OnPeriodicDamageDealt(sim, spell, result)
+		}},
+		{"wand shot", 0, func(sim *core.Simulation, character *core.Character, _ *core.Spell, result *core.SpellResult) {
+			shot := rangedShot(&character.Unit)
+			shot.DefenseType = core.DefenseTypeMagic
+			shot.CurCast.CastTime = time.Hour
+			character.OnCastResult(sim, shot, result)
+			character.OnSpellHitDealt(sim, shot, result)
+		}},
+		{"miss", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			result.Outcome = core.OutcomeMiss
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"melee ability with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.DefenseType = core.DefenseTypeMelee
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"Physical taunt with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.SpellSchool = core.SpellSchoolPhysical
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"spell fired as a proc with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.Flags |= core.SpellFlagPassiveSpell
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"spell an item casts with no proc mask", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			spell.ProcMask = core.ProcMaskEmpty
+			spell.ActionID = core.ActionID{ItemID: 10646}
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+		{"landing on the wearer", 0, func(sim *core.Simulation, character *core.Character, spell *core.Spell, result *core.SpellResult) {
+			result.Target = &character.Unit
+			character.OnSpellHitDealt(sim, spell, result)
+		}},
+	} {
+		t.Run(event.name, func(t *testing.T) {
+			sim, character, shadows := boedWearer(t, 1)
+			spell := fireSpell(&character.Unit)
+			result := &core.SpellResult{Target: character.CurrentTarget, Outcome: core.OutcomeHit}
+			spell.CurCast.CastTime = time.Hour
+			character.OnCastResult(sim, spell, result)
+			event.deal(sim, character, spell, result)
+			if got := procCasts(sim, shadows); got != event.want {
+				t.Errorf("a %s procced it %d times, want %d", event.name, got, event.want)
+			}
+		})
 	}
-	tick := fireSpell(&character.Unit)
-	character.OnPeriodicDamageDealt(sim, tick, castResult(tick, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
-	shot := rangedShot(&character.Unit)
-	character.OnSpellHitDealt(sim, shot, castResult(shot, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit, Damage: 100}))
-	missed := fireSpell(&character.Unit)
-	character.OnSpellHitDealt(sim, missed, castResult(missed, &core.SpellResult{Target: enemy, Outcome: core.OutcomeMiss}))
-	empty := fireSpell(&character.Unit)
-	character.OnSpellHitDealt(sim, empty, castResult(empty, &core.SpellResult{Target: enemy, Outcome: core.OutcomeHit}))
-	if got := procCasts(sim, shadows); got != 0 {
-		t.Errorf("a tick, a wand shot, a miss and a landing that deals no damage procced it %d times, want none", got)
+}
+
+// An untalented Troll priest wielding Blade of Eternal Darkness 17780 against one level 60 target for
+// two hours, its spells free and certain to land, and the spell the proc casts.
+func boedPriest(t *testing.T) (*core.Simulation, *priest.Priest, *core.Spell) {
+	t.Helper()
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 17780
+	player := &proto.Player{
+		Name: "Priest", Class: proto.Class_ClassPriest, Race: proto.Race_RaceTroll,
+		Equipment:   &proto.EquipmentSpec{Items: items},
+		Consumables: &proto.ConsumesSpec{},
+		Buffs:       &proto.IndividualBuffs{},
+		Rotation:    &proto.APLRotation{},
+		Spec: &proto.Player_DpsPriest{DpsPriest: &proto.DpsPriest{
+			Options: &proto.DpsPriest_Options{ClassOptions: &proto.PriestOptions{}}}},
+	}
+	sim := core.NewSim(&proto.RaidSimRequest{
+		SimOptions: &proto.SimOptions{RandomSeed: 1},
+		Raid:       &proto.Raid{Parties: []*proto.Party{{Players: []*proto.Player{player}, Buffs: &proto.PartyBuffs{}}}},
+		Encounter:  &proto.Encounter{Duration: 7200, Targets: []*proto.Target{{Name: "target", Level: 60}}},
+	}, simsignals.CreateSignals())
+	sim.Reset()
+	wearer := sim.Raid.Parties[0].Players[0].(priest.PriestAgent).GetPriest()
+	wearer.AutoAttacks.CancelAutoSwing(sim)
+	wearer.AddStatsDynamic(sim, stats.Stats{stats.SpellHitPercent: 100})
+	wearer.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, FloatValue: -1}).Activate()
+	shadows := wearer.GetSpell(core.ActionID{SpellID: 27860})
+	if shadows == nil {
+		t.Fatal("17780 registers no 27860")
+	}
+	return sim, wearer, shadows
+}
+
+// Hex of Weakness 9035, which deals no damage and has no proc mask, Shadow Word: Pain 589, whose
+// landing deals none, and Holy Fire 14914, which deals damage and applies its damage over time effect,
+// each roll Blade of Eternal Darkness 17780 once a landing at the chance of their cast time; the
+// ticks roll nothing.
+func TestBladeOfEternalDarknessRollsEachLandingOfAHexOrDamageOverTimeOnce(t *testing.T) {
+	for _, id := range []int32{9035, 589, 14914} {
+		t.Run(fmt.Sprint(id), func(t *testing.T) {
+			sim, wearer, shadows := boedPriest(t)
+			enemy := sim.Encounter.ActiveTargetUnits[0]
+			spell := wearer.GetSpell(core.ActionID{SpellID: id})
+			if spell == nil {
+				t.Fatalf("the priest registers no %d", id)
+			}
+
+			const casts = 1500
+			for range casts {
+				stepTo(t, sim, max(wearer.GCD.ReadyAt(), wearer.Hardcast.Expires+time.Millisecond, sim.CurrentTime+spelldata.MustFind(21978).ICD()))
+				spell.Cast(sim, enemy)
+			}
+			stepTo(t, sim, wearer.Hardcast.Expires+time.Millisecond)
+			if got := spell.SpellMetrics[enemy.UnitIndex].Casts; got != casts {
+				t.Fatalf("%d casts completed, want %d", got, casts)
+			}
+			want := castTimeChance(t, 21978, spell.DefaultCast.CastTime)
+			mean, deviation := want*casts, math.Sqrt(want*(1-want)*casts)
+			if got := float64(procCasts(sim, shadows)); math.Abs(got-mean) > 4*deviation {
+				t.Errorf("%d landings of a %v cast procced it %v times, want about %.0f", casts, spell.DefaultCast.CastTime, got, mean)
+			}
+		})
 	}
 }
 
