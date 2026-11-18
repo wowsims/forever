@@ -87,7 +87,7 @@ message Debuffs {
 	bool curse_of_weakness = 18;
 	bool dust_cloud = 19;
 	bool armor_shatter = 20;
-	int32 puncture_armor = 21;
-	bool vindication = 22;
-	bool thunderfury = 23;
+	bool vindication = 21;
+	bool thunderfury = 22;
+	int32 puncture_armor = 23;
 }

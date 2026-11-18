@@ -656,19 +656,6 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
-	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. It shares
-	// Faerie Fire's slot as Armor Shatter does (EV-0147).
-	{
-		Field:    "puncture_armor",
-		SpellID:  17315,
-		Category: "MinorArmorReduction",
-		Driver:   true,
-		Proto:    ProtoInt32,
-		Stats: []proto.Stat{
-			proto.Stat_StatAttackPower,
-		},
-	},
 	// The talent's rank prices the debuff, which the talent states only in its tooltip.
 	{
 		Field:     "vindication",
@@ -693,6 +680,19 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatNatureDamage,
 			proto.Stat_StatStamina,
 			proto.Stat_StatDefenseRating,
+		},
+	},
+	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
+	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. It shares
+	// Faerie Fire's slot as Armor Shatter does (EV-0147).
+	{
+		Field:    "puncture_armor",
+		SpellID:  17315,
+		Category: "MinorArmorReduction",
+		Driver:   true,
+		Proto:    ProtoInt32,
+		Stats: []proto.Stat{
+			proto.Stat_StatAttackPower,
 		},
 	},
 }

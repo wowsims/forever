@@ -318,7 +318,8 @@ attach a stat change there instead and change what the class's own row means.
 
 **Dropping a row renumbers the ones after it.** Each scope's numbers are dense from 1, which
 `TestScopeNumbersAreDense` holds, so a field that goes away shifts every later number down by one.
-Nothing is live, so no saved payload rides on the old numbers.
+The sim is live in alpha and saved settings carry these numbers, so a new row goes at the end of its
+slice and no row is dropped or moved.
 
 **A proto change here breaks whatever a browser holds.** Nothing migrates a saved payload: a field the
 manifest retypes makes `fromJson` throw on the enum name an older save spells out. Every `fromJson` of
