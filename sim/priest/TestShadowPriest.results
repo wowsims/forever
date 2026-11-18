@@ -1087,14 +1087,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestShadowPriest-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 741.59687
-  tps: 530.4352
-  dtps: 4.8787
- }
-}
-dps_results: {
  key: "TestShadowPriest-AllItems-Naglering-11669"
  value: {
   dps: 739.46169

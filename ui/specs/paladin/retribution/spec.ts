@@ -27,7 +27,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 	cssScheme: PlayerClasses.getCssScheme(PlayerClasses.Paladin),
 	// List any known bugs / issues here and they'll be shown on the site.
 	knownIssues: [],
-	consumableStats: [Stat.StatMana, Stat.StatHolyDamage],
+	consumableStats: [Stat.StatMana],
 
 	// All stats for which EP should be calculated.
 	epStats: [
@@ -35,6 +35,7 @@ export default defineSpec<Spec.SpecRetributionPaladin>({
 		Stat.StatAgility,
 		Stat.StatIntellect,
 		Stat.StatSpellDamage,
+		Stat.StatHolyDamage,
 		Stat.StatSpellPiercing,
 		Stat.StatAttackPower,
 		Stat.StatArmorPenetration,

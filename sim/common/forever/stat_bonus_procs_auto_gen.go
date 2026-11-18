@@ -684,19 +684,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.
-	// https://www.wowhead.com/forever/spell=10370
-	// unsupported: states no rate
-	// trigger 10370 (every time, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 10370, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 12469, ItemName: "Mutilator"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Stuns target for 3s.
 	// https://www.wowhead.com/forever/spell=56
 	// shared.NewProcStatBonusEffectWithVariants(shared.ProcStatBonusEffect{
@@ -3803,6 +3790,14 @@ func RegisterAllProcs() {
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 14118, BuffSpellID: 14118, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12463, ItemName: "Drakefang Butcher"},
+		})
+
+	// Leave lacerations on the target, increasing physical damage taken by 1 for 1min. Stacks up to 5 times.
+	// https://www.wowhead.com/forever/spell=10370
+	// trigger 10370 (4.8 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 10370, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 12469, ItemName: "Mutilator"},
 		})
 
 	// Inflicts numbing pain that deals 10 Nature damage every 1.0 sec and increases time between target's attacks

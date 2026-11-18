@@ -1223,6 +1223,15 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Hand of Edward the Odd: column reads 100; vanilla figures differ, 1.0 from 21 procs in 757 hits against 2.0",
 		Source:  "vanilla-carryover",
 	},
+	// Measured on main-hand white swings with no other hit or debuff of the wearer beside them, each proc given
+	// to the hit it logs with (EV-0145).
+	{
+		ItemID:  12469,
+		SpellID: 10370,
+		PPM:     4.8,
+		Reason:  "Mutilator: column reads 101",
+		Source:  "EV-0145",
+	},
 	// TODO: The rates below are vanilla carry-overs, simulator assumptions or old community tests, and none
 	// has been measured on this server. Replace each with a measured rate, its Source the id of a
 	// docs/evidence file, when logs exist.

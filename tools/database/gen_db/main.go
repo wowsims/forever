@@ -232,6 +232,7 @@ func main() {
 
 	db.MergeItems(database.ItemOverrides)
 	database.ApplyItemSetClasses(db)
+	database.ApplyQuestClasses(db, questieQuests, instance.Items)
 	db.MergeEnchants(database.EnchantOverrides)
 	ApplyGlobalFilters(db)
 	database.DropListedSetPiecesBesideUnlistedOnes(db, setListedItems)
