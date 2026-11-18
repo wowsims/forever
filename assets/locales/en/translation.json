@@ -1162,7 +1162,7 @@
 			"mob_type": "Mob Type",
 			"creature_family": {
 				"label": "Creature Family",
-				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to Naga, Satyrs, Aquatic enemies, Earth Elementals, Fire Elementals or Mountain Giants."
+				"tooltip": "The group of creatures the target belongs to, for the items that deal extra damage to one group, such as Trolls, Plants, Naga or Earth Elementals. The mob type decides which groups are offered."
 			},
 			"tanked_by": {
 				"label": "Tanked By",
