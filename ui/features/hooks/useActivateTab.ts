@@ -1,6 +1,9 @@
 import { createContext, useContext } from 'react';
 
 export const BULK_TAB_ID = 'bulk-tab';
+export const GEAR_TAB_ID = 'gear-tab';
+export const SETTINGS_TAB_ID = 'settings-tab';
+export const TALENTS_TAB_ID = 'talents-tab';
 export const RESULTS_TAB_ID = 'detailed-results-tab-tab';
 export const ROTATION_TAB_ID = 'rotation-tab';
 

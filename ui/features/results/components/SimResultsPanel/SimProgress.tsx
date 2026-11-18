@@ -39,12 +39,17 @@ const ProgressMetric = ({ metric, value, compact }: ProgressMetricProps) => (
 	</div>
 );
 
+/** The run's latest progress. Mount the caller with the run: it starts from the store's `latestProgress`, which a new run clears. */
+export const useRunProgress = (panel: ResultsPanelStore) => {
+	const [tick, setTick] = useState(() => ({ progress: panel.latestProgress, secondsRemaining: undefined as number | undefined }));
+	useLayoutEffect(() => panel.onProgress(next => setTick({ progress: next, secondsRemaining: panel.secondsRemaining(next) })), [panel]);
+	return { ...tick, fraction: fractionDone(tick.progress) };
+};
+
 /** Laid out like the finished run's summary, so the sidebar barely moves when the result replaces it. */
 export const SimProgress = ({ panel, className }: SimProgressProps) => {
 	const { damage: showDamage, healing: showHealing } = useDisplayMetrics(useSim());
-	const [{ progress, secondsRemaining }, setTick] = useState(() => ({ progress: panel.latestProgress, secondsRemaining: undefined as number | undefined }));
-	useLayoutEffect(() => panel.onProgress(next => setTick({ progress: next, secondsRemaining: panel.secondsRemaining(next) })), [panel]);
-	const fraction = fractionDone(progress);
+	const { progress, secondsRemaining, fraction } = useRunProgress(panel);
 
 	return (
 		<div data-testid="results-sim" className={clsx('flex w-full flex-col gap-2', className)}>

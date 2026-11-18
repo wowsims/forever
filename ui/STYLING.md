@@ -312,3 +312,24 @@ The tree-wide tests at the `ui/` root run in `npm run test:unit`, all under
       for anything repeated.
     - A class-removal commit and a DOM-structure commit never land together, because a
       position-keyed comparison misaligns on every node after an inserted or deleted element.
+
+## 8. Narrow screens
+
+Below `lg` (1024px) is the phone and tablet layout. CSS writes it as `max-lg:`, and code asks `useWideLayout()`
+(`ui/ui-kit/hooks/useWideLayout.ts`), which mirrors `breakpoints.css`. One code path for both widths beats a
+pixel-identical desktop: a small desktop change is fine when it removes a branch, a prop or a copy.
+
+- **Size with the tokens.** `--spacing-sim-dock` is the dock's height below `lg` and 0 from `lg` up. Below `lg`
+  `--modal-margin` and `--modal-rail-width` are 0, which makes every dialog fullscreen through the inset tokens.
+  A size built on these needs no `max-lg:` override.
+- **The shell renders the sidebar or `SimDock`, never both.** `SimulateAction` holds whether its run is going
+  and the tab strip registers its tabs once, so `SimRunActions` and `SimSidebarBody` are each mounted in one
+  place. A new sidebar section goes in `SimSidebarBody`, and a new preset column in the tab's own component,
+  which `SimPresetsDialog` renders too.
+- **Nothing may widen the page.** Content wider than a phone widens the layout viewport, and every fixed
+  element then measures wider than the screen. A table that can outgrow the screen scrolls in a box of its
+  own, as `MetricsTable` does, and the sim's scroller is vertical-only below `lg`. The root has
+  `overscroll-behavior: none` there, so a swipe never moves the whole page.
+- **Touch has no hover.** `hasHover()` (`ui/shared/pointer.ts`) is false on a touch screen. There the kit
+  `Tooltip` opens on a tap, because react-tooltip opens a hover tooltip on any `touchstart`, a swipe's
+  included.

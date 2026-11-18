@@ -134,7 +134,8 @@ export const Importer = <P,>({
 	};
 
 	const canImport = !preview || (previewed !== undefined && preview.canImport(previewed));
-	const textHeight = preview ? 'h-[20vh]' : 'h-[40vh]';
+	// A fullscreen dialog below `lg` gives the text the rest of the screen, unless a preview shares it.
+	const textHeight = preview ? 'h-[20vh]' : 'h-[40vh] max-lg:h-auto max-lg:min-h-40 max-lg:flex-1';
 	const shownProblems = refusedFile ?? problems;
 
 	return (
@@ -181,7 +182,7 @@ export const Importer = <P,>({
 				</div>
 			}>
 			{/* The dialog body is a flex column with a gap; this stays a single flex item so that gap doesn't land between the description and the textarea. */}
-			<div className="flex flex-col">
+			<div className="flex flex-col max-lg:flex-1">
 				{children}
 				{holdsLink ? (
 					<TextArea

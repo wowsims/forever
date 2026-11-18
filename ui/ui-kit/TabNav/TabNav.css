@@ -19,15 +19,27 @@
 	}
 
 	.ui-tab-nav {
-		@apply h-full border-current;
+		@apply h-full border-current max-lg:px-2 max-lg:py-2;
 		@apply focus-visible:text-link-hover;
 	}
 
 	.ui-tabs-sim {
 		@apply m-0 flex list-none flex-nowrap items-end p-0;
+
+		&[data-placement='bottom'] {
+			@apply items-stretch;
+
+			& .ui-tab {
+				@apply min-w-0 flex-1 justify-center px-1 py-0 text-xs;
+
+				&[data-active]::after {
+					@apply top-0 bottom-auto h-1 bg-primary;
+				}
+			}
+		}
 	}
 
 	.ui-tabs {
-		@apply mb-0 flex list-none pl-0;
+		@apply mb-0 flex list-none pl-0 max-lg:min-w-0 max-lg:scrollbar-none max-lg:overflow-x-auto;
 	}
 }

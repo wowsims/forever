@@ -21,7 +21,7 @@ export const SidebarIconAction = ({ icon, label, testId, onClick, disabled }: Si
 		<>
 			<Button
 				variant="outline-primary"
-				// Square: the same padding on every side around a box as wide as the 1.5 line height.
+				// Square and as tall as a text button: the same padding on every side, around a box the 1.5 line height on each side.
 				className="shrink-0 px-(--control-padding-y)"
 				aria-label={label}
 				data-testid={testId}
@@ -29,7 +29,7 @@ export const SidebarIconAction = ({ icon, label, testId, onClick, disabled }: Si
 				disabled={disabled || sidebarDisabled}
 				onClick={onClick}
 				{...tooltipAnchorProps(tooltipId)}>
-				<span className="inline-flex w-[1.5em] justify-center">
+				<span className="inline-flex size-[1.5em] items-center justify-center">
 					<Icon name={icon} />
 				</span>
 			</Button>

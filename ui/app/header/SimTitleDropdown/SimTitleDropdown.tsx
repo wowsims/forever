@@ -13,6 +13,8 @@ import clsx from 'clsx';
 
 export interface SimTitleDropdownProps {
 	currentSpec: PlayerSpec<any>;
+	/** For the narrow screen's top bar: a smaller icon, no site name, and a menu as wide as its classes. */
+	compact?: boolean;
 }
 
 const SIM_LINK_CLASSES =
@@ -58,16 +60,17 @@ const ClassSubmenu = ({ playerClass }: { playerClass: PlayerClass<Class> }) => {
 	);
 };
 
-export const SimTitleDropdown = ({ currentSpec }: SimTitleDropdownProps) => (
-	<div className="z-sim-title h-sim-header-plus border-b border-b-border pb-px max-lg:sticky max-lg:-top-px" data-testid="sim-title-dropdown-root">
+export const SimTitleDropdown = ({ currentSpec, compact = false }: SimTitleDropdownProps) => (
+	<div className={compact ? 'h-full shrink-0' : 'z-sim-title h-sim-header-plus border-b border-b-border pb-px'} data-testid="sim-title-dropdown-root">
 		<div className="relative h-full" data-testid="sim-link-dropdown">
 			<Menu
 				surface="plain"
-				anchorWidth
+				anchorWidth={!compact}
 				trigger={
 					<SimLinkContent
 						iconPath={currentSpec.getIcon('large')}
-						label={i18n.t('sidebar.header.title')}
+						iconClassName={compact && 'size-8'}
+						label={compact ? undefined : i18n.t('sidebar.header.title')}
 						labelClassName="text-white"
 						title={PlayerSpecs.getFullSpecName(currentSpec)}
 						status={launchLabel(currentSpec.launch)}
@@ -75,7 +78,8 @@ export const SimTitleDropdown = ({ currentSpec }: SimTitleDropdownProps) => (
 				}
 				triggerProps={{
 					className: clsx(
-						'ui-sim-title-trigger flex h-full w-full bg-background hover:bg-surface-hover focus-visible:bg-surface-hover data-popup-open:bg-surface-hover',
+						'ui-sim-title-trigger flex h-full w-full hover:bg-surface-hover focus-visible:bg-surface-hover data-popup-open:bg-surface-hover',
+						!compact && 'bg-background',
 						textClassNameForSpec(currentSpec),
 					),
 					'data-testid': 'sim-link',

@@ -9582,6 +9582,9 @@
 						"show_apm_breakdown": {
 							"type": "string"
 						},
+						"show_names": {
+							"type": "string"
+						},
 						"pets": {
 							"type": "string"
 						},
@@ -10654,6 +10657,7 @@
 						"target_number",
 						"group_ranks",
 						"show_apm_breakdown",
+						"show_names",
 						"pets",
 						"damage",
 						"timeline",
@@ -11910,6 +11914,15 @@
 							"additionalProperties": false,
 							"required": ["title", "modal", "saved_ep_weights", "precision"]
 						},
+						"presets": {
+							"type": "object",
+							"properties": {
+								"title": { "type": "string" },
+								"builds": { "type": "string" }
+							},
+							"additionalProperties": false,
+							"required": ["title", "builds"]
+						},
 						"stat_sweep": {
 							"type": "object",
 							"properties": {
@@ -12175,7 +12188,7 @@
 						}
 					},
 					"additionalProperties": false,
-					"required": ["simulate", "stat_weights", "stat_sweep", "suggest_reforges"]
+					"required": ["simulate", "stat_weights", "presets", "stat_sweep", "suggest_reforges"]
 				},
 				"header": {
 					"type": "object",

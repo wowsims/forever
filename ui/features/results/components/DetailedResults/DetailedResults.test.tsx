@@ -4,7 +4,7 @@ import { renderWithHost } from '@testing/react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { TabPanel } from '@ui-kit/TabNav';
 import { act } from 'react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ResultChannel } from '../../model/result_channel';
 import type { SimResultData } from '../../model/result_data';
@@ -53,11 +53,28 @@ vi.mock('../Movement', () => ({
 
 vi.mock('../ToplineResults', () => ({ ToplineResults: () => <div data-testid="topline-results-root" /> }));
 vi.mock('../DpsHistogram', () => ({ DpsHistogram: () => <div data-testid="dps-histogram-root" /> }));
-vi.mock('../DamageMetricsTable', () => ({ DamageMetricsTable: () => <div data-testid="damage-metrics-root" /> }));
+// The damage and casts tables report the names state they read, and press their toggle when clicked.
+vi.mock('../DamageMetricsTable', async () => {
+	const { useShowNames } = await import('../../context/ShowNamesContext');
+	return {
+		DamageMetricsTable: () => {
+			const { shown, toggle } = useShowNames();
+			return <button data-testid="damage-metrics-root" data-shown={shown} disabled={!toggle} onClick={toggle} />;
+		},
+	};
+});
 vi.mock('../HealingMetricsTable', () => ({ HealingMetricsTable: () => <div data-testid="healing-metrics-root" /> }));
 vi.mock('../DtpsMetricsTable', () => ({ DtpsMetricsTable: () => <div data-testid="dtps-metrics-root" /> }));
 vi.mock('../ThreatMetricsTable', () => ({ ThreatMetricsTable: () => <div data-testid="threat-metrics-root" /> }));
-vi.mock('../CastMetricsTable', () => ({ CastMetricsTable: () => <div data-testid="cast-metrics-root" /> }));
+vi.mock('../CastMetricsTable', async () => {
+	const { useShowNames } = await import('../../context/ShowNamesContext');
+	return {
+		CastMetricsTable: () => {
+			const { shown, toggle } = useShowNames();
+			return <button data-testid="cast-metrics-root" data-shown={shown} disabled={!toggle} onClick={toggle} />;
+		},
+	};
+});
 vi.mock('../ResourceMetricsTable', () => ({ ResourceMetricsTable: () => <div data-testid="resource-metrics-root" /> }));
 vi.mock('../AuraMetricsTable', () => ({
 	AuraMetricsTable: ({ useDebuffs }: { useDebuffs: boolean }) => <div data-testid={useDebuffs ? 'debuff-metrics-root' : 'buff-metrics-root'} />,
@@ -376,5 +393,29 @@ describe('DetailedResultsView', () => {
 		mount({ activeId: 'logTab' });
 
 		expect(screen.getByTestId('slot-reader').textContent).toBe('dr-sticky-slot');
+	});
+});
+
+describe('DetailedResults names', () => {
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		localStorage.clear();
+	});
+
+	const names = () => ['damage-metrics-root', 'cast-metrics-root'].map(id => screen.getByTestId(id).getAttribute('data-shown'));
+
+	it('shows the names from lg up, with nothing to fold them', () => {
+		renderPane();
+		expect(names()).toEqual(['true', 'true']);
+		expect(screen.getByTestId<HTMLButtonElement>('damage-metrics-root').disabled).toBe(true);
+	});
+
+	it('folds the names away below lg, and one table folds them out of every table', () => {
+		vi.stubGlobal('matchMedia', () => ({ matches: false, addEventListener: () => {}, removeEventListener: () => {} }));
+		renderPane();
+		expect(names()).toEqual(['false', 'false']);
+
+		fireEvent.click(screen.getByTestId('cast-metrics-root'));
+		expect(names()).toEqual(['true', 'true']);
 	});
 });
