@@ -139,14 +139,16 @@ silent: no test fails. This lists the diff's hand-written registrations, the rol
 by side:
 
 ```
-git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rates.go ':!*_auto_gen.go' | grep -E '^\+\+\+|^[-+].*(core\.New(Item|Enchant)Effect|core\.NewItemSet|NewSpellData[A-Za-z]*Proc|Rate:|ProcChance|DPM =|PPM\(|sim\.Proc\(|InArea|ID: )'
+git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rates.go ':!*_auto_gen.go' | grep -E '^\+\+\+|^[-+].*(core\.New(Item|Enchant)Effect|core\.NewItemSet|NewSpellData[A-Za-z]*Proc|Rate:|ProcChance|DPM =|PPM\(|sim\.Proc\(|InArea)|^[-+]\s+ID:'
 ```
 
 - **A hand-written proc that rolls something its rows do not state, with no row in the table**, shows the rows'
   number on the gear tab, which the sim does not roll. Read each changed trigger for a factor on `ProcChance`, a
   procs per minute literal, a `NewTargetScaledChanceManager`, `NewAttackerSwingPPMManager` or
-  `NewLegacyPPMManagerWithSpellChance`, an `InArea` check or a `sim.Proc` that drops some procs. Ironfoe, Highborne
-  Research Tablet and Bolt's Charged Eyeball are the rows' cases.
+  `NewLegacyPPMManagerWithSpellChance`, an `InArea` check or a `sim.Proc` that drops some procs. Ironfoe, Argent
+  Defender, Highborne Research Tablet and Bolt's Charged Eyeball are the rows' cases. A row also guards gear whose
+  override is not yet measured, so a later `Source` change in `spell_overrides.go` alone does not show the wrong
+  number.
 - **A stale row** hides or misstates a rate: its gear's code now rolls what its rows state, or something other than
   its `Reason` says. Read the code each row names against its `Reason` whenever the diff touches either.
 

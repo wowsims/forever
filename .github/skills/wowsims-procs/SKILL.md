@@ -96,14 +96,15 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **Read the tooltip before the column.** The tooltip decides which `ProcChanceSource` shape a row is (the opening
   table of `procs.md`); 101 usually means no proc at all. A rate the game files lack
   is an override onto the row's `RPPM` first (`Field: PPM` in `spell_overrides.go`, Omen of Clarity is the case) or
-  an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
+  an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits. An item whose code
+  reads its rate from its chance-on-hit entry (`newEntryRateItemEffect`) takes it in `WeaponProcs`, never in a `Spells`
+  PPM override: the entry carries only the first, while the generator's missing check counts either as a rate.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
   `ProcRateStatus` (`proto/ui.proto`, set by `rateOrigin` and `knownRates` in `tools/database/gen_effects.go`), which the gear tab's notice shows
   (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
   rate measured on this server from too few logs to call final (the gear tab still warns), and a measured rate's
   `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is one of
-  those four, and the generator refuses any other; a `gear_proc_rates.go` row may also name `tooltip`. A gear rate kept
-  as a literal in the sim gets no notice.
+  those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
 - **The gear tab states the rate the sim rolls** from the `proc_rate` `gen_db` writes on each item and enchant in
   `db.json` and the database's `set_bonus_proc_rates` (`proto/ui.proto`); the sim never reads them. For hand-written
   gear the generator reads the rate from its rows (`shippedRateInputs` and `knownRates` in
@@ -115,8 +116,10 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
 - **Hand-written code that rolls something its rows do not state takes a row** in
   `tools/database/overrides/gear_proc_rates.go`: code that scales the chance by target (Ironfoe), halves it by area,
   adds a flat chance (Highborne Research Tablet) or splits the procs (Bolt's Charged Eyeball). A row with no `Kind`
-  leaves the gear with no rate; one with a `Kind` states its `Rate`, with the status its `Source` gives (`tooltip` is
-  the game files'). Its `Reason` names what the code rolls. Without the row the gear tab shows a number the sim does
+  leaves the gear with no rate and may leave `Source` empty; one with a `Kind` states its `Rate`, with the status its
+  `Source` gives (`tooltip` is the game files'), though gear listed unvalidated or missing its effect still shows none
+  and the test refuses a `Kind` on gear whose tooltip prints a fraction of the column. Its `Reason` names what the code
+  rolls. Without the row the gear tab shows a number the sim does
   not roll, and no test fails; `wowsims-review` step 4 checks for it.
 
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
