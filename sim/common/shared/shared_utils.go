@@ -1018,21 +1018,11 @@ func procDamageHandler(character *core.Character, damageSpell *core.Spell, callb
 			return
 		}
 		flags := core.SpellFlagNone
-		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || swingsAPaw(&character.Unit)) {
+		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || character.PseudoStats.FeralCombatEnabled) {
 			flags = core.SpellFlagSuppressWeaponProcs
 		}
 		cast(sim, target, flags)
 	}
-}
-
-// Whether the unit's white swing is its form's and not its weapon's: a druid in Cat, Bear or Dire
-// Bear Form swings a paw.
-func swingsAPaw(unit *core.Unit) bool {
-	switch unit.ShapeshiftForm {
-	case dbcenums.FORM_CAT_FORM, dbcenums.FORM_BEAR_FORM, dbcenums.FORM_DIRE_BEAR_FORM:
-		return true
-	}
-	return false
 }
 
 // Runs deal with the flags added to the spell's own, and takes off again the ones it did not carry.

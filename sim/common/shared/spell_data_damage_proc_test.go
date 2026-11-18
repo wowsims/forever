@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/wowsims/forever/sim/core"
-	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
 	"github.com/wowsims/forever/sim/core/spelldata"
 	"github.com/wowsims/forever/sim/core/stats"
@@ -363,10 +362,10 @@ func TestWeaponProcStrikeAWhiteSwingCastRollsItsWeaponOnce(t *testing.T) {
 // What cast the strike decides whether it rolls its weapon again. Forging Strike 1317432 deals a hit
 // and Mutilator's Lacerations 10370 applies a debuff alone; each is rolled at 100% in the main hand
 // by a wielder whose strikes always land. A main-hand white swing casts two strikes, the second off
-// the first, in a warrior's stance as out of one. A main-hand ability, a strike that counts as a swing
-// the way Windfury Totem's does, and the paw's white swing of Cat, Bear and Dire Bear Form cast one
-// each. A listener built as a weapon enchant's hears the first strike of a weapon's white swing and
-// no other (EV-0145).
+// the first. A main-hand ability, a strike that counts as a swing the way Windfury Totem's does, and
+// the white swing of a paw, which a druid in Cat, Bear or Dire Bear Form swings, cast one each. A
+// listener built as a weapon enchant's hears the first strike of a weapon's white swing and no other
+// (EV-0145).
 func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) {
 	for _, tc := range []struct {
 		name     string
@@ -394,21 +393,18 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 			for _, hit := range []struct {
 				name      string
 				cast      *core.Spell
-				form      dbcenums.ShapeshiftForm
+				paw       bool
 				want      int32
 				wantHeard int
 			}{
-				{"a main-hand white swing", whiteSwing, 0, 2, 1},
-				{"a main-hand white swing in Berserker Stance", whiteSwing, dbcenums.FORM_BERSERKER_STANCE, 2, 1},
-				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, 0, 1, 0},
+				{"a main-hand white swing", whiteSwing, false, 2, 1},
+				{"a main-hand ability", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee}, false, 1, 0},
 				{"a strike that counts as a swing", &core.Spell{ProcMask: core.ProcMaskMeleeMHSpecial, DefenseType: core.DefenseTypeMelee,
-					Flags: core.SpellFlagCountsAsSwing}, 0, 1, 0},
-				{"a paw's white swing in Cat Form", whiteSwing, dbcenums.FORM_CAT_FORM, 1, 0},
-				{"a paw's white swing in Bear Form", whiteSwing, dbcenums.FORM_BEAR_FORM, 1, 0},
-				{"a paw's white swing in Dire Bear Form", whiteSwing, dbcenums.FORM_DIRE_BEAR_FORM, 1, 0},
+					Flags: core.SpellFlagCountsAsSwing}, false, 1, 0},
+				{"a paw's white swing", whiteSwing, true, 1, 0},
 			} {
 				before, heardBefore := metrics.Casts, heard
-				caster.ShapeshiftForm = hit.form
+				caster.PseudoStats.FeralCombatEnabled = hit.paw
 				caster.OnSpellHitDealt(sim, hit.cast, &core.SpellResult{Target: target, Outcome: core.OutcomeHit, Damage: 100})
 				settleChains(t, sim)
 				if got := metrics.Casts - before; got != hit.want {
@@ -431,11 +427,9 @@ func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
 	const cooldown = 3 * time.Second
 	editRow(t, forgingStrike, func(s *spelldata.Spell) {
 		alwaysProcs(s)
-		s.RPPM = 0
 		s.CooldownMs = int32(cooldown / time.Millisecond)
 	})
 	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, forgingStrike, nil)
-	caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
 	metrics := &mustGetSpell(t, caster, forgingStrike).SpellMetrics[target.UnitIndex]
 	start := sim.CurrentTime
 
@@ -451,7 +445,7 @@ func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
 		stepPast(t, sim, start+swing.at)
 		before := metrics.Casts
 		landMainHandSwing(sim, caster, target)
-		stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
+		settleChains(t, sim)
 		if got := metrics.Casts - before; got != swing.want {
 			t.Errorf("%s cast %d strikes, want %d", swing.name, got, swing.want)
 		}

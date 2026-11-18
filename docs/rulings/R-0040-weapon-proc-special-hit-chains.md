@@ -1,8 +1,7 @@
 # R-0040: A weapon proc's strike a main-hand white swing cast rolls weapon procs once more
 
 - Skill: wowsims-procs
-- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, `procDamageHandler`, `swingsAPaw` and
-  `applySpellDataDamageProc`;
+- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, `procDamageHandler` and `applySpellDataDamageProc`;
   `sim/common/shared/spell_data_debuff_proc.go`, `attachDebuffStrike`
 - Pull request: #352, #1088
 - Evidence: EV-0145
