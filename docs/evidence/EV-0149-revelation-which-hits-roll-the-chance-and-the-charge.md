@@ -16,7 +16,7 @@
   build, and 1.60.1.70938 or 1.60.1.70959 for the events after 2026-11-17 15:19 UTC; the Game builds section has the
   procs on each. The hotfix each player ran is not recorded.
 - Date: 2026-11-07 to 2026-11-18
-- Pull request: none; the measurement is written up on its own
+- Pull request: #1100
 
 ## Method
 
