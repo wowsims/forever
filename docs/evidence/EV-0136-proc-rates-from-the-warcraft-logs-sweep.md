@@ -1,7 +1,8 @@
 # EV-0136: Proc rates of 103 items and a set bonus from the Warcraft Logs sweep
 
 EV-0138 replaces what this file says of Windfury Totem's strike after push 114115: the strike grants rage and spends no
-warrior Flurry charge.
+warrior Flurry charge. EV-0146 replaces the rates of Julie's Dagger, Killmaim and Waveslicer with the reports up to
+2026-11-17 added.
 
 - Claim: each item and set bonus below procs at the rate its section gives, priced on each landed hit's weapon base speed;
   a rate whose item has 5 or more wearers and a 95% interval within 10% of it either side is measured, every other one

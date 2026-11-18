@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 751.60083
+  tps: 559.38497
+  hps: 46.00417
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-Bashguuder-13204"
  value: {
   dps: 745.13708
@@ -1098,7 +1106,7 @@ dps_results: {
  value: {
   dps: 734.18513
   tps: 547.08115
-  hps: 47.54514
+  hps: 47.88458
  }
 }
 dps_results: {
@@ -1363,6 +1371,14 @@ dps_results: {
   dps: 787.12398
   tps: 584.70881
   hps: 46.055
+ }
+}
+dps_results: {
+ key: "TestFeralCat-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 747.1632
+  tps: 556.26512
+  hps: 45.86861
  }
 }
 dps_results: {

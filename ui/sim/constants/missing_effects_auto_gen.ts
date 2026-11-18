@@ -4,12 +4,6 @@
 
 export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
-		811, // Axe of the Deep Woods
-		[
-			"Blasts a target for 126 Nature damage.", // 18104 - https://www.wowhead.com/forever/spell=18104
-		]
-	],
-	[
 		934, // Stalvan's Reaper
 		[
 			"Lowers the Attack Power of the target by 40 for 1min.", // 13524 - https://www.wowhead.com/forever/spell=13524
@@ -763,12 +757,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		12781, // Serenity
 		[
 			"Dispels a magic effect on the current foe.", // 16908 - https://www.wowhead.com/forever/spell=16908
-		]
-	],
-	[
-		12791, // Barman Shanker
-		[
-			"Wounds the target causing them to bleed for 98 damage over 7s. Deals 2 times as much damage if applied while behind the target.", // 1300787 - https://www.wowhead.com/forever/spell=1300787
 		]
 	],
 	[
@@ -2280,12 +2268,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		275439, // Blunderflame Bone Bow
-		[
-			"Blunderflame the target for 56 Fire damage.", // 1296730 - https://www.wowhead.com/forever/spell=1296730
-		]
-	],
-	[
 		275630, // Depleted Eye of Influence
 		[
 			"Chance on harmful spell cast to reduce target's attack power by 60 for 30s. ", // 1297082 - https://www.wowhead.com/forever/spell=1297082
@@ -2432,7 +2414,7 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 	[
 		284262, // Howling Hide
 		[
-			"Reduces the target enemy's attack power by 60 for 30s.", // 1315767 - https://www.wowhead.com/forever/spell=1315767
+			"Reduces the target enemy's attack power by 60 for 30s.", // 1330916 - https://www.wowhead.com/forever/spell=1330916
 		]
 	],
 	[
@@ -3600,12 +3582,6 @@ export const MISSING_SET_BONUSES = new Map<number, Map<number, string[]>>([
 					"Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.", // 1315080 - https://www.wowhead.com/forever/spell=1315080
 				],
 			],
-			[
-				3,
-				[
-					"Chance on melee attack to lash the target, inflicting 140 Shadow damage.", // 1315077 - https://www.wowhead.com/forever/spell=1315077
-				],
-			],
 		]),
 	],
 	[
@@ -3703,6 +3679,7 @@ export type UnvalidatedRate = { kind: 'ppm' | 'chance'; rate?: number; origin: '
 export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[809, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Bloodrazor
 	[810, { kind: 'ppm', rate: 4.55, origin: 'observed' }], // Hammer of the Northern Wind
+	[811, { kind: 'ppm', rate: 1.7, origin: 'observed' }], // Axe of the Deep Woods
 	[870, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Fiery War Axe
 	[934, { kind: 'ppm', rate: 1.4, origin: 'observed' }], // Stalvan's Reaper
 	[937, { kind: 'ppm', rate: 0.9, origin: 'observed' }], // Black Duskwood Staff
@@ -3726,7 +3703,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[5243, { kind: 'ppm', rate: 3.85, origin: 'observed' }], // Firebelcher
 	[5756, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Sliverblade
 	[6622, { kind: 'ppm', rate: 1.8, origin: 'vanilla' }], // Sword of Zeal
-	[6660, { kind: 'ppm', rate: 0.85, origin: 'observed' }], // Julie's Dagger
+	[6660, { kind: 'ppm', rate: 1.05, origin: 'observed' }], // Julie's Dagger
 	[6681, { kind: 'ppm', rate: 3.75, origin: 'observed' }], // Thornspike
 	[6909, { kind: 'ppm', rate: 2.25, origin: 'observed' }], // Strike of the Hydra
 	[7710, { kind: 'ppm', rate: 2.55, origin: 'observed' }], // Loksey's Training Stick
@@ -3753,13 +3730,13 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[12592, { kind: 'ppm', rate: 1.15, origin: 'observed' }], // Blackblade of Shahram
 	[12777, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blazing Rapier
 	[12790, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Arcanite Champion
+	[12791, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Barman Shanker
 	[12792, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Volcanic Hammer
 	[12794, { kind: 'ppm', rate: 0.5, origin: 'vanilla' }], // Masterwork Stormhammer
 	[12795, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Blood Talon
 	[12797, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Frostguard
 	[12798, { kind: 'ppm', rate: 1, origin: 'tbc' }], // Annihilator
 	[12992, { kind: 'ppm', rate: 2.4, origin: 'observed' }], // Searing Blade
-	[13016, { kind: 'ppm', rate: 0.95, origin: 'observed' }], // Killmaim
 	[13032, { kind: 'ppm', rate: 1, origin: 'observed' }], // Sword of Corruption
 	[13035, { kind: 'ppm', rate: 1.1, origin: 'observed' }], // Serpent Slicer
 	[13051, { kind: 'ppm', rate: 1, origin: 'observed' }], // Witchfury
@@ -3783,7 +3760,6 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[17193, { kind: 'ppm', rate: 1, origin: 'vanilla' }], // Sulfuron Hammer
 	[17223, { kind: 'ppm', rate: 1.5, origin: 'vanilla' }], // Thunderstrike
 	[17738, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Claw of Celebras
-	[18324, { kind: 'ppm', rate: 1.9, origin: 'observed' }], // Waveslicer
 	[18483, { kind: 'ppm', rate: 4.25, origin: 'observed' }], // Mana Channeling Wand
 	[19019, { kind: 'ppm', rate: 6, origin: 'vanilla' }], // Thunderfury, Blessed Blade of the Windseeker
 	[19099, { kind: 'ppm', rate: 1.4, origin: 'vanilla' }], // Glacial Blade
@@ -3803,6 +3779,7 @@ export const UNVALIDATED_RATE_ITEMS = new Map<number, UnvalidatedRate>([
 	[274271, { kind: 'ppm', rate: 2, origin: 'observed' }], // Deadhead Blade
 	[274484, { kind: 'ppm', rate: 2.15, origin: 'observed' }], // Axe of Inevitable Ruin
 	[274952, { kind: 'ppm', rate: 1.75, origin: 'observed' }], // Jom-jom's Gabbar
+	[275439, { kind: 'ppm', rate: 2.1, origin: 'observed' }], // Blunderflame Bone Bow
 	[281665, { kind: 'ppm', rate: 3.15, origin: 'observed' }], // Twilight Forgehammer
 	[285332, { kind: 'ppm', rate: 2.45, origin: 'observed' }], // Puncturing Spear
 	[286650, { kind: 'ppm', rate: 2.05, origin: 'observed' }], // Pyromancer's Baton

@@ -38535,7 +38535,7 @@ var generatedSpells = []Spell{
 		Effects: []Effect{
 			{ID: 1347164, SpellID: 1315077, Type: dbcenums.E_SCHOOL_DAMAGE, BasePoints: 140, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
 		}},
-	{ID: 1315080, Name: "Mount Speed", School: 1, Attr: [17]uint32{0: 0x9800100, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, DurationMs: -1, RequiredAreas: 9317,
+	{ID: 1315080, Name: "Mount Speed", School: 1, Attr: [17]uint32{0: 0x9800140, 1: 0x20, 2: 0x84001, 3: 0x100000, 5: 0x60008, 6: 0x1000, 8: 0x20, 9: 0x800, 10: 0x400000, 11: 0x4000000, 13: 0x2, 14: 0x10, 15: 0x2000}, RequiredAreas: 9317,
 		Effects: []Effect{
 			{ID: 1347167, SpellID: 1315080, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_MOUNTED_SPEED_ALWAYS, BasePoints: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
@@ -39725,6 +39725,23 @@ var generatedSpells = []Spell{
 	{ID: 1330855, Name: "Gloves of Holy Might", School: 2, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 1, MaxRange: 50000, DefenseType: 3, ProcChance: 15, ProcFlags: [2]uint32{0: 0x11154}, ICDMs: 20000,
 		Effects: []Effect{
 			{ID: 1371198, SpellID: 1330855, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 112, Variance: 0.20000000298023224, PvpMult: 1, TriggerID: 1325229, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1330858, Name: "Lash of the Dark Rider", School: 32, Attr: [17]uint32{0: 0x40, 15: 0x2000}, MaxRange: 100, DefenseType: 1, ProcChance: 15, ProcFlags: [2]uint32{0: 0x4, 1: 0x20}, ICDMs: 45000,
+		Effects: []Effect{
+			{ID: 1371201, SpellID: 1330858, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: 140, PvpMult: 1, TriggerID: 1315077, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
+	{ID: 1330916, Name: "Howler's Cry", School: 1, Attr: [17]uint32{0: 0x40, 15: 0x2000}, SpellLevel: 1, MaxRange: 100, DefenseType: 1, DispelType: 1, ProcChance: 10, ProcFlags: [2]uint32{0: 0x11154}, ICDMs: 20000, RefIDs: []int32{1315767},
+		Effects: []Effect{
+			{ID: 1371297, SpellID: 1330916, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_PROC_TRIGGER_SPELL, BasePoints: -60, PvpMult: 1, TriggerID: 1315767, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+			{ID: 1371298, SpellID: 1330916, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_RANGED_ATTACK_POWER, BasePoints: -60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{6, 0}},
+		}},
+	{ID: 1331725, Name: "Camper's Lure", School: 1, Attr: [17]uint32{0: 0x10080, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, CastTimeMs: 5000, InterruptFlags: 15, EquipClass: 2, EquipSubclass: 1048576,
+		Effects: []Effect{
+			{ID: 1372437, SpellID: 1331725, Type: dbcenums.E_ENCHANT_ITEM_TEMPORARY, BaseLevel: 60, PvpMult: 1, Misc: 8773, ChainAmp: 1},
+		}},
+	{ID: 1331727, Name: "Fishing Skill +60", School: 1, Attr: [17]uint32{0: 0xc0, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, Category: 38,
+		Effects: []Effect{
+			{ID: 1372440, SpellID: 1331727, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_SKILL, BasePoints: 60, BaseLevel: 60, PvpMult: 1, Misc: 356, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
 }
 
