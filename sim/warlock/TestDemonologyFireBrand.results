@@ -102,6 +102,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-BarmanShanker-12791"
+ value: {
+  dps: 863.52603
+  tps: 676.13894
+  dtps: 8.52991
+ }
+}
+dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BehemothBones-280065"
  value: {
   dps: 906.36806
@@ -1125,6 +1133,14 @@ dps_results: {
   dps: 912.08235
   tps: 714.63053
   dtps: 8.86091
+ }
+}
+dps_results: {
+ key: "TestDemonologyFireBrand-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 827.62846
+  tps: 660.2524
+  dtps: 8.96584
  }
 }
 dps_results: {

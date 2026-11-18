@@ -226,6 +226,20 @@ message, Flametongue Totem can read `raid.WindfuryTotem`. The driver builds the 
 `NewSpellData...` constructor and adds what the game files do not state: a proc trigger, a cooldown, a
 delay, the metrics of a regen. The row compiles once the function is declared.
 
+A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one main-hand wielder: `rollWielderHits`
+rolls the item's procs per minute on its swings at the item's base speed and on 48 more landed hits a
+minute (EV-0147), and a landed roll refreshes the aura and adds a stack. With the player wielding a weapon whose proc lands
+the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
+warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
+count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
+item database, and without the full database the sim knows only the items the request carries, so
+the weapon goes into `DEBUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts` (`PARTY_BUFF_ITEM_IDS` for a
+party buff such as Darkspear). A driver that reads an item the request lacks panics naming it.
+`puncture_armor` states `Proto: ProtoInt32` for its weapon: 1 Bashguuder, 2 Rivenspike, 3
+Vibroblade. Its settings inputs are hand-written (`manualBuffInputs`): one boolean input per weapon
+with its item icon, each bound to the field by its state through `makeBooleanDebuffInput`'s `value`,
+so picking one clears the others.
+
 ## Totems on pets
 
 A true pet stands under every totem its owner does whose aura a pet may carry, with the same
@@ -305,9 +319,10 @@ parsed onto the stance aura through the shared table (`sim/warrior/stances.go`),
 reports it because the shared table names no row for it. A shared-table entry for either aura would
 attach a stat change there instead and change what the class's own row means.
 
-**Dropping a row renumbers the ones after it.** Each scope's numbers are dense from 1, which
-`TestScopeNumbersAreDense` holds, so a field that goes away shifts every later number down by one.
-Nothing is live, so no saved payload rides on the old numbers.
+**Dropping a row renumbers the ones after it.** A row's field number is its place in its scope's
+slice, from 1 (`buffmanifest.All`), so a field that goes away shifts every later number down by one.
+The sim is live in alpha and saved settings carry these numbers, so a new row goes at the end of its
+slice and no row is dropped or moved (R-0050).
 
 **A proto change here breaks whatever a browser holds.** Nothing migrates a saved payload: a field the
 manifest retypes makes `fromJson` throw on the enum name an older save spells out. Every `fromJson` of

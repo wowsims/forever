@@ -1,7 +1,8 @@
-import { makeBooleanPartyBuffInput, makeMultistateRaidBuffInput } from '@features/inputs/icon_inputs';
+import { makeBooleanDebuffInput, makeBooleanPartyBuffInput, makeMultistateRaidBuffInput } from '@features/inputs/icon_inputs';
 import { Class, Stat } from '@generated/proto/common';
 import i18n from '@i18n/config';
 import { ActionId } from '@sim/proto/action_id';
+import { DEBUFF_ITEM_IDS } from '@sim/proto/buff_items';
 import { Party } from '@sim/raid/party';
 
 import * as Generated from './buffs_debuffs_auto_gen';
@@ -32,6 +33,24 @@ export const BattleShout = {
 	improvedId2: ActionId.fromSpellId(23563),
 };
 const BattleShoutOption: IconPickerStatOption = { config: BattleShout, stats: [Stat.StatAttackPower], ownerClass: Class.ClassWarrior };
+
+// Debuffs
+// The raid's Puncture Armor field holds the weapon that procs it. Each weapon is an icon of its own that writes its
+// state, so picking one clears the other two.
+const punctureArmorWeapon = (value: number, itemId: number, weapon: string) =>
+	makeBooleanDebuffInput({
+		actionId: ActionId.fromItemId(itemId),
+		fieldName: 'punctureArmor',
+		value,
+		label: `Puncture Armor (${weapon})`,
+	});
+const PunctureArmorWeapons = ['Bashguuder', 'Rivenspike', 'Vibroblade'].map((weapon, index) =>
+	punctureArmorWeapon(index + 1, DEBUFF_ITEM_IDS.punctureArmor![index], weapon),
+);
+const PunctureArmorOptions: IconPickerStatOption[] = PunctureArmorWeapons.map(config => ({
+	config,
+	stats: [Stat.StatAttackPower],
+}));
 
 // Party Buffs
 export const RetributionAura = makeBooleanPartyBuffInput({
@@ -96,27 +115,35 @@ export const BUFFS_CONFIG = inDisplayOrder(
 	],
 );
 
-export const DEBUFFS_CONFIG = inDisplayOrder(Generated.GENERATED_DEBUFFS_CONFIG, [
-	Generated.HuntersMark,
-	Generated.JudgementOfTheCrusader,
-	Generated.JudgementOfLight,
-	Generated.JudgementOfWisdom,
-	Generated.CurseOfElements,
-	Generated.CurseOfWeakness,
-	statOptionGroup(i18n.t('settings_tab.debuffs.major_armor_reduction'), [Generated.SunderArmor, Generated.ExposeArmor]),
-	statOptionGroup(i18n.t('settings_tab.debuffs.minor_armor_reduction'), [Generated.FaerieFire, Generated.CurseOfRecklessness, Generated.DustCloud]),
-	Generated.ArmorShatter,
-	Generated.GiftOfArthas,
-	statOptionGroup(i18n.t('settings_tab.debuffs.attack_power_reduction'), [
-		Generated.DemoralizingShout,
-		Generated.DemoralizingRoar,
-		Generated.DemoralizingScreech,
-		Generated.HexOfWeakness,
-		Generated.Vindication,
-	]),
-	// Thunderfury's Cyclone slows attacks in Thunder Clap's category; its nature resistance cut applies on its own.
-	statOptionGroup(i18n.t('settings_tab.debuffs.attack_speed_reduction'), [Generated.ThunderClap, Generated.Thunderfury]),
-	statOptionGroup(i18n.t('settings_tab.debuffs.hit_chance_reduction'), [Generated.InsectSwarm, Generated.ScorpidSting]),
-]);
+export const DEBUFFS_CONFIG = inDisplayOrder(
+	[...Generated.GENERATED_DEBUFFS_CONFIG, ...PunctureArmorOptions],
+	[
+		Generated.HuntersMark,
+		Generated.JudgementOfTheCrusader,
+		Generated.JudgementOfLight,
+		Generated.JudgementOfWisdom,
+		Generated.CurseOfElements,
+		Generated.CurseOfWeakness,
+		statOptionGroup(i18n.t('settings_tab.debuffs.major_armor_reduction'), [Generated.SunderArmor, Generated.ExposeArmor]),
+		statOptionGroup(i18n.t('settings_tab.debuffs.minor_armor_reduction'), [
+			Generated.FaerieFire,
+			Generated.CurseOfRecklessness,
+			Generated.DustCloud,
+			Generated.ArmorShatter,
+			...PunctureArmorWeapons,
+		]),
+		Generated.GiftOfArthas,
+		statOptionGroup(i18n.t('settings_tab.debuffs.attack_power_reduction'), [
+			Generated.DemoralizingShout,
+			Generated.DemoralizingRoar,
+			Generated.DemoralizingScreech,
+			Generated.HexOfWeakness,
+			Generated.Vindication,
+		]),
+		// Thunderfury's Cyclone slows attacks in Thunder Clap's category; its nature resistance cut applies on its own.
+		statOptionGroup(i18n.t('settings_tab.debuffs.attack_speed_reduction'), [Generated.ThunderClap, Generated.Thunderfury]),
+		statOptionGroup(i18n.t('settings_tab.debuffs.hit_chance_reduction'), [Generated.InsectSwarm, Generated.ScorpidSting]),
+	],
+);
 
 export const DEBUFFS_MISC_CONFIG = [] as IconPickerStatOption[];
