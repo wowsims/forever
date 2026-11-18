@@ -195,6 +195,8 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 | KnYw8BkyhFdtHpVr | 1                                      | 11-17 | Warrior | Battlegear of Valor   |          28 |    577 |      1.21 | 2.4                    |          0 |   257 |     0.00 |
 | 1GWa2FTw7BDnhA9v | 1                                      | 11-17 | Warrior | Battlegear of Valor   |          26 |    463 |      1.25 | 2.7                    |          0 |   155 |     0.00 |
 
+EV-0148 reads this rate again from a sword-and-shield warrior's combat log.
+
 ## Rogue Armor Energize (sets 184 and 1676)
 
 - Proc: 27787, logged as 27788; Shadowcraft Armor's 5-piece and the Darkmantle Armor reissue's 4-piece
