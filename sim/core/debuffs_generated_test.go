@@ -747,7 +747,7 @@ func TestGeneratedSwingProcDebuffsLandAtTheWeaponsRate(t *testing.T) {
 			perMinute := hits * chance
 			if spelldata.MustFind(debuff.spellID).DefenseTypeCore() == core.DefenseTypeMelee {
 				landed := chance * (1 - wielderStrikeDodgeChance)
-				perMinute = hits * landed * (1 + swings/hits*landed)
+				perMinute = landed * (hits + swings*landed)
 			}
 			result := core.RunRaidSim(&proto.RaidSimRequest{
 				SimOptions: &proto.SimOptions{RandomSeed: 7, Iterations: iterations},

@@ -588,10 +588,14 @@ func rollWielderHits(aura *core.Aura, itemID int32) {
 	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
 	swingsPerMinute := 60 / item.SwingSpeed
 	hitsPerMinute := swingsPerMinute + wielderOtherHitsPerMinute
+	swingShare := swingsPerMinute / hitsPerMinute
 	strikes := spelldata.MustFind(aura.ActionID.SpellID).DefenseTypeCore() == core.DefenseTypeMelee
 
 	lands := func(sim *core.Simulation) bool {
-		if sim.RandomFloat(aura.Label) >= chance || strikes && sim.RandomFloat(aura.Label) < wielderStrikeDodgeChance {
+		if sim.RandomFloat(aura.Label) >= chance {
+			return false
+		}
+		if strikes && sim.RandomFloat(aura.Label) < wielderStrikeDodgeChance {
 			return false
 		}
 		aura.Activate(sim)
@@ -606,7 +610,7 @@ func rollWielderHits(aura *core.Aura, itemID int32) {
 		TickImmediately: true,
 		Priority:        core.ActionPriorityDOT,
 		OnAction: func(sim *core.Simulation) {
-			if lands(sim) && strikes && sim.RandomFloat(aura.Label) < swingsPerMinute/hitsPerMinute {
+			if lands(sim) && strikes && sim.RandomFloat(aura.Label) < swingShare {
 				lands(sim)
 			}
 		},
