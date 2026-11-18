@@ -398,8 +398,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-BlunderflameBoneBow-275439"
  value: {
-  dps: 529.92026
-  tps: 1741.67301
+  dps: 511.93418
+  tps: 1688.73523
   dtps: 302.20356
   hps: 39.02083
  }
