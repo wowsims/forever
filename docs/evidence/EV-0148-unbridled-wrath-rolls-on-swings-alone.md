@@ -8,7 +8,7 @@
   with Windfury Totem at times, in Blackrock Depths, Scholomance, Lower and Upper Blackrock Spire and Stratholme
 - Game build: 1.60.1 by the log header; the full build and the hotfix push are not recorded
 - Date: 2026-11-17 22:09 to 2026-11-18 07:54 UTC
-- Pull request: pending
+- Pull request: #1099
 
 ## Method
 
