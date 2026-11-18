@@ -528,3 +528,69 @@ func TestLightningOverloadRollsElementalFocusOnce(t *testing.T) {
 		t.Error("a Lightning Bolt in the instant a Lightning Bolt overload procced Clearcasting never spent the charge")
 	}
 }
+
+// Every rank of Lightning Bolt, Chain Lightning and Fire Nova registers, so a rotation can cast a lower
+// rank by its spell id for its own row's cost.
+func TestLowestRanksCastAtTheirOwnCost(t *testing.T) {
+	const bolt, chain, fireNova, searingTotem = 403, 421, 408341, 10438
+	castSpell := func(id int32) *proto.APLListItem {
+		return &proto.APLListItem{Action: &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{
+			SpellId: &proto.ActionID{RawId: &proto.ActionID_SpellId{SpellId: id}},
+		}}}}
+	}
+	player := &proto.Player{
+		Name:          "Elemental",
+		Race:          proto.Race_RaceOrc,
+		Class:         proto.Class_ClassShaman,
+		Equipment:     &proto.EquipmentSpec{},
+		TalentsString: elementalTalents,
+		Spec:          &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{Options: &proto.ElementalShaman_Options{ClassOptions: &proto.ShamanOptions{}}}},
+		Rotation: &proto.APLRotation{PriorityList: []*proto.APLListItem{
+			castSpell(searingTotem), castSpell(fireNova), castSpell(chain), castSpell(bolt),
+		}},
+	}
+	request := &proto.RaidSimRequest{
+		Raid:       core.SinglePlayerRaidProto(player, &proto.PartyBuffs{}, &proto.RaidBuffs{}, &proto.Debuffs{}),
+		Encounter:  core.MakeSingleTargetEncounter(0),
+		SimOptions: &proto.SimOptions{Iterations: 5, RandomSeed: 1},
+	}
+
+	sim := core.NewSim(request, simsignals.CreateSignals())
+	sim.Reset()
+	sham := sim.Raid.Parties[0].Players[0].(shaman.ShamanAgent).GetShaman()
+	spells := map[core.ActionID]int32{
+		{SpellID: bolt}:     bolt,
+		{SpellID: chain}:    chain,
+		{SpellID: fireNova}: fireNova,
+		{SpellID: bolt, Tag: shaman.CastTagLightningOverload}:  0,
+		{SpellID: chain, Tag: shaman.CastTagLightningOverload}: 0,
+		{SpellID: fireNova, Tag: 1}:                            0,
+	}
+	for actionID, row := range spells {
+		spell := sham.GetSpell(actionID)
+		if spell == nil {
+			t.Errorf("%v is not registered", actionID)
+			continue
+		}
+		if row == 0 {
+			continue
+		}
+		if want := spelldata.MustFind(row).Powers[0].Cost; spell.Cost.BaseCost != want {
+			t.Errorf("%v costs %d, want its row's %d", actionID, spell.Cost.BaseCost, want)
+		}
+	}
+
+	result := core.RunRaidSim(request)
+	if result.Error != nil {
+		t.Fatalf("the sim failed: %s", result.Error.Message)
+	}
+	casts := map[core.ActionID]int32{}
+	for _, action := range result.RaidMetrics.Parties[0].Players[0].Actions {
+		casts[core.ActionID{SpellID: action.Id.GetSpellId(), Tag: action.Id.Tag}] += action.Targets[0].Casts
+	}
+	for _, actionID := range []core.ActionID{{SpellID: bolt}, {SpellID: chain}, {SpellID: fireNova, Tag: 1}} {
+		if casts[actionID] == 0 {
+			t.Errorf("the rotation never cast %v", actionID)
+		}
+	}
+}

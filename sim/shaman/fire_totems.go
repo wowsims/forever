@@ -15,9 +15,6 @@ var magmaTotemRank = spellData.MagmaTotem.Highest()
 var magmaPulseRank = spellData.MagmaTotemTriggered.ByID(10581)
 var magmaPassiveRank = spellData.MagmaTotemTriggered.ByID(10584)
 
-var fireNovaRank = spellData.FireNova.Highest()
-var fireNovaDamageRank = spellData.FireNovaTriggered.Highest()
-
 // A fire totem's own attack: the totem's, not the caster's, so it lands no proc of the caster's.
 // It reports as the totem's spell tagged 1, so the results show the totem and its hits as one row.
 // A Dwarf's or Troll's beast bonus does not reach it.
@@ -98,31 +95,39 @@ func (shaman *Shaman) registerMagmaTotemSpell() {
 }
 
 // "Instantly inflicts $408428s1 fire damage to enemies within $408428a1 yd of your active Fire totem."
-// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428, which hits. Each
-// row carries its own class flags, so Trial by Fire's cooldown reaches the cast and its damage the
-// hit, and Call of Flame and Elemental Fury name the hit alone.
+// The cast deals nothing itself: it casts the Fire Nova row of its own rank, 408428 for rank 5, which
+// hits. Each row carries its own class flags, so Trial by Fire's cooldown reaches the cast and its
+// damage the hit, and Call of Flame and Elemental Fury name the hit alone.
 // The hit lacks Not a Proc, so only listeners that can proc from procs hear it. It reports as the
 // cast's spell tagged 1, so the results show the cast and its hits as one row. The cast deals no
 // damage and the damage table leaves it out, so the hit holds the casts and the cast time: it is not
 // passive, so it counts a cast of its own for each Fire Nova, and the cast hands it its GCD and drops
 // its own count. The hit has no reach, which the cast's own settles.
+// Every rank registers with the hit of its own rank, and the ranks share the cast's category
+// cooldown. FireNova holds the highest rank.
 func (shaman *Shaman) registerFireNovaSpell() {
-	damage := fireNovaDamageRank.DamageEffect()
+	spellData.FireNova.Each(func(n int32, rank *spelldata.Spell) {
+		shaman.FireNova = shaman.registerFireNovaRank(rank, spellData.FireNovaTriggered.Rank(n))
+	})
+}
 
-	novaConfig := spelldata.SpellConfig(&shaman.Unit, fireNovaDamageRank,
+func (shaman *Shaman) registerFireNovaRank(castRank, hitRank *spelldata.Spell) *core.Spell {
+	damage := hitRank.DamageEffect()
+
+	novaConfig := spelldata.SpellConfig(&shaman.Unit, hitRank,
 		spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Proc(),
 		spelldata.RemoveFlags(core.SpellFlagPassiveSpell),
 		spelldata.Flags(SpellFlagShamanSpell|core.SpellFlagProc))
 	novaConfig.MaxRange = 0
-	novaConfig.ActionID = core.ActionID{SpellID: fireNovaRank.ID, Tag: 1}
+	novaConfig.ActionID = core.ActionID{SpellID: castRank.ID, Tag: 1}
 	novaConfig.ClassSpellMask = SpellMaskFireNova
 	novaConfig.ApplyEffects = func(sim *core.Simulation, _ *core.Unit, spell *core.Spell) {
 		spell.CalcAndDealAoeDamage(sim, damage.Average(), spell.OutcomeMagicHitAndCrit)
 	}
 	nova := shaman.RegisterSpell(novaConfig)
 
-	config := spelldata.SpellConfig(&shaman.Unit, fireNovaRank,
+	config := spelldata.SpellConfig(&shaman.Unit, castRank,
 		spelldata.Magic(core.ProcMaskSpellDamage),
 		spelldata.Flags(SpellFlagShamanSpell|SpellFlagInstant))
 	config.ClassSpellMask = SpellMaskFireNova
@@ -139,5 +144,5 @@ func (shaman *Shaman) registerFireNovaSpell() {
 		castMetrics.Casts--
 	}
 
-	shaman.FireNova = shaman.RegisterSpell(config)
+	return shaman.RegisterSpell(config)
 }

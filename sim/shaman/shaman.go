@@ -125,8 +125,8 @@ func (shaman *Shaman) GetCharacter() *core.Character {
 func (shaman *Shaman) AddRaidBuffs(raidBuffs *proto.RaidBuffs) {
 }
 
-// The shocks, Lightning Bolt and Chain Lightning register every rank in castableRanks; the
-// other spells register their highest rank only.
+// The shocks register every rank in castableRanks; Lightning Bolt, Chain Lightning and Fire Nova
+// register every rank; the other spells register their highest rank only.
 func (shaman *Shaman) Initialize() {
 	shaman.registerChainLightningSpell()
 	shaman.registerLightningBoltSpell()

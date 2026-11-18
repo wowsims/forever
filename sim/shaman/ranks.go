@@ -5,10 +5,12 @@ import (
 )
 
 // In game a rank deals less damage once the caster is far enough past the level it is taught at; at
-// level 60 a rank taught at 44 or later is clear of that.
+// level 60 a rank taught at 44 or later is clear of that. The sim does not model the penalty, so
+// Lightning Bolt, Chain Lightning and Fire Nova, which register every rank for mana tests, deal each
+// lower rank's full row damage.
 const minRankLevel = 44 // TODO: Ingame test needed: the cutoff is believed to be 42 or 43 at level 60.
 
-// The ranks of a damage spell the shaman registers: those taught at minRankLevel or later.
+// The ranks of a shock the shaman registers: those taught at minRankLevel or later.
 func castableRanks(ladder spelldata.Ladder) spelldata.Ladder {
 	var ids []int32
 	ladder.Each(func(_ int32, rank *spelldata.Spell) {
