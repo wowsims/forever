@@ -2,6 +2,7 @@ package database
 
 import (
 	"bytes"
+	"cmp"
 	"fmt"
 	"go/format"
 	"io"
@@ -605,14 +606,6 @@ type UnvalidatedRate struct {
 	Origin string  // "vanilla", "tbc" or "observed".
 }
 
-// The rate and origin of the notice's TypeScript object, with no rate where none applies.
-func (r UnvalidatedRate) Fields() string {
-	if r.Rate == 0 {
-		return fmt.Sprintf("kind: '%s', origin: '%s'", r.Kind, r.Origin)
-	}
-	return fmt.Sprintf("kind: '%s', rate: %s, origin: '%s'", r.Kind, strconv.FormatFloat(r.Rate, 'f', -1, 64), r.Origin)
-}
-
 // A chance of 0 to 1 as the percent the notices show, free of float noise.
 func chancePercent(chance float64) float64 {
 	return math.Round(chance*100*1e6) / 1e6
@@ -628,14 +621,9 @@ type UnvalidatedRates struct {
 type KnownRate struct {
 	ID     int32 // The item id, the enchant effect id or the set id.
 	Pieces int32 // The set bonus's piece count; 0 on an item or an enchant.
-	Name   string
 	Kind   overrides.RateKind
-	Rate   float64 // Procs per minute for a ppm, a percent from 0 to 100 for a chance.
-}
-
-// The kind and rate of the TypeScript object.
-func (r KnownRate) Fields() string {
-	return fmt.Sprintf("kind: '%s', rate: %s", r.Kind, strconv.FormatFloat(r.Rate, 'f', -1, 64))
+	Rate   float64              // Procs per minute for a ppm, a percent from 0 to 100 for a chance.
+	Status proto.ProcRateStatus // Measured for a rate an evidence id settles, GameFiles for one a row states.
 }
 
 type KnownRates struct {
@@ -929,13 +917,15 @@ func unvalidatedRates(in rateInputs, db *WowDatabase) (UnvalidatedRates, error) 
 	}, conflict
 }
 
-// The rate a database effect's proc states, or none where it states neither procs per minute nor a chance.
-func procRate(proc *proto.ProcEffect) KnownRate {
+// The rate a database effect's proc states, or none where it states neither procs per minute nor a chance. Procs
+// per minute on an effect come from a rate override, which knownRates counts only where it is measured; a chance
+// takes chanceStatus.
+func procRate(proc *proto.ProcEffect, chanceStatus proto.ProcRateStatus) KnownRate {
 	switch {
 	case proc.GetPpm() > 0:
-		return KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm()}
+		return KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm(), Status: proto.ProcRateStatus_ProcRateStatusMeasured}
 	case proc.GetProcChance() > 0:
-		return KnownRate{Kind: overrides.RateChance, Rate: chancePercent(proc.GetProcChance())}
+		return KnownRate{Kind: overrides.RateChance, Rate: chancePercent(proc.GetProcChance()), Status: chanceStatus}
 	}
 	return KnownRate{}
 }
@@ -955,6 +945,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		if origin, err := rateOrigin(source); err != nil || origin != "" {
 			return KnownRate{}
 		}
+		rate.Status = proto.ProcRateStatus_ProcRateStatusMeasured
 		return rate
 	}
 	// The rate a hand-written proc's spell rolls on its gear: the gear's own rate override for the spell,
@@ -979,11 +970,11 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 				return measured(o.Source, KnownRate{Kind: kind, Rate: o.Value})
 			}
 		}
-		return KnownRate{Kind: overrides.RateChance, Rate: in.SpellChances[gear.SpellID]}
+		return KnownRate{Kind: overrides.RateChance, Rate: in.SpellChances[gear.SpellID], Status: proto.ProcRateStatus_ProcRateStatusGameFiles}
 	}
 	// A hand-written proc reading its item's entry rolls the procs per minute that entry states for the spell it
-	// registers. Another proc on the item leaves it no single rate, and so does an unmeasured weapon rate on
-	// it, matched by item since it names the spell the entry triggers.
+	// registers, which a rate override puts there. Another proc on the item leaves it no single rate, and so does
+	// an unmeasured weapon rate on it, matched by item since it names the spell the entry triggers.
 	entryRates := func(gear shared.GearProc) []KnownRate {
 		item, ok := db.Items[gear.ID]
 		if !ok {
@@ -992,7 +983,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		var rates []KnownRate
 		for _, effect := range item.ItemEffects {
 			if proc := effect.GetProc(); proc != nil && effect.BuffId == gear.SpellID {
-				rates = append(rates, KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm()})
+				rates = append(rates, KnownRate{Kind: overrides.RatePPM, Rate: proc.GetPpm(), Status: proto.ProcRateStatus_ProcRateStatusMeasured})
 			} else if proc != nil {
 				rates = append(rates, KnownRate{})
 			}
@@ -1035,8 +1026,9 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}
 	}
 
-	// The piece's one rate, where every rate found on it agrees and states one.
-	settle := func(gear string, id, pieces int32, name string, found []KnownRate) (KnownRate, bool) {
+	// The piece's one rate, where every rate found on it agrees and states one. A rate a row states and a
+	// measurement settles at the same value is measured.
+	settle := func(gear string, id, pieces int32, found []KnownRate) (KnownRate, bool) {
 		key := [2]int32{id, pieces}
 		if rates, ok := hand[gear][key]; ok {
 			found = rates
@@ -1046,13 +1038,18 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}) {
 			return KnownRate{}, false
 		}
-		return KnownRate{ID: id, Pieces: pieces, Name: name, Kind: found[0].Kind, Rate: found[0].Rate}, true
+		status := proto.ProcRateStatus_ProcRateStatusGameFiles
+		if slices.ContainsFunc(found, func(rate KnownRate) bool { return rate.Status == proto.ProcRateStatus_ProcRateStatusMeasured }) {
+			status = proto.ProcRateStatus_ProcRateStatusMeasured
+		}
+		return KnownRate{ID: id, Pieces: pieces, Kind: found[0].Kind, Rate: found[0].Rate, Status: status}, true
 	}
 	// The rates of generated gear whose procs register: the rates on its database effects, and the rates its
 	// rows state where its registrations read the rows. A row's rate fills in a proc whose effect states
 	// none, as an override on a column of 0, 100 or 101 does; a proc that no row rate fills, or one more
-	// than register, leaves the gear with no rate to state. The fill matches by count, not by spell.
-	gearRates := func(effects []*proto.ItemEffect, live LiveProcs, rowRates []KnownRate) []KnownRate {
+	// than register, leaves the gear with no rate to state. The fill matches by count, not by spell. A chance on
+	// an effect takes chanceStatus.
+	gearRates := func(effects []*proto.ItemEffect, live LiveProcs, rowRates []KnownRate, chanceStatus proto.ProcRateStatus) []KnownRate {
 		if !live.RowBuilt {
 			rowRates = nil
 		}
@@ -1061,7 +1058,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		for _, effect := range effects {
 			if proc := effect.GetProc(); proc != nil {
 				procs++
-				if rate := procRate(proc); rate.Rate > 0 {
+				if rate := procRate(proc, chanceStatus); rate.Rate > 0 {
 					found = append(found, rate)
 				} else {
 					unstated++
@@ -1099,7 +1096,7 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 	for id, chances := range in.EnchantChances {
 		for _, chance := range chances {
-			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: overrides.RateChance, Rate: chance})
+			enchantRowRates[id] = append(enchantRowRates[id], KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles})
 		}
 	}
 
@@ -1107,33 +1104,42 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	for id, item := range db.Items {
 		var found []KnownRate
 		if live, ok := in.LiveItems[id]; ok && !in.HandItems[id] {
-			found = gearRates(item.ItemEffects, live, itemRowRates[id])
+			found = gearRates(item.ItemEffects, live, itemRowRates[id], proto.ProcRateStatus_ProcRateStatusGameFiles)
 		}
-		if rate, ok := settle("item", id, 0, item.Name, found); ok {
+		if rate, ok := settle("item", id, 0, found); ok {
 			known.Items = append(known.Items, rate)
 		}
 	}
 
-	enchantNames := map[int32]string{}
+	// An enchant's chance rate override sits on its effect (withEnchantProcRate); the ones reaching this far are measured.
+	enchantChanceOverridden := map[int32]bool{}
+	for _, proc := range in.EnchantProcs {
+		if proc.Kind == overrides.RateChance {
+			enchantChanceOverridden[proc.EnchantID] = true
+		}
+	}
+	enchantIDs := map[int32]bool{}
 	enchantRates := map[int32][]KnownRate{}
 	for _, enchant := range db.Enchants {
 		id := enchant.EffectId
-		if name, ok := enchantNames[id]; !ok || enchant.Name < name {
-			enchantNames[id] = enchant.Name
-		}
+		enchantIDs[id] = true
 		if live, ok := in.LiveEnchants[id]; ok && !in.HandEnchants[id] {
-			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, live, enchantRowRates[id])...)
+			chanceStatus := proto.ProcRateStatus_ProcRateStatusGameFiles
+			if enchantChanceOverridden[id] {
+				chanceStatus = proto.ProcRateStatus_ProcRateStatusMeasured
+			}
+			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, live, enchantRowRates[id], chanceStatus)...)
 		}
 	}
-	for id, name := range enchantNames {
-		if rate, ok := settle("enchant", id, 0, name, enchantRates[id]); ok {
+	for id := range enchantIDs {
+		if rate, ok := settle("enchant", id, 0, enchantRates[id]); ok {
 			known.Enchants = append(known.Enchants, rate)
 		}
 	}
 
 	for bonus, chances := range in.SetChances {
 		for _, chance := range chances {
-			setRates[bonus] = append(setRates[bonus], KnownRate{Kind: overrides.RateChance, Rate: chance})
+			setRates[bonus] = append(setRates[bonus], KnownRate{Kind: overrides.RateChance, Rate: chance, Status: proto.ProcRateStatus_ProcRateStatusGameFiles})
 		}
 	}
 	// settle takes a hand-written proc's rate over the rates found, so a bonus with one only needs listing.
@@ -1144,8 +1150,8 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 	}
 	setNames := setNamesOf(db)
 	for bonus, found := range setRates {
-		if name, ok := setNames[bonus[0]]; ok {
-			if rate, ok := settle("set bonus", bonus[0], bonus[1], name, found); ok {
+		if _, ok := setNames[bonus[0]]; ok {
+			if rate, ok := settle("set bonus", bonus[0], bonus[1], found); ok {
 				known.SetBonuses = append(known.SetBonuses, rate)
 			}
 		}
@@ -1157,6 +1163,66 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		})
 	}
 	return known
+}
+
+// The status the gear tab shows for each origin an unvalidated rate names.
+var originStatus = map[string]proto.ProcRateStatus{
+	"observed": proto.ProcRateStatus_ProcRateStatusObserved,
+	"tbc":      proto.ProcRateStatus_ProcRateStatusTbcCarryover,
+	"vanilla":  proto.ProcRateStatus_ProcRateStatusVanillaCarryover,
+}
+
+// A rate as the gear tab reads it.
+func procRateProto(kind overrides.RateKind, rate float64, status proto.ProcRateStatus) *proto.ProcRate {
+	protoKind := proto.ProcRateKind_ProcRateKindPpm
+	if kind == overrides.RateChance {
+		protoKind = proto.ProcRateKind_ProcRateKindChance
+	}
+	return &proto.ProcRate{Kind: protoKind, Rate: rate, Status: status}
+}
+
+// Sets the proc rate the gear tab shows on each item, enchant and set bonus, settled or unvalidated. An enchant's
+// rate goes on every enchant sharing its effect id. The rates are for display only: the sim rolls the rates on
+// the effects.
+func StampProcRates(db *WowDatabase, known KnownRates, unvalidated UnvalidatedRates) {
+	stampItem := func(id int32, rate *proto.ProcRate) {
+		if item, ok := db.Items[id]; ok {
+			item.ProcRate = rate
+		}
+	}
+	stampEnchant := func(id int32, rate *proto.ProcRate) {
+		for _, enchant := range db.Enchants {
+			if enchant.EffectId == id {
+				enchant.ProcRate = rate
+			}
+		}
+	}
+	db.SetBonusProcRates = nil
+	stampSetBonus := func(id, pieces int32, rate *proto.ProcRate) {
+		db.SetBonusProcRates = append(db.SetBonusProcRates, &proto.SetBonusProcRate{SetId: id, Pieces: pieces, Rate: rate})
+	}
+
+	for _, r := range known.Items {
+		stampItem(r.ID, procRateProto(r.Kind, r.Rate, r.Status))
+	}
+	for _, r := range known.Enchants {
+		stampEnchant(r.ID, procRateProto(r.Kind, r.Rate, r.Status))
+	}
+	for _, r := range known.SetBonuses {
+		stampSetBonus(r.ID, r.Pieces, procRateProto(r.Kind, r.Rate, r.Status))
+	}
+	for _, r := range unvalidated.Items {
+		stampItem(r.ID, procRateProto(r.Kind, r.Rate, originStatus[r.Origin]))
+	}
+	for _, r := range unvalidated.Enchants {
+		stampEnchant(r.ID, procRateProto(r.Kind, r.Rate, originStatus[r.Origin]))
+	}
+	for _, r := range unvalidated.SetBonuses {
+		stampSetBonus(r.ID, r.Pieces, procRateProto(r.Kind, r.Rate, originStatus[r.Origin]))
+	}
+	slices.SortFunc(db.SetBonusProcRates, func(a, b *proto.SetBonusProcRate) int {
+		return cmp.Or(cmp.Compare(a.SetId, b.SetId), cmp.Compare(a.Pieces, b.Pieces))
+	})
 }
 
 // A set bonus the game files grant at a piece count the sim registers no effect for.
@@ -1403,15 +1469,16 @@ func GenerateSetBonuses(instance *dbc.DBC, db *WowDatabase) ([]GeneratedSet, err
 	return sets, nil
 }
 
-func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []GeneratedSet) error {
+// Writes the missing effects file, and returns the gear's settled and unvalidated proc rates for StampProcRates.
+func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []GeneratedSet) (KnownRates, UnvalidatedRates, error) {
 	if _, err := os.Stat(missingEffectsFileName); err != nil && !os.IsNotExist(err) {
-		return fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
+		return KnownRates{}, UnvalidatedRates{}, fmt.Errorf("unable to check file %s: %w", missingEffectsFileName, err)
 	}
 
 	in := shippedRateInputs(instance, db)
 	rates, err := unvalidatedRates(in, db)
 	if err != nil {
-		return err
+		return KnownRates{}, UnvalidatedRates{}, err
 	}
 	registered := slices.Clone(core.ItemSets())
 	for _, set := range generated {
@@ -1430,14 +1497,14 @@ func GenerateMissingEffectsFile(instance *dbc.DBC, db *WowDatabase, generated []
 
 	f, err := os.Create(missingEffectsFileName)
 	if err != nil {
-		return fmt.Errorf("failed to create file %s: %w", missingEffectsFileName, err)
+		return KnownRates{}, UnvalidatedRates{}, fmt.Errorf("failed to create file %s: %w", missingEffectsFileName, err)
 	}
 	defer f.Close()
 
-	return renderMissingEffects(f, rates, known, setBonuses)
+	return known, rates, renderMissingEffects(f, setBonuses)
 }
 
-func renderMissingEffects(w io.Writer, rates UnvalidatedRates, known KnownRates, setBonuses []MissingSetBonus) error {
+func renderMissingEffects(w io.Writer, setBonuses []MissingSetBonus) error {
 	funcMap := map[string]any{
 		"asCoreCallback": asCoreCallback,
 		"asCoreProcMask": asCoreProcMask,
@@ -1446,18 +1513,11 @@ func renderMissingEffects(w io.Writer, rates UnvalidatedRates, known KnownRates,
 		"jsString":       jsString,
 	}
 	tmpl := template.Must(template.New("missingEffects").Funcs(funcMap).Parse(TmplStrMissingEffects))
-	sets := groupBySet(rates.SetBonuses, func(r UnvalidatedRate) int32 { return r.ID })
 	missingSets := groupBySet(setBonuses, func(b MissingSetBonus) int32 { return b.ID })
 	data := map[string]any{
-		"ItemEffects":               missingEffectsMap["ItemEffects"],
-		"EnchantEffects":            missingEffectsMap["EnchantEffects"],
-		"MissingSetBonuses":         missingSets,
-		"UnvalidatedRateItems":      rates.Items,
-		"UnvalidatedRateEnchants":   rates.Enchants,
-		"UnvalidatedRateSetBonuses": sets,
-		"ProcRateItems":             known.Items,
-		"ProcRateEnchants":          known.Enchants,
-		"ProcRateSetBonuses":        groupBySet(known.SetBonuses, func(r KnownRate) int32 { return r.ID }),
+		"ItemEffects":       missingEffectsMap["ItemEffects"],
+		"EnchantEffects":    missingEffectsMap["EnchantEffects"],
+		"MissingSetBonuses": missingSets,
 	}
 	if err := tmpl.Execute(w, data); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
