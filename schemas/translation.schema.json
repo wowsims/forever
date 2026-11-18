@@ -4136,7 +4136,17 @@
 							"type": "string"
 						},
 						"mob_type": {
-							"type": "string"
+							"type": "object",
+							"properties": {
+								"label": {
+									"type": "string"
+								},
+								"tooltip": {
+									"type": "string"
+								}
+							},
+							"additionalProperties": false,
+							"required": ["label", "tooltip"]
 						},
 						"creature_family": {
 							"type": "object",
