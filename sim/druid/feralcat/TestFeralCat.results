@@ -1214,6 +1214,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralCat-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 783.66858
+  tps: 582.39336
+  hps: 45.98722
+ }
+}
+dps_results: {
  key: "TestFeralCat-AllItems-MarkofResolution-17759"
  value: {
   dps: 805.84852
