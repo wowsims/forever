@@ -60,7 +60,7 @@ func init() {
 }
 
 // A character swinging one weapon in the main hand against level 60 targets with no armor: the
-// warrior stand-in, or with a shaman the caster stand-in.
+// warrior stand-in, or with a shaman or a druid the caster stand-in.
 func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return weaponWearerFor(t, class, itemID, targets, 180)
@@ -81,7 +81,7 @@ func weaponWearerFor(t *testing.T, class proto.Class, itemID int32, targets int,
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
 	}
-	if class == proto.Class_ClassShaman {
+	if class == proto.Class_ClassShaman || class == proto.Class_ClassDruid {
 		core.WithSpec(player, &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{}})
 	} else {
 		core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
@@ -799,7 +799,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	}
 	wearer := func(t *testing.T) (*core.Simulation, *core.Character, [2]*core.Spell) {
 		t.Helper()
-		sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 22458, 1, 7200)
+		sim, character := weaponWearerFor(t, proto.Class_ClassDruid, 22458, 1, 7200)
 		character.AutoAttacks.CancelAutoSwing(sim)
 		proc := character.GetAura("Moonshadow Stave")
 		bolts := [2]*core.Spell{character.GetSpell(core.ActionID{SpellID: 1300437}), character.GetSpell(core.ActionID{SpellID: 1300438})}

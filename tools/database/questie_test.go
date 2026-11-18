@@ -7,10 +7,12 @@ import (
 	"encoding/binary"
 	"fmt"
 	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
 	"github.com/wowsims/forever/sim/core/proto"
+	"github.com/wowsims/forever/tools/database/dbc"
 	googleProto "google.golang.org/protobuf/proto"
 )
 
@@ -96,6 +98,7 @@ const questieTestQuestMeta = `local meta = {
     ['requiredRaces'] = 3, -- Allowed-race bitmask.
     ['objectives'] = 4,
     ['requiredSourceItems'] = 5,
+    ['requiredClasses'] = 6, -- Allowed-class bitmask.
   },
 }`
 
@@ -125,7 +128,7 @@ func questieTestTOC() string {
 		questieChunks("Item-IDS", questieIDs(100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112), 3),
 		"## X-Item-111-S: " + questieValue(map[any]any{1: "Darkmantle Cap", "p": 1 << 1}),
 		"## X-Item-111-2: " + questieValue([]any{9004, 9010, 9011}),
-		"## X-Quest-9004-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 2: 3456, 3: 4294967373, "p": 1 << 3}),
+		"## X-Quest-9004-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 2: 3456, 3: 4294967373, 6: 1 | 1<<8, "p": 1 << 3}),
 		"## X-Quest-9004-4: " + questieValue([]any{nil, nil, []any{[]any{22361, nil, 0}, []any{12360, "Bars"}}}),
 		"## X-Quest-9010-S: " + questieValue(map[any]any{1: "Saving the Best for Last", 2: -364, 3: 8589934770, "p": 1<<3 | 1<<4}),
 		"## X-Quest-9010-4: " + questieValue(map[any]any{3: []any{[]any{22361}}}),
@@ -195,7 +198,7 @@ func TestParseQuestieData(t *testing.T) {
 	// Objectives come as a list of groups or as a map from group number, and the items no objective names follow.
 	wantQuests := map[int32]*QuestieQuest{
 		8561: {Zone: -15},
-		9004: {Zone: 3456, Items: []int32{22361, 12360}},
+		9004: {Zone: 3456, Items: []int32{22361, 12360}, Classes: 1 | 1<<8},
 		9010: {Zone: -364, Items: []int32{22361, 15407}},
 		9011: {},
 	}
@@ -366,5 +369,53 @@ func TestAppendQuestieSources(t *testing.T) {
 	}
 	if len(db.Items) != 5 {
 		t.Errorf("%d items, want the 5 the database has", len(db.Items))
+	}
+}
+
+// Item 1 is the Sunken Temple case: a warrior quest's bind-on-pickup reward. Item 2 comes from a warrior and a paladin
+// quest, item 3 also from a craft, item 4 also from a quest any class may take, item 5 binds on equip, item 6 keeps the
+// game files' list, item 7 names a quest QuestieDB has no row for, item 8 has no source, and item 9's two quests
+// together allow every class.
+func TestApplyQuestClasses(t *testing.T) {
+	quest := func(id int32) *proto.UIItemSource {
+		return &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: id}}}
+	}
+	crafted := &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: &proto.CraftedSource{SpellId: 5}}}
+	quests := map[int32]*QuestieQuest{8425: {Classes: 1}, 8418: {Classes: 1 << 1}, 1: {}, 792: {Classes: 1503 &^ 1}}
+
+	db := NewWowDatabase()
+	items := map[int]dbc.Item{}
+	for id, sources := range map[int32][]*proto.UIItemSource{
+		1: {quest(8425)},
+		2: {quest(8425), quest(8418)},
+		3: {quest(8425), crafted},
+		4: {quest(8425), quest(1)},
+		5: {quest(8425)},
+		6: {quest(8425)},
+		7: {quest(9999)},
+		8: nil,
+		9: {quest(8425), quest(792)},
+	} {
+		db.Items[id] = &proto.UIItem{Id: id, Sources: sources}
+		items[int(id)] = dbc.Item{Bonding: dbc.BIND_ON_ACQUIRE}
+	}
+	db.Items[6].ClassAllowlist = []proto.Class{proto.Class_ClassMage}
+	items[5] = dbc.Item{Bonding: dbc.BIND_ON_EQUIP}
+	ApplyQuestClasses(db, quests, items)
+
+	for id, want := range map[int32][]proto.Class{
+		1: {proto.Class_ClassWarrior},
+		2: {proto.Class_ClassWarrior, proto.Class_ClassPaladin},
+		3: nil,
+		4: nil,
+		5: nil,
+		6: {proto.Class_ClassMage},
+		7: nil,
+		8: nil,
+		9: nil,
+	} {
+		if got := db.Items[id].ClassAllowlist; !slices.Equal(got, want) {
+			t.Errorf("item %d allowlist = %v, want %v", id, got, want)
+		}
 	}
 }

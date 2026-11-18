@@ -644,7 +644,8 @@ var Debuffs = []BuffSpec{
 			proto.Stat_StatAttackPower,
 		},
 	},
-	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on every swing.
+	// The raid's copy is one wielder's Annihilator proccing it, which the driver rolls on the wielder's
+	// swings and its other landed hits.
 	// In game it never lands while Curse of Recklessness or Faerie Fire is on the target, and either
 	// one landing removes it (EV-0147). It is weaker than either even at full stacks, so bidding in
 	// their slot gives the target the same armor.
@@ -684,7 +685,8 @@ var Debuffs = []BuffSpec{
 		},
 	},
 	// The state is the weapon one wielder procs it with: 1 Bashguuder and 2 Rivenspike land 17315,
-	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on every swing. In game it
+	// 3 Vibroblade its own 1293005. The driver rolls the weapon's proc on the wielder's swings and its
+	// other landed hits, and the target dodges some of the strikes the proc casts. In game it
 	// never lands while Curse of Recklessness or Faerie Fire is on the target, and either one landing
 	// removes it (EV-0147). It is weaker than either even at full stacks, so bidding in their slot
 	// gives the target the same armor.

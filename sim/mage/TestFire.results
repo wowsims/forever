@@ -965,13 +965,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestFire-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 930.37304
-  tps: 930.70581
- }
-}
-dps_results: {
  key: "TestFire-AllItems-Naglering-11669"
  value: {
   dps: 941.86466

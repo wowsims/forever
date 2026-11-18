@@ -228,7 +228,10 @@ delay, the metrics of a regen. The row compiles once the function is declared.
 
 A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one main-hand wielder: `rollWielderHits`
 rolls the item's procs per minute on its swings at the item's base speed and on 48 more landed hits a
-minute (EV-0147), and a landed roll refreshes the aura and adds a stack. With the player wielding a weapon whose proc lands
+minute (EV-0147), and a landed roll refreshes the aura and adds a stack. A row on the melee hit table
+(Puncture Armor's 17315 and 1293005) is cast as a strike, as the player's proc casts it (R-0040): the
+target dodges 6.5% of them, and one that lands off a swing rolls the proc once more (EV-0152). With the
+player wielding a weapon whose proc lands
 the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
 warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
 count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
