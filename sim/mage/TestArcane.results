@@ -1021,6 +1021,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestArcane-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 764.24266
+  tps: 656.54996
+ }
+}
+dps_results: {
  key: "TestArcane-AllItems-RingofSaviors-1447"
  value: {
   dps: 845.65958

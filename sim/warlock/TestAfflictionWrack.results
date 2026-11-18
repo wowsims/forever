@@ -1144,6 +1144,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestAfflictionWrack-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 837.59553
+  tps: 689.15533
+  dtps: 9.63507
+ }
+}
+dps_results: {
  key: "TestAfflictionWrack-AllItems-RingofSaviors-1447"
  value: {
   dps: 929.62538

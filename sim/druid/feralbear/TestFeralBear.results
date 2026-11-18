@@ -1594,6 +1594,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 477.67914
+  tps: 2415.75589
+  dtps: 422.50516
+  hps: 82.80032
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-RingofSaviors-1447"
  value: {
   dps: 538.20078

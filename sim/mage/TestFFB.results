@@ -1021,6 +1021,13 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFFB-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 769.14639
+  tps: 797.58216
+ }
+}
+dps_results: {
  key: "TestFFB-AllItems-RingofSaviors-1447"
  value: {
   dps: 861.9906

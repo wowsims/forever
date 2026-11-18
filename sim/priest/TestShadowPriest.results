@@ -1159,6 +1159,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestShadowPriest-AllItems-RiderofthePlaguelands"
+ value: {
+  dps: 694.16796
+  tps: 497.11255
+  dtps: 5.10391
+ }
+}
+dps_results: {
  key: "TestShadowPriest-AllItems-RingofSaviors-1447"
  value: {
   dps: 740.47165

@@ -1728,20 +1728,20 @@ func RegisterAllSetBonuses() {
 		5: {1301247},
 	})
 
-	// TODO: Manual implementation required
-	//
 	// Rider of the Plaguelands
 	// https://www.wowhead.com/forever/item-set=2130
-	// shared.NewParsedItemSet(2130, "Rider of the Plaguelands", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
-	// 	// Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.
-	// 	// https://www.wowhead.com/forever/spell=1315080
-	// 	// unsupported: the row applies only in area group 9317, effect 1 A_MOD_MOUNTED_SPEED_ALWAYS misc 0 is not parsed
-	// 	2: {1315080},
-	// 	// Chance on melee attack to lash the target, inflicting 140 Shadow damage.
-	// 	// https://www.wowhead.com/forever/spell=1315077
-	// 	// unsupported: effect 1 is E_SCHOOL_DAMAGE
-	// 	3: {1315077},
-	// })
+	shared.NewParsedItemSet(2130, "Rider of the Plaguelands", []proto.ItemSlot{proto.ItemSlot_ItemSlotBack, proto.ItemSlot_ItemSlotFinger1, proto.ItemSlot_ItemSlotFinger2, proto.ItemSlot_ItemSlotMainHand}, map[int32][]int32{
+		// TODO: Manual implementation required
+		//
+		// Increases movement speed while mounted by 5% in Eastern and Western Plaguelands.
+		// https://www.wowhead.com/forever/spell=1315080
+		// unsupported: the row applies only in area group 9317, effect 1 A_MOD_MOUNTED_SPEED_ALWAYS misc 0 is not parsed
+		// 2: {1315080},
+
+		// Chance on melee attack to lash the target, inflicting 140 Shadow damage.
+		// https://www.wowhead.com/forever/spell=1330858
+		3: {1330858},
+	})
 
 	// TODO: Manual implementation required
 	//
