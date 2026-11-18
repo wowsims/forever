@@ -12284,6 +12284,7 @@
 {"setId":1676,"pieces":4,"rate":{"kind":1,"rate":0.8,"status":1}},
 {"setId":1679,"pieces":4,"rate":{"kind":1,"rate":1,"status":3}},
 {"setId":1681,"pieces":4,"rate":{"kind":2,"rate":5,"status":2}},
-{"setId":1778,"pieces":4,"rate":{"kind":1,"rate":1,"status":1}}
+{"setId":1778,"pieces":4,"rate":{"kind":1,"rate":1,"status":1}},
+{"setId":2130,"pieces":3,"rate":{"kind":2,"rate":15,"status":2}}
 ]
 }
