@@ -1,4 +1,4 @@
-import { AreaType, ArmorType, CreatureFamily, Faction, ItemSlot, MobType, RangedWeaponType, WeaponType } from '@generated/proto/common';
+import { AreaType, ArmorType, CreatureFamily, Faction, ItemRandomSuffix, ItemSlot, MobType, RangedWeaponType, Stat, WeaponType } from '@generated/proto/common';
 import { DatabaseFilters, FactionFilter, SourceFilterOption, UIItem } from '@generated/proto/ui';
 import { SimHostProvider } from '@sim/context/SimHostContext';
 import { storeSource as store } from '@testing/gear';
@@ -42,6 +42,7 @@ describe('FiltersMenu', () => {
 	let setFilters: ReturnType<typeof vi.fn>;
 	let raceFaction: Faction;
 	let items: UIItem[];
+	let suffixes: Record<number, ItemRandomSuffix>;
 	let rootElem: HTMLElement;
 
 	const setup = (
@@ -59,7 +60,7 @@ describe('FiltersMenu', () => {
 				sim: {
 					getFilters: () => DatabaseFilters.clone(filters),
 					setFilters,
-					db: { getAllItems: () => items },
+					db: { getAllItems: () => items, getRandomSuffixById: (id: number) => suffixes[id] },
 				},
 				getPlayerClass: () => ({ armorTypes, weaponTypes: weaponTypes.map(weaponType => ({ weaponType })), rangedWeaponTypes }),
 				getPlayerSpec: () => ({ canDualWield }),
@@ -84,6 +85,7 @@ describe('FiltersMenu', () => {
 		filters = DatabaseFilters.create({});
 		raceFaction = Faction.Horde;
 		items = [];
+		suffixes = {};
 		setFilters = vi.fn((next: DatabaseFilters) => {
 			filters = next;
 		});
@@ -123,6 +125,19 @@ describe('FiltersMenu', () => {
 		expect(bonusOptions('filters-bonus-area')).toEqual(['AreaTypeForestGrassland', 'AreaTypeDesert']);
 		expect(bonusOptions('filters-bonus-mob-type')).toEqual(['MobTypeDemon', 'MobTypeUndead']);
 		expect(screen.queryByTestId('filters-bonus-creature')).toBeNull();
+	});
+
+	it('offers the stats the items carry by themselves or with a random suffix, in enum order', () => {
+		items = [
+			UIItem.create({ id: 1, scalingOptions: { 0: { stats: { [Stat.StatStamina]: 8, [Stat.StatStrength]: 12 } } } }),
+			UIItem.create({ id: 2, randomSuffixOptions: [7] }),
+		];
+		const agility = new Array<number>(Stat.StatAgility + 1).fill(0);
+		agility[Stat.StatAgility] = 5;
+		suffixes = { 7: ItemRandomSuffix.create({ id: 7, stats: agility }) };
+		setup();
+
+		expect(bonusOptions('filters-item-stats')).toEqual(['StatStrength', 'StatAgility', 'StatStamina']);
 	});
 
 	it('portals into the sim root for the spec theme, writes a source toggle and a faction pick back through the sim, and closes on its own close button', async () => {
@@ -190,6 +205,7 @@ const renderView = (props: Partial<FiltersMenuViewProps> = {}) => {
 			areaTypes={[]}
 			mobTypes={[]}
 			creatureFamilies={[]}
+			itemStats={[]}
 			canDualWield={false}
 			raceFaction={Faction.Horde}
 			{...props}
@@ -246,6 +262,27 @@ describe('FiltersMenuView', () => {
 
 		fireEvent.click(within(screen.getByTestId('multi-combo-box-chip')).getByRole('button'));
 		expect(lastEdit(DatabaseFilters.create({ mobTypes: [MobType.MobTypeHumanoid] })).mobTypes).toEqual([]);
+	});
+
+	it('puts the stat picker after the general section and writes the picks into the stats list', () => {
+		const { lastEdit } = renderView({
+			itemStats: [Stat.StatStrength, Stat.StatStamina],
+			filters: DatabaseFilters.create({ itemStats: [Stat.StatStamina] }),
+		});
+		expect(viewSections().slice(0, 3)).toEqual([
+			'gear_tab.gear_picker.filters.general',
+			'gear_tab.gear_picker.filters.stats.title',
+			'gear_tab.gear_picker.filters.source',
+		]);
+		expect(screen.getAllByTestId('multi-combo-box-chip').map(chip => chip.textContent)).toEqual(['StatStamina']);
+
+		pickBonus('filters-item-stats', 'StatStrength');
+		expect(lastEdit(DatabaseFilters.create({ itemStats: [Stat.StatStamina] })).itemStats).toEqual([Stat.StatStamina, Stat.StatStrength]);
+	});
+
+	it('leaves the stat section out when no item carries a stat and none is stored', () => {
+		renderView();
+		expect(viewSections()).not.toContain('gear_tab.gear_picker.filters.stats.title');
 	});
 
 	it('writes the newly discovered tick into its flag', () => {
