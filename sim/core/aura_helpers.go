@@ -76,7 +76,7 @@ type ProcTrigger struct {
 	// whether or not that hit was itself a proc, so SpellFlagProc and CanProcFromProcs are ignored.
 	// An ability that requires a shield or has magic or no DefenseType is no weapon hit and casts none.
 	// A weapon proc's own strike is such a hit unless its cast carries the flag, which a melee strike
-	// does where anything but a main-hand white swing cast it (R-0040).
+	// does where anything but a main-hand white swing of the weapon cast it (R-0040).
 	// Which hand's hits qualify is still the DPM's or ProcMask's job.
 	IsWeaponProc bool
 }

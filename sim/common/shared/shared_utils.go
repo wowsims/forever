@@ -984,10 +984,11 @@ func damageShape(damage *spelldata.Spell) spelldata.SpellOpt {
 }
 
 // What a proc's damage lands on, for both damage constructors. A melee strike rolls weapon procs only
-// where a main-hand white swing cast it. One cast by an ability, a seal's or Windfury Totem's strike,
-// an off-hand hit or another strike carries Suppress Weapon Procs for that cast (R-0040, EV-0145). A
-// strike a white swing cast therefore rolls its own weapon once more. The strike that roll asks for
-// comes while the first is still casting, so it goes one spell batch later, and it rolls nothing.
+// where a main-hand white swing of the weapon cast it. One cast by an ability, a seal's or Windfury
+// Totem's strike, an off-hand hit, a form's paw or another strike carries Suppress Weapon Procs for
+// that cast (R-0040, EV-0145). A strike a white swing cast therefore rolls its own weapon
+// once more. The strike that roll asks for comes while the first is still casting, so it goes one
+// spell batch later, and it rolls nothing.
 func procDamageHandler(character *core.Character, damageSpell *core.Spell, callback core.AuraCallback) core.ProcHandler {
 	meleeStrike := damageSpell.ProcMask.Matches(core.ProcMaskMeleeMHSpecial)
 	casting := false
@@ -1011,11 +1012,21 @@ func procDamageHandler(character *core.Character, damageSpell *core.Spell, callb
 			return
 		}
 		flags := core.SpellFlagNone
-		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto)) {
+		if meleeStrike && (spell == nil || !spell.ProcMask.Matches(core.ProcMaskMeleeMHAuto) || swingsAPaw(&character.Unit)) {
 			flags = core.SpellFlagSuppressWeaponProcs
 		}
 		cast(sim, target, flags)
 	}
+}
+
+// Whether the unit's white swing is its form's and not its weapon's: a druid in Cat, Bear or Dire
+// Bear Form swings a paw.
+func swingsAPaw(unit *core.Unit) bool {
+	switch unit.ShapeshiftForm {
+	case dbcenums.FORM_CAT_FORM, dbcenums.FORM_BEAR_FORM, dbcenums.FORM_DIRE_BEAR_FORM:
+		return true
+	}
+	return false
 }
 
 // Runs deal with the flags added to the spell's own, and takes off again the ones it did not carry.
@@ -1040,7 +1051,7 @@ func attachProcDamage(character *core.Character, trigger *core.ProcTrigger, cfg 
 // strike, a main-hand special as a triggered melee spell is; one of ranged defense is a ranged
 // special. The weapon procs, combat enchants and oils that hear those hits hear it, its own weapon
 // included, and a listener on auto attacks alone does not. A melee strike anything but a main-hand
-// white swing cast is heard by no weapon proc, combat enchant or oil on either hand
+// white swing of the weapon cast is heard by no weapon proc, combat enchant or oil on either hand
 // (procDamageHandler): that cast carries Suppress Weapon Procs, through its flight where it has one,
 // and its damage and bleed are those of any other cast. Only a spell flagged as a proc is a strike:
 // any aura on melee specials would hear one without the flag, so it keeps no mask, as any other

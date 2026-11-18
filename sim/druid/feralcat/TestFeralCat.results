@@ -104,17 +104,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BarmanShanker-12791"
  value: {
-  dps: 750.5905
-  tps: 558.99369
-  hps: 46.055
+  dps: 750.88752
+  tps: 559.15332
+  hps: 45.98722
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-Bashguuder-13204"
  value: {
-  dps: 743.28643
-  tps: 553.72505
-  hps: 46.29222
+  dps: 742.83821
+  tps: 553.32157
+  hps: 46.34306
  }
 }
 dps_results: {
@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 756.18296
-  tps: 563.04244
-  hps: 45.66528
+  dps: 755.18525
+  tps: 562.26304
+  hps: 45.75
  }
 }
 dps_results: {
@@ -176,9 +176,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-BloodTalon-12795"
  value: {
-  dps: 743.04206
-  tps: 553.6549
-  hps: 46.10583
+  dps: 740.57362
+  tps: 551.85004
+  hps: 46.19056
  }
 }
 dps_results: {
@@ -192,9 +192,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Bloodfist-11744"
  value: {
-  dps: 741.12917
-  tps: 552.08068
-  hps: 46.08889
+  dps: 739.74924
+  tps: 551.12031
+  hps: 46.12278
  }
 }
 dps_results: {
@@ -912,17 +912,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GutRipper-2164"
  value: {
-  dps: 734.35329
-  tps: 547.23775
+  dps: 732.96466
+  tps: 546.26435
   hps: 46.17361
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 737.01588
-  tps: 549.13311
-  hps: 45.78389
+  dps: 738.16313
+  tps: 549.92492
+  hps: 45.91944
  }
 }
 dps_results: {
@@ -1336,9 +1336,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-PrincessTheradras'Scepter-17766"
  value: {
-  dps: 772.64648
-  tps: 574.85149
-  hps: 45.86861
+  dps: 771.35321
+  tps: 573.87767
+  hps: 45.95333
  }
 }
 dps_results: {
@@ -1400,9 +1400,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-RockonStick-279852"
  value: {
-  dps: 732.77623
-  tps: 546.33021
-  hps: 46.12278
+  dps: 732.11829
+  tps: 545.98616
+  hps: 46.10583
  }
 }
 dps_results: {
@@ -1640,9 +1640,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TheChief'sEnforcer-9477"
  value: {
-  dps: 752.94778
-  tps: 560.76987
-  hps: 45.73306
+  dps: 754.23348
+  tps: 561.65369
+  hps: 45.76694
  }
 }
 dps_results: {
@@ -1760,9 +1760,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Toofbreaker-286430"
  value: {
-  dps: 721.9847
-  tps: 538.6366
-  hps: 46.08889
+  dps: 717.81486
+  tps: 535.58317
+  hps: 46.055
  }
 }
 dps_results: {
