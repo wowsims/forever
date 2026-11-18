@@ -11,6 +11,14 @@ import { PresetConfigurationPicker } from '../PresetConfigurationPicker';
 
 const TALENT_PRESETS = [PresetConfigurationCategory.Talents];
 
+/** The tab's presets column, which the narrow screen's presets dialog also shows. */
+export const TalentPresets = () => (
+	<>
+		<PresetConfigurationPicker categories={TALENT_PRESETS} />
+		<SavedTalents />
+	</>
+);
+
 export const TalentsTabBody = () => {
 	const host = useSimHost();
 	const player = host.player;
@@ -31,8 +39,7 @@ export const TalentsTabBody = () => {
 				<TalentsPicker config={talentsConfig} />
 			</TabPanelColumns.Left>
 			<TabPanelColumns.Right>
-				<PresetConfigurationPicker categories={TALENT_PRESETS} />
-				<SavedTalents />
+				<TalentPresets />
 			</TabPanelColumns.Right>
 		</>
 	);

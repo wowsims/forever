@@ -79,12 +79,14 @@ export const ItemListToolbarView = ({
 	remove,
 }: ItemListToolbarViewProps) => {
 	return (
-		<div className="mb-(--modal-padding) flex items-center [&>*:not(:last-child)]:mr-2">
+		// Below `lg` the search and the remove button share the first line, ordered ahead of a zero-height `::before` as wide
+		// as the toolbar, which wraps the rest onto the next; half the row gap on each side of it makes one gap.
+		<div className="mb-(--modal-padding) flex items-center max-lg:flex-wrap max-lg:gap-y-1 max-lg:before:-order-1 max-lg:before:basis-full [&>*:not(:last-child)]:mr-2">
 			<SearchField
 				value={search}
 				onChange={onSearchChange}
 				placeholder={i18n.t('common.search')}
-				inputClassName="max-w-48"
+				inputClassName="max-w-48 max-lg:order-first max-lg:max-w-none max-lg:flex-1"
 				inputTestId="selector-modal-search"
 			/>
 			{filtersMenu !== undefined && (
@@ -112,7 +114,11 @@ export const ItemListToolbarView = ({
 				/>
 			))}
 			{remove && (
-				<Button variant="danger" className="-mt-2 mr-4 -mb-2 ml-auto" data-testid="selector-modal-remove-button" onClick={remove.onClick}>
+				<Button
+					variant="danger"
+					className="-mt-2 mr-4 -mb-2 ml-auto max-lg:order-first max-lg:my-0 max-lg:mr-0"
+					data-testid="selector-modal-remove-button"
+					onClick={remove.onClick}>
 					{remove.label}
 				</Button>
 			)}

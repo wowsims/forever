@@ -84,7 +84,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	const [band, setBand] = useState(NO_BAND);
 	const [pps, setPps] = useState(DEFAULT_PPS);
 	const [measurable, setMeasurable] = useState(false);
-	const { ref: tooltipRef, content: hover, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ rowKey: string; index: number }>();
+	const { ref: tooltipRef, content: hover, show: showTip, moveTo: moveTip, hide: hideTip } = useHoverTooltip<{ rowKey: string; index: number }>(scrollerRef);
 	const hideTooltipId = useId();
 
 	const rowFor = useCallback((key: string): Row => rowAt(model!, key), [model]);
@@ -277,7 +277,12 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 	const [panning, setPanning] = useState(false);
 	const pageScrollTop = () => (outer.current ? outer.current.scrollTop : window.scrollY);
 
+	// A tap opens an item's tooltip with the same touch that clicks it, so a touch opens a cast's entry only from a second
+	// tap, made while its tooltip shows. Null for a press by anything but a finger.
+	const shownAtTouch = useRef<string | null>(null);
+
 	const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+		shownAtTouch.current = event.pointerType === 'touch' ? (hover ? `${hover.rowKey}:${hover.index}` : '') : null;
 		// Touch already pans both axes natively; taking the pointer would fight it.
 		if (pan.current || event.button !== 0 || event.pointerType === 'touch') return;
 		// Leave the eye toggles, the wowhead links and anything else interactive alone.
@@ -313,6 +318,24 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		pan.current = null;
 		if (event.type === 'pointercancel') panned.current = false;
 		setPanning(false);
+	};
+
+	// The ruler sits outside the scroller, so a finger dragged along it pans the rows from here; it is `touch-pan-y`, so a
+	// vertical swipe on it still scrolls the page.
+	const rulerPan = useRef<{ pointerId: number; x: number; scrollLeft: number } | null>(null);
+	const onRulerPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+		const scroller = scrollerRef.current;
+		if (event.pointerType !== 'touch' || !scroller) return;
+		rulerPan.current = { pointerId: event.pointerId, x: event.clientX, scrollLeft: scroller.scrollLeft };
+		event.currentTarget.setPointerCapture(event.pointerId);
+	};
+	const onRulerPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+		const start = rulerPan.current;
+		if (event.pointerId !== start?.pointerId || !scrollerRef.current) return;
+		scrollerRef.current.scrollLeft = start.scrollLeft - (event.clientX - start.x);
+	};
+	const endRulerPan = (event: ReactPointerEvent<HTMLDivElement>) => {
+		if (event.pointerId === rulerPan.current?.pointerId) rulerPan.current = null;
 	};
 
 	// Suppresses the click a pan would otherwise deliver to whatever it ended on.
@@ -393,6 +416,7 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 		if (!aplRun) return;
 		const element = (event.target as Element).closest<HTMLElement>('[data-item-index]');
 		const rowKey = element?.closest<HTMLElement>('[data-row-key]')?.dataset.rowKey;
+		if (shownAtTouch.current !== null && shownAtTouch.current !== `${rowKey}:${element?.dataset.itemIndex}`) return;
 		const row = element && rowKey && model?.byKey.has(rowKey) ? rowFor(rowKey) : null;
 		const item = row && row.kind !== 'header' && row.kind !== 'separator' ? row.items[Number(element!.dataset.itemIndex)] : null;
 		if (item?.kind !== 'cast' || !item.log.aplEntryPath || aplRun.changedSinceRun()) return;
@@ -428,7 +452,11 @@ export const RotationTrack = memo(({ model, active, aplRun }: RotationTrackProps
 						/>
 						<div
 							ref={rulerViewportRef}
-							className="relative box-border min-w-0 shrink grow basis-0 overflow-hidden border-b border-white text-[12px] font-bold text-white">
+							className="relative box-border min-w-0 shrink grow basis-0 touch-pan-y overflow-hidden border-b border-white text-[12px] font-bold text-white"
+							onPointerDown={onRulerPointerDown}
+							onPointerMove={onRulerPointerMove}
+							onPointerUp={endRulerPan}
+							onPointerCancel={endRulerPan}>
 							<div ref={rulerTrackRef} data-testid="rotation-ruler-track" className="ui-timeline-ruler-track" />
 						</div>
 					</div>,

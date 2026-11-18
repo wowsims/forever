@@ -34,6 +34,7 @@ const meta = {
 	args: { tabs: TABS, testId: 'story-tabs', bordered: false, wrap: false },
 	argTypes: {
 		variant: { control: 'select', options: ['nav-tabs', 'sim'] },
+		placement: { control: 'select', options: ['top', 'bottom'] },
 		tabs: { control: 'object' },
 	},
 	render: args => <TabsStory {...args} />,
@@ -45,6 +46,15 @@ type Story = StoryObj<typeof meta>;
 export const NavTabs: Story = {};
 
 export const Sim: Story = { args: { variant: 'sim' } };
+
+export const SimBottom: Story = {
+	args: { variant: 'sim', placement: 'bottom', className: 'h-12 border-t border-border' },
+	render: args => (
+		<div className="w-96 bg-background">
+			<TabsStory {...args} />
+		</div>
+	),
+};
 
 export const Bordered: Story = { args: { bordered: true } };
 

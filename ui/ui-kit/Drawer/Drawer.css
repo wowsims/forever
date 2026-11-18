@@ -10,6 +10,14 @@
 			@apply inset-x-0 bottom-0 max-h-1/2 border-t;
 		}
 
+		&[data-side='bottom'][data-swiping] {
+			opacity: calc(1 - var(--drawer-swipe-movement-y) / var(--drawer-frontmost-height));
+		}
+
+		&[data-side='bottom'][data-swipe-dismiss] {
+			@apply translate-y-(--drawer-swipe-movement-y);
+		}
+
 		&[data-side='left'] {
 			@apply inset-y-0 left-0 w-(--container-popup) max-w-full border-r;
 		}

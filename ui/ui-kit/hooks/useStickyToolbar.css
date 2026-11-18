@@ -10,7 +10,7 @@
 		}
 
 		&[data-stuck] {
-			@apply bg-sim-backdrop;
+			@apply bg-sim-backdrop max-lg:bg-background;
 
 			&::after {
 				@apply w-full;
