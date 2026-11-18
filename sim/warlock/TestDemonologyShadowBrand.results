@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-BarmanShanker-12791"
  value: {
-  dps: 873.4053
-  tps: 717.07527
+  dps: 867.28557
+  tps: 711.42504
   dtps: 11.09007
  }
 }
@@ -1138,8 +1138,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyShadowBrand-AllItems-RiderofthePlaguelands"
  value: {
-  dps: 846.48807
-  tps: 709.14862
+  dps: 841.92669
+  tps: 704.76969
   dtps: 11.23644
  }
 }

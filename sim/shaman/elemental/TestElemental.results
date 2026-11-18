@@ -128,9 +128,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-AxeoftheDeepWoods-811"
  value: {
-  dps: 831.34423
-  tps: 764.19841
-  dtps: 6.15687
+  dps: 821.59346
+  tps: 756.08753
+  dtps: 6.36427
  }
 }
 dps_results: {
@@ -152,9 +152,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-BarmanShanker-12791"
  value: {
-  dps: 831.34423
-  tps: 764.19841
-  dtps: 6.15687
+  dps: 821.59346
+  tps: 756.08753
+  dtps: 6.36427
  }
 }
 dps_results: {
@@ -1345,9 +1345,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-Malown'sSlam-13393"
  value: {
-  dps: 812.59117
-  tps: 747.56472
-  dtps: 6.15687
+  dps: 802.99183
+  tps: 739.56837
+  dtps: 6.36427
  }
 }
 dps_results: {
@@ -1577,9 +1577,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-RiderofthePlaguelands"
  value: {
-  dps: 794.03048
-  tps: 745.01822
-  dtps: 6.59508
+  dps: 780.61673
+  tps: 733.56299
+  dtps: 6.72583
  }
 }
 dps_results: {

@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-BarmanShanker-12791"
  value: {
-  dps: 863.52603
-  tps: 676.13894
+  dps: 861.42115
+  tps: 674.15866
   dtps: 8.52991
  }
 }
@@ -1138,8 +1138,8 @@ dps_results: {
 dps_results: {
  key: "TestDemonologyFireBrand-AllItems-RiderofthePlaguelands"
  value: {
-  dps: 827.62846
-  tps: 660.2524
+  dps: 825.8894
+  tps: 658.58291
   dtps: 8.96584
  }
 }

@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-BarmanShanker-12791"
  value: {
-  dps: 840.3758
-  tps: 662.14117
+  dps: 838.48745
+  tps: 660.6607
   dtps: 9.81267
  }
 }
@@ -1138,8 +1138,8 @@ dps_results: {
 dps_results: {
  key: "TestDestruction-AllItems-RiderofthePlaguelands"
  value: {
-  dps: 808.07288
-  tps: 650.48022
+  dps: 805.3761
+  tps: 648.32279
   dtps: 9.92581
  }
 }

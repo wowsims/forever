@@ -104,8 +104,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-BarmanShanker-12791"
  value: {
-  dps: 715.65472
-  tps: 512.05487
+  dps: 714.68346
+  tps: 511.37499
   dtps: 5.76127
  }
 }
@@ -1169,8 +1169,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-RiderofthePlaguelands"
  value: {
-  dps: 694.16796
-  tps: 497.11255
+  dps: 693.26839
+  tps: 496.48285
   dtps: 5.10391
  }
 }
