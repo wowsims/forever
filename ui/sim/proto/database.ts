@@ -1,7 +1,7 @@
 import { EquipmentSpec, ItemRandomSuffix, ItemSlot, ItemSpec, ItemSwap, PresetEncounter, PresetTarget } from '@generated/proto/common';
 import { Consumable, ItemEffectRandPropPoints, SimDatabase } from '@generated/proto/db';
 import { SpellEffect } from '@generated/proto/spell';
-import { IconData, UIDatabase, UIEnchant as Enchant, UIFaction, UIItem as Item, UINPC as Npc, UIZone as Zone } from '@generated/proto/ui';
+import { IconData, SetBonusProcRate, UIDatabase, UIEnchant as Enchant, UIFaction, UIItem as Item, UINPC as Npc, UIZone as Zone } from '@generated/proto/ui';
 
 import { CacheHandler } from '../cache/cache_handler';
 import { CHARACTER_LEVEL } from '../constants/mechanics';
@@ -124,6 +124,7 @@ export class Database {
 	private readonly spellIcons: Record<number, IconData> = {};
 	private readonly consumables = new Map<number, Consumable>();
 	private readonly spellEffects = new Map<number, SpellEffect>();
+	private readonly setBonusProcRates: SetBonusProcRate[] = [];
 
 	private loadedLeftovers = false;
 
@@ -185,6 +186,7 @@ export class Database {
 		db.spellIcons.forEach(data => (this.spellIcons[data.id] = data));
 		db.consumables.forEach(consumable => this.consumables.set(consumable.id, consumable));
 		db.spellEffects.forEach(spellEffect => this.spellEffects.set(spellEffect.id, spellEffect));
+		this.setBonusProcRates.push(...db.setBonusProcRates);
 	}
 
 	getAllItems(): Array<Item> {
@@ -234,6 +236,14 @@ export class Database {
 
 	getEnchantsByEffectId(effectId: number): Array<Enchant> {
 		return this.enchantsByEffectId.get(effectId) ?? [];
+	}
+
+	getAllEnchants(): Array<Enchant> {
+		return [...this.enchantsByEffectId.values()].flat();
+	}
+
+	getSetBonusProcRates(): Array<SetBonusProcRate> {
+		return this.setBonusProcRates;
 	}
 
 	getNpc(npcId: number): Npc | null {
