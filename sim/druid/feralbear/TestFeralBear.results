@@ -1423,6 +1423,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestFeralBear-AllItems-Malown'sSlam-13393"
+ value: {
+  dps: 509.02808
+  tps: 2573.64783
+  dtps: 396.28421
+  hps: 82.9882
+ }
+}
+dps_results: {
  key: "TestFeralBear-AllItems-MarkofResolution-17759"
  value: {
   dps: 525.03648

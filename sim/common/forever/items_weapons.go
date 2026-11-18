@@ -279,6 +279,21 @@ func init() {
 		character.ItemSwap.RegisterProc(13361, character.MakeProcTriggerAura(trigger))
 	})
 
+	// Malown's Slam
+	// https://www.wowhead.com/forever/item=13393/malowns-slam
+	//
+	// Chance on hit: Knocks target silly for 2 sec and increases Strength by 53 for 20 sec.
+	//
+	// 17500 states the stun alone and no rate; the item's chance-on-hit entry carries the rate, and
+	// Surge of Strength 17499, which the tooltip names, goes up on the wearer with every proc, a stun
+	// the target is immune to included. No effect of 17500 casts it, so the generator cannot pair them.
+	// Landed white swings and melee specials roll it alike, and a proc never rolls another (EV-0150). The
+	// stun is crowd control the sim leaves out.
+	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 17500, BuffSpellID: 17499, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 13393, ItemName: "Malown's Slam"},
+		})
+
 	// Blade of Eternal Darkness
 	// https://www.wowhead.com/forever/item=17780/blade-of-eternal-darkness
 	//
