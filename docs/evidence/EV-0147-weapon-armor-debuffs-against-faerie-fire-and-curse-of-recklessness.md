@@ -104,5 +104,13 @@ within 4%.
 | Rogue, Rivenspike (1.6)    |           5.20 |                 67.2 |                          20.7 |                46.5 |
 
 The other hits (specials, Windfury strikes, Whirlwind, extra attacks) come to about 48 a minute whatever the weapon's
-speed, so the raid's copy rolls on its swings and 48 more hits a minute. The logs show fewer procs than this for a
-main-hand wielder (Rivenspike about 1.7 a minute, Bashguuder about 0.8); the owner chose the sim's wielder as the model.
+speed, so the raid's copy rolls on its swings and 48 more hits a minute. The owner chose the sim's wielder as the model.
+
+The logs land fewer procs a hit than PPM × speed / 60. Over stretches with no Faerie Fire, Curse of Recklessness,
+Expose Armor or another player's copy of the debuff on the target, counting only the wearer's own landed hits:
+
+| Wearer                | Procs expected | Logged | Logged / expected |
+| --------------------- | -------------: | -----: | ----------------: |
+| Rivenspike, main hand |            314 |    236 |              0.75 |
+| Bashguuder, main hand |            422 |    140 |              0.33 |
+| Bashguuder, off hand  |            196 |    140 |              0.71 |
