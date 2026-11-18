@@ -381,6 +381,49 @@ func TestFlamestrikeGroundTickKeepsClearcastingAndRevelation(t *testing.T) {
 	}
 }
 
+// Fireball, Pyroblast and Frostfire Bolt have a periodic part and Revelation's mage buff does not name them.
+// Each spends the charge as its cast completes and crits on its direct hit (EV-0149).
+func TestRevelationCritsTheDirectHitOfFireballPyroblastAndFrostfireBolt(t *testing.T) {
+	for _, test := range []struct {
+		name    string
+		talents string
+		id      int32
+	}{
+		{"Fireball", FireTalents, spellData.Fireball.Highest().ID},
+		{"Pyroblast", FireTalents, spellData.Pyroblast.Highest().ID},
+		{"Frostfire Bolt", FFBTalents, spellData.FrostfireBolt.Highest().ID},
+	} {
+		sim, mage, buff := newRevelationMage(t, test.talents, 1)
+		target := mage.CurrentTarget
+		spell := mage.GetSpell(core.ActionID{SpellID: test.id})
+		if spell == nil {
+			t.Fatalf("%s is not registered", test.name)
+		}
+		metrics := &spell.SpellMetrics[target.UnitIndex]
+
+		// A cast that misses spends the charge too, so cast until one lands.
+		for tries := 0; metrics.Hits+metrics.Crits == 0; tries++ {
+			if tries == 10 {
+				t.Fatalf("%s missed 10 times", test.name)
+			}
+			buff.Activate(sim)
+			buff.SetStacks(sim, buff.MaxStacks)
+			if !spell.Cast(sim, target) {
+				t.Fatalf("%s did not cast", test.name)
+			}
+			stepFor(sim, spell.CurCast.CastTime)
+			if buff.IsActive() {
+				t.Errorf("%s was cast and Revelation's charge is still up", test.name)
+			}
+			stepFor(sim, 3*time.Second)
+			buff.Deactivate(sim)
+		}
+		if metrics.Crits != 1 {
+			t.Errorf("%s cast with Revelation up landed without a crit", test.name)
+		}
+	}
+}
+
 // The suite's gear loses Enchant Weapon - Revelation: it rolls on each Fire Blast that does not crit and its
 // charge crits the next Blizzard, so Shatter's Fire Blast crits would move Blizzard's.
 func shatterCrits(talents string) (tickCrits, directCrits int32, fingersOfFrostUptime float64) {

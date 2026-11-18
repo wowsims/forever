@@ -1,5 +1,8 @@
 # EV-0129: Revelation's proc chance per non-crit hit
 
+EV-0149 counts every class in Warcraft Logs reports: which hits roll, a ramp on the spell's level, the fall with crit from
+gear and intellect, and what spends the charge.
+
 - Claim: Revelation (enchant 8217, proc spell 1248806) rolls about 8% on each non-crit, non-periodic damage or heal hit
   at 8.5 to 10.1% sheet crit, and 6.8% in the level 30 logs at 13.42%; crits and aura-only applications never roll it,
   and it can roll while the buff is up.
