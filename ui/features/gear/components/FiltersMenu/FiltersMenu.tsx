@@ -6,6 +6,7 @@ import {
 	ItemSlot,
 	type MobType,
 	type RangedWeaponType,
+	type Stat,
 	type WeaponType,
 } from '@generated/proto/common';
 import { type DatabaseFilters, FactionFilter } from '@generated/proto/ui';
@@ -18,11 +19,13 @@ import {
 	translateRaidFilter,
 	translateRangedWeaponType,
 	translateSourceFilter,
+	translateStat,
 	translateWeaponType,
 } from '@i18n/localization';
 import { useSimHost } from '@sim/context/SimHostContext';
 import { useStoreSubscribe } from '@sim/hooks/useStoreSubscribe';
 import { Player } from '@sim/player/player';
+import { itemOwnStats } from '@sim/proto/items';
 import { Sim } from '@sim/sim';
 import { subscribePlayerField, subscribeSimField } from '@sim/state/subscriptions';
 import { BooleanPicker } from '@ui-kit/BooleanPicker';
@@ -41,6 +44,8 @@ const factionLabels: Record<Faction, string> = {
 };
 
 type FilterListField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends Array<number> ? K : never }[keyof DatabaseFilters];
+// The fields one multi-pick combo box edits; a pick narrows the item list.
+type MultiPickField = 'areaTypes' | 'mobTypes' | 'creatureFamilies' | 'itemStats';
 type FilterNumberField = { [K in keyof DatabaseFilters]-?: DatabaseFilters[K] extends number ? K : never }[keyof DatabaseFilters];
 
 const SPEED_OPTIONS = { float: true, positive: true };
@@ -59,6 +64,8 @@ export interface FiltersMenuViewProps {
 	areaTypes: ReadonlyArray<AreaType>;
 	mobTypes: ReadonlyArray<MobType>;
 	creatureFamilies: ReadonlyArray<CreatureFamily>;
+	/** The stats some item carries, by itself or with a random suffix; picking several narrows the list to the items with all of them. */
+	itemStats: ReadonlyArray<Stat>;
 	canDualWield: boolean;
 	/** The player's race's faction, which names the faction filter's default option. */
 	raceFaction: Faction;
@@ -76,6 +83,7 @@ export const FiltersMenuView = ({
 	areaTypes,
 	mobTypes,
 	creatureFamilies,
+	itemStats,
 	canDualWield,
 	raceFaction,
 }: FiltersMenuViewProps) => {
@@ -110,13 +118,7 @@ export const FiltersMenuView = ({
 		/>
 	);
 
-	const bonusPicker = <T extends number>(
-		field: 'areaTypes' | 'mobTypes' | 'creatureFamilies',
-		id: string,
-		label: string,
-		types: ReadonlyArray<T>,
-		translate: (type: T) => string,
-	) => {
+	const multiPicker = <T extends number>(field: MultiPickField, id: string, label: string, types: ReadonlyArray<T>, translate: (type: T) => string) => {
 		// A stored pick no item carries any more stays on offer, so its chip is there to remove it.
 		const offered = [...new Set([...types, ...(filters[field] as ReadonlyArray<number> as ReadonlyArray<T>)])].sort((a, b) => a - b);
 		if (!offered.length) return null;
@@ -140,7 +142,7 @@ export const FiltersMenuView = ({
 			/>
 		);
 	};
-	const bonusCount = (field: 'areaTypes' | 'mobTypes' | 'creatureFamilies', types: ReadonlyArray<number>) => types.length + filters[field].length;
+	const multiCount = (field: MultiPickField, types: ReadonlyArray<number>) => types.length + filters[field].length;
 
 	return (
 		<Dialog
@@ -187,6 +189,11 @@ export const FiltersMenuView = ({
 					/>
 				</div>
 			</MenuSection>
+			{multiCount('itemStats', itemStats) > 0 && (
+				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.stats.title')}>
+					{multiPicker('itemStats', 'filters-item-stats', i18n.t('gear_tab.gear_picker.filters.stats.label'), itemStats, translateStat)}
+				</MenuSection>
+			)}
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.source')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_SOURCES.map(source => {
 					const label = translateSourceFilter(source);
@@ -208,11 +215,11 @@ export const FiltersMenuView = ({
 			<MenuSection name={i18n.t('gear_tab.gear_picker.filters.raids')} className="ui-filters-menu-section-bool-list">
 				{Sim.ALL_RAIDS.map(raid => listToggle('raids', raid, `filters-raid-${raid}`, translateRaidFilter(raid)))}
 			</MenuSection>
-			{bonusCount('areaTypes', areaTypes) + bonusCount('mobTypes', mobTypes) + bonusCount('creatureFamilies', creatureFamilies) > 0 && (
+			{multiCount('areaTypes', areaTypes) + multiCount('mobTypes', mobTypes) + multiCount('creatureFamilies', creatureFamilies) > 0 && (
 				<MenuSection name={i18n.t('gear_tab.gear_picker.filters.bonus.title')} className="grid grid-cols-3 items-start gap-x-2 max-sm:grid-cols-1">
-					{bonusPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
-					{bonusPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}
-					{bonusPicker(
+					{multiPicker('areaTypes', 'filters-bonus-area', i18n.t('gear_tab.gear_picker.filters.bonus.area'), areaTypes, translateAreaType)}
+					{multiPicker('mobTypes', 'filters-bonus-mob-type', i18n.t('gear_tab.gear_picker.filters.bonus.mob_type'), mobTypes, translateMobType)}
+					{multiPicker(
 						'creatureFamilies',
 						'filters-bonus-creature',
 						i18n.t('gear_tab.gear_picker.filters.bonus.creature'),
@@ -302,13 +309,21 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 	const filters = useStoreSubscribe(subscribeSimField(sim, 'filters'), () => sim.getFilters());
 	const playerClass = player.getPlayerClass();
 	const raceFaction = useStoreSubscribe(subscribePlayerField(player, 'race'), () => player.getFaction());
-	const { areaTypes, mobTypes, creatureFamilies } = useMemo(() => {
+	const { areaTypes, mobTypes, creatureFamilies, itemStats } = useMemo(() => {
 		const items = sim.db.getAllItems();
 		const listed = <T extends number>(typesOf: (item: (typeof items)[number]) => Array<T>) => [...new Set(items.flatMap(typesOf))].sort((a, b) => a - b);
+		// Each random suffix is read once, however many items can roll it.
+		const carried = new Set<Stat>(items.flatMap(item => [...itemOwnStats(item)]));
+		for (const id of new Set(items.flatMap(item => item.randomSuffixOptions))) {
+			sim.db.getRandomSuffixById(id)?.stats.forEach((value, stat) => {
+				if (value > 0) carried.add(stat);
+			});
+		}
 		return {
 			areaTypes: listed(item => item.areaTypes),
 			mobTypes: listed(item => item.mobTypes),
 			creatureFamilies: listed(item => item.creatureFamilies),
+			itemStats: [...carried].sort((a, b) => a - b),
 		};
 	}, [sim.db]);
 
@@ -329,6 +344,7 @@ export const FiltersMenu = ({ slot, open, onOpenChange }: FiltersMenuProps) => {
 			areaTypes={areaTypes}
 			mobTypes={mobTypes}
 			creatureFamilies={creatureFamilies}
+			itemStats={itemStats}
 			canDualWield={player.getPlayerSpec().canDualWield}
 			raceFaction={raceFaction}
 		/>
