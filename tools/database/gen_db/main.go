@@ -273,9 +273,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to generate the set bonuses: %v", err)
 	}
-	if err := database.GenerateMissingEffectsFile(instance, db, generatedSets); err != nil {
+	knownRates, unvalidatedRates, err := database.GenerateMissingEffectsFile(instance, db, generatedSets)
+	if err != nil {
 		log.Fatalf("failed to generate the missing effects TS file: %v", err)
 	}
+	database.StampProcRates(db, knownRates, unvalidatedRates)
 	database.GenerateItemEffectRandomPropPoints(instance, db)
 
 	// Disbabled due to duplicate SpellIDs

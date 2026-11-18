@@ -727,7 +727,7 @@ var Spells = []Override{
 		SpellID: 21978,
 		Field:   PPM,
 		Value:   1.8,
-		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed spell hit's cast, at least 1.5 s; the game files state none",
+		Reason:  "Blade of Eternal Darkness: 1.8 procs per minute on the cast time of each landed harmful spell's cast, at least 1.5 s; the game files state none",
 		Source:  "EV-0025",
 	},
 	{

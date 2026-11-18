@@ -412,9 +412,9 @@ type SpellDataProc struct {
 	IsWeaponProc bool
 
 	// A rate option in place of the one the item's entry and the trigger's row give, for a rate priced on
-	// something neither states. It may reshape the listener: Blade of Eternal Darkness prices the row's
-	// procs per minute on the cast time of each spell hit's cast, and Draconic Infused Emblem only moves
-	// the row's cast listener to landed spell hits.
+	// something neither states. It may reshape the listener: Blade of Eternal Darkness hears every landed
+	// harmful spell and prices the row's procs per minute on its cast's time, and Draconic Infused Emblem
+	// only moves the row's cast listener to landed spell hits.
 	Rate spelldata.ProcOpt
 }
 
@@ -1972,8 +1972,8 @@ var generatedItemEffects = map[int32][]core.ApplyEffect{}
 var generating bool
 
 // Marks the registrations that run until the returned function is called as the generated files':
-// each RegisterAll function of sim/common/forever defers it on its first line. A class file's call
-// to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
+// RegisterAllProcs and RegisterAllOnUseCds in sim/common/forever defer it on their first line. A class
+// file's call to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
 func Generated() func() {
 	generating = true
 	return func() { generating = false }
