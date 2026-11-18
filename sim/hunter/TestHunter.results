@@ -713,8 +713,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DiabolicSkiver-9475"
  value: {
-  dps: 856.92923
-  tps: 879.31572
+  dps: 858.25044
+  tps: 880.63693
   dtps: 8.51879
   hps: 14.30111
  }
@@ -1752,15 +1752,6 @@ dps_results: {
   tps: 915.17465
   dtps: 9.04478
   hps: 14.01306
- }
-}
-dps_results: {
- key: "TestHunter-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 879.49264
-  tps: 901.50287
-  dtps: 8.90425
-  hps: 14.03
  }
 }
 dps_results: {

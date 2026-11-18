@@ -524,8 +524,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DiabolicSkiver-9475"
  value: {
-  dps: 817.96803
-  tps: 670.69958
+  dps: 820.71197
+  tps: 672.89473
   dtps: 6.06297
   hps: 27.83803
  }
@@ -1653,15 +1653,6 @@ dps_results: {
   tps: 709.80354
   dtps: 3.45217
   hps: 24.66518
- }
-}
-dps_results: {
- key: "TestRetribution-AllItems-RazorsteelShoulders-20517"
- value: {
-  dps: 879.35024
-  tps: 715.86474
-  dtps: 3.45217
-  hps: 24.66721
  }
 }
 dps_results: {

@@ -60,7 +60,7 @@ func init() {
 }
 
 // A character swinging one weapon in the main hand against level 60 targets with no armor: the
-// warrior stand-in, or with a shaman the caster stand-in.
+// warrior stand-in, or with a shaman or a druid the caster stand-in.
 func weaponWearer(t *testing.T, class proto.Class, itemID int32, targets int) (*core.Simulation, *core.Character) {
 	t.Helper()
 	return weaponWearerFor(t, class, itemID, targets, 180)
@@ -81,7 +81,7 @@ func weaponWearerFor(t *testing.T, class proto.Class, itemID int32, targets int,
 		Buffs:       &proto.IndividualBuffs{},
 		Rotation:    &proto.APLRotation{},
 	}
-	if class == proto.Class_ClassShaman {
+	if class == proto.Class_ClassShaman || class == proto.Class_ClassDruid {
 		core.WithSpec(player, &proto.Player_ElementalShaman{ElementalShaman: &proto.ElementalShaman{}})
 	} else {
 		core.WithSpec(player, &proto.Player_DpsWarrior{DpsWarrior: &proto.DpsWarrior{}})
@@ -799,7 +799,7 @@ func TestMoonshadowStaveRollsLandedHarmfulSpellsOnTheirCastTime(t *testing.T) {
 	}
 	wearer := func(t *testing.T) (*core.Simulation, *core.Character, [2]*core.Spell) {
 		t.Helper()
-		sim, character := weaponWearerFor(t, proto.Class_ClassShaman, 22458, 1, 7200)
+		sim, character := weaponWearerFor(t, proto.Class_ClassDruid, 22458, 1, 7200)
 		character.AutoAttacks.CancelAutoSwing(sim)
 		proc := character.GetAura("Moonshadow Stave")
 		bolts := [2]*core.Spell{character.GetSpell(core.ActionID{SpellID: 1300437}), character.GetSpell(core.ActionID{SpellID: 1300438})}
@@ -1775,28 +1775,42 @@ func TestSulthrazeTheLasherLashesOnceAfterItsDuration(t *testing.T) {
 	}
 }
 
-// Pendulum of Doom 9425's Fatal Wound 10373 deals the percent its row states more to a target below
-// the health percent its row states, from that phase's start, and its plain damage to a target above
-// it.
-func TestPendulumOfDoomDealsMoreBelowTheExecuteHealth(t *testing.T) {
-	row := spelldata.MustFind(10373)
+// Pendulum of Doom 9425's Fatal Wound 10373 and Diabolic Skiver 9475's Fatal Wound 18206 deal the
+// percent their row states more to a target below the health percent their row states, from that
+// phase's start, and their plain damage to a target above it.
+func TestFatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T) {
+	for _, item := range []struct {
+		itemID, spellID int32
+		procName        string
+	}{
+		{9425, 10373, "Pendulum of Doom - Fatal Wound"},
+		{9475, 18206, "Diabolic Skiver"},
+	} {
+		t.Run(item.procName, func(t *testing.T) {
+			fatalWoundDealsMoreBelowTheExecuteHealth(t, item.itemID, item.spellID, item.procName)
+		})
+	}
+}
+
+func fatalWoundDealsMoreBelowTheExecuteHealth(t *testing.T, itemID, spellID int32, procName string) {
+	row := spelldata.MustFind(spellID)
 	health := int32(row.EffectN(3).Average())
 	if health != 25 {
 		t.Fatalf("the row's threshold is %d%%, outside the case the test covers", health)
 	}
 	meanHit := func(execute35, execute20 float64, at time.Duration, below bool) float64 {
-		sim, character := procWeaponWearer(t, 9425, "Pendulum of Doom - Fatal Wound", &proto.Target{Name: "target", Level: 60}, execute35, execute20)
+		sim, character := procWeaponWearer(t, itemID, procName, &proto.Target{Name: "target", Level: 60}, execute35, execute20)
 		enemy := character.CurrentTarget
 		stepTo(t, sim, at)
 		if got := enemy.IsBelowExecuteHealth(health); got != below {
 			t.Fatalf("at %v with %v and %v of the fight below 35%% and 20%%, the target below %d%% reads %v, want %v", at, execute35, execute20, health, got, below)
 		}
-		wound := character.GetSpell(core.ActionID{SpellID: 10373})
+		wound := character.GetSpell(core.ActionID{SpellID: spellID})
 		if wound == nil {
-			t.Fatal("9425 registers no Fatal Wound")
+			t.Fatalf("%d registers no Fatal Wound", itemID)
 		}
 		// A Fatal Wound is a main-hand special that rolls the proc again, so the proc stays off here.
-		*character.GetAura("Pendulum of Doom - Fatal Wound").Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
+		*character.GetAura(procName).Dpm = *character.NewFixedProcChanceManager(0, core.ProcMaskMeleeMH)
 		var total float64
 		var landed int
 		for range 400 {
@@ -1867,8 +1881,9 @@ func castDamage(sim *core.Simulation, spell *core.Spell, target *core.Unit) floa
 
 // The factor each item's row states against its tooltip's creatures, read through the row's versus
 // bonus: Gahz'rilla Fang 9467's 3742 against Aquatic enemies, The Chief's Enforcer 9477's 1294339
-// against Trolls, and Sul'thraze the Lasher 9372's Shadow Lash 1294431 against Trolls, which its
-// Rage of Sul'thraze 1294430 states and leaves its own hit without.
+// against Trolls, Angerforge's Battle Axe 11816's 1300783 against Orcs, and Sul'thraze the Lasher
+// 9372's Shadow Lash 1294431 against Trolls, which its Rage of Sul'thraze 1294430 states and leaves
+// its own hit without.
 func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 	for _, tc := range []struct {
 		itemID         int32
@@ -1878,6 +1893,7 @@ func TestProcSpellsDealTheirVersusFactor(t *testing.T) {
 	}{
 		{9467, "Gahz'rilla Fang - Gahz'rilla Fang", 3742, 3742, proto.CreatureFamily_CreatureFamilyAquatic},
 		{9477, "The Chief's Enforcer", 1294339, 1294339, proto.CreatureFamily_CreatureFamilyTroll},
+		{11816, "Angerforge's Battle Axe", 1300783, 1300783, proto.CreatureFamily_CreatureFamilyOrc},
 		{9372, "Sul'thraze the Lasher", 1294430, 1294431, proto.CreatureFamily_CreatureFamilyTroll},
 	} {
 		bonus, ok := spelldata.MustFind(tc.rowID).VersusBonus()

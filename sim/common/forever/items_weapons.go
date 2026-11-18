@@ -534,18 +534,24 @@ func init() {
 	// Chance on hit: Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to
 	// targets below 25% health.
 	//
-	// Fatal Wound 10373 deals the percent its second dummy states more to a target below the health
-	// percent its third states, which the sim's execute phases track. Hits of 1.5 times the plain range
-	// land late in a target's life, but the logs state no health, so the threshold is the row's alone
-	// (EV-0136).
-	shared.DamageProcExtras[9425] = func(_ *core.Character, config *core.SpellConfig) {
-		row := spelldata.MustFind(10373)
+	// Diabolic Skiver
+	// https://www.wowhead.com/forever/item=9475/diabolic-skiver
+	//
+	// Chance on hit: Delivers a fatal wound for 174 Physical damage. Deals 50% increased damage to
+	// targets below 25% health.
+	//
+	// Fatal Wound 10373 and 18206 deal the percent their second dummy states more to a target below the
+	// health percent their third states, which the sim's execute phases track. 10373's hits of 1.5 times
+	// the plain range land late in a target's life, but the logs state no health, so the threshold is the
+	// row's alone (EV-0136).
+	fatalWound := func(_ *core.Character, config *core.SpellConfig) {
+		row := spelldata.MustFind(config.ActionID.SpellID)
 		bonus := 1 + row.EffectN(2).Average()/100
 		health := int32(row.EffectN(3).Average())
 		switch health {
 		case 35, 25, 20:
 		default:
-			panic(fmt.Sprintf("Pendulum of Doom: %d's third effect states %d%% health, which starts no execute phase", row.ID, health))
+			panic(fmt.Sprintf("Fatal Wound: %d's third effect states %d%% health, which starts no execute phase", row.ID, health))
 		}
 		deal := config.ApplyEffects
 		config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
@@ -557,6 +563,8 @@ func init() {
 			spell.DamageMultiplier = multiplier
 		}
 	}
+	shared.DamageProcExtras[9425] = fatalWound
+	shared.DamageProcExtras[9475] = fatalWound
 
 	// Barman Shanker
 	// https://www.wowhead.com/forever/item=12791/barman-shanker

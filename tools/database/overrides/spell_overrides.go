@@ -318,6 +318,13 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     1300783,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll, proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Slaughter: 'Trolls and Orcs take $s2 times as much damage'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:     1317432,
 		EffectIndex: 1,
 		Families: []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyEarthElemental,

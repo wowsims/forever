@@ -344,8 +344,7 @@ xR6rvTQLBwZ9nkzy 1-12.
 ## Fang of the Crystal Spider (item 13218, spell 17331): 1, observed
 
 306 procs on 11,511 landed hits, 10 wearers, 11 runs, in the main hand or the off hand: 1.00 [0.92, 1.10]. Observed:
-every wearer is a rogue and its interval reaches further than 10% from the rate. Left out: 1 run logged in a second
-report. EV-0136 gave 0.9. Reports from 2026-11-14 to 2026-11-18.
+every wearer is a rogue. Left out: 1 run logged in a second report. EV-0136 gave 0.9. Reports from 2026-11-14 to 2026-11-18.
 
 | Class | Wearers | Procs |   Hits |  PPM |
 | ----- | ------: | ----: | -----: | ---: |

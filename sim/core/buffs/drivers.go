@@ -567,30 +567,51 @@ func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
 // and Whirlwind, each of which rolls the weapon's proc (EV-0147).
 const wielderOtherHitsPerMinute = 48
 
+// The share of its proc's strikes a wielder's target dodges, whatever the target's level: the hit table's
+// dodge for an attacker behind a target three levels above it, with no weapon skill past its level's. The
+// wielder has the hit its strikes need to never miss, as the sim's pre-BiS Fury warrior has (EV-0152).
+const wielderStrikeDodgeChance = 0.065
+
 // A weapon's proc debuff from one main-hand wielder. Every target the raid's debuffs land on has a
 // wielder of its own, and the player wielding the weapon stacks the same aura. The wielder lands its
 // swings at the item's base speed and wielderOtherHitsPerMinute more hits, each rolling the item's
 // procs per minute, a chance of PPM × speed / 60, which refreshes the aura and adds a stack up to its
-// max. A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) starts the rolls over, and a roll on
-// a target with the raid's debuffs disabled lands nothing.
+// max. A row on the melee hit table is cast as a strike, as the player's proc casts it (R-0040): the
+// target dodges wielderStrikeDodgeChance of them, and one that lands off a swing rolls the proc once
+// more. A landing of the raid's debuffs (Target.ApplyRaidDebuffsAt) starts the rolls over, and a roll
+// on a target with the raid's debuffs disabled lands nothing.
 func rollWielderHits(aura *core.Aura, itemID int32) {
 	item := core.GetItemByID(itemID)
 	if item == nil {
 		panic(fmt.Sprintf("the raid's %s reads the swing speed and procs per minute of item %d, which the sim's item database lacks; the request's database must carry it", aura.Label, itemID))
 	}
 	chance := itemProcPPM(item, aura.ActionID.SpellID) * item.SwingSpeed / 60
-	hitsPerMinute := 60/item.SwingSpeed + wielderOtherHitsPerMinute
+	swingsPerMinute := 60 / item.SwingSpeed
+	hitsPerMinute := swingsPerMinute + wielderOtherHitsPerMinute
+	swingShare := swingsPerMinute / hitsPerMinute
+	strikes := spelldata.MustFind(aura.ActionID.SpellID).DefenseTypeCore() == core.DefenseTypeMelee
+
+	lands := func(sim *core.Simulation) bool {
+		if sim.RandomFloat(aura.Label) >= chance {
+			return false
+		}
+		if strikes && sim.RandomFloat(aura.Label) < wielderStrikeDodgeChance {
+			return false
+		}
+		aura.Activate(sim)
+		if aura.MaxStacks > 0 {
+			aura.AddStack(sim)
+		}
+		return true
+	}
 
 	scheduledAura(aura, core.PeriodicActionOptions{
 		Period:          core.DurationFromSeconds(60 / hitsPerMinute),
 		TickImmediately: true,
 		Priority:        core.ActionPriorityDOT,
 		OnAction: func(sim *core.Simulation) {
-			if sim.RandomFloat(aura.Label) < chance {
-				aura.Activate(sim)
-				if aura.MaxStacks > 0 {
-					aura.AddStack(sim)
-				}
+			if lands(sim) && strikes && sim.RandomFloat(aura.Label) < swingShare {
+				lands(sim)
 			}
 		},
 	})
