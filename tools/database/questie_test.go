@@ -374,15 +374,17 @@ func TestAppendQuestieSources(t *testing.T) {
 
 // Item 1 is the Sunken Temple case: a warrior quest's bind-on-pickup reward. Item 2 comes from a warrior and a paladin
 // quest, item 3 also from a craft, item 4 also from a quest any class may take, item 5 binds on equip, item 6 keeps the
-// game files' list, item 7 names a quest QuestieDB has no row for, and item 8 has no source.
+// game files' list, item 7 names a quest QuestieDB has no row for, item 8 has no source, and item 9's two quests
+// together allow every class.
 func TestApplyQuestClasses(t *testing.T) {
 	quest := func(id int32) *proto.UIItemSource {
 		return &proto.UIItemSource{Source: &proto.UIItemSource_Quest{Quest: &proto.QuestSource{Id: id}}}
 	}
 	crafted := &proto.UIItemSource{Source: &proto.UIItemSource_Crafted{Crafted: &proto.CraftedSource{SpellId: 5}}}
-	quests := map[int32]*QuestieQuest{8425: {Classes: 1}, 8418: {Classes: 1 << 1}, 1: {}}
+	quests := map[int32]*QuestieQuest{8425: {Classes: 1}, 8418: {Classes: 1 << 1}, 1: {}, 792: {Classes: 1503 &^ 1}}
 
 	db := NewWowDatabase()
+	items := map[int]dbc.Item{}
 	for id, sources := range map[int32][]*proto.UIItemSource{
 		1: {quest(8425)},
 		2: {quest(8425), quest(8418)},
@@ -392,14 +394,12 @@ func TestApplyQuestClasses(t *testing.T) {
 		6: {quest(8425)},
 		7: {quest(9999)},
 		8: nil,
+		9: {quest(8425), quest(792)},
 	} {
 		db.Items[id] = &proto.UIItem{Id: id, Sources: sources}
+		items[int(id)] = dbc.Item{Bonding: dbc.BIND_ON_ACQUIRE}
 	}
 	db.Items[6].ClassAllowlist = []proto.Class{proto.Class_ClassMage}
-	items := map[int]dbc.Item{}
-	for id := range 9 {
-		items[id] = dbc.Item{Bonding: dbc.BIND_ON_ACQUIRE}
-	}
 	items[5] = dbc.Item{Bonding: dbc.BIND_ON_EQUIP}
 	ApplyQuestClasses(db, quests, items)
 
@@ -412,6 +412,7 @@ func TestApplyQuestClasses(t *testing.T) {
 		6: {proto.Class_ClassMage},
 		7: nil,
 		8: nil,
+		9: nil,
 	} {
 		if got := db.Items[id].ClassAllowlist; !slices.Equal(got, want) {
 			t.Errorf("item %d allowlist = %v, want %v", id, got, want)

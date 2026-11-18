@@ -1,7 +1,7 @@
 # R-0027: A hand-written item effect lives in the folder of the classes that can use it
 
 - Skill: wowsims-consumables-items
-- Code: `tools/database/overrides.go`, `ApplyItemSetClasses`
+- Code: `tools/database/overrides.go`, `ApplyItemSetClasses`; `tools/database/questie.go`, `ApplyQuestClasses`
 - Pull request: #316, #539
 - Evidence: not needed: a repo process rule
 

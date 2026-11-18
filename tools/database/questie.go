@@ -338,23 +338,29 @@ func AppendQuestieSources(db, questie *WowDatabase) {
 }
 
 // A bind-on-pickup item whose every source is a quest some classes alone may take is open to those classes alone: the
-// game files open the Sunken Temple class quests' rewards to every class. An item another source reaches, a craft or a
-// drop, stays open, as does one the game files already restrict.
+// game files open the Sunken Temple and Silithus class quests' rewards to every class. An item another source reaches, a
+// craft or a drop, stays open, and one that already has an allowlist keeps it. Quests that together allow every class
+// leave the item open.
 func ApplyQuestClasses(db *WowDatabase, quests map[int32]*QuestieQuest, items map[int]dbc.Item) {
 	for _, item := range db.Items {
-		if len(item.ClassAllowlist) > 0 || len(item.Sources) == 0 || items[int(item.Id)].Bonding != dbc.BIND_ON_ACQUIRE {
+		if len(item.ClassAllowlist) > 0 || items[int(item.Id)].Bonding != dbc.BIND_ON_ACQUIRE {
 			continue
 		}
 		mask := 0
 		for _, source := range item.Sources {
-			quest := quests[source.GetQuest().GetId()]
-			if source.GetQuest() == nil || quest == nil || quest.Classes == 0 {
+			var quest *QuestieQuest
+			if questSource := source.GetQuest(); questSource != nil {
+				quest = quests[questSource.Id]
+			}
+			if quest == nil || quest.Classes == 0 {
 				mask = 0
 				break
 			}
 			mask |= int(quest.Classes)
 		}
-		item.ClassAllowlist = dbc.GetClassesFromClassMask(mask)
+		if classes := dbc.GetClassesFromClassMask(mask); len(classes) < len(dbc.Classes) {
+			item.ClassAllowlist = classes
+		}
 	}
 }
 

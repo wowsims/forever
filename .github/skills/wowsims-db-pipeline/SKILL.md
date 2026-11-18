@@ -97,9 +97,10 @@ go test ./sim/core/spelldata/ ./tools/database/ -count=1     # no database neede
   out of the cell and `+N`, unless they are all an item has. The source filter, `factionFilter` and search read every
   source.
 - **A class quest's reward takes the quest's classes.** The game files open many class quest rewards to every class
-  (the Sunken Temple and Silithus class quests). `ApplyQuestClasses` gives a bind-on-pickup item with no allowlist of
-  its own the classes of its quests, when every source it has is a quest that names classes; a craft or a drop beside
-  the quest keeps it open.
+  (the Sunken Temple and Silithus class quests). `parseQuestieData` reads a quest's `requiredClasses`, and
+  `ApplyQuestClasses` gives a bind-on-pickup item with no allowlist of its own the classes of its quests, when every
+  source it has is a quest that names classes; a craft or a drop beside the quest keeps it open, and so do quests that
+  together allow every class.
 
 ## Overrides
 

@@ -1548,14 +1548,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestHunterPets-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 695.08335
-  tps: 490.91602
-  dtps: 4.71754
- }
-}
-dps_results: {
  key: "TestHunterPets-AllItems-Mutilator-12469"
  value: {
   dps: 693.31259

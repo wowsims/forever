@@ -965,13 +965,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestArcane-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 831.09628
-  tps: 712.8667
- }
-}
-dps_results: {
  key: "TestArcane-AllItems-Naglering-11669"
  value: {
   dps: 845.65958
