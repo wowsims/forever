@@ -50,7 +50,7 @@ it is `wowsims-db-pipeline` `## Regenerating`. For items, enchants and consumabl
 2. every consumable routed and shipped (`RouteConsumable`, `ShipsConsumable`), then `ConsumableOverrides` merged;
 3. `AddUnparsedStats`, then `AddPotionClasses`, which reads the lists the first one adds;
 4. `ItemOverrides`, then `ApplyItemSetClasses`, which replaces the allowlist of every item in a listed set, then
-   `EnchantOverrides`;
+   `ApplyQuestClasses`, which gives a bind-on-pickup class quest reward its quests' classes, then `EnchantOverrides`;
 5. the global filters (`KeepEnchant`, `KeepConsumable`), the consumable icons, then the leftovers split off;
 6. the generators: item effects, enchant effects, consumable registrations, the consumables TS file, the set
    bonuses, the missing-effects file, the random property points.

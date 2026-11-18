@@ -1431,14 +1431,6 @@ dps_results: {
  }
 }
 dps_results: {
- key: "TestElemental-AllItems-MoonshadowStave-22458"
- value: {
-  dps: 849.62351
-  tps: 781.43034
-  dtps: 6.35924
- }
-}
-dps_results: {
  key: "TestElemental-AllItems-Naglering-11669"
  value: {
   dps: 861.5724
