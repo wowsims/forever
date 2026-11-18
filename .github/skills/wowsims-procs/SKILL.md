@@ -98,7 +98,7 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   is an override onto the row's `RPPM` first (`Field: PPM` in `spell_overrides.go`, Omen of Clarity is the case) or
   an override row on gear, and a `PPM(n)` literal with a review TODO only where no override fits.
 - **An unstated rate follows the carry-over ruling** in `references/rulings.md`. Its `Source` sets the rate's
-  `ProcRateStatus` (`proto/ui.proto`, read in `tools/database/gen_effects.go`), which the gear tab's notice shows
+  `ProcRateStatus` (`proto/ui.proto`, set by `rateOrigin` and `knownRates` in `tools/database/gen_effects.go`), which the gear tab's notice shows
   (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
   rate measured on this server from too few logs to call final (the gear tab still warns), and a measured rate's
   `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is one of

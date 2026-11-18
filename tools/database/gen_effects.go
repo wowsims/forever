@@ -1111,28 +1111,30 @@ func knownRates(in rateInputs, db *WowDatabase, unvalidated UnvalidatedRates, mi
 		}
 	}
 
-	// An enchant's chance rate override sits on its effect (withEnchantProcRate); the ones reaching this far are measured.
-	enchantChanceOverridden := map[int32]bool{}
+	// An enchant's chance rate override sits on its effect (withEnchantProcRate), so a chance on the effect of an
+	// enchant with a measured one is measured.
+	enchantChanceMeasured := map[int32]bool{}
 	for _, proc := range in.EnchantProcs {
-		if proc.Kind == overrides.RateChance {
-			enchantChanceOverridden[proc.EnchantID] = true
+		if origin, err := rateOrigin(proc.Source); proc.Kind == overrides.RateChance && err == nil && origin == "" {
+			enchantChanceMeasured[proc.EnchantID] = true
 		}
 	}
-	enchantIDs := map[int32]bool{}
+	// Every enchant effect id gets a key, so settle sees the ones with no rate too.
 	enchantRates := map[int32][]KnownRate{}
 	for _, enchant := range db.Enchants {
 		id := enchant.EffectId
-		enchantIDs[id] = true
+		rates := enchantRates[id]
 		if live, ok := in.LiveEnchants[id]; ok && !in.HandEnchants[id] {
 			chanceStatus := proto.ProcRateStatus_ProcRateStatusGameFiles
-			if enchantChanceOverridden[id] {
+			if enchantChanceMeasured[id] {
 				chanceStatus = proto.ProcRateStatus_ProcRateStatusMeasured
 			}
-			enchantRates[id] = append(enchantRates[id], gearRates(enchant.EnchantEffects, live, enchantRowRates[id], chanceStatus)...)
+			rates = append(rates, gearRates(enchant.EnchantEffects, live, enchantRowRates[id], chanceStatus)...)
 		}
+		enchantRates[id] = rates
 	}
-	for id := range enchantIDs {
-		if rate, ok := settle("enchant", id, 0, enchantRates[id]); ok {
+	for id, found := range enchantRates {
+		if rate, ok := settle("enchant", id, 0, found); ok {
 			known.Enchants = append(known.Enchants, rate)
 		}
 	}
@@ -1289,14 +1291,14 @@ func setNamesOf(db *WowDatabase) map[int32]string {
 	return names
 }
 
-// A list in set id order, cut into one run per set.
-func groupBySet[T any](list []T, setID func(T) int32) [][]T {
-	var sets [][]T
-	for _, entry := range list {
-		if len(sets) == 0 || setID(sets[len(sets)-1][0]) != setID(entry) {
+// Missing set bonuses in set id order, cut into one run per set.
+func groupBySet(bonuses []MissingSetBonus) [][]MissingSetBonus {
+	var sets [][]MissingSetBonus
+	for _, bonus := range bonuses {
+		if len(sets) == 0 || sets[len(sets)-1][0].ID != bonus.ID {
 			sets = append(sets, nil)
 		}
-		sets[len(sets)-1] = append(sets[len(sets)-1], entry)
+		sets[len(sets)-1] = append(sets[len(sets)-1], bonus)
 	}
 	return sets
 }
@@ -1513,7 +1515,7 @@ func renderMissingEffects(w io.Writer, setBonuses []MissingSetBonus) error {
 		"jsString":       jsString,
 	}
 	tmpl := template.Must(template.New("missingEffects").Funcs(funcMap).Parse(TmplStrMissingEffects))
-	missingSets := groupBySet(setBonuses, func(b MissingSetBonus) int32 { return b.ID })
+	missingSets := groupBySet(setBonuses)
 	data := map[string]any{
 		"ItemEffects":       missingEffectsMap["ItemEffects"],
 		"EnchantEffects":    missingEffectsMap["EnchantEffects"],

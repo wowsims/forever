@@ -142,9 +142,7 @@ git diff origin/master...HEAD -U0 -- sim/ ':!*_auto_gen.go' | grep -E '^\+\+\+|^
 
 - **A hand-written proc that rolls its spell's rate and records nothing** shows no rate on the gear tab. For each
   item, enchant or set the diff registers by hand, grep for its record: `grep -rn 'Rolls[A-Za-z]*Rate(<id>' sim/`
-  for an item or enchant id, `'Rolls[A-Za-z]*Rate(ItemSet<Name>.ID'` for a set. A `NewSpellData*Proc` call with no
-  `Rate:` and `newEntryRateItemEffect` record on their own; bespoke code and a builder whose `Rate` option keeps the
-  rate need the call. Draconic Infused Emblem's `Rate` only moves the listener to landed hits, and Blade of
+  for an item or enchant id, `'Rolls[A-Za-z]*Rate(ItemSet<Name>.ID'` for a set. Draconic Infused Emblem's `Rate` only moves the listener to landed hits, and Blade of
   Eternal Darkness's rolls the row's procs per minute on each cast's cast time, so both call `ItemRollsSpellRate`.
 - **A record on code that changes the rate** states a number the sim does not roll. For each `Rolls*Rate(` call
   the diff adds or keeps beside a changed trigger, read the trigger for a number other than the spell's rate: a

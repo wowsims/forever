@@ -169,8 +169,9 @@ export const registerProcRateNotices = (db: Database) => {
 	for (const item of db.getAllItems()) {
 		if (!item.procRate) continue;
 		if (isKnownRate(item.procRate)) {
-			OWN_ITEM_RATE_NOTICES.set(item.id, <KnownRateLine rate={item.procRate} />);
-			ITEM_RATE_NOTICES.set(item.id, OWN_ITEM_RATE_NOTICES.get(item.id));
+			const line = <KnownRateLine rate={item.procRate} />;
+			OWN_ITEM_RATE_NOTICES.set(item.id, line);
+			ITEM_RATE_NOTICES.set(item.id, line);
 		} else {
 			addUnvalidatedRateNotice(ITEM_NOTICES, item.id, item.procRate);
 		}

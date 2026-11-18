@@ -109,12 +109,10 @@ spells. The generator refuses an override once the game files state the value; r
   spell shares (Omen of Clarity, Seal of Light) in `Spells` with `Field: PPM`. Proc wiring is `wowsims-procs`.
 - **Rows are keyed struct literals, one field per line.** `Source` and `Reason` name where the value comes from, and a
   `// TODO:` on the value line marks a row still to measure in game.
-- **A rate override's `Source` is the gear tab's status for that rate.** An `EV-` id is measured, `observed`,
-  `tbc-carryover` and `vanilla-carryover` are their own statuses, and a rate with no override is the game files'
-  chance (`ProcRateStatus` in `proto/ui.proto`). `gen_db` works out each rate in `tools/database/gen_effects.go`
-  and stamps it on the items, enchants and set bonuses in `db.json` after the effects step, so a new override row
-  moves the gear tab's line on the next run; the sim never reads it. Which rates reach the gear tab is `wowsims-procs`
-  `## Measuring a rate`.
+- **A rate override's `Source` sets the gear tab's status for that rate** (`ProcRateStatus` in `proto/ui.proto`); a
+  rate with no override is the game files' chance. `gen_db` stamps each rate on the items, enchants and set bonuses in
+  `db.json` after the effects step, so a new override row moves the gear tab's line on the next run; the sim never
+  reads it. The `Source` values and which rates reach the gear tab are `wowsims-procs` `## Measuring a rate`.
 
 ## A database behind master
 
