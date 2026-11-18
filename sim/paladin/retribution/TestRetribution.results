@@ -101,10 +101,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-AxeofInevitableRuin-274484"
  value: {
-  dps: 804.84962
-  tps: 660.08294
-  dtps: 6.36694
-  hps: 27.04215
+  dps: 799.92861
+  tps: 656.25373
+  dtps: 6.03142
+  hps: 27.08061
  }
 }
 dps_results: {
@@ -164,10 +164,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BiggerRockonBiggerStick-279480"
  value: {
-  dps: 821.90544
-  tps: 671.19628
-  dtps: 4.39845
-  hps: 25.54595
+  dps: 817.7078
+  tps: 668.48438
+  dtps: 5.54219
+  hps: 25.54646
  }
 }
 dps_results: {
@@ -299,10 +299,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-BrainHacker-1263"
  value: {
-  dps: 879.7842
-  tps: 717.67804
-  dtps: 5.10011
-  hps: 25.38583
+  dps: 878.35473
+  tps: 715.56423
+  dtps: 4.02204
+  hps: 25.30534
  }
 }
 dps_results: {
@@ -551,10 +551,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-DrakefangButcher-12463"
  value: {
-  dps: 816.60552
-  tps: 670.91423
-  dtps: 7.07958
-  hps: 28.85741
+  dps: 819.16169
+  tps: 673.10939
+  dtps: 7.40951
+  hps: 28.97534
  }
 }
 dps_results: {
@@ -947,10 +947,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GatorbiteAxe-17730"
  value: {
-  dps: 833.0508
-  tps: 681.93455
-  dtps: 5.82106
-  hps: 26.06394
+  dps: 824.07755
+  tps: 674.44159
+  dtps: 5.49081
+  hps: 25.98702
  }
 }
 dps_results: {
@@ -1055,10 +1055,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-GrimReaper-13054"
  value: {
-  dps: 787.02765
-  tps: 644.73699
-  dtps: 5.31263
-  hps: 26.50891
+  dps: 789.11941
+  tps: 646.79477
+  dtps: 5.55513
+  hps: 26.66479
  }
 }
 dps_results: {
@@ -1181,9 +1181,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-KangtheDecapitator-2291"
  value: {
-  dps: 869.94813
-  tps: 708.91879
-  dtps: 3.97593
+  dps: 866.83039
+  tps: 706.81787
+  dtps: 4.56884
   hps: 25.46242
  }
 }
@@ -1467,6 +1467,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Mutilator-12469"
+ value: {
+  dps: 771.23029
+  tps: 635.36582
+  dtps: 6.81591
+  hps: 29.78528
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-Naglering-11669"
  value: {
   dps: 864.41573
@@ -1532,10 +1541,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 870.32003
-  tps: 709.31745
-  dtps: 4.35763
-  hps: 24.5891
+  dps: 867.87541
+  tps: 707.35834
+  dtps: 4.3544
+  hps: 24.51065
  }
 }
 dps_results: {
@@ -1586,10 +1595,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PrincessTheradras'Scepter-17766"
  value: {
-  dps: 846.40733
-  tps: 691.29483
-  dtps: 5.06111
-  hps: 25.49004
+  dps: 850.82317
+  tps: 694.65118
+  dtps: 4.77061
+  hps: 25.72387
  }
 }
 dps_results: {
@@ -1847,10 +1856,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Stoneslayer-9418"
  value: {
-  dps: 873.13013
-  tps: 711.35032
-  dtps: 4.11939
-  hps: 24.54911
+  dps: 868.23742
+  tps: 707.75522
+  dtps: 4.6471
+  hps: 24.55216
  }
 }
 dps_results: {
@@ -1982,10 +1991,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheBlackrockSlicer-13285"
  value: {
-  dps: 924.05797
-  tps: 752.26817
-  dtps: 4.23494
-  hps: 24.65789
+  dps: 906.78596
+  tps: 737.89502
+  dtps: 3.81551
+  hps: 24.52505
  }
 }
 dps_results: {
@@ -2153,10 +2162,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TheNeedler-13060"
  value: {
-  dps: 802.05877
-  tps: 661.59657
-  dtps: 7.28267
-  hps: 32.38693
+  dps: 798.80653
+  tps: 659.06652
+  dtps: 7.27425
+  hps: 32.22698
  }
 }
 dps_results: {
