@@ -71,9 +71,10 @@ func (warrior *Warrior) registerUnbridledWrath() {
 
 	// The rate is the effect ladder the tooltip's $m1 names: 12/24/36/48/60 by rank, where the proc
 	// chance column reads 100. Landed white swings roll it, Windfury Totem's strike among them as a
-	// main-hand swing, and so do Heroic Strike and each target a Cleave hits. The row's mask also
-	// hears melee abilities, but no other ability rolls it: Shield Slam, Revenge, Thunder Clap,
-	// Whirlwind and the rest (EV-0148, EV-0138, EV-0136).
+	// main-hand swing (EV-0136), and so do Heroic Strike and each target a Cleave hits (EV-0148,
+	// EV-0138). The row's mask also hears melee abilities, but no other ability rolls it; Shield
+	// Slam, Revenge, Thunder Clap, Retaliation, Victory Rush, Shield Bash and Whirlwind are measured
+	// (EV-0148, EV-0138).
 	trigger := spelldata.ProcTrigger(&warrior.Character,
 		spellData.UnbridledWrath.Rank(warrior.Talents.UnbridledWrath),
 		func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) {

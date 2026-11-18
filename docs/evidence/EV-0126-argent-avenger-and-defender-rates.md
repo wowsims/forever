@@ -10,8 +10,7 @@
   QHXdBJRj2GPpC3n1 fight 1; QxGpKz7knDvjWmYb fight 31; VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 116;
   9zxHaWbYT3gqDQvF fight 17; z6LMfrpbwhyVCAJK fight 16; RGnyYzMgqCNdVwkT fight 21, left out below. Argent Defender,
   where a fight with no gear record counts too: VjBTMHXxFvbthkw2 fight 1; NXMZV9xjvWpB7GtP fight 107; 7tLY1pVK9wRWPABX
-  fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8. Argent Avenger also: the combat log EV-0148 counts, a level
-  60 Protection warrior with the sword and a shield on 1.60.1, 2026-11-17 22:09 to 2026-11-18 07:54 UTC.
+  fights 15 to 18 and 20; MWrPDAVFCBXzh8Z6 fights 1 to 8.
 - Game build: 1.60.1.70938. Which hotfix push each report ran on and whether players relogged is not recorded.
 - Date: 2026-11-13 07:09 to 2026-11-15 09:41 UTC
 - Pull request: #1051, written up in #1052
@@ -57,25 +56,7 @@ explain the gap between the classes: both swing about 1.2 to 1.3 times as often 
 priced on the base speed. Why rogues proc less is open. The owner sets the rate to 1 proc per minute, from the
 sword-and-shield warrior's weapon hits.
 
-A second sword-and-shield warrior's combat log, the one EV-0148 counts, reads the same rate: 237 procs in five
-instances. A hit has a proc when one logs from 25 ms before it to 5 ms after it, so a proc beside two hits counts for
-both rows. The pooled row counts every proc once, over the landed hits of the first six rows, Retaliation (66) and
-Victory Rush (29).
-
-| Hits                                     | Procs / landed hits | Chance | PPM at 2.2 s |
-| ---------------------------------------- | ------------------- | ------ | ------------ |
-| White swings                             | 87 / 2,572          | 3.4%   | 0.92         |
-| Revenge                                  | 28 / 737            | 3.8%   | 1.04         |
-| Cleave, casts with a proc per target hit | 67 / 1,674          | 4.0%   | 1.09         |
-| Sunder Armor, casts                      | 17 / 436            | 3.9%   | 1.06         |
-| Heroic Strike                            | 18 / 493            | 3.7%   | 1.00         |
-| Windfury Totem strikes                   | 21 / 513            | 4.1%   | 1.12         |
-| Shield Slam                              | 3 / 1,119           | 0.27%  | –            |
-| Thunder Clap                             | 10 / 2,777          | 0.36%  | –            |
-| Pooled                                   | 237 / 6,520         | 3.6%   | 0.99         |
-
-Each of Shield Slam's and Thunder Clap's 13 procs also fits another weapon hit's window. The procs in Scholomance and
-Stratholme read 3.6% (129 of 3,591) and the others 3.7% (108 of 2,929).
+EV-0148 reads this rate again from a sword-and-shield warrior's combat log.
 
 ## Argent Defender
 

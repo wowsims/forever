@@ -5,8 +5,7 @@
   no rate fire at procs per minute, a white swing priced on its weapon's base speed and a spell cast on its cast time:
   Warrior's Resolve at 1, Rogue Armor Energize at 0.8, Crusader's Wrath at about 0.9, The Furious Storm and Nature's
   Bounty's mana at about 1.
-- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names; for Warrior's
-  Resolve also the combat log EV-0148 counts
+- Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports and fights each table names
 - Game build: 1.60.1.70938 by report date; the hotfix each player ran is not recorded
 - Date: 2026-11-11 to 2026-11-17
 - Pull request: #1086
@@ -195,13 +194,8 @@ landed white swings. Four more swings of the Wildheart wearers procced the energ
 | WTJGk6CmbMP1V8Hf | 1                                      | 11-17 | Warrior | Battlegear of Valor   |           6 |    376 |      0.53 | 1.8                    |          0 |   176 |     0.00 |
 | KnYw8BkyhFdtHpVr | 1                                      | 11-17 | Warrior | Battlegear of Valor   |          28 |    577 |      1.21 | 2.4                    |          0 |   257 |     0.00 |
 | 1GWa2FTw7BDnhA9v | 1                                      | 11-17 | Warrior | Battlegear of Valor   |          26 |    463 |      1.25 | 2.7                    |          0 |   155 |     0.00 |
-| combat log       | 5 instances                            | 11-17 | Warrior | Battlegear of Valor   |         113 |   3085 |      1.00 | 2.2                    |          – |     – |        – |
 
-The combat log row is EV-0148's log, a level 60 Protection warrior with 6 pieces, logged 2026-11-17 22:09 to 2026-11-18
-07:54 UTC and counted by its own method, outside the totals above: a proc goes to a hit when it logs from 10 ms before
-the hit to 40 ms after it, and the swings are every landed white swing and strike. White swings had a proc on 89 of
-2,572 (3.46%) and strikes on 24 of 513 (4.68%); Cleave on 0 of 1,674 target hits, Heroic Strike on 1 of 493, Shield Slam
-on 0 of 1,119 and Revenge on 1 of 737.
+EV-0148 reads this rate again from a sword-and-shield warrior's combat log.
 
 ## Rogue Armor Energize (sets 184 and 1676)
 

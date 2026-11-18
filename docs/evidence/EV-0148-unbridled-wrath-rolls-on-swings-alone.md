@@ -1,12 +1,15 @@
-# EV-0148: Unbridled Wrath rolls on white swings, Windfury Totem's strike, Heroic Strike and Cleave alone
+# EV-0148: Only white swings, Windfury Totem's strike, Heroic Strike and Cleave roll Unbridled Wrath
 
 - Claim: Unbridled Wrath 12322 rolls on landed white swings, Windfury Totem's strike, Heroic Strike and each target a
   Cleave lands on, at the 60% its rank 5 row states; Shield Slam, Revenge, Thunder Clap, Retaliation, Victory Rush and
-  Shield Bash roll none.
-- Sources: combat log, a level 60 Protection warrior with a one-handed sword and a shield (Unbridled Wrath 5/5, Master
-  of Defense 2/2, Shield Specialization 5/5, Enrage 5/5, Reckless Swings, 6 pieces of Battlegear of Valor), in groups
-  with Windfury Totem at times, in Blackrock Depths, Scholomance, Lower and Upper Blackrock Spire and Stratholme
-- Game build: 1.60.1 by the log header; the full build and the hotfix push are not recorded
+  Shield Bash roll none. Argent Avenger procs about once a minute on the wearer's landed weapon hits, and Warrior's
+  Resolve about once a minute on landed white swings and strikes. Master of Defense, Shield Specialization and Shield
+  Spike fire on about every dodge or parry, block, and block respectively.
+- Sources: combat log, a level 60 Protection warrior with a one-handed sword, Argent Avenger, and a shield (Unbridled
+  Wrath 5/5, Master of Defense 2/2, Shield Specialization 5/5, Enrage 5/5, Reckless Swings, 6 pieces of Battlegear of
+  Valor), in groups with Windfury Totem at times, in Blackrock Depths, Scholomance, Lower and Upper Blackrock Spire and
+  Stratholme
+- Game build: 1.60.1.70938, hotfix push 114122; whether the player relogged is not recorded
 - Date: 2026-11-17 22:09 to 2026-11-18 07:54 UTC
 - Pull request: #1099
 
@@ -17,7 +20,8 @@ swing, a Windfury Totem strike (10610), or a Heroic Strike, Cleave, Shield Slam,
 Victory Rush or Shield Bash. Landed means a hit, a crit or a glancing blow. A proc is an energize of 12964, and a hit
 has one when it logs from 5 ms before the hit to 40 ms after it. A hit is isolated when the warrior logs no other hit
 within 100 ms of it. A Cleave's lines on its targets log within 3 ms of each other, nearly all in the same ms, and count
-as one cast. The same window shifted 0.3 to 0.9 s later finds a proc after 0.7% of hits, the rate of chance
+as one cast. Lines of one Thunder Clap or Retaliation that log in the same ms do not break each other's isolation, and
+each counts as a hit. The same window shifted 0.3 to 0.9 s later finds a proc after 0.7% of hits, the rate of chance
 coincidence.
 
 ## Unbridled Wrath
@@ -63,8 +67,49 @@ has one (0 of 248), and no missed, dodged or parried Heroic Strike (0 of 67). Ea
 avoided strikes that show one shares it with a landed hit of those kinds: the other target's line, or the hit before the
 strike.
 
-EV-0138 reads the same on a dual-wielding Fury warrior: Whirlwind 2 of 425, Heroic Strike 14 of 20, Cleave 111 of 165
-hit lines. EV-0136 finds a proc after 0.26% of melee abilities alone.
+Push 114115 (2026-11-16), before this log's push 114122, widened 12322's proc mask from melee swings (0x4) to melee
+swings and abilities (0x14). EV-0138 reads the same on a dual-wielding Fury warrior after push 114115: Whirlwind 2 of
+425, Heroic Strike 14 of 20, Cleave 111 of 165 hit lines. EV-0136's reports run to 2026-11-16, mostly before that
+push, so its 0.26% after melee abilities alone reads the old row.
+
+## Argent Avenger
+
+A proc is one application or refresh of 17352 on the wearer, as EV-0126 counts it, and the log holds 237 in the five
+instances. A hit has a proc when one logs from 25 ms before it to 5 ms after it, so a proc beside two hits counts for
+both rows. Sunder Armor logs no damage, so its casts count. The pooled row counts every proc once, over the landed hits
+of the first six rows, Retaliation (66) and Victory Rush (29). PPM = chance × 60 / 2.2, the sword's speed.
+
+| Hits                                               | Procs / landed hits | Chance | PPM at 2.2 s |
+| -------------------------------------------------- | ------------------- | ------ | ------------ |
+| White swings                                       | 87 / 2,572          | 3.4%   | 0.92         |
+| Revenge                                            | 28 / 737            | 3.8%   | 1.04         |
+| Cleave, per target hit, a cast's proc counted once | 67 / 1,674          | 4.0%   | 1.09         |
+| Sunder Armor, casts                                | 17 / 436            | 3.9%   | 1.06         |
+| Heroic Strike                                      | 18 / 493            | 3.7%   | 1.00         |
+| Windfury Totem strikes                             | 21 / 513            | 4.1%   | 1.12         |
+| Shield Slam                                        | 3 / 1,119           | 0.27%  | –            |
+| Thunder Clap                                       | 10 / 2,777          | 0.36%  | –            |
+| Pooled                                             | 237 / 6,520         | 3.6%   | 0.99         |
+
+Each of Shield Slam's and Thunder Clap's 13 procs also fits another weapon hit's window. The procs in Scholomance and
+Stratholme read 3.6% (129 of 3,591) and the others 3.7% (108 of 2,929).
+
+## Warrior's Resolve
+
+Warrior's Resolve (450587) comes from the 6 pieces of Battlegear of Valor, and a proc is its 450589 heal. EV-0144 prices
+it on the weapon's base speed, 2.2 s here. A proc goes to a hit when it logs from 10 ms before the hit to 40 ms after
+it, so a proc next to two hits counts for both. The swings are every landed white swing and strike.
+
+| Swings                   | Procs / landed hits | Chance | PPM at 2.2 s |
+| ------------------------ | ------------------- | ------ | ------------ |
+| White swings             | 89 / 2,572          | 3.46%  | 0.94         |
+| Windfury Totem strikes   | 24 / 513            | 4.68%  | 1.28         |
+| White swings and strikes | 113 / 3,085         | 3.66%  | 1.00         |
+
+The last row adds the first two, so a heal next to a swing and a strike counts twice there. Counted once, 110 heals
+fit a landed swing's or strike's window, 3.57% and 0.97 PPM.
+
+Cleave had a proc on 0 of 1,674 target hits, Heroic Strike on 1 of 493, Shield Slam on 0 of 1,119 and Revenge on 1 of 737.
 
 ## Master of Defense, Shield Specialization and Shield Spike
 
