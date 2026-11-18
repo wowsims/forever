@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/wowsims/forever/sim/common/forever"
 	"github.com/wowsims/forever/sim/core"
 	"github.com/wowsims/forever/sim/core/dbcenums"
 	"github.com/wowsims/forever/sim/core/proto"
@@ -232,29 +231,36 @@ func TestWeaponsSharingATriggerKeepTheirOwnRate(t *testing.T) {
 	}
 }
 
-// A hand-written proc that runs at its item entry's procs per minute leaves the item missing its effect
-// while that entry states no rate, and not once it states one; an entry for another spell never does.
-func TestHandProcWithNoRateOnItsEntryIsMissing(t *testing.T) {
-	if len(forever.EntryRateProcs) == 0 {
-		t.Fatal("no hand-written proc reads its rate off its item's entry")
+// A hand-written item's proc effect has no rate where no weapon rate or spell rate override covers it and its
+// row states none. Iceblade Hacker's chance-on-hit 1298416 states no chance, so it has a rate only under its
+// own item, which carries a weapon rate for it. Moonshadow Stave's equip proc 1300435 states procs per
+// minute and Ironfoe's equip proc 1301046 a chance, and an equip spell that is no proc, such as 1291060's
+// Enrage rage, never counts though it states no rate.
+func TestHandProcStatesNoRateReadsTheRowsAndOverrides(t *testing.T) {
+	const noRateItem = 1
+	if overrides.WeaponProcPPM(13952, 1298416) == 0 {
+		t.Fatal("Iceblade Hacker carries no weapon rate for 1298416")
 	}
-	proc := func(spellID int32, rate *proto.ProcEffect_Ppm) *proto.ItemEffect {
-		effect := &proto.ProcEffect{}
-		if rate != nil {
-			effect.ProcRate = rate
-		}
-		return &proto.ItemEffect{BuffId: spellID, Effect: &proto.ItemEffect_Proc{Proc: effect}}
+	chanceOnHit := func(spellID int) dbc.ItemEffect {
+		return dbc.ItemEffect{SpellID: spellID, TriggerType: dbc.ITEM_SPELLTRIGGER_CHANCE_ON_HIT}
 	}
-	for itemID, spellID := range forever.EntryRateProcs {
-		parsed := &proto.UIItem{Id: itemID}
-		if !handProcStatesNoRate(parsed, proc(spellID, nil)) {
-			t.Errorf("item %d with no rate on its entry for %d is not missing its effect", itemID, spellID)
-		}
-		if handProcStatesNoRate(parsed, proc(spellID, &proto.ProcEffect_Ppm{Ppm: 1})) {
-			t.Errorf("item %d with a rate on its entry for %d is missing its effect", itemID, spellID)
-		}
-		if handProcStatesNoRate(parsed, proc(spellID+1, nil)) {
-			t.Errorf("item %d's entry for another spell than %d leaves it missing its effect", itemID, spellID)
+	equip := func(spellID int) dbc.ItemEffect {
+		return dbc.ItemEffect{SpellID: spellID, TriggerType: dbc.ITEM_SPELLTRIGGER_ON_EQUIP}
+	}
+	for _, tc := range []struct {
+		name   string
+		itemID int32
+		effect dbc.ItemEffect
+		want   bool
+	}{
+		{"1298416 under Iceblade Hacker", 13952, chanceOnHit(1298416), false},
+		{"1298416 under an item with no weapon rate", noRateItem, chanceOnHit(1298416), true},
+		{"1300435 under an item with no weapon rate", noRateItem, equip(1300435), false},
+		{"1301046 under an item with no weapon rate", noRateItem, equip(1301046), false},
+		{"1291060 under an item with no weapon rate", noRateItem, equip(1291060), false},
+	} {
+		if got := handProcStatesNoRate(tc.itemID, tc.effect); got != tc.want {
+			t.Errorf("%s states no rate: %v, want %v", tc.name, got, tc.want)
 		}
 	}
 }

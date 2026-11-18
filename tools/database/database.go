@@ -65,6 +65,8 @@ type WowDatabase struct {
 
 	Consumables map[int32]*proto.Consumable
 	Effects     map[int32]*proto.SpellEffect
+
+	SetBonusProcRates []*proto.SetBonusProcRate
 }
 
 func NewWowDatabase() *WowDatabase {
@@ -100,6 +102,8 @@ func (db *WowDatabase) Clone() *WowDatabase {
 
 		Consumables: maps.Clone(db.Consumables),
 		Effects:     maps.Clone(db.Effects),
+
+		SetBonusProcRates: slices.Clone(db.SetBonusProcRates),
 	}
 }
 
@@ -288,6 +292,7 @@ func (db *WowDatabase) ToUIProto() *proto.UIDatabase {
 		ItemEffectRandPropPoints: mapToSliceByIlvl(db.ItemEffectRandPropPoints),
 		Consumables:              mapToSlice(db.Consumables),
 		SpellEffects:             mapToSlice(db.Effects),
+		SetBonusProcRates:        db.SetBonusProcRates,
 	}
 }
 
@@ -328,6 +333,7 @@ func ReadDatabaseFromJson(jsonStr string) *WowDatabase {
 		ItemEffectRandPropPoints: iLvlKeyedSliceToMap(dbProto.ItemEffectRandPropPoints),
 		Consumables:              sliceToMap(dbProto.Consumables),
 		Effects:                  sliceToMap(dbProto.SpellEffects),
+		SetBonusProcRates:        dbProto.SetBonusProcRates,
 	}
 }
 
@@ -400,6 +406,11 @@ func (db *WowDatabase) toJsonBytes() []byte {
 	tools.WriteProtoArrayToBuffer(uidb.Consumables, buffer, "consumables")
 	buffer.WriteString(",\n")
 	tools.WriteProtoArrayToBuffer(uidb.SpellEffects, buffer, "spellEffects")
+	// Left out when empty, as protojson leaves out an empty list: the leftovers carry no set bonus rates.
+	if len(uidb.SetBonusProcRates) > 0 {
+		buffer.WriteString(",\n")
+		tools.WriteProtoArrayToBuffer(uidb.SetBonusProcRates, buffer, "setBonusProcRates")
+	}
 	buffer.WriteString("\n")
 	buffer.WriteString("}")
 	return buffer.Bytes()

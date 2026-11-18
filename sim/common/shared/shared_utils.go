@@ -1972,8 +1972,8 @@ var generatedItemEffects = map[int32][]core.ApplyEffect{}
 var generating bool
 
 // Marks the registrations that run until the returned function is called as the generated files':
-// each RegisterAll function of sim/common/forever defers it on its first line. A class file's call
-// to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
+// RegisterAllProcs and RegisterAllOnUseCds in sim/common/forever defer it on their first line. A class
+// file's call to the same constructor is a hand-written effect: it registers with core on its own, uncomposed.
 func Generated() func() {
 	generating = true
 	return func() { generating = false }

@@ -636,7 +636,6 @@ func init() {
 	// each landed main-hand swing and special, on the melee table its row states. 1298416 strikes at the procs per
 	// minute of the item's chance-on-hit entry on the axe's speed (EV-0136), and registers nothing while
 	// the entry states none; its slow is movement the sim leaves out.
-	EntryRateProcs[13952] = 1298416
 	core.NewItemEffect(13952, func(agent core.Agent) {
 		character := agent.GetCharacter()
 
@@ -705,15 +704,12 @@ func init() {
 	})
 }
 
-// The spell each hand-written proc reads its item's procs per minute for, by item id. The generator
-// lists an item whose entry states no rate for that spell as missing its effect.
-var EntryRateProcs = map[int32]int32{}
-
 // Registers an item effect whose proc runs at the procs per minute the item's chance-on-hit entry
 // states for spellID, since the game files state no rate for it. While the entry states none, the
-// effect registers nothing and the item keeps only its stats; no rate is made up for the proc.
+// effect registers nothing and the item keeps only its stats; no rate is made up for the proc. The
+// generator lists such an item as missing its effect. The rate goes in overrides.WeaponProcs, never in a
+// Spells PPM override: the entry carries only the first, while the missing check counts either as a rate.
 func newEntryRateItemEffect(itemID int32, spellID int32, apply func(character *core.Character, ppm float64)) {
-	EntryRateProcs[itemID] = spellID
 	core.NewItemEffect(itemID, func(agent core.Agent) {
 		if ppm := weaponProcPPM(itemID, spellID); ppm > 0 {
 			apply(agent.GetCharacter(), ppm)

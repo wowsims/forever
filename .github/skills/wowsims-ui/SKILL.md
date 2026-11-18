@@ -50,6 +50,11 @@ A few facts that shape the code: several classes have one spec page (`mage/dps`,
 `en` is the only locale, talents are three trees with tier and prerequisite rules (the picker lets a point be taken back
 anyway and marks what that breaks, see `references/talents.md`), and there is no raid sim UI.
 
+The gear tab's proc rate line (`ui/features/gear/item_notices.tsx`) reads `procRate` on the item or enchant and the
+database's `setBonusProcRates` (`proto/ui.proto`), which `gen_db` writes into `db.json`. Never add or correct a rate in
+the UI: a missing or wrong one is fixed in an override, for hand-written gear in
+`tools/database/overrides/gear_proc_rates.go`, as `wowsims-procs` `## Measuring a rate` says.
+
 ## Which file to open
 
 | You are…                                                                                                     | Open                            |
