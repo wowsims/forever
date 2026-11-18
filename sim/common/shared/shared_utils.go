@@ -691,6 +691,12 @@ func registerSpellDataDamageProc(cfg SpellDataProc) {
 func applySpellDataDamageProc(agent core.Agent, cfg SpellDataProc, source effectSource, trigger *spelldata.Spell, damage *spelldata.Spell) {
 	character := agent.GetCharacter()
 	config := spellDataProcListener(character, cfg, source, trigger)
+	// The spell a proc casts cannot be cast again while its own cooldown runs, so the listener waits
+	// it out where it has no internal cooldown: Toofbreak 1320269 states 100 ms, and a Toofbreak rolls
+	// no second one (EV-0145). A row that deals its damage as the listener's own aura casts nothing.
+	if config.ICD == 0 && damage.ProcDamageEffect().Aura != dbcenums.A_PROC_TRIGGER_DAMAGE {
+		config.ICD = damage.Cooldown()
+	}
 	damageConfig := spellDataProcDamageSpell(character, damage, true)
 	damageConfig.VersusBonus = ItemVersusBonus(character, source.id, proto.VersusEffectKind_VersusEffectKindDamage, trigger)
 	if extra, ok := DamageProcExtras[source.id]; ok && !source.isEnchant {

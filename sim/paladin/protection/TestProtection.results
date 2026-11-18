@@ -2450,10 +2450,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Toofbreaker-286430"
  value: {
-  dps: 404.24648
-  tps: 977.01787
-  dtps: 340.68013
-  hps: 20.96028
+  dps: 402.86851
+  tps: 974.47161
+  dtps: 340.34314
+  hps: 21.06194
  }
 }
 dps_results: {

@@ -1840,9 +1840,9 @@ dps_results: {
 dps_results: {
  key: "TestRogue-AllItems-Toofbreaker-286430"
  value: {
-  dps: 782.71298
-  tps: 555.72621
-  hps: 54.69667
+  dps: 787.3907
+  tps: 559.04739
+  hps: 54.84917
  }
 }
 dps_results: {

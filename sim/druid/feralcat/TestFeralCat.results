@@ -1760,9 +1760,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Toofbreaker-286430"
  value: {
-  dps: 717.81486
-  tps: 535.58317
-  hps: 46.055
+  dps: 718.80289
+  tps: 536.31716
+  hps: 46.02111
  }
 }
 dps_results: {

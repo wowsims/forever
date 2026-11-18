@@ -2153,10 +2153,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 522.45221
-  tps: 454.70748
+  dps: 519.21214
+  tps: 451.35754
   dtps: 2.94293
-  hps: 44.86889
+  hps: 44.85194
  }
 }
 dps_results: {

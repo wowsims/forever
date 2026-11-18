@@ -171,6 +171,10 @@ table of the row's defense type and takes armor or resistance like any other, an
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
+A row the proc casts that states a cooldown of its own gives the listener that time as its internal cooldown where it
+has none, since the spell cannot be cast again while it runs. Toofbreaker 286430's Toofbreak 1320269 states 100 ms and
+so brings no second strike (EV-0145).
+
 A weapon's debuff or aura proc whose row is on the melee or ranged hit table casts that row as a strike
 that deals no damage (`attachDebuffStrike`). The debuff goes on only where the strike's own roll lands,
 and the strike is heard as a weapon's strike is (R-0040). Mutilator 12469's Lacerations 10370 and

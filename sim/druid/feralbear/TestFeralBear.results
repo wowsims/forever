@@ -2037,10 +2037,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Toofbreaker-286430"
  value: {
-  dps: 435.39885
-  tps: 2215.35992
-  dtps: 397.08409
-  hps: 83.93833
+  dps: 438.59786
+  tps: 2225.85339
+  dtps: 397.12799
+  hps: 84.64102
  }
 }
 dps_results: {

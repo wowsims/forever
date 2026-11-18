@@ -1,7 +1,8 @@
 # R-0040: A weapon proc's strike a main-hand white swing cast rolls weapon procs once more
 
 - Skill: wowsims-procs
-- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, `procDamageHandler` and `swingsAPaw`;
+- Code: `sim/common/shared/shared_utils.go`, `weaponProcStrikeMask`, `procDamageHandler`, `swingsAPaw` and
+  `applySpellDataDamageProc`;
   `sim/common/shared/spell_data_debuff_proc.go`, `attachDebuffStrike`
 - Pull request: #352, #1088
 - Evidence: EV-0145
@@ -15,6 +16,9 @@ included, by combat enchants and by oils. One it casts off anything else is hear
 seal's strike, Windfury Totem's strike, an off-hand hit, the paw's swing of a druid in Cat, Bear or Dire Bear Form, or
 another strike. A strike a white swing cast therefore rolls its weapon once more, and the strike that roll casts rolls
 nothing.
+
+A strike whose row states a cooldown of its own is not cast again while it runs, so it brings no second: Toofbreak
+1320269 states 100 ms.
 
 Magic weapon procs stay `ProcMaskEmpty`, equip and aura procs keep the `SpellFlagProc` gate, and Windfury never hears
 a strike.

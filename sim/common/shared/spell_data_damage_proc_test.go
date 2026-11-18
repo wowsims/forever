@@ -422,6 +422,42 @@ func TestWeaponProcStrikeRollsItsWeaponOnlyOffAMainHandWhiteSwing(t *testing.T) 
 	}
 }
 
+// A strike whose row states a cooldown of its own is not cast again while it runs. Forging Strike's
+// row, given a cooldown and rolled at 100%, is cast once by a white swing, the second roll that
+// strike brings included, by no swing inside the cooldown, and once by the first swing after it
+// (EV-0145).
+func TestWeaponProcStrikeOnItsOwnCooldownIsNotCastAgain(t *testing.T) {
+	const weaponID int32 = 991718
+	const cooldown = 3 * time.Second
+	editRow(t, forgingStrike, func(s *spelldata.Spell) {
+		alwaysProcs(s)
+		s.RPPM = 0
+		s.CooldownMs = int32(cooldown / time.Millisecond)
+	})
+	sim, caster, target := newSlowProcSim(t, weaponID, registerSpellDataDamageProc, forgingStrike, nil)
+	caster.AddStatsDynamic(sim, stats.Stats{stats.PhysicalHitPercent: 100, stats.ExpertisePercent: 100})
+	metrics := &mustGetSpell(t, caster, forgingStrike).SpellMetrics[target.UnitIndex]
+	start := sim.CurrentTime
+
+	for _, swing := range []struct {
+		name string
+		at   time.Duration
+		want int32
+	}{
+		{"the first swing", 0, 1},
+		{"a swing inside the cooldown", cooldown / 2, 0},
+		{"the first swing after the cooldown", cooldown + time.Millisecond, 1},
+	} {
+		stepPast(t, sim, start+swing.at)
+		before := metrics.Casts
+		landMainHandSwing(sim, caster, target)
+		stepPast(t, sim, sim.CurrentTime+core.SpellBatchWindow+time.Millisecond)
+		if got := metrics.Casts - before; got != swing.want {
+			t.Errorf("%s cast %d strikes, want %d", swing.name, got, swing.want)
+		}
+	}
+}
+
 // Every landed Rend puts its bleed on the target, a Rend that its own strike chained included, and
 // no weapon proc hears the bleed's ticks. A test one-hander carries a copy of the row at a chance
 // below 1, with a bleed short enough for every swing to fit the fight, and each swing lands once the
