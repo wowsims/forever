@@ -55,7 +55,7 @@ export const ProgressTrackerDialog = ({
 			elevated
 			testId={testId ?? 'progress-tracker-dialog'}>
 			<div
-				className="flex min-h-0 flex-1 flex-col items-center gap-4 text-center text-sm"
+				className="flex min-h-0 flex-1 flex-col items-center gap-4 text-center text-sm max-lg:justify-center"
 				data-testid="progress-tracker-modal-content"
 				data-stage={state.stage}>
 				{warning && (

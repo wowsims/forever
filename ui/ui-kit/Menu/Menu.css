@@ -3,7 +3,7 @@
 		@apply block w-full cursor-pointer border-0 bg-transparent text-left font-normal whitespace-nowrap text-white transition-colors duration-200 ease-in-out;
 
 		&:where(:not([data-bare])) {
-			@apply px-2 py-1;
+			@apply px-2 py-1 pointer-coarse:py-2;
 
 			&[data-highlighted],
 			&[data-popup-open],

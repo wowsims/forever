@@ -1,12 +1,9 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { useMedia } from 'react-use';
+
+import { useWideLayout } from './useWideLayout';
 
 /** The header a `useStickyToolbar` bar sticks below. Null until the shell has laid its own out. */
 export const StickyHeaderContext = createContext<HTMLElement | null>(null);
-
-// `--spacing-sim-header` is one height above `--breakpoint-lg` and another below it, so the header
-// measured under one is the wrong shave under the other. Mirrors `breakpoints.css`.
-const LG_BREAKPOINT = '(min-width: 992px)';
 
 /**
  * A `position: sticky` toolbar that reports whether it is currently pinned, as `.stuck`.
@@ -18,7 +15,8 @@ export const useStickyToolbar = <T extends HTMLElement>() => {
 	const header = useContext(StickyHeaderContext);
 	const ref = useRef<T>(null);
 	const [stuck, setStuck] = useState(false);
-	const wide = useMedia(LG_BREAKPOINT);
+	// `--spacing-sim-header` is one height from `lg` up and another below it, so the header measured under one is the wrong shave under the other.
+	const wide = useWideLayout();
 
 	useEffect(() => {
 		const element = ref.current;

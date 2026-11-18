@@ -20,18 +20,21 @@ export interface TabNavProps {
 	tabs: Array<TabNavTab>;
 	className?: string;
 	variant?: 'nav-tabs' | 'sim';
+	/** The `sim` variant's edge of the page: `bottom` spreads the tabs across the bar and marks the open one along its top. */
+	placement?: 'top' | 'bottom';
 	tabItemClassName?: string;
 	bordered?: boolean;
+	/** From `lg` up; below it the tabs stay on one row and scroll sideways. */
 	wrap?: boolean;
 	testId?: string;
 }
 
 const placeTab = (tab: TabNavTab, element: ReactElement): ReactNode => (tab.renderTab ? tab.renderTab(element) : element);
 
-export const TabNav = ({ tabs, className, variant = 'nav-tabs', tabItemClassName, bordered = true, wrap = true, testId }: TabNavProps) => {
+export const TabNav = ({ tabs, className, variant = 'nav-tabs', placement = 'top', tabItemClassName, bordered = true, wrap = true, testId }: TabNavProps) => {
 	if (variant === 'sim') {
 		return (
-			<Tabs.List className={clsx('ui-tabs-sim font-bold', className)} data-testid={testId} activateOnFocus>
+			<Tabs.List className={clsx('ui-tabs-sim font-bold', className)} data-testid={testId} data-placement={placement} activateOnFocus>
 				{tabs.map(tab => (
 					<Fragment key={tab.id}>
 						{placeTab(
@@ -49,7 +52,7 @@ export const TabNav = ({ tabs, className, variant = 'nav-tabs', tabItemClassName
 
 	return (
 		<Tabs.List
-			className={clsx('ui-tabs', wrap ? 'flex-wrap' : 'flex-nowrap', bordered ? 'border-b border-b-border' : 'border-b-0', className)}
+			className={clsx('ui-tabs', wrap ? 'flex-wrap max-lg:flex-nowrap' : 'flex-nowrap', bordered ? 'border-b border-b-border' : 'border-b-0', className)}
 			data-testid={testId}
 			activateOnFocus
 			render={<ul />}>

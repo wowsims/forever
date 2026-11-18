@@ -50,7 +50,7 @@
 	}
 
 	.ui-toast-viewport {
-		@apply pointer-events-none fixed right-0 bottom-0 z-toast flex w-full max-w-full flex-col items-end gap-2 p-4;
+		@apply pointer-events-none fixed right-0 bottom-sim-dock z-toast flex w-full max-w-full flex-col items-end gap-2 p-4;
 	}
 
 	.ui-toast-viewport-inline {
