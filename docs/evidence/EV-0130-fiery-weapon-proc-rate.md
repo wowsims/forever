@@ -1,5 +1,8 @@
 # EV-0130: Fiery Weapon's proc rate on two two-handed weapons
 
+EV-0145 replaces the reading of the last table: a landed weapon proc brings one more roll only where a white swing cast
+it, at about the base chance, and the 7.9% and 18.6% below pool every landed weapon proc whatever cast it.
+
 - Claim: Enchant Weapon - Fiery Weapon 803 rolls its strike 13897 at 6 procs per minute on two two-handed weapons, on
   the hits that roll a chance-on-hit weapon proc. Their two speeds do not tell procs per minute from a flat chance.
 - Sources: combat log, Retribution paladin, levels 46 and 47, with the enchant on a two-handed mace of speed 3.4 and on

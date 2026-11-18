@@ -171,6 +171,19 @@ table of the row's defense type and takes armor or resistance like any other, an
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
+The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
+cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
+inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
+rolls on no Windfury Totem strike or ability that lands with the swing that cast it (EV-0145). A row that deals its
+damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
+block.
+
+A weapon's debuff or aura proc whose row is on the melee or ranged hit table casts that row as a strike
+that deals no damage (`attachDebuffStrike`). The debuff goes on only where the strike's own roll lands,
+and the strike is heard as a weapon's strike is (R-0040). Mutilator 12469's Lacerations 10370 and
+Puncture Armor 17315 are the cases. A row on the magic table or on none goes on with the proc, and the
+wearer's and the pets' auras of an aura proc go up whatever the strike rolls.
+
 A damage row that also states an `E_ENERGIZE` on its caster puts that gain into the wearer's mana, rage
 or energy with every proc, whether the damage lands or not, since the gain's target is the caster
 (`withProcEnergize`). Engulfing Shadows 27860 deals 112 Shadow and restores 104 mana.
