@@ -11,14 +11,15 @@
   `Xa2MfbLKQCPYH6nr` (fights 1, 3, 5), `t38h6AJQWzRCHwZy` (fights 1, 3 to 6, 8 to 14), `BXhNKykZL7MDat8c` (fight 8),
   `nPLWN2VDTZMz7Qk6` (fight 1) and `nP4N7AqTvChFQ2GY` (fights 1, 3 to 10): three paladins, two warriors and two
   hunters in dungeons. For Fiery Weapon, the combat log of EV-0130: a Retribution paladin, levels 46 and 47. For the
-  chain on the other weapons, the 2,939 reports of forever.warcraftlogs.com zone 3000 from 2026-11-06 to 2026-11-18
-  in which a player holds one of the weapons that section names and procs it
+  chain on the other weapons, the 2,861 reports of forever.warcraftlogs.com zone 3000 from 2026-11-06 to 2026-11-18
+  in which a player procs one of the weapons that section names; the section says how they are chosen and names
+  example units
 - Game build: 1.60.1.70888 for the four reports of 2026-11-11 and 2026-11-12, 1.60.1.70938 for the three of
   2026-11-14 and 2026-11-15; the hotfix each player ran is not recorded. The reports are dated against the build each
   region's version file named at the time: 70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11 02:19 UTC in the
   EU, 70938 from 2026-11-13 01:36 UTC in both. No hotfix record of build 70938 up to push 114140 names a row of
   10370 (spell, name, effect, misc, categories, aura options, levels) or the item's effect entry. The combat log ran
-  1.60.1.70938 after the hotfix pushes EV-0130 names. The 2,939 reports run from 1.60.1.70862 to 1.60.1.70959, split
+  1.60.1.70938 after the hotfix pushes EV-0130 names. The 2,861 reports run from 1.60.1.70862 to 1.60.1.70959, split
   by build in their section.
 - Date: 2026-11-06 to 2026-11-18
 - Pull request: #1088
@@ -92,9 +93,10 @@ Lacerations continues too (11 expected).
 
 ## The chain on the other weapons
 
-The wearers of 27 weapons are cut from the reports: the 25 in the table, and Killmaim 13016 and Boneslicer 273819,
-which are not among them and carry the proc spells of Blood Talon and Ripsaw. Blood Talon 12795 and The Needler 13060
-have no wearer. An attempt of a proc is its damage event where the row has a damage effect, and otherwise what an
+The reports are every zone 3000 report downloaded by 2026-11-18 in which a gear snapshot holds one of 27 weapons in
+the main or off hand, or a player sources one of their proc spells. The 27 are the 25 in the table, and Killmaim 13016
+and Boneslicer 273819, which are not among them and carry the proc spells of Blood Talon and Ripsaw. Blood Talon 12795
+and The Needler 13060 have no wearer. An attempt of a proc is its damage event where the row has a damage effect, and otherwise what an
 attempt of Lacerations is, with a damage event on an immune target counted as a failed one. A debuff or a hit of a
 second spell with the proc's own name, such as the stun beside Farraki Enforcement, is part of the proc.
 
@@ -137,6 +139,16 @@ Command and Execute whose first attempt landed:
 | Hameya's Slayer 15814              | 16406   |                         1 |             0 |            0 |                     0 |             0 |
 
 Hanzo Sword, Bloodfist and Hameya's Slayer are worn in the off hand almost only.
+
+Example units, by report, fight and time into the fight:
+
+| Unit                                                             | Report             | Fight | Time      |
+| ---------------------------------------------------------------- | ------------------ | ----: | --------- |
+| A white swing with two Strength of Stone                         | `2zXhygVYpkrMZGxT` |     1 | 5:26.266  |
+| Three attempts: two at a white swing, one at a Judgement refresh | `6T3M1HRAxyntv9DL` |     1 | 4:23.811  |
+| A druid's white swing in a form with one Bigger Rock to the Face | `1WHqx7bPa8mkGydJ` |     1 | 3:37.180  |
+| A white swing with one Toofbreak                                 | `1BNXynxVbH4kGt8R` |     1 | 0:44.852  |
+| One of the four off-hand white swings with two Rock to the Face  | `7xNZAm1c9gy4nVXB` |     1 | 90:30.259 |
 
 ### No third
 
