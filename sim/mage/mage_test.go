@@ -624,3 +624,33 @@ var DefaultConsumables = &proto.ConsumesSpec{
 	MhWeaponImbueId: 277502, // Scroll of Imbue Precision
 	ResourcePotId:   13444,  // Major Mana Potion
 }
+
+// A Counterspell that lands deals its outcome, so a listener for landed harmful spells hears it:
+// Blade of Eternal Darkness 17780 procs off it.
+func TestCounterspellLandingIsHeard(t *testing.T) {
+	items := make([]*proto.ItemSpec, proto.ItemSlot_ItemSlotRanged+1)
+	for i := range items {
+		items[i] = &proto.ItemSpec{}
+	}
+	items[proto.ItemSlot_ItemSlotMainHand].Id = 17780
+	encounter := core.MakeSingleTargetEncounter(0)
+	encounter.Duration = 36000
+	sim, mage := newMageSimWearing("", encounter, &proto.EquipmentSpec{Items: items})
+	counterspell := mage.GetSpell(core.ActionID{SpellID: counterspellRank.ID})
+	shadows := mage.GetSpell(core.ActionID{SpellID: 27860})
+	target := sim.Encounter.ActiveTargetUnits[0]
+	mage.AddDynamicMod(core.SpellModConfig{Kind: core.SpellMod_PowerCost_Pct, FloatValue: -1}).Activate()
+
+	for range 1000 {
+		stepFor(sim, max(counterspell.TimeToReady(sim), mage.GCD.TimeToReady(sim), core.SpellBatchWindow))
+		counterspell.Cast(sim, target)
+	}
+	stepFor(sim, core.SpellBatchWindow)
+
+	if casts := counterspell.SpellMetrics[target.UnitIndex].Casts; casts != 1000 {
+		t.Fatalf("%d Counterspells cast, want 1000", casts)
+	}
+	if shadows == nil || shadows.SpellMetrics[target.UnitIndex].Casts == 0 {
+		t.Error("no landed Counterspell procced Blade of Eternal Darkness")
+	}
+}

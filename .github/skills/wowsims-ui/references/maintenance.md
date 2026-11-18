@@ -11,6 +11,7 @@
 | `.storybook/**`                                                                                                              | `references/running-locally.md`                        |
 | `.oxfmtrc.json`, how a spec is authored, or a decision recorded as settled                                                   | `references/conventions.md`                            |
 | `ui/sim/talents/*.ts`, `ui/features/talents/**`, the broken-talent warning in `default_warnings.ts`                          | `references/talents.md`                                |
+| `ui/features/gear/item_notices.tsx` or the proc rate fields in `proto/ui.proto`                                              | "What to build from" in `SKILL.md`                     |
 
 Then run the shared path check, which fails on any path this skill names that no longer exists and on any reference
 that `SKILL.md` does not route to:

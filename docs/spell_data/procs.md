@@ -177,9 +177,10 @@ or energy with every proc, whether the damage lands or not, since the gain's tar
 
 A rate priced on something neither the item's entry nor the trigger's row states comes in through
 `SpellDataProc.Rate`, which replaces the rate those give and may reshape the listener. Blade of Eternal Darkness 17780 is the
-case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed direct spell hit rolls
-21978's procs per minute on the cast time of the cast that launched it, at least 1.5 s. The time is
-read where the cast deals the hit's result, so a missile keeps it after the next cast starts. A
+case (`castTimePPM` in `sim/common/forever/items_weapons.go`): each landed harmful spell, one that
+deals no damage included, rolls 21978's procs per minute on the cast time of the cast that launched it,
+at least 1.5 s. The time is read where the cast deals the hit's result, so a missile keeps it after the
+next cast starts. A
 manager on the main hand's speed would price every hit on the 1.5 s dagger. Scented Runewood Brooch
 269741 goes through `Rate` for the other case: `NewLegacyPPMManagerWithMainHandSpells` prices its
 weapon hits on their weapons and its spell hits on the main-hand weapon's speed, read at the roll, for a

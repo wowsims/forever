@@ -89,11 +89,14 @@ func (mage *Mage) registerManaShieldSpell(_ int32, rank *spelldata.Spell) {
 }
 
 // Counterspell interrupts the target's cast and locks it out of that school for 10 sec. The sim has
-// no enemy cast to stop, so the spell only takes its mana, global cooldown and cooldown.
+// no enemy cast to stop, so the spell takes its mana, global cooldown and cooldown and rolls to hit;
+// a landing deals no damage and is what a listener for landed harmful spells hears.
 func (mage *Mage) registerCounterspellSpell() {
-	config := spelldata.SpellConfig(&mage.Unit, counterspellRank, spelldata.Flags(core.SpellFlagAPL))
+	config := spelldata.SpellConfig(&mage.Unit, counterspellRank, spelldata.Magic(core.ProcMaskEmpty))
 
-	config.ApplyEffects = func(_ *core.Simulation, _ *core.Unit, _ *core.Spell) {}
+	config.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
+		spell.CalcAndDealOutcome(sim, target, spell.OutcomeMagicHit)
+	}
 
 	mage.RegisterSpell(config)
 }
