@@ -60,6 +60,7 @@ core compares the dots' `Rank`, never the spell's.
 `row.TickOutcome(dot)` picks the tick's outcome from the row. A tick never misses: the dot's hit is
 rolled once, by the cast or proc that applies it, and the dot goes on only where that roll lands. The
 tick can crit where the game files mark Periodic Can Crit, on the spell crit where the dot spell's
-defense type is magic and the physical crit otherwise, and takes its partial resist. A dot's `OnTick`
-therefore never names an outcome itself, and a dot whose application deals no direct damage still
-rolls the hit at application (`CalcOutcome` on the hit table, then `Apply` where it landed).
+defense type is magic and the physical crit otherwise, and takes its partial resist unless the spell is
+binary. A dot's `OnTick` therefore never names an outcome itself, and a dot whose application deals no
+direct damage still rolls the hit at application (`CalcOutcome` on the hit table, then `Apply` where it
+landed).

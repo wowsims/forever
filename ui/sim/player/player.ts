@@ -52,7 +52,7 @@ import { Database } from '../proto/database';
 import { enchantWeaponDamageEP, EquippedItem, getWeaponDpsStatsBySlot } from '../proto/equipped_item';
 import { Gear, ItemSwapGear } from '../proto/gear';
 import { isNewlyDiscovered } from '../proto/item_first_seen';
-import { canEquipEnchant, canEquipItem, enchantAppliesToItem } from '../proto/items';
+import { canEquipEnchant, canEquipItem, enchantAppliesToItem, itemCarriesStats } from '../proto/items';
 import { simpleSpecRotationFromJson, specTypeFunctions, withSpec } from '../proto/spec_functions';
 import type { ClassOptions, ClassSpecs, SpecClasses, SpecOptions, SpecRotation, SpecTalents, SpecTypeFunctions } from '../proto/spec_types';
 import { Stats, UnitStat } from '../proto/stats';
@@ -1374,6 +1374,10 @@ export class Player<SpecType extends Spec> {
 					item.mobTypes.some(mobType => filters.mobTypes.includes(mobType)) ||
 					item.creatureFamilies.some(family => filters.creatureFamilies.includes(family)),
 			);
+		}
+
+		if (filters.itemStats.length) {
+			itemData = filterItems(itemData, item => itemCarriesStats(item, this.getRandomSuffixes(item), filters.itemStats));
 		}
 
 		if (filters.newlyDiscoveredOnly) {

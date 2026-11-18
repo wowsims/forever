@@ -553,6 +553,10 @@
 				"newly_discovered": "Newly discovered only",
 				"source": "Source",
 				"raids": "Raids",
+				"stats": {
+					"title": "Stats",
+					"label": "Has every stat"
+				},
 				"bonus": {
 					"title": "Bonus",
 					"area": "In area",

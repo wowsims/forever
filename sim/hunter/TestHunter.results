@@ -740,9 +740,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DreadmistRaiment"
  value: {
-  dps: 723.98605
-  tps: 745.9288
-  dtps: 7.92673
+  dps: 723.61733
+  tps: 745.60925
+  dtps: 8.1494
   hps: 13.53861
  }
 }
@@ -1010,9 +1010,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-EyeofMoam-21473"
  value: {
-  dps: 894.80152
-  tps: 917.48258
-  dtps: 9.2686
+  dps: 894.36018
+  tps: 916.9899
+  dtps: 9.00978
   hps: 14.01306
  }
 }
@@ -1613,9 +1613,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Magister'sRegalia"
  value: {
-  dps: 733.9005
-  tps: 755.78648
-  dtps: 8.54124
+  dps: 733.41999
+  tps: 755.42125
+  dtps: 8.71766
   hps: 13.47083
  }
 }
@@ -2297,9 +2297,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-TheElements"
  value: {
-  dps: 731.62505
-  tps: 753.44238
-  dtps: 8.2048
+  dps: 731.61778
+  tps: 753.5006
+  dtps: 8.32283
   hps: 13.5725
  }
 }

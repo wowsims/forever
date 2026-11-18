@@ -75,9 +75,7 @@ const RESIST_BY_TOKEN: Record<string, PartialResist> = {
 	'50': 50,
 	'60': 60,
 	'70': 70,
-	'80': 80,
-	'90': 90,
-	'100': 100,
+	'75': 75,
 };
 
 // Go's time.Duration.String() can emit nanosecond-precision strings like "29.999999999s" or

@@ -24,7 +24,7 @@ func (paladin *Paladin) registerHolyShield(_ int32, rank *spelldata.Spell) {
 
 	// The per-block damage has no row of its own: it is the shield's own proc-trigger-damage effect.
 	procConfig := spelldata.SpellConfig(&paladin.Unit, rank, spelldata.Magic(core.ProcMaskEmpty), spelldata.Proc(),
-		spelldata.Tag(2), spelldata.Flags(core.SpellFlagBinary))
+		spelldata.Tag(2))
 	procConfig.ClassSpellMask = SpellMaskHolyShieldProc
 	procConfig.Flags &^= core.SpellFlagHelpful // The row's first effect is the block chance on the paladin.
 	procConfig.BonusCoefficient = damageEffect.Coeff()
