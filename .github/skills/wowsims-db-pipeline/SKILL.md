@@ -106,7 +106,9 @@ spells. The generator refuses an override once the game files state the value; r
   files' values; the store also carries the hand-kept ones, each marked `// override:` in `spells_auto_gen.go`.
 - **The table follows whose number it is.** A rate that belongs to one weapon goes in `WeaponProcs`, keyed by item and
   spell, since two weapons can share a trigger spell; an enchant's in `EnchantProcs`; a rate every carrier of the
-  spell shares (Omen of Clarity, Seal of Light) in `Spells` with `Field: PPM`. Proc wiring is `wowsims-procs`.
+  spell shares (Omen of Clarity, Seal of Light) in `Spells` with `Field: PPM`. Hand-written gear whose code rolls
+  something its rows do not state goes in `GearProcRates` (`gear_proc_rates.go`), which only the gear tab's rate
+  reads. Proc wiring is `wowsims-procs`.
 - **Rows are keyed struct literals, one field per line.** `Source` and `Reason` name where the value comes from, and a
   `// TODO:` on the value line marks a row still to measure in game.
 - **A rate override's `Source` sets the gear tab's status for that rate** (`ProcRateStatus` in `proto/ui.proto`); a

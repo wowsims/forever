@@ -104,8 +104,8 @@ The first eight have a section in `references/defects.md`.
   `wowsims-core-mechanics` `## Hooks`.
 - **Whose state.** Check a multi-target effect reads each hit target, a tag counts only this caster's auras and a
   missing map key is not 0; `wowsims-core-mechanics` `## Whose state`.
-- **What the gear tab states.** Check that each hand-written item, enchant or set proc that rolls its spell's rate
-  unchanged records it, and that code which scales, halves, replaces or picks the rate records nothing;
+- **What the gear tab states.** Check that a hand-written item, enchant or set proc whose code now rolls something
+  its rows do not state has a row in `tools/database/overrides/gear_proc_rates.go`, and that no row there is stale;
   `wowsims-procs` `## Measuring a rate`.
 - **What a preset line sees.** Check that a line reading something the running cast's landing changes
   carries `not(Spell Is Casting(X))` (`wowsims-apl` `## Timing`), and that its cast counts were judged as

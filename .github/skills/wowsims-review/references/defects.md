@@ -133,24 +133,22 @@ reads the row. The cases name the row and the numbers, so each one can be checke
 
 ## What the gear tab states
 
-The rule and the record helpers are `wowsims-procs` `## Measuring a rate`. Two defects, both silent: no test fails.
-This lists the diff's hand-written registrations, their `Rate` options and their records side by side:
+The rule is `wowsims-procs` `## Measuring a rate`: the generator reads hand-written gear's rate from its rows, and
+`tools/database/overrides/gear_proc_rates.go` holds the gear whose code rolls something else. Two defects, both
+silent: no test fails. This lists the diff's hand-written registrations, the rolls in them and the table's rows side
+by side:
 
 ```
-git diff origin/master...HEAD -U0 -- sim/ ':!*_auto_gen.go' | grep -E '^\+\+\+|^\+.*(core\.New(Item|Enchant)Effect|core\.NewItemSet|NewSpellData[A-Za-z]*Proc|Rate:|Rolls(Spell|Entry)Rate\()'
+git diff origin/master...HEAD -U0 -- sim/ tools/database/overrides/gear_proc_rates.go ':!*_auto_gen.go' | grep -E '^\+\+\+|^[-+].*(core\.New(Item|Enchant)Effect|core\.NewItemSet|NewSpellData[A-Za-z]*Proc|Rate:|ProcChance|DPM =|PPM\(|sim\.Proc\(|InArea|ID: )'
 ```
 
-- **A hand-written proc that rolls its spell's rate and records nothing** shows no rate on the gear tab. For each
-  item, enchant or set the diff registers by hand, grep for its record: `grep -rn 'Rolls[A-Za-z]*Rate(<id>' sim/`
-  for an item or enchant id, `'Rolls[A-Za-z]*Rate(ItemSet<Name>.ID'` for a set. Draconic Infused Emblem's `Rate` only moves the listener to landed hits, and Blade of
-  Eternal Darkness's rolls the row's procs per minute on each cast's cast time, so both call `ItemRollsSpellRate`.
-- **A record on code that changes the rate** states a number the sim does not roll. For each `Rolls*Rate(` call
-  the diff adds or keeps beside a changed trigger, read the trigger for a number other than the spell's rate: a
-  factor on `ProcChance` or a procs per minute literal, a `NewTargetScaledChanceManager` or
-  `NewAttackerSwingPPMManager`, or an `InArea` check. The Lion Horn of Stormwind's `Rate` halves the chance outside
-  Strongholds and Cities, so it records nothing (`sim/common/forever/items_trinkets.go`).
-
-A record beside a `NewSpellData*Proc` call with no `Rate:` repeats the builder's own and goes.
+- **A hand-written proc that rolls something its rows do not state, with no row in the table**, shows the rows'
+  number on the gear tab, which the sim does not roll. Read each changed trigger for a factor on `ProcChance`, a
+  procs per minute literal, a `NewTargetScaledChanceManager`, `NewAttackerSwingPPMManager` or
+  `NewLegacyPPMManagerWithSpellChance`, an `InArea` check or a `sim.Proc` that drops some procs. Ironfoe, Highborne
+  Research Tablet and Bolt's Charged Eyeball are the rows' cases.
+- **A stale row** hides or misstates a rate: its gear's code now rolls what its rows state, or something other than
+  its `Reason` says. Read the code each row names against its `Reason` whenever the diff touches either.
 
 ## Silent no-ops and orphans
 

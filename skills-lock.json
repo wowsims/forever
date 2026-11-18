@@ -25,7 +25,7 @@
     "wowsims-consumables-items": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "79465297a7be3ff42cda99b1e7e8b0a95597dc90c65f57118cdcfc4b02fadb0e"
+      "computedHash": "c191d04982bdfcb50de4b007af91b070acd7c36c57155427da78bdb674486e52"
     },
     "wowsims-conventions": {
       "source": "./.github/skills",
@@ -40,7 +40,7 @@
     "wowsims-db-pipeline": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "2b96cf53fe7a15962be837f39b06a1fadaf3c0929d95410fac76dde354ca3315"
+      "computedHash": "f5283fc759b5caabdb24c90a29251e6af3c732a780b074fdc51d7d2d071123c5"
     },
     "wowsims-dependencies": {
       "source": "./.github/skills",
@@ -55,7 +55,7 @@
     "wowsims-procs": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "25a67655851621a4935f6b284c9391807d44eb339c7069e2f8850ac360662143"
+      "computedHash": "025cef373f641e6f173261717d17e5cb6648af8a235c94adf98bcf3f7f3e6337"
     },
     "wowsims-reforge-optimizer": {
       "source": "./.github/skills",
@@ -65,7 +65,7 @@
     "wowsims-review": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "cc88dbf657b9d7b9e9b3d5c33c5fb2248147c35359158265494612e263c89a0a"
+      "computedHash": "6e7c58be9bad056b6b502fca86f9ae99b36a2dd10282b9450f731fa7a86daa61"
     },
     "wowsims-siml": {
       "source": "./.github/skills",
@@ -95,7 +95,7 @@
     "wowsims-ui": {
       "source": "./.github/skills",
       "sourceType": "local",
-      "computedHash": "669cd8126b608c5e556f88c7faf586df298bc36b526f1502b069013609de8de0"
+      "computedHash": "0968f9223cb08826a42254614ba6b46eda769548d662b7d09cd229c1810fa70a"
     }
   }
 }

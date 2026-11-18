@@ -102,26 +102,22 @@ snapshot lists are in `procs.md` §Item and enchant procs; which builder an item
   (`ui/features/gear/item_notices.tsx`): `vanilla-carryover` and `tbc-carryover` name their origin, `observed` is a
   rate measured on this server from too few logs to call final (the gear tab still warns), and a measured rate's
   `Source` is its `EV-` evidence id (`docs/evidence/README.md`), which shows none. A hand-kept rate's `Source` is one of
-  those four, and the generator refuses any other. A gear rate kept as a literal in the sim gets no notice.
+  those four, and the generator refuses any other; a `gear_proc_rates.go` row may also name `tooltip`. A gear rate kept
+  as a literal in the sim gets no notice.
 - **The gear tab states the rate the sim rolls** from the `proc_rate` `gen_db` writes on each item and enchant in
-  `db.json` and the database's `set_bonus_proc_rates` (`proto/ui.proto`); the sim never reads them. The generator sees
-  what the generated registrations roll, and those record nothing. Hand-written gear gets a line only from
-  `shared.GearProcs` (`sim/common/shared/proc_rates.go`), which it fills from `init`:
-    - a `NewSpellData*Proc` builder records its trigger itself where no `Rate` option is set
-      (`registerSpellDataRowProc`), and `newEntryRateItemEffect` records its item's entry, so neither takes a call;
-    - bespoke code whose trigger rolls its spell's rate unchanged (the gear's own `WeaponProcs` or `EnchantProcs` rate
-      for the spell, else the spell's rate override, else its row's chance) calls `shared.ItemRollsSpellRate`,
-      `EnchantRollsSpellRate` or `SetBonusRollsSpellRate` with the trigger's spell id next to its trigger, and code
-      rolling the procs per minute of its item's chance-on-hit entry calls `ItemRollsEntryRate`. A builder whose `Rate`
-      option keeps the rate and only moves the listener takes the call too, as Draconic Infused Emblem does
-      (`sim/common/forever/items_trinkets.go`), and a hand-written set calls `SetBonusRollsSpellRate` even for a proc
-      row it builds through `shared.ParsedSetBonus`;
-    - code that scales, halves or replaces the rate, or picks it by target or area, calls none. The Lion Horn of
-      Stormwind halves its chance outside Strongholds and Cities and shows no rate, since a wrong number is worse than
-      none.
-
-    A proc that rolls its spell's rate and records nothing shows no line on the gear tab, and no test fails;
-    `wowsims-review` step 4 checks for it.
+  `db.json` and the database's `set_bonus_proc_rates` (`proto/ui.proto`); the sim never reads them. For hand-written
+  gear the generator reads the rate from its rows (`shippedRateInputs` and `knownRates` in
+  `tools/database/gen_effects.go`). Each proc row (an item's chance-on-hit entry or equip spell with proc flags, an
+  enchant's proc slot, a set bonus row `shared.IsSetBonusProc` names) takes the gear's own `WeaponProcs` or
+  `EnchantProcs` rate for its spell, else the spell's rate override, else the row's procs per minute or chance. A
+  piece whose rows disagree or state none shows no rate, and so does one whose tooltip prints the chance as a fraction
+  of the column (`${$h/2}%`, The Lion Horn of Stormwind).
+- **Hand-written code that rolls something its rows do not state takes a row** in
+  `tools/database/overrides/gear_proc_rates.go`: code that scales the chance by target (Ironfoe), halves it by area,
+  adds a flat chance (Highborne Research Tablet) or splits the procs (Bolt's Charged Eyeball). A row with no `Kind`
+  leaves the gear with no rate; one with a `Kind` states its `Rate`, with the status its `Source` gives (`tooltip` is
+  the game files'). Its `Reason` names what the code rolls. Without the row the gear tab shows a number the sim does
+  not roll, and no test fails; `wowsims-review` step 4 checks for it.
 
 - **The class `.results` never move on a proc rate**: `wowsims-testing` `## Proving a claim at runtime`.
 - **A measured rate that disagrees with the tooltip** is decided by `wowsims-spells`
