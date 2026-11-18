@@ -34,6 +34,10 @@ var revelationDirectHits = map[proto.Class]core.ClassFlags{
 	proto.Class_ClassShaman:  {Family: 11, Mask: [4]uint32{0x10000000}},      // Flame Shock
 }
 
+// Judgement of Light's heal at each rank, which whoever strikes the judged target casts. It rolls
+// nothing for Revelation, where Seal of Light's heal rolls; the rows show no cause (EV-0149).
+var judgementOfLightHeals = []int32{20267, 20341, 20342, 20343}
+
 // The share of Revelation's chance a spell keeps for its level: all of it down to 12 levels under
 // the wearer, none from 32 levels under, and a straight line between (EV-0149).
 func revelationLevelShare(wearerLevel int32, spellLevel int32) float64 {
@@ -341,12 +345,13 @@ func init() {
 		trigger.Outcome = core.OutcomeLanded
 		trigger.RequireDamageDealt = true
 		// The row's listener hears direct spells and heals. A melee or ranged attack rolls nothing, even
-		// one the buff's class flags name, and a spell far under the wearer's level rolls a share of the
-		// chance (EV-0149). A spell with no SpellLevels row reads level 60 and keeps the whole chance. A
-		// spell the store has no row for, such as an item's spell registered under its item id, reads
-		// level 0 and keeps none.
+		// one the buff's class flags name, and neither does Judgement of Light's heal. A spell far under
+		// the wearer's level rolls a share of the chance (EV-0149). A spell with no SpellLevels row reads
+		// level 60 and keeps the whole chance. A spell the store has no row for, such as an item's spell
+		// registered under its item id, reads level 0 and keeps none.
 		// TODO: Read an item spell's own row, so one near the wearer's level rolls.
-		// TODO: Judgement of Light's heal and a hunter's trap roll nothing in the logs and roll here.
+		// TODO: A spell with no SpellLevels row rolls nothing in the logs (EV-0149). The store reads it as level 60.
+		// TODO: A hunter's trap rolls nothing in the logs and rolls here (EV-0149).
 		shares := map[*core.Spell]float64{}
 		trigger.ExtraCondition = func(sim *core.Simulation, spell *core.Spell, result *core.SpellResult) bool {
 			// A landing while the buff is up rolls too and refreshes it.
@@ -355,7 +360,9 @@ func init() {
 			}
 			share, ok := shares[spell]
 			if !ok {
-				share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
+				if !slices.Contains(judgementOfLightHeals, spell.SpellID) {
+					share = revelationLevelShare(character.Level, int32(spelldata.Find(spell.SpellID).SpellLevel))
+				}
 				shares[spell] = share
 			}
 			return share >= 1 || (share > 0 && sim.Proc(share, "Revelation Level Share"))

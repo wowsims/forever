@@ -146,6 +146,7 @@ with one exception below. What rolls nothing, with rolls and fitted procs:
 | Damage shields                               | Retribution Aura 137.5 of 127,751; Thorns 29.3 of 44,012; Fire Shield 0 of 11,254                                                                                 |
 | Heals of a periodic leech                    | Siphon Life 0 of 90,118; Devouring Plague 0 of 27,990; Drain Life 3.0 of 15,441                                                                                   |
 | Spell level 1 or 0, by the level ramp        | Touch of the Grave 40.4 of 83,598; Demonic Energies 12.0 of 149,523; Flametongue Attack 22.2 of 16,676; Force Imbued 0 of 9,624; Cursed Murloc Eye 89.2 of 58,753 |
+| No SpellLevels row                           | Ancient Power 0 of 2,267; Grounded Electroshock 13.7 of 1,133; Moonshadow 0 of 731; Iron Grenade 0 of 260; Frenzied Regeneration 0 of 189                         |
 | Wand shots                                   | Shoot 5.5 of 67,663, and 0.4 of 3,986 at level estimates of 26 to 31, where the ramp leaves a share                                                               |
 | Attributes[3] 0x10000, suppress caster procs | Thorncurse 0 of 8,937                                                                                                                                             |
 
@@ -156,8 +157,13 @@ with one exception below. What rolls nothing, with rolls and fitted procs:
   ranged defense type. The fit places the hunters' 10 procs on Flame Lash 27655, an item's spell with the magic defense
   type. So nothing a hunter casts rolls it.
 - Seal of Light's heal has no SpellCategories row and rolls: 33 of 384 counted apart. Judgement of Light's heal has
-  none either and rolls nothing: 1 of 1,404 counted apart. Its row differs in `SpellMisc.Attributes[0]`, which carries
-  0x10 and 0x20000000 on top of the 0x40000 both have. What makes one roll and the other not is not derived.
+  none either and rolls nothing: 1 of 1,404 counted apart on the paladins. On every class, with no hit or heal that
+  could roll in the same window, it reads 0 of 896 at rank 4 (15 wearers of five classes) and 0 of 243 at rank 1 (9
+  wearers of three). Its row differs in `SpellMisc.Attributes[0]`, which carries 0x10 and 0x20000000 on top of the
+  0x40000 both have. The other spells with 0x10 that can be counted apart roll nothing (Shoot 1 of 57,176, Moonshadow
+  0 of 585, Frenzied Regeneration 0 of 147), and each has another reason to: a wand shot, or no SpellLevels row. Holy
+  Binding carries it too, and none of its 217 heals counts apart: each lands beside a Flash Heal, and the fit hands it
+  11.7 of them. What makes one heal roll and the other not is not derived.
 - Lightning Shield's hits roll (a fitted 351.9 of 4,608, 7.64%) though they answer a strike, as the damage shields do.
   The Holy Shield hit a paladin's block sets off rolls nothing (0 of 9,708 and 1 of 1,725 counted apart on the first
   82 paladin reports).
@@ -194,8 +200,12 @@ and MaxLevel 45 keep 0.59 and 0.53 of the chance, where the ramp (22 + MaxLevel 
 covers item and racial spells too. Waveslicer (spell level 45) reads a fitted 6.4% at 60. Spells of spell level 1 roll
 nothing from a level estimate of 32 and a share under it: Flametongue Attack reads a fitted 5.0% at estimates of 20 to
 25 (8.9 of 176) and 1.1% at 26 to 31 (13.0 of 1,202). The three spells of spell level 0 in the logs (Cursed Murloc
-Eye, Soul Link, Smokey's Lighter) roll nothing, and none of them is a class spell. A spell with no SpellLevels row is
-not cut.
+Eye, Soul Link, Smokey's Lighter) roll nothing, and none of them is a class spell. A spell with no SpellLevels row
+rolls nothing either, which is what a spell level of 0 gives from level 32. The direct spells without one, damage
+shields left out, read a fitted 13.7 of 18,038 at level estimates of 32 and over, all 13.7 on Grounded Electroshock,
+and 0 of 3,239 counted apart: Ancient Power 0 of 1,214, Blood Siphon 0 of 595, Moonshadow 0 of 585, Grounded
+Electroshock 0 of 472, Frenzied Regeneration 0 of 147, Satchel of Potions 0 of 104 and Libram of Divinity 0 of 104.
+Under an estimate of 32 they log 8 rolls, too few to show a share.
 
 ## The chance and crit
 
