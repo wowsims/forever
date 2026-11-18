@@ -171,9 +171,12 @@ table of the row's defense type and takes armor or resistance like any other, an
 effect's `Amplitude` share of the damage dealt as health. Maw of Min'loth's Fatal Bite 1295065 drains
 the attacker for 40 Physical on the melee table.
 
-A row the proc casts that states a cooldown of its own gives the listener that time as its internal cooldown where it
-has none, since the spell cannot be cast again while it runs. Toofbreaker 286430's Toofbreak 1320269 states 100 ms and
-so brings no second strike (EV-0145).
+The damage shape (`applySpellDataDamageProc`) gives its listener the `RecoveryTime` of the row it casts as the internal
+cooldown where the trigger's row states none, since the spell cannot be cast again while it runs, and no hit that lands
+inside that time casts it. Toofbreaker 286430's Toofbreak 1320269 states 100 ms, so it brings no second strike and
+rolls on no Windfury Totem strike or ability that lands with the swing that cast it (EV-0145). A row that deals its
+damage as an `A_PROC_TRIGGER_DAMAGE` aura casts nothing and takes none: the shield spikes state 5 s and answer every
+block.
 
 A weapon's debuff or aura proc whose row is on the melee or ranged hit table casts that row as a strike
 that deals no damage (`attachDebuffStrike`). The debuff goes on only where the strike's own roll lands,

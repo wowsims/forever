@@ -1,10 +1,10 @@
 # EV-0145: A weapon proc's strike and what it rolls, and Mutilator's Lacerations rate and hit roll
 
 - Claim: Mutilator 12469 rolls Lacerations 10370 on 19.9% of landed main-hand white swings, 4.8 procs per minute on
-  its 2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a weapon proc's strike that
-  a main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time,
-  on Mutilator and on 20 other weapons; one cast by an ability, a seal's or Windfury's strike, an off-hand swing or
-  a druid's swing in Cat, Bear or Dire Bear Form rolls nothing; Toofbreak 1320269, whose row states a 100 ms
+  its 2.5 s speed; Lacerations rolls the melee hit table itself, and 12.2% of them fail; a weapon proc's strike that a
+  main-hand white swing of the weapon cast rolls the weapon once more at the same chance and never a third time, on 23
+  weapons of the table, Mutilator among them; one cast by an ability, a seal's or Windfury's strike, an off-hand swing
+  or a druid's swing in Cat, Bear or Dire Bear Form rolls nothing; Toofbreak 1320269, whose row states a 100 ms
   cooldown, brings no second; Judgement of Command rolls a weapon proc twice a cast; Fiery Weapon 803 rolls on a
   weapon proc's strike under the same rule.
 - Sources: Warcraft Logs reports `AnPHcV64wg8DThzZ` (fights 1, 11, 12), `q62VRcw1m8fyHN4T` (fight 1),
@@ -19,8 +19,8 @@
   region's version file named at the time: 70888 from 2026-11-10 15:11 UTC in the US and 2026-11-11 02:19 UTC in the
   EU, 70938 from 2026-11-13 01:36 UTC in both. No hotfix record of build 70938 up to push 114140 names a row of
   10370 (spell, name, effect, misc, categories, aura options, levels) or the item's effect entry. The combat log ran
-  1.60.1.70938 after the hotfix pushes EV-0130 names. The 2,861 reports run from 1.60.1.70862 to 1.60.1.70959, split
-  by build in their section.
+  1.60.1.70938 after the hotfix pushes EV-0130 names. The 2,861 reports run from 1.60.1.70862 or older to
+  1.60.1.70959, split by build in their section.
 - Date: 2026-11-06 to 2026-11-18
 - Pull request: #1088
 
@@ -94,11 +94,12 @@ Lacerations continues too (11 expected).
 ## The chain on the other weapons
 
 The reports are every zone 3000 report downloaded by 2026-11-18 in which a gear snapshot holds one of 27 weapons in
-the main or off hand, or a player sources one of their proc spells. The 27 are the 25 in the table, and Killmaim 13016
-and Boneslicer 273819, which are not among them and carry the proc spells of Blood Talon and Ripsaw. Blood Talon 12795
-and The Needler 13060 have no wearer. An attempt of a proc is its damage event where the row has a damage effect, and otherwise what an
-attempt of Lacerations is, with a damage event on an immune target counted as a failed one. A debuff or a hit of a
-second spell with the proc's own name, such as the stun beside Farraki Enforcement, is part of the proc.
+the main or off hand, or a player sources one of their proc spells. Of the 27, 25 are in the table, and Blood Talon
+12795 and The Needler 13060 have no wearer. Killmaim 13016 and Boneslicer 273819 are not among the 27: they carry the
+proc spells of Blood Talon and Ripsaw, and are in the table through them. An attempt of a proc is its damage event
+where the row has a damage effect, and otherwise what an attempt of Lacerations is, with a damage event on an immune
+target counted as a failed one. A debuff or a hit of a second spell with the proc's own name, such as the stun beside
+Farraki Enforcement, is part of the proc.
 
 The wearer's hits and debuffs on one target form a unit while the gap between two stays within 100 ms. A lone white
 swing is a unit whose only hit is one landed white swing, with no other debuff of the wearer. A lone ability is the
@@ -106,37 +107,38 @@ same for one landed melee ability, its own debuff allowed. The weapon and its ha
 and a run two reports hold counts once.
 
 Lone main-hand white swings whose first attempt landed, druids left out, and lone abilities other than Judgement of
-Command and Execute whose first attempt landed:
+Command and Execute whose first attempt landed. The first column of numbers is the share of lone white swings with an
+attempt, for wearers with no weapon in the off hand:
 
-| Weapon                             | Proc    | White swing, landed first | With a second | With a third | Ability, landed first | With a second |
-| ---------------------------------- | ------- | ------------------------: | ------------: | -----------: | --------------------: | ------------: |
-| Bigger Rock on Bigger Stick 279480 | 1306816 |                    17,079 | 1,829 (10.7%) |            0 |                 9,261 |             3 |
-| Rock on Stick 279852               | 1309967 |                     8,314 |    609 (7.3%) |            0 |                 8,037 |             0 |
-| Toofbreaker 286430                 | 1320269 |                     6,329 |             0 |            0 |                 3,684 |             0 |
-| Ripsaw 9478                        | 1292573 |                     4,888 |    378 (7.7%) |            0 |                 5,180 |             0 |
-| Princess Theradras' Scepter 17766  | 21961   |                     2,514 |   268 (10.7%) |            0 |                 1,597 |             0 |
-| Stoneslayer 9418                   | 12731   |                     2,488 |   293 (11.8%) |            0 |                 2,848 |             0 |
-| Gatorbite Axe 17730                | 21949   |                     1,553 |    122 (7.9%) |            0 |                   868 |             0 |
-| The Chief's Enforcer 9477          | 1294339 |                     1,335 |     62 (4.6%) |            0 |                   623 |             0 |
-| Boneslicer 273819                  | 1292573 |                       705 |     65 (9.2%) |            0 |                   310 |             0 |
-| Killmaim 13016                     | 13318   |                       457 |     14 (3.1%) |            0 |                   210 |             0 |
-| Rivenspike 13286                   | 17315   |                       356 |     31 (8.7%) |            0 |                   454 |             0 |
-| Bashguuder 13204                   | 17315   |                       353 |     26 (7.4%) |            0 |                   264 |             0 |
-| Glutton's Cleaver 10772            | 18075   |                       332 |     21 (6.3%) |            0 |                   154 |             0 |
-| Pendulum of Doom 9425              | 10373   |                       301 |     20 (6.6%) |            0 |                   286 |             0 |
-| Hammer of Expertise 8708           | 1317432 |                       272 |     23 (8.5%) |            0 |                   183 |             0 |
-| Kang the Decapitator 2291          | 17153   |                       271 |     19 (7.0%) |            0 |                   110 |             0 |
-| The Blackrock Slicer 13285         | 17407   |                       229 |    24 (10.5%) |            0 |                   145 |             0 |
-| Gut Ripper 2164                    | 18107   |                       225 |      9 (4.0%) |            0 |                   141 |             0 |
-| Mutilator 12469                    | 10370   |                       197 |    45 (22.8%) |            0 |                   105 |             0 |
-| Axe of Inevitable Ruin 274484      | 1294226 |                       182 |     16 (8.8%) |            0 |                    75 |             0 |
-| Bloodrazor 809                     | 17504   |                       165 |      9 (5.5%) |            0 |                   180 |             0 |
-| Grim Reaper 13054                  | 14126   |                       106 |      3 (2.8%) |            0 |                    60 |             0 |
-| Drakefang Butcher 12463            | 14118   |                        89 |      5 (5.6%) |            0 |                    49 |             0 |
-| Brain Hacker 1263                  | 17148   |                        61 |      4 (6.6%) |            0 |                    35 |             0 |
-| Hanzo Sword 8190                   | 16405   |                        16 |             0 |            0 |                     5 |             0 |
-| Bloodfist 11744                    | 16433   |                         8 |             0 |            0 |                    15 |             0 |
-| Hameya's Slayer 15814              | 16406   |                         1 |             0 |            0 |                     0 |             0 |
+| Weapon                             | Proc    | A first, per swing | White swing, landed first | With a second | With a third | Ability, landed first | With a second |
+| ---------------------------------- | ------- | -----------------: | ------------------------: | ------------: | -----------: | --------------------: | ------------: |
+| Bigger Rock on Bigger Stick 279480 | 1306816 |              10.2% |                    17,079 | 1,829 (10.7%) |            0 |                 9,261 |             3 |
+| Rock on Stick 279852               | 1309967 |               8.4% |                     8,314 |    609 (7.3%) |            0 |                 8,037 |             0 |
+| Toofbreaker 286430                 | 1320269 |               6.0% |                     6,329 |             0 |            0 |                 3,684 |             0 |
+| Ripsaw 9478                        | 1292573 |               8.0% |                     4,888 |    378 (7.7%) |            0 |                 5,180 |             0 |
+| Princess Theradras' Scepter 17766  | 21961   |              10.6% |                     2,514 |   268 (10.7%) |            0 |                 1,597 |             0 |
+| Stoneslayer 9418                   | 12731   |              11.6% |                     2,488 |   293 (11.8%) |            0 |                 2,848 |             0 |
+| Gatorbite Axe 17730                | 21949   |               9.4% |                     1,553 |    122 (7.9%) |            0 |                   868 |             0 |
+| The Chief's Enforcer 9477          | 1294339 |               5.4% |                     1,335 |     62 (4.6%) |            0 |                   623 |             0 |
+| Boneslicer 273819                  | 1292573 |               8.6% |                       705 |     65 (9.2%) |            0 |                   310 |             0 |
+| Killmaim 13016                     | 13318   |               4.3% |                       457 |     14 (3.1%) |            0 |                   210 |             0 |
+| Rivenspike 13286                   | 17315   |                    |                       356 |     31 (8.7%) |            0 |                   454 |             0 |
+| Bashguuder 13204                   | 17315   |               7.6% |                       353 |     26 (7.4%) |            0 |                   264 |             0 |
+| Glutton's Cleaver 10772            | 18075   |               6.3% |                       332 |     21 (6.3%) |            0 |                   154 |             0 |
+| Pendulum of Doom 9425              | 10373   |               6.3% |                       301 |     20 (6.6%) |            0 |                   286 |             0 |
+| Hammer of Expertise 8708           | 1317432 |               6.5% |                       272 |     23 (8.5%) |            0 |                   183 |             0 |
+| Kang the Decapitator 2291          | 17153   |               5.3% |                       271 |     19 (7.0%) |            0 |                   110 |             0 |
+| The Blackrock Slicer 13285         | 17407   |              12.9% |                       229 |    24 (10.5%) |            0 |                   145 |             0 |
+| Gut Ripper 2164                    | 18107   |                    |                       225 |      9 (4.0%) |            0 |                   141 |             0 |
+| Mutilator 12469                    | 10370   |              19.1% |                       197 |    45 (22.8%) |            0 |                   105 |             0 |
+| Axe of Inevitable Ruin 274484      | 1294226 |               9.5% |                       182 |     16 (8.8%) |            0 |                    75 |             0 |
+| Bloodrazor 809                     | 17504   |               5.2% |                       165 |      9 (5.5%) |            0 |                   180 |             0 |
+| Grim Reaper 13054                  | 14126   |               5.0% |                       106 |      3 (2.8%) |            0 |                    60 |             0 |
+| Drakefang Butcher 12463            | 14118   |               8.1% |                        89 |      5 (5.6%) |            0 |                    49 |             0 |
+| Brain Hacker 1263                  | 17148   |               4.8% |                        61 |      4 (6.6%) |            0 |                    35 |             0 |
+| Hanzo Sword 8190                   | 16405   |               2.1% |                        16 |             0 |            0 |                     5 |             0 |
+| Bloodfist 11744                    | 16433   |                    |                         8 |             0 |            0 |                    15 |             0 |
+| Hameya's Slayer 15814              | 16406   |                    |                         1 |             0 |            0 |                     0 |             0 |
 
 Hanzo Sword, Bloodfist and Hameya's Slayer are worn in the off hand almost only.
 
@@ -152,8 +154,8 @@ Example units, by report, fight and time into the fight:
 
 ### No third
 
-With Toofbreaker left out, 42,497 landed firsts bring 3,895 seconds, 9.2%, which is about each weapon's chance on
-the first roll, and no third. A chain that went on at the same chance would have left about 378 thirds. Bigger Rock on
+With Toofbreaker left out, 42,497 landed firsts bring 3,895 seconds, 9.2%, which is about each weapon's chance of
+a first, and no third. A chain that went on at the same chance would have left about 378 thirds. Bigger Rock on
 Bigger Stick, Rock on Stick, Stoneslayer, Ripsaw, Princess Theradras' Scepter, Mutilator and Gatorbite Axe would each
 have shown about 10 or more; the other weapons rest on the pooled count.
 
@@ -175,7 +177,8 @@ listing starts on 2026-11-07 with 1.60.1.70862.
 
 ### Abilities and triggered strikes
 
-A lone ability's landed first brings 3 seconds in 31,195, over 28 abilities. The largest by units with an attempt are
+With Toofbreaker left out as above, a lone ability's landed first brings 3 seconds in 31,195, over 28 abilities. The
+largest by units with an attempt are
 Stormstrike (8,420), Holy Strike (6,729), Sinister Strike (6,073), Cleave (5,966) and Revenge (3,873). Raptor Strike
 rolls: 409 of 5,306 lone hits have an attempt.
 
@@ -205,7 +208,8 @@ that does not need its damage to land. Its chance is not settled here.
 ### A druid's form
 
 A druid's lone white swing in a form brings no second: 0 of 8,616 landed firsts in Cat Form, 0 of 8,364 in Dire Bear
-Form and 0 of 1,256 in Bear Form. At each form's own chance on the first roll that would be about 1,000. The form is
+Form and 0 of 1,256 in Bear Form. A lone swing has an attempt 3.3% of the time in Cat Form, 7.3% in Dire Bear Form
+and 10.2% in Bear Form, and a second at those chances would make about 1,000. The form is
 the druid's latest form buff in the log. Out of a form the tracking is not reliable enough to read: it places 742
 swings in Travel Form.
 
@@ -246,5 +250,5 @@ roll at the base chance on every landed weapon proc fits worse by 26.5, as twice
 swing's proc alone fits within 0.2 of the best. EV-0130's 7.9% and 18.6% are the same units pooled over what cast the
 proc.
 
-Only 14 units are a white swing alone, so the 30% rests on the split of the mixed units. An oil's proc and the off hand
-were not counted.
+Only 14 units are a white swing alone, so the 30% rests on the split of the mixed units. An oil's proc and Fiery
+Weapon in the off hand were not counted.
