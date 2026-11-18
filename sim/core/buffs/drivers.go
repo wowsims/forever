@@ -533,42 +533,39 @@ var punctureArmorWeapons = []struct {
 	{9485, punctureArmorMeta.atState(spelldata.MustFind(1293005), punctureArmorMeta.Label)},
 }
 
-// With a player in the raid wielding Annihilator, the raid's copy is the player's own, which that
-// player's procs stack and refresh, so the target carries one stack count as with Sunder Armor.
+// With the player wielding Annihilator, the raid's copy is the player's own, which the player's procs
+// stack and refresh, so the target carries one stack count as with Sunder Armor.
 func driveArmorShatter(target *core.Unit, _ *proto.Debuffs, raid *proto.Raid) {
-	rollOnEverySwing(NewSpellDataArmorShatterAura(target, raidWields(raid, annihilatorItemID), 0), annihilatorItemID)
+	rollOnEverySwing(NewSpellDataArmorShatterAura(target, playerWields(raid, annihilatorItemID), 0), annihilatorItemID)
 }
 
-// Bashguuder and Rivenspike both land 17315, so with a player in the raid wielding either, the raid's
-// copy of either is the player's own, which that player's procs stack and refresh. Vibroblade's copy
+// Bashguuder and Rivenspike both land 17315, so with the player wielding either, the raid's copy of
+// either is the player's own, which the player's procs stack and refresh. Vibroblade's copy
 // stays the raid's: its 1293005 shares the label, so a player copy of it would take the 17315 procs
 // on a row they do not land.
 func drivePunctureArmor(target *core.Unit, debuffs *proto.Debuffs, raid *proto.Raid) {
 	weapon := punctureArmorWeapons[min(int(debuffs.PunctureArmor), len(punctureArmorWeapons))-1]
-	isPlayer := weapon.meta == punctureArmorMeta && raidWields(raid, 13204, 13286)
+	isPlayer := weapon.meta == punctureArmorMeta && playerWields(raid, 13204, 13286)
 	rollOnEverySwing(newDebuff(target, weapon.meta, isPlayer, 0), weapon.itemID)
 }
 
-// Whether a player in the raid carries one of the items, equipped or in an enabled item swap, where
-// its procs are registered as well.
-func raidWields(raid *proto.Raid, itemIDs ...int32) bool {
-	for _, party := range raid.GetParties() {
-		for _, player := range party.GetPlayers() {
-			items := player.GetEquipment().GetItems()
-			if player.GetEnableItemSwap() {
-				items = slices.Concat(items, player.GetItemSwap().GetItems())
-			}
-			if slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) }) {
-				return true
-			}
-		}
+// Whether the simmed player carries one of the items, equipped or in an enabled item swap, where its
+// procs are registered as well. A raid with no player wields nothing.
+func playerWields(raid *proto.Raid, itemIDs ...int32) bool {
+	var player *proto.Player
+	if parties := raid.GetParties(); len(parties) > 0 && len(parties[0].GetPlayers()) > 0 {
+		player = parties[0].GetPlayers()[0]
 	}
-	return false
+	items := player.GetEquipment().GetItems()
+	if player.GetEnableItemSwap() {
+		items = slices.Concat(items, player.GetItemSwap().GetItems())
+	}
+	return slices.ContainsFunc(items, func(item *proto.ItemSpec) bool { return slices.Contains(itemIDs, item.GetId()) })
 }
 
 // A weapon's proc debuff from one wielder, who swings the item at its base speed from the pull and
-// lands every swing. Every target the raid's debuffs land on has a wielder of its own, and a player
-// in the raid wielding the weapon stacks the same aura. Each swing lands the aura at the item's procs
+// lands every swing. Every target the raid's debuffs land on has a wielder of its own, and the player
+// wielding the weapon stacks the same aura. Each swing lands the aura at the item's procs
 // per minute, a chance of PPM × speed / 60, which refreshes its duration and adds a stack up to its
 // max, so the stacks fall off when the procs come slower than the duration. A landing of the raid's debuffs
 // (Target.ApplyRaidDebuffsAt) starts the swings over, and a swing on a target with the raid's

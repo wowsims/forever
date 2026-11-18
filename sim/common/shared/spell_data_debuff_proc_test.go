@@ -296,7 +296,7 @@ func auraLabels(auras []*core.Aura) []string {
 	return labels
 }
 
-// With a wielder in the raid, the raid's copy of the weapon's debuff is the player's own: after a
+// With the player wielding the weapon, the raid's copy of the weapon's debuff is the player's own: after a
 // stack from the raid's roll and one from the wielder's proc, the target carries one aura at two
 // stacks. Bashguuder's proc stacks the raid's Rivenspike, since both land 17315.
 func TestWielderStacksTheRaidsWeaponDebuff(t *testing.T) {

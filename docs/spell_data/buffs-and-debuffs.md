@@ -228,10 +228,10 @@ delay, the metrics of a regen. The row compiles once the function is declared.
 
 A weapon's proc debuff (`armor_shatter`, `puncture_armor`) is one wielder swinging the weapon:
 `rollOnEverySwing` rolls the item's procs per minute on every swing at the item's base speed, and a
-landed roll refreshes the aura and adds a stack. With a player in the raid wielding a weapon whose
-proc lands the same row (`raidWields`), the raid's copy is the player's own, as Sunder Armor's is
-with a warrior in the raid, so that player's procs stack and refresh it and the target carries one
-stack count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
+landed roll refreshes the aura and adds a stack. With the player wielding a weapon whose proc lands
+the same row (`playerWields`), the raid's copy is the player's own, as Sunder Armor's is with a
+warrior in the raid, so the player's procs stack and refresh it and the target carries one stack
+count. Vibroblade's 1293005 stays the raid's copy, since no wielder proc lands it. The driver reads the speed and the rate off the
 item database, and without the full database the sim knows only the items the request carries, so
 the weapon goes into `DEBUFF_ITEM_IDS` in `ui/sim/proto/buff_items.ts` (`PARTY_BUFF_ITEM_IDS` for a
 party buff such as Darkspear). A driver that reads an item the request lacks panics naming it.
