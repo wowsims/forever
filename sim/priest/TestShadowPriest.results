@@ -144,9 +144,9 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-BladeofEternalDarkness-17780"
  value: {
-  dps: 746.27165
-  tps: 533.82093
-  dtps: 4.85194
+  dps: 749.49412
+  tps: 536.63475
+  dtps: 4.79792
  }
 }
 dps_results: {
