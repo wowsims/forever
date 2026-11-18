@@ -1,16 +1,16 @@
 # EV-0025: Blade of Eternal Darkness procs on cast time
 
 - Claim: Blade of Eternal Darkness 17780 procs 1.8 times a minute on the cast time of the cast that launched each landed
-  harmful spell, at least 1.5 s, whether or not the spell deals damage; damage over time ticks, Ignite and wand shots
-  never roll.
+  harmful spell, at least 1.5 s, whether or not the spell deals damage; damage over time ticks, Ignite, wand shots and
+  spells fired as a proc, Hellfire Effect among them, never roll.
 - Sources: Warcraft Logs Nq3C7bVGnvmyh2Pw, cvRTFb1qhGBKNkCD and JK1z96cCrj28tpBV, Forever dungeon reports of one mage;
   Pjd9MWAXgCYTcn7Z fights 244, 245, 247 and 248 and VRrgQJFbdXckaZq7 fights 1 and 2, of two warlocks;
   NTJzVdMZBQDaqG83 fight 2, of a priest; the combat log of the warlock in VRrgQJFbdXckaZq7, Maraudon, 2026-11-17, level
-  not recorded
+  not recorded; the combat log WoWCombatLog-111826_152912.txt of a level 60 warlock, Stratholme, 2026-11-18
 - Game build: the mage reports not recorded; the warlock and priest reports 1.60.1.70938 by report date; the combat log
-  1.60.1, hotfix not recorded
+  1.60.1, hotfix not recorded; the Stratholme log 1.60.1.70959, on the newest hotfix before the session, relogged
 - Date: 2026-11-14 for the mage reports and Pjd9MWAXgCYTcn7Z; 2026-11-17 for VRrgQJFbdXckaZq7, NTJzVdMZBQDaqG83 and the
-  combat log
+  combat log; 2026-11-18 for the Stratholme log
 - Pull request: #1007; the harmful spells that deal no damage, #1097
 
 On the three mage reports the blade is confirmed in the main hand by combatant info in 12 fights; the other fights with
@@ -90,3 +90,28 @@ apart.
 The 34 procs in 963 landings, 3.5% (2.5 to 4.9), sit 1.5 standard deviations under the 4.5% that 1.8 per minute gives an
 instant; the sample cannot tell the two apart. One proc counts for Corruption here and for Immolate's damage in the table
 above, since both landed in the same millisecond.
+
+## Hellfire and the Stratholme log
+
+The Stratholme log is one hour of a level 60 warlock with 15 procs. A landing is counted as on the two warlock reports
+above, read from the log's SPELL_CAST_SUCCESS, SPELL_AURA_APPLIED and SPELL_AURA_REFRESH lines on the same target, and a
+direct hit is a SPELL_DAMAGE line on an enemy. Each proc is credited to the landing logged 0 to 45 ms before its mana
+gain; one Corruption proc, logged 50 ms after its debuff, is left uncredited.
+
+| Spell                    | Landings | Procs | Rate |
+| ------------------------ | -------: | ----: | ---: |
+| Wrack                    |       85 |     6 | 7.1% |
+| Corruption               |       72 |     4 | 5.6% |
+| Bane of Agony            |       62 |     2 | 3.2% |
+| Siphon Life              |       46 |     1 | 2.2% |
+| Shadow Bolt              |       22 |     1 | 4.5% |
+| Hellfire Effect, per hit |     3027 |     0 |   0% |
+
+Curses and damage over time effects proc 13 of 265 here (4.9%), and 47 of 1228 (3.8%) with the two reports above,
+against the 4.5% of an instant. Shadow Trance made 21 of the 23 Shadow Bolt casts instant, and its one proc came off an
+instant.
+
+Hellfire's channel fires Hellfire Effect 11681 at every enemy nearby each second. Its 3027 hits on enemies over 106
+channels procced nothing, where 4.5% a hit predicts about 136. Hellfire Effect's row lacks the Not a Proc attribute, so
+it is a spell fired as a proc. Flamestrike's periodic spell 1279990, which procs it on the mage reports, carries that
+attribute.
