@@ -269,6 +269,13 @@ var VersusBonuses = []VersusBonus{
 		Source:      "tooltip",
 	},
 	{
+		SpellID:     16414,
+		EffectIndex: 1,
+		MobTypes:    []proto.MobType{proto.MobType_MobTypeUndead},
+		Reason:      "Drain Life: 'Deals $s2 times as much damage to Undead'",
+		Source:      "tooltip",
+	},
+	{
 		SpellID:    1325229,
 		Multiplier: 3,
 		MobTypes:   []proto.MobType{proto.MobType_MobTypeUndead},
@@ -315,6 +322,13 @@ var VersusBonuses = []VersusBonus{
 		EffectIndex: 1,
 		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll},
 		Reason:      "Farraki Enforcement: 'Trolls take $s2 times as much damage and stun duration'",
+		Source:      "tooltip",
+	},
+	{
+		SpellID:     1300783,
+		EffectIndex: 1,
+		Families:    []proto.CreatureFamily{proto.CreatureFamily_CreatureFamilyTroll, proto.CreatureFamily_CreatureFamilyOrc},
+		Reason:      "Slaughter: 'Trolls and Orcs take $s2 times as much damage'",
 		Source:      "tooltip",
 	},
 	{

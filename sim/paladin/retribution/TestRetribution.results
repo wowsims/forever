@@ -63,6 +63,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestRetribution-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 818.32409
+  tps: 672.51605
+  dtps: 6.70502
+  hps: 29.18257
+ }
+}
+dps_results: {
  key: "TestRetribution-AllItems-AnkhofLife-1713"
  value: {
   dps: 873.75512
@@ -497,8 +506,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Destiny-647"
  value: {
-  dps: 911.70639
-  tps: 742.66983
+  dps: 907.56342
+  tps: 739.35546
   dtps: 4.35967
   hps: 25.34855
  }
@@ -510,6 +519,15 @@ dps_results: {
   tps: 708.13109
   dtps: 4.39346
   hps: 24.80718
+ }
+}
+dps_results: {
+ key: "TestRetribution-AllItems-DiabolicSkiver-9475"
+ value: {
+  dps: 814.50113
+  tps: 668.213
+  dtps: 6.13075
+  hps: 27.97596
  }
 }
 dps_results: {
@@ -848,9 +866,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FieryWarAxe-870"
  value: {
-  dps: 842.67631
-  tps: 687.38733
-  dtps: 4.58531
+  dps: 840.62713
+  tps: 685.81517
+  dtps: 4.63941
   hps: 25.35516
  }
 }
@@ -1505,9 +1523,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Nightblade-1982"
  value: {
-  dps: 840.02354
-  tps: 685.57709
-  dtps: 5.33231
+  dps: 841.52466
+  tps: 686.67983
+  dtps: 5.11339
   hps: 25.39566
  }
 }
@@ -1550,10 +1568,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 867.2828
-  tps: 706.88426
-  dtps: 4.3544
-  hps: 24.51065
+  dps: 862.83264
+  tps: 703.10103
+  dtps: 4.19281
+  hps: 24.33375
  }
 }
 dps_results: {
@@ -1892,9 +1910,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 826.85798
-  tps: 679.42616
-  dtps: 6.93304
+  dps: 826.28786
+  tps: 679.05155
+  dtps: 7.06005
   hps: 29.32931
  }
 }
@@ -1982,9 +2000,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 885.60229
-  tps: 720.90396
-  dtps: 3.86007
+  dps: 885.89425
+  tps: 721.14332
+  dtps: 3.85488
   hps: 24.71381
  }
 }
