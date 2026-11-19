@@ -61,8 +61,8 @@ describe('ThreatMetricsTable', () => {
 		expect(metricsTooltipRowNames()).toEqual(['results_tab.details.tooltip_table.per_cast', 'results_tab.details.tooltip_table.per_hit']);
 	});
 
-	it('breaks the hits cell down by outcome, resisted hits included', async () => {
-		result = playerResult([metric('Shield Slam', { hits: 8, resistedHits: 2, crits: 2, blockedCrits: 1 })]);
+	it('breaks the hits cell down by outcome, resisted and pierced hits included', async () => {
+		result = playerResult([metric('Shield Slam', { hits: 8, resistedHits: 2, piercedHits: 1, crits: 2, blockedCrits: 1 })]);
 		const { container } = render(<ThreatMetricsTable />);
 
 		fireEvent.mouseEnter(rows(container)[0].cells[4]);
@@ -71,6 +71,7 @@ describe('ThreatMetricsTable', () => {
 			'results_tab.details.attack_types.hit',
 			'results_tab.details.attack_types.resisted_hit',
 			'results_tab.details.attack_types.critical_hit',
+			'results_tab.details.attack_types.pierced_hit',
 			'results_tab.details.attack_types.blocked_critical_hit',
 		]);
 	});
