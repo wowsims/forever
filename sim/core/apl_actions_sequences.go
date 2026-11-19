@@ -68,9 +68,13 @@ func (action *APLActionSequence) IsReady(sim *Simulation) bool {
 }
 func (action *APLActionSequence) Execute(sim *Simulation) {
 	action.unit.Rotation.inSequence = true
+	// A spell queued at this instant before the step, such as the pick after a hardcast that a major cooldown
+	// step goes ahead of, is not the step's.
+	queuedBefore, consumedBefore := action.queuedThisInstant(sim)
 	action.subactions[action.curIdx].Execute(sim)
 
-	if action.unit.CanQueueSpell(sim) {
+	if queuedAfter, consumedAfter := action.queuedThisInstant(sim); queuedAfter == nil ||
+		(queuedAfter == queuedBefore && consumedAfter == consumedBefore) {
 		// Only advance to the next step in the sequence if we actually cast a spell rather than simply queueing one up.
 		action.curIdx++
 	} else {
@@ -89,6 +93,15 @@ func (action *APLActionSequence) Execute(sim *Simulation) {
 	}
 
 	action.unit.Rotation.inSequence = false
+}
+
+// The action of the spell queued at this instant and whether it went off; nil when none was queued.
+func (action *APLActionSequence) queuedThisInstant(sim *Simulation) (*PendingAction, bool) {
+	if action.unit.CanQueueSpell(sim) {
+		return nil, false
+	}
+	queueAction := action.unit.QueuedSpell.queueAction
+	return queueAction, queueAction.IsConsumed()
 }
 func (action *APLActionSequence) String() string {
 	return "Sequence(" + strings.Join(MapSlice(action.subactions, func(subaction *APLAction) string { return fmt.Sprintf("(%s)", subaction) }), "+") + ")"
@@ -182,12 +195,24 @@ func (action *APLActionStrictSequence) IsReady(sim *Simulation) bool {
 		action.unit.Rotation.inSequence = false
 		return false
 	}
-	if !action.subactions[0].IsReady(sim) {
+	if !action.subactions[0].IsReady(sim) || action.belowQueuedPick(sim) {
 		action.unit.Rotation.inSequence = false
 		return false
 	}
 
 	return true
+}
+
+// Whether a spell the pick queued after a hardcast is still to go off from the sequence's line or one above it,
+// or from a controlling action's step. The sequence then waits for it, so its steps never cut in ahead of a line
+// the priority list ranks as high or higher.
+func (action *APLActionStrictSequence) belowQueuedPick(sim *Simulation) bool {
+	unit := action.unit
+	if !unit.pickPending(sim) {
+		return false
+	}
+	line := unit.Rotation.lookLine
+	return line < 0 || unit.QueuedSpell.line < 0 || line >= unit.QueuedSpell.line
 }
 func (action *APLActionStrictSequence) Execute(sim *Simulation) {
 	action.unit.Rotation.inSequence = true
@@ -211,7 +236,16 @@ func (action *APLActionStrictSequence) current() *APLAction {
 	return action.subactions[action.curIdx]
 }
 func (action *APLActionStrictSequence) GetNextAction(sim *Simulation) *APLAction {
-	if nextAction := action.current(); nextAction.IsReady(sim) {
+	nextAction := action.current()
+	// Started after a hardcast ahead of the spell the pick queued from a line below it (a spell queued while the
+	// sequence holds the rotation has no line), a major cooldown first, the sequence casts the step that spell
+	// holds back in its place. A step that is not a major cooldown drops that spell too while it is due, as the
+	// cast-end pass would cast it ahead of the step.
+	if unit := action.unit; unit.spellQueuedAfterHardcast() && unit.QueuedSpell.line >= 0 &&
+		(nextAction.heldByQueuedSpell(sim) || (unit.queuedSpellDue(sim) && !unit.Rotation.isMajorCooldown(sim, nextAction))) {
+		unit.CancelQueuedSpell(sim)
+	}
+	if nextAction.IsReady(sim) {
 		castReady := action.unit.GCD.IsReady(sim)
 		switch cast := nextAction.impl.(type) {
 		case *APLActionCastSpell:
@@ -278,7 +312,9 @@ func (action *APLActionStrictSequence) cooldownAheadOfStep(sim *Simulation) *APL
 	if !rot.majorCooldownMayGo(sim) {
 		return nil
 	}
-	for _, priorityAction := range rot.priorityList {
+	defer func(lookLine int) { rot.lookLine = lookLine }(rot.lookLine)
+	for i, priorityAction := range rot.priorityList {
+		rot.lookLine = i
 		if priorityAction.IsReady(sim) {
 			return Ternary(rot.isMajorCooldown(sim, priorityAction), priorityAction, nil)
 		}
