@@ -21,7 +21,12 @@ export const DamageResult = ({ log }: DamageResultProps) => {
 	const isMissLike = isAvoidedOutcome(log.outcome);
 	const outcome = log.outcome === 'hit' && log.tick ? i18n.t('results_tab.details.attack_types.tick') : outcomeLabel(log.outcome);
 	const amount = log.amount.toFixed(2);
-	const resist = <>{log.resist !== 0 && <> {i18n.t('results_tab.details.damage_result.resist', { percent: log.resist })}</>}</>;
+	const resist = (
+		<>
+			{log.resist > 0 && <> {i18n.t('results_tab.details.damage_result.resist', { percent: log.resist })}</>}
+			{log.resist < 0 && <> {i18n.t('results_tab.details.damage_result.pierced', { percent: -log.resist })}</>}
+		</>
+	);
 
 	return (
 		<>

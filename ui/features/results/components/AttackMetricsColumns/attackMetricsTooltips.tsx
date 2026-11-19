@@ -99,6 +99,7 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 					percentage: ofHits(metric.hits - metric.resistedHits - metric.piercedHits),
 				},
 				{ name: i18n.t('results_tab.details.attack_types.resisted_hit'), value: metric.resistedHits, percentage: ofHits(metric.resistedHits) },
+				{ name: i18n.t('results_tab.details.attack_types.pierced_hit'), value: metric.piercedHits, percentage: ofHits(metric.piercedHits) },
 				{
 					name: i18n.t('results_tab.details.attack_types.critical_hit'),
 					value: metric.crits - metric.resistedCrits - metric.piercedCrits,
@@ -110,6 +111,7 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 					value: metric.resistedCrits,
 					percentage: ofHits(metric.resistedCrits),
 				},
+				{ name: i18n.t('results_tab.details.attack_types.pierced_critical_hit'), value: metric.piercedCrits, percentage: ofHits(metric.piercedCrits) },
 				{ name: i18n.t('results_tab.details.attack_types.glancing_blow'), value: metric.glances, percentage: ofHits(metric.glances) },
 				{ name: i18n.t('results_tab.details.attack_types.blocked_hit'), value: metric.blocks, percentage: ofHits(metric.blocks) },
 				...(crush
@@ -127,6 +129,7 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 					percentage: ofTicks(metric.ticks - metric.resistedTicks - metric.piercedTicks),
 				},
 				{ name: i18n.t('results_tab.details.attack_types.resisted_tick'), value: metric.resistedTicks, percentage: ofTicks(metric.resistedTicks) },
+				{ name: i18n.t('results_tab.details.attack_types.pierced_tick'), value: metric.piercedTicks, percentage: ofTicks(metric.piercedTicks) },
 				{
 					name: i18n.t('results_tab.details.attack_types.critical_tick'),
 					value: metric.critTicks - metric.resistedCritTicks - metric.piercedCritTicks,
@@ -136,6 +139,11 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 					name: i18n.t('results_tab.details.attack_types.resisted_critical_tick'),
 					value: metric.resistedCritTicks,
 					percentage: ofTicks(metric.resistedCritTicks),
+				},
+				{
+					name: i18n.t('results_tab.details.attack_types.pierced_critical_tick'),
+					value: metric.piercedCritTicks,
+					percentage: ofTicks(metric.piercedCritTicks),
 				},
 			],
 		},

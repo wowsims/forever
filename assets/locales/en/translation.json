@@ -2994,7 +2994,8 @@
 				"shielded": "Shielded",
 				"health_amount": "for <amount>{{amount}} health</amount><resist/>.",
 				"damage_amount": "for <amount>{{amount}} damage<school/></amount><resist/>.",
-				"resist": "({{percent}}% Resist)"
+				"resist": "({{percent}}% Resist)",
+				"pierced": "({{percent}}% Pierced)"
 			}
 		}
 	},

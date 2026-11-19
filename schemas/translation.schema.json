@@ -10657,9 +10657,12 @@
 								},
 								"resist": {
 									"type": "string"
+								},
+								"pierced": {
+									"type": "string"
 								}
 							},
-							"required": ["healed", "shielded", "health_amount", "damage_amount", "resist"],
+							"required": ["healed", "shielded", "health_amount", "damage_amount", "resist", "pierced"],
 							"additionalProperties": false
 						}
 					},

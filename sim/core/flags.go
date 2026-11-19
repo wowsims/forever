@@ -174,9 +174,13 @@ func (ho HitOutcome) ResistedPercent() int {
 	return percent
 }
 
+// " (20% Resist)" for a partial resist, " (10% Pierced)" for a Spell Piercing bonus.
 func (ho HitOutcome) PartialResistString() string {
-	if percent := ho.ResistedPercent(); percent != 0 {
+	switch percent := ho.ResistedPercent(); {
+	case percent > 0:
 		return " (" + strconv.Itoa(percent) + "% Resist)"
+	case percent < 0:
+		return " (" + strconv.Itoa(-percent) + "% Pierced)"
 	}
 	return ""
 }

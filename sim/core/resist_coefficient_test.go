@@ -162,7 +162,7 @@ func TestPartialResistBonusOutcomeCarriesANegativePercent(t *testing.T) {
 			t.Errorf("a %d%% bonus counts as a resisted hit", percent)
 		}
 	}
-	if got := (OutcomeCrit | partialResistOutcome(-0.2)).String(); got != "Crit (-20% Resist)" {
+	if got := (OutcomeCrit | partialResistOutcome(-0.2)).String(); got != "Crit (20% Pierced)" {
 		t.Errorf("a crit with a 20%% bonus reads %q", got)
 	}
 }

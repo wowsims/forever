@@ -52,7 +52,7 @@ describe('DamageResult', () => {
 	// A negative resist is the bonus of Spell Piercing beyond the target's resistance.
 	it('prints a partial resist and a piercing bonus after the amount', () => {
 		expect(render(<DamageResult log={damage({ resist: 50 })} />).container.textContent).toBe('Hit [Target 1] for 1234.50 damage (50% Resist).');
-		expect(render(<DamageResult log={damage({ resist: -10 })} />).container.textContent).toBe('Hit [Target 1] for 1234.50 damage (-10% Resist).');
+		expect(render(<DamageResult log={damage({ resist: -10 })} />).container.textContent).toBe('Hit [Target 1] for 1234.50 damage (10% Pierced).');
 	});
 
 	// A miss carries no amount clause at all, so printing "for 0.00 damage" would be a fabrication.
