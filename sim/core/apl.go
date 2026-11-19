@@ -670,9 +670,9 @@ func (apl *APLRotation) majorCooldownMayGo(sim *Simulation) bool {
 	return mayGo
 }
 
-// Whether isMajorCooldown can accept the action: an autocast, a cast of a major cooldown, or a group holding
-// one of these. The two must agree, or a major cooldown misses its turn ahead of the spell queued after a
-// hardcast.
+// Whether isMajorCooldown can accept the action: an autocast, a cast of a major cooldown, a group or a
+// Sequence holding one of these, or a Strict Sequence whose first step is one. The two must agree, or a major
+// cooldown misses its turn ahead of the spell queued after a hardcast.
 func canBeMajorCooldown(action *APLAction) bool {
 	switch impl := action.impl.(type) {
 	case *APLActionAutocastOtherCooldowns:

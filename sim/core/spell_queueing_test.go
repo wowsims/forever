@@ -488,10 +488,7 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 	t.Run("a Strict Sequence led by a major cooldown goes at the cast end and its next step takes the pick's place", func(t *testing.T) {
 		potion := &testCooldown{}
 		cb := newHardcastTest(potion)
-		castOf := func(spell *Spell) *proto.APLAction {
-			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
-		}
-		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{aplCast(potion.spell.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID)}})
 		cb.start(strictSequence, cb.slowAtPull(), cb.castOf(cb.short))
 
 		cb.runUntil(castEnd + GCDDefault + time.Second)
@@ -510,11 +507,8 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 	t.Run("a Strict Sequence led by a major cooldown takes the place of a spell a lower line queued for its cooldown", func(t *testing.T) {
 		potion := &testCooldown{}
 		cb := newHardcastTest(potion)
-		castOf := func(spell *Spell) *proto.APLAction {
-			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
-		}
 		cb.blast.CD.Set(castEnd + 100*time.Millisecond)
-		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{aplCast(potion.spell.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID)}})
 		cb.start(strictSequence, cb.castOf(cb.blast), cb.slowAtPull())
 
 		cb.runUntil(castEnd + GCDDefault + castEnd)
@@ -533,11 +527,8 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 		}{{"due at the cast end", castEnd}, {"due 100 ms after the cast end", castEnd + 100*time.Millisecond}} {
 			potion := &testCooldown{}
 			cb := newHardcastTest(potion)
-			castOf := func(spell *Spell) *proto.APLAction {
-				return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
-			}
 			cb.blast.CD.Set(due.readyAt)
-			strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+			strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{aplCast(potion.spell.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID)}})
 			cb.start(cb.castOf(cb.blast), strictSequence, cb.slowAtPull())
 
 			blastLands := due.readyAt + castEnd
@@ -552,10 +543,7 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 	t.Run("a Sequence's major cooldown step goes at the cast end, ahead of the pick", func(t *testing.T) {
 		potion := &testCooldown{}
 		cb := newHardcastTest(potion)
-		castOf := func(spell *Spell) *proto.APLAction {
-			return &proto.APLAction{Action: &proto.APLAction_CastSpell{CastSpell: &proto.APLActionCastSpell{SpellId: spell.ActionID.ToProto()}}}
-		}
-		sequence := cb.rot.newActionSequence(&proto.APLActionSequence{Actions: []*proto.APLAction{castOf(potion.spell), castOf(cb.nuke)}})
+		sequence := cb.rot.newActionSequence(&proto.APLActionSequence{Actions: []*proto.APLAction{aplCast(potion.spell.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID)}})
 		cb.start(sequence, cb.slowAtPull(), cb.castOf(cb.short))
 
 		cb.runUntil(castEnd + GCDDefault)
@@ -564,6 +552,45 @@ func TestRotationPicksAtCastEndBeforeLanding(t *testing.T) {
 		}
 		if !slices.Equal(cb.nukeAt, []time.Duration{castEnd + GCDDefault}) {
 			t.Fatalf("the sequence's instant should go when the 1 s cast's GCD ends at 3.5 s, went at %v", cb.nukeAt)
+		}
+	})
+
+	t.Run("a Strict Sequence led by a major cooldown casts a step off the GCD before its step on the GCD takes the pick's place", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{
+			aplCast(potion.spell.ActionID.SpellID), aplCast(cb.offGCD.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID),
+		}})
+		cb.start(strictSequence, cb.slowAtPull(), cb.castOf(cb.short))
+
+		cb.runUntil(castEnd + GCDDefault + time.Second)
+		if !slices.Equal(cb.order, []string{"cooldown", "off the GCD", "nuke"}) || !slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
+			t.Fatalf("the sequence's potion, spell off the GCD and instant should all go at the 2 s cast end, went in the order %v, the instant at %v", cb.order, cb.nukeAt)
+		}
+		if !slices.Equal(cb.shortAt, []time.Duration{castEnd + GCDDefault + time.Second}) {
+			t.Fatalf("the 1 s cast picked at the 2 s cast end should start when the instant's GCD ends at 3.5 s and land at 4.5 s, landed at %v", cb.shortAt)
+		}
+	})
+
+	t.Run("a Sequence's major cooldown step at the cast end leaves the queue action of a Strict Sequence's step as it was", func(t *testing.T) {
+		potion := &testCooldown{}
+		cb := newHardcastTest(potion)
+		sequence := cb.rot.newActionSequence(&proto.APLActionSequence{Actions: []*proto.APLAction{
+			aplCast(potion.spell.ActionID.SpellID), aplCast(cb.offGCD.ActionID.SpellID),
+		}})
+		strictSequence := cb.rot.newActionStrictSequence(&proto.APLActionStrictSequence{Actions: []*proto.APLAction{
+			aplCast(cb.slow.ActionID.SpellID), aplCast(cb.nuke.ActionID.SpellID),
+		}})
+		cb.start(sequence, &gatedAction{APLActionImpl: strictSequence, ready: func(sim *Simulation) bool { return sim.CurrentTime == 0 }}, cb.castOf(cb.slow))
+
+		// Each later 2 s cast's pick reuses the queue action that the Strict Sequence's instant went off from.
+		cb.runUntil(10 * time.Second)
+		if !slices.Equal(potion.castAt, []time.Duration{castEnd}) || !slices.Equal(cb.offGCDAt, []time.Duration{castEnd}) ||
+			!slices.Equal(cb.nukeAt, []time.Duration{castEnd}) {
+			t.Fatalf("the potion, the Sequence's spell off the GCD and the Strict Sequence's instant should go at the 2 s cast end, the potion at %v, the spell off the GCD at %v, the instant at %v", potion.castAt, cb.offGCDAt, cb.nukeAt)
+		}
+		if len(cb.rot.controllingActions) != 0 {
+			t.Fatalf("the Strict Sequence should hand the rotation back once its last step went off")
 		}
 	})
 

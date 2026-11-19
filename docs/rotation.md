@@ -45,8 +45,8 @@ GCD keeps control through the pick and casts that step in the cast-end pass.
 A Strict Sequence ranks against the pick by its line in the priority list. Until the pick goes off, a
 Strict Sequence on the pick's line or below it is not ready, whether the pick is due at the cast end or
 queued for a cooldown that ends a moment later. One on a line above it starts in the cast-end pass, such
-as Presence of Mind with Arcane Wrath, and its next step on the GCD takes the pick's place: the pick is
-dropped, and the rotation picks again once the sequence is done.
+as Presence of Mind with Arcane Wrath. Its later steps, on the GCD or off it, go before the pick: the pick
+is dropped, and the rotation picks again once the sequence is done.
 
 ## What the pick sees
 
