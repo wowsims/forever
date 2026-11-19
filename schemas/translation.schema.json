@@ -9398,10 +9398,36 @@
 											},
 											"additionalProperties": false,
 											"required": ["label", "tooltip"]
+										},
+										"uw_soc_stacks": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
+										},
+										"uw_sor_stacks": {
+											"type": "object",
+											"properties": {
+												"label": {
+													"type": "string"
+												},
+												"tooltip": {
+													"type": "string"
+												}
+											},
+											"additionalProperties": false,
+											"required": ["label", "tooltip"]
 										}
 									},
 									"additionalProperties": false,
-									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds"]
+									"required": ["aura", "assigned_judge", "seal", "pull_range", "delay_major_cds", "uw_soc_stacks", "uw_sor_stacks"]
 								}
 							},
 							"additionalProperties": false,
