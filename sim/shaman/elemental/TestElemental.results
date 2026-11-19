@@ -2065,9 +2065,9 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-TheSpiritcaller'sStorm"
  value: {
-  dps: 758.00585
-  tps: 700.10688
-  dtps: 8.56303
+  dps: 839.19413
+  tps: 771.87085
+  dtps: 7.35069
  }
 }
 dps_results: {
