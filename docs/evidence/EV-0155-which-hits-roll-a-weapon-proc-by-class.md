@@ -1,5 +1,8 @@
 # EV-0155: Which hits roll a weapon proc, by class
 
+EV-0156 splits the reading that a Judgement of the Crusader, Justice, Light or Wisdom landing rolls a weapon proc once:
+it holds to 2026-11-13, and since that day's hotfix the landing rolls nothing.
+
 - Claim: Execute rolls a weapon proc twice, on both hand setups: with killing blows left out, Execute units hold 1.95
   times the procs one roll gives. Judgement of Command rolls twice, 1.85 [1.78, 1.93]. The
   landings of Serpent Sting, Concussive Shot and Scorpid Sting roll the ranged weapon once. A dual wielder's Whirlwind
