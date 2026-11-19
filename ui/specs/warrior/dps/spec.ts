@@ -119,7 +119,7 @@ export default defineSpec<Spec.SpecDpsWarrior>({
 	presets: {
 		epWeights: [Presets.PreBiSFuryEpWeights, Presets.PreBiSArmsEpWeights],
 		// Preset talents that the user can quickly select.
-		talents: [Presets.FuryTalents, Presets.ArmsTalents],
+		talents: [Presets.FuryTalents, Presets.FuryDragonkinGiantTalents, Presets.ArmsTalents],
 		// Preset rotations that the user can quickly select.
 		rotations: [Presets.SIMPLE_DEFAULT_ROTATION, Presets.FURY_DEFAULT_ROTATION, Presets.ARMS_DEFAULT_ROTATION],
 		// Preset gear configurations that the user can quickly select.
