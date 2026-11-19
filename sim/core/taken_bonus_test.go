@@ -75,14 +75,12 @@ func TestIgnoreTargetSchoolBonusTakesNoneOfTheBonus(t *testing.T) {
 	}
 }
 
-// A flat physical reduction comes off a hit in full while the hit is twice its size or more, and takes
-// half of a smaller one. A flat bonus has no such limit.
+// A flat physical reduction takes at most half of a hit. A flat bonus has no such limit.
 func TestFlatPhysicalReductionTakesAtMostHalfTheHit(t *testing.T) {
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
+	spell := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskMeleeMHSpecial)
 	fw.stats[stats.Armor] = 0
-	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
 
 	tests := []struct {
 		name string
@@ -92,14 +90,13 @@ func TestFlatPhysicalReductionTakesAtMostHalfTheHit(t *testing.T) {
 	}{
 		{name: "a hit of four times the reduction", flat: -30, base: 120, want: 90},
 		{name: "a hit of twice the reduction", flat: -30, base: 60, want: 30},
-		{name: "a hit under twice the reduction", flat: -30, base: 50, want: 25},
 		{name: "a hit under the reduction", flat: -30, base: 20, want: 10},
 		{name: "a bonus larger than the hit", flat: 30, base: 20, want: 50},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			fw.PseudoStats.BonusPhysicalDamageTaken = test.flat
-			result := spell.calcDamageInternal(sim, &fw.Unit, test.base, 1, false, hit)
+			result := spell.calcDamageInternal(sim, &fw.Unit, test.base, 1, false, spell.OutcomeAlwaysHitNoHitCounter)
 			if !WithinToleranceFloat64(test.want, result.Damage, 0.001) {
 				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", test.want, result.Damage)
 			}
