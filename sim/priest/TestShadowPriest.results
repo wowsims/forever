@@ -561,8 +561,8 @@ dps_results: {
 dps_results: {
  key: "TestShadowPriest-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 748.69036
-  tps: 535.83937
+  dps: 748.68349
+  tps: 535.8325
   dtps: 5.02887
  }
 }
@@ -680,6 +680,14 @@ dps_results: {
 }
 dps_results: {
  key: "TestShadowPriest-AllItems-FlamebreakTalisman-280071"
+ value: {
+  dps: 743.4795
+  tps: 531.51938
+  dtps: 5.76127
+ }
+}
+dps_results: {
+ key: "TestShadowPriest-AllItems-ForceofWill-11810"
  value: {
   dps: 743.4795
   tps: 531.51938

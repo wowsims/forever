@@ -301,16 +301,16 @@ func physicalMeleeSpecial(attacker *Unit) *Spell {
 func TestPreArmorDamage(t *testing.T) {
 	// A 1000 hit through 5755 armor against a level 63 attacker (half), 50 flat physical damage taken,
 	// a 10% damage taken reduction, a crit, a 100 block and a 300 absorb:
-	// (1000 * 0.5 + 50) * 0.9 * 2 - 100 - 300 = 590 taken. A swing's rage reads the damage that keeps the crit
+	// (1000 + 50) * 0.5 * 0.9 * 2 - 100 - 300 = 545 taken. A swing's rage reads the damage that keeps the crit
 	// and the 10% reduction and drops the rest, 1000 * 0.9 * 2 = 1800: 2.5 * 0.6 * 1800 / 243.64 = 11.082.
-	// A special's reads the 890 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 890 / 243.64 = 10.959.
+	// A special's reads the 845 left after the block, before the 300 absorb, twice: 2 * 2.5 * 0.6 * 845 / 243.64 = 10.405.
 	tests := []struct {
 		name     string
 		special  bool
 		wantRage float64
 	}{
 		{name: "swing", wantRage: 11.082},
-		{name: "special", special: true, wantRage: 10.959},
+		{name: "special", special: true, wantRage: 10.405},
 	}
 
 	for _, test := range tests {
@@ -344,8 +344,8 @@ func TestPreArmorDamage(t *testing.T) {
 			spell.DealDamage(sim, result)
 			gained := fw.CurrentRage() - rageBefore
 
-			if !WithinToleranceFloat64(590, result.Damage, 0.001) {
-				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 590.0, result.Damage)
+			if !WithinToleranceFloat64(545, result.Damage, 0.001) {
+				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", 545.0, result.Damage)
 			}
 			if !WithinToleranceFloat64(1800, result.PreArmorDamage, 0.001) {
 				t.Fatalf("Damage before armor: Expected: %0.3f, Actual: %0.3f", 1800.0, result.PreArmorDamage)
