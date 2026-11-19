@@ -46,19 +46,12 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	// a weapon proc whether or not it deals damage. So a judgement that lands rolls each weapon proc
 	// and combat enchant twice. The dummy's row lacks Not a Proc, so aura procs hear the damage alone:
 	// Windfury Totem and Vindication roll once (EV-0156).
-	dummyFlags := core.SpellFlagNoMetrics | core.SpellFlagNoLogs | core.SpellFlagPassiveSpell
+	dummyConfig := spelldata.SpellConfig(&paladin.Unit, judgeRank, spelldata.Melee(core.ProcMaskMeleeMHSpecial),
+		spelldata.Proc(), spelldata.Tag(1), spelldata.Flags(core.SpellFlagNoMetrics|core.SpellFlagNoLogs))
 	if judgeRank.IsAProc() {
-		dummyFlags |= core.SpellFlagProc
+		dummyConfig.Flags |= core.SpellFlagProc
 	}
-	dummyLanding := paladin.RegisterSpell(core.SpellConfig{
-		ActionID:         core.ActionID{SpellID: judgeRank.ID, Tag: 1},
-		SpellSchool:      judgementConfig.SpellSchool,
-		ProcMask:         judgementConfig.ProcMask,
-		DefenseType:      judgementConfig.DefenseType,
-		Flags:            dummyFlags,
-		DamageMultiplier: 1,
-		ThreatMultiplier: 1,
-	})
+	dummyLanding := paladin.RegisterSpell(dummyConfig)
 
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := judgeDamage.Average()

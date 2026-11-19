@@ -16,12 +16,14 @@ import (
 const listenerNeck int32 = 9_990_001
 
 // How often each kind of listener heard a main-hand melee ability, counted by the neck's wearer.
-var heard struct {
+type tally struct {
 	castResults        int // Every cast result, landed or not.
 	weaponProc         int // A landed hit, as a weapon proc hears it.
 	hitListener        int // A landed hit, as any other proc hears it.
 	castResultListener int // A landed cast result, as any other proc hears it.
 }
+
+var heard tally
 
 func init() {
 	retribution.RegisterRetributionPaladin()
@@ -77,7 +79,7 @@ func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.U
 	sim.Reset()
 	pal := sim.Raid.Parties[0].Players[0].(paladin.PaladinAgent).GetPaladin()
 	pal.AutoAttacks.CancelAutoSwing(sim)
-	heard.castResults, heard.weaponProc, heard.hitListener, heard.castResultListener = 0, 0, 0, 0
+	heard = tally{}
 	return sim, pal, pal.CurrentTarget
 }
 
@@ -85,12 +87,14 @@ func listeningPaladin(t *testing.T) (*core.Simulation, *paladin.Paladin, *core.U
 // damage. A listener that is no weapon proc hears the damage alone, on the hit and on the cast result,
 // and a judgement that misses rolls none of them (EV-0156).
 func TestJudgementOfCommandRollsAWeaponProcTwice(t *testing.T) {
+	const casts = 50
 	for _, c := range []struct {
 		name  string
 		lands bool
+		want  tally
 	}{
-		{"a judgement that lands", true},
-		{"a judgement that misses", false},
+		{"a judgement that lands", true, tally{castResults: casts, weaponProc: 2 * casts, hitListener: casts, castResultListener: casts}},
+		{"a judgement that misses", false, tally{castResults: casts}},
 	} {
 		t.Run(c.name, func(t *testing.T) {
 			sim, pal, target := listeningPaladin(t)
@@ -109,20 +113,13 @@ func TestJudgementOfCommandRollsAWeaponProcTwice(t *testing.T) {
 					}
 				}
 			}
-			for range 50 {
+			for range casts {
 				pal.Judgement.SkipCastAndApplyEffects(sim, target)
 			}
 
-			casts := heard.castResults
-			if casts == 0 {
-				t.Fatal("no Judgement of Command was cast, so the counts below prove nothing")
-			}
-			want := [3]int{2 * casts, casts, casts}
-			if !c.lands {
-				want = [3]int{}
-			}
-			if got := [3]int{heard.weaponProc, heard.hitListener, heard.castResultListener}; got != want {
-				t.Errorf("%d casts rolled a weapon proc, a hit listener and a cast result listener %v times, want %v", casts, got, want)
+			// The dummy's landing is no cast result to an aura proc, so each cast shows once there.
+			if heard != c.want {
+				t.Errorf("%d Judgement casts were heard as %+v, want %+v", casts, heard, c.want)
 			}
 		})
 	}

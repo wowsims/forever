@@ -85,7 +85,7 @@ func (paladin *Paladin) applyConviction() {
 //
 // The game files state no rate: the ProcChance column reads 100. In game it is 5 procs a minute on
 // the weapon's speed (EV-0062). The row's proc mask also hears melee specials, which roll the same
-// chance and were not measured. The debuff is a magic spell of its own that can miss.
+// chance (EV-0156). The debuff is a magic spell of its own that can miss.
 const vindicationPPM = 5
 
 func (paladin *Paladin) applyVindication() {

@@ -15,7 +15,9 @@
 - Pull request: #1119
 
 EV-0145 reads a white swing's Judgement refresh as a roll of its own. Its refresh units come from two reports of
-2026-11-11 and 2026-11-12, and this file dates that rule: it holds to 2026-11-13.
+2026-11-11 and 2026-11-12, and this file dates that rule: it holds to 2026-11-13. EV-0155 reads a Judgement debuff's
+landing as one roll over 2026-11-05 to 2026-11-19; this file splits that reading at the hotfix. What EV-0155 took as a
+landing's unit is not counted again here.
 
 ## Method
 
@@ -30,6 +32,12 @@ The chance per roll is the paladin's own share of lone white swings with a proc,
 unit are the number of rolls at that chance that gives the observed count of units with a proc. Intervals are 95%,
 from a bootstrap over paladins. "To 2026-11-13" is before 00:00 UTC of that day, and "from 2026-11-14" is from 12:00
 UTC of that day, except where a table says otherwise.
+
+The tables hold different numbers of units of one kind, for three reasons. A table by period leaves out the hours
+between its two periods. The table by period under "The other Judgements" and the two period reads of a Judgement of
+Command price a paladin only from lone white swings on a target that does not carry the paladin's Vindication, 30 or
+more of them, where the table per weapon and the table by region also take the swings on a target that carries it and
+so price more paladins. The table of where a proc logs counts instant weapon effects alone.
 
 ## Judgement of Command
 
