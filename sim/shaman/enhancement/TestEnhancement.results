@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestEnhancement-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 837.16353
+  tps: 870.25644
+  dtps: 7.3338
+  hps: 28.72083
+ }
+}
+dps_results: {
  key: "TestEnhancement-AllItems-AnkhofLife-1713"
  value: {
   dps: 778.86662
@@ -776,9 +785,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 834.71468
-  tps: 865.69128
-  dtps: 8.38584
+  dps: 830.7954
+  tps: 862.01455
+  dtps: 8.4805
   hps: 22.16333
  }
 }
@@ -1253,9 +1262,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 834.911
-  tps: 865.45622
-  dtps: 8.91788
+  dps: 833.58019
+  tps: 864.20253
+  dtps: 8.45388
   hps: 20.57056
  }
 }
@@ -1550,9 +1559,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 856.76918
-  tps: 888.02066
-  dtps: 8.93772
+  dps: 858.21206
+  tps: 889.58566
+  dtps: 8.70224
   hps: 21.45167
  }
 }
