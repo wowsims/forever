@@ -1757,10 +1757,10 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-TheSpiritcaller'sStorm"
  value: {
-  dps: 724.81087
-  tps: 760.70423
-  dtps: 7.43007
-  hps: 36.93889
+  dps: 768.83959
+  tps: 805.3607
+  dtps: 7.60184
+  hps: 36.92194
  }
 }
 dps_results: {
