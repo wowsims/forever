@@ -304,8 +304,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 717.49884
-  tps: 535.19981
+  dps: 717.65495
+  tps: 535.31631
   hps: 46.15667
  }
 }
@@ -688,8 +688,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Felstriker-12590"
  value: {
-  dps: 759.90584
-  tps: 565.2968
+  dps: 760.55392
+  tps: 565.82422
   hps: 46.12278
  }
 }
@@ -752,8 +752,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 732.08081
-  tps: 545.62732
+  dps: 731.2244
+  tps: 545.01927
   hps: 46.2075
  }
 }
@@ -920,17 +920,17 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-GutRipper-2164"
  value: {
-  dps: 729.52682
-  tps: 543.84786
+  dps: 730.84303
+  tps: 544.78236
   hps: 46.17361
  }
 }
 dps_results: {
  key: "TestFeralCat-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 734.76594
-  tps: 547.50849
-  hps: 45.91944
+  dps: 734.95686
+  tps: 547.80244
+  hps: 45.98722
  }
 }
 dps_results: {
@@ -1432,8 +1432,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 729.39195
-  tps: 543.6783
+  dps: 729.23471
+  tps: 543.56665
   hps: 46.12278
  }
 }
@@ -1632,8 +1632,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-TaranIcebreaker-2915"
  value: {
-  dps: 770.22948
-  tps: 572.82591
+  dps: 771.26593
+  tps: 573.56179
   hps: 45.98722
  }
 }
@@ -1768,9 +1768,9 @@ dps_results: {
 dps_results: {
  key: "TestFeralCat-AllItems-Toofbreaker-286430"
  value: {
-  dps: 715.20774
-  tps: 533.69459
-  hps: 46.02111
+  dps: 716.98289
+  tps: 535.07906
+  hps: 46.12278
  }
 }
 dps_results: {

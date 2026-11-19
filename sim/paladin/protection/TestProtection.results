@@ -290,10 +290,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Bloodrazor-809"
  value: {
-  dps: 404.1374
-  tps: 955.67044
-  dtps: 336.67938
-  hps: 17.11389
+  dps: 402.72688
+  tps: 953.63718
+  dtps: 337.92261
+  hps: 17.01222
  }
 }
 dps_results: {
@@ -956,9 +956,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 410.07497
-  tps: 980.71354
-  dtps: 336.00998
+  dps: 409.3116
+  tps: 980.02658
+  dtps: 336.27787
   hps: 21.045
  }
 }
@@ -1100,10 +1100,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 402.39029
-  tps: 965.77366
-  dtps: 339.30162
-  hps: 20.62139
+  dps: 403.27217
+  tps: 970.68535
+  dtps: 339.55635
+  hps: 20.48583
  }
 }
 dps_results: {
@@ -1190,10 +1190,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 412.29731
-  tps: 982.17494
-  dtps: 338.38846
-  hps: 20.19778
+  dps: 409.6383
+  tps: 977.13393
+  dtps: 338.8191
+  hps: 20.18083
  }
 }
 dps_results: {
@@ -1226,10 +1226,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
-  dps: 415.07207
-  tps: 1009.65175
-  dtps: 343.63509
-  hps: 25.23028
+  dps: 413.6523
+  tps: 1008.18004
+  dtps: 344.88499
+  hps: 25.17944
  }
 }
 dps_results: {
@@ -1550,8 +1550,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 402.0896
-  tps: 956.3073
+  dps: 402.01121
+  tps: 956.18584
   dtps: 336.38131
   hps: 17.48667
  }
@@ -1748,8 +1748,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 406.05386
-  tps: 988.10714
+  dps: 406.00304
+  tps: 988.03954
   dtps: 341.0316
   hps: 23.92556
  }
@@ -1928,10 +1928,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 405.54135
-  tps: 985.92017
-  dtps: 330.6428
-  hps: 22.95972
+  dps: 404.9019
+  tps: 984.47418
+  dtps: 331.88465
+  hps: 22.90889
  }
 }
 dps_results: {
@@ -2450,10 +2450,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Toofbreaker-286430"
  value: {
-  dps: 402.12928
-  tps: 973.48844
-  dtps: 340.34314
-  hps: 21.06194
+  dps: 401.79543
+  tps: 972.06765
+  dtps: 340.56642
+  hps: 21.09583
  }
 }
 dps_results: {
@@ -2607,6 +2607,15 @@ dps_results: {
   tps: 892.30241
   dtps: 478.03324
   hps: 18.1475
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-WraithScythe-11920"
+ value: {
+  dps: 411.07755
+  tps: 978.68225
+  dtps: 335.37072
+  hps: 19.23194
  }
 }
 dps_results: {
