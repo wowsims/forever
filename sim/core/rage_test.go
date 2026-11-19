@@ -291,10 +291,10 @@ func TestDamageTakenRageGeneration(t *testing.T) {
 }
 
 // The attacker's main-hand swing registered again as a physical melee special, as a mob's Cleave is.
-func physicalMeleeSpecial(attacker *Unit) *Spell {
+func physicalSpecial(attacker *Unit, procMask ProcMask) *Spell {
 	config := *attacker.AutoAttacks.MHConfig()
 	config.ActionID = ActionID{SpellID: 1}
-	config.ProcMask = ProcMaskMeleeMHSpecial
+	config.ProcMask = procMask
 	return attacker.RegisterSpell(config)
 }
 
@@ -320,7 +320,7 @@ func TestPreArmorDamage(t *testing.T) {
 			attacker := sim.Encounter.ActiveTargetUnits[0]
 			spell := attacker.AutoAttacks.MHAuto()
 			if test.special {
-				spell = physicalMeleeSpecial(attacker)
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
 			}
 
 			fw.stats[stats.Armor] = 5755
@@ -357,20 +357,19 @@ func TestPreArmorDamage(t *testing.T) {
 	}
 }
 
-func TestFlatReductionBelowZeroGivesNoRage(t *testing.T) {
-	// A flat physical reduction larger than the hit leaves a special nothing to read: no rage, and no panic.
+func TestFlatRangedReductionBelowZeroGivesNoRage(t *testing.T) {
+	// A flat ranged reduction larger than the shot leaves a ranged special nothing to read: no rage, and no panic.
 	sim := SetupFakeRageSim()
 	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
+	shot := physicalSpecial(sim.Encounter.ActiveTargetUnits[0], ProcMaskRangedSpecial)
 	fw.stats[stats.Armor] = 0
-	fw.PseudoStats.BonusPhysicalDamageTaken = -30
-	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+	fw.PseudoStats.BonusRangedDamageTaken = -30
 
 	rageBefore := fw.CurrentRage()
-	spell.DealDamage(sim, spell.calcDamageInternal(sim, &fw.Unit, 20, 1, false, hit))
+	shot.DealDamage(sim, shot.calcDamageInternal(sim, &fw.Unit, 20, 1, false, shot.OutcomeAlwaysHitNoHitCounter))
 
 	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
-		t.Fatalf("Rage from a hit the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
+		t.Fatalf("Rage from a shot the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
 	}
 }
 
@@ -401,7 +400,7 @@ func TestFullBlockGivesNoRage(t *testing.T) {
 			attacker := sim.Encounter.ActiveTargetUnits[0]
 			spell := attacker.AutoAttacks.MHAuto()
 			if test.special {
-				spell = physicalMeleeSpecial(attacker)
+				spell = physicalSpecial(attacker, ProcMaskMeleeMHSpecial)
 			}
 
 			fw.stats[stats.Armor] = 0
