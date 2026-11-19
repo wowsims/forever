@@ -1,6 +1,10 @@
 package core
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/wowsims/forever/sim/core/stats"
+)
 
 // The target's flat school bonus lands after the caster's done multipliers, at the spell's
 // coefficient, at the coefficient a spell states for it when it sets none, and at the dot's on a tick.
@@ -68,5 +72,38 @@ func TestIgnoreTargetSchoolBonusTakesNoneOfTheBonus(t *testing.T) {
 	}
 	if without, with := hit(0), hit(100); with != without {
 		t.Errorf("a hit deals %v under the bonus, want the %v it deals without", with, without)
+	}
+}
+
+// A flat physical reduction comes off a hit in full while the hit is twice its size or more, and takes
+// half of a smaller one. A flat bonus has no such limit.
+func TestFlatPhysicalReductionTakesAtMostHalfTheHit(t *testing.T) {
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
+	fw.stats[stats.Armor] = 0
+	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+
+	tests := []struct {
+		name string
+		flat float64
+		base float64
+		want float64
+	}{
+		{name: "a hit of four times the reduction", flat: -30, base: 120, want: 90},
+		{name: "a hit of twice the reduction", flat: -30, base: 60, want: 30},
+		{name: "a hit under twice the reduction", flat: -30, base: 50, want: 25},
+		{name: "a hit under the reduction", flat: -30, base: 20, want: 10},
+		{name: "a bonus larger than the hit", flat: 30, base: 20, want: 50},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			fw.PseudoStats.BonusPhysicalDamageTaken = test.flat
+			result := spell.calcDamageInternal(sim, &fw.Unit, test.base, 1, false, hit)
+			if !WithinToleranceFloat64(test.want, result.Damage, 0.001) {
+				t.Fatalf("Damage taken: Expected: %0.3f, Actual: %0.3f", test.want, result.Damage)
+			}
+			spell.DisposeResult(result)
+		})
 	}
 }

@@ -5,15 +5,17 @@
   spell, a ranged shot and a periodic tick roll nothing. A flat Physical damage taken amount lands before the target's
   armor: its buff 15595 takes 51 times the share of a swing that gets through armor off the swing, and Gift of Arthas
   11374, Tenderized 1292008 and Lacerations 10370 add their amount times that share to a swing on the enemy that
-  carries them. Stoneskin Totem's party aura (10403 to 10405) takes its amount off the same way. Force of Will's buff
-  takes at most half of a swing: one under 102 before armor lands at half of what it would without the buff.
+  carries them. Stoneskin Totem's party aura (10403 to 10405) takes its amount off the same way. A flat reduction
+  takes at most half of a hit, one cap for the flat amounts on a target together: under Force of Will a swing under 102
+  before armor lands at half of what it would without the buff, and Gold-plated 1291908 and Stoneform Shoulders 1298231
+  read the same on the hit they spend themselves on. A crit doubles the flat amount.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
-  time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized reports start on
-  1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours after 1.60.1.70862
+  time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated reports start
+  on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours after 1.60.1.70862
   was listed. The hotfix each player ran is not recorded.
 - Date: 2026-11-05 to 2026-11-19
-- Pull request: #1114; the single applications, the cap at half a swing and Stoneskin Totem in #1116
+- Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116
 
 ## Method
 
@@ -239,6 +241,58 @@ and 2.97 before armor. The Auto Shot row is ability 75 from one hunter in one re
 Gift of Arthas' swings come from 19 attackers in 9 reports (2026-11-11 to 2026-11-17), Tenderized's from 483 attackers
 in 245 reports (2026-11-05 to 2026-11-19) and Lacerations' from 19 attackers in 8 reports (2026-11-11 to 2026-11-18).
 Spell hits against a flat spell damage taken amount, and a flat ranged damage taken amount, were not measured.
+
+## The cap on other flat reductions, on the amounts together and on a crit
+
+None of the 124 window swings under 102 holds a block, a second flat reduction that logs on the wearer or a Stoneskin
+Totem summon in the 125 s before it, and 4 are absorbed in part. The game files hold 24 `A_MOD_DAMAGE_TAKEN` rows with
+a negative amount on Physical, and 6 of them appear in reports.
+
+Gold-plated (1291908) takes 15 and Stoneform Shoulders (1298231) 60 off the next Physical hit and then go. The swing
+read is the one normal white swing within 30 ms of the buff's removal, alone on the player in those 30 ms and with
+nothing blocked or absorbed. k is the summed amount over the summed unmitigated amount of the same NPC's such swings
+with the buff down within 60 s of it: 3 or more, holding one ratio to rounding. A swing logged in two reports counts
+once. Gold-plated's 2,597 swings come from 323 players in 322 reports (2026-11-05 to 2026-11-19) and Stoneform
+Shoulders' 100 from 25 players in 25 reports (2026-11-14 to 2026-11-19). U is the swing's unmitigated amount and F the
+buff's:
+
+| Buff                | U over F    | Swings | Players | Amount / (k x U) | (U - F) / U |
+| ------------------- | ----------- | -----: | ------: | ---------------: | ----------: |
+| Gold-plated         | Under 0.5   |     45 |      40 |            0.545 |           0 |
+| Gold-plated         | 0.5 to 1    |     94 |      62 |            0.564 |           0 |
+| Gold-plated         | 1 to 2      |     31 |      21 |            0.537 |       0.378 |
+| Gold-plated         | 2 to 3      |    307 |     166 |            0.604 |       0.588 |
+| Gold-plated         | 3 to 6      |  1,725 |     295 |            0.790 |       0.776 |
+| Gold-plated         | 6 and above |    395 |     166 |            0.878 |       0.864 |
+| Stoneform Shoulders | Under 2     |      4 |       4 |            0.513 |       0.229 |
+| Stoneform Shoulders | 2 to 3      |      6 |       6 |            0.571 |       0.554 |
+| Stoneform Shoulders | 3 to 6      |     11 |       7 |            0.803 |       0.795 |
+| Stoneform Shoulders | 6 and above |     79 |      23 |            0.926 |       0.903 |
+
+A swing under twice the buff's amount keeps about half of itself, the 139 under Gold-plated's 15 among them, where the
+whole amount off would leave none of those. From twice the amount up both follow (U - F) / U, 0.01 to 0.02 above it;
+that offset is not explained.
+
+One fight reads two flat reductions together: mb8FgjhwVTLZ4q1d, fight 7, where Xorothian Imps swing for 55 to 99
+before armor at players under Black March Blessing (23120: 100 off, every school, an area buff no unit casts). The
+Blessing is down for 12 s with no Stoneskin Totem alive, which gives k for three players (17 to 22 swings each). With
+it up a swing loses 0.24 of itself before armor on the shaman (105 swings, a line at 0.250 x U - 0.8) and on the
+hunter (66 swings, 0.259 x U - 2.0), and 0.22 to 0.30 on the druid (373 swings): a share of the swing, and neither
+100 nor a half. The shaman's rank VI Stoneskin Totem stands for the first 108 s of those swings and changes nothing:
+the shaman's swings of 85 or more lose 0.242 of themselves with it (17 swings) and 0.241 without (36), the hunter's
+0.238 (11) and 0.236 (18). One cap holds for the flat amounts on a target together. Why that cap is a quarter under
+the Blessing is open; the imps' swings get through the druid's armor at 0.267 where most of the report's other NPCs
+read 0.37 to 0.42.
+
+A report's `unmitigatedAmount` holds no crit multiplier: on the Gift of Arthas enemies a player's white crit lands at
+2.005 times k x unmitigatedAmount with the debuff off (113 crits). With it on a crit leaves 10.71 +- 0.23 over twice
+k x unmitigatedAmount (106 crits, a mean k of 0.655), against 10.48 for the 8 doubled and 5.24 for the 8 added once:
+the crit doubles the flat amount. Whether the cap sits before the doubling is not read; 5 NPC crits land under Force
+of Will.
+
+How often the cap is reached on the wearers: 10.9% of their 566,734 white swings that deal damage, crits included, are
+under 102 before armor, 2.2% of the unmitigated damage. By fight that is 1.5% of the swings in Blackrock Spire, 1.9%
+in Blackrock Depths, 5.5% in Scholomance, 7.5% in Stratholme and 68.2% in Krol'dok Stronghold.
 
 ## Reports
 
@@ -490,3 +544,70 @@ mzgDjAhkWY8bdnxr, rtbzWXcByFwk7G8n, Y479CJ6Hb3Zt2zPk, H4NThcMa2dfR8gGr, Ragx4ZHt
 kBaRfmcVqbYypN4G, hBT4R7JfKgG6pNnt, LH4aGRZt7wVhkpcD, Pjkc2mBbhdYnQ9ZK, TJxaKCntRkGX3Dj2, 4AYDzX3qhLF86mbW,
 6Ab23vqJ9z1pRmH8, RGa4ZVtzjbh3YQ6x, c9pH1QPFxA3mGtvd, nqDL2hKfQB4yvjgJ, cmqRf34jdgzTxWp1, B6xYXRgnPWaMJFK8,
 bvfzYR3PaZ9HdynM, hAT34VWRB8aXjvk7, Ccvk1yDbBzFZAVqG, dMX79JcWz1FKPm6f
+
+Gold-plated, the 322 reports with a counted swing:
+
+7dHJyYKgf6WB9TpD, Wa2JYTq7tk9LjhRA, j342aPRr8Vg96mxv, FKY7R8vj3xTAMrHp, 8DgRxkGfPHCYQXnN, ZQvC4F7mPHxftAb3,
+bX29KarfQRWkGB4y, 6ZkgW4DwMP8RdbBG, 4xdA1HG6ykcTbvPB, DBd1HZM3YQ7h8zpb, DPGXCjVdmvhyL2fn, 8hgcQY1RkB6MwFAa,
+hvzCx1FQ8Bq6Zn3V, zQX4tA3FRYr1Kmwj, FfVHgkQpy4Y8KZ6n, 8fGaJA1zMHZFyWN3, 8rW9vbYx27AXf6nk, zXkwGd4jQfYNR9gJ,
+3jRP9wApBrXxCyav, nwacBPXR3ZJqYQdv, 2qcmHx7QGDz1w8r9, Zy3P1DpzhALvR2Gq, wHbyf7XFxLRkCpAW, MHjhartn3AxwBpXL,
+W2TRnwfz9cLFr7gv, Tm63MLtxhwpncqdN, xv6qP7Z4zkgyJdT2, 62qMKV9TgbvXzAfw, jbf2HXtNRzdArYpB, bAf9WdKnGpyY2aRB,
+GNhPk8tby6wC3Vnd, tapwDKg13nmTXWPy, 2WDqG6H8hac17PZK, aQqpwnMrNmkyBZYH, 821Lbp3wRQrHmKNP, mH7LaXAzcrKk3Ffq,
+bVmZBjTX68Nga9CG, qCr3MjH1LRwzTdWF, dRkYncbyFh27jr3t, kcLdxbB7aqXmjKTh, Zvkty2FVxwzCMbXd, 6Wna7r19qQKDP4yV,
+ZqHf41jvV9GM7Bnz, J8YZxmQ6GB14yMr9, 9DJGKCWqvZf3apkX, F67dNtKPnmQb9fvw, tWp4w8b7TnxhJHfP, hPYpkxrVKRZJ6D7j,
+Zq2GzC4Fvy3hbDnN, Y1NQrLjC6AZnkKVp, kyHYDjaT7F2zmQtA, XmtN7TFqRp1wykLZ, vdKwWbcHPFzh62a9, H6hMXfDybRFVApkG,
+gnfPKV9DLC3qXmy8, d9gct8wCB3VGmrK6, 3WCzBtTFZKH9y7mb, 8Mv36mpFnJ4G2btY, Lphqk4fPn1BVKbW3, Dm4Cxkb1f8rAWM7v,
+LHmG7FykZfA4tg6h, Jy7x384jfrgVQAMY, 1qa6bp8FvwZ7GRhD, 4A6VDmtjhcpB2YrL, QjrgXcZWRTqnMAFV, 83KD4dYAtWjrg9xn,
+TnVQ3YHbqMDRrxv9, GQxCXNjrYbTBJ8K1, AjWpMQrnk681gTta, 7dcWCq6AKzrb92nN, FMapyHhwz7qPG3KB, dbKR72zmgNcLy1TB,
+6vwYGgdFNXTrCfD8, Dkp9M2gHWXvfPFJK, gkNVCqXjhQt7DZB1, XwMvZqJ3Hm6NVDWh, YJN48Fh2QqRLkwaB, 1twaKYGX6FZnWV3y,
+DJBnfy6d1Wz8KRqH, 9L4hGr1bwmqAMnWf, Kf3BgWCLjMr29QpA, FX3KrvQ2Dag8ZPbT, WJPkYxQhTZw1LXrd, CY9BNHhZ4D27Xc6T,
+yZ39dLJ8McXgtTPw, pDCXzdPGY28WKagL, Hhv4QZCMDRyKPF6d, VacF6CqyjLRHp34m, NaMJGgXB6trWwyPb, bhHyGVrP7MkJvtf6,
+KJ3xfRDvHLdtYcPG, MFtRpDVkZjWTHJwz, jtgZTL92cpQV7Kam, Gbrm19NqXQ2a8ndV, Z9jPDJvKRWVtHpCf, jcHC6LMPw4DpvkXY,
+9vKbDJgYwkntAprm, C9jZwX2kJYBDW1xm, RMkDbFj7wnQJV3vT, D9Ljta1QzGAV8p3r, XA8gMNrqQJakKCFB, wxmvFq7dWj9KyBTD,
+A2yDHYB18fKr6FJx, ktdh9VjHNp1R4P6B, FBVvjf1bLmGMDh6A, 4AHmGnP78vgdTFrf, fvVc2qzapFBGn6Jx, pmvLh8dcMFXTgfDN,
+TCk49NrjMJ28GWpV, hk6yL9KjQBfgnAFJ, mZ8whFNxzBDWP1y2, rTKxLH3FyAgmNaXG, 3CAgGDrWfKF8PVBk, VC8hRDpv7gNrZabf,
+kzBmJ1T3KA6nLvZQ, mpwZ68XKaAhBn1FH, DWjgPMmLFrZ4RacV, dwakQVz3YLNmftKj, XvwRpVFxgPNG3LbW, kDLC6Km3f4ghPwyX,
+xcp2w7DCma3vN1Mg, Tp3CbBzgPWjKh7x4, fqMQK9daJZ47WLwz, VB6h49wfknpLjJZa, mBt3bGv8jX69dwpP, 9XwqjatdDGBMT8Wk,
+2dMA1wpLcCG8fVkz, Qb4kRc6yKBT2f1XC, fn4jGwgdJCRTFr6D, M1GaftLbY38xTmRw, 3wK4c7n9avYdykVT, 2Jkcq3LjCKXB9MG6,
+J6FCMqv7khrL3bpP, wPagd9YpZz72GWFJ, 91TVk6pJG2Afw7mC, DtFRCdLhjTVZ31Py, cQR2JVmj9b1n4L7p, bZXRqLpg6fxH9KkC,
+thg4dwFG98qMTHNy, bNyvF1M2XC9gG3BD, 8gwWdRT1NDpBhVcJ, tVDRKYQapH9AkxwX, B9C8TVwHJZk6G4F7, hNtMzKGBkfvZXqRg,
+L1YZF2PynCdbXzx3, PBkXcr2JGgx4NR9Q, HVqzTcj2aLgJPmB7, 8hTP3mzRM9XVbawW, a42r7kCB9p81DPvn, pNAzkK7MY4RvcVyQ,
+KzYBRnrkaX3gCFbA, TFMYA6Cz3N9HKxX7, YAyD8grNcbFH7Zvm, BT416hmrQPtqx79a, Mx6A1bjq3dy7fmc2, dLX3JtnFRNymYZ9C,
+7mxjzt4DfGMZ6TgX, ZG4W7AFmfzqKLhYC, B69h7FP4HTRbWmaV, nak6GtNdqJw3mcrj, ZgM4pwAFDjm8x9R7, pnAvmYVz7jw84fGR,
+Y1Wqcg6w7BymQh2L, gTZdj4GM1yQvRYtN, dgaxVBLNyGKb7TQr, BRyNGMPY96zrnT8F, b6fYJmdBAHrxwvqW, aMwchZFXtBdfz6Pg,
+9Vjt3BZw4cYD8zmd, R7fw48zhb9ACYtVq, 2vQcF8YKdHnLCrBN, HQC93xvpFwnrmyNV, A1M83b4jXrWRK6gz, m3rVcFxPgJDTRd9y,
+BycYP1qn6bw7HCrV, 9Z2yTWHBMvatDKxb, QwH69ngLG7yfTkzr, 1VfBdPt6JDZQ3wX7, nhtA6zwvkQjqFKMm, zYmZ4ArjnWtvCqHP,
+bdcvwjJrQmLVY9fP, g3yqM4DtzwkW7FGK, TGqpwnN7vQPdWcbV, mzcQ9vbkR4nTB7LH, x2WKajR61wQ4BdvF, ZKG3k4Lnhdmgr8j1,
+tgzN739wYnGfW8rQ, 84W9MpqLQkDT3fJH, Trj4wqJR1BCk2tMH, bDMQn7pV28BP4HKL, YvBZ9Mc4ztyLFbR1, BnvaZrdQ3ygkhf9x,
+MTgVc6w94AtKLQpk, aTktVmBCM4g8vdYx, JcNHWGxnTh9mwvBD, cjTv8ACq3y4XdxQa, 9nbzya6gFtvcTZPh, hdxJkZnMzvQ3KbtA,
+Qm6RtXMDGBPvhxC8, qnpPwbNYBZMf491d, ptwbJA3achHmQxqB, MTwXJg3v8RdLNpY9, DhzvT6fPQjc4ygbk, Mx8Az2XhNR9PjJQ4,
+jC3PWRVfTNQpLdaJ, nbDwkWVNhcpBGfXM, 2wg3NaAh4Qt8bJcr, RAgjxHhDLWVTJ2mv, jtZvgmBzfqXwdxM8, 6vWPz9xgLHr3Tpb7,
+41Fxfz6Vc3ZJgXjY, hN9wYPyq7HbTdBVF, bgwMVyYd4LAZQvXh, HZTBKCW8RfYQxNDn, QxaZ3wVBvgpfr6MC, rF8yVmHXcQZb4tGA,
+ntbCK7RZ8BLdvW1h, HbD6y7PaVKBLW2Cz, Dgmd4crXnyfapVNq, nN9XQhjfT7FxLtyB, xRAMwrk7GgdNqL19, NbwPAnvLaBZ8Trkf,
+nWbRZ8GdptYkCjvK, KMNXJn3gfxPb6hcG, CMYR2Z4kXaPJFBG7, LcBTWAwMNvjq3Qda, 4mtapjhwPdZ9LWAn, kKqtP1XZT8YGbj6g,
+1GtfnPp2k98Kv64F, RGpw8tJ7cgaj6bzf, ZqFcJdfa2VKzyvmW, pyY6Kg9bPRkQfMHL, XjLK4b67frpFnh1m, JVWykrTQB6PZzxHj,
+n8d1pHcjXzrZTM7x, agztmnCXVNRGqwvx, ZtPATcqmdFxKvaBR, HBXA4RjC91yxbNQV, pVdmf31ztah8cNj6, Nc8VmvRdjKWhgDwQ,
+LDpn3MJfr6v9my2F, nKNgy3VrZXkcdjBT, trgpWwRhD2GjVcK4, txD6pv3aBKVkHQGC, bVxfq4YPLFGpkT9X, QnbwKFxGraygkpAv,
+aMF1JcGxkDpjnYH9, C4dnZJb7yYfARQGN, DmVkKqcQyvx7FRaN, T9dcWVK4kayGtnHY, qkAc48TbvKmJaLY2, VCaB6hMPrxA8bYKJ,
+XnQjTd4bh6z7kPDB, bhY6kGNWtn7amcBJ, zf26hjagkZbFV1rJ, rcFvTxgkVp49jDCG, ARC6jdMJG4zNTtBV, DPZBhwmV4cHkyfab,
+fxNam3ZBVbdJ4Hp6, t7bRZVYApzMGgJW8, 6RvQJGgkZqyW9Pm7, VGXx3tCWpNAFTrMh, KZ1DBj6kfmt4xLpX, 28fkDyHTm76YAgVL,
+awxJTVtfzGC1hvD8, qrfRBgWAP76y8JFv, BfzWYwLADh1HnPk4, B6jfw4mcnPxWCKYD, aVqbfWYCMP8zrwFZ, 9yNQP3FWHgcVvYDq,
+X7T93BGj2DcvNkLt, N3MXVw9xrJqdcyQt, MQzcrtmPn8pYJ4WF, qCpQc6T9FVDARfNg, xPhaCzTjybrZ48gV, bWfZPBHG17dxgv6y,
+gGM6bHhJwTXm718W, zZvPT8KkQR4qftyj, 9TVG1QyMjZrhtPWY, xFCGzPZBL1MwaW8h, 9ZcCphv6nQ3wkd1P, 1HKqNrgGJpt6Tvnx,
+zdv2nL6XxaBm1Z8A, mvLQz21GRrKnWfPd, rfGhbTRZKtjBxzvX, xPC78Y6JRpgLDWwq, j7tKNzr3YQXTVR6n, 9LBdTqpzGHyXWanm,
+Phj961FCXx2KZWwk, 8z4xqtkQ6jZaPm3f, gGLmCaHknFdjTtJ9, 1h9P4rYzWDvtHRxb, nyWj34DhL9w1YFAP, PKRdnV4qapxMH1Gt,
+GNp7bXWgfjr3yAcm, QD8ypCXWJcv9Y2B3, BYFrZ4jf1zJbVkvd, ngCkNVyZRPzM6hYX, 94j2QJYfxcR1gvdD, b6C24Jd3V8WwpFx7,
+hjkVZTFrGbRv7cH8, 7vwKQyRBMt4kD3Td, bcqT8k3XQpKBCfJv, ACvNpyX4DafTgcZw, M6A1N8acHRJ29hVG, rFXNJymAgGtMh9bL,
+4q3p1Vhb2N6Q7rFY, 2kFjvxn3MzRLQWTD, DMKd8QbWqYGyanV2, DGcAwmbJY2TpdB83, 1PhWaJAyYQRFHcVB, RBPX86Fg9CxqhTD4,
+pxyvdRAQ4kZ2zLYa, FqVXJryknZYWTvKH, 6yfhjmC8tJYNk7Zd, 6CbctYwZzTX9qyjJ, Dcfmnp2VTQR7t8xw, LZVpRYxDC6aygfMF,
+Qh6PtMBaFcR194fb, rWX7GbVdjg6vTfFY, AZLYpdc6r7P2CMRm, 1mJ9QRpLy68NkPfw
+
+Stoneform Shoulders, the 25 reports with a counted swing:
+
+FVqQab31p7KXAJzt, jN7MvwCfz164kYyZ, NXMZV9xjvWpB7GtP, zmDY4LVX7N8vh9aR, B9gTmLcFW3R7GAHt, vFQhXgw42KmfjT8W,
+ZDWyQGqFBvagT7kA, dBNfgVDLMmnc8h4v, NrpM7DJQBKWqbzVF, v9CxPFNqVjnbkZM8, m43B9RfZpPMC21xr, N9PGBMt7faY6W2J8,
+3GYRdvqbPFr8yp9K, 81LcPyjXVbm2xGa3, aYyJ9hdFwXKgDk16, mbpQYGL8jaqgdrAz, XbDfcTpMyZ986arw, 4Tb63aXJykLnKWgN,
+QkVRc329w8nLTzKp, hDJKcgjxvWQfHt9M, Ck2vbA1pfqnKDgYV, 3jARkacpG1LJgCTN, Tnv3yPNtFKXQhgH9, cav7VZrmPbNW3y29,
+wrzB6GtjPaqCKJZW
+
+The Gift of Arthas crits come from the reports of its swings and zbpHhqxwNAZcj2Wa.

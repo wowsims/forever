@@ -357,23 +357,6 @@ func TestPreArmorDamage(t *testing.T) {
 	}
 }
 
-func TestFlatReductionBelowZeroGivesNoRage(t *testing.T) {
-	// A flat physical reduction larger than the hit leaves a special nothing to read: no rage, and no panic.
-	sim := SetupFakeRageSim()
-	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
-	spell := physicalMeleeSpecial(sim.Encounter.ActiveTargetUnits[0])
-	fw.stats[stats.Armor] = 0
-	fw.PseudoStats.BonusPhysicalDamageTaken = -30
-	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
-
-	rageBefore := fw.CurrentRage()
-	spell.DealDamage(sim, spell.calcDamageInternal(sim, &fw.Unit, 20, 1, false, hit))
-
-	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
-		t.Fatalf("Rage from a hit the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
-	}
-}
-
 func TestFullBlockGivesNoRage(t *testing.T) {
 	// A 1000 hit from a level 63 attacker on a defender without armor. A swing gives 2.5 * 0.6 * 1000 / 243.64
 	// = 6.157 when anything gets past the block, even when an absorb takes the rest. A special gives twice the
