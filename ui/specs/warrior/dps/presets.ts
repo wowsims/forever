@@ -101,15 +101,18 @@ export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	),
 );
 
-// The same sources as the Pre-BiS Fury gear. The shoulders are a world-drop green with the "of the Tiger" suffix,
-// and the weapon, Arcanite Champion, is a Blacksmithing craft whose plans drop in Upper Blackrock Spire.
+// The same sources as the Pre-BiS Fury gear, Don Julio's Band included. The shoulders are a world-drop green with the
+// "of the Tiger" suffix.
+// Destiny, the weapon, has no known source, and its Strength proc rolls a rate fitted from logs that more wearers
+// have yet to confirm (EV-0153). It beats Arcanite Champion, the Blacksmithing craft, by 4 to 5 %.
 export const PreBiSArmsGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSArmsGearJson, { ...ARMS_PRESET_OPTIONS, devOnly: true });
 
 // The Battle Stance build: Rend keeps Bloodthrill's Overpower procs coming, and Spearing Strike fills the
 // global cooldowns Mortal Strike and Slam leave.
 export const ArmsTalents = PresetUtils.makePresetTalents('Arms', SavedTalents.create({ talentsString: '30303213132215201-55050000002-2' }));
 
-// Measured on the Pre-BiS Arms gear with the Arms talents. Hit is its value below the 8% cap, where the gear sits.
+// Measured on Pre-BiS Arms gear with Arcanite Champion, Dawn Armor, Titanic Leggings and Blackhand's Breadth, and the
+// Arms talents. Hit is its value below the 8% cap, where the gear sits.
 export const PreBiSArmsEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Arms',
 	Stats.fromMap(

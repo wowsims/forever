@@ -198,7 +198,12 @@ for another race's racial or an untaken talent.
   saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732). Fury's swaps for
   Overpower and Rend stop at 40 rage: Tactical Mastery keeps 25 through the swap, and rage above 40 does more in
   Berserker Stance. The cap sits on the two swap lines only, since in Battle Stance the casts lose nothing, and Rend
-  needs some loss allowed: a cap of 25 leaves it off the target for part of the fight.
+  needs some loss allowed: a cap of 25 leaves it off the target for part of the fight. Arms' Stance Dance stays in
+  Battle Stance like the plain Arms rotation and swaps to Berserker Stance only for Whirlwind on two or more targets
+  at 25 to 40 rage and for Recklessness, then back; on one target any Whirlwind dance loses DPS, so it plays the plain
+  rotation there. A dance based in Berserker Stance loses Overpower, Spearing Strike and Mortal Strike to the rage
+  every swap drops. `Delay Check` reads Whirlwind's cooldown only on two or more targets: on one, Whirlwind never
+  goes, its cooldown never runs, and a check that waits on it never lets Battle Shout refresh.
 - **`Selected Potion` reads every potion slot unless its Slot is set** (`sim/core/apl_values_consumables.go`). A line
   that treats one slot's potion differently reads that slot: the Fury and Arms presets read each placeholder's own slot
   (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
