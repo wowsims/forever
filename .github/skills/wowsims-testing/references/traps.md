@@ -17,7 +17,9 @@ Numbers that move or differ for a known reason, and CI behaviour a pull request 
 - **Seeds overlap.** Iteration i runs on `RandomSeed + i` (`sim/core/sim.go`), so runs on nearby seeds share most
   iterations; space independent seeds by at least the iteration count.
 - **The CLI drops unknown JSON fields** (`DiscardUnknown` in `cmd/wowsimcli/cmd/basic_sim.go`), so a buff under the
-  wrong group (`partyBuffs` for a `RaidBuffs` field) vanishes with no error.
+  wrong group (`partyBuffs` for a `RaidBuffs` field) vanishes with no error. An enum value name the proto does not
+  have goes the same way: `"profession1": "ProfessionEngineering"` (the value is `Engineering`) sims a character with
+  no profession, so the Goblin Sapper Charge never registers.
 - **UI and CLI tank numbers differ.** A tank fixture may lack `inFrontOfTarget` (no dodge, parry or block) or
   `inspirationUptime`, and the UI's fallback target in `ui/sim/raid/encounter.ts` carries BlockValue 54 where the
   database Raid Target (`sim/encounters/register_all.go`) has none; the sim does not enforce `LimitCategory`.
