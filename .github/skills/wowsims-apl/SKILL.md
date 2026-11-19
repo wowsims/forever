@@ -190,7 +190,10 @@ for another race's racial or an untaken talent.
   condition; the ability's cooldown the same way; the rage; and for Overpower the proc outlasting the GCD
   (`Aura Remaining Time` above `GCD Time To Ready`). Swapping at the GCD drops the rage gained since a mid-GCD swap
   would have fired, about half a percent of DPS. Checking the spenders above Rend costs more DPS than the swaps it
-  saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732).
+  saves, and Fury keeps Overpower Weaving above Execute, Bloodthirst and Whirlwind (PR #732). Fury's swaps for
+  Overpower and Rend stop at 40 rage: Tactical Mastery keeps 25 through the swap, and rage above 40 does more in
+  Berserker Stance. The cap sits on the two swap lines only, since in Battle Stance the casts lose nothing, and Rend
+  needs some loss allowed: a cap of 25 leaves it off the target for part of the fight.
 - **`Selected Potion` reads every potion slot unless its Slot is set** (`sim/core/apl_values_consumables.go`). A line
   that treats one slot's potion differently reads that slot: the Fury and Arms presets read each placeholder's own slot
   (`Resource Potion: Rage`, `Offensive Potion: Rage`), so a rage potion picked as the offensive potion follows the
