@@ -3736,7 +3736,7 @@ func RegisterAllProcs() {
 	// Shoots a ring of fire dealing 154 Fire damage to all nearby enemies, and envelops the caster with a Fire
 	// Shield for 15s.
 	// https://www.wowhead.com/forever/spell=16559
-	// trigger 16559 (5.3 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16559 (1.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16559, BuffSpellID: 16559, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 11809, ItemName: "Flame Wrath"},

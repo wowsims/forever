@@ -2,7 +2,8 @@
 
 EV-0138 replaces what this file says of Windfury Totem's strike after push 114115: the strike grants rage and spends no
 warrior Flurry charge. EV-0146 replaces the rates of Julie's Dagger, Killmaim and Waveslicer with the reports up to
-2026-11-17 added. EV-0153 replaces the rates of Barbaric Crossbow, Bloodrazor, Bow of Searing Arrows, Burning War Axe,
+2026-11-17 added. EV-0151 replaces the Flame Wrath rate, whose count took Fire Shield's hits on attackers for procs.
+EV-0153 replaces the rates of Barbaric Crossbow, Bloodrazor, Bow of Searing Arrows, Burning War Axe,
 Cursed Felblade, Darkwater Talwar, Dazzling Longsword, Electrocutioner Leg, Fang of the Crystal Spider, Felstriker, Fist
 of the Damned, Glutton's Cleaver, Grimclaw, Hanzo Sword, Iron Knuckles, Ironforge Greathammer, Loksey's Training Stick,
 Lord General's Sword, Nightblade, Phantom Blade, Sang'thraze the Deflector, Satyr's Lash, Strike of the Hydra, Tainted

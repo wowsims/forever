@@ -300,8 +300,9 @@ func init() {
 	// Chance on landing a damaging spell to deal 112 Shadow damage and restore 104 mana to you.
 	//
 	// Every harmful spell that lands on an enemy rolls it once for each target, damage or not, on the cast
-	// time of the cast that launched it (EV-0025). Physical taunts, shouts and roars and spells an item
-	// casts are not the wearer's spells and roll nothing.
+	// time of the cast that launched it. 21978 lacks Can Proc From Procs, so a spell fired as a proc never
+	// rolls it; Hellfire Effect, whose row lacks Not a Proc, rolls nothing in game (EV-0025). Physical
+	// taunts, shouts and roars and spells an item casts are not the wearer's spells and roll nothing.
 	row := spelldata.MustFind(21978)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 21978, BuffSpellID: 27860,
 		Rate: func(character *core.Character, trigger *core.ProcTrigger) {
@@ -597,6 +598,10 @@ func init() {
 	// spell does not follow it, so each proc puts it on here for its duration, a later proc refreshing
 	// it (EV-0136). It raises Fire resistance and deals its damage shield's amount to each attacker
 	// that strikes the wearer.
+	//
+	// TODO: in Cat and Bear Form only the white swing rolls 16559 (EV-0151), while the generated weapon proc hears
+	// every landed melee hit, Maul and the form's other attacks included. Whether a form keeps every chance-on-hit
+	// weapon to the white swing is not settled.
 	shared.DamageProcExtras[11809] = func(character *core.Character, config *core.SpellConfig) {
 		row := spelldata.MustFind(config.ActionID.SpellID).EffectN(2).Trigger()
 		shield := character.RegisterAura(spelldata.AuraConfig(row, spelldata.Label("Flame Wrath Fire Shield")))

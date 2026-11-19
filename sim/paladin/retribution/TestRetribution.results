@@ -893,10 +893,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FlameWrath-11809"
  value: {
-  dps: 866.01744
-  tps: 707.4362
-  dtps: 5.69476
-  hps: 25.67659
+  dps: 836.0287
+  tps: 683.37769
+  dtps: 5.58638
+  hps: 25.67456
  }
 }
 dps_results: {
