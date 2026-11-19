@@ -72,14 +72,15 @@ export const PreBiSFuryGear = PresetUtils.makePresetGear('Pre-BiS', PreBiSFuryGe
 // The Fury build for fights of 60 to 300 s.
 export const FuryTalents = PresetUtils.makePresetTalents('Fury', SavedTalents.create({ talentsString: '30303213002-050530045122100231' }));
 
-// The Fury build against a Giant or Dragonkin boss: a Booming Voice point goes to Spearing Strike, which deals
-// extra damage to both, and the Fury rotation swaps to Battle Stance for it. On other targets it does less than Fury.
+// The Fury build against a Giant or Dragonkin boss: an Enrage point goes to Spearing Strike, which deals extra
+// damage to both, and the Fury rotation swaps to Battle Stance for it. On other targets it does less than Fury.
 export const FuryDragonkinGiantTalents = PresetUtils.makePresetTalents(
 	'Fury Dragonkin/Giant',
-	SavedTalents.create({ talentsString: '30303213102-250530005122100231-1' }),
+	SavedTalents.create({ talentsString: '30303213102-050530035122100231' }),
 );
 
-// Measured on the Pre-BiS Fury gear with the Fury talents.
+// Measured on Pre-BiS Fury gear with Gauntlets of Heroism, Titanic Leggings and Hand of Justice, and with Fury
+// talents that take Booming Voice and no Enrage.
 export const PreBiSFuryEpWeights = PresetUtils.makePresetEpWeights(
 	'Pre-BiS - Fury',
 	Stats.fromMap(
