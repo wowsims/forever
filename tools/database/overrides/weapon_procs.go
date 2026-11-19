@@ -309,15 +309,6 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Argent Avenger: no proc row; a log fit not yet validated (EV-0126)",
 		Source:  "observed",
 	},
-	// Measured on every landed melee hit, triggered hits included; the owner rounds it to 1.2 (EV-0132,
-	// EV-0136).
-	{
-		ItemID:  647,
-		SpellID: 17152,
-		PPM:     1.2,
-		Reason:  "Destiny: no proc row",
-		Source:  "EV-0132, EV-0136",
-	},
 	// Fitted from one wearer's landed melee hits; the owner rounds it to 1 (EV-0132). The "observed"
 	// Source keeps the gear tab's notice up until more wearers validate it.
 	{
@@ -378,24 +369,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  9372,
-		SpellID: 1294430,
-		PPM:     1.5,
-		Reason:  "Sul'thraze the Lasher: no proc row",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  9412,
 		SpellID: 29644,
 		PPM:     4.25,
 		Reason:  "Galgann's Fireblaster: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  9425,
-		SpellID: 10373,
-		PPM:     1.05,
-		Reason:  "Pendulum of Doom: no proc row",
 		Source:  "EV-0136",
 	},
 	{
@@ -420,13 +397,6 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0136",
 	},
 	{
-		ItemID:  10761,
-		SpellID: 1293790,
-		PPM:     2.85,
-		Reason:  "Coldrage Dagger: column reads 101",
-		Source:  "EV-0136",
-	},
-	{
 		ItemID:  13952,
 		SpellID: 1298416,
 		PPM:     1.9,
@@ -438,20 +408,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1282503,
 		PPM:     2.25,
 		Reason:  "Wolfsbane: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  274293,
-		SpellID: 1293714,
-		PPM:     1,
-		Reason:  "Spellsever Crossbow: no proc row",
-		Source:  "EV-0136",
-	},
-	{
-		ItemID:  286430,
-		SpellID: 1320269,
-		PPM:     1.95,
-		Reason:  "Toofbreaker: no proc row",
 		Source:  "EV-0136",
 	},
 	// Measured the same way with the reports up to 2026-11-17 added (EV-0146).
@@ -493,13 +449,20 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Blunderflame Bone Bow: no proc row; a log fit not yet validated (EV-0146)",
 		Source:  "observed",
 	},
-	// Measured the same way with the reports up to 2026-11-18 added and paladin wearers left out, a melee
-	// ability that deals no direct damage counted as a hit when it lands (EV-0153).
+	// Measured on every hit the class census finds rolling the weapon, each priced on its weapon's base speed,
+	// paladins and druids in a form left out (EV-0153, EV-0154).
 	{
 		ItemID:  869,
 		SpellID: 13752,
-		PPM:     2.6,
+		PPM:     2.65,
 		Reason:  "Dazzling Longsword: column reads 101",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  870,
+		SpellID: 18796,
+		PPM:     0.85,
+		Reason:  "Fiery War Axe: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
@@ -507,6 +470,13 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 1292158,
 		PPM:     2.05,
 		Reason:  "Grimclaw: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  1727,
+		SpellID: 13528,
+		PPM:     1,
+		Reason:  "Sword of Decay: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -519,14 +489,14 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2825,
 		SpellID: 29638,
-		PPM:     5.1,
+		PPM:     4.75,
 		Reason:  "Bow of Searing Arrows: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  2942,
 		SpellID: 13491,
-		PPM:     2.05,
+		PPM:     2,
 		Reason:  "Iron Knuckles: no proc row",
 		Source:  "EV-0153",
 	},
@@ -540,43 +510,57 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  6681,
 		SpellID: 1293183,
-		PPM:     3.2,
+		PPM:     3.15,
 		Reason:  "Thornspike: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  6909,
 		SpellID: 1292657,
-		PPM:     1.95,
+		PPM:     2.05,
 		Reason:  "Strike of the Hydra: column reads 101",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  7710,
 		SpellID: 1293482,
-		PPM:     2,
+		PPM:     1.9,
 		Reason:  "Loksey's Training Stick: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  7961,
 		SpellID: 9806,
-		PPM:     2.05,
+		PPM:     2,
 		Reason:  "Phantom Blade: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  8190,
 		SpellID: 16405,
-		PPM:     1.05,
+		PPM:     1,
 		Reason:  "Hanzo Sword: column reads 101; shares the trigger with The Needler",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  8225,
+		SpellID: 13530,
+		PPM:     1.95,
+		Reason:  "Tainted Pierce: no proc row",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  9379,
 		SpellID: 1294243,
-		PPM:     2.1,
+		PPM:     2.05,
 		Reason:  "Sang'thraze the Deflector: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  9425,
+		SpellID: 10373,
+		PPM:     0.9,
+		Reason:  "Pendulum of Doom: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -594,10 +578,24 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0153",
 	},
 	{
+		ItemID:  10761,
+		SpellID: 1293790,
+		PPM:     2.95,
+		Reason:  "Coldrage Dagger: column reads 101",
+		Source:  "EV-0153",
+	},
+	{
 		ItemID:  10772,
 		SpellID: 18075,
-		PPM:     2.1,
+		PPM:     2,
 		Reason:  "Glutton's Cleaver: column reads 101",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  10804,
+		SpellID: 18084,
+		PPM:     3.1,
+		Reason:  "Fist of the Damned: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -615,10 +613,10 @@ var WeaponProcs = []WeaponProc{
 		Source:  "EV-0153",
 	},
 	{
-		ItemID:  13016,
-		SpellID: 13318,
-		PPM:     0.9,
-		Reason:  "Killmaim: column reads 101",
+		ItemID:  13218,
+		SpellID: 17331,
+		PPM:     0.95,
+		Reason:  "Fang of the Crystal Spider: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -631,15 +629,22 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  17752,
 		SpellID: 1292155,
-		PPM:     2,
+		PPM:     1.95,
 		Reason:  "Satyr's Lash: no proc row; shares the trigger with Black Malice",
 		Source:  "EV-0153",
 	},
 	{
 		ItemID:  272999,
 		SpellID: 1291551,
-		PPM:     3.3,
+		PPM:     2.9,
 		Reason:  "Barbaric Crossbow: no proc row",
+		Source:  "EV-0153",
+	},
+	{
+		ItemID:  274293,
+		SpellID: 1293714,
+		PPM:     0.95,
+		Reason:  "Spellsever Crossbow: no proc row",
 		Source:  "EV-0153",
 	},
 	{
@@ -656,14 +661,20 @@ var WeaponProcs = []WeaponProc{
 		Reason:  "Ironforge Greathammer: no proc row",
 		Source:  "EV-0153",
 	},
-	// Fitted the same way from the reports up to 2026-11-18, from too few wearers, too wide an interval or
-	// wearers of one class only to call final (EV-0153). The "observed" Source keeps the gear tab's notice up
-	// until more wearers validate it.
 	{
-		ItemID:  809,
-		SpellID: 17504,
-		PPM:     0.9,
-		Reason:  "Bloodrazor: column reads 101; a log fit not yet validated (EV-0153)",
+		ItemID:  286430,
+		SpellID: 1320269,
+		PPM:     2.05,
+		Reason:  "Toofbreaker: no proc row",
+		Source:  "EV-0153",
+	},
+	// Fitted the same way from too few wearers, too wide an interval or wearers of one class only to call
+	// final (EV-0153). The "observed" Source keeps the gear tab's notice up until more wearers validate it.
+	{
+		ItemID:  647,
+		SpellID: 17152,
+		PPM:     1.05,
+		Reason:  "Destiny: no proc row; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -676,7 +687,7 @@ var WeaponProcs = []WeaponProc{
 	{
 		ItemID:  2000,
 		SpellID: 18091,
-		PPM:     0.95,
+		PPM:     0.9,
 		Reason:  "Archeus: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
@@ -702,17 +713,47 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  8225,
-		SpellID: 13530,
-		PPM:     2,
-		Reason:  "Tainted Pierce: no proc row; a log fit not yet validated (EV-0153)",
+		ItemID:  8708,
+		SpellID: 1317432,
+		PPM:     1.85,
+		Reason:  "Hammer of Expertise: no proc row; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
-		ItemID:  10804,
-		SpellID: 18084,
+		ItemID:  9372,
+		SpellID: 1294430,
+		PPM:     1.4,
+		Reason:  "Sul'thraze the Lasher: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  11920,
+		SpellID: 16414,
 		PPM:     3.35,
-		Reason:  "Fist of the Damned: no proc row; a log fit not yet validated (EV-0153)",
+		Reason:  "Wraith Scythe: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  12590,
+		SpellID: 16551,
+		PPM:     0.55,
+		Reason:  "Felstriker: no proc row; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	{
+		ItemID:  13953,
+		SpellID: 1293654,
+		PPM:     1.45,
+		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club; a log fit not yet validated (EV-0153)",
+		Source:  "observed",
+	},
+	// The one-hand white swings, the specials and all hits disagree on these weapons, so their rate is open and
+	// each row keeps the rate of a count on fewer reports (EV-0153).
+	{
+		ItemID:  809,
+		SpellID: 17504,
+		PPM:     0.9,
+		Reason:  "Bloodrazor: column reads 101; a log fit not yet validated (EV-0153)",
 		Source:  "observed",
 	},
 	{
@@ -723,25 +764,11 @@ var WeaponProcs = []WeaponProc{
 		Source:  "observed",
 	},
 	{
-		ItemID:  12590,
-		SpellID: 16551,
-		PPM:     0.6,
-		Reason:  "Felstriker: no proc row; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  13218,
-		SpellID: 17331,
-		PPM:     0.95,
-		Reason:  "Fang of the Crystal Spider: no proc row; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  13953,
-		SpellID: 1293654,
-		PPM:     1.45,
-		Reason:  "Silent Fang: no proc row; shares the trigger with Fight Club; a log fit not yet validated (EV-0153)",
-		Source:  "observed",
+		ItemID:  13016,
+		SpellID: 13318,
+		PPM:     0.9,
+		Reason:  "Killmaim: column reads 101",
+		Source:  "EV-0153",
 	},
 	// Fitted the same way from too few wearers or too wide an interval to call final (EV-0136). The
 	// "observed" Source keeps the gear tab's notice up until more wearers validate it.
@@ -750,13 +777,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 13439,
 		PPM:     4.55,
 		Reason:  "Hammer of the Northern Wind: column reads 101; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  870,
-		SpellID: 18796,
-		PPM:     0.95,
-		Reason:  "Fiery War Axe: column reads 101; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -792,13 +812,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 16401,
 		PPM:     0.85,
 		Reason:  "Poison-tipped Bone Spear: column reads 101; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  1727,
-		SpellID: 13528,
-		PPM:     1.1,
-		Reason:  "Sword of Decay: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{
@@ -876,13 +889,6 @@ var WeaponProcs = []WeaponProc{
 		SpellID: 13482,
 		PPM:     3.6,
 		Reason:  "The Ziggler: no proc row; a log fit not yet validated (EV-0136)",
-		Source:  "observed",
-	},
-	{
-		ItemID:  8708,
-		SpellID: 1317432,
-		PPM:     2,
-		Reason:  "Hammer of Expertise: no proc row; a log fit not yet validated (EV-0136)",
 		Source:  "observed",
 	},
 	{

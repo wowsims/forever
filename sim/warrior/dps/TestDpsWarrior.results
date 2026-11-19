@@ -542,8 +542,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Destiny-647"
  value: {
-  dps: 560.2101
-  tps: 472.21973
+  dps: 557.17745
+  tps: 469.82112
   dtps: 2.97628
   hps: 23.73917
  }
@@ -938,10 +938,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FieryWarAxe-870"
  value: {
-  dps: 497.46903
-  tps: 422.92903
+  dps: 497.89481
+  tps: 423.51344
   dtps: 2.97628
-  hps: 23.58667
+  hps: 23.73917
  }
 }
 dps_results: {
@@ -965,8 +965,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 528.85969
-  tps: 457.46249
+  dps: 528.65547
+  tps: 457.39625
   dtps: 2.94293
   hps: 44.85194
  }
@@ -1073,10 +1073,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 524.78182
-  tps: 455.00047
+  dps: 522.13382
+  tps: 452.92664
   dtps: 2.94293
-  hps: 44.41139
+  hps: 44.42833
  }
 }
 dps_results: {
@@ -1154,10 +1154,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 539.71889
-  tps: 466.29084
+  dps: 537.66881
+  tps: 465.02216
   dtps: 2.94293
-  hps: 43.19139
+  hps: 43.08972
  }
 }
 dps_results: {
@@ -1190,10 +1190,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 518.19315
-  tps: 450.61289
+  dps: 513.01928
+  tps: 445.69352
   dtps: 2.94293
-  hps: 48.6475
+  hps: 48.42722
  }
 }
 dps_results: {
@@ -1577,10 +1577,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 495.00719
-  tps: 419.98344
+  dps: 493.92169
+  tps: 418.66577
   dtps: 2.97628
-  hps: 22.57
+  hps: 22.51917
  }
 }
 dps_results: {
@@ -1595,8 +1595,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 514.24059
-  tps: 447.26486
+  dps: 514.15364
+  tps: 447.19636
   dtps: 2.94293
   hps: 47.25806
  }
@@ -1901,10 +1901,10 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 503.01331
-  tps: 429.47959
+  dps: 504.53083
+  tps: 430.69621
   dtps: 2.97628
-  hps: 28.53444
+  hps: 28.65306
  }
 }
 dps_results: {
@@ -2162,8 +2162,8 @@ dps_results: {
 dps_results: {
  key: "TestDpsWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 519.21214
-  tps: 451.35754
+  dps: 521.2319
+  tps: 452.10517
   dtps: 2.94293
   hps: 44.85194
  }
@@ -2328,6 +2328,15 @@ dps_results: {
   tps: 401.89406
   dtps: 2.97628
   hps: 27.55167
+ }
+}
+dps_results: {
+ key: "TestDpsWarrior-AllItems-WraithScythe-11920"
+ value: {
+  dps: 538.40894
+  tps: 463.38632
+  dtps: 2.94293
+  hps: 42.29333
  }
 }
 dps_results: {

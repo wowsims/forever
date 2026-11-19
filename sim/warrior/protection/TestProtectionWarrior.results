@@ -1082,9 +1082,9 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 500.61224
-  tps: 1667.95054
-  dtps: 298.45247
+  dps: 500.94884
+  tps: 1667.85707
+  dtps: 299.24516
   hps: 42.68083
  }
 }
@@ -1235,10 +1235,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 494.0394
-  tps: 1650.4819
-  dtps: 302.48705
-  hps: 41.69806
+  dps: 495.49294
+  tps: 1656.72592
+  dtps: 301.95293
+  hps: 41.715
  }
 }
 dps_results: {
@@ -1325,10 +1325,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 506.01753
-  tps: 1674.68808
-  dtps: 300.02517
-  hps: 41.22361
+  dps: 503.82596
+  tps: 1666.18501
+  dtps: 300.54827
+  hps: 41.15583
  }
 }
 dps_results: {
@@ -1361,10 +1361,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-HanzoSword-8190"
  value: {
-  dps: 507.63665
-  tps: 1700.37704
-  dtps: 306.10794
-  hps: 46.37472
+  dps: 508.48706
+  tps: 1702.41282
+  dtps: 304.62522
+  hps: 46.34083
  }
 }
 dps_results: {
@@ -1820,8 +1820,8 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-PhantomBlade-7961"
  value: {
-  dps: 505.69374
-  tps: 1694.6068
+  dps: 505.58532
+  tps: 1694.28411
   dtps: 303.60889
   hps: 45.20556
  }
@@ -2000,10 +2000,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 500.07914
-  tps: 1678.29392
-  dtps: 299.62089
-  hps: 44.47694
+  dps: 500.15271
+  tps: 1676.35222
+  dtps: 300.74634
+  hps: 44.49389
  }
 }
 dps_results: {
@@ -2513,10 +2513,10 @@ dps_results: {
 dps_results: {
  key: "TestProtectionWarrior-AllItems-Toofbreaker-286430"
  value: {
-  dps: 496.07032
-  tps: 1667.59308
-  dtps: 299.95305
-  hps: 42.52833
+  dps: 497.86001
+  tps: 1678.25457
+  dtps: 301.3102
+  hps: 42.56222
  }
 }
 dps_results: {
@@ -2679,6 +2679,15 @@ dps_results: {
   tps: 1470.13036
   dtps: 442.00237
   hps: 37.46194
+ }
+}
+dps_results: {
+ key: "TestProtectionWarrior-AllItems-WraithScythe-11920"
+ value: {
+  dps: 510.12627
+  tps: 1674.91717
+  dtps: 301.88844
+  hps: 40.27472
  }
 }
 dps_results: {

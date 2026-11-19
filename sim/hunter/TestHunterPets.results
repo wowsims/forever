@@ -400,9 +400,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 697.47836
-  tps: 481.50418
-  dtps: 4.14027
+  dps: 697.58974
+  tps: 482.69923
+  dtps: 4.41323
  }
 }
 dps_results: {
@@ -2352,6 +2352,14 @@ dps_results: {
  value: {
   dps: 692.50334
   tps: 487.37329
+  dtps: 5.13745
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-WraithScythe-11920"
+ value: {
+  dps: 678.71397
+  tps: 476.51037
   dtps: 5.13745
  }
 }

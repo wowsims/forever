@@ -390,8 +390,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 434.81157
-  tps: 2206.27858
+  dps: 434.97726
+  tps: 2206.63481
   dtps: 393.47945
   hps: 83.9845
  }
@@ -822,10 +822,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Felstriker-12590"
  value: {
-  dps: 493.68944
-  tps: 2506.01556
-  dtps: 394.59988
-  hps: 84.81232
+  dps: 491.46882
+  tps: 2484.32569
+  dtps: 394.81915
+  hps: 84.58307
  }
 }
 dps_results: {
@@ -894,8 +894,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 457.35272
-  tps: 2301.00377
+  dps: 456.75175
+  tps: 2299.71169
   dtps: 393.22357
   hps: 84.35117
  }
@@ -1083,10 +1083,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 464.06616
-  tps: 2322.2787
-  dtps: 395.26864
-  hps: 84.22517
+  dps: 462.01752
+  tps: 2315.19097
+  dtps: 393.62954
+  hps: 84.28946
  }
 }
 dps_results: {
@@ -1659,8 +1659,8 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 451.53741
-  tps: 2275.55103
+  dps: 451.38697
+  tps: 2275.22759
   dtps: 391.89679
   hps: 83.39811
  }
@@ -2037,10 +2037,10 @@ dps_results: {
 dps_results: {
  key: "TestFeralBear-AllItems-Toofbreaker-286430"
  value: {
-  dps: 442.43158
-  tps: 2247.4371
-  dtps: 394.6569
-  hps: 83.7994
+  dps: 443.64442
+  tps: 2254.77838
+  dtps: 396.02198
+  hps: 83.7226
  }
 }
 dps_results: {

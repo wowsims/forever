@@ -785,9 +785,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-FieryWarAxe-870"
  value: {
-  dps: 835.78706
-  tps: 866.76366
-  dtps: 8.38584
+  dps: 831.86941
+  tps: 863.08856
+  dtps: 8.4805
   hps: 22.16333
  }
 }
@@ -1253,9 +1253,9 @@ dps_results: {
 dps_results: {
  key: "TestEnhancement-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 835.98003
-  tps: 866.52525
-  dtps: 8.91788
+  dps: 834.63881
+  tps: 865.26116
+  dtps: 8.45388
   hps: 20.57056
  }
 }

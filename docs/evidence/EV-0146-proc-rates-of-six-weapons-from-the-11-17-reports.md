@@ -1,7 +1,7 @@
 # EV-0146: Proc rates of six weapons from the 2026-11-17 Warcraft Logs reports
 
-EV-0153 replaces the Killmaim rate with the reports up to 2026-11-18 added and Sunder Armor and Rend landings counted as
-hits.
+EV-0153 replaces the Killmaim rate with the reports up to 2026-11-19, counted on every hit the class census of EV-0154
+finds rolling a weapon proc.
 
 - Claim: Killmaim procs at 1 and Waveslicer at 1.95 procs per minute; Julie's Dagger at about 1.05, Axe of the Deep
   Woods at about 1.7, Barman Shanker at about 2.05 and Blunderflame Bone Bow at about 2.1, too few wearers, too wide

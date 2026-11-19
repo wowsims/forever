@@ -506,8 +506,8 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Destiny-647"
  value: {
-  dps: 912.24139
-  tps: 743.09783
+  dps: 908.09842
+  tps: 739.78346
   dtps: 4.35967
   hps: 25.34855
  }
@@ -866,9 +866,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-FieryWarAxe-870"
  value: {
-  dps: 843.21148
-  tps: 687.81546
-  dtps: 4.58531
+  dps: 841.1623
+  tps: 686.2433
+  dtps: 4.63941
   hps: 25.35516
  }
 }
@@ -1559,10 +1559,10 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 867.87541
-  tps: 707.35834
-  dtps: 4.3544
-  hps: 24.51065
+  dps: 863.408
+  tps: 703.56132
+  dtps: 4.19281
+  hps: 24.33375
  }
 }
 dps_results: {
@@ -1901,9 +1901,9 @@ dps_results: {
 dps_results: {
  key: "TestRetribution-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 827.57264
-  tps: 679.9979
-  dtps: 6.93304
+  dps: 827.00253
+  tps: 679.62328
+  dtps: 7.06005
   hps: 29.32931
  }
 }

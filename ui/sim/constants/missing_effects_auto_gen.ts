@@ -682,12 +682,6 @@ export const MISSING_ITEM_EFFECTS = new Map<number, string[]>([
 		]
 	],
 	[
-		11920, // Wraith Scythe
-		[
-			"Steals 49 life from target enemy. Deals 2 times as much damage to Undead.", // 16414 - https://www.wowhead.com/forever/spell=16414
-		]
-	],
-	[
 		11923, // The Hammer of Grace
 		[
 			"Dying heals all party members within 40 yds for 1176.", // 1300891 - https://www.wowhead.com/forever/spell=1300891

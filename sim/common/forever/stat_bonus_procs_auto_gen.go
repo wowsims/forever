@@ -605,19 +605,6 @@ func RegisterAllProcs() {
 	//       This can be ignored if the effect has already been implemented.
 	//       With next db run the item will be removed if implemented.
 	//
-	// Steals 49 life from target enemy. Deals 2 times as much damage to Undead.
-	// https://www.wowhead.com/forever/spell=16414
-	// unsupported: states no rate
-	// trigger 16414 (0%, core.CallbackEmpty, core.ProcMaskUnknown)
-	// shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16414, BuffSpellID: 16414, IsWeaponProc: true},
-	//	[]shared.ItemVariant{
-	//	{ItemID: 11920, ItemName: "Wraith Scythe"},
-	// })
-
-	// TODO: Manual implementation required
-	//       This can be ignored if the effect has already been implemented.
-	//       With next db run the item will be removed if implemented.
-	//
 	// Dying heals all party members within 40 yds for 1176.
 	// https://www.wowhead.com/forever/spell=1300891
 	// unsupported: ProcTypeMask DEATH; no callback in the proc mask; the heal lands on implicit target 22, not the wearer
@@ -3292,7 +3279,7 @@ func RegisterAllProcs() {
 
 	// Increases Strength by 200 for 12s.
 	// https://www.wowhead.com/forever/spell=17152
-	// trigger 17152 (1.2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 17152 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataProc(shared.SpellDataProc{TriggerSpellID: 17152, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 647, ItemName: "Destiny"},
@@ -3332,7 +3319,7 @@ func RegisterAllProcs() {
 
 	// Decrease the armor of the target by 100 for 30s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=13752
-	// trigger 13752 (2.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 13752 (2.65 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 13752, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 869, ItemName: "Dazzling Longsword"},
@@ -3340,7 +3327,7 @@ func RegisterAllProcs() {
 
 	// Hurls a fiery ball that causes 262 Fire damage and an additional 60 damage over 6s.
 	// https://www.wowhead.com/forever/spell=18796
-	// trigger 18796 (0.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18796 (0.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18796, BuffSpellID: 18796, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 870, ItemName: "Fiery War Axe"},
@@ -3448,7 +3435,7 @@ func RegisterAllProcs() {
 
 	// Fires a Searing Arrow at the target for 28 Fire damage.
 	// https://www.wowhead.com/forever/spell=29638
-	// trigger 29638 (5.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 29638 (4.75 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 29638, BuffSpellID: 29638, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 2825, ItemName: "Bow of Searing Arrows"},
@@ -3520,7 +3507,7 @@ func RegisterAllProcs() {
 
 	// Decrease the armor of the target by 100 for 20s. While affected, the target cannot stealth or turn invisible.
 	// https://www.wowhead.com/forever/spell=9806
-	// trigger 9806 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 9806 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDebuffProc(shared.SpellDataProc{TriggerSpellID: 9806, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 7961, ItemName: "Phantom Blade"},
@@ -3528,7 +3515,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target for 75 damage.
 	// https://www.wowhead.com/forever/spell=16405
-	// trigger 16405 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16405 (1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16405, BuffSpellID: 16405, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 8190, ItemName: "Hanzo Sword"},
@@ -3537,7 +3524,7 @@ func RegisterAllProcs() {
 	// Deal 112 Fire damage. Deals 3 times as much damage to Earth Elementals, Fire Elementals, and Mountain
 	// Giants.
 	// https://www.wowhead.com/forever/spell=1317432
-	// trigger 1317432 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1317432 (1.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1317432, BuffSpellID: 1317432, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 8708, ItemName: "Hammer of Expertise"},
@@ -3547,7 +3534,7 @@ func RegisterAllProcs() {
 	// Shadow damage. After 5s, the target suffers an additional 159 Shadow damage. This additional Shadow damage
 	// deals 2 times as much damage to Trolls.
 	// https://www.wowhead.com/forever/spell=1294430
-	// trigger 1294430 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1294430 (1.4 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1294430, BuffSpellID: 1294430, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9372, ItemName: "Sul'thraze the Lasher"},
@@ -3555,7 +3542,7 @@ func RegisterAllProcs() {
 
 	// Increases your chance to Parry attacks by 2% for 9s.
 	// https://www.wowhead.com/forever/spell=1294243
-	// trigger 1294243 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1294243 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 1294243, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9379, ItemName: "Sang'thraze the Deflector"},
@@ -3580,7 +3567,7 @@ func RegisterAllProcs() {
 
 	// Delivers a fatal wound for 311 Physical damage. Deals 50% increased damage to targets below 25% health.
 	// https://www.wowhead.com/forever/spell=10373
-	// trigger 10373 (1.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 10373 (0.9 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 10373, BuffSpellID: 10373, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 9425, ItemName: "Pendulum of Doom - Fatal Wound"},
@@ -3654,7 +3641,7 @@ func RegisterAllProcs() {
 
 	// Launches a bolt of frost at the enemy causing 42 Frost damage and slowing movement speed by 50% for 5s.
 	// https://www.wowhead.com/forever/spell=1293790
-	// trigger 1293790 (2.85 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1293790 (2.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1293790, BuffSpellID: 1293790, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10761, ItemName: "Coldrage Dagger"},
@@ -3662,7 +3649,7 @@ func RegisterAllProcs() {
 
 	// Wounds the target causing them to bleed for 70 damage over 7s.
 	// https://www.wowhead.com/forever/spell=18075
-	// trigger 18075 (2.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18075 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18075, BuffSpellID: 18075, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10772, ItemName: "Glutton's Cleaver"},
@@ -3686,7 +3673,7 @@ func RegisterAllProcs() {
 
 	// Steals 56 life from target enemy.
 	// https://www.wowhead.com/forever/spell=18084
-	// trigger 18084 (3.35 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 18084 (3.1 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 18084, BuffSpellID: 18084, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 10804, ItemName: "Fist of the Damned"},
@@ -3774,6 +3761,14 @@ func RegisterAllProcs() {
 			{ItemID: 11902, ItemName: "Linken's Sword of Mastery"},
 		})
 
+	// Steals 49 life from target enemy. Deals 2 times as much damage to Undead.
+	// https://www.wowhead.com/forever/spell=16414
+	// trigger 16414 (3.35 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 16414, BuffSpellID: 16414, IsWeaponProc: true},
+		[]shared.ItemVariant{
+			{ItemID: 11920, ItemName: "Wraith Scythe"},
+		})
+
 	// Wounds the target causing them to bleed for 161 damage over 7s. Deals 2 times as much damage to Dragonkin.
 	// https://www.wowhead.com/forever/spell=14118
 	// trigger 14118 (1.5 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
@@ -3801,7 +3796,7 @@ func RegisterAllProcs() {
 
 	// All attacks are guaranteed to land and will be critical strikes for the next 3s.
 	// https://www.wowhead.com/forever/spell=16551
-	// trigger 16551 (0.6 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 16551 (0.55 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataAuraProc(shared.SpellDataProc{TriggerSpellID: 16551, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 12590, ItemName: "Felstriker"},
@@ -4114,7 +4109,7 @@ func RegisterAllProcs() {
 
 	// Sends a shadowy bolt at the enemy causing 70 Shadow damage.
 	// https://www.wowhead.com/forever/spell=1292155
-	// trigger 1292155 (2 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1292155 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1292155, BuffSpellID: 1292155, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 17752, ItemName: "Satyr's Lash"},
@@ -4432,7 +4427,7 @@ func RegisterAllProcs() {
 
 	// Bash the target, causing 42 Physical damage. Deals 2 times as much damage if the target is facing you.
 	// https://www.wowhead.com/forever/spell=1320269
-	// trigger 1320269 (1.95 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
+	// trigger 1320269 (2.05 ppm on the item, core.CallbackEmpty, core.ProcMaskUnknown)
 	shared.NewSpellDataDamageProc(shared.SpellDataProc{TriggerSpellID: 1320269, BuffSpellID: 1320269, IsWeaponProc: true},
 		[]shared.ItemVariant{
 			{ItemID: 286430, ItemName: "Toofbreaker"},

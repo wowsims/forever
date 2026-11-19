@@ -956,9 +956,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-FistoftheDamned-10804"
  value: {
-  dps: 410.49432
-  tps: 981.42884
-  dtps: 336.00998
+  dps: 409.967
+  tps: 980.89826
+  dtps: 336.27787
   hps: 21.045
  }
 }
@@ -1091,10 +1091,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 402.85941
-  tps: 967.81491
-  dtps: 339.93502
-  hps: 20.45194
+  dps: 403.9082
+  tps: 971.53128
+  dtps: 339.55635
+  hps: 20.48583
  }
 }
 dps_results: {
@@ -1181,10 +1181,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HammerofExpertise-8708"
  value: {
-  dps: 413.0114
-  tps: 983.12467
-  dtps: 338.38846
-  hps: 20.19778
+  dps: 410.33657
+  tps: 978.06264
+  dtps: 338.8191
+  hps: 20.18083
  }
 }
 dps_results: {
@@ -1217,9 +1217,9 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-HanzoSword-8190"
  value: {
-  dps: 415.11066
-  tps: 1010.07752
-  dtps: 344.34253
+  dps: 414.48521
+  tps: 1009.28782
+  dtps: 344.88499
   hps: 25.17944
  }
 }
@@ -1739,8 +1739,8 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-PhantomBlade-7961"
  value: {
-  dps: 406.71156
-  tps: 988.98187
+  dps: 406.68799
+  tps: 988.95052
   dtps: 341.0316
   hps: 23.92556
  }
@@ -1919,10 +1919,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Sang'thrazetheDeflector-9379"
  value: {
-  dps: 406.13928
-  tps: 987.73488
-  dtps: 332.19941
-  hps: 22.875
+  dps: 405.62957
+  tps: 985.44199
+  dtps: 331.88465
+  hps: 22.90889
  }
 }
 dps_results: {
@@ -2441,10 +2441,10 @@ dps_results: {
 dps_results: {
  key: "TestProtection-AllItems-Toofbreaker-286430"
  value: {
-  dps: 402.86851
-  tps: 974.47161
-  dtps: 340.34314
-  hps: 21.06194
+  dps: 403.22566
+  tps: 975.50703
+  dtps: 340.3149
+  hps: 21.09583
  }
 }
 dps_results: {
@@ -2598,6 +2598,15 @@ dps_results: {
   tps: 893.00359
   dtps: 478.03324
   hps: 18.1475
+ }
+}
+dps_results: {
+ key: "TestProtection-AllItems-WraithScythe-11920"
+ value: {
+  dps: 411.66493
+  tps: 979.46346
+  dtps: 335.37072
+  hps: 19.23194
  }
 }
 dps_results: {

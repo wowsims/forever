@@ -2295,6 +2295,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-WraithScythe-11920"
+ value: {
+  dps: 821.59346
+  tps: 756.08753
+  dtps: 6.36427
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-WrathofCenarius-21190"
  value: {
   dps: 880.60557
