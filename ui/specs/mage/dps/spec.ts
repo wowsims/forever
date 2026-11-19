@@ -136,7 +136,7 @@ export default defineSpec<Spec.SpecMage>({
 			Presets.SkyborneFireGT180Talents,
 		],
 		// Preset gear configurations that the user can quickly select.
-		gear: [Presets.PreRaidArcaneGear, Presets.PreRaidFireGear],
+		gear: [Presets.PreRaidArcaneGear, Presets.PreRaidFireGear, Presets.PreRaidFrostGear],
 		builds: [Presets.ArcaneBuild, Presets.ArcaneFireBuild, Presets.FFBBuild, Presets.FireBuild, Presets.FrostIncinBuild, Presets.FrostMedBuild],
 	},
 

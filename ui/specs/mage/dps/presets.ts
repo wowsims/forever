@@ -15,9 +15,11 @@ import frost from './apls/frost.apl.json';
 //GEAR
 import PreRaidArcaneGearJson from './gear_sets/preraid.gear.json';
 import PreRaidFireGearJson from './gear_sets/preraidFire.gear.json';
+import PreRaidFrostGearJson from './gear_sets/preraidFrost.gear.json';
 
 export const PreRaidArcaneGear = PresetUtils.makePresetGear('Preraid', PreRaidArcaneGearJson, { group: 'Arcane', phase: Phase.Phase1 });
 export const PreRaidFireGear = PresetUtils.makePresetGear('Preraid', PreRaidFireGearJson, { group: 'Fire', phase: Phase.Phase1 });
+export const PreRaidFrostGear = PresetUtils.makePresetGear('Preraid', PreRaidFrostGearJson, { group: 'Frost', phase: Phase.Phase1 });
 
 //APL
 export const ArcaneAplPreset = PresetUtils.makePresetAPLRotation('Arcane', arcane);
@@ -155,7 +157,7 @@ export const FrostSettings: PresetSettings = {
 
 export const FrostIncinBuild = PresetUtils.makePresetBuild('Frost Incin', {
 	group: 'Frost',
-	gear: PreRaidArcaneGear,
+	gear: PreRaidFrostGear,
 	talents: FrostIncinTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FrostAplPreset,
@@ -164,7 +166,7 @@ export const FrostIncinBuild = PresetUtils.makePresetBuild('Frost Incin', {
 
 export const FrostMedBuild = PresetUtils.makePresetBuild('Frost Med', {
 	group: 'Frost',
-	gear: PreRaidArcaneGear,
+	gear: PreRaidFrostGear,
 	talents: FrostMedTalents,
 	//rotationType: APLRotationType.TypeAuto,
 	rotation: FrostAplPreset,
