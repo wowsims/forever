@@ -2649,6 +2649,14 @@
 					"delay_major_cds": {
 						"label": "Delay major cooldowns (s)",
 						"tooltip": "How many seconds into the fight to wait before trinkets and other cooldowns are used automatically."
+					},
+					"uw_soc_stacks": {
+						"label": "Echo of Command stacks",
+						"tooltip": "The amount of stacks of Echo of Command to build before swapping to Seal of Righteousness"
+					},
+					"uw_sor_stacks": {
+						"label": "Echo of Righteousness stacks",
+						"tooltip": "The amount of stacks of Echo of Righteousness to build before swapping to Seal of Command"
 					}
 				}
 			},
