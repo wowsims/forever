@@ -908,8 +908,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedDamage;
 	}
 
+	get piercedDamage() {
+		return this.combinedMetrics.piercedDamage;
+	}
+
 	get avgResistedDamage() {
 		return this.combinedMetrics.avgResistedDamage;
+	}
+
+	get avgPiercedDamage() {
+		return this.combinedMetrics.avgPiercedDamage;
 	}
 
 	get critDamage() {
@@ -924,8 +932,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedCritDamage;
 	}
 
+	get piercedCritDamage() {
+		return this.combinedMetrics.piercedCritDamage;
+	}
+
 	get avgResistedCritDamage() {
 		return this.combinedMetrics.avgResistedCritDamage;
+	}
+
+	get avgPiercedCritDamage() {
+		return this.combinedMetrics.avgPiercedCritDamage;
 	}
 
 	get tickDamage() {
@@ -940,8 +956,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedTickDamage;
 	}
 
+	get piercedTickDamage() {
+		return this.combinedMetrics.piercedTickDamage;
+	}
+
 	get avgResistedTickDamage() {
 		return this.combinedMetrics.avgResistedTickDamage;
+	}
+
+	get avgPiercedTickDamage() {
+		return this.combinedMetrics.avgPiercedTickDamage;
 	}
 
 	get critTickDamage() {
@@ -955,8 +979,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedCritTickDamage;
 	}
 
+	get piercedCritTickDamage() {
+		return this.combinedMetrics.piercedCritTickDamage;
+	}
+
 	get avgResistedCritTickDamage() {
 		return this.combinedMetrics.avgResistedCritTickDamage;
+	}
+
+	get avgPiercedCritTickDamage() {
+		return this.combinedMetrics.avgPiercedCritTickDamage;
 	}
 
 	get glanceDamage() {
@@ -1189,12 +1221,20 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedHits;
 	}
 
+	get piercedHits() {
+		return this.combinedMetrics.piercedHits;
+	}
+
 	get hitPercent() {
 		return this.combinedMetrics.hitPercent;
 	}
 
 	get resistedHitPercent() {
 		return this.combinedMetrics.resistedHitPercent;
+	}
+
+	get piercedHitPercent() {
+		return this.combinedMetrics.piercedHitPercent;
 	}
 
 	get ticks() {
@@ -1205,8 +1245,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedTicks;
 	}
 
+	get piercedTicks() {
+		return this.combinedMetrics.piercedTicks;
+	}
+
 	get resistedTickPercent() {
 		return this.combinedMetrics.resistedTickPercent;
+	}
+
+	get piercedTickPercent() {
+		return this.combinedMetrics.piercedTickPercent;
 	}
 
 	get critTicks() {
@@ -1221,8 +1269,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedCritTicks;
 	}
 
+	get piercedCritTicks() {
+		return this.combinedMetrics.piercedCritTicks;
+	}
+
 	get resistedCritTickPercent() {
 		return this.combinedMetrics.resistedCritTickPercent;
+	}
+
+	get piercedCritTickPercent() {
+		return this.combinedMetrics.piercedCritTickPercent;
 	}
 
 	get crushes() {
@@ -1269,8 +1325,16 @@ export class ActionMetrics {
 		return this.combinedMetrics.resistedCrits;
 	}
 
+	get piercedCrits() {
+		return this.combinedMetrics.piercedCrits;
+	}
+
 	get resistedCritPercent() {
 		return this.combinedMetrics.resistedCritPercent;
+	}
+
+	get piercedCritPercent() {
+		return this.combinedMetrics.piercedCritPercent;
 	}
 
 	get healingPercent() {
@@ -1327,6 +1391,10 @@ export class ActionMetrics {
 				this.avgResistedTickDamage +
 				this.avgResistedCritDamage -
 				this.avgResistedCritTickDamage -
+				this.avgPiercedDamage +
+				this.avgPiercedTickDamage +
+				this.avgPiercedCritDamage -
+				this.avgPiercedCritTickDamage -
 				this.avgCritDamage +
 				this.avgCritTickDamage -
 				this.avgTickDamage -
@@ -1339,20 +1407,41 @@ export class ActionMetrics {
 		const normalResistedHitAvgDamage = Number(
 			(this.avgResistedDamage - this.avgResistedCritDamage - this.avgResistedTickDamage + this.avgResistedCritTickDamage).toFixed(8),
 		);
-		const critHitAvgDamage = Number((this.avgCritDamage - this.avgResistedCritDamage - this.avgCritTickDamage + this.avgResistedCritTickDamage).toFixed(8));
+		const normalPiercedHitAvgDamage = Number(
+			(this.avgPiercedDamage - this.avgPiercedCritDamage - this.avgPiercedTickDamage + this.avgPiercedCritTickDamage).toFixed(8),
+		);
+		const critHitAvgDamage = Number(
+			(
+				this.avgCritDamage -
+				this.avgResistedCritDamage -
+				this.avgPiercedCritDamage -
+				this.avgCritTickDamage +
+				this.avgResistedCritTickDamage +
+				this.avgPiercedCritTickDamage
+			).toFixed(8),
+		);
 		const resistedCritHitAvgDamage = Number((this.avgResistedCritDamage - this.avgResistedCritTickDamage).toFixed(8));
+		const piercedCritHitAvgDamage = Number((this.avgPiercedCritDamage - this.avgPiercedCritTickDamage).toFixed(8));
 
 		const normalTickAvgDamage = Number(
-			(this.avgTickDamage - this.avgCritTickDamage - this.avgResistedTickDamage + this.avgResistedCritTickDamage).toFixed(8),
+			(
+				this.avgTickDamage -
+				this.avgCritTickDamage -
+				this.avgResistedTickDamage +
+				this.avgResistedCritTickDamage -
+				this.avgPiercedTickDamage +
+				this.avgPiercedCritTickDamage
+			).toFixed(8),
 		);
 		const normalResistedTickAvgDamage = Number((this.avgResistedTickDamage - this.avgResistedCritTickDamage).toFixed(8));
-		const normalCritTickAvgDamage = Number((this.avgCritTickDamage - this.avgResistedCritTickDamage).toFixed(8));
+		const normalPiercedTickAvgDamage = Number((this.avgPiercedTickDamage - this.avgPiercedCritTickDamage).toFixed(8));
+		const normalCritTickAvgDamage = Number((this.avgCritTickDamage - this.avgResistedCritTickDamage - this.avgPiercedCritTickDamage).toFixed(8));
 
 		return {
 			hit: {
 				value: normalHitAvgDamage,
 				percentage: percentOf(normalHitAvgDamage, this.avgDamage),
-				average: normalHitAvgDamage / (this.hits - this.resistedHits),
+				average: normalHitAvgDamage / (this.hits - this.resistedHits - this.piercedHits),
 				...this.bounds(HitKind.HitKindHit),
 			},
 			resistedHit: {
@@ -1361,10 +1450,16 @@ export class ActionMetrics {
 				average: normalResistedHitAvgDamage / this.resistedHits,
 				...this.bounds(HitKind.HitKindResistedHit),
 			},
+			piercedHit: {
+				value: normalPiercedHitAvgDamage,
+				percentage: percentOf(normalPiercedHitAvgDamage, this.avgDamage),
+				average: normalPiercedHitAvgDamage / this.piercedHits,
+				...this.bounds(HitKind.HitKindPiercedHit),
+			},
 			critHit: {
 				value: critHitAvgDamage,
 				percentage: percentOf(critHitAvgDamage, this.avgDamage),
-				average: critHitAvgDamage / (this.crits - this.resistedCrits),
+				average: critHitAvgDamage / (this.crits - this.resistedCrits - this.piercedCrits),
 				...this.bounds(HitKind.HitKindCrit),
 			},
 			resistedCritHit: {
@@ -1373,10 +1468,16 @@ export class ActionMetrics {
 				average: resistedCritHitAvgDamage / this.resistedCrits,
 				...this.bounds(HitKind.HitKindResistedCrit),
 			},
+			piercedCritHit: {
+				value: piercedCritHitAvgDamage,
+				percentage: percentOf(piercedCritHitAvgDamage, this.avgDamage),
+				average: piercedCritHitAvgDamage / this.piercedCrits,
+				...this.bounds(HitKind.HitKindPiercedCrit),
+			},
 			tick: {
 				value: normalTickAvgDamage,
 				percentage: percentOf(normalTickAvgDamage, this.avgDamage),
-				average: normalTickAvgDamage / (this.ticks - this.resistedTicks),
+				average: normalTickAvgDamage / (this.ticks - this.resistedTicks - this.piercedTicks),
 				...this.bounds(HitKind.HitKindTick),
 			},
 			resistedTick: {
@@ -1385,10 +1486,16 @@ export class ActionMetrics {
 				average: normalResistedTickAvgDamage / this.resistedTicks,
 				...this.bounds(HitKind.HitKindResistedTick),
 			},
+			piercedTick: {
+				value: normalPiercedTickAvgDamage,
+				percentage: percentOf(normalPiercedTickAvgDamage, this.avgDamage),
+				average: normalPiercedTickAvgDamage / this.piercedTicks,
+				...this.bounds(HitKind.HitKindPiercedTick),
+			},
 			critTick: {
 				value: normalCritTickAvgDamage,
 				percentage: percentOf(normalCritTickAvgDamage, this.avgDamage),
-				average: normalCritTickAvgDamage / (this.critTicks - this.resistedCritTicks),
+				average: normalCritTickAvgDamage / (this.critTicks - this.resistedCritTicks - this.piercedCritTicks),
 				...this.bounds(HitKind.HitKindCritTick),
 			},
 			resistedCritTick: {
@@ -1396,6 +1503,12 @@ export class ActionMetrics {
 				percentage: percentOf(this.avgResistedCritTickDamage, this.avgDamage),
 				average: this.avgResistedCritTickDamage / this.resistedCritTicks,
 				...this.bounds(HitKind.HitKindResistedCritTick),
+			},
+			piercedCritTick: {
+				value: this.avgPiercedCritTickDamage,
+				percentage: percentOf(this.avgPiercedCritTickDamage, this.avgDamage),
+				average: this.avgPiercedCritTickDamage / this.piercedCritTicks,
+				...this.bounds(HitKind.HitKindPiercedCritTick),
 			},
 			glance: {
 				value: this.avgGlanceDamage,
@@ -1602,8 +1715,16 @@ class TargetedActionMetrics {
 		return this.data.resistedDamage;
 	}
 
+	get piercedDamage() {
+		return this.data.piercedDamage;
+	}
+
 	get avgResistedDamage() {
 		return this.data.resistedDamage / this.iterations;
+	}
+
+	get avgPiercedDamage() {
+		return this.data.piercedDamage / this.iterations;
 	}
 
 	get critDamage() {
@@ -1618,8 +1739,16 @@ class TargetedActionMetrics {
 		return this.data.resistedCritDamage;
 	}
 
+	get piercedCritDamage() {
+		return this.data.piercedCritDamage;
+	}
+
 	get avgResistedCritDamage() {
 		return this.data.resistedCritDamage / this.iterations;
+	}
+
+	get avgPiercedCritDamage() {
+		return this.data.piercedCritDamage / this.iterations;
 	}
 
 	get tickDamage() {
@@ -1634,8 +1763,16 @@ class TargetedActionMetrics {
 		return this.data.resistedTickDamage;
 	}
 
+	get piercedTickDamage() {
+		return this.data.piercedTickDamage;
+	}
+
 	get avgResistedTickDamage() {
 		return this.data.resistedTickDamage / this.iterations;
+	}
+
+	get avgPiercedTickDamage() {
+		return this.data.piercedTickDamage / this.iterations;
 	}
 
 	get critTickDamage() {
@@ -1650,8 +1787,16 @@ class TargetedActionMetrics {
 		return this.data.resistedCritTickDamage;
 	}
 
+	get piercedCritTickDamage() {
+		return this.data.piercedCritTickDamage;
+	}
+
 	get avgResistedCritTickDamage() {
 		return this.data.resistedCritTickDamage / this.iterations;
+	}
+
+	get avgPiercedCritTickDamage() {
+		return this.data.piercedCritTickDamage / this.iterations;
 	}
 
 	get glanceDamage() {
@@ -1875,8 +2020,16 @@ class TargetedActionMetrics {
 		return this.data.resistedHits / this.iterations;
 	}
 
+	get piercedHits() {
+		return this.data.piercedHits / this.iterations;
+	}
+
 	get resistedHitPercent() {
 		return percentOf(this.data.resistedHits, this.hitAttempts);
+	}
+
+	get piercedHitPercent() {
+		return percentOf(this.data.piercedHits, this.hitAttempts);
 	}
 
 	get ticks() {
@@ -1887,8 +2040,16 @@ class TargetedActionMetrics {
 		return this.data.resistedTicks / this.iterations;
 	}
 
+	get piercedTicks() {
+		return this.data.piercedTicks / this.iterations;
+	}
+
 	get resistedTickPercent() {
 		return percentOf(this.data.resistedTicks, this.data.ticks + this.data.critTicks);
+	}
+
+	get piercedTickPercent() {
+		return percentOf(this.data.piercedTicks, this.data.ticks + this.data.critTicks);
 	}
 
 	get critTicks() {
@@ -1903,8 +2064,16 @@ class TargetedActionMetrics {
 		return this.data.resistedCritTicks / this.iterations;
 	}
 
+	get piercedCritTicks() {
+		return this.data.piercedCritTicks / this.iterations;
+	}
+
 	get resistedCritTickPercent() {
 		return percentOf(this.data.resistedCritTicks, this.data.ticks + this.data.critTicks);
+	}
+
+	get piercedCritTickPercent() {
+		return percentOf(this.data.piercedCritTicks, this.data.ticks + this.data.critTicks);
 	}
 
 	get blocks() {
@@ -1951,8 +2120,16 @@ class TargetedActionMetrics {
 		return this.data.resistedCrits / this.iterations;
 	}
 
+	get piercedCrits() {
+		return this.data.piercedCrits / this.iterations;
+	}
+
 	get resistedCritPercent() {
 		return percentOf(this.data.resistedCrits, this.hitAttempts);
+	}
+
+	get piercedCritPercent() {
+		return percentOf(this.data.piercedCrits, this.hitAttempts);
 	}
 
 	get healingPercent() {
@@ -1973,12 +2150,16 @@ class TargetedActionMetrics {
 				manualCasts: sum(actions.map(a => a.data.manualCasts)),
 				hits: sum(actions.map(a => a.data.hits)),
 				resistedHits: sum(actions.map(a => a.data.resistedHits)),
+				piercedHits: sum(actions.map(a => a.data.piercedHits)),
 				crits: sum(actions.map(a => a.data.crits)),
 				resistedCrits: sum(actions.map(a => a.data.resistedCrits)),
+				piercedCrits: sum(actions.map(a => a.data.piercedCrits)),
 				ticks: sum(actions.map(a => a.data.ticks)),
 				resistedTicks: sum(actions.map(a => a.data.resistedTicks)),
+				piercedTicks: sum(actions.map(a => a.data.piercedTicks)),
 				critTicks: sum(actions.map(a => a.data.critTicks)),
 				resistedCritTicks: sum(actions.map(a => a.data.resistedCritTicks)),
+				piercedCritTicks: sum(actions.map(a => a.data.piercedCritTicks)),
 				misses: sum(actions.map(a => a.data.misses)),
 				tickMisses: sum(actions.map(a => a.data.tickMisses)),
 				dodges: sum(actions.map(a => a.data.dodges)),
@@ -1989,12 +2170,16 @@ class TargetedActionMetrics {
 				glances: sum(actions.map(a => a.data.glances)),
 				damage: sum(actions.map(a => a.data.damage)),
 				resistedDamage: sum(actions.map(a => a.data.resistedDamage)),
+				piercedDamage: sum(actions.map(a => a.data.piercedDamage)),
 				critDamage: sum(actions.map(a => a.data.critDamage)),
 				resistedCritDamage: sum(actions.map(a => a.data.resistedCritDamage)),
+				piercedCritDamage: sum(actions.map(a => a.data.piercedCritDamage)),
 				tickDamage: sum(actions.map(a => a.data.tickDamage)),
 				resistedTickDamage: sum(actions.map(a => a.data.resistedTickDamage)),
+				piercedTickDamage: sum(actions.map(a => a.data.piercedTickDamage)),
 				critTickDamage: sum(actions.map(a => a.data.critTickDamage)),
 				resistedCritTickDamage: sum(actions.map(a => a.data.resistedCritTickDamage)),
+				piercedCritTickDamage: sum(actions.map(a => a.data.piercedCritTickDamage)),
 				glanceDamage: sum(actions.map(a => a.data.glanceDamage)),
 				blockDamage: sum(actions.map(a => a.data.blockDamage)),
 				blockedCritDamage: sum(actions.map(a => a.data.blockedCritDamage)),

@@ -131,7 +131,7 @@ type ActionMetrics struct {
 	rangeSources [][]*hitRanges // One slice per spell and split feeding this action, indexed by target.
 }
 
-const numHitKinds = int(proto.HitKind_HitKindShield) + 1
+const numHitKinds = int(proto.HitKind_HitKindPiercedCritTick) + 1
 
 // Value ranges of one spell split against one target, accumulated over all iterations.
 type hitRanges struct {
@@ -219,12 +219,16 @@ type SpellMetrics struct {
 	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
+	PiercedHits       int32
 	Crits             int32
 	ResistedCrits     int32
+	PiercedCrits      int32
 	Ticks             int32
 	ResistedTicks     int32
+	PiercedTicks      int32
 	CritTicks         int32
 	ResistedCritTicks int32
+	PiercedCritTicks  int32
 	Crushes           int32
 	Dodges            int32
 	Parries           int32
@@ -234,12 +238,16 @@ type SpellMetrics struct {
 
 	TotalDamage                 float64 // Damage done by all casts of this spell.
 	TotalResistedDamage         float64 // Damage done by all resisted casts of this spell.
+	TotalPiercedDamage          float64 // Damage done by all pierced casts of this spell.
 	TotalCritDamage             float64 // Damage done by all critical casts of this spell.
 	TotalResistedCritDamage     float64 // Damage done by all resisted critical casts of this spell.
+	TotalPiercedCritDamage      float64 // Damage done by all pierced critical casts of this spell.
 	TotalTickDamage             float64 // Damage done by all dots of this spell.
 	TotalResistedTickDamage     float64 // Damage done by all resisted dots of this spell.
+	TotalPiercedTickDamage      float64 // Damage done by all pierced dots of this spell.
 	TotalCritTickDamage         float64 // Damage done by all critical dots of this spell.
 	TotalResistedCritTickDamage float64 // Damage done by all resisted critical dots of this spell.
+	TotalPiercedCritTickDamage  float64 // Damage done by all pierced critical dots of this spell.
 	TotalGlanceDamage           float64 // Damage done by all glance casts of this spell.
 	TotalBlockDamage            float64 // Damage done by all block casts of this spell.
 	TotalBlockedCritDamage      float64 // Damage done by all blocked critical casts casts of this spell.
@@ -260,12 +268,16 @@ type TargetedActionMetrics struct {
 	TickMisses        int32
 	Hits              int32
 	ResistedHits      int32
+	PiercedHits       int32
 	Crits             int32
 	ResistedCrits     int32
+	PiercedCrits      int32
 	Ticks             int32
 	ResistedTicks     int32
+	PiercedTicks      int32
 	CritTicks         int32
 	ResistedCritTicks int32
+	PiercedCritTicks  int32
 	Crushes           int32
 	Dodges            int32
 	Parries           int32
@@ -275,12 +287,16 @@ type TargetedActionMetrics struct {
 
 	Damage                 float64
 	ResistedDamage         float64
+	PiercedDamage          float64
 	CritDamage             float64
 	ResistedCritDamage     float64
+	PiercedCritDamage      float64
 	TickDamage             float64
 	ResistedTickDamage     float64
+	PiercedTickDamage      float64
 	CritTickDamage         float64
 	ResistedCritTickDamage float64
+	PiercedCritTickDamage  float64
 	GlanceDamage           float64
 	BlockDamage            float64
 	BlockedCritDamage      float64
@@ -300,12 +316,16 @@ func (tam *TargetedActionMetrics) ToProto() *proto.TargetedActionMetrics {
 		ManualCasts:            tam.ManualCasts,
 		Hits:                   tam.Hits,
 		ResistedHits:           tam.ResistedHits,
+		PiercedHits:            tam.PiercedHits,
 		Crits:                  tam.Crits,
 		ResistedCrits:          tam.ResistedCrits,
+		PiercedCrits:           tam.PiercedCrits,
 		Ticks:                  tam.Ticks,
 		ResistedTicks:          tam.ResistedTicks,
+		PiercedTicks:           tam.PiercedTicks,
 		CritTicks:              tam.CritTicks,
 		ResistedCritTicks:      tam.ResistedCritTicks,
+		PiercedCritTicks:       tam.PiercedCritTicks,
 		Misses:                 tam.Misses,
 		TickMisses:             tam.TickMisses,
 		Dodges:                 tam.Dodges,
@@ -316,12 +336,16 @@ func (tam *TargetedActionMetrics) ToProto() *proto.TargetedActionMetrics {
 		Crushes:                tam.Crushes,
 		Damage:                 tam.Damage,
 		ResistedDamage:         tam.ResistedDamage,
+		PiercedDamage:          tam.PiercedDamage,
 		CritDamage:             tam.CritDamage,
 		ResistedCritDamage:     tam.ResistedCritDamage,
+		PiercedCritDamage:      tam.PiercedCritDamage,
 		TickDamage:             tam.TickDamage,
 		ResistedTickDamage:     tam.ResistedTickDamage,
+		PiercedTickDamage:      tam.PiercedTickDamage,
 		CritTickDamage:         tam.CritTickDamage,
 		ResistedCritTickDamage: tam.ResistedCritTickDamage,
+		PiercedCritTickDamage:  tam.PiercedCritTickDamage,
 		GlanceDamage:           tam.GlanceDamage,
 		BlockDamage:            tam.BlockDamage,
 		BlockedCritDamage:      tam.BlockedCritDamage,
@@ -462,12 +486,16 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 		tam.TickMisses += spellTargetMetrics.TickMisses
 		tam.Hits += spellTargetMetrics.Hits
 		tam.ResistedHits += spellTargetMetrics.ResistedHits
+		tam.PiercedHits += spellTargetMetrics.PiercedHits
 		tam.Crits += spellTargetMetrics.Crits
 		tam.ResistedCrits += spellTargetMetrics.ResistedCrits
+		tam.PiercedCrits += spellTargetMetrics.PiercedCrits
 		tam.Ticks += spellTargetMetrics.Ticks
 		tam.ResistedTicks += spellTargetMetrics.ResistedTicks
+		tam.PiercedTicks += spellTargetMetrics.PiercedTicks
 		tam.CritTicks += spellTargetMetrics.CritTicks
 		tam.ResistedCritTicks += spellTargetMetrics.ResistedCritTicks
+		tam.PiercedCritTicks += spellTargetMetrics.PiercedCritTicks
 		tam.Dodges += spellTargetMetrics.Dodges
 		tam.Parries += spellTargetMetrics.Parries
 		tam.Blocks += spellTargetMetrics.Blocks
@@ -476,12 +504,16 @@ func (unitMetrics *UnitMetrics) addSpellMetrics(spell *Spell, actionID ActionID,
 		tam.Crushes += spellTargetMetrics.Crushes
 		tam.Damage += spellTargetMetrics.TotalDamage
 		tam.ResistedDamage += spellTargetMetrics.TotalResistedDamage
+		tam.PiercedDamage += spellTargetMetrics.TotalPiercedDamage
 		tam.CritDamage += spellTargetMetrics.TotalCritDamage
 		tam.ResistedCritDamage += spellTargetMetrics.TotalResistedCritDamage
+		tam.PiercedCritDamage += spellTargetMetrics.TotalPiercedCritDamage
 		tam.TickDamage += spellTargetMetrics.TotalTickDamage
 		tam.ResistedTickDamage += spellTargetMetrics.TotalResistedTickDamage
+		tam.PiercedTickDamage += spellTargetMetrics.TotalPiercedTickDamage
 		tam.CritTickDamage += spellTargetMetrics.TotalCritTickDamage
 		tam.ResistedCritTickDamage += spellTargetMetrics.TotalResistedCritTickDamage
+		tam.PiercedCritTickDamage += spellTargetMetrics.TotalPiercedCritTickDamage
 		tam.GlanceDamage += spellTargetMetrics.TotalGlanceDamage
 		tam.BlockDamage += spellTargetMetrics.TotalBlockDamage
 		tam.BlockedCritDamage += spellTargetMetrics.TotalBlockedCritDamage

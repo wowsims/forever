@@ -148,15 +148,18 @@ func TestPartialResistOutcomeCarriesThePercent(t *testing.T) {
 	}
 }
 
-// A Spell Piercing bonus carries its percent as a negative resist and counts as a resisted hit.
+// A Spell Piercing bonus carries its percent as a negative resist and counts as a pierced hit, not a resisted one.
 func TestPartialResistBonusOutcomeCarriesANegativePercent(t *testing.T) {
 	for _, percent := range []int{10, 20, 30} {
 		result := &SpellResult{Outcome: OutcomeHit | partialResistOutcome(-float64(percent)/100)}
 		if got := result.Outcome.ResistedPercent(); got != -percent {
 			t.Errorf("ResistedPercent of a %d%% bonus = %d, want %d", percent, got, -percent)
 		}
-		if !result.DidResist() {
-			t.Errorf("a %d%% bonus does not count as a resisted hit", percent)
+		if !result.DidPierce() {
+			t.Errorf("a %d%% bonus does not count as a pierced hit", percent)
+		}
+		if result.DidResist() {
+			t.Errorf("a %d%% bonus counts as a resisted hit", percent)
 		}
 	}
 	if got := (OutcomeCrit | partialResistOutcome(-0.2)).String(); got != "Crit (-20% Resist)" {

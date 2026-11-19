@@ -137,9 +137,14 @@ func (result *SpellResult) DidBlockCrit() bool {
 	return result.Outcome.Matches(OutcomeBlock) && result.Outcome.Matches(OutcomeCrit)
 }
 
-// A partial resist, the bonus of Spell Piercing beyond the target's resistance included.
+// A partial resist that took damage.
 func (result *SpellResult) DidResist() bool {
-	return result.Outcome.Matches(OutcomePartial)
+	return result.Outcome.ResistedPercent() > 0
+}
+
+// A hit that Spell Piercing beyond the target's resistance raised.
+func (result *SpellResult) DidPierce() bool {
+	return result.Outcome.ResistedPercent() < 0
 }
 
 func (result *SpellResult) DidParry() bool {
@@ -497,6 +502,7 @@ func (spell *Spell) CalcAndDealOutcome(sim *Simulation, target *Unit, outcomeApp
 
 func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 	resisted := result.DidResist()
+	pierced := result.DidPierce()
 	switch {
 	case result.DidBlockCrit():
 		return proto.HitKind_HitKindBlockedCrit
@@ -504,10 +510,14 @@ func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 		switch {
 		case isPeriodic && resisted:
 			return proto.HitKind_HitKindResistedCritTick
+		case isPeriodic && pierced:
+			return proto.HitKind_HitKindPiercedCritTick
 		case isPeriodic:
 			return proto.HitKind_HitKindCritTick
 		case resisted:
 			return proto.HitKind_HitKindResistedCrit
+		case pierced:
+			return proto.HitKind_HitKindPiercedCrit
 		}
 		return proto.HitKind_HitKindCrit
 	case result.DidGlance():
@@ -518,10 +528,14 @@ func hitKind(result *SpellResult, isPeriodic bool) proto.HitKind {
 		return proto.HitKind_HitKindCrush
 	case isPeriodic && resisted:
 		return proto.HitKind_HitKindResistedTick
+	case isPeriodic && pierced:
+		return proto.HitKind_HitKindPiercedTick
 	case isPeriodic:
 		return proto.HitKind_HitKindTick
 	case resisted:
 		return proto.HitKind_HitKindResistedHit
+	case pierced:
+		return proto.HitKind_HitKindPiercedHit
 	}
 	return proto.HitKind_HitKindHit
 }
@@ -533,17 +547,24 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 	}
 
 	isPartialResist := result.DidResist()
+	isPierced := result.DidPierce()
 
 	if sim.CurrentTime >= 0 {
 		spell.SpellMetrics[result.Target.UnitIndex].TotalDamage += result.Damage
 		if isPartialResist {
 			spell.SpellMetrics[result.Target.UnitIndex].TotalResistedDamage += result.Damage
 		}
+		if isPierced {
+			spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedDamage += result.Damage
+		}
 
 		if isPeriodic {
 			spell.SpellMetrics[result.Target.UnitIndex].TotalTickDamage += result.Damage
 			if isPartialResist {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalResistedTickDamage += result.Damage
+			}
+			if isPierced {
+				spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedTickDamage += result.Damage
 			}
 		}
 
@@ -554,11 +575,17 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 			if isPartialResist {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalResistedCritDamage += result.Damage
 			}
+			if isPierced {
+				spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedCritDamage += result.Damage
+			}
 
 			if isPeriodic {
 				spell.SpellMetrics[result.Target.UnitIndex].TotalCritTickDamage += result.Damage
 				if isPartialResist {
 					spell.SpellMetrics[result.Target.UnitIndex].TotalResistedCritTickDamage += result.Damage
+				}
+				if isPierced {
+					spell.SpellMetrics[result.Target.UnitIndex].TotalPiercedCritTickDamage += result.Damage
 				}
 			}
 		} else if result.DidGlance() {

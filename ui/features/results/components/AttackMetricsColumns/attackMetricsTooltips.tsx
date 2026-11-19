@@ -24,12 +24,16 @@ const damageBreakdownGroup = (metric: ActionMetrics, { crush }: AttackBreakdownO
 		data: [
 			{ name: i18n.t('results_tab.details.attack_types.hit'), ...done.hit },
 			{ name: i18n.t('results_tab.details.attack_types.resisted_hit'), ...done.resistedHit },
+			{ name: i18n.t('results_tab.details.attack_types.pierced_hit'), ...done.piercedHit },
 			{ name: i18n.t('results_tab.details.attack_types.critical_hit'), ...done.critHit },
 			{ name: i18n.t('results_tab.details.attack_types.resisted_critical_hit'), ...done.resistedCritHit },
+			{ name: i18n.t('results_tab.details.attack_types.pierced_critical_hit'), ...done.piercedCritHit },
 			{ name: i18n.t('results_tab.details.attack_types.tick'), ...done.tick },
 			{ name: i18n.t('results_tab.details.attack_types.resisted_tick'), ...done.resistedTick },
+			{ name: i18n.t('results_tab.details.attack_types.pierced_tick'), ...done.piercedTick },
 			{ name: i18n.t('results_tab.details.attack_types.critical_tick'), ...done.critTick },
 			{ name: i18n.t('results_tab.details.attack_types.resisted_critical_tick'), ...done.resistedCritTick },
+			{ name: i18n.t('results_tab.details.attack_types.pierced_critical_tick'), ...done.piercedCritTick },
 			{ name: i18n.t('results_tab.details.attack_types.glancing_blow'), ...done.glance },
 			{ name: i18n.t('results_tab.details.attack_types.blocked_hit'), ...done.block },
 			{ name: i18n.t('results_tab.details.attack_types.blocked_critical_hit'), ...done.blockedCrit },
@@ -91,14 +95,14 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 			data: [
 				{
 					name: i18n.t('results_tab.details.attack_types.hit'),
-					value: metric.hits - metric.resistedHits,
-					percentage: ofHits(metric.hits - metric.resistedHits),
+					value: metric.hits - metric.resistedHits - metric.piercedHits,
+					percentage: ofHits(metric.hits - metric.resistedHits - metric.piercedHits),
 				},
 				{ name: i18n.t('results_tab.details.attack_types.resisted_hit'), value: metric.resistedHits, percentage: ofHits(metric.resistedHits) },
 				{
 					name: i18n.t('results_tab.details.attack_types.critical_hit'),
-					value: metric.crits - metric.resistedCrits,
-					percentage: ofHits(metric.crits - metric.resistedCrits),
+					value: metric.crits - metric.resistedCrits - metric.piercedCrits,
+					percentage: ofHits(metric.crits - metric.resistedCrits - metric.piercedCrits),
 				},
 				{ name: i18n.t('results_tab.details.attack_types.blocked_critical_hit'), value: metric.blockedCrits, percentage: ofHits(metric.blockedCrits) },
 				{
@@ -119,14 +123,14 @@ const hitGroups = (metric: ActionMetrics, { crush }: AttackBreakdownOptions = {}
 			data: [
 				{
 					name: i18n.t('results_tab.details.attack_types.tick'),
-					value: metric.ticks - metric.resistedTicks,
-					percentage: ofTicks(metric.ticks - metric.resistedTicks),
+					value: metric.ticks - metric.resistedTicks - metric.piercedTicks,
+					percentage: ofTicks(metric.ticks - metric.resistedTicks - metric.piercedTicks),
 				},
 				{ name: i18n.t('results_tab.details.attack_types.resisted_tick'), value: metric.resistedTicks, percentage: ofTicks(metric.resistedTicks) },
 				{
 					name: i18n.t('results_tab.details.attack_types.critical_tick'),
-					value: metric.critTicks - metric.resistedCritTicks,
-					percentage: ofTicks(metric.critTicks - metric.resistedCritTicks),
+					value: metric.critTicks - metric.resistedCritTicks - metric.piercedCritTicks,
+					percentage: ofTicks(metric.critTicks - metric.resistedCritTicks - metric.piercedCritTicks),
 				},
 				{
 					name: i18n.t('results_tab.details.attack_types.resisted_critical_tick'),
