@@ -137,6 +137,7 @@ func (result *SpellResult) DidBlockCrit() bool {
 	return result.Outcome.Matches(OutcomeBlock) && result.Outcome.Matches(OutcomeCrit)
 }
 
+// A partial resist, the bonus of Spell Piercing beyond the target's resistance included.
 func (result *SpellResult) DidResist() bool {
 	return result.Outcome.Matches(OutcomePartial)
 }

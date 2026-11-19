@@ -121,10 +121,13 @@ const (
 	OutcomePartial2
 	OutcomePartial4
 	OutcomePartial8
+	// Marks the partial bits as bonus damage, which Spell Piercing beyond the target's resistance adds.
+	OutcomePartialBonus
 )
 
 const (
-	OutcomePartial = OutcomePartial1 | OutcomePartial2 | OutcomePartial4 | OutcomePartial8
+	outcomePartialSteps = OutcomePartial1 | OutcomePartial2 | OutcomePartial4 | OutcomePartial8
+	OutcomePartial      = outcomePartialSteps | OutcomePartialBonus
 	OutcomeLanded  = OutcomeHit | OutcomeCrit | OutcomeCrush | OutcomeGlance | OutcomeBlock
 )
 
@@ -152,18 +155,27 @@ func (ho HitOutcome) String() string {
 	}
 }
 
-// The outcome of a partial resist that took the given share of the damage.
+// The outcome of a partial resist that took the given share of the damage, or added it as bonus damage
+// when the share is negative.
 func partialResistOutcome(share float64) HitOutcome {
-	return HitOutcome(math.Round(share*20)) * OutcomePartial1
+	outcome := HitOutcome(math.Round(math.Abs(share)*20)) * OutcomePartial1
+	if share < 0 {
+		outcome |= OutcomePartialBonus
+	}
+	return outcome
 }
 
-// The percent of the damage a partial resist took, 0 for none.
+// The percent of the damage a partial resist took, negative for bonus damage and 0 for none.
 func (ho HitOutcome) ResistedPercent() int {
-	return 5 * int((ho&OutcomePartial)/OutcomePartial1)
+	percent := 5 * int((ho&outcomePartialSteps)/OutcomePartial1)
+	if ho.Matches(OutcomePartialBonus) {
+		return -percent
+	}
+	return percent
 }
 
 func (ho HitOutcome) PartialResistString() string {
-	if percent := ho.ResistedPercent(); percent > 0 {
+	if percent := ho.ResistedPercent(); percent != 0 {
 		return " (" + strconv.Itoa(percent) + "% Resist)"
 	}
 	return ""

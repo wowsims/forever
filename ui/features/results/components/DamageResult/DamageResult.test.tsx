@@ -10,7 +10,7 @@ import { DamageResult } from './DamageResult';
 const target = { name: 'Boss', ownerName: '', index: 0, isTarget: true, isPet: false } as Entity;
 
 const damage = (extra: Partial<DamageLog>) =>
-	({ kind: 'damage', outcome: 'hit', effect: 'damage', amount: 1234.5, tick: false, target, spellSchool: null, ...extra }) as DamageLog;
+	({ kind: 'damage', outcome: 'hit', effect: 'damage', amount: 1234.5, resist: 0, tick: false, target, spellSchool: null, ...extra }) as DamageLog;
 
 // The line is a locale string with the target and amount spliced in as elements, which only exist once
 // the string resolves; the test setup loads no locale, so this suite loads the English one.
@@ -47,6 +47,12 @@ describe('DamageResult', () => {
 		expect(healed.textContent).toBe('Healed  [Target 1] for 1234.50 health.');
 
 		expect(render(<DamageResult log={damage({ effect: 'shielding' })} />).container.textContent).toBe('Shielded  [Target 1] for 1234.50 health.');
+	});
+
+	// A negative resist is the bonus of Spell Piercing beyond the target's resistance.
+	it('prints a partial resist and a piercing bonus after the amount', () => {
+		expect(render(<DamageResult log={damage({ resist: 50 })} />).container.textContent).toBe('Hit [Target 1] for 1234.50 damage (50% Resist).');
+		expect(render(<DamageResult log={damage({ resist: -10 })} />).container.textContent).toBe('Hit [Target 1] for 1234.50 damage (-10% Resist).');
 	});
 
 	// A miss carries no amount clause at all, so printing "for 0.00 damage" would be a fabrication.

@@ -76,6 +76,14 @@ const RESIST_BY_TOKEN: Record<string, PartialResist> = {
 	'60': 60,
 	'70': 70,
 	'75': 75,
+	'-10': -10,
+	'-20': -20,
+	'-30': -30,
+	'-40': -40,
+	'-50': -50,
+	'-60': -60,
+	'-70': -70,
+	'-75': -75,
 };
 
 // Go's time.Duration.String() can emit nanosecond-precision strings like "29.999999999s" or
@@ -295,7 +303,7 @@ const LOG_MATCHERS: Array<LogMatcher> = [
 		// back as a block with no amount. Crit is safe anywhere in the alternation because a space
 		// is required before the token. The resist group is match[14], amount match[16] and effect
 		// match[17].
-		regex: /] (.*?) (tick )?((Miss)|(Hit)|(BlockedCrit)|(Crit)|(Crush)|(Glance)|(Dodge)|(Parry)|(Block))( \((\d+)% Resist\))?( for (\d+\.\d+) ((damage)|(healing)|(shielding)))?/,
+		regex: /] (.*?) (tick )?((Miss)|(Hit)|(BlockedCrit)|(Crit)|(Crush)|(Glance)|(Dodge)|(Parry)|(Block))( \((-?\d+)% Resist\))?( for (\d+\.\d+) ((damage)|(healing)|(shielding)))?/,
 		idString: match => match[1],
 		build: (log, match) => buildDamageLog(log, match),
 	},
