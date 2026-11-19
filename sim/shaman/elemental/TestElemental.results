@@ -78,6 +78,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestElemental-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 802.99183
+  tps: 739.56837
+  dtps: 6.36427
+ }
+}
+dps_results: {
  key: "TestElemental-AllItems-AnkhofLife-1713"
  value: {
   dps: 864.77289
@@ -2292,6 +2300,14 @@ dps_results: {
   dps: 711.44383
   tps: 663.20282
   dtps: 4.94414
+ }
+}
+dps_results: {
+ key: "TestElemental-AllItems-WraithScythe-11920"
+ value: {
+  dps: 821.59346
+  tps: 756.08753
+  dtps: 6.36427
  }
 }
 dps_results: {
