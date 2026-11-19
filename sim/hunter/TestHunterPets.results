@@ -70,6 +70,14 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunterPets-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 692.76794
+  tps: 486.48711
+  dtps: 5.13745
+ }
+}
+dps_results: {
  key: "TestHunterPets-AllItems-AnkhofLife-1713"
  value: {
   dps: 696.51304
@@ -392,9 +400,9 @@ dps_results: {
 dps_results: {
  key: "TestHunterPets-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 691.51976
-  tps: 480.32443
-  dtps: 4.4175
+  dps: 693.85377
+  tps: 480.45971
+  dtps: 4.28456
  }
 }
 dps_results: {
@@ -626,6 +634,14 @@ dps_results: {
   dps: 694.00146
   tps: 485.48017
   dtps: 4.85591
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-DiabolicSkiver-9475"
+ value: {
+  dps: 690.87316
+  tps: 486.48711
+  dtps: 5.13745
  }
 }
 dps_results: {
@@ -2344,6 +2360,14 @@ dps_results: {
  value: {
   dps: 689.50861
   tps: 486.48711
+  dtps: 5.13745
+ }
+}
+dps_results: {
+ key: "TestHunterPets-AllItems-WraithScythe-11920"
+ value: {
+  dps: 675.72661
+  tps: 475.62889
   dtps: 5.13745
  }
 }

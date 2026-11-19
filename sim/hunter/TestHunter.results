@@ -72,6 +72,15 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestHunter-AllItems-Angerforge'sBattleAxe-11816"
+ value: {
+  dps: 816.50748
+  tps: 838.96352
+  dtps: 8.98447
+  hps: 14.38583
+ }
+}
+dps_results: {
  key: "TestHunter-AllItems-AnkhofLife-1713"
  value: {
   dps: 888.12471
@@ -371,10 +380,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Bloodrazor-809"
  value: {
-  dps: 821.02545
-  tps: 843.75569
-  dtps: 8.76939
-  hps: 14.86028
+  dps: 817.78835
+  tps: 840.61337
+  dtps: 8.50915
+  hps: 14.87722
  }
 }
 dps_results: {
@@ -434,10 +443,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-BowofSearingArrows-2825"
  value: {
-  dps: 844.81874
-  tps: 867.97173
-  dtps: 9.02887
-  hps: 15.7075
+  dps: 849.11676
+  tps: 872.25888
+  dtps: 8.66423
+  hps: 15.57194
  }
 }
 dps_results: {
@@ -533,9 +542,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-ColdrageDagger-10761"
  value: {
-  dps: 733.81782
-  tps: 756.17516
-  dtps: 8.47023
+  dps: 733.6011
+  tps: 755.85199
+  dtps: 8.36385
   hps: 14.89417
  }
 }
@@ -614,8 +623,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-DazzlingLongsword-869"
  value: {
-  dps: 792.69951
-  tps: 815.33608
+  dps: 792.68127
+  tps: 815.31783
   dtps: 9.16892
   hps: 14.41972
  }
@@ -686,8 +695,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Destiny-647"
  value: {
-  dps: 900.33118
-  tps: 922.69053
+  dps: 899.65026
+  tps: 922.00961
   dtps: 9.15396
   hps: 14.19944
  }
@@ -699,6 +708,15 @@ dps_results: {
   tps: 922.34001
   dtps: 8.9881
   hps: 14.1825
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-DiabolicSkiver-9475"
+ value: {
+  dps: 856.19161
+  tps: 878.38528
+  dtps: 8.86247
+  hps: 14.30111
  }
 }
 dps_results: {
@@ -1118,9 +1136,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-FieryWarAxe-870"
  value: {
-  dps: 892.18291
-  tps: 914.43793
-  dtps: 8.24064
+  dps: 890.81929
+  tps: 913.12679
+  dtps: 8.59961
   hps: 14.19944
  }
 }
@@ -1298,10 +1316,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Glutton'sCleaver-10772"
  value: {
-  dps: 762.61332
-  tps: 784.99311
-  dtps: 8.46672
-  hps: 14.55528
+  dps: 763.07304
+  tps: 785.5222
+  dtps: 8.49763
+  hps: 14.53833
  }
 }
 dps_results: {
@@ -1370,8 +1388,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-GutRipper-2164"
  value: {
-  dps: 756.61642
-  tps: 778.08141
+  dps: 757.59509
+  tps: 779.06008
   dtps: 8.6807
   hps: 14.62306
  }
@@ -1397,10 +1415,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-HanzoSword-8190"
  value: {
-  dps: 738.2112
-  tps: 760.82498
-  dtps: 8.58961
-  hps: 14.89417
+  dps: 738.51538
+  tps: 761.09454
+  dtps: 8.68614
+  hps: 14.84333
  }
 }
 dps_results: {
@@ -1631,8 +1649,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-LordGeneral'sSword-11817"
  value: {
-  dps: 798.53615
-  tps: 821.17271
+  dps: 798.40133
+  tps: 821.03789
   dtps: 9.16892
   hps: 14.41972
  }
@@ -1775,9 +1793,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Nightblade-1982"
  value: {
-  dps: 890.0856
-  tps: 912.62762
-  dtps: 8.6067
+  dps: 891.4885
+  tps: 913.95541
+  dtps: 8.56948
   hps: 14.38583
  }
 }
@@ -1811,10 +1829,10 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PendulumofDoom-9425"
  value: {
-  dps: 893.63326
-  tps: 915.99441
-  dtps: 8.68059
-  hps: 13.82667
+  dps: 891.67977
+  tps: 914.05702
+  dtps: 8.87273
+  hps: 13.77583
  }
 }
 dps_results: {
@@ -1829,8 +1847,8 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-PhantomBlade-7961"
  value: {
-  dps: 739.64895
-  tps: 761.66446
+  dps: 739.55129
+  tps: 761.5668
   dtps: 9.0244
   hps: 14.21639
  }
@@ -1991,9 +2009,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Satyr'sLash-17752"
  value: {
-  dps: 751.26795
-  tps: 774.09904
-  dtps: 9.12034
+  dps: 751.68242
+  tps: 774.47988
+  dtps: 8.68581
   hps: 14.91111
  }
 }
@@ -2189,9 +2207,9 @@ dps_results: {
 dps_results: {
  key: "TestHunter-AllItems-Sul'thrazetheLasher-9372"
  value: {
-  dps: 832.60657
-  tps: 855.26736
-  dtps: 8.92848
+  dps: 831.56782
+  tps: 854.28895
+  dtps: 8.98611
   hps: 14.41972
  }
 }
@@ -2634,6 +2652,15 @@ dps_results: {
   tps: 842.8947
   dtps: 9.1472
   hps: 14.65694
+ }
+}
+dps_results: {
+ key: "TestHunter-AllItems-WraithScythe-11920"
+ value: {
+  dps: 788.20067
+  tps: 810.13608
+  dtps: 8.45806
+  hps: 14.75861
  }
 }
 dps_results: {
