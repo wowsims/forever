@@ -10488,10 +10488,16 @@
 								"resisted_hit": {
 									"type": "string"
 								},
+								"pierced_hit": {
+									"type": "string"
+								},
 								"critical_hit": {
 									"type": "string"
 								},
 								"resisted_critical_hit": {
+									"type": "string"
+								},
+								"pierced_critical_hit": {
 									"type": "string"
 								},
 								"tick": {
@@ -10500,10 +10506,16 @@
 								"resisted_tick": {
 									"type": "string"
 								},
+								"pierced_tick": {
+									"type": "string"
+								},
 								"critical_tick": {
 									"type": "string"
 								},
 								"resisted_critical_tick": {
+									"type": "string"
+								},
+								"pierced_critical_tick": {
 									"type": "string"
 								},
 								"glancing_blow": {
@@ -10553,12 +10565,16 @@
 							"required": [
 								"hit",
 								"resisted_hit",
+								"pierced_hit",
 								"critical_hit",
 								"resisted_critical_hit",
+								"pierced_critical_hit",
 								"tick",
 								"resisted_tick",
+								"pierced_tick",
 								"critical_tick",
 								"resisted_critical_tick",
+								"pierced_critical_tick",
 								"glancing_blow",
 								"blocked_hit",
 								"blocked_critical_hit",
@@ -10641,9 +10657,12 @@
 								},
 								"resist": {
 									"type": "string"
+								},
+								"pierced": {
+									"type": "string"
 								}
 							},
-							"required": ["healed", "shielded", "health_amount", "damage_amount", "resist"],
+							"required": ["healed", "shielded", "health_amount", "damage_amount", "resist", "pierced"],
 							"additionalProperties": false
 						}
 					},
