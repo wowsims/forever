@@ -406,6 +406,7 @@ func (spell *Spell) calcDamageInternal(sim *Simulation, target *Unit, baseDamage
 	afterAttackMods := result.Damage
 	// The target's flat physical damage taken lands before its armor: Gift of Arthas adds 8 times the
 	// share of a swing that gets through, and Force of Will takes its 51 off the same way (EV-0154).
+	// TODO: Force of Will takes at most half of a swing (EV-0154); this takes all 51 off a small one.
 	if spell.SpellSchool.Matches(SpellSchoolPhysical) && !spell.Flags.Matches(SpellFlagIgnoreTargetModifiers) {
 		result.Damage += attackTable.Defender.PseudoStats.BonusPhysicalDamageTaken
 	}
