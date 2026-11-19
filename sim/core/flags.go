@@ -128,7 +128,7 @@ const (
 const (
 	outcomePartialSteps = OutcomePartial1 | OutcomePartial2 | OutcomePartial4 | OutcomePartial8
 	OutcomePartial      = outcomePartialSteps | OutcomePartialBonus
-	OutcomeLanded  = OutcomeHit | OutcomeCrit | OutcomeCrush | OutcomeGlance | OutcomeBlock
+	OutcomeLanded       = OutcomeHit | OutcomeCrit | OutcomeCrush | OutcomeGlance | OutcomeBlock
 )
 
 func (ho HitOutcome) String() string {

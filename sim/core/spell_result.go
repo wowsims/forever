@@ -546,8 +546,10 @@ func (spell *Spell) dealDamageInternal(sim *Simulation, isPeriodic bool, result 
 		spell.DealCastResult(sim, result)
 	}
 
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	// A blocked, glancing or crushing hit counts in its own row, its resisted or pierced share included.
+	ownRow := result.DidBlock() || result.DidGlance() || result.DidCrush()
+	isPartialResist := !ownRow && result.DidResist()
+	isPierced := !ownRow && result.DidPierce()
 
 	if sim.CurrentTime >= 0 {
 		spell.SpellMetrics[result.Target.UnitIndex].TotalDamage += result.Damage

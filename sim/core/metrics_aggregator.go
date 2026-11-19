@@ -211,6 +211,30 @@ func (actionMetrics *ActionMetrics) ToProto(actionID ActionID) *proto.ActionMetr
 	}
 }
 
+// Adds one to the count, and to its resisted or pierced count by the partial resist the outcome carries.
+func countPartial(outcome HitOutcome, count, resisted, pierced *int32) {
+	*count++
+	switch percent := outcome.ResistedPercent(); {
+	case percent > 0:
+		*resisted++
+	case percent < 0:
+		*pierced++
+	}
+}
+
+func (sm *SpellMetrics) countHit(outcome HitOutcome) {
+	countPartial(outcome, &sm.Hits, &sm.ResistedHits, &sm.PiercedHits)
+}
+func (sm *SpellMetrics) countCrit(outcome HitOutcome) {
+	countPartial(outcome, &sm.Crits, &sm.ResistedCrits, &sm.PiercedCrits)
+}
+func (sm *SpellMetrics) countTick(outcome HitOutcome) {
+	countPartial(outcome, &sm.Ticks, &sm.ResistedTicks, &sm.PiercedTicks)
+}
+func (sm *SpellMetrics) countCritTick(outcome HitOutcome) {
+	countPartial(outcome, &sm.CritTicks, &sm.ResistedCritTicks, &sm.PiercedCritTicks)
+}
+
 // Metric totals for a spell against a specific target, for the current iteration.
 type SpellMetrics struct {
 	Casts             int32

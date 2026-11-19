@@ -1384,58 +1384,35 @@ export class ActionMetrics {
 	}
 
 	get damageDone() {
-		const normalHitAvgDamage = Number(
-			(
-				this.avgDamage -
-				this.avgResistedDamage +
-				this.avgResistedTickDamage +
-				this.avgResistedCritDamage -
-				this.avgResistedCritTickDamage -
-				this.avgPiercedDamage +
-				this.avgPiercedTickDamage +
-				this.avgPiercedCritDamage -
-				this.avgPiercedCritTickDamage -
-				this.avgCritDamage +
-				this.avgCritTickDamage -
-				this.avgTickDamage -
-				this.avgGlanceDamage -
-				this.avgBlockDamage -
-				this.avgBlockedCritDamage -
-				this.avgCrushDamage
-			).toFixed(8),
+		const round = (value: number) => Number(value.toFixed(8));
+		// One family's damage totals split by kind, each kind without the others.
+		const byKind = (damage: number, crit: number, tick: number, critTick: number) => ({
+			hit: damage - crit - tick + critTick,
+			crit: crit - critTick,
+			tick: tick - critTick,
+			critTick,
+		});
+		const all = byKind(
+			this.avgDamage - this.avgGlanceDamage - this.avgBlockDamage - this.avgBlockedCritDamage - this.avgCrushDamage,
+			this.avgCritDamage,
+			this.avgTickDamage,
+			this.avgCritTickDamage,
 		);
-		const normalResistedHitAvgDamage = Number(
-			(this.avgResistedDamage - this.avgResistedCritDamage - this.avgResistedTickDamage + this.avgResistedCritTickDamage).toFixed(8),
-		);
-		const normalPiercedHitAvgDamage = Number(
-			(this.avgPiercedDamage - this.avgPiercedCritDamage - this.avgPiercedTickDamage + this.avgPiercedCritTickDamage).toFixed(8),
-		);
-		const critHitAvgDamage = Number(
-			(
-				this.avgCritDamage -
-				this.avgResistedCritDamage -
-				this.avgPiercedCritDamage -
-				this.avgCritTickDamage +
-				this.avgResistedCritTickDamage +
-				this.avgPiercedCritTickDamage
-			).toFixed(8),
-		);
-		const resistedCritHitAvgDamage = Number((this.avgResistedCritDamage - this.avgResistedCritTickDamage).toFixed(8));
-		const piercedCritHitAvgDamage = Number((this.avgPiercedCritDamage - this.avgPiercedCritTickDamage).toFixed(8));
+		const resisted = byKind(this.avgResistedDamage, this.avgResistedCritDamage, this.avgResistedTickDamage, this.avgResistedCritTickDamage);
+		const pierced = byKind(this.avgPiercedDamage, this.avgPiercedCritDamage, this.avgPiercedTickDamage, this.avgPiercedCritTickDamage);
+		const plain = (kind: keyof typeof all) => round(all[kind] - resisted[kind] - pierced[kind]);
 
-		const normalTickAvgDamage = Number(
-			(
-				this.avgTickDamage -
-				this.avgCritTickDamage -
-				this.avgResistedTickDamage +
-				this.avgResistedCritTickDamage -
-				this.avgPiercedTickDamage +
-				this.avgPiercedCritTickDamage
-			).toFixed(8),
-		);
-		const normalResistedTickAvgDamage = Number((this.avgResistedTickDamage - this.avgResistedCritTickDamage).toFixed(8));
-		const normalPiercedTickAvgDamage = Number((this.avgPiercedTickDamage - this.avgPiercedCritTickDamage).toFixed(8));
-		const normalCritTickAvgDamage = Number((this.avgCritTickDamage - this.avgResistedCritTickDamage - this.avgPiercedCritTickDamage).toFixed(8));
+		const normalHitAvgDamage = plain('hit');
+		const normalResistedHitAvgDamage = round(resisted.hit);
+		const normalPiercedHitAvgDamage = round(pierced.hit);
+		const critHitAvgDamage = plain('crit');
+		const resistedCritHitAvgDamage = round(resisted.crit);
+		const piercedCritHitAvgDamage = round(pierced.crit);
+
+		const normalTickAvgDamage = plain('tick');
+		const normalResistedTickAvgDamage = round(resisted.tick);
+		const normalPiercedTickAvgDamage = round(pierced.tick);
+		const normalCritTickAvgDamage = plain('critTick');
 
 		return {
 			hit: {

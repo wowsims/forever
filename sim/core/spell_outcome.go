@@ -9,16 +9,8 @@ import "github.com/wowsims/forever/sim/core/stats"
 type OutcomeApplier func(sim *Simulation, result *SpellResult, attackTable *AttackTable)
 
 func (spell *Spell) OutcomeAlwaysHit(sim *Simulation, result *SpellResult, _ *AttackTable) {
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	spell.SpellMetrics[result.Target.UnitIndex].countHit(result.Outcome)
 	result.Outcome = OutcomeHit
-	spell.SpellMetrics[result.Target.UnitIndex].Hits++
-	if isPartialResist {
-		spell.SpellMetrics[result.Target.UnitIndex].ResistedHits++
-	}
-	if isPierced {
-		spell.SpellMetrics[result.Target.UnitIndex].PiercedHits++
-	}
 }
 
 // Hit without Hits++ counter
@@ -33,30 +25,14 @@ func (spell *Spell) OutcomeAlwaysMiss(_ *Simulation, result *SpellResult, _ *Att
 }
 
 func (dot *Dot) OutcomeTick(sim *Simulation, result *SpellResult, _ *AttackTable) {
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	dot.Spell.SpellMetrics[result.Target.UnitIndex].countTick(result.Outcome)
 	result.Outcome = OutcomeHit
-	dot.Spell.SpellMetrics[result.Target.UnitIndex].Ticks++
-	if isPartialResist {
-		dot.Spell.SpellMetrics[result.Target.UnitIndex].ResistedTicks++
-	}
-	if isPierced {
-		dot.Spell.SpellMetrics[result.Target.UnitIndex].PiercedTicks++
-	}
 }
 
 func (dot *Dot) OutcomeTickMagicHit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
 	if dot.Spell.MagicHitCheck(sim, attackTable) {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		dot.Spell.SpellMetrics[result.Target.UnitIndex].countTick(result.Outcome)
 		result.Outcome = OutcomeHit
-		dot.Spell.SpellMetrics[result.Target.UnitIndex].Ticks++
-		if isPartialResist {
-			dot.Spell.SpellMetrics[result.Target.UnitIndex].ResistedTicks++
-		}
-		if isPierced {
-			dot.Spell.SpellMetrics[result.Target.UnitIndex].PiercedTicks++
-		}
 	} else {
 		result.Outcome = OutcomeMiss
 		result.Damage = 0
@@ -72,30 +48,17 @@ func (spell *Spell) OutcomeMagicHitAndCritNoHitCounter(sim *Simulation, result *
 }
 func (spell *Spell) outcomeMagicHitAndCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable, countHits bool) {
 	if spell.MagicHitCheck(sim, attackTable) {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		partial := result.Outcome
 		if spell.MagicCritCheck(sim, result.Target) {
 			result.Outcome = OutcomeCrit
 			result.Damage *= spell.CritDamageMultiplier(attackTable)
 			if countHits {
-				spell.SpellMetrics[result.Target.UnitIndex].Crits++
-				if isPartialResist {
-					spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits++
-				}
-				if isPierced {
-					spell.SpellMetrics[result.Target.UnitIndex].PiercedCrits++
-				}
+				spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
 			}
 		} else {
 			result.Outcome = OutcomeHit
 			if countHits {
-				spell.SpellMetrics[result.Target.UnitIndex].Hits++
-				if isPartialResist {
-					spell.SpellMetrics[result.Target.UnitIndex].ResistedHits++
-				}
-				if isPierced {
-					spell.SpellMetrics[result.Target.UnitIndex].PiercedHits++
-				}
+				spell.SpellMetrics[result.Target.UnitIndex].countHit(partial)
 			}
 		}
 	} else {
@@ -123,30 +86,17 @@ func (spell *Spell) OutcomeMagicCritNoHitCounter(sim *Simulation, result *SpellR
 	spell.outcomeMagicCrit(sim, result, at, false)
 }
 func (spell *Spell) outcomeMagicCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable, countHits bool) {
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	partial := result.Outcome
 	if spell.MagicCritCheck(sim, result.Target) {
 		result.Outcome = OutcomeCrit
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Crits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedCrits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
 		}
 	} else {
 		result.Outcome = OutcomeHit
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Hits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedHits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedHits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countHit(partial)
 		}
 	}
 }
@@ -207,27 +157,14 @@ func (spell *Spell) OutcomeTickPhysicalCrit(sim *Simulation, result *SpellResult
 
 // A tick of a damage over time whose hit was rolled when it was applied: only the spell crit.
 func (spell *Spell) OutcomeTickMagicCrit(sim *Simulation, result *SpellResult, attackTable *AttackTable) {
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	partial := result.Outcome
 	if spell.MagicCritCheck(sim, result.Target) {
 		result.Outcome = OutcomeCrit
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
-		spell.SpellMetrics[result.Target.UnitIndex].CritTicks++
-		if isPartialResist {
-			spell.SpellMetrics[result.Target.UnitIndex].ResistedCritTicks++
-		}
-		if isPierced {
-			spell.SpellMetrics[result.Target.UnitIndex].PiercedCritTicks++
-		}
+		spell.SpellMetrics[result.Target.UnitIndex].countCritTick(partial)
 	} else {
 		result.Outcome = OutcomeHit
-		spell.SpellMetrics[result.Target.UnitIndex].Ticks++
-		if isPartialResist {
-			spell.SpellMetrics[result.Target.UnitIndex].ResistedTicks++
-		}
-		if isPierced {
-			spell.SpellMetrics[result.Target.UnitIndex].PiercedTicks++
-		}
+		spell.SpellMetrics[result.Target.UnitIndex].countTick(partial)
 	}
 }
 
@@ -261,17 +198,10 @@ func (spell *Spell) OutcomeMagicHitNoHitCounter(sim *Simulation, result *SpellRe
 }
 func (spell *Spell) outcomeMagicHit(sim *Simulation, result *SpellResult, attackTable *AttackTable, countHits bool) {
 	if spell.MagicHitCheck(sim, attackTable) {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		partial := result.Outcome
 		result.Outcome = OutcomeHit
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Hits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedHits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedHits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countHit(partial)
 		}
 	} else {
 		result.Outcome = OutcomeMiss
@@ -694,17 +624,10 @@ func (result *SpellResult) applyAttackTableCrit(spell *Spell, attackTable *Attac
 	*chance += spell.PhysicalCritChance(attackTable)
 
 	if roll < *chance {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		partial := result.Outcome
 		result.Outcome = OutcomeCrit
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Crits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedCrits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
 		}
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
 		return true
@@ -714,17 +637,10 @@ func (result *SpellResult) applyAttackTableCrit(spell *Spell, attackTable *Attac
 
 func (result *SpellResult) applyAttackTableCritSeparateRoll(sim *Simulation, spell *Spell, attackTable *AttackTable, countHits bool) bool {
 	if spell.PhysicalCritCheck(sim, attackTable) {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		partial := result.Outcome
 		result.Outcome = OutcomeCrit
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Crits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedCrits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
 		}
 		result.Damage *= spell.CritDamageMultiplier(attackTable)
 		return true
@@ -733,17 +649,10 @@ func (result *SpellResult) applyAttackTableCritSeparateRoll(sim *Simulation, spe
 }
 
 func (result *SpellResult) applyAttackTableHit(spell *Spell, countHits bool) {
-	isPartialResist := result.DidResist()
-	isPierced := result.DidPierce()
+	partial := result.Outcome
 	result.Outcome = OutcomeHit
 	if countHits {
-		spell.SpellMetrics[result.Target.UnitIndex].Hits++
-		if isPartialResist {
-			spell.SpellMetrics[result.Target.UnitIndex].ResistedHits++
-		}
-		if isPierced {
-			spell.SpellMetrics[result.Target.UnitIndex].PiercedHits++
-		}
+		spell.SpellMetrics[result.Target.UnitIndex].countHit(partial)
 	}
 }
 
@@ -834,17 +743,10 @@ func (result *SpellResult) applyEnemyAttackTableCrit(spell *Spell, attackTable *
 	*chance += getCritChance(critPercent/100-attackTable.Hand(spell).MeleeCritSuppression, result.Target)
 
 	if roll < *chance {
-		isPartialResist := result.DidResist()
-		isPierced := result.DidPierce()
+		partial := result.Outcome
 		result.Outcome = OutcomeCrit
 		if countHits {
-			spell.SpellMetrics[result.Target.UnitIndex].Crits++
-			if isPartialResist {
-				spell.SpellMetrics[result.Target.UnitIndex].ResistedCrits++
-			}
-			if isPierced {
-				spell.SpellMetrics[result.Target.UnitIndex].PiercedCrits++
-			}
+			spell.SpellMetrics[result.Target.UnitIndex].countCrit(partial)
 		}
 		result.Damage *= 2
 		return true
