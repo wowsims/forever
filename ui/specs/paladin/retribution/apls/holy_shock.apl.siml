@@ -39,8 +39,8 @@ var ${Is using Seal of Command} =
     and not $use_seal_of_righteousness
 
 prepull:
-  -20s group "Activate assigned aura"
   -30s item_swap(swap1) if spell(item.manual_crowd_pummeler).is_known
+  -20s group "Activate assigned aura"
   -20s move $pull_range
   -1.5s group "Cast selected seal" if not $has_assigned_judgement
   -1.5s group "Cast assigned judgement" if $has_assigned_judgement
