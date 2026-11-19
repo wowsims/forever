@@ -526,8 +526,8 @@ dps_results: {
 dps_results: {
  key: "TestFFB-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 863.36776
-  tps: 891.61455
+  dps: 863.36006
+  tps: 891.60685
  }
 }
 dps_results: {

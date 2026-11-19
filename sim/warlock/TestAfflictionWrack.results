@@ -946,8 +946,8 @@ dps_results: {
 dps_results: {
  key: "TestAfflictionWrack-AllItems-Linken'sBoomerang-11905"
  value: {
-  dps: 924.68424
-  tps: 741.9795
+  dps: 924.67687
+  tps: 741.97372
   dtps: 10.21426
  }
 }

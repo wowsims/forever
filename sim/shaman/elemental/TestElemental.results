@@ -777,8 +777,8 @@ dps_results: {
 dps_results: {
  key: "TestElemental-AllItems-EverlookPathcarver-274759"
  value: {
-  dps: 872.2089
-  tps: 801.99004
+  dps: 872.20153
+  tps: 801.98282
   dtps: 6.61751
  }
 }
