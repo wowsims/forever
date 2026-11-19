@@ -42,12 +42,34 @@ func (paladin *Paladin) registerSealOfCommand(_ int32, rank *spelldata.Spell) {
 	judgementConfig.ClassFlags = judgeDamageRank.ClassFlags
 	judgementConfig.BonusCoefficient = judgeDamage.Coeff()
 	judgementConfig.DirectVariance = judgeDamage.DirectVariance()
+	// The dummy lands on the enemy before the damage it names, and a landing on the melee table rolls
+	// a weapon proc whether or not it deals damage. So a judgement that lands rolls each weapon proc
+	// and combat enchant twice. The dummy's row lacks Not a Proc, so aura procs hear the damage alone:
+	// Windfury Totem and Vindication roll once (EV-0156).
+	dummyFlags := core.SpellFlagNoMetrics | core.SpellFlagNoLogs | core.SpellFlagPassiveSpell
+	if judgeRank.IsAProc() {
+		dummyFlags |= core.SpellFlagProc
+	}
+	dummyLanding := paladin.RegisterSpell(core.SpellConfig{
+		ActionID:         core.ActionID{SpellID: judgeRank.ID, Tag: 1},
+		SpellSchool:      judgementConfig.SpellSchool,
+		ProcMask:         judgementConfig.ProcMask,
+		DefenseType:      judgementConfig.DefenseType,
+		Flags:            dummyFlags,
+		DamageMultiplier: 1,
+		ThreatMultiplier: 1,
+	})
+
 	judgementConfig.ApplyEffects = func(sim *core.Simulation, target *core.Unit, spell *core.Spell) {
 		baseDamage := judgeDamage.Average()
 		if !target.PseudoStats.Stunned {
 			baseDamage /= 2
 		}
-		spell.CalcAndDealDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		result := spell.CalcDamage(sim, target, baseDamage, spell.OutcomeMeleeSpecialHitAndCrit)
+		if result.Landed() {
+			dummyLanding.CalcAndDealOutcome(sim, target, dummyLanding.OutcomeAlwaysHit)
+		}
+		spell.DealDamage(sim, result)
 	}
 	judgement := paladin.RegisterSpell(judgementConfig)
 
