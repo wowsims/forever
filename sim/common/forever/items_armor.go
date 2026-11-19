@@ -259,7 +259,8 @@ func init() {
 	//
 	// 1298230 applies 1298231 on entering combat, which is the encounter start in the sim. 1298231
 	// states the 60 as flat Physical damage taken and no charges: the first Physical hit taken that
-	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off and removes it.
+	// deals damage, of the direct hits its ProcTypeMask hears, takes the 60 off, half of the hit at most,
+	// and removes it.
 	core.NewItemEffect(13955, func(agent core.Agent) {
 		character := agent.GetCharacter()
 		row := spelldata.MustFind(1298231)
