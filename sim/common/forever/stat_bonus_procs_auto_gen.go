@@ -4534,6 +4534,8 @@ func RegisterAllProcs() {
 	// https://www.wowhead.com/forever/spell=23217
 	// Not simulated: Knight-Lieutenant's Dragonhide Grips: "Stealth Detection 10" (23217) - ignored aura type 17
 	// https://www.wowhead.com/forever/spell=23217
+	// Not simulated: Filcher's Cowl: "Filcher's Cowl" (443632) - ignored aura type 154
+	// https://www.wowhead.com/forever/spell=443632
 	// Not simulated: Darkmantle Cap: "Stealth 08" (27037) - ignored aura type 154
 	// https://www.wowhead.com/forever/spell=27037
 	// Not simulated: Darkmantle Footpads: "Stealth 05" (1293068) - ignored aura type 154

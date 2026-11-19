@@ -28157,6 +28157,10 @@ var generatedSpells = []Spell{
 			{ID: 1144426, SpellID: 443320, Index: 1, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_THREAT, BasePoints: -30, PvpMult: 1, Misc: 127, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 			{ID: 1181163, SpellID: 443320, Index: 2, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DAMAGE_PERCENT_DONE, PvpMult: 1, Misc: 28, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
 		}},
+	{ID: 443632, Name: "Filcher's Cowl", School: 1, Attr: [17]uint32{0: 0x400d0, 15: 0x2000}, SpellLevel: 1,
+		Effects: []Effect{
+			{ID: 1139697, SpellID: 443632, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_STEALTH_LEVEL, BasePoints: 5, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{1, 0}},
+		}},
 	{ID: 443813, Name: "High-Yield Radiation Bomb", School: 8, Attr: [17]uint32{0: 0x10000, 1: 0x88, 3: 0x40000, 15: 0x2000}, SpellLevel: 60, BaseLevel: 60, DurationMs: 10000, MaxRange: 50000, DefenseType: 1, DispelType: 4, Mechanic: 11, ProcChance: 100, InterruptFlags: 5, ProcChanceSource: ProcChanceAlways,
 		Effects: []Effect{
 			{ID: 1139933, SpellID: 443813, Type: dbcenums.E_APPLY_AURA, Aura: dbcenums.A_MOD_DECREASE_SPEED, BasePoints: -25, BaseLevel: 60, PvpMult: 1, ChainAmp: 1, Target: [2]dbcenums.ImplicitTarget{25, 0}},
