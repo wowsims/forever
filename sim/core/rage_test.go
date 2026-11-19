@@ -357,6 +357,28 @@ func TestPreArmorDamage(t *testing.T) {
 	}
 }
 
+func TestFlatRangedReductionBelowZeroGivesNoRage(t *testing.T) {
+	// A flat ranged reduction lands after armor with no cap, so one larger than the shot leaves a ranged
+	// special nothing to read: no rage, and no panic.
+	sim := SetupFakeRageSim()
+	fw := sim.Raid.Parties[0].Players[0].(*FakeRageWarrior)
+	attacker := sim.Encounter.ActiveTargetUnits[0]
+	config := *attacker.AutoAttacks.MHConfig()
+	config.ActionID = ActionID{SpellID: 2}
+	config.ProcMask = ProcMaskRangedSpecial
+	shot := attacker.RegisterSpell(config)
+	fw.stats[stats.Armor] = 0
+	fw.PseudoStats.BonusRangedDamageTaken = -30
+	hit := func(_ *Simulation, result *SpellResult, _ *AttackTable) { result.Outcome = OutcomeHit }
+
+	rageBefore := fw.CurrentRage()
+	shot.DealDamage(sim, shot.calcDamageInternal(sim, &fw.Unit, 20, 1, false, hit))
+
+	if gained := fw.CurrentRage() - rageBefore; gained != 0 {
+		t.Fatalf("Rage from a shot the reduction took below zero: Expected: 0, Actual: %0.3f", gained)
+	}
+}
+
 func TestFullBlockGivesNoRage(t *testing.T) {
 	// A 1000 hit from a level 63 attacker on a defender without armor. A swing gives 2.5 * 0.6 * 1000 / 243.64
 	// = 6.157 when anything gets past the block, even when an absorb takes the rest. A special gives twice the

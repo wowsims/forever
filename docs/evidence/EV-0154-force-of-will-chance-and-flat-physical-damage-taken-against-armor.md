@@ -4,16 +4,17 @@
   a melee ability, at 6.2% once its 30 s cooldown is over; a hit that deals no damage, a miss, a dodge, a parry, a
   spell, a ranged shot and a periodic tick roll nothing. A flat Physical damage taken amount lands before the target's
   armor: its buff 15595 takes 51 times the share of a swing that gets through armor off the swing, and Gift of Arthas
-  11374, Tenderized 1292008 and Lacerations 10370 add their amount times that share to a swing on the enemy that
-  carries them. Stoneskin Totem's party aura (10403 to 10405) takes its amount off the same way. A flat reduction
-  takes at most half of a hit, one cap for the flat amounts on a target together: under Force of Will a swing under 102
-  before armor lands at half of what it would without the buff, and Gold-plated 1291908 and Stoneform Shoulders 1298231
-  read the same on the hit they spend themselves on. A crit doubles the flat amount.
+  11374, Tenderized 1292008 and Lacerations 10370 add their amount times that share to a swing on the enemy that carries
+  them. Stoneskin Totem's party aura (10403 to 10405) takes its amount off the same way. A flat reduction takes at most
+  half of a normal white swing, and in the one fight with two reductions the second adds nothing once the first has
+  reached its cap: under Force of Will a swing under 102 before armor lands at half of what it would without the buff,
+  and Gold-plated 1291908 and Stoneform Shoulders 1298231 read the same on the hit they spend themselves on. A crit
+  doubles the flat amount.
 - Sources: Warcraft Logs (forever.warcraftlogs.com, zone 3000), the reports the Reports section lists; all fights.
 - Game build: 1.60.1.70862, 1.60.1.70888, 1.60.1.70938 and 1.60.1.70959 for Force of Will, by event time against the
-  time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated reports start
-  on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours after 1.60.1.70862
-  was listed. The hotfix each player ran is not recorded.
+  time the CDN first listed each build; the Game builds section has the procs on each. The Tenderized and Gold-plated
+  reports start on 1.60.1.70790, and the first Stoneskin Totem summon counted is on 2026-11-07 06:52 UTC, two hours
+  after 1.60.1.70862 was listed. The hotfix each player ran is not recorded.
 - Date: 2026-11-05 to 2026-11-19
 - Pull request: #1114; the single applications, Stoneskin Totem, the cap at half a hit and the crits in #1116
 
@@ -146,12 +147,12 @@ than 51: the small swings bend it, which the next section reads one application 
 
 A window is one application of 15595 with 3 or more normal white swings from one NPC on the wearer in the 20 s before
 it, 3 or more under it and 3 or more in the 20 s after it, inside one fight and clear of the wearer's neighbouring
-applications. Swings within 100 ms of the buff going up or coming off are left out. The swings with the buff down, on
-both sides together, must hold one amount over unmitigated amount to rounding (a spread of at most 3 over the smallest
-unmitigated amount among them), which keeps the wearer's armor fixed across the window; k is their summed amount over
-their summed unmitigated amount. A swing under the buff then lands at some share of k x unmitigatedAmount: (U - 51) / U
-when the 51 comes off before armor, U being its unmitigated amount. 259 windows in 82 reports (2026-11-11 to
-2026-11-19) hold 1,122 swings under the buff and 2,741 with it down.
+applications. Swings within 100 ms of the buff going up or coming off are left out, and so is a swing that deals no
+damage. The swings with the buff down, on both sides together, must hold one amount over unmitigated amount to rounding
+(a spread of at most 3 over the smallest unmitigated amount among them), which keeps the wearer's armor fixed across the
+window; k is their summed amount over their summed unmitigated amount. A swing under the buff then lands at some share
+of k x unmitigatedAmount: (U - 51) / U when the 51 comes off before armor, U being its unmitigated amount. 259 windows
+in 82 reports (2026-11-11 to 2026-11-19) hold 1,122 swings under the buff and 2,741 with it down.
 
 | Unmitigated amount | Swings | Wearers in a report | Amount / (k x U) | (U - 51) / U |  Cut | 51 x k |
 | ------------------ | -----: | ------------------: | ---------------: | -----------: | ---: | -----: |
@@ -168,10 +169,26 @@ whatever its size, where the whole 51 would leave 0.04 to 0.47 of it. The buff t
 that cap bends a free line: the windows with a k under 0.35 are small swings, and they read 13.0 against 17.4.
 
 The half is a cap and no smaller amount in a lower dungeon. Read on every swing under the buff, with k from 5 or more
-of the NPC's swings with the buff down within 60 s of it that hold one ratio, the swings under 102 land at 0.505 of
-k x unmitigatedAmount in Stratholme (62 swings), 0.500 in Blackrock Spire (89) and 0.486 in Krol'dok Stronghold
-(3,317), and the swings of 150 or more in the same fights lose 53.0, 55.9 and 57.6 times k (759, 1,566 and 623
-swings).
+of the NPC's swings with the buff down within 60 s of it that hold one ratio, the 3,869 swings under 102 land at 0.490
+of k x unmitigatedAmount (a median of 0.499), and the 6,684 of 150 or more lose 56.0 times k (a median of 50.9). By
+fight name, for the names with 25 or more swings under 102:
+
+| Fight                | Swings under 102 | Amount / (k x U) | (U - 51) / U | Swings of 150+ | Cut over k |
+| -------------------- | ---------------: | ---------------: | -----------: | -------------: | ---------: |
+| Krol'dok Stronghold  |            3,317 |            0.486 |        0.308 |            623 |       57.6 |
+| Dire Maul - East     |              107 |            0.519 |        0.000 |             27 |       87.3 |
+| Blackrock Spire      |               89 |            0.500 |        0.469 |          1,566 |       55.9 |
+| Stratholme           |               62 |            0.505 |        0.327 |            759 |       53.0 |
+| Blackmaw Hold        |               55 |            0.500 |        0.396 |            328 |       48.6 |
+| Dire Maul            |               52 |            0.641 |        0.270 |            484 |       66.6 |
+| Scholomance          |               37 |            0.509 |        0.194 |            861 |       57.7 |
+| Blackrock Depths     |               28 |            0.463 |        0.180 |            941 |       53.5 |
+| The Shaper's Terrace |               27 |            0.501 |        0.423 |            534 |       50.3 |
+| Plagued Insect       |               27 |            0.493 |        0.000 |              0 |            |
+
+This wider reading keeps the swings absorbed in part, which the windows show at 4 of 124 and which read the share low.
+Dire Maul's 0.641 is not explained. Outside Krol'dok Stronghold the 552 swings under 102 land at 0.518, against 0.266
+for the whole 51 off.
 
 Two windows, by time into the fight. In tTRm37A4YwgM8nCG, fight 1, the buff is up from 1:55:05.6 to 1:55:15.6: a
 Bloodaxe Veteran's 14 swings on a druid at a k of 0.429 are cut by 21.4 to 22.6, against 21.9. In CxTmQRX2ytGcwA9r,
@@ -198,10 +215,10 @@ summon.
 | V    |           22 |    431 |  2,426 | 1.01 (0.95 to 1.19)     |  0.457 |        2.19 |                  218 |                 17 |       6 |
 | VI   |           30 |    146 |    893 | 1.14 (0.99 to 1.86)     |  0.441 |        2.27 |                   48 |                 12 |       3 |
 
-"After armor" is what a place would read with the whole amount off, 1 over the mean k. "At the full amount" counts
-the places whose median swing loses the rank's amount to within a tenth, and "At none" those under a tenth of the
-amount times k. Rank VI runs wide, a quarter of its places above 1.86: what else moved those players' armor inside the
-window is not read, and neither is Guardian Totems (16258), which raises the amount.
+"After armor" is what a place would read with the whole amount off, 1 over the mean k. "At the full amount" counts the
+places whose median swing loses the rank's amount to within a tenth, and "At none" those within a tenth of the amount
+times k of nothing. Rank VI runs wide, a quarter of its places above 1.86: what else moved those players' armor inside
+the window is not read, and neither is Guardian Totems (16258), which raises the amount.
 
 The three rank VI places with the most swings among the 7 with 5 or more swings before the summon, 6 or more after it
 and those within 3 damage of each other:
@@ -212,9 +229,9 @@ and those within 3 damage of each other:
 | 1GBhzTR8CZwcJfFV, 1 | 0:07:33 | Alzzin the Wildshaper, a druid | 0.510 |            7 | 14.1 to 15.7 (14.7) |   15.3 |
 | BkH7c8WTzJVCQqyZ, 1 | 0:43:19 | Anvilrage Officer, a druid     | 0.468 |            7 | 13.5 to 14.3 (13.9) |   14.0 |
 
-The cap at half a swing shows here too, on few swings. Among the places that read the totem (0.8 to 1.3) or hold a
-swing under 2.5 times the rank's amount, the 15 swings under 1.5 times the amount land at 0.45 to 0.49 of
-k x unmitigatedAmount, where the amount off in full would leave 0.24 at most, and the 90 from 1.5 to 2 times it at
+The cap at half a swing shows here too, on few swings. Among the places that read the totem (0.8 to 1.3) or hold a swing
+under 2.5 times the rank's amount, the 15 swings under 1.5 times the amount land at 0.45 to 0.49 of k x
+unmitigatedAmount, where the amount off in full would leave 0 and 0.24 on average, and the 90 from 1.5 to 2 times it at
 0.52 against 0.43.
 
 ## Flat Physical damage taken debuffs on an enemy
@@ -223,30 +240,31 @@ One enemy's life is its events chained while 30 s apart or less. Inside a life a
 swings with the debuff off give the share that gets through armor, k = sum(amount) / sum(unmitigatedAmount) over at
 least 3 swings. A swing with the debuff on then leaves amount - k x unmitigatedAmount over: the debuff's amount if it
 lands after armor, k times it if it lands before. Lives with an armor debuff event on the enemy (a name holding Armor,
-Faerie Fire, Recklessness or Shatter) are left out, and so are swings within 100 ms of the debuff's own events.
+Faerie Fire, Recklessness or Shatter) are left out, and so are swings within 100 ms of the debuff's own events. A fight
+logged in two reports counts once.
 
 | Debuff                    | Row's amount | Swings | Left over, 95% | Mean k | After armor | Before armor |
 | ------------------------- | -----------: | -----: | -------------- | -----: | ----------: | -----------: |
-| Gift of Arthas 11374      |            8 |    444 | 5.18 +- 0.06   |  0.648 |        8.00 |         5.18 |
-| Tenderized 1292008        |            1 |  6,354 | 0.71 +- 0.02   |  0.739 |        1.00 |         0.74 |
+| Gift of Arthas 11374      |            8 |    440 | 5.18 +- 0.06   |  0.648 |        8.00 |         5.18 |
+| Tenderized 1292008        |            1 |  6,187 | 0.71 +- 0.02   |  0.738 |        1.00 |         0.74 |
 | Lacerations 10370         |    1 a stack |    222 | 1.28 +- 0.14   |  0.641 |        1.99 |         1.27 |
 | Gift of Arthas, Auto Shot |            8 |     21 | 4.28 +- 0.92   |  0.650 |        8.00 |         5.20 |
 
-The left over follows k inside each debuff. Gift of Arthas leaves 5.11 over at a k of 0.6 to 0.7 (405 swings, 5.10
+The left over follows k inside each debuff. Gift of Arthas leaves 5.11 over at a k of 0.6 to 0.7 (401 swings, 5.10
 predicted before armor) and 5.96 at 0.7 and above (38 swings, 6.11). Tenderized leaves 0.38 at a k under 0.5 (56
-swings, 0.31), 0.56 at 0.5 to 0.6 (60 swings, 0.54), 0.63 at 0.6 to 0.7 (379 swings, 0.65) and 0.72 above (5,859
+swings, 0.31), 0.56 at 0.5 to 0.6 (60 swings, 0.54), 0.64 at 0.6 to 0.7 (374 swings, 0.65) and 0.72 above (5,697
 swings, 0.75). Lacerations leaves 0.68, 1.27, 1.80, 2.62 and 3.19 over at 1 to 5 stacks, against 0.65, 1.29, 1.89, 2.58
 and 2.97 before armor. The Auto Shot row is ability 75 from one hunter in one report.
 
-Gift of Arthas' swings come from 19 attackers in 9 reports (2026-11-11 to 2026-11-17), Tenderized's from 483 attackers
-in 245 reports (2026-11-05 to 2026-11-19) and Lacerations' from 19 attackers in 8 reports (2026-11-11 to 2026-11-18).
+Gift of Arthas' swings come from 18 attackers in 8 reports (2026-11-11 to 2026-11-17), Tenderized's from 473 attackers
+in 239 reports (2026-11-05 to 2026-11-19) and Lacerations' from 19 attackers in 8 reports (2026-11-11 to 2026-11-18).
 Spell hits against a flat spell damage taken amount, and a flat ranged damage taken amount, were not measured.
 
 ## The cap on other flat reductions, on the amounts together and on a crit
 
 None of the 124 window swings under 102 holds a block, a second flat reduction that logs on the wearer or a Stoneskin
 Totem summon in the 125 s before it, and 4 are absorbed in part. The game files hold 24 `A_MOD_DAMAGE_TAKEN` rows with
-a negative amount on Physical, and 6 of them appear in reports.
+a negative amount on Physical, and 6 of them appear in the zone 3000 reports from 2026-10-08 to 2026-11-19.
 
 Gold-plated (1291908) takes 15 and Stoneform Shoulders (1298231) 60 off the next Physical hit and then go. The swing
 read is the one normal white swing within 30 ms of the buff's removal, alone on the player in those 30 ms and with
@@ -273,25 +291,28 @@ A swing under twice the buff's amount keeps about half of itself, the 139 under 
 whole amount off would leave none of those. From twice the amount up both follow (U - F) / U, 0.01 to 0.02 above it;
 that offset is not explained.
 
-One fight reads two flat reductions together: mb8FgjhwVTLZ4q1d, fight 7, where Xorothian Imps swing for 55 to 99
-before armor at players under Black March Blessing (23120: 100 off, every school, an area buff no unit casts). The
-Blessing is down for 12 s with no Stoneskin Totem alive, which gives k for three players (17 to 22 swings each). With
-it up a swing loses 0.24 of itself before armor on the shaman (105 swings, a line at 0.250 x U - 0.8) and on the
-hunter (66 swings, 0.259 x U - 2.0), and 0.22 to 0.30 on the druid (373 swings): a share of the swing, and neither
-100 nor a half. The shaman's rank VI Stoneskin Totem stands for the first 108 s of those swings and changes nothing:
-the shaman's swings of 85 or more lose 0.242 of themselves with it (17 swings) and 0.241 without (36), the hunter's
-0.238 (11) and 0.236 (18). One cap holds for the flat amounts on a target together. Why that cap is a quarter under
-the Blessing is open; the imps' swings get through the druid's armor at 0.267 where most of the report's other NPCs
-read 0.37 to 0.42.
+One fight reads two flat reductions together: mb8FgjhwVTLZ4q1d, fight 7, where Xorothian Imps swing for 55 to 99 before
+armor at players under Black March Blessing (23120: 100 off, every school, an area buff no unit casts). The Blessing is
+down for 12 s with no Stoneskin Totem alive, which gives k for three players (17 to 22 swings each). With it up a swing
+loses 0.24 of itself before armor on the shaman (105 swings, a line at 0.250 x U - 0.8) and on the hunter (66 swings,
+0.259 x U - 2.0), and 0.22 to 0.30 on the druid (373 swings): a share of the swing, and neither 100 nor a half. The
+shaman's rank VI Stoneskin Totem stands for the first 108 s of those swings and changes nothing: the shaman's swings of
+85 or more lose 0.242 of themselves with it (17 swings) and 0.241 without (36), the hunter's 0.238 (11) and 0.236 (18).
+Once the Blessing has taken its share a second flat reduction adds nothing. The fight cannot tell one cap on the summed
+amounts from a rule where only the largest reduction counts, the totem's aura on these players is not logged, and no
+swing in the reports carries two flat reductions below the cap, so whether two amounts add there is not read. Why that
+cap is a quarter under the Blessing is open; the imps' swings get through the druid's armor at 0.267 where most of the
+report's other NPCs read 0.37 to 0.42.
 
 A report's `unmitigatedAmount` holds no crit multiplier: on the Gift of Arthas enemies a player's white crit lands at
-2.005 times k x unmitigatedAmount with the debuff off (113 crits). With it on a crit leaves 10.71 +- 0.23 over twice
-k x unmitigatedAmount (106 crits, a mean k of 0.655), against 10.48 for the 8 doubled and 5.24 for the 8 added once:
-the crit doubles the flat amount. Whether the cap sits before the doubling is not read; 5 NPC crits land under Force
-of Will.
+2.005 times k x unmitigatedAmount with the debuff off (111 crits). With it on a crit leaves 10.71 +- 0.23 over twice
+k x unmitigatedAmount (102 crits, a mean k of 0.655), against 10.48 for the 8 doubled and 5.24 for the 8 added once:
+the crit doubles the flat amount. Under Force of Will 5 NPC crits land beside a steady k. Four of them, 157 to 410
+before armor, land at 2 x (U - 51) / U of k x unmitigatedAmount to within 0.03, and one of 499 lands at 0.72 against
+1.80. All 5 are above twice the buff's amount, so whether the cap sits before the doubling is not read.
 
-How often the cap is reached on the wearers: 10.9% of their 566,734 white swings that deal damage, crits included, are
-under 102 before armor, 2.2% of the unmitigated damage. By fight that is 1.5% of the swings in Blackrock Spire, 1.9%
+How often the cap is reached on the wearers: 10.9% of their 566,734 normal and critical white swings that deal damage
+are under 102 before armor, 2.2% of the unmitigated damage. By fight that is 1.5% of the swings in Blackrock Spire, 1.9%
 in Blackrock Depths, 5.5% in Scholomance, 7.5% in Stratholme and 68.2% in Krol'dok Stronghold.
 
 ## Reports
@@ -363,8 +384,8 @@ qKtgYkmZMVjnLBfr, qkctgyRMaFxXVnmz, dK9TAcBfjVmD2n1J, gWpPrhyZ42qkJ8CR
 
 Gift of Arthas:
 
-ZXJDkzHTvMCpFbV1, hDGL1wmpV4WjxbHP, Mz7B1TyjCDahQY9x, 9tFBp3r6JvCkywqT, Gkc8Y1zZDNb7wWVg, yqFPH1MKv746dQhB,
-xg7f81w2qvXGL6Fm, 7qPHR6cLn3zGptvN, tcBRkNWrqp29PzJj
+ZXJDkzHTvMCpFbV1, hDGL1wmpV4WjxbHP, Mz7B1TyjCDahQY9x, Gkc8Y1zZDNb7wWVg, yqFPH1MKv746dQhB, xg7f81w2qvXGL6Fm,
+7qPHR6cLn3zGptvN, tcBRkNWrqp29PzJj
 
 Lacerations:
 
@@ -388,28 +409,27 @@ jHXpwZ3hCRTNGt1F, hmc4Q9jtrgybfx68, Q827z1cwdtMnC9Dm, yjwLb3N497AVkRZf, H9VbtcRZ
 YkCwMAadhF48yzQD, 9Mw8TfWtvDNm4jF2, YVPX8gDCpb7B9QF4, 6JPk2WaZ9mcdvxYq, bq3XHZ2YJzGxhRLQ, ycDwGZPHhgQkYFd2,
 X2BHnWa94wz7gcfP, MvAcd78yhXC4HYRb, ckxfJYL4DbGRz6hN, 8vC1fQH4cdYZqwhn, MQgJ13WZ64HahkDn, Wb1FC9Km7z3wdaTv,
 KWZqJv6cCwhXBAkQ, g9mx7bNwpJPGWLk2, CyVnkj2p1tLAFrH8, pVNAk71xnYgDwqRF, 7ZDxRNanGAMz43cC, AmLpq9xyPrQYNagC,
-Vk2BXyHrQZ3tjTJz, BPgkwpnQVfmvr78c, HpFdqkTJYLGNW1KR, Tp3CbBzgPWjKh7x4, xTQ1qz8DZ9KmgbdV, jkKx8tW69wg3VXh1,
-8GL31HwqngaC4fzM, 3wK4c7n9avYdykVT, JF4x6wzCgGbpjvKA, jHxJyDKtz4vdgXZR, h4n18FVZftmMTKRG, kg2BK6YhJHwNPAQW,
-Md7V9kmZxBNgr8KQ, 6L43dhP8DbTYrWK1, PMBZjgXqpFQVrb6t, pnmZ8qDtdar9b1KH, p6MKRN74X21z9CHW, fpj6NVGQ94BkqMdm,
-aVXmGbxtLp3F8BPR, B9C8TVwHJZk6G4F7, B2D9zYahGJLKbVHx, q4ZYmVXk817FcGfa, yN3Rd1gPvFXkhjBG, BMPxQwDt4NhpnLZ1,
-NmgTp6h9djVQvq2K, 1YKV2DhvtmbFfHLM, 76P9n4jkJtfpB1Gv, tMZQk8gya1NPhwzG, AxhZmXMvQTdfnDNF, c6YD2PNAJ3pWq1Fk,
-KMynaR6bF2kzhxZW, ZH8xt94FYMLWJqbc, BTP4tm9cynVGvLXq, gY6ZhQxm27aHTk9C, dhfTFcVNnGHvamk2, B69h7FP4HTRbWmaV,
-68QFLTtpACX2v9ym, HkfprWKGjZx4LR2F, Jx4GFqzVNn823ybt, T1YnWkgc7VLGdPJD, MkgT6r2q7ZvPdVnj, 174v6wGxA3bBCTzj,
-xjvgTAhdzmJQNK1k, aMwchZFXtBdfz6Pg, 63qChvr8Py1WjZM9, zh71R8wP2HaJnjLx, db2awx9Wtym6PYBk, L1VXxcMARG9KD2dh,
-j6d1mRwzMp4HVArW, Df7nRMWzaJAbFrZd, Vbmnq8CgAFK1M2t6, yLDtWzQq8NaJRbnM, 4fgDAM8PL2wpG6XY, 27Fr3MJTRdhNBHDt,
-nf369aFPXxVmcYWy, Td4GCmfzFJckjZrN, nYwjhN643XFRykKW, DWjBLyVrC12hAmYq, HN9rfJtaAZLGmVT8, j1ZJ2xbYV9d7qh3A,
-aTktVmBCM4g8vdYx, QhfFH38GWPJ6y2Yc, kzN31TQBth4L7cvx, gkPw6VGdWYFxqpK4, 8y4nDX7NHvQV6qKZ, CN4FVyDKvYkQHaX6,
-1HcD8PyWkFbawzCJ, b74wA3g92NxtPvKH, mbM7QABp49cfwhaP, Z2RmbDLxXGHgNFJY, Mx8Az2XhNR9PjJQ4, xjMGtyV4pw2fDrqY,
-c6By9C8PbVqt34vN, FrH3b8XJZQjLDfG9, wVA1zYmrNKCpvQn8, CFZ7bqQcWTXLA6fj, Anp2WTCjHa4YLBKd, 4LYCmjDGAbF9dHQ3,
-hdL9NZfJzB1yjkvx, yDY2brPG3jQH9Kv4, FXQynRhmqdpGJrcH, nQd4V2KTCfMLrmRt, 2whN8nQCX9PH6VGz, zQydq3xRAZnkh9JN,
-z2qnbhTND4wctxAK, xv19R2gVDqrpNXzf, FbZxpzjwGHDfLR37, AQ7X1kcHrNzDwKhj, kHVMLR2dtwrjxWD7, pMwG8ZDbJ9AFW7nT,
-7gZq4n2M8YXGPfjh, B8AKvLZ6bQpaXktV, xDbJdz2KatXqfNpM, MLkQWdC6hNcm34gz, Q1TkNaDV8BXf39dK, zFrnw4yAmMxLkZ61,
-yx9ta7bcdv8Yjw1H, NfK46gDLj8wrJz39, Bm4ZTvKwQWtaD7nd, FqVQN1ca6x7Z4tmk, 3z2aQRWk86GmtDLK, pzhdrVck7vGj8BCN,
-GLgDZY82zW9Mha16, m9A2MvGDfPFRCWj6, vRPQ237fWm1tFYDV, LdcVztBw6pFjNahM, 2PWL9DB1k47p8MRd, Mv73gTFaNhbGWLy9,
-rgXGC8LkTYVKMfAD, RbDfMjcTwdCBQKWJ, pJac1fgd8jQk9BbT, Y6bcWnJv9kFPyXmG, pzvJ72fcan6gkKNb, yCFgNJHXdZqDPKMz,
-tJAFnvQby9TXc8jf, xPhaCzTjybrZ48gV, rmL73jwRtzQ6HdyP, 2xWwaBRLgQ9D46FM, qDKRc3AxpVkgCWwf, tdMgqKCmfLPJ8bX7,
-3BH2d16wtD9F78QY, r6fZjG2Hx314KJTq, ZTJqNPfRLb3c8Bav, vYbjafXydK2z8chx, DMZPzKB91HJAqLQy, tH8kRGA3bph7V9vN,
-cYazq49fdRZQv1bH, QpL8yfWmxY6A3Hwd, FHz1nBG8rhgMqaxW, AXqW386NctdMmQK4, MaXHVZ2nWDJ8z6Cd, Zv6fc3GgWpkX9Bqa,
+Vk2BXyHrQZ3tjTJz, BPgkwpnQVfmvr78c, HpFdqkTJYLGNW1KR, Tp3CbBzgPWjKh7x4, jkKx8tW69wg3VXh1, 8GL31HwqngaC4fzM,
+3wK4c7n9avYdykVT, JF4x6wzCgGbpjvKA, jHxJyDKtz4vdgXZR, h4n18FVZftmMTKRG, kg2BK6YhJHwNPAQW, Md7V9kmZxBNgr8KQ,
+6L43dhP8DbTYrWK1, PMBZjgXqpFQVrb6t, pnmZ8qDtdar9b1KH, p6MKRN74X21z9CHW, fpj6NVGQ94BkqMdm, aVXmGbxtLp3F8BPR,
+B9C8TVwHJZk6G4F7, B2D9zYahGJLKbVHx, q4ZYmVXk817FcGfa, yN3Rd1gPvFXkhjBG, BMPxQwDt4NhpnLZ1, NmgTp6h9djVQvq2K,
+1YKV2DhvtmbFfHLM, 76P9n4jkJtfpB1Gv, tMZQk8gya1NPhwzG, AxhZmXMvQTdfnDNF, c6YD2PNAJ3pWq1Fk, KMynaR6bF2kzhxZW,
+ZH8xt94FYMLWJqbc, BTP4tm9cynVGvLXq, gY6ZhQxm27aHTk9C, dhfTFcVNnGHvamk2, B69h7FP4HTRbWmaV, 68QFLTtpACX2v9ym,
+HkfprWKGjZx4LR2F, Jx4GFqzVNn823ybt, T1YnWkgc7VLGdPJD, MkgT6r2q7ZvPdVnj, 174v6wGxA3bBCTzj, xjvgTAhdzmJQNK1k,
+aMwchZFXtBdfz6Pg, 63qChvr8Py1WjZM9, zh71R8wP2HaJnjLx, db2awx9Wtym6PYBk, L1VXxcMARG9KD2dh, j6d1mRwzMp4HVArW,
+Df7nRMWzaJAbFrZd, Vbmnq8CgAFK1M2t6, yLDtWzQq8NaJRbnM, 4fgDAM8PL2wpG6XY, 27Fr3MJTRdhNBHDt, nf369aFPXxVmcYWy,
+Td4GCmfzFJckjZrN, nYwjhN643XFRykKW, DWjBLyVrC12hAmYq, HN9rfJtaAZLGmVT8, j1ZJ2xbYV9d7qh3A, aTktVmBCM4g8vdYx,
+QhfFH38GWPJ6y2Yc, kzN31TQBth4L7cvx, gkPw6VGdWYFxqpK4, 8y4nDX7NHvQV6qKZ, CN4FVyDKvYkQHaX6, 1HcD8PyWkFbawzCJ,
+b74wA3g92NxtPvKH, mbM7QABp49cfwhaP, Z2RmbDLxXGHgNFJY, Mx8Az2XhNR9PjJQ4, FrH3b8XJZQjLDfG9, wVA1zYmrNKCpvQn8,
+CFZ7bqQcWTXLA6fj, Anp2WTCjHa4YLBKd, 4LYCmjDGAbF9dHQ3, hdL9NZfJzB1yjkvx, yDY2brPG3jQH9Kv4, FXQynRhmqdpGJrcH,
+nQd4V2KTCfMLrmRt, 2whN8nQCX9PH6VGz, zQydq3xRAZnkh9JN, z2qnbhTND4wctxAK, xv19R2gVDqrpNXzf, AQ7X1kcHrNzDwKhj,
+kHVMLR2dtwrjxWD7, pMwG8ZDbJ9AFW7nT, 7gZq4n2M8YXGPfjh, B8AKvLZ6bQpaXktV, xDbJdz2KatXqfNpM, MLkQWdC6hNcm34gz,
+Q1TkNaDV8BXf39dK, zFrnw4yAmMxLkZ61, yx9ta7bcdv8Yjw1H, NfK46gDLj8wrJz39, Bm4ZTvKwQWtaD7nd, FqVQN1ca6x7Z4tmk,
+3z2aQRWk86GmtDLK, pzhdrVck7vGj8BCN, GLgDZY82zW9Mha16, m9A2MvGDfPFRCWj6, vRPQ237fWm1tFYDV, LdcVztBw6pFjNahM,
+2PWL9DB1k47p8MRd, Mv73gTFaNhbGWLy9, rgXGC8LkTYVKMfAD, RbDfMjcTwdCBQKWJ, pJac1fgd8jQk9BbT, pzvJ72fcan6gkKNb,
+yCFgNJHXdZqDPKMz, tJAFnvQby9TXc8jf, xPhaCzTjybrZ48gV, rmL73jwRtzQ6HdyP, 2xWwaBRLgQ9D46FM, qDKRc3AxpVkgCWwf,
+tdMgqKCmfLPJ8bX7, 3BH2d16wtD9F78QY, r6fZjG2Hx314KJTq, ZTJqNPfRLb3c8Bav, vYbjafXydK2z8chx, DMZPzKB91HJAqLQy,
+tH8kRGA3bph7V9vN, cYazq49fdRZQv1bH, FHz1nBG8rhgMqaxW, AXqW386NctdMmQK4, MaXHVZ2nWDJ8z6Cd, Zv6fc3GgWpkX9Bqa,
 TFnvh6k2P8zL4DCQ, 3BYFMvdKPgLc4xDn, 8VBhYx6tdm7GMvHK, WjnNbmcqYtkpK3TL, wtzQKj8GP4cJ2W6H, 8RWqvN4tjFHXz1DY,
 FWHahtQvqjL3wNdV, ahRLFQNzAYfwT7jH, 1xXd2kGF3BQfAzJV, rWpDA8fghB1n4Xqx, KWFdXvCfR6rVYLcj, qRQfj9HCFYp2MrDT,
 6J4ANdTDcpPK18M9, 2kFjvxn3MzRLQWTD, zKmW1p8PgRQtY6jq, GDWLqtcJgbrz1P89, xJRQt2TN3AFmPr6C, 8TKryAhdPfpW7t4V,
